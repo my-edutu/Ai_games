@@ -98,3 +98,49 @@ test('real World bounds the palette to the retained original same-run F9 gate an
   assert.match(world,/observedSourcePhysicalArrivalPalette\(snapshot,retainedEarnedCap\)/);
   assert.match(world,/originalClockworkArchitecturalPalette\.update\(sourceProof\)/);
 });
+
+test('the shared ORIGINAL corridor palette covers only source-owned near-roof successor decks',async()=>{
+  const {observedOriginalClockworkSuccessorDeck}=await palette;
+  const held={runToken:'actual-run',floor:9,guardianGateRetained:true,
+    oldRoofY:6500,originalDeckSurface:{color:new Color(0xa06a35)}};
+  const ground={id:'f9:ground',kind:'static',y:6000,height:500};
+  const moving={id:'f9:p1',kind:'moving',y:606000,height:500};
+  const remote={id:'f9:p4',kind:'static',y:1006000,height:500};
+  assert.equal(observedOriginalClockworkSuccessorDeck(ground,held,'actual-run'),true);
+  assert.equal(observedOriginalClockworkSuccessorDeck(moving,held,'actual-run'),true);
+  assert.equal(observedOriginalClockworkSuccessorDeck(remote,held,'actual-run'),false);
+  assert.equal(observedOriginalClockworkSuccessorDeck(ground,held,'other-run'),false);
+  assert.equal(observedOriginalClockworkSuccessorDeck(ground,{...held,guardianGateRetained:false},'actual-run'),false);
+  assert.equal(observedOriginalClockworkSuccessorDeck({...ground,y:6500.25},held,'actual-run'),false);
+  assert.equal(observedOriginalClockworkSuccessorDeck({...ground,height:-1},held,'actual-run'),false);
+  assert.equal(observedOriginalClockworkSuccessorDeck({...ground,id:'f8:cap'},held,'actual-run'),false);
+});
+test('source-authentic first 90m of F9 platforms share one material palette and return to true void without recoloring hazard cues',async()=>{
+  const {updateOriginalClockworkSuccessorRoute}=await palette;
+  const top={color:new Color(0x726982)},body={color:new Color(0xb5a0ec)},
+    rim={color:new Color(0x6a577e)},mint={color:new Color(0xa7eecc)};
+  const source={bronze:new Color(0xa06a35),top,body,rim,
+    topVoid:top.color.clone(),bodyVoid:body.color.clone(),
+    rimVoid:rim.color.clone()};
+  const result=updateOriginalClockworkSuccessorRoute(source,earned);
+  assert.equal(result.sourceBound,true);
+  assert.ok(top.color.equals(source.bronze));
+  assert.ok(body.color.equals(new Color(0xb5a0ec).lerp(source.bronze,.82)));
+  assert.ok(rim.color.equals(new Color(0x6a577e).lerp(source.bronze,.48)));
+  assert.ok(mint.color.equals(new Color(0xa7eecc)));
+  updateOriginalClockworkSuccessorRoute(source,{...earned,sourceTick:470,oldWeight:.5});
+  const intermediate=top.color.clone();
+  updateOriginalClockworkSuccessorRoute(source,{...earned,sourceTick:470,oldWeight:.5});
+  assert.ok(top.color.equals(intermediate),'duplicated source receipt cannot accumulate tint');
+  updateOriginalClockworkSuccessorRoute(source,null);
+  assert.ok(top.color.equals(source.topVoid) && body.color.equals(source.bodyVoid) &&
+    rim.color.equals(source.rimVoid),'invalid source never leaves an old palette behind');
+});
+test('real F9 world uses shared original successor corridor materials on near route, not global crystal or danger warning channels',()=>{
+  const world=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
+  assert.match(world,/observedOriginalClockworkSuccessorDeck\(p,retainedEarnedCap,lastSnapshot\?\.runToken\)/);
+  assert.match(world,/updateOriginalClockworkSuccessorRoute\(arrivalRoutePalette,proof\)/);
+  assert.match(world,/p.kind==='moving'\?materials.mint/);
+  assert.match(world,/if\(!arrivalRoutePalette\)/);
+  assert.doesNotMatch(world,/materials\.crystal\.color\.lerp\(/);
+});
