@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-14T21:48:00.000Z",
+  "updatedAt": "2026-11-14T22:00:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass370b: original source CI 43644285892 caught real protected reduced-motion guardian silhouette regression (178/179 focused tests passed; 1 failed). Production fix holds identical 48% folded neutral static physical pose in reduced motion; genuine public brace still telescopes four real sentinels to full height. New source exact-head WebGL and original-image criticism required. Nintendo benchmark unmet."
+    "summary": "Pass371: Pass370b native exact-source WebGL SUCCESS with 179/179 focused and 7/7 browser suites, 37/37 screenshot SHA, 3/3 gate and 6/6 pressure hashes. Original 390 notice/brace/release and 320 Follow comparison REJECTS telescoping guardian stage: dominant real wall100, moving sentinels and physical actor crowding remain. Revert only candidate world/tests to proven source in non-force HEAD-safe commit; new rollback CI required. Official Nintendo benchmark unmet."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass371 2026-11-14: exact corrected Pass370b WebGL 43644595141 native original 37/37 SHA plus 3/3 real gate and 6/6 pressure verified, focused 179/179 and browser 7/7 success. Authentic full-frame 390 brace essentially unchanged and 320 Follow mean delta only 1.988/255 (2.75% pixels): real attached guardian telescope does NOT materially improve physical Pip/Thornback hierarchy against Nintendo Captain Toad. REJECT stage candidate. Restore only world source and candidate test to proven fa814 blobs, preserve native research/criticism and strict wall100/AI/privacy/44px/±.95/<100. Rollback CI new HEAD pending.",
     "Pass370b 2026-11-14: incoming candidate run 43644285892 FAILED 1/179 focused strict world-space original Pass346 tests: reduced motion 75% telescoping height altered actual guardian top versus 48% neutral. Fixed only candidate's reduced-motion pose to neutral 48% and matching NEW Pass370 test, preserving ORIGINAL Pass346 test, actual four full-height witnessed brace mechanisms, unmodified 320/390/844/1280 ±.95, original source privacy, wall100, geometry <100. No passing new-code CI or rendered win claimed yet.",
     "Pass370 2026-11-14: production candidate has all four original linked guardian sentinels retract to 48% idle height, rise to full height on genuine public brace, recover on actual release and hold unchanged stationary neutral 48% pose with reduced motion. Same four physical mechanisms, actor lane, wall100, AI, gate, privacy, camera, source thresholds and GPU geometry pool. New installed-Three tests; do not claim artistic improvement until exact-HEAD real 320/390/844/1280 WebGL, SHA and independent critic.",
     "Pass369 2026-11-14: Pass368 exact-HEAD native WebGL 43636433666 success; artifact 14130700450 source-original 37/37 PNG SHA sidecars + 3/3 gate + 6/6 pressure hashes. Original full-frame actor 390 brace/notice/release reveals minor background-roof clearing but no dominant character/composition win. REJECT, revert only production world and candidate-only test to proven blobs; leave strict collision/wall100/AI/NDC/budget intact. Rollback final SHA requires own tests/images; full Nintendo bar UNMET.",

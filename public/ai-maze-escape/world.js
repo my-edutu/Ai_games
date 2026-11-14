@@ -1574,7 +1574,7 @@ export function createMazeWorld(options = {}) {
               signal.add(foot);
               const plinth=mesh(foot,bevel,deepStone,0,.06,0,.27,.16,.27);
               plinth.name='Published guardian Tideglass solid sentinel plinth '+c.cell+' '+side;
-              const lift=new THREE.Group();lift.position.y=.04;lift.scale.y=.48;foot.add(lift);
+              const lift=new THREE.Group();lift.position.y=.04;foot.add(lift);
               const pillar=mesh(lift,bevel,lightStone,0,.35,0,.20,.60,.20);
               pillar.name='Published guardian Tideglass joined sentinel shaft '+c.cell+' '+side;
               const crown=mesh(lift,bevel,seaGlass,0,.72,0,.39,.18,.37);
@@ -3557,14 +3557,6 @@ export function createMazeWorld(options = {}) {
       // Reduced motion preserves color but freezes all physical translation.
       for(const beacon of signal.sentinels){
         beacon.lift.position.y=reduced ? .04 : .04+action*.42;
-        // Four original rooted standards telescope from a deliberately LOW
-        // neutral profile to full physical height only during a witnessed
-        // public guardian brace. A closed, hidden or terminal encounter
-        // returns the real attached shell fans to their compact silhouettes.
-        // Reduced motion fixes one readable, stationary amber warning height.
-        // The original lift, four fans, wall, collision and pooled GPU classes
-        // remain intact; no new mesh, predicted strike or private AI access.
-        beacon.lift.scale.y=reduced ? .48 : .48+action*.52;
         beacon.crown.material=action>.28?amber:seaGlass;
         beacon.lens.material=action>.28?amber:inlay;
         // The entire linked shell fan opens laterally into the non-walkable
