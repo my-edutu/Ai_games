@@ -700,3 +700,36 @@ test('D04 saturated frame receipt queue retires visual admissions it can no long
   }finally{feedback.dispose()}
  }
 });
+
+test('D04 never invents HP injury or sword action from non-unique public actor IDs',async()=>{
+ const {planPhysicalFeedback}=await load('physical-feedback-plan.js');
+ // A duplicate in the OLD authority snapshot makes HP delta unknowable:
+ // array-last prior HP must not become an invented current injury.
+ const oldWithDuplicate=snap(10,{units:[hero(),foe({hp:30}),foe({hp:8,x:4})]});
+ const following=snap(11,{units:[hero({hp:24}),foe({hp:5})]});
+ const priorAmbiguous=planPhysicalFeedback(oldWithDuplicate,following);
+ assert.deepEqual(priorAmbiguous.filter(c=>c.kind.startsWith('damage')).map(c=>c.targetId),
+  ['vanguard'],'unambiguous unrelated HP loss survives, duplicate prior ID cannot authorize an injury');
+ // A duplicate in the CURRENT snapshot likewise cannot choose an arbitrary
+ // victim or a first-of-two performing sword hands. Neither body was unique.
+ const old=snap(10);
+ const now=snap(11,{units:[
+  hero({action:'attack',actionTick:11}),
+  hero({x:7,z:7,action:'attack',actionTick:11}),
+  foe({hp:18}),
+  foe({x:6,z:6,hp:4})
+ ]});
+ const original=JSON.stringify(now);
+ const ambiguous=planPhysicalFeedback(old,now);
+ assert.equal(ambiguous.some(c=>c.kind.startsWith('damage')||c.kind==='swing'),false,
+  'neither an unproven victim nor an ambiguous swinging source earns physical feedback');
+ assert.equal(JSON.stringify(now),original,'public snapshots remain immutable');
+ // The uniqueness gate must not silence a genuine single source and victim.
+ const unique=snap(11,{units:[
+  hero({action:'attack',actionTick:11}),foe({hp:18})
+ ]});
+ const valid=planPhysicalFeedback(old,unique);
+ assert.deepEqual(kinds(valid),['damage','swing']);
+ assert.equal(valid.find(c=>c.kind==='damage').actorId,null,
+  'verified HP loss never establishes which attack caused it');
+});
