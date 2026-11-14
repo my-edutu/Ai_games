@@ -162,3 +162,19 @@ export function publicPressureInspectionTakesFocus(
   const actual=publicPressureSurveySightline(snapshot,pressureCell);
   return !!actual && actual.links===sightline.links && actual.midCell===sightline.midCell;
 }
+
+
+// A true Pip/Thornback open-lane visual counterlight, not AI threat prediction.
+// A known enemy across a CLOSED, one-way or undisclosed route must not paint
+// the scene as a shared theatre. Only real public view, reciprocal navigation,
+// active source-authenticated encounter age and an earned attention intensity
+// may select this ONE retained Three.js light. Reduced motion passes its same
+// static witnessed pose; no frame clock or private data is consulted here.
+export function publicGuardianTheatreLightStrength(snapshot, guardianCell, attention, beat) {
+  if (!(Number.isFinite(attention) && attention > .70)
+    || !(Number.isFinite(beat) && beat >= 0)
+    || !publicGuardianOpenSightline(snapshot, guardianCell)) return 0;
+  const held = Math.min(1, Math.max(0, attention));
+  const revealed = Math.min(1, Math.max(0, (beat - .20) / .55));
+  return held * (.55 + .45 * revealed);
+}
