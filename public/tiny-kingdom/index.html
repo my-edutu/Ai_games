@@ -19131,12 +19131,13 @@ function chooseFilmableWorker(rows,excluded=-1){
   const clear=shot.workFacingMode!=='obstructed'&&
    shot.blockers===0&&shot.handBlockers<=1&&
    shot.foregroundCitizenBlockers===0&&
-   shot.foregroundSceneCover<.20&&shot.foregroundVegetationCover<.30&&
+   shot.foregroundSceneCover<.20&&
+   shot.foregroundActorCoreCover<.16&&shot.foregroundVegetationCover<.30&&
    shot.vegetationFaceBlockers===0&&front>.12&&
    shot.projectedWorkerHeightFraction>(canvas.clientWidth<500?.18:.21);
   const score=(clear?3000:0)+front*600+
    Math.min(.42,shot.projectedWorkerHeightFraction)*2200-
-   shot.foregroundSceneCover*2100-
+   shot.foregroundSceneCover*2100-shot.foregroundActorCoreCover*5200-
    shot.foregroundVegetationCover*2500-shot.vegetationFaceBlockers*850-
    shot.handBlockers*180-shot.blockers*900-
    shot.blockedBodyRays*90-shot.cameraProximityWarnings*45-
@@ -19152,6 +19153,7 @@ function chooseFilmableWorker(rows,excluded=-1){
   actor:best.person.name,job:best.person.job,
   visibleFront:best.clear,faceAlignment:best.shot.facingAlignment,
   foregroundCover:best.shot.foregroundSceneCover,
+  actorForegroundCover:best.shot.foregroundActorCoreCover,
   vegetationCover:best.shot.foregroundVegetationCover,
   vegetationFaceBlockers:best.shot.vegetationFaceBlockers,
   remainingHours:best.remaining,
@@ -22227,6 +22229,9 @@ function foregroundSceneProjection(eye,target,roofs){
  const {aspect,tanVertical:tanHalf}=physicalCameraProjection();
  let cover=0,largest=0,volumes=0,cargoCover=0,cargoVolumes=0;
  let buildingCover=0,buildingVolumes=0,behindWorkerRejected=0;
+ // W311: a timber screen across the actual citizen can be only 10% of the
+ // entire view. Protect the genuine work portrait independently.
+ let actorCoreCover=0;
  // W171: the old near-plane rule expanded an off-axis house whose rear
  // corners happened to be behind the spectator to 100% viewport occlusion.
  // That made the true W32 selected-citizen orbit fail on BOTH 1024/390.
@@ -22270,6 +22275,12 @@ function foregroundSceneProjection(eye,target,roofs){
   const width=Math.max(0,Math.min(1,maxX)-Math.max(-1,minX));
   const height=Math.max(0,Math.min(1,maxY)-Math.max(-1,minY));
   const area=width*height/4;
+  // Project the ORIGINAL foreground bounds against the centred worker/hand
+  // area, rather than using sky and empty paving as a 'clear' camera metric.
+  const coreWidth=Math.max(0,Math.min(.24,maxX)-Math.max(-.24,minX));
+  const coreHeight=Math.max(0,Math.min(.42,maxY)-Math.max(-.42,minY));
+  const coreArea=coreWidth*coreHeight/(.48*.84);
+  if(coreArea>.001)actorCoreCover=Math.min(1,actorCoreCover+coreArea*.88);
   if(area>.001){volumes++;largest=Math.max(largest,area);
    cover=Math.min(1,cover+area*.88);
    if(WORKDAY_SOLID_BUILDING_KINDS.has(roof.kind)){
@@ -22282,6 +22293,7 @@ function foregroundSceneProjection(eye,target,roofs){
   }
  }
  return {cover:Math.round(cover*1000)/1000,
+  actorCoreCover:Math.round(actorCoreCover*1000)/1000,
   largest:Math.round(largest*1000)/1000,volumes,
   cargoCover:Math.round(cargoCover*1000)/1000,cargoVolumes,
   buildingCover:Math.round(buildingCover*1000)/1000,buildingVolumes,
@@ -22425,6 +22437,7 @@ function cameraShotFraming(shot,roofs,citizen,knownHands=null){
   blockedNeighbourhoodRays:countBlocked(surroundings),cameraProximityWarnings,
   handBlockers,handTargetsInspected:handTargets.length,
   foregroundSceneCover:shot.foregroundSceneCover,
+  foregroundActorCoreCover:shot.foregroundActorCoreCover,
   foregroundSceneLargest:shot.foregroundSceneLargest,
   foregroundSceneVolumes:shot.foregroundSceneVolumes,
   ...projectedWorkdayOccluders(eye,target,citizen,handTargets)};
@@ -22731,7 +22744,8 @@ function isReadableMarketHandoffShot(shot,framing,active,portrait){
  if(!active||!shot||!framing)return false;
  return shot.blockers===0&&shot.eyeCollision?.clear===true&&
   shot.foregroundSceneCover<(portrait?.23:.20)&&
-  shot.foregroundCargoCover<.17&&
+   shot.foregroundActorCoreCover<.22&&
+   shot.foregroundCargoCover<.17&&
   shot.foregroundVegetationCover<.30&&
   shot.vegetationFaceBlockers===0&&
   shot.projectedWorkerHeightFraction>=(portrait?.18:.21)&&
@@ -22746,6 +22760,7 @@ function physicallyReadableCourierRouteShot(shot,framing,portrait){
  if(!shot||!framing||shot.eyeCollision?.clear!==true||shot.blockers!==0)return false;
  return shot.projectedWorkerHeightFraction>=(portrait?.125:.15)&&
   shot.foregroundSceneCover<(portrait?.28:.24)&&
+  shot.foregroundActorCoreCover<.26&&
   shot.foregroundCargoCover<.18&&
   shot.foregroundVegetationCover<.28&&
   shot.vegetationFaceBlockers===0&&
@@ -22829,7 +22844,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   return {yaw:angle,pitch,zoom,eye,target,
    projectedWorkerHeightFraction:projectedWorkerBodyFraction(eye,target,citizen),
    foregroundSceneCover:scenic.cover,
-   foregroundBuildingCover:scenic.buildingCover||0,
+    foregroundActorCoreCover:scenic.actorCoreCover||0,
+    foregroundBuildingCover:scenic.buildingCover||0,
    foregroundCargoCover:scenic.cargoCover||0,
    foregroundSceneLargest:scenic.largest,
    foregroundSceneVolumes:scenic.volumes,
@@ -22914,6 +22930,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   const scenic=(working||journeyCamera)?foregroundSceneProjection(
    option.shot.eye,target,roofs):{cover:0,largest:0,volumes:0};
   option.shot.foregroundSceneCover=scenic.cover;
+  option.shot.foregroundActorCoreCover=scenic.actorCoreCover||0;
   option.shot.foregroundBuildingCover=scenic.buildingCover||0;
   option.shot.foregroundCargoCover=scenic.cargoCover||0;
   option.shot.foregroundSceneLargest=scenic.largest;
@@ -22921,6 +22938,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   const realPost=unloading?marketCourierPostSightline(option.shot.eye,target):null;
   option.shot.marketPostSightline=realPost;
   option.coarse+=(realPost?.centerCover||0)*6400+
+   (scenic.actorCoreCover||0)*(portraitLens?4300:3900)+
    scenic.cover*(portraitLens?2400:working?1500:0)+
    (scenic.cargoCover||0)*(portraitLens?1900:1100);
  }
@@ -23030,7 +23048,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
    framing.blockedBodyRays<=2&&framing.projectedBystanders===0&&
    framing.foregroundCitizenBlockers===0&&
    framing.foregroundSceneCover<.14&&
-   shot.foregroundCargoCover<.12&&canopy.cover<.22&&
+    shot.foregroundActorCoreCover<.14&&
+    shot.foregroundCargoCover<.12&&canopy.cover<.22&&
    canopy.faceBlockers===0&&
    shot.projectedWorkerHeightFraction>(portraitLens?.18:.21)&&
    framing.projectedWorksitePosts===0&&
@@ -23051,7 +23070,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
    framing.handBlockers<=(portraitLens?0:1)&&
    framing.foregroundCitizenBlockers===0&&
    framing.foregroundSceneCover<.20&&
-   shot.foregroundCargoCover<.18&&canopy.cover<.28&&
+    shot.foregroundActorCoreCover<.20&&
+    shot.foregroundCargoCover<.18&&canopy.cover<.28&&
    canopy.faceBlockers===0&&framing.blockedBodyRays<=2&&
    framing.projectedWorksitePosts===(portraitLens?0:framing.projectedWorksitePosts)&&
    shot.projectedWorkerHeightFraction>(portraitLens?.18:.21);
@@ -23070,7 +23090,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
    shot.blockers===0&&faceClear&&framing.handBlockers===0&&
    framing.foregroundCitizenBlockers===0&&
    framing.foregroundSceneCover<.18&&
-   shot.foregroundCargoCover<.14&&canopy.cover<.32&&
+    shot.foregroundActorCoreCover<.18&&
+    shot.foregroundCargoCover<.14&&canopy.cover<.32&&
    canopy.faceBlockers===0&&
    framing.blockedBodyRays<=3&&framing.cameraProximityWarnings===0&&
    framing.projectedWorksitePosts<=1;
@@ -23523,11 +23544,13 @@ function workdayCameraCompositionAudit(){
   faceAlignment:Math.cos(yaw-face),
   clearFrontCandidates:lastFollowShot?.clearFrontCandidates||0,
   readableFrontCandidates:lastFollowShot?.readableFrontCandidates||0,
-  workFacingMode:sceneCover.cover>=.14||observedCargo>=.14||
+  workFacingMode:sceneCover.cover>=.14||sceneCover.actorCoreCover>=.22||observedCargo>=.14||
    vegetationCover.cover>=.32||
    vegetationCover.faceBlockers>0?'obstructed':
    lastFollowShot?.workFacingMode||'unverified',
   foregroundSceneCover:sceneCover.cover,
+  actorCoreCover:sceneCover.actorCoreCover,
+  foregroundActorCoreCover:sceneCover.actorCoreCover,
   foregroundCargoCover:observedCargo,
   plannedForegroundCargoCover:lastFollowShot?.foregroundCargoCover??null,
   foregroundVegetationCover:vegetationCover.cover,
@@ -23539,6 +23562,7 @@ function workdayCameraCompositionAudit(){
   foregroundSceneLargest:sceneCover.largest,
   foregroundSceneVolumes:sceneCover.volumes,
   plannedForegroundSceneCover:lastFollowShot?.foregroundSceneCover??null,
+  plannedForegroundActorCoreCover:lastFollowShot?.foregroundActorCoreCover??null,
   plannedForegroundVegetationCover:lastFollowShot?.foregroundVegetationCover??null,
   cameraDistance:zoom,eye,staticWorldHidden:false,
   plannedHandBlockers:lastFollowShot?.handBlockers??null,
