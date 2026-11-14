@@ -1,4 +1,30 @@
 {
+  "p0OriginalGatewayPhysicalRetirementAfterRealF9Ascent20261114": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedInitialHead": "6907f6d305254c3e511f84523f7a7f3f9a622895",
+    "testFirstCommit": "5466bead0c894709453c323973096dc267348092",
+    "physicalSourceGateCommit": "5a8ac90d99fe2a4bee94213239b8a25256282027",
+    "productionWorldRetirementCommit": "7fb445803242de8a1f00f26548a6f7920e7235dd",
+    "latestCodeSourceSha": "7fb445803242de8a1f00f26548a6f7920e7235dd",
+    "review": "docs/reviews/2026-11-14-tower-pr68-source-original-gate-visible-retirement.md",
+    "previousOriginalFullMotion": "https://github.com/my-edutu/Ai_games/actions/runs/43537587011 — original eight films, new candidate 6907f6d, seven of eight recording jobs succeeded; outcome event frame probes and paired native source evidence failed; native physical gate remains abrupt 0/2 at 24.5–25.5s",
+    "priorGreenTechOnly": "https://github.com/my-edutu/Ai_games/actions/runs/43537587012 — exact-source 6907f6d, 10/10 success, technical NOT quality",
+    "testFirstRed": "https://github.com/my-edutu/Ai_games/actions/runs/43538377365 — source 5466bead, regression proved missing gate optical retirement",
+    "newQuality": "https://github.com/my-edutu/Ai_games/actions/runs/43538463096 — source 7fb44580, QUEUED at time of ledger write, unverified; CI veto remains",
+    "newExactSourceCapture": "Must run existing nine-job baseline 1731b380 vs candidate immutable github.sha from next capture-request commit, seed tower-transformation-capture-v1, low tier, desktop960x600 and portrait390x844, 60+s every scenario, actual 1x WebM native PTS and matched event traces; current candidate NOT EVALUATED",
+    "meaningfulChange": "Original bronze gate, cap/gallery fade now follows actual validated F9 climb and WebGL-returned submissions past old 1.65s premature hard teardown, bounded 2.8s/30 frames and same-run source safety. No authoritative gameplay changed.",
+    "knownVisualDefect": "At 24.5–25.5s prior original video still swaps Floor8 full bronze scene for Floor9 violet while full-body passage through SAME arch remains unproven. Latest code needs new real film.",
+    "nextHighestImpactAction": "Inspect 22–31s actual 1x desktop/portrait new candidate and returned Three material lifetime/projection to determine whether shared old bronze gate physically remains. If still hard cut, rebuild shared world/camera and GPU source-epoch depth, not another isolated fade. Verify source-bound outcome/restart and fix event probe if genuinely defective.",
+    "independentlyObservedCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedDevicePerformance": "NOT EVALUATED",
+    "constraints": "PR68 open draft on PR58, never move frozen baseline, merge, deploy, force-push or touch other games"
+  },
   "p0RealRoofSpanningBronzeGeometryAndSourceWorldFixtureRecovery20261113": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
     "leadingTransformationVerdict": "NOT EVALUATED",
