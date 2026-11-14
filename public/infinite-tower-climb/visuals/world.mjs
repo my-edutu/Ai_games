@@ -58,17 +58,29 @@ export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresh
   // that load path in both native viewport recordings. Cutting at these
   // physical planes preserves the original surface, normals and UVs without
   // inventing a replacement portal, platform, actor or collision.
+  // The native 1x desktop+portrait film still replaces the *whole old
+  // machine room* with an unrelated Void shaft. Retaining only the closest
+  // 291 central triangles missed real Clockwork load paths immediately
+  // flanking the same opened arch. The historical, NONINTERACTIVE gallery
+  // has an opt-in 3D shoulder envelope for the actual staged F8->F9 scene.
+  // It contains only clipped ORIGINAL old-floor source faces, never new
+  // portal geometry, platforms, moving hazards, avatar or physics. The
+  // unchanged 3600-face/8-material-batch budget applies in either mode.
+  const includeOriginalFlanks=limits.includeOriginalFlanks===true;
   const tangentSin=Math.sin(target),tangentCos=Math.cos(target);
-  const sectorSlope=Math.tan(.46);
+  const sectorSlope=Math.tan(includeOriginalFlanks?.78:.46);
+  const outerRadius=includeOriginalFlanks?54:39;
+  const lowerReach=includeOriginalFlanks?105:85;
+  const upperReach=includeOriginalFlanks?54:40;
   const radialOf=v=>v.x*tangentSin+v.z*tangentCos;
   const tangentOf=v=>v.x*tangentCos-v.z*tangentSin;
   const aperturePlanes=[
     v=>radialOf(v)-12.7,
-    v=>39-radialOf(v),
+    v=>outerRadius-radialOf(v),
     v=>radialOf(v)*sectorSlope-tangentOf(v),
     v=>radialOf(v)*sectorSlope+tangentOf(v),
-    v=>v.y-(roof-85),
-    v=>roof+40-v.y
+    v=>v.y-(roof-lowerReach),
+    v=>roof+upperReach-v.y
   ];
   function interpolateSourceVertex(a,b,t){
     const v={};
@@ -243,6 +255,7 @@ export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresh
   if(!faces)return null;
   return {root,geometries,materials,faces,
     bytes:faces*3*8*Float32Array.BYTES_PER_ELEMENT,
+    envelope:includeOriginalFlanks?'original-threshold-plus-structural-flanks':'original-threshold-only',
     source:'closest-original-Three-floor-eight-load-paths-not-batch-order'};
 }
 
@@ -2424,7 +2437,7 @@ export function createTowerWorld(){
     const started=performance.now();
     const gallery=extractOriginalClockworkThresholdGallery(
       THREE,floorGroup,thresholdX,roofY,snapshot.chunkBaseY,
-      snapshot.worldWidth);
+      snapshot.worldWidth,{includeOriginalFlanks:true});
     if(!gallery)return false;
     preparedThresholdGallery={
       gallery,oldFloor:floorGroup,runToken:snapshot.runToken,
@@ -2663,7 +2676,8 @@ export function createTowerWorld(){
       discardPreparedThresholdGallery();
       gallery=extractOriginalClockworkThresholdGallery(THREE,
         floorGroup,requested.thresholdX,requested.oldRoofY,
-        requested.previousBaseY,requested.worldWidth);
+        requested.previousBaseY,requested.worldWidth,
+        {includeOriginalFlanks:true});
       thresholdGalleryPreparation={
         state:'cold-fallback-original-source-rebuild',
         sourceTick:next.tick,runToken:next.runToken,
@@ -2699,6 +2713,7 @@ export function createTowerWorld(){
     group.add(continuity);
     retainedEarnedCap = {root:continuity,guardianGateRetained:true,
       originalGalleryTriangles:gallery?.faces ?? 0,
+      originalGalleryEnvelope:gallery?.envelope ?? null,
       originalGalleryBytes:gallery?.bytes ?? 0,
       originalGalleryBatches:gallery?.root.children.length ?? 0,
       originalGalleryMaterials:gallery?.materials ?? [],
@@ -3977,6 +3992,7 @@ export function createTowerWorld(){
       // First-frame destination is a real source-owned mesh group, not a score.
       actualFirstFrameVoidBearings:deferredDistantArrival.actualFirstFrameVoidBearings === true,
       actualFirstFrameVoidBearingIndex:deferredDistantArrival.actualFirstFrameVoidBearingIndex ?? null,
+      deferredPhysicalButtressIndex:deferredDistantArrival.deferredPhysicalButtressIndex ?? null,
       structureBuildMs:deferredDistantArrival.structureBuildMs,
       structuralFade:+deferredDistantArrival.structuralFade.toFixed(3),
       isolatedStructuralMaterials:deferredDistantArrival.structuralMaterials.length,
