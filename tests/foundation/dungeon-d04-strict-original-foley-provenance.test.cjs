@@ -175,3 +175,42 @@ for(const kind of ['ranged-release','spell-release','warden-release']){
   f.dispose();
  });
 }
+
+// Real Dungeon HP-loss provenance must remain audible when optional material
+// metadata names an inherited Object property. This is a strict synthetic
+// WebAudio admission contract, NOT decoded PCM or in-game synchronization.
+test('D04 genuine HP foley falls back to neutral for unknown material-role metadata',async()=>{
+ const {createOriginalCombatFoley}=await load(),{ctx,sources}=fixture();
+ const createGain=ctx.createGain;
+ ctx.createGain=()=>{
+  const node=createGain(),base=node.gain;
+  node.gain={
+   value:0,
+   setValueAtTime(value,time){
+    assert.ok(Number.isFinite(value)&&Number.isFinite(time),
+     'WebAudio rejects non-finite original impact gain');
+    return base.setValueAtTime(value,time);
+   },
+   exponentialRampToValueAtTime(value,time){
+    assert.ok(Number.isFinite(value)&&Number.isFinite(time),
+     'WebAudio rejects non-finite material-falloff gain');
+    return base.exponentialRampToValueAtTime(value,time);
+   }
+  };
+  return node;
+ };
+ const f=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+ assert.equal(f.enable(),true);
+ for(const [id,role] of [['revenant','constructor'],['cultist','__proto__']]){
+  const cue=injury(id,false,{
+   detail:{damage:12,maxHp:20,remainingHp:8,materialRole:role}
+  });
+  assert.equal(f.emit(cue),true,
+   'real HP-loss sound must use neutral timbre, not an inherited object as material');
+ }
+ assert.equal(f.stats().verifiedDamageOnsets,2);
+ assert.equal(f.stats().deviceFailures,0);
+ assert.equal(f.stats().activeVoices,2);
+ assert.ok(sources.length>=2);
+ f.dispose();
+});
