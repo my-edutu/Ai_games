@@ -5178,7 +5178,11 @@ export function createTowerScene(canvas, settings = {}) {
       // A stalled, failed or unsubmitted scene cannot consume presentation.
       // The following frame's observe() changes scale and calls resize once.
       // Do not eagerly resize again before that observation (two GPU reallocations).
-      coldFloorPolicy.submitted(snapshot);
+      // Match the cold Floor9 framebuffer epoch to actual successful WebGL
+      // returns, not simulation ticks or assumed video frame time. A stable
+      // drawing buffer stays allocated across its cold uploads; the controller
+      // restores full CSS-independent render resolution only once.
+      coldFloorPolicy.submitted(snapshot, rendererReturnedAt - sceneReadyAt);
       // Deferred original distant architecture may appear only AFTER the
       // first source-authentic new-floor 3D submission actually returned.
       // Only the successfully returned original render owns the old/new
