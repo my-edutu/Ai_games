@@ -8,7 +8,7 @@ import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs
 import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedPrebuiltVoidShaftRelease, observedQueuedOriginalCapAtFirstRender, reconcileRecordedOriginalCapCrossing,
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage } from './source-physical-arrival-palette.mjs';
-import { createOriginalClockworkArchitecturalPalette } from './original-clockwork-architecture-palette.mjs';
+import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, updateOriginalClockworkSuccessorRoute } from './original-clockwork-architecture-palette.mjs';
 
 
 /**
@@ -835,6 +835,7 @@ export function createTowerWorld(){
   // The source-earned OLD bronze gate and the NEW 3D architecture must share
   // an actual walking-distance palette instead of one hard violet cold frame.
   let originalClockworkArchitecturalPalette=null;
+  let arrivalRoutePalette=null;
   let stagedVoidArchitecture=null;
   // Actual source-floor static GPU attribute/index payload, not driver memory.
   let rigidUploadBytes=0, rigidExpandedBytes=0, rigidIndexedBatches=0, rigidBatchCount=0, rigidPackedVertexBuffers=0, rigidPriorSeparateVertexBuffers=0;
@@ -2015,23 +2016,31 @@ export function createTowerWorld(){
     // the identical old bronze cap and HP-opened gate share this physical
     // threshold, gradually acclimatize only its landing material. No extra
     // platform, overlay, collider, route, vertices or gameplay clock.
-    const sharedPhysicalRoof=p.id==='f9:ground' && theme==='void' &&
-      retainedEarnedCap?.floor===9 &&
-      retainedEarnedCap.runToken===lastSnapshot?.runToken &&
-      retainedEarnedCap.originalDeckSurface?.color;
-    const bodyMaterial=sharedPhysicalRoof?sourceBodyMaterial.clone():sourceBodyMaterial;
-    const arrivalRim=sharedPhysicalRoof?materials.copper.clone():null;
-    const arrivalSourceBronze=sharedPhysicalRoof?
-      retainedEarnedCap.originalDeckSurface.color.clone():null;
-    if(sharedPhysicalRoof){
-      floorMaterials.add(bodyMaterial);floorMaterials.add(arrivalRim);
+    // The first actual Floor9 route is one physical successor of the
+    // original opened bronze gateway, not a series of unrelated purple decks.
+    // Source-qualified platform tops within 90m of the old roof use THREE
+    // shared, floor-owned materials. Even an early real moving platform shares
+    // this structural family; its mint landing/hazard signals remain bright.
+    // Sharing avoids per-platform shader groups, extra draws and GPU uploads.
+    const sharedPhysicalRoof=theme==='void' &&
+      observedOriginalClockworkSuccessorDeck(p,retainedEarnedCap,lastSnapshot?.runToken);
+    if(sharedPhysicalRoof && !arrivalRoutePalette){
+      const bronze=retainedEarnedCap.originalDeckSurface.color.clone();
+      const body=sourceBodyMaterial.clone();
+      const rim=materials.copper.clone();
+      const top=materials.landing.clone();
+      top.name='SourceEarnedSharedPhysicalArrivalRoof';
+      body.name='SourceEarnedOriginalSuccessorRouteBody';
+      rim.name='SourceEarnedOriginalSuccessorRouteRim';
+      floorMaterials.add(body);floorMaterials.add(rim);floorMaterials.add(top);
+      arrivalRoutePalette={bronze,top,body,rim,
+        topVoid:top.color.clone(),bodyVoid:body.color.clone(),
+        rimVoid:rim.color.clone()};
+      top.color.copy(bronze);
     }
-    const arrivalSurface=sharedPhysicalRoof?materials.landing.clone():null;
-    if(arrivalSurface){
-      arrivalSurface.name='SourceEarnedSharedPhysicalArrivalRoof';
-      arrivalSurface.color.copy(retainedEarnedCap.originalDeckSurface.color);
-      floorMaterials.add(arrivalSurface);
-    }
+    const bodyMaterial=sharedPhysicalRoof?arrivalRoutePalette.body:sourceBodyMaterial;
+    const arrivalRim=sharedPhysicalRoof?arrivalRoutePalette.rim:null;
+    const arrivalSurface=sharedPhysicalRoof?arrivalRoutePalette.top:null;
     // The route is an engineered deck, not another monumental shelf. A slim
     // curved box beam, rolled edge and open rear webs leave the undercroft open.
     mesh(root,sector(22.45,27.05,angle,.48),bodyMaterial,[0,h-.64,0]).userData.structural=true;
@@ -2337,10 +2346,7 @@ export function createTowerWorld(){
       capMaterials,capLandingMaterial,arrivalSurface,
       // The actual F9 support has its own original bronze-to-violet materials;
       // shared crystals, danger indicators and future landing platforms do not.
-      arrivalPalette:arrivalSurface?{
-        bronze:arrivalSourceBronze,top:arrivalSurface,topVoid:materials.landing.color.clone(),
-        body:bodyMaterial,bodyVoid:sourceBodyMaterial.color.clone(),
-        rim:arrivalRim,rimVoid:materials.copper.color.clone()}:null,
+      arrivalPalette:arrivalSurface?arrivalRoutePalette:null,
       guardianGate,traveler,countergear,actuator,gearVisual,
       motionSourceTick:null,sourceX:null,sourceTick:null});return root;
   }
@@ -2961,6 +2967,7 @@ export function createTowerWorld(){
     deferredDistantArrival = null;
     lastRebuildWitness = null;
     stagedVoidArchitecture = null;
+    arrivalRoutePalette = null;
     rigidUploadBytes=0;rigidExpandedBytes=0;rigidIndexedBatches=0;rigidBatchCount=0;rigidPackedVertexBuffers=0;rigidPriorSeparateVertexBuffers=0;
     if(floorGroup){group.remove(floorGroup);floorGroup.traverse(o=>{if(o.isInstancedMesh)o.dispose();});}
     // The one source-earned former cap keeps its already-rendered resources.
@@ -3199,14 +3206,12 @@ export function createTowerWorld(){
     // walks on. Unlike the old 1.25s display-only fade, source distance
     // from the genuine bronze sill drives a coherent top/beam/rim material
     // handoff even after a slow first WebGL frame. No route or collider edit.
-    const arrivalDeck=platforms.get('f9:ground')?.arrivalPalette;
-    if(arrivalDeck){
+    if(arrivalRoutePalette){
+      // ONE source-certified RGB update for the genuine near-roof runway,
+      // including moving decks, rather than per-platform theme swapping.
       const proof=!options.stale && !options.reducedMotion
         ?observedSourcePhysicalArrivalPalette(snapshot,retainedEarnedCap):null;
-      const w=proof?.oldWeight??0;
-      arrivalDeck.top.color.copy(arrivalDeck.topVoid).lerp(arrivalDeck.bronze,w);
-      arrivalDeck.body.color.copy(arrivalDeck.bodyVoid).lerp(arrivalDeck.bronze,.82*w);
-      arrivalDeck.rim.color.copy(arrivalDeck.rimVoid).lerp(arrivalDeck.bronze,.48*w);
+      updateOriginalClockworkSuccessorRoute(arrivalRoutePalette,proof);
     }
     // Existing Floor9 stone/metal/trim above and around the real roof were
     // previously fully violet on the FIRST rebuilt frame, even as the old
