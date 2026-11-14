@@ -302,6 +302,61 @@ export function measureSourceSolePatchContinuity(before,after,meta={}){
 }
 
 
+
+/**
+ * Demand-only reconciliation of two INDEPENDENT licensed source skin
+ * observations from the SAME pair of displayed Walking_A frames. A single
+ * weighted sole point is not a planted shoe when the original heel is in
+ * the air. No IK, contact lock, pose edit or authoritative move is made.
+ */
+export function reconcileOriginalSourceContactWitness(singlePoint,patch,{
+ sameOriginalActor=false,sameFramePair=false,sourceClipName=''
+}={}){
+ if(sameOriginalActor!==true||sameFramePair!==true||
+  sourceClipName!=='Walking_A'||
+  singlePoint?.comparable!==true||patch?.comparable!==true||
+  singlePoint.source!=='two-consecutive-original-WebGL-skin-frames'||
+  patch.source!=='original-source-skinned-two-point-shoe-patch-and-authored-floor'||
+  !Number.isSafeInteger(singlePoint.beforeFrame)||
+  !Number.isSafeInteger(singlePoint.afterFrame)||
+  singlePoint.afterFrame!==singlePoint.beforeFrame+1||
+  singlePoint.beforeFrame!==patch.beforeFrame||
+  singlePoint.afterFrame!==patch.afterFrame||
+  !Number.isSafeInteger(singlePoint.tick)||singlePoint.tick!==patch.tick||
+  ![singlePoint.rootTravelMeters,patch.rootTravelMeters,patch.floorTopY].every(finite)||
+  Math.abs(singlePoint.rootTravelMeters-patch.rootTravelMeters)>.005||
+  singlePoint.rootTravelMeters<.025||singlePoint.rootTravelMeters>.35||
+  Math.abs(patch.floorTopY+.02)>.003||
+  !Array.isArray(singlePoint.potentialPlantSides)||
+  !Array.isArray(patch.potentialContactSides))return null;
+ const validSide=s=>s==='left'||s==='right';
+ const allSides=[...singlePoint.potentialPlantSides,...patch.potentialContactSides];
+ if(allSides.some(s=>!validSide(s))||
+  new Set(singlePoint.potentialPlantSides).size!==singlePoint.potentialPlantSides.length||
+  new Set(patch.potentialContactSides).size!==patch.potentialContactSides.length||
+  !['left','right'].every(side=>finite(patch.heelWorldDeltaMeters?.[side])&&
+   finite(patch.toeWorldDeltaMeters?.[side])))return null;
+ const corroboratedSides=singlePoint.potentialPlantSides.filter(side=>
+  patch.potentialContactSides.includes(side));
+ const singleVertexOnlySides=singlePoint.potentialPlantSides.filter(side=>
+  !corroboratedSides.includes(side));
+ return Object.freeze({
+  source:'correlated-original-GLB-single-vertex-and-two-point-sole',
+  tick:singlePoint.tick,beforeFrame:singlePoint.beforeFrame,
+  afterFrame:singlePoint.afterFrame,
+  corroboratedSides:Object.freeze(corroboratedSides),
+  singleVertexOnlySides:Object.freeze(singleVertexOnlySides),
+  originalSinglePointSides:Object.freeze([...singlePoint.potentialPlantSides]),
+  originalTwoPointSides:Object.freeze([...patch.potentialContactSides]),
+  classification:corroboratedSides.length?
+   'two-point-contact-candidate-for-independent-review':
+   'unwitnessed-two-point-contact',
+  // Even agreement for one frame pair is not multi-frame foot-plant proof.
+  provenFootPlant:false,ikAccepted:false,contactLocked:false
+ });
+}
+
+
 /**
  * Read-only forward-facing audit for the SAME pinned, original skinned rig
  * in adjacent VISIBLE WebGL frames of one authoritative travel tick.
