@@ -3,7 +3,7 @@ import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianDuelSideStageCamera } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicPressureInspectionTakesFocus } from './public-lantern-encounter.mjs';
@@ -1088,18 +1088,6 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
             aspect,closestThreat.strength,closestThreat.encounterBeat,
             settings.reducedMotion);
           portraitCameraOffset.set(15*cosine-18*sine,duetElevation,15*sine+18*cosine);
-          // Source-authentic mobile witness: the usual positive-X camera
-          // sees sealed spectator architecture before the two real actors.
-          // Turn the whole public duel toward its nearer side-on flank.
-          // The existing strict full-mesh fitter still decides safe zoom.
-          if(cameraMode==='follow' && !settings.reducedMotion
-            && closestThreat.strength>.70){
-            const flank=publicGuardianDuelSideStageCamera(
-              aspect,closestThreat.strength,pose,closestThreat,
-              portraitCameraOffset,settings.reducedMotion);
-            portraitCameraOffset.x=flank.x;
-            portraitCameraOffset.z=flank.z;
-          }
           const balance=publicPortraitGuardianBalance(
             aspect,closestThreat.strength,pose,closestThreat,desiredTarget,portraitCameraOffset);
           desiredTarget.x+=balance.x;

@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-14T14:25:00.000Z",
+  "updatedAt": "2026-11-14T14:38:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass362 source-only side-stage portrait guardian lens candidate to avoid actual full-size spectator wall; exact-HEAD CI, WebGL full-resolution SHA comparison and independent critic PENDING. Not a Nintendo benchmark win."
+    "summary": "Pass363: genuine Pass362 side-stage camera candidate failed original strict native 390px cell100 retaining-wall first-ray gate. Source-only tests and six-run geometry succeeded, but 1/7 browser test failed; actual partial source-bound brace shot changed substantially without an independently accepted better scene. Camera candidate rejected, exact Pass361 source restored, rollback CI pending. Nintendo benchmark UNMET."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass363 2026-11-14: Pass362 real Playwright failed original guardian first-ray retaining wall requirement (expected cell100, got undefined); 179/179 focused and strict six reset geometry passed, but full native screenshot gate FAILED 1/7. Reject photographed side-stage candidate; restore Pass361 original production scene and camera, delete candidate-only test. No benchmark win; rollback exact-head CI pending.",
     "Pass362 2026-11-14: source-only public reciprocal Pip/Thornback side-on camera candidate and pure tests; no physical world, path, private AI, HUD or threshold edits. Exact-HEAD native captures, CI and independent critic outstanding; workspace NOT_FOUND. No artistic win claimed.",
     "Pass361 2026-11-14: actual Pass360b corrected exact native CI SUCCESS 43602747994; 39 full WebGL PNG, 37/37 SHA, 3/3 gate and 6/6 pressure matched. Native 390 same-seed notice/brace unchanged artistically (mean RGB 0.523/2.049 of 255), and release camera timing not an improvement. REJECT and restore EXACT previous production world and original protected guardian test SHA, one parented no-force commit with review/ledger/progress. New rollback own CI pending. No Nintendo win.",
     "Pass360b 2026-11-14: first candidate exact-commit WebGL 43602401051 failed two EXISTING full-scale solid-wall contract tests (177/179 passed). Do NOT lower tests: restore original dark wall .34m height, .075 cap and dark attached face/crest; remove only tall terminal piers/caps at publicly observed guardian nonpassage. Still pending new source-matched visual acceptance.",

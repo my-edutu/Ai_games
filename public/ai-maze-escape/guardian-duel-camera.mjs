@@ -77,32 +77,3 @@ export function publicGuardianDuelShoulderOrbit(aspect,strength,beat,currentOrbi
   // fitter, pressure priority and native 44px HUD tests remain authoritative.
   return -Math.sign(currentOrbit)*Math.min(.52,Math.abs(currentOrbit)*.67)*attention*reveal;
 }
-
-
-/**
- * The actual disclosed guardian aisle deserves a physical SIDE-on camera:
- * the previously tested 390px default view looks through a solid spectator
- * flank. Preserve all physical stone and the same optical radius, but frame
- * both real source-public actor roots against the calmer side of the court.
- * The caller already proved the guardian sightline is reciprocal and open.
- * No inferred maze, AI knowledge, collision or newly allocated GPU resource.
- */
-export function publicGuardianDuelSideStageCamera(
-  aspect, strength, hero, guardian, current, reducedMotion=false) {
-  const original={x:current?.x,z:current?.z};
-  if (reducedMotion || !(Number.isFinite(aspect)&&aspect>=.35&&aspect<.60)
-    || !(Number.isFinite(strength)&&strength>.70)
-    || ![hero?.x,hero?.z,guardian?.x,guardian?.z,
-      current?.x,current?.z].every(Number.isFinite))return original;
-  const dx=guardian.x-hero.x, dz=guardian.z-hero.z;
-  const separation=Math.hypot(dx,dz), radius=Math.hypot(current.x,current.z);
-  if(separation<.35||separation>6.6||radius<1)return original;
-  let nx=-dz/separation, nz=dx/separation;
-  // Never flip the camera behind the two bodies.
-  if(nx*current.x+nz*current.z<0){nx=-nx;nz=-nz}
-  const amount=.86*Math.max(0,Math.min(1,(strength-.70)/.12));
-  const x=current.x*(1-amount)+nx*radius*amount;
-  const z=current.z*(1-amount)+nz*radius*amount;
-  const norm=Math.hypot(x,z);
-  return norm>1?{x:x*radius/norm,z:z*radius/norm}:original;
-}
