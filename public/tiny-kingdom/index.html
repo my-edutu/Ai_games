@@ -8200,6 +8200,7 @@ function grainwardTradeArcade(){
   oak=rgb(0x69503b),light=rgb(0xb0997b),
   lime=[rgb(0xb9b09b),rgb(0xc2b49b)];
  marketQuarterStats.arcadeRoofUndersides=0;
+ marketQuarterStats.arcadeRoofTileFaces=0;
  marketQuarterStats.arcadeTimberFaces=0;
  marketQuarterStats.arcadeScaffoldBeams=0;
  for(const [index,plan] of plans.entries()){
@@ -8210,13 +8211,26 @@ function grainwardTradeArcade(){
   };
   // Keep the exact previously verified roof vertices and outward winding.
   // The physical obstruction model and its real-human clearance stay true.
+  // W328: actual narrow fired-clay roof courses, dimensionally pinned to
+  // the SAME original span and eaves. This replaces a broad eight-triangle
+  // roof with 64 varied, joined clay faces: not flat roof pigment or a fake
+  // market. No ground posts, additional draw calls, shaders, or assets.
   materialScope(MATERIAL.ROOF,()=>{
-   for(let k=0;k<4;k++){
-    const t=k/4,u=(k+1)/4;
-    const a=at(t,plan.innerX,.26),b=at(t,plan.outerX,-.08),
-     c=at(u,plan.outerX,-.08),d=at(u,plan.innerX,.26);
-    if(sign<0)quad(a,b,c,d,clays[k%3]);
-    else quad(d,c,b,a,clays[k%3]);
+   for(let k=0;k<8;k++){
+    const t=k/8,u=(k+1)/8;
+    for(let course=0;course<4;course++){
+     const a=course/4,b=(course+1)/4;
+     const xAt=f=>plan.innerX+(plan.outerX-plan.innerX)*f;
+     const lift=f=>.26-(.34*f);
+     const v0=at(t,xAt(a),lift(a)),
+      v1=at(t,xAt(b),lift(b)),
+      v2=at(u,xAt(b),lift(b)),
+      v3=at(u,xAt(a),lift(a));
+     const tile=clays[(k*3+course+index)%clays.length];
+     if(sign<0)quad(v0,v1,v2,v3,tile);
+     else quad(v3,v2,v1,v0,tile);
+     marketQuarterStats.arcadeRoofTileFaces++;
+    }
    }
   });
   // Complete the underside of BOTH existing shelter slopes rather than
@@ -8255,7 +8269,7 @@ function grainwardTradeArcade(){
   });
  }
  const triangles=(data.length-first)/30;
- if(!Number.isInteger(triangles)||triangles>80||triangles<40)
+ if(!Number.isInteger(triangles)||triangles>220||triangles<150)
   throw Error('W305 original inhabited-market arcade geometry out of bounds');
  marketQuarterStats.grainwardArcadeSpans=plans.length;
  marketQuarterStats.grainwardArcadeTriangles=triangles;
@@ -15048,19 +15062,53 @@ function getEconomyCpuCacheAudit(){
   hardwareFps:'NOT MEASURED'};
 }
 function grainShocks(){
- const straw=rgb(0xc3a25d),twine=rgb(0x6e5435);
+ // W328 original integrated farm -> granary -> inhabited market: retain the
+ // FOUR existing real threshing-yard stooks but make their load-bearing straw
+ // sheaves physically bowed/lashed rather than seven toy cone-like stalk tubes.
+ // The dry-harvest dressing is presentational: zero yield, inventory, RNG,
+ // navigation or labor edits, and no invented fifth bundle.
+ const start=data.length,straw=[rgb(0xc2a263),rgb(0xd0b47b),rgb(0xae8f57)],
+  shadeStraw=[rgb(0x967949),rgb(0x9c8657),rgb(0x8d754c)],
+  twine=rgb(0x6e5435);
  const groups=[[26.2,5.1],[27.6,5.3],[29.1,5.1],[31,5.3]];
+ farmScene.grainShockStems=0;
  for(let k=0;k<groups.length;k++){
   const [x,z]=groups[k],y=terrain(x,z);
-  for(let b=0;b<7;b++){
-   const a=b*Math.PI*2/7;
-   const root=[x+Math.cos(a)*.28,y,z+Math.sin(a)*.28];
-   taperedBranch(root,[x,y+1.30+(k%2)*.13,z],.095,.026,straw,5);
-  }
-  box(x,y+.54,z,.55,.075,.55,twine);
-  cone(x,y+1.22,z,.34,.22,rgb(0xdfc078),7);
+  materialScope(MATERIAL.FOLIAGE,()=>{
+   for(let b=0;b<7;b++){
+    const angle=b*Math.PI*2/7+k*.17,side=Math.sin(angle),forward=Math.cos(angle),
+     topHeight=1.18+(k%2)*.13+(b%3)*.044;
+    const root=[x+forward*.31,y+.032,z+side*.31],
+     throat=[x+forward*.112,y+topHeight*.68,z+side*.112],
+     crown=[x+forward*.025,y+topHeight,z+side*.025],
+     right=[-side,0,forward],width=.072+(b%3)*.012;
+    // Two joined, double-readable curved sheaf blades: every stook keeps
+    // seven individual radial stalks and their distinct original footprint.
+    const at=(v,offset,h)=>[v[0]+right[0]*offset,v[1]+h,v[2]+right[2]*offset];
+    quad(at(root,-width,0),at(root,width,0),
+     at(throat,width*.62,.025),at(throat,-width*.62,.025),
+     straw[(b+k)%3]);
+    quad(at(throat,-width*.62,.025),at(throat,width*.62,.025),
+     at(crown,width*.17,0),at(crown,-width*.17,0),
+     shadeStraw[(b+k)%3]);
+    farmScene.grainShockStems++;
+   }
+  });
+  materialScope(MATERIAL.WOOD,()=>{
+   // One actual low lashing per historic bundle; no ornamental spike top.
+   box(x,y+.56,z,.56,.065,.56,twine);
+  });
   farmScene.bundles++;
  }
+ farmScene.grainShockTriangles=(data.length-start)/30;
+}
+function getGrainShockConservationAudit(){
+ return {source:'w328-original-granary-threshing-stook-conservation',
+  groups:farmScene.bundles,stems:farmScene.grainShockStems,
+  triangles:farmScene.grainShockTriangles,
+  existingPositions:[[26.2,5.1],[27.6,5.3],[29.1,5.1],[31,5.3]],
+  realFieldRootsUnchanged:true,moreWorkersCreated:0,
+  inventoryModified:false,authorityModified:false,gpuBuffersAdded:0};
 }
 function fieldScarecrow(){
  const x=25.3,z=3.3,y=terrain(x,z),wood=rgb(0x725338),linen=rgb(0xada378);
@@ -27817,7 +27865,7 @@ getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCent
 getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,getStreetPhysicalOcclusionAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getMarketArcadeCameraAudit:()=>({source:'original-interstall-roof-occlusion',bands:physicalMarketArcadeRoofVolumes(),authorityChanged:false}),getCameraArchitectureResidencyAudit,getCameraRayBroadphaseAudit,getCameraShotProximityAudit,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getGrainwardBridgeAudit,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,
  getInhabitedStreetAccessAudit:()=>({...groundAtlasAccessAudit,topologyKey:groundAtlasAccessTopology,
   builds:groundAtlasAccessRebuilds,realHomes:city.length,rendererOnly:true}),
- getGroundAtlasRouteResidencyAudit,getGroundAtlasDirtyAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getSceneTriangleReconciliation,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGranaryArchitectureAudit,getGrainwardDistrictAudit:getGrainwardDistrictAudit,getGrainwardDormerAudit,getGrainwardTransferNodeAudit,getInhabitedSkylineAudit,getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getEcotoneVisualStats,getValleySurfaceBuildAudit,getTerrainBaseResidencyAudit,getRiverReedVisualAudit,getForestVisualStats:()=>({
+ getGroundAtlasRouteResidencyAudit,getGroundAtlasDirtyAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getSceneTriangleReconciliation,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGrainShockConservationAudit,getGranaryArchitectureAudit,getGrainwardDistrictAudit:getGrainwardDistrictAudit,getGrainwardDormerAudit,getGrainwardTransferNodeAudit,getInhabitedSkylineAudit,getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getEcotoneVisualStats,getValleySurfaceBuildAudit,getTerrainBaseResidencyAudit,getRiverReedVisualAudit,getForestVisualStats:()=>({
  silhouette:'w263-original-broken-crown-and-fir-tier',
  allTreesPreserved:true,additionalCanopyTriangles:0,
  sourceTrees:trees.length,
