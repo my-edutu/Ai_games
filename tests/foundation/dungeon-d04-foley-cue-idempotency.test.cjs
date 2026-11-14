@@ -230,3 +230,53 @@ test('D04 failed WebAudio allocation does not advance historical tick rejection'
   'a never-delivered future cue cannot poison later source admission');
  engine.dispose();
 });
+
+// The public planner proves only a launch attempt and an explicitly aimed
+// target, never a projectile hit. Long-running streams must not replay the
+// same launch or Warden strike sound after bounded cue-ID cache rotation.
+// Fake WebAudio proves admission only, not actual game PCM synchronization.
+const witnessedRelease=(tick,kind)=> {
+ const actorId=kind==='warden-release'?'warden':kind==='spell-release'?'cultist':'ranger';
+ const targetId=kind==='warden-release'?null:'revenant';
+ const visual=kind==='warden-release'?'warden':kind==='spell-release'?'cast':'launch';
+ return {id:`1:1:${tick}:${kind}:${actorId}:${targetId??'-'}`,
+  sceneKey:'1:1',tick,kind,visual,audio:kind,actorId,targetId,
+  verified:true,proof:'authority-action',priority:4,severity:.4};
+};
+for(const kind of ['ranged-release','spell-release','warden-release']){
+ test('D04 historical '+kind+' cannot replay after its verified one-shot ID rotates',async()=>{
+  const {createOriginalCombatFoley,MAX_ORIGINAL_CONFIRMED_CUE_IDS}=await load();
+  const f=fixture(),engine=createOriginalCombatFoley(f.ctx,{requireVerifiedContact:true});
+  assert.equal(engine.enable(),true);
+  assert.equal(engine.emit(witnessedRelease(10,kind)),true);
+  for(let i=0;i<MAX_ORIGINAL_CONFIRMED_CUE_IDS+3;i++){
+   f.ctx.currentTime=(i+1)*.10;
+   assert.equal(engine.emit(swing(30+i,'churn-'+i)),true);
+  }
+  const starts=f.started.length;
+  f.ctx.currentTime+=.1;
+  assert.equal(engine.emit(witnessedRelease(10,kind)),false,
+   'expired public authority tick must not create a second release onset');
+  assert.equal(f.started.length,starts,'no source may be allocated for stale release');
+  assert.equal(engine.emit(witnessedRelease(170,kind)),true,
+   'a distinct timely authority release remains audible');
+  engine.dispose();
+ });
+}
+test('D04 verified release audio shares five-tick window and resets on scene restart',async()=>{
+ const {createOriginalCombatFoley}=await load();
+ const f=fixture(),engine=createOriginalCombatFoley(f.ctx,{requireVerifiedContact:true});
+ engine.enable();
+ assert.equal(engine.emit(swing(200,'fresh')),true);
+ f.ctx.currentTime=.1;
+ assert.equal(engine.emit(witnessedRelease(195,'spell-release')),true,
+  'a real, bounded delayed release remains eligible');
+ f.ctx.currentTime=.2;
+ assert.equal(engine.emit(witnessedRelease(194,'ranged-release')),false,
+  'six-tick-old release must not resurrect after a newer witnessed event');
+ engine.reset();
+ f.ctx.currentTime=.3;
+ assert.equal(engine.emit(witnessedRelease(194,'ranged-release')),true,
+  'scene reset clears release history along with old sound voices');
+ engine.dispose();
+});
