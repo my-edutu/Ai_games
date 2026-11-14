@@ -5783,3 +5783,59 @@ test('RED: original mobile source-shoe evidence chooses bounded stronger paired 
  ])assert.equal(plan({...input,...bad}),null,
   'cannot infer an original-joint direction without valid, uncorrupted dual-shoe evidence');
 });
+
+
+test('RED: real 390px Walking_A source-linked hip and knee clearance ramps instead of snapping to maximum arc in its first displayed frame',async()=>{
+ const {chooseOriginalSourceSwingLinkedLegTrial:choose}=await load();
+ // Exact 2026-11-14 d8f75fb source WebGL #43628757233:
+ // right source toe -100.023mm; stone top -20mm; source heel +201.613mm.
+ // Four ORIGINAL skinned two-shoe probes: -12.122 / +17.914 /
+ // +22.414 / +23.742mm toe movement at paired +90/-75, -90/+75,
+ // -110/+90 and -115/+95 mrad; opposite left shoe unmoved.
+ // This is a source-measured unit fixture, NOT a new gameplay film.
+ const before={right:{heelY:.20161277420576432,toeY:-.10002296965794155,
+   heelXZ:[0,0],toeXZ:[0,.25]},
+  left:{heelY:-.019384355654102726,toeY:-.02702721445318042,
+   heelXZ:[.4,0],toeXZ:[.4,.25]}};
+ const measured=[
+  [.09,-.075,-.012122285238947428,-.02567494416531385,.00511553690397357,.03769638961598037],
+  [-.09,.075,.017914109951877977,.023297457780976305,.008755549628061715,.03544635666704294],
+  [-.11,.09,.022413794460296982,.027870756904096183,.010914331863719722,.04273184510105196],
+  [-.115,.095,.023742425293477143,.029151523808864377,.011655412321439011,.04468892391465402]
+ ];
+ const trials=measured.map(([upperRad,lowerRad,lift,heelDelta,horizontalHeel,horizontalToe])=>({
+  upperRad,lowerRad,after:{left:before.left,right:{
+   heelY:before.right.heelY+heelDelta,toeY:before.right.toeY+lift,
+   heelXZ:[horizontalHeel,0],toeXZ:[horizontalToe,.25]}}
+ }));
+ const valid={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceChainVerified:true,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceBindVerified:true,ownerLocomotion:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false,
+  rootTravel:.04,frameAge:.03,frameInterval:.0167,
+  floorTopY:-.02,side:'right',before,trials};
+ const first=choose(valid);
+ assert.ok(first,'the genuine 90mrad starting arc clears 17.9mm without shifting loaded shoe');
+ assert.equal(first.upperRad,-.09,
+  'a fresh source frame must not jump straight to a 115mrad upperleg bend');
+ assert.equal(first.lowerRad,.075);
+ assert.ok(first.liftMeters>.017&&first.fractionCleared>.20);
+ assert.equal(first.contactLocked,false);
+ const next=choose({...valid,previousLinkedCertified:true,
+  previousUpperRad:first.upperRad,previousLowerRad:first.lowerRad});
+ assert.equal(next?.upperRad,-.115,
+  'a fresh previous-frame verified original GLB shoe may deepen the linked bend');
+ assert.equal(next?.lowerRad,.095);
+ assert.equal(choose({...valid,previousLinkedCertified:true,
+  previousUpperRad:.09,previousLowerRad:-.075})?.upperRad,.09,
+  'a reverse-sign historical pose cannot jump across two original knees');
+ assert.equal(choose({...valid,previousLinkedCertified:true,
+  previousUpperRad:NaN,previousLowerRad:0})?.upperRad,-.09,
+  'invalid previous proof must fall back to the conservative first source frame');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/sourceSwingLinkedPriorFrameProofs/,
+  'production original-clone adapter must pass only real previous-frame linked evidence');
+ assert.match(renderer,/previousLinkedCertified/,
+  'a standalone test-only planner must not be mistaken for connected WebGL animation');
+});
