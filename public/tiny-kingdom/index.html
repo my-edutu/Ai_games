@@ -3115,7 +3115,19 @@ function drainRenderTickBacklog(debt,advance,maxTicks=64){
 }
 // W320 cooperative simulation spine: never hold 390px touch/camera input
 // behind a 64-step, 247ms catch-up burst. EVERY earned fixed-step stays owed.
-const SOFT_SIMULATION_SLICE_MS=16,SOFT_SIMULATION_YIELD_MS=8;
+const SOFT_SIMULATION_SLICE_MS=16,SOFT_SIMULATION_YIELD_MS=8,
+ SOFT_CAMERA_INPUT_SLICE_MS=4;
+// Genuine camera gestures take priority over software tick catch-up.
+// Each invocation still executes at least one real fixed step; all other
+// earned ticks remain owed, preserving navigation, receipts and replay.
+function softwareCameraGestureActive(){
+ return dragging||streetHeld.size>0;
+}
+function interactiveSimulationBudget(){
+ return softwareCameraGestureActive()?
+  SOFT_CAMERA_INPUT_SLICE_MS:SOFT_SIMULATION_SLICE_MS;
+}
+let simulationInputPrioritySlices=0,simulationInputPriorityTicks=0;
 let simulationCatchupToken=0,simulationCatchupQueued=false,
  simulationCatchupSlices=0,simulationCatchupTicks=0,
  simulationBudgetStops=0,simulationMaxSliceMs=0,simulationMaxSliceTicks=0;
@@ -3153,8 +3165,11 @@ function scheduleSoftwareDebtDrain(){
   if(token!==simulationCatchupToken)return;
   simulationCatchupQueued=false;
   if(frozen||accumulator<FIXED_STEP)return;
+  const inputPriority=softwareCameraGestureActive();
   const batch=drainRenderTickBacklogTimeboxed(
-   accumulator,step,64,SOFT_SIMULATION_SLICE_MS);
+   accumulator,step,64,interactiveSimulationBudget());
+  if(inputPriority){simulationInputPrioritySlices++;
+   simulationInputPriorityTicks+=batch.executed;}
   accumulator=batch.remaining;
   renderTicksExecuted+=batch.executed;
   simulationCatchupTicks+=batch.executed;simulationCatchupSlices++;
@@ -3175,6 +3190,9 @@ function getSimulationTickDebtAudit(){
    maxSliceMs:simulationMaxSliceMs,maxSliceTicks:simulationMaxSliceTicks,
    wallBudgetStops:simulationBudgetStops,
    softwareMainThreadBudgetMs:SOFT_SIMULATION_SLICE_MS,
+   activeCameraBudgetMs:SOFT_CAMERA_INPUT_SLICE_MS,
+   inputPrioritySlices:simulationInputPrioritySlices,
+   inputPriorityTicks:simulationInputPriorityTicks,
    yieldsForTouchAndCamera:true,authorityStepUnchanged:true,
   simSpeedRequested:speed,authoritySkipAllowed:false,
   caution:'backpressure can reduce effective speed; not an FPS claim'};
@@ -26756,8 +26774,12 @@ function render(now){requestAnimationFrame(render);
  const dt=Math.min(.18,wallDt),simulationDt=simulationFrameDelta(wallDt);timer=now;
  if(streetWalk)advanceStreetViewClock(wallDt);const atmosphere=skyConditions(state.t);gl.clearColor(...atmosphere.fog,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);if(!frozen){
   accumulator+=simulationDt*speed*1.35;
+  const softwareInteractive=(swiftGpu||!gpuAvailable)&&softwareCameraGestureActive();
   const drained=drainRenderTickBacklogTimeboxed(
-   accumulator,step,64,SOFT_SIMULATION_SLICE_MS);
+   accumulator,step,64,softwareInteractive?
+   SOFT_CAMERA_INPUT_SLICE_MS:SOFT_SIMULATION_SLICE_MS);
+  if(softwareInteractive){simulationInputPrioritySlices++;
+   simulationInputPriorityTicks+=drained.executed;}
   accumulator=drained.remaining;
   renderTicksExecuted+=drained.executed;
   renderMaxPendingTicks=Math.max(renderMaxPendingTicks,drained.pendingTicks);
