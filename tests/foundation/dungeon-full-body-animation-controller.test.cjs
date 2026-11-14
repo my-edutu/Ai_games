@@ -5675,3 +5675,57 @@ test('RED: genuine 390px long source frame must complete Walking_A full-body own
  ])assert.equal(fade({...witness,...change}),.23,
   'invalid, physically unobserved or interrupted imported walk retains .23s crossfade: '+JSON.stringify(change));
 });
+
+
+// Genuine 83920b6 native desktop tick 6: source Walking_A, weight 1,
+// airborne left heel Y=.168759, source toe Y=-.117325 vs stone top -.02,
+// and independently stable opposite loaded shoe [-.047434,-.012034].
+// A real FOUR-PROBE 33.4ms linked-leg measurement improved toe by 13.47mm,
+// narrowly under the current 15% gate. The AFTER below is deliberately a
+// bounded synthetic candidate to test the next controlled 110/90mrad source
+// probe, NOT footage or a claim of accepted source/visual improvement.
+test('RED: real 33ms source swing permits measured paired 110/90mrad candidate without moving opposite outsole',async()=>{
+ const {chooseOriginalSourceSwingLinkedLegTrial:choose}=await load();
+ const original={
+  left:{heelY:.16875882697162495,toeY:-.11732459493317295,
+   heelXZ:[-6.11,-7.35],toeXZ:[-6.28,-7.32]},
+  right:{heelY:-.04743353546795456,toeY:-.012033998013902418,
+   heelXZ:[-6.3,-7.4],toeXZ:[-6.54,-7.41]}
+ };
+ const observed={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceChainVerified:true,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceBindVerified:true,ownerLocomotion:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false,
+  rootTravel:.045,frameAge:.033,frameInterval:.0334,
+  floorTopY:-.02,side:'left',before:original};
+ const after={
+  left:{...original.left,heelY:.158,toeY:-.1011,
+   heelXZ:[-6.095,-7.35],toeXZ:[-6.26,-7.32]},
+  right:{...original.right}
+ };
+ const candidate={upperRad:.11,lowerRad:-.09,after};
+ const approved=choose({...observed,trials:[candidate]});
+ assert.equal(approved?.source,'measured-original-skinned-linked-leg');
+ assert.equal(approved?.side,'left');
+ assert.ok(approved?.liftMeters>.016&&approved?.fractionCleared>.16);
+ assert.equal(approved?.oppositeShoePreserved,true);
+ assert.equal(approved?.contactLocked,false);
+ for(const invalid of [
+  {sourceWeight:.87},{sourceClipName:'Idle'},{interrupted:true},
+  {frameInterval:.26},{frameAge:.22},{sourceBindVerified:false},
+  {trials:[{...candidate,upperRad:.16}]},
+  {trials:[{...candidate,lowerRad:-.11}]},
+  {trials:[{...candidate,after:{...after,left:{...after.left,toeY:-.110}}}]},
+  {trials:[{...candidate,after:{...after,right:{...after.right,toeY:-.004}}}]}
+ ])assert.equal(choose({...observed,...invalid,trials:invalid.trials??[candidate]}),null,
+  'no unsupported source ownership, excessive 33ms rotation or opposite-shoe skate');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const start=renderer.indexOf('function stageOriginalSourceSwingLinkedLegAfterMixer(');
+ const stop=renderer.indexOf('function stageRigLegsAfterMixer(',start);
+ const stage=renderer.slice(start,stop);
+ assert.match(stage,/\[\.11,-\.09\]/,
+  'the real original-GLB sampler must physically evaluate the bounded candidate');
+ assert.match(stage,/const after=read\(\)/,
+  'a linked original source knee must be independently reread after application');
+});
