@@ -1,0 +1,32 @@
+name: Tiny Kingdom W322 Authentic GPU Citizen Root and Route Motion
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w322-real-gpu-root-motion-contract.cjs'
+      - '.github/workflows/tiny-kingdom-w322-real-root-motion.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w322-real-root-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  original-citizen-gpu-root-contract:
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feat/tiny-kingdom-post-main-gauntlet-20261031' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Original source must parse and live GPU joints follow actual citizen coordinates
+        run: node scripts/tiny-kingdom-w322-real-gpu-root-motion-contract.cjs
+      - name: Existing authentic 13-joint worker and fallback checks
+        run: node scripts/tiny-kingdom-w221-real-commuter-gpu-skin-contract.cjs
+      - name: Existing original physical foreground admission checks
+        run: node scripts/tiny-kingdom-w296-foreground-residency-contract.cjs
