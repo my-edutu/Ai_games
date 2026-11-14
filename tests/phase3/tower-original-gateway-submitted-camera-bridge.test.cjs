@@ -50,7 +50,9 @@ test('no lock for live guardian, wrong run, old roof, teleport, user camera or l
 });
 test('the real camera consumes only genuine submitted old floor view and verifies hero/core on new floor',()=>{
   const scene=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
-  assert.match(scene,/sourceOriginalGatewayCameraBridge\(\\s*snapshot,coldArchProof,/);
+  assert.ok(scene.includes('sourceOriginalGatewayCameraBridge(') &&
+    scene.includes('snapshot,coldArchProof,originalGatewaySubmittedCamera'),
+    'real source bridge must be called with retained original gate and last painted view');
   assert.match(scene,/originalGatewaySubmittedCamera\s*=\s*\{/);
   assert.match(scene,/bridgeHeroSafe && bridgeGateSafe/);
   assert.match(scene,/towerCoreSightlineClear\(camera.position,thresholdHero,23\.5\)/);
