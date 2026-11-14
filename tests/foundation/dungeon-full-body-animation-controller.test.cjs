@@ -5506,3 +5506,53 @@ test('RED: deep original 390px swing rejects ineffective ankle twitch so the con
  assert.match(sourceModel,/actor\.sourceSwingToeCurrentFrameProofs\[mount\.side\]=actor\.sourceSwingToeLiftProof/,
   'only a useful measured original source ankle may obstruct subsequent full-leg sampling');
 });
+
+ 
+// Original 485a954 native 390px Walking_A rAF source-shoe frame shows a
+// +233.7mm airborne left heel, -66.6mm source toe and right shoe near stone.
+// The AFTER original weighted shoe below is a deliberate TEST CANDIDATE,
+// not footage. It must NEVER be presented as measured visual improvement.
+test('RED: source-linked slow-frame full leg may trial a bounded stronger hip+knee arc only with independent final dual-shoe safety',async()=>{
+ const {chooseOriginalSourceSwingLinkedLegTrial:choose}=await load();
+ const before={
+  left:{heelY:.2337,toeY:-.0666,heelXZ:[-7.66,-6.85],toeXZ:[-7.72,-6.90]},
+  right:{heelY:.0102,toeY:-.0021,heelXZ:[-7.63,-6.98],toeXZ:[-7.85,-6.96]}
+ };
+ const after={
+  left:{...before.left,heelY:.222, toeY:-.046,
+   heelXZ:[-7.645,-6.85],toeXZ:[-7.70,-6.895]},
+  right:{...before.right}
+ };
+ const owner={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceChainVerified:true,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceBindVerified:true,ownerLocomotion:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false,
+  rootTravel:.0953,frameAge:.085,frameInterval:.095,
+  floorTopY:-.02,side:'left',before};
+ const strong={upperRad:.14,lowerRad:-.105,after};
+ const found=choose({...owner,trials:[strong]});
+ assert.equal(found?.source,'measured-original-skinned-linked-leg');
+ assert.equal(found?.upperRad,.14);
+ assert.equal(found?.lowerRad,-.105);
+ assert.equal(found?.oppositeShoePreserved,true);
+ assert.equal(found?.contactLocked,false);
+ assert.ok(found?.liftMeters>=.02&&found?.fractionCleared>.4);
+ for(const unsafe of [
+  {frameInterval:.033},{sourceWeight:.93},{frameInterval:.25},
+  {frameAge:.19},{reducedMotion:true},{teleport:true},{rootTravel:0},
+  {trials:[{...strong,lowerRad:.105}]},
+  {trials:[{...strong,after:{...after,right:{...after.right,toeY:.005}}}]},
+  {trials:[{...strong,after:{...after,left:{...after.left,toeY:-.064}}}]}
+ ])assert.equal(choose({...owner,...unsafe,trials:unsafe.trials??[strong]}),null,
+  'slow full-leg arc must never infer contact, slide the opposite shoe, or add a faux step');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const start=renderer.indexOf('function stageOriginalSourceSwingLinkedLegAfterMixer(');
+ const end=renderer.indexOf('function stageRigLegsAfterMixer(',start);
+ const connected=renderer.slice(start,end);
+ assert.match(connected,/const trialAngles=/);
+ assert.match(connected,/interval>=\.05&&weight>=\.95/);
+ assert.match(connected,/\[\.14,-\.105\]/);
+ assert.match(connected,/const after=read\(\)/);
+ assert.match(connected,/certified\.oppositeShoePreserved!==true/);
+});
