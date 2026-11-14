@@ -87,3 +87,48 @@ test('the real camera consumes only genuine submitted old floor view and verifie
   assert.match(scene,/towerCoreSightlineClear\(camera.position,thresholdGate,23\.5\)/);
   assert.match(scene,/originalGatewayCameraBridgeAccepted\+\+/);
 });
+
+
+test('previous real Clockwork GPU lens bridges the EXACT first grounded Floor9 source receipt before delayed immutable publication',async()=>{
+ const {sourceOriginalGatewayCameraBridge:plan}=await load;
+ const first={...snapshot,tick:475,lastGuardianCrossing:null,chunkBaseY:3240000,
+   worldWidth:480000,platforms:[{id:'f9:ground',x:0,y:3212000,
+     width:480000,height:12000}],
+   player:{...snapshot.player,x:thresholdX+19400,y:3238000,
+     halfWidth:9000,grounded:true,groundedPlatformId:'f9:ground',
+     state:'standing',vy:0}};
+ const old={...prior,tick:438,chunkBaseY:2880000};
+ const retained={...held,tick:475,sourceTick:475,crossingTick:null,
+   nextBaseY:3240000,worldWidth:480000,
+   oldCapX:cap.x,oldCapWidth:cap.width,
+   verifiedObservedFloorAdvance:true,
+   observedCrossingX:thresholdX+19400,observedCrossingY:3238000,
+   observedHalfWidth:9000,observedHalfHeight:14000};
+ const before=JSON.stringify([first,retained,old]);
+ const shot=plan(first,retained,old,view);
+ assert.ok(shot && shot.sourceBound && shot.proof==='verified-grounded-original-source-receipt');
+ assert.deepEqual(shot.camera,[4,4,64],
+   'chunk-origin rebase uses actual source positions, not a virtual gateway');
+ assert.equal(shot.crossingTick,475);
+ assert.equal(JSON.stringify([first,retained,old]),before);
+ for(const [s,h,p,v] of [
+   [first,{...retained,verifiedObservedFloorAdvance:false},old,view],
+   [first,{...retained,observedCrossingX:thresholdX-10000},old,view],
+   [first,{...retained,oldRoofY:retained.oldRoofY+10},old,view],
+   [{...first,runToken:'other'},retained,old,view],
+   [{...first,player:{...first.player,health:0}},retained,old,view],
+   [{...first,lastGuardianCrossing:{runToken:'mismatched'}},retained,old,view],
+   [first,retained,{...old,tick:420},view],
+   [first,retained,old,{...view,camera:'overview'}],
+   [first,retained,old,{...view,reducedMotion:true}],
+   [first,{...retained,submittedFrames:9},old,view],
+ ])assert.equal(plan(s,h,p,v),null);
+});
+
+test('immutable guardian victory can use last returned F8 camera 38 ticks earlier, but not an arbitrarily ancient view',async()=>{
+ const {sourceOriginalGatewayCameraBridge:plan}=await load;
+ assert.equal(plan(snapshot,held,{...prior,tick:413},view)?.sourceBound,true,
+   'actual original F8 renderer skipped some genuine fixed ticks before recorded crossing');
+ assert.equal(plan(snapshot,held,{...prior,tick:400},view),null,
+   'cannot borrow a very old or unrelated hero/guardian camera');
+});
