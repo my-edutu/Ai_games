@@ -81,6 +81,29 @@ test('projectiles require the explicit authoritative target and a legal presenta
  assert.equal(planPhysicalFeedback(before,after,{resolveContact:()=>({targetId:'vanguard',distance:1})})[0].visual,'none');
 });
 
+test('ranged and spell release cannot choose the first of duplicate public target identities',async()=>{
+ const {planPhysicalFeedback}=await load('physical-feedback-plan.js');
+ for(const [kind,action,goodKind,badKind] of [
+  ['ranger','attack','ranged-release','ranged-unmatched'],
+  ['mystic','cast','spell-release','cast-unmatched']
+ ]){
+  const original=hero({kind}),performed=hero({kind,action,actionTick:11,targetId:'revenant'});
+  const before=snap(10,{units:[original,foe()]});
+  const unique=snap(11,{units:[performed,foe()]});
+  assert.deepEqual(kinds(planPhysicalFeedback(before,unique,{resolveContact:legal})),[goodKind],
+   'a uniquely identified, witnessed target still authorizes the release attempt');
+  // A successful aim resolver does not disambiguate two live public bodies
+  // with the same ID. Never assign a physical launch to the array-first body.
+  const duplicate=snap(11,{units:[performed,foe(),foe({x:5,z:3})]});
+  const cues=planPhysicalFeedback(before,duplicate,{resolveContact:legal});
+  assert.deepEqual(kinds(cues),[badKind],
+   'ambiguous target identity must stay a source-only, undrawn cue');
+  assert.equal(cues[0].visual,'none');
+  assert.equal(cues[0].targetId,null);
+  assert.equal(cues[0].to,null);
+ }
+});
+
 test('healing and trap-disarm remain utility, not offensive magic or projectiles',async()=>{
  const {planPhysicalFeedback}=await load('physical-feedback-plan.js');
  for(const [kind,event] of [['mystic','healing'],['ranger','disarm']]){
