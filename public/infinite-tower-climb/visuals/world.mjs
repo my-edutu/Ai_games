@@ -7,7 +7,7 @@ import { originalMeshPath } from './mesh-provenance.mjs';
 import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs';
 import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedQueuedOriginalCapAtFirstRender, reconcileRecordedOriginalCapCrossing,
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
-import { observedSourcePhysicalArrivalPalette } from './source-physical-arrival-palette.mjs';
+import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence } from './source-physical-arrival-palette.mjs';
 
 
 /**
@@ -2391,6 +2391,32 @@ export function createTowerWorld(){
     for (const {side,wing} of gate.wings) wing.position.x = side * 2.8;
     for (const {carriage} of gate.counterweights) carriage.position.y = -2.35;
     gate.capstan.rotation.z = 0;
+    // The ORIGINAL already-rendered GPU gate must also retire gradually with
+    // genuine whole-body departure, not pop away all at once while its roof
+    // and gallery fade. Clone ONLY distinct actual old-gate materials once,
+    // so the former floor's shared structural metals and gameplay actors are
+    // never faded. Each clone belongs to the retained-cap disposal owner.
+    // No meshes, fake portals, physics or new draw calls are introduced.
+    const originalGatewayMaterialMap = new Map();
+    function retainGateMaterial(original) {
+      if (!original?.clone) return original;
+      if (!originalGatewayMaterialMap.has(original)) {
+        const material=original.clone();
+        material.name='SourceEarnedOriginalGuardianGatewayMaterial';
+        floorMaterials.add(material);
+        originalGatewayMaterialMap.set(original,{
+          material,baseOpacity:material.opacity,
+          originalTransparent:material.transparent,
+          originalDepthWrite:material.depthWrite});
+      }
+      return originalGatewayMaterialMap.get(original).material;
+    }
+    realGate.traverse(object=>{
+      if (!object.isMesh || !object.material) return;
+      object.material=Array.isArray(object.material)
+        ?object.material.map(retainGateMaterial)
+        :retainGateMaterial(object.material);
+    });
     // Both subtrees had the same old floor parent (the gate is not a child
     // of its collision-aligned source deck). One shared transform keeps them
     // aligned across the old and new chunk origins without duplicating
@@ -2462,6 +2488,8 @@ export function createTowerWorld(){
       originalGalleryBatches:gallery?.root.children.length ?? 0,
       originalGalleryMaterials:gallery?.materials ?? [],
       originalDeckSurface:bronzeSurface,
+      originalGatewayMaterialStages:[...originalGatewayMaterialMap.values()],
+      originalGatewayOpacity:1,
       originalBronzeDeckMeshes:originalDeckMeshes.length,
       ownedGeometries,ownedMaterials,
       // Distinct clocks: immutable HP-zero crossing, first browser-accepted
@@ -2589,14 +2617,35 @@ export function createTowerWorld(){
     // submission. Advancing time here consumed the old doorway/gallery during
     // dropped or stalled renders, so the native video only ever showed F9.
     // noteFrameSubmitted() exclusively owns this display clock.
+    // One authenticated three-dimensional departure now owns the visible
+    // OLD gateway, old cap surface and historic load-bearing gallery together.
+    // A genuine Floor9 climb can rise vertically above the old sill while
+    // horizontal source X barely advances; never demand an impossible 9m
+    // horizontal-only runway to finish the original gateway passage.
+    const departing=observedSourceGatewayDeparturePresence(snapshot,held);
+    const originalGatePresence=departing?.opacity??1;
+    held.originalGatewayOpacity=originalGatePresence;
+    for (const {material,baseOpacity,originalTransparent,originalDepthWrite}
+        of held.originalGatewayMaterialStages) {
+      const fading=originalGatePresence<.999;
+      const transparent=originalTransparent||fading;
+      const depthWrite=originalDepthWrite&&!fading;
+      if (material.transparent!==transparent || material.depthWrite!==depthWrite) {
+        material.transparent=transparent;
+        material.depthWrite=depthWrite;
+        material.needsUpdate=true;
+      }
+      material.opacity=baseOpacity*originalGatePresence;
+    }
+    // All three EXISTING source-authored architecture layers use the same
+    // physical clearance; no cloned roofs, invented bridge, or actor freeze.
+    // Real submitted frames still veto an early optical retirement.
+    const originalPresence=Math.min(.94,Math.max(
+      observedRetainedOriginalBronzeCover(
+        held.submittedFrames,held.visibleSeconds),
+      departing?originalGatePresence*.94:0));
     if (held.originalDeckSurface)
-      held.originalDeckSurface.opacity = observedRetainedOriginalBronzeCover(
-        held.submittedFrames, held.visibleSeconds);
-    // The same sourced structural triangles linger through the real first
-    // successor frame, then retire optically with the original roof/arch.
-    // Only the extracted original-gallery material clones are touched.
-    const originalPresence=observedRetainedOriginalBronzeCover(
-      held.submittedFrames,held.visibleSeconds);
+      held.originalDeckSurface.opacity=originalPresence;
     for(const material of held.originalGalleryMaterials){
       const transparent=originalPresence<.995;
       if(material.transparent!==transparent){
@@ -3579,6 +3628,8 @@ export function createTowerWorld(){
       originalCapId:retainedEarnedCap.oldCapId,
       originalBronzeDeckOpacity:retainedEarnedCap.originalDeckSurface
         ? Number(retainedEarnedCap.originalDeckSurface.opacity.toFixed(4)) : null,
+      originalGatewayOpacity:Number(retainedEarnedCap.originalGatewayOpacity.toFixed(4)),
+      originalGatewayMaterialCount:retainedEarnedCap.originalGatewayMaterialStages.length,
       originalBronzeDeckDepthTested:retainedEarnedCap.originalDeckSurface?.depthTest===true,
       sharedPhysicalRoofColor:platforms.get('f9:ground')?.arrivalSurface?.color.getHexString()??null,
       runToken:retainedEarnedCap.runToken,floor:retainedEarnedCap.floor,
