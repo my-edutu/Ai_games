@@ -28,3 +28,9 @@ Independent randomized fresh-context critics: **LOOKS 0/5 · FEELS 0/5 · PLAYS 
 **Next highest-impact:** verify focused real THREE geometry tests and full exact-head technical CI, capture new source-pinned original films and inspect real face count, full-body occlusion and gateway replacement in actual pixels around 22–31s. If still abrupt, reconstruct shared old/new architectural silhouettes and source-return-to-native video camera/GPU composition in one coherent physical shot, not more fade timers.
 
 **Safety:** PR68 remains OPEN DRAFT on PR58. Frozen baseline unchanged, no merge/deployment/force push, no other-game or PR58 writes.
+
+## Exact immutable source verification queued (no assumed PASS)
+
+- Latest code+test+ledger request source pinned to **`6d51e838cc0a8efedcf891de6d148573cd5de5d6`**. New [quality workflow #43577249933](https://github.com/my-edutu/Ai_games/actions/runs/43577249933): **PENDING** at this review; test regression/final CI not yet green.
+- New [nine-job original WebM capture #43577249882](https://github.com/my-edutu/Ai_games/actions/runs/43577249882): **QUEUED** at inspection. This is the *correct exact source* carrying the 3D clipping change and unchanged frozen baseline. Do not substitute previous e25dcb or treat the queued clips as produced.
+- Existing authentic old evidence remains failed **0/2 original physical threshold viewports**. A new original full-body source-pinned portrait and desktop recording must overturn that only through actual inspection, not predicted improvement. No hardware tests or independent reviewers occurred in this run.
