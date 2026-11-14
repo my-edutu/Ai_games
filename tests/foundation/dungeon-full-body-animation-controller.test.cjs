@@ -5576,3 +5576,42 @@ test('RED: full-leg original-source linked proof owns both shoes through final r
  assert.match(linked,/frame\.sourceSolePatchWorld\?\.\[foot\]\?\.\[tip\]/);
  assert.match(linked,/proof\.after\?\.\[foot\]/);
 });
+
+
+// 14 Nov original source-GLB rAF witnesses: nine-tick desktop genuine
+// Walking_A source weight .753 at .0285m legal displacement over a .033s
+// display, while mobile clips were .39-.78 during lawful movement. A .23s
+// Idle/Guard -> Walking_A source crossfade requires >=3 visible mixer
+// updates under the existing .09s source-fade cap. It leaves authoritative
+// travel visibly underweighted by idle knees/hips, while deep toe-burial
+// corrections cannot safely be inferred from partial source weights.
+// Only shorten the authentic FULL-SKELETON crossfade, NEVER synthesize
+// travel, claim a toe plant, or change attack/cast/hurt/death timing.
+test('RED: real original-source root travel gets timely complete-body Walking_A fade without changing nontravel fades',async()=>{
+ const {planImportedRealTravelCrossfade}=await load();
+ const legal={mode:'move',previousMode:'idle',sourceClipName:'Walking_A',
+  ownerLocomotion:true,groundedMoving:true,groundedTravel:.028535585133776742,
+  frameInterval:.033,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false};
+ assert.equal(planImportedRealTravelCrossfade(legal),.12,
+   'real travel must not remain in partial idle/Walking_A for .23s');
+ assert.equal(planImportedRealTravelCrossfade({...legal,previousMode:'guard'}),.12);
+ for(const invalid of [
+  {mode:'attack'},{mode:'cast'},{mode:'hurt'},{mode:'defeat'},
+  {previousMode:'attack'},{previousMode:'defeat'},
+  {sourceClipName:'Idle'},{sourceClipName:'Death_A'},
+  {ownerLocomotion:false},{groundedMoving:false},{groundedTravel:0},
+  {groundedTravel:.008},{groundedTravel:.30},
+  {frameInterval:.002},{frameInterval:.35},
+  {alive:false},{visible:false},{teleport:true},
+  {reducedMotion:true},{interrupted:true}
+ ])assert.equal(planImportedRealTravelCrossfade({...legal,...invalid}),.23,
+   'unwitnessed, dead, interrupted or unrelated source pose must retain prior .23s fade');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const act=renderer.slice(renderer.indexOf('function changeAction('),
+  renderer.indexOf('function ',renderer.indexOf('function changeAction(')+15));
+ assert.match(act,/planImportedRealTravelCrossfade\(\{/);
+ assert.match(act,/sourceClipName:clip\.name/);
+ assert.match(act,/groundedTravel:/);
+ assert.match(act,/next\.crossFadeFrom\(previous,crossfadeSeconds,false\)/);
+});
