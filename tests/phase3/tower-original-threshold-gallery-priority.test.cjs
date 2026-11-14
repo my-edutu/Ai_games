@@ -241,3 +241,61 @@ test('genuine long bronze bearing faces crossing a gateway envelope are boundedl
     assert.equal(beam.material.name,'','original source material must not be modified');
   }finally{clean(result,old);}
 });
+
+
+test('historical flanking gallery preserves real deep and overhead Clockwork frames under a shared material budget',async()=>{
+  const [THREE,world]=await loaded;
+  const old=new THREE.Group();
+  const points=[],normals=[],uvs=[];
+  // One true source MATERIAL BATCH: numerous near-roof faces would otherwise
+  // consume the small retained envelope and hide both source-original lower
+  // machinery and its overhead bearings from the first Floor9 camera.
+  const primitive=new THREE.BoxGeometry(1.15,1.6,1.15).toNonIndexed();
+  const srcPos=primitive.getAttribute('position');
+  const srcNor=primitive.getAttribute('normal');
+  const srcUv=primitive.getAttribute('uv');
+  const pieces=[...Array.from({length:32},(_,i)=>({
+    angle:at+(i-16)*.001,radial:25.1,y:roof+2
+  })),{angle:at+.035,radial:26,y:roof-63},
+      {angle:at-.042,radial:27,y:roof+37}];
+  for(const piece of pieces)for(let j=0;j<srcPos.count;j++){
+    points.push(srcPos.getX(j)+Math.sin(piece.angle)*piece.radial,
+      srcPos.getY(j)+piece.y,srcPos.getZ(j)+Math.cos(piece.angle)*piece.radial);
+    normals.push(srcNor.getX(j),srcNor.getY(j),srcNor.getZ(j));
+    uvs.push(srcUv.getX(j),srcUv.getY(j));
+  }
+  const geometry=new THREE.BufferGeometry();
+  geometry.setAttribute('position',new THREE.Float32BufferAttribute(points,3));
+  geometry.setAttribute('normal',new THREE.Float32BufferAttribute(normals,3));
+  geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
+  const mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({color:0x776653}));
+  mesh.name='source-rigid-material-vertical-bearings';
+  mesh.userData.structural=true;
+  old.add(mesh);
+  let narrow,wide;
+  try{
+    narrow=world.extractOriginalClockworkThresholdGallery(THREE,old,
+      EXIT_X,ROOF_Y,BASE_Y,WIDTH,{maxFaces:40,maxBatches:1});
+    wide=world.extractOriginalClockworkThresholdGallery(THREE,old,
+      EXIT_X,ROOF_Y,BASE_Y,WIDTH,{
+        maxFaces:40,maxBatches:1,includeOriginalFlanks:true});
+    assert.ok(narrow && wide);
+    const heights=geometry=>Array.from({length:geometry.getAttribute('position').count},
+      (_,j)=>geometry.getAttribute('position').getY(j));
+    const short=heights(narrow.root.children[0].geometry);
+    const extended=heights(wide.root.children[0].geometry);
+    assert.ok(Math.min(...short)>roof-40 && Math.max(...short)<roof+28,
+      'ordinary source extraction remains a focused roof-only corridor');
+    assert.ok(Math.min(...extended)<roof-50 && Math.max(...extended)>roof+28,
+      'same-original-floor source must preserve both deep machine and overhead silhouette, even with central-face saturation');
+    assert.ok(wide.faces<=40 && wide.bytes<=40*96);
+    assert.equal(wide.root.children.length,1,'no extra draw call per bearing');
+    assert.equal(mesh.parent,old,'do not rewrite or move the physical original source');
+  }finally{
+    for(const result of [narrow,wide])if(result)
+      for(const child of result.root.children){
+        child.geometry.dispose();child.material.dispose();
+      }
+    clean(null,old);primitive.dispose();
+  }
+});
