@@ -1357,3 +1357,56 @@ test('Pass348 original guardian shell frame has true through-space and still phy
     assert.equal(w.stats().materialCount,0);
   }
 });
+
+test('Pass366 authored dual actor irises physically respond to witnessed brace without inventing a route',async()=>{
+  const {createMazeWorld}=await load();
+  const state=original(),unchanged=JSON.stringify(state);
+  const w=createMazeWorld({balanced:true}),budget=w.stats();
+  const irises=()=>[6,8].map(cell=>w.group.getObjectByName(
+    'Published guardian Tideglass encounter iris '+cell));
+  const petals=()=>[6,8].flatMap(cell=>Array.from({length:4},(_,i)=>
+    w.group.getObjectByName('Published guardian Tideglass iris mechanical pivot '+cell+' '+i)));
+  try{
+    w.update(state);
+    assert.ok(irises().every(Boolean),'both actual public actor endpoints own a complete joined arena platform');
+    assert.ok(petals().length===8&&petals().every(Boolean),
+      'all eight low physical shell petals are attached to the two observed actor wells');
+    for(const cell of [6,8]){
+      const bed=w.group.getObjectByName('Published guardian Tideglass full-size iris foundation '+cell);
+      const well=w.group.getObjectByName('Published guardian Tideglass actor well '+cell);
+      assert.ok(bed&&well&&bed.scale.x>=1.0&&well.scale.x>.8,
+        'this is full-size actor-scale 3D geometry rather than tiny decorative dots');
+      assert.ok(bed.parent===well.parent,'the contrasted actor well stays joined to its actual platform');
+    }
+    assert.ok(petals().every(p=>Math.abs(p.rotation.z)<1e-8));
+    w.animate(.7,{guardianCell:8,guardianBeat:.5,reducedMotion:false});
+    assert.ok(petals().every(p=>Math.abs(p.rotation.z)>.4),
+      'a genuine witnessed physical brace opens BOTH sets of mechanical stage petals');
+    w.animate(.9,{guardianCell:8,guardianBeat:.9,reducedMotion:false});
+    assert.ok(petals().every(p=>Math.abs(p.rotation.z)<.09),
+      'real shell-release returns the joined floor mechanism near its starting pose');
+    w.animate(1,{guardianCell:999,guardianBeat:.5,reducedMotion:false});
+    assert.ok(petals().every(p=>p.rotation.z===0),
+      'an undisclosed/unknown attacker cannot activate stage mechanics');
+    w.animate(1,{guardianCell:8,guardianBeat:.5,reducedMotion:true});
+    assert.ok(petals().every(p=>p.rotation.z===0),
+      'reduced motion freezes the actual physical petals without dropping event color');
+    w.update({...state,doors:[{a:7,b:8,open:false}]});
+    assert.ok(irises().every(x=>!x),'a genuine closed gate cannot stage a false public duel');
+    w.update({...state,visibleCells:[6,7,11]});
+    assert.ok(irises().every(x=>!x),'unknown guardian cannot expose a private actor well');
+    for(let i=0;i<6;i++){
+      w.update({...state,runToken:'pass366-iris-reset-'+i});
+      assert.ok(irises().every(Boolean));
+      assert.ok(w.stats().geometryCount<100,'preserve strict six-reset real GPU geometry cap');
+      assert.equal(w.stats().geometryCount,budget.geometryCount,
+        'rebuild must reuse existing pooled Three geometry classes');
+      assert.equal(w.stats().materialCount,budget.materialCount);
+    }
+    assert.equal(JSON.stringify(state),unchanged,'no AI/public map/physics mutation');
+  }finally{
+    w.dispose();
+    assert.equal(w.stats().geometryCount,0);
+    assert.equal(w.stats().materialCount,0);
+  }
+});
