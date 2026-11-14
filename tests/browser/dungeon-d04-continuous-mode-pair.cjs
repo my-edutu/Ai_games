@@ -113,7 +113,12 @@ function slowPhaseEvidence(frames){
    const shape=r&&positive(r.frameId)&&r.frameId<=s.frameId&&
     (r.observedRafMs===null||safe(r.observedRafMs))&&
     safe(r.advanceToSubmissionMs)&&r.advanceToSubmissionMs>=100&&
-    safe(r.d04VisualAdvanceMs)&&safe(r.afterVisualToSubmissionMs)&&
+    safe(r.d04VisualAdvanceMs)&&safe(r.d04RetainedAdvanceMs)&&
+    safe(r.d04EffectEmissionMs)&&safe(r.afterVisualToSubmissionMs)&&
+    // The two D04 phases must partition the SAME immutable frame's
+    // aggregate. Malformed/missing clocks cannot be attributed to VFX.
+    Math.abs(r.d04RetainedAdvanceMs+r.d04EffectEmissionMs-
+     r.d04VisualAdvanceMs)<=2&&
     Math.abs(r.d04VisualAdvanceMs+r.afterVisualToSubmissionMs-
      r.advanceToSubmissionMs)<=2&&
     ((r.beforeRendererMs===null&&r.rendererMs===null)||
