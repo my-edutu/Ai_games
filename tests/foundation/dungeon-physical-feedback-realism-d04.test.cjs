@@ -1049,3 +1049,65 @@ test('a live authoritative Warden warning keeps all eight threatened-cell glyphs
   assert.ok(stage.stats().reservedInstances<=104);
  }finally{stage.dispose()}
 });
+
+
+test('D04 unmatched dry releases demand the same unique current actor and live physical source',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const ranger={id:'ranger',kind:'ranger',faction:'party',hp:24,
+  x:2,z:2,action:'attack',actionTick:11};
+ const cultist={id:'cultist',kind:'cultist',faction:'enemy',hp:20,
+  x:3,z:2,action:'cast',actionTick:11};
+ const bodies=new Map([ranger,cultist].map(u=>[u.id,{
+  u:{...u},authored:false,
+  root:{visible:true,position:{x:u.x-9,y:0,z:u.z-9},rotation:{y:0}}
+ }]));
+ let current={run:1,floor:1,tick:11,units:[{...ranger},{...cultist}]};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  actorById:id=>bodies.get(id)??null,getCurrentSnapshot:()=>current});
+ const dry=(u)=>({
+  id:'1:1:11:'+(u.kind==='ranger'?'ranged-unmatched':'cast-unmatched')+':'+u.id+':-',
+  sceneKey:'1:1',tick:11,kind:u.kind==='ranger'?'ranged-unmatched':'cast-unmatched',
+  visual:'none',audio:u.kind==='ranger'?'draw':'cast-dry',
+  verified:false,proof:'authority-action',actorId:u.id,targetId:null,
+  from:{x:u.x,z:u.z},to:null
+ });
+ try{
+  for(const u of [ranger,cultist]){
+   const action=dry(u);
+   assert.equal(stage.hasAuthenticatedSourceOnlyAction(action),true,
+    'the visible living actor and exact public action permit an attempt-only dry cue');
+   const check=(snapshot,expected,why)=>{
+    current=snapshot;
+    assert.equal(stage.hasAuthenticatedSourceOnlyAction(action),expected,why);
+   };
+   check({...current,tick:12},false,'later public tick cannot resurrect old action');
+   check({...current,run:2},false,'a new scene cannot authorize the old foley');
+   check({...current,units:[...current.units,{...u}]},false,
+    'duplicate source ID does not choose an arbitrary performer');
+   check({...current,units:current.units.map(x=>x.id===u.id?{...x,x:x.x+1}:x)},
+    false,'a moved source cannot sound from the old cell');
+   check({...current,units:current.units.map(x=>x.id===u.id?{...x,hp:0}:x)},
+    false,'a defeated actor cannot still launch a dry release');
+   check({...current,units:current.units.map(x=>x.id===u.id?{...x,action:'idle'}:x)},
+    false,'cancelled action may not sound at submission');
+   current={run:1,floor:1,tick:11,units:[{...ranger},{...cultist}]};
+   const rendered=bodies.get(u.id);
+   rendered.u.action='idle';
+   assert.equal(stage.hasAuthenticatedSourceOnlyAction(action),false,
+    'stale rendered pose cannot borrow the correct public snapshot');
+   rendered.u.action=u.action;
+   rendered.root.visible=false;
+   assert.equal(stage.hasAuthenticatedSourceOnlyAction(action),false,
+    'an unloaded body cannot produce source-local sound');
+   rendered.root.visible=true;
+   assert.equal(stage.hasAuthenticatedSourceOnlyAction({...action,targetId:'revenant'}),false,
+    'unconfirmed attempts cannot be laundered into a targeted release');
+   assert.equal(stage.hasAuthenticatedSourceOnlyAction({...action,from:{x:7,z:7}}),false,
+    'the dry source cannot sound from another tile');
+   assert.equal(stage.hasAuthenticatedSourceOnlyAction(action),true);
+  }
+  assert.equal(stage.stats().active,0,'witnesses must not spawn physical FX');
+  assert.equal(stage.stats().activeDrawCalls,0,'a pure audio witness allocates no draw');
+ }finally{stage.dispose()}
+});
