@@ -24,4 +24,35 @@ function createOrderedReplayFeed(snapshots){
    pace:'real browser /dungeon/state polling with milestone holds'};}
  });
 }
-module.exports={createOrderedReplayFeed};
+module.exports={createOrderedReplayFeed,describeOrganicCheckpoint};
+
+/**
+ * Read-only checkpoint evidence for the real organic WebGL journey. A slow
+ * software renderer can stall before its *rendered* Warden state even while
+ * the complete seeded authoritative expedition exists. Report separately
+ * whether its ORIGINAL sequential HTTP feed delivered the needed tick and
+ * whether a genuine positive WebGL frame rendered that exact checksum.
+ * Neither an expected checksum alone nor an unrendered source state passes.
+ */
+function describeOrganicCheckpoint({stage='',expectedIndex=NaN,
+ expectedChecksum='',renderedChecksum=null,renderedFrame=0,feed=null}={}){
+ const m=feed?.metrics?.();
+ if(typeof stage!=='string'||!stage||!m||
+  !Number.isSafeInteger(expectedIndex)||expectedIndex<0||
+  expectedIndex>=m.total||!Number.isSafeInteger(m.lastDeliveredIndex)||
+  typeof expectedChecksum!=='string'||!expectedChecksum)
+  throw new RangeError('Original checkpoint index, source checksum and feed required');
+ const delivered=m.lastDeliveredIndex>=expectedIndex;
+ const frameValid=Number.isSafeInteger(renderedFrame)&&renderedFrame>0;
+ const accepted=delivered&&frameValid&&renderedChecksum===expectedChecksum;
+ const status=accepted?'EXACT_RENDERED_CHECKPOINT':
+  delivered?'DELIVERED_NOT_RENDERED':'NOT_DELIVERED';
+ return Object.freeze({stage,status,accepted,
+  expectedSourceIndex:expectedIndex,expectedChecksum,
+  latestDeliveredIndex:m.lastDeliveredIndex,
+  missingDeliveredSnapshots:Math.max(0,expectedIndex-m.lastDeliveredIndex),
+  renderedFrame:frameValid?renderedFrame:null,
+  renderedChecksum:typeof renderedChecksum==='string'?renderedChecksum:null,
+  source:'real-DungeonRuntime-step-ordered-feed-and-original-WebGL-frame',
+  noFabricatedTraversal:true});
+}
