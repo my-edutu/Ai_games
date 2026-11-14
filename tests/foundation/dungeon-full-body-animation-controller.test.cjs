@@ -5843,3 +5843,69 @@ test('RED: real 390px Walking_A source-linked hip and knee clearance ramps inste
  assert.match(renderer,/previousLinkedCertified/,
   'a standalone test-only planner must not be mistaken for connected WebGL animation');
 });
+
+
+// Source-derived original desktop #43635306320: left airborne heel +169.188mm,
+// toe -108.406mm against -20mm stone, with the opposite loaded outsole fixed.
+// Real measured -90/+75mrad raises 11.196mm (INSUFFICIENT); -110/+90mrad
+// raises 14.297mm, but the first-frame 90mrad-only selector rejects it.
+// The 105/85 intermediate read is a TEST HYPOTHESIS, not a measured GLB result:
+// only a new source WebGL dual-shoe trial can certify it after implementation.
+test('RED: first original source swing uses smallest genuinely sufficient paired arc, without a 115mrad snap',async()=>{
+ const {chooseOriginalSourceSwingLinkedLegTrial:choose,
+  planOriginalSourceSwingLinkedLegFollowups:followups}=await load();
+ const before={left:{heelY:.16918764563397362,toeY:-.10840645631571269,
+   heelXZ:[-3.7,-7.2],toeXZ:[-3.9,-7.2]},
+  right:{heelY:-.03857135469726601,toeY:.012772412319765544,
+   heelXZ:[-4.0,-7.1],toeXZ:[-4.2,-7.1]}};
+ const trial=(upperRad,lowerRad,lift,heelDelta)=>({
+  upperRad,lowerRad,after:{right:{...before.right},
+   left:{...before.left,heelY:before.left.heelY+heelDelta,
+    toeY:before.left.toeY+lift,
+    heelXZ:[before.left.heelXZ[0]+.007,before.left.heelXZ[1]],
+    toeXZ:[before.left.toeXZ[0]+.044,before.left.toeXZ[1]]}}
+ });
+ const owner={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceChainVerified:true,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceBindVerified:true,ownerLocomotion:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false,
+  rootTravel:.04,frameAge:.017,frameInterval:.0167,
+  floorTopY:-.02,side:'left',before};
+ const first=[trial(.09,-.075,-.0053646,-.02881),
+  trial(-.09,.075,.011195959,.027138)];
+ assert.deepEqual(followups({...owner,trials:first}),
+  [[-.105,.085],[-.11,.09]],
+  'spend the remaining two actual skinned probes on a gentler useful source joint arc');
+ const probes=[...first,trial(-.105,.085,.01365,.0309),
+  trial(-.11,.09,.0142970776,.03261)];
+ const selected=choose({...owner,trials:probes});
+ assert.equal(selected?.upperRad,-.105,
+  'do not jump past the first source-measured clearance that meets BOTH shoe gates');
+ assert.equal(selected?.lowerRad,.085);
+ assert.ok(selected.liftMeters>=.012&&selected.fractionCleared>=.15);
+ assert.equal(selected.contactLocked,false);
+ // A different 390px real source witness already earns 13.387mm of
+ // clearance from the smaller -90/+75 arc: prefer that restrained pose.
+ const mobile={...owner,before:{left:{...before.left,heelY:.19078,toeY:-.095514},
+  right:{...before.right,heelY:-.025334,toeY:-.000868}},side:'left'};
+ const mobileProbes=[trial(-.09,.075,.0133866,.0265),
+  trial(-.105,.085,.0169573,.0318),
+  trial(-.11,.09,.0180163,.0333)];
+ const restrained=choose({...mobile,trials:mobileProbes.map(t=>({
+  ...t,after:{...t.after,right:mobile.before.right,
+   left:{...mobile.before.left,heelY:mobile.before.left.heelY+
+    (t.after.left.heelY-before.left.heelY),
+    toeY:mobile.before.left.toeY+(t.after.left.toeY-before.left.toeY),
+    heelXZ:t.after.left.heelXZ,toeXZ:t.after.left.toeXZ}}}))});
+ assert.equal(restrained?.upperRad,-.09,
+  'do not magnify a genuine first-frame full-leg pose when the smaller trial already works');
+ assert.equal(choose({...owner,reducedMotion:true,trials:probes}),null);
+ assert.equal(choose({...owner,sourceInstanceSame:false,trials:probes}),null);
+ assert.equal(choose({...owner,trials:probes.map(t=>({
+  ...t,after:{...t.after,right:{...before.right,toeY:before.right.toeY+.009}}}))}),null,
+  'no improvement may buy clearance by displacing the loaded original shoe');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/planOriginalSourceSwingLinkedLegFollowups\(\{/);
+ assert.match(renderer,/const after=read\(\)/);
+});
