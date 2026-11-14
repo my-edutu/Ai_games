@@ -3614,6 +3614,21 @@ vec3 fastFilmicGamma(vec3 x){
  vec3 root=sqrt(max(x,vec3(0.)));
  return x+(root-x)*(vec3(.135)+.14*x);
 }
+// W331: one bounded physical-response function for the SAME four original
+// post lanterns and the at-most-two actual returning-citizen wrist lamps.
+// Early out before normalization makes distant fragments cheap, and the real
+// light vector / face normal prevents broad painted-over roof glow.
+float livedInLanternPool(vec3 lightPos,vec3 normal,vec3 surface,float radiusSq){
+ vec3 toLamp=lightPos-surface;
+ float distanceSq=dot(toLamp,toLamp);
+ if(distanceSq>radiusSq)return 0.;
+ float roofGate=1.-smoothstep(.0,1.2,surface.y-lightPos.y);
+ if(roofGate<=.0)return 0.;
+ float face=max(dot(normal,toLamp*inversesqrt(max(distanceSq,.0001))),0.);
+ float bounce=vMaterial<4.5?.16:.025;
+ return (1.-smoothstep(.35,radiusSq,distanceSq))*roofGate*
+  (bounce+(1.-bounce)*face);
+}
 void main(){
  vec3 c=vColor;
  vec3 n=normalize(vNormal);
@@ -3858,25 +3873,23 @@ void main(){
   vec3 baked=texture2D(architectureAtlas,atlasUV).rgb;
   c*=mix(vec3(1.),baked*1.27,.81);
  }
- // W330: original 3D lanterns illuminate the real market/home walk at night.
- // Four actually modelled street posts and up to two ACTUAL carrying workers.
- // No additional geometry, passes or fake economy. Daylight skips the work.
- if(sunStrength<.47 && vMaterial<11.5){
+ // W331: real post/wrist sources, deliberately short warm pools.
+ // Ground and authentic street frontages receive local light from the true
+ // direction. Elevated roofs and back-facing walls cannot become floodlit,
+ // while the real glow mesh itself retains its emission.
+ if(sunStrength<.47 && vMaterial<9.0){
   float night=1.-smoothstep(.11,.47,sunStrength);
   float lamplight = 0.;
   for(int li=0;li<4;li++){
-   vec3 d=vWorld-villageLanterns[li].xyz;
-   float proximity=1.-smoothstep(1.0,56.25,dot(d,d));
-   lamplight=max(lamplight,proximity*villageLanterns[li].w);
+   lamplight=max(lamplight,livedInLanternPool(villageLanterns[li].xyz,n,vWorld,27.04)
+    *villageLanterns[li].w);
   }
   for(int ci=0;ci<2;ci++){
    if(commuterLanterns[ci].w>.5){
-    vec3 d=vWorld-commuterLanterns[ci].xyz;
-    lamplight=max(lamplight,.76*(1.-smoothstep(.24,20.25,dot(d,d))));
+    lamplight=max(lamplight,.80*livedInLanternPool(commuterLanterns[ci].xyz,n,vWorld,13.69));
    }
   }
-  float face=.67+.33*max(dot(n,normalize(vec3(.12,1.,.24))),0.);
-  c+=vec3(.39,.245,.115)*lamplight*night*face;
+  c+=vec3(.34,.195,.085)*min(lamplight,.80)*night;
  }
  c=mix(c,fogColor,vFog);
  // Living Valley cinematic grade: retain the original material response but
@@ -5519,10 +5532,14 @@ const carriedVillageLampData=new Float32Array(8);
 let carriedVillageLampNames=[],carriedVillageLampSelectionChecks=0;
 function selectAuthenticCarriedLights(){
  carriedVillageLampData.fill(0);
+ // If the observer follows a genuinely returning night citizen, keep THAT
+ // real lamp in the at-most-two budget even among a busy Day-121 town.
+ const preferredCarrier=follow?people[selectedCitizen]:null;
  const carriers=people.filter(carryingCommuterLantern).map(p=>{
   const position=commuterLanternPoint(p);
-  return {p,position,distance:Math.hypot(p.x-focusPoint[0],p.z-focusPoint[1])};
- }).sort((a,b)=>a.distance-b.distance||a.p.name.localeCompare(b.p.name));
+  return {p,position,priority:p===preferredCarrier?0:1,
+   distance:Math.hypot(p.x-focusPoint[0],p.z-focusPoint[1])};
+ }).sort((a,b)=>a.priority-b.priority||a.distance-b.distance||a.p.name.localeCompare(b.p.name));
  carriedVillageLampNames=[];
  for(let i=0;i<Math.min(2,carriers.length);i++){
   const {p,position}=carriers[i];
