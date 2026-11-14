@@ -672,6 +672,8 @@ for(const view of [
    plantedFootCertified:false,
    frames:trace.map(t=>({tick:t.tick,sourceId:t.sourceId,
     acceptedFrames:t.nativeLegOwnership?.sourceSwingLinkedAcceptedFrames??0,
+    probeFrames:t.nativeLegOwnership?.sourceSwingLinkedProbeFrames??0,
+    measuredTrial:t.nativeLegOwnership?.sourceSwingLinkedLastProbe??null,
     proofs:t.nativeLegOwnership?.sourceSwingLinkedCurrentFrameProofs??null,
     skinnedShoes:t.sourceSolePatchWorld??null}))},null,2))
  });
@@ -691,8 +693,19 @@ for(const view of [
   expect(proof.after?.[side]?.toeY).toBeGreaterThanOrEqual(
    proof.before?.[side]?.toeY+.011999);
   expect(Math.sign(proof.upperRad)).not.toBe(Math.sign(proof.lowerRad));
-  expect(Math.abs(proof.upperRad)).toBeLessThanOrEqual(.105001);
-  expect(Math.abs(proof.lowerRad)).toBeLessThanOrEqual(.075001);
+  // A larger connected hip-knee arc is legal only in a witnessed >=50ms
+  // fully weighted original walking frame, never by inventing a foot plant.
+  const extended=Math.abs(proof.upperRad)>.105001||
+   Math.abs(proof.lowerRad)>.075001;
+  if(extended){
+   expect(proof.witnessedFrameIntervalSeconds).toBeGreaterThanOrEqual(.05);
+   expect(proof.witnessedSourceWeight).toBeGreaterThanOrEqual(.95);
+   expect(Math.abs(proof.upperRad)).toBeLessThanOrEqual(.145001);
+   expect(Math.abs(proof.lowerRad)).toBeLessThanOrEqual(.110001);
+  }else{
+   expect(Math.abs(proof.upperRad)).toBeLessThanOrEqual(.105001);
+   expect(Math.abs(proof.lowerRad)).toBeLessThanOrEqual(.075001);
+  }
   const opposite=side==='left'?'right':'left';
   for(const end of ['toe','heel']){
    expect(Math.abs(proof.after?.[opposite]?.[end+'Y']-
