@@ -2256,7 +2256,7 @@ export function createTowerWorld(){
   // transform, not the entire old floor or any old physics. No source wins,
   // support, collision, replay or synthetic portal may be created here.
   let pendingEarnedCap = null, retainedEarnedCap = null;
-  const RETAINED_CAP_SECONDS = 1.65;
+  const RETAINED_CAP_SECONDS = 2.8;
   function retireEarnedCap() {
     if (!retainedEarnedCap) return;
     const held = retainedEarnedCap;
@@ -2601,15 +2601,24 @@ export function createTowerWorld(){
       Number.isSafeInteger(p.x) && Number.isSafeInteger(sole) &&
       Math.abs(p.x-held.thresholdX)<=90000 &&
       sole>=held.oldRoofY-2500 && sole<=held.oldRoofY+160000;
-    held.sourceAlignedPassage=samePassage || sourceColdFrame;
+    // Do not detach a real old GPU doorway halfway through its authenticated
+    // successor ascent simply because the old platform is now below the feet.
+    // Both the geometry owner and cloned original-gate materials obey the
+    // SAME source walk/flight proof, bounded to this particular defeated
+    // guardian, cap and run. No gameplay pose, platform or victory is created.
+    const sourceDeparture=!options.stale
+      ?observedSourceGatewayDeparturePresence(snapshot,held):null;
+    held.sourceAlignedPassage=samePassage || sourceColdFrame ||
+      sourceDeparture?.sourceBound===true;
     if (options.stale || snapshot.runToken !== held.runToken ||
         snapshot.floor !== held.floor || snapshot.lifecycle !== 'running' ||
         !Number.isSafeInteger(snapshot.tick) ||
         snapshot.tick<held.sourceTick || snapshot.tick-held.sourceTick>60 ||
         !(p?.health>0) ||
-        (!nearDoor && !onCameraHandoffFlight && !retainedBackdrop) ||
+        (!nearDoor && !onCameraHandoffFlight && !retainedBackdrop &&
+          !sourceDeparture?.sourceBound) ||
         (!onNewRoof && !justLaunched && !onCameraHandoffFlight &&
-          !retainedBackdrop)) {
+          !retainedBackdrop && !sourceDeparture?.sourceBound)) {
       retireEarnedCap();
       return;
     }
@@ -2622,7 +2631,7 @@ export function createTowerWorld(){
     // A genuine Floor9 climb can rise vertically above the old sill while
     // horizontal source X barely advances; never demand an impossible 9m
     // horizontal-only runway to finish the original gateway passage.
-    const departing=observedSourceGatewayDeparturePresence(snapshot,held);
+    const departing=sourceDeparture;
     const originalGatePresence=departing?.opacity??1;
     held.originalGatewayOpacity=originalGatePresence;
     for (const {material,baseOpacity,originalTransparent,originalDepthWrite}
@@ -2662,7 +2671,16 @@ export function createTowerWorld(){
     if(arrival && held.originalDeckSurface && materials.landing)
       arrival.color.copy(materials.landing.color).lerp(
         held.originalDeckSurface.color,held.originalDeckSurface.opacity);
-    if (held.submittedFrames >= 5 && held.visibleSeconds >= RETAINED_CAP_SECONDS)
+    // Only remove the old GPU group when BOTH its real gate AND original
+    // deck/gallery have been visibly extinguished by source departure and
+    // successful submissions. The former time-only 1.65s removal chopped a
+    // still-partially-visible arch out of the scene, producing a hard cut.
+    // A fixed, finite backstop remains for GPU/memory and stuck-source safety;
+    // it is NOT a claim that the forced backstop looks visually acceptable.
+    if ((originalGatePresence<=.01 && originalPresence<=.01 &&
+         held.submittedFrames>=6 && held.visibleSeconds>=.9) ||
+        (held.submittedFrames>=30 &&
+         held.visibleSeconds>=RETAINED_CAP_SECONDS))
       retireEarnedCap();
   }
 
@@ -2799,7 +2817,7 @@ export function createTowerWorld(){
         snapshot.runToken===held.runToken &&
         snapshot.floor===held.floor && snapshot.tick>=held.sourceTick &&
         snapshot.lifecycle==='running') {
-      held.submittedFrames=Math.min(10,held.submittedFrames+1);
+      held.submittedFrames=Math.min(60,held.submittedFrames+1);
       held.visibleSeconds=Math.min(3,held.visibleSeconds+shown);
     }
     const job=deferredDistantArrival;
