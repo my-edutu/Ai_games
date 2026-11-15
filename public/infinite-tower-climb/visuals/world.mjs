@@ -914,14 +914,23 @@ export function clockworkOpenGeologicalTies(height,width,depth,localY) {
 // guardian/winch victory drives the source-owned leaves beyond the pedestrian
 // opening and folds their solid bars out of the lens. No collider, AI, snapshot,
 // destination, virtual portal or camera opacity change.
-export function sourceEarnedGuardianSealWingPose(side,progress) {
+export function sourceEarnedGuardianSealWingPose(side,progress,sourceUnlocked=false) {
   if((side!==-1&&side!==1)||!Number.isFinite(progress))return null;
   const u=Math.max(0,Math.min(1,progress));
   const aperture=u<=.72 ? u/.72*.35 : .35+(u-.72)/.28*.65;
-  // Avoid signed negative zero from the left closed wing: a genuinely new
-  // run is an exact fully closed 3D lock in both source snapshots and tests.
-  // The HP/defeat/winch contract remains unchanged.
-  return {x:aperture===0?0:side*5.1*aperture,z:-.18-.94*aperture,
+  // The real portrait WebM from immutable campaign 43749637159 still
+  // ray-struck the LEFT OPEN bronze lattice before the player's HELMET at
+  // source tick481. Lateral slide plus yaw left a full 4.12m adult-height
+  // sheet in the camera's actual path. The original counterweight winch now
+  // hoists the same articulated leaves UP into a supported overhead pocket,
+  // not just aside. HP damage alone can only slide/turn the cage; the lift is
+  // powered exclusively by the source-proven zero-HP + completed winch lock.
+  // Keep smoothstep bounded so there is no overhead jump or airborne prize
+  // for a living/inactive-positive-HP guardian, and restarts reclose fully.
+  const liftPhase=sourceUnlocked===true?u:0;
+  const hoist=5.85*liftPhase*liftPhase*(3-2*liftPhase);
+  return {x:aperture===0?0:side*5.1*aperture,
+    y:hoist,z:-.18-.94*aperture,
     yaw:aperture===0?0:-side*1.24*aperture,
     roll:aperture===0?0:side*.035*aperture,
     openFraction:aperture};
@@ -2353,6 +2362,19 @@ export function createTowerWorld(){
         block(doorway,materials.edge,[side*4.15,5.30,-.38],[.43,.20,.5]);
       }
       block(doorway,materials.dark,[0,5.34,-.44],[8.65,.22,.46]);
+      // The opened full-height bronze leaves need an actual high storage
+      // volume rather than remaining at helmet height after a wide slide.
+      // Each original leaf is raised by its source-earned counterweight drive
+      // into a rear overhead guided pocket. These rigid, non-colliding guide
+      // posts begin ABOVE the playable 5m gateway and connect to the existing
+      // ~10m transmission bay; like the doorway piers they join the same
+      // two rigid material batches, not separate shadow submissions.
+      for(const side of [-1,1]){
+        block(doorway,materials.dark,[side*5.15,7.83,-1.2],
+          [.20,4.96,.20]).name='GuardianSealOverheadHoistGuide';
+        block(doorway,materials.edge,[side*5.15,10.31,-1.2],
+          [.60,.18,.45]).name='GuardianSealOverheadHoistCrown';
+      }
       const wings=[];
       for(const side of [-1,1]){
         const wing=new THREE.Group();
@@ -2848,8 +2870,11 @@ export function createTowerWorld(){
     gate.progress = 1;
     gate.unlocked = true;
     for (const {side,wing} of gate.wings) {
-      const pose=sourceEarnedGuardianSealWingPose(side,1);
-      wing.position.set(pose.x,0,pose.z);
+      const pose=sourceEarnedGuardianSealWingPose(side,1,true);
+      // Identical original metal/skeleton and source unlock at Floor8 and
+      // across the cold Floor9 GPU ownership rebuild: never re-drop steel
+      // over the genuine skinned climber while its earned arch is retained.
+      wing.position.set(pose.x,pose.y,pose.z);
       wing.rotation.set(0,pose.yaw,pose.roll);
     }
     for (const {carriage} of gate.counterweights) carriage.position.y = -2.35;
@@ -3943,8 +3968,9 @@ export function createTowerWorld(){
             arrivalOpen,genuineWinch?target:0);
           gate.unlocked=unlocked&&(!genuineWinch||winchProgress>=1);
           for(const {side,wing} of gate.wings){
-            const pose=sourceEarnedGuardianSealWingPose(side,gate.progress);
-            wing.position.set(pose.x,0,pose.z);
+            const pose=sourceEarnedGuardianSealWingPose(
+              side,gate.progress,gate.unlocked);
+            wing.position.set(pose.x,pose.y,pose.z);
             wing.rotation.set(0,pose.yaw,pose.roll);
           }
           for(const {side,carriage} of gate.counterweights){
