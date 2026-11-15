@@ -329,10 +329,7 @@ export function publicEarnedGuardianRecoilCourtCells(s,{spectator=false}={}) {
       // Widen only the optional-dressing exclusion. The real actor-level
       // low blocked stone treatment remains unchanged, and a different
       // elevation NEVER authorizes a fake playable floor or shortcut.
-      // Pass410: original native 320px parry is screened by tall optional
-      // monuments rooted on currently PUBLIC blocked spectator stone.
-      // Quiet that decoration; preserve the opaque impassable foundation.
-      if(spectator && c.blocked!==false && c.blocked!==true)continue;
+      if(spectator && c.blocked!==false)continue;
       const radius=spectator?4:2;
       if(distance(c.cell,hero.cell)>radius
         &&distance(c.cell,guardian.cell)>radius)continue;
@@ -2227,8 +2224,7 @@ export function createMazeWorld(options = {}) {
         // towers over the physical Pip–Thornback performance. Replace ONLY
         // decorative blocked-cell ornament with a sealed mineral reef.
         if ((guardianBlockedRelief.has(c.cell) || guardianOuterCourt.sealed.has(c.cell)
-          || (earnedRecoilQuiet.has(c.cell) && c.blocked===true)
-          || (earnedSpectatorHorizon.has(c.cell) && c.blocked===true))
+          || (earnedRecoilQuiet.has(c.cell) && c.blocked===true))
           && !pressureSightline) {
           if(guardianOuterCourt.sealed.has(c.cell))guardianOuterCourtSealedTiles++;
           guardianBlockedReliefTiles++;
