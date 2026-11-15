@@ -4941,7 +4941,13 @@ export function createTowerScene(canvas, settings = {}) {
         ?sourceGuardian.halfHeight/SCALE:0,
       sightlinePriorities.hazard?observedHazardSightline:null,
       protectLiveRoute&&sightlinePriorities.gate&&sightlinePriorities.arrival
-        ?earnedGatewayFocus:null);
+        ?earnedGatewayFocus:null,
+      // Real source-owned body half-width; the old three centre rays missed
+      // broad bronze posts over the climber's shoulders on a 390px portrait
+      // even while the correct gateway and next-floor platform survived.
+      // Preserve desktop/overview/manual and actual source authority.
+      protectLiveRoute&&Number.isFinite(p.halfWidth)
+        ?p.halfWidth/SCALE:0);
     updateLandingBeacon(landingBeacon, targetPlatform, snapshot, camera);
     sky.position.copy(camera.position);
     sun.target.position.set(0, targetY, 0);
