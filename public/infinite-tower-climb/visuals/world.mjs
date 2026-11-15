@@ -1369,8 +1369,25 @@ export function createTowerWorld(){
   }
   // Reuse authored Void bearing geometry across the first source-earned scene
   // and the later cold-built noninteractive shaft, never a duplicate proxy.
-  function buildVoidOpenCoreLoadPath(height,parent=floorGroup) {
+  function buildVoidOpenCoreLoadPath(height,parent=floorGroup,mode='complete') {
     const root=parent;
+    // Original 7cf65f5a source-pinned 1x desktop+portrait footage: the full
+    // first-F9 heavy foundation/crown made the first GPU return 217.8/176.8ms
+    // versus the previous 117.2/103.2ms and still failed the native doorway.
+    // Decompose the SAME original authored load path at a physically real
+    // construction joint. First source-earned F9 render gets its lightweight
+    // rear steel bracing/roof ties. Actual massive foundation/crown upload
+    // only after a returned GPU frame (alongside the existing deferred
+    // shaft). No proxy, duplicate geometry or extra gameplay architecture.
+    if(mode!=='first-frame'){
+      const base=lathe(root,[[0,-34],[10.8,-34],[12.4,-24],
+        [12.4,7.7],[10.6,9],[0,9]],materials.dark,[0,0,-3]);
+      base.name='VoidOpenCoreFoundation';base.userData.structural=true;
+      const crown=lathe(root,[[0,height+10],[10.6,height+10],
+        [12.4,height+13],[10.2,height+25],[0,height+25]],materials.dark,[0,0,-3]);
+      crown.name='VoidOpenCoreSupportedCrown';crown.userData.structural=true;
+    }
+    if(mode==='deferred-masses')return;
       // REAL F8->9 native 1x footage (4faa852b, 25-27s) still replaces the
       // opened bronze threshold with a solid purple central wall. This is
       // original non-colliding architectural geometry, not a gameplay core.
@@ -1378,12 +1395,6 @@ export function createTowerWorld(){
       // a permanently OPEN central observation bay at actual climbing height.
       // It has rear load stays and roof-to-ground bracing, not an alpha-faded
       // full-height cylinder or a synthetic passage/actor/collider.
-      const base=lathe(root,[[0,-34],[10.8,-34],[12.4,-24],
-        [12.4,7.7],[10.6,9],[0,9]],materials.dark,[0,0,-3]);
-      base.name='VoidOpenCoreFoundation';base.userData.structural=true;
-      const crown=lathe(root,[[0,height+10],[10.6,height+10],
-        [12.4,height+13],[10.2,height+25],[0,height+25]],materials.dark,[0,0,-3]);
-      crown.name='VoidOpenCoreSupportedCrown';crown.userData.structural=true;
       const core=new THREE.Group();core.name='VoidOpenCoreLoadPath';
       core.position.z=-3;root.add(core);
       const supports=[];
@@ -1494,7 +1505,7 @@ export function createTowerWorld(){
     // the first genuine grounded F9 frame and gradually reveals their actual
     // Void finish on source-owned departure. The full source F9 ground,
     // moving decks, hazards and actor are unaffected.
-    buildVoidOpenCoreLoadPath(height,frame);
+    buildVoidOpenCoreLoadPath(height,frame,'first-frame');
     return {root:frame,pylonIndex:null,deferredPylonIndex:nearest,
       coreDeferred:false,coreDrawn:true,runToken:snapshot.runToken};
   }
@@ -1543,6 +1554,7 @@ export function createTowerWorld(){
       // owner, so its real supports reveal together with the new piers.
       if(!stagedVoidArchitecture || stagedVoidArchitecture.coreDeferred===true)
         buildVoidOpenCoreLoadPath(height,root);
+      else buildVoidOpenCoreLoadPath(height,root,'deferred-masses');
     } else {
       lathe(root,[[0,-34],[10.8,-34],[12.4,-24],[12.4,height+13],
         [10.2,height+25],[0,height+25]],materials.dark,[0,0,-3]).userData.structural=true;
