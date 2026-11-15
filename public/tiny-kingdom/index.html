@@ -3677,13 +3677,15 @@ void main(){
     position.x>16.2&&position.x<33.0&&
     position.z> -2.0&&position.z<4.2&&position.y<2.6){
   float reach=length(position.xz-harvestContact.xy);
-  float opening=1.0-smoothstep(.18,1.35,reach);
-  float shoulder=1.0-smoothstep(1.10,2.00,reach);
+  // W353 actual farmer-visible cutting corridor: bend original near-field
+  // leaves away from the REAL IK-operated sickle without deleting grain.
+  float opening=1.0-smoothstep(.22,1.75,reach);
+  float shoulder=1.0-smoothstep(1.50,2.35,reach);
   float stalk=smoothstep(.07,.76,max(0.0,position.y-harvestFloor));
   float work=clamp(.68+.22*harvestProgress+.18*harvestContact.z,0.,1.);
   vec2 fromWorker=(position.xz-harvestContact.xy)/max(.15,reach);
-  world.xz+=fromWorker*opening*stalk*work*.48;
-  world.y-=max(0.,position.y-(harvestFloor+.22))*opening*work*.86;
+  world.xz+=fromWorker*opening*stalk*work*.78;
+  world.y-=max(0.,position.y-(harvestFloor+.22))*opening*work*.91;
   float wave=sin(worldTime*6.4+position.x*1.21+position.z*.67+
     harvestContact.w*5.8);
   world.x+=shoulder*stalk*.075*wave;
@@ -14918,6 +14920,9 @@ function authenticGrainHeadProfile(x,z,index,season){
  const c=biomeHash(index*17+271),d=biomeHash(index*19+577);
  const azimuth=index*2.399963+c*1.7;
  const ripe=season===1||season===2;
+ // W353 human-scale planted field and harvest clearance: preserve all 668
+ // authoritative roots and both original 4/12/20-triangle LODs, but narrow
+ // broad prototype leaves and ears around real, visible farmer hand contacts.
  // W290: the complete ORIGINAL wheat crop now forms a human-scale
  // continuous planted stand with bowed heads, broader leaf blades and a
  // natural green-to-gold canopy. The same exact 668 seeded stems, seasonal
@@ -14928,7 +14933,7 @@ function authenticGrainHeadProfile(x,z,index,season){
   stemLeanZ:Math.cos(azimuth)*(.055+b*.082),
   headDirection:[Math.sin(azimuth+.39),Math.cos(azimuth+.39)],
   earLength:(.20+d*.08)*(season===0?.73:1),
-  leafReach:.16+d*.09,livingSeason:season!==3,
+  leafReach:.115+d*.065,livingSeason:season!==3,
   rootedAt:[x,z],authorityModified:false};
 }
 function farmStalk(x,z,index,season,compact=false){
@@ -14968,16 +14973,16 @@ function farmStalk(x,z,index,season,compact=false){
    // Same four two-sided original leaf triangles, now with true swept
    // outboard width and drooping tip instead of narrow vertical sticks.
    for(const side of [-1,1]){
-    const attach=at(side===1?.35:.52),reach=lived.leafReach*side;
+    const attach=at(side===1?.31:.48),reach=lived.leafReach*side;
     const flank=side===1?.10:-.08;
-    const mid=[attach[0]+reach*.56,attach[1]+h*.105,
+    const mid=[attach[0]+reach*.56,attach[1]+h*.065,
      attach[2]+flank*.48];
-    const end=[attach[0]+reach,attach[1]+h*.045,
+    const end=[attach[0]+reach,attach[1]+h*.008,
      attach[2]+flank];
     tri(attach,mid,end,leaf);tri(end,mid,attach,reverseLeaf);
    }
    for(let g=0;g<2;g++){
-    const p=at(.79+g*.106),kernel=(.097-g*.021)*(.88+sig3*.22);
+    const p=at(.79+g*.106),kernel=(.070-g*.017)*(.88+sig3*.22);
     for(const side of [-1,1]){
      const span=side*kernel;
      tri([p[0]-ax*.012,p[1]-.017,p[2]-az*.012],
@@ -14991,19 +14996,19 @@ function farmStalk(x,z,index,season,compact=false){
    // triangles, twelve mature grain-kernel triangles, two awns. Remain
    // exactly 20 triangles per genuine planted stem (12 in far LOD).
    for(const side of [-1,1]){
-    const attach=at(side===1?.36:.53),reach=lived.leafReach*side;
+    const attach=at(side===1?.32:.49),reach=lived.leafReach*side;
     const flank=side===1?.15:-.13;
-    const mid=[attach[0]+reach*.51,attach[1]+h*.115,
+    const mid=[attach[0]+reach*.51,attach[1]+h*.075,
      attach[2]+flank*.56];
-    const end=[attach[0]+reach,attach[1]+h*.029,
+    const end=[attach[0]+reach,attach[1]+h*.010,
      attach[2]+flank];
-    const fold=[attach[0]+reach*.42,attach[1]+h*.025,
+    const fold=[attach[0]+reach*.42,attach[1]+h*.008,
      attach[2]-flank*.38];
     tri(attach,mid,fold,leaf);tri(mid,end,fold,leaf);
     tri(fold,mid,attach,reverseLeaf);tri(fold,end,mid,reverseLeaf);
    }
    for(let g=0;g<3;g++){
-    const p=at(.755+g*.078),kernel=(.089-g*.014)*(.90+sig3*.24);
+    const p=at(.755+g*.078),kernel=(.064-g*.012)*(.90+sig3*.24);
     for(const side of [-1,1]){
      const span=side*kernel;
      tri([p[0]-ax*.012,p[1]-.017,p[2]-az*.012],
