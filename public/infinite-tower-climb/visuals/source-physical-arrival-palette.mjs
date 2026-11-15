@@ -141,9 +141,19 @@ export function observedSourcePhysicalArrivalPalette(source,held=null) {
   // an unsubmitted first F9 frame remains bronze, and the full source
   // progress cannot overtake the old physical gateway until its own bounded
   // sequence has been drawn.
+  // Actual native 1x recordings show only a few WebGL returns while the
+  // authentic climber leaves the 70-tick original corridor. Spreading the
+  // handoff across 12-15 returned frames made the scene remain nearly
+  // opaque bronze and then jump to fully violet when the source witness
+  // expired. Keep the first real F9 draw genuinely bronze, preserve the
+  // small observed source stride after the first return, then let the
+  // next THREE returned frames finish a source-earned physical departure.
+  // Dropped RAFs and polls advance nothing. The same true source progress
+  // is still the upper bound, and it never changes actor/physics state.
   const gpuProgress=originalGpuVisible
     ?held.submittedFrames===0?0:
-      smooth((held.submittedFrames+1)/15):1;
+      held.submittedFrames===1?smooth(2/15):
+      smooth((held.submittedFrames-1)/3):1;
   const progress=Math.min(physicalProgress,gpuProgress);
   const oldWeight=1-progress;
   return {sourceBound:true,sourceTick:source.tick,crossingTick:sourceTick,
@@ -176,8 +186,14 @@ export function observedSourceGatewayDeparturePresence(source,held) {
   const wholeBodyCleared=
     p.x-p.halfWidth>=held.thresholdX+4000 ||
     physical.rise>=70000;
-  const displayedSeconds=smooth((held.visibleSeconds-.12)/.90);
-  const submittedFrames=smooth((held.submittedFrames-1)/5);
+  // One original GPU return MUST show the complete bronze gate and
+  // survivor. After that, real source clearance and actual successful
+  // submissions allow its original material to recede within a finite
+  // four-return sequence. The earlier .9s/6-return minimum could not finish
+  // before the observed cold video advanced 60-70 authoritative ticks,
+  // producing a one-frame discontinuity at source-proof retirement.
+  const displayedSeconds=smooth((held.visibleSeconds-.08)/.30);
+  const submittedFrames=smooth((held.submittedFrames-1)/3);
   const visibleProgress=Math.min(displayedSeconds,submittedFrames);
   // Do not erase the real bronze gate while the actual climber still occupies
   // the threshold. Only a fully-cleared original opening can retire its
