@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-14T23:47:47.000Z",
+  "updatedAt": "2026-11-15T01:14:26.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass375: material whole-theatre guardian floor negative-space source candidate. Suppresses unrelated decorative floor petal/rail grids ONLY in real public witnessed Pip–Thornback stage; keeps physical wall100, six event-driven floor leaves, four moving sentinels, visible pressure/gate/key, public-only AI and all strict tests. Pass374 rollback exact-head Maze WebGL 43652559803 SUCCESS, but NEW candidate exact-source tests, native 320/390/844/1280 original WebGL and independent critic PENDING. Official Nintendo benchmark unmet, agent workspace NOT_FOUND."
+    "summary": "Pass376: independently downloaded exact-source Pass375/Pass374 original WebGL artifacts, verified 37/37 SHA-matched PNG+JSON pairs per artifact (including true gate and pressure sequences), and inspected native 390 notice/brace/release + 320 Follow. Pass375 floor-negative-space candidate visually REJECTED: actual guardian theatre remains crowded and physical wall100 remains first-hit. Restored only candidate production world.js and removed candidate-only test; strict safety, privacy, HUD and budget unchanged. Rollback new-HEAD WebGL approval pending. Separate whole CI Tiny Kingdom OBS/artifact failures. Official Nintendo benchmark unmet; independent critics unavailable (workspace NOT_FOUND)."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass376 2026-11-15: exact-commit Pass375 43655891814 SUCCESS; reviewed original uncropped 39-PNG candidate and baseline, 37/37 matching image SHA-256 sidecars for each. Negative-space change visibly insufficient, REJECT; selectively restore proven world.js, delete only Pass375 temporary test. New rollback SHA CI pending; no Nintendo-quality win or independent critics.",
     "Pass375 2026-11-15: source-only holistic physical guardian theatre candidate, removes repeated passive tile ornaments/secondary floor strips throughout publicly earned scene while maintaining true joined 3D stage, original four moving sentinels, six warning leaves, sealed walls, AI/privacy, original HUD and budget. New installed-Three witness/hidden/reset test. New exact-commit WebGL and rendered artist acceptance PENDING, not a claimed win.",
     "Pass372 2026-11-14: one retained shadowless original cool guardian counterlight, real public reciprocal open-lane source-clock guard, no geometry/camera/collision/AI or HUD changes. Candidate only; exact-SHA tests/native WebGL screenshots, actual strict geometry and blind visual parity NOT yet verified.",
     "Pass371 2026-11-14: exact corrected Pass370b WebGL 43644595141 native original 37/37 SHA plus 3/3 real gate and 6/6 pressure verified, focused 179/179 and browser 7/7 success. Authentic full-frame 390 brace essentially unchanged and 320 Follow mean delta only 1.988/255 (2.75% pixels): real attached guardian telescope does NOT materially improve physical Pip/Thornback hierarchy against Nintendo Captain Toad. REJECT stage candidate. Restore only world source and candidate test to proven fa814 blobs, preserve native research/criticism and strict wall100/AI/privacy/44px/±.95/<100. Rollback CI new HEAD pending.",

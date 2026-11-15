@@ -1301,17 +1301,6 @@ export function createMazeWorld(options = {}) {
       const witnessedForeground=guardianForeground.has(c.cell)
         && !guardianCourtCell && !guardianForecourtShoulder
         && !guardianOuterCourtFloor && c.trap!==true;
-      // One actual publicly witnessed, reciprocal Pip/Thornback performance
-      // space needs negative space, not the passive ornamental grid that has
-      // repeatedly swallowed the two bodies in native 320/390 full frames.
-      // This selects only CURRENT published ordinary/spectator floor, never
-      // a secret room, trap, prize, stair, sealed gate or authoritative path.
-      // It revokes automatically on hidden/terminal/unlinked guardian events.
-      const guardianQuietFloor=!c.blocked && !c.trap && !c.checkpoint && !c.clue
-        && c.cell!==s.exitCell && !s.keys.some(key=>key.cell===c.cell)
-        && (guardianCourtCell || guardianForecourtShoulder
-          || guardianOuterCourtFloor || witnessedForeground
-          || guardianQuietRingCell);
       // A discovered moving Tide-Shear needs an actual *continuous* stage,
       // not another carpet of tiny floor glyphs. Unite only surrounding
       // already-published ordinary walkable tiles into a quiet mineral apron.
@@ -1468,15 +1457,27 @@ export function createMazeWorld(options = {}) {
         block(floorMaterial, x + (col - .5) * 1.17, -.035, z + (row - .5) * 1.17, 1.145, .07, 1.145, c.cell);
       }
       if(guardianOuterCourtFloor) {
-        // Whole-tile mineral stage with no static bright runway strips
-        // competing with the REAL moving sentinel machinery and both actors.
+        // Joined mineral, original shell-course plaza replaces a WHOLE pale
+        // tile, not microscopic extras. Neutral stone inlay is neither a
+        // predicted AI route nor new crossing. Actual floor stays flush.
         add(box,deepStone,x,.006,z,2.12,.012,2.12,c.cell);
         add(box,seaGlass,x,.015,z,1.94,.012,1.94,c.cell);
+        for(const sign of [-1,1]) {
+          add(box,darkJade,x+sign*.55,.031,z,.68,.018,1.66,c.cell);
+          add(box,inlay,x+sign*.91,.042,z,.075,.012,1.78,c.cell);
+          add(box,lightStone,x,.043,z+sign*.88,1.75,.012,.09,c.cell);
+        }
       }
       if(guardianForecourtShoulder) {
-        // Large continuous physical spectator stone, no fictitious passage.
+        // A physically recessed, dark Tideglass gallery beyond the existing
+        // impassable masonry, not a route stripe, prize or predicted AI move.
+        // Flush original batched geometry, no new GPU material/mesh class.
         add(box,deepStone,x,.006,z,2.05,.012,2.05,c.cell);
         add(box,seaGlass,x,.014,z,1.77,.012,1.77,c.cell);
+        for(const sign of [-1,1]) {
+          add(box,inlay,x+sign*.94,.025,z,.055,.014,1.64,c.cell);
+          add(box,inlay,x,.025,z+sign*.94,1.64,.014,.055,c.cell);
+        }
       }
       // The observed guardian lane gets one CONTINUOUS mineral/ivory court,
       // not a carpet of repeated fossil sculptures. This flush physical
@@ -1492,6 +1493,9 @@ export function createMazeWorld(options = {}) {
         // disappears when the guardian is no longer publicly staged.
         add(box, deepStone, x, .006, z, 2.05, .012, 2.05, c.cell);
         add(box, darkJade, x, .014, z, 1.81, .012, 1.81, c.cell);
+        for (const sign of [-1,1])
+          add(box, inlay, x + sign*.89, .025, z,
+            .075, .018, 1.79, c.cell);
         if (guardianCausewayAxis) {
           // A joined, stage-wide basalt Tideglass duel causeway:
           // the actual public Pip-to-Thornback 1-2 edge path now reads as
@@ -1512,9 +1516,19 @@ export function createMazeWorld(options = {}) {
             alongX?2.32:2.39,c.cell);
           add(box,darkJade,x,.032,z,alongX?2.34:2.22,.013,
             alongX?2.22:2.34,c.cell);
-          // Remove noninteractive passive runway stripes. The actual public
-          // warning is the SIX attached, hinged floor leaves constructed next,
-          // rising against the same joined dark slab and genuine connected lane.
+          add(box,inlay,x,.041,z,alongX?2.27:.42,.008,
+            alongX?.42:2.27,c.cell);
+          // Fixed mineral edge bands do not promise any particular AI route.
+          // The already-public Tideglass leaves remain outside the clear
+          // central walking lane, and now lift against a readable dark floor.
+          for(const side of [-1,1]) {
+            add(box,seaGlass,x+(alongX?0:side*1.04),.042,
+              z+(alongX?side*1.04:0),alongX?2.31:.095,.009,
+              alongX?.095:2.31,c.cell);
+            add(box,clay,x+(alongX?side*.94:0),.048,
+              z+(alongX?0:side*.94),alongX?.085:2.22,.012,
+              alongX?2.22:.085,c.cell);
+          }
           // A broad, paired SEA-GLASS warning threshold belongs only to
           // this ACTUAL disclosed, reciprocal and unsealed guardian causeway.
           // The connected floor leaves use the SAME original geometry and
@@ -1651,8 +1665,7 @@ export function createMazeWorld(options = {}) {
       // lower walkable terrace from the lagoon without suggesting a corridor.
       // The relief is flush (under 2cm in scene units), has no collision or
       // extra draw call and is batched with existing reused geometry/material.
-      if (!pressureCourtApron && !guardianQuietFloor && tier === 0
-        && !c.blocked && !c.trap && !c.checkpoint && !c.clue) {
+      if (!pressureCourtApron && tier === 0 && !c.blocked && !c.trap && !c.checkpoint && !c.clue) {
         for (const sign of [-1, 1]) {
           add(box, lightStone, x + sign * .99, .015, z, .034, .012, 1.75, c.cell);
           add(box, lightStone, x, .015, z + sign * .99, 1.75, .012, .034, c.cell);
@@ -1666,7 +1679,7 @@ export function createMazeWorld(options = {}) {
       const gateCourt=gateCourtCells.has(c.cell)&&!c.blocked
         &&!c.trap&&!c.checkpoint&&!c.clue;
       const courtSeed = variation(c.cell * 41 + 709);
-      if (!pressureCourtApron && !guardianQuietFloor && courtSeed > .68 && !gateCourt
+      if (!pressureCourtApron && !guardianCourtCell && courtSeed > .68 && !gateCourt
         && !c.blocked && !c.trap && !c.checkpoint && !c.clue) {
         const pigment = courtSeed > .85 ? seaGlass : clay;
         for (let petal = 0; petal < 4; petal++) {
@@ -1687,7 +1700,7 @@ export function createMazeWorld(options = {}) {
       // and mineral materials in the same GPU batches, with no extra draw
       // resources or render-frame allocations. Never cover known hazards,
       // treasure hardware or a checkpoint with a look-alike objective symbol.
-      if (!pressureCourtApron && !guardianQuietFloor && !gateCourt && !c.blocked && !c.trap
+      if (!pressureCourtApron && !guardianCourtCell && !gateCourt && !c.blocked && !c.trap
           && !c.checkpoint && !c.clue
           && variation(c.cell * 71 + 138) > .36) {
         const shellPigment = tier === 2 ? seaGlass : tier === 1 ? lightStone : stone;
@@ -1699,7 +1712,7 @@ export function createMazeWorld(options = {}) {
       if (gateCourt && !pressureCourtApron) gateCourtRosette(x,z,c.cell);
       // Small scattered flecks belong to ordinary courts; the large disclosed
       // mechanism gets deliberate negative space around the actual moving jaws.
-      if (!pressureCourtApron && !guardianQuietFloor) for (let j = 0; j < 2; j++) {
+      if (!pressureCourtApron && !guardianCourtCell) for (let j = 0; j < 2; j++) {
         const sign = j ? 1 : -1;
         add(box, deepStone, x + sign * .91, .003, z - .9, .14, .006, .035, c.cell, 0, .2);
         add(box, inlay, x + sign * .86, .006, z + .86, .12, .009, .12, c.cell, 0, Math.PI / 4);
