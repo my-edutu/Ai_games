@@ -220,6 +220,16 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  // Admit a small ROOT-local correction only while the CURRENT public body
  // itself still proves identity, HP, cell, tick and scene. No attacker,
  // contact direction, wound geometry or future state is inferred.
+ // The public visual witness must describe the SAME remaining and maximum
+ // HP as the canonical injury receipt. An internally coherent forged damage
+ // delta cannot attach fragments to an unrelated same-tick public body.
+ // Standalone visual auditions deliberately keep their legacy permissiveness.
+ function matchesCurrentHpReceipt(cue,witness){
+  return !requireVerifiedHpReceipt||
+   (Number.isSafeInteger(witness?.hp)&&Number.isSafeInteger(witness?.maxHp)&&
+    witness.hp===cue.detail?.remainingHp&&
+    witness.maxHp===cue.detail?.maxHp);
+ }
  function sampleInterpolatedHPVictim(cue,at,actor){
   if(typeof getCurrentSnapshot!=='function'||!actor?.root?.visible||
    !finite3(actor.root.position))return null;
@@ -236,7 +246,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    witness=u;
   }
   const u=actor.u;
-  if(!witness||!u||u.id!==cue.targetId||
+  if(!witness||!matchesCurrentHpReceipt(cue,witness)||!u||u.id!==cue.targetId||
    u.x!==at.x||u.z!==at.z||witness.x!==at.x||witness.z!==at.z||
    !Number.isInteger(witness.hp)||witness.hp<0||
    u.hp!==witness.hp||u.kind!==witness.kind||
@@ -397,7 +407,8 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
         witness=u;
       }
       const u=actor?.u;
-      if(!witness||!cell(witness)||witness.x!==at.x||witness.z!==at.z||
+      if(!witness||!matchesCurrentHpReceipt(cue,witness)||!cell(witness)||
+        witness.x!==at.x||witness.z!==at.z||
         !Number.isInteger(witness.hp)||witness.hp<0||
         u?.id!==cue.targetId||u.x!==witness.x||u.z!==witness.z||
         u.hp!==witness.hp||u.kind!==witness.kind||
@@ -433,7 +444,8 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
      if(witness)return null; // An ambiguous public ID has no safe tile.
      witness=u;
     }
-    if(!witness||!cell(witness)||witness.x!==at.x||witness.z!==at.z||
+    if(!witness||!matchesCurrentHpReceipt(cue,witness)||!cell(witness)||
+     witness.x!==at.x||witness.z!==at.z||
      !Number.isInteger(witness.hp)||witness.hp<0)return null;
    }
    return world(at,1.07);
