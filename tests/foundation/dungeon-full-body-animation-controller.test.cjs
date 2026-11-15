@@ -5532,8 +5532,8 @@ test('RED: deep original 390px swing rejects ineffective ankle twitch so the con
   'untrusted original joint, heel, or floor must fail closed');
  const sourceModel=fs.readFileSync(path.join(root,
   'public/ai-dungeon/model-assets.js'),'utf8');
- assert.match(sourceModel,/if\(lift===null\|\|!confirmOriginalSourceSwingAnkleNetClearance\(\{/,
-  'real THREE post-mixer FINAL ankle remeasure must run useful-clearance gate');
+ assert.match(sourceModel,/if\(lift===null\|\|!oppositeShoeVerified\|\|!confirmOriginalSourceSwingAnkleNetClearance\(\{/,
+  'real THREE final ankle readback must require both opposite shoe and useful clearance');
  assert.match(sourceModel,/if\(!held\|\|!confirmOriginalSourceSwingAnkleNetClearance\(\{/,
   'previous-frame correction cannot bypass efficacy via continuity');
  assert.match(sourceModel,/stageOriginalSourceSwingLinkedLegAfterMixer\(actor,side,reducedMotion\)/,
