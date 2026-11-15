@@ -862,6 +862,7 @@ export function createTowerWorld(){
   const decoratedBounds = new THREE.Box3(), decoratedCorner=new THREE.Vector3();
   const screenFocus = new THREE.Vector3();
   const silhouettePoint = new THREE.Vector3();
+  const historicalGateRayPoint = new THREE.Vector3();
   const corridorFrom = new THREE.Vector3();
   const corridorTo = [new THREE.Vector3(), new THREE.Vector3(),
     new THREE.Vector3(), new THREE.Vector3()];
@@ -3792,13 +3793,20 @@ export function createTowerWorld(){
       actorHalfHeight=0, guardianHalfHeight=0, hazard=null, gateway=null, actorHalfWidth=0) {
     if(disposed)return {total:0,softened:0};
     decorativeOcclusionEvidence.length=0;
-    // The 390x844 original filmed climber is masked by EXTRACTED historical
-    // bronze gallery struts: these are not clockwork decorative gears and
-    // were absent from the existing foreground protection registry. Reuse
-    // the live composed camera, actual skinned-body point and exact current
-    // old-floor geometry; no alternate camera, actor, corridor or collider.
+    // The real source-extracted Clockwork gallery crosses the full-body
+    // climber AND original door sightline in BOTH 960x600 and 390x844 films.
+    // Compute the exact gateway pose that World already retained from the
+    // old source-owned cap; never predict an exit or alter a collider.
+    const oldGate=retainedEarnedCap?.guardianGateRetained===true &&
+      lastSnapshot?.floor===9 && lastSnapshot?.theme==='void' &&
+      lastSnapshot?.runToken===retainedEarnedCap.runToken
+        ?guardianTraversalGatePose(retainedEarnedCap.thresholdX,
+            retainedEarnedCap.oldRoofY,lastSnapshot.chunkBaseY,
+            lastSnapshot.worldWidth):null;
+    if(oldGate)historicalGateRayPoint.set(oldGate.x,oldGate.y+2,oldGate.z);
     historicalGallerySightline=protectHistoricalGallerySightline({
       camera,actor,halfHeight:actorHalfHeight,halfWidth:actorHalfWidth,
+      gateway:oldGate?historicalGateRayPoint:null,
       source:lastSnapshot,
       held:retainedEarnedCap,raycaster:canopyRay,
       direction:canopyDirection,point:silhouettePoint,hitBuffer:canopyHits,
