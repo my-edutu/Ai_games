@@ -31,3 +31,8 @@ Both spec/experience review passes remain conditional: this safely addresses a p
 Capture complete untouched 60+s source-pinned 960×600 and 390×844 videos (ascent, moving hazard, danger/guardian, outcome/restart), matched seed/tier/normal-speed native PTS. Compare source ticks 441, 474/475, 489, ~535, 619 and result/restart. Verify that the old **physically opened** bronze gate, full-body genuine skinned climber and actual walkable F9 destination coexist for >=2 consecutive **native** film frames in BOTH viewports, with no bronze-to-violet scene cut. If it still fails, resolve the observed original grille HP0-to-winch presentation and cold WebGL world/scene depth jointly. Stay P0; no cosmetic acceptance.
 
 **Safety:** PR68 draft and PR58 base unchanged; no merge, deploy, force-push, baseline movement, source authority, restart, or unrelated-game modifications.
+
+
+### Subsequent test-fixture integrity correction
+
+[Test fixture commit af419c67](https://github.com/my-edutu/Ai_games/commit/af419c67ad7ac9991854586794326ab649419cdf) ensures the cold first-paint 3D test **does not invent a raised \`f9:gateway-step\` that the fixture's source snapshot never supplied**. A separate real later source/film supplies that step. The test now checks retained real old cap/gate/gallery without claiming an independently unsupported successor-bearing gallery. The production correction in \`57784c8e\` is unchanged. Exact-head CI and authentic updated-code full-motion acceptance remain **NOT EVALUATED** until completed.
