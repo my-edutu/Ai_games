@@ -135,3 +135,9 @@ export function protectHistoricalGallerySightline({
   }
   return {active:true,meshes:count,rays,softened};
 }
+
+// The same source-authenticated old/new foreground owner exposes a separate
+// bounded ray pass for real Floor9 platform undersides. Keep this re-export
+// under the existing World import boundary so source-pinned Three.js test
+// harnesses load the exact production module and never a stubbed helper.
+export { measureAuthoritativeDeckSightline } from './successor-deck-visibility.mjs';
