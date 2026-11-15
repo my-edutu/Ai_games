@@ -48,14 +48,21 @@ test('RED: original-source first fast swing explores smaller hip and larger knee
  // synthetic and should keep the existing, less-specialized safe probing.
  const wideOriginal={...before,right:{...before.right,
   toeXZ:[before.right.heelXZ[0]-.2,before.right.heelXZ[1]]}};
- assert.deepEqual(plan({...owner,before:wideOriginal,trials:starters}),
-  [[-.105,.085],[-.11,.09]],
-  'an actually wide original outsole retains normal bounded hip+knee candidates');
+ // Reusing a narrow-foot trial after changing the original BEFORE shoe
+ // is stale source evidence; reject it without manufactured convergence.
+ assert.equal(plan({...owner,before:wideOriginal,trials:starters}),null,
+  'mismatched current source sole and trial XZ must be rejected');
+ const wideStarters=starters.map(t=>({...t,after:{...t.after,
+  right:{...t.after.right,toeXZ:wideOriginal.right.toeXZ}}}));
+ assert.deepEqual(plan({...owner,before:wideOriginal,trials:wideStarters}),
+  [[-.09,.09],[-.105,.09]],
+  'consistent genuinely wide source outsole retains existing calf-biased trials');
  const collapsedOriginal={...before,right:{...before.right,
   toeXZ:[...before.right.heelXZ]}};
- assert.deepEqual(plan({...owner,before:collapsedOriginal,trials:starters}),
-  [[-.105,.085],[-.11,.09]],
-  'coincident outsole samples cannot be called an anatomically steep shoe');
+ const collapsedStarters=starters.map(t=>({...t,after:{...t.after,
+  right:{...t.after.right,toeXZ:collapsedOriginal.right.toeXZ}}}));
+ assert.equal(plan({...owner,before:collapsedOriginal,trials:collapsedStarters}),null,
+  'coincident weighted outsole points do not establish original anatomy');
  for(const bad of [{sourceClipName:'Idle'},{sourceWeight:.7},
   {interrupted:true},{teleport:true},{reducedMotion:true},
   {before:{...before,right:{...before.right,toeY:-.045}}}])

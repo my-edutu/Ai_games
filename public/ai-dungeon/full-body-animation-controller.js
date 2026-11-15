@@ -118,14 +118,19 @@ export function planOriginalSourceSwingLinkedLegFollowups({
   original.heelXZ[1]-original.toeXZ[1]);
  const sourceOutsoleSpan=Math.hypot(
   sourceOutsoleProjection,original.heelY-original.toeY);
- const heelDominatedFirstSwing=!slow&&sourceWeight>=.95&&
+ // Require two genuinely separated outsole samples and a physically
+ // plausible original weighted shoe, not a collapsed vertex diagnostic.
+ if(sourceOutsoleProjection<.025||sourceOutsoleSpan<.20||
+  sourceOutsoleSpan>.42)return null;
+ const heelDominatedSource=!slow&&sourceWeight>=.95&&
   previousLinkedCertified!==true&&
   floorTopY-original.toeY>=.06&&
   best.lift>=.012&&best.heelRise>=.024&&
-  best.heelRise>=best.lift*1.7&&
-  sourceOutsoleProjection>=.045&&sourceOutsoleProjection<=.15&&
+  best.heelRise>=best.lift*1.7;
+ const steepOriginalSource=sourceOutsoleProjection>=.045&&
+  sourceOutsoleProjection<=.15&&
   sourceOutsoleSpan>=.285&&sourceOutsoleSpan<=.325;
- if(heelDominatedFirstSwing)
+ if(heelDominatedSource&&steepOriginalSource)
   // Actual source 390px HEAD 10560307: the original -90/+75mrad
   // linked trial raised the toe 13.67mm but lifted its already-airborne
   // heel 26.38mm. Both older followups added hip swing and raised the
@@ -134,6 +139,11 @@ export function planOriginalSourceSwingLinkedLegFollowups({
   // reads on smaller original hip / larger original knee combinations.
   // The selector must still independently earn clearance with both shoes.
   return [[.075,-.09],[.085,-.09]].map(a=>a.map(v=>v*best.sign));
+ // Keep the original calf-biased source followups when a physically valid,
+ // independently skinned outsole is NOT the near-vertical 390px shoe.
+ // Both distinct source-gait families require the same two-shoe final check.
+ if(heelDominatedSource)
+  return [[.09,-.09],[.105,-.09]].map(a=>a.map(v=>v*best.sign));
  // Exact native 390px source Walking_A shows 28.324mm toe lift but
  // 28.753mm MORE already-airborne heel rise after a first slow-frame
  // connected source hip/knee. Repeating the same hip-heavy arc amplifies
