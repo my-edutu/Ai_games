@@ -1576,3 +1576,40 @@ test('D04 strict visual and original sound reject noncanonical projectile identi
   assert.ok(stage.stats().activeDrawCalls<=7);
  }finally{stage.dispose()}
 });
+
+
+test('D04 strict spell caster identity rejects silent false orb launches while auditions remain flexible',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {isCanonicalVerifiedCombatFoleyCue}=await load('original-combat-foley.js');
+ const {T,scene}=three();
+ const mystic={id:'mystic',kind:'mystic',faction:'party',x:2,z:2,
+  hp:20,maxHp:20,action:'cast',actionTick:11};
+ const drawn={u:mystic,authored:false,
+  root:{visible:true,position:{x:-7,y:0,z:-7},rotation:{y:0}}};
+ const current={run:1,floor:1,tick:11,units:[mystic]};
+ const options={actorById:id=>id==='mystic'?drawn:null,
+  getCurrentSnapshot:()=>current,requireVerifiedHpReceipt:true};
+ const spell=cue({id:'1:1:11:spell-release:mystic:revenant',
+  kind:'spell-release',visual:'cast',audio:'spell-release',
+  proof:'authority-action',verified:true,actorId:'mystic',
+  targetId:'revenant',from:{x:2,z:2},to:{x:4,z:2}});
+ const strict=createPhysicalFeedbackVisuals(T,scene,options);
+ try{
+  assert.equal(isCanonicalVerifiedCombatFoleyCue(spell),true);
+  assert.equal(strict.emit({...spell,id:'audition-spell-11'}),false,
+   'a physically plausible cast with a noncanonical sound ID must not draw');
+  assert.equal(strict.emit({...spell,targetId:'different-target'}),false,
+   'altered aim cannot inherit a genuine sound-verified event identity');
+  assert.equal(strict.stats().active,0);
+  assert.equal(strict.emit(spell),true,'genuine cast remains a bounded spell release');
+  assert.equal(strict.stats().instancesByPool.spell,1);
+ }finally{strict.dispose()}
+ const audition=createPhysicalFeedbackVisuals(T,scene,{
+  actorById:options.actorById
+ });
+ try{
+  assert.equal(audition.emit({...spell,id:'audition-spell-11'}),true,
+   'standalone visual mesh auditions do not require a production canonical event ID');
+  assert.equal(audition.stats().instancesByPool.spell,1);
+ }finally{audition.dispose()}
+});
