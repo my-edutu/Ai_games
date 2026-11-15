@@ -27,7 +27,7 @@ function realAuthoritySeries(){
   throw Error('Real DungeonRuntime seed yielded no genuine HP-loss witness');
  return {seed,states,manifest};
 }
-async function observeLiveAuthority(browser,real,viewport,capture,feedbackMode='d04',source=SOURCE){
+async function observeLiveAuthority(browser,real,viewport,capture,feedbackMode='d04',source=SOURCE,viewpoint='tactical',artifactTag=''){ 
  const page=await browser.newPage({viewport,deviceScaleFactor:1});
  let beganAt=null,live=false,stopIndex=0;const requestLog=[],errors=[];
  page.on('pageerror',e=>errors.push(String(e)));
@@ -51,9 +51,14 @@ async function observeLiveAuthority(browser,real,viewport,capture,feedbackMode='
   await expect.poll(()=>page.evaluate(()=>
    window.__DUNGEON_RENDER_DIAGNOSTICS__?.renderedState?.checksum),
    {timeout:65000}).toBe(real.manifest[0].scene.checksum);
-  await page.locator('#view-toggle').click();
+  // Exercise the ORIGINAL spectator UI's three existing real camera modes.
+  // This changes no camera implementation or gameplay authority, and every
+  // angle gets its own full-size genuine WebGL/audio recording session.
+  const cameraClicks={cinematic:0,tactical:1,chase:2}[viewpoint];
+  if(!Number.isInteger(cameraClicks))throw Error('Unsupported existing Dungeon camera mode');
+  for(let n=0;n<cameraClicks;n++)await page.locator('#view-toggle').click();
   await expect.poll(()=>page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.camera),
-   {timeout:30000}).toBe('tactical');
+   {timeout:30000}).toBe(viewpoint);
   await page.locator('#audio-toggle').click();
   if(feedbackMode==='d04')await expect.poll(()=>page.evaluate(()=>
    window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.audioOptedIn),
@@ -177,11 +182,13 @@ async function observeLiveAuthority(browser,real,viewport,capture,feedbackMode='
   catch(e){stopped={samples:[],recorder:{status:'UNAVAILABLE',reason:String(e).slice(0,180)}}}
   const {base64,...recorder}=stopped.recorder||{};
   const suffix=(viewport.width===390?'mobile390':'desktop1440')+
-   (source===SOURCE?'':'-'+feedbackMode);
+   (source===SOURCE?'':'-'+feedbackMode)+
+   (artifactTag?'-'+artifactTag:'')+
+   (viewpoint==='tactical'?'':'-'+viewpoint);
   if(base64&&recorder.status==='RECORDED')
    fs.writeFileSync('artifacts/dungeon-d04-live-authority-'+capture+'-'+suffix+'-unaligned.webm',
     Buffer.from(base64,'base64'));
-  const result={capture,feedbackMode,seed:real.seed,viewport,samples:stopped.samples||[],recorder,errors,requestLog,
+  const result={capture,feedbackMode,viewpoint,seed:real.seed,viewport,samples:stopped.samples||[],recorder,errors,requestLog,
    start:started,continuousAuthorityMs:Math.round(performance.now()-beganAt),
    authorityTickAtStop:real.manifest[stopIndex].scene.tick,
    highestDeliveredStage:Math.max(-1,...requestLog.map(e=>e.index)),
@@ -264,4 +271,78 @@ test('D04 compares continuous legacy default against opt-in preview without any 
   preview:r.verdict.preview,all:r.verdict.allObserved,
   slowPhaseEvidence:r.verdict.framePressure?.preview?.slowPhaseEvidence,
   excluded:r.verdict.excludedStages.length}))));
+});
+
+
+test('D04 records three existing physical viewpoints at desktop and 390px from one authentic authority corpus',async({browser})=>{
+ test.setTimeout(900000);
+ const {classifyD04RealMultiview}=
+  require('./dungeon-d04-live-authority-pair.cjs');
+ const real=realAuthoritySeries(),runs=[];
+ const viewports=[{width:1440,height:900},{width:390,height:844}];
+ const viewpoints=['cinematic','tactical','chase'];
+ for(const viewport of viewports){
+  for(const viewpoint of viewpoints){
+   // All six use genuine DungeonRuntime.step() public snapshots, unchanged
+   // real Three.js camera controls, one actual canvas + opted-in original
+   // soundstage recorder per arm. No fabricated Warden/combat frames.
+   const arm=await observeLiveAuthority(browser,real,viewport,'on','d04',
+    SOURCE,viewpoint,'sixview');
+   runs.push(arm);
+   expect(arm.errors).toEqual([]);
+   expect(arm.samples.length).toBeGreaterThan(0);
+   expect(arm.samples.every(s=>s.camera===viewpoint&&
+    s.viewport.width===viewport.width&&
+    s.viewport.height===viewport.height&&
+    s.d04PreviewEnabled===true&&s.previewAudioOptedIn===true)).toBe(true);
+  }
+ }
+ const verdict=classifyD04RealMultiview({
+  seed:real.seed,manifest:real.manifest,runs
+ });
+ const evidence={source:SOURCE,
+  contract:'D04 six genuine spectator UI viewpoints and original sound',
+  frozenBefore:'281735d0910c6b2443648af976003d50412ee324',
+  previewRoute:'/dungeon?feedback=d04',
+  cameraSelection:'original #view-toggle only, never camera code or private renderer overrides',
+  seed:real.seed,authoritativeStates:real.manifest,
+  viewportAndViewpointCount:runs.length,
+  originals:'One actual WebGL canvas video and explicitly consented original soundstage track per recording',
+  sameAuthorityCorpus:true,sameFrameClock:false,
+  sampleSynchronized:false,decodedPixelMotionAccepted:false,
+  audibleContactAligned:false,wardenSequenceAccepted:false,
+  fullCombatMatrixAccepted:false,soakAccepted:false,
+  verdict,runs,
+  limitations:[
+   'Six serial capture arms do not share a hardware/video/audio clock',
+   'MediaRecorder bytes and requestFrame attempts do not prove moving decoded body contacts',
+   'Missing common genuine HP-loss ticks remain SPARSE, not an achieved match',
+   'Warden warning/release/recovery/counter, misses, blocks, dodges, projectiles and spells need separate verified event clips',
+   'The inherited legacy spectator and 400ms sound deadline remain unchanged'
+  ]};
+ fs.writeFileSync('artifacts/dungeon-d04-six-viewpoint-real-webgl-original-av-evidence.json',
+  JSON.stringify(evidence,null,2)+'\n');
+ await test.info().attach('d04-six-viewpoint-real-game-av-evidence.json',{
+  body:Buffer.from(JSON.stringify(evidence,null,2)),
+  contentType:'application/json'
+ });
+ console.log('D04 six original physical viewpoints (not synchronized):',JSON.stringify({
+  status:verdict.status,views:verdict.observedViews,
+  capturedRecorders:verdict.capturedRecorders,
+  matchedAuthorityTicks:verdict.matchedAuthorityTicks,
+  matchedHpLossTicks:verdict.matchedHpLossTicks,
+  missingViews:verdict.missingViews,
+  viewports:verdict.viewpointFrames.map(({view,observedFrameSamples,originalAVRecorded})=>
+   ({view,observedFrameSamples,originalAVRecorded}))
+ }));
+ // A test passing certifies only that the authenticated capture attempt is
+ // faithfully diagnosed. Software WebGL may yield sparse or audio-only
+ // recordings. Never turn that into real combat / sample-level AV acceptance.
+ expect(verdict.status).not.toBe('INVALID_REAL_AUTHORITY');
+ expect(verdict.status).not.toBe('INVALID_VIEWPOINT_PROVENANCE');
+ expect(verdict.status).not.toBe('LIVE_EFFECT_BUDGET_VIOLATION');
+ expect(verdict.observedViews).toBe(6);
+ expect(verdict.sampleSynchronized).toBe(false);
+ expect(verdict.cameraMovingVideoVerified).toBe(false);
+ expect(verdict.impactAVAccepted).toBe(false);
 });
