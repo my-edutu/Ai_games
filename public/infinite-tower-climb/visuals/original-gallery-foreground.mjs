@@ -10,14 +10,14 @@
 // opacity locally rather than freezing the old shader, cancelling its fade,
 // or advancing authority/renderer clocks.
 export function protectHistoricalGallerySightline({
-  camera,actor,halfHeight,halfWidth=0,source,held,raycaster,direction,point,hitBuffer,
+  camera,actor,halfHeight,halfWidth=0,gateway=null,source,held,raycaster,direction,point,hitBuffer,
   dt=0,stale=false,reducedMotion=false
 }={}) {
   const inactive={active:false,meshes:0,rays:0,softened:0};
   if(stale || !camera || !actor || !held || !raycaster || !direction ||
       !point || !Array.isArray(hitBuffer) ||
       !Number.isFinite(camera.aspect) || camera.aspect<=0 ||
-      camera.aspect>.85 ||
+      camera.aspect>2.1 ||
       ![camera.position?.x,camera.position?.y,camera.position?.z,
         actor.x,actor.y,actor.z,halfHeight].every(Number.isFinite) ||
       halfHeight<=0 || !(source?.player?.health>0) ||
@@ -47,8 +47,9 @@ export function protectHistoricalGallerySightline({
   // the actor's actual source-owned horizontal collision extent without
   // synthesizing future poses or a second actor. The camera-to-body tangent
   // samples only the current full-body silhouette in THIS composed view.
-  // This is at most seven rays per each of eight real noninteractive batches
-  // (56 total), and never runs for desktop/other floors/stale snapshots.
+  // The same real 3D source scene must read at BOTH 960x600 and 390x844.
+  // At most nine casts per one of eight historical batches (72 total).
+  // No rays on other floors, stale snapshots or invalid crossings.
   const axialX=actor.x-camera.position.x;
   const axialZ=actor.z-camera.position.z;
   const axialLength=Math.hypot(axialX,axialZ);
@@ -58,6 +59,15 @@ export function protectHistoricalGallerySightline({
   const rightX=lateral?axialZ/axialLength:0;
   const rightZ=lateral?-axialX/axialLength:0;
   const raysPerBatch=lateral?7:3;
+  // Only the ORIGINAL source-derived door coordinate supplied by World can
+  // request additional clearance. This guards the actual doorway silhouette
+  // during the same crossing: it does NOT fade the door, player, or platforms.
+  // An absent/invalid endpoint costs zero rays, and the hot path reuses
+  // the same point/direction and bounded hit buffer without allocations.
+  const actualGate=!!gateway &&
+    [gateway.x,gateway.y,gateway.z].every(Number.isFinite) &&
+    Math.hypot(gateway.x-camera.position.x,gateway.z-camera.position.z)<130;
+  const samples=raysPerBatch+(actualGate?2:0);
   for(let i=0;i<count;i++){
     const mesh=meshes[i],material=mesh?.material;
     if(!mesh?.isMesh || !material || Array.isArray(material))continue;
@@ -66,19 +76,26 @@ export function protectHistoricalGallerySightline({
       // Source-derived actual body centre, sole and helmet; no inferred
       // destination or replay future. A hit must be in FRONT of the body,
       // never merely a large projected old-floor bounding box.
-      for(let sample=0;sample<raysPerBatch;sample++){
+      for(let sample=0;sample<samples;sample++){
         // Exact source-centre, soles and helmet remain; shoulders and hips
         // add only the authentic lateral skinned-body envelope. The contact
         // decision is still an actual Three.js triangle ray intersection,
         // NOT a projected screen-box guess or global architectural fade.
-        const height=sample===0?0:
-          sample===1?-halfHeight*.78:
-          sample===2?halfHeight*.82:
-          sample<5?halfHeight*.55:-halfHeight*.42;
-        const side=sample===3||sample===5?-1:
-          sample===4||sample===6?1:0;
-        point.copy(actor);point.y+=height;
-        if(side){point.x+=rightX*lateral*side;point.z+=rightZ*lateral*side;}
+        if(sample>=raysPerBatch){
+          // Exactly the physically verified old gate centre and upper lip,
+          // never a predicted destination or a synthetic alternative portal.
+          point.copy(gateway);
+          if(sample>raysPerBatch)point.y+=1.2;
+        }else{
+          const height=sample===0?0:
+            sample===1?-halfHeight*.78:
+            sample===2?halfHeight*.82:
+            sample<5?halfHeight*.55:-halfHeight*.42;
+          const side=sample===3||sample===5?-1:
+            sample===4||sample===6?1:0;
+          point.copy(actor);point.y+=height;
+          if(side){point.x+=rightX*lateral*side;point.z+=rightZ*lateral*side;}
+        }
         direction.copy(point).sub(camera.position);
         const distance=direction.length();
         if(!Number.isFinite(distance)||distance<=.4)continue;
