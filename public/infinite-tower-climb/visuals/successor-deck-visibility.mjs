@@ -76,3 +76,110 @@ export function measureAuthoritativeDeckSightline({
     actualTriangleIntersections:realTrianglesChecked,
     limitation:'Source-owned real Three.js platform triangle rays, NOT native pixels, supported-device FPS, or permission to move a collider'};
 }
+
+
+/**
+ * P0 authentic Floor8->9 multi-owner sightline. The original gallery
+ * transparency alone cannot reveal a real skinned body when its successor
+ * platform's NON-WALKABLE side skirt sits in front of the final camera.
+ *
+ * Inspect only source-owned, detached-shader undercroft panels from up to
+ * three real F9 platforms (two panels each); the landing top, support
+ * colliders, moving machinery, guardian gate, hazard silhouettes, and actor
+ * are never touched. Its saved geometry has exactly the current source deck
+ * transform. A frame with no authentic original gateway restores normal
+ * depth and tint rather than keeping a ghost platform in subsequent floors.
+ *
+ * This is real triangle visibility, not evidence that the final video works.
+ */
+export function protectSourceSuccessorUndercroft({
+  source,held,camera,body,bodyHalfHeight,gate=null,entries,
+  raycaster,direction,point,hits,dt=0,stale=false,reducedMotion=false
+}={}) {
+  const inactive={active:false,meshes:0,rays:0,softened:0};
+  const safeEntries=Array.isArray(entries)?entries:[];
+  const restore=()=>{
+    for(const entry of safeEntries){
+      const material=entry?.material;
+      if(!material)continue;
+      if(entry.tint?.color?.isColor && material.color?.copy)
+        material.color.copy(entry.tint.color);
+      if(material.opacity!==1 || material.transparent || !material.depthWrite) {
+        material.opacity=1;material.depthWrite=true;
+        material.transparent=false;material.needsUpdate=true;
+      }
+    }
+  };
+  const proof=!stale && source?.lifecycle==='running' &&
+    source.floor===9 && source.theme==='void' &&
+    typeof source.runToken==='string' && !!source.runToken &&
+    source.runToken===held?.runToken &&
+    held?.floor===9 && held.guardianGateRetained===true &&
+    Number.isSafeInteger(source.tick) &&
+    Number.isSafeInteger(held.sourceTick) &&
+    source.tick>=held.sourceTick && source.tick-held.sourceTick<=70 &&
+    source.player?.health>0 && held.originalGatewayOpacity!==0 &&
+    valid3(camera?.position) && valid3(body) &&
+    finite(bodyHalfHeight) && bodyHalfHeight>0 &&
+    safeEntries.length>0 && safeEntries.length<=6 &&
+    safeEntries.every(entry=>entry?.mesh?.isMesh &&
+      entry.material && entry.mesh.material===entry.material) &&
+    raycaster?.set && raycaster?.intersectObject &&
+    direction?.copy && point?.copy && Array.isArray(hits) &&
+    (gate==null||valid3(gate));
+  if(!proof){restore();return inactive;}
+  let rays=0,softened=0;
+  const currentPosition=camera.position;
+  const dx=body.x-currentPosition.x,dz=body.z-currentPosition.z;
+  const length=Math.hypot(dx,dz);
+  const side=length>.01?Math.min(.55,bodyHalfHeight*.36):0;
+  for(const entry of safeEntries){
+    const {mesh,material,tint}=entry;
+    if(tint?.color?.isColor && material.color?.copy)
+      material.color.copy(tint.color);
+    // GPU transparent materials still represent genuine triangles for
+    // subsequent rays. Do NOT ask current alpha whether geometry exists;
+    // that would alternate hidden/opaque every returned frame.
+    mesh.updateWorldMatrix?.(true,false);
+    let blocked=false;
+    if(mesh.visible!==false){
+      const sampleCount=gate?6:5;
+      for(let s=0;s<sampleCount;s++){
+        point.copy(s===5?gate:body);
+        if(s===1)point.y+=bodyHalfHeight*.82;
+        else if(s===2)point.y-=bodyHalfHeight*.76;
+        else if(s===3 || s===4){
+          point.y+=bodyHalfHeight*.4;
+          const sign=s===3?1:-1;
+          point.x+=sign*side*dz/Math.max(.01,length);
+          point.z-=sign*side*dx/Math.max(.01,length);
+        }
+        direction.copy(point).sub(currentPosition);
+        const distance=direction.length();
+        if(!finite(distance)||distance<=.4)continue;
+        raycaster.set(currentPosition,direction.multiplyScalar(1/distance));
+        raycaster.near=0;raycaster.far=distance-.25;
+        hits.length=0;rays++;
+        if(raycaster.intersectObject(mesh,false,hits).length>0){
+          blocked=true;hits.length=0;break;
+        }
+      }
+    }
+    hits.length=0;
+    // Immediate real occlusion clearing keeps the whole body visible on
+    // the next submitted frame. Restoration is bounded and reversible;
+    // reduced motion restores without easing. No authority mutation.
+    const prior=finite(material.opacity)?Math.max(0,Math.min(1,material.opacity)):1;
+    const opacity=blocked?.035:reducedMotion?1:
+      Math.min(1,prior+Math.max(0,Math.min(1,dt*10)));
+    const transparent=opacity<.995;
+    if(material.transparent!==transparent || material.depthWrite===transparent){
+      material.transparent=transparent;material.depthWrite=!transparent;
+      material.needsUpdate=true;
+    }
+    material.opacity=opacity;
+    if(blocked)softened++;
+  }
+  return {active:true,meshes:safeEntries.length,rays,softened,
+    limitation:'Final-camera real successor 3D underside triangle visibility only; source progression and walkable tops unchanged; not a native film pass'};
+}
