@@ -1357,8 +1357,8 @@ for(const view of [
     proof.sourceBone.toLowerCase()+'.quaternion')).toBe(true);
    expect(proof.sourceAxis).toHaveLength(3);
    expect(proof.sourceAxis.every(Number.isFinite)).toBe(true);
-   expect(['original-clip-track','original-bind-dorsiflexion'])
-    .toContain(proof.sourceAxisKind);
+   expect(['original-clip-track','original-bind-dorsiflexion',
+    'original-weighted-outsole-swing']).toContain(proof.sourceAxisKind);
    if(proof.sourceAxisKind==='original-bind-dorsiflexion'){
     expect(proof.sourceBindTransverseAudit?.source)
      .toBe('original-skeleton-inverse-bind-foot-dorsiflexion');
@@ -1366,6 +1366,18 @@ for(const view of [
     expect(proof.sourceBindTransverseAudit?.axis).toHaveLength(3);
     for(let axis=0;axis<3;axis++)expect(proof.sourceAxis[axis])
      .toBeCloseTo(proof.sourceBindTransverseAudit.axis[axis],6);
+   }
+   if(proof.sourceAxisKind==='original-weighted-outsole-swing'){
+    const measured=proof.sourceWeightedOutsoleAudit;
+    expect(measured?.source)
+     .toBe('source-weighted-outsole-world-to-original-foot-local');
+    expect(measured?.contactLocked).toBe(false);
+    expect(measured?.axis).toHaveLength(3);
+    expect(measured?.horizontalSpanMeters).toBeGreaterThanOrEqual(.055);
+    expect(measured?.fullSoleSpanMeters).toBeGreaterThanOrEqual(.24);
+    for(let axis=0;axis<3;axis++)expect(proof.sourceAxis[axis])
+     .toBeCloseTo(measured.axis[axis],6);
+    expect(proof.sourceBindTransverseAudit).toBeNull();
    }
    expect(Math.abs(proof.angleRad)).toBeLessThanOrEqual(.120001);
    expect(proof.liftMeters).toBeGreaterThanOrEqual(.008);
