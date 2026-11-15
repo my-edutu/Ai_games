@@ -28,6 +28,11 @@ function world(){
   marketQuarterStats:{},highStreetStats:{},foundingStreetfrontCoreReuses:0,
   farmMarketStreetStats:{},
   farmStreetWeaveStats:{},roadsideMicroterrainStats:{},
+  // The current production civic render now caches the exact already-drawn
+  // inhabited road section ledger with its VBO. This isolated W316 fixture
+  // mocks geometry rather than full pathfinding, so it must provide an
+  // explicitly empty but valid corresponding presentation source.
+  realHomeLaneSections:[],realHomeLaneStats:{segments:0},
   FIELD_TO_GRANARY_GATE:[29,-5],routeMode:1,season:'spring',daylight:'day',
   stationaryFounders:()=>city.slice(0,12).map(x=>x.join(':')).join(';'),
   liveCivicTopologyKey:(climate,light)=>climate+':'+light+':route'+env.routeMode,
