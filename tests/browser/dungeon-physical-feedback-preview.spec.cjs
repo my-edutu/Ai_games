@@ -2,7 +2,7 @@
 const {test,expect}=require('@playwright/test');
 const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
 const {classifyAuthenticD04RenderObservation}=require('./dungeon-d04-real-feedback-observation.cjs');
-const {correlateD04OriginalSourceStarts}=require('./dungeon-d04-source-start-correlation.cjs');
+const {correlateD04OriginalSourceStarts,auditD04ImpactFramePhases}=require('./dungeon-d04-source-start-correlation.cjs');
 const fs=require('node:fs');
 const {createD04CaptureProfile,skippedConcurrentD04Probe}=require('./dungeon-d04-capture-profile.cjs');
 const {decodeSerialRealWebGLMotion,decodeReceiptReadbackMotion,decodeSameWindowReadbackMotion,
@@ -813,6 +813,31 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
  const originalStartCorrelation=correlateD04OriginalSourceStarts({
   receipts:lateReceipts,sourceStarts:observed.physicalFeedback?.audio?.recentOriginalStarts??[]
  });
+ // Measured injury-frame CPU-phase evidence from the EXACT genuine WebGL
+ // submission receipts above. No static-only visual audition, synthetic
+ // damage, guessed attacker, GPU completion or decoded PCM is inferred.
+ // Attach independently of the strict final acceptance assertion, so red
+ // browser runs still produce a useful root-cause investigation artifact.
+ const impactFrameAudit=auditD04ImpactFramePhases({receipts:lateReceipts});
+ const impactFrameAuditEvidence={
+  ...impactFrameAudit,
+  source:'genuine DungeonRuntime-to-ThreeJS bounded post-WebGL receipts',
+  seed:real.seed,scene:real.after.run+':'+real.after.floor,
+  authoritativeHpTick:real.after.tick,
+  diagnosticOnly:true,
+  caveat:'Observed renderer CPU interval is not proof of its cause, GPU completion, decoded video presentation, original PCM onset, or contact synchronization'
+ };
+ const impactJson=JSON.stringify(impactFrameAuditEvidence,null,2);
+ fs.writeFileSync('artifacts/dungeon-d04-authentic-impact-frame-phase-audit.json',
+  impactJson+'\n');
+ await test.info().attach('d04-authentic-impact-frame-phase-audit.json',{
+  body:Buffer.from(impactJson),contentType:'application/json'
+ });
+ console.log('D04 real impact CPU phase audit:',JSON.stringify({
+  classification:impactFrameAudit.classification,
+  damageReceipts:impactFrameAudit.damageReceipts
+ }));
+
  const timeline={
   source:'real-DungeonRuntime-to-ThreeJS-D04-controller',
   seed:real.seed,run:real.after.run,floor:real.after.floor,
