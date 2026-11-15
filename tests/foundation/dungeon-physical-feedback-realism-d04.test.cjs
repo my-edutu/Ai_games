@@ -1816,3 +1816,70 @@ test('strict D04 guarded block and observed dodge use canonical original-foley i
   assert.ok(stage.stats().activeDrawCalls<=7);
  }finally{stage.dispose()}
 });
+
+test('strict D04 Warden release requires a unique live public caster and canonical foley identity',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {isCanonicalVerifiedCombatFoleyCue}=await load('original-combat-foley.js');
+ const {T,scene}=three();
+ const warden={id:'warden',kind:'warden',faction:'enemy',
+  x:2,z:2,hp:60,maxHp:100,action:'cast',actionTick:11};
+ let current={run:1,floor:1,tick:11,units:[warden]};
+ const actor={u:{...warden},authored:false,root:{
+  visible:true,position:{x:-7,y:0,z:-7},rotation:{y:0}}};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  requireVerifiedHpReceipt:true,getCurrentSnapshot:()=>current,
+  actorById:id=>id==='warden'?actor:null
+ });
+ const release=cue({id:'1:1:11:warden-release:warden:-',
+  kind:'warden-release',visual:'warden',audio:'warden-release',
+  proof:'authority-action',actorId:'warden',targetId:null,
+  from:{x:2,z:2},to:null,duration:.38,priority:7});
+ const check=(candidate,expected,message)=>{
+  stage.reset();
+  assert.equal(stage.emit(candidate),expected,message);
+  assert.equal(stage.hasAuthenticatedBodyPose(candidate),expected,
+   message+' must agree with the original sound source witness');
+  assert.equal(stage.stats().instancesByPool.signal,expected?1:0,
+   message+' must never allocate disconnected boss art');
+ };
+ try{
+  assert.equal(isCanonicalVerifiedCombatFoleyCue(release),true);
+  check(release,true,'one genuine current public cast owns its own release');
+  for(const candidate of [
+   {...release,id:'1:1:11:warden-release:impostor:-'},
+   {...release,targetId:'vanguard'},
+   {...release,audio:'impact'}
+  ]){
+   assert.equal(isCanonicalVerifiedCombatFoleyCue(candidate),false);
+   check(candidate,false,'noncanonical release cannot draw while original foley rejects it');
+  }
+  current={...current,units:[{...warden,action:'idle'}]};
+  check(release,false,'stale rendered cast cannot override an idle current public Warden');
+  current={...current,units:[{...warden,hp:0}]};
+  check(release,false,'a dead authoritative Warden cannot release despite live-looking rig');
+  current={...current,units:[{...warden,x:3}]};
+  check(release,false,'a different current public cell cannot emit from yesterday hand');
+  current={...current,tick:12,units:[warden]};
+  check(release,false,'an earlier tick cannot authorize a later frame release');
+  current={...current,tick:11,run:2};
+  check(release,false,'another run must not inherit a stale release');
+  current={...current,run:1,units:[warden,{...warden}]};
+  check(release,false,'duplicate identity cannot choose a boss source');
+  current={...current,units:[...Array.from({length:96},(_,i)=>
+   ({id:'decoy-'+i,kind:'revenant'})),warden]};
+  check(release,false,'a late-only boss outside 96 action owners cannot mint release');
+  current={run:1,floor:1,tick:11,units:[warden]};
+  check(release,true,'legitimate release still renders after invalid witnesses');
+  // Interrupt in authority without mutating the still-casting presentation rig:
+  // the existing ring must retire before the next WebGL submission.
+  current={...current,units:[{...warden,action:'idle'}]};
+  stage.advance(.016,.016);
+  assert.equal(stage.stats().instancesByPool.signal,0,
+   'obsolete Warden glyph retires when authority ends its cast');
+  assert.equal(stage.stats().activeDrawCalls,0,
+   'no stale boss release draw call survives the next real frame');
+  assert.equal(stage.hasDrawableCue(release.id),false);
+  assert.ok(stage.stats().reservedInstances<=104);
+  assert.ok(stage.stats().activeDrawCalls<=7);
+ }finally{stage.dispose()}
+});
