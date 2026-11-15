@@ -16,6 +16,49 @@ export const PHYSICAL_FEEDBACK_POOL_LIMITS=Object.freeze({
  trail:8,hit:48,block:8,dust:12,signal:8,projectile:10,spell:8
 });
 const TOTAL=Object.values(PHYSICAL_FEEDBACK_POOL_LIMITS).reduce((a,b)=>a+b,0);
+
+// Four sparse pending intervals cap bufferSubData call count without turning
+// two separated matrix rows into one whole-pool upload. CPU-only planning;
+// no claim that a GPU transfer occurred or improved real frame delivery.
+export const MAX_D04_PENDING_MATRIX_UPLOAD_RANGES=4;
+export function planD04MatrixUploadRanges(existing,index,maxInstances){
+ const capacity=Number.isSafeInteger(maxInstances)&&maxInstances>0&&maxInstances<=104?
+  maxInstances*16:null;
+ if(capacity===null)return [];
+ const full=()=>[{start:0,count:capacity}];
+ if(!Number.isSafeInteger(index)||index<0||index>=maxInstances||
+    !Array.isArray(existing))return full();
+ const rows=[{start:index*16,count:16}];
+ for(const range of existing){
+  const start=range?.start,count=range?.count;
+  if(!Number.isSafeInteger(start)||!Number.isSafeInteger(count)||
+     start<0||count<=0||start%16!==0||count%16!==0||
+     start+count>capacity)return full();
+  rows.push({start,count});
+ }
+ rows.sort((a,b)=>a.start-b.start);
+ const merged=[];
+ for(const row of rows){
+  const prior=merged[merged.length-1];
+  if(prior&&row.start<=prior.start+prior.count)
+   prior.count=Math.max(prior.start+prior.count,row.start+row.count)-prior.start;
+  else merged.push({...row});
+ }
+ // When saturated, fill the smallest untouched gap first. This stays
+ // deterministic, bounded and preserves every actually modified matrix.
+ while(merged.length>MAX_D04_PENDING_MATRIX_UPLOAD_RANGES){
+  let closest=0,gap=Infinity;
+  for(let i=0;i<merged.length-1;i++){
+   const distance=merged[i+1].start-(merged[i].start+merged[i].count);
+   if(distance<gap){gap=distance;closest=i}
+  }
+  const a=merged[closest],b=merged[closest+1];
+  a.count=b.start+b.count-a.start;
+  merged.splice(closest+1,1);
+ }
+ return merged;
+}
+
 const COLORS=Object.freeze({
  trail:0xbab8ac,hit:0xc5b19a,block:0xabb3b2,dust:0x746a5e,
  signal:0xa58b70,projectile:0x9b9588,spell:0x857c98
@@ -137,30 +180,21 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    if(pool.slots[i]!==null){count=i+1;break}
   pool.mesh.count=count;
  }
- // Three.js 0.186 exposes pending bufferSubData float ranges. An effect
- // pool may remain invisible for hundreds of frames: the renderer cannot
- // clear updates for an unsubmitted mesh. Coalesce ALL dirty rows into one
- // bounded interval per pool, preserving every hidden/replaced matrix.
- // Once the actual renderer uploads, its own clearUpdateRanges() resets the
- // interval, so the next active frame starts narrow again. Unsupported mock
- // adapters retain the existing full-buffer needsUpdate fallback.
+ // Three.js 0.186 can send separate bufferSubData float intervals. A
+ // hidden pooled mesh cannot clear them until its next genuine render.
+ // Retain at most four disjoint ranges; touching opposite pool ends no
+ // longer dirties all intervening matrices. On saturation merge the
+ // nearest gaps, bounding uploads and JS range records alike.
+ // Unsupported adapters keep the original needsUpdate full-buffer path.
  function setRetainedMatrix(pool,index,matrix){
   pool.mesh.setMatrixAt(index,matrix);
   const attr=pool.mesh.instanceMatrix;
   if(!Array.isArray(attr?.updateRanges)||
    typeof attr.clearUpdateRanges!=='function'||
    typeof attr.addUpdateRange!=='function')return;
-  let start=index*16,end=start+16;
-  for(const range of attr.updateRanges){
-   const a=range?.start,n=range?.count;
-   if(!Number.isSafeInteger(a)||!Number.isSafeInteger(n)||
-      a<0||n<=0||a+n>pool.max*16){
-    start=0;end=pool.max*16;break;
-   }
-   start=Math.min(start,a);end=Math.max(end,a+n);
-  }
+  const ranges=planD04MatrixUploadRanges(attr.updateRanges,index,pool.max);
   attr.clearUpdateRanges();
-  attr.addUpdateRange(start,end-start);
+  for(const range of ranges)attr.addUpdateRange(range.start,range.count);
  }
  make('trail',createOriginalBladeStreakGeometry(THREE),{metalness:0,roughness:1,opacity:reducedFlash?.15:.29});
  make('hit',new THREE.TetrahedronGeometry(.073,0),{metalness:.22,roughness:.8});
