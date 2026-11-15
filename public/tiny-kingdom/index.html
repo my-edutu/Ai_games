@@ -14146,6 +14146,8 @@ let realHomeLaneStats={occupiedHomes:0,connectedHomes:0,segments:0,
  triangles:0,skippedUnsafe:0,duplicateSections:0,limited:false,
  frontages:0,frontageQuads:0,frontageTriangles:0,
  cartScaleSections:0,narrowSections:0,clearanceChecks:0,
+ junctionHubsScanned:0,junctions:0,junctionQuads:0,
+ junctionTriangles:0,junctionUnsafeSkipped:0,
  noFictionalStops:true,
  changesAuthority:false,changesNavigation:false,extraGpuBuffers:0};
 function getRealHomeLaneNetworkAudit(){return {...realHomeLaneStats,
@@ -14248,6 +14250,66 @@ function renderAuthenticInhabitedRoadShoulders(sections,audit){
  audit.triangles+=triangles;
  return triangles;
 }
+// W358 physically connected junctions in the SAME retained civic VBO.
+// The only source is existing traversable streets joining genuinely
+// inhabited homes; never add citizens, roads, stock, collisions or AI paths.
+const REAL_HOME_JUNCTION_MAX_TRIANGLES=320;
+function renderPhysicalInhabitedRoadJunctions(sections,audit){
+ const hubs=new Map(),key=p=>p[0].toFixed(3)+','+p[1].toFixed(3);
+ for(const section of sections){
+  const {a,b,halfWidth}=section;
+  if(!Array.isArray(a)||!Array.isArray(b)||Math.hypot(a[0]-b[0],a[1]-b[1])<.01)continue;
+  for(const [v,w] of [[a,b],[b,a]]){
+   const id=key(v);
+   if(!hubs.has(id))hubs.set(id,{x:v[0],z:v[1],arms:[]});
+   hubs.get(id).arms.push({angle:Math.atan2(w[1]-v[1],w[0]-v[0]),halfWidth});
+  }
+ }
+ const first=data.length;
+ const stone=[rgb(0x9e907b),rgb(0x877c6d),rgb(0xafa08b),rgb(0x817869)];
+ let quads=0,junctions=0,unsafe=0;
+ materialScope(MATERIAL.STONE,()=>{
+  for(const hub of hubs.values()){
+   if(hub.arms.length<3)continue;
+   const arms=hub.arms.slice().sort((a,b)=>a.angle-b.angle);
+   let emitted=0;
+   for(let i=0;i<arms.length;i++){
+    if((data.length-first)/30+2>REAL_HOME_JUNCTION_MAX_TRIANGLES||
+       audit.triangles+(data.length-first)/30+2>REAL_HOME_LANE_BUDGET)break;
+    const a=arms[i],b=arms[(i+1)%arms.length],
+     gap=(b.angle-a.angle+4*Math.PI)%(2*Math.PI);
+    // Adjacent short route segments do not authorize a whole new courtyard.
+    if(gap<.16||gap>2.5)continue;
+    const inset=Math.min(.12,gap*.22);
+    const angleA=a.angle+inset,angleB=a.angle+gap-inset;
+    const width=Math.max(.42,Math.min(.99,Math.max(a.halfWidth,b.halfWidth)));
+    const radius=Math.max(.52,Math.min(.89,width*.82));
+    const at=(theta,r)=>{
+     const x=hub.x+Math.cos(theta)*r,z=hub.z+Math.sin(theta)*r;
+     return [x,terrain(x,z)+.090,z];
+    };
+    const corners=[at(angleA,.085),at(angleA,radius),
+     at(angleB,radius),at(angleB,.085)];
+    const mid=at((angleA+angleB)*.5,(radius+.085)*.5);
+    if(![...corners,mid].every(p=>walkable(p[0],p[2]))){unsafe++;continue;}
+    const tone=(i+Math.round(hub.x*7)+Math.round(hub.z*11));
+    const color=stone[((tone%stone.length)+stone.length)%stone.length];
+    upwardRoadQuad(...corners,color);
+    emitted++;quads++;
+   }
+   if(emitted)junctions++;
+  }
+ });
+ const triangles=(data.length-first)/30;
+ if(triangles!==quads*2||triangles>REAL_HOME_JUNCTION_MAX_TRIANGLES||
+    audit.triangles+triangles>REAL_HOME_LANE_BUDGET)
+  throw Error('W358 authentic inhabited junction geometry unbounded');
+ audit.junctionHubsScanned=hubs.size;
+ audit.junctions=junctions;audit.junctionQuads=quads;
+ audit.junctionTriangles=triangles;audit.junctionUnsafeSkipped=unsafe;
+ audit.triangles+=triangles;
+ return triangles;
+}
 function renderRealInhabitedLaneNetwork(){
  realHomeLaneSections=[];
  const first=data.length,origin=MARKET_HOME_STREET_ORIGIN,
@@ -14266,6 +14328,8 @@ function renderRealInhabitedLaneNetwork(){
   cartScaleSections:0,narrowSections:0,clearanceChecks:0,
   shoulderChecks:0,shoulderRejected:0,shoulderSections:0,
   shoulderWideSections:0,shoulderMetres:0,shoulderTriangles:0,
+  junctionHubsScanned:0,junctions:0,junctionQuads:0,
+  junctionTriangles:0,junctionUnsafeSkipped:0,
   noFictionalStops:true,
   changesAuthority:false,changesNavigation:false,extraGpuBuffers:0};
  const candidates=[...households.values()].filter(h=>h.index!==marketHomeStreetStats.homeIndex)
@@ -14337,6 +14401,8 @@ function renderRealInhabitedLaneNetwork(){
  // Terrain-fitted flagstones terminate that real street at each reached
  // home's walkable threshold; there is no invented door, occupant or path.
  renderRealOccupiedThresholdCourts(arrivals,audit);
+ // Actual branching streets must join at the original navigable ground.
+ renderPhysicalInhabitedRoadJunctions(realHomeLaneSections,audit);
  renderAuthenticInhabitedRoadShoulders(realHomeLaneSections,audit);
  if((data.length-first)/30!==audit.triangles||
     audit.triangles>REAL_HOME_LANE_BUDGET)

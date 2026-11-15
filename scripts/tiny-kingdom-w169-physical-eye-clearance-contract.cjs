@@ -66,6 +66,6 @@ assert.equal(check([0,2,0],overloaded).kind,'home',
 assert(h.includes('eyeCollision:physicalFollowEyeClearance(eye,roofs)'),'real-shot planner checks eye');
 assert(h.includes('(shot.eyeCollision.clear?0:9000)'),'real candidate scoring rejects interior eyes');
 assert(h.includes('const repairEye=plannedEyeClear&&'),'real interpolation checks eye');
-assert(h.includes('(repairEye||mustRepairPost||repairGeneral||portraitCoreRepair||'),'real camera relocates only for valid original shot');
+assert(h.includes('(repairEye||mustRepairPost||mustRepairWheat||repairGeneral||portraitCoreRepair||'),'real camera relocates only for valid original shot');
 assert(h.includes('plannedEyeClear){'),'real camera does not snap into physical obstacle');
 console.log('W169 source-contract PASS: actual physical camera eye model and bounded real delivery repair. Browser motion/hardware FPS NOT PROVEN.');

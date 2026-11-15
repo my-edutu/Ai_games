@@ -44,9 +44,14 @@ assert.equal(audit.triangles,drawTriangles);
 assert.equal(data.length,audit.triangles*30);
 assert(audit.frontageQuads>0,'each truly reached household needs physical terrain-fitted doorstep approach');
 assert.equal(audit.frontageQuads,10,'two real additional homes get five original threshold flagstones each');
-assert.equal(draws,audit.segments*3+audit.frontageQuads,
+assert.equal(draws,audit.segments*3+audit.frontageQuads+
+ audit.shoulderSections+audit.junctionQuads,
  'retain exact earth, two real wheel ruts and joined residential stone approaches');
 assert.equal(audit.frontageTriangles,audit.frontageQuads*2);
+assert.equal(audit.shoulderTriangles,audit.shoulderSections*2,
+ 'the existing physical road shoulders each preserve both triangles');
+assert.equal(audit.junctionTriangles,audit.junctionQuads*2,
+ 'every authentic shared street junction quad is fully emitted');
 assert(audit.triangles<=audit.triangleBudget);
 assert(audit.extraGpuBuffers===0&&!audit.changesAuthority&&!audit.changesNavigation);
 assert.equal(JSON.stringify(state),initial,'market/world authority must not change');
@@ -70,6 +75,8 @@ assert(grown.connectedHomes<=grown.occupiedHomes,
  'every rendered route must terminate at an existing occupied home');
 assert(grown.triangles<=3600,'genuine Day-120 street geometry remains bounded');
 assert(grown.frontageTriangles<=350,'Day-120 doorstep stone courts remain bounded');
+assert(grown.junctionTriangles<=320,'real Day-120 street forks stay within their shared 3,600 budget');
+assert(grown.junctionHubsScanned>=grown.junctions,'road fork auditor tracks real street endpoints');
 assert(grown.cartScaleSections>0,
  'safe real streets must permit credible cart-scale two-metre carriageways');
 assert(grown.narrowSections+grown.cartScaleSections===grown.segments,
@@ -77,4 +84,4 @@ assert(grown.narrowSections+grown.cartScaleSections===grown.segments,
 assert(grown.noFictionalStops===true,'no synthetic households or goods');
 
 assert.equal(grown.triangles,data.length/30);
-console.log('W352 SOURCE PASS: actual occupied home A* road network plus terrain-fitted stone arrivals; triangles bounded and authority unchanged; actual Day120 LOOK/FEEL/PLAY NOT PROVEN.');
+console.log('W358 SOURCE PASS: actual occupied home A* road network plus terrain-fitted stone arrivals; triangles bounded and authority unchanged; actual Day120 LOOK/FEEL/PLAY NOT PROVEN.');
