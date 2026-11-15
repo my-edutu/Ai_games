@@ -1237,6 +1237,53 @@ test('D04 prior-HP actor cache may lag one confirmed public injury without losin
  }finally{stage.dispose()}
 });
 
+test('strict D04 injury follows a current public victim when only its rendered cell cache is one step behind',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ // D04 does not infer an attacker or reconstruct a hit from old coordinates:
+ // the public victim is unique at its CURRENT tile and its exact HP transition
+ // is canonical. A still-visible body root must be physically at that tile.
+ const victim={id:'revenant',kind:'revenant',faction:'enemy',x:3,z:2,hp:4,maxHp:20};
+ let current={run:1,floor:1,tick:11,units:[victim]};
+ const actor={u:{...victim,x:2,hp:20},
+  root:{visible:true,position:{x:-6.1,y:0,z:-7},rotation:{y:0}}};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  actorById:id=>id==='revenant'?actor:null,
+  getCurrentSnapshot:()=>current,requireVerifiedHpReceipt:true
+ });
+ const proof=cue({detail:{damage:16,maxHp:20,remainingHp:4}});
+ const check=(ok,why)=>{
+  stage.reset();
+  assert.equal(stage.emit(proof),ok,why);
+  assert.equal(stage.stats().instancesByPool.hit,ok?5:0,why);
+ };
+ try{
+  check(true,'one-step cached tile and exact prior HP can follow the already visible current public victim');
+  assert.equal(stage.stats().activeDrawCalls,1);
+  actor.u={...victim,x:2};
+  check(true,'current HP in the same stale one-cell coordinate also has a unique public witness');
+  actor.u={...victim,x:1,hp:20};
+  check(false,'two stale tiles must not be treated as presentation interpolation');
+  actor.u={...victim,x:2,hp:19};
+  check(false,'a contradictory historical HP cannot attach fragments');
+  actor.u={...victim,x:2,hp:20,maxHp:21};
+  check(false,'different health capacity cannot borrow the injury');
+  actor.u={...victim,x:2,hp:20};
+  actor.root.position.x=-6.99;
+  check(false,'a root outside the bounded current-tile neighborhood cannot attach art');
+  actor.root.position.x=-6.1;
+  current={...current,tick:12};
+  check(false,'the same body on a later public tick cannot resurrect old contact');
+  current={...current,tick:11,units:[victim,{...victim}]};
+  check(false,'duplicate public IDs cannot authorize an ambiguous model');
+  current={...current,units:[victim]};
+  actor.u={...victim,x:2,hp:20};
+  check(true,'a legitimate root may still be admitted after invalid witnesses');
+  assert.equal(stage.stats().reservedInstances,102);
+  assert.ok(stage.stats().activeDrawCalls<=7);
+ }finally{stage.dispose()}
+});
+
 test('D04 real controller enables strict HP VFX admission while isolated visual auditions stay compatible',()=>{
  const fs=require('node:fs');
  const controller=fs.readFileSync(path.join(root,'physical-combat-feedback.js'),'utf8');
