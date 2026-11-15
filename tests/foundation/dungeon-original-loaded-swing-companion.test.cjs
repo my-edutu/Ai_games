@@ -157,3 +157,53 @@ test('RED: measured original deep-swing foot arc can spend two unused licensed-s
   ...t.after,right:{...original.right,toeY:original.right.toeY+.006}
  }}))}),null);
 });
+
+
+// Test-first independent RED: genuine licensed CC0 Vanguard Walking_A
+// 1440px original skinned foot readback from Actions #43710861266, native
+// source-rig artifact #14161248177. BEFORE weighted heel/toe heights and
+// source hip/knee pose trial Y values are real; XZ entries below are deliberately
+// constructed contract placeholders (not a claimed second frame/foot-lock).
+// The source -90/+75mrad pair lifts the airborne toe 13.681mm while pushing
+// its already raised heel 26.375mm higher. More of the same ratio lifts the
+// heel further. Probe a KNEE-BIASED physical chain instead, never an
+// independent ankle twitch, and keep actual dual-skinned-shoe final gates.
+test('RED: heel-dominated original source swing branches to knee-biased connected probes without creating a foot plant',async()=>{
+ const {planOriginalSourceSwingLinkedLegFollowups:plan}=await load();
+ const swing={heelY:.1818489366030219,toeY:-.10518361032839756,
+  heelXZ:[0,.35],toeXZ:[-.20,.35]};
+ const loaded={heelY:-.03647658980375642,toeY:-.014051316167091446,
+  heelXZ:[0,0],toeXZ:[-.27,0]};
+ const probes=[
+  {upperRad:.09,lowerRad:-.075,
+   after:{left:loaded,right:{...swing,
+    toeY:swing.toeY-.007809695419973742,
+    heelY:swing.heelY-.028301898058483765}}},
+  {upperRad:-.09,lowerRad:.075,
+   after:{left:loaded,right:{...swing,
+    toeY:swing.toeY+.013681381100140208,
+    heelY:swing.heelY+.026374559233514894}}}
+ ];
+ const input={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,ownerLocomotion:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false,
+  frameInterval:.033400000000007424,side:'right',floorTopY:-.02,
+  before:{left:loaded,right:swing},trials:probes};
+ assert.deepEqual(plan(input),[[-.09,.09],[-.105,.09]],
+  'two remaining real skinned-source trials should bias authentic calf flexion, not merely exaggerate the airborne heel');
+ const ordinary=probes.map((probe,i)=>i?{
+  ...probe,after:{left:loaded,right:{...probe.after.right,toeY:swing.toeY+.0115}}
+ }:probe);
+ assert.deepEqual(plan({...input,trials:ordinary}),[[-.105,.085],[-.11,.09]],
+  'unproven <12mm toe recovery must preserve existing safe paired follow-ups');
+ for(const unsafe of [
+  {sourceClipName:'Idle'},{sourceWeight:.6},{sourceInstanceSame:false},
+  {interrupted:true},{reducedMotion:true},{teleport:true},
+  {trials:[probes[0],{...probes[1],after:{
+   ...probes[1].after,left:{...loaded,toeY:loaded.toeY+.01}}}]},
+  {trials:[probes[0],{...probes[1],after:{
+   ...probes[1].after,right:{...probes[1].after.right,
+    heelY:swing.heelY+.08}}}]}
+ ])assert.equal(plan({...input,...unsafe}),null,
+  'no knee-biased stage without witnessed original clip, intact loaded sole and safe source chain: '+JSON.stringify(unsafe));
+});
