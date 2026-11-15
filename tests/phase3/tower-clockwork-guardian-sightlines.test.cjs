@@ -27,6 +27,7 @@ const importURLs = {
   "'./crossfloor-arrival.mjs'": pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/crossfloor-arrival.mjs')).href,
   "'./original-clockwork-architecture-palette.mjs'": pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/original-clockwork-architecture-palette.mjs')).href,
   "'./source-earned-bearing-run.mjs'": pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/source-earned-bearing-run.mjs')).href,
+  "'./original-gallery-foreground.mjs'": pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/original-gallery-foreground.mjs')).href,
   "'./source-physical-arrival-palette.mjs'": pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/source-physical-arrival-palette.mjs')).href,
   "'./world-surface.mjs'": pathToFileURL(path.join(ROOT,
     'public/infinite-tower-climb/visuals/world-surface.mjs')).href,
