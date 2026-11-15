@@ -15,6 +15,9 @@ const street=functionBody('medievalStreetMorphology');
 const profile=functionBody('houseVisualProfile');
 // W217 original compact cottages now use real hipped-roof geometry.
 const roof=functionBody('isHippedHouseRoof');
+// W350: W349's real joined casements were missing from this isolated
+// historical house fixture, not from the actual running cottage.
+const casement=functionBody('renderOriginalOccupiedCasement');
 assert.match(house,/box\(x,y\+jettySill,z,w\+\.28,h-jettySill,d\+\.36,plaster\)/,
  'Complete upper-room volume, not a front-only facade');
 assert.doesNotMatch(street,/box\(x,y\+1\.55,front-\.06,w\*\.82,h-1\.62,\.24,plaster\)/,
@@ -53,6 +56,7 @@ function sample(style,variant) {
    };
   ${profile}
   ${roof}
+  ${casement}
   ${house}
   ${street}
   compactHouse(3,-7,${variant});
@@ -70,6 +74,7 @@ for(let style=0;style<4;style++)for(let variant=0;variant<3;variant++){
   assert(rooms[0].w>2.55,'Jettied sideways wall mass');
   assert.equal(v.rooms,1,'Actual original morphology still receives joinery');
  }
- assert(v.triangles<600,'Bounded per-cottage geometry');
+ // Include real four-sided joined casements in the bounded whole house.
+ assert(v.triangles<1050,'Bounded complete cottage including original casements');
 }
 console.log('W98 real upper-room structure across all 12 style/variant cases: PASS (isolated geometry only; not WebGL)');

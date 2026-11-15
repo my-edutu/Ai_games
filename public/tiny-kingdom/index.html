@@ -8760,6 +8760,32 @@ streetMorphologyStats={homes:0,highStreetFronts:0,upperJetties:0,
 // relocations). It contains no season token: the original stone/wood/roof
 // geometry is already season invariant; seasonal shaders and terrain remain
 // separately invalidated by the existing scene key.
+// W350 Phase 1: exact immutable city topology shared by actual A* route
+// neighbours and GPU-resident Day120 home partition planning. Real house
+// construction, restart and same-count snapshot restore explicitly invalidate
+// it. No actor, route, home or saved-world data is invented or suppressed.
+function originalCityTopologySignatures(){
+ const cached=originalCityTopologySignatures.cached;
+ if(cached&&cached.count===city.length){
+  originalCityTopologySignatures.reuses=(originalCityTopologySignatures.reuses||0)+1;
+  return cached;
+ }
+ const nav=[],homes=[];
+ for(let i=0;i<city.length;i++){
+  const lot=city[i];
+  nav.push(lot.join(','));
+  homes.push(i+':'+lot.join(':'));
+ }
+ const next={count:city.length,nav:nav.join(';'),homes:homes.join(';')};
+ originalCityTopologySignatures.cached=next;
+ originalCityTopologySignatures.builds=(originalCityTopologySignatures.builds||0)+1;
+ return next;
+}
+function invalidateOriginalCityTopologySignatures(){
+ originalCityTopologySignatures.cached=null;
+ originalCityTopologySignatures.invalidations=
+  (originalCityTopologySignatures.invalidations||0)+1;
+}
 function homePartitionLiveSignature(){
  homePartitionTopologyScans++;
  // W293: inspect the actual occupied neighborhood, rather than locking
@@ -8769,7 +8795,7 @@ function homePartitionLiveSignature(){
   'visible-neighborhood:'+lod.mode+':'+lod.x.toFixed(2)+':'+lod.z.toFixed(2)+':'+
   (Number.isFinite(lod.heading)?lod.heading.toFixed(3):'all')+':'+
   (lod.viewRadius||0).toFixed(2)+':'+(lod.horizontalTan||0).toFixed(3)+'|' +
-  city.map((lot,i)=>i+':'+lot.join(':')).join(';');
+  originalCityTopologySignatures().homes;
 }
 function homePartitionResidencyMatches(){
  if(!homeClusterActive.length)return false;
@@ -20375,6 +20401,7 @@ let homeNavigationBuckets=null,homeNavigationLength=-1,homeNavigationRebuilds=0,
 function invalidateHomeNavigationIndex(){
  invalidateNavSegmentMemo();
  homeNavigationBuckets=null;homeNavigationLength=-1;
+ invalidateOriginalCityTopologySignatures();
 }
 function ensureHomeNavigationIndex(){
  // Genuine new construction appends a lot. Snapshot restoration can replace
@@ -20458,7 +20485,9 @@ const navNodeGrid=new Uint8Array(NAV_NODE_GRID_WIDTH*NAV_NODE_GRID_WIDTH);
 let navNodeGridTopology=null,navNodeGridHits=0,navNodeGridMisses=0,
  navNodeGridInvalidations=0,navNodeGridOccupied=0,navNodeGridBypasses=0;
 function ensureNavNodeGrid(){
- const topology=city.map(lot=>lot.join(',')).join(';');
+ // The exact same original city lot key, now assembled only when actual
+ // construction or restore changes the world, not per A* neighbour query.
+ const topology=originalCityTopologySignatures().nav;
  if(topology!==navNodeGridTopology){
   navNodeGrid.fill(0);
   navNodeGridTopology=topology;
@@ -20488,6 +20517,9 @@ function getNavNodeGridAudit(){
   gridWidth:NAV_NODE_GRID_WIDTH,maxEntries:navNodeGrid.length,
   occupiedEntries:navNodeGridOccupied,hits:navNodeGridHits,
   misses:navNodeGridMisses,invalidations:navNodeGridInvalidations,
+  topologySignatureBuilds:originalCityTopologySignatures.builds||0,
+  topologySignatureReuses:originalCityTopologySignatures.reuses||0,
+  topologySignatureInvalidations:originalCityTopologySignatures.invalidations||0,
   uncachedOffGridQueries:navNodeGridBypasses,
   collisionOracle:'original walkable()',topologyIncludesAllRealHomes:true,
   sameCountRestoreInvalidation:true,offGridMovementUnchanged:true,
