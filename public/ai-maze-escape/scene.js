@@ -598,9 +598,10 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         closestThreat?.encounterBeat, settings.reducedMotion) : 0;
     guardianHeartLight.visible = heartCue > 0;
     guardianHeartLight.intensity = 2.85 * heartCue;
-    if (guardianHeartLight.visible)
-      observedHeart.getWorldPosition(guardianHeartWorldPosition),
+    if (guardianHeartLight.visible) {
+      observedHeart.getWorldPosition(guardianHeartWorldPosition);
       guardianHeartLight.position.copy(guardianHeartWorldPosition);
+    }
     // Subtle, bounded key-to-fill staging only during the actual event:
     // masonry recedes while modeled lantern, face, moving armor and rails
     // carry the light. Other puzzle beats retain the original calibrated rig.
@@ -1843,7 +1844,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     delete window.__MAZE_PUBLIC_SCENE_PICK__;
     world.dispose(); explorer.dispose();
     scene.remove(pickupBurst); pickupGeometry.dispose(); pickupMaterial.dispose(); pickupBurst.clear();
-    scene.remove(lanternBeam,lanternSurveyTurn,guardianHeartLight); lanternBeamGeometry.dispose(); lanternBeamMaterial.dispose();
+    scene.remove(lanternBeam,lanternSurveyTurn); lanternBeamGeometry.dispose(); lanternBeamMaterial.dispose();
+    scene.remove(guardianHeartLight);
     for (const entry of wardens.values()) removeWarden(entry);
     wardens.clear();
     // Fully release the deliberately bounded dormant GPU rig on final teardown.
