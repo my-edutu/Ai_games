@@ -101,8 +101,17 @@ export function observedSourcePhysicalArrivalPalette(source,held=null) {
     Number.isFinite(held.originalGatewayOpacity) &&
     held.originalGatewayOpacity>0 &&
     held.opticalExitSubmitted!==true;
+  // A genuine 10,000-unit grounded stride after the first GPU return
+  // must start tinting the REAL roof toward Void. Holding progress at zero
+  // until multiple frames returned made the floor appear frozen under a
+  // moving body, and failed the actual Three.js world contact regression.
+  // Still permit at most ~5% material transition after the first return;
+  // an unsubmitted first F9 frame remains bronze, and the full source
+  // progress cannot overtake the old physical gateway until its own bounded
+  // sequence has been drawn.
   const gpuProgress=originalGpuVisible
-    ?smooth((held.submittedFrames-1)/10):1;
+    ?held.submittedFrames===0?0:
+      smooth((held.submittedFrames+1)/15):1;
   const progress=Math.min(physicalProgress,gpuProgress);
   const oldWeight=1-progress;
   return {sourceBound:true,sourceTick:source.tick,crossingTick:sourceTick,
