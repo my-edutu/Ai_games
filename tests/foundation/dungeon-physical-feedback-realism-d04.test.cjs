@@ -1929,3 +1929,68 @@ test('strict D04 refuses a premature Warden release without erasing eight live t
   assert.ok(stage.stats().reservedInstances<=104);
  }finally{stage.dispose()}
 });
+
+
+test('strict D04 guard and healing rings require the current unique public action, not yesterday rendered body',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const guardUnit={id:'vanguard',kind:'vanguard',faction:'party',x:2,z:2,
+  hp:20,maxHp:20,action:'guard',actionTick:11};
+ const healer={id:'mystic',kind:'mystic',faction:'party',x:3,z:2,
+  hp:18,maxHp:18,action:'cast',actionTick:11};
+ const rendered={
+  vanguard:{u:guardUnit,authored:false,root:{visible:true,
+   position:{x:-7,y:0,z:-7},rotation:{y:0}}},
+  mystic:{u:healer,authored:false,root:{visible:true,
+   position:{x:-6,y:0,z:-7},rotation:{y:0}}}
+ };
+ let current={run:1,floor:1,tick:11,units:[guardUnit,healer]};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  requireVerifiedHpReceipt:true,getCurrentSnapshot:()=>current,
+  actorById:id=>rendered[id]??null
+ });
+ const guard=cue({id:'1:1:11:guard:vanguard:-',kind:'guard',
+  visual:'utility',audio:'guard',proof:'authority-action',verified:true,
+  actorId:'vanguard',targetId:null,from:{x:2,z:2},to:null});
+ const healing=cue({id:'1:1:11:cast-utility:mystic:-',kind:'cast-utility',
+  visual:'utility',audio:'utility',proof:'authority-action',verified:true,
+  actorId:'mystic',targetId:null,from:{x:3,z:2},to:null});
+ try{
+  current={...current,units:[{...guardUnit,action:'idle'},healer]};
+  assert.equal(stage.emit(guard),false,
+   'stale visible guard pose must not create an authority-revoked ring');
+  assert.equal(stage.hasAuthenticatedBodyPose(guard),false,
+   'sound-only guard must not use a stale visual body as public action proof');
+  current={...current,units:[guardUnit,{...healer,action:'idle'}]};
+  assert.equal(stage.emit(healing),false,
+   'old skinned healing cast cannot release a glyph after authority cancels it');
+  assert.equal(stage.hasAuthenticatedBodyPose(healing),false);
+  current={...current,tick:12,units:[guardUnit,healer]};
+  assert.equal(stage.emit(healing),false,
+   'a later public tick cannot certify the original cast action');
+  current={...current,tick:11,units:[guardUnit,healer,{...healer}]};
+  assert.equal(stage.emit(healing),false,
+   'a duplicated public caster must not choose an arbitrary source body');
+  current={...current,units:[
+   ...Array.from({length:96},(_,i)=>({id:'decoy-'+i,kind:'revenant'})),
+   healer]};
+  assert.equal(stage.emit(healing),false,
+   'late-only performer after 96 action candidates cannot create a utility ring');
+  assert.equal(stage.stats().instancesByPool.signal,0);
+  current={run:1,floor:1,tick:11,units:[guardUnit,healer]};
+  assert.equal(stage.emit(guard),true,'unique current guard remains drawable');
+  assert.equal(stage.emit(healing),true,'unique current utility cast remains drawable');
+  assert.equal(stage.stats().instancesByPool.signal,2);
+  current={...current,units:[guardUnit,{...healer,action:'idle'}]};
+  stage.advance(.016,.016);
+  assert.equal(stage.stats().instancesByPool.signal,1,
+   'cancelled healing ring must retire before the next WebGL submission');
+  assert.equal(stage.hasAuthenticatedBodyPose(healing),false);
+  current={...current,tick:12};
+  stage.advance(.016,.016);
+  assert.equal(stage.stats().instancesByPool.signal,0,
+   'stale guard ring also retires after authority advances');
+  assert.equal(stage.stats().activeDrawCalls,0);
+  assert.ok(stage.stats().reservedInstances<=104);
+ }finally{stage.dispose()}
+});
