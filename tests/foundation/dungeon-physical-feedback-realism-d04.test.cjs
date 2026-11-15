@@ -1144,6 +1144,40 @@ test('D04 strict production HP art refuses a forged sound-only or non-damage inj
  }finally{stage.dispose()}
 });
 
+test('strict D04 HP fragments require the real same-tick public victim health, not merely a coherent forged delta',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const proof=cue({detail:{damage:16,maxHp:20,remainingHp:4}});
+ let current=null,rendered=null;
+ const actor={u:null,root:{visible:true,position:{x:-6,y:0,z:-7},rotation:{y:0}}};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  actorById:id=>id==='revenant'?rendered:null,
+  getCurrentSnapshot:()=>current,
+  requireVerifiedHpReceipt:true
+ });
+ function check(mode,hp,maxHp,expected,why){
+  stage.reset();
+  const victim={id:'revenant',kind:'revenant',faction:'enemy',x:3,z:2,hp,maxHp};
+  current={run:1,floor:1,tick:11,units:[victim]};
+  actor.u=victim;
+  actor.root.position.x=mode==='interpolated'?-6.84:-6;
+  rendered=mode==='unloaded'?null:actor;
+  assert.equal(stage.emit(proof),expected,why);
+  assert.equal(stage.stats().instancesByPool.hit,expected?5:0,
+   'an unproven injury must never allocate a retained fragment');
+ }
+ try{
+  for(const mode of ['drawn','interpolated','unloaded']){
+   check(mode,20,20,false,mode+' uninjured public body cannot receive forged HP fragments');
+   check(mode,11,20,false,mode+' wrong post-hit HP must fail closed');
+   check(mode,4,40,false,mode+' different real max HP cannot borrow the cue severity');
+   check(mode,4,20,true,mode+' genuine same-tick HP victim remains drawable');
+  }
+  assert.equal(stage.stats().reservedInstances,102);
+  assert.ok(stage.stats().activeDrawCalls<=7);
+ }finally{stage.dispose()}
+});
+
 test('D04 real controller enables strict HP VFX admission while isolated visual auditions stay compatible',()=>{
  const fs=require('node:fs');
  const controller=fs.readFileSync(path.join(root,'physical-combat-feedback.js'),'utf8');
