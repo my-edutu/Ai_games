@@ -1522,9 +1522,87 @@ export function planOriginalSourceWeightedSoleHingeAxis({
  });
 }
 
+
+/**
+ * Spend at most TWO UNUSED original-foot skinned-sole trials in a long real
+ * Walking_A frame, after a genuinely measured +/-120mrad source-foot sweep
+ * has already improved a severely buried toe. The trial is *not* a plant:
+ * the imported original hip+knee has already been certified against BOTH
+ * source shoes, and the opposite loaded outsole is measured again.
+ *
+ * Frame interval >=100ms is a presentation observation, not a simulation
+ * tick permission. Never use an untracked alternative ankle axis, a stale
+ * original skeleton, a near-flat shoe, a short frame, or a toe lift inferred
+ * merely from source quaternion angles. This only produces angles to trial,
+ * never a guaranteed pose or an authority/contact change.
+ */
+export function planOriginalSourceDeepSwingFootFollowups({
+ mode='idle',sourceClipName='',sourceWeight=NaN,
+ sourceInstanceSame=false,sourceInstanceId='',
+ sourceFootChainVerified=false,sourceFootTrackVerified=false,
+ ownerLocomotion=false,alive=false,visible=false,
+ teleport=false,reducedMotion=false,interrupted=false,
+ rootTravel=NaN,frameAge=NaN,frameInterval=NaN,
+ side='',floorTopY=NaN,linkedProof=null,before=null,trials=[]
+}={}){
+ if(mode!=='move'||sourceClipName!=='Walking_A'||
+  !finite(sourceWeight)||sourceWeight<.95||sourceWeight>1.001||
+  !sourceInstanceSame||typeof sourceInstanceId!=='string'||!sourceInstanceId||
+  sourceFootChainVerified!==true||sourceFootTrackVerified!==true||
+  ownerLocomotion!==true||alive!==true||visible!==true||
+  teleport||reducedMotion||interrupted||
+  ![rootTravel,frameAge,frameInterval,floorTopY].every(finite)||
+  rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.15||
+  frameInterval<.10||frameInterval>.15||
+  Math.abs(floorTopY+.02)>.005||
+  !['left','right'].includes(side)||trials.length!==2||
+  linkedProof?.source!=='measured-original-skinned-linked-leg'||
+  linkedProof?.sourceClip!=='Walking_A'||
+  linkedProof?.sourceInstanceId!==sourceInstanceId||
+  linkedProof?.side!==side||linkedProof?.contactLocked!==false||
+  linkedProof?.oppositeShoePreserved!==true||
+  ![linkedProof?.upperRad,linkedProof?.lowerRad].every(finite)||
+  Math.abs(linkedProof.upperRad)<.075||Math.abs(linkedProof.upperRad)>.145||
+  Math.abs(linkedProof.lowerRad)<.045||Math.abs(linkedProof.lowerRad)>.11||
+  Math.sign(linkedProof.upperRad)===Math.sign(linkedProof.lowerRad))
+  return null;
+ const other=side==='left'?'right':'left';
+ const valid=v=>v&&[v.heelY,v.toeY].every(finite)&&
+  [v.heelXZ,v.toeXZ].every(p=>
+   Array.isArray(p)&&p.length===2&&p.every(finite));
+ const swing=before?.[side],loaded=before?.[other];
+ if(!valid(swing)||!valid(loaded))return null;
+ const depth=floorTopY-swing.toeY;
+ if(depth<.045||depth>.12||swing.heelY-floorTopY<.18||
+  swing.heelY-floorTopY>.35||
+  ![loaded.heelY,loaded.toeY].every(y=>
+   y>=floorTopY-.055&&y<=floorTopY+.035))return null;
+ const drift=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+ let best=null;
+ for(const t of trials){
+  const shoe=t?.after?.[side],support=t?.after?.[other];
+  if(!finite(t?.angleRad)||Math.abs(Math.abs(t.angleRad)-.12)>.000001||
+   t.axisKind!=='original-clip-track'||!valid(shoe)||!valid(support)||
+   Math.abs(shoe.heelY-swing.heelY)>.008||
+   drift(shoe.heelXZ,swing.heelXZ)>.02||
+   drift(shoe.toeXZ,swing.toeXZ)>.032||
+   Math.abs(support.heelY-loaded.heelY)>.002||
+   Math.abs(support.toeY-loaded.toeY)>.002||
+   drift(support.heelXZ,loaded.heelXZ)>.003||
+   drift(support.toeXZ,loaded.toeXZ)>.003)continue;
+  const lift=shoe.toeY-swing.toeY;
+  if(lift<.008||lift>.035)continue;
+  if(!best||lift>best.lift)best={angleRad:t.angleRad,lift};
+ }
+ if(!best)return null;
+ const sign=Math.sign(best.angleRad);
+ // TWO additional source shoe measurements, not extra GPU draw calls.
+ return [sign*.18,sign*.24];
+}
+
 export function chooseOriginalSourceSwingLinkedFootFinisher({
  mode='idle',sourceClipName='',sourceWeight=NaN,
- sourceInstanceSame=false,sourceFootChainVerified=false,
+ sourceInstanceSame=false,sourceInstanceId='',sourceFootChainVerified=false,
  sourceFootTrackVerified=false,sourceBindDorsiflexionVerified=false,
  sourceWeightedOutsoleHingeVerified=false,
  ownerLocomotion=false,alive=false,visible=false,
@@ -1580,16 +1658,36 @@ export function chooseOriginalSourceSwingLinkedFootFinisher({
    (axisKind==='original-bind-dorsiflexion'&&sourceBindDorsiflexionVerified!==true)||
    (axisKind==='original-weighted-outsole-swing'&&
     sourceWeightedOutsoleHingeVerified!==true))continue;
+  // A measured 100ms+ original Walking_A frame may spend two remaining
+  // true source-skinned reads on the *same* verified ankle axis. This is
+  // never a generic allowance for arbitrary source toe/joint rotation.
+  const slowDeepOriginalArc=axisKind==='original-clip-track'&&
+   finite(angle)&&Math.abs(angle)>.120001&&
+   frameInterval>=.10&&sourceWeight>=.95&&
+   typeof sourceInstanceId==='string'&&!!sourceInstanceId&&
+   sourceInstanceId===linkedProof.sourceInstanceId&&
+   [linkedProof.upperRad,linkedProof.lowerRad].every(finite)&&
+   Math.abs(linkedProof.upperRad)>=.075&&
+   Math.abs(linkedProof.upperRad)<=.145&&
+   Math.abs(linkedProof.lowerRad)>=.045&&
+   Math.abs(linkedProof.lowerRad)<=.11&&
+   Math.sign(linkedProof.upperRad)===-Math.sign(linkedProof.lowerRad)&&
+   burial>=.045&&burial<=.12&&
+   swing.heelY-floorTopY>=.18&&swing.heelY-floorTopY<=.35;
   if(!finite(angle)||Math.abs(angle)<.10||
-   Math.abs(angle)>.120001||!valid(shoe)||!valid(other))continue;
+   Math.abs(angle)>(slowDeepOriginalArc?.240001:.120001)||
+   !valid(shoe)||!valid(other))continue;
   const lift=shoe.toeY-swing.toeY;
-  // Do not trade heel penetration, supporting-foot motion, a shoe-flip
-  // or excessive sideways drift for a cosmetically higher toe sample.
-  if(lift<Math.max(.008,burial*.12)||lift>.035||
+  // A stronger long-frame source ankle must earn >=18mm of actual toe
+  // recovery and independently preserve the true weighted opposite shoe.
+  // On a small/fast/missing-source frame retain the old stricter limits.
+  if(lift<(slowDeepOriginalArc?Math.max(.018,burial*.22):
+   Math.max(.008,burial*.12))||
+   lift>(slowDeepOriginalArc?.05:.035)||
    shoe.toeY>floorTopY+.012||
-   Math.abs(shoe.heelY-swing.heelY)>.008||
+   Math.abs(shoe.heelY-swing.heelY)>(slowDeepOriginalArc?.016:.008)||
    drift(shoe.heelXZ,swing.heelXZ)>.02||
-   drift(shoe.toeXZ,swing.toeXZ)>.03||
+   drift(shoe.toeXZ,swing.toeXZ)>(slowDeepOriginalArc?.055:.03)||
    Math.abs(other.heelY-support.heelY)>.002||
    Math.abs(other.toeY-support.toeY)>.002||
    drift(other.heelXZ,support.heelXZ)>.003||
@@ -1599,6 +1697,7 @@ export function chooseOriginalSourceSwingLinkedFootFinisher({
    beforeToeY:swing.toeY,afterToeY:shoe.toeY,
    beforeHeelY:swing.heelY,afterHeelY:shoe.heelY,
    linkedSourceRetained:true,oppositeFootVerified:true,contactLocked:false,
+   deepOriginalSwingArc:slowDeepOriginalArc,
    source:'actual-original-linked-hip-knee-foot-skinned-trial'
   });
  }
