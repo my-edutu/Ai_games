@@ -1,4 +1,5 @@
 import * as THREE from '/tower/vendor/three.module.js';
+import { observedOriginalDoorwayOcclusionWindow, actualOriginalDoorwaySightlineEndpoints } from './threshold-occlusion-witness.mjs';
 import { createTowerColdFloorResolution } from './cold-floor-resolution.mjs';
 import { observedGroundedBiomeThreshold } from './biome-threshold.mjs';
 import { auditOriginalGuardianCrossing } from './gateway-source-audit.mjs';
@@ -5479,11 +5480,19 @@ export function createTowerScene(canvas, settings = {}) {
   const ownerAuditRetained = [];
   let ownerAuditEpisode = '';
   function observedCameraMeshOwners() {
+    // The previous fixed screen-space portrait probes missed the original
+    // whole-body/gateway occluder at the *earned* Floor8→9 transition.
+    // Require source HP-zero proof on Floor8, or original-retained same-run
+    // physical crossing on Floor9. Candidate desktop and portrait are both
+    // inspected; this audit is opt-in and never drives a camera/material.
+    const held=snapshot?.floor===9?world.retainedFilmHandoff?.(snapshot):null;
+    const threshold=observedOriginalDoorwayOcclusionWindow(snapshot,held);
+    const legacyPortrait=snapshot?.floor===8 && camera.aspect<.85;
     if (typeof window === 'undefined' || window.__TOWER_MESH_OWNER_AUDIT__ !== true ||
-        !snapshot || snapshot.floor !== 8 ||
+        !snapshot || (!legacyPortrait && !threshold) ||
         snapshot.lifecycle !== 'running' || options.stale ||
         !snapshot.player || snapshot.player.health <= 0 ||
-        !Number.isSafeInteger(snapshot.tick) || camera.aspect >= .85) {
+        !Number.isSafeInteger(snapshot.tick)) {
       ownerAuditRetained.length = 0;
       ownerAuditEpisode = '';
       return [];
@@ -5495,6 +5504,8 @@ export function createTowerScene(canvas, settings = {}) {
     const episode = snapshot.runToken + ':' + snapshot.floor;
     if (ownerAuditEpisode !== episode) {
       ownerAuditEpisode = episode;
+      ownerAuditLastRun = '';
+      ownerAuditLastTick = -Infinity;
       ownerAuditRetained.length = 0;
     }
     if (ownerAuditLastRun === snapshot.runToken &&
@@ -5504,13 +5515,38 @@ export function createTowerScene(canvas, settings = {}) {
     ownerAuditLastTick = snapshot.tick;
     camera.updateMatrixWorld(true);
     scene.updateMatrixWorld(true);
-    const samples = [[-.55,.26],[-.34,.26],[-.16,.10],[.04,-.08]];
+    const gate=threshold?guardianTraversalGatePose(threshold.thresholdX,
+      threshold.roofY,snapshot.chunkBaseY,snapshot.worldWidth):null;
+    const gateWorld=gate?{x:gate.x,y:gate.y+2,z:gate.z}:null;
+    const endpoints=threshold && gateWorld
+      ?actualOriginalDoorwaySightlineEndpoints(camera.position,
+        climber.group.position,snapshot.player.halfHeight/SCALE,
+        snapshot.player.halfWidth/SCALE,gateWorld):[];
+    // All seven source-body/door targets have real current 3D positions.
+    // Before HP zero, retain the original four diagnostic portrait pixels.
+    const samples=endpoints.length
+      ?endpoints.map(e=>({kind:e.kind,point:e.point}))
+      :[[-.55,.26],[-.34,.26],[-.16,.10],[.04,-.08]]
+        .map(([x,y])=>({kind:'legacy-portrait-screen-pixel',ndc:[x,y]}));
     const report = [];
-    for (const [x,y] of samples) {
-      ownerAuditNdc.set(x,y);
-      ownerAuditRay.setFromCamera(ownerAuditNdc,camera);
+    const endpoint=new THREE.Vector3(), direction=new THREE.Vector3();
+    for (const sample of samples) {
+      let maxDepth=125;
+      if(sample.point){
+        endpoint.set(...sample.point);
+        direction.copy(endpoint).sub(camera.position);
+        maxDepth=direction.length();
+        if(!Number.isFinite(maxDepth)||maxDepth<=.4)continue;
+        ownerAuditRay.set(camera.position,direction.multiplyScalar(1/maxDepth));
+        // A candidate triangle must sit in front of the body/gate,
+        // never merely somewhere behind it inside the tower.
+        ownerAuditRay.far=maxDepth-.2;
+      }else{
+        ownerAuditNdc.set(...sample.ndc);
+        ownerAuditRay.setFromCamera(ownerAuditNdc,camera);
+        ownerAuditRay.far=125;
+      }
       ownerAuditRay.near = .15;
-      ownerAuditRay.far = 125;
       ownerAuditHits.length = 0;
       ownerAuditRay.intersectObjects(scene.children,true,ownerAuditHits);
       const hits = [];
@@ -5546,7 +5582,11 @@ export function createTowerScene(canvas, settings = {}) {
         });
         if (hits.length===5) break;
       }
-      report.push({ndc:[x,y],hits});
+      report.push({endpointKind:sample.kind,
+        ...(sample.ndc?{ndc:sample.ndc}:{
+          actualWorldTarget:sample.point.map(v=>Number(v.toFixed(3))),
+          targetDistance:Number(maxDepth.toFixed(3))}),
+        hits});
     }
     ownerAuditHits.length=0;
     // Return a run-isolated, tick-keyed rolling window, not a one-time event.
@@ -5555,8 +5595,13 @@ export function createTowerScene(canvas, settings = {}) {
       tick:snapshot.tick,theme:snapshot.theme ?? null,
       viewportAspect:Number(camera.aspect.toFixed(4)),
       cameraPosition:camera.position.toArray().map(n=>Number(n.toFixed(2))),
-      probes:report,source:'opt-in bounded current-Three-mesh raycasts',
-      limitation:'Ray intersection is NOT proof of composited WebM pixels, occlusion quality or source-event timecode'};
+      probes:report,thresholdSource:threshold,
+      actualReturnedCameraSourceTick:
+        lastSubmittedGuardian.runToken===snapshot.runToken &&
+        lastSubmittedGuardian.floor===snapshot.floor
+          ?lastSubmittedGuardian.tick:null,
+      source:'opt-in actual-body-and-gate bounded current-Three-mesh raycasts',
+      limitation:'Diagnostic read happens after the last returned frame and may sample later source state. Ray contact is NOT WebM pixels, true video timestamp, gameplay change or a preference'};
     ownerAuditRetained.push(witness);
     if(ownerAuditRetained.length>8) ownerAuditRetained.shift();
     return ownerAuditRetained.slice();

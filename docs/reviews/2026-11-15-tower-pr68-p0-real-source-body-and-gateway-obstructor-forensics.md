@@ -1,0 +1,21 @@
+# Infinite Tower PR68 — P0 body/gateway true 3D obstructor triage
+Date: 2026-11-15. **P0 OPEN. Leading verdict NOT EVALUATED.**
+
+Source before this change: `34cc3ad1e85755c02eaa071afff3f4a0b6c7bba2`. Frozen baseline **1731b380851162741761c5569e2bc152a0869ca9** preserved. Open draft PR #68 remains on PR #58.
+
+## What newly completed genuine capture proved
+[Original nine-job run 43724831519](https://github.com/my-edutu/Ai_games/actions/runs/43724831519), candidate `cdf04c0e8cfc7b93b9acccbb8f53917ff28b6e6c`, completed all eight 60+ second normal-speed matched source recordings (960×600/390×844). Event pairing verified 8/8 source timelines with zero integrity/missing-episode errors but **the actual video pair gate FAILED 0/2 viewports**. These original films cannot independently certify the full-body skinned hero, same bronze gate and real F9 route simultaneously on consecutive native frames. Previous visually inspected 1x frames still showed massive bronze structural occlusion and a hard violet replacement around 27–28.5s. The latest cdf full-motion was NOT independently decoded and watched in this execution; do not reinterpret that failing automated gate as a new subjective video review.
+
+[Exact source CI 43724831476](https://github.com/my-edutu/Ai_games/actions/runs/43724831476) 9/10: all Tower Phase3 partitions passed; the unrelated phase6 Maze readiness case timed out at 75 seconds, untouched and vetoing overall CI. Tests do not establish experience quality.
+
+## Primary bounded unblocker: identify the ACTUAL blocking triangles
+More hero-shrinking camera rescues, alpha tweaks, fake architecture and another unverified world rebuild would repeat an unevidenced loop. The previous optional four static screen-pixel probes recorded only portrait Floor8 and missed the physically important original gateway/body just before crossing and in Floor9.
+
+The new opt-in source validator requires genuine inactive zero-HP Floor8 guardian + exact f8:cap exit, or actual same-run retained bronze gate with immutable Floor8→9 crossing / strictly bounded verified original roof receipt. In the **original world and composed camera**, seven ray endpoints cover the real skinned climber centre, helmet, left/right shoulders and sole PLUS the *actual original gate centre and lip*. Raycasters report up to five real, opaque foreground mesh face hits per endpoint, original mesh authoring when recoverable, material, colour, ancestor path, depth and source tick, alongside the latest returned-frame camera tick (not falsely claiming a native video frame). Legacy living-guardian portrait probing is retained. Both genuine desktop and portrait danger captures request the audit; frozen game logic ignores the opt-in flag.
+
+This is a concrete **forensic/unblocker**, NOT a new commercially visible playable change, quality acceptance, genuine reviewers or device FPS measurement. Data is sampled by the existing 1 Hz capture diagnostics, not by additional WebGL renders, shaders, altered simulation or synchronous per-frame raycasts. Opt-in samples can perturb the candidate's diagnostic polling cost, hence are explicitly disallowed as fair performance preference measurements. Only genuine frame-decoded native video may establish the visual result.
+
+## Next action and veto
+Inspect the fresh source-pinned eight unedited films plus `camera-occlusion-forensics.json` for BOTH viewports. For ticks after source HP-zero ~441, crossing ~475 and raised support ~535, identify **which exact authored real mesh path and source triangle** hides current body or original opening. Remove/reshape that non-colliding specific structural load path as one coherent source-authentic physical architectural correction, coupled with cold F9 first-paint if needed; never alter gate, colliders, hazards, actor authority or PR58. Require two consecutive original native frames of full body + same opened gate + truly walkable F9 route and no hard scene replacement in both orientations, onward F10 and genuine result/restart. If evidence cannot prove that, remain P0.
+
+Independent fresh blind critics LOOKS 0/5, FEELS 0/5, PLAYS 0/5. Supported device p50/p95/p99 and memory NOT EVALUATED. No merge, deployment, force-push, draft conversion, baseline shift or unrelated game edit.

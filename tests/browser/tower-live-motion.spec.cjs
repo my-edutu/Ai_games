@@ -54,7 +54,7 @@ for (const viewport of viewports) {
   expect(page.viewportSize()).toEqual({ width: viewport.width, height: viewport.height });
   // Only the neutral, pinned original-video capture opts in. The frozen
   // baseline ignores this inert flag. It never alters gameplay or render art.
-  if (scenario === 'danger' && viewport.width === 390)
+  if (scenario === 'danger')
     await page.addInitScript(() => { window.__TOWER_MESH_OWNER_AUDIT__ = true; });
   // The Playwright video context and page already exist. Only NOW launch a
   // fresh, unmodified 20Hz source host. Its first source tick is independently
@@ -75,9 +75,9 @@ for (const viewport of viewports) {
         throw new Error('Original fresh host source started on the wrong floor/episode');
     }
     await page.goto('/tower?quality=low&reducedMotion=0&muted=1', { waitUntil: 'domcontentloaded' });
-  if (scenario === 'danger' && viewport.width === 390)
+  if (scenario === 'danger')
     expect(await page.evaluate(() => window.__TOWER_MESH_OWNER_AUDIT__ === true),
-      'the genuine portrait mesh-owner witness must be armed before filming').toBe(true);
+      'the passive desktop and portrait source-mesh witness must be armed before filming').toBe(true);
   // A genuine cold-load browser may first paint the living Floor-8 guardian
   // BEFORE WebGL reports eight completed frames and an environment map.
   // Start passive original CDP sampling at DOM-ready, not after renderer
@@ -654,7 +654,7 @@ for (const viewport of viewports) {
       cameraRayMeshOwnerSamples:meshOwnerSamples,
       meshOwnerAuditStatus:observations.filter(s=>s.observedCameraRayMeshOwnerAudit)
         .map(s=>({atMs:s.atMs,...s.observedCameraRayMeshOwnerAudit})),
-      cameraRayOwnershipLimitations:'Only opt-in candidate portrait danger; actual camera triangle hits with stable material, face and source tick, NOT native WebM raster pixel proof',
+      cameraRayOwnershipLimitations:'Opt-in candidate desktop AND portrait danger, source-authentic post-HP0 Floor8 / retained-floor9 body-and-original-gate triangle rays. Read-only diagnostics can sample after last returned WebGL camera; NOT original WebM pixels, exact native time or frame performance.',
       largestProjectedForegroundCandidates:foregroundCandidates,
       verdict:'NOT EVALUATED',
       caveat:'Source/render camera footprint evidence only. A broad AABB is conservative; field names do not prove actual pixels, WebM timecode alignment or a quality preference.'},null,2));
