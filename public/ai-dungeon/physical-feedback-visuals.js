@@ -701,7 +701,13 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   // become drawable when its real source pose arrives.
   const receiptId=typeof cue.id==='string'&&cue.id.length>0&&
    cue.id.length<=256?cue.id:null;
-  if(receiptId!==null&&admittedVisualCueIds.has(receiptId)){
+  // A standalone renderer audition can reuse a placeholder ID for several
+  // DIFFERENT event kinds. Distinguish those semantic identities without
+  // weakening one-shot delivery of the same authoritative event; production
+  // planner IDs already encode all four fields of this identity.
+  const receiptKey=receiptId===null?null:
+   JSON.stringify([receiptId,cue.kind,cue.actorId,cue.targetId]);
+  if(receiptKey!==null&&admittedVisualCueIds.has(receiptKey)){
    suppressed++;suppressedDuplicateCues++;return false;
   }
   // A nominally verified cue from an adapter is NOT interchangeable with
@@ -853,8 +859,8 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   }
   if(created>0){
    syncPoolInstanceCount(pool);
-   if(receiptId!==null){
-    admittedVisualCueIds.add(receiptId);
+   if(receiptKey!==null){
+    admittedVisualCueIds.add(receiptKey);
     if(admittedVisualCueIds.size>MAX_D04_VISUAL_CUE_HISTORY)
      admittedVisualCueIds.delete(admittedVisualCueIds.values().next().value);
    }
