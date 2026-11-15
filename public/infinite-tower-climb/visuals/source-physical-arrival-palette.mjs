@@ -8,6 +8,33 @@ const valid=Number.isSafeInteger;
 const clamp01=n=>Math.min(1,Math.max(0,n));
 const smooth=n=>{const t=clamp01(n);return t*t*(3-2*t);};
 
+// Source-authenticated successor-platform contact after the first F9 jump.
+// The earlier 16m-old-roof ceiling cut off the original GPU doorway as soon
+// as the REAL climber mounted f9:p2 in the 1x source trace (ticks ~525-535).
+// Only an existing F9 platform's exact authoritative sole+horizontal support
+// permits the short additional raised-deck range. Never fabricate support.
+export function observedSourceSuccessorRaisedDeck(source, roofY) {
+  const p=source?.player;
+  if(source?.floor!==9 || !p || !Number.isSafeInteger(roofY) ||
+     ![p.x,p.y,p.halfWidth,p.halfHeight].every(valid) ||
+     p.halfWidth<=0 || p.halfHeight<=0 ||
+     p.grounded!==true || p.vy!==0 ||
+     !(p.state==='standing' || p.state==='hurt') ||
+     typeof p.groundedPlatformId!=='string' ||
+     !/^f9:[a-z0-9-]+$/.test(p.groundedPlatformId) ||
+     p.groundedPlatformId==='f9:ground' ||
+     !Array.isArray(source.platforms))return false;
+  const sole=p.y-p.halfHeight;
+  if(sole<=roofY+160000 || sole>roofY+230000)return false;
+  return source.platforms.some(platform =>
+    platform?.id===p.groundedPlatformId &&
+    [platform.x,platform.y,platform.width,platform.height].every(valid) &&
+    platform.width>0 && platform.height>0 &&
+    platform.y+platform.height===sole &&
+    p.x-p.halfWidth>=platform.x &&
+    p.x+p.halfWidth<=platform.x+platform.width);
+}
+
 export function observedSourcePhysicalArrivalPalette(source,held=null) {
   const p=source?.player, w=source?.lastGuardianCrossing;
   if(!source || !p || source.lifecycle!=='running' ||
@@ -54,7 +81,7 @@ export function observedSourcePhysicalArrivalPalette(source,held=null) {
   const sole=p.y-p.halfHeight,travel=p.x-crossingX,age=source.tick-sourceTick;
   if(!valid(sole) || !valid(travel) || !valid(age) || age<0 || age>70 ||
      travel<0 || travel>100000 ||
-     sole<roofY-2500 || sole>roofY+160000 ||
+     sole<roofY-2500 || sole>roofY+230000 ||
      p.x-p.halfWidth<ground.x ||
      p.x+p.halfWidth>ground.x+ground.width ||
      !(p.grounded===false && p.state==='airborne' &&
@@ -62,7 +89,8 @@ export function observedSourcePhysicalArrivalPalette(source,held=null) {
        p.grounded===true && (p.state==='standing' || p.state==='hurt') &&
          p.vy===0 && sole===roofY &&
          (p.groundedPlatformId==='f9:ground' ||
-          p.groundedPlatformId==='f8:cap')))return null;
+          p.groundedPlatformId==='f8:cap') ||
+       observedSourceSuccessorRaisedDeck(source,roofY)))return null;
   // The full-body climber remains warm at the actual old sill, and walks
   // through a 90m material transition into the existing next-floor palette.
   // This changes NO geometry, physics, inputs, tick, enemy or gameplay state.
