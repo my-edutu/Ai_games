@@ -1383,8 +1383,8 @@ test('earned public lantern counter propagates a real three-cell 3D court wave, 
     assert.ok([6,7,8].every(cell=>Math.abs(leaf(cell).parent.rotation.x)<=1.45+1e-8),
       'an overlapping real brace and earned counter cannot over-rotate its connected leaf into the aisle');
     const crown=w.group.getObjectByName('Published guardian Tideglass sentinel crown 8 1');
-    assert.ok(crown.parent.position.y>.2,
-      'existing joined endpoint standard participates in the true counterflow');
+    assert.ok(crown.parent.position.y<-.55,
+      'the genuine earned parry sinks the entire rooted endpoint assembly, clearing the acting pair instead of lifting an opaque screen');
     // The previous real earned mobile capture exposed four upright panels:
     // the full parry rotated away the original 1.28rad OUTBOARD shell rest,
     // returning the physical fan almost to vertical. A successful lantern
@@ -1398,6 +1398,8 @@ test('earned public lantern counter propagates a real three-cell 3D court wave, 
     assert.ok(shell.rotation.x+shellPivot.rotation.x>1.4,
       'the physically connected shell is nearly horizontal during earned passage release');
     w.animate(3,{...counter,guardianParried:false});
+    assert.ok(Math.abs(crown.parent.position.y-.04)<1e-10,
+      'clearing the public counter restores the entire rooted mechanical standard to the original neutral height');
     // -0 and +0 are the same neutral physical hinge angle; the immutable
     // geometry/visibility gate concerns absolute position, not IEEE-754 sign.
     assert.ok(Math.abs(shellPivot.rotation.x)<1e-10,
@@ -1412,6 +1414,8 @@ test('earned public lantern counter propagates a real three-cell 3D court wave, 
     assert.ok(Math.abs(leaf(6).parent.rotation.x)<1e-10,'private-only information cannot earn public stage movement');
     w.update(won);
     w.animate(6,{...counter,reducedMotion:true});
+    assert.ok(Math.abs(crown.parent.position.y-.04)<1e-10,
+      'reduced motion must not physically sink or lift the linked sentinel assembly');
     assert.ok([6,7,8].every(cell=>leaf(cell).parent.rotation.x===0),
       'reduced-motion presents earned state without sweeping large geometry');
     assert.equal(w.stats().geometryCount,budget.geometryCount);
