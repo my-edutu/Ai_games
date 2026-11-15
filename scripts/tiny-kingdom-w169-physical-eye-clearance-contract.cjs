@@ -31,11 +31,15 @@ assert.equal(check([0,2,0],roofs).kind,'home','occupied house interior is forbid
 assert.equal(check([0,7,0],roofs).clear,true,'air above home remains clear');
 assert.equal(check([7,1,0],roofs).clear,true,'open shelter beneath stall remains clear');
 assert.equal(check([7,2.5,0],roofs).kind,'market-stall','actual awning solid blocks eye');
-assert.equal(check([12,.5,0],roofs).clear,true,'working loaded cart is not hidden or treated as opaque house');
+assert.equal(check([12,.5,0],roofs).kind,'courier-cart',
+ 'real moving loaded cart must block the physical camera eye without hiding its cargo');
+assert.equal(check([12,2.6,0],roofs).clear,true,
+ 'a safely elevated real camera may still look over the moving load');
 assert.equal(check([17,2.6,0],roofs).kind,'receiving-hall-roof','real receiving hall roof blocks eye');
 assert.equal(check([20,1,0],roofs).clear,true);
 // The original fixed market stall timber posts and counter/screen actually
-// obstruct a human-sized camera; a real courier's MOVING cart is unchanged.
+// obstruct a human-sized camera. W359 adds the REAL moving cart to eye collision
+// without hiding its geometry, moving workers, or changing cargo authority.
 const marketSolids=[
  {x:30,z:1,rx:.1,rz:.1,bottom:0,top:2.7,kind:'market-stall-post'},
  {x:32,z:1,rx:.6,rz:.2,bottom:.6,top:1.2,kind:'market-stall-counter'},
@@ -56,8 +60,10 @@ const liveView=roofs.concat({x:21,z:1,rx:1,rz:1,
 sandbox.linkStatic(liveView,roofs);
 assert.equal(check([0,2,0],liveView).kind,'home',
  'real stationary house survives appended physical courier in the index');
-assert.equal(check([21,.5,1],liveView).clear,true,
- 'genuine loaded cart remains an open non-opaque moving subject');
+assert.equal(check([21,.5,1],liveView).kind,'courier-cart',
+ 'live appended cart participates in exact eye collision even with static-index reuse');
+assert.equal(check([21,2.6,1],liveView).clear,true,
+ 'clear eye above moving cart stays valid even with appended dynamic freight');
 // More than 128 source volumes forces the original exhaustive fallback.
 const overloaded=roofs.concat(Array.from({length:129},(_,i)=>({
  x:120+i*3,z:10,rx:.3,rz:.3,bottom:0,top:1,kind:'courier-cart'})));
