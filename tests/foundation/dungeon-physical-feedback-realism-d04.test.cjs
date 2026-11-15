@@ -1883,3 +1883,49 @@ test('strict D04 Warden release requires a unique live public caster and canonic
   assert.ok(stage.stats().activeDrawCalls<=7);
  }finally{stage.dispose()}
 });
+
+test('strict D04 refuses a premature Warden release without erasing eight live threat cells',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {canonicalPhysicalWarningFootprint}=await load('physical-feedback-plan.js');
+ const {isCanonicalVerifiedCombatFoleyCue}=await load('original-combat-foley.js');
+ const {T,scene}=three();
+ const cells=Array.from({length:8},(_,i)=>({x:2+i,z:3}));
+ const warden={id:'warden',kind:'warden',faction:'enemy',
+  x:2,z:2,hp:60,maxHp:100,action:'cast',actionTick:12};
+ const current={run:1,floor:1,tick:11,units:[warden],
+  bossWarning:{warning:true,attackTick:12,turnsUntilImpact:1,shape:'RIFT_CROSS',cells}};
+ // The drawn actor is already at next tick's cast while PUBLIC authority
+ // still proves danger at tick 11. Presentation must never retire it early.
+ const actor={u:{...warden},authored:false,root:{
+  visible:true,position:{x:-7,y:0,z:-7},rotation:{y:0}}};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  requireVerifiedHpReceipt:true,getCurrentSnapshot:()=>current,
+  actorById:id=>id==='warden'?actor:null
+ });
+ const warning=cue({id:'1:1:11:boss-warning:warden:-',
+  kind:'boss-warning',visual:'warning',audio:'boss-warning',
+  actorId:'warden',targetId:null,proof:'authority-warning-window',
+  priority:5,from:{x:2,z:2},to:null,
+  detail:{cells,attackTick:12,shape:'RIFT_CROSS',
+   footprintKey:canonicalPhysicalWarningFootprint(cells)}});
+ const premature=cue({id:'1:1:12:warden-release:warden:-',tick:12,
+  kind:'warden-release',visual:'warden',audio:'warden-release',
+  actorId:'warden',targetId:null,proof:'authority-action',
+  from:{x:2,z:2},to:null,priority:7});
+ try{
+  assert.equal(stage.emit(warning),true,'public current threat proves eight cells');
+  assert.equal(stage.stats().instancesByPool.signal,8);
+  assert.equal(isCanonicalVerifiedCombatFoleyCue(premature),true,
+   'a canonical event string alone must not prove a later public action');
+  assert.equal(stage.emit(premature),false,
+   'future rendered cast cannot launch before authority reaches that tick');
+  assert.equal(stage.stats().retiredWarningMarkers,0,
+   'rejected release cannot erase the still-authoritative warning');
+  assert.equal(stage.stats().instancesByPool.signal,8,
+   'all eight live danger markers remain visible');
+  assert.equal(stage.hasAuthenticatedBodyPose(premature),false,
+   'uncorroborated release cannot qualify for sound-only original foley');
+  assert.equal(stage.stats().activeDrawCalls,1);
+  assert.ok(stage.stats().reservedInstances<=104);
+ }finally{stage.dispose()}
+});
