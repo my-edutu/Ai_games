@@ -19,6 +19,9 @@ function exercise(allocate){
   civicCacheEvictions:0,civicGpuDisposals:0,civicGpuUploads:0,civicGpuResidencyFailures:0,
   civicRoadBufferRecycles:0,civicRoadBufferSubUploads:0,
   civicRoadBufferReallocations:0,civicRoadBytesUploaded:0,
+  civicRoadDeltaFullUploads:0,civicRoadDeltaPartialUploads:0,
+  civicRoadDeltaUnchangedUploads:0,civicRoadDeltaAvoidedBytes:0,
+  civicRoadDeltaLastWindow:null,swiftGpu:false,
   civicBuffer:{id:'stale-road'},civicChunkRanges:[{first:0,count:3}],
   civicCoreBuffer:{id:'genuine-farm-market-core'},activeCivicCoreKey:'spring',
   civicSceneryCache:new Map([['road-A',{
@@ -29,10 +32,11 @@ function exercise(allocate){
   packSpatialScenery:()=>{throw Error('original linear source expected')},
   gl:{ARRAY_BUFFER:34962,STATIC_DRAW:35044,
    createBuffer:()=>allocate?{id:'new-road'}:null,
-   bufferData:()=>{calls.upload++}},
+   bufferData:()=>{calls.upload++},
+   bufferSubData:()=>{}},
   bindGeometry:buffer=>assert.ok(buffer,'must never bind missing GPU allocation'),
   releaseGeometryBuffer:()=>{calls.release++},
-  civicCacheStats:()=>({cachedFloats:300})};
+  civicCacheStats:()=>({cachedFloats:300,cachedGpuFloats:300})};
  vm.runInNewContext(original,ctx,{timeout:2000});
  const stored=vm.runInNewContext('rememberCivicScenery("road-A",0,{finalMaterial:1})',
   ctx,{timeout:2000});

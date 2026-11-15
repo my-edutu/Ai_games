@@ -21,7 +21,7 @@ const e={
  civicRoadBufferSubUploads:0,civicRoadBufferReallocations:0,
  civicRoadBytesUploaded:0,civicCoreBuffer:null,activeCivicCoreKey:'',
  civicRoadDeltaPartialUploads:0,civicRoadDeltaUnchangedUploads:0,
- civicRoadDeltaAvoidedBytes:0,civicRoadDeltaLastWindow:null,
+ civicRoadDeltaFullUploads:0,civicRoadDeltaAvoidedBytes:0,civicRoadDeltaLastWindow:null,
  gl:{ARRAY_BUFFER:34962,STATIC_DRAW:35044,DYNAMIC_DRAW:35048},
  packLinearResidentScenery:mesh=>({vertices:mesh,ranges:[
   {first:0,count:mesh.length/10,minX:0,maxX:1,minY:0,maxY:1,minZ:0,maxZ:1}]}),
