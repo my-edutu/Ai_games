@@ -558,7 +558,7 @@ export function createWarden(options = {}) {
   // parapets in real 390px encounter footage. Give Thornback a consistent
   // slate-violet carapace, warm copper shoulder plates and brass face. These
   // remain physical shared materials, not screen-facing warning sprites.
-  const shell=material('#4d4364',.52,.38), plates=material('#a17b5b',.48,.43), bronze=material('#bd8b51',.7,.4);
+  const shell=material('#25446b',.52,.38), plates=material('#a17b5b',.48,.43), bronze=material('#bd8b51',.7,.4);
   const dark=material('#292e40',.48,.6), claw=material('#e1c997',.55,.35);
   const red=material('#ff8650',.2,.27,{emissive:'#ff401a',emissiveIntensity:1.1});
   const body=pivot(group,'armored body',[0,.79,-.035]);
@@ -617,7 +617,7 @@ export function createWarden(options = {}) {
   const ember=material('#ff9b59',.08,.3,{emissive:'#f25a1c',emissiveIntensity:1.55});
   // Signature garden-warden anatomy: sea-glass fronds unfurl from the
   // disclosed beetle's real elytra. Original 3D parts, not screen decals.
-  const frondGlass=material('#8bcfac',.15,.52,{emissive:'#28654c',emissiveIntensity:.3});
+  const frondGlass=material('#b7e4ef',.15,.42,{emissive:'#21475a',emissiveIntensity:.16});
   // Ember linings are physical pieces tucked under the opening carapace, not
   // camera-facing sprites. Both remain hidden without public close attention.
   for (const shellHalf of elytra) {
@@ -721,7 +721,12 @@ export function createWarden(options = {}) {
   // projecting mandible. The same head/antenna/jaw joints below still animate.
   // Nothing moves the authoritative guardian root, collision or AI state.
   const head=pivot(body,'warden mask',[0,.27,.73]);
-  ball(head,bronze,[0,.035,.015],[.47,.30,.34]);
+  // The actual full-size phone images showed a bronze mask merging into bronze
+  // masonry and bucklers. Reuse the guardian's EXISTING sea-glass material on
+  // the whole connected skull, not a separate face overlay or screen icon.
+  // Deep indigo carapace + pale sea-glass face separates its truthful gaze
+  // from the wall and makes the original warning/brace/release legible.
+  ball(head,frondGlass,[0,.035,.015],[.47,.30,.34]);
   // Pass350: the untouched native 390px guardian brace showed the new
   // complete skull as one opaque black pair of glasses. The problem is
   // physical silhouette/occlusion, not a color or exposure setting. Split
@@ -731,7 +736,7 @@ export function createWarden(options = {}) {
   // witnessed guardian plant/release visibly compresses and relaxes them.
   // Every part belongs to the existing mask; no AI, collision, new threat,
   // secret map information or render-frame object allocation is involved.
-  rounded(head,plates,[0,.17,.29],[.16,.26,.18],.036);
+  rounded(head,frondGlass,[0,.17,.29],[.16,.26,.18],.036);
   const facialShells=[];
   for (const side of [-1,1]) {
     const upperRim=rounded(head,dark,[side*.205,.20,.19],[.33,.14,.24],.036);
@@ -747,7 +752,7 @@ export function createWarden(options = {}) {
     const brow=rounded(head,claw,[side*.195,.364,.242],[.30,.075,.15],.023);
     brow.rotation.z=-side*.13;
     brow.rotation.x=-.17;
-    const cheek=rounded(head,plates,[side*.38,.027,.093],[.23,.25,.40],.048);
+    const cheek=rounded(head,frondGlass,[side*.38,.027,.093],[.23,.25,.40],.048);
     cheek.name=`rooted guardian cheek armor ${side}`;
     cheek.rotation.y=side*.24;
     // The substantial side carapace closes around the whole skull in the
@@ -769,7 +774,7 @@ export function createWarden(options = {}) {
   rounded(openMaw,ember,[0,-.035,.065],[.25,.085,.035],.018);
   openMaw.visible=false;
   const lowerJaw=pivot(head,'hinged guardian lower mandible',[0,-.12,.12]);
-  rounded(lowerJaw,bronze,[0,-.105,.175],[.69,.21,.35],.06);
+  rounded(lowerJaw,frondGlass,[0,-.105,.175],[.69,.21,.35],.06);
   rounded(lowerJaw,plates,[0,-.153,.355],[.48,.075,.068],.026);
   for (const side of [-1,1]) {
     ball(lowerJaw,bronze,[side*.29,-.02,.02],[.085,.09,.09]);
@@ -887,6 +892,12 @@ export function createWarden(options = {}) {
       // not an extra enemy, attack or UI warning. Retain the full x-axis
       // plant: neither safety bounds nor the fixed visual bar is relaxed.
       guard.rotation.z=defensiveSweep>0?side*defensiveSweep*1.35:0;
+      // The face cannot read if both bronze bucklers cover its pale eyes.
+      // Turn the existing connected shields OUT and away from the skull
+      // during the real public brace, then return their hinges exactly to
+      // neutral on release, hidden witnesses, terminal and reset. The stage
+      // remains authoritative: no attack/hit/movement is introduced.
+      guard.rotation.y=defensiveSweep>0?side*defensiveSweep*.68:0;
     }
     // Real 390px chronological WebGL review: the old .38-open initial
     // wings looked nearly the same as the release beat at gameplay scale.
