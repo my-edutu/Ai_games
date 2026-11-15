@@ -42,3 +42,39 @@ export function sourceDoorwayFrameSteps(dt, aspect) {
     orbitRadians: Math.min(.035, frame * (aspect < .85 ? .72 : .55)),
   };
 }
+
+
+// Source-authenticated FIRST Floor9 doorway: the existing four tiny camera
+// probes could not see around actual moving-platform skirts or the reopened
+// bronze guardian gateway in the normal-speed portrait film. Search a bounded
+// exterior volume, starting with the least disruptive physical shoulder and
+// escalating only when current source-owned triangles really block the body
+// or original gate. The camera owner still requires safe projection, solid-
+// core clearance and a strictly improved genuine ray result for every move.
+// Returned offsets are meters/radians applied to the PRESENT camera, not
+// a predicted player trajectory, synthetic scene or replayed frame.
+const DESKTOP_SOURCE_CLEARANCE = Object.freeze([
+  Object.freeze([-.045,1.6,1.8]),Object.freeze([.045,1.6,1.8]),
+  Object.freeze([-.105,2.8,2.8]),Object.freeze([.105,2.8,2.8]),
+  Object.freeze([0,3.6,3.8]),
+  Object.freeze([-.17,3.5,4.2]),Object.freeze([.17,3.5,4.2]),
+  Object.freeze([0,-1.9,3.8])
+]);
+const PORTRAIT_SOURCE_CLEARANCE = Object.freeze([
+  Object.freeze([-.06,1.8,2.2]),Object.freeze([.06,1.8,2.2]),
+  Object.freeze([-.115,3.2,3.2]),Object.freeze([.115,3.2,3.2]),
+  Object.freeze([0,4.0,4.0]),
+  Object.freeze([-.19,3.7,4.3]),Object.freeze([.19,3.7,4.3]),
+  Object.freeze([0,-1.7,4.0])
+]);
+export function sourceDeckGatewayClearanceCandidates(aspect, actualDeckRays) {
+  if (!finite(aspect) || aspect<.38 || aspect>2.1 ||
+      actualDeckRays?.active!==true ||
+      !Number.isSafeInteger(actualDeckRays.bodyBlockedRays) ||
+      !Number.isSafeInteger(actualDeckRays.gatewayBlockedRays) ||
+      actualDeckRays.bodyBlockedRays<0 ||
+      actualDeckRays.gatewayBlockedRays<0 ||
+      actualDeckRays.bodyBlockedRays+actualDeckRays.gatewayBlockedRays===0)
+    return null;
+  return aspect<.85 ? PORTRAIT_SOURCE_CLEARANCE : DESKTOP_SOURCE_CLEARANCE;
+}
