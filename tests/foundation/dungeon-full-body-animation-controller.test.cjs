@@ -5192,6 +5192,41 @@ test('RED: true 85-percent original Walking_A crossfade can finish a shallow air
   'partial source blend cannot authorise the existing severe toe-hinge correction');
 });
 
+
+test('RED: same original connected leg can clear >=45% of shallow swinging toe without faking a plant',async()=>{
+ const {chooseOriginalSourceSwingToeJointRelief:choose}=await load();
+ // Genuine exact HEAD original WebGL #43656163183 mobile tick 8:
+ // source hip+knee+ankle final toe -31.507mm, airborne heel +268.571mm.
+ // A trial at -25.8mm is hypothetical until new source WebGL readback.
+ const L={heelY:.2685711733346845,toeY:-.03150698525219416,
+  heelXZ:[1,1],toeXZ:[1.1,1.05]};
+ const R={heelY:.00313177439515,toeY:.01058523693,
+  heelXZ:[0,0],toeXZ:[.1,0]};
+ const next={left:{...L,toeY:-.0258,heelY:L.heelY+.0005,
+  toeXZ:[1.102,1.052]},right:{...R}};
+ const owner={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  ownerLocomotion:true,sourceToeChainVerified:true,sourceToeTrackVerified:true,
+  sourceInstanceSame:true,alive:true,visible:true,teleport:false,
+  reducedMotion:false,interrupted:false,rootTravel:.04,frameAge:.0167,
+  frameInterval:.0167,side:'left',floorTopY:-.02,before:{left:L,right:R},
+  connectedOriginalLegVerified:true,trials:[{angleRad:-.1,after:next}]};
+ const accepted=choose(owner);
+ assert.equal(accepted?.connectedLegPartialFinish,true);
+ assert.ok(accepted?.liftMeters>=.005&&accepted?.afterToeY>=-.028);
+ assert.ok(accepted.afterToeY<-.023);
+ assert.equal(accepted.contactLocked,false);
+ assert.equal(accepted.oppositeFootVerified,true);
+ for(const bad of [
+  {connectedOriginalLegVerified:false},{sourceWeight:.94},{frameInterval:.06},
+  {reducedMotion:true},{interrupted:true},{teleport:true},
+  {sourceInstanceSame:false},{sourceToeTrackVerified:false},
+  {trials:[{angleRad:-.1,after:{...next,left:{...next.left,toeY:-.0278}}}]},
+  {trials:[{angleRad:-.1,after:{...next,left:{...next.left,heelY:L.heelY+.005}}}]},
+  {trials:[{angleRad:-.1,after:{...next,right:{...R,toeY:R.toeY+.004}}}]}
+ ])assert.equal(choose({...owner,...bad}),null,
+  'a separate or unsafe original source toe must not claim connected-leg rescue');
+});
+
 test('source-toe gate receipts distinguish absent licensed evidence from safe measured articulation',()=>{
  const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  const begin=renderer.indexOf('function stageOriginalSourceSwingToesAfterMixer(');

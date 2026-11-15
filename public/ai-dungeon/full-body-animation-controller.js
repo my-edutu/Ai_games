@@ -1131,7 +1131,7 @@ export function chooseOriginalSourceSwingToeJointRelief({
  sourceInstanceSame=false,alive=false,visible=false,
  teleport=false,reducedMotion=false,interrupted=false,
  rootTravel=NaN,frameAge=NaN,frameInterval=NaN,side='',floorTopY=NaN,
- before=null,trials=[]
+ before=null,trials=[],connectedOriginalLegVerified=false
 }={}){
  if(mode!=='move'||sourceClipName!=='Walking_A'||sourceWeight<.82||
   sourceWeight>1.001||ownerLocomotion!==true||
@@ -1191,12 +1191,19 @@ export function chooseOriginalSourceSwingToeJointRelief({
   // Shallow final clearance and all same-source dual-shoe gates are intact.
   const beforeBurial=floorTopY-swing.toeY;
   const finalBurial=floorTopY-next.toeY;
+  // Only after a genuine SAME SOURCE hip/knee/ankle chain, allow its real
+  // toes bone to finish shallow swing immersion with >=5mm and >=45%
+  // measured clearance while leaving <=8mm below stone. NOT foot planting.
+  const connectedLegPartialFinish=shallow&&connectedOriginalLegVerified===true&&
+   sourceWeight>=.95&&frameInterval<=.05&&
+   finalBurial>=.003&&finalBurial<=.008&&lift>=.005&&
+   lift/beforeBurial>=.45;
   if((finalBurial>.025&&lift<beforeBurial*.15)||
    lift<.004||lift>.04||next.toeY>floorTopY+.035||
    // At sparse full-weight keyframes a measured 6mm lift is useful even
    // if a previously 22mm-buried airborne toe is still 14mm submerged.
    // Report partial improvement, NEVER contact, sole plant or clear floor.
-   (shallow&&(next.toeY<(sparseFullShallow?
+   (shallow&&!connectedLegPartialFinish&&(next.toeY<(sparseFullShallow?
     Math.max(swing.toeY+.006,floorTopY-.02):floorTopY-.003)||
     next.toeY>floorTopY+.008))||
    next.toeY<floorTopY-.16||
@@ -1211,7 +1218,8 @@ export function chooseOriginalSourceSwingToeJointRelief({
    best=Object.freeze({angleRad:delta,side,liftMeters:lift,
     beforeToeY:swing.toeY,afterToeY:next.toeY,
     beforeHeelY:swing.heelY,afterHeelY:next.heelY,
-    oppositeFootVerified:true,contactLocked:false});
+    oppositeFootVerified:true,contactLocked:false,
+    connectedLegPartialFinish});
  }
  return best;
 }

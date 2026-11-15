@@ -2200,7 +2200,11 @@ function stageOriginalSourceSwingToesAfterMixer(actor,reducedMotion){
    sourceToeTrackVerified:true,sourceInstanceSame:true,
    alive:actor.u.hp>0,visible:actor.root.visible,teleport:false,
    reducedMotion,interrupted:false,rootTravel:travel,frameAge:age,
-   frameInterval,side,floorTopY:-.02,before};
+   frameInterval,side,floorTopY:-.02,before,
+   connectedOriginalLegVerified:Boolean(
+    actor.sourceSwingToeCurrentFrameProofs?.[side]?.combinedSourceThighVerified===true&&
+    actor.sourceSwingToeCurrentFrameProofs[side].sourceInstanceId===actor.assetRoot.uuid&&
+    actor.sourceSwingToeCurrentFrameProofs[side].sourceClip==='Walking_A')};
   const selected=chooseOriginalSourceSwingToeJointRelief({...owner,trials});
   if(!selected){
    markGate(side,'source-toe-hinge-trial-not-admissible');
