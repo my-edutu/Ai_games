@@ -35,6 +35,10 @@ function exercise(split){
  ctx.highStreetCraftShop=emit('shop');ctx.highStreetHomeYard=emit('yard');
  ctx.highStreetLane=emit('lane');
  ctx.marketToRealHomeStreet=emit('road');
+ // W351 added a second TRUE resident-road producer after this fixture was
+ // authored. Keep it present in BOTH cold and split paths; never mask an
+ // omitted household street merely to make the retained-core test green.
+ ctx.renderRealInhabitedLaneNetwork=emit('realHomes');
  const c=vm.createContext(ctx);vm.runInContext(core,c,{timeout:2000});
  const run=x=>vm.runInContext(x,c,{timeout:2000});
  if(split){
@@ -59,6 +63,7 @@ assert.equal(resident.audit.fixedLaneTriangles,2);
 assert.equal(resident.calls.yard,7,'only seven real founding lots have yards outside the central street');
 assert.equal(resident.calls.lane,2);
 assert.equal(resident.calls.road,1);
+assert.equal(resident.calls.realHomes,1,'the W351 real assigned-home streets must survive retained and cold rendering');
 for(const key of ['totalTriangles','shopfronts','houseYards','connectedLanes'])
  assert.equal(resident.stats[key],stand.stats[key],
   'original counters and actual source geometry must match');
