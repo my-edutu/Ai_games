@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-15T05:17:25.450Z",
+  "updatedAt": "2026-11-15T06:46:32.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass385: original Pass384 source-bound WebGL SUCCESS, 37/37 full-frame original PNG hashes each in candidate and baseline verified; wall100 still first physical foreground pick, no meaningful improved Pip/Thornback visibility. Reject camera candidate; restore previous two production blobs, remove candidate-only test. New rollback exact-HEAD CI pending. Fixed Nintendo benchmark unmet; draft PR unmerged/undeployed."
+    "summary": "Pass386 source-only native body-to-world sightline diagnostics candidate: previous rollback exact-SHA Maze WebGL passed, whole-repo failed separately. New current-actor source rays awaiting exact-HEAD screenshots and SHA-verified critique. No visual Nintendo win; draft unmerged/undeployed."
   },
   "captures": [
     {
@@ -100,6 +100,7 @@
     }
   ],
   "changes": [
+    "Pass386: exact native 390px brace captures will now include public-only genuine full-body Pip and Thornback mesh-to-foreground rays; source-only diagnostic, no geometry/camera/gameplay change, visual acceptance pending. Previous exact rollback WebGL succeeded, whole-repo CI failed; Nintendo bar unmet.",
     "Pass385 2026-11-15: independently recomputed 37/37 unedited candidate and 37/37 baseline native WebGL PNG/JSON SHA, and 3/3 true gate hashes each. Direct 390 brace critic: first published solid foreground wall remains cell100 despite bounded public-angle search. REJECT camera candidate. Restore only prior two production blobs and remove candidate-only test in source+dated-criticism commit. Previous strict 6-reset <100 and WebGL CI success; new rollback CI/head screenshots PENDING. Independent critics/Ultracode NOT_FOUND, no Nintendo parity; draft no merge/deploy/force.",
     "Pass384 2026-11-15: observed original 390px guardian brace is still occluded by published solid foreground. Build a new small-angle public-geometry-only camera selection to reduce authentic currently visible wall crossings in a reciprocal Pip/Thornback Follow portrait, with privacy/motion/framing tests. Candidate NOT screenshot-approved; exact-HEAD native WebGL, original hashes and independent review required. No independent critic tunnel, Nintendo benchmark unmet.",
     "Pass383 2026-11-15: original Pass382 source-bound 43673122590 successful native WebGL artifact 14145620854 downloaded and 37/37 SHA checks passed. Compare prior genuine baseline 43666486514: 320/390 Follow ~0.4/255 image change, guardian still visually lost amid bronze rails and genuine cell100 physical foreground. Visual REJECT. Selective characters.js restoration + candidate-only test deletion, exact-HEAD tests pending. No critic agents/Ultracode, Nintendo benchmark unmet.",

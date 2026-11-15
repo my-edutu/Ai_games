@@ -1593,6 +1593,71 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // Native capture can identify real 3D geometry behind a screenshot
       // pixel. This reports CURRENT PUBLIC render cells and mesh materials,
       // not secret topology or an AI control. Allocated only on demand.
+      // Pass386: on-demand TRUE current-camera sightline from existing 3D
+      // actors to already-public world masonry. Diagnostic only: no per-frame
+      // queries, GPU resources, camera decisions, AI commands or hidden map.
+      window.__MAZE_PUBLIC_DUEL_SIGHTLINE__=()=>{
+        const cell=closestThreat?.cell;
+        if(!Number.isSafeInteger(cell)||!s.visibleCells?.includes(cell)
+          ||publicGuardianOpenSightline(s,cell)<1
+          ||s.lifecycle!=='running'||s.result)
+          return {eligible:false,samples:[]};
+        const enemy=[...wardens.values()].find(item=>item.cell===cell);
+        if(!enemy?.model?.group)return {eligible:false,samples:[]};
+        const ray=new THREE.Raycaster(),point=new THREE.Vector2();
+        const sampleActor=(name,root)=>{
+          root.updateWorldMatrix(true,true);
+          const bounds=new THREE.Box3(),scratch=new THREE.Box3();
+          root.traverseVisible(node=>{
+            if(!node.isMesh||!node.geometry)return;
+            if(!node.geometry.boundingBox)node.geometry.computeBoundingBox();
+            if(node.geometry.boundingBox)
+              bounds.union(scratch.copy(node.geometry.boundingBox).applyMatrix4(node.matrixWorld));
+          });
+          if(bounds.isEmpty())return [];
+          const dy=bounds.max.y-bounds.min.y;
+          const mx=(bounds.min.x+bounds.max.x)*.5;
+          const mz=(bounds.min.z+bounds.max.z)*.5;
+          const anchors=[
+            ['head',mx,bounds.min.y+dy*.80,mz],
+            ['torso',mx,bounds.min.y+dy*.50,mz],
+            ['boots',mx,bounds.min.y+dy*.16,mz],
+            ['left',bounds.min.x+(bounds.max.x-bounds.min.x)*.18,bounds.min.y+dy*.53,mz],
+            ['right',bounds.min.x+(bounds.max.x-bounds.min.x)*.82,bounds.min.y+dy*.53,mz],
+          ];
+          return anchors.map(([part,x,y,z])=>{
+            const target=new THREE.Vector3(x,y,z);
+            const p=target.clone().project(camera);
+            const inFrame=Math.abs(p.x)<.95&&Math.abs(p.y)<.95
+              &&p.z>-1&&p.z<1;
+            if(!inFrame)return {actor:name,part,inFrame:false,
+              verifiedClear:false,blockingPublicCell:null};
+            point.set(p.x,p.y);ray.setFromCamera(point,camera);
+            const targetDistance=ray.ray.origin.distanceTo(target);
+            const hits=ray.intersectObject(world.group,true);
+            let blocker=null,material=null,uncertain=false;
+            for(const hit of hits){
+              if(hit.distance>=targetDistance-.08)break;
+              const published=world.describePublicRayHit(hit);
+              if(published){
+                blocker=published.cell;material=published.material??published.color;break;
+              }
+              // Unmatched/remembered/non-instanced objects are never named or
+              // mistaken for proof of a clear view. No private topology leaks.
+              uncertain=true;
+            }
+            return {actor:name,part,inFrame:true,
+              screenX:+p.x.toFixed(4),screenY:+p.y.toFixed(4),
+              verifiedClear:!uncertain&&blocker===null,
+              blockingPublicCell:blocker,blockingMaterial:material,
+              inconclusive:uncertain};
+          });
+        };
+        return {eligible:true,runToken:s.runToken,tick:s.tick,
+          cameraMode,viewport:{width,height},
+          samples:[...sampleActor('pip',explorer.group),
+            ...sampleActor('thornback',enemy.model.group)]};
+      };
       window.__MAZE_PUBLIC_SCENE_PICK__=(u,v)=>{
         if(!Number.isFinite(u)||!Number.isFinite(v)||u<0||u>1||v<0||v>1)return [];
         const raycaster=new THREE.Raycaster();

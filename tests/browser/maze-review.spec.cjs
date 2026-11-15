@@ -761,6 +761,18 @@ test('a real close public encounter frames both autonomous actors and saves date
     await page.screenshot({path:image,fullPage:true});
     // Source-bound native screenshot PAUSED above: identify the TRUE
     // installed Three meshes under the pale foreground, not guessed tiles.
+    // Probe real full-geometry actor visibility AFTER saving the unaltered
+    // WebGL PNG; append measurements to the SAME SHA-referenced sidecar.
+    const actorSightline=phase.name==='brace'
+      ?await page.evaluate(()=>window.__MAZE_PUBLIC_DUEL_SIGHTLINE__?.()??null)
+      :null;
+    if(phase.name==='brace'){
+      expect(actorSightline?.eligible,
+        'source-disclosed reciprocal actor pair must be measurable').toBe(true);
+      expect(actorSightline.samples.length,
+        'five physical mesh anchors per real actor').toBe(10);
+      expect(actorSightline.samples.every(p=>['pip','thornback'].includes(p.actor))).toBe(true);
+    }
     const foregroundPicks=await page.evaluate((brace)=>{
       const rays=[[.50,.66],[.50,.73],[.50,.80],[.42,.77],[.58,.77]];
       // The real actor-axis camera rotates between beats. Search the SAME
@@ -807,7 +819,7 @@ test('a real close public encounter frames both autonomous actors and saves date
       fs.writeFileSync(path.join(dir,'guardian-original-public-foreground-diagnosis-390.json'),
         JSON.stringify({capturedAt:new Date().toISOString(),imageSha256:hash(image),
           source:'Exact-HEAD original native WebGL brace, only sanitized CURRENT public cells. Passive diagnosis, never controls pixels, routes or collision.',
-          publicCourt,foregroundPicks},null,2));
+          publicCourt,foregroundPicks,actorSightline},null,2));
     }
     // Pass334 exact-Pass333 WebGL camera regression: 0.40rad physical
     // shoulder orbit moves the actually VISIBLE foreground under (.50,.73)
