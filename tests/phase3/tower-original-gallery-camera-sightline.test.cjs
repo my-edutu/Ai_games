@@ -93,6 +93,8 @@ test('world uses original gallery-owned meshes, current composed camera, and no 
   assert.match(world,/originalGalleryRoot:gallery\?\.root/);
   assert.match(world,/protectHistoricalGallerySightline\(\{/);
   assert.match(world,/source:lastSnapshot/);
+  assert.match(world,/guardianTraversalGatePose\(retainedEarnedCap\.thresholdX,/,'real old cap/exit coordinates own the gateway target');
+  assert.match(world,/gateway:oldGate\?historicalGateRayPoint:null/,'only observed original source gate can add a second camera ray target');
   assert.doesNotMatch(world,/snapshot\.player\.(?:x|y)\s*=/);
 });
 
