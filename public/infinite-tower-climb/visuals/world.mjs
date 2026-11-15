@@ -69,6 +69,12 @@ export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresh
   // portal geometry, platforms, moving hazards, avatar or physics. The
   // unchanged 3600-face/8-material-batch budget applies in either mode.
   const includeOriginalFlanks=limits.includeOriginalFlanks===true;
+  // Actual normal-speed desktop and portrait footage shows noncolliding
+  // original bronze posts interrupting the skinned climber's earned passage.
+  // Carve a narrow walk-through sightline from ONLY extracted historical
+  // source triangles. The genuine cap, guardian gateway, moving platforms,
+  // actor, supports and authoritative collisions remain unchanged.
+  const clearPhysicalExit=includeOriginalFlanks && limits.clearPhysicalExit===true;
   const tangentSin=Math.sin(target),tangentCos=Math.cos(target);
   const sectorSlope=Math.tan(includeOriginalFlanks?.78:.46);
   const outerRadius=includeOriginalFlanks?54:39;
@@ -94,12 +100,70 @@ export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresh
     }
     return v;
   }
+  // Polygon subtraction in the original 3D cylindrical tangent frame.
+  // Centroid filtering leaves large triangles crossing the body, while
+  // removing entire material batches destroys the monumental side gallery.
+  // Exact source-face edges, UVs and normals survive on the exterior.
+  // This is one-time floor-transition geometry, never a per-frame operation.
+  const physicalExitPlanes=[
+    v=>radialOf(v)-22,
+    v=>33-radialOf(v),
+    v=>tangentOf(v)+6,
+    v=>12-tangentOf(v),
+    v=>v.y-(roof-1.5),
+    v=>roof+11-v.y
+  ];
+  function clipHalfPolygon(polygon,plane,inside) {
+    const out=[];
+    for(let j=0;j<polygon.length;j++){
+      const a=polygon[j],b=polygon[(j+1)%polygon.length];
+      const da=plane(a)*(inside?1:-1),db=plane(b)*(inside?1:-1);
+      const yesA=da>=-1e-7,yesB=db>=-1e-7;
+      if(yesA)out.push(a);
+      if(yesA!==yesB)
+        out.push(interpolateSourceVertex(a,b,Math.max(0,Math.min(1,da/(da-db)))));
+    }
+    return out;
+  }
+  function triangulateOriginal(polygon){
+    if(polygon.length<3)return [];
+    const pieces=[];
+    for(let j=1;j<polygon.length-1;j++){
+      const tri=[polygon[0],polygon[j],polygon[j+1]];
+      const [a,b,c]=tri;
+      const abx=b.x-a.x,aby=b.y-a.y,abz=b.z-a.z;
+      const acx=c.x-a.x,acy=c.y-a.y,acz=c.z-a.z;
+      if(Math.hypot(aby*acz-abz*acy,abz*acx-abx*acz,
+        abx*acy-aby*acx)>1e-7)pieces.push(tri);
+    }
+    return pieces;
+  }
+  function keepOnlyOriginalExterior(triangles) {
+    if(!clearPhysicalExit)return triangles;
+    const survivors=[];
+    for(const triangle of triangles){
+      // The clearance is the intersection of six physical planes. The
+      // first plane a source fragment escapes through owns it exactly once.
+      let inside=[triangle];
+      for(const plane of physicalExitPlanes){
+        const remaining=[];
+        for(const polygon of inside){
+          survivors.push(...triangulateOriginal(clipHalfPolygon(polygon,plane,false)));
+          const still=clipHalfPolygon(polygon,plane,true);
+          if(still.length>=3)remaining.push(still);
+        }
+        inside=remaining;
+        if(!inside.length)break;
+      }
+    }
+    return survivors;
+  }
   function clipOriginalTriangle(vertices){
     let polygon=vertices;
     // Exact original triangles wholly inside the aperture retain their
     // existing coordinates and triangles without extra shader work.
     if(aperturePlanes.every(plane=>vertices.every(v=>plane(v)>=-1e-7)))
-      return [vertices];
+      return keepOnlyOriginalExterior([vertices]);
     for(const plane of aperturePlanes){
       if(polygon.length<3)return [];
       const trimmed=[];
@@ -128,7 +192,7 @@ export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresh
         ab[0]*ac[1]-ab[1]*ac[0]);
       if(area2>1e-7)triangles.push(tri);
     }
-    return triangles;
+    return keepOnlyOriginalExterior(triangles);
   }
   const batches = [];
   // Traverse non-gameplay structural source nodes AND the original static
@@ -2492,7 +2556,7 @@ export function createTowerWorld(){
     const started=performance.now();
     const gallery=extractOriginalClockworkThresholdGallery(
       THREE,floorGroup,thresholdX,roofY,snapshot.chunkBaseY,
-      snapshot.worldWidth,{includeOriginalFlanks:true});
+      snapshot.worldWidth,{includeOriginalFlanks:true,clearPhysicalExit:true});
     if(!gallery)return false;
     preparedThresholdGallery={
       gallery,oldFloor:floorGroup,runToken:snapshot.runToken,
@@ -2733,7 +2797,7 @@ export function createTowerWorld(){
       gallery=extractOriginalClockworkThresholdGallery(THREE,
         floorGroup,requested.thresholdX,requested.oldRoofY,
         requested.previousBaseY,requested.worldWidth,
-        {includeOriginalFlanks:true});
+        {includeOriginalFlanks:true,clearPhysicalExit:true});
       thresholdGalleryPreparation={
         state:'cold-fallback-original-source-rebuild',
         sourceTick:next.tick,runToken:next.runToken,
