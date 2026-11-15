@@ -380,8 +380,14 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   try{actor=actorById(cue.targetId)}catch{return false}
   if(actor){
    const u=actor.u;
+   // An earned counter reacts to the verified Warden HP loss, not an
+   // inferred attacking sword. Its actual root can reach the current public
+   // casualty tile while actor.u still holds a one-cell previous position.
+   // Apply the SAME strict identity/health/root constraint as ordinary injury.
+   // Displaced roots, capacity mismatches and two-cell caches remain invalid.
    if(!u||u.id!==witness.id||u.kind!==witness.kind||
-    u.faction!==witness.faction||u.x!==witness.x||u.z!==witness.z||
+    u.faction!==witness.faction||
+    !matchesRenderedHpVictimCell(cue,u,witness,actor.root?.position)||
     !drawnHpMatchesObservedTransition(cue,u,witness))return false;
   }
   return true;
