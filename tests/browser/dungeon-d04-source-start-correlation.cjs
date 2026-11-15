@@ -81,4 +81,75 @@ function correlateD04OriginalSourceStarts({receipts=[],sourceStarts=[]}={}){
   limitations:'source.start is scheduling, not decoded PCM; frame acknowledgment is not decoded video PTS'
  };
 }
-module.exports={correlateD04OriginalSourceStarts};
+/**
+ * Evidence-only audit of the genuine D04 browser's bounded impact receipts.
+ * Timings are monotonically sampled CPU intervals (milliseconds). They are
+ * NOT decoded WebM presentation timestamps, original PCM sample onsets, proof
+ * of blade contact, or proof that D04 caused renderer stalls. This module
+ * does not affect the gameplay controller or its 400ms deadline.
+ */
+function auditD04ImpactFramePhases({receipts=[]}={}){
+ const reject=reason=>Object.freeze({
+  classification:'IMPACT_PHASE_AUDIT_UNVERIFIED',damageReceipts:[],
+  sampleSynchronized:false,reason});
+ if(!Array.isArray(receipts)||receipts.length>MAX_RECEIPTS)
+  return reject('invalid-or-over-budget-receipt-history');
+ const damage=receipts.filter(r=>r?.kind==='damage'||r?.kind==='damage-fatal');
+ const seen=new Set();
+ for(const r of damage){
+  if(!validId(r.cueId)||!validScene(r.scene)||!validTick(r.tick)||
+   seen.has(r.cueId))return reject('missing-or-duplicated-damage-identity');
+  seen.add(r.cueId);
+ }
+ const number=n=>Number.isFinite(n)&&n>=0;
+ const within=(a,b,tolerance=2)=>Math.abs(a-b)<=tolerance;
+ const audited=damage.map(r=>{
+  const age=r.observationToSubmissionMs;
+  const timingVerified=validFrame(r.frameId)&&
+   number(r.observedClockMs)&&number(r.submittedClockMs)&&
+   number(age)&&r.submittedClockMs>=r.observedClockMs&&
+   within(r.submittedClockMs-r.observedClockMs,age);
+  const before=r.beforeVisualAdvanceMs,retained=r.visualAdvanceMs,
+   emission=r.visualEmissionMs,after=r.afterVisualAdvanceToSubmissionMs,
+   render=r.renderSubmissionMs;
+  const phaseVerified=timingVerified&&
+   [before,retained,emission,after,render].every(number)&&
+   within(before+retained+emission+after,age,3)&&
+   render<=after+2;
+  const late=age>400;
+  const stale=phaseVerified&&late&&r.decision==='stale-frame'&&r.audio===false;
+  // The last condition is a frame receipt, not decoded-pixel or audible
+  // sample evidence; the original browser acceptance remains independent.
+  const timely=phaseVerified&&!late&&r.decision==='delivered'&&
+   r.visual===true&&r.audio===true&&
+   r.visualDrawableAtSubmission===true;
+  let dominantPhase='UNVERIFIED';
+  if(phaseVerified){
+   if(!late)dominantPhase='NO_DOMINANT_STALL_MEASURED';
+   else if(render>=400&&render>=age*.5)
+    dominantPhase='RENDERER_CALL_INTERVAL';
+   else if(retained+emission>=400&&retained+emission>=age*.5)
+    dominantPhase='D04_VISUAL_CPU_INTERVAL';
+   else dominantPhase='OTHER_OR_MIXED_CPU_INTERVAL';
+  }
+  return Object.freeze({
+   cueId:r.cueId,kind:r.kind,scene:r.scene,tick:r.tick,frameId:r.frameId??null,
+   status:stale?'STALE_NOT_ACCEPTED':
+    timely?'TIMELY_FRAME_RECEIPT_ONLY':'UNVERIFIED',
+   dominantPhase,
+   observationToSubmissionMs:number(age)?age:null,
+   renderSubmissionMs:phaseVerified?render:null,
+   rendererSharePct:phaseVerified&&age>0?Math.round(render/age*100):null,
+   visualSubmissionVerified:timely,
+   audibleImpactVerified:false,
+   sampleSynchronized:false
+  });
+ });
+ return Object.freeze({
+  classification:audited.length&&audited.every(r=>r.dominantPhase!=='UNVERIFIED')?
+   'MEASURED_HP_FRAME_RECEIPTS_UNALIGNED':'IMPACT_PHASE_AUDIT_PARTIAL_UNVERIFIED',
+  damageReceipts:audited,sampleSynchronized:false,
+  limitations:'Genuine post-WebGL CPU receipts, not decoded video PTS or original PCM; intervals do not prove GPU completion or causal attribution'
+ });
+}
+module.exports={correlateD04OriginalSourceStarts,auditD04ImpactFramePhases};
