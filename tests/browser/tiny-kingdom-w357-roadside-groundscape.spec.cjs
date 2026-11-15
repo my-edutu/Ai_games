@@ -114,3 +114,36 @@ test('W359 REAL credited-market camera repairs only a blocked transitional eye t
  expect(audit.authorityModified).toBe(false);
  expect(audit.actorsHidden).toBe(0);
 });
+
+test('W359b genuine moving courier cart blocks the REAL workday eye while retaining all original workers and routes',()=>{
+ const from=HTML.indexOf('const PHYSICAL_FOLLOW_EYE_KINDS=new Set([');
+ const to=HTML.indexOf('// W279:',from);
+ const fnStart=HTML.indexOf('function physicalFollowEyeClearance(');
+ const fnEnd=HTML.indexOf('// W280:',fnStart);
+ expect(from).toBeGreaterThan(-1);expect(to).toBeGreaterThan(from);
+ expect(fnStart).toBeGreaterThan(-1);expect(fnEnd).toBeGreaterThan(fnStart);
+ const ctx={cameraEyeCounters:{queries:0,potentialTests:0,indexed:0,
+  fallback:0,exactTests:0},
+  cameraEyeCollisionCandidates:()=>null,terrain:()=>0};
+ vm.runInNewContext(HTML.slice(from,to)+'\n'+
+  HTML.slice(fnStart,fnEnd),ctx);
+ const movingCart={kind:'courier-cart',citizen:'Bram',
+  deliveryId:'Bram:32',x:1,z:2,rx:.7,rz:.7,bottom:.02,top:1.05};
+ const fixedHome={kind:'home',x:11,z:9,rx:1.5,rz:1.4,bottom:0,top:4.8};
+ const volumes=[fixedHome,movingCart];
+ expect(ctx.physicalFollowEyeClearance([1,.6,2],volumes)).toMatchObject({
+  clear:false,kind:'courier-cart'});
+ expect(ctx.physicalFollowEyeClearance([1,2.1,2],volumes).clear).toBe(true);
+ expect(ctx.physicalFollowEyeClearance([3,.6,2],volumes).clear).toBe(true);
+ // The actual cart follows the autonomous courier, not a frozen camera
+ // dummy: moving the ONLY eye-volume must move the collision witness.
+ movingCart.x=3;
+ expect(ctx.physicalFollowEyeClearance([1,.6,2],volumes).clear).toBe(true);
+ expect(ctx.physicalFollowEyeClearance([3,.6,2],volumes)).toMatchObject({
+  clear:false,kind:'courier-cart'});
+ expect(ctx.physicalFollowEyeClearance([11,.8,9],volumes)).toMatchObject({
+  clear:false,kind:'home'});
+ expect(ctx.cameraEyeCounters.exactTests).toBeGreaterThanOrEqual(6);
+ expect(volumes.length).toBe(2);
+ expect(movingCart.deliveryId).toBe('Bram:32');
+});
