@@ -197,3 +197,29 @@ test('invalid, stale, unsupported and throwing output timestamp probes never cou
   }finally{engine.dispose()}
  }
 });
+
+test('unsupported inherited recipe names cannot allocate D04 WebAudio nodes or counterfeit device errors',async()=>{
+ const {createOriginalCombatFoley}=await load();
+ for(const strict of [true,false]){
+  const {ctx,starts}=fixture();
+  let attemptedSources=0;
+  const make=ctx.createBufferSource;
+  ctx.createBufferSource=()=>{attemptedSources++;return make()};
+  const engine=createOriginalCombatFoley(ctx,{requireVerifiedContact:strict});
+  try{
+   assert.equal(engine.enable(),true);
+   for(const audio of ['constructor','__proto__','toString','valueOf','hasOwnProperty']){
+    assert.equal(engine.emit({audio}),false,'reject unsupported sound name '+audio);
+   }
+   assert.equal(attemptedSources,0,
+    'unlisted recipe names must be rejected before any source allocation');
+   assert.equal(starts.length,0,'invalid recipe must not start a WebAudio source');
+   assert.equal(engine.stats().deviceFailures,0,
+    'unlisted presentation cues are not device failures');
+   assert.equal(engine.stats().activeVoices,0);
+   assert.equal(engine.emit(strict?injury():{audio:'impact'}),true,
+    'a subsequent supported original impact must still work');
+   assert.ok(attemptedSources>0);
+  }finally{engine.dispose()}
+ }
+});
