@@ -335,6 +335,20 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    priorHp>detail.remainingHp&&priorHp<=detail.maxHp&&
    drawn.hp===priorHp;
  }
+ // A visible presentation body can retain its PREVIOUS one-cell coordinate
+ // after the live public snapshot and the actually drawn ROOT reach the new
+ // victim tile. A cached coordinate is not contact proof: require the unique
+ // same-tick public victim (checked by both callers), exact HP/capacity, and
+ // the real body root within 0.58m of the CURRENT public tile. Never project
+ // fragments from the stale cell or infer an attacking source. Strict D04 only.
+ function matchesRenderedHpVictimCell(cue,drawn,witness,root){
+  if(drawn?.x===witness?.x&&drawn?.z===witness?.z)return true;
+  if(!requireVerifiedHpReceipt||!cell(drawn)||!cell(witness)||
+   !finite3(root)||Math.abs(root.y)>.75)return false;
+  if(Math.abs(drawn.x-witness.x)+Math.abs(drawn.z-witness.z)!==1)return false;
+  if(Math.hypot(root.x-(witness.x-9),root.z-(witness.z-9))>.58)return false;
+  return drawnHpMatchesObservedTransition(cue,drawn,witness);
+ }
  // The earned counter is a VERIFIED Warden injury, not a generic success
  // decoration. Strict D04 must independently witness the one current public
  // casualty before attaching its higher-priority body ring. A copied proof
@@ -389,7 +403,8 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   }
   const u=actor.u;
   if(!witness||!matchesCurrentHpReceipt(cue,witness)||!u||u.id!==cue.targetId||
-   u.x!==at.x||u.z!==at.z||witness.x!==at.x||witness.z!==at.z||
+   !matchesRenderedHpVictimCell(cue,u,witness,actor.root.position)||
+    witness.x!==at.x||witness.z!==at.z||
    !Number.isInteger(witness.hp)||witness.hp<0||
    !drawnHpMatchesObservedTransition(cue,u,witness)||u.kind!==witness.kind||
    u.faction!==witness.faction)return null;
@@ -552,7 +567,8 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
       if(!witness||!matchesCurrentHpReceipt(cue,witness)||!cell(witness)||
         witness.x!==at.x||witness.z!==at.z||
         !Number.isInteger(witness.hp)||witness.hp<0||
-        u?.id!==cue.targetId||u.x!==witness.x||u.z!==witness.z||
+        u?.id!==cue.targetId||
+         !matchesRenderedHpVictimCell(cue,u,witness,actor.root.position)||
         !drawnHpMatchesObservedTransition(cue,u,witness)||u.kind!==witness.kind||
         u.faction!==witness.faction)return null;
     }
