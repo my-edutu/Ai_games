@@ -93,7 +93,16 @@ function injuryReceipt(sample,manifest){
    r.tick!==s.tick||r.scene!==sceneKey(s))return false;
   if(!manifest.victimIds.some(id=>r.cueId===
    `${sceneKey(s)}:${s.tick}:${r.kind}:-:${id}`))return false;
-  return r.visual===true&&r.decision==='delivered'&&safe(r.frameId)&&
+  // An original impact sound and the presence of one retained VFX pool
+  // are NOT evidence that this injury was drawable on this frame. The
+  // bounded receipt ring may contain a legitimate older frame's injury;
+  // neither its clock nor its art can be borrowed by a newer sample.
+  // A deliberately muted/suspended but truly submitted visual-only wound
+  // still earns visible-frame credit, never an audio-synchronization claim.
+  return r.visual===true&&r.visualDrawableAtSubmission===true&&
+   pos(r.frameId)&&r.frameId===sample.frameId&&
+   (r.decision==='delivered'&&r.audio===true||
+    r.decision==='visual-only-submitted'&&r.audio===false)&&
    finite(r.observedClockMs)&&finite(r.submittedClockMs)&&
    finite(r.observationToSubmissionMs)&&r.observationToSubmissionMs>=0&&
    r.observationToSubmissionMs<=400&&r.submittedClockMs>=r.observedClockMs&&
@@ -166,7 +175,7 @@ function classifyD04RealMultiview({seed,manifest,runs}={}){
  const result={source:SOURCE,status:'INVALID_REAL_AUTHORITY',
   requestedViews:6,observedViews:0,capturedRecorders:0,missingViews:[],
   distinctViewPairs:0,viewpointGeometry:[],
-  matchedAuthorityTicks:0,matchedHpLossTicks:0,
+  matchedAuthorityTicks:0,matchedHpLossTicks:0,matchedDrawableHpLossTicks:0,
   viewpointFrames:[],budgetViolations:[],sampleSynchronized:false,
   cameraMovingVideoVerified:false,impactAVAccepted:false,
   causation:null,capturePacing:'unverified',
@@ -261,6 +270,13 @@ function classifyD04RealMultiview({seed,manifest,runs}={}){
  const matches=manifest.filter(m=>scans.every(s=>s.byKey.has(key(m.scene))));
  result.matchedAuthorityTicks=matches.length;
  result.matchedHpLossTicks=matches.filter(m=>m.victimIds.length).length;
+ // Same public HP state across six cameras does NOT mean the physical wound
+ // was drawable on any camera. Require a separate same-frame renderer
+ // witness from EACH view. This diagnostic remains pre-decoder: it cannot
+ // certify visible encoded pixels or original PCM synchronization.
+ result.matchedDrawableHpLossTicks=matches.filter(m=>m.victimIds.length&&
+  scans.every(scan=>scan.frames.some(sample=>
+   key(sample.scene)===key(m.scene)&&injuryReceipt(sample,m)))).length;
  // Distinct UI labels are NOT evidence of distinct 3D camera positions.
  // Compare the physical camera and aim on EXACT shared authority states
  // within each viewport. A sampled software-WebGL gap is UNKNOWN, never
