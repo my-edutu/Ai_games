@@ -58,7 +58,10 @@ test('earned airborne gateway and real landing remain independent in source and 
   assert.match(scene,/observedLandingSightline\.set\(landing\.x,landing\.y,landing\.z\)/);
   assert.match(scene,/protectLiveRoute&&sightlinePriorities\.arrival\?observedLandingSightline/);
   assert.match(scene,/sightlinePriorities\.gate&&sightlinePriorities\.arrival\s*\?earnedGatewayFocus:null/);
-  assert.match(world,/hazard=null, gateway=null\)/);
+  assert.match(world,/hazard=null, gateway=null, actorHalfWidth=0\)/);
+  assert.match(world,/halfWidth:actorHalfWidth,\s*source:lastSnapshot/);
+  // The five existing real route endpoints must remain independent; the
+  // additional body-width input only protects the authentic actor silhouette.
   assert.match(world,/const targets=enabled\?\[actor,guardian,landing,hazard,gateway\]:\[\]/);
   assert.match(world,/for\(let index=0;index<4;index\+\+\)/);
   assert.match(world,/corridorGuardians\[corridorCount\]=index===0 \|\| index===2/);
