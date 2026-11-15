@@ -14062,15 +14062,55 @@ function marketToRealHomeStreet(){
 // actually assigned to a citizen, every centre follows traversable A* and
 // the work remains in the EXISTING construction-dirty civic GPU allocation.
 // It never invents a delivery, household, resident, collider, or road in AI.
-const REAL_HOME_LANE_BUDGET=1020;
+const REAL_HOME_LANE_BUDGET=1120;
+const REAL_HOME_FRONTAGE_MAX_TRIANGLES=100;
 let realHomeLaneStats={occupiedHomes:0,connectedHomes:0,segments:0,
  triangles:0,skippedUnsafe:0,duplicateSections:0,limited:false,
+ frontages:0,frontageQuads:0,frontageTriangles:0,
  changesAuthority:false,changesNavigation:false,extraGpuBuffers:0};
 function getRealHomeLaneNetworkAudit(){return {...realHomeLaneStats,
  triangleBudget:REAL_HOME_LANE_BUDGET}}
+// W352 Phase 1/2 shared workday corridor: authentic stone arrival courts.
+// Complete geometry is construction-dirty with the SAME original road VBO,
+// and the final flagstone ends where real A* household movement can stand.
+// It neither adds collision, routes, supplies nor resident simulation state.
+function renderRealOccupiedThresholdCourts(approaches,audit){
+ const colors=[rgb(0xafa18c),rgb(0x8d8274),rgb(0xb4a48d),rgb(0x9d927f)];
+ materialScope(MATERIAL.STONE,()=>{
+  for(const entry of approaches){
+   const points=entry.points;if(points.length<2)continue;
+   const a=points[points.length-2],b=points[points.length-1],
+    dx=b[0]-a[0],dz=b[1]-a[1],length=Math.hypot(dx,dz);
+   if(length<.12)continue;
+   const nx=-dz/length,nz=dx/length,start=Math.max(0,length-.94);
+   let placed=0;
+   for(let slab=0;slab<5;slab++){
+    if(audit.triangles+2>REAL_HOME_LANE_BUDGET){audit.limited=true;break}
+    const t0=start+(length-start)*slab/5,
+     t1=start+(length-start)*(slab+1)/5;
+    const left=-.29+(slab%2)*.019,right=.29-(slab%3)*.014;
+    const x0=a[0]+dx*t0/length,z0=a[1]+dz*t0/length,
+     x1=a[0]+dx*t1/length,z1=a[1]+dz*t1/length;
+    const sample=(x,z,offset)=>{
+     const xx=x+nx*offset,zz=z+nz*offset;
+     return [xx,terrain(xx,zz)+.096,zz];
+    };
+    const p0=sample(x0,z0,left),p1=sample(x1,z1,left),
+     p2=sample(x1,z1,right),p3=sample(x0,z0,right);
+    // Never paint a foot court into the occupied wall, water or unsafe
+    // terrain. The genuine old road remains even if a threshold is skipped.
+    if(![p0,p1,p2,p3].every(p=>walkable(p[0],p[2])))continue;
+    upwardRoadQuad(p0,p1,p2,p3,colors[(entry.index+slab)%colors.length]);
+    audit.frontageQuads++;audit.frontageTriangles+=2;
+    audit.triangles+=2;placed++;
+   }
+   if(placed)audit.frontages++;
+  }
+ });
+}
 function renderRealInhabitedLaneNetwork(){
  const first=data.length,origin=MARKET_HOME_STREET_ORIGIN,
-  households=new Map(),used=new Set();
+  households=new Map(),used=new Set(),arrivals=[];
  for(const p of people){
   const index=citizenHomeIndex(p);
   if(index<0||index>=city.length||households.has(index))continue;
@@ -14081,6 +14121,7 @@ function renderRealInhabitedLaneNetwork(){
  const audit=realHomeLaneStats={occupiedHomes:households.size,
   connectedHomes:0,segments:0,triangles:0,skippedUnsafe:0,
   duplicateSections:0,limited:false,
+  frontages:0,frontageQuads:0,frontageTriangles:0,
   changesAuthority:false,changesNavigation:false,extraGpuBuffers:0};
  const candidates=[...households.values()].filter(h=>h.index!==marketHomeStreetStats.homeIndex)
   .sort((a,b)=>Math.hypot(a.dest[0]-origin[0],a.dest[1]-origin[1])-
@@ -14100,7 +14141,7 @@ function renderRealInhabitedLaneNetwork(){
     if(length<.02)continue;
     const nx=-dz/length,nz=dx/length,count=Math.ceil(length/1.12);
     for(let j=0;j<count;j++){
-     if(audit.triangles+6>REAL_HOME_LANE_BUDGET){
+     if(audit.triangles+6>REAL_HOME_LANE_BUDGET-REAL_HOME_FRONTAGE_MAX_TRIANGLES){
       audit.limited=true;break;
      }
      const x0=a[0]+dx*j/count,z0=a[1]+dz*j/count,
@@ -14125,9 +14166,13 @@ function renderRealInhabitedLaneNetwork(){
      used.add(key);inserted++;audit.segments++;audit.triangles+=6;
     }
    }
-   if(inserted)audit.connectedHomes++;
+   if(inserted){audit.connectedHomes++;arrivals.push({index:h.index,points});}
   }
  });
+ // The original A* ends at the inhabitant's ACTUAL assigned-home access.
+ // Terrain-fitted flagstones terminate that real street at each reached
+ // home's walkable threshold; there is no invented door, occupant or path.
+ renderRealOccupiedThresholdCourts(arrivals,audit);
  if((data.length-first)/30!==audit.triangles||
     audit.triangles>REAL_HOME_LANE_BUDGET)
   throw Error('W351 authentic connected inhabited street budget exceeded');
