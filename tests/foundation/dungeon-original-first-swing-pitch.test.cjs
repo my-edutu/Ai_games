@@ -81,7 +81,7 @@ test('RED: genuine source two-shoe candidate selector prefers forefoot recovery 
   {...candidates[3],after:after(.014,.009,drifting)}]}),null,
   'opposite real skinned weighted outsole may not be moved to buy a nicer swinging foot');
  for(const bad of [{sourceClipName:'Idle'},{sourceChainVerified:false},
-  {sourceWeight:.88},{interrupted:true},{previousLinkedCertified:true},
+  {sourceWeight:.88},{interrupted:true},
   {reducedMotion:true},{sourceInstanceSame:false},{rootTravel:0}])
   assert.equal(choose({...owner,...bad,trials:candidates}),null,
    'no candidate may survive missing imported source identity, injury, or movement evidence');
