@@ -28,6 +28,9 @@ const setup=()=>({
   actorCoreCover:eye[1]>5.7?.03:.8,cover:eye[1]>5.7?.08:.9,
   cargoCover:0,buildingCover:0,largest:.08,volumes:1}),
  foregroundVegetationProjection:()=>({faceBlockers:0,cover:0}),
+ // W355 actual planted stems must be surveyed by every proposed eye.
+ realFarmWorkSightline:()=>({cropFaceBlockers:0,cropWristBlockers:0,
+  cameraInsideField:false,physicalInteriorEyeClear:true}),
  projectedWorkerBodyFraction:eye=>eye[1]>5.7?.29:.32,
  cameraShotFraming:(shot)=>({
   blockedBodyRays:shot.eye[1]>5.7?0:5,
@@ -58,6 +61,12 @@ obstructed.foregroundSceneProjection=()=>({
 const rejected=vm.runInNewContext(decision+'\n'+original+
  '\nfindPhysicalPortraitAlternative',obstructed)(actor,old,[]);
 assert.equal(rejected,null,'all obstructed original geometry must reject camera rescue');
+const blockedGrain=setup();
+blockedGrain.realFarmWorkSightline=()=>({cropFaceBlockers:1,cropWristBlockers:1,
+ cameraInsideField:false,physicalInteriorEyeClear:true});
+const grainRejection=vm.runInNewContext(decision+'\n'+original+
+ '\nfindPhysicalPortraitAlternative',blockedGrain)(actor,old,[]);
+assert.equal(grainRejection,null,'real planted crop must reject otherwise roof-clear camera shot');
 assert(!/\b(step|saveWorld|deliveryReceipts\.push|people\.push|city\.push)\s*\(/.test(original),
  'camera may not mutate seeded authority');
 console.log('W340 physical portrait vertical high lens PASS source test: 24 capped real eyes, fresh rays and crowd admission, no fabricated citizen or market goods; running WebGL recording still required.');
