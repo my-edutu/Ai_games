@@ -1210,8 +1210,8 @@ test('D04 only marks occupied GPU instance matrix rows for upload, not the whole
   assert.ok(allocated>=4&&allocated<=6);
   assert.equal(hit.count,allocated);
   assert.deepEqual(hit.instanceMatrix.updateRanges,
-   Array.from({length:allocated},(_,i)=>({start:i*16,count:16})),
-   'only emitted injury matrices, each 16 floats, are invalidated for GPU upload');
+   [{start:0,count:allocated*16}],
+   'contiguous changed rows must coalesce to ONE bounded pending GPU upload');
   assert.ok(allocated*16*4<PHYSICAL_FEEDBACK_POOL_LIMITS.hit*16*4,
    'five visible fragments must not invalidate all 48 reserved hit matrices');
   // Simulate Three's completed WebGL upload, which clears attribute ranges.
@@ -1219,9 +1219,26 @@ test('D04 only marks occupied GPU instance matrix rows for upload, not the whole
   stage.advance(.016,.72);
   assert.equal(hit.count,0,'a real stalled frame must still retire expired injury art');
   assert.deepEqual(hit.instanceMatrix.updateRanges,
-   Array.from({length:allocated},(_,i)=>({start:i*16,count:16})),
-   'retirement uploads only the matrices it actually hides, never stale full-pool data');
+   [{start:0,count:allocated*16}],
+   'retirement also coalesces the hidden matrix rows into one GPU upload');
   assert.equal(stage.stats().activeDrawCalls,0);
+  // When a pool stays invisible, Three's renderer has NO occasion to clear
+  // its pending update ranges. Hundreds of scene resets must not accumulate
+  // unbounded per-row range objects before the next visible frame.
+  for(let i=0;i<160;i++){
+   assert.equal(stage.emit(cue({id:'1:1:'+i+':damage:-:revenant',tick:i})),true);
+   stage.reset();
+  }
+  assert.ok(hit.instanceMatrix.updateRanges.length<=1,
+   'a dormant pooled mesh must retain at most one pending upload range');
+  assert.ok(hit.instanceMatrix.updateRanges[0].count<=
+   PHYSICAL_FEEDBACK_POOL_LIMITS.hit*16,
+   'its pending upload must never exceed reserved instance capacity');
+  hit.instanceMatrix.clearUpdateRanges();
+  assert.equal(stage.emit(cue({id:'1:1:900:damage:-:revenant',tick:900})),true);
+  assert.deepEqual(hit.instanceMatrix.updateRanges,
+   [{start:0,count:allocated*16}],
+   'the next genuinely new renderer batch begins with a fresh narrow range');
   stage.reset();
   assert.equal(hit.count,0);
   assert.ok(stage.stats().reservedInstances<=104);
