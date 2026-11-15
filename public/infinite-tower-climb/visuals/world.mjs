@@ -978,6 +978,12 @@ export function createTowerWorld(){
   // guardian departure, rather than leaving frozen bronze bars behind when
   // the old doorway is retired on a slow first successor frame.
   let sourceEarnedBearingPalette=null;
+  // The original GPU doorway may retire between two WebGL returns while
+  // its three REAL Floor9 bearing materials still carry bronze. Preserve
+  // that already-earned material state across the source-proof handoff, then
+  // finish the actual gallery's paint on successful returned frames only.
+  // This never changes the guardian, player, route or authoritative ticks.
+  let sourceEarnedBearingHandoff=null;
   let arrivalRoutePalette=null;
   let stagedVoidArchitecture=null;
   // These are real authored Floor9 side-skirts, never the top or collider.
@@ -3246,6 +3252,7 @@ export function createTowerWorld(){
     lastRebuildWitness = null;
     stagedVoidArchitecture = null;
     arrivalRoutePalette = null;
+    sourceEarnedBearingHandoff = null;
     lastProtectedUndercroftEntries.length=0;
     successorUndercroftSightline={active:false,meshes:0,rays:0,softened:0};
     rigidUploadBytes=0;rigidExpandedBytes=0;rigidIndexedBatches=0;rigidBatchCount=0;rigidPackedVertexBuffers=0;rigidPriorSeparateVertexBuffers=0;
@@ -3283,6 +3290,8 @@ export function createTowerWorld(){
       material,bronze:material.color.clone(),
       voidColor:new THREE.Color([0x5a5064,0x514b63,0x544a63][i])
     }));
+    sourceEarnedBearingHandoff={runToken:snapshot.runToken,displayProgress:0,
+      retiring:false,retirementFrames:0,retirementStartProgress:0};
     // Campaign 43745587650, exact native source tick475: the former r=28.25
     // forged front COLUMN hit the genuine hero's left shoulder before the
     // actor. Build the coherent gallery on inner 21.6m load columns with
@@ -3446,6 +3455,12 @@ export function createTowerWorld(){
     // roof-bearing geometry. A stale poll, skipped source tick or speculative
     // future Floor9 never starts a preparation job.
     prepareOriginalThresholdAfterReturnedClockworkFrame(snapshot,options);
+    const bearingHandoff=sourceEarnedBearingHandoff;
+    if(bearingHandoff?.retiring===true && !options.stale &&
+       snapshot?.runToken===bearingHandoff.runToken &&
+       snapshot.floor===9 && snapshot.lifecycle==='running')
+      bearingHandoff.retirementFrames=Math.min(8,
+        bearingHandoff.retirementFrames+1);
     const held=retainedEarnedCap;
     if (held && !options.stale && snapshot &&
         snapshot.runToken===held.runToken &&
@@ -3588,7 +3603,30 @@ export function createTowerWorld(){
     if(sourceEarnedBearingPalette) {
       const proof=!options.stale
         ?observedSourcePhysicalArrivalPalette(snapshot,retainedEarnedCap):null;
-      const departure=proof?.sourceBound===true?proof.progress:1;
+      const handoff=sourceEarnedBearingHandoff;
+      let departure=1;
+      if(handoff && !options.stale && snapshot.floor===9 &&
+         snapshot.lifecycle==='running' &&
+         snapshot.runToken===handoff.runToken) {
+        // Real source 8->9 only: never treat a material tail as evidence
+        // of another crossing or keep bronze from another expedition.
+        if(proof?.sourceBound===true && !handoff.retiring)
+          handoff.displayProgress=Math.max(handoff.displayProgress,
+            Math.min(1,Math.max(0,proof.progress)));
+        else if(!handoff.retiring) {
+          // The old GPU owner is now absent or physically departed; don't
+          // snap every inherited load-bearing span from bronze to violet.
+          // Only a previously verified same-run F9 gallery has this state.
+          handoff.retiring=true;
+          handoff.retirementStartProgress=handoff.displayProgress;
+        }
+        if(handoff.retiring) {
+          const t=Math.min(1,handoff.retirementFrames/8);
+          const eased=t*t*(3-2*t);
+          departure=handoff.retirementStartProgress+
+            (1-handoff.retirementStartProgress)*eased;
+        } else departure=handoff.displayProgress;
+      }
       for(const {material,bronze,voidColor} of sourceEarnedBearingPalette)
         material.color.copy(bronze).lerp(voidColor,departure);
     }

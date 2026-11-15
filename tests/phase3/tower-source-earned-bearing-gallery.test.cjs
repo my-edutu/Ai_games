@@ -119,3 +119,36 @@ test('source-earned overhead load frame is bounded and cannot be fabricated from
     part.p.every(Number.isFinite)&&part.s.every(n=>Number.isFinite(n)&&n>0)));
   assert.ok(sections.flat().length<=30,'three-station original 3D route remains bounded to three instanced draws');
 });
+
+test('true Floor9 gateway now has an open, connected multi-storey original-to-Void structural spine',async()=>{
+  // Latest genuine immutable 1x WebMs: 43753683237, SHA bb2790ee.
+  // The old lattice is over the body at native 25-26.5s, then the
+  // remaining almost empty violet room replaces bronze in one frame.
+  const {plannedEarnedClockworkVoidBearings,plannedSourceEarnedSuspendedBearingSections}=await load();
+  const route=plannedEarnedClockworkVoidBearings(source,held);
+  const parts=plannedSourceEarnedSuspendedBearingSections(route.nodes);
+  assert.equal(parts.length,3);
+  assert.deepEqual(parts.map(p=>p.length),[7,10,10]);
+  for(const section of parts) {
+    const upperRear=section.filter(part=>part.s[1]>=10);
+    assert.equal(upperRear.length,1,'each original physical station has one full-height upper rear bearing');
+    assert.ok(Math.hypot(upperRear[0].p[0],upperRear[0].p[2])<22.4);
+    const top=upperRear[0].p[1]+upperRear[0].s[1]/2;
+    assert.ok(section.some(part=>part.p[1]===top && part.s[2]>=7),
+      'upper inboard bearing has an outward-supported crown, not a floating shaft');
+    for(const part of section)if(Math.hypot(part.p[0],part.p[2])>24)
+      assert.ok(part.p[1]-part.s[1]/2>1.8,
+        'no newly minted exterior eye-height posts may re-mask the real hero');
+  }
+  assert.ok(parts.flat().length<=30,'same three instanced drawing batches, bounded structural geometry');
+});
+test('source-qualified gallery paint survives old cap retirement by returned frame, not source tick or timer',()=>{
+  const world=fs.readFileSync('public/infinite-tower-climb/visuals/world.mjs','utf8');
+  assert.match(world,/sourceEarnedBearingHandoff=\{runToken:snapshot\.runToken/);
+  assert.match(world,/handoff\.retiring=true;[\s\S]*?handoff\.retirementStartProgress=handoff\.displayProgress/);
+  assert.match(world,/handoff\.retirementFrames\/8/);
+  assert.match(world,/bearingHandoff\.retirementFrames=Math\.min\(8,[\s\S]*?bearingHandoff\.retirementFrames\+1\)/);
+  assert.match(world,/snapshot\.runToken===handoff\.runToken/);
+  assert.match(world,/sourceEarnedBearingHandoff = null/);
+  assert.doesNotMatch(world,/snapshot\.player\.x\s*=|snapshot\.floor\s*=\s*9/);
+});

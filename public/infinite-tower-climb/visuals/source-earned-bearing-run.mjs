@@ -90,6 +90,15 @@ export function plannedSourceEarnedSuspendedBearingSections(nodes) {
       // roof across the REAL open 25m deck without filling its doorway.
       at(a,24.91,crown,[.36,.28,7.3]),
       at(a,27.6,crown+.08,[.46,.26,.48]),
+      // The source-pinned 1x films still collapse the multi-level bronze
+      // gallery into a completely bare violet sky after one old-gate return.
+      // Extend this SAME rear-supported, GPU-instanced load path into the
+      // genuinely rising Floor9 route. All tall shafts remain at r=21.6,
+      // behind the 22.4m inner wall and the actual r=25m hero arc.
+      // Upper cantilevers are ABOVE the skinned head and do not invent decks,
+      // collisions, portals, or extra gameplay. Same 3 materials / 3 batches.
+      at(a,21.6,crown+5.8,[.28,11.6,.34]),
+      at(a,24.91,crown+11.6,[.22,.22,7.3]),
     ];
     if(index>0){
       const previous=nodes[index-1];
@@ -100,6 +109,9 @@ export function plannedSourceEarnedSuspendedBearingSections(nodes) {
       // Outer sightline remains empty at hero height: ONLY high tensile
       // crown-to-crown linkage can connect adjacent suspended outriggers.
       parts.push(at(mid,27.6,crown+.02,[outerSpan+.20,.22,.34]));
+      // High inner-wall tie closes each two-storey load bay while the
+      // original lower gateway remains physically open to both cameras.
+      parts.push(at(mid,21.6,crown+11.6,[innerSpan+.18,.20,.32]));
     }
     return parts;
   });
