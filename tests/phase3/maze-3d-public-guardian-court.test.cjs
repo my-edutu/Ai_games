@@ -1357,3 +1357,67 @@ test('Pass348 original guardian shell frame has true through-space and still phy
     assert.equal(w.stats().materialCount,0);
   }
 });
+
+
+test('earned public lantern counter propagates a real three-cell 3D court wave, never a fabricated hidden or sealed passage',async()=>{
+  const {createMazeWorld}=await load();
+  const source=original();
+  const won={...source,threats:[{id:'thornback',cell:8,lanternParried:true}]};
+  const w=createMazeWorld({balanced:true}),budget=w.stats();
+  const leaf=cell=>w.group.getObjectByName('Published guardian warning floor leaf '+cell+' 1');
+  const counter={guardianCell:8,guardianParried:true,guardianBeat:0,reducedMotion:false};
+  try{
+    w.update(source);
+    w.animate(0,counter);
+    assert.equal(leaf(6).parent.rotation.x,0,'a claimed parry without the real PUBLIC flag cannot open the court');
+    w.update(won);
+    w.animate(2,counter);
+    w.animate(2.20,counter);
+    const progression=[6,7,8].map(cell=>Math.abs(leaf(cell).parent.rotation.x));
+    assert.ok(progression[0]>progression[1]+.3 && progression[1]>progression[2]+.3,
+      'actual rooted leaves open sequentially FROM the published Pip tile, not with an invented global flash');
+    w.animate(2.8,counter);
+    assert.ok([6,7,8].every(cell=>Math.abs(leaf(cell).parent.rotation.x)>1.4),
+      'the authentic earned lantern counter holds a substantial physical clear-lane release');
+    const crown=w.group.getObjectByName('Published guardian Tideglass sentinel crown 8 1');
+    assert.ok(crown.parent.position.y>.2,
+      'existing joined endpoint standard participates in the true counterflow');
+    w.animate(3,{...counter,guardianParried:false});
+    assert.ok([6,7,8].every(cell=>leaf(cell).parent.rotation.x===0),
+      'a cleared real counter instantly returns all hinges to a truthful neutral stance');
+    w.update(source);
+    w.animate(4,counter);
+    assert.equal(leaf(6).parent.rotation.x,0,'no prior run or private cue can replay earned action');
+    w.update({...source,privateMaze:{lanternParried:true,threats:[{cell:8}]}});
+    w.animate(5,counter);
+    assert.equal(leaf(6).parent.rotation.x,0,'private-only information cannot earn public stage movement');
+    w.update(won);
+    w.animate(6,{...counter,reducedMotion:true});
+    assert.ok([6,7,8].every(cell=>leaf(cell).parent.rotation.x===0),
+      'reduced-motion presents earned state without sweeping large geometry');
+    assert.equal(w.stats().geometryCount,budget.geometryCount);
+    assert.equal(w.stats().materialCount,budget.materialCount);
+    w.update({...won,doors:[{a:7,b:8,open:false}]});
+    assert.equal(leaf(6),undefined,'authoritative closed door removes the fictitious causeway');
+    w.update({...won,visibleCells:[6,7,11]});
+    assert.equal(leaf(6),undefined,'unseen guardian can never expose the passage');
+    w.update({...won,result:{reason:'capture'}});
+    assert.equal(leaf(6),undefined,'terminal outcome clears the entire performance mechanism');
+    for(let i=0;i<6;i++){
+      w.update({...source,runToken:'counterflow-reset-'+i});
+      assert.ok(w.stats().geometryCount<100,'unchanged strict six-scene budget');
+    }
+  }finally{
+    w.dispose();
+    assert.equal(w.stats().geometryCount,0);
+    assert.equal(w.stats().materialCount,0);
+  }
+});
+
+
+test('real render invokes guardian counterflow solely from current public earned actor',()=>{
+  const scene=fs.readFileSync(path.resolve(__dirname,'../../public/ai-maze-escape/scene.js'),'utf8');
+  assert.match(scene,/guardianParried:witnessedCounter/);
+  assert.match(scene,/guardianCell:witnessedCounter\?earnedCounterActor\.cell:closestThreat\?\.cell/);
+  assert.doesNotMatch(scene,/privateMaze.*guardianParried|secretRoute.*guardianParried/);
+});

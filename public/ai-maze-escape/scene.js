@@ -658,9 +658,17 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       ? publicObservedPressureReaction(s,pose,CELL_SIZE) : null;
     // Read the connected physical shutter/piston pose BEFORE updating Pip's
     // full-body rig in this same native render frame, not one frame later.
+    // The genuinely earned lantern parry can move Thornback beyond the ordinary
+    // proximity warning. Keep the SAME currently visible, authoritative guardian
+    // connected to its physical Tideglass court while its real recoil clears the
+    // passage. Another foreground guardian always takes priority.
+    const witnessedCounter=!!earnedCounterActor && !result
+      && (!closestThreat?.cell || closestThreat.cell===earnedCounterActor.cell);
     world.animate(elapsed, {...settings, gateTime:gateVisualTime,
       stepDurationMs:frame.stepDurationMs, explorerPosition:explorer.group.position,
-      guardianCell:closestThreat?.cell,guardianBeat:closestThreat?.encounterBeat});
+      guardianCell:witnessedCounter?earnedCounterActor.cell:closestThreat?.cell,
+      guardianBeat:closestThreat?.encounterBeat,
+      guardianParried:witnessedCounter});
     const pressureProgress=pressureCue
       ? world.publicPressureProgress(pressureCue.cell) : 0;
     // Only the new authoritative PUBLIC wait decision, paired with a still

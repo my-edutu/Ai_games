@@ -1631,7 +1631,8 @@ export function createMazeWorld(options = {}) {
               sentinels.push({lift,crown,lens,sailPivot,sail,crest,side});
             }
           }
-          guardianTideSignals.push({cell:c.cell,axis:guardianCausewayAxis,faces,sentinels});
+          guardianTideSignals.push({cell:c.cell,axis:guardianCausewayAxis,
+            faces,sentinels,counterStart:null,counterRunToken:null});
         }
       }
       // A genuinely PUBLIC trap has its own broad physical pressure court.
@@ -3518,6 +3519,13 @@ export function createMazeWorld(options = {}) {
       if(signal.cell===guardianCell)witnessedGuardian=true;
     }
     const witnessedLane=publicThreat && witnessedHero && witnessedGuardian;
+    // A lantern counter is NOT a predicted attack or a guessed route:
+    // require the SAME presently published guardian's actual successful
+    // authoritative flag, a real open floor court, and explicit live stage cue.
+    // Without all three, no recoil wave is allowed to animate.
+    const earnedParry=witnessedLane && options.guardianParried===true
+      && snapshot.threats.some(threat=>threat?.cell===guardianCell
+        && threat.lanternParried===true);
     const alongX=witnessedLane
       && Math.floor(heroCell/snapshot.width)===Math.floor(guardianCell/snapshot.width);
     const alongZ=witnessedLane && heroCell%snapshot.width===guardianCell%snapshot.width;
@@ -3552,13 +3560,35 @@ export function createMazeWorld(options = {}) {
         && row>=Math.min(Math.floor(heroCell/snapshot.width),Math.floor(guardianCell/snapshot.width))
         && row<=Math.max(Math.floor(heroCell/snapshot.width),Math.floor(guardianCell/snapshot.width))));
       const action=onLane?signalStrength:0;
+      // The public earned recoil is a THIRD physical court beat: the existing
+      // rooted leaves and endpoint shell standards open in a short, sequential
+      // wave from Pip's real tile toward the visibly retreating Thornback.
+      // The opened center is the already-authoritative clear corridor, not
+      // a new collider, invisible path, safe-route instruction or fake hit.
+      // Terrain owns this clock; no meshes/materials are created per frame.
+      // A different run, unseen/sealed lane or cleared parry instantly resets.
+      if(!onLane || !earnedParry) {
+        signal.counterStart=null;
+        signal.counterRunToken=null;
+      } else if(signal.counterRunToken!==snapshot.runToken
+        ||signal.counterStart===null || t<signal.counterStart) {
+        signal.counterStart=t;
+        signal.counterRunToken=snapshot.runToken;
+      }
+      const fromHero=alongX
+        ? Math.abs(col-heroCell%snapshot.width)
+        : Math.abs(row-Math.floor(heroCell/snapshot.width));
+      const counterWave=onLane&&earnedParry
+        ? reduced?1:Math.max(0,Math.min(1,
+          (t-signal.counterStart-fromHero*.12)/.20))
+        :0;
       // The FULL linked 3D standard rises with the real published brace,
       // drops on release and instantly neutralizes on hidden/invalid/terminal.
       // Reduced motion preserves color but freezes all physical translation.
       for(const beacon of signal.sentinels){
-        beacon.lift.position.y=reduced ? .04 : .04+action*.42;
-        beacon.crown.material=action>.28?amber:seaGlass;
-        beacon.lens.material=action>.28?amber:inlay;
+        beacon.lift.position.y=reduced ? .04 : .04+action*.42+counterWave*.22;
+        beacon.crown.material=counterWave>.1?inlay:action>.28?amber:seaGlass;
+        beacon.lens.material=counterWave>.1?lightStone:action>.28?amber:inlay;
         // The entire linked shell fan opens laterally into the non-walkable
         // outside margin in the witnessed brace and folds on real release.
         // No fabricated guardian strike or collision is implied. In reduced
@@ -3567,7 +3597,8 @@ export function createMazeWorld(options = {}) {
         // outboard rest tilt on the real brace; recline at release, hidden,
         // terminal or reduced-motion. Never promise a new passage/attack.
         beacon.sailPivot.rotation[signal.axis==='x'?'x':'z']=reduced?0
-          :(signal.axis==='x'?-beacon.side:beacon.side)*.88*action;
+          :(signal.axis==='x'?-beacon.side:beacon.side)
+            *(.88*action+1.22*counterWave);
         // Pass329 original 390px brace showed FOUR opaque amber feathers
         // visually overtaking Pip and Thornback. Keep the full-size hinged
         // SEA-GLASS body visibly moving through the real guardian warning,
@@ -3575,11 +3606,11 @@ export function createMazeWorld(options = {}) {
         // The existing substantial crown, lens and floor leaves still glow
         // amber on witnessed brace; none is an invented strike/hit indicator.
         // Reuse pooled materials; reduced motion freezes geometry, not truth.
-        beacon.sail.material=action>.28?darkJade:seaGlass;
-        beacon.crest.material=action>.28?amber:lightStone;
+        beacon.sail.material=counterWave>.1?deepStone:action>.28?darkJade:seaGlass;
+        beacon.crest.material=counterWave>.1?inlay:action>.28?amber:lightStone;
       }
       for(const face of signal.faces){
-        face.object.material=action>.28?amber:seaGlass;
+        face.object.material=counterWave>.1?inlay:action>.28?amber:seaGlass;
         // Pivot the WHOLE attached leaf around its real outer-lane hinge,
         // rather than tilting a tiny plate about its own centre. At the
         // witnessed brace the sea-glass edge rises ~.55 world units, clearly
@@ -3588,7 +3619,8 @@ export function createMazeWorld(options = {}) {
         // At retreat/hidden/terminal and under reduced motion every hinge
         // returns to a precisely settled, stationary pose.
         face.hinge.rotation[signal.axis==='x'?'x':'z']=reduced?0
-          :(signal.axis==='x'?-face.side:face.side)*1.12*action;
+          :(signal.axis==='x'?-face.side:face.side)
+            *(1.12*action+1.45*counterWave);
       }
     }
     // True PUBLIC pressure-hazard contact is readable as a physical scene
