@@ -4,9 +4,11 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const HTML=fs.readFileSync(path.resolve(__dirname,'../../public/tiny-kingdom/index.html'),'utf8');
 
 test('W281 original housing residency reuses its verified topology but invalidates changed and missing homes',()=>{
+ const topologyStart=HTML.indexOf('function originalCityTopologySignatures(){');
  const start=HTML.indexOf('function homePartitionLiveSignature(){');
  const end=HTML.indexOf('function getStationarySettlementAudit()',start);
- expect(start,'production topology proof must exist').toBeGreaterThan(-1);
+ expect(topologyStart,'shared real occupied-town topology cache must exist').toBeGreaterThan(-1);
+ expect(start,'production topology proof must exist').toBeGreaterThan(topologyStart);
  expect(end).toBeGreaterThan(start);
  const calls={groups:0,builds:0,details:0};
  const one={key:'old',homes:1,mesh:new Float32Array(30),buffer:{}};
@@ -29,18 +31,23 @@ test('W281 original housing residency reuses its verified topology but invalidat
   independentHousingGrowthWitnesses:[],state:{t:0},civicActiveKey:'',
   scenicMeshTriangles:0
  };
- vm.runInNewContext(HTML.slice(start,end),ctx);
+ // Include the actual W350 signature and invalidator, not a mocked view key.
+ // The live game invalidates these whenever a real home is built/restored;
+ // the isolated fixture must explicitly replay that existing authority event.
+ vm.runInNewContext(HTML.slice(topologyStart,end),ctx);
  ctx.homePartitionLastTopology=ctx.homePartitionLiveSignature();
  expect(ctx.refreshIndependentHousing('spring','season:founders')).toBe(false);
  expect(calls.details).toBe(0);
  expect(calls.groups).toBe(0);
  expect(ctx.homePartitionFastReuses).toBe(1);
- ctx.city[0][0]=4; // one authentic lot relocated without population changing
+ ctx.city[0][0]=4; // isolated same-count restore of an actual town lot
+ ctx.invalidateOriginalCityTopologySignatures();
  ctx.refreshIndependentHousing('spring','season:founders');
  expect(calls.details).toBe(1);
  expect(calls.groups).toBe(1);
  expect(calls.builds).toBe(1);
  ctx.city[0][0]=2;
+ ctx.invalidateOriginalCityTopologySignatures();
  ctx.homePartitionLastTopology=ctx.homePartitionLiveSignature();
  ctx.homeClusterCache.delete('old'); // GPU buffer evicted by real memory pressure
  ctx.refreshIndependentHousing('spring','season:founders');
