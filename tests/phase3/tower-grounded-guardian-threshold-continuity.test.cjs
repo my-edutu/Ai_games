@@ -175,3 +175,45 @@ test('real 20Hz browser gap still carries the authentic Floor8->9 opened arch, n
     assert.equal(observedFloorNineRunway(a,b),null);
   }
 });
+
+
+// Native source-pinned run 43734553251: an original 6.8m bronze forecourt
+// occludes the real skinned actor near earned Floor8→9 in BOTH viewports.
+// Enforce original load-bearing clearspan, not camera opacity or fake portal.
+test('source-earned old/new shared 3D threshold has a broad sightline aperture and a real crown', async () => {
+ const [THREE_IMPL,{createTowerGuardianPassage}]=await Promise.all([THREE,passage]);
+ const effect=createTowerGuardianPassage(THREE_IMPL);
+ try {
+  const old=source(),next=successor();
+  assert.equal(effect.unlock(old,anchor),true);
+  assert.equal(effect.begin(old,next,anchor),true);
+  const threshold=effect.group.getObjectByName('ObservedWalkableGuardianThreshold');
+  const arches=threshold?.getObjectByName('WalkableSourceCapArchAndBraces');
+  assert.ok(arches?.isInstancedMesh && arches.count===6,
+    'source-retained actual walkable arch must exist with six original structural parts');
+  const pose=new THREE_IMPL.Matrix4(),p=new THREE_IMPL.Vector3(),
+    q=new THREE_IMPL.Quaternion(),s=new THREE_IMPL.Vector3();
+  const parts=[];
+  for(let i=0;i<arches.count;i++){
+    arches.getMatrixAt(i,pose);pose.decompose(p,q,s);
+    parts.push({x:p.x,y:p.y,z:p.z,width:s.x,height:s.y,depth:s.z});
+  }
+  const [left,right,crown,sill,leftStay,rightStay]=parts;
+  assert.ok(left.x<-4 && right.x>4,
+    'old bronze side piers must stand physically outside the whole-body portrait sightline');
+  assert.ok(-left.x-left.width/2>3.75 && right.x-right.width/2>3.75,
+    'both piers give a real uninterrupted >=7.5m source gateway aperture');
+  assert.ok(crown.y-crown.height/2>5.0 && crown.width>8.2,
+    'a real continuous lintel must crown above the adult airborne silhouette');
+  assert.ok(sill.y+sill.height/2<.2 && sill.width>7.6,
+    'true walkable roof cannot have a shin-high foreground crossbar');
+  assert.ok(leftStay.x<-4 && rightStay.x>4,
+    'source-tensile corner stays are genuinely outboard rather than a centred foreground X');
+  assert.equal(effect.diagnostics().continuousGroundedHandoff,true);
+  assert.equal(effect.diagnostics().physicallyWalkableThreshold.innerRadius,25,
+    'the wider arch belongs to the real supported climber radius');
+  assert.equal(arches.userData.collider,undefined);
+  assert.equal(arches.castShadow,false);
+  assert.equal(arches.receiveShadow,false);
+ }finally{effect.dispose();}
+});
