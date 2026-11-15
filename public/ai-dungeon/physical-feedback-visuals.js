@@ -10,6 +10,7 @@ import {planMeasuredHandTrail,MEASURED_HAND_TRAIL_MAX_FRAME_SECONDS,selectObserv
 import {selectPhysicalWarningMarkers} from './physical-feedback-plan.js';
 import {isStaleWardenWarning,shouldRetireWardenWarning,isLiveWardenWarning} from './warden-warning-lifecycle.js';
 import {planUnconfirmedFlight} from './unconfirmed-projectile-flight.js';
+import {isCanonicalVerifiedCombatFoleyCue} from './original-combat-foley.js';
 import {planMapFlightClearance} from './occluded-projectile-path.js';
 export const PHYSICAL_FEEDBACK_POOL_LIMITS=Object.freeze({
  trail:8,hit:48,block:8,dust:12,signal:8,projectile:10,spell:8
@@ -64,7 +65,7 @@ function spray(id,index){
 }
 export function createPhysicalFeedbackVisuals(THREE,scene,{
  actorById=()=>null,reducedMotion=false,reducedFlash=false,getFloorMap=null,
- getCurrentSnapshot=null
+ getCurrentSnapshot=null,requireVerifiedHpReceipt=false
 }={}){
  if(!THREE||!scene||typeof scene.add!=='function')return null;
  const pose=new THREE.Object3D(),up=new THREE.Vector3(0,1,0),dir=new THREE.Vector3(),
@@ -548,6 +549,11 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    cue.proof!=='observed-hp-drop'||
    typeof cue.targetId!=='string'||cue.targetId.length===0||
    !cell(cue.to)))return false;
+  // Production D04 injury art and sound require the SAME canonical observed
+  // HP-loss witness. Verified flags and copied cue IDs alone cannot mint a
+  // wound; the independent geometry audition retains its permissive default.
+  if(type==='hit'&&requireVerifiedHpReceipt&&
+   !isCanonicalVerifiedCombatFoleyCue(cue)){suppressed++;return false}
   if(type==='trail'&&(cue.kind!=='swing'||cue.proof!=='authority-attempt-not-hit'))return false;
   if(cue.kind==='counter'&&cue.proof!=='authority-counter-and-HP')return false;
   // A public block event alone has no known defending body or attacker.

@@ -39,7 +39,7 @@ export function createPhysicalCombatFeedback({
  let previous=null;
  const visuals=visualAdapter??(THREE&&scene?createPhysicalFeedbackVisuals(THREE,scene,
   {actorById,reducedMotion,reducedFlash,getFloorMap:()=>previous?.map,
-   getCurrentSnapshot:()=>previous}):null);
+   getCurrentSnapshot:()=>previous,requireVerifiedHpReceipt:true}):null);
  const injectedFoley=audioAdapter!==null;
  let foley=audioAdapter??(ctx?createOriginalCombatFoley(ctx,{requireVerifiedContact:true}):null);
  // An original WebAudio engine is permanently bound to its creation context
