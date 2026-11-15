@@ -137,6 +137,15 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    if(pool.slots[i]!==null){count=i+1;break}
   pool.mesh.count=count;
  }
+ // Three.js 0.186 supports incremental matrix upload ranges in floats.
+ // Five hit chips therefore invalidate five 16-float rows, not the entire
+ // retained 48-row buffer. WebGL merges contiguous rows and clears uploaded
+ // ranges. Mock adapters without addUpdateRange retain full-upload fallback.
+ // No new effect pools, allocations, sounds or presentation deadlines.
+ function setRetainedMatrix(pool,index,matrix){
+  pool.mesh.setMatrixAt(index,matrix);
+  pool.mesh.instanceMatrix?.addUpdateRange?.(index*16,16);
+ }
  make('trail',createOriginalBladeStreakGeometry(THREE),{metalness:0,roughness:1,opacity:reducedFlash?.15:.29});
  make('hit',new THREE.TetrahedronGeometry(.073,0),{metalness:.22,roughness:.8});
  make('block',new THREE.TorusGeometry(.26,.018,4,16,Math.PI*1.5),{metalness:.32,opacity:reducedFlash?.18:.33});
@@ -537,7 +546,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   for(let i=0;i<pool.max;i++){
    const slot=pool.slots[i];
    if(!shouldRetireWardenWarning(slot?.cue,incomingCue))continue;
-   pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());active--;retired++;
+   pool.slots[i]=null;setRetainedMatrix(pool,i,hideMatrix());active--;retired++;
   }
   if(retired){
    retiredWarningMarkers+=retired;
@@ -694,7 +703,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    // render. Otherwise the audio receipt might refer to a hidden setup slot.
    // A trail still uses hideMatrix() until genuine new wrist travel is sampled.
    if(type!=='trail'||displacedOccupied){
-    pool.mesh.setMatrixAt(index,transform(pool,pool.slots[index]));
+    setRetainedMatrix(pool,index,transform(pool,pool.slots[index]));
     pool.mesh.instanceMatrix.needsUpdate=true;
    }
    // A new trail remains hidden until its OWN skinned wrist passage.
@@ -817,7 +826,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
       checkedWarningLive=warningStillLive(slot.cue);
      }
      if(!checkedWarningLive){
-      pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());frameMatrixWrites++;poolWrites++;
+      pool.slots[i]=null;setRetainedMatrix(pool,i,hideMatrix());frameMatrixWrites++;poolWrites++;
       active--;retiredInvalidWarnings++;dirty=true;continue;
      }
      // Freeze at a restrained, readable mid-beat: resetting to zero each
@@ -841,7 +850,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
     // GPU buffer update merely because its bounded lifetime advances.
     if(pool.name!=='trail')dirty=true;
     if(slot.age>=slot.life){
-     pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());frameMatrixWrites++;poolWrites++;active--;dirty=true;continue;
+     pool.slots[i]=null;setRetainedMatrix(pool,i,hideMatrix());frameMatrixWrites++;poolWrites++;active--;dirty=true;continue;
     }
     if(pool.name==='signal'&&
       (slot.cue.kind==='warden-release'||slot.cue.kind==='opening'||
@@ -853,7 +862,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
      // warnings and HP-loss effects retain their existing separate policy.
      const observed=anchor(slot.cue,'signal');
      if(!observed){
-      pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());frameMatrixWrites++;poolWrites++;
+      pool.slots[i]=null;setRetainedMatrix(pool,i,hideMatrix());frameMatrixWrites++;poolWrites++;
       // Upload the hidden retained matrix before any later WebGL submission.
       // Without a dirty flag, an interrupted glyph keeps an orphaned draw.
       active--;retiredUnanchoredBodySignals++;dirty=true;continue;
@@ -874,7 +883,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
         Number.isFinite(actor.u.hp)&&actor.u.hp<=0;
       }catch{}
       if(deadAttacker){
-       pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());frameMatrixWrites++;poolWrites++;
+       pool.slots[i]=null;setRetainedMatrix(pool,i,hideMatrix());frameMatrixWrites++;poolWrites++;
        active--;retiredDeadTrails++;dirty=true;continue;
       }
       // A confirmed living replacement action (or newer attack tick)
@@ -888,7 +897,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
         (u.action!=='attack'||u.actionTick!==slot.cue.tick);
       }catch{}
       if(interrupted){
-       pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());frameMatrixWrites++;poolWrites++;
+       pool.slots[i]=null;setRetainedMatrix(pool,i,hideMatrix());frameMatrixWrites++;poolWrites++;
        active--;retiredInterruptedTrails++;dirty=true;continue;
       }
       slot.lastHand=null;slot.measuredPath=null;
@@ -929,7 +938,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
     // is necessary. A newly measured passage still draws immediately; a
     // previous passage is cleared exactly once when its witness expires.
     if(pool.name==='trail'&&!slot.measuredPath&&slot.matrixHidden)continue;
-    pool.mesh.setMatrixAt(i,transform(pool,slot));frameMatrixWrites++;poolWrites++;dirty=true;
+    setRetainedMatrix(pool,i,transform(pool,slot));frameMatrixWrites++;poolWrites++;dirty=true;
     if(pool.name==='trail')slot.matrixHidden=!slot.measuredPath;
     if(pool.name!=='trail'||slot.measuredPath)visibleSlots++;
    }
@@ -1130,7 +1139,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
     if(reason==='revoked-drawn-swing-pose'&&slot.cue.kind!=='swing')continue;
     if(reason==='revoked-drawn-body-pose'&&
        !['warden-release','opening','guard','cast-utility'].includes(slot.cue.kind))continue;
-    pool.slots[i]=null;pool.mesh.setMatrixAt(i,hideMatrix());
+    pool.slots[i]=null;setRetainedMatrix(pool,i,hideMatrix());
     active--;retired++;dirty=true;
    }
    if(dirty){
@@ -1154,7 +1163,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    for(let i=0;i<pool.max;i++){
     if(pool.slots[i]===null)continue;
     pool.slots[i]=null;
-    pool.mesh.setMatrixAt(i,hideMatrix());
+    setRetainedMatrix(pool,i,hideMatrix());
     dirty=true;
    }
    if(dirty)pool.mesh.instanceMatrix.needsUpdate=true;
