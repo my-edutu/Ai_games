@@ -40,6 +40,10 @@ export function measureAuthoritativeDeckSightline({
     !raycaster?.set || !raycaster?.intersectObject ||
     !direction?.copy || !point?.copy ||
     !Array.isArray(hits) || (gate!=null && !valid3(gate)))return null;
+  // Once per candidate, not four world-matrix traversals per platform.
+  // The live World owner already placed every deck from the current source.
+  for(const root of platformRoots)if(root.visible!==false)
+    root.updateWorldMatrix(true,true);
   let blockedBodyRays=0, blockedGatewayRays=0, rays=0, realTrianglesChecked=0;
   const samples=gate?4:3;
   for(let sample=0;sample<samples;sample++){
@@ -58,7 +62,6 @@ export function measureAuthoritativeDeckSightline({
       if(root.visible===false)continue;
       // Current moving deck transforms are owned by authoritative snapshots,
       // not by this camera probe. No geometry rebuild or collision mutation.
-      root.updateWorldMatrix(true,true);
       hits.length=0;
       raycaster.intersectObject(root,true,hits);
       realTrianglesChecked+=hits.length;
