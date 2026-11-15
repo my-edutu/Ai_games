@@ -6378,3 +6378,101 @@ test('source-weighted outsole transverse axis respects real original joint and s
  assert.match(controller,/sourceWeightedOutsoleHingeVerified/);
  assert.match(controller,/original-weighted-outsole-swing/);
 });
+
+
+test('real 53.6mm-projected steep source outsole receives a conditioned axis, never a fictional sole lock',async()=>{
+ const {planOriginalSourceWeightedSoleHingeAxis:plan}=await load();
+ // Actual ORIGINAL licensed player_swordsman.glb, desktop WebGL tick 5
+ // source-rig a74fa714 (136/137 source-weighted two-shoe evidence).
+ const heel=[-4.706317305676937,.2082234958365368,-7.113070572208017];
+ const toe=[-4.753574362246593,-.09150222922825735,-7.138315129148322];
+ const witness={
+  source:'same-original-GLB-skinned-weighted-outsole',
+  sourceFootChainVerified:true,sourceFootTrackVerified:true,
+  sourceFootBindVerified:true,originalAnatomicalSolePatchVerified:true,
+  originalOppositeShoeVerified:true,sourceClipName:'Walking_A',
+  floorTopY:-.02,heelWorld:heel,toeWorld:toe,
+  // Orientation identity is a synthetic isolated planner input. The
+  // renderer must still read the genuine CURRENT original foot quaternion.
+  footWorldQuaternion:[0,0,0,1],sourceTrackAxis:[-1,0,0]
+ };
+ const axis=plan(witness);
+ assert.ok(axis,'prior >55mm XZ-only rule rejected authentic 53.57mm while full 3D length stays 304mm');
+ assert.ok(axis.horizontalSpanMeters>.053&&axis.horizontalSpanMeters<.055);
+ assert.ok(axis.fullSoleSpanMeters>.30&&axis.fullSoleSpanMeters<.31);
+ assert.equal(axis.steepSourceProjectionVerified,true);
+ assert.equal(axis.contactLocked,false);
+ for(const altered of [
+  {toeWorld:[heel[0]-.044,toe[1],heel[2]-.018]}, // projection below 50mm
+  {toeWorld:[toe[0],-.24,toe[2]]}, // unlicensed stretched 3D shoe
+  {sourceClipName:'Idle'},{sourceFootBindVerified:false},
+  {originalOppositeShoeVerified:false},{originalAnatomicalSolePatchVerified:false},
+  {sourceTrackAxis:[.47,0,.88]} // no independent transverse hinge
+ ])assert.equal(plan({...witness,...altered}),null,
+  'never gain an axis without a rigid source sole, original chain and independent track');
+});
+
+test('original lowerleg-knee chain owns fallback foot pitch only from genuine 3D steep anatomy',async()=>{
+ const {planOriginalSourceKneeChainFootHingeAxis:plan}=await load();
+ assert.equal(typeof plan,'function','the initial source controller has no connected knee-to-foot option');
+ const sourceFoot=[-4.706317305676937,.2082234958365368,-7.113070572208017];
+ const sourceToe=[-4.753574362246593,-.09150222922825735,-7.138315129148322];
+ const source={
+  source:'licensed-original-Walking_A-connected-knee-foot',
+  sourceClipName:'Walking_A',sourceKneeTrackVerified:true,
+  sourceFootTrackVerified:true,sourceFootBindVerified:true,
+  sourceLinkedLegCertified:true,originalAnatomicalSolePatchVerified:true,
+  originalOppositeShoeVerified:true,sourceLowerFootBindMeters:.39,
+  floorTopY:-.02,heelWorld:sourceFoot,toeWorld:sourceToe,
+  lowerWorldQuaternion:[0,0,0,1],footWorldQuaternion:[0,0,0,1],
+  sourceKneeTrackAxis:[0,0,1],sourceFootTrackAxis:[-1,0,0]
+ };
+ const candidate=plan(source);
+ assert.equal(candidate?.source,'licensed-original-knee-plane-foot-local');
+ assert.ok(candidate.axis.every(Number.isFinite));
+ assert.ok(Math.abs(Math.hypot(...candidate.axis)-1)<1e-7);
+ assert.ok(candidate.soleKneeAlignment<.4);
+ assert.equal(candidate.contactLocked,false);
+ for(const bad of [
+  {source:'procedural-knee'},{sourceClipName:'Idle'},
+  {sourceKneeTrackVerified:false},{sourceLinkedLegCertified:false},
+  {sourceFootBindVerified:false},{originalOppositeShoeVerified:false},
+  {sourceLowerFootBindMeters:0},{sourceLowerFootBindMeters:3},
+  {sourceKneeTrackAxis:[0,1,0]}, // aligned with the steep vertical sole
+  {sourceFootTrackAxis:[0,0,1]}, // identical to knee axis
+  {lowerWorldQuaternion:[0,0,0,0]},
+  {footWorldQuaternion:[0,0,0,Infinity]},
+  {toeWorld:[sourceFoot[0],sourceToe[1],sourceFoot[2]]},
+  {toeWorld:[sourceToe[0],sourceToe[1]-.15,sourceToe[2]]}
+ ])assert.equal(plan({...source,...bad}),null,
+   'no guessed limb hinge, zero-length projection, invalid sole or nonoriginal clip');
+ const {chooseOriginalSourceSwingLinkedFootFinisher:choose}=await load();
+ const swing={heelY:sourceFoot[1],toeY:sourceToe[1],
+  heelXZ:[sourceFoot[0],sourceFoot[2]],toeXZ:[sourceToe[0],sourceToe[2]]};
+ const loaded={heelY:-.03647658980375642,toeY:-.014051316167091446,
+  heelXZ:[-4.814830275021503,-6.960115145559802],
+  toeXZ:[-5.084000455050374,-6.934965285424538]};
+ const before={right:swing,left:loaded};
+ const linkedProof={source:'measured-original-skinned-linked-leg',
+  sourceClip:'Walking_A',sourceInstanceId:'genuine-original-case-72',
+  side:'right',oppositeShoePreserved:true,contactLocked:false,after:before};
+ const gate={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceInstanceId:'genuine-original-case-72',
+  sourceFootChainVerified:true,sourceFootTrackVerified:true,
+  sourceKneeChainAxisVerified:true,ownerLocomotion:true,alive:true,visible:true,
+  rootTravel:.0799,frameAge:.03,frameInterval:.0334,
+  side:'right',floorTopY:-.02,linkedProof,before};
+ const sample={angleRad:-.12,axisKind:'original-knee-chain-swing',
+  after:{left:{...loaded},right:{...swing,
+   toeY:swing.toeY+.013,heelY:swing.heelY+.002,
+   heelXZ:[swing.heelXZ[0]+.004,swing.heelXZ[1]],
+   toeXZ:[swing.toeXZ[0]+.012,swing.toeXZ[1]]}}};
+ assert.equal(choose({...gate,sourceKneeChainAxisVerified:false,trials:[sample]}),null);
+ const measured=choose({...gate,trials:[sample]});
+ assert.equal(measured?.axisKind,'original-knee-chain-swing');
+ assert.equal(measured.contactLocked,false);
+ assert.equal(measured.oppositeFootVerified,true);
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/planOriginalSourceKneeChainFootHingeAxis\(/);
+ assert.match(renderer,/original-knee-chain-swing/);
+});

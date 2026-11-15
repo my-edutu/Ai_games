@@ -1493,7 +1493,15 @@ export function planOriginalSourceWeightedSoleHingeAxis({
  const delta=toeWorld.map((v,i)=>v-heelWorld[i]);
  const horizontal=Math.hypot(delta[0],delta[2]),length=Math.hypot(...delta);
  const burial=floorTopY-toeWorld[1],heelAbove=heelWorld[1]-floorTopY;
- if(horizontal<.055||horizontal>.30||
+ // Exact licensed desktop original sole has 53.57mm XZ projection but
+ // a rigid 304mm three-dimensional shoe. Only that narrowly conditioned,
+ // steep and intact source can earn the unused second skinned-shoe probe.
+ // No widened floor contact, no unlimited slope amplification or IK.
+ const steepSourceProjectionVerified=horizontal>=.05&&horizontal<.055&&
+  length>=.295&&length<=.315&&
+  Math.abs(delta[1])/length>=.955&&
+  burial>=.045&&heelAbove>=.18;
+ if((horizontal<.055&&!steepSourceProjectionVerified)||horizontal>.30||
   length<.24||length>.35||
   burial<.025||burial>.12||
   heelAbove<.10||heelAbove>.35)return null;
@@ -1518,7 +1526,7 @@ export function planOriginalSourceWeightedSoleHingeAxis({
   source:'source-weighted-outsole-world-to-original-foot-local',
   axis:Object.freeze(local),horizontalSpanMeters:horizontal,
   fullSoleSpanMeters:length,sourceTrackAlignment:trackAlignment,
-  contactLocked:false
+  steepSourceProjectionVerified,contactLocked:false
  });
 }
 
@@ -1536,6 +1544,85 @@ export function planOriginalSourceWeightedSoleHingeAxis({
  * merely from source quaternion angles. This only produces angles to trial,
  * never a guaranteed pose or an authority/contact change.
  */
+
+/**
+ * Only after an original 41-joint Walking_A HIP+KNEE source chain has been
+ * certified against both weighted soles, use the actual source lowerleg's
+ * quaternion TRACK as a physical hinge-plane reference for the attached
+ * foot. An almost vertical source shoe loses stable horizontal outsole
+ * heading: do not infer its ankle axis from world yaw or a 2D silhouette.
+ *
+ * World lowerleg source knee axis -> original foot local coordinates. At most
+ * two already-budgeted reversible +/-120mrad probes in the renderer; every
+ * accepted pose still requires a completely new BOTH-skinned-shoe readback.
+ * This returns an AXIS, not a foot plant, motion event or invented contact.
+ */
+export function planOriginalSourceKneeChainFootHingeAxis({
+ source='',sourceClipName='',sourceKneeTrackVerified=false,
+ sourceFootTrackVerified=false,sourceFootBindVerified=false,
+ sourceLinkedLegCertified=false,originalAnatomicalSolePatchVerified=false,
+ originalOppositeShoeVerified=false,sourceLowerFootBindMeters=NaN,
+ floorTopY=NaN,heelWorld=null,toeWorld=null,
+ lowerWorldQuaternion=null,footWorldQuaternion=null,
+ sourceKneeTrackAxis=null,sourceFootTrackAxis=null
+}={}){
+ const array=(x,n)=>Array.isArray(x)&&x.length===n&&x.every(finite);
+ if(source!=='licensed-original-Walking_A-connected-knee-foot'||
+  sourceClipName!=='Walking_A'||sourceKneeTrackVerified!==true||
+  sourceFootTrackVerified!==true||sourceFootBindVerified!==true||
+  sourceLinkedLegCertified!==true||
+  originalAnatomicalSolePatchVerified!==true||
+  originalOppositeShoeVerified!==true||
+  !finite(sourceLowerFootBindMeters)||sourceLowerFootBindMeters<.10||
+  sourceLowerFootBindMeters>1.5||
+  !finite(floorTopY)||Math.abs(floorTopY+.02)>.005||
+  !array(heelWorld,3)||!array(toeWorld,3)||
+  !array(lowerWorldQuaternion,4)||!array(footWorldQuaternion,4)||
+  !array(sourceKneeTrackAxis,3)||!array(sourceFootTrackAxis,3))return null;
+ const norm=a=>Math.hypot(...a),kneeNorm=norm(sourceKneeTrackAxis),
+  footNorm=norm(sourceFootTrackAxis);
+ if(Math.abs(norm(lowerWorldQuaternion)-1)>.002||
+  Math.abs(norm(footWorldQuaternion)-1)>.002||
+  Math.abs(kneeNorm-1)>.01||Math.abs(footNorm-1)>.01)return null;
+ const shoe=toeWorld.map((v,i)=>v-heelWorld[i]);
+ const length=norm(shoe),horizontal=Math.hypot(shoe[0],shoe[2]);
+ const heelAbove=heelWorld[1]-floorTopY,burial=floorTopY-toeWorld[1];
+ if(length<.24||length>.35||horizontal<.02||horizontal>.08||
+  Math.abs(shoe[1])/length<.90||heelAbove<.10||heelAbove>.35||
+  burial<.025||burial>.12)return null;
+ const cross=(a,b)=>[
+  a[1]*b[2]-a[2]*b[1],
+  a[2]*b[0]-a[0]*b[2],
+  a[0]*b[1]-a[1]*b[0]
+ ];
+ const rotate=(q,v)=>{
+  const t=cross(q.slice(0,3),v).map(n=>2*n);
+  const k=cross(q.slice(0,3),t);
+  return v.map((n,i)=>n+q[3]*t[i]+k[i]);
+ };
+ const kneeWorld=rotate(lowerWorldQuaternion,
+  sourceKneeTrackAxis.map(n=>n/kneeNorm));
+ const soleKneeAlignment=Math.abs(
+  kneeWorld.reduce((sum,n,i)=>sum+n*shoe[i]/length,0));
+ // The authentic source knee axis must rotate across the real foot length,
+ // never around an almost longitudinal shoe or a coincident foot source roll.
+ if(soleKneeAlignment>.4)return null;
+ const q=footWorldQuaternion;
+ const local=rotate([-q[0],-q[1],-q[2],q[3]],kneeWorld);
+ const localNorm=norm(local);
+ if(Math.abs(localNorm-1)>.01)return null;
+ const axis=local.map(n=>n/localNorm);
+ const trackAlignment=Math.abs(axis.reduce(
+  (sum,n,i)=>sum+n*sourceFootTrackAxis[i]/footNorm,0));
+ if(trackAlignment>.92)return null;
+ return Object.freeze({
+  source:'licensed-original-knee-plane-foot-local',
+  axis:Object.freeze(axis),soleKneeAlignment,
+  sourceTrackAlignment:trackAlignment,fullSoleSpanMeters:length,
+  horizontalSpanMeters:horizontal,contactLocked:false
+ });
+}
+
 export function planOriginalSourceDeepSwingFootFollowups({
  mode='idle',sourceClipName='',sourceWeight=NaN,
  sourceInstanceSame=false,sourceInstanceId='',
@@ -1604,7 +1691,7 @@ export function chooseOriginalSourceSwingLinkedFootFinisher({
  mode='idle',sourceClipName='',sourceWeight=NaN,
  sourceInstanceSame=false,sourceInstanceId='',sourceFootChainVerified=false,
  sourceFootTrackVerified=false,sourceBindDorsiflexionVerified=false,
- sourceWeightedOutsoleHingeVerified=false,
+ sourceWeightedOutsoleHingeVerified=false,sourceKneeChainAxisVerified=false,
  ownerLocomotion=false,alive=false,visible=false,
  teleport=false,reducedMotion=false,interrupted=false,
  rootTravel=NaN,frameAge=NaN,frameInterval=NaN,
@@ -1654,7 +1741,8 @@ export function chooseOriginalSourceSwingLinkedFootFinisher({
    axisKind=trial?.axisKind??'original-clip-track',
    shoe=after?.[side],other=after?.[opposite];
   if(!['original-clip-track','original-bind-dorsiflexion',
-     'original-weighted-outsole-swing'].includes(axisKind)||
+     'original-weighted-outsole-swing','original-knee-chain-swing'].includes(axisKind)||
+   (axisKind==='original-knee-chain-swing'&&sourceKneeChainAxisVerified!==true)||
    (axisKind==='original-bind-dorsiflexion'&&sourceBindDorsiflexionVerified!==true)||
    (axisKind==='original-weighted-outsole-swing'&&
     sourceWeightedOutsoleHingeVerified!==true))continue;

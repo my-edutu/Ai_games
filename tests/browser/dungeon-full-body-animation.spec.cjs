@@ -1358,7 +1358,7 @@ for(const view of [
    expect(proof.sourceAxis).toHaveLength(3);
    expect(proof.sourceAxis.every(Number.isFinite)).toBe(true);
    expect(['original-clip-track','original-bind-dorsiflexion',
-    'original-weighted-outsole-swing']).toContain(proof.sourceAxisKind);
+    'original-weighted-outsole-swing','original-knee-chain-swing']).toContain(proof.sourceAxisKind);
    if(proof.sourceAxisKind==='original-bind-dorsiflexion'){
     expect(proof.sourceBindTransverseAudit?.source)
      .toBe('original-skeleton-inverse-bind-foot-dorsiflexion');
@@ -1373,11 +1373,26 @@ for(const view of [
      .toBe('source-weighted-outsole-world-to-original-foot-local');
     expect(measured?.contactLocked).toBe(false);
     expect(measured?.axis).toHaveLength(3);
-    expect(measured?.horizontalSpanMeters).toBeGreaterThanOrEqual(.055);
+    expect(measured?.horizontalSpanMeters).toBeGreaterThanOrEqual(.05);
+    if(measured?.horizontalSpanMeters<.055){
+     expect(measured?.steepSourceProjectionVerified).toBe(true);
+     expect(measured?.fullSoleSpanMeters).toBeGreaterThanOrEqual(.295);
+    }
     expect(measured?.fullSoleSpanMeters).toBeGreaterThanOrEqual(.24);
     for(let axis=0;axis<3;axis++)expect(proof.sourceAxis[axis])
      .toBeCloseTo(measured.axis[axis],6);
     expect(proof.sourceBindTransverseAudit).toBeNull();
+   }
+   if(proof.sourceAxisKind==='original-knee-chain-swing'){
+    const knee=proof.sourceKneeChainAudit;
+    expect(knee?.source).toBe('licensed-original-knee-plane-foot-local');
+    expect(knee?.contactLocked).toBe(false);
+    expect(knee?.soleKneeAlignment).toBeLessThanOrEqual(.400001);
+    expect(knee?.sourceTrackAlignment).toBeLessThanOrEqual(.920001);
+    expect(knee?.fullSoleSpanMeters).toBeGreaterThanOrEqual(.24);
+    expect(knee?.axis).toHaveLength(3);
+    for(let component=0;component<3;component++)
+     expect(proof.sourceAxis[component]).toBeCloseTo(knee.axis[component],6);
    }
    // Stronger source ankle is legal only with an authentic long frame,
    // matching licensed hip+knee, exact same clone and both skinned soles.
