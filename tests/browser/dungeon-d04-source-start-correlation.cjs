@@ -113,6 +113,10 @@ function auditD04ImpactFramePhases({receipts=[]}={}){
    emission=r.visualEmissionMs,after=r.afterVisualAdvanceToSubmissionMs,
    render=r.renderSubmissionMs;
   const phaseVerified=timingVerified&&
+   // A delivered HP receipt without an independently witnessed drawable
+   // effect cannot be called a visually admitted impact, even if CPU clocks
+   // happen to reconcile. It remains unverified rather than a faux pass.
+   !(r.decision==='delivered'&&r.visualDrawableAtSubmission!==true)&&
    [before,retained,emission,after,render].every(number)&&
    within(before+retained+emission+after,age,3)&&
    render<=after+2;
