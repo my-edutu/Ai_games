@@ -103,14 +103,14 @@ test('observed tick-535 first real f9:p2 standing height BELOW the old 160000 ce
 });
 
 test('the real cleared first raised deck completes the old-to-new material handoff before the 70-tick source expiry, never without GPU returns',async()=>{
-  const {observedSourcePhysicalArrivalPalette:palette,
+  const {observedSourcePhysicalArrivalPalette:paletteFn,
     observedSourceGatewayDeparturePresence:departure}=await palette;
   const {source,held}=crossing();
   // Exact source-supported f9:p2: feet 17.8m over the original roof,
   // horizontal progress is small. The former 90m Euclidean rule could not
   // finish before the original GPU gateway's bounded retirement.
   held.submittedFrames=4;held.visibleSeconds=.8;
-  const earned=palette(source,held);
+  const earned=paletteFn(source,held);
   assert.equal(earned.sourceBound,true);
   assert.ok(earned.horizontalProgress<1);
   assert.equal(earned.verticalProgress,1);
@@ -120,9 +120,9 @@ test('the real cleared first raised deck completes the old-to-new material hando
   assert.equal(departure(source,held).opacity,0);
   // No successful WebGL return: the actual old arch remains fully intact.
   held.submittedFrames=0;held.visibleSeconds=0;
-  assert.equal(palette(source,held).progress,0);
+  assert.equal(paletteFn(source,held).progress,0);
   assert.equal(departure(source,held).opacity,1);
   // A forged or absent elevated collision contact cannot trigger the handoff.
   source.player.groundedPlatformId='f9:phantom';
-  assert.equal(palette(source,held),null);
+  assert.equal(paletteFn(source,held),null);
 });
