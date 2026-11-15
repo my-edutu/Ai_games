@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-15T09:06:53.399Z",
+  "updatedAt": "2026-11-15T10:22:48.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass390: authentic Pass388 WebGL candidate rejected on full-frame critique (37/37 PNG hashes, 3/3 gate hashes each baseline/candidate). Exact tested guardian world.js restored and only its orphaned 73-line candidate-specific test removed to keep rollback source/strict tests aligned. Fresh exact-HEAD Maze and whole CI pending; Nintendo reference bar unmet, draft unmerged/undeployed."
+    "summary": "Pass391: event-driven 3D Thornback signal-heart lighting candidate committed after exact-head baseline Maze WebGL SUCCESS. Current source light is tied to real public guardian brace/release, with safe neutral/hidden/terminal/reduced-motion behavior; original new native all-viewport WebGL captures and independent critic are PENDING. Nintendo quality benchmark unmet; never merge or deploy."
   },
   "captures": [
     {
