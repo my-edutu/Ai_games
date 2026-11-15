@@ -1184,3 +1184,46 @@ test('D04 real controller enables strict HP VFX admission while isolated visual 
  assert.match(controller,/requireVerifiedHpReceipt:true/,
   'the real preview cannot use the permissive isolated VFX test adapter');
 });
+
+
+test('D04 only marks occupied GPU instance matrix rows for upload, not the whole reserved hit pool',async()=>{
+ const {createPhysicalFeedbackVisuals,PHYSICAL_FEEDBACK_POOL_LIMITS}=await load('physical-feedback-visuals.js');
+ const {T,scene,created}=three();
+ const Base=T.InstancedMesh;
+ T.InstancedMesh=class extends Base{
+  constructor(...args){
+   super(...args);
+   const ranges=[];
+   this.instanceMatrix.addUpdateRange=(start,count)=>ranges.push({start,count});
+   this.instanceMatrix.clearUpdateRanges=()=>{ranges.length=0};
+   this.instanceMatrix.updateRanges=ranges;
+  }
+ };
+ const stage=createPhysicalFeedbackVisuals(T,scene);
+ const hit=created.meshes[1];
+ try{
+  assert.equal(hit.count,0,'all effect pools start without GPU draw submissions');
+  assert.deepEqual(hit.instanceMatrix.updateRanges,[],
+   'one-time buffer initialization remains a normal full upload');
+  assert.equal(stage.emit(cue()),true);
+  const allocated=stage.stats().instancesByPool.hit;
+  assert.ok(allocated>=4&&allocated<=6);
+  assert.equal(hit.count,allocated);
+  assert.deepEqual(hit.instanceMatrix.updateRanges,
+   Array.from({length:allocated},(_,i)=>({start:i*16,count:16})),
+   'only emitted injury matrices, each 16 floats, are invalidated for GPU upload');
+  assert.ok(allocated*16*4<PHYSICAL_FEEDBACK_POOL_LIMITS.hit*16*4,
+   'five visible fragments must not invalidate all 48 reserved hit matrices');
+  // Simulate Three's completed WebGL upload, which clears attribute ranges.
+  hit.instanceMatrix.clearUpdateRanges();
+  stage.advance(.016,.72);
+  assert.equal(hit.count,0,'a real stalled frame must still retire expired injury art');
+  assert.deepEqual(hit.instanceMatrix.updateRanges,
+   Array.from({length:allocated},(_,i)=>({start:i*16,count:16})),
+   'retirement uploads only the matrices it actually hides, never stale full-pool data');
+  assert.equal(stage.stats().activeDrawCalls,0);
+  stage.reset();
+  assert.equal(hit.count,0);
+  assert.ok(stage.stats().reservedInstances<=104);
+ }finally{stage.dispose()}
+});
