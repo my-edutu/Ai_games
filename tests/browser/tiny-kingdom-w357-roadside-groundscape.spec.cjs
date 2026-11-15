@@ -54,12 +54,15 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   await page.waitForFunction(()=>window.__tinyKingdom?.renderStats()?.lastFrameTriangles>90000,null,{timeout:110000});
   const observed=await page.evaluate(()=>{
    const g=window.__tinyKingdom,original=JSON.stringify(g.exportSnapshot());
-   const streets=g.getRealHomeLaneNetworkAudit(),mesh=g.getGeometryAudit();
-   return {streets,triangles:mesh.totalTriangles,
+   const streets=g.getRealHomeLaneNetworkAudit(),mesh=g.getGeometryAudit(),marketCamera=g.getMarketTransitionCameraAudit();
+   return {streets,marketCamera,triangles:mesh.totalTriangles,
     unchanged:JSON.stringify(g.exportSnapshot())===original,
     gl:document.querySelector('#world').getContext('webgl')?.getError(),
     overflow:document.documentElement.scrollWidth-innerWidth};
   });
+  expect(observed.marketCamera.maxSurveysPerFrame).toBe(2);
+  expect(observed.marketCamera.authorityModified).toBe(false);
+  expect(observed.marketCamera.actorsHidden).toBe(0);
   expect(observed.streets.shoulderTriangles).toBeGreaterThanOrEqual(0);
   expect(observed.streets.shoulderTriangles).toBe(observed.streets.shoulderSections*2);
   expect(observed.streets.shoulderTriangles).toBeLessThanOrEqual(840);
@@ -73,3 +76,41 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   await page.screenshot({path:'artifacts/tiny-kingdom-w357/real-lived-roadside-'+viewport.width+'.png'});
  });
 }
+
+test('W359 REAL credited-market camera repairs only a blocked transitional eye to a separately certified physical lens',()=>{
+ const from=HTML.indexOf('const MARKET_WITNESS_MAX_SURVEYS_PER_FRAME=2;');
+ const to=HTML.indexOf('function marketReceiptLensKey(id){',from);
+ expect(from).toBeGreaterThan(-1);
+ expect(to).toBeGreaterThan(from);
+ const ctx={
+  physicalFollowEyeClearance:eye=>({clear:eye[0]!==-9}),
+  followRayBlockers:eye=>eye[0]===-8?1:0,
+  marketCourierPostSightline:eye=>({centerCover:eye[0]===-5?.45:.01}),
+  foregroundVegetationProjection:eye=>({
+   faceBlockers:eye[0]===-4?1:0,cover:eye[0]===-3?.49:.01}),
+  foregroundSceneProjection:eye=>({
+   cover:eye[0]===-7?.72:.01,cargoCover:eye[0]===-6?.51:.01})
+ };
+ vm.runInNewContext(HTML.slice(from,to),ctx);
+ const realLens={aim:[0,1,11],eye:[0,3,5]};
+ const kept=ctx.planPhysicalMarketWitnessRepair([0,3,5],realLens,[]);
+ expect(kept.repair).toBe(false);expect(kept.probes).toBe(1);
+ for(const x of [-9,-8,-7,-6,-5,-4,-3]){
+  const recovery=ctx.planPhysicalMarketWitnessRepair([x,3,5],realLens,[]);
+  expect(recovery.repair).toBe(true);
+  expect(recovery.current.clear).toBe(false);
+  expect(recovery.goal.clear).toBe(true);
+  expect(recovery.probes).toBe(2);
+ }
+ // A goal now physically blocked by genuine changing scenery MUST NOT
+ // be certified or cause a snap through an inhabited solid roof.
+ const invalidGoal={...realLens,eye:[-9,3,5]};
+ const fallback=ctx.planPhysicalMarketWitnessRepair([-7,3,5],invalidGoal,[]);
+ expect(fallback.repair).toBe(false);
+ expect(fallback.goal.clear).toBe(false);
+ const audit=ctx.getMarketTransitionCameraAudit();
+ expect(audit.maxSurveysPerFrame).toBe(2);
+ expect(audit.worldGeometryRemoved).toBe(false);
+ expect(audit.authorityModified).toBe(false);
+ expect(audit.actorsHidden).toBe(0);
+});
