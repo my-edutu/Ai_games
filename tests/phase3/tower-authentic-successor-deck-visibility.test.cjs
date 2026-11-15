@@ -46,10 +46,16 @@ test('real platform depth triangles block a genuine full-body line of sight; ext
     assert.equal(blocked.active,true);
     assert.ok(blocked.bodyBlockedRays>0,'foreground geometry actually crosses body');
     assert.equal(blocked.rays,9,'seven true source-width body rays and two original gateway rays');
-    const clear=sample(f,[5,3,6],[0,2,0]);
+    const partial=sample(f,[5,3,6],[0,2,0]);
+    assert.equal(partial.active,true);
+    assert.ok(partial.bodyBlockedRays>0,
+      'a modest camera shoulder move still physically hides two body rays: never certify clear');
+    assert.ok(partial.score<blocked.score,'real offset still gives an honest partial improvement');
+    const clear=sample(f,[10,3,6],[0,2,0]);
     assert.equal(clear.active,true);
-    assert.equal(clear.bodyBlockedRays,0,'real shifted shoulder clears old deck, no x-ray');
-    assert.ok(clear.score<blocked.score);
+    assert.equal(clear.bodyBlockedRays,0,
+      'measurably exterior camera fully clears the actual box triangles, never x-rays the character');
+    assert.ok(clear.score<partial.score);
     assert.equal(JSON.stringify([f.source,f.held]),before);
   }finally{f.geometry.dispose();f.material.dispose();}
 });

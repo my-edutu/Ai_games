@@ -343,3 +343,67 @@ test('earned original gateway has an unobstructed skinned-body aperture while pr
   } finally {clean(baseline,nullScene());clean(cleared,old);}
   function nullScene(){return {traverse(){}};}
 });
+
+test('original source gallery forms a continuous three-dimensional earned doorway and raised-landing clearance without deleting bronze flanks',async()=>{
+  const [THREE,world]=await loaded;
+  const old=new THREE.Group();
+  function sourceBearing(radius,tangent,rise,h=3){
+    const mesh=new THREE.Mesh(new THREE.BoxGeometry(1.4,h,1.4),
+      new THREE.MeshStandardMaterial({color:0x937a55,roughness:.76}));
+    mesh.name='existing-original-clockwork-bearing';
+    mesh.userData.structural=true;
+    mesh.position.set(Math.sin(at)*radius+Math.cos(at)*tangent,
+      roof+rise,Math.cos(at)*radius-Math.sin(at)*tangent);
+    old.add(mesh);return mesh;
+  }
+  // Both obstructions are ORIGINAL bronze source faces: one at the
+  // *exterior next-floor* shoulder, the other above the real raised deck.
+  // They were outside the original threshold-only negative space.
+  const landingPost=sourceBearing(41,8,6,8);
+  const overhead=sourceBearing(29,0,19,3);
+  const flank=sourceBearing(25,14,5,8);
+  let uncut=null,cut=null;
+  function nativeRayHits(gallery,radius,tangent,rise){
+    if(!gallery)return 0;
+    gallery.root.updateMatrixWorld(true,true);
+    const origin=new THREE.Vector3(
+      Math.sin(at)*radius+Math.cos(at)*tangent,roof+rise,
+      Math.cos(at)*radius-Math.sin(at)*tangent);
+    const inward=new THREE.Vector3(-Math.sin(at),0,-Math.cos(at));
+    return new THREE.Raycaster(origin,inward,0,40)
+      .intersectObjects(gallery.root.children,false).length;
+  }
+  try{
+    uncut=world.extractOriginalClockworkThresholdGallery(THREE,old,
+      EXIT_X,ROOF_Y,BASE_Y,WIDTH,{
+        maxFaces:256,maxBatches:5,includeOriginalFlanks:true});
+    cut=world.extractOriginalClockworkThresholdGallery(THREE,old,
+      EXIT_X,ROOF_Y,BASE_Y,WIDTH,{
+        maxFaces:256,maxBatches:5,includeOriginalFlanks:true,clearPhysicalExit:true});
+    assert.ok(uncut && cut,'the real old authored gallery remains after portal-to-landing subtraction');
+    assert.ok(nativeRayHits(uncut,53,8,6)>0,
+      'real first landing-approach bronze post previously blocked the successor');
+    assert.equal(nativeRayHits(cut,53,8,6),0,
+      'the old foreground post must be physically absent from the *historic copy*');
+    assert.ok(nativeRayHits(uncut,42,0,19)>0,
+      'real overhead bearing originally obscured the first raised-platform camera');
+    assert.equal(nativeRayHits(cut,42,0,19),0,
+      'actual 12.6m source-raised headroom now has a physical aperture');
+    assert.ok(nativeRayHits(cut,53,14,5)>0,
+      'the non-colliding flanking Clockwork load path remains visible and connected');
+    assert.equal(landingPost.parent,old);
+    assert.equal(overhead.parent,old);
+    assert.equal(flank.parent,old);
+    assert.ok(cut.faces>0 && cut.faces<=256);
+    assert.ok(cut.root.children.length<=5);
+    assert.equal(cut.bytes,cut.faces*96,
+      'original face/vertex memory cap, never a new world mesh budget');
+    for(const m of cut.root.children){
+      for(const name of ['position','normal','uv'])
+        assert.ok(m.geometry.getAttribute(name),'source surface attributes must survive clipping');
+    }
+  }finally{
+    if(uncut)for(const m of uncut.root.children){m.geometry.dispose();m.material.dispose();}
+    clean(cut,old);
+  }
+});

@@ -105,13 +105,46 @@ export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresh
   // removing entire material batches destroys the monumental side gallery.
   // Exact source-face edges, UVs and normals survive on the exterior.
   // This is one-time floor-transition geometry, never a per-frame operation.
-  const physicalExitPlanes=[
-    v=>radialOf(v)-22,
-    v=>33-radialOf(v),
-    v=>tangentOf(v)+6,
-    v=>12-tangentOf(v),
-    v=>v.y-(roof-1.5),
-    v=>roof+11-v.y
+  // One ORIGINAL source-only 3D passage from the gateway sill to the
+  // visible successor landing/raised-deck approach. The old single narrow
+  // box cleared the threshold but left a real foreground steel post and
+  // overhead bearing across the next two camera/actor positions. A raycast
+  // can make those historic meshes translucent, but it cannot restore the
+  // missing physical negative space or make the old/new floors a coherent
+  // room in the native portrait footage.
+  //
+  // Subtract a connected *union* of bounded volumes from extracted historic
+  // non-colliding triangles only. Volume 1 is the original gate; volume 2
+  // follows its exterior true-F9 landing approach; volume 3 frees the
+  // authentic 12.6m raised-deck headroom. Their intersections overlap, so
+  // no isolated decorative holes, mirrored portal or invented bridge.
+  // Source gate, old cap, ALL walkable platforms, guardian/crusher, collisions,
+  // skinned hero, adjacent bronze flanks and authoritative state are untouched.
+  const physicalExitVolumes=[
+    [
+      v=>radialOf(v)-22,
+      v=>33-radialOf(v),
+      v=>tangentOf(v)+6,
+      v=>12-tangentOf(v),
+      v=>v.y-(roof-1.5),
+      v=>roof+11-v.y
+    ],
+    [
+      v=>radialOf(v)-31,
+      v=>50-radialOf(v),
+      v=>tangentOf(v)+5,
+      v=>15-tangentOf(v),
+      v=>v.y-(roof-2),
+      v=>roof+17-v.y
+    ],
+    [
+      v=>radialOf(v)-26,
+      v=>37-radialOf(v),
+      v=>tangentOf(v)+5,
+      v=>13-tangentOf(v),
+      v=>v.y-(roof+9),
+      v=>roof+26-v.y
+    ]
   ];
   function clipHalfPolygon(polygon,plane,inside) {
     const out=[];
@@ -140,23 +173,33 @@ export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresh
   }
   function keepOnlyOriginalExterior(triangles) {
     if(!clearPhysicalExit)return triangles;
-    const survivors=[];
-    for(const triangle of triangles){
-      // The clearance is the intersection of six physical planes. The
-      // first plane a source fragment escapes through owns it exactly once.
-      let inside=[triangle];
-      for(const plane of physicalExitPlanes){
-        const remaining=[];
-        for(const polygon of inside){
-          survivors.push(...triangulateOriginal(clipHalfPolygon(polygon,plane,false)));
-          const still=clipHalfPolygon(polygon,plane,true);
-          if(still.length>=3)remaining.push(still);
+    let exterior=triangles;
+    // Subtract each physical volume in order; the next subtracts ONLY from
+    // survivors of the previous volume. Original source UV/normal clipping
+    // remains exact, with no duplicated overlap faces, added proxy parts or
+    // per-frame boolean operations. GPU/source triangle budgets still veto
+    // excessive geometry after this one transition-time extraction.
+    for(const volume of physicalExitVolumes){
+      const survivors=[];
+      for(const triangle of exterior){
+        // The first plane a real source fragment exits owns it once.
+        let inside=[triangle];
+        for(const plane of volume){
+          const remaining=[];
+          for(const polygon of inside){
+            survivors.push(...triangulateOriginal(
+              clipHalfPolygon(polygon,plane,false)));
+            const still=clipHalfPolygon(polygon,plane,true);
+            if(still.length>=3)remaining.push(still);
+          }
+          inside=remaining;
+          if(!inside.length)break;
         }
-        inside=remaining;
-        if(!inside.length)break;
       }
+      exterior=survivors;
+      if(!exterior.length)break;
     }
-    return survivors;
+    return exterior;
   }
   function clipOriginalTriangle(vertices){
     let polygon=vertices;

@@ -51,20 +51,25 @@ export function sourceDoorwayFrameSteps(dt, aspect) {
 // escalating only when current source-owned triangles really block the body
 // or original gate. The camera owner still requires safe projection, solid-
 // core clearance and a strictly improved genuine ray result for every move.
+// The final two shoulder candidates are wider but still strictly bounded;
+// the real source-body and gateway ray budget must demonstrate improvement,
+// while the composed camera enforces hard crop/core veto. This avoids
+// repeatedly approving a 5m cosmetic shift that still leaves two skinned
+// shoulder rays covered by the successor platform.
 // Returned offsets are meters/radians applied to the PRESENT camera, not
 // a predicted player trajectory, synthetic scene or replayed frame.
 const DESKTOP_SOURCE_CLEARANCE = Object.freeze([
   Object.freeze([-.045,1.6,1.8]),Object.freeze([.045,1.6,1.8]),
   Object.freeze([-.105,2.8,2.8]),Object.freeze([.105,2.8,2.8]),
   Object.freeze([0,3.6,3.8]),
-  Object.freeze([-.17,3.5,4.2]),Object.freeze([.17,3.5,4.2]),
+  Object.freeze([-.24,3.8,6.2]),Object.freeze([.24,3.8,6.2]),
   Object.freeze([0,-1.9,3.8])
 ]);
 const PORTRAIT_SOURCE_CLEARANCE = Object.freeze([
   Object.freeze([-.06,1.8,2.2]),Object.freeze([.06,1.8,2.2]),
   Object.freeze([-.115,3.2,3.2]),Object.freeze([.115,3.2,3.2]),
   Object.freeze([0,4.0,4.0]),
-  Object.freeze([-.19,3.7,4.3]),Object.freeze([.19,3.7,4.3]),
+  Object.freeze([-.245,4.0,6.5]),Object.freeze([.245,4.0,6.5]),
   Object.freeze([0,-1.7,4.0])
 ]);
 export function sourceDeckGatewayClearanceCandidates(aspect, actualDeckRays) {

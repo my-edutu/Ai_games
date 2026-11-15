@@ -68,7 +68,7 @@ test('camera search escalates in 3D and only for observed source-blocking body o
     assert.ok(candidates.some(([yaw,y,r])=>Math.abs(yaw)>.10 && y>2.5 && r>3),
       'a nearly frontal 2-degree camera nudge is insufficient around true structural posts');
     assert.ok(candidates.every(([yaw,y,r])=>
-      Math.abs(yaw)<=.2 && Math.abs(y)<=4.1 && r<=4.4),
+      Math.abs(yaw)<=.25 && Math.abs(y)<=4.1 && r<=6.6),
       'do not make an unbounded cinematic teleport');
     assert.ok(Object.isFrozen(candidates));
   }
