@@ -149,4 +149,93 @@ function classifyD04LiveAuthorityPair({manifest,off,on}={}){
   'MATCHED_LIVE_AUTHORITY_DIAGNOSTIC_ONLY':'INSUFFICIENT_MATCHED_LIVE_DAMAGE';
  return result;
 }
-module.exports={SOURCE,classifyD04LiveAuthorityPair};
+
+/**
+ * Six serial, genuine D04 spectator viewpoints are evidence ONLY when the
+ * unchanged public runtime state is witnessed on each real WebGL arm.
+ * Every arm uses the existing UI camera toggle; this code NEVER moves the
+ * camera, makes an attack, edits authoritative state or decodes sound.
+ *
+ * Recorded WebM bytes do not demonstrate moving *combat*, or align pixels
+ * with original PCM. The only positive claim is that six correctly sourced
+ * capture streams were recorded under the same immutable authority corpus.
+ */
+const D04_MULTIVIEW_MODES=Object.freeze(['cinematic','tactical','chase']);
+const D04_MULTIVIEW_SIZES=Object.freeze(['1440x900','390x844']);
+function classifyD04RealMultiview({seed,manifest,runs}={}){
+ const result={source:SOURCE,status:'INVALID_REAL_AUTHORITY',
+  requestedViews:6,observedViews:0,capturedRecorders:0,missingViews:[],
+  matchedAuthorityTicks:0,matchedHpLossTicks:0,
+  viewpointFrames:[],budgetViolations:[],sampleSynchronized:false,
+  cameraMovingVideoVerified:false,impactAVAccepted:false,
+  causation:null,
+  limitation:'Serial, genuine WebGL snapshots and original consented soundstage WebM, not decoded three-viewpoint moving combat, PCM onset or clock-aligned A/V.'};
+ if(!validManifest(manifest)||typeof seed!=='string'||seed.length<1||
+  !Array.isArray(runs))return result;
+ const expected=D04_MULTIVIEW_SIZES.flatMap(size=>
+  D04_MULTIVIEW_MODES.map(viewpoint=>size+'/'+viewpoint));
+ const known=new Set(manifest.map(m=>key(m.scene)));
+ const byView=new Map();
+ for(const arm of runs){
+  const size=arm?.viewport?.width+'x'+arm?.viewport?.height;
+  const view=size+'/'+arm?.viewpoint;
+  if(!expected.includes(view)||byView.has(view))
+   return {...result,status:'INVALID_VIEWPOINT_PROVENANCE'};
+  byView.set(view,arm);
+ }
+ result.missingViews=expected.filter(view=>!byView.has(view));
+ if(result.missingViews.length||byView.size!==6)
+  return {...result,status:'INCOMPLETE_VIEWPOINT_CAPTURE'};
+ const scans=[];
+ for(const view of expected){
+  const arm=byView.get(view);
+  if(arm.seed!==seed||arm.capture!=='on'||arm.feedbackMode!=='d04'||
+   !Array.isArray(arm.errors)||arm.errors.length||
+   arm.start?.status!=='STARTED'||!pos(arm.start.originalAudioTracks)||
+   !Array.isArray(arm.samples)||!arm.samples.length)
+   return {...result,status:'INVALID_VIEWPOINT_PROVENANCE'};
+  const [size,viewpoint]=view.split('/');
+  let previousFrame=-1,previousMs=-1;
+  for(const s of arm.samples){
+   if(!validSample(s,'on')||s.seed!==seed||
+    s.feedbackMode!=='d04'||s.d04PreviewEnabled!==true||
+    s.previewAudioOptedIn!==true||s.camera!==viewpoint||
+    s.viewport.width+'x'+s.viewport.height!==size||
+    !known.has(key(s.scene))||s.frameId<=previousFrame||
+    s.elapsedMs<=previousMs)
+    return {...result,status:'INVALID_VIEWPOINT_PROVENANCE'};
+   previousFrame=s.frameId;previousMs=s.elapsedMs;
+   if(s.vfxDrawCalls>7||s.vfxReservedInstances>104||
+    s.activeVfxDrawCalls>7||s.activeVfxInstances>104){
+    result.budgetViolations.push({view,frameId:s.frameId,
+     drawCalls:s.vfxDrawCalls,reservedInstances:s.vfxReservedInstances,
+     activeDrawCalls:s.activeVfxDrawCalls,activeInstances:s.activeVfxInstances});
+   }
+  }
+  const scan=scanArm(arm,'on',manifest);
+  if(scan.frames.length!==arm.samples.length)
+   return {...result,status:'INVALID_VIEWPOINT_PROVENANCE'};
+  scans.push(scan);
+  const recorded=validRecorder('on',arm.recorder)&&
+   pos(arm.recorder.requestedFrames);
+  if(recorded)result.capturedRecorders++;
+  result.viewpointFrames.push({view,observedFrameSamples:scan.frames.length,
+   observedAuthorityStates:scan.byKey.size,originalAVRecorded:recorded,
+   requestedSubmissionFrames:arm.recorder?.requestedFrames??null,
+   encodedBytes:recorded?arm.recorder.bytes:null,
+   sampledWorstRenderMs:stats(scan.frames.map(x=>x.directRenderMs))?.worstMs??null});
+ }
+ result.observedViews=6;
+ // This is ONLY an exact (run,floor,tick,checksum) intersection of serial
+ // recordings, not the same presented frame or an audio-aligned contact.
+ const matches=manifest.filter(m=>scans.every(s=>s.byKey.has(key(m.scene))));
+ result.matchedAuthorityTicks=matches.length;
+ result.matchedHpLossTicks=matches.filter(m=>m.victimIds.length).length;
+ result.status=result.budgetViolations.length?'LIVE_EFFECT_BUDGET_VIOLATION':
+  result.capturedRecorders<6?'INCOMPLETE_VIEWPOINT_CAPTURE':
+  result.matchedAuthorityTicks<1||result.matchedHpLossTicks<1?
+   'SPARSE_VIEWPOINT_COVERAGE':'SIX_VIEWPOINT_CAPTURED_UNALIGNED';
+ return result;
+}
+module.exports={SOURCE,classifyD04LiveAuthorityPair,classifyD04RealMultiview};
+
