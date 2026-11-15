@@ -967,3 +967,38 @@ test('actual cold first Floor9 desktop receipt inherits ORIGINAL GPU gate, cap a
     assert.equal(JSON.stringify([first,second]),unchanged);
   }finally{world.dispose();}
 });
+
+
+// Source-authentic 2026-11-15 candidate portrait: first actual F9 WebGL
+// floor render occurred at tick489 after final browser F8 receipt tick474;
+// lastGuardianCrossing was NO LONGER published at this late first paint.
+// This is the exact real-world contract that prevented the source-extracted
+// old bronze gate from ever sharing a drawn frame with the floor-nine roof.
+test('cold 15-tick source-observed F8-to-F9 first paint retains original real Three cap, grille and gallery without phantom crossing',async()=>{
+ const [{createTowerWorld},{observedGroundedGuardianHandoff}]=await loaded;
+ const first=old(),second=next();
+ first.tick=474;first.player.x=314796;
+ second.tick=489;second.player.x=330096;
+ assert.equal(second.lastGuardianCrossing,undefined);
+ assert.equal(observedGroundedGuardianHandoff(first,second),true);
+ const saved=JSON.stringify([first,second]),world=createTowerWorld();
+ try{
+  world.update(first,.05,0,{quality:'low'});
+  world.noteFrameSubmitted(first,{quality:'low'},.05);
+  assert.equal(world.stageGroundedCapContinuation(first,second),true);
+  world.update(second,.05,.05,{quality:'low'});
+  const evidence=world.diagnostics();
+  assert.ok(evidence.retainedSourceCap,'original cap must exist at first genuine F9 paint');
+  assert.ok(world.group.getObjectByName('ObservedGroundedCapGatewayContinuity'));
+  assert.ok(world.group.getObjectByName('OriginalSourceClockworkThresholdGallery'));
+  assert.ok(world.group.getObjectByName('SourceEarnedClockworkVoidBearingGallery'));
+  assert.equal(evidence.retainedSourceCap.verifiedObservedFloorAdvance,true,
+   'the browser observation must not masquerade as an immutable source event');
+  assert.equal(evidence.retainedSourceCap.crossingTick,null,
+   'no fabricated published lastGuardianCrossing after its actual expiry');
+  world.noteFrameSubmitted(second,{quality:'low'},.05);
+  assert.ok(world.diagnostics().retainedSourceCap,
+   'one actual returned F9 WebGL frame does not delete genuine source-owned arch');
+ }finally{world.dispose();}
+ assert.equal(JSON.stringify([first,second]),saved);
+});
