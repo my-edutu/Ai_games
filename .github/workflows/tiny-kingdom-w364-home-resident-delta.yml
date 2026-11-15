@@ -1,0 +1,27 @@
+name: Tiny Kingdom W364 Original Home GPU Resident Growth
+on:
+  push:
+    branches: [feat/tiny-kingdom-post-main-gauntlet-20261031]
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w364-home-resident-delta-contract.cjs'
+      - '.github/workflows/tiny-kingdom-w364-home-resident-delta.yml'
+  workflow_dispatch:
+jobs:
+  home-delta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify genuine production home GPU delta and conservative fallback
+        run: node scripts/tiny-kingdom-w364-home-resident-delta-contract.cjs
+      - name: Parse the production inline game JavaScript
+        run: node - <<'NODE'
+          const fs=require('node:fs');
+          const vm=require('node:vm');
+          const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
+          const script=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].at(-1)?.[1];
+          if(!script)throw Error('Missing original game script');
+          new vm.Script(script);
+          console.log('W364 original playable JavaScript parses');
+          NODE
