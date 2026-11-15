@@ -23,13 +23,14 @@ const people=[{name:'Cora',home:0},{name:'Bram',home:1},{name:'Elin',home:2}];
 const data=[];
 const init=new Function('city','people','data','MARKET_HOME_STREET_ORIGIN',
  'marketHomeStreetStats','citizenHomeIndex','citizenHomeDestination',
- 'walkable','routeBetween','rgb','MATERIAL','materialScope',
+ 'walkable','clearSegment','routeBetween','rgb','MATERIAL','materialScope',
  'upwardRoadQuad','terrain',
  actual+'return {build:renderRealInhabitedLaneNetwork,'+
  'audit:getRealHomeLaneNetworkAudit};');
 const render=init(city,people,data,[0,0],{homeIndex:0},
  p=>p.home,p=>[city[p.home][0],city[p.home][1]],
  (x,z)=>Number.isFinite(x)&&Number.isFinite(z)&&Math.abs(x)<40&&Math.abs(z)<40,
+ (x,z,tx,tz)=>true, // actual source calls straight-line blocker check; unobstructed fixture
  (x,z,tx,tz)=>{routes++;return [[tx,tz]];},
  color=>color,{ROAD:4,STONE:5},(_,fn)=>fn(),
  (...args)=>{assert.equal(args.length,5);draws++;drawTriangles+=2;
