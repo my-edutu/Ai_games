@@ -1254,10 +1254,54 @@ export function chooseOriginalSourceSwingToeJointRelief({
  * this receipt is not proof of contact or fluid footage. The original
  * supporting shoe cannot move to disguise a lifted swing toe.
  */
+/**
+ * Original FOOT-joint transverse dorsiflexion axis derived strictly from
+ * licensed inverse-bind foot -> toes, NOT guessed from a longitudinal
+ * Walking_A quaternion track. This only authorizes a reversible probe.
+ * World-space skinned heel/toe on BOTH shoes must still pass final validation.
+ */
+export function planOriginalSourceFootDorsiflexionAxis({
+ footToToeLocal=null,bindUpLocal=null,sourceTrackAxis=null,source=''
+}={}){
+ if(source!=='original-skeleton-inverse-bind')return null;
+ const valid=a=>Array.isArray(a)&&a.length===3&&a.every(finite);
+ if(!valid(footToToeLocal)||!valid(bindUpLocal)||!valid(sourceTrackAxis))
+  return null;
+ const norm=a=>Math.hypot(...a);
+ const length=norm(footToToeLocal),upLength=norm(bindUpLocal),
+  trackLength=norm(sourceTrackAxis);
+ if(length<.035||length>.45||upLength<.9||upLength>1.1||
+  trackLength<.9||trackLength>1.1)return null;
+ const up=bindUpLocal.map(x=>x/upLength);
+ const vertical=footToToeLocal.reduce((t,x,i)=>t+x*up[i],0);
+ const projected=footToToeLocal.map((x,i)=>x-vertical*up[i]);
+ const forwardLength=norm(projected);
+ if(forwardLength<.035||Math.abs(vertical)>Math.min(.08,length*.35))
+  return null;
+ const forward=projected.map(x=>x/forwardLength);
+ const cross=[
+  up[1]*forward[2]-up[2]*forward[1],
+  up[2]*forward[0]-up[0]*forward[2],
+  up[0]*forward[1]-up[1]*forward[0]
+ ];
+ const hingeLength=norm(cross);
+ if(hingeLength<.99||hingeLength>1.01)return null;
+ const axis=cross.map(x=>x/hingeLength);
+ const track=sourceTrackAxis.map(x=>x/trackLength);
+ const trackAlignment=Math.abs(axis.reduce((t,x,i)=>t+x*track[i],0));
+ if(trackAlignment>.8)return null;
+ return Object.freeze({
+  source:'original-skeleton-inverse-bind-foot-dorsiflexion',
+  axis:Object.freeze(axis),toeSeparationMeters:length,
+  sourceTrackAlignment:trackAlignment,contactLocked:false
+ });
+}
+
 export function chooseOriginalSourceSwingLinkedFootFinisher({
  mode='idle',sourceClipName='',sourceWeight=NaN,
  sourceInstanceSame=false,sourceFootChainVerified=false,
- sourceFootTrackVerified=false,ownerLocomotion=false,alive=false,visible=false,
+ sourceFootTrackVerified=false,sourceBindDorsiflexionVerified=false,
+ ownerLocomotion=false,alive=false,visible=false,
  teleport=false,reducedMotion=false,interrupted=false,
  rootTravel=NaN,frameAge=NaN,frameInterval=NaN,
  side='',floorTopY=NaN,linkedProof=null,before=null,trials=[]
@@ -1271,7 +1315,7 @@ export function chooseOriginalSourceSwingLinkedFootFinisher({
   rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.15||
   frameInterval<.008||frameInterval>.15||
   Math.abs(floorTopY+.02)>.005||!['left','right'].includes(side)||
-  !Array.isArray(trials)||trials.length<1||trials.length>2||
+  !Array.isArray(trials)||trials.length<1||trials.length>4||
   !linkedProof||linkedProof.source!=='measured-original-skinned-linked-leg'||
   linkedProof.sourceClip!=='Walking_A'||linkedProof.side!==side||
   typeof linkedProof.sourceInstanceId!=='string'||!linkedProof.sourceInstanceId||
@@ -1303,7 +1347,10 @@ export function chooseOriginalSourceSwingLinkedFootFinisher({
  let best=null;
  for(const trial of trials){
   const angle=trial?.angleRad,after=trial?.after,
+   axisKind=trial?.axisKind??'original-clip-track',
    shoe=after?.[side],other=after?.[opposite];
+  if(!['original-clip-track','original-bind-dorsiflexion'].includes(axisKind)||
+   (axisKind==='original-bind-dorsiflexion'&&sourceBindDorsiflexionVerified!==true))continue;
   if(!finite(angle)||Math.abs(angle)<.10||
    Math.abs(angle)>.120001||!valid(shoe)||!valid(other))continue;
   const lift=shoe.toeY-swing.toeY;
@@ -1319,7 +1366,7 @@ export function chooseOriginalSourceSwingLinkedFootFinisher({
    drift(other.heelXZ,support.heelXZ)>.003||
    drift(other.toeXZ,support.toeXZ)>.003)continue;
   if(!best||lift>best.liftMeters)best=Object.freeze({
-   angleRad:angle,side,liftMeters:lift,
+   angleRad:angle,axisKind,side,liftMeters:lift,
    beforeToeY:swing.toeY,afterToeY:shoe.toeY,
    beforeHeelY:swing.heelY,afterHeelY:shoe.heelY,
    linkedSourceRetained:true,oppositeFootVerified:true,contactLocked:false,
