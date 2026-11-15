@@ -12,7 +12,7 @@ const production=extract('function planResidentVertexUpload(','function getResid
  extract('function rememberCivicScenery(','// G140: resident original settlement VBOs');
 const e={
  Float32Array,Number,Math,Map,Object,
- data:[],currentMaterial:0,civicGpuResidencyEnabled:true,
+ data:[],currentMaterial:0,civicGpuResidencyEnabled:true,swiftGpu:false,
  CIVIC_CACHE_FLOAT_BUDGET:3000,CIVIC_CACHE_MAX_ENTRIES:5,
  civicSceneryCache:new Map(),civicCacheBuilds:0,civicCacheReuses:0,
  civicCacheEvictions:0,civicActiveKey:'',civicBuffer:null,
