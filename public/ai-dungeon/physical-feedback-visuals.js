@@ -21,6 +21,9 @@ const TOTAL=Object.values(PHYSICAL_FEEDBACK_POOL_LIMITS).reduce((a,b)=>a+b,0);
 // two separated matrix rows into one whole-pool upload. CPU-only planning;
 // no claim that a GPU transfer occurred or improved real frame delivery.
 export const MAX_D04_PENDING_MATRIX_UPLOAD_RANGES=4;
+// Mirror the original foley engine's bounded one-shot admission memory.
+// An expired VFX is not evidence that an authority event happened again.
+export const MAX_D04_VISUAL_CUE_HISTORY=128;
 export function planD04MatrixUploadRanges(existing,index,maxInstances){
  const capacity=Number.isSafeInteger(maxInstances)&&maxInstances>0&&maxInstances<=104?
   maxInstances*16:null;
@@ -144,6 +147,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   lastAdvancePotentialBufferBytes=0;
  const lastAdvanceWritesByPool=Object.fromEntries(
   Object.keys(PHYSICAL_FEEDBACK_POOL_LIMITS).map(name=>[name,0]));
+ const admittedVisualCueIds=new Set();let suppressedDuplicateCues=0;
  const pools=new Map();let active=0,peak=0,spawned=0,suppressed=0,
   preempted=0,retiredWarningMarkers=0,staleWarningCues=0,retiredInvalidWarnings=0,unanchoredWardenSignals=0,
   retiredUnanchoredBodySignals=0,confirmedFragments=0,measuredTrailFrames=0,
@@ -690,6 +694,16 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   if(disposed||!cue||cue.verified===false)return false;
   const type=category(cue),pool=pools.get(type);
   if(!pool)return false;
+  // An authoritative event may be delivered more than once by a renderer
+  // adapter. Audio already deduplicates its onsets; VFX must also remain
+  // one-shot even after its short-lived mesh slot expires. Record only
+  // successful allocations, allowing an initially unanchored action to
+  // become drawable when its real source pose arrives.
+  const receiptId=typeof cue.id==='string'&&cue.id.length>0&&
+   cue.id.length<=256?cue.id:null;
+  if(receiptId!==null&&admittedVisualCueIds.has(receiptId)){
+   suppressed++;suppressedDuplicateCues++;return false;
+  }
   // A nominally verified cue from an adapter is NOT interchangeable with
   // the planner's concrete injury/release contract. In particular, an HP
   // witness cannot manufacture a fresh arrow or spell, and an attempted
@@ -837,7 +851,14 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
      slot.age<slot.life&&slot.measuredPath!==null);
    created++;spawned++;
   }
-  if(created>0)syncPoolInstanceCount(pool);
+  if(created>0){
+   syncPoolInstanceCount(pool);
+   if(receiptId!==null){
+    admittedVisualCueIds.add(receiptId);
+    if(admittedVisualCueIds.size>MAX_D04_VISUAL_CUE_HISTORY)
+     admittedVisualCueIds.delete(admittedVisualCueIds.values().next().value);
+   }
+  }
   if(type==='hit')confirmedFragments+=created;
   if(warningMarkers&&created>0)rememberWardenCue(cue);
   peak=Math.max(peak,active);
@@ -1294,7 +1315,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    pool.mesh.visible=false;
    pool.mesh.count=0;
   }
-  active=0;warningHistory.clear();
+  active=0;warningHistory.clear();admittedVisualCueIds.clear();
  }
  function dispose(){
   if(disposed)return;
@@ -1305,7 +1326,9 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   pools.clear();
  }
  function stats(){return Object.freeze({
-  active,peak,spawned,suppressed,preempted,retiredWarningMarkers,staleWarningCues,retiredInvalidWarnings,
+  active,peak,spawned,suppressed,preempted,suppressedDuplicateCues,
+  rememberedVisualCueIds:admittedVisualCueIds.size,
+  retiredWarningMarkers,staleWarningCues,retiredInvalidWarnings,
   warningHistoryOwners:warningHistory.size,unanchoredWardenSignals,
    retiredUnanchoredBodySignals,confirmedFragments,
   measuredTrailFrames,bodyLocalTrailFrames,yawFallbackTrailFrames,
