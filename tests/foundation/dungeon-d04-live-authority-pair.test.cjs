@@ -174,3 +174,41 @@ test('camera-mode labels alone do not establish three different genuine physical
  assert.equal(verdict.distinctViewPairs,0);
  assert.equal(verdict.impactAVAccepted,false);
 });
+
+test('frame-acknowledged six-view capture is explicitly non-realtime and never inherits wall-clock audiovisual acceptance',()=>{
+ const {classifyD04RealMultiview}=
+  require('../browser/dungeon-d04-live-authority-pair.cjs');
+ const a=sixViewFixture();
+ for(const arm of a.runs){
+  arm.capturePacing='frame-acknowledged';
+  arm.pacedReceipts=arm.samples.map((s,index)=>({
+   stageIndex:index,scene:s.scene,frameId:s.frameId,
+   acknowledgedFrames:s.frameId,accepted:true
+  }));
+ }
+ let v=classifyD04RealMultiview(a);
+ assert.equal(v.status,'SIX_VIEWPOINT_FRAME_PACED_UNALIGNED');
+ assert.equal(v.matchedHpLossTicks,1);
+ assert.equal(v.capturePacing,'frame-acknowledged');
+ assert.equal(v.sampleSynchronized,false);
+ assert.equal(v.impactAVAccepted,false);
+ const b=sixViewFixture();
+ b.runs[0].capturePacing='frame-acknowledged';
+ b.runs[0].pacedReceipts=[{stageIndex:4,scene:scene(4),
+  frameId:5,acknowledgedFrames:5,accepted:true}];
+ v=classifyD04RealMultiview(b);
+ assert.equal(v.status,'INVALID_VIEWPOINT_PROVENANCE',
+  'mixed wall-clock and paced recordings cannot pose as one verified temporal experiment');
+ const c=sixViewFixture();
+ for(const arm of c.runs){
+  arm.capturePacing='frame-acknowledged';
+  arm.pacedReceipts=arm.samples.map((s,index)=>({
+   stageIndex:index,scene:s.scene,frameId:s.frameId,
+   acknowledgedFrames:s.frameId,accepted:true
+  }));
+ }
+ c.runs[2].pacedReceipts[4].scene.checksum='invented-hp';
+ v=classifyD04RealMultiview(c);
+ assert.equal(v.status,'INVALID_VIEWPOINT_PROVENANCE',
+  'a claim of a frame-acknowledged HP tick must match the immutable runtime state');
+});
