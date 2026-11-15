@@ -3,6 +3,7 @@
 // gameplay, invent a door, rewind a player, or use an assumed GPU frame rate.
 // The consumer must separately verify both bodies in-frame and clear core rays.
 import { observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
+import { observedSourceSuccessorRaisedDeck } from './source-physical-arrival-palette.mjs';
 const integer=Number.isSafeInteger;
 const finite=Number.isFinite;
 // The last real Floor8 returned frame can precede the killing blow. In the
@@ -81,7 +82,10 @@ export function sourceOriginalGatewayCameraBridge(snapshot,held,prior,view={}) {
       held.visibleSeconds<0 || held.visibleSeconds>=2.8 ||
       p.halfHeight<=0 || Math.abs(p.x-held.thresholdX)>90000 ||
       p.y-p.halfHeight<held.oldRoofY-2500 ||
-      p.y-p.halfHeight>held.oldRoofY+160000) return null;
+      p.y-p.halfHeight>held.oldRoofY+230000 ||
+      (p.y-p.halfHeight>held.oldRoofY+160000 &&
+       p.grounded===true &&
+       !observedSourceSuccessorRaisedDeck(snapshot,held.oldRoofY))) return null;
   // The source-backed GPU render can skip 30-40 fixed ticks on first cold
   // Floor9 construction. Reuse ONLY the already-rendered same cap/roof F8
   // view up to 48 ticks back; Scene must still accept the actual current hero
