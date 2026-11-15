@@ -4398,6 +4398,14 @@ let groundAtlasLastBuildProfile=null;
 // no decorative structures and no writes to authoritative resources.
 let groundAtlasHouseCanvas=null,groundAtlasRoadCanvas=null,groundAtlasCompositeCanvas=null;
 let groundAtlasAccessCanvas=null,groundAtlasAccessTopology='',groundAtlasAccessRebuilds=0;
+// W356: one retained original ground texture matches EXACT emitted 3D
+// occupied-home road sections, never invented routes or per-frame JS meshes.
+let groundAtlasHomeRoadKey=null,groundAtlasHomeRoadAudit={paintedSections:0};
+function getRealHomeLaneAlbedoAudit(){return {...groundAtlasHomeRoadAudit,
+ currentRoadSections:realHomeLaneSections.length,
+ matchingCivicKey:groundAtlasHomeRoadKey===civicActiveKey,
+ textureCount:groundAtlasTexture?1:0,authorityModified:false,
+ desktopAndMobileHardwareFps:'NOT MEASURED'};}
 let groundAtlasAccessAudit={connected:0,unlinked:0,metres:0,allRealHomes:true,
  authorityModified:false,maxCandidateSightlines:12,atlasBytes:GROUND_ATLAS_SIZE*GROUND_ATLAS_SIZE*4};
 // Phase-1 rendering spine: immutable original home-footpaths are keyed by
@@ -4656,6 +4664,55 @@ function fillOriginalGroundAtlasBasePixels(arr,size,extent){
  }
  return arr;
 }
+// W356: wear, verge and wheel ruts correspond to every six original
+// terrain-fitted 3D triangles actually issued for a walkable household lane.
+// The existing world terrain and texture are retained; no entity is added.
+function paintRealResidentStreetAlbedo(ctx,world,size,extent,sections){
+ if(!ctx||typeof ctx.stroke!=='function'||typeof world!=='function'||
+  !Number.isInteger(size)||size<1||!Number.isFinite(extent)||extent<=0||
+  !Array.isArray(sections)||sections.length>Math.floor(REAL_HOME_LANE_BUDGET/6))
+  throw Error('W356 unbounded physical street albedo');
+ const groups=[[],[]];let totalMetres=0,passes=0;
+ for(const section of sections){
+  const {a,b,halfWidth}=section||{};
+  if(!Array.isArray(a)||!Array.isArray(b)||a.length!==2||b.length!==2||
+   ![...a,...b,halfWidth].every(Number.isFinite)||
+   halfWidth<.3||halfWidth>1.02)
+   throw Error('W356 invalid actual 3D lane');
+  const metres=Math.hypot(b[0]-a[0],b[1]-a[1]);
+  if(metres<.001||metres>1.25)
+   throw Error('W356 invalid segmented route');
+  groups[halfWidth>=.7?1:0].push(section);totalMetres+=metres;
+ }
+ const stroke=(group,offsetFactor,width,paint)=>{
+  ctx.beginPath();
+  for(const {a,b,halfWidth} of group){
+   const dx=b[0]-a[0],dz=b[1]-a[1],
+    d=Math.hypot(dx,dz),nx=-dz/d,nz=dx/d,
+    off=halfWidth*offsetFactor;
+   ctx.moveTo(world(a[0]+nx*off),world(a[1]+nz*off));
+   ctx.lineTo(world(b[0]+nx*off),world(b[1]+nz*off));
+  }
+  ctx.lineJoin='round';ctx.lineCap='round';
+  ctx.lineWidth=width*size/extent;ctx.strokeStyle=paint;
+  ctx.stroke();passes++;
+ };
+ for(let i=0;i<2;i++){
+  const group=groups[i],width=i?.99:.42;
+  if(!group.length)continue;
+  stroke(group,0,2*width+.45,'rgba(55,59,42,.24)');
+  stroke(group,0,2*width-.06,'rgba(168,126,82,.65)');
+  if(i){
+   stroke(group,-.62,.13,'rgba(74,62,51,.42)');
+   stroke(group,.62,.13,'rgba(74,62,51,.42)');
+  }else stroke(group,0,.18,'rgba(81,66,50,.38)');
+ }
+ return {source:'exact-original-inhabited-3d-street-material',
+  paintedSections:sections.length,wideSections:groups[1].length,
+  narrowSections:groups[0].length,paintedMetres:Math.round(totalMetres*100)/100,
+  materialPasses:passes,extraTriangles:0,extraGpuTextures:0,
+  extraEntityCount:0,exact3DSource:true,authorityModified:false};
+}
 function rebuildGroundAtlas(){
  if(!gpuAvailable)return;
  const groundBuildStart=performance.now(),groundBaseStart=groundBuildStart;
@@ -4879,6 +4936,10 @@ function rebuildGroundAtlas(){
  ctx.drawImage(groundAtlasHouseCanvas,0,0);
  ctx.drawImage(groundAtlasAccessCanvas,0,0);
  ctx.drawImage(groundAtlasRoadCanvas,0,0);
+ // Place the construction-dirty actual household streets on the same valley
+ // atlas only AFTER real civic geometry has been computed for this world.
+ groundAtlasHomeRoadAudit=paintRealResidentStreetAlbedo(
+  ctx,world,size,GROUND_ATLAS_EXTENT,realHomeLaneSections);
  roadSegments=groundAtlasRoadSegments;
  const sample=(x,z)=>{
   const a=ctx.getImageData(Math.max(0,Math.min(size-1,Math.floor(world(x)))),
@@ -4932,7 +4993,10 @@ function rebuildGroundAtlas(){
   changeWasFull:dirty.full,changedTiles:dirty.changedTiles,
   textureCount:groundAtlasTexture?1:0,houseCount:city.length,
   triangleAdditions:0,physicalHardwareTiming:'NOT MEASURED'};
- groundAtlasHomes=city.length;groundAtlasRebuilds++;
+ groundAtlasHomes=city.length;groundAtlasHomeRoadKey=civicActiveKey;
+ groundAtlasHomeRoadAudit.matchedSource=
+  groundAtlasHomeRoadAudit.paintedSections===realHomeLaneStats.segments;
+ groundAtlasRebuilds++;
  groundSurfaceStats={renderer:'gpu-2d-albedo',width:size,height:size,
   bytes:size*size*4,homes:city.length,farmPlots:FARMSTEAD.fields.length,
   roadSegments,rebuilds:groundAtlasRebuilds,gpuTextures:1,
@@ -4941,6 +5005,7 @@ function rebuildGroundAtlas(){
   groundWorkstream:'physically-connected-market-w16',
   houseLayerBuilds:groundAtlasHouseBuilds,houseStamps:groundAtlasHouseStamps,
   roadOverlayBuilds:groundAtlasRoadBuilds,roadOverlayReuses:groundAtlasRoadReuses,
+  exactPhysicalHomeRoads:{...groundAtlasHomeRoadAudit},
   accessOverlayBuilds:groundAtlasAccessRebuilds,
   connectedHomeAccess:groundAtlasAccessAudit.connected,
   unlinkedHomeAccess:groundAtlasAccessAudit.unlinked,
@@ -5865,6 +5930,10 @@ function restoreCivicStats(stats){
  if(stats.farmMarketStreet)farmMarketStreetStats={...stats.farmMarketStreet};
  if(stats.freightBoundary)farmStreetWeaveStats={...stats.freightBoundary};
  if(stats.roadside)roadsideMicroterrainStats={...stats.roadside};
+ if(Array.isArray(stats.realHomeRoads))
+  realHomeLaneSections=stats.realHomeRoads.map(({a,b,halfWidth,homeIndex})=>
+   ({a:a.slice(),b:b.slice(),halfWidth,homeIndex}));
+ if(stats.realHomeLaneStats)realHomeLaneStats={...stats.realHomeLaneStats};
  currentMaterial=stats.finalMaterial;
 }
 function rememberCivicScenery(key,source,stats){
@@ -14070,6 +14139,9 @@ function marketToRealHomeStreet(){
 const REAL_HOME_LANE_BUDGET=3600;
 const REAL_HOME_FRONTAGE_MAX_TRIANGLES=350;
 const REAL_HOME_LANE_MAX_HOMES=40;
+// A bounded record of only the road sections already emitted by the
+// real construction-dirty 3D civic mesh. Never affects A* or occupation.
+let realHomeLaneSections=[];
 let realHomeLaneStats={occupiedHomes:0,connectedHomes:0,segments:0,
  triangles:0,skippedUnsafe:0,duplicateSections:0,limited:false,
  frontages:0,frontageQuads:0,frontageTriangles:0,
@@ -14117,6 +14189,7 @@ function renderRealOccupiedThresholdCourts(approaches,audit){
  });
 }
 function renderRealInhabitedLaneNetwork(){
+ realHomeLaneSections=[];
  const first=data.length,origin=MARKET_HOME_STREET_ORIGIN,
   households=new Map(),used=new Set(),arrivals=[];
  for(const p of people){
@@ -14189,7 +14262,10 @@ function renderRealInhabitedLaneNetwork(){
        at(x1,z1,off+halfRut,.086),at(x0,z0,off+halfRut,.086),
        rut[(i+j+(side+1)/2)%2]);
      }
-     used.add(key);inserted++;audit.segments++;audit.triangles+=6;
+     used.add(key);
+     realHomeLaneSections.push({a:edge[0],b:edge[1],
+      halfWidth:width,homeIndex:h.index});
+     inserted++;audit.segments++;audit.triangles+=6;
     }
    }
    if(inserted){audit.connectedHomes++;arrivals.push({index:h.index,points});}
@@ -27963,6 +28039,9 @@ if(residentCivic&&storedCoreReady&&
   craft:{...craftCounters},market:{...marketQuarterStats},
   highStreet:{...highStreetStats},farmMarketStreet:{...farmMarketStreetStats},
   freightBoundary:{...farmStreetWeaveStats},roadside:{...roadsideMicroterrainStats},
+  realHomeRoads:realHomeLaneSections.map(({a,b,halfWidth,homeIndex})=>
+   ({a:a.slice(),b:b.slice(),halfWidth,homeIndex})),
+  realHomeLaneStats:{...realHomeLaneStats},
   finalMaterial:currentMaterial});
  // Remove civic triangles from the housing upload ONLY AFTER its own real
  // GPU buffer exists. Canvas2D and a failed residency keep original geometry.
@@ -28269,13 +28348,7 @@ const frameStaticStart=performance.now();staticTerrainMemoActive=staticTerrainMe
 // Cache seasonal ground geometry: camera and citizens cannot change it.
 // Winter snow affects colour; ordinary rain does not.
 const groundClimate=climateAt(state.t);
-const groundAtlasPhaseStart=performance.now();
-let groundAtlasRebuilt=false;
-if(gpuAvailable&&(groundAtlasHomes!==city.length||
- groundAtlasHouseKeys.some((key,i)=>!city[i]||key!==city[i].join(',')))){
- rebuildGroundAtlas();groundAtlasRebuilt=true;
-}
-const groundAtlasMs=performance.now()-groundAtlasPhaseStart;
+let groundAtlasRebuilt=false,groundAtlasMs=0,coldSceneBuiltThisFrame=false;
 const nextTerrainKey=groundClimate.season+':'+(groundClimate.season===3&&groundClimate.weather==='snow'?1:0);
 // W149: the exact season's complete already-packed original landscape
 // makes regenerating the 41x41 terrain and horizon source unnecessary.
@@ -28441,7 +28514,7 @@ updateResidentCivicDistrict(nextTerrainKey,daylightStage);
  const uploaded=uploadGrowingSettlement(packed,staticKey);
  settlementBuffer=uploaded.buffer;
  retainSettlementSeason(staticKey,scenicMeshCache,settlementChunkRanges,settlementBuffer,uploaded.capacityFloats);}
-coldSceneBuilds++;
+coldSceneBuilds++;coldSceneBuiltThisFrame=true;
 coldSceneLast={sceneKey:staticKey,day:Math.floor(state.t/24)+1,
  groundAtlasMs,groundAtlasRebuilt,
  groundAtlasSubphases:groundAtlasRebuilt?{...groundAtlasLastBuildProfile}:null,
@@ -28467,6 +28540,22 @@ if(homeClustersEnabled()){
   finally{data=originalFrame;currentMaterial=originalMaterial;}
   civicGrowthRefreshes++;
  }
+}
+// Material invalidation MUST follow actual civic road build or cached GPU
+// retrieval. Camera-only frames reuse the same 512px texture unchanged.
+const groundAtlasPhaseStart=performance.now();
+if(gpuAvailable&&(groundAtlasHomes!==city.length||
+ groundAtlasHomeRoadKey!==civicActiveKey||
+ groundAtlasHouseKeys.some((key,i)=>!city[i]||key!==city[i].join(',')))){
+ rebuildGroundAtlas();groundAtlasRebuilt=true;
+}
+groundAtlasMs=performance.now()-groundAtlasPhaseStart;
+if(coldSceneBuiltThisFrame){
+ coldSceneLast.groundAtlasMs=groundAtlasMs;
+ coldSceneLast.groundAtlasRebuilt=groundAtlasRebuilt;
+ coldSceneLast.groundAtlasSubphases=groundAtlasRebuilt?
+  {...groundAtlasLastBuildProfile}:null;
+ coldSceneLast.totalMs=performance.now()-frameStaticStart;
 }
 staticTerrainMemoActive=false;const frameDynamicStart=performance.now();
 const dynamicPhaseTimes={
@@ -28997,7 +29086,8 @@ getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCent
 getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,getStreetPhysicalOcclusionAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getMarketArcadeCameraAudit:()=>({source:'original-interstall-roof-occlusion',bands:physicalMarketArcadeRoofVolumes(),authorityChanged:false}),getCameraArchitectureResidencyAudit,getCameraRayBroadphaseAudit,getCameraShotProximityAudit,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getGrainwardBridgeAudit,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,
  getInhabitedStreetAccessAudit:()=>({...groundAtlasAccessAudit,topologyKey:groundAtlasAccessTopology,
   builds:groundAtlasAccessRebuilds,realHomes:city.length,rendererOnly:true}),
- getGroundAtlasRouteResidencyAudit,getGroundAtlasDirtyAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getSceneTriangleReconciliation,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGrainShockConservationAudit,getGranaryArchitectureAudit,getGrainwardDistrictAudit:getGrainwardDistrictAudit,getGrainwardDormerAudit,getGrainwardTransferNodeAudit,getInhabitedSkylineAudit,getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getEcotoneVisualStats,getValleySurfaceBuildAudit,getTerrainBaseResidencyAudit,getRiverReedVisualAudit,getForestVisualStats:()=>({
+ getGroundAtlasRouteResidencyAudit,getGroundAtlasDirtyAudit,
+ getRealHomeLaneAlbedoAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getSceneTriangleReconciliation,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGrainShockConservationAudit,getGranaryArchitectureAudit,getGrainwardDistrictAudit:getGrainwardDistrictAudit,getGrainwardDormerAudit,getGrainwardTransferNodeAudit,getInhabitedSkylineAudit,getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getEcotoneVisualStats,getValleySurfaceBuildAudit,getTerrainBaseResidencyAudit,getRiverReedVisualAudit,getForestVisualStats:()=>({
  silhouette:'w263-original-broken-crown-and-fir-tier',
  allTreesPreserved:true,additionalCanopyTriangles:0,
  sourceTrees:trees.length,
