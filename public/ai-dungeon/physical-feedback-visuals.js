@@ -308,7 +308,14 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  // public victim, scene, tick, cell and canonical HP receipt are still
  // independently required by each caller before admitting any shards.
  function drawnHpMatchesObservedTransition(cue,drawn,witness){
-  if(drawn?.hp===witness?.hp)return true;
+  // Equality of remaining HP alone is insufficient: an older recycled
+  // presentation body can happen to have the same HP but a different health
+  // capacity. Only the real D04 strict witness requires this extra identity
+  // check; independent geometry auditions keep their existing contract.
+  if(drawn?.hp===witness?.hp)return !requireVerifiedHpReceipt||
+   (Number.isSafeInteger(drawn?.hp)&&Number.isSafeInteger(drawn?.maxHp)&&
+    Number.isSafeInteger(witness?.hp)&&Number.isSafeInteger(witness?.maxHp)&&
+    drawn.maxHp===witness.maxHp);
   if(!requireVerifiedHpReceipt)return false;
   const detail=cue?.detail;
   if(!Number.isSafeInteger(drawn?.hp)||
