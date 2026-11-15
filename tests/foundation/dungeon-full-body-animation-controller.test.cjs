@@ -6119,6 +6119,8 @@ test('RED: same-frame ankle-thigh original-source shallow toe may finish at obse
   '199.9ms legal original ankle+thigh source frame must be ELIGIBLE for honest 100mrad two-shoe sampling');
  assert.equal(accepted.connectedLegPartialFinish,true);
  assert.equal(accepted.contactLocked,false);
+ assert.ok(choose({...valid,trials:[trial(.0051)]})?.connectedLegPartialFinish,
+  'a real 10.668mm residual and 5.1mm lift legitimately pass both 5mm and 45% recovery');
  assert.ok(accepted.afterToeY>=-.028&&accepted.afterToeY<-.02,
   'still submerged original toe is never reported as a planted or clear foot');
  for(const bad of [
@@ -6128,7 +6130,12 @@ test('RED: same-frame ankle-thigh original-source shallow toe may finish at obse
   {sourceClipName:'Idle'},{sourceInstanceSame:false},
   {sourceToeTrackVerified:false},{sourceToeChainVerified:false},
   {teleport:true},{reducedMotion:true},{interrupted:true},
-  {trials:[trial(.0049)]}, {trials:[trial(.0051)]},
+  {trials:[trial(.0049)]},
+  // 5.1mm is NOT enough for a deeper 11.668mm residual: 43.7% < 45%,
+  // despite <=8mm final burial, unchanged heel and an intact other shoe.
+  {before:{left:{...swing,toeY:-.0316684952},right:loaded},
+   trials:[{angleRad:.10,after:{
+    left:{...swing,toeY:-.0265684952},right:{...loaded}}}]},
   {trials:[trial(.0061,.0041)]},
   {trials:[trial(.0061,0,.0021)]}
  ])assert.equal(choose({...valid,trials:[trial()],...bad}),null,
