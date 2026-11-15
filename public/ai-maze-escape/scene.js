@@ -3,7 +3,7 @@ import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicPressureInspectionTakesFocus } from './public-lantern-encounter.mjs';
@@ -1215,8 +1215,22 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // the encounter's first beat easing from the camera's default origin.
     // Manual cameras, recovery, terminal scenes, key and gate choreography
     // retain their established compositions. No AI time or authority changes.
+    // Pass400: native 390px recoil tick7->8 keeps the disclosed guardian in
+    // view but re-aims at Pip. Sustain the *real* two-body target only for the
+    // same-run currently published parried guardian and original duel orbit.
+    const earnedDuelContinuity = cameraMode==='follow' && !result
+      && !settings.reducedMotion && !closestThreat?.strength
+      && !!earnedCounterModel && lastWitnessedGuardianStageRunToken===s.runToken
+      && aspect>=.35 && aspect<.60 && !cameraGate
+      && !pressureCameraBeat && !openingStageView && !showPickup;
+    if (earnedDuelContinuity) {
+      const recoilAim=publicGuardianEarnedRecoilPairFocus(
+        aspect,pose,earnedCounterModel.position,true,settings.reducedMotion,CELL_SIZE);
+      desiredTarget.x+=recoilAim.x;
+      desiredTarget.z+=recoilAim.z;
+    }
     const publicFollowEncounter = cameraMode === 'follow' && !result
-      && !cameraGate && !!closestThreat?.strength;
+      && !cameraGate && (!!closestThreat?.strength || earnedDuelContinuity);
     // A real, published pressure jaw deserves the same quick camera response
     // as an actual guardian; the generic 4.5/s glide can trail Pip's
     // autonomous 180ms diagonal step on the full-width 320px stage. Apply
@@ -1265,19 +1279,6 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       settings.reducedMotion);
     pressureStageCameraOffset.copy(pressurePortraitCameraOffset)
       .lerp(pressureContactCameraOffset, pressureContactWeight);
-    // Real autonomous seed13 parry, tick7->8, moves Thornback 91->74.
-    // Without its former warning strength the camera switched immediately
-    // from an authored two-character duel to the unrelated exploration
-    // viewpoint, making the earned physical withdrawal read like a new scene.
-    // Keep the ORIGINAL witnessed portrait orbit for this currently visible,
-    // publicly parried same-run guardian. The optical full-mesh pair pan
-    // below remains authoritative, including the strict 320px crop gate.
-    // No AI, enemy position, secret route, geometry, or camera zoom changes.
-    const earnedDuelContinuity = cameraMode==='follow' && !result
-      && !settings.reducedMotion && !closestThreat?.strength
-      && !!earnedCounterModel && lastWitnessedGuardianStageRunToken===s.runToken
-      && aspect>=.35 && aspect<.60 && !cameraGate
-      && !pressureCameraBeat && !openingStageView && !showPickup;
     cameraOffset.lerp(openingStageView ? openingGateCameraOffset
       : cameraGate ? sealedGateCameraOffset
       : (portraitEncounterOrbit || earnedDuelContinuity) ? portraitCameraOffset

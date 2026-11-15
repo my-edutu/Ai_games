@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-15T15:47:18.000Z",
+  "updatedAt": "2026-11-15T16:27:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass399: real same-source 320/390 physically complete moving guardian recoil now passes strict original WebGL framing; source candidate preserves the previously witnessed two-actor portrait camera orbit across the earned retreat rather than abruptly switching back to exploration. New exact-head WebGL comparison pending; Nintendo benchmark UNMET."
+    "summary": "Pass400 real 320/390 WebGL baseline 40/40 SHA verified; candidate holds two-body public recoil camera aim, bounded to 0.85 cell, source-only pending new WebGL visual verdict. Nintendo bar unmet."
   },
   "captures": [
     {
@@ -112,6 +112,7 @@
     }
   ],
   "changes": [
+    "Pass400 2026-11-15: 40/40 SHA-verified originals from WebGL #43732506161 confirmed genuine autonomous Thornback 91→74 but after-frame Pip-centric camera. Implemented same-run published guardian-only bounded pair aim and existing fast encounter easing. New exact-HEAD source/visual tests PENDING, no AI/collision/private/map/framing gate altered.",
     "Pass399 2026-11-15: independent 40 original full-frame SHA pairs verify native run 43731310302; real 320 & 390 moving autonomous parry now entirely fits strict ±0.95. New source-only parry camera continuity candidate keeps authentic last witnessed same-run portrait orbit through public earned retreat; prior source's abrupt ordinary exploration camera jump obscures the legal 91→74 displacement. No rules, geometry or thresholds changed. Fresh CI/new images and independent critique PENDING.",
     "Pass397c: native 43723003430 passed 185/185 strict Maze source tests and six-reset <100 but failed genuine naturally moving parry WebGL; original artifact showed one seed audited because helper short-circuited for general visuals. New exhaustive optional seed audit, original requirement unchanged.",
     "Pass397 2026-11-15: production first real observed open corridor confrontation now chooses a deliberate single authoritative lantern-counter WAIT after Pip has explored, rather than always evading via any nonclosing side path. Already countered visible wardens return to ordinary evasion, hidden opponents never exposed. Integrated MazeRuntime test added. Pass396 exact-head honest natural moving-counter browser gate FAILED, new exact HEAD tests/natural 390/320 WebGL pending.",

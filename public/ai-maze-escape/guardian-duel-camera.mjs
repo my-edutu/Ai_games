@@ -107,3 +107,21 @@ export function publicGuardianEarnedRecoilPairShift(
   const centered=(left+right)*.5;
   return Math.max(low,Math.min(high,centered))*halfHeight*aspect;
 }
+
+// The actual PUBLIC guardian moves after the earned lantern counter; aim
+// toward its present connected body, not a speculative route/destination.
+// Caller requires same-run, current-visibility, genuine recoil and Follow.
+// Bounds prevent a distant spectator target and retain full-body NDC tests.
+export function publicGuardianEarnedRecoilPairFocus(
+  aspect,hero,guardian,earned=false,reducedMotion=false,cellSize=2.4){
+  const none={x:0,z:0};
+  if(!earned||reducedMotion||!Number.isFinite(aspect)
+    ||aspect<.35||aspect>=.60
+    ||![hero?.x,hero?.z,guardian?.x,guardian?.z,cellSize].every(Number.isFinite)
+    ||cellSize<=0)return none;
+  const dx=guardian.x-hero.x,dz=guardian.z-hero.z;
+  const d=Math.hypot(dx,dz);
+  if(d<cellSize*.2||d>cellSize*4)return none;
+  const bounded=v=>Math.max(-cellSize*.85,Math.min(cellSize*.85,v));
+  return {x:bounded(dx*.4),z:bounded(dz*.4)};
+}

@@ -238,3 +238,30 @@ test('Pass399 genuine published earned recoil keeps the same witnessed portrait 
     'the unchanged full-body final optical fit must still protect both visible actors');
   assert.doesNotMatch(scene,/privateMaze.*earnedDuelContinuity|secretRoute.*earnedDuelContinuity/);
 });
+
+test('Pass400 authentic public earned recoil retains bounded two-body aim, never hidden or manual',async()=>{
+ const {publicGuardianEarnedRecoilPairFocus:aim}=await camera();
+ const hero={x:7.2,z:12},guardian={x:7.2,z:7.2};
+ for(const a of [320/740,390/844]){
+   const result=aim(a,hero,guardian,true,false,2.4);
+   assert.equal(result.x,0);
+   assert.ok(Math.abs(result.z+1.92)<1e-10);
+   assert.deepEqual(aim(a,hero,guardian,true,false,2.4),result);
+ }
+ for(const args of [
+   [390/844,hero,guardian,false,false],
+   [390/844,hero,guardian,true,true],
+   [844/390,hero,guardian,true,false],
+   [390/844,hero,{x:99,z:99},true,false],
+   [390/844,hero,{x:NaN,z:7.2},true,false],
+   [390/844,hero,null,true,false]
+ ])assert.deepEqual(aim(...args),{x:0,z:0});
+ assert.ok(aim(390/844,hero,{x:14.4,z:12},true,false,2.4).x<=2.04+1e-10);
+ assert.match(scene,/const earnedDuelContinuity = cameraMode==='follow' && !result/);
+ assert.match(scene,/!!earnedCounterModel && lastWitnessedGuardianStageRunToken===s\.runToken/);
+ assert.match(scene,/publicGuardianEarnedRecoilPairFocus\(\s*aspect,pose,earnedCounterModel\.position,true,settings\.reducedMotion,CELL_SIZE\)/);
+ assert.match(scene,/cameraTarget\.lerp\(desiredTarget, blend\)/);
+ assert.match(scene,/publicGuardianEarnedRecoilPairShift\(/);
+ assert.match(scene,/\(!!closestThreat\?\.strength \|\| earnedDuelContinuity\)/);
+ assert.doesNotMatch(scene,/privateMaze.*recoilAim|secretRoute.*recoilAim/);
+});
