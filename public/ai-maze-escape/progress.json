@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-15T07:58:41.000Z",
+  "updatedAt": "2026-11-15T09:05:05.427Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass388 guardian endpoint proscenium source candidate (visual UNAPPROVED): exact Pass386 Maze WebGL succeeded, 37/37 original PNG sidecars verified; real Pip 5/5 unobstructed, Thornback 4/5 plus one inconclusive boot. Repositioning source-public four guardian signal roots toward actual outer endpoint edges awaits final-head tests and uncropped original full-view captures. Fixed Nintendo benchmark unmet; draft never merged or deployed."
+    "summary": "Pass389: independently verified Pass388 focused native WebGL success and 37/37 unaltered PNG SHA matches plus 3/3 original gate hashes, but direct authentic full-frame critic REJECTS end-cap guardian sentinel offsets (actors remain visually cluttered); selectively reverting only Pass388 world.js to trusted Pass386 geometry. New exact-rollback CI/WebGL pending. Separate independent critic/Ultracode unavailable; official Nintendo bar unmet, PR draft/unmerged/undeployed."
   },
   "captures": [
+    {
+      "title": "Pass388 authentic source-bound original native WebGL evidence — tested, visually REJECTED",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/43693228102/artifacts/14153766276"
+    },
     {
       "title": "Pass384 original exact-source 37-image native WebGL evidence — tested and REJECTED",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/43678622024/artifacts/14146964755"
@@ -100,6 +104,7 @@
     }
   ],
   "changes": [
+    "Pass389 2026-11-15: original 390 brace/notice/release and 320/390 Follow native WebGL compared against authentic Pass386 baseline, 37/37 PNG sidecars and 3/3 gate originals each verified; small Follow difference and no meaningful character-stage readability gain. Reject Pass388 endpoint offsets, restore only trusted world.js, preserving strict geometry, AI/privacy, HUD and previous diagnostics. New rollback HEAD native CI required; Nintendo bar unmet.",
     "Pass386: exact native 390px brace captures will now include public-only genuine full-body Pip and Thornback mesh-to-foreground rays; source-only diagnostic, no geometry/camera/gameplay change, visual acceptance pending. Previous exact rollback WebGL succeeded, whole-repo CI failed; Nintendo bar unmet.",
     "Pass385 2026-11-15: independently recomputed 37/37 unedited candidate and 37/37 baseline native WebGL PNG/JSON SHA, and 3/3 true gate hashes each. Direct 390 brace critic: first published solid foreground wall remains cell100 despite bounded public-angle search. REJECT camera candidate. Restore only prior two production blobs and remove candidate-only test in source+dated-criticism commit. Previous strict 6-reset <100 and WebGL CI success; new rollback CI/head screenshots PENDING. Independent critics/Ultracode NOT_FOUND, no Nintendo parity; draft no merge/deploy/force.",
     "Pass384 2026-11-15: observed original 390px guardian brace is still occluded by published solid foreground. Build a new small-angle public-geometry-only camera selection to reduce authentic currently visible wall crossings in a reciprocal Pip/Thornback Follow portrait, with privacy/motion/framing tests. Candidate NOT screenshot-approved; exact-HEAD native WebGL, original hashes and independent review required. No independent critic tunnel, Nintendo benchmark unmet.",
