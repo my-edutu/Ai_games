@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-15T16:27:00.000Z",
+  "updatedAt": "2026-11-15T17:04:27.342Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass400 real 320/390 WebGL baseline 40/40 SHA verified; candidate holds two-body public recoil camera aim, bounded to 0.85 cell, source-only pending new WebGL visual verdict. Nintendo bar unmet."
+    "summary": "Pass401: Pass400 exact-source native 40/40 PNG + 3/3 gate hashes verified. Candidate connects genuinely visible guardian parry to Pip's physical torso/lantern acting; NEW strict source/WebGL acceptance pending. Official Nintendo bar not met."
   },
   "captures": [
+    {
+      "title": "Pass400 exact-head uncropped source-bound WebGL 40/40 + authentic gate transition 3/3 SHA verified; Pass401 candidate pending",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/43736410830/artifacts/14170707730"
+    },
     {
       "title": "Pass398b verified real autonomous 320/390 earned recoil WebGL, exact source, mobile full-body pass; visuals still short of Nintendo",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/43731310302/artifacts/14168681461"
@@ -112,6 +116,7 @@
     }
   ],
   "changes": [
+    "Pass401 2026-11-15: original 40/40 source-matched Pass400 native images + three gate hashes verified, real autonomous 91→74 at native 320/390. Production source fixed earned parry's missing PUBLIC acting cue at Pip's actual articulated torso and lantern after close-warning drop; no hidden data, route, geometry or collision alteration. Fresh strict CI/native image acceptance PENDING, not a benchmark win.",
     "Pass400 2026-11-15: 40/40 SHA-verified originals from WebGL #43732506161 confirmed genuine autonomous Thornback 91→74 but after-frame Pip-centric camera. Implemented same-run published guardian-only bounded pair aim and existing fast encounter easing. New exact-HEAD source/visual tests PENDING, no AI/collision/private/map/framing gate altered.",
     "Pass399 2026-11-15: independent 40 original full-frame SHA pairs verify native run 43731310302; real 320 & 390 moving autonomous parry now entirely fits strict ±0.95. New source-only parry camera continuity candidate keeps authentic last witnessed same-run portrait orbit through public earned retreat; prior source's abrupt ordinary exploration camera jump obscures the legal 91→74 displacement. No rules, geometry or thresholds changed. Fresh CI/new images and independent critique PENDING.",
     "Pass397c: native 43723003430 passed 185/185 strict Maze source tests and six-reset <100 but failed genuine naturally moving parry WebGL; original artifact showed one seed audited because helper short-circuited for general visuals. New exhaustive optional seed audit, original requirement unchanged.",

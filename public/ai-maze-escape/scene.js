@@ -5,7 +5,7 @@ import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VI
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
 import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
-import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
+import { publicGuardianLanternReach, publicEarnedGuardianActing } from './public-lantern-encounter.mjs';
 import { publicPressureInspectionTakesFocus } from './public-lantern-encounter.mjs';
 import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicVerifiedPressureRetreatPartner, publicDistinctPublicPredecessor, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicPressureActionHalfHeight, publicPressureDiagonalApproachHalfHeight, publicCameraSettleRate, publicPhysicalPressureHorizontalReframe, publicPhysicalPressureRetreatHalfHeight, publicPhysicalPressureApproachHalfHeight, publicPhysicalPressureHeroReadabilityHalfHeight, publicPressureContactOrbitWeight, publicPressureActorCounterflankX, publicPhysicalPressureContactHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
@@ -521,7 +521,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // A legal autonomous lantern counter often drives Thornback OUT of the
     // immediate attention radius. Retain that same current, PUBLIC guardian
     // for the earned-counter physical shot; never reintroduce an unseen model.
-    let earnedCounterModel = null, earnedCounterDistance = Infinity;
+    let earnedCounterModel = null, earnedCounterDistance = Infinity, earnedCounterActor = null;
     for (const entry of wardens.values()) {
       if (settings.reducedMotion || result) { entry.cells = [entry.cell]; entry.progress = 0; }
       else if (entry.cells.length > 1) {
@@ -546,6 +546,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         && separation < earnedCounterDistance) {
         earnedCounterModel = entry.model.group;
         earnedCounterDistance = separation;
+        earnedCounterActor = {cell:entry.cell,x:threatPose.x,z:threatPose.z};
       }
       // Read at native gameplay scale: a disclosed warden one or two cells
       // away must provoke a visible head/lantern/mask reaction, not just HUD copy.
@@ -669,12 +670,17 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // Only the true public AI WAIT earns a legible lantern survey even at
       // diagonal distance; this never actuates the physical pressure jaws.
       ? Math.max(.92,pressureCue.strength) : 0;
+    // Once a REAL PUBLIC counter pushes Thornback out of ordinary warning
+    // range, Pip must still turn its connected torso and held lantern toward
+    // the ACTUAL currently visible retreat. Never revive a hidden/expired
+    // guardian, retain a prior run, or invent a ray through sealed masonry.
+    const actingGuardian = publicEarnedGuardianActing(s,earnedCounterActor,closestThreat);
     explorer.update({
       time:elapsed,delta,moving:pose.moving&&!result,heading,
-      attentionHeading:closestThreat?Math.atan2(closestThreat.x-pose.x,closestThreat.z-pose.z):undefined,
-      attentionStrength:closestThreat?.strength??0,
-      guardianEncounterBeat:closestThreat?.encounterBeat,
-      lanternParried:closestThreat?.lanternParried===true,
+      attentionHeading:actingGuardian?Math.atan2(actingGuardian.x-pose.x,actingGuardian.z-pose.z):undefined,
+      attentionStrength:actingGuardian?.strength??0,
+      guardianEncounterBeat:actingGuardian?.encounterBeat,
+      lanternParried:actingGuardian?.lanternParried===true,
       keyHeading:keyGateCue?.heading,keyStrength:keyGateCue?.strength??0,
       gateHeading,gateStrength,pickupStrength,
       fossilHeading:fossilCue

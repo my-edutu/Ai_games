@@ -465,7 +465,7 @@ export function createExplorer(options = {}) {
     // 390px WebGL frames; suppress that duplicate ONLY for this public duel.
     // This never hides a sealed/unknown-corridor warning, changes an enemy,
     // or affects reduced-motion event truth. No new render resources.
-    alertFlare.visible=alert>.24 && witnessedBeat===null;
+    alertFlare.visible=alert>.24 && witnessedBeat===null && earnedLanternCounter===0;
     alertFlare.position.y=1.83+(s.reduced?0:Math.sin(s.time*4)*.035);
     alertFlare.rotation.y=.7-group.rotation.y;
     alertFlare.scale.setScalar(.85+alert*.27);
@@ -477,7 +477,7 @@ export function createExplorer(options = {}) {
     body.position.y=.78+Math.abs(step)*.035+(s.lose?0:idle*.008)-alert*.11-guardianPlant*.11+guardianAnswer*.045+gateCelebrate*.09+gatePerformance*.17+pickupCelebrate*.23+fossilFocus*.08-pressureBrace*.12-pressureClimax*.035;
     body.position.z=alert>0?-alert*.105:gateCelebrate*.035+gatePerformance*.055-pressureBrace*.08-pressureClimax*.045;
     body.rotation.set(s.lose?.22:stride*.065-s.danger*.035-keyReach*.07-alert*.25-gateCelebrate*.12-gatePerformance*.11-pickupCelebrate*.13-pressureBrace*.21-pressureClimax*.07,
-      (witnessedBeat===null?lookYaw*.14:guardianBodyPivot)+keyYaw*.08+pickupFaceTurn*.28+fossilYaw*.07,
+      (witnessedBeat===null?(earnedLanternCounter>0?lookYaw*.95:lookYaw*.14):guardianBodyPivot)+keyYaw*.08+pickupFaceTurn*.28+fossilYaw*.07,
       .035*rest-step*.05-Math.sign(lookYaw)*alert*.12+defensiveFlinch*.14-Math.sign(pressureYaw)*pressureWarning*.08);
     head.rotation.set(s.lose?.28:-.04-s.danger*.08+idle*.018+alert*.10+guardianPlant*.12-guardianAnswer*.09-keyReach*.06-gateCelebrate*.16-gatePerformance*.09-pickupCelebrate*.18-fossilFocus*.12+pressureWarning*.10+pressureBrace*.16+pressureClimax*.07+pressureInspection*.12,
       (s.reduced?0:Math.max(-.42,Math.min(.42,turn*.7))+(Math.sin(s.time*.73)*.08+.12)*rest)*(1-alert-keyReach*.7-gateCelebrate*.55)+lookYaw-guardianBodyPivot*.72+keyYaw+gateYaw+pickupFaceTurn*.72+fossilYaw*.28+pressureYaw*.75,

@@ -162,3 +162,30 @@ export function publicPressureInspectionTakesFocus(
   const actual=publicPressureSurveySightline(snapshot,pressureCell);
   return !!actual && actual.links===sightline.links && actual.midCell===sightline.midCell;
 }
+
+
+/**
+ * Let Pip physically answer an ALREADY PUBLISHED, earned lantern counter
+ * while Thornback is visibly retreating outside the normal warning lens.
+ * This is a presentation cue ONLY; no predicted threat, ray through a
+ * closed wall, private route, or AI command. Prefer another current
+ * stronger guardian warning rather than attributing its action to this one.
+ */
+export function publicEarnedGuardianActing(snapshot, guardian, ordinary) {
+  if (snapshot?.lifecycle !== 'running' || snapshot.result
+    || !Number.isSafeInteger(guardian?.cell)
+    || !Number.isFinite(guardian.x) || !Number.isFinite(guardian.z)
+    || !Array.isArray(snapshot.visibleCells)
+    || !snapshot.visibleCells.includes(guardian.cell)
+    || !Array.isArray(snapshot.threats)
+    || !snapshot.threats.some(threat => threat?.cell === guardian.cell
+      && threat?.lanternParried === true)) return ordinary;
+  if (ordinary?.strength > .35 && ordinary.lanternParried !== true) return ordinary;
+  const same = ordinary?.cell === guardian.cell && ordinary.lanternParried === true;
+  return {
+    cell: guardian.cell, x: guardian.x, z: guardian.z,
+    strength: Math.max(.86, same ? ordinary.strength : 0),
+    lanternParried: true,
+    encounterBeat: same ? ordinary.encounterBeat : undefined,
+  };
+}
