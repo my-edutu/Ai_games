@@ -783,6 +783,26 @@ for(const view of [
   expect(proof.sourceClip).toBe('Walking_A');
   expect(proof.contactLocked).toBe(false);
   expect(proof.oppositeShoePreserved).toBe(true);
+  // First-fast original linked knee/hip pitch certification is separate
+  // from historical probe counts. It must be a genuine FINAL same-frame
+  // weighted heel+toe measurement of BOTH original CC0 GLB shoes.
+  if(proof.sourceFirstSwingPitchProof){
+   const pitch=proof.sourceFirstSwingPitchProof,shoe=proof.after[side],
+    old=proof.before[side];
+   expect(pitch.source).toBe('verified-original-GLB-final-first-swing-pitch');
+   expect(pitch.side).toBe(side);
+   expect(pitch.sourceClip).toBe('Walking_A');
+   expect(pitch.originalOppositeShoeVerified).toBe(true);
+   expect(pitch.contactLocked).toBe(false);
+   expect(Math.abs(proof.upperRad)).toBeLessThanOrEqual(.085001);
+   expect(Math.abs(proof.lowerRad)).toBeLessThanOrEqual(.090001);
+   expect(pitch.sourceToeLiftMeters).toBeCloseTo(shoe.toeY-old.toeY,6);
+   expect(pitch.sourceHeelRiseMeters).toBeCloseTo(shoe.heelY-old.heelY,6);
+   expect(pitch.sourcePitchGainMeters).toBeCloseTo(
+    pitch.sourceToeLiftMeters-pitch.sourceHeelRiseMeters,6);
+   expect(pitch.sourcePitchGainMeters>=-.002001||
+    -.02-shoe.toeY<=.020001).toBe(true);
+  }
   expect(proof.witnessedFrameIntervalSeconds).toBeGreaterThanOrEqual(.008);
   expect(proof.witnessedFrameIntervalSeconds).toBeLessThanOrEqual(.240001);
   expect(proof.witnessedRootTravelAgeSeconds).toBeLessThanOrEqual(.150001);
