@@ -38,8 +38,10 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(a.addedAuthorityItems).toBe(0);
   expect(a.changesNavigation).toBe(false);
   expect(a.totalTriangles).toBeGreaterThan(100);
-  // Ventilated real granary roof has 1,189 triangles; retain local and world caps.
-  expect(a.totalTriangles).toBeLessThan(1400);
+  // Real original W348 loading frontage increased the measured loft to 1,605 triangles.
+  // Enforce an honest bounded physical-loft cap without discarding the working bay.
+  expect(a.totalTriangles).toBeGreaterThan(1560);
+  expect(a.totalTriangles).toBeLessThan(1730);
   expect(result.road.connected).toBe(true);
   expect(result.road.granaryTradeEntranceUnblocked).toBe(true);
   expect(result.city.citizens).toBeGreaterThan(0);

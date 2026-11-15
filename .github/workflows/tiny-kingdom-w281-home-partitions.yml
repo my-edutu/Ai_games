@@ -30,6 +30,7 @@ on:
       - scripts/tiny-kingdom-w349-occupied-casement-contract.cjs
       - scripts/tiny-kingdom-w350-city-topology-contract.cjs
       - scripts/tiny-kingdom-w351-real-home-lanes-contract.cjs
+      - scripts/tiny-kingdom-w353-workday-grain-contract.cjs
       - scripts/tiny-kingdom-w327-original-woodland-work-corridor-contract.cjs
       - scripts/tiny-kingdom-w328-original-trading-roof-and-harvest-stooks-contract.cjs
       - scripts/tiny-kingdom-w265-growth-civic-contract.cjs
@@ -74,6 +75,7 @@ jobs:
           node scripts/tiny-kingdom-w349-occupied-casement-contract.cjs
           node scripts/tiny-kingdom-w350-city-topology-contract.cjs
           node scripts/tiny-kingdom-w351-real-home-lanes-contract.cjs
+          node scripts/tiny-kingdom-w353-workday-grain-contract.cjs
           node scripts/tiny-kingdom-w327-original-woodland-work-corridor-contract.cjs
           node scripts/tiny-kingdom-w328-original-trading-roof-and-harvest-stooks-contract.cjs
           node scripts/tiny-kingdom-w305-arcade-material-contract.cjs
