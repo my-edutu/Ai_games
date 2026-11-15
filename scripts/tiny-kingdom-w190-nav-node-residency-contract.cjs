@@ -14,8 +14,15 @@ assert(game.includes('if(!navNodeWalkable(ix,iz)||'), 'actual navSnap must use e
 assert(game.includes('if(!navNodeWalkable(nx,nz))continue;'),'A* must use exact cached passage');
 assert(game.includes('getNavNodeGridAudit,'),'live browser must expose bounded grid audit');
 const source=game.slice(begin,end);
+const topologyStart=game.indexOf('function originalCityTopologySignatures(){');
+const topologyEnd=game.indexOf('function homePartitionLiveSignature()',topologyStart);
+assert(topologyStart>=0&&topologyEnd>topologyStart,
+ 'W350 must provide the same real cached city topology for A* and home GPU');
+const topologySource=game.slice(topologyStart,topologyEnd);
 const init=new Function('city','NAV_LIMIT','NAV_SPACING','walkable',
- source+'return {lookup:navNodeWalkable,ensure:ensureNavNodeGrid,audit:getNavNodeGridAudit};');
+ topologySource+source+
+ 'return {lookup:navNodeWalkable,ensure:ensureNavNodeGrid,'+
+ 'invalidate:invalidateOriginalCityTopologySignatures,audit:getNavNodeGridAudit};');
 const city=[[5,8,0],[-7,-4,1],[2,-12,2],[12,9,0]];
 let oracleQueries=0;
 const original=(x,z)=>{
@@ -44,6 +51,9 @@ for(const stage of ['founding','35-homes','equal-count-restore']){
   // Keep exact house COUNT but change the ACTUAL occupied footprint.
   city[12]=[1.7,-6.8,2];city[17]=[-8.3,10.1,1];
  }
+ // Real building construction and exact-count snapshot restores explicitly
+ // invalidate the shared topology; reusing the old key would be a stale grid.
+ if(stage!=='founding')grid.invalidate();
  grid.ensure();
  for(const [ix,iz] of samples){
   const expected=original(ix*1.15,iz*1.15);
