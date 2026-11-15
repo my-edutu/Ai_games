@@ -1398,7 +1398,9 @@ test('earned public lantern counter propagates a real three-cell 3D court wave, 
     assert.ok(shell.rotation.x+shellPivot.rotation.x>1.4,
       'the physically connected shell is nearly horizontal during earned passage release');
     w.animate(3,{...counter,guardianParried:false});
-    assert.equal(shellPivot.rotation.x,0,
+    // -0 and +0 are the same neutral physical hinge angle; the immutable
+    // geometry/visibility gate concerns absolute position, not IEEE-754 sign.
+    assert.ok(Math.abs(shellPivot.rotation.x)<1e-10,
       'clearing the published parry restores the exact neutral physical hinge');
     assert.ok([6,7,8].every(cell=>Math.abs(leaf(cell).parent.rotation.x)<1e-10),
       'a cleared real counter instantly returns all hinges to a truthful neutral stance');
