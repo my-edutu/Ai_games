@@ -57,10 +57,9 @@ test('actual source-owned portrait gallery ray intersection clears one historica
   assert.equal(args.source.tick,480,'authority unchanged');
   assert.ok(seen.every(x=>x.far<8),'no ray may strike gallery behind the real subject');
 });
-test('portrait rescue expires on stale/wrong run/expired source, no actor or desktop; no galleries or gameplay touched',async()=>{
+test('source-authenticated gallery rescue expires on stale/wrong run/expired source or missing actor',async()=>{
   const {protectHistoricalGallerySightline}=await loaded;
   for(const change of [
-    args=>{args.camera.aspect=1.6;},
     args=>{args.source.runToken='different-run';},
     args=>{args.source.tick=546;},
     args=>{args.stale=true;},
@@ -128,7 +127,7 @@ test('original bronze struts crossing the genuine off-centre skinned torso and s
     'do not remove the actual original guardian gateway');
   assert.equal(JSON.stringify(args.source),before,'no physical source rewrite');
 });
-test('source-width silhouette rescue stays bounded, falls back on invalid body dimensions and never activates on desktop',async()=>{
+test('source-width silhouette rescue stays bounded and works at actual desktop 960x600 aspect',async()=>{
   const {protectHistoricalGallerySightline}=await loaded;
   const {args,seen}=make();
   args.halfWidth=Number.NaN;
@@ -137,6 +136,45 @@ test('source-width silhouette rescue stays bounded, falls back on invalid body d
   const desktop=make();
   desktop.args.halfWidth=.76;
   desktop.args.camera.aspect=960/600;
-  assert.equal(protectHistoricalGallerySightline(desktop.args).active,false);
-  assert.equal(desktop.seen.length,0,'desktop normal stage untouched');
+  const result=protectHistoricalGallerySightline(desktop.args);
+  assert.equal(result.active,true,'the real desktop 25.5s bronze rail must protect the same climber');
+  assert.equal(result.softened,1);
+  assert.ok(result.rays<=56,'desktop must honor the same bounded geometry budget');
+});
+
+// The same film shows bronze load paths obscuring the physical opened gate,
+// not only the source body. This consumes an exact old world doorway pose
+// from World, not a guessed gate or a new collision/portal scene.
+test('real gateway-centre sightline protects the same original doorway in BOTH orientations without altering original gateway material',async()=>{
+  const {protectHistoricalGallerySightline}=await loaded;
+  for(const aspect of [960/600,390/844]){
+    const {args,a,b,held,seen}=make();
+    args.camera.aspect=aspect;
+    args.gateway={x:.75,y:1,z:0};
+    args.raycaster.intersectObject=(mesh,_recursive,results)=>{
+      seen.push({mesh:mesh.name,x:args.point.x,y:args.point.y});
+      if(mesh===a && args.point.x>.7 && args.point.y>.95)
+        results.push({distance:4});
+      return results;
+    };
+    const before=JSON.stringify(args.source);
+    const result=protectHistoricalGallerySightline(args);
+    assert.equal(result.active,true);
+    assert.equal(result.softened,1,'genuine bronze obstruction to exact gateway must clear');
+    assert.ok(result.rays<=72,'maximum 8 historical batches x (7 body + 2 real gate)');
+    assert.ok(a.material.opacity<=.94*.05);
+    assert.equal(b.material.opacity,.94,'clear old gallery remains');
+    assert.equal(held.originalGatewayOpacity,1,'actual opened 3D gate cannot be dimmed');
+    assert.equal(JSON.stringify(args.source),before,'no source mutation');
+  }
+});
+test('invalid optional doorway point never creates an unearned ray or changes original gallery proof',async()=>{
+  const {protectHistoricalGallerySightline}=await loaded;
+  const {args,seen}=make();
+  args.halfWidth=.76;
+  args.gateway={x:Infinity,y:2,z:0};
+  const result=protectHistoricalGallerySightline(args);
+  assert.equal(result.active,true);
+  assert.ok(result.rays<=56,'nonfinite goal is ignored without a ray or forged scene');
+  assert.ok(seen.length<=56);
 });
