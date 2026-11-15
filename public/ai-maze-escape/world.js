@@ -3582,11 +3582,14 @@ export function createMazeWorld(options = {}) {
         ? reduced?1:Math.max(0,Math.min(1,
           (t-signal.counterStart-fromHero*.12)/.20))
         :0;
+      // A genuine parry supersedes the warning rather than adding two large
+      // hinge angles: never swing physical leaves beyond their outboard limits.
+      const warningAction=action*(1-counterWave);
       // The FULL linked 3D standard rises with the real published brace,
       // drops on release and instantly neutralizes on hidden/invalid/terminal.
       // Reduced motion preserves color but freezes all physical translation.
       for(const beacon of signal.sentinels){
-        beacon.lift.position.y=reduced ? .04 : .04+action*.42+counterWave*.22;
+        beacon.lift.position.y=reduced ? .04 : .04+warningAction*.42+counterWave*.22;
         beacon.crown.material=counterWave>.1?inlay:action>.28?amber:seaGlass;
         beacon.lens.material=counterWave>.1?lightStone:action>.28?amber:inlay;
         // The entire linked shell fan opens laterally into the non-walkable
@@ -3598,7 +3601,7 @@ export function createMazeWorld(options = {}) {
         // terminal or reduced-motion. Never promise a new passage/attack.
         beacon.sailPivot.rotation[signal.axis==='x'?'x':'z']=reduced?0
           :(signal.axis==='x'?-beacon.side:beacon.side)
-            *(.88*action+1.22*counterWave);
+            *(.88*warningAction+1.22*counterWave);
         // Pass329 original 390px brace showed FOUR opaque amber feathers
         // visually overtaking Pip and Thornback. Keep the full-size hinged
         // SEA-GLASS body visibly moving through the real guardian warning,
@@ -3620,7 +3623,7 @@ export function createMazeWorld(options = {}) {
         // returns to a precisely settled, stationary pose.
         face.hinge.rotation[signal.axis==='x'?'x':'z']=reduced?0
           :(signal.axis==='x'?-face.side:face.side)
-            *(1.12*action+1.45*counterWave);
+            *(1.12*warningAction+1.45*counterWave);
       }
     }
     // True PUBLIC pressure-hazard contact is readable as a physical scene

@@ -1379,6 +1379,9 @@ test('earned public lantern counter propagates a real three-cell 3D court wave, 
     w.animate(2.8,counter);
     assert.ok([6,7,8].every(cell=>Math.abs(leaf(cell).parent.rotation.x)>1.4),
       'the authentic earned lantern counter holds a substantial physical clear-lane release');
+    w.animate(2.9,{...counter,guardianBeat:.5});
+    assert.ok([6,7,8].every(cell=>Math.abs(leaf(cell).parent.rotation.x)<=1.45+1e-8),
+      'an overlapping real brace and earned counter cannot over-rotate its connected leaf into the aisle');
     const crown=w.group.getObjectByName('Published guardian Tideglass sentinel crown 8 1');
     assert.ok(crown.parent.position.y>.2,
       'existing joined endpoint standard participates in the true counterflow');
