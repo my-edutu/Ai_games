@@ -1431,3 +1431,59 @@ test('strict D04 earned Warden counter glyph requires current public HP and auth
   assert.equal(stage.stats().reservedInstances,102);
  }finally{stage.dispose()}
 });
+
+
+test('D04 full 256-unit integrity window rejects off-screen duplicate Warden, release and defensive owners',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const at={x:2,z:2},destination={x:4,z:2};
+ const warden={id:'warden',kind:'warden',faction:'enemy',x:4,z:4,
+  hp:42,maxHp:90,action:'hurt',actionTick:11};
+ const ranger={id:'ranger',kind:'ranger',faction:'party',x:2,z:2,
+  hp:20,maxHp:20,action:'attack',actionTick:11};
+ const guard={id:'vanguard',kind:'vanguard',faction:'party',x:2,z:2,
+  hp:20,maxHp:20,action:'guard',actionTick:11,guardTick:11};
+ const evader={...guard,x:3,z:2,action:'move'};
+ const candidates=[
+  {label:'earned Warden HP counter',unit:warden,requested:cue({
+   id:'1:1:11:counter:-:warden',kind:'counter',visual:'counter',audio:'counter',
+   proof:'authority-counter-and-HP',verified:true,actorId:null,targetId:'warden',
+   from:null,to:{x:4,z:4},severity:28/90,priority:7,
+   detail:{damage:28,maxHp:90,remainingHp:42,recoveryUntilTick:11}})},
+  {label:'ranger arrow muzzle',unit:ranger,requested:cue({
+   id:'1:1:11:ranged-release:ranger:enemy',kind:'ranged-release',
+   visual:'launch',audio:'ranged-release',proof:'authority-action',
+   actorId:'ranger',targetId:'enemy',from:at,to:destination})},
+  {label:'body-local shield block',unit:guard,requested:cue({
+   id:'1:1:11:block:vanguard:-',kind:'block',visual:'block',audio:'block',
+   proof:'authority-block-unique-guarded-hp',actorId:'vanguard',
+   targetId:null,from:at,to:null})},
+  {label:'actual one-cell sidestep',unit:evader,requested:cue({
+   id:'1:1:11:evade:vanguard:-',kind:'evade',visual:'evade',audio:'evade',
+   proof:'authority-event-and-observed-step',actorId:'vanguard',
+   targetId:null,from:at,to:{x:3,z:2}})}
+ ];
+ let snapshot={run:1,floor:1,tick:11,units:[warden]};
+ const drawnRanger={u:ranger,authored:false,
+  root:{visible:true,position:{x:-7,y:0,z:-7},rotation:{y:0}}};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  requireVerifiedHpReceipt:true,getCurrentSnapshot:()=>snapshot,
+  actorById:id=>id==='ranger'?drawnRanger:null
+ });
+ try{
+  for(const {label,unit,requested} of candidates){
+   stage.reset();snapshot={run:1,floor:1,tick:11,units:[unit]};
+   assert.equal(stage.emit(requested),true,label+' remains drawable with a unique real source');
+   stage.reset();
+   // Planner source-action scanning stops at 96, but planner's duplicate-ID
+   // integrity scan covers 256. A repeated ID at index 100 must NOT become
+   // an invisible second owner for the preview's retained GPU art.
+   snapshot={...snapshot,units:[unit,...Array(99).fill(null),{...unit}]};
+   assert.equal(stage.emit(requested),false,
+    label+' must reject a duplicate at index 100 before any retained VFX allocation');
+   assert.equal(stage.stats().active,0,label+' has no stranded pooled effect');
+   assert.ok(stage.stats().activeDrawCalls<=7);
+  }
+  assert.equal(stage.stats().reservedInstances,102);
+ }finally{stage.dispose()}
+});
