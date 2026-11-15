@@ -1233,6 +1233,18 @@ for(const view of [
   expect(proof.liftMeters).toBeGreaterThanOrEqual(.004);
   expect(proof.liftMeters).toBeLessThanOrEqual(.040001);
   expect(proof.afterToeY).toBeGreaterThan(proof.beforeToeY);
+  // A rare connected-leg finishing toe has NOT proved sole contact; reject
+  // any source receipt with residual burial >8mm, weak improvement, or
+  // an invented owner, even if ordinary toe tests were green.
+  if(proof.connectedLegPartialFinish===true){
+   expect(proof.originalSourceContactLocked).toBe(false);
+   expect(proof.liftMeters).toBeGreaterThanOrEqual(.005);
+   expect(proof.liftMeters/(-.02-proof.beforeToeY)).toBeGreaterThanOrEqual(.45);
+   expect(proof.beforeToeY).toBeGreaterThan(-.045);
+   expect(proof.beforeToeY).toBeLessThan(-.026);
+   expect(proof.afterToeY).toBeGreaterThanOrEqual(-.028001);
+   expect(proof.afterToeY).toBeLessThan(-.023);
+  }
   // Only a genuinely measured >=15% relief justifies moving the source
   // knuckle if this toe remains >25mm buried in the original dungeon stone.
   // Previous real desktop 6.283mm / ~69mm did not earn this gate; it
