@@ -95,7 +95,9 @@ test('Pass309 production source reads only actual public 3D actors, preserves ex
  assert.match(scene,/attentionStrength=witnessedLocally\s*&& publicGuardianOpenSightline\(s,entry\.cell\)/);
  assert.match(scene,/cameraMode==='follow'[\s\S]*?closestThreat\?\.strength>\.70[\s\S]*?closestThreatModel\?\.parent/);
  assert.match(scene,/root\.traverseVisible\(mesh=>/);
- assert.match(scene,/publicGuardianPhysicalCloseupHalfHeight\(\s*aspect,closestThreat\.strength,targetHeight,halfHeight,realBodies/);
+ assert.match(scene,/publicGuardianPhysicalCloseupHalfHeight\(\s*aspect,verifiedGuardianStrength,targetHeight,halfHeight,realBodies/);
+ assert.match(scene,/verifiedGuardianStrength=verifiedGuardianModel===closestThreatModel && closestThreat\?\.strength>\.70/,
+   'physical closeup retains real authoritative guardian strength when the original witnessed enemy is nearby');
  assert.doesNotMatch(scene,/privateMaze.*closestThreatModel|secretRoute.*closestThreatModel/);
 });
 
@@ -185,7 +187,7 @@ test('Pass398 authentic seed-13 earned recoil centers BOTH complete 390px actors
  }
  assert.equal(pan(aspect,halfHeight,[pip,guardian],true),dx,
    'same published actor geometry yields exactly the same camera correction');
- assert.match(scene,/closestThreat\.lanternParried===true/);
+ assert.match(scene,/earnedGuardianFrame\s*\|\| closestThreat\?\.lanternParried===true/);
  assert.match(scene,/camera\.position\.addScaledVector\(pressureReframeRight,recoilPairShift\)/);
  assert.match(scene,/publicGuardianEarnedRecoilPairShift\(/);
 });
