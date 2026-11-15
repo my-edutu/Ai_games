@@ -81,3 +81,47 @@ test('RED: native original renderer retains four probes, independent FINAL skinn
  assert.match(renderer,/mount\.last\.multiply\(delta\)/);
  assert.match(renderer,/finalIndependentSourceSkin:true/);
 });
+
+test('real 390px source shoe at 57.8mm burial qualifies a bounded original Idle full-chain trial without granting a plant',async()=>{
+ const {planOriginalSourceAuthoredNeutralBlends:plan,
+  chooseOriginalSourceAuthoredNeutralLegTrial:choose}=await load();
+ // Actual original KayKit Walking_A mobile HEAD e546515e:
+ // native-rig Actions 43752353309, tick 3 weighted heel/toe positions
+ // and the exact -90/+75mrad dual-skinned starter deltas below.
+ // Sample XZ projection, neutral-after positions and candidate outcome
+ // remain expressly TEST FIXTURES, never claimed measured neutral WebGL.
+ const right={heelY:.2092983856843685,toeY:-.07780778112186443,
+  heelXZ:[0,0],toeXZ:[.0698,0]};
+ const left={heelY:-.008357621627137362,toeY:.014235324240819622,
+  heelXZ:[1,0],toeXZ:[1.27,0]};
+ const current={...owner,before:{right,left}};
+ const altered=(toeLift,heelDelta)=>({
+  right:{...right,toeY:right.toeY+toeLift,heelY:right.heelY+heelDelta,
+   heelXZ:[.0065,0],toeXZ:[.105,0]},
+  left:{...left}
+ });
+ const starterTrials=[
+  {upperRad:.09,lowerRad:-.075,after:altered(-.007799362948773189,-.02830632308427336)},
+  {upperRad:-.09,lowerRad:.075,after:altered(.013671053945321199,.026379916764464217)}
+ ];
+ assert.ok((-.02-right.toeY)>.055&&(-.02-right.toeY)<.06,
+  'the exact source toe is materially buried, just below the old arbitrary 60mm gate');
+ assert.deepEqual(plan({...current,starterTrials}),[.28,.42]);
+ const hypothetical={neutralBlend:.28,maxJointDeltaRad:.20,after:altered(.024,-.018)};
+ const picked=choose({...current,trials:[hypothetical]});
+ assert.equal(picked?.contactLocked,false);
+ assert.equal(picked?.originalOppositeShoeVerified,true);
+ assert.ok(picked.sourceToeLiftMeters>=.018);
+ for(const wrong of [
+  {before:{right:{...right,toeY:-.074},left}},
+  {before:{right:{...right,toeXZ:[.24,0]},left}},
+  {before:{right,left:{...left,toeY:.017}}},
+  {reducedMotion:true},{interrupted:true},{sourceInstanceSame:false},
+  {starterTrials:[starterTrials[0]]}
+ ])assert.equal(plan({...current,starterTrials,...wrong}),null);
+ assert.equal(choose({...current,before:{right:{...right,toeY:-.074},left},
+  trials:[hypothetical]}),null);
+ assert.equal(choose({...current,trials:[{
+  ...hypothetical,after:altered(.024,.027)
+ }]}),null,'a heel-dominant neutral trial must still fail actual two-shoe pitch protection');
+});

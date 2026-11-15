@@ -776,6 +776,53 @@ for(const view of [
     proofs:t.nativeLegOwnership?.sourceSwingLinkedCurrentFrameProofs??null,
     skinnedShoes:t.sourceSolePatchWorld??null}))},null,2))
  });
+
+ // The three-joint licensed Idle/Walking_A escape was previously excluded
+ // for an actual 57.8mm buried source toe by a 60mm threshold. Preserve
+ // BOTH the attempted genuine source probes and any independently skinned
+ // accepted final frame. Zero acceptances are a FAIL-CLOSED candidate,
+ // never reported as a successful new foot plant.
+ const originalNeutralFrames=trace.map(t=>({
+  tick:t.tick,sourceId:t.sourceId,
+  sourceClip:t.nativeLegOwnership?.clipName??null,
+  attempted:t.nativeLegOwnership?.sourceNeutralSwingLastProbe??null,
+  acceptedFrames:t.nativeLegOwnership?.sourceNeutralSwingAcceptedFrames??0,
+  independentFinal:t.nativeLegOwnership?.sourceNeutralSwingCurrentFrameProofs??null,
+  skinnedShoe:t.sourceSolePatchWorld??null
+ }));
+ let actualNeutralProofs=0;
+ for(const frame of trace)for(const side of ['left','right']){
+  const p=frame.nativeLegOwnership?.sourceNeutralSwingCurrentFrameProofs?.[side];
+  if(!p)continue;
+  actualNeutralProofs++;
+  const other=side==='left'?'right':'left';
+  expect(p.sourceInstanceId).toBe(frame.sourceId);
+  expect(p.sourceClip).toBe('Walking_A');
+  expect(p.neutralClip).toBe('Idle');
+  expect(p.sourceProbeCount).toBe(4);
+  expect(p.sourceBoundedJointCount).toBe(3);
+  expect(p.finalIndependentSourceSkin).toBe(true);
+  expect(p.originalOppositeShoeVerified).toBe(true);
+  expect(p.contactLocked).toBe(false);
+  expect(p.sourceToeLiftMeters).toBeGreaterThanOrEqual(.017999);
+  expect(p.originalPitchGainMeters).toBeGreaterThanOrEqual(.008999);
+  expect(p.maxJointDeltaRad).toBeLessThanOrEqual(.260001);
+  expect(Math.abs(p.after?.[other]?.heelY-p.before?.[other]?.heelY))
+   .toBeLessThanOrEqual(.003001);
+  expect(Math.abs(p.after?.[other]?.toeY-p.before?.[other]?.toeY))
+   .toBeLessThanOrEqual(.003001);
+ }
+ await test.info().attach('original-license-source-neutral-sole-trials',{
+  contentType:'application/json',
+  body:Buffer.from(JSON.stringify({
+   viewport:view.name,source:'genuine original KayKit source Walking_A + Idle',
+   actualNeutralProofs,claimedFootPlant:false,
+   acceptance:actualNeutralProofs?
+    'measured three-joint candidate; not full-gait or planted-foot acceptance':
+    'unverified: no original Idle three-joint candidate certified in sampled film',
+   originalNeutralFrames
+  },null,2))
+ });
  for(const frame of trace)for(const side of ['left','right']){
   const proof=frame.nativeLegOwnership?.sourceSwingLinkedCurrentFrameProofs?.[side];
   if(!proof)continue;

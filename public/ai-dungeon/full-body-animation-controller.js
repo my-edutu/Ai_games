@@ -71,7 +71,13 @@ export function planOriginalSourceAuthoredNeutralBlends({
   swing.heelXZ[1]-swing.toeXZ[1]);
  const length=Math.hypot(projected,swing.heelY-swing.toeY);
  if(projected<.045||projected>.15||length<.285||length>.325||
-  floorTopY-swing.toeY<.06||floorTopY-swing.toeY>.12||
+  // The real exact-source 390px frame at e546515e buries the toe 57.81mm,
+  // yet all four paired trials leave it >40mm in stone. Rejecting at 60mm
+  // excluded its licensed Idle-reference three-joint escape despite a
+  // certified 295mm anatomical shoe and stable opposite weighted sole.
+  // A narrow >=55mm qualification only permits TWO reversible native
+  // original GLB trials; real post-apply dual-shoe verification still rules.
+  floorTopY-swing.toeY<.055||floorTopY-swing.toeY>.12||
   swing.heelY-floorTopY<.16||swing.heelY-floorTopY>.34||
   ![support.heelY,support.toeY].every(y=>
    y>=floorTopY-.055&&y<=floorTopY+.035))return null;
@@ -111,7 +117,10 @@ export function chooseOriginalSourceAuthoredNeutralLegTrial({
   !valid(before?.[side])||!valid(before?.[other])||
   !Array.isArray(trials)||!trials.length||trials.length>2)return null;
  const swing=before[side],support=before[other],depth=floorTopY-swing.toeY;
- if(depth<.06||depth>.12||swing.heelY-floorTopY<.16||
+ // A genuine 57.81mm buried toe (native WebGL 390px, e546515e) is
+  // sufficiently deep to evaluate an independently skinned original Idle
+  // leg blend, but never evidence of clearance before BOTH shoes pass.
+  if(depth<.055||depth>.12||swing.heelY-floorTopY<.16||
   swing.heelY-floorTopY>.34||
   ![support.heelY,support.toeY].every(y=>
    y>=floorTopY-.055&&y<=floorTopY+.035))return null;
