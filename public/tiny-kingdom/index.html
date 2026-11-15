@@ -15052,6 +15052,66 @@ function grainwardCoveredDryingGallery(x,z,base,w,d){
   extraBuffers:0,addedBuildings:0,addedWorkers:0,addedGoods:0,
   changesNavigation:false,changesEconomy:false,changesAuthority:false};
 }
+// W348: one genuinely walkable granary arrival, with physical front joinery
+// and terrain-fitted dressed stone at the REAL courier loading doorway.
+// Part of the resident civic core: no fake supplies, extra buildings, agents,
+// transactions, new collision volumes, or per-frame reconstruction.
+function originalGranaryLoadingFrontage(x,z,y,w,d){
+ const first=data.length;
+ let bays=0,braces=0,curbStones=0,pavers=0;
+ const face=z-d*.52-.145,agedOak=rgb(0x604a36),
+  weatheredOak=rgb(0x9a8061);
+ materialScope(MATERIAL.WOOD,()=>{
+  for(const side of [-1,1]){
+   const outer=x+side*w*.425;
+   // Both real freight-door sides remain open at ground level.
+   box(outer,y+.90,face,.125,2.16,.115,agedOak);
+   for(const level of [1.18,2.08]){
+    limbSegment([outer,y+level,face-.065],
+     [outer-side*.32,y+level+.36,face-.065],
+     .045,weatheredOak,4);
+    braces++;
+   }
+   // True jettied frontage tie-beams stop before the door opening.
+   box(x+side*w*.305,y+2.22,face,1.0,.12,.12,agedOak);
+   bays++;
+  }
+ });
+ materialScope(MATERIAL.STONE,()=>{
+  for(const side of [-1,1])for(let n=0;n<3;n++){
+   const px=x+side*w*.425,pz=face-.18-n*.48;
+   if(!walkable(px,pz))continue;
+   box(px,terrain(px,pz)+.016,pz,.32,.10,.37,
+    rgb((n+side+2)%2?0x9a907e:0xb0a490));
+   curbStones++;
+  }
+ });
+ materialScope(MATERIAL.ROAD,()=>{
+  // Shallow flush paving around the ACTUAL loading/courier origin. Non-
+  // blocking panels match the original non-flat terrain at every corner.
+  for(let row=0;row<7;row++)for(let column=-2;column<=2;column++){
+   const px=x+column*.54+(row%2)*.12,
+    pz=face-.28-row*.26;
+   if(!walkable(px,pz))continue;
+   const halfW=.205,halfD=.102,lift=.083;
+   const vertex=(dx,dz)=>[px+dx,terrain(px+dx,pz+dz)+lift,pz+dz];
+   const tone=rgb((row+column+9)%3===0?0xa89c88:
+    (row+column+9)%3===1?0x8f887b:0xb5a992);
+   quad(vertex(-halfW,-halfD),vertex(-halfW,halfD),
+    vertex(halfW,halfD),vertex(halfW,-halfD),tone);
+   pavers++;
+  }
+ });
+ const triangles=(data.length-first)/30;
+ if(triangles>400||triangles<0||!Number.isInteger(triangles))
+  throw Error('W348 granary frontage exceeds bounded original-geometry budget');
+ return {source:'real-granary-to-market-freight-door-frontage',
+  triangles,postBays:bays,diagonalBraces:braces,
+  curbStones,pavers,realCourierOrigin:FARM_MARKET_STREET_ORIGIN.slice(),
+  realCourierOriginPassable:walkable(...FARM_MARKET_STREET_ORIGIN),
+  retainedCivicCore:true,changesNavigation:false,changesAuthority:false,
+  inventedStock:0,addedActors:0};
+}
 function granaryArchitecture(){
  const first=data.length;
  const [x,z]=FARMSTEAD.granary,y=terrain(x,z),w=4.5,d=3.95;
@@ -15226,6 +15286,7 @@ function granaryArchitecture(){
   box(x+.94,y+.83,front-.72,.17,.26,.83,beam);
   box(x-1.10,y+.84,front-.78,.17,.26,.83,beam);
  });
+ audit.originalLoadingFrontage=originalGranaryLoadingFrontage(x,z,y,w,d);
  grainwardStructuralDormer(x,z,eave,peak,w*.55,z-d*.58,-1,1,1.02,'granary');
   const grainRoof=grainwardGranaryRoof(x,z,eave,peak,w*.55);
  audit.coveredDryingGallery=grainwardCoveredDryingGallery(x,z,y,w,d);

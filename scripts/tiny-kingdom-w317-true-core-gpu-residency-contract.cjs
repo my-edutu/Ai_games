@@ -39,6 +39,9 @@ function exercise(hardware){
   craftCounters:{forge:1},marketQuarterStats:{stalls:4},
   highStreetStats:{shopfronts:2,houseYards:10,totalTriangles:210},
   foundingStreetfrontCoreReuses:0,currentMaterial:7,
+  // W346 declares original fixed fixtures after the extracted core block;
+  // the VM needs its real audit counters as harness fixtures.
+  civicStaticFixtureTriangles:0,civicStaticFixtureBuilds:0,
  };
  vm.runInNewContext(original,env,{timeout:2500});
  const evalCore=s=>vm.runInNewContext(s,env,{timeout:2500});
