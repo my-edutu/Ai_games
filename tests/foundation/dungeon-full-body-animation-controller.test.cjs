@@ -6019,3 +6019,68 @@ test('RED: certified original source-linked swing may finish toe clearance throu
  assert.match(actualRenderer,/originalSwingToeJointRestore/,
   'new source toe joint is reversed before the next original AnimationMixer step');
 });
+
+
+// 15 Nov 2026 original mobile linked-leg readback: a measured 11.507mm
+// residual toe intrusion is NOT eligible for the old >=25mm finisher.
+// The after-pose below is deliberately a TEST HYPOTHESIS; only actual
+// licensed SkeletonUtils skinning may confirm it in post-change Chromium.
+test('RED: shallow native linked-leg toe may finish only with measured 45% recovery and both real shoes',async()=>{
+ const {chooseOriginalSourceSwingLinkedToeFinisher:choose}=await load();
+ const support={heelY:-.026,toeY:-.013,
+  heelXZ:[-4.1,-7.1],toeXZ:[-4.2,-7.1]};
+ const swing={heelY:.240,toeY:-.031507,
+  heelXZ:[-3.9,-7.2],toeXZ:[-3.95,-7.2]};
+ const before={left:swing,right:support};
+ const linkedProof={source:'measured-original-skinned-linked-leg',
+  sourceClip:'Walking_A',sourceInstanceId:'same-original-skeleton',
+  side:'left',contactLocked:false,oppositeShoePreserved:true,after:before};
+ const valid={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceToeChainVerified:true,
+  sourceToeTrackVerified:true,ownerLocomotion:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,rootTravel:.048,frameAge:.02,frameInterval:.033,
+  floorTopY:-.02,side:'left',linkedProof,before};
+ const pose=(toeLift=.0061,otherShift=0,heelShift=.0004)=>({
+  angleRad:.10,
+  after:{left:{...swing,heelY:swing.heelY+heelShift,
+   toeY:swing.toeY+toeLift,
+   heelXZ:[swing.heelXZ[0]+.0007,swing.heelXZ[1]],
+   toeXZ:[swing.toeXZ[0]+.002,swing.toeXZ[1]]},
+   right:{...support,toeY:support.toeY+otherShift}}
+ });
+ const accepted=choose({...valid,trials:[pose()]});
+ assert.ok(accepted,'a hypothetical same-source 6.1mm final toe lift must be eligible for a real GLB probe');
+ assert.equal(accepted.angleRad,.10,'prefer a small original toes hinge, not a .16rad impulse');
+ assert.equal(accepted.shallowSourceToeFinish,true);
+ assert.equal(accepted.contactLocked,false,'the partially buried foot is never an invented plant');
+ assert.equal(accepted.oppositeFootVerified,true);
+ assert.ok(accepted.afterToeY>=-.028&&accepted.afterToeY<-.02,
+  'the source-skinned toe remains a physically honest <8mm residual');
+ for(const bad of [
+  {trials:[pose(.0049)]}, // less than 5mm and 45% measured clearance
+  {trials:[pose(.0051)]}, // 5.1mm is below 45% of the 11.507mm source burial
+  {trials:[pose(.0061,.0021)]}, // loaded original outsole moved
+  {trials:[pose(.0061,0,.0041)]}, // swing heel moved too far
+  {trials:[{...pose(),after:{...pose().after,left:{
+   ...pose().after.left,toeXZ:[swing.toeXZ[0]+.013,swing.toeXZ[1]]}}}]},
+  {before:{left:{...swing,toeY:-.024},right:support}},
+  {before:{left:{...swing,toeY:-.050},right:support}},
+  {sourceInstanceSame:false},{sourceClipName:'Idle'},
+  {sourceToeChainVerified:false},{sourceToeTrackVerified:false},
+  {linkedProof:{...linkedProof,contactLocked:true}},
+  {linkedProof:{...linkedProof,oppositeShoePreserved:false}},
+  {reducedMotion:true},{interrupted:true},{teleport:true}
+ ])assert.equal(choose({...valid,...bad}),null,
+  'a shallow original-GLB toe finish must fail closed without dual-skinned-shoe proof');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const linked=renderer.slice(renderer.indexOf('function stageOriginalSourceSwingLinkedToesAfterMixer('),
+  renderer.indexOf('function stageOriginalSourceStanceSlideAfterMixer('));
+ assert.match(linked,/const shallowSourceToeFinish=/,
+  'the live renderer must physically test a restrained source .10rad hinge only for a shallow linked residual');
+ assert.match(linked,/chooseOriginalSourceSwingLinkedToeFinisher\(/,
+  'the live original joint still requires a final dual-shoe readback');
+ const browser=fs.readFileSync(path.join(root,'tests/browser/dungeon-full-body-animation.spec.cjs'),'utf8');
+ assert.match(browser,/const linkedToeFinish=proof\.source==='licensed-original-linked-Walking_A-toes-hinge'/,
+  'genuine Chromium must understand linked finisher receipts separately from ordinary original toe overlays');
+});
