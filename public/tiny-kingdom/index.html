@@ -4410,6 +4410,11 @@ let groundAtlasLastBuildProfile=null;
 // no decorative structures and no writes to authoritative resources.
 let groundAtlasHouseCanvas=null,groundAtlasRoadCanvas=null,groundAtlasCompositeCanvas=null;
 let groundAtlasAccessCanvas=null,groundAtlasAccessTopology='',groundAtlasAccessRebuilds=0;
+// W361: retain proven access-surface pixels when a remote, append-only real
+// construction cannot alter a previously validated outdoor household route.
+let groundAtlasAccessPaintedKeys=[],groundAtlasAccessIncrementalPaints=0,
+ groundAtlasAccessFullRepaints=0,groundAtlasAccessPathsPreserved=0,
+ groundAtlasAccessLastPlan=null;
 // W356: one retained original ground texture matches EXACT emitted 3D
 // occupied-home road sections, never invented routes or per-frame JS meshes.
 let groundAtlasHomeRoadKey=null,groundAtlasHomeRoadAudit={paintedSections:0};
@@ -4434,6 +4439,10 @@ function getGroundAtlasRouteResidencyAudit(){
   reroutes:groundAtlasAccessRoutePlans,
   invalidatedByActualObstacles:groundAtlasAccessRouteBlocked,
   retiredRoutes:groundAtlasAccessRouteEvictions,
+  incrementalPaints:groundAtlasAccessIncrementalPaints,
+  fullRepaints:groundAtlasAccessFullRepaints,
+  preservedRoutePixels:groundAtlasAccessPathsPreserved,
+  lastPaint:groundAtlasAccessLastPlan?{...groundAtlasAccessLastPlan}:null,
   noInventedRoads:true,changesAuthority:false,changesNavigation:false,
   hardwareFrameTime:'NOT MEASURED'};
 }
@@ -4463,6 +4472,28 @@ function originalVillageRoadLanes(){
 // ONLY while every OUTDOOR point and segment remains clear of all actual
 // newly constructed homes. Threshold is inside its own home footprint.
 // No new navigation edge or off-road path is created for the simulation.
+// W361: the historical access overlay is a *retained GPU texture source*.
+// Pure planner: only append when all previous LOTS remain in order and every
+// previously painted, physically checked route is still the SAME route.
+// A blocked/replaced/deleted street or restored different town forces full
+// repaint; newly unblocked old entrances and authentic new homes paint once.
+// No speculative navigation, hidden homes or invented road geometry.
+function planGroundAccessOverlayPaint(previousLots,currentLots,previousRoutes,nextRoutes){
+ const appendOnly=Array.isArray(previousLots)&&previousLots.length>0&&
+  previousLots.length<=currentLots.length&&
+  previousLots.every((key,i)=>key===currentLots[i])&&
+  previousLots.every(key=>{
+   const route=previousRoutes.get(key);
+   return !route||nextRoutes.get(key)===route;
+  });
+ const drawKeys=currentLots.filter(key=>
+  nextRoutes.has(key)&&(!appendOnly||!previousRoutes.has(key)));
+ const retained=appendOnly?[...previousRoutes.keys()]
+  .filter(key=>nextRoutes.get(key)===previousRoutes.get(key)).length:0;
+ return {mode:appendOnly?'append':'full',
+  drawKeys,preservedRoutes:retained,priorLots:previousLots.length,
+  currentLots:currentLots.length,authorityModified:false};
+}
 function validResidentAccessPath(link,isOpen,clearWay){
  if(!link||!Array.isArray(link.path)||link.path.length<3)return false;
  const path=link.path;
@@ -4807,13 +4838,12 @@ function rebuildGroundAtlas(){
  }
  if(groundAtlasAccessTopology!==accessTopology){
   const accessCtx=groundAtlasAccessCanvas.getContext('2d');
-  accessCtx.clearRect(0,0,size,size);
-  ctx=accessCtx;
-  const accessRoads=originalVillageRoadLanes();
-  const validRoutes=new Map();
+  const accessRoads=originalVillageRoadLanes(),validRoutes=new Map();
   const accessStats={connected:0,unlinked:0,metres:0,allRealHomes:true,
    authorityModified:false,maxCandidateSightlines:12,
    atlasBytes:size*size*4,zeroAddedWorldTriangles:true};
+  // FIRST validate every previous physical access against the *current*
+  // homes and obstacles. No pixel may be preserved on stale route authority.
   for(const lot of city){
    const key=lot.join(','),previous=groundAtlasAccessRoutes.get(key);
    const canReuse=validResidentAccessPath(previous,walkable,clearSegment);
@@ -4823,14 +4853,29 @@ function rebuildGroundAtlas(){
    if(canReuse)groundAtlasAccessRouteReuses++;
    else groundAtlasAccessRoutePlans++;
    if(!link){accessStats.unlinked++;continue}
-   validRoutes.set(key,link);
    if(link.path.some(point=>!point.every(Number.isFinite)))
-    throw Error('W153 nonfinite authentic cottage access lane');
-   // Gentle worn soil plus a narrow compacted centre, below the actual 3D
-   // characters/house walls. The market's existing roads overlay the ends.
+    throw Error('W361 nonfinite original cottage access lane');
+   validRoutes.set(key,link);
+   accessStats.connected++;accessStats.metres+=link.distance;
+  }
+  const lotKeys=city.map(lot=>lot.join(','));
+  const paint=planGroundAccessOverlayPaint(
+   groundAtlasAccessPaintedKeys,lotKeys,groundAtlasAccessRoutes,validRoutes);
+  if(paint.mode==='full'){
+   accessCtx.clearRect(0,0,size,size);
+   groundAtlasAccessFullRepaints++;
+  }else{
+   groundAtlasAccessIncrementalPaints++;
+   groundAtlasAccessPathsPreserved+=paint.preservedRoutes;
+  }
+  // Appended remote construction paints ONLY fresh validated paths onto
+  // the unchanged 512px overlay. Old footfall/wear stays pixel-identical.
+  // Destruction, reroutes and load/restore always repaint every real link.
+  ctx=accessCtx;
+  for(const key of paint.drawKeys){
+   const link=validRoutes.get(key);
    drawPath(link.path,.71,'rgba(105,85,64,.48)');
    drawPath(link.path,.32,'rgba(182,148,105,.70)');
-   // A few alternating foot-scuffed edges without extra geometry or fake goods.
    for(let section=2;section<link.path.length;section++){
     const a=link.path[section-1],b=link.path[section],
      distance=Math.hypot(b[0]-a[0],b[1]-a[1]),
@@ -4844,12 +4889,14 @@ function rebuildGroundAtlas(){
      }
     }
    }
-   accessStats.connected++;
-   accessStats.metres+=link.distance;
   }
   for(const key of groundAtlasAccessRoutes.keys())
    if(!validRoutes.has(key))groundAtlasAccessRouteEvictions++;
   groundAtlasAccessRoutes=validRoutes;
+  groundAtlasAccessPaintedKeys=lotKeys;
+  groundAtlasAccessLastPlan={mode:paint.mode,paintedRoutes:paint.drawKeys.length,
+   preservedRoutes:paint.preservedRoutes,previousLots:paint.priorLots,
+   realLots:paint.currentLots};
   groundAtlasAccessAudit={...accessStats,
    routeCacheSize:groundAtlasAccessRoutes.size,
    metres:Math.round(accessStats.metres*100)/100};
@@ -5000,6 +5047,7 @@ function rebuildGroundAtlas(){
  groundAtlasLastBuildProfile={source:'real-immutable-original-ground-and-occupied-house-atlas',
   baseCold:!groundAtlasBaseReuses||groundAtlasBaseBuilds===1&&groundAtlasRebuilds===0,
   baseMs:groundBaseMs,homeMs:groundHomesMs,accessMs:groundAccessMs,
+  accessPaint:groundAtlasAccessLastPlan?{...groundAtlasAccessLastPlan}:null,
   roadsMs:groundRoadMs,compositeMs:groundCompositeMs,uploadMs:groundUploadMs,
   totalMs:performance.now()-groundBuildStart,
   changeWasFull:dirty.full,changedTiles:dirty.changedTiles,
