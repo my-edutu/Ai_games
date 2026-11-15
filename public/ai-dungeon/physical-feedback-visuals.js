@@ -331,6 +331,43 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    priorHp>detail.remainingHp&&priorHp<=detail.maxHp&&
    drawn.hp===priorHp;
  }
+ // The earned counter is a VERIFIED Warden injury, not a generic success
+ // decoration. Strict D04 must independently witness the one current public
+ // casualty before attaching its higher-priority body ring. A copied proof
+ // label/ID cannot create a recovery success on an uninjured, dead, reused
+ // or ambiguous character. The prior recovery window is proved by the
+ // canonical immutable adjacent-snapshot cue; the current HP and scene
+ // are rechecked here. This runs once at admission, never each frame.
+ function counterVictimStillWitnessed(cue){
+  if(!requireVerifiedHpReceipt)return true; // standalone VFX auditions
+  if(!isCanonicalVerifiedCombatFoleyCue(cue)||
+   typeof getCurrentSnapshot!=='function')return false;
+  let latest=null;
+  try{latest=getCurrentSnapshot()}catch{return false}
+  if(!latest||!Number.isSafeInteger(latest.tick)||latest.tick!==cue.tick||
+   !Number.isSafeInteger(latest.run)||!Number.isSafeInteger(latest.floor)||
+   `${latest.run}:${latest.floor}`!==cue.sceneKey||
+   !Array.isArray(latest.units))return false;
+  let witness=null;
+  for(let i=0;i<Math.min(latest.units.length,96);i++){
+   const candidate=latest.units[i];
+   if(candidate?.id!==cue.targetId)continue;
+   if(witness)return false; // never choose a duplicate public Warden
+   witness=candidate;
+  }
+  if(!witness||witness.kind!=='warden'||witness.faction!=='enemy'||
+   !cell(witness)||witness.x!==cue.to?.x||witness.z!==cue.to?.z||
+   !matchesCurrentHpReceipt(cue,witness))return false;
+  let actor=null;
+  try{actor=actorById(cue.targetId)}catch{return false}
+  if(actor){
+   const u=actor.u;
+   if(!u||u.id!==witness.id||u.kind!==witness.kind||
+    u.faction!==witness.faction||u.x!==witness.x||u.z!==witness.z||
+    !drawnHpMatchesObservedTransition(cue,u,witness))return false;
+  }
+  return true;
+ }
  function sampleInterpolatedHPVictim(cue,at,actor){
   if(typeof getCurrentSnapshot!=='function'||!actor?.root?.visible||
    !finite3(actor.root.position))return null;
@@ -669,7 +706,9 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   if(type==='hit'&&requireVerifiedHpReceipt&&
    !isCanonicalVerifiedCombatFoleyCue(cue)){suppressed++;return false}
   if(type==='trail'&&(cue.kind!=='swing'||cue.proof!=='authority-attempt-not-hit'))return false;
-  if(cue.kind==='counter'&&cue.proof!=='authority-counter-and-HP')return false;
+  if(cue.kind==='counter'&&(
+   cue.proof!=='authority-counter-and-HP'||
+   !counterVictimStillWitnessed(cue))){suppressed++;return false}
   // A public block event alone has no known defending body or attacker.
   // Only the planner's unique same-tick guard plus HP-loss witness may
   // draw localized shield contact; actorId is a defender, never a guessed foe.
