@@ -125,3 +125,39 @@ test('real 390px source shoe at 57.8mm burial qualifies a bounded original Idle 
   ...hypothetical,after:altered(.024,.027)
  }]}),null,'a heel-dominant neutral trial must still fail actual two-shoe pitch protection');
 });
+
+test('real slow mobile original Walking_A swing can try bounded Idle bones after a long displayed frame, not invent a foot plant',async()=>{
+ const {planOriginalSourceAuthoredNeutralBlends:plan}=await load();
+ // Exact same-frame original GLB 390px skinned shoes at tick 8,
+ // successful Actions #43755344687, SHA 3db98508. The trial Y changes
+ // are from actual source hip/knee starter probes. The after XZ values
+ // are intentionally held as a conservative fixture, not WebGL evidence.
+ const mobileSwing={heelY:.19112150149048887,toeY:-.11052621681944015,
+  heelXZ:[-2.667257124525803,-7.120854474234475],
+  toeXZ:[-2.7201429995270305,-7.1328669514640834]};
+ const mobileLoaded={heelY:-.03263928880400248,toeY:-.031041985798242282,
+  heelXZ:[-2.7096633459806823,-6.957903705069923],
+  toeXZ:[-2.9798735448609377,-6.93257368634913]};
+ const slowOwner={...owner,frameInterval:.1833999999999918,
+  before:{right:mobileSwing,left:mobileLoaded}};
+ const after=(toeLift,heelRise)=>({
+  right:{...mobileSwing,toeY:mobileSwing.toeY+toeLift,
+   heelY:mobileSwing.heelY+heelRise},
+  left:{...mobileLoaded}
+ });
+ const realStarters=[
+  {upperRad:.12,lowerRad:-.09,after:after(-.013546392194931242,-.03231076450208828)},
+  {upperRad:-.12,lowerRad:.09,after:after(.023053701555781722,.028619230757589154)}
+ ];
+ assert.deepEqual(plan({...slowOwner,starterTrials:realStarters}),[.28,.42],
+  'a measured 183ms source display frame and 5.6mm heel-dominant rise must earn two safe original skin probes');
+ for(const bad of [
+  {frameInterval:.205},{frameInterval:.25},{teleport:true},
+  {reducedMotion:true},{interrupted:true},{mode:'attack'},
+  {sourceClipName:'Idle'},{sourceWeight:.90},
+  {before:{right:mobileSwing,left:{...mobileLoaded,toeY:.08}}},
+  {starterTrials:[realStarters[0],
+   {upperRad:-.12,lowerRad:.09,after:after(.023053701555781722,.026053701555781722)}]}
+ ])assert.equal(plan({...slowOwner,starterTrials:realStarters,...bad}),null,
+  'unsupported delayed frames, wrong owner, free-floating stance and weak pitch must still fail closed');
+});
