@@ -10,7 +10,7 @@
 // opacity locally rather than freezing the old shader, cancelling its fade,
 // or advancing authority/renderer clocks.
 export function protectHistoricalGallerySightline({
-  camera,actor,halfHeight,source,held,raycaster,direction,point,hitBuffer,
+  camera,actor,halfHeight,halfWidth=0,source,held,raycaster,direction,point,hitBuffer,
   dt=0,stale=false,reducedMotion=false
 }={}) {
   const inactive={active:false,meshes:0,rays:0,softened:0};
@@ -42,6 +42,22 @@ export function protectHistoricalGallerySightline({
   const count=Math.min(8,meshes.length,held.originalGalleryOcclusionWeights.length);
   let rays=0,softened=0;
   const sourceOpacity=Math.max(0,Math.min(1,held.originalGallerySourceOpacity));
+  // The genuine 390px native footage shows a retained bronze post masking
+  // the hero's SHOULDER even when centre/head/sole rays all miss. Recover
+  // the actor's actual source-owned horizontal collision extent without
+  // synthesizing future poses or a second actor. The camera-to-body tangent
+  // samples only the current full-body silhouette in THIS composed view.
+  // This is at most seven rays per each of eight real noninteractive batches
+  // (56 total), and never runs for desktop/other floors/stale snapshots.
+  const axialX=actor.x-camera.position.x;
+  const axialZ=actor.z-camera.position.z;
+  const axialLength=Math.hypot(axialX,axialZ);
+  const lateral=Number.isFinite(halfWidth) && halfWidth>0 &&
+    halfWidth<=halfHeight*1.5 && axialLength>.1
+      ?Math.min(halfWidth*.82,halfHeight*.65):0;
+  const rightX=lateral?axialZ/axialLength:0;
+  const rightZ=lateral?-axialX/axialLength:0;
+  const raysPerBatch=lateral?7:3;
   for(let i=0;i<count;i++){
     const mesh=meshes[i],material=mesh?.material;
     if(!mesh?.isMesh || !material || Array.isArray(material))continue;
@@ -50,8 +66,19 @@ export function protectHistoricalGallerySightline({
       // Source-derived actual body centre, sole and helmet; no inferred
       // destination or replay future. A hit must be in FRONT of the body,
       // never merely a large projected old-floor bounding box.
-      for(const height of [0,-halfHeight*.78,halfHeight*.82]){
+      for(let sample=0;sample<raysPerBatch;sample++){
+        // Exact source-centre, soles and helmet remain; shoulders and hips
+        // add only the authentic lateral skinned-body envelope. The contact
+        // decision is still an actual Three.js triangle ray intersection,
+        // NOT a projected screen-box guess or global architectural fade.
+        const height=sample===0?0:
+          sample===1?-halfHeight*.78:
+          sample===2?halfHeight*.82:
+          sample<5?halfHeight*.55:-halfHeight*.42;
+        const side=sample===3||sample===5?-1:
+          sample===4||sample===6?1:0;
         point.copy(actor);point.y+=height;
+        if(side){point.x+=rightX*lateral*side;point.z+=rightZ*lateral*side;}
         direction.copy(point).sub(camera.position);
         const distance=direction.length();
         if(!Number.isFinite(distance)||distance<=.4)continue;
@@ -71,7 +98,12 @@ export function protectHistoricalGallerySightline({
     // a second material clock. Reduced motion removes interpolation.
     const previous=Number.isFinite(held.originalGalleryOcclusionWeights[i])
       ?Math.max(0,Math.min(1,held.originalGalleryOcclusionWeights[i])):1;
-    const weight=hit?.14:reducedMotion?1:
+    // A 14%-opaque broad bronze post still visually masks the tiny portrait
+    // hero in the original film. Only source-original, real-ray-confirmed,
+    // non-colliding foreground is cut almost clear; its real authored back
+    // structure and unchanged opened gate remain. It recovers smoothly once
+    // the live full-body sightline clears.
+    const weight=hit?.035:reducedMotion?1:
       Math.min(1,previous+Math.max(0,Math.min(1,dt*10)));
     held.originalGalleryOcclusionWeights[i]=weight;
     const opacity=sourceOpacity*weight;
