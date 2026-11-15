@@ -5,7 +5,10 @@ const fs=require('node:fs');
 
 const palette=import('../../public/infinite-tower-climb/visuals/original-clockwork-architecture-palette.mjs');
 class Color {
-  constructor(hex){this.r=(hex>>16)&255;this.g=(hex>>8)&255;this.b=hex&255}
+  constructor(hex){this.set(hex)}
+  // Match the Three.Color API consumed by the ORIGINAL production palette:
+  // clone().set(hex) must return the mutable Color instance, not a bare hex.
+  set(hex){this.r=(hex>>16)&255;this.g=(hex>>8)&255;this.b=hex&255;return this}
   clone(){return Object.assign(Object.create(Color.prototype),this)}
   copy(c){this.r=c.r;this.g=c.g;this.b=c.b;return this}
   lerp(c,w){this.r+=w*(c.r-this.r);this.g+=w*(c.g-this.g);this.b+=w*(c.b-this.b);return this}
