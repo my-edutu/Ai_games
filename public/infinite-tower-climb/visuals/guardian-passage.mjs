@@ -105,7 +105,18 @@ export function observedGroundedGuardianHandoff(previous, next) {
   // the former cap footprint. All defeated-guardian, run, tick, health,
   // grounded-contact and horizontal-speed provenance checks still apply.
   // We neither synthesize intermediate snapshots nor change floor authority.
-  const sparseBrowserHandoff = elapsedTicks > 8 && elapsedTicks <= 12 &&
+  // Native 390x844 source/camera campaign 43760586307: the first FLOOR9
+  // accepted browser frame was tick489 after the actual grounded defeated
+  // F8 tick474. Its separate immutable 20Hz trace confirms 475 crossed,
+// but the browser's short-lived lastGuardianCrossing had expired before
+// its FIRST F9 paint. Preserve only a 750ms (<=20-tick) physically
+// witnessed same-run old-cap -> new-roof transition when the immutable
+// receipt is absent; the guardian must already be HP0 and both actual
+// grounded body extents must fit the exact same-height, same-width source
+// platforms. Recorded crossings keep the STRICT existing 12-tick limit.
+// This is not a 15-tick interpolation or synthetic source frame.
+  const sparseGapLimit=next.lastGuardianCrossing == null ? 20 : 12;
+  const sparseBrowserHandoff = elapsedTicks > 8 && elapsedTicks <= sparseGapLimit &&
     previous.floor === 8 && next.floor === 9 &&
     p.x >= previous.guardianExitX - 18000 &&
     p.x <= wholeBodyClearance &&
