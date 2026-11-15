@@ -17,7 +17,11 @@ function fixture() {
       guardian:{kind:'guardian',active:false,health:0}}};
   const held={guardianGateRetained:true,runToken:source.runToken,floor:9,
     oldRoofY:82000,thresholdX:exitX,sourceTick:460,crossingTick:451,
-    submittedFrames:1,visibleSeconds:.06};
+    // The real cold-F9 camera must have an actual first returned world tick.
+    // Without it the live source refuses an unverified optical clock; the
+    // previous fixture was asserting a fade from a nonexistent GPU owner.
+    firstWorldRenderTick:460,originalGatewayOpacity:1,
+    opticalExitSubmitted:false,submittedFrames:1,visibleSeconds:.06};
   return {source,held};
 }
 function rise(source,metres) {
@@ -46,9 +50,16 @@ test('the physical original gateway needs full-body source clearance AND returne
   assert.equal(samplePresence(source,held)?.opacity,1);
   rise(source,10);
   assert.equal(samplePresence(source,held)?.opacity,1,'stalled original GPU cannot age a gate');
-  held.submittedFrames=4;held.visibleSeconds=.62;
-  assert.ok(samplePresence(source,held)?.opacity>0 && samplePresence(source,held)?.opacity<1);
-  held.submittedFrames=8;held.visibleSeconds=1.15;
+  // Two and three actual returned frames must genuinely show an old/new
+  // shared doorway rather than expecting the old door to survive after the
+  // fourth fully source-cleared return (the native hard-cut regression).
+  held.submittedFrames=2;held.visibleSeconds=.22;
+  const second=samplePresence(source,held);
+  assert.ok(second?.opacity>.5 && second.opacity<.86);
+  held.submittedFrames=3;held.visibleSeconds=.32;
+  const third=samplePresence(source,held);
+  assert.ok(third?.opacity>0 && third.opacity<second.opacity);
+  held.submittedFrames=4;held.visibleSeconds=.42;
   assert.equal(samplePresence(source,held)?.opacity,0);
 });
 test('wrong run, undefeated guardian, false ground or old GPU never authorize original-gate fading',async()=>{
