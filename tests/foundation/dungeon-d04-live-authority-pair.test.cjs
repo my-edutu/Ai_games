@@ -103,6 +103,8 @@ function sixViewFixture(){
     recorder:onRec(),errors:[],
     samples:Array.from({length:12},(_,tick)=>sample('on',tick,15,{
      camera:viewpoint,viewport,seed,feedbackMode:'d04',
+     cameraPosition:{cinematic:{x:2,y:7,z:6},
+      tactical:{x:3,y:20,z:3},chase:{x:1,y:8,z:4}}[viewpoint],
      d04PreviewEnabled:true,previewAudioOptedIn:true
     }))});
   }
@@ -155,4 +157,20 @@ test('sparse real browser sampling and missing recorder remain explicit gaps, no
  assert.equal(v.status,'INCOMPLETE_VIEWPOINT_CAPTURE');
  assert.equal(v.capturedRecorders,5);
  assert.equal(v.impactAVAccepted,false);
+});
+
+test('camera-mode labels alone do not establish three different genuine physical viewpoints',()=>{
+ const {classifyD04RealMultiview}=
+  require('../browser/dungeon-d04-live-authority-pair.cjs');
+ const a=sixViewFixture();
+ for(const arm of a.runs)
+  for(const s of arm.samples){
+   s.cameraPosition={x:3,y:20,z:3};
+   s.cameraAim={x:0,y:0,z:0};
+  }
+ const verdict=classifyD04RealMultiview(a);
+ assert.equal(verdict.status,'VIEWPOINT_GEOMETRY_UNVERIFIED',
+  'three UI mode names may not borrow one unchanged physical camera');
+ assert.equal(verdict.distinctViewPairs,0);
+ assert.equal(verdict.impactAVAccepted,false);
 });
