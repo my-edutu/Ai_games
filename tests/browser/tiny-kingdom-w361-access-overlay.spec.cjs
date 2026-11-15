@@ -2,7 +2,7 @@
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs'),path=require('node:path');
 const html=fs.readFileSync(path.resolve(__dirname,'../../public/tiny-kingdom/index.html'),'utf8');
-const match=html.match(/function planGroundAccessOverlayPaint\\([\\s\\S]*?\\n\\}/);
+const match=html.match(/function planGroundAccessOverlayPaint\([\s\S]*?\n\}/);
 if(!match)throw Error('W361 retained real access-overlay painter missing');
 const plan=Function('return ('+match[0]+')')();
 test('W361 real home streets preserve safe old pixels on append-only growth',()=>{
