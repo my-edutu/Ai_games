@@ -137,14 +137,30 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    if(pool.slots[i]!==null){count=i+1;break}
   pool.mesh.count=count;
  }
- // Three.js 0.186 supports incremental matrix upload ranges in floats.
- // Five hit chips therefore invalidate five 16-float rows, not the entire
- // retained 48-row buffer. WebGL merges contiguous rows and clears uploaded
- // ranges. Mock adapters without addUpdateRange retain full-upload fallback.
- // No new effect pools, allocations, sounds or presentation deadlines.
+ // Three.js 0.186 exposes pending bufferSubData float ranges. An effect
+ // pool may remain invisible for hundreds of frames: the renderer cannot
+ // clear updates for an unsubmitted mesh. Coalesce ALL dirty rows into one
+ // bounded interval per pool, preserving every hidden/replaced matrix.
+ // Once the actual renderer uploads, its own clearUpdateRanges() resets the
+ // interval, so the next active frame starts narrow again. Unsupported mock
+ // adapters retain the existing full-buffer needsUpdate fallback.
  function setRetainedMatrix(pool,index,matrix){
   pool.mesh.setMatrixAt(index,matrix);
-  pool.mesh.instanceMatrix?.addUpdateRange?.(index*16,16);
+  const attr=pool.mesh.instanceMatrix;
+  if(!Array.isArray(attr?.updateRanges)||
+   typeof attr.clearUpdateRanges!=='function'||
+   typeof attr.addUpdateRange!=='function')return;
+  let start=index*16,end=start+16;
+  for(const range of attr.updateRanges){
+   const a=range?.start,n=range?.count;
+   if(!Number.isSafeInteger(a)||!Number.isSafeInteger(n)||
+      a<0||n<=0||a+n>pool.max*16){
+    start=0;end=pool.max*16;break;
+   }
+   start=Math.min(start,a);end=Math.max(end,a+n);
+  }
+  attr.clearUpdateRanges();
+  attr.addUpdateRange(start,end-start);
  }
  make('trail',createOriginalBladeStreakGeometry(THREE),{metalness:0,roughness:1,opacity:reducedFlash?.15:.29});
  make('hit',new THREE.TetrahedronGeometry(.073,0),{metalness:.22,roughness:.8});
