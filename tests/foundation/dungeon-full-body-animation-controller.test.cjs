@@ -6021,6 +6021,64 @@ test('RED: certified original source-linked swing may finish toe clearance throu
 });
 
 
+
+// RED-first 15 Nov 2026 exact-sha original Walking_A source proof:
+// desktop left swing toe -103.46mm after genuine linked hip/knee (83.46mm
+// beneath actual stone). The narrow toesl hinge was NOT observed to fix it.
+// A separate bounded, skinned ORIGINAL footl ankle trial is necessary: it
+// must retain the same source pair, 41-joint rig and previous linked result.
+// The candidate shoe lift is SYNTHETIC; postchange real GLB must decide.
+test('RED: original connected hip-knee-foot ankle trial preserves supporting shoe and independently rereads final source soles',async()=>{
+ const {chooseOriginalSourceSwingLinkedFootFinisher:choose}=await load();
+ assert.equal(typeof choose,'function','ankle continuation must exist as a measured source-joint gate');
+ const loaded={heelY:-.0466239946,toeY:-.0107242647,
+  heelXZ:[-3.8287,-7.1129],toeXZ:[-4.0967,-7.1373]};
+ const swing={heelY:.1968537079,toeY:-.1034644940,
+  heelXZ:[-3.7104,-6.9544],toeXZ:[-3.7513,-6.9359]};
+ const before={left:swing,right:loaded};
+ const linkedProof={source:'measured-original-skinned-linked-leg',
+  sourceClip:'Walking_A',sourceInstanceId:'current-original-GLB',side:'left',
+  contactLocked:false,oppositeShoePreserved:true,after:before};
+ const valid={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceFootChainVerified:true,sourceFootTrackVerified:true,
+  ownerLocomotion:true,alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,rootTravel:.01929,frameAge:0,frameInterval:.0333,
+  floorTopY:-.02,side:'left',linkedProof,before};
+ const trial=(lift=.012,heel=.002,supportShift=0)=>({angleRad:-.12,
+  after:{left:{...swing,toeY:swing.toeY+lift,heelY:swing.heelY+heel,
+   toeXZ:[swing.toeXZ[0]+.008,swing.toeXZ[1]],
+   heelXZ:[swing.heelXZ[0]+.002,swing.heelXZ[1]]},
+   right:{...loaded,toeY:loaded.toeY+supportShift}}});
+ const reverse={...trial(-.004),angleRad:.12};
+ const accepted=choose({...valid,trials:[trial(),reverse]});
+ assert.equal(accepted?.angleRad,-.12);
+ assert.ok(accepted?.liftMeters>=.012-.000001);
+ assert.equal(accepted?.contactLocked,false);
+ assert.equal(accepted?.oppositeFootVerified,true);
+ assert.equal(accepted?.linkedSourceRetained,true);
+ for(const bad of [
+  {sourceFootChainVerified:false},{sourceFootTrackVerified:false},
+  {sourceInstanceSame:false},{sourceClipName:'Idle'},{sourceWeight:.7},
+  {reducedMotion:true},{teleport:true},{interrupted:true},
+  {rootTravel:0},{frameInterval:.25},{mode:'hurt'},
+  {linkedProof:{...linkedProof,contactLocked:true}},
+  {linkedProof:{...linkedProof,after:{...before,left:{...swing,toeY:swing.toeY+.002}}}},
+  {trials:[trial(.004)]},{trials:[trial(.012,.012)]},
+  {trials:[trial(.012,.002,.003)]},
+  {trials:[{...trial(),after:{...trial().after,left:{
+   ...trial().after.left,toeXZ:[swing.toeXZ[0]+.036,swing.toeXZ[1]]}}}]}
+ ])assert.equal(choose({...valid,trials:[trial(),reverse],...bad}),null,
+   'native foot hinge cannot introduce unmeasured toe changes, unloaded opposite shoe, unsafe heel or illegal action');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/function stageOriginalSourceSwingLinkedFootAfterMixer\(/,
+   'the actual original GLB full-body controller must consume this selector');
+ assert.match(renderer,/chooseOriginalSourceSwingLinkedFootFinisher\(/);
+ assert.match(renderer,/sourceSwingLinkedCurrentFrameProofs\[side\]\s*=/,
+   'final foot-supported linked certificate must be reconciled to same source shoe');
+ assert.match(renderer,/originalSwingToeJointRestore/,
+   'source-foot correction must be reversed before the next AnimationMixer frame');
+});
+
 // 15 Nov 2026 original mobile linked-leg readback: a measured 11.507mm
 // residual toe intrusion is NOT eligible for the old >=25mm finisher.
 // The after-pose below is deliberately a TEST HYPOTHESIS; only actual
