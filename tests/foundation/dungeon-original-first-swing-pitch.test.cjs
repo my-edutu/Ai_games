@@ -43,6 +43,19 @@ test('RED: original-source first fast swing explores smaller hip and larger knee
  assert.deepEqual(plan({...owner,trials:starters}),
   [[-.075,.09],[-.085,.09]],
   'the two remaining REAL source-shoe reads should test a smaller original hip paired with a supported knee');
+ // A heel-dominated but NOT steep original outsole may not borrow this
+ // 390px source-rig correction. The 200mm XZ projection below is deliberately
+ // synthetic and should keep the existing, less-specialized safe probing.
+ const wideOriginal={...before,right:{...before.right,
+  toeXZ:[before.right.heelXZ[0]-.2,before.right.heelXZ[1]]}};
+ assert.deepEqual(plan({...owner,before:wideOriginal,trials:starters}),
+  [[-.105,.085],[-.11,.09]],
+  'an actually wide original outsole retains normal bounded hip+knee candidates');
+ const collapsedOriginal={...before,right:{...before.right,
+  toeXZ:[...before.right.heelXZ]}};
+ assert.deepEqual(plan({...owner,before:collapsedOriginal,trials:starters}),
+  [[-.105,.085],[-.11,.09]],
+  'coincident outsole samples cannot be called an anatomically steep shoe');
  for(const bad of [{sourceClipName:'Idle'},{sourceWeight:.7},
   {interrupted:true},{teleport:true},{reducedMotion:true},
   {before:{...before,right:{...before.right,toeY:-.045}}}])

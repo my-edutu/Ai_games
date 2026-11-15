@@ -107,11 +107,24 @@ export function planOriginalSourceSwingLinkedLegFollowups({
  // connected hip+calf pairs. No single-joint ankle tweak or planted target.
  // Actual two-shoe trial selection, final skin readback, slew and the exact
  // original GLB joint bindings remain mandatory in the caller.
+ // A large heel rise alone cannot identify the near-vertical SOURCE shoe.
+ // The older desktop test uses an intentionally synthetic 200mm horizontal
+ // outsole: it must retain the regular hip+knee follow-ups, not inherit
+ // the smaller-hip first-swing experiment calibrated on actual 390px shoes.
+ // Match the downstream four-probe pitch selector's original outsole
+ // geometry gate BEFORE spending either remaining skinned-source trial.
+ const sourceOutsoleProjection=Math.hypot(
+  original.heelXZ[0]-original.toeXZ[0],
+  original.heelXZ[1]-original.toeXZ[1]);
+ const sourceOutsoleSpan=Math.hypot(
+  sourceOutsoleProjection,original.heelY-original.toeY);
  const heelDominatedFirstSwing=!slow&&sourceWeight>=.95&&
   previousLinkedCertified!==true&&
   floorTopY-original.toeY>=.06&&
   best.lift>=.012&&best.heelRise>=.024&&
-  best.heelRise>=best.lift*1.7;
+  best.heelRise>=best.lift*1.7&&
+  sourceOutsoleProjection>=.045&&sourceOutsoleProjection<=.15&&
+  sourceOutsoleSpan>=.285&&sourceOutsoleSpan<=.325;
  if(heelDominatedFirstSwing)
   // Actual source 390px HEAD 10560307: the original -90/+75mrad
   // linked trial raised the toe 13.67mm but lifted its already-airborne
