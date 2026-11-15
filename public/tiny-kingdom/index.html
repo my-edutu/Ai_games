@@ -14211,7 +14211,78 @@ let realHomeLaneStats={occupiedHomes:0,connectedHomes:0,segments:0,
  noFictionalStops:true,
  changesAuthority:false,changesNavigation:false,extraGpuBuffers:0};
 function getRealHomeLaneNetworkAudit(){return {...realHomeLaneStats,
+ routeResidency:getResidentRoadRouteResidencyAudit(),
  triangleBudget:REAL_HOME_LANE_BUDGET}}
+// W362 ROUTE-RESIDENCY BEGIN
+// Renderer-only original A* road snapshots: never alter agent navigation.
+// Check every old segment against new houses; same-count restores reset.
+// Only authentic occupied-house streets receive these retained paths.
+const RESIDENT_ROAD_ROUTE_MAX=REAL_HOME_LANE_MAX_HOMES;
+const residentRoadRoutes=new Map();
+let residentRoadTopology='';
+let residentRoadRouteValidatedSegments=0,residentRoadRouteReuses=0,
+ residentRoadRouteSearches=0,residentRoadRouteInvalidations=0,
+ residentRoadRouteResets=0,residentRoadRouteEvictions=0;
+function getResidentRoadRouteResidencyAudit(){
+ return {source:'validated-render-only-physical-home-routes',
+  entries:residentRoadRoutes.size,limit:RESIDENT_ROAD_ROUTE_MAX,
+  retained:residentRoadRouteReuses,originalAStarSearches:residentRoadRouteSearches,
+  invalidations:residentRoadRouteInvalidations,resets:residentRoadRouteResets,
+  evictions:residentRoadRouteEvictions,
+  validatedSegments:residentRoadRouteValidatedSegments,
+  authorityChanged:false,navigationChanged:false,artificialHomes:0,
+  physicalFps:'NOT MEASURED'};
+}
+function beginRetainedResidentRoadBuild(){
+ const topology=city.map(lot=>lot.join(',')).join(';');
+ if(topology===residentRoadTopology)return;
+ const append=residentRoadTopology.length>0&&
+  topology.startsWith(residentRoadTopology+';');
+ if(residentRoadTopology.length&&!append){
+  residentRoadRoutes.clear();residentRoadRouteResets++;
+ }
+ residentRoadTopology=topology;
+}
+function retainedResidentRoadStillClear(origin,route,dest){
+ if(!Array.isArray(route)||route.length===0||route.length>256||
+    !Array.isArray(origin)||origin.length!==2||
+    !Array.isArray(dest)||dest.length!==2||
+    ![...origin,...dest].every(Number.isFinite))return false;
+ const end=route[route.length-1];
+ if(!Array.isArray(end)||end.length!==2||!end.every(Number.isFinite)||
+    Math.hypot(end[0]-dest[0],end[1]-dest[1])>.7)return false;
+ let prior=origin;
+ for(const point of route){
+  if(!Array.isArray(point)||point.length!==2||
+     !point.every(Number.isFinite)||!walkable(...point)||
+     !clearSegment(prior,point))return false;
+  residentRoadRouteValidatedSegments++;
+  prior=point;
+ }
+ return true;
+}
+function retainedResidentRoadRoute(origin,home){
+ const key=home.index+'|'+origin.join(',')+'|'+home.dest.join(',');
+ const existing=residentRoadRoutes.get(key);
+ if(existing&&retainedResidentRoadStillClear(origin,existing,home.dest)){
+  residentRoadRoutes.delete(key);residentRoadRoutes.set(key,existing);
+  residentRoadRouteReuses++;return existing;
+ }
+ if(existing){residentRoadRoutes.delete(key);residentRoadRouteInvalidations++;}
+ // No fictional road: on every miss retain the unchanged original A* output.
+ const route=routeBetween(...origin,...home.dest);
+ residentRoadRouteSearches++;
+ if(route&&retainedResidentRoadStillClear(origin,route,home.dest)){
+  residentRoadRoutes.set(key,route.map(point=>point.slice()));
+  while(residentRoadRoutes.size>RESIDENT_ROAD_ROUTE_MAX){
+   residentRoadRoutes.delete(residentRoadRoutes.keys().next().value);
+   residentRoadRouteEvictions++;
+  }
+ }
+ return route;
+}
+// W362 ROUTE-RESIDENCY END
+
 // W352 Phase 1/2 shared workday corridor: authentic stone arrival courts.
 // Complete geometry is construction-dirty with the SAME original road VBO,
 // and the final flagstone ends where real A* household movement can stand.
@@ -14371,6 +14442,9 @@ function renderPhysicalInhabitedRoadJunctions(sections,audit){
  return triangles;
 }
 function renderRealInhabitedLaneNetwork(){
+ beginRetainedResidentRoadBuild();
+ const roadBuildStart=performance.now();
+ const retainedBefore=residentRoadRouteReuses,searchesBefore=residentRoadRouteSearches;
  realHomeLaneSections=[];
  const first=data.length,origin=MARKET_HOME_STREET_ORIGIN,
   households=new Map(),used=new Set(),arrivals=[];
@@ -14400,7 +14474,7 @@ function renderRealInhabitedLaneNetwork(){
  materialScope(MATERIAL.ROAD,()=>{
   for(const h of candidates){
    if(audit.limited||audit.connectedHomes>=REAL_HOME_LANE_MAX_HOMES)break;
-   const route=routeBetween(...origin,...h.dest);
+   const route=retainedResidentRoadRoute(origin,h);
    if(!route?.length||Math.hypot(route.at(-1)[0]-h.dest[0],
       route.at(-1)[1]-h.dest[1])>.7)continue;
    const points=[origin,...route];let inserted=0;
@@ -14467,6 +14541,9 @@ function renderRealInhabitedLaneNetwork(){
  if((data.length-first)/30!==audit.triangles||
     audit.triangles>REAL_HOME_LANE_BUDGET)
   throw Error('W351 authentic connected inhabited street budget exceeded');
+ audit.reusedOriginalRoutes=residentRoadRouteReuses-retainedBefore;
+ audit.originalRouteSearches=residentRoadRouteSearches-searchesBefore;
+ audit.roadConstructionCpuMs=Math.round((performance.now()-roadBuildStart)*1000)/1000;
 }
 // W345 rendering spine: retained original founding-yard and craft architecture
 // does not rebuild whenever ACTUAL freight/home routes change. Keep the
