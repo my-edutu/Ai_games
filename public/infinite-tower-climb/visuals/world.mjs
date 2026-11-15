@@ -9,6 +9,7 @@ import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage } from './source-physical-arrival-palette.mjs';
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline } from './original-gallery-foreground.mjs';
+import { protectSourceSuccessorUndercroft } from './successor-deck-visibility.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, updateOriginalClockworkSuccessorRoute } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings } from './source-earned-bearing-run.mjs';
 
@@ -908,6 +909,10 @@ export function createTowerWorld(){
   let sourceEarnedBearingPalette=null;
   let arrivalRoutePalette=null;
   let stagedVoidArchitecture=null;
+  // These are real authored Floor9 side-skirts, never the top or collider.
+  // Old/new threshold and final-camera protection share this one scoped owner.
+  let successorUndercroftSightline={active:false,meshes:0,rays:0,softened:0};
+  const lastProtectedUndercroftEntries=[];
   // Actual source-floor static GPU attribute/index payload, not driver memory.
   let rigidUploadBytes=0, rigidExpandedBytes=0, rigidIndexedBatches=0, rigidBatchCount=0, rigidPackedVertexBuffers=0, rigidPriorSeparateVertexBuffers=0;
   const primitives=new Map(),platforms=new Map(),hazards=new Map(),rotors=[],floaters=[],foregroundGears=[];
@@ -2124,10 +2129,42 @@ export function createTowerWorld(){
     const bodyMaterial=sharedPhysicalRoof?arrivalRoutePalette.body:sourceBodyMaterial;
     const arrivalRim=sharedPhysicalRoof?arrivalRoutePalette.rim:null;
     const arrivalSurface=sharedPhysicalRoof?arrivalRoutePalette.top:null;
+    // The genuine early raised Floor9 platform can stand BETWEEN the camera
+    // and the real skinned hero during the old bronze gateway handoff.
+    // Give only its NON-WALKABLE underside separate bounded material ownership,
+    // so actual ray hits can clear the visible silhouette without altering the
+    // collision-aligned landing top, moving deck, threats, or source physics.
+    const sourceOwnedUndercroft=sharedPhysicalRoof &&
+      p.y+p.height>=retainedEarnedCap.oldRoofY-2500 &&
+      p.y+p.height<=retainedEarnedCap.oldRoofY+230000 ? [] : null;
+    const undercroftPanelMaterial=(original,name)=>{
+      if(!sourceOwnedUndercroft)return original;
+      const copy=original.clone();
+      copy.name=name;
+      copy.transparent=true;copy.opacity=1;copy.depthWrite=true;
+      floorMaterials.add(copy);
+      return copy;
+    };
+    const outerUnderMaterial=undercroftPanelMaterial(bodyMaterial,
+      'SourceOwnedF9NonWalkableOuterDeckSkirt');
+    const innerUnderMaterial=undercroftPanelMaterial(materials.dark,
+      'SourceOwnedF9NonWalkableInnerDeckSkirt');
     // The route is an engineered deck, not another monumental shelf. A slim
     // curved box beam, rolled edge and open rear webs leave the undercroft open.
-    mesh(root,sector(22.45,27.05,angle,.48),bodyMaterial,[0,h-.64,0]).userData.structural=true;
-    mesh(root,sector(22.5,26.97,angle,.10),materials.dark,[0,h-.74,0]);
+    const outerUnder=mesh(root,sector(22.45,27.05,angle,.48),
+      outerUnderMaterial,[0,h-.64,0]);
+    const innerUnder=mesh(root,sector(22.5,26.97,angle,.10),
+      innerUnderMaterial,[0,h-.74,0]);
+    if(sourceOwnedUndercroft){
+      sourceOwnedUndercroft.push(
+        {mesh:outerUnder,material:outerUnderMaterial,tint:bodyMaterial},
+        {mesh:innerUnder,material:innerUnderMaterial,tint:materials.dark});
+      // The actual upper deck still owns floor shadows. An optional
+      // near-camera skirt must not cast a black silhouette after its material
+      // is safely cleared from the FULL-BODY camera ray.
+      outerUnder.userData.ambientDetail=true;
+      innerUnder.userData.ambientDetail=true;
+    }else outerUnder.userData.structural=true;
     mesh(root,sector(22.4,27.18,angle,.16),arrivalSurface||materials.landing,[0,h-.16,0]);
     mesh(root,sector(27.02,27.22,angle,.095),p.kind==='moving'?materials.mint:(arrivalRim||materials.copper),[0,h-.27,0]);
     mesh(root,sector(26.99,27.13,angle,.07),bodyMaterial,[0,h-.66,0]);
@@ -2426,7 +2463,7 @@ export function createTowerWorld(){
       root.add(traveler,countergear,actuator,gearVisual);
     }
     platforms.set(p.id,{root,angle,width:p.width,height:p.height,
-      capMaterials,capLandingMaterial,arrivalSurface,
+      capMaterials,capLandingMaterial,arrivalSurface,sourceOwnedUndercroft,
       // The actual F9 support has its own original bronze-to-violet materials;
       // shared crystals, danger indicators and future landing platforms do not.
       arrivalPalette:arrivalSurface?arrivalRoutePalette:null,
@@ -3072,6 +3109,8 @@ export function createTowerWorld(){
     lastRebuildWitness = null;
     stagedVoidArchitecture = null;
     arrivalRoutePalette = null;
+    lastProtectedUndercroftEntries.length=0;
+    successorUndercroftSightline={active:false,meshes:0,rays:0,softened:0};
     rigidUploadBytes=0;rigidExpandedBytes=0;rigidIndexedBatches=0;rigidBatchCount=0;rigidPackedVertexBuffers=0;rigidPriorSeparateVertexBuffers=0;
     if(floorGroup){group.remove(floorGroup);floorGroup.traverse(o=>{if(o.isInstancedMesh)o.dispose();});}
     // The one source-earned former cap keeps its already-rendered resources.
@@ -3941,6 +3980,47 @@ export function createTowerWorld(){
       direction:canopyDirection,point:silhouettePoint,hitBuffer:canopyHits,
       dt,stale:options.stale,reducedMotion:options.reducedMotion
     });
+    // Camera movement alone cannot reveal a climber who remains behind a
+    // PHYSICAL next-floor underside in the real portrait film. Use the SAME
+    // final composed camera that has already survived all camera directors.
+    // Rank current authoritative decks, selecting at most three nearby
+    // undercrofts and raycast ONLY their dedicated nonwalkable side meshes.
+    // The original gate and actor are both protected; landing tops stay
+    // completely opaque. No source-bound original arch -> no soft deck.
+    const undercroftEntries=[];
+    if(Array.isArray(lastSnapshot?.platforms)){
+      const sourceActor=lastSnapshot.player;
+      const candidates=lastSnapshot.platforms
+        .filter(p=>p?.id?.startsWith('f9:') &&
+          platforms.get(p.id)?.sourceOwnedUndercroft?.length===2 &&
+          [p.x,p.y,p.width,p.height,sourceActor?.x,sourceActor?.y]
+            .every(Number.isSafeInteger))
+        .map(p=>({
+          id:p.id,score:Math.abs(p.x+p.width*.5-sourceActor.x)/SCALE+
+            Math.abs(p.y+p.height-sourceActor.y)/SCALE*.45+
+            (p.id===sourceActor.groundedPlatformId?-25:0)
+        }))
+        .sort((a,b)=>a.score-b.score);
+      for(const candidate of candidates.slice(0,3))
+        undercroftEntries.push(...platforms.get(candidate.id).sourceOwnedUndercroft);
+    }
+    if(lastProtectedUndercroftEntries.length){
+      const selected=new Set(undercroftEntries);
+      const noLongerProtected=lastProtectedUndercroftEntries
+        .filter(entry=>!selected.has(entry));
+      if(noLongerProtected.length)
+        protectSourceSuccessorUndercroft({entries:noLongerProtected});
+    }
+    lastProtectedUndercroftEntries.length=0;
+    lastProtectedUndercroftEntries.push(...undercroftEntries);
+    successorUndercroftSightline=protectSourceSuccessorUndercroft({
+      source:lastSnapshot,held:retainedEarnedCap,camera,body:actor,
+      bodyHalfHeight:actorHalfHeight,gate:oldGate?historicalGateRayPoint:null,
+      entries:undercroftEntries,raycaster:successorDeckRay,
+      direction:successorDeckRayDirection,point:successorDeckRayTarget,
+      hits:successorDeckRayHits,dt,stale:options.stale,
+      reducedMotion:options.reducedMotion
+    });
     if(!decorativeSightlines.length){
       occludedForegroundGears=0;occludedForegroundScreenGears=0;occludedForegroundCorridorGears=0;occludedForegroundClockFaces=0;
       return {total:0,softened:0};
@@ -4293,6 +4373,7 @@ export function createTowerWorld(){
   }
   function lastRebuild() { return lastRebuildWitness ? { ...lastRebuildWitness } : null; }
   function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,
+    sourceOwnedSuccessorUndercroft:{...successorUndercroftSightline},
     originalClockworkGalleryPrebuild:{...thresholdGalleryPreparation,
       stillOwnedByPrebuild:preparedThresholdGallery!==null},
     retainedSourceCap:retainedEarnedCap?{
