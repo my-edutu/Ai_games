@@ -1,6 +1,6 @@
 ## W353 · One active Phase 1 farm→granary→market→home transformation checkpoint · 13ddae3d48f2de3b6a000d4dfad21e1305cd2244
 
-Exact active draft PR #64 only. Real 668 rooted grain stems are retained with unchanged near/far 4/12/20 triangular budget and unchanged seeded authority; new leaf/head shaping and real harvester sickle-driven foliage clearance must be judged in UNINTERRUPTED desktop/390px film. W352 W281 CI passed; GPU evidence W84 old <1400 loft limit failed against genuine 1605 triangles and has been repaired to honest 1560–1730. No W353 actual workday/browser/FPS PASS yet.
+Latest real pre-head Day121 390px clip inspected at 3–37s: crop obscures actual farmer at ~14s, visible inhabited streets and genuine resident motion; source W353 focused W281 build/browser [PASS](https://github.com/my-edutu/Ai_games/actions/runs/43707679978), visual/30fps/same-state A/B still NOT PROVEN. Exact active draft PR #64 only. Real 668 rooted grain stems are retained with unchanged near/far 4/12/20 triangular budget and unchanged seeded authority; new leaf/head shaping and real harvester sickle-driven foliage clearance must be judged in UNINTERRUPTED desktop/390px film. W352 W281 CI passed; GPU evidence W84 old <1400 loft limit failed against genuine 1605 triangles and has been repaired to honest 1560–1730. No W353 actual workday/browser/FPS PASS yet.
 
 | Owner / blocker | Current evidence | Measurable completion |
 | --- | --- | --- |
