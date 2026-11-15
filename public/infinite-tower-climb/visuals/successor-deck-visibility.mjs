@@ -5,6 +5,7 @@
 // Cast against existing source-authored, already built Three.js platform
 // triangles, never an inferred collision, predicted landing or proxy mesh.
 // This is presentation-only and all vectors/hit arrays are caller-owned.
+import { observedSourceOriginalVisibilityWindow } from './source-physical-arrival-palette.mjs';
 const finite=Number.isFinite;
 const integer=Number.isSafeInteger;
 const valid3=p=>p&&[p.x,p.y,p.z].every(finite);
@@ -32,7 +33,7 @@ export function measureAuthoritativeDeckSightline({
     held?.guardianGateRetained!==true || held.floor!==9 ||
     held.runToken!==source.runToken ||
     !integer(source.tick) || !integer(held.sourceTick) ||
-    source.tick<held.sourceTick || source.tick-held.sourceTick>70 ||
+    !observedSourceOriginalVisibilityWindow(source,held) ||
     !valid3(camera) || !valid3(body) ||
     !finite(bodyHalfHeight) || bodyHalfHeight<=0 ||
     !Array.isArray(platformRoots) || !platformRoots.length ||
@@ -137,7 +138,7 @@ export function protectSourceSuccessorUndercroft({
     held?.floor===9 && held.guardianGateRetained===true &&
     Number.isSafeInteger(source.tick) &&
     Number.isSafeInteger(held.sourceTick) &&
-    source.tick>=held.sourceTick && source.tick-held.sourceTick<=70 &&
+    observedSourceOriginalVisibilityWindow(source,held)?.sourceBound===true &&
     source.player?.health>0 && held.originalGatewayOpacity!==0 &&
     valid3(camera?.position) && valid3(body) &&
     finite(bodyHalfHeight) && bodyHalfHeight>0 &&

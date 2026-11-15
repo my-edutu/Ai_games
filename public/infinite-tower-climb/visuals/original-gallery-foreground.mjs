@@ -2,6 +2,7 @@
 // Clockwork *non-colliding* source triangles must not hide the actual skinned
 // survivor during a narrow portrait follow shot. The old cap, opened guardian
 // door, moving platforms, hazards and gameplay colliders are NEVER softened.
+import { observedSourceOriginalVisibilityWindow } from './source-physical-arrival-palette.mjs';
 // Raycast only source-owned, previously submitted, real Three.js gallery
 // mesh batches (at most eight); no x-ray actor or invented gateway geometry.
 //
@@ -27,7 +28,7 @@ export function protectHistoricalGallerySightline({
       held.guardianGateRetained!==true || held.floor!==9 ||
       !Number.isSafeInteger(source.tick) ||
       !Number.isSafeInteger(held.sourceTick) ||
-      source.tick<held.sourceTick || source.tick-held.sourceTick>70 ||
+      !observedSourceOriginalVisibilityWindow(source,held) ||
       !(held.originalGatewayOpacity>.035) ||
       !(held.originalGallerySourceOpacity>0) ||
       !held.originalGalleryRoot?.visible ||

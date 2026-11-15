@@ -128,6 +128,32 @@ export function observedSourceRetainedRaisedExit(source,held,roofY) {
     valid(sole) && sole>=roofY-2500 && sole<=roofY+230000;
 }
 
+/**
+ * Same-run source lease for ACTUAL old-gate camera, original gallery and
+ * F9 raised-deck occlusion. Previous visual owners expired at tick 70 even
+ * while the World/palette retained the genuine f9:p2 raised contact through
+ * tick 110, so bronze rails/deck skirts could re-mask a still-current hero.
+ * Only immutable HP-zero original-guardian + exact raised sole/width support
+ * (or its 32-tick authenticated flight tail) extends the old limit.
+ */
+export function observedSourceOriginalVisibilityWindow(source,held) {
+  if(!source || !held || source.lifecycle!=='running' ||
+     source.floor!==9 || source.theme!=='void' ||
+     !(source.player?.health>0) ||
+     typeof source.runToken!=='string' || !source.runToken ||
+     source.runToken!==held.runToken ||
+     held.floor!==9 || held.guardianGateRetained!==true ||
+     !valid(source.tick) || !valid(held.sourceTick) ||
+     source.tick<held.sourceTick) return null;
+  const raisedSourceSupport=observedSourceRetainedRaisedExit(
+    source,held,held.oldRoofY);
+  const maxTicks=raisedSourceSupport
+    ?SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS:70;
+  if(source.tick-held.sourceTick>maxTicks)return null;
+  return {sourceBound:true,sourceTick:source.tick,maxTicks,
+    raisedSourceSupport,limitation:'Real source sightlines, never native-film or gameplay evidence'};
+}
+
 export function observedSourcePhysicalArrivalPalette(source,held=null) {
   const p=source?.player, w=source?.lastGuardianCrossing;
   if(!source || !p || source.lifecycle!=='running' ||

@@ -7,7 +7,7 @@
 import { pointFor, SCALE, guardianTraversalGatePose } from './coordinates.mjs';
 import { observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 import { observedSourceGatewayDeparturePresence, observedSourceFloorNineRouteSupport,
-  SOURCE_GATEWAY_RETURN_TOLERANCE } from './source-physical-arrival-palette.mjs';
+  SOURCE_GATEWAY_RETURN_TOLERANCE, observedSourceOriginalVisibilityWindow } from './source-physical-arrival-palette.mjs';
 
 const validInt = Number.isSafeInteger;
 const finite = Number.isFinite;
@@ -57,6 +57,7 @@ export function observedSourceBoundColdDoorwayLens(source, held, drawnHero, aspe
   if (originalGateway?.sourceBound !== true ||
       originalGateway.opacity <= .035) return null;
   const p = source?.player, w = source?.lastGuardianCrossing, cap = w?.cap;
+  const sourceLease=observedSourceOriginalVisibilityWindow(source,held);
   if (!p || !w || !cap || !held || !drawnHero ||
       source?.lifecycle !== 'running' || source.floor !== 9 ||
       source.theme !== 'void' || source.runToken !== held.runToken ||
@@ -71,7 +72,8 @@ export function observedSourceBoundColdDoorwayLens(source, held, drawnHero, aspe
         p.x, p.y, p.halfWidth, p.halfHeight, w.exitX,
         cap.x, cap.y, cap.width, cap.height, w.crossingX]
         .every(validInt) ||
-      source.tick < held.sourceTick || source.tick - w.sourceTick > 70 ||
+      source.tick < held.sourceTick || !sourceLease ||
+      source.tick - w.sourceTick > sourceLease.maxTicks ||
       held.sourceTick < w.sourceTick || held.sourceTick - w.sourceTick > 12 ||
       held.submittedFrames < 0 || held.submittedFrames > 60 ||
       !finite(held.visibleSeconds) || held.visibleSeconds < 0 ||

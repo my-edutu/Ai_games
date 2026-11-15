@@ -1,5 +1,6 @@
 // Opt-in source-authentic Floor 8→9 sightline evidence. Never changes authority,
  // rendering, camera, collision or a gameplay event; native pixels still need review.
+import { observedSourceOriginalVisibilityWindow } from './source-physical-arrival-palette.mjs';
 const valid=Number.isSafeInteger;
 export function observedOriginalDoorwayOcclusionWindow(source,retained=null){
   const p=source?.player;
@@ -20,12 +21,13 @@ export function observedOriginalDoorwayOcclusionWindow(source,retained=null){
       runToken:source.runToken,floor:8,sourceTick:source.tick,
       thresholdX:source.guardianExitX,roofY:cap.y+cap.height};
   }
+  const lease=observedSourceOriginalVisibilityWindow(source,retained);
   if(source.floor!==9||source.theme!=='void'||
-     retained?.guardianGateRetained!==true||
+     !lease || retained?.guardianGateRetained!==true||
      retained.runToken!==source.runToken||retained.floor!==9||
      !valid(retained.thresholdX)||!valid(retained.oldRoofY)||
      !valid(retained.sourceTick)||source.tick<retained.sourceTick||
-     source.tick-retained.sourceTick>70||
+     source.tick-retained.sourceTick>lease.maxTicks||
      Math.abs(p.x-retained.thresholdX)>100000)return null;
   const w=source.lastGuardianCrossing;
   const provenRecorded=w?.runToken===source.runToken&&w.fromFloor===8&&
@@ -35,7 +37,7 @@ export function observedOriginalDoorwayOcclusionWindow(source,retained=null){
     [w.sourceTick,w.exitX,w.cap.y,w.cap.height].every(valid)&&
     w.exitX===retained.thresholdX&&
     w.cap.y+w.cap.height===retained.oldRoofY&&
-    source.tick>=w.sourceTick&&source.tick-w.sourceTick<=70;
+    source.tick>=w.sourceTick&&source.tick-w.sourceTick<=lease.maxTicks;
   const provenReceipt=w==null&&retained.verifiedObservedFloorAdvance===true&&
     valid(retained.observedCrossingX)&&valid(retained.tick)&&
     source.tick>=retained.tick&&source.tick-retained.tick<=12;

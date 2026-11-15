@@ -94,17 +94,17 @@ test('existing Three.js historical beams and actual F9 undercroft continue using
   held.originalGalleryOcclusionWeights=[1];
   // Old gallery is an actual noncolliding retained mesh, with its own
   // source-fade material; the new deck's walkable platform is unmodified.
+  const seen=measure({source,held,camera:r.camera.position,body:r.body,
+    bodyHalfHeight:1.4,gate:r.gate,platformRoots:[r.root],
+    ...r.owned});
+  assert.equal(seen?.active,true);
+  assert.ok(seen.bodyBlockedRays>0);
   const old=protectOld({source,held,camera:r.camera,actor:r.body,
     halfHeight:1.4,halfWidth:.75,gateway:r.gate,
     raycaster:r.owned.raycaster,direction:r.owned.direction,
     point:r.owned.point,hitBuffer:r.owned.hits,dt:.04});
   assert.equal(old.active,true);
   assert.ok(old.softened>=1);
-  const seen=measure({source,held,camera:r.camera.position,body:r.body,
-    bodyHalfHeight:1.4,gate:r.gate,platformRoots:[r.root],
-    ...r.owned});
-  assert.equal(seen?.active,true);
-  assert.ok(seen.bodyBlockedRays>0);
   const skirt=new THREE.MeshStandardMaterial({color:0x665577});
   r.mesh.material=skirt;
   const under=protectDeck({source,held,camera:r.camera,body:r.body,
