@@ -1497,57 +1497,65 @@ test('a witnessed guardian clears only third-ring optional foliage; solid walls 
   }
 });
 
-test('Pass407 authentically visible camera-side LOWER relics rebuild as actual low sealed guardian theatre',async()=>{
-  const {createMazeWorld,publicGuardianCameraForecourtCells:forecourt}=await load();
-  // Hero16 -> 17 -> Thornback18 is a reciprocal, same-height, open lane.
-  // Four currently visible lower +X/+Z spectator blocks would otherwise
-  // create three 1.8m pavilions and a tall ornamental shell basin.
-  const s={runToken:'public-camera-front',lifecycle:'running',result:null,
-    width:7,height:7,currentCell:16,
-    visibleCells:[16,17,18,25,26,32,40],
+test('Pass408 earned public guardian recoil holds a physically quiet scene AFTER a non-reciprocal retreat',async()=>{
+  const {createMazeWorld,publicGuardianStageCells,publicGuardianCausewayCells,
+    publicEarnedGuardianRecoilCourtCells:earned}=await load();
+  // A naturally parried guardian has already stepped OFF the previously
+  // reciprocal corridor. The current diagonal pair is NOT a new passage.
+  const s={runToken:'earned-recoil-stage',lifecycle:'running',result:null,
+    width:7,height:7,currentCell:23,
+    visibleCells:[23,31,22,24,30,32,37,38],
     cells:[
-      {cell:16,blocked:false,neighbors:[17]},
-      {cell:17,blocked:false,neighbors:[16,18]},
-      {cell:18,blocked:false,neighbors:[17]},
-      ...[25,26,32,40].map(cell=>({cell,blocked:true,neighbors:[]}))
-    ],threats:[{id:'thornback',cell:18}],
+      {cell:23,blocked:false,neighbors:[]},
+      {cell:31,blocked:false,neighbors:[]},
+      {cell:22,blocked:true,neighbors:[]},
+      {cell:32,blocked:true,neighbors:[]},
+      ...[24,30,37,38].map(cell=>({cell,blocked:false,neighbors:[]}))
+    ],
+    threats:[{id:'threat-1',cell:31,lanternParried:true}],
     doors:[],keys:[],inventory:[],exitCell:null};
-  const truth=JSON.stringify(s),baseline=createMazeWorld({balanced:true}),w=createMazeWorld({balanced:true});
-  try{
-    assert.deepEqual([...forecourt(s)].sort((a,b)=>a-b),[25,26,32,40]);
-    assert.deepEqual([...forecourt({...s,visibleCells:[16,17,18,25]})],[25],
-      'unknown blocks cannot be quieted through future or private map state');
-    assert.deepEqual([...forecourt({...s,threats:[]})],[]);
-    assert.deepEqual([...forecourt({...s,doors:[{a:17,b:18,open:false}]})],[]);
-    assert.deepEqual([...forecourt({...s,lifecycle:'ended'})],[]);
-    assert.deepEqual([...forecourt({...s,privateMaze:{cells:[{cell:47,blocked:true}]},
-      secretPath:[47,25]})].sort((a,b)=>a-b),[25,26,32,40]);
-    baseline.update({...s,threats:[]});w.update(s);
-    const natural=baseline.stats(),during=w.stats();
-    assert.ok(natural.collapsedPavilions>=2,
-      'the original instantiated scene genuinely contains tall foreground ruins');
-    assert.equal(during.collapsedPavilions,0,
-      'four real spectator relics now form a low, impassable Tideglass gallery');
-    assert.ok(during.guardianBlockedReliefTiles>=4,
-      'full reef geometry is rendered at the public blocked cells');
-    assert.equal(during.renderedCells.length,s.visibleCells.length,
-      'all real stone cells remain visible, never a transparent fake route');
-    assert.equal(during.geometryCount,natural.geometryCount);
-    assert.equal(during.materialCount,natural.materialCount);
-    assert.equal(JSON.stringify(s),truth,'presentation never mutates authority');
-    w.update({...s,visibleCells:[16,17,18,25]});
-    assert.ok(w.stats().guardianBlockedReliefTiles>=1,
-      'published foreground invalidates correctly as the view changes');
+  const truth=JSON.stringify(s);
+  const affected=[...earned(s)].sort((a,b)=>a-b);
+  assert.ok(affected.includes(23)&&affected.includes(31)
+    &&affected.includes(22)&&affected.includes(32),
+    'both full actors and their actual currently published spectator relics must remain clear');
+  assert.deepEqual([...publicGuardianStageCells(s)],[],
+    'this presentation never hallucinates a new traversable corridor');
+  assert.equal(publicGuardianCausewayCells(s).size,0);
+  assert.deepEqual([...earned({...s,threats:[{id:'threat-1',cell:31}]})],[],
+    'ordinary nearby guardians do not acquire an earned recoil stage');
+  assert.deepEqual([...earned({...s,visibleCells:[23,22,24,30,32,37,38]})],[],
+    'an invisible guardian cannot expose hidden scenery');
+  assert.deepEqual([...earned({...s,threats:[]})],[]);
+  assert.deepEqual([...earned({...s,result:{reason:'capture'}})],[]);
+  assert.deepEqual([...earned({...s,lifecycle:'ended'})],[]);
+  assert.equal(earned({...s,doors:[{a:22,b:23,open:false}]}).has(22),false,
+    'a genuine door endpoint is never flattened or styled as a free passage');
+  assert.deepEqual([...earned({...s,privateMaze:{cells:[{cell:45,blocked:true}]},
+    secretPath:[45,22]})].sort((a,b)=>a-b),affected,
+    'private future map cannot change currently disclosed forecourt');
+  const w=createMazeWorld({balanced:true}),base=createMazeWorld({balanced:true});
+  try {
+    base.update({...s,threats:[]}); w.update(s);
+    const neutral=base.stats(),now=w.stats();
+    assert.equal(neutral.guardianBlockedReliefTiles,0);
+    assert.ok(now.guardianBlockedReliefTiles>=2,
+      'actual obstructing blocked pavilions become low opaque reef bodies during earned action');
+    assert.equal(now.renderedCells.length,s.visibleCells.length,
+      'the engine still renders ONLY publicly known stone, never a missing route');
+    assert.equal(now.geometryCount,neutral.geometryCount);
+    assert.equal(now.materialCount,neutral.materialCount);
+    assert.equal(JSON.stringify(s),truth,'authoritative gameplay is immutable');
     w.update({...s,threats:[]});
-    assert.equal(w.stats().collapsedPavilions,natural.collapsedPavilions,
-      'original authored far scenery restores without a guardian');
+    assert.equal(w.stats().guardianBlockedReliefTiles,0,
+      'scene returns when the real earned parry is no longer published');
     for(let i=0;i<6;i++){
-      w.update({...s,runToken:'public-forecourt-reset-'+i});
-      assert.ok(w.stats().geometryCount<100,'unchanged six-scene geometry budget');
-      assert.equal(w.stats().collapsedPavilions,0);
+      w.update({...s,runToken:'earned-recoil-reset-'+i});
+      assert.ok(w.stats().geometryCount<100,'unchanged strict six-reset geometry budget');
+      assert.ok(w.stats().guardianBlockedReliefTiles>=2);
     }
   }finally{
-    w.dispose();baseline.dispose();
+    w.dispose();base.dispose();
     assert.equal(w.stats().geometryCount,0);
     assert.equal(w.stats().materialCount,0);
   }

@@ -282,39 +282,56 @@ export function publicGuardianWitnessedForegroundCells(s,causeway=publicGuardian
 }
 
 /**
- * A physical, PUBLIC camera-side spectator forecourt for the witnessed
- * Pip–Thornback passage. Native full-frame 320px captures showed dense
- * 1.8–3m decorative ruins on LOWER terraces in front of both actors,
- * even after the same-level first rings had been cleared.
+ * Maintain a genuinely EARNED guardian counter as a readable physical stage
+ * AFTER Thornback recoils off its previously witnessed open corridor.
  *
- * All actual walls, foundations, stairs, gates, traps, objectives, and
- * authoritative navigation remain intact. Only currently published
- * camera-side (normal +X/+Z view) tiles at/below Pip's tier may quiet
- * OPTIONAL plants or replace ornamental blocked relics with LOW SEALED
- * stone. No private topology, camera ray or AI intention is consulted.
+ * Earlier native 320/390 captures proved that the old close-corridor rules
+ * instantly rebuild tall trees and pavilions on the recoil tick, hiding the
+ * very movement the player just earned. The public lanternParried event is
+ * the authority: NO guessed corridor, private topology or AI plan is used.
+ *
+ * Quiet ONLY currently visible, presently published cells near BOTH real
+ * actors; the original walls, impassable tiles, pressure jaws, keys and
+ * gates remain. This neutral visual forecourt must never signal a route.
  */
-export function publicGuardianCameraForecourtCells(s,causeway=publicGuardianCausewayCells(s)) {
-  const foreground=new Set();
-  if(!causeway.has(s?.currentCell)||!Array.isArray(s?.cells)
-    ||!Array.isArray(s?.visibleCells)||!Array.isArray(s?.keys)
-    ||!Array.isArray(s?.doors)||!Number.isSafeInteger(s.width)||s.width<2
-    ||!Number.isSafeInteger(s.height)||s.height<2)return foreground;
+export function publicEarnedGuardianRecoilCourtCells(s) {
+  const quiet=new Set();
+  if (s?.lifecycle!=='running'||s.result
+    ||!Number.isSafeInteger(s.currentCell)||!Number.isSafeInteger(s.width)
+    ||s.width<2||!Number.isSafeInteger(s.height)||s.height<2
+    ||!Array.isArray(s.cells)||!Array.isArray(s.visibleCells)
+    ||!Array.isArray(s.threats)||!Array.isArray(s.keys)
+    ||!Array.isArray(s.doors))return quiet;
   const visible=new Set(s.visibleCells);
-  const doorCells=new Set(s.doors.flatMap(d=>[d.a,d.b]));
-  const keys=new Set(s.keys.map(k=>k.cell));
-  const heroX=s.currentCell%s.width,heroZ=Math.floor(s.currentCell/s.width);
-  const level=cellHeight(s.currentCell,s.width,s.height);
-  for(const c of s.cells) {
-    if(!Number.isSafeInteger(c?.cell)||!visible.has(c.cell)
-      ||c.trap||c.clue||c.checkpoint||c.cell===s.exitCell
-      ||keys.has(c.cell)||doorCells.has(c.cell))continue;
-    const dx=c.cell%s.width-heroX,dz=Math.floor(c.cell/s.width)-heroZ;
-    const d=Math.abs(dx)+Math.abs(dz);
-    if(d<3||d>6||dx< -1||dz< -1||dx+dz<1)continue;
-    if(cellHeight(c.cell,s.width,s.height)>level+1e-8)continue;
-    foreground.add(c.cell);
+  const known=new Map(s.cells.filter(c=>Number.isSafeInteger(c?.cell)
+    &&visible.has(c.cell)).map(c=>[c.cell,c]));
+  const hero=known.get(s.currentCell);
+  if(!hero||hero.blocked)return quiet;
+  const reserved=new Set([...s.keys.map(k=>k.cell),
+    ...s.doors.flatMap(d=>[d.a,d.b])]);
+  const distance=(a,b)=>Math.abs(a%s.width-b%s.width)
+    +Math.abs(Math.floor(a/s.width)-Math.floor(b/s.width));
+  // The currently published recoil is already earned. No remembered threat,
+  // diagonal shortcut, hidden tile or presumptive traversal is authorized.
+  for(const threat of s.threats) {
+    if(threat?.lanternParried!==true || !visible.has(threat.cell))continue;
+    const guardian=known.get(threat.cell);
+    if(!guardian||guardian.blocked
+      ||distance(hero.cell,guardian.cell)<1
+      ||distance(hero.cell,guardian.cell)>4)continue;
+    const actorLevels=[cellHeight(hero.cell,s.width,s.height),
+      cellHeight(guardian.cell,s.width,s.height)];
+    for(const c of known.values()) {
+      if(c.trap||c.checkpoint||c.clue||c.cell===s.exitCell
+        ||reserved.has(c.cell))continue;
+      if(distance(c.cell,hero.cell)>2
+        &&distance(c.cell,guardian.cell)>2)continue;
+      if(!actorLevels.some(level=>Math.abs(
+        cellHeight(c.cell,s.width,s.height)-level)<1e-8))continue;
+      quiet.add(c.cell);
+    }
   }
-  return foreground;
+  return quiet;
 }
 
 const STAIR_COUNT = 8, STAIR_START = .08, STAIR_RUN = CELL_SIZE / 2 - STAIR_START, STAIR_HALF_WIDTH = .78;
@@ -1193,10 +1210,13 @@ export function createMazeWorld(options = {}) {
     // gate, pressure jaw, stair, court leaf and navigable boundary unchanged.
     // The peripheral helper requires a genuine witnessed open causeway and
     // cannot infer or reveal hidden terrain or private AI.
-    const guardianCinematicForeground=publicGuardianCameraForecourtCells(s,guardianCauseway);
-    const guardianQuietRing=guardianCauseway.has(s.currentCell)
-      ? new Set([...guardianForecourtShoulders,...guardianOuterCourt.ordinary,
-        ...guardianPeripheralWalls,...guardianCinematicForeground]) : new Set();
+    const earnedRecoilQuiet=publicEarnedGuardianRecoilCourtCells(s);
+    const guardianQuietRing=new Set([
+      ...(guardianCauseway.has(s.currentCell)
+        ? [...guardianForecourtShoulders,...guardianOuterCourt.ordinary,
+          ...guardianPeripheralWalls] : []),
+      ...earnedRecoilQuiet
+    ]);
     const guardianBlockedRelief=publicGuardianBlockedReliefCells(s,guardianSightlines);
     const knownByCell = new Map(s.cells.map(c => [c.cell, c]));
     // The public snapshot is the ONLY source of foreground cutaway geometry.
@@ -2185,7 +2205,8 @@ export function createMazeWorld(options = {}) {
         // towers over the physical Pip–Thornback performance. Replace ONLY
         // decorative blocked-cell ornament with a sealed mineral reef.
         if ((guardianBlockedRelief.has(c.cell) || guardianOuterCourt.sealed.has(c.cell)
-          || guardianCinematicForeground.has(c.cell)) && !pressureSightline) {
+          || (earnedRecoilQuiet.has(c.cell) && c.blocked===true))
+          && !pressureSightline) {
           if(guardianOuterCourt.sealed.has(c.cell))guardianOuterCourtSealedTiles++;
           guardianBlockedReliefTiles++;
           // Pass320 actual 390px three-beat WebGL: the old huge, pale,
@@ -3466,7 +3487,7 @@ export function createMazeWorld(options = {}) {
     const keyedGuardianCauseway=publicGuardianCausewayCells(s);
     const keyedOuterCourt=publicGuardianOuterCourtCells(s,keyedGuardianCauseway);
     const keyedForeground=publicGuardianWitnessedForegroundCells(s,keyedGuardianCauseway);
-    const keyedCinematicForeground=publicGuardianCameraForecourtCells(s,keyedGuardianCauseway);
+    const keyedEarnedRecoil=publicEarnedGuardianRecoilCourtCells(s);
     // A third-ring PUBLIC wall may be diagonal to both guardian causeway
     // cells. If ONLY its present visibility changes, the old two-cell key
     // cannot invalidate its actual opaque full-height/low-wall geometry.
@@ -3492,7 +3513,7 @@ export function createMazeWorld(options = {}) {
       + '#guardian-reef-visible:' + [...reefVisibility].sort((a,b)=>a-b).join('.')
       + '#guardian-near-floor:' + [...keyedForeground].sort((a,b)=>a-b).join('.')
       + '#guardian-public-peripheral-walls:' + [...keyedPeripheralWalls].sort((a,b)=>a-b).join('.')
-      + '#guardian-camera-forecourt:' + [...keyedCinematicForeground].sort((a,b)=>a-b).join('.')
+      + '#guardian-earned-recoil:' + [...keyedEarnedRecoil].sort((a,b)=>a-b).join('.')
       + '#guardian-outer-floor:' + [...keyedOuterCourt.ordinary].sort((a,b)=>a-b).join('.')
       + '#guardian-outer-sealed:' + [...keyedOuterCourt.sealed].sort((a,b)=>a-b).join('.');
     if (terrainKey !== terrainSignature) { rebuildTerrain(s); terrainSignature = terrainKey; }
