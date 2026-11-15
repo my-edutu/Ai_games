@@ -54,6 +54,7 @@ export function planOriginalSourceSwingLinkedLegFollowups({
  mode='idle',sourceClipName='',sourceWeight=NaN,
  sourceInstanceSame=false,ownerLocomotion=false,alive=false,visible=false,
  teleport=false,reducedMotion=false,interrupted=false,
+ previousLinkedCertified=false,
  floorTopY=NaN,frameInterval=NaN,side='',before=null,trials=[]
 }={}){
  if(mode!=='move'||sourceClipName!=='Walking_A'||!finite(sourceWeight)||
@@ -91,10 +92,28 @@ export function planOriginalSourceSwingLinkedLegFollowups({
    Math.abs(o.toeY-loaded.toeY)>.003||
    drift(o.heelXZ,loaded.heelXZ)>.004||
    drift(o.toeXZ,loaded.toeXZ)>.004)continue;
-  if(best===null||lift>best.lift)best={sign:Math.sign(t.upperRad),lift};
+  if(best===null||lift>best.lift)best={sign:Math.sign(t.upperRad),lift,
+   heelRise:shoe.heelY-original.heelY};
  }
  if(!best)return null;
  const slow=frameInterval>=.05&&sourceWeight>=.95;
+ // The genuine licensed Walking_A 1440px dual-skinned original frame
+ // (Actions 43710861266) raised its swinging toe 13.681mm with the
+ // original +/-90/75mrad linked chain, but also lifted the airborne heel
+ // 26.375mm. Trying only a larger thigh of the same ratio can make an
+ // already near-vertical shoe more upright instead of clearing the toe.
+ // On a fresh, fully-owned, deep, HEEL-DOMINATED source frame, spend the
+ // SAME two remaining source-skin reads on constrained knee-biased
+ // connected hip+calf pairs. No single-joint ankle tweak or planted target.
+ // Actual two-shoe trial selection, final skin readback, slew and the exact
+ // original GLB joint bindings remain mandatory in the caller.
+ const heelDominatedFirstSwing=!slow&&sourceWeight>=.95&&
+  previousLinkedCertified!==true&&
+  floorTopY-original.toeY>=.06&&
+  best.lift>=.012&&best.heelRise>=.024&&
+  best.heelRise>=best.lift*1.7;
+ if(heelDominatedFirstSwing)
+  return [[.09,-.09],[.105,-.09]].map(a=>a.map(v=>v*best.sign));
  const arcs=slow?[[.14,-.105],[.145,-.11]]:
   [[.105,-.085],[.11,-.09]];
  return arcs.map(a=>a.map(angle=>angle*best.sign));
