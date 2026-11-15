@@ -1,3 +1,21 @@
+## W363 · Phase 1 remains ACTIVE · real town growth keeps original GPU triangles resident · 15 November 2026
+
+**Active integration, unchanged:** genuine farmer harvest → loaded courier → real market receipt → household purchase/meal in an occupied home, plus Day-121 and 390px camera. The original G088 baseline remains [2f6deb43](https://github.com/my-edutu/Ai_games/commit/2f6deb43feb1a1557848d44def53a6109deb1ab1). Source [ec13828ef5b5d616c3a75eac088ad8881a3d7cca](https://github.com/my-edutu/Ai_games/commit/ec13828ef5b5d616c3a75eac088ad8881a3d7cca) changes hardware-only GPU resident settlement writes to preserve exactly matching original triangles and upload only changed triangle-aligned region on authentic construction; SwiftShader and spatially reordered packs retain the full safe upload. The original occupancy, mesh material stride, frustum and simulation logic are unchanged. **No demonstrated FPS/visual gain.**
+
+**Fresh inspected actual video:** [W362 genuine Day121 390px uncut recording](https://github.com/my-edutu/Ai_games/actions/runs/43756922679/artifacts/14178732286), 390×844, 26.24 seconds, at 1/4/7/10/13/16/20/25 seconds. Repeated close homes and timber posts obscure working figures; the camera shows bustling roofs/market but cannot make all labor readable. Supply card at 13s is real UI, not proof of a complete uninterrupted handoff. **This is W362 source, not W363 footage.**
+
+| Priority / owner workstream | Measured current blocker | Measurable desired LOOK/FEEL/PLAY result and DONE condition |
+| --- | --- | --- |
+| 1. Retained rendering spine / GPU & driver | Older SwiftShader first cold frame 307.4ms including civic 108ms, ground atlas 68ms; hardware GPU p95 unknown. W363 original-vertex delta handles are unmeasured and hardware only. | Same device/seed/view/Day121 before/after traces of JS + upload + driver + GPU, no buffer leaks, no missing scene triangles, <=160k view and eventually real desktop/mobile sustained 30 FPS, p95<=33.3ms |
+| 2. Connected architectural place | Current actual 390px Day121 still reads as modular timber/stone pieces, roof-dominated camera rather than plausible inhabited town. | Contiguous believable farm→granary→market→home roads/materials/massing in Day1/Day121/workday actual footage, materially obvious change to uninstructed critic |
+| 3. Animated original work/contact | At 7/10s in real 390px video workers and carts partially merge with simple architecture, 16s worker dark and distant. | One uninterrupted genuine 4-action workday, readable adult anatomy, foot/hand/tool contact, credited genuine goods at market and home |
+| 4. Portrait interaction/camera | Actual 390px still has posts/large roof planes masking subject; economy controls may cover action. | Collision-safe orbit and follow, 390px touch/label readability, pause/save/restore without dropped input or hidden worker |
+| 5. Acceptance evidence/reliability | No matched full G088 vs candidate same-state moving Day1/workday/Day120/mobile A/B or independent critics, no physical device traces. W362 W281 CI failed due isolated missing clearSegment mock; W363 fixture repaired. | Strict deterministic 120-day and soak, representative GL/no-error, hardware + memory traces and genuinely independent blinded comparative LOOK/FEEL/PLAY assessment |
+
+**Scorecard A: LOOK/FEEL/PLAY NOT PROVEN; scorecard B commercial Manor Lords FAIL.** Latest source regression/CI on W363 [workflow](https://github.com/my-edutu/Ai_games/actions/workflows/tiny-kingdom-w363-resident-delta-upload.yml) queued at checkpoint, not assumed green. Keep PR #64 open draft, no merge. **Next exact code deliverable:** profile matched real grown-house GPU buffer writes and civic/ground cold spike; make architecture/worker geometry noticeably better under a verified frame budget. No phase advancement.
+
+---
+
 ## W362 · One Phase 1 active original farm → courier → market → home deliverable · 1f90afd4a2bae3f49108b0ca924a0d8bde295ee0
 **Top-five blocking impact and DONE conditions** (update these, do not reset the workstream):
 
