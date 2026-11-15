@@ -13,6 +13,10 @@ const ctx={Math,Number,Array,portraitAltCandidates:0,
  foregroundSceneProjection:eye=>({actorCoreCover:eye[0]<-.1?.02:.68,
   cover:eye[0]<-.1?.06:.75,cargoCover:0,buildingCover:0}),
  foregroundVegetationProjection:()=>({faceBlockers:0,cover:0}),
+ // The original W334 VM isolates only the real camera functions. W355
+ // requires an explicit REAL crop witness even for its non-farmer actor.
+ realFarmWorkSightline:()=>({active:false,cropFaceBlockers:0,
+  cropWristBlockers:0,cameraInsideField:false,physicalInteriorEyeClear:false}),
  projectedWorkerBodyFraction:()=>.32,
  cameraShotFraming:()=>({handBlockers:0,blockedBodyRays:0,foregroundCitizenBlockers:0,cameraProximityWarnings:0,projectedWorksitePosts:0}),
  genuineWorkdayShotDecision:s=>({safe:s.handBlockers===0&&s.blockedBodyRays<=2,readable:true})};
@@ -35,6 +39,14 @@ assert.equal(result.blockers,0);assert.equal(result.physicalPortraitAlternative,
 assert.equal(result.renderedWorldStillComplete,true);
 assert(result.eye[0]<-.1,'camera must stand in the truly clear physical half-space');
 assert(ctx.portraitAltCandidates>0&&ctx.portraitAltCandidates<=24);
+// A genuinely clear architecture eye CANNOT claim a filmed farmer when
+// wheat still physically hides the actual wrist (W355 regression).
+ctx.realFarmWorkSightline=()=>({active:true,cropFaceBlockers:0,
+ cropWristBlockers:1,cameraInsideField:false,physicalInteriorEyeClear:false});
+assert.equal(find({...actor,job:'farmer'},shot,[]),null,
+ 'real crop-covered wrist must not be called a clear portrait');
+ctx.realFarmWorkSightline=()=>({active:false,cropFaceBlockers:0,
+ cropWristBlockers:0,cameraInsideField:false,physicalInteriorEyeClear:false});
 ctx.foregroundSceneProjection=()=>({actorCoreCover:.75,cover:.85,cargoCover:0});
 assert.equal(find(actor,shot,[]),null,'no fake view when all real eyes obstructed');
 for(const token of [
