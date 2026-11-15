@@ -148,6 +148,13 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  const lastAdvanceWritesByPool=Object.fromEntries(
   Object.keys(PHYSICAL_FEEDBACK_POOL_LIMITS).map(name=>[name,0]));
  const admittedVisualCueIds=new Set();let suppressedDuplicateCues=0;
+ // The 128-entry receipt FIFO is bounded, but a long Dungeon session can
+ // evict a previously rendered wound. Strict HP art uses a second O(1),
+ // scene-scoped five-tick chronology fence, matching the public planner's
+ // immutable event horizon. This is a VISUAL duplicate guard only: it never
+ // extends effect life, identifies a striker, or changes original sound.
+ let latestAdmittedHpScene=null,latestAdmittedHpTick=-1,
+  suppressedAncientDamageVisuals=0;
  const pools=new Map();let active=0,peak=0,spawned=0,suppressed=0,
   preempted=0,retiredWarningMarkers=0,staleWarningCues=0,retiredInvalidWarnings=0,unanchoredWardenSignals=0,
   retiredUnanchoredBodySignals=0,confirmedFragments=0,measuredTrailFrames=0,
@@ -748,6 +755,14 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   // wound; the independent geometry audition retains its permissive default.
   if(type==='hit'&&requireVerifiedHpReceipt&&
    !isCanonicalVerifiedCombatFoleyCue(cue)){suppressed++;return false}
+  if(type==='hit'&&requireVerifiedHpReceipt&&
+   latestAdmittedHpScene===cue.sceneKey&&
+   cue.tick<latestAdmittedHpTick-5){
+   // Even a valid old HP receipt cannot mint a SECOND impact after its
+   // bounded one-shot identity has rotated out during a long live run.
+   // The controller's original 400ms frame deadline remains independent.
+   suppressed++;suppressedAncientDamageVisuals++;return false;
+  }
   if(type==='trail'&&(cue.kind!=='swing'||cue.proof!=='authority-attempt-not-hit'))return false;
   if(cue.kind==='counter'&&(
    cue.proof!=='authority-counter-and-HP'||
@@ -888,6 +903,11 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    created++;spawned++;
   }
   if(created>0){
+   if(type==='hit'&&requireVerifiedHpReceipt){
+    if(latestAdmittedHpScene!==cue.sceneKey){
+     latestAdmittedHpScene=cue.sceneKey;latestAdmittedHpTick=cue.tick;
+    }else latestAdmittedHpTick=Math.max(latestAdmittedHpTick,cue.tick);
+   }
    syncPoolInstanceCount(pool);
    if(receiptKey!==null){
     admittedVisualCueIds.add(receiptKey);
@@ -1352,6 +1372,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    pool.mesh.count=0;
   }
   active=0;warningHistory.clear();admittedVisualCueIds.clear();
+  latestAdmittedHpScene=null;latestAdmittedHpTick=-1;
  }
  function dispose(){
   if(disposed)return;
@@ -1363,6 +1384,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  }
  function stats(){return Object.freeze({
   active,peak,spawned,suppressed,preempted,suppressedDuplicateCues,
+  suppressedAncientDamageVisuals,
   rememberedVisualCueIds:admittedVisualCueIds.size,
   retiredWarningMarkers,staleWarningCues,retiredInvalidWarnings,
   warningHistoryOwners:warningHistory.size,unanchoredWardenSignals,
