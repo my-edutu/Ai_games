@@ -88,6 +88,9 @@ async function observeLiveAuthority(browser,real,viewport,capture,feedbackMode='
     lastFrame=d.frame;
     samples.push({source,capture,feedbackMode,seed,viewport,frameId:d.frame,
      elapsedMs:Math.max(0,performance.now()-start),scene:{...d.renderedState},
+     // The true submitted D04 frame identity can diverge from renderer.info.
+     // Missing identity means UNKNOWN, not a borrowed rendered impact.
+     submittedFrameId:p?.lastPresentedFrameId??null,
      camera:d.camera,focusedHeroId:d.focusedHeroId,
      cameraPosition:{...d.cameraRig?.actualPosition},
      cameraAim:{...d.cinematicAim},softwareWebGL:d.softwareWebGL,
@@ -385,6 +388,7 @@ test('D04 records three existing physical viewpoints at desktop and 390px from o
    receipts:r.pacedReceipts.length,failures:r.pacedFailures.length})),
   matchedAuthorityTicks:verdict.matchedAuthorityTicks,
   matchedHpLossTicks:verdict.matchedHpLossTicks,
+  matchedDrawableHpLossTicks:verdict.matchedDrawableHpLossTicks,
   missingViews:verdict.missingViews,
   viewports:verdict.viewpointFrames.map(({view,observedFrameSamples,originalAVRecorded})=>
    ({view,observedFrameSamples,originalAVRecorded}))
