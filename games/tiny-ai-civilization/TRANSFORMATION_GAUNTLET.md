@@ -1,4 +1,22 @@
 
+## W362 · 15 November 2026 · ORIGINAL HOUSEHOLD ROAD ROUTES RETAINED ACROSS APPEND-ONLY REAL CONSTRUCTION · Phase 1 ACTIVE
+
+**Production source:** [1f90afd4a2bae3f49108b0ca924a0d8bde295ee0](https://github.com/my-edutu/Ai_games/commit/1f90afd4a2bae3f49108b0ca924a0d8bde295ee0), on existing draft PR #64 exclusively. G088 immutably pinned to `2f6deb43feb1a1557848d44def53a6109deb1ab1`, [actual capture](https://github.com/my-edutu/Ai_games/actions/runs/41301740489/artifacts/13081531738). No merge, no main edit, no integration of #59/#62.
+
+**Continuing one Phase 1 farm → genuine farmer harvest → loaded courier → real receiving market → inhabited house slice.** The live 3D road renderer previously called `routeBetween` for all up to 40 authentically occupied homes every time a house was built, rebuilding routes that could remain physically unchanged. Now a bounded render-only route residency cache retains successful original A* routes across append-only occupied-lot growth, independently checks every original segment with actual `walkable` and `clearSegment` against new walls, and falls back to `routeBetween` on obstruction, stale endpoints, or uncacheable paths. Same-count restore, reorders and lot changes clear cosmetic residency; at most 40 entries. Both real road geometry and real materials use the existing civic VBO. No artificial roads, new buildings, reduced citizen counts, rule changes or authoritative navigation cache alteration. CPU timing and reuse counters are exposed in `getRealHomeLaneNetworkAudit()`.
+
+**RED-before:** production did not contain the new route-residency helper, its renderer wiring or audit. **Isolated GREEN:** whole original inline playable JavaScript successfully parsed; append-only reuse preserved the real route, newly blocked route re-entered original A*, same-count lot replacement reset the cache, 48 home requests remained capped at 40 entries, no authority mutation. [Focused exact-head Node source contract](https://github.com/my-edutu/Ai_games/blob/feat/tiny-kingdom-post-main-gauntlet-20261031/scripts/tiny-kingdom-w362-road-residency-contract.cjs) and [dedicated GitHub workflow](https://github.com/my-edutu/Ai_games/blob/feat/tiny-kingdom-post-main-gauntlet-20261031/.github/workflows/tiny-kingdom-w362-road-residency.yml) added. Fresh branch-running CI, actual W362 gameplay, 120-day replay and real speedup have **NOT YET BEEN VERIFIED**. No performance benefit claimed.
+
+**Inspected prior exact-head real evidence:** [W361 same-source grown Day121 390px/desktop WebGL videos](https://github.com/my-edutu/Ai_games/actions/runs/43750745372/artifacts/14176750888) show active workers, authentic buildings, and obstructed/low-poly visuals. [Actual W227 cold-scene instrumented evidence](https://github.com/my-edutu/Ai_games/actions/runs/43750745258/artifacts/14176701265) on 390px SwiftShader reports 307.4 ms first cold scene, of which civic build 108 ms and ground atlas 68 ms; growing-house frame 84.4 ms including civic 31.7 ms. Software and older scene recordings, not W362 before/after hardware or FPS proof.
+
+### Independent EXPERIENCE SCORECARDS
+- **A — substantial LOOK / FEEL / PLAY improvement versus G088: NOT PROVEN** (no current-head full matched same-state Day1/workday/Day120/mobile continuous A/B; no genuinely separate blinded critics).
+- **B — official Manor Lords original commercial quality: FAIL** (stylized buildings, angular people, mobile obstruction). Real physical mobile/desktop >=30fps, p95 <=33.3ms, bounded GPU memory and long soak **NOT PROVEN**.
+- **Phase 1 stays ACTIVE.** Next integrated deliverable: execute paired SAME-SCENE actual growth profiling and verify real household road materials/camera integrity and replay, then reduce remaining civic cold rebuild/driver stalls to make room for meaningful character/architecture reconstruction. Never call cache hits a visual milestone. Keep PR #64 draft and unmerged.
+
+---
+
+
 ## W361 · 15 November 2026 · RETAIN PHYSICALLY VALIDATED OCCUPIED-HOME ACCESS OVERLAY DURING GROWTH · Phase 1 ACTIVE
 
 ### EXPERIENCE SCORECARD — independent, unchanged evidence gates

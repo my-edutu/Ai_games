@@ -1,3 +1,18 @@
+## W362 · One Phase 1 active original farm → courier → market → home deliverable · 1f90afd4a2bae3f49108b0ca924a0d8bde295ee0
+**Top-five blocking impact and DONE conditions** (update these, do not reset the workstream):
+
+| Owner / real blocking cost | Actual observed before new source; desired visible consequence | True done gate |
+| --- | --- | --- |
+| 1. Rendering spine / static & driver cost | Prior exact-head 390px SwiftShader W227 first cold frame 307.4ms, civic 108ms, ground atlas 68ms; grown-house cold frame 84.4ms with 31.7ms civic. W362 retains safely valid 3D household A* road routes but has no measured speedup. | Same workload, same seed/view/growth CPU p50/p95/p99 and JS/driver/GPU division, no per-frame giant rebuild, <160k view, 30+ sustained hardware desktop/mobile and p95 <=33.3ms |
+| 2. Coherent 3D living district / architecture | Prior W361 Day121 real footage shows settled streets/market but still synthetic roofs and cramped houses | Continuous truly traversable farm→granary→market→inhabited home visibly medieval with original massing/materials, actual Day1/Day120/390px film |
+| 3. Articulated human/cargo work | Original work and receipts exist, but prior mobile video still shows angular people and obscured labor | Uncut real farmer harvesting, loaded courier unloading at credited market, original forge/builder contact, live feet and hands, no invented work |
+| 4. Mobile camera and understandable economy | Prior W361 390px rooftops obstruct subjects and real purchases are difficult to read | 390px physical camera clear of carts/roofs, 44px touch, receipt→sale→meal visibly authoritative, pause/save/restore and orbit input usable at low FPS |
+| 5. Independent acceptance and reliability | G088 vs candidate world-state pairing remains incomplete; no blind critics or physical GPU traces | Exact same seed/snapshots, whole Day1/workday/Day120/mobile before/after, deterministic 120day and longer soak, stable GPU/CPU resources, 4/5 independent blind LOOK/FEEL/PLAY substantial verdict |
+
+**A LOOK/FEEL/PLAY NOT PROVEN · B commercial Manor Lords FAIL.** Exact source [1f90afd4a2bae3f49108b0ca924a0d8bde295ee0](https://github.com/my-edutu/Ai_games/commit/1f90afd4a2bae3f49108b0ca924a0d8bde295ee0), baseline [2f6deb43](https://github.com/my-edutu/Ai_games/commit/2f6deb43feb1a1557848d44def53a6109deb1ab1), latest previous actual [W361 mobile/day121 film](https://github.com/my-edutu/Ai_games/actions/runs/43750745372/artifacts/14176750888). Isolated route tests PASS; current-head CI/real gameplay NOT VERIFIED. PR #64 remains draft, unmerged.
+
+---
+
 ## W353 · One active Phase 1 farm→granary→market→home transformation checkpoint · 13ddae3d48f2de3b6a000d4dfad21e1305cd2244
 
 Latest real pre-head Day121 390px clip inspected at 3–37s: crop obscures actual farmer at ~14s, visible inhabited streets and genuine resident motion; source W353 focused W281 build/browser [PASS](https://github.com/my-edutu/Ai_games/actions/runs/43707679978), visual/30fps/same-state A/B still NOT PROVEN. Exact active draft PR #64 only. Real 668 rooted grain stems are retained with unchanged near/far 4/12/20 triangular budget and unchanged seeded authority; new leaf/head shaping and real harvester sickle-driven foliage clearance must be judged in UNINTERRUPTED desktop/390px film. W352 W281 CI passed; GPU evidence W84 old <1400 loft limit failed against genuine 1605 triangles and has been repaired to honest 1560–1730. No W353 actual workday/browser/FPS PASS yet.
