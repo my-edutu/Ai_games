@@ -817,17 +817,23 @@ test('source-earned Floor9 paints one actual open Void load path beside the reta
     assert.ok(bearing?.isGroup,'actual F9 frame must contain source-gated structural destination');
     assert.ok(bearing.getObjectByName('VoidOpenCoreLoadPath')?.isGroup,
       'the first genuine F9 render must contain the actual open core, not an empty destination and cold late world swap');
-    assert.ok(bearing.getObjectByName('VoidOpenCoreFoundation')?.isMesh &&
-      bearing.getObjectByName('VoidOpenCoreSupportedCrown')?.isMesh,
-      'the original connected foundation and crown appear with the earned gateway');
-    assert.ok(bearing.getObjectByName('VoidOpenCoreRearLoadPosts')?.isInstancedMesh,
-      'rear supports remain physically modeled in the first source-owned F9 scene');
+    // The world legitimately merges those exact rigid meshes into GPU batches
+    // before the FIRST painted frame; source-face provenance must survive.
+    const originalOwners=[];
+    bearing.traverse(o=>{
+      if(o.isMesh)for(const owner of o.geometry.userData.originalTriangleOwners||[])
+        originalOwners.push(owner.authoringPath);
+    });
+    for(const original of ['VoidOpenCoreFoundation',
+      'VoidOpenCoreSupportedCrown','VoidOpenCoreRearLoadPosts'])
+      assert.ok(originalOwners.some(owner=>owner.includes(original)),
+        'the first rendered batched F9 core retains actual source geometry: '+original);
     assert.equal(bearing.getObjectByName('SourceEarnedVoidExteriorButtress'),undefined,
       'new opaque nearest Void pylon must not screen the real still-visible bronze gateway on first F9');
     assert.equal(world.group.getObjectByName('tapered-structural-pylon'),undefined,
       'all incoming exterior buttresses wait for physical source departure; gameplay floor stays');
     let meshes=0; bearing.traverse(o=>{if(o.isMesh)meshes++;});
-    assert.ok(meshes>=5 && meshes<=14,
+    assert.ok(meshes>=3 && meshes<=8,
       'only the bounded source-authored OPEN core is present, never a full cold exterior shaft');
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),bronzeArch);
     const pending=world.diagnostics().deferredDistantArrival;
