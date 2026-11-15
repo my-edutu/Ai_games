@@ -86,3 +86,74 @@ test('only actual rendered opaque, visible platform triangles count; no invented
     assert.equal(sample(f,[0,2,6],[0,2,0]).score,0);
   }finally{f.geometry.dispose();f.material.dispose();}
 });
+
+test('source-owned undercroft selectively opens actual torso and original-gateway rays in both viewports without touching playable landing top',async()=>{
+  const THREE=await three;
+  const {protectSourceSuccessorUndercroft}=await loaded;
+  for(const aspect of [960/600,390/844]){
+    const f=fixture(THREE);
+    const top=new THREE.Mesh(new THREE.BoxGeometry(2.5,.15,1.2),
+      new THREE.MeshStandardMaterial({color:0xb8b0e0}));
+    top.position.set(0,5,2.4);f.roof.add(top);
+    const entry={mesh:f.roof.children[0],material:f.material,
+      tint:f.material,opacity:1};
+    const initialTopOpacity=top.material.opacity;
+    try{
+      const camera=new THREE.PerspectiveCamera(55,aspect,.1,100);
+      camera.position.set(0,2,6);
+      camera.updateMatrixWorld(true);
+      const proof=protectSourceSuccessorUndercroft({
+        source:f.source,held:f.held,camera,
+        body:new THREE.Vector3(0,2,0),bodyHalfHeight:1.2,
+        gate:new THREE.Vector3(0,2,0),entries:[entry],
+        ...f.reuse,dt:1/25
+      });
+      assert.equal(proof.active,true);
+      assert.ok(proof.softened>0,'real old-gateway and climber ray blocked by original underside');
+      assert.ok(proof.rays<=6,'bounded full-body plus true gate ray budget');
+      assert.ok(f.material.opacity<=.08,'only the source-owned foreground skirt clears');
+      assert.equal(f.material.depthWrite,false,'solid underside must not mask hero depth');
+      assert.equal(top.material.opacity,initialTopOpacity,'actual walkable roof stays opaque');
+      assert.equal(top.material.transparent,false);
+      assert.equal(f.source.floor,9);
+      assert.equal(f.held.guardianGateRetained,true);
+    }finally{top.geometry.dispose();top.material.dispose();f.geometry.dispose();f.material.dispose();}
+  }
+});
+test('source-owned undercroft restores opaque depth at source expiry and clears immediately when camera no longer intersects real triangles',async()=>{
+  const THREE=await three;
+  const {protectSourceSuccessorUndercroft}=await loaded;
+  const f=fixture(THREE);
+  const entry={mesh:f.roof.children[0],material:f.material,tint:f.material};
+  const camera=new THREE.PerspectiveCamera(55,960/600,.1,100);
+  camera.position.set(0,2,6);camera.updateMatrixWorld(true);
+  const args={source:f.source,held:f.held,camera,body:new THREE.Vector3(0,2,0),
+    bodyHalfHeight:1.2,gate:new THREE.Vector3(0,2,0),entries:[entry],
+    ...f.reuse,dt:1/25};
+  try{
+    assert.ok(protectSourceSuccessorUndercroft(args).softened>0);
+    const first=f.material.opacity;
+    camera.position.set(5,3,6);camera.updateMatrixWorld(true);
+    for(let i=0;i<18;i++)protectSourceSuccessorUndercroft(args);
+    assert.ok(f.material.opacity>first);
+    assert.equal(f.material.opacity,1,'unobstructed geometry returns fully opaque');
+    args.source={...f.source,tick:546};
+    assert.equal(protectSourceSuccessorUndercroft(args).active,false);
+    assert.equal(f.material.opacity,1,'expired prior-run visibility cannot ghost future floors');
+    assert.equal(f.material.depthWrite,true);
+    args.source={...f.source,runToken:'forged'};
+    assert.equal(protectSourceSuccessorUndercroft(args).active,false);
+    assert.equal(f.material.opacity,1);
+    args.source=f.source;args.stale=true;
+    assert.equal(protectSourceSuccessorUndercroft(args).active,false);
+  }finally{f.geometry.dispose();f.material.dispose();}
+});
+test('production undercroft protects source-built successor side skirts at the final actual camera but never its landing top',()=>{
+  const fs=require('node:fs');
+  const src=fs.readFileSync(path.resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
+  assert.match(src,/protectSourceSuccessorUndercroft\(\{/);
+  assert.match(src,/successorUndercroftSightline/);
+  assert.match(src,/sourceOwnedUndercroft/);
+  assert.match(src,/arrivalSurface\|\|materials\.landing/);
+});
