@@ -103,7 +103,12 @@ test('at the valid old gateway opacity tail, original horizon follows the still-
     moduleURL('biome-threshold.mjs'));
   const s=source(),h=retained(s);
   s.tick=501;s.player.x=414296;s.player.y=50000;
-  h.visibleSeconds=.65;h.submittedFrames=4;
+  // The genuine source-cleared gateway is partially transparent on the
+  // third GPU return, so sky and original architecture must still match.
+  // After the fourth actual return this shot is fully handed to Void: the
+  // previous 0.65s/4-return fixture incorrectly demanded an old arch that
+  // should already have physically faded, reproducing the native hard cut.
+  h.visibleSeconds=.32;h.submittedFrames=3;
   const p=observedSourceGatewayDeparturePresence(s,h);
   assert.ok(p?.sourceBound && p.opacity>0 && p.opacity<1);
   const tint=observedGroundedBiomeThreshold(s,null,{},h);
