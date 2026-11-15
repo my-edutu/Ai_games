@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,auditOriginalSourceSwingAnkleSlew,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,confirmOriginalSourceSwingAnkleNetClearance,confirmOriginalSourceSwingToeContinuation,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,confirmOriginalSourceSwingCalfNetClearance,retireOriginalSourceCalfMemory,planOriginalSourceStanceAnkleRelief,chooseOriginalSourceStanceAppliedWitness,chooseOriginalSourceLoadedKneeWitness,chooseOriginalSourceSwingThighSupport,chooseOriginalSourceSwingLinkedLegTrial,planOriginalSourceSwingLinkedLegFollowups,certifyOriginalSourceFirstSwingPitch,qualifyOriginalSourceLoadedStanceCompanion,qualifyOriginalSourceAnkleLinkedEscalation,reconcileOriginalSourceAnkleLinkedEscalation,chooseOriginalSourceSwingToeJointRelief,chooseOriginalSourceSwingLinkedToeFinisher,planOriginalSourceDeepSwingFootFollowups,chooseOriginalSourceSwingLinkedFootFinisher,planOriginalSourceFootDorsiflexionAxis,planOriginalSourceWeightedSoleHingeAxis,planOriginalSourceKneeChainFootHingeAxis,planOriginalSourceSwingThighHold,planOriginalSourceSwingThighEaseOut,verifyOriginalSourceOppositeStanceForSwingThigh,reconcileOriginalSourceSwingToeProofWithThigh,planOriginalSourceLoadedPelvisSupport,planOriginalSourceStanceSlideRelief,planOriginalSourceWalkingTorsoCounterturn,planOriginalSourceStanceSampleHandoff,planOriginalSourceStanceSlowFramePrime,planOriginalSourceStanceReliefCarry,verifyOriginalSourceLoadedPelvisFootWitness,verifyRestoredRootOriginalSourceSoleSafety,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingMixerFrameDelta,planImportedWalkingBlendRate,planImportedRealTravelCrossfade,planImportedWitnessedHurtMixerFrame,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedCombatWalkStop,shouldFreezeDeferredImportedCombatWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,auditOriginalSourceSwingAnkleSlew,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,confirmOriginalSourceSwingAnkleNetClearance,confirmOriginalSourceSwingToeContinuation,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,confirmOriginalSourceSwingCalfNetClearance,retireOriginalSourceCalfMemory,planOriginalSourceStanceAnkleRelief,chooseOriginalSourceStanceAppliedWitness,chooseOriginalSourceLoadedKneeWitness,chooseOriginalSourceSwingThighSupport,chooseOriginalSourceSwingLinkedLegTrial,planOriginalSourceSwingLinkedLegFollowups,planOriginalSourceAuthoredNeutralBlends,chooseOriginalSourceAuthoredNeutralLegTrial,certifyOriginalSourceFirstSwingPitch,qualifyOriginalSourceLoadedStanceCompanion,qualifyOriginalSourceAnkleLinkedEscalation,reconcileOriginalSourceAnkleLinkedEscalation,chooseOriginalSourceSwingToeJointRelief,chooseOriginalSourceSwingLinkedToeFinisher,planOriginalSourceDeepSwingFootFollowups,chooseOriginalSourceSwingLinkedFootFinisher,planOriginalSourceFootDorsiflexionAxis,planOriginalSourceWeightedSoleHingeAxis,planOriginalSourceKneeChainFootHingeAxis,planOriginalSourceSwingThighHold,planOriginalSourceSwingThighEaseOut,verifyOriginalSourceOppositeStanceForSwingThigh,reconcileOriginalSourceSwingToeProofWithThigh,planOriginalSourceLoadedPelvisSupport,planOriginalSourceStanceSlideRelief,planOriginalSourceWalkingTorsoCounterturn,planOriginalSourceStanceSampleHandoff,planOriginalSourceStanceSlowFramePrime,planOriginalSourceStanceReliefCarry,verifyOriginalSourceLoadedPelvisFootWitness,verifyRestoredRootOriginalSourceSoleSafety,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingMixerFrameDelta,planImportedWalkingBlendRate,planImportedRealTravelCrossfade,planImportedWitnessedHurtMixerFrame,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedCombatWalkStop,shouldFreezeDeferredImportedCombatWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -1051,6 +1051,7 @@ function auditSourceLoadedPelvisAfterLegs(actor,since,reducedMotion){
   actor.sourceSwingToeCurrentFrameProofs={left:null,right:null};
    actor.sourceSwingThighCurrentFrameProofs={left:null,right:null};
  actor.sourceSwingLinkedCurrentFrameProofs={left:null,right:null};
+ actor.sourceNeutralSwingCurrentFrameProofs={left:null,right:null};
   actor.sourceStanceSoleCurrentFrameProofs={left:null,right:null};
    actor.sourceStanceKneeCurrentFrameProofs={left:null,right:null};
    for(const probe of Object.values(actor.sourceStanceKneeProbeOutcomes??{}))
@@ -2162,7 +2163,9 @@ function stageOriginalSourceSwingToesAfterMixer(actor,reducedMotion){
  // shoes. Later toe-knuckle corrections on EITHER shoe would invalidate the
  // existing final proof. This is sole-pose ownership, not a foot lock.
  if(actor.sourceSwingLinkedCurrentFrameProofs?.left||
-    actor.sourceSwingLinkedCurrentFrameProofs?.right){
+    actor.sourceSwingLinkedCurrentFrameProofs?.right||
+    actor.sourceNeutralSwingCurrentFrameProofs?.left||
+    actor.sourceNeutralSwingCurrentFrameProofs?.right){
   markBoth('original-linked-leg-owns-swing');
   return;
  }
@@ -2551,7 +2554,9 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   // source receipt below, rather than blanket-vetoing a buried swing.
   actor.sourceStanceKneeCurrentFrameProofs?.[side]||
   actor.sourceStanceKneeCurrentFrameProofs?.[opposite]||
-  (actor.sourceSwingCalfCurrentFrameMask&(side==='left'?1:2)))return;
+  (actor.sourceSwingCalfCurrentFrameMask&(side==='left'?1:2))||
+   actor.sourceNeutralSwingCurrentFrameProofs?.[side]||
+   actor.sourceNeutralSwingCurrentFrameProofs?.[opposite])return;
  const patches=sourceSolePatchVertexCandidates(actor);
  if(!['left','right'].every(s=>patches?.[s]?.anatomicalHeelToeVerified===true&&
   patches[s].sourceToeAxis?.selectedAnatomicalPatch===true&&
@@ -2675,7 +2680,44 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
  const fallbackAngles=slowArc?
   [[.14,-.105],[-.14,.105]]:[[.11,-.09],[-.11,.09]];
  const trials=[];
- let measuredFollowups=null;
+ let measuredFollowups=null,authoredNeutralUsed=false;
+ let originalNeutralMounts=null,originalNeutralSaved=null,originalNeutralTargets=null;
+ const sourceIdle=actor.availableClips?.find(c=>c?.name==='Idle');
+ const prepareOriginalIdle=()=>{
+  if(!Array.isArray(sourceIdle?.tracks)||sourceIdle.tracks.length>1500)return false;
+  const mounts=[upper,lower,foot],targets=[];
+  for(const m of mounts){
+   const suffix=m.bone.name.toLowerCase()+'.quaternion';
+   const matches=sourceIdle.tracks.filter(t=>
+    t?.name?.toLowerCase().endsWith(suffix)&&
+    t.times?.length>=1&&t.values?.length===t.times.length*4);
+   if(matches.length!==1)return false;
+   const v=Array.from(matches[0].values.slice(0,4));
+   if(!v.every(Number.isFinite)||Math.abs(Math.hypot(...v)-1)>.02)return false;
+   targets.push(new THREE.Quaternion(...v).normalize());
+  }
+  const original=[upperOriginal.clone(),lowerOriginal.clone(),
+   foot.bone.quaternion.clone()];
+  // A different source clip is not permission to jump to arbitrary poses.
+  if(mounts.some((m,i)=>original[i].angleTo(targets[i])*.42>.260001))
+   return false;
+  originalNeutralMounts=mounts;
+  originalNeutralSaved=original;
+  originalNeutralTargets=targets;
+  return true;
+ };
+ const sampleOriginalIdle=blend=>{
+  let maxJointDeltaRad=0;
+  for(let i=0;i<3;i++){
+   const bone=originalNeutralMounts[i].bone;
+   bone.quaternion.copy(originalNeutralSaved[i]).slerp(
+    originalNeutralTargets[i],blend);
+   maxJointDeltaRad=Math.max(maxJointDeltaRad,
+    originalNeutralSaved[i].angleTo(bone.quaternion));
+  }
+  upper.bone.updateWorldMatrix(true,true);
+  trials.push({neutralBlend:blend,maxJointDeltaRad,after:read()});
+ };
  const sample=([upperRad,lowerRad])=>{
   upper.bone.quaternion.copy(upperOriginal).multiply(
    upperDelta.setFromAxisAngle(upperLocalAxis,upperRad));
@@ -2686,13 +2728,19 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
  };
  try{
   for(const angles of starterAngles)sample(angles);
-  measuredFollowups=planOriginalSourceSwingLinkedLegFollowups({
-   ...owner,trials
-  });
-  for(const angles of measuredFollowups??fallbackAngles)sample(angles);
+  const neutralBlends=!sourceAnkleProof?
+   planOriginalSourceAuthoredNeutralBlends({...owner,starterTrials:trials}):null;
+  if(neutralBlends&&prepareOriginalIdle()){
+   authoredNeutralUsed=true;
+   for(const blend of neutralBlends)sampleOriginalIdle(blend);
+  }else{
+   measuredFollowups=planOriginalSourceSwingLinkedLegFollowups({...owner,trials});
+   for(const angles of measuredFollowups??fallbackAngles)sample(angles);
+  }
  }finally{
   upper.bone.quaternion.copy(upperOriginal);
   lower.bone.quaternion.copy(lowerOriginal);
+  if(authoredNeutralUsed)foot.bone.quaternion.copy(originalNeutralSaved[2]);
   upper.bone.updateWorldMatrix(true,true);
  }
  // Record only real skinned-source candidate outcomes. An attempted toe
@@ -2710,8 +2758,10 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   bestMeasuredLiftMeters:bestMeasuredLift,
   // Four real skinned two-shoe readbacks, bounded; never treat a rejected
   // angle or a positive toe delta as an authorized planted foot.
-  candidateMeasurements:trials.map(({upperRad,lowerRad,after})=>({
-   upperRad,lowerRad,
+  candidateMeasurements:trials.map(({upperRad,lowerRad,neutralBlend,maxJointDeltaRad,after})=>({
+   upperRad:upperRad??null,lowerRad:lowerRad??null,
+   authoredNeutralBlend:neutralBlend??null,
+   maxNeutralJointDeltaRad:maxJointDeltaRad??null,
    sourceToeLiftMeters:Number.isFinite(after?.[side]?.toeY)?
     after[side].toeY-swing.toeY:null,
    sourceHeelDeltaMeters:Number.isFinite(after?.[side]?.heelY)?
@@ -2730,6 +2780,70 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   candidates:trials.length,adaptiveFollowupUsed:measuredFollowups!==null,
   previousLinkedCertified,linkedStartLimited:!previousLinkedCertified&&interval<.05,
   contactLocked:false};
+ if(authoredNeutralUsed){
+  // Two existing hip/knee starter probes + TWO real licensed Idle full-leg
+  // candidate source-skin probes. Unsafe results restore original pose.
+  const candidate=chooseOriginalSourceAuthoredNeutralLegTrial({
+   ...owner,neutralClipName:'Idle',sourceNeutralRigVerified:true,
+   trials:trials.filter(t=>Number.isFinite(t.neutralBlend))
+  });
+  actor.sourceNeutralSwingLastProbe={
+   sourceInstanceId:actor.assetRoot.uuid,sourceClip:'Walking_A',
+   neutralClip:'Idle',side,sourceProbeCount:4,
+   acceptedCandidate:Boolean(candidate),contactLocked:false,before,
+   trials:trials.slice(2).map(t=>({
+    blend:t.neutralBlend,maxJointDeltaRad:t.maxJointDeltaRad,
+    toeLiftMeters:t.after?.[side]?.toeY-swing.toeY,
+    heelDeltaMeters:t.after?.[side]?.heelY-swing.heelY
+   }))
+  };
+  if(!candidate)return;
+  for(let i=0;i<3;i++)
+   originalNeutralMounts[i].bone.quaternion.copy(originalNeutralSaved[i]).slerp(
+    originalNeutralTargets[i],candidate.neutralBlend);
+  upper.bone.updateWorldMatrix(true,true);
+  const final=read();
+  const finalCandidate=chooseOriginalSourceAuthoredNeutralLegTrial({
+   ...owner,neutralClipName:'Idle',sourceNeutralRigVerified:true,
+   trials:[{neutralBlend:candidate.neutralBlend,
+    maxJointDeltaRad:candidate.maxJointDeltaRad,after:final}]
+  });
+  const finalCompanion=loadedStanceProof?qualifyOriginalSourceLoadedStanceCompanion({
+   stanceProof:loadedStanceProof,swingSide:side,
+   sourceInstanceId:actor.assetRoot.uuid,sourceClipName:'Walking_A',
+   sourceWeight:weight,floorTopY:-.02,
+   currentLoaded:final?.[opposite],currentSwing:final?.[side]
+  }):null;
+  if(!finalCandidate||
+   Math.abs(finalCandidate.sourceToeLiftMeters-candidate.sourceToeLiftMeters)>.001||
+   Math.abs(finalCandidate.sourceHeelDeltaMeters-candidate.sourceHeelDeltaMeters)>.001||
+   (loadedStanceProof&&!finalCompanion)){
+   for(let i=0;i<3;i++)
+    originalNeutralMounts[i].bone.quaternion.copy(originalNeutralSaved[i]);
+   upper.bone.updateWorldMatrix(true,true);
+   return;
+  }
+  // The original AnimationMixer owns the imported base quaternions. Extend
+  // THREE existing tracked deltas so they are undone BEFORE its next frame.
+  for(let i=0;i<3;i++){
+   const mount=originalNeutralMounts[i];
+   const delta=mount.sourceNeutralRestoreDelta??(
+    mount.sourceNeutralRestoreDelta=new THREE.Quaternion());
+   delta.copy(originalNeutralSaved[i]).invert().multiply(mount.bone.quaternion);
+   mount.last.multiply(delta);
+  }
+  actor.sourceNeutralSwingCurrentFrameProofs[side]={
+   ...finalCandidate,sourceInstanceId:actor.assetRoot.uuid,
+   sourceClip:'Walking_A',neutralClip:'Idle',
+   sourceUpperBone:upper.bone.name,sourceLowerBone:lower.bone.name,
+   sourceFootBone:foot.bone.name,finalIndependentSourceSkin:true,
+   sourceProbeCount:4,sourceBoundedJointCount:3,
+   witnessedFrameIntervalSeconds:interval,witnessedRootTravelMeters:travel
+  };
+  actor.sourceNeutralSwingAcceptedFrames=Math.min(1000000,
+   (actor.sourceNeutralSwingAcceptedFrames||0)+1);
+  return;
+ }
  const selected=chooseOriginalSourceSwingLinkedLegTrial({...owner,trials});
  if(!selected)return;
  upperDelta.setFromAxisAngle(upperLocalAxis,selected.upperRad);
@@ -2830,6 +2944,7 @@ function stageRigLegsAfterMixer(actor,since,reducedMotion){
  actor.sourceSwingLinkedPriorFrameProofs={
   left:previousLinked?.left??null,right:previousLinked?.right??null};
  actor.sourceSwingLinkedCurrentFrameProofs={left:null,right:null};
+ actor.sourceNeutralSwingCurrentFrameProofs={left:null,right:null};
  // No linked pose survives a missed original-mixer frame; both fresh shoes
  // must be independently re-skinned before another bend is authorized.
  actor.sourceSwingThighCurrentFrameProofs={left:null,right:null};
@@ -4370,7 +4485,9 @@ function stageOriginalSourceStanceSlideAfterMixer(actor,reducedMotion,frameInter
  // paired hip+knee verified their loaded opposite foot. Preserve the single
  // authoritative post-mixer two-shoe pose on this rAF, not a second rescue.
  if(actor.sourceSwingLinkedCurrentFrameProofs?.left||
-    actor.sourceSwingLinkedCurrentFrameProofs?.right)return;
+    actor.sourceSwingLinkedCurrentFrameProofs?.right||
+    actor.sourceNeutralSwingCurrentFrameProofs?.left||
+    actor.sourceNeutralSwingCurrentFrameProofs?.right)return;
  const valid=actor.fullBody?.mode==='move'&&actor.fullBody?.owner?.locomotion===true&&
   actor.activeImportedClipName==='Walking_A'&&actor.u.hp>0&&
   actor.root?.visible===true&&visible===true&&!reducedMotion&&
@@ -4910,6 +5027,9 @@ function inspectSourceRigDeformation(actors){
      actor.sourceStanceVisualOffset?.z??0),
     sourceStanceSlideCarryFrames:actor.sourceStanceCarryFrames||0,
     sourceStanceSlideCarryPeakMeters:actor.sourceStanceCarryPeakMeters||0,
+    sourceNeutralSwingAcceptedFrames:actor.sourceNeutralSwingAcceptedFrames||0,
+    sourceNeutralSwingCurrentFrameProofs:actor.sourceNeutralSwingCurrentFrameProofs??null,
+    sourceNeutralSwingLastProbe:actor.sourceNeutralSwingLastProbe??null,
     sourceSwingToeCorrectionFrames:actor.sourceSwingToeCorrectionFrames||0,
     sourceSwingToeIneffectiveFrames:actor.sourceSwingToeIneffectiveFrames||0,
     sourceSwingToeIneffectiveLast:actor.sourceSwingToeIneffectiveLast??null,
