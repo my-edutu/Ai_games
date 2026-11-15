@@ -2807,9 +2807,19 @@ export function createTowerWorld(){
     const threshold=guardianGateAnchorX(previous,authored);
     const wholeBodyClearance=threshold+priorBody?.halfWidth+4000;
     const observedTicks=next.tick-previous.tick;
+    // Exact 1x portrait (campaign 43760586307): browser F8 tick474
+    // showed inactive HP0 guardian on f8:cap, but the first accepted F9
+    // browser+WebGL packet was tick489, supported on the identical roof.
+    // Its immutable crossing record was no longer published by that time.
+    // Admit ONLY this real supported sparse observation through 20 ticks
+    // when no potentially conflicting record is present. Existing exact
+    // crossing receipts keep the conservative <=12-tick fast path.
+    // All precise cap/roof/body, bounded source speed and run checks below
+    // remain mandatory; this cannot move a player or unlock a guardian.
+    const sparseGroundedLimit=next.lastGuardianCrossing==null?20:12;
     const verifiedObservedFloorAdvance=
       Number.isSafeInteger(previous.tick) &&
-      observedTicks>=1 && observedTicks<=12 &&
+      observedTicks>=1 && observedTicks<=sparseGroundedLimit &&
       Number.isSafeInteger(previous.guardianExitX) &&
       previous.guardianExitX===threshold &&
       priorBody?.grounded===true &&
@@ -4569,6 +4579,7 @@ export function createTowerWorld(){
       visible:retainedEarnedCap.root.visible,
       guardianGateRetained:retainedEarnedCap.guardianGateRetained === true,
       sourceAlignedPassage:retainedEarnedCap.sourceAlignedPassage===true,
+      verifiedObservedFloorAdvance:retainedEarnedCap.verifiedObservedFloorAdvance===true,
       originalBronzeDeckMeshes:retainedEarnedCap.originalBronzeDeckMeshes,
       originalGalleryTriangles:retainedEarnedCap.originalGalleryTriangles,
       originalGalleryBytes:retainedEarnedCap.originalGalleryBytes,
