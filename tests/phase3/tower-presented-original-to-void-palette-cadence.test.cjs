@@ -47,8 +47,11 @@ test('first F9 GPU-return frames keep the exact old arch, real successor decks a
     'real second return must visibly advance but not skip the old/new palette');
   held.submittedFrames=3;held.visibleSeconds=.32;
   const late=sample(source,held);
-  assert.ok(late.oldWeight<bridge.oldWeight && late.oldWeight>purelyPhysical.oldWeight,
-    'real third return advances further with original material still present');
+  // By the third *successful* return the lens can have caught up to the
+  // ACTUAL 45m source stride. Requiring more bronze than physical authority
+  // allows forces a visible final-frame snap when the 70-tick witness ends.
+  assert.ok(late.oldWeight<bridge.oldWeight && late.oldWeight>=purelyPhysical.oldWeight,
+    'third real return advances without overshooting the actual source-owned palette');
   held.submittedFrames=4;held.visibleSeconds=.42;
   assert.equal(sample(source,held).oldWeight,purelyPhysical.oldWeight,
     'completed source-authentic optical handoff must not freeze beyond four returns');
