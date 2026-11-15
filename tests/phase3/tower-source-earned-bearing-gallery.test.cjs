@@ -50,7 +50,8 @@ test('the authentic gallery is integrated only in Tower world rebuild, not in si
   assert.match(world,/function buildEarnedClockworkVoidBearingRoute\(snapshot\)/);
   assert.match(world,/buildEarnedClockworkVoidBearingRoute\(snapshot\);/);
   assert.match(world,/SourceEarnedClockworkVoidBearingGallery/);
-  assert.match(world,/plannedSourceEarnedSuspendedBearingSections\(plan\.nodes\)/);\n  assert.match(world,/instanced\(supportRoot,rounded\(\),material,items\)/);
+  assert.match(world,/plannedSourceEarnedSuspendedBearingSections\(plan\.nodes\)/);
+  assert.match(world,/instanced\(supportRoot,rounded\(\),material,items\)/);
 });
 
 test('the persistent original F9 load path shares the source-earned ascent departure with the old gate and real walkable platforms',()=>{
