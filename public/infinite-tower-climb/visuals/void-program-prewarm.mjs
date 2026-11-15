@@ -7,14 +7,19 @@ export function createTowerVoidProgramPrewarm(THREE, renderer, liveScene, camera
   let phase = 'idle', scratch = null, geometry = null, materials = [];
   let epoch = 0, releaseAfterCompile = false, startedAtSource = null;
   let firstError = null, completions = 0;
+  let floorNineFirstTick = null, floorNineSubmittedFrames = 0;
+  let deferredInvisibleReturns = 0, releaseReason = null;
+  let queuedReleaseReason = null;
 
-  function release() {
+  function release(reason = 'disposed') {
     epoch += 1;
     scratch?.clear();
     geometry?.dispose();
     for (const material of materials) material.dispose();
     scratch = null; geometry = null; materials = [];
     releaseAfterCompile = false;
+    queuedReleaseReason = null;
+    releaseReason = reason;
     phase = 'released';
   }
 
@@ -52,7 +57,7 @@ export function createTowerVoidProgramPrewarm(THREE, renderer, liveScene, camera
         if (epoch !== currentEpoch || phase !== 'compiling') return;
         completions += 1;
         phase = 'ready';
-        if (releaseAfterCompile) release();
+        if (releaseAfterCompile) release(queuedReleaseReason ?? 'post-compile-release');
       }).catch(error => {
         if (epoch !== currentEpoch) return;
         firstError = error instanceof Error ? error.message : String(error);
@@ -67,25 +72,58 @@ export function createTowerVoidProgramPrewarm(THREE, renderer, liveScene, camera
     }
   }
 
-  function onSubmittedFrame(snapshot) {
-    if (!snapshot || snapshot.lifecycle !== 'running' || !startedAtSource) return;
-    // A new authoritative run cannot keep another expedition's pending
-    // program owner alive. Shader variants are context-wide, but the held
-    // reference belongs to one source-observed preparation episode.
-    if (snapshot.runToken !== startedAtSource.runToken) {
-      if (phase === 'compiling') releaseAfterCompile = true;
-      else if (phase === 'ready') release();
+  // Called only AFTER a successful, original renderer.render return. World
+  // samples the structural root BEFORE that draw: noteFrameSubmitted may
+  // change source-gated opacity for the NEXT draw, never retroactively.
+  // Do not dispose offscreen compiled programs after the first F9 ground
+  // frame if the SAME original Void shaft is still actually GPU-invisible.
+  function onSubmittedFrame(snapshot, structuralSubmission = null) {
+    if (!snapshot || !startedAtSource) return;
+    const retire = reason => {
+      if (phase === 'compiling') {
+        releaseAfterCompile = true;
+        queuedReleaseReason = reason;
+      } else if (phase === 'ready') release(reason);
+    };
+    if (snapshot.runToken !== startedAtSource.runToken ||
+        snapshot.lifecycle !== 'running' ||
+        snapshot.floor < 8 || snapshot.floor > 9) {
+      retire('source-run-or-lifecycle-ended');
       return;
     }
     if (snapshot.floor !== 9) return;
-    if (phase === 'compiling') releaseAfterCompile = true;
-    else if (phase === 'ready') release();
+    if (!Number.isSafeInteger(snapshot.tick)) {
+      retire('invalid-source-tick');
+      return;
+    }
+    if (floorNineFirstTick === null) floorNineFirstTick = snapshot.tick;
+    floorNineSubmittedFrames = Math.min(25,floorNineSubmittedFrames+1);
+    // The proof is copied from exactly the real source-owned World owner.
+    // A stale/fabricated source receipt cannot extend another run's shader
+    // program lifetime. Missing proof falls back to ordinary first-F9 release.
+    const deferred = structuralSubmission?.sourceBound === true &&
+      structuralSubmission.runToken === snapshot.runToken &&
+      structuralSubmission.floor === 9 &&
+      structuralSubmission.sourceTick === snapshot.tick &&
+      typeof structuralSubmission.structuralVisibleOnSubmittedFrame === 'boolean';
+    if (deferred && !structuralSubmission.structuralVisibleOnSubmittedFrame &&
+        floorNineSubmittedFrames <= 24 &&
+        snapshot.tick-floorNineFirstTick <= 70) {
+      deferredInvisibleReturns += 1;
+      return;
+    }
+    retire(deferred
+      ?structuralSubmission.structuralVisibleOnSubmittedFrame
+        ?'first-visible-original-void-shaft-submission'
+        :'bounded-unrevealed-void-shaft'
+      :'ordinary-first-successor-submission');
   }
 
   function diagnostics() {
     return {phase, variantCount:materials.length, completions,
-      startedAtSource, error:firstError,
-      evidence:'Offscreen program preparation only; no native frame-time or experience pass'};
+      startedAtSource, error:firstError, releaseReason,
+      floorNineFirstTick,floorNineSubmittedFrames,deferredInvisibleReturns,
+      evidence:'Programs retained until actual source-owned shaft submission or 24-F9-return/70-tick cap. No GPU timing, native film, or performance pass.'};
   }
   return {begin, onSubmittedFrame, diagnostics, dispose:release};
 }
