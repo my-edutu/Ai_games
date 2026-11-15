@@ -1,0 +1,12 @@
+# Pass398 — physically frame the *actual* earned guardian retreat (2026-11-15)
+
+## Exact-source before evidence (not a candidate approval)
+Head `3c73b20233374b4891fe2f3a0801d5ced9f8c91e`; [native CI 43724141298](https://github.com/my-edutu/Ai_games/actions/runs/43724141298) failed in the existing STRICT unaltered WebGL full-character visibility gate. The original GitHub Actions artifact #14165599628 contains autonomous audited seeds 3,13,5,0,1,2, with natural moving parries in seeds 13,0,2. Seed13's source-bound transition tick 7->8 moves Thornback from public cell 91 to public cell 74 after Pip's *natural* lantern counter. Original unaltered full-page 390×844 PNG hashes: pre-counter `d8157bf2d4bbf0876ab63edfe73d1d0d837a96f62c87ee7ab678488a13993ec8`; after-counter `700d0e0be79529ebb23dd6ab3c39ebe9eb8934dba0e6ab894fc268170f03ad12`.
+
+The exact authored before frame places all 1/1 connected guardians in-frame. The earned recoil frame shows the guardian cut off at x=-0.977049 NDC (fail vs unchanged -0.95), Pip in-frame. The source test reports actual 1 required guardian versus 0 fully in-frame, not a synthetic CI failure. The physical character story remains weaker than fixed Captain Toad/Luigi's Mansion/ASTRO BOT references.
+
+## One candidate production correction
+After both ACTUAL connected full-body 3D meshes have been conservatively Box3 projected, and only in authentic Follow mobile where a publicly visible guardian is marked `lanternParried`, calculate a camera-right translation to center the pair. No new camera angle, entity state or zoom is inserted. The physical width must already fit inside tighter ±0.925 NDC; otherwise do not pretend it fits. Keep other game beats and reduced motion untouched. Unit tests use the original exact-source pre/post silhouette extents and protect disabled cases. Browser-native unchanged full-actor threshold and WebGL screenshot comparisons are the final authority.
+
+## Still pending and prohibited claims
+Focused source CI, native screenshot capture at 390 and 320, verification of new PNG SHA/timestamps, independent image criticism and gameplay pacing all remain pending as of this *candidate* commit. No physical Nintendo-quality win is established. Whole repository CI independently fails missing Tiny Kingdom script. Detached coding workers/Ultracode unavailable (`NOT_FOUND`). Preserve draft PR #53, do not merge, deploy, force-push or overwrite concurrent changes.

@@ -167,3 +167,45 @@ test('Pass338 320px and 390px physical duel cameras only open up on public brace
  assert.match(scene,/publicGuardianPhysicalCloseupHalfHeight\(/,
    'production continues to use actual connected body outlines and unchanged strict native framing limits');
 });
+
+test('Pass398 authentic seed-13 earned recoil centers BOTH complete 390px actors without changing the strict +/-0.95 gate',async()=>{
+ const {publicGuardianEarnedRecoilPairShift:pan}=await camera();
+ const aspect=390/844,halfHeight=8.16;
+ const pip={left:-.1713999384928615,right:.4092604465164776,
+   bottom:-.158196910493359,top:.18458725723140895};
+ const guardian={left:-.9770493484332434,right:.01586402120380243,
+   bottom:.19272908037591552,top:.7027986410071145};
+ const dx=pan(aspect,halfHeight,[pip,guardian],true);
+ const ndc=dx/(halfHeight*aspect);
+ assert.ok(dx<0&&ndc<-.25&&ndc>-.31,
+   'actual counter must center both bodies instead of leaving Thornback off the left edge');
+ for(const body of [pip,guardian]){
+   assert.ok(body.left-ndc>-.925 && body.right-ndc<.925,
+     'BOTH connected original actors must fit with stricter margin');
+ }
+ assert.equal(pan(aspect,halfHeight,[pip,guardian],true),dx,
+   'same published actor geometry yields exactly the same camera correction');
+ assert.match(scene,/closestThreat\.lanternParried===true/);
+ assert.match(scene,/camera\.position\.addScaledVector\(pressureReframeRight,recoilPairShift\)/);
+ assert.match(scene,/publicGuardianEarnedRecoilPairShift\(/);
+});
+test('Pass398 real earned-counter framing never edits unseen/invalid/manual/reduced-motion/other views',async()=>{
+ const {publicGuardianEarnedRecoilPairShift:pan}=await camera();
+ const a=390/844,h=8.16;
+ const pip={left:-.1714,right:.4093,bottom:-.1582,top:.1846};
+ const guardian={left:-.9771,right:.0159,bottom:.1927,top:.7028};
+ const pair=[pip,guardian];
+ assert.equal(pan(a,h,pair,false),0,'no earned published counter, no special camera');
+ assert.equal(pan(a,h,pair,true,true),0,'reduced-motion spectator keeps original camera');
+ for(const ratio of [844/390,1280/900,.20,.61,NaN,Infinity])
+   assert.equal(pan(ratio,h,pair,true),0);
+ for(const invalid of [undefined,[],[pip], [pip,null],
+   [{...pip,left:Infinity},guardian],
+   [{...pip,right:-1},guardian],
+   [{...pip,left:-1.4,right:-.7},guardian]])
+   assert.equal(pan(a,h,invalid,true),0,'invalid or physically uncenterable scene must not fake a pass');
+ assert.equal(pan(a,h,[{...pip,left:-.32,right:.3},guardian],true)!==0,true);
+ assert.equal(pan(a,h,[{...pip,left:-.5,right:.4}, {...guardian,left:-.6,right:.5}],true),0,
+   'already comfortably framed pair needs no pan');
+ assert.doesNotMatch(scene,/privateMaze.*publicGuardianEarnedRecoilPairShift|secretRoute.*recoilPairShift/);
+});

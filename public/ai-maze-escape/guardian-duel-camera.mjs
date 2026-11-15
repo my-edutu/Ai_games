@@ -77,3 +77,33 @@ export function publicGuardianDuelShoulderOrbit(aspect,strength,beat,currentOrbi
   // fitter, pressure priority and native 44px HUD tests remain authoritative.
   return -Math.sign(currentOrbit)*Math.min(.52,Math.abs(currentOrbit)*.67)*attention*reveal;
 }
+
+/**
+ * Reframe the REAL full connected Pip/Thornback meshes after a publicly
+ * witnessed earned lantern counter displaces the guardian. Source-bound
+ * 390x844 WebGL seed 13 tick 8 recorded a guardian left edge -0.977049
+ * despite Pip remaining fully in-frame. A one-off local camera translation,
+ * not a zoom or an authored enemy move, can center both genuine bodies.
+ *
+ * The shift is in world units along camera-right: positive moves the actors
+ * left. No persistent easing target, hidden map cells, engine rules, manual
+ * views, or model geometry are touched. If both full actors cannot physically
+ * fit within the STRONGER 0.925 NDC interior, return zero and let native
+ * strict tests reject the shot rather than falsely claiming camera safety.
+ */
+export function publicGuardianEarnedRecoilPairShift(
+  aspect,halfHeight,bodies,earned=false,reducedMotion=false) {
+  if(!earned || reducedMotion || !Number.isFinite(aspect) || aspect<.35 || aspect>=.60
+    || !Number.isFinite(halfHeight) || halfHeight<=0
+    || !Array.isArray(bodies) || bodies.length!==2)return 0;
+  for(const body of bodies)
+    if(!body || !['left','right','bottom','top'].every(k=>Number.isFinite(body[k]))
+      || body.left>=body.right || body.bottom>=body.top)return 0;
+  const left=Math.min(bodies[0].left,bodies[1].left);
+  const right=Math.max(bodies[0].right,bodies[1].right);
+  const safe=.925;
+  if(right-left>safe*2 || left>=-safe && right<=safe)return 0;
+  const low=right-safe,high=left+safe;
+  const centered=(left+right)*.5;
+  return Math.max(low,Math.min(high,centered))*halfHeight*aspect;
+}

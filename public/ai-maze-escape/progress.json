@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-15T14:23:41.852Z",
+  "updatedAt": "2026-11-15T15:19:57.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass397c: new real autonomous first-contact AI tests passed (185/185), native source-bound WebGL 6-run geometry <100 passed, but physical natural-move screenshot gate still failed after sampling only first existing reference seed. Preserve original gameplay and native thresholds; expand natural audit exhaustively to all six predefined actual simulation seeds, count public moving/stationary parry witnesses. New exact-HEAD WebGL verdict pending; benchmark unmet."
+    "summary": "Pass398 candidate: exact-HEAD Pass397 native 390px authentic seed13 earned parry physically moved Thornback 91 -> 74, but full connected guardian mesh was clipped at -0.977 NDC, violating unchanged +/-0.95. Add public-earned-recoil-only optical camera-right pair centering derived from actual physical Pip and Thornback bounds, with stronger +/-0.925 target and no renderer allocations/AI/collision/privacy changes. Existing six-reset geometry <100 passed; fresh exact-head native WebGL, mobile 320px and independent Nintendo quality comparison still pending. Benchmark unmet."
   },
   "captures": [
     {

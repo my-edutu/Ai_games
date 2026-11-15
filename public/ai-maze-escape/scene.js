@@ -3,7 +3,7 @@ import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicPressureInspectionTakesFocus } from './public-lantern-encounter.mjs';
@@ -1448,6 +1448,23 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         camera.left=-halfHeight*aspect;camera.right=halfHeight*aspect;
         camera.top=halfHeight;camera.bottom=-halfHeight;
         camera.updateProjectionMatrix();
+      }
+      // Pass398 real autonomous seed 13: earned public lantern recoil moves
+      // Thornback 91 -> 74. The original 390px WebGL shows its FULL carapace
+      // clipped at -0.977 NDC even while Pip is well inside the frame.
+      // Stage only that SOURCE-AUTHENTIC counter around both actual current
+      // connected full-mesh outlines. Translation is in the camera's existing
+      // right vector (no orbit, actor relocation, secret route or zoom).
+      // Leave the persistent camera easing target untouched: otherwise a
+      // repeated corrective pan fights the next autonomous camera frame.
+      const recoilPairShift=publicGuardianEarnedRecoilPairShift(
+        aspect,halfHeight,realBodies,closestThreat.lanternParried===true,
+        settings.reducedMotion);
+      if(recoilPairShift){
+        camera.updateMatrixWorld();
+        pressureReframeRight.setFromMatrixColumn(camera.matrixWorld,0);
+        camera.position.addScaledVector(pressureReframeRight,recoilPairShift);
+        camera.updateMatrixWorld();
       }
     }
     const background = settings.highContrast ? '#50665f' : '#b2c6b6';
