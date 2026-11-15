@@ -1081,6 +1081,16 @@ test('D04 unmatched dry releases demand the same unique current actor and live p
     current=snapshot;
     assert.equal(stage.hasAuthenticatedSourceOnlyAction(action),expected,why);
    };
+   const canonical=current;
+   check({...canonical,units:[...Array(95).fill(null),{...u}]},true,
+    'the planner can observe a sole eligible source at action-window index 95');
+   check({...canonical,units:[...Array(96).fill(null),{...u}]},false,
+    'a source first found at index 96 cannot mint a dry cast/draw outside the planner action window');
+   check({...canonical,units:[...Array(100).fill(null),{...u}]},false,
+    'a later-only source inside the 256-unit identity window cannot become an action performer');
+   check({...canonical,units:[{...u},...Array(99).fill(null),{...u}]},false,
+    'a duplicate ID beyond the action window still disqualifies the earlier source');
+   current=canonical;
    check({...current,tick:12},false,'later public tick cannot resurrect old action');
    check({...current,run:2},false,'a new scene cannot authorize the old foley');
    check({...current,units:[...current.units,{...u}]},false,
