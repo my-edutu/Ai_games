@@ -36,7 +36,7 @@ test('the live lens consumes only the source authenticated Follow guardian encou
  assert.match(scene,/publicGuardianDuelCameraElevation\(\s*aspect,closestThreat\.strength,closestThreat\.encounterBeat,\s*settings\.reducedMotion\)/);
  assert.match(scene,/if \(!result && closestThreat\?\.strength\) \{/);
  assert.match(scene,/portraitEncounterOrbit=publicPortraitGuardianOrbitAngle\(/);
- assert.match(scene,/portraitEncounterOrbit \? portraitCameraOffset/);
+ assert.match(scene,/\(portraitEncounterOrbit \|\| earnedDuelContinuity\) \? portraitCameraOffset/);
  assert.doesNotMatch(scene,/privateMaze.*publicGuardianDuelCameraElevation|secretRoute.*duetElevation/);
 });
 
