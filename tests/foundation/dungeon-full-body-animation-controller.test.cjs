@@ -6331,6 +6331,44 @@ test('source-weighted outsole transverse axis respects real original joint and s
  assert.ok(rotated&&rotated.axis.every(Number.isFinite));
  assert.ok(Math.abs(Math.hypot(...rotated.axis)-1)<1e-7);
  assert.ok(Math.abs(rotated.axis[2]+1)<1e-6);
+ const {chooseOriginalSourceSwingLinkedFootFinisher}=await load();
+ const swing={heelY:.20704555,toeY:-.08995195,
+  heelXZ:[-4.7109,-7.1132],toeXZ:[-4.7662,-7.1383]};
+ const support={heelY:-.0392548,toeY:-.0064066,
+  heelXZ:[-4.8345,-6.9601],toeXZ:[-5.1027,-6.9350]};
+ const before={right:swing,left:support};
+ const linkedProof={source:'measured-original-skinned-linked-leg',
+  sourceClip:'Walking_A',sourceInstanceId:'original-license-sole-72',
+  side:'right',oppositeShoePreserved:true,contactLocked:false,
+  after:before};
+ const owner={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceFootChainVerified:true,
+  sourceFootTrackVerified:true,ownerLocomotion:true,alive:true,
+  visible:true,teleport:false,reducedMotion:false,interrupted:false,
+  rootTravel:.010097,frameAge:.03,frameInterval:.0333,
+  side:'right',floorTopY:-.02,linkedProof,before};
+ const trial={angleRad:.12,axisKind:'original-weighted-outsole-swing',
+  after:{left:{...support},right:{
+   ...swing,toeY:swing.toeY+.010,heelY:swing.heelY+.004,
+   heelXZ:[swing.heelXZ[0]+.002,swing.heelXZ[1]],
+   toeXZ:[swing.toeXZ[0]+.009,swing.toeXZ[1]]}}};
+ assert.equal(chooseOriginalSourceSwingLinkedFootFinisher({
+  ...owner,sourceWeightedOutsoleHingeVerified:false,trials:[trial]}),null,
+  'an unproven candidate axis must never authorize original source-joint motion');
+ const accepted=chooseOriginalSourceSwingLinkedFootFinisher({
+  ...owner,sourceWeightedOutsoleHingeVerified:true,trials:[trial]});
+ assert.equal(accepted?.axisKind,'original-weighted-outsole-swing');
+ assert.equal(accepted.contactLocked,false);
+ assert.ok(accepted.liftMeters>=.008);
+ for(const bad of [
+  {mode:'hurt'}, {teleport:true}, {reducedMotion:true},
+  {linkedProof:{...linkedProof,oppositeShoePreserved:false}},
+  {trials:[{...trial,after:{...trial.after,right:{
+   ...trial.after.right,heelY:swing.heelY+.011}}}]},
+  {trials:[{...trial,after:{...trial.after,left:{
+   ...support,toeY:support.toeY+.004}}}]}
+ ])assert.equal(chooseOriginalSourceSwingLinkedFootFinisher({
+  ...owner,sourceWeightedOutsoleHingeVerified:true,trials:[trial],...bad}),null);
  const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(renderer,/planOriginalSourceWeightedSoleHingeAxis\s*\(/);
  assert.match(renderer,/axisKind:'original-weighted-outsole-swing'/);
