@@ -39,6 +39,34 @@ export function stepMazeThreats(
           cell=nextCell;
         }
         if(!witnessed)continue;
+        // Earned gameplay, not a presentation-only flash: a parried warden
+        // can yield ONE already disclosed walkable patrol square away from Pip.
+        // The choice is restricted to actual adjacent patrol positions, legal
+        // reciprocal connections and currently VISIBLE cells. Never reveal or
+        // follow an undisclosed patrol square; an enclosed guardian just braces.
+        const retreat = threat.route[threat.routeIndex]===threat.cell
+          ? [threat.routeIndex-1,threat.routeIndex+1].flatMap(index=>{
+            if(index<0||index>=threat.route.length)return [];
+            const destination=threat.route[index];
+            if(destination===undefined||destination===hero||!visible.has(destination)
+              ||next.world.threats.some(other=>other!==threat&&other.active&&other.cell===destination)
+              ||!passageNeighbors(next.world,threat.cell).includes(destination)
+              ||!passageNeighbors(next.world,destination).includes(threat.cell))return [];
+            const gate=doorBetween(next.world,threat.cell,destination);
+            if(gate&&!gate.open)return [];
+            const distance=Math.abs(destination%width-hero%width)
+              +Math.abs(Math.floor(destination/width)-Math.floor(hero/width));
+            return distance>links?[{index,cell:destination,distance}]:[];
+          }).sort((a,b)=>b.distance-a.distance||a.cell-b.cell)[0]
+          : undefined;
+        if(retreat){
+          const priorIndex=threat.routeIndex;
+          threat.routeIndex=retreat.index;
+          threat.direction=retreat.index>priorIndex?1:-1;
+          threat.cell=retreat.cell;
+          events.push({tick:next.tick,type:'threat-move',
+            data:{id:threat.id,cell:threat.cell}});
+        }
         threat.lanternParried=true;
         threat.pausedUntilTick=next.tick+3;
         events.push({tick:next.tick,type:'guardian-lantern-parry',

@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-15T12:10:00.000Z",
+  "updatedAt": "2026-11-15T12:39:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass394: source-only meaningful guardian interaction candidate; actual evasive WAIT once per guardian delays physical lethal patrol three ticks, with original connected Pip/Thornback pose and public-only event. New exact-HEAD tests/unchanged six-reset resource budget and actual native gameplay parry frames PENDING. No independent artistic win; Nintendo bar unmet, draft unmerged/undeployed."
+    "summary": "Pass395: implemented a consequential, one-use publicly observed guardian recoil during a real evasive lantern counter. The authoritative patrol moves at most one actual reciprocal/open/visible route square away from Pip before its 3-tick pause, then remains dangerous. Source test and exact-HEAD CI/native full-frame WebGL visual approval pending. Pass394 existing native focused CI succeeded; no independent Nintendo-quality win, PR stays draft."
   },
   "captures": [
     {

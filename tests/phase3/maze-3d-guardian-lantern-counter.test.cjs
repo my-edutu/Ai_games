@@ -84,3 +84,61 @@ test('real runtime delegates the WAIT to the authoritative counter, not renderer
   runtime.step();
   assert.equal(runtime.events.some(e=>e.type==='guardian-lantern-parry'),false);
 });
+
+test('earned lantern counter clears a REAL visible route square, then dangerous patrol resumes',()=>{
+  const {s}=fixture(), width=s.world.width;
+  const blocked=new Set(s.world.blockedCells);
+  let triple;
+  for(let hero=0;hero<width*s.world.height&&!triple;hero++){
+    if(blocked.has(hero)||hero===s.world.exit)continue;
+    for(const guard of passageNeighbors(s.world,hero)){
+      if(blocked.has(guard)||guard===s.world.exit)continue;
+      for(const rear of passageNeighbors(s.world,guard)){
+        if(rear===hero||blocked.has(rear)||rear===s.world.exit)continue;
+        const distance=Math.abs(rear%width-hero%width)
+          +Math.abs(Math.floor(rear/width)-Math.floor(hero/width));
+        if(distance>1){triple={hero,guard,rear};break;}
+      }
+      if(triple)break;
+    }
+  }
+  assert.ok(triple,'the seeded actual physical maze needs an open three-cell retreat route');
+  const {hero,guard,rear}=triple;
+  s.world.threats=[{id:'real-thornback',cell:guard,route:[hero,guard,rear],
+    routeIndex:1,direction:-1,lastSeenTick:null,active:true}];
+  s.explorer.cell=hero;
+  s.visibleCells=[hero,guard,rear];
+  s.discoveredCells=[hero,guard,rear];
+  const counter=stepMazeThreats(s,{lanternCounter:true});
+  assert.equal(counter.state.world.threats[0].cell,rear,
+    'the actual guardian must physically leave its occupied cell');
+  assert.equal(counter.state.world.threats[0].routeIndex,2);
+  assert.equal(counter.state.world.threats[0].pausedUntilTick,5);
+  assert.equal(counter.captured,false);
+  assert.deepEqual(counter.events.filter(e=>e.type==='guardian-lantern-parry').map(e=>e.data),
+    [{id:'real-thornback',cell:rear}]);
+  assert.deepEqual(counter.events.filter(e=>e.type==='threat-move').map(e=>e.data),
+    [{id:'real-thornback',cell:rear}]);
+  assert.deepEqual(buildMazeRenderSnapshot(counter.state).threats,
+    [{id:'real-thornback',cell:rear,lanternParried:true}]);
+  const next=structuredClone(counter.state);next.tick=3;
+  assert.equal(stepMazeThreats(next,{lanternCounter:true}).events
+    .some(e=>e.type==='guardian-lantern-parry'),false,'counter is once per run');
+  const resumed=structuredClone(counter.state);resumed.tick=6;
+  const moved=stepMazeThreats(resumed,{lanternCounter:true});
+  assert.equal(moved.state.world.threats[0].cell,guard,
+    'the same genuine patrol resumes after its earned interruption');
+  const again=structuredClone(moved.state);again.tick=8;
+  const lethal=stepMazeThreats(again,{lanternCounter:true});
+  assert.equal(lethal.captured,true,'standing still remains dangerous after recovery');
+  assert.equal(lethal.state.world.threats[0].cell,hero);
+  // Public-state privacy: an undisclosed retreat square may never be inferred
+  // from an oracle-only patrol route or rendered as a guardian disappearance.
+  const unseen=structuredClone(s);unseen.visibleCells=[hero,guard];
+  const held=stepMazeThreats(unseen,{lanternCounter:true});
+  assert.equal(held.state.world.threats[0].cell,guard);
+  assert.equal(held.events.some(e=>e.type==='threat-move'),false);
+  assert.equal(held.events.some(e=>e.type==='guardian-lantern-parry'),true);
+  assert.deepEqual(buildMazeRenderSnapshot(held.state).threats,
+    [{id:'real-thornback',cell:guard,lanternParried:true}]);
+});
