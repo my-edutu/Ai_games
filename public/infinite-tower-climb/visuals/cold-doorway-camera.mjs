@@ -6,7 +6,7 @@
 // interpolation, temporal replay, new floor, trigger or camera cut.
 import { pointFor, SCALE, guardianTraversalGatePose } from './coordinates.mjs';
 import { observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
-import { observedSourceGatewayDeparturePresence } from './source-physical-arrival-palette.mjs';
+import { observedSourceGatewayDeparturePresence, observedSourceSuccessorRaisedDeck } from './source-physical-arrival-palette.mjs';
 
 const validInt = Number.isSafeInteger;
 const finite = Number.isFinite;
@@ -93,13 +93,14 @@ export function observedSourceBoundColdDoorwayLens(source, held, drawnHero, aspe
       ground.y + ground.height !== held.oldRoofY ||
       p.x - p.halfWidth < ground.x ||
       p.x + p.halfWidth > ground.x + ground.width ||
-      soles < held.oldRoofY - 2500 || soles > held.oldRoofY + 160000 ||
+      soles < held.oldRoofY - 2500 || soles > held.oldRoofY + 230000 ||
       !(p.grounded === false && p.state === 'airborne' &&
         finite(p.vy) && p.groundedPlatformId == null ||
         p.grounded === true && (p.state === 'standing' || p.state === 'hurt') &&
         p.vy === 0 && soles === held.oldRoofY &&
         (p.groundedPlatformId === 'f9:ground' ||
-          p.groundedPlatformId === 'f8:cap'))) return null;
+          p.groundedPlatformId === 'f8:cap') ||
+        observedSourceSuccessorRaisedDeck(source,held.oldRoofY))) return null;
 
   const actual = pointFor(p.x, p.y, source.chunkBaseY,
     source.worldWidth, 25);
