@@ -13,6 +13,13 @@ const provenanceSource = fs.readFileSync(path.join(ROOT,
   'public/infinite-tower-climb/visuals/mesh-provenance.mjs'), 'utf8');
 const originalDoorwayWitness = fs.readFileSync(path.join(ROOT,
   'public/infinite-tower-climb/visuals/threshold-occlusion-witness.mjs'), 'utf8');
+// The production threshold module now imports the *actual* raised-platform
+// source lifetime. Evaluate its production dependencies in a single lexical
+// scope instead of substituting a mocked lease into the real ray observer.
+const crossfloorSource = fs.readFileSync(path.join(ROOT,
+  'public/infinite-tower-climb/visuals/crossfloor-arrival.mjs'), 'utf8');
+const arrivalSource = fs.readFileSync(path.join(ROOT,
+  'public/infinite-tower-climb/visuals/source-physical-arrival-palette.mjs'), 'utf8');
 
 function realProbeFixture() {
   const first = rendererSource.indexOf('  // P0 source-authentic guardian film:');
@@ -75,7 +82,17 @@ function realProbeFixture() {
   // an invented ownership stub. The VM executes only the source module's
   // two exported pure functions, then the actual shipped owner observer.
   vm.runInContext(provenanceSource.replaceAll('export function ', 'function '), context);
-  vm.runInContext(originalDoorwayWitness.replaceAll('export function ', 'function '), context);
+  // The isolated VM evaluates the exact checked-in source validators with
+  // their real old-cap receipt function, but no browser/simulation stubs.
+  // Module imports/exports are transformed only at this CommonJS/VM seam.
+  vm.runInContext('const observedSourceOriginalVisibilityWindow = (function(){\\n' +
+    crossfloorSource.replace(/\\bexport\\s+/g, '') + '\\n' +
+    arrivalSource.replace(/^import\\s+.*?;\\s*$/gm, '')
+      .replace(/\\bexport\\s+/g, '') +
+    '\\nreturn observedSourceOriginalVisibilityWindow;\\n})();', context);
+  vm.runInContext(originalDoorwayWitness
+    .replace(/^import\\s+.*?;\\s*$/gm, '')
+    .replaceAll('export function ', 'function '), context);
   const observe = vm.runInContext(rendererSource.slice(first,end) +
     '\nobservedCameraMeshOwners',context);
   return { observe, snapshot, sandbox, get rays(){return rayCalls;},
