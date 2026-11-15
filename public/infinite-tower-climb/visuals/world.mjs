@@ -3613,7 +3613,9 @@ export function createTowerWorld(){
             crossingTick:livePaletteProof.crossingTick,
             kind:livePaletteProof.kind};
         }
-      } else if(!handoff.retiring) {
+      } else if(!handoff.retiring && handoff.lastVerifiedProof) {
+        // No material memory may be created from a gallery or floor label
+        // when no genuine old-gate physical source proof was ever sampled.
         handoff.retiring=true;
         handoff.retirementStartProgress=handoff.displayProgress;
       }
@@ -3625,8 +3627,12 @@ export function createTowerWorld(){
         const eased=t*t*(3-2*t);
         departure=handoff.retirementStartProgress+
           (1-handoff.retirementStartProgress)*eased;
-      } else departure=handoff.displayProgress;
+      } else departure=handoff.lastVerifiedProof
+        ?handoff.displayProgress:1;
     }
+    // Reduced motion presents the truthful current F9 material state without
+    // an optical retirement animation; it never holds historical bronze.
+    if(options.reducedMotion)departure=1;
     const opticalTail=!options.stale && !options.reducedMotion
       ?observedVerifiedClockworkPaletteTail(snapshot,handoff,departure):null;
     // The live source sample always outranks history. An optical tail only
