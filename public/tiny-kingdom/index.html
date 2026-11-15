@@ -7940,6 +7940,10 @@ let homeClusterDisposals=0,homeClusterEvictions=0,homeClusterStaleDrawn=0;
 // not merely the original uncompressed 3D material geometry length.
 let homeClusterReservedFloats=0,homeClusterReusedGpuHandles=0;
 let homeClusterSubDataUploads=0,homeClusterStorageAllocations=0;
+// W364: measure actual WebGL home-block transfer, not polygons or FPS.
+let homeClusterDeltaFullUploads=0,homeClusterDeltaPartialUploads=0;
+let homeClusterDeltaUnchangedUploads=0,homeDeltaUploadedBytes=0;
+let homeDeltaAvoidedBytes=0,homeDeltaLastWindow=null;
 const SOFTWARE_HOME_CLUSTER_MIN_HOMES=18;
 function homeClustersEnabled(){
  return Boolean(gpuAvailable&&(homeClusterOverride===null?
@@ -7974,6 +7978,17 @@ function getHomePartitionAudit(){
   reusedGpuHandles:homeClusterReusedGpuHandles,
   subDataUploads:homeClusterSubDataUploads,
   storageAllocations:homeClusterStorageAllocations,
+  deltaTransfer:{
+   fullUploads:homeClusterDeltaFullUploads,
+   partialUploads:homeClusterDeltaPartialUploads,
+   unchangedUploads:homeClusterDeltaUnchangedUploads,
+   uploadedBytes:homeDeltaUploadedBytes,
+   avoidedBytes:homeDeltaAvoidedBytes,
+   lastWindow:homeDeltaLastWindow,
+   exactSourceTriangles:true,
+   softwareRendererExcluded:true,
+   hardwareFps:'NOT MEASURED'
+  },
   floatBudget:HOME_CLUSTER_FLOAT_BUDGET,
   entries:homeClusterCache.size,maxEntries:HOME_CLUSTER_MAX_ENTRIES,
   builds:homeClusterBuilds,hits:homeClusterHits,
@@ -8098,15 +8113,15 @@ function buildHomeClusters(fullHomes,climateKey){
    if(mesh.length>HOME_CLUSTER_FLOAT_BUDGET)
     throw Error('W76 real home block exceeds bounded VBO budget');
    const packed=packLocalHomeResidentMesh(mesh);
+   const linearVertices=packed.vertices===mesh;
    const obsolete=takeStaleHomeClusterForGrowth(group,climateKey,
     packed.vertices.length);
    const buffer=obsolete?.buffer||gl.createBuffer();
    if(!buffer)throw Error('W77 unable to retain original home GPU geometry');
    bindGeometry(buffer);
-   let capacityFloats=obsolete?.capacityFloats||0;
-   // 12.5% slack is reserved for an ACTUAL next home in this exact block.
-   // No limits are relaxed: active and inactive GPU bytes share the old
-   // global cache bound, and a huge block still fails instead of disappearing.
+   let capacityFloats=obsolete?.capacityFloats||0,needsStorage=false;
+   // Preserve ALL genuine original cottage triangles and current draw ranges.
+   // Only a bounded, exact pre-existing physical 16m block may be reused.
    if(capacityFloats<packed.vertices.length){
     capacityFloats=Math.min(HOME_CLUSTER_FLOAT_BUDGET,
      Math.ceil(packed.vertices.length*1.125/300)*300);
@@ -8114,11 +8129,34 @@ function buildHomeClusters(fullHomes,climateKey){
      throw Error('W77 inhabited home GPU reserve is insufficient');
     gl.bufferData(gl.ARRAY_BUFFER,
      capacityFloats*Float32Array.BYTES_PER_ELEMENT,gl.DYNAMIC_DRAW);
-    homeClusterStorageAllocations++;
+    homeClusterStorageAllocations++;needsStorage=true;
    }else if(obsolete)homeClusterSubDataUploads++;
-   gl.bufferSubData(gl.ARRAY_BUFFER,0,packed.vertices);
+   // W364 true retained home geometry. A spatially scattered or newly
+   // allocated block MUST take the full original upload. Software WebGL
+   // bypasses the scanning overhead for faithful diagnostic comparisons.
+   const delta=!swiftGpu&&obsolete&&!needsStorage&&
+    obsolete.linearVertices===true&&linearVertices?
+    planResidentVertexUpload(obsolete.mesh,packed.vertices,capacityFloats):null;
+   const fullBytes=packed.vertices.byteLength;
+   if(delta){
+    homeDeltaAvoidedBytes+=delta.savedFloats*Float32Array.BYTES_PER_ELEMENT;
+    homeDeltaLastWindow={cell:group.cell,firstTriangle:delta.firstFloat/30,
+     dirtyTriangles:delta.dirtyFloats/30,
+     actualTriangles:packed.vertices.length/30,originalOrder:true};
+    if(delta.dirtyFloats){
+     gl.bufferSubData(gl.ARRAY_BUFFER,delta.firstFloat*Float32Array.BYTES_PER_ELEMENT,
+      packed.vertices.subarray(delta.firstFloat,delta.lastFloat));
+     homeClusterDeltaPartialUploads++;
+     homeDeltaUploadedBytes+=delta.dirtyFloats*Float32Array.BYTES_PER_ELEMENT;
+    }else homeClusterDeltaUnchangedUploads++;
+   }else{
+    gl.bufferSubData(gl.ARRAY_BUFFER,0,packed.vertices);
+    homeClusterDeltaFullUploads++;homeDeltaUploadedBytes+=fullBytes;
+    homeDeltaLastWindow=null;
+   }
    resident={key:group.key,cell:group.cell,mesh,buffer,capacityFloats,
-    ranges:packed.ranges,homes:group.homes.length,counters,finalMaterial};
+    ranges:packed.ranges,homes:group.homes.length,counters,finalMaterial,
+    linearVertices};
    homeClusterCache.set(group.key,resident);
    homeClusterCachedFloats+=mesh.length;
    homeClusterReservedFloats+=capacityFloats;
