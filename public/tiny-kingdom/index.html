@@ -20331,12 +20331,19 @@ function genuineWorkdayShotDecision(shot,portrait){
   hands=shot.handBlockers??2,blocked=shot.blockedBodyRays??7,
   bystanders=shot.foregroundCitizenBlockers??1,
   proximity=shot.cameraProximityWarnings??1,
-  face=shot.facingAlignment??-1;
+  face=shot.facingAlignment??-1,
+  cropFace=shot.cropFaceBlockers??0,
+  cropWrists=shot.cropWristBlockers??0,
+  insideStandingGrain=shot.cameraInsideField===true&&
+   shot.physicalInteriorEyeClear===false;
+ if(![cropFace,cropWrists].every(v=>Number.isInteger(v)&&v>=0))
+  return {safe:false,readable:false,reason:'invalid-real-crop-evidence'};
  if(![body,scene,core,cargo,vegetation].every(Number.isFinite))
   return {safe:false,readable:false,reason:'missing-projection'};
  const safe=body>=(portrait?.15:.13)&&
   scene<.32&&core<.24&&cargo<.20&&vegetation<.36&&
   hands<=1&&blocked<=2&&bystanders===0&&proximity===0&&
+  cropFace===0&&cropWrists===0&&!insideStandingGrain&&
   (shot.vegetationFaceBlockers??1)===0;
  const readable=safe&&body>=(portrait?.26:.23)&&
   scene<.20&&core<.15&&cargo<.13&&vegetation<.28&&
@@ -23842,6 +23849,14 @@ function marketCourierPostSightline(eye,target){
  * Sample a finite number of rays through the field's actual planted rectangle.
  * Where the real harvesting contact bends the plants, use that existing
  * shader contact pocket rather than inventing a clearing. */
+// An ACTIVE, authoritative field-shift gate reused by the normal camera,
+// genuinely fresh alternate eyes, and the current 390px tracking eye.
+function personHasActiveFarmWork(citizen){
+ return Boolean(citizen&&citizen.job==='farmer'&&isWorkingAtSite(citizen)&&
+  FARMSTEAD.fields.some(([x0,x1,z0,z1])=>
+   citizen.x>=x0-.7&&citizen.x<=x1+.7&&
+   citizen.z>=z0-.7&&citizen.z<=z1+.7));
+}
 function realFarmWorkSightline(eye,citizen,hands=[]){
  const field=FARMSTEAD.fields.some(([x0,x1,z0,z1])=>
   citizen.x>=x0-.7&&citizen.x<=x1+.7&&citizen.z>=z0-.7&&citizen.z<=z1+.7);
@@ -24860,10 +24875,16 @@ function findPhysicalPortraitAlternative(citizen,shot,roofs){
    const height=projectedWorkerBodyFraction(eye,target,citizen);
    if(!Number.isFinite(height)||height<.15)continue;
    if(hands.some(hand=>followRayBlockers(eye,hand,roofs)!==0))continue;
+   // A physically clear ROOF ray is not a clear REAL farmer view through
+   // metre-high standing grain. Re-sample the actual planted two-field stand
+   // and both IK wrists for EACH alternate observer. Never hide wheat.
+   const crop=realFarmWorkSightline(eye,citizen,hands);
+   if(crop.cropFaceBlockers>0||crop.cropWristBlockers>0||
+      (crop.cameraInsideField&&!crop.physicalInteriorEyeClear))continue;
    // The prior W334 alternative inherited the original obstructed shot's
    // hand, crowd, body-ray and proximity metrics. A physically clear NEW
    // eye must be judged using its OWN genuine visible character geometry.
-   const candidate={...shot,yaw:candidateYaw,pitch:candidatePitch,
+   const candidate={...shot,...crop,yaw:candidateYaw,pitch:candidatePitch,
     zoom:candidateZoom,eye,blockers:0,eyeCollision:{clear:true,kind:null},
     foregroundSceneCover:scene.cover,
     foregroundSceneLargest:scene.largest||0,
@@ -24942,6 +24963,11 @@ function workdayCameraCompositionAudit(){
  ]:[person.x,terrain(person.x,person.z)+1.02,person.z];
  const sceneCover=foregroundSceneProjection(eye,aim,roofs);
  const vegetationCover=foregroundVegetationProjection(eye,aim);
+ const realCrop=personHasActiveFarmWork(person)?
+  realFarmWorkSightline(eye,person,handTargets):null;
+ const cropBlocked=Boolean(realCrop&&
+  (realCrop.cropFaceBlockers>0||realCrop.cropWristBlockers>0||
+   (realCrop.cameraInsideField&&!realCrop.physicalInteriorEyeClear)));
  const observedCargo=sceneCover.cargoCover||0;
  return {source:'real-autonomous-workday',active:true,actor:person.name,
   job:person.job,activity:person.activity,handTargets,
@@ -24950,7 +24976,7 @@ function workdayCameraCompositionAudit(){
   faceAlignment:Math.cos(yaw-face),
   clearFrontCandidates:lastFollowShot?.clearFrontCandidates||0,
   readableFrontCandidates:lastFollowShot?.readableFrontCandidates||0,
-  workFacingMode:sceneCover.cover>=.14||sceneCover.actorCoreCover>=.22||observedCargo>=.14||
+  workFacingMode:cropBlocked||sceneCover.cover>=.14||sceneCover.actorCoreCover>=.22||observedCargo>=.14||
    vegetationCover.cover>=.32||
    vegetationCover.faceBlockers>0?'obstructed':
    lastFollowShot?.workFacingMode||'unverified',
@@ -24962,6 +24988,10 @@ function workdayCameraCompositionAudit(){
   foregroundVegetationCover:vegetationCover.cover,
   vegetationFaceBlockers:vegetationCover.faceBlockers,
   foregroundVegetationVolumes:vegetationCover.volumes,
+  actualCropFaceBlockers:realCrop?.cropFaceBlockers??0,
+  actualCropWristBlockers:realCrop?.cropWristBlockers??0,
+  actualCropCameraInsideField:realCrop?.cameraInsideField??false,
+  plantedCropWitnessClear:!cropBlocked,
   // The ACTUAL current eye and aim, not a planned camera target.
   projectedWorkerHeightFraction:projectedWorkerBodyFraction(eye,aim,person),
   plannedProjectedWorkerHeightFraction:lastFollowShot?.projectedWorkerHeightFraction??null,
@@ -28086,10 +28116,20 @@ if(follow&&!daybreakReturn){
    portraitCurrentScene=foregroundSceneProjection(priorEye,plan.target,physicalRoofs);
    const now=performance.now(),lastAttempt=portraitAltLastCitizen===citizen.name?
     portraitAltLastAttempt:-Infinity;
+   // W355: the roof survey is insufficient at the observed Day-121 farm.
+   // A metre-high real crop can conceal the citizen while all roof rays
+   // remain clear. Only the real active farmer and IK wrists can trigger
+   // this optional, time-bounded higher-eye search.
+   const farmCrop=personHasActiveFarmWork(citizen)?
+    realFarmWorkSightline(plan.eye,citizen,documentaryWorkHandTargets(citizen)):null;
+   const blockedByRealGrain=Boolean(farmCrop&&
+    (farmCrop.cropFaceBlockers>0||farmCrop.cropWristBlockers>0||
+     (farmCrop.cameraInsideField&&!farmCrop.physicalInteriorEyeClear)));
    if(shouldSeekPhysicalPortraitAlternative(canvas.clientWidth,true,
      portraitCurrentScene.actorCoreCover,portraitCurrentScene.cover,
      plan.foregroundActorCoreCover??1,plan.foregroundSceneCover??1,
-     now,lastAttempt)){
+     now,lastAttempt)||
+     (blockedByRealGrain&&now-lastAttempt>=PORTRAIT_ALT_RETRY_MS)){
     portraitAltLastAttempt=now;portraitAltLastCitizen=citizen.name;
     portraitAltAttempts++;
     const alternate=findPhysicalPortraitAlternative(citizen,plan,physicalRoofs);
@@ -28124,12 +28164,21 @@ if(follow&&!daybreakReturn){
    Boolean(destinationPost&&destinationPost.centerCover<.035);
   const currentWorkerForeground=portraitCurrentScene||
    foregroundSceneProjection(eye,plan.target,roofs);
-  const foregroundBlocked=currentWorkerForeground.cover>.42||
+  const genuineFarmerVisible=personHasActiveFarmWork(citizen);
+  const farmerHands=genuineFarmerVisible?documentaryWorkHandTargets(citizen):null;
+  const nowCrop=genuineFarmerVisible?realFarmWorkSightline(eye,citizen,farmerHands):null;
+  const goalCrop=genuineFarmerVisible?realFarmWorkSightline(plan.eye,citizen,farmerHands):null;
+  const cropObstructs=crop=>Boolean(crop&&
+   (crop.cropFaceBlockers>0||crop.cropWristBlockers>0||
+    (crop.cameraInsideField&&!crop.physicalInteriorEyeClear)));
+  const currentWheatBlocked=cropObstructs(nowCrop);
+  const plannedWheatClear=!cropObstructs(goalCrop);
+  const foregroundBlocked=currentWheatBlocked||currentWorkerForeground.cover>.42||
    foregroundVegetationProjection(eye,plan.target).faceBlockers>0||
    (postBlocked&&clearPostDestination);
   const clearDestination=plan.foregroundSceneCover<.18&&
    plan.foregroundVegetationCover<.28&&plan.vegetationFaceBlockers===0&&
-   clearPostDestination;
+   clearPostDestination&&plannedWheatClear;
   const blend=reduceMotion?1:obstructed?.72:foregroundBlocked?.82:
     cameraWallEase(wallDt,5.5);
   const nextYaw=yaw+turn*blend,nextPitch=pitch+(plan.pitch-pitch)*blend,
@@ -28150,6 +28199,10 @@ if(follow&&!daybreakReturn){
   const mustRepairPost=Boolean(midwayPost&&
    evaluateCourierPostRepairPolicy(presentPost.centerCover,
     destinationPost.centerCover,midwayPost.centerCover));
+  const midwayWheat=currentWheatBlocked&&plannedWheatClear?
+   realFarmWorkSightline(nextEye,citizen,farmerHands):null;
+  const mustRepairWheat=currentWheatBlocked&&plannedWheatClear&&
+   cropObstructs(midwayWheat);
   // At 390px a real post may hide the complete worker torso while its
   // area occupies less than the broad 42% scene obstruction threshold.
   // Inspect the transition ONLY when the current ACTUAL body core is badly
@@ -28175,14 +28228,14 @@ if(follow&&!daybreakReturn){
   // central silhouette is obscured, go straight to a physically surveyed
   // clear worker lens; the game never cuts, hides or moves the architecture.
   const portraitUnreadable=isPortraitWorkWitness&&
-   (currentWorkerForeground.actorCoreCover>=.18||
+   (currentWheatBlocked||currentWorkerForeground.actorCoreCover>=.18||
     currentWorkerForeground.cover>=.52);
   const portraitPlanActuallyReadable=plan.foregroundActorCoreCover<.13&&
    plan.foregroundSceneCover<.38&&plan.vegetationFaceBlockers===0&&
-   plan.foregroundVegetationCover<.28;
+   plan.foregroundVegetationCover<.28&&plannedWheatClear;
   const immediatePortraitWitness=portraitUnreadable&&
    portraitPlanActuallyReadable;
-  if((repairEye||mustRepairPost||repairGeneral||portraitCoreRepair||
+  if((repairEye||mustRepairPost||mustRepairWheat||repairGeneral||portraitCoreRepair||
       immediatePortraitWitness||portraitAlternativeSelected)&&
      plan.blockers===0&&plannedEyeClear){
    if(immediatePortraitWitness&&!portraitCoreRepair)portraitImmediateRescues++;
