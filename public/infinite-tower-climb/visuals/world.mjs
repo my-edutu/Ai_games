@@ -3789,7 +3789,7 @@ export function createTowerWorld(){
   // gear teeth as progressively translucent near an authentic subject; actual
   // platforms, guardian, hazards and moving-deck machinery remain opaque.
   function protectRouteSightlines(camera, actor=null, guardian=null, landing=null, dt=0, options={},
-      actorHalfHeight=0, guardianHalfHeight=0, hazard=null, gateway=null) {
+      actorHalfHeight=0, guardianHalfHeight=0, hazard=null, gateway=null, actorHalfWidth=0) {
     if(disposed)return {total:0,softened:0};
     decorativeOcclusionEvidence.length=0;
     // The 390x844 original filmed climber is masked by EXTRACTED historical
@@ -3798,7 +3798,8 @@ export function createTowerWorld(){
     // the live composed camera, actual skinned-body point and exact current
     // old-floor geometry; no alternate camera, actor, corridor or collider.
     historicalGallerySightline=protectHistoricalGallerySightline({
-      camera,actor,halfHeight:actorHalfHeight,source:lastSnapshot,
+      camera,actor,halfHeight:actorHalfHeight,halfWidth:actorHalfWidth,
+      source:lastSnapshot,
       held:retainedEarnedCap,raycaster:canopyRay,
       direction:canopyDirection,point:silhouettePoint,hitBuffer:canopyHits,
       dt,stale:options.stale,reducedMotion:options.reducedMotion
