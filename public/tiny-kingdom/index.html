@@ -6076,7 +6076,7 @@ function rememberCivicScenery(key,source,stats){
  const retained=civicGpuResidencyEnabled&&!(vertices instanceof Float32Array)?
   new Float32Array(vertices):vertices;
  let buffer=null,ranges=[],capacityFloats=retained.length;
- let recycledRoad=null;
+ let recycledRoad=null,civicPackedOriginalOrder=false;
  if(civicGpuResidencyEnabled){
   const packed=packLinearResidentScenery(retained,'civic')||packSpatialScenery(retained);
   // A newly completed authentic home may alter the freight and inhabited
@@ -6114,6 +6114,7 @@ function rememberCivicScenery(key,source,stats){
   // A fallback spatially reorders triangles: never compare its old CPU
   // source against reordered GPU memory, or patch unrelated road cells.
   const linearVertices=packed.vertices===retained;
+  civicPackedOriginalOrder=linearVertices;
   const reusable=Boolean(recycledRoad&&
    packed.vertices.length<=previousCapacity);
   const delta=reusable&&recycledRoad.entry.linearVertices===true&&
@@ -6177,8 +6178,7 @@ function rememberCivicScenery(key,source,stats){
  if(previous?.buffer&&previous.buffer!==buffer){releaseGeometryBuffer(previous.buffer);civicGpuDisposals++}
  civicSceneryCache.delete(key);
  civicSceneryCache.set(key,{vertices:retained,stats,buffer,ranges,capacityFloats,
-  linearVertices:civicGpuResidencyEnabled?
-   (packed.vertices===retained):false,
+  linearVertices:civicPackedOriginalOrder,
   // Road-only scenery may never be recalled without its full original core.
   coreGpuKey:civicGpuResidencyEnabled&&civicCoreBuffer?
    activeCivicCoreKey:null});
