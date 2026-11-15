@@ -14064,11 +14064,17 @@ function marketToRealHomeStreet(){
 // actually assigned to a citizen, every centre follows traversable A* and
 // the work remains in the EXISTING construction-dirty civic GPU allocation.
 // It never invents a delivery, household, resident, collider, or road in AI.
-const REAL_HOME_LANE_BUDGET=1120;
-const REAL_HOME_FRONTAGE_MAX_TRIANGLES=100;
+// W354: render all genuine grown-town doorways, not an arbitrary ten-home list.
+// This is a construction-dirty GPU road mesh, never a per-frame JS rebuild.
+// The observed W353 Day-121 ~148k scene leaves a bounded margin below 160k.
+const REAL_HOME_LANE_BUDGET=3600;
+const REAL_HOME_FRONTAGE_MAX_TRIANGLES=350;
+const REAL_HOME_LANE_MAX_HOMES=40;
 let realHomeLaneStats={occupiedHomes:0,connectedHomes:0,segments:0,
  triangles:0,skippedUnsafe:0,duplicateSections:0,limited:false,
  frontages:0,frontageQuads:0,frontageTriangles:0,
+ cartScaleSections:0,narrowSections:0,clearanceChecks:0,
+ noFictionalStops:true,
  changesAuthority:false,changesNavigation:false,extraGpuBuffers:0};
 function getRealHomeLaneNetworkAudit(){return {...realHomeLaneStats,
  triangleBudget:REAL_HOME_LANE_BUDGET}}
@@ -14124,6 +14130,8 @@ function renderRealInhabitedLaneNetwork(){
   connectedHomes:0,segments:0,triangles:0,skippedUnsafe:0,
   duplicateSections:0,limited:false,
   frontages:0,frontageQuads:0,frontageTriangles:0,
+  cartScaleSections:0,narrowSections:0,clearanceChecks:0,
+  noFictionalStops:true,
   changesAuthority:false,changesNavigation:false,extraGpuBuffers:0};
  const candidates=[...households.values()].filter(h=>h.index!==marketHomeStreetStats.homeIndex)
   .sort((a,b)=>Math.hypot(a.dest[0]-origin[0],a.dest[1]-origin[1])-
@@ -14132,7 +14140,7 @@ function renderRealInhabitedLaneNetwork(){
   rut=[rgb(0x625f50),rgb(0x6e6656)];
  materialScope(MATERIAL.ROAD,()=>{
   for(const h of candidates){
-   if(audit.limited||audit.connectedHomes>=10)break;
+   if(audit.limited||audit.connectedHomes>=REAL_HOME_LANE_MAX_HOMES)break;
    const route=routeBetween(...origin,...h.dest);
    if(!route?.length||Math.hypot(route.at(-1)[0]-h.dest[0],
       route.at(-1)[1]-h.dest[1])>.7)continue;
@@ -14155,14 +14163,30 @@ function renderRealInhabitedLaneNetwork(){
      }
      const at=(x,z,off,lift)=>{const xx=x+nx*off,zz=z+nz*off;
       return [xx,terrain(xx,zz)+lift,zz]};
-     // Continuous low worn 3D street, with two real wheel-cut dark strips.
-     // Surface is slightly above the original graded road to avoid z-fighting.
-     upwardRoadQuad(at(x0,z0,-.42,.084),at(x1,z1,-.42,.084),
-      at(x1,z1,.42,.084),at(x0,z0,.42,.084),earth[(i+j+h.index)%4]);
+     // A typical REAL courier cart needs a 2-metre carriageway. The old
+     // 0.84m-wide strip looked like a footpath beneath its physical wheels.
+     // Survey both banks at EACH actual section, retaining the original
+     // 0.84m foot-lane only where authentic homes, canals or other obstacles
+     // make a broader ROAD surface unsafe. The actual A* centreline stays put.
+     const broad=.99,clearance=[[-broad,0,broad],[-broad,0,broad]],
+      candidateEnds=[[x0,z0],[x1,z1]];
+     const cartWidthClear=candidateEnds.every(([cx,cz],k)=>
+      clearance[k].every(off=>{audit.clearanceChecks++;
+       return walkable(cx+nx*off,cz+nz*off);
+      }))&&[-broad,broad].every(off=>{audit.clearanceChecks++;
+       return walkable((x0+x1)/2+nx*off,(z0+z1)/2+nz*off);
+      });
+     const width=cartWidthClear?broad:.42;
+     if(cartWidthClear)audit.cartScaleSections++;
+     else audit.narrowSections++;
+     // Same SIX original triangles per world section: no inflated draw-call
+     // count, no imaginary roads/collision, and GPU material stays resident.
+     upwardRoadQuad(at(x0,z0,-width,.084),at(x1,z1,-width,.084),
+      at(x1,z1,width,.084),at(x0,z0,width,.084),earth[(i+j+h.index)%4]);
      for(const side of [-1,1]){
-      const off=side*.235;
-      upwardRoadQuad(at(x0,z0,off-.045,.086),at(x1,z1,off-.045,.086),
-       at(x1,z1,off+.045,.086),at(x0,z0,off+.045,.086),
+      const off=side*width*.62,halfRut=width*.11;
+      upwardRoadQuad(at(x0,z0,off-halfRut,.086),at(x1,z1,off-halfRut,.086),
+       at(x1,z1,off+halfRut,.086),at(x0,z0,off+halfRut,.086),
        rut[(i+j+(side+1)/2)%2]);
      }
      used.add(key);inserted++;audit.segments++;audit.triangles+=6;
