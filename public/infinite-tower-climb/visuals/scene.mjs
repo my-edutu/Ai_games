@@ -2479,6 +2479,12 @@ export function createTowerScene(canvas, settings = {}) {
   const lastSubmittedGuardianFocus = new THREE.Vector3();
   const lastSubmittedGuardian = {runToken:null,floor:null,tick:-1};
   // A real already-submitted Floor8 view; never a fabricated future gateway.
+  // Real source-selected F9 deck underside can block the full-body hero even
+  // when the original bronze gateway, tower core and NDC all read "safe".
+  // Incremental corrective shoulder uses only actually built platform
+  // triangles and the final camera; it has no authoritative gameplay owner.
+  let successorDeckCameraProbes=0,successorDeckCameraRescues=0;
+  let successorDeckCameraLastGain=0;
   let originalGatewaySubmittedCamera=null;
   let originalGatewayCameraBridgeAccepted=0,originalGatewayCameraBridgeVetoed=0;
   const guardianOrbitPreviousCamera = new THREE.Vector3();
@@ -4858,6 +4864,85 @@ export function createTowerScene(canvas, settings = {}) {
         camera.updateMatrixWorld(true);
       }
     }
+    // FIRST SUCCESSOR-DECK PHYSICAL CAMERA OCCLUSION: real 1x portrait
+    // video showed the original skinned climber BEHIND the walkable F9 deck
+    // while the bronze arch remained on-screen. Prior NDC/core-only camera
+    // escorts cannot detect an ACTUAL material triangle blocking the body.
+    // Probe at most 3 authentic platform roots, 3 body points + actual gate,
+    // then try four bounded exterior shoulder/height choices. Only accept an
+    // objectively CLEARER triangle path when the entire current body, real
+    // old gate and opaque tower-core checks remain within the same shot.
+    // No alternate camera, new mesh, source tick, fake player, collision,
+    // extra renderer frame or forced spectator movement.
+    successorDeckCameraLastGain=0;
+    if (coldArchLens?.coldOriginalArch===true &&
+        coldArchLens.sourceBound===true &&
+        coldArchLens.sourceTick===snapshot.tick &&
+        Array.isArray(coldArchLens.gateway) &&
+        coldArchLens.gateway.length===3 &&
+        coldArchLens.gateway.every(Number.isFinite) &&
+        options.camera==='follow' && !overview &&
+        !options.stale && !options.reducedMotion &&
+        Math.abs(orbit)<.025 && zoom<=1.03 &&
+        snapshot.floor===9 && snapshot.lifecycle==='running' &&
+        p.health>0 && p.halfHeight>0) {
+      thresholdHero.copy(climber.group.position);
+      thresholdHero.y+=p.halfHeight/SCALE;
+      thresholdGate.set(...coldArchLens.gateway);
+      const existingDeckView=world.measureSuccessorDeckVisibility(
+        snapshot,camera.position,thresholdHero,p.halfHeight/SCALE,
+        thresholdGate,targetPlatform?.id??null);
+      if(existingDeckView?.active && existingDeckView.bodyBlockedRays>0) {
+        successorDeckCameraProbes=Math.min(1000000,successorDeckCameraProbes+1);
+        thresholdPreviousCamera.copy(camera.position);
+        thresholdPreviousGaze.copy(lookAt);
+        const initialAzimuth=Math.atan2(camera.position.x,camera.position.z);
+        const exteriorRadius=Math.hypot(camera.position.x,camera.position.z);
+        let bestScore=existingDeckView.score;
+        // Each movement is a small PRESENT-camera step. The source-selected
+        // landing itself cannot disappear or become a fabricated platform.
+        for(const [yaw,height,radial] of [
+          [-.045,1.7,1.8],[.045,1.7,1.8],
+          [-.035,-1.7,2.2],[.035,-1.7,2.2]]) {
+          const angle=initialAzimuth+yaw,radius=exteriorRadius+radial;
+          camera.position.set(Math.sin(angle)*radius,
+            thresholdPreviousCamera.y+height,Math.cos(angle)*radius);
+          lookAt.copy(thresholdPreviousGaze);
+          camera.lookAt(lookAt);camera.updateMatrixWorld(true);
+          if(!towerCoreSightlineClear(camera.position,thresholdHero,23.5) ||
+             !towerCoreSightlineClear(camera.position,thresholdGate,23.5))
+            continue;
+          measureDuelBodyNdc(thresholdHero,p.halfHeight/SCALE,
+            camera,duelTop,duelBottom,thresholdHeroAfter);
+          measureDuelBodyNdc(thresholdGate,2.1,
+            camera,duelTop,duelBottom,thresholdGateAfter);
+          const h=thresholdHeroAfter,g=thresholdGateAfter;
+          if(!h.every(Number.isFinite) || !g.every(Number.isFinite) ||
+             h[2]<-1 || h[2]>1 || g[2]<-1 || g[2]>1 ||
+             Math.abs(h[0])+h[3]*.14>.76 ||
+             Math.abs(h[1])+h[3]>.76 ||
+             Math.abs(g[0])+g[3]*.10>.84 ||
+             Math.abs(g[1])+g[3]>.80)continue;
+          const candidate=world.measureSuccessorDeckVisibility(
+            snapshot,camera.position,thresholdHero,p.halfHeight/SCALE,
+            thresholdGate,targetPlatform?.id??null);
+          if(candidate?.active && candidate.score<bestScore &&
+             candidate.bodyBlockedRays<existingDeckView.bodyBlockedRays) {
+            bestScore=candidate.score;
+            thresholdBestCamera.copy(camera.position);
+          }
+        }
+        camera.position.copy(bestScore<existingDeckView.score
+          ?thresholdBestCamera:thresholdPreviousCamera);
+        lookAt.copy(thresholdPreviousGaze);
+        camera.lookAt(lookAt);camera.updateMatrixWorld(true);
+        if(bestScore<existingDeckView.score){
+          successorDeckCameraLastGain=existingDeckView.score-bestScore;
+          successorDeckCameraRescues=Math.min(1000000,
+            successorDeckCameraRescues+1);
+        }
+      }
+    }
     world.revealGuardianSightlines(camera,guardianSightPoints);
     // Foreground visibility is tested against the very same ACTUAL smoothed
     // camera submitted this frame, never the desired/planned lens. A viewer
@@ -5593,6 +5678,10 @@ export function createTowerScene(canvas, settings = {}) {
         evidence:'Previously returned old-floor WebGL camera, used only after genuine source HP0; no raster or performance claims'
       },
       actorSafeRefinements,
+      successorDeckCamera: {probes:successorDeckCameraProbes,
+        accepted:successorDeckCameraRescues,
+        lastRealTriangleScoreGain:successorDeckCameraLastGain,
+        limitation:'Real successor-deck triangle raycasts only, not actual native video, performance or acceptance'},
       portraitAimCorrections,
       jointShotApplications,
       jointShotLastGain: Number(jointShotLastGain.toFixed(4)),
