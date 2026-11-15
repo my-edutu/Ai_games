@@ -29,6 +29,7 @@ const importURLs = {
   "'./source-earned-bearing-run.mjs'": pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/source-earned-bearing-run.mjs')).href,
   "'./original-gallery-foreground.mjs'": pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/original-gallery-foreground.mjs')).href,
   "'./source-physical-arrival-palette.mjs'": pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/source-physical-arrival-palette.mjs')).href,
+  "'./successor-deck-visibility.mjs'": pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/successor-deck-visibility.mjs')).href,
   "'./world-surface.mjs'": pathToFileURL(path.join(ROOT,
     'public/infinite-tower-climb/visuals/world-surface.mjs')).href,
   "'./scene-hierarchy.mjs'": pathToFileURL(path.join(ROOT,

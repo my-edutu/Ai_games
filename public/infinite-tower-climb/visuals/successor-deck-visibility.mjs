@@ -166,12 +166,12 @@ export function protectSourceSuccessorUndercroft({
       }
     }
     hits.length=0;
-    // Immediate real occlusion clearing keeps the whole body visible on
-    // the next submitted frame. Restoration is bounded and reversible;
-    // reduced motion restores without easing. No authority mutation.
-    const prior=finite(material.opacity)?Math.max(0,Math.min(1,material.opacity)):1;
-    const opacity=blocked?.035:reducedMotion?1:
-      Math.min(1,prior+Math.max(0,Math.min(1,dt*10)));
+    // Keep only proven source-blocking nonwalkable skirts translucent.
+    // As soon as a moving deck leaves the actual body/gateway rays, restore
+    // its full material and depth on that very frame: a delayed ghost panel
+    // is not source-authentic world geometry and can obscure path readability.
+    // Reduced-motion already shares this immediate, non-animated policy.
+    const opacity=blocked?.035:1;
     const transparent=opacity<.995;
     if(material.transparent!==transparent || material.depthWrite===transparent){
       material.transparent=transparent;material.depthWrite=!transparent;
