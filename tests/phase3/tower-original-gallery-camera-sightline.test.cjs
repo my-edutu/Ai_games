@@ -96,3 +96,47 @@ test('world uses original gallery-owned meshes, current composed camera, and no 
   assert.match(world,/source:lastSnapshot/);
   assert.doesNotMatch(world,/snapshot\.player\.(?:x|y)\s*=/);
 });
+
+
+test('original bronze struts crossing the genuine off-centre skinned torso and shoulder must clear in portrait without hiding the doorway',async()=>{
+  const {protectHistoricalGallerySightline}=await loaded;
+  const {args,a,b,held,seen}=make();
+  // Current implementation samples only three central rays. The authentic
+  // 390px film obscures shoulder and hip pixels despite a clear body centre.
+  args.halfWidth=.76;
+  args.raycaster.intersectObject=(mesh,_recursive,results)=>{
+    seen.push({mesh:mesh.name,x:args.point.x,y:args.point.y});
+    if(mesh===a && Math.abs(args.point.x)>.4 &&
+        args.point.y>.2 && args.point.y<.9)
+      results.push({distance:3.8});
+    return results;
+  };
+  const before=JSON.stringify(args.source);
+  const witnessed=protectHistoricalGallerySightline(args);
+  assert.equal(witnessed.active,true);
+  assert.equal(witnessed.softened,1,
+    'a real shoulder-obscuring old structural triangle must no longer mask the actor');
+  assert.ok(seen.some(x=>Math.abs(x.x)>.4 && x.y>.2 && x.y<.9),
+    'the actual source-width off-axis skinned shoulder must be sampled');
+  assert.ok(witnessed.rays<=56,'bounded seven actor silhouette rays for eight source meshes');
+  assert.ok(a.material.opacity<=held.originalGallerySourceOpacity*.05,
+    'foreground bronze rail must be effectively invisible over the real body');
+  assert.equal(a.material.depthWrite,false);
+  assert.equal(b.material.opacity,held.originalGallerySourceOpacity,
+    'clear old steel load paths remain present');
+  assert.equal(held.originalGatewayOpacity,1,
+    'do not remove the actual original guardian gateway');
+  assert.equal(JSON.stringify(args.source),before,'no physical source rewrite');
+});
+test('source-width silhouette rescue stays bounded, falls back on invalid body dimensions and never activates on desktop',async()=>{
+  const {protectHistoricalGallerySightline}=await loaded;
+  const {args,seen}=make();
+  args.halfWidth=Number.NaN;
+  protectHistoricalGallerySightline(args);
+  assert.ok(seen.length<=6,'invalid width is never used to invent additional lateral actor rays');
+  const desktop=make();
+  desktop.args.halfWidth=.76;
+  desktop.args.camera.aspect=960/600;
+  assert.equal(protectHistoricalGallerySightline(desktop.args).active,false);
+  assert.equal(desktop.seen.length,0,'desktop normal stage untouched');
+});
