@@ -338,3 +338,27 @@ test('six-view deadline misses are distinguishable from witnessed drawable HP co
  assert.equal(v.hpImpactByView[5].deadlineMissHpLossTicks,0);
  assert.equal(v.hpImpactByView[5].unverifiedHpLossTicks,1);
 });
+
+test('overdue HP impact evidence rejects contradictory or missing submission clocks',()=>{
+ const {classifyD04RealMultiview}=
+  require('../browser/dungeon-d04-live-authority-pair.cjs');
+ const a=sixViewFixture();
+ const original={
+  cueId:'1:1:4:damage:-:enemy-1-0',scene:'1:1',tick:4,kind:'damage',
+  visual:true,audio:false,decision:'stale-frame',frameId:5,
+  observedClockMs:2000,submittedClockMs:2200,observationToSubmissionMs:830
+ };
+ const check=receipt=>{
+  a.runs[4].samples[4].recentDeliveryReceipts=[receipt];
+  const view=classifyD04RealMultiview(a).hpImpactByView[4];
+  return [view.deadlineMissHpLossTicks,view.unverifiedHpLossTicks];
+ };
+ assert.deepEqual(check(original),[0,1],
+  'a fake 830ms interval cannot be independently verified by a 200ms clock difference');
+ assert.deepEqual(check({...original,submittedClockMs:2830}),[1,0],
+  'matching monotonic 830ms observation-to-submission proof is a genuine deadline miss');
+ assert.deepEqual(check({...original,submittedClockMs:2830,observedClockMs:null}),[0,1],
+  'a missing observation clock cannot certify that 400ms elapsed');
+ assert.deepEqual(check({...original,submittedClockMs:2830,observationToSubmissionMs:-1}),[0,1],
+  'negative receipt ages cannot be evidence of a deadline miss');
+});
