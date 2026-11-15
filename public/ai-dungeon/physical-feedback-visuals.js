@@ -429,6 +429,43 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    Math.abs(p.y)>0.75)return null;
   return {x:p.x,y:p.y+1.12,z:p.z,yaw:actor.root.rotation?.y??0};
  }
+ // A cached animated cast is not enough to certify a Warden release.
+ // Original foley rejects forged identities, but the visual stage used to
+ // retire real danger markers BEFORE checking whether the public boss still
+ // cast at that tick. The planner admits only its first 96 action owners and
+ // checks a wider 256-unit window for duplicate IDs. Match both boundaries.
+ // A release is action evidence only; never invent an attacker or HP damage.
+ function witnessedLiveWardenRelease(cue){
+  if(!requireVerifiedHpReceipt)return true; // standalone mesh auditions
+  if(cue?.kind!=='warden-release'||cue.visual!=='warden'||
+   !isCanonicalVerifiedCombatFoleyCue(cue)||
+   typeof getCurrentSnapshot!=='function')return false;
+  let latest=null;
+  try{latest=getCurrentSnapshot()}catch{return false}
+  if(!latest||!Number.isSafeInteger(latest.tick)||latest.tick!==cue.tick||
+   !Number.isSafeInteger(latest.run)||!Number.isSafeInteger(latest.floor)||
+   latest.run+':'+latest.floor!==cue.sceneKey||
+   !Array.isArray(latest.units))return false;
+  let source=null;
+  for(let i=0;i<Math.min(latest.units.length,256);i++){
+   const candidate=latest.units[i];
+   if(candidate?.id!==cue.actorId)continue;
+   if(source||i>=PHYSICAL_FEEDBACK_MAX_EVENT_SCAN)return false;
+   source=candidate;
+  }
+  if(!source||source.kind!=='warden'||source.faction!=='enemy'||
+   !cell(source)||!cell(cue.from)||
+   source.x!==cue.from.x||source.z!==cue.from.z||
+   !Number.isFinite(source.hp)||source.hp<=0||
+   source.action!=='cast'||source.actionTick!==cue.tick)return false;
+  let actor=null;
+  try{actor=actorById(cue.actorId)}catch{return false}
+  const drawn=actor?.u;
+  return !!drawn&&drawn.id===source.id&&drawn.kind===source.kind&&
+   drawn.faction===source.faction&&drawn.x===source.x&&
+   drawn.z===source.z&&Number.isFinite(drawn.hp)&&drawn.hp>0&&
+   drawn.action==='cast'&&drawn.actionTick===cue.tick;
+ }
  function anchor(cue,type){
   if(type==='dust')return cell(cue.from)?world(cue.from,.07):null;
   const victim=type==='hit';
@@ -449,6 +486,10 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   // Actual danger warnings still use independently witnessed floor cells.
   const wardenBodySignal=type==='signal'&&
    (cue.kind==='warden-release'||cue.kind==='opening');
+  // The same current authority witness is required again before any sound
+  // or retained signal can survive its next actual frame.
+  if(wardenBodySignal&&cue.kind==='warden-release'&&
+   !witnessedLiveWardenRelease(cue))return null;
   if(wardenBodySignal&&(!actor||actor.u?.id!==id||
     actor.u?.kind!=='warden'||actor.u?.action!=='cast'||
     actor.u?.actionTick!==cue.tick||
@@ -763,6 +804,10 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    // The controller's original 400ms frame deadline remains independent.
    suppressed++;suppressedAncientDamageVisuals++;return false;
   }
+  // Reject stale, duplicate or forged Warden releases before retiring their
+  // still-authoritative warning cells. No cue or audio is granted by a stale rig.
+  if(type==='signal'&&cue.kind==='warden-release'&&
+   !witnessedLiveWardenRelease(cue)){suppressed++;return false}
   if(type==='trail'&&(cue.kind!=='swing'||cue.proof!=='authority-attempt-not-hit'))return false;
   if(cue.kind==='counter'&&(
    cue.proof!=='authority-counter-and-HP'||
