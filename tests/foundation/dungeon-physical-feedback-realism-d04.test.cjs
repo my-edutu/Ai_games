@@ -1368,3 +1368,66 @@ test('D04 actual retained hit-mesh retirement preserves separated GPU upload row
   assert.equal(stage.stats().activeDrawCalls,0);
  }finally{stage.dispose()}
 });
+
+test('strict D04 earned Warden counter glyph requires current public HP and authentic recovery receipt',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const damage=28,maxHp=90,remainingHp=42;
+ const victim={id:'warden',kind:'warden',faction:'enemy',x:4,z:4,
+  hp:remainingHp,maxHp,action:'hurt',actionTick:11};
+ let current={run:1,floor:1,tick:11,units:[victim]};
+ let rendered=null;
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  requireVerifiedHpReceipt:true,getCurrentSnapshot:()=>current,
+  actorById:id=>id==='warden'?rendered:null
+ });
+ const proven=cue({id:'1:1:11:counter:-:warden',kind:'counter',
+  visual:'counter',audio:'counter',proof:'authority-counter-and-HP',
+  verified:true,actorId:null,targetId:'warden',from:null,to:{x:4,z:4},
+  severity:damage/maxHp,priority:7,
+  detail:{damage,maxHp,remainingHp,recoveryUntilTick:11}});
+ function check(candidate,expected,message){
+  stage.reset();
+  assert.equal(stage.emit(candidate),expected,message);
+  assert.equal(stage.stats().instancesByPool.signal,expected?1:0,
+   'unverified recovery must not reserve a Warden body glyph');
+ }
+ try{
+  check(proven,true,'genuine unique same-frame Warden HP loss remains a visual counter');
+  for(const changed of [
+   {...proven,detail:null},
+   {...proven,detail:{...proven.detail,damage:0}},
+   {...proven,detail:{...proven.detail,recoveryUntilTick:10}},
+   {...proven,detail:{...proven.detail,remainingHp:41}},
+   {...proven,actorId:'vanguard'},
+   {...proven,from:{x:3,z:4}},
+   {...proven,severity:.8},
+   {...proven,id:'1:1:11:counter:vanguard:warden'}
+  ])check(changed,false,'a copied success ID cannot mint a forged counter glyph');
+  for(const altered of [
+   {...victim,hp:70},
+   {...victim,maxHp:100},
+   {...victim,x:5},
+   {...victim,kind:'revenant'},
+   {...victim,faction:'party'}
+  ]){
+   current={...current,units:[altered]};
+   check(proven,false,'counter art must attach only to the actual public Warden casualty');
+  }
+  current={...current,units:[victim,{...victim}]};
+  check(proven,false,'duplicate Warden identity cannot choose an arbitrary casualty');
+  current={...current,units:[victim],tick:12};
+  check(proven,false,'one-tick-old counter cannot be replayed on a later body');
+  current={...current,tick:11,run:2};
+  check(proven,false,'another run must not inherit physical recovery art');
+  current={...current,run:1};
+  check(proven,true,'the current authoritative Warden still earns counter emphasis');
+  rendered={u:{...victim,hp:41},root:{
+   visible:true,position:{x:-5,y:0,z:-5},rotation:{y:0}}};
+  check(proven,false,'a contradictory drawn-body cache cannot receive verified counter art');
+  rendered.u={...victim,hp:70};
+  check(proven,true,'the exact pre-injury HP cache may lag one canonical 28-HP loss');
+  assert.ok(stage.stats().activeDrawCalls<=7);
+  assert.equal(stage.stats().reservedInstances,102);
+ }finally{stage.dispose()}
+});
