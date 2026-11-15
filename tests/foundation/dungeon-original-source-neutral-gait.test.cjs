@@ -67,9 +67,9 @@ test('RED: authored connected leg source candidate requires toe clearance, less 
   {trials:[{neutralBlend:.42,maxJointDeltaRad:.27,after:outcome(.042,-.042)}]},
   {trials:[{neutralBlend:.42,maxJointDeltaRad:.20,after:outcome(.025,.028)}]},
   {trials:[{neutralBlend:.42,maxJointDeltaRad:.20,after:{
-   ...outcome(.042,-.042),left:{...loaded,heelY:loaded.heelY+.005}}]},
+   ...outcome(.042,-.042),left:{...loaded,heelY:loaded.heelY+.005}}}]}, 
   {trials:[{neutralBlend:.42,maxJointDeltaRad:.20,after:{
-   ...outcome(.042,-.042),right:{...swing,heelY:.12,toeY:-.05,toeXZ:[.2,0]}}]}
+   ...outcome(.042,-.042),right:{...swing,heelY:.12,toeY:-.05,toeXZ:[.2,0]}}}]}
  ])assert.equal(choose({...owner,...bad}),null);
 });
 test('RED: native original renderer retains four probes, independent FINAL skinned shoes and reversible three-source-bone ownership',()=>{
