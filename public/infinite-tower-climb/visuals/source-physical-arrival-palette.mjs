@@ -107,7 +107,19 @@ export function observedSourcePhysicalArrivalPalette(source,held=null) {
   // sill (not fictitious distance walked or a simulated extra frame).
   const rise=Math.max(0,sole-roofY);
   const pathDisplacement=Math.hypot(travel,rise);
-  const physicalProgress=smooth((pathDisplacement-6000)/84000);
+  // The actual first supported F9 landing is 12.6m ABOVE the old cap,
+  // but only ~2m horizontally beyond it. A 90m Euclidean palette runway
+  // can therefore never finish before the source-authenticated 70-tick
+  // doorway owner expires: the ORIGINAL opaque bronze world disappears
+  // while its materials are still more than 80% bronze in normal-speed film.
+  // Use TWO genuine source travel axes. The already-validated airborne feet
+  // or exact grounded raised-platform support can earn the same completion
+  // by rising 7m CLEAR of the source doorway, without any synthetic stride,
+  // landing, collision, elapsed-display clock or invented scene frame.
+  // Horizontal travel keeps its original full 90m envelope for ground runs.
+  const horizontalProgress=smooth((travel-6000)/84000);
+  const verticalProgress=smooth((rise-10000)/60000);
+  const physicalProgress=Math.max(horizontalProgress,verticalProgress);
   // Original 1x desktop/portrait films: physical F9 source advanced through
   // the bronze sill while software WebGL had only returned ONE successor
   // frame. Floor9 platforms, authored architectural material, old gate and
@@ -158,6 +170,7 @@ export function observedSourcePhysicalArrivalPalette(source,held=null) {
   const oldWeight=1-progress;
   return {sourceBound:true,sourceTick:source.tick,crossingTick:sourceTick,
     kind,travel,rise,pathDisplacement,roofY,oldWeight,progress,
+    horizontalProgress,verticalProgress,physicalProgress,
     ...(originalGpuVisible?{
       opticalBridgeSourceBound:true,
       originalGatewayGpuReturns:held.submittedFrames

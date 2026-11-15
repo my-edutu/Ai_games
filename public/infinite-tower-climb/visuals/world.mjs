@@ -901,6 +901,11 @@ export function createTowerWorld(){
   // The source-earned OLD bronze gate and the NEW 3D architecture must share
   // an actual walking-distance palette instead of one hard violet cold frame.
   let originalClockworkArchitecturalPalette=null;
+  // Existing original three-station 3D bearing geometry outlives the old
+  // cap owner. Recolour these SAME instanced meshes with the exact physical
+  // guardian departure, rather than leaving frozen bronze bars behind when
+  // the old doorway is retired on a slow first successor frame.
+  let sourceEarnedBearingPalette=null;
   let arrivalRoutePalette=null;
   let stagedVoidArchitecture=null;
   // Actual source-floor static GPU attribute/index payload, not driver memory.
@@ -3098,6 +3103,10 @@ export function createTowerWorld(){
       mat(0x716151,.42,.68),
       mat(0x544a63,.44,.69)
     ];
+    sourceEarnedBearingPalette=palette.map((material,i)=>({
+      material,bronze:material.color.clone(),
+      voidColor:new THREE.Color([0x5a5064,0x514b63,0x544a63][i])
+    }));
     const stageParts=[[],[],[]];
     plan.nodes.forEach((station,i)=>{
       const a=station.angle,y=station.sceneY,top=y+station.height;
@@ -3165,6 +3174,7 @@ export function createTowerWorld(){
     const rebuildStartedAt = performance.now();
     beginRetainedCapRebuild(snapshot);
     clearFloor();originalClockworkArchitecturalPalette=null;
+    sourceEarnedBearingPalette=null;
     quality=requestedQuality;theme=THEMES[snapshot.theme]?snapshot.theme:'foundry';const p=PALETTES[theme];
     materials={stone:weather(mat(p.stone,.04,.86)),dark:mat(p.dark,.28,.58),metal:mat(p.metal,.48,.39),copper:mat(theme==='foundry'?0xc88c57:p.metal,.55,.32),edge:mat(p.edge,.12,.68),
       portalStone:theme==='ruins'?applyStoneSurface(mat(p.edge,.035,.90),stoneSurface,{scale:.11,strength:.56,relief:.013}):mat(p.edge,.12,.68),
@@ -3394,6 +3404,19 @@ export function createTowerWorld(){
       const sourceProof=!options.stale
         ?observedSourcePhysicalArrivalPalette(snapshot,retainedEarnedCap):null;
       originalClockworkArchitecturalPalette.update(sourceProof);
+    }
+    // The real inherited bearing gallery is an architectural connection,
+    // not a surviving bronze HUD proxy. Carry the physical departure across
+    // all three ORIGINAL instanced material phases, with no new geometry,
+    // shader pass, frame timer, moving platform or gameplay state. On source
+    // expiry restore the intended F9 destination palette, so the remaining
+    // source-authored bearings are not frozen in the old biome.
+    if(sourceEarnedBearingPalette) {
+      const proof=!options.stale
+        ?observedSourcePhysicalArrivalPalette(snapshot,retainedEarnedCap):null;
+      const departure=proof?.sourceBound===true?proof.progress:1;
+      for(const {material,bronze,voidColor} of sourceEarnedBearingPalette)
+        material.color.copy(bronze).lerp(voidColor,departure);
     }
     const arrival=deferredDistantArrival;
     function appendDeferredVista(arrival) {

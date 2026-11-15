@@ -52,3 +52,11 @@ test('the authentic gallery is integrated only in Tower world rebuild, not in si
   assert.match(world,/SourceEarnedClockworkVoidBearingGallery/);
   assert.match(world,/instanced\(supportRoot,rounded\(\),material,items\)/);
 });
+
+test('the persistent original F9 load path shares the source-earned ascent departure with the old gate and real walkable platforms',()=>{
+  const world=fs.readFileSync('public/infinite-tower-climb/visuals/world.mjs','utf8');
+  assert.match(world,/sourceEarnedBearingPalette=palette\.map/);
+  assert.match(world,/material\.color\.copy\(bronze\)\.lerp\(voidColor,departure\)/);
+  assert.match(world,/proof\?\.sourceBound===true\?proof\.progress:1/);
+  assert.match(world,/sourceEarnedBearingPalette=null;/);
+});

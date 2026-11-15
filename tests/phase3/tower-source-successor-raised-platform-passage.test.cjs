@@ -101,3 +101,28 @@ test('observed tick-535 first real f9:p2 standing height BELOW the old 160000 ce
   assert.equal(sourceOriginalGatewayCameraBridge(source,held,prior,{camera:'follow'})?.sourceBound,true,
     'the same REAL previously submitted F8 camera must still be eligible at tick535 after authentic crossing tick475');
 });
+
+test('the real cleared first raised deck completes the old-to-new material handoff before the 70-tick source expiry, never without GPU returns',async()=>{
+  const {observedSourcePhysicalArrivalPalette:palette,
+    observedSourceGatewayDeparturePresence:departure}=await palette;
+  const {source,held}=crossing();
+  // Exact source-supported f9:p2: feet 17.8m over the original roof,
+  // horizontal progress is small. The former 90m Euclidean rule could not
+  // finish before the original GPU gateway's bounded retirement.
+  held.submittedFrames=4;held.visibleSeconds=.8;
+  const earned=palette(source,held);
+  assert.equal(earned.sourceBound,true);
+  assert.ok(earned.horizontalProgress<1);
+  assert.equal(earned.verticalProgress,1);
+  assert.equal(earned.physicalProgress,1);
+  assert.equal(earned.progress,1);
+  assert.equal(earned.oldWeight,0);
+  assert.equal(departure(source,held).opacity,0);
+  // No successful WebGL return: the actual old arch remains fully intact.
+  held.submittedFrames=0;held.visibleSeconds=0;
+  assert.equal(palette(source,held).progress,0);
+  assert.equal(departure(source,held).opacity,1);
+  // A forged or absent elevated collision contact cannot trigger the handoff.
+  source.player.groundedPlatformId='f9:phantom';
+  assert.equal(palette(source,held),null);
+});
