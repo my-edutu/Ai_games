@@ -3503,6 +3503,16 @@ export function createTowerWorld(){
         ?observedSourcePhysicalArrivalPalette(snapshot,retainedEarnedCap):null;
       originalClockworkArchitecturalPalette.update(sourceProof);
     }
+    // The real authored deferred shaft uses separate materials ONLY for its
+    // GPU-safe alpha/visibility. These copies must follow the SAME mutable
+    // material COLOR source as the first F9 core, authentic deck and original
+    // gateway. Sync in-place after the source proof (before any real render),
+    // never latch the initial bronze color into a late-revealed Void tower.
+    // No new shader variant, draw, collider or extra scene is introduced.
+    if(deferredDistantArrival?.structuralMaterials?.length) {
+      for(const {material,sourceColor} of deferredDistantArrival.structuralMaterials)
+        if(material.color && sourceColor)material.color.copy(sourceColor);
+    }
     // The real inherited bearing gallery is an architectural connection,
     // not a surviving bronze HUD proxy. Carry the physical departure across
     // all three ORIGINAL instanced material phases, with no new geometry,
@@ -3608,6 +3618,13 @@ export function createTowerWorld(){
               material.needsUpdate=true;
               floorMaterials.add(material);
               isolated.set(original,{material,
+                // The isolated shaft has its OWN alpha, but must still follow
+                // the same actual Clockwork->Void architectural source color
+                // as the visible first-painted core. A clone frozen while
+                // the gateway was warm used to stay bronze after a legitimate
+                // later source departure; that turns this into another false
+                // color seam when the deferred shaft finally appears.
+                sourceColor:original.color,
                 originalOpacity:original.opacity,
                 originalTransparent:original.transparent,
                 originalDepthWrite:original.depthWrite});
