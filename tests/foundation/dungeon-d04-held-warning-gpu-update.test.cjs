@@ -326,3 +326,33 @@ test('idle D04 retained pools skip untouched slot scans but still admit new real
   assert.equal(visual.stats().lastAdvanceDirtyPools,0);
  }finally{visual.dispose()}
 });
+
+test('D04 submits only occupied instance prefixes, preserving all 102 pooled reservations',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load();
+ const {THREE,meshes,scene}=fakeThree();
+ const v=createPhysicalFeedbackVisuals(THREE,scene);
+ try{
+  assert.deepEqual(meshes.map(m=>m.count),[0,0,0,0,0,0,0],
+   'an empty retained pool must submit zero instances, not all reserved hidden transforms');
+  const impact={id:'1:1:11:damage:-:victim',sceneKey:'1:1',kind:'damage',
+   tick:11,visual:'hit',proof:'observed-hp-drop',verified:true,
+   targetId:'victim',to:{x:3,z:3},priority:7,duration:.23,severity:.8};
+  assert.equal(v.emit(impact),true);
+  assert.equal(meshes[1].visible,true);
+  assert.ok(meshes[1].count>=4&&meshes[1].count<=6,
+   'genuine HP fragments occupy a small prefix, not all 48 reserved hit instances');
+  assert.ok(meshes[1].count<48);
+  assert.deepEqual(meshes.filter((m,i)=>i!==1).map(m=>m.count),[0,0,0,0,0,0]);
+  assert.equal(v.stats().reservedInstances,102,'retained memory budget must not change');
+  v.advance(.05,.30);
+  assert.equal(meshes[1].count,0,'expired fragments must remove all GPU instance submissions');
+  assert.equal(meshes[1].visible,false);
+  assert.equal(v.emit({...impact,id:impact.id+':second'}),true);
+  assert.ok(meshes[1].count>0);
+  assert.equal(v.retireStaleCue(impact.id+':second','stale-frame')>0,true);
+  assert.equal(meshes[1].count,0,'rejected after-frame injury must not retain invisible GPU work');
+  assert.equal(v.emit({...impact,id:impact.id+':third'}),true);
+  v.reset();
+  assert.ok(meshes.every(m=>m.count===0));
+ }finally{v.dispose()}
+});
