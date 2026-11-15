@@ -1162,6 +1162,26 @@ for(const view of [
    expect(Math.abs(calfProof.appliedAngleRad)).toBeLessThanOrEqual(.18001);
   }
   for(const proof of current){
+   // A historical ankle receipt cannot become a new "planted foot". The
+   // final same-source readback is required for a linked original hip/knee
+   // escalation; neither stage can invent a different loaded shoe.
+   expect(proof.originalOppositeShoeVerified).toBe(true);
+   expect(proof.contactLocked).toBe(false);
+   if(proof.linkedOriginalSourceJointProof===true){
+    const linked=n?.sourceSwingLinkedCurrentFrameProofs?.[proof.side];
+    expect(linked?.sourceAnkleEscalationVerified).toBe(true);
+    expect(linked?.sourceInstanceId).toBe(t.sourceId);
+    expect(linked?.sourceClip).toBe('Walking_A');
+    expect(linked?.oppositeShoePreserved).toBe(true);
+    expect(proof?.originalAnkleLiftMeters).toBeGreaterThanOrEqual(.005);
+    expect(proof?.linkedLegAddedLiftMeters).toBeGreaterThanOrEqual(.012);
+    expect(proof?.afterToeY).toBeCloseTo(linked.after[proof.side].toeY,4);
+    expect(proof?.afterHeelY).toBeCloseTo(linked.after[proof.side].heelY,4);
+    expect(proof?.liftMeters).toBeCloseTo(
+     proof.afterToeY-proof.beforeToeY,4);
+    expect(linked.after[proof.side].toeY).toBeGreaterThan(
+     linked.before[proof.side].toeY+.01199);
+   }
    expect(proof?.source).toBe('same-original-GLB-foot-skinned-vertices');
    expect(proof?.side).toMatch(/^(left|right)$/);
    expect(proof?.sourceClip).toBe('Walking_A');
