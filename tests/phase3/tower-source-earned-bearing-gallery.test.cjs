@@ -58,7 +58,7 @@ test('the persistent original F9 load path shares the source-earned ascent depar
   const world=fs.readFileSync('public/infinite-tower-climb/visuals/world.mjs','utf8');
   assert.match(world,/sourceEarnedBearingPalette=palette\.map/);
   assert.match(world,/material\.color\.copy\(bronze\)\.lerp\(voidColor,departure\)/);
-  assert.match(world,/proof\?\.sourceBound===true && !handoff\.retiring/);
+  assert.match(world,/livePaletteProof\?\.sourceBound===true && !handoff\.retiring/);
   assert.match(world,/handoff\.displayProgress=Math\.max\(handoff\.displayProgress,/);
   assert.match(world,/sourceEarnedBearingPalette=null;/);
 });
