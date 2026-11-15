@@ -131,7 +131,7 @@ export function planOriginalSourceAuthoredNeutralBlends({
   const excessHeelRise=rise-lift;
   return lift>=.012&&
    (excessHeelRise>=(frameInterval>.12?.005:.009)||
-    (severeSourcePitch&&excessHeelRise>=.002))&&
+    (severeSourcePitch&&frameInterval<=.12&&excessHeelRise>=.002))&&
    Math.abs(loaded.heelY-support.heelY)<=.003&&
    Math.abs(loaded.toeY-support.toeY)<=.003&&
    drift(loaded.heelXZ,support.heelXZ)<=.004&&
