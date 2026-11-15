@@ -1716,3 +1716,48 @@ test('strict D04 earned counter follows a uniquely proved Warden victim across a
   assert.ok(stage.stats().activeDrawCalls<=7);
  }finally{stage.dispose()}
 });
+
+
+test('strict D04 visual cue history cannot resurrect a stale real HP wound after its bounded cache rotates',async()=>{
+ const {createPhysicalFeedbackVisuals,MAX_D04_VISUAL_CUE_HISTORY}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const victim={id:'revenant',kind:'revenant',faction:'enemy',x:3,z:2,
+  hp:19,maxHp:20,action:'hurt',actionTick:11};
+ let snapshot={run:1,floor:1,tick:11,units:[victim]};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  getCurrentSnapshot:()=>snapshot,requireVerifiedHpReceipt:true
+ });
+ const wound=tick=>cue({id:`1:1:${tick}:damage:-:revenant`,tick,
+  severity:1/20,detail:{damage:1,maxHp:20,remainingHp:19}});
+ try{
+  // Force FIFO one-shot identity rotation without exceeding retained GPU
+  // instances. These are individual canonical victim-only receipts; no
+  // attacker, simulated contact, or fabricated AudioContext is involved.
+  for(let tick=11;tick<11+MAX_D04_VISUAL_CUE_HISTORY+2;tick++){
+   snapshot={...snapshot,tick};
+   assert.equal(stage.emit(wound(tick)),true,
+    'a new unique current public HP-loss receipt remains eligible');
+   stage.advance(.7,.7);
+  }
+  assert.equal(stage.stats().active,0);
+  assert.ok(stage.stats().rememberedVisualCueIds<=MAX_D04_VISUAL_CUE_HISTORY);
+  const newest=11+MAX_D04_VISUAL_CUE_HISTORY+1;
+  // A duplicate too old for the public five-tick planner must not be
+  // re-admitted simply because its bounded receipt key was FIFO-evicted.
+  snapshot={...snapshot,tick:11};
+  assert.equal(stage.emit(wound(11)),false,
+   'expired, evicted injury cannot create a second physical hit');
+  assert.equal(stage.stats().active,0);
+  // Out-of-order but NEW events inside the five-tick admission horizon
+  // remain eligible; only ancient events are refused.
+  snapshot={...snapshot,tick:newest-3};
+  assert.equal(stage.emit(wound(newest-3)),false,
+   'a previously admitted recent wound is still one-shot');
+  stage.reset();
+  snapshot={...snapshot,tick:11};
+  assert.equal(stage.emit(wound(11)),true,
+   'explicit scene reset clears the timeline epoch and admitted IDs');
+  assert.ok(stage.stats().reservedInstances<=104);
+  assert.ok(stage.stats().activeDrawCalls<=7);
+ }finally{stage.dispose()}
+});
