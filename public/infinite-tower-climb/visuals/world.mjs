@@ -8,8 +8,7 @@ import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs
 import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedPrebuiltVoidShaftRelease, observedQueuedOriginalCapAtFirstRender, reconcileRecordedOriginalCapCrossing,
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage } from './source-physical-arrival-palette.mjs';
-import { protectHistoricalGallerySightline } from './original-gallery-foreground.mjs';
-import { measureAuthoritativeDeckSightline } from './successor-deck-visibility.mjs';
+import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline } from './original-gallery-foreground.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, updateOriginalClockworkSuccessorRoute } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings } from './source-earned-bearing-run.mjs';
 
