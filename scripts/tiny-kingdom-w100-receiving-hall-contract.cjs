@@ -26,7 +26,11 @@ const farmStart=code.indexOf('const FARMSTEAD=');
 assert.ok(farmStart>=0,'The test requires the same real farm/granary geometry as the playable game');
 const farmDeclaration=code.slice(farmStart,code.indexOf(';',farmStart)+1);
 assert.match(farmDeclaration,/^const FARMSTEAD=Object\.freeze\(\{/);
+const roofHelper=code.slice(code.indexOf('function settledRoofCourseHeight('),
+ code.indexOf('\nfunction originalClayRoofCourses(',code.indexOf('function settledRoofCourseHeight(')));
+assert(roofHelper.includes('function settledRoofCourseHeight('), 'real roof height source is required');
 const hallGeometry=new Function(`
+${roofHelper}
 ${farmDeclaration}
 let data=[];const rgb=hex=>hex,terrain=(x,z)=>Math.sin(x*.03+z*.01)*.07;
 const marketQuarterStats={receivingBays:0,receivingHallRoofPanels:0,receivingHallPosts:0,rearShopGables:0};

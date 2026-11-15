@@ -15,7 +15,7 @@ function extract(a,b){
 // Execute the genuine production topology helper, not a test-only stub.
 // A worker's held-tool mesh changes at real work-stage/earned-event boundaries.
 const workTopology=extract('function originalWorkToolTopologyKey(','function realWorkerPoseKey(');
-const walk=extract('function isForegroundWalkingSkinCandidate(','function realForegroundPoseKey(');
+const walk=extract('function physicallySmallWalkingSkinWindow(','function realForegroundPoseKey(');
 const key=extract('function realForegroundPoseKey(','function realForegroundPoseStale(');
 const stale=extract('function realForegroundPoseStale(','function prepareForegroundResidents(');
 assert.match(source,/const walkingSkin=isForegroundWalkingSkinCandidate\(p,i,frame\)/);
@@ -26,6 +26,8 @@ assert.match(source,/workSkinDetailedMatrices\(entry,p\)/);
 assert.match(source,/gl\.uniformMatrix4fv\(uniforms\.workBone,false,workSkinDetailedMatrices\(entry,p\)\)/);
 const state={t:12},workdayEvents=[];
 const deps={workingSkinCapable:true,gpuAvailable:true,follow:false,
+ foregroundResidentCache:new Map(),FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT:.39,
+ FOREGROUND_WALKING_SKIN_HOLD_SCREEN_HEIGHT:.45,
  liveWorkday:false,selectedCitizen:0,FOREGROUND_ROOT_METERS:.045,
  FOREGROUND_ROOT_RADIANS:.035,projectRealCitizenDetail:()=>({visible:true,heightFraction:.08}),
  isMarketUnloading:()=>false,isWorkingAtSite:()=>false,

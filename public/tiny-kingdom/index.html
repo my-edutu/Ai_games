@@ -19874,6 +19874,21 @@ function chooseFilmableWorker(rows,excluded=-1){
      (score===best.score&&row.index<best.index))
    best={...row,score,clear,shot,remaining};
  }
+ // Only if the normal 3D shot is genuinely unusable on portrait,
+ // search one HIGH-OR-GROUND original building-safe observer before
+ // abandoning a real worker's shift. No second actor or simulated action.
+ if(best&&canvas.clientWidth>0&&canvas.clientWidth<=520&&
+    !genuineWorkdayShotDecision(best.shot,true).safe){
+  const rescue=findPhysicalPortraitAlternative(best.person,best.shot,
+   followCameraRoofs());
+  if(rescue){
+   const verified=genuineWorkdayShotDecision(rescue,true);
+   if(verified.safe){
+    best={...best,shot:rescue,clear:verified.readable,
+     physicalPortraitRecovery:true};
+   }
+  }
+ }
  realWorkdaySelectionAudit={
   mode:canvas.clientWidth<500?'mobile':'desktop',
   examined:bounded.length,
@@ -19886,6 +19901,8 @@ function chooseFilmableWorker(rows,excluded=-1){
   vegetationCover:best.shot.foregroundVegetationCover,
   vegetationFaceBlockers:best.shot.vegetationFaceBlockers,
   remainingHours:best.remaining,
+  portraitPhysicalRecovery:best.physicalPortraitRecovery===true,
+  portraitHighEye:best.shot.physicalPortraitElevatedEye===true,
   honestWork:isWorkingAtSite(best.person)};
  return best;
 }
@@ -24266,7 +24283,7 @@ function shouldRescuePortraitWorkerCore(width,observing,present,planned,transiti
 // alternative only when the genuine actor has disappeared behind real
 // architecture AND the previously selected view is also obstructed.
 // Never change world objects, professions, locations or economic state.
-const PORTRAIT_ALT_RETRY_MS=1250,PORTRAIT_ALT_MAX_EYES=16;
+const PORTRAIT_ALT_RETRY_MS=1250,PORTRAIT_ALT_MAX_EYES=24;
 let portraitAltLastAttempt=-Infinity,portraitAltLastCitizen=null;
 let portraitAltAttempts=0,portraitAltCandidates=0,portraitAltRescues=0,
  portraitAltNoClearEye=0,portraitImmediateRescues=0;
@@ -24281,46 +24298,68 @@ function shouldSeekPhysicalPortraitAlternative(width,observing,currentCore,
 }
 function findPhysicalPortraitAlternative(citizen,shot,roofs){
  if(!citizen||!shot||!Array.isArray(shot.target))return null;
+ // Keep the original two ground-height 8-eye surveys; an obstructed
+ // 390px grown market may require a third ACTUAL high camera above roofs.
+ // Neither the roof nor a worker/courier/crop may be moved or concealed.
  const ground=terrain(citizen.x,citizen.z),
   target=shot.target,face=[citizen.x,ground+1.34,citizen.z],
   hands=documentaryWorkHandTargets(citizen);
  const yawOffsets=[0,-.34,.34,-.68,.68,-1.06,1.06,Math.PI],
   nearZoom=Math.max(4.5,Math.min(7.6,shot.zoom)),
   lenses=[[Math.max(.36,Math.min(.53,shot.pitch)),nearZoom],
-   [.60,Math.min(10,nearZoom+1.7)]];
+   [.60,Math.min(10,nearZoom+1.7)],
+   [.86,Math.min(8.5,nearZoom+1.7)]];
  let best=null,bestScore=Infinity,checks=0;
- for(const offset of yawOffsets)for(const [candidatePitch,candidateZoom] of lenses){
-  if(checks++>=PORTRAIT_ALT_MAX_EYES)break;
-  portraitAltCandidates++;
-  const candidateYaw=shot.yaw+offset,radius=Math.cos(candidatePitch)*candidateZoom;
-  const eye=[citizen.x+Math.sin(candidateYaw)*radius,
-   ground+1.02+Math.sin(candidatePitch)*candidateZoom,
-   citizen.z+Math.cos(candidateYaw)*radius];
-  if(!physicalFollowEyeClearance(eye,roofs).clear||
-   followRayBlockers(eye,target,roofs)!==0||
-   followRayBlockers(eye,face,roofs)!==0)continue;
-  const scene=foregroundSceneProjection(eye,target,roofs);
-  if(scene.actorCoreCover>=.13||scene.cover>=.38||
-   scene.cargoCover>=.22)continue;
-  const vegetation=foregroundVegetationProjection(eye,target);
-  if(vegetation.faceBlockers>0||vegetation.cover>=.28)continue;
-  const height=projectedWorkerBodyFraction(eye,target,citizen);
-  if(!Number.isFinite(height)||height<.13)continue;
-  if(hands.some(hand=>followRayBlockers(eye,hand,roofs)!==0))continue;
-  const score=scene.actorCoreCover*11+scene.cover*4+
-   vegetation.cover*5+Math.abs(offset)*.23+
-   Math.abs(candidateZoom-shot.zoom)*.08-height*.6;
-  if(score<bestScore){
-   bestScore=score;
-   best={...shot,yaw:candidateYaw,pitch:candidatePitch,
+ for(const [candidatePitch,candidateZoom] of lenses){
+  for(const offset of yawOffsets){
+   if(checks++>=PORTRAIT_ALT_MAX_EYES)break;
+   portraitAltCandidates++;
+   const candidateYaw=shot.yaw+offset,
+    radius=Math.cos(candidatePitch)*candidateZoom;
+   const eye=[citizen.x+Math.sin(candidateYaw)*radius,
+    ground+1.02+Math.sin(candidatePitch)*candidateZoom,
+    citizen.z+Math.cos(candidateYaw)*radius];
+   if(!physicalFollowEyeClearance(eye,roofs).clear||
+    followRayBlockers(eye,target,roofs)!==0||
+    followRayBlockers(eye,face,roofs)!==0)continue;
+   const scene=foregroundSceneProjection(eye,target,roofs);
+   if(scene.actorCoreCover>=.13||scene.cover>=.38||
+    scene.cargoCover>=.22)continue;
+   const vegetation=foregroundVegetationProjection(eye,target);
+   if(vegetation.faceBlockers>0||vegetation.cover>=.28)continue;
+   const height=projectedWorkerBodyFraction(eye,target,citizen);
+   if(!Number.isFinite(height)||height<.15)continue;
+   if(hands.some(hand=>followRayBlockers(eye,hand,roofs)!==0))continue;
+   // The prior W334 alternative inherited the original obstructed shot's
+   // hand, crowd, body-ray and proximity metrics. A physically clear NEW
+   // eye must be judged using its OWN genuine visible character geometry.
+   const candidate={...shot,yaw:candidateYaw,pitch:candidatePitch,
     zoom:candidateZoom,eye,blockers:0,eyeCollision:{clear:true,kind:null},
     foregroundSceneCover:scene.cover,
+    foregroundSceneLargest:scene.largest||0,
+    foregroundSceneVolumes:scene.volumes||0,
     foregroundActorCoreCover:scene.actorCoreCover,
-    foregroundBuildingCover:scene.buildingCover,
-    foregroundCargoCover:scene.cargoCover,
+    foregroundBuildingCover:scene.buildingCover||0,
+    foregroundCargoCover:scene.cargoCover||0,
     foregroundVegetationCover:vegetation.cover,
     vegetationFaceBlockers:0,projectedWorkerHeightFraction:height,
+    facingAlignment:Number.isFinite(shot.workFacing)?
+     Math.cos(candidateYaw-shot.workFacing):
+     Number.isFinite(shot.facingAlignment)?shot.facingAlignment:0,
+    physicalPortraitElevatedEye:candidatePitch>.75,
     physicalPortraitAlternative:true,renderedWorldStillComplete:true};
+   const framing=cameraShotFraming(candidate,roofs,citizen,hands);
+   Object.assign(candidate,framing);
+   // The actual director admission, not a stale synthetic 'clear' score,
+   // decides if the camera may leave its existing original village eye.
+   const admission=genuineWorkdayShotDecision(candidate,true);
+   if(!admission.safe)continue;
+   const score=scene.actorCoreCover*11+scene.cover*4+
+    vegetation.cover*5+Math.abs(offset)*.23+
+    Math.abs(candidateZoom-shot.zoom)*.08-height*.6+
+    framing.blockedBodyRays*.5+framing.projectedWorksitePosts*.3+
+    (candidate.physicalPortraitElevatedEye?.18:0);
+   if(score<bestScore){bestScore=score;best=candidate;}
   }
  }
  return best;
