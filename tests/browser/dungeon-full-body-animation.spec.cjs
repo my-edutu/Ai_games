@@ -1328,6 +1328,16 @@ for(const view of [
     proof.sourceBone.toLowerCase()+'.quaternion')).toBe(true);
    expect(proof.sourceAxis).toHaveLength(3);
    expect(proof.sourceAxis.every(Number.isFinite)).toBe(true);
+   expect(['original-clip-track','original-bind-dorsiflexion'])
+    .toContain(proof.sourceAxisKind);
+   if(proof.sourceAxisKind==='original-bind-dorsiflexion'){
+    expect(proof.sourceBindTransverseAudit?.source)
+     .toBe('original-skeleton-inverse-bind-foot-dorsiflexion');
+    expect(proof.sourceBindTransverseAudit?.contactLocked).toBe(false);
+    expect(proof.sourceBindTransverseAudit?.axis).toHaveLength(3);
+    for(let axis=0;axis<3;axis++)expect(proof.sourceAxis[axis])
+     .toBeCloseTo(proof.sourceBindTransverseAudit.axis[axis],6);
+   }
    expect(Math.abs(proof.angleRad)).toBeLessThanOrEqual(.120001);
    expect(proof.liftMeters).toBeGreaterThanOrEqual(.008);
    expect(proof.oppositeFootVerified).toBe(true);
@@ -1346,7 +1356,7 @@ for(const view of [
     )).toBeLessThanOrEqual(.003001);
    originalFootFinishTrace.push({tick:frame.tick,side,
     sourceBone:proof.sourceBone,sourceTrack:proof.sourceTrack,
-    angleRad:proof.angleRad,
+    angleRad:proof.angleRad,sourceAxisKind:proof.sourceAxisKind,
     sourceToeBeforeY:proof.beforeToeY,
     sourceToeAfterY:proof.afterToeY,
     liftMeters:proof.liftMeters,
