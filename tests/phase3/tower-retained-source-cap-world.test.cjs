@@ -134,6 +134,15 @@ test('same earned doorway retains the ORIGINAL old cap real geometry over the Fl
       'the ORIGINAL opened guardian doorway must survive the Floor9 rebuild alongside the old deck');
     assert.equal(world.group.getObjectByName('GuardianGateInset'),originalDoor,
       'must retain the real HP-driven bronze grille and not substitute decorative inlays');
+    // The cold Floor9 rehydrate path MUST reproduce the same real lifted
+    // source-open gate pose as the hot Floor8 guardian victory. A historical
+    // stage that silently lowers both leaves into the hero's helmet path
+    // fails native passage even if the original gateway object survives.
+    const coldLeft=world.group.getObjectByName('GuardianSealWingLeft');
+    const coldRight=world.group.getObjectByName('GuardianSealWingRight');
+    assert.ok(coldLeft?.position.y > 5.5 && coldRight?.position.y > 5.5,
+      'actual retained old bronze leaves hoist out of the true Floor9 skinned-body corridor');
+
     assert.equal(originalGate.parent?.name,'ObservedGroundedCapGatewayContinuity',
       'old rendered cap and gate share one bounded historical transform');
     const retention=world.diagnostics().retainedSourceCap;
