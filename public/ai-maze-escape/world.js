@@ -3597,12 +3597,7 @@ export function createMazeWorld(options = {}) {
       // drops on release and instantly neutralizes on hidden/invalid/terminal.
       // Reduced motion preserves color but freezes all physical translation.
       for(const beacon of signal.sentinels){
-        // A successful, actually witnessed parry must CLEAR the court rather
-        // than raise four tall mechanical screens in front of both actors.
-        // Sink the existing joined standard 0.68m into its real footing, while
-        // the unchanged floor-leaf wave opens in Pip-to-Thornback order.
-        // The original brace still rises 0.42m; no collider or nav changes.
-        beacon.lift.position.y=reduced ? .04 : .04+warningAction*.42-counterWave*.68;
+        beacon.lift.position.y=reduced ? .04 : .04+warningAction*.42+counterWave*.22;
         beacon.crown.material=counterWave>.1?inlay:action>.28?amber:seaGlass;
         beacon.lens.material=counterWave>.1?lightStone:action>.28?amber:inlay;
         // The entire linked shell fan opens laterally into the non-walkable
