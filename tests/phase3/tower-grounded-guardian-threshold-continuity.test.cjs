@@ -217,3 +217,45 @@ test('source-earned old/new shared 3D threshold has a broad sightline aperture a
   assert.equal(arches.receiveShadow,false);
  }finally{effect.dispose();}
 });
+
+
+// Authentic 1x portrait source trace, immutable candidate d72fa0f1, captured
+// 2026-11-15: the old browser last rendered grounded F8 tick474 while a
+// cold software-WebGL frame skipped to grounded F9 tick489. The separate
+// source traced the true 475 crossing, but next.lastGuardianCrossing had
+// expired in the browser before first F9 paint. This must not replace a
+// real original walkable gate with the non-walkable exterior memorial.
+test('15-tick sparse portrait first F9 paint keeps defeated original cap and physically supported doorway; unsafe sparse routes veto',async()=>{
+ const {observedGroundedGuardianHandoff,observedFloorNineRunway,
+  createTowerGuardianPassage}=await passage;
+ const old=source(),next=successor();
+ old.tick=474;old.player.x=314796;next.tick=489;next.player.x=330096;
+ assert.equal(next.lastGuardianCrossing,undefined,
+   'this actual browser viewport had no still-published immutable crossing');
+ const untouched=JSON.stringify([old,next]);
+ assert.equal(observedGroundedGuardianHandoff(old,next),true,
+  'sparse 750ms browser observations are not a 750ms simulated jump');
+ assert.ok(observedFloorNineRunway(old,next),
+  'grounded source corridor still leads into the real walkable F9 deck');
+ const THREE_IMPL=await THREE;
+ const effect=createTowerGuardianPassage(THREE_IMPL);
+ try{
+  assert.equal(effect.begin(old,next,anchor),true);
+  assert.equal(effect.diagnostics().continuousGroundedHandoff,true);
+  assert.equal(effect.diagnostics().innerDoorAssemblyVisible,true);
+  assert.equal(effect.diagnostics().exteriorMemoryFrameVisible,false);
+ }finally{effect.dispose();}
+ assert.equal(JSON.stringify([old,next]),untouched,'no mutation of source records');
+ for(const [a,b] of [
+   [old,{...next,tick:495}], // 21-tick stale / unbounded first paint
+   [{...old,runToken:'other-episode'},next],
+   [{...old,player:{...old.player,grounded:false}},next],
+   [{...old,enemies:[{...old.enemies[0],active:true,health:1}]},next],
+   [{...old,guardianExitX:gate+1},next],
+   [old,{...next,player:{...next.player,groundedPlatformId:'f9:p2'}}],
+   [old,{...next,player:{...next.player,y:y+1000}}],
+   [old,{...next,player:{...next.player,x:cap.x+cap.width+1}}],
+   [old,{...next,platforms:[{...next.platforms[0],y:cap.y+1}]}]
+ ]) assert.equal(observedGroundedGuardianHandoff(a,b),false,
+  'no displaced, wrong-run, living-guardian or unsupported cap carry');
+});
