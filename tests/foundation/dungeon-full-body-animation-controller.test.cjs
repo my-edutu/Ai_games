@@ -6210,3 +6210,82 @@ test('RED: same-frame ankle-thigh original-source shallow toe may finish at obse
  assert.match(stage,/chooseOriginalSourceSwingToeJointRelief\(/,
   'actual source toe must be remeasured and reverified against both skinned shoes');
 });
+
+
+
+// RED-FIRST — native source GLB desktop Walking_A reached a verified original
+// hip+knee pose with toe 83mm under stone. The track-derived longitudinal
+// foot-axis ±120mrad raised that same source toe by only 2.98mm. Rather than
+// loosen contact or hinge thresholds, evaluate a DIFFERENT, anatomically
+// transverse axis derived from actual original inverse-bind foot/toes and
+// original world-up; require independent dual-skinned-shoe measurement.
+test('RED: inverse-bind transverse ankle must earn original connected hip-knee-foot clearance without inventing contact',async()=>{
+ const {planOriginalSourceFootDorsiflexionAxis:bindAxis,
+  chooseOriginalSourceSwingLinkedFootFinisher:choose}=await load();
+ assert.equal(typeof bindAxis,'function',
+  'the real original GLB inverse-bind foot-to-toes direction, not a guessed Euler channel, supplies the anatomical transverse hinge');
+ const derived=bindAxis({footToToeLocal:[.24,0,0],
+  bindUpLocal:[0,1,0],sourceTrackAxis:[1,0,0],
+  source:'original-skeleton-inverse-bind'});
+ assert.ok(derived&&derived.source==='original-skeleton-inverse-bind-foot-dorsiflexion');
+ assert.ok(Math.abs(derived.axis[2])>.99&&Math.abs(derived.axis[0])<.01,
+  'the anatomical hinge must be transverse, not roll about the long axis of the shoe');
+ for(const bad of [
+  {footToToeLocal:[0,0,0]},
+  {footToToeLocal:[0,.20,0]},
+  {footToToeLocal:[2,0,0]},
+  {bindUpLocal:[0,0,0]},
+  {sourceTrackAxis:[0,0,0]},
+  {sourceTrackAxis:[0,0,-1]},
+  {source:'guessed'},
+  {footToToeLocal:[NaN,0,0]}
+ ])assert.equal(bindAxis({footToToeLocal:[.24,0,0],
+  bindUpLocal:[0,1,0],sourceTrackAxis:[1,0,0],
+  source:'original-skeleton-inverse-bind',...bad}),null,
+  'invalid original bind, parallel track/hinge or invented axis must fail closed');
+ const loaded={heelY:-.046624,toeY:-.010724,
+  heelXZ:[-3.829,-7.113],toeXZ:[-4.097,-7.137]};
+ const swing={heelY:.196854,toeY:-.103464,
+  heelXZ:[-3.710,-6.954],toeXZ:[-3.751,-6.936]};
+ const before={left:swing,right:loaded};
+ const linkedProof={source:'measured-original-skinned-linked-leg',
+  sourceClip:'Walking_A',sourceInstanceId:'original-skeleton-72',
+  side:'left',contactLocked:false,oppositeShoePreserved:true,after:before};
+ const owner={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceFootChainVerified:true,sourceFootTrackVerified:true,
+  sourceBindDorsiflexionVerified:true,ownerLocomotion:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,rootTravel:.01929,frameAge:0,frameInterval:.0333,
+  floorTopY:-.02,side:'left',linkedProof,before};
+ const result=(lift,axisKind,otherRise=0,heelRise=.002)=>({
+  angleRad:-.12,axisKind,
+  after:{left:{...swing,toeY:swing.toeY+lift,
+   heelY:swing.heelY+heelRise,
+   heelXZ:[swing.heelXZ[0]+.002,swing.heelXZ[1]],
+   toeXZ:[swing.toeXZ[0]+.009,swing.toeXZ[1]]},
+   right:{...loaded,toeY:loaded.toeY+otherRise}}
+ });
+ const clipRoll=result(.00298,'original-clip-track');
+ const bindLift=result(.023,'original-bind-dorsiflexion');
+ const accepted=choose({...owner,trials:[clipRoll,bindLift]});
+ assert.equal(accepted?.axisKind,'original-bind-dorsiflexion',
+  'only a genuinely measured transverse original-foot improvement may win');
+ assert.ok(accepted.liftMeters>=.023-.000001);
+ assert.equal(accepted.contactLocked,false);
+ assert.equal(accepted.oppositeFootVerified,true);
+ for(const bad of [
+  {sourceBindDorsiflexionVerified:false},
+  {trials:[result(.023,'guessed')]},
+  {trials:[result(.023,'original-bind-dorsiflexion',.003)]},
+  {trials:[result(.023,'original-bind-dorsiflexion',0,.012)]},
+  {trials:[result(.004,'original-bind-dorsiflexion')]},
+  {mode:'attack'},{reducedMotion:true},{teleport:true},
+  {linkedProof:{...linkedProof,contactLocked:true}}
+ ])assert.equal(choose({...owner,trials:[bindLift],...bad}),null,
+  'no source bind proof, no original support sole stability, or no legal motion means no new ankle stage');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/planOriginalSourceFootDorsiflexionAxis\(/,
+  'the actual source-glb adapter must derive the anatomical axis from original inverse bind');
+ assert.match(renderer,/sourceBindDorsiflexionVerified/,
+  'genuine native GLB readback and gate must use the same verified bind axis');
+});
