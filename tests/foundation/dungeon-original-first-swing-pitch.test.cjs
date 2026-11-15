@@ -86,3 +86,41 @@ test('RED: genuine source two-shoe candidate selector prefers forefoot recovery 
   assert.equal(choose({...owner,...bad,trials:candidates}),null,
    'no candidate may survive missing imported source identity, injury, or movement evidence');
 });
+
+
+test('RED: applied original hip+knee pitch must earn a SECOND independent final two-shoe skin receipt',async()=>{
+ const {certifyOriginalSourceFirstSwingPitch:certify}=await load();
+ assert.equal(typeof certify,'function');
+ const candidate={
+  source:'measured-original-skinned-linked-leg',
+  originalSwingPitchProtected:true,
+  side:'right',upperRad:-.075,lowerRad:.09,
+  liftMeters:.0131,
+  beforeToeY:before.right.toeY,afterToeY:before.right.toeY+.0131,
+  beforeHeelY:before.right.heelY,afterHeelY:before.right.heelY+.006,
+  contactLocked:false,oppositeShoePreserved:true
+ };
+ const owner={candidate,sourceClipName:'Walking_A',sourceInstanceSame:true,
+  sourceWeight:1,side:'right',floorTopY,before};
+ const afterSource=after(.0131,.006);
+ const real=certify({...owner,after:afterSource});
+ assert.equal(real?.source,'verified-original-GLB-final-first-swing-pitch');
+ assert.equal(real?.sourceToeLiftMeters.toFixed(4),'0.0131');
+ assert.equal(real?.sourceHeelRiseMeters.toFixed(3),'0.006');
+ assert.equal(real?.originalOppositeShoeVerified,true);
+ assert.equal(real?.contactLocked,false);
+ for(const bad of [
+  {sourceClipName:'Idle'},{sourceInstanceSame:false},
+  {sourceWeight:.85},{candidate:{...candidate,originalSwingPitchProtected:false}},
+  {after:after(.0131,.026)},{after:after(.004,.006)},
+  {after:after(.0131,.006,{...before.left,heelY:before.left.heelY+.007})},
+  {after:after(.0131,.006,{...before.left,toeXZ:[before.left.toeXZ[0]+.007,before.left.toeXZ[1]]})}
+ ])assert.equal(certify({...owner,after:afterSource,...bad}),null,
+  'actual final skinned shoes must match the candidate without invented contact');
+ const renderer=fs.readFileSync(path.resolve(__dirname,
+  '../../public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/certifyOriginalSourceFirstSwingPitch\(/,
+  'the actual imported source renderer must re-certify after final hip+knee application');
+ assert.match(renderer,/sourceFirstSwingPitchProof/,
+  'independent real shoe receipt must be exposed for native Chromium review');
+});
