@@ -13919,17 +13919,21 @@ function marketToRealHomeStreet(){
  });
  audit.totalTriangles=(data.length-first)/30;
 }
-function inhabitedHighStreet(){
+// W345 rendering spine: retained original founding-yard and craft architecture
+// does not rebuild whenever ACTUAL freight/home routes change. Keep the
+// complete source triangles; only road-dependent geometry remains dirty.
+let foundingStreetfrontCoreBuilds=0,foundingStreetfrontCoreReuses=0,
+ foundingStreetfrontCoreTriangles=0;
+function resetHighStreetBuildStats(){
  highStreetStats={connectedLanes:0,pavingStones:0,laneStoneWeathered:0,shopfronts:0,
   houseYards:0,washLines:0,stackedGoods:0,stallYards:0,
   wheelwaySegments:0,kitchenGardens:0,kitchenGardenBeds:0,
   kitchenGardenPlants:0,kitchenGardenTriangles:0,
   surfacePattern:'original-worn-clay-wheelway-and-stone-margins',
   totalTriangles:0,cached:false};
+}
+function renderFoundingStreetfronts(){
  const first=data.length;
- for(const lane of HIGHSTREET_LANES)highStreetLane(lane);
-  marketToRealHomeStreet();
- // Workshop placements are outside occupied footprints and real nav roads.
  highStreetCraftShop(-14.65,-3.35,0);
  highStreetCraftShop(14.15,8.25,1);
  for(let i=0;i<Math.min(12,city.length);i++){
@@ -13937,10 +13941,31 @@ function inhabitedHighStreet(){
   if(Math.abs(x)<3)continue;
   highStreetHomeYard(x,z,k,i);
  }
- highStreetStats.totalTriangles=(data.length-first)/30;
+ foundingStreetfrontCoreBuilds++;
+ foundingStreetfrontCoreTriangles=(data.length-first)/30;
+ return foundingStreetfrontCoreTriangles;
+}
+function getFoundingStreetfrontCoreAudit(){
+ return {source:'real-original-static-craft-and-home-yards-joined-to-immutable-market-core',
+  builds:foundingStreetfrontCoreBuilds,reuses:foundingStreetfrontCoreReuses,
+  triangles:foundingStreetfrontCoreTriangles,
+  founderLots:Math.min(12,city.length),originalCraftShops:2,
+  gpuResident:Boolean(civicGpuResidencyEnabled&&civicCoreBuffer),
+  allOriginalGeometryPreserved:true,changesAuthority:false,
+  inventedTrades:0,physicalFps:'NOT MEASURED'};
+}
+function inhabitedHighStreet(includeFounding=true){
+ if(includeFounding)resetHighStreetBuildStats();
+ const first=data.length;
+ for(const lane of HIGHSTREET_LANES)highStreetLane(lane);
+ marketToRealHomeStreet();
+ // Standalone original rendering remains complete. In the active WebGL and
+ // CPU-fallback district path the same fronts already belong to the core.
+ if(includeFounding)renderFoundingStreetfronts();
+ highStreetStats.totalTriangles=(includeFounding?0:highStreetStats.totalTriangles)+
+  (data.length-first)/30;
  highStreetStats.cached=true;
 }
-
 // W83: ONE physical granary-to-market service street, generated from the SAME
 // traversable navigation that real loaded citizens use. This route is public
 // ground, never an invented delivery, scripted actor or new navigation edge.
@@ -27384,7 +27409,8 @@ function rememberCivicCore(key,sourceStart){
  const vertices=new Float32Array(count);
  for(let i=0;i<count;i++)vertices[i]=data[sourceStart+i];
  const stats={guildhall:{...guildhallVisualStats},farm:{...farmScene},
-  craft:{...craftCounters},market:{...marketQuarterStats}};
+  craft:{...craftCounters},market:{...marketQuarterStats},
+  foundingStreetfronts:{...highStreetStats}};
  // Upload EXACT original material/vertex sequence once per retained core.
  let buffer=null,ranges=[];
  if(civicGpuResidencyEnabled){
@@ -27442,6 +27468,8 @@ function recallCivicCore(key){
  farmScene={...entry.stats.farm};
  Object.assign(craftCounters,entry.stats.craft);
  marketQuarterStats={...entry.stats.market};
+ highStreetStats={...entry.stats.foundingStreetfronts};
+ foundingStreetfrontCoreReuses++;
  currentMaterial=entry.finalMaterial;
  civicCoreCache.delete(key);civicCoreCache.set(key,entry);
  civicCoreReuses++;
@@ -27483,12 +27511,14 @@ if(residentCivic&&storedCoreReady&&
  // 3) the existing finishing fixtures. Only group (1) is retained here.
  if(!recallCivicCore(unchangedCoreKey)){
   const coreStart=data.length;
+  resetHighStreetBuildStats();
   hall(0,-1); // Guildhall owns its roof, gables, windows and porch.
   farmstead();if(gpuAvailable)windmill(-27,-18,0);
   fenceLine(16,-2,6,false,FIELD_TO_GRANARY_GATE);
   fenceLine(16,4,6);fenceLine(16,-2,4,true);fenceLine(25,-2,4,true);
   riverBridge();hillsideSanctuary();forgeWorkshop();
   market(0,5);marketQuarter();
+  highStreetStats.totalTriangles=renderFoundingStreetfronts();
   const residentOriginalCore=rememberCivicCore(unchangedCoreKey,coreStart);
   // CPU mesh only leaves the road-upload after a REAL complete GPU
   // allocation. On SwiftShader/Canvas2D, keep every original triangle.
@@ -27497,7 +27527,7 @@ if(residentCivic&&storedCoreReady&&
  }
  // These two streets depend on actual traversable paths and founding homes:
  // rebuild them whenever nearby ORIGINAL construction changes civic topology.
- inhabitedHighStreet();farmMarketStreet();
+ inhabitedHighStreet(false);farmMarketStreet();
  well(-15,4);villageGarden(12,11);villageGarden(-17,-3);guildBanner(-2,3);guildBanner(5,-2);for(const [x,z,height] of VILLAGE_LIGHT_ANCHORS)lantern(x,z,height);for(let i=0;i<7;i++)stoneBoulder(-23+(i*1.8),5+Math.sin(i*3)*1.3,.65+(i%3)*.18);
 for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,1,.45,.64,rgb(0x7d5d45))}
  const stored=rememberCivicScenery(civicKey,civicStart,{

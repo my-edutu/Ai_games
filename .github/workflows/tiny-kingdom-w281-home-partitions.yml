@@ -25,6 +25,7 @@ on:
       - scripts/tiny-kingdom-w342-original-open-gateway-parity-contract.cjs
       - scripts/tiny-kingdom-w343-foreground-workday-pose-reuse-contract.cjs
       - scripts/tiny-kingdom-w344-original-ground-atlas-spine-contract.cjs
+      - scripts/tiny-kingdom-w345-founding-streetfront-residency-contract.cjs
       - scripts/tiny-kingdom-w327-original-woodland-work-corridor-contract.cjs
       - scripts/tiny-kingdom-w328-original-trading-roof-and-harvest-stooks-contract.cjs
       - scripts/tiny-kingdom-w265-growth-civic-contract.cjs
@@ -63,6 +64,7 @@ jobs:
           node scripts/tiny-kingdom-w342-original-open-gateway-parity-contract.cjs
           node scripts/tiny-kingdom-w343-foreground-workday-pose-reuse-contract.cjs
           node scripts/tiny-kingdom-w344-original-ground-atlas-spine-contract.cjs
+          node scripts/tiny-kingdom-w345-founding-streetfront-residency-contract.cjs
           node scripts/tiny-kingdom-w327-original-woodland-work-corridor-contract.cjs
           node scripts/tiny-kingdom-w328-original-trading-roof-and-harvest-stooks-contract.cjs
           node scripts/tiny-kingdom-w305-arcade-material-contract.cjs

@@ -25,7 +25,8 @@ function world(){
   scenicMeshCache:null,civicSceneryCache:new Map(),civicActiveKey:'',
   civicCacheBuilds:0,civicCacheReuses:0,currentMaterial:0,
   guildhallVisualStats:{},farmScene:{},craftCounters:{},
-  marketQuarterStats:{},highStreetStats:{},farmMarketStreetStats:{},
+  marketQuarterStats:{},highStreetStats:{},foundingStreetfrontCoreReuses:0,
+  farmMarketStreetStats:{},
   farmStreetWeaveStats:{},roadsideMicroterrainStats:{},
   FIELD_TO_GRANARY_GATE:[29,-5],routeMode:1,season:'spring',daylight:'day',
   stationaryFounders:()=>city.slice(0,12).map(x=>x.join(':')).join(';'),
@@ -52,7 +53,8 @@ function world(){
  };
  const labels=['hall','farmstead','windmill','fenceLine','riverBridge',
   'hillsideSanctuary','forgeWorkshop','market','marketQuarter',
-  'inhabitedHighStreet','farmMarketStreet','well','villageGarden',
+  'inhabitedHighStreet','farmMarketStreet','renderFoundingStreetfronts',
+  'well','villageGarden',
   'guildBanner','lantern','stoneBoulder','box'];
  labels.forEach((name,index)=>{
   env[name]=()=>{
@@ -68,6 +70,7 @@ function world(){
    if(name==='farmMarketStreet')env.farmMarketStreetStats={routes:env.routeMode};
   };
  });
+ env.resetHighStreetBuildStats=()=>{env.highStreetStats={totalTriangles:0}};
  // W332: execute the REAL four physical streetlight anchors instead of
  // a fabricated fixture global; they entered the actual district in W330.
  const lightStart=script.indexOf('const VILLAGE_LIGHT_ANCHORS=');
@@ -89,6 +92,8 @@ retained.env.city.push([24,17,0]);
 const afterNearRoad=retained.draw(2);
 assert.equal(retained.calls.hall,coreFirst,'near-road home cannot regenerate guildhall');
 assert.equal(retained.calls.farmstead,1,'genuine existing granary and farm retained');
+assert.equal(retained.calls.renderFoundingStreetfronts,1,
+ 'original craft shops and household yards cannot regenerate on road growth');
 assert.equal(retained.calls.marketQuarter,1,'unchanged original four shops retained');
 assert.equal(retained.calls.inhabitedHighStreet,2,'true home streets replan');
 assert.equal(retained.calls.farmMarketStreet,2,'true courier freight streets replan');

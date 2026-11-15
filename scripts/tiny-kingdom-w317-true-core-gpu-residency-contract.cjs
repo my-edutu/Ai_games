@@ -37,7 +37,8 @@ function exercise(hardware){
   state:{t:7},
   guildhallVisualStats:{roof:1},farmScene:{grain:1},
   craftCounters:{forge:1},marketQuarterStats:{stalls:4},
-  currentMaterial:7,
+  highStreetStats:{shopfronts:2,houseYards:10,totalTriangles:210},
+  foundingStreetfrontCoreReuses:0,currentMaterial:7,
  };
  vm.runInNewContext(original,env,{timeout:2500});
  const evalCore=s=>vm.runInNewContext(s,env,{timeout:2500});
