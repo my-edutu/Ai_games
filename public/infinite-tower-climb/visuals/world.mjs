@@ -918,8 +918,12 @@ export function sourceEarnedGuardianSealWingPose(side,progress) {
   if((side!==-1&&side!==1)||!Number.isFinite(progress))return null;
   const u=Math.max(0,Math.min(1,progress));
   const aperture=u<=.72 ? u/.72*.35 : .35+(u-.72)/.28*.65;
-  return {x:side*5.1*aperture,z:-.18-.94*aperture,
-    yaw:-side*1.24*aperture,roll:side*.035*aperture,
+  // Avoid signed negative zero from the left closed wing: a genuinely new
+  // run is an exact fully closed 3D lock in both source snapshots and tests.
+  // The HP/defeat/winch contract remains unchanged.
+  return {x:aperture===0?0:side*5.1*aperture,z:-.18-.94*aperture,
+    yaw:aperture===0?0:-side*1.24*aperture,
+    roll:aperture===0?0:side*.035*aperture,
     openFraction:aperture};
 }
 
@@ -2336,11 +2340,19 @@ export function createTowerWorld(){
       // the full-height electric X-frame and physical exit remains sealed in
       // authority. These lightweight piers support a high transmission bridge,
       // rather than a foreground mechanical wall across the fighting lane.
+      // Native 25fps matched source run 43734553251 showed the original
+      // floor-eight rigid bronze doorframe behind the opened leaves STILL
+      // crossing the skinned hero in both viewports. This is an actual
+      // static THREE world-space passage, not another camera/opacity patch.
+      // Shift the two NONCOLLIDING load-bearing piers entirely outside the
+      // source-earned 8m adult-body corridor and raise their CONNECTED crown.
+      // Original HP-locked grille, energized seal, guardian, cap collider,
+      // genuine winch, original geometry ownership and exit X are unchanged.
       for(const side of [-1,1]){
-        block(doorway,materials.dark,[side*3.38,2.37,-.24],[.28,4.78,.46]);
-        block(doorway,materials.edge,[side*3.38,4.82,-.20],[.40,.16,.54]);
+        block(doorway,materials.dark,[side*4.15,2.58,-.42],[.34,5.16,.42]);
+        block(doorway,materials.edge,[side*4.15,5.30,-.38],[.43,.20,.5]);
       }
-      block(doorway,materials.dark,[0,4.86,-.26],[7.05,.20,.46]);
+      block(doorway,materials.dark,[0,5.34,-.44],[8.65,.22,.46]);
       const wings=[];
       for(const side of [-1,1]){
         const wing=new THREE.Group();

@@ -584,13 +584,21 @@ export function createTowerGuardianPassage(THREE) {
   thresholdStones.frustumCulled = false;
   const thresholdPose = new THREE.Object3D();
   const braceAngle = Math.atan2(GUARDIAN_PASSAGE_RADII.lock - GUARDIAN_PASSAGE_RADII.deck, 2);
+  // The *same* old-floor stone/bronze threshold was physically crossing the
+  // real hero in native desktop and phone Floor9 frames, independently of
+  // the original exterior bronze grille. Expand the original structural
+  // opening TOGETHER with its exterior source gate: paired outboard piers,
+  // a connected raised crown, boot-low sill and side-only tensile stays.
+  // Keep all six real instanced parts, source-supported floor plane, 25m
+  // climber radius, original gate ownership and exact render draw budget.
+  // No collider is widened, guessed, removed or newly introduced.
   const thresholdShapes = [
-    [-3.22, 2.35, 0, .46, 4.7, .55, 0],
-    [3.22, 2.35, 0, .46, 4.7, .55, 0],
-    [0, 4.72, 0, 6.8, .46, .55, 0],
-    [0, .075, .1, 6.0, .15, .42, 0],
-    [-3.22, 5.72, 1.39, .28, 3.45, .3, braceAngle],
-    [3.22, 5.72, 1.39, .28, 3.45, .3, braceAngle],
+    [-4.12, 2.58, -.18, .44, 5.16, .46, 0],
+    [4.12, 2.58, -.18, .44, 5.16, .46, 0],
+    [0, 5.34, -.18, 8.65, .40, .46, 0],
+    [0, .06, -.15, 8.04, .12, .34, 0],
+    [-4.12, 6.02, 1.22, .26, 3.36, .28, braceAngle],
+    [4.12, 6.02, 1.22, .26, 3.36, .28, braceAngle],
   ];
   thresholdShapes.forEach(([x,y,z,sx,sy,sz,rx], index) => {
     thresholdPose.position.set(x,y,z);
