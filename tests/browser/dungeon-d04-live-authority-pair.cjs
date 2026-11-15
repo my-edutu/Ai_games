@@ -100,7 +100,8 @@ function injuryReceipt(sample,manifest){
   // A deliberately muted/suspended but truly submitted visual-only wound
   // still earns visible-frame credit, never an audio-synchronization claim.
   return r.visual===true&&r.visualDrawableAtSubmission===true&&
-   pos(r.frameId)&&r.frameId===sample.frameId&&
+   pos(r.frameId)&&pos(sample.submittedFrameId)&&
+   r.frameId===sample.submittedFrameId&&
    (r.decision==='delivered'&&r.audio===true||
     r.decision==='visual-only-submitted'&&r.audio===false)&&
    finite(r.observedClockMs)&&finite(r.submittedClockMs)&&
