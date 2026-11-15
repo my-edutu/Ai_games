@@ -5086,6 +5086,10 @@ export function createTowerScene(canvas, settings = {}) {
         coldFloorScale = nextColdScale;
         resize();
       }
+      // Sample the unchanged original source-owned shaft's DRAW eligibility
+      // before WebGL. The following noteFrameSubmitted can advance opacity
+      // only for the next draw; it cannot prove this draw showed the shell.
+      const shaderSubmission=world.deferredShaderSubmission?.(snapshot) ?? null;
       const sceneReadyAt = performance.now();
       renderer.render(scene, camera);
       const rendererReturnedAt = performance.now();
@@ -5268,7 +5272,7 @@ export function createTowerScene(canvas, settings = {}) {
       // This runs ONLY after genuine WebGL return, not after source receipt.
       // A live Clockwork F8 can prepare nonvisible Void programs while the
       // actual guardian still plays; real F9/restart retires the bounded owner.
-      voidProgramPrewarm.onSubmittedFrame(snapshot);
+      voidProgramPrewarm.onSubmittedFrame(snapshot,shaderSubmission);
       voidProgramPrewarm.begin(snapshot, options);
     } catch (error) {
       coldFloorPolicy.reset();coldFloorScale = 1;resolutionDirty = true;
