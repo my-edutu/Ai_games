@@ -75,11 +75,43 @@ export function observedSourcePhysicalArrivalPalette(source,held=null) {
   // sill (not fictitious distance walked or a simulated extra frame).
   const rise=Math.max(0,sole-roofY);
   const pathDisplacement=Math.hypot(travel,rise);
-  const progress=smooth((pathDisplacement-6000)/84000);
+  const physicalProgress=smooth((pathDisplacement-6000)/84000);
+  // Original 1x desktop/portrait films: physical F9 source advanced through
+  // the bronze sill while software WebGL had only returned ONE successor
+  // frame. Floor9 platforms, authored architectural material, old gate and
+  // sky independently sampled the latest source distance, replacing the
+  // bronze world with violet before a human-visible optical handoff.
+  //
+  // Bind all existing material owners to the SAME actual retained original
+  // GPU doorway and successful frame count. No pose/physics is held, no
+  // fake crossing/geometry is made, and no source tick is replayed. A first
+  // drawn F9 frame shows original bronze contact; successive REAL WebGL
+  // submissions expose the authentic successor materials. When the source
+  // leaves the 70-tick original corridor, the GPU owner retires or 12 frames
+  // have submitted, ordinary world palettes apply without this display gate.
+  const originalGpuVisible=held?.guardianGateRetained===true &&
+    held.runToken===source.runToken && held.floor===9 &&
+    valid(held.firstWorldRenderTick) &&
+    held.firstWorldRenderTick<=source.tick &&
+    source.tick-held.firstWorldRenderTick<=70 &&
+    valid(held.submittedFrames) &&
+    held.submittedFrames>=0 && held.submittedFrames<12 &&
+    Number.isFinite(held.visibleSeconds) &&
+    held.visibleSeconds>=0 && held.visibleSeconds<3 &&
+    Number.isFinite(held.originalGatewayOpacity) &&
+    held.originalGatewayOpacity>0 &&
+    held.opticalExitSubmitted!==true;
+  const gpuProgress=originalGpuVisible
+    ?smooth((held.submittedFrames-1)/10):1;
+  const progress=Math.min(physicalProgress,gpuProgress);
   const oldWeight=1-progress;
   return {sourceBound:true,sourceTick:source.tick,crossingTick:sourceTick,
     kind,travel,rise,pathDisplacement,roofY,oldWeight,progress,
-    limitation:'Verified original threshold and real 3D body displacement, not a new collider, native film or independent acceptance'};
+    ...(originalGpuVisible?{
+      opticalBridgeSourceBound:true,
+      originalGatewayGpuReturns:held.submittedFrames
+    }:{}),
+    limitation:'Original real 3D sill and source distance constrained by authentic old-gateway WebGL returns; NOT native pixel, fabricated floor, collider or review evidence'};
 }
 
 // One physically occupied ORIGINAL bronze arch, never a fabricated successor
