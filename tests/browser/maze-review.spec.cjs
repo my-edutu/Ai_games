@@ -2312,7 +2312,7 @@ test('a NATURAL autonomous lantern counter has source-bound physical before/reco
       caption:document.getElementById('caption')?.textContent,
       scrollWidth:document.documentElement.scrollWidth,
       scrollHeight:document.documentElement.scrollHeight
-    })));
+    }));
     const image=path.join(dir,'natural-guardian-recoil-'+label+'-'+width+'.png');
     await page.screenshot({path:image,fullPage:true});
     fs.writeFileSync(image.replace(/\.png$/,'.json'),JSON.stringify({...summary,
