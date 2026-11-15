@@ -29,8 +29,9 @@ f.quad=(...args)=>f.quads.push(args);vm.createContext(f);
 vm.runInContext(h.slice(farmStart,farmEnd),f);f.farmSoil(1.2,4.7,-1.5,-.9,2);
 const segments=Math.ceil((4.7-1.2)/.70),lift=p=>p[1]-f.terrain(p[0],p[2]);
 assert.equal(f.quads.length,segments*3+Math.ceil(segments/3));
-assert.ok(Math.abs(lift(f.quads[0][1])-.070)<1e-8,'raised plough crest');
-assert.ok(Math.abs(lift(f.quads[0][0])-.010)<1e-8,'earth shoulder');
+assert.ok(Math.abs(lift(f.quads[0][1])-.047)<1e-8,'authentic sloping original furrow shoulder');
+assert.ok(Math.abs(lift(f.quads[1][1])-.101)<1e-8,'raised planted ridge crest follows current real farm');
+assert.ok(Math.abs(lift(f.quads[0][0])-.012)<1e-8,'earth shoulder remains terrain bound');
 assert.ok(lift(f.quads[2][1])<lift(f.quads[0][1]),'irrigation below growing grain');
 assert.equal(f.farmScene.rows,1);
 for(const face of f.quads)for(const pt of face.slice(0,4))

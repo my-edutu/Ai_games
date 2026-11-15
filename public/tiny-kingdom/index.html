@@ -2677,11 +2677,12 @@ function realForegroundFacing(p){
 // meshes are unchanged; the authoritative gait still drives the joint matrix.
 // Close hero, earned food, carrying wrists, active jobs and unloading never
 // enter this path. Hysteresis avoids visible CPU/GPU flip on manual orbit.
-// Only truly small ORIGINAL citizens use retained GPU gait. At closer
-// human scale keep original CPU fingers, cloth and foot contacts visible;
-// paid for by retained static streets, never by hiding any other citizen.
-const FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT=.14;
-const FOREGROUND_WALKING_SKIN_HOLD_SCREEN_HEIGHT=.16;
+// Preserve the established physical screen-space residency policy until
+// matched human-scale frames and hardware CPU/GPU traces justify changing it.
+// True work, freight contact, verified food and the selected human remain CPU
+// detailed; unselected non-contact workers keep their complete 13-bone GPU rig.
+const FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT=.39;
+const FOREGROUND_WALKING_SKIN_HOLD_SCREEN_HEIGHT=.45;
 function physicallySmallWalkingSkinWindow(heightFraction,previouslySkinned){
  return Number.isFinite(heightFraction)&&heightFraction>=0&&
   heightFraction<(previouslySkinned?

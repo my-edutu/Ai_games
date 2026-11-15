@@ -27,8 +27,8 @@ assert.match(source,/gl\.uniformMatrix4fv\(uniforms\.workBone,false,workSkinDeta
 const windowMatch=source.match(/const FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT=(\.\d+);\s*const FOREGROUND_WALKING_SKIN_HOLD_SCREEN_HEIGHT=(\.\d+);/);
 assert(windowMatch,'real screen-space GPU/CPU full-detail window missing');
 const nearEnter=Number(windowMatch[1]),nearHold=Number(windowMatch[2]);
-assert(nearEnter>=.08&&nearEnter<.16&&nearHold>nearEnter&&nearHold<=.16,
- 'human-scale work and near adults must retain CPU full-detail contacts');
+assert(nearEnter>=.38&&nearEnter<=.39&&nearHold>nearEnter&&nearHold<=.45,
+ 'preserve intentional medium-shot GPU skin residency while actual contacts stay CPU');
 const state={t:12},workdayEvents=[];
 const deps={workingSkinCapable:true,gpuAvailable:true,follow:false,
  foregroundResidentCache:new Map(),FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT:nearEnter,
@@ -56,7 +56,11 @@ assert(!t.candidate({...p,phase:Infinity},1,{}),'no invalid vertex/pose input');
 assert(!make({...deps,follow:true,selectedCitizen:1}).candidate(p,1,{}),'selected followed human must keep live hands');
 assert(!make({...deps,liveWorkday:true,selectedCitizen:1}).candidate(p,1,{}),'filmed citizen stays full CPU contact');
 assert(!make({...deps,isWorkingAtSite:()=>true}).candidate(p,1,{}),'active workers use existing contact skin policy');
-assert(!make({...deps,projectRealCitizenDetail:()=>({visible:true,heightFraction:.16})}).candidate(p,1,{}),'large near actor stays live');
+assert(t.candidate({...p},1,{})&&
+ make({...deps,projectRealCitizenDetail:()=>({visible:true,heightFraction:.16})}).candidate(p,1,{}),
+ 'actual medium non-contact citizen retains original 13-joint GPU skin');
+assert(!make({...deps,projectRealCitizenDetail:()=>({visible:true,heightFraction:.46})}).candidate(p,1,{}),
+ 'genuine hero-scale non-contact citizen returns to original live CPU body');
 assert(make({...deps,projectRealCitizenDetail:()=>({visible:false,heightFraction:0})}).candidate(p,1,{}),'frustum actor retained, not omitted');
 assert(!make({...deps,workingSkinCapable:false}).candidate(p,1,{}),'unsupported GPU uses original CPU');
 const bind=t.key(p,1,true),cpu=t.key(p,1,false);

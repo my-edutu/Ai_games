@@ -17,9 +17,11 @@ function section(before,after){
 }
 const workshop=section('function highStreetCraftShop(x,z,variant){',
  '// W87: original receiving court to a REAL resident');
-const street=section('function inhabitedHighStreet(){',
+const street=section('function renderFoundingStreetfronts(){',
  '// W83: ONE physical granary-to-market service street');
 assert.match(street,/highStreetCraftShop\(-14\.65,-3\.35,0\)/);
+assert(html.includes('inhabitedHighStreet(false);farmMarketStreet();'),
+ 'real later construction must retain all existing original workshops');
 assert.match(street,/highStreetCraftShop\(14\.15,8\.25,1\)/);
 assert.doesNotMatch(workshop,/\b(?:state\.(?:food|wood|gold|t)\s*=|people\.(?:push|splice)|city\.(?:push|splice))\b/,
  'civic architecture must not invent authoritative people, resources or homes');
