@@ -37,10 +37,10 @@ test('the source-bound production Maze stream explicitly serves the real guardia
   const fs = require('node:fs');
   const p = path.join(__dirname, '../../scripts/serve-maze-stream.cjs');
   const server = fs.readFileSync(p, 'utf8');
-  assert.match(server, /'scene\\.js', 'public-guardian-heartlight\\.mjs', 'characters\\.js'/,
+  assert.ok(server.includes("'scene.js', 'public-guardian-heartlight.mjs', 'characters.js'"),
     'the imported live WebGL module must exist on the explicit production asset allowlist');
-  assert.match(server, /const routes=new Map\\(PUBLIC_ASSETS\\.map/,
+  assert.ok(server.includes('const routes=new Map(PUBLIC_ASSETS.map'),
     'public allowlist drives the actual route map rather than a fake source test');
-  assert.match(server, /'\\.mjs':'text\\/javascript; charset=utf-8'/,
+  assert.ok(server.includes("'.mjs':'text/javascript; charset=utf-8'"),
     'the browser must receive the added module as JavaScript with nosniff');
 });
