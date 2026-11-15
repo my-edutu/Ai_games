@@ -202,3 +202,47 @@ test('native source renderer uses real original joint angular separation to budg
  assert.match(renderer,/originalNeutralMounts\[i\]\.bone\.quaternion/);
  assert.match(renderer,/mount\.last\.multiply\(delta\)/);
 });
+
+
+test('RED: measured original desktop deeply pitched shoe permits source Idle full-leg alternatives even when heel excess is only 2.8mm',async()=>{
+ const {planOriginalSourceAuthoredNeutralBlends:plan}=await load();
+ // Genuine 1440px original GLB, Actions #43766094802, tick 6:
+ // left swing toe -102.823mm, heel +201.411mm against upper stone Y=-20mm,
+ // opposite right shoe -15.914/-26.506mm; source weight=1,
+ // actually delivered Walking_A frame 116.6ms. Two same-frame original
+ // skin starter arcs lifted toe +26.243mm / heel +29.059mm, so the heel
+ // still dominates by 2.816mm. XZ positions here are explicitly fixtures:
+ // artifact sourceSwingLinkedLastProbe records Y and XZ deltas, not the
+ // starting absolute XZ endpoints. Never report the fixture as WebGL proof.
+ const left={heelY:.20141098851937922,toeY:-.10282251726531028,
+  heelXZ:[0,0],toeXZ:[.065,0]};
+ const right={heelY:-.015914026048654432,toeY:-.02650552064114879,
+  heelXZ:[1,0],toeXZ:[1.27,0]};
+ const measured=(lift,rise)=>({
+  left:{...left,toeY:left.toeY+lift,heelY:left.heelY+rise},
+  right:{...right}
+ });
+ const starterTrials=[
+  {upperRad:.12,lowerRad:-.09,after:measured(-.016699513266538582,-.03283311333169367)},
+  {upperRad:-.12,lowerRad:.09,after:measured(.026243315047378618,.029059106371224885)}
+ ];
+ const input={...owner,side:'left',before:{left,right},
+  frameInterval:.11659999999999826,starterTrials};
+ assert.deepEqual(plan(input),[.28,.42],
+  'severe genuine source pitch needs two bounded original Idle trials, never an assumed successful plant');
+ assert.equal(plan({...input,starterTrials:[
+  starterTrials[0],{...starterTrials[1],after:measured(.026243315047378618,.027243315047378618)}
+ ]}),null,'a heel rise within 1mm of toe rise is not strong new evidence');
+ assert.equal(plan({...input,before:{left:{...left,toeXZ:[.20,0]},right}}),null);
+ assert.equal(plan({...input,mode:'attack'}),null);
+ assert.equal(plan({...input,sourceInstanceSame:false}),null);
+ assert.equal(plan({...input,reducedMotion:true}),null);
+ assert.equal(plan({...input,interrupted:true}),null);
+});
+
+test('RED: native original-source renderer records WHY Idle full-leg trials were excluded instead of claiming a correction',()=>{
+ assert.match(renderer,/sourceNeutralSwingGateLast/);
+ assert.match(renderer,/source-neutral-planner-not-qualified/);
+ assert.match(renderer,/original-idle-joint-rotation-budget/);
+ assert.match(renderer,/originalSourceJointGapRad/);
+});
