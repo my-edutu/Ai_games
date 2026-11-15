@@ -778,13 +778,14 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    (cue.kind!=='ranged-release'||cue.proof!=='authority-action'))return false;
   if(type==='spell'&&
    (cue.kind!=='spell-release'||cue.proof!=='authority-action'))return false;
-  // The preview's original foley already binds each verified release to
-  // scene/tick/source/aim in its canonical cue ID. The physical arrow/orb
-  // must use that SAME immutable witness: a renamed target or recycled ID
-  // cannot allocate silent, misleading ranged art while WebAudio rejects it.
-  // This is strict real-preview admission only. Independent mesh auditions
-  // intentionally retain their permissive placeholder-ID fixtures.
-  if(requireVerifiedHpReceipt&&(type==='projectile'||type==='spell')&&
+  // A real release, guarded block or witnessed dodge must share the
+  // original sound engine's canonical scene/tick/source/target receipt.
+  // Plausible actor poses alone cannot license a visual with a renamed
+  // defender/evader, fictitious pursued target or impact-audio label.
+  // Strict D04 only: standalone independent mesh auditions can still use
+  // placeholder fixture IDs without impersonating actual gameplay.
+  if(requireVerifiedHpReceipt&&
+   (type==='projectile'||type==='spell'||type==='block'||type==='dust')&&
    !isCanonicalVerifiedCombatFoleyCue(cue)){suppressed++;return false}
   if((type==='projectile'||type==='spell')&&
    (typeof cue.targetId!=='string'||cue.targetId.length===0||
