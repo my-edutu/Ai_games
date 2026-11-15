@@ -1,3 +1,24 @@
+## W363 · 15 November 2026 · EXACT ORIGINAL GPU SETTLEMENT TRIANGLE REUSE, NOT A LOOK/FEEL/PLAY MILESTONE · Phase 1 ACTIVE
+
+**Production:** [ec13828ef5b5d616c3a75eac088ad8881a3d7cca](https://github.com/my-edutu/Ai_games/commit/ec13828ef5b5d616c3a75eac088ad8881a3d7cca) on existing draft PR #64, branch `feat/tiny-kingdom-post-main-gauntlet-20261031`, no merge, no main/#43/#59/#62 interaction. Baseline G088 source `2f6deb43feb1a1557848d44def53a6109deb1ab1`, [exact original capture](https://github.com/my-edutu/Ai_games/actions/runs/41301740489/artifacts/13081531738). Continued ONE multi-run farm → true harvest → cart → market → inhabited home vertical slice.
+
+**Live media inspected:** Downloaded [W362 Day-121 original 390px 26.24s uncut video](https://github.com/my-edutu/Ai_games/actions/runs/43756922679/artifacts/14178732286), reviewed actual 1/4/7/10/13/16/20/25-second frames. There are 28 people/5501 food in the initial visible state, extensive inhabited rooftops, construction/crafts and mobile economy UI. But the close camera repeatedly shows huge roof/frontage and post obstruction, compressed angular workers and a hard-to-follow supply chain. This is GENUINE W362 prior source, **not new W363 gameplay** and not a matched same-state G088 A/B. Commercial quality far below official Manor Lords.
+
+**Fresh true CI finding, not a false green:** Exact W362 [W281 failure](https://github.com/my-edutu/Ai_games/actions/runs/43756922736) isolated housing test at Node source line `clearSegment is not defined`: a route-residency helper uses the actual collision check but legacy W351 test harness omitted its argument. Corrected [fixture](https://github.com/my-edutu/Ai_games/commit/aba6bf3918ad5076a87843dba3cd4a1e372fe2a4) by injecting unobstructed `clearSegment` in the isolated test, without changing production physics.
+
+**Integrated Phase 1 renderer:** Render-only `planResidentVertexUpload(before, after, capacityFloats)` identifies exact unchanged original 30-float triangles in an old GPU-resident settlement VBO, allowing hardware WebGL to retain unchanged vertices and upload a single bounded correct byte-offset triangle window when the ACTUAL city topology changes. An append adds the real tail; a shorter settlement draws only real ranges; an equal-sized replacement can reuse exact suffix. The old complete geometry remains authoritative for draw ranges. Partial update is forbidden when buffer storage is resized, spatial pack reorders triangles, or SwiftShader was previously measured to regress under extra work. The same 10-float material/normal/color world vertex format, landscape, core, home cluster, jobs, deliveries, collision and saved replay are untouched. `getResidentDeltaUploadAudit()` explicitly exposes byte counters, actual upload windows and the absence of physical performance proof. This is architecture work, not proof of a perceptual transformation.
+
+**Test-first:** Focused [W363 contract](https://github.com/my-edutu/Ai_games/blob/feat/tiny-kingdom-post-main-gauntlet-20261031/scripts/tiny-kingdom-w363-resident-delta-upload-contract.cjs) was added before production and originally correctly required the missing new planner (RED expectation); it exercises unchanged, appended, modified middle, shortened and changed trailing triangles and safe fallback. Dedicated [W363 source + build workflow](https://github.com/my-edutu/Ai_games/actions/workflows/tiny-kingdom-w363-resident-delta-upload.yml) introduced. At checkpoint CI jobs and current-head uncut desktop/mobile video were queued/pending: **do not claim a passed running-game transformation, browser correctness, speedup or passed hardware benchmark without actual logs**.
+
+### Two independent scorecards
+- **A — substantial LOOK, FEEL, PLAY improvement vs G088: NOT PROVEN**. No same-state current-head Day1, continuous authentic workday, grown Day120, actual camera/touch interaction and independent blinded A/B.
+- **B — Manor Lords original commercial reference: FAIL**. Current real frames still angular with modular architecture and camera obstruction.
+- **Technical gates: NOT PROVEN** until exact-head replay/soak, <160,000 view triangles, physical 30+ FPS on representative mobile and desktop (p95 <=33.3ms), stable GPU memory and zero page/GL errors are measured. Older software cold 307.4ms (civic 108ms, ground atlas 68ms) remains a diagnostic blocker, not measured W363 gain.
+
+**Top-five blocker owners, current values and done conditions remain in `TRANSFORMATION_PHASE0_BACKLOG.md`. Next concrete integrated work:** compare W362 and W363 exact same retained scene upload and cold-build timings, then use recovered actual hardware frame capacity to reconstruct the coherent original district and visible adult work (not another pigment or street trim change). Keep phase 1 ACTIVE and PR #64 DRAFT/unmerged.
+
+---
+
 
 ## W362 · 15 November 2026 · ORIGINAL HOUSEHOLD ROAD ROUTES RETAINED ACROSS APPEND-ONLY REAL CONSTRUCTION · Phase 1 ACTIVE
 
