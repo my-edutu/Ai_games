@@ -824,16 +824,19 @@ test('source-earned Floor9 paints one actual open Void load path beside the reta
       if(o.isMesh)for(const owner of o.geometry.userData.originalTriangleOwners||[])
         originalOwners.push(owner.authoringPath);
     });
-    for(const original of ['VoidOpenCoreFoundation',
-      'VoidOpenCoreSupportedCrown','VoidOpenCoreRearLoadPosts'])
+    for(const original of ['VoidOpenCoreRearDiagonalStay',
+      'VoidOpenCoreCrownTie','VoidOpenCoreRearLoadPosts'])
       assert.ok(originalOwners.some(owner=>owner.includes(original)),
-        'the first rendered batched F9 core retains actual source geometry: '+original);
+        'the first rendered batched F9 BRACING retains exact source geometry: '+original);
+    assert.equal(originalOwners.some(owner=>owner.includes('VoidOpenCoreFoundation') ||
+      owner.includes('VoidOpenCoreSupportedCrown')),false,
+      'high-mass foundation/crown must not be uploaded on the expensive first WebGL frame');
     assert.equal(bearing.getObjectByName('SourceEarnedVoidExteriorButtress'),undefined,
       'new opaque nearest Void pylon must not screen the real still-visible bronze gateway on first F9');
     assert.equal(world.group.getObjectByName('tapered-structural-pylon'),undefined,
       'all incoming exterior buttresses wait for physical source departure; gameplay floor stays');
     let meshes=0; bearing.traverse(o=>{if(o.isMesh)meshes++;});
-    assert.ok(meshes>=3 && meshes<=8,
+    assert.ok(meshes>=2 && meshes<=6,
       'only the bounded source-authored OPEN core is present, never a full cold exterior shaft');
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),bronzeArch);
     const pending=world.diagnostics().deferredDistantArrival;
@@ -872,6 +875,18 @@ test('source-earned Floor9 paints one actual open Void load path beside the reta
       'real core and pylons have independent zero-opacity deferred materials, never hide the real F9 platforms');
     assert.ok(newShaft.getObjectByName('tapered-structural-pylon'),
       'the actual new exterior buttresses must still be constructed after departure');
+    const deferredOriginalOwners=[];
+    newShaft.traverse(o=>{
+      if(o.isMesh)for(const owner of o.geometry.userData.originalTriangleOwners||[])
+        deferredOriginalOwners.push(owner.authoringPath);
+    });
+    for(const original of ['VoidOpenCoreFoundation','VoidOpenCoreSupportedCrown'])
+      assert.ok(deferredOriginalOwners.some(owner=>owner.includes(original)),
+        'actual authored heavy source core mass is uploaded only after the first real F9 submission: '+original);
+    for(const original of ['VoidOpenCoreRearDiagonalStay',
+      'VoidOpenCoreCrownTie','VoidOpenCoreRearLoadPosts'])
+      assert.equal(deferredOriginalOwners.some(owner=>owner.includes(original)),false,
+        'already-rendered source structural bracing must not be duplicated on deferred upload: '+original);
     const copies=[];world.group.traverse(o=>{
       if(o.name==='VoidOpenCoreLoadPath')copies.push(o);
     });
