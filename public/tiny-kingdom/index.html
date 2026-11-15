@@ -1384,6 +1384,48 @@ body[data-command="world"][data-supply="open"][data-supply-details="closed"]
   bottom:94px!important;
  }
 }
+/* W347: actual 390px farmer-to-market witness, compact scrollable evidence panel.
+   User-opened supply floats ABOVE the live human/cargo and workday caption;
+   uncut footage showed the old 46vh bottom panel obscured workers. Never hide
+   citizens or model geometry; keep all five TRUE parcel-camera buttons, original
+   receipt details and actions reachable by touch or keyboard. */
+@media(max-width:520px){
+ body[data-command="world"][data-supply="open"]:not([data-hud="cinema"]):not([data-street="on"]) #world-ribbon{
+  position:fixed!important;top:calc(58px + env(safe-area-inset-top))!important;
+  bottom:auto!important;left:8px!important;right:8px!important;
+  transform:none!important;width:calc(100vw - 16px)!important;
+  max-width:calc(100vw - 16px)!important;
+  height:auto!important;max-height:min(29dvh,232px)!important;
+  display:flex!important;flex-wrap:wrap!important;align-content:flex-start!important;
+  justify-content:flex-start!important;overflow-x:hidden!important;
+  overflow-y:auto!important;overscroll-behavior:contain;
+  touch-action:pan-y;padding:7px!important;gap:5px!important;
+ }
+ body[data-command="world"][data-supply="open"][data-supply-details="open"]:not([data-hud="cinema"]):not([data-street="on"]) #world-ribbon{
+  max-height:min(38dvh,310px)!important;
+ }
+ body[data-command="world"][data-supply="open"] #world-supply-trail:not([hidden]){
+  display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+  gap:5px!important;min-width:0!important;
+ }
+ body[data-command="world"][data-supply="open"] #grain-chain,
+ body[data-command="world"][data-supply="open"] #world-trace-follow,
+ body[data-command="world"][data-supply="open"] #world-trace-home{
+  grid-column:1/-1!important;
+ }
+ body[data-command="world"][data-supply="open"] #grain-chain-steps button,
+ body[data-command="world"][data-supply="open"] #grain-chain-details,
+ body[data-command="world"][data-supply="open"] #world-trace-follow,
+ body[data-command="world"][data-supply="open"] #world-trace-home{
+  min-height:44px!important;
+ }
+ body[data-command="world"][data-supply="open"] #grain-chain-steps button{
+  font-size:10px!important;line-height:1.25!important;
+ }
+ body[data-command="world"][data-supply="open"] #grain-chain-steps button small{
+  font-size:9px!important;
+ }
+}
 </style></head><body>
 <canvas id="world" tabindex="0" aria-label="Live 3D medieval valley. Tap a visible villager to follow genuine work. Drag to orbit, Shift-drag or two-finger drag to pan, pinch or scroll to zoom. Home returns to village, F follows a citizen, V walks the streets; Enter selects a visible citizen."></canvas><div id="citizen-pick-caption" role="status" aria-live="polite" aria-atomic="true"><span id="citizen-pick-copy"></span><progress id="citizen-pick-meter" value="0" max="100" aria-label="Observed citizen's actual shift or delivery progress" hidden></progress></div><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
@@ -26527,7 +26569,12 @@ function inspectRealGrainStage(name){
  chip.addEventListener('click',()=>{
   inspectRealGrainStage(name);
   const row=document.getElementById(chip.dataset.target)?.closest('.supply-stage');
-  if(!row)return;
+  // A camera-chip press collapses receipt detail on a 390px phone.
+  // The destination row is then display:none; never transfer keyboard focus
+  // to a hidden node or scroll the camera/ledger away from the real worker.
+  if(!row||row.offsetParent===null){
+   chip.focus({preventScroll:true});return;
+  }
   row.setAttribute('tabindex','-1');
   row.focus({preventScroll:true});
   row.scrollIntoView({block:'nearest',inline:'nearest'});
@@ -27716,12 +27763,16 @@ if(follow&&!daybreakReturn){
    (liveWorkday||document.body.dataset.workday==='delivery')&&
    !grainJourney?.homeWitness;
   let portraitCurrentScene=null,portraitAlternativeSelected=false;
+  let portraitPhysicalRoofs=null;
   if(isPortraitWorkWitness){
    const priorRadius=Math.cos(pitch)*zoom,priorEye=[
     focusPoint[0]+Math.sin(yaw)*priorRadius,
     terrain(focusPoint[0],focusPoint[1])+1.02+Math.sin(pitch)*zoom,
     focusPoint[1]+Math.cos(yaw)*priorRadius];
-   const physicalRoofs=followCameraRoofs();
+   // Reuse one authoritative, actually emitted occlusion model throughout
+   // this mobile workday frame, including its bounded alternate-eye search.
+   portraitPhysicalRoofs=followCameraRoofs();
+   const physicalRoofs=portraitPhysicalRoofs;
    portraitCurrentScene=foregroundSceneProjection(priorEye,plan.target,physicalRoofs);
    const now=performance.now(),lastAttempt=portraitAltLastCitizen===citizen.name?
     portraitAltLastAttempt:-Infinity;
@@ -27746,7 +27797,8 @@ if(follow&&!daybreakReturn){
    terrain(focusPoint[0],focusPoint[1])+1.02+Math.sin(pitch)*zoom,
    focusPoint[1]+Math.cos(yaw)*radius];
   const target=[citizen.x,terrain(citizen.x,citizen.z)+1.02,citizen.z];
-  const roofs=followCameraRoofs(),obstructed=followRayBlockers(eye,target,roofs)>0;
+  const roofs=portraitPhysicalRoofs||followCameraRoofs(),
+   obstructed=followRayBlockers(eye,target,roofs)>0;
   // A narrow ORIGINAL market upright may cover the real courier's hands
   // without filling enough of the screen to trigger the broad roof/canopy
   // obstruction model. Measure the actual camera and the real planned lens.

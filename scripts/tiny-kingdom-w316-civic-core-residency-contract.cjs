@@ -97,8 +97,16 @@ assert.equal(retained.calls.renderFoundingStreetfronts,1,
  'original craft shops and household yards cannot regenerate on road growth');
 assert.equal(retained.calls.renderFoundingHighStreetLanes,1,
  'historic four genuine fixed lanes must stay resident during new-home routing');
-assert.equal(retained.calls.renderRetainedCivicFixtures,1,
- 'original wells, lamps, gardens and banners must remain resident without loss');
+// The W346 production function is inside the evaluated REAL source and
+// supersedes its mock function. Verify the original real producers instead.
+assert.equal(retained.calls.well,1,'original town well remains resident');
+assert.equal(retained.calls.villageGarden,2,'original two gardens remain resident');
+assert.equal(retained.calls.guildBanner,2,'original two guild banners remain resident');
+assert.equal(retained.calls.lantern,4,'original four lamp anchors remain resident');
+assert.equal(retained.calls.stoneBoulder,7,'original seven boulders remain resident');
+assert.equal(retained.calls.box,5,'original five timber piles remain resident');
+const fixturesAudit=vm.runInNewContext('getRetainedCivicFixturesAudit()',retained.env);
+assert.equal(fixturesAudit.builds,1,'one complete original fixture core built');
 assert.equal(retained.calls.marketQuarter,1,'unchanged original four shops retained');
 assert.equal(retained.calls.inhabitedHighStreet,2,'true home streets replan');
 assert.equal(retained.calls.farmMarketStreet,2,'true courier freight streets replan');
@@ -114,11 +122,13 @@ assert.ok(audit.cachedFloats>0&&audit.cachedFloats<=audit.floatBudget);
 assert.equal(audit.fullOriginalGeometryPreserved,true);
 retained.draw(3,'autumn');
 assert.equal(retained.calls.hall,2,'season switch invalidates original granary/market');
-assert.equal(retained.calls.renderRetainedCivicFixtures,2,
- 'real seasonal core invalidation rebuilds original fixtures');
+assert.equal(retained.calls.well,2,
+ 'seasonal core invalidation rebuilds original well and fixtures');
+assert.equal(retained.calls.lantern,8,'seasonal recompile contains all real lights');
 vm.runInNewContext('clearCivicCoreCache()',retained.env);
 retained.draw(4,'autumn');
 assert.equal(retained.calls.hall,3,'world reset invalidates old core resident source');
-assert.equal(retained.calls.renderRetainedCivicFixtures,3,
- 'reset must rebuild all fixed original public infrastructure');
+assert.equal(retained.calls.well,3,
+ 'reset must rebuild original public infrastructure');
+assert.equal(retained.calls.lantern,12,'reset restores all four streetlights');
 console.log('W316 PASS: original full-mesh farm/market core reused across near-road construction, cold-vs-cached vertex identity exact, original streets remade, climate/reset invalidation bounded. NO FPS or visual PASS.');
