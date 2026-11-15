@@ -991,7 +991,8 @@ test('cold 15-tick source-observed F8-to-F9 first paint retains original real Th
   assert.ok(evidence.retainedSourceCap,'original cap must exist at first genuine F9 paint');
   assert.ok(world.group.getObjectByName('ObservedGroundedCapGatewayContinuity'));
   assert.ok(world.group.getObjectByName('OriginalSourceClockworkThresholdGallery'));
-  assert.ok(world.group.getObjectByName('SourceEarnedClockworkVoidBearingGallery'));
+  assert.equal(world.group.getObjectByName('SourceEarnedClockworkVoidBearingGallery'),undefined,
+   'this fixture contains no authentic F9 raised step, so visual world must not invent one');
   assert.equal(evidence.retainedSourceCap.verifiedObservedFloorAdvance,true,
    'the browser observation must not masquerade as an immutable source event');
   assert.equal(evidence.retainedSourceCap.crossingTick,null,
