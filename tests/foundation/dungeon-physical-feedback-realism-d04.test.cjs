@@ -1178,6 +1178,45 @@ test('strict D04 HP fragments require the real same-tick public victim health, n
  }finally{stage.dispose()}
 });
 
+test('D04 prior-HP actor cache may lag one confirmed public injury without losing body-local shards',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const proof=cue({detail:{damage:16,maxHp:20,remainingHp:4}});
+ const victim={id:'revenant',kind:'revenant',faction:'enemy',
+  x:3,z:2,hp:4,maxHp:20};
+ let current={run:1,floor:1,tick:11,units:[victim]};
+ const actor={u:{...victim,hp:20},root:{
+  visible:true,position:{x:-6,y:0,z:-7},rotation:{y:0}}};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  actorById:id=>id==='revenant'?actor:null,
+  getCurrentSnapshot:()=>current,requireVerifiedHpReceipt:true
+ });
+ const check=(expected,why)=>{
+  stage.reset();
+  assert.equal(stage.emit(proof),expected,why);
+  assert.equal(stage.stats().instancesByPool.hit,expected?5:0,why);
+ };
+ try{
+  for(const [mode,rootX] of [['drawn',-6],['interpolated',-6.84]]){
+   actor.root.position.x=rootX;
+   actor.u={...victim,hp:20};
+   check(true,mode+' pre-hit body cache is the same current public victim');
+   actor.u={...victim,hp:19};
+   check(false,mode+' arbitrary contradictory cached HP must not earn injury');
+   actor.u={...victim,hp:20,maxHp:21};
+   check(false,mode+' cached body with a different health capacity is not the victim');
+   actor.u={...victim,hp:20};
+   current={...current,tick:12};
+   check(false,mode+' later public tick must not revive stale injury');
+   current={...current,tick:11,units:[victim,{...victim}]};
+   check(false,mode+' duplicate current public victim IDs cannot choose a body');
+   current={...current,units:[victim]};
+  }
+  assert.equal(stage.stats().reservedInstances,102);
+  assert.ok(stage.stats().activeDrawCalls<=7);
+ }finally{stage.dispose()}
+});
+
 test('D04 real controller enables strict HP VFX admission while isolated visual auditions stay compatible',()=>{
  const fs=require('node:fs');
  const controller=fs.readFileSync(path.join(root,'physical-combat-feedback.js'),'utf8');
