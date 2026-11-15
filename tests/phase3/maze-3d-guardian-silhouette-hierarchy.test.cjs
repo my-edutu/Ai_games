@@ -55,7 +55,7 @@ test('Pass377 Thornback rebalances one real connected large-face/armor silhouett
     for(const beat of [0,.5,1]){
       warden.update({...cue,encounterBeat:beat});
       assert.equal(head.parent,body);
-      assert.ok(eyes.every(eye=>eye.visible),'optical masks remain physical across notice, brace and release');
+      assert.ok(opticalMeshes.every(mesh=>mesh.visible),'actual batched optical surfaces remain physical across notice, brace and release');
     }
     warden.update({...cue,attentionStrength:0,attentionHeading:undefined,encounterBeat:1});
     assert.equal(warden.group.getObjectByName('activated warden spines').visible,false,
