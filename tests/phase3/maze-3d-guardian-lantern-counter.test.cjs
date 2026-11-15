@@ -5,6 +5,9 @@ const {MazeRuntime}=require('../../dist/games/ai-maze-escape/src/runtime/run.js'
 const {stepMazeThreats}=require('../../dist/games/ai-maze-escape/src/threats/step.js');
 const {passageNeighbors}=require('../../dist/games/ai-maze-escape/src/generation/solver.js');
 const {buildMazeRenderSnapshot}=require('../../dist/games/ai-maze-escape/src/presentation/snapshot.js');
+const {createMazeObservation}=require('../../dist/games/ai-maze-escape/src/ai/observation.js');
+const {updateBelief}=require('../../dist/games/ai-maze-escape/src/ai/belief.js');
+const {chooseMazeAction}=require('../../dist/games/ai-maze-escape/src/ai/policy.js');
 
 function fixture(){
   const runtime=MazeRuntime.create({width:11,height:11,profile:'loops',visibilityRadius:2,
@@ -141,4 +144,55 @@ test('earned lantern counter clears a REAL visible route square, then dangerous 
   assert.equal(held.events.some(e=>e.type==='guardian-lantern-parry'),true);
   assert.deepEqual(buildMazeRenderSnapshot(held.state).threats,
     [{id:'real-thornback',cell:guard,lanternParried:true}]);
+});
+
+test('real autonomous first-contact lantern defense causes an earned visible one-square recoil, not a scripted action',()=>{
+  const {s}=fixture(),width=s.world.width,blocked=new Set(s.world.blockedCells);
+  let passage;
+  for(let hero=0;hero<width*s.world.height&&!passage;hero++){
+    if(blocked.has(hero)||hero===s.world.exit)continue;
+    for(const guard of passageNeighbors(s.world,hero)){
+      if(blocked.has(guard)||guard===s.world.exit)continue;
+      for(const rear of passageNeighbors(s.world,guard)){
+        if(rear===hero||blocked.has(rear)||rear===s.world.exit)continue;
+        if(Math.abs(rear%width-hero%width)
+          +Math.abs(Math.floor(rear/width)-Math.floor(hero/width))===2){
+          passage={hero,guard,rear};break;
+        }
+      }
+      if(passage)break;
+    }
+  }
+  assert.ok(passage,'the seeded, truly connected game world needs a public recoil route');
+  const {hero,guard,rear}=passage;
+  s.explorer.cell=hero;s.explorer.steps=3;s.explorer.route=[hero];
+  s.world.threats=[{id:'observed-thornback',cell:guard,route:[hero,guard,rear],
+    routeIndex:1,direction:-1,lastSeenTick:null,active:true}];
+  s.visibleCells=[hero,guard,rear];s.discoveredCells=[hero,guard,rear];
+  s.ai.mode='exploring';s.ai.recentCells=[hero];
+  const runtime=MazeRuntime.create({width:11,height:11,profile:'loops',visibilityRadius:2,
+    keyCount:0,trapCount:0,threatCount:0},'real-lantern-counter');
+  runtime.state=structuredClone(s);
+  const priorEvents=runtime.events.length;
+  runtime.step(); // Actual partial-observation policy, then actual threat physics.
+  assert.equal(runtime.state.explorer.cell,hero,'Pip must actually WAIT, not fake a dash');
+  assert.equal(runtime.state.world.threats[0].cell,rear,'Thornback must backstep on the real passage');
+  assert.equal(runtime.state.ai.mode,'evading-threat');
+  assert.equal(runtime.events.slice(priorEvents).some(e=>e.type==='wait'),true);
+  assert.equal(runtime.events.slice(priorEvents).filter(e=>e.type==='guardian-lantern-parry').length,1);
+  assert.equal(runtime.events.slice(priorEvents).filter(e=>e.type==='threat-move').length,1);
+  const publicVisible=createMazeObservation(runtime.state);
+  assert.deepEqual(publicVisible.threats.map(t=>({id:t.id,cell:t.cell,countered:t.lanternCountered})),
+    [{id:'observed-thornback',cell:rear,countered:true}]);
+  const previouslyCountered=chooseMazeAction(runtime.state,publicVisible,updateBelief(undefined,publicVisible));
+  assert.notMatch(previouslyCountered.intent.explanation,/braces the lantern/,
+    'the observed first defense must not repeat indefinitely');
+  const unseen=structuredClone(runtime.state);
+  unseen.visibleCells=[hero];unseen.world.threats[0].cell=rear;
+  assert.deepEqual(createMazeObservation(unseen).threats,[],
+    'even a previously parried guardian stays fully hidden when not currently visible');
+  const before=runtime.events.filter(e=>e.type==='guardian-lantern-parry').length;
+  runtime.step();
+  assert.equal(runtime.events.filter(e=>e.type==='guardian-lantern-parry').length,before,
+    'later turns must not synthesize a second counter');
 });

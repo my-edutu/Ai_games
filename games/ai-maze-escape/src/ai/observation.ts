@@ -32,6 +32,9 @@ export interface MazeObservedThreat {
   id: string;
   cell: number;
   lastSeenTick: number;
+  // Pip remembers only a guardian it ACTUALLY saw and already countered.
+  // No unseen patrol route, future location or secret state is disclosed.
+  lanternCountered?: true;
 }
 
 export interface MazeObservation {
@@ -146,7 +149,8 @@ export function createMazeObservation(state: MazeState): MazeObservation {
     // create an unfair observation gap. Movement state and danger state are separate.
     threats: state.world.threats
       .filter(threat => threat.active && visible.has(threat.cell))
-      .map(threat => ({ id: threat.id, cell: threat.cell, lastSeenTick: state.tick })),
+      .map(threat => ({ id: threat.id, cell: threat.cell, lastSeenTick: state.tick,
+        ...(threat.lanternParried ? { lanternCountered: true as const } : {}) })),
     inventory: [...state.explorer.inventory].sort(),
     health: state.explorer.health,
     timeRemaining: Math.max(0, state.config.maxTicks - state.tick),

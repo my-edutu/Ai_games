@@ -113,6 +113,30 @@ function chooseEvasion(
   // real published patrol change before taking that suicidal "evasion".
   // No private patrol routes, future cells, RNG or speculative attacks.
   const currentDistance = threatDistance(observation.currentCell);
+  // Give the FIRST real, directly witnessed encounter an actionable, earned
+  // defensive beat even when a side path exists. Previously Pip ALWAYS moved
+  // away if it saw any non-closing neighbor, so a real AI lantern counter was
+  // effectively absent from the playable autonomous routes.
+  //
+  // The memory is an OBSERVED guardian's own prior parry, never a private
+  // route, future cell, or off-screen opponent. The first non-starting contact
+  // costs an actual WAIT tick and asks authoritative threat physics to decide
+  // whether a connected, publicly visible backstep is possible. Later
+  // contacts return to ordinary route-driven evasion; no permanent stunlock.
+  if (state.explorer.steps > 0 && threats.some(threat => !threat.lanternCountered)) {
+    return {
+      action: { kind: 'wait' },
+      intent: {
+        mode: 'evading-threat',
+        confidence: 0.82,
+        explanation: 'Pip braces the lantern against the first witnessed guardian; then must find a safe passage.',
+        nodeExpansions: legal.length,
+        fallbackUsed: false,
+      },
+      plannedPath: [observation.currentCell],
+      targetCell: null,
+    };
+  }
   const nonClosing = candidates.filter(cell => threatDistance(cell) >= currentDistance);
   if (!nonClosing.length) {
     return {

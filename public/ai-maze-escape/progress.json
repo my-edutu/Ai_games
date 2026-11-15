@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-15T13:40:00.000Z",
+  "updatedAt": "2026-11-15T14:09:59.424Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass396: source-authentic visual guardian recoil production fix and new strict natural-autonomous counter WebGL screenshot gate. Exact-HEAD CI, actual parry before/after 390/320 uncropped renders and independent critique still pending. Pass395 standard full WebGL succeeded and 37 individual source PNG hashes verified; original source does not yet prove natural counter. Nintendo benchmark unmet; PR remains draft."
+    "summary": "Pass397: strict source/real WebGL Pass396 failed because production autonomous seeds never naturally earned the moving guardian recoil (all 184 Maze source tests and six-run <100 geometry gate passed). New actual AI first-contact defensive WAIT using ONLY directly observed open guardian corridor and prior publicly witnessed parry; authoritative movement and strict natural WebGL test retained. Exact-HEAD rendering and independent visual critique PENDING; Nintendo benchmark unmet, draft PR preserved."
   },
   "captures": [
     {
@@ -108,6 +108,7 @@
     }
   ],
   "changes": [
+    "Pass397 2026-11-15: production first real observed open corridor confrontation now chooses a deliberate single authoritative lantern-counter WAIT after Pip has explored, rather than always evading via any nonclosing side path. Already countered visible wardens return to ordinary evasion, hidden opponents never exposed. Integrated MazeRuntime test added. Pass396 exact-head honest natural moving-counter browser gate FAILED, new exact HEAD tests/natural 390/320 WebGL pending.",
     "Pass394 2026-11-15: implement one authoritative witnessed guardian-lantern parry earned solely by real autonomous evasive WAIT across presently PUBLIC reciprocal open 1-2 straight corridor. Once per guardian per run pauses actual patrol 3 ticks, collision remains lethal afterwards, no hidden/closed cue. Public active-only signal drives original connected Pip lantern and Thornback recoil plus earned event caption. New exact-HEAD tests/render verification PENDING; fixed Nintendo bar unmet.",
     "Pass390: removed only orphaned Pass388-specific endpoint-outset source test after restoring rejected visual world change. Existing protected strict geometry/AI/privacy/mobile/accessibility tests unchanged; prior rollback CI superseded by fresh source+test-aligned commit.",
     "Pass389 2026-11-15: original 390 brace/notice/release and 320/390 Follow native WebGL compared against authentic Pass386 baseline, 37/37 PNG sidecars and 3/3 gate originals each verified; small Follow difference and no meaningful character-stage readability gain. Reject Pass388 endpoint offsets, restore only trusted world.js, preserving strict geometry, AI/privacy, HUD and previous diagnostics. New rollback HEAD native CI required; Nintendo bar unmet.",
