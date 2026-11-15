@@ -56,3 +56,51 @@ export function plannedEarnedClockworkVoidBearings(s,old) {
     thresholdX:old.thresholdX,landingX,roofId:ground.id,stepId:step.id,
     runToken:s.runToken,nodes:Object.freeze(nodes)});
 }
+
+
+/**
+ * P0 physical load-path reconstruction from source-pinned native footage:
+ * campaign 43745587650, candidate e2c45779, desktop source tick 475.
+ * The previous outer vertical at radius 28.25 (authored forged instance #2)
+ * physically hit the REAL climber's shoulder camera ray at 14.163m, before
+ * the actor at 16.839m. An opacity/camera workaround would not repair that
+ * fake exterior structural curtain. Carry the inherited bronze/forged/void
+ * load instead on permanent CORE-WALL columns (r=21.6, behind the r=25
+ * traversable route) and overhead cantilevers with genuine 4m+ clearance.
+ * No new collision, landing, floor, portal, actor, combat or replay event.
+ * Pure authored geometry planning: World alone creates real Three meshes.
+ */
+export function plannedSourceEarnedSuspendedBearingSections(nodes) {
+  if(!Array.isArray(nodes) || nodes.length!==3 ||
+     nodes.some(n=>![n?.angle,n?.sceneY,n?.height].every(Number.isFinite) ||
+       n.height<5 || n.height>7 || Math.abs(n.angle)>2.4))return null;
+  const at=(a,r,y,s)=>({
+    p:[Math.sin(a)*r,y,Math.cos(a)*r],r:[0,a,0],s
+  });
+  return nodes.map((station,index)=>{
+    const {angle:a,sceneY:y,height:h}=station;
+    const crown=y+h;
+    const parts=[
+      // All real floor-to-crown compressive supports are anchored BEHIND
+      // the existing inner-wall radius 22.4, never in the front camera rim.
+      at(a,21.6,y+h*.5,[.46,h,.54]),
+      at(a,21.6,crown-.23,[.70,.46,.62]),
+      at(a,21.75,crown-.95,[.46,1.50,.45]),
+      // A suspended radial compression beam and forged head tie carry the
+      // roof across the REAL open 25m deck without filling its doorway.
+      at(a,24.91,crown,[.36,.28,7.3]),
+      at(a,27.6,crown+.08,[.46,.26,.48]),
+    ];
+    if(index>0){
+      const previous=nodes[index-1];
+      const mid=(previous.angle+a)*.5;
+      const innerSpan=21.6*Math.abs(a-previous.angle);
+      const outerSpan=27.6*Math.abs(a-previous.angle);
+      parts.push(at(mid,21.6,crown-.32,[innerSpan+.28,.24,.38]));
+      // Outer sightline remains empty at hero height: ONLY high tensile
+      // crown-to-crown linkage can connect adjacent suspended outriggers.
+      parts.push(at(mid,27.6,crown+.02,[outerSpan+.20,.22,.34]));
+    }
+    return parts;
+  });
+}
