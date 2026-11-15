@@ -2315,7 +2315,7 @@ test('a NATURAL autonomous lantern counter has source-bound physical before/reco
     })));
     const image=path.join(dir,'natural-guardian-recoil-'+label+'-'+width+'.png');
     await page.screenshot({path:image,fullPage:true});
-    fs.writeFileSync(image.replace(/\\.png$/,'.json'),JSON.stringify({...summary,
+    fs.writeFileSync(image.replace(/\.png$/,'.json'),JSON.stringify({...summary,
       seed:sample.seed,tick:sample.frame.snapshot.tick,runToken:sample.frame.snapshot.runToken,
       guardianId:witness.guardianId,from:witness.from,to:witness.to,
       physicalPublicGuardian:sample.frame.snapshot.threats.find(t=>t.id===witness.guardianId),
