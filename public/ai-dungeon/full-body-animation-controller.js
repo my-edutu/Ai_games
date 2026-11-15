@@ -225,6 +225,103 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
 }
 
 
+
+/**
+ * A licensed Walking_A ankle that already earned an actual weighted-toe
+ * correction may still leave the toe deeply inside stone. That valid small
+ * movement must not veto a later *connected* original hip+knee trial.
+ *
+ * Qualify only a true same-GLB/same-clip, explicitly opposite-shoe-witnessed
+ * source ankle; the linked stage still needs to test BOTH skinned shoes and
+ * prove >=12mm / >=15% further recovery before moving original joints.
+ * Neither qualification nor reconciliation grants contact or foot locking.
+ */
+export function qualifyOriginalSourceAnkleLinkedEscalation({
+ ankleProof=null,side='',sourceInstanceId='',sourceClipName='',
+ sourceWeight=NaN,actualToeY=NaN,floorTopY=NaN,
+ ownerLocomotion=false,alive=false,visible=false,teleport=false,
+ reducedMotion=false,interrupted=false
+}={}){
+ if(!ankleProof||ankleProof.source!=='same-original-GLB-foot-skinned-vertices'||
+  ankleProof.side!==side||!['left','right'].includes(side)||
+  !sourceInstanceId||ankleProof.sourceInstanceId!==sourceInstanceId||
+  sourceClipName!=='Walking_A'||ankleProof.sourceClip!=='Walking_A'||
+  ankleProof.originalOppositeShoeVerified!==true||
+  ankleProof.contactLocked===true||ownerLocomotion!==true||
+  alive!==true||visible!==true||teleport||reducedMotion||interrupted||
+  ![sourceWeight,actualToeY,floorTopY,
+    ankleProof.beforeToeY,ankleProof.afterToeY,
+    ankleProof.beforeHeelY,ankleProof.afterHeelY,
+    ankleProof.liftMeters,ankleProof.penetrationBeforeMeters,
+    ankleProof.penetrationAfterMeters].every(finite)||
+  sourceWeight<.92||sourceWeight>1.001||
+  Math.abs(floorTopY+.02)>.005||
+  Math.abs(actualToeY-ankleProof.afterToeY)>.002||
+  Math.abs(ankleProof.floorTopY-floorTopY)>.001||
+  ankleProof.liftMeters<.005||
+  Math.abs((ankleProof.afterToeY-ankleProof.beforeToeY)-
+   ankleProof.liftMeters)>.003||
+  Math.abs((floorTopY-ankleProof.afterToeY)-
+   ankleProof.penetrationAfterMeters)>.002||
+  ankleProof.penetrationAfterMeters<.04||
+  ankleProof.penetrationAfterMeters>.12||
+  ankleProof.earlySourceToeRescue===true)return false;
+ return true;
+}
+
+/**
+ * An original ankle and a later source hip+knee cannot each retain
+ * incompatible "final shoe" receipts. Preserve the actual ankle joint
+ * attribution and replace its old foot position with the linked stage's
+ * *independent final* same-source weighted two-shoe readback.
+ *
+ * Return null on any inconsistent receipt: the caller MUST undo only the
+ * new linked hip/knee trial, keeping the previously accepted original ankle.
+ */
+export function reconcileOriginalSourceAnkleLinkedEscalation({
+ linkedProof=null,...owner
+}={}){
+ if(!qualifyOriginalSourceAnkleLinkedEscalation(owner))return null;
+ const {ankleProof,side,sourceInstanceId,floorTopY}=owner;
+ const other=side==='left'?'right':'left';
+ const a=linkedProof?.before?.[side],b=linkedProof?.after?.[side];
+ const support=linkedProof?.before?.[other],
+  supportAfter=linkedProof?.after?.[other];
+ const valid=shoe=>shoe&&[shoe.heelY,shoe.toeY].every(finite)&&
+  [shoe.heelXZ,shoe.toeXZ].every(v=>
+   Array.isArray(v)&&v.length===2&&v.every(finite));
+ if(!linkedProof||linkedProof.source!=='measured-original-skinned-linked-leg'||
+  linkedProof.sourceInstanceId!==sourceInstanceId||
+  linkedProof.sourceClip!=='Walking_A'||linkedProof.side!==side||
+  linkedProof.contactLocked!==false||
+  linkedProof.oppositeShoePreserved!==true||
+  ![a,b,support,supportAfter].every(valid)||
+  ![linkedProof.liftMeters,linkedProof.fractionCleared].every(finite)||
+  linkedProof.liftMeters<.012||linkedProof.fractionCleared<.15||
+  Math.abs(a.toeY-ankleProof.afterToeY)>.002||
+  Math.abs(a.heelY-ankleProof.afterHeelY)>.002||
+  b.toeY-a.toeY<.012||b.toeY>floorTopY+.05||
+  Math.abs((b.toeY-a.toeY)-linkedProof.liftMeters)>.002||
+  Math.abs(supportAfter.heelY-support.heelY)>.003||
+  Math.abs(supportAfter.toeY-support.toeY)>.003||
+  Math.hypot(supportAfter.heelXZ[0]-support.heelXZ[0],
+   supportAfter.heelXZ[1]-support.heelXZ[1])>.004||
+  Math.hypot(supportAfter.toeXZ[0]-support.toeXZ[0],
+   supportAfter.toeXZ[1]-support.toeXZ[1])>.004)return null;
+ const combinedLift=b.toeY-ankleProof.beforeToeY;
+ return Object.freeze({
+  ...ankleProof,afterToeY:b.toeY,afterHeelY:b.heelY,
+  liftMeters:combinedLift,
+  penetrationAfterMeters:Math.max(0,floorTopY-b.toeY),
+  originalAnkleLiftMeters:ankleProof.liftMeters,
+  linkedLegAddedLiftMeters:linkedProof.liftMeters,
+  originalOppositeShoeVerified:true,
+  linkedOriginalSourceJointProof:true,
+  contactLocked:false
+ });
+}
+
+
 /**
  * Actual pinned TacticalSlash rigs contain both a horizontal melee clip
  * and a distinct 41-joint two-handed ranged release. Selecting the generic
