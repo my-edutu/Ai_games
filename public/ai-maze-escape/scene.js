@@ -3,7 +3,7 @@ import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianPublishedWallAvoidance } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicPressureInspectionTakesFocus } from './public-lantern-encounter.mjs';
@@ -1077,6 +1077,17 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           portraitEncounterOrbit+=publicGuardianDuelShoulderOrbit(
             aspect,closestThreat.strength,closestThreat.encounterBeat,
             portraitEncounterOrbit,settings.reducedMotion);
+          // Before composing the actual physical body framing, steer only
+          // away from a CURRENTLY witnessed solid foreground wall. Never hide
+          // map geometry or infer a passage: this examines public cell edges.
+          portraitCameraOffset.set(
+            15*Math.cos(portraitEncounterOrbit)-18*Math.sin(portraitEncounterOrbit),
+            21,15*Math.sin(portraitEncounterOrbit)+18*Math.cos(portraitEncounterOrbit));
+          if(cameraMode==='follow' && !settings.reducedMotion && !result)
+            portraitEncounterOrbit+=publicGuardianPublishedWallAvoidance(
+              s,pose,closestThreat,desiredTarget,portraitCameraOffset,
+              portraitEncounterOrbit,aspect,closestThreat.strength,
+              closestThreat.encounterBeat,settings.reducedMotion);
           const sine=Math.sin(portraitEncounterOrbit), cosine=Math.cos(portraitEncounterOrbit);
           // Pass307 original 390px WebGL: the grounded guardian brace and
           // connected shell release are nearly indistinguishable from above.

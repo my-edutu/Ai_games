@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-15T04:00:00.000Z",
+  "updatedAt": "2026-11-15T04:44:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass383: exact Pass382 source-native WebGL workflow 43673122590 SUCCESS; full 39 original PNGs inspected and 37/37 available individual SHA sidecars verified against Pass380 baseline. 320/390 Follow ~0.4/255 pixel mean difference, no meaningful guardian acting/readability win; physical wall100 unchanged. Visually REJECT original cobalt/sea-glass mask and guard sweep, restore source and remove candidate-only test. New exact-HEAD rollback CI and independent critic pending. Fixed Nintendo bar unmet; PR draft, unmerged, undeployed."
+    "summary": "Pass384 candidate: real published-wall camera sightline selection for witnessed Pip/Thornback portrait encounter. Exact rollback HEAD 99580f9 WebGL 43674707675 SUCCESS; own candidate native WebGL/strict CI and visual verdict PENDING. No wall, AI, geometry-budget, privacy, NDC or 44px HUD relaxation. Fixed Nintendo bar unmet; PR open draft, unmerged, undeployed."
   },
   "captures": [
     {
@@ -96,6 +96,7 @@
     }
   ],
   "changes": [
+    "Pass384 2026-11-15: observed original 390px guardian brace is still occluded by published solid foreground. Build a new small-angle public-geometry-only camera selection to reduce authentic currently visible wall crossings in a reciprocal Pip/Thornback Follow portrait, with privacy/motion/framing tests. Candidate NOT screenshot-approved; exact-HEAD native WebGL, original hashes and independent review required. No independent critic tunnel, Nintendo benchmark unmet.",
     "Pass383 2026-11-15: original Pass382 source-bound 43673122590 successful native WebGL artifact 14145620854 downloaded and 37/37 SHA checks passed. Compare prior genuine baseline 43666486514: 320/390 Follow ~0.4/255 image change, guardian still visually lost amid bronze rails and genuine cell100 physical foreground. Visual REJECT. Selective characters.js restoration + candidate-only test deletion, exact-HEAD tests pending. No critic agents/Ultracode, Nintendo benchmark unmet.",
     "Pass382 2026-11-15: new exact-source Pass381 workflow 43672990533 FAILS 1/181 protected real Three test before native browser. Correctly restore paired original pooled bronze cheek armor material instead of removing face volume; retain cohesive other dark shell/pale skull/jaw and event-driven rooted shield motion. New HEAD CI and actual WebGL pending; no test weakening or artistic success claim.",
     "Pass381 2026-11-15: source-only cohesive original guardian character readability candidate; physically reused cobalt shell and pale sea-glass mask across whole rooted 3D skull/cheeks/jaw, plus real shoulder shields swing away from face during witnessed public brace and clear on release. No extra render resources, no AI/collision/private-map/camera/HUD changes; exact-HEAD tests and native WebGL/visual verdict PENDING, Nintendo quality benchmark unmet.",
