@@ -1111,3 +1111,42 @@ test('D04 unmatched dry releases demand the same unique current actor and live p
   assert.equal(stage.stats().activeDrawCalls,0,'a pure audio witness allocates no draw');
  }finally{stage.dispose()}
 });
+
+test('D04 strict production HP art refuses a forged sound-only or non-damage injury receipt',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const stage=createPhysicalFeedbackVisuals(T,scene,{requireVerifiedHpReceipt:true});
+ const real=cue({detail:{damage:16,maxHp:20,remainingHp:4}});
+ try{
+  // The public planner is the only authority for injury. An adapter's
+  // verified flag, impact recipe or copied cue ID cannot mint visible damage.
+  for(const invalid of [
+   {...real,detail:null},
+   {...real,detail:{...real.detail,damage:0}},
+   {...real,detail:{...real.detail,remainingHp:0}},
+   {...real,severity:.3},
+   {...real,actorId:'vanguard'},
+   {...real,from:{x:2,z:2}},
+   {...real,id:'1:1:11:swing:vanguard:-'},
+   {...real,kind:'swing',audio:'whoosh',visual:'trail',proof:'authority-attempt-not-hit'}
+  ]){
+   assert.equal(stage.emit(invalid),false,JSON.stringify(invalid));
+   assert.equal(stage.stats().instancesByPool.hit,0,
+    'invalid evidence must never allocate retained injury fragments');
+  }
+  assert.equal(stage.emit(real),true,'coherent observed HP loss remains visible');
+  assert.ok(stage.stats().instancesByPool.hit>=4);
+  stage.reset();
+  const fatal=cue({id:'1:1:12:damage-fatal:-:revenant',tick:12,
+   kind:'damage-fatal',audio:'fatal-impact',severity:1,
+   detail:{damage:20,maxHp:20,remainingHp:0}});
+  assert.equal(stage.emit(fatal),true,'genuine death also has injury art');
+ }finally{stage.dispose()}
+});
+
+test('D04 real controller enables strict HP VFX admission while isolated visual auditions stay compatible',()=>{
+ const fs=require('node:fs');
+ const controller=fs.readFileSync(path.join(root,'physical-combat-feedback.js'),'utf8');
+ assert.match(controller,/requireVerifiedHpReceipt:true/,
+  'the real preview cannot use the permissive isolated VFX test adapter');
+});
