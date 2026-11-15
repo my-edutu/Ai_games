@@ -5,6 +5,7 @@ on:
     paths:
       - public/tiny-kingdom/index.html
       - tests/browser/tiny-kingdom-w365-mobile-parcel.spec.cjs
+      - scripts/tiny-kingdom-w365-physical-courier-contract.cjs
       - .github/workflows/tiny-kingdom-w365-mobile-parcel.yml
   workflow_dispatch:
 jobs:
@@ -18,6 +19,7 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
+      - run: node scripts/tiny-kingdom-w365-physical-courier-contract.cjs
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - name: W365 uncut original 390px 3D village and actual five parcel stages

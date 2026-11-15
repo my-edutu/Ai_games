@@ -19706,37 +19706,55 @@ function emitStreetCargo(p,x,y,z,size){
   });
  }
  if(unloading&&!stillLoaded)return;
- // Body-facing straps, cargo shelf and a swaying, weighted carrier are
- // original 3D geometry rather than a billboard, icon or invented NPC.
- materialScope(MATERIAL.WOOD,()=>{
+ // W365 physical courier reconstruction: original screenshot showed a
+ // large rigid oak BOX affixed to every real walking citizen's back. That
+ // made the genuine loaded delivery and worker torso look like two stacked
+ // shipping crates. The original two-bone body, arm-grip, walking gait,
+ // attached cargo escrow, wheels and unloading timeline stay unchanged.
+ // Tailored linen/leather panels are geometry physically attached to the
+ // *same* courier; the actual resources remain shown only while carried.
+ materialScope(MATERIAL.GENERAL,()=>{
   const cx=x,cy=y+.67*size,cz=z-.265*size;
-  box(cx,cy,cz,.38*size,.49*size,.13*size,brown);
-  box(cx,cy-.23*size,cz-.035*size,.47*size,.075*size,.24*size,brown);
+  const leather=rgb(0x6d523a),fold=rgb(0x92765a),stitch=rgb(0xb59b75);
+  const back=(lx,ly,lz)=>[cx+lx*size,cy+ly*size,cz+lz*size];
+  // Sloped four-point shell follows the shoulders and tapers naturally to
+  // the belt. No solid torso-height planks, floating cargo shelf or fiction.
+  quad(back(-.155,.235,.105),back(.155,.235,.105),
+   back(.187,-.205,-.028),back(-.187,-.205,-.028),leather);
+  quad(back(-.185,-.205,-.028),back(.185,-.205,-.028),
+   back(.112,-.257,-.021),back(-.112,-.257,-.021),fold);
+  // Paired shoulder straps curve toward the real torso, not an invented
+  // backpack chassis. Both are present on actual courier workday frames.
   for(const side of [-1,1]){
-   const xx=x+side*.18*size;
-   limbSegment([xx,y+.97*size,z-.19*size],
-    [xx,y+.55*size,z-.34*size],.026*size,rope,5);
+   const shoulder=back(side*.136,.285,.148);
+   const ribs=back(side*.205,-.015,.011);
+   const waist=back(side*.147,-.224,-.022);
+   taperedMedievalLimb(shoulder,ribs,.033*size,.025*size,fold,4);
+   taperedMedievalLimb(ribs,waist,.025*size,.019*size,leather,4);
+   limbSegment(back(side*.149,.220,.131),
+    back(side*.188,.078,.068),.010*size,stitch,4);
   }
+  limbSegment(back(-.19,-.208,-.012),back(.19,-.208,-.012),
+   .029*size,rope,4);
+  // The original carried content remains tied ONLY to actual escrow or
+  // the existing legitimate first-workday witness, never a render-time sale.
   if(cargo.resource==='wood'){
-   // The original work-event witnesses remain independent of modern
-   // escrowed deliveries; never show unloaded bundles in a worker's pack.
-   const carriedLogs=actualLoad?
-    Math.min(3,actualLoad.visibleBundles):3;
+   const carriedLogs=actualLoad?Math.min(3,actualLoad.visibleBundles):3;
    for(let i=0;i<carriedLogs;i++){
     const zz=z-(.37+i*.125)*size+sway;
     limbSegment([x-.29*size,cy+.04*size,zz],
      [x+.29*size,cy+.04*size,zz],.075*size,
      rgb(i%2?0x936b49:0x715039),5);
    }
-   box(x,cy+.08*size,z-.45*size,.08*size,.24*size,.10*size,rope);
+   if(carriedLogs)limbSegment(back(-.11,.12,-.20),
+    back(.11,-.14,-.23),.018*size,rope,4);
   }else if(cargo.resource==='food'){
-   // A slung canvas harvest sack and braided closure, not a fake trade sale.
+   // Soft grain satchel follows the original citizen-facing harness.
    ellipsoid(x,cy-.025*size,z-.40*size+sway,
     .23*size,.29*size,.20*size,cloth,6);
    cylinder(x,cy+.22*size,z-.40*size+sway,
     .080*size,.11*size,rope,6);
   }else{
-   // Coin earned by the actual merchant trade: a closed leather purse.
    ellipsoid(x+.08*size,cy-.07*size,z-.39*size+sway,
     .18*size,.20*size,.13*size,brown,6);
    cylinder(x+.08*size,cy+.09*size,z-.39*size+sway,
