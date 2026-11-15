@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-15T22:36:00.000Z",
+  "updatedAt": "2026-11-15T23:30:51.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass408 exact-source natural mobile 91→74 guardian recoil passes source/strict framing but 320px remains crowded and floor disconnected; Pass409 physical actor mineral arena and public multi-tier vegetation clearing candidate committed for exact-HEAD native visual judgement. Nintendo parity unproven; no merge or deploy."
+    "summary": "Pass409 exact-SHA native WebGL: 40/40 screenshots plus three genuine gate hashes verified, but 320px autonomous Pip-Thornback parry still has severe tall foreground obstruction. Pass410 source candidate lowers optional currently visible blocked spectator towers to sealed stone reefs; new exact-HEAD CI/native visual judgement pending. Nintendo bar unmet; no merge/deploy."
   },
   "captures": [
+    {
+      "title": "Pass409 source-native WebGL 40/40 screenshot and three authentic gate hashes verified; natural 320px guardian parry visuals REJECTED",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/43771130094/artifacts/14185100293"
+    },
     {
       "title": "Pass408 native source WebGL 40/40 original PNG/JSON SHA256 verified, 320px natural moving guardian still visually REJECTED",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/43761061557/artifacts/14180183825"
@@ -136,6 +140,7 @@
     }
   ],
   "changes": [
+    "Pass410 2026-11-15T23:30:51.000Z: rejected Pass409 native 320px natural seed13 tick8 parry due to foreground ornamental blockage despite verified 40/40 original full-frame SHA and gate 3/3. Source candidate rebuilds currently visible blocked cross-tier spectator tall towers into low SEALED Tideglass reefs only during genuine published guardian parry; maintains existing walls, collision, AI, privacy, gate/hazard/stair authority, <100 reset, ±0.95 framing. Installed Three tests added, new source CI and native visual A/B pending.",
     "Pass409 2026-11-15T22:36:00.000Z: rejected Pass408 exact-source 320px mobile natural recoil visually despite SHA-verified 40/40 native PNGs and strict actor bounds; physical actor-level low mineral stage now persists after real public parry, with separate four-tile multi-tier currently visible ordinary spectator landscaping relief. No collision, AI, hidden routes, GPU resource classes or strict threshold changes; exact new-head browser captures and visual critic pending.",
     "Pass406b 2026-11-15T20:07:45.484Z: original Pass406 exact-HEAD WebGL #43755321277 SUCCESS, 40/40 native full-size PNG hashes and real gate 3/3 verified; 320/390 native genuine parry A/B visually REJECTS .90m endpoint-sink candidate as scene still loses Pip/Thornback behind tall foreground. Full six-reset <100 and original strict NDC stayed valid, but not artistic win. Restoring trusted Pass405 world and test blobs in expected-HEAD, non-forced rollback; retaining original evidence/dated review; new exact-rollback CI pending. Whole CI separately failed Tiny Kingdom OBS/uploads; Nintendo benchmark unmet.",
     "Pass406 2026-11-15T19:57:28.192Z: independently SHA-verified Pass405 exact-source 40/40 original native PNGs + real gate 3/3; direct 320/390 guardian 91→74 critic REJECTS overcrowded full-stage sightline. Original endpoint hardware was counterproductively lifted .22m on genuine public successful parry. New existing-world production candidate physically sinks connected floor-tethered endpoint mechanisms .68m on true public earned wave, preserving .42m warning brace, no AI/collision/private state or relaxed constraints. Strict installed-Three tests added. New exact-head CI/WebGL pending; Nintendo benchmark UNMET; independent workers unavailable.",

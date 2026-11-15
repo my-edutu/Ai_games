@@ -17,12 +17,13 @@ const production=import('data:text/javascript;base64,'+
 const publicRecoil=()=>({
   runToken:'real-parried-spectator-court',lifecycle:'running',result:null,
   width:5,height:5,currentCell:6,
-  visibleCells:[6,7,8,11,16,20,24],
+  visibleCells:[6,7,8,11,12,16,20,24],
   cells:[
     {cell:6,blocked:false,neighbors:[7,11]},
     {cell:7,blocked:false,neighbors:[6]},
     {cell:8,blocked:false,neighbors:[]},
     {cell:11,blocked:false,neighbors:[6,16]},
+    {cell:12,blocked:true,neighbors:[]},
     {cell:16,blocked:false,neighbors:[11]},
     {cell:20,blocked:false,neighbors:[]},
     {cell:24,blocked:false,neighbors:[]}
@@ -43,6 +44,14 @@ test('earned retreat builds a truthful published actor court, with separate spec
     'the disclosed fourth-ring spectator clears only optional vegetation, not the low actor court');
   assert.ok(spectator.has(24),
     'the disclosed fourth-ring threshold must clear tall spectators');
+  assert.ok(spectator.has(12) && !actor.has(12),
+    'a disclosed blocked cross-tier spectator is a quiet sealed wall, never a playable actor court');
+  assert.ok(!quiet({...s,visibleCells:s.visibleCells.filter(id=>id!==12)},
+    {spectator:true}).has(12), 'a hidden blocked cell cannot be quieted');
+  assert.ok(!quiet({...s,keys:[{cell:12}]},{spectator:true}).has(12),
+    'a known key cell retains its original architecture');
+  assert.ok(!quiet({...s,doors:[{a:12,b:13,open:false}]},
+    {spectator:true}).has(12), 'a known gate landing retains original geometry');
   const beyond={...s,width:9,height:9,
     visibleCells:[...s.visibleCells,80],
     cells:[...s.cells,{cell:80,blocked:false,neighbors:[]}]};
@@ -78,6 +87,8 @@ test('installed Three builds a continuous physically flush earned court without 
     const after=scene.stats();
     assert.ok(after.guardianCourtTiles>=2,
       'visible complete Pip and Thornback get real authored low Tideglass geometry');
+    assert.ok(after.guardianBlockedReliefTiles>=1,
+      'a published blocked spectator becomes existing low SEALED relief without false floor');
     assert.equal(after.geometryCount,initial.geometryCount,
       'reuses the actual original pooled Three geometry classes');
     assert.equal(after.materialCount,initial.materialCount,
@@ -86,6 +97,8 @@ test('installed Three builds a continuous physically flush earned court without 
     scene.update(hidden);
     assert.equal(scene.stats().guardianCourtTiles,0,
       'as soon as Thornback is no longer public, the special stage goes away');
+    assert.equal(scene.stats().guardianBlockedReliefTiles,0,
+      'on public guardian loss, tall blocked scenery restores');
     scene.update({...s,threats:[{cell:8,lanternParried:false}]});
     assert.equal(scene.stats().guardianCourtTiles,0,
       'no invented parry can retain the cutaway');
