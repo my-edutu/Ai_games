@@ -32,3 +32,15 @@ test('reduced motion is a still, bounded genuine warning and never a pulse', asy
   assert.equal(cue(.9, .99, true),staticLight);
   assert.equal(cue(0, .5, true),0);
 });
+
+test('the source-bound production Maze stream explicitly serves the real guardian lighting module', () => {
+  const fs = require('node:fs');
+  const p = path.join(__dirname, '../../scripts/serve-maze-stream.cjs');
+  const server = fs.readFileSync(p, 'utf8');
+  assert.match(server, /'scene\\.js', 'public-guardian-heartlight\\.mjs', 'characters\\.js'/,
+    'the imported live WebGL module must exist on the explicit production asset allowlist');
+  assert.match(server, /const routes=new Map\\(PUBLIC_ASSETS\\.map/,
+    'public allowlist drives the actual route map rather than a fake source test');
+  assert.match(server, /'\\.mjs':'text\\/javascript; charset=utf-8'/,
+    'the browser must receive the added module as JavaScript with nosniff');
+});
