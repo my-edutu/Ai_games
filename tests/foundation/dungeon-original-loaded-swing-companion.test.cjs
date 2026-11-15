@@ -112,7 +112,7 @@ test('RED: measured original deep-swing foot arc can spend two unused licensed-s
  });
  const base={
   mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
-  sourceInstanceSame:true,sourceFootChainVerified:true,
+  sourceInstanceSame:true,sourceInstanceId:'live-source-41-joint',sourceFootChainVerified:true,
   sourceFootTrackVerified:true,ownerLocomotion:true,
   alive:true,visible:true,rootTravel:.0504,frameAge:0,
   frameInterval:.1166,side:'left',floorTopY:-.02,before:original,
