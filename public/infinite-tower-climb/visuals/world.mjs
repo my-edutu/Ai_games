@@ -1478,8 +1478,25 @@ export function createTowerWorld(){
     const frame=new THREE.Group();
     frame.name='SourceEarnedVoidLandingBearingFrame';
     floorGroup.add(frame);
+    // Construct the REAL existing open-core load path as part of the first
+    // source-earned Floor9 world. Its supported foundation, rear stays and
+    // high crown establish the NEXT room while the authentic bronze gallery
+    // and HP-open gateway are still rendered. The previous empty first-frame
+    // destination left only the old gallery and F9 platform undersides;
+    // the entire purple room then appeared on a later cold GPU return,
+    // causing the abrupt 26-27s native architectural replacement.
+    //
+    // This is not a second bridge or a duplicate shell: buildTower checks
+    // coreDeferred and excludes the very SAME core from its delayed shaft.
+    // Keep all nearer exterior pylons deferred so no new stone pier can cut
+    // the source-open doorway. The shared physical arrival palette tints
+    // these already-authored dark/metal/stone surfaces Clockwork bronze on
+    // the first genuine grounded F9 frame and gradually reveals their actual
+    // Void finish on source-owned departure. The full source F9 ground,
+    // moving decks, hazards and actor are unaffected.
+    buildVoidOpenCoreLoadPath(height,frame);
     return {root:frame,pylonIndex:null,deferredPylonIndex:nearest,
-      coreDeferred:true,coreDrawn:false,runToken:snapshot.runToken};
+      coreDeferred:false,coreDrawn:true,runToken:snapshot.runToken};
   }
   function buildTower(height,openClockworkPylons=false){
     const root=floorGroup;
