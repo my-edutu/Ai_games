@@ -62,13 +62,15 @@ data.length=0;render.build();
 assert.deepEqual(data,firstGeometry,'same town and routes must emit stable real geometry');
 const subsequentAudit=render.audit();
 for(const [key,value] of Object.entries(firstAudit)){
- if(key==='routeResidency')continue; // real cache hit counters MUST advance on reused original routes.
+ if(key==='routeResidency'||key==='reusedOriginalRoutes')continue; // genuine cache counters advance while street triangles stay byte-identical.
  assert.deepEqual(subsequentAudit[key],value,
   'same original town must keep stable physical street geometry and audit: '+key);
 }
 assert.equal(subsequentAudit.routeResidency.originalAStarSearches,
  firstAudit.routeResidency.originalAStarSearches,
  'unchanged authentic town must not repeat its original A* searches');
+assert(subsequentAudit.reusedOriginalRoutes>firstAudit.reusedOriginalRoutes,
+ 'the real original road audit must report actual verified route reuse');
 assert(subsequentAudit.routeResidency.retained>firstAudit.routeResidency.retained,
  'unchanged authentic town must report verified retained road use');
 // Growth must never hide a genuine house, exceed the triangle budget, or
