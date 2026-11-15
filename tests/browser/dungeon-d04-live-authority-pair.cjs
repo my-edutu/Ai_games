@@ -124,10 +124,18 @@ function documentedHpDeadlineMiss(sample,manifest){
   if(r.decision==='expired-pending-before-frame')
    return r.frameId===null&&
     finite(r.pendingExpiredWallAgeMs)&&r.pendingExpiredWallAgeMs>400;
+  // A stale label and a claimed age are not two independent witnesses.
+  // Require the same monotonic observation/submission clocks used for
+  // positive drawable receipts; missing or contradictory clocks stay UNKNOWN.
+  // This makes the six-view diagnostic conservative without reviving late
+  // impacts, changing the 400ms deadline or identifying a damage source.
   return (r.decision==='stale-frame'||r.decision==='expired-visual')&&
    pos(r.frameId)&&pos(sample.submittedFrameId)&&
    r.frameId<=sample.submittedFrameId&&
-   finite(r.observationToSubmissionMs)&&r.observationToSubmissionMs>400;
+   finite(r.observedClockMs)&&finite(r.submittedClockMs)&&
+   finite(r.observationToSubmissionMs)&&r.observationToSubmissionMs>400&&
+   r.submittedClockMs>=r.observedClockMs&&
+   Math.abs(r.submittedClockMs-r.observedClockMs-r.observationToSubmissionMs)<=3;
  });
 }
 
