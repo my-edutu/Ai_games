@@ -25,7 +25,11 @@ export function observedSourceSuccessorRaisedDeck(source, roofY) {
      p.groundedPlatformId==='f9:ground' ||
      !Array.isArray(source.platforms))return false;
   const sole=p.y-p.halfHeight;
-  if(sole<=roofY+160000 || sole>roofY+230000)return false;
+  // The real first F9 raised deck is often BELOW the old 16m airborne ceiling.
+  // A grounded raised support must be accepted from the first positive step,
+  // while the same immutable 23m maximum and strict current-platform contact
+  // still veto distant or fabricated geometry.
+  if(sole<=roofY || sole>roofY+230000)return false;
   return source.platforms.some(platform =>
     platform?.id===p.groundedPlatformId &&
     [platform.x,platform.y,platform.width,platform.height].every(valid) &&
