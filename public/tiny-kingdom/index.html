@@ -27228,7 +27228,7 @@ document.addEventListener('keydown',e=>{
   e.preventDefault();e.stopPropagation();
  }
 },true);
-button('pause',()=>{frozen=!frozen;if(frozen)resetSoftwareDebtDrain();document.getElementById('pause').textContent=frozen?'▶ Resume':'Ⅱ Pause'});for(let v of [1,4,16])button('speed'+v,()=>{speed=v;for(let n of [1,4,16])document.getElementById('speed'+n).classList.toggle('active',n===v)});button('focus',()=>{if(follow&&(document.body.dataset.workday==='on'||document.body.dataset.workday==='homecoming'))stopWorkdayWatch();setCitizenFollow(!follow)});button('camera',()=>{cinematic=!cinematic;document.getElementById('camera').classList.toggle('active',cinematic)});button('restart',()=>{city.splice(12);start()});
+button('pause',()=>{frozen=!frozen;if(frozen)resetSoftwareDebtDrain();document.getElementById('pause').textContent=frozen?'▶ Resume':'Ⅱ Pause'});for(let v of [1,4,16])button('speed'+v,()=>{setSimulationSpeed(v);for(let n of [1,4,16])document.getElementById('speed'+n).classList.toggle('active',n===v)});button('focus',()=>{if(follow&&(document.body.dataset.workday==='on'||document.body.dataset.workday==='homecoming'))stopWorkdayWatch();setCitizenFollow(!follow)});button('camera',()=>{cinematic=!cinematic;document.getElementById('camera').classList.toggle('active',cinematic)});button('restart',()=>{city.splice(12);start()});
 
 /* W44 — The Forge Witness follows ONE actual autonomous craftsperson
    into their physical workshop and keeps that individual on screen. A camera
