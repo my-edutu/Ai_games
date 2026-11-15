@@ -46,6 +46,7 @@ test('never dissolve historical door on a forged passage, uncleared body, or exp
     '../../public/infinite-tower-climb/visuals/source-physical-arrival-palette.mjs');
   const {source,held}=physical();
   held.submittedFrames=4;held.visibleSeconds=.42;
+  source.lastGuardianCrossing.crossingX=source.lastGuardianCrossing.exitX;
   source.player.x=source.lastGuardianCrossing.crossingX;source.player.y=3238000;
   source.player.groundedPlatformId='f9:ground';
   source.player.state='standing';source.player.vy=0;
