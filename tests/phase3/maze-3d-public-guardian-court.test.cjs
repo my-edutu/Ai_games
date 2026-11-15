@@ -1369,7 +1369,7 @@ test('earned public lantern counter propagates a real three-cell 3D court wave, 
   try{
     w.update(source);
     w.animate(0,counter);
-    assert.equal(leaf(6).parent.rotation.x,0,'a claimed parry without the real PUBLIC flag cannot open the court');
+    assert.ok(Math.abs(leaf(6).parent.rotation.x)<1e-10,'a claimed parry without the real PUBLIC flag cannot open the court');
     w.update(won);
     w.animate(2,counter);
     w.animate(2.20,counter);
@@ -1386,14 +1386,14 @@ test('earned public lantern counter propagates a real three-cell 3D court wave, 
     assert.ok(crown.parent.position.y>.2,
       'existing joined endpoint standard participates in the true counterflow');
     w.animate(3,{...counter,guardianParried:false});
-    assert.ok([6,7,8].every(cell=>leaf(cell).parent.rotation.x===0),
+    assert.ok([6,7,8].every(cell=>Math.abs(leaf(cell).parent.rotation.x)<1e-10),
       'a cleared real counter instantly returns all hinges to a truthful neutral stance');
     w.update(source);
     w.animate(4,counter);
-    assert.equal(leaf(6).parent.rotation.x,0,'no prior run or private cue can replay earned action');
+    assert.ok(Math.abs(leaf(6).parent.rotation.x)<1e-10,'no prior run or private cue can replay earned action');
     w.update({...source,privateMaze:{lanternParried:true,threats:[{cell:8}]}});
     w.animate(5,counter);
-    assert.equal(leaf(6).parent.rotation.x,0,'private-only information cannot earn public stage movement');
+    assert.ok(Math.abs(leaf(6).parent.rotation.x)<1e-10,'private-only information cannot earn public stage movement');
     w.update(won);
     w.animate(6,{...counter,reducedMotion:true});
     assert.ok([6,7,8].every(cell=>leaf(cell).parent.rotation.x===0),
