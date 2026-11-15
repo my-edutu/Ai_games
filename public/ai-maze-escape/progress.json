@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-15T18:12:42.000Z",
+  "updatedAt": "2026-11-15T18:51:11.830Z",
   "benchmark": {
     "status": "Not yet passed",
     "summary": "Pass403: A real earned, publicly observed guardian lantern counter now drives a phased physical Tideglass corridor release from Pip toward the recoiling Thornback. New source/strict Three test candidate; exact-HEAD original 320/390 native WebGL and independent Nintendo-reference visual acceptance still pending. No parity claim."
@@ -116,6 +116,7 @@
     }
   ],
   "changes": [
+    "Pass404 2026-11-15T18:51:11.830Z: genuine 40/40 original Pass403 WebGL SHA and original Pass402 baseline reviewed: Pip/Thornback earn larger full bodies, but tall spectator foliage still obscures recoil. One production candidate extends ONLY the currently public same-tier guardian third-ring optional tall-dressing exclusion; real walls/doors/stairs/AI/collisions and strict geometry/viewport gates untouched. New exact-HEAD CI and true before-after WebGL pending; official Nintendo benchmark NOT MET.",
     "Pass403 2026-11-15: original Pass402 320/390 parry screenshots confirmed improved physical actor size but cluttered cause-and-effect. Implemented authentic public guardian-parried event-driven Tideglass threshold/endpoint counterflow from Pip toward Thornback with no new GPU resources, hidden routes, AI authority or navigation. Added strict real Three tests for public truth, chronology, closed/hidden/terminal reset, reduced motion and <100 six-run resource budget. New exact-HEAD CI and SHA-verified genuine recoil WebGL pending; official Nintendo bar unmet.",
     "Pass402 2026-11-15: real Pass401 WebGL 43739318022 original ZIP independently checked 40/40 PNG hashes + 3/3 gate hashes; 320/390 mobile earned 91→74 scene still tiny. New source candidate pairs full physical silhouettes and safely centers / enlarges real public-earned recoil up to 34% with stronger .80/.69/.78 NDC bounds. Source tests + new exact-HEAD WebGL / Nintendo visual critic PENDING; no claimed visual win.",
     "Pass401 2026-11-15: original 40/40 source-matched Pass400 native images + three gate hashes verified, real autonomous 91→74 at native 320/390. Production source fixed earned parry's missing PUBLIC acting cue at Pip's actual articulated torso and lantern after close-warning drop; no hidden data, route, geometry or collision alteration. Fresh strict CI/native image acceptance PENDING, not a benchmark win.",
@@ -348,6 +349,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass404 source-grounded native 320/390 earned recoil: inspect whether third-ring public foliage really clears Pip's lower body and Thornback's physical silhouette, without an empty/barren plaza, false route, pressure/gate regressions or >±0.95. Revert if no substantial gameplay readability gain.",
     "Pass402 exact-HEAD 320×740 and 390×844 REAL moving earned-parry original full-resolution WebGL vs Pass401 SHA-verified baseline: prove two complete physical bodies actually larger and unobstructed, no NDC >.95, no HUD overlap, no gate/pressure/private/regression, six-reset <100, whole-CI independently assessed, and fixed official Nintendo source-blind critique. Revert if only code math improved.",
     "Pass367: Existing foreground court remains the dominant defect. Need a distinct actual physical stage with readable Pip/Thornback and real obstacle/collision silhouette; no more decorative iris/prop/angle patches. First verify rollback exact-HEAD WebGL captures/strict wall100 ray and native actor envelopes.",
     "Pass366: Run exact-HEAD focused and whole CI; inspect uncropped native 320/390/844/1280 and genuine brace/release/pressure/key/gate renders with original SHA manifests. Critically compare to fixed Nintendo gameplay and rollback if actor platform effect is too subtle or creates clutter/cropping. Independent artist unavailable.",
@@ -1067,6 +1069,11 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass404 live third-ring spectator negative-space candidate",
+      "status": "PENDING exact-HEAD focused CI, original native WebGL captures and independent critic",
+      "detail": "Prior Pass403 current 47f8a5bd42e604b3e2e984192caa843c1b72e57f: Maze #43747026147 success, 40/40 original PNG SHA checked, real moving 91→74; candidate source change unverified. Detached critic unavailable."
+    },
     {
       "name": "Pass367 Pass366 original WebGL verdict and rollback",
       "status": "Previous candidate native screenshot/strict test verified; rollback SHA CI pending",

@@ -1149,9 +1149,17 @@ export function createMazeWorld(options = {}) {
     // speculative camera reveal. The actual stage and its second disclosed
     // ring keep all stone, seals, stairs, pressure devices and collisions.
     // Only redundant non-functional tall dressings yield to full-body acting.
+    // Original 320/390px source-bound earned-recoil frames show the actual
+    // Pip/Thornback bodies obscured by non-colliding third-ring foliage, even
+    // though the first two disclosed rings are already quiet. Extend only
+    // the optional DECORATIVE negative-space treatment to the previously
+    // computed third SAME-TIER, currently PUBLIC ring. Keep every real wall,
+    // gate, pressure jaw, stair, court leaf and navigable boundary unchanged.
+    // The peripheral helper requires a genuine witnessed open causeway and
+    // cannot infer or reveal hidden terrain or private AI.
     const guardianQuietRing=guardianCauseway.has(s.currentCell)
       ? new Set([...guardianForecourtShoulders,...guardianOuterCourt.ordinary,
-        ...guardianForeground]) : new Set();
+        ...guardianPeripheralWalls]) : new Set();
     const guardianBlockedRelief=publicGuardianBlockedReliefCells(s,guardianSightlines);
     const knownByCell = new Map(s.cells.map(c => [c.cell, c]));
     // The public snapshot is the ONLY source of foreground cutaway geometry.

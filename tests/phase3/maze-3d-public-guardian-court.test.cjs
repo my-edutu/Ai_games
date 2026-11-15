@@ -1424,3 +1424,59 @@ test('real render invokes guardian counterflow solely from current public earned
   assert.match(scene,/guardianCell:witnessedCounter\?earnedCounterActor\.cell:closestThreat\?\.cell/);
   assert.doesNotMatch(scene,/privateMaze.*guardianParried|secretRoute.*guardianParried/);
 });
+
+
+test('a witnessed guardian clears only third-ring optional foliage; solid walls and private tiles stay untouched',async()=>{
+  const {createMazeWorld,publicGuardianCausewayCells}=await load();
+  // Source-grounded 17x11 physical Pip99 / Thornback98 mobile court:
+  // 134 (row7/col15) is a third-ring SAME-TIER spectator and has a real
+  // PUBLIC sealed east boundary to 135. Its deterministic garden patch
+  // grows a full-height plant on this nonpassage, not a walkable corridor.
+  const s={runToken:'third-ring-physical-duel',lifecycle:'running',result:null,
+    width:17,height:11,currentCell:99,visibleCells:[98,99,134,135],
+    cells:[
+      {cell:98,blocked:false,neighbors:[99]},
+      {cell:99,blocked:false,neighbors:[98]},
+      {cell:134,blocked:false,neighbors:[]},
+      {cell:135,blocked:false,neighbors:[]}
+    ],doors:[],keys:[],inventory:[],exitCell:null,
+    threats:[{id:'thornback',cell:98}]};
+  const truth=JSON.stringify(s),w=createMazeWorld({balanced:true}),budget=w.stats();
+  const ordinary={...s,threats:[]};
+  try{
+    assert.deepEqual([...publicGuardianCausewayCells(s)].sort((a,b)=>a[0]-b[0]),
+      [[98,'x'],[99,'x']], 'the real pair must already have an open, reciprocal, level court');
+    w.update(ordinary);
+    const untamed=w.stats();
+    assert.ok(untamed.wallGardens>0,'this real third-ring disclosed flank has tall optional vegetation');
+    w.update(s);
+    const quiet=w.stats();
+    assert.ok(quiet.wallGardens<untamed.wallGardens,
+      'a witnessed Pip/Thornback performance must remove the foreground foliage, not just recolor a floor');
+    assert.equal(quiet.guardianCausewayTiles,2,
+      'both public actor cells retain their authentic physical performance floor');
+    assert.equal(quiet.renderedCells.length,4,
+      'all and only published terrain remains, including the sealed spectator boundary');
+    assert.equal(quiet.geometryCount,budget.geometryCount);
+    assert.equal(quiet.materialCount,budget.materialCount);
+    assert.equal(JSON.stringify(s),truth,'scene decoration never changes authoritative public truth');
+    w.update({...s,doors:[{a:98,b:99,open:false}]});
+    assert.equal(w.stats().wallGardens,untamed.wallGardens,
+      'a truly sealed pair has no guardian reveal or unrelated foliage removal');
+    w.update({...s,threats:[]});
+    assert.equal(w.stats().wallGardens,untamed.wallGardens,
+      'the stage disappears when the public guardian disappears');
+    w.update({...s,privateMaze:{guardianCell:98,imaginedPlants:[134]}});
+    assert.equal(w.stats().wallGardens,quiet.wallGardens,
+      'private information cannot broaden physical spectator cutaway');
+    for(let i=0;i<6;i++){
+      w.update({...s,runToken:'source-third-ring-reset-'+i});
+      assert.equal(w.stats().wallGardens,quiet.wallGardens);
+      assert.ok(w.stats().geometryCount<100,'unchanged strict six-run resource ceiling');
+    }
+  }finally{
+    w.dispose();
+    assert.equal(w.stats().geometryCount,0);
+    assert.equal(w.stats().materialCount,0);
+  }
+});
