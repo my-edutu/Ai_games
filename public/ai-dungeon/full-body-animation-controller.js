@@ -236,6 +236,77 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
  * prove >=12mm / >=15% further recovery before moving original joints.
  * Neither qualification nor reconciliation grants contact or foot locking.
  */
+
+/**
+ * A certified source-loaded ankle and the OPPOSITE licensed swing hip/knee
+ * can coexist only when BOTH original weighted outsole patches are read
+ * in the exact same Walking_A clone and frame. A prior blanket veto left
+ * the genuine 390px tick-6 right swing toe 81.687mm beneath authored stone
+ * despite independently accepted left loaded-shoe relief.
+ *
+ * This authorizes only a reversible original leg TRIAL: the renderer must
+ * still independently re-skin both shoes after any candidate and reject
+ * all proposed poses without useful toe lift and a stationary loaded shoe.
+ * No footstep, IK plant, authority step, or event is inferred.
+ */
+export function qualifyOriginalSourceLoadedStanceCompanion({
+ stanceProof=null,swingSide='',sourceInstanceId='',sourceClipName='',
+ sourceWeight=NaN,floorTopY=NaN,currentLoaded=null,currentSwing=null
+}={}){
+ const loadedSide=swingSide==='left'?'right':swingSide==='right'?'left':null;
+ const validXZ=v=>Array.isArray(v)&&v.length===2&&v.every(finite);
+ const validShoe=s=>s&&[s.heelY,s.toeY].every(finite)&&
+  validXZ(s.heelXZ)&&validXZ(s.toeXZ);
+ if(!loadedSide||!sourceInstanceId||sourceClipName!=='Walking_A'||
+  !finite(sourceWeight)||sourceWeight<.92||sourceWeight>1.001||
+  !finite(floorTopY)||Math.abs(floorTopY+.02)>.005||
+  !validShoe(currentLoaded)||!validShoe(currentSwing)||
+  !stanceProof||stanceProof.source!=='same-original-GLB-two-point-stanced-shoe'||
+  stanceProof.sourceInstanceId!==sourceInstanceId||
+  stanceProof.sourceClip!=='Walking_A'||stanceProof.side!==loadedSide||
+  stanceProof.contactLocked===true||
+  ![stanceProof.beforeHeelY,stanceProof.beforeToeY,
+    stanceProof.afterHeelY,stanceProof.afterToeY,
+    stanceProof.beforeWorstMeters,stanceProof.afterWorstMeters,
+    stanceProof.heelShiftXZMeters,stanceProof.toeShiftXZMeters,
+    stanceProof.appliedAngleRad,stanceProof.floorTopY].every(finite)||
+  !validXZ(stanceProof.afterHeelXZ)||!validXZ(stanceProof.afterToeXZ)||
+  Math.abs(stanceProof.floorTopY-floorTopY)>.001||
+  Math.abs(stanceProof.appliedAngleRad)>.120001||
+  stanceProof.heelShiftXZMeters<0||stanceProof.heelShiftXZMeters>.004||
+  stanceProof.toeShiftXZMeters<0||stanceProof.toeShiftXZMeters>.004||
+  stanceProof.beforeWorstMeters-stanceProof.afterWorstMeters<.001||
+  Math.abs(stanceProof.beforeWorstMeters-Math.max(
+   Math.abs(stanceProof.beforeHeelY-floorTopY),
+   Math.abs(stanceProof.beforeToeY-floorTopY)))>.002||
+  Math.abs(stanceProof.afterWorstMeters-Math.max(
+   Math.abs(stanceProof.afterHeelY-floorTopY),
+   Math.abs(stanceProof.afterToeY-floorTopY)))>.002||
+  ![currentLoaded.heelY,currentLoaded.toeY].every(y=>
+   y>=floorTopY-.055&&y<=floorTopY+.035)||
+  currentSwing.heelY-floorTopY<.08||
+  currentSwing.heelY-floorTopY>.35||
+  floorTopY-currentSwing.toeY<.025||
+  floorTopY-currentSwing.toeY>.12||
+  Math.hypot(currentLoaded.toeXZ[0]-currentLoaded.heelXZ[0],
+   currentLoaded.toeXZ[1]-currentLoaded.heelXZ[1])<.20||
+  Math.hypot(currentLoaded.toeXZ[0]-currentLoaded.heelXZ[0],
+   currentLoaded.toeXZ[1]-currentLoaded.heelXZ[1])>.37)return null;
+ const drift=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+ // Measure the final actual loaded source shoe, not an old pose receipt.
+ // A 3mm height or 2.5mm lateral difference must reject this trial even
+ // when the linked-leg selector itself would accept a larger 4mm allowance.
+ if(Math.abs(currentLoaded.heelY-stanceProof.afterHeelY)>.003||
+  Math.abs(currentLoaded.toeY-stanceProof.afterToeY)>.003||
+  drift(currentLoaded.heelXZ,stanceProof.afterHeelXZ)>.0025||
+  drift(currentLoaded.toeXZ,stanceProof.afterToeXZ)>.0025)return null;
+ return Object.freeze({
+  source:'measured-same-original-GLB-stance-and-swing',
+  sourceInstanceId,sourceClip:'Walking_A',loadedSide,swingSide,
+  sameSourceFrame:true,loadedShoePreserved:true,contactLocked:false
+ });
+}
+
 export function qualifyOriginalSourceAnkleLinkedEscalation({
  ankleProof=null,side='',sourceInstanceId='',sourceClipName='',
  sourceWeight=NaN,actualToeY=NaN,floorTopY=NaN,
