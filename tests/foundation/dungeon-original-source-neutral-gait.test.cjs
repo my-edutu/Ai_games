@@ -161,3 +161,44 @@ test('real slow mobile original Walking_A swing can try bounded Idle bones after
  ])assert.equal(plan({...slowOwner,starterTrials:realStarters,...bad}),null,
   'unsupported delayed frames, wrong owner, free-floating stance and weak pitch must still fail closed');
 });
+
+
+test('original Idle knee source-angle budget adapts two full-chain probes instead of rejecting a legal first blend',async()=>{
+ const {planOriginalSourceSafeNeutralBlendSamples:budget}=await load();
+ // 0.765rad is a representative source-knee rotation magnitude from the
+ // licensed Walking_A track audit. It is NOT a measured Idle-vs-Walking_A
+ // blend angle and does NOT claim any accepted live native GLB correction.
+ const first=budget({source:'licensed-original-Idle-joint-gap',
+  sourceClipName:'Idle',sourceChainVerified:true,
+  sourceJointAngularSeparationRad:[.38,.765,.22],maxJointDeltaRad:.26});
+ assert.ok(first&&first.length===2,'retain two skinned trials within the existing four-probe budget');
+ assert.equal(first[0],.28);
+ assert.ok(first[1]>.30&&first[1]<.42,
+  'permit a safe second source pose when a .42 blend violates a real joint budget');
+ assert.ok(first.every(b=>b*.765<=.260001));
+ assert.deepEqual(budget({source:'licensed-original-Idle-joint-gap',
+  sourceClipName:'Idle',sourceChainVerified:true,
+  sourceJointAngularSeparationRad:[.25,.50,.12],maxJointDeltaRad:.26}),[.28,.42]);
+ for(const bad of [
+  {source:'unverified-skeleton'},
+  {sourceClipName:'Walking_A'},{sourceChainVerified:false},
+  {sourceJointAngularSeparationRad:[.38,.765]},
+  {sourceJointAngularSeparationRad:[.38,NaN,.22]},
+  {sourceJointAngularSeparationRad:[.38,3.5,.22]},
+  {sourceJointAngularSeparationRad:[0,0,0]},
+  {sourceJointAngularSeparationRad:[.38,.95,.22]},
+  {maxJointDeltaRad:.40},
+  {maxJointDeltaRad:-.1}
+ ])assert.equal(budget({source:'licensed-original-Idle-joint-gap',
+   sourceClipName:'Idle',sourceChainVerified:true,
+   sourceJointAngularSeparationRad:[.38,.765,.22],
+   maxJointDeltaRad:.26,...bad}),null);
+});
+
+test('native source renderer uses real original joint angular separation to budget Idle trials and restores mixer-owned quaternions',()=>{
+ assert.match(renderer,/planOriginalSourceSafeNeutralBlendSamples\(/);
+ assert.match(renderer,/original\[i\]\.angleTo\(targets\[i\]\)/);
+ assert.match(renderer,/sampleOriginalIdle\(blend\)/);
+ assert.match(renderer,/originalNeutralMounts\[i\]\.bone\.quaternion/);
+ assert.match(renderer,/mount\.last\.multiply\(delta\)/);
+});
