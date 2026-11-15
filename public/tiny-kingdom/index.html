@@ -11791,6 +11791,36 @@ function physicalMarketUprights(){
  });
  return posts;
 }
+// W342: the historic freight gateway has TWO real OUTBOARD timber marker
+// assemblies, not the 5.84m crossing lintel that older camera code invented.
+// Match the boxes and brace emitted by marketQuarter(): positions, heights,
+// widths and side signs remain those of the original built market. The real
+// courier aisle stays entirely open and no world/navigation data changes.
+function physicalMarketGatewayVolumes(){
+ const gate=MARKET_ENTRY_ARCH,solids=[];
+ for(const side of [-1,1]){
+  const px=gate.x+side*gate.postOffset,pz=gate.z,py=terrain(px,pz);
+  const add=(kind,x,z,rx,rz,bottom,top)=>{
+   if(![x,z,rx,rz,bottom,top].every(Number.isFinite)||
+      rx<=0||rz<=0||top<=bottom)
+    throw Error('W342 invalid original gateway timber volume');
+   solids.push({x,z,rx,rz,bottom,visualBottom:bottom,top,kind});
+  };
+  // Exactly the 1.05 x .14 x .24 outboard beam, not a crossing beam.
+  add('market-gateway-arm',px+side*.46,pz,.525,.12,
+   py+gate.beamHeight-.17,py+gate.beamHeight-.03);
+  // The real 45cm guildmark hangs to the outer SIDE of that post.
+  add('market-gateway-guildmark',px+side*.86,pz+.12,.225,.045,
+   py+gate.beamHeight-.41,py+gate.beamHeight-.02);
+  // Actual 60mm diagonal knee joining the upright to the outer arm;
+  // conservative 3D envelope leaves the full central freight aisle clear.
+  const low=Math.min(gate.postHeight-.72,gate.beamHeight-.12)-.06;
+  const high=Math.max(gate.postHeight-.72,gate.beamHeight-.12)+.06;
+  add('market-gateway-brace',px+side*.39,pz,.45,.07,
+   py+low,py+high);
+ }
+ return solids;
+}
 function getMarketGatewayAudit(){
  return {source:'physical-open-trade-gateway-and-sett-street',
   x:MARKET_ENTRY_ARCH.x,z:MARKET_ENTRY_ARCH.z,
@@ -11799,6 +11829,8 @@ function getMarketGatewayAudit(){
   postHeight:MARKET_ENTRY_ARCH.postHeight,
   openClearWidth:MARKET_ENTRY_ARCH.postOffset*2-MARKET_ENTRY_ARCH.postWidth,
   structuralPosts:physicalMarketUprights().length,
+  originalOutboardCameraTimbers:physicalMarketGatewayVolumes().length,
+  phantomCrossAisleLintels:0,
   freightCrossBeams:marketQuarterStats.freightCrossBeams||0,
   openSkyFreightMarkers:marketQuarterStats.openSkyFreightMarkers||0,
   clearCorridorMeasured:marketQuarterStats.corridorClearWidth||
@@ -22709,11 +22741,11 @@ function followCameraRoofs(){
  const my=terrain(0,5);
  roofs.push({x:0,z:5,rx:1.6,rz:1.02,bottom:my+1.51,top:my+2.31,
   visualBottom:my+.12,kind:'village-market'});
- const ay=terrain(MARKET_ENTRY_ARCH.x,MARKET_ENTRY_ARCH.z);
- roofs.push({x:MARKET_ENTRY_ARCH.x,z:MARKET_ENTRY_ARCH.z,
-  rx:MARKET_ENTRY_ARCH.beamWidth*.5+.04,rz:.21,
-  bottom:ay+MARKET_ENTRY_ARCH.beamHeight,
-  top:ay+MARKET_ENTRY_ARCH.beamHeight+.39,kind:'arcade'});
+ // W342: removed the old phantom FULL-WIDTH cross-aisle beam. W304
+ // physically replaced it with TWO independent roadside arms. That former
+ // virtual AABB rejected good worker views in the real open freight aisle.
+ // Their exact original outboard timber, sign and diagonal still block rays.
+ roofs.push(...physicalMarketGatewayVolumes());
  for(const [x,z] of [[-14.65,-3.35],[14.15,8.25]])
   roofs.push({x,z,rx:1.85,rz:1.64,top:terrain(x,z)+3.34,
    visualBottom:terrain(x,z)-.02,kind:'street-shop'});
@@ -22750,7 +22782,10 @@ function cameraOcclusionModel(){
   tallHomes:roofs.filter(r=>r.kind==='home'&&r.tall).length,
   stalls:count('market-stall'),
   trueStreetLevelStallVolumes:roofs.filter(r=>r.kind.startsWith('market-stall-')).length,
-  streetShops:count('street-shop'),arcades:count('arcade'),
+  streetShops:count('street-shop'),
+  arcades:count('arcade')+count('market-gateway-arm')/2,
+  authenticOutboardGatewayPieces:count('market-gateway-arm')+
+   count('market-gateway-guildmark')+count('market-gateway-brace'),
   receivingHallRoofBands:count('receiving-hall-roof'),
   receivingHallPosts:count('receiving-hall-post'),
   marketArcadeRoofBands:count('market-arcade-roof'),
@@ -22881,6 +22916,7 @@ function getCameraRayBroadphaseAudit(){
 const PHYSICAL_FOLLOW_EYE_KINDS=new Set([
  'home','hall','granary','craft-district','belfry','street-shop',
  'market-stall','village-market','market-stall-post','market-gateway-post',
+ 'market-gateway-arm','market-gateway-guildmark','market-gateway-brace',
  'market-stall-counter','market-stall-screen','market-stall-upper-wall',
  'market-stall-rear-gable','market-stall-artisan-vent','market-stall-sign',
  'market-cart','receiving-dock','receiving-hall-roof','market-arcade-roof',
@@ -23009,6 +23045,7 @@ const WORKDAY_OPAQUE_SCENE_KINDS=new Set([
  'market-stall-counter','market-stall-screen',
  'market-stall-upper-wall','market-stall-sign',
  'market-stall-post','market-gateway-post',
+ 'market-gateway-arm','market-gateway-guildmark','market-gateway-brace',
  'market-stall-rear-gable','market-stall-artisan-vent',
  'market-cart','courier-cart','receiving-dock','receiving-hall-roof',
  'market-arcade-roof','receiving-hall-post','granary-porch-roof','granary-porch-post',
