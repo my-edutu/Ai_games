@@ -1242,6 +1242,93 @@ export function chooseOriginalSourceSwingToeJointRelief({
  * A new final skinned two-shoe read after application is still mandatory.
  * This is NOT IK, sole planting, a game move or an artificial hit.
  */
+/**
+ * True original FULL-LEG ankle continuation, never an invented foot plant.
+ * Earlier connected upperleg + lowerleg has already proved the same
+ * SkeletonUtils 41-joint Walking_A pose against both weighted shoe patches.
+ * A last reversible footl/footr quaternion probe may reduce a STILL-BURIED
+ * airborne swing toe using the real source foot track and bind hierarchy.
+ *
+ * The renderer independently samples BOTH skinned shoes for each candidate,
+ * restores the foot, then repeats the read after final application. Returning
+ * this receipt is not proof of contact or fluid footage. The original
+ * supporting shoe cannot move to disguise a lifted swing toe.
+ */
+export function chooseOriginalSourceSwingLinkedFootFinisher({
+ mode='idle',sourceClipName='',sourceWeight=NaN,
+ sourceInstanceSame=false,sourceFootChainVerified=false,
+ sourceFootTrackVerified=false,ownerLocomotion=false,alive=false,visible=false,
+ teleport=false,reducedMotion=false,interrupted=false,
+ rootTravel=NaN,frameAge=NaN,frameInterval=NaN,
+ side='',floorTopY=NaN,linkedProof=null,before=null,trials=[]
+}={}){
+ if(mode!=='move'||sourceClipName!=='Walking_A'||
+  !finite(sourceWeight)||sourceWeight<.92||sourceWeight>1.001||
+  sourceInstanceSame!==true||sourceFootChainVerified!==true||
+  sourceFootTrackVerified!==true||ownerLocomotion!==true||
+  alive!==true||visible!==true||teleport||reducedMotion||interrupted||
+  ![rootTravel,frameAge,frameInterval,floorTopY].every(finite)||
+  rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.15||
+  frameInterval<.008||frameInterval>.15||
+  Math.abs(floorTopY+.02)>.005||!['left','right'].includes(side)||
+  !Array.isArray(trials)||trials.length<1||trials.length>2||
+  !linkedProof||linkedProof.source!=='measured-original-skinned-linked-leg'||
+  linkedProof.sourceClip!=='Walking_A'||linkedProof.side!==side||
+  typeof linkedProof.sourceInstanceId!=='string'||!linkedProof.sourceInstanceId||
+  linkedProof.contactLocked!==false||
+  linkedProof.oppositeShoePreserved!==true)return null;
+ const opposite=side==='left'?'right':'left';
+ const valid=p=>p&&[p.heelY,p.toeY].every(finite)&&
+  [p.heelXZ,p.toeXZ].every(v=>Array.isArray(v)&&
+   v.length===2&&v.every(finite));
+ if(!valid(before?.[side])||!valid(before?.[opposite])||
+  !valid(linkedProof.after?.[side])||
+  !valid(linkedProof.after?.[opposite]))return null;
+ const drift=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+ // Reuse this EXACT rendered source-frame linked certification, not a
+ // previous-frame bone or a speculative next planted position.
+ for(const s of ['left','right']){
+  const a=before[s],p=linkedProof.after[s];
+  if(Math.abs(a.heelY-p.heelY)>.001||
+   Math.abs(a.toeY-p.toeY)>.001||
+   drift(a.heelXZ,p.heelXZ)>.002||
+   drift(a.toeXZ,p.toeXZ)>.002)return null;
+ }
+ const swing=before[side],support=before[opposite];
+ const burial=floorTopY-swing.toeY;
+ if(swing.heelY-floorTopY<.10||swing.heelY-floorTopY>.35||
+  burial<.025||burial>.12||
+  ![support.heelY,support.toeY].every(y=>
+   y>=floorTopY-.055&&y<=floorTopY+.035))return null;
+ let best=null;
+ for(const trial of trials){
+  const angle=trial?.angleRad,after=trial?.after,
+   shoe=after?.[side],other=after?.[opposite];
+  if(!finite(angle)||Math.abs(angle)<.10||
+   Math.abs(angle)>.120001||!valid(shoe)||!valid(other))continue;
+  const lift=shoe.toeY-swing.toeY;
+  // Do not trade heel penetration, supporting-foot motion, a shoe-flip
+  // or excessive sideways drift for a cosmetically higher toe sample.
+  if(lift<Math.max(.008,burial*.12)||lift>.035||
+   shoe.toeY>floorTopY+.012||
+   Math.abs(shoe.heelY-swing.heelY)>.008||
+   drift(shoe.heelXZ,swing.heelXZ)>.02||
+   drift(shoe.toeXZ,swing.toeXZ)>.03||
+   Math.abs(other.heelY-support.heelY)>.002||
+   Math.abs(other.toeY-support.toeY)>.002||
+   drift(other.heelXZ,support.heelXZ)>.003||
+   drift(other.toeXZ,support.toeXZ)>.003)continue;
+  if(!best||lift>best.liftMeters)best=Object.freeze({
+   angleRad:angle,side,liftMeters:lift,
+   beforeToeY:swing.toeY,afterToeY:shoe.toeY,
+   beforeHeelY:swing.heelY,afterHeelY:shoe.heelY,
+   linkedSourceRetained:true,oppositeFootVerified:true,contactLocked:false,
+   source:'actual-original-linked-hip-knee-foot-skinned-trial'
+  });
+ }
+ return best;
+}
+
 export function chooseOriginalSourceSwingLinkedToeFinisher({
  mode='idle',sourceClipName='',sourceWeight=NaN,
  sourceInstanceSame=false,sourceToeChainVerified=false,
