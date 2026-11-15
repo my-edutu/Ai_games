@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-15T10:54:00.000Z",
+  "updatedAt": "2026-11-15T12:10:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass393: exact-source candidate WebGL 43705659596, native 39 PNGs, verified 37/37 individual SHA pairs plus 3/3 gate hashes; light-stage image critic REJECTS meaningful guardian gameplay readability gain. Selective source rollback to trusted baseline prepared, original strict checks unchanged; new rollback HEAD CI pending, Nintendo benchmark unmet, draft unmerged/undeployed."
+    "summary": "Pass394: source-only meaningful guardian interaction candidate; actual evasive WAIT once per guardian delays physical lethal patrol three ticks, with original connected Pip/Thornback pose and public-only event. New exact-HEAD tests/unchanged six-reset resource budget and actual native gameplay parry frames PENDING. No independent artistic win; Nintendo bar unmet, draft unmerged/undeployed."
   },
   "captures": [
     {
@@ -108,6 +108,7 @@
     }
   ],
   "changes": [
+    "Pass394 2026-11-15: implement one authoritative witnessed guardian-lantern parry earned solely by real autonomous evasive WAIT across presently PUBLIC reciprocal open 1-2 straight corridor. Once per guardian per run pauses actual patrol 3 ticks, collision remains lethal afterwards, no hidden/closed cue. Public active-only signal drives original connected Pip lantern and Thornback recoil plus earned event caption. New exact-HEAD tests/render verification PENDING; fixed Nintendo bar unmet.",
     "Pass390: removed only orphaned Pass388-specific endpoint-outset source test after restoring rejected visual world change. Existing protected strict geometry/AI/privacy/mobile/accessibility tests unchanged; prior rollback CI superseded by fresh source+test-aligned commit.",
     "Pass389 2026-11-15: original 390 brace/notice/release and 320/390 Follow native WebGL compared against authentic Pass386 baseline, 37/37 PNG sidecars and 3/3 gate originals each verified; small Follow difference and no meaningful character-stage readability gain. Reject Pass388 endpoint offsets, restore only trusted world.js, preserving strict geometry, AI/privacy, HUD and previous diagnostics. New rollback HEAD native CI required; Nintendo bar unmet.",
     "Pass386: exact native 390px brace captures will now include public-only genuine full-body Pip and Thornback mesh-to-foreground rays; source-only diagnostic, no geometry/camera/gameplay change, visual acceptance pending. Previous exact rollback WebGL succeeded, whole-repo CI failed; Nintendo bar unmet.",

@@ -214,6 +214,12 @@ function update(value){
   if(observingPressure
     && previousPublicSnapshot?.intent?.mode!=='inspecting-hazard')
     eventCaption='Pip stops to inspect the jaws.';
+  // An earned, still PUBLIC lantern counter gets a single event, not a
+  // speculative warning or a repeated polling caption.
+  const newlyParried=!ended&&snapshot.threats?.some(t=>t.lanternParried===true)
+    &&(previousPublicSnapshot?.runToken!==snapshot.runToken
+      ||!previousPublicSnapshot?.threats?.some(t=>t.lanternParried===true));
+  if(newlyParried)eventCaption="Pip's lantern holds Thornback.";
   wasInDanger=exposedDanger;
   wasNearPressure=!!pressureCue;
   if(eventCaption){

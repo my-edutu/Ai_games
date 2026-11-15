@@ -293,7 +293,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       scene.add(model.group, contact);
     } else scene.add(model.group);
     return {model, contact, cell:threat.cell, cells:[threat.cell],
-      progress:0, heading:0, encounterStart:null, encounterBeat:0};
+      progress:0, heading:0, encounterStart:null, encounterBeat:0, lanternParried:false};
   };
 
   let settings = { ...initialSettings };
@@ -476,6 +476,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         else { entry.cells = [threat.cell]; entry.progress = 0; }
       }
       entry.cell = threat.cell;
+      entry.lanternParried = threat.lanternParried === true;
     }
   }
 
@@ -543,7 +544,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       const attentionStrength=witnessedLocally
         && publicGuardianOpenSightline(s,entry.cell) ? warningStrength : 0;
       if (attentionStrength>(closestThreat?.strength??0)) {
-        closestThreat={x:threatPose.x,y:threatGround,z:threatPose.z,cell:entry.cell,strength:attentionStrength};
+        closestThreat={x:threatPose.x,y:threatGround,z:threatPose.z,cell:entry.cell,strength:attentionStrength,lanternParried:entry.lanternParried};
         // Only this CURRENT public reciprocal and unlocked guardian may
         // contribute a complete physical body to the portrait lens.
         closestThreatModel=entry.model.group;
@@ -564,6 +565,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         && closestThreat?.strength===attentionStrength)
         closestThreat.encounterBeat=entry.encounterBeat;
       const brace=Math.max(0,Math.min(1,(entry.encounterBeat-.24)/.36));
+      const lanternParried=!result && entry.lanternParried && attentionStrength>.24;
       // The existing, physically grounded contact shadow responds to the
       // actual armored body planting its feet. Its x/z/y always follow the
       // disclosed model; no extra mesh, billboard or GPU material is spawned.
@@ -572,7 +574,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         time:elapsed,delta,moving:threatPose.moving&&!result,heading:entry.heading,
         attentionHeading:attentionStrength?Math.atan2(towardExplorerX,towardExplorerZ):undefined,
         attentionStrength,encounterBeat:entry.encounterBeat,
-        danger:1,result,reducedMotion:settings.reducedMotion,
+        lanternParried,danger:1,result,reducedMotion:settings.reducedMotion,
       });
     }
     // Authentic same-run public CLOSED→OPEN testimony drives both Pip's
@@ -649,6 +651,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       attentionHeading:closestThreat?Math.atan2(closestThreat.x-pose.x,closestThreat.z-pose.z):undefined,
       attentionStrength:closestThreat?.strength??0,
       guardianEncounterBeat:closestThreat?.encounterBeat,
+      lanternParried:closestThreat?.lanternParried===true,
       keyHeading:keyGateCue?.heading,keyStrength:keyGateCue?.strength??0,
       gateHeading,gateStrength,pickupStrength,
       fossilHeading:fossilCue
