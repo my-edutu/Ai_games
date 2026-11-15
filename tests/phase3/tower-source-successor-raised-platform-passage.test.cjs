@@ -91,4 +91,13 @@ test('observed tick-535 first real f9:p2 standing height BELOW the old 160000 ce
   const hero=pointFor(source.player.x,source.player.y,source.chunkBaseY,source.worldWidth,25);
   assert.equal(observedSourceBoundColdDoorwayLens(source,held,hero,960/600)?.sourceBound,true);
   assert.equal(observedSourceBoundColdDoorwayLens(source,held,hero,390/844)?.sourceBound,true);
+  const {sourceOriginalGatewayCameraBridge}=await import(
+    '../../public/infinite-tower-climb/visuals/original-gateway-submitted-camera-bridge.mjs');
+  const prior={runToken:source.runToken,floor:8,oldCapId:'f8:cap',
+    originalGuardianObserved:true,originalGuardianHealth:1,
+    tick:438,chunkBaseY:source.chunkBaseY,
+    oldRoofY:oldRoof,thresholdX:exitX,
+    camera:[22,8,36],gaze:[0,4,0]};
+  assert.equal(sourceOriginalGatewayCameraBridge(source,held,prior,{camera:'follow'})?.sourceBound,true,
+    'the same REAL previously submitted F8 camera must still be eligible at tick535 after authentic crossing tick475');
 });
