@@ -1482,6 +1482,12 @@ test('D04 full 256-unit integrity window rejects off-screen duplicate Warden, re
    assert.equal(stage.emit(requested),false,
     label+' must reject a duplicate at index 100 before any retained VFX allocation');
    assert.equal(stage.stats().active,0,label+' has no stranded pooled effect');
+   stage.reset();
+   snapshot={...snapshot,units:[...Array(100).fill(null),unit]};
+   assert.equal(stage.emit(requested),false,
+    label+' cannot be discovered exclusively beyond the first 96 action units');
+   assert.equal(stage.stats().active,0,
+    label+' must not widen the planner action-discovery boundary');
    assert.ok(stage.stats().activeDrawCalls<=7);
   }
   assert.equal(stage.stats().reservedInstances,102);
