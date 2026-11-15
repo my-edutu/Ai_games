@@ -281,6 +281,42 @@ export function publicGuardianWitnessedForegroundCells(s,causeway=publicGuardian
   return foreground;
 }
 
+/**
+ * A physical, PUBLIC camera-side spectator forecourt for the witnessed
+ * Pip–Thornback passage. Native full-frame 320px captures showed dense
+ * 1.8–3m decorative ruins on LOWER terraces in front of both actors,
+ * even after the same-level first rings had been cleared.
+ *
+ * All actual walls, foundations, stairs, gates, traps, objectives, and
+ * authoritative navigation remain intact. Only currently published
+ * camera-side (normal +X/+Z view) tiles at/below Pip's tier may quiet
+ * OPTIONAL plants or replace ornamental blocked relics with LOW SEALED
+ * stone. No private topology, camera ray or AI intention is consulted.
+ */
+export function publicGuardianCameraForecourtCells(s,causeway=publicGuardianCausewayCells(s)) {
+  const foreground=new Set();
+  if(!causeway.has(s?.currentCell)||!Array.isArray(s?.cells)
+    ||!Array.isArray(s?.visibleCells)||!Array.isArray(s?.keys)
+    ||!Array.isArray(s?.doors)||!Number.isSafeInteger(s.width)||s.width<2
+    ||!Number.isSafeInteger(s.height)||s.height<2)return foreground;
+  const visible=new Set(s.visibleCells);
+  const doorCells=new Set(s.doors.flatMap(d=>[d.a,d.b]));
+  const keys=new Set(s.keys.map(k=>k.cell));
+  const heroX=s.currentCell%s.width,heroZ=Math.floor(s.currentCell/s.width);
+  const level=cellHeight(s.currentCell,s.width,s.height);
+  for(const c of s.cells) {
+    if(!Number.isSafeInteger(c?.cell)||!visible.has(c.cell)
+      ||c.trap||c.clue||c.checkpoint||c.cell===s.exitCell
+      ||keys.has(c.cell)||doorCells.has(c.cell))continue;
+    const dx=c.cell%s.width-heroX,dz=Math.floor(c.cell/s.width)-heroZ;
+    const d=Math.abs(dx)+Math.abs(dz);
+    if(d<3||d>6||dx< -1||dz< -1||dx+dz<1)continue;
+    if(cellHeight(c.cell,s.width,s.height)>level+1e-8)continue;
+    foreground.add(c.cell);
+  }
+  return foreground;
+}
+
 const STAIR_COUNT = 8, STAIR_START = .08, STAIR_RUN = CELL_SIZE / 2 - STAIR_START, STAIR_HALF_WIDTH = .78;
 export function sampleGroundHeight(x, z, snapshot) {
   if (!snapshot || !Number.isFinite(x) || !Number.isFinite(z)) return 0;
@@ -1157,9 +1193,10 @@ export function createMazeWorld(options = {}) {
     // gate, pressure jaw, stair, court leaf and navigable boundary unchanged.
     // The peripheral helper requires a genuine witnessed open causeway and
     // cannot infer or reveal hidden terrain or private AI.
+    const guardianCinematicForeground=publicGuardianCameraForecourtCells(s,guardianCauseway);
     const guardianQuietRing=guardianCauseway.has(s.currentCell)
       ? new Set([...guardianForecourtShoulders,...guardianOuterCourt.ordinary,
-        ...guardianPeripheralWalls]) : new Set();
+        ...guardianPeripheralWalls,...guardianCinematicForeground]) : new Set();
     const guardianBlockedRelief=publicGuardianBlockedReliefCells(s,guardianSightlines);
     const knownByCell = new Map(s.cells.map(c => [c.cell, c]));
     // The public snapshot is the ONLY source of foreground cutaway geometry.
@@ -2147,8 +2184,8 @@ export function createMazeWorld(options = {}) {
         // original opaque foundation, walls and collision, but no longer
         // towers over the physical Pip–Thornback performance. Replace ONLY
         // decorative blocked-cell ornament with a sealed mineral reef.
-        if ((guardianBlockedRelief.has(c.cell) || guardianOuterCourt.sealed.has(c.cell))
-          && !pressureSightline) {
+        if ((guardianBlockedRelief.has(c.cell) || guardianOuterCourt.sealed.has(c.cell)
+          || guardianCinematicForeground.has(c.cell)) && !pressureSightline) {
           if(guardianOuterCourt.sealed.has(c.cell))guardianOuterCourtSealedTiles++;
           guardianBlockedReliefTiles++;
           // Pass320 actual 390px three-beat WebGL: the old huge, pale,
@@ -3429,6 +3466,7 @@ export function createMazeWorld(options = {}) {
     const keyedGuardianCauseway=publicGuardianCausewayCells(s);
     const keyedOuterCourt=publicGuardianOuterCourtCells(s,keyedGuardianCauseway);
     const keyedForeground=publicGuardianWitnessedForegroundCells(s,keyedGuardianCauseway);
+    const keyedCinematicForeground=publicGuardianCameraForecourtCells(s,keyedGuardianCauseway);
     // A third-ring PUBLIC wall may be diagonal to both guardian causeway
     // cells. If ONLY its present visibility changes, the old two-cell key
     // cannot invalidate its actual opaque full-height/low-wall geometry.
@@ -3454,6 +3492,7 @@ export function createMazeWorld(options = {}) {
       + '#guardian-reef-visible:' + [...reefVisibility].sort((a,b)=>a-b).join('.')
       + '#guardian-near-floor:' + [...keyedForeground].sort((a,b)=>a-b).join('.')
       + '#guardian-public-peripheral-walls:' + [...keyedPeripheralWalls].sort((a,b)=>a-b).join('.')
+      + '#guardian-camera-forecourt:' + [...keyedCinematicForeground].sort((a,b)=>a-b).join('.')
       + '#guardian-outer-floor:' + [...keyedOuterCourt.ordinary].sort((a,b)=>a-b).join('.')
       + '#guardian-outer-sealed:' + [...keyedOuterCourt.sealed].sort((a,b)=>a-b).join('.');
     if (terrainKey !== terrainSignature) { rebuildTerrain(s); terrainSignature = terrainKey; }

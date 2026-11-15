@@ -1496,3 +1496,59 @@ test('a witnessed guardian clears only third-ring optional foliage; solid walls 
     assert.equal(w.stats().materialCount,0);
   }
 });
+
+test('Pass407 authentically visible camera-side LOWER relics rebuild as actual low sealed guardian theatre',async()=>{
+  const {createMazeWorld,publicGuardianCameraForecourtCells:forecourt}=await load();
+  // Hero16 -> 17 -> Thornback18 is a reciprocal, same-height, open lane.
+  // Four currently visible lower +X/+Z spectator blocks would otherwise
+  // create three 1.8m pavilions and a tall ornamental shell basin.
+  const s={runToken:'public-camera-front',lifecycle:'running',result:null,
+    width:7,height:7,currentCell:16,
+    visibleCells:[16,17,18,25,26,32,40],
+    cells:[
+      {cell:16,blocked:false,neighbors:[17]},
+      {cell:17,blocked:false,neighbors:[16,18]},
+      {cell:18,blocked:false,neighbors:[17]},
+      ...[25,26,32,40].map(cell=>({cell,blocked:true,neighbors:[]}))
+    ],threats:[{id:'thornback',cell:18}],
+    doors:[],keys:[],inventory:[],exitCell:null};
+  const truth=JSON.stringify(s),baseline=createMazeWorld({balanced:true}),w=createMazeWorld({balanced:true});
+  try{
+    assert.deepEqual([...forecourt(s)].sort((a,b)=>a-b),[25,26,32,40]);
+    assert.deepEqual([...forecourt({...s,visibleCells:[16,17,18,25]})],[25],
+      'unknown blocks cannot be quieted through future or private map state');
+    assert.deepEqual([...forecourt({...s,threats:[]})],[]);
+    assert.deepEqual([...forecourt({...s,doors:[{a:17,b:18,open:false}]})],[]);
+    assert.deepEqual([...forecourt({...s,lifecycle:'ended'})],[]);
+    assert.deepEqual([...forecourt({...s,privateMaze:{cells:[{cell:47,blocked:true}]},
+      secretPath:[47,25]})].sort((a,b)=>a-b),[25,26,32,40]);
+    baseline.update({...s,threats:[]});w.update(s);
+    const natural=baseline.stats(),during=w.stats();
+    assert.ok(natural.collapsedPavilions>=2,
+      'the original instantiated scene genuinely contains tall foreground ruins');
+    assert.equal(during.collapsedPavilions,0,
+      'four real spectator relics now form a low, impassable Tideglass gallery');
+    assert.ok(during.guardianBlockedReliefTiles>=4,
+      'full reef geometry is rendered at the public blocked cells');
+    assert.equal(during.renderedCells.length,s.visibleCells.length,
+      'all real stone cells remain visible, never a transparent fake route');
+    assert.equal(during.geometryCount,natural.geometryCount);
+    assert.equal(during.materialCount,natural.materialCount);
+    assert.equal(JSON.stringify(s),truth,'presentation never mutates authority');
+    w.update({...s,visibleCells:[16,17,18,25]});
+    assert.ok(w.stats().guardianBlockedReliefTiles>=1,
+      'published foreground invalidates correctly as the view changes');
+    w.update({...s,threats:[]});
+    assert.equal(w.stats().collapsedPavilions,natural.collapsedPavilions,
+      'original authored far scenery restores without a guardian');
+    for(let i=0;i<6;i++){
+      w.update({...s,runToken:'public-forecourt-reset-'+i});
+      assert.ok(w.stats().geometryCount<100,'unchanged six-scene geometry budget');
+      assert.equal(w.stats().collapsedPavilions,0);
+    }
+  }finally{
+    w.dispose();baseline.dispose();
+    assert.equal(w.stats().geometryCount,0);
+    assert.equal(w.stats().materialCount,0);
+  }
+});
