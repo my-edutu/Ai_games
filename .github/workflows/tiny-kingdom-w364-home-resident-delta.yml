@@ -16,7 +16,8 @@ jobs:
       - name: Verify genuine production home GPU delta and conservative fallback
         run: node scripts/tiny-kingdom-w364-home-resident-delta-contract.cjs
       - name: Parse the production inline game JavaScript
-        run: node - <<'NODE'
+        run: |
+          node - <<'NODE'
           const fs=require('node:fs');
           const vm=require('node:vm');
           const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
