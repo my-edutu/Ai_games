@@ -45,6 +45,17 @@ test('the production 3D camera checks the actual GPU-retained original arch and 
   // Frame-scoped cold-door corrections end in a nested source guard. The
   // sightline pass must receive the FINAL submitted camera, not the earlier
   // source-world or warmup lens. Closing guards are not extra camera stages.
+  // The real deck is the penultimate guard and the source-authenticated
+  // corrected shot is the FINAL owner of the composited camera. Never let
+  // a late platform adjustment override threshold optics, and never let
+  // threshold optics undo an actual physical deck-ray rescue.
+  const deckStage=scene.indexOf('    // FIRST SUCCESSOR-DECK PHYSICAL CAMERA OCCLUSION:');
+  const thresholdStage=scene.indexOf('    // POST-DIRECTOR PHYSICAL CROSSING:');
+  assert.ok(deckStage>0 && thresholdStage>deckStage,
+    'deck-ray rescue must precede the final source-bound camera director');
+  assert.match(scene,/deckViewBeforeThreshold = successorDeckCameraLastGain>0/);
+  assert.match(scene,/deckViewAfterThreshold\.bodyBlockedRays>deckViewBeforeThreshold\.bodyBlockedRays/);
+  assert.match(scene,/deckViewAfterThreshold\.score>deckViewBeforeThreshold\.score/);
   const reveal=scene.indexOf('world.revealGuardianSightlines(camera,guardianSightPoints);');
   const finalLook=scene.lastIndexOf('camera.lookAt(lookAt);',reveal);
   const finalMatrices=scene.lastIndexOf('camera.updateMatrixWorld(true);',reveal);

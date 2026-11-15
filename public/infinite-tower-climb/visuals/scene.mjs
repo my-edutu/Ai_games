@@ -4788,82 +4788,6 @@ export function createTowerScene(canvas, settings = {}) {
         originalGatewayCameraBridgeVetoed++;
       }
     }
-    // POST-DIRECTOR PHYSICAL CROSSING: the ordinary follow, guardian, hero
-    // rescue and portrait optical lens have already selected their positions.
-    // A genuine *retained original* Floor8 bronze arch is still behind the
-    // actual Floor9 body in the same world. On the real cold WebGL frame the
-    // previous early focus correction could be entirely overwritten. Inspect
-    // the final real projection and take a tiny, reversible exterior gaze /
-    // shoulder step only if that same doorway becomes measurably more visible
-    // WITHOUT losing the full hero or looking through the solid tower core.
-    // No second camera, source interpolation, collider, floor or authoring
-    // shortcut. This is bypassed for overview, manual orbit and reduced motion.
-    physicalThresholdFrameGain = 0;
-    const thresholdSteps = coldArchLens?.coldOriginalArch === true &&
-      coldArchLens.sourceTick === snapshot.tick &&
-      options.camera === 'follow' && !overview && !options.stale &&
-      !options.reducedMotion && Math.abs(orbit) < .025 &&
-      snapshot.lifecycle === 'running' && snapshot.floor === 9 && p.health > 0
-        ? sourceDoorwayFrameSteps(cameraDt,camera.aspect) : null;
-    physicalThresholdFrameSourceBound = !!thresholdSteps;
-    if (thresholdSteps && Array.isArray(coldArchLens.gateway)) {
-      thresholdHero.copy(climber.group.position);
-      thresholdHero.y += p.halfHeight / SCALE;
-      thresholdGate.set(...coldArchLens.gateway);
-      thresholdPreviousCamera.copy(camera.position);
-      thresholdPreviousGaze.copy(lookAt);
-      measureDuelBodyNdc(thresholdHero,p.halfHeight/SCALE,
-        camera,duelTop,duelBottom,thresholdHeroBefore);
-      measureDuelBodyNdc(thresholdGate,2.1,
-        camera,duelTop,duelBottom,thresholdGateBefore);
-      thresholdGaze.copy(thresholdHero).lerp(thresholdGate,.50);
-      thresholdGaze.sub(thresholdPreviousGaze);
-      const gazeDistance=thresholdGaze.length();
-      if (gazeDistance > .0001) {
-        thresholdGaze.multiplyScalar(Math.min(1,thresholdSteps.gazeMetres/gazeDistance));
-        const originalAngle=Math.atan2(camera.position.x,camera.position.z);
-        const radius=Math.hypot(camera.position.x,camera.position.z);
-        let best=0;
-        for (const shoulder of [0,-1,1]) {
-          camera.position.copy(thresholdPreviousCamera);
-          lookAt.copy(thresholdPreviousGaze).add(thresholdGaze);
-          if (shoulder && radius>25){
-            const angle=originalAngle+shoulder*thresholdSteps.orbitRadians;
-            camera.position.x=Math.sin(angle)*radius;
-            camera.position.z=Math.cos(angle)*radius;
-          }
-          if (!towerCoreSightlineClear(camera.position,thresholdHero,23.5) ||
-              !towerCoreSightlineClear(camera.position,thresholdGate,23.5))
-            continue;
-          camera.lookAt(lookAt);
-          camera.updateMatrixWorld(true);
-          measureDuelBodyNdc(thresholdHero,p.halfHeight/SCALE,
-            camera,duelTop,duelBottom,thresholdHeroAfter);
-          measureDuelBodyNdc(thresholdGate,2.1,
-            camera,duelTop,duelBottom,thresholdGateAfter);
-          const gain=sourceDoorwayFrameGain(
-            thresholdHeroBefore,thresholdGateBefore,
-            thresholdHeroAfter,thresholdGateAfter,true,true);
-          if (gain>best){
-            best=gain;
-            thresholdBestCamera.copy(camera.position);
-            thresholdBestGaze.copy(lookAt);
-          }
-        }
-        if (best>0){
-          camera.position.copy(thresholdBestCamera);
-          lookAt.copy(thresholdBestGaze);
-          physicalThresholdFrameGain=best;
-          physicalThresholdFrameCorrections=Math.min(1000000,
-            physicalThresholdFrameCorrections+1);
-        } else {
-          camera.position.copy(thresholdPreviousCamera);
-          lookAt.copy(thresholdPreviousGaze);
-        }
-        camera.lookAt(lookAt);
-        camera.updateMatrixWorld(true);
-      }
-    }
     // FIRST SUCCESSOR-DECK PHYSICAL CAMERA OCCLUSION: real 1x portrait
     // video showed the original skinned climber BEHIND the walkable F9 deck
     // while the bronze arch remained on-screen. Prior NDC/core-only camera
@@ -4941,6 +4865,107 @@ export function createTowerScene(canvas, settings = {}) {
           successorDeckCameraRescues=Math.min(1000000,
             successorDeckCameraRescues+1);
         }
+      }
+    }
+    // POST-DIRECTOR PHYSICAL CROSSING: the ordinary follow, guardian, hero
+    // rescue and portrait optical lens have already selected their positions.
+    // A genuine *retained original* Floor8 bronze arch is still behind the
+    // actual Floor9 body in the same world. On the real cold WebGL frame the
+    // previous early focus correction could be entirely overwritten. Inspect
+    // the final real projection and take a tiny, reversible exterior gaze /
+    // shoulder step only if that same doorway becomes measurably more visible
+    // WITHOUT losing the full hero or looking through the solid tower core.
+    // No second camera, source interpolation, collider, floor or authoring
+    // shortcut. This is bypassed for overview, manual orbit and reduced motion.
+    physicalThresholdFrameGain = 0;
+    const thresholdSteps = coldArchLens?.coldOriginalArch === true &&
+      coldArchLens.sourceTick === snapshot.tick &&
+      options.camera === 'follow' && !overview && !options.stale &&
+      !options.reducedMotion && Math.abs(orbit) < .025 &&
+      snapshot.lifecycle === 'running' && snapshot.floor === 9 && p.health > 0
+        ? sourceDoorwayFrameSteps(cameraDt,camera.aspect) : null;
+    physicalThresholdFrameSourceBound = !!thresholdSteps;
+    if (thresholdSteps && Array.isArray(coldArchLens.gateway)) {
+      thresholdHero.copy(climber.group.position);
+      thresholdHero.y += p.halfHeight / SCALE;
+      thresholdGate.set(...coldArchLens.gateway);
+      // Preserve an earned real-deck sightline across the FINAL camera
+      // correction. A projected gate that looks better cannot veto a
+      // genuinely unobscured full-body climber under the source-owned deck.
+      // The ray proof is checked only when this submitted shot actually
+      // needed a deck rescue; normal ascent adds no additional raycasting.
+      const deckViewBeforeThreshold = successorDeckCameraLastGain>0
+        ? world.measureSuccessorDeckVisibility(
+            snapshot,camera.position,thresholdHero,p.halfHeight/SCALE,
+            thresholdGate,targetPlatform?.id??null)
+        : null;
+      thresholdPreviousCamera.copy(camera.position);
+      thresholdPreviousGaze.copy(lookAt);
+      measureDuelBodyNdc(thresholdHero,p.halfHeight/SCALE,
+        camera,duelTop,duelBottom,thresholdHeroBefore);
+      measureDuelBodyNdc(thresholdGate,2.1,
+        camera,duelTop,duelBottom,thresholdGateBefore);
+      thresholdGaze.copy(thresholdHero).lerp(thresholdGate,.50);
+      thresholdGaze.sub(thresholdPreviousGaze);
+      const gazeDistance=thresholdGaze.length();
+      if (gazeDistance > .0001) {
+        thresholdGaze.multiplyScalar(Math.min(1,thresholdSteps.gazeMetres/gazeDistance));
+        const originalAngle=Math.atan2(camera.position.x,camera.position.z);
+        const radius=Math.hypot(camera.position.x,camera.position.z);
+        let best=0;
+        for (const shoulder of [0,-1,1]) {
+          camera.position.copy(thresholdPreviousCamera);
+          lookAt.copy(thresholdPreviousGaze).add(thresholdGaze);
+          if (shoulder && radius>25){
+            const angle=originalAngle+shoulder*thresholdSteps.orbitRadians;
+            camera.position.x=Math.sin(angle)*radius;
+            camera.position.z=Math.cos(angle)*radius;
+          }
+          if (!towerCoreSightlineClear(camera.position,thresholdHero,23.5) ||
+              !towerCoreSightlineClear(camera.position,thresholdGate,23.5))
+            continue;
+          camera.lookAt(lookAt);
+          camera.updateMatrixWorld(true);
+          measureDuelBodyNdc(thresholdHero,p.halfHeight/SCALE,
+            camera,duelTop,duelBottom,thresholdHeroAfter);
+          measureDuelBodyNdc(thresholdGate,2.1,
+            camera,duelTop,duelBottom,thresholdGateAfter);
+          const gain=sourceDoorwayFrameGain(
+            thresholdHeroBefore,thresholdGateBefore,
+            thresholdHeroAfter,thresholdGateAfter,true,true);
+          if (gain>best){
+            best=gain;
+            thresholdBestCamera.copy(camera.position);
+            thresholdBestGaze.copy(lookAt);
+          }
+        }
+        if(best>0 && deckViewBeforeThreshold?.active){
+          camera.position.copy(thresholdBestCamera);
+          lookAt.copy(thresholdBestGaze);
+          camera.lookAt(lookAt);
+          camera.updateMatrixWorld(true);
+          const deckViewAfterThreshold=world.measureSuccessorDeckVisibility(
+            snapshot,camera.position,thresholdHero,p.halfHeight/SCALE,
+            thresholdGate,targetPlatform?.id??null);
+          // Final camera cannot re-hide the actual drawn hero or original
+          // gateway behind the genuine successor platform triangles.
+          if(!deckViewAfterThreshold?.active ||
+             deckViewAfterThreshold.bodyBlockedRays>deckViewBeforeThreshold.bodyBlockedRays ||
+             deckViewAfterThreshold.score>deckViewBeforeThreshold.score)
+            best=0;
+        }
+        if (best>0){
+          camera.position.copy(thresholdBestCamera);
+          lookAt.copy(thresholdBestGaze);
+          physicalThresholdFrameGain=best;
+          physicalThresholdFrameCorrections=Math.min(1000000,
+            physicalThresholdFrameCorrections+1);
+        } else {
+          camera.position.copy(thresholdPreviousCamera);
+          lookAt.copy(thresholdPreviousGaze);
+        }
+        camera.lookAt(lookAt);
+        camera.updateMatrixWorld(true);
       }
     }
     world.revealGuardianSightlines(camera,guardianSightPoints);
