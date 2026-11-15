@@ -914,7 +914,7 @@ export function clockworkOpenGeologicalTies(height,width,depth,localY) {
 // guardian/winch victory drives the source-owned leaves beyond the pedestrian
 // opening and folds their solid bars out of the lens. No collider, AI, snapshot,
 // destination, virtual portal or camera opacity change.
-export function sourceEarnedGuardianSealWingPose(side,progress,sourceUnlocked=false) {
+export function sourceEarnedGuardianSealWingPose(side,progress,sourceUnlocked=false,sourceWinchFraction=0) {
   if((side!==-1&&side!==1)||!Number.isFinite(progress))return null;
   const u=Math.max(0,Math.min(1,progress));
   const aperture=u<=.72 ? u/.72*.35 : .35+(u-.72)/.28*.65;
@@ -927,7 +927,17 @@ export function sourceEarnedGuardianSealWingPose(side,progress,sourceUnlocked=fa
   // powered exclusively by the source-proven zero-HP + completed winch lock.
   // Keep smoothstep bounded so there is no overhead jump or airborne prize
   // for a living/inactive-positive-HP guardian, and restarts reclose fully.
-  const liftPhase=sourceUnlocked===true?u:0;
+  // A genuine zero-HP guardian begins a 28-tick SOURCE-LOCKED mechanical
+  // release. In authentic 1x films the climber reaches the grille while
+  // the winch is still working. Leaving this lift at zero UNTIL the final
+  // tick made the entire original steel leaf teleport overhead exactly as
+  // Floor9 loaded. Let the existing winch fraction drive real leaf height
+  // through the same counterbalanced stroke. The true collider and 3D
+  // unlocked flag remain closed until the SOURCE winch deadline.
+  // Invalid/missing winch, live or positive-HP guardian receive zero lift.
+  const sourceLift=Number.isFinite(sourceWinchFraction)
+    ?Math.max(0,Math.min(1,sourceWinchFraction)):0;
+  const liftPhase=sourceUnlocked===true?u:sourceLift;
   const hoist=5.85*liftPhase*liftPhase*(3-2*liftPhase);
   return {x:aperture===0?0:side*5.1*aperture,
     y:hoist,z:-.18-.94*aperture,
@@ -4040,9 +4050,14 @@ export function createTowerWorld(){
           if(unlocked&&!options.stale)gate.progress=Math.max(gate.progress,
             arrivalOpen,genuineWinch?target:0);
           gate.unlocked=unlocked&&(!genuineWinch||winchProgress>=1);
+          // The source-driven FULL counterweight stroke occurs after HP0
+          // but before collider unlock: never mistake a still-working winch
+          // for an instantly opened walkable gateway. The same genuine
+          // source fraction poses BOTH original bronze leaves in real 3D.
+          const earnedWinchLift=unlocked&&genuineWinch?winchProgress:0;
           for(const {side,wing} of gate.wings){
             const pose=sourceEarnedGuardianSealWingPose(
-              side,gate.progress,gate.unlocked);
+              side,gate.progress,gate.unlocked,earnedWinchLift);
             wing.position.set(pose.x,pose.y,pose.z);
             wing.rotation.set(0,pose.yaw,pose.roll);
           }
