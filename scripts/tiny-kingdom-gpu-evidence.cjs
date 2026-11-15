@@ -333,9 +333,13 @@ const path = require('node:path');
        forest.needleBoughs+lod.skippedConiferSprays!==forest.conifers*32||
        forest.needleFanTriangles!==forest.needleBoughs*8||
        forest.branchTriangles!==forest.needleBoughs*8||
-       forest.microCrownLobes<forest.deciduous*3||
+       // LOD is allowed to skip microscopic crowns/whorls on distant
+       // genuine trees; count actual emitted details PLUS independently
+       // audited saved LOD work. The old total-tree threshold falsely
+       // rejected the valid Day-121 5/25/44 near/mid/far woodland.
+       forest.microCrownLobes+lod.skippedMicroLobes<forest.deciduous*3||
        forest.rimLeafSprays<forest.deciduous*3||
-       forest.individualLeaves<forest.deciduous*15||
+       forest.individualLeaves+lod.skippedLeafWhorls<forest.deciduous*15||
 // G096 adds an inhabited street and workshop precinct. Keep the real
        // global <160k safety cap with at least 1k buffer; never present
        // G089's old 153.5k engineering sub-budget as the commercial gate.
