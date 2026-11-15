@@ -171,6 +171,32 @@ export function publicGuardianCausewayCells(s) {
 }
 
 
+// The four existing rooted guardian standards are a physical END-CAP
+// proscenium, not shoulder-high signals crowding the actual moving actors.
+// Use only the disclosed, reciprocal, level, unsealed causeway; the same
+// shape is retained when Pip and Thornback trade endpoints or stream ticks.
+// For a straight 1-2-edge lane, park the whole connected pairs further
+// toward the OUTER portion of their own real endpoint tile. Never enlarge
+// the played route, create a fake barrier, or consult hidden navigation.
+export function publicGuardianEndpointOutset(cell,width,axis,causeway) {
+  if(!Number.isSafeInteger(cell)||cell<0
+    ||!Number.isSafeInteger(width)||width<2
+    ||(axis!=='x'&&axis!=='z')||!(causeway instanceof Map)
+    ||causeway.get(cell)!==axis)return 0;
+  const row=Math.floor(cell/width),col=cell%width;
+  let first=Infinity,last=-Infinity;
+  for(const [id,direction] of causeway){
+    if(!Number.isSafeInteger(id)||id<0||direction!==axis)continue;
+    if(axis==='x'&&Math.floor(id/width)!==row)continue;
+    if(axis==='z'&&id%width!==col)continue;
+    const place=axis==='x'?id%width:Math.floor(id/width);
+    first=Math.min(first,place);last=Math.max(last,place);
+  }
+  if(!Number.isFinite(first)||first===last)return 0;
+  const own=axis==='x'?col:row;
+  return own===first?-.66:own===last?.66:0;
+}
+
 /**
  * The camera-facing flank of a witnessed Pip/Thornback stage can have a
  * distinctive SEALED mineral forecourt, but NEVER an invented crossing.
@@ -1567,10 +1593,19 @@ export function createMazeWorld(options = {}) {
           // draws a speculative route, barrier, attacker or hidden map detail.
           const sentinels=[];
           if(c.cell===s.currentCell || s.threats.some(t=>t?.cell===c.cell)) {
+            // Pass388 actual actor-eye rays were clear, but the original four
+            // huge warning standards occupied the centre of the visual duel.
+            // Move the WHOLE pre-existing connected mechanisms, not just their
+            // decorative caps, toward opposite real causeway END-CAPS. Each
+            // remains on its own witnessed tile (0.66m of its 1.2m half-span),
+            // outside the same untouched 1.38m clear physical centre lane.
+            const endpointOutward=publicGuardianEndpointOutset(
+              c.cell,s.width,guardianCausewayAxis,guardianCauseway);
             for(const side of [-1,1]) {
               const foot=new THREE.Group();
               foot.name='Published guardian Tideglass sentinel footing '+c.cell+' '+side;
-              foot.position.set(alongX?0:side*1.04,0,alongX?side*1.04:0);
+              foot.position.set(alongX?endpointOutward:side*1.04,0,
+                alongX?side*1.04:endpointOutward);
               signal.add(foot);
               const plinth=mesh(foot,bevel,deepStone,0,.06,0,.27,.16,.27);
               plinth.name='Published guardian Tideglass solid sentinel plinth '+c.cell+' '+side;
