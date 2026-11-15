@@ -10,6 +10,8 @@ const {SOURCE:MODE_SOURCE,classifyD04ContinuousModePair}=
 fs.mkdirSync('artifacts',{recursive:true});
 const scene=s=>({run:s.run,floor:s.floor,tick:s.tick,checksum:s.checksum});
 const STEP_MS=250,ACTIVE_MS=15000;
+// Non-realtime six-view evidence, holding authentic authority until WebGL ack.
+const FRAME_PACED_STAGES=12,FRAME_PACED_STAGE_TIMEOUT_MS=14000;
 // Read-only real public-state corpus; server clock progresses even if WebGL
 // or the recorder stalls. Never spoof HP, attacker, pose or a combat event.
 function realAuthoritySeries(){
@@ -27,13 +29,16 @@ function realAuthoritySeries(){
   throw Error('Real DungeonRuntime seed yielded no genuine HP-loss witness');
  return {seed,states,manifest};
 }
-async function observeLiveAuthority(browser,real,viewport,capture,feedbackMode='d04',source=SOURCE,viewpoint='tactical',artifactTag=''){ 
+async function observeLiveAuthority(browser,real,viewport,capture,feedbackMode='d04',source=SOURCE,viewpoint='tactical',artifactTag='',framePaced=false){ 
  const page=await browser.newPage({viewport,deviceScaleFactor:1});
- let beganAt=null,live=false,stopIndex=0;const requestLog=[],errors=[];
+ let beganAt=null,live=false,stopIndex=0,controlledIndex=0;
+ const requestLog=[],errors=[],pacedReceipts=[],pacedFailures=[];
+ if(framePaced&&(capture!=='on'||feedbackMode!=='d04'))
+  throw Error('Frame-acknowledged evidence requires opted-in D04 capture');
  page.on('pageerror',e=>errors.push(String(e)));
  await page.route('**/dungeon/state',route=>{
   const now=performance.now();
-  const index=beganAt===null?0:live?
+  const index=beganAt===null?0:framePaced?controlledIndex:live?
    Math.min(real.states.length-1,Math.floor((now-beganAt)/STEP_MS)):stopIndex;
   const state=real.states[index];
   if(requestLog.length<256)requestLog.push({index,atMs:beganAt===null?null:Math.round(now-beganAt),
@@ -155,7 +160,17 @@ async function observeLiveAuthority(browser,real,viewport,capture,feedbackMode='
      recorder.start(250);recording=true;peakConcurrentRecorders=1;
     }catch(e){error=String(e).slice(0,180);track?.stop()}
    }
-   window.__D04_LIVE_AUTHORITY_CAPTURE__={stop:async()=>{
+   window.__D04_LIVE_AUTHORITY_CAPTURE__={
+     // Read-only witness of an actual submitted Three.js frame, not PCM.
+     witness:()=>{
+      sample();
+      const d=window.__DUNGEON_RENDER_DIAGNOSTICS__;
+      return d?.renderedState&&Number.isSafeInteger(d.frame)?{
+       scene:{...d.renderedState},frameId:d.frame,
+       acknowledgedFrames:d.physicalFeedback?.framesAcknowledged??0
+      }:null;
+     },
+     stop:async()=>{
     if(stopped)return {samples,recorder:{status:'UNAVAILABLE',reason:'Already stopped'}};
     stopped=true;clearInterval(sampler);sample();
     if(recording&&recorder?.state!=='inactive')recorder.stop();
@@ -174,8 +189,40 @@ async function observeLiveAuthority(browser,real,viewport,capture,feedbackMode='
     reason:error,originalAudioTracks:sound?.getAudioTracks?.().length||0};
   },{capture,source,seed:real.seed,viewport,feedbackMode});
   beganAt=performance.now();live=true;
-  await page.waitForTimeout(ACTIVE_MS);
-  stopIndex=Math.min(real.states.length-1,Math.floor((performance.now()-beganAt)/STEP_MS));
+  if(framePaced){
+   // Consecutive immutable DungeonRuntime public snapshots; NON-realtime.
+   // Software-WebGL stalls remain measured, 400ms sound deadline unchanged.
+   let previousFrame=0,previousAcknowledgment=0;
+   for(let index=0;index<Math.min(FRAME_PACED_STAGES,real.manifest.length);index++){
+    controlledIndex=index;const expected=real.manifest[index].scene;
+    const beganStage=performance.now();let observed=null;
+    try{
+     await expect.poll(async()=>{
+      const w=await page.evaluate(()=>window.__D04_LIVE_AUTHORITY_CAPTURE__?.witness());
+      if(w&&w.scene?.run===expected.run&&w.scene?.floor===expected.floor&&
+       w.scene?.tick===expected.tick&&w.scene?.checksum===expected.checksum&&
+       w.frameId>previousFrame&&w.acknowledgedFrames>previousAcknowledgment){
+       observed=w;return true;
+      }
+      return false;
+     },{timeout:FRAME_PACED_STAGE_TIMEOUT_MS,intervals:[100,200,350]}).toBe(true);
+     pacedReceipts.push({stageIndex:index,scene:expected,
+      frameId:observed.frameId,acknowledgedFrames:observed.acknowledgedFrames,
+      waitedMs:Math.round(performance.now()-beganStage),accepted:true});
+     previousFrame=observed.frameId;
+     previousAcknowledgment=observed.acknowledgedFrames;
+    }catch(e){
+     pacedFailures.push({stageIndex:index,expected,
+      waitedMs:Math.round(performance.now()-beganStage),
+      reason:'No fresh matching actual WebGL submission inside bounded deadline'});
+     break;
+    }
+   }
+   stopIndex=controlledIndex;
+  }else{
+   await page.waitForTimeout(ACTIVE_MS);
+   stopIndex=Math.min(real.states.length-1,Math.floor((performance.now()-beganAt)/STEP_MS));
+  }
   live=false;
   let stopped;
   try{stopped=await page.evaluate(()=>window.__D04_LIVE_AUTHORITY_CAPTURE__.stop())}
@@ -189,6 +236,8 @@ async function observeLiveAuthority(browser,real,viewport,capture,feedbackMode='
    fs.writeFileSync('artifacts/dungeon-d04-live-authority-'+capture+'-'+suffix+'-unaligned.webm',
     Buffer.from(base64,'base64'));
   const result={capture,feedbackMode,viewpoint,seed:real.seed,viewport,samples:stopped.samples||[],recorder,errors,requestLog,
+   capturePacing:framePaced?'frame-acknowledged':'wall-clock',
+   pacedReceipts,pacedFailures,
    start:started,continuousAuthorityMs:Math.round(performance.now()-beganAt),
    authorityTickAtStop:real.manifest[stopIndex].scene.tick,
    highestDeliveredStage:Math.max(-1,...requestLog.map(e=>e.index)),
@@ -287,7 +336,7 @@ test('D04 records three existing physical viewpoints at desktop and 390px from o
    // real Three.js camera controls, one actual canvas + opted-in original
    // soundstage recorder per arm. No fabricated Warden/combat frames.
    const arm=await observeLiveAuthority(browser,real,viewport,'on','d04',
-    SOURCE,viewpoint,'sixview');
+    SOURCE,viewpoint,'sixview',true);
    runs.push(arm);
    expect(arm.errors).toEqual([]);
    expect(arm.samples.length).toBeGreaterThan(0);
@@ -305,6 +354,7 @@ test('D04 records three existing physical viewpoints at desktop and 390px from o
   frozenBefore:'281735d0910c6b2443648af976003d50412ee324',
   previewRoute:'/dungeon?feedback=d04',
   cameraSelection:'original #view-toggle only, never camera code or private renderer overrides',
+  evidenceCadence:'frame-acknowledged twelve consecutive genuine public-state steps per view; NOT realtime',
   seed:real.seed,authoritativeStates:real.manifest,
   viewportAndViewpointCount:runs.length,
   originals:'One actual WebGL canvas video and explicitly consented original soundstage track per recording',
@@ -315,6 +365,7 @@ test('D04 records three existing physical viewpoints at desktop and 390px from o
   verdict,runs,
   limitations:[
    'Six serial capture arms do not share a hardware/video/audio clock',
+   'Frame-paced capture holds real public states until WebGL acknowledgement; cannot certify realtime responsiveness',
    'MediaRecorder bytes and requestFrame attempts do not prove moving decoded body contacts',
    'Missing common genuine HP-loss ticks remain SPARSE, not an achieved match',
    'Warden warning/release/recovery/counter, misses, blocks, dodges, projectiles and spells need separate verified event clips',
@@ -329,6 +380,9 @@ test('D04 records three existing physical viewpoints at desktop and 390px from o
  console.log('D04 six original physical viewpoints (not synchronized):',JSON.stringify({
   status:verdict.status,views:verdict.observedViews,
   capturedRecorders:verdict.capturedRecorders,
+  capturePacing:verdict.capturePacing,
+  pacedWitnessCounts:runs.map(r=>({view:r.viewport.width+'x'+r.viewport.height+'/'+r.viewpoint,
+   receipts:r.pacedReceipts.length,failures:r.pacedFailures.length})),
   matchedAuthorityTicks:verdict.matchedAuthorityTicks,
   matchedHpLossTicks:verdict.matchedHpLossTicks,
   missingViews:verdict.missingViews,
