@@ -209,3 +209,18 @@ test('Pass398 real earned-counter framing never edits unseen/invalid/manual/redu
    'already comfortably framed pair needs no pan');
  assert.doesNotMatch(scene,/privateMaze.*publicGuardianEarnedRecoilPairShift|secretRoute.*recoilPairShift/);
 });
+
+test('Pass398b real public guardian parry remains a complete physical mobile shot after its retreat clears ordinary warning',()=>{
+ assert.match(scene,/let earnedCounterModel = null, earnedCounterDistance = Infinity/);
+ assert.match(scene,/entry\.lanternParried === true[\s\S]*?s\.visibleCells\.includes\(entry\.cell\)/,
+   'the fallback must require the currently published and visibly disclosed guardian');
+ assert.match(scene,/verifiedGuardianModel=closestThreat\?\.strength>\.70 && closestThreatModel\?\.parent[\s\S]*?earnedCounterModel/);
+ assert.match(scene,/verifiedGuardianStrength>\.70[\s\S]*?verifiedGuardianModel\?\.parent/);
+ assert.match(scene,/for \(const root of \[explorer\.group,verifiedGuardianModel\]\)/,
+   'project the actual entire player AND parried guardian, never just a marker');
+ assert.match(scene,/!earnedGuardianFrame && physicalPairHeight<halfHeight-\.02/,
+   'a physically earned retreat must not zoom into a falsely fitting body envelope');
+ assert.match(scene,/publicGuardianEarnedRecoilPairShift\([\s\S]*?earnedGuardianFrame\s*\|\| closestThreat\?\.lanternParried===true/);
+ assert.doesNotMatch(scene,/privateMaze.*earnedCounterModel|secretRoute.*earnedCounterDistance/,
+   'no private map/AI route may decide which guardian is framed');
+});

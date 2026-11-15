@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-15T15:19:57.000Z",
+  "updatedAt": "2026-11-15T15:40:23.328Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass398 candidate: exact-HEAD Pass397 native 390px authentic seed13 earned parry physically moved Thornback 91 -> 74, but full connected guardian mesh was clipped at -0.977 NDC, violating unchanged +/-0.95. Add public-earned-recoil-only optical camera-right pair centering derived from actual physical Pip and Thornback bounds, with stronger +/-0.925 target and no renderer allocations/AI/collision/privacy changes. Existing six-reset geometry <100 passed; fresh exact-head native WebGL, mobile 320px and independent Nintendo quality comparison still pending. Benchmark unmet."
+    "summary": "Pass398b: original 390px real moving parry now fits both full connected actors, but exact-HEAD 320px still clipped actual guardian left at -1.1807 NDC under unchanged +/-0.95 gate. Fixed earned-public-lantern frame visibility fallback for the same true sanitized guardian after recoil exceeds normal threat-warning radius; full-mesh optical fit without unsafe zoom, no game authority/collision/privacy/threshold changes. All 849 focused/whole-repo source tests previously passed; new exact-HEAD visual 320/390 verdict pending. Fixed Nintendo benchmark UNMET."
   },
   "captures": [
     {

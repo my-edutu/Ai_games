@@ -514,6 +514,10 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     if (pose.moving) heading = pose.heading;
     const result = frame.scene === 'result' || frame.scene === 'intermission' ? s.result?.reason ?? 'failure' : null;
     let closestThreat = null, closestWarning = null, closestThreatModel = null;
+    // A legal autonomous lantern counter often drives Thornback OUT of the
+    // immediate attention radius. Retain that same current, PUBLIC guardian
+    // for the earned-counter physical shot; never reintroduce an unseen model.
+    let earnedCounterModel = null, earnedCounterDistance = Infinity;
     for (const entry of wardens.values()) {
       if (settings.reducedMotion || result) { entry.cells = [entry.cell]; entry.progress = 0; }
       else if (entry.cells.length > 1) {
@@ -530,6 +534,15 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // threats in the sanitized public snapshot, and staging is cosmetic.
       const towardExplorerX=pose.x-threatPose.x, towardExplorerZ=pose.z-threatPose.z;
       const separation=Math.hypot(towardExplorerX,towardExplorerZ);
+      // This real enemy has already been disclosed by the sanitized public
+      // stream. A visibly parried recoil remains a legitimate two-body scene
+      // even after distance-based warning strength drops below camera focus.
+      if (!result && entry.lanternParried === true
+        && Array.isArray(s.visibleCells) && s.visibleCells.includes(entry.cell)
+        && separation < earnedCounterDistance) {
+        earnedCounterModel = entry.model.group;
+        earnedCounterDistance = separation;
+      }
       // Read at native gameplay scale: a disclosed warden one or two cells
       // away must provoke a visible head/lantern/mask reaction, not just HUD copy.
       // Keep the same 6.6-world-unit disclosure radius and never consult AI truth.
@@ -1408,13 +1421,18 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // This exclusive shot cannot reveal a sealed/unknown enemy, alter AI,
     // scale physical actors, or crop the output; immutable native +/- .95
     // silhouettes, 44px controls and manual camera take priority.
+    const verifiedGuardianModel=closestThreat?.strength>.70 && closestThreatModel?.parent
+      ? closestThreatModel : earnedCounterModel;
+    const earnedGuardianFrame=!!earnedCounterModel && verifiedGuardianModel===earnedCounterModel;
+    const verifiedGuardianStrength=verifiedGuardianModel===closestThreatModel && closestThreat?.strength>.70
+      ? closestThreat.strength : earnedGuardianFrame ? .75 : 0;
     if (cameraMode==='follow' && !settings.reducedMotion && !result
       && !cameraGate && !pressureCameraBeat && !pickupCameraBeat
-      && aspect>=.35 && aspect<.60 && closestThreat?.strength>.70
-      && closestThreatModel?.parent) {
+      && aspect>=.35 && aspect<.60 && verifiedGuardianStrength>.70
+      && verifiedGuardianModel?.parent) {
       camera.updateMatrixWorld();
       const realBodies=[];
-      for (const root of [explorer.group,closestThreatModel]) {
+      for (const root of [explorer.group,verifiedGuardianModel]) {
         pressureReframeEnvelope.makeEmpty();
         root.updateWorldMatrix(true,true);
         root.traverseVisible(mesh=>{
@@ -1441,9 +1459,13 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         realBodies.push({left,right,bottom,top});
       }
       const physicalPairHeight=publicGuardianPhysicalCloseupHalfHeight(
-        aspect,closestThreat.strength,targetHeight,halfHeight,realBodies,
+        aspect,verifiedGuardianStrength,targetHeight,halfHeight,realBodies,
         settings.reducedMotion);
-      if(physicalPairHeight<halfHeight-.02){
+      // Once the REAL recoil pulls Thornback outside the ordinary warning
+      // radius, camera panning (not extra zoom) is the safe complete-body
+      // correction. Zooming would invalidate the measured projected bounds
+      // just before the strict 320px no-crop verification.
+      if(!earnedGuardianFrame && physicalPairHeight<halfHeight-.02){
         halfHeight=physicalPairHeight;
         camera.left=-halfHeight*aspect;camera.right=halfHeight*aspect;
         camera.top=halfHeight;camera.bottom=-halfHeight;
@@ -1458,7 +1480,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // Leave the persistent camera easing target untouched: otherwise a
       // repeated corrective pan fights the next autonomous camera frame.
       const recoilPairShift=publicGuardianEarnedRecoilPairShift(
-        aspect,halfHeight,realBodies,closestThreat.lanternParried===true,
+        aspect,halfHeight,realBodies,earnedGuardianFrame
+          || closestThreat?.lanternParried===true,
         settings.reducedMotion);
       if(recoilPairShift){
         camera.updateMatrixWorld();
