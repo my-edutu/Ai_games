@@ -47,10 +47,45 @@ export function observedVerifiedClockworkPaletteTail(source,handoff,departure) {
      source.tick-proof.crossingTick>160 ||
      !boundedWeight(departure))return null;
   return {historicalOpticalTail:true,previouslySourceVerified:true,
-    authenticatedSourceTick:proof.sourceTick,
+    runToken:source.runToken,authenticatedSourceTick:proof.sourceTick,
     authenticatedCrossingTick:proof.crossingTick,
     returnedFrames:handoff.retirementFrames,oldWeight:1-departure,
     evidence:'Past genuine same-run physical guardian exit; this is NOT a current source sample or native-film acceptance'};
+}
+
+
+/**
+ * One physically authenticated palette sample for BOTH existing Three.js F9
+ * geometry and its sky/fog/light rig. The already-source-proven eight-return
+ * material tail has no authority to create an F9 crossing, actor, camera or
+ * sampled frame. Returning scalars prevents scene callers mutating world GPU
+ * material ownership. Do not use this as evidence that native pixels changed.
+ */
+export function observedCertifiedClockworkHorizon(source,proof,opticalTail=null) {
+  if(source?.floor!==9 || source.theme!=='void' ||
+     source.lifecycle!=='running' || !(source.player?.health>0) ||
+     typeof source.runToken!=='string' || !source.runToken ||
+     !Number.isSafeInteger(source.tick))return null;
+  const current=proof?.sourceBound===true &&
+    actualSourceKind(proof.kind) &&
+    Number.isSafeInteger(proof.sourceTick) &&
+    proof.sourceTick===source.tick &&
+    Number.isSafeInteger(proof.crossingTick) &&
+    proof.crossingTick<=source.tick &&
+    boundedWeight(proof.oldWeight);
+  if(current) return {
+    sourceBound:true,sourceTick:source.tick,oldWeight:proof.oldWeight,
+    historicalOpticalTail:false,kind:'live-same-run-physical-gateway'
+  };
+  if(!materialTailValid(opticalTail) ||
+     opticalTail.runToken!==source.runToken ||
+     source.tick<opticalTail.authenticatedSourceTick ||
+     source.tick-opticalTail.authenticatedCrossingTick>160)
+    return null;
+  return {
+    sourceBound:true,sourceTick:source.tick,oldWeight:opticalTail.oldWeight,
+    historicalOpticalTail:true,kind:'previous-certified-returned-material'
+  };
 }
 
 export function createOriginalClockworkArchitecturalPalette(materials,bronzePalette) {
