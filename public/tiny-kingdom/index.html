@@ -4341,6 +4341,7 @@ function getArchitectureMaterialAudit(){
 // it consumes no simulation RNG and never manufactures jobs or trade.
 const GROUND_ATLAS_SIZE=512,GROUND_ATLAS_EXTENT=184;
 let groundAtlasTexture=null,groundAtlasHomes=-1,groundAtlasRebuilds=0;
+let groundAtlasLastBuildProfile=null;
  // One original 512px base canvas, retained and reused through real growth;
  // the composited canvas is per rebuild and eligible for garbage collection.
  let groundAtlasBaseCanvas=null,groundAtlasBaseBuilds=0,groundAtlasBaseReuses=0;
@@ -4513,6 +4514,7 @@ function getGroundAtlasDirtyAudit(){
   partialUploads:groundAtlasGpuPartialUploads,
   skippedUploads:groundAtlasGpuSkippedUploads,uploadedBytes:groundAtlasGpuBytes,
   lastUpload:groundAtlasLastUpload?{...groundAtlasLastUpload}:null,
+  lastBuildProfile:groundAtlasLastBuildProfile?{...groundAtlasLastBuildProfile}:null,
   restoresEveryChangedPixel:true,changesNavigation:false,changesAuthority:false,
   notHardwareFps:true};
 }
@@ -4555,8 +4557,59 @@ function paintLivedHouseGroundContact(ctx,lot,world,size,extent){
   haloMetres:[f.haloRx,f.haloRz],authorityModified:false,
   addedTriangles:0,textureAllocations:0};
 }
+// W344 Phase 1: identical ORIGINAL 512px ground pigments, but the immutable
+// atlas now computes each column's stream position/river sine/hash and each
+// row's drainage drift/hash ONCE. A physical town still draws every real road,
+// planted field, occupied home doorstep and market court. No extra atlas,
+// textures, animation, simulation RNG or invented contacts.
+function fillOriginalGroundAtlasBasePixels(arr,size,extent){
+ if(!(arr instanceof Uint8ClampedArray)||!Number.isInteger(size)||
+    size<1||arr.length!==size*size*4||!Number.isFinite(extent)||extent<=0)
+  throw Error('W344 invalid bounded original valley albedo');
+ const clamp=v=>Math.max(0,Math.min(255,Math.round(v)));
+ const xWorld=new Float64Array(size),xRiver=new Float64Array(size),
+  xHash=new Int32Array(size),zWorld=new Float64Array(size),
+  zWind=new Float64Array(size),zHash=new Int32Array(size);
+ for(let x=0;x<size;x++){
+  const wx=(x+.5)*extent/size-92;
+  xWorld[x]=wx;xRiver[x]=Math.sin(wx*.13);
+  xHash[x]=Math.imul(x+17,374761393);
+ }
+ for(let z=0;z<size;z++){
+  const wz=(z+.5)*extent/size-92;
+  zWorld[z]=wz;zWind[z]=Math.sin(wz*.035);
+  zHash[z]=Math.imul(z+79,668265263);
+ }
+ for(let z=0;z<size;z++)for(let x=0;x<size;x++){
+  const wx=xWorld[x],wz=zWorld[z];
+  const broad=Math.sin(wx*.151+wz*.063)*Math.cos(wz*.187-wx*.078);
+  const pebbles=Math.sin(wx*3.71+wz*1.21)*Math.cos(wz*4.17-wx*.63);
+  const drainage=Math.sin(wx*.073-wz*.049)+Math.cos(wz*.094+wx*.052);
+  const distance=Math.hypot(wx,wz);
+  const dry=Math.max(0,Math.min(1,(distance-23)/42));
+  const hash=Math.imul((xHash[x]^zHash[z])|0,1274126177);
+  const grit=(((hash^(hash>>>16))>>>0)/4294967295-.5)*10;
+  const hummock=Math.sin(wx*.43+wz*.29)*Math.cos(wz*.38-wx*.31);
+  const drift=Math.sin(wx*.089-wz*.063+1.8*zWind[z]);
+  const exposure=Math.max(0,Math.min(1,(distance-28)/43));
+  const shore=Math.abs(wz-(20+3*xRiver[x]));
+  const damp=Math.max(0,Math.min(1,(8.2-shore)/6.3));
+  const clay=Math.max(0,drift*.63+drainage*.18-.15)*(1-damp);
+  const stoneDust=Math.max(0,exposure*.72+.16*hummock);
+  const i=(z*size+x)*4;
+  arr[i]=clamp(112+10*broad+5*pebbles+7*dry+3*drainage+
+   3*hummock+grit+clay*21+stoneDust*17-damp*21);
+  arr[i+1]=clamp(123+11*broad+3*pebbles-2*dry+2*drainage+
+   4*hummock+grit*.65-clay*14-stoneDust*11-damp*14);
+  arr[i+2]=clamp(105+6*broad+2*pebbles-2*dry+3*drainage+
+   4*hummock+grit*.48-clay*16+stoneDust*3+damp*3);
+  arr[i+3]=255;
+ }
+ return arr;
+}
 function rebuildGroundAtlas(){
  if(!gpuAvailable)return;
+ const groundBuildStart=performance.now(),groundBaseStart=groundBuildStart;
  const size=GROUND_ATLAS_SIZE;
  let canvasAtlas=groundAtlasBaseCanvas||document.createElement('canvas');
  if(!groundAtlasBaseCanvas){canvasAtlas.width=size;canvasAtlas.height=size;}
@@ -4573,38 +4626,7 @@ function rebuildGroundAtlas(){
  };
  if(!groundAtlasBaseCanvas){
   const pixels=ctx.createImageData(size,size),arr=pixels.data;
- // The broad, low-amplitude irregular patches are stable across camera
- // motion, growth, weather and snapshot/replay; no random() calls or assets.
- for(let z=0;z<size;z++)for(let x=0;x<size;x++){
-  const wx=(x+.5)*GROUND_ATLAS_EXTENT/size-92,
-   wz=(z+.5)*GROUND_ATLAS_EXTENT/size-92;
-  const broad=Math.sin(wx*.151+wz*.063)*Math.cos(wz*.187-wx*.078);
-  const pebbles=Math.sin(wx*3.71+wz*1.21)*Math.cos(wz*4.17-wx*.63);
-  const drainage=Math.sin(wx*.073-wz*.049)+Math.cos(wz*.094+wx*.052);
-  const dry=Math.max(0,Math.min(1,(Math.hypot(wx,wz)-23)/42));
-  // Original stable soil/grit breakup, without simulation RNG, mesh or
-  // per-frame noise. Keeps meadow from looking like one flat green carpet.
-  const hash=Math.imul((Math.imul(x+17,374761393)^Math.imul(z+79,668265263))|0,1274126177);
-  const grit=(((hash^(hash>>>16))>>>0)/4294967295-.5)*10;
-  const hummock=Math.sin(wx*.43+wz*.29)*Math.cos(wz*.38-wx*.31);
-  // W126E: warm wind-eroded mineral patches and muddy river alluvium,
-  // baked ONCE into the existing 512px original world-coordinate atlas.
-  // No additional texture, procedural GPU octave or RNG draw.
-  const drift=Math.sin(wx*.089-wz*.063+1.8*Math.sin(wz*.035));
-  const exposure=Math.max(0,Math.min(1,(Math.hypot(wx,wz)-28)/43));
-  const shore=Math.abs(wz-(20+3*Math.sin(wx*.13)));
-  const damp=Math.max(0,Math.min(1,(8.2-shore)/6.3));
-  const clay=Math.max(0,drift*.63+drainage*.18-.15)*(1-damp);
-  const stoneDust=Math.max(0,exposure*.72+.16*hummock);
-  const i=(z*size+x)*4;
-  arr[i]=clamp(112+10*broad+5*pebbles+7*dry+3*drainage+
-   3*hummock+grit+clay*21+stoneDust*17-damp*21);
-  arr[i+1]=clamp(123+11*broad+3*pebbles-2*dry+2*drainage+
-   4*hummock+grit*.65-clay*14-stoneDust*11-damp*14);
-  arr[i+2]=clamp(105+6*broad+2*pebbles-2*dry+3*drainage+
-   4*hummock+grit*.48-clay*16+stoneDust*3+damp*3);
-  arr[i+3]=255;
- }
+ fillOriginalGroundAtlasBasePixels(arr,size,GROUND_ATLAS_EXTENT);
  ctx.putImageData(pixels,0,0);
  // Moist ground around the authentic winding stream; actual 3D water
  // remains drawn by the existing river mesh, at its original coordinates.
@@ -4621,6 +4643,8 @@ function rebuildGroundAtlas(){
   groundAtlasBaseCanvas=canvasAtlas;
  groundAtlasBaseBuilds++;
  }else groundAtlasBaseReuses++;
+ const groundBaseMs=performance.now()-groundBaseStart;
+ const groundHomesStart=performance.now();
  // The river, fields and all 262,144 noise texels are immutable. A real new
  // house only needs the original footfall, road and market composite painted
  // over the unchanged source, keeping the existing GPU texture resource.
@@ -4652,6 +4676,8 @@ function rebuildGroundAtlas(){
   groundAtlasHouseKeys.push(city[i].join(','));
   groundAtlasHouseStamps++;
  }
+ const groundHomesMs=performance.now()-groundHomesStart;
+ const groundAccessStart=performance.now();
  // A deterministic access overlay is revalidated for ALL real occupied lots
  // only when the town topology changes. Revalidating prevents a new Day-120
  // building from leaving an old footpath visually passing through its walls.
@@ -4712,6 +4738,8 @@ function rebuildGroundAtlas(){
   groundAtlasAccessTopology=accessTopology;
   groundAtlasAccessRebuilds++;
  }
+ const groundAccessMs=performance.now()-groundAccessStart;
+ const groundRoadStart=performance.now();
  // The original through-roads, tracks and market are tied to ACTUAL
  // traversable map coordinates. Cache them once: constructing a cottage
  // does not redraw every cobble, rut or cart lane.
@@ -4787,6 +4815,8 @@ function rebuildGroundAtlas(){
   groundAtlasRoadSegments=roadSegments;
   groundAtlasRoadBuilds++;
  }else groundAtlasRoadReuses++;
+ const groundRoadMs=performance.now()-groundRoadStart;
+ const groundCompositeStart=performance.now();
  // GPU upload consumes one persistent texture; all three small 2D layers
  // are composited without regenerating 262,144 procedural ground texels.
  if(!groundAtlasCompositeCanvas){
@@ -4810,6 +4840,8 @@ function rebuildGroundAtlas(){
  // bounded atlas. Keep existing GPU texture storage instead of reallocating
  // 512x512 RGBA plus mipmaps on EVERY authentic housing change.
  const composite=ctx.getImageData(0,0,size,size).data;
+ const groundCompositeMs=performance.now()-groundCompositeStart;
+ const groundUploadStart=performance.now();
  const dirty=planGroundAtlasDirtyRegions(groundAtlasPriorPixels,composite,size,32,12);
  const allocate=!groundAtlasTexture;
  if(allocate)groundAtlasTexture=gl.createTexture();
@@ -4842,6 +4874,15 @@ function rebuildGroundAtlas(){
  groundAtlasLastUpload={full:dirty.full,changedTiles:dirty.changedTiles,
   rectangles:dirty.rects.length,uploadedPixels:dirty.uploadPixels,
   totalPixels:size*size,hardwareTimingMeasured:false};
+ const groundUploadMs=performance.now()-groundUploadStart;
+ groundAtlasLastBuildProfile={source:'real-immutable-original-ground-and-occupied-house-atlas',
+  baseCold:!groundAtlasBaseReuses||groundAtlasBaseBuilds===1&&groundAtlasRebuilds===0,
+  baseMs:groundBaseMs,homeMs:groundHomesMs,accessMs:groundAccessMs,
+  roadsMs:groundRoadMs,compositeMs:groundCompositeMs,uploadMs:groundUploadMs,
+  totalMs:performance.now()-groundBuildStart,
+  changeWasFull:dirty.full,changedTiles:dirty.changedTiles,
+  textureCount:groundAtlasTexture?1:0,houseCount:city.length,
+  triangleAdditions:0,physicalHardwareTiming:'NOT MEASURED'};
  groundAtlasHomes=city.length;groundAtlasRebuilds++;
  groundSurfaceStats={renderer:'gpu-2d-albedo',width:size,height:size,
   bytes:size*size*4,homes:city.length,farmPlots:FARMSTEAD.fields.length,
@@ -5681,6 +5722,7 @@ let avoidedTerrainSourceCopies=0,avoidedTerrainFloats=0;
 function getColdSceneryBuildAudit(){
  return {source:'real-cold-static-stage-profile',builds:coldSceneBuilds,
   last:coldSceneLast?{...coldSceneLast}:null,
+  groundAtlasLastBuild:groundAtlasLastBuildProfile?{...groundAtlasLastBuildProfile}:null,
   avoidedTerrainSourceCopies,avoidedTerrainFloats,
   cachedStaticAppendCalls,cachedStaticAppendFloats,
   cachedTypedRangeCopies,cachedTypedRangeFloats,
@@ -27741,9 +27783,13 @@ const frameStaticStart=performance.now();staticTerrainMemoActive=staticTerrainMe
 // Cache seasonal ground geometry: camera and citizens cannot change it.
 // Winter snow affects colour; ordinary rain does not.
 const groundClimate=climateAt(state.t);
+const groundAtlasPhaseStart=performance.now();
+let groundAtlasRebuilt=false;
 if(gpuAvailable&&(groundAtlasHomes!==city.length||
- groundAtlasHouseKeys.some((key,i)=>!city[i]||key!==city[i].join(','))))
- rebuildGroundAtlas();
+ groundAtlasHouseKeys.some((key,i)=>!city[i]||key!==city[i].join(',')))){
+ rebuildGroundAtlas();groundAtlasRebuilt=true;
+}
+const groundAtlasMs=performance.now()-groundAtlasPhaseStart;
 const nextTerrainKey=groundClimate.season+':'+(groundClimate.season===3&&groundClimate.weather==='snow'?1:0);
 // W149: the exact season's complete already-packed original landscape
 // makes regenerating the 41x41 terrain and horizon source unnecessary.
@@ -27911,6 +27957,8 @@ updateResidentCivicDistrict(nextTerrainKey,daylightStage);
  retainSettlementSeason(staticKey,scenicMeshCache,settlementChunkRanges,settlementBuffer,uploaded.capacityFloats);}
 coldSceneBuilds++;
 coldSceneLast={sceneKey:staticKey,day:Math.floor(state.t/24)+1,
+ groundAtlasMs,groundAtlasRebuilt,
+ groundAtlasSubphases:groundAtlasRebuilt?{...groundAtlasLastBuildProfile}:null,
  terrainBaseMs,landscapeMs,homeMs,civicMs,
  packUploadMs:performance.now()-packPhaseStart,
  totalMs:performance.now()-frameStaticStart,
