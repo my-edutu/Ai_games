@@ -2771,10 +2771,37 @@ function foregroundResidentBudgetAdmits(meshFloats,usedFloats,maxFloats){
   Number.isInteger(maxFloats)&&maxFloats>=0&&
   meshFloats<=maxFloats-usedFloats;
 }
+// W343: bounded full-original-body CPU geometry across the SAME real
+// farm -> courier -> receiving-market -> occupied-home camera workday.
+// A temporarily empty optical selection must not discard up to eight genuine
+// sculpted villagers and force expensive JS remeshing when the user returns.
+// The live GPU VBO/visibility and real animation ALWAYS use the current actor
+// selection. Never copy stale vertices into the current visible draw list.
+function retainForegroundPoseWindow(previous,visible,
+ maxEntries=FOREGROUND_RESIDENT_MAX,maxFloats=FOREGROUND_RESIDENT_FLOAT_BUDGET){
+ if(!Number.isSafeInteger(maxEntries)||maxEntries<0||
+    !Number.isSafeInteger(maxFloats)||maxFloats<0)
+  throw Error('W343 invalid bounded original worker pose retention');
+ const warm=new Map(previous);
+ for(const {i,entry} of visible){
+  if(!entry?.mesh||!Number.isSafeInteger(entry.mesh.length)||
+     !entry.mesh.length||entry.mesh.length%30)
+   throw Error('W343 invalid original full-body mesh');
+  warm.delete(i);warm.set(i,entry);
+ }
+ let floats=0;
+ for(const entry of warm.values())floats+=entry.mesh.length;
+ while(warm.size>maxEntries||floats>maxFloats){
+  const oldest=warm.keys().next().value,entry=warm.get(oldest);
+  floats-=entry.mesh.length;warm.delete(oldest);
+ }
+ return warm;
+}
 function prepareForegroundResidents(rows,frame){
  foregroundResidentVisible=[];
  if(!gpuAvailable||!rows.length){
-  foregroundResidentCache.clear();foregroundResidentLayoutKey='';
+  // Preserve original full-body meshes across genuine camera districts.
+  foregroundResidentLayoutKey='';
   foregroundResidentMesh=new Float32Array(0);return false;
  }
  const beforeAll=restingActorCounters();
@@ -2784,7 +2811,7 @@ function prepareForegroundResidents(rows,frame){
  // slot with full-CPU bodies, starving exactly the immutable-pose actors
  // whose reuse removes work. Every unselected resident is still rendered
  // by the existing live original villager() fallback below.
- const next=new Map(),selected=[];
+ const selected=[];
  const ranked=rows.map(row=>({row,
   priority:isWorkingAtSite(row.p)?2:
    isForegroundWalkingSkinCandidate(row.p,row.i,frame)?1:0}));
@@ -2838,10 +2865,10 @@ function prepareForegroundResidents(rows,frame){
    continue;
   }
   total+=entry.mesh.length;
-  next.set(i,entry);selected.push({p,i,entry,fresh});
+  selected.push({p,i,entry,fresh});
  }
  if(!selected.length){
-  foregroundResidentVisible=[];foregroundResidentCache.clear();
+  foregroundResidentVisible=[];
   foregroundResidentLayoutKey='';foregroundResidentMesh=new Float32Array(0);
   return false;
  }
@@ -2911,7 +2938,7 @@ function prepareForegroundResidents(rows,frame){
    foregroundResidentUploadBytes+=row.entry.mesh.length*4;
   }
  }
- foregroundResidentCache=next;foregroundResidentVisible=selected;
+ foregroundResidentCache=retainForegroundPoseWindow(foregroundResidentCache,selected);foregroundResidentVisible=selected;
  foregroundResidentLayoutKey=layoutKey;return true;
 }
 function drawForegroundResidentMesh(){
@@ -3012,7 +3039,13 @@ function getForegroundResidentAudit(){
   contactLimitMeters:.015,contactLimitRadians:.010,
   followedWorkerHandsFullyLive:true,loadedAndUnloadingFullyLive:true,
   fullOriginalTriangles:foregroundResidentMesh.length/30,
-  floats:foregroundResidentMesh.length,maxFloats:FOREGROUND_RESIDENT_FLOAT_BUDGET,
+  warmPoseCacheEntries:foregroundResidentCache.size,
+   warmPoseCacheFloats:[...foregroundResidentCache.values()]
+    .reduce((sum,entry)=>sum+entry.mesh.length,0),
+   warmPoseMaxEntries:FOREGROUND_RESIDENT_MAX,
+   warmPoseMaxFloats:FOREGROUND_RESIDENT_FLOAT_BUDGET,
+   warmBodiesNeverDrawnUnlessCurrentlyEligible:true,
+   floats:foregroundResidentMesh.length,maxFloats:FOREGROUND_RESIDENT_FLOAT_BUDGET,
   maxPeople:FOREGROUND_RESIDENT_MAX,capacityFloats:foregroundResidentCapacity,
   gpuBuffers:foregroundResidentBuffer?1:0,poseBuilds:foregroundResidentPoseBuilds,
   reuses:foregroundResidentReuses,uploads:foregroundResidentUploads,
