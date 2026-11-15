@@ -101,6 +101,7 @@ function actualGpuTownGrowth(beforeValues,afterValues,options={}){
   'const settlementTopology=key=>key.slice(key.lastIndexOf(":")+1);',
   'const bindGeometry=buffer=>{env.bound=buffer;};',
   'const releaseGeometryBuffer=()=>{throw Error("unexpected original VBO disposal");};',
+  'const residentDeltaUploadAudit={candidates:0,fullUploads:0,partialUploads:0,unchangedUploads:0,uploadedBytes:0,avoidedBytes:0,lastWindow:null};',
   section,uploadSource,
   'return {upload:uploadGrowingSettlement,stats:getResidentDeltaUploadAudit};'
  ].join('\n'))(env);
