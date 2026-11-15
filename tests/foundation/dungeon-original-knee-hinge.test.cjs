@@ -229,3 +229,81 @@ test('source calf preserves a same-foot slew only across consecutive genuinely m
  assert.match(code,/sourceSwingCalfCurrentFrameMask:actor\.sourceSwingCalfCurrentFrameMask/,
   'demand-only source-rig witness must not report historical calf proof as current');
 });
+
+
+// Exact source WebGL desktop #43683237062, true licensed Walking_A tick 6:
+// an 0.22rad original ankle physically lifted a right swinging source toe
+// from -95.111mm to -74.698mm; stone is -20mm. It STILL buries the toe
+// 54.698mm. A merely positive original ankle receipt must not suppress a
+// separately measured, safer, CONNECTED source hip+knee relief attempt.
+// The proposed linked leg response below is HYPOTHETICAL, never film proof.
+test('RED: deeply buried original ankle may escalate to linked hip-knee only on same skinned GLB and preserve atomic final proof',async()=>{
+ const {qualifyOriginalSourceAnkleLinkedEscalation:qualify,
+  reconcileOriginalSourceAnkleLinkedEscalation:reconcile}=await load();
+ assert.equal(typeof qualify,'function');
+ assert.equal(typeof reconcile,'function');
+ const ankle={source:'same-original-GLB-foot-skinned-vertices',
+  side:'right',sourceInstanceId:'live-licensed-clone',
+  sourceClip:'Walking_A',sourceWeight:1,
+  beforeToeY:-.09511107791602491,afterToeY:-.07469846565903035,
+  beforeHeelY:.15629142911152571,afterHeelY:.13846525108081137,
+  floorTopY:-.02,liftMeters:.02041261225699456,
+  penetrationBeforeMeters:.07511107791602491,
+  penetrationAfterMeters:.054698465659030346,
+  originalOppositeShoeVerified:true,contactLocked:false,
+  appliedAngleRad:-.22,sourceAnkleStepRad:.01838,
+  sourceAnkleFrameLimitRad:.08139,frameAwareSwingUsed:false,
+  earlySourceToeRescue:false};
+ const owner={ankleProof:ankle,side:'right',sourceInstanceId:'live-licensed-clone',
+  sourceClipName:'Walking_A',sourceWeight:1,
+  actualToeY:-.07469846565903035,floorTopY:-.02,
+  ownerLocomotion:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false};
+ assert.equal(qualify(owner),true,
+  'the measured 54.7mm remaining toe burial deserves a connected native-leg trial, not another isolated ankle');
+ const support={heelY:-.028,toeY:-.016,heelXZ:[0,0],toeXZ:[.2,0]};
+ const swing={heelY:ankle.afterHeelY,toeY:ankle.afterToeY,
+  heelXZ:[.4,0],toeXZ:[.6,0]};
+ const after={left:support,right:{...swing,heelY:swing.heelY+.008,
+  toeY:swing.toeY+.016,heelXZ:[.404,0],toeXZ:[.61,0]}};
+ const linked={source:'measured-original-skinned-linked-leg',side:'right',
+  sourceClip:'Walking_A',sourceInstanceId:owner.sourceInstanceId,
+  before:{left:support,right:swing},after,contactLocked:false,
+  oppositeShoePreserved:true,upperRad:-.09,lowerRad:.075,
+  liftMeters:.016,fractionCleared:.016/.054698465659030346};
+ const combined=reconcile({...owner,linkedProof:linked});
+ assert.ok(combined,'same-original-shoe final source pose must reconcile both linked hip/knee and ankle');
+ assert.equal(combined.afterToeY,after.right.toeY);
+ assert.equal(combined.afterHeelY,after.right.heelY);
+ assert.ok(combined.liftMeters>.035);
+ assert.equal(combined.originalAnkleLiftMeters,ankle.liftMeters);
+ assert.equal(combined.linkedLegAddedLiftMeters,linked.liftMeters);
+ assert.equal(combined.originalOppositeShoeVerified,true);
+ assert.equal(combined.linkedOriginalSourceJointProof,true);
+ assert.equal(combined.contactLocked,false);
+ for(const change of [
+  {side:'left'},{sourceInstanceId:'other-clone'},
+  {sourceClipName:'Idle'},{sourceWeight:.7},
+  {actualToeY:ankle.afterToeY-.004},
+  {floorTopY:0},{ownerLocomotion:false},
+  {alive:false},{visible:false},{teleport:true},
+  {reducedMotion:true},{interrupted:true},
+  {ankleProof:{...ankle,penetrationAfterMeters:.009,afterToeY:-.029}},
+  {ankleProof:{...ankle,originalOppositeShoeVerified:false}},
+  {ankleProof:{...ankle,contactLocked:true}}
+ ])assert.equal(qualify({...owner,...change}),false,
+  'never escalate a stale, unowned, clear, unsafe or contact-inventing source frame');
+ for(const changed of [
+  {sourceInstanceId:'other-clone'},
+  {linkedProof:{...linked,sourceInstanceId:'other-clone'}},
+  {linkedProof:{...linked,before:{...linked.before,right:{...swing,toeY:swing.toeY-.006}}}},
+  {linkedProof:{...linked,after:{...after,right:{...after.right,toeY:swing.toeY+.003}}}},
+  {linkedProof:{...linked,after:{...after,left:{...support,toeY:support.toeY+.005}}}}
+ ])assert.equal(reconcile({...owner,linkedProof:linked,...changed}),null,
+   'final original-source ankle+hip/knee proof must reject wrong clone or corrupted two-shoe skin');
+ const source=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(source,/qualifyOriginalSourceAnkleLinkedEscalation\(/);
+ assert.match(source,/reconcileOriginalSourceAnkleLinkedEscalation\(/);
+ assert.match(source,/actor\.sourceSwingToeCurrentFrameProofs\[side\]=reconciled/);
+ assert.match(source,/actor\.sourceSwingLinkedCurrentFrameProofs\[side\]=\{/);
+});
