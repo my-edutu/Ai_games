@@ -596,7 +596,7 @@ export function createWarden(options = {}) {
     // warning-state dependency, extra enemy or dynamic object allocation.
     // Their rising profile carries the silhouette above dark stone parapets.
     const tideblade=pivot(wing,`fixed sculpted warden tideblade ${side}`,[side*.27,.26,.04]);
-    const blade=rounded(tideblade,claw,[side*.12,.20,.08],[.25,.54,.32],.076);
+    const blade=rounded(tideblade,claw,[side*.12,.20,.08],[.25,.69,.32],.076);
     blade.rotation.z=-side*.24;
     blade.rotation.x=-.14;
     const inset=rounded(tideblade,plates,[side*.17,.25,.29],[.15,.43,.065],.038);
