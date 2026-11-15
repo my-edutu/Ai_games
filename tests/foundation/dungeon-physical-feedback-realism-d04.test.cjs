@@ -1281,3 +1281,41 @@ test('D04 nonadjacent retained GPU matrix dirt is kept sparse and strictly bound
   [{start:0,count:cap*16}],
   'an out-of-range matrix index must not produce an out-of-bounds GPU upload');
 });
+
+
+test('D04 actual retained hit-mesh retirement preserves separated GPU upload rows after busy combat',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene,created}=three();
+ const Original=T.InstancedMesh;
+ T.InstancedMesh=class extends Original{
+  constructor(...args){
+   super(...args);
+   const ranges=[];
+   this.instanceMatrix.updateRanges=ranges;
+   this.instanceMatrix.addUpdateRange=(start,count)=>ranges.push({start,count});
+   this.instanceMatrix.clearUpdateRanges=()=>{ranges.length=0};
+  }
+ };
+ const stage=createPhysicalFeedbackVisuals(T,scene);
+ const hit=created.meshes[1],ids=[];
+ try{
+  for(let i=0;i<9;i++){
+   const id='1:1:'+(11+i)+':damage:-:revenant';
+   ids.push(id);
+   assert.equal(stage.emit(cue({id,tick:11+i})),true);
+  }
+  assert.equal(stage.stats().instancesByPool.hit,45,
+   'nine five-fragment genuine-cue-shaped batches occupy distinct retained hit rows');
+  hit.instanceMatrix.clearUpdateRanges(); // Actual Three.js completes one upload.
+  assert.equal(stage.retireStaleCue(ids[0],'stale-frame'),5);
+  assert.equal(stage.retireStaleCue(ids[8],'stale-frame'),5);
+  assert.deepEqual(hit.instanceMatrix.updateRanges,
+   [{start:0,count:80},{start:640,count:80}],
+   'retiring distant occupied fragments must NOT dirty the 35 untouched middle matrix rows');
+  assert.equal(hit.count,40,'retirement must still suppress unused GPU instance submissions');
+  assert.equal(hit.instanceMatrix.needsUpdate,true);
+  stage.reset();
+  assert.equal(hit.count,0);
+  assert.equal(stage.stats().activeDrawCalls,0);
+ }finally{stage.dispose()}
+});
