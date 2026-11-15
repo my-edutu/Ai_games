@@ -966,7 +966,10 @@ export function createPhysicalCombatFeedback({
   awaitingPresentation:awaitingPresentation.length,
   awaitingAudioFrame:awaitingPresentation.filter(item=>item.soundAuthorized).length,
   awaitingVisualReceipt:awaitingPresentation.filter(item=>!item.soundAuthorized&&item.visual).length,
-  framesAcknowledged,
+  // Read-only genuine D04 renderer acknowledgment ID. Three.js
+  // renderer.info.render.frame is a separate counter and may diverge after
+  // renderer reset/fallback, so auditors must join impact receipts here.
+  framesAcknowledged,lastPresentedFrameId:lastPresentedFrame,
   verifiedSubmissionPhaseFrames,unverifiedSubmissionPhaseFrames,
   slowSubmissionFrames,recentSlowSubmissionPhases:[...recentSlowSubmissionPhases],
   replayedFrameAcks,recentStringFrameIds:recentStringFrameIds.size,
