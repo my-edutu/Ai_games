@@ -95,7 +95,12 @@ export function sourceOriginalGatewayCameraBridge(snapshot,held,prior,view={}) {
      prior.tick>realCrossingTick ||
      realCrossingTick-prior.tick>48 ||
      snapshot.tick<realCrossingTick ||
-     snapshot.tick-realCrossingTick>(recorded?48:12)) return null;
+     // Genuine first f9:p2 raised-platform landing is observed around tick535,
+     // sixty ticks after source475 grounded crossing. Match the SAME finite
+     // 70-tick original gate/material/cold-camera envelope, while preserving
+     // the strict 12-tick unrecorded receipt and other WebGL, support, crop
+     // and guardian proof vetoes; no invented old frame is generated.
+     snapshot.tick-realCrossingTick>(recorded?70:12)) return null;
   if(recorded){
     if(!cap || w.runToken!==snapshot.runToken ||
       w.fromFloor!==8 || w.toFloor!==9 ||
