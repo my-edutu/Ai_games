@@ -6533,7 +6533,7 @@ test('real native mobile steep swing allocates knee-led original-source probes a
  ])assert.notDeepEqual(plan({...gate,trials:starters,...change}),next,
   'only the real first slow, deep, weighted Walking_A source leg qualifies');
  const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
- assert.match(renderer,/planOriginalSourceSwingLinkedLegFollowups\\(/);
- assert.match(renderer,/chooseOriginalSourceSwingLinkedLegTrial\\(/);
+ assert.match(renderer,/planOriginalSourceSwingLinkedLegFollowups\(/);
+ assert.match(renderer,/chooseOriginalSourceSwingLinkedLegTrial\(/);
  assert.match(renderer,/sourceSwingLinkedLastProbe/);
 });
