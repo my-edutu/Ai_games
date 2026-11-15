@@ -3936,6 +3936,16 @@ function stageOriginalSourceSwingLinkedFootAfterMixer(actor,reducedMotion){
  actor.sourceLinkedFootCurrentFrameProofs??={left:null,right:null};
  actor.sourceLinkedFootCurrentFrameProofs.left=null;
  actor.sourceLinkedFootCurrentFrameProofs.right=null;
+ actor.sourceLinkedFootProbeLast=null;
+ actor.sourceLinkedFootGateLast??={left:null,right:null};
+ actor.sourceLinkedFootGateLast.left=null;
+ actor.sourceLinkedFootGateLast.right=null;
+ actor.sourceLinkedFootGateCounts??=Object.create(null);
+ const mark=(side,why)=>{
+  actor.sourceLinkedFootGateLast[side]=why;
+  actor.sourceLinkedFootGateCounts[why]=Math.min(1000000,
+   (actor.sourceLinkedFootGateCounts[why]||0)+1);
+ };
  const proofs=actor.sourceSwingLinkedCurrentFrameProofs;
  if(!proofs||(proofs.left==null&&proofs.right==null)||
   actor.fullBody?.mode!=='move'||actor.fullBody?.owner?.locomotion!==true||
@@ -3968,11 +3978,18 @@ function stageOriginalSourceSwingLinkedFootAfterMixer(actor,reducedMotion){
   const linkedProof=proofs[side];
   // Do not add an ankle bend after another original toes hinge already
   // changed the same final-sole proof. One finishing source joint per limb.
-  if(!linkedProof||linkedProof.linkedOriginalToeFinisher||
-   actor.sourceToeJointCurrentFrameProofs?.[side]||
-   linkedProof.sourceInstanceId!==actor.assetRoot.uuid||
+  if(!linkedProof)continue;
+  if(linkedProof.linkedOriginalToeFinisher||
+   actor.sourceToeJointCurrentFrameProofs?.[side]){
+   mark(side,'original-toe-hinge-already-owns-source');
+   continue;
+  }
+  if(linkedProof.sourceInstanceId!==actor.assetRoot.uuid||
    linkedProof.sourceClip!=='Walking_A'||linkedProof.contactLocked!==false||
-   linkedProof.oppositeShoePreserved!==true)continue;
+   linkedProof.oppositeShoePreserved!==true){
+   mark(side,'stale-or-invalid-original-linked-certificate');
+   continue;
+  }
   const footMount=actor.rigGaitBones?.find(m=>
    m.side===side&&m.part==='foot');
   const lowerMount=actor.rigGaitBones?.find(m=>
@@ -3980,13 +3997,16 @@ function stageOriginalSourceSwingLinkedFootAfterMixer(actor,reducedMotion){
   const foot=footMount?.bone;
   if(!foot?.isBone||!lowerMount?.bone?.isBone||
    foot.parent!==lowerMount.bone||
-   foot.name?.toLowerCase()!=='foot'+(side==='left'?'l':'r'))continue;
+   foot.name?.toLowerCase()!=='foot'+(side==='left'?'l':'r')){
+   mark(side,'not-original-foot-to-lowerleg-chain');
+   continue;
+  }
   const footTrackName=foot.name.toLowerCase()+'.quaternion';
   const sourceTracks=clip.tracks.filter(t=>
    typeof t?.name==='string'&&
    t.name.toLowerCase().endsWith(footTrackName)&&
    t.times?.length>=4&&t.values?.length===t.times.length*4);
-  if(sourceTracks.length!==1)continue;
+  if(sourceTracks.length!==1){mark(side,'missing-unique-original-foot-track');continue;}
   if(!Object.hasOwn(footMount,'linkedOriginalFootAxisAudit'))
    footMount.linkedOriginalFootAxisAudit=inferImportedSourceKneeBendAxis(
     clip,foot.name);
@@ -3994,10 +4014,16 @@ function stageOriginalSourceSwingLinkedFootAfterMixer(actor,reducedMotion){
   if(audit?.source!=='verified-original-Walking_A-knee-quaternion-axis'||
    audit.trackName?.toLowerCase()!==sourceTracks[0].name.toLowerCase()||
    !Array.isArray(audit.axis)||audit.axis.length!==3||
-   !audit.axis.every(Number.isFinite))continue;
+   !audit.axis.every(Number.isFinite)){
+   mark(side,'no-verified-original-foot-hinge-axis');
+   continue;
+  }
   const axis=footMount.linkedOriginalFootVector??(
    footMount.linkedOriginalFootVector=new THREE.Vector3(...audit.axis));
-  if(!axis.isVector3||Math.abs(axis.lengthSq()-1)>.01)continue;
+  if(!axis.isVector3||Math.abs(axis.lengthSq()-1)>.01){
+   mark(side,'unusable-original-foot-rotation-axis');
+   continue;
+  }
   const saved=footMount.linkedOriginalFootQuaternion??(
    footMount.linkedOriginalFootQuaternion=new THREE.Quaternion());
   const rotation=footMount.linkedOriginalFootDelta??(
@@ -4028,8 +4054,29 @@ function stageOriginalSourceSwingLinkedFootAfterMixer(actor,reducedMotion){
    foot.quaternion.copy(saved);
    foot.updateWorldMatrix(true,true);
   }
+  actor.sourceLinkedFootProbeFrames=Math.min(1000000,
+   (actor.sourceLinkedFootProbeFrames||0)+1);
+  // Tiny bounded, read-only original-GLB provenance retained for diagnosis
+  // if every attempted source ankle correction legitimately fails closed.
+  actor.sourceLinkedFootProbeLast={
+   sourceInstanceId:actor.assetRoot.uuid,clip:'Walking_A',
+   side,sourceBone:foot.name,sourceTrack:sourceTracks[0].name,
+   sourceAxis:audit.axis,
+   originalSwingToeY:before?.[side]?.toeY??null,
+   originalSwingHeelY:before?.[side]?.heelY??null,
+   originalLoadedToeY:before?.[side==='left'?'right':'left']?.toeY??null,
+   trials:trials.map(t=>({
+    angleRad:t.angleRad,
+    swingToeY:t.after?.[side]?.toeY??null,
+    swingHeelY:t.after?.[side]?.heelY??null,
+    oppositeToeY:t.after?.[side==='left'?'right':'left']?.toeY??null
+   }))
+  };
   const choice=eligible({...owner,trials});
-  if(!choice)continue;
+  if(!choice){
+   mark(side,'real-source-foot-probes-no-safe-clearance');
+   continue;
+  }
   foot.quaternion.copy(saved).multiply(
    rotation.setFromAxisAngle(axis,choice.angleRad));
   foot.updateWorldMatrix(true,true);
@@ -4039,6 +4086,7 @@ function stageOriginalSourceSwingLinkedFootAfterMixer(actor,reducedMotion){
   if(!verified){
    foot.quaternion.copy(saved);
    foot.updateWorldMatrix(true,true);
+   mark(side,'final-original-source-foot-skin-readback-rejected');
    continue;
   }
   const originalBurial=-.02-linkedProof.before?.[side]?.toeY;
@@ -4067,6 +4115,7 @@ function stageOriginalSourceSwingLinkedFootAfterMixer(actor,reducedMotion){
   };
   actor.sourceLinkedFootAcceptedFrames=Math.min(1000000,
    (actor.sourceLinkedFootAcceptedFrames||0)+1);
+  mark(side,'accepted-original-linked-foot-skin-clearance');
  }
 }
 
@@ -4603,6 +4652,10 @@ function inspectSourceRigDeformation(actors){
      sourceSwingLinkedAcceptedFrames:actor.sourceSwingLinkedAcceptedFrames||0,
      sourceLinkedFootCurrentFrameProofs:actor.sourceLinkedFootCurrentFrameProofs??null,
      sourceLinkedFootAcceptedFrames:actor.sourceLinkedFootAcceptedFrames||0,
+     sourceLinkedFootProbeFrames:actor.sourceLinkedFootProbeFrames||0,
+     sourceLinkedFootProbeLast:actor.sourceLinkedFootProbeLast??null,
+     sourceLinkedFootGateLast:actor.sourceLinkedFootGateLast??null,
+     sourceLinkedFootGateCounts:actor.sourceLinkedFootGateCounts??null,
      sourceSwingThighAcceptedFrames:actor.sourceSwingThighAcceptedFrames||0,
      sourceToeJointAcceptedFrames:actor.sourceToeJointAcceptedFrames||0,
      sourceToeJointCurrentFrameProofs:actor.sourceToeJointCurrentFrameProofs??null,
