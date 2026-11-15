@@ -67,7 +67,7 @@ test('native-source 475 F9 shoulder ray has clear sight through source-earned lo
   // Old rigid-material-batch SourceEarnedForgedBearing authoringInstance 2
   // struck the left shoulder at depth 14.163 before actor depth 16.839.
   // Verify physical load geometry itself no longer blocks that view.
-  const {plannedSourceEarnedSuspendedBearingSections}=await load();
+  const {plannedEarnedClockworkVoidBearings:f,plannedSourceEarnedSuspendedBearingSections}=await load();
   const THREE=require('three');
   const route=f(source,held);
   assert.ok(route);
@@ -107,7 +107,7 @@ test('native-source 475 F9 shoulder ray has clear sight through source-earned lo
   }
 });
 test('source-earned overhead load frame is bounded and cannot be fabricated from a missing scene station',async()=>{
-  const {plannedSourceEarnedSuspendedBearingSections}=await load();
+  const {plannedEarnedClockworkVoidBearings:f,plannedSourceEarnedSuspendedBearingSections}=await load();
   assert.equal(plannedSourceEarnedSuspendedBearingSections(null),null);
   assert.equal(plannedSourceEarnedSuspendedBearingSections([{angle:NaN,sceneY:0,height:6}]),null);
   assert.equal(plannedSourceEarnedSuspendedBearingSections([{angle:0,sceneY:0,height:-1}]),null);
