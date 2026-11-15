@@ -301,6 +301,29 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
     witness.hp===cue.detail?.remainingHp&&
     witness.maxHp===cue.detail?.maxHp);
  }
+ // Presentation may still hold the PRE-injury HP on the same living
+ // visible body while the newest public snapshot already reports the HP
+ // loss. An exact old-to-new transition can use that real body instead of
+ // losing its injury art; arbitrary cached HP cannot. The unique current
+ // public victim, scene, tick, cell and canonical HP receipt are still
+ // independently required by each caller before admitting any shards.
+ function drawnHpMatchesObservedTransition(cue,drawn,witness){
+  if(drawn?.hp===witness?.hp)return true;
+  if(!requireVerifiedHpReceipt)return false;
+  const detail=cue?.detail;
+  if(!Number.isSafeInteger(drawn?.hp)||
+   !Number.isSafeInteger(drawn?.maxHp)||
+   !Number.isSafeInteger(witness?.hp)||
+   !Number.isSafeInteger(witness?.maxHp)||
+   !Number.isSafeInteger(detail?.damage)||detail.damage<=0||
+   !Number.isSafeInteger(detail?.remainingHp)||
+   !Number.isSafeInteger(detail?.maxHp)||detail.maxHp<=0)return false;
+  const priorHp=detail.remainingHp+detail.damage;
+  return drawn.maxHp===witness.maxHp&&
+   witness.maxHp===detail.maxHp&&witness.hp===detail.remainingHp&&
+   priorHp>detail.remainingHp&&priorHp<=detail.maxHp&&
+   drawn.hp===priorHp;
+ }
  function sampleInterpolatedHPVictim(cue,at,actor){
   if(typeof getCurrentSnapshot!=='function'||!actor?.root?.visible||
    !finite3(actor.root.position))return null;
@@ -320,7 +343,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   if(!witness||!matchesCurrentHpReceipt(cue,witness)||!u||u.id!==cue.targetId||
    u.x!==at.x||u.z!==at.z||witness.x!==at.x||witness.z!==at.z||
    !Number.isInteger(witness.hp)||witness.hp<0||
-   u.hp!==witness.hp||u.kind!==witness.kind||
+   !drawnHpMatchesObservedTransition(cue,u,witness)||u.kind!==witness.kind||
    u.faction!==witness.faction)return null;
   const p=actor.root.position;
   // Less than one tile: an interpolating body, not an actor stranded in
@@ -482,7 +505,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
         witness.x!==at.x||witness.z!==at.z||
         !Number.isInteger(witness.hp)||witness.hp<0||
         u?.id!==cue.targetId||u.x!==witness.x||u.z!==witness.z||
-        u.hp!==witness.hp||u.kind!==witness.kind||
+        !drawnHpMatchesObservedTransition(cue,u,witness)||u.kind!==witness.kind||
         u.faction!==witness.faction)return null;
     }
     return sampledPoint;
