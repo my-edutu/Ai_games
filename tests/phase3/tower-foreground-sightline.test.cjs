@@ -22,7 +22,6 @@ const source=fs.readFileSync(path.join(ROOT,'public/infinite-tower-climb/visuals
   .replace("'./source-earned-bearing-run.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/source-earned-bearing-run.mjs')).href))
   .replace("'./original-gallery-foreground.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/original-gallery-foreground.mjs')).href))
   .replace("'./source-physical-arrival-palette.mjs'", JSON.stringify(pathToFileURL(path.join(path.resolve(__dirname, '../..'), 'public/infinite-tower-climb/visuals/source-physical-arrival-palette.mjs')).href))
-  .replace("'./successor-deck-visibility.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/successor-deck-visibility.mjs')).href))
   .replace("'./guardian-passage.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/guardian-passage.mjs')).href))
   .replace("'./world-surface.mjs'",JSON.stringify(surfaceURL))
   .replace("'./guardian-transmission-layout.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/guardian-transmission-layout.mjs')).href))
