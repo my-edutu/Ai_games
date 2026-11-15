@@ -9,7 +9,7 @@ import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceRetainedRaisedExit, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS } from './source-physical-arrival-palette.mjs';
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
-import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail } from './original-clockwork-architecture-palette.mjs';
+import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections } from './source-earned-bearing-run.mjs';
 
 
@@ -984,6 +984,9 @@ export function createTowerWorld(){
   // finish the actual gallery's paint on successful returned frames only.
   // This never changes the guardian, player, route or authoritative ticks.
   let sourceEarnedBearingHandoff=null;
+  // Exact last source snapshot's ORIGINAL palette certificate for real F9
+  // architecture and the SAME world's sky/fog/light. No independent clock.
+  let sourceCertifiedHorizon=null;
   let arrivalRoutePalette=null;
   let stagedVoidArchitecture=null;
   // These are real authored Floor9 side-skirts, never the top or collider.
@@ -3635,6 +3638,12 @@ export function createTowerWorld(){
     if(options.reducedMotion)departure=1;
     const opticalTail=!options.stale && !options.reducedMotion
       ?observedVerifiedClockworkPaletteTail(snapshot,handoff,departure):null;
+    // The previous F9 frame painted a violet sky while these very materials
+    // were still genuine bronze under the eight-return GPU retirement.
+    // Share the live or historically source-certified scalar, never an
+    // invented crossing/actor or a new presentation timer.
+    sourceCertifiedHorizon=!options.stale && !options.reducedMotion
+      ?observedCertifiedClockworkHorizon(snapshot,livePaletteProof,opticalTail):null;
     // The live source sample always outranks history. An optical tail only
     // changes colors on existing real meshes when the same previously
     // certified crossing has lost its short-lived current browser witness.
@@ -4529,6 +4538,14 @@ export function createTowerWorld(){
     }
     occludedGuardianCaps=faded;
   }
+  function certifiedPaletteHorizon(snapshot) {
+    // Only the exact immutable snapshot used to update THIS real World may
+    // read the corresponding material tint. Never leak a previous run's
+    // bronze or a writable Three.js Color/Material to the Scene director.
+    return snapshot && snapshot===lastSnapshot && sourceCertifiedHorizon &&
+      snapshot.runToken===lastSnapshot.runToken
+      ?{...sourceCertifiedHorizon}:null;
+  }
   // Safe source-proven transition handle: avoid diagnostics()'s whole-scene
   // traversal in the camera/light hot path; never expose writable GPU roots.
   function retainedFilmHandoff(snapshot) {
@@ -4659,5 +4676,5 @@ export function createTowerWorld(){
       deferredBuildMs:deferredDistantArrival.deferredBuildMs,
     }:null,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;retireEarnedCap();pendingEarnedCap=null;clearFloor();for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
-  return{group,update,stageGroundedCapContinuation,retainedFilmHandoff,noteFrameSubmitted,deferredShaderSubmission,measureSuccessorDeckVisibility,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics,lastRebuild};
+  return{group,update,stageGroundedCapContinuation,retainedFilmHandoff,certifiedPaletteHorizon,noteFrameSubmitted,deferredShaderSubmission,measureSuccessorDeckVisibility,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics,lastRebuild};
 }
