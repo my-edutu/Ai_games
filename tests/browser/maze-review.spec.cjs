@@ -2262,7 +2262,7 @@ test('a NATURAL autonomous lantern counter has source-bound physical before/reco
   test.setTimeout(210000);
   const fs=require('node:fs'),path=require('node:path'),{createHash}=require('node:crypto');
   const {scenarios}=require('../../scripts/capture-maze-3d.cjs');
-  const sequences=scenarios().sequences;
+  const sequences=scenarios({exhaustive:true}).sequences;
   const dir=path.resolve(__dirname,'../../artifacts/maze-phase3');fs.mkdirSync(dir,{recursive:true});
   let witness=null;
   for(const sequence of sequences){
@@ -2284,8 +2284,24 @@ test('a NATURAL autonomous lantern counter has source-bound physical before/reco
     }
     if(witness)break;
   }
+  const audit=sequences.map(sequence=>{
+    let publicParryStarts=0,movingParryStarts=0,stationaryParryStarts=0;
+    for(let i=1;i<sequence.length;i++){
+      const a=sequence[i-1].frame.snapshot,b=sequence[i].frame.snapshot;
+      if(a.runToken!==b.runToken||b.tick!==a.tick+1)continue;
+      for(const current of b.threats.filter(t=>t.lanternParried===true)){
+        const prior=a.threats.find(t=>t.id===current.id);
+        if(!prior||prior.lanternParried===true)continue;
+        publicParryStarts++;
+        if(prior.cell!==current.cell)movingParryStarts++;
+        else stationaryParryStarts++;
+      }
+    }
+    return {seed:sequence[0]?.seed,observedTicks:sequence.length,
+      publicParryStarts,movingParryStarts,stationaryParryStarts};
+  });
   const summary={capturedAt:new Date().toISOString(),source:'Actual autonomous partial-observation MazeRuntime ticks and PUBLIC snapshots only; no injected enemy, forced AI decision or synthetic source frame',
-    searchedSeeds:sequences.map(seq=>seq[0]?.seed),found:!!witness};
+    searchedSeeds:sequences.map(seq=>seq[0]?.seed),audit,found:!!witness};
   fs.writeFileSync(path.join(dir,'natural-guardian-parry-audit.json'),JSON.stringify(summary,null,2));
   expect(witness,'no genuine public autonomous lantern-counter RECOIL in the production seeds; a source fixture alone is not a playable encounter').toBeTruthy();
   let activeFrame=witness.before.frame;

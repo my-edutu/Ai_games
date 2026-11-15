@@ -12,7 +12,7 @@ const only = process.argv.find(arg => arg.startsWith('--only='))?.slice(7).split
 const directory = path.resolve(__dirname, '../evidence/maze-3d/captures');
 const config = { width: 17, height: 11, profile: 'chambers', level: 4, intermissionTicks: 12, maxTicks: 18000, visibilityRadius: 3, loopChancePermille: 170, keyCount: 2, trapCount: 5, threatCount: 1, memoryTtl: 400, noProgressTicks: 3000, repairAttempts: 3 };
 
-function scenarios() {
+function scenarios({exhaustive=false}={}) {
   let exploration, danger, result, encounter, score = -Infinity;
   let encounterDistanceCells = Infinity;
   const sequences = [];
@@ -48,7 +48,9 @@ function scenarios() {
       runtime.step();
     }
     sequences.push(sequence);
-    if (exploration && danger && encounter && result?.frame.snapshot.result?.reason === 'escape') break;
+    // Native evidence may explicitly ask for ALL genuine fixed production seeds;
+    // ordinary illustration captures keep their original early exit unchanged.
+    if (!exhaustive && exploration && danger && encounter && result?.frame.snapshot.result?.reason === 'escape') break;
   }
   return { exploration, danger, result, encounter, encounterDistanceCells: encounter ? encounterDistanceCells : null, sequences };
 }
