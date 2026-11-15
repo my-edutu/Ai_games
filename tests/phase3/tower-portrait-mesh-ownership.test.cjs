@@ -85,13 +85,13 @@ function realProbeFixture() {
   // The isolated VM evaluates the exact checked-in source validators with
   // their real old-cap receipt function, but no browser/simulation stubs.
   // Module imports/exports are transformed only at this CommonJS/VM seam.
-  vm.runInContext('const observedSourceOriginalVisibilityWindow = (function(){\\n' +
-    crossfloorSource.replace(/\\bexport\\s+/g, '') + '\\n' +
-    arrivalSource.replace(/^import\\s+.*?;\\s*$/gm, '')
-      .replace(/\\bexport\\s+/g, '') +
-    '\\nreturn observedSourceOriginalVisibilityWindow;\\n})();', context);
+  vm.runInContext('const observedSourceOriginalVisibilityWindow = (function(){\n' +
+    crossfloorSource.replace(/\bexport\s+/g, '') + '\n' +
+    arrivalSource.replace(/^import\s+.*?;\s*$/gm, '')
+      .replace(/\bexport\s+/g, '') +
+    '\nreturn observedSourceOriginalVisibilityWindow;\n})();', context);
   vm.runInContext(originalDoorwayWitness
-    .replace(/^import\\s+.*?;\\s*$/gm, '')
+    .replace(/^import\s+.*?;\s*$/gm, '')
     .replaceAll('export function ', 'function '), context);
   const observe = vm.runInContext(rendererSource.slice(first,end) +
     '\nobservedCameraMeshOwners',context);
