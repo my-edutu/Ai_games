@@ -9,7 +9,8 @@ const manifest=()=>Array.from({length:24},(_,i)=>({
 }));
 const sample=(capture,tick,renderMs=15,extra={})=>({
  source:SOURCE,capture,seed:'visual-room-art-18',
- viewport:{width:1440,height:900},frameId:tick+1,elapsedMs:tick*250,
+ viewport:{width:1440,height:900},frameId:tick+1,submittedFrameId:tick+1,
+ elapsedMs:tick*250,
  scene:scene(tick),camera:'tactical',focusedHeroId:'vanguard',
  cameraPosition:{x:3,y:20,z:3},cameraAim:{x:0,y:0,z:0},
  softwareWebGL:true,postFX:'direct',directRenderMs:renderMs,
@@ -267,4 +268,30 @@ test('six-view HP coverage distinguishes matched authority states from matching 
   'a single hidden injury must break the six-view drawable contact claim');
  assert.equal(v.sampleSynchronized,false);
  assert.equal(v.impactAVAccepted,false);
+});
+
+
+test('original HP receipt joins D04 submitted-frame serial instead of an unrelated renderer-info counter',()=>{
+ const canonical={
+  cueId:'1:1:4:damage:-:enemy-1-0',scene:'1:1',tick:4,
+  kind:'damage',visual:true,visualDrawableAtSubmission:true,
+  audio:true,decision:'delivered',frameId:5,
+  observedClockMs:1000,submittedClockMs:1018,observationToSubmissionMs:18
+ };
+ const d=pair();d.on.samples[4].recentDeliveryReceipts=[canonical];
+ // A valid D04 acknowledgment can have a different serial from Three.js
+ // renderer.info.render.frame (its reset count). Neither may borrow the other.
+ d.on.samples[4].frameId=50;
+ for(let i=5;i<d.on.samples.length;i++)d.on.samples[i].frameId=50+i-4;
+ let r=classifyD04LiveAuthorityPair(d);
+ assert.equal(r.damageReceipts.on.timely,1,
+  'D04 submitted frame 5 is what actually authorized sound/art');
+ d.on.samples[4].submittedFrameId=6;
+ r=classifyD04LiveAuthorityPair(d);
+ assert.equal(r.damageReceipts.on.timely,0,
+  'the same immutable HP state and renderer frame cannot borrow D04 submission 5');
+ delete d.on.samples[4].submittedFrameId;
+ r=classifyD04LiveAuthorityPair(d);
+ assert.equal(r.damageReceipts.on.timely,0,
+  'missing D04 submission identity must never silently fall back to an unrelated counter');
 });
