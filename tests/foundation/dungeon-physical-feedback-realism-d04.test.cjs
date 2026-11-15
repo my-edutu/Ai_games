@@ -1761,3 +1761,58 @@ test('strict D04 visual cue history cannot resurrect a stale real HP wound after
   assert.ok(stage.stats().activeDrawCalls<=7);
  }finally{stage.dispose()}
 });
+
+test('strict D04 guarded block and observed dodge use canonical original-foley identity before retained GPU art',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {isCanonicalVerifiedCombatFoleyCue}=await load('original-combat-foley.js');
+ const {T,scene}=three();
+ const guard={id:'vanguard',kind:'vanguard',faction:'party',
+  x:2,z:2,hp:20,maxHp:30,action:'guard',actionTick:11,guardTick:11};
+ const evader={...guard,x:3,z:2,action:'move',guardTick:null};
+ let snapshot={run:1,floor:1,tick:11,units:[guard]};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  requireVerifiedHpReceipt:true,getCurrentSnapshot:()=>snapshot
+ });
+ const block=cue({id:'1:1:11:block:vanguard:-',sceneKey:'1:1',tick:11,
+  kind:'block',visual:'block',audio:'block',
+  proof:'authority-block-unique-guarded-hp',verified:true,
+  actorId:'vanguard',targetId:null,from:{x:2,z:2},to:null});
+ const dodge=cue({id:'1:1:11:evade:vanguard:-',sceneKey:'1:1',tick:11,
+  kind:'evade',visual:'evade',audio:'evade',
+  proof:'authority-event-and-observed-step',verified:true,
+  actorId:'vanguard',targetId:null,from:{x:2,z:2},to:{x:3,z:2}});
+ const reject=(effect,message)=>{
+  assert.equal(isCanonicalVerifiedCombatFoleyCue(effect),false,
+   message+' must be rejected by original sound');
+  assert.equal(stage.emit(effect),false,
+   message+' must not create a silent fake visual');
+  assert.equal(stage.stats().active,0,
+   message+' must not allocate a GPU slot');
+ };
+ try{
+  assert.equal(isCanonicalVerifiedCombatFoleyCue(block),true);
+  reject({...block,id:'1:1:11:block:impostor:-'},
+   'renamed defender in guarded-block receipt');
+  reject({...block,targetId:'enemy'},
+   'block incorrectly claims an enemy target');
+  reject({...block,audio:'impact'},
+   'block visual wearing a confirmed-impact sound label');
+  assert.equal(stage.emit(block),true,
+   'canonical and currently witnessed defender may display guarded contact');
+  assert.equal(stage.stats().instancesByPool.block,1);
+  stage.reset();
+  snapshot={...snapshot,units:[evader]};
+  assert.equal(isCanonicalVerifiedCombatFoleyCue(dodge),true);
+  reject({...dodge,id:'1:1:11:evade:impostor:-'},
+   'renamed evader in one-cell-step receipt');
+  reject({...dodge,targetId:'enemy'},
+   'dodge incorrectly attributes a pursuer');
+  reject({...dodge,audio:'impact'},
+   'dodge visual wearing a successful-hit sound label');
+  assert.equal(stage.emit(dodge),true,
+   'canonical and currently witnessed one-cell evader may display grit');
+  assert.equal(stage.stats().instancesByPool.dust,2);
+  assert.ok(stage.stats().reservedInstances<=104);
+  assert.ok(stage.stats().activeDrawCalls<=7);
+ }finally{stage.dispose()}
+});
