@@ -1394,10 +1394,68 @@ export function planOriginalSourceFootDorsiflexionAxis({
  });
 }
 
+/**
+ * Current-world skinned OUTSOLE -> original foot-local transverse axis.
+ * This is ONLY a proposed original-joint probe after a verified source
+ * hip+knee correction; never an IK, contact or new authoritative step.
+ * The renderer independently re-reads BOTH actual weighted shoes.
+ */
+export function planOriginalSourceWeightedSoleHingeAxis({
+ source='',sourceFootChainVerified=false,sourceFootTrackVerified=false,
+ sourceFootBindVerified=false,originalAnatomicalSolePatchVerified=false,
+ originalOppositeShoeVerified=false,sourceClipName='',
+ floorTopY=NaN,heelWorld=null,toeWorld=null,
+ footWorldQuaternion=null,sourceTrackAxis=null
+}={}){
+ const array=(a,n)=>Array.isArray(a)&&a.length===n&&a.every(finite);
+ if(source!=='same-original-GLB-skinned-weighted-outsole'||
+  sourceFootChainVerified!==true||sourceFootTrackVerified!==true||
+  sourceFootBindVerified!==true||
+  originalAnatomicalSolePatchVerified!==true||
+  originalOppositeShoeVerified!==true||sourceClipName!=='Walking_A'||
+  !finite(floorTopY)||Math.abs(floorTopY+.02)>.005||
+  !array(heelWorld,3)||!array(toeWorld,3)||
+  !array(footWorldQuaternion,4)||!array(sourceTrackAxis,3))return null;
+ const q=footWorldQuaternion,qNorm=Math.hypot(...q);
+ const trackLength=Math.hypot(...sourceTrackAxis);
+ if(Math.abs(qNorm-1)>.002||trackLength<.99||trackLength>1.01)return null;
+ const delta=toeWorld.map((v,i)=>v-heelWorld[i]);
+ const horizontal=Math.hypot(delta[0],delta[2]),length=Math.hypot(...delta);
+ const burial=floorTopY-toeWorld[1],heelAbove=heelWorld[1]-floorTopY;
+ if(horizontal<.055||horizontal>.30||
+  length<.24||length>.35||
+  burial<.025||burial>.12||
+  heelAbove<.10||heelAbove>.35)return null;
+ const direction=[-delta[2]/horizontal,0,delta[0]/horizontal];
+ const v=[...direction],inv=[-q[0],-q[1],-q[2]];
+ const cross=(a,b)=>[
+  a[1]*b[2]-a[2]*b[1],
+  a[2]*b[0]-a[0]*b[2],
+  a[0]*b[1]-a[1]*b[0]
+ ];
+ const t=cross(inv,v).map(x=>2*x);
+ const k=cross(inv,t);
+ const axis=v.map((x,i)=>x+q[3]*t[i]+k[i]);
+ const magnitude=Math.hypot(...axis);
+ if(!finite(magnitude)||Math.abs(magnitude-1)>.002)return null;
+ const local=axis.map(x=>x/magnitude);
+ const trackAlignment=Math.abs(local.reduce(
+  (sum,x,i)=>sum+x*sourceTrackAxis[i]/trackLength,0));
+ // Near-identical axes are not a second independent physical trial.
+ if(trackAlignment>.92)return null;
+ return Object.freeze({
+  source:'source-weighted-outsole-world-to-original-foot-local',
+  axis:Object.freeze(local),horizontalSpanMeters:horizontal,
+  fullSoleSpanMeters:length,sourceTrackAlignment:trackAlignment,
+  contactLocked:false
+ });
+}
+
 export function chooseOriginalSourceSwingLinkedFootFinisher({
  mode='idle',sourceClipName='',sourceWeight=NaN,
  sourceInstanceSame=false,sourceFootChainVerified=false,
  sourceFootTrackVerified=false,sourceBindDorsiflexionVerified=false,
+ sourceWeightedOutsoleHingeVerified=false,
  ownerLocomotion=false,alive=false,visible=false,
  teleport=false,reducedMotion=false,interrupted=false,
  rootTravel=NaN,frameAge=NaN,frameInterval=NaN,
@@ -1446,8 +1504,11 @@ export function chooseOriginalSourceSwingLinkedFootFinisher({
   const angle=trial?.angleRad,after=trial?.after,
    axisKind=trial?.axisKind??'original-clip-track',
    shoe=after?.[side],other=after?.[opposite];
-  if(!['original-clip-track','original-bind-dorsiflexion'].includes(axisKind)||
-   (axisKind==='original-bind-dorsiflexion'&&sourceBindDorsiflexionVerified!==true))continue;
+  if(!['original-clip-track','original-bind-dorsiflexion',
+     'original-weighted-outsole-swing'].includes(axisKind)||
+   (axisKind==='original-bind-dorsiflexion'&&sourceBindDorsiflexionVerified!==true)||
+   (axisKind==='original-weighted-outsole-swing'&&
+    sourceWeightedOutsoleHingeVerified!==true))continue;
   if(!finite(angle)||Math.abs(angle)<.10||
    Math.abs(angle)>.120001||!valid(shoe)||!valid(other))continue;
   const lift=shoe.toeY-swing.toeY;
