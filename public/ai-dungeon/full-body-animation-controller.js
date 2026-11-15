@@ -403,6 +403,65 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
  * all proposed poses without useful toe lift and a stationary loaded shoe.
  * No footstep, IK plant, authority step, or event is inferred.
  */
+/**
+ * Accept an independently applied original-source first-swing hip/knee pose
+ * ONLY after FINAL skinned weighted heel+toe readback on BOTH existing shoes.
+ *
+ * This is a physical presentation certificate, never a floor plant. A
+ * source-measured 390px first frame showed +13.67mm toe but +26.38mm heel,
+ * exaggerating an already upright imported shoe. Source-searched smaller
+ * hip + knee candidates need to demonstrate an actual forefoot-versus-heel
+ * gain and preserve the other shoe after application, not merely during
+ * the reversible trials. No rig/asset, root, gameplay or mixer mutation.
+ */
+export function certifyOriginalSourceFirstSwingPitch({
+ candidate=null,sourceClipName='',sourceInstanceSame=false,
+ sourceWeight=NaN,side='',floorTopY=NaN,before=null,after=null
+}={}){
+ const other=side==='left'?'right':side==='right'?'left':null;
+ const validShoe=s=>s&&[s.heelY,s.toeY].every(finite)&&
+  [s.heelXZ,s.toeXZ].every(v=>
+   Array.isArray(v)&&v.length===2&&v.every(finite));
+ if(!other||candidate?.originalSwingPitchProtected!==true||
+  candidate.source!=='measured-original-skinned-linked-leg'||
+  candidate.side!==side||candidate.contactLocked!==false||
+  candidate.oppositeShoePreserved!==true||
+  sourceClipName!=='Walking_A'||sourceInstanceSame!==true||
+  !finite(sourceWeight)||sourceWeight<.95||sourceWeight>1.001||
+  !finite(floorTopY)||Math.abs(floorTopY+.02)>.005||
+  ![before?.[side],before?.[other],after?.[side],after?.[other]].every(validShoe)||
+  ![candidate.beforeToeY,candidate.afterToeY,candidate.beforeHeelY,
+    candidate.afterHeelY,candidate.liftMeters].every(finite))return null;
+ const a=before[side],b=after[side],loaded=before[other],
+  support=after[other];
+ const dist=(x,y)=>Math.hypot(x[0]-y[0],x[1]-y[1]);
+ const toeLift=b.toeY-a.toeY,heelRise=b.heelY-a.heelY;
+ const depth=floorTopY-a.toeY;
+ const span=Math.hypot(dist(a.heelXZ,a.toeXZ),a.heelY-a.toeY);
+ if(depth<.055||depth>.10||a.heelY-floorTopY<.18||
+  span<.285||span>.325||
+  toeLift<Math.max(.012,depth*.15)||toeLift>.055||
+  b.heelY-floorTopY<.08||b.heelY-floorTopY>.35||
+  b.toeY>floorTopY+.05||
+  (toeLift-heelRise<-.002&&floorTopY-b.toeY>.02)||
+  Math.abs(b.toeY-candidate.afterToeY)>.001||
+  Math.abs(b.heelY-candidate.afterHeelY)>.001||
+  Math.abs(a.toeY-candidate.beforeToeY)>.001||
+  Math.abs(a.heelY-candidate.beforeHeelY)>.001||
+  Math.abs(toeLift-candidate.liftMeters)>.001||
+  dist(b.heelXZ,a.heelXZ)>.07||dist(b.toeXZ,a.toeXZ)>.07||
+  Math.abs(support.heelY-loaded.heelY)>.003||
+  Math.abs(support.toeY-loaded.toeY)>.003||
+  dist(support.heelXZ,loaded.heelXZ)>.004||
+  dist(support.toeXZ,loaded.toeXZ)>.004)return null;
+ return Object.freeze({
+  source:'verified-original-GLB-final-first-swing-pitch',
+  side,sourceClip:'Walking_A',sourceToeLiftMeters:toeLift,
+  sourceHeelRiseMeters:heelRise,sourcePitchGainMeters:toeLift-heelRise,
+  originalOppositeShoeVerified:true,contactLocked:false
+ });
+}
+
 export function qualifyOriginalSourceLoadedStanceCompanion({
  stanceProof=null,swingSide='',sourceInstanceId='',sourceClipName='',
  sourceWeight=NaN,floorTopY=NaN,currentLoaded=null,currentSwing=null
