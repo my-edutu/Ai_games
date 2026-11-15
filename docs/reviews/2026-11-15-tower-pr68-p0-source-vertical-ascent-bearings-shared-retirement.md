@@ -21,3 +21,7 @@ The previous exact production-head [CI 43686204973](https://github.com/my-edutu/
 A physically earned vertical progress may expose **faster** bronze retirement: test whether the old gateway disappears while still in frame. GPU stalls may still produce too few authentic frames, requiring deeper renderer-lifecycle redesign. Actual-device p50/p95/p99, memory, mobile controls, accessibility and no-regressions are NOT EVALUATED; independent randomized fresh-context LOOKS 0/5, FEELS 0/5, PLAYS 0/5. **Leading verdict NOT EVALUATED.**
 
 **Rollback:** revert only the production source commit if evidence worsens while retaining the original frozen baseline; do not merge PR68 or touch PR58. Source gameplay, seed, physics, AI, scoring, collision, replay and guardian outcomes are untouched.
+
+## New exact-head workflow admission (source pinned)
+
+Candidate gameplay and technical code `d7e436d11d86479408b18d81fbdd249001bcc247` now has actual workflows: [quality CI 43690903030](https://github.com/my-edutu/Ai_games/actions/runs/43690903030) and [nine-job original 1x capture 43690903038](https://github.com/my-edutu/Ai_games/actions/runs/43690903038). At inspection **9/10 quality jobs successful**, including all four Phase3 Tower shards and the tested source-elevated landing regression; Phase6 was still executing, so **CI NOT YET FULL PASS**. Nine authentic capture jobs were executing; new-code full-motion visual doorway and restart verdict **NOT EVALUATED**, independent critics zero. This is an exact-source safety observation, not a victory claim.
