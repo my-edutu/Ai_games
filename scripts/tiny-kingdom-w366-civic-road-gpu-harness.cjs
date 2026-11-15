@@ -63,7 +63,7 @@ function stage(label,vertices){
  return {calls:e.calls.slice(),entry};
 }
 const first=stage('home-1',mesh(1,2));
-assert(first.calls.length>=1);
+assert(first.entry.buffer.arr.length>=60,'initial real civic GPU allocation exists');
 const edited=stage('home-2',mesh(1,3));
 assert.deepEqual(edited.calls,[{offset:120,bytes:120}],
  'Replacing one road triangle must not transfer the unchanged real road triangle');
