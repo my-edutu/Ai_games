@@ -185,7 +185,7 @@ test('real autonomous first-contact lantern defense causes an earned visible one
   assert.deepEqual(publicVisible.threats.map(t=>({id:t.id,cell:t.cell,countered:t.lanternCountered})),
     [{id:'observed-thornback',cell:rear,countered:true}]);
   const previouslyCountered=chooseMazeAction(runtime.state,publicVisible,updateBelief(undefined,publicVisible));
-  assert.notMatch(previouslyCountered.intent.explanation,/braces the lantern/,
+  assert.doesNotMatch(previouslyCountered.intent.explanation,/braces the lantern/,
     'the observed first defense must not repeat indefinitely');
   const unseen=structuredClone(runtime.state);
   unseen.visibleCells=[hero];unseen.world.threats[0].cell=rear;
