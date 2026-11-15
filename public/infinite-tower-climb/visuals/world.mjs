@@ -8,6 +8,7 @@ import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs
 import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedPrebuiltVoidShaftRelease, observedQueuedOriginalCapAtFirstRender, reconcileRecordedOriginalCapCrossing,
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage } from './source-physical-arrival-palette.mjs';
+import { protectHistoricalGallerySightline } from './original-gallery-foreground.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, updateOriginalClockworkSuccessorRoute } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings } from './source-earned-bearing-run.mjs';
 
@@ -2443,6 +2444,7 @@ export function createTowerWorld(){
   // transform, not the entire old floor or any old physics. No source wins,
   // support, collision, replay or synthetic portal may be created here.
   let pendingEarnedCap = null, retainedEarnedCap = null;
+  let historicalGallerySightline={active:false,meshes:0,rays:0,softened:0};
   // Preassemble ONLY the source-original static Clockwork bearing gallery
   // after a real Floor8 WebGL submission, not in the expensive first F9
   // rebuild. This is detached CPU-side Three geometry, not an invisible
@@ -2522,6 +2524,7 @@ export function createTowerWorld(){
     for (const geometry of held.ownedGeometries) geometry.dispose();
     for (const material of held.ownedMaterials) material.dispose();
     retainedEarnedCap = null;
+    historicalGallerySightline={active:false,meshes:0,rays:0,softened:0};
   }
   // Called by scene.mjs ONLY after its existing grounded guardian source
   // validator and opened-arch begin() have succeeded. The cached real
@@ -2769,6 +2772,11 @@ export function createTowerWorld(){
       originalGalleryBytes:gallery?.bytes ?? 0,
       originalGalleryBatches:gallery?.root.children.length ?? 0,
       originalGalleryMaterials:gallery?.materials ?? [],
+      // Exact ORIGINAL extracted structural meshes only: the door, real deck
+      // and guardian machinery are independent and never camera-softened.
+      originalGalleryRoot:gallery?.root ?? null,
+      originalGalleryOcclusionWeights:Array(gallery?.root.children.length ?? 0).fill(1),
+      originalGallerySourceOpacity:1,
       originalDeckSurface:bronzeSurface,
       originalGatewayMaterialStages:[...originalGatewayMaterialMap.values()],
       originalGatewayOpacity:1,
@@ -2949,6 +2957,7 @@ export function createTowerWorld(){
       ?Math.min(.94,originalGatePresence*.94)
       :observedRetainedOriginalBronzeCover(
         held.submittedFrames,held.visibleSeconds);
+    held.originalGallerySourceOpacity=originalPresence;
     if (held.originalDeckSurface)
       held.originalDeckSurface.opacity=originalPresence;
     if(originalGatePresence>.01 || originalPresence>.01)
@@ -3783,6 +3792,17 @@ export function createTowerWorld(){
       actorHalfHeight=0, guardianHalfHeight=0, hazard=null, gateway=null) {
     if(disposed)return {total:0,softened:0};
     decorativeOcclusionEvidence.length=0;
+    // The 390x844 original filmed climber is masked by EXTRACTED historical
+    // bronze gallery struts: these are not clockwork decorative gears and
+    // were absent from the existing foreground protection registry. Reuse
+    // the live composed camera, actual skinned-body point and exact current
+    // old-floor geometry; no alternate camera, actor, corridor or collider.
+    historicalGallerySightline=protectHistoricalGallerySightline({
+      camera,actor,halfHeight:actorHalfHeight,source:lastSnapshot,
+      held:retainedEarnedCap,raycaster:canopyRay,
+      direction:canopyDirection,point:silhouettePoint,hitBuffer:canopyHits,
+      dt,stale:options.stale,reducedMotion:options.reducedMotion
+    });
     if(!decorativeSightlines.length){
       occludedForegroundGears=0;occludedForegroundScreenGears=0;occludedForegroundCorridorGears=0;occludedForegroundClockFaces=0;
       return {total:0,softened:0};
@@ -4145,6 +4165,7 @@ export function createTowerWorld(){
       originalGalleryTriangles:retainedEarnedCap.originalGalleryTriangles,
       originalGalleryBytes:retainedEarnedCap.originalGalleryBytes,
       originalGalleryBatches:retainedEarnedCap.originalGalleryBatches,
+      historicalGallerySightline:{...historicalGallerySightline},
       actualOldCapSupport:observedRetainedOriginalCapRoofContact(lastSnapshot,retainedEarnedCap),
       originalCapId:retainedEarnedCap.oldCapId,
       originalBronzeDeckOpacity:retainedEarnedCap.originalDeckSurface
