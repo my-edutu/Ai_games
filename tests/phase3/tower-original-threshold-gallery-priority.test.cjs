@@ -19,6 +19,7 @@ for(const [from,to] of Object.entries({
   "'./crossfloor-arrival.mjs'":uri('crossfloor-arrival.mjs'),
   "'./original-clockwork-architecture-palette.mjs'":uri('original-clockwork-architecture-palette.mjs'),
   "'./source-earned-bearing-run.mjs'":uri('source-earned-bearing-run.mjs'),
+  "'./original-gallery-foreground.mjs'":uri('original-gallery-foreground.mjs'),
   "'./source-physical-arrival-palette.mjs'":uri('source-physical-arrival-palette.mjs'),
   "'./world-surface.mjs'":uri('world-surface.mjs'),
   "'./scene-hierarchy.mjs'":uri('scene-hierarchy.mjs'),
