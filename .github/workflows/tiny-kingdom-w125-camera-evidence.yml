@@ -7,6 +7,7 @@ on:
       - 'tests/browser/tiny-kingdom-w126-mobile-tap-targets.spec.cjs'
       - 'scripts/tiny-kingdom-w125-camera-*.cjs'
       - 'scripts/tiny-kingdom-w297-physical-orbit-contract.cjs'
+      - 'scripts/tiny-kingdom-w340-real-elevated-workday-contract.cjs'
       - '.github/workflows/tiny-kingdom-w125-camera-evidence.yml'
   workflow_dispatch:
 permissions:
