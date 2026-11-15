@@ -62,7 +62,7 @@ export function planOriginalSourceAuthoredNeutralBlends({
   alive!==true||visible!==true||reducedMotion||teleport||
   interrupted||previousLinkedCertified||
   !finite(sourceWeight)||sourceWeight<.95||sourceWeight>1.001||
-  !finite(frameInterval)||frameInterval<.016||frameInterval>.12||
+  !finite(frameInterval)||frameInterval<.016||frameInterval>.20||
   !finite(floorTopY)||Math.abs(floorTopY+.02)>.005||
   !valid(before?.[side])||!valid(before?.[other])||
   !Array.isArray(starterTrials)||starterTrials.length!==2)return null;
@@ -71,7 +71,16 @@ export function planOriginalSourceAuthoredNeutralBlends({
   swing.heelXZ[1]-swing.toeXZ[1]);
  const length=Math.hypot(projected,swing.heelY-swing.toeY);
  if(projected<.045||projected>.15||length<.285||length>.325||
-  // The real exact-source 390px frame at e546515e buries the toe 57.81mm,
+  // Genuine later 390px original Walking_A tick 8 (Actions #43755344687)
+ // had a 183.4ms *display* interval, real 90.5mm buried toe and a 5.6mm
+ // heel-dominant starter. A 120ms cap blocked the genuine source Idle
+ // chain before a bounded 3-joint measurement could even be attempted.
+ // At slower displayed 120-200ms source frames require at least 5mm
+ // measured excess heel rise; faster frames retain the 9mm contract.
+ // Both types retain four maximum reversible real GLB dual-shoe reads,
+ // per-joint <=0.26rad and fully independent AFTER skin and loaded shoe.
+ // Intervals >200ms, teleports, frame changes and invalid clips fail closed.
+ // The real exact-source 390px frame at e546515e buries the toe 57.81mm,
   // yet all four paired trials leave it >40mm in stone. Rejecting at 60mm
   // excluded its licensed Idle-reference three-joint escape despite a
   // certified 295mm anatomical shoe and stable opposite weighted sole.
@@ -88,7 +97,7 @@ export function planOriginalSourceAuthoredNeutralBlends({
    ![t.upperRad,t.lowerRad].every(finite))return false;
   const lift=shoe.toeY-swing.toeY;
   const rise=shoe.heelY-swing.heelY;
-  return lift>=.012&&rise>=lift+.009&&
+  return lift>=.012&&rise>=lift+(frameInterval>.12?.005:.009)&&
    Math.abs(loaded.heelY-support.heelY)<=.003&&
    Math.abs(loaded.toeY-support.toeY)<=.003&&
    drift(loaded.heelXZ,support.heelXZ)<=.004&&
