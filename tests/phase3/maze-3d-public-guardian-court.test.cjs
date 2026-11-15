@@ -1385,7 +1385,21 @@ test('earned public lantern counter propagates a real three-cell 3D court wave, 
     const crown=w.group.getObjectByName('Published guardian Tideglass sentinel crown 8 1');
     assert.ok(crown.parent.position.y>.2,
       'existing joined endpoint standard participates in the true counterflow');
+    // The previous real earned mobile capture exposed four upright panels:
+    // the full parry rotated away the original 1.28rad OUTBOARD shell rest,
+    // returning the physical fan almost to vertical. A successful lantern
+    // counter must instead lower the same connected shell OUT of both actors.
+    const shellPivot=w.group.getObjectByName('Published guardian Tideglass rooted shell-fan hinge 6 1');
+    const shell=w.group.getObjectByName('Published guardian Tideglass full shell-fan 6 1');
+    assert.ok(shellPivot && shell && shell.parent===shellPivot,
+      'the original full-body shell must stay rooted to its physical hinge');
+    assert.ok(Math.abs(shellPivot.rotation.x-.20)<1e-8,
+      'a genuine parry must recline the original fan OUTWARD, not erect the old near-vertical curtain');
+    assert.ok(shell.rotation.x+shellPivot.rotation.x>1.4,
+      'the physically connected shell is nearly horizontal during earned passage release');
     w.animate(3,{...counter,guardianParried:false});
+    assert.equal(shellPivot.rotation.x,0,
+      'clearing the published parry restores the exact neutral physical hinge');
     assert.ok([6,7,8].every(cell=>Math.abs(leaf(cell).parent.rotation.x)<1e-10),
       'a cleared real counter instantly returns all hinges to a truthful neutral stance');
     w.update(source);

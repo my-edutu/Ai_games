@@ -3607,9 +3607,19 @@ export function createMazeWorld(options = {}) {
         // Raise the genuinely folded physical fin against the authored
         // outboard rest tilt on the real brace; recline at release, hidden,
         // terminal or reduced-motion. Never promise a new passage/attack.
+        // Original full-frame 320/390 earned-recoil WebGL (Pass404) exposes
+        // a genuine staging error: the former +1.22 counter rotation almost
+        // CANCELS the shell's rooted 1.28rad outboard rest tilt. It erects
+        // four near-vertical screens between Pip and the retreating guardian
+        // precisely when the authentic lantern counter clears the passage.
+        // Keep warning/brace as the original raised defensive display, but
+        // let the EARNED parry recline the complete joined fan OUTWARD toward
+        // its physical rest (net ~1.48rad). This reveals actual character
+        // actions, not a new route, fake victory or hidden map clue. Its
+        // authored footing, connected leaf and public event contract remain.
         beacon.sailPivot.rotation[signal.axis==='x'?'x':'z']=reduced?0
           :(signal.axis==='x'?-beacon.side:beacon.side)
-            *(.88*warningAction+1.22*counterWave);
+            *(.88*warningAction-.20*counterWave);
         // Pass329 original 390px brace showed FOUR opaque amber feathers
         // visually overtaking Pip and Thornback. Keep the full-size hinged
         // SEA-GLASS body visibly moving through the real guardian warning,
