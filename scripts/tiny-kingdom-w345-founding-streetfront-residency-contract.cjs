@@ -52,7 +52,7 @@ assert.deepEqual(resident.triangles,stand.triangles,
  'same genuine complete original source triangles, no duplicates');
 assert.equal(resident.size,stand.size);
 assert.equal(resident.calls.shop,2);
-assert.equal(resident.calls.yard,10);
+assert.equal(resident.calls.yard,7,'only seven real founding lots have yards outside the central street');
 assert.equal(resident.calls.lane,2);
 assert.equal(resident.calls.road,1);
 for(const key of ['totalTriangles','shopfronts','houseYards','connectedLanes'])
