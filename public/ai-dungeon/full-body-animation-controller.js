@@ -41,6 +41,116 @@ export const FULL_BODY_ANIMATION_MODES=MODES;
  * the caller. This never emits contact, shifts a root, or modifies authority.
  */
 /**
+ * Connected original source Idle reference to resolve severely vertical
+ * Walking_A swing shoes ONLY if the first two genuine full-leg trials
+ * raised an already-airborne heel more than the buried toe.
+ * Two remaining source skin reads: original hip/calf/foot as ONE chain.
+ * This never creates contact, a new step or target, or an IK foot lock.
+ */
+export function planOriginalSourceAuthoredNeutralBlends({
+ mode='idle',sourceClipName='',sourceWeight=NaN,sourceInstanceSame=false,
+ ownerLocomotion=false,alive=false,visible=false,
+ reducedMotion=false,teleport=false,interrupted=false,
+ previousLinkedCertified=false,side='',floorTopY=NaN,
+ frameInterval=NaN,before=null,starterTrials=[]
+}={}){
+ const other=side==='left'?'right':side==='right'?'left':null;
+ const valid=s=>s&&[s.heelY,s.toeY].every(finite)&&
+  [s.heelXZ,s.toeXZ].every(v=>Array.isArray(v)&&v.length===2&&v.every(finite));
+ if(!other||mode!=='move'||sourceClipName!=='Walking_A'||
+  sourceInstanceSame!==true||ownerLocomotion!==true||
+  alive!==true||visible!==true||reducedMotion||teleport||
+  interrupted||previousLinkedCertified||
+  !finite(sourceWeight)||sourceWeight<.95||sourceWeight>1.001||
+  !finite(frameInterval)||frameInterval<.016||frameInterval>.12||
+  !finite(floorTopY)||Math.abs(floorTopY+.02)>.005||
+  !valid(before?.[side])||!valid(before?.[other])||
+  !Array.isArray(starterTrials)||starterTrials.length!==2)return null;
+ const swing=before[side],support=before[other];
+ const projected=Math.hypot(swing.heelXZ[0]-swing.toeXZ[0],
+  swing.heelXZ[1]-swing.toeXZ[1]);
+ const length=Math.hypot(projected,swing.heelY-swing.toeY);
+ if(projected<.045||projected>.15||length<.285||length>.325||
+  floorTopY-swing.toeY<.06||floorTopY-swing.toeY>.12||
+  swing.heelY-floorTopY<.16||swing.heelY-floorTopY>.34||
+  ![support.heelY,support.toeY].every(y=>
+   y>=floorTopY-.055&&y<=floorTopY+.035))return null;
+ const drift=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+ const heelDominated=starterTrials.some(t=>{
+  const shoe=t?.after?.[side],loaded=t?.after?.[other];
+  if(!valid(shoe)||!valid(loaded)||
+   ![t.upperRad,t.lowerRad].every(finite))return false;
+  const lift=shoe.toeY-swing.toeY;
+  const rise=shoe.heelY-swing.heelY;
+  return lift>=.012&&rise>=lift+.009&&
+   Math.abs(loaded.heelY-support.heelY)<=.003&&
+   Math.abs(loaded.toeY-support.toeY)<=.003&&
+   drift(loaded.heelXZ,support.heelXZ)<=.004&&
+   drift(loaded.toeXZ,support.toeXZ)<=.004;
+ });
+ return heelDominated?Object.freeze([.28,.42]):null;
+}
+
+/** Select genuine original skinned full-chain shoes, not angles or hopes. */
+export function chooseOriginalSourceAuthoredNeutralLegTrial({
+ mode='idle',sourceClipName='',neutralClipName='',sourceWeight=NaN,
+ sourceInstanceSame=false,sourceNeutralRigVerified=false,
+ ownerLocomotion=false,alive=false,visible=false,
+ reducedMotion=false,teleport=false,interrupted=false,
+ floorTopY=NaN,side='',before=null,trials=[]
+}={}){
+ const other=side==='left'?'right':side==='right'?'left':null;
+ const valid=s=>s&&[s.heelY,s.toeY].every(finite)&&
+  [s.heelXZ,s.toeXZ].every(v=>Array.isArray(v)&&v.length===2&&v.every(finite));
+ if(!other||mode!=='move'||sourceClipName!=='Walking_A'||
+  neutralClipName!=='Idle'||sourceInstanceSame!==true||
+  sourceNeutralRigVerified!==true||ownerLocomotion!==true||
+  alive!==true||visible!==true||reducedMotion||teleport||interrupted||
+  !finite(sourceWeight)||sourceWeight<.95||sourceWeight>1.001||
+  !finite(floorTopY)||Math.abs(floorTopY+.02)>.005||
+  !valid(before?.[side])||!valid(before?.[other])||
+  !Array.isArray(trials)||!trials.length||trials.length>2)return null;
+ const swing=before[side],support=before[other],depth=floorTopY-swing.toeY;
+ if(depth<.06||depth>.12||swing.heelY-floorTopY<.16||
+  swing.heelY-floorTopY>.34||
+  ![support.heelY,support.toeY].every(y=>
+   y>=floorTopY-.055&&y<=floorTopY+.035))return null;
+ const drift=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+ let best=null;
+ for(const t of trials){
+  const shoe=t?.after?.[side],loaded=t?.after?.[other];
+  if(!valid(shoe)||!valid(loaded)||
+   !finite(t?.neutralBlend)||t.neutralBlend<.279999||
+   t.neutralBlend>.420001||
+   !finite(t?.maxJointDeltaRad)||t.maxJointDeltaRad<0||
+   t.maxJointDeltaRad>.260001)continue;
+  const lift=shoe.toeY-swing.toeY,rise=shoe.heelY-swing.heelY;
+  // A toe and heel both lifted together may still point through stone.
+  if(lift<Math.max(.018,depth*.20)||lift>.085||
+   lift-rise<.009||
+   shoe.heelY-floorTopY<.06||shoe.heelY-floorTopY>.35||
+   shoe.toeY>floorTopY+.025||
+   drift(shoe.heelXZ,swing.heelXZ)>.07||
+   drift(shoe.toeXZ,swing.toeXZ)>.07||
+   Math.abs(loaded.heelY-support.heelY)>.003||
+   Math.abs(loaded.toeY-support.toeY)>.003||
+   drift(loaded.heelXZ,support.heelXZ)>.004||
+   drift(loaded.toeXZ,support.toeXZ)>.004)continue;
+  const choice=Object.freeze({
+   source:'licensed-original-Walking_A-Idle-connected-leg-blend',
+   side,neutralBlend:t.neutralBlend,maxJointDeltaRad:t.maxJointDeltaRad,
+   sourceToeLiftMeters:lift,sourceHeelDeltaMeters:rise,
+   originalPitchGainMeters:lift-rise,
+   originalOppositeShoeVerified:true,contactLocked:false,before,after:t.after
+  });
+  if(!best||choice.originalPitchGainMeters>best.originalPitchGainMeters+.002||
+   (Math.abs(choice.originalPitchGainMeters-best.originalPitchGainMeters)<=.002&&
+    choice.neutralBlend<best.neutralBlend))best=choice;
+ }
+ return best;
+}
+
+/**
  * Original-GLB two-stage paired source-leg search. The renderer has only
  * FOUR actual skinned dual-shoe reads per frame. Test +/- starter arcs, then
  * spend the two remaining reads around the sign that really raises the
