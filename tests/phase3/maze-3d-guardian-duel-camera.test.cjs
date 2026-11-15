@@ -202,7 +202,7 @@ test('Pass398 real earned-counter framing never edits unseen/invalid/manual/redu
  for(const invalid of [undefined,[],[pip], [pip,null],
    [{...pip,left:Infinity},guardian],
    [{...pip,right:-1},guardian],
-   [{...pip,left:-1.4,right:-.7},guardian]])
+   [{...pip,left:-1.4,right:-.7},{...guardian,right:1.1}]])
    assert.equal(pan(a,h,invalid,true),0,'invalid or physically uncenterable scene must not fake a pass');
  assert.equal(pan(a,h,[{...pip,left:-.32,right:.3},guardian],true)!==0,true);
  assert.equal(pan(a,h,[{...pip,left:-.5,right:.4}, {...guardian,left:-.6,right:.5}],true),0,
