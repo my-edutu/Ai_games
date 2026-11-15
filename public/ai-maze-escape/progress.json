@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-15T09:05:05.427Z",
+  "updatedAt": "2026-11-15T09:06:53.399Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass389: independently verified Pass388 focused native WebGL success and 37/37 unaltered PNG SHA matches plus 3/3 original gate hashes, but direct authentic full-frame critic REJECTS end-cap guardian sentinel offsets (actors remain visually cluttered); selectively reverting only Pass388 world.js to trusted Pass386 geometry. New exact-rollback CI/WebGL pending. Separate independent critic/Ultracode unavailable; official Nintendo bar unmet, PR draft/unmerged/undeployed."
+    "summary": "Pass390: authentic Pass388 WebGL candidate rejected on full-frame critique (37/37 PNG hashes, 3/3 gate hashes each baseline/candidate). Exact tested guardian world.js restored and only its orphaned 73-line candidate-specific test removed to keep rollback source/strict tests aligned. Fresh exact-HEAD Maze and whole CI pending; Nintendo reference bar unmet, draft unmerged/undeployed."
   },
   "captures": [
     {
@@ -104,6 +104,7 @@
     }
   ],
   "changes": [
+    "Pass390: removed only orphaned Pass388-specific endpoint-outset source test after restoring rejected visual world change. Existing protected strict geometry/AI/privacy/mobile/accessibility tests unchanged; prior rollback CI superseded by fresh source+test-aligned commit.",
     "Pass389 2026-11-15: original 390 brace/notice/release and 320/390 Follow native WebGL compared against authentic Pass386 baseline, 37/37 PNG sidecars and 3/3 gate originals each verified; small Follow difference and no meaningful character-stage readability gain. Reject Pass388 endpoint offsets, restore only trusted world.js, preserving strict geometry, AI/privacy, HUD and previous diagnostics. New rollback HEAD native CI required; Nintendo bar unmet.",
     "Pass386: exact native 390px brace captures will now include public-only genuine full-body Pip and Thornback mesh-to-foreground rays; source-only diagnostic, no geometry/camera/gameplay change, visual acceptance pending. Previous exact rollback WebGL succeeded, whole-repo CI failed; Nintendo bar unmet.",
     "Pass385 2026-11-15: independently recomputed 37/37 unedited candidate and 37/37 baseline native WebGL PNG/JSON SHA, and 3/3 true gate hashes each. Direct 390 brace critic: first published solid foreground wall remains cell100 despite bounded public-angle search. REJECT camera candidate. Restore only prior two production blobs and remove candidate-only test in source+dated-criticism commit. Previous strict 6-reset <100 and WebGL CI success; new rollback CI/head screenshots PENDING. Independent critics/Ultracode NOT_FOUND, no Nintendo parity; draft no merge/deploy/force.",
