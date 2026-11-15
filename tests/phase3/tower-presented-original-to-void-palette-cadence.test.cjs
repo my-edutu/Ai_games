@@ -33,8 +33,9 @@ test('first F9 GPU-return frames keep the exact old arch, real successor decks a
   assert.ok(purelyPhysical.oldWeight>0 && purelyPhysical.oldWeight<1);
   const first=sample(source,held);
   assert.equal(first.sourceBound,true);
-  assert.equal(first.oldWeight,1);
-  assert.equal(first.progress,0);
+  assert.ok(first.oldWeight>.9 && first.oldWeight<1,
+    'after the first submitted old/new shot, real stepped travel must not freeze the actual landing color');
+  assert.ok(first.oldWeight>purelyPhysical.oldWeight);
   held.submittedFrames=5;held.visibleSeconds=.4;
   const bridge=sample(source,held);
   assert.ok(bridge.oldWeight<first.oldWeight && bridge.oldWeight>purelyPhysical.oldWeight);
