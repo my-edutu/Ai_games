@@ -297,6 +297,10 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   };
 
   let settings = { ...initialSettings };
+  // A witnessed duel's actual portrait viewpoint may persist ONLY while
+  // the same visible, truly parried guardian is completing its real retreat.
+  // The run token prevents any earlier world's camera from being inherited.
+  let lastWitnessedGuardianStageRunToken = null;
   let frame = null, previous = null, priorPublicSnapshot = null, runToken = '', cameraMode = 'follow', recentPublicOpening = null, recentPublicPickup = null;
   let cells = [], segmentProgress = 0, heading = Math.PI / 4, halfHeight = 9;
   let lastNow = 0, elapsed = 0, gateVisualTime = 0, frames = 0, lastDiagnostic = 0, lost = false, disposed = false;
@@ -1088,6 +1092,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         // Derive the safe tighter shot from BOTH actual public 3D positions.
         // This never affects sealed-gate, hidden, terminal or landscape views.
         if (!result && closestThreat?.strength) {
+          if (cameraMode==='follow' && !settings.reducedMotion)
+            lastWitnessedGuardianStageRunToken = s.runToken;
           // The real 390px WebGL Follow image exposed a clipped Thornback sail:
           // a guardian eye in view is not a complete model. Center the two
           // AUTHORED outlines before deciding the safe shared camera span.
@@ -1259,9 +1265,22 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       settings.reducedMotion);
     pressureStageCameraOffset.copy(pressurePortraitCameraOffset)
       .lerp(pressureContactCameraOffset, pressureContactWeight);
+    // Real autonomous seed13 parry, tick7->8, moves Thornback 91->74.
+    // Without its former warning strength the camera switched immediately
+    // from an authored two-character duel to the unrelated exploration
+    // viewpoint, making the earned physical withdrawal read like a new scene.
+    // Keep the ORIGINAL witnessed portrait orbit for this currently visible,
+    // publicly parried same-run guardian. The optical full-mesh pair pan
+    // below remains authoritative, including the strict 320px crop gate.
+    // No AI, enemy position, secret route, geometry, or camera zoom changes.
+    const earnedDuelContinuity = cameraMode==='follow' && !result
+      && !settings.reducedMotion && !closestThreat?.strength
+      && !!earnedCounterModel && lastWitnessedGuardianStageRunToken===s.runToken
+      && aspect>=.35 && aspect<.60 && !cameraGate
+      && !pressureCameraBeat && !openingStageView && !showPickup;
     cameraOffset.lerp(openingStageView ? openingGateCameraOffset
       : cameraGate ? sealedGateCameraOffset
-      : portraitEncounterOrbit ? portraitCameraOffset
+      : (portraitEncounterOrbit || earnedDuelContinuity) ? portraitCameraOffset
       : pickupCameraBeat ? pickupCameraOffset
       : pressurePortraitStage ? pressureStageCameraOffset
       : followCameraOffset, blend);

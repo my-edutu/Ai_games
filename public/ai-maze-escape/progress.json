@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-15T15:40:23.328Z",
+  "updatedAt": "2026-11-15T15:47:18.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass398b: original 390px real moving parry now fits both full connected actors, but exact-HEAD 320px still clipped actual guardian left at -1.1807 NDC under unchanged +/-0.95 gate. Fixed earned-public-lantern frame visibility fallback for the same true sanitized guardian after recoil exceeds normal threat-warning radius; full-mesh optical fit without unsafe zoom, no game authority/collision/privacy/threshold changes. All 849 focused/whole-repo source tests previously passed; new exact-HEAD visual 320/390 verdict pending. Fixed Nintendo benchmark UNMET."
+    "summary": "Pass399: real same-source 320/390 physically complete moving guardian recoil now passes strict original WebGL framing; source candidate preserves the previously witnessed two-actor portrait camera orbit across the earned retreat rather than abruptly switching back to exploration. New exact-head WebGL comparison pending; Nintendo benchmark UNMET."
   },
   "captures": [
+    {
+      "title": "Pass398b verified real autonomous 320/390 earned recoil WebGL, exact source, mobile full-body pass; visuals still short of Nintendo",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/43731310302/artifacts/14168681461"
+    },
     {
       "title": "Pass393 authentic guardian-light candidate WebGL: all viewport evidence, visually REJECTED",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/43705659596/artifacts/14158710877"
@@ -108,6 +112,7 @@
     }
   ],
   "changes": [
+    "Pass399 2026-11-15: independent 40 original full-frame SHA pairs verify native run 43731310302; real 320 & 390 moving autonomous parry now entirely fits strict ±0.95. New source-only parry camera continuity candidate keeps authentic last witnessed same-run portrait orbit through public earned retreat; prior source's abrupt ordinary exploration camera jump obscures the legal 91→74 displacement. No rules, geometry or thresholds changed. Fresh CI/new images and independent critique PENDING.",
     "Pass397c: native 43723003430 passed 185/185 strict Maze source tests and six-reset <100 but failed genuine naturally moving parry WebGL; original artifact showed one seed audited because helper short-circuited for general visuals. New exhaustive optional seed audit, original requirement unchanged.",
     "Pass397 2026-11-15: production first real observed open corridor confrontation now chooses a deliberate single authoritative lantern-counter WAIT after Pip has explored, rather than always evading via any nonclosing side path. Already countered visible wardens return to ordinary evasion, hidden opponents never exposed. Integrated MazeRuntime test added. Pass396 exact-head honest natural moving-counter browser gate FAILED, new exact HEAD tests/natural 390/320 WebGL pending.",
     "Pass394 2026-11-15: implement one authoritative witnessed guardian-lantern parry earned solely by real autonomous evasive WAIT across presently PUBLIC reciprocal open 1-2 straight corridor. Once per guardian per run pauses actual patrol 3 ticks, collision remains lethal afterwards, no hidden/closed cue. Public active-only signal drives original connected Pip lantern and Thornback recoil plus earned event caption. New exact-HEAD tests/render verification PENDING; fixed Nintendo bar unmet.",

@@ -226,3 +226,15 @@ test('Pass398b real public guardian parry remains a complete physical mobile sho
  assert.doesNotMatch(scene,/privateMaze.*earnedCounterModel|secretRoute.*earnedCounterDistance/,
    'no private map/AI route may decide which guardian is framed');
 });
+
+
+test('Pass399 genuine published earned recoil keeps the same witnessed portrait orbit while both actors are still visible',()=>{
+  assert.match(scene,/lastWitnessedGuardianStageRunToken = s\.runToken/);
+  assert.match(scene,/const earnedDuelContinuity = cameraMode==='follow' && !result[\s\S]*?!settings\.reducedMotion && !closestThreat\?\.strength/);
+  assert.match(scene,/!!earnedCounterModel && lastWitnessedGuardianStageRunToken===s\.runToken/);
+  assert.match(scene,/aspect>=\.35 && aspect<\.60 && !cameraGate[\s\S]*?!pressureCameraBeat && !openingStageView && !showPickup/);
+  assert.match(scene,/\(portraitEncounterOrbit \|\| earnedDuelContinuity\) \? portraitCameraOffset/);
+  assert.match(scene,/for \(const root of \[explorer\.group,verifiedGuardianModel\]\)/,
+    'the unchanged full-body final optical fit must still protect both visible actors');
+  assert.doesNotMatch(scene,/privateMaze.*earnedDuelContinuity|secretRoute.*earnedDuelContinuity/);
+});
