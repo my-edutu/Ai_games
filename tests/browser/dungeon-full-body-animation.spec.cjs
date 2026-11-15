@@ -165,6 +165,10 @@ test('real authority movement drives bounded support on original leg bones witho
   Buffer.from(originalRigCode).toString('base64'));
  const beforeActor=beforeRig.actors.find(a=>a.id===event.actor.id);
  expect(beforeActor?.sourceActionSample,'the real original actor must exist before the step').toBeTruthy();
+ // Preserve the SAME real source-GLB frame which proves both legal root travel
+ // and Walking_A ownership. A later requestAnimationFrame may legitimately
+ // crossfade to Idle after the authority move; it is not this gait witness.
+ let walkingRig=null;
  stage.set(event.after);
  // A newly delivered public snapshot is not necessarily painted on the FIRST
  // rAF. Poll the actual original skin/root until the requested, legal
@@ -175,9 +179,13 @@ test('real authority movement drives bounded support on original leg bones witho
   const audit=await page.evaluate(()=>window.__DUNGEON_SOURCE_RIG_DEFORMATION__?.()??null);
   const current=audit?.actors?.find(a=>a.id===event.actor.id);
   const measured=measureSourceJointTravel(beforeActor,current);
-  return measured?.comparable===true&&
-   current?.sourceActionSample?.clipName==='Walking_A'?
-   measured.rootTravelMeters:0;
+  if(measured?.comparable===true&&
+   current?.sourceActionSample?.clipName==='Walking_A'&&
+   measured.rootTravelMeters>.008){
+   walkingRig=audit;
+   return measured.rootTravelMeters;
+  }
+  return 0;
  },{timeout:22000,intervals:[90,140,200,300]}).toBeGreaterThan(.008);
  // The imported Walking_A legitimately owns all native leg bones once
  // its source clip reaches full weight. Additive rigGaitPeakRad can be exactly
@@ -189,7 +197,8 @@ test('real authority movement drives bounded support on original leg bones witho
  expect(d.authored3D.fullBodyFootfallPhaseErrorRad).toBeLessThanOrEqual(.002);
  expect(d.authored3D.fullBodySettlingActors).toBeGreaterThanOrEqual(0);
  expect(d.authored3D.rigGaitBones).toBeGreaterThanOrEqual(4);
- const walkingRig=await nativeRigProof(page);
+ expect(walkingRig?.actors?.length,
+  'the qualifying moving source frame must have been captured atomically').toBeGreaterThan(0);
  // The native rig must have advanced real WebGL frames, not only a route mock.
  expect(d.frame).toBeGreaterThan(beforeFrame);
  const walkingActor=walkingRig.actors.find(a=>a.id===event.actor.id);
