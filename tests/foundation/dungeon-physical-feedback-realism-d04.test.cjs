@@ -1205,6 +1205,16 @@ test('D04 prior-HP actor cache may lag one confirmed public injury without losin
    check(false,mode+' arbitrary contradictory cached HP must not earn injury');
    actor.u={...victim,hp:20,maxHp:21};
    check(false,mode+' cached body with a different health capacity is not the victim');
+   // A drawable rig may already report the CURRENT remaining HP but still
+   // belong to an obsolete/recycled health model. Matching HP alone cannot
+   // make a different-capacity presentation body the proven injury victim.
+   for(const wrongMaxHp of [21,0,undefined]){
+    actor.u={...victim,maxHp:wrongMaxHp};
+    check(false,mode+' current HP with stale/invalid maxHp '+wrongMaxHp+
+     ' cannot receive real impact fragments');
+   }
+   actor.u={...victim};
+   check(true,mode+' full current HP and health capacity still permit impact');
    actor.u={...victim,hp:20};
    current={...current,tick:12};
    check(false,mode+' later public tick must not revive stale injury');
