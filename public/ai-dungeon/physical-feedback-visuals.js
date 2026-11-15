@@ -7,7 +7,7 @@
  * camera, lights, damage, authority time, scene geometry, or renderer policies.
  */
 import {planMeasuredHandTrail,MEASURED_HAND_TRAIL_MAX_FRAME_SECONDS,selectObservedWeaponHandBone,isCurrentMeasuredHandReceipt} from './measured-weapon-trail.js';
-import {selectPhysicalWarningMarkers} from './physical-feedback-plan.js';
+import {selectPhysicalWarningMarkers,PHYSICAL_FEEDBACK_MAX_EVENT_SCAN} from './physical-feedback-plan.js';
 import {isStaleWardenWarning,shouldRetireWardenWarning,isLiveWardenWarning} from './warden-warning-lifecycle.js';
 import {planUnconfirmedFlight} from './unconfirmed-projectile-flight.js';
 import {isCanonicalVerifiedCombatFoleyCue} from './original-combat-foley.js';
@@ -352,7 +352,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   for(let i=0;i<Math.min(latest.units.length,256);i++){
    const candidate=latest.units[i];
    if(candidate?.id!==cue.targetId)continue;
-   if(witness)return false; // never choose a duplicate public Warden
+   if(witness||i>=PHYSICAL_FEEDBACK_MAX_EVENT_SCAN)return false; // no late-only or duplicate boss
    witness=candidate;
   }
   if(!witness||witness.kind!=='warden'||witness.faction!=='enemy'||
@@ -460,7 +460,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    for(let i=0;i<Math.min(current.units.length,256);i++){
     const candidate=current.units[i];
     if(candidate?.id!==id)continue;
-    if(source)return null; // Ambiguous identities cannot choose a muzzle.
+    if(source||i>=PHYSICAL_FEEDBACK_MAX_EVENT_SCAN)return null; // no late-only or duplicate muzzle
     source=candidate;
    }
    const drawn=actor?.u;
@@ -624,7 +624,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   for(let i=0;i<Math.min(latest.units.length,256);i++){
    const u=latest.units[i];
    if(u?.id!==cue.actorId)continue;
-   if(witness)return false;
+   if(witness||i>=PHYSICAL_FEEDBACK_MAX_EVENT_SCAN)return false;
    witness=u;
   }
   if(!witness||witness.faction!=='party'||!cell(witness)||
