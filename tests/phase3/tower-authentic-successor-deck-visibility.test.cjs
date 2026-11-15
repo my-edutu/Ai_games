@@ -133,7 +133,11 @@ test('source-owned undercroft restores opaque depth at source expiry and clears 
   try{
     assert.ok(protectSourceSuccessorUndercroft(args).softened>0);
     const first=f.material.opacity;
-    camera.position.set(5,3,6);camera.updateMatrixWorld(true);
+    // A source-owned moving platform can physically depart the final camera
+    // ray. Move the fixture's REAL mesh far enough to guarantee no hit,
+    // rather than assuming one arbitrary exterior orbit is unobstructed.
+    f.roof.children[0].position.x=30;
+    f.roof.updateWorldMatrix(true,true);
     for(let i=0;i<18;i++)protectSourceSuccessorUndercroft(args);
     assert.ok(f.material.opacity>first);
     assert.equal(f.material.opacity,1,'unobstructed geometry returns fully opaque');
