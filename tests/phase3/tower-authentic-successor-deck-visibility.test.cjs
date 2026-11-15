@@ -20,7 +20,7 @@ function fixture(THREE){
   roof.updateWorldMatrix(true,true);
   const runToken='source-authenticated-grounded-8-to-9';
   const source={runToken,lifecycle:'running',theme:'void',floor:9,tick:479,
-    player:{health:5}};
+    player:{health:5,halfWidth:9000,halfHeight:14000}};
   const held={runToken,floor:9,sourceTick:475,guardianGateRetained:true,
     oldRoofY:3240000,thresholdX:315000};
   const reuse={raycaster:new THREE.Raycaster(),direction:new THREE.Vector3(),
@@ -45,7 +45,7 @@ test('real platform depth triangles block a genuine full-body line of sight; ext
     const blocked=sample(f,[0,2,6],[0,2,0]);
     assert.equal(blocked.active,true);
     assert.ok(blocked.bodyBlockedRays>0,'foreground geometry actually crosses body');
-    assert.ok(blocked.rays>0 && blocked.rays<=4,'at most 3 body+1 real gate rays');
+    assert.equal(blocked.rays,9,'seven true source-width body rays and two original gateway rays');
     const clear=sample(f,[5,3,6],[0,2,0]);
     assert.equal(clear.active,true);
     assert.equal(clear.bodyBlockedRays,0,'real shifted shoulder clears old deck, no x-ray');

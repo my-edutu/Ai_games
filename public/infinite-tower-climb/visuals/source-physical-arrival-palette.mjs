@@ -46,6 +46,45 @@ export function observedSourceSuccessorRaisedDeck(source, roofY) {
     p.x+p.halfWidth<=platform.x+platform.width);
 }
 
+
+/**
+ * The real F9 route may ascend onto a source-supported moving/raised deck
+ * beyond the width of its previous ground. That deck's exact contact, not
+ * an obsolete floor-ground footprint, keeps the earned doorway, inherited
+ * bronze material and camera together. Grounded F9 ground/f8 cap, airborne
+ * over the actual ground and raised support are mutually exclusive checks.
+ * Never infer a landing, platform, HP-zero win or new floor.
+ */
+export function observedSourceFloorNineRouteSupport(source,ground,roofY) {
+  const p=source?.player;
+  if(source?.floor!==9 || !p || !Array.isArray(source.platforms) ||
+     !source.platforms.includes(ground) ||
+     ![p.x,p.y,p.halfWidth,p.halfHeight,
+       ground?.x,ground?.y,ground?.width,ground?.height,roofY]
+       .every(Number.isSafeInteger) ||
+     p.halfWidth<=0 || p.halfHeight<=0 ||
+     ground.width<=0 || ground.height<=0 ||
+     ground.y+ground.height!==roofY)return false;
+  const insideGround=p.x-p.halfWidth>=ground.x &&
+    p.x+p.halfWidth<=ground.x+ground.width;
+  const sole=p.y-p.halfHeight;
+  if(p.grounded===true) {
+    if(!(p.state==='standing'||p.state==='hurt')||p.vy!==0)
+      return false;
+    if(insideGround && sole===roofY &&
+       (p.groundedPlatformId==='f9:ground' ||
+        p.groundedPlatformId==='f8:cap'))return true;
+    // A real F9:p2 (including a moving platform) may extend beyond the
+    // ground. Reuse the authoritative exact-sole and full-width support
+    // validator; the ground alone cannot claim this contact.
+    return observedSourceSuccessorRaisedDeck(source,roofY);
+  }
+  // A body still in flight retains an original-ground corridor only.
+  // Do not manufacture a future raised-platform landing from AI intention.
+  return insideGround && p.grounded===false && p.state==='airborne' &&
+    p.groundedPlatformId==null && Number.isFinite(p.vy);
+}
+
 export function observedSourcePhysicalArrivalPalette(source,held=null) {
   const p=source?.player, w=source?.lastGuardianCrossing;
   if(!source || !p || source.lifecycle!=='running' ||
@@ -93,15 +132,7 @@ export function observedSourcePhysicalArrivalPalette(source,held=null) {
   if(!valid(sole) || !valid(travel) || !valid(age) || age<0 || age>70 ||
      travel < -SOURCE_GATEWAY_RETURN_TOLERANCE || travel>100000 ||
      sole<roofY-2500 || sole>roofY+230000 ||
-     p.x-p.halfWidth<ground.x ||
-     p.x+p.halfWidth>ground.x+ground.width ||
-     !(p.grounded===false && p.state==='airborne' &&
-         p.groundedPlatformId==null && Number.isFinite(p.vy) ||
-       p.grounded===true && (p.state==='standing' || p.state==='hurt') &&
-         p.vy===0 && sole===roofY &&
-         (p.groundedPlatformId==='f9:ground' ||
-          p.groundedPlatformId==='f8:cap') ||
-       observedSourceSuccessorRaisedDeck(source,roofY)))return null;
+     !observedSourceFloorNineRouteSupport(source,ground,roofY))return null;
   // The full-body climber remains warm at the actual old sill, and walks
   // through a 90m material transition into the existing next-floor palette.
   // This changes NO geometry, physics, inputs, tick, enemy or gameplay state.

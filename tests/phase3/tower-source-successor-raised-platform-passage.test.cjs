@@ -126,3 +126,52 @@ test('the real cleared first raised deck completes the old-to-new material hando
   source.player.groundedPlatformId='f9:phantom';
   assert.equal(paletteFn(source,held),null);
 });
+
+test('real raised platform beyond old F9 ground stays camera/material eligible but no unsupported leap or false ground contact can bridge',async()=>{
+  const {observedSourcePhysicalArrivalPalette:paletteFn,
+    observedSourceFloorNineRouteSupport:contact}=await palette;
+  const {observedSourceBoundColdDoorwayLens:cameraFn}=await lens;
+  const {pointFor}=await coords;
+  const {source,held}=crossing();
+  // The first old floor threshold was physically supported on F9 ground.
+  // Later route geometry can extend beyond that ground into a real raised
+  // source platform. A blanket ground-width check hid the earned doorway
+  // even though the current skinned climber stood on the next real deck.
+  source.platforms[0].width=165000; // ends at x405000
+  source.platforms[1].x=406000;
+  source.platforms[1].width=34000; // true p2 contact x410000..428000
+  source.player.x=419000;
+  const roof=source.platforms[0].y+source.platforms[0].height;
+  assert.equal(source.player.x-source.player.halfWidth>
+    source.platforms[0].x+source.platforms[0].width,true);
+  assert.equal(contact(source,source.platforms[0],roof),true,
+    'exact raised source sole+width contact is still real beyond old ground');
+  const original=paletteFn(source,held);
+  assert.equal(original?.sourceBound,true);
+  assert.equal(original?.kind,'recorded-source-zero-hp');
+  assert.equal(original?.opticalBridgeSourceBound,true);
+  const hero=pointFor(source.player.x,source.player.y,
+    source.chunkBaseY,source.worldWidth,25);
+  for(const viewport of [960/600,390/844]){
+    assert.equal(cameraFn(source,held,hero,viewport)?.sourceBound,true,
+      'real original gateway remains in same source-authentic camera at both native aspects');
+  }
+  const originalCopy=JSON.stringify(source);
+  const absent=structuredClone(source);
+  absent.platforms[1].id='f9:fake-other';
+  assert.equal(paletteFn(absent,held),null);
+  assert.equal(cameraFn(absent,held,hero,960/600),null);
+  const noContact=structuredClone(source);
+  noContact.player.x=441000;
+  assert.equal(paletteFn(noContact,held),null);
+  assert.equal(contact(noContact,noContact.platforms[0],roof),false);
+  const inventedFlight=structuredClone(source);
+  inventedFlight.player.grounded=false;
+  inventedFlight.player.groundedPlatformId=null;
+  inventedFlight.player.state='airborne';
+  inventedFlight.player.vy=500;
+  assert.equal(paletteFn(inventedFlight,held),null,
+    'outside old ground, an imagined airborne future landing does not extend old GPU passage');
+  assert.equal(JSON.stringify(source),originalCopy,
+    'camera/material witnesses are read-only and do not move authority');
+});
