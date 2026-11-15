@@ -268,9 +268,11 @@ test('an authentic guardian defeat opens BOTH world-space doors and its distinct
     hurt.enemies[0].health = 2;
     const beforeHurt = JSON.stringify(hurt);
     for (let i = 0; i < 8; i++) world.update(hurt, .05, i * .05, { quality: 'low' });
-    assert.ok(left.position.x < -.9 && left.position.x > -2.7,
-      'the genuine lost guardian HP must split the bronze doors before defeat');
-    assert.ok(right.position.x > .9 && right.position.x < 2.7);
+    assert.ok(left.position.x < -1.1 && left.position.x > -2.0,
+      'real guardian damage should pull the heavy grilles partway toward outboard hinges, not falsely claim an opened path');
+    assert.ok(right.position.x > 1.1 && right.position.x < 2.0);
+    assert.ok(left.rotation.y > .20 && right.rotation.y < -.20,
+      'the original paired leaves must physically turn outward, not merely slide across camera sightlines');
     assert.ok(leftWeight.position.y < -1 && leftWeight.position.y > -2.35,
       'real guardian HP mechanically lowers the visible counterweights');
     assert.ok(capstan.rotation.z > 1.8,
@@ -302,8 +304,12 @@ test('an authentic guardian defeat opens BOTH world-space doors and its distinct
     const release = frame({ active: false });
     const before = JSON.stringify(release);
     for (let i = 0; i < 20; i++) world.update(release, .05, i * .05, { quality: 'low' });
-    assert.ok(left.position.x < -2.7 && right.position.x > 2.7,
-      'the visible passage must physically clear in both directions');
+    assert.ok(left.position.x < -4.5 && right.position.x > 4.5,
+      'the genuine opened seal must withdraw both original 3D bronze grilles completely outside the 6.8m pedestrian corridor');
+    assert.ok(left.rotation.y > 1.0 && right.rotation.y < -1.0,
+      'the source-earned open wing must face obliquely away from the approach, not remain as a broad foreground cage');
+    assert.ok(left.position.z < -.9 && right.position.z < -.9,
+      'the old grilles must recede behind the threshold and both live actors');
     assert.ok(crest.rotation.z > 1.5, 'the actual lock geometry changes state');
     assert.ok(leftWeight.position.y < -2.3 && rightWeight.position.y < -2.3,
       'an actual finished guardian fully releases the heavy mechanical weights');
@@ -406,8 +412,8 @@ test('the actual world gate gives earned grounded arrival a clear bronze thresho
     const realExit=cap.x+Math.floor(cap.width*.76);
     sourceClear.player={x:realExit-8000};
     world.update(sourceClear,.016,.016,{quality:'low'});
-    assert.ok(wing.position.x < -2.7,
-      'source-confirmed defeat + authentic arrival opens real 3D masonry immediately');
+    assert.ok(wing.position.x < -4.5 && wing.rotation.y > 1,
+      'source-confirmed defeat + authentic arrival opens and folds the original 3D bronze leaves completely out of the passage');
     assert.equal(world.diagnostics().guardianGates[0].unlocked,true);
     assert.equal(sourceClear.player.x,realExit-8000);
     const nextRun=frame({active:true,runToken:'fresh-second-run'});
