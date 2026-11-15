@@ -7324,6 +7324,71 @@ function getGrainwardDormerAudit(){
   experienceMilestone:'NOT PROVEN',runtimeTriangleBudget:'NOT PROVEN'};
 }
 
+// W349 coherent original occupied-house window reconstruction. Shared by
+// detailed original cottages and every genuine compact Day120 cottage.
+// Pure saved-state-neutral presentation, using existing home mesh residency.
+function renderOriginalOccupiedCasement(cx,cy,wallZ,width,height,face,variant,compact=false){
+ if(![cx,cy,wallZ,width,height,face,variant].every(Number.isFinite)||
+   width<=.05||height<=.05||Math.abs(face)!==1)
+  throw Error('W349 invalid original inhabited masonry window');
+ const first=data.length,lo=cy-height*.5,hi=cy+height*.5,
+  left=cx-width*.5,right=cx+width*.5,
+  front=wallZ+face*.022,depth=wallZ+face*.055,
+  limestone=rgb(variant%2?0xa69b88:0xb9aa91),
+  oak=rgb(variant%3===0?0x624934:variant%3===1?0x796044:0x6e513c),
+  lighterOak=rgb(0xaa8d67),iron=rgb(0x514c45),
+  indoor=rgb(variant%2?0x3e5c64:0x40575a);
+ const facing=(a,b,c,d,color)=>{
+  if(face<0)quad(d,c,b,a,color);else quad(a,b,c,d,color);
+ };
+ const panel=(xa,ya,xb,yb,zz,color)=>
+  facing([xa,ya,zz],[xb,ya,zz],[xb,yb,zz],[xa,yb,zz],color);
+ materialScope(MATERIAL.WINDOW_GLOW,()=>{
+  // Recessed glazing sits IN the existing physical plaster wall; inhabited
+  // windows still follow the original evening glow shader without fake people.
+  panel(left,lo,right,hi,wallZ-face*.010,indoor);
+ });
+ materialScope(MATERIAL.STONE,()=>{
+  // Bonded lintel and sloped projecting drip sill, not detached stone cubes.
+  panel(left-.065,hi+.016,right+.065,hi+.086,front,limestone);
+  panel(left-.086,lo-.080,right+.086,lo-.020,front+face*.010,limestone);
+  facing([left-.09,lo-.020,front+face*.010],
+   [right+.09,lo-.020,front+face*.010],
+   [right+.075,lo-.035,front+face*.120],
+   [left-.075,lo-.035,front+face*.120],limestone);
+ });
+ materialScope(MATERIAL.WOOD,()=>{
+  for(const xx of [left-.022,right+.022])
+   panel(xx-.020,lo-.012,xx+.020,hi+.018,front,lighterOak);
+  panel(left-.045,hi-.021,right+.045,hi+.022,front,lighterOak);
+  panel(left-.045,lo-.020,right+.045,lo+.019,front,lighterOak);
+  panel(cx-.017,lo,cx+.017,hi,depth,lighterOak);
+  panel(left,cy-.014,right,cy+.014,depth,lighterOak);
+  for(const side of [-1,1]){
+   // Real double leaves hinge on the two actual jambs. Their free edges
+   // project outward instead of being glued-on rectangular colored blocks.
+   const hingeX=cx+side*(width*.5+.028),
+    freeX=hingeX+side*(width*(compact?.43:.46)),
+    hingeZ=front+face*.035,
+    freeZ=hingeZ+face*(width*(.23+.03*(variant%3))),
+    xa=side<0?freeX:hingeX,xb=side<0?hingeX:freeX,
+    za=side<0?freeZ:hingeZ,zb=side<0?hingeZ:freeZ;
+   const a=[xa,lo-.005,za],b=[xb,lo-.005,zb],
+    c=[xb,hi+.010,zb],d=[xa,hi+.010,za];
+   facing(a,b,c,d,oak);facing(d,c,b,a,oak);
+   const off=face*.007;
+   facing([xa,lo+.040,za+off],[xb,lo+.080,zb+off],
+    [xb,lo+.130,zb+off],[xa,lo+.090,za+off],lighterOak);
+   facing([xa,hi-.090,za+off],[xb,hi-.125,zb+off],
+    [xb,hi-.080,zb+off],[xa,hi-.045,za+off],lighterOak);
+   panel(hingeX-.018,cy-.012,hingeX+.018,cy+.012,
+    front+face*.042,iron);
+  }
+ });
+ return (data.length-first)/30;
+}
+// W349 CASEMENT END
+
 // G055: remove permanent opaque green house/windmill floor decals.
 function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale,h=houseVisualProfile(x,z,variant,false).height*scale;
  // G054c: plaster is not stacked granite. Preserve stone in the footings,
@@ -7439,7 +7504,8 @@ else for(let slope=0;slope<2;slope++){
 for(let i=1;i<=5;i++){let q=i/6;const lx=xx+(x-xx)*q,rx=x+(xr-x)*q,top=y+h+(ridge-h)*q;const front=hip?zy+hipInset*q:zy,back=hip?zz-hipInset*q:zz;quad([lx,top+.018,front],[lx+.025,top+.018,front],[lx+.025,top+.018,back],[lx,top+.018,back],rgb(0x624838));quad([rx,top+.018,front],[rx+.025,top+.018,front],[rx+.025,top+.018,back],[rx,top+.018,back],rgb(0x634b3c))}
 if(detailedJetty)grainwardStructuralDormer(x,z,y+h,y+ridge,(xr-xx)*.5,zy,-1,variant,scale,'home');
 box(x,y,z-d/2-.045*scale,.66*scale,1.25*scale,.085,rgb(0x76523c));box(x,y+1.03*scale,z-d/2-.084*scale,.07*scale,.055,.07,rgb(0xd5b778));
-for(let k=-1;k<=1;k+=2){materialScope(MATERIAL.WINDOW_GLOW,()=>box(x+k*w*.32,y+h*.43,z-d/2-.082,.40*scale,.51*scale,.07,gpuAvailable?rgb(0x4f7772):(skyConditions(state.t).daylight<.55?[.98,.88,.47]:rgb(0x4f7772))));box(x+k*w*.32,y+h*.43,z-d/2-.1,.45*scale,.055,.07,rgb(0xe3cba7));box(x+k*w*.32,y+h*.64,z-d/2-.1,.055,.51*scale,.08,wood)}
+for(const side of [-1,1])renderOriginalOccupiedCasement(
+ x+side*w*.32,y+h*.43,z-d/2-.082,.40*scale,.51*scale,-1,variant,false);
 // Structural timber posts and chimney establish scale and depth.
 for(let k of [-1,1])box(x+k*(w/2-.12),y+.14,z-d/2-.09,.13*scale,h-.15,.12*scale,wood);
 box(x+w*.31,y+h*.72,z,.28*scale,.81*scale,.28*scale,rgb(0x9d8c77));box(x+w*.31,y+h*1.13,z,.38*scale,.12*scale,.38*scale,rgb(0x736f64));} 
@@ -8986,9 +9052,9 @@ function compactHouse(x,z,variant){
    box(x,y+.20,face,.51,1.11,.12,timber);
    for(const side of [-1,1]){
     const wx=x+side*w*.26;
-    box(wx,y+.89,face+faceSide*.018,.38,.42,.07,rgb(0x53636b));
-    box(wx,y+1.08,face+faceSide*.045,.41,.055,.09,rgb(0xb6a18a));
-    villageVisualLod.compactFramedWindows++;
+    renderOriginalOccupiedCasement(wx,y+.89,face+faceSide*.018,
+      .38,.42,faceSide,variant,true);
+     villageVisualLod.compactFramedWindows++;
     // Two unmistakable exposed gable braces on each end. Kept flat so
     // readable timber silhouettes cost only two triangles each.
     const ax=x+side*w*.45,bx=x+side*w*.13,zf=face+faceSide*.054;
