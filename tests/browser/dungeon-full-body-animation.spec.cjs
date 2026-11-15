@@ -1379,7 +1379,18 @@ for(const view of [
      .toBeCloseTo(measured.axis[axis],6);
     expect(proof.sourceBindTransverseAudit).toBeNull();
    }
-   expect(Math.abs(proof.angleRad)).toBeLessThanOrEqual(.120001);
+   // Stronger source ankle is legal only with an authentic long frame,
+   // matching licensed hip+knee, exact same clone and both skinned soles.
+   expect(Math.abs(proof.angleRad)).toBeLessThanOrEqual(
+    proof.deepOriginalSwingArc===true?.240001:.120001);
+   if(proof.deepOriginalSwingArc===true){
+    expect(proof.sourceAxisKind).toBe('original-clip-track');
+    expect(linked?.witnessedFrameIntervalSeconds).toBeGreaterThanOrEqual(.10);
+    expect(linked?.witnessedSourceWeight).toBeGreaterThanOrEqual(.95);
+    expect(proof.sourceInstanceId).toBe(frame.sourceId);
+    expect(proof.liftMeters).toBeGreaterThanOrEqual(.018);
+    expect(proof.liftMeters/(-.02-proof.beforeToeY)).toBeGreaterThanOrEqual(.22);
+   }
    expect(proof.liftMeters).toBeGreaterThanOrEqual(.008);
    expect(proof.oppositeFootVerified).toBe(true);
    expect(proof.contactLocked).toBe(false);
