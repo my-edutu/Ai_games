@@ -110,6 +110,27 @@ function injuryReceipt(sample,manifest){
    Math.abs(r.submittedClockMs-r.observedClockMs-r.observationToSubmissionMs)<=3;
  });
 }
+
+ // A deadline miss must be a real HP victim/tick, not a stale-looking label
+ // borrowed from an unrelated receipt in the bounded forensic ring.
+function documentedHpDeadlineMiss(sample,manifest){
+ if(!sample||!manifest.victimIds.length)return false;
+ const s=manifest.scene;
+ return (sample.recentDeliveryReceipts||[]).some(r=>{
+  if(!r||!['damage','damage-fatal'].includes(r.kind)||
+   r.scene!==sceneKey(s)||r.tick!==s.tick||
+   !manifest.victimIds.some(id=>r.cueId===
+    sceneKey(s)+':'+s.tick+':'+r.kind+':-:'+id))return false;
+  if(r.decision==='expired-pending-before-frame')
+   return r.frameId===null&&
+    finite(r.pendingExpiredWallAgeMs)&&r.pendingExpiredWallAgeMs>400;
+  return (r.decision==='stale-frame'||r.decision==='expired-visual')&&
+   pos(r.frameId)&&pos(sample.submittedFrameId)&&
+   r.frameId<=sample.submittedFrameId&&
+   finite(r.observationToSubmissionMs)&&r.observationToSubmissionMs>400;
+ });
+}
+
 function classifyD04LiveAuthorityPair({manifest,off,on}={}){
  const result={source:SOURCE,status:'INVALID_REAL_AUTHORITY',matchedTicks:0,
   matchedHpLossTicks:0,excludedTicks:[],budgetViolations:[],
@@ -177,6 +198,7 @@ function classifyD04RealMultiview({seed,manifest,runs}={}){
   requestedViews:6,observedViews:0,capturedRecorders:0,missingViews:[],
   distinctViewPairs:0,viewpointGeometry:[],
   matchedAuthorityTicks:0,matchedHpLossTicks:0,matchedDrawableHpLossTicks:0,
+  hpImpactByView:[],
   viewpointFrames:[],budgetViolations:[],sampleSynchronized:false,
   cameraMovingVideoVerified:false,impactAVAccepted:false,
   causation:null,capturePacing:'unverified',
@@ -278,6 +300,24 @@ function classifyD04RealMultiview({seed,manifest,runs}={}){
  result.matchedDrawableHpLossTicks=matches.filter(m=>m.victimIds.length&&
   scans.every(scan=>scan.frames.some(sample=>
    key(sample.scene)===key(m.scene)&&injuryReceipt(sample,m)))).length;
+
+ // The zero six-view aggregate conceals real partial, timely drawable HP
+ // contacts versus confirmed >400ms submission misses. These are immutable
+ // public-state receipts, NOT encoded-pixel or PCM onset certification.
+ const hpMatches=matches.filter(m=>m.victimIds.length);
+ result.hpImpactByView=expected.map(view=>{
+  const frames=byGeometryView.get(view).frames;
+  let drawableHpLossTicks=0,deadlineMissHpLossTicks=0,unverifiedHpLossTicks=0;
+  for(const m of hpMatches){
+   const observed=frames.filter(sample=>key(sample.scene)===key(m.scene));
+   if(observed.some(sample=>injuryReceipt(sample,m)))drawableHpLossTicks++;
+   else if(observed.some(sample=>documentedHpDeadlineMiss(sample,m)))
+    deadlineMissHpLossTicks++;
+   else unverifiedHpLossTicks++;
+  }
+  return {view,matchedHpLossTicks:hpMatches.length,
+   drawableHpLossTicks,deadlineMissHpLossTicks,unverifiedHpLossTicks};
+ });
  // Distinct UI labels are NOT evidence of distinct 3D camera positions.
  // Compare the physical camera and aim on EXACT shared authority states
  // within each viewport. A sampled software-WebGL gap is UNKNOWN, never
