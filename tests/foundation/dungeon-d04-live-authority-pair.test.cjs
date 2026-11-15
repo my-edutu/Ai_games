@@ -87,3 +87,72 @@ test('concurrent encoders, missing sound consent and over-budget VFX fail closed
  assert.equal(r.status,'LIVE_EFFECT_BUDGET_VIOLATION');
  assert.deepEqual(r.budgetViolations.map(x=>x.kind),['VFX_DRAW_CALL_CAP']);
 });
+
+/**
+ * Test-first six-view original-game A/V contract. These synthetic manifest
+ * fixtures exercise the evidence guard only; they are NOT captured footage.
+ * Real Chrome must supply the authoritative samples and encoded recordings.
+ */
+const MULTIVIEW_CAMERA_MODES=['cinematic','tactical','chase'];
+function sixViewFixture(){
+ const seed='visual-room-art-18',runs=[];
+ for(const viewport of [{width:1440,height:900},{width:390,height:844}]){
+  for(const viewpoint of MULTIVIEW_CAMERA_MODES){
+   runs.push({seed,viewpoint,viewport,feedbackMode:'d04',capture:'on',
+    start:{status:'STARTED',originalAudioTracks:1},
+    recorder:onRec(),errors:[],
+    samples:Array.from({length:12},(_,tick)=>sample('on',tick,15,{
+     camera:viewpoint,viewport,seed,feedbackMode:'d04',
+     d04PreviewEnabled:true,previewAudioOptedIn:true
+    }))});
+  }
+ }
+ return {seed,manifest:manifest(),runs};
+}
+test('three authentic camera modes at both sizes can be matched only by exact immutable authority states',()=>{
+ const {classifyD04RealMultiview}=
+  require('../browser/dungeon-d04-live-authority-pair.cjs');
+ const valid=classifyD04RealMultiview(sixViewFixture());
+ assert.equal(valid.status,'SIX_VIEWPOINT_CAPTURED_UNALIGNED');
+ assert.equal(valid.capturedRecorders,6);
+ assert.equal(valid.matchedAuthorityTicks,12);
+ assert.equal(valid.matchedHpLossTicks,1);
+ assert.deepEqual(valid.missingViews,[]);
+ assert.equal(valid.sampleSynchronized,false);
+ assert.equal(valid.impactAVAccepted,false);
+ assert.equal(valid.cameraMovingVideoVerified,false,
+  'Six encoded files alone do not prove decoded moving combat or audio onset');
+});
+test('a forged state, wrong physical viewpoint or duplicated camera arm cannot masquerade as matched combat',()=>{
+ const {classifyD04RealMultiview}=
+  require('../browser/dungeon-d04-live-authority-pair.cjs');
+ for(const mutate of [
+  a=>a.runs[0].samples[4].scene.checksum='invented',
+  a=>a.runs[0].samples[4].camera='tactical',
+  a=>a.runs[0].viewpoint='tactical',
+  a=>a.runs[0].samples[4].previewAudioOptedIn=false,
+  a=>a.runs[0].samples[4].vfxReservedInstances=105,
+  a=>a.runs[0].recorder.audioTracks=0
+ ]){
+  const a=sixViewFixture();mutate(a);
+  const v=classifyD04RealMultiview(a);
+  assert.notEqual(v.status,'SIX_VIEWPOINT_CAPTURED_UNALIGNED',
+   'noncanonical or over-budget evidence must not pass six-view provenance');
+  assert.equal(v.impactAVAccepted,false);
+ }
+});
+test('sparse real browser sampling and missing recorder remain explicit gaps, not false audiovisual certification',()=>{
+ const {classifyD04RealMultiview}=
+  require('../browser/dungeon-d04-live-authority-pair.cjs');
+ const a=sixViewFixture();
+ a.runs.forEach((r,i)=>r.samples=r.samples.filter(s=>s.scene.tick===i+1));
+ let v=classifyD04RealMultiview(a);
+ assert.equal(v.matchedAuthorityTicks,0);
+ assert.equal(v.status,'SPARSE_VIEWPOINT_COVERAGE');
+ assert.equal(v.sampleSynchronized,false);
+ const b=sixViewFixture();b.runs[0].recorder.status='UNAVAILABLE';
+ v=classifyD04RealMultiview(b);
+ assert.equal(v.status,'INCOMPLETE_VIEWPOINT_CAPTURE');
+ assert.equal(v.capturedRecorders,5);
+ assert.equal(v.impactAVAccepted,false);
+});
