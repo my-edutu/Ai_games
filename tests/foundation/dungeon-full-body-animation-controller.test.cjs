@@ -6289,3 +6289,54 @@ test('RED: inverse-bind transverse ankle must earn original connected hip-knee-f
  assert.match(renderer,/sourceBindDorsiflexionVerified/,
   'genuine native GLB readback and gate must use the same verified bind axis');
 });
+
+
+test('source-weighted outsole transverse axis respects real original joint and skinned swing evidence',async()=>{
+ const {planOriginalSourceWeightedSoleHingeAxis}=await load();
+ assert.equal(typeof planOriginalSourceWeightedSoleHingeAxis,'function');
+ const proof={
+  source:'same-original-GLB-skinned-weighted-outsole',
+  sourceFootChainVerified:true,sourceFootTrackVerified:true,
+  originalAnatomicalSolePatchVerified:true,
+  originalOppositeShoeVerified:true,
+  sourceFootBindVerified:true,sourceClipName:'Walking_A',
+  floorTopY:-.02,heelWorld:[0,.18,0],toeWorld:[0,-.10,.08],
+  footWorldQuaternion:[0,0,0,1],sourceTrackAxis:[0,1,0]
+ };
+ const result=planOriginalSourceWeightedSoleHingeAxis(proof);
+ assert.ok(result);
+ assert.equal(result.source,'source-weighted-outsole-world-to-original-foot-local');
+ assert.ok(result.axis.every(Number.isFinite));
+ assert.ok(Math.abs(Math.hypot(...result.axis)-1)<1e-7);
+ assert.ok(Math.abs(result.axis[0]+1)<1e-6);
+ assert.equal(result.contactLocked,false);
+ const refuse=(change)=>assert.equal(planOriginalSourceWeightedSoleHingeAxis({...proof,...change}),null);
+ refuse({source:'reconstructed-geometry'});
+ refuse({sourceFootChainVerified:false});
+ refuse({sourceFootTrackVerified:false});
+ refuse({sourceFootBindVerified:false});
+ refuse({originalAnatomicalSolePatchVerified:false});
+ refuse({originalOppositeShoeVerified:false});
+ refuse({sourceClipName:'Idle'});
+ refuse({toeWorld:[0,.10,.08]});
+ refuse({toeWorld:[0,-.10,.001]});
+ refuse({toeWorld:[0,-.80,.08]});
+ refuse({heelWorld:[0,.18,NaN]});
+ refuse({footWorldQuaternion:[0,0,0,0]});
+ refuse({footWorldQuaternion:[0,0,0,Infinity]});
+ refuse({sourceTrackAxis:[-1,0,0]});
+ const q=[0,Math.SQRT1_2,0,Math.SQRT1_2];
+ const rotated=planOriginalSourceWeightedSoleHingeAxis({
+  ...proof,footWorldQuaternion:q});
+ assert.ok(rotated&&rotated.axis.every(Number.isFinite));
+ assert.ok(Math.abs(Math.hypot(...rotated.axis)-1)<1e-7);
+ assert.ok(Math.abs(rotated.axis[2]+1)<1e-6);
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/planOriginalSourceWeightedSoleHingeAxis\s*\(/);
+ assert.match(renderer,/axisKind:'original-weighted-outsole-swing'/);
+ assert.match(renderer,/sourceFootTrackVerified:true/);
+ assert.match(renderer,/foot\.getWorldQuaternion\(/);
+ const controller=fs.readFileSync(source,'utf8');
+ assert.match(controller,/sourceWeightedOutsoleHingeVerified/);
+ assert.match(controller,/original-weighted-outsole-swing/);
+});
