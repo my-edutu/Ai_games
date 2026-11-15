@@ -11,6 +11,8 @@ const captureSource = fs.readFileSync(path.join(ROOT,
   'tests/browser/tower-live-motion.spec.cjs'), 'utf8');
 const provenanceSource = fs.readFileSync(path.join(ROOT,
   'public/infinite-tower-climb/visuals/mesh-provenance.mjs'), 'utf8');
+const originalDoorwayWitness = fs.readFileSync(path.join(ROOT,
+  'public/infinite-tower-climb/visuals/threshold-occlusion-witness.mjs'), 'utf8');
 
 function realProbeFixture() {
   const first = rendererSource.indexOf('  // P0 source-authentic guardian film:');
@@ -29,6 +31,7 @@ function realProbeFixture() {
     parent: { name: 'floor:8:clockwork', visible: true, parent: null },
   };
   class Raycaster {
+    set(origin,direction){assert.ok(Number.isFinite(origin.x+direction.z));return this;}
     setFromCamera(ndc, camera) { assert.ok(Number.isFinite(ndc.x+ndc.y));
       assert.ok(camera); return this; }
     intersectObjects(children, recursive, target) {
@@ -40,15 +43,29 @@ function realProbeFixture() {
     }
   }
   class Vector2 {set(x,y) { this.x=x;this.y=y;return this; }}
+  class Vector3 {
+    constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z;}
+    set(x,y,z){this.x=x;this.y=y;this.z=z;return this;}
+    copy(v){return this.set(v.x,v.y,v.z);}
+    sub(v){this.x-=v.x;this.y-=v.y;this.z-=v.z;return this;}
+    length(){return Math.hypot(this.x,this.y,this.z);}
+    multiplyScalar(k){this.x*=k;this.y*=k;this.z*=k;return this;}
+  }
   const snapshot = {
     runToken:'actual-run',floor:8,theme:'clockwork',
     lifecycle:'running',tick:300,player:{health:5},
   };
   const sandbox = {
-    THREE:{Raycaster,Vector2},
+    THREE:{Raycaster,Vector2,Vector3},
     window:{__TOWER_MESH_OWNER_AUDIT__:true},
-    snapshot, options:{stale:false}, camera:{
-      aspect:390/844,near:.1, position:{toArray:()=>[9,10,11]},
+    snapshot, options:{stale:false}, 
+    world:{retainedFilmHandoff:()=>null},
+    climber:{group:{position:new Vector3(4,4,8)}},
+    SCALE:10000,
+    guardianTraversalGatePose:()=>({x:8,y:5,z:12}),
+    lastSubmittedGuardian:{runToken:null,floor:null,tick:-1},
+    camera:{
+      aspect:390/844,near:.1, position:Object.assign(new Vector3(0,1,0),{toArray:()=>[0,1,0]}),
       updateMatrixWorld:()=>{matrixUpdates++;}
     },
     scene:{children:[physicalMesh],updateMatrixWorld:()=>{matrixUpdates++;}},
@@ -58,6 +75,7 @@ function realProbeFixture() {
   // an invented ownership stub. The VM executes only the source module's
   // two exported pure functions, then the actual shipped owner observer.
   vm.runInContext(provenanceSource.replaceAll('export function ', 'function '), context);
+  vm.runInContext(originalDoorwayWitness.replaceAll('export function ', 'function '), context);
   const observe = vm.runInContext(rendererSource.slice(first,end) +
     '\nobservedCameraMeshOwners',context);
   return { observe, snapshot, sandbox, get rays(){return rayCalls;},
@@ -99,7 +117,7 @@ test('actual scene probe identifies source-ticked post-batch physical triangles,
     'never mutate the original gameplay run, health or combat');
 });
 
-test('owner probe is capture-only and refuses other floors, stale scenes and desktop',()=>{
+test('owner probe is capture-only and rejects unproven successor floors, stale scenes and unproven desktop',()=>{
   const p=realProbeFixture();
   p.sandbox.window.__TOWER_MESH_OWNER_AUDIT__=false;
   assert.equal(p.observe().length,0);
@@ -111,6 +129,39 @@ test('owner probe is capture-only and refuses other floors, stale scenes and des
   p.sandbox.camera.aspect=390/844;p.sandbox.options.stale=true;
   assert.equal(p.observe().length,0);
   assert.equal(p.rays,0,'no production, floor-nine, desktop or stale-game raycasts');
+});
+
+test('genuine HP-zero source and original gateway trace full body in desktop and portrait without altering source',()=>{
+  const p=realProbeFixture();
+  const s=p.snapshot;
+  s.tick=442;s.worldWidth=1000000;s.guardianExitX=760000;
+  s.player={health:5,x:760000,y:102000,halfWidth:4500,halfHeight:9800};
+  s.platforms=[{id:'f8:cap',x:0,y:100000,width:1000000,height:2000}];
+  s.enemies=[{kind:'guardian',active:false,health:0}];
+  p.sandbox.camera.aspect=960/600;
+  const original=JSON.stringify(s);
+  const desktop=p.observe();
+  assert.equal(desktop.length,1);
+  assert.equal(desktop[0].probes.length,7);
+  assert.equal(desktop[0].thresholdSource.kind,'actual-defeated-guardian-open-clockwork');
+  assert.equal(desktop[0].probes[0].endpointKind,'real-body-centre');
+  assert.equal(desktop[0].probes[5].endpointKind,'original-gate-centre');
+  assert.equal(p.rays,7);
+  assert.equal(JSON.stringify(s),original,'source play unchanged by ray evidence');
+  s.floor=9;s.theme='void';s.tick=477;s.player.x=777000;
+  s.lastGuardianCrossing={runToken:'actual-run',fromFloor:8,toFloor:9,
+    guardian:{kind:'guardian',active:false,health:0},
+    cap:{id:'f8:cap',y:100000,height:2000},
+    exitX:760000,sourceTick:475};
+  p.sandbox.world.retainedFilmHandoff=()=>({
+    guardianGateRetained:true,runToken:'actual-run',floor:9,
+    thresholdX:760000,oldRoofY:102000,sourceTick:475});
+  p.sandbox.camera.aspect=390/844;
+  const phone=p.observe();
+  assert.equal(phone.length,1,'new genuine floor episode uses its own witness');
+  assert.equal(phone[0].thresholdSource.kind,'immutable-defeated-guardian-original-gateway');
+  assert.equal(phone[0].probes.length,7);
+  assert.equal(p.rays,14);
 });
 
 test('neutral original-video observer persists true camera-ray ownership separately from named clockwork',()=>{
