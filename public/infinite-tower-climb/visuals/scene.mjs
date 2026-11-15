@@ -5133,8 +5133,15 @@ export function createTowerScene(canvas, settings = {}) {
     // Do not overwrite physical dangers, hero/boss lighting, or user camera.
     const thresholdLight=observedGroundedBiomeThreshold(snapshot,passage.diagnostics(),options,
       world.retainedFilmHandoff?.(snapshot) ?? null);
-    const oldWeight=thresholdLight?.oldWeight ?? 0;
-    if(thresholdLight || lastBiomeHandoffOldWeight>0){
+    // The F9 landing/deck, shaft, bearings AND the entire sky/fog/sun
+    // must retire bronze together on the SAME returned renderer frames.
+    // A former independent source-expiry switch made the native film jump
+    // straight to violet sky while certified bronze architecture remained.
+    // Only a current genuine crossing or its eight-return source-certified
+    // material tail is eligible. A missing/invalid witness stays violet.
+    const certifiedHorizon=world.certifiedPaletteHorizon?.(snapshot);
+    const oldWeight=Math.max(thresholdLight?.oldWeight ?? 0,certifiedHorizon?.oldWeight ?? 0);
+    if(thresholdLight || certifiedHorizon || lastBiomeHandoffOldWeight>0){
       const from=thresholdColors.from,to=thresholdColors.to;
       scene.fog.color.copy(to.fog).lerp(from.fog,oldWeight);
       skyMaterial.uniforms.top.value.copy(to.top).lerp(from.top,oldWeight);
