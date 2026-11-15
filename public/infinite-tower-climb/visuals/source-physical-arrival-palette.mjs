@@ -254,7 +254,8 @@ export function observedSourcePhysicalArrivalPalette(source,held=null) {
   // followed by a violet hard cut. Keep the authentic old/new materials
   // coupled across EIGHT returned frames, not an unobserved four-frame swap.
   const gpuProgress=originalGpuVisible
-    ?held.submittedFrames<=1?0:
+    ?held.submittedFrames===0?0:
+      held.submittedFrames===1?smooth(.5/7):
       smooth((held.submittedFrames-1)/7):1;
   const progress=Math.min(physicalProgress,gpuProgress);
   const oldWeight=1-progress;

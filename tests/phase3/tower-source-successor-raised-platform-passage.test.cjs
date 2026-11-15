@@ -115,8 +115,14 @@ test('the real cleared first raised deck completes the old-to-new material hando
   assert.ok(earned.horizontalProgress<1);
   assert.equal(earned.verticalProgress,1);
   assert.equal(earned.physicalProgress,1);
-  assert.equal(earned.progress,1);
-  assert.equal(earned.oldWeight,0);
+  assert.ok(earned.progress>.2 && earned.progress<1,
+    'four actual WebGL returns retain partial shared old/new material after true raised ascent');
+  assert.ok(earned.oldWeight>.5 && earned.oldWeight<1);
+  assert.ok(departure(source,held).opacity>.5,
+    'a fourth fast renderer submission cannot hard-delete the original source gateway');
+  held.submittedFrames=8;held.visibleSeconds=1.22;
+  assert.equal(paletteFn(source,held).progress,1);
+  assert.equal(paletteFn(source,held).oldWeight,0);
   assert.equal(departure(source,held).opacity,0);
   // No successful WebGL return: the actual old arch remains fully intact.
   held.submittedFrames=0;held.visibleSeconds=0;

@@ -36,26 +36,29 @@ test('first F9 GPU-return frames keep the exact old arch, real successor decks a
   assert.ok(first.oldWeight>.9 && first.oldWeight<1,
     'after the first submitted old/new shot, real stepped travel must not freeze the actual landing color');
   assert.ok(first.oldWeight>purelyPhysical.oldWeight);
-  // The source-authentic old/new handoff must be legible on actual GPU
-  // returns 2 and 3. Holding the palette beyond return 4 made the old
-  // world vanish abruptly when the 70-tick source witness expired in 1x
-  // software-WebGL footage, so the former 5/12-return slow-fade assertion
-  // was a regression to the observed hard-cut failure, not a quality gate.
+  // The NEW original 25fps 04aaad27 film directly contradicts the earlier
+  // four-return aesthetic assumption: it shows the real bronze arch then
+  // hard violet replacement, not multiple consecutive grounded source
+  // crossing frames. Preserve material motion on each real GPU return,
+  // without prematurely treating four submissions as visual acceptance.
   held.submittedFrames=2;held.visibleSeconds=.22;
   const bridge=sample(source,held);
   assert.ok(bridge.oldWeight<first.oldWeight && bridge.oldWeight>purelyPhysical.oldWeight,
     'real second return must visibly advance but not skip the old/new palette');
   held.submittedFrames=3;held.visibleSeconds=.32;
   const late=sample(source,held);
-  // By the third *successful* return the lens can have caught up to the
-  // ACTUAL 45m source stride. Requiring more bronze than physical authority
-  // allows forces a visible final-frame snap when the 70-tick witness ends.
+  // Third true WebGL return still has genuinely shared old/new materials;
+  // source motion, not a separate scene clock, remains the upper bound.
   assert.ok(late.oldWeight<bridge.oldWeight && late.oldWeight>=purelyPhysical.oldWeight,
     'third real return advances without overshooting the actual source-owned palette');
   held.submittedFrames=4;held.visibleSeconds=.42;
-  assert.equal(sample(source,held).oldWeight,purelyPhysical.oldWeight,
-    'completed source-authentic optical handoff must not freeze beyond four returns');
-  held.submittedFrames=12;held.visibleSeconds=.9;
+  const fourth=sample(source,held);
+  assert.ok(fourth.oldWeight<late.oldWeight &&
+    fourth.oldWeight>purelyPhysical.oldWeight,
+    'four returned frames must not erase the original gateway before a native visual bridge');
+  held.submittedFrames=8;held.visibleSeconds=1.22;
+  assert.equal(sample(source,held).oldWeight,purelyPhysical.oldWeight);
+  held.submittedFrames=12;held.visibleSeconds=1.5;
   assert.equal(sample(source,held).oldWeight,purelyPhysical.oldWeight);
 });
 
