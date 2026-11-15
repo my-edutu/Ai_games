@@ -45,7 +45,7 @@ test('RED: real heel-dominated licensed Walking_A allows exactly TWO original Id
   {teleport:true},{previousLinkedCertified:true},{side:'none'},
   {before:{...before,right:{...swing,toeXZ:[.20,0]}}},
   {starterTrials:[starters[0]]},
-  {starterTrials:[{...starters[0],after:outcome(.013,.027)},
+  {starterTrials:[{...starters[0],after:outcome(.013,.020)},
     {...starters[0],after:outcome(.002,.005)}]}
  ])assert.equal(plan({...owner,...bad}),null);
 });
@@ -60,7 +60,8 @@ test('RED: authored connected leg source candidate requires toe clearance, less 
  assert.equal(accepted.neutralBlend,.42);
  assert.equal(accepted.originalOppositeShoeVerified,true);
  assert.equal(accepted.contactLocked,false);
- assert.equal(accepted.sourceToeLiftMeters,.042);
+ assert.ok(Math.abs(accepted.sourceToeLiftMeters-.042)<1e-10,
+  'true original toe lift is measured with floating-point tolerance, not rounded to a synthetic exact binary decimal');
  for(const bad of [
   {neutralClipName:'Run'},{sourceNeutralRigVerified:false},
   {reducedMotion:true},{sourceWeight:.91},

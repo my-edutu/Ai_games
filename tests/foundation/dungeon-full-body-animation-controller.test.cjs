@@ -5609,10 +5609,10 @@ test('RED: full-leg original-source linked proof owns both shoes through final r
  const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  const toe=renderer.slice(renderer.indexOf('function stageOriginalSourceSwingToesAfterMixer('),
    renderer.indexOf('const originalSourceSwingToesAxis='));
- assert.match(toe,/if\(actor\.sourceSwingLinkedCurrentFrameProofs\?\.left\|\|\s*actor\.sourceSwingLinkedCurrentFrameProofs\?\.right\)/);
+ assert.match(toe,/if\(actor\.sourceSwingLinkedCurrentFrameProofs\?\.left\|\|\s*actor\.sourceSwingLinkedCurrentFrameProofs\?\.right\|\|\s*actor\.sourceNeutralSwingCurrentFrameProofs\?\.left\|\|\s*actor\.sourceNeutralSwingCurrentFrameProofs\?\.right\)/);
  const slide=renderer.slice(renderer.indexOf('function stageOriginalSourceStanceSlideAfterMixer('),
    renderer.indexOf('function ',renderer.indexOf('function stageOriginalSourceStanceSlideAfterMixer(')+10));
- assert.match(slide,/if\(actor\.sourceSwingLinkedCurrentFrameProofs\?\.left\|\|\s*actor\.sourceSwingLinkedCurrentFrameProofs\?\.right\)return;/);
+ assert.match(slide,/if\(actor\.sourceSwingLinkedCurrentFrameProofs\?\.left\|\|\s*actor\.sourceSwingLinkedCurrentFrameProofs\?\.right\|\|\s*actor\.sourceNeutralSwingCurrentFrameProofs\?\.left\|\|\s*actor\.sourceNeutralSwingCurrentFrameProofs\?\.right\)return;/);
  const browser=fs.readFileSync(path.join(root,
    'tests/browser/dungeon-full-body-animation.spec.cjs'),'utf8');
  const linked=browser.slice(browser.indexOf("await test.info().attach('original-source-linked-hip-knee-dual-shoe'"),
