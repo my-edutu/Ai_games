@@ -212,3 +212,59 @@ test('frame-acknowledged six-view capture is explicitly non-realtime and never i
  assert.equal(v.status,'INVALID_VIEWPOINT_PROVENANCE',
   'a claim of a frame-acknowledged HP tick must match the immutable runtime state');
 });
+
+
+test('live original HP-impact credit requires drawable art on its exact submitted frame, not merely a sound',()=>{
+ const canonical={
+  cueId:'1:1:4:damage:-:enemy-1-0',scene:'1:1',tick:4,kind:'damage',
+  visual:true,audio:true,decision:'delivered',frameId:5,
+  observedClockMs:1000,submittedClockMs:1018,observationToSubmissionMs:18
+ };
+ const d=pair();d.on.samples[4].recentDeliveryReceipts=[{
+  ...canonical,visualDrawableAtSubmission:false
+ }];
+ assert.equal(classifyD04LiveAuthorityPair(d).damageReceipts.on.timely,0,
+  'sound-only HP foley must not earn a visible contact credit');
+ d.on.samples[4].recentDeliveryReceipts=[{
+  ...canonical,visualDrawableAtSubmission:true,frameId:3
+ }];
+ assert.equal(classifyD04LiveAuthorityPair(d).damageReceipts.on.timely,0,
+  'old receipt retained in the ring is not proof of this submitted frame');
+ d.on.samples[4].recentDeliveryReceipts=[{
+  ...canonical,visualDrawableAtSubmission:true
+ }];
+ assert.equal(classifyD04LiveAuthorityPair(d).damageReceipts.on.timely,1,
+  'same-frame drawable witnessed injury is legitimate');
+ d.on.samples[4].recentDeliveryReceipts=[{
+  ...canonical,audio:false,decision:'visual-only-submitted',
+  visualDrawableAtSubmission:true
+ }];
+ assert.equal(classifyD04LiveAuthorityPair(d).damageReceipts.on.timely,1,
+  'muted genuine visual-only injury still has a drawable frame witness');
+});
+
+test('six-view HP coverage distinguishes matched authority states from matching drawable injury frames',()=>{
+ const {classifyD04RealMultiview}=
+  require('../browser/dungeon-d04-live-authority-pair.cjs');
+ const a=sixViewFixture(),frame={
+  cueId:'1:1:4:damage:-:enemy-1-0',scene:'1:1',tick:4,kind:'damage',
+  visual:true,audio:true,decision:'delivered',frameId:5,
+  observedClockMs:1000,submittedClockMs:1018,observationToSubmissionMs:18
+ };
+ let v=classifyD04RealMultiview(a);
+ assert.equal(v.matchedHpLossTicks,1);
+ assert.equal(v.matchedDrawableHpLossTicks,0,
+  'six rendered state checksums without confirmed injury art are not six visible impacts');
+ for(const arm of a.runs)arm.samples[4].recentDeliveryReceipts=[
+  {...frame,visualDrawableAtSubmission:true}];
+ v=classifyD04RealMultiview(a);
+ assert.equal(v.matchedDrawableHpLossTicks,1,
+  'each actual viewpoint needs its own same-frame injury witness');
+ a.runs[5].samples[4].recentDeliveryReceipts=[
+  {...frame,visualDrawableAtSubmission:false}];
+ v=classifyD04RealMultiview(a);
+ assert.equal(v.matchedDrawableHpLossTicks,0,
+  'a single hidden injury must break the six-view drawable contact claim');
+ assert.equal(v.sampleSynchronized,false);
+ assert.equal(v.impactAVAccepted,false);
+});
