@@ -310,6 +310,26 @@ test('an authentic guardian defeat opens BOTH world-space doors and its distinct
       'the source-earned open wing must face obliquely away from the approach, not remain as a broad foreground cage');
     assert.ok(left.position.z < -.9 && right.position.z < -.9,
       'the old grilles must recede behind the threshold and both live actors');
+    // Source-exact portrait danger 43749637159, tick481: the genuine
+    // OPEN left lattice still struck the actual skinned climber's helmet
+    // before the camera ray reached the player. A sideways slide/rotation
+    // alone leaves adult-height steel in the 390px foreground. The original
+    // counterbalanced bronze leaves must be HOISTED into the existing high
+    // winch gallery, fully above the 5.34m connected stone crown, only after
+    // a genuinely earned zero-HP guardian/complete winch release.
+    const inset = named(world.group, 'GuardianGateInset');
+    const leftSteel = named(world.group, 'GuardianSealBronzeLatticeLeft');
+    const rightSteel = named(world.group, 'GuardianSealBronzeLatticeRight');
+    const crownY = inset.localToWorld(new THREE.Vector3(0,5.34,0)).y;
+    for (const [wing,steel] of [[left,leftSteel],[right,rightSteel]]) {
+      wing.updateWorldMatrix(true,true);
+      const bounds = new THREE.Box3().setFromObject(steel);
+      assert.ok(Number.isFinite(bounds.min.y) && bounds.min.y > crownY + .1,
+        'earned source-open steel must really clear the full-height human/helmet passage instead of just projected gateway centre');
+      assert.ok(wing.position.y > 5.5 && wing.position.y < 6.6,
+        'earned lifted wing is mechanically stored below the original ~10.35m overhead winch');
+    }
+
     assert.ok(crest.rotation.z > 1.5, 'the actual lock geometry changes state');
     assert.ok(leftWeight.position.y < -2.3 && rightWeight.position.y < -2.3,
       'an actual finished guardian fully releases the heavy mechanical weights');
