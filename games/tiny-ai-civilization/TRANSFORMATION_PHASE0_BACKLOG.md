@@ -1,3 +1,19 @@
+## W347 · One continuing Phase 1 workstream · source 3677370728360467896327eac28e6317fc1326f9
+
+**Active playable slice unchanged:** authoritative farmer harvest → REAL loaded courier → actual market inventory credit → inhabitant purchase/meal in existing cottage, with Day121 grown town and 390px controls. W347 actual source <https://github.com/my-edutu/Ai_games/commit/3677370728360467896327eac28e6317fc1326f9> fixes workday Supply occlusion as an integrated human/economy visibility dependency (top-docked scrollable real receipts, all five genuine camera stages, 44px targets and focus preserved after detail collapse), and reuses the SAME real physical camera obstruction survey in portrait frames. No scenery geometry/rig/economy invented or removed. Prior W281 FAIL from stale W316 mock corrected to enumerate genuine real well/gardens/banner/lights/boulders/timber. **New running film/CI not yet confirmed.**
+
+| Priority | Observed blocker (not a pass) | Next measurable acceptance |
+| --- | --- | --- |
+| 1 Rendering spine | Prior W69 headless SwiftShader Day1 CPU p95 119.6ms 1024 / 97.0ms 390; real construction changes and driver/GPU still unprofiled | Same-snapshot near-home construction static/driver/GPU timing, <160k active triangles; 30fps p95 <=33.3ms on documented physical desktop AND mobile |
+| 2 Genuine visible citizen work | Previous 390px actual camera is blocked by foliage/timber, face/hands/loaded cargo intermittently lost; W347 reused actual obstruction list but no new film | Uncut 390px farmer → courier unload → market credit, visible physical body/hands across all stages |
+| 3 Original believable architecture | Existing roofscapes, bodies and market still low-poly; W347 panel changed no world art | Contiguous physically credible inhabited farm/granary/market/home with visible joinery/roof masses and original citizens, matched G088 filmed comparisons |
+| 4 Data-true responsive economy | Open Supply previously consumed 46vh obscuring work and hidden detail row took keyboard focus. W347 docks bounded 232px top sheet, scrollable full ledger and genuine receipt stages | Real 390px video verifies legible work, 44px stage targets, keyboard focus, real linked receipt/consumption, all UI commands and saved replay |
+| 5 Quality evidence | Actual previous G088-vs-W345 world checksums differ; W281 source failed stale fixture, hardware/critics unavailable | W347 exact-head browser/CI, Day121 + longer soak, matched world-state A/B and blinded independent LOOK/FEEL/PLAY, no page/GL errors and stable memory |
+
+**A LOOK/FEEL/PLAY NOT PROVEN. B Manor Lords quality FAIL.** Phase 1 active. Keep open DRAFT PR #64 unmerged; source and chronological evidence in GAUNTLET.md and progress.html.
+
+---
+
 ## W346 · Phase 1 exact live-work backlog checkpoint · d0caba3b434a0be1ed2027aa7413082e8d7e2676
 
 **One active playable vertical slice:** genuinely planted farm → true farmer harvest → loaded courier on existing road → market receives authoritative inventory → actual inhabited house buys/consumes, with grown Day121 and 390px. Do not switch to a disconnected demo. Prior true Day121 390px film [here](https://github.com/my-edutu/Ai_games/actions/runs/43675919003/artifacts/14146706933) and strict original G088 comparison [here](https://github.com/my-edutu/Ai_games/actions/runs/43675918995/artifacts/14146274203) show real occlusion and mismatched authoritative checksums, no experience PASS.
