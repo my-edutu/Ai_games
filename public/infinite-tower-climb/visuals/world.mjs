@@ -2896,7 +2896,13 @@ export function createTowerWorld(){
     if (options.stale || snapshot.runToken !== held.runToken ||
         snapshot.floor !== held.floor || snapshot.lifecycle !== 'running' ||
         !Number.isSafeInteger(snapshot.tick) ||
-        snapshot.tick<held.sourceTick || snapshot.tick-held.sourceTick>60 ||
+        // The source palette, original-arch camera and physical raised-deck
+        // passage already share an immutable 70-tick window. A separate
+        // world-only 60-tick teardown removed the REAL original bronze
+        // gateway and gallery while the same source-authenticated passage
+        // was still eligible in the returned F9 camera, producing the
+        // abrupt native bronze-to-violet replacement on a cold renderer.
+        snapshot.tick<held.sourceTick || snapshot.tick-held.sourceTick>70 ||
         !(p?.health>0) ||
         (!nearDoor && !onCameraHandoffFlight && !retainedBackdrop &&
           !sourceDeparture?.sourceBound) ||
@@ -2932,10 +2938,17 @@ export function createTowerWorld(){
     // All three EXISTING source-authored architecture layers use the same
     // physical clearance; no cloned roofs, invented bridge, or actor freeze.
     // Real submitted frames still veto an early optical retirement.
-    const originalPresence=Math.min(.94,Math.max(
-      observedRetainedOriginalBronzeCover(
-        held.submittedFrames,held.visibleSeconds),
-      departing?originalGatePresence*.94:0));
+    // Original roof, gateway and authored load-bearing gallery are ONE
+    // physical exit, not three independently ticking fades. A source-earned
+    // departure retires the actual meshes in lockstep with the original
+    // gate's already-qualified physical step and GPU-return evidence;
+    // otherwise retain the conservative old-first-frame fallback. The
+    // previous 1.25-second gallery fade stayed >80% opaque when the source
+    // corridor expired, then all original architecture vanished at once.
+    const originalPresence=departing?.sourceBound===true
+      ?Math.min(.94,originalGatePresence*.94)
+      :observedRetainedOriginalBronzeCover(
+        held.submittedFrames,held.visibleSeconds);
     if (held.originalDeckSurface)
       held.originalDeckSurface.opacity=originalPresence;
     if(originalGatePresence>.01 || originalPresence>.01)
