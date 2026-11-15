@@ -907,6 +907,22 @@ export function clockworkOpenGeologicalTies(height,width,depth,localY) {
   return stays;
 }
 
+// One ORIGINAL, source-driven pair of bronze leaves. The native portrait HP0
+// film still caught the original grille across the whole climber at tick453:
+// sliding a broad gate by only 2.8m never cleared its own 3.08m steel width.
+// Preserve early damage anticipation (at most 35% open); ONLY a full earned
+// guardian/winch victory drives the source-owned leaves beyond the pedestrian
+// opening and folds their solid bars out of the lens. No collider, AI, snapshot,
+// destination, virtual portal or camera opacity change.
+export function sourceEarnedGuardianSealWingPose(side,progress) {
+  if((side!==-1&&side!==1)||!Number.isFinite(progress))return null;
+  const u=Math.max(0,Math.min(1,progress));
+  const aperture=u<=.72 ? u/.72*.35 : .35+(u-.72)/.28*.65;
+  return {x:side*5.1*aperture,z:-.18-.94*aperture,
+    yaw:-side*1.24*aperture,roll:side*.035*aperture,
+    openFraction:aperture};
+}
+
 // Real 390x844 source guardian film/rays identified non-colliding bronze
 // pylons behind both actors (ticks 305-317) as dominant screen clutter.
 // Move the COMPLETE clockwork load paths, not just their centers, behind
@@ -2819,7 +2835,11 @@ export function createTowerWorld(){
     const gate = sourceEntry.guardianGate;
     gate.progress = 1;
     gate.unlocked = true;
-    for (const {side,wing} of gate.wings) wing.position.x = side * 2.8;
+    for (const {side,wing} of gate.wings) {
+      const pose=sourceEarnedGuardianSealWingPose(side,1);
+      wing.position.set(pose.x,0,pose.z);
+      wing.rotation.set(0,pose.yaw,pose.roll);
+    }
     for (const {carriage} of gate.counterweights) carriage.position.y = -2.35;
     gate.capstan.rotation.z = 0;
     // The ORIGINAL already-rendered GPU gate must also retire gradually with
@@ -3898,7 +3918,11 @@ export function createTowerWorld(){
             Number.isFinite(p.width)&&p.width>0
             ? THREE.MathUtils.clamp((p.width*.36-
               Math.abs(snapshot.player.x-anchorX))/(p.width*.24),0,1):0;
-          if(gate.progress===null || options.reducedMotion)gate.progress=target;
+          if(gate.progress===null || options.reducedMotion ||
+             // If an invalid same-run state claims a living guardian after
+             // a prior defeat, snap back to its CLOSED source-owned seal.
+             // Never keep a stale visual victory across that source reversal.
+             (!unlocked && gate.unlocked))gate.progress=target;
           else if(!options.stale){
             // Calibrated to real displayed dt: a slow render still catches
             // up visibly, whereas a fast renderer opens smoothly. No timer
@@ -3909,7 +3933,11 @@ export function createTowerWorld(){
           if(unlocked&&!options.stale)gate.progress=Math.max(gate.progress,
             arrivalOpen,genuineWinch?target:0);
           gate.unlocked=unlocked&&(!genuineWinch||winchProgress>=1);
-          for(const {side,wing} of gate.wings)wing.position.x=gate.progress===0?0:side*gate.progress*2.8;
+          for(const {side,wing} of gate.wings){
+            const pose=sourceEarnedGuardianSealWingPose(side,gate.progress);
+            wing.position.set(pose.x,0,pose.z);
+            wing.rotation.set(0,pose.yaw,pose.roll);
+          }
           for(const {side,carriage} of gate.counterweights){
             // Slide each mass within its actual vertical steel guide. The old
             // side-dependent rotation revolved it around the distant gate
