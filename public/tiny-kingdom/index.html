@@ -6120,7 +6120,7 @@ function rememberCivicScenery(key,source,stats){
   const delta=reusable&&recycledRoad.entry.linearVertices===true&&
    linearVertices&&!swiftGpu?
    planResidentVertexUpload(recycledRoad.entry.vertices,
-    packed.vertices,previousCapacity):null;
+    packed.vertices,previousCapacity,6):null;
   let uploadedFloats=0;
   if(reusable){
    capacityFloats=previousCapacity;
@@ -6128,18 +6128,19 @@ function rememberCivicScenery(key,source,stats){
     civicRoadDeltaLastWindow={firstTriangle:delta.firstFloat/30,
      dirtyTriangles:delta.dirtyFloats/30,
      exactTriangles:packed.vertices.length/30,
-     originalOrder:true};
+     originalOrder:true,uploadRanges:delta.ranges?.map(r=>({firstTriangle:r.firstFloat/30,triangles:(r.lastFloat-r.firstFloat)/30}))||null};
     civicRoadDeltaAvoidedBytes+=delta.savedFloats*
      Float32Array.BYTES_PER_ELEMENT;
     if(delta.dirtyFloats){
-     gl.bufferSubData(gl.ARRAY_BUFFER,
-      delta.firstFloat*Float32Array.BYTES_PER_ELEMENT,
-      packed.vertices.subarray(delta.firstFloat,delta.lastFloat));
+     for(const r of delta.ranges||[{firstFloat:delta.firstFloat,lastFloat:delta.lastFloat}]){
+      gl.bufferSubData(gl.ARRAY_BUFFER,r.firstFloat*Float32Array.BYTES_PER_ELEMENT,
+       packed.vertices.subarray(r.firstFloat,r.lastFloat));
+     }
      uploadedFloats=delta.dirtyFloats;
      if(delta.dirtyFloats<packed.vertices.length)
       civicRoadDeltaPartialUploads++;
      else civicRoadDeltaFullUploads++;
-     civicRoadBufferSubUploads++;
+     civicRoadBufferSubUploads+=delta.ranges?.length||1;
     }else civicRoadDeltaUnchangedUploads++;
    }else{
     // SwiftShader and any spatially repacked material/mesh always use the
@@ -6326,7 +6327,7 @@ function recallSettlementSeason(key){
 const residentDeltaUploadAudit={candidates:0,fullUploads:0,partialUploads:0,
  unchangedUploads:0,uploadedBytes:0,avoidedBytes:0,lastWindow:null,
  originalMaterialAndVerticesPreserved:true,realHardwareFps:'NOT MEASURED'};
-function planResidentVertexUpload(before,after,capacityFloats){
+function planResidentVertexUpload(before,after,capacityFloats,maxRanges=0){
  if(!(before instanceof Float32Array)||!(after instanceof Float32Array)||
     !before.length||!after.length||before.length%30||after.length%30||
     !Number.isSafeInteger(capacityFloats)||capacityFloats<after.length)return null;
@@ -6343,8 +6344,29 @@ function planResidentVertexUpload(before,after,capacityFloats){
  if(before.length===after.length)
   while(lastFloat>firstFloat&&sameTriangle(lastFloat-30))lastFloat-=30;
  const dirtyFloats=lastFloat-firstFloat;
- return {firstFloat,lastFloat,dirtyFloats,
+ const baseline={firstFloat,lastFloat,dirtyFloats,
   savedFloats:after.length-dirtyFloats,unchanged:dirtyFloats===0};
+ // Conservative original single-window transfer remains the default.
+ // Only true source-order HARDWARE buffers can opt into a few regions.
+ // Shrink/growth, spatial packing and SwiftShader keep their safe path.
+ if(!Number.isInteger(maxRanges)||maxRanges<2||maxRanges>6||
+    before.length!==after.length||dirtyFloats<120||
+    dirtyFloats>240000)return baseline;
+ const ranges=[];let start=-1;
+ for(let at=firstFloat;at<lastFloat;at+=30){
+  if(!sameTriangle(at)){if(start<0)start=at;}
+  else if(start>=0){
+   ranges.push({firstFloat:start,lastFloat:at});start=-1;
+   if(ranges.length>maxRanges)return baseline;
+  }
+ }
+ if(start>=0)ranges.push({firstFloat:start,lastFloat});
+ if(ranges.length<2||ranges.length>maxRanges)return baseline;
+ const changedFloats=ranges.reduce((n,r)=>n+r.lastFloat-r.firstFloat,0);
+ // At least 4KiB transfer saved PER extra WebGL driver call.
+ if(dirtyFloats-changedFloats<(ranges.length-1)*1024)return baseline;
+ return {...baseline,dirtyFloats:changedFloats,
+  savedFloats:after.length-changedFloats,ranges};
 }
 function getResidentDeltaUploadAudit(){return {...residentDeltaUploadAudit,
  source:'original-settlement-triangle-exact-hardware-residency',
@@ -6394,19 +6416,22 @@ function uploadGrowingSettlement(packed,key){
  // scan; retain its full original renderer and draw semantics.
  const dirty=reusedCapacity&&!swiftGpu&&reusable&&
   reusable.linearVertices&&linearVertices?
-  planResidentVertexUpload(reusable.mesh,packed.vertices,capacityFloats):null;
+  planResidentVertexUpload(reusable.mesh,packed.vertices,capacityFloats,6):null;
  const fullBytes=packed.vertices.byteLength;
  if(dirty){
   residentDeltaUploadAudit.candidates++;
   residentDeltaUploadAudit.lastWindow={
    firstTriangle:dirty.firstFloat/30,
    dirtyTriangles:dirty.dirtyFloats/30,
-   fullTriangles:packed.vertices.length/30,originalOrder:true};
+   fullTriangles:packed.vertices.length/30,originalOrder:true,
+   uploadRanges:dirty.ranges?.map(r=>({firstTriangle:r.firstFloat/30,triangles:(r.lastFloat-r.firstFloat)/30}))||null};
   residentDeltaUploadAudit.avoidedBytes+=dirty.savedFloats*
    Float32Array.BYTES_PER_ELEMENT;
   if(dirty.dirtyFloats){
-   gl.bufferSubData(gl.ARRAY_BUFFER,dirty.firstFloat*Float32Array.BYTES_PER_ELEMENT,
-    packed.vertices.subarray(dirty.firstFloat,dirty.lastFloat));
+   for(const r of dirty.ranges||[{firstFloat:dirty.firstFloat,lastFloat:dirty.lastFloat}]){
+    gl.bufferSubData(gl.ARRAY_BUFFER,r.firstFloat*Float32Array.BYTES_PER_ELEMENT,
+     packed.vertices.subarray(r.firstFloat,r.lastFloat));
+   }
    residentDeltaUploadAudit.partialUploads++;
    residentDeltaUploadAudit.uploadedBytes+=dirty.dirtyFloats*
     Float32Array.BYTES_PER_ELEMENT;
@@ -8244,16 +8269,19 @@ function buildHomeClusters(fullHomes,climateKey){
    // bypasses the scanning overhead for faithful diagnostic comparisons.
    const delta=!swiftGpu&&obsolete&&!needsStorage&&
     obsolete.linearVertices===true&&linearVertices?
-    planResidentVertexUpload(obsolete.mesh,packed.vertices,capacityFloats):null;
+    planResidentVertexUpload(obsolete.mesh,packed.vertices,capacityFloats,6):null;
    const fullBytes=packed.vertices.byteLength;
    if(delta){
     homeDeltaAvoidedBytes+=delta.savedFloats*Float32Array.BYTES_PER_ELEMENT;
     homeDeltaLastWindow={cell:group.cell,firstTriangle:delta.firstFloat/30,
      dirtyTriangles:delta.dirtyFloats/30,
-     actualTriangles:packed.vertices.length/30,originalOrder:true};
+     actualTriangles:packed.vertices.length/30,originalOrder:true,
+     uploadRanges:delta.ranges?.map(r=>({firstTriangle:r.firstFloat/30,triangles:(r.lastFloat-r.firstFloat)/30}))||null};
     if(delta.dirtyFloats){
-     gl.bufferSubData(gl.ARRAY_BUFFER,delta.firstFloat*Float32Array.BYTES_PER_ELEMENT,
-      packed.vertices.subarray(delta.firstFloat,delta.lastFloat));
+     for(const r of delta.ranges||[{firstFloat:delta.firstFloat,lastFloat:delta.lastFloat}]){
+      gl.bufferSubData(gl.ARRAY_BUFFER,r.firstFloat*Float32Array.BYTES_PER_ELEMENT,
+       packed.vertices.subarray(r.firstFloat,r.lastFloat));
+     }
      homeClusterDeltaPartialUploads++;
      homeDeltaUploadedBytes+=delta.dirtyFloats*Float32Array.BYTES_PER_ELEMENT;
     }else homeClusterDeltaUnchangedUploads++;

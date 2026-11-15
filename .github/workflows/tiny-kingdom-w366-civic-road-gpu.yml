@@ -5,6 +5,7 @@ on:
     paths:
       - 'public/tiny-kingdom/index.html'
       - 'scripts/tiny-kingdom-w366-civic-road-gpu-harness.cjs'
+      - 'scripts/tiny-kingdom-w367-sparse-resident-vbo-contract.cjs'
       - '.github/workflows/tiny-kingdom-w366-civic-road-gpu.yml'
   pull_request:
     paths:
@@ -21,6 +22,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Execute actual civic GPU growth, replacement and shrink
         run: node scripts/tiny-kingdom-w366-civic-road-gpu-harness.cjs
+      - name: Validate all three source-order retained GPU transfer paths
+        run: node scripts/tiny-kingdom-w367-sparse-resident-vbo-contract.cjs
       - name: Parse original production Tiny Kingdom script
         run: |
           node - <<'NODE'

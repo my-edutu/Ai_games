@@ -1,3 +1,13 @@
+## W367 · 15 NOVEMBER 2026 · SAME WORKSTREAM, PHASE 1: INTEGRATED BOUNDED SPARSE GPU MESH RESIDENCY
+
+Authentic farmer → loaded courier → market receipt → household food and Day-120/mobile remain the single playable vertical slice. G088 pinned source `2f6deb43feb1a1557848d44def53a6109deb1ab1`; playable source blob `ec17e48fb15831304e0d2f680e595161f17c35b3`. PR #64 remains open/draft/unmerged, no other branch integrated.
+
+Test-first original W366 source planner: two separated changed triangles required one 5,130-float upload. W367 production source now admits up to six changed original triangle regions for THREE actual resident GPU pipelines (houses, market-to-home civic streets, growing settlement), only if 4KiB saved per additional GL call. Bounded 240,000-float comparison window, full legacy fallback for changed lengths, spatial packing, SwiftShader and lack of GPU capacity. Full unmodified world triangulation, jobs, inventory, nav, seeded replay and human representation preserved. Local pure production V8 test: exact 200-triangle reconstruction with two 30-float uploads, append/shrink, overflow and minimum submission thresholds verified. Dedicated original source contract added to W366 CI. **Current-head running gameplay, on-device performance and CI verdict NOT YET PROVEN.**
+
+A LOOK NOT PROVEN; FEEL NOT PROVEN; PLAY NOT PROVEN. B commercial quality FAIL. Prior actual W362 390px footage still low-poly, roofing obscures workers. Native sustained 30+ FPS/p95≤33.3ms and independent blinded critics unavailable. Next: paired same-workload traces and genuine moving footage; if beneficial, proceed to cohesive medieval scene+character reconstruction; any rendering regression returns to Phase 1.
+
+---
+
 ## W366 · 15 NOVEMBER 2026 · EXACT CIVIC GPU ROAD RESIDENCY IN REAL TOWN GROWTH · PHASE 1 ACTIVE
 
 **One continued integrated playable goal:** genuine farmer harvest → loaded courier walks/unloads → real market receipt → inhabitant purchases/consumes at an occupied home, through Day-120 and 390px camera. **Experience A (LOOK/FEEL/PLAY vs pinned G088 [2f6deb43](https://github.com/my-edutu/Ai_games/commit/2f6deb43feb1a1557848d44def53a6109deb1ab1)): NOT PROVEN. Commercial B (Manor Lords): FAIL.** The full current-head matched Day-1/uncut workday/Day-120/mobile video, independent critics and native 30fps p95≤33.3ms are NOT PROVEN. Keep draft [PR #64](https://github.com/my-edutu/Ai_games/pull/64) unmerged.
