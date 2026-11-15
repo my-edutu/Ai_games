@@ -1278,21 +1278,31 @@ export function chooseOriginalSourceSwingLinkedToeFinisher({
  }
  const swing=before[side],support=before[opposite];
  const burial=floorTopY-swing.toeY;
+ // A real original 390px linked leg has reached an 11.507mm residual,
+ // which the >=25mm-only finisher wrongly excluded. Keep distinct
+ // shallow and deep original-source clearance budgets and no contact claim.
+ const shallowSourceToeFinish=burial>=.006&&burial<.025;
  if(swing.heelY-floorTopY<.10||swing.heelY-floorTopY>.35||
-  burial<.025||burial>.12||
+  burial<.006||burial>.12||
   ![support.heelY,support.toeY].every(y=>
    y>=floorTopY-.055&&y<=floorTopY+.035))return null;
  let best=null;
  for(const t of trials){
   const angle=t?.angleRad,next=t?.after?.[side],other=t?.after?.[opposite];
-  if(!finite(angle)||Math.abs(angle)<.10||Math.abs(angle)>.160001||
+  // A shallow original residual requires only a restrained 100mrad toe
+  // hinge. Deep residuals retain their old 160mrad original-source cap.
+  if(!finite(angle)||
+   Math.abs(angle)<(shallowSourceToeFinish?.09:.10)||
+   Math.abs(angle)>(shallowSourceToeFinish?.100001:.160001)||
    !valid(next)||!valid(other))continue;
   const lift=next.toeY-swing.toeY;
-  // The genuine earlier isolated 100mrad toe test gained ~6mm while still
-  // deeply submerged: reject an equally ineffective subsequent toe twitch.
-  // A FULL linked hip-knee-toe chain must actually add >=10mm and >=15% of
-  // measured residual burial; this remains a PARTIAL source clearance proof.
-  if(lift<Math.max(.010,burial*.15)||lift>.04||
+  // A shallow toe needs BOTH >=5mm AND >=45% of measured residual recovery
+  // and must finish within 8mm of stone; the deep partial rescue still
+  // needs >=10mm and >=15%. Neither result proves a planted foot.
+  const sufficient=shallowSourceToeFinish?
+   (lift>=.005&&lift>=burial*.45&&next.toeY>=floorTopY-.008):
+   lift>=Math.max(.010,burial*.15);
+  if(!sufficient||lift>.04||
    next.toeY>floorTopY+.008||
    Math.abs(next.heelY-swing.heelY)>.004||
    drift(next.heelXZ,swing.heelXZ)>.008||
@@ -1306,6 +1316,7 @@ export function chooseOriginalSourceSwingLinkedToeFinisher({
    beforeToeY:swing.toeY,afterToeY:next.toeY,
    beforeHeelY:swing.heelY,afterHeelY:next.heelY,
    linkedSourceRetained:true,oppositeFootVerified:true,contactLocked:false,
+   shallowSourceToeFinish,
    source:'actual-original-linked-full-leg-plus-toes-shoe-trial'
   });
  }

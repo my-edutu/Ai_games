@@ -1222,15 +1222,42 @@ for(const view of [
  for(const t of trace)for(const side of ['left','right']){
   const proof=t.nativeLegOwnership?.sourceToeJointCurrentFrameProofs?.[side];
   if(!proof)continue;
-  expect(proof.source).toBe('licensed-original-Walking_A-toes-hinge');
+  const linkedToeFinish=proof.source==='licensed-original-linked-Walking_A-toes-hinge';
+  expect(proof.source).toBe(linkedToeFinish?
+   'licensed-original-linked-Walking_A-toes-hinge':
+   'licensed-original-Walking_A-toes-hinge');
   expect(proof.sourceInstanceId).toBe(t.sourceId);
   expect(proof.sourceBone.toLowerCase()).toBe(side==='left'?'toesl':'toesr');
   expect(proof.sourceTrack.toLowerCase().endsWith(proof.sourceBone.toLowerCase()+'.quaternion')).toBe(true);
   expect(proof.oppositeFootVerified).toBe(true);
   expect(proof.originalSourceContactLocked).toBe(false);
-  expect(t.nativeLegOwnership?.sourceToeJointGateLast?.[side]).toBe('accepted-original-source-toe-lift');
-  expect(Math.abs(proof.angleRad)).toBeLessThanOrEqual(.100001);
-  expect(proof.liftMeters).toBeGreaterThanOrEqual(.004);
+  expect(t.nativeLegOwnership?.sourceToeJointGateLast?.[side]).toBe(
+   linkedToeFinish?'accepted-linked-original-toe-finisher':'accepted-original-source-toe-lift');
+  expect(Math.abs(proof.angleRad)).toBeLessThanOrEqual(
+   linkedToeFinish?.160001:.100001);
+  expect(proof.liftMeters).toBeGreaterThanOrEqual(linkedToeFinish?.005:.004);
+  if(linkedToeFinish){
+   // A real connected-leg/toe joint must update the very same source
+   // full-leg certificate with its FINAL weighted both-shoe result.
+   const certified=t.nativeLegOwnership?.sourceSwingLinkedCurrentFrameProofs?.[side];
+   expect(certified?.linkedOriginalToeFinisher?.sourceToeBone).toBe(proof.sourceBone);
+   expect(certified?.linkedOriginalToeFinisher?.sourceToeTrack).toBe(proof.sourceTrack);
+   expect(proof.linkedSourceRetained).toBe(true);
+   expect(proof.contactLocked).toBe(false);
+   const beforeBurial=-.02-proof.beforeToeY;
+   if(proof.shallowSourceToeFinish){
+    expect(beforeBurial).toBeGreaterThanOrEqual(.005999);
+    expect(beforeBurial).toBeLessThan(.025001);
+    expect(proof.liftMeters).toBeGreaterThanOrEqual(
+     Math.max(.005,beforeBurial*.45)-.000001);
+    expect(Math.max(0,-.02-proof.afterToeY)).toBeLessThanOrEqual(.008001);
+    expect(Math.abs(proof.angleRad)).toBeLessThanOrEqual(.100001);
+   }else{
+    expect(beforeBurial).toBeGreaterThanOrEqual(.024999);
+    expect(proof.liftMeters).toBeGreaterThanOrEqual(
+     Math.max(.010,beforeBurial*.15)-.000001);
+   }
+  }
   expect(proof.liftMeters).toBeLessThanOrEqual(.040001);
   expect(proof.afterToeY).toBeGreaterThan(proof.beforeToeY);
   // A rare connected-leg finishing toe has NOT proved sole contact; reject

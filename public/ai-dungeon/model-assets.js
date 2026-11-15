@@ -3822,9 +3822,16 @@ function stageOriginalSourceSwingLinkedToesAfterMixer(actor,reducedMotion){
    frameInterval:interval,side,floorTopY:-.02,linkedProof,before
   };
   original.copy(toeBone.quaternion);
+  // The authoritative linked source-shoe sample can leave 6-25mm
+  // intrusion. Test a smaller 100mrad original toe on those real poses;
+  // retain the existing signed 160mrad deep residual experiment.
+  const residual=-.02-before?.[side]?.toeY;
+  const shallowSourceToeFinish=Number.isFinite(residual)&&
+   residual>=.006&&residual<.025;
+  const toeProbeRad=shallowSourceToeFinish?.10:.16;
   const trials=[];
   try{
-   for(const angleRad of [-.16,.16]){
+   for(const angleRad of [-toeProbeRad,toeProbeRad]){
     toeBone.quaternion.copy(original).multiply(
      delta.setFromAxisAngle(axis,angleRad));
     toeBone.updateWorldMatrix(true,true);
