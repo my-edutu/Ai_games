@@ -168,6 +168,7 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
   Math.sign(previousUpperRad)===-Math.sign(previousLowerRad);
  let best=null;
  const certifiedChoices=[];
+ const kneeBiasedChoices=[];
  for(const trial of trials){
   const {upperRad,lowerRad,after}=trial??{};
   // 140/105mrad is reserved for a physically observed >=50ms source frame,
@@ -223,6 +224,7 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
    source:'measured-original-skinned-linked-leg'
   };
   if(prior)certifiedChoices.push(candidate);
+  if(freshFast)kneeBiasedChoices.push(candidate);
   if(!best||(freshFast?gentler:lift>best.liftMeters))best=candidate;
  }
  // Prior-frame original-sole evidence allows a larger arc, but not arbitrary
@@ -239,6 +241,34 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
   best=near.reduce((a,c)=>!a||slew(c)<slew(a)-.0000001||
    (Math.abs(slew(c)-slew(a))<=.0000001&&
     c.liftMeters>a.liftMeters)?c:a,null);
+ }
+ // Original CC0 weighted-shoe measurements can show a paradoxical first
+ // fast-frame leg arc: the thigh/knee correction rescues the buried toe,
+ // yet rises the already airborne heel roughly TWICE as far. A strictly
+ // knee-biased *coupled* candidate may be more natural, but earns ownership
+ // ONLY when two real skinned shoes certify >=4mm EXTRA clearance, without
+ // raising the original heel by >2mm beyond the gentler baseline.
+ // The final live renderer readback and exact source-clip joint restoration
+ // still govern acceptance. This never means contact or a locked foot.
+ if(!prior&&frameInterval<.05&&sourceWeight>=.95&&
+  depth>=.06&&best&&Math.abs(best.upperRad)<=.090001&&
+  Math.abs(best.lowerRad)<=.075001&&kneeBiasedChoices.length){
+  const qualified=kneeBiasedChoices.filter(c=>
+   Math.sign(c.upperRad)===Math.sign(best.upperRad)&&
+   Math.abs(c.lowerRad)>=.089999&&
+   Math.abs(c.upperRad)<=.105001&&
+   c.liftMeters>=best.liftMeters+.004&&
+   c.afterHeelY<=best.afterHeelY+.002);
+  if(qualified.length){
+   const mostClear=Math.max(...qualified.map(c=>c.liftMeters));
+   const near=qualified.filter(c=>c.liftMeters>=mostClear-.002);
+   best=near.reduce((a,c)=>!a||
+    Math.abs(c.upperRad)+Math.abs(c.lowerRad)<
+     Math.abs(a.upperRad)+Math.abs(a.lowerRad)-.000001||
+    (Math.abs(Math.abs(c.upperRad)+Math.abs(c.lowerRad)-
+       Math.abs(a.upperRad)-Math.abs(a.lowerRad))<=.000001&&
+      c.liftMeters>a.liftMeters)?c:a,null);
+  }
  }
  return best;
 }
