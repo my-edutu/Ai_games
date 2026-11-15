@@ -1660,3 +1660,49 @@ test('D04 strict spell caster identity rejects silent false orb launches while a
   assert.equal(audition.stats().instancesByPool.spell,1);
  }finally{audition.dispose()}
 });
+
+
+test('strict D04 earned counter follows a uniquely proved Warden victim across a one-cell rendered cache lag',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const victim={id:'warden',kind:'warden',faction:'enemy',x:4,z:4,
+  hp:42,maxHp:90,action:'hurt',actionTick:11};
+ let snapshot={run:1,floor:1,tick:11,units:[victim]};
+ // Live body/root has already interpolated to the actual casualty tile, while
+ // actor.u still stores the previous one-cell coordinate and pre-injury HP.
+ const drawn={u:{...victim,x:3,z:4,hp:70},
+  root:{visible:true,position:{x:-5,y:0,z:-5},rotation:{y:0}}};
+ const counter=cue({id:'1:1:11:counter:-:warden',kind:'counter',
+  visual:'counter',audio:'counter',proof:'authority-counter-and-HP',
+  verified:true,actorId:null,targetId:'warden',from:null,to:{x:4,z:4},
+  severity:28/90,priority:7,
+  detail:{damage:28,maxHp:90,remainingHp:42,recoveryUntilTick:11}});
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  requireVerifiedHpReceipt:true,getCurrentSnapshot:()=>snapshot,
+  actorById:id=>id==='warden'?drawn:null
+ });
+ function check(expected,message){
+  stage.reset();
+  assert.equal(stage.emit(counter),expected,message);
+  assert.equal(stage.stats().instancesByPool.signal,expected?1:0);
+ }
+ try{
+  check(true,'earned Warden counter follows the current rendered root despite one-cell cache lag');
+  drawn.u={...drawn.u,hp:42};
+  check(true,'an exact current HP cache with one-step position lag remains the same victim');
+  drawn.u={...drawn.u,maxHp:91};
+  check(false,'different health capacity must never acquire counter success glyph');
+  drawn.u={...victim,x:2,z:4};
+  check(false,'two-cell cached coordinates cannot impersonate the current victim');
+  drawn.u={...victim,x:3,z:4,hp:70};
+  drawn.root.position.x=-5.8;
+  check(false,'distant drawn root cannot borrow the public Warden tile');
+  drawn.root.position.x=-5;
+  snapshot={...snapshot,units:[victim,{...victim}]};
+  check(false,'duplicate public victims invalidate claimed counter ownership');
+  snapshot={...snapshot,units:[victim],tick:12};
+  check(false,'stale authority ticks never replay a confirmed counter');
+  assert.equal(stage.stats().reservedInstances,102);
+  assert.ok(stage.stats().activeDrawCalls<=7);
+ }finally{stage.dispose()}
+});
