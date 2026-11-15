@@ -1,0 +1,31 @@
+# Infinite Tower PR #68 — P0 actual post-gateway structural continuity, 15 November 2026
+
+**Stage: P0 EVIDENCE + GAME-LOOP TRUTH OPEN. Leading transformation verdict: NOT EVALUATED.** Draft PR #68 / branch `feat/tower-transformation-gauntlet-20261101`; active PR58 base unchanged. Frozen immutable baseline: `1731b380851162741761c5569e2bc152a0869ca9`.
+
+## Exact-source 1x native failure — not a synthetic screenshot
+
+Inspected original unedited 25fps candidate desktop 960×600 and portrait 390×844 WebM from [nine-job campaign 43753683237](https://github.com/my-edutu/Ai_games/actions/runs/43753683237), exact source `bb2790eeb5325b8325abe505523c8361ff9317c3`, matched low tier and seed `tower-transformation-capture-v1`. The source event histories are authenticated (8/8 paired, zero missing guardian/grounded-floor stories), but native event-to-pixel A/B still fails in both viewports. Desktop original bronze framework masks the full climber from roughly 25–26.5 seconds, and the scene replaces the bronze load path with sparse, purple suspended decks near 27 seconds. Portrait original lattice hides the climber over the analogous crossing. Native palette sampling places the hard warm-to-violet switch around 26.75s desktop and 26.25s portrait with a 0-second measured warm-to-cool bridge; the event clock only establishes search handles, not action-verified pixels.
+
+The actual ray witness independently reports original `GuardianSealBronzeLatticeLeft` BEFORE the genuine skinned body/helmet in portrait at source ticks **449 and 462** (guardian HP0 tick441). The actual physical source crossing is tick475, raised F9 contact follows, and source floor10 is around tick619. The latest film returns only one captured old-gate+hero projected-safe F9 WebGL frame in each view. That is NOT proof that its pixels reached the original recording. Ascent desktop separate capture had a `PARTIALLY_CALIBRATED` native-timebase discontinuity despite good WebM transport, so whole-film A/B cannot be asserted.
+
+**New-code visual verdict remains NOT EVALUATED. Last fully inspected native doorway acceptance FAILS 0/2.**
+
+## One integrated P0 source/world intervention
+
+Production commit [ef801edf](https://github.com/my-edutu/Ai_games/commit/ef801edf51138267735ccde1ee2ffab404cf535f) reworks the already-source-qualified original Floor8-to-Floor9 3D bearing gallery, NOT an invented second bridge:
+1. Three existing authentic old-gateway → first-F9-step load stations now carry connected two-storey rear supports, high cantilever crowns and inner-wall ties. Actual source floor9 ground/step geometry governs their positions. The 3 existing source-owned GPU instancing batches now contain 27 rather than 19 authored structural parts; no new draw-call class, extra shadow caster, billboard, collider or platform. Every >=10m upright stays at radius21.6, behind the walkable r~25 actor, and camera-facing ties stay overhead. Physical camera ray geometry and bounded budget remain under the existing Tower tests.
+2. The SAME source-earned gallery colour no longer changes instantly to Void purple when the old cap is retired between two successful WebGL returns. A run-token-scoped, cleared-on-rebuild material state remembers ONLY previously genuine source-qualified appearance. After source optical proof ceases it completes a bounded eight-*returned-frame* nonauthoritative material retirement. Dropped RAFs, source polling and arbitrary wall time cannot spend the visual clock, and a different run or scene cannot inherit it. Gameplay state, camera authority, combat, guardian/crusher HP, collisions, Floor9/F10 and restart are untouched.
+
+This is a candidate reconstruction, **not** evidence-verified visual success. It does not by itself prove that the existing bronze grille obstructing portrait at source ticks449/462 is now cleared, nor that the old entire architecture disappears without a visible pop.
+
+## Technical outcomes and next evidence requirements
+
+The first exact-production [technical CI 43760240105](https://github.com/my-edutu/Ai_games/actions/runs/43760240105) exposed an outdated **Tower** gallery regression assertion requiring immediate violet recolour, in conflict with the updated returned-frame material owner. All other gallery source/ray and new multi-level physical assertions passed. The assertion was corrected without removing the source guard in [634319aa](https://github.com/my-edutu/Ai_games/commit/634319aa2b10494a0468e8a284c33cc801d2f2f9); final exact-head CI must be inspected, NOT claimed passing. A separate Phase6 catalogue timeout in unrelated Maze existed on the previous campaign; this branch does not modify Maze or bypass safety.
+
+A new exact-`github.sha` 9-job baseline/candidate campaign is requested by this review/evidence ledger. Require original unedited 60+s desktop+portrait videos for four scenarios, native PTS calibration and source tick 441/475/~535/619 + result/restart matching. Inspect original full-motion around 23–35s and later outcome at 1×. The old physically opened bronze gate, full-body real skinned climber and actual walkable F9 route must share >=2 consecutive painted 25fps frames in BOTH viewports, with no bronze-to-purple hard architectural cut. Check native video timebase and geometric ray ownership separately. CI completion is veto, not LOOKS/FEELS/PLAYS success.
+
+Five truly independent randomized fresh-context critics per category: **LOOKS 0/5, FEELS 0/5, PLAYS 0/5**. Actual-device p50/p95/p99, GPU/memory, portrait input and accessibility: **NOT EVALUATED**. No fake reviewer or device results.
+
+**Largest unresolved source/video defect:** pre-open source-gate lattice masks the actual hero near HP0, then original room architecture disappears between drawn frames. **Next highest-impact P0 action:** inspect the new exact-candidate native films against source ray owners and GPU-received frames. If still failing, correct the original gate's HP0-to-complete-winch pose timing and holistic old/new structural depth/camera first paint (not another isolated alpha or colour change), while preserving authoritative mechanics. Stay P0 until true pass.
+
+**Safety:** no merge, deploy, force-push, PR58 rewrite, frozen baseline movement, PR status change, Tiny Kingdom/Maze/AI-vs-1000 Floors modification.
