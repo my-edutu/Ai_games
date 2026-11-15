@@ -494,7 +494,9 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
  }
  function emit(cue){
   if(disposed||!enabled||ctx?.state!=='running')return false;
-  const profile=RECIPES[cue?.audio];
+  // Only explicitly owned catalogue entries may allocate original foley.
+  // Prototype names are neither real sound recipes nor device failures.
+  const profile=Object.hasOwn(RECIPES,cue?.audio)?RECIPES[cue.audio]:null;
   if(!profile||!bus)return false;
   // Preview production must not launder a failed cue contract into material
   // foley. In particular an AIR attempt cannot become a synthetic sword,
