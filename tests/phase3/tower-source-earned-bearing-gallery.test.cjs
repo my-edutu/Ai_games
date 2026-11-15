@@ -60,3 +60,61 @@ test('the persistent original F9 load path shares the source-earned ascent depar
   assert.match(world,/proof\?\.sourceBound===true\?proof\.progress:1/);
   assert.match(world,/sourceEarnedBearingPalette=null;/);
 });
+
+test('native-source 475 F9 shoulder ray has clear sight through source-earned load-bearing gallery',async()=>{
+  // This is the real candidate WebGL camera/shoulder ray at source tick 475,
+  // recorded in campaign 43745587650 on immutable source e2c45779.
+  // Old rigid-material-batch SourceEarnedForgedBearing authoringInstance 2
+  // struck the left shoulder at depth 14.163 before actor depth 16.839.
+  // Verify physical load geometry itself no longer blocks that view.
+  const {plannedSourceEarnedSuspendedBearingSections}=await load();
+  const THREE=require('three');
+  const route=f(source,held);
+  assert.ok(route);
+  const sections=plannedSourceEarnedSuspendedBearingSections(route.nodes);
+  assert.equal(sections.length,3);
+  const geometry=new THREE.BoxGeometry(1,1,1);
+  const material=new THREE.MeshBasicMaterial({color:0x716151});
+  const meshes=[];
+  try {
+    for(const section of sections)for(const item of section){
+      const mesh=new THREE.Mesh(geometry,material);
+      mesh.position.set(...item.p);
+      mesh.rotation.set(...item.r);
+      mesh.scale.set(...item.s);
+      mesh.updateMatrixWorld(true);
+      meshes.push(mesh);
+    }
+    const camera=new THREE.Vector3(12.24,3.62,40.14);
+    const shoulder=new THREE.Vector3(9.273,-.872,23.312);
+    const ray=new THREE.Raycaster(camera,new THREE.Vector3().subVectors(shoulder,camera).normalize(),0,camera.distanceTo(shoulder)-.25);
+    const hits=ray.intersectObjects(meshes,false);
+    assert.deepEqual(hits.map(hit=>hit.distance),[],
+      'only rear-wall and high supported crowns may border the real body/door corridor; no opaque outboard uprights');
+    // The original false positive was at radius 28.25 and eye-level.
+    // This source-geometry invariant protects portrait as well as desktop:
+    // structural legs must be INSIDE the 22.4-m core, not in the 25-m actor
+    // rim or any camera-facing 28-m post plane.
+    for(const section of sections)for(const part of section){
+      const radius=Math.hypot(part.p[0],part.p[2]);
+      if(part.s[1]>=2.5)assert.ok(radius<22.4,
+        'load-bearing full-height posts must be behind inner core');
+      if(radius>24)assert.ok(part.p[1]-part.s[1]/2>1.8,
+        'exterior/overhead ties must leave at least 3.4m headroom above the old roof');
+    }
+  } finally {
+    geometry.dispose();material.dispose();
+  }
+});
+test('source-earned overhead load frame is bounded and cannot be fabricated from a missing scene station',async()=>{
+  const {plannedSourceEarnedSuspendedBearingSections}=await load();
+  assert.equal(plannedSourceEarnedSuspendedBearingSections(null),null);
+  assert.equal(plannedSourceEarnedSuspendedBearingSections([{angle:NaN,sceneY:0,height:6}]),null);
+  assert.equal(plannedSourceEarnedSuspendedBearingSections([{angle:0,sceneY:0,height:-1}]),null);
+  const route=f(source,held);
+  const sections=plannedSourceEarnedSuspendedBearingSections(route.nodes);
+  assert.ok(sections.every(part=>part.length>=5 && part.length<=10));
+  assert.ok(sections.flat().every(part=>part.p.length===3&&part.s.length===3&&
+    part.p.every(Number.isFinite)&&part.s.every(n=>Number.isFinite(n)&&n>0)));
+  assert.ok(sections.flat().length<=30,'three-station original 3D route remains bounded to three instanced draws');
+});
