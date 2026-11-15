@@ -113,7 +113,14 @@ export function planOriginalSourceSwingLinkedLegFollowups({
   best.lift>=.012&&best.heelRise>=.024&&
   best.heelRise>=best.lift*1.7;
  if(heelDominatedFirstSwing)
-  return [[.09,-.09],[.105,-.09]].map(a=>a.map(v=>v*best.sign));
+  // Actual source 390px HEAD 10560307: the original -90/+75mrad
+  // linked trial raised the toe 13.67mm but lifted its already-airborne
+  // heel 26.38mm. Both older followups added hip swing and raised the
+  // heel EVEN FURTHER (+28.60/+30.90mm). Before increasing the thigh
+  // lever again, spend the SAME two remaining reversible skinned-shoe
+  // reads on smaller original hip / larger original knee combinations.
+  // The selector must still independently earn clearance with both shoes.
+  return [[.075,-.09],[.085,-.09]].map(a=>a.map(v=>v*best.sign));
  // Exact native 390px source Walking_A shows 28.324mm toe lift but
  // 28.753mm MORE already-airborne heel rise after a first slow-frame
  // connected source hip/knee. Repeating the same hip-heavy arc amplifies
@@ -183,6 +190,7 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
  let best=null;
  const certifiedChoices=[];
  const kneeBiasedChoices=[];
+ const firstSwingPitchChoices=[];
  const slowStarterChoices=[];
  const slowHeelReliefChoices=[];
  for(const trial of trials){
@@ -240,7 +248,10 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
    source:'measured-original-skinned-linked-leg'
   };
   if(prior)certifiedChoices.push(candidate);
-  if(freshFast)kneeBiasedChoices.push(candidate);
+  if(freshFast){
+   kneeBiasedChoices.push(candidate);
+   firstSwingPitchChoices.push(candidate);
+  }
   if(!prior&&slowArc){
    if(Math.abs(Math.abs(upperRad)-.12)<.000001&&
     Math.abs(Math.abs(lowerRad)-.09)<.000001)
@@ -293,6 +304,44 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
        Math.abs(a.upperRad)-Math.abs(a.lowerRad))<=.000001&&
       c.liftMeters>a.liftMeters)?c:a,null);
   }
+ }
+ // Source-backed 390px first fast SWING: the real weighted source shoe
+ // is nearly vertical before animation (heel +206.72mm, toe -80.34mm).
+ // The previous measured original connected trial raised the toe 13.67mm
+ // but lifted the heel 26.38mm, increasing an already extreme shoe pitch.
+ // Only after the paired first-frame source tests have earned an opposite
+ // sign and the two remaining probes have been spent on *smaller hip /
+ // larger knee* source arcs may this pitch-sensitive arbitration apply.
+ // It is a TWO-WEIGHTED-SHOE gate, NOT a contact/plant/IK certificate.
+ // Preserve all older paths when no authentic bounded followup was tried.
+ const outsoleProjected=shift(swing.heelXZ,swing.toeXZ);
+ const outsoleLength=Math.hypot(outsoleProjected,swing.heelY-swing.toeY);
+ const pitchFirstFast=!prior&&frameInterval>=.016&&frameInterval<.05&&
+  sourceWeight>=.95&&depth>=.055&&depth<=.10&&
+  swing.heelY-floorTopY>=.18&&outsoleProjected>=.045&&
+  outsoleProjected<=.15&&outsoleLength>=.285&&outsoleLength<=.325&&
+  trials.length===4&&
+  trials.some(t=>Math.abs(Math.abs(t?.upperRad??0)-.075)<.00001&&
+   Math.abs(Math.abs(t?.lowerRad??0)-.09)<.00001)&&
+  trials.some(t=>Math.abs(Math.abs(t?.upperRad??0)-.085)<.00001&&
+   Math.abs(Math.abs(t?.lowerRad??0)-.09)<.00001);
+ if(pitchFirstFast){
+  const safe=firstSwingPitchChoices.filter(c=>{
+   const heelRise=c.afterHeelY-swing.heelY;
+   const remaining=floorTopY-c.afterToeY;
+   // Do not worsen vertical source shoe pitch unless the measured toe is
+   // itself nearly clear of stone. The independently verified 12mm/15%
+   // burial clearance and opposite shoe gates were applied above.
+   return c.liftMeters-heelRise>=-.002||remaining<=.02;
+  });
+  if(!safe.length)return null;
+  const scored=c=>c.liftMeters-(c.afterHeelY-swing.heelY);
+  const selected=safe.reduce((a,c)=>!a||scored(c)>scored(a)+.001||
+   (Math.abs(scored(c)-scored(a))<=.001&&
+    Math.abs(c.upperRad)+Math.abs(c.lowerRad)<
+      Math.abs(a.upperRad)+Math.abs(a.lowerRad))?c:a,null);
+  best=Object.freeze({...selected,originalSwingPitchProtected:true,
+   originalSwingPitchGainMeters:scored(selected)});
  }
  // Only in a genuinely steep, deep, first fully owned slow source stride
  // can a knee-biased ORIGINAL leg replace the normally maximal toe-lift
