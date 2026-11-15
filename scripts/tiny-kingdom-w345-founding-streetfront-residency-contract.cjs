@@ -8,9 +8,10 @@ const a=game.indexOf('let foundingStreetfrontCoreBuilds=');
 const b=game.indexOf('// W83: ONE physical granary-to-market',a);
 assert(a>0&&b>a,'original frontages and occupied-home road must be separated');
 const core=game.slice(a,b);
-assert(game.includes('highStreetStats.totalTriangles=renderFoundingStreetfronts();'),
+assert(game.includes('highStreetStats.totalTriangles=renderFoundingHighStreetLanes()+renderFoundingStreetfronts();'),
  'founding home frontages must enter retained ORIGINAL market/farm core');
-assert(game.includes('inhabitedHighStreet(false);farmMarketStreet();'),
+assert(game.includes('inhabitedHighStreet(false);farmMarketStreet();')&&
+ game.includes('if(includeFounding)renderFoundingHighStreetLanes();'),
  'changed real road may not rebuild unchanged original buildings');
 assert(game.includes('foundingStreetfronts:{...highStreetStats}'),
  'live original core must retain high-street counters');
@@ -38,7 +39,7 @@ function exercise(split){
  const run=x=>vm.runInContext(x,c,{timeout:2000});
  if(split){
   run('resetHighStreetBuildStats()');
-  run('highStreetStats.totalTriangles=renderFoundingStreetfronts()');
+  run('highStreetStats.totalTriangles=renderFoundingHighStreetLanes()+renderFoundingStreetfronts()');
   run('inhabitedHighStreet(false)');
  }else run('inhabitedHighStreet()');
  const audit=run('getFoundingStreetfrontCoreAudit()');
@@ -52,6 +53,9 @@ assert.deepEqual(resident.triangles,stand.triangles,
  'same genuine complete original source triangles, no duplicates');
 assert.equal(resident.size,stand.size);
 assert.equal(resident.calls.shop,2);
+assert.equal(resident.audit.fixedOriginalLanes,2);
+assert.equal(resident.audit.fixedLaneBuilds,1);
+assert.equal(resident.audit.fixedLaneTriangles,2);
 assert.equal(resident.calls.yard,7,'only seven real founding lots have yards outside the central street');
 assert.equal(resident.calls.lane,2);
 assert.equal(resident.calls.road,1);

@@ -2677,8 +2677,11 @@ function realForegroundFacing(p){
 // meshes are unchanged; the authoritative gait still drives the joint matrix.
 // Close hero, earned food, carrying wrists, active jobs and unloading never
 // enter this path. Hysteresis avoids visible CPU/GPU flip on manual orbit.
-const FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT=.39;
-const FOREGROUND_WALKING_SKIN_HOLD_SCREEN_HEIGHT=.45;
+// Only truly small ORIGINAL citizens use retained GPU gait. At closer
+// human scale keep original CPU fingers, cloth and foot contacts visible;
+// paid for by retained static streets, never by hiding any other citizen.
+const FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT=.14;
+const FOREGROUND_WALKING_SKIN_HOLD_SCREEN_HEIGHT=.16;
 function physicallySmallWalkingSkinWindow(heightFraction,previouslySkinned){
  return Number.isFinite(heightFraction)&&heightFraction>=0&&
   heightFraction<(previouslySkinned?
@@ -13924,6 +13927,7 @@ function marketToRealHomeStreet(){
 // complete source triangles; only road-dependent geometry remains dirty.
 let foundingStreetfrontCoreBuilds=0,foundingStreetfrontCoreReuses=0,
  foundingStreetfrontCoreTriangles=0;
+let foundingHighStreetLaneBuilds=0,foundingHighStreetLaneTriangles=0;
 function resetHighStreetBuildStats(){
  highStreetStats={connectedLanes:0,pavingStones:0,laneStoneWeathered:0,shopfronts:0,
   houseYards:0,washLines:0,stackedGoods:0,stallYards:0,
@@ -13931,6 +13935,16 @@ function resetHighStreetBuildStats(){
   kitchenGardenPlants:0,kitchenGardenTriangles:0,
   surfacePattern:'original-worn-clay-wheelway-and-stone-margins',
   totalTriangles:0,cached:false};
+}
+// W346: these four genuine fixed medieval streets are independent of later
+// household/freight path revisions. Retain them with the founders' original
+// 3D civic core; the ONE live market-to-resident road remains dirty.
+function renderFoundingHighStreetLanes(){
+ const first=data.length;
+ for(const lane of HIGHSTREET_LANES)highStreetLane(lane);
+ foundingHighStreetLaneBuilds++;
+ foundingHighStreetLaneTriangles=(data.length-first)/30;
+ return foundingHighStreetLaneTriangles;
 }
 function renderFoundingStreetfronts(){
  const first=data.length;
@@ -13949,6 +13963,9 @@ function getFoundingStreetfrontCoreAudit(){
  return {source:'real-original-static-craft-and-home-yards-joined-to-immutable-market-core',
   builds:foundingStreetfrontCoreBuilds,reuses:foundingStreetfrontCoreReuses,
   triangles:foundingStreetfrontCoreTriangles,
+  fixedLaneBuilds:foundingHighStreetLaneBuilds,
+  fixedLaneTriangles:foundingHighStreetLaneTriangles,
+  fixedOriginalLanes:HIGHSTREET_LANES.length,
   founderLots:Math.min(12,city.length),originalCraftShops:2,
   gpuResident:Boolean(civicGpuResidencyEnabled&&civicCoreBuffer),
   allOriginalGeometryPreserved:true,changesAuthority:false,
@@ -13957,7 +13974,10 @@ function getFoundingStreetfrontCoreAudit(){
 function inhabitedHighStreet(includeFounding=true){
  if(includeFounding)resetHighStreetBuildStats();
  const first=data.length;
- for(const lane of HIGHSTREET_LANES)highStreetLane(lane);
+ // Standalone/Canvas fallback retains every historical lane; resident
+ // GPU core already contains the SAME lanes, so only truthful live routing
+ // enters the dirty district after genuine new construction.
+ if(includeFounding)renderFoundingHighStreetLanes();
  marketToRealHomeStreet();
  // Standalone original rendering remains complete. In the active WebGL and
  // CPU-fallback district path the same fronts already belong to the core.
@@ -27518,7 +27538,7 @@ if(residentCivic&&storedCoreReady&&
   fenceLine(16,4,6);fenceLine(16,-2,4,true);fenceLine(25,-2,4,true);
   riverBridge();hillsideSanctuary();forgeWorkshop();
   market(0,5);marketQuarter();
-  highStreetStats.totalTriangles=renderFoundingStreetfronts();
+  highStreetStats.totalTriangles=renderFoundingHighStreetLanes()+renderFoundingStreetfronts();
   const residentOriginalCore=rememberCivicCore(unchangedCoreKey,coreStart);
   // CPU mesh only leaves the road-upload after a REAL complete GPU
   // allocation. On SwiftShader/Canvas2D, keep every original triangle.

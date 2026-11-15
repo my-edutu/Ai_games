@@ -4,7 +4,7 @@ const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
 const code=html.split('<script>').at(-1).split('</script>')[0];
 new vm.Script(code,{filename:'w102-real-world.js'});
 for(const signal of ['function getPhysicalGreeting(p)','function getSocialEncounterAudit()',
- 'function getCitizenRigCacheAudit()','citizenRigCache.set(p,pose)',
+ 'function getCitizenRigCacheAudit()','citizenRigCache.set(p,{identity,pose,cameraEpoch:presentationEpoch})',
  'const social=getPhysicalGreeting(p);','getSocialEncounterAudit:()=>cloneData(getSocialEncounterAudit())']){
  assert.ok(code.includes(signal),'Missing actual-world citizen contract: '+signal);
 }

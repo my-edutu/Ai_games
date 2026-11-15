@@ -24,10 +24,15 @@ assert.match(source,/const skinned=workingSkinCapable&&\(isWorkingAtSite\(p\)\|\
 assert.match(source,/physicallySkinnedCommuters:/);
 assert.match(source,/workSkinDetailedMatrices\(entry,p\)/);
 assert.match(source,/gl\.uniformMatrix4fv\(uniforms\.workBone,false,workSkinDetailedMatrices\(entry,p\)\)/);
+const windowMatch=source.match(/const FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT=(\.\d+);\s*const FOREGROUND_WALKING_SKIN_HOLD_SCREEN_HEIGHT=(\.\d+);/);
+assert(windowMatch,'real screen-space GPU/CPU full-detail window missing');
+const nearEnter=Number(windowMatch[1]),nearHold=Number(windowMatch[2]);
+assert(nearEnter>=.08&&nearEnter<.16&&nearHold>nearEnter&&nearHold<=.16,
+ 'human-scale work and near adults must retain CPU full-detail contacts');
 const state={t:12},workdayEvents=[];
 const deps={workingSkinCapable:true,gpuAvailable:true,follow:false,
- foregroundResidentCache:new Map(),FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT:.39,
- FOREGROUND_WALKING_SKIN_HOLD_SCREEN_HEIGHT:.45,
+ foregroundResidentCache:new Map(),FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT:nearEnter,
+ FOREGROUND_WALKING_SKIN_HOLD_SCREEN_HEIGHT:nearHold,
  liveWorkday:false,selectedCitizen:0,FOREGROUND_ROOT_METERS:.045,
  FOREGROUND_ROOT_RADIANS:.035,projectRealCitizenDetail:()=>({visible:true,heightFraction:.08}),
  isMarketUnloading:()=>false,isWorkingAtSite:()=>false,
