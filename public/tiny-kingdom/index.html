@@ -5977,6 +5977,11 @@ let civicGpuResidencyFailures=0;
 // W319 Phase 1: bounded original street GPU handle reuse as genuine houses grow.
 let civicRoadBufferRecycles=0,civicRoadBufferSubUploads=0,
  civicRoadBufferReallocations=0,civicRoadBytesUploaded=0;
+// W366 retained authentic road VBOs: exact triangle-aligned uploads on
+// genuine town growth. This is driver-transfer evidence, NOT measured FPS.
+let civicRoadDeltaPartialUploads=0,civicRoadDeltaUnchangedUploads=0,
+ civicRoadDeltaFullUploads=0,civicRoadDeltaAvoidedBytes=0,
+ civicRoadDeltaLastWindow=null;
 function activeCivicMesh(){return civicGpuResidencyEnabled?(civicSceneryCache.get(civicActiveKey)?.vertices||[]):[]}
 function clearCivicSceneryCache(){
  clearCivicCoreCache();
@@ -5986,10 +5991,14 @@ function clearCivicSceneryCache(){
  civicSceneryCache.clear();civicBuffer=null;civicChunkRanges=[];civicActiveKey='';
 }
 function civicCacheStats(){
- let cachedFloats=0;
- for(const entry of civicSceneryCache.values())cachedFloats+=entry.vertices.length;
+ let cachedFloats=0,cachedGpuFloats=0;
+ for(const entry of civicSceneryCache.values()){
+  cachedFloats+=entry.vertices.length;
+  cachedGpuFloats+=entry.capacityFloats||entry.vertices.length;
+ }
  return {activeKey:civicActiveKey,entries:civicSceneryCache.size,
-  cachedEntries:[...civicSceneryCache.keys()],cachedFloats,
+  cachedEntries:[...civicSceneryCache.keys()],cachedFloats,cachedGpuFloats,
+  cachedGpuBytes:cachedGpuFloats*Float32Array.BYTES_PER_ELEMENT,
   floatBudget:CIVIC_CACHE_FLOAT_BUDGET,maxEntries:CIVIC_CACHE_MAX_ENTRIES,
   builds:civicCacheBuilds,reuses:civicCacheReuses,evictions:civicCacheEvictions,
   activeTriangles:(civicSceneryCache.get(civicActiveKey)?.vertices.length||0)/30,
@@ -5999,6 +6008,13 @@ function civicCacheStats(){
   roadBufferSubUploads:civicRoadBufferSubUploads,
   roadBufferReallocations:civicRoadBufferReallocations,
   roadBytesUploaded:civicRoadBytesUploaded,
+  roadDelta:{partialUploads:civicRoadDeltaPartialUploads,
+   unchangedUploads:civicRoadDeltaUnchangedUploads,
+   fullUploads:civicRoadDeltaFullUploads,
+   avoidedBytes:civicRoadDeltaAvoidedBytes,
+   lastWindow:civicRoadDeltaLastWindow,
+   originalTriangleOrderOnly:true,softwareRendererExcluded:true,
+   physicalGpuFps:'NOT MEASURED'},
   gpuTriangles:activeCivicMesh().length/30};
 }
 let cachedStaticAppendCalls=0,cachedStaticAppendFloats=0;
@@ -6093,18 +6109,63 @@ function rememberCivicScenery(key,source,stats){
   bindGeometry(buffer);
   const previousCapacity=recycledRoad?
    (recycledRoad.entry.capacityFloats||recycledRoad.entry.vertices.length):0;
-  if(recycledRoad&&packed.vertices.length<=previousCapacity){
-   // Sub-update exactly the original vertices; a shorter route cannot leave
-   // ghost road triangles because draw ranges now use its exact new length.
-   gl.bufferSubData(gl.ARRAY_BUFFER,0,packed.vertices);
+  // Every retained civic road buffer must contain the ORIGINAL 10-float
+  // positions/normals/colour/material triangles, in exactly the same order.
+  // A fallback spatially reorders triangles: never compare its old CPU
+  // source against reordered GPU memory, or patch unrelated road cells.
+  const linearVertices=packed.vertices===retained;
+  const reusable=Boolean(recycledRoad&&
+   packed.vertices.length<=previousCapacity);
+  const delta=reusable&&recycledRoad.entry.linearVertices===true&&
+   linearVertices&&!swiftGpu?
+   planResidentVertexUpload(recycledRoad.entry.vertices,
+    packed.vertices,previousCapacity):null;
+  let uploadedFloats=0;
+  if(reusable){
    capacityFloats=previousCapacity;
-   civicRoadBufferSubUploads++;
+   if(delta){
+    civicRoadDeltaLastWindow={firstTriangle:delta.firstFloat/30,
+     dirtyTriangles:delta.dirtyFloats/30,
+     exactTriangles:packed.vertices.length/30,
+     originalOrder:true};
+    civicRoadDeltaAvoidedBytes+=delta.savedFloats*
+     Float32Array.BYTES_PER_ELEMENT;
+    if(delta.dirtyFloats){
+     gl.bufferSubData(gl.ARRAY_BUFFER,
+      delta.firstFloat*Float32Array.BYTES_PER_ELEMENT,
+      packed.vertices.subarray(delta.firstFloat,delta.lastFloat));
+     uploadedFloats=delta.dirtyFloats;
+     if(delta.dirtyFloats<packed.vertices.length)
+      civicRoadDeltaPartialUploads++;
+     else civicRoadDeltaFullUploads++;
+     civicRoadBufferSubUploads++;
+    }else civicRoadDeltaUnchangedUploads++;
+   }else{
+    // SwiftShader and any spatially repacked material/mesh always use the
+    // original FULL safe upload. No hardware speedup is assumed.
+    gl.bufferSubData(gl.ARRAY_BUFFER,0,packed.vertices);
+    uploadedFloats=packed.vertices.length;
+    civicRoadDeltaFullUploads++;civicRoadBufferSubUploads++;
+    civicRoadDeltaLastWindow=null;
+   }
   }else{
-   gl.bufferData(gl.ARRAY_BUFFER,packed.vertices,gl.STATIC_DRAW);
+   // One 30-float-triangle aligned bounded growth allowance avoids
+   // reallocating the real market-to-home street buffer per new household.
+   // The unused tail is NEVER drawn; the exact current draw ranges apply.
+   capacityFloats=Math.min(CIVIC_CACHE_FLOAT_BUDGET,
+    Math.max(packed.vertices.length,
+     Math.ceil(packed.vertices.length*1.25/30)*30));
+   gl.bufferData(gl.ARRAY_BUFFER,
+    capacityFloats*Float32Array.BYTES_PER_ELEMENT,gl.DYNAMIC_DRAW);
+   gl.bufferSubData(gl.ARRAY_BUFFER,0,packed.vertices);
+   uploadedFloats=packed.vertices.length;
+   civicRoadDeltaFullUploads++;
+   civicRoadDeltaLastWindow=null;
    if(recycledRoad)civicRoadBufferReallocations++;
   }
-  civicRoadBytesUploaded+=packed.vertices.byteLength;
-  civicGpuUploads++;ranges=packed.ranges;
+  civicRoadBytesUploaded+=uploadedFloats*Float32Array.BYTES_PER_ELEMENT;
+  if(uploadedFloats)civicGpuUploads++;
+  ranges=packed.ranges;
   if(recycledRoad){
    // Transfer ownership only after uploading the replacement source.
    // Eviction/reset must delete this shared handle precisely once.
@@ -6116,12 +6177,14 @@ function rememberCivicScenery(key,source,stats){
  if(previous?.buffer&&previous.buffer!==buffer){releaseGeometryBuffer(previous.buffer);civicGpuDisposals++}
  civicSceneryCache.delete(key);
  civicSceneryCache.set(key,{vertices:retained,stats,buffer,ranges,capacityFloats,
+  linearVertices:civicGpuResidencyEnabled?
+   (packed.vertices===retained):false,
   // Road-only scenery may never be recalled without its full original core.
   coreGpuKey:civicGpuResidencyEnabled&&civicCoreBuffer?
    activeCivicCoreKey:null});
  civicBuffer=buffer;civicChunkRanges=ranges;
  while(civicSceneryCache.size>CIVIC_CACHE_MAX_ENTRIES||
-  civicCacheStats().cachedFloats>CIVIC_CACHE_FLOAT_BUDGET){
+  civicCacheStats().cachedGpuFloats>CIVIC_CACHE_FLOAT_BUDGET){
   const oldest=civicSceneryCache.keys().next().value;
   const item=civicSceneryCache.get(oldest);
   civicSceneryCache.delete(oldest);
