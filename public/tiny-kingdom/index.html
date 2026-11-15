@@ -14188,6 +14188,66 @@ function renderRealOccupiedThresholdCourts(approaches,audit){
   }
  });
 }
+// W357 Phase 1 living district: retain the ACTUAL connected road network as
+// one terrain-fitted graded, weathered physical corridor. It sits BELOW the
+// existing carriage surface and genuine stone household arrivals, continuing
+// the real street edge rather than adding detached display-only polygons.
+// Each new shallow gravel shoulder is construction-dirty, sampled on walkable
+// ground, non-blocking to villagers, and batched in the same retained civic VBO.
+// Strict sub-budget keeps late Day-120 city geometry bounded.
+const REAL_HOME_ROADSIDE_MAX_TRIANGLES=840;
+function renderAuthenticInhabitedRoadShoulders(sections,audit){
+ if(!Array.isArray(sections)||sections.length>REAL_HOME_LANE_BUDGET/6)
+  throw Error('W357 actual roadside mesh source unbounded');
+ const first=data.length;
+ const palette=[rgb(0x6f6855),rgb(0x817663),rgb(0x706e5b),rgb(0x92816b)];
+ const limit=Math.min(REAL_HOME_ROADSIDE_MAX_TRIANGLES,
+  Math.max(0,REAL_HOME_LANE_BUDGET-audit.triangles));
+ let rejected=0,checked=0,covered=0,metres=0,wide=0;
+ materialScope(MATERIAL.ROAD,()=>{
+  for(let i=0;i<sections.length;i++){
+   if((data.length-first)/30+2>limit)break;
+   const {a,b,halfWidth,homeIndex}=sections[i];
+   const dx=b[0]-a[0],dz=b[1]-a[1],length=Math.hypot(dx,dz);
+   if(length<.02||length>1.25||!Number.isFinite(halfWidth))continue;
+   const nx=-dz/length,nz=dx/length;
+   for(const side of [-1,1]){
+    if((data.length-first)/30+2>limit)break;
+    // Near edge is underneath the original 3D road. Far edge grades into
+    // surrounding real ground without hiding or narrowing the footway.
+    const inner=side*(halfWidth+.045);
+    const outer=side*(halfWidth+.32);
+    const point=(v,offset,raise)=>{
+     const x=v[0]+nx*offset,z=v[1]+nz*offset;
+     return [x,terrain(x,z)+raise,z];
+    };
+    const p0=point(a,inner,.069),p1=point(b,inner,.069);
+    const p2=point(b,outer,.026),p3=point(a,outer,.026);
+    // Do not paint floating roadside banks across existing homes, canals,
+    // planted fields or unrelated roads: the current REAL walkable geometry
+    // alone authorizes the small authentic earth shoulder.
+    const mid=[(a[0]+b[0])/2+nx*outer,(a[1]+b[1])/2+nz*outer];
+    checked++;
+    if(![p0,p1,p2,p3].every(p=>walkable(p[0],p[2]))||
+       !walkable(mid[0],mid[1])){rejected++;continue;}
+    upwardRoadQuad(p0,p1,p2,p3,palette[(i+homeIndex+(side+1)/2)%palette.length]);
+    covered++;metres+=length;
+    if(halfWidth>.7)wide++;
+   }
+  }
+ });
+ const triangles=(data.length-first)/30;
+ if(!Number.isInteger(triangles)||triangles!==covered*2||triangles>limit)
+  throw Error('W357 real roadside triangle integrity failed');
+ audit.shoulderChecks=checked;
+ audit.shoulderRejected=rejected;
+ audit.shoulderSections=covered;
+ audit.shoulderWideSections=wide;
+ audit.shoulderMetres=Math.round(metres*100)/100;
+ audit.shoulderTriangles=triangles;
+ audit.triangles+=triangles;
+ return triangles;
+}
 function renderRealInhabitedLaneNetwork(){
  realHomeLaneSections=[];
  const first=data.length,origin=MARKET_HOME_STREET_ORIGIN,
@@ -14204,6 +14264,8 @@ function renderRealInhabitedLaneNetwork(){
   duplicateSections:0,limited:false,
   frontages:0,frontageQuads:0,frontageTriangles:0,
   cartScaleSections:0,narrowSections:0,clearanceChecks:0,
+  shoulderChecks:0,shoulderRejected:0,shoulderSections:0,
+  shoulderWideSections:0,shoulderMetres:0,shoulderTriangles:0,
   noFictionalStops:true,
   changesAuthority:false,changesNavigation:false,extraGpuBuffers:0};
  const candidates=[...households.values()].filter(h=>h.index!==marketHomeStreetStats.homeIndex)
@@ -14275,6 +14337,7 @@ function renderRealInhabitedLaneNetwork(){
  // Terrain-fitted flagstones terminate that real street at each reached
  // home's walkable threshold; there is no invented door, occupant or path.
  renderRealOccupiedThresholdCourts(arrivals,audit);
+ renderAuthenticInhabitedRoadShoulders(realHomeLaneSections,audit);
  if((data.length-first)/30!==audit.triangles||
     audit.triangles>REAL_HOME_LANE_BUDGET)
   throw Error('W351 authentic connected inhabited street budget exceeded');
