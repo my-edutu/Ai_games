@@ -347,6 +347,69 @@ test('an authentic guardian defeat opens BOTH world-space doors and its distinct
   } finally { world.dispose(); }
 });
 
+// The ORIGINAL 25fps portrait/desktop films show the final bronze grille still
+// across the hero at the end of the source 28-tick counterweight winch, then
+// disappearing at Floor9 in one optical cut. The collision gate MUST remain
+// locked until openAtTick, but the visible original bronze lifting machinery
+// must execute its real zero-HP winch stroke before that exact source deadline.
+test('real zero-HP 28-tick winch visibly hoists original bronze BEFORE collider unlock', async () => {
+  const {createTowerWorld}=await loaded;
+  const THREE=await import(threeUrl);
+  const world=createTowerWorld();
+  try {
+    const base=frame({active:false});
+    const stamp={floor:8,guardianId:'f8:guardian',defeatTick:441,openAtTick:469};
+    const at=(tick,patch={})=>({
+      ...base,tick,guardianGateActuation:{...stamp,...patch}
+    });
+    const first=at(441),before=JSON.stringify(first);
+    world.update(first,.016,0,{quality:'low'});
+    const left=named(world.group,'GuardianSealWingLeft');
+    const right=named(world.group,'GuardianSealWingRight');
+    const leftSteel=named(world.group,'GuardianSealBronzeLatticeLeft');
+    assert.ok(left&&right&&leftSteel);
+    assert.equal(world.diagnostics().guardianGates[0].unlocked,false);
+    assert.ok(Math.abs(left.position.y)<.001,
+      'genuine HP0 does not telegraph a completed winch at its first tick');
+    assert.equal(JSON.stringify(first),before,'render cannot mutate the source');
+
+    world.update(at(455),.016,.016,{quality:'low'});
+    assert.equal(world.diagnostics().guardianGates[0].unlocked,false,
+      'half of the source winch may NEVER release the authoritative door');
+    assert.ok(left.position.y>2.0 && left.position.y<4.0,
+      'both original 3D grille leaves must actually rise halfway through the 28-tick zero-HP winch');
+    assert.ok(Math.abs(left.position.y-right.position.y)<1e-10,
+      'one counterweight pair drives both physically linked leaves');
+    left.updateWorldMatrix(true,true);
+    const mid=new THREE.Box3().setFromObject(leftSteel);
+    assert.ok(mid.min.y<left.getWorldPosition(new THREE.Vector3()).y+4.5,
+      'mid stroke retains real, visibly still-locked steel rather than claiming early victory');
+
+    world.update(at(468),.016,.032,{quality:'low'});
+    assert.equal(world.diagnostics().guardianGates[0].unlocked,false,
+      'the actual wall remains source-closed until openAtTick');
+    assert.ok(left.position.y>5.3,
+      'the final pre-unlock tick has almost cleared helmet-height foreground steel');
+    world.update(at(469),.016,.048,{quality:'low'});
+    assert.equal(world.diagnostics().guardianGates[0].unlocked,true);
+    assert.ok(left.position.y>5.5,
+      'on the AUTHENTIC source unlock the grilles finish in their overhead pocket');
+
+    // A dead-but-stale guardian, unrelated winch or restarted living guardian
+    // must never borrow an old run's visual opening.
+    const invalid=at(456,{guardianId:'f8:unrelated'});
+    world.update(invalid,.016,.064,{quality:'low'});
+    assert.equal(world.diagnostics().guardianGates[0].unlocked,true,
+      'legacy defeated guardian with invalid winch stays source-defeated');
+    assert.ok(left.position.y>5.5,
+      'a genuinely defeated guardian without a valid winch retains the legacy fully open pose');
+    const revived=frame({active:true,runToken:'new-guardian-run'});
+    world.update(revived,.016,.080,{quality:'low'});
+    assert.equal(world.diagnostics().guardianGates[0].unlocked,false);
+    assert.equal(named(world.group,'GuardianSealWingLeft').position.y,0);
+  } finally {world.dispose();}
+});
+
 test('no invented guardian means no gate; high/low switches and a new run restore from real state', async () => {
   const { createTowerWorld } = await loaded;
   const world = createTowerWorld();
