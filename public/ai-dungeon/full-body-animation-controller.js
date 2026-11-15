@@ -1141,7 +1141,7 @@ export function chooseOriginalSourceSwingToeJointRelief({
   !['left','right'].includes(side)||
   ![sourceWeight,rootTravel,frameAge,frameInterval,floorTopY].every(finite)||
   rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.18||
-  frameInterval<=0||frameInterval>.15||
+  frameInterval<=0||frameInterval>.22||
   (frameInterval>.1&&sourceWeight<.95)||
   Math.abs(floorTopY+.02)>.005||
   !before||!Array.isArray(trials)||trials.length<1||trials.length>2)
@@ -1172,9 +1172,15 @@ export function chooseOriginalSourceSwingToeJointRelief({
  // shoes. The strict 100mrad hinge and final same-frame skin readback remain.
  const sparseFullShallow=shallow&&sourceWeight>=.95&&
   frameInterval>.1&&frameInterval<=.15;
- if((frameInterval>.1&&!sparseFullShallow)||
-  (shallow?(sourceWeight<.82||(frameInterval>.05&&!sparseFullShallow)):
-   sourceWeight<.90))return null;
+ // A genuinely OBSERVED 199.9ms original source frame may have an already
+ // certified SAME-FRAME ankle+thigh swing. Extend the shallow toe-finishing
+ // opportunity ONLY to that fully owned, skinned two-shoe source chain;
+ // never infer a fresh step, plant, IK target or early-blend animation.
+ const sparseConnectedShallow=shallow&&connectedOriginalLegVerified===true&&
+  sourceWeight>=.95&&frameInterval>.15&&frameInterval<=.22;
+ if((frameInterval>.1&&!sparseFullShallow&&!sparseConnectedShallow)||
+  (shallow?(sourceWeight<.82||(frameInterval>.05&&
+   !sparseFullShallow&&!sparseConnectedShallow)):sourceWeight<.90))return null;
  const xz=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
  let best=null;
  for(const trial of trials){
@@ -1195,7 +1201,7 @@ export function chooseOriginalSourceSwingToeJointRelief({
   // toes bone to finish shallow swing immersion with >=5mm and >=45%
   // measured clearance while leaving <=8mm below stone. NOT foot planting.
   const connectedLegPartialFinish=shallow&&connectedOriginalLegVerified===true&&
-   sourceWeight>=.95&&frameInterval<=.05&&
+   sourceWeight>=.95&&(frameInterval<=.05||sparseConnectedShallow)&&
    finalBurial>=.003&&finalBurial<=.008&&lift>=.005&&
    lift/beforeBurial>=.45;
   if((finalBurial>.025&&lift<beforeBurial*.15)||

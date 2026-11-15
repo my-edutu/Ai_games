@@ -2101,10 +2101,23 @@ function stageOriginalSourceSwingToesAfterMixer(actor,reducedMotion){
  const sourceWeight=actor.activeClip?.getEffectiveWeight?.()??NaN;
  const travel=actor.rigRecentGroundedTravel,age=actor.rigRecentGroundedAge;
  const frameInterval=actor.rigSourceSwingFrameInterval;
+ // A 199.9ms source-rig frame can still be a legally witnessed CONTINUED
+ // moving action. Only an original same-instance, same-frame ankle+thigh
+ // certificate may authorize probing this otherwise normally excluded gap.
+ const sameSourceConnectedFoot=side=>{
+  const proof=actor.sourceSwingToeCurrentFrameProofs?.[side];
+  return proof?.combinedSourceThighVerified===true&&
+   proof.sourceInstanceId===actor.assetRoot?.uuid&&
+   proof.sourceClip==='Walking_A'&&proof.contactLocked===false;
+ };
+ const connectedSparseSourceFrame=Number.isFinite(frameInterval)&&
+  frameInterval>.15&&frameInterval<=.22&&sourceWeight>=.95&&
+  (sameSourceConnectedFoot('left')||sameSourceConnectedFoot('right'));
  if(!Number.isFinite(sourceWeight)||sourceWeight<.82||sourceWeight>1.001||
   !Number.isFinite(travel)||travel<.008||travel>.24||
   !Number.isFinite(age)||age<0||age>.18||
-  !Number.isFinite(frameInterval)||frameInterval<=0||frameInterval>.15||
+  !Number.isFinite(frameInterval)||frameInterval<=0||frameInterval>.22||
+  (frameInterval>.15&&!connectedSparseSourceFrame)||
   (frameInterval>.1&&sourceWeight<.95)||!actor.assetRoot?.uuid){
   markBoth('invalid-original-source-frame-or-motion-witness');
   return;
@@ -2129,7 +2142,6 @@ function stageOriginalSourceSwingToesAfterMixer(actor,reducedMotion){
   markBoth('original-linked-leg-owns-swing');
   return;
  }
- const axis=originalSourceSwingToesAxis;
  const read=()=>Object.fromEntries(['left','right'].map(s=>{
   const heel=sourceSkinnedSoleWorld(patches[s].heel);
   const toe=sourceSkinnedSoleWorld(patches[s].toe);
@@ -2139,6 +2151,12 @@ function stageOriginalSourceSwingToesAfterMixer(actor,reducedMotion){
  for(const side of ['left','right']){
   if(actor.sourceSwingLinkedCurrentFrameProofs?.[side]){
    markGate(side,'original-linked-leg-owns-swing');
+   continue;
+  }
+  // A proven LEFT foot cannot make an unproven RIGHT shoe eligible on the
+  // same sparse frame. The proof must belong to THIS source leg and clone.
+  if(frameInterval>.15&&!sameSourceConnectedFoot(side)){
+   markGate(side,'unwitnessed-connected-original-foot-on-sparse-frame');
    continue;
   }
   const mount=actor.rigGaitBones?.find(m=>m.side===side&&m.part==='foot');
@@ -2162,6 +2180,24 @@ function stageOriginalSourceSwingToesAfterMixer(actor,reducedMotion){
    markGate(side,'missing-unique-toe-quaternion-track');
    continue;
   }
+  // Extract the actual signed hinge axis from the licensed original
+  // Walking_A quaternion track; X-axis guesses can invert a toe under load.
+  // Fail closed if the source toes never show an independently dominant
+  // rotation rather than deforming an arbitrary original bone.
+  if(!Object.hasOwn(mount,'sourceToeOriginalHingeAudit'))
+   mount.sourceToeOriginalHingeAudit=inferImportedSourceKneeBendAxis(clip,toeBone.name);
+  const sourceToeOriginalHingeAudit=mount.sourceToeOriginalHingeAudit;
+  if(sourceToeOriginalHingeAudit?.source!==
+    'verified-original-Walking_A-knee-quaternion-axis'||
+   sourceToeOriginalHingeAudit.trackName?.toLowerCase()!==matching[0].name.toLowerCase()||
+   !Array.isArray(sourceToeOriginalHingeAudit.axis)||
+   sourceToeOriginalHingeAudit.axis.length!==3||
+   sourceToeOriginalHingeAudit.axis.some(x=>!Number.isFinite(x))){
+   markGate(side,'no-verified-original-source-toes-hinge-axis');
+   continue;
+  }
+  const axis=mount.originalSourceToesAxis??(
+   mount.originalSourceToesAxis=new THREE.Vector3(...sourceToeOriginalHingeAudit.axis));
   actor.assetRoot.updateMatrixWorld(true);
   const before=read();
   const swing=before?.[side],loaded=before?.[side==='left'?'right':'left'];
@@ -2201,10 +2237,7 @@ function stageOriginalSourceSwingToesAfterMixer(actor,reducedMotion){
    alive:actor.u.hp>0,visible:actor.root.visible,teleport:false,
    reducedMotion,interrupted:false,rootTravel:travel,frameAge:age,
    frameInterval,side,floorTopY:-.02,before,
-   connectedOriginalLegVerified:Boolean(
-    actor.sourceSwingToeCurrentFrameProofs?.[side]?.combinedSourceThighVerified===true&&
-    actor.sourceSwingToeCurrentFrameProofs[side].sourceInstanceId===actor.assetRoot.uuid&&
-    actor.sourceSwingToeCurrentFrameProofs[side].sourceClip==='Walking_A')};
+   connectedOriginalLegVerified:sameSourceConnectedFoot(side)};
   const selected=chooseOriginalSourceSwingToeJointRelief({...owner,trials});
   if(!selected){
    markGate(side,'source-toe-hinge-trial-not-admissible');
