@@ -6211,11 +6211,43 @@ function recallSettlementSeason(key){
  settlementSeasonHits++;
  return true;
 }
+// W363 Phase 1: authentic settlement growth reuses an EXACT original GPU
+// triangle prefix/suffix when a previous resident buffer has ample capacity.
+// Spatial repacking and software rendering retain full uploads. This changes
+// ONLY WebGL transfer work; no citizen, house, job or material is concealed.
+const residentDeltaUploadAudit={candidates:0,fullUploads:0,partialUploads:0,
+ unchangedUploads:0,uploadedBytes:0,avoidedBytes:0,lastWindow:null,
+ originalMaterialAndVerticesPreserved:true,realHardwareFps:'NOT MEASURED'};
+function planResidentVertexUpload(before,after,capacityFloats){
+ if(!(before instanceof Float32Array)||!(after instanceof Float32Array)||
+    !before.length||!after.length||before.length%30||after.length%30||
+    !Number.isSafeInteger(capacityFloats)||capacityFloats<after.length)return null;
+ const common=Math.min(before.length,after.length);
+ const sameTriangle=at=>{
+  for(let j=0;j<30;j++)if(!Object.is(before[at+j],after[at+j]))return false;
+  return true;
+ };
+ let firstFloat=0;
+ while(firstFloat<common&&sameTriangle(firstFloat))firstFloat+=30;
+ let lastFloat=after.length;
+ // New/removed lots can reuse the original exact prefix; equal-length
+ // variations additionally preserve unchanged suffix triangles.
+ if(before.length===after.length)
+  while(lastFloat>firstFloat&&sameTriangle(lastFloat-30))lastFloat-=30;
+ const dirtyFloats=lastFloat-firstFloat;
+ return {firstFloat,lastFloat,dirtyFloats,
+  savedFloats:after.length-dirtyFloats,unchanged:dirtyFloats===0};
+}
+function getResidentDeltaUploadAudit(){return {...residentDeltaUploadAudit,
+ source:'original-settlement-triangle-exact-hardware-residency',
+ softwareRendererExcluded:true,authorityChanged:false,
+ sourceVertexStride:10,sourceTriangleStride:30};}
 function uploadGrowingSettlement(packed,key){
  // A new topology invalidates EVERY previous topology's season cache;
  // none can be recalled unless the user restores a saved world, which
  // explicitly clears residency already. Avoid up to five dead town VBOs.
  const generation=settlementTopology(key);
+ const linearVertices=packed.vertices===scenicMeshCache;
  let reusable=null;
  for(const [priorKey,prior] of settlementSeasonCache){
   if(settlementTopology(priorKey)===generation)continue;
@@ -6228,7 +6260,8 @@ function uploadGrowingSettlement(packed,key){
     settlementSeasonBufferDisposals++;
     settlementSeasonStaleDisposals++;
    }
-   reusable={buffer:prior.buffer,capacity};
+   reusable={buffer:prior.buffer,capacity,mesh:prior.mesh,
+    linearVertices:prior.linearVertices===true};
   }else{
    releaseGeometryBuffer(prior.buffer);
    settlementSeasonBufferDisposals++;
@@ -6248,11 +6281,39 @@ function uploadGrowingSettlement(packed,key){
    Math.ceil(packed.vertices.length*1.25/300)*300);
   gl.bufferData(gl.ARRAY_BUFFER,capacityFloats*Float32Array.BYTES_PER_ELEMENT,gl.DYNAMIC_DRAW);
  }else settlementSeasonBufferReuses++;
- gl.bufferSubData(gl.ARRAY_BUFFER,0,packed.vertices);
- staticGpuUploads++;
- return {buffer,capacityFloats};
+ // Only true hardware GPU residency with unchanged source vertex ordering
+ // qualifies. SwiftShader's prior matched regression forbids this extra JS
+ // scan; retain its full original renderer and draw semantics.
+ const dirty=reusedCapacity&&!swiftGpu&&reusable&&
+  reusable.linearVertices&&linearVertices?
+  planResidentVertexUpload(reusable.mesh,packed.vertices,capacityFloats):null;
+ const fullBytes=packed.vertices.byteLength;
+ if(dirty){
+  residentDeltaUploadAudit.candidates++;
+  residentDeltaUploadAudit.lastWindow={
+   firstTriangle:dirty.firstFloat/30,
+   dirtyTriangles:dirty.dirtyFloats/30,
+   fullTriangles:packed.vertices.length/30,originalOrder:true};
+  residentDeltaUploadAudit.avoidedBytes+=dirty.savedFloats*
+   Float32Array.BYTES_PER_ELEMENT;
+  if(dirty.dirtyFloats){
+   gl.bufferSubData(gl.ARRAY_BUFFER,dirty.firstFloat*Float32Array.BYTES_PER_ELEMENT,
+    packed.vertices.subarray(dirty.firstFloat,dirty.lastFloat));
+   residentDeltaUploadAudit.partialUploads++;
+   residentDeltaUploadAudit.uploadedBytes+=dirty.dirtyFloats*
+    Float32Array.BYTES_PER_ELEMENT;
+   staticGpuUploads++;
+  }else residentDeltaUploadAudit.unchangedUploads++;
+ }else{
+  gl.bufferSubData(gl.ARRAY_BUFFER,0,packed.vertices);
+  residentDeltaUploadAudit.fullUploads++;
+  residentDeltaUploadAudit.uploadedBytes+=fullBytes;
+  residentDeltaUploadAudit.lastWindow=null;
+  staticGpuUploads++;
+ }
+ return {buffer,capacityFloats,linearVertices};
 }
-function retainSettlementSeason(key,mesh,ranges,buffer,capacityFloats=mesh.length){
+function retainSettlementSeason(key,mesh,ranges,buffer,capacityFloats=mesh.length,linearVertices=false){
  if(!gpuAvailable)return;
  if(mesh.length>SETTLEMENT_SEASON_FLOAT_BUDGET)
   throw Error('G140 settlement residency exceeds the bounded scene budget');
@@ -6261,7 +6322,7 @@ function retainSettlementSeason(key,mesh,ranges,buffer,capacityFloats=mesh.lengt
   settlementSeasonCache.delete(key);settlementSeasonFloats-=prior.mesh.length;
   if(prior.buffer!==buffer){releaseGeometryBuffer(prior.buffer);settlementSeasonBufferDisposals++;}
  }
- const entry={mesh,ranges,buffer,capacityFloats,
+ const entry={mesh,ranges,buffer,capacityFloats,linearVertices,
   homeKeys:homeClusterActive.map(entry=>entry.key),homeCount:city.length,
   lod:{...villageVisualLod,
    compactRoofPaletteCounts:villageVisualLod.compactRoofPaletteCounts.slice()},
@@ -28845,7 +28906,7 @@ updateResidentCivicDistrict(nextTerrainKey,daylightStage);
  if(gpuAvailable){const packed=packLinearResidentScenery(scenicMeshCache,'settlement')||packSpatialScenery(scenicMeshCache);settlementChunkRanges=packed.ranges;
  const uploaded=uploadGrowingSettlement(packed,staticKey);
  settlementBuffer=uploaded.buffer;
- retainSettlementSeason(staticKey,scenicMeshCache,settlementChunkRanges,settlementBuffer,uploaded.capacityFloats);}
+ retainSettlementSeason(staticKey,scenicMeshCache,settlementChunkRanges,settlementBuffer,uploaded.capacityFloats,uploaded.linearVertices);}
 coldSceneBuilds++;coldSceneBuiltThisFrame=true;
 coldSceneLast={sceneKey:staticKey,day:Math.floor(state.t/24)+1,
  groundAtlasMs,groundAtlasRebuilt,
@@ -29444,7 +29505,7 @@ getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:
  totalSavedDrawCalls:scenicVisibilityStats.totalSavedDrawCalls,
  batchMode:scenicVisibilityStats.batchMode,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getColdSceneryBuildAudit,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getCivicCoreResidencyAudit,getCivicRoadDirtyAudit,getSettlementResidentStats,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getInhabitedFootwayAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCompactStoneCoursingAudit,getCompactRainCaskAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getColdSceneryBuildAudit,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getCivicCoreResidencyAudit,getCivicRoadDirtyAudit,getSettlementResidentStats,getResidentDeltaUploadAudit,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getInhabitedFootwayAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCompactStoneCoursingAudit,getCompactRainCaskAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,
   getEconomyCpuCacheAudit,setEconomyCpuCacheForTesting,
  getLedgerWitnessResidencyAudit,setLedgerWitnessResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
  getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,
