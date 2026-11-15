@@ -6084,3 +6084,64 @@ test('RED: shallow native linked-leg toe may finish only with measured 45% recov
  assert.match(browser,/const linkedToeFinish=proof\.source==='licensed-original-linked-Walking_A-toes-hinge'/,
   'genuine Chromium must understand linked finisher receipts separately from ordinary original toe overlays');
 });
+
+
+// RED: genuine b23fa32e 390px original player_swordsman.glb nine-tick
+// snapshot 6. Its SAME SOURCE ankle + thigh skinned proof raised the swing
+// toe 15.032mm but left 10.668mm beneath the actual -20mm stone plane.
+// The *real* visible source interval was 199.9ms, not a fabricated 16ms tick.
+// This hypothetical next toes joint lift is only a selector regression;
+// a real WebGL two-shoe probe must decide whether the licensed rig can do it.
+test('RED: same-frame ankle-thigh original-source shallow toe may finish at observed 199.9ms only after genuine dual-shoe proof',async()=>{
+ const {chooseOriginalSourceSwingToeJointRelief:choose}=await load();
+ const swing={heelY:.1638045061,toeY:-.0306684952,
+  heelXZ:[-3.7605003141,-6.9580328959],
+  toeXZ:[-3.9552497326,-6.9370707785]};
+ const loaded={heelY:-.0307170867,toeY:-.0294054337,
+  heelXZ:[-3.6525866992,-7.1177691281],
+  toeXZ:[-3.9219607794,-7.1407087580]};
+ const before={left:swing,right:loaded};
+ const valid={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  ownerLocomotion:true,sourceToeChainVerified:true,
+  sourceToeTrackVerified:true,sourceInstanceSame:true,alive:true,
+  visible:true,teleport:false,reducedMotion:false,interrupted:false,
+  rootTravel:.0735542311,frameAge:0,frameInterval:.1999,
+  side:'left',floorTopY:-.02,before,connectedOriginalLegVerified:true};
+ const trial=(lift=.0061,heelDelta=0,otherToeDelta=0)=>({
+  angleRad:.10,after:{
+   left:{...swing,toeY:swing.toeY+lift,
+    heelY:swing.heelY+heelDelta,
+    heelXZ:[swing.heelXZ[0]+.0005,swing.heelXZ[1]],
+    toeXZ:[swing.toeXZ[0]+.001,swing.toeXZ[1]]},
+   right:{...loaded,toeY:loaded.toeY+otherToeDelta}}});
+ const accepted=choose({...valid,trials:[trial()]});
+ assert.ok(accepted,
+  '199.9ms legal original ankle+thigh source frame must be ELIGIBLE for honest 100mrad two-shoe sampling');
+ assert.equal(accepted.connectedLegPartialFinish,true);
+ assert.equal(accepted.contactLocked,false);
+ assert.ok(accepted.afterToeY>=-.028&&accepted.afterToeY<-.02,
+  'still submerged original toe is never reported as a planted or clear foot');
+ for(const bad of [
+  {connectedOriginalLegVerified:false},
+  {frameInterval:.2201},{sourceWeight:.949},
+  {rootTravel:0},{frameAge:.181},
+  {sourceClipName:'Idle'},{sourceInstanceSame:false},
+  {sourceToeTrackVerified:false},{sourceToeChainVerified:false},
+  {teleport:true},{reducedMotion:true},{interrupted:true},
+  {trials:[trial(.0049)]}, {trials:[trial(.0051)]},
+  {trials:[trial(.0061,.0041)]},
+  {trials:[trial(.0061,0,.0021)]}
+ ])assert.equal(choose({...valid,trials:[trial()],...bad}),null,
+  'never sample or assert contact on a partial, unproved, stale, deformed or unsupported original toe');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const stage=renderer.slice(renderer.indexOf('function stageOriginalSourceSwingToesAfterMixer('),
+  renderer.indexOf('const originalSourceSwingToesAxis='));
+ assert.match(stage,/connectedOriginalLegVerified/,
+  'actual native renderer must require the same observed skinned ankle+thigh source receipt');
+ assert.match(stage,/sourceToeOriginalHingeAudit/,
+  'the measured source-toes axis must come from the original licensed Walking_A quaternion track');
+ assert.match(stage,/connectedSparseSourceFrame/,
+  'live 199.9ms frame must be strictly source-proof gated, not a general long-frame bypass');
+ assert.match(stage,/chooseOriginalSourceSwingToeJointRelief\(/,
+  'actual source toe must be remeasured and reverified against both skinned shoes');
+});
