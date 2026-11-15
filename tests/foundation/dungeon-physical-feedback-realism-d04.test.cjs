@@ -1503,3 +1503,32 @@ test('D04 full 256-unit integrity window rejects off-screen duplicate Warden, re
   assert.equal(stage.stats().reservedInstances,102);
  }finally{stage.dispose()}
 });
+
+test('D04 visual receipts render each HP-loss event once across expiry but reset cleanly',async()=>{
+ const {createPhysicalFeedbackVisuals,MAX_D04_VISUAL_CUE_HISTORY}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const stage=createPhysicalFeedbackVisuals(T,scene);
+ const wound=cue();
+ try{
+  assert.equal(stage.emit(wound),true,'first real HP-loss cue draws bounded injury fragments');
+  const initial=stage.stats();
+  assert.ok(initial.instancesByPool.hit>=4);
+  assert.equal(stage.emit({...wound}),false,
+   'redelivering the same receipt must not double fracture shards on the same frame');
+  assert.equal(stage.stats().spawned,initial.spawned,
+   'duplicate delivery must not allocate or preempt additional GPU instances');
+  for(let i=0;i<20;i++)stage.advance(.05);
+  assert.equal(stage.stats().active,0,'physical fragments expire normally');
+  assert.equal(stage.emit({...wound}),false,
+   'expiry is not permission to replay an old impact from the same run');
+  assert.equal(stage.stats().active,0,'expired duplicate must not resurrect injury');
+  assert.equal(stage.stats().suppressedDuplicateCues,2);
+  assert.ok(stage.stats().rememberedVisualCueIds<=MAX_D04_VISUAL_CUE_HISTORY,
+   'independent visual dedup history must remain strictly bounded');
+  stage.reset();
+  assert.equal(stage.stats().rememberedVisualCueIds,0,
+   'a new scene/run cannot retain the old admission registry');
+  assert.equal(stage.emit(wound),true,
+   'a clean scene reset permits a fresh independent replay fixture');
+ }finally{stage.dispose()}
+});
