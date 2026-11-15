@@ -68,10 +68,12 @@ async function assertAndCapture(page,label,cam){
  expect(result.street.granaryTradeEntranceUnblocked).toBe(true);
  expect(result.grain.windowFacadePanels).toBe(18);
  expect(result.grain.ventRecessPanels).toBe(2);
- // W237: existing W231 drying/porch roof construction raised this genuine component
- // to 1,259 triangles. Guard its complete real geometry without hiding it.
- expect(result.grain.totalTriangles).toBeGreaterThan(1250);
- expect(result.grain.totalTriangles).toBeLessThan(1500);
+ // W349: W348 added the genuine freight-frontage bracing and terrain-fitted
+ // court to the SAME original granary. Exact-head W348 WebGL observed 1605
+ // triangles (source SHA 420922dc), so W237's 1500 cap was obsolete.
+ // Keep a narrow measured component guard; scene-wide 160k still gates below.
+ expect(result.grain.totalTriangles).toBeGreaterThan(1560);
+ expect(result.grain.totalTriangles).toBeLessThan(1730);
  // Only original inhabited house doorways may receive a path, and every
  // paver must join an EXISTING high-street lane, not invent a navigation edge.
  expect(result.footway.originalHousesOnly).toBe(true);
