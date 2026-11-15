@@ -5,8 +5,16 @@ on:
     paths:
       - 'public/tiny-kingdom/index.html'
       - 'scripts/tiny-kingdom-w364-home-resident-delta-contract.cjs'
+      - 'scripts/tiny-kingdom-w364-real-home-gpu-harness.cjs'
       - '.github/workflows/tiny-kingdom-w364-home-resident-delta.yml'
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w364-home-resident-delta-contract.cjs'
+      - 'scripts/tiny-kingdom-w364-real-home-gpu-harness.cjs'
   workflow_dispatch:
+permissions:
+  contents: read
 jobs:
   home-delta:
     runs-on: ubuntu-latest
@@ -15,6 +23,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Verify genuine production home GPU delta and conservative fallback
         run: node scripts/tiny-kingdom-w364-home-resident-delta-contract.cjs
+      - name: Execute real home GPU buffer growth, edit, shrink and SwiftShader fallback
+        run: node scripts/tiny-kingdom-w364-real-home-gpu-harness.cjs
       - name: Parse the production inline game JavaScript
         run: |
           node - <<'NODE'
