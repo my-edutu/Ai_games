@@ -1309,6 +1309,63 @@ for(const view of [
    limitation:'Zero accepted source-toes hinge probes means original source-foot clearance remains inconclusive, NOT improved.',
    frames:toeJointTrace},null,2))
  });
+ // The connected ORIGINAL footl/footr hinge is a narrowly scoped
+ // follow-on to a real linked upperleg+lowerleg two-shoe witness. The
+ // source motion may reject EVERY attempt: zero accepted is INCONCLUSIVE,
+ // never a fictitious perfect foot plant. If it does accept, every actual
+ // WebGL frame must preserve the licensed bone, track and source skin.
+ const originalFootFinishTrace=[];
+ for(const frame of trace){
+  const native=frame.nativeLegOwnership;
+  for(const side of ['left','right']){
+   const proof=native?.sourceLinkedFootCurrentFrameProofs?.[side];
+   if(!proof)continue;
+   const linked=native?.sourceSwingLinkedCurrentFrameProofs?.[side];
+   expect(proof.source).toBe('licensed-original-linked-Walking_A-foot-hinge');
+   expect(proof.sourceInstanceId).toBe(frame.sourceId);
+   expect(proof.sourceBone.toLowerCase()).toBe('foot'+(side==='left'?'l':'r'));
+   expect(proof.sourceTrack.toLowerCase().endsWith(
+    proof.sourceBone.toLowerCase()+'.quaternion')).toBe(true);
+   expect(proof.sourceAxis).toHaveLength(3);
+   expect(proof.sourceAxis.every(Number.isFinite)).toBe(true);
+   expect(Math.abs(proof.angleRad)).toBeLessThanOrEqual(.120001);
+   expect(proof.liftMeters).toBeGreaterThanOrEqual(.008);
+   expect(proof.oppositeFootVerified).toBe(true);
+   expect(proof.contactLocked).toBe(false);
+   expect(proof.originalSourceContactLocked).toBe(false);
+   expect(linked?.linkedOriginalFootFinisher?.sourceBone).toBe(proof.sourceBone);
+   expect(linked?.afterToeY).toBeCloseTo(proof.after[side].toeY,6);
+   const opposite=side==='left'?'right':'left';
+   for(const edge of ['heelY','toeY'])
+    expect(Math.abs(proof.after[opposite][edge]-
+     proof.before[opposite][edge])).toBeLessThanOrEqual(.002001);
+   for(const edge of ['heelXZ','toeXZ'])
+    expect(Math.hypot(
+     proof.after[opposite][edge][0]-proof.before[opposite][edge][0],
+     proof.after[opposite][edge][1]-proof.before[opposite][edge][1]
+    )).toBeLessThanOrEqual(.003001);
+   originalFootFinishTrace.push({tick:frame.tick,side,
+    sourceBone:proof.sourceBone,sourceTrack:proof.sourceTrack,
+    angleRad:proof.angleRad,
+    sourceToeBeforeY:proof.beforeToeY,
+    sourceToeAfterY:proof.afterToeY,
+    liftMeters:proof.liftMeters,
+    penetrationAfterMeters:Math.max(0,-.02-proof.afterToeY),
+    linkedFinalToeY:linked.afterToeY,
+    oppositeFootVerified:proof.oppositeFootVerified,
+    contactLocked:proof.contactLocked});
+  }
+ }
+ await test.info().attach('original-source-hip-knee-foot-finish',{
+  contentType:'application/json',
+  body:Buffer.from(JSON.stringify({viewport:view.name,
+   acceptedFrames:originalFootFinishTrace.length,
+   source:'real source Walking_A SkeletonUtils skinned both-shoe readback',
+   status:originalFootFinishTrace.length?
+    'source-linked ankle clearance measured; full foot planting unverified':
+    'inconclusive: no foot-ankle finisher accepted by real source shoes',
+   noInventedContacts:true,frames:originalFootFinishTrace},null,2))
+ });
  const measured=trace.slice(1).map(t=>t.jointTravel.rootTravelMeters);
  expect(measured.every(Number.isFinite)).toBe(true);
  // The observed licensed Walking_A crossfade commonly carries ~.51-.58
