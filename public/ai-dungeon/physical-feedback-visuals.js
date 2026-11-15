@@ -510,6 +510,38 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    if(cue.proof!=='authority-action'||u?.id!==id||
     !Number.isFinite(u.hp)||u.hp<=0||u.actionTick!==cue.tick||
     !actionMatches)return null;
+   // A drawn guarding/healing pose can persist after current authority has
+   // cancelled or replaced the gesture. Production D04 must recheck the
+   // uniquely identified CURRENT public performer before adding a body ring,
+   // before sound-only pose acknowledgement and while retained rings age.
+   // Same 96 action owners / 256 identity integrity as the public planner;
+   // never use an earlier rendering cache as an independent action event.
+   if(requireVerifiedHpReceipt){
+    if(typeof getCurrentSnapshot!=='function'||cue.visual!=='utility'||
+     cue.audio!==(cue.kind==='guard'?'guard':'utility')||
+     cue.targetId!==null||cue.to!==null||
+     cue.id!==cue.sceneKey+':'+cue.tick+':'+cue.kind+':'+id+':-')
+     return null;
+    let current=null;
+    try{current=getCurrentSnapshot()}catch{return null}
+    if(!current||!Number.isSafeInteger(current.tick)||
+     current.tick!==cue.tick||!Number.isSafeInteger(current.run)||
+     !Number.isSafeInteger(current.floor)||
+     current.run+':'+current.floor!==cue.sceneKey||
+     !Array.isArray(current.units))return null;
+    let source=null;
+    for(let i=0;i<Math.min(current.units.length,256);i++){
+     const candidate=current.units[i];
+     if(candidate?.id!==id)continue;
+     if(source||i>=PHYSICAL_FEEDBACK_MAX_EVENT_SCAN)return null;
+     source=candidate;
+    }
+    if(!source||!cell(source)||source.x!==at.x||source.z!==at.z||
+     !Number.isFinite(source.hp)||source.hp<=0||
+     source.kind!==u.kind||source.faction!==u.faction||
+     source.x!==u.x||source.z!==u.z||
+     source.action!==u.action||source.actionTick!==cue.tick)return null;
+   }
   }
   // A delayed arrow or spell release is an observed ACTION, not a target
   // coordinate that grants permission to spawn a missile. On a slow frame the
