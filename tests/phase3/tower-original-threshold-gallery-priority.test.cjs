@@ -301,3 +301,45 @@ test('historical flanking gallery preserves real deep and overhead Clockwork fra
     clean(null,old);primitive.dispose();
   }
 });
+
+
+test('earned original gateway has an unobstructed skinned-body aperture while preserving source bronze flanks',async()=>{
+  const [THREE,world]=await loaded;
+  const old=new THREE.Group();
+  const post=new THREE.Mesh(new THREE.BoxGeometry(1.6,15,1.6),
+    new THREE.MeshStandardMaterial({color:0x937a55}));
+  post.name='original-noncolliding-threshold-post';
+  post.userData.structural=true;
+  post.position.set(Math.sin(at)*25,roof+5,Math.cos(at)*25);
+  const flank=new THREE.Mesh(new THREE.BoxGeometry(1.6,15,1.6),
+    new THREE.MeshStandardMaterial({color:0x927758}));
+  flank.name='original-outside-passage-bearing';
+  flank.userData.structural=true;
+  const flankAngle=at+.57;
+  flank.position.set(Math.sin(flankAngle)*25,roof+5,Math.cos(flankAngle)*25);
+  old.add(post,flank);
+  const baseline=world.extractOriginalClockworkThresholdGallery(THREE,old,
+    EXIT_X,ROOF_Y,BASE_Y,WIDTH,{includeOriginalFlanks:true,maxFaces:128,maxBatches:2});
+  const cleared=world.extractOriginalClockworkThresholdGallery(THREE,old,
+    EXIT_X,ROOF_Y,BASE_Y,WIDTH,{includeOriginalFlanks:true,
+      clearPhysicalExit:true,maxFaces:128,maxBatches:2});
+  const hits=(gallery,angle)=>{
+    if(!gallery)return 0;
+    gallery.root.updateMatrixWorld(true,true);
+    const ray=new THREE.Raycaster(
+      new THREE.Vector3(Math.sin(angle)*45,roof+5,Math.cos(angle)*45),
+      new THREE.Vector3(-Math.sin(angle),0,-Math.cos(angle)),0,30);
+    return ray.intersectObjects(gallery.root.children,false).length;
+  };
+  try{
+    assert.ok(baseline && cleared,'the authentic old gallery survives the selective aperture');
+    assert.ok(hits(baseline,at)>0,'real original post obstructed the central avatar before clearance');
+    assert.equal(hits(cleared,at),0,'the source-selected torso passage must not retain obstructing post faces');
+    assert.ok(hits(cleared,flankAngle)>0,'original bronze flanking structure remains physically legible');
+    assert.ok(cleared.faces<=128 && cleared.bytes===cleared.faces*96,
+      'original low-tier geometry and memory budgets remain bounded');
+    assert.equal(post.parent,old,'the original floor and its geometry are never rewritten');
+    assert.equal(flank.parent,old);
+  } finally {clean(baseline,nullScene());clean(cleared,old);}
+  function nullScene(){return {traverse(){}};}
+});
