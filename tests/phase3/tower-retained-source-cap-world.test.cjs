@@ -803,7 +803,7 @@ test('real Three world retains the identical old bronze gate across a nine-tick 
   } finally { world.dispose(); }
 });
 
-test('source-earned Floor9 keeps its original HP-opened bronze sightline free of the incoming opaque nearest pylon until actual departure',async()=>{
+test('source-earned Floor9 paints one actual open Void load path beside the retained bronze doorway before deferred pylons arrive',async()=>{
   const [{createTowerWorld}]=await loaded;
   const before=old(),after=next(),world=createTowerWorld();
   const immutable=JSON.stringify([before,after]);
@@ -815,19 +815,24 @@ test('source-earned Floor9 keeps its original HP-opened bronze sightline free of
     world.update(after,.05,.05,{quality:'low'});
     const bearing=world.group.getObjectByName('SourceEarnedVoidLandingBearingFrame');
     assert.ok(bearing?.isGroup,'actual F9 frame must contain source-gated structural destination');
-    assert.equal(bearing.getObjectByName('VoidOpenCoreLoadPath'),undefined,
-      'the first genuine F9 rendering must not draw an opaque new core across the original bronze arch');
+    assert.ok(bearing.getObjectByName('VoidOpenCoreLoadPath')?.isGroup,
+      'the first genuine F9 render must contain the actual open core, not an empty destination and cold late world swap');
+    assert.ok(bearing.getObjectByName('VoidOpenCoreFoundation')?.isMesh &&
+      bearing.getObjectByName('VoidOpenCoreSupportedCrown')?.isMesh,
+      'the original connected foundation and crown appear with the earned gateway');
+    assert.ok(bearing.getObjectByName('VoidOpenCoreRearLoadPosts')?.isInstancedMesh,
+      'rear supports remain physically modeled in the first source-owned F9 scene');
     assert.equal(bearing.getObjectByName('SourceEarnedVoidExteriorButtress'),undefined,
       'new opaque nearest Void pylon must not screen the real still-visible bronze gateway on first F9');
     assert.equal(world.group.getObjectByName('tapered-structural-pylon'),undefined,
       'all incoming exterior buttresses wait for physical source departure; gameplay floor stays');
     let meshes=0; bearing.traverse(o=>{if(o.isMesh)meshes++;});
-    assert.equal(meshes,0,
-      'entire incoming noninteractive core is deferred; only original historical geometry and truthful playable F9 platforms render on first shot');
+    assert.ok(meshes>=5 && meshes<=14,
+      'only the bounded source-authored OPEN core is present, never a full cold exterior shaft');
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),bronzeArch);
     const pending=world.diagnostics().deferredDistantArrival;
-    assert.equal(pending?.actualFirstFrameVoidBearings,false);
-    assert.equal(pending?.entireIncomingVoidCoreDeferred,true);
+    assert.equal(pending?.actualFirstFrameVoidBearings,true);
+    assert.equal(pending?.entireIncomingVoidCoreDeferred,false);
     assert.ok(world.group.getObjectByName('OriginalSourceClockworkThresholdGallery')?.isGroup,
       'the original historic machine room, rather than incoming violet core, backs the first real successor doorway');
     assert.equal(pending.actualFirstFrameVoidBearingIndex,null,
@@ -850,8 +855,8 @@ test('source-earned Floor9 keeps its original HP-opened bronze sightline free of
       'source-deferred zero-alpha shaft must be culled as an entire real Three subtree; transparent opacity zero still incurs draw calls and shader work');
     assert.equal(world.group.getObjectByName('platform:f9:ground')?.visible,true,
       'the real physical new-floor walkable ground must NEVER be hidden with decorative architecture');
-    assert.ok(newShaft.getObjectByName('VoidOpenCoreLoadPath')?.isGroup,
-      'the actual ORIGINAL successor core now joins the post-render deferred shaft instead of screening the gate on cold first frame');
+    assert.equal(newShaft.getObjectByName('VoidOpenCoreLoadPath'),undefined,
+      'the original open core is already visibly built and may NEVER be duplicated during deferred shaft upload');
     const incomingMeshes=[];
     newShaft.traverse(o=>{if(o.isMesh)incomingMeshes.push(o);});
     assert.ok(incomingMeshes.length>0 &&
@@ -864,7 +869,7 @@ test('source-earned Floor9 keeps its original HP-opened bronze sightline free of
     const copies=[];world.group.traverse(o=>{
       if(o.name==='VoidOpenCoreLoadPath')copies.push(o);
     });
-    assert.equal(copies.length,1,'deferred heavy construction cannot double the core');
+    assert.equal(copies.length,1,'first-painted and deferred worlds share exactly one original real core');
     assert.equal(world.group.getObjectByName('platform:f9:ground')!==undefined,true,
       'same source-owned new-floor platform must remain truly walkable throughout the handoff');
     assert.equal(JSON.stringify([before,after]),immutable);
