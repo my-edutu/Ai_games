@@ -207,3 +207,51 @@ test('RED: heel-dominated original source swing branches to knee-biased connecte
  ])assert.equal(plan({...input,...unsafe}),null,
   'no knee-biased stage without witnessed original clip, intact loaded sole and safe source chain: '+JSON.stringify(unsafe));
 });
+
+
+// Selection quality regression for the same heel-dominated original source
+// frame above: those Y values are genuine for the original paired starter,
+// whereas the two knee-biased follow-up outcomes below are HYPOTHESES.
+// They must earn genuine live two-shoe readbacks before any runtime acceptance.
+test('RED: a measured knee-biased coupled-leg candidate can supersede a gentler yet still buried source toe',async()=>{
+ const {chooseOriginalSourceSwingLinkedLegTrial:choose}=await load();
+ const swing={heelY:.1818489366030219,toeY:-.10518361032839756,
+  heelXZ:[0,.35],toeXZ:[-.20,.35]};
+ const loaded={heelY:-.03647658980375642,toeY:-.014051316167091446,
+  heelXZ:[0,0],toeXZ:[-.27,0]};
+ const trial=(upperRad,lowerRad,lift,heelRise,loadedFoot=loaded)=>({
+  upperRad,lowerRad,after:{left:loadedFoot,right:{...swing,
+   heelY:swing.heelY+heelRise,toeY:swing.toeY+lift}}
+ });
+ const input={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceChainVerified:true,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceBindVerified:true,ownerLocomotion:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false,
+  rootTravel:.04,frameAge:.017,frameInterval:.0334,
+  side:'right',floorTopY:-.02,before:{left:loaded,right:swing}};
+ const trials=[trial(.09,-.075,-.0078097,-.0283019),
+  trial(-.09,.075,.0136813811,.0263745592),
+  trial(-.09,.09,.0197,.0259),
+  trial(-.105,.09,.0208,.0261)];
+ const selected=choose({...input,trials});
+ assert.equal(selected?.upperRad,-.09,
+  'hypothetical >=6mm gained clearance without more heel rise must justify restrained full-leg knee bias');
+ assert.equal(selected?.lowerRad,.09);
+ assert.equal(selected?.oppositeShoePreserved,true);
+ assert.equal(selected?.contactLocked,false);
+ assert.ok(selected.liftMeters>.019);
+ // An insufficient gain must keep the earlier gentler source pose.
+ const weak=trials.map((t,i)=>i<2?t:trial(t.upperRad,t.lowerRad,.016,.0259));
+ assert.equal(choose({...input,trials:weak})?.lowerRad,.075,
+  'avoid chasing tiny toe gains with larger linked knee motion');
+ const heelRise=trials.map((t,i)=>i<2?t:trial(t.upperRad,t.lowerRad,.021,.0339));
+ assert.equal(choose({...input,trials:heelRise})?.lowerRad,.075,
+  'do not lift the original airborne heel even further for a stronger toe pose');
+ const liftedLoaded=trials.map((t,i)=>i<2?t:trial(t.upperRad,t.lowerRad,.021,.0259,
+  {...loaded,heelY:loaded.heelY+.01}));
+ assert.equal(choose({...input,trials:liftedLoaded})?.lowerRad,.075,
+  'no knee-biased candidate may silently move the original supporting shoe');
+ assert.equal(choose({...input,reducedMotion:true,trials}),null);
+ assert.equal(choose({...input,sourceInstanceSame:false,trials}),null);
+});
