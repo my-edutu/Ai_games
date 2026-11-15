@@ -558,7 +558,7 @@ export function createWarden(options = {}) {
   // parapets in real 390px encounter footage. Give Thornback a consistent
   // slate-violet carapace, warm copper shoulder plates and brass face. These
   // remain physical shared materials, not screen-facing warning sprites.
-  const shell=material('#4d4364',.52,.38), plates=material('#a17b5b',.48,.43), bronze=material('#bd8b51',.7,.4);
+  const shell=material('#48445b',.52,.38), plates=material('#a17b5b',.48,.43), bronze=material('#bd8b51',.7,.4);
   const dark=material('#292e40',.48,.6), claw=material('#e1c997',.55,.35);
   const red=material('#ff8650',.2,.27,{emissive:'#ff401a',emissiveIntensity:1.1});
   const body=pivot(group,'armored body',[0,.79,-.035]);
@@ -569,7 +569,7 @@ export function createWarden(options = {}) {
   const elytra=[];
   for (const side of [-1,1]) {
     const wing=pivot(body,`flared elytron ${side}`,[side*.05,.15,-.11]);
-    ball(wing,shell,[side*.165,-.02,.03],[.32,.35,.57]);
+    ball(wing,shell,[side*.165,-.02,.03],[.37,.37,.60]);
     for (let i=0;i<3;i++) {
       const band=ring(wing,bronze,[side*.17,-.03,-.21+i*.23],.28,.014);
       band.scale.set(1,1.08,1); band.rotation.y=side*.16;
@@ -582,7 +582,7 @@ export function createWarden(options = {}) {
     // Thornback even at rest, without relying on a HUD, a warning state,
     // undisclosed attention, or a per-frame object allocation.
     const carapace=pivot(wing,`fixed sculpted warden shell relief ${side}`,[side*.16,.21,-.02]);
-    const keel=rounded(carapace,plates,[0,.06,0],[.30,.17,.84],.06);
+    const keel=rounded(carapace,plates,[0,.06,0],[.31,.145,.82],.06);
     keel.rotation.y=side*.12;
     for (let scute=-1;scute<=1;scute++) {
       const rib=rounded(carapace,claw,[side*.02,.17,scute*.265],[.30,.075,.12],.025);
@@ -595,8 +595,8 @@ export function createWarden(options = {}) {
     // copper inlay are rooted in EACH real hinged elytron: no billboard,
     // warning-state dependency, extra enemy or dynamic object allocation.
     // Their rising profile carries the silhouette above dark stone parapets.
-    const tideblade=pivot(wing,`fixed sculpted warden tideblade ${side}`,[side*.27,.30,.10]);
-    const blade=rounded(tideblade,claw,[side*.12,.23,.08],[.29,.69,.36],.076);
+    const tideblade=pivot(wing,`fixed sculpted warden tideblade ${side}`,[side*.27,.26,.04]);
+    const blade=rounded(tideblade,claw,[side*.12,.20,.08],[.25,.54,.32],.076);
     blade.rotation.z=-side*.24;
     blade.rotation.x=-.14;
     const inset=rounded(tideblade,plates,[side*.17,.25,.29],[.15,.43,.065],.038);
@@ -703,7 +703,7 @@ export function createWarden(options = {}) {
   const tailVanes=[];
   for (const side of [-1,1]) {
     const vane=pivot(tailRoot,`articulated guardian tail vane ${side}`,[side*.15,.05,-.12]);
-    const leaf=rounded(vane,frondGlass,[side*.105,.43,-.15],[.44,.91,.17],.07);
+    const leaf=rounded(vane,frondGlass,[side*.105,.38,-.15],[.40,.75,.17],.07);
     leaf.rotation.z=-side*.17;
     const inner=rounded(vane,claw,[side*.115,.47,-.05],[.15,.67,.055],.025);
     inner.rotation.z=leaf.rotation.z;
@@ -720,8 +720,14 @@ export function createWarden(options = {}) {
   // upward-facing optical housings with deep rims, cheek armor and a true
   // projecting mandible. The same head/antenna/jaw joints below still animate.
   // Nothing moves the authoritative guardian root, collision or AI state.
-  const head=pivot(body,'warden mask',[0,.27,.73]);
-  ball(head,bronze,[0,.035,.015],[.47,.30,.34]);
+  const head=pivot(body,'warden mask',[0,.42,.87]);
+  // Pass377: rebuild the whole facial hierarchy at native phone size, not a
+  // screen-space icon. A longer neck/forward mask clears the dorsal shield;
+  // one consistent rigid scale enlarges both rooted optical sockets, jaw and
+  // actual hinged cheeks together. The established planted/released pose
+  // still animates this same connected skull without altering its root.
+  head.scale.set(1.20,1.16,1.10);
+  ball(head,bronze,[0,.035,.015],[.49,.31,.36]);
   // Pass350: the untouched native 390px guardian brace showed the new
   // complete skull as one opaque black pair of glasses. The problem is
   // physical silhouette/occlusion, not a color or exposure setting. Split
@@ -734,20 +740,20 @@ export function createWarden(options = {}) {
   rounded(head,plates,[0,.17,.29],[.16,.26,.18],.036);
   const facialShells=[];
   for (const side of [-1,1]) {
-    const upperRim=rounded(head,dark,[side*.205,.20,.19],[.33,.14,.24],.036);
+    const upperRim=rounded(head,dark,[side*.205,.20,.19],[.28,.105,.19],.036);
     upperRim.rotation.z=-side*.12;
     // Eyes sit above (not exclusively on the vertical front of) the mask;
     // the camera reads one clear gaze direction even at 320px.
     const socket=ball(head,dark,[side*.205,.25,.215],[.22,.125,.205]);
     socket.name=`rooted guardian upper optical socket ${side}`;
     socket.rotation.x=-.25;
-    const optic=ball(head,red,[side*.205,.316,.287],[.169,.100,.126]);
+    const optic=ball(head,red,[side*.205,.316,.287],[.184,.115,.14]);
     optic.name=`rooted guardian raised optical lens ${side}`;
     optic.rotation.x=-.28;
     const brow=rounded(head,claw,[side*.195,.364,.242],[.30,.075,.15],.023);
     brow.rotation.z=-side*.13;
     brow.rotation.x=-.17;
-    const cheek=rounded(head,plates,[side*.38,.027,.093],[.23,.25,.40],.048);
+    const cheek=rounded(head,plates,[side*.38,.027,.093],[.20,.20,.34],.048);
     cheek.name=`rooted guardian cheek armor ${side}`;
     cheek.rotation.y=side*.24;
     // The substantial side carapace closes around the whole skull in the
@@ -755,7 +761,7 @@ export function createWarden(options = {}) {
     // Its pivot is attached to the real mask, outside the optical aperture.
     const hinge=pivot(head,`articulated guardian facial shell ${side}`,
       [side*.49,.11,.11]);
-    const facet=rounded(hinge,bronze,[side*.07,.025,.13],[.27,.35,.42],.065);
+    const facet=rounded(hinge,bronze,[side*.07,.025,.13],[.20,.30,.34],.065);
     facet.rotation.y=side*.16;
     facialShells.push({hinge,side});
     ring(head,bronze,[side*.345,-.067,.18],.057,.014);
