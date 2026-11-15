@@ -1,0 +1,34 @@
+'use strict';
+/* W364 exact original GPU home-block delta, NO artificial houses or camera frames. */
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
+const find=(begin,end)=>{
+ const a=html.indexOf(begin),b=html.indexOf(end,a+begin.length);
+ assert(a>=0&&b>a,'missing playable production function: '+begin);
+ return html.slice(a,b);
+};
+const functionText=find('function planResidentVertexUpload(','function getResidentDeltaUploadAudit()');
+const plan=vm.runInNewContext('('+functionText.trim()+')',{Float32Array,Number,Math,Object});
+const triangle=id=>Array.from({length:30},(_,i)=>id*100+i+.25);
+const mesh=(...ids)=>new Float32Array(ids.flatMap(triangle));
+let old=mesh(1,2),next=mesh(1,2,3),r=plan(old,next,180);
+assert.deepEqual([r.firstFloat,r.lastFloat,r.dirtyFloats,r.savedFloats],[60,90,30,60],'append must transfer only the real new house triangle');
+old=mesh(1,2,3);next=mesh(1,4,3);r=plan(old,next,180);
+assert.deepEqual([r.firstFloat,r.lastFloat,r.dirtyFloats,r.savedFloats],[30,60,30,60],'interior real roof/material replacement must preserve both exact neighbours');
+r=plan(mesh(1,2,3),mesh(1,2),180);
+assert.equal(r.dirtyFloats,0,'shorter draw range must suppress removed original triangles with zero upload');
+assert.equal(plan(mesh(1),mesh(1,2),30),null,'no undersized resident GPU allocation');
+assert.equal(plan(mesh(1),mesh(1),90).unchanged,true,'unchanged retained geometry is not uploaded again');
+const production=find('function buildHomeClusters(','function recallHomeClusterKeys(');
+assert.match(production,/obsolete\.linearVertices===true/,'cannot compare a spatially repacked old VBO');
+assert.match(production,/packed\.vertices===mesh/,'new original unscattered vertex identity required');
+assert.match(production,/!swiftGpu/,'software diagnostic path must preserve original full upload');
+assert.match(production,/planResidentVertexUpload\(obsolete\.mesh,packed\.vertices,capacityFloats\)/,'live home GPU path must execute the exact tested planner');
+assert.match(production,/gl\.bufferSubData\(gl\.ARRAY_BUFFER,delta\.firstFloat\*Float32Array\.BYTES_PER_ELEMENT/,'byte-addressed genuine partial WebGL upload missing');
+assert.match(production,/if\(delta\.dirtyFloats\)/,'zero-delta must skip GPU buffer upload');
+assert.match(production,/linearVertices\}/,'origin identity must follow the resident cell for next growth');
+assert.match(html,/homeDeltaUploadedBytes/,'real GPU transfer bytes must be instrumented');
+assert.match(html,/homeDeltaAvoidedBytes/,'saved bytes must be disclosed');
+console.log('W364 exact home resident growth, replacement, shrink, resource and production wiring contracts PASS');
