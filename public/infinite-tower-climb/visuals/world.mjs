@@ -9,7 +9,7 @@ import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceRetainedRaisedExit, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS } from './source-physical-arrival-palette.mjs';
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
-import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, updateOriginalClockworkSuccessorRoute } from './original-clockwork-architecture-palette.mjs';
+import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections } from './source-earned-bearing-run.mjs';
 
 
@@ -3572,71 +3572,81 @@ export function createTowerWorld(){
     const requestedQuality=options.quality==='low'?'low':options.quality==='high'?'high':'normal';
     if(key!==`${snapshot.runToken}:${snapshot.floor}:${snapshot.theme}:${requestedQuality}`)rebuild(snapshot,requestedQuality);
     lastSnapshot=snapshot;
-    // This is the SAME real Floor9 platform that the authoritative player
-    // walks on. Unlike the old 1.25s display-only fade, source distance
-    // from the genuine bronze sill drives a coherent top/beam/rim material
-    // handoff even after a slow first WebGL frame. No route or collider edit.
-    if(arrivalRoutePalette){
-      // ONE source-certified RGB update for the genuine near-roof runway,
-      // including moving decks, rather than per-platform theme swapping.
-      const proof=!options.stale && !options.reducedMotion
-        ?observedSourcePhysicalArrivalPalette(snapshot,retainedEarnedCap):null;
-      updateOriginalClockworkSuccessorRoute(arrivalRoutePalette,proof);
+    // The original F8 gateway and *all* current F9 materials now consume
+    // one source-certified visual departure. A source poll may expire between
+    // returned native frames on slow WebGL; the same bounded GPU-retirement
+    // tail already protecting the 3D bearing gallery must also protect the
+    // walkable F9 deck, shaft and arch. No material tail can earn a floor,
+    // guardian defeat, simulated footstep or video acceptance.
+    const livePaletteProof=!options.stale && !options.reducedMotion
+      ?observedSourcePhysicalArrivalPalette(snapshot,retainedEarnedCap):null;
+    // The physical bearing gallery may not yet have been built on the first
+    // cold F9 frame. Its shared *material-only* source/return clock exists
+    // whenever the genuine retained gate and real F9 materials do.
+    if (!sourceEarnedBearingHandoff && retainedEarnedCap &&
+        retainedEarnedCap.runToken===snapshot.runToken &&
+        retainedEarnedCap.floor===9 &&
+        retainedEarnedCap.guardianGateRetained===true &&
+        snapshot.floor===9 &&
+        (arrivalRoutePalette || originalClockworkArchitecturalPalette)) {
+      sourceEarnedBearingHandoff={runToken:snapshot.runToken,
+        displayProgress:0,retiring:false,retirementFrames:0,
+        retirementStartProgress:0,lastVerifiedProof:null};
     }
-    // Existing Floor9 stone/metal/trim above and around the real roof were
-    // previously fully violet on the FIRST rebuilt frame, even as the old
-    // original bronze arch remained visibly opaque. Color the current 3D
-    // architecture from that SAME validated physical departure, not a timer.
-    // This covers the monumental shaft, upper platform edge and walkable
-    // structures together; gameplay danger lights and character are untouched.
+    const handoff=sourceEarnedBearingHandoff;
+    let departure=1;
+    if(handoff && !options.stale && snapshot.floor===9 &&
+       snapshot.lifecycle==='running' &&
+       snapshot.runToken===handoff.runToken) {
+      // Store ONLY genuine same-run HP0 gateway source evidence. The saved
+      // immutable historical tick may pace material retirement, but is never
+      // presented as a fresh physics observation.
+      if(livePaletteProof?.sourceBound===true && !handoff.retiring) {
+        handoff.displayProgress=Math.max(handoff.displayProgress,
+          Math.min(1,Math.max(0,livePaletteProof.progress)));
+        if(Number.isSafeInteger(livePaletteProof.sourceTick) &&
+           Number.isSafeInteger(livePaletteProof.crossingTick) &&
+           (livePaletteProof.kind==='recorded-source-zero-hp' ||
+             livePaletteProof.kind==='verified-original-roof-receipt')) {
+          handoff.lastVerifiedProof={
+            runToken:snapshot.runToken,sourceTick:livePaletteProof.sourceTick,
+            crossingTick:livePaletteProof.crossingTick,
+            kind:livePaletteProof.kind};
+        }
+      } else if(!handoff.retiring) {
+        handoff.retiring=true;
+        handoff.retirementStartProgress=handoff.displayProgress;
+      }
+      if(handoff.retiring) {
+        // Exactly eight SUCCESSFULLY returned WebGL frames, not source ticks
+        // or browser polls. Keep the cold original F9 route and surroundings
+        // coherent with the existing 3D load-bearing material family.
+        const t=Math.min(1,handoff.retirementFrames/8);
+        const eased=t*t*(3-2*t);
+        departure=handoff.retirementStartProgress+
+          (1-handoff.retirementStartProgress)*eased;
+      } else departure=handoff.displayProgress;
+    }
+    const opticalTail=!options.stale && !options.reducedMotion
+      ?observedVerifiedClockworkPaletteTail(snapshot,handoff,departure):null;
+    // The live source sample always outranks history. An optical tail only
+    // changes colors on existing real meshes when the same previously
+    // certified crossing has lost its short-lived current browser witness.
+    if(arrivalRoutePalette) {
+      const proof=livePaletteProof;
+      updateOriginalClockworkSuccessorRoute(arrivalRoutePalette,proof,opticalTail);
+    }
     if(originalClockworkArchitecturalPalette) {
-      const sourceProof=!options.stale
-        ?observedSourcePhysicalArrivalPalette(snapshot,retainedEarnedCap):null;
-      originalClockworkArchitecturalPalette.update(sourceProof);
+      const sourceProof=livePaletteProof;
+      originalClockworkArchitecturalPalette.update(sourceProof,opticalTail);
     }
-    // The real authored deferred shaft uses separate materials ONLY for its
-    // GPU-safe alpha/visibility. These copies must follow the SAME mutable
-    // material COLOR source as the first F9 core, authentic deck and original
-    // gateway. Sync in-place after the source proof (before any real render),
-    // never latch the initial bronze color into a late-revealed Void tower.
-    // No new shader variant, draw, collider or extra scene is introduced.
+    // The deferred F9 shaft copies these EXACT architecture material colors,
+    // never a separately aged violet scene. No new shader, draw or collider.
     if(deferredDistantArrival?.structuralMaterials?.length) {
       for(const {material,sourceColor} of deferredDistantArrival.structuralMaterials)
         if(material.color && sourceColor)material.color.copy(sourceColor);
     }
-    // The real inherited bearing gallery is an architectural connection,
-    // not a surviving bronze HUD proxy. Carry the physical departure across
-    // all three ORIGINAL instanced material phases, with no new geometry,
-    // shader pass, frame timer, moving platform or gameplay state. On source
-    // expiry restore the intended F9 destination palette, so the remaining
-    // source-authored bearings are not frozen in the old biome.
     if(sourceEarnedBearingPalette) {
-      const proof=!options.stale
-        ?observedSourcePhysicalArrivalPalette(snapshot,retainedEarnedCap):null;
-      const handoff=sourceEarnedBearingHandoff;
-      let departure=1;
-      if(handoff && !options.stale && snapshot.floor===9 &&
-         snapshot.lifecycle==='running' &&
-         snapshot.runToken===handoff.runToken) {
-        // Real source 8->9 only: never treat a material tail as evidence
-        // of another crossing or keep bronze from another expedition.
-        if(proof?.sourceBound===true && !handoff.retiring)
-          handoff.displayProgress=Math.max(handoff.displayProgress,
-            Math.min(1,Math.max(0,proof.progress)));
-        else if(!handoff.retiring) {
-          // The old GPU owner is now absent or physically departed; don't
-          // snap every inherited load-bearing span from bronze to violet.
-          // Only a previously verified same-run F9 gallery has this state.
-          handoff.retiring=true;
-          handoff.retirementStartProgress=handoff.displayProgress;
-        }
-        if(handoff.retiring) {
-          const t=Math.min(1,handoff.retirementFrames/8);
-          const eased=t*t*(3-2*t);
-          departure=handoff.retirementStartProgress+
-            (1-handoff.retirementStartProgress)*eased;
-        } else departure=handoff.displayProgress;
-      }
       for(const {material,bronze,voidColor} of sourceEarnedBearingPalette)
         material.color.copy(bronze).lerp(voidColor,departure);
     }
