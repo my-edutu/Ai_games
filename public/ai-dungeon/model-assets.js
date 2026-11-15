@@ -1648,20 +1648,23 @@ function planOriginalSourceSwingToeForMountedAnkle(actor,mount,angle,reducedMoti
  if(!angularReceipt)return 0;
  const finalAngle=Math.max(-.30,Math.min(.30,angle+delta));
  let afterToeY=NaN,afterHeelY=NaN;
+ let finalOtherHeelY=NaN,finalOtherToeY=NaN;
  try{
   mount.bone.quaternion.copy(original).multiply(
    mount.next.setFromEuler(mount.euler.set(finalAngle,0,0,'XYZ')));
   mount.bone.updateWorldMatrix(true,true);
   afterToeY=readOriginalSwingSoleY(patch.toe);
   afterHeelY=readOriginalSwingSoleY(patch.heel);
+  // Read the other true skinned shoe WHILE the proposed ankle is applied,
+  // never after restoring the source joint (which would fake agreement).
+  finalOtherHeelY=readOriginalSwingSoleY(oppositePatch.heel);
+  finalOtherToeY=readOriginalSwingSoleY(oppositePatch.toe);
  }finally{
   mount.bone.quaternion.copy(original);
   mount.bone.updateWorldMatrix(true,true);
  }
  // Preserve the independently sampled original opposite weighted outsole:
  // a tiny angle on one foot must never silently disturb its loaded partner.
- const finalOtherHeelY=readOriginalSwingSoleY(oppositePatch.heel);
- const finalOtherToeY=readOriginalSwingSoleY(oppositePatch.toe);
  const oppositeShoeVerified=[originalOtherHeelY,originalOtherToeY,
   finalOtherHeelY,finalOtherToeY].every(Number.isFinite)&&
   Math.abs(finalOtherHeelY-originalOtherHeelY)<=.002&&
