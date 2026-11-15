@@ -6476,3 +6476,64 @@ test('original lowerleg-knee chain owns fallback foot pitch only from genuine 3D
  assert.match(renderer,/planOriginalSourceKneeChainFootHingeAxis\(/);
  assert.match(renderer,/original-knee-chain-swing/);
 });
+
+
+test('real native mobile steep swing allocates knee-led original-source probes and refuses heel-dominated follow-through',async()=>{
+ const {planOriginalSourceSwingLinkedLegFollowups:plan,
+  chooseOriginalSourceSwingLinkedLegTrial:choose}=await load();
+ // Real original 390px Walking_A at HEAD 992420c5: left heel +0.209500m,
+ // toe -0.095827m, supporting right shoe close to authored -0.020m.
+ // The ±0.12/0.09 source-linked probe raised toe +28.324mm but also
+ // raised the already airborne heel +28.753mm. Synthetic later probe
+ // samples below are hypotheses, never claimed as captured WebGL motion.
+ const swing={heelY:.20950013874426235,toeY:-.09582674500528375,
+  heelXZ:[-4.76,-7.10],toeXZ:[-4.81,-7.14]};
+ const loaded={heelY:-.013933979830207065,
+  toeY:-.024582795014801484,
+  heelXZ:[-4.9,-6.9],toeXZ:[-5.1,-6.92]};
+ const before={left:swing,right:loaded};
+ const after=(toeLift,heelRise)=>({left:{
+  ...swing,toeY:swing.toeY+toeLift,heelY:swing.heelY+heelRise
+ },right:{...loaded}});
+ const starters=[
+  {upperRad:.12,lowerRad:-.09,after:after(-.0190316879631119,-.032819908025016054)},
+  {upperRad:-.12,lowerRad:.09,after:after(.028324353871343452,.028752627262118774)}
+ ];
+ const gate={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceChainVerified:true,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceBindVerified:true,ownerLocomotion:true,
+  alive:true,visible:true,rootTravel:.08,frameAge:.03,
+  frameInterval:.0999,side:'left',floorTopY:-.02,before};
+ const next=plan({...gate,trials:starters});
+ assert.deepEqual(next,[[-.09,.11],[-.105,.11]],
+  'reuse the existing two genuine source-shoe trial slots for a knee-led pair');
+ const trials=[...starters,
+  {upperRad:-.09,lowerRad:.11,after:after(.0272,.0170)},
+  {upperRad:-.105,lowerRad:.11,after:after(.0255,.0188)}
+ ];
+ const best=choose({...gate,trials});
+ assert.equal(best?.upperRad,-.09);
+ assert.equal(best?.lowerRad,.11);
+ assert.equal(best?.originalHeelReliefVerified,true);
+ assert.ok(best.originalHeelRiseSavedMeters>.011);
+ assert.ok(best.originalToeLiftSacrificeMeters<.003);
+ assert.equal(best.oppositeShoePreserved,true);
+ assert.equal(best.contactLocked,false);
+ const badHeel=choose({...gate,trials:trials.map((t,i)=>i<2?t:{
+  ...t,after:after(.0272,.0275)})});
+ assert.equal(badHeel?.originalHeelReliefVerified,undefined,
+  'toe lift alone may not certify a nearly vertical, elevated heel');
+ assert.equal(badHeel?.upperRad,-.12);
+ for(const change of [
+  {sourceClipName:'Idle'},{ownerLocomotion:false},
+  {previousLinkedCertified:true},{reducedMotion:true},
+  {frameInterval:.0334},{sourceWeight:.90},
+  {before:{left:{...swing,toeY:-.06},right:loaded}}
+ ])assert.notDeepEqual(plan({...gate,trials:starters,...change}),next,
+  'only the real first slow, deep, weighted Walking_A source leg qualifies');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/planOriginalSourceSwingLinkedLegFollowups\\(/);
+ assert.match(renderer,/chooseOriginalSourceSwingLinkedLegTrial\\(/);
+ assert.match(renderer,/sourceSwingLinkedLastProbe/);
+});

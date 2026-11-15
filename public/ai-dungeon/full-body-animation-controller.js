@@ -114,6 +114,20 @@ export function planOriginalSourceSwingLinkedLegFollowups({
   best.heelRise>=best.lift*1.7;
  if(heelDominatedFirstSwing)
   return [[.09,-.09],[.105,-.09]].map(a=>a.map(v=>v*best.sign));
+ // Exact native 390px source Walking_A shows 28.324mm toe lift but
+ // 28.753mm MORE already-airborne heel rise after a first slow-frame
+ // connected source hip/knee. Repeating the same hip-heavy arc amplifies
+ // the near-vertical shoe. Reuse only the two spare source-skinned trials
+ // on knee-biased original joints, then require a true toe-versus-heel
+ // improvement from BOTH weighted shoes before accepting this candidate.
+ // No IK target, toe-floor contact, extra probes, authority or new rig.
+ const slowHeelDominatedSource=slow&&previousLinkedCertified!==true&&
+  floorTopY-original.toeY>=.065&&
+  original.heelY-floorTopY>=.18&&
+  best.lift>=.020&&best.heelRise>=.020&&
+  best.heelRise>=best.lift*.8;
+ if(slowHeelDominatedSource)
+  return [[.09,-.11],[.105,-.11]].map(a=>a.map(v=>v*best.sign));
  const arcs=slow?[[.14,-.105],[.145,-.11]]:
   [[.105,-.085],[.11,-.09]];
  return arcs.map(a=>a.map(angle=>angle*best.sign));
@@ -169,6 +183,8 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
  let best=null;
  const certifiedChoices=[];
  const kneeBiasedChoices=[];
+ const slowStarterChoices=[];
+ const slowHeelReliefChoices=[];
  for(const trial of trials){
   const {upperRad,lowerRad,after}=trial??{};
   // 140/105mrad is reserved for a physically observed >=50ms source frame,
@@ -225,6 +241,14 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
   };
   if(prior)certifiedChoices.push(candidate);
   if(freshFast)kneeBiasedChoices.push(candidate);
+  if(!prior&&slowArc){
+   if(Math.abs(Math.abs(upperRad)-.12)<.000001&&
+    Math.abs(Math.abs(lowerRad)-.09)<.000001)
+    slowStarterChoices.push(candidate);
+   else if(Math.abs(Math.abs(lowerRad)-.11)<.000001&&
+    [ .09,.105 ].some(a=>Math.abs(Math.abs(upperRad)-a)<.000001))
+    slowHeelReliefChoices.push(candidate);
+  }
   if(!best||(freshFast?gentler:lift>best.liftMeters))best=candidate;
  }
  // Prior-frame original-sole evidence allows a larger arc, but not arbitrary
@@ -268,6 +292,38 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
     (Math.abs(Math.abs(c.upperRad)+Math.abs(c.lowerRad)-
        Math.abs(a.upperRad)-Math.abs(a.lowerRad))<=.000001&&
       c.liftMeters>a.liftMeters)?c:a,null);
+  }
+ }
+ // Only in a genuinely steep, deep, first fully owned slow source stride
+ // can a knee-biased ORIGINAL leg replace the normally maximal toe-lift
+ // choice. The real skinned toe must lose <=3mm of its previously earned
+ // lift; the airborne heel must rise >=8mm LESS and the toe-versus-heel
+ // relative pitch must improve >=7mm. Both original supporting-shoe
+ // stability gates were already applied to each candidate above.
+ // All other frames retain the established toe-clearance-first selection.
+ if(!prior&&frameInterval>=.05&&frameInterval<=.15&&
+  sourceWeight>=.95&&depth>=.065&&swing.heelY-floorTopY>=.18&&
+  slowStarterChoices.length&&slowHeelReliefChoices.length){
+  const starter=slowStarterChoices.reduce((a,c)=>
+   !a||c.liftMeters>a.liftMeters?c:a,null);
+  const starterHeelRise=starter.afterHeelY-swing.heelY;
+  if(starter.liftMeters>=.020&&starterHeelRise>=.020&&
+   starterHeelRise>=starter.liftMeters*.8){
+   const safer=slowHeelReliefChoices.filter(c=>
+    Math.sign(c.upperRad)===Math.sign(starter.upperRad)&&
+    c.liftMeters>=starter.liftMeters-.003&&
+    c.afterHeelY<=starter.afterHeelY-.008&&
+    (c.liftMeters-(c.afterHeelY-swing.heelY))-
+     (starter.liftMeters-starterHeelRise)>=.007);
+   if(safer.length){
+    const chosen=safer.reduce((a,c)=>!a||
+     c.liftMeters-(c.afterHeelY-swing.heelY)>
+      a.liftMeters-(a.afterHeelY-swing.heelY)?c:a,null);
+    best=Object.freeze({...chosen,
+     originalHeelReliefVerified:true,
+     originalHeelRiseSavedMeters:starter.afterHeelY-chosen.afterHeelY,
+     originalToeLiftSacrificeMeters:Math.max(0,starter.liftMeters-chosen.liftMeters)});
+   }
   }
  }
  return best;
