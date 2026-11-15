@@ -3,10 +3,13 @@
 // isolated source harness cannot claim running visual parity or mobile FPS.
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
-const game=html.match(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/i)?.[1];
+const scriptStart=html.indexOf('<script>'),scriptEnd=html.indexOf('</script>',scriptStart);
+assert(scriptStart>=0&&scriptEnd>scriptStart,'original game script markers missing');
+const game=html.slice(scriptStart+8,scriptEnd);
 assert(game,'true kingdom production renderer missing');
 new Function(game);
-const begin=game.indexOf('function emitStreetCargo('),end=game.indexOf('\\n}',begin)+2;
+const begin=game.indexOf('function emitStreetCargo(');
+const end=game.indexOf(String.fromCharCode(10)+'}',begin)+2;
 assert(begin>=0&&end>begin,'actual physical courier asset source missing');
 const source=game.slice(begin,end);
 assert(source.includes('W365 physical courier reconstruction'));
