@@ -1,3 +1,19 @@
+## W353 · One active Phase 1 farm→granary→market→home transformation checkpoint · 13ddae3d48f2de3b6a000d4dfad21e1305cd2244
+
+Exact active draft PR #64 only. Real 668 rooted grain stems are retained with unchanged near/far 4/12/20 triangular budget and unchanged seeded authority; new leaf/head shaping and real harvester sickle-driven foliage clearance must be judged in UNINTERRUPTED desktop/390px film. W352 W281 CI passed; GPU evidence W84 old <1400 loft limit failed against genuine 1605 triangles and has been repaired to honest 1560–1730. No W353 actual workday/browser/FPS PASS yet.
+
+| Owner / blocker | Current evidence | Measurable completion |
+| --- | --- | --- |
+| Rendering CPU/driver/GPU | Prior SwiftShader p95 >33.3ms, Day121 workload/hardware still unmeasured on new source | Identical seed/world/scene CPU p50/p95/p99, GPU timer where supported, physical phone/desktop >=30 sustained, p95 <=33.3ms, <=160k visible |
+| Contiguous medieval architecture | True roads and actual occupied home routes now exist; visual cohesion remains insufficient | Whole real farm→granary→market→inhabited home visibly credible in original running Day1, Day121, and workday perspectives |
+| True human animation and contact | Real farmer/courier jobs and camera exist; angular bodies and stem/body occlusion persist in older film | Genuine farmer cutting, loaded courier unloading, forge and build hands/feet/tool contacts throughout uncut workday, no invented job/receipt |
+| Portrait camera / UI | Previously sampled 390px farmer face/hands obscured by crops, buildings dominate some home views | Physically true responsive unobstructed workday body/hand framing, real receipt/purchase HUD, 44px touch/pause/save/speed |
+| Trust and quality evidence | G088 vs candidate authoritative checksums previously differ; no blind critics/hardware | Same-authority G088/W353 Day1/Day121 and full-workday videos, 120day deterministic replay/long soak, bounded GPU+JS memory, separate independent blind A/B |
+
+Scorecard A LOOK/FEEL/PLAY **NOT PROVEN**; scorecard B commercial Manor Lords **FAIL**. **Do not merge.**
+
+---
+
 ## W347 · One continuing Phase 1 workstream · source 3677370728360467896327eac28e6317fc1326f9
 
 **Active playable slice unchanged:** authoritative farmer harvest → REAL loaded courier → actual market inventory credit → inhabitant purchase/meal in existing cottage, with Day121 grown town and 390px controls. W347 actual source <https://github.com/my-edutu/Ai_games/commit/3677370728360467896327eac28e6317fc1326f9> fixes workday Supply occlusion as an integrated human/economy visibility dependency (top-docked scrollable real receipts, all five genuine camera stages, 44px targets and focus preserved after detail collapse), and reuses the SAME real physical camera obstruction survey in portrait frames. No scenery geometry/rig/economy invented or removed. Prior W281 FAIL from stale W316 mock corrected to enumerate genuine real well/gardens/banner/lights/boulders/timber. **New running film/CI not yet confirmed.**
