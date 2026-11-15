@@ -14058,6 +14058,80 @@ function marketToRealHomeStreet(){
  });
  audit.totalTriangles=(data.length-first)/30;
 }
+// W351: readable original market-to-inhabited-home streets. Every target is
+// actually assigned to a citizen, every centre follows traversable A* and
+// the work remains in the EXISTING construction-dirty civic GPU allocation.
+// It never invents a delivery, household, resident, collider, or road in AI.
+const REAL_HOME_LANE_BUDGET=1020;
+let realHomeLaneStats={occupiedHomes:0,connectedHomes:0,segments:0,
+ triangles:0,skippedUnsafe:0,duplicateSections:0,limited:false,
+ changesAuthority:false,changesNavigation:false,extraGpuBuffers:0};
+function getRealHomeLaneNetworkAudit(){return {...realHomeLaneStats,
+ triangleBudget:REAL_HOME_LANE_BUDGET}}
+function renderRealInhabitedLaneNetwork(){
+ const first=data.length,origin=MARKET_HOME_STREET_ORIGIN,
+  households=new Map(),used=new Set();
+ for(const p of people){
+  const index=citizenHomeIndex(p);
+  if(index<0||index>=city.length||households.has(index))continue;
+  const dest=citizenHomeDestination(p);
+  if(dest?.length===2&&dest.every(Number.isFinite)&&walkable(...dest))
+   households.set(index,{index,dest});
+ }
+ const audit=realHomeLaneStats={occupiedHomes:households.size,
+  connectedHomes:0,segments:0,triangles:0,skippedUnsafe:0,
+  duplicateSections:0,limited:false,
+  changesAuthority:false,changesNavigation:false,extraGpuBuffers:0};
+ const candidates=[...households.values()].filter(h=>h.index!==marketHomeStreetStats.homeIndex)
+  .sort((a,b)=>Math.hypot(a.dest[0]-origin[0],a.dest[1]-origin[1])-
+   Math.hypot(b.dest[0]-origin[0],b.dest[1]-origin[1])||a.index-b.index);
+ const earth=[rgb(0x938876),rgb(0x887e6d),rgb(0x9b8b74),rgb(0x807b6d)],
+  rut=[rgb(0x625f50),rgb(0x6e6656)];
+ materialScope(MATERIAL.ROAD,()=>{
+  for(const h of candidates){
+   if(audit.limited||audit.connectedHomes>=10)break;
+   const route=routeBetween(...origin,...h.dest);
+   if(!route?.length||Math.hypot(route.at(-1)[0]-h.dest[0],
+      route.at(-1)[1]-h.dest[1])>.7)continue;
+   const points=[origin,...route];let inserted=0;
+   for(let i=0;i<points.length-1&&!audit.limited;i++){
+    const a=points[i],b=points[i+1],dx=b[0]-a[0],dz=b[1]-a[1],
+     length=Math.hypot(dx,dz);
+    if(length<.02)continue;
+    const nx=-dz/length,nz=dx/length,count=Math.ceil(length/1.12);
+    for(let j=0;j<count;j++){
+     if(audit.triangles+6>REAL_HOME_LANE_BUDGET){
+      audit.limited=true;break;
+     }
+     const x0=a[0]+dx*j/count,z0=a[1]+dz*j/count,
+      x1=a[0]+dx*(j+1)/count,z1=a[1]+dz*(j+1)/count;
+     const edge=[[x0,z0],[x1,z1]],key=edge.map(pt=>pt.map(n=>n.toFixed(3)).join(',')).sort().join('>');
+     if(used.has(key)){audit.duplicateSections++;continue;}
+     if(![edge[0],edge[1],[(x0+x1)/2,(z0+z1)/2]].every(v=>walkable(...v))){
+      audit.skippedUnsafe++;continue;
+     }
+     const at=(x,z,off,lift)=>{const xx=x+nx*off,zz=z+nz*off;
+      return [xx,terrain(xx,zz)+lift,zz]};
+     // Continuous low worn 3D street, with two real wheel-cut dark strips.
+     // Surface is slightly above the original graded road to avoid z-fighting.
+     upwardRoadQuad(at(x0,z0,-.42,.084),at(x1,z1,-.42,.084),
+      at(x1,z1,.42,.084),at(x0,z0,.42,.084),earth[(i+j+h.index)%4]);
+     for(const side of [-1,1]){
+      const off=side*.235;
+      upwardRoadQuad(at(x0,z0,off-.045,.086),at(x1,z1,off-.045,.086),
+       at(x1,z1,off+.045,.086),at(x0,z0,off+.045,.086),
+       rut[(i+j+(side+1)/2)%2]);
+     }
+     used.add(key);inserted++;audit.segments++;audit.triangles+=6;
+    }
+   }
+   if(inserted)audit.connectedHomes++;
+  }
+ });
+ if((data.length-first)/30!==audit.triangles||
+    audit.triangles>REAL_HOME_LANE_BUDGET)
+  throw Error('W351 authentic connected inhabited street budget exceeded');
+}
 // W345 rendering spine: retained original founding-yard and craft architecture
 // does not rebuild whenever ACTUAL freight/home routes change. Keep the
 // complete source triangles; only road-dependent geometry remains dirty.
@@ -14115,6 +14189,7 @@ function inhabitedHighStreet(includeFounding=true){
  // enters the dirty district after genuine new construction.
  if(includeFounding)renderFoundingHighStreetLanes();
  marketToRealHomeStreet();
+ renderRealInhabitedLaneNetwork();
  // Standalone original rendering remains complete. In the active WebGL and
  // CPU-fallback district path the same fronts already belong to the core.
  if(includeFounding)renderFoundingStreetfronts();
@@ -14142,7 +14217,8 @@ let farmMarketStreetStats={source:'walkable-granary-to-real-receiving-market-str
 function getFarmMarketStreetAudit(){return {...farmMarketStreetStats,
  boundary:{...farmStreetWeaveStats},
  realOrigin:farmMarketStreetStats.realOrigin.slice(),
- realDestination:farmMarketStreetStats.realDestination.slice()}}
+ realDestination:farmMarketStreetStats.realDestination.slice(),
+ inhabitedConnections:getRealHomeLaneNetworkAudit()}}
 // W210: low original hazel/oak service-road edging follows true courier
 // navigation; no new colliders, homes, citizens, inventory or RNG.
 // W264: reconstruct ONE physically continuous original freight avenue from
