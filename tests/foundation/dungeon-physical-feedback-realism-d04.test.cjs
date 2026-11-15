@@ -1244,3 +1244,40 @@ test('D04 only marks occupied GPU instance matrix rows for upload, not the whole
   assert.ok(stage.stats().reservedInstances<=104);
  }finally{stage.dispose()}
 });
+
+
+test('D04 nonadjacent retained GPU matrix dirt is kept sparse and strictly bounded under hidden-pool churn',async()=>{
+ const {planD04MatrixUploadRanges,MAX_D04_PENDING_MATRIX_UPLOAD_RANGES,
+  PHYSICAL_FEEDBACK_POOL_LIMITS}=await load('physical-feedback-visuals.js');
+ const cap=PHYSICAL_FEEDBACK_POOL_LIMITS.hit;
+ assert.equal(cap,48,'the known hit pool reserves 48 instances');
+ let pending=planD04MatrixUploadRanges([],0,cap);
+ pending=planD04MatrixUploadRanges(pending,cap-1,cap);
+ assert.deepEqual(pending,[{start:0,count:16},{start:(cap-1)*16,count:16}],
+  'two distant changed matrices must not force uploading all reserved hit slots');
+ pending=planD04MatrixUploadRanges(pending,1,cap);
+ assert.deepEqual(pending,[{start:0,count:32},{start:(cap-1)*16,count:16}],
+  'adjacent dirty matrices coalesce without bridging distant untouched rows');
+ for(const index of [12,24,36,6,18,30,42]){
+  pending=planD04MatrixUploadRanges(pending,index,cap);
+  assert.ok(pending.length<=MAX_D04_PENDING_MATRIX_UPLOAD_RANGES,
+   'even a hidden mesh with scattered effects cannot grow update-record memory without bound');
+  assert.ok(pending.every(r=>Number.isSafeInteger(r.start)&&r.start%16===0&&
+   Number.isSafeInteger(r.count)&&r.count>0&&r.count%16===0&&r.start+r.count<=cap*16),
+   'every WebGL float update must cover full, in-bounds matrix rows');
+  assert.ok(pending.every((r,i)=>i===0||pending[i-1].start+pending[i-1].count<r.start),
+   'pending WebGL update ranges must be sorted, nonoverlapping and nonadjacent');
+ }
+ assert.ok(pending.reduce((n,r)=>n+r.count,0)<cap*16,
+  'scattered edits must still save a meaningful part of the 48-instance buffer');
+ let dormant=[];
+ for(let i=0;i<500;i++)dormant=planD04MatrixUploadRanges(dormant,i%2?cap-1:0,cap);
+ assert.deepEqual(dormant,[{start:0,count:16},{start:(cap-1)*16,count:16}],
+  'five hundred invisible-pool rewrites must neither accumulate ranges nor widen to full storage');
+ assert.deepEqual(planD04MatrixUploadRanges([{start:-1,count:16}],2,cap),
+  [{start:0,count:cap*16}],
+  'corrupt/unaligned pending renderer ranges must use the existing conservative full-buffer fallback');
+ assert.deepEqual(planD04MatrixUploadRanges([],cap,cap),
+  [{start:0,count:cap*16}],
+  'an out-of-range matrix index must not produce an out-of-bounds GPU upload');
+});
