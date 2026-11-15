@@ -1174,7 +1174,11 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   for(let i=0;i<Math.min(current.units.length,256);i++){
    const unit=current.units[i];
    if(unit?.id!==cue.actorId)continue;
-   if(source)return false;
+   // The planner discovers eligible actions only in its first 96 units.
+   // Its wider 256-unit pass is for identity conflict detection, NOT a
+   // second source-discovery window. A late-only dry cast/draw cannot claim
+   // a performer, even when the displayed rig happens to have that ID.
+   if(source||i>=PHYSICAL_FEEDBACK_MAX_EVENT_SCAN)return false;
    source=unit;
   }
   const expectedAction=ranged?'attack':'cast';
