@@ -61,3 +61,34 @@ test('no synthetic elevated landing, out-of-range ascent, forged platform or exp
     assert.equal(sample(s,held),null,'must reject non-source contact or stale/mismatched guardian: '+JSON.stringify(s.player));
   }
 });
+test('observed tick-535 first real f9:p2 standing height BELOW the old 160000 ceiling keeps the authentic original gate',async()=>{
+  const {observedSourcePhysicalArrivalPalette,observedSourceGatewayDeparturePresence}=await palette;
+  const {observedSourceBoundColdDoorwayLens}=await lens;
+  const {pointFor}=await coords;
+  const {source,held}=crossing();
+  // Based on the original 1x source trace: old f8 cap top 3,224,000,
+  // first raised F9 route stalls/stands at body y 3,364,000 (halfHeight 14,000)
+  // on the real target f9:p2. Its soles are only 126,000 above the old roof.
+  // The old ground-only condition rejected this contact even though it was
+  // BELOW the 160,000 upper flight bound.
+  const oldRoof=3224000;
+  const cap={id:'f8:cap',x:115200,y:3212000,width:249600,height:12000};
+  const exitX=cap.x+Math.floor(cap.width*.76);
+  Object.assign(source,{tick:535,chunkBaseY:3212000,worldWidth:480000,
+    platforms:[{id:'f9:ground',x:105000,y:3212000,width:270000,height:12000},
+      {id:'f9:p2',x:320000,y:3330000,width:40000,height:20000}],
+    lastGuardianCrossing:{runToken:source.runToken,fromFloor:8,toFloor:9,
+      sourceTick:475,cap,exitX,crossingX:321096,halfWidth:9000,
+      halfHeight:14000,guardian:{kind:'guardian',active:false,health:0}}});
+  Object.assign(source.player,{x:336796,y:3364000,halfWidth:9000,
+    halfHeight:14000,groundedPlatformId:'f9:p2'});
+  Object.assign(held,{oldRoofY:oldRoof,thresholdX:exitX,oldCapX:cap.x,
+    oldCapWidth:cap.width,sourceTick:475,crossingTick:475,
+    firstWorldRenderTick:475});
+  const result=observedSourcePhysicalArrivalPalette(source,held);
+  assert.equal(result?.sourceBound,true,'source-authentic real 126000-unit first raised contact');
+  assert.equal(observedSourceGatewayDeparturePresence(source,held)?.sourceBound,true);
+  const hero=pointFor(source.player.x,source.player.y,source.chunkBaseY,source.worldWidth,25);
+  assert.equal(observedSourceBoundColdDoorwayLens(source,held,hero,960/600)?.sourceBound,true);
+  assert.equal(observedSourceBoundColdDoorwayLens(source,held,hero,390/844)?.sourceBound,true);
+});
