@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-15T10:43:00.000Z",
+  "updatedAt": "2026-11-15T10:54:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass392: source-bound exact-HEAD browser exposed a real 404 for the new guardian-heartlight ESM route; production stream whitelist and regression contract repaired. Previous Playwright six-reset and screenshots timed out before geometry/image evidence, NOT a demonstrated >100 regression. New exact-HEAD native verification pending; Nintendo benchmark unmet, draft unmerged/undeployed."
+    "summary": "Pass393: exact-source candidate WebGL 43705659596, native 39 PNGs, verified 37/37 individual SHA pairs plus 3/3 gate hashes; light-stage image critic REJECTS meaningful guardian gameplay readability gain. Selective source rollback to trusted baseline prepared, original strict checks unchanged; new rollback HEAD CI pending, Nintendo benchmark unmet, draft unmerged/undeployed."
   },
   "captures": [
+    {
+      "title": "Pass393 authentic guardian-light candidate WebGL: all viewport evidence, visually REJECTED",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/43705659596/artifacts/14158710877"
+    },
     {
       "title": "Pass388 authentic source-bound original native WebGL evidence — tested, visually REJECTED",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/43693228102/artifacts/14153766276"

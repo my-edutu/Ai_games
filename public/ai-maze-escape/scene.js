@@ -1,5 +1,4 @@
 import * as THREE from './vendor/three.module.js';
-import { publicGuardianHeartLightCue } from './public-guardian-heartlight.mjs';
 import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
@@ -100,14 +99,6 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   rim.position.set(8, 5, -20); scene.add(rim);
   const lanternLight = new THREE.PointLight('#ffcb79', 2.1, 4, 2);
   scene.add(lanternLight);
-  // One bounded, physically anchored source: Thornback's ACTUAL connected
-  // ember heart, revealed only during a current publicly witnessed encounter.
-  // This uses zero additional mesh/geometry/material classes and no AI state.
-  const guardianHeartLight = new THREE.PointLight('#ff8057', 0, 4.4, 2);
-  guardianHeartLight.name = 'Observed Thornback signal-heart illumination';
-  guardianHeartLight.visible = false;
-  scene.add(guardianHeartLight);
-  const guardianHeartWorldPosition = new THREE.Vector3();
   // Original physical lantern search volume: only real, mutually visible and
   // directly connected Pip/Thornback cells may light one another. Not a new
   // attack, warning billboard, route cue, shadow or authoritative action.
@@ -584,29 +575,6 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         danger:1,result,reducedMotion:settings.reducedMotion,
       });
     }
-    // The existing public actor encounter, not an unseen/remembered guardian,
-    // temporarily gives the ACTUAL emissive heart a local warm/coral light pool.
-    // Pip's hand-held golden lantern remains a different real source: the
-    // contrast stages both living bodies and the genuine shell brace/release
-    // without a billboard, fabricated danger, camera crop or engine action.
-    // Exact neutral lighting and zero illumination return immediately when
-    // the public encounter disappears, closes, ends or loses its witnessed beat.
-    const observedHeart = !result && closestThreatModel
-      ? closestThreatModel.getObjectByName('opened guardian signal heart') : null;
-    const heartCue = observedHeart?.visible
-      ? publicGuardianHeartLightCue(closestThreat?.strength,
-        closestThreat?.encounterBeat, settings.reducedMotion) : 0;
-    guardianHeartLight.visible = heartCue > 0;
-    guardianHeartLight.intensity = 2.85 * heartCue;
-    if (guardianHeartLight.visible) {
-      observedHeart.getWorldPosition(guardianHeartWorldPosition);
-      guardianHeartLight.position.copy(guardianHeartWorldPosition);
-    }
-    // Subtle, bounded key-to-fill staging only during the actual event:
-    // masonry recedes while modeled lantern, face, moving armor and rails
-    // carry the light. Other puzzle beats retain the original calibrated rig.
-    sun.intensity = 2.90 - .30 * heartCue;
-    sky.intensity = 1.42 - .15 * heartCue;
     // Authentic same-run public CLOSED→OPEN testimony drives both Pip's
     // acting and the camera. An already-open discovery never triggers it.
     const publicOpeningMoment = !result && !closestThreat?.strength
@@ -1845,7 +1813,6 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     world.dispose(); explorer.dispose();
     scene.remove(pickupBurst); pickupGeometry.dispose(); pickupMaterial.dispose(); pickupBurst.clear();
     scene.remove(lanternBeam,lanternSurveyTurn); lanternBeamGeometry.dispose(); lanternBeamMaterial.dispose();
-    scene.remove(guardianHeartLight);
     for (const entry of wardens.values()) removeWarden(entry);
     wardens.clear();
     // Fully release the deliberately bounded dormant GPU rig on final teardown.
