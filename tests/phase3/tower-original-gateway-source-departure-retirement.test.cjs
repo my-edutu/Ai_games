@@ -96,6 +96,9 @@ test('genuine Floor 9 route reversal retains SAME GPU bronze gateway until a rea
   assert.equal(climbed?.sourceBound,true);
   assert.equal(climbed.horizontalProgress,0);
   assert.equal(climbed.verticalProgress,1);
+  assert.ok(presence(source,held)?.opacity>.5,
+    'four returns must not hard replace old and new architectures');
+  held.submittedFrames=8;held.visibleSeconds=1.22;
   assert.equal(presence(source,held)?.opacity,0);
   // A huge rewind, a forged guardian or a wrong run cannot resurrect the gate.
   source.player.x=source.lastGuardianCrossing.crossingX-tolerance-1;

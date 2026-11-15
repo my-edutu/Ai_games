@@ -12,6 +12,11 @@ const valid=Number.isSafeInteger;
 // This is a bound on a source-observed return, NOT permission to re-cross or
 // manufacture a floor change. Both palette and camera use the same bound.
 export const SOURCE_GATEWAY_RETURN_TOLERANCE = 18000;
+// A genuine Floor9 raised-platform sole contact can outlive the original
+// 70 source-tick cap lease while a slow WebGL browser has submitted only one
+// old/new doorway frame. Both world and camera use this SAME source proof.
+export const SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS = 110;
+export const SOURCE_GATEWAY_RAISED_FLIGHT_TAIL_TICKS = 32;
 const clamp01=n=>Math.min(1,Math.max(0,n));
 const smooth=n=>{const t=clamp01(n);return t*t*(3-2*t);};
 
@@ -85,6 +90,44 @@ export function observedSourceFloorNineRouteSupport(source,ground,roofY) {
     p.groundedPlatformId==null && Number.isFinite(p.vy);
 }
 
+/**
+ * An authentic raised Floor9 route is eligible for the old/new *optical*
+ * bridge only after the real world saw its exact grounded source support.
+ * The world records raisedDeckSourceTick on actual contact; this merely
+ * verifies its same-run age and a bounded legitimate flight thereafter.
+ * No synthetic support, floor, combat event or gameplay state is created.
+ */
+export function observedSourceRetainedRaisedExit(source,held,roofY) {
+  const p=source?.player,w=source?.lastGuardianCrossing;
+  if(source?.floor!==9 || source.theme!=='void' ||
+     source.lifecycle!=='running' || !(p?.health>0) ||
+     !held || held.guardianGateRetained!==true ||
+     held.runToken!==source.runToken || held.floor!==9 ||
+     held.oldRoofY!==roofY || !valid(roofY) ||
+     !valid(source.tick) || !valid(held.raisedDeckSourceTick) ||
+     !valid(held.thresholdX) ||
+     w?.runToken!==source.runToken || w.fromFloor!==8 ||
+     w.toFloor!==9 || w.guardian?.kind!=='guardian' ||
+     w.guardian.active!==false || !Number.isFinite(w.guardian.health) ||
+     w.guardian.health>0 || w.cap?.id!=='f8:cap' ||
+     !valid(w.sourceTick) || !valid(w.exitX) ||
+     w.exitX!==held.thresholdX ||
+     !valid(w.cap?.y) || !valid(w.cap?.height) ||
+     w.cap.y+w.cap.height!==roofY ||
+     held.raisedDeckSourceTick<w.sourceTick ||
+     held.raisedDeckSourceTick>source.tick ||
+     source.tick-w.sourceTick>SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS ||
+     source.tick-held.raisedDeckSourceTick>SOURCE_GATEWAY_RAISED_FLIGHT_TAIL_TICKS)
+    return false;
+  if(observedSourceSuccessorRaisedDeck(source,roofY))return true;
+  const sole=p.y-p.halfHeight;
+  return p.grounded===false && p.state==='airborne' &&
+    p.groundedPlatformId==null && Number.isFinite(p.vy) &&
+    [p.x,p.y,p.halfHeight].every(valid) &&
+    p.halfHeight>0 && Math.abs(p.x-held.thresholdX)<=100000 &&
+    valid(sole) && sole>=roofY-2500 && sole<=roofY+230000;
+}
+
 export function observedSourcePhysicalArrivalPalette(source,held=null) {
   const p=source?.player, w=source?.lastGuardianCrossing;
   if(!source || !p || source.lifecycle!=='running' ||
@@ -129,10 +172,15 @@ export function observedSourcePhysicalArrivalPalette(source,held=null) {
     sourceTick=held.sourceTick;kind='verified-original-roof-receipt';
   }
   const sole=p.y-p.halfHeight,travel=p.x-crossingX,age=source.tick-sourceTick;
-  if(!valid(sole) || !valid(travel) || !valid(age) || age<0 || age>70 ||
+  const realRaisedOpticalExit=observedSourceRetainedRaisedExit(source,held,roofY);
+  const sourceWindow=realRaisedOpticalExit
+    ?SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS:70;
+  if(!valid(sole) || !valid(travel) || !valid(age) || age<0 ||
+     age>sourceWindow ||
      travel < -SOURCE_GATEWAY_RETURN_TOLERANCE || travel>100000 ||
      sole<roofY-2500 || sole>roofY+230000 ||
-     !observedSourceFloorNineRouteSupport(source,ground,roofY))return null;
+     (!observedSourceFloorNineRouteSupport(source,ground,roofY) &&
+       !realRaisedOpticalExit))return null;
   // The full-body climber remains warm at the actual old sill, and walks
   // through a 90m material transition into the existing next-floor palette.
   // This changes NO geometry, physics, inputs, tick, enemy or gameplay state.
@@ -177,7 +225,7 @@ export function observedSourcePhysicalArrivalPalette(source,held=null) {
     held.runToken===source.runToken && held.floor===9 &&
     valid(held.firstWorldRenderTick) &&
     held.firstWorldRenderTick<=source.tick &&
-    source.tick-held.firstWorldRenderTick<=70 &&
+    source.tick-held.firstWorldRenderTick<=sourceWindow &&
     valid(held.submittedFrames) &&
     held.submittedFrames>=0 && held.submittedFrames<12 &&
     Number.isFinite(held.visibleSeconds) &&
@@ -202,10 +250,12 @@ export function observedSourcePhysicalArrivalPalette(source,held=null) {
   // next THREE returned frames finish a source-earned physical departure.
   // Dropped RAFs and polls advance nothing. The same true source progress
   // is still the upper bound, and it never changes actor/physics state.
+  // Original 25fps WebMs at 04aaad27 prove one real F9 doorway GPU return
+  // followed by a violet hard cut. Keep the authentic old/new materials
+  // coupled across EIGHT returned frames, not an unobserved four-frame swap.
   const gpuProgress=originalGpuVisible
-    ?held.submittedFrames===0?0:
-      held.submittedFrames===1?smooth(2/15):
-      smooth((held.submittedFrames-1)/3):1;
+    ?held.submittedFrames<=1?0:
+      smooth((held.submittedFrames-1)/7):1;
   const progress=Math.min(physicalProgress,gpuProgress);
   const oldWeight=1-progress;
   return {sourceBound:true,sourceTick:source.tick,crossingTick:sourceTick,
@@ -245,8 +295,10 @@ export function observedSourceGatewayDeparturePresence(source,held) {
   // four-return sequence. The earlier .9s/6-return minimum could not finish
   // before the observed cold video advanced 60-70 authoritative ticks,
   // producing a one-frame discontinuity at source-proof retirement.
-  const displayedSeconds=smooth((held.visibleSeconds-.08)/.30);
-  const submittedFrames=smooth((held.submittedFrames-1)/3);
+  // The old gateway, source-extracted gallery, roof, sky and new shaft all
+  // consume one physically earned, WebGL-return-gated optical passage.
+  const displayedSeconds=smooth((held.visibleSeconds-.08)/1.05);
+  const submittedFrames=smooth((held.submittedFrames-1)/7);
   const visibleProgress=Math.min(displayedSeconds,submittedFrames);
   // Do not erase the real bronze gate while the actual climber still occupies
   // the threshold. Only a fully-cleared original opening can retire its
@@ -275,7 +327,8 @@ export function sourceOwnedOriginalArchitectureCoverage(source,held) {
       !Number.isSafeInteger(source.tick) ||
       !Number.isSafeInteger(held.firstWorldRenderTick) ||
       source.tick<held.firstWorldRenderTick ||
-      source.tick-held.firstWorldRenderTick>70 ||
+      source.tick-held.firstWorldRenderTick>(observedSourceRetainedRaisedExit(
+        source,held,held.oldRoofY)?SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS:70) ||
       !Number.isSafeInteger(held.submittedFrames) ||
       held.submittedFrames<0 || held.submittedFrames>=30 ||
       !Number.isFinite(held.visibleSeconds) ||

@@ -50,16 +50,18 @@ test('the physical original gateway needs full-body source clearance AND returne
   assert.equal(samplePresence(source,held)?.opacity,1);
   rise(source,10);
   assert.equal(samplePresence(source,held)?.opacity,1,'stalled original GPU cannot age a gate');
-  // Two and three actual returned frames must genuinely show an old/new
-  // shared doorway rather than expecting the old door to survive after the
-  // fourth fully source-cleared return (the native hard-cut regression).
+  // Source/native 25fps video: four real returns had not yielded a visible
+  // passage. All original physical materials persist through an 8-return
+  // shared old/new scene instead of suddenly disappearing.
   held.submittedFrames=2;held.visibleSeconds=.22;
   const second=samplePresence(source,held);
-  assert.ok(second?.opacity>.5 && second.opacity<.86);
+  assert.ok(second?.opacity>.93 && second.opacity<1);
   held.submittedFrames=3;held.visibleSeconds=.32;
   const third=samplePresence(source,held);
-  assert.ok(third?.opacity>0 && third.opacity<second.opacity);
+  assert.ok(third?.opacity>.83 && third.opacity<second.opacity);
   held.submittedFrames=4;held.visibleSeconds=.42;
+  assert.ok(samplePresence(source,held)?.opacity>.70);
+  held.submittedFrames=8;held.visibleSeconds=1.22;
   assert.equal(samplePresence(source,held)?.opacity,0);
 });
 test('wrong run, undefeated guardian, false ground or old GPU never authorize original-gate fading',async()=>{

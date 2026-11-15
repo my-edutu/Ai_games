@@ -7,7 +7,7 @@ import { originalMeshPath } from './mesh-provenance.mjs';
 import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs';
 import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedPrebuiltVoidShaftRelease, observedQueuedOriginalCapAtFirstRender, reconcileRecordedOriginalCapCrossing,
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
-import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage } from './source-physical-arrival-palette.mjs';
+import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceRetainedRaisedExit, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS } from './source-physical-arrival-palette.mjs';
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, updateOriginalClockworkSuccessorRoute } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings } from './source-earned-bearing-run.mjs';
@@ -3102,6 +3102,13 @@ export function createTowerWorld(){
       Number.isSafeInteger(p.x) && Number.isSafeInteger(sole) &&
       Math.abs(p.x-held.thresholdX)<=90000 &&
       sole>=held.oldRoofY-2500 && sole<=held.oldRoofY+160000;
+    // Witness the current REAL f9:p2/full-width raised support before any
+    // retirement decision. Its bounded contact receipt may connect the
+    // original physical gate to the next 3D deck through a cold GPU epoch.
+    if(!options.stale && snapshot.floor===9 &&
+       snapshot.runToken===held.runToken &&
+       observedSourceSuccessorRaisedDeck(snapshot,held.oldRoofY))
+      held.raisedDeckSourceTick=snapshot.tick;
     // Do not detach a real old GPU doorway halfway through its authenticated
     // successor ascent simply because the old platform is now below the feet.
     // Both the geometry owner and cloned original-gate materials obey the
@@ -3120,7 +3127,9 @@ export function createTowerWorld(){
         // gateway and gallery while the same source-authenticated passage
         // was still eligible in the returned F9 camera, producing the
         // abrupt native bronze-to-violet replacement on a cold renderer.
-        snapshot.tick<held.sourceTick || snapshot.tick-held.sourceTick>70 ||
+        snapshot.tick<held.sourceTick || snapshot.tick-held.sourceTick>(observedSourceRetainedRaisedExit(
+          snapshot,held,held.oldRoofY)
+            ?SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS:70) ||
         !(p?.health>0) ||
         (!nearDoor && !onCameraHandoffFlight && !retainedBackdrop &&
           !sourceDeparture?.sourceBound) ||

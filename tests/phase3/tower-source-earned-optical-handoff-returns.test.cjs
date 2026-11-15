@@ -17,6 +17,7 @@ function physical() {
   const held={runToken,floor:9,guardianGateRetained:true,
     oldCapId:'f8:cap',oldCapX:cap.x,oldCapWidth:cap.width,
     oldRoofY:3224000,thresholdX:exitX,sourceTick:475,crossingTick:475,
+    raisedDeckSourceTick:535,
     firstWorldRenderTick:475,submittedFrames:0,visibleSeconds:0,
     originalGatewayOpacity:1,opticalExitSubmitted:false};
   return {source,held};
@@ -25,7 +26,8 @@ test('true raised landing retires one original bronze doorway over a few actuall
   const {observedSourcePhysicalArrivalPalette:palette, observedSourceGatewayDeparturePresence:door} =
     await import('../../public/infinite-tower-climb/visuals/source-physical-arrival-palette.mjs');
   const {source,held}=physical(), samples=[];
-  for(const [frames,seconds] of [[0,0],[1,.12],[2,.22],[3,.32],[4,.42]]) {
+  for(const [frames,seconds] of [[0,0],[1,.12],[2,.22],[3,.32],[4,.42],
+    [5,.62],[6,.82],[7,1.02],[8,1.22]]) {
     held.submittedFrames=frames;
     held.visibleSeconds=seconds;
     const physicalProof=palette(source,held), departure=door(source,held);
@@ -36,9 +38,12 @@ test('true raised landing retires one original bronze doorway over a few actuall
   }
   assert.equal(samples[0],1,'first returned new-floor draw must keep old arch');
   assert.equal(samples[1],1,'one submitted 3D frame cannot erase the original door');
-  assert.ok(samples[2]<.86 && samples[2]>.5,'second returned frame must show a partial, not hard, old→new handoff');
-  assert.ok(samples[3]<.5 && samples[3]>.1,'third return must actually advance old-world departure');
-  assert.ok(samples[4]<.02,'fourth real submission must have visibly completed source-cleared original-gate material retirement');
+  assert.ok(samples[2]>.93,'second true returned frame still shows the original gateway');
+  assert.ok(samples[3]>.83 && samples[3]<1,'third frame begins actual old/new architectural overlap');
+  assert.ok(samples[4]>.70,'fourth return cannot hard-delete the source opened gate');
+  assert.ok(samples[5]<samples[4] && samples[5]>.35);
+  assert.ok(samples[7]>0 && samples[7]<.2);
+  assert.ok(samples[8]<.02,'eighth real submission may complete true source-cleared departure');
   for(let i=1;i<samples.length;i++)assert.ok(samples[i]<=samples[i-1]);
 });
 test('never dissolve historical door on a forged passage, uncleared body, or expired source story',async()=>{
@@ -54,7 +59,32 @@ test('never dissolve historical door on a forged passage, uncleared body, or exp
   source.player.x=336796;source.player.y=3364000;
   source.player.groundedPlatformId='f9:p2';
   source.tick=546;
-  assert.equal(door(source,held),null,'source proof never extends past 70 ticks');
+  assert.equal(door(source,held)?.sourceBound,true,
+    'true raised-platform receipt extends the same original gate past 70 ticks');
+  source.tick=586;
+  assert.equal(door(source,held),null,'source proof never extends past 110 ticks');
   source.tick=535;source.lastGuardianCrossing.guardian.health=1;
   assert.equal(door(source,held),null,'no synthetic guardian win');
+});
+
+test('previous true raised contact permits only bounded same-run airborne exit, not imaginary support',async()=>{
+  const {observedSourceRetainedRaisedExit:exit,observedSourcePhysicalArrivalPalette:palette} =
+    await import('../../public/infinite-tower-climb/visuals/source-physical-arrival-palette.mjs');
+  const {source,held}=physical();
+  source.tick=550;
+  source.player={...source.player,grounded:false,groundedPlatformId:null,
+    state:'airborne',vy:900,y:3370000};
+  assert.equal(exit(source,held,held.oldRoofY),true);
+  assert.equal(palette(source,held)?.sourceBound,true);
+  source.tick=569;
+  assert.equal(exit(source,held,held.oldRoofY),false,
+    'a return beyond the 32-tick raised-contact flight tail is not source proof');
+  source.tick=550;held.raisedDeckSourceTick=null;
+  assert.equal(exit(source,held,held.oldRoofY),false);
+  held.raisedDeckSourceTick=535;
+  source.runToken='wrong-run';
+  assert.equal(exit(source,held,held.oldRoofY),false);
+  source.runToken=held.runToken;
+  source.lastGuardianCrossing.guardian.active=true;
+  assert.equal(exit(source,held,held.oldRoofY),false);
 });

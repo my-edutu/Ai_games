@@ -3,7 +3,7 @@
 // gameplay, invent a door, rewind a player, or use an assumed GPU frame rate.
 // The consumer must separately verify both bodies in-frame and clear core rays.
 import { observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
-import { observedSourceSuccessorRaisedDeck } from './source-physical-arrival-palette.mjs';
+import { observedSourceSuccessorRaisedDeck, observedSourceRetainedRaisedExit, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS } from './source-physical-arrival-palette.mjs';
 const integer=Number.isSafeInteger;
 const finite=Number.isFinite;
 // The last real Floor8 returned frame can precede the killing blow. In the
@@ -100,7 +100,10 @@ export function sourceOriginalGatewayCameraBridge(snapshot,held,prior,view={}) {
      // 70-tick original gate/material/cold-camera envelope, while preserving
      // the strict 12-tick unrecorded receipt and other WebGL, support, crop
      // and guardian proof vetoes; no invented old frame is generated.
-     snapshot.tick-realCrossingTick>(recorded?70:12)) return null;
+     snapshot.tick-realCrossingTick>(recorded
+       ?(observedSourceRetainedRaisedExit(snapshot,held,held.oldRoofY)
+         ?SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS:70)
+       :12)) return null;
   if(recorded){
     if(!cap || w.runToken!==snapshot.runToken ||
       w.fromFloor!==8 || w.toFloor!==9 ||
