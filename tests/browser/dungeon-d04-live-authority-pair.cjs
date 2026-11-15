@@ -169,7 +169,7 @@ function classifyD04RealMultiview({seed,manifest,runs}={}){
   matchedAuthorityTicks:0,matchedHpLossTicks:0,
   viewpointFrames:[],budgetViolations:[],sampleSynchronized:false,
   cameraMovingVideoVerified:false,impactAVAccepted:false,
-  causation:null,
+  causation:null,capturePacing:'unverified',
   limitation:'Serial, genuine WebGL snapshots and original consented soundstage WebM, not decoded three-viewpoint moving combat, PCM onset or clock-aligned A/V.'};
  if(!validManifest(manifest)||typeof seed!=='string'||seed.length<1||
   !Array.isArray(runs))return result;
@@ -177,6 +177,11 @@ function classifyD04RealMultiview({seed,manifest,runs}={}){
   D04_MULTIVIEW_MODES.map(viewpoint=>size+'/'+viewpoint));
  const known=new Set(manifest.map(m=>key(m.scene)));
  const byView=new Map();
+ const pacingKinds=new Set(runs.map(arm=>arm?.capturePacing??'wall-clock'));
+ if(pacingKinds.size!==1||![...pacingKinds].every(p=>
+  p==='wall-clock'||p==='frame-acknowledged'))
+  return {...result,status:'INVALID_VIEWPOINT_PROVENANCE'};
+ result.capturePacing=[...pacingKinds][0];
  for(const arm of runs){
   const size=arm?.viewport?.width+'x'+arm?.viewport?.height;
   const view=size+'/'+arm?.viewpoint;
@@ -214,6 +219,30 @@ function classifyD04RealMultiview({seed,manifest,runs}={}){
    }
   }
   const scan=scanArm(arm,'on',manifest);
+  // A frame-paced run makes a narrower claim than continuous playback:
+  // each genuine public tick must be witnessed after an actual WebGL
+  // submission. Its sequence is not realtime, not sample-synchronized
+  // and cannot be used to fabricate responsive 400ms injury playback.
+  if(result.capturePacing==='frame-acknowledged'){
+   if(!Array.isArray(arm.pacedReceipts)||arm.pacedReceipts.length===0||
+    arm.pacedReceipts.length>40)
+    return {...result,status:'INVALID_VIEWPOINT_PROVENANCE'};
+   let previousStage=-1,previousFrame=0,previousAck=0;
+   for(const receipt of arm.pacedReceipts){
+    const m=manifest[receipt?.stageIndex];
+    if(!m||receipt.accepted!==true||
+     receipt.stageIndex!==previousStage+1||
+     !scene(receipt.scene)||key(receipt.scene)!==key(m.scene)||
+     !pos(receipt.frameId)||receipt.frameId<=previousFrame||
+     !pos(receipt.acknowledgedFrames)||receipt.acknowledgedFrames<=previousAck||
+     !scan.byKey.has(key(m.scene))||
+     !arm.samples.some(x=>x.frameId===receipt.frameId&&
+      key(x.scene)===key(m.scene)))
+     return {...result,status:'INVALID_VIEWPOINT_PROVENANCE'};
+    previousStage=receipt.stageIndex;previousFrame=receipt.frameId;
+    previousAck=receipt.acknowledgedFrames;
+   }
+  }
   if(scan.frames.length!==arm.samples.length)
    return {...result,status:'INVALID_VIEWPOINT_PROVENANCE'};
   scans.push(scan);byGeometryView.set(view,scan);
@@ -262,7 +291,8 @@ function classifyD04RealMultiview({seed,manifest,runs}={}){
   result.matchedAuthorityTicks<1||result.matchedHpLossTicks<1?
    'SPARSE_VIEWPOINT_COVERAGE':
   result.distinctViewPairs<6?'VIEWPOINT_GEOMETRY_UNVERIFIED':
-   'SIX_VIEWPOINT_CAPTURED_UNALIGNED';
+   result.capturePacing==='frame-acknowledged'?
+    'SIX_VIEWPOINT_FRAME_PACED_UNALIGNED':'SIX_VIEWPOINT_CAPTURED_UNALIGNED';
  return result;
 }
 module.exports={SOURCE,classifyD04LiveAuthorityPair,classifyD04RealMultiview};
