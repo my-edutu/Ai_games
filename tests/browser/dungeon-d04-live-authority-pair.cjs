@@ -165,6 +165,7 @@ const D04_MULTIVIEW_SIZES=Object.freeze(['1440x900','390x844']);
 function classifyD04RealMultiview({seed,manifest,runs}={}){
  const result={source:SOURCE,status:'INVALID_REAL_AUTHORITY',
   requestedViews:6,observedViews:0,capturedRecorders:0,missingViews:[],
+  distinctViewPairs:0,viewpointGeometry:[],
   matchedAuthorityTicks:0,matchedHpLossTicks:0,
   viewpointFrames:[],budgetViolations:[],sampleSynchronized:false,
   cameraMovingVideoVerified:false,impactAVAccepted:false,
@@ -186,7 +187,7 @@ function classifyD04RealMultiview({seed,manifest,runs}={}){
  result.missingViews=expected.filter(view=>!byView.has(view));
  if(result.missingViews.length||byView.size!==6)
   return {...result,status:'INCOMPLETE_VIEWPOINT_CAPTURE'};
- const scans=[];
+ const scans=[],byGeometryView=new Map();
  for(const view of expected){
   const arm=byView.get(view);
   if(arm.seed!==seed||arm.capture!=='on'||arm.feedbackMode!=='d04'||
@@ -215,7 +216,7 @@ function classifyD04RealMultiview({seed,manifest,runs}={}){
   const scan=scanArm(arm,'on',manifest);
   if(scan.frames.length!==arm.samples.length)
    return {...result,status:'INVALID_VIEWPOINT_PROVENANCE'};
-  scans.push(scan);
+  scans.push(scan);byGeometryView.set(view,scan);
   const recorded=validRecorder('on',arm.recorder)&&
    pos(arm.recorder.requestedFrames);
   if(recorded)result.capturedRecorders++;
@@ -231,10 +232,37 @@ function classifyD04RealMultiview({seed,manifest,runs}={}){
  const matches=manifest.filter(m=>scans.every(s=>s.byKey.has(key(m.scene))));
  result.matchedAuthorityTicks=matches.length;
  result.matchedHpLossTicks=matches.filter(m=>m.victimIds.length).length;
+ // Distinct UI labels are NOT evidence of distinct 3D camera positions.
+ // Compare the physical camera and aim on EXACT shared authority states
+ // within each viewport. A sampled software-WebGL gap is UNKNOWN, never
+ // a made-up third camera direction.
+ const different3D=(a,b)=>{
+  const distance2=(u,v)=>(u.x-v.x)**2+(u.y-v.y)**2+(u.z-v.z)**2;
+  return distance2(a.cameraPosition,b.cameraPosition)>.75**2||
+   distance2(a.cameraAim,b.cameraAim)>.75**2;
+ };
+ for(const size of D04_MULTIVIEW_SIZES){
+  for(let i=0;i<D04_MULTIVIEW_MODES.length;i++){
+   for(let j=i+1;j<D04_MULTIVIEW_MODES.length;j++){
+    const left=size+'/'+D04_MULTIVIEW_MODES[i],
+     right=size+'/'+D04_MULTIVIEW_MODES[j];
+    const a=byGeometryView.get(left).byKey,
+     b=byGeometryView.get(right).byKey;
+    const common=manifest.filter(m=>a.has(key(m.scene))&&b.has(key(m.scene)));
+    const distinguished=common.some(m=>
+     different3D(a.get(key(m.scene)),b.get(key(m.scene))));
+    result.viewpointGeometry.push({left,right,commonAuthorityStates:common.length,
+     distinctCameraPositionsOrAims:distinguished});
+    if(distinguished)result.distinctViewPairs++;
+   }
+  }
+ }
  result.status=result.budgetViolations.length?'LIVE_EFFECT_BUDGET_VIOLATION':
   result.capturedRecorders<6?'INCOMPLETE_VIEWPOINT_CAPTURE':
   result.matchedAuthorityTicks<1||result.matchedHpLossTicks<1?
-   'SPARSE_VIEWPOINT_COVERAGE':'SIX_VIEWPOINT_CAPTURED_UNALIGNED';
+   'SPARSE_VIEWPOINT_COVERAGE':
+  result.distinctViewPairs<6?'VIEWPOINT_GEOMETRY_UNVERIFIED':
+   'SIX_VIEWPOINT_CAPTURED_UNALIGNED';
  return result;
 }
 module.exports={SOURCE,classifyD04LiveAuthorityPair,classifyD04RealMultiview};
