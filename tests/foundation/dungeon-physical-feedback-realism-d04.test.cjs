@@ -1532,3 +1532,47 @@ test('D04 visual receipts render each HP-loss event once across expiry but reset
    'a clean scene reset permits a fresh independent replay fixture');
  }finally{stage.dispose()}
 });
+
+
+test('D04 strict visual and original sound reject noncanonical projectile identities before GPU allocation',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {isCanonicalVerifiedCombatFoleyCue}=await load('original-combat-foley.js');
+ const {T,scene}=three();
+ const ranger={id:'ranger',kind:'ranger',faction:'party',x:2,z:2,
+  hp:20,maxHp:20,action:'attack',actionTick:11};
+ const drawn={u:ranger,authored:false,
+  root:{visible:true,position:{x:-7,y:0,z:-7},rotation:{y:0}}};
+ const current={run:1,floor:1,tick:11,units:[ranger]};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  requireVerifiedHpReceipt:true,getCurrentSnapshot:()=>current,
+  actorById:id=>id==='ranger'?drawn:null
+ });
+ const release=cue({id:'1:1:11:ranged-release:ranger:revenant',
+  kind:'ranged-release',visual:'launch',audio:'ranged-release',
+  proof:'authority-action',verified:true,
+  actorId:'ranger',targetId:'revenant',
+  from:{x:2,z:2},to:{x:4,z:2}});
+ try{
+  assert.equal(isCanonicalVerifiedCombatFoleyCue(release),true,
+   'genuine public action should satisfy the original foley identity contract');
+  for(const forged of [
+   {...release,id:'unbound-release-event'},
+   {...release,id:'1:1:11:ranged-release:ranger:another-target'},
+   {...release,id:'1:1:11:ranged-release:-:revenant'},
+   {...release,id:'1:1:11:spell-release:ranger:revenant'},
+   {...release,targetId:'other-target'}
+  ]){
+   assert.equal(isCanonicalVerifiedCombatFoleyCue(forged),false,
+    'original sound already rejects a claimed action whose ID disagrees with its witness');
+   assert.equal(stage.emit(forged),false,
+    'strict physical VFX must not draw an arrow that original sound would reject');
+   assert.equal(stage.stats().active,0,'forged release never reserves retained GPU art');
+  }
+  assert.equal(stage.emit(release),true,'authentic arrow launch remains visible');
+  const initial=stage.stats().spawned;
+  assert.equal(stage.emit({...release}),false,'one real release remains one-shot');
+  assert.equal(stage.stats().spawned,initial,'duplicate does not allocate again');
+  assert.ok(stage.stats().reservedInstances<=104);
+  assert.ok(stage.stats().activeDrawCalls<=7);
+ }finally{stage.dispose()}
+});
