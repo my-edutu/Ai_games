@@ -30,7 +30,7 @@ import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCamer
 import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardianDuelEdgePressure, guardianLiveFightLockPriority } from './guardian-gate-intrusion.mjs';
 import { observedGuardianTransmissionCorners } from './guardian-transmission-layout.mjs';
 import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
-import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps } from './physical-threshold-shot.mjs';
+import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates } from './physical-threshold-shot.mjs';
 import { sourceSubmittedDoorwayCameraDt } from './source-submitted-doorway-cadence.mjs';
 import { createTowerVoidProgramPrewarm } from './void-program-prewarm.mjs';
 import { sourceOriginalGatewayCameraBridge, observedOriginalGatewaySubmittedView } from './original-gateway-submitted-camera-bridge.mjs';
@@ -4816,18 +4816,22 @@ export function createTowerScene(canvas, settings = {}) {
       const existingDeckView=world.measureSuccessorDeckVisibility(
         snapshot,camera.position,thresholdHero,p.halfHeight/SCALE,
         thresholdGate,targetPlatform?.id??null);
-      if(existingDeckView?.active && existingDeckView.bodyBlockedRays>0) {
+      if(existingDeckView?.active && existingDeckView.score>0) {
         successorDeckCameraProbes=Math.min(1000000,successorDeckCameraProbes+1);
         thresholdPreviousCamera.copy(camera.position);
         thresholdPreviousGaze.copy(lookAt);
         const initialAzimuth=Math.atan2(camera.position.x,camera.position.z);
         const exteriorRadius=Math.hypot(camera.position.x,camera.position.z);
         let bestScore=existingDeckView.score;
-        // Each movement is a small PRESENT-camera step. The source-selected
-        // landing itself cannot disappear or become a fabricated platform.
-        for(const [yaw,height,radial] of [
-          [-.045,1.7,1.8],[.045,1.7,1.8],
-          [-.035,-1.7,2.2],[.035,-1.7,2.2]]) {
+        // Escalate through a fixed eight-shot exterior 3D clearance ladder
+        // ONLY when actual source-owned platform triangles hide the present
+        // skinned body or the original opened bronze gate. Candidate yaw,
+        // height and depth cover whole shoulders/roof lip, not just centre.
+        // Every proposal is reversible; source contact/camera safety still
+        // vetoes a fake cleared shot or a new platform/collider.
+        const clearance=sourceDeckGatewayClearanceCandidates(
+          camera.aspect,existingDeckView) || [];
+        for(const [yaw,height,radial] of clearance) {
           const angle=initialAzimuth+yaw,radius=exteriorRadius+radial;
           camera.position.set(Math.sin(angle)*radius,
             thresholdPreviousCamera.y+height,Math.cos(angle)*radius);
@@ -4850,10 +4854,15 @@ export function createTowerScene(canvas, settings = {}) {
           const candidate=world.measureSuccessorDeckVisibility(
             snapshot,camera.position,thresholdHero,p.halfHeight/SCALE,
             thresholdGate,targetPlatform?.id??null);
+          // Neither genuine subject may become MORE obstructed to improve
+          // the other. This also rescues a blocked GATE when body centre was
+          // already clear, which the earlier body-only predicate ignored.
           if(candidate?.active && candidate.score<bestScore &&
-             candidate.bodyBlockedRays<existingDeckView.bodyBlockedRays) {
+             candidate.bodyBlockedRays<=existingDeckView.bodyBlockedRays &&
+             candidate.gatewayBlockedRays<=existingDeckView.gatewayBlockedRays) {
             bestScore=candidate.score;
             thresholdBestCamera.copy(camera.position);
+            if(bestScore===0)break;
           }
         }
         camera.position.copy(bestScore<existingDeckView.score
