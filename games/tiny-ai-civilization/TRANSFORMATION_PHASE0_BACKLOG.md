@@ -1,3 +1,19 @@
+## W340 · 15 November 2026 · SAME active Phase 1 original economic vertical slice
+
+Source `8897bd43ef6f787105e8efb0df452e31ded76119`, open DRAFT PR #64 (NO MERGE), immutable G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. W339 [authentic Day121 mobile video](https://github.com/my-edutu/Ai_games/actions/runs/43651387629/artifacts/14136356762) was inspected: market post hides the actual actor around 10s. W340 changes only original workday camera shot certification: safe above-roof actual perspective candidate, complete fresh projected hand/face/body/crowd survey and authentic worker director admission. No invented actor or resource credit; no demonstrated post-change mobile camera pass yet.
+
+| Priority / SAME workstream | Observed current blocker and expected actual visible change | Acceptance gate |
+| --- | --- | --- |
+| 1 · static retained rendering + CPU/driver/GPU | W339 [W69 real CPU stages](https://github.com/my-edutu/Ai_games/actions/runs/43651388055/artifacts/14135889221) desktop p95 frame 85.8ms, cold build worst 350.5ms; portrait p95 75.4ms, cold build worst 350.1ms. W340 high-eye survey cost unmeasured. | Matched representative phone and desktop physical GPU >30 sustained fps, p95≤33.3ms; stable memory, <160k visible triangles, no severe new survey stall |
+| 2 · original farmer/worker visibility + physically plausible camera | W339 live 390px worker obscured by market timber; W340 adds bounded 24-eye physically checked raised view and remeasures real body/hand/crowd for selected professional. | Actual new uninterrupted 390px workday video shows authoritative farmer harvest, full-body hands and safe continuous actor, no hidden structures or fake movement |
+| 3 · cohesive original architecture | Grown Day121 town has repeating narrow, faceted cottage facades and large foreground roofs despite authentic occupancy. | Whole contiguous farm→granary→market→home rebuilt visibly, strict G088 actor/state/seed matched A/B + genuinely independent blind LOOK win |
+| 4 · visible real economy and 390px UI | Supply opener works, but expanded bottom sheet obscures half portrait scene while tracking cargo. | Real receiving market inventory credit and actual inhabited home consumption are legible throughout uninterrupted interactive touch camera; pause/save/speed retain inputs |
+| 5 · deterministic integrity + commercial critique | W339 GPU Evidence CI 3 outdated source fixture failures; W340 fixtures corrected, fresh CI pending; exact-world A/B checksums differ. | 120-day identical replay + long growth stable, no GL/page errors, all visible citizens/homes, physical hardware timings, independent blind critics. B commercial quality separately scored FAIL |
+
+A LOOK/FEEL/PLAY **NOT PROVEN**; B commercial Manor Lords parity **FAIL**. PHASE 1 ACTIVE; no merge, no phase advance from source checks.
+
+---
+
 ## W335 · 14 November 2026 · ONE active Phase 1 farmer → real courier → market → home milestone
 
 Only OPEN DRAFT [PR #64](https://github.com/my-edutu/Ai_games/pull/64), **executable source `3e3473c7d48aa4d3bf597b8f32861efc49cf7061`**, immutable G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. W334 personally inspected Day121 390px video shows real Hugo behind a foreground timber stall around 8s; opaque empty Supply ribbon still wide. W335 physically reanchors each newly selected authentic nearby 390px worker and collapses closed Supply button without hiding the opened actual supply/economy chain. New running film and physical GPU acceptance pending.

@@ -34,6 +34,8 @@ jobs:
         run: node scripts/tiny-kingdom-w125-camera-contract.cjs
       - name: W297 original physical roof-sightline camera regression
         run: node scripts/tiny-kingdom-w297-physical-orbit-contract.cjs
+      - name: W340 original above-roof and real hand/body camera admission source regression
+        run: node scripts/tiny-kingdom-w340-real-elevated-workday-contract.cjs && node scripts/tiny-kingdom-w334-physical-portrait-witness-contract.cjs
       - name: Chromium installation
         run: npx playwright install --with-deps chromium
       - name: Desktop and 390px real gesture, render and replay regression
