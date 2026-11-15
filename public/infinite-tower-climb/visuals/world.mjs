@@ -10,7 +10,7 @@ import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact
 import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceRetainedRaisedExit, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS } from './source-physical-arrival-palette.mjs';
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, updateOriginalClockworkSuccessorRoute } from './original-clockwork-architecture-palette.mjs';
-import { plannedEarnedClockworkVoidBearings } from './source-earned-bearing-run.mjs';
+import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections } from './source-earned-bearing-run.mjs';
 
 
 /**
@@ -3258,31 +3258,19 @@ export function createTowerWorld(){
       material,bronze:material.color.clone(),
       voidColor:new THREE.Color([0x5a5064,0x514b63,0x544a63][i])
     }));
-    const stageParts=[[],[],[]];
-    plan.nodes.forEach((station,i)=>{
-      const a=station.angle,y=station.sceneY,top=y+station.height;
-      const parts=stageParts[i];
-      // Inner pillars live inside the radius-22.4 core wall; the outer
-      // pillars stay outside the radius-27.18 real traversable rim. The
-      // hero's radius-25 runway and authentic moving decks remain clear.
-      for(const r of [21.6,28.25]){
-        parts.push(at(a,r,y+station.height*.5,[.30,station.height,.34]));
-        parts.push(at(a,r,top-.24,[.52,.48,.52]));
-      }
-      // Original 3D compression tie above the standing hero. Its overhead
-      // diagonal/longitudinal continuity explains where the bronze cap
-      // weight goes as the route enters the darker successor structure.
-      parts.push(at(a,24.91,top,[.36,.26,7.3]));
-      for(const r of [21.6,28.25]){
-        parts.push(at(a,r,top-.95,[.46,1.72,.40]));
-        if(i>0) {
-          const prev=plan.nodes[i-1];
-          const mean=(prev.angle+a)*.5;
-          const length=r*Math.abs(a-prev.angle);
-          parts.push(at(mean,r,top-.36,[length+.18,.20,.26]));
-        }
-      }
-    });
+    // Campaign 43745587650, exact native source tick475: the former r=28.25
+    // forged front COLUMN hit the genuine hero's left shoulder before the
+    // actor. Build the coherent gallery on inner 21.6m load columns with
+    // high, cantilevered crowns; keep the walkable r~25 world physically
+    // empty of purely decorative front posts in BOTH camera viewports.
+    // Source crossing, raised platforms, gateway and renderer ownership stay
+    // unchanged. This is one original Three.js instanced load path.
+    const sections=plannedSourceEarnedSuspendedBearingSections(plan.nodes);
+    if(!sections) {
+      supportRoot.removeFromParent();
+      return false;
+    }
+    const stageParts=sections;
     for(let i=0;i<3;i++){
       const items=stageParts[i],material=palette[i];
       material.name=['SourceEarnedBronzeBearing','SourceEarnedForgedBearing',
