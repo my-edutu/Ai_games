@@ -59,7 +59,74 @@ test('real scene wires graphics-loss cleanup and reports passive warmup status',
  const text=fs.readFileSync(path.join(__dirname,'../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
  assert.match(text,/createTowerVoidProgramPrewarm/);
  assert.match(text,/voidProgramPrewarm\.begin\(snapshot, options\)/);
- assert.match(text,/voidProgramPrewarm\.onSubmittedFrame\(snapshot\)/);
+ assert.match(text,/const shaderSubmission=world\.deferredShaderSubmission\?\.\(snapshot\)\s*\?\?\s*null/);
+ assert.match(text,/voidProgramPrewarm\.onSubmittedFrame\(snapshot,shaderSubmission\)/);
  assert.match(text,/voidProgramPrewarm\.dispose\(\)/);
  assert.match(text,/voidProgramPrewarm:\s*voidProgramPrewarm\.diagnostics\(\)/);
+});
+
+test('source-authenticated deferred shaft keeps prepared GPU programs until its FIRST genuinely visible returned F9 frame',async()=>{
+ const {createTowerVoidProgramPrewarm}=await load();
+ const f=fakeThree();
+ const renderer={compileAsync:()=>Promise.resolve()};
+ const warm=createTowerVoidProgramPrewarm(f.Three,renderer,{}, {});
+ assert.equal(warm.begin(src,opts),true);
+ await new Promise(r=>setImmediate(r));
+ assert.equal(warm.diagnostics().phase,'ready');
+ const receipt=(tick,visible)=>({sourceBound:true,runToken:src.runToken,
+   floor:9,sourceTick:tick,structuralVisibleOnSubmittedFrame:visible});
+ for(let tick=452;tick<460;tick++){
+   warm.onSubmittedFrame({...src,floor:9,tick},receipt(tick,false));
+   assert.equal(warm.diagnostics().phase,'ready',
+     'an opacity-zero deferred original shaft has NOT submitted its shader');
+ }
+ assert.equal(f.disposed.length,0);
+ warm.onSubmittedFrame({...src,floor:9,tick:460},receipt(460,true));
+ assert.equal(warm.diagnostics().phase,'released');
+ assert.equal(f.disposed.length,5);
+});
+test('deferred shader references cannot leak indefinitely or be retained under a forged run/receipt',async()=>{
+ const {createTowerVoidProgramPrewarm}=await load();
+ const create=async()=>{
+   const f=fakeThree();
+   const warm=createTowerVoidProgramPrewarm(f.Three,
+     {compileAsync:()=>Promise.resolve()},{},{});
+   warm.begin(src,opts); await new Promise(r=>setImmediate(r));
+   return {f,warm};
+ };
+ const receipt=tick=>({sourceBound:true,runToken:src.runToken,
+   floor:9,sourceTick:tick,structuralVisibleOnSubmittedFrame:false});
+ const a=await create();
+ for(let index=0;index<25;index++)
+   a.warm.onSubmittedFrame({...src,floor:9,tick:452+index},receipt(452+index));
+ assert.equal(a.warm.diagnostics().phase,'released',
+   '24 unseen GPU returns are an absolute bound on held program references');
+ assert.equal(a.f.disposed.length,5);
+ const b=await create();
+ b.warm.onSubmittedFrame({...src,floor:9,tick:452},{...receipt(452),runToken:'unrelated'});
+ assert.equal(b.warm.diagnostics().phase,'released');
+ const c=await create();
+ c.warm.onSubmittedFrame({...src,floor:9,tick:452},receipt(451));
+ assert.equal(c.warm.diagnostics().phase,'released');
+ const d=await create();
+ d.warm.onSubmittedFrame({...src,floor:9,tick:452},receipt(452));
+ d.warm.onSubmittedFrame({...src,floor:9,tick:453,runToken:'new-run'},receipt(453));
+ assert.equal(d.warm.diagnostics().phase,'released');
+});
+test('an async compile completing AFTER a real visible structural return releases exactly once',async()=>{
+ const {createTowerVoidProgramPrewarm}=await load();const f=fakeThree();
+ let finish;
+ const warm=createTowerVoidProgramPrewarm(f.Three,
+   {compileAsync:()=>new Promise(r=>{finish=r;})},{},{});
+ warm.begin(src,opts);
+ warm.onSubmittedFrame({...src,floor:9,tick:452},{
+   sourceBound:true,runToken:src.runToken,floor:9,sourceTick:452,
+   structuralVisibleOnSubmittedFrame:false});
+ assert.equal(warm.diagnostics().phase,'compiling');
+ warm.onSubmittedFrame({...src,floor:9,tick:453},{
+   sourceBound:true,runToken:src.runToken,floor:9,sourceTick:453,
+   structuralVisibleOnSubmittedFrame:true});
+ finish();await new Promise(r=>setImmediate(r));
+ assert.equal(warm.diagnostics().phase,'released');
+ assert.equal(f.disposed.length,5);
 });
