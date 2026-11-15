@@ -858,12 +858,17 @@ export function createWarden(options = {}) {
     const parryBackstep=!s.win&&!s.lose&&options.lanternParried===true
       &&Number.isFinite(options.attentionHeading)
       &&finite(options.attentionStrength)>.24;
-    const witnessedStand = (!s.win && !s.lose && !s.moving
+    const witnessedStand = !s.win && !s.lose && !s.moving
       && Number.isFinite(options.encounterBeat)
       && Number.isFinite(options.attentionHeading)
-      && finite(options.attentionStrength) > .35) || parryBackstep;
+      && finite(options.attentionStrength) > .35;
     face(group,witnessedStand ? options.attentionHeading : options.heading,
       s.delta,s.reduced||s.win||s.lose);
+    // Apply the earned backstep facing AFTER the protected normal-walk or
+    // witnessed-stand course. Preserve both original source and actual
+    // grounded movement; only a genuinely active public counter overrides.
+    if(parryBackstep&&!witnessedStand)
+      face(group,options.attentionHeading,s.delta,s.reduced||s.win||s.lose);
     const reacting=!s.win&&!s.lose&&Number.isFinite(options.attentionHeading);
     const alert=reacting?Math.max(0,Math.min(1,finite(options.attentionStrength))):0;
     const relativeLook=reacting?Math.atan2(Math.sin(options.attentionHeading-group.rotation.y),Math.cos(options.attentionHeading-group.rotation.y)):0;
