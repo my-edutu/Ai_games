@@ -4037,7 +4037,9 @@ function stageOriginalSourceSwingLinkedFootAfterMixer(actor,reducedMotion){
    reducedMotion:false,interrupted:false,rootTravel:travel,
    frameAge:age,frameInterval:interval,side,floorTopY:-.02,
    linkedProof,before};
-  const eligible=chooseOriginalSourceSwingLinkedFootFinisher;
+  // Call the physical dual-skinned-shoe gate at both trial and final readback.
+  // Keep this call explicit: an alias hid this integration from the native
+  // controller regression and blocked original GLB browser verification.
   // Both ±120mrad direction probes are reversible and bounded by original
   // foot-track axis evidence. If the real skinned toe does not materially
   // rise, reject without leaving any modified source geometry or joint.
@@ -4072,7 +4074,7 @@ function stageOriginalSourceSwingLinkedFootAfterMixer(actor,reducedMotion){
     oppositeToeY:t.after?.[side==='left'?'right':'left']?.toeY??null
    }))
   };
-  const choice=eligible({...owner,trials});
+  const choice=chooseOriginalSourceSwingLinkedFootFinisher({...owner,trials});
   if(!choice){
    mark(side,'real-source-foot-probes-no-safe-clearance');
    continue;
@@ -4081,7 +4083,7 @@ function stageOriginalSourceSwingLinkedFootAfterMixer(actor,reducedMotion){
    rotation.setFromAxisAngle(axis,choice.angleRad));
   foot.updateWorldMatrix(true,true);
   const final=read();
-  const verified=eligible({...owner,
+  const verified=chooseOriginalSourceSwingLinkedFootFinisher({...owner,
    trials:[{angleRad:choice.angleRad,after:final}]});
   if(!verified){
    foot.quaternion.copy(saved);
