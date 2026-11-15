@@ -45,11 +45,31 @@ export function measureAuthoritativeDeckSightline({
   for(const root of platformRoots)if(root.visible!==false)
     root.updateWorldMatrix(true,true);
   let blockedBodyRays=0, blockedGatewayRays=0, rays=0, realTrianglesChecked=0;
-  const samples=gate?4:3;
+  // The 390px original footage keeps a centre ray clear while the actual
+  // source-width skinned shoulder and the bronze door's upper lip disappear
+  // behind real Floor9 underside triangles. Test the CURRENT source body,
+  // not a future pose: seven physical silhouette endpoints + two gate points.
+  // Do not broaden a forged or absent half-width into a camera rescue.
+  const p=source.player;
+  const halfWidth=integer(p.halfWidth) && integer(p.halfHeight) &&
+    p.halfWidth>0 && p.halfHeight>0 && p.halfWidth<=p.halfHeight*1.5
+      ?Math.min(bodyHalfHeight*.72,
+        bodyHalfHeight*p.halfWidth/p.halfHeight*.85):0;
+  const dx=body.x-camera.x,dz=body.z-camera.z;
+  const radial=Math.hypot(dx,dz);
+  const sideX=halfWidth && radial>.1 ? dz/radial*halfWidth:0;
+  const sideZ=halfWidth && radial>.1 ? -dx/radial*halfWidth:0;
+  const bodySamples=sideX||sideZ ? 7:3;
+  const samples=bodySamples+(gate?2:0);
   for(let sample=0;sample<samples;sample++){
-    point.copy(sample===3?gate:body);
+    point.copy(gate && sample>=bodySamples ? gate:body);
     if(sample===1)point.y+=bodyHalfHeight*.76;
     else if(sample===2)point.y-=bodyHalfHeight*.72;
+    else if(sample>=3 && sample<bodySamples){
+      const sign=sample===3||sample===5?-1:1;
+      point.x+=sideX*sign;point.z+=sideZ*sign;
+      point.y+=sample<5?bodyHalfHeight*.48:-bodyHalfHeight*.36;
+    } else if(gate && sample===bodySamples+1) point.y+=1.2;
     direction.copy(point).sub(camera);
     const distance=direction.length();
     if(!finite(distance)||distance<=.45)continue;
@@ -68,7 +88,7 @@ export function measureAuthoritativeDeckSightline({
       if(hits.some(hit=>renderedTriangle(hit,root))){blocked=true;break;}
     }
     hits.length=0;
-    if(blocked){if(sample===3)blockedGatewayRays++;else blockedBodyRays++;}
+    if(blocked){if(sample>=bodySamples)blockedGatewayRays++;else blockedBodyRays++;}
   }
   return {active:true,rays,bodyBlockedRays:blockedBodyRays,
     gatewayBlockedRays:blockedGatewayRays,
