@@ -295,3 +295,46 @@ test('original HP receipt joins D04 submitted-frame serial instead of an unrelat
  assert.equal(r.damageReceipts.on.timely,0,
   'missing D04 submission identity must never silently fall back to an unrelated counter');
 });
+
+
+test('six-view deadline misses are distinguishable from witnessed drawable HP contacts',()=>{
+ const {classifyD04RealMultiview}=
+  require('../browser/dungeon-d04-live-authority-pair.cjs');
+ const a=sixViewFixture();
+ const cue={
+  cueId:'1:1:4:damage:-:enemy-1-0',scene:'1:1',tick:4,kind:'damage',
+  visual:true,visualDrawableAtSubmission:true,audio:true,
+  decision:'delivered',frameId:5,observedClockMs:1000,
+  submittedClockMs:1025,observationToSubmissionMs:25
+ };
+ for(const arm of a.runs.slice(0,4))
+  arm.samples[4].recentDeliveryReceipts=[{...cue}];
+ for(const arm of a.runs.slice(4))
+  arm.samples[4].recentDeliveryReceipts=[{...cue,
+   visualDrawableAtSubmission:null,audio:false,
+   decision:'stale-frame',observedClockMs:1000,
+   submittedClockMs:1840,observationToSubmissionMs:840}];
+ let v=classifyD04RealMultiview(a);
+ assert.equal(v.matchedHpLossTicks,1);
+ assert.equal(v.matchedDrawableHpLossTicks,0,
+  'four admitted views must not certify a six-view physical impact');
+ assert.deepEqual(v.hpImpactByView.map(x=>x.drawableHpLossTicks),[1,1,1,1,0,0]);
+ assert.deepEqual(v.hpImpactByView.map(x=>x.deadlineMissHpLossTicks),[0,0,0,0,1,1]);
+ assert.deepEqual(v.hpImpactByView.map(x=>x.unverifiedHpLossTicks),[0,0,0,0,0,0]);
+ assert.equal(v.sampleSynchronized,false);
+ assert.equal(v.impactAVAccepted,false);
+ // A forged "stale" label with only 150ms observed age is not evidence
+ // of a 400ms failure; preserve it as UNKNOWN.
+ a.runs[4].samples[4].recentDeliveryReceipts[0].observationToSubmissionMs=150;
+ a.runs[4].samples[4].recentDeliveryReceipts[0].submittedClockMs=1150;
+ v=classifyD04RealMultiview(a);
+ assert.equal(v.hpImpactByView[4].deadlineMissHpLossTicks,0);
+ assert.equal(v.hpImpactByView[4].unverifiedHpLossTicks,1);
+ // Bounded ring receipts from another public tick cannot be borrowed.
+ a.runs[5].samples[4].recentDeliveryReceipts=[];
+ a.runs[5].samples[5].recentDeliveryReceipts=[{...cue}];
+ v=classifyD04RealMultiview(a);
+ assert.equal(v.hpImpactByView[5].drawableHpLossTicks,0);
+ assert.equal(v.hpImpactByView[5].deadlineMissHpLossTicks,0);
+ assert.equal(v.hpImpactByView[5].unverifiedHpLossTicks,1);
+});
