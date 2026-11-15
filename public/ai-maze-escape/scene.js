@@ -3,7 +3,7 @@ import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicEarnedGuardianActing } from './public-lantern-encounter.mjs';
@@ -1520,6 +1520,25 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         camera.updateMatrixWorld();
         pressureReframeRight.setFromMatrixColumn(camera.matrixWorld,0);
         camera.position.addScaledVector(pressureReframeRight,recoilPairShift);
+        camera.updateMatrixWorld();
+      }
+      // Actual autonomous 320/390 earned retreat leaves BOTH complete
+      // characters small against wide ocean and stacked mineral standards.
+      // Only after the trusted full-body NDC pan, let their REAL current
+      // physical boxes prove a safely closer two-actor performance shot.
+      // This never zooms a lost, hidden, stale or unrecoiled guardian, never
+      // changes world/AI coordinates and reserves the goal/touch HUD margins.
+      const earnedStage=publicGuardianEarnedRecoilPhysicalStage(
+        aspect,halfHeight,realBodies,earnedGuardianFrame,
+        settings.reducedMotion,recoilPairShift);
+      if(earnedStage.scale>1) {
+        camera.updateMatrixWorld();
+        pressureReframeRight.setFromMatrixColumn(camera.matrixWorld,0);
+        camera.position.addScaledVector(pressureReframeRight,earnedStage.shift);
+        halfHeight=earnedStage.height;
+        camera.left=-halfHeight*aspect;camera.right=halfHeight*aspect;
+        camera.top=halfHeight;camera.bottom=-halfHeight;
+        camera.updateProjectionMatrix();
         camera.updateMatrixWorld();
       }
     }

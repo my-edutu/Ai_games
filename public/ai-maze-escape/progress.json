@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-15T17:04:27.342Z",
+  "updatedAt": "2026-11-15T17:20:15.000Z",
   "benchmark": {
     "status": "Not yet passed",
     "summary": "Pass401: Pass400 exact-source native 40/40 PNG + 3/3 gate hashes verified. Candidate connects genuinely visible guardian parry to Pip's physical torso/lantern acting; NEW strict source/WebGL acceptance pending. Official Nintendo bar not met."
@@ -116,6 +116,7 @@
     }
   ],
   "changes": [
+    "Pass402 2026-11-15: real Pass401 WebGL 43739318022 original ZIP independently checked 40/40 PNG hashes + 3/3 gate hashes; 320/390 mobile earned 91→74 scene still tiny. New source candidate pairs full physical silhouettes and safely centers / enlarges real public-earned recoil up to 34% with stronger .80/.69/.78 NDC bounds. Source tests + new exact-HEAD WebGL / Nintendo visual critic PENDING; no claimed visual win.",
     "Pass401 2026-11-15: original 40/40 source-matched Pass400 native images + three gate hashes verified, real autonomous 91→74 at native 320/390. Production source fixed earned parry's missing PUBLIC acting cue at Pip's actual articulated torso and lantern after close-warning drop; no hidden data, route, geometry or collision alteration. Fresh strict CI/native image acceptance PENDING, not a benchmark win.",
     "Pass400 2026-11-15: 40/40 SHA-verified originals from WebGL #43732506161 confirmed genuine autonomous Thornback 91→74 but after-frame Pip-centric camera. Implemented same-run published guardian-only bounded pair aim and existing fast encounter easing. New exact-HEAD source/visual tests PENDING, no AI/collision/private/map/framing gate altered.",
     "Pass399 2026-11-15: independent 40 original full-frame SHA pairs verify native run 43731310302; real 320 & 390 moving autonomous parry now entirely fits strict ±0.95. New source-only parry camera continuity candidate keeps authentic last witnessed same-run portrait orbit through public earned retreat; prior source's abrupt ordinary exploration camera jump obscures the legal 91→74 displacement. No rules, geometry or thresholds changed. Fresh CI/new images and independent critique PENDING.",
@@ -346,6 +347,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass402 exact-HEAD 320×740 and 390×844 REAL moving earned-parry original full-resolution WebGL vs Pass401 SHA-verified baseline: prove two complete physical bodies actually larger and unobstructed, no NDC >.95, no HUD overlap, no gate/pressure/private/regression, six-reset <100, whole-CI independently assessed, and fixed official Nintendo source-blind critique. Revert if only code math improved.",
     "Pass367: Existing foreground court remains the dominant defect. Need a distinct actual physical stage with readable Pip/Thornback and real obstacle/collision silhouette; no more decorative iris/prop/angle patches. First verify rollback exact-HEAD WebGL captures/strict wall100 ray and native actor envelopes.",
     "Pass366: Run exact-HEAD focused and whole CI; inspect uncropped native 320/390/844/1280 and genuine brace/release/pressure/key/gate renders with original SHA manifests. Critically compare to fixed Nintendo gameplay and rollback if actor platform effect is too subtle or creates clutter/cropping. Independent artist unavailable.",
     "Pass365: Rebuild the actual entire publicly disclosed guardian theatre to achieve a visible physical negative-space and action-composition gain at 320/390/844/1280, preserve cell100 first ray and genuine collision, all four moving stage-warning mechanisms, strict ±.95 actor bounds, pressure/gate chronology, <100 six-run budget and public-only AI. Re-test rollback SHA before any further candidate.",

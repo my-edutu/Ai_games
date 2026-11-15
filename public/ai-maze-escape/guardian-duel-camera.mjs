@@ -125,3 +125,43 @@ export function publicGuardianEarnedRecoilPairFocus(
   const bounded=v=>Math.max(-cellSize*.85,Math.min(cellSize*.85,v));
   return {x:bounded(dx*.4),z:bounded(dz*.4)};
 }
+
+
+/**
+ * Mobile earned-counter close-up, evaluated from the complete CURRENT physical
+ * Pip and Thornback mesh envelopes (not centers, icons or a future route).
+ * The authoritative visible retreat, not a guessed threat, owns this beat.
+ *
+ * Prior first-fit horizontal pan can be included so the proposal measures
+ * exactly what will be on screen.  The extra pan centers the two actual
+ * bodies; zoom is permitted only when BOTH bodies fit the stronger .80 NDC
+ * horizontal, .69 top (goal HUD) and .78 bottom (one-hand controls) limits.
+ * A 34% image-scale cap prevents a violent cut between simulation ticks.
+ * No camera or gameplay state is persisted and no model size changes.
+ */
+export function publicGuardianEarnedRecoilPhysicalStage(
+  aspect,halfHeight,bodies,earned=false,reducedMotion=false,priorShift=0) {
+  const none={height:halfHeight,shift:0,scale:1};
+  if(!earned || reducedMotion || !Number.isFinite(aspect)
+    || aspect<.35 || aspect>=.60 || !Number.isFinite(halfHeight)
+    || halfHeight<=0 || !Number.isFinite(priorShift)
+    || !Array.isArray(bodies) || bodies.length!==2)return none;
+  for(const body of bodies)
+    if(!body || !['left','right','top','bottom'].every(k=>Number.isFinite(body[k]))
+      || body.left>=body.right || body.bottom>=body.top)return none;
+  const oldPanNdc=priorShift/(halfHeight*aspect);
+  const left=Math.min(...bodies.map(b=>b.left))-oldPanNdc;
+  const right=Math.max(...bodies.map(b=>b.right))-oldPanNdc;
+  const top=Math.max(...bodies.map(b=>b.top));
+  const bottom=Math.min(...bodies.map(b=>b.bottom));
+  // Refuse a zoom if the earlier immutable complete-body pan could not fit
+  // the pair. Do not use magnification to conceal an existing crop.
+  if(left<-.925 || right>.925 || top>=.69 || bottom<=-.78)return none;
+  const center=Math.max(-.25,Math.min(.25,(left+right)*.5));
+  const halfWidth=Math.max(Math.abs(left-center),Math.abs(right-center));
+  if(halfWidth<=0)return none;
+  const scale=Math.min(1.34,.80/halfWidth,
+    .69/Math.max(.001,top),.78/Math.max(.001,-bottom));
+  if(!Number.isFinite(scale) || scale<1.16)return none;
+  return {height:halfHeight/scale,shift:center*halfHeight*aspect,scale};
+}
