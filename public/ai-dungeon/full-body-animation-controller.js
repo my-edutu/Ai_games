@@ -47,6 +47,28 @@ export const FULL_BODY_ANIMATION_MODES=MODES;
  * Two remaining source skin reads: original hip/calf/foot as ONE chain.
  * This never creates contact, a new step or target, or an IK foot lock.
  */
+/** Real original Idle-to-Walking_A three-joint angle budget, not an IK step.
+ * Permit two distinct safe source-skinned probes when a fixed 42% Idle
+ * blend exceeds the knee limit but an actual smaller original blend can fit.
+ */
+export function planOriginalSourceSafeNeutralBlendSamples({
+ source='',sourceClipName='',sourceChainVerified=false,
+ sourceJointAngularSeparationRad=null,maxJointDeltaRad=.26
+}={}){
+ if(source!=='licensed-original-Idle-joint-gap'||sourceClipName!=='Idle'||
+  sourceChainVerified!==true||
+  !Array.isArray(sourceJointAngularSeparationRad)||
+  sourceJointAngularSeparationRad.length!==3||
+  !sourceJointAngularSeparationRad.every(n=>finite(n)&&n>=0&&n<=Math.PI)||
+  !finite(maxJointDeltaRad)||maxJointDeltaRad<=0||
+  maxJointDeltaRad>.260001)return null;
+ const largest=Math.max(...sourceJointAngularSeparationRad);
+ if(largest<.01)return null;
+ const upper=Math.min(.42,(maxJointDeltaRad-.000001)/largest);
+ if(upper<.30)return null;
+ return Object.freeze([.28,upper]);
+}
+
 export function planOriginalSourceAuthoredNeutralBlends({
  mode='idle',sourceClipName='',sourceWeight=NaN,sourceInstanceSame=false,
  ownerLocomotion=false,alive=false,visible=false,

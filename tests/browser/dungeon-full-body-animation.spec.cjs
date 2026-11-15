@@ -807,6 +807,15 @@ for(const view of [
   expect(p.sourceToeLiftMeters).toBeGreaterThanOrEqual(.017999);
   expect(p.originalPitchGainMeters).toBeGreaterThanOrEqual(.008999);
   expect(p.maxJointDeltaRad).toBeLessThanOrEqual(.260001);
+  const attempted=frame.nativeLegOwnership?.sourceNeutralSwingLastProbe;
+  if(attempted?.sourceInstanceId===frame.sourceId&&attempted.side===side){
+   expect(attempted.originalSourceJointGapRad).toHaveLength(3);
+   expect(attempted.originalSourceJointGapRad.every(n=>Number.isFinite(n)&&n>=0)).toBe(true);
+   expect(attempted.actuallyTestedNeutralBlends).toHaveLength(2);
+   for(const blend of attempted.actuallyTestedNeutralBlends)
+    for(const gap of attempted.originalSourceJointGapRad)
+     expect(blend*gap).toBeLessThanOrEqual(.260001);
+  }
   expect(Math.abs(p.after?.[other]?.heelY-p.before?.[other]?.heelY))
    .toBeLessThanOrEqual(.003001);
   expect(Math.abs(p.after?.[other]?.toeY-p.before?.[other]?.toeY))
