@@ -922,3 +922,24 @@ test('Pass349 raised Thornback face is two true overhead-readable connected opti
     assert.deepEqual(rigPrimitiveResourceStats(),before,'new original mask shares and releases every geometry buffer');
   }
 });
+
+
+test('a real public lantern parry makes an actually moving Thornback BACKSTEP facing Pip, then restores ordinary patrol heading',async()=>{
+  const {createWarden}=await modulePromise;
+  for(const balanced of [false,true]){
+    const warden=createWarden({balanced});
+    warden.update({heading:Math.PI,moving:true,reducedMotion:true,delta:.1});
+    assert.ok(Math.abs(Math.abs(warden.group.rotation.y)-Math.PI)<.001,
+      'ordinary movement must still face the real physical patrol');
+    warden.update({heading:Math.PI,attentionHeading:0,attentionStrength:.75,
+      lanternParried:true,moving:true,reducedMotion:true,delta:.1});
+    assert.ok(Math.abs(warden.group.rotation.y)<.001,
+      'source-earned retreat must preserve eye contact with Pip while the body travels backward');
+    warden.update({heading:Math.PI,attentionStrength:0,lanternParried:false,
+      moving:true,reducedMotion:true,delta:.1});
+    assert.ok(Math.abs(Math.abs(warden.group.rotation.y)-Math.PI)<.001,
+      'the guardian must face its genuine resumed patrol, not remember a private opponent');
+    warden.reset();assert.equal(warden.group.rotation.y,0);
+    warden.dispose();
+  }
+});

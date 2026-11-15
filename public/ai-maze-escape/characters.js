@@ -855,7 +855,15 @@ export function createWarden(options = {}) {
       && Number.isFinite(options.encounterBeat)
       && Number.isFinite(options.attentionHeading)
       && finite(options.attentionStrength) > .35;
-    face(group,witnessedStand ? options.attentionHeading : options.heading,
+    // A genuine earned counter moves the PHYSICAL patrol cell away from Pip.
+    // Face the witnessed explorer while backpedalling, rather than spinning
+    // the entire armored body away and treating a recoil as normal walking.
+    // This is public active-only and restores the route heading immediately
+    // when the three-tick authoritative parry expires.
+    const parryBackstep=!s.win&&!s.lose&&options.lanternParried===true
+      &&Number.isFinite(options.attentionHeading)
+      &&finite(options.attentionStrength)>.24;
+    face(group,(witnessedStand||parryBackstep) ? options.attentionHeading : options.heading,
       s.delta,s.reduced||s.win||s.lose);
     const reacting=!s.win&&!s.lose&&Number.isFinite(options.attentionHeading);
     const alert=reacting?Math.max(0,Math.min(1,finite(options.attentionStrength))):0;

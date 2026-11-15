@@ -2256,3 +2256,77 @@ test('actual published diagonal jaw inspection appears in unaltered mobile WebGL
   expect(next.intent).not.toBe('Inspecting jaws');
   expect(next.publicSurveyLight,'autonomous departure must clear inspection beam').toBe(false);
 });
+
+
+test('a NATURAL autonomous lantern counter has source-bound physical before/recoil mobile WebGL evidence',async({page})=>{
+  test.setTimeout(210000);
+  const fs=require('node:fs'),path=require('node:path'),{createHash}=require('node:crypto');
+  const {scenarios}=require('../../scripts/capture-maze-3d.cjs');
+  const sequences=scenarios().sequences;
+  const dir=path.resolve(__dirname,'../../artifacts/maze-phase3');fs.mkdirSync(dir,{recursive:true});
+  let witness=null;
+  for(const sequence of sequences){
+    for(let i=1;i<sequence.length;i++){
+      const a=sequence[i-1].frame.snapshot,b=sequence[i].frame.snapshot;
+      if(a.runToken!==b.runToken||b.tick!==a.tick+1||a.lifecycle!=='running'
+        ||b.lifecycle!=='running'||a.currentCell!==b.currentCell)continue;
+      for(const current of b.threats){
+        if(current.lanternParried!==true)continue;
+        const previous=a.threats.find(t=>t.id===current.id);
+        if(!previous||previous.lanternParried===true||current.cell===previous.cell)continue;
+        const dist=(cell,hero,width)=>Math.abs(cell%width-hero%width)
+          +Math.abs(Math.floor(cell/width)-Math.floor(hero/width));
+        if(dist(current.cell,b.currentCell,b.width)!==dist(previous.cell,a.currentCell,a.width)+1)continue;
+        if(!a.visibleCells.includes(previous.cell)||!b.visibleCells.includes(current.cell))continue;
+        witness={before:sequence[i-1],after:sequence[i],guardianId:current.id,from:previous.cell,to:current.cell};break;
+      }
+      if(witness)break;
+    }
+    if(witness)break;
+  }
+  const summary={capturedAt:new Date().toISOString(),source:'Actual autonomous partial-observation MazeRuntime ticks and PUBLIC snapshots only; no injected enemy, forced AI decision or synthetic source frame',
+    searchedSeeds:sequences.map(seq=>seq[0]?.seed),found:!!witness};
+  fs.writeFileSync(path.join(dir,'natural-guardian-parry-audit.json'),JSON.stringify(summary,null,2));
+  expect(witness,'no genuine public autonomous lantern-counter RECOIL in the production seeds; a source fixture alone is not a playable encounter').toBeTruthy();
+  let activeFrame=witness.before.frame;
+  await page.route('**/maze/state*',route=>route.fulfill({json:activeFrame}));
+  await page.setViewportSize({width:390,height:844});
+  await page.goto(base+'/maze?camera=follow',{waitUntil:'domcontentloaded'});
+  await waitForRealMazeStage(page,{minFrames:3,requireClearCard:true,timeout:60000});
+  const sha=file=>createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+  const capture=async(label,sample,width,height)=>{
+    activeFrame=sample.frame;
+    await page.setViewportSize({width,height});
+    await page.waitForFunction(({tick,width})=>
+      window.__MAZE_3D__?.renderer==='webgl'&&window.__MAZE_3D__?.tick===tick
+      &&innerWidth===width&&window.__MAZE_3D__?.frames>=5,
+      {tick:sample.frame.snapshot.tick,width},{timeout:60000});
+    const diagnostic=await page.evaluate(()=>({
+      renderer:window.__MAZE_3D__?.renderer,tick:window.__MAZE_3D__?.tick,
+      frames:window.__MAZE_3D__?.frames,
+      fullExplorer:window.__MAZE_3D__?.explorerModelFullyInFrame,
+      allGuardianModels:window.__MAZE_3D__?.guardianModelsFullyInFrame,
+      guardians:window.__MAZE_3D__?.wardensInFrame,
+      guardianPhysicalBounds:window.__MAZE_3D__?.guardianPhysicalBounds,
+      explorerPhysicalBounds:window.__MAZE_3D__?.explorerPhysicalBounds,
+      caption:document.getElementById('caption')?.textContent,
+      scrollWidth:document.documentElement.scrollWidth,
+      scrollHeight:document.documentElement.scrollHeight
+    })));
+    const image=path.join(dir,'natural-guardian-recoil-'+label+'-'+width+'.png');
+    await page.screenshot({path:image,fullPage:true});
+    fs.writeFileSync(image.replace(/\\.png$/,'.json'),JSON.stringify({...summary,
+      seed:sample.seed,tick:sample.frame.snapshot.tick,runToken:sample.frame.snapshot.runToken,
+      guardianId:witness.guardianId,from:witness.from,to:witness.to,
+      physicalPublicGuardian:sample.frame.snapshot.threats.find(t=>t.id===witness.guardianId),
+      viewport:{width,height},imageSha256:sha(image),diagnostic,
+      verdict:'Original uncropped WebGL candidate; independently compare with official Nintendo imagery before artistic acceptance'},null,2));
+    expect(diagnostic.renderer).toBe('webgl');
+    expect(diagnostic.scrollWidth).toBe(width);
+    expect(diagnostic.fullExplorer).toBe(true);
+    expect(diagnostic.allGuardianModels).toBe(diagnostic.guardians);
+  };
+  await capture('before',witness.before,390,844);
+  await capture('earned',witness.after,390,844);
+  await capture('earned-mobile',witness.after,320,740);
+});

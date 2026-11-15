@@ -565,15 +565,21 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         && closestThreat?.strength===attentionStrength)
         closestThreat.encounterBeat=entry.encounterBeat;
       const brace=Math.max(0,Math.min(1,(entry.encounterBeat-.24)/.36));
-      const lanternParried=!result && entry.lanternParried && attentionStrength>.24;
+      // Authoritative public lantern parry survives a real one-cell retreat.
+      // The old proximity fade suppressed ALL physical recoil exactly when
+      // Thornback stepped away: the player saw only a caption, not the earned
+      // escape. This cue exists solely on the published, visible enemy, never
+      // on an unobserved route or an invented future attack.
+      const lanternParried=!result && entry.lanternParried;
+      const actorAttention=lanternParried?Math.max(.75,attentionStrength):attentionStrength;
       // The existing, physically grounded contact shadow responds to the
       // actual armored body planting its feet. Its x/z/y always follow the
       // disclosed model; no extra mesh, billboard or GPU material is spawned.
       entry.contact.scale.set(1.22+brace*.16,.96+brace*.08,1);
       entry.model.update({
         time:elapsed,delta,moving:threatPose.moving&&!result,heading:entry.heading,
-        attentionHeading:attentionStrength?Math.atan2(towardExplorerX,towardExplorerZ):undefined,
-        attentionStrength,encounterBeat:entry.encounterBeat,
+        attentionHeading:actorAttention?Math.atan2(towardExplorerX,towardExplorerZ):undefined,
+        attentionStrength:actorAttention,encounterBeat:entry.encounterBeat,
         lanternParried,danger:1,result,reducedMotion:settings.reducedMotion,
       });
     }
