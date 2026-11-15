@@ -31,7 +31,7 @@ const render=init(city,people,data,[0,0],{homeIndex:0},
  p=>p.home,p=>[city[p.home][0],city[p.home][1]],
  (x,z)=>Number.isFinite(x)&&Number.isFinite(z)&&Math.abs(x)<40&&Math.abs(z)<40,
  (x,z,tx,tz)=>{routes++;return [[tx,tz]];},
- color=>color,{ROAD:4},(_,fn)=>fn(),
+ color=>color,{ROAD:4,STONE:5},(_,fn)=>fn(),
  (...args)=>{assert.equal(args.length,5);draws++;drawTriangles+=2;
   for(let i=0;i<60;i++)data.push(0);},
  ()=>0);
@@ -42,7 +42,11 @@ assert.equal(audit.connectedHomes,2,'two additional REAL resident homes only');
 assert(audit.segments>0);
 assert.equal(audit.triangles,drawTriangles);
 assert.equal(data.length,audit.triangles*30);
-assert.equal(draws,audit.segments*3,'exact earth + two rut quads');
+assert(audit.frontageQuads>0,'each truly reached household needs physical terrain-fitted doorstep approach');
+assert.equal(audit.frontageQuads,10,'two real additional homes get five original threshold flagstones each');
+assert.equal(draws,audit.segments*3+audit.frontageQuads,
+ 'retain exact earth, two real wheel ruts and joined residential stone approaches');
+assert.equal(audit.frontageTriangles,audit.frontageQuads*2);
 assert(audit.triangles<=audit.triangleBudget);
 assert(audit.extraGpuBuffers===0&&!audit.changesAuthority&&!audit.changesNavigation);
 assert.equal(JSON.stringify(state),initial,'market/world authority must not change');
@@ -61,6 +65,7 @@ data.length=0;render.build();
 const grown=render.audit();
 assert.equal(grown.occupiedHomes,people.length);
 assert(grown.connectedHomes<=10&&grown.connectedHomes>0);
-assert(grown.triangles<=1020);
+assert(grown.triangles<=1120);
+assert(grown.frontageTriangles<=100,'Day120 doorstep detail must remain bounded');
 assert.equal(grown.triangles,data.length/30);
-console.log('W351 SOURCE PASS: true assigned homes, A* lanes, exact draw geometry, bounded Day120 growth; running camera/visual/physical FPS NOT PROVEN.');
+console.log('W352 SOURCE PASS: actual occupied home A* road network plus terrain-fitted stone arrivals; triangles bounded and authority unchanged; actual Day120 LOOK/FEEL/PLAY NOT PROVEN.');
