@@ -349,7 +349,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    `${latest.run}:${latest.floor}`!==cue.sceneKey||
    !Array.isArray(latest.units))return false;
   let witness=null;
-  for(let i=0;i<Math.min(latest.units.length,96);i++){
+  for(let i=0;i<Math.min(latest.units.length,256);i++){
    const candidate=latest.units[i];
    if(candidate?.id!==cue.targetId)continue;
    if(witness)return false; // never choose a duplicate public Warden
@@ -448,8 +448,8 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   if(kineticRelease&&typeof getCurrentSnapshot==='function'){
    // A retained actor.u/render rig may lag public authority by a tick.
    // Neither an old firing pose nor a remembered target authorizes a
-   // fresh missile or delayed foley. Match the planner's 96-unit bound
-   // and demand ONE live source at the original action tick and cell.
+   // fresh missile or delayed foley. Preserve the planner's 256-unit identity integrity scan
+   // and require ONE live source across the planner's full 256-ID integrity window.
    let current=null;
    try{current=getCurrentSnapshot()}catch{return null}
    if(!current||!Number.isSafeInteger(current.tick)||current.tick!==cue.tick||
@@ -457,7 +457,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
      current.run+':'+current.floor!==cue.sceneKey||
      !Array.isArray(current.units))return null;
    let source=null;
-   for(let i=0;i<Math.min(current.units.length,96);i++){
+   for(let i=0;i<Math.min(current.units.length,256);i++){
     const candidate=current.units[i];
     if(candidate?.id!==id)continue;
     if(source)return null; // Ambiguous identities cannot choose a muzzle.
@@ -618,9 +618,10 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
     latest.run+':'+latest.floor!==cue.sceneKey||
     !Array.isArray(latest.units))return false;
   let witness=null;
-  // Only the 96-unit public ACTION window can authorize these effects.
+  // Actions are discovered within 96 units, but the duplicate-ID integrity
+   // window covers 256, including later units that could spoof a defender.
   // Duplicate IDs cannot justify choosing an arbitrary defending body.
-  for(let i=0;i<Math.min(latest.units.length,96);i++){
+  for(let i=0;i<Math.min(latest.units.length,256);i++){
    const u=latest.units[i];
    if(u?.id!==cue.actorId)continue;
    if(witness)return false;
