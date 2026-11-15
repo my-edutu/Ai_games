@@ -6407,7 +6407,7 @@ test('real 53.6mm-projected steep source outsole receives a conditioned axis, ne
   {toeWorld:[toe[0],-.24,toe[2]]}, // unlicensed stretched 3D shoe
   {sourceClipName:'Idle'},{sourceFootBindVerified:false},
   {originalOppositeShoeVerified:false},{originalAnatomicalSolePatchVerified:false},
-  {sourceTrackAxis:[.47,0,.88]} // no independent transverse hinge
+  {sourceTrackAxis:[.47,0,-.88]} // aligned with the measured +X/-Z transverse hinge
  ])assert.equal(plan({...witness,...altered}),null,
   'never gain an axis without a rigid source sole, original chain and independent track');
 });
