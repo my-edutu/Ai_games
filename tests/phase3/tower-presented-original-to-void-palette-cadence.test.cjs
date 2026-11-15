@@ -36,9 +36,22 @@ test('first F9 GPU-return frames keep the exact old arch, real successor decks a
   assert.ok(first.oldWeight>.9 && first.oldWeight<1,
     'after the first submitted old/new shot, real stepped travel must not freeze the actual landing color');
   assert.ok(first.oldWeight>purelyPhysical.oldWeight);
-  held.submittedFrames=5;held.visibleSeconds=.4;
+  // The source-authentic old/new handoff must be legible on actual GPU
+  // returns 2 and 3. Holding the palette beyond return 4 made the old
+  // world vanish abruptly when the 70-tick source witness expired in 1x
+  // software-WebGL footage, so the former 5/12-return slow-fade assertion
+  // was a regression to the observed hard-cut failure, not a quality gate.
+  held.submittedFrames=2;held.visibleSeconds=.22;
   const bridge=sample(source,held);
-  assert.ok(bridge.oldWeight<first.oldWeight && bridge.oldWeight>purelyPhysical.oldWeight);
+  assert.ok(bridge.oldWeight<first.oldWeight && bridge.oldWeight>purelyPhysical.oldWeight,
+    'real second return must visibly advance but not skip the old/new palette');
+  held.submittedFrames=3;held.visibleSeconds=.32;
+  const late=sample(source,held);
+  assert.ok(late.oldWeight<bridge.oldWeight && late.oldWeight>purelyPhysical.oldWeight,
+    'real third return advances further with original material still present');
+  held.submittedFrames=4;held.visibleSeconds=.42;
+  assert.equal(sample(source,held).oldWeight,purelyPhysical.oldWeight,
+    'completed source-authentic optical handoff must not freeze beyond four returns');
   held.submittedFrames=12;held.visibleSeconds=.9;
   assert.equal(sample(source,held).oldWeight,purelyPhysical.oldWeight);
 });
