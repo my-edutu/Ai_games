@@ -3,7 +3,7 @@
   "updatedAt": "2026-11-15T03:28:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass381 is source-only: new high-contrast original joined guardian shell/skull palette and physically opened existing pair of bronze defensive guards on the real public brace; original AI, wall100, cameras, HUD and six-reset budget unchanged. Exact-head WebGL images, strict tests, visual artistic verdict and independent critics still required. Previous Pass380 rollback native Maze CI was successful; separate full repo CI failed. Nintendo benchmark unmet and PR remains draft, unmerged, undeployed."
+    "summary": "Pass382 repairs one real Pass381 pre-WebGL strict regression: original pooled bronze paired cheek volumes must remain. 180/181 focused tests passed and protected real cheek test rejected recolor. Restore only original cheek material while retaining joined dark-shell/pale-mask and genuine witnessed 3D guard fanning. New candidate exact-head focused CI/native original WebGL still required, no image or Nintendo win, PR remains draft."
   },
   "captures": [
     {
@@ -92,6 +92,7 @@
     }
   ],
   "changes": [
+    "Pass382 2026-11-15: new exact-source Pass381 workflow 43672990533 FAILS 1/181 protected real Three test before native browser. Correctly restore paired original pooled bronze cheek armor material instead of removing face volume; retain cohesive other dark shell/pale skull/jaw and event-driven rooted shield motion. New HEAD CI and actual WebGL pending; no test weakening or artistic success claim.",
     "Pass381 2026-11-15: source-only cohesive original guardian character readability candidate; physically reused cobalt shell and pale sea-glass mask across whole rooted 3D skull/cheeks/jaw, plus real shoulder shields swing away from face during witnessed public brace and clear on release. No extra render resources, no AI/collision/private-map/camera/HUD changes; exact-HEAD tests and native WebGL/visual verdict PENDING, Nintendo quality benchmark unmet.",
     "Pass376 2026-11-15: exact-commit Pass375 43655891814 SUCCESS; reviewed original uncropped 39-PNG candidate and baseline, 37/37 matching image SHA-256 sidecars for each. Negative-space change visibly insufficient, REJECT; selectively restore proven world.js, delete only Pass375 temporary test. New rollback SHA CI pending; no Nintendo-quality win or independent critics.",
     "Pass375 2026-11-15: source-only holistic physical guardian theatre candidate, removes repeated passive tile ornaments/secondary floor strips throughout publicly earned scene while maintaining true joined 3D stage, original four moving sentinels, six warning leaves, sealed walls, AI/privacy, original HUD and budget. New installed-Three witness/hidden/reset test. New exact-commit WebGL and rendered artist acceptance PENDING, not a claimed win.",

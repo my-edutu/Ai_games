@@ -752,7 +752,7 @@ export function createWarden(options = {}) {
     const brow=rounded(head,claw,[side*.195,.364,.242],[.30,.075,.15],.023);
     brow.rotation.z=-side*.13;
     brow.rotation.x=-.17;
-    const cheek=rounded(head,frondGlass,[side*.38,.027,.093],[.23,.25,.40],.048);
+    const cheek=rounded(head,plates,[side*.38,.027,.093],[.23,.25,.40],.048);
     cheek.name=`rooted guardian cheek armor ${side}`;
     cheek.rotation.y=side*.24;
     // The substantial side carapace closes around the whole skull in the
