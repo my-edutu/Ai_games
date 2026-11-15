@@ -2684,17 +2684,35 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
  let originalNeutralMounts=null,originalNeutralSaved=null,originalNeutralTargets=null;
  let originalNeutralGapRad=null;
  const sourceIdle=actor.availableClips?.find(c=>c?.name==='Idle');
+ // Inspect the last REAL original-rig rejection, rather than mistaking
+ // missing neutral probes for a failed pose or a successful planted foot.
+ // One bounded receipt, no per-frame growing history or extra skin reads.
+ const rejectOriginalNeutral=(reason,details={})=>{
+  actor.sourceNeutralSwingGateLast={
+   sourceInstanceId:actor.assetRoot.uuid,side,sourceClip:'Walking_A',
+   frameIntervalSeconds:interval,sourceWeight:weight,
+   beforeToeY:swing.toeY,beforeHeelY:swing.heelY,
+   oppositeHeelY:support.heelY,oppositeToeY:support.toeY,
+   reason,...details
+  };
+  return null;
+ };
  const prepareOriginalIdle=()=>{
-  if(!Array.isArray(sourceIdle?.tracks)||sourceIdle.tracks.length>1500)return false;
+  if(!Array.isArray(sourceIdle?.tracks)||sourceIdle.tracks.length>1500)
+   return rejectOriginalNeutral('licensed-idle-tracks-unavailable');
   const mounts=[upper,lower,foot],targets=[];
   for(const m of mounts){
    const suffix=m.bone.name.toLowerCase()+'.quaternion';
    const matches=sourceIdle.tracks.filter(t=>
     t?.name?.toLowerCase().endsWith(suffix)&&
     t.times?.length>=1&&t.values?.length===t.times.length*4);
-   if(matches.length!==1)return false;
+   if(matches.length!==1)return rejectOriginalNeutral(
+    'licensed-idle-joint-track-ambiguous',
+    {sourceBoneName:m.bone.name,sourceTrackMatches:matches.length});
    const v=Array.from(matches[0].values.slice(0,4));
-   if(!v.every(Number.isFinite)||Math.abs(Math.hypot(...v)-1)>.02)return false;
+   if(!v.every(Number.isFinite)||Math.abs(Math.hypot(...v)-1)>.02)
+    return rejectOriginalNeutral('licensed-idle-source-quaternion-invalid',
+     {sourceBoneName:m.bone.name});
    targets.push(new THREE.Quaternion(...v).normalize());
   }
   const original=[upperOriginal.clone(),lowerOriginal.clone(),
@@ -2707,11 +2725,19 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
    sourceChainVerified:true,sourceJointAngularSeparationRad:originalGapRad,
    maxJointDeltaRad:.26
   });
-  if(!safeBlends)return null;
+  if(!safeBlends)return rejectOriginalNeutral(
+   'original-idle-joint-rotation-budget',
+   {originalSourceJointGapRad:originalGapRad,sourceMaxDeltaRad:.26});
   originalNeutralMounts=mounts;
   originalNeutralSaved=original;
   originalNeutralTargets=targets;
   originalNeutralGapRad=originalGapRad;
+  actor.sourceNeutralSwingGateLast={
+   sourceInstanceId:actor.assetRoot.uuid,side,
+   sourceClip:'Walking_A',reason:'licensed-idle-trials-angle-certified',
+   originalSourceJointGapRad:originalGapRad,sourceMaxDeltaRad:.26,
+   sampleBlends:safeBlends
+  };
   return safeBlends;
  };
  const sampleOriginalIdle=blend=>{
@@ -2738,6 +2764,13 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   for(const angles of starterAngles)sample(angles);
   const neutralBlends=!sourceAnkleProof?
    planOriginalSourceAuthoredNeutralBlends({...owner,starterTrials:trials}):null;
+  if(!neutralBlends)rejectOriginalNeutral(
+   sourceAnkleProof?'prior-original-ankle-correction-owned':
+    'source-neutral-planner-not-qualified',
+   {realSourceStarterLifts:trials.slice(0,2).map(t=>({
+    sourceToeLiftMeters:t.after?.[side]?.toeY-swing.toeY,
+    sourceHeelRiseMeters:t.after?.[side]?.heelY-swing.heelY
+   }))});
   const safeNeutralBlends=neutralBlends?prepareOriginalIdle():null;
   if(safeNeutralBlends){
    authoredNeutralUsed=true;
@@ -5042,6 +5075,7 @@ function inspectSourceRigDeformation(actors){
     sourceNeutralSwingAcceptedFrames:actor.sourceNeutralSwingAcceptedFrames||0,
     sourceNeutralSwingCurrentFrameProofs:actor.sourceNeutralSwingCurrentFrameProofs??null,
     sourceNeutralSwingLastProbe:actor.sourceNeutralSwingLastProbe??null,
+    sourceNeutralSwingGateLast:actor.sourceNeutralSwingGateLast??null,
     sourceSwingToeCorrectionFrames:actor.sourceSwingToeCorrectionFrames||0,
     sourceSwingToeIneffectiveFrames:actor.sourceSwingToeIneffectiveFrames||0,
     sourceSwingToeIneffectiveLast:actor.sourceSwingToeIneffectiveLast??null,

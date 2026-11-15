@@ -113,13 +113,25 @@ export function planOriginalSourceAuthoredNeutralBlends({
   ![support.heelY,support.toeY].every(y=>
    y>=floorTopY-.055&&y<=floorTopY+.035))return null;
  const drift=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+ // A genuine 1440px Walking_A shoe (Actions #43766094802, tick 6)
+ // had 82.8mm toe penetration, a heel 221.4mm above stone and two
+ // independently skinned starter arcs. Its best 26.24mm toe lift also
+ // raised the airborne heel 29.06mm: only 2.82mm excess, below the
+ // previous generic 9mm veto. Permit the EXISTING two licensed Idle
+ // three-joint source probes in this much narrower severe-pitch case,
+ // never a planted foot or an accepted pose without final two-shoe skin.
+ const severeSourcePitch=projected<=.10&&
+  floorTopY-swing.toeY>=.075&&swing.heelY-floorTopY>=.20;
  const heelDominated=starterTrials.some(t=>{
   const shoe=t?.after?.[side],loaded=t?.after?.[other];
   if(!valid(shoe)||!valid(loaded)||
    ![t.upperRad,t.lowerRad].every(finite))return false;
   const lift=shoe.toeY-swing.toeY;
   const rise=shoe.heelY-swing.heelY;
-  return lift>=.012&&rise>=lift+(frameInterval>.12?.005:.009)&&
+  const excessHeelRise=rise-lift;
+  return lift>=.012&&
+   (excessHeelRise>=(frameInterval>.12?.005:.009)||
+    (severeSourcePitch&&excessHeelRise>=.002))&&
    Math.abs(loaded.heelY-support.heelY)<=.003&&
    Math.abs(loaded.toeY-support.toeY)<=.003&&
    drift(loaded.heelXZ,support.heelXZ)<=.004&&
