@@ -1,3 +1,8 @@
+## W341 supplemental exact-run audit · original eye inside market timber
+Actual W340 mobile [uncut recording](https://github.com/my-edutu/Ai_games/actions/runs/43657149756/artifacts/14139006385) shows foreground timber obscuring worker around 10s; physical-observer gate FAIL despite source correctness. W341 original market post/counter/screen volumes added ONLY to real camera visibility model and protected by W169/W340 contracts. Next new film MUST verify a worker's human-scale face, body and hands THROUGH uninterrupted original gameplay; else reject. Physical eye scan cost must remain bounded. Same Phase 1 five blockers and original farm→courier→market→home economic slice persist. A NOT PROVEN; B FAIL; no merge.
+
+---
+
 ## W340 · 15 November 2026 · SAME active Phase 1 original economic vertical slice
 
 Source `8897bd43ef6f787105e8efb0df452e31ded76119`, open DRAFT PR #64 (NO MERGE), immutable G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. W339 [authentic Day121 mobile video](https://github.com/my-edutu/Ai_games/actions/runs/43651387629/artifacts/14136356762) was inspected: market post hides the actual actor around 10s. W340 changes only original workday camera shot certification: safe above-roof actual perspective candidate, complete fresh projected hand/face/body/crowd survey and authentic worker director admission. No invented actor or resource credit; no demonstrated post-change mobile camera pass yet.

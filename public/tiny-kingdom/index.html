@@ -22695,6 +22695,17 @@ function followCameraRoofs(){
  // The lower chest, screen, upper walls and sign are visible at eye level,
  // not transparent simply because the old collision survey saw only roofs.
  roofs.push(...physicalStreetLevelStallVolumes());
+ // True market stall and roadside marker timber uprights exist in the
+ // current original VBO but were absent from the workday ray/eye model.
+ // Film them as real solids; this adds NO meshes, draw calls, navigation
+ // walls, actors, market transactions or hidden objects.
+ for(const post of physicalMarketUprights()){
+  const bottom=terrain(post.x,post.z),half=post.width*.5+.025;
+  roofs.push({x:post.x,z:post.z,rx:half,rz:half,
+   bottom,visualBottom:bottom,top:bottom+post.height,
+   kind:post.kind==='gateway'?'market-gateway-post':'market-stall-post'});
+ }
+
  const my=terrain(0,5);
  roofs.push({x:0,z:5,rx:1.6,rz:1.02,bottom:my+1.51,top:my+2.31,
   visualBottom:my+.12,kind:'village-market'});
@@ -22867,7 +22878,14 @@ function getCameraRayBroadphaseAudit(){
 // prevent physical spectator penetration and contribute to projected scene
 // obstruction, particularly for genuine 390px courier/merchant work shots.
 // Do not hide geometry, move citizens, or alter the autonomous world.
-const PHYSICAL_FOLLOW_EYE_KINDS=new Set(['home','hall','granary','craft-district','belfry','street-shop','market-stall','village-market','receiving-hall-roof','market-arcade-roof','granary-porch-roof','arcade','receiving-hall-post','granary-porch-post']);
+const PHYSICAL_FOLLOW_EYE_KINDS=new Set([
+ 'home','hall','granary','craft-district','belfry','street-shop',
+ 'market-stall','village-market','market-stall-post','market-gateway-post',
+ 'market-stall-counter','market-stall-screen','market-stall-upper-wall',
+ 'market-stall-rear-gable','market-stall-artisan-vent','market-stall-sign',
+ 'market-cart','receiving-dock','receiving-hall-roof','market-arcade-roof',
+ 'granary-porch-roof','arcade','receiving-hall-post','granary-porch-post'
+]);
 // W279: one conservative eye-point broadphase for every authentic worker,
 // cart and inhabited-house camera. The existing physical AABB check remains
 // authoritative, with identical first blocking kind and 6cm collision margin.
@@ -22990,6 +23008,8 @@ const WORKDAY_OPAQUE_SCENE_KINDS=new Set([
  'market-stall','village-market','arcade','street-shop',
  'market-stall-counter','market-stall-screen',
  'market-stall-upper-wall','market-stall-sign',
+ 'market-stall-post','market-gateway-post',
+ 'market-stall-rear-gable','market-stall-artisan-vent',
  'market-cart','courier-cart','receiving-dock','receiving-hall-roof',
  'market-arcade-roof','receiving-hall-post','granary-porch-roof','granary-porch-post',
  ...WORKDAY_SOLID_BUILDING_KINDS

@@ -13,6 +13,10 @@ const original=extract('findPhysicalPortraitAlternative'),
 assert(source.includes('PORTRAIT_ALT_MAX_EYES=24'),'bounded 24 real eyes required');
 assert(source.includes('portraitPhysicalRecovery:best.physicalPortraitRecovery===true'),
  'real live actor director must actually admit the repaired lens');
+assert(source.includes("kind:post.kind==='gateway'?'market-gateway-post':'market-stall-post'"),
+ 'camera model must include original physical market timber posts');
+assert(source.includes("'market-stall-counter','market-stall-screen','market-stall-upper-wall'"),
+ 'real counter/screens are solid for the physical camera eye');
 assert(source.includes('physicalPortraitElevatedEye:candidatePitch>.75'),
  'real above-roof 3D observer is part of the running game');
 const setup=()=>({

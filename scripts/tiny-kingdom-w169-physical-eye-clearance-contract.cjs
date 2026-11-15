@@ -34,6 +34,20 @@ assert.equal(check([7,2.5,0],roofs).kind,'market-stall','actual awning solid blo
 assert.equal(check([12,.5,0],roofs).clear,true,'working loaded cart is not hidden or treated as opaque house');
 assert.equal(check([17,2.6,0],roofs).kind,'receiving-hall-roof','real receiving hall roof blocks eye');
 assert.equal(check([20,1,0],roofs).clear,true);
+// The original fixed market stall timber posts and counter/screen actually
+// obstruct a human-sized camera; a real courier's MOVING cart is unchanged.
+const marketSolids=[
+ {x:30,z:1,rx:.1,rz:.1,bottom:0,top:2.7,kind:'market-stall-post'},
+ {x:32,z:1,rx:.6,rz:.2,bottom:.6,top:1.2,kind:'market-stall-counter'},
+ {x:34,z:1,rx:.2,rz:.12,bottom:.7,top:2.4,kind:'market-stall-screen'},
+ {x:36,z:1,rx:.2,rz:.12,bottom:0,top:2.4,kind:'market-gateway-post'},
+ {x:38,z:1,rx:.7,rz:.9,bottom:0,top:1.3,kind:'market-cart'}
+];
+for(const s of marketSolids)assert.equal(check([s.x,(s.bottom+s.top)*.5,s.z],marketSolids).kind,s.kind,
+ 'worker eye may not stand inside existing original market timber: '+s.kind);
+assert.equal(check([30,3.2,1],marketSolids).clear,true,
+ 'elevated physically surveyed camera sees over genuine market posts');
+
 assert.equal(check([Infinity,1,0],roofs).clear,false,'NaN or infinite camera is never considered safe');
 // Original immutable village volumes are indexed, while a physically live
 // appended freight volume cannot invalidate/erase the stationary roof tests.
