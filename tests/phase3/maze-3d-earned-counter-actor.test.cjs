@@ -39,10 +39,10 @@ test('only a current visible, authoritative PUBLIC lantern recoil earns Pip a ph
   const same=acting(witness(),saved,{...saved,strength:.62,lanternParried:true,encounterBeat:.45});
   assert.equal(same.strength,.86);
   assert.equal(same.encounterBeat,.45);
-  assert.match(linkedScene,/publicEarnedGuardianActing\(s,earnedCounterActor,closestThreat\)/,
+  assert.match(linkedScene,/publicEarnedGuardianActing\(s,earnedCounterActor,originalThreat\)/,
     'the native renderer must actually consume the PUBLIC helper');
-  assert.match(linkedScene,/attentionHeading:actingGuardian\?/);
-  assert.match(linkedScene,/lanternParried:actingGuardian\?\.lanternParried===true/);
+  assert.match(linkedScene,/attentionHeading:closestThreat\?/);
+  assert.match(linkedScene,/lanternParried:closestThreat\?\.lanternParried===true/);
 });
 
 test('actual Pip rig plants toward the earned moving counter without changing its autonomous route or allocating geometry',async()=>{

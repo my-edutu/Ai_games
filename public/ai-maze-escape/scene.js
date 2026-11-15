@@ -5,7 +5,8 @@ import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VI
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
 import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
-import { publicGuardianLanternReach, publicEarnedGuardianActing } from './public-lantern-encounter.mjs';
+import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
+import { publicEarnedGuardianActing } from './public-lantern-encounter.mjs';
 import { publicPressureInspectionTakesFocus } from './public-lantern-encounter.mjs';
 import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicVerifiedPressureRetreatPartner, publicDistinctPublicPredecessor, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicPressureActionHalfHeight, publicPressureDiagonalApproachHalfHeight, publicCameraSettleRate, publicPhysicalPressureHorizontalReframe, publicPhysicalPressureRetreatHalfHeight, publicPhysicalPressureApproachHalfHeight, publicPhysicalPressureHeroReadabilityHalfHeight, publicPressureContactOrbitWeight, publicPressureActorCounterflankX, publicPhysicalPressureContactHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
 
@@ -674,13 +675,18 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // range, Pip must still turn its connected torso and held lantern toward
     // the ACTUAL currently visible retreat. Never revive a hidden/expired
     // guardian, retain a prior run, or invent a ray through sealed masonry.
-    const actingGuardian = publicEarnedGuardianActing(s,earnedCounterActor,closestThreat);
-    explorer.update({
+    // Give ONLY Pip's own RIG the earned public witness. Preserve the original
+    // local-threat contract for the light, camera, warnings and world: the
+    // parried model must not become a fictitious open-corridor ray or danger.
+    const originalThreat = closestThreat;
+    {
+      const closestThreat = publicEarnedGuardianActing(s,earnedCounterActor,originalThreat);
+      explorer.update({
       time:elapsed,delta,moving:pose.moving&&!result,heading,
-      attentionHeading:actingGuardian?Math.atan2(actingGuardian.x-pose.x,actingGuardian.z-pose.z):undefined,
-      attentionStrength:actingGuardian?.strength??0,
-      guardianEncounterBeat:actingGuardian?.encounterBeat,
-      lanternParried:actingGuardian?.lanternParried===true,
+      attentionHeading:closestThreat?Math.atan2(closestThreat.x-pose.x,closestThreat.z-pose.z):undefined,
+      attentionStrength:closestThreat?.strength??0,
+      guardianEncounterBeat:closestThreat?.encounterBeat,
+      lanternParried:closestThreat?.lanternParried===true,
       keyHeading:keyGateCue?.heading,keyStrength:keyGateCue?.strength??0,
       gateHeading,gateStrength,pickupStrength,
       fossilHeading:fossilCue
@@ -694,7 +700,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       keyTarget,
       keyCameraPosition: camera.position,
       danger:s.dangerPermille/1000,result,reducedMotion:settings.reducedMotion,
-    });
+      });
+    }
     // Live carved scenery responds to Pip's actual interpolated PUBLIC pose.
     // No hidden map, authoritative AI input or extra animation clock.
     // Share the public AI movement cadence with the connected 3D pressure
