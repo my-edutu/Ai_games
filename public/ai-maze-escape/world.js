@@ -294,7 +294,7 @@ export function publicGuardianWitnessedForegroundCells(s,causeway=publicGuardian
  * actors; the original walls, impassable tiles, pressure jaws, keys and
  * gates remain. This neutral visual forecourt must never signal a route.
  */
-export function publicEarnedGuardianRecoilCourtCells(s) {
+export function publicEarnedGuardianRecoilCourtCells(s,{spectator=false}={}) {
   const quiet=new Set();
   if (s?.lifecycle!=='running'||s.result
     ||!Number.isSafeInteger(s.currentCell)||!Number.isSafeInteger(s.width)
@@ -324,9 +324,16 @@ export function publicEarnedGuardianRecoilCourtCells(s) {
     for(const c of known.values()) {
       if(c.trap||c.checkpoint||c.clue||c.cell===s.exitCell
         ||reserved.has(c.cell))continue;
-      if(distance(c.cell,hero.cell)>2
-        &&distance(c.cell,guardian.cell)>2)continue;
-      if(!actorLevels.some(level=>Math.abs(
+      // Native Pass408 320px exposes tall plants on PUBLIC, camera-side
+      // spectator terraces beyond the earlier same-tier two-cell court.
+      // Widen only the optional-dressing exclusion. The real actor-level
+      // low blocked stone treatment remains unchanged, and a different
+      // elevation NEVER authorizes a fake playable floor or shortcut.
+      if(spectator && c.blocked!==false)continue;
+      const radius=spectator?4:2;
+      if(distance(c.cell,hero.cell)>radius
+        &&distance(c.cell,guardian.cell)>radius)continue;
+      if(!spectator && !actorLevels.some(level=>Math.abs(
         cellHeight(c.cell,s.width,s.height)-level)<1e-8))continue;
       quiet.add(c.cell);
     }
@@ -1211,11 +1218,17 @@ export function createMazeWorld(options = {}) {
     // The peripheral helper requires a genuine witnessed open causeway and
     // cannot infer or reveal hidden terrain or private AI.
     const earnedRecoilQuiet=publicEarnedGuardianRecoilCourtCells(s);
+    // Separate the honest actor-level LOW stone district from a wider
+    // optional-vegetation exclusion on CURRENTLY VISIBLE ordinary terraces.
+    // The latter changes no platform heights, walls, gates or path surfaces.
+    const earnedSpectatorHorizon=publicEarnedGuardianRecoilCourtCells(
+      s,{spectator:true});
     const guardianQuietRing=new Set([
       ...(guardianCauseway.has(s.currentCell)
         ? [...guardianForecourtShoulders,...guardianOuterCourt.ordinary,
           ...guardianPeripheralWalls] : []),
-      ...earnedRecoilQuiet
+      ...earnedRecoilQuiet,
+      ...earnedSpectatorHorizon
     ]);
     const guardianBlockedRelief=publicGuardianBlockedReliefCells(s,guardianSightlines);
     const knownByCell = new Map(s.cells.map(c => [c.cell, c]));
@@ -1327,7 +1340,13 @@ export function createMazeWorld(options = {}) {
       // The real public Pip/Thornback court keeps their actions foregrounded:
       // suppress ONLY non-colliding tall fossils/columns/plant dressing, not
       // walls, stairs, gate hardware or collision-authoritative geometry.
-      const guardianCourtCell=guardianSightlines.has(c.cell) && !pressureSightline
+      // After an actual successful autonomous parry Thornback may move off
+      // the old reciprocal lane. Keep BOTH witnessed actors on one low,
+      // original mineral performance stage, not disconnected beige tiles.
+      // This cannot create a connector or safety cue: only visible, already
+      // walkable actor-level tiles receive the EXISTING flush arena inlay.
+      const guardianCourtCell=(guardianSightlines.has(c.cell)
+        || earnedRecoilQuiet.has(c.cell)) && !pressureSightline
         && !c.blocked && !c.trap && !c.checkpoint && !c.clue
         && c.cell!==s.exitCell && !s.keys.some(k=>k.cell===c.cell);
       // Source-native Pass341 evidence changed only 0.7017/255 in the 390px
@@ -3488,6 +3507,8 @@ export function createMazeWorld(options = {}) {
     const keyedOuterCourt=publicGuardianOuterCourtCells(s,keyedGuardianCauseway);
     const keyedForeground=publicGuardianWitnessedForegroundCells(s,keyedGuardianCauseway);
     const keyedEarnedRecoil=publicEarnedGuardianRecoilCourtCells(s);
+    const keyedEarnedSpectators=publicEarnedGuardianRecoilCourtCells(
+      s,{spectator:true});
     // A third-ring PUBLIC wall may be diagonal to both guardian causeway
     // cells. If ONLY its present visibility changes, the old two-cell key
     // cannot invalidate its actual opaque full-height/low-wall geometry.
@@ -3514,6 +3535,7 @@ export function createMazeWorld(options = {}) {
       + '#guardian-near-floor:' + [...keyedForeground].sort((a,b)=>a-b).join('.')
       + '#guardian-public-peripheral-walls:' + [...keyedPeripheralWalls].sort((a,b)=>a-b).join('.')
       + '#guardian-earned-recoil:' + [...keyedEarnedRecoil].sort((a,b)=>a-b).join('.')
+      + '#guardian-earned-public-spectators:' + [...keyedEarnedSpectators].sort((a,b)=>a-b).join('.')
       + '#guardian-outer-floor:' + [...keyedOuterCourt.ordinary].sort((a,b)=>a-b).join('.')
       + '#guardian-outer-sealed:' + [...keyedOuterCourt.sealed].sort((a,b)=>a-b).join('.');
     if (terrainKey !== terrainSignature) { rebuildTerrain(s); terrainSignature = terrainKey; }
