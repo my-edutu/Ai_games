@@ -40,6 +40,8 @@ const a=h.indexOf('// W108 Phase 1: one bounded'),b=h.indexOf('// W24 Living Val
 const d={Math};vm.createContext(d);
 vm.runInContext(`let presentationEpoch=1,state={t:1},selectedCitizen=0,
  people=Array.from({length:18},(_,i)=>({i,name:'real'+i,job:i===2||i===3?'farmer':'merchant'})),
+ city=Array.from({length:18},(_,i)=>[i,0,0]),
+ frozen=false,focusPoint=[0,0],yaw=0,pitch=.52,
  streetWalk=false,streetEncounterName='',follow=false,liveWorkday=false,zoom=25;
  function citizenDetailCameraFrame(){return {eye:[0,1,4],forward:[0,0,-1],right:[1,0,0],up:[0,1,0],tanVertical:.5,tanHorizontal:.7,lens:{viewportWidth:390,viewportHeight:800,verticalDegrees:90,horizontalDegrees:48}}}
  function projectRealCitizenDetail(p){return {visible:p.i>0&&p.i<=5,heightFraction:({1:.25,2:.17,3:.14,4:.13,5:.07})[p.i]||0,screenX:0,screenY:0}}

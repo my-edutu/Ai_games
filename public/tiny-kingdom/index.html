@@ -27415,6 +27415,8 @@ function getCivicCoreResidencyAudit(){
   gpuResident:Boolean(civicGpuResidencyEnabled&&civicCoreBuffer),
   gpuUploads:civicCoreGpuUploads,gpuDisposals:civicCoreGpuDisposals,
   gpuTriangles:activeCivicCoreMesh().length/30,
+  originalFixedFixtureTriangles:civicStaticFixtureTriangles,
+  originalFixedFixtureBuilds:civicStaticFixtureBuilds,
   newGpuBuffers:civicCoreGpuUploads-civicCoreGpuDisposals,
   modifiesCitizens:false,modifiesEconomy:false,modifiesNavigation:false,
   affectsSavedReplay:false,hardwareFps:'NOT MEASURED'};
@@ -27498,6 +27500,25 @@ function recallCivicCore(key){
 }
 
 let civicGrowthRefreshes=0;
+// W346 original immutable civic details, terrain-bound and season-keyed.
+// These existing public fixtures never depend on new household pathfinding:
+// retain full 3D originals once with farm/granary/market/craft-shop GPU core.
+// Only real freight and resident roads should rebuild after live construction.
+let civicStaticFixtureBuilds=0,civicStaticFixtureTriangles=0;
+function renderRetainedCivicFixtures(){
+ const first=data.length;
+ well(-15,4);villageGarden(12,11);villageGarden(-17,-3);guildBanner(-2,3);guildBanner(5,-2);for(const [x,z,height] of VILLAGE_LIGHT_ANCHORS)lantern(x,z,height);for(let i=0;i<7;i++)stoneBoulder(-23+(i*1.8),5+Math.sin(i*3)*1.3,.65+(i%3)*.18);
+ for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,1,.45,.64,rgb(0x7d5d45))}
+ civicStaticFixtureBuilds++;
+ civicStaticFixtureTriangles=(data.length-first)/30;
+ return civicStaticFixtureTriangles;
+}
+function getRetainedCivicFixturesAudit(){return {
+ source:'real-original-town-fixtures-independent-of-live-courier-routes',
+ builds:civicStaticFixtureBuilds,triangles:civicStaticFixtureTriangles,
+ genuineOriginalStreetlights:VILLAGE_LIGHT_ANCHORS.length,
+ preservedFullOriginalGeometry:true,authorityModified:false,
+ physicalFps:'NOT MEASURED'};}
 function updateResidentCivicDistrict(nextTerrainKey,daylightStage){
 const civicKey=liveCivicTopologyKey(nextTerrainKey,daylightStage);
 civicActiveKey=civicKey;
@@ -27527,9 +27548,9 @@ if(residentCivic&&storedCoreReady&&
  civicCoreBuffer=null;civicCoreChunkRanges=[];
  civicCacheBuilds++;
  const civicStart=data.length;
- // Keep original geometry order: 1) old farm/civic/receiving market,
- // 2) real currently dependent household + freight streets,
- // 3) the existing finishing fixtures. Only group (1) is retained here.
+ // Source faithfully includes EVERY real immutable civic building, fixed
+ // street and historical fixture in one retained core; ONLY actual household
+ // and freight path geometry stays dirty as occupied lots grow.
  if(!recallCivicCore(unchangedCoreKey)){
   const coreStart=data.length;
   resetHighStreetBuildStats();
@@ -27540,6 +27561,7 @@ if(residentCivic&&storedCoreReady&&
   riverBridge();hillsideSanctuary();forgeWorkshop();
   market(0,5);marketQuarter();
   highStreetStats.totalTriangles=renderFoundingHighStreetLanes()+renderFoundingStreetfronts();
+  renderRetainedCivicFixtures();
   const residentOriginalCore=rememberCivicCore(unchangedCoreKey,coreStart);
   // CPU mesh only leaves the road-upload after a REAL complete GPU
   // allocation. On SwiftShader/Canvas2D, keep every original triangle.
@@ -27549,8 +27571,6 @@ if(residentCivic&&storedCoreReady&&
  // These two streets depend on actual traversable paths and founding homes:
  // rebuild them whenever nearby ORIGINAL construction changes civic topology.
  inhabitedHighStreet(false);farmMarketStreet();
- well(-15,4);villageGarden(12,11);villageGarden(-17,-3);guildBanner(-2,3);guildBanner(5,-2);for(const [x,z,height] of VILLAGE_LIGHT_ANCHORS)lantern(x,z,height);for(let i=0;i<7;i++)stoneBoulder(-23+(i*1.8),5+Math.sin(i*3)*1.3,.65+(i%3)*.18);
-for(let i=0;i<5;i++){let xx=-17+i*1.3,zz=-14+(i%2)*1.4;box(xx,terrain(xx,zz),zz,1,.45,.64,rgb(0x7d5d45))}
  const stored=rememberCivicScenery(civicKey,civicStart,{
   guildhall:{...guildhallVisualStats},farm:{...farmScene},
   craft:{...craftCounters},market:{...marketQuarterStats},

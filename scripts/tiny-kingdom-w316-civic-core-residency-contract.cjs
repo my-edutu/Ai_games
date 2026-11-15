@@ -54,6 +54,7 @@ function world(){
  const labels=['hall','farmstead','windmill','fenceLine','riverBridge',
   'hillsideSanctuary','forgeWorkshop','market','marketQuarter',
   'inhabitedHighStreet','farmMarketStreet','renderFoundingStreetfronts',
+  'renderFoundingHighStreetLanes','renderRetainedCivicFixtures',
   'well','villageGarden',
   'guildBanner','lantern','stoneBoulder','box'];
  labels.forEach((name,index)=>{
@@ -94,6 +95,10 @@ assert.equal(retained.calls.hall,coreFirst,'near-road home cannot regenerate gui
 assert.equal(retained.calls.farmstead,1,'genuine existing granary and farm retained');
 assert.equal(retained.calls.renderFoundingStreetfronts,1,
  'original craft shops and household yards cannot regenerate on road growth');
+assert.equal(retained.calls.renderFoundingHighStreetLanes,1,
+ 'historic four genuine fixed lanes must stay resident during new-home routing');
+assert.equal(retained.calls.renderRetainedCivicFixtures,1,
+ 'original wells, lamps, gardens and banners must remain resident without loss');
 assert.equal(retained.calls.marketQuarter,1,'unchanged original four shops retained');
 assert.equal(retained.calls.inhabitedHighStreet,2,'true home streets replan');
 assert.equal(retained.calls.farmMarketStreet,2,'true courier freight streets replan');
@@ -109,7 +114,11 @@ assert.ok(audit.cachedFloats>0&&audit.cachedFloats<=audit.floatBudget);
 assert.equal(audit.fullOriginalGeometryPreserved,true);
 retained.draw(3,'autumn');
 assert.equal(retained.calls.hall,2,'season switch invalidates original granary/market');
+assert.equal(retained.calls.renderRetainedCivicFixtures,2,
+ 'real seasonal core invalidation rebuilds original fixtures');
 vm.runInNewContext('clearCivicCoreCache()',retained.env);
 retained.draw(4,'autumn');
 assert.equal(retained.calls.hall,3,'world reset invalidates old core resident source');
+assert.equal(retained.calls.renderRetainedCivicFixtures,3,
+ 'reset must rebuild all fixed original public infrastructure');
 console.log('W316 PASS: original full-mesh farm/market core reused across near-road construction, cold-vs-cached vertex identity exact, original streets remade, climate/reset invalidation bounded. NO FPS or visual PASS.');
