@@ -4102,6 +4102,24 @@ export function createTowerWorld(){
         observedHalfHeight:held.observedHalfHeight
       }:{})};
   }
+  // Snapshot the ACTUALLY ELIGIBLE deferred original shaft before the
+  // current Three.js draw, rather than inferring GPU visibility from its
+  // next-frame material fade. Small immutable scalars only; zero world
+  // traversal, fake source events, alternate scene or gameplay mutation.
+  function deferredShaderSubmission(snapshot) {
+    const job=deferredDistantArrival;
+    if (!job || job.structureDeferred!==true ||
+        job.proof!=='recorded-source-gateway' ||
+        snapshot?.lifecycle!=='running' || snapshot.floor!==9 ||
+        snapshot.theme!=='void' || snapshot.runToken!==job.runToken ||
+        job.floor!==9 || key!==job.key ||
+        !Number.isSafeInteger(snapshot.tick) ||
+        snapshot.tick<job.sourceTick) return null;
+    return {sourceBound:true,runToken:job.runToken,floor:9,
+      sourceTick:snapshot.tick,
+      structuralVisibleOnSubmittedFrame:
+        job.structuralRoot?.visible===true && job.structuralFade>.015};
+  }
   function lastRebuild() { return lastRebuildWitness ? { ...lastRebuildWitness } : null; }
   function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,
     originalClockworkGalleryPrebuild:{...thresholdGalleryPreparation,
@@ -4172,5 +4190,5 @@ export function createTowerWorld(){
       deferredBuildMs:deferredDistantArrival.deferredBuildMs,
     }:null,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;retireEarnedCap();pendingEarnedCap=null;clearFloor();for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
-  return{group,update,stageGroundedCapContinuation,retainedFilmHandoff,noteFrameSubmitted,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics,lastRebuild};
+  return{group,update,stageGroundedCapContinuation,retainedFilmHandoff,noteFrameSubmitted,deferredShaderSubmission,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics,lastRebuild};
 }
