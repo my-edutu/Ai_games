@@ -4,7 +4,7 @@
 // traversable street geometry; no secondary fake job, actor or inventory.
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
-const game=html.match(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/i)?.[1];
+const game=html.match(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/i)?.[1];
 assert(game,'live Tiny Kingdom script missing');
 new Function(game);
 const start=game.indexOf('// W351: readable original market-to-inhabited-home streets.');
