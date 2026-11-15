@@ -6,7 +6,8 @@
 // interpolation, temporal replay, new floor, trigger or camera cut.
 import { pointFor, SCALE, guardianTraversalGatePose } from './coordinates.mjs';
 import { observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
-import { observedSourceGatewayDeparturePresence, observedSourceSuccessorRaisedDeck } from './source-physical-arrival-palette.mjs';
+import { observedSourceGatewayDeparturePresence, observedSourceSuccessorRaisedDeck,
+  SOURCE_GATEWAY_RETURN_TOLERANCE } from './source-physical-arrival-palette.mjs';
 
 const validInt = Number.isSafeInteger;
 const finite = Number.isFinite;
@@ -82,7 +83,11 @@ export function observedSourceBoundColdDoorwayLens(source, held, drawnHero, aspe
       cap.x !== held.oldCapX || cap.width !== held.oldCapWidth ||
       cap.y + cap.height !== held.oldRoofY || w.exitX !== held.thresholdX ||
       w.exitX !== cap.x + Math.floor(cap.width * .76) ||
-      p.x < w.crossingX || p.x > w.exitX + 90000 ||
+      // The real F9 AI can step back toward the gateway while lining up
+      // its already-authenticated first successor deck. Do not cut away from
+      // the ORIGINAL lens when the shared physical source proof still holds.
+      p.x < w.crossingX - SOURCE_GATEWAY_RETURN_TOLERANCE ||
+      p.x > w.exitX + 90000 ||
       p.halfWidth !== w.halfWidth || p.halfHeight !== w.halfHeight ||
       !Array.isArray(source.platforms)) return null;
 

@@ -111,3 +111,27 @@ test('scene camera receives the source-owned optical gateway witness beyond the 
   assert.match(world,/guardianGateRetained:held\.guardianGateRetained===true/);
   assert.match(world,/if\(!immutable && !priorGrounded && !visibleOriginalGateway\)return null/);
 });
+
+test('source-earned first F9 return-step keeps real original camera across bounded AI reversal on desktop AND portrait',async()=>{
+  const {observedSourceBoundColdDoorwayLens:shot}=await entry;
+  const {source,held}=await fixture();
+  const {pointFor}=await coordinates;
+  const crossing=source.lastGuardianCrossing.crossingX;
+  source.tick=489;
+  source.player.x=crossing-6300;
+  const body=pointFor(source.player.x,source.player.y,
+    source.chunkBaseY,source.worldWidth,25);
+  const sourceBefore=JSON.stringify({source,held});
+  for(const aspect of [960/600,390/844]) {
+    const lens=shot(source,held,body,aspect);
+    assert.equal(lens?.sourceBound,true);
+    assert.equal(lens?.coldOriginalArch,true);
+    assert.ok(lens.span<26);
+  }
+  assert.equal(JSON.stringify({source,held}),sourceBefore);
+  source.player.x=crossing-18001;
+  const overrun=pointFor(source.player.x,source.player.y,
+    source.chunkBaseY,source.worldWidth,25);
+  assert.equal(shot(source,held,overrun,390/844),null,
+    'a sufficiently distant backwards retreat cannot borrow the old door lens');
+});

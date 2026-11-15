@@ -5,6 +5,13 @@
 // how the original bronze engineering becomes the next biome's violet metal.
 import { observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 const valid=Number.isSafeInteger;
+// The recorded fixed-step Floor 9 route doubles back roughly 0.63m to
+// line up with its first raised deck. A previous forward-only predicate
+// destroyed the REAL retained bronze gateway and final camera while the
+// defeated guardian, same run, original roof and successor route were valid.
+// This is a bound on a source-observed return, NOT permission to re-cross or
+// manufacture a floor change. Both palette and camera use the same bound.
+export const SOURCE_GATEWAY_RETURN_TOLERANCE = 18000;
 const clamp01=n=>Math.min(1,Math.max(0,n));
 const smooth=n=>{const t=clamp01(n);return t*t*(3-2*t);};
 
@@ -84,7 +91,7 @@ export function observedSourcePhysicalArrivalPalette(source,held=null) {
   }
   const sole=p.y-p.halfHeight,travel=p.x-crossingX,age=source.tick-sourceTick;
   if(!valid(sole) || !valid(travel) || !valid(age) || age<0 || age>70 ||
-     travel<0 || travel>100000 ||
+     travel < -SOURCE_GATEWAY_RETURN_TOLERANCE || travel>100000 ||
      sole<roofY-2500 || sole>roofY+230000 ||
      p.x-p.halfWidth<ground.x ||
      p.x+p.halfWidth>ground.x+ground.width ||
@@ -117,7 +124,9 @@ export function observedSourcePhysicalArrivalPalette(source,held=null) {
   // by rising 7m CLEAR of the source doorway, without any synthetic stride,
   // landing, collision, elapsed-display clock or invented scene frame.
   // Horizontal travel keeps its original full 90m envelope for ground runs.
-  const horizontalProgress=smooth((travel-6000)/84000);
+  // A genuine next-floor retreat never counts as positive forward distance.
+  // Earn the transition through actual vertical clearance or later travel.
+  const horizontalProgress=smooth((Math.max(0,travel)-6000)/84000);
   const verticalProgress=smooth((rise-10000)/60000);
   const physicalProgress=Math.max(horizontalProgress,verticalProgress);
   // Original 1x desktop/portrait films: physical F9 source advanced through

@@ -65,3 +65,43 @@ test('retained original 3D roof and arch share a source-verified optical retirem
   assert.match(world,/held\.opticalExitSubmitted=held\.originalGatewayOpacity<=\.01/);
   assert.doesNotMatch(world,/if\s*\(held\.submittedFrames\s*>=\s*5\s*&&\s*held\.visibleSeconds\s*>=\s*RETAINED_CAP_SECONDS\)/);
 });
+
+test('genuine Floor 9 route reversal retains SAME GPU bronze gateway until a real elevated departure, never invents crossing',async()=>{
+  const {observedSourcePhysicalArrivalPalette:palette,
+    observedSourceGatewayDeparturePresence:presence,
+    SOURCE_GATEWAY_RETURN_TOLERANCE:tolerance}=await physical;
+  const {source,held}=originalCrossing();
+  // Actual source-pinned 20Hz guardian film: the first Floor 9 AI route
+  // doubles back roughly 6,300 units after source tick 475, then climbs.
+  source.tick=490;
+  source.player.x=source.lastGuardianCrossing.crossingX-6300;
+  held.firstWorldRenderTick=476;
+  held.submittedFrames=1;
+  const before=JSON.stringify({source,held});
+  const aligned=palette(source,held),door=presence(source,held);
+  assert.equal(aligned?.sourceBound,true);
+  assert.equal(aligned.travel,-6300);
+  assert.equal(aligned.horizontalProgress,0);
+  assert.equal(door?.sourceBound,true);
+  assert.equal(door.wholeBodyCleared,false);
+  assert.equal(door.opacity,1);
+  assert.equal(JSON.stringify({source,held}),before,'presentation cannot change fixed-step source');
+  // Actual ascent can complete the original-deck departure while moving
+  // slightly backward horizontally; no fabricated forward progress.
+  source.tick=505;
+  source.player={...source.player,y:180000,grounded:false,
+    groundedPlatformId:null,state:'airborne',vy:500};
+  held.submittedFrames=4;held.visibleSeconds=.7;
+  const climbed=palette(source,held);
+  assert.equal(climbed?.sourceBound,true);
+  assert.equal(climbed.horizontalProgress,0);
+  assert.equal(climbed.verticalProgress,1);
+  assert.equal(presence(source,held)?.opacity,0);
+  // A huge rewind, a forged guardian or a wrong run cannot resurrect the gate.
+  source.player.x=source.lastGuardianCrossing.crossingX-tolerance-1;
+  assert.equal(palette(source,held),null);
+  assert.equal(presence(source,held),null);
+  source.player.x=source.lastGuardianCrossing.crossingX-6300;
+  source.lastGuardianCrossing.guardian.active=true;
+  assert.equal(palette(source,held),null);
+});
