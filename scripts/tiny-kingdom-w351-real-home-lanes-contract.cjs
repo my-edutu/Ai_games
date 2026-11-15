@@ -64,8 +64,17 @@ for(let i=3;i<35;i++){
 data.length=0;render.build();
 const grown=render.audit();
 assert.equal(grown.occupiedHomes,people.length);
-assert(grown.connectedHomes<=10&&grown.connectedHomes>0);
-assert(grown.triangles<=1120);
-assert(grown.frontageTriangles<=100,'Day120 doorstep detail must remain bounded');
+assert(grown.connectedHomes>=24,
+ 'genuine Day-120 occupied houses must not lose their streets to a 10-home render cap');
+assert(grown.connectedHomes<=grown.occupiedHomes,
+ 'every rendered route must terminate at an existing occupied home');
+assert(grown.triangles<=3600,'genuine Day-120 street geometry remains bounded');
+assert(grown.frontageTriangles<=350,'Day-120 doorstep stone courts remain bounded');
+assert(grown.cartScaleSections>0,
+ 'safe real streets must permit credible cart-scale two-metre carriageways');
+assert(grown.narrowSections+grown.cartScaleSections===grown.segments,
+ 'every original street section must record actual traversability-derived width');
+assert(grown.noFictionalStops===true,'no synthetic households or goods');
+
 assert.equal(grown.triangles,data.length/30);
 console.log('W352 SOURCE PASS: actual occupied home A* road network plus terrain-fitted stone arrivals; triangles bounded and authority unchanged; actual Day120 LOOK/FEEL/PLAY NOT PROVEN.');
