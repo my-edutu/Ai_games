@@ -119,11 +119,23 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    roughness:name==='hit'?.78:.68,transparent:true,opacity:reducedFlash?.22:.38,
    depthWrite:false,depthTest:true,side:THREE.DoubleSide,...matProps});
   const mesh=new THREE.InstancedMesh(geometry,mat,max);
+  // Reserved matrix storage is fixed, but only occupied prefixes are submitted
+  // to the vertex pipeline. Empty pools issue zero instance draws.
+  mesh.count=0;
   mesh.frustumCulled=false;mesh.instanceMatrix?.setUsage?.(THREE.DynamicDrawUsage);
   for(let i=0;i<max;i++)mesh.setMatrixAt(i,hideMatrix());
   mesh.instanceMatrix.needsUpdate=true;mesh.visible=false;scene.add(mesh);
   const pool={name,max,slots:Array.from({length:max},()=>null),mesh,geometry,mat};
   pools.set(name,pool);
+ }
+ // The maximum live slot index, not the reserved capacity, determines how many
+ // instanced vertices WebGL must process. Holes remain hidden matrices. This
+ // does not allocate/free GPU buffers or change semantic effect placement.
+ function syncPoolInstanceCount(pool){
+  let count=0;
+  for(let i=pool.max-1;i>=0;i--)
+   if(pool.slots[i]!==null){count=i+1;break}
+  pool.mesh.count=count;
  }
  make('trail',createOriginalBladeStreakGeometry(THREE),{metalness:0,roughness:1,opacity:reducedFlash?.15:.29});
  make('hit',new THREE.TetrahedronGeometry(.073,0),{metalness:.22,roughness:.8});
@@ -531,6 +543,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    retiredWarningMarkers+=retired;
    pool.mesh.instanceMatrix.needsUpdate=true;
    pool.mesh.visible=pool.slots.some(Boolean);
+   syncPoolInstanceCount(pool);
   }
   return retired;
  }
@@ -695,6 +708,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
      slot.age<slot.life&&slot.measuredPath!==null);
    created++;spawned++;
   }
+  if(created>0)syncPoolInstanceCount(pool);
   if(type==='hit')confirmedFragments+=created;
   if(warningMarkers&&created>0)rememberWardenCue(cue);
   peak=Math.max(peak,active);
@@ -923,7 +937,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
     pool.mesh.instanceMatrix.needsUpdate=true;
     dirtyPoolCount++;potentialBufferBytes+=pool.max*64;
    }
-   if(dirty)pool.mesh.visible=visibleSlots>0;
+   if(dirty){pool.mesh.visible=visibleSlots>0;syncPoolInstanceCount(pool)}
    lastAdvanceWritesByPool[pool.name]=poolWrites;
   }
   // One completed JS visual pass. These numbers capture setMatrixAt calls
@@ -1123,6 +1137,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
     pool.mesh.instanceMatrix.needsUpdate=true;
     pool.mesh.visible=pool.slots.some(slot=>slot!==null&&slot.age<slot.life&&
      (pool.name!=='trail'||slot.measuredPath!==null));
+    syncPoolInstanceCount(pool);
    }
   }
   retiredStaleFrameInstances+=retired;
@@ -1144,6 +1159,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    }
    if(dirty)pool.mesh.instanceMatrix.needsUpdate=true;
    pool.mesh.visible=false;
+   pool.mesh.count=0;
   }
   active=0;warningHistory.clear();
  }
