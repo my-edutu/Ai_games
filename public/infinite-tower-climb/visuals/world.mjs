@@ -9,6 +9,7 @@ import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage } from './source-physical-arrival-palette.mjs';
 import { protectHistoricalGallerySightline } from './original-gallery-foreground.mjs';
+import { measureAuthoritativeDeckSightline } from './successor-deck-visibility.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, updateOriginalClockworkSuccessorRoute } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings } from './source-earned-bearing-run.mjs';
 
@@ -3876,6 +3877,48 @@ export function createTowerWorld(){
   // if no exact center-ray hits the climber. Treat only NON-GAMEPLAY decorative
   // gear teeth as progressively translucent near an authentic subject; actual
   // platforms, guardian, hazards and moving-deck machinery remain opaque.
+  // The retained original gateway may be camera-safe in NDC while a REAL
+  // successor-F9 moving/raised deck is physically BETWEEN the camera and
+  // the climber. The authentic portrait film has this failure at 26-27s.
+  // Only three current source-owned platform meshes can be queried. Nothing
+  // here edits a platform, physics contact, sim tick, 3D mesh or source route.
+  const successorDeckRay=new THREE.Raycaster();
+  const successorDeckRayDirection=new THREE.Vector3();
+  const successorDeckRayTarget=new THREE.Vector3();
+  const successorDeckRayHits=[];
+  function measureSuccessorDeckVisibility(source,camera,body,bodyHalfHeight,
+      gate=null,landingId=null) {
+    const held=retainedEarnedCap,p=source?.player;
+    if(!held || !p || source!==lastSnapshot ||
+        source.floor!==9 || source.theme!=='void' ||
+        source.runToken!==held.runToken ||
+        !Array.isArray(source.platforms))return null;
+    // A real first next-floor route can contain a moving deck, old roof and
+    // elevated landing together. Rank by the actual current source body and
+    // exact chosen/occupied support; no guessed future route or fake mesh.
+    const ranked=[];
+    for(const deck of source.platforms){
+      if(typeof deck?.id!=='string' || !deck.id.startsWith('f9:') ||
+          ![deck.x,deck.y,deck.width,deck.height].every(Number.isSafeInteger) ||
+          deck.width<=0 || deck.height<=0)continue;
+      const entry=platforms.get(deck.id);
+      if(!entry?.root?.isGroup)continue;
+      const dx=Math.abs(deck.x+deck.width*.5-p.x)/SCALE;
+      const dy=Math.abs(deck.y+deck.height-p.y+p.halfHeight)/SCALE;
+      // Priority is purely observational: current physical support and the
+      // existing source-selected landing, not a simulated landing forecast.
+      const priority=deck.id===p.groundedPlatformId?-25:
+        deck.id===landingId?-12:0;
+      ranked.push({root:entry.root,score:dx+dy*.4+priority});
+    }
+    ranked.sort((a,b)=>a.score-b.score);
+    const roots=ranked.slice(0,3).map(candidate=>candidate.root);
+    return measureAuthoritativeDeckSightline({
+      source,held,camera,body,bodyHalfHeight,gate,platformRoots:roots,
+      raycaster:successorDeckRay,direction:successorDeckRayDirection,
+      point:successorDeckRayTarget,hits:successorDeckRayHits
+    });
+  }
   function protectRouteSightlines(camera, actor=null, guardian=null, landing=null, dt=0, options={},
       actorHalfHeight=0, guardianHalfHeight=0, hazard=null, gateway=null, actorHalfWidth=0) {
     if(disposed)return {total:0,softened:0};
@@ -4320,5 +4363,5 @@ export function createTowerWorld(){
       deferredBuildMs:deferredDistantArrival.deferredBuildMs,
     }:null,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;retireEarnedCap();pendingEarnedCap=null;clearFloor();for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
-  return{group,update,stageGroundedCapContinuation,retainedFilmHandoff,noteFrameSubmitted,deferredShaderSubmission,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics,lastRebuild};
+  return{group,update,stageGroundedCapContinuation,retainedFilmHandoff,noteFrameSubmitted,deferredShaderSubmission,measureSuccessorDeckVisibility,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics,lastRebuild};
 }
