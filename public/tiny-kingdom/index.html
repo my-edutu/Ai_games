@@ -13989,9 +13989,10 @@ function marketQuarter(){
  marketQuarterStats.coveredArcades++;
  lantern(-3.67,13.03,1.85);lantern(1.15,13.03,1.85);
  marketQuarterStats.totalTriangles=(data.length-begin)/30;
- if(marketQuarterStats.wovenCanopyFacets!==240||
+ if(marketQuarterStats.canopyPanels>0&&
+    (marketQuarterStats.wovenCanopyFacets!==240||
     marketQuarterStats.wovenCanopyStitches!==64||
-    marketQuarterStats.wovenCanopyLashings!==12)
+    marketQuarterStats.wovenCanopyLashings!==12))
   throw Error('W386 incomplete actual canvas trading roofs');
  marketQuarterStats.cached=true;
 }

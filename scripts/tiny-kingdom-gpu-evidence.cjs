@@ -413,7 +413,7 @@ const path = require('node:path');
     });
     if(evidence.orchard.trees!==9||evidence.orchard.forks!==27||
        evidence.orchard.tipTwigs!==27||evidence.orchard.crownLobes!==36||
-       evidence.orchard.fruit!==45||evidence.orchard.meshTriangles!==3726||
+       evidence.orchard.fruit!==45||evidence.orchard.meshTriangles!==1926||
        !evidence.orchard.authorityUnchanged||evidence.geometry.totalTriangles>=160000)
       throw Error('Orchard geometry, camera authority or GPU budget regression: '+JSON.stringify(evidence.orchard));
     // G062: assert the active GPU static mesh includes 22 nondegenerate

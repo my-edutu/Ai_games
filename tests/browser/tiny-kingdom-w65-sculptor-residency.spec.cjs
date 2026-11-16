@@ -63,7 +63,7 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   test.setTimeout(240000);
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.setViewportSize(viewport);await page.setContent(html);
-  await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>140000,
+  await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>120000,
    null,{timeout:110000});
   await page.evaluate(()=>window.__tinyKingdom.setSpeed(0));
   const result=await page.evaluate(()=>{

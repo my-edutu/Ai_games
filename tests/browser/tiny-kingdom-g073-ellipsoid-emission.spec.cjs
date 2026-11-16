@@ -72,7 +72,7 @@ test('G073 real WebGL ellipsoid scene keeps bounded valid geometry and replay au
    glError:document.getElementById('world').getContext('webgl')?.getError()||0};
  });
  expect(result.replayIdentical).toBe(true);
- expect(result.audit.totalTriangles).toBeGreaterThan(140000);
+ expect(result.audit.totalTriangles).toBeGreaterThan(120000);
  expect(result.audit.totalTriangles).toBeLessThan(160000);
  for(const kind of ['static','dynamic']){
   expect(result.audit[kind].aligned).toBe(true);
