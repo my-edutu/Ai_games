@@ -809,14 +809,37 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
    floorTopY-c.afterToeY<=.02);
   if(!safe.length)return null;
   const pitchGain=c=>c.liftMeters-(c.afterHeelY-swing.heelY);
-  const selected=safe.reduce((a,c)=>!a||
-   pitchGain(c)>pitchGain(a)+.001||
-   (Math.abs(pitchGain(c)-pitchGain(a))<=.001&&
-    Math.abs(c.upperRad)+Math.abs(c.lowerRad)<
-     Math.abs(a.upperRad)+Math.abs(a.lowerRad))?c:a,null);
-  // Final original skinned BOTH-shoe measurement is mandatory downstream;
-  // reuse the same source-pitch independent proof as first fast-swing.
-  best=Object.freeze({...selected,originalSwingPitchProtected:true,
+  // Within a 1mm pitch-equivalence band, recover the MOST buried toe
+  // first. The previous smaller-joint tie-break could discard 1.1mm of
+  // measured toe clearance even though the smaller arc saved no meaningful
+  // heel rise. Use joint effort only after the genuine shoe result ties.
+  const selected=safe.reduce((a,c)=>{
+   if(!a)return c;
+   const gain=pitchGain(c)-pitchGain(a);
+   if(gain>.001)return c;
+   if(gain<-.001)return a;
+   if(c.liftMeters>a.liftMeters+.0005)return c;
+   if(a.liftMeters>c.liftMeters+.0005)return a;
+   return Math.abs(c.upperRad)+Math.abs(c.lowerRad)<
+    Math.abs(a.upperRad)+Math.abs(a.lowerRad)-.000001?c:a;
+  },null);
+  // A preceding independently measured knee-led heel-relief certificate
+  // belongs to EXACTLY that licensed source-joint candidate. The later
+  // slow-source pitch arbitration must neither erase a still-winning
+  // certificate nor transfer it to a different pose via object spread.
+  // Final after-application dual-shoe skin verification remains mandatory.
+  const sameVerifiedHeelRelief=best?.originalHeelReliefVerified===true&&
+   selected.upperRad===best.upperRad&&
+   selected.lowerRad===best.lowerRad&&
+   Math.abs(selected.afterToeY-best.afterToeY)<.0000001&&
+   Math.abs(selected.afterHeelY-best.afterHeelY)<.0000001;
+  best=Object.freeze({...selected,
+   ...(sameVerifiedHeelRelief?{
+    originalHeelReliefVerified:true,
+    originalHeelRiseSavedMeters:best.originalHeelRiseSavedMeters,
+    originalToeLiftSacrificeMeters:best.originalToeLiftSacrificeMeters
+   }:{}),
+   originalSwingPitchProtected:true,
    originalSwingPitchGainMeters:pitchGain(selected)});
  }
  return best;
