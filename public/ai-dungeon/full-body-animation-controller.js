@@ -2068,9 +2068,21 @@ export function chooseOriginalSourceSwingToeJointRelief({
  // never infer a fresh step, plant, IK target or early-blend animation.
  const sparseConnectedShallow=shallow&&connectedOriginalLegVerified===true&&
   sourceWeight>=.95&&frameInterval>.15&&frameInterval<=.22;
- if((frameInterval>.1&&!sparseFullShallow&&!sparseConnectedShallow)||
+ // The two original 100mrad toe probes remain ineligible during a
+ // 50–150ms shallow-source gap. Only a separately witnessed, >=95%-owned
+ // direct toes[l/r] follow-on at 140mrad may use this narrow window.
+ // Both weighted shoes still decide acceptance after EVERY real probe.
+ const adaptiveOriginalToeWindow=sourceWeight>=.95&&
+  frameInterval>=.05&&frameInterval<=.15&&
+  residual>=.008&&residual<=.045&&
+  trials.every(trial=>finite(trial?.angleRad)&&
+   Math.abs(trial.angleRad)>.1000001&&
+   Math.abs(trial.angleRad)<=.1400001);
+ if((frameInterval>.1&&!sparseFullShallow&&!sparseConnectedShallow&&
+   !adaptiveOriginalToeWindow)||
   (shallow?(sourceWeight<.82||(frameInterval>.05&&
-   !sparseFullShallow&&!sparseConnectedShallow)):sourceWeight<.90))return null;
+   !sparseFullShallow&&!sparseConnectedShallow&&
+   !adaptiveOriginalToeWindow)):sourceWeight<.90))return null;
  const xz=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
  let best=null;
  for(const trial of trials){
