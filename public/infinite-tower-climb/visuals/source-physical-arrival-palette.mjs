@@ -97,8 +97,49 @@ export function observedSourceFloorNineRouteSupport(source,ground,roofY) {
  * verifies its same-run age and a bounded legitimate flight thereafter.
  * No synthetic support, floor, combat event or gameplay state is created.
  */
+// When the short-lived crossing event disappears before an actual raised
+// contact is submitted, the ORIGINAL already-verified GPU cap still carries
+// the source-approved crossing identity. This is historical evidence only:
+// the current route needs its own exact platform/sole or valid flight tail.
+// Conflicting live crossing records always veto the historical fallback.
+function previouslyVerifiedOriginalRaisedReceipt(source,held,roofY) {
+  const p=source?.player;
+  return source?.lastGuardianCrossing==null &&
+    held?.verifiedObservedFloorAdvance===true &&
+    held.guardianGateRetained===true &&
+    held.oldCapId==='f8:cap' &&
+    [held.oldCapX,held.oldCapWidth,held.oldRoofY,held.thresholdX,
+      held.observedCrossingX,held.observedCrossingY,
+      held.observedHalfWidth,held.observedHalfHeight,
+      held.crossingTick,held.sourceTick,source?.tick,
+      p?.halfWidth,p?.halfHeight].every(valid) &&
+    held.oldCapWidth>0 && held.observedHalfWidth>0 &&
+    held.observedHalfHeight>0 &&
+    held.thresholdX===held.oldCapX+Math.floor(held.oldCapWidth*.76) &&
+    held.observedCrossingX>=held.thresholdX &&
+    held.observedCrossingX<=held.thresholdX+60000 &&
+    held.observedCrossingY===roofY+held.observedHalfHeight &&
+    held.observedHalfWidth===p.halfWidth &&
+    held.observedHalfHeight===p.halfHeight &&
+    held.oldRoofY===roofY &&
+    held.crossingTick<=held.sourceTick &&
+    held.sourceTick-held.crossingTick<=20 &&
+    source.tick>=held.sourceTick &&
+    source.tick-held.crossingTick<=SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS;
+}
+
 export function observedSourceRetainedRaisedExit(source,held,roofY) {
   const p=source?.player,w=source?.lastGuardianCrossing;
+  const historic=previouslyVerifiedOriginalRaisedReceipt(source,held,roofY);
+  const recorded=w?.runToken===source?.runToken && w.fromFloor===8 &&
+    w.toFloor===9 && w.guardian?.kind==='guardian' &&
+    w.guardian.active===false && Number.isFinite(w.guardian.health) &&
+    w.guardian.health<=0 && w.cap?.id==='f8:cap' &&
+    valid(w.sourceTick) && valid(w.exitX) &&
+    w.exitX===held?.thresholdX &&
+    valid(w.cap?.y) && valid(w.cap?.height) &&
+    w.cap.y+w.cap.height===roofY;
+
   if(source?.floor!==9 || source.theme!=='void' ||
      source.lifecycle!=='running' || !(p?.health>0) ||
      !held || held.guardianGateRetained!==true ||
@@ -106,17 +147,10 @@ export function observedSourceRetainedRaisedExit(source,held,roofY) {
      held.oldRoofY!==roofY || !valid(roofY) ||
      !valid(source.tick) || !valid(held.raisedDeckSourceTick) ||
      !valid(held.thresholdX) ||
-     w?.runToken!==source.runToken || w.fromFloor!==8 ||
-     w.toFloor!==9 || w.guardian?.kind!=='guardian' ||
-     w.guardian.active!==false || !Number.isFinite(w.guardian.health) ||
-     w.guardian.health>0 || w.cap?.id!=='f8:cap' ||
-     !valid(w.sourceTick) || !valid(w.exitX) ||
-     w.exitX!==held.thresholdX ||
-     !valid(w.cap?.y) || !valid(w.cap?.height) ||
-     w.cap.y+w.cap.height!==roofY ||
-     held.raisedDeckSourceTick<w.sourceTick ||
+     !(recorded||historic) ||
+     held.raisedDeckSourceTick<(recorded?w.sourceTick:held.crossingTick) ||
      held.raisedDeckSourceTick>source.tick ||
-     source.tick-w.sourceTick>SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS ||
+     source.tick-(recorded?w.sourceTick:held.crossingTick)>SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS ||
      source.tick-held.raisedDeckSourceTick>SOURCE_GATEWAY_RAISED_FLIGHT_TAIL_TICKS)
     return false;
   if(observedSourceSuccessorRaisedDeck(source,roofY))return true;
@@ -191,11 +225,16 @@ export function observedSourcePhysicalArrivalPalette(source,held=null) {
     // The first portrait browser receipt may arrive BEFORE the immutable
     // HP-zero crossing record. Accept ONLY the already validated same-run
     // former cap and grounded source corridor; never infer a victory.
-    if(!observedStagedOriginalCapBeforeRecordedCrossing(source,held) ||
+    const liveFirstRoof=observedStagedOriginalCapBeforeRecordedCrossing(source,held);
+    const certifiedRaised=previouslyVerifiedOriginalRaisedReceipt(
+      source,held,held?.oldRoofY) &&
+      observedSourceRetainedRaisedExit(source,held,held.oldRoofY);
+    if(!(liveFirstRoof||certifiedRaised) ||
        ![held?.observedCrossingX,held?.oldRoofY,held?.sourceTick].every(valid) ||
        ground.y+ground.height!==held.oldRoofY)return null;
     crossingX=held.observedCrossingX;roofY=held.oldRoofY;
-    sourceTick=held.sourceTick;kind='verified-original-roof-receipt';
+    sourceTick=certifiedRaised?held.crossingTick:held.sourceTick;
+    kind='verified-original-roof-receipt';
   }
   const sole=p.y-p.halfHeight,travel=p.x-crossingX,age=source.tick-sourceTick;
   const realRaisedOpticalExit=observedSourceRetainedRaisedExit(source,held,roofY);
@@ -253,7 +292,7 @@ export function observedSourcePhysicalArrivalPalette(source,held=null) {
     held.firstWorldRenderTick<=source.tick &&
     source.tick-held.firstWorldRenderTick<=sourceWindow &&
     valid(held.submittedFrames) &&
-    held.submittedFrames>=0 && held.submittedFrames<12 &&
+    held.submittedFrames>=0 && held.submittedFrames<30 &&
     Number.isFinite(held.visibleSeconds) &&
     held.visibleSeconds>=0 && held.visibleSeconds<3 &&
     Number.isFinite(held.originalGatewayOpacity) &&
@@ -283,7 +322,15 @@ export function observedSourcePhysicalArrivalPalette(source,held=null) {
     ?held.submittedFrames===0?0:
       held.submittedFrames===1?smooth(.5/7):
       smooth((held.submittedFrames-1)/7):1;
-  const progress=Math.min(physicalProgress,gpuProgress);
+  // A pixel-painted bronze doorway cannot coexist with a violet sky/route:
+  // the SAME current physical-source clearance, returned frames and displayed
+  // seconds must gate BOTH actual old-gate alpha and successor materials.
+  // Software WebGL can return 9 frames in only 0.38s during the first cold
+  // floor; frame-only tint retired the sky while the real grille was 84%
+  // opaque, then the old world vanished hard on the next browser receipt.
+  const shownProgress=originalGpuVisible
+    ?smooth((held.visibleSeconds-.08)/1.05):1;
+  const progress=Math.min(physicalProgress,gpuProgress,shownProgress);
   const oldWeight=1-progress;
   return {sourceBound:true,sourceTick:source.tick,crossingTick:sourceTick,
     kind,travel,rise,pathDisplacement,roofY,oldWeight,progress,
