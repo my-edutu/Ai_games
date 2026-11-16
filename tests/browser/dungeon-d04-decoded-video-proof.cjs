@@ -103,7 +103,7 @@ function authenticatedOriginalD04WebM(input){
  if(input.source==='real-webgl-receipt-readback-serial-original-audio')
   return true;
  if(input.source!=='real-canvas-plus-opted-in-soundstage'||
-  !/^video\\/webm;codecs=vp8,opus$/i.test(input.mimeType||''))return false;
+  !/^video\/webm;codecs=vp8,opus$/i.test(input.mimeType||''))return false;
  const pump=input.framePump;
  if(!pump||pump.requestFailures!==0||
   !Number.isSafeInteger(pump.observedFrameAdvances)||
@@ -118,7 +118,26 @@ async function sampleChromiumDecodedD04WebM(input){
  const source='chromium-decoded-real-webgl-original-webm';
  const fail=reason=>({source,status:'UNAVAILABLE',reason:String(reason).slice(0,160),
   sampleSynchronized:false});
- if(!authenticatedOriginalD04WebM(input)||
+ // Playwright serializes ONLY this function into the page: authenticate in
+ // this realm as well. The module-level sibling remains for Node classifiers.
+ const serial=input?.source==='real-webgl-receipt-readback-serial-original-audio';
+ const primary=input?.source==='real-canvas-plus-opted-in-soundstage'&&
+  /^video\/webm;codecs=vp8,opus$/i.test(input?.mimeType||'')&&
+  input?.framePump?.requestFailures===0&&
+  Number.isSafeInteger(input.framePump.observedFrameAdvances)&&
+  input.framePump.observedFrameAdvances>0&&input.framePump.observedFrameAdvances<=32&&
+  Number.isSafeInteger(input.framePump.requestedFrames)&&
+  input.framePump.requestedFrames>=0&&input.framePump.requestedFrames<=32&&
+  (input.framePump.mode==='submitted-frame-request'&&
+   input.framePump.requestedFrames>0&&
+   input.framePump.requestedFrames<=input.framePump.observedFrameAdvances||
+   input.framePump.mode==='native-capture-stream'&&
+   input.framePump.requestedFrames===0);
+ if(!(serial||primary)||input.status!=='RECORDED'||
+  input.videoTracks!==1||input.audioTracks!==1||
+  input.optedInAtStart!==true||input.originalSoundstageTrackLive!==true||
+  !Number.isSafeInteger(input.bytes)||input.bytes<=1024||
+  input.bytes>4*1024*1024||
   typeof input.base64!=='string'||
   input.base64.length>Math.ceil(4*1024*1024*4/3)+8)
   return fail('No bounded, opted-in authentic WebGL + soundstage recording');
