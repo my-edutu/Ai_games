@@ -7,7 +7,12 @@ new vm.Script(script,{filename:'tiny-kingdom-game.js'});
 const a=script.indexOf('function hardwareResidentArchitecture(');
 const b=script.indexOf('const softwareNoise3=',a);
 assert(a>0&&b>a,'live WebGL material compiler exists');
-const compile=vm.runInNewContext('('+script.slice(a,b).trim()+')');
+// The source interval also contains the exported W394 audit function.
+// Only the first declaration is the pure GLSL transformer under test.
+// Wrapping both declarations in a single parenthesized expression is invalid JS.
+const audit=script.indexOf('function getHardwareResidentArchitectureAudit()',a);
+assert(audit>a&&audit<b,'separate material tier audit follows compiler');
+const compile=vm.runInNewContext('('+script.slice(a,audit).trim()+')');
 const f=script.match(/const fs=`([\s\S]*?)`;\s*function shader\(/);
 assert(f,'full authored WebGL fragment source exists');
 const old=f[1],next=compile(old);
@@ -28,4 +33,9 @@ assert.throws(()=>compile(null));
 assert.throws(()=>compile('wrong material source'));
 assert.match(script,/softwareNoise3\)\):hardwareResidentArchitecture\(fs\);/);
 assert.match(script,/const materialFragmentSource=swiftGpu\?[\s\S]*?bakedSoftwareArchitecture\(/);
+// W395: an unsupported native GLSL tier must not make the playable game blank.
+assert.match(script,/function createLiveMaterialProgram\(fragment\)/);
+assert.match(script,/materialProgramMode='hardware-original-full-shader-fallback'/);
+assert.match(script,/program=createLiveMaterialProgram\(fs\);/);
+assert.match(script,/getMaterialShaderTierAudit,getHardwareResidentArchitectureAudit/);
 console.log('W394 PASS — full original near material 0–18m; resident baked atlas tier 18–38m; same-authority/no new GPU geometry, hardware/visual proof pending.');
