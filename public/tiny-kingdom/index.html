@@ -21713,14 +21713,29 @@ function renderCarriedHouseholdProvisions(p){
   wrist[2]+scale*(-si*lx+co*lz)];
  const [x,y,z]=place(.015,-.205,.045);
  materialScope(MATERIAL.GENERAL,()=>{
-  // Connected grown 3D fabric, tied mouth, handle and genuine heading seam.
-  ellipsoid(x,y,z,.18*scale,.22*scale,.17*scale,rgb(0xb29b76),7);
-  const knot=place(.015,-.025,.045);
-  ellipsoid(...knot,.09*scale,.06*scale,.08*scale,rgb(0x8f7956),5);
-  limbSegment(place(-.075,-.10,.04),place(.075,-.10,.04),
-   .018*scale,rgb(0x715c43),4);
-  limbSegment(place(.045,-.055,.04),wrist,.018*scale,rgb(0xc9b28a),4);
-  limbSegment(place(-.10,-.30,.175),place(.10,-.30,.175),
+  // The original hand-held sack now has a readable soft silhouette
+  // and front cloth folds. Its bounded fullness follows ONLY the real
+  // original citizen's available provisions: no fictitious extra stock.
+  // All surfaces use the same wrist-root transform, facing and real job.
+  const fullness=Math.min(1.17,Math.max(.91,
+   .93+Math.sqrt(Math.max(0,pose.provisions))*.11));
+  ellipsoid(x,y,z,.202*scale*fullness,.245*scale*fullness,
+   .185*scale*fullness,rgb(0xb5a17e),9);
+  const fold=rgb(0xc8b38c),stitch=rgb(0x917b60);
+  for(const side of [-1,1]){
+   const a=place(side*.039,-.125,.171*fullness),
+    b=place(side*.133,-.205,.178*fullness),
+    c=place(side*.088,-.353,.131*fullness),
+    d=place(side*.015,-.305,.184*fullness);
+   if(side<0)quad(a,d,c,b,fold);else quad(a,b,c,d,fold);
+   limbSegment(a,c,.008*scale,stitch,4);
+  }
+  const knot=place(.015,.038,.045);
+  ellipsoid(...knot,.086*scale,.072*scale,.082*scale,rgb(0x967b57),6);
+  limbSegment(place(-.075,-.036,.04),place(.075,-.036,.04),
+   .016*scale,rgb(0x715c43),4);
+  limbSegment(place(.045,.01,.04),wrist,.018*scale,rgb(0xc9b28a),4);
+  limbSegment(place(-.10,-.34,.175),place(.10,-.34,.175),
    .011*scale,rgb(0x715c43),4);
  });
  householdCarriedSackStats.carriers++;
@@ -27565,10 +27580,15 @@ function getVillageDocumentaryAudit(){
    villageDocumentary.deliveryId=d.id;
   const receipt=villageDocumentary.deliveryId?
    deliveryReceipts.find(r=>r.id===villageDocumentary.deliveryId):null;
+  // A home meal is shown only while the original live citizen, verified
+  // farmer receipt, buyer trade and physically reached cottage all agree.
+  const witnessedMeal=villageDocumentary.household?
+   verifiedHouseholdMealEvidence(p):null;
   const stage=villageDocumentary.household?
    (p.activity==='Traveling to market for provisions'?'travel-to-market':
     p.activity==='Collecting household provisions'?'market-purchase':
     p.activity==='Traveling home with provisions'?'returning-with-provisions':
+    witnessedMeal?'verified-meal':
     p.activity==='Resting at home'&&p.provisions>0?'at-home':
     'observing-household'):
    receipt?'received':d?
@@ -27601,12 +27621,15 @@ function getVillageDocumentaryAudit(){
    stage==='received'?'RECEIVED':
    stage==='market-purchase'?'AT MARKET':
    stage==='returning-with-provisions'?'RETURNING HOME':
+   stage==='verified-meal'?'REAL HOME MEAL':
    stage==='at-home'?'AT HOME':'VILLAGE LIFE';
   if(villageDocumentary.household){
    const message=stage==='travel-to-market'?'walking to the real market':
     stage==='market-purchase'?'collecting market provisions':
     stage==='returning-with-provisions'?
      'carrying '+Number(p.provisions.toFixed(2))+' provisions home':
+    stage==='verified-meal'?
+     'ate food from verified parcel '+witnessedMeal.receiptId+' at their real cottage':
     stage==='at-home'?'resting at home with '+p.provisions+' provisions':
     p.activity;
    const text=p.name+' · '+message;
@@ -27643,9 +27666,17 @@ function getVillageDocumentaryAudit(){
    citizen:people[index].name,following:follow,authoritativeChanges:false};
  }
  function watchVillageLife(){
- // Prefer one existing farmer's REAL working grain parcel over an unrelated
- // household errand. A second click must not switch off an observed parcel.
+ // W376: when a real household errand is already underway and no food
+ // courier is actively carrying a parcel, Watch Village Life follows that
+ // original buyer instead of resetting the camera to an unrelated farmer.
+ // An existing tracked grain journey always retains its locked parcel.
+ // This is an explicit observer action, never an authoritative job change.
  if(grainJourney)return getRealGrainJourneyAudit();
+ const foodCourierOnRoad=people.some(p=>p.delivery?.resource==='food');
+ if(!foodCourierOnRoad&&householdProvisionAudit().citizens.length){
+  const actualBuyer=watchHouseholdErrand();
+  if(actualBuyer)return actualBuyer;
+ }
  if(chooseRealGrainWitness()){
   const chain=watchRealGrainJourney();
   if(chain){

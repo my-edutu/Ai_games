@@ -1,3 +1,12 @@
+## W376 checkpoint — 16 November 2026 · continuing the same Phase 1 original grain-to-home slice
+
+- Current planned candidate source blob: `dd1b5154636f10c6a6079112464a5ee1be81722e`; parent commit `e3d15fbdd00b37b763fe40cf2b8918f2c3303fb1`; PR #64 must stay draft and unmerged.
+- **Actual newly recovered playback evidence:** [exact-head W375 Day-10 continuous desktop + 390px farmer-to-home films](https://github.com/my-edutu/Ai_games/actions/runs/43803827237/artifacts/14197717353). Original parcel: Bram harvested 3.024 food, loaded/market credited; Selene purchased 0.8 and an original household meal followed. Do not treat accelerated fixed-step simulation as real hardware 30fps.
+- **RED gameplay/UX:** [W126 actual 390px household test](https://github.com/my-edutu/Ai_games/actions/runs/43803827092) showed Watch Village Life following Bram rather than the original currently provision-shopping citizen Mira. W376 restores explicit real-buyer priority when no food courier is loaded and carries existing verified meal evidence into the active documentary, with a wrist-bound soft sack visual driven by original purchased food. The source compiled; exact-head browser verification is pending.
+- **Scorecard A — NOT PROVEN:** no matched G088 before/after, uncut Day-120, or distinct independent critics. **Scorecard B — FAIL:** still stylized low-poly human anatomy and settlement.
+- **Biggest five blockers, same durable backlog:** (1) GPU and mobile hardware timing unknown, still software-raster bottleneck; (2) visual architecture/material depth below target; (3) real 3D humans, tools, labor locomotion below target; (4) physical camera clarity and household subject continuity at 390px unproven; (5) Day-120, mobile and blinded A/B acceptance evidence missing.
+- **Next action:** run exact-head W126 and W125 real browser workday/courier/consumer captures, verify unchanged deterministic consumption and 390px layout; then expand the connected original village physical environment, clothing/rig and static GPU rendering instead of further micro-polish.
+
 # Tiny Kingdom — Living Valley Visual Direction Workstream
 
 Status: **active, NOT PROVEN**, on draft PR #64 only. The pinned comparison remains G088 at `2f6deb43feb1a1557848d44def53a6109deb1ab1`; NEVER advance the baseline. Do not merge without new user approval. Do not integrate PRs #43, #59 or #62.
