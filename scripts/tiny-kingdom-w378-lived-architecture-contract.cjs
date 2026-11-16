@@ -1,0 +1,27 @@
+'use strict';
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
+const open=html.lastIndexOf('<script>'),close=html.lastIndexOf('</script>');
+assert.ok(open>0&&close>open,'actual playable inline game');
+const script=html.slice(open+8,close);new Function(script);
+const start=script.indexOf('function renderAuthenticCottageStoneBond(');
+const end=script.indexOf('function house(',start);
+assert.ok(start>=0&&end>start,'shared real inhabited house masonry');
+const excerpt=script.slice(start,end);
+const vertices=[],data=[],ctx={data,Math,Number,materialScope:(_m,fn)=>fn(),
+ MATERIAL:{STONE:1},rgb:h=>[h,h,h],
+ quad:(a,b,c,d)=>{for(const p of [a,b,c,d])assert.ok(Array.isArray(p)&&p.length===3&&p.every(Number.isFinite));
+ vertices.push([a,b,c,d]);for(let k=0;k<60;k++)data.push(0);}};
+vm.runInNewContext(excerpt,ctx,{timeout:2500});
+assert.equal(ctx.renderAuthenticCottageStoneBond(2,1,-4,3,2.4,2,.083),64);
+assert.equal(vertices.length,32,'two courses on ALL four grounded cottage walls');
+assert.ok(vertices.some(q=>q.every(p=>Math.abs(p[2]-(-4+1.2+.083))<1e-9)));
+assert.ok(vertices.some(q=>q.every(p=>Math.abs(p[2]-(-4-1.2-.083))<1e-9)));
+assert.ok(script.includes('renderAuthenticCottageStoneBond(x,y,z,w,d,variant,.083*scale);'),'full homes');
+assert.ok(script.includes('renderAuthenticCottageStoneBond(x,y,z,w,d,variant,.073);'),'grown compact homes');
+const yard=script.slice(script.indexOf('function highStreetHomeYard('),script.indexOf('function highStreetCraftShop('));
+assert.ok(yard.includes('for(let row=0;row<3;row++)for(let bay=0;bay<4;bay++)'));
+assert.ok(yard.includes('renderInhabitedKitchenGarden(xx,zz,index,sign)'));
+assert.ok(yard.includes('highStreetGoods(xx-sign*.28,zz-.18,variant)'));
+assert.ok(!excerpt.includes('Math.random(')&&!excerpt.includes('deliveryReceipts.push('));
+console.log('W378 original cottage and graded courtyard PASS: 64 bounded bonded masonry triangles/home, both original LODs, preserved access and household garden. Visual/hardware FPS NOT PROVEN.');

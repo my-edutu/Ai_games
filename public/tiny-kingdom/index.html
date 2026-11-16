@@ -7765,10 +7765,50 @@ function renderOriginalOccupiedCasement(cx,cy,wallZ,width,height,face,variant,co
 // W349 CASEMENT END
 
 // G055: remove permanent opaque green house/windmill floor decals.
+// W378: grounded occupied-house masonry on real full/compact homes. Same
+// source triangles enter the existing house cache, never a new frame mesh,
+// house, obstacle, resource, citizen, authority or saved-world record.
+function renderAuthenticCottageStoneBond(x,y,z,w,d,variant,projection){
+ if(![x,y,z,w,d,variant,projection].every(Number.isFinite)||
+    w<=1||d<=1||projection<=0)
+  throw Error('W378 invalid original occupied cottage foundation');
+ const before=data.length;
+ const tones=[0xa69b87,0x908a78,0xb7a78f,0x857e6f,
+  0xafa38e,0x978c7b].map(rgb);
+ materialScope(MATERIAL.STONE,()=>{
+  for(let course=0;course<2;course++){
+   const low=y-.042+course*.116,high=low+.108;
+   for(const side of [-1,1]){
+    const faceZ=z+side*(d*.5+projection);
+    for(let bay=0;bay<4;bay++){
+     const gap=.010,xa=x-w*.5+bay*w/4+gap,
+      xb=x-w*.5+(bay+1)*w/4-gap;
+     const a=[xa,low,faceZ],b=[xb,low,faceZ],
+      c=[xb,high,faceZ],d0=[xa,high,faceZ];
+     const tone=tones[(bay*3+course*5+variant+(side+1))%tones.length];
+     if(side>0)quad(a,b,c,d0,tone);else quad(d0,c,b,a,tone);
+    }
+    const faceX=x+side*(w*.5+projection);
+    for(let bay=0;bay<4;bay++){
+     const gap=.010,za=z-d*.5+bay*d/4+gap,
+      zb=z-d*.5+(bay+1)*d/4-gap;
+     const a=[faceX,low,za],b=[faceX,low,zb],
+      c=[faceX,high,zb],d0=[faceX,high,za];
+     const tone=tones[(bay*5+course*3+variant+(side+3))%tones.length];
+     if(side<0)quad(a,b,c,d0,tone);else quad(d0,c,b,a,tone);
+    }
+   }
+  }
+ });
+ const triangles=(data.length-before)/30;
+ if(triangles!==64)throw Error('W378 bonded cottage wall budget changed');
+ return triangles;
+}
 function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale,h=houseVisualProfile(x,z,variant,false).height*scale;
  // G054c: plaster is not stacked granite. Preserve stone in the footings,
  // make roof planes roof material, and preserve all original mesh triangles.
  materialScope(MATERIAL.STONE,()=>box(x,y-.04,z,w+.14,.23*scale,d+.14,rgb(0x908978)));
+ renderAuthenticCottageStoneBond(x,y,z,w,d,variant,.083*scale);
  // W156 physically connected upper cottage storey. On genuine tall founding
  // homes, the overhanging room is a COMPLETE plaster volume sitting on the
  // original lower room, beneath the existing roof. The earlier street windows,
@@ -9426,6 +9466,7 @@ function compactHouse(x,z,variant){
   roofBack=z+d/2+(jettyRoom?.33:.13);
  const hipInset=Math.min((roofBack-roofFront)*.29,halfW*.70),ridgeFront=roofFront+hipInset,ridgeBack=roofBack-hipInset;
  materialScope(MATERIAL.STONE,()=>box(x,y-.05,z,w+.12,.23,d+.12,rgb(0x918977)));
+ renderAuthenticCottageStoneBond(x,y,z,w,d,variant,.073);
  materialScope(MATERIAL.PLASTER,()=>{
   if(jettyRoom){
    // Lower room keeps the original window and doorway plane. Above 1.55m,
@@ -14173,11 +14214,28 @@ function renderInhabitedKitchenGarden(xx,zz,index,sign){
 function highStreetHomeYard(x,z,variant,index){
  const sign=x<0?-1:1,xx=x+sign*2.65,zz=z+.32,y=terrain(xx,zz);
  const pole=rgb(0x6e5640),fence=rgb(0x988060),soil=rgb(0x68503e);
+ // W378: twelve joined terrain-fitted earth panels, bounded limestone
+ // doorstep setts, and all previously authentic kitchen gardens. Original
+ // A* access and household collision footprints remain untouched.
  materialScope(MATERIAL.ROAD,()=>{
-  const a=[xx-1.23,zz-1.10],b=[xx+1.23,zz+1.10];
-  const q=(px,pz)=>[px,terrain(px,pz)+.034,pz];
-  quad(q(a[0],a[1]),q(a[0],b[1]),q(b[0],b[1]),q(b[0],a[1]),
-   rgb(index%2?0x87765c:0x796f5e));
+  const clay=[0x746b5c,0x81735e,0x786e60,0x887b65].map(rgb);
+  const q=(px,pz,lift=.034)=>[px,terrain(px,pz)+lift,pz];
+  for(let row=0;row<3;row++)for(let bay=0;bay<4;bay++){
+   const xa=xx-1.23+bay*2.46/4,xb=xx-1.23+(bay+1)*2.46/4;
+   const za=zz-1.10+row*2.20/3,zb=zz-1.10+(row+1)*2.20/3;
+   quad(q(xa,za),q(xa,zb),q(xb,zb),q(xb,za),
+    clay[(index+row*3+bay)%clay.length]);
+  }
+ });
+ materialScope(MATERIAL.STONE,()=>{
+  const setts=[rgb(0x9b907c),rgb(0xafa08a),rgb(0x898375)];
+  for(const side of [-1,1])for(let bay=0;bay<4;bay++){
+   const xa=xx-1.12+bay*.56+.015,xb=xx-1.12+(bay+1)*.56-.015;
+   const za=zz+side*.96-.065,zb=zz+side*.96+.065;
+   const q=(px,pz)=>[px,terrain(px,pz)+.064,pz];
+   quad(q(xa,za),q(xa,zb),q(xb,zb),q(xb,za),
+    setts[(index+bay+(side+1))%setts.length]);
+  }
  });
  materialScope(MATERIAL.WOOD,()=>{
   for(const span of [-1,1]){
