@@ -1430,14 +1430,22 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   if(disposed||typeof cueId!=='string'||!cueId||
    !['stale-frame','expired-visual','unverified-frame',
      'revoked-drawn-swing-pose','revoked-drawn-body-pose',
-     'visual-submission-unverified',
+     'visual-submission-unverified','authority-revoked-warning',
       'awaiting-frame-cap-rejected','awaiting-frame-cap-preempted'].includes(reason))return 0;
   let retired=0;
   for(const pool of pools.values()){
    let dirty=false;
    for(let i=0;i<pool.max;i++){
     const slot=pool.slots[i];
-    if(slot?.cue?.id!==cueId||slot.cue.visual==='warning')continue;
+    if(slot?.cue?.id!==cueId)continue;
+    // A completed WebGL receipt may discover that the public Warden danger
+    // window was cancelled AFTER the last visual advance. Revoke only this
+    // exact old warning, and only with a CURRENT authority witness. Other
+    // stale-frame/audio expiry reasons must never erase a still-live hazard.
+    if(reason==='authority-revoked-warning'){
+     if(slot.cue.visual!=='warning'||typeof getCurrentSnapshot!=='function'||
+      warningStillLive(slot.cue))continue;
+    }else if(slot.cue.visual==='warning')continue;
     // A post-submission pose revocation may clear only its own proven gesture.
     // Never use a stale sword/body witness to erase unrelated HP injury,
     // projectiles, or a still-authoritative Warden warning footprint.
