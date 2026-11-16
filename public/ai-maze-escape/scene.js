@@ -3,7 +3,7 @@ import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap, choosePublicEarnedParryFlank } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicEarnedGuardianActing } from './public-lantern-encounter.mjs';
@@ -90,6 +90,14 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   const parryScenicRoots = [];
   const parryScenicBounds = new THREE.Box3();
   const parryScenicCorner = new THREE.Vector3();
+  // Source-visible earned recoil: one cached, fully bounded camera flank per
+  // genuine public tick. No new renderer materials, geometry or extra cameras.
+  const publicRecoilRay = new THREE.Raycaster();
+  const publicRecoilScreen = new THREE.Vector2();
+  const publicRecoilUp = new THREE.Vector3(0,1,0);
+  let publicRecoilCameraKey = '';
+  let publicRecoilCameraGoal = 0;
+  let publicRecoilCameraAngle = 0;
   function projectedParryScenicBox(root) {
     parryScenicBounds.setFromObject(root);
     if (parryScenicBounds.isEmpty()) return null;
@@ -1657,6 +1665,135 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         // implausible alpha fade or moving an authoritative structure.
         scenic.position.y=scenic.userData.parryRecessBaseY-2.65*amount;
         scenic.visible=true;
+      }
+    }
+    // Pass416: the ORIGINAL same-seed unaltered 320/390 WebGL image of
+    // an earned Pip lantern counter still hides his torso behind public
+    // masonry (cell 93/75), even after one foreground fossil theatre
+    // physically recedes. A source-bound camera director may find a
+    // different THREE-DIMENSIONAL angle rather than delete real walls,
+    // shrink the actors, brighten effects or invent a combat animation.
+    //
+    // Every candidate uses the actual two full connected models, existing
+    // public world meshes and native THREE Raycaster. World ray hits are
+    // classified ONLY through describePublicRayHit; unknown hits are NOT
+    // "clear" and no private map/route or guessed guardian is inspected.
+    // The only winner is a publicly witnessed, uncropped two-body angle
+    // with at least TWO extra fully clear actor anchors, including Pip's
+    // actual torso. Other cameras, normal encounters, reduced motion,
+    // undisclosed/terminal events, pressure/gates/pickups remain unchanged.
+    const publicRecoilCameraEligible=cameraMode==='follow' && !result
+      && !settings.reducedMotion && !cameraGate
+      && !pressureCameraBeat && !pickupCameraBeat
+      && earnedGuardianFrame && verifiedGuardianModel?.parent
+      && aspect>=.35 && aspect<.60 && s?.lifecycle==='running'
+      && Array.isArray(s.visibleCells)
+      && Number.isSafeInteger(s.currentCell)
+      && Number.isSafeInteger(earnedCounterActor?.cell)
+      && s.visibleCells.includes(earnedCounterActor.cell)
+      && s.threats?.some(t=>t.cell===earnedCounterActor.cell
+        && t.lanternParried===true);
+    if (!publicRecoilCameraEligible) {
+      publicRecoilCameraKey='';
+      publicRecoilCameraGoal=0;
+      publicRecoilCameraAngle=0;
+    } else {
+      const currentKey=String(s.runToken)+':'+s.tick;
+      const basePosition=camera.position.clone();
+      const baseOffset=basePosition.clone().sub(cameraTarget);
+      const realAnchors=[];
+      // Both actors use actual current world-space connected-mesh bounds.
+      // No sprite center, HUD surrogate or private navigation object.
+      for(const root of [explorer.group,verifiedGuardianModel]){
+        const body=new THREE.Box3().setFromObject(root);
+        if(body.isEmpty())break;
+        const dy=body.max.y-body.min.y;
+        const x=(body.min.x+body.max.x)*.5;
+        const z=(body.min.z+body.max.z)*.5;
+        realAnchors.push([.80,.50,.16,.53,.53].map((f,i)=>
+          new THREE.Vector3(
+            i===3?body.min.x+(body.max.x-body.min.x)*.18
+            :i===4?body.min.x+(body.max.x-body.min.x)*.82:x,
+            body.min.y+dy*f,z)));
+      }
+      const physicalShotSafe=()=>{
+        for(const root of [explorer.group,verifiedGuardianModel]){
+          const b=projectedParryScenicBox(root);
+          if(!b || b.left<=-.91 || b.right>=.91
+            || b.top>=.80 || b.bottom<=-.86
+            || b.nearestZ<=-1 || b.nearestZ>=1)return false;
+        }
+        return true;
+      };
+      if(currentKey!==publicRecoilCameraKey){
+        publicRecoilCameraKey=currentKey;
+        publicRecoilCameraGoal=0;
+        if(realAnchors.length===2){
+          const candidates=[];
+          for(const angle of [0,-.44,.44]){
+            let safe=true;
+            // Verify the complete physical travel corridor, not merely
+            // the final angle. Do not allow an intermediate cropped actor.
+            for(const fraction of (angle===0?[1]:[.25,.5,.75,1])){
+              camera.position.copy(cameraTarget).add(
+                baseOffset.clone().applyAxisAngle(publicRecoilUp,angle*fraction));
+              camera.lookAt(cameraTarget);
+              camera.updateMatrixWorld();
+              if(!physicalShotSafe()){safe=false;break;}
+            }
+            let cleared=0,pipTorsoClear=false,guardianHeadClear=false;
+            if(safe){
+              for(let actor=0;actor<2;actor++){
+                for(let part=0;part<5;part++){
+                  const anchor=realAnchors[actor][part];
+                  const ndc=anchor.clone().project(camera);
+                  if(Math.abs(ndc.x)>=.91 || ndc.y>=.80 || ndc.y<=-.86
+                    || ndc.z<=-1 || ndc.z>=1)continue;
+                  publicRecoilScreen.set(ndc.x,ndc.y);
+                  publicRecoilRay.setFromCamera(publicRecoilScreen,camera);
+                  const until=publicRecoilRay.ray.origin.distanceTo(anchor)-.08;
+                  let blocked=false,uncertain=false;
+                  for(const hit of publicRecoilRay.intersectObject(world.group,true)){
+                    if(hit.distance>=until)break;
+                    if(world.describePublicRayHit(hit)){blocked=true;break;}
+                    // A non-public, unmatched collision cannot be used
+                    // as proof that a cinematic camera is unobstructed.
+                    uncertain=true;
+                  }
+                  const clear=!blocked&&!uncertain;
+                  if(clear)cleared++;
+                  if(actor===0&&part===1)pipTorsoClear=clear;
+                  if(actor===1&&part===0)guardianHeadClear=clear;
+                }
+              }
+            }
+            candidates.push({angle,safe,cleared,pipTorsoClear,guardianHeadClear});
+          }
+          publicRecoilCameraGoal=choosePublicEarnedParryFlank(
+            candidates,true,settings.reducedMotion);
+        }
+      }
+      camera.position.copy(basePosition);
+      camera.lookAt(cameraTarget);
+      camera.updateMatrixWorld();
+      if(publicRecoilCameraGoal){
+        // A staged camera turn rather than an abrupt cut. Each displayed
+        // intermediate angle is also rechecked against full actor bounds.
+        const step=Math.min(1,Math.max(0,delta)*5);
+        const candidate=publicRecoilCameraAngle+
+          (publicRecoilCameraGoal-publicRecoilCameraAngle)*step;
+        camera.position.copy(cameraTarget).add(
+          baseOffset.applyAxisAngle(publicRecoilUp,candidate));
+        camera.lookAt(cameraTarget);
+        camera.updateMatrixWorld();
+        if(physicalShotSafe())publicRecoilCameraAngle=candidate;
+        else{
+          camera.position.copy(basePosition);
+          camera.lookAt(cameraTarget);
+          camera.updateMatrixWorld();
+          publicRecoilCameraAngle=0;
+          publicRecoilCameraGoal=0;
+        }
       }
     }
     const background = settings.highContrast ? '#50665f' : '#b2c6b6';
