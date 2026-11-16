@@ -6639,3 +6639,54 @@ test('RED: original steep source calf must improve relative shoe pitch, not just
  assert.equal(confirm({...proof,afterToeY:-.0195}),true,
   'a legally cleared toe may complete without claiming a foot plant');
 });
+
+
+// RED-FIRST: exact old 390px licensed Walking_A source-swing AFTER true
+// original-calf correction, still -36.187mm toe with +266.163mm heel.
+// The formerly two 100mrad toes[l/r] reads may be insufficient to unbury
+// this source-weighted shoe; a strictly witnessed 140mrad reversible source
+// toe candidate must be judged by both ORIGINAL skinned shoes before use.
+// Trial points below are a TEST FIXTURE, not claimed original GLB footage.
+test('RED: verified full-source residual can accept restrained 140mrad original toe candidate, never early-blend or phantom stance',async()=>{
+ const {chooseOriginalSourceSwingToeJointRelief:choose}=await load();
+ const before={
+  left:{heelY:.26616271542352826,toeY:-.03618695753002843,
+   heelXZ:[-.28,.06],toeXZ:[-.25,.11]},
+  right:{heelY:-.016,toeY:-.021,heelXZ:[.03,.1],toeXZ:[.04,.15]}
+ };
+ const after={
+  left:{heelY:.2665,toeY:-.0221,
+   heelXZ:[-.28,.0604],toeXZ:[-.249,.111]},
+  right:{heelY:-.016,toeY:-.021,heelXZ:[.03,.1],toeXZ:[.04,.15]}
+ };
+ const witnessed={
+  mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  ownerLocomotion:true,sourceToeChainVerified:true,
+  sourceToeTrackVerified:true,sourceInstanceSame:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,rootTravel:.07,frameAge:.06,frameInterval:.0802,
+  side:'left',floorTopY:-.02,before,
+  trials:[{angleRad:.14,after}]
+ };
+ const pick=choose(witnessed);
+ assert.equal(pick?.angleRad,.14,
+  'a live skinned 140mrad direct original-toes hinge, not another calf rotation, should qualify');
+ assert.ok(pick?.liftMeters>.01&&pick.oppositeFootVerified===true&&pick.contactLocked===false);
+ for(const unsafe of [
+  {sourceWeight:.94},{frameInterval:.19},{reducedMotion:true},
+  {sourceToeTrackVerified:false},{sourceInstanceSame:false},
+  {interrupted:true},{mode:'attack'},
+  {trials:[{angleRad:.18,after}]},
+  {trials:[{angleRad:.14,after:{
+   ...after,right:{...after.right,toeY:.01}}}]},
+  {trials:[{angleRad:.14,after:{
+   ...after,left:{...after.left,heelY:.28}}}]}
+ ]){
+  assert.equal(choose({...witnessed,...unsafe}),null,
+   'unwitnessed, unsafe, over-bent, displaced support or heel-amplifying toe trial must fail closed');
+ }
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/sourceToeJointAdaptiveProbeFrames/);
+ assert.match(renderer,/sourceToeJointAdaptiveTrialLast/);
+ assert.match(renderer,/[-]\\.14,\\.14/);
+});
