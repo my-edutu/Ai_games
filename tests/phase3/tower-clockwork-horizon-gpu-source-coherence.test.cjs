@@ -16,7 +16,7 @@ const liveProof = Object.freeze({
 const certifiedTail = Object.freeze({
   historicalOpticalTail:true, previouslySourceVerified:true,
   authenticatedSourceTick:550, authenticatedCrossingTick:475,
-  runToken:source.runToken, returnedFrames:3, oldWeight:.66
+  runToken:source.runToken, returnedFrames:3, returnedSeconds:.21, oldWeight:.66
 });
 
 test('actual old-world and F9 sky share ONE same-run source-certified material weight', async () => {
@@ -30,7 +30,7 @@ test('actual old-world and F9 sky share ONE same-run source-certified material w
   assert.deepEqual(tail,{
     sourceBound:true,sourceTick:551,oldWeight:.66,
     historicalOpticalTail:true,kind:'previous-certified-returned-material'
-  },'the real F9 lighting must not instantly turn violet while matching bronze deck/shaft/gallery still retire over eight returned WebGL frames');
+  },'the real F9 sky must share the same duration-and-return-certified bronze retirement as its decks, shaft and gallery');
 });
 
 test('no sky material memory from invented, stale, wrong-run, future, ended or unsupported old gateway', async () => {
@@ -46,10 +46,23 @@ test('no sky material memory from invented, stale, wrong-run, future, ended or u
     {...certifiedTail,runToken:'different-run'},
     {...certifiedTail,previouslySourceVerified:false},
     {...certifiedTail,historicalOpticalTail:false},
-    {...certifiedTail,returnedFrames:8},
+    {...certifiedTail,returnedFrames:0},
+    {...certifiedTail,returnedFrames:61},
+    {...certifiedTail,returnedSeconds:undefined},
+    {...certifiedTail,returnedSeconds:-.01},
+    {...certifiedTail,returnedSeconds:.31},
+    {...certifiedTail,returnedFrames:10,returnedSeconds:.95},
     {...certifiedTail,authenticatedCrossingTick:552},
     {...certifiedTail,oldWeight:NaN},
   ]) assert.equal(sample(source,null,changed),null);
+  const tooFastEight={...certifiedTail,returnedFrames:8,returnedSeconds:.21};
+  assert.deepEqual(sample(source,null,tooFastEight),{
+    sourceBound:true,sourceTick:551,oldWeight:.66,
+    historicalOpticalTail:true,kind:'previous-certified-returned-material'
+  },'eight rapid returned frames do not consume the real-time optical tail');
+  const finished={...certifiedTail,returnedFrames:10,returnedSeconds:.95};
+  assert.equal(sample(source,null,finished),null,
+    'the same episode must retire only after both returned display-time and frame gates pass');
   assert.equal(sample(source,null,null),null);
   assert.equal(sample(source,{...liveProof,sourceTick:550},null),null,
     'source-pixel phases must not borrow a previous live receipt as if current');
