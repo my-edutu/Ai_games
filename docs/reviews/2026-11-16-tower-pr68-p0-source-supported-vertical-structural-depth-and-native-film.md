@@ -1,0 +1,30 @@
+# Tower P0 — True raised-platform clearance of Floor 9 structural depth
+
+**2026-11-16 · PR #68 OPEN/DRAFT on PR #58 · stage P0 OPEN · leading transformation verdict NOT EVALUATED**
+
+## Exact inputs observed this run
+- Inspected live PR metadata, `AGENTS.md`, `games/infinite-tower-climb/GAUNTLET.md`, binding design, actual source, the prior exact-head quality jobs and genuine 9-job native recording campaign.
+- Head at intake: `23220f3dcb890a27ee0c37f93f6850ebd20cd616`. Frozen baseline `1731b380851162741761c5569e2bc152a0869ca9` and frozen `transformation.json` Git blob `3aac186495b2bbd471c9af6448250c38539b5a63`: not edited.
+- The eight original candidate/baseline scenario recordings on https://github.com/my-edutu/Ai_games/actions/runs/43812967318 were produced. The source-event A/B pair job failed, not a passed reviewer benchmark. Personally extracted unedited original candidate danger videos from artifact `14200919190`: desktop 960×600 25fps 72.04s; portrait 390×844 25fps 72.72s.
+- Viewed actual unedited video frames 19–36s in both viewports. The bronze gate, beams and foreground braces repeatedly overlap the active climber around 24–27s. Floor 9 HUD begins near 26–26.25s, while the huge bronze foreground environment gives way to purple successor architecture around 28.25s desktop / 28.50s portrait with **zero sampled warm-to-cool intermediate duration**. The native film-phase sidecars independently report `SOURCE_CUE_AND_VISIBLE_PHASE_DISAGREE`. Source tick475 crossing is not itself proof of the displayed crossing. Strict prior native acceptance stays FAILED 0/2.
+- The latest pre-change exact-head quality CI https://github.com/my-edutu/Ai_games/actions/runs/43823100687 FAILED. Phase3/0 received runner shutdown while a large retained-world eight-submission simulation was in progress; this was not proven to be an assertion failure. Phase6/0 timed out in an **unrelated Maze** test; do not modify that game to clear the Tower score.
+
+## One systemic P0 correction, not a cosmetic milestone
+
+The actual source-supported first raised Floor9 platform is roughly 126m above the old guardian cap, yet little farther in source X. The older monumental-world sightline retained maximum bronze material opacity until the player walked **55–125m horizontally** beyond the old threshold. That horizontal run cannot happen during the genuine vertical ascent: while the visible skinned body climbs, the *existing, already-authored* successor shaft stays hidden behind an extremely dense old-world blocker and is abruptly revealed when its source lease expires.
+
+Changes (test-first commit `ec6b342b2ab70834d82e00eaefe481bf1ead041e`, source commit `dc7ed674e300cabf7fc0641a3ffa0c8bb6e639db`):
+1. Added real-collision-contact regressions in `tests/phase3/tower-source-successor-raised-platform-passage.test.cjs` for existing F9 ground, authentic elevated `f9:p2` standing support, a false platform, recalled guardian and wrong episode. The same genuine source height must release F9 structural depth even when walking X clearance remains too small.
+2. Unified the previously horizontal-only non-colliding old/new monumental visibility with the same existing accepted **authoritative sole** and vertical clearance. Requires the real source-ground or source-raised support/flight validation, the already-authenticated guardian crossing and old original cap, at least one actually returned WebGL submission, and source feet bounded near the original roof. Its vertical release window starts 35m above the old cap and ends 120m above it, so the observed 126m actual raised landing can show the original incoming physical architecture. Wrong run, impossible location, fictitious platform and unearned guardian victory do not earn it.
+3. The actual original guardian winch/grille, gate collision, roof top, movement, seed, world geometry, AI decisions, Floor10 and restart remain untouched. This is a real-world **architectural depth and sightline** correction consumed by the existing Three.js successor shaft, not an invented fake portal, video frame or gameplay event.
+
+**Scope caveat:** a source-certified candidate is not a viewed native frame. This can reduce the full-room cold structural replacement, but real gateway forebody occlusion and first-painted slow GPU/Chrome compositor remain primary systemic P0 risks. The source-only test does not establish LOOKS, FEELS, PLAYS, FPS or complete-play acceptance.
+
+## Acceptance and next action
+
+- Technical production quality: https://github.com/my-edutu/Ai_games/actions/runs/43833481854 **PENDING at review creation**, not green. Test-first CI https://github.com/my-edutu/Ai_games/actions/runs/43833326612 queued; its intended red outcome is not certified.
+- Source-pinned new normal-speed complete baseline/candidate gameplay: **NOT YET CAPTURED** for this production head. Existing capture-request should trigger fresh 9-job campaign from the **exact immutable final request-commit github.sha**; baseline stays frozen.
+- Require native 60+ seconds of ascent, moving hazard, danger/guardian, outcome/restart at desktop and portrait, original 1× 25fps, same seed/tier. Inspect 22–33s unedited, source 441/475/535/619 and actual film PTS, direct full-body + opened bronze gate + walkable F9 together for consecutive pixels, no abrupt architectural switch. Missing baseline guardian-victory event remains unmatched/UNGRADED, not a fabricated A/B pass.
+- **Highest-impact next P0 action:** on new exact-head native films, inspect the gate's physical foreground obstruction and cold F9 first rendered scene side by side. If still obstructed or jumping, reconstruct source-driven opened grille, camera's genuine full-body sightline and original incoming scene in one playable vertical slice; investigate the retained-world slow submission and worker termination as safety veto, not as an animation micro-fix.
+- Independent randomized fresh LOOKS 0/5, FEELS 0/5, PLAYS 0/5. Actual device frame-time p50/p95/p99 and memory NOT EVALUATED.
+- No baseline change, PR58 rewrite, unrelated game edits, force-push, merge, deploy or draft conversion.
