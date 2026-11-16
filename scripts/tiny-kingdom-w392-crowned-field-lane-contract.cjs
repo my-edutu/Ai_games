@@ -10,8 +10,8 @@ const a=s.indexOf('const FIELD_TO_GRANARY_GATE='),b=s.indexOf('// W111 Phase 1:'
  p=s.indexOf('function upwardRoadQuad('),q=s.indexOf('function marketToRealHomeStreet()',p);
 assert(a>=0&&b>a&&p>=0&&q>p);
 const field=s.slice(a,b);
-assert.match(field,/renderGradedRoadSection\\(/);
-assert.doesNotMatch(field,/upwardRoadQuad\\(at\\(a,-\\.51,\\.041\\)/);
+assert.match(field,/renderGradedRoadSection\(/);
+assert.doesNotMatch(field,/upwardRoadQuad\(at\(a,-\.51,\.041\)/);
 const data=[],faces=[],state={food:18,t:14},terrain=(x,z)=>.09*Math.sin(x*.23+z*.17);
 const scope={Math,Number,Error,Map,Set,data,state,terrain,
  FARM_MARKET_STREET_ORIGIN:[29,-7.6],MATERIAL:{ROAD:3,STONE:5},
