@@ -40,16 +40,23 @@ export function advanceSourceEarnedPaletteReturn(state,returnedDt) {
 }
 const boundedWeight=weight=>Number.isFinite(weight) &&
   weight>=0 && weight<=1;
+// A historical optical tail represents material actually submitted by the
+// SAME original 3D renderer. A stored source certificate alone is not an
+// image, and no returned call can contribute more than the existing 100ms
+// bounded display interval. Reject records claiming impossible time or an
+// unrendered predecessor, rather than blending a fictitious bronze frame.
+function actualReturnedPaletteHistory(frames,seconds) {
+  return Number.isSafeInteger(frames) && frames>=1 && frames<=60 &&
+    Number.isFinite(seconds) && seconds>=0 && seconds<=1.5 &&
+    seconds<=Math.min(1.5,frames*.1)+1e-9;
+}
 function materialTailValid(tail) {
   return tail?.historicalOpticalTail===true &&
     tail.previouslySourceVerified===true &&
     Number.isSafeInteger(tail.authenticatedSourceTick) &&
     Number.isSafeInteger(tail.authenticatedCrossingTick) &&
     tail.authenticatedSourceTick>=tail.authenticatedCrossingTick &&
-    Number.isSafeInteger(tail.returnedFrames) &&
-    tail.returnedFrames>=0 && tail.returnedFrames<=60 &&
-    Number.isFinite(tail.returnedSeconds) &&
-    tail.returnedSeconds>=0 && tail.returnedSeconds<=1.5 &&
+    actualReturnedPaletteHistory(tail.returnedFrames,tail.returnedSeconds) &&
     Math.min(tail.returnedSeconds/SOURCE_EARNED_RETURN_SECONDS,
       tail.returnedFrames/MIN_SOURCE_EARNED_RETURN_FRAMES)<1 &&
     boundedWeight(tail.oldWeight);
@@ -61,10 +68,8 @@ export function observedVerifiedClockworkPaletteTail(source,handoff,departure) {
      typeof source.runToken!=='string' || !source.runToken ||
      handoff?.runToken!==source.runToken ||
      handoff.retiring!==true ||
-     !Number.isSafeInteger(handoff.retirementFrames) ||
-     handoff.retirementFrames<0 || handoff.retirementFrames>60 ||
-     !Number.isFinite(handoff.retirementSeconds) ||
-     handoff.retirementSeconds<0 || handoff.retirementSeconds>1.5 ||
+     !actualReturnedPaletteHistory(
+       handoff.retirementFrames,handoff.retirementSeconds) ||
      Math.min(handoff.retirementSeconds/SOURCE_EARNED_RETURN_SECONDS,
        handoff.retirementFrames/MIN_SOURCE_EARNED_RETURN_FRAMES)>=1 ||
      proof?.runToken!==source.runToken ||
