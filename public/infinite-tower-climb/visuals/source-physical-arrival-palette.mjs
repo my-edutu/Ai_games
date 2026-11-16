@@ -411,6 +411,14 @@ export function observedSourceGatewayDeparturePresence(source,held) {
 // a scene, new actor, collider, floor, victory or camera timeline.
 const clamp = value => Math.max(0,Math.min(1,value));
 export function sourceOwnedOriginalArchitectureCoverage(source,held) {
+  // The world certifies each source-tick optical tail using the identical
+  // original HP-zero, physical raised/airborne body, and GPU-return checks.
+  // The stored scalar can hold only the visible old geometry, not recreate
+  // expired gameplay authority or a different expedition's door.
+  const paintedHistory=held?.opticalLease?.historicalOpticalTail===true &&
+    held.opticalLease.sourceTick===source?.tick &&
+    Number.isFinite(held.opticalLease.opacity) &&
+    held.opticalLease.opacity>.01 && held.opticalLease.opacity<=1;
   if (!source || !held || held.guardianGateRetained!==true ||
       source.lifecycle!=='running' || source.floor!==9 ||
       source.theme!=='void' || !(source.player?.health>0) ||
@@ -419,8 +427,9 @@ export function sourceOwnedOriginalArchitectureCoverage(source,held) {
       !Number.isSafeInteger(source.tick) ||
       !Number.isSafeInteger(held.firstWorldRenderTick) ||
       source.tick<held.firstWorldRenderTick ||
-      source.tick-held.firstWorldRenderTick>(observedSourceRetainedRaisedExit(
-        source,held,held.oldRoofY)?SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS:70) ||
+      source.tick-held.firstWorldRenderTick>(paintedHistory?150:
+        (observedSourceRetainedRaisedExit(source,held,held.oldRoofY)
+          ?SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS:70)) ||
       !Number.isSafeInteger(held.submittedFrames) ||
       held.submittedFrames<0 || held.submittedFrames>=30 ||
       !Number.isFinite(held.visibleSeconds) ||
