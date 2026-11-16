@@ -517,7 +517,8 @@ export function observedCertifiedOriginalGatewayOpticalLease(source,held,handoff
      held.visibleSeconds>held.submittedFrames*.1+1e-8 ||
      !Number.isFinite(held.lastSourceOldGateOpacity) ||
      held.lastSourceOldGateOpacity<=0 || held.lastSourceOldGateOpacity>1 ||
-     handoff?.runToken!==source.runToken || handoff.retiring!==true ||
+     handoff?.runToken!==source.runToken ||
+     (handoff.retiring!==true && handoff.retiring!==false) ||
      proof?.runToken!==source.runToken ||
      !(proof.kind==='recorded-source-zero-hp' ||
        proof.kind==='verified-original-roof-receipt') ||
@@ -567,9 +568,16 @@ export function observedCertifiedOriginalGatewayOpticalLease(source,held,handoff
     handoff.retirementSeconds/.95,handoff.retirementFrames/5);
   if(progress>=1)return null;
   const eased=smooth(progress);
-  const opacity=Math.min(held.lastSourceOldGateOpacity,
-    1-(handoff.retirementStartProgress+
-      (1-handoff.retirementStartProgress)*eased));
+  // The first authoritative unsupported snapshot may arrive BEFORE the
+  // parent world marks the material owner as retiring. Preserve the last
+  // genuine sampled opacity for that single processing boundary; otherwise
+  // the entire original mesh group would be disposed before retirement
+  // could even begin on the next GPU-submitted image.
+  const opacity=handoff.retiring===false
+    ?held.lastSourceOldGateOpacity
+    :Math.min(held.lastSourceOldGateOpacity,
+      1-(handoff.retirementStartProgress+
+        (1-handoff.retirementStartProgress)*eased));
   if(opacity<=.01)return null;
   return {historicalOpticalTail:true,sourceTick:source.tick,
     authenticatedCrossingTick:proof.crossingTick,opacity,
