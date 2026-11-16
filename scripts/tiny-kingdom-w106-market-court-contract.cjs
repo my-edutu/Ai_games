@@ -26,6 +26,9 @@ assert.doesNotMatch(exchange,/const tent=/);
 assert.doesNotMatch(exchange,/for\(let i=0;i<4;i\+\+\)/);
 assert.match(html,/getCentralExchangeAudit:.*centralExchangeStats/);
 assert.match(html,/farmMarketStreet\(\)/);
+// The real receiving target in this isolated physical-mesh test matches the
+// unchanged production A* freight endpoint, not a fabricated trade site.
+assert.match(html,/const FARM_MARKET_STREET_DESTINATION=Object\.freeze\(\[-1,10\.2\]\)/);
 assert.match(html,/marketToRealHomeStreet\(\)/);
 const points=[],data=[],stats={pavingStones:0,mortarTriangles:0,entryPathStones:0};
 const append=(positions,triangles)=>{
@@ -42,7 +45,7 @@ const random=x=>{const f=Math.sin(x*12.9898)*43758.5453;return f-Math.floor(f);}
 // separately. Do not require its world/navigation dependencies in this
 // geometry-only scope, nor claim the stub proves the transfer aisle.
 const transferSites=[];
-const context={grainwardTransferNode:site=>{
+const context={FARM_MARKET_STREET_DESTINATION:Object.freeze([-1,10.2]),grainwardTransferNode:site=>{
  assert.equal(site,'market');transferSites.push(site);
  return {site,source:'external-real-freight-node-tested-separately',triangles:0};
 },data,MARKET_SQUARE:{cx:-1,cz:4.9,rx:7.55,rz:7.05},
