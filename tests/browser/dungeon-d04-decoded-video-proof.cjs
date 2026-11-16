@@ -83,8 +83,8 @@ function decodeSameWindowReadbackMotion(video={}){
  * and hash the ACTUALLY decoded 24x16 pixels. A sampled seek is not a counted
  * video frame, contact PTS, audible foley onset or playback-performance pass.
  *
- * This function is serialized directly into page.evaluate. Do not reference
- * any Node helper or closure; do not draw to the Dungeon WebGL canvas.
+ * Only the function body is serialized into page.evaluate, not
+ * its Node module closure. Do not draw to the Dungeon WebGL canvas.
  */
 /**
  * Only two real, bounded capture routes may enter Chromium's pixel decoder:
@@ -107,9 +107,9 @@ function authenticatedOriginalD04WebM(input){
  const pump=input.framePump;
  if(!pump||pump.requestFailures!==0||
   !Number.isSafeInteger(pump.observedFrameAdvances)||
-  pump.observedFrameAdvances<1||pump.observedFrameAdvances>32||
+  pump.observedFrameAdvances<1||pump.observedFrameAdvances>2048||
   !Number.isSafeInteger(pump.requestedFrames)||
-  pump.requestedFrames<0||pump.requestedFrames>32)return false;
+  pump.requestedFrames<0||pump.requestedFrames>2048)return false;
  return pump.mode==='submitted-frame-request'&&
   pump.requestedFrames>0&&pump.requestedFrames<=pump.observedFrameAdvances||
   pump.mode==='native-capture-stream'&&pump.requestedFrames===0;
@@ -125,9 +125,9 @@ async function sampleChromiumDecodedD04WebM(input){
   /^video\/webm;codecs=vp8,opus$/i.test(input?.mimeType||'')&&
   input?.framePump?.requestFailures===0&&
   Number.isSafeInteger(input.framePump.observedFrameAdvances)&&
-  input.framePump.observedFrameAdvances>0&&input.framePump.observedFrameAdvances<=32&&
+  input.framePump.observedFrameAdvances>0&&input.framePump.observedFrameAdvances<=2048&&
   Number.isSafeInteger(input.framePump.requestedFrames)&&
-  input.framePump.requestedFrames>=0&&input.framePump.requestedFrames<=32&&
+  input.framePump.requestedFrames>=0&&input.framePump.requestedFrames<=2048&&
   (input.framePump.mode==='submitted-frame-request'&&
    input.framePump.requestedFrames>0&&
    input.framePump.requestedFrames<=input.framePump.observedFrameAdvances||
