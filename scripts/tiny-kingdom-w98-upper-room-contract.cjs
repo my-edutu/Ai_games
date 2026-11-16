@@ -21,6 +21,8 @@ const casement=functionBody('renderOriginalOccupiedCasement');
 const stoneBond=functionBody('renderAuthenticCottageStoneBond');
 // W386: preserve the genuine compact roof frame emitted since W380.
 const occupiedRoofFrame=functionBody('renderOriginalOccupiedRoofStructure');
+assert.match(stoneBond,/const ORIGINAL_OCCUPIED_ROOF_FRAME_MAX_TRIANGLES=128;/,
+ 'isolated cottage fixture must use the one real production roof-frame budget');
 assert.match(house,/box\(x,y\+jettySill,z,w\+\.28,h-jettySill,d\+\.36,plaster\)/,
  'Complete upper-room volume, not a front-only facade');
 assert.doesNotMatch(street,/box\(x,y\+1\.55,front-\.06,w\*\.82,h-1\.62,\.24,plaster\)/,
@@ -61,7 +63,8 @@ function sample(style,variant) {
   ${roof}
   ${casement}
   ${stoneBond}
-  const ORIGINAL_OCCUPIED_ROOF_FRAME_MAX_TRIANGLES=128;
+  // The extracted stone-bond source already contains the immediately
+  // following production roof-frame constant. Never redeclare it here.
   ${occupiedRoofFrame}
   ${house}
   ${street}
