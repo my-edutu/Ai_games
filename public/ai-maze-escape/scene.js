@@ -1706,9 +1706,14 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // actors to already-public world masonry. Diagnostic only: no per-frame
       // queries, GPU resources, camera decisions, AI commands or hidden map.
       window.__MAZE_PUBLIC_DUEL_SIGHTLINE__=()=>{
-        const cell=closestThreat?.cell;
+        // Real autonomous recoil moves the guardian beyond the ordinary
+        // close-corridor lens. Ray-diagnose that SAME presently visible,
+        // publicly parried model; never a remembered/private enemy.
+        const cell=earnedCounterActor?.cell ?? closestThreat?.cell;
+        const visiblyEarned=s.threats?.some(t=>t.cell===cell
+          &&t.lanternParried===true&&s.visibleCells?.includes(t.cell));
         if(!Number.isSafeInteger(cell)||!s.visibleCells?.includes(cell)
-          ||publicGuardianOpenSightline(s,cell)<1
+          ||(!visiblyEarned && publicGuardianOpenSightline(s,cell)<1)
           ||s.lifecycle!=='running'||s.result)
           return {eligible:false,samples:[]};
         const enemy=[...wardens.values()].find(item=>item.cell===cell);

@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-15T23:50:00.000Z",
+  "updatedAt": "2026-11-16T00:27:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass410 native exact-source WebGL passed strict source/geometry tests; 40/40 original full-frame PNG hashes and 3/3 genuine gate transition hashes confirmed. However original 320/390 natural Pip-Thornback 91→74 parry A/B rejects candidate: obstructing tall center foreground remains. Production candidate rolled back to trusted Pass409 source; next largest gap is genuine public camera-to-actor occluding geometry and authored holistic encounter court. Official Nintendo benchmark UNMET; no merge/deploy."
+    "summary": "Pass411 is a source-bound actual earned-recoil occluder diagnosis for the remaining 320/390 visually blocked Pip–Thornback action. Native screenshots and strict geometry CI pending; no new player-visible redesign, tested visual win or Nintendo parity claimed. Remains open draft, unmerged, undeployed."
   },
   "captures": [
     {

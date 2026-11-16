@@ -2331,12 +2331,29 @@ test('a NATURAL autonomous lantern counter has source-bound physical before/reco
     }));
     const image=path.join(dir,'natural-guardian-recoil-'+label+'-'+width+'.png');
     await page.screenshot({path:image,fullPage:true});
+    // Diagnose actual world-instance blockers AFTER storing the original,
+    // untouched, full-frame WebGL screenshot. None controls its pixels.
+    const sourceSightline=await page.evaluate(()=>{
+      const witness=window.__MAZE_PUBLIC_DUEL_SIGHTLINE__?.()??null;
+      const picks=witness?.eligible?witness.samples
+        .filter(p=>p.inFrame&&Number.isFinite(p.screenX)&&Number.isFinite(p.screenY))
+        .map(p=>({actor:p.actor,part:p.part,
+          hits:window.__MAZE_PUBLIC_SCENE_PICK__?.((p.screenX+1)/2,(1-p.screenY)/2)??[]})):[];
+      return {witness,picks};
+    });
+    if(label.startsWith('earned')){
+      expect(sourceSightline.witness?.eligible,
+        'natural recoil must remain measurable beyond the old close-corridor lens').toBe(true);
+      expect(sourceSightline.witness.samples,
+        'five real physical mesh anchors for each publicly visible parried actor').toHaveLength(10);
+    }
     fs.writeFileSync(image.replace(/\.png$/,'.json'),JSON.stringify({...summary,
       seed:sample.seed,tick:sample.frame.snapshot.tick,runToken:sample.frame.snapshot.runToken,
       guardianId:witness.guardianId,from:witness.from,to:witness.to,
       physicalPublicGuardian:sample.frame.snapshot.threats.find(t=>t.id===witness.guardianId),
       viewport:{width,height},imageSha256:sha(image),diagnostic,
-      verdict:'Original uncropped WebGL candidate; independently compare with official Nintendo imagery before artistic acceptance'},null,2));
+      publicNativeActorOcclusion:sourceSightline,
+      verdict:'Original uncropped WebGL and public mesh-ray diagnosis; no visual redesign or Nintendo approval yet'},null,2));
     expect(diagnostic.renderer).toBe('webgl');
     expect(diagnostic.scrollWidth).toBe(width);
     expect(diagnostic.fullExplorer).toBe(true);
