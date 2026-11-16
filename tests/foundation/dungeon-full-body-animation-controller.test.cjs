@@ -6672,6 +6672,15 @@ test('RED: verified full-source residual can accept restrained 140mrad original 
  assert.equal(pick?.angleRad,.14,
   'a live skinned 140mrad direct original-toes hinge, not another calf rotation, should qualify');
  assert.ok(pick?.liftMeters>.01&&pick.oppositeFootVerified===true&&pick.contactLocked===false);
+ assert.equal(choose({...witnessed,trials:[{angleRad:.1,after}]}),null,
+  'the same shallow 80ms frame must not reopen the earlier 100mrad source probe');
+ assert.equal(choose({...witnessed,trials:[
+  {angleRad:.1,after},{angleRad:.14,after}]}),null,
+  'a mixed trial batch cannot masquerade as the renderer\'s separately gated follow-on');
+ assert.equal(choose({...witnessed,frameInterval:.15})?.angleRad,.14,
+  'the last qualified full-weight original-source frame remains eligible');
+ assert.equal(choose({...witnessed,frameInterval:.1501}),null,
+  'outside the source-witnessed adaptive frame budget no 140mrad toe bend is legal');
  for(const unsafe of [
   {sourceWeight:.94},{frameInterval:.19},{reducedMotion:true},
   {sourceToeTrackVerified:false},{sourceInstanceSame:false},
