@@ -22,3 +22,7 @@ Repair the two outdated original-palette integration contracts, **keeping their 
 - Next highest-impact action: inspect the next exact immutable-source 9-job campaign's actual candidate and frozen baseline original WebM plus native PTS/hud/renderer source clocks. For source tick ~441 HP zero, ~475 grounded threshold, ~535 raised successor, ~619 onward and real restart, require **two consecutive unedited painted frames** in BOTH viewports of original opened bronze gate + full skinned body + real walkable F9 platform with a coherent transition (not merely an old gate in CPU scene). On failure, reopen P0 integrated cold first-F9 GPU submission, physical gate occlusion and composition together. Do not move to P1 or close PR.
 
 **Safety:** only this Tower transformation branch; DRAFT and PR58 unchanged; no merges, deployment, force push or baseline movement.
+
+## Exact CI-blocker implementation recorded
+
+The original protected fast-forward production-source-preserving test fix is [`fc6d3c6`](https://github.com/my-edutu/Ai_games/commit/fc6d3c61312f4d5f99df1729f7fed97c380ad57e). Exact-head [quality run 43981244002](https://github.com/my-edutu/Ai_games/actions/runs/43981244002) was IN PROGRESS when this evidence record was written. The follow-up source-immutable recording will be triggered by the capture-request change in this P0 ledger commit. No new native image, green CI, independent reviewer vote, device metric or playable experience improvement is assumed in advance.
