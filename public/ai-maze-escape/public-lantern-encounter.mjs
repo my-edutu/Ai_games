@@ -187,5 +187,9 @@ export function publicEarnedGuardianActing(snapshot, guardian, ordinary) {
     strength: Math.max(.86, same ? ordinary.strength : 0),
     lanternParried: true,
     encounterBeat: same ? ordinary.encounterBeat : undefined,
+    // Pass only a real same-run visible actor's clock through this PUBLIC cue.
+    // No phase means no earned physical drive; unrelated stronger threats win.
+    counterPhase: Number.isFinite(guardian.counterPhase)
+      ? Math.max(0,Math.min(1,guardian.counterPhase)):undefined,
   };
 }

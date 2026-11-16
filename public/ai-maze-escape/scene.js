@@ -598,7 +598,14 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         && separation < earnedCounterDistance) {
         earnedCounterModel = entry.model.group;
         earnedCounterDistance = separation;
-        earnedCounterActor = {cell:entry.cell,x:threatPose.x,z:threatPose.z};
+        earnedCounterActor = {
+          cell:entry.cell,x:threatPose.x,z:threatPose.z,
+          // A first-seen/parried enemy has no earned counterSince. This
+          // physical performance clock belongs only to the SAME tracked,
+          // visible false-to-true parry; it is not invented from a HUD flag.
+          counterPhase:entry.counterSince!==null
+            ?clamp((gateVisualTime-entry.counterSince)/1.15,0,1):undefined,
+        };
       }
       // Read at native gameplay scale: a disclosed warden one or two cells
       // away must provoke a visible head/lantern/mask reaction, not just HUD copy.
@@ -756,6 +763,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       attentionStrength:closestThreat?.strength??0,
       guardianEncounterBeat:closestThreat?.encounterBeat,
       lanternParried:closestThreat?.lanternParried===true,
+      earnedCounterPhase:closestThreat?.counterPhase,
       keyHeading:keyGateCue?.heading,keyStrength:keyGateCue?.strength??0,
       gateHeading,gateStrength,pickupStrength,
       fossilHeading:fossilCue
