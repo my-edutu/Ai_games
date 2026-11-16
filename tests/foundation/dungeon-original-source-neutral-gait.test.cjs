@@ -46,11 +46,22 @@ test('a real licensed Idle full-leg trial does not throw after the original reve
  const end=renderer.indexOf('function stageRigLegsAfterMixer(',start);
  assert.ok(start>=0&&end>start);
  const stage=renderer.slice(start,end);
- assert.match(stage,/let neutralBlends=null;/);
- assert.match(stage,/try\\s*\\{[\\s\\S]*?neutralBlends=!sourceAnkleProof\\?/);
- assert.doesNotMatch(stage,/const neutralBlends=!sourceAnkleProof/);
- assert.match(stage,/requestedNeutralBlends:neutralBlends/);
- assert.match(stage,/actuallyTestedNeutralBlends:trials/);
+ // The requested blend receipt must be declared before the reversible
+ // source-probe try/finally, assigned inside try and consumed AFTER finally.
+ // Merely checking the assignment inside try missed the prior live
+ // ReferenceError caused by a try-local const.
+ const declaration=stage.indexOf('let neutralBlends=null;');
+ const reversibleTry=stage.indexOf('try{\\n  for(const angles of starterAngles)sample(angles);');
+ const reversibleFinally=stage.indexOf('}finally{',reversibleTry);
+ const skinReceipt=stage.indexOf('requestedNeutralBlends:neutralBlends',reversibleFinally);
+ assert.ok(declaration>=0&&declaration<reversibleTry&&
+  reversibleTry<reversibleFinally&&reversibleFinally<skinReceipt,
+  'source-neutral receipt must survive actual reversible source skin probes');
+ const probeBody=stage.slice(reversibleTry,reversibleFinally);
+ assert.match(probeBody,/neutralBlends=!sourceAnkleProof\\?/);
+ assert.doesNotMatch(probeBody,/\\b(?:const|let|var)\\s+neutralBlends\\s*=/,
+  'a try-local shadow will crash when authentic source probes reach final receipt');
+ assert.match(stage.slice(reversibleFinally),/actuallyTestedNeutralBlends:trials/);
 });
 
 test('RED: real heel-dominated licensed Walking_A allows exactly TWO original Idle full-leg source probes',async()=>{
