@@ -26731,25 +26731,39 @@ function updateWorldRibbon(){
  // The primary action names only the genuine currently active work,
  // and never creates work to make the documentary look convincing.
  const watchButton=document.getElementById('world-watch-life');
- const realGrain=chooseRealGrainWitness();
- if(grainJourney){
-  watchButton.textContent='◉ Tracking grain';
-  watchButton.setAttribute('aria-label',
-   'Following one real grain parcel from farmer to market and household');
- }else if(realGrain?.delivery?.resource==='food'){
-  watchButton.textContent='⇢ Follow grain';
-  watchButton.setAttribute('aria-label',
-   'Follow a real loaded grain courier to the receiving market');
- }else if(realGrain){
-  watchButton.textContent='⚒ Follow harvest';
-  watchButton.setAttribute('aria-label',
-   'Follow an actual harvesting farmer toward the receiving market');
- }else{
-  watchButton.textContent='⚒ Watch village life';
-  watchButton.setAttribute('aria-label',
-   'Follow a real worker, courier or household errand in the living village');
- }
- updateSupplyTrail();
+  const realGrain=chooseRealGrainWitness();
+  const anyCourier=people.some(p=>Boolean(p.delivery));
+  const realBuyer=people.some(p=>p.activity==='Traveling to market for provisions'||
+   p.activity==='Collecting household provisions'||
+   p.activity==='Traveling home with provisions');
+  // Match the button's promise to the observer's actual source of truth.
+  // The first priority is a real carried load, not an unrelated buyer.
+  if(grainJourney){
+   watchButton.textContent='◉ Tracking grain';
+   watchButton.setAttribute('aria-label',
+    'Following one real grain parcel from farmer to market and household');
+  }else if(realGrain?.delivery?.resource==='food'){
+   watchButton.textContent='⇢ Follow grain';
+   watchButton.setAttribute('aria-label',
+    'Follow a real loaded grain courier to the receiving market');
+  }else if(anyCourier){
+   watchButton.textContent='⇢ Follow delivery';
+   watchButton.setAttribute('aria-label',
+    'Follow a real loaded courier to the receiving market');
+  }else if(realGrain){
+   watchButton.textContent='⚒ Follow harvest';
+   watchButton.setAttribute('aria-label',
+    'Follow an actual harvesting farmer toward the receiving market');
+  }else if(realBuyer){
+   watchButton.textContent='⌂ Follow household';
+   watchButton.setAttribute('aria-label',
+    'Follow a real resident collecting market provisions for home');
+  }else{
+   watchButton.textContent='⚒ Watch village life';
+   watchButton.setAttribute('aria-label',
+    'Follow a real worker in the living village');
+  }
+  updateSupplyTrail();
 }
 
 let supplyTrailOpen=false,supplyTrailLastEpoch=-1,supplyTrailLastWall=0;
@@ -27666,37 +27680,53 @@ function getVillageDocumentaryAudit(){
    citizen:people[index].name,following:follow,authoritativeChanges:false};
  }
  function watchVillageLife(){
- // W376: when a real household errand is already underway and no food
- // courier is actively carrying a parcel, Watch Village Life follows that
- // original buyer instead of resetting the camera to an unrelated farmer.
- // An existing tracked grain journey always retains its locked parcel.
- // This is an explicit observer action, never an authoritative job change.
+ // W377: follow the same genuine loaded courier through its real receiving
+ // event instead of silently switching to a household buyer (W80/W13 RED).
+ // Preserve W125 farmer parcel provenance and W376's genuine buyer when
+ // freight/harvest is absent. This camera never changes jobs or stock.
  if(grainJourney)return getRealGrainJourneyAudit();
- const foodCourierOnRoad=people.some(p=>p.delivery?.resource==='food');
- if(!foodCourierOnRoad&&people.some(p=>
-  p.activity==='Traveling to market for provisions'||
-  p.activity==='Collecting household provisions'||
-  p.activity==='Traveling home with provisions')){
-  const actualBuyer=watchHouseholdErrand();
-  if(actualBuyer)return actualBuyer;
+ const originalGrain=chooseRealGrainWitness();
+ const activeCourier=people.some(p=>Boolean(p.delivery));
+ if(originalGrain?.delivery?.resource==='food'){
+  const chain=watchRealGrainJourney();
+  if(chain){
+   // The legacy physical-delivery director and newer grain provenance
+   // documentary describe ONE actual citizen with ONE original parcel.
+   // No duplicate actor or receipt and no cinematic result spoofing.
+   const courier=people[selectedCitizen];
+   villageDocumentary={citizen:courier.name,stage:'observing',
+    deliveryId:courier.delivery.id,household:false,stagesSeen:[],
+    cameraCuts:0,continuityTransitions:0,transitions:0};
+   document.body.dataset.villageDocumentary='on';
+   advanceVillageDocumentary();
+   if(canvas.clientWidth>520&&!supplyTrailOpen)toggleSupplyTrail();
+   return chain;
+  }
  }
- if(chooseRealGrainWitness()){
+ if(activeCourier){
+  const freight=watchDelivery();
+  if(!freight)return null;
+  villageDocumentary={citizen:people[selectedCitizen].name,
+   stage:'observing',deliveryId:freight.id,household:false,
+   stagesSeen:[],cameraCuts:0,continuityTransitions:0,transitions:0};
+  document.body.dataset.villageDocumentary='on';
+  advanceVillageDocumentary();
+  return getVillageDocumentaryAudit();
+ }
+ if(originalGrain){
   const chain=watchRealGrainJourney();
   if(chain){
    if(canvas.clientWidth>520&&!supplyTrailOpen)toggleSupplyTrail();
    return chain;
   }
  }
- // Preserve all original household and other profession documentaries when
- // no actual food delivery or harvesting farmer is present.
- if(!people.some(person=>Boolean(person.delivery))){
-  const errand=watchHouseholdErrand();if(errand)return errand;
- }
- const result=people.some(person=>Boolean(person.delivery))?
-  watchDelivery():watchLiveWorkday();
- if(!result)return null;
+ const buyer=watchHouseholdErrand();
+ if(buyer)return buyer;
+ const work=watchLiveWorkday();
+ if(!work)return null;
  villageDocumentary={citizen:people[selectedCitizen].name,stage:'observing',
-  deliveryId:null,stagesSeen:[],cameraCuts:0,continuityTransitions:0,transitions:0};
+  deliveryId:null,household:false,stagesSeen:[],cameraCuts:0,
+  continuityTransitions:0,transitions:0};
  document.body.dataset.villageDocumentary='on';
  advanceVillageDocumentary();
  return getVillageDocumentaryAudit();
