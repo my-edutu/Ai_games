@@ -10,7 +10,7 @@ assert(start>=0&&end>start);
 const src=html.slice(start,end);
 const terrain=(x,z)=>.13*Math.sin(x*.32)*Math.cos(z*.24)+
  .015*Math.sin(z*.41+x*.17);
-const faces=[],data=[],stats={pavingStones:0,mortarTriangles:0,entryPathStones:0};
+const faces=[],data=[],stats={pavingStones:0,mortarTriangles:0,entryPathStones:0,marketWheelPassages:0,marketDrainSegments:0};
 const accept=(points)=>{
  if(stats.mortarTriangles<224){
   const polygons=points.length===3?[points]:
@@ -27,6 +27,20 @@ const c={data,FARM_MARKET_STREET_DESTINATION:Object.freeze([-1,10.2]),
 vm.createContext(c);vm.runInContext(src+'\nmarketCobblestoneSquare();',c);
 assert.equal(stats.mortarTriangles,224);
 assert.equal(faces.length,224);
+// W388: exercise the original emitted marketplace, not just its text. The
+// authentic crop courier arrives at the actual market inventory destination.
+assert.equal(stats.marketWheelPassages,22,'two real wheel bands across 11 sections');
+assert.equal(stats.marketDrainSegments,22,'two real drainage bands across 11 sections');
+const freight=stats.w388TrueReceivingCorridor;
+assert(freight&&freight.connectedToTrueFreightEnd&&freight.geometryReplacedNotAdded,
+ 'actual wagonway must reach the authoritative receiving endpoint');
+assert.deepEqual(Array.from(freight.to),[-1,10.2],
+ 'end at the real, unchanged A* market receiving position');
+assert.equal(freight.sections,11);
+assert.equal(freight.newCitizens,0);
+assert.equal(freight.newTransactions,0);
+assert.equal(freight.affectsNavigation,false);
+assert.equal(freight.additionalGpuBuffers,0);
 let maxSink=0,invalid=0,downward=0;
 for(const p of faces){
  const cx=(p[0][0]+p[1][0]+p[2][0])/3,
