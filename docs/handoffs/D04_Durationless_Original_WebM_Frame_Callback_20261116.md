@@ -16,6 +16,19 @@ The existing Chromium fallback required a finite \`video.duration\` between 0.2s
 - Committed a **test-first failing regression** exposing the prior finite-duration guard, followed by the implementation and an isolated-page-realm mock DOM contract. Pure runtime checks exercised five positive/negative classifications plus the muted durationless branch (mocked DOM **not Chrome**); both modified JavaScript files parsed cleanly. A subsequent mocked page-realm regression also exercised an initial metadata timeout followed by muted playback recovery. **Three focused regression functions and JavaScript parsing passed when executed directly in the tool V8 runtime**, but these are NOT the repository Node test runner or genuine Chrome. The repository Node suite, production build, and corrected-head genuine Chrome playback **have not been independently verified here**.
 - Changed exclusively \`tests/browser/dungeon-d04-decoded-video-proof.cjs\` and \`tests/foundation/dungeon-d04-readback-decoder-proof.test.cjs\`. This document is the third D04-only file.
 
+
+## Independent inspection of the six earlier authentic viewpoint WebMs
+
+I extracted and decoded the **previous-head** authentic VP8/Opus WebMs from the supplied \`d04-prior-authentic.zip\` with local FFmpeg \`-map 0:v:0 -vf scale=24:16 -frames:v 64 -f framemd5\`. All frames below had distinct thumbnails. These are **not** newly generated recordings, full-rate proof, or paired decoded audio onset.
+
+| View | Desktop decoded / distinct | 390px mobile decoded / distinct |
+| --- | ---: | ---: |
+| Default/tactical | 10 / 10 | 14 / 14 |
+| Cinematic | 13 / 13 | 17 / 17 |
+| Chase | 9 / 9 | 13 / 13 |
+
+The six-viewpoint JSON itself reports \`sameAuthorityCorpus:true\` but \`sameFrameClock:false\`, \`sampleSynchronized:false\`, \`decodedPixelMotionAccepted:false\`, \`audibleContactAligned:false\`, \`wardenSequenceAccepted:false\`, \`fullCombatMatrixAccepted:false\`, and \`soakAccepted:false\`. Therefore these real captures do not establish synchronized physical combat. They motivate further frame/PCM evidence but never upgrade acceptance on their own.
+
 ## Remaining gates and next ownership
 
 Run the corrected-head GitHub Actions D04 workflow (native tests, TypeScript build, real Chrome). Collect matched authoritative playback from cinematic/tactical/chase viewpoints, at 1440×900 and 390×844. Distinguish a browser metadata timeout from nonfinite-but-usable duration, then inspect actual sampled pixels; decode original PCM and align it to authentic hit/whoosh/block/dodge/release events against **frame submission**, not action plans. If original video has only two decoded frames again, report inadequate motion evidence, do not mark visual acceptance.
