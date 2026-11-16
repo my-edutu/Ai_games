@@ -11,6 +11,7 @@ import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePre
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections } from './source-earned-bearing-run.mjs';
+import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade } from './far-side-shaft-transition.mjs';
 
 
 /**
@@ -3225,9 +3226,22 @@ export function createTowerWorld(){
       ?observedCertifiedOriginalGatewayOpticalLease(snapshot,held,sourceEarnedBearingHandoff)
       :null;
     held.opticalLease=opticalLease;
-    held.sourceAlignedPassage=samePassage || sourceColdFrame ||
+    // A supported living actor can physically clear the former arch while
+    // software WebGL has not yet returned a SINGLE incoming shaft image.
+    // Hold exactly the original old-world GPU owner until the REAL successor
+    // shaft participates in returned frames; never fade or retire a phantom.
+    const farSide=!options.stale
+      ?observedEarnedFarSideShaftOverlap(snapshot,held,deferredDistantArrival):null;
+    if(farSide?.incomingReturnedFrames>0 &&
+       !Number.isSafeInteger(held.farSideFadeStartSubmitted)) {
+      held.farSideFadeStartSubmitted=held.submittedFrames;
+      held.farSideFadeStartSeconds=held.visibleSeconds;
+    }
+    const farSideFade=farSide && Number.isSafeInteger(held.farSideFadeStartSubmitted)
+      ?observedReturnedFarSideFade(held,deferredDistantArrival):null;
+    held.sourceAlignedPassage=samePassage || sourceColdFrame || !!farSide ||
       sourceDeparture?.sourceBound===true;
-    if (physicallyBeyondOriginalDoor || options.stale || snapshot.runToken !== held.runToken ||
+    if ((physicallyBeyondOriginalDoor && !farSide) || options.stale || snapshot.runToken !== held.runToken ||
         snapshot.floor !== held.floor || snapshot.lifecycle !== 'running' ||
         !Number.isSafeInteger(snapshot.tick) ||
         // The source palette, original-arch camera and physical raised-deck
@@ -3236,13 +3250,13 @@ export function createTowerWorld(){
         // gateway and gallery while the same source-authenticated passage
         // was still eligible in the returned F9 camera, producing the
         // abrupt native bronze-to-violet replacement on a cold renderer.
-        snapshot.tick<held.sourceTick || snapshot.tick-held.sourceTick>(opticalLease
+        snapshot.tick<held.sourceTick || snapshot.tick-held.sourceTick>((opticalLease || farSide)
           ?150:(observedSourceRetainedRaisedExit(snapshot,held,held.oldRoofY)
             ?SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS:70)) ||
         !(p?.health>0) ||
         (!nearDoor && !onNewRoof && !onCameraHandoffFlight &&
-          !retainedBackdrop && !sourceDeparture?.sourceBound && !opticalLease) ||
-        (!onNewRoof && !opticalLease && !justLaunched && !onCameraHandoffFlight &&
+          !retainedBackdrop && !sourceDeparture?.sourceBound && !opticalLease && !farSide) ||
+        (!onNewRoof && !opticalLease && !farSide && !justLaunched && !onCameraHandoffFlight &&
           !retainedBackdrop && !sourceDeparture?.sourceBound)) {
       retireEarnedCap();
       return;
@@ -3257,7 +3271,8 @@ export function createTowerWorld(){
     // horizontal source X barely advances; never demand an impossible 9m
     // horizontal-only runway to finish the original gateway passage.
     const departing=sourceDeparture;
-    const originalGatePresence=sourceDeparture?.opacity??opticalLease?.opacity??1;
+    const originalGatePresence=farSide && Number.isFinite(farSideFade)
+      ?1-farSideFade:(sourceDeparture?.opacity??opticalLease?.opacity??1);
     held.originalGatewayOpacity=originalGatePresence;
     for (const {material,baseOpacity,originalTransparent,originalDepthWrite}
         of held.originalGatewayMaterialStages) {
@@ -3281,7 +3296,7 @@ export function createTowerWorld(){
     // otherwise retain the conservative old-first-frame fallback. The
     // previous 1.25-second gallery fade stayed >80% opaque when the source
     // corridor expired, then all original architecture vanished at once.
-    const originalPresence=(departing?.sourceBound===true || opticalLease)
+    const originalPresence=(departing?.sourceBound===true || opticalLease || farSide)
       ?Math.min(.94,originalGatePresence*.94)
       :observedRetainedOriginalBronzeCover(
         held.submittedFrames,held.visibleSeconds);
@@ -3512,6 +3527,9 @@ export function createTowerWorld(){
       structureDeferred:deferStructuralShell, structureBuildMs:null,
       structureBuiltAtSubmitted:null, vistaBuiltAtSubmitted:null,
       firstRenderSubmitted:false, submittedFrames:0,
+      // Successfully returned frames in which the actual incoming original
+      // shaft had nonzero material and was not culled from the 3D scene.
+      structuralVisibleReturns:0,
       // Measured duration of the last successful returned F9 frame.
       // Source/browser updates cannot advance this optical clock.
       lastReturnedDt:0,
@@ -3576,6 +3594,9 @@ export function createTowerWorld(){
         snapshot.lifecycle!=='running' || snapshot.runToken!==job.runToken ||
         snapshot.floor!==job.floor || key!==job.key ||
         snapshot.tick<job.sourceTick) return false;
+    if(job.structureDeferred && job.structuralRoot?.visible===true &&
+       job.structuralFade>.015)
+      job.structuralVisibleReturns=Math.min(30,job.structuralVisibleReturns+1);
     const advancing=['awaiting-actual-first-render',
       'awaiting-structural-release','awaiting-structural-submission',
       'awaiting-vista-submission'].includes(job.state);
@@ -3732,6 +3753,23 @@ export function createTowerWorld(){
     // invented crossing/actor or a new presentation timer.
     sourceCertifiedHorizon=!options.stale && !options.reducedMotion
       ?observedCertifiedClockworkHorizon(snapshot,livePaletteProof,opticalTail):null;
+    // Keep the SKY and authentic Floor9 architectural palette in the same
+    // physical room as the still-returning original bronze gate. This only
+    // samples the previously proven old GPU owner and CURRENT supported
+    // far-side body; without the witness everything remains normal Void.
+    const farSideHorizon=!options.stale && !options.reducedMotion
+      ?observedEarnedFarSideShaftOverlap(snapshot,retainedEarnedCap,deferredDistantArrival):null;
+    const farSideOldWeight=farSideHorizon
+      ?retainedEarnedCap.originalGatewayOpacity:null;
+    sourceCertifiedHorizon=farSideHorizon ?{
+      sourceBound:true,sourceTick:snapshot.tick,
+      oldWeight:Math.max(sourceCertifiedHorizon?.oldWeight??0,farSideOldWeight),
+      kind:'physically-supported-returned-old-and-new-shaft',
+      limitation:'Original GPU geometry and current genuine source route, not native-film visual acceptance'
+    }:sourceCertifiedHorizon;
+    // Preserve the original metal tint as well as sky/lighting until the
+    // same returned real geometry visibly recedes (no action/tell tinting).
+    if(farSideHorizon) departure=Math.min(departure,1-farSideOldWeight);
     // The live source sample always outranks history. An optical tail only
     // changes colors on existing real meshes when the same previously
     // certified crossing has lost its short-lived current browser witness.
@@ -4764,6 +4802,7 @@ export function createTowerWorld(){
       floor:deferredDistantArrival.floor,
       sourceTick:deferredDistantArrival.sourceTick,
       state:deferredDistantArrival.state,
+      structuralVisibleReturns:deferredDistantArrival.structuralVisibleReturns,
       firstRenderSubmitted:deferredDistantArrival.firstRenderSubmitted,
       submittedFrames:deferredDistantArrival.submittedFrames,
       proof:deferredDistantArrival.proof,
