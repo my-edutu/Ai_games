@@ -27553,11 +27553,34 @@ function realGrainHomeFrontage(home){
    !Number.isFinite(home.x)||!Number.isFinite(home.z)||
    Math.hypot(lot[0]-home.x,lot[1]-home.z)>.05)return null;
  const [x,z,k]=lot;
- // Both original full and compact homes model the negative-Z front doorway.
- // Aim at its outside threshold, never through an occupied wall or roof.
+ // The historical, externally visible front remains the safe fallback.
+ // A completed meal record alone NEVER implies a still-present actor.
  const frontZ=z-(2.1+k*.18)*.5-.54;
- return {homeIndex:home.homeIndex,homeKey:lot.join(','),x,z,
-  aim:[x,terrain(x,frontZ)+.96,frontZ]};
+ const fallbackAim=[x,terrain(x,frontZ)+.96,frontZ];
+ const front={homeIndex:home.homeIndex,homeKey:lot.join(','),x,z,
+  aim:fallbackAim.slice(),fallbackAim,normal:[0,-1],
+  doorKey:'historic-default',hasHumanSubject:false};
+ if(home.atHome!==true||typeof home.resident!=='string')return front;
+ const resident=people.find(p=>p&&p.name===home.resident);
+ // The actual active meal, credited farmer receipt, trade and arrived
+ // resident must all agree. Never infer a body from a historical caption.
+ if(!resident||!verifiedHouseholdMealEvidence(resident))return front;
+ const audit=getCottageHomecomingAudit();
+ const entry=[...(audit.doors||[]),...(audit.closedDoors||[])]
+  .find(d=>d.homeIndex===home.homeIndex&&d.citizen===resident.name);
+ if(!entry||![entry.doorX,entry.doorZ,entry.nx,entry.nz,
+   resident.x,resident.z].every(Number.isFinite))return front;
+ const approach=Math.hypot(resident.x-entry.doorX,
+  resident.z-entry.doorZ),length=Math.hypot(entry.nx,entry.nz);
+ // A resting citizen deeper inside an opaque cottage is NOT an exterior
+ // human portrait, even when the market's food ledger has a real meal.
+ if(approach>1.10||length<.99||length>1.01)return front;
+ const normal=[entry.nx/length,entry.nz/length];
+ return {...front,
+  aim:[resident.x,terrain(resident.x,resident.z)+1.13,resident.z],
+  normal,hasHumanSubject:true,
+  doorKey:[resident.name,entry.homeIndex,entry.doorX.toFixed(2),
+   entry.doorZ.toFixed(2),normal.join(',')].join(':')};
 }
 // W204 Phase-1 connected economic documentary: after an ACTUAL credited
 // farmer's market receipt, hold a physical, readable view of that ORIGINAL
@@ -27731,36 +27754,56 @@ function chooseRealGrainHomeLens(home){
  const front=realGrainHomeFrontage(home);if(!front)return null;
  const roofs=followCameraRoofs(),ground=terrain(front.x,front.z);
  const angles=[0,-.28,.28,-.58,.58,-.95,.95];
- const pitches=[.16,.25,.35],distances=[5.0,5.9,6.9,8.2];
- let best=null,bestCost=Infinity,surveyed=0,clear=0;
- // Measure the SAME physical eye and front-door target actually used by
- // the WebGL world and the original actor-LOD projection on both viewports.
- for(const pitch of pitches)for(const zoom of distances)for(const offset of angles){
-  const yaw=Math.PI+offset,radius=Math.cos(pitch)*zoom;
-  const eye=[front.x+Math.sin(yaw)*radius,
-   ground+1.02+Math.sin(pitch)*zoom,
-   front.z+Math.cos(yaw)*radius];
-  if(eye[2]>=front.aim[2]-.25)continue;
-  surveyed++;
-  if(!physicalFollowEyeClearance(eye,roofs).clear||
-     followRayBlockers(eye,front.aim,roofs)>0)continue;
-  const canopy=foregroundVegetationProjection(eye,front.aim);
-  if(canopy.faceBlockers>0||canopy.cover>=.32)continue;
-  const scenic=foregroundSceneProjection(eye,front.aim,roofs);
-  if(scenic.cover>=.44)continue;
-  clear++;
-  const cost=canopy.cover*1100+scenic.cover*850+
-   (scenic.cargoCover||0)*500+Math.abs(offset)*32+
-   Math.abs(pitch-.23)*45+(zoom-5.6)**2*5;
-  if(cost<bestCost){bestCost=cost;
-   best={yaw,pitch,zoom,aim:front.aim.slice(),
-    homeIndex:front.homeIndex,homeKey:front.homeKey,
-    eye:eye.slice(),sceneCover:scenic.cover,canopyCover:canopy.cover,
-    canopyFaceBlockers:canopy.faceBlockers,blockingVolumes:0,
-    source:'real-recorded-cottage-front-exterior',
-    citySize:city.length,viewportWidth:canvas.clientWidth,
-    viewportHeight:canvas.clientHeight};
+ let surveyed=0,clear=0;
+ // First seek the PRESENT, verified resident at their authentic entrance.
+ // If every physical eye is blocked, retain the existing empty-exterior
+ // witness rather than removing a roof or inventing a staged person.
+ const candidates=[front];
+ if(front.hasHumanSubject)candidates.push({...front,
+  aim:front.fallbackAim.slice(),normal:[0,-1],
+  hasHumanSubject:false,doorKey:'historic-default'});
+ let best=null;
+ for(const candidate of candidates){
+  const baseYaw=Math.atan2(candidate.normal[0],candidate.normal[1]);
+  const pitches=candidate.hasHumanSubject?[.14,.23,.33]:[.16,.25,.35];
+  const distances=candidate.hasHumanSubject?[3.9,4.7,5.8,7.0]:[5.0,5.9,6.9,8.2];
+  let bestCost=Infinity;
+  for(const pitch of pitches)for(const zoom of distances)for(const offset of angles){
+   const yaw=baseYaw+offset,radius=Math.cos(pitch)*zoom;
+   const eye=[front.x+Math.sin(yaw)*radius,
+    ground+1.02+Math.sin(pitch)*zoom,
+    front.z+Math.cos(yaw)*radius];
+   const outward=(eye[0]-candidate.aim[0])*candidate.normal[0]+
+     (eye[2]-candidate.aim[2])*candidate.normal[1];
+   if(outward<=.25)continue;
+   surveyed++;
+   if(!physicalFollowEyeClearance(eye,roofs).clear||
+      followRayBlockers(eye,candidate.aim,roofs)>0)continue;
+   const canopy=foregroundVegetationProjection(eye,candidate.aim);
+   if(canopy.faceBlockers>0||canopy.cover>=.32)continue;
+   const scenic=foregroundSceneProjection(eye,candidate.aim,roofs);
+   if(scenic.cover>=.44)continue;
+   clear++;
+   const ideal=candidate.hasHumanSubject?4.8:5.6;
+   const cost=canopy.cover*1100+scenic.cover*850+
+    (scenic.cargoCover||0)*500+Math.abs(offset)*32+
+    Math.abs(pitch-.23)*45+(zoom-ideal)**2*5;
+   if(cost<bestCost){
+    bestCost=cost;
+    best={yaw,pitch,zoom,aim:candidate.aim.slice(),
+     homeIndex:front.homeIndex,homeKey:front.homeKey,
+     eye:eye.slice(),sceneCover:scenic.cover,canopyCover:canopy.cover,
+     canopyFaceBlockers:canopy.faceBlockers,blockingVolumes:0,
+     hasHumanSubject:candidate.hasHumanSubject,
+     doorKey:candidate.doorKey,requestedDoorKey:front.doorKey,
+     source:candidate.hasHumanSubject?
+      'real-verified-meal-resident-at-original-door':
+      'real-recorded-cottage-front-exterior',
+     citySize:city.length,viewportWidth:canvas.clientWidth,
+     viewportHeight:canvas.clientHeight};
+   }
   }
+  if(best)break;
  }
  return best?{...best,checkedShots:surveyed,clearShots:clear}:null;
 }
@@ -27962,7 +28005,9 @@ function advanceRealGrainJourney(){
    (grainJourney.homeLens?.citySize!==city.length||
     grainJourney.homeLens?.homeKey!==city[realHome.homeIndex]?.join(',')||
     grainJourney.homeLens?.viewportWidth!==canvas.clientWidth||
-    grainJourney.homeLens?.viewportHeight!==canvas.clientHeight)){
+    grainJourney.homeLens?.viewportHeight!==canvas.clientHeight||
+    grainJourney.homeLens?.requestedDoorKey!==
+      realGrainHomeFrontage(realHome)?.doorKey)){
   const lens=chooseRealGrainHomeLens(realHome);
   if(lens)grainJourney.homeLens=lens;
   else{grainJourney.homeWitness=false;grainJourney.homeLens=null;}
@@ -29464,7 +29509,8 @@ if(follow&&!daybreakReturn){
   if(!front||lens.homeIndex!==home.homeIndex||
      lens.homeKey!==front.homeKey||lens.citySize!==city.length||
      lens.viewportWidth!==canvas.clientWidth||
-     lens.viewportHeight!==canvas.clientHeight){
+     lens.viewportHeight!==canvas.clientHeight||
+     lens.requestedDoorKey!==front?.doorKey){
    lens=front?chooseRealGrainHomeLens(home):null;
    grainJourney.homeLens=lens;
   }
