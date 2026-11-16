@@ -219,3 +219,22 @@ export function publicEarnedGuardianScenicStageOverlap(actor,scenic,earned=false
   return width>=Math.max(.08,(actor.right-actor.left)*.15)
     && height>=Math.max(.09,(actor.top-actor.bottom)*.15);
 }
+
+/**
+ * Post-parry physical lens lift. The trusted native 320/390 seed-13 tick-8
+ * source rays strike disclosed tile 93's floor BEFORE reaching Pip's torso
+ * and boots. Only the already-gated same-run, visibly earned Follow recoil
+ * may gain an above-deck three-quarter view. No future route, enemy location,
+ * private topology, screenshot crop or model relocation is used here.
+ * Native whole-mesh +/- .95 and public-occlusion tests own acceptance.
+ */
+export function publicGuardianEarnedRecoilRevealElevation(
+  aspect,currentY,earned=false,reducedMotion=false){
+  if(!earned||reducedMotion||!Number.isFinite(aspect)
+    ||aspect<.35||aspect>=.60||!Number.isFinite(currentY)||currentY<=0)
+    return currentY;
+  // Change camera PITCH rather than shrinking actors: previous low 11.5m
+  // post-parry offset let the foreground deck conceal the authentic boots.
+  // Restore a readable diorama altitude only after the actual counter.
+  return Math.max(currentY,23.0);
+}

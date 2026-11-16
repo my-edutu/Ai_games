@@ -3,7 +3,7 @@ import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilRevealElevation, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicEarnedGuardianActing } from './public-lantern-encounter.mjs';
@@ -77,6 +77,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   const pressureReframeEnvelope = new THREE.Box3();
   const pressureReframePiece = new THREE.Box3();
   const portraitCameraOffset = followCameraOffset.clone(); // reuse; never allocate in a render frame
+  const earnedRecoilCameraOffset = followCameraOffset.clone(); // real public post-parry stage, reused per frame
   // A lower, closer ORIGINAL 3D story angle is reserved solely for a truly
   // witnessed public key collection. Reuse this offset; no per-frame objects,
   // synthetic treasure, actor movement, hidden data or additional HUD prose.
@@ -1360,9 +1361,21 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       settings.reducedMotion);
     pressureStageCameraOffset.copy(pressurePortraitCameraOffset)
       .lerp(pressureContactCameraOffset, pressureContactWeight);
+    // Exact-HEAD 390/320 native source rays of the genuine seed-13 tick-8
+    // lantern parry strike foreground tile 93's deck and 75's top lip before
+    // Pip's torso/boots. A farther horizontal orbit cannot look ABOVE a real
+    // floor. Raise the actual post-parry Follow camera into a steep original
+    // diorama view instead, only for the same-run, currently visible two-body
+    // counter. The full connected meshes, level, HUD and original strict
+    // +/- .95 native frame limits remain authoritative. No crop, dummy hero,
+    // hidden tile, engine collision, fake path or additional GPU resource.
+    earnedRecoilCameraOffset.copy(portraitCameraOffset);
+    earnedRecoilCameraOffset.y = publicGuardianEarnedRecoilRevealElevation(
+      aspect,earnedRecoilCameraOffset.y,earnedDuelContinuity,settings.reducedMotion);
     cameraOffset.lerp(openingStageView ? openingGateCameraOffset
       : cameraGate ? sealedGateCameraOffset
-      : (portraitEncounterOrbit || earnedDuelContinuity) ? portraitCameraOffset
+      : earnedDuelContinuity ? earnedRecoilCameraOffset
+      : portraitEncounterOrbit ? portraitCameraOffset
       : pickupCameraBeat ? pickupCameraOffset
       : pressurePortraitStage ? pressureStageCameraOffset
       : followCameraOffset, blend);
