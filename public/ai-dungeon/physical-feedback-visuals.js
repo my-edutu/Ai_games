@@ -208,7 +208,12 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   for(const range of ranges)attr.addUpdateRange(range.start,range.count);
  }
  make('trail',createOriginalBladeStreakGeometry(THREE),{metalness:0,roughness:1,opacity:reducedFlash?.15:.29});
- make('hit',new THREE.TetrahedronGeometry(.073,0),{
+ // Genuine HP shards must retain a discernible angular silhouette beside
+ // a moving body, including the 390px spectator. The prior 73mm tetra was
+ // smaller than the other contact fragments at this scene scale. Increase
+ // ONLY its retained mesh radius, not instance count, light, lifetime, material
+ // flash, rig, or collision claim. Pixel visibility still requires real clips.
+ make('hit',new THREE.TetrahedronGeometry(.105,0),{
   metalness:.22,roughness:.8,opacity:reducedFlash?.22:.48});
  make('block',new THREE.TorusGeometry(.26,.018,4,16,Math.PI*1.5),{metalness:.32,opacity:reducedFlash?.18:.33});
  make('dust',new THREE.TetrahedronGeometry(.072,0),{metalness:0,roughness:1,opacity:reducedFlash?.16:.29});
