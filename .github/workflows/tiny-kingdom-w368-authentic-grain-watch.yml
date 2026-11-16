@@ -7,6 +7,7 @@ on:
       - scripts/tiny-kingdom-w368-authentic-grain-watch-contract.cjs
       - scripts/tiny-kingdom-w370-grain-workday-camera-contract.cjs
       - scripts/tiny-kingdom-w371-grain-wrist-camera-contract.cjs
+      - scripts/tiny-kingdom-w373-original-harvest-camera-contract.cjs
       - tests/browser/tiny-kingdom-w368-authentic-grain-watch.spec.cjs
       - .github/workflows/tiny-kingdom-w368-authentic-grain-watch.yml
   workflow_dispatch:
@@ -25,6 +26,8 @@ jobs:
         run: node scripts/tiny-kingdom-w370-grain-workday-camera-contract.cjs
       - name: W371 actual crop-eye bound and witness selection contract
         run: node scripts/tiny-kingdom-w371-grain-wrist-camera-contract.cjs
+      - name: W373 real crop-row witness admission and rejection
+        run: node scripts/tiny-kingdom-w373-original-harvest-camera-contract.cjs
       - run: npm ci
       # Shared Playwright config starts four original stream servers from dist.
       # Without a compilation step the live-game capture aborts before launch.

@@ -24755,32 +24755,45 @@ function reserveActualFarmWristSightlines(options,citizen,hands){
   throw Error('W371 invalid original crop/wrist camera survey');
  const eligible=options.filter(o=>o&&o.shot&&
   o.shot.eyeCollision?.clear===true&&o.shot.blockers===0&&
-  !o.cropEyeInsideField&&o.alignment>.10&&
+  o.alignment>.10&&
   o.shot.projectedWorkerHeightFraction>=.16);
- // Higher outside-field eyes can look DOWN into the authentic grain-cutting
- // pocket. These were discarded by the old close-up-first scenic shortlist.
+ // Prefer clear EXTERIOR crop witnesses; if every exterior angle clips real
+ // wheat, survey a bounded second tier INSIDE an actual open planting row.
+ // No crop is hidden: original roof, fence and both live IK wrist rays must
+ // all be genuinely clear before admitting the physical interior camera.
  eligible.sort((a,b)=>Number(b.shot.pitch>=.48)-Number(a.shot.pitch>=.48)||
   a.coarse-b.coarse||a.ordinal-b.ordinal);
  const perBearing=new Map(),reserved=[];
- let checked=0,cropClear=0,fenceRejected=0;
- for(const option of eligible){
+ // Bounded stratification prevents 72 merely similar high outside eyes
+ // from exhausting the survey before testing a physically open work aisle.
+ const outer=eligible.filter(o=>!o.cropEyeInsideField),
+  inner=eligible.filter(o=>o.cropEyeInsideField);
+ const searchOrder=[...outer.slice(0,48),...inner.slice(0,24),
+  ...outer.slice(48),...inner.slice(24)];
+ let checked=0,cropClear=0,fenceRejected=0,
+  interiorChecked=0,interiorClear=0;
+ for(const option of searchOrder){
   if(checked>=MAX_PHYSICAL_CHECKS||reserved.length>=MAX_RESERVED_EYES)break;
-  const used=perBearing.get(option.angleIndex)||0;
+  const bearing=option.angleIndex+':'+(option.cropEyeInsideField?'in':'out');
+  const used=perBearing.get(bearing)||0;
   if(used>=8)continue;
-  perBearing.set(option.angleIndex,used+1);
+  perBearing.set(bearing,used+1);
   checked++;
+  if(option.cropEyeInsideField)interiorChecked++;
   const physical=realFarmWorkSightline(option.shot.eye,citizen,hands);
   option.actualGrainCropWitness=physical;
   if(!physical.active||physical.cropFaceBlockers!==0||
    physical.cropWristBlockers!==0||
    (physical.cameraInsideField&&!physical.physicalInteriorEyeClear))continue;
   cropClear++;
+  if(physical.cameraInsideField)interiorClear++;
   const fence=farmFenceLandmarkOcclusion(option.shot.eye,citizen,hands);
   if(fence.blockedFace||fence.blockedHands){fenceRejected++;continue;}
   reserved.push(option);
  }
  return {reserved,checked,eligible:eligible.length,cropClear,
-  fenceRejected,maximumChecks:MAX_PHYSICAL_CHECKS,
+  fenceRejected,interiorChecked,interiorClear,
+  maximumChecks:MAX_PHYSICAL_CHECKS,
   maximumReservations:MAX_RESERVED_EYES,readOnly:true};
 }
 function genuineGrainLaborCameraActive(citizen){
@@ -25194,6 +25207,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   actualGrainEyesInspected:actualGrainWitness.checked,
   actualGrainEyesReserved:actualGrainWitness.reserved.length,
   actualGrainCropClearEyes:actualGrainWitness.cropClear,
+  actualGrainInteriorChecked:actualGrainWitness.interiorChecked||0,
+  actualGrainInteriorClear:actualGrainWitness.interiorClear||0,
   actualGrainFenceRejected:actualGrainWitness.fenceRejected,
   actualGrainSelectedHandsClear:Boolean(physicalGrainHandsBest&&
    chosen===physicalGrainHandsBest),

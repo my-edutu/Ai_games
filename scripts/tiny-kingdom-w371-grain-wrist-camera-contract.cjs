@@ -9,7 +9,9 @@ const a=source.indexOf(start),b=source.indexOf(end,a+start.length);
 assert(a>=0&&b>a,'W371 missing original physical crop witness planner');
 const segment=source.slice(a,b);
 const crop=(eye)=>({active:true,cropFaceBlockers:0,
- cropWristBlockers:eye[0]<0?2:0,cameraInsideField:false});
+ cropWristBlockers:eye[0]<0?2:0,
+ cameraInsideField:eye[0]===2||eye[0]===4,
+ physicalInteriorEyeClear:eye[0]!==4});
 const vmContext={
  realFarmWorkSightline:(eye)=>crop(eye),
  farmFenceLandmarkOcclusion:(eye)=>({blockedFace:0,blockedHands:eye[0]>10?1:0})
@@ -25,18 +27,21 @@ const sample=[
  option(0,-1), // real standing grain physically blocks both wrists
  option(1,1),  // clear exterior, higher downward eye
  option(2,11), // a real farm fence blocks the hand despite crop clearance
- option(3,2,.49,true), // still inside standing field, not an exterior witness
- option(4,3)
+ option(3,2,.49,true), // true open crop aisle with physically clear wrists
+ option(4,3),
+ option(5,4,.49,true) // inside crop but NOT physically clear eye
 ];
 const found=vm.runInNewContext(
  'reserveActualFarmWristSightlines(options,citizen,hands)',
  {...vmContext,options:sample,citizen:{name:'Bram'},hands:[[1,1,1],[1,1,2]]},
  {timeout:2000});
-assert.deepEqual(Array.from(found.reserved,x=>x.ordinal),[1,4],
- 'Only genuinely crop-and-fence-clear exterior eyes are reserved');
-assert.equal(found.cropClear,3);
+assert.deepEqual(Array.from(found.reserved,x=>x.ordinal),[1,3,4],
+ 'Only physically clear exterior and genuine crop-interior eyes are reserved');
+assert.equal(found.cropClear,4);
+assert.equal(found.interiorChecked,2);
+assert.equal(found.interiorClear,1);
 assert.equal(found.fenceRejected,1);
-assert.equal(found.checked,4);
+assert.equal(found.checked,6);
 assert(found.maximumChecks<=72&&found.maximumReservations<=12);
 const many=Array.from({length:300},(_,i)=>option(i,i+20));
 // Desktop also requires physically readably surveyed full-body hands, not
@@ -57,4 +62,4 @@ assert.match(source,/physicalGrainHandsBest\|\|usableFrontBest\|\|best/,
 assert.match(source,/contact\.stage==='cutting'&&contact\.contact\[2\]>0/,
  'Standing wheat must never be called parted during preparing or gathering');
 assert.match(source,/actualGrainEyesInspected:/);
-console.log('W371 real wheat physical outside-eye reservation / clearing / fence / budget / stage / fallback source contract PASS. Live visual optics still require honest browser capture.');
+console.log('W371 genuine planted wheat: physically admissible exterior and open-row interior eyes / real blocked-eye rejection / fence / bound / stage / fallback source contract PASS. Live visual optics still require honest browser capture.');
