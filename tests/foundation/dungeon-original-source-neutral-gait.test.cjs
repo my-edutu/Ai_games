@@ -451,6 +451,15 @@ test('real licensed Idle pose is sampled at the witnessed Walking_A phase, never
  assert.deepEqual(midpoint.sourceTrackNames,
   ['Armature.lowerlegr.quaternion','lowerlegr.quaternion']);
  assert.equal(midpoint.sourceSampleTimeSeconds,.5);
+ const sharedIdleClock=sample(source,'lowerlegr',.25,2);
+ assert.equal(sharedIdleClock?.sourceSampleTimeSeconds,.5);
+ assert.ok(close(sharedIdleClock.quaternion,key(Math.PI/2)),
+  'all original Idle joints must share the same absolute source clip time');
+ assert.equal(sample(source,'lowerlegr',.5,0),null);
+ assert.equal(sample(source,'lowerlegr',.5,Infinity),null);
+ assert.equal(sample([{...source[0],getInterpolation:()=>2300}],
+  'lowerlegr',.25),null,
+  'nonlinear or discrete source Idle motion cannot silently use a linear quaternion interpolant');
  assert.deepEqual(quarter.sourceKeyframeIndices,[0,1]);
  assert.deepEqual(lastQuarter.sourceKeyframeIndices,[1,2]);
  assert.equal(quarter.equivalentDuplicate,true);
