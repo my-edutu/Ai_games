@@ -156,7 +156,8 @@ test('source-earned overhead load frame is bounded and cannot be fabricated from
   assert.equal(plannedSourceEarnedSuspendedBearingSections([{angle:0,sceneY:0,height:-1}]),null);
   const route=f(source,held);
   const sections=plannedSourceEarnedSuspendedBearingSections(route.nodes);
-  assert.ok(sections.every(part=>part.length>=5 && part.length<=10));
+  assert.ok(sections.every(part=>part.length>=5 && part.length<=12),
+    'three authentic source stations use 7,12,12 existing instanced load parts');
   assert.ok(sections.flat().every(part=>part.p.length===3&&part.s.length===3&&
     part.p.every(Number.isFinite)&&part.s.every(n=>Number.isFinite(n)&&n>0)));
   assert.ok(sections.flat().length<=42,'three-station original 3D route remains bounded to three instanced draws');
@@ -196,4 +197,34 @@ test('source-qualified gallery paint survives old cap retirement by returned fra
   assert.match(world,/snapshot\.runToken===handoff\.runToken/);
   assert.match(world,/sourceEarnedBearingHandoff = null/);
   assert.doesNotMatch(world,/snapshot\.player\.x\s*=|snapshot\.floor\s*=\s*9/);
+});
+
+// A real rising Floor9 deck means a lower station-height radial crossmember
+// can now pass THROUGH the airborne climber's shoulder in a 1x portrait shot.
+// Keep old load-bearing bay and genuine raised step, but suspend the outward
+// visual steel above the adjacent inhabited source route, not at crown height.
+// The test covers all three original source-supported stations, not a still.
+test('authentic rising F9 load path keeps radial cantilevers ABOVE occupied player sightlines',async()=>{
+  const {plannedEarnedClockworkVoidBearings,plannedSourceEarnedSuspendedBearingSections}=await load();
+  const plan=plannedEarnedClockworkVoidBearings(source,held);
+  assert.ok(plan && plan.nodes.length===3);
+  const sections=plannedSourceEarnedSuspendedBearingSections(plan.nodes);
+  assert.deepEqual(sections.map(section=>section.length),[7,12,12]);
+  assert.equal(sections.flat().length,31,'retain three source-owned instanced sections');
+  for(const [i,section] of sections.entries()){
+    const crown=plan.nodes[i].sceneY+plan.nodes[i].height;
+    const radial=section.filter(part=>
+      Math.hypot(part.p[0],part.p[2])>24 &&
+      part.s[2]>6.9 && part.s[2]<7.5 &&
+      Math.abs(part.r[2])<.001);
+    assert.equal(radial.length,2,'source station preserves two actual radial bearing arms');
+    assert.ok(radial.every(part=>part.p[1]-part.s[1]/2>=crown+5.4),
+      'the radial arms cannot cut across the source ascent corridor at eye/head level');
+    const outerCollar=section.find(part=>
+      Math.abs(Math.hypot(part.p[0],part.p[2])-27.6)<.05 &&
+      Math.abs(part.s[1]-.26)<.001 && Math.abs(part.s[2]-.48)<.001);
+    assert.ok(outerCollar,'mechanically connected exterior head collar remains');
+    assert.ok(outerCollar.p[1]-outerCollar.s[1]/2>=crown+5.4,
+      'exterior collar shares overhead load rather than masked torso level');
+  }
 });
