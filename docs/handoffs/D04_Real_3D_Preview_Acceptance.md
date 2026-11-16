@@ -43,6 +43,21 @@ Open \`http://localhost:4181/dungeon\` for the known spectator and \`http://loca
 - Genuine continuous-preview phase receipts include a desktop frame with **3,778 ms** from D04 visual-advance start through WebGL submission, of which **3,768 ms** was measured around \`renderer.render()\`, with **0 ms** recorded in the D04 visual pass. A separate 390px frame measured **3,199 ms** to submission, **3,193 ms** in \`renderer.render()\`, **0 ms** in the D04 visual pass. These are **measured main-thread phase intervals**, not proof of GPU completion, a specific shader/asset cause, or D04 being universally free.
 - The actual combined WebM had consented original sound and requested-frame receipts; the serial same-window A/V readback contained **6** parsed video packet PTS values (1,043–3,824 ms), but no qualified moving decoded pixels. The authentic **5.5 s / 44.1 kHz mono PCM** has energy without proven physical-contact onset. On this runner, optional \`ffmpeg\`/\`ffprobe\` system decoders were absent and Chromium's muted decoder could not decode video metadata. **Actual audiovisual sample synchronization remains UNVERIFIED.**
 
+### Independent artifact decode cross-check (same exact-head recording)
+
+A separate read-only review **after** the runner completed used local \`ffprobe\` and \`ffmpeg\` on the unchanged 48,343,212-byte Actions artifact ZIP (SHA-256 \`a6bc9bca497ce72a060ee8d8c06d3fd4b0379ed8d2b8b8e0cb1d16c88e40f492\`). Unlike the CI runner, this reviewer had local decoders. With \`ffmpeg -i FILE -map 0:v:0 -vf scale=24:16 -frames:v 64 -f framemd5 pipe:1\`, actual decoded thumbnails were:
+
+| Exact file in linked Actions artifact | Decoded VP8 frames | Distinct 24x16 decoded pixel hashes |
+|---|---:|---:|
+| \`dungeon-d04-real-canvas-original-sound.webm\` | 6 | 6 |
+| \`dungeon-d04-real-webgl-readback-original-sound-UNVERIFIED.webm\` | 6 | 6 |
+| \`dungeon-d04-real-webgl-receipt-readback-video-only.webm\` | 1 | 1 |
+| \`dungeon-d04-real-webgl-serial-video-only.webm\` | 3 | 3 |
+| \`dungeon-d04-live-authority-on-desktop1440-sixview-cinematic-unaligned.webm\` | 14 | 14 |
+| \`dungeon-d04-live-authority-on-mobile390-sixview-unaligned.webm\` | 16 | 16 |
+
+The authentic same-window readback's six decoded video frame PTS values are **1,043 / 1,625 / 2,190 / 2,729 / 3,272 / 3,824 ms**. Thus **moving encoded original Dungeon pictures do exist** in the captured media; the CI's \`UNAVAILABLE\` was specifically a decoder limitation, not proof that all footage was static. This upgrades the narrow **decoded-moving-pixels transport** claim only. It **does not** show the first tick-4 injury (still stale at 1,302 ms), prove a visible sword–victim contact, match physical contact to an Opus/PCM onset, or reverse the strict red browser acceptance result. A future test must carry the authenticated event clock into the SAME decoded media window before making any synchronization claim.
+
 ### Exact perf-owner handoff (outside D04 edit ownership)
 
 Keep D04 cue causality, scene/one-shot dedup, WebAudio opt-in, 400 ms limit, existing seven pools and fixed draw limits unchanged. The game rendering/performance owner—not this D04 worker—should profile the existing \`renderer.render()\` boundary on authenticated continuous combat frames, compare identical seed/run/floor/tick/checksum in legacy and \`?feedback=d04\` with and without MediaRecorder, and isolate blocking compilation/uploads/driver or readback paths **without guessing which is responsible**. Use already emitted \`slowSubmissionPhase\` frame IDs and the paired desktop/mobile artifacts; record wall-time sections immediately around existing render and frame submission, real GL/canvas configuration and first-frame versus steady-state stages. The observed long renderer intervals are present in legacy comparisons too; do not attribute them to the D04 retained pools without matched proof.
