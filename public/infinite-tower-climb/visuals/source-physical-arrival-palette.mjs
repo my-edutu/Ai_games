@@ -476,14 +476,29 @@ export function sourceOwnedOriginalArchitectureCoverage(source,held) {
     source.tick-held.crossingTick<=SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS &&
     witnessedCrossing &&
     observedSourceFloorNineRouteSupport(source,ground,held.oldRoofY);
-  if(supportedDeparture && valid(p.x) && valid(p.halfWidth) &&
-     p.halfWidth>0) {
-    // Keep full bronze coverage at/near the sill. Only a real body whose
-    // trailing edge has cleared 55 m of the old load path starts exposing
-    // the monument; by 125 m it no longer occupies that historical camera
-    // region. This uses existing source-unit scale, no imagined motion.
+  if(supportedDeparture && held.submittedFrames>=1 &&
+     valid(p.x) && valid(p.halfWidth) && valid(p.y) &&
+     p.halfWidth>0 && valid(p.halfHeight) && p.halfHeight>0) {
+    // The real F9 route doubles back in X before ascending above the old
+    // gantry. Horizontal-only clearance kept almost the entire bronze room
+    // covering the next biome, then removed it in one discontinuous source
+    // lease expiration. The same source-authenticated walk/flight/raised-deck
+    // validator used for collision-aligned physical arrival also certifies
+    // actual sole height. No speculative AI target or presentation clock can
+    // grant clearance, and the first original GPU return remains fully bronze.
+    const sole=p.y-p.halfHeight;
+    const measuredRise=valid(sole) && valid(held.oldRoofY) &&
+      sole>=held.oldRoofY-2500 && sole<=held.oldRoofY+230000
+      ?Math.max(0,sole-held.oldRoofY):0;
     const pastSill=p.x-p.halfWidth-held.thresholdX;
-    coverage*=1-smooth((pastSill-55000)/70000);
+    const horizontalClearance=smooth((pastSill-55000)/70000);
+    // Genuine raised F9:p2 support is about 126m above the old cap, but only
+    // ~2m beyond its X threshold. Open the new *existing* tower depth during
+    // the real rise, not after an impossible 125m horizontal ground run.
+    // This affects only non-colliding incoming structure exposure; the real
+    // guardian grille, gateway collider and fixed-step game remain unchanged.
+    const verticalClearance=smooth((measuredRise-35000)/85000);
+    coverage*=1-Math.max(horizontalClearance,verticalClearance);
   }
   return coverage;
 }
