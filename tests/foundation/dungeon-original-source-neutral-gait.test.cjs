@@ -523,3 +523,52 @@ test('RED: measured failed original Idle phase makes the next nearby real walk f
  assert.match(renderer,/shouldFallbackToOriginalLinkedLegAfterIdleMiss\(/);
  assert.match(renderer,/measured-original-idle-phase-worsened-both-soles/);
 });
+
+
+test('RED: actual Nov 16 original slow 1440px heel-amplified hip/knee trial is not credible gait',async()=>{
+ const {chooseOriginalSourceSwingLinkedLegTrial:choose,
+  planOriginalSourceSwingLinkedLegFollowups:followups}=await load();
+ // HEAD 274d228, native WebGL Actions 43820133899, artifact 14204503945.
+ // Genuine original weighted source Y: toe -81.825mm, heel +219.521mm;
+ // left loaded heel -7.179mm, toe -15.900mm. All trial vertical deltas
+ // below are measured from the SAME skinned source GLB, not hypothetical.
+ // XZ fixture coordinates are explicitly synthetic translations matching
+ // the original 0.30m outsole span and no loaded-shoe drift; they are NOT
+ // absolute real GLB world coordinates.
+ const swing={heelY:.2195211059126966,toeY:-.08182511392496453,
+  heelXZ:[0,0],toeXZ:[.052,0]};
+ const loaded={heelY:-.0071792781091952924,
+  toeY:-.01589968945876137,heelXZ:[1,0],toeXZ:[1.27,0]};
+ const state={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceChainVerified:true,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceBindVerified:true,ownerLocomotion:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false,
+  previousLinkedCertified:false,frameInterval:.1001,
+  frameAge:.05,rootTravel:.07,side:'right',floorTopY:-.02,
+  before:{right:swing,left:loaded}};
+ const measured=(upperRad,lowerRad,lift,rise)=>({
+  upperRad,lowerRad,after:{
+   right:{...swing,toeY:swing.toeY+lift,heelY:swing.heelY+rise,
+    heelXZ:[.011,0],toeXZ:[.102,0]},
+   left:{...loaded}
+  }
+ });
+ const original=[
+  measured(.12,-.09,-.015451781872296497,-.033232528451169446),
+  measured(-.12,.09,.025035963304519356,.029558277052527143),
+  measured(-.14,.105,.030067179738226146,.03403156962516027),
+  measured(-.145,.11,.03153980385730745,.035275966371667605)
+ ];
+ assert.deepEqual(followups({...state,trials:original.slice(0,2)}),
+  [[-.09,.11],[-.105,.11]],
+  'real ~62mm buried, ~300mm vertical outsole must try measured knee-biased source followups, not a larger heel-lifting hip');
+ assert.equal(choose({...state,trials:original}),null,
+  '31.54mm raised toe is NOT a successful pose when 35.28mm of extra heel rise worsens pitch and the toe remains 30mm underground');
+ const physicallyBetter=measured(-.09,.11,.029,.016);
+ const safe=choose({...state,trials:[physicallyBetter]});
+ assert.equal(safe?.source,'measured-original-skinned-linked-leg');
+ assert.equal(safe?.originalSwingPitchProtected,true);
+ assert.ok(safe.originalSwingPitchGainMeters>=.012);
+ assert.equal(safe?.contactLocked,false);
+});
