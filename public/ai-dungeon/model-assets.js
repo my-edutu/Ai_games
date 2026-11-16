@@ -2107,6 +2107,7 @@ function stageOriginalSourceSwingToesAfterMixer(actor,reducedMotion){
  actor.sourceToeJointGateLast??={left:null,right:null};
  actor.sourceToeJointGateLast.left=null;
  actor.sourceToeJointGateLast.right=null;
+ actor.sourceToeJointAdaptiveTrialLast=null;
  actor.sourceToeJointGateCounts??=Object.create(null);
  const markGate=(side,reason)=>{
   actor.sourceToeJointGateLast[side]=reason;
@@ -2269,7 +2270,49 @@ function stageOriginalSourceSwingToesAfterMixer(actor,reducedMotion){
    reducedMotion,interrupted:false,rootTravel:travel,frameAge:age,
    frameInterval,side,floorTopY:-.02,before,
    connectedOriginalLegVerified:sameSourceConnectedFoot(side)};
-  const selected=chooseOriginalSourceSwingToeJointRelief({...owner,trials});
+  let selected=chooseOriginalSourceSwingToeJointRelief({...owner,trials});
+  // The first two licensed toes[l/r] hinge probes are always the smaller
+  // +/-100mrad joint options. In genuine 390px Walking_A, the original
+  // skinned toe remained buried after the witnessed source knee correction.
+  // Only after BOTH first trials fail, spend two more tightly gated,
+  // reversible original-toes skin reads. No invented source foot lock.
+  const residual=-.02-(before?.[side]?.toeY??NaN);
+  const other=before?.[side==='left'?'right':'left'];
+  const extraOriginalShoeWitness=!selected&&sourceWeight>=.95&&
+   frameInterval>=.05&&frameInterval<=.15&&
+   residual>=.008&&residual<=.045&&
+   before?.[side]?.heelY>=.18&&before?.[side]?.heelY<=.34&&
+   [other?.heelY,other?.toeY].every(y=>
+    Number.isFinite(y)&&y>=-.075&&y<=.015);
+  if(extraOriginalShoeWitness){
+   const adaptiveTrials=[];
+   try{
+    for(const angleRad of [-.14,.14]){
+     toeBone.quaternion.copy(original).multiply(
+      probe.setFromAxisAngle(axis,angleRad));
+     toeBone.updateWorldMatrix(true,true);
+     adaptiveTrials.push({angleRad,after:read()});
+    }
+   }finally{
+    toeBone.quaternion.copy(original);
+    toeBone.updateWorldMatrix(true,true);
+   }
+   selected=chooseOriginalSourceSwingToeJointRelief({
+    ...owner,trials:adaptiveTrials
+   });
+   actor.sourceToeJointAdaptiveProbeFrames=Math.min(1000000,
+    (actor.sourceToeJointAdaptiveProbeFrames||0)+1);
+   actor.sourceToeJointAdaptiveTrialLast={
+    source:'real-original-Walking_A-toes-weighted-skin',
+    sourceBone:toeBone.name,side,sourceInstanceId:actor.assetRoot.uuid,
+    initialToeY:before[side].toeY,initialHeelY:before[side].heelY,
+    trialCount:adaptiveTrials.length,
+    trials:adaptiveTrials.map(t=>({
+     angleRad:t.angleRad,toeY:t.after?.[side]?.toeY??null,
+     heelY:t.after?.[side]?.heelY??null
+    })),acceptedCandidate:Boolean(selected),contactLocked:false
+   };
+  }
   if(!selected){
    markGate(side,'source-toe-hinge-trial-not-admissible');
    continue;
@@ -3230,7 +3273,7 @@ function attachCharacter(actor){
    instance.position.set(-center.x*fitX,-bounds.min.y*sourceScale,-center.z*fitZ);
   }
   const pivot=new THREE.Group();(actor.impactPivot||actor.root).add(pivot);pivot.add(instance);
-  actor.visualPivot=pivot;actor.nativeDuel=null;actor.nativeDuelPeak=0;actor.nativeDuelContactFrames=0;actor.motionPeak=0;actor.evasionFrame=null;actor.evasionPosePeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.cinematicFigure=null;actor.rigWardrobeParts=0;actor.anatomicalStaticMountedCount=0;actor.nativeArmourRoot=null;actor.nativeArmourMounts=[];actor.nativeArmourInverse=null;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigPelvisBone=null;actor.rigPelvisBearing=null;actor.rigBearing=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.sourceLoadedPelvisLiftMeters=0;actor.sourceLoadedPelvisAcceptedFrames=0;actor.sourceLoadedPelvisRollbackFrames=0;actor.sourceLoadedPelvisRollbackFootProof=null;actor.sourceLoadedPelvisFrameProof=null;actor.sourceLoadedPelvisCandidate=null;actor.sourceSwingToeWitnessFrames=0;actor.sourceSwingToeDragOpportunityFrames=0;actor.sourceSwingToeLiftProof=null;actor.sourceSwingToeCorrectionsThisFrame=0;actor.sourceSwingToeCurrentFrameProofs=null;actor.sourceSwingCalfAssistFrames=0;actor.sourceSwingCalfAssistProof=null;actor.sourceSwingCalfTrialOutcome=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitSettling=false;actor.rigNativeLegOverlayScale=1;actor.nativeWalkEntryPoseHeld=false;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.rigRangedActive=false;actor.rigRangedPeak=0;actor.nativeReleaseOwnsUpperBody=false;actor.skinnedHitWeight=0;actor.skinnedHitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;
+  actor.visualPivot=pivot;actor.nativeDuel=null;actor.nativeDuelPeak=0;actor.nativeDuelContactFrames=0;actor.motionPeak=0;actor.evasionFrame=null;actor.evasionPosePeak=0;actor.assetRoot=instance;actor.assetMaterials=owned;actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.cinematicFigure=null;actor.rigWardrobeParts=0;actor.anatomicalStaticMountedCount=0;actor.nativeArmourRoot=null;actor.nativeArmourMounts=[];actor.nativeArmourInverse=null;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigPelvisBone=null;actor.rigPelvisBearing=null;actor.rigBearing=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.sourceLoadedPelvisLiftMeters=0;actor.sourceLoadedPelvisAcceptedFrames=0;actor.sourceLoadedPelvisRollbackFrames=0;actor.sourceLoadedPelvisRollbackFootProof=null;actor.sourceLoadedPelvisFrameProof=null;actor.sourceLoadedPelvisCandidate=null;actor.sourceToeJointAdaptiveProbeFrames=0;actor.sourceToeJointAdaptiveTrialLast=null;actor.sourceSwingToeWitnessFrames=0;actor.sourceSwingToeDragOpportunityFrames=0;actor.sourceSwingToeLiftProof=null;actor.sourceSwingToeCorrectionsThisFrame=0;actor.sourceSwingToeCurrentFrameProofs=null;actor.sourceSwingCalfAssistFrames=0;actor.sourceSwingCalfAssistProof=null;actor.sourceSwingCalfTrialOutcome=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitSettling=false;actor.rigNativeLegOverlayScale=1;actor.nativeWalkEntryPoseHeld=false;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.rigRangedActive=false;actor.rigRangedPeak=0;actor.nativeReleaseOwnsUpperBody=false;actor.skinnedHitWeight=0;actor.skinnedHitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;
   actor.nativeFigureSculpt=fitOriginalNativeFigure(actor);
   actor.body.visible=false;actor.authored=true;actor.detail?.setAuthored?.(true);actor.mixer=new THREE.AnimationMixer(instance);
   actor.availableClips=gltf.animations||[];actor.currentAction='';actor.currentActionTick=null;actor.activeImportedClipName=null;
@@ -4738,7 +4781,7 @@ function disposeActorAsset(actor){
  else if(actor.assetRoot){actor.root.remove(actor.assetRoot)}
  for(const m of actor.assetMaterials||[])m.dispose();
  for(const g of actor.assetGeometries||[])g.dispose();
- actor.fullBody=null;actor.animationFacing=null;actor.rigGuardPose=null;actor.nativeGuardPeak=0;actor.importedClipAudit=null;actor.sourceGroundAnchor=null;actor.fullBodyFrozenFrames=0;actor.fullBodyHeldFrames=0;actor.fullBodyContactRecoveryFrames=0;actor.fullBodyInterruptions=0;actor.fullBodyRestarts=0;actor.footSupportPeak=0;actor.sourceClockCorrectedFrames=0;actor.sourceClockDriftPeakSeconds=0;actor.sourceClockRemainingSeconds=0;actor.sourceClockMode=null;actor.mixer=null;actor.assetRoot=null;actor.visualPivot=null;actor.motionPeak=0;actor.evasionFrame=null;actor.evasionPosePeak=0;actor.assetMaterials=[];actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.cinematicFigure=null;actor.rigWardrobeParts=0;actor.anatomicalStaticMountedCount=0;actor.nativeArmourRoot=null;actor.nativeArmourMounts=[];actor.nativeArmourInverse=null;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.sourceSwingToeWitnessFrames=0;actor.sourceSwingToeDragOpportunityFrames=0;actor.sourceSwingToeLiftProof=null;actor.sourceSwingToeCorrectionsThisFrame=0;actor.sourceSwingToeCurrentFrameProofs=null;actor.sourceSwingCalfAssistFrames=0;actor.sourceSwingCalfAssistProof=null;actor.sourceSwingCalfTrialOutcome=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitSettling=false;actor.rigNativeLegOverlayScale=1;actor.nativeWalkEntryPoseHeld=false;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.rigRangedActive=false;actor.rigRangedPeak=0;actor.nativeReleaseOwnsUpperBody=false;actor.skinnedHitWeight=0;actor.skinnedHitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;actor.nativeFigureSculpt=null;actor.authored=false;actor.textureReadiness=null;
+ actor.fullBody=null;actor.animationFacing=null;actor.rigGuardPose=null;actor.nativeGuardPeak=0;actor.importedClipAudit=null;actor.sourceGroundAnchor=null;actor.fullBodyFrozenFrames=0;actor.fullBodyHeldFrames=0;actor.fullBodyContactRecoveryFrames=0;actor.fullBodyInterruptions=0;actor.fullBodyRestarts=0;actor.footSupportPeak=0;actor.sourceClockCorrectedFrames=0;actor.sourceClockDriftPeakSeconds=0;actor.sourceClockRemainingSeconds=0;actor.sourceClockMode=null;actor.mixer=null;actor.assetRoot=null;actor.visualPivot=null;actor.motionPeak=0;actor.evasionFrame=null;actor.evasionPosePeak=0;actor.assetMaterials=[];actor.assetGeometries=[];actor.regaliaParts=0;actor.roleSilhouetteParts=0;actor.anatomicalParts=0;actor.anatomicalJointParts=0;actor.anatomicalDetailMeshes=0;actor.anatomicalStaticMergedParts=0;actor.sculptedArmorProfile=null;actor.sculptedArmorVertices=0;actor.rigBoundAccessoryParts=0;actor.cinematicFigure=null;actor.rigWardrobeParts=0;actor.anatomicalStaticMountedCount=0;actor.nativeArmourRoot=null;actor.nativeArmourMounts=[];actor.nativeArmourInverse=null;actor.rigHandBoneName=null;actor.rigHandBone=null;actor.rigGripAligned=false;actor.rigGripShiftMeters=0;actor.rigGripCandidateMeters=null;actor.rigCranial=null;actor.rigUpperArms=[];actor.rigGesturePeak=0;actor.wardenChargeShoulderPeak=0;actor.wardenCharge=null;actor.rigForearms=[];actor.rigForearmPeak=0;actor.rigGaitBones=[];actor.rigGaitPosition=null;actor.sourceToeJointAdaptiveProbeFrames=0;actor.sourceToeJointAdaptiveTrialLast=null;actor.sourceSwingToeWitnessFrames=0;actor.sourceSwingToeDragOpportunityFrames=0;actor.sourceSwingToeLiftProof=null;actor.sourceSwingToeCorrectionsThisFrame=0;actor.sourceSwingToeCurrentFrameProofs=null;actor.sourceSwingCalfAssistFrames=0;actor.sourceSwingCalfAssistProof=null;actor.sourceSwingCalfTrialOutcome=null;actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitSettling=false;actor.rigNativeLegOverlayScale=1;actor.nativeWalkEntryPoseHeld=false;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;actor.rigMeleeBones=[];actor.rigMeleePeak=0;actor.rigMeleeCurrentPeak=0;actor.rigMeleeActive=false;actor.rigRangedActive=false;actor.rigRangedPeak=0;actor.nativeReleaseOwnsUpperBody=false;actor.skinnedHitWeight=0;actor.skinnedHitPeak=0;actor.draperyPanels=[];actor.draperyTriangles=0;actor.draperyPeakDeformationMeters=0;actor.draperyPoseKey=null;actor.draperyFramesSkipped=0;actor.draperyNormalRebuilds=0;actor.draperyVertexUploads=0;actor.nativeFigureSculpt=null;actor.authored=false;actor.textureReadiness=null;
 }
 function putEnvironment(world,sceneKey,map,onAssetReady=null){
  // Authored GLB masonry and prop dressing complements the instanced procedural
@@ -5165,6 +5208,8 @@ function inspectSourceRigDeformation(actors){
      sourceToeJointCurrentFrameProofs:actor.sourceToeJointCurrentFrameProofs??null,
      sourceToeJointGateLast:actor.sourceToeJointGateLast??null,
      sourceToeJointGateCounts:actor.sourceToeJointGateCounts??null,
+     sourceToeJointAdaptiveProbeFrames:actor.sourceToeJointAdaptiveProbeFrames||0,
+     sourceToeJointAdaptiveTrialLast:actor.sourceToeJointAdaptiveTrialLast??null,
      sourceSwingThighEaseOutFrames:actor.sourceSwingThighEaseOutFrames||0,
      sourceSwingThighHoldFrames:actor.sourceSwingThighHoldFrames||0,
     // Read-only same-frame measurements of the original stance heel + toe.
