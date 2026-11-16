@@ -80,15 +80,20 @@ export function createPhysicalCombatFeedback({
    latestTrustedClock=seconds;return seconds;
   }catch{return null}
  }
- // Preserve the requested envelope in receipts even when the D04
- // submitted-frame clock must stage the action at its first drawable frame.
- // A real Warden cast emits its opening on the SAME authority tick: deferring
- // release by 230ms while rendering recovery immediately reverses the causal
- // sequence. Admit both together, priority-order release before recovery, and
- // keep BOTH sounds behind the actual frame-submission acknowledgment.
- // Legacy/non-submission callers retain their original presentation delays.
+ // Preserve the original pose annotation in receipts, but in the
+ // opt-in submitted-frame path the FIRST drawable frame after an observed
+ // adjacent-tick HP loss is the only earned impact opportunity. Waiting for
+ // an optional 215ms projected melee-pose beat can skip that frame entirely
+ // when real WebGL frames are sparse. A confirmed HP delta has already
+ // happened; delaying its visual cannot certify blade contact or attacker.
+ // The HP truth gate and 400ms audio deadline remain unchanged: original
+ // foley still waits for a real, timely WebGL acknowledgment.
+ // Warden release likewise shares its cast tick with recovery.
+ // Legacy/non-submission callers retain all authored delays unchanged.
  const presentationDelay=cue=>requirePresentedFrame&&
-  (cue?.kind==='swing'||cue?.kind==='warden-release')
+  (cue?.kind==='swing'||cue?.kind==='warden-release'||
+   ((cue?.kind==='damage'||cue?.kind==='damage-fatal')&&
+    cue.verified===true&&cue.proof==='observed-hp-drop'))
   ?0:clamp(cue?.delay,0,.5);
  // Floor/run transitions and explicit teardown cancel pending REAL injuries.
  // Keep one bounded terminal decision per cue before clearing its observation
