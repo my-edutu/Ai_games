@@ -3082,7 +3082,8 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   const final=chooseOriginalSourceCoupledKneeFootSweep({...coupledOwner,
    trials:[{upperRad:option.upperRad,lowerRad:option.lowerRad,
     footRad:option.footRad,after}]});
-  if(!final||
+  if(!final||final.oppositeShoePreserved!==true||
+   final.contactLocked!==false||
    Math.abs(final.toeLiftMeters-option.toeLiftMeters)>.001||
    Math.abs(final.sourceHeelRiseMeters-option.sourceHeelRiseMeters)>.001||
    Math.abs(final.afterToeY-option.afterToeY)>.001||

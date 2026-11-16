@@ -5514,8 +5514,20 @@ test('original linked upper+lower current-frame proof resets and final skinned o
  assert.match(method,/chooseOriginalSourceSwingLinkedLegTrial\(\{\.\.\.owner,trials:\[\{/);
  assert.match(method,/certified\.oppositeShoePreserved!==true/);
  assert.match(method,/certified\.contactLocked!==false/);
- assert.ok(method.indexOf('if(!certified||')<method.indexOf('upper.last.multiply(upperDelta)'),
-  'no source quaternion delta may persist without final independently measured both-shoe safety');
+ const coupledStart=method.indexOf('if(kneeFootCoupled){');
+ const linkedStart=method.indexOf('const selected=chooseOriginalSourceSwingLinkedLegTrial',coupledStart);
+ assert.ok(coupledStart>=0&&linkedStart>coupledStart,
+  'the three-joint and linked two-joint source pose paths must be separately audited');
+ const coupled=method.slice(coupledStart,linkedStart);
+ assert.match(coupled,/const after=read\(\)/);
+ assert.match(coupled,/const final=chooseOriginalSourceCoupledKneeFootSweep\(/);
+ assert.match(coupled,/final\.oppositeShoePreserved!==true/);
+ assert.match(coupled,/final\.contactLocked!==false/);
+ assert.ok(coupled.indexOf('if(!final||')<coupled.indexOf('upper.last.multiply(upperDelta)'),
+  'the coupled original thigh, calf and foot cannot persist before final independent two-shoe safety');
+ const linked=method.slice(linkedStart);
+ assert.ok(linked.indexOf('if(!certified||')<linked.indexOf('upper.last.multiply(upperDelta)'),
+  'the original linked thigh and calf cannot persist before final independently measured both-shoe safety');
  assert.match(method,/actor\.sourceSwingLinkedCurrentFrameProofs\[side\]/);
 });
 
