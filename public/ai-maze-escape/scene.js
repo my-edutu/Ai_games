@@ -3,7 +3,7 @@ import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap, publicGuardianCinematicSightlineChoice } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicEarnedGuardianActing } from './public-lantern-encounter.mjs';
@@ -88,6 +88,23 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   // Index only authored, already disclosed scenic roots on public updates:
   // no hidden maze access, no mesh allocation in render, no wall cutaway.
   const parryScenicRoots = [];
+  // A real earned lantern counter may require a full, physical reverse-angle
+  // camera rather than any more wall replacement. CPU-only, reused across
+  // renders: no new scene meshes, geometry or hidden-information queries.
+  const earnedStageRay = new THREE.Raycaster();
+  const earnedStageRayDirection = new THREE.Vector3();
+  const earnedStageRayOrigin = new THREE.Vector3();
+  const earnedStageEyeOffset = new THREE.Vector3();
+  const earnedStageRotated = new THREE.Vector3();
+  const earnedStageCameraSaved = new THREE.Vector3();
+  const earnedStageFocus = new THREE.Vector3();
+  const earnedStageProject = new THREE.Vector3();
+  const earnedStageCenterA = new THREE.Vector3();
+  const earnedStageCenterB = new THREE.Vector3();
+  const earnedStageUp = new THREE.Vector3(0,1,0);
+  const earnedStageBoxes = [new THREE.Box3(),new THREE.Box3()];
+  let earnedStageShot = null;
+
   const parryScenicBounds = new THREE.Box3();
   const parryScenicCorner = new THREE.Vector3();
   function projectedParryScenicBox(root) {
@@ -1582,6 +1599,123 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         camera.updateMatrixWorld();
       }
     }
+
+    // Pass420: an original PUBLIC earned lantern counter can cut to a true
+    // opposite-side full-body 3D performance angle when actual masonry and
+    // foliage cover Pip. Previous tiny +/-0.44 rad camera tweaks and wall
+    // substitutions failed in native 320/390 WebGL. This independent attempt
+    // does NOT move actors or falsify a path: candidate cameras render the
+    // identical connected Pip/Thornback models and already-public scenery.
+    // Every alternate camera must first preserve BOTH real physical mesh
+    // envelopes inside strict, unrelaxed mobile margins, then earn clear
+    // Pip torso/boots AND Thornback core sightlines from real world ray hits.
+    // No fallback is portrayed as an improvement: unsafe or inconclusive
+    // candidates retain the established optical camera exactly.
+    const authenticEarnedStage = cameraMode==='follow' && !result
+      && !settings.reducedMotion && !cameraGate && !pressureCameraBeat
+      && !pickupCameraBeat && aspect>=.35 && aspect<.60
+      && earnedGuardianFrame && verifiedGuardianModel?.parent
+      && Number.isSafeInteger(s.currentCell)
+      && Number.isSafeInteger(earnedCounterActor?.cell)
+      && Array.isArray(s.visibleCells)
+      && s.visibleCells.includes(s.currentCell)
+      && s.visibleCells.includes(earnedCounterActor.cell)
+      && Array.isArray(s.threats)
+      && s.threats.some(t=>t?.id===earnedCounterActor.id
+        && t.cell===earnedCounterActor.cell && t.lanternParried===true);
+    if(!authenticEarnedStage) earnedStageShot=null;
+    else {
+      explorer.group.updateWorldMatrix(true,true);
+      verifiedGuardianModel.updateWorldMatrix(true,true);
+      earnedStageBoxes[0].setFromObject(explorer.group,true);
+      earnedStageBoxes[1].setFromObject(verifiedGuardianModel,true);
+      if(earnedStageBoxes.every(box=>!box.isEmpty())) {
+        earnedStageCameraSaved.copy(camera.position);
+        earnedStageEyeOffset.copy(camera.position).sub(cameraTarget);
+        earnedStageBoxes[0].getCenter(earnedStageCenterA);
+        earnedStageBoxes[1].getCenter(earnedStageCenterB);
+        earnedStageFocus.set((earnedStageCenterA.x+earnedStageCenterB.x)*.5,
+          cameraTarget.y,(earnedStageCenterA.z+earnedStageCenterB.z)*.5);
+        const actualStageKey=[s.runToken,earnedCounterActor.id,
+          earnedCounterActor.cell,width,height].join(':');
+        // World-relative ray origins are parallel to an ORTHOGRAPHIC camera.
+        // Raycasting from its center to each actor would give a false result.
+        const evaluateEarnedView=(yaw,withRays)=>{
+          if(yaw===0) {
+            camera.position.copy(earnedStageCameraSaved);
+            camera.lookAt(cameraTarget);
+            earnedStageRotated.copy(earnedStageEyeOffset);
+          } else {
+            earnedStageRotated.copy(earnedStageEyeOffset)
+              .applyAxisAngle(earnedStageUp,yaw);
+            camera.position.copy(earnedStageFocus).add(earnedStageRotated);
+            camera.lookAt(earnedStageFocus);
+          }
+          camera.updateMatrixWorld();
+          let fit=true;
+          for(const box of earnedStageBoxes) {
+            for(const x of [box.min.x,box.max.x])
+              for(const y of [box.min.y,box.max.y])
+                for(const z of [box.min.z,box.max.z]) {
+                  earnedStageProject.set(x,y,z).project(camera);
+                  if(!Number.isFinite(earnedStageProject.x)
+                    || !Number.isFinite(earnedStageProject.y)
+                    || Math.abs(earnedStageProject.x)>.94
+                    || earnedStageProject.y>.84
+                    || earnedStageProject.y<-.82
+                    || earnedStageProject.z<=-1
+                    || earnedStageProject.z>=1)fit=false;
+                }
+          }
+          const view={yaw,fit,score:0,pipTorsoClear:false,
+            pipBootsClear:false,guardianTorsoClear:false};
+          if(!fit||!withRays)return view;
+          const length=earnedStageRotated.length();
+          if(length<.2)return {...view,fit:false};
+          earnedStageRayDirection.copy(earnedStageRotated).normalize().negate();
+          earnedStageRay.near=.04;
+          earnedStageRay.far=length-.12;
+          for(let actor=0;actor<2;actor++) {
+            const bounds=earnedStageBoxes[actor];
+            const cx=(bounds.min.x+bounds.max.x)*.5;
+            const cz=(bounds.min.z+bounds.max.z)*.5;
+            const span=bounds.max.y-bounds.min.y;
+            // Complete-body anchors, not UI centers or fake attacker events.
+            for(let part=0;part<3;part++) {
+              const fy=[.18,.52,.83][part];
+              earnedStageRayOrigin.set(cx,bounds.min.y+span*fy,cz)
+                .add(earnedStageRotated);
+              earnedStageRay.set(earnedStageRayOrigin,earnedStageRayDirection);
+              const blocked=earnedStageRay.intersectObject(world.group,true)
+                .some(hit=>hit.distance<length-.12);
+              if(!blocked) {
+                view.score++;
+                if(actor===0&&part===0)view.pipBootsClear=true;
+                if(actor===0&&part===1)view.pipTorsoClear=true;
+                if(actor===1&&part===1)view.guardianTorsoClear=true;
+              }
+            }
+          }
+          return view;
+        };
+        if(!earnedStageShot || earnedStageShot.key!==actualStageKey) {
+          const views=[0,-1.35,1.35,Math.PI].map(yaw=>
+            evaluateEarnedView(yaw,true));
+          earnedStageShot={key:actualStageKey,
+            yaw:publicGuardianCinematicSightlineChoice(views,true,false)};
+        }
+        // The same exact physical framing is checked again on EVERY render:
+        // new animation poses may not silently crop a previously safe cut.
+        const chosen=earnedStageShot.yaw
+          ? evaluateEarnedView(earnedStageShot.yaw,false) : null;
+        if(!chosen?.fit) {
+          camera.position.copy(earnedStageCameraSaved);
+          camera.lookAt(cameraTarget);
+          camera.updateMatrixWorld();
+        }
+      } else earnedStageShot=null;
+    }
+
     // Pass415: the exact-source natural 320/390 parry proves that the
     // authored, optional tide-organ FOREGROUND itself still dominates
     // the action. Three rejected depth/visibility micro-fixes did not

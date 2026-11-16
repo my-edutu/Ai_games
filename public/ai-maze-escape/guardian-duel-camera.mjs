@@ -219,3 +219,26 @@ export function publicEarnedGuardianScenicStageOverlap(actor,scenic,earned=false
   return width>=Math.max(.08,(actor.right-actor.left)*.15)
     && height>=Math.max(.09,(actor.top-actor.bottom)*.15);
 }
+
+
+/**
+ * A consequence-driven camera CUT, not another cosmetic wall adjustment.
+ * Inputs describe native 3D connected-body camera fits and actual rendered
+ * world-geometry raycasts taken from orthographic, parallel viewing rays.
+ * Only a genuinely current, publicly witnessed earned counter may choose a
+ * different angle. Pip torso and boots plus Thornback torso must be clear,
+ * both original bodies must strictly fit and the sightline must improve by
+ * at least two independently clear anchors. No guesses, HUD cues or false AI.
+ */
+export function publicGuardianCinematicSightlineChoice(views,earned=false,reduced=false){
+  if(!earned||reduced||!Array.isArray(views)||views.length<2)return 0;
+  const base=views.find(v=>v?.yaw===0);
+  if(!base||!base.fit||!Number.isFinite(base.score))return 0;
+  const better=views.filter(v=>v&&v.yaw!==0&&Number.isFinite(v.yaw)
+    &&v.fit===true&&Number.isFinite(v.score)
+    &&v.pipTorsoClear===true&&v.pipBootsClear===true
+    &&v.guardianTorsoClear===true&&v.score>=5
+    &&v.score>=base.score+2);
+  better.sort((a,b)=>b.score-a.score||Math.abs(a.yaw)-Math.abs(b.yaw));
+  return better[0]?.yaw??0;
+}

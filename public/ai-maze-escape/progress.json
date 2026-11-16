@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-16T08:32:54.314Z",
+  "updatedAt": "2026-11-16T09:37:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass419: Pass418 exact-HEAD Chromium native WebGL #43827807848 SUCCESS, original 40/40 PNG SHA plus genuine gate 3/3 independently verified. Actual 320/390 source-bound parry seed13 tick8 visual A/B REJECTS glass spectator-window candidate: Pip remains blocked behind foreground masonry and plants. Restore original trusted world source and remove failed window-only test, retaining evidence; fresh rollback exact-HEAD CI pending. Independent critic NOT_FOUND. Official Nintendo-quality bar unmet; PR open draft unmerged/undeployed."
+    "summary": "Pass420 source candidate: Pass419 rollback exact-HEAD WebGL #43832142295 SUCCESS, original 40/40 uncropped PNG sidecar SHA256 plus 3 authentic gate image digests verified. Natural 320/390 parry still hides Pip torso and boots. New source-only full-body guarded opposite-side physical camera chooses only a genuinely public earned counter with stronger actual world-ray clearance and strict connected body fit. Await new exact-commit WebGL/A-B and fresh independent critic; no visual win. Whole CI separate failure; coding workspace NOT_FOUND. Nintendo bar unmet; PR open draft unmerged/undeployed."
   },
   "captures": [
+    {
+      "title": "Pass419 rollback exact-HEAD native WebGL 40/40 PNG+3 gate SHA verified; baseline for unapproved Pass420 true camera stage",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/43832142295/artifacts/14209930517"
+    },
     {
       "title": "Pass418 original exact-SHA WebGL 40/40 PNG+3 real gate hashes verified; 320/390 guardian spectator-glass A/B REJECTED and source rolled back",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/43827807848/artifacts/14207473488"
@@ -176,6 +180,7 @@
     }
   ],
   "changes": [
+    "Pass420 candidate: actual world-ray-scored full connected-body alternate camera around a genuinely public Pip–Thornback lantern counter, only when superior physical exposure and no-crop hold; new native WebGL verdict pending.",
     "Pass419 2026-11-16 UTC: independently verified original Pass418 exact-HEAD native WebGL 40/40 full-size screenshot SHA and genuine gate 3/3; 320/390 real seed13 tick8 91->74 earned guardian counter still obscured by foreground masonry and coastal plants. Pass418 sealed counter-window stage visually REJECTED despite green Maze tests/strict <100 six-reset; exact trusted Pass417 world.js restored and candidate-only test removed, retaining dated native evidence. New rollback CI pending; separate whole-repository CI failed. Nintendo parity unmet; draft PR unmerged/undeployed, independent critic workspace NOT_FOUND.",
     "Pass417 2026-11-16 UTC: actual 40/40+3/3 SHA-verified original 320/390 WebGL from Pass416b versus Pass415 shows no worthwhile camera/actor readability improvement: Pip's torso and boots remain screened in the earned parry. Source/test candidate safely rolled back to exact Pass415 blobs while retaining dated evidence; rollback CI pending, independent critic unavailable, no false visual win.",
     "Pass416 2026-11-16 UTC: SHA-verified Pass415 original 320/390 real parry shows physical upper fossil retracted, but actual Pip torso occluded by public 93/75 masonry. Candidate uses public-world raycaster to seek a strictly uncropped better real two-actor camera angle during same-run earned public parry; rank requires >=2 more clear physical anchors and Pip torso, no removal of real walls or invented AI. Exact-head CI/visual critic PENDING, fixed Nintendo quality still unmet.",
@@ -420,6 +425,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Run exact-HEAD unaltered 320/390/844/1280 Chromium and real recoil, compare Pass420 to verified Pass419 by original SHA and direct Nintendo benchmark; reject unproved camera cut and restore safely.",
     "Rebuild the guardian encounter as one authored physical theatre, addressing the real protagonist foreground occlusion with readable camera-to-actor gameplay staging. Prove before/after in independent exact-HEAD unaltered 320/390/844/1280 WebGL, strict ±0.95, <100 six reset, source privacy and real deterministic AI. Reject isolated ornamental or camera micro-fixes.",
     "Pass409 exact-HEAD original native 320/390/844/1280 WebGL A/B must show materially unobstructed Pip/Thornback AND visibly connected earned mineral arena vs Pass408 original; independently check 40+ original SHA sidecars, gate transition, all old ±0.95 strict bodies, six-reset <100, hidden-map privacy and distinct whole CI. Reject/revert if only floor colors change or live actor silhouettes remain suppressed.",
     "Pass404 source-grounded native 320/390 earned recoil: inspect whether third-ring public foliage really clears Pip's lower body and Thornback's physical silhouette, without an empty/barren plaza, false route, pressure/gate regressions or >±0.95. Revert if no substantial gameplay readability gain.",
@@ -483,6 +489,14 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass420 original physical guardian reverse-angle candidate",
+      "reviewer": "Source-bound builder (independent fresh-context critic unavailable)",
+      "verdict": "Pending native render and independent art critic",
+      "date": "2026-11-16",
+      "summary": "A 3D camera shot must prove both actors visibly clearer than current original foreground-occluded recoil, not merely green geometry tests.",
+      "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-420-guardian-reverse-stage-camera-2026-11-16.md"
+    },
     {
       "title": "Pass417 original native-camera A/B rejection and exact source rollback",
       "reviewer": "Direct dated original full-frame source-bound image review; fresh-context critic unavailable",
