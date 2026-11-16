@@ -35,8 +35,8 @@ const found=vm.runInNewContext(
  'reserveActualFarmWristSightlines(options,citizen,hands)',
  {...vmContext,options:sample,citizen:{name:'Bram'},hands:[[1,1,1],[1,1,2]]},
  {timeout:2000});
-assert.deepEqual(Array.from(found.reserved,x=>x.ordinal),[1,3,4],
- 'Only physically clear exterior and genuine crop-interior eyes are reserved');
+assert.deepEqual(Array.from(found.reserved,x=>x.ordinal),[1,4,3],
+ 'Real clear exterior eyes rank before vetted crop-interior alternatives; neither is faked');
 assert.equal(found.cropClear,4);
 assert.equal(found.interiorChecked,2);
 assert.equal(found.interiorClear,1);
