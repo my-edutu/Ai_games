@@ -6763,3 +6763,64 @@ test('RED: real 390px first-fast source swing must not reward an already airborn
  ])assert.equal(choose({...gate,trials:[...starters,hypothetical],...unsafe}),null,
   'never pose an invalid original-source owner or source clip');
 });
+
+
+// TEST FIRST — original licensed Walking_A source, genuine mobile skinned
+// BEFORE points from Actions #43934118286 native artifact #14260128935.
+// ALL candidate outcomes below are explicit SYNTHETIC counterfactuals.
+// This test grants no foot plant, IK solution, screenshot or actual motion.
+test('RED: verified source knee+foot can recover a deeply buried swing without lifting its airborne heel or opposite shoe',async()=>{
+ const {chooseOriginalSourceCoupledKneeFootSweep:choose}=await load();
+ const loaded={heelY:-.039206044374257565,toeY:-.0065881908649593965,
+  heelXZ:[-4.834634826373373,-6.957512629162979],
+  toeXZ:[-5.102860035712929,-6.932039462349189]};
+ const swing={heelY:.1776691122270675,toeY:-.10195971086260962,
+  heelXZ:[-4.704255414909162,-7.108059726885979],
+  toeXZ:[-4.808024046586135,-7.136418417871553]};
+ const before={left:loaded,right:swing};
+ const after=(lift,heelRise,support=loaded)=>({left:support,right:{
+  ...swing,toeY:swing.toeY+lift,heelY:swing.heelY+heelRise,
+  heelXZ:[swing.heelXZ[0]+.002,swing.heelXZ[1]],
+  toeXZ:[swing.toeXZ[0]+.022,swing.toeXZ[1]]
+ }});
+ const gate={
+  mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceChainVerified:true,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceFootTrackVerified:true,sourceBindVerified:true,
+  sourceAnatomicalFootAxisVerified:true,ownerLocomotion:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,rootTravel:.01003926783634,frameAge:0,
+  frameInterval:.016600000000004,side:'right',floorTopY:-.02,before
+ };
+ const valid={upperRad:-.075,lowerRad:.09,footRad:.18,
+  after:after(.061,.004)};
+ const harmful={upperRad:-.075,lowerRad:.09,footRad:-.18,
+  after:after(.027,.055)};
+ const proof=choose({...gate,trials:[harmful,valid]});
+ assert.equal(proof?.upperRad,-.075);
+ assert.equal(proof?.lowerRad,.09);
+ assert.equal(proof?.footRad,.18);
+ assert.ok(proof.toeLiftMeters>.06);
+ assert.ok(proof.sourceHeelRiseMeters<.005);
+ assert.equal(proof.oppositeShoePreserved,true);
+ assert.equal(proof.contactLocked,false);
+ assert.equal(choose({...gate,trials:[harmful]}),null,
+  'a sole-still-buried and heel-amplifying original source chain is not an improvement');
+ assert.equal(choose({...gate,trials:[valid]})?.footRad,.18,
+  'independent final skinned-shoe readback must be separately certifiable');
+ for(const bad of [
+  {sourceClipName:'Idle'},{sourceWeight:.8},{ownerLocomotion:false},
+  {sourceInstanceSame:false},{sourceFootTrackVerified:false},
+  {sourceAnatomicalFootAxisVerified:false},
+  {sourceBindVerified:false},{reducedMotion:true},{interrupted:true},
+  {frameInterval:.28},{rootTravel:0},
+  {trials:[{...valid,footRad:.30}]},
+  {trials:[{...valid,after:after(.061,.004,{
+   ...loaded,toeY:loaded.toeY+.009})}]}
+ ])assert.equal(choose({...gate,trials:[valid],...bad}),null,
+  'unlicensed, unsupported or displaced-stance source poses fail closed');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/chooseOriginalSourceCoupledKneeFootSweep\(/);
+ assert.match(renderer,/sourceCoupledKneeFootProof/);
+});
