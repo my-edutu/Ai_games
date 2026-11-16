@@ -78,8 +78,19 @@ export function sourceOriginalGatewayCameraBridge(snapshot,held,prior,view={}) {
       !prior.camera.every(finite) || !prior.gaze.every(finite) ||
       prior.oldRoofY!==held.oldRoofY ||
       prior.thresholdX!==held.thresholdX ||
-      held.submittedFrames<0 || held.submittedFrames>=10 ||
+      held.submittedFrames<0 || held.submittedFrames>=20 ||
+      // Never extend an old-floor camera after ten returned frames merely
+      // because historical source records still exist. The SAME real
+      // retained original gateway must have positive GPU material coverage.
+      (held.submittedFrames>=10 &&
+        (!finite(held.originalGatewayOpacity) ||
+          held.originalGatewayOpacity<=.035 ||
+          held.originalGatewayOpacity>1)) ||
       held.visibleSeconds<0 || held.visibleSeconds>=2.8 ||
+      // Each successful renderer return contributes at most 100ms to the
+      // source-owned old-to-new palette, so no impossible history can steer
+      // the camera further after a cold renderer stalls or source skips.
+      held.visibleSeconds>held.submittedFrames*.1+1e-8 ||
       p.halfHeight<=0 || Math.abs(p.x-held.thresholdX)>90000 ||
       p.y-p.halfHeight<held.oldRoofY-2500 ||
       p.y-p.halfHeight>held.oldRoofY+230000 ||
@@ -125,8 +136,23 @@ export function sourceOriginalGatewayCameraBridge(snapshot,held,prior,view={}) {
   }
   const yShift=(prior.chunkBaseY-snapshot.chunkBaseY)/10000;
   if(!finite(yShift) || Math.abs(yShift)>1000)return null;
-  const progress=held.submittedFrames/10;
-  const weight=.72*(1-progress)*(1-progress);
+  // The prior camera expired after ten submissions even when native 1x
+  // WebM showed substantially less than a second of old/new geometry.
+  // That detached the final follow shot from the still-bronze real gateway.
+  // Retire the original 3D shot with BOTH actually returned display duration
+  // and submission count; normal-speed recording must still verify pixels.
+  // Keep the prior immutable old-frame/HP0/grounded-support checks above.
+  const timeProgress=Math.min(1,held.visibleSeconds/1.25);
+  const frameProgress=Math.min(1,held.submittedFrames/12);
+  const progress=Math.min(timeProgress,frameProgress);
+  const eased=progress*progress*(3-2*progress);
+  // The actual original gateway's material coverage is a separate veto:
+  // never retain a historic camera once the genuine painted doorway itself
+  // retired, even if its old source certificate is still valid.
+  const oldGateWeight=finite(held.originalGatewayOpacity)
+    ?Math.max(0,Math.min(1,held.originalGatewayOpacity)):1;
+  const weight=.72*(1-eased)*(1-eased)*oldGateWeight;
+  if(weight<=.0005)return null;
   return {sourceBound:true,sourceTick:snapshot.tick,
     crossingTick:realCrossingTick,
     proof:recorded?'immutable-guardian-defeat':'verified-grounded-original-source-receipt',
