@@ -430,6 +430,101 @@ export function chooseOriginalSourceAuthoredNeutralLegTrial({
  * chooseOriginalSourceSwingLinkedLegTrial must still certify both shoes.
  * Return null on ambiguous/unsafe samples; renderer retains symmetric probes.
  */
+
+/**
+ * Source-rig, two-joint continuation for a genuinely buried ORIGINAL
+ * Walking_A swinging shoe. A foot-axis rotation on its own can look like
+ * a detached toe twitch; a hip/knee-only trial may lift the airborne heel
+ * faster than the buried toe. Judge only paired original lower-leg and
+ * foot rotations (with the still-connected upper leg) against BOTH real
+ * weighted skinned shoes, and reject the whole pose if pitch worsens.
+ *
+ * This selector DOES NOT derive motion, target, hit, plant or IK state.
+ * The renderer may spend at most two of its existing four source-skin
+ * trial slots on this option, then remeasure the final applied source skin.
+ */
+export function chooseOriginalSourceCoupledKneeFootSweep({
+ mode='idle',sourceClipName='',sourceWeight=NaN,
+ sourceInstanceSame=false,sourceChainVerified=false,
+ sourceUpperTrackVerified=false,sourceLowerTrackVerified=false,
+ sourceFootTrackVerified=false,sourceBindVerified=false,
+ sourceAnatomicalFootAxisVerified=false,ownerLocomotion=false,
+ alive=false,visible=false,teleport=false,reducedMotion=false,
+ interrupted=false,rootTravel=NaN,frameAge=NaN,frameInterval=NaN,
+ side='',floorTopY=NaN,before=null,trials=[]
+}={}){
+ const opposite=side==='left'?'right':side==='right'?'left':null;
+ if(mode!=='move'||sourceClipName!=='Walking_A'||
+  !finite(sourceWeight)||sourceWeight<.95||sourceWeight>1.001||
+  sourceInstanceSame!==true||sourceChainVerified!==true||
+  sourceUpperTrackVerified!==true||sourceLowerTrackVerified!==true||
+  sourceFootTrackVerified!==true||sourceBindVerified!==true||
+  sourceAnatomicalFootAxisVerified!==true||ownerLocomotion!==true||
+  alive!==true||visible!==true||teleport||reducedMotion||interrupted||
+  ![rootTravel,frameAge,frameInterval,floorTopY].every(finite)||
+  rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.15||
+  frameInterval<.008||frameInterval>.15||
+  Math.abs(floorTopY+.02)>.005||!opposite||
+  !Array.isArray(trials)||trials.length<1||trials.length>2)return null;
+ const valid=s=>s&&[s.heelY,s.toeY].every(finite)&&
+  [s.heelXZ,s.toeXZ].every(x=>
+   Array.isArray(x)&&x.length===2&&x.every(finite));
+ const swing=before?.[side],support=before?.[opposite];
+ if(!valid(swing)||!valid(support))return null;
+ const depth=floorTopY-swing.toeY;
+ const heelAbove=swing.heelY-floorTopY;
+ const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+ const shoeSpan=Math.hypot(dist(swing.heelXZ,swing.toeXZ),
+  swing.heelY-swing.toeY);
+ // The source inverse-bind-selected, physically long outsole must be an
+ // elevated heel with a buried toe. This is NOT a loaded-foot opportunity.
+ if(depth<.05||depth>.12||heelAbove<.16||heelAbove>.34||
+  shoeSpan<.24||shoeSpan>.35||
+  ![support.heelY,support.toeY].every(y=>
+   y>=floorTopY-.055&&y<=floorTopY+.035))return null;
+ let best=null;
+ for(const trial of trials){
+  const {upperRad,lowerRad,footRad,after}=trial??{};
+  const shoe=after?.[side],loaded=after?.[opposite];
+  if(![upperRad,lowerRad,footRad].every(finite)||
+   Math.abs(upperRad)<.074999||Math.abs(upperRad)>.110001||
+   Math.abs(lowerRad)<.074999||Math.abs(lowerRad)>.110001||
+   Math.abs(footRad)<.119999||Math.abs(footRad)>.240001||
+   Math.sign(upperRad)===Math.sign(lowerRad)||
+   !valid(shoe)||!valid(loaded))continue;
+  const lift=shoe.toeY-swing.toeY;
+  const heelRise=shoe.heelY-swing.heelY;
+  // Retain real source knee bend and TRUE outsole pitch. A deeper
+  // penetrating toe is never exchanged for an airborne, higher heel.
+  if(lift<Math.max(.02,depth*.20)||lift>.095||
+   lift-heelRise<-.002||Math.abs(heelRise)>.055||
+   shoe.toeY>floorTopY+.045||
+   shoe.heelY-floorTopY<.08||shoe.heelY-floorTopY>.37||
+   dist(shoe.heelXZ,swing.heelXZ)>.075||
+   dist(shoe.toeXZ,swing.toeXZ)>.085||
+   Math.abs(loaded.heelY-support.heelY)>.003||
+   Math.abs(loaded.toeY-support.toeY)>.003||
+   dist(loaded.heelXZ,support.heelXZ)>.004||
+   dist(loaded.toeXZ,support.toeXZ)>.004)continue;
+  const scored=lift-Math.max(0,heelRise)*.35;
+  if(!best||scored>best.score+.0005||
+   (Math.abs(scored-best.score)<=.0005&&
+    Math.abs(upperRad)+Math.abs(lowerRad)+Math.abs(footRad)<
+      Math.abs(best.upperRad)+Math.abs(best.lowerRad)+Math.abs(best.footRad))){
+   best={upperRad,lowerRad,footRad,score:scored,
+    toeLiftMeters:lift,sourceHeelRiseMeters:heelRise,
+    beforeToeY:swing.toeY,afterToeY:shoe.toeY,
+    beforeHeelY:swing.heelY,afterHeelY:shoe.heelY};
+  }
+ }
+ if(!best)return null;
+ const {score,...safe}=best;
+ return Object.freeze({...safe,side,
+  source:'measured-original-skinned-coupled-knee-foot',
+  sourceClip:'Walking_A',sourceJointCount:3,
+  oppositeShoePreserved:true,contactLocked:false});
+}
+
 export function planOriginalSourceSwingLinkedLegFollowups({
  mode='idle',sourceClipName='',sourceWeight=NaN,
  sourceInstanceSame=false,ownerLocomotion=false,alive=false,visible=false,
