@@ -1,3 +1,9 @@
+### W376 browser evidence after first integrated buyer-camera submission
+
+On tested commit `bb378cd9c08786094498b18b5ea49b7c776470d7`, [W126 original desktop/390px household Day-121/Day-161/replay](https://github.com/my-edutu/Ai_games/actions/runs/43809015467) **PASSED**: 28 genuine citizens, 37 homes/buildings, 151,138 total scene triangles (under 160k), 390px no overflow, no GL/page errors, exact restored Day-161 replay checksum `1e261e0d`. Genuine artifacts: [Day-121 frames and movement film](https://github.com/my-edutu/Ai_games/actions/runs/43809015467/artifacts/14199229689). [W125 original complete grain chain browser film](https://github.com/my-edutu/Ai_games/actions/runs/43809015780/artifacts/14200340040) also passed. No physical GPU or independent G088 comparison is implied.
+
+[W368 grain-watch isolated contract](https://github.com/my-edutu/Ai_games/actions/runs/43809015728) failed because its sandbox did not export `householdProvisionAudit`; the **new source candidate blob `4633cb0eb71cd351a12422bf2dddc0039995aa84`** removes this dependency and uses only the three existing citizen activity states for the real-buyer watch decision. That correction is not browser-verified until its new SHA workflow reports. Other original hardware/GPU and roof/Courier CI failures remain open; do not count a passing partial test as Phase 1 complete.
+
 ## W376 checkpoint — 16 November 2026 · continuing the same Phase 1 original grain-to-home slice
 
 - Current planned candidate source blob: `dd1b5154636f10c6a6079112464a5ee1be81722e`; parent commit `e3d15fbdd00b37b763fe40cf2b8918f2c3303fb1`; PR #64 must stay draft and unmerged.

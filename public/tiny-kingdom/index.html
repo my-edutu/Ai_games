@@ -27673,7 +27673,10 @@ function getVillageDocumentaryAudit(){
  // This is an explicit observer action, never an authoritative job change.
  if(grainJourney)return getRealGrainJourneyAudit();
  const foodCourierOnRoad=people.some(p=>p.delivery?.resource==='food');
- if(!foodCourierOnRoad&&householdProvisionAudit().citizens.length){
+ if(!foodCourierOnRoad&&people.some(p=>
+  p.activity==='Traveling to market for provisions'||
+  p.activity==='Collecting household provisions'||
+  p.activity==='Traveling home with provisions')){
   const actualBuyer=watchHouseholdErrand();
   if(actualBuyer)return actualBuyer;
  }
