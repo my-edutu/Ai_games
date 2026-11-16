@@ -329,7 +329,7 @@ export function observedSourcePhysicalArrivalPalette(source,held=null) {
   // floor; frame-only tint retired the sky while the real grille was 84%
   // opaque, then the old world vanished hard on the next browser receipt.
   const shownProgress=originalGpuVisible
-    ?smooth((held.visibleSeconds-.08)/1.05):1;
+    ?smooth(held.visibleSeconds/1.13):1;
   const progress=Math.min(physicalProgress,gpuProgress,shownProgress);
   const oldWeight=1-progress;
   return {sourceBound:true,sourceTick:source.tick,crossingTick:sourceTick,
@@ -371,7 +371,7 @@ export function observedSourceGatewayDeparturePresence(source,held) {
   // producing a one-frame discontinuity at source-proof retirement.
   // The old gateway, source-extracted gallery, roof, sky and new shaft all
   // consume one physically earned, WebGL-return-gated optical passage.
-  const displayedSeconds=smooth((held.visibleSeconds-.08)/1.05);
+  const displayedSeconds=smooth(held.visibleSeconds/1.13);
   const submittedFrames=smooth((held.submittedFrames-1)/7);
   const visibleProgress=Math.min(displayedSeconds,submittedFrames);
   // Do not erase the real bronze gate while the actual climber still occupies
@@ -420,6 +420,44 @@ export function sourceOwnedOriginalArchitectureCoverage(source,held) {
   sample(held.originalDeckSurface?.opacity);
   if(Array.isArray(held.originalGalleryMaterials))
     for(const material of held.originalGalleryMaterials) sample(material?.opacity);
+  // The original mesh can still be GPU-owned and highly opaque after the
+  // AUTHENTIC body has walked far beyond it. A simple max(alpha) coverage
+  // veto hid the incoming shaft until historical retention expired, then
+  // instantly swapped the entire skyline on the next source poll. Release
+  // this *sightline* coverage based on actual supported source movement,
+  // not browser time, a speculative AI target, or a fake floor transition.
+  // This changes only incoming 3D scene visibility, never gate collision or
+  // the authoritative stage of the winch.
+  const p=source.player,ground=source.platforms?.find(
+    platform=>platform?.id==='f9:ground');
+  const w=source.lastGuardianCrossing;
+  const witnessedCrossing=w==null || (
+    w.runToken===source.runToken && w.fromFloor===8 &&
+    w.toFloor===9 && w.cap?.id==='f8:cap' &&
+    w.cap.y+w.cap.height===held.oldRoofY &&
+    w.exitX===held.thresholdX && w.guardian?.kind==='guardian' &&
+    w.guardian.active===false && Number.isFinite(w.guardian.health) &&
+    w.guardian.health<=0 && valid(w.sourceTick) &&
+    w.sourceTick<=source.tick);
+  const supportedDeparture=
+    held.verifiedObservedFloorAdvance===true &&
+    held.oldCapId==='f8:cap' &&
+    valid(held.oldCapX) && valid(held.oldCapWidth) &&
+    held.oldCapWidth>0 &&
+    held.thresholdX===held.oldCapX+Math.floor(held.oldCapWidth*.76) &&
+    valid(held.crossingTick) && held.crossingTick<=source.tick &&
+    source.tick-held.crossingTick<=SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS &&
+    witnessedCrossing &&
+    observedSourceFloorNineRouteSupport(source,ground,held.oldRoofY);
+  if(supportedDeparture && valid(p.x) && valid(p.halfWidth) &&
+     p.halfWidth>0) {
+    // Keep full bronze coverage at/near the sill. Only a real body whose
+    // trailing edge has cleared 55 m of the old load path starts exposing
+    // the monument; by 125 m it no longer occupies that historical camera
+    // region. This uses existing source-unit scale, no imagined motion.
+    const pastSill=p.x-p.halfWidth-held.thresholdX;
+    coverage*=1-smooth((pastSill-55000)/70000);
+  }
   return coverage;
 }
 export function sourceAlignedIncomingShaftOpacity(source,held,nominalOpacity){
