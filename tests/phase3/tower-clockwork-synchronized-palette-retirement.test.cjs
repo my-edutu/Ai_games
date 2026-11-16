@@ -85,7 +85,10 @@ test('a missing, mismatched, dying, stale or not-yet-certified source cannot kee
 test('Tower World coordinates real returned-frame retirement for original F9 deck and architecture, not just persistent gallery',()=>{
   const world=fs.readFileSync('public/infinite-tower-climb/visuals/world.mjs','utf8');
   assert.match(world,/observedVerifiedClockworkPaletteTail\(snapshot,handoff,departure\)/);
-  assert.match(world,/updateOriginalClockworkSuccessorRoute\(arrivalRoutePalette,proof,opticalTail\)/);
+  assert.ok(/updateOriginalClockworkSuccessorRoute\(arrivalRoutePalette,\s*materialProof,opticalTail\)/.test(world),
+    'live World must synchronize the real route using its current verified material proof');
+  assert.ok(/const materialProof=livePaletteProof\?\?\(farSideHorizon\?/.test(world),
+    'far-side palette cannot be attributed to a floor label without authenticated crossing');
   assert.match(world,/originalClockworkArchitecturalPalette\.update\(sourceProof,opticalTail\)/);
   assert.match(world,/advanceSourceEarnedPaletteReturn/);
   assert.match(world,/bearingHandoff\.retirementSeconds=next\.returnedSeconds/);
