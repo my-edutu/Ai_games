@@ -224,8 +224,11 @@ test('verified HP fragments remain readable at a genuine 336ms frame, not after 
   assert.equal(stage.stats().activeDrawCalls,1);
   assert.equal(stage.stats().reservedInstances,102);
   stage.advance(.05,.05);
+  assert.equal(stage.hasDrawableCue(live.id),true,
+   'the verified 386ms impact remains within the strict 400ms frame window');
+  stage.advance(.014,.014);
   assert.equal(stage.hasDrawableCue(live.id),false,
-   'a 386ms-old impact must retire before the 400ms deadline, not become a permanent ghost');
+   'a 400ms-old impact must retire, not become a permanent ghost');
   assert.equal(stage.stats().active,0);
  }finally{stage.dispose()}
  const short=three();
