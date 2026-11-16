@@ -4512,6 +4512,11 @@ let groundAtlasAccessPaintedKeys=[],groundAtlasAccessIncrementalPaints=0,
 // W356: one retained original ground texture matches EXACT emitted 3D
 // occupied-home road sections, never invented routes or per-frame JS meshes.
 let groundAtlasHomeRoadKey=null,groundAtlasHomeRoadAudit={paintedSections:0};
+// W381: original occupied-lane material persists in one bounded 512px canvas.
+// Changes to ANY physical lane endpoint, width or order invalidate all paint.
+// This canvas never creates a new GPU texture or changes worker navigation.
+let groundAtlasStreetCanvas=null,groundAtlasStreetKey=null;
+let groundAtlasStreetBuilds=0,groundAtlasStreetReuses=0;
 function getRealHomeLaneAlbedoAudit(){return {...groundAtlasHomeRoadAudit,
  currentRoadSections:realHomeLaneSections.length,
  matchingCivicKey:groundAtlasHomeRoadKey===civicActiveKey,
@@ -4850,6 +4855,20 @@ function paintRealResidentStreetAlbedo(ctx,world,size,extent,sections){
   materialPasses:passes,extraTriangles:0,extraGpuTextures:0,
   extraEntityCount:0,exact3DSource:true,authorityModified:false};
 }
+function residentStreetAtlasSignature(sections){
+ if(!Array.isArray(sections)||sections.length>Math.floor(REAL_HOME_LANE_BUDGET/6))
+  throw Error('W381 original home streets exceed finite atlas budget');
+ const rows=[];
+ for(const section of sections){
+  const {a,b,halfWidth}=section||{};
+  if(!Array.isArray(a)||!Array.isArray(b)||a.length!==2||b.length!==2||
+   ![...a,...b,halfWidth].every(Number.isFinite)||
+   halfWidth<.3||halfWidth>1.02)
+   throw Error('W381 invalid authentic inhabited lane');
+  rows.push([a[0],a[1],b[0],b[1],halfWidth]);
+ }
+ return JSON.stringify(rows);
+}
 function rebuildGroundAtlas(){
  if(!gpuAvailable)return;
  const groundBuildStart=performance.now(),groundBaseStart=groundBuildStart;
@@ -5075,6 +5094,23 @@ function rebuildGroundAtlas(){
   groundAtlasRoadBuilds++;
  }else groundAtlasRoadReuses++;
  const groundRoadMs=performance.now()-groundRoadStart;
+ // Repaint only when exact shipped 3D street geometry changes. New housing,
+ // restore/replay and street rewiring invalidate by physical shape, never a
+ // lossy checksum or camera distance. Same geometry reuses the prior strokes.
+ const groundStreetStart=performance.now();
+ if(!groundAtlasStreetCanvas){
+  groundAtlasStreetCanvas=document.createElement('canvas');
+  groundAtlasStreetCanvas.width=size;groundAtlasStreetCanvas.height=size;
+ }
+ const liveStreetKey=residentStreetAtlasSignature(realHomeLaneSections);
+ if(liveStreetKey!==groundAtlasStreetKey){
+  const streetCtx=groundAtlasStreetCanvas.getContext('2d');
+  streetCtx.clearRect(0,0,size,size);
+  groundAtlasHomeRoadAudit=paintRealResidentStreetAlbedo(
+   streetCtx,world,size,GROUND_ATLAS_EXTENT,realHomeLaneSections);
+  groundAtlasStreetKey=liveStreetKey;groundAtlasStreetBuilds++;
+ }else groundAtlasStreetReuses++;
+ const groundStreetMs=performance.now()-groundStreetStart;
  const groundCompositeStart=performance.now();
  // GPU upload consumes one persistent texture; all three small 2D layers
  // are composited without regenerating 262,144 procedural ground texels.
@@ -5089,10 +5125,9 @@ function rebuildGroundAtlas(){
  ctx.drawImage(groundAtlasHouseCanvas,0,0);
  ctx.drawImage(groundAtlasAccessCanvas,0,0);
  ctx.drawImage(groundAtlasRoadCanvas,0,0);
- // Place the construction-dirty actual household streets on the same valley
- // atlas only AFTER real civic geometry has been computed for this world.
- groundAtlasHomeRoadAudit=paintRealResidentStreetAlbedo(
-  ctx,world,size,GROUND_ATLAS_EXTENT,realHomeLaneSections);
+ // Compositing the original retained street material doesn't call the expensive
+ // real 3D lane stroke painter unless actual road geometry changes.
+ ctx.drawImage(groundAtlasStreetCanvas,0,0);
  roadSegments=groundAtlasRoadSegments;
  const sample=(x,z)=>{
   const a=ctx.getImageData(Math.max(0,Math.min(size-1,Math.floor(world(x)))),
@@ -5142,7 +5177,9 @@ function rebuildGroundAtlas(){
   baseCold:!groundAtlasBaseReuses||groundAtlasBaseBuilds===1&&groundAtlasRebuilds===0,
   baseMs:groundBaseMs,homeMs:groundHomesMs,accessMs:groundAccessMs,
   accessPaint:groundAtlasAccessLastPlan?{...groundAtlasAccessLastPlan}:null,
-  roadsMs:groundRoadMs,compositeMs:groundCompositeMs,uploadMs:groundUploadMs,
+  roadsMs:groundRoadMs,streetMs:groundStreetMs,streetBuilds:groundAtlasStreetBuilds,
+  streetReuses:groundAtlasStreetReuses,
+  compositeMs:groundCompositeMs,uploadMs:groundUploadMs,
   totalMs:performance.now()-groundBuildStart,
   changeWasFull:dirty.full,changedTiles:dirty.changedTiles,
   textureCount:groundAtlasTexture?1:0,houseCount:city.length,
@@ -5159,6 +5196,9 @@ function rebuildGroundAtlas(){
   groundWorkstream:'physically-connected-market-w16',
   houseLayerBuilds:groundAtlasHouseBuilds,houseStamps:groundAtlasHouseStamps,
   roadOverlayBuilds:groundAtlasRoadBuilds,roadOverlayReuses:groundAtlasRoadReuses,
+  physicalStreetOverlayBuilds:groundAtlasStreetBuilds,
+  physicalStreetOverlayReuses:groundAtlasStreetReuses,
+  physicalStreetOverlayBytes:size*size*4,
   exactPhysicalHomeRoads:{...groundAtlasHomeRoadAudit},
   accessOverlayBuilds:groundAtlasAccessRebuilds,
   connectedHomeAccess:groundAtlasAccessAudit.connected,
