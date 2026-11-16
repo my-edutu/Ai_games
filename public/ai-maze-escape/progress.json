@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-16T10:11:35.291Z",
+  "updatedAt": "2026-11-16T11:53:26.921Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass421: exact-HEAD Pass420b reverse-stage candidate failed real 390px WebGL guardian silhouette gate (left -0.962976 vs unchanged -0.95; allGuardianModels 0 vs 1). Original available 39/39 PNG SHA and 3/3 real gate SHA verified, 320 candidate earned frame not produced. Native full-frame A/B shows no meaningful Pip/Thornback visibility gain. Restore trusted Pass419 scene/camera source in non-force rollback; fresh exact-rollback CI pending. Independent worker NOT_FOUND. Nintendo bar unmet, draft PR no merge/deploy."
+    "summary": "Pass422 CANDIDATE: original verified rollback WebGL 40/40 screenshots (SHA-256 exact) shows native seed13 tick8 earned parry, hero91 / guardian74, actual two disclosed full-height sealed wall screens at 75/76 and 76/93 in front of Pip torso. New source-only public mutual nonpassage low opaque Tideglass wall reconstruction, strict NDC/AI/privacy/resource thresholds unchanged. Native new-head browser capture, independent visual critic and full CI PENDING. Official Nintendo quality unmet, open draft unmerged/undeployed."
   },
   "captures": [
     {

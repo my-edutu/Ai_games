@@ -341,6 +341,58 @@ export function publicEarnedGuardianRecoilCourtCells(s,{spectator=false}={}) {
   return quiet;
 }
 
+// Physical earned-recoil theatre: the native 320/390 WebGL rays strike the
+// *real* full-height sealed corner at 75/76 and 76/93, not the fossil alone.
+// A currently witnessed parry may lower those camera-facing opaque barriers
+// ONLY if BOTH ends are published, same-tier, genuinely NONPASSAGE cells.
+// The existing authoritative collision graph is never changed. This helper
+// deliberately cannot name or query an undiscovered room, a private route,
+// an uncertain one-way connection, a key/gate, or a pressure apparatus.
+export function publicEarnedGuardianRecoilSealedScreens(s,quiet=publicEarnedGuardianRecoilCourtCells(s)) {
+  const edges=new Set();
+  if(!quiet?.size || !Number.isSafeInteger(s?.width) || s.width<2
+    || !Number.isSafeInteger(s.height) || !Array.isArray(s.cells)
+    || !Array.isArray(s.visibleCells) || !Array.isArray(s.threats))return edges;
+  const visible=new Set(s.visibleCells);
+  const known=new Map(s.cells.filter(c=>Number.isSafeInteger(c?.cell)
+    &&visible.has(c.cell)).map(c=>[c.cell,c]));
+  const hero=known.get(s.currentCell);
+  const recoil=s.threats.find(t=>t?.lanternParried===true
+    &&visible.has(t.cell) &&known.get(t.cell)?.blocked===false);
+  if(!hero || hero.blocked!==false || !recoil)return edges;
+  const actorX=Math.max(hero.cell%s.width,recoil.cell%s.width);
+  const nearRow=Math.min(Math.floor(hero.cell/s.width),
+    Math.floor(recoil.cell/s.width));
+  const farRow=Math.max(Math.floor(hero.cell/s.width),
+    Math.floor(recoil.cell/s.width));
+  const reserved=new Set([s.exitCell,...(s.keys||[]).map(k=>k.cell)]);
+  const doors=Array.isArray(s.doors)?s.doors:[];
+  for(const id of quiet) {
+    const a=known.get(id);
+    if(a?.blocked!==false || !Array.isArray(a.neighbors)
+      ||a.trap ||a.clue ||a.checkpoint ||reserved.has(id))continue;
+    for(const next of [id-1,id+1,id-s.width,id+s.width]){
+      const b=known.get(next);
+      if(!quiet.has(next) || !b || !Array.isArray(b.neighbors)
+        ||b.trap ||b.clue ||b.checkpoint ||reserved.has(next)
+        ||(b.blocked!==true && b.blocked!==false))continue;
+      const x0=id%s.width, x1=next%s.width;
+      const r0=Math.floor(id/s.width),r1=Math.floor(next/s.width);
+      if(Math.abs(x0-x1)+Math.abs(r0-r1)!==1
+        ||Math.min(x0,x1)<actorX+1 ||Math.max(x0,x1)>actorX+2
+        ||Math.min(r0,r1)<nearRow-1 ||Math.max(r0,r1)>farRow+1
+        ||Math.abs(cellHeight(id,s.width,s.height)
+          -cellHeight(next,s.width,s.height))>1e-8)continue;
+      // Only a PROVEN mutual public seal, including known impassable stone.
+      if(a.neighbors.includes(next) || b.neighbors.includes(id)
+        ||doors.some(d=>(d.a===id&&d.b===next)
+          ||(d.b===id&&d.a===next)))continue;
+      edges.add(`${Math.min(id,next)}:${Math.max(id,next)}`);
+    }
+  }
+  return edges;
+}
+
 const STAIR_COUNT = 8, STAIR_START = .08, STAIR_RUN = CELL_SIZE / 2 - STAIR_START, STAIR_HALF_WIDTH = .78;
 export function sampleGroundHeight(x, z, snapshot) {
   if (!snapshot || !Number.isFinite(x) || !Number.isFinite(z)) return 0;
@@ -1224,6 +1276,7 @@ export function createMazeWorld(options = {}) {
     // The peripheral helper requires a genuine witnessed open causeway and
     // cannot infer or reveal hidden terrain or private AI.
     const earnedRecoilQuiet=publicEarnedGuardianRecoilCourtCells(s);
+    const earnedGuardianSealedScreens=publicEarnedGuardianRecoilSealedScreens(s,earnedRecoilQuiet);
     // Separate the honest actor-level LOW stone district from a wider
     // optional-vegetation exclusion on CURRENTLY VISIBLE ordinary terraces.
     // The latter changes no platform heights, walls, gates or path surfaces.
@@ -2127,10 +2180,17 @@ export function createMazeWorld(options = {}) {
         // The older blocked-cell flank rule remains, but a genuine
         // spectator-side public guardian wall may outrank a merely nearby
         // pressure apron. A CONNECTED hazard never earns this cutaway.
+        // Pass422: source-authentic recoil raycasts identify the RIGHT-ANGLE
+        // full-height 75/76 + 76/93 corner in front of Pip. Unlike a broader
+        // beauty camera or another fossil threshold, this physically replaces
+        // only confirmed PUBLIC SEALED stone with the existing solid low
+        // Tideglass parapet. Real crossings, doors, traps and hidden rooms
+        // cannot earn the cutaway; no authoritative graph is edited.
+        const earnedGuardianSealedScreen=earnedGuardianSealedScreens.has(key);
         const guardianParapet = !publicParapet
-          && (!pressureParapet || guardianForegroundSealedScreen)
+          && (!pressureParapet || guardianForegroundSealedScreen || earnedGuardianSealedScreen)
           && n>=0 && knownByCell.has(n) && !gateEdges.has(key)
-          && (guardianForegroundSealedScreen
+          && (guardianForegroundSealedScreen || earnedGuardianSealedScreen
             || ((guardianCauseway.has(c.cell) || guardianCauseway.has(n))
               && (guardianSealedReefScreen ||
                 (((guardianSightlines.has(c.cell) && guardianBlockedRelief.has(n))
@@ -3541,6 +3601,7 @@ export function createMazeWorld(options = {}) {
       + '#guardian-near-floor:' + [...keyedForeground].sort((a,b)=>a-b).join('.')
       + '#guardian-public-peripheral-walls:' + [...keyedPeripheralWalls].sort((a,b)=>a-b).join('.')
       + '#guardian-earned-recoil:' + [...keyedEarnedRecoil].sort((a,b)=>a-b).join('.')
+      + '#guardian-earned-sealed-screens:' + [...publicEarnedGuardianRecoilSealedScreens(s,keyedEarnedRecoil)].sort().join('.')
       + '#guardian-earned-public-spectators:' + [...keyedEarnedSpectators].sort((a,b)=>a-b).join('.')
       + '#guardian-outer-floor:' + [...keyedOuterCourt.ordinary].sort((a,b)=>a-b).join('.')
       + '#guardian-outer-sealed:' + [...keyedOuterCourt.sealed].sort((a,b)=>a-b).join('.');
