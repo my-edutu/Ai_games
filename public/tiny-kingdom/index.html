@@ -1476,6 +1476,28 @@ body[data-command="world"][data-supply="open"][data-supply-details="closed"]
  #world-watch-life,#world-trace-toggle{min-height:44px!important;touch-action:manipulation}
  #world-watch-life{font-size:10px!important;padding:10px 8px!important}
 }
+
+/* W369: genuine 390px observation showed the five-stage evidence dock was
+   207px high even when Details was CLOSED (W365 physical capture). The
+   unneeded population counters and Watch button still consumed a flex row
+   behind the open parcel ledger. Preserve those controls in CLOSED Supply,
+   but show only close + five truthful stages + Details + Follow while OPEN.
+   Stronger specificity than the older mobile documentary rules is deliberate.
+   No actors, camera, economy or hidden 3D geometry are changed. */
+@media(max-width:520px){
+ body[data-command="world"][data-supply="open"][data-supply-details="closed"]:not([data-hud="cinema"]):not([data-street="on"]):not([data-workday="live"]):not([data-workday="delivery"]):not([data-workday="homecoming"]) #world-ribbon{
+  max-height:min(22dvh,184px)!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  align-content:flex-start!important;
+ }
+ body[data-command="world"][data-supply="open"][data-supply-details="closed"]:not([data-hud="cinema"]):not([data-street="on"]) #world-ribbon > :not(#world-trace-toggle):not(#world-supply-trail){
+  display:none!important;
+ }
+ body[data-command="world"][data-supply="open"][data-supply-details="closed"] #grain-chain-steps button{
+  font-size:10px!important;
+ }
+}
 </style></head><body>
 <canvas id="world" tabindex="0" aria-label="Live 3D medieval valley. Tap a visible villager to follow genuine work. Drag to orbit, Shift-drag or two-finger drag to pan, pinch or scroll to zoom. Home returns to village, F follows a citizen, V walks the streets; Enter selects a visible citizen."></canvas><div id="citizen-pick-caption" role="status" aria-live="polite" aria-atomic="true"><span id="citizen-pick-copy"></span><progress id="citizen-pick-meter" value="0" max="100" aria-label="Observed citizen's actual shift or delivery progress" hidden></progress></div><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>

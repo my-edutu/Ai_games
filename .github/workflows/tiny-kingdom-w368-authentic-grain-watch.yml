@@ -11,7 +11,7 @@ on:
 jobs:
   real-grain-watch:
     runs-on: ubuntu-24.04
-    timeout-minutes: 6
+    timeout-minutes: 14
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -20,6 +20,9 @@ jobs:
       - name: Real player-facing original food-chain documentary contract
         run: node scripts/tiny-kingdom-w368-authentic-grain-watch-contract.cjs
       - run: npm ci
+      # Shared Playwright config starts four original stream servers from dist.
+      # Without a compilation step the live-game capture aborts before launch.
+      - run: npm run build
       - run: npx playwright install --with-deps chromium
       - name: Actual original desktop and 390px live-game grain camera
         run: npx playwright test tests/browser/tiny-kingdom-w368-authentic-grain-watch.spec.cjs --workers=1
