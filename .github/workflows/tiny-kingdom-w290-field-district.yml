@@ -11,6 +11,7 @@ on:
       - scripts/tiny-kingdom-w381-street-atlas-residency-contract.cjs
       - scripts/tiny-kingdom-w290-field-district-contract.cjs
       - scripts/tiny-kingdom-w125-gpu-skin-contract.cjs
+      - scripts/tiny-kingdom-w383-harmonic-ground-contract.cjs
       - .github/workflows/tiny-kingdom-w290-field-district.yml
   workflow_dispatch:
 permissions:
@@ -38,6 +39,7 @@ jobs:
           node scripts/tiny-kingdom-w253-original-growing-field-contract.cjs
           node scripts/tiny-kingdom-w260-physical-field-and-freight-contract.cjs
           node scripts/tiny-kingdom-w125-gpu-skin-contract.cjs
+          node scripts/tiny-kingdom-w383-harmonic-ground-contract.cjs
       - name: Confirm production source build
         run: |
           npm ci --no-audit --no-fund
