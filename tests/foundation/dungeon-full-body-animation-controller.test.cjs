@@ -6574,3 +6574,45 @@ test('real native mobile steep swing allocates knee-led original-source probes a
  assert.match(renderer,/chooseOriginalSourceSwingLinkedLegTrial\(/);
  assert.match(renderer,/sourceSwingLinkedLastProbe/);
 });
+
+
+// RED-FIRST from the exact licensed 390px original Walking_A weighted-shoe
+// calibration in Actions #43865002814, native artifact #14225659623.
+// The real +0.2rad source-knee probe raises the still-buried toe 27.66mm but
+// raises the already 267mm-airborne heel slightly MORE. Toe lift alone must
+// not certify that physically worse near-vertical shoe. The smaller second
+// source probe below is an explicit SYNTHETIC safe candidate, NOT filmed
+// original motion. The existing renderer still validates the applied knee
+// angle against the actual post-probe skinned heel/toe before committing it.
+test('RED: original steep source calf must improve relative shoe pitch, not just raise its airborne heel',async()=>{
+ const {selectOriginalSourceSwingCalfTrial:select,
+  confirmOriginalSourceSwingCalfNetClearance:confirm}=await load();
+ const original={
+  afterAnkleToeY:-.05710209944964425,
+  afterAnkleHeelY:.247527900122,
+  floorTopY:-.02
+ };
+ const realTrial={signed:.2,toe:-.029439900122,
+  heel:.275293900122};
+ const safeHypothesis={signed:.1,toe:-.03700209944964425,
+  heel:.247627900122};
+ assert.equal(select({...original,trials:[realTrial]}),null,
+  'a real 0.2rad original knee trial that steepens a still-buried foot must not own the source clip');
+ assert.equal(select({...original,trials:[realTrial,safeHypothesis]})?.signed,.1,
+  'only an independently sampled lower toe lift with true heel-to-toe pitch gain may be considered');
+ const proof={
+  floorTopY:original.floorTopY,
+  beforeToeY:original.afterAnkleToeY,
+  afterToeY:realTrial.toe,
+  beforeHeelY:original.afterAnkleHeelY,
+  afterHeelY:realTrial.heel,
+  appliedAngleRad:.18
+ };
+ assert.equal(confirm(proof),false,
+  'after the time-normalized 180mrad knee correction, final same-skin heel rise may not outpace toe');
+ assert.equal(confirm({...proof,afterToeY:safeHypothesis.toe,
+  afterHeelY:safeHypothesis.heel,appliedAngleRad:.1}),true,
+  'actual certified toe lift with flatter source foot is not forbidden');
+ assert.equal(confirm({...proof,afterToeY:-.0195}),true,
+  'a legally cleared toe may complete without claiming a foot plant');
+});
