@@ -4215,7 +4215,8 @@ ${original}
 }
 function getHardwareResidentArchitectureAudit(){
  return {source:'original-architecture-procedural-near-resident-atlas-far',
-  enabled:gpuAvailable&&!swiftGpu,fullQualityMetres:18,
+  enabled:gpuAvailable&&!swiftGpu&&materialProgramMode==='hardware-resident-atlas-lod',
+  fallbackToOriginalFullShader:materialProgramFallbacks>0,fullQualityMetres:18,
   atlasOnlyMetres:38,originalMaterialTags:[3,4,5,6,7,8],
   originalAtlas:true,originalTriangleBudget:true,
   noDroppedCitizens:true,noDroppedStructures:true,
