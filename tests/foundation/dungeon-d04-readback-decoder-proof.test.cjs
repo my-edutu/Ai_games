@@ -213,6 +213,9 @@ test('durationless decoder executes in an isolated browser realm with no Node im
  let frame=0;const listeners=new Map();
  const video={duration:Infinity,videoWidth:688,videoHeight:397,readyState:2,
   style:{},muted:false,volume:1,playsInline:false,
+  // A presented decoded frame needs a real, visible bounding box.
+  getBoundingClientRect(){const s=this.style.cssText||'';
+   return {width:s.includes('width:2px')?2:0,height:s.includes('height:2px')?2:0}},
   addEventListener(name,fn){if(!listeners.has(name))listeners.set(name,new Set());listeners.get(name).add(fn)},
   removeEventListener(name,fn){listeners.get(name)?.delete(fn)},
   emit(name){for(const fn of Array.from(listeners.get(name)||[]))fn()},
@@ -235,7 +238,8 @@ test('durationless decoder executes in an isolated browser realm with no Node im
    data[i+2]=((i/4)*3+frame*23)%212;data[i+3]=255;
   }return {data};
  }};
- const document={body:{appendChild(){}},createElement(tag){
+ const document={visibilityState:'visible',
+  body:{appendChild(node){node.isConnected=true}},createElement(tag){
   if(tag==='video')return video;
   if(tag==='canvas')return {getContext:()=>ctx};
   throw Error('Unexpected element '+tag);
@@ -266,6 +270,8 @@ test('metadata timeout tries muted playback before rejecting a durationless orig
  let frames=0,timers=0;const listeners=new Map();
  const video={duration:Infinity,videoWidth:0,videoHeight:0,readyState:0,
   muted:false,volume:1,style:{},
+  getBoundingClientRect(){const s=this.style.cssText||'';
+   return {width:s.includes('width:2px')?2:0,height:s.includes('height:2px')?2:0}},
   addEventListener(n,fn){if(!listeners.has(n))listeners.set(n,new Set());listeners.get(n).add(fn)},
   removeEventListener(n,fn){listeners.get(n)?.delete(fn)},
   emit(n){for(const fn of Array.from(listeners.get(n)||[]))fn()},
@@ -290,7 +296,8 @@ test('metadata timeout tries muted playback before rejecting a durationless orig
    data[i+2]=((i/4)*3+frames*23)%212;data[i+3]=255;
   }return {data};
  }};
- const document={body:{appendChild(){}},createElement(name){
+ const document={visibilityState:'visible',
+  body:{appendChild(node){node.isConnected=true}},createElement(name){
   if(name==='video')return video;
   if(name==='canvas')return {getContext:()=>ctx};
   throw Error('Unapproved DOM element');
