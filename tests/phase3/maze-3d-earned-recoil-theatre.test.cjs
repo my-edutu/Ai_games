@@ -127,3 +127,47 @@ test('source-bound current parry clears only camera-front optional fossil silhou
     'a barely touching silhouette does not cause pop or thinning');
   assert.equal(occludes(pip,{...foreground,nearestZ:NaN},true,false),false);
 });
+
+test('Pass424 real parry silences optional scenery on a published blocked spectator while barriers stay real',async()=>{
+  const {publicEarnedGuardianRecoilCourtCells:quiet,createMazeWorld}=await production;
+  const base=publicRecoil();
+  // Cell20 is a publicly witnessed distant foreground tile; its true
+  // blocked flag must NOT be reinterpreted as a walkable connector.
+  const s={...base,cells:base.cells.map(c=>c.cell===20?{...c,blocked:true}:c)};
+  const original=JSON.stringify(s);
+  assert.equal(quiet(s).has(20),false,'the physical actor court does not expand tiers');
+  assert.equal(quiet(s,{spectator:true}).has(20),true,
+    'a genuine public recoil must clear tall blocked-tile spectator dressing');
+  assert.equal(s.cells.find(c=>c.cell===20).blocked,true);
+  const denied=[
+    {...s,visibleCells:s.visibleCells.filter(id=>id!==20)},
+    {...s,visibleCells:s.visibleCells.filter(id=>id!==8)},
+    {...s,threats:[{cell:8,lanternParried:false}]},
+    {...s,lifecycle:'ended'}, {...s,result:{reason:'capture'}},
+    {...s,cells:s.cells.map(c=>c.cell===20?{...c,blocked:undefined}:c)},
+    {...s,keys:[{cell:20}]},
+    {...s,doors:[{a:20,b:16,open:false}]},
+    {...s,cells:s.cells.map(c=>c.cell===20?{...c,trap:true}:c)},
+  ];
+  for(const snapshot of denied)
+    assert.equal(quiet(snapshot,{spectator:true}).has(20),false,
+      'unknown, stale, hidden, gated, objective and hazard art never qualify');
+  const world=createMazeWorld({balanced:true});
+  try{
+    world.update({...s,threats:[{cell:8,lanternParried:false}]});
+    const before=world.stats();
+    world.update(s);
+    const after=world.stats();
+    assert.equal(after.geometryCount,before.geometryCount,'reuse installed Three GPU resource classes');
+    assert.equal(after.materialCount,before.materialCount);
+    for(let i=0;i<6;i++){
+      world.update({...s,runToken:'pass424-source-reset-'+i});
+      assert.ok(world.stats().geometryCount<100,'original strict six-run budget');
+    }
+    assert.equal(JSON.stringify(s),original,'do not mutate public simulation, routes or geometry truth');
+  }finally{
+    world.dispose();
+    assert.equal(world.stats().geometryCount,0);
+    assert.equal(world.stats().materialCount,0);
+  }
+});

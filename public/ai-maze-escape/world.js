@@ -329,7 +329,12 @@ export function publicEarnedGuardianRecoilCourtCells(s,{spectator=false}={}) {
       // Widen only the optional-dressing exclusion. The real actor-level
       // low blocked stone treatment remains unchanged, and a different
       // elevation NEVER authorizes a fake playable floor or shortcut.
-      if(spectator && c.blocked!==false)continue;
+      // The actual earned counter may leave tall NONCOLLIDING foliage on a
+      // currently disclosed BLOCKED spectator terrace in front of Pip. Quiet
+      // its optional dressing along with ordinary spectator cells, but NEVER
+      // touch the underlying blocked floor, wall, collision or navigation.
+      // Explicitly reject incompletely published blocked flags.
+      if(spectator && c.blocked!==false && c.blocked!==true)continue;
       const radius=spectator?4:2;
       if(distance(c.cell,hero.cell)>radius
         &&distance(c.cell,guardian.cell)>radius)continue;
