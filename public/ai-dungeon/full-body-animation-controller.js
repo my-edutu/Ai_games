@@ -2075,7 +2075,14 @@ export function chooseOriginalSourceSwingToeJointRelief({
  let best=null;
  for(const trial of trials){
   const delta=trial?.angleRad,after=trial?.after;
-  if(!finite(delta)||Math.abs(delta)<.039||Math.abs(delta)>.1000001||
+  // Only a FULL-WEIGHT, witnessed original Walking_A slow frame can
+  // consider a fourth, bounded skinned-source toe hinge: the 100mrad
+  // alternatives failed first. Both original shoes and final skin readback
+  // remain authoritative for cosmetic acceptance; no fictitious foot lock.
+  const largeOriginalHinge=Math.abs(delta)>.1000001;
+  if(!finite(delta)||Math.abs(delta)<.039||Math.abs(delta)>(largeOriginalHinge?.1400001:.1000001)||
+   (largeOriginalHinge&&(sourceWeight<.95||frameInterval<.05||
+    frameInterval>.15||residual<.008||residual>.045))||
    !foot(after?.[side])||!foot(after?.[opposite]))continue;
   const next=after[side],other=after[opposite];
   const lift=next.toeY-swing.toeY;
