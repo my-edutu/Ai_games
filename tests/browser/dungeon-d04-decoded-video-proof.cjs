@@ -231,22 +231,35 @@ async function sampleChromiumDecodedD04WebM(input){
   };
   let samplingMode='seek';
   if(finite){
+   let missedSeeks=0;
    for(const fraction of [.08,.32,.62,.91]){
     const requested=Math.min(duration-.015,Math.max(.001,duration*fraction));
     if(!Number.isFinite(requested)||requested<0)continue;
     const seek=waitFor('seeked',1300);
-    try{video.currentTime=requested}catch{continue}
-    if(!await seek||video.readyState<2)continue;
+    try{video.currentTime=requested}catch{
+     // Failed seeks must not trap the evidence decoder in repeated retries.
+     // The outstanding waitFor listener is bounded and local to this video.
+     missedSeeks++;
+     break;
+    }
+    if(!await seek||video.readyState<2){
+     if(++missedSeeks>=2)break;
+     continue;
+    }
     samplePixels(requested);
    }
-  }else{
-   // Chromium MediaRecorder WebM often has NO Duration element, even though
-   // FFmpeg independently decodes actual VP8 frames. Never call seek(Infinity).
-   // Playback frame callbacks read only decoded real pictures, bounded to
-   // four pictures / 5.3s. This video is muted and detached from the game.
-   samplingMode='playback-frame-callback';
+  }
+  // Some authentic MediaRecorder VP8 WebM files expose finite duration but
+  // refuse timestamp seeks (sparse clusters/unfinished seek index). A seek
+  // timeout is NOT proof of absent moving pixels. Only AFTER the original
+  // recorder stops, independently try bounded muted video-frame callbacks.
+  // Do not combine sought timestamps with playback: they may go backwards,
+  // and mixed samples cannot establish a monotone video timeline.
+  if(samples.length<2){
    if(typeof video.requestVideoFrameCallback!=='function')
-    return fail('Durationless WebM requires decoded video-frame callbacks');
+    return fail('Original WebM seek unavailable and no decoded playback callbacks');
+   samples.length=0;
+   samplingMode='playback-frame-callback';
    await new Promise(resolve=>{
     let stopped=false;
     const finish=()=>{if(stopped)return;stopped=true;callbackActive=false;
@@ -302,7 +315,9 @@ function classifyChromiumDecodedRealWebM(media={},proof={}){
   !Number.isSafeInteger(proof.width)||proof.width<16||proof.width>4096||
   !Number.isSafeInteger(proof.height)||proof.height<16||proof.height>4096||
   !((proof.samplingMode==='playback-frame-callback'&&
-   proof.durationSeconds===null)||
+   (proof.durationSeconds===null||
+    Number.isFinite(proof.durationSeconds)&&proof.durationSeconds>=.2&&
+    proof.durationSeconds<=30))||
    ((proof.samplingMode===undefined||proof.samplingMode==='seek')&&
     Number.isFinite(proof.durationSeconds)&&proof.durationSeconds>=.2&&
     proof.durationSeconds<=30))||
