@@ -457,6 +457,13 @@ export function createPhysicalCombatFeedback({
     item.cue.proof==='authority-warning-window'&&
     !isLiveWardenWarning(item.cue,previous)){
     staleAudioDropped++;
+    // Authority may revoke a danger footprint between the visual advance
+    // and the completed WebGL submission. Do not preserve an already staged
+    // warning as an orphaned future draw. The visual adapter independently
+    // rechecks CURRENT public authority before clearing its eight slots;
+    // audio expiration alone is never permission to remove a LIVE warning.
+    if(item.visual)
+     safeCall(()=>visuals?.retireStaleCue?.(item.cue.id,'authority-revoked-warning'));
     retainReceipt(item.cue,item.visual,false,frameId,'retired-warning',submittedWallClock);
     continue;
    }
