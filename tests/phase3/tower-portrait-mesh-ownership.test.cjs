@@ -18,6 +18,8 @@ const originalDoorwayWitness = fs.readFileSync(path.join(ROOT,
 // scope instead of substituting a mocked lease into the real ray observer.
 const crossfloorSource = fs.readFileSync(path.join(ROOT,
   'public/infinite-tower-climb/visuals/crossfloor-arrival.mjs'), 'utf8');
+const farSideSource = fs.readFileSync(path.join(ROOT,
+  'public/infinite-tower-climb/visuals/far-side-shaft-transition.mjs'), 'utf8');
 const arrivalSource = fs.readFileSync(path.join(ROOT,
   'public/infinite-tower-climb/visuals/source-physical-arrival-palette.mjs'), 'utf8');
 
@@ -86,7 +88,15 @@ function realProbeFixture() {
   // their real old-cap receipt function, but no browser/simulation stubs.
   // Module imports/exports are transformed only at this CommonJS/VM seam.
   vm.runInContext('const observedSourceOriginalVisibilityWindow = (function(){\n' +
-    crossfloorSource.replace(/\bexport\s+/g, '') + '\n' +
+    // Real source-dependent crossing module imports the actual far-side
+    // ownership witness. Evaluate its exact implementation in nested lexical
+    // scope: no test-only mock and no conflict with the arrival module's
+    // own valid/clock helpers.
+    'const observedEarnedFarSideShaftOverlap = (function(){\n' +
+    farSideSource.replace(/\bexport\s+/g, '') +
+    '\nreturn observedEarnedFarSideShaftOverlap;\n})();\n' +
+    crossfloorSource.replace(/^import\s+.*?;\s*$/gm, '')
+      .replace(/\bexport\s+/g, '') + '\n' +
     arrivalSource.replace(/^import\s+.*?;\s*$/gm, '')
       .replace(/\bexport\s+/g, '') +
     '\nreturn observedSourceOriginalVisibilityWindow;\n})();', context);

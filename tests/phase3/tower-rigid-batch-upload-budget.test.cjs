@@ -24,7 +24,8 @@ const src = fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals
   .replace("'./world-surface.mjs'", JSON.stringify(file('public/infinite-tower-climb/visuals/world-surface.mjs')))
   .replace("'./guardian-transmission-layout.mjs'", JSON.stringify(file('public/infinite-tower-climb/visuals/guardian-transmission-layout.mjs')))
   .replace("'./mesh-provenance.mjs'", JSON.stringify(file('public/infinite-tower-climb/visuals/mesh-provenance.mjs')))
-  .replace("'./scene-hierarchy.mjs'", JSON.stringify(file('public/infinite-tower-climb/visuals/scene-hierarchy.mjs')));
+  .replace("'./scene-hierarchy.mjs'", JSON.stringify(file('public/infinite-tower-climb/visuals/scene-hierarchy.mjs')))
+  .replace("'./far-side-shaft-transition.mjs'", JSON.stringify(file('public/infinite-tower-climb/visuals/far-side-shaft-transition.mjs')));
 fs.writeFileSync(path.join(tmp, 'world.mjs'), src);
 const worldModule = import(pathToFileURL(path.join(tmp, 'world.mjs')).href);
 const provenanceModule = import(file('public/infinite-tower-climb/visuals/mesh-provenance.mjs'));

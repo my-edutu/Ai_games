@@ -671,8 +671,8 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
       'verified living departure should unlock the original incoming shaft, not keep it hidden indefinitely');
     assert.ok(world.group.getObjectByName('deferred-original-floor-nine-architecture'),
       'actual new-floor geometry must coexist with the original gate pending successful GPU submission');
-    assert.ok(!sharedSurface.material.color.equals(firstGroundColor),
-      'old bronze must not remain frozen on the new floor after authentic departure');
+    assert.ok(sharedSurface.material.color.equals(firstGroundColor),
+      'no renderer-silent violet roof swap is permitted before a real structural GPU return; physical departure only unlocks the shaft');
     assert.equal(JSON.stringify([oldFrame,first,realFirstRender]),frozen);
     assert.equal(cold({...realFirstRender,runToken:'other'},
       world.retainedFilmHandoff(realFirstRender)),false);
