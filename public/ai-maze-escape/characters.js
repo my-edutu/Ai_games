@@ -905,8 +905,12 @@ export function createWarden(options = {}) {
     // connected armor folds around a retreating, winded Thornback. The
     // settled defeat is earned by this guardian's already-observed counter,
     // never a newly observed pre-parried threat or an inferred game hit.
-    const counterCollapse=counterPhase===null?0:Math.max(0,Math.min(1,
-      (counterPhase-.42)/.43));
+    // A three-beat consequence, not a permanent victory override: the real
+    // armored guardian first LOADS, springs open on rebound, then recoils
+    // closed before returning to its already-known parried neutral pose.
+    // Finite support [0.66,1.00] ensures hard end-of-clock cleanup.
+    const counterCollapse=counterPhase===null?0:Math.max(0,
+      1-Math.abs(counterPhase-.83)/.17);
     // Native 390px chronology showed recognition and brace almost identical.
     // Plant the EXISTING foreclaws and mask before the observed shell release;
     // the late release relaxes this crouch as the genuine elytra unfold.
@@ -939,7 +943,8 @@ export function createWarden(options = {}) {
     // old +.42 release created a victorious-looking open threat at recovery.
     // The first-seen/clockless parried pose is stable and cannot animate.
     const shellOpen=parried
-      ?counterPhase===null?.12:.38*(1-counterCollapse)+.04
+      ?counterPhase===null?.12:Math.max(.01,
+        (.12+.18*counterLoad+.42*counterRelease)*(1-.97*counterCollapse))
       :hasWitnessBeat ? .23+.77*display : 1;
     warningSpines.visible=alert>.24&&!parried;
     // The actual release visibly raises the connected ember spine, not a HUD icon.

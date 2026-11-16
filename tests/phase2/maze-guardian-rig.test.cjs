@@ -37,7 +37,7 @@ test('one actually witnessed lantern counter moves Thornback through distinct co
   };
   try {
     const loaded=pose(.20);
-    const recovery=pose(.96);
+    const recovery=pose(.83);
     assert.ok(loaded.guard>recovery.guard+.65,
       'real planted shoulder guard must visibly release, not stay frozen');
     assert.ok(loaded.left>recovery.left+.24 && loaded.right>recovery.right+.24,
@@ -50,6 +50,12 @@ test('one actually witnessed lantern counter moves Thornback through distinct co
       'the armored body must transfer weight through the earned recovery');
     assert.ok(Math.abs(loaded.headPitch-recovery.headPitch)>.24,
       'the same physical head must follow the body, not leave a HUD-only response');
+    const settled=pose(1);
+    const firstSeen=pose(undefined);
+    assert.equal(settled.left,firstSeen.left,
+      'actual guardian must settle back to trusted disclosed shell after its event');
+    assert.equal(settled.vane,firstSeen.vane,
+      'no ghost tail recoil after the public counter clock ends');
     assert.equal(rigPrimitiveResourceStats().unique,initial.unique,
       'no novel geometries from any animation frame');
     let after=0;warden.group.traverse(o=>{if(o.isMesh)after++});
