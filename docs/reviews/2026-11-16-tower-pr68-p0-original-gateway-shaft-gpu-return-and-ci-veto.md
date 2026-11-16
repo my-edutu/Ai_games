@@ -1,0 +1,26 @@
+# Infinite Tower Climb — P0: preserve the original GPU gate until the actual successor shaft is submitted
+
+**2026-11-16 · P0 OPEN · leading verdict NOT EVALUATED.** PR #68 remains open/DRAFT and based on active PR #58. Frozen baseline: `1731b380851162741761c5569e2bc152a0869ca9`. Frozen `transformation.json` blob: `3aac186495b2bbd471c9af6448250c38539b5a63`. Neither is edited.
+
+## Evidence examined before modifying code
+
+- [Candidate source `966d6ba75e4377bf7c6e246a5834564ec165b66f`](https://github.com/my-edutu/Ai_games/commit/966d6ba75e4377bf7c6e246a5834564ec165b66f) and [exact-source quality workflow 43932092711](https://github.com/my-edutu/Ai_games/actions/runs/43932092711): three Phase3 shards FAILED; other seven jobs completed. Real runner failures were (1) the copied Three.js World in `tower-original-threshold-gallery-priority.test.cjs` omitted the actual `far-side-shaft-transition.mjs` import, so nine geometry tests never executed; (2) two architectural-color tests still demanded the deleted `proof`/`sourceProof` variable names and single-line calls rather than the actually shared `materialProof`; (3) `tower-retained-source-cap-world.test.cjs` demanded the old gate disappear before the newly constructed F9 shaft could submit a single visible frame.
+- [Original normal-speed nine-job candidate/baseline campaign 43932092482](https://github.com/my-edutu/Ai_games/actions/runs/43932092482): eight original capture jobs succeeded, but strict event-matched native pairing **FAILED 0/2**. Do not equate original files existing with native-event acceptance. Full-motion artifacts were not accessible for independent viewing in this execution. Latest previously inspected footage still showed foreground bronze masking the moving climber and the abrupt whole-world bronze-to-violet cut around 27s.
+
+## Coherent evidence/renderer-contract unblocker
+
+`tests/phase3/tower-original-threshold-gallery-priority.test.cjs` now resolves the last real World import in the original-path temporary module; all nine retained-geometry tests can reach their authentic Three.js assertions.
+
+`tests/phase3/tower-original-clockwork-architecture-palette.test.cjs` now checks the **current single shared `materialProof`** is sent to both real near-route landing and world architecture palettes, preserving failure on divergent source truth rather than matching obsolete lexical names. It still rejects tinting crystal and danger cues.
+
+`tests/phase3/tower-retained-source-cap-world.test.cjs` now requires a genuinely supported far-side actor to *unlock the original actual incoming 3D shaft*, while the SAME old bronze gate remains GPU-owned pending actual incoming structural draw returns. Previously the assertion required immediate original gate deletion on movement alone, directly contradicting the rendered-overlap safety contract and encouraging an unfilmed hard cut. This is a test-bound source/Three.js lifecycle contract, NOT a source-authentic film or a production experience improvement.
+
+No production physics, artificial landing, actor, floor, 3D mesh, camera, shader, gameplay route, guardian victory, restart or replay engine was changed. Frozen comparison and PR58 edits remain untouched. These are P0 evidence gate unblockers, **not a transformation milestone**.
+
+## Outstanding blockers and next high-impact action
+
+- New **exact immutable-head** CI and 9-job normal-speed capture must pass the same truthful contracts. Technical CI is a **veto** and not a quality score. If any one shard fails, retain P0.
+- Obtain the current run's unedited 60+s baseline and candidate desktop 960×600 and portrait 390×844, source-event aligned to genuine guardian defeat, crossing tick475, actual tick495–522 airborne/raised approach, tick535 support and tick619 onward; inspect full motion, not only thumbnails. Require two consecutive actual frames with complete moving climber, opened guardian arch and walkable successor route together in BOTH viewports, and no hard scene cut. The previous most consequential observed defect remains **unresolved**.
+- Genuine independent fresh-context blind reviewers: LOOKS **0/5**, FEELS **0/5**, PLAYS **0/5**. Original-device frame-time p50/p95/p99, memory, portrait touch/restart and accessibility **NOT EVALUATED**. If native footage still fails, rebuild integrated gateway-camera-arrival architecture, not more evidence-only patches.
+
+**Guards:** no unrelated games, PR58 rewrite, baseline change, forced update, merge, deployment or draft-status change.

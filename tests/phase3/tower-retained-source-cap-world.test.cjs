@@ -653,17 +653,24 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
     });
     assert.ok(earlyOpacity.length>0 && earlyOpacity.every(opacity=>opacity===0),
       'eight returned frames cannot override the original source-earned bronze gateway');
-    // A far or wrong-run hero must release the old doorway without prolonging
-    // deferred architecture or changing canonical F9 platform materials.
+    // Authenticated far-side support must open the actual successor shaft
+    // FIRST. The original gate cannot disappear while the shaft has yet
+    // to contribute one successfully returned structural draw; the old
+    // expectation here deleted the doorway before it could be painted
+    // together with its genuine Floor9 destination. This is a synthetic
+    // Three.js contract test, never evidence of actual native movie pixels.
     const departed={...later,tick:476,
       player:{...later.player,x:gate+160000}};
     resourceCheckpoint('three-clocks-far-departure-before');
     world.update(departed,.05,.8,{quality:'low'},passage);
     resourceCheckpoint('three-clocks-far-departure-after');
-    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===undefined,true,
-      'genuine departed hero must release the bronze gate; report a boolean, never format the whole cyclic Three.js graph');
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===originalArch,true,
+      'far-side clearance alone must NOT erase the actual old bronze GPU gate before the incoming shaft returns a painted frame');
+    const successorJob=world.diagnostics().deferredDistantArrival;
+    assert.equal(successorJob?.state,'awaiting-structural-submission',
+      'verified living departure should unlock the original incoming shaft, not keep it hidden indefinitely');
     assert.ok(world.group.getObjectByName('deferred-original-floor-nine-architecture'),
-      'noninteractive new-floor structure arrives after the real body leaves the source gate');
+      'actual new-floor geometry must coexist with the original gate pending successful GPU submission');
     assert.ok(!sharedSurface.material.color.equals(firstGroundColor),
       'old bronze must not remain frozen on the new floor after authentic departure');
     assert.equal(JSON.stringify([oldFrame,first,realFirstRender]),frozen);

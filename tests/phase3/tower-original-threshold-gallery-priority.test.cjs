@@ -25,6 +25,7 @@ for(const [from,to] of Object.entries({
   "'./scene-hierarchy.mjs'":uri('scene-hierarchy.mjs'),
   "'./mesh-provenance.mjs'":uri('mesh-provenance.mjs'),
   "'./guardian-transmission-layout.mjs'":uri('guardian-transmission-layout.mjs'),
+  "'./far-side-shaft-transition.mjs'":uri('far-side-shaft-transition.mjs'),
 })) {
   assert.ok(source.includes(from),'shipped import must exist: '+from);
   source = source.replace(from,JSON.stringify(to));

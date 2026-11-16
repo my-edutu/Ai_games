@@ -96,7 +96,8 @@ test('real World bounds the palette to the retained original same-run F9 gate an
   assert.match(world,/retainedEarnedCap\.runToken===snapshot\.runToken/);
   assert.match(world,/retainedEarnedCap\.guardianGateRetained===true/);
   assert.match(world,/observedSourcePhysicalArrivalPalette\(snapshot,retainedEarnedCap\)/);
-  assert.match(world,/originalClockworkArchitecturalPalette\.update\(sourceProof,opticalTail\)/);
+  assert.match(world,/const materialProof=livePaletteProof\?\?\(farSideHorizon\?/);
+  assert.match(world,/originalClockworkArchitecturalPalette\.update\(materialProof,opticalTail\)/);
 });
 
 test('the shared ORIGINAL corridor palette covers only source-owned near-roof successor decks',async()=>{
@@ -139,7 +140,8 @@ test('source-authentic first 90m of F9 platforms share one material palette and 
 test('real F9 world uses shared original successor corridor materials on near route, not global crystal or danger warning channels',()=>{
   const world=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
   assert.match(world,/observedOriginalClockworkSuccessorDeck\(p,retainedEarnedCap,lastSnapshot\?\.runToken\)/);
-  assert.match(world,/updateOriginalClockworkSuccessorRoute\(arrivalRoutePalette,proof,opticalTail\)/);
+  assert.match(world,/updateOriginalClockworkSuccessorRoute\(arrivalRoutePalette,\s*materialProof,opticalTail\)/);
+  assert.match(world,/originalClockworkArchitecturalPalette\.update\(materialProof,opticalTail\)/);
   assert.match(world,/p.kind==='moving'\?materials.mint/);
   assert.match(world,/if\(sharedPhysicalRoof && !arrivalRoutePalette\)/);
   assert.doesNotMatch(world,/materials\.crystal\.color\.lerp\(/);
