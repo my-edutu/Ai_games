@@ -118,3 +118,31 @@ test('RED: original 233ms 390px source shoe must not gain more airborne heel tha
  ])assert.equal(select({...sparseGaitSource,trials:recovered,...bad}),null,
   'never infer a rescue from stale/invalid source ownership or time');
 });
+
+
+test('sparse 390px original hip-knee shoe pitch retains independent final source skin certificate',async()=>{
+ const {chooseOriginalSourceSwingLinkedLegTrial:select,
+  certifyOriginalSourceFirstSwingPitch:certify}=await load();
+ const trials=sparseOriginalTrials.map((trial,i)=>i===2?
+  {...trial,after:{...trial.after,left:{...trial.after.left,
+   heelY:sparseGaitSource.before.left.heelY+.010}}}:trial);
+ const candidate=select({...sparseGaitSource,trials});
+ assert.equal(candidate?.originalSwingPitchProtected,true);
+ const input={candidate,sourceClipName:'Walking_A',sourceInstanceSame:true,
+  sourceWeight:1,side:'left',floorTopY:-.02,before:sparseGaitSource.before,
+  after:trials[2].after};
+ const proof=certify(input);
+ assert.equal(proof?.contactLocked,false,'this is not a foot plant');
+ assert.ok(proof?.sourcePitchGainMeters>.010&&proof.sourceToeLiftMeters>.020);
+ const wrongHeel={...trials[2].after,left:{...trials[2].after.left,
+  heelY:trials[2].after.left.heelY+.004}};
+ const driftingSupport={...trials[2].after,right:{...trials[2].after.right,
+  toeY:trials[2].after.right.toeY+.005}};
+ for(const bad of [
+  {after:wrongHeel},{after:driftingSupport},
+  {sourceClipName:'Idle'},{sourceWeight:.8},{sourceInstanceSame:false},
+  {before:{...sparseGaitSource.before,left:{...sparseGaitSource.before.left,
+   toeY:sparseGaitSource.before.left.toeY-.01}}}
+ ])assert.equal(certify({...input,...bad}),null,
+  'final licensed shoes, clip ownership and opposite sole must independently match');
+});
