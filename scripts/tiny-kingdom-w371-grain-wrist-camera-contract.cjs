@@ -42,7 +42,7 @@ const many=Array.from({length:300},(_,i)=>option(i,i+20));
 // Desktop also requires physically readably surveyed full-body hands, not
 // only the 390px path. Pitch must search over wheat without increasing the
 // original bounded 4x4 desktop angles/pitch/zoom count.
-assert.match(source,/portraitLens\\?\\[\\.14,\\.31,\\.49,\\.64\\]:\\[\\.17,\\.33,\\.49,\\.62\\]/,
+assert(source.includes('(portraitLens?[.14,.31,.49,.64]:[.17,.33,.49,.62]):'),
  'Original desktop farmer crop needs a physical over-stalk option');
 const bounded=vm.runInNewContext(
  'reserveActualFarmWristSightlines(options,citizen,hands)',
