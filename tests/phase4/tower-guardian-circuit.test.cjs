@@ -343,3 +343,52 @@ test('genuine guardian HP relay is hoisted clear of both armored bodies, remains
       'hoist and source geometry must never mutate the authoritative snapshot');
   }finally{effect.dispose();}
 });
+
+
+test('actual source gantry hoists the guardian-side relay and FIRST physical clutch over a full-body duel sightline without disconnecting the cap', async () => {
+  const {observedGuardianCircuit, observedGuardianRelayStage, observedGuardianPowerSpineStage,
+    guardianLinkSite, createTowerGuardianCircuit} = await modulePromise;
+  // The last source-pinned 960x600 real-camera mesh ray at F8 tick441 struck
+  // GuardianSourcePowerSpineClutches, GuardianLockTwinBronzeRails and the
+  // GuardianLockGuardianAnchor before the true body centre; the artistically
+  // connected gantry must route ABOVE the actor, not merely fade its paint.
+  const live = snapshot({tick:441,chunkBaseY:2880000,worldWidth:480000,
+    enemies:[{...snapshot().enemies[0],x:235000,y:3250000,halfHeight:18000,health:2}],
+    platforms:[{id:'f8:cap',x:115200,y:3212000,width:249600,height:12000}]});
+  const unchanged = JSON.stringify(live);
+  const source=observedGuardianCircuit(live);
+  assert.ok(source);
+  const guardianCrown=(live.enemies[0].y+live.enemies[0].halfHeight-live.chunkBaseY)/10000;
+  const relay=observedGuardianRelayStage(source).center;
+  const clutch=observedGuardianPowerSpineStage(source).center;
+  assert.ok(relay.y>=guardianCrown+4.5,
+    'the real bronze guardian-side HP relay must fly above a full moving hero and maul');
+  assert.ok(clutch.y>=guardianCrown+8,
+    'source HP power-spine clutch must clear the original observed body-centre ray, not cross a live combatant');
+  const entry=guardianLinkSite(source,0), recovery=guardianLinkSite(source,.44);
+  const originY=(source.fromY-source.baseY)/10000;
+  assert.ok(Math.abs(entry.y-originY)<1e-8,
+    'the mechanical rail remains attached at the actual guardian origin');
+  const upper=guardianLinkSite(source,.23);
+  assert.ok(recovery.y<upper.y-4,
+    'the high hoist returns to the real cap-side gantry instead of floating permanently');
+  const lock=guardianLinkSite(source,1);
+  assert.ok(Number.isFinite(lock.x)&&Number.isFinite(lock.y)&&Number.isFinite(lock.z));
+  const effect=createTowerGuardianCircuit(THREE);
+  try {
+    effect.update(live);
+    const clutchMesh=effect.group.getObjectByName('GuardianSourcePowerSpineClutches');
+    const ring=effect.group.getObjectByName('GuardianLockGuardianAnchor');
+    const rail=effect.group.getObjectByName('GuardianLockTwinBronzeRails');
+    assert.equal(clutchMesh.count,6);
+    assert.equal(rail.count,44);
+    assert.ok(ring.position.distanceTo(new THREE.Vector3(relay.x,relay.y,relay.z))<1e-5);
+    const matrix=new THREE.Matrix4(),position=new THREE.Vector3();
+    clutchMesh.getMatrixAt(0,matrix);
+    position.setFromMatrixPosition(matrix);
+    assert.ok(position.y>guardianCrown+8,
+      'actual GPU instanced clutch pose—not just a helper coordinate—must be overhead');
+    assert.equal(JSON.stringify(live),unchanged,
+      'the game source, defeat and collision state are never touched');
+  } finally {effect.dispose();}
+});
