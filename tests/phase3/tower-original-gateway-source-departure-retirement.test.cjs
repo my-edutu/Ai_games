@@ -108,3 +108,48 @@ test('genuine Floor 9 route reversal retains SAME GPU bronze gateway until a rea
   source.lastGuardianCrossing.guardian.active=true;
   assert.equal(palette(source,held),null);
 });
+
+
+test('genuine painted bronze gateway persists for bounded original-camera returns after fixed-step source outruns the renderer',async()=>{
+  const {observedCertifiedOriginalGatewayOpticalLease:lease}=await physical;
+  const {source,held}=originalCrossing();
+  const cap=source.lastGuardianCrossing.cap;
+  held.oldCapId='f8:cap';held.oldCapX=cap.x;held.oldCapWidth=cap.width;
+  held.verifiedObservedFloorAdvance=true;held.firstWorldRenderTick=470;
+  held.submittedFrames=2;held.visibleSeconds=.16;
+  held.lastSourceOldGateOpacity=.82;
+  source.tick=578; // 127 fixed ticks after true HP-zero crossing
+  source.lastGuardianCrossing=null; // short-lived source receipt expired
+  source.player={...source.player,y:220000,grounded:false,
+    groundedPlatformId:null,state:'airborne',vy:300};
+  const handoff={runToken:source.runToken,retiring:true,
+    retirementFrames:2,retirementSeconds:.16,retirementStartProgress:.2,
+    lastVerifiedProof:{runToken:source.runToken,sourceTick:535,
+      crossingTick:451,kind:'recorded-source-zero-hp'}};
+  const before=JSON.stringify([source,held,handoff]);
+  const intact=lease(source,held,handoff);
+  assert.equal(intact?.historicalOpticalTail,true);
+  assert.ok(intact.opacity>0 && intact.opacity<held.lastSourceOldGateOpacity);
+  assert.equal(intact.sourceBound,undefined,'optical history cannot create a new guardian victory');
+  assert.equal(JSON.stringify([source,held,handoff]),before);
+  assert.equal(lease({...source,runToken:'another'},held,handoff),null);
+  assert.equal(lease({...source,floor:10},held,handoff),null);
+  assert.equal(lease({...source,player:{...source.player,health:0}},held,handoff),null);
+  assert.equal(lease({...source,tick:610},held,handoff),null,
+    'a source tick above the original 150-tick lease must not retain former-floor geometry');
+  assert.equal(lease({...source,lastGuardianCrossing:{...originalCrossing().source.lastGuardianCrossing,
+    guardian:{kind:'guardian',active:true,health:1}}},held,handoff),null);
+  assert.equal(lease(source,{...held,oldCapWidth:0},handoff),null);
+  assert.equal(lease(source,held,{...handoff,lastVerifiedProof:{...handoff.lastVerifiedProof,runToken:'wrong'}},),null);
+  assert.equal(lease(source,held,{...handoff,retirementSeconds:.25}),null,
+    'two GPU returns cannot represent 250ms of successful displayed frames');
+  assert.equal(lease(source,held,{...handoff,retirementFrames:10,retirementSeconds:1}),null,
+    'historical geometry must fully retire after authentic 0.95s and five GPU returns');
+});
+test('real original retained world shares physically witnessed lease and cannot delete already-submitted gateway prematurely',()=>{
+  const world=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
+  assert.match(world,/observedCertifiedOriginalGatewayOpticalLease\(snapshot,held,sourceEarnedBearingHandoff\)/);
+  assert.match(world,/!onNewRoof && !opticalLease/);
+  assert.match(world,/sourceDeparture\?\.opacity\?\?opticalLease\?\.opacity\?\?1/);
+  assert.match(world,/sourceOwnedOriginalArchitectureCoverage/);
+});
