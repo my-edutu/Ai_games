@@ -78,8 +78,12 @@ test('Pass430 actual public source is the exclusive common clock for Pip and Tho
   const competing={cell:70,strength:1,lanternParried:false};
   assert.equal(acting(visible,actor,competing),competing,
     'a different real guardian outranks previously earned recoil');
-  assert.match(linkedScene,/previousWardenSnapshot\\?\\.runToken === snapshot\\.runToken/);
-  assert.match(linkedScene,/previouslyTracked && entry\\.lanternParried!==true/);
-  assert.match(linkedScene,/earnedCounterPhase:closestThreat\\?\\.counterPhase/);
-  assert.match(linkedScene,/counterPhase:entry\\.counterSince!==null/);
+  assert.ok(linkedScene.includes('previousWardenSnapshot?.runToken === snapshot.runToken'),
+    'prior run cannot confer a new parry clock');
+  assert.ok(linkedScene.includes('previouslyTracked && entry.lanternParried!==true'),
+    'first-seen parried guardian cannot start a new physical response');
+  assert.ok(linkedScene.includes('earnedCounterPhase:closestThreat?.counterPhase'),
+    'Pip receives only the same public counter clock');
+  assert.ok(linkedScene.includes('counterPhase:entry.counterSince!==null'),
+    'source assignment must require tracked counter-start time');
 });
