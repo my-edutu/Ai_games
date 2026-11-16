@@ -3338,9 +3338,18 @@ export function createTowerWorld(){
     // gameplay geometry is unchanged; interpolate only its existing
     // dedicated source-owned landing shader toward the actual void palette.
     const arrival=platforms.get('f9:ground')?.arrivalSurface;
-    if(arrival && held.originalDeckSurface && materials.landing)
-      arrival.color.copy(materials.landing.color).lerp(
+    if(arrival && held.originalDeckSurface && materials.landing) {
+      // The old bronze gate and the first genuinely walkable Floor9 roof
+      // must be ONE optical room until the successor shaft has ACTUALLY
+      // returned a nonzero painted frame. Without this GPU-owner interlock,
+      // the 20Hz source can repaint the grounded roof violet while the same
+      // returned bronze arch is still the only visible world. This locks
+      // only the existing source-authenticated roof material, not physics.
+      if(returnedBronzeHold)
+        arrival.color.copy(held.originalDeckSurface.color);
+      else arrival.color.copy(materials.landing.color).lerp(
         held.originalDeckSurface.color,held.originalDeckSurface.opacity);
+    }
     // Only remove the old GPU group when BOTH its real gate AND original
     // deck/gallery have been visibly extinguished by source departure and
     // successful submissions. The former time-only 1.65s removal chopped a
@@ -3784,8 +3793,15 @@ export function createTowerWorld(){
     // far-side body; without the witness everything remains normal Void.
     const farSideHorizon=!options.stale && !options.reducedMotion
       ?observedEarnedFarSideShaftOverlap(snapshot,retainedEarnedCap,deferredDistantArrival):null;
+    // Only source-backed old geometry observed AFTER a successful renderer
+    // return may hold the whole original warm room. A grounded departure
+    // cannot independently recolor the roof, shaft, fog or bearings before
+    // a first nonzero incoming structural frame has actually returned.
+    const returnedBronzePaletteLock=farSideHorizon
+      ?observedReturnedOriginalArchitectureHold(
+        snapshot,retainedEarnedCap,deferredDistantArrival,farSideHorizon):null;
     const farSideOldWeight=farSideHorizon
-      ?retainedEarnedCap.originalGatewayOpacity:null;
+      ?(returnedBronzePaletteLock?1:retainedEarnedCap.originalGatewayOpacity):null;
     sourceCertifiedHorizon=farSideHorizon ?{
       sourceBound:true,sourceTick:snapshot.tick,
       oldWeight:Math.max(sourceCertifiedHorizon?.oldWeight??0,farSideOldWeight),
@@ -3807,11 +3823,22 @@ export function createTowerWorld(){
       kind:'verified-original-roof-receipt',
       oldWeight:farSideOldWeight
     }:null);
+    // The previously returned bronze gateway is authoritative for the
+    // currently co-visible destination paint, even when the newest source
+    // position has already moved far beyond the landing. This is NEVER
+    // eligible without the genuine far-side body + actual GPU return witness.
+    // After the successor shaft returns visibly, the existing source-owned
+    // palette and bounded returned-frame retirement regain control.
+    const sourceAlignedMaterialProof=returnedBronzePaletteLock?{
+      sourceBound:true,sourceTick:snapshot.tick,
+      crossingTick:retainedEarnedCap.crossingTick,
+      kind:'verified-original-roof-receipt',oldWeight:1
+    }:materialProof;
     if(arrivalRoutePalette)
       updateOriginalClockworkSuccessorRoute(arrivalRoutePalette,
-        materialProof,opticalTail);
+        sourceAlignedMaterialProof,opticalTail);
     if(originalClockworkArchitecturalPalette)
-      originalClockworkArchitecturalPalette.update(materialProof,opticalTail);
+      originalClockworkArchitecturalPalette.update(sourceAlignedMaterialProof,opticalTail);
     // The deferred F9 shaft copies these EXACT architecture material colors,
     // never a separately aged violet scene. No new shader, draw or collider.
     if(deferredDistantArrival?.structuralMaterials?.length) {

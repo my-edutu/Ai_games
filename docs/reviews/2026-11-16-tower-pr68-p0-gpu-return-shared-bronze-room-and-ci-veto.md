@@ -1,0 +1,18 @@
+# Tower PR68 — P0 source-returned physical room palette continuity (2026-11-16)
+
+**Stage P0 OPEN. Leading transformation verdict: NOT EVALUATED.** Inspected draft PR68 at immutable 7f0f8e7a1a60b8493ac8ded484b292879cb2059d; original fork on active PR58, frozen baseline 1731b380851162741761c5569e2bc152a0869ca9 preserved.
+
+## Highest-impact observed blocker
+Exact previous quality CI [43968277312](https://github.com/my-edutu/Ai_games/actions/runs/43968277312) fails a real Phase3 retained-world integration assertion in `tests/phase3/tower-retained-source-cap-world.test.cjs:680`: *a supported far-side source departure silently makes the source-owned F9 landing violet before the actual new shaft returns its first nonzero rendered frame*. This contradicts the still-returned bronze arch and produces a physically incoherent room; earlier normal-speed evidence [43962557494](https://github.com/my-edutu/Ai_games/actions/runs/43962557494) already showed 0s detectable warm-to-violet bridge in both viewports. Native source-event alignment also FAILED, so visual improvement is not yet accepted. CI phase6 times out on unrelated Maze readiness under the original 75s budget: leave that other game untouched.
+
+## Cohesive playable-world repair
+In actual `public/infinite-tower-climb/visuals/world.mjs`, reuse the existing **source authenticated, real submitted original 3D gate** and physically supported living Floor9 route witness to interlock all already present palette surfaces. While successor structural visible returns are truly **zero**, keep the actual walkable F9 roof bronze, and synchronize route body/rim, shaft architecture and sky/fog/bearings with that same previously rendered material state. On a real successful nonzero shaft return the lock is retired and the existing source/returned-frame fade resumes. This does not reauthor player poses, guardian, crusher, floor progression, damage, platforms, colliders, geometry, replay, AI, source ticks, or add false WebGL submissions. Death, stale data, wrong run and finite owner clocks retain prior vetoes.
+
+## Acceptance and provenance
+- Red-before source: CI [43968277312](https://github.com/my-edutu/Ai_games/actions/runs/43968277312), Phase3 shard0 19/20 with exact mismatch; a separate unrelated Phase6 Maze readiness timeout also remains a catalogue veto.
+- Green-after: **NOT EVALUATED** until the exact new commit's real CI completes. Do not count created code/assorted tests as a quality pass.
+- New 1x 25fps source-pinned desktop 960×600 / portrait 390×844 ascent, moving, danger, outcome 60+s matched baseline/candidate campaign: **REQUESTED, NOT EVALUATED**.
+- Required native evidence: consecutive original-open bronze gate + complete original climber + physically walkable F9 route and a genuine shared old/new shaft at source crossing ~475, then raised ~535, F10 ~619, plus real outcome/restart. No fabricated clipping, timestamps, motion or blind votes.
+- Five genuinely independent randomized blind reviewers per LOOKS, FEELS, PLAYS: **0/5 each**. Actual device frame-time p50/p95/p99, memory: **NOT EVALUATED**.
+
+**Next:** inspect new exact-head CI + source-authentic full-motion films; if P0 strict 0/2 still fails, diagnose cold first Floor9 GPU paint and renderer-vs-native compositor PTS gaps rather than cosmetic opacity edits. Preserve draft PR68, no merge/deploy/force-push or PR58 edit.
