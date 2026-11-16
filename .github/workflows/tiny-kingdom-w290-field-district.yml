@@ -4,6 +4,7 @@ on:
     paths:
       - public/tiny-kingdom/index.html
       - scripts/tiny-kingdom-w372-grain-worksite-contract.cjs
+      - scripts/tiny-kingdom-w375-lived-worksite-contract.cjs
       - scripts/tiny-kingdom-w290-field-district-contract.cjs
       - scripts/tiny-kingdom-w125-gpu-skin-contract.cjs
       - .github/workflows/tiny-kingdom-w290-field-district.yml
@@ -25,6 +26,7 @@ jobs:
         run: |
           node scripts/tiny-kingdom-w290-field-district-contract.cjs
           node scripts/tiny-kingdom-w372-grain-worksite-contract.cjs
+          node scripts/tiny-kingdom-w375-lived-worksite-contract.cjs
           node scripts/tiny-kingdom-w253-original-growing-field-contract.cjs
           node scripts/tiny-kingdom-w260-physical-field-and-freight-contract.cjs
           node scripts/tiny-kingdom-w125-gpu-skin-contract.cjs

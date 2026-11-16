@@ -11371,10 +11371,20 @@ function renderMedievalWardrobe(p,index,x,y,z,s,rig,lod){
     box(x+side*.31*s,y+.735*s,z+.065*s,.13*s,.10*s,.21*s,d.linen);
    box(x,y+.765*s,z+.306*s,.31*s,.038*s,.032*s,d.trim);
   }else if(p.job==='farmer'){
-   for(const side of [-1,1])
-    quad(pt(side*.05,1.01,.218),pt(side*.27,.96,.209),
-     pt(side*.23,.78,.257),pt(side*.08,.83,.281),shade(d.linen,.86));
-   box(x-.25*s,y+.60*s,z+.08*s,.11*s,.19*s,.12*s,d.leather);
+   // W375: a folded flax field mantle follows the REAL harvesting torso,
+   // replacing the square floating hip box on the authentic farmer. These
+   // draped planes use the existing work-IK lean and local facing transform.
+   // No decorative wheat parcel, independent actor or extra cloth buffer.
+   for(const side of [-1,1]){
+    quad(pt(side*.055,1.035,.207),pt(side*.268,.975,.204),
+     pt(side*.290,.675,.278),pt(side*.078,.730,.301),
+     shade(d.linen,.82));
+    tri(pt(side*.078,.730,.301),pt(side*.290,.675,.278),
+     pt(side*.174,.445,.320),shade(d.linen,.73));
+   }
+   // A restrained, stitched diagonal belt crosses the same original torso.
+   quad(pt(-.242,1.082,.213),pt(-.194,1.10,.218),
+    pt(.216,.575,.300),pt(.170,.562,.308),d.leather);
   }
   if(isNear){
    // Tunic front's physically moving central fold and restrained hand stitch.
@@ -15528,39 +15538,46 @@ function farmEarthWearTone(base,row,segment,salt=0){
  return base.map(v=>Math.max(0,Math.min(1,v*scale)));
 }
 function farmSoil(x0,x1,z0,z1,rowIndex){
- // W290: one continuous terrain-following raised earth furrow per original
- // row. No planted cell, navigable route or authoritative field is added.
- const soil=[rgb(0x66513c),rgb(0x624b38),rgb(0x735943)],
-  crown=[rgb(0x887054),rgb(0x816b4e),rgb(0x8e7354)],
-  moist=[rgb(0x49392e),rgb(0x4e3c2f),rgb(0x44372d)],
-  grass=rgb(0x6c7750),segments=Math.ceil((x1-x0)/.70),
-  centre=(z0+z1)*.5;
+ // W375: one actual cultivated furrow becomes a continuous, eroded earth
+ // profile, not a stack of sharp evenly coloured prototype strips. All
+ // original field coordinates, walkability, row counts, GPU residency and
+ // grain roots remain authoritative and unchanged. Reuse EXACTLY the
+ // existing three soil faces and occasional verge face per row segment.
+ const soil=[rgb(0x63543f),rgb(0x695644),rgb(0x705c48)],
+  crown=[rgb(0x78664d),rgb(0x7b684f),rgb(0x806b50)],
+  moist=[rgb(0x504537),rgb(0x58493a),rgb(0x554535)],
+  verge=[rgb(0x687654),rgb(0x71815b),rgb(0x77805e)],
+  segments=Math.ceil((x1-x0)/.70),centre=(z0+z1)*.5;
  materialScope(MATERIAL.ROAD,()=>{
   for(let i=0;i<segments;i++){
    const xa=x0+(x1-x0)*i/segments,xb=x0+(x1-x0)*(i+1)/segments;
    const point=(xx,zz,lift)=>{
-    // Adjacent segment endpoints resolve the same coordinates and height:
-    // a broken-up soil surface without fake seams or geometry growth.
-    const drift=.069*Math.sin(xx*.47+rowIndex*.83)+
-     .031*Math.sin(xx*.93-rowIndex*.54);
-    const erosion=.008*Math.sin(xx*1.63+rowIndex*1.73)*
-     Math.cos(xx*.61-rowIndex*.35);
-    return [xx,terrain(xx,zz+drift)+lift+erosion,zz+drift];
+    // At a shared end the neighbouring segments evaluate the IDENTICAL
+    // terrain position; gentle transverse curves make whole raised rows
+    // without cracks, separate fake parcels or extra mesh allocation.
+    const drift=.047*Math.sin(xx*.42+rowIndex*.76)+
+     .023*Math.sin(xx*.98-rowIndex*.37);
+    const wear=.007*Math.sin(xx*1.61+rowIndex*1.36)*
+     Math.cos(xx*.63-rowIndex*.31);
+    const settling=.013*Math.sin(xx*.53+zz*1.31+rowIndex*.21);
+    return [xx,terrain(xx,zz+drift)+lift+wear+settling,zz+drift];
    };
-   const shoulder=z0+(centre-z0)*.23;
-   const crest=centre+(z1-centre)*.08;
-   quad(point(xa,z0,.015),point(xa,shoulder,.044),
-    point(xb,shoulder,.044),point(xb,z0,.015),
+   const nearShoulder=z0+(centre-z0)*.32;
+   const crest=centre+(z1-centre)*.04;
+   // A broad low shoulder, a convex planted crown and a moist far side.
+   // The shared crest is physically continuous across adjacent swaths.
+   quad(point(xa,z0,.018),point(xa,nearShoulder,.043),
+    point(xb,nearShoulder,.043),point(xb,z0,.018),
     farmEarthWearTone(soil[rowIndex%3],rowIndex,i,0));
-   quad(point(xa,shoulder,.044),point(xa,crest,.094),
-    point(xb,crest,.094),point(xb,shoulder,.044),
+   quad(point(xa,nearShoulder,.043),point(xa,crest,.083),
+    point(xb,crest,.083),point(xb,nearShoulder,.043),
     farmEarthWearTone(crown[rowIndex%3],rowIndex,i,1));
-   quad(point(xa,crest,.094),point(xa,z1,.012),
-    point(xb,z1,.012),point(xb,crest,.094),
+   quad(point(xa,crest,.083),point(xa,z1,.015),
+    point(xb,z1,.015),point(xb,crest,.083),
     farmEarthWearTone(moist[(rowIndex+i)%3],rowIndex,i,2));
-   if(i%3===0)quad(point(xa,z1,.012),point(xa,z1+.055,.006),
-    point(xb,z1+.055,.006),point(xb,z1,.012),
-    farmEarthWearTone(grass,rowIndex,i,3));
+   if(i%3===0)quad(point(xa,z1,.015),point(xa,z1+.055,.009),
+    point(xb,z1+.055,.009),point(xb,z1,.015),
+    farmEarthWearTone(verge[(rowIndex+i)%3],rowIndex,i,3));
   }
  });
  farmScene.rows++;
@@ -15583,13 +15600,13 @@ function authenticGrainHeadProfile(x,z,index,season){
  // continuous planted stand with bowed heads, broader leaf blades and a
  // natural green-to-gold canopy. The same exact 668 seeded stems, seasonal
  // source meshes, field roots and work contacts remain authoritative.
- return {height:(season===3?.26:season===0?.80:season===1?1.18:1.17)*(.83+a*.34),
+ return {height:(season===3?.26:season===0?.86:season===1?1.22:1.18)*(.83+a*.34),
   headBend:(ripe?.086:.044)+b*(ripe?.153:.069),
   stemLeanX:Math.sin(azimuth)*(.055+a*.09),
   stemLeanZ:Math.cos(azimuth)*(.055+b*.082),
   headDirection:[Math.sin(azimuth+.39),Math.cos(azimuth+.39)],
   earLength:(.20+d*.08)*(season===0?.73:1),
-  leafReach:.115+d*.065,livingSeason:season!==3,
+  leafReach:.174+d*.074,livingSeason:season!==3,
   rootedAt:[x,z],authorityModified:false};
 }
 // W372: coherent tapered leaves attached to actual seeded cereal stems.
@@ -15597,26 +15614,35 @@ function authenticGrainHeadProfile(x,z,index,season){
 // blades. Exactly 4 near or 2 distant triangles per leaf, no additional
 // planted stems, triangles or per-frame dynamic rebuilds.
 function rootedLanceolateGrainBlade(anchor,reach,side,heading,leaf,underside,detailed,index){
- const directionX=side*(.74+.17*Math.sin(index*.47)),
-  directionZ=side*(.24*Math.cos(index*.33)+.24*heading[1]);
- const length=Math.hypot(directionX,directionZ)||1;
- const dx=directionX/length,dz=directionZ/length;
- const bend=.052+.021*Math.sin(index*.83);
- const tip=[anchor[0]+dx*reach,anchor[1]-bend,
-  anchor[2]+dz*reach];
- const middle=[anchor[0]+dx*reach*.53,
-  anchor[1]+.043,anchor[2]+dz*reach*.53];
- const width=.019+.008*(.5+.5*Math.sin(index*.63));
- const left=[middle[0]-dz*width,middle[1]+.008,middle[2]+dx*width];
- const right=[middle[0]+dz*width,middle[1]-.003,middle[2]-dx*width];
+ // W375: continuous shoulder-to-droop wheat ribbons instead of opposing
+ // triangular arrowheads. The BASE is the existing actual seeded stem.
+ // Four near / two far triangles exactly; no extra roots or GPU uploads.
+ const dx0=side*(.74+.17*Math.sin(index*.47)),
+  dz0=side*(.24*Math.cos(index*.33)+.24*heading[1]),
+  len=Math.hypot(dx0,dz0)||1,dx=dx0/len,dz=dz0/len;
+ const curl=.032*Math.sin(index*.71+heading[0]*2);
+ const shoulder=[anchor[0]+dx*reach*.49,
+  anchor[1]+.061+.013*Math.sin(index*.83),
+  anchor[2]+dz*reach*.49];
+ const tip=[anchor[0]+dx*reach+curl*(-dz),
+  anchor[1]-.061-.016*(.5+.5*Math.sin(index*.89)),
+  anchor[2]+dz*reach+curl*dx];
+ const width=.014+.010*(.5+.5*Math.sin(index*.63));
+ const left=[shoulder[0]-dz*width,shoulder[1]+.008,
+  shoulder[2]+dx*width];
+ const right=[shoulder[0]+dz*width,shoulder[1]-.004,
+  shoulder[2]-dx*width];
  if(detailed){
-  tri(anchor,left,tip,leaf);
-  tri(anchor,tip,right,leaf);
-  tri(tip,left,anchor,underside);
-  tri(right,tip,anchor,underside);
+  // Connected root, curved shoulder and tapered tip form one proper blade;
+  // reverse winding gives the same double-sided surface as the old plant.
+  tri(anchor,left,right,leaf);
+  tri(left,tip,right,leaf);
+  tri(right,left,anchor,underside);
+  tri(right,tip,left,underside);
  }else{
-  tri(anchor,left,tip,leaf);
-  tri(tip,left,anchor,underside);
+  // Distant crops preserve both faces and the original two-triangle budget.
+  tri(anchor,shoulder,tip,leaf);
+  tri(tip,shoulder,anchor,underside);
  }
 }
 function farmStalk(x,z,index,season,compact=false){
@@ -25080,7 +25106,13 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
    canopy.cover<.27&&shot.projectedWorkerHeightFraction>=(portraitLens?.17:.20);
   if(trueGrainHands){
    physicalGrainHandsCandidates++;
-   const cost=score-alignment*90-shot.projectedWorkerHeightFraction*150;
+   const cost=score-alignment*90-shot.projectedWorkerHeightFraction*230+
+    // Clear work must remain human-sized on a real 390px canvas. Keep a
+    // genuinely clear interior crop shot as fallback when exterior eyes
+    // cannot see BOTH authoritative cutting wrists at once.
+    Math.max(0,(portraitLens?.235:.255)-
+     shot.projectedWorkerHeightFraction)*(portraitLens?1250:620)+
+    (crop.cameraInsideField?65:0);
    if(cost<physicalGrainHandsScore){
     physicalGrainHandsBest=shot;physicalGrainHandsFraming=framing;
     physicalGrainHandsScore=cost;
