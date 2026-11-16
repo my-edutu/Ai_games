@@ -1711,7 +1711,7 @@ export function selectOriginalSourceSwingCalfTrial({
   Math.abs(floorTopY+.02)>.005||!Array.isArray(trials)||trials.length>4||
   afterAnkleToeY-floorTopY>-.02||afterAnkleToeY-floorTopY<-.16||
   afterAnkleHeelY-floorTopY<.065||afterAnkleHeelY-floorTopY>.34)return null;
- let best=null;
+ let best=null,bestScore=-Infinity;
  for(const trial of trials){
   const {signed,toe,heel}=trial??{};
   // Retain a compatible authentic calf hinge when both physical trial
@@ -1730,7 +1730,21 @@ export function selectOriginalSourceSwingCalfTrial({
    floorTopY-afterAnkleToeY>=.025&&floorTopY-toe>.005;
   if(steepBuriedSource&&heel-afterAnkleHeelY>
    toe-afterAnkleToeY+.000001)continue;
-  if(!best||toe>best.toe)best={signed,toe,heel};
+  // Rank only the same original skinned sole samples already gathered.
+  // An extra 3mm of toe lift is not worth making an airborne shoe
+  // drastically more vertical. Credit independently measured pitch relief
+  // with a bounded 30mm influence; prioritize real toe clearance otherwise.
+  // This never creates contact or takes a new geometry/skin probe.
+  const toeLift=toe-afterAnkleToeY;
+  const heelRise=heel-afterAnkleHeelY;
+  const pitchGain=toeLift-heelRise;
+  const score=toeLift+.25*clamp(pitchGain,-.03,.03);
+  if(score>bestScore+1e-9||
+   (Math.abs(score-bestScore)<=1e-9&&
+    (!best||Math.abs(signed)<Math.abs(best.signed)))){
+   best={signed,toe,heel};
+   bestScore=score;
+  }
  }
  return best;
 }
