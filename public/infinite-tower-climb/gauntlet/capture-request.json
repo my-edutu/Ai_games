@@ -1,4 +1,48 @@
 {
+  "p0ActualSillOriginalShaftDepthCausalNativeCapture20261116": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "unchangedTransformationBlobSha": "3aac186495b2bbd471c9af6448250c38539b5a63",
+    "productionSource": "824f2939d5183c4e637b1a0535bd91e23870a59c",
+    "captureSource": "EXACT immutable github.sha of this evidence-request push, not floating branch head; same production source as parent SHA",
+    "previousTechnicalCI": "https://github.com/my-edutu/Ai_games/actions/runs/43942863951 — success 10/10",
+    "currentProductionTechnicalCI": "https://github.com/my-edutu/Ai_games/actions/runs/43947800968 — QUEUED at submission, not claimed passed",
+    "previousNativeCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/43942863974 — eight 60+ second unmodified baseline/candidate WebMs recorded; strict event-aligned visual duet FAILED 0/2",
+    "primaryObservedVisualDefect": "Actual desktop and portrait 1x native film shows climber hidden behind bronze around 24–26s, Floor9 HUD drawn ~26.75s but old bronze scene remains, incoming violet architecture abruptly around ~29s; no demonstrated warm/void shared-room frames",
+    "newProductionSlice": "Authenticated defeated guardian+same old cap+actual grounded first f9:ground sill contact or low airborne approach, at least one returned old 3D gateway frame; release ≤28% of genuinely built noncolliding incoming F9 shaft early in same scene BEFORE raised deck ascent, retain original real guardian gate and physics. Three connected source/world modules plus source-level regression.",
+    "sourceOriginalSHA": "7e47eb3e404624ef5df78e96cba957c83af0914a",
+    "seed": "tower-transformation-capture-v1",
+    "speed": "real normal-speed 1x unmodified original 20Hz game, 60+s",
+    "graphicsTier": "low",
+    "viewports": [
+      "desktop 960x600",
+      "portrait 390x844"
+    ],
+    "scenarios": [
+      "ascent",
+      "moving",
+      "danger with guardian/crusher victory and true threshold",
+      "outcome/restart"
+    ],
+    "sourceEvents": [
+      475,
+      495,
+      522,
+      535,
+      619
+    ],
+    "acceptance": "Inspect both ORIGINAL new-code desktop and portrait native WebMs through guardian defeat to Floor10/restart. Event align old doorway, FULL skinned actor, grounded walkable first F9 deck across at least two consecutive actually decoded frames; meaningful old bronze/new violet continuous material-and-geometry overlap without hard cut. Native 0/2 remains veto until evidenced, regardless of a green CI",
+    "independentReviewers": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "deviceMetrics": "NOT EVALUATED",
+    "reviewPath": "docs/reviews/2026-11-16-tower-pr68-p0-original-gateway-shaft-gpu-return-and-ci-veto.md",
+    "nextHighestImpact": "Inspect exact-head 9-job native candidate films around video 24–32s and source ticks 475–535; if still cropped/hard cut, rebuild physical gateway lens/bronze posts and source-aligned successor shaft together, not further test fixture theater.",
+    "safety": "PR68 draft on PR58; frozen baseline+ledger untouched, no merge/deploy/force, no unrelated games"
+  },
   "p0ActualHeadCiAndSourceAuthenticPairVeto20261116": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
     "leadingTransformationVerdict": "NOT EVALUATED",
