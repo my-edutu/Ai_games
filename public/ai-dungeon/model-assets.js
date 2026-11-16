@@ -2683,6 +2683,11 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
  let measuredFollowups=null,authoredNeutralUsed=false;
  let originalNeutralMounts=null,originalNeutralSaved=null,originalNeutralTargets=null;
  let originalNeutralGapRad=null;
+ // The skinned Idle probe receipt is finalized after the reversible try/finally.
+ // Preserve the actual requested source blends in this function scope: a
+ // try-local const caused a live ReferenceError only when real source-joint
+ // trials became eligible, aborting the original WebGL nine-tick journey.
+ let neutralBlends=null;
  const sourceIdle=actor.availableClips?.find(c=>c?.name==='Idle');
  // Inspect the last REAL original-rig rejection, rather than mistaking
  // missing neutral probes for a failed pose or a successful planted foot.
@@ -2765,7 +2770,7 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
  };
  try{
   for(const angles of starterAngles)sample(angles);
-  const neutralBlends=!sourceAnkleProof?
+  neutralBlends=!sourceAnkleProof?
    planOriginalSourceAuthoredNeutralBlends({...owner,starterTrials:trials}):null;
   if(!neutralBlends)rejectOriginalNeutral(
    sourceAnkleProof?'prior-original-ankle-correction-owned':
