@@ -1143,6 +1143,88 @@ test('a live authoritative Warden warning keeps all eight threatened-cell glyphs
 });
 
 
+test('an authority-revoked Warden warning retires its retained GPU glyphs at frame acknowledgement, never a still-live hazard',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {canonicalPhysicalWarningFootprint}=await load('physical-feedback-plan.js');
+ const {T,scene}=three();
+ const cells=Array.from({length:8},(_,i)=>({x:2+i,z:3}));
+ const warden={id:'warden',kind:'warden',faction:'enemy',x:2,z:2,
+  hp:45,action:'cast',actionTick:12};
+ let current={run:1,floor:1,tick:11,units:[warden],
+  bossWarning:{warning:true,attackTick:12,turnsUntilImpact:1,
+   shape:'RIFT_CROSS',cells}};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  getCurrentSnapshot:()=>current,
+  actorById:id=>id==='warden'?{u:warden,authored:false,
+   root:{visible:true,position:{x:-7,y:0,z:-7},rotation:{y:0}}}:null
+ });
+ const warning=cue({id:'1:1:11:boss-warning:warden:-',
+  kind:'boss-warning',visual:'warning',audio:'boss-warning',
+  actorId:'warden',targetId:null,proof:'authority-warning-window',
+  priority:5,from:{x:2,z:2},to:null,
+  detail:{cells,attackTick:12,shape:'RIFT_CROSS',
+   footprintKey:canonicalPhysicalWarningFootprint(cells)}});
+ const signalMesh=[...scene.children][4];
+ try{
+  assert.equal(stage.emit(warning),true);
+  assert.equal(stage.stats().instancesByPool.signal,8);
+  assert.equal(stage.retireStaleCue(warning.id,'authority-revoked-warning'),0,
+   'an old audio deadline must not erase eight currently authoritative threat cells');
+  assert.equal(stage.stats().instancesByPool.signal,8);
+  assert.equal(stage.stats().activeDrawCalls,1);
+  // The public hazard was cancelled while the renderer submitted the prior frame.
+  // Its already-uploaded glyphs must be cleared immediately at the receipt
+  // boundary, rather than waiting for another animation advance.
+  signalMesh.instanceMatrix.needsUpdate=false;
+  current={...current,tick:12,bossWarning:null};
+  assert.equal(stage.retireStaleCue(warning.id,'authority-revoked-warning'),8,
+   'all eight now-revoked cells must retire before another WebGL submission');
+  assert.equal(stage.hasDrawableCue(warning.id),false);
+  assert.equal(stage.stats().instancesByPool.signal,0);
+  assert.equal(stage.stats().activeDrawCalls,0);
+  assert.equal(signalMesh.visible,false);
+  assert.equal(signalMesh.instanceMatrix.needsUpdate,true,
+   'retirement must dirty the actual retained GPU instance matrices');
+  assert.equal(stage.retireStaleCue(warning.id,'authority-revoked-warning'),0,
+   'receipt replay must not retire twice');
+  assert.equal(stage.stats().reservedInstances,102);
+ }finally{stage.dispose()}
+});
+
+test('an authority-revoked Warden warning frame receipt cancels its pending audio and requests immediate GPU cleanup',async()=>{
+ const {createPhysicalCombatFeedback}=await load('physical-combat-feedback.js');
+ const retired=[],sounds=[];
+ const visualAdapter={emit(){return true},advance(){},
+  retireStaleCue(id,reason){retired.push({id,reason});return 8},
+  hasLiveCue(){return true},hasDrawableCue(){return true},
+  reset(){},dispose(){}};
+ const audioAdapter={enable(){return true},emit(cue){sounds.push(cue);return true},
+  flush(){},disable(){},cleanup(){},dispose(){}};
+ const controller=createPhysicalCombatFeedback({
+  requirePresentedFrame:true,visualAdapter,audioAdapter});
+ const warden={id:'warden',kind:'warden',faction:'enemy',
+  x:2,z:2,hp:45,maxHp:45,action:'cast',actionTick:12};
+ const cells=Array.from({length:8},(_,i)=>({x:2+i,z:3}));
+ const snapshot=(tick,bossWarning)=>({run:1,floor:1,tick,
+  units:[warden],events:[],bossWarning});
+ try{
+  controller.enableAudioFromGesture();
+  controller.acceptSnapshot(snapshot(10,null));
+  controller.acceptSnapshot(snapshot(11,{warning:true,attackTick:12,
+   turnsUntilImpact:1,shape:'RIFT_CROSS',cells}));
+  controller.advance(.016,.016);
+  assert.ok(controller.stats().awaitingPresentation>0,
+   'a real authority warning must be staged before testing cancellation');
+  controller.acceptSnapshot(snapshot(12,null));
+  controller.acknowledgePresentedFrame(1,0);
+  assert.ok(retired.some(x=>x.id==='1:1:11:boss-warning-final:warden:-'&&
+   x.reason==='authority-revoked-warning'),
+   'the real post-WebGL receipt must revoke prior warning glyphs without waiting for advance');
+  assert.equal(sounds.some(x=>x.visual==='warning'),false,
+   'a cancelled threat never earns late warning foley');
+ }finally{controller.dispose()}
+});
+
 test('D04 unmatched dry releases demand the same unique current actor and live physical source',async()=>{
  const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
  const {T,scene}=three();
