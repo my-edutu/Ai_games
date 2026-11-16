@@ -101,7 +101,7 @@ test('production GPU owners share source-backed clearance, a real new-shaft retu
 test('actual near-threshold Floor9 vertical climb retains old GPU room during airborne approach and raised f9:p2 landing',async()=>{
   const {observedEarnedFarSideShaftOverlap:overlap}=await proof;
   const {source,held,job}=realRoute();
-  // Real crossing rises ~126m into f9:p2 while remaining only about 2m
+  // Recorded route rises 12.6m onto f9:p2 while remaining only 0.25m
   // beyond the exit in X. The previous artificial +100000 horizontal
   // clearance made this already-authenticated path fail the new-world
   // overlap, retiring the bronze room in one abrupt source-poll cut.
