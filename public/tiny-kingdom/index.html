@@ -4258,7 +4258,45 @@ const materialFragmentSource=swiftGpu?
   fs.replace(/float noise3\(vec3 p\)\{[\s\S]*?\n\}/,softwareNoise3)):hardwareResidentArchitecture(fs);
 if(swiftGpu&&materialFragmentSource===fs)
  throw Error('Software architectural material compilation did not activate');
-const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vs));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,materialFragmentSource));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));gl.useProgram(program);
+// W395 Phase 1: transactional native material compilation. When the proposed
+// resident architecture shader cannot compile/link on a REAL GPU, preserve the
+// entire playable original village using its original full-detail shader.
+// Never mask a second compiler failure; log and expose the rejected tier.
+let materialProgramMode=swiftGpu?'software-original-material':'hardware-resident-atlas-lod';
+let materialProgramError=null,materialProgramFallbacks=0;
+const originalVertexShader=shader(gl.VERTEX_SHADER,vs);
+function createLiveMaterialProgram(fragment){
+ const candidate=gl.createProgram(),fragmentShader=shader(gl.FRAGMENT_SHADER,fragment);
+ gl.attachShader(candidate,originalVertexShader);
+ gl.attachShader(candidate,fragmentShader);
+ gl.linkProgram(candidate);
+ const linked=gl.getProgramParameter(candidate,gl.LINK_STATUS);
+ const why=linked?'':gl.getProgramInfoLog(candidate);
+ gl.deleteShader?.(fragmentShader);
+ if(!linked){
+  gl.deleteProgram?.(candidate);
+  throw Error('Original village material shader link failed: '+why);
+ }
+ return candidate;
+}
+let program;
+try{program=createLiveMaterialProgram(materialFragmentSource)}
+catch(error){
+ if(swiftGpu||!gpuAvailable)throw error;
+ materialProgramError=String(error).slice(0,400);
+ materialProgramFallbacks++;
+ materialProgramMode='hardware-original-full-shader-fallback';
+ console.error('Tiny Kingdom resident material tier failed; original material restored',materialProgramError);
+ program=createLiveMaterialProgram(fs);
+}
+gl.deleteShader?.(originalVertexShader);
+gl.useProgram(program);
+function getMaterialShaderTierAudit(){
+ return {mode:materialProgramMode,compileFallbacks:materialProgramFallbacks,
+  hardwareOnly:gpuAvailable&&!swiftGpu,compilerError:materialProgramError,
+  originalWorldAndAuthorityUnchanged:true,
+  realHardwareFps:'NOT PROVEN',lookFeelPlay:'NOT PROVEN'};
+}
 const uniforms={viewProjection:gl.getUniformLocation(program,'viewProjection'),fogColor:gl.getUniformLocation(program,'fogColor'),sunDirection:gl.getUniformLocation(program,'sunDirection'),sunTint:gl.getUniformLocation(program,'sunTint'),sunStrength:gl.getUniformLocation(program,'sunStrength'),ambientBlend:gl.getUniformLocation(program,'ambientBlend'),worldTime:gl.getUniformLocation(program,'worldTime'),windmillRotor:gl.getUniformLocation(program,'windmillRotor'),weatherWetness:gl.getUniformLocation(program,'weatherWetness'),eyePosition:gl.getUniformLocation(program,'eyePosition'),groundAtlas:gl.getUniformLocation(program,'groundAtlas'),architectureAtlas:gl.getUniformLocation(program,'architectureAtlas'),groundAtlasFast:gl.getUniformLocation(program,'groundAtlasFast'),forgeSmokeAnchor:gl.getUniformLocation(program,'forgeSmokeAnchor'),workLightPosition:gl.getUniformLocation(program,'workLightPosition'),workLightStrength:gl.getUniformLocation(program,'workLightStrength'),harvestContact:gl.getUniformLocation(program,'harvestContact'),harvestProgress:gl.getUniformLocation(program,'harvestProgress'),harvestFloor:gl.getUniformLocation(program,'harvestFloor'),completedHarvestA:gl.getUniformLocation(program,'completedHarvestA'),completedHarvestB:gl.getUniformLocation(program,'completedHarvestB'),villageSmokeDensity:gl.getUniformLocation(program,'villageSmokeDensity'),commuterEnabled:gl.getUniformLocation(program,'commuterEnabled'),commuterOrigin:gl.getUniformLocation(program,'commuterOrigin'),commuterMotion:gl.getUniformLocation(program,'commuterMotion'),workSkinActive:gl.getUniformLocation(program,'workSkinActive'),workBone:gl.getUniformLocation(program,'workBone[0]'),shadowTransition:gl.getUniformLocation(program,'shadowTransition'),
  villageLanterns:gl.getUniformLocation(program,'villageLanterns[0]'),
  commuterLanterns:gl.getUniformLocation(program,'commuterLanterns[0]')};
@@ -30799,7 +30837,7 @@ drawForegroundResidentMesh();
  getRealWorksiteFrameAudit:()=>cloneData(getRealWorksiteFrameAudit()),
  getStreetCargoProjectionAudit:()=>cloneData(getStreetCargoProjectionAudit()),getFieldWindAudit:(time=state.t)=>cloneData(getFieldWindAudit(time)),getAmbientGpuResidencyAudit:()=>({...getAmbientGpuResidencyAudit()}),getWeatherVertexMotionProbe,getOccupationalPerformance:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData({citizen:people[index].name,job:people[index].job,...occupationalPerformance(people[index])}):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getSelectedCitizenTaskAudit,getCitizenPickCandidates,getCitizenOrbitAudit,getCitizenPickAudit:()=>({...citizenPickAudit}),getWorkdayEvents:()=>cloneData(workdayEvents),getStreetCargoWitnesses:()=>cloneData(streetCargoWitnesses()),getActiveDeliveries:()=>cloneData(getActiveDeliveries()),getSupplyTrailSnapshot:()=>cloneData(getSupplyTrailSnapshot()),getPhysicalMarketParcelAudit:id=>cloneData(getPhysicalMarketParcelAudit(id)),getCourierLoadPresentation:workerName=>cloneData(getCourierLoadPresentation(workerName)),getCourierTransferMotion:workerName=>cloneData(courierTransferMotion(workerName)),getCourierTrailAudit,getCourierTrailResidencyAudit,
  setCourierTrailResidencyForTesting,getDeliveryEconomyAudit:()=>cloneData(getDeliveryEconomyAudit()),getDeliveryReceipts:()=>cloneData(getDeliveryReceipts()),getMarketHandoffs:()=>cloneData(getMarketHandoffs()),getMarketParcelDeliveryPose:id=>cloneData(getMarketParcelDeliveryPose(id)),getCourierHandContact:person=>cloneData(courierWorldHandContact(person)),getMarketHandoffRenderStats:()=>({...marketHandoffRenderStats}),watchDelivery,watchHomecoming,getHomecomingView,getHomecomingThresholdCameraAudit,getWorkdayView,getActiveWorksites,watchHarvestShift,getHarvestInteractionAudit,getHarvestVisibilityAudit,getHarvestAftermathAudit,getCitizenActingAudit,
-getDailyRhythmAudit:dailyRhythmAudit,getHouseholdProvisionAudit:()=>cloneData(householdProvisionAudit()),getCarriedHouseholdProvisionPose:person=>cloneData(getCarriedHouseholdProvisionPose(person)),getVerifiedHouseholdMealEvidence:person=>cloneData(verifiedHouseholdMealEvidence(person)),getVerifiedHomeMealHand:person=>cloneData(getVerifiedHomeMealHand(person)),getVerifiedHomeMealRenderStats:()=>({...actualHouseholdMealVisualStats}),getHouseholdCarriedSackStats:()=>({...householdCarriedSackStats}),getReceiptHouseholdAudit:()=>cloneData(receiptHouseholdAudit()),getVerifiedEconomyRenderStats:()=>({...verifiedEconomyRenderStats}),getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getVillageNightLightingAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getCottageHomecomingAudit,getCottageDoorRenderAudit:()=>({...cottageDoorRenderAudit}),
+getDailyRhythmAudit:dailyRhythmAudit,getHouseholdProvisionAudit:()=>cloneData(householdProvisionAudit()),getCarriedHouseholdProvisionPose:person=>cloneData(getCarriedHouseholdProvisionPose(person)),getVerifiedHouseholdMealEvidence:person=>cloneData(verifiedHouseholdMealEvidence(person)),getVerifiedHomeMealHand:person=>cloneData(getVerifiedHomeMealHand(person)),getVerifiedHomeMealRenderStats:()=>({...actualHouseholdMealVisualStats}),getHouseholdCarriedSackStats:()=>({...householdCarriedSackStats}),getReceiptHouseholdAudit:()=>cloneData(receiptHouseholdAudit()),getVerifiedEconomyRenderStats:()=>({...verifiedEconomyRenderStats}),getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getVillageNightLightingAudit,getMaterialShaderTierAudit,getHardwareResidentArchitectureAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getCottageHomecomingAudit,getCottageDoorRenderAudit:()=>({...cottageDoorRenderAudit}),
  getCottageDoorResidencyAudit,setCottageDoorResidencyForTesting,getSoftwareResolutionAudit,getHardwareResolutionAudit,getSimulationFrameDelta:simulationFrameDelta,getHouseholdLightAudit:()=>({...householdLightAudit}),getNightHomesResidencyAudit,setNightHomesResidencyForTesting,getOccupiedHearthCount:()=>occupiedHearths,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,
 getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),getForgeSoundAudit:()=>cloneData(getForgeSoundAudit()),pollForgeSound,watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,
  getRealGrainJourneyAudit,getSupplyTrailDetailsAudit,inspectRealGrainStage,watchRealGrainJourney,stopRealGrainJourney,planRealGrainJourney,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
