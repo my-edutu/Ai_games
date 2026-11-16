@@ -256,3 +256,69 @@ test('cap-preempted transient effects hide actual retained matrices but preserve
   assert.ok(v.stats().reservedInstances<=104);
  }finally{v.dispose()}
 });
+
+
+test('D04 production before-render deadline actually hides expired HP matrices, not just records a terminal receipt',async()=>{
+ const {createPhysicalCombatFeedback}=await load('physical-combat-feedback.js');
+ const {THREE,scene}=stage();let now=40;
+ const sounded=[];
+ const d=createPhysicalCombatFeedback({THREE,scene,requirePresentedFrame:true,clock:()=>now,
+  audioAdapter:{enable(){return true},emit(cue){sounded.push(cue);return true},
+   flush(){},disable(){},cleanup(){},dispose(){}}});
+ const snapshot=(tick,hp)=>({run:1,floor:1,tick,events:[],units:[{
+  id:'enemy-1-0',kind:'revenant',faction:'enemy',x:2,z:2,hp,maxHp:30,
+  action:hp<30?'hurt':'idle',actionTick:tick
+ }]});
+ try{
+  assert.equal(d.enableAudioFromGesture(),true);
+  d.acceptSnapshot(snapshot(10,30));d.acceptSnapshot(snapshot(11,20));
+  now+=.02;d.advance(.016,.016);
+  assert.ok(d.stats().visuals.instancesByPool.hit>=4,'real HP drop was allocated to retained GPU pool');
+  assert.equal(d.stats().awaitingPresentation,1);
+  now+=.401;
+  assert.equal(d.retireStaleBeforeRender(),1,'genuine stale HP must terminate BEFORE calling WebGL');
+  assert.equal(d.stats().preRenderStaleDropped,1);
+  assert.equal(d.stats().visuals.instancesByPool.hit,0,
+   'expired-before-render must actually hide retained injury matrices, not merely reject audio');
+  assert.equal(d.stats().visuals.activeDrawCalls,0,
+   'no ghost HP shards submitted on the next genuine frame');
+  assert.equal(d.stats().unverifiedVisualLiveness,0,
+   'real adapter must confirm successful terminal retirement');
+  assert.equal(d.acknowledgePresentedFrame(1,.005),0);
+  assert.deepEqual(sounded,[]);
+  assert.equal(d.retireStaleBeforeRender(),0,'terminal retirement is once per cue');
+ }finally{d.dispose()}
+});
+
+test('D04 production HP emission crossing 400ms retires its actual retained fragments and stays silent',async()=>{
+ const {createPhysicalCombatFeedback}=await load('physical-combat-feedback.js');
+ const {THREE,scene}=stage();let now=90,stallOnMatrix=false;
+ const original=THREE.InstancedMesh.prototype.setMatrixAt;
+ THREE.InstancedMesh.prototype.setMatrixAt=function(...args){
+  if(stallOnMatrix){stallOnMatrix=false;now+=.415}
+  return original.apply(this,args);
+ };
+ const sounded=[];
+ const d=createPhysicalCombatFeedback({THREE,scene,requirePresentedFrame:true,clock:()=>now,
+  audioAdapter:{enable(){return true},emit(cue){sounded.push(cue);return true},
+   flush(){},disable(){},cleanup(){},dispose(){}}});
+ const snapshot=(tick,hp)=>({run:1,floor:1,tick,events:[],units:[{
+  id:'enemy-1-0',kind:'revenant',faction:'enemy',x:2,z:2,hp,maxHp:30,
+  action:hp<30?'hurt':'idle',actionTick:tick
+ }]});
+ try{
+  assert.equal(d.enableAudioFromGesture(),true);
+  d.acceptSnapshot(snapshot(10,30));d.acceptSnapshot(snapshot(11,20));
+  stallOnMatrix=true;
+  d.advance(.016,.016); // A real retained matrix write consumes the deadline.
+  assert.equal(stallOnMatrix,false,'the production renderer actually emitted an HP matrix');
+  assert.equal(d.stats().recentDeliveryReceipts.at(-1)?.decision,'expired-during-visual-emission');
+  assert.equal(d.stats().visuals.instancesByPool.hit,0,
+   'expired-during-visual-emission must actually hide shards before WebGL');
+  assert.equal(d.stats().visuals.activeDrawCalls,0);
+  assert.equal(d.stats().awaitingPresentation,0);
+  assert.equal(d.acknowledgePresentedFrame(1,.005),0);
+  assert.deepEqual(sounded,[]);
+  assert.ok(d.stats().visuals.reservedInstances<=104);
+ }finally{d.dispose()}
+});
