@@ -27,6 +27,8 @@ const mock={
  terrain:()=>.12,materialScope:(_,fn)=>fn(),
  marketCobblestoneSquare:()=>visited.push('court'),
  marketStall:(_,i)=>visited.push('stall'+i),
+ // The market's W389 terrain-bound approaches have their own geometry contract.
+ marketShopfrontThresholds:()=>visited.push('approaches'),
  grainwardMarketRoofEdges:()=>visited.push('roof'),
  grainwardTradeArcade:()=>visited.push('arcade'),
  marketTimberCart:()=>visited.push('cart'),
@@ -41,7 +43,7 @@ const mock={
 vm.createContext(mock);
 vm.runInContext(original+'\nmarketQuarter();',mock);
 assert.deepEqual(visited,['court','stall0','stall1','stall2','stall3',
- 'roof','arcade','cart','receiving','drains'],
+ 'approaches','roof','arcade','cart','receiving','drains'],
  'same original complete merchant street and actual unloading market');
 const atGate=boxes.filter(b=>Math.abs(b.z-gate.z)<.25);
 const highCrossings=atGate.filter(b=>b.y>2.8&&b.w>3.5);
