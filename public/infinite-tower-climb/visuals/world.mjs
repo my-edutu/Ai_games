@@ -3770,17 +3770,23 @@ export function createTowerWorld(){
     // Preserve the original metal tint as well as sky/lighting until the
     // same returned real geometry visibly recedes (no action/tell tinting).
     if(farSideHorizon) departure=Math.min(departure,1-farSideOldWeight);
-    // The live source sample always outranks history. An optical tail only
-    // changes colors on existing real meshes when the same previously
-    // certified crossing has lost its short-lived current browser witness.
-    if(arrivalRoutePalette) {
-      const proof=livePaletteProof;
-      updateOriginalClockworkSuccessorRoute(arrivalRoutePalette,proof,opticalTail);
-    }
-    if(originalClockworkArchitecturalPalette) {
-      const sourceProof=livePaletteProof;
-      originalClockworkArchitecturalPalette.update(sourceProof,opticalTail);
-    }
+    // The live source sample always outranks history. Where the climber
+    // has verifiably cleared the old sill, the same ORIGINAL GPU mesh
+    // and currently supporting source contact supply the material proof:
+    // previous code blended sky bronze while every structural material
+    // flipped to Void in one draw. The far-side proof cannot create a floor,
+    // platform, defeating blow or submitted frame.
+    const materialProof=livePaletteProof??(farSideHorizon?{
+      sourceBound:true,sourceTick:snapshot.tick,
+      crossingTick:retainedEarnedCap.crossingTick,
+      kind:'verified-original-roof-receipt',
+      oldWeight:farSideOldWeight
+    }:null);
+    if(arrivalRoutePalette)
+      updateOriginalClockworkSuccessorRoute(arrivalRoutePalette,
+        materialProof,opticalTail);
+    if(originalClockworkArchitecturalPalette)
+      originalClockworkArchitecturalPalette.update(materialProof,opticalTail);
     // The deferred F9 shaft copies these EXACT architecture material colors,
     // never a separately aged violet scene. No new shader, draw or collider.
     if(deferredDistantArrival?.structuralMaterials?.length) {
