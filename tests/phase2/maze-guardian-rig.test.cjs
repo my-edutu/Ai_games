@@ -3,10 +3,18 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {pathToFileURL} = require('node:url');
 const path = require('node:path');
+const fs = require('node:fs');
+const root = path.resolve(__dirname,'../..');
+// Match the EXISTING rigorous installed-Three rig test harness: the browser
+// receives /maze/vendor via server routing, not a physical relative file.
+const characters = fs.readFileSync(path.join(root,'public/ai-maze-escape/characters.js'),'utf8');
+const three = pathToFileURL(path.join(root,'node_modules/three/build/three.module.js')).href;
+const production = import('data:text/javascript;base64,'+
+  Buffer.from(characters.replace("'./vendor/three.module.js'",JSON.stringify(three)))
+    .toString('base64'));
 
 test('one actually witnessed lantern counter moves Thornback through distinct connected full-body load, collapse and reset', async () => {
-  const url=pathToFileURL(path.resolve(__dirname,'../../public/ai-maze-escape/characters.js')).href;
-  const {createWarden,rigPrimitiveResourceStats}=await import(url);
+  const {createWarden,rigPrimitiveResourceStats}=await production;
   const warden=createWarden({balanced:true});
   const find=name=>{
     const joint=warden.group.getObjectByName(name);
