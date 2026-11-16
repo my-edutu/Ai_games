@@ -786,11 +786,32 @@ for(const view of [
   tick:t.tick,sourceId:t.sourceId,
   sourceClip:t.nativeLegOwnership?.clipName??null,
   attempted:t.nativeLegOwnership?.sourceNeutralSwingLastProbe??null,
+  gate:t.nativeLegOwnership?.sourceNeutralSwingGateLast??null,
   acceptedFrames:t.nativeLegOwnership?.sourceNeutralSwingAcceptedFrames??0,
   independentFinal:t.nativeLegOwnership?.sourceNeutralSwingCurrentFrameProofs??null,
   skinnedShoe:t.sourceSolePatchWorld??null
  }));
  let actualNeutralProofs=0;
+ for(const frame of trace){
+  const gate=frame.nativeLegOwnership?.sourceNeutralSwingGateLast;
+  if(gate?.reason==='licensed-idle-trials-angle-certified'){
+   expect(gate.verifiedIdleJointTracks).toHaveLength(3);
+   for(const t of gate.verifiedIdleJointTracks){
+    expect(['footr','footl'].includes(t.bone?.toLowerCase())||
+     /(?:leg|thigh|calf|foot)/i.test(t.bone)).toBe(true);
+    expect(t.sourceTrackMatches).toBeGreaterThanOrEqual(1);
+    expect(t.sourceTrackMatches).toBeLessThanOrEqual(4);
+    expect(t.equivalentDuplicate).toBe(t.sourceTrackMatches>1);
+    expect(t.sourceKeyframeCount).toBeGreaterThanOrEqual(1);
+    expect(t.sourceKeyframeCount).toBeLessThanOrEqual(512);
+    expect(t.sourceTrackNames).toHaveLength(t.sourceTrackMatches);
+   }
+  }
+  if(gate?.reason==='licensed-idle-joint-track-not-proven'){
+   expect(gate.sourceTrackReason).toMatch(/original-idle-joint|original-idle-track|original-idle/);
+   expect(gate.sourceTrackMatches).toBeGreaterThanOrEqual(0);
+  }
+ }
  for(const frame of trace)for(const side of ['left','right']){
   const p=frame.nativeLegOwnership?.sourceNeutralSwingCurrentFrameProofs?.[side];
   if(!p)continue;
