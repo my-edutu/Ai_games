@@ -6,7 +6,8 @@ const {correlateD04OriginalSourceStarts,auditD04ImpactFramePhases}=require('./du
 const fs=require('node:fs');
 const {createD04CaptureProfile,skippedConcurrentD04Probe}=require('./dungeon-d04-capture-profile.cjs');
 const {decodeSerialRealWebGLMotion,decodeReceiptReadbackMotion,decodeSameWindowReadbackMotion,
- sampleChromiumDecodedD04WebM,classifyChromiumDecodedRealWebM}=require('./dungeon-d04-decoded-video-proof.cjs');
+ sampleChromiumDecodedD04WebM,classifyChromiumDecodedRealWebM,
+ selectAuthenticatedOriginalD04WebM}=require('./dungeon-d04-decoded-video-proof.cjs');
 const {inspectRealWebMVideoPTS,classifyEncodedFrameYield}=require('./dungeon-d04-webm-pts-proof.cjs');
 fs.mkdirSync('artifacts',{recursive:true});
 
@@ -556,17 +557,34 @@ async function attachD04LiveAVCapture(page,started,testInfo){
  // already recorded PRIMARY, genuine #world canvas plus original sound bus.
  // This cannot establish blade contact, video PTS or audible PCM alignment.
  const serialAV=raw.isolated?.sameWindowReadbackAV;
- const usePrimary=serialAV?.status!=='RECORDED'&&raw.clip?.status==='RECORDED';
- const chromiumInput=usePrimary?raw.clip:serialAV;
+ const primaryAV=raw.clip;
+ let chromiumInput=selectAuthenticatedOriginalD04WebM(serialAV,primaryAV);
  let chromiumPixels={status:'UNAVAILABLE',reason:'No genuine original A/V WebM'};
- if(started?.status==='STARTED'&&chromiumInput?.status==='RECORDED'){
-  try{
-   chromiumPixels=await page.evaluate(sampleChromiumDecodedD04WebM,chromiumInput);
-  }catch(error){
-   chromiumPixels={status:'UNAVAILABLE',
-    reason:'Read-only Chromium decoder: '+String(error).slice(0,120)};
+ let serialPixels=null,primaryPixels=null,failedSerialReason=null;
+ const inspectWithChromium=async input=>{
+  try{return await page.evaluate(sampleChromiumDecodedD04WebM,input)}
+  catch(error){return {status:'UNAVAILABLE',
+   reason:'Read-only Chromium decoder: '+String(error).slice(0,120)}}
+ };
+ if(started?.status==='STARTED'&&chromiumInput){
+  chromiumPixels=await inspectWithChromium(chromiumInput);
+  if(chromiumInput===serialAV)serialPixels=chromiumPixels;
+  else primaryPixels=chromiumPixels;
+  // A well-labelled serial readback may still lack actual decodable frames.
+  // Probe the ALREADY recorded authentic primary instead of discarding its
+  // pixel evidence. This is a post-capture, muted decoder only: never a
+  // second live recorder, synthetic redraw, impact claim, or audio onset.
+  if(chromiumInput===serialAV&&chromiumPixels.status!=='SAMPLED'){
+   failedSerialReason=chromiumPixels.reason??'Serial WebM did not yield decoded samples';
+   const fallback=selectAuthenticatedOriginalD04WebM(null,primaryAV);
+   if(fallback){
+    chromiumInput=fallback;
+    chromiumPixels=await inspectWithChromium(fallback);
+    primaryPixels=chromiumPixels;
+   }
   }
  }
+ const usePrimary=chromiumInput===primaryAV;
  // Read actual encoded WebM PTS without mistaking receipt requests for frames.
  // This runs with or without FFprobe and never asserts pixel motion/audio sync.
  const webmPts=inspectRealWebMVideoPTS(raw.isolated?.sameWindowReadbackAV);
@@ -576,16 +594,18 @@ async function attachD04LiveAVCapture(page,started,testInfo){
    readbackVideo:decodeReceiptReadbackMotion(raw.isolated?.receiptReadbackVideo),
    sameWindowReadbackAV:decodeSameWindowReadbackMotion(raw.isolated?.sameWindowReadbackAV),
    chromiumSameWindow:classifyChromiumDecodedRealWebM(
-    raw.isolated?.sameWindowReadbackAV,usePrimary?{}:chromiumPixels),
+    serialAV,serialPixels??{}),
    chromiumPrimary:classifyChromiumDecodedRealWebM(
-    raw.clip,usePrimary?chromiumPixels:{})};
+    primaryAV,primaryPixels??{})};
  const chromiumClassification=usePrimary?
   raw.decoder.chromiumPrimary:raw.decoder.chromiumSameWindow;
  console.log('D04 native Chromium WebM decode (unaligned only):',JSON.stringify({
-  inputSource:chromiumInput?.source??null,classification:chromiumClassification
+  inputSource:chromiumInput?.source??null,classification:chromiumClassification,
+  fallbackFromFailedSerial:failedSerialReason!==null
  }));
  const chromiumReport=JSON.stringify({
   inputSource:chromiumInput?.source??null,
+  failedSerialReason,attemptedAuthenticatedPrimary:primaryPixels!==null,
   webmPacketTiming:webmPts,encodedFrameYield:encodedYield,
   inspected:chromiumPixels,classification:chromiumClassification,
   sampleSynchronized:false,
