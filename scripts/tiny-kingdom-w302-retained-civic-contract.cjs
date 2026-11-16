@@ -26,14 +26,17 @@ const expected=Array.from(new Float32Array(stream.slice(3)));
 function check(resident){
  let uploads=0,disposed=0,storedGpu=null;
  const context={
-  data:stream.slice(),gpuAvailable:resident,civicGpuResidencyEnabled:resident,
+  data:stream.slice(),gpuAvailable:resident,civicGpuResidencyEnabled:resident,swiftGpu:false,
   cachedTypedRangeCopies:0,cachedTypedRangeFloats:0,
   CIVIC_CACHE_FLOAT_BUDGET:4000,CIVIC_CACHE_MAX_ENTRIES:4,
   civicSceneryCache:new Map(),civicCacheEvictions:0,
-  civicGpuUploads:0,civicGpuDisposals:0,
+  civicCacheBuilds:0,civicCacheReuses:0,civicGpuResidencyFailures:0,
+  civicGpuUploads:0,civicGpuDisposals:0,civicActiveKey:'',civicBuffer:null,civicChunkRanges:[],
   civicCoreBuffer:null,activeCivicCoreKey:'',
   civicRoadBufferRecycles:0,civicRoadBufferSubUploads:0,
   civicRoadBufferReallocations:0,civicRoadBytesUploaded:0,
+  civicRoadDeltaPartialUploads:0,civicRoadDeltaUnchangedUploads:0,
+  civicRoadDeltaFullUploads:0,civicRoadDeltaAvoidedBytes:0,civicRoadDeltaLastWindow:null,
   gl:{ARRAY_BUFFER:1,STATIC_DRAW:2,DYNAMIC_DRAW:35048,createBuffer:()=>({id:7}),
    bufferData:(target,payload,usage)=>{
     assert.equal(target,1);assert([2,35048].includes(usage),
@@ -58,7 +61,7 @@ function check(resident){
    first:0,count:typed.length/10,minX:0,minY:0,minZ:0,maxX:1,maxY:1,maxZ:1}]}),
   packSpatialScenery:()=>{throw Error('unexpected spatial scatter')},
   releaseGeometryBuffer:()=>disposed++,
-  civicCacheStats:()=>({cachedFloats:90})
+  civicCacheStats:()=>({cachedFloats:90,cachedGpuFloats:storedGpu?.length||0})
  };
  const ctx=vm.createContext(context);
  vm.runInContext(typedCopy+'\n'+civic,ctx,{timeout:2000});
