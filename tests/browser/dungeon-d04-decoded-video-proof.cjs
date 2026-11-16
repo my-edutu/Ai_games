@@ -160,8 +160,18 @@ async function sampleChromiumDecodedD04WebM(input){
   video=document.createElement('video');
   // Decode without audible playback, new AudioContext or game-canvas work.
   video.muted=true;video.volume=0;video.playsInline=true;video.preload='auto';
-  video.style.cssText='position:fixed;left:-10000px;top:-10000px;width:1px;height:1px';
+  // Unlike a DOM-offscreen consumer, a 2px visible decoder is eligible for
+  // Chromium's requestVideoFrameCallback presentation. This is installed
+  // only AFTER the authentic original recorder has stopped; it never writes
+  // to the Dungeon WebGL canvas, creates an encoder or changes the soundtrack.
+  // The pre-existing live-track delivery monitor uses the same visibility
+  // policy. Keep its tiny footprint and remove it in finally.
+  video.style.cssText='position:fixed;right:4px;bottom:4px;width:2px;height:2px;opacity:1;visibility:visible;pointer-events:none;z-index:2147483647';
   document.body.appendChild(video);
+  const bounds=video.getBoundingClientRect();
+  if(!video.isConnected||bounds.width<2||bounds.height<2||
+   document.visibilityState!=='visible')
+   return fail('Original WebM decoder cannot present a visible frame consumer');
   const waitFor=(name,ms)=>new Promise(resolve=>{
    let done=false;
    const finish=ok=>{if(done)return;done=true;clearTimeout(timer);
