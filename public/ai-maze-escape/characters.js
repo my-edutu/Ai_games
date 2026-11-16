@@ -1051,8 +1051,8 @@ export function createWarden(options = {}) {
     // ACTUAL witnessed warning: Thornback crouches behind its planted foreclaws,
     // then recoils taller on the same shell-release beat. It is a connected,
     // source-public defensive performance, not a strike or authoritative move.
-    body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018)-plantedClaws*.20+display*.085*alert+(parried?.19:0)-counterLoad*.16+counterRelease*.08-counterCollapse*.09;
-    body.rotation.x=-s.danger*.055-alert*.11-plantedClaws*.34+display*.19*alert+(parried?.42:0)+counterLoad*.23-counterRelease*.19-counterCollapse*.30;
+    body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018)-plantedClaws*.20+display*.085*alert+(parried?.19:0)-counterLoad*.16+counterRelease*.08-counterCollapse*.27;
+    body.rotation.x=-s.danger*.055-alert*.11-plantedClaws*.34+display*.19*alert+(parried?.42:0)+counterLoad*.23-counterRelease*.19-counterCollapse*.51;
     body.rotation.y=lookYaw*.4;
     body.rotation.z=Math.sin(relativeLook)*alert*.06;
     for (const leg of legs) {
@@ -1063,13 +1063,24 @@ export function createWarden(options = {}) {
       const kneeCounter=Math.max(0,Math.cos(phase))*stride*.16*amount
         +(leg.index===0?defensiveSweep*.24:0);
       // Both sides explicitly reset to +0 when the event disappears.
-      leg.hip.rotation.z=hipSplay>0?leg.side*hipSplay:0;
-      leg.knee.rotation.z=kneeCounter>0?-leg.side*kneeCounter:0;
+      // Parried withdrawal is supported by all six ACTUAL grounded legs,
+      // not just a floating torso or a closing backpack. The front pair
+      // absorbs the fall and the two rear pairs fold under the shell. All
+      // joints are absolute poses on the single already-witnessed counter
+      // clock; no extra actors, allocation, collision or private AI state.
+      const surrenderHip=counterCollapse*(leg.index===0?.76:.42);
+      const surrenderKnee=counterCollapse*(leg.index===0?.36:.28);
+      leg.hip.rotation.z=(hipSplay+surrenderHip)>0
+        ?leg.side*(hipSplay+surrenderHip):0;
+      leg.knee.rotation.z=(kneeCounter+surrenderKnee)>0
+        ?-leg.side*(kneeCounter+surrenderKnee):0;
       leg.hip.rotation.x=leg.index===0 && alert>0
-        ?-alert*.32-plantedClaws*.86-counterLoad*.48+counterRelease*.18
-        :leg.index===2?alert*.08+counterRelease*.20:0;
+        ?-alert*.32-plantedClaws*.86-counterLoad*.48+counterRelease*.18-counterCollapse*.32
+        :leg.index===2?alert*.08+counterRelease*.20+counterCollapse*.24
+        :counterCollapse*.12;
       leg.knee.rotation.x=leg.index===0
-        ?alert*.20+plantedClaws*.66+counterLoad*.43-counterRelease*.14:0;
+        ?alert*.20+plantedClaws*.66+counterLoad*.43-counterRelease*.14+counterCollapse*.72
+        :counterCollapse*.24;
       if (leg.pincer) {
         leg.pincer.rotation.y=alert>0?leg.side*(alert*.42+plantedClaws*.35):0;
         leg.pincer.rotation.z=alert>0?leg.side*defensiveSweep*.50:0;
@@ -1086,9 +1097,9 @@ export function createWarden(options = {}) {
     // withdraws beneath the actual opening shell, rather than letting the
     // face disappear behind a fixed backpack in mobile native gameplay.
     // Terminal/reduced poses remain deterministic with no new meshes.
-    head.position.y=.27+plantedClaws*.13-display*.045*alert-counterLoad*.09+counterRelease*.055-counterCollapse*.11;
-    head.position.z=.73+alert*.07+plantedClaws*.18-display*.065*alert+counterLoad*.105-counterRelease*.06-counterCollapse*.075;
-    head.rotation.x=s.win?.16:s.lose?-.13:-.045-s.danger*.065-plantedClaws*.36+display*.18*alert+(parried?.24:0)+counterLoad*.20-counterRelease*.23-counterCollapse*.28;
+    head.position.y=.27+plantedClaws*.13-display*.045*alert-counterLoad*.09+counterRelease*.055-counterCollapse*.21;
+    head.position.z=.73+alert*.07+plantedClaws*.18-display*.065*alert+counterLoad*.105-counterRelease*.06-counterCollapse*.16;
+    head.rotation.x=s.win?.16:s.lose?-.13:-.045-s.danger*.065-plantedClaws*.36+display*.18*alert+(parried?.24:0)+counterLoad*.20-counterRelease*.23-counterCollapse*.49;
     head.rotation.y=Math.sin(s.time*.8)*.08*(1-stride)*amount*(1-alert)+lookYaw;
     // Absolute, source-observed facial acting: the paired bronze shells
     // spread as the REAL foreclaws brace, then withdraw with the SAME earned

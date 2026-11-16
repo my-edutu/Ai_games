@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-16T20:55:50.113Z",
+  "updatedAt": "2026-11-16T21:51:54.285Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass432 production source candidate gives genuinely witnessed earned lantern parry a connected full-body Thornback collapse. New exact-HEAD Chromium WebGL, uncropped 320/390 view, SHA evidence and independent critique PENDING. Official Nintendo visual/gameplay benchmark unmet."
+    "summary": "Pass433 source candidate grounds the original six Thornback hip/knee joints in the same witnessed parry collapse. Prior Pass432 exact-HEAD Chromium WebGL passed, independently verified 40/40 SHA native PNGs and 3/3 true gate transitions; its original phone art still fails fixed Nintendo bar. Pass433 new-HEAD CI, captures and independent artist verdict pending."
   },
   "captures": [
+    {
+      "title": "Pass432 original source HEAD 2256e778 — 40/40 full uncropped native WebGL PNG sidecars SHA + 3/3 real gate SHA verified; full-body defeat visually incomplete",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/43956825838/artifacts/14271154527"
+    },
     {
       "title": "Pass430 original success 40/40 SHA native PNG+3 public gate SHA baseline for Pass431",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/43935205368/artifacts/14261040975"
@@ -200,6 +204,7 @@
     }
   ],
   "changes": [
+    "Pass433: actual original Pass432 320/390 native captures reviewed; earned counter previously folded Thornback's shell without convincing leg-grounded load. Production now drives all six existing connected hips/knees and lowers actual carapace/mask on that exact same current-run parry clock. No geometry allocations, AI authority or private hints; new CI/render/critique pending.",
     "Pass432: actual already-published same-run lantern counter drives connected Thornback armored-shell collapse, defensive shield load/release, rooted tail-sail reversal and bowed mask/jaw settle; new installed-Three test, no new game action, GPU mesh or private-map knowledge. Exact current-HEAD WebGL original critique pending.",
     "Pass431 source-grounded physical camera-up/zoom for genuine witnessed earned two-actor Pip/Thornback recoil; tighter complete model/HUD constraints than native ±.95; exact HEAD native evidence pending.",
     "Pass428 2026-11-16 UTC: physically source-justified earned guardian over-deck portrait camera elevation to reveal Pip above real tile93 floor, with public-event gating and unit assertions; pending exact-HEAD native WebGL artistic gate, not accepted.",
@@ -450,6 +455,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass433: do NOT accept source-only leg-grounding as art. Exact-SHA Chromium capture 320/390/844/1280, verify all original 40/40 screenshots+3 gate hashes, unchanged six-reset <100, honest collision/actor ±.95/withdrawal .70 and visually compare true defeat vs Pass432. Independently reject/accept against original official Captain Toad; biggest later gap is original authored world storytelling.",
     "Pass432 exact new-HEAD CI and native unaltered 320/390/844/1280 full-frame images: verify real 3-beat loaded→collapse silhouette, both bodies within ±.95 and ray clear, 40/40 PNG hashes+3 gate hashes and <100 six-reset. Reject or revert if no substantial real image impact; independent critic and Nintendo full benchmark still needed.",
     "Pass431: verify actual exact-HEAD uncropped 320/390 guardian earned parry clearly larger without crop, 844/1280 regressions, 40 PNG SHA +3 gate SHA, full real actors and <100 six-reset; revert if not materially improved.",
     "Pass428 candidate exact-HEAD 320/390 authentic tick8 seed13 mobile image and public ray audit: prove Pip torso+boots and guardian 320 boots genuinely unoccluded while both full meshes stay within original ±.95 and resource <100; artistically reject/rollback if not.",
@@ -518,6 +524,14 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass433 real Pass432 mobile original critique, six-leg grounded defeat source candidate",
+      "reviewer": "Source-bound implementation and original screenshot inspection; no independent worker available",
+      "verdict": "PRIOR WEBGL VERIFIED; NEW CANDIDATE VISUAL VERDICT PENDING; NINTENDO BAR UNMET",
+      "date": "2026-11-16",
+      "summary": "Original Pass432 40/40 native screenshot hashes + 3 true gate hashes verified. Thornback shell folds, but legs remain too upright; six existing knees/hips now carry same authentic parry collapse. No new rendered approval.",
+      "url": "docs/reviews/maze-3d/pass-433-original-pass432-mobile-guardian-grounded-collapse-candidate-2026-11-16.md"
+    },
     {
       "title": "Pass432 native earned guardian full-body defeat stage — SOURCE CANDIDATE",
       "reviewer": "Source-bound production builder; independent artist unavailable due disconnected worker tunnel",
@@ -1217,6 +1231,11 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass433 six-rooted-leg witnessed defeat",
+      "status": "Source candidate pending exact-HEAD CI and new native WebGL images",
+      "detail": "Prior parent-HEAD #43956825838 success, 40/40 PNG sidecars and all 3 gate transition SHA checks verified. No claim new code is image-approved. Strict physical camera, accessibility, six-reset geometry and privacy limits unchanged."
+    },
     {
       "name": "Pass432 original connected Thornback parry/defeat production candidate",
       "status": "New exact-HEAD CI and visual source artifacts pending",

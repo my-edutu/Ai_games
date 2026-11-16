@@ -28,6 +28,11 @@ test('one actually witnessed lantern counter moves Thornback through distinct co
   const mandible=find('hinged guardian lower mandible');
   const body=find('armored body');
   const head=find('warden mask');
+  const frontHip=find('leg -1 0');
+  const frontKnee=frontHip.getObjectByName('claw knee');
+  const rearHip=find('leg 1 2');
+  const rearKnee=rearHip.getObjectByName('claw knee');
+  assert.ok(frontKnee&&rearKnee,'witnessed surrender requires original rooted knees');
   const initial=rigPrimitiveResourceStats();
   const meshCount=(()=>{let n=0;warden.group.traverse(o=>{if(o.isMesh)n++});return n})();
   const pose=(counterPhase,overrides={})=>{
@@ -40,7 +45,9 @@ test('one actually witnessed lantern counter moves Thornback through distinct co
       guard:Math.abs(leftGuard.rotation.x),
       vane:leftVane.rotation.z, jaw:mandible.rotation.x,
       bodyPitch:body.rotation.x,headPitch:head.rotation.x,
-      headY:head.position.y
+      headY:head.position.y,bodyY:body.position.y,
+      frontHip:frontHip.rotation.z,frontKnee:frontKnee.rotation.x,
+      rearHip:rearHip.rotation.z,rearKnee:rearKnee.rotation.x
     };
   };
   try {
@@ -58,10 +65,22 @@ test('one actually witnessed lantern counter moves Thornback through distinct co
       'the armored body must transfer weight through the earned recovery');
     assert.ok(Math.abs(loaded.headPitch-recovery.headPitch)>.24,
       'the same physical head must follow the body, not leave a HUD-only response');
+    assert.ok(recovery.bodyY < loaded.bodyY-.065,
+      'subdued Thornback must visibly lower its real armored mass onto its legs');
+    assert.ok(Math.abs(recovery.frontHip)>Math.abs(loaded.frontHip)+.14,
+      'both original forelegs must fold into the physical collapse, not stay planted in attack');
+    assert.ok(Math.abs(recovery.rearHip)>Math.abs(loaded.rearHip)+.14,
+      'rear limbs must catch the real body load rather than leaving a floating shell');
+    assert.ok(recovery.frontKnee>loaded.frontKnee+.20,
+      'original knee must take compression when the guardian surrenders');
     const settled=pose(1);
     const firstSeen=pose(undefined);
     assert.equal(settled.left,firstSeen.left,
       'actual guardian must settle back to trusted disclosed shell after its event');
+    assert.equal(settled.frontHip,firstSeen.frontHip,
+      'front grounding legs must return to canonical first-seen pose');
+    assert.equal(settled.rearKnee,firstSeen.rearKnee,
+      'rear grounding knees must return to canonical first-seen pose');
     assert.equal(settled.vane,firstSeen.vane,
       'no ghost tail recoil after the public counter clock ends');
     assert.equal(rigPrimitiveResourceStats().unique,initial.unique,
