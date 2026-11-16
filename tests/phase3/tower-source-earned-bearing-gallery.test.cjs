@@ -178,7 +178,7 @@ test('true Floor9 gateway now has an open, connected multi-storey original-to-Vo
     assert.equal(upperRear.length,1,'each original physical station has one full-height upper rear bearing');
     assert.ok(Math.hypot(upperRear[0].p[0],upperRear[0].p[2])<22.4);
     const top=upperRear[0].p[1]+upperRear[0].s[1]/2;
-    assert.ok(section.some(part=>part.p[1]===top && part.s[2]>=7),
+    assert.ok(section.some(part=>Math.abs(part.p[1]-top)<1e-6 && part.s[2]>=7),
       'upper inboard bearing has an outward-supported crown, not a floating shaft');
     for(const part of section)if(Math.hypot(part.p[0],part.p[2])>24)
       assert.ok(part.p[1]-part.s[1]/2>1.8,
