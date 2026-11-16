@@ -53,6 +53,8 @@ for(const profile of [
    const g=window.__tinyKingdom;
    return {audit:g.getRealGrainJourneyAudit(),
     selected:g.getSelectedCitizen(),
+    composition:g.getWorkdayCompositionAudit(),
+    physicalLens:g.getCitizenCameraPlan(),
     checksum:g.exportSnapshot().checksum,
     watchText:document.getElementById('world-watch-life').textContent,
     supplyOpen:!document.getElementById('world-supply-trail').hidden,
@@ -60,6 +62,17 @@ for(const profile of [
   });
   expect(after.audit.active,'The camera did not enter the real grain documentary').toBe(true);
   expect(after.audit.source).toBe('real-grain-provenance-only');
+  // Before W370, a REAL watched harvesting farmer fell through to generic
+  // Follow: pitch .76, zoom 12.8, no physical crop/IK witness. Only assert
+  // the grounded workday lens when the genuine chosen producer is harvesting.
+  if(after.audit.stage==='harvesting'&&after.composition?.active){
+   expect(after.physicalLens?.zoom,
+    'The authentic harvested-grain witness reverted to remote generic Follow')
+    .toBeLessThan(10);
+   expect(after.physicalLens?.projectedWorkerHeightFraction,
+    'The camera no longer frames the genuine working citizen')
+    .toBeGreaterThan(.15);
+  }
   expect(after.checksum,'A spectator click changed authoritative simulation').toBe(before.beforeChecksum);
   expect(after.overflow).toBe(0);
   if(profile.viewport.width===390)expect(after.supplyOpen,

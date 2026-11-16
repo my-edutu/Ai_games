@@ -24728,6 +24728,13 @@ function physicallyReadableCourierRouteShot(shot,framing,portrait){
   framing.blockedBodyRays<=2&&framing.foregroundCitizenBlockers===0&&
   framing.handBlockers===0&&framing.cameraProximityWarnings===0;
 }
+// W370: a watched REAL farmer is a live labor witness even when the standard
+// Live Shift director is off. Only the authoritative producer and its current
+// actual occupation can activate the physical close-up; no actor or task is staged.
+function genuineGrainLaborCameraActive(citizen){
+ return Boolean(grainJourney&&citizen&&grainJourney.producer===citizen.name&&
+  isWorkingAtSite(citizen));
+}
 function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const realWork=isWorkingAtSite(citizen);
  const realFarmWork=realWork&&citizen.job==='farmer'&&
@@ -24742,6 +24749,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   actualWorkStage==='cutting'?.72:actualWorkStage==='gathering'?.78:.86:
   citizen.job==='builder'?.86:citizen.job==='craftsperson'?.91:.94;
  const working=Boolean(forceWorkday||liveWorkday||
+  genuineGrainLaborCameraActive(citizen)||
   document.body.dataset.citizenInspect==='on'||marketStory);
  const unloading=Boolean(marketStory&&
   (citizen.delivery?.stage==='unloading'||realReceipt));
@@ -25355,7 +25363,8 @@ function observedWorkdayCameraPlan(citizen,preferredYaw){
  const homecomingEntryBand=doorEntry?Math.round(doorEntry.swing*8):0;
  const receipt=recentObservedCourierReceipt(citizen);
  const observeDelivery=isObservedRealCourier(citizen);
- const observeWorkday=liveWorkday&&isWorkingAtSite(citizen);
+ const observeWorkday=(liveWorkday&&isWorkingAtSite(citizen))||
+  genuineGrainLaborCameraActive(citizen);
  if(!observeHome&&!observeDelivery&&!observeWorkday){
   liveShotPlanCache=null;
   return planCitizenCamera(citizen,preferredYaw);
@@ -25587,7 +25596,8 @@ function physicalCartSightlineAudit(){
 }
 function workdayCameraCompositionAudit(){
  const person=people[Math.min(selectedCitizen,people.length-1)];
- if(!person||!liveWorkday||!follow||!isWorkingAtSite(person))
+ if(!person||!(liveWorkday||genuineGrainLaborCameraActive(person))||
+  !follow||!isWorkingAtSite(person))
   return {active:false,actor:person?.name||null,source:'real-autonomous-workday'};
  const face=builderStageAngle(person),radius=Math.cos(pitch)*zoom;
  const eye=[focusPoint[0]+Math.sin(yaw)*radius,
@@ -28845,7 +28855,8 @@ if(follow&&!daybreakReturn){
   // Only the genuine 390px worker witness can trigger an alternative.
   // Reuse the same physical survey for the subsequent camera decision.
   const isPortraitWorkWitness=canvas.clientWidth>0&&canvas.clientWidth<=520&&
-   (liveWorkday||document.body.dataset.workday==='delivery')&&
+   (liveWorkday||genuineGrainLaborCameraActive(citizen)||
+    document.body.dataset.workday==='delivery')&&
    !grainJourney?.homeWitness;
   let portraitCurrentScene=null,portraitAlternativeSelected=false;
   let portraitPhysicalRoofs=null;
