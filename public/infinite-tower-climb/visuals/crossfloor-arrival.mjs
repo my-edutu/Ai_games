@@ -1,3 +1,5 @@
+import { observedEarnedFarSideShaftOverlap } from './far-side-shaft-transition.mjs';
+
 // The first portrait WebGL submission in original 07aa3bda video reached
 // floor-nine at tick460; the browser had already accepted the REAL 8->9
 // grounded handoff at tick451 but its lastGuardianCrossing publication was
@@ -380,6 +382,7 @@ export function holdIncomingStructuralShell(source,passage,held,job,sourceGatePr
  * old architecture's optical hold. No new source floor, asset or fake frame.
  */
 export function observedPrebuiltVoidShaftRelease(source,passage,held,job,sourceGatePresence=null) {
+  const farSide=observedEarnedFarSideShaftOverlap(source,held,job);
   if(job?.state!=='awaiting-structural-release' ||
      job.proof!=='recorded-source-gateway' ||
      job.structureDeferred!==true ||
@@ -389,7 +392,7 @@ export function observedPrebuiltVoidShaftRelease(source,passage,held,job,sourceG
      job.floor!==9 || job.runToken!==source.runToken ||
      !Number.isSafeInteger(source.tick) ||
      !Number.isSafeInteger(job.sourceTick) ||
-     source.tick<job.sourceTick || source.tick-job.sourceTick>70 ||
+     source.tick<job.sourceTick || source.tick-job.sourceTick>(farSide?150:70) ||
      !Number.isSafeInteger(job.submittedFrames) ||
      !Number.isSafeInteger(job.structureBuiltAtSubmitted) ||
      job.structureBuiltAtSubmitted<1 ||
@@ -410,6 +413,11 @@ export function observedPrebuiltVoidShaftRelease(source,passage,held,job,sourceG
     source.tick>=crossing.sourceTick &&
     source.tick-crossing.sourceTick<=70;
   if(!sameOldGpuOwner && !immutableVictory) return false;
+  // A full-body actor beyond the old physical sill must see the genuinely
+  // built successor shaft BEFORE the retained original world may disappear.
+  // The extra source window is only for already-verified, physically
+  // supported same-run traversal; it creates no authority or fake WebGL frame.
+  if(farSide) return true;
   // Once the original geometry has legitimately retired, its existing
   // retained gate cannot continue to veto a truthful F9 shaft.
   if(!holdIncomingStructuralShell(source,passage,held,job,sourceGatePresence))
