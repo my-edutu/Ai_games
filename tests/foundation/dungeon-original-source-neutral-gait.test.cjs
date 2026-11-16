@@ -51,11 +51,13 @@ test('a real licensed Idle full-leg trial does not throw after the original reve
  // Merely checking the assignment inside try missed the prior live
  // ReferenceError caused by a try-local const.
  const declaration=stage.indexOf('let neutralBlends=null;');
- const reversibleTry=stage.indexOf('try{\\n  for(const angles of starterAngles)sample(angles);');
+ const reversibleTry=stage.indexOf('try{',declaration);
+ const starterProbe=stage.indexOf('for(const angles of starterAngles)sample(angles);',reversibleTry);
  const reversibleFinally=stage.indexOf('}finally{',reversibleTry);
  const skinReceipt=stage.indexOf('requestedNeutralBlends:neutralBlends',reversibleFinally);
  assert.ok(declaration>=0&&declaration<reversibleTry&&
-  reversibleTry<reversibleFinally&&reversibleFinally<skinReceipt,
+  reversibleTry<starterProbe&&starterProbe<reversibleFinally&&
+  reversibleFinally<skinReceipt,
   'source-neutral receipt must survive actual reversible source skin probes');
  const probeBody=stage.slice(reversibleTry,reversibleFinally);
  assert.match(probeBody,/neutralBlends=!sourceAnkleProof\\?/);
