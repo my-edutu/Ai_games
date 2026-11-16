@@ -219,24 +219,3 @@ export function publicEarnedGuardianScenicStageOverlap(actor,scenic,earned=false
   return width>=Math.max(.08,(actor.right-actor.left)*.15)
     && height>=Math.max(.09,(actor.top-actor.bottom)*.15);
 }
-
-/**
- * Real source-rendered earned guardian camera-flank choice. Candidate counts
- * come only from full-body geometry and visible public-world ray evidence.
- * Never switch for a speculative, unsafe, inconclusive or tiny improvement.
- */
-export function choosePublicEarnedParryFlank(candidates,eligible=false,reducedMotion=false){
-  if(!eligible||reducedMotion||!Array.isArray(candidates)||candidates.length<2)return 0;
-  const valid=c=>c&&Number.isFinite(c.angle)&&Math.abs(c.angle)<=.55
-    &&c.safe===true&&Number.isInteger(c.cleared)
-    &&c.cleared>=0&&c.cleared<=10
-    &&typeof c.pipTorsoClear==='boolean'
-    &&typeof c.guardianHeadClear==='boolean';
-  const baseline=candidates.find(c=>c?.angle===0);
-  if(!valid(baseline))return 0;
-  const wins=candidates.filter(c=>valid(c)&&c.angle!==0
-    &&c.pipTorsoClear&&c.guardianHeadClear
-    &&c.cleared>=baseline.cleared+2);
-  wins.sort((a,b)=>b.cleared-a.cleared||Math.abs(a.angle)-Math.abs(b.angle));
-  return wins.length?wins[0].angle:0;
-}
