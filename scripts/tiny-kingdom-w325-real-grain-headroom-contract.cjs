@@ -8,7 +8,7 @@ const script=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)]
  .find(row=>row[1].includes('function farmStalk('));
 assert(script,'full original playable game script');
 new vm.Script(script[1],{filename:'tiny-kingdom-original-game.js'});
-const a=html.indexOf('function farmSoil('),b=html.indexOf('function ripeningField(',a),
+const a=html.indexOf('function farmEarthWearTone('),b=html.indexOf('function ripeningField(',a),
  c=html.indexOf('\nfunction fieldWindSample(',b);
 assert(a>0&&b>a&&c>b,'the original crop mesh and true plotted fields');
 const ctx={

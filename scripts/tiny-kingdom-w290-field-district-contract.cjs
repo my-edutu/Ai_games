@@ -3,7 +3,7 @@
 // Running-game aesthetic/performance acceptance is separate, NOT PROVEN here.
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
-const a=html.indexOf('function farmSoil(');
+const a=html.indexOf('function farmEarthWearTone(');
 const b=html.indexOf('function ripeningField(',a);
 assert(a>0&&b>a,'live original farm district exists');
 const source=html.slice(a,b);
