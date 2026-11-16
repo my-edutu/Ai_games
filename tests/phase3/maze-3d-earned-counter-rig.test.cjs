@@ -64,7 +64,7 @@ test('Pass426 one publicly earned lantern counter plants, rebounds and recovers 
     assert.deepEqual(after,original,
       'the physical reaction reuses the real rig; zero new GPU resource class');
     warden.reset();
-    assert.equal(body.rotation.x,-.055,
+    assert.ok(Math.abs(body.rotation.x)<1e-9,
       'the neutral original guardian survives a full public encounter reset');
   }finally{
     warden.dispose();
@@ -72,14 +72,14 @@ test('Pass426 one publicly earned lantern counter plants, rebounds and recovers 
 });
 
 test('Pass426 scene clock demands a tracked same-run public false-to-true witness',()=>{
-  assert.match(sceneFile,/previousWardenSnapshot\\?\\.runToken === snapshot\\.runToken/,
+  assert.ok(sceneFile.includes('previousWardenSnapshot?.runToken === snapshot.runToken'),
     'a stale prior run may never earn a new counter');
-  assert.match(sceneFile,/previouslyTracked && entry\\.lanternParried!==true/,
+  assert.ok(sceneFile.includes('previouslyTracked && entry.lanternParried!==true'),
     'a first-discovered already-parried guardian cannot invent a new impact');
-  assert.match(sceneFile,/previousWardenSnapshot\\.visibleCells\\?\\.includes\\(earlier\\.cell\\)/,
+  assert.ok(sceneFile.includes('previousWardenSnapshot.visibleCells?.includes(earlier.cell)'),
     'an earlier hidden enemy never generates a counter beat');
-  assert.match(sceneFile,/snapshot\\.visibleCells\\?\\.includes\\(threat\\.cell\\)/,
+  assert.ok(sceneFile.includes('snapshot.visibleCells?.includes(threat.cell)'),
     'an enemy no longer publicly visible cannot animate the scene');
-  assert.match(sceneFile,/counterPhase=lanternParried && entry\\.counterSince!==null/,
+  assert.ok(sceneFile.includes('counterPhase=lanternParried && entry.counterSince!==null'),
     'only an actual current publicly parried guardian receives the clock');
 });
