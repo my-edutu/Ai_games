@@ -82,9 +82,22 @@ function parseVideoBlocks(buf){
 function inspectRealWebMVideoPTS(media={}){
  const source='d04-ebml-video-pts',fail=reason=>({
   source,status:'UNAVAILABLE',reason,sampleSynchronized:false});
- if(media.source!=='real-webgl-receipt-readback-serial-original-audio'||
-  media.phase!=='after-all-primary-encoders-settled'||
-  media.primaryRecordersSettled!==true||media.optedInAtStart!==true||
+ // Two authenticated, independently recorded routes may establish encoded
+ // VP8 packet timestamps. A requested canvas frame is never an encoded frame.
+ const serial=media.source==='real-webgl-receipt-readback-serial-original-audio';
+ const primary=media.source==='real-canvas-plus-opted-in-soundstage';
+ const pump=media.framePump||{};
+ const serialVerified=serial&&media.phase==='after-all-primary-encoders-settled'&&
+  media.primaryRecordersSettled===true;
+ const primaryVerified=primary&&
+  /^video\/webm;codecs=vp8,opus$/i.test(media.mimeType||'')&&
+  pump.mode==='submitted-frame-request'&&pump.requestFailures===0&&
+  Number.isSafeInteger(pump.requestedFrames)&&pump.requestedFrames>0&&
+  pump.requestedFrames<=2048&&
+  Number.isSafeInteger(pump.observedFrameAdvances)&&
+  pump.observedFrameAdvances>=pump.requestedFrames&&
+  pump.observedFrameAdvances<=2048;
+ if(!(serialVerified||primaryVerified)||media.optedInAtStart!==true||
   media.originalSoundstageTrackLive!==true||media.status!=='RECORDED'||
   media.videoTracks!==1||media.audioTracks!==1||
   !/^video\/webm(?:;|$)/i.test(media.mimeType||'')||
@@ -107,12 +120,20 @@ function inspectRealWebMVideoPTS(media={}){
  }catch(e){return fail('WebM EBML parse: '+String(e.message||e).slice(0,120))}
 }
 function classifyEncodedFrameYield(media={},proof={}){
- const pump=media.framePump||{},samples=pump.samples;
+ const pump=media.framePump||{};
+ const serial=media.source==='real-webgl-receipt-readback-serial-original-audio';
+ const primary=media.source==='real-canvas-plus-opted-in-soundstage';
+ const samples=serial?pump.samples:primary?pump.submissionSamples:null;
+ const verifiedPump=(serial&&pump.mode==='real-webgl-render-receipt-readback'||
+  primary&&pump.mode==='submitted-frame-request'&&
+   Number.isSafeInteger(pump.observedFrameAdvances)&&
+   pump.observedFrameAdvances>=pump.requestedFrames&&
+   pump.observedFrameAdvances<=2048)&&
+  pump.requestFailures===0;
  if(proof.source!=='d04-ebml-video-pts'||proof.status!=='PARSED'||
   proof.sampleSynchronized!==false||proof.pixelMotionVerified!==false||
-  media.source!=='real-webgl-receipt-readback-serial-original-audio'||
-  pump.mode!=='real-webgl-render-receipt-readback'||pump.requestFailures!==0||
-  !Number.isSafeInteger(pump.requestedFrames)||pump.requestedFrames<1||
+  !verifiedPump||!Number.isSafeInteger(pump.requestedFrames)||
+  pump.requestedFrames<1||pump.requestedFrames>2048||
   !Array.isArray(samples)||pump.requestedFrames!==samples.length||
   !Number.isSafeInteger(proof.videoFrames)||proof.videoFrames<1||
   proof.videoFrames>pump.requestedFrames||
@@ -121,7 +142,10 @@ function classifyEncodedFrameYield(media={},proof={}){
  for(let i=0;i<samples.length;i++){
   if(!Number.isSafeInteger(samples[i]?.receipt)||
    !Number.isFinite(samples[i]?.atMs)||samples[i].atMs<0||
-   (i>0&&(samples[i].receipt<=samples[i-1].receipt||samples[i].atMs<=samples[i-1].atMs)))
+   (primary&&(samples[i].requestAttempted!==true||
+    samples[i].requestSucceeded!==true))||
+   (i>0&&(samples[i].receipt<=samples[i-1].receipt||
+    samples[i].atMs<=samples[i-1].atMs)))
    return 'ENCODED_FRAME_TIMING_UNVERIFIED';
  }
  for(let i=0;i<proof.ptsMs.length;i++){
@@ -129,6 +153,8 @@ function classifyEncodedFrameYield(media={},proof={}){
    (i>0&&proof.ptsMs[i]<=proof.ptsMs[i-1]))
    return 'ENCODED_FRAME_TIMING_UNVERIFIED';
  }
+ // Only packet presence, order and scarcity. Still NO decoded pixel motion
+ // and NO matching to renderer receipts, WebAudio time or audible PCM onset.
  return proof.videoFrames===1?'ONE_ENCODED_VIDEO_FRAME_UNALIGNED':'SPARSE_ENCODED_VIDEO_PTS_UNALIGNED';
 }
 module.exports={inspectRealWebMVideoPTS,classifyEncodedFrameYield};
