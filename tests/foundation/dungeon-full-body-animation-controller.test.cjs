@@ -5397,8 +5397,10 @@ test('RED: original source calf may not twitch for 1.94mm lift while toe remains
  };
  assert.equal(confirm(measured),false,
   '1.94mm / 38.07mm original toe burial (5.1%) is a futile visible knee bend');
- assert.equal(confirm({...measured,afterToeY:-.0528}),true,
-  'same skinned toe recovering >10% of its depth may earn a bounded knee bend');
+ assert.equal(confirm({...measured,afterToeY:-.0528}),false,
+  'more than 10% toe lift is NOT enough if the real airborne heel rises faster');
+ assert.equal(confirm({...measured,afterToeY:-.0528,afterHeelY:.189}),true,
+  'same skinned toe and heel: >10% toe relief with no heel amplification may earn a bounded bend');
  assert.equal(confirm({...measured,beforeToeY:-.044,afterToeY:-.041}),true,
   'shallow 24mm initial burial may retain small verified source-hinge relief');
  for(const bad of [
@@ -5416,7 +5418,28 @@ test('RED: original source calf may not twitch for 1.94mm lift while toe remains
 });
 
 
-// Original source WebGL #43568544679 and earlier #43558143343 showed
+// Regression from exact-head Actions #43883258304: source safety correctly
+// rejects heel-amplifying toe lifts, but selecting the LARGEST eligible
+// toe Y can still choose a nearly vertical buried shoe over a flatter
+// original-GLB knee probe. These candidate numbers are explicitly SYNTHETIC
+// contract fixtures, NOT a claim about a recorded new source animation.
+test('RED: original source knee selection prefers measured sole-pitch relief over a marginal 3mm toe-only advantage',async()=>{
+ const {selectOriginalSourceSwingCalfTrial:select}=await load();
+ const witness={afterAnkleToeY:-.076,afterAnkleHeelY:.240,floorTopY:-.02};
+ const toeOnly={signed:.18,toe:-.048,heel:.264};
+ const flatter={signed:-.12,toe:-.051,heel:.241};
+ assert.equal(select({...witness,trials:[toeOnly,flatter]})?.signed,-.12,
+  '3mm more toe lift cannot win if it raises the airborne heel 23mm MORE');
+ assert.equal(select({...witness,trials:[flatter,toeOnly]})?.signed,-.12,
+  'source pose selection must be invariant to trial order');
+ assert.equal(select({...witness,trials:[toeOnly]})?.signed,.18,
+  'the only safe measured sole may still be used, subject to final real skin');
+ const muchWorseToe={signed:-.12,toe:-.064,heel:.231};
+ assert.equal(select({...witness,trials:[toeOnly,muchWorseToe]})?.signed,.18,
+  'never trade 16mm genuine toe clearance for the flatter but deeply buried candidate');
+});
+
+// // Original source WebGL #43568544679 and earlier #43558143343 showed
 // deeply buried SWING toes with an airborne heel, no certified planted
 // loaded shoe, and repeated unproductive one-bone knee/toe twitches.
 // A coherent reversible upperleg+lowerleg probe may be considered only if
