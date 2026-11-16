@@ -38,7 +38,12 @@ test('the same previously verified Floor8->9 source crossing retires roof, monum
   const {materials,deck}=fixture();
   const bridge=createOriginalClockworkArchitecturalPalette(materials,bronze);
   const originalStone=materials.stone.color.clone();
-  let tail=observedVerifiedClockworkPaletteTail(source,handoff(0),0);
+  // Historical bronze must have been painted at least once. An unpublished
+  // source crossing cannot impersonate a GPU-retained color frame.
+  assert.equal(observedVerifiedClockworkPaletteTail(source,handoff(0,0),0),null);
+  assert.equal(observedVerifiedClockworkPaletteTail(source,handoff(1,.11),0),null,
+    'one returned frame cannot certify more than 100ms of actual display');
+  let tail=observedVerifiedClockworkPaletteTail(source,handoff(1,.06),0);
   assert.equal(tail.historicalOpticalTail,true);
   assert.equal(tail.sourceBound,undefined,'past source proof is optical history, not current gameplay authority');
   assert.equal(tail.authenticatedSourceTick,535);
