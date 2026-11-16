@@ -475,3 +475,51 @@ test('real licensed Idle pose is sampled at the witnessed Walking_A phase, never
  assert.match(renderer,/actor\.activeClip\.time/);
  assert.match(renderer,/originalIdleSourcePhase/);
 });
+
+
+// Real last-head ORIGINAL KayKit 390px WebGL source gait, Actions #43813703924.
+// At Walking_A phase .14248 the licensed Idle full-leg trials pulled the toe
+// -16.30mm and -22.36mm farther beneath stone. Do not repeat that two-probe
+// failure over adjacent frames of the SAME original instance/phase: spend the
+// still-bounded followups on measured connected Walking_A leg alternatives.
+// This fixture is copied from actual source skin receipts, not a fabricated
+// corrected pose or a claimed foot plant.
+test('RED: measured failed original Idle phase makes the next nearby real walk frame use linked-leg followups, never stale evidence',async()=>{
+ const {shouldFallbackToOriginalLinkedLegAfterIdleMiss:fallback}=await load();
+ const previous={
+  sourceInstanceId:'licensed-source-clone-1',sourceClip:'Walking_A',
+  neutralClip:'Idle',side:'right',sourceProbeCount:4,
+  acceptedCandidate:false,contactLocked:false,
+  sourceIdlePhase:.14247681866513348,
+  before:{right:{heelY:.21220301414822368,toeY:-.08875384511705006}},
+  trials:[
+   {blend:.10487681421147843,toeLiftMeters:-.01629794629503245,
+    heelDeltaMeters:-.02868240767228117},
+   {blend:.14982402030211206,toeLiftMeters:-.022359428605545822,
+    heelDeltaMeters:-.04199589761170666}
+  ]
+ };
+ const fresh={
+  previous,sourceInstanceId:'licensed-source-clone-1',
+  sourceClipName:'Walking_A',side:'right',sourcePhase:.18,
+  mode:'move',sourceWeight:1,reducedMotion:false,interrupted:false,
+  toeY:-.087,heelY:.21
+ };
+ assert.equal(fallback(fresh),true);
+ // The previously rejected Idle work cannot authorize an animation pose or
+ // carry over to a different source clone, action or materially new gait phase.
+ for(const bad of [
+  {sourceInstanceId:'another-original-clone'},
+  {sourceClipName:'Idle'},{side:'left'},{mode:'attack'},
+  {sourceWeight:.87},{reducedMotion:true},{interrupted:true},
+  {sourcePhase:.40},{sourcePhase:NaN},
+  {toeY:-.02},{heelY:0},
+  {previous:{...previous,acceptedCandidate:true}},
+  {previous:{...previous,trials:[previous.trials[0]]}},
+  {previous:{...previous,trials:[
+   previous.trials[0],{...previous.trials[1],toeLiftMeters:.003}
+  ]}}
+ ])assert.equal(fallback({...fresh,...bad}),false);
+ assert.match(renderer,/shouldFallbackToOriginalLinkedLegAfterIdleMiss\(/);
+ assert.match(renderer,/measured-original-idle-phase-worsened-both-soles/);
+});
