@@ -86,16 +86,40 @@ function decodeSameWindowReadbackMotion(video={}){
  * This function is serialized directly into page.evaluate. Do not reference
  * any Node helper or closure; do not draw to the Dungeon WebGL canvas.
  */
+/**
+ * Only two real, bounded capture routes may enter Chromium's pixel decoder:
+ * the frame-acknowledged primary canvas + opted-in ORIGINAL soundstage, or
+ * the separately verified real WebGL receipt readback in the same audio
+ * window. Synthetic positive controls never qualify. Neither source gives
+ * video PTS, audible onset or synchronized contact evidence.
+ */
+function authenticatedOriginalD04WebM(input){
+ const common=input?.status==='RECORDED'&&input.videoTracks===1&&
+  input.audioTracks===1&&input.optedInAtStart===true&&
+  input.originalSoundstageTrackLive===true&&
+  Number.isSafeInteger(input.bytes)&&input.bytes>1024&&
+  input.bytes<=4*1024*1024;
+ if(!common)return false;
+ if(input.source==='real-webgl-receipt-readback-serial-original-audio')
+  return true;
+ if(input.source!=='real-canvas-plus-opted-in-soundstage'||
+  !/^video\\/webm;codecs=vp8,opus$/i.test(input.mimeType||''))return false;
+ const pump=input.framePump;
+ if(!pump||pump.requestFailures!==0||
+  !Number.isSafeInteger(pump.observedFrameAdvances)||
+  pump.observedFrameAdvances<1||pump.observedFrameAdvances>32||
+  !Number.isSafeInteger(pump.requestedFrames)||
+  pump.requestedFrames<0||pump.requestedFrames>32)return false;
+ return pump.mode==='submitted-frame-request'&&
+  pump.requestedFrames>0&&pump.requestedFrames<=pump.observedFrameAdvances||
+  pump.mode==='native-capture-stream'&&pump.requestedFrames===0;
+}
 async function sampleChromiumDecodedD04WebM(input){
  const source='chromium-decoded-real-webgl-original-webm';
  const fail=reason=>({source,status:'UNAVAILABLE',reason:String(reason).slice(0,160),
   sampleSynchronized:false});
- if(input?.source!=='real-webgl-receipt-readback-serial-original-audio'||
-  input?.status!=='RECORDED'||input?.videoTracks!==1||
-  input?.audioTracks!==1||input?.optedInAtStart!==true||
-  input?.originalSoundstageTrackLive!==true||
-  !Number.isSafeInteger(input.bytes)||input.bytes<=1024||
-  input.bytes>4*1024*1024||typeof input.base64!=='string'||
+ if(!authenticatedOriginalD04WebM(input)||
+  typeof input.base64!=='string'||
   input.base64.length>Math.ceil(4*1024*1024*4/3)+8)
   return fail('No bounded, opted-in authentic WebGL + soundstage recording');
  let objectUrl=null,video=null;
@@ -181,11 +205,7 @@ async function sampleChromiumDecodedD04WebM(input){
 function classifyChromiumDecodedRealWebM(media={},proof={}){
  const unavailable={source:'chromium-decoded-real-webgl-original-webm',
   classification:'BROWSER_DECODE_UNVERIFIED',sampleSynchronized:false};
- if(media.source!=='real-webgl-receipt-readback-serial-original-audio'||
-  media.status!=='RECORDED'||media.videoTracks!==1||media.audioTracks!==1||
-  media.optedInAtStart!==true||media.originalSoundstageTrackLive!==true||
-  !Number.isSafeInteger(media.bytes)||media.bytes<=1024||
-  media.bytes>4*1024*1024||
+ if(!authenticatedOriginalD04WebM(media)||
   proof.source!==unavailable.source||proof.status!=='SAMPLED'||
   !Number.isSafeInteger(proof.width)||proof.width<16||proof.width>4096||
   !Number.isSafeInteger(proof.height)||proof.height<16||proof.height>4096||
