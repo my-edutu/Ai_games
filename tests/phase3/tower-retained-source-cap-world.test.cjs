@@ -129,11 +129,11 @@ test('same earned doorway retains the ORIGINAL old cap real geometry over the Fl
     assert.equal(world.stageGroundedCapContinuation(first,second),true);
     world.update(second,.05,.05,{quality:'low'});
     resourceCheckpoint('first-void-rebuild');
-    assert.equal(world.group.getObjectByName('platform:f8:cap'),genuine,
+    assert.equal(world.group.getObjectByName('platform:f8:cap')===genuine,true,
       'the already-rendered original meshes must survive, not synthetic replacement');
-    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),originalGate,
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===originalGate,true,
       'the ORIGINAL opened guardian doorway must survive the Floor9 rebuild alongside the old deck');
-    assert.equal(world.group.getObjectByName('GuardianGateInset'),originalDoor,
+    assert.equal(world.group.getObjectByName('GuardianGateInset')===originalDoor,true,
       'must retain the real HP-driven bronze grille and not substitute decorative inlays');
     // The cold Floor9 rehydrate path MUST reproduce the same real lifted
     // source-open gate pose as the hot Floor8 guardian victory. A historical
@@ -263,7 +263,7 @@ test('unearned, stale, wrong-run or geometry-mismatched cap never attaches old w
       assert.equal(world.stageGroundedCapContinuation(proof,after),false);
       world.update(after,.05,.05,{quality:'low'});
       assert.equal(world.diagnostics().retainedSourceCap,null);
-      assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),undefined,
+      assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===undefined,true,
         'no fake unlocked old door may attach on wrong-run or unearned transitions');
     }finally{world.dispose();}
   }
@@ -315,7 +315,7 @@ test('an unseen grounded crossing followed immediately by a real first-floor-nin
     assert.equal(world.stageGroundedCapContinuation(proof,after),true,
       'the real first airborne step after the grounded source crossing keeps the original door');
     world.update(after,.05,.05,{quality:'low'});
-    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),actualOldGate);
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===actualOldGate,true);
     assert.equal(world.diagnostics().retainedSourceCap?.guardianGateRetained,true);
     // The original cold gate remains source-proven for up to 48 ticks
     // even if the GPU has not submitted a successor frame. Check both
@@ -362,7 +362,7 @@ test('source-witnessed cold Floor9 keeps distant scenery off the FIRST real fram
       'the trusted source proof must authorize deferred distant scenery, not old browser guardian state');
     assert.equal(pending?.structureDeferred,true,
       'only the source-proven Floor 8 guardian exit defers the noninteractive structural shell');
-    assert.equal(world.group.getObjectByName('deferred-original-floor-nine-architecture'),undefined,
+    assert.equal(world.group.getObjectByName('deferred-original-floor-nine-architecture')===undefined,true,
       'the first playable frame must not upload the heavyweight new tower shaft');
     world.noteFrameSubmitted(newFloor,{},.05);
     world.update(newFloor,.05,.1,{quality:'low'});
@@ -463,7 +463,7 @@ test('source-owned visual gateway and original real cap survive first authentic 
     assert.ok(original?.isGroup);
     world.noteFrameSubmitted(after);
     world.update(flying,.1,.15,{quality:'low'},witness);
-    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),original,
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===original,true,
       'source earned old gateway cannot vanish while same physical doorway remains in first submitted airborne view');
     assert.equal(world.diagnostics().retainedSourceCap?.sourceAlignedPassage,true);
     world.update({...flying,tick:500},.1,.25,{quality:'low'},witness);
@@ -631,11 +631,13 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
     // permission to bury the same threshold behind the purple architecture.
     resourceCheckpoint('three-clocks-before-8-real-return-loop');
     for(let step=2;step<=8;step++){
+      resourceCheckpoint('three-clocks-return-'+step+'-begin');
       const frame={...later,tick:460+step};
       const witness={...passage,handoffSubmittedFrames:step,
         handoffDisplaySeconds:step*.05};
       world.noteFrameSubmitted(frame,{});
       world.update(frame,.05,.1+step*.05,{quality:'low'},witness);
+      resourceCheckpoint('three-clocks-return-'+step+'-end');
     }
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===originalArch,true,
       'original bronze gate GPU identity must survive; never format the gigantic Three.js graph');
@@ -654,8 +656,11 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
     // deferred architecture or changing canonical F9 platform materials.
     const departed={...later,tick:476,
       player:{...later.player,x:gate+160000}};
+    resourceCheckpoint('three-clocks-far-departure-before');
     world.update(departed,.05,.8,{quality:'low'},passage);
-    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),undefined);
+    resourceCheckpoint('three-clocks-far-departure-after');
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===undefined,true,
+      'genuine departed hero must release the bronze gate; report a boolean, never format the whole cyclic Three.js graph');
     assert.ok(world.group.getObjectByName('deferred-original-floor-nine-architecture'),
       'noninteractive new-floor structure arrives after the real body leaves the source gate');
     assert.ok(!sharedSurface.material.color.equals(firstGroundColor),
@@ -708,7 +713,7 @@ test('the ORIGINAL HP-controlled bronze gate straddles the physical increasing-X
     // arch and the same crossing plane; it never synthesizes a replacement.
     assert.equal(world.stageGroundedCapContinuation(before,after),true);
     world.update(after,.05,.05,{quality:'low'});
-    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),arch);
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===arch,true);
     arch.updateWorldMatrix(true,true);
     assert.ok(Math.abs(arch.rotation.y-expected.yaw)<1e-6);
     assert.equal(JSON.stringify([before,after]),immutable);
@@ -749,7 +754,7 @@ test('real Three Floor8 original cap and bronze doorway survive a LATE HP-zero r
   world.update(late,.05,.15,{quality:'low'});
   assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===originalArch,true,
       'original bronze gate GPU identity must survive; never format the gigantic Three.js graph');
-  assert.equal(world.group.getObjectByName('platform:f8:cap'),originalCap);
+  assert.equal(world.group.getObjectByName('platform:f8:cap')===originalCap,true);
   const retained=world.diagnostics().retainedSourceCap;
   assert.equal(retained?.crossingTick,451);
   assert.equal(retained?.lateRecordedCrossingReacquiredAtTick,462);
@@ -804,9 +809,9 @@ test('real Three world retains the identical old bronze gate across a nine-tick 
       player:{...crossed.player,x:crossed.player.x+16500}};
     const untouched=JSON.stringify([before,crossed,late]);
     world.update(late,.05,.5,{quality:'low'});
-    assert.equal(world.group.getObjectByName('platform:f8:cap'),oldCap,
+    assert.equal(world.group.getObjectByName('platform:f8:cap')===oldCap,true,
       'first actual Floor9 Three rebuild must not delete the already-rendered bronze cap');
-    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),oldGate,
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===oldGate,true,
       'first actual Floor9 Three rebuild must not delete the original opened doorway');
     const held=world.diagnostics().retainedSourceCap;
     assert.equal(held?.guardianGateRetained,true);
@@ -849,14 +854,14 @@ test('source-earned Floor9 paints one actual open Void load path beside the reta
     assert.equal(originalOwners.some(owner=>owner.includes('VoidOpenCoreFoundation') ||
       owner.includes('VoidOpenCoreSupportedCrown')),false,
       'high-mass foundation/crown must not be uploaded on the expensive first WebGL frame');
-    assert.equal(bearing.getObjectByName('SourceEarnedVoidExteriorButtress'),undefined,
+    assert.equal(bearing.getObjectByName('SourceEarnedVoidExteriorButtress')===undefined,true,
       'new opaque nearest Void pylon must not screen the real still-visible bronze gateway on first F9');
-    assert.equal(world.group.getObjectByName('tapered-structural-pylon'),undefined,
+    assert.equal(world.group.getObjectByName('tapered-structural-pylon')===undefined,true,
       'all incoming exterior buttresses wait for physical source departure; gameplay floor stays');
     let meshes=0; bearing.traverse(o=>{if(o.isMesh)meshes++;});
     assert.ok(meshes>=2 && meshes<=6,
       'only the bounded source-authored OPEN core is present, never a full cold exterior shaft');
-    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),bronzeArch);
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===bronzeArch,true);
     const pending=world.diagnostics().deferredDistantArrival;
     assert.equal(pending?.actualFirstFrameVoidBearings,true);
     assert.equal(pending?.entireIncomingVoidCoreDeferred,false);
@@ -867,14 +872,14 @@ test('source-earned Floor9 paints one actual open Void load path beside the reta
     assert.ok(pending.deferredPhysicalButtressIndex===0 ||
               pending.deferredPhysicalButtressIndex===1,
       'source-authored nearest exterior support is identified for deferred world assembly');
-    assert.equal(world.group.getObjectByName('deferred-original-floor-nine-architecture'),undefined);
+    assert.equal(world.group.getObjectByName('deferred-original-floor-nine-architecture')===undefined,true);
     // Genuine source-grounded departure releases the remaining *authored*
     // shaft, but may never reconstruct or double the already visible bay.
     world.noteFrameSubmitted(after,{},.05);
     const departed={...after,tick:476,
       player:{...after.player,x:gate+160000}};
     world.update(departed,.05,.9,{quality:'low'});
-    assert.equal(world.group.getObjectByName('SourceEarnedVoidLandingBearingFrame'),bearing,
+    assert.equal(world.group.getObjectByName('SourceEarnedVoidLandingBearingFrame')===bearing,true,
       'same GPU structural owner continues through the new shaft upload');
     const newShaft=world.group.getObjectByName('deferred-original-floor-nine-architecture');
     assert.ok(newShaft,'incoming original support loads only after the real gateway is left behind');
@@ -882,7 +887,7 @@ test('source-earned Floor9 paints one actual open Void load path beside the reta
       'source-deferred zero-alpha shaft must be culled as an entire real Three subtree; transparent opacity zero still incurs draw calls and shader work');
     assert.equal(world.group.getObjectByName('platform:f9:ground')?.visible,true,
       'the real physical new-floor walkable ground must NEVER be hidden with decorative architecture');
-    assert.equal(newShaft.getObjectByName('VoidOpenCoreLoadPath'),undefined,
+    assert.equal(newShaft.getObjectByName('VoidOpenCoreLoadPath')===undefined,true,
       'the original open core is already visibly built and may NEVER be duplicated during deferred shaft upload');
     const incomingMeshes=[];
     newShaft.traverse(o=>{if(o.isMesh)incomingMeshes.push(o);});
@@ -921,7 +926,7 @@ test('unearned ordinary Void rebuild never invents a source-original F8 entrance
   try {
     const successor=next();
     world.update(successor,.05,0,{quality:'low'});
-    assert.equal(world.group.getObjectByName('SourceEarnedVoidLandingBearingFrame'),undefined);
+    assert.equal(world.group.getObjectByName('SourceEarnedVoidLandingBearingFrame')===undefined,true);
     assert.equal(world.diagnostics().deferredDistantArrival,null);
     assert.ok(world.group.getObjectByName('VoidOpenCoreLoadPath')?.isGroup,
       'normal Floor9 receives its original authored shaft, no fabricated F8 gate');
@@ -965,9 +970,9 @@ test('actual cold first Floor9 desktop receipt inherits ORIGINAL GPU gate, cap a
     world.update(second,.05,.05,{quality:'low'});
     const owner=world.diagnostics().retainedSourceCap;
     assert.equal(owner?.guardianGateRetained,true);
-    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate'),realOldGate,
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===realOldGate,true,
       'rendered original unlocked bronze arch survives the GPU rebuild');
-    assert.equal(world.group.getObjectByName('platform:f8:cap'),realOldCap,
+    assert.equal(world.group.getObjectByName('platform:f8:cap')===realOldCap,true,
       'the source original cap survives rather than a synthetic proxy');
     assert.ok(owner.originalGalleryTriangles>0,
       'bounded source-original Clockwork geometry must accompany the old arch');
@@ -1000,7 +1005,7 @@ test('cold 15-tick source-observed F8-to-F9 first paint retains original real Th
   assert.ok(evidence.retainedSourceCap,'original cap must exist at first genuine F9 paint');
   assert.ok(world.group.getObjectByName('ObservedGroundedCapGatewayContinuity'));
   assert.ok(world.group.getObjectByName('OriginalSourceClockworkThresholdGallery'));
-  assert.equal(world.group.getObjectByName('SourceEarnedClockworkVoidBearingGallery'),undefined,
+  assert.equal(world.group.getObjectByName('SourceEarnedClockworkVoidBearingGallery')===undefined,true,
    'this fixture contains no authentic F9 raised step, so visual world must not invent one');
   assert.equal(evidence.retainedSourceCap.verifiedObservedFloorAdvance,true,
    'the browser observation must not masquerade as an immutable source event');
