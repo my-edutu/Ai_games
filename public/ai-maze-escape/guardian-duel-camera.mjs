@@ -154,16 +154,26 @@ export function publicGuardianEarnedRecoilPhysicalStage(
   const right=Math.max(...bodies.map(b=>b.right))-oldPanNdc;
   const top=Math.max(...bodies.map(b=>b.top));
   const bottom=Math.min(...bodies.map(b=>b.bottom));
-  // Refuse a zoom if the earlier immutable complete-body pan could not fit
-  // the pair. Do not use magnification to conceal an existing crop.
+  // Insist the earlier true full-mesh pan fits before any additional zoom.
   if(left<-.925 || right>.925 || top>=.69 || bottom<=-.78)return none;
   const center=Math.max(-.25,Math.min(.25,(left+right)*.5));
   const halfWidth=Math.max(Math.abs(left-center),Math.abs(right-center));
-  if(halfWidth<=0)return none;
-  const scale=Math.min(1.34,.80/halfWidth,
-    .69/Math.max(.001,top),.78/Math.max(.001,-bottom));
+  const verticalSpan=top-bottom;
+  if(halfWidth<=0 || verticalSpan<=0)return none;
+  // Native 320px source: Thornback reaches +.621 while Pip extends to
+  // -.284 NDC. Treating zero as an immutable optical center incorrectly
+  // refused a genuine two-actor closeup. Lift the PHYSICAL camera along
+  // its current up axis, retaining strict native HUD and model envelopes.
+  // These .80/.68/-.75 limits are STRICTER than native +/- .95.
+  const scale=Math.min(1.34,.80/halfWidth,1.43/verticalSpan);
   if(!Number.isFinite(scale) || scale<1.16)return none;
-  return {height:halfHeight/scale,shift:center*halfHeight*aspect,scale};
+  const minVerticalPan=top-.68/scale;
+  const maxVerticalPan=bottom+.75/scale;
+  if(minVerticalPan>maxVerticalPan)return none;
+  const desiredPan=(top+bottom)*.5+.08/scale;
+  const verticalPan=Math.max(minVerticalPan,Math.min(maxVerticalPan,desiredPan));
+  return {height:halfHeight/scale,shift:center*halfHeight*aspect,
+    verticalShift:verticalPan*halfHeight,scale};
 }
 
 

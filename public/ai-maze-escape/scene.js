@@ -1624,6 +1624,10 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         camera.updateMatrixWorld();
         pressureReframeRight.setFromMatrixColumn(camera.matrixWorld,0);
         camera.position.addScaledVector(pressureReframeRight,earnedStage.shift);
+        // Real camera-up reframe stages BOTH full bodies, not a ghost prop.
+        // Scratch vector reused; no new per-frame GPU allocation.
+        pressureReframeRight.setFromMatrixColumn(camera.matrixWorld,1);
+        camera.position.addScaledVector(pressureReframeRight,earnedStage.verticalShift);
         halfHeight=earnedStage.height;
         camera.left=-halfHeight*aspect;camera.right=halfHeight*aspect;
         camera.top=halfHeight;camera.bottom=-halfHeight;

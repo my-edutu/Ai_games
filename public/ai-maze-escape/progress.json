@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-16T18:55:00.000Z",
+  "updatedAt": "2026-11-16T19:55:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass430 source/test candidate: Pip and Thornback now share the actual source-tracked same-run earned lantern-counter clock, with Pip's connected full-body plant, forward lantern drive and recovery. Prior Pass429 320/390 original body visibility and <100 six-reset budget passed on exact HEAD 65232f1; whole-repository CI failed separately. New code-head source tests/WebGL captures/SHA, physical framing and independent critic PENDING. Fixed Nintendo benchmark NOT MET; independent workers/Ultracode NOT_FOUND. PR #53 open draft unmerged undeployed."
+    "summary": "Pass431 original Pass430 40/40 native PNG SHA+3 gate SHA evidence verified. Source-bound complete two-body camera lift and bounded optical close-up candidate is newly implemented; exact new HEAD CI/native full-frame 320/390 artistic comparison PENDING. Nintendo full benchmark unmet."
   },
   "captures": [
+    {
+      "title": "Pass430 original success 40/40 SHA native PNG+3 public gate SHA baseline for Pass431",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/43935205368/artifacts/14261040975"
+    },
     {
       "title": "Pass429 verified genuine source f1b31a3 earned parry 320/390 both actors physically ray-clear; original Pass428 40/40 SHA+3 gate SHA; narrow visual win, full bar unmet",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/43922677824/artifacts/14256245061"
@@ -196,6 +200,7 @@
     }
   ],
   "changes": [
+    "Pass431 source-grounded physical camera-up/zoom for genuine witnessed earned two-actor Pip/Thornback recoil; tighter complete model/HUD constraints than native ±.95; exact HEAD native evidence pending.",
     "Pass428 2026-11-16 UTC: physically source-justified earned guardian over-deck portrait camera elevation to reveal Pip above real tile93 floor, with public-event gating and unit assertions; pending exact-HEAD native WebGL artistic gate, not accepted.",
     "Pass426 (2026-11-16 UTC): production changes to real guardian 3D rig (full torso, forelegs, head, opened shell) and matching grounded contact, triggered ONLY by real same-run publicly witnessed false→true lantern parry; source-authoritative patrol retreat remains unchanged. Source regression caught legacy grounded-contact contract #43903980204, corrected in 5bc57e7 without weakening tests. Installed-Three unit assertions for entire physical rig, reset/reduced/terminal and unchanged geometry class. Native exact-HEAD 320/390/844/1280 screenshots, SHA, strict NDC and independent artistic win NOT YET VERIFIED.",
     "Pass421 2026-11-16 UTC: real source-HEAD Pass420b Chromium WebGL #43842033502 FAILED 390px real public seed13 tick8 earned guardian complete physical silhouette (left -0.962976 < existing -0.95 NDC; allGuardianModels 0 vs guardians 1). Downloaded original artifact SHA256 fd4ef4d9, independently verified 39/39 available original full-frame PNG/sidecar hashes plus 3/3 authentic gate hashes; run abort before 320 candidate earned capture. Direct full-frame 390 A/B against Pass419 authentic 40/40+3/3 shows still obscured Pip torso and boots; rejected artistically as well. Restore exact Pass419 scene/camera baseline and delete candidate-only test; do not touch acceptance thresholds/AI/privacy/HUD. New rollback exact-HEAD WebGL/CI PENDING; worker NOT_FOUND. Nintendo benchmark unmet, PR stays draft unmerged/undeployed.",
@@ -444,6 +449,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass431: verify actual exact-HEAD uncropped 320/390 guardian earned parry clearly larger without crop, 844/1280 regressions, 40 PNG SHA +3 gate SHA, full real actors and <100 six-reset; revert if not materially improved.",
     "Pass428 candidate exact-HEAD 320/390 authentic tick8 seed13 mobile image and public ray audit: prove Pip torso+boots and guardian 320 boots genuinely unoccluded while both full meshes stay within original ±.95 and resource <100; artistically reject/rollback if not.",
     "Pass426 immediate: inspect final exact-HEAD WebGL workflow after contact contract correction, run original unaltered 320×740/390×844/844×390/1280×900 SHA-bound complete scenes and actual public parry seed13 tick8 91→74 frame sequence; compare against verified rollback artifact #14229469982. Reject and safely restore production if physical weight shift and clarity remain invisible/obscured; preserve ±0.95, ≥0.70 withdrawal, <100 six-reset, 44px/privacy/whole-CI and independent Nintendo bar.",
     "Run exact-HEAD unaltered 320/390/844/1280 Chromium and real recoil, compare Pass420 to verified Pass419 by original SHA and direct Nintendo benchmark; reject unproved camera cut and restore safely.",
