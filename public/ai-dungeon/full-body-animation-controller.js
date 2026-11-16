@@ -69,6 +69,28 @@ export function planOriginalSourceSafeNeutralBlendSamples({
  return Object.freeze([.28,upper]);
 }
 
+/**
+ * Original Walking_A can exhibit a physically vertical airborne shoe even
+ * before 55mm of toe burial. Qualify the LOWER 30-55mm range only with
+ * *both* original weighted sole endpoints, a source-length-consistent
+ * 285-325mm shoe and >=220mm of genuine heel clearance above the stone.
+ * Source-proven geometry here merely spends two bounded, reversible Idle
+ * joint trials; it never permits a pose or manufactures ground contact.
+ */
+const originalSourceVerticalSwingAtShallowBurial=(shoe,floorTopY)=>{
+ if(!shoe||![shoe.heelY,shoe.toeY,floorTopY].every(finite)||
+  ![shoe.heelXZ,shoe.toeXZ].every(v=>Array.isArray(v)&&v.length===2&&v.every(finite)))
+  return false;
+ const depth=floorTopY-shoe.toeY;
+ const rise=shoe.heelY-floorTopY;
+ const spanXZ=Math.hypot(shoe.heelXZ[0]-shoe.toeXZ[0],
+  shoe.heelXZ[1]-shoe.toeXZ[1]);
+ const span3D=Math.hypot(spanXZ,shoe.heelY-shoe.toeY);
+ return depth>=.03&&depth<.055&&rise>=.22&&
+  shoe.heelY-shoe.toeY>=.285&&
+  spanXZ>=.045&&spanXZ<=.10&&span3D>=.285&&span3D<=.325;
+};
+
 export function planOriginalSourceAuthoredNeutralBlends({
  mode='idle',sourceClipName='',sourceWeight=NaN,sourceInstanceSame=false,
  ownerLocomotion=false,alive=false,visible=false,
@@ -108,7 +130,9 @@ export function planOriginalSourceAuthoredNeutralBlends({
   // certified 295mm anatomical shoe and stable opposite weighted sole.
   // A narrow >=55mm qualification only permits TWO reversible native
   // original GLB trials; real post-apply dual-shoe verification still rules.
-  floorTopY-swing.toeY<.055||floorTopY-swing.toeY>.12||
+  (floorTopY-swing.toeY<.055&&
+   !originalSourceVerticalSwingAtShallowBurial(swing,floorTopY))||
+  floorTopY-swing.toeY>.12||
   swing.heelY-floorTopY<.16||swing.heelY-floorTopY>.34||
   ![support.heelY,support.toeY].every(y=>
    y>=floorTopY-.055&&y<=floorTopY+.035))return null;
@@ -163,7 +187,9 @@ export function chooseOriginalSourceAuthoredNeutralLegTrial({
  // A genuine 57.81mm buried toe (native WebGL 390px, e546515e) is
   // sufficiently deep to evaluate an independently skinned original Idle
   // leg blend, but never evidence of clearance before BOTH shoes pass.
-  if(depth<.055||depth>.12||swing.heelY-floorTopY<.16||
+  if((depth<.055&&
+   !originalSourceVerticalSwingAtShallowBurial(swing,floorTopY))||
+  depth>.12||swing.heelY-floorTopY<.16||
   swing.heelY-floorTopY>.34||
   ![support.heelY,support.toeY].every(y=>
    y>=floorTopY-.055&&y<=floorTopY+.035))return null;
