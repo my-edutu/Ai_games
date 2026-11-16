@@ -19,6 +19,25 @@ export const SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS = 110;
 export const SOURCE_GATEWAY_RAISED_FLIGHT_TAIL_TICKS = 32;
 const clamp01=n=>Math.min(1,Math.max(0,n));
 const smooth=n=>{const t=clamp01(n);return t*t*(3-2*t);};
+// The original bronze gateway, F9 walkable roof, distant shaft and camera
+// must not use competing wall-clock / return-count optical deadlines.
+// Both source-owned materials share this bounded acknowledgement budget.
+// A successful *first* GPU return earns only a 1.2% material hint even when
+// the host supplied no presentation delta (as on the first cold WebGL frame).
+// Zero returned frames always yield zero progress. The remaining transition
+// takes real returned frames AND displayed duration; failed draws/RAF ticks
+// cannot spend either. The eased opening holds the physical bronze grille
+// through the climber's first strides instead of showing a hard-swap at F9.
+function observedOriginalGatewayOpticalBudget(held) {
+  const frames=held?.submittedFrames, seconds=held?.visibleSeconds;
+  if(!valid(frames) || frames<=0 || frames>60 ||
+     !Number.isFinite(seconds) || seconds<0 || seconds>=3)return 0;
+  const frameProgress=frames===1?smooth(.5/7):
+    smooth((frames-1)/7);
+  const elapsedProgress=Math.pow(smooth(seconds/1.22),1.08);
+  const firstReturnEvidence=Math.min(frameProgress,.012);
+  return Math.min(frameProgress,Math.max(elapsedProgress,firstReturnEvidence));
+}
 
 // Source-authenticated successor-platform contact after the first F9 jump.
 // The earlier 16m-old-roof ceiling cut off the original GPU doorway as soon
@@ -318,19 +337,13 @@ export function observedSourcePhysicalArrivalPalette(source,held=null) {
   // Original 25fps WebMs at 04aaad27 prove one real F9 doorway GPU return
   // followed by a violet hard cut. Keep the authentic old/new materials
   // coupled across EIGHT returned frames, not an unobserved four-frame swap.
-  const gpuProgress=originalGpuVisible
-    ?held.submittedFrames===0?0:
-      held.submittedFrames===1?smooth(.5/7):
-      smooth((held.submittedFrames-1)/7):1;
-  // A pixel-painted bronze doorway cannot coexist with a violet sky/route:
-  // the SAME current physical-source clearance, returned frames and displayed
-  // seconds must gate BOTH actual old-gate alpha and successor materials.
-  // Software WebGL can return 9 frames in only 0.38s during the first cold
-  // floor; frame-only tint retired the sky while the real grille was 84%
-  // opaque, then the old world vanished hard on the next browser receipt.
-  const shownProgress=originalGpuVisible
-    ?smooth(held.visibleSeconds/1.13):1;
-  const progress=Math.min(physicalProgress,gpuProgress,shownProgress);
+  // This is exactly the same successful-3D-return budget used by the
+  // *existing* bronze gateway's alpha. It is not a separate sky clock:
+  // the first returned F9 shot can respond to real source strides while
+  // zero-return and blocked-render scenes remain completely original.
+  const opticalProgress=originalGpuVisible
+    ?observedOriginalGatewayOpticalBudget(held):1;
+  const progress=Math.min(physicalProgress,opticalProgress);
   const oldWeight=1-progress;
   return {sourceBound:true,sourceTick:source.tick,crossingTick:sourceTick,
     kind,travel,rise,pathDisplacement,roofY,oldWeight,progress,
@@ -371,9 +384,9 @@ export function observedSourceGatewayDeparturePresence(source,held) {
   // producing a one-frame discontinuity at source-proof retirement.
   // The old gateway, source-extracted gallery, roof, sky and new shaft all
   // consume one physically earned, WebGL-return-gated optical passage.
-  const displayedSeconds=smooth(held.visibleSeconds/1.13);
-  const submittedFrames=smooth((held.submittedFrames-1)/7);
-  const visibleProgress=Math.min(displayedSeconds,submittedFrames);
+  // Never fade the physical original grille faster than the exact same
+  // returned-frame-and-duration contract tinting the already walkable roof.
+  const visibleProgress=observedOriginalGatewayOpticalBudget(held);
   // Do not erase the real bronze gate while the actual climber still occupies
   // the threshold. Only a fully-cleared original opening can retire its
   // physically shared surrounding gallery / material.
