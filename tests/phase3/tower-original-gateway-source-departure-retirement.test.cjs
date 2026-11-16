@@ -126,6 +126,10 @@ test('genuine painted bronze gateway persists for bounded original-camera return
     retirementFrames:2,retirementSeconds:.16,retirementStartProgress:.2,
     lastVerifiedProof:{runToken:source.runToken,sourceTick:535,
       crossingTick:451,kind:'recorded-source-zero-hp'}};
+  const firstUnsupportedSource=lease(source,held,{
+    ...handoff,retiring:false,retirementFrames:0,retirementSeconds:0});
+  assert.equal(firstUnsupportedSource?.opacity,held.lastSourceOldGateOpacity,
+    'same authenticated GPU owner cannot be deleted before palette retirement is marked');
   const before=JSON.stringify([source,held,handoff]);
   const intact=lease(source,held,handoff);
   assert.equal(intact?.historicalOpticalTail,true);
