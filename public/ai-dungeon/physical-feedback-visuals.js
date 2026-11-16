@@ -208,7 +208,8 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   for(const range of ranges)attr.addUpdateRange(range.start,range.count);
  }
  make('trail',createOriginalBladeStreakGeometry(THREE),{metalness:0,roughness:1,opacity:reducedFlash?.15:.29});
- make('hit',new THREE.TetrahedronGeometry(.073,0),{metalness:.22,roughness:.8});
+ make('hit',new THREE.TetrahedronGeometry(.073,0),{
+  metalness:.22,roughness:.8,opacity:reducedFlash?.22:.48});
  make('block',new THREE.TorusGeometry(.26,.018,4,16,Math.PI*1.5),{metalness:.32,opacity:reducedFlash?.18:.33});
  make('dust',new THREE.TetrahedronGeometry(.072,0),{metalness:0,roughness:1,opacity:reducedFlash?.16:.29});
  make('signal',new THREE.RingGeometry(.25,.285,28),{metalness:0,opacity:reducedFlash?.14:.22});
@@ -1037,7 +1038,13 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
     origin.y+f.vy*slot.age-1.45*slot.age*slot.age,
     origin.z+f.vz*slot.age);
    pose.rotation.set(f.spin*slot.age,f.spin*slot.age*.6,-f.spin*slot.age*.36);
-   const initial=p==='dust'?.30:.60+slot.severity*.29;
+   // The three to five verified surface chips must register at low-resolution
+   // stream scale without a billboard, camera adaptation, extra emitter or
+   // artificial hit direction. Keep the precise body-centre witness quieter;
+   // the small outward shell owns the readable contact beat. Severe genuine
+   // HP loss strengthens the shell modestly, never an attempted swing.
+   const initial=p==='dust'?.30:
+    slot.ordinal===0?.60+slot.severity*.24:.96+slot.severity*.16;
    pose.scale.setScalar(Math.max(.0001,initial*Math.pow(fade,1.25)));
   }else if(p==='projectile'||p==='spell'){
    const end=slot.end;
