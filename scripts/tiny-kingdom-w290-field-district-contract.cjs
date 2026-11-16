@@ -8,7 +8,10 @@ const b=html.indexOf('function ripeningField(',a);
 assert(a>0&&b>a,'live original farm district exists');
 const source=html.slice(a,b);
 assert(source.includes('W290: the complete ORIGINAL wheat'),'new original coherent grain field massing must be present');
-assert(source.includes('raised earth furrow'),'original continuous soil ridge must be present');
+assert(source.includes('one actual cultivated furrow')&&
+ source.includes('quad(point(xa,nearShoulder,.043)')&&
+ source.includes('quad(point(xa,crest,.083)'),
+ 'source must retain the full geometrically connected physical raised-earth furrow, not a token label');
 assert.doesNotMatch(source,/Math\.random\(|people\.push\(|city\.push\(|state\.food\s*[+\-=]/);
 const ctx={Math,Number,Error,Array,data:[],farmScene:{rows:0,stalks:0,seedHeads:0,stalkTriangles:0},
  terrain:(x,z)=>.1*Math.sin(x*.1+z*.4),
