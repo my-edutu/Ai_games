@@ -57,7 +57,7 @@ test('the same previously verified Floor8->9 source crossing retires roof, monum
   assert.ok(!materials.stone.color.equals(new Color(bronze.stone)));
   assert.ok(!deck.top.color.equals(deck.topVoid));
   assert.ok(!deck.top.color.equals(deck.bronze));
-  tail=observedVerifiedClockworkPaletteTail(source,handoff(12,1);
+  tail=observedVerifiedClockworkPaletteTail(source,handoff(12,1),1);
   assert.equal(tail,null,'at least five real returns and 0.95 returned seconds end the material memory');
   bridge.update(null,tail);updateOriginalClockworkSuccessorRoute(deck,null,tail);
   assert.ok(materials.stone.color.equals(originalStone));
@@ -79,7 +79,7 @@ test('a missing, mismatched, dying, stale or not-yet-certified source cannot kee
   assert.equal(sample(source,h,NaN),null);
   assert.equal(sample(source,h,-.1),null);
   assert.equal(sample(source,h,1.1),null);
-  assert.equal(sample(source,handoff(12,1),null);
+  assert.equal(sample(source,handoff(12,1),1),null);
 });
 
 test('Tower World coordinates real returned-frame retirement for original F9 deck and architecture, not just persistent gallery',()=>{
