@@ -6936,3 +6936,66 @@ test('RED: genuine 390px heel-dominant 8.077mm source shoe gets two verified 3-j
  assert.match(renderer,/chooseOriginalSourceCoupledKneeFootSweep\(/,
   'only actual FINAL connected 3-joint skinned checks may authorize a pose');
 });
+
+
+// TEST FIRST — exact original 390px WebGL source outcome from run 43975314884.
+// Real numbers are 3-joint skinned-source toe/heel deltas; XZ below is
+// explicitly CONTRACT GEOMETRY, not a new claim of measured mesh vertices.
+// Counterfactual positive trial below does not establish a genuine new pose.
+test('RED: original three-joint source heel-pitch rejection retargets bounded source followups without relaxing safety',async()=>{
+ const {chooseOriginalSourceCoupledKneeFootSweep:choose}=await load();
+ const swing={heelY:.19058485289428978,toeY:-.08906972866420763,
+  heelXZ:[-6.1,-7.08],toeXZ:[-6.14,-7.08]};
+ const loaded={heelY:-.026151047405112447,toeY:.006490275216798735,
+  heelXZ:[-6.3,-7.08],toeXZ:[-6.55,-7.1]};
+ const after=(lift,heelRise,other=loaded)=>({
+  right:{...swing,toeY:swing.toeY+lift,heelY:swing.heelY+heelRise,
+   heelXZ:[swing.heelXZ[0]+.0016,swing.heelXZ[1]],
+   toeXZ:[swing.toeXZ[0]+.0013,swing.toeXZ[1]]},
+  left:{...other}
+ });
+ const owner={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceChainVerified:true,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceFootTrackVerified:true,sourceBindVerified:true,
+  sourceAnatomicalFootAxisVerified:true,ownerLocomotion:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,rootTravel:.01964123,frameAge:.03,
+  frameInterval:.016600000000000392,side:'right',floorTopY:-.02,
+  before:{left:loaded,right:swing}};
+ const observedRejected=[
+  {upperRad:-.075,lowerRad:.09,footRad:-.18,
+   after:after(.0164215046308009,.038698601736853105)},
+  {upperRad:-.075,lowerRad:.09,footRad:.18,
+   after:after(.014316844180478808,.014108218121590355)}
+ ];
+ assert.equal(choose({...owner,trials:observedRejected}),null,
+  'genuine original skinned toe gains with insufficient net clearance are not success');
+ const hypothetical={upperRad:-.11,lowerRad:.11,footRad:.24,
+  after:after(.03,.002)};
+ const possible=choose({...owner,trials:[hypothetical]});
+ assert.equal(possible?.sourceJointCount,3,
+  'a FUTURE measured connected original thigh/calf/foot could qualify, not a foot plant');
+ assert.equal(possible?.oppositeShoePreserved,true);
+ assert.equal(possible?.contactLocked,false);
+ for(const unsafe of [
+  {sourceFootTrackVerified:false},{sourceBindVerified:false},
+  {sourceInstanceSame:false},{reducedMotion:true},{interrupted:true},
+  {rootTravel:0},{frameInterval:.25},
+  {trials:[{...hypothetical,after:after(.03,.002,{
+   ...loaded,toeY:loaded.toeY+.01})}]},
+  {trials:[{...hypothetical,after:after(.03,.05)}]},
+  {trials:[{...hypothetical,footRad:.28}]}
+ ])assert.equal(choose({...owner,...unsafe,trials:unsafe.trials??[hypothetical]}),null,
+  'no unlicensed clip, joint, shifted support shoe or amplified airborne heel');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const start=renderer.indexOf('function stageOriginalSourceSwingLinkedLegAfterMixer(');
+ const end=renderer.indexOf('function stageRigLegsAfterMixer(',start);
+ assert.ok(start>0&&end>start);
+ const stage=renderer.slice(start,end);
+ assert.match(stage,/upperRad:\.11\*sign,lowerRad:-\.11\*sign,track:matches\[0\]\.name/);
+ assert.match(stage,/for\(const footRad of \[\.18,\.24\]\)/,
+  'same two skinned GLB slots, now source-measured favorable foot-axis candidates');
+ assert.match(stage,/final\.oppositeShoePreserved!==true/);
+ assert.match(stage,/final\.contactLocked!==false/);
+});

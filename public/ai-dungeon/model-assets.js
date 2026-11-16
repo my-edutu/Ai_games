@@ -2904,6 +2904,11 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   // 8.077mm, just under the old 9mm threshold. Reserve the final two
   // source-skin reads for an actual connected hip+knee+foot probe when
   // source and BOTH shoes qualify; unsafe results restore all originals.
+  // Genuine 390px GLB #43975314884: prior -0.18 foot trial raised the
+  // buried toe 16.42mm but heel 38.70mm; +0.18 raised both ~14.3mm,
+  // failing the existing strict net-clearance selector. Retarget only
+  // the SAME two source-skin trial slots to source-favorable +0.18/+0.24,
+  // with within-contract 0.11rad thigh+calf. Do not soften validation.
   connectedStarter=!sourceAnkleProof&&!loadedStanceProof&&
    !previousLinkedCertified?planOriginalSourceCoupledFootStarter({
     ...owner,starterTrials:trials.slice(0,2)}):null;
@@ -2927,9 +2932,9 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
      kneeFootCoupled={
       savedFoot:foot.bone.quaternion.clone(),axis:footAxis,
       footDelta:new THREE.Quaternion(),
-      upperRad:.075*sign,lowerRad:-.09*sign,track:matches[0].name
+      upperRad:.11*sign,lowerRad:-.11*sign,track:matches[0].name
      };
-     for(const footRad of [-.18,.18]){
+     for(const footRad of [.18,.24]){
       const {upperRad,lowerRad}=kneeFootCoupled;
       upper.bone.quaternion.copy(upperOriginal).multiply(
        upperDelta.setFromAxisAngle(upperLocalAxis,upperRad));
