@@ -7,7 +7,7 @@ import { originalMeshPath } from './mesh-provenance.mjs';
 import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs';
 import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedPrebuiltVoidShaftRelease, observedQueuedOriginalCapAtFirstRender, reconcileRecordedOriginalCapCrossing,
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
-import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceRetainedRaisedExit, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS } from './source-physical-arrival-palette.mjs';
+import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceRetainedRaisedExit, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS, observedCertifiedOriginalGatewayOpticalLease } from './source-physical-arrival-palette.mjs';
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections } from './source-earned-bearing-run.mjs';
@@ -3173,6 +3173,22 @@ export function createTowerWorld(){
     // guardian, cap and run. No gameplay pose, platform or victory is created.
     const sourceDeparture=!options.stale
       ?observedSourceGatewayDeparturePresence(snapshot,held):null;
+    // Preserve the last *actually source-verified* old-gate opacity, never a
+    // browser-clock guess or inferred HP-zero. It is bounded to this retained
+    // original cap owner and discarded with it on restart or a new floor.
+    if(sourceDeparture?.sourceBound===true &&
+       Number.isFinite(sourceDeparture.opacity))
+      held.lastSourceOldGateOpacity=sourceDeparture.opacity;
+    // The 1x original gameplay film can display only one authentic returned
+    // F9 gateway frame before its 20Hz avatar moves beyond the strict active
+    // source-cap lease. Keep that SAME old 3D cap/gate in an optical afterimage
+    // only while both prior HP-zero certification and real currently airborne
+    // or raised-deck body support remain verifiable. No gameplay/authority
+    // interpolation, old collider resurrection or fabricated rendered frame.
+    const opticalLease=!options.stale && !sourceDeparture?.sourceBound
+      ?observedCertifiedOriginalGatewayOpticalLease(snapshot,held,sourceEarnedBearingHandoff)
+      :null;
+    held.opticalLease=opticalLease;
     held.sourceAlignedPassage=samePassage || sourceColdFrame ||
       sourceDeparture?.sourceBound===true;
     if (options.stale || snapshot.runToken !== held.runToken ||
@@ -3184,13 +3200,13 @@ export function createTowerWorld(){
         // gateway and gallery while the same source-authenticated passage
         // was still eligible in the returned F9 camera, producing the
         // abrupt native bronze-to-violet replacement on a cold renderer.
-        snapshot.tick<held.sourceTick || snapshot.tick-held.sourceTick>(observedSourceRetainedRaisedExit(
-          snapshot,held,held.oldRoofY)
-            ?SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS:70) ||
+        snapshot.tick<held.sourceTick || snapshot.tick-held.sourceTick>(opticalLease
+          ?150:(observedSourceRetainedRaisedExit(snapshot,held,held.oldRoofY)
+            ?SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS:70)) ||
         !(p?.health>0) ||
         (!nearDoor && !onNewRoof && !onCameraHandoffFlight &&
-          !retainedBackdrop && !sourceDeparture?.sourceBound) ||
-        (!onNewRoof && !justLaunched && !onCameraHandoffFlight &&
+          !retainedBackdrop && !sourceDeparture?.sourceBound && !opticalLease) ||
+        (!onNewRoof && !opticalLease && !justLaunched && !onCameraHandoffFlight &&
           !retainedBackdrop && !sourceDeparture?.sourceBound)) {
       retireEarnedCap();
       return;
@@ -3205,7 +3221,7 @@ export function createTowerWorld(){
     // horizontal source X barely advances; never demand an impossible 9m
     // horizontal-only runway to finish the original gateway passage.
     const departing=sourceDeparture;
-    const originalGatePresence=departing?.opacity??1;
+    const originalGatePresence=sourceDeparture?.opacity??opticalLease?.opacity??1;
     held.originalGatewayOpacity=originalGatePresence;
     for (const {material,baseOpacity,originalTransparent,originalDepthWrite}
         of held.originalGatewayMaterialStages) {
@@ -3229,7 +3245,7 @@ export function createTowerWorld(){
     // otherwise retain the conservative old-first-frame fallback. The
     // previous 1.25-second gallery fade stayed >80% opaque when the source
     // corridor expired, then all original architecture vanished at once.
-    const originalPresence=departing?.sourceBound===true
+    const originalPresence=(departing?.sourceBound===true || opticalLease)
       ?Math.min(.94,originalGatePresence*.94)
       :observedRetainedOriginalBronzeCover(
         held.submittedFrames,held.visibleSeconds);
