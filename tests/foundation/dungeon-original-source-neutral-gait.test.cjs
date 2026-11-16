@@ -36,6 +36,23 @@ const starters=[
  {upperRad:.09,lowerRad:-.075,after:outcome(-.007789,-.02827)},
  {upperRad:-.09,lowerRad:.075,after:outcome(.013653,.026346)}
 ];
+test('a real licensed Idle full-leg trial does not throw after the original reversible four-probe try/finally',()=>{
+ // The previous exact-head native Chromium #43795038691 produced
+ // ReferenceError: neutralBlends is not defined ONLY when an eligible real
+ // source-pose entered the post-try skin receipt. Existing live browser
+ // assertions remain the behavioral RED regression; this narrow scope
+ // check keeps the missing lexical binding from being reintroduced.
+ const start=renderer.indexOf('function stageOriginalSourceSwingLinkedLegAfterMixer(');
+ const end=renderer.indexOf('function stageRigLegsAfterMixer(',start);
+ assert.ok(start>=0&&end>start);
+ const stage=renderer.slice(start,end);
+ assert.match(stage,/let neutralBlends=null;/);
+ assert.match(stage,/try\\s*\\{[\\s\\S]*?neutralBlends=!sourceAnkleProof\\?/);
+ assert.doesNotMatch(stage,/const neutralBlends=!sourceAnkleProof/);
+ assert.match(stage,/requestedNeutralBlends:neutralBlends/);
+ assert.match(stage,/actuallyTestedNeutralBlends:trials/);
+});
+
 test('RED: real heel-dominated licensed Walking_A allows exactly TWO original Idle full-leg source probes',async()=>{
  const {planOriginalSourceAuthoredNeutralBlends:plan}=await load();
  assert.deepEqual(plan({...owner,starterTrials:starters}),[.28,.42]);

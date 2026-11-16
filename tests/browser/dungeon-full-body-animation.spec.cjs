@@ -1684,6 +1684,15 @@ for(const view of [
   genuineSourceFirstWalkCounterturnFrames:rafWindows.reduce((max,w)=>Math.max(max,
    ...w.pairs.map(p=>p.originalSpineFirstWalkFrames||0),0),0),
   caveat:'Only actual source clip weight, same GLB, genuine XZ root displacement and bounded imported-spine proof qualify; not IK, a floor raycast or planted-foot evidence.'};
+ // Preserve the actual source-pivot trace even when a genuine counterturn
+ // gate fails. Previously the proof was written AFTER the assertion, so a
+ // real mobile 2-of-1 regression discarded the only frame-level diagnosis.
+ // This is a read-only browser artifact, not production telemetry or a pose.
+ fs.writeFileSync('artifacts/dungeon-full-body-original-raf-patch-'+view.name+'.json',
+  JSON.stringify(rafEvidence,null,2));
+ await test.info().attach('original-consecutive-render-source-patches',{
+  contentType:'application/json',body:Buffer.from(JSON.stringify(rafEvidence,null,2))
+ });
  expect(rafEvidence.consecutiveWitnessPairs,
   'an original-rig high-frequency source film must contain real adjacent displayed walking frames').toBeGreaterThan(0);
  // Only demand a visible benefit when the FULL sampled evidence actually
@@ -1714,11 +1723,7 @@ for(const view of [
    ).not.toBe('missing-original-skinned-contact-patch');
   }
  }
- fs.writeFileSync('artifacts/dungeon-full-body-original-raf-patch-'+view.name+'.json',
-  JSON.stringify(rafEvidence,null,2));
- await test.info().attach('original-consecutive-render-source-patches',{
-  contentType:'application/json',body:Buffer.from(JSON.stringify(rafEvidence,null,2))
- });
+
 
 });
 
