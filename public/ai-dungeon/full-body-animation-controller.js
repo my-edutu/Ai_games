@@ -3620,6 +3620,21 @@ export function planOriginalSourceLoadedPelvisSupport({
  * target or extra gameplay action. The source mixer and both true leg chains
  * retain their original facing. Missing source proof = no overlay.
  */
+/**
+ * Read-only real XZ displacement between two displayed poses of ONE original
+ * imported source clone. A separately staged leg mixer may have consumed its
+ * stride before final visible-root yaw; never derive motion from AI or targets.
+ */
+export function measureOriginalSourceWalkingRootTravel({
+ sourceInstanceSame=false,previousRootX=NaN,previousRootZ=NaN,
+ currentRootX=NaN,currentRootZ=NaN
+}={}){
+ if(sourceInstanceSame!==true||
+  ![previousRootX,previousRootZ,currentRootX,currentRootZ].every(finite))return null;
+ const distance=Math.hypot(currentRootX-previousRootX,currentRootZ-previousRootZ);
+ return finite(distance)&&distance<=.18?distance:null;
+}
+
 export function planOriginalSourceWalkingTorsoCounterturn({
  mode='idle',previousMode='move',sourceClipName='',sourceWeight=NaN,
  sourceInstanceSame=false,ownerLocomotion=false,alive=true,visible=true,

@@ -4928,6 +4928,40 @@ test('RED: a genuine moving Walking_A crossfade at 78 percent retains measured s
 });
 function witnessedSafe(witness){return {...witness};}
 
+test('original 390px frames 25→26→27 give separate real same-clone XZ turn witnesses',async()=>{
+ const {measureOriginalSourceWalkingRootTravel:measure,
+  planOriginalSourceWalkingTorsoCounterturn:plan}=await load();
+ // Authentic original-GLB rAF evidence from CI #43953831543
+ // artifact #14272083394: two valid Walking_A source-weight-one pivots.
+ const coords=[-7.119999999999999,-7.024743043390169,-7.005101818301732];
+ const d=(a,b)=>measure({sourceInstanceSame:true,previousRootX:-8,
+  previousRootZ:a,currentRootX:-8,currentRootZ:b});
+ assert.ok(d(coords[0],coords[1])>.095);
+ assert.ok(d(coords[1],coords[2])>.019);
+ const basis={mode:'move',previousMode:'move',sourceClipName:'Walking_A',
+  sourceWeight:1,sourceInstanceSame:true,ownerLocomotion:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,previousOffsetRad:0,frameInterval:.094};
+ const a=plan({...basis,rootTravel:d(coords[0],coords[1]),
+  previousRootYaw:-1.275,currentRootYaw:-1.9125});
+ const b=plan({...basis,rootTravel:d(coords[1],coords[2]),
+  frameInterval:.0193,previousOffsetRad:a?.offsetRad??0,
+  previousRootYaw:-1.9125,currentRootYaw:-2.55});
+ assert.ok(a&&b&&a.offsetRad>.11&&b.offsetRad>.11,
+  'both original source pivots require independently supported chest responses');
+ for(const bad of [{sourceInstanceSame:false},{previousRootX:NaN},
+  {previousRootZ:Infinity},{currentRootX:NaN},{currentRootZ:Infinity},
+  {currentRootX:.181}])assert.equal(measure({
+   sourceInstanceSame:true,previousRootX:0,previousRootZ:0,
+   currentRootX:0,currentRootZ:0,...bad}),null);
+ assert.equal(measure({sourceInstanceSame:true,previousRootX:0,
+  previousRootZ:0,currentRootX:0,currentRootZ:0}),0);
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/rootTravel:actualRootTravel\?\?NaN/);
+ assert.match(renderer,/rigWalkingTurnSourceX=actor\.root\.position\.x/);
+ assert.match(renderer,/rigWalkingTurnSourceZ=actor\.root\.position\.z/);
+});
+
 test('real original Walking_A torso counterturn has bounded source-owned follow-through and safe release',async()=>{
  const {planOriginalSourceWalkingTorsoCounterturn:plan}=await load();
  const base={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,

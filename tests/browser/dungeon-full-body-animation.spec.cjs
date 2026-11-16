@@ -410,6 +410,10 @@ for(const view of [
      originalSpineCounterturnAfterRad:pair.after.nativeLegOwnership?.originalWalkingTorsoCounterturnRad??0,
      originalSpineCounterturnFrames:pair.after.nativeLegOwnership?.originalWalkingTorsoCounterturnFrames??0,
      originalSpineFirstWalkFrames:pair.after.nativeLegOwnership?.originalWalkingTorsoFirstWalkFrames??0,
+     observedActualTravel:pair.after.nativeLegOwnership?.originalWalkingTorsoObservedRootTravelMeters??null,
+     stagedLegTravel:pair.after.nativeLegOwnership?.originalWalkingTorsoPriorLegTravelMeters??null,
+     sourceFrameSeconds:pair.after.nativeLegOwnership?.originalWalkingTorsoObservedFrameSeconds??null,
+     sameSourceAnchor:pair.after.nativeLegOwnership?.originalWalkingTorsoPriorSourceSame??false,
      originalSourceClipWeightBefore:pair.before.nativeLegOwnership?.originalSourceWeight??null,
      originalSourceClipWeightAfter:pair.after.nativeLegOwnership?.originalSourceWeight??null,
      sourceTimeBefore:pair.before.sourceActionSample?.time??null,
@@ -1736,6 +1740,11 @@ for(const view of [
    w.pairs.filter(p=>p.facing.classification==='source-facing-lags-world-travel').length,0),
   genuineSourcePivotCandidates:realOriginalTurns.length,
   originalImportedSpinePivotWitnesses:physicallyObservedCounterturns.length,
+  missingImportedSpinePivots:realOriginalTurns.filter(p=>!(Number.isFinite(p.originalSpineCounterturnAfterRad)&&Math.abs(p.originalSpineCounterturnAfterRad)>.0001))
+   .map(p=>({beforeFrame:p.beforeFrame,afterFrame:p.afterFrame,
+    actualTravel:p.observedActualTravel,stagedLegTravel:p.stagedLegTravel,
+    interval:p.sourceFrameSeconds,sourceSame:p.sameSourceAnchor,
+    sourceWeight:p.originalSourceClipWeightAfter})),
   genuineSourceFirstWalkCounterturnFrames:rafWindows.reduce((max,w)=>Math.max(max,
    ...w.pairs.map(p=>p.originalSpineFirstWalkFrames||0),0),0),
   caveat:'Only actual source clip weight, same GLB, genuine XZ root displacement and bounded imported-spine proof qualify; not IK, a floor raycast or planted-foot evidence.'};
