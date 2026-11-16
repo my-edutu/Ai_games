@@ -16,3 +16,6 @@ In actual `public/infinite-tower-climb/visuals/world.mjs`, reuse the existing **
 - Five genuinely independent randomized blind reviewers per LOOKS, FEELS, PLAYS: **0/5 each**. Actual device frame-time p50/p95/p99, memory: **NOT EVALUATED**.
 
 **Next:** inspect new exact-head CI + source-authentic full-motion films; if P0 strict 0/2 still fails, diagnose cold first Floor9 GPU paint and renderer-vs-native compositor PTS gaps rather than cosmetic opacity edits. Preserve draft PR68, no merge/deploy/force-push or PR58 edit.
+
+## Same-run source contract correction
+The exact-source Quality Contract [43971270491](https://github.com/my-edutu/Ai_games/actions/runs/43971270491) passed its genuine Phase3 three-clock Three.js cold arrival integration (shard3) but failed Phase3 shard0 and shard1 because two earlier *static spelling-only* assertions required `materialProof` rather than the new source-certified `sourceAlignedMaterialProof`. Update both expectations in-place and **strengthen** each to require the actual `returnedBronzePaletteLock` derived from `observedReturnedOriginalArchitectureHold`; do not change gameplay production, replay or accept the art from test counts. New exact-head CI and 9-job native capture are NOT EVALUATED pending results. Original baseline unchanged; Phase6 unrelated Maze timeout is a separate full-catalogue veto.
