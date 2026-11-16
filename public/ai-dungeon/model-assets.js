@@ -1370,7 +1370,11 @@ function planOriginalSourceSwingCalfForMountedFoot(actor,mount,originalFoot,
   afterAnkleToeY:ankleToeY,afterAnkleHeelY:ankleHeelY,
   ankleLiftMeters:ankleLift,trialCalfToeY:best.toe,
   trialCalfHeelY:best.heel,trialAngleRad:best.signed,
-  previousAssistRad:prior
+  previousAssistRad:prior,
+  // Witnessed original WebGL elapsed frame time, not capped mixer delta.
+  // The planner bounds slew; the independent final source-skin read below
+  // still vetoes foot penetration, heel collapse and unsafe knee motion.
+  frameInterval:actor.rigSourceSwingFrameInterval??NaN
  });
  if(Math.abs(delta)<.0001){
   actor.sourceSwingCalfTrialOutcome={
