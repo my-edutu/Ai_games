@@ -13827,29 +13827,80 @@ function marketStall(s,index){
  });
  materialScope(tiled?MATERIAL.ROOF:MATERIAL.GENERAL,()=>{
   const courses=tiled?7:6,edge=1.53,eave=y+profile.eave,peak=y+profile.peak;
+  // W386: the TWO real linen merchants use a fully tensioned, sewn five-bay
+  // canvas roof, rather than sharing the rigid tiled merchant architecture.
+  // Exact four original shops, entrances, inventory, workers and paths remain.
+  // The complete geometry is packed ONCE into the original civic resident VBO.
+  const clothBays=tiled?1:5;
   for(const side of [-1,1])for(let course=0;course<courses;course++){
    const a=course/courses,b=(course+1)/courses;
    const ax=x+side*edge*(1-a),bx=x+side*edge*(1-b);
    const ay=eave+(peak-eave)*a,by=eave+(peak-eave)*b;
    const near=z-1.17,far=z+1.17;
-   const p0=[ax,settledRoofCourseHeight(x,near,far,index,a,near,eave,peak,.012),near],
-    p1=[bx,settledRoofCourseHeight(x,near,far,index,b,near,eave,peak,.012),near],
-    p2=[bx,settledRoofCourseHeight(x,near,far,index,b,far,eave,peak,.012),far],
-    p3=[ax,settledRoofCourseHeight(x,near,far,index,a,far,eave,peak,.012),far];
+   const clothPoint=(px,fraction,zz)=>{
+    const base=settledRoofCourseHeight(x,near,far,index,fraction,
+     zz,eave,peak,.012);
+    const sag=tiled?0:.21*Math.sin(Math.PI*(zz-near)/(far-near))*
+     Math.pow(Math.max(.04,1-fraction),.72);
+    return [px,base-sag,zz];
+   };
    const shade=rgb(colors[(course+index)%colors.length]);
-   if(side<0)quad(p3,p2,p1,p0,shade);
-   else quad(p0,p1,p2,p3,shade);
+   for(let bay=0;bay<clothBays;bay++){
+    const z0=near+(far-near)*bay/clothBays,
+     z1=near+(far-near)*(bay+1)/clothBays;
+    const p0=clothPoint(ax,a,z0),p1=clothPoint(bx,b,z0),
+     p2=clothPoint(bx,b,z1),p3=clothPoint(ax,a,z1);
+    if(side<0)quad(p3,p2,p1,p0,shade);
+    else quad(p0,p1,p2,p3,shade);
+    if(!tiled)marketQuarterStats.wovenCanopyFacets+=2;
+   }
    if(!tiled&&course===0){
     for(let panel=0;panel<3;panel++){
      const z0=z-1.17+panel*.78,z1=z0+.78;
-     tri([ax,ay,z0],[ax,ay,z1],
-      [ax+side*.015,ay-.23-(panel%2)*.06,(z0+z1)*.5],
+     const h0=clothPoint(ax,a,z0)[1],h1=clothPoint(ax,a,z1)[1];
+     tri([ax,h0,z0],[ax,h1,z1],
+      [ax+side*.015,Math.min(h0,h1)-.23-(panel%2)*.06,(z0+z1)*.5],
       rgb(colors[(index+panel+1)%colors.length]));
     }
    }
    marketQuarterStats.canopyPanels++;
   }
  });
+ if(!tiled){
+  // Physical stitched cross-courses and lashing loops fasten this drape to
+  // the four ACTUAL oak supports, not to new invisible trade inventory.
+  const stitch=rgb(0x8b7f6a),cord=rgb(0xb7a486);
+  materialScope(MATERIAL.GENERAL,()=>{
+   const near=z-1.17,far=z+1.17,eave=y+profile.eave,
+    peak=y+profile.peak;
+   for(const side of [-1,1]){
+    for(let band=1;band<5;band++){
+     const zz=near+(far-near)*band/5,zn=zz-.012,zp=zz+.012;
+     for(let half=0;half<2;half++){
+      const a=half*.5,b=(half+1)*.5;
+      const at=(f,z0)=>{
+       const xx=x+side*1.53*(1-f),
+        upper=settledRoofCourseHeight(x,near,far,index,f,z0,eave,peak,.012),
+        sag=.21*Math.sin(Math.PI*(z0-near)/(far-near))*
+         Math.pow(Math.max(.04,1-f),.72);
+       return [xx,upper-sag+.012,z0];
+      };
+      const q0=at(a,zn),q1=at(b,zn),q2=at(b,zp),q3=at(a,zp);
+      if(side<0)quad(q3,q2,q1,q0,stitch);
+      else quad(q0,q1,q2,q3,stitch);
+      marketQuarterStats.wovenCanopyStitches+=2;
+     }
+    }
+    for(let tie=0;tie<3;tie++){
+     const zz=near+tie*(far-near)/2,xx=x+side*1.51,
+      ey=settledRoofCourseHeight(x,near,far,index,.014,zz,eave,peak,.012);
+     limbSegment([xx,ey+.025,zz-.095],[xx,ey+.025,zz+.095],
+      .013,cord,4);
+     marketQuarterStats.wovenCanopyLashings++;
+    }
+   }
+  });
+ }
  if(profile.structural)grainwardStructuralDormer(x,z,y+profile.eave,y+profile.peak,1.53,z+face*1.17,face,index,.91,'shop');
  if(profile.structural)grainwardTradehouseEnvelope(s,index,profile);
  if(!profile.structural)grainwardArtisanShopEnvelope(s,index,profile);
@@ -13876,6 +13927,7 @@ function marketQuarter(){
   artisanShellWallPanels:0,artisanShellJoinery:0,
   tradehouseShells:0,tradehouseTriangles:0,tradehouseWindows:0,
   stalls:0,pavingStones:0,mortarTriangles:0,signboards:0,
+  wovenCanopyFacets:0,wovenCanopyStitches:0,wovenCanopyLashings:0,
   reworkedBooths:0,tileRoofs:0,canvasRoofs:0,timberBraces:0,
   carts:0,coveredArcades:0,canopyPanels:0,structuralShopLofts:0,tallestRoof:0,receivingBays:0,receivingHallRoofPanels:0,receivingHallPosts:0,rearShopGables:0,
   openRearScreenPanels:0,openRearScreenGaps:0,
@@ -13937,6 +13989,10 @@ function marketQuarter(){
  marketQuarterStats.coveredArcades++;
  lantern(-3.67,13.03,1.85);lantern(1.15,13.03,1.85);
  marketQuarterStats.totalTriangles=(data.length-begin)/30;
+ if(marketQuarterStats.wovenCanopyFacets!==240||
+    marketQuarterStats.wovenCanopyStitches!==64||
+    marketQuarterStats.wovenCanopyLashings!==12)
+  throw Error('W386 incomplete actual canvas trading roofs');
  marketQuarterStats.cached=true;
 }
 /* The supplies on sale are derived from authoritative inventories.
