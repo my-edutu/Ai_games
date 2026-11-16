@@ -9121,6 +9121,7 @@ function getGrainwardDistrictAudit(){
   sourceStreetOrigin:farmMarketStreetStats.realOrigin.slice(),
   trueMarketDestination:farmMarketStreetStats.realDestination.slice(),
   marketStalls:marketQuarterStats.stalls,
+  trueReceivingPassage:marketQuarterStats.w388TrueReceivingCorridor?{...marketQuarterStats.w388TrueReceivingCorridor}:null,
   marketRoofFrames:marketQuarterStats.grainwardRoofFrames||0,
   grainLoftBays:granaryArchitectureAudit.grainwardRoofBays||0,
   civicHallBays:guildhallVisualStats.grainwardRoofBays||0,
@@ -13016,7 +13017,10 @@ function marketCobblestoneSquare(){
    const z=cz+(fract((candidate+.73)*.75487766625+
      biomeHash(candidate*31+773)*.11)*2-1)*rz*.93;
    if(((x-cx)/rx)**2+((z-cz)/rz)**2>.88)continue;
-   const realWheelLane=Math.abs(x-3.22)<1.10;
+   // W388 true physical freight lane now joins the original receiving site.
+   // Keep the same bounded stone candidate search and genuine open access.
+   const realWheelLane=Math.abs(x-FARM_MARKET_STREET_DESTINATION[0])<.92&&
+    z>MARKET_SQUARE.cz+1.45&&z<FARM_MARKET_STREET_DESTINATION[1]+.24;
    if(realWheelLane&&biomeHash(candidate*37+223)<.92)continue;
    const nearby=acceptedStoneCenters.reduce((min,p)=>
     Math.min(min,Math.hypot(x-p[0],z-p[1])),Infinity);
@@ -13051,22 +13055,42 @@ function marketCobblestoneSquare(){
   if(acceptedStoneCenters.length<90||acceptedStoneCenters.length>165||
      marketQuarterStats.stoneMinimumSpacing<.72-.000001)
    throw Error('W291 authentic court lost bounded separated paving');
-  // The physical central passage remains open to the existing two market
-  // receiving shelves, including for carts and the unloading courier.
-  for(let section=0;section<11;section++){
-   const z0=-2.5+section*.64,z1=z0+.64;
+  // W388: a contiguous 22-strip real receiving-to-market lane, not the
+  // isolated x=3.22 visual wheel tracks. The destination belongs to the
+  // authoritative A* granary-to-receiving journey, not a fabricated stop.
+  // Exactly the OLD number of physical triangles in the SAME civic GPU VBO.
+  const arrival=FARM_MARKET_STREET_DESTINATION,
+   start=[MARKET_SQUARE.cx,MARKET_SQUARE.cz+1.50],sections=11;
+  const realReceiptX=arrival[0],realReceiptZ=arrival[1];
+  if(Math.hypot(realReceiptX+1,realReceiptZ-10.2)>.001)
+   throw Error('W388 authentic grain receiving endpoint changed');
+  for(let section=0;section<sections;section++){
+   const point=(t)=>({
+    x:start[0]+(realReceiptX-start[0])*t+.07*Math.sin(Math.PI*t),
+    z:start[1]+(realReceiptZ-start[1])*t
+   });
+   const a=point(section/sections),b=point((section+1)/sections);
    for(const side of [-1,1]){
-    const x=3.22+side*.48,groove=x+side*.19;
-    quad(sample(x-.11,z0,.079),sample(x-.11,z1,.079),
-     sample(x+.11,z1,.079),sample(x+.11,z0,.079),
-     rgb(section%3?0x756d5d:0x89806e));
+    const x0=a.x+side*.43,x1=b.x+side*.43,
+     tone=rgb(section%3?0x756d5d:0x89806e);
+    quad(sample(x0-.11,a.z,.079),sample(x1-.11,b.z,.079),
+     sample(x1+.11,b.z,.079),sample(x0+.11,a.z,.079),tone);
     marketQuarterStats.marketWheelPassages++;
-    quad(sample(groove-.028,z0,.070),sample(groove-.028,z1,.070),
-     sample(groove+.028,z1,.070),sample(groove+.028,z0,.070),
+    const g0=x0+side*.19,g1=x1+side*.19;
+    quad(sample(g0-.028,a.z,.070),sample(g1-.028,b.z,.070),
+     sample(g1+.028,b.z,.070),sample(g0+.028,a.z,.070),
      rgb(0x5e5d51));
     marketQuarterStats.marketDrainSegments++;
    }
   }
+  marketQuarterStats.w388TrueReceivingCorridor={
+   from:start.slice(),to:arrival.slice(),sections,
+   wheelPassages:marketQuarterStats.marketWheelPassages,
+   drainageRibbons:marketQuarterStats.marketDrainSegments,
+   connectedToTrueFreightEnd:true,geometryReplacedNotAdded:true,
+   newCitizens:0,newTransactions:0,affectsNavigation:false,
+   additionalGpuBuffers:0,hardwareFps:'NOT MEASURED'
+  };
  });
  marketQuarterStats.surfaceTriangles=(data.length-before)/30;
 }
