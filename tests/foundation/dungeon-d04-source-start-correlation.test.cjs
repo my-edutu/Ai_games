@@ -139,3 +139,37 @@ test('D04 impact audit rejects duplicate and over-budget histories rather than h
   assert.equal(report.sampleSynchronized,false);
  }
 });
+
+test('genuine delayed HP frame identifies renderer interval without blaming D04 or granting synced sound',()=>{
+ const receipt={...authenticLateInjury};
+ const result=auditD04ImpactFramePhases({receipts:[receipt]});
+ const item=result.damageReceipts[0];
+ assert.equal(item.failureReason,'STALE_RENDER_DEADLINE');
+ assert.equal(item.d04VisualCpuMs,2);
+ assert.equal(item.nonRendererCpuMs,1467);
+ assert.equal(item.otherCpuMs,186);
+ assert.equal(item.renderSubmissionMs,1281);
+ assert.equal(item.status,'STALE_NOT_ACCEPTED');
+ assert.equal(item.sampleSynchronized,false);
+ assert.equal('causedByD04' in item,false);
+});
+test('genuine no-frame and no-drawable HP receipts explain uncertainty without inventing combat',()=>{
+ const withoutFrame={...authenticLateInjury,cueId:'1:1:24:damage:-:mystic',
+  tick:24,frameId:null,decision:'expired-pending-before-frame',
+  submittedClockMs:null,observationToSubmissionMs:null,
+  beforeVisualAdvanceMs:null,visualAdvanceMs:null,visualEmissionMs:null,
+  afterVisualAdvanceToSubmissionMs:null,renderSubmissionMs:null};
+ const withoutDraw={...authenticLateInjury,cueId:'1:1:6:damage:-:enemy-1-0',
+  tick:6,decision:'delivered',frameId:18,audio:true,
+  observedClockMs:10000,submittedClockMs:10308,
+  observationToSubmissionMs:308,
+  beforeVisualAdvanceMs:7,visualAdvanceMs:1,visualEmissionMs:1,
+  afterVisualAdvanceToSubmissionMs:299,renderSubmissionMs:8};
+ const report=auditD04ImpactFramePhases({receipts:[withoutFrame,withoutDraw]});
+ assert.equal(report.damageReceipts[0].failureReason,'NO_SUBMITTED_FRAME_RECEIPT');
+ assert.equal(report.damageReceipts[0].renderSubmissionMs,null);
+ assert.equal(report.damageReceipts[1].failureReason,'NO_DRAWABLE_HP_EFFECT');
+ assert.equal(report.damageReceipts[1].d04VisualCpuMs,2);
+ assert.equal(report.damageReceipts[1].status,'UNVERIFIED');
+ assert.equal(report.sampleSynchronized,false);
+});
