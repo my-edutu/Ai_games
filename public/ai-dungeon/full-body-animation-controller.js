@@ -1596,7 +1596,7 @@ export function planOriginalSourceSwingCalfAssist({
  interrupted=false,rootTravel=NaN,frameAge=NaN,floorTopY=NaN,
  afterAnkleToeY=NaN,afterAnkleHeelY=NaN,ankleLiftMeters=NaN,
  trialCalfToeY=NaN,trialCalfHeelY=NaN,trialAngleRad=NaN,
- previousAssistRad=NaN
+ previousAssistRad=NaN,frameInterval=.0167
 }={}){
  if(mode!=='move'||!/^walking[_\s-]*a$/i.test(sourceClipName)||
   sourceAnatomyVerified!==true||sourceLegChainVerified!==true||
@@ -1604,7 +1604,8 @@ export function planOriginalSourceSwingCalfAssist({
   teleport||reducedMotion||interrupted||
   ![sourceWeight,rootTravel,frameAge,floorTopY,afterAnkleToeY,
    afterAnkleHeelY,ankleLiftMeters,trialCalfToeY,trialCalfHeelY,
-   trialAngleRad,previousAssistRad].every(finite)||
+   trialAngleRad,previousAssistRad,frameInterval].every(finite)||
+  frameInterval<=0||frameInterval>.20||
   sourceWeight<.5||sourceWeight>1.001||
   rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.18||
   Math.abs(floorTopY+.02)>.005||
@@ -1625,16 +1626,22 @@ export function planOriginalSourceSwingCalfAssist({
  // controller cannot expose a directional correction or fail its contract.
  if(eased===0||(previousAssistRad!==0&&
   Math.sign(previousAssistRad)!==Math.sign(trialAngleRad)))return 0;
- // A licensed 0.2rad knee probe is evidence only, never an instant knee
- // snap. Preserve the existing 0.06rad/frame slew and require up to three
- // consecutive same-owner source frames to reach the new 0.18rad ceiling.
- // The Three.js adapter must still remeasure the SAME skinned heel and toe
- // after the actual clamped rotation before this cosmetic pose can apply.
+ // Genuine original 390px WebGL source-rig #14225659623 sampled a
+ // +0.2rad knee trial lifting the already-buried toe by 27.66mm, but
+ // the fixed 60mrad/FRAME limit threw away most of the safe motion on
+ // an 80ms rendered source step. Preserve the SAME angular velocity as
+ // a 16.7ms frame (60mrad), capped at 180mrad absolute; no wall clock,
+ // no change to AnimationMixer, no source-root move or fabricated plant.
+ // Real same-source, same-frame skinned heel/toe must STILL independently
+ // certify the exact applied angle in the renderer. Faster callbacks
+ // retain the prior bound; stale >200ms callbacks fail closed above.
+ const observedStepLimit=Math.min(.18,.06*
+  Math.max(1,Math.min(3,frameInterval/.0167)));
  const demand=Math.min(.04,-.01-toeClear);
  const target=Math.sign(trialAngleRad)*eased*
   Math.min(.18,Math.abs(trialAngleRad)*demand/trialLift);
- return clamp(target,Math.max(-.18,previousAssistRad-.06),
-  Math.min(.18,previousAssistRad+.06));
+ return clamp(target,Math.max(-.18,previousAssistRad-observedStepLimit),
+  Math.min(.18,previousAssistRad+observedStepLimit));
 }
 
 /**
