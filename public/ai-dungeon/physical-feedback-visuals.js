@@ -941,6 +941,12 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   // Keep the arrow kinetic at short ranges without inventing an impact frame.
   const flightLife=limitedFlight?clamp(limitedFlight.travelMeters/(type==='projectile'?7:6),
    type==='projectile'?.10:.16,type==='projectile'?.30:.31):length;
+  // Genuine HP loss may reach its first WebGL submission after a 230ms shard
+  // expires but still within the unchanged 400ms sound deadline. Only a
+  // strict, canonical, currently witnessed HP cue gets 380ms of drawable life.
+  // This is not a delayed impact claim, an attacker inference or a new pool.
+  const verifiedHpFirstFrameLife=type==='hit'&&requireVerifiedHpReceipt?
+   Math.max(flightLife,.38):flightLife;
   // An actual HP drop identifies the victim, never an incoming blade.
   // Previously every tiny chip began INSIDE its chest mesh, where depth
   // testing obscured the first visible impact from most camera directions.
@@ -972,7 +978,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
     speed.vx=Math.cos(angle)*speedXZ;
     speed.vz=Math.sin(angle)*speedXZ;
    }
-   pool.slots[index]={cue,age:0,life:reducedMotion?Math.min(.13,flightLife):flightLife,
+   pool.slots[index]={cue,age:0,life:reducedMotion?Math.min(.13,flightLife):verifiedHpFirstFrameLife,
     origin:chipOrigin,
     end:flightDestination??(cell(cue.to)?world(cue.to,type==='spell'?1.23:1.19):null),
     priority:cue.priority??1,severity,fragment:speed,index,ordinal:i,
@@ -1045,7 +1051,12 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    // HP loss strengthens the shell modestly, never an attempted swing.
    const initial=p==='dust'?.30:
     slot.ordinal===0?.60+slot.severity*.24:.96+slot.severity*.16;
-   pose.scale.setScalar(Math.max(.0001,initial*Math.pow(fade,1.25)));
+   // An authentic 336ms first-frame HP impact must not shrink to a
+   // sub-pixel chip. Preserve monotonic fade and hard expiry without changing
+   // non-HP dust, geometry auditions or reduced-flash material opacity.
+   const contactFade=p==='hit'&&requireVerifiedHpReceipt?
+    Math.pow(fade,.35):fade;
+   pose.scale.setScalar(Math.max(.0001,initial*Math.pow(contactFade,1.25)));
   }else if(p==='projectile'||p==='spell'){
    const end=slot.end;
    const flight=end?planUnconfirmedFlight(origin,end,t*slot.flightFraction):null;
