@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-16T07:46:50.000Z",
+  "updatedAt": "2026-11-16T08:32:54.314Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass418 production candidate: only source-visible mutually sealed camera-facing parry foreground masonry becomes a physically framed, still-closed translucent Tideglass performance window. Exact-head tests and fresh original WebGL 320/390/844/1280 full-frame A/B PENDING; independent critic workspace unavailable. No Nintendo parity claim; draft PR unmerged/undeployed."
+    "summary": "Pass419: Pass418 exact-HEAD Chromium native WebGL #43827807848 SUCCESS, original 40/40 PNG SHA plus genuine gate 3/3 independently verified. Actual 320/390 source-bound parry seed13 tick8 visual A/B REJECTS glass spectator-window candidate: Pip remains blocked behind foreground masonry and plants. Restore original trusted world source and remove failed window-only test, retaining evidence; fresh rollback exact-HEAD CI pending. Independent critic NOT_FOUND. Official Nintendo-quality bar unmet; PR open draft unmerged/undeployed."
   },
   "captures": [
+    {
+      "title": "Pass418 original exact-SHA WebGL 40/40 PNG+3 real gate hashes verified; 320/390 guardian spectator-glass A/B REJECTED and source rolled back",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/43827807848/artifacts/14207473488"
+    },
     {
       "title": "Pass417 rollback native WebGL successful; Pass418 production sightline candidate awaiting new rendered comparison",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/43814706801/artifacts/14202570407"
@@ -172,6 +176,7 @@
     }
   ],
   "changes": [
+    "Pass419 2026-11-16 UTC: independently verified original Pass418 exact-HEAD native WebGL 40/40 full-size screenshot SHA and genuine gate 3/3; 320/390 real seed13 tick8 91->74 earned guardian counter still obscured by foreground masonry and coastal plants. Pass418 sealed counter-window stage visually REJECTED despite green Maze tests/strict <100 six-reset; exact trusted Pass417 world.js restored and candidate-only test removed, retaining dated native evidence. New rollback CI pending; separate whole-repository CI failed. Nintendo parity unmet; draft PR unmerged/undeployed, independent critic workspace NOT_FOUND.",
     "Pass417 2026-11-16 UTC: actual 40/40+3/3 SHA-verified original 320/390 WebGL from Pass416b versus Pass415 shows no worthwhile camera/actor readability improvement: Pip's torso and boots remain screened in the earned parry. Source/test candidate safely rolled back to exact Pass415 blobs while retaining dated evidence; rollback CI pending, independent critic unavailable, no false visual win.",
     "Pass416 2026-11-16 UTC: SHA-verified Pass415 original 320/390 real parry shows physical upper fossil retracted, but actual Pip torso occluded by public 93/75 masonry. Candidate uses public-world raycaster to seek a strictly uncropped better real two-actor camera angle during same-run earned public parry; rank requires >=2 more clear physical anchors and Pip torso, no removal of real walls or invented AI. Exact-head CI/visual critic PENDING, fixed Nintendo quality still unmet.",
     "Pass413 2026-11-16 UTC: actual original Pass412 320/390 autonomous parry A/B rejected (large front tide-organ still screens connected Pip/Thornback). Rolled back visually ineffective Pass412 wall cutaway. Source candidate projects actual current full actor and optional noncolliding published fossil organ/listening-sail mesh bounds: only true current earned parry and camera-front overlap may clear ornamental silhouettes. Source helper strict gating, reduced-motion/AI/privacy/gates/physical NDC and GPU resource contracts retained. Exact new-HEAD WebGL, 40+3 hashes, whole CI and critic still pending; NO Nintendo win.",

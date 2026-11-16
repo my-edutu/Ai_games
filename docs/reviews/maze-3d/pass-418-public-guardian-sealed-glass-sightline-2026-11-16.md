@@ -10,3 +10,7 @@ Only a *currently witnessed*, authoritative PUBLIC successful lantern parry by a
 
 ## Exact-HEAD validation required
 New code-head focused tests/Chromium WebGL, six-scene-reset **strict <100** resource gate, complete physical models inside **±0.95 NDC**, natural parry mobile 320/390 plus 844×390 and 1280×900, genuinely original dated full-resolution image hashes and fresh-context rendered critic **PENDING**. No independently supported visual win yet, no artificial screenshot evidence. If genuine A/B remains obstructed or the previously passed gates regress, reject and restore trusted blobs using non-force expected-HEAD update. Separate builders/critic/Ultracode unavailable: coding workspace tunnel `NOT_FOUND`.
+
+## Pass419 original native WebGL verdict (2026-11-16)
+
+Pass418 exact-HEAD workflow [#43827807848](https://github.com/my-edutu/Ai_games/actions/runs/43827807848) **SUCCESS**; downloaded and independently verified all **40/40 original PNG SHA-256 sidecars plus 3/3 authentic gate frames**. The real 320/390 tick8 moving parry remains visually obstructed, so the glass-window artwork is **REJECTED** and its production source/test are rolled back. See [dated Pass419 original critique](./pass-419-native-glass-stage-rejection-2026-11-16.md). Green tests never imply Nintendo visual parity.
