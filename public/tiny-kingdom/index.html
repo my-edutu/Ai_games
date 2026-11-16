@@ -12593,6 +12593,36 @@ let centralExchangeStats={
  source:'w106-original-open-timber-weighing-exchange',
  roofPanels:0,originalPostPositions:0,unverifiedStockProps:0,triangles:0,
  preservesMarketWalkway:true,changesAuthority:false};
+// W385: a genuine load-bearing original weighing exchange roof and bonded
+// four-foot stone base. This is immutable civic presentation geometry: the
+// authentic empty trade table, route, merchants and resource ledger remain.
+function renderOriginalMarketExchangeJoinery(x,y,z){
+ const before=data.length;
+ const oak=rgb(0x6f523f),weathered=rgb(0x9e7c57),stone=rgb(0xaaa08d);
+ materialScope(MATERIAL.STONE,()=>{
+  for(const sx of [-1,1])for(const sz of [-1,1]){
+   const px=x+sx*1.1,pz=z+sz*.68,py=terrain(px,pz);
+   // A second actual bearing course above each ORIGINAL stone foot.
+   box(px,py+.083,pz,.27,.09,.27,stone);
+  }
+ });
+ materialScope(MATERIAL.WOOD,()=>{
+  // Six actual pitched rafters belong beneath the TWO unchanged clay
+  // slopes, not freestanding timber across the market/buyer aisle.
+  for(const side of [-1,1])for(const end of [-1,0,1]){
+   const zz=z+end*.92;
+   limbSegment([x+side*1.48,y+2.31,zz],
+    [x,y+3.08,zz],.044,end===0?oak:weathered,4);
+  }
+  box(x,y+3.085,z,.16,.075,2.14,oak);
+ });
+ const triangles=(data.length-before)/30;
+ if(!Number.isInteger(triangles)||triangles<60||triangles>260)
+  throw Error('W385 genuine weighing exchange exceeds static scene budget');
+ return {source:'original-trading-table-with-timber-and-stone-structure',
+  triangles,rafters:6,bearingFootCourses:4,
+  authorityChanged:false,extraMarketDeliveries:0};
+}
 function market(x,z){
  const before=data.length,y=terrain(x,z);
  const oak=rgb(0x72513b),aged=rgb(0xa58a69),iron=rgb(0x4c4d48);
@@ -12666,7 +12696,41 @@ function market(x,z){
    else quad(lip0,inner0,inner1,lip1,rgb(0x705845));
   }
  });
+ const joinery=renderOriginalMarketExchangeJoinery(x,y,z);
+ centralExchangeStats.physicalJoineryTriangles=joinery.triangles;
+ centralExchangeStats.physicalRafters=joinery.rafters;
+ centralExchangeStats.physicalStoneCourses=joinery.bearingFootCourses;
  centralExchangeStats.triangles=(data.length-before)/30;
+}
+// W385: exact physical eye/roof foreground model for the ORIGINAL market
+// weighing shelter at (0,5). The old opaque y+1.51..2.31 rectangle
+// paradoxically missed the REAL 2.35m clay eaves, 3.14m ridge, four tall
+// oak posts and the original counter. Four conservative pitched bands, four
+// original timber feet and one counter now match the rendered 3D building.
+// No mesh is hidden, no buyer or delivery is fabricated and this cannot
+// modify authoritative paths, inventory, activity or seeded randomness.
+function physicalVillageExchangeVolumes(){
+ const x=0,z=5,ground=terrain(x,z),volumes=[];
+ const add=(kind,px,pz,rx,rz,bottom,top)=>{
+  if(![px,pz,rx,rz,bottom,top].every(Number.isFinite)||
+   rx<=0||rz<=0||top<=bottom)
+   throw Error('W385 invalid original village market solid');
+  volumes.push({x:px,z:pz,rx,rz,bottom,visualBottom:bottom,top,kind});
+ };
+ for(const side of [-1,1])for(let band=0;band<2;band++){
+  const u0=band*.5,u1=(band+1)*.5;
+  const x0=x+side*1.58*(1-u0),x1=x+side*1.58*(1-u1);
+  const y0=ground+2.35+.79*u0,y1=ground+2.35+.79*u1;
+  add(side===-1&&band===0?'village-market':'village-market-roof',
+   (x0+x1)*.5,z,Math.abs(x1-x0)*.5+.035,1.19,
+   Math.min(y0,y1)-.08,Math.max(y0,y1)+.07);
+ }
+ for(const sx of [-1,1])for(const sz of [-1,1]){
+  const px=x+sx*1.1,pz=z+sz*.68,py=terrain(px,pz);
+  add('village-market-post',px,pz,.18,.18,py-.055,py+2.38);
+ }
+ add('village-market-counter',x,z,1.40,.79,ground+.65,ground+.94);
+ return volumes;
 }
 
 /* G095: central market as an inhabited, scene-scale physical place rather
@@ -24203,9 +24267,10 @@ function followCameraRoofs(){
    kind:post.kind==='gateway'?'market-gateway-post':'market-stall-post'});
  }
 
- const my=terrain(0,5);
- roofs.push({x:0,z:5,rx:1.6,rz:1.02,bottom:my+1.51,top:my+2.31,
-  visualBottom:my+.12,kind:'village-market'});
+ // Physical camera shares the same actual counter, posts and pitched
+ // clay panels as the existing immutable central exchange. Unlike the
+ // previous oversized opaque box, open trading space stays genuinely open.
+ roofs.push(...physicalVillageExchangeVolumes());
  // W342: removed the old phantom FULL-WIDTH cross-aisle beam. W304
  // physically replaced it with TWO independent roadside arms. That former
  // virtual AABB rejected good worker views in the real open freight aisle.
@@ -24380,7 +24445,8 @@ function getCameraRayBroadphaseAudit(){
 // Do not hide geometry, move citizens, or alter the autonomous world.
 const PHYSICAL_FOLLOW_EYE_KINDS=new Set([
  'home','hall','granary','craft-district','belfry','street-shop',
- 'market-stall','village-market','market-stall-post','market-gateway-post',
+ 'market-stall','village-market','village-market-roof',
+ 'village-market-post','village-market-counter','market-stall-post','market-gateway-post',
  'market-gateway-arm','market-gateway-guildmark','market-gateway-brace',
  'market-stall-counter','market-stall-screen','market-stall-upper-wall',
  'market-stall-rear-gable','market-stall-artisan-vent','market-stall-sign',
@@ -24507,7 +24573,8 @@ function physicalCitizenForegroundBlockers(eye,subject,hands=[]){
 // foreground, not just narrow face rays and market stall envelopes.
 const WORKDAY_SOLID_BUILDING_KINDS=new Set(['home','hall','craft-district','granary','belfry']);
 const WORKDAY_OPAQUE_SCENE_KINDS=new Set([
- 'market-stall','village-market','arcade','street-shop',
+ 'market-stall','village-market','village-market-roof',
+ 'village-market-post','village-market-counter','arcade','street-shop',
  'market-stall-counter','market-stall-screen',
  'market-stall-upper-wall','market-stall-sign',
  'market-stall-post','market-gateway-post',
