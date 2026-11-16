@@ -128,6 +128,23 @@ test('Chromium decode sampler stays self-contained when serialized into a clean 
  const result=await evaluated;
  assert.equal(result.status,'UNAVAILABLE');
  assert.equal(result.sampleSynchronized,false);
+ const primary={source:'real-canvas-plus-opted-in-soundstage',status:'RECORDED',
+  mimeType:'video/webm;codecs=vp8,opus',videoTracks:1,audioTracks:1,
+  optedInAtStart:true,originalSoundstageTrackLive:true,bytes:2400,
+  framePump:{mode:'submitted-frame-request',observedFrameAdvances:300,
+   requestedFrames:280,requestFailures:0},base64:'AAAA'};
+ // One pristine browser evaluator sees authentic eligibility and continues
+ // to verify bytes. It must NOT require an imported Node helper or treat
+ // unrelated original content as moving contact evidence.
+ const runner='('+sampleChromiumDecodedD04WebM.toString()+')(input)';
+ const accepted=await vm.runInNewContext(runner,{input:primary,Number,String,atob:()=> 'X'});
+ assert.equal(accepted.reason,'WebM encoded length mismatch');
+ assert.equal(accepted.sampleSynchronized,false);
+ for(const bad of [{...primary,optedInAtStart:false},
+  {...primary,framePump:{...primary.framePump,requestFailures:1}}]){
+  const rejected=await vm.runInNewContext(runner,{input:bad,Number,String,atob:()=> 'X'});
+  assert.match(rejected.reason,/No bounded, opted-in/);
+ }
 });
 test('Chromium pixel samples do not count as motion when static, blank, corrupted, reversed or over budget',()=>{
  const {classifyChromiumDecodedRealWebM}=require('../browser/dungeon-d04-decoded-video-proof.cjs');
