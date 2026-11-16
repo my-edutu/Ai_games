@@ -610,8 +610,8 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===originalArch,true,
       'original bronze gate GPU identity must survive; never format the gigantic Three.js graph');
     assert.equal(world.diagnostics().deferredDistantArrival?.state,
-      'awaiting-structural-submission',
-      'a genuine returned gateway plus source-supported sill now earns a bounded visible 3D successor shell');
+      'awaiting-structural-release',
+      'the genuine FIRST 3D shaft build cannot submit until an actual source-cleared returned room is ready');
     const hiddenShaft=world.group.getObjectByName('deferred-original-floor-nine-architecture');
     assert.ok(hiddenShaft);
     const shaftOpacity=[];
@@ -619,9 +619,8 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
       if(object.isMesh && object.material?.name==='SourceEarnedIncomingFloorNineShaft')
         shaftOpacity.push(object.material.opacity);
     });
-    assert.ok(shaftOpacity.length>0 && shaftOpacity.some(opacity=>opacity>0) &&
-      shaftOpacity.every(opacity=>opacity>=0 && opacity<=.28),
-      'source-earned first sill is permitted <=28% true new-shaft depth, with original bronze still present');
+    assert.ok(shaftOpacity.length>0 && shaftOpacity.every(opacity=>opacity===0),
+      'CPU construction and a lone cold WebGL return cannot pretend an already-visible F9 shaft');
     assert.equal(world.diagnostics().vistaLayers,0);
     assert.ok(!sharedSurface.material.color.equals(firstGroundColor),
       'a genuine observed 10,000-unit step beyond the old sill, not WebGL wall-time, blends the real landing toward void');
