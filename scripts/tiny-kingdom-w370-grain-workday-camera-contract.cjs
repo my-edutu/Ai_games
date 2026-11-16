@@ -34,7 +34,10 @@ function run({producer='Bram',activity='Harvesting grain',workday=false,
    return {yaw,pitch:forced?.24:.76,zoom:forced?4.8:12.8,
     target:[p.x,1,p.z],eye:[p.x+2,3,p.z+3]};
   }};
- context.citizen=citizen;
+ // The observer reads an ACTUAL selected resident; no people or job are
+ // created by the running-game helper. Supply the preexisting fixture actor.
+ context.citizen=citizen;context.people=[citizen];
+ context.selectedCitizen=0;context.follow=false;
  vm.runInNewContext(production,context,{timeout:2000});
  const lens=vm.runInNewContext('observedWorkdayCameraPlan(citizen,.4)',context,{timeout:2000});
  return {lens,events,context};
