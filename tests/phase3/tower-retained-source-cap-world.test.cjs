@@ -21,7 +21,8 @@ const source=fs.readFileSync(path.join(ROOT,'public/infinite-tower-climb/visuals
   .replace("'./scene-hierarchy.mjs'",JSON.stringify(uri('scene-hierarchy.mjs')))
   .replace("'./guardian-transmission-layout.mjs'",JSON.stringify(uri('guardian-transmission-layout.mjs')))
   .replace("'./mesh-provenance.mjs'",JSON.stringify(uri('mesh-provenance.mjs')))
-  .replace("'./original-gallery-foreground.mjs'",JSON.stringify(uri('original-gallery-foreground.mjs')));
+  .replace("'./original-gallery-foreground.mjs'",JSON.stringify(uri('original-gallery-foreground.mjs')))
+  .replace("'./far-side-shaft-transition.mjs'",JSON.stringify(uri('far-side-shaft-transition.mjs')));
 fs.writeFileSync(local,source);
 after(()=>fs.rmSync(scratch,{recursive:true,force:true}));
 const loaded=Promise.all([import(pathToFileURL(local).href),
