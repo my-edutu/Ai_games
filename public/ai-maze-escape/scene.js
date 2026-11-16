@@ -318,7 +318,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       scene.add(model.group, contact);
     } else scene.add(model.group);
     return {model, contact, cell:threat.cell, cells:[threat.cell],
-      progress:0, heading:0, encounterStart:null, encounterBeat:0, lanternParried:false};
+      progress:0, heading:0, encounterStart:null, encounterBeat:0,
+      lanternParried:false, counterSince:null};
   };
 
   let settings = { ...initialSettings };
@@ -460,6 +461,10 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // Never extend across a new run, skipped tick or reversed stream.
     priorPublicSnapshot = publicDistinctPublicPredecessor(
       priorPublicSnapshot,previous,snapshot);
+    // Keep only one current SANITIZED public witness for a genuine
+    // same-run lantern counter; a newly seen already-parried enemy is not
+    // a fresh hit. This clock never alters authoritative simulation rules.
+    const previousWardenSnapshot = previous;
     previous = snapshot;
     world.update(snapshot);
     parryScenicRoots.length=0;
@@ -500,6 +505,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     }
     for (const threat of snapshot.threats) {
       let entry = wardens.get(threat.id);
+      const previouslyTracked = !!entry;
       if (!entry) { entry = acquireWarden(threat); wardens.set(threat.id, entry); }
       const p = cellPosition(threat.cell, snapshot.width, snapshot.height);
       const old = cellPosition(entry.cell, snapshot.width, snapshot.height);
@@ -512,6 +518,18 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         if (!lost && !settings.reducedMotion && adjacent && from?.neighbors.includes(threat.cell) && entry.cells.at(-1) === entry.cell && entry.cells.length < 8) entry.cells.push(threat.cell);
         else { entry.cells = [threat.cell]; entry.progress = 0; }
       }
+      // Only a CURRENTLY witnessed false->true counter on the same
+      // tracked disclosed enemy may animate a physically earned recoil.
+      // A first-seen/parried, old-run, hidden or guessed guardian never can.
+      const earlier = previousWardenSnapshot?.runToken === snapshot.runToken
+        ? previousWardenSnapshot.threats?.find(t=>t.id===threat.id) : null;
+      const earned = previouslyTracked && entry.lanternParried!==true
+        && threat.lanternParried===true && earlier?.lanternParried!==true
+        && Number.isSafeInteger(earlier?.cell)
+        && previousWardenSnapshot.visibleCells?.includes(earlier.cell)
+        && snapshot.visibleCells?.includes(threat.cell);
+      if(earned)entry.counterSince=gateVisualTime;
+      else if(threat.lanternParried!==true)entry.counterSince=null;
       entry.cell = threat.cell;
       entry.lanternParried = threat.lanternParried === true;
     }
@@ -622,16 +640,23 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // escape. This cue exists solely on the published, visible enemy, never
       // on an unobserved route or an invented future attack.
       const lanternParried=!result && entry.lanternParried;
+      // One contiguous physical compress -> recoiling shell -> recovery
+      // performance on this EXISTING 3D actor and its actual public patrol root.
+      const counterPhase=lanternParried && entry.counterSince!==null
+        ?clamp((gateVisualTime-entry.counterSince)/1.15,0,1):null;
+      const counterPlant=counterPhase===null?0
+        :Math.max(0,1-Math.abs(counterPhase-.20)/.20);
       const actorAttention=lanternParried?Math.max(.75,attentionStrength):attentionStrength;
       // The existing, physically grounded contact shadow responds to the
       // actual armored body planting its feet. Its x/z/y always follow the
       // disclosed model; no extra mesh, billboard or GPU material is spawned.
-      entry.contact.scale.set(1.22+brace*.16,.96+brace*.08,1);
+      entry.contact.scale.set(1.22+brace*.16+counterPlant*.12,
+        .96+brace*.08+counterPlant*.06,1);
       entry.model.update({
         time:elapsed,delta,moving:threatPose.moving&&!result,heading:entry.heading,
         attentionHeading:actorAttention?Math.atan2(towardExplorerX,towardExplorerZ):undefined,
         attentionStrength:actorAttention,encounterBeat:entry.encounterBeat,
-        lanternParried,danger:1,result,reducedMotion:settings.reducedMotion,
+        lanternParried,counterPhase,danger:1,result,reducedMotion:settings.reducedMotion,
       });
     }
     // Authentic same-run public CLOSED→OPEN testimony drives both Pip's
