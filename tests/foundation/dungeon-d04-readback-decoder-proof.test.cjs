@@ -206,3 +206,56 @@ test('durationless genuine MediaRecorder WebM can prove moving decoded pixels on
   }else assert.equal(found.classification,'BROWSER_DECODE_UNVERIFIED');
  }
 });
+
+test('durationless decoder executes in an isolated browser realm with no Node imports or audible output',async()=>{
+ const vm=require('node:vm');
+ const {sampleChromiumDecodedD04WebM}=require('../browser/dungeon-d04-decoded-video-proof.cjs');
+ let frame=0;const listeners=new Map();
+ const video={duration:Infinity,videoWidth:688,videoHeight:397,readyState:2,
+  style:{},muted:false,volume:1,playsInline:false,
+  addEventListener(name,fn){if(!listeners.has(name))listeners.set(name,new Set());listeners.get(name).add(fn)},
+  removeEventListener(name,fn){listeners.get(name)?.delete(fn)},
+  emit(name){for(const fn of Array.from(listeners.get(name)||[]))fn()},
+  load(){this.emit('loadedmetadata')},play(){return Promise.resolve()},pause(){},remove(){},
+  removeAttribute(){},
+  requestVideoFrameCallback(fn){
+   Promise.resolve().then(()=>{
+    if(frame<2){frame++;fn(0,{mediaTime:[2.994,3.816][frame-1]})}
+    else video.emit('ended');
+   });
+   return frame+1;
+  },
+  cancelVideoFrameCallback(){}
+ };
+ const ctx={drawImage(){},getImageData(){
+  const data=new Uint8Array(24*16*4);
+  for(let i=0;i<data.length;i+=4){
+   data[i]=((i/4)+frame*17)%210;
+   data[i+1]=((i/4)*2+frame*19)%211;
+   data[i+2]=((i/4)*3+frame*23)%212;data[i+3]=255;
+  }return {data};
+ }};
+ const document={body:{appendChild(){}},createElement(tag){
+  if(tag==='video')return video;
+  if(tag==='canvas')return {getContext:()=>ctx};
+  throw Error('Unexpected element '+tag);
+ }};
+ const input={source:'real-canvas-plus-opted-in-soundstage',
+  status:'RECORDED',mimeType:'video/webm;codecs=vp8,opus',
+  videoTracks:1,audioTracks:1,optedInAtStart:true,
+  originalSoundstageTrackLive:true,bytes:2400,base64:'X'.repeat(3200),
+  framePump:{mode:'submitted-frame-request',observedFrameAdvances:3,
+   requestedFrames:3,requestFailures:0}};
+ const result=await vm.runInNewContext(
+  '('+sampleChromiumDecodedD04WebM.toString()+')(input)',{
+   input,atob:()=> 'X'.repeat(2400),Uint8Array,
+   Blob:class FakeBlob{},URL:{createObjectURL:()=> 'blob:mock',revokeObjectURL(){}},
+   document,setTimeout:()=>1,clearTimeout(){}});
+ assert.equal(result.status,'SAMPLED');
+ assert.equal(result.samplingMode,'playback-frame-callback');
+ assert.equal(result.durationSeconds,null);
+ assert.equal(result.samples.length,2);
+ assert.equal(result.sampleSynchronized,false);
+ assert.equal(video.muted,true,'original sound must not be emitted by decoder');
+ assert.equal(video.volume,0);
+});
