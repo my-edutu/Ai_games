@@ -86,3 +86,39 @@ test('D04 honors declared Matroska TimestampScale rather than inventing millisec
  assert.deepEqual(proof.ptsMs,[2000,2160]);
  assert.equal(proof.sampleSynchronized,false);
 });
+
+test('primary opted-in real WebGL WebM reports actual encoded video packets when Chromium metadata fails',()=>{
+ // The authentic 16 Nov browser artifact contains a decodable VP8/Opus stream
+ // despite Chromium returning no loadedmetadata. Its recorder receipts do not
+ // prove that all requested frames reached the WebM. Synthetic EBML fixture.
+ const bytes=realShapedWebM({frames:[0,80]});
+ const original=capture(bytes);
+ const primary={...original,source:'real-canvas-plus-opted-in-soundstage',
+  phase:undefined,primaryRecordersSettled:undefined,
+  framePump:{mode:'submitted-frame-request',observedFrameAdvances:3,
+   requestedFrames:3,requestFailures:0,
+   submissionSamples:[
+    {receipt:12,atMs:1300,requestAttempted:true,requestSucceeded:true},
+    {receipt:13,atMs:1700,requestAttempted:true,requestSucceeded:true},
+    {receipt:14,atMs:1950,requestAttempted:true,requestSucceeded:true}
+   ]}};
+ const proof=inspectRealWebMVideoPTS(primary);
+ assert.equal(proof.status,'PARSED','the original primary WebM is also a permitted encoded packet witness');
+ assert.equal(proof.videoFrames,2);
+ assert.deepEqual(proof.ptsMs,[1000,1080]);
+ assert.equal(proof.pixelMotionVerified,false);
+ assert.equal(proof.audibleImpactVerified,false);
+ assert.equal(proof.sampleSynchronized,false);
+ assert.equal(classifyEncodedFrameYield(primary,proof),
+  'SPARSE_ENCODED_VIDEO_PTS_UNALIGNED','missing encoded frames stay diagnostic, not A/V acceptance');
+ for(const invalid of [
+  {...primary,optedInAtStart:false},
+  {...primary,framePump:{...primary.framePump,requestedFrames:0}},
+  {...primary,framePump:{...primary.framePump,requestFailures:1}},
+  {...primary,framePump:{...primary.framePump,submissionSamples:[...primary.framePump.submissionSamples].reverse()}},
+  {...primary,framePump:{...primary.framePump,observedFrameAdvances:2}}
+ ]){
+  assert.equal(classifyEncodedFrameYield(invalid,inspectRealWebMVideoPTS(invalid)),
+   'ENCODED_FRAME_TIMING_UNVERIFIED','unproven primary recorder must never earn encoded video evidence');
+ }
+});
