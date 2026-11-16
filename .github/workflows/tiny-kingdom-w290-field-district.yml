@@ -12,6 +12,7 @@ on:
       - scripts/tiny-kingdom-w290-field-district-contract.cjs
       - scripts/tiny-kingdom-w125-gpu-skin-contract.cjs
       - scripts/tiny-kingdom-w383-harmonic-ground-contract.cjs
+      - scripts/tiny-kingdom-w384-real-household-camera-contract.cjs
       - .github/workflows/tiny-kingdom-w290-field-district.yml
   workflow_dispatch:
 permissions:
@@ -40,6 +41,7 @@ jobs:
           node scripts/tiny-kingdom-w260-physical-field-and-freight-contract.cjs
           node scripts/tiny-kingdom-w125-gpu-skin-contract.cjs
           node scripts/tiny-kingdom-w383-harmonic-ground-contract.cjs
+          node scripts/tiny-kingdom-w384-real-household-camera-contract.cjs
       - name: Confirm production source build
         run: |
           npm ci --no-audit --no-fund
