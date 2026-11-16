@@ -14060,6 +14060,67 @@ function marketStall(s,index){
  if(tiled)marketQuarterStats.tileRoofs++;
  else marketQuarterStats.canvasRoofs++;
 }
+// W389: four REAL shopfront thresholds connect existing grain/smith/cloth/
+// herb premises to the public court of the actual farm-to-home economic chain.
+// Worn flags follow original terrain below a shoe; the market remains open.
+// No shop, worker, sale, navigation cell, collider, GPU pass or buffer is added.
+// This material occupies the original construction-dirty civic scene VBO.
+function marketShopfrontThresholds(){
+ const first=data.length,stone=[
+  rgb(0xa69b87),rgb(0x8c897a),rgb(0xb4a48c),rgb(0x948879)
+ ],edge=[rgb(0x817e70),rgb(0xaaa08b)];
+ marketQuarterStats.shopfronts=0;
+ marketQuarterStats.flagstones=0;
+ marketQuarterStats.edgeStones=0;
+ marketQuarterStats.extraGpuBuffers=0;
+ marketQuarterStats.authorityModified=false;
+ marketQuarterStats.collisionsModified=false;
+ marketQuarterStats.inventedShops=0;
+ marketQuarterStats.inventedTransactions=0;
+ const at=(x,z,lift)=>[x,terrain(x,z)+lift,z];
+ materialScope(MATERIAL.STONE,()=>{
+  for(const stall of MARKET_STALLS){
+   const {x,z,face}=stall;
+   // All four working entrances face INTO the centre. Unlike high posts,
+   // these low flagstones never obstruct a citizen or the receiving lens.
+   for(let row=0;row<2;row++){
+    const z0=z+face*(1.04+row*.44),
+     z1=z+face*(1.04+(row+1)*.44);
+    for(let tile=0;tile<4;tile++){
+     const left=x-1.28+tile*.64+.018,
+      right=x-1.28+(tile+1)*.64-.018,
+      lift=.070+.003*((row+tile)%3),
+      tone=stone[(row*3+tile+stall.trade.length)%stone.length];
+     if(face>0)quad(at(left,z0,lift),at(left,z1,lift),
+      at(right,z1,lift),at(right,z0,lift),tone);
+     else quad(at(right,z0,lift),at(right,z1,lift),
+      at(left,z1,lift),at(left,z0,lift),tone);
+     marketQuarterStats.flagstones++;
+    }
+   }
+   // Stone course at the court edge uses the same original four-bay rhythm.
+   const lip0=z+face*1.925,lip1=z+face*2.000;
+   for(let tile=0;tile<4;tile++){
+    const left=x-1.28+tile*.64+.018,
+     right=x-1.28+(tile+1)*.64-.018,
+     tone=edge[tile%edge.length];
+    if(face>0)quad(at(left,lip0,.079),at(left,lip1,.079),
+     at(right,lip1,.079),at(right,lip0,.079),tone);
+    else quad(at(right,lip0,.079),at(right,lip1,.079),
+     at(left,lip1,.079),at(left,lip0,.079),tone);
+    marketQuarterStats.edgeStones++;
+   }
+   marketQuarterStats.shopfronts++;
+  }
+ });
+ marketQuarterStats.shopfrontTriangles=(data.length-first)/30;
+ marketQuarterStats.triangles=marketQuarterStats.shopfrontTriangles;
+ if(marketQuarterStats.shopfronts!==MARKET_STALLS.length||
+    marketQuarterStats.flagstones!==32||
+    marketQuarterStats.edgeStones!==16||
+    marketQuarterStats.shopfrontTriangles!==96)
+  throw Error('W389 authentic market shopfront geometry budget breached');
+}
 function marketQuarter(){
  marketQuarterStats={artisanShells:0,artisanShellTriangles:0,
   artisanShellWallPanels:0,artisanShellJoinery:0,
@@ -14073,6 +14134,7 @@ function marketQuarter(){
  const begin=data.length;
  marketCobblestoneSquare();
  for(let i=0;i<MARKET_STALLS.length;i++)marketStall(MARKET_STALLS[i],i);
+ marketShopfrontThresholds();
  grainwardMarketRoofEdges();
  grainwardTradeArcade();
  marketTimberCart(2.45,9.90);marketReceivingDock();marketReceivingCourt();
