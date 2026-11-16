@@ -36,7 +36,12 @@ test('the live lens consumes only the source authenticated Follow guardian encou
  assert.match(scene,/publicGuardianDuelCameraElevation\(\s*aspect,closestThreat\.strength,closestThreat\.encounterBeat,\s*settings\.reducedMotion\)/);
  assert.match(scene,/if \(!result && closestThreat\?\.strength\) \{/);
  assert.match(scene,/portraitEncounterOrbit=publicPortraitGuardianOrbitAngle\(/);
- assert.match(scene,/\(portraitEncounterOrbit \|\| earnedDuelContinuity\) \? portraitCameraOffset/);
+ assert.match(scene,/earnedRecoilCameraOffset\.copy\(portraitCameraOffset\)/,
+    'earned recoil must inherit the same actual witnessed portrait orbit before lifting the optical stage');
+  assert.match(scene,/earnedDuelContinuity \? earnedRecoilCameraOffset\s*:\s*portraitEncounterOrbit \? portraitCameraOffset/,
+    'only the already authenticated earned parry may use the elevated camera; ordinary guardian retains its former orbit');
+  assert.match(scene,/earnedRecoilCameraOffset\.y = publicGuardianEarnedRecoilRevealElevation\(/[\s\S]*?earnedDuelContinuity,settings\.reducedMotion\)/,
+    'physical camera lift requires current public earned continuation and must honor reduced motion');
  assert.doesNotMatch(scene,/privateMaze.*publicGuardianDuelCameraElevation|secretRoute.*duetElevation/);
 });
 
@@ -233,7 +238,12 @@ test('Pass399 genuine published earned recoil keeps the same witnessed portrait 
   assert.match(scene,/const earnedDuelContinuity = cameraMode==='follow' && !result[\s\S]*?!settings\.reducedMotion && !closestThreat\?\.strength/);
   assert.match(scene,/!!earnedCounterModel && lastWitnessedGuardianStageRunToken===s\.runToken/);
   assert.match(scene,/aspect>=\.35 && aspect<\.60 && !cameraGate[\s\S]*?!pressureCameraBeat && !openingStageView && !showPickup/);
-  assert.match(scene,/\(portraitEncounterOrbit \|\| earnedDuelContinuity\) \? portraitCameraOffset/);
+  assert.match(scene,/earnedRecoilCameraOffset\.copy\(portraitCameraOffset\)/,
+    'earned recoil must inherit the same actual witnessed portrait orbit before lifting the optical stage');
+  assert.match(scene,/earnedDuelContinuity \? earnedRecoilCameraOffset\s*:\s*portraitEncounterOrbit \? portraitCameraOffset/,
+    'only the already authenticated earned parry may use the elevated camera; ordinary guardian retains its former orbit');
+  assert.match(scene,/earnedRecoilCameraOffset\.y = publicGuardianEarnedRecoilRevealElevation\(/[\s\S]*?earnedDuelContinuity,settings\.reducedMotion\)/,
+    'physical camera lift requires current public earned continuation and must honor reduced motion');
   assert.match(scene,/for \(const root of \[explorer\.group,verifiedGuardianModel\]\)/,
     'the unchanged full-body final optical fit must still protect both visible actors');
   assert.doesNotMatch(scene,/privateMaze.*earnedDuelContinuity|secretRoute.*earnedDuelContinuity/);
