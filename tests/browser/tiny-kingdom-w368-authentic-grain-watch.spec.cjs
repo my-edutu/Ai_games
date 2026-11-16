@@ -69,7 +69,11 @@ for(const profile of [
   await page.waitForTimeout(1200);
   await page.screenshot({path:path.join(output,profile.name+'-real-grain-follow.png')});
   const second=await page.evaluate(()=>window.__tinyKingdom.getRealGrainJourneyAudit());
-  await btn.click();
+  // During the live farmer documentary the original ribbon is intentionally
+  // hidden to keep the field/citizen visible. A second physical Playwright
+  // click cannot target that invisible control. Exercise the original event
+  // handler for repeat-dispatch idempotence without claiming a user tap.
+  await page.evaluate(()=>document.getElementById('world-watch-life').click());
   const still=await page.evaluate(()=>({
    grain:window.__tinyKingdom.getRealGrainJourneyAudit(),
    checksum:window.__tinyKingdom.exportSnapshot().checksum
