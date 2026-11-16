@@ -4,6 +4,7 @@
 // Source distance, not the browser clock or slow WebGL submissions, controls
 // how the original bronze engineering becomes the next biome's violet metal.
 import { observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
+import { observedEarnedSillDepthExposure } from './far-side-shaft-transition.mjs';
 const valid=Number.isSafeInteger;
 // The recorded fixed-step Floor 9 route doubles back roughly 0.63m to
 // line up with its first raised deck. A previous forward-only predicate
@@ -580,6 +581,15 @@ export function sourceOwnedOriginalArchitectureCoverage(source,held) {
     const verticalClearance=smooth((measuredRise-35000)/85000);
     coverage*=1-Math.max(horizontalClearance,verticalClearance);
   }
+  // Original unedited desktop/portrait films: the source-authentic gate
+  // remains opaque while the climber has ALREADY walked across the F9 sill.
+  // Expose a thin layer of the ACTUAL, deferred successor tower in depth
+  // after one real old-gate render, BEFORE its later 7m vertical jump.
+  // This is an overlap of existing authored 3D geometry, not a fake floor,
+  // a violet sky cut or a faster deletion of the physical bronze gate.
+  const sillDepth=observedEarnedSillDepthExposure(source,held);
+  if(sillDepth?.sourceBound===true)
+    coverage=Math.min(coverage,1-sillDepth.maxDepthReveal);
   return coverage;
 }
 /**

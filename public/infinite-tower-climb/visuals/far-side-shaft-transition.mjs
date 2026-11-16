@@ -119,3 +119,80 @@ export function observedReturnedFarSideFade(held,job) {
   const returnedTime=(held.visibleSeconds-held.farSideFadeStartSeconds)/.95;
   return smooth(Math.min(frameProgress,returnedTime));
 }
+
+// P0: Begin revealing the REAL, already-constructed next-floor shaft while
+// the climber still crosses the genuine Floor9 roof/low ascending approach.
+// Previous staging hid all successor depth until the hero had risen 7m;
+// software WebGL then painted an abrupt replacement instead of an earned
+// shared-room view. This authorizes only <=28% scenic, noninteractive depth
+// after an actual old-door GPU return; it never opens the physical guardian
+// gate, changes a platform, or certifies a pixel or event synchronization.
+export function observedEarnedSillDepthExposure(source, held, job=null) {
+  const p=source?.player,w=source?.lastGuardianCrossing;
+  const cap=w?.cap, g=w?.guardian;
+  const ground=source?.platforms?.find(s=>s?.id==='f9:ground');
+  if(source?.lifecycle!=='running' || source.floor!==9 ||
+      source.theme!=='void' || !(p?.health>0) ||
+      typeof source.runToken!=='string' || !source.runToken ||
+      !held || held.guardianGateRetained!==true ||
+      held.verifiedObservedFloorAdvance!==true ||
+      held.runToken!==source.runToken || held.floor!==9 ||
+      held.oldCapId!=='f8:cap' || held.opticalExitSubmitted===true ||
+      !w || w.runToken!==source.runToken ||
+      w.fromFloor!==8 || w.toFloor!==9 ||
+      g?.kind!=='guardian' || g.active!==false ||
+      !Number.isFinite(g.health) || g.health>0 ||
+      cap?.id!=='f8:cap' ||
+      ![source.tick,w.sourceTick,cap.x,cap.y,cap.width,cap.height,
+        w.exitX,held.oldCapX,held.oldCapWidth,held.oldRoofY,
+        held.thresholdX,held.crossingTick,held.submittedFrames,
+        p.x,p.y,p.halfWidth,p.halfHeight,
+        ground?.x,ground?.y,ground?.width,ground?.height].every(valid) ||
+      cap.width<=0 || cap.height<=0 || ground.width<=0 ||
+      ground.height<=0 || p.halfWidth<=0 || p.halfHeight<=0 ||
+      cap.x!==held.oldCapX || cap.width!==held.oldCapWidth ||
+      cap.y+cap.height!==held.oldRoofY ||
+      w.exitX!==held.thresholdX ||
+      w.exitX!==cap.x+Math.floor(cap.width*.76) ||
+      w.sourceTick!==held.crossingTick ||
+      source.tick<w.sourceTick || source.tick-w.sourceTick>65 ||
+      held.submittedFrames<1 || held.submittedFrames>=15 ||
+      !Number.isFinite(held.visibleSeconds) ||
+      held.visibleSeconds<0 || held.visibleSeconds>=1.8 ||
+      held.visibleSeconds>held.submittedFrames*.1+1e-8 ||
+      !Number.isFinite(held.originalGatewayOpacity) ||
+      held.originalGatewayOpacity<.68 ||
+      held.originalGatewayOpacity>1 ||
+      ground.y+ground.height!==held.oldRoofY ||
+      p.x-p.halfWidth<held.thresholdX+4000 ||
+      p.x-p.halfWidth>held.thresholdX+50000 ||
+      p.x-p.halfWidth<ground.x ||
+      p.x+p.halfWidth>ground.x+ground.width) return null;
+  const sole=p.y-p.halfHeight;
+  const actualRoofContact=p.grounded===true &&
+    p.groundedPlatformId==='f9:ground' &&
+    (p.state==='standing'||p.state==='hurt') &&
+    p.vy===0 && sole===held.oldRoofY;
+  // The original recorded route launches before software WebGL can return
+  // a second F9 frame; protect that REAL airborne segment as well.
+  const actualLowFlight=p.grounded===false &&
+    p.state==='airborne' && p.groundedPlatformId==null &&
+    Number.isFinite(p.vy) &&
+    sole>=held.oldRoofY-2500 && sole<=held.oldRoofY+80000;
+  if(!actualRoofContact&&!actualLowFlight)return null;
+  if(job && (job.state!=='awaiting-structural-release' ||
+      job.proof!=='recorded-source-gateway' ||
+      job.structureDeferred!==true ||
+      job.runToken!==source.runToken || job.floor!==9 ||
+      !valid(job.sourceTick) || job.sourceTick>source.tick ||
+      !valid(job.submittedFrames) ||
+      !valid(job.structureBuiltAtSubmitted) ||
+      job.structureBuiltAtSubmitted<1 ||
+      job.submittedFrames<=job.structureBuiltAtSubmitted))
+    return null;
+  return {sourceBound:true,sourceTick:source.tick,
+    originalRoofContact:!!actualRoofContact,
+    originalLowFlight:!!actualLowFlight,
+    maxDepthReveal:.28,
+    limitation:'Real grounded original roof or low airborne departure and already-returned original gate only; next shaft cannot certify native pixels'};
+}

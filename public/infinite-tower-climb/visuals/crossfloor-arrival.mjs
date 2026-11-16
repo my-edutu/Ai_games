@@ -1,4 +1,4 @@
-import { observedEarnedFarSideShaftOverlap } from './far-side-shaft-transition.mjs';
+import { observedEarnedFarSideShaftOverlap, observedEarnedSillDepthExposure } from './far-side-shaft-transition.mjs';
 
 // The first portrait WebGL submission in original 07aa3bda video reached
 // floor-nine at tick460; the browser had already accepted the REAL 8->9
@@ -383,6 +383,7 @@ export function holdIncomingStructuralShell(source,passage,held,job,sourceGatePr
  */
 export function observedPrebuiltVoidShaftRelease(source,passage,held,job,sourceGatePresence=null) {
   const farSide=observedEarnedFarSideShaftOverlap(source,held,job);
+  const realSillDepth=observedEarnedSillDepthExposure(source,held,job);
   if(job?.state!=='awaiting-structural-release' ||
      job.proof!=='recorded-source-gateway' ||
      job.structureDeferred!==true ||
@@ -417,7 +418,7 @@ export function observedPrebuiltVoidShaftRelease(source,passage,held,job,sourceG
   // built successor shaft BEFORE the retained original world may disappear.
   // The extra source window is only for already-verified, physically
   // supported same-run traversal; it creates no authority or fake WebGL frame.
-  if(farSide) return true;
+  if(farSide || realSillDepth) return true;
   // Once the original geometry has legitimately retired, its existing
   // retained gate cannot continue to veto a truthful F9 shaft.
   if(!holdIncomingStructuralShell(source,passage,held,job,sourceGatePresence))
