@@ -505,7 +505,10 @@ export function planOriginalSourceSwingLinkedLegFollowups({
  const heelDominatedSource=!slow&&sourceWeight>=.95&&
   previousLinkedCertified!==true&&
   floorTopY-original.toeY>=.06&&
-  best.lift>=.012&&best.heelRise>=.024&&
+  // Real original 390px tick 5: toe +11.851mm, heel +27.240mm.
+  // The old 12mm gate missed a heel-dominated source step by 0.149mm.
+  // Source outsole geometry and independent two-shoe gates still apply.
+  best.lift>=.0115&&best.heelRise>=.024&&
   best.heelRise>=best.lift*1.7;
  const steepOriginalSource=sourceOutsoleProjection>=.045&&
   sourceOutsoleProjection<=.15&&
@@ -723,22 +726,20 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
  // is nearly vertical before animation (heel +206.72mm, toe -80.34mm).
  // The previous measured original connected trial raised the toe 13.67mm
  // but lifted the heel 26.38mm, increasing an already extreme shoe pitch.
- // Only after the paired first-frame source tests have earned an opposite
- // sign and the two remaining probes have been spent on *smaller hip /
- // larger knee* source arcs may this pitch-sensitive arbitration apply.
- // It is a TWO-WEIGHTED-SHOE gate, NOT a contact/plant/IK certificate.
- // Preserve all older paths when no authentic bounded followup was tried.
+ // EVERY steep first-fast original-source shoe needs this physical pitch
+ // gate even if a source planner spent its probes on unsafe hip-heavy arcs.
+ // Real 390px tick 5 accepted -105/+85mrad with +14.152mm buried-toe
+ // movement but +31.180mm already-airborne-heel rise: worse sole pitch.
+ // Missing the 75/90 knee followup must NOT bypass this guard. Genuine
+ // four-probe original joint + dual-shoe skin and independent final readback
+ // remain mandatory; this is NEVER a contact or planted-foot certificate.
  const outsoleProjected=shift(swing.heelXZ,swing.toeXZ);
  const outsoleLength=Math.hypot(outsoleProjected,swing.heelY-swing.toeY);
  const pitchFirstFast=!prior&&frameInterval>=.016&&frameInterval<.05&&
   sourceWeight>=.95&&depth>=.055&&depth<=.10&&
   swing.heelY-floorTopY>=.18&&outsoleProjected>=.045&&
   outsoleProjected<=.15&&outsoleLength>=.285&&outsoleLength<=.325&&
-  trials.length===4&&
-  trials.some(t=>Math.abs(Math.abs(t?.upperRad??0)-.075)<.00001&&
-   Math.abs(Math.abs(t?.lowerRad??0)-.09)<.00001)&&
-  trials.some(t=>Math.abs(Math.abs(t?.upperRad??0)-.085)<.00001&&
-   Math.abs(Math.abs(t?.lowerRad??0)-.09)<.00001);
+  trials.length===4;
  if(pitchFirstFast){
   const safe=firstSwingPitchChoices.filter(c=>{
    const heelRise=c.afterHeelY-swing.heelY;
