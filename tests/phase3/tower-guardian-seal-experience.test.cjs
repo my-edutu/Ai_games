@@ -28,6 +28,7 @@ const source = fs.readFileSync(path.join(root, 'public/infinite-tower-climb/visu
   .replace("'/tower/vendor/three.module.js'", JSON.stringify(threeUrl))
   .replace("'./coordinates.mjs'", JSON.stringify(coordsUrl))
   .replace("'./crossfloor-arrival.mjs'", JSON.stringify(pathToFileURL(path.join(path.resolve(__dirname, '../..'), 'public/infinite-tower-climb/visuals/crossfloor-arrival.mjs')).href))
+  .replace("'./far-side-shaft-transition.mjs'", JSON.stringify(pathToFileURL(path.join(root, 'public/infinite-tower-climb/visuals/far-side-shaft-transition.mjs')).href))
   .replace("'./original-clockwork-architecture-palette.mjs'", JSON.stringify(pathToFileURL(require.resolve('../../public/infinite-tower-climb/visuals/original-clockwork-architecture-palette.mjs')).href))
   .replace("'./source-earned-bearing-run.mjs'", JSON.stringify(pathToFileURL(require.resolve('../../public/infinite-tower-climb/visuals/source-earned-bearing-run.mjs')).href))
   .replace("'./original-gallery-foreground.mjs'", JSON.stringify(pathToFileURL(path.join(root, 'public/infinite-tower-climb/visuals/original-gallery-foreground.mjs')).href))

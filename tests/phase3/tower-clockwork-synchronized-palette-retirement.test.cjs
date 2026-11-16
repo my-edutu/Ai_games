@@ -89,7 +89,8 @@ test('Tower World coordinates real returned-frame retirement for original F9 dec
     'live World must synchronize the real route using its current verified material proof');
   assert.ok(/const materialProof=livePaletteProof\?\?\(farSideHorizon\?/.test(world),
     'far-side palette cannot be attributed to a floor label without authenticated crossing');
-  assert.match(world,/originalClockworkArchitecturalPalette\.update\(sourceProof,opticalTail\)/);
+  assert.match(world,/originalClockworkArchitecturalPalette\.update\(materialProof,opticalTail\)/,
+    'the persistent original architecture must follow the same verified far-side palette proof as the successor route');
   assert.match(world,/advanceSourceEarnedPaletteReturn/);
   assert.match(world,/bearingHandoff\.retirementSeconds=next\.returnedSeconds/);
   assert.doesNotMatch(world,/snapshot\.floor\s*=\s*9/);
