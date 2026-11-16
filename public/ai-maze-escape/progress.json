@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-16T11:53:26.921Z",
+  "updatedAt": "2026-11-16T12:02:36.411Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass422 CANDIDATE: original verified rollback WebGL 40/40 screenshots (SHA-256 exact) shows native seed13 tick8 earned parry, hero91 / guardian74, actual two disclosed full-height sealed wall screens at 75/76 and 76/93 in front of Pip torso. New source-only public mutual nonpassage low opaque Tideglass wall reconstruction, strict NDC/AI/privacy/resource thresholds unchanged. Native new-head browser capture, independent visual critic and full CI PENDING. Official Nintendo quality unmet, open draft unmerged/undeployed."
+    "summary": "Pass423: Pass422 new exact-HEAD Chromium WebGL #43861708368 succeeded, original 40/40 PNG SHA-256 and 3/3 gate images verified, six-run GPU <100 and strict ±0.95 frame passed. But ACTUAL 320/390 native earned parry Pip torso/boots remain screened, little visible art gain. Reject two-wall spectator candidate; exact trusted Pass421 world and tests restored in source rollback. Fresh rollback-HEAD CI pending. Separate independent critic unavailable NOT_FOUND. Nintendo bar unmet; open draft unmerged/undeployed."
   },
   "captures": [
+    {
+      "title": "Pass422 actual 320/390 source-bound earned guardian low-wall A/B VISUALLY REJECTED — 40/40 original PNG SHA + 3/3 gate SHA, physical bounds valid",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/43861708368/artifacts/14223354085"
+    },
     {
       "title": "Pass420b real native 390 guardian crop REJECT, 39/39 available original screenshot SHA + 3 real gate SHA verified; test failure blocks 320 earned capture",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/43842033502/artifacts/14214810064"
