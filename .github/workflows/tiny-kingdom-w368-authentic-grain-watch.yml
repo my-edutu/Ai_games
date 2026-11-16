@@ -1,0 +1,20 @@
+name: Tiny Kingdom W368 Authentic Grain Watch
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w368-authentic-grain-watch-contract.cjs
+      - .github/workflows/tiny-kingdom-w368-authentic-grain-watch.yml
+  workflow_dispatch:
+jobs:
+  real-grain-watch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Real player-facing original food-chain documentary contract
+        run: node scripts/tiny-kingdom-w368-authentic-grain-watch-contract.cjs
