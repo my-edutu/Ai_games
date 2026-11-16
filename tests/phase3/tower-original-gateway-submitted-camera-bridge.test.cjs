@@ -141,7 +141,7 @@ test('source-earned old-gate camera and material retire on one real returned-tim
   const before=JSON.stringify([snapshot,held,prior]);
   const early={...held,submittedFrames:8,visibleSeconds:.32,
     originalGatewayOpacity:.83};
-  const later={...early,visibleSeconds:.85};
+  const later={...early,visibleSeconds:.75};
   const fast=plan(snapshot,early,prior,view);
   const slow=plan(snapshot,later,prior,view);
   assert.ok(fast?.weight>.15,
