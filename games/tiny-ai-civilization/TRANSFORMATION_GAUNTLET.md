@@ -1,3 +1,24 @@
+## W370 · 16 NOVEMBER 2026 · PHASE 1 WORKDAY CAMERA, NOT A VISUAL MILESTONE
+
+**PR #64 only, open DRAFT / unmerged**. Exact code source commit [73115b20](https://github.com/my-edutu/Ai_games/commit/73115b202c8f34d3a50c8ce1471e71ada382c2e9), playable source blob `e6842820e84cb799c6cf4fd21fac586dc6a59838`; pinned G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`. No divergent PRs #59/#62 included.
+
+**Evidence-led source defect, not another decorative edit.** [Prior original W368 WebGL desktop and 390px game recording](https://github.com/my-edutu/Ai_games/actions/runs/43782367633/artifacts/14189101834) follows actual Bram but shows a small worker against prominent crops and roofs. The real Watch Grain button sets `grainJourney`, *not* `liveWorkday`. Before W370 the real filmed farmer evaluated `observeWorkday = liveWorkday && isWorkingAtSite(citizen)` as **false**, and generic Follow could force pitch .76 / zoom 12.8, never the real worker's active IK/field/camera survey. Source predicate RED was reproduced directly with genuine values.
+
+**Integrated code / isolated GREEN:** only an actually working, original grain `producer` may activate an original close labor camera. The same guard now governs the physical workday director, field/roof-obstruction audit, and portrait alternative survey; real loaded delivery and non-working/other citizen camera policies are unchanged. Production inline WebGL JavaScript compiles (1/1 script); production camera function executed in a V8 probe selects workday-force `true`, zoom 4.8 in a stubbed physical-camera dispatcher. W370 node original-function contract and conditional running-game evidence were added to the existing W368 workflow. [New W368+W370 CI/capture](https://github.com/my-edutu/Ai_games/actions/runs/43785151774): QUEUED at checkpoint; do not count green or improved FPS until checked. No jobs, inventory, market, occupancy, RNG, saved schema or geometry changed.
+
+**One ongoing integrated playable slice:** original field → real loaded courier → actual market receipt → household purchase/consumption and occupied home through Day 120 and 390px. Preserve actual work/shifts, collision, accessibility, deterministic replay, long-soak and 160,000 per-view geometry cap.
+
+**Five highest-impact blockers — same Phase 1/2/3/4 backlog, not a sequence of tiny fixes:**
+1. **Renderer/driver (Phase 1):** static-scene cold build previously 307.4 ms; software p95 spikes >100 ms, hardware frame p95 **NOT MEASURED**. Done only with same-scene cold/hot CPU, driver, GPU traces, stable resource bounds, eventual native 30+ FPS on representative devices.
+2. **Farmer/courier camera (Phase 1→4):** W368 genuine portrait worker visually small and obscured. Candidate physically scoped workday optics implemented; done only with real uninterrupted clear hands/body/cart/receipt while rotating and pausing at 390px and Day 120.
+3. **Contiguous architecture (Phase 2):** stylized roofs and modular toy-like walls dominate actual footage. Done with credible original connected farm–granary–market–burgage architecture, weathered materials, dense town, matched cinematography and no collision/memory regression.
+4. **Embodied labor (Phase 3):** angular anatomical silhouettes, weak visible hand/foot contact. Done when uncut actual harvest, loaded haul/unload, forge and build show anatomically legible rooted contact without fabricated poses or economic events.
+5. **Acceptance evidence (Phase 5):** pinned G088 baseline raw film retrieval unconfirmed; exact-head Day-1/uncut workday/Day-120/mobile matched films and native GPU p95/independent blinded review **NOT PROVEN**. Done only with all real artifacts, hardware metadata, harsh independent LOOK/FEEL/PLAY decisions and full deterministic/soak checks.
+
+**Independent scorecard A: LOOK NOT PROVEN, FEEL NOT PROVEN, PLAY NOT PROVEN. B: Manor Lords commercial reference FAIL.** Original prior HUD usability improvement 376×158px (vs 376×207px) remains a separate accepted 390px control result, not proof of civilization transformation. NO merge; stay Phase 1 until running-game and measured frame/cold-path gates. Next integrated W371: inspect W370 moving camera outcome and evidence; repair obstruction only if reproduced; prioritize a major physically credible environment/character vertical slice rather than more GPU micro-polish.
+
+---
+
 ## W369c · 16 NOVEMBER 2026 · LIVE 390PX FIVE-STAGE REAL SUPPLY HUD PASS; ORIGINAL FARMER FOLLOW FOOTAGE STILL LOW-POLY
 
 **Same draft PR #64, no merge.** Current exact playable code blob `70c6b88717379c98dec1b90da4e1301c6c176ac7` (code SHA [2d3fb90d](https://github.com/my-edutu/Ai_games/commit/2d3fb90d5997238d52ea1e47c4ec31b64707f42e)); only subsequent W368 regression contract modified, no other code integration. G088 reference remains `2f6deb43feb1a1557848d44def53a6109deb1ab1`.
