@@ -111,8 +111,15 @@ export function plannedSourceEarnedSuspendedBearingSections(nodes) {
       at(a,21.75,crown-.95,[.46,1.50,.45]),
       // A suspended radial compression beam and forged head tie carry the
       // roof across the REAL open 25m deck without filling its doorway.
-      at(a,24.91,crown,[.36,.28,7.3]),
-      at(a,27.6,crown+.08,[.46,.26,.48]),
+      // Native 1x Floor8->9 film exposed opaque girder/hero overlap.
+      // Each real F9 source station is RISING: a radial arm at its crown
+      // can still slice through the actor during the next airborne ascent.
+      // Carry both outward beams at the upper REAR-spine support level,
+      // above the actual playable route, while keeping the same 3 original
+      // material batches, identical column foundations and source anchors.
+      // No new landing, collider, guardian cue, victory or motion is added.
+      at(a,24.91,crown+5.8,[.36,.28,7.3]),
+      at(a,27.6,crown+5.88,[.46,.26,.48]),
       // The source-pinned 1x films still collapse the multi-level bronze
       // gallery into a completely bare violet sky after one old-gate return.
       // Extend this SAME rear-supported, GPU-instanced load path into the
