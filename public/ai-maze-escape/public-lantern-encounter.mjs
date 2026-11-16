@@ -195,25 +195,3 @@ export function publicEarnedGuardianActing(snapshot, guardian, ordinary) {
 }
 
 
-/**
- * The original Tideglass guardian stage shares Pip and Thornback's genuine
- * witnessed PUBLIC false->true lantern counter, not a second visual clock.
- * Invalid/first-seen/stale inputs never create a successful-hit pulse.
- * The caller supplies a reusable output so live WebGL allocates nothing.
- */
-export function publicGuardianEarnedResonance(phase,fromHero,reducedMotion=false,output) {
-  const state=output??{wave:0,glow:0,radius:0};
-  state.wave=0;state.glow=0;state.radius=0;
-  if(!Number.isFinite(phase)||phase<0||phase>1
-    ||!Number.isSafeInteger(fromHero)||fromHero<0||fromHero>2)return state;
-  // Identical 1.15s counter clock to the physical Pip/Thornback bodies.
-  // The .12s/tile delay moves from real hero tile to real guardian tile.
-  const elapsed=phase*1.15-fromHero*.12;
-  state.wave=reducedMotion?1:Math.max(0,Math.min(1,elapsed/.20));
-  if(!reducedMotion && elapsed>0 && elapsed<.64){
-    const portion=elapsed/.64;
-    state.glow=Math.sin(Math.PI*portion);
-    state.radius=.30+.70*portion;
-  }
-  return state;
-}

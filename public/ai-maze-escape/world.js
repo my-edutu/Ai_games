@@ -1,7 +1,6 @@
 import * as THREE from './vendor/three.module.js';
-import { GATE_RETRACTION_SECONDS, PUBLIC_PRESSURE_VISUAL_SECONDS, observedGateOpenings, gateRetractionPose, observedPressureProgress, publicPressureSequenceSeconds, publicSpentKeyTheatreDrop } from './gate-moment.mjs';
+import { GATE_RETRACTION_SECONDS, PUBLIC_PRESSURE_VISUAL_SECONDS, observedGateOpenings, gateRetractionPose, observedPressureProgress, publicPressureSequenceSeconds, publicSpentKeyTheatreDrop, publicGuardianEarnedResonance } from './gate-moment.mjs';
 import { publicKeyCollectionMoment } from './map-view.mjs';
-import { publicGuardianEarnedResonance } from './public-lantern-encounter.mjs';
 
 export const CELL_SIZE = 2.4;
 // Same previously observed key cell for original treasure, collected empty

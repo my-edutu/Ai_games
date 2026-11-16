@@ -3,7 +3,7 @@ const test=require('node:test'),assert=require('node:assert/strict');
 const path=require('node:path'),fs=require('node:fs');
 const {pathToFileURL}=require('node:url');
 const root=path.resolve(__dirname,'../..');
-const helper=pathToFileURL(path.join(root,'public/ai-maze-escape/public-lantern-encounter.mjs')).href;
+const helper=pathToFileURL(path.join(root,'public/ai-maze-escape/gate-moment.mjs')).href;
 test('observed earned physical lantern counter moves Pip-to-Thornback Tideglass floor without invented wins',async()=>{
   const {publicGuardianEarnedResonance:step}=await import(helper);
   const state={wave:9,glow:9,radius:9};
