@@ -57,12 +57,17 @@ vm.createContext(camera);
 vm.runInContext(js.slice(sightStart,sightEnd)+
  '\nthis.sight=realFarmWorkSightline;',camera);
 const hands=[[20.27,.55,.30],[20.66,.60,.27]]; // real blade-contact bent wheat pocket
-const insideClear=camera.sight([20.4,5,.2],farmer,hands);
-assert.equal(insideClear.cameraInsideField,true);
-assert.equal(insideClear.cropFaceBlockers,0);
-assert.equal(insideClear.cropWristBlockers,0);
-assert.equal(insideClear.cropForegroundPenalty,0,
- 'an honestly clear worksite eye may enter without arbitrary forced fence foreground');
+// W373 actual planted wheat changed this previously clear fixed eye: its
+// hand ray genuinely crosses a stalk. Reject it rather than pretending that
+// height or field-entry alone makes a camera safe; the real director surveys
+// alternative authentic eyes and only reserves physically clear candidates.
+const highInteriorEye=camera.sight([20.4,5,.2],farmer,hands);
+assert.equal(highInteriorEye.cameraInsideField,true);
+assert.equal(highInteriorEye.cropFaceBlockers,0);
+assert.equal(highInteriorEye.cropWristBlockers,1,
+ 'genuine planted-row geometry must not be hidden to pass the old camera test');
+assert(highInteriorEye.cropForegroundPenalty>0,
+ 'an authentically obstructed wrist eye cannot count as a clear camera');
 const insideBlocked=camera.sight([20.4,.25,.2],farmer,hands);
 assert(insideBlocked.cropForegroundPenalty>0,
  'standing ears still reject genuinely obstructed close-up work shots');
