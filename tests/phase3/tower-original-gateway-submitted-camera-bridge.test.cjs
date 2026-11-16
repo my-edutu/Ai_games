@@ -26,8 +26,11 @@ test('one true defeated doorway rebases last returned old-floor shot, bounded by
   assert.deepEqual(result.camera,[4,16,64]);
   assert.deepEqual(result.gaze,[8,10,21]);
   assert.ok(result.weight>.7 && result.weight<.75);
-  assert.equal(plan(snapshot,{...held,submittedFrames:5},prior,view).weight,
-    result.weight/4);
+  // A genuine displayed return is a duration, not a fictitious universal FPS.
+  const five=plan(snapshot,{...held,submittedFrames:5,
+    visibleSeconds:.45,originalGatewayOpacity:.92},prior,view);
+  assert.ok(five.weight<result.weight && five.weight>.05);
+  assert.ok(five.sourceBound);
   assert.equal(plan(snapshot,{...held,submittedFrames:10},prior,view),null);
 });
 test('no lock for live guardian, wrong run, old roof, teleport, user camera or later floor',async()=>{
@@ -131,4 +134,29 @@ test('immutable guardian victory can use last returned F8 camera 38 ticks earlie
    'actual original F8 renderer skipped some genuine fixed ticks before recorded crossing');
  assert.equal(plan(snapshot,held,{...prior,tick:400},view),null,
    'cannot borrow a very old or unrelated hero/guardian camera');
+});
+
+test('source-earned old-gate camera and material retire on one real returned-time envelope, rather than a ten-frame hard cut',async()=>{
+  const {sourceOriginalGatewayCameraBridge:plan}=await load;
+  const before=JSON.stringify([snapshot,held,prior]);
+  const early={...held,submittedFrames:8,visibleSeconds:.32,
+    originalGatewayOpacity:.83};
+  const later={...early,visibleSeconds:.85};
+  const fast=plan(snapshot,early,prior,view);
+  const slow=plan(snapshot,later,prior,view);
+  assert.ok(fast?.weight>.15,
+    'rapid GPU returns cannot drop the genuine bronze doorway shot while the old geometry still shows');
+  assert.ok(slow && slow.weight<fast.weight,
+    'camera must retire with actual returned display duration, not render count alone');
+  const stillPainted={...early,submittedFrames:12};
+  assert.ok(plan(snapshot,stillPainted,prior,view)?.sourceBound,
+    'returned original gateway survives ten rapid submissions if physically still visible');
+  assert.ok(plan(snapshot,{...stillPainted,originalGatewayOpacity:0},prior,view)===null,
+    'never borrow a retired old doorway to frame an unrelated new scene');
+  assert.equal(plan(snapshot,{...stillPainted,submittedFrames:20},prior,view),null);
+  assert.equal(plan(snapshot,{...stillPainted,visibleSeconds:3},prior,view),null);
+  assert.equal(plan({...snapshot,runToken:'other'},stillPainted,prior,view),null);
+  assert.equal(plan({...snapshot,floor:10},stillPainted,prior,view),null);
+  assert.equal(plan(snapshot,stillPainted,prior,{...view,camera:'manual'}),null);
+  assert.equal(JSON.stringify([snapshot,held,prior]),before);
 });
