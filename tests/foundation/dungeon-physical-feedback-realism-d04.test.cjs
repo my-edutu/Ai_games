@@ -2219,3 +2219,36 @@ test('strict D04 guard and healing rings require the current unique public actio
   assert.ok(stage.stats().reservedInstances<=104);
  }finally{stage.dispose()}
 });
+
+
+test('D04 actual HP chips have a legible but bounded physical footprint without enlarging dust or allocating pools',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const BaseTetra=T.TetrahedronGeometry;
+ // Record constructor geometry dimensions; ordinary node mocks intentionally
+ // do not implement triangle rasterization or claim actual mobile pixels.
+ T.TetrahedronGeometry=class extends BaseTetra{
+  constructor(radius,detail){super(radius,detail);this.physicalRadius=radius}
+ };
+ const victim={id:'revenant',kind:'revenant',faction:'enemy',
+  x:3,z:2,hp:14,maxHp:20};
+ const visual=createPhysicalFeedbackVisuals(T,scene,{
+  requireVerifiedHpReceipt:true,
+  actorById:id=>id===victim.id?{u:victim,root:{visible:true,
+   position:{x:-6,y:0,z:-7},rotation:{y:0}}}:null,
+  getCurrentSnapshot:()=>({run:1,floor:1,tick:11,units:[victim]})
+ });
+ try{
+  const injury=cue({severity:.3,detail:{damage:6,remainingHp:14,maxHp:20}});
+  assert.equal(visual.emit(injury),true,'only a genuine current HP witness earns the physical effect');
+  const meshes=[...scene.children],hit=meshes[1],dust=meshes[3];
+  assert.ok(hit.geometry.physicalRadius>=.10&&hit.geometry.physicalRadius<=.11,
+   'the original tiny 73mm facet is undersized for restrained torso contact; this is a scene-space contract, not a mobile pixel pass');
+  assert.equal(dust.geometry.physicalRadius,.072,
+   'non-injury dodge dust must not inherit the stronger contact footprint');
+  assert.equal(visual.stats().instancesByPool.hit,4);
+  assert.equal(visual.stats().reservedInstances,102);
+  assert.equal(visual.stats().activeDrawCalls,1);
+  assert.ok(hit.material.opacity<=.51,'avoid a neon flare or enlarged material flash');
+ }finally{visual.dispose()}
+});
