@@ -181,3 +181,46 @@ test('real raised platform beyond old F9 ground stays camera/material eligible b
   assert.equal(JSON.stringify(source),originalCopy,
     'camera/material witnesses are read-only and do not move authority');
 });
+
+
+test('real elevated F9 landings reveal incoming monumental geometry without awaiting an impossible 125m horizontal walk',async()=>{
+  const {sourceOwnedOriginalArchitectureCoverage:coverage,
+    sourceAlignedIncomingShaftOpacity:shaftOpacity}=await palette;
+  const {source,held}=crossing();
+  Object.assign(held,{
+    verifiedObservedFloorAdvance:true,firstWorldRenderTick:475,
+    originalArchitectureCoverage:.93,originalGatewayOpacity:.9,
+    originalDeckSurface:{opacity:.91},
+    originalGalleryMaterials:[{opacity:.86}],
+    opticalExitSubmitted:false,
+  });
+  // Source-authentic Floor9:p2 sole is 178m above the original gateway.
+  // The AI's first landing can be barely 2m past the old threshold in X.
+  const nearPortal=structuredClone(source);
+  nearPortal.tick=480;
+  nearPortal.player={...source.player,x:held.thresholdX+11000,
+    y:held.oldRoofY+source.player.halfHeight,grounded:true,
+    groundedPlatformId:'f9:ground'};
+  const atSill=coverage(nearPortal,held);
+  assert.ok(atSill>.89 && shaftOpacity(nearPortal,held,1)<.11,
+    'before the actual climb, original bronze architecture still occupies the sightline');
+  const before=JSON.stringify([source,held]);
+  assert.equal(coverage(source,held),0,
+    'on the exact f9:p2 sole, the hero has climbed above the old entire bearing gallery');
+  assert.equal(shaftOpacity(source,held,1),1,
+    'the real incoming 3D shaft must be revealed behind a genuinely elevated avatar');
+  assert.equal(JSON.stringify([source,held]),before,
+    'scene-visibility planning must not mutate gameplay or render source');
+
+  // A fabricated platform or enemy revival must never unlock old/new imagery.
+  const forged=structuredClone(source);
+  forged.player.groundedPlatformId='f9:imaginary-platform';
+  assert.ok(coverage(forged,held)>.89 && shaftOpacity(forged,held,1)<.11);
+  const defeatedRevoked=structuredClone(source);
+  defeatedRevoked.lastGuardianCrossing.guardian.active=true;
+  assert.ok(coverage(defeatedRevoked,held)>.89);
+  const differentRun=structuredClone(source);
+  differentRun.runToken='different-run';
+  assert.equal(coverage(differentRun,held),0,
+    'other episodes cannot inherit the retained original gateway');
+});
