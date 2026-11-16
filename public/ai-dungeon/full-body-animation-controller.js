@@ -132,9 +132,18 @@ export function planOriginalSourceSafeNeutralBlendSamples({
   maxJointDeltaRad>.260001)return null;
  const largest=Math.max(...sourceJointAngularSeparationRad);
  if(largest<.01)return null;
- const upper=Math.min(.42,(maxJointDeltaRad-.000001)/largest);
- if(upper<.30)return null;
- return Object.freeze([.28,upper]);
+ // Preserve existing wide original-Idle samples whenever those are safe.
+ // In an ACTUAL original 390px source rig the Idle knee is 1.8135rad away
+ // from Walking_A. Rejecting it merely because a .28 blend is too large
+ // prevents all three-bone measurements. Instead test TWO strictly smaller
+ // licensed source blends, each below the same .26rad/joint budget.
+ // The skinned toe, already-airborne heel and opposite shoe still decide.
+ const upper=Math.min(.42,(maxJointDeltaRad-.002)/largest);
+ if(upper>=.30)return Object.freeze([.28,upper]);
+ if(largest<1.10||largest>2.30||upper<.12)return null;
+ const lower=Math.min(.11,upper*.70);
+ if(lower<.08||upper-lower<.02)return null;
+ return Object.freeze([lower,upper]);
 }
 
 /**
@@ -238,7 +247,8 @@ export function chooseOriginalSourceAuthoredNeutralLegTrial({
  sourceInstanceSame=false,sourceNeutralRigVerified=false,
  ownerLocomotion=false,alive=false,visible=false,
  reducedMotion=false,teleport=false,interrupted=false,
- floorTopY=NaN,side='',before=null,trials=[]
+ floorTopY=NaN,side='',before=null,trials=[],
+ originalSourceJointGapRad=null
 }={}){
  const other=side==='left'?'right':side==='right'?'left':null;
  const valid=s=>s&&[s.heelY,s.toeY].every(finite)&&
@@ -262,11 +272,25 @@ export function chooseOriginalSourceAuthoredNeutralLegTrial({
   ![support.heelY,support.toeY].every(y=>
    y>=floorTopY-.055&&y<=floorTopY+.035))return null;
  const drift=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+ // Only an independently measured original hip/knee/foot angle receipt may
+ // authorize small source-neutral samples. A fixture or an unverified bone
+ // label cannot lower the production pose-selection threshold.
+ const sourceGap=Array.isArray(originalSourceJointGapRad)&&
+  originalSourceJointGapRad.length===3&&
+  originalSourceJointGapRad.every(g=>finite(g)&&g>=0&&g<=Math.PI)?
+  Math.max(...originalSourceJointGapRad):NaN;
  let best=null;
  for(const t of trials){
   const shoe=t?.after?.[side],loaded=t?.after?.[other];
+  const adaptiveMicroblend=finite(t?.neutralBlend)&&
+   t.neutralBlend>=.08&&t.neutralBlend<.279999&&
+   finite(sourceGap)&&sourceGap>=1.10&&sourceGap<=2.30&&
+   finite(t?.maxJointDeltaRad)&&
+   Math.abs(t.maxJointDeltaRad-t.neutralBlend*sourceGap)<=.001&&
+   t.neutralBlend*sourceGap<=.260001;
   if(!valid(shoe)||!valid(loaded)||
-   !finite(t?.neutralBlend)||t.neutralBlend<.279999||
+   !finite(t?.neutralBlend)||
+   (t.neutralBlend<.279999&&!adaptiveMicroblend)||
    t.neutralBlend>.420001||
    !finite(t?.maxJointDeltaRad)||t.maxJointDeltaRad<0||
    t.maxJointDeltaRad>.260001)continue;

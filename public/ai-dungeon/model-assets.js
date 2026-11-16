@@ -2830,6 +2830,7 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   // candidate source-skin probes. Unsafe results restore original pose.
   const candidate=chooseOriginalSourceAuthoredNeutralLegTrial({
    ...owner,neutralClipName:'Idle',sourceNeutralRigVerified:true,
+   originalSourceJointGapRad:originalNeutralGapRad,
    trials:trials.filter(t=>Number.isFinite(t.neutralBlend))
   });
   actor.sourceNeutralSwingLastProbe={
@@ -2853,6 +2854,7 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   const final=read();
   const finalCandidate=chooseOriginalSourceAuthoredNeutralLegTrial({
    ...owner,neutralClipName:'Idle',sourceNeutralRigVerified:true,
+   originalSourceJointGapRad:originalNeutralGapRad,
    trials:[{neutralBlend:candidate.neutralBlend,
     maxJointDeltaRad:candidate.maxJointDeltaRad,after:final}]
   });

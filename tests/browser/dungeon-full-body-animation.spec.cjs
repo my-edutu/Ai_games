@@ -796,6 +796,10 @@ for(const view of [
   const gate=frame.nativeLegOwnership?.sourceNeutralSwingGateLast;
   if(gate?.reason==='licensed-idle-trials-angle-certified'){
    expect(gate.verifiedIdleJointTracks).toHaveLength(3);
+   expect(gate.originalSourceJointGapRad).toHaveLength(3);
+   expect(gate.sampleBlends).toHaveLength(2);
+   for(const b of gate.sampleBlends)for(const angle of gate.originalSourceJointGapRad)
+    expect(b*angle).toBeLessThanOrEqual(.260001);
    for(const t of gate.verifiedIdleJointTracks){
     expect(['footr','footl'].includes(t.bone?.toLowerCase())||
      /(?:leg|thigh|calf|foot)/i.test(t.bone)).toBe(true);
@@ -806,6 +810,15 @@ for(const view of [
     expect(t.sourceKeyframeCount).toBeLessThanOrEqual(512);
     expect(t.sourceTrackNames).toHaveLength(t.sourceTrackMatches);
    }
+  }
+  if(gate?.reason==='original-idle-joint-rotation-budget'&&
+     Array.isArray(gate.originalSourceJointGapRad)){
+   // Previous source footage had a measured 1.8135rad knee gap, within
+   // this strict bounded-sample window. Rejecting that source without TWO
+   // measured original shoe trials would repeat the old blocking defect.
+   const largest=Math.max(...gate.originalSourceJointGapRad);
+   expect(largest>2.30||largest<1.10||
+    (Math.min(.42,(.26-.002)/largest)<.12)).toBe(true);
   }
   if(gate?.reason==='licensed-idle-joint-track-not-proven'){
    expect(gate.sourceTrackReason).toMatch(/original-idle-joint|original-idle-track|original-idle/);
