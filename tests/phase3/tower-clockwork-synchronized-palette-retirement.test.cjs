@@ -19,9 +19,9 @@ const source={runToken:'authentic-tower-episode',floor:9,theme:'void',
   lifecycle:'running',tick:563,player:{health:4}};
 const certificate={runToken:source.runToken,sourceTick:535,
   crossingTick:475,kind:'recorded-source-zero-hp'};
-function handoff(returnedFrames){
+function handoff(returnedFrames,returnedSeconds=returnedFrames/8){
   return {runToken:source.runToken,lastVerifiedProof:certificate,
-    retiring:true,retirementFrames:returnedFrames};
+    retiring:true,retirementFrames:returnedFrames,retirementSeconds:returnedSeconds};
 }
 function fixture(){
   const materials={stone:{color:new Color(0x413850)},metal:{color:new Color(0x605779)}};
@@ -82,6 +82,7 @@ test('Tower World coordinates real returned-frame retirement for original F9 dec
   assert.match(world,/observedVerifiedClockworkPaletteTail\(snapshot,handoff,departure\)/);
   assert.match(world,/updateOriginalClockworkSuccessorRoute\(arrivalRoutePalette,proof,opticalTail\)/);
   assert.match(world,/originalClockworkArchitecturalPalette\.update\(sourceProof,opticalTail\)/);
-  assert.match(world,/bearingHandoff\.retirementFrames=Math\.min\(8,/);
+  assert.match(world,/advanceSourceEarnedPaletteReturn/);
+  assert.match(world,/bearingHandoff\.retirementSeconds=next\.returnedSeconds/);
   assert.doesNotMatch(world,/snapshot\.floor\s*=\s*9/);
 });
