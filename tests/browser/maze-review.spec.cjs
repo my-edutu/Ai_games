@@ -2346,6 +2346,19 @@ test('a NATURAL autonomous lantern counter has source-bound physical before/reco
         'natural recoil must remain measurable beyond the old close-corridor lens').toBe(true);
       expect(sourceSightline.witness.samples,
         'five real physical mesh anchors for each publicly visible parried actor').toHaveLength(10);
+      // Pass429: lock in the ORIGINAL Pass428 WebGL visibility win. These are
+      // source-ray checks of REAL public meshes, not proxy model bounds or a
+      // screenshot crop. Only an earned, same-run Follow recoil is eligible.
+      // Fail if actual stage masonry hides an actor again at native phone size.
+      const physicalBody=sourceSightline.witness.samples.filter(point=>
+        ['head','torso','boots'].includes(point.part));
+      expect(physicalBody,'Pip and Thornback require six actual body anchors').toHaveLength(6);
+      for(const anchor of physicalBody){
+        const name=anchor.actor+' '+anchor.part+' at '+width+'px earned parry';
+        expect(anchor.inFrame,name+' must be physically inside the screen').toBe(true);
+        expect(anchor.inconclusive,name+' may not silently pass an ambiguous ray').toBe(false);
+        expect(anchor.verifiedClear,name+' must be visible past real public masonry').toBe(true);
+      }
     }
     fs.writeFileSync(image.replace(/\.png$/,'.json'),JSON.stringify({...summary,
       seed:sample.seed,tick:sample.frame.snapshot.tick,runToken:sample.frame.snapshot.runToken,
