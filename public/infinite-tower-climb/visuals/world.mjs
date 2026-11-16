@@ -7,7 +7,7 @@ import { originalMeshPath } from './mesh-provenance.mjs';
 import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs';
 import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedPrebuiltVoidShaftRelease, observedQueuedOriginalCapAtFirstRender, reconcileRecordedOriginalCapCrossing,
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
-import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceRetainedRaisedExit, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS, observedCertifiedOriginalGatewayOpticalLease } from './source-physical-arrival-palette.mjs';
+import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceFloorNineRouteSupport, observedSourceRetainedRaisedExit, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS, observedCertifiedOriginalGatewayOpticalLease } from './source-physical-arrival-palette.mjs';
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections } from './source-earned-bearing-run.mjs';
@@ -3129,6 +3129,28 @@ export function createTowerWorld(){
        snapshot.runToken===held.runToken &&
        observedSourceSuccessorRaisedDeck(snapshot,held.oldRoofY))
       held.raisedDeckSourceTick=snapshot.tick;
+    // The real Floor9 route may continue across the FULL successor roof
+    // after the climber clears the old bronze arch by more than 100m.
+    // Former logic treated any f9:ground contact as permission to preserve
+    // the old GPU gate indefinitely. It then held the incoming original
+    // Void shaft at zero alpha until the old owner's age limit removed the
+    // entire machine room in one visible jump. This is a TRUE scene
+    // handoff, not extra scenery: retire only a formerly source-verified,
+    // same-run, living body whose full width is physically BEYOND the old
+    // threshold and whose current Floor9 platform/sole or airborne segment
+    // is validated by the already-authoritative route support contract.
+    const physicallyBeyondOriginalDoor=!options.stale &&
+      held.verifiedObservedFloorAdvance===true &&
+      held.guardianGateRetained===true &&
+      snapshot.runToken===held.runToken &&
+      snapshot.floor===9 && snapshot.theme==='void' &&
+      snapshot.lifecycle==='running' && p?.health>0 &&
+      Number.isSafeInteger(p.x) && Number.isSafeInteger(p.halfWidth) &&
+      p.halfWidth>0 && Number.isSafeInteger(held.thresholdX) &&
+      p.x-p.halfWidth>held.thresholdX+100000 &&
+      observedSourceFloorNineRouteSupport(snapshot,
+        snapshot.platforms?.find(platform=>platform?.id==='f9:ground'),
+        held.oldRoofY);
     const onNewRoof=(p?.grounded===true &&
       p.groundedPlatformId==='f9:ground') ||
       !!observedRecordedGuardianDoorstepHandoff(snapshot) ||
@@ -3205,7 +3227,7 @@ export function createTowerWorld(){
     held.opticalLease=opticalLease;
     held.sourceAlignedPassage=samePassage || sourceColdFrame ||
       sourceDeparture?.sourceBound===true;
-    if (options.stale || snapshot.runToken !== held.runToken ||
+    if (physicallyBeyondOriginalDoor || options.stale || snapshot.runToken !== held.runToken ||
         snapshot.floor !== held.floor || snapshot.lifecycle !== 'running' ||
         !Number.isSafeInteger(snapshot.tick) ||
         // The source palette, original-arch camera and physical raised-deck
