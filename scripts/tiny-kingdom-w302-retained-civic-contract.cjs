@@ -24,7 +24,7 @@ const stream=Array.from({length:93},(_,i)=>i<3?999:
  i%10===9?6:(i*137%79)*.005); // 3 sentinels, 90 floats (3 real triangles)
 const expected=Array.from(new Float32Array(stream.slice(3)));
 function check(resident){
- let uploads=0,disposed=0;
+ let uploads=0,disposed=0,storedGpu=null;
  const context={
   data:stream.slice(),gpuAvailable:resident,civicGpuResidencyEnabled:resident,
   cachedTypedRangeCopies:0,cachedTypedRangeFloats:0,
@@ -34,11 +34,24 @@ function check(resident){
   civicCoreBuffer:null,activeCivicCoreKey:'',
   civicRoadBufferRecycles:0,civicRoadBufferSubUploads:0,
   civicRoadBufferReallocations:0,civicRoadBytesUploaded:0,
-  gl:{ARRAY_BUFFER:1,STATIC_DRAW:2,createBuffer:()=>({id:7}),
-   bufferData:(target,typed,usage)=>{
-    assert.equal(target,1);assert.equal(usage,2);
-    assert(ArrayBuffer.isView(typed),'actual upload needs Float32 geometry');
-    assert.deepEqual(Array.from(typed),expected);uploads++;
+  gl:{ARRAY_BUFFER:1,STATIC_DRAW:2,DYNAMIC_DRAW:35048,createBuffer:()=>({id:7}),
+   bufferData:(target,payload,usage)=>{
+    assert.equal(target,1);assert([2,35048].includes(usage),
+     'real WebGL buffer usage must be STATIC_DRAW or DYNAMIC_DRAW');
+    if(typeof payload==='number'){
+     assert.equal(payload%Float32Array.BYTES_PER_ELEMENT,0);
+     storedGpu=new Float32Array(payload/Float32Array.BYTES_PER_ELEMENT);
+    }else{
+     assert(ArrayBuffer.isView(payload),'real initial upload needs typed geometry');
+     storedGpu=new Float32Array(payload);uploads++;
+    }
+   },
+   bufferSubData:(target,byteOffset,typed)=>{
+    assert.equal(target,1);
+    assert.equal(byteOffset%Float32Array.BYTES_PER_ELEMENT,0,'GL subdata offset is bytes');
+    assert(storedGpu&&ArrayBuffer.isView(typed),'resident buffer must exist first');
+    assert(byteOffset+typed.byteLength<=storedGpu.byteLength,'no GPU buffer overflow');
+    storedGpu.set(typed,byteOffset/Float32Array.BYTES_PER_ELEMENT);uploads++;
    }},
   bindGeometry:buffer=>assert.equal(buffer.id,7),
   packLinearResidentScenery:typed=>({vertices:typed,ranges:[{
@@ -58,7 +71,9 @@ function check(resident){
  if(!resident)assert.deepEqual(Array.from(live.vertices),stream.slice(3),
   'CPU fallback retains exact original JS source numbers');
  assert.equal(context.data.length,stream.length,'source scene is never truncated before GPU residency succeeds');
- assert.equal(uploads,resident?1:0,'only one resident civic GPU upload');
+ assert.equal(uploads,resident?1:0,'only one complete civic resident upload');
+ if(resident)assert.deepEqual(Array.from(storedGpu.subarray(0,expected.length)),expected,
+  'actual retained GPU buffer must reproduce all original farm-to-market triangles');
  assert.equal(context.cachedTypedRangeCopies,resident?1:0,
   'one exact typed copy, not JS slice plus second typed allocation');
  assert.equal(context.cachedTypedRangeFloats,resident?90:0);

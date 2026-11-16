@@ -50,8 +50,9 @@ assert.equal(planner(triangles([1]),[1,2,3],60),null);
 assert.equal(planner(triangles([1]),triangles([1]),-1),null);
 assert(game.includes('reusable.linearVertices&&linearVertices'),
  'only identical packed GPU draw ordering may use partial uploads');
-assert(game.includes('gl.bufferSubData(gl.ARRAY_BUFFER,dirty.firstFloat*Float32Array.BYTES_PER_ELEMENT'),
- 'WebGL sub-data offset must be in BYTES, never floats');
+assert(game.includes('for(const r of dirty.ranges||[')&&
+ game.includes('gl.bufferSubData(gl.ARRAY_BUFFER,r.firstFloat*Float32Array.BYTES_PER_ELEMENT'),
+ 'each genuine sparse WebGL sub-data range must address BYTE offsets, never floats');
 assert(game.includes('getResidentDeltaUploadAudit'),
  'runtime must expose measured upload-window counters for true tracing');
 assert(game.includes('retainSettlementSeason(staticKey,scenicMeshCache,settlementChunkRanges,settlementBuffer,uploaded.capacityFloats,uploaded.linearVertices)'),

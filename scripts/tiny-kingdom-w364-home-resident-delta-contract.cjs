@@ -25,8 +25,9 @@ const production=find('function buildHomeClusters(','function recallHomeClusterK
 assert.match(production,/obsolete\.linearVertices===true/,'cannot compare a spatially repacked old VBO');
 assert.match(production,/packed\.vertices===mesh/,'new original unscattered vertex identity required');
 assert.match(production,/!swiftGpu/,'software diagnostic path must preserve original full upload');
-assert.match(production,/planResidentVertexUpload\(obsolete\.mesh,packed\.vertices,capacityFloats\)/,'live home GPU path must execute the exact tested planner');
-assert.match(production,/gl\.bufferSubData\(gl\.ARRAY_BUFFER,delta\.firstFloat\*Float32Array\.BYTES_PER_ELEMENT/,'byte-addressed genuine partial WebGL upload missing');
+assert.match(production,/planResidentVertexUpload\(obsolete\.mesh,packed\.vertices,capacityFloats,6\)/,'live home GPU path must execute the bounded sparse planner');
+assert.match(production,/for\(const r of delta\.ranges\|\|/,'sparse GPU home uploads must execute every dirty range');
+assert.match(production,/gl\.bufferSubData\(gl\.ARRAY_BUFFER,r\.firstFloat\*Float32Array\.BYTES_PER_ELEMENT/,'each original home GPU range must use byte addressing');
 assert.match(production,/if\(delta\.dirtyFloats\)/,'zero-delta must skip GPU buffer upload');
 assert.match(production,/linearVertices\}/,'origin identity must follow the resident cell for next growth');
 assert.match(html,/homeDeltaUploadedBytes/,'real GPU transfer bytes must be instrumented');
