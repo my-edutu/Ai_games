@@ -75,3 +75,36 @@ test('no original retained GPU owner, expired handoff or wrong run cannot create
   assert.equal(sample({...source,lastGuardianCrossing:{...source.lastGuardianCrossing,
     guardian:{kind:'guardian',active:true,health:1}}},held),null);
 });
+
+// Native 1x capture showed the original high-alpha gateway surviving while
+// authentic F9 source motion had already carried the body well past its sill.
+// A far-away old bronze owner must not freeze the new structural scene,
+// but neither a fake position nor an unverified passage may clear its mask.
+test('a source-authenticated body that has physically left the old sill reveals the incoming shaft without trusting a timer',async()=>{
+  const {sourceOwnedOriginalArchitectureCoverage:coverage,
+    sourceAlignedIncomingShaftOpacity:incoming}=await palette;
+  const {source,held}=earnedFrame();
+  held.verifiedObservedFloorAdvance=true;
+  held.crossingTick=451;
+  held.sourceTick=460;
+  held.oldCapId='f8:cap';held.oldCapX=200000;held.oldCapWidth=140000;
+  held.oldRoofY=6500;
+  held.originalGatewayOpacity=1;
+  held.originalArchitectureCoverage=1;
+  const near={...source,player:{...source.player,x:held.thresholdX+24000,
+    y:10000,grounded:true,vy:0,state:'standing',groundedPlatformId:'f9:ground'}};
+  assert.equal(coverage(near,held),1,'a still-near real bronze gate protects its first old/new shot');
+  const far={...near,player:{...near.player,x:held.thresholdX+165000},
+    platforms:[{...source.platforms[0],width:300000}]};
+  assert.ok(coverage(far,held)<.05,
+    'authoritative grounded motion beyond the entire historical corridor must unblock the real successor world');
+  assert.ok(incoming(far,held,.6)>.45,
+    'new structural material is no longer indefinitely hidden by a gate behind the climber');
+  assert.equal(coverage({...far,player:{...far.player,groundedPlatformId:'f9:fake'}},held),1,
+    'a fictitious grounded contact cannot release bronze coverage');
+  assert.equal(coverage(far,{...held,verifiedObservedFloorAdvance:false}),1,
+    'an unverified previous cap cannot grant the optical departure');
+  assert.equal(coverage({...far,lastGuardianCrossing:{...source.lastGuardianCrossing,
+    guardian:{kind:'guardian',active:true,health:1}}},held),1,
+    'a conflicting living guardian vetoes staged original passage clearance');
+});
