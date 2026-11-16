@@ -1445,6 +1445,10 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  function retireStaleCue(cueId,reason){
   if(disposed||typeof cueId!=='string'||!cueId||
    !['stale-frame','expired-visual','unverified-frame',
+     // Terminal pre-render and in-emission expiry are real GPU retirements.
+     // Rejecting these controller reasons left old HP shards visible on the
+     // next WebGL frame despite permanently refusing the associated sound.
+     'expired-before-render','expired-during-visual-emission',
      'revoked-drawn-swing-pose','revoked-drawn-body-pose',
      'visual-submission-unverified','authority-revoked-warning',
       'awaiting-frame-cap-rejected','awaiting-frame-cap-preempted'].includes(reason))return 0;
