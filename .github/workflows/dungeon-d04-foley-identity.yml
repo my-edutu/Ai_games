@@ -31,6 +31,7 @@ on:
       - tests/browser/dungeon-d04-capture-profile.cjs
       - tests/foundation/dungeon-d04-single-primary-encoder.test.cjs
       - tests/browser/dungeon-d04-real-feedback-observation.cjs
+      - tests/browser/dungeon-d04-impact-submission-witness.cjs
       - tests/browser/dungeon-d04-source-start-correlation.cjs
       - .github/workflows/dungeon-d04-foley-identity.yml
   workflow_dispatch:
@@ -54,6 +55,7 @@ jobs:
       - run: npm ci
       - run: node --check public/ai-dungeon/original-combat-foley.js
       - run: node --check tests/browser/dungeon-d04-capture-profile.cjs
+      - run: node --check tests/browser/dungeon-d04-impact-submission-witness.cjs
       - run: node --check tests/browser/dungeon-d04-live-authority-pair.cjs
       - run: node --check tests/browser/dungeon-d04-continuous-mode-pair.cjs
       - run: node --check tests/browser/dungeon-d04-real-live-authority-capture-pair.spec.cjs
