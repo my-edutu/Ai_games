@@ -9,13 +9,35 @@ const ARCHITECTURE = Object.freeze({
 });
 export const ORIGINAL_CLOCKWORK_ARCHITECTURAL_CHANNELS = ARCHITECTURE;
 
-// Optical history is NOT a new source event. The live F9 presenter may keep
-// the last certified same-run old->new material weight for at most eight
-// SUCCESSFUL WebGL returns after the original physical witness expires.
+// Optical history is NOT a new source event. A cold WebGL renderer can submit
+// eight frames without even a quarter-second of visible material transition.
+// The former frame-count-only retirement was abruptly erasing the genuine
+// Clockwork bearing room from both original 1x films. This one same-run
+// presentation clock requires BOTH returned frames and their bounded elapsed
+// rendered duration; it never synthesizes a crossing, collision or actor.
+// Preserve a finite 60-return/160-source-tick safety ceiling.
 // The actor, floor, guardian and collision state are never sampled from this
 // display-only record, and a stale poll cannot spend the return budget.
 const actualSourceKind=kind=>kind==='recorded-source-zero-hp' ||
   kind==='verified-original-roof-receipt';
+export const SOURCE_EARNED_RETURN_SECONDS=.95;
+const MIN_SOURCE_EARNED_RETURN_FRAMES=5;
+export function advanceSourceEarnedPaletteReturn(state,returnedDt) {
+  if(!state ||
+     !Number.isSafeInteger(state.returnedFrames) ||
+     state.returnedFrames<0 || state.returnedFrames>60 ||
+     !Number.isFinite(state.returnedSeconds) ||
+     state.returnedSeconds<0 || state.returnedSeconds>1.5 ||
+     !Number.isFinite(returnedDt) || returnedDt<0) return null;
+  // Callers must do so only after a successful source-matched render return.
+  // Browser polls and GPU stalls never advance a previously certified image.
+  const returnedFrames=Math.min(60,state.returnedFrames+1);
+  const returnedSeconds=Math.min(1.5,
+    state.returnedSeconds+Math.min(.1,returnedDt));
+  const progress=Math.min(1,returnedSeconds/SOURCE_EARNED_RETURN_SECONDS,
+    returnedFrames/MIN_SOURCE_EARNED_RETURN_FRAMES);
+  return {returnedFrames,returnedSeconds,progress};
+}
 const boundedWeight=weight=>Number.isFinite(weight) &&
   weight>=0 && weight<=1;
 function materialTailValid(tail) {
@@ -25,7 +47,11 @@ function materialTailValid(tail) {
     Number.isSafeInteger(tail.authenticatedCrossingTick) &&
     tail.authenticatedSourceTick>=tail.authenticatedCrossingTick &&
     Number.isSafeInteger(tail.returnedFrames) &&
-    tail.returnedFrames>=0 && tail.returnedFrames<8 &&
+    tail.returnedFrames>=0 && tail.returnedFrames<=60 &&
+    Number.isFinite(tail.returnedSeconds) &&
+    tail.returnedSeconds>=0 && tail.returnedSeconds<=1.5 &&
+    Math.min(tail.returnedSeconds/SOURCE_EARNED_RETURN_SECONDS,
+      tail.returnedFrames/MIN_SOURCE_EARNED_RETURN_FRAMES)<1 &&
     boundedWeight(tail.oldWeight);
 }
 export function observedVerifiedClockworkPaletteTail(source,handoff,departure) {
@@ -36,7 +62,11 @@ export function observedVerifiedClockworkPaletteTail(source,handoff,departure) {
      handoff?.runToken!==source.runToken ||
      handoff.retiring!==true ||
      !Number.isSafeInteger(handoff.retirementFrames) ||
-     handoff.retirementFrames<0 || handoff.retirementFrames>=8 ||
+     handoff.retirementFrames<0 || handoff.retirementFrames>60 ||
+     !Number.isFinite(handoff.retirementSeconds) ||
+     handoff.retirementSeconds<0 || handoff.retirementSeconds>1.5 ||
+     Math.min(handoff.retirementSeconds/SOURCE_EARNED_RETURN_SECONDS,
+       handoff.retirementFrames/MIN_SOURCE_EARNED_RETURN_FRAMES)>=1 ||
      proof?.runToken!==source.runToken ||
      !actualSourceKind(proof.kind) ||
      !Number.isSafeInteger(proof.sourceTick) ||
@@ -49,7 +79,8 @@ export function observedVerifiedClockworkPaletteTail(source,handoff,departure) {
   return {historicalOpticalTail:true,previouslySourceVerified:true,
     runToken:source.runToken,authenticatedSourceTick:proof.sourceTick,
     authenticatedCrossingTick:proof.crossingTick,
-    returnedFrames:handoff.retirementFrames,oldWeight:1-departure,
+    returnedFrames:handoff.retirementFrames,
+    returnedSeconds:handoff.retirementSeconds,oldWeight:1-departure,
     evidence:'Past genuine same-run physical guardian exit; this is NOT a current source sample or native-film acceptance'};
 }
 
