@@ -135,3 +135,75 @@ test('D04 verified melee stages on the first 190ms real frame and never duplicat
  assert.equal(audio.length,1);
  timed.dispose();
 });
+
+test('D04 pre-render retires stale retained HP impact before WebGL without late sound',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ let wall=0;const emitted=[],retired=[],played=[];
+ const controller=createPhysicalCombatFeedback({requirePresentedFrame:true,clock:()=>wall,
+  visualAdapter:{emit(c){emitted.push(c);return true},advance(){},
+   hasLiveCue(){return true},hasDrawableCue(){return true},
+   retireStaleCue(id){retired.push(id);return true},reset(){},dispose(){}},
+  audioAdapter:{enable(){return true},emit(c){played.push(c);return true},
+   flush(){},disable(){},cleanup(){},dispose(){}}
+ });
+ controller.enableAudioFromGesture();
+ controller.acceptSnapshot(snap(10,30));controller.acceptSnapshot(snap(11,21));
+ wall=.12;controller.advance(.05,.12);
+ assert.equal(emitted.length,1);
+ assert.equal(controller.stats().awaitingPresentation,1);
+ wall=.405;assert.equal(controller.retireStaleBeforeRender(),1);
+ assert.deepEqual(retired,[emitted[0].id]);
+ assert.equal(controller.stats().preRenderStaleDropped,1);
+ assert.equal(controller.stats().awaitingPresentation,0);
+ const r=controller.stats().recentDeliveryReceipts.at(-1);
+ assert.equal(r.decision,'expired-before-render');
+ assert.equal(r.frameId,null);assert.equal(r.audio,false);
+ assert.equal(controller.acknowledgePresentedFrame(1,.02),0);
+ assert.equal(played.length,0);
+ assert.equal(controller.retireStaleBeforeRender(),0);
+ controller.dispose();
+});
+
+test('D04 pre-render leaves timely genuine HP receipt and original foley eligible',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ let wall=0;const played=[],retired=[];
+ const controller=createPhysicalCombatFeedback({requirePresentedFrame:true,clock:()=>wall,
+  visualAdapter:{emit(){return true},advance(){},hasLiveCue(){return true},
+   hasDrawableCue(){return true},retireStaleCue(id){retired.push(id);return true},
+   reset(){},dispose(){}},
+  audioAdapter:{enable(){return true},emit(c){played.push(c);return true},
+   flush(){},disable(){},cleanup(){},dispose(){}}
+ });
+ controller.enableAudioFromGesture();
+ controller.acceptSnapshot(snap(10,30));controller.acceptSnapshot(snap(11,21));
+ wall=.12;controller.advance(.05,.12);
+ wall=.32;assert.equal(controller.retireStaleBeforeRender(),0);
+ wall=.35;assert.equal(controller.acknowledgePresentedFrame(1,.02),1);
+ assert.equal(played.length,1);
+ assert.deepEqual(retired,[]);
+ assert.equal(controller.stats().preRenderStaleDropped,0);
+ controller.dispose();
+});
+
+test('D04 muted visual-only damage expires before draw without retroactive audio',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ let wall=0;const retired=[],played=[];
+ const controller=createPhysicalCombatFeedback({requirePresentedFrame:true,clock:()=>wall,
+  visualAdapter:{emit(){return true},advance(){},hasLiveCue(){return true},
+   hasDrawableCue(){return true},retireStaleCue(id){retired.push(id);return true},
+   reset(){},dispose(){}},
+  audioAdapter:{enable(){return true},emit(c){played.push(c);return true},
+   flush(){},disable(){},cleanup(){},dispose(){}}
+ });
+ controller.enableAudioFromGesture();
+ controller.acceptSnapshot(snap(10,30));controller.acceptSnapshot(snap(11,21));
+ wall=.1;controller.advance(.05,.1);
+ controller.muteAudio();
+ assert.equal(controller.stats().awaitingPresentation,1);
+ wall=.5;assert.equal(controller.retireStaleBeforeRender(),1);
+ assert.equal(retired.length,1);
+ assert.equal(controller.acknowledgePresentedFrame(1,.01),0);
+ assert.equal(played.length,0);
+ assert.equal(controller.stats().audioOptedIn,false);
+ controller.dispose();
+});

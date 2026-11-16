@@ -1389,6 +1389,8 @@ function animate(t){
   heroKey.distance=6.8;partyGlow.distance=7.7;
   if(!aliveWarden){wardenSpot.intensity=0;wardenSpot.distance=9.5;}
  }
+ // D04-only barrier: do not submit already expired impact geometry.
+ physicalFeedback?.retireStaleBeforeRender();
  // D04 opt-in only: measure time blocked inside real WebGL submission.
  const d04RenderSubmissionStartedAt=physicalFeedback?performance.now():0;
  renderer.info.reset();

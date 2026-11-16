@@ -54,7 +54,7 @@ export function createPhysicalCombatFeedback({
   audioInterruptions=0,observedAudioContext=null,audioStateContext=ctx,
   audioStateUnavailable=false,
   unverifiedFrameInterval=false,expiredQueuedCues=0,lateLiveWarningVisuals=0,invalidFrameIntervals=0,
-  framesAcknowledged=0,staleAudioDropped=0,expiredVisualAudioDropped=0,
+  framesAcknowledged=0,staleAudioDropped=0,preRenderStaleDropped=0,expiredVisualAudioDropped=0,
   retroactiveAudioSuppressed=0,
    unverifiedVisualLiveness=0,lastPresentedFrame=null,
    highestNumericPresentedFrame=-1,replayedFrameAcks=0,
@@ -666,6 +666,47 @@ export function createPhysicalCombatFeedback({
   }
   return released;
  }
+
+ /**
+  * D04 only: a real HP cue may cross the fixed 400ms deadline during
+  * pre-render camera/scene CPU work. Retire its retained art BEFORE rendering;
+  * the post-WebGL gate still rejects any sound from an in-render stall.
+  * The live authoritative Warden warning footprint is independently safe to
+  * retain, but its expired original sound is permanently revoked.
+  */
+ function retireStaleBeforeRender(){
+  if(disposed||!requirePresentedFrame||typeof clock!=='function'||
+     awaitingPresentation.length===0)return 0;
+  const now=observedWallClock();
+  if(now===null)return 0;
+  let expired=0;
+  for(let i=awaitingPresentation.length-1;i>=0;i--){
+   const item=awaitingPresentation[i];
+   const observedAt=observedAtByCueId.get(item.cue.id);
+   if(!Number.isFinite(observedAt)||observedAt<0||now<observedAt||
+      now-observedAt<=MAX_AUDIO_VISUAL_STALENESS_SECONDS)continue;
+   awaitingPresentation.splice(i,1);
+   const warningStillLive=item.cue.visual==='warning'&&
+    item.cue.proof==='authority-warning-window'&&
+    isLiveWardenWarning(item.cue,previous);
+   let retiredSafely=!item.visual||warningStillLive;
+   if(item.visual&&!warningStillLive){
+    const retired=safeCall(()=>visuals?.retireStaleCue?.(
+     item.cue.id,'expired-before-render'));
+    retiredSafely=retired===true||
+     Number.isSafeInteger(retired)&&retired>0||
+     typeof visuals?.hasLiveCue==='function'&&
+      safeCall(()=>visuals.hasLiveCue(item.cue.id))===false;
+   }
+   if(!retiredSafely)unverifiedVisualLiveness++;
+   if(item.soundAuthorized)staleAudioDropped++;
+   preRenderStaleDropped++;expired++;
+   retainReceipt(item.cue,item.visual,false,null,
+    warningStillLive?'expired-before-render-live-warning-kept':
+    retiredSafely?'expired-before-render':'expired-before-render-retirement-unverified');
+  }
+  return expired;
+ }
  function popDue(dt){
   if(!pending.length)return;
   for(const item of [...pending]){
@@ -976,6 +1017,7 @@ export function createPhysicalCombatFeedback({
   audioInterruptions,injectedContextMismatch,injectedOutputMismatch,
   pending:pending.length,queued,emitted:played,visualAccepted,audioAccepted,
   awaitingPresentation:awaitingPresentation.length,
+  preRenderStaleDropped,
   awaitingAudioFrame:awaitingPresentation.filter(item=>item.soundAuthorized).length,
   awaitingVisualReceipt:awaitingPresentation.filter(item=>!item.soundAuthorized&&item.visual).length,
   // Read-only genuine D04 renderer acknowledgment ID. Three.js
@@ -997,7 +1039,7 @@ export function createPhysicalCombatFeedback({
   visuals:visuals?.stats?.()??null,audio:foley?.stats?.()??null
  });}
  observeAudioState(ctx);
- return Object.freeze({acceptSnapshot,advance,acknowledgePresentedFrame,
+ return Object.freeze({acceptSnapshot,advance,retireStaleBeforeRender,acknowledgePresentedFrame,
   attachAudioContext,enableAudioFromGesture,muteAudio,
   preferredMuted,reset,dispose,stats});
 }
