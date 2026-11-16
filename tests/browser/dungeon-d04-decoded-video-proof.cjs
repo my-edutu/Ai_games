@@ -174,7 +174,21 @@ async function sampleChromiumDecodedD04WebM(input){
   });
   const metadata=waitFor('loadedmetadata',2200);
   video.src=objectUrl;video.load();
-  if(!await metadata)return fail('Chromium could not decode WebM metadata');
+  let metadataReady=await metadata;
+  if(!metadataReady){
+   // Some genuine MediaRecorder WebM blobs expose their metadata only after
+   // an initial muted play request. One bounded recovery attempt, then fail.
+   const recovery=waitFor('loadedmetadata',1700);
+   try{
+    const start=video.play();
+    if(start&&typeof start.catch==='function')start.catch(()=>{});
+   }catch{}
+   metadataReady=await recovery;
+   try{video.pause()}catch{}
+  }
+  if(!metadataReady&&!(video.readyState>=1&&video.videoWidth>=16&&
+   video.videoHeight>=16))
+   return fail('Chromium could not decode WebM metadata after muted retry');
   const duration=video.duration,finite=Number.isFinite(duration);
   if((finite&&(duration<.2||duration>30))||
    !Number.isInteger(video.videoWidth)||video.videoWidth<16||
