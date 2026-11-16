@@ -798,8 +798,15 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
  // skinning, no new target or contact, no owner/clip/root changes.
  // Reuse source outsole measured above for the fast pitch guard; do not
  // allocate another shoe scan or redeclare its geometric evidence.
- const originalSlowSteep=!prior&&frameInterval>=.05&&frameInterval<=.20&&
-  sourceWeight>=.95&&depth>=.055&&depth<=.10&&
+ // Exact original 390px Walking_A at 233.3ms has a buried toe
+ // (-62.174mm) and a +231.266mm airborne heel, with 42.17mm actual
+ // stone penetration. All four original linked trials lifted that heel
+ // faster than the toe. The old 200ms/55mm pitch gate allowed this
+ // physically worse original pose even though the controller accepts
+ // witnessed source frames up to 240ms. Keep the same dual-shoe gates;
+ // never infer floor contact or grant another probe, root/clip or joint.
+ const originalSlowSteep=!prior&&frameInterval>=.05&&frameInterval<=.24&&
+  sourceWeight>=.95&&depth>=.04&&depth<=.10&&
   swing.heelY-floorTopY>=.18&&
   outsoleProjected>=.045&&outsoleProjected<=.10&&
   outsoleLength>=.285&&outsoleLength<=.325;
@@ -905,7 +912,7 @@ export function certifyOriginalSourceFirstSwingPitch({
  const toeLift=b.toeY-a.toeY,heelRise=b.heelY-a.heelY;
  const depth=floorTopY-a.toeY;
  const span=Math.hypot(dist(a.heelXZ,a.toeXZ),a.heelY-a.toeY);
- if(depth<.055||depth>.10||a.heelY-floorTopY<.18||
+ if(depth<.04||depth>.10||a.heelY-floorTopY<.18||
   span<.285||span>.325||
   toeLift<Math.max(.012,depth*.15)||toeLift>.055||
   b.heelY-floorTopY<.08||b.heelY-floorTopY>.35||
