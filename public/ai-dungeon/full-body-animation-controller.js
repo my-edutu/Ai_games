@@ -1685,6 +1685,13 @@ export function confirmOriginalSourceSwingCalfNetClearance({
   initialHeel<.055||initialHeel>.36||
   finalHeel<.055||finalHeel>.36||
   Math.abs(afterHeelY-beforeHeelY)>.06)return false;
+ // Final original source-skin receipt, not a .2rad candidate estimate:
+ // observed native 390px trial raised toe 27.662mm, airborne heel 27.766mm
+ // and left 9.4mm of toe inside stone. Veto an even more vertical foot.
+ const steepBuriedSource=initialHeel>=.20&&toeIntrusion>=.025&&
+  floorTopY-afterToeY>.005;
+ if(steepBuriedSource&&afterHeelY-beforeHeelY>actualLift+.000001)
+  return false;
  const stillDeep=toeIntrusion>.035&&floorTopY-afterToeY>.025;
  return !stillDeep||actualLift+0.000001>=toeIntrusion*.10;
 }
@@ -1716,6 +1723,13 @@ export function selectOriginalSourceSwingCalfTrial({
    toe-afterAnkleToeY<.004||toe-afterAnkleToeY>.075||
    heel-floorTopY<.055||heel-floorTopY>.36||
    Math.abs(heel-afterAnkleHeelY)>.06)continue;
+  // Genuine 390px source swing: elevating a buried toe is no relief if
+  // the already airborne heel rises even faster. Sample only the same
+  // original licensed joint and actual skinned shoe; never invent contact.
+  const steepBuriedSource=afterAnkleHeelY-floorTopY>=.20&&
+   floorTopY-afterAnkleToeY>=.025&&floorTopY-toe>.005;
+  if(steepBuriedSource&&heel-afterAnkleHeelY>
+   toe-afterAnkleToeY+.000001)continue;
   if(!best||toe>best.toe)best={signed,toe,heel};
  }
  return best;
