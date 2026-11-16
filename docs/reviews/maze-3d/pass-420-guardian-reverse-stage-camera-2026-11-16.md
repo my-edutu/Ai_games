@@ -21,3 +21,7 @@ Fresh exact-commit CI, strict six-run reset geometry below 100, new unaltered fu
 ## Source integration guard
 
 During the pre-CI source audit, confirmed the actual renderer's `earnedCounterActor` is the published `{cell,x,z}` pose, **not** the threat's `id`. Repaired the candidate authorization and stable shot identity to use the exact currently published parried guardian **cell**, adding a source integration regression before the next exact-HEAD browser run. No unrendered approval is claimed.
+
+## Pass421 — original native evidence rejects this candidate (2026-11-16 UTC)
+
+New exact-source [Maze run #43842033502](https://github.com/my-edutu/Ai_games/actions/runs/43842033502) finished **FAILURE**, not pending: 7 of 8 Playwright tests pass, but original 390px tick8 earned recoil violates the unchanged `allGuardianModels===guardians` visual contract (0 vs 1), with actual guardian left NDC -0.962976 outside strict -0.95. Original artifact #14214810064 has 39/39 available screenshot SHA pairs + all 3 real gate hashes verified; the 320px earned frame was NOT captured after failure. Full 390px source-authentic comparison to Pass419 shows foreground still obscuring Pip torso/boots; no meaningful cinematic gain. Restore trusted Pass419 `scene.js`/camera-helper blobs, delete this candidate-only test, retain documentary record and keep strict tests. [Full dated rejection](./pass-421-real-native-reverse-stage-rejection-2026-11-16.md). Fixed Nintendo bar remains unmet; independent worker unavailable.

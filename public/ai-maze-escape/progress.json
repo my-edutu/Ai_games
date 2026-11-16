@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-16T09:37:00.000Z",
+  "updatedAt": "2026-11-16T10:11:35.291Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass420 source candidate: Pass419 rollback exact-HEAD WebGL #43832142295 SUCCESS, original 40/40 uncropped PNG sidecar SHA256 plus 3 authentic gate image digests verified. Natural 320/390 parry still hides Pip torso and boots. New source-only full-body guarded opposite-side physical camera chooses only a genuinely public earned counter with stronger actual world-ray clearance and strict connected body fit. Await new exact-commit WebGL/A-B and fresh independent critic; no visual win. Whole CI separate failure; coding workspace NOT_FOUND. Nintendo bar unmet; PR open draft unmerged/undeployed."
+    "summary": "Pass421: exact-HEAD Pass420b reverse-stage candidate failed real 390px WebGL guardian silhouette gate (left -0.962976 vs unchanged -0.95; allGuardianModels 0 vs 1). Original available 39/39 PNG SHA and 3/3 real gate SHA verified, 320 candidate earned frame not produced. Native full-frame A/B shows no meaningful Pip/Thornback visibility gain. Restore trusted Pass419 scene/camera source in non-force rollback; fresh exact-rollback CI pending. Independent worker NOT_FOUND. Nintendo bar unmet, draft PR no merge/deploy."
   },
   "captures": [
+    {
+      "title": "Pass420b real native 390 guardian crop REJECT, 39/39 available original screenshot SHA + 3 real gate SHA verified; test failure blocks 320 earned capture",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/43842033502/artifacts/14214810064"
+    },
     {
       "title": "Pass419 rollback exact-HEAD native WebGL 40/40 PNG+3 gate SHA verified; baseline for unapproved Pass420 true camera stage",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/43832142295/artifacts/14209930517"
@@ -180,6 +184,7 @@
     }
   ],
   "changes": [
+    "Pass421 2026-11-16 UTC: real source-HEAD Pass420b Chromium WebGL #43842033502 FAILED 390px real public seed13 tick8 earned guardian complete physical silhouette (left -0.962976 < existing -0.95 NDC; allGuardianModels 0 vs guardians 1). Downloaded original artifact SHA256 fd4ef4d9, independently verified 39/39 available original full-frame PNG/sidecar hashes plus 3/3 authentic gate hashes; run abort before 320 candidate earned capture. Direct full-frame 390 A/B against Pass419 authentic 40/40+3/3 shows still obscured Pip torso and boots; rejected artistically as well. Restore exact Pass419 scene/camera baseline and delete candidate-only test; do not touch acceptance thresholds/AI/privacy/HUD. New rollback exact-HEAD WebGL/CI PENDING; worker NOT_FOUND. Nintendo benchmark unmet, PR stays draft unmerged/undeployed.",
     "Pass420 candidate: actual world-ray-scored full connected-body alternate camera around a genuinely public Pip–Thornback lantern counter, only when superior physical exposure and no-crop hold; new native WebGL verdict pending.",
     "Pass419 2026-11-16 UTC: independently verified original Pass418 exact-HEAD native WebGL 40/40 full-size screenshot SHA and genuine gate 3/3; 320/390 real seed13 tick8 91->74 earned guardian counter still obscured by foreground masonry and coastal plants. Pass418 sealed counter-window stage visually REJECTED despite green Maze tests/strict <100 six-reset; exact trusted Pass417 world.js restored and candidate-only test removed, retaining dated native evidence. New rollback CI pending; separate whole-repository CI failed. Nintendo parity unmet; draft PR unmerged/undeployed, independent critic workspace NOT_FOUND.",
     "Pass417 2026-11-16 UTC: actual 40/40+3/3 SHA-verified original 320/390 WebGL from Pass416b versus Pass415 shows no worthwhile camera/actor readability improvement: Pip's torso and boots remain screened in the earned parry. Source/test candidate safely rolled back to exact Pass415 blobs while retaining dated evidence; rollback CI pending, independent critic unavailable, no false visual win.",
