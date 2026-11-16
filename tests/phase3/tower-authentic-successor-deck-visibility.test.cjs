@@ -167,3 +167,56 @@ test('production undercroft protects source-built successor side skirts at the f
   assert.match(src,/sourceOwnedUndercroft/);
   assert.match(src,/arrivalSurface\|\|materials\.landing/);
 });
+
+test('original source-locked bronze gate physically occludes the actor and triggers the existing 3D camera-clearance search',async()=>{
+  const THREE=await three;
+  const {measureAuthoritativeDeckSightline}=await loaded;
+  const f=fixture(THREE);f.measure=measureAuthoritativeDeckSightline;
+  const gateRoot=new THREE.Group();
+  gateRoot.name='AuthoritativeGuardianGate';
+  const metal=new THREE.MeshStandardMaterial({color:0x8b6c4b});
+  const shape=new THREE.BoxGeometry(2.5,4,1.2);
+  const realLeaf=new THREE.Mesh(shape,metal);
+  realLeaf.position.set(0,2,2.4);
+  gateRoot.add(realLeaf);
+  // Leave the ACTUAL successor deck in the 3D world but away from both
+  // rays. Only the original physical gate itself blocks this shot.
+  f.roof.children[0].position.x=100;
+  f.roof.updateWorldMatrix(true,true);
+  gateRoot.updateWorldMatrix(true,true);
+  const original=JSON.stringify([f.source,f.held]);
+  try {
+    const withoutGate=sample(f,[0,2,6],[0,2,0]);
+    assert.equal(withoutGate.score,0);
+    const obstructed=sample(f,[0,2,6],[0,2,0],{originalGateRoot:gateRoot});
+    assert.equal(obstructed.active,true);
+    assert.ok(obstructed.bodyBlockedRays>0,
+      'authentic opaque bronze geometry, not the next-floor deck, masks the living climber');
+    assert.ok(obstructed.originalGateBlockedRays>0,
+      'retained old gate must contribute to the SAME camera search score');
+    assert.equal(obstructed.gatewayBlockedRays,0,
+      'the original gate is the target, never its own occluder');
+    const exterior=sample(f,[10,3,6],[0,2,0],{originalGateRoot:gateRoot});
+    assert.ok(exterior.score<obstructed.score,
+      'a source-free camera shoulder move must improve genuine geometric visibility');
+    metal.transparent=true;metal.opacity=0;
+    assert.equal(sample(f,[0,2,6],[0,2,0],{originalGateRoot:gateRoot}).originalGateBlockedRays,0,
+      'an invisible earned gate cannot be counted as an opaque obstruction');
+    metal.opacity=1;gateRoot.visible=false;
+    assert.equal(sample(f,[0,2,6],[0,2,0],{originalGateRoot:gateRoot}).score,0);
+    assert.equal(JSON.stringify([f.source,f.held]),original,
+      'presentation probes cannot edit deterministic authority');
+  } finally {shape.dispose();metal.dispose();f.geometry.dispose();f.material.dispose();}
+});
+
+test('physical guardian hardware is wired into the real retained gateway and submitted follow-camera score',()=>{
+  const fs=require('node:fs');
+  const world=fs.readFileSync(path.resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
+  const scene=fs.readFileSync(path.resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+  assert.match(world,/originalGateRoot:realGate/);
+  assert.match(world,/originalGateRoot:held\.originalGateRoot/);
+  assert.match(scene,/world\.measureSuccessorDeckVisibility\(/);
+  assert.match(scene,/candidate\.bodyBlockedRays<=existingDeckView\.bodyBlockedRays/);
+});
