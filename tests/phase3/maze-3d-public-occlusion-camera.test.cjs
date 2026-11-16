@@ -33,3 +33,10 @@ test('Pass416: actual public models/raycast/camera path, original collision and 
   assert.match(source,/camera\.position\.copy\(basePosition\)/);
   assert.doesNotMatch(source,/privateMaze.*publicRecoilCamera|secretRoute.*publicRecoilCamera/);
 });
+
+test('Pass416b: rejected candidate restores the exact original recoil pan AND orientation',()=>{
+  assert.match(source,/const baseQuaternion=camera\.quaternion\.clone\(\)/);
+  assert.match(source,/camera\.quaternion\.copy\(baseQuaternion\)/);
+  assert.match(source,/yawQuaternion\.setFromAxisAngle\(/);
+  assert.match(source,/else publicRecoilCameraAngle=0;/);
+});

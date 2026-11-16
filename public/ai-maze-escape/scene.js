@@ -1700,6 +1700,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     } else {
       const currentKey=String(s.runToken)+':'+s.tick;
       const basePosition=camera.position.clone();
+      const baseQuaternion=camera.quaternion.clone();
+      const yawQuaternion=new THREE.Quaternion();
       const baseOffset=basePosition.clone().sub(cameraTarget);
       const realAnchors=[];
       // Both actors use actual current world-space connected-mesh bounds.
@@ -1737,7 +1739,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
             for(const fraction of (angle===0?[1]:[.25,.5,.75,1])){
               camera.position.copy(cameraTarget).add(
                 baseOffset.clone().applyAxisAngle(publicRecoilUp,angle*fraction));
-              camera.lookAt(cameraTarget);
+              camera.quaternion.copy(yawQuaternion.setFromAxisAngle(
+                publicRecoilUp,angle*fraction)).multiply(baseQuaternion);
               camera.updateMatrixWorld();
               if(!physicalShotSafe()){safe=false;break;}
             }
@@ -1773,8 +1776,11 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
             candidates,true,settings.reducedMotion);
         }
       }
+      // Rejected angle = EXACT ORIGINAL camera pose, including the previous
+      // trusted full-model horizontal shift. Looking at cameraTarget anew
+      // here would silently undo that safety pan even with no selected flank.
       camera.position.copy(basePosition);
-      camera.lookAt(cameraTarget);
+      camera.quaternion.copy(baseQuaternion);
       camera.updateMatrixWorld();
       if(publicRecoilCameraGoal){
         // A staged camera turn rather than an abrupt cut. Each displayed
@@ -1784,17 +1790,18 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           (publicRecoilCameraGoal-publicRecoilCameraAngle)*step;
         camera.position.copy(cameraTarget).add(
           baseOffset.applyAxisAngle(publicRecoilUp,candidate));
-        camera.lookAt(cameraTarget);
+        camera.quaternion.copy(yawQuaternion.setFromAxisAngle(
+          publicRecoilUp,candidate)).multiply(baseQuaternion);
         camera.updateMatrixWorld();
         if(physicalShotSafe())publicRecoilCameraAngle=candidate;
         else{
           camera.position.copy(basePosition);
-          camera.lookAt(cameraTarget);
+          camera.quaternion.copy(baseQuaternion);
           camera.updateMatrixWorld();
           publicRecoilCameraAngle=0;
           publicRecoilCameraGoal=0;
         }
-      }
+      }else publicRecoilCameraAngle=0;
     }
     const background = settings.highContrast ? '#50665f' : '#b2c6b6';
     scene.background.set(background); scene.fog.color.set(background);
