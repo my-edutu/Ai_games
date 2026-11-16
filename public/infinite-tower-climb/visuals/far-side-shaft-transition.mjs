@@ -196,3 +196,53 @@ export function observedEarnedSillDepthExposure(source, held, job=null) {
     maxDepthReveal:.28,
     limitation:'Real grounded original roof or low airborne departure and already-returned original gate only; next shaft cannot certify native pixels'};
 }
+
+
+// P0 GPU-owner interlock. In the source-pinned 1x duel film, the real 20Hz
+// climber can clear the old sill while the next shaft is still being uploaded:
+// the last actually painted bronze arch vanishes under a source-only opacity
+// update and the first painted violet shaft replaces it in one hard cut.
+// Do not use a clock, pose, guessed platform, UI overlay, or a new 3D room:
+// retain ONLY material opacity sampled after the original WebGL return, and
+// only while the separately proven living body is truly supported far-side.
+// The existing far-side fade owns retirement as soon as a NEW real shaft
+// submission returns; this is not native visual acceptance.
+export function observedReturnedOriginalArchitectureHold(source,held,job,farSide) {
+  if(source?.floor!==9 || source.theme!=='void' ||
+     source.lifecycle!=='running' || !(source.player?.health>0) ||
+     !source.runToken || source.runToken!==held?.runToken ||
+     held.floor!==9 || held.guardianGateRetained!==true ||
+     held.verifiedObservedFloorAdvance!==true ||
+     held.opticalExitSubmitted===true ||
+     farSide?.sourceBound!==true || farSide.sourceTick!==source.tick ||
+     farSide.wholeBodyFarSide!==true || farSide.incomingReturnedFrames!==0 ||
+     !job || job.runToken!==source.runToken || job.floor!==9 ||
+     job.proof!=='recorded-source-gateway' ||
+     job.structureDeferred!==true ||
+     !['awaiting-actual-first-render','awaiting-structural-release',
+       'awaiting-structural-submission','awaiting-vista-submission']
+       .includes(job.state) ||
+     ![source.tick,held.crossingTick,held.firstWorldRenderTick,
+       held.submittedFrames,held.lastReturnedOldGatewayTick,
+       job.sourceTick,job.submittedFrames,job.structuralVisibleReturns]
+       .every(valid) ||
+     ![held.visibleSeconds,held.lastReturnedOldGatewayOpacity,
+       held.lastReturnedOriginalGalleryOpacity].every(Number.isFinite) ||
+     held.crossingTick>source.tick || source.tick-held.crossingTick>150 ||
+     job.sourceTick!==held.firstWorldRenderTick ||
+     held.lastReturnedOldGatewayTick>source.tick ||
+     source.tick-held.lastReturnedOldGatewayTick>150 ||
+     held.submittedFrames<1 || held.submittedFrames>=30 ||
+     job.submittedFrames<1 || job.submittedFrames>60 ||
+     job.structuralVisibleReturns!==0 ||
+     held.visibleSeconds<0 || held.visibleSeconds>=2.8 ||
+     held.lastReturnedOldGatewayOpacity<=.01 ||
+     held.lastReturnedOldGatewayOpacity>1 ||
+     held.lastReturnedOriginalGalleryOpacity<=.01 ||
+     held.lastReturnedOriginalGalleryOpacity>1) return null;
+  return {sourceBound:true,sourceTick:source.tick,
+    gateOpacity:held.lastReturnedOldGatewayOpacity,
+    galleryOpacity:held.lastReturnedOriginalGalleryOpacity,
+    incomingReturnedFrames:0,
+    limitation:'Last truly returned original 3D materials, current source-supported far-side route; no native pixel or accepted experience claim'};
+}

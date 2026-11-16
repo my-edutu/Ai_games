@@ -11,7 +11,7 @@ import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePre
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections } from './source-earned-bearing-run.mjs';
-import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade } from './far-side-shaft-transition.mjs';
+import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold } from './far-side-shaft-transition.mjs';
 
 
 /**
@@ -3062,6 +3062,11 @@ export function createTowerWorld(){
       originalDeckSurface:bronzeSurface,
       originalGatewayMaterialStages:[...originalGatewayMaterialMap.values()],
       originalGatewayOpacity:1,
+      // These are set ONLY on successful renderer.render returns. Unpainted
+      // source polls must not erase/recreate last-seen original bronze steel.
+      lastReturnedOldGatewayOpacity:null,
+      lastReturnedOriginalGalleryOpacity:null,
+      lastReturnedOldGatewayTick:null,
       opticalExitSubmitted:false,
       originalBronzeDeckMeshes:originalDeckMeshes.length,
       ownedGeometries,ownedMaterials,
@@ -3242,6 +3247,15 @@ export function createTowerWorld(){
     }
     const farSideFade=farSide && Number.isSafeInteger(held.farSideFadeStartSubmitted)
       ?observedReturnedFarSideFade(held,deferredDistantArrival):null;
+    // A real, already-returned bronze gateway cannot fade away because the
+    // 20Hz source advanced while the ACTUAL successor shaft submitted zero
+    // visible frames. Hold only the last PAINTED material coverage, with the
+    // independently validated current far-side body and finite GPU lease.
+    // The first real incoming-shaft submission ends this interlock; source
+    // time alone never creates a painted frame, new world or fake doorway.
+    const returnedBronzeHold=!options.stale && farSide
+      ?observedReturnedOriginalArchitectureHold(
+        snapshot,held,deferredDistantArrival,farSide):null;
     held.sourceAlignedPassage=samePassage || sourceColdFrame || !!farSide ||
       sourceDeparture?.sourceBound===true;
     if ((physicallyBeyondOriginalDoor && !farSide) || options.stale || snapshot.runToken !== held.runToken ||
@@ -3275,7 +3289,8 @@ export function createTowerWorld(){
     // horizontal-only runway to finish the original gateway passage.
     const departing=sourceDeparture;
     const originalGatePresence=farSide && Number.isFinite(farSideFade)
-      ?1-farSideFade:(sourceDeparture?.opacity??opticalLease?.opacity??1);
+      ?Math.min(held.lastReturnedOldGatewayOpacity??1,1-farSideFade)
+      :(returnedBronzeHold?.gateOpacity??sourceDeparture?.opacity??opticalLease?.opacity??1);
     held.originalGatewayOpacity=originalGatePresence;
     for (const {material,baseOpacity,originalTransparent,originalDepthWrite}
         of held.originalGatewayMaterialStages) {
@@ -3299,10 +3314,13 @@ export function createTowerWorld(){
     // otherwise retain the conservative old-first-frame fallback. The
     // previous 1.25-second gallery fade stayed >80% opaque when the source
     // corridor expired, then all original architecture vanished at once.
-    const originalPresence=(departing?.sourceBound===true || opticalLease || farSide)
-      ?Math.min(.94,originalGatePresence*.94)
-      :observedRetainedOriginalBronzeCover(
-        held.submittedFrames,held.visibleSeconds);
+    const originalPresence=returnedBronzeHold
+      ?returnedBronzeHold.galleryOpacity
+      :(departing?.sourceBound===true || opticalLease || farSide)
+        ?Math.min(held.lastReturnedOriginalGalleryOpacity??.94,
+          .94,originalGatePresence*.94)
+        :observedRetainedOriginalBronzeCover(
+          held.submittedFrames,held.visibleSeconds);
     held.originalGallerySourceOpacity=originalPresence;
     if (held.originalDeckSurface)
       held.originalDeckSurface.opacity=originalPresence;
@@ -3589,6 +3607,11 @@ export function createTowerWorld(){
       held.opticalExitSubmitted=held.originalGatewayOpacity<=.01 &&
         (held.originalDeckSurface?.opacity??0)<=.01 &&
         held.originalGalleryMaterials.every(m=>m.opacity<=.01);
+      held.lastReturnedOldGatewayOpacity=Math.max(0,
+        Math.min(1,held.originalGatewayOpacity));
+      held.lastReturnedOriginalGalleryOpacity=Math.max(0,
+        Math.min(1,held.originalGallerySourceOpacity));
+      held.lastReturnedOldGatewayTick=snapshot.tick;
       held.submittedFrames=Math.min(60,held.submittedFrames+1);
       held.visibleSeconds=Math.min(3,held.visibleSeconds+shown);
     }
