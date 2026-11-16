@@ -4277,6 +4277,111 @@ function getDynamicGpuRingAudit(){
 // Every draw still submits its original vertices. SwiftShader and unsupported
 // devices use the exact previous pointer setup for comparable evidence.
 const stride=40,attributes=[['position',3,0],['normal',3,12],['color',3,24],['materialId',1,36]].map(([name,size,offset])=>({loc:gl.getAttribLocation(program,name),size,offset}));
+
+// W387 Phase 1: render EXACT retained occupied-home VBOs through an original
+// static-specialist vertex program. Skip nonexistent worker/market/smoke
+// animations while retaining the entire material fragment shader, all actual
+// stones/windows/cottages/foliage, world light, navigation and citizen economy.
+const RESIDENT_HOME_SKIP_BRANCHES=[
+ 'if(workSkinActive>.5){','if(commuterEnabled>.5){',
+ 'if(materialId>14.0&&materialId<14.5){',
+ 'if(materialId>17.0&&materialId<18.0){',
+ 'if(materialId>18.0&&materialId<19.0){',
+ 'if(materialId>19.0&&materialId<20.0){',
+ 'if(materialId>10.5&&materialId<11.5){',
+ 'if(materialId>11.5&&materialId<13.5){',
+ 'if(shadowTransition>.00001){'
+];
+function specializeResidentHomeVertexShader(source){
+ if(!source.includes('vec4 p=viewProjection*vec4(world,1.);'))
+  throw Error('W387 original vertex transform changed');
+ let code=source;
+ for(const condition of RESIDENT_HOME_SKIP_BRANCHES){
+  if(code.split(condition).length!==2)
+   throw Error('W387 unsafe source specialization: '+condition);
+  code=code.replace(condition,'if(false){');
+ }
+ if(!code.includes('float crown=smoothstep(1.2,4.4,position.y);')||
+  !code.includes('vColor=surfaceColor*(ambient+direct+coolBounce);'))
+  throw Error('W387 cannot discard home foliage or authentic sunlight');
+ return code;
+}
+let residentHomeProgram=null,residentHomeUniforms=null,residentHomeShaderError=null,
+ residentHomeShaderOverride=null,residentHomeShaderDrawFrames=0,
+ residentHomeShaderDrawTriangles=0,residentHomeShaderFallbackFrames=0;
+if(gpuAvailable){
+ const candidate=gl.createProgram();
+ if(candidate)try{
+  gl.attachShader(candidate,shader(gl.VERTEX_SHADER,
+   specializeResidentHomeVertexShader(vs)));
+  gl.attachShader(candidate,shader(gl.FRAGMENT_SHADER,materialFragmentSource));
+  // Existing WebGL VAO bindings remain valid for the second original program.
+  for(const name of ['position','normal','color','materialId']){
+   const location=gl.getAttribLocation(program,name);
+   if(location<0)throw Error('W387 original attribute unavailable: '+name);
+   gl.bindAttribLocation(candidate,location,name);
+  }
+  gl.linkProgram(candidate);
+  if(!gl.getProgramParameter(candidate,gl.LINK_STATUS))
+   throw Error(gl.getProgramInfoLog(candidate)||'home link failure');
+  residentHomeProgram=candidate;
+  const keys=['viewProjection','sunDirection','sunTint','sunStrength',
+   'ambientBlend','worldTime','workLightPosition','workLightStrength','fogColor',
+   'eyePosition','weatherWetness','groundAtlas','groundAtlasFast',
+   'architectureAtlas','villageLanterns[0]','commuterLanterns[0]'];
+  residentHomeUniforms=Object.fromEntries(keys.map(k=>
+   [k.replace(/\[0\]$/,''),gl.getUniformLocation(candidate,k)]));
+ }catch(error){
+  residentHomeShaderError=String(error);
+  gl.deleteProgram(candidate);
+  console.warn('W387 original home material program fallback:',error);
+ }
+}
+function residentHomeShaderEnabled(){
+ return Boolean(residentHomeProgram&&residentHomeShaderOverride!==false&&
+  (!swiftGpu||residentHomeShaderOverride===true));
+}
+function setResidentHomeShaderForTesting(value){
+ if(value!==null&&value!==true&&value!==false)
+  throw Error('W387 invalid stationary home override');
+ residentHomeShaderOverride=value;presentationEpoch++;lastFrozenFrameKey=null;
+ return residentHomeShaderEnabled();
+}
+function getResidentHomeShaderAudit(){
+ return {source:'original-dirty-region-homes-static-vertex-variant',
+  linked:Boolean(residentHomeProgram),linkError:residentHomeShaderError,
+  enabled:residentHomeShaderEnabled(),softwareDefaultFallback:swiftGpu,
+  completeHousesNeverHidden:true,materialFragmentUnchanged:true,
+  originalFoliageWindIntact:true,authorityUnchanged:true,
+  extraGpuPrograms:residentHomeProgram?1:0,
+  specializedDrawFrames:residentHomeShaderDrawFrames,
+  specializedDrawTriangles:residentHomeShaderDrawTriangles,
+  originalFallbackFrames:residentHomeShaderFallbackFrames,
+  physicalHardwareFps:'NOT MEASURED',independentA_B:'NOT PROVEN'};
+}
+function bindRealResidentHomeMaterial(ctx){
+ const u=residentHomeUniforms;
+ gl.useProgram(residentHomeProgram);
+ gl.uniformMatrix4fv(u.viewProjection,false,ctx.matrix);
+ gl.uniform3f(u.sunDirection,Math.cos(ctx.time/24*6.283),
+  .3+ctx.atmosphere.daylight*.9,Math.sin(ctx.time/24*6.283));
+ gl.uniform3f(u.sunTint,...ctx.atmosphere.light);
+ gl.uniform1f(u.sunStrength,ctx.radiance.solar);
+ gl.uniform1f(u.ambientBlend,ctx.radiance.ambientBlend);
+ gl.uniform1f(u.worldTime,ctx.time);
+ gl.uniform3f(u.fogColor,...ctx.atmosphere.fog);
+ gl.uniform3f(u.eyePosition,...ctx.eye);
+ gl.uniform1f(u.weatherWetness,climateMaterialProfile(ctx.time).precipitation);
+ gl.uniform3f(u.workLightPosition,
+  ctx.activeLight.x,ctx.activeLight.y,ctx.activeLight.z);
+ gl.uniform1f(u.workLightStrength,ctx.activeLight.strength);
+ gl.uniform1i(u.groundAtlas,0);
+ gl.uniform1f(u.groundAtlasFast,swiftGpu?1:0);
+ gl.uniform1i(u.architectureAtlas,1);
+ gl.uniform4fv(u.villageLanterns,compileAuthenticVillageLights());
+ gl.uniform4fv(u.commuterLanterns,selectAuthenticCarriedLights());
+}
+
 const GEOMETRY_VAO_MAX_BUFFERS=24;
 const geometryVaoExt=gpuAvailable&&!swiftGpu&&typeof gl.getExtension==='function'?
  gl.getExtension('OES_vertex_array_object'):null;
@@ -8588,14 +8693,23 @@ function recallHomeClusterKeys(keys){
  }
  return true;
 }
-function drawHomeClusters(planes){
- const audits=[];
+function drawHomeClusters(planes,ctx=null){
+ const audits=[],specialized=Boolean(homeClusterActive.length&&ctx&&
+  residentHomeShaderEnabled());
+ if(specialized)bindRealResidentHomeMaterial(ctx);
+ try{
  for(const entry of homeClusterActive){
   if(homeClusterCache.get(entry.key)!==entry){
    homeClusterStaleDrawn++;throw Error('W76 stale inhabited home VBO');
   }
   audits.push(drawVisibleStaticChunks(entry.buffer,entry.ranges,planes));
  }
+ }finally{if(specialized)gl.useProgram(program)}
+ if(specialized){
+  residentHomeShaderDrawFrames++;
+  residentHomeShaderDrawTriangles+=audits.reduce((sum,row)=>
+   sum+(row.visibleTriangles||0),0);
+ }else residentHomeShaderFallbackFrames++;
  const fields=['totalChunks','visibleChunks','visibleTriangles','culledTriangles',
   'drawCalls','strictDrawCalls','bridgedTriangles','bridgedChunks',
   'issuedTriangles','savedDrawCalls','invalidRanges','driverCalls',
@@ -30253,7 +30367,8 @@ if(gpuAvailable){
  scenicVisibilityStats.farmFields=fieldLodDraw;
  scenicVisibilityStats.landscape=drawVisibleStaticChunks(landscapeBuffer,landscapeChunkRanges,planes);
  scenicVisibilityStats.settlement=drawVisibleStaticChunks(settlementBuffer,settlementChunkRanges,planes);
- scenicVisibilityStats.homes=drawHomeClusters(planes);
+ scenicVisibilityStats.homes=drawHomeClusters(planes,
+  {matrix:m,atmosphere,radiance,eye,activeLight,time:state.t});
  scenicVisibilityStats.civicCore=civicCoreBuffer?
   drawVisibleStaticChunks(civicCoreBuffer,civicCoreChunkRanges,planes):
   {totalChunks:0,visibleChunks:0,visibleTriangles:0,culledTriangles:0,
@@ -30531,7 +30646,7 @@ getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:
  totalSavedDrawCalls:scenicVisibilityStats.totalSavedDrawCalls,
  batchMode:scenicVisibilityStats.batchMode,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getColdSceneryBuildAudit,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getCivicCoreResidencyAudit,getCivicRoadDirtyAudit,getSettlementResidentStats,getResidentDeltaUploadAudit,getHouseGeometryCacheAudit,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getInhabitedFootwayAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCompactStoneCoursingAudit,getCompactRainCaskAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,planDynamicGpuRing,getColdSceneryBuildAudit,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getCivicCoreResidencyAudit,getCivicRoadDirtyAudit,getSettlementResidentStats,getResidentDeltaUploadAudit,getHouseGeometryCacheAudit,getHomePartitionAudit,getResidentHomeShaderAudit,setResidentHomeShaderForTesting,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getInhabitedFootwayAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCompactStoneCoursingAudit,getCompactRainCaskAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,
   getEconomyCpuCacheAudit,setEconomyCpuCacheForTesting,
  getLedgerWitnessResidencyAudit,setLedgerWitnessResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
  getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,
