@@ -132,7 +132,7 @@ export function resolveLicensedIdleJointQuaternionTracks(tracks,boneName){
  * source-pose reference, never a foot plant or a hit, and does not tick Mixer.
  */
 export function sampleLicensedIdleJointQuaternionAtPhase(
- tracks,boneName,sourcePhase,sourceClipDuration=NaN
+ tracks,boneName,sourcePhase,sourceClipDuration=undefined
 ){
  const audit=resolveLicensedIdleJointQuaternionTracks(tracks,boneName);
  if(!audit.verified||!finite(sourcePhase)||sourcePhase<0||sourcePhase>=1)
@@ -143,7 +143,7 @@ export function sampleLicensedIdleJointQuaternionAtPhase(
   (typeof track.getInterpolation==='function'&&
    track.getInterpolation()!==2301))return null;
  const first=track.times[0],last=track.times[count-1];
- const duration=finite(sourceClipDuration)?sourceClipDuration:last;
+ const duration=sourceClipDuration===undefined?last:sourceClipDuration;
  if(!finite(duration)||duration<=0||duration>30)return null;
  const sourceSampleTimeSeconds=sourcePhase*duration;
  const target=clamp(sourceSampleTimeSeconds,first,last);
