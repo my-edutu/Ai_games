@@ -12750,6 +12750,11 @@ let centralExchangeStats={
 // W385: a genuine load-bearing original weighing exchange roof and bonded
 // four-foot stone base. This is immutable civic presentation geometry: the
 // authentic empty trade table, route, merchants and resource ledger remain.
+// W391: one physical canopy datum shared by actual timbers, roof and collision.
+// Raise the complete REAL roof to clear the lived market's courier/buyer view.
+// This aligns the original exchange with the adjacent receiving arcade.
+const EXCHANGE_CANOPY=Object.freeze({eave:3.18,ridge:4.06,postTop:3.23,
+ minimumClearance:3.00});
 function renderOriginalMarketExchangeJoinery(x,y,z){
  const before=data.length;
  const oak=rgb(0x6f523f),weathered=rgb(0x9e7c57),stone=rgb(0xaaa08d);
@@ -12765,10 +12770,10 @@ function renderOriginalMarketExchangeJoinery(x,y,z){
   // slopes, not freestanding timber across the market/buyer aisle.
   for(const side of [-1,1])for(const end of [-1,0,1]){
    const zz=z+end*.92;
-   limbSegment([x+side*1.48,y+2.31,zz],
-    [x,y+3.08,zz],.044,end===0?oak:weathered,4);
+   limbSegment([x+side*1.48,y+EXCHANGE_CANOPY.eave-.04,zz],
+    [x,y+EXCHANGE_CANOPY.ridge-.06,zz],.044,end===0?oak:weathered,4);
   }
-  box(x,y+3.085,z,.16,.075,2.14,oak);
+  box(x,y+EXCHANGE_CANOPY.ridge-.055,z,.16,.075,2.14,oak);
  });
  const triangles=(data.length-before)/30;
  if(!Number.isInteger(triangles)||triangles<60||triangles>260)
@@ -12794,11 +12799,11 @@ function market(x,z){
  materialScope(MATERIAL.WOOD,()=>{
   for(const sx of [-1,1])for(const sz of [-1,1]){
    const px=x+sx*1.1,pz=z+sz*.68,py=terrain(px,pz);
-   box(px,py+.07,pz,.15,2.31,.15,oak);
+   box(px,py+.07,pz,.15,EXCHANGE_CANOPY.postTop-.07,.15,oak);
    // True diagonal knee bracing and cross-grain timber joints.
-   limbSegment([px,py+1.79,pz],
-    [px-sx*.45,py+2.32,pz],.066,aged,5);
-   box(px,py+2.23,pz,.22,.11,.22,aged);
+   limbSegment([px,py+EXCHANGE_CANOPY.eave-.57,pz],
+    [px-sx*.45,py+EXCHANGE_CANOPY.eave-.04,pz],.066,aged,5);
+   box(px,py+EXCHANGE_CANOPY.eave-.12,pz,.22,.11,.22,aged);
    centralExchangeStats.originalPostPositions++;
   }
   // A continuous raised timber table with EMPTY exchange surface.
@@ -12806,16 +12811,16 @@ function market(x,z){
   box(x,y+.79,z,2.76,.14,1.53,rgb(0x956e4c));
   box(x,y+.65,z,2.50,.21,1.30,oak);
   for(const side of [-1,1]){
-   box(x+side*1.09,y+2.31,z, .16,.18,2.12,oak);
-   box(x+side*.45,y+2.62,z, .11,.11,2.13,aged);
+   box(x+side*1.09,y+EXCHANGE_CANOPY.eave-.04,z, .16,.18,2.12,oak);
+   box(x+side*.45,y+EXCHANGE_CANOPY.eave+.27,z, .11,.11,2.13,aged);
   }
-  box(x,y+3.09,z,.15,.16,2.23,oak);
+  box(x,y+EXCHANGE_CANOPY.ridge-.055,z,.15,.16,2.23,oak);
   for(const sz of [-1,1]){
-   box(x,y+2.25,z+sz*1.03,3.05,.13,.13,oak);
-   limbSegment([x-1.23,y+2.35,z+sz*1.03],
-    [x,y+3.08,z+sz*1.03],.095,oak,5);
-   limbSegment([x+1.23,y+2.35,z+sz*1.03],
-    [x,y+3.08,z+sz*1.03],.095,oak,5);
+   box(x,y+EXCHANGE_CANOPY.eave-.10,z+sz*1.03,3.05,.13,.13,oak);
+   limbSegment([x-1.23,y+EXCHANGE_CANOPY.eave,z+sz*1.03],
+    [x,y+EXCHANGE_CANOPY.ridge-.06,z+sz*1.03],.095,oak,5);
+   limbSegment([x+1.23,y+EXCHANGE_CANOPY.eave,z+sz*1.03],
+    [x,y+EXCHANGE_CANOPY.ridge-.06,z+sz*1.03],.095,oak,5);
   }
   // Countertop balance is civic equipment, not an invented order or cargo.
   const base=y+.93;
@@ -12831,7 +12836,7 @@ function market(x,z){
  // The same original roof atlas now reads as handmade pitched clay rather
  // than a flat two-colour cloth plane, with physically useful eaves.
  materialScope(MATERIAL.ROOF,()=>{
-  const eave=y+2.35,peak=y+3.14;
+  const eave=y+EXCHANGE_CANOPY.eave,peak=y+EXCHANGE_CANOPY.ridge;
   for(const side of [-1,1]){
    const edge0=[x+side*1.58,eave,z-1.16],
     ridge0=[x,peak,z-1.16],ridge1=[x,peak,z+1.16],
@@ -12855,12 +12860,16 @@ function market(x,z){
  centralExchangeStats.physicalRafters=joinery.rafters;
  centralExchangeStats.physicalStoneCourses=joinery.bearingFootCourses;
  centralExchangeStats.triangles=(data.length-before)/30;
+ centralExchangeStats.canopyClearance=EXCHANGE_CANOPY.eave-.18;
+ centralExchangeStats.roofDatum=[EXCHANGE_CANOPY.eave,EXCHANGE_CANOPY.ridge];
+ centralExchangeStats.originalPostsRetained=centralExchangeStats.originalPostPositions===4;
+ if(centralExchangeStats.canopyClearance<EXCHANGE_CANOPY.minimumClearance||
+    !centralExchangeStats.originalPostsRetained)
+  throw Error('W391 open-human-clearance exchange canopy/post safety');
 }
-// W385: exact physical eye/roof foreground model for the ORIGINAL market
-// weighing shelter at (0,5). The old opaque y+1.51..2.31 rectangle
-// paradoxically missed the REAL 2.35m clay eaves, 3.14m ridge, four tall
-// oak posts and the original counter. Four conservative pitched bands, four
-// original timber feet and one counter now match the rendered 3D building.
+// W391: original exchange roof, four stone-footed posts and occupied counter
+// remain physically present under the SAME 3.18m/4.06m roof sightline model.
+// Moving real timber up clears human action instead of hiding any structure.
 // No mesh is hidden, no buyer or delivery is fabricated and this cannot
 // modify authoritative paths, inventory, activity or seeded randomness.
 function physicalVillageExchangeVolumes(){
@@ -12874,14 +12883,17 @@ function physicalVillageExchangeVolumes(){
  for(const side of [-1,1])for(let band=0;band<2;band++){
   const u0=band*.5,u1=(band+1)*.5;
   const x0=x+side*1.58*(1-u0),x1=x+side*1.58*(1-u1);
-  const y0=ground+2.35+.79*u0,y1=ground+2.35+.79*u1;
+  const y0=ground+EXCHANGE_CANOPY.eave+
+   (EXCHANGE_CANOPY.ridge-EXCHANGE_CANOPY.eave)*u0,
+   y1=ground+EXCHANGE_CANOPY.eave+
+   (EXCHANGE_CANOPY.ridge-EXCHANGE_CANOPY.eave)*u1;
   add(side===-1&&band===0?'village-market':'village-market-roof',
    (x0+x1)*.5,z,Math.abs(x1-x0)*.5+.035,1.19,
    Math.min(y0,y1)-.08,Math.max(y0,y1)+.07);
  }
  for(const sx of [-1,1])for(const sz of [-1,1]){
   const px=x+sx*1.1,pz=z+sz*.68,py=terrain(px,pz);
-  add('village-market-post',px,pz,.18,.18,py-.055,py+2.38);
+  add('village-market-post',px,pz,.18,.18,py-.055,py+EXCHANGE_CANOPY.postTop);
  }
  add('village-market-counter',x,z,1.40,.79,ground+.65,ground+.94);
  return volumes;
