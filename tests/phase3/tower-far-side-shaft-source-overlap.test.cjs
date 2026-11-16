@@ -105,9 +105,9 @@ test('actual near-threshold Floor9 vertical climb retains old GPU room during ai
   // beyond the exit in X. The previous artificial +100000 horizontal
   // clearance made this already-authenticated path fail the new-world
   // overlap, retiring the bronze room in one abrupt source-poll cut.
-  source.player.x=held.thresholdX+14000;
+  source.player.x=held.thresholdX+2500;
   source.tick=535;
-  const raisedSole=held.oldRoofY+1260000;
+  const raisedSole=held.oldRoofY+126000;
   source.platforms.push({id:'f9:p2',x:held.thresholdX-10000,
     y:raisedSole-500,width:50000,height:500});
   source.player.y=raisedSole+source.player.halfHeight;
