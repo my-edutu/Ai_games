@@ -78,3 +78,22 @@ test('browser capture must retain observed recorder-count evidence, not just the
  assert.match(s,/primaryMediaRecordersAtStart:activeRecorders\.size/);
  assert.match(s,/peakPrimaryConcurrentMediaRecorders:peakActiveMediaRecorders/);
 });
+
+test('same-window original A/V gets the first serial evidence slot, before video-only and synthetic controls',()=>{
+ const s=fs.readFileSync(path.resolve(__dirname,
+  '../browser/dungeon-physical-feedback-preview.spec.cjs'),'utf8');
+ const settled=s.indexOf('const frames={before,');
+ assert.ok(settled>0,'primary recorder must settle before serial investigation');
+ const serial=s.slice(settled);
+ const starts=[
+  'const sameWindowReadbackAV=await startSerialReceiptReadbackVideoProbe({withOriginalAudio:true});',
+  'const receiptReadbackVideo=await startSerialReceiptReadbackVideoProbe();',
+  'const serialRealVideo=await startSerialRealVideoProbe();',
+  'const serial2dOnly=await start2DEncoderPositiveControl({serial:true});'
+ ].map(needle=>serial.indexOf(needle));
+ assert.ok(starts.every(n=>n>=0),'all serial probes must remain present');
+ assert.ok(starts.every((n,i)=>i===0||n>starts[i-1]),
+  'the original A/V game window must precede video-only and synthetic controls');
+ assert.ok(s.includes("const primaryRecordersSettled=recorder.state==='inactive'&&activeRecorders.size===0;"),
+  'serial media probes must still refuse to overlap any primary encoder');
+});

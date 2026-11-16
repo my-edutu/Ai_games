@@ -522,13 +522,15 @@ async function beginD04LiveAVCapture(page,captureProfile){
     const frames={before,
      after:window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback?.framesAcknowledged??-1,
      peakPrimaryConcurrentMediaRecorders:peakActiveMediaRecorders};
-    const serial2dOnly=await start2DEncoderPositiveControl({serial:true});
-    const serialRealVideo=await startSerialRealVideoProbe();
-    const receiptReadbackVideo=await startSerialReceiptReadbackVideoProbe();
-    // Serial, not competing with the earlier encoders. Unlike the separate
-    // video probe, this captures ORIGINAL live soundstage + genuine copied
-    // WebGL pixels in one bounded media window. Still no sample PTS proof.
+    // Keep the first serial recording window for the genuine game + consented
+    // original audio. Running three diagnostic encoders first can let all
+    // early authentic combat events finish before the only same-window A/V.
+    // Every probe remains serial AFTER the one primary game recorder settles.
+    // This changes no authority events, renderer drawing, foley or deadline.
     const sameWindowReadbackAV=await startSerialReceiptReadbackVideoProbe({withOriginalAudio:true});
+    const receiptReadbackVideo=await startSerialReceiptReadbackVideoProbe();
+    const serialRealVideo=await startSerialRealVideoProbe();
+    const serial2dOnly=await start2DEncoderPositiveControl({serial:true});
     return {clip,pcm,
      isolated:{videoOnly,audioOnly,nativeVideoOnly,control2dOnly,serial2dOnly,serialRealVideo,receiptReadbackVideo,sameWindowReadbackAV},
      frames,trackDelivery};
