@@ -24,6 +24,23 @@ assert.equal(helper(buyer,{name:buyer.name,activity:buyer.activity},'household',
 assert.equal(helper(buyer,buyer,'household',false),false,'manual camera must not be hijacked');
 buyer.activity='Resting at home';
 assert.equal(helper(buyer,buyer,'household',true),false,'do not invent a walking shopper during rest');
+const observerStart=source.indexOf('function realHouseholdCameraObserver('),
+ observerEnd=source.indexOf('\n}',observerStart);
+assert.ok(observerStart>0&&observerEnd>observerStart,'W384b original followed citizen continuity missing');
+const continued=Function(source.slice(observerStart,observerEnd+2)+';return realHouseholdCameraObserver;')();
+const real={name:'Mira',activity:'Traveling to merchant work'};
+assert.equal(continued(real,real,'household',true),true,'keep physical viewer on same authentic worker after the real errand ends');
+assert.equal(continued(real,{...real},'household',true),false,'no substituted citizen');
+assert.equal(continued(real,real,'delivery',true),false,'courier cameras unchanged');
+assert.equal(continued(real,real,'household',false),false,'manual orbit unchanged');
+real.activity='Resting at home';
+assert.equal(continued(real,real,'household',true),false,'do not film hidden sleeping citizen');
+const continuity=source.slice(source.indexOf('function observedWorkdayCameraPlan('),source.indexOf('function getCourierDocumentaryCameraAudit('));
+assert.match(continuity,/const observeHousehold=realHouseholdCameraObserver\(/);
+assert.match(continuity,/!observeHome&&!observeDelivery&&!observeWorkday&&!observeHousehold/);
+assert.match(continuity,/observeHousehold\?'household':'workday'/);
+assert.match(continuity,/cache\.activity===citizen\.activity/);
+assert.match(continuity,/Math\.hypot\(citizen\.x-cache\.x,citizen\.z-cache\.z\)<\.25/);
 const planner=source.slice(source.indexOf('function planCitizenCamera('),source.indexOf('/* W58 — genuine threshold witness.'));
 assert.match(planner,/const householdErrand=realHouseholdCameraSubject\(citizen,people\[selectedCitizen\],\s*document\.body\.dataset\.workday,follow\)/);
 assert.match(planner,/journeyCamera=homecoming\|\|filmedLoadedCourier\|\|householdErrand/);
