@@ -33,7 +33,8 @@ const auditStart=performance.now();
 function resourceCheckpoint(phase){
   if(!auditEnabled)return;
   const m=process.memoryUsage();
-  process.stderr.write(`TOWER_P0_RESOURCE phase=${phase} elapsedMs=${Math.round(performance.now()-auditStart)} rssMiB=${Math.round(m.rss/1048576)} heapMiB=${Math.round(m.heapUsed/1048576)} externalMiB=${Math.round(m.external/1048576)}\n`);
+  process.stderr.write(`TOWER_P0_RESOURCE phase=${phase} elapsedMs=${Math.round(performance.now()-auditStart)} rssMiB=${Math.round(m.rss/1048576)} heapMiB=${Math.round(m.heapUsed/1048576)} externalMiB=${Math.round(m.external/1048576)}
+`);
 }
 // Diagnose the real retained-world hosted-runner SIGKILL at subtest granularity.
 // Do not skip tests, increase timeout, alter game snapshots or infer a pass.
@@ -564,7 +565,9 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
     const originalRoof=world.group.getObjectByName('platform:f8:cap');
     assert.ok(originalArch && originalRoof);
     assert.equal(world.stageGroundedCapContinuation(oldFrame,first),true);
-    resourceCheckpoint('three-clocks-before-real-cold-f9-world-update');\n    world.update(realFirstRender,.05,.05,{quality:'low'},passage);\n    resourceCheckpoint('three-clocks-after-real-cold-f9-world-update');
+    resourceCheckpoint('three-clocks-before-real-cold-f9-world-update');
+    world.update(realFirstRender,.05,.05,{quality:'low'},passage);
+    resourceCheckpoint('three-clocks-after-real-cold-f9-world-update');
     const retained=world.diagnostics().retainedSourceCap;
     assert.ok(retained);
     assert.equal(retained.crossingTick,451,'recorded authoritative grounded contact');
@@ -572,8 +575,10 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
     assert.equal(retained.firstObservedTick,454);
     assert.equal(retained.firstWorldRenderTick,460,'real WebGL rebuild may lag browser');
     assert.equal(retained.pendingSourceTickGap,6);
-    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===originalArch,true,\n      'original bronze gate GPU identity must survive; never format the gigantic Three.js graph');
-    assert.equal(world.group.getObjectByName('platform:f8:cap')===originalRoof,true,\n      'original physical cap GPU identity must survive without recursive diff formatting');
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===originalArch,true,
+      'original bronze gate GPU identity must survive; never format the gigantic Three.js graph');
+    assert.equal(world.group.getObjectByName('platform:f8:cap')===originalRoof,true,
+      'original physical cap GPU identity must survive without recursive diff formatting');
     const realSuccessorRoof=world.group.getObjectByName('platform:f9:ground');
     assert.equal(realSuccessorRoof?.isGroup,true);
     const sharedSurface=realSuccessorRoof.children.find(o=>o.isMesh &&
@@ -601,7 +606,8 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
       player:{...realFirstRender.player,x:gate+29000}};
     world.update(later,.05,.1,{quality:'low'},
       {...passage,handoffSubmittedFrames:1,handoffDisplaySeconds:.05});
-    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===originalArch,true,\n      'original bronze gate GPU identity must survive; never format the gigantic Three.js graph');
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===originalArch,true,
+      'original bronze gate GPU identity must survive; never format the gigantic Three.js graph');
     assert.equal(world.diagnostics().deferredDistantArrival?.state,
       'awaiting-structural-release',
       'the authentic first-frame Void structure is PREBUILT but held invisible behind the same original gateway');
@@ -623,14 +629,16 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
     // absent while the REAL bronze doorway and grounded successor roof
     // are visible together. Eight actual returned submissions are not
     // permission to bury the same threshold behind the purple architecture.
-    resourceCheckpoint('three-clocks-before-8-real-return-loop');\n    for(let step=2;step<=8;step++){
+    resourceCheckpoint('three-clocks-before-8-real-return-loop');
+    for(let step=2;step<=8;step++){
       const frame={...later,tick:460+step};
       const witness={...passage,handoffSubmittedFrames:step,
         handoffDisplaySeconds:step*.05};
       world.noteFrameSubmitted(frame,{});
       world.update(frame,.05,.1+step*.05,{quality:'low'},witness);
     }
-    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===originalArch,true,\n      'original bronze gate GPU identity must survive; never format the gigantic Three.js graph');
+    assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===originalArch,true,
+      'original bronze gate GPU identity must survive; never format the gigantic Three.js graph');
     assert.ok(world.group.getObjectByName('deferred-original-floor-nine-architecture'),
       'the original Void structural meshes are prebuilt hidden after the authentic F9 render');
     assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-structural-release');
@@ -739,7 +747,8 @@ test('real Three Floor8 original cap and bronze doorway survive a LATE HP-zero r
    'first observed browser successor has no immutable crossing record yet');
   world.noteFrameSubmitted(after,{},.05);
   world.update(late,.05,.15,{quality:'low'});
-  assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===originalArch,true,\n      'original bronze gate GPU identity must survive; never format the gigantic Three.js graph');
+  assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===originalArch,true,
+      'original bronze gate GPU identity must survive; never format the gigantic Three.js graph');
   assert.equal(world.group.getObjectByName('platform:f8:cap'),originalCap);
   const retained=world.diagnostics().retainedSourceCap;
   assert.equal(retained?.crossingTick,451);
