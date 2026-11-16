@@ -246,3 +246,56 @@ test('RED: native original-source renderer records WHY Idle full-leg trials were
  assert.match(renderer,/original-idle-joint-rotation-budget/);
  assert.match(renderer,/originalSourceJointGapRad/);
 });
+
+test('RED: genuine current-head 390px 35mm buried steep swing receives original Idle three-joint trial, never invented foot contact',async()=>{
+ const {planOriginalSourceAuthoredNeutralBlends:plan,
+  chooseOriginalSourceAuthoredNeutralLegTrial:choose}=await load();
+ // Exact bda8431 original KayKit mobile source GLB, Actions #43776692938:
+ // Walking_A right swing before toe=-55.3149mm, heel=+240.5292mm.
+ // Actual opposite source shoe heel=+11.2702mm, toe=+0.3364mm,
+ // frameInterval=83.4ms, source weight=1. The original two measured
+ // connected hip/knee starter Y deltas were (-9.187,-31.780)mm
+ // and (+18.862,+28.466)mm for toe/heel respectively.
+ // XZ coordinates and AFTER Idle blend outcomes below are *fixtures*,
+ // NOT real measured neutral-pose proof or planted-foot testimony.
+ const right={heelY:.2405292172124042,toeY:-.05531494463773174,
+  heelXZ:[0,0],toeXZ:[.079,0]};
+ const left={heelY:.011270231042909015,toeY:.0003364444615051431,
+  heelXZ:[1,0],toeXZ:[1.27,0]};
+ const before={right,left};
+ const outcome=(toeLift,heelRise)=>({
+  right:{...right,toeY:right.toeY+toeLift,heelY:right.heelY+heelRise},
+  left:{...left}
+ });
+ const starterTrials=[
+  {upperRad:.12,lowerRad:-.09,after:outcome(-.009186987295148948,-.031780389567421075)},
+  {upperRad:-.12,lowerRad:.09,after:outcome(.018861642662973348,.028465551334822953)}
+ ];
+ const input={...owner,before,frameInterval:.08339999999999748,starterTrials};
+ assert.ok(-.02-right.toeY>.035&&-.02-right.toeY<.036);
+ assert.deepEqual(plan(input),[.28,.42],
+  'the *measured* current original rig is heel-up/toe-buried with a heel-dominated starter; only two reversible source probes are allowed');
+ const candidate={neutralBlend:.28,maxJointDeltaRad:.20,
+  after:outcome(.024,-.014)};
+ const picked=choose({...input,trials:[candidate]});
+ assert.equal(picked?.contactLocked,false);
+ assert.equal(picked?.originalOppositeShoeVerified,true);
+ assert.ok(picked?.originalPitchGainMeters>=.0379,
+  'this is a synthetic candidate contract, not verified actual WebGL clearance');
+ for(const bad of [
+  {before:{right:{...right,toeY:-.048},left}},
+  {before:{right:{...right,heelY:.070},left}},
+  {before:{right:{...right,toeXZ:[.175,0]},left}},
+  {before:{right,left:{...left,toeY:.055}}},
+  {starterTrials:[starterTrials[0],{
+   ...starterTrials[1],after:outcome(.018861642662973348,.022)}]},
+  {frameInterval:.21},{mode:'hurt'},{interrupted:true},
+  {sourceClipName:'Idle'},{reducedMotion:true},{teleport:true}
+ ])assert.equal(plan({...input,...bad}),null,
+  'unsupported original pose, poor heel evidence or foreign action must not authorize three-joint probes');
+ assert.equal(choose({...input,before:{right:{...right,toeY:-.048},left},
+  trials:[candidate]}),null);
+ assert.equal(choose({...input,trials:[{...candidate,
+  after:outcome(.024,.032)}]}),null,
+  'lifting the already airborne heel more than the toe is not an accepted connected correction');
+});
