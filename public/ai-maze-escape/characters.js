@@ -882,6 +882,13 @@ export function createWarden(options = {}) {
     const brace=alert>.24 && hasWitnessBeat?Math.max(0,Math.min(1,(beat-.24)/.36)):0;
     const display=alert>.24 && hasWitnessBeat?Math.max(0,Math.min(1,(beat-.60)/.40)):0;
     const parried=!s.win&&!s.lose&&alert>.24&&options.lanternParried===true;
+    // Only a SAME-RUN, witnessed and publicly published lantern counter may
+    // cause this fully connected weight transfer. No new AI attack or fake hit.
+    // Reduced motion, unseen parries and terminal states keep the neutral rig.
+    const counterPhase=parried&&!s.reduced&&Number.isFinite(options.counterPhase)
+      ?Math.max(0,Math.min(1,options.counterPhase)):null;
+    const counterLoad=counterPhase===null?0:Math.max(0,1-Math.abs(counterPhase-.20)/.20);
+    const counterRelease=counterPhase===null?0:Math.max(0,1-Math.abs(counterPhase-.60)/.36);
     // Native 390px chronology showed recognition and brace almost identical.
     // Plant the EXISTING foreclaws and mask before the observed shell release;
     // the late release relaxes this crouch as the genuine elytra unfold.
@@ -907,7 +914,7 @@ export function createWarden(options = {}) {
     // Keep the physically recognizable first armor silhouette, then open
     // decisively only after the actual publicly witnessed shell-release age.
     // This is a connected defensive reveal, never a new AI attack or route.
-    const shellOpen=parried?.12:hasWitnessBeat ? .23+.77*display : 1;
+    const shellOpen=parried?.12+.42*counterRelease:hasWitnessBeat ? .23+.77*display : 1;
     warningSpines.visible=alert>.24&&!parried;
     // The actual release visibly raises the connected ember spine, not a HUD icon.
     warningSpines.scale.y=1+alert*.4+display*.25+(s.reduced?0:Math.sin(s.time*4.1)*.04);
@@ -1002,8 +1009,8 @@ export function createWarden(options = {}) {
     // ACTUAL witnessed warning: Thornback crouches behind its planted foreclaws,
     // then recoils taller on the same shell-release beat. It is a connected,
     // source-public defensive performance, not a strike or authoritative move.
-    body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018)-plantedClaws*.20+display*.085*alert+(parried?.19:0);
-    body.rotation.x=-s.danger*.055-alert*.11-plantedClaws*.34+display*.19*alert+(parried?.42:0);
+    body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018)-plantedClaws*.20+display*.085*alert+(parried?.19:0)-counterLoad*.12+counterRelease*.08;
+    body.rotation.x=-s.danger*.055-alert*.11-plantedClaws*.34+display*.19*alert+(parried?.42:0)+counterLoad*.23-counterRelease*.19;
     body.rotation.y=lookYaw*.4;
     body.rotation.z=Math.sin(relativeLook)*alert*.06;
     for (const leg of legs) {
@@ -1016,8 +1023,11 @@ export function createWarden(options = {}) {
       // Both sides explicitly reset to +0 when the event disappears.
       leg.hip.rotation.z=hipSplay>0?leg.side*hipSplay:0;
       leg.knee.rotation.z=kneeCounter>0?-leg.side*kneeCounter:0;
-      leg.hip.rotation.x=leg.index===0 && alert>0?-alert*.32-plantedClaws*.86:leg.index===2?alert*.08:0;
-      leg.knee.rotation.x=leg.index===0?alert*.20+plantedClaws*.66:0;
+      leg.hip.rotation.x=leg.index===0 && alert>0
+        ?-alert*.32-plantedClaws*.86-counterLoad*.48+counterRelease*.18
+        :leg.index===2?alert*.08+counterRelease*.20:0;
+      leg.knee.rotation.x=leg.index===0
+        ?alert*.20+plantedClaws*.66+counterLoad*.43-counterRelease*.14:0;
       if (leg.pincer) {
         leg.pincer.rotation.y=alert>0?leg.side*(alert*.42+plantedClaws*.35):0;
         leg.pincer.rotation.z=alert>0?leg.side*defensiveSweep*.50:0;
@@ -1034,9 +1044,9 @@ export function createWarden(options = {}) {
     // withdraws beneath the actual opening shell, rather than letting the
     // face disappear behind a fixed backpack in mobile native gameplay.
     // Terminal/reduced poses remain deterministic with no new meshes.
-    head.position.y=.27+plantedClaws*.13-display*.045*alert;
-    head.position.z=.73+alert*.07+plantedClaws*.18-display*.065*alert;
-    head.rotation.x=s.win?.16:s.lose?-.13:-.045-s.danger*.065-plantedClaws*.36+display*.18*alert+(parried?.24:0);
+    head.position.y=.27+plantedClaws*.13-display*.045*alert-counterLoad*.09+counterRelease*.055;
+    head.position.z=.73+alert*.07+plantedClaws*.18-display*.065*alert+counterLoad*.105-counterRelease*.06;
+    head.rotation.x=s.win?.16:s.lose?-.13:-.045-s.danger*.065-plantedClaws*.36+display*.18*alert+(parried?.24:0)+counterLoad*.20-counterRelease*.23;
     head.rotation.y=Math.sin(s.time*.8)*.08*(1-stride)*amount*(1-alert)+lookYaw;
     // Absolute, source-observed facial acting: the paired bronze shells
     // spread as the REAL foreclaws brace, then withdraw with the SAME earned
