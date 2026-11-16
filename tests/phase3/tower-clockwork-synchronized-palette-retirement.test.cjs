@@ -19,7 +19,7 @@ const source={runToken:'authentic-tower-episode',floor:9,theme:'void',
   lifecycle:'running',tick:563,player:{health:4}};
 const certificate={runToken:source.runToken,sourceTick:535,
   crossingTick:475,kind:'recorded-source-zero-hp'};
-function handoff(returnedFrames,returnedSeconds=returnedFrames/8){
+function handoff(returnedFrames,returnedSeconds=returnedFrames*.075){
   return {runToken:source.runToken,lastVerifiedProof:certificate,
     retiring:true,retirementFrames:returnedFrames,retirementSeconds:returnedSeconds};
 }
@@ -57,8 +57,8 @@ test('the same previously verified Floor8->9 source crossing retires roof, monum
   assert.ok(!materials.stone.color.equals(new Color(bronze.stone)));
   assert.ok(!deck.top.color.equals(deck.topVoid));
   assert.ok(!deck.top.color.equals(deck.bronze));
-  tail=observedVerifiedClockworkPaletteTail(source,handoff(8),1);
-  assert.equal(tail,null,'eight completed GPU returns end the material memory');
+  tail=observedVerifiedClockworkPaletteTail(source,handoff(12,1);
+  assert.equal(tail,null,'at least five real returns and 0.95 returned seconds end the material memory');
   bridge.update(null,tail);updateOriginalClockworkSuccessorRoute(deck,null,tail);
   assert.ok(materials.stone.color.equals(originalStone));
   assert.ok(deck.top.color.equals(deck.topVoid));
@@ -79,7 +79,7 @@ test('a missing, mismatched, dying, stale or not-yet-certified source cannot kee
   assert.equal(sample(source,h,NaN),null);
   assert.equal(sample(source,h,-.1),null);
   assert.equal(sample(source,h,1.1),null);
-  assert.equal(sample(source,handoff(8),1),null);
+  assert.equal(sample(source,handoff(12,1),null);
 });
 
 test('Tower World coordinates real returned-frame retirement for original F9 deck and architecture, not just persistent gallery',()=>{
