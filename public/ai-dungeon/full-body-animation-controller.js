@@ -796,10 +796,10 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
  // demonstrably improves toe relative to heel, or is almost clear of stone.
  // Compare at most four already skinned dual-shoe candidates; no extra
  // skinning, no new target or contact, no owner/clip/root changes.
- const outsoleProjected=shift(swing.heelXZ,swing.toeXZ);
- const outsoleLength=Math.hypot(outsoleProjected,swing.heelY-swing.toeY);
+ // Reuse source outsole measured above for the fast pitch guard; do not
+ // allocate another shoe scan or redeclare its geometric evidence.
  const originalSlowSteep=!prior&&frameInterval>=.05&&frameInterval<=.20&&
-  sourceWeight>=.95&&depth>=.055&&depth<=.12&&
+  sourceWeight>=.95&&depth>=.055&&depth<=.10&&
   swing.heelY-floorTopY>=.18&&
   outsoleProjected>=.045&&outsoleProjected<=.10&&
   outsoleLength>=.285&&outsoleLength<=.325;
