@@ -1793,7 +1793,10 @@ function prepareRestingActorMesh(rows){
  restingActorLastUploadBytes=0;
  if(!gpuAvailable||!rows.length){
   restingActorKey='';restingActorCitizens=0;
-  restingActorCache.clear();restingActorLayoutKey='';return false;
+  // Camera-only disappearance is not a world reset. Dormant original
+  // meshes remain bounded and are not submitted as visible citizens.
+  if(!gpuAvailable)restingActorCache.clear();
+  restingActorLayoutKey='';return false;
  }
  if(rows.length>RESTING_ACTOR_MAX){
   restingActorOverflowFallbacks++;restingActorKey='';
@@ -1878,7 +1881,9 @@ function prepareRestingActorMesh(rows){
   restingActorMaxDirtyActors=Math.max(restingActorMaxDirtyActors,dirtyActors);
   if(dirtyActors)restingActorFramesWithDirty++;
   restingActorLastUploadBytes=full?total*4:dirtyFloats*4;
-  restingActorCache=next;restingActorLayoutKey=layoutKey;
+  restingActorCache=retainForegroundPoseWindow(restingActorCache,selected,
+   RESTING_ACTOR_MAX,RESTING_ACTOR_FLOAT_BUDGET);
+  restingActorLayoutKey=layoutKey;
   restingActorMetricDelta=restingActorDifference(before,restingActorCounters());
   restingActorKey=key;restingActorCitizens=rows.length;
   restingActorBuilds++;restingActorVisible=true;
@@ -1906,6 +1911,7 @@ function getRestingActorResidencyAudit(){
   partialUploads:restingActorPartialUploads,
   uploadedBytes:restingActorUploadBytes,
   cachedIndividuals:restingActorCache.size,
+   dormantCachedIndividuals:Math.max(0,restingActorCache.size-(restingActorVisible?restingActorCitizens:0)),
   maxIndividuals:RESTING_ACTOR_MAX,
   poseRefreshLanes:RESTING_ACTOR_POSE_LANES,
   poseRefreshWindowHours:.5,
@@ -1978,12 +1984,14 @@ function commuterPoseStale(entry,p,angle){
 function prepareResidentCommuters(rows){
  commuterResidentVisible=[];
  if(!gpuAvailable||!rows.length){
-  commuterResidentCache.clear();commuterResidentKey='';
+  // W396 physical camera switching keeps genuine past pose bytes warm.
+  if(!gpuAvailable)commuterResidentCache.clear();
+  commuterResidentKey='';
   commuterResidentLayoutKey='';commuterResidentMesh=new Float32Array(0);
   commuterResidentJointData=new Float32Array(0);return false;
  }
  const beforeAll=restingActorCounters();
- const next=new Map(),selected=[],limited=rows.slice(0,COMMUTER_RESIDENT_MAX);
+ const selected=[],limited=rows.slice(0,COMMUTER_RESIDENT_MAX);
  let total=0;
  for(const {p,i} of limited){
   const angle=realCommuterFacing(p);
@@ -2023,7 +2031,7 @@ function prepareResidentCommuters(rows){
    commuterResidentFallbacks++;
    commuterResidentKey='';commuterResidentLayoutKey='';return false;
   }
-  next.set(i,entry);selected.push({p,i,entry,fresh});
+  selected.push({p,i,entry,fresh});
  }
  let offset=0;
  for(const row of selected){
@@ -2089,7 +2097,8 @@ function prepareResidentCommuters(rows){
    }
   }
  }
- commuterResidentCache=next;
+ commuterResidentCache=retainForegroundPoseWindow(commuterResidentCache,selected,
+  COMMUTER_RESIDENT_MAX,COMMUTER_RESIDENT_FLOAT_BUDGET);
  commuterResidentVisible=selected;commuterResidentLayoutKey=layoutKey;
  commuterResidentKey=selected.map(({i,entry})=>i+':'+entry.revision).join('|');
  return true;
@@ -2151,6 +2160,7 @@ function getResidentCommuterAudit(){
   jointUploadedBytes:commuterJointUploadBytes,allPeopleReal:true,
   overflowFallbacks:commuterResidentFallbacks,
   originalMovementAndOccupationOnly:true,nearWorkersAndCargoAlwaysLive:true,
+   dormantCachedIndividuals:Math.max(0,commuterResidentCache.size-commuterResidentVisible.length),
   physicalHardwareFpsNotMeasured:true,authorityModified:false};
 }
 function resetResidentCommuters(){
@@ -2493,6 +2503,7 @@ function getWorkingSkinAudit(){
  return {source:'authentic-13-joint-gpu-worksite-rig',
   active:workingSkinCapable,realWorkers:workingResidentVisible.length,
   cachedActors:workingResidentCache.size,
+   dormantCachedIndividuals:Math.max(0,workingResidentCache.size-workingResidentVisible.length),
   jointBuffers:workingResidentJointBuffer?1:0,
   jointFloats:workingResidentJointData.length,
   maxJointFloats:WORKING_RESIDENT_FLOAT_BUDGET/10,
@@ -2509,12 +2520,14 @@ function getWorkingSkinAudit(){
 function prepareWorkingResidents(rows){
  workingResidentVisible=[];
  if(!gpuAvailable||!rows.length){
-  workingResidentCache.clear();workingResidentKey='';
+  // W396 return to same true worker after an unselected street lens.
+  if(!gpuAvailable)workingResidentCache.clear();
+  workingResidentKey='';
   workingResidentLayoutKey='';
   workingResidentMesh=new Float32Array(0);return false;
  }
  const beforeAll=restingActorCounters();
- const next=new Map(),selected=[],limited=rows.slice(0,WORKING_RESIDENT_MAX);
+ const selected=[],limited=rows.slice(0,WORKING_RESIDENT_MAX);
  let total=0;
  for(const {p,i} of limited){
   const key=realWorkerPoseKey(p,i),angle=realWorkerFacing(p);
@@ -2555,7 +2568,7 @@ function prepareWorkingResidents(rows){
    workingResidentLayoutKey='';workingResidentMesh=new Float32Array(0);
    workingResidentFallbacks++;return false;
   }
-  next.set(i,entry);selected.push({p,i,entry,fresh});
+  selected.push({p,i,entry,fresh});
  }
  let offset=0;
  for(const row of selected){
@@ -2625,7 +2638,8 @@ function prepareWorkingResidents(rows){
  }
  workingResidentLayoutKey=layoutKey;
  workingResidentKey=selected.map(({i,entry})=>i+':'+entry.revision).join('|');
- workingResidentCache=next;workingResidentVisible=selected;
+ workingResidentCache=retainForegroundPoseWindow(workingResidentCache,selected,
+  WORKING_RESIDENT_MAX,WORKING_RESIDENT_FLOAT_BUDGET);workingResidentVisible=selected;
  return true;
 }
 function drawWorkingResidentMesh(){
@@ -2917,6 +2931,10 @@ function foregroundResidentBudgetAdmits(meshFloats,usedFloats,maxFloats){
 // sculpted villagers and force expensive JS remeshing when the user returns.
 // The live GPU VBO/visibility and real animation ALWAYS use the current actor
 // selection. Never copy stale vertices into the current visible draw list.
+// W396 cross-district rendering spine. Same exact-mesh bounded LRU now
+// retains actual resting, commuter and worker CPU poses across the real
+// farm -> receiving market -> occupied house orbit. Only SELECTED live rows
+// ever submit WebGL vertices; start/restore reset all real identities.
 function retainForegroundPoseWindow(previous,visible,
  maxEntries=FOREGROUND_RESIDENT_MAX,maxFloats=FOREGROUND_RESIDENT_FLOAT_BUDGET){
  if(!Number.isSafeInteger(maxEntries)||maxEntries<0||

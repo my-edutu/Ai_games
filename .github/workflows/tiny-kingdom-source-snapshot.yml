@@ -7,6 +7,7 @@ on:
   pull_request:
     paths:
       - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w396-cross-district-resident-pose-contract.cjs'
       - 'scripts/tiny-kingdom-w248-lived-foundation-contact-contract.cjs'
       - 'scripts/tiny-kingdom-w249-real-harvest-hand-contact-contract.cjs'
       - 'scripts/tiny-kingdom-w250-living-adult-workbody-contract.cjs'
@@ -57,6 +58,8 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
+      - name: W396 original citizen pose residency across real workday camera districts
+        run: node scripts/tiny-kingdom-w396-cross-district-resident-pose-contract.cjs
       - name: W188 real seasonal home-cache source contract and full game syntax
         run: node scripts/tiny-kingdom-w188-home-season-residency-contract.cjs
       - name: W302 retained original civic GPU mesh, one typed source and fallback
