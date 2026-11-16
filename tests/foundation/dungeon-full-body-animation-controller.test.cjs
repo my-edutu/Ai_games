@@ -5063,7 +5063,10 @@ test('RED: source Walking_A spine follows real root pivots even across sparse We
 test('sparse full-body pivot exposes original GLB visible-frame/clone witness without new source scans',()=>{
  const source=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(source,/rigWalkingTurnObservedFrameInterval=sourceFrameInterval/);
- assert.match(source,/rigWalkingTurnObservedRootTravel=actor\.rigLastGroundedTravel/);
+ assert.match(source,/rigWalkingTurnObservedRootTravel=actualRootTravel/,
+  'source-walking counterturn now observes the SAME original-clone root displacement as its yaw');
+ assert.match(source,/rigWalkingTurnObservedGroundedTravel=actor\.rigLastGroundedTravel/,
+  'original leg stride receipt is retained independently for diagnostic parity');
  assert.match(source,/rigWalkingTurnObservedSourceSame=priorSame/);
  for(const field of ['originalWalkingTorsoObservedFrameSeconds',
   'originalWalkingTorsoObservedRootTravelMeters',
