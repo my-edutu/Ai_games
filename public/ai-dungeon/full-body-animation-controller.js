@@ -301,6 +301,46 @@ export function planOriginalSourceAuthoredNeutralBlends({
  return heelDominated?Object.freeze([.28,.42]):null;
 }
 
+/**
+ * Actual original-GLB measured negative evidence, not a guessed shoe lift.
+ *
+ * The real mobile and desktop source Walking_A -> Idle three-joint probes
+ * have repeatedly sent a buried toe farther into stone. If BOTH licensed
+ * skinned, reversible Idle trials failed by >=6mm, another nearby source
+ * phase of the SAME clone should spend its existing two remaining probes
+ * on connected Walking_A followups instead of replaying the proven bad
+ * reference. A distant phase, different clone, action or modified shoe
+ * must requalify normally. This does NOT certify linked poses or foot plants.
+ */
+export function shouldFallbackToOriginalLinkedLegAfterIdleMiss({
+ previous=null,sourceInstanceId='',sourceClipName='',side='',
+ sourcePhase=NaN,mode='idle',sourceWeight=NaN,
+ reducedMotion=false,interrupted=false,toeY=NaN,heelY=NaN
+}={}){
+ if(!previous||typeof sourceInstanceId!=='string'||!sourceInstanceId||
+  previous.sourceInstanceId!==sourceInstanceId||
+  previous.sourceClip!=='Walking_A'||previous.neutralClip!=='Idle'||
+  previous.side!==side||!['left','right'].includes(side)||
+  previous.sourceProbeCount!==4||previous.acceptedCandidate!==false||
+  previous.contactLocked!==false||sourceClipName!=='Walking_A'||
+  mode!=='move'||reducedMotion||interrupted||
+  !finite(sourceWeight)||sourceWeight<.95||sourceWeight>1.001||
+  !finite(sourcePhase)||sourcePhase<0||sourcePhase>=1||
+  !finite(previous.sourceIdlePhase)||previous.sourceIdlePhase<0||
+  previous.sourceIdlePhase>=1||!finite(toeY)||!finite(heelY)||
+  !finite(previous.before?.[side]?.toeY)||
+  !finite(previous.before?.[side]?.heelY)||
+  Math.abs(toeY-previous.before[side].toeY)>.035||
+  Math.abs(heelY-previous.before[side].heelY)>.055||
+  !Array.isArray(previous.trials)||previous.trials.length!==2)return false;
+ const phaseDistance=Math.abs(sourcePhase-previous.sourceIdlePhase);
+ if(Math.min(phaseDistance,1-phaseDistance)>.12)return false;
+ return previous.trials.every(t=>
+  finite(t?.blend)&&t.blend>=.08&&t.blend<=.42&&
+  finite(t?.toeLiftMeters)&&t.toeLiftMeters<=-.006&&
+  finite(t?.heelDeltaMeters));
+}
+
 /** Select genuine original skinned full-chain shoes, not angles or hopes. */
 export function chooseOriginalSourceAuthoredNeutralLegTrial({
  mode='idle',sourceClipName='',neutralClipName='',sourceWeight=NaN,
