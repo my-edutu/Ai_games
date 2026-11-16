@@ -25,7 +25,7 @@ function renderedTriangle(hit,root) {
 }
 export function measureAuthoritativeDeckSightline({
   source,held,camera,body,bodyHalfHeight,gate=null,
-  platformRoots,raycaster,direction,point,hits,stale=false
+  platformRoots,originalGateRoot=null,raycaster,direction,point,hits,stale=false
 }={}) {
   if(stale || source?.floor!==9 || source.theme!=='void' ||
     source.lifecycle!=='running' || !(source.player?.health>0) ||
@@ -38,6 +38,7 @@ export function measureAuthoritativeDeckSightline({
     !finite(bodyHalfHeight) || bodyHalfHeight<=0 ||
     !Array.isArray(platformRoots) || !platformRoots.length ||
     platformRoots.length>3 || !platformRoots.every(root=>root?.isGroup) ||
+    (originalGateRoot!=null && !originalGateRoot.isGroup) ||
     !raycaster?.set || !raycaster?.intersectObject ||
     !direction?.copy || !point?.copy ||
     !Array.isArray(hits) || (gate!=null && !valid3(gate)))return null;
@@ -45,7 +46,13 @@ export function measureAuthoritativeDeckSightline({
   // The live World owner already placed every deck from the current source.
   for(const root of platformRoots)if(root.visible!==false)
     root.updateWorldMatrix(true,true);
+  // The ORIGINAL retained guardian gate (not an invented proxy) can cover
+  // the live character even when the successor deck and tower core are clear.
+  // Reuse the existing source-verified F8->F9 camera window and raycaster;
+  // never use this gate as an occluder of its OWN gateway target.
+  if(originalGateRoot?.visible!==false) originalGateRoot?.updateWorldMatrix(true,true);
   let blockedBodyRays=0, blockedGatewayRays=0, rays=0, realTrianglesChecked=0;
+  let originalGateBlockedRays=0;
   // The 390px original footage keeps a centre ray clear while the actual
   // source-width skinned shoulder and the bronze door's upper lip disappear
   // behind real Floor9 underside triangles. Test the CURRENT source body,
@@ -89,13 +96,26 @@ export function measureAuthoritativeDeckSightline({
       if(hits.some(hit=>renderedTriangle(hit,root))){blocked=true;break;}
     }
     hits.length=0;
+    // Only an actually rendered bronze gate triangle BETWEEN the final
+    // composed camera and one of the genuine seven skinned-body samples
+    // can initiate physical guardian-door clearance. The target gateway
+    // cannot self-block, and fully faded/hidden old metal scores nothing.
+    // This uses the existing bounded source-owned ray path, not another draw.
+    if(!blocked && sample<bodySamples && originalGateRoot?.visible!==false && originalGateRoot){
+      raycaster.intersectObject(originalGateRoot,true,hits);
+      realTrianglesChecked+=hits.length;
+      if(hits.some(hit=>renderedTriangle(hit,originalGateRoot))){
+        blocked=true;originalGateBlockedRays++;
+      }
+    }
+    hits.length=0;
     if(blocked){if(sample>=bodySamples)blockedGatewayRays++;else blockedBodyRays++;}
   }
   return {active:true,rays,bodyBlockedRays:blockedBodyRays,
-    gatewayBlockedRays:blockedGatewayRays,
+    originalGateBlockedRays,gatewayBlockedRays:blockedGatewayRays,
     score:blockedBodyRays*2+blockedGatewayRays,
     actualTriangleIntersections:realTrianglesChecked,
-    limitation:'Source-owned real Three.js platform triangle rays, NOT native pixels, supported-device FPS, or permission to move a collider'};
+    limitation:'Source-owned real platform and retained guardian gate triangle rays, NOT native pixels, supported-device FPS, or permission to move a collider'};
 }
 
 

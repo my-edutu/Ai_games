@@ -3046,6 +3046,9 @@ export function createTowerWorld(){
     if (bronzeSurface) ownedMaterials.add(bronzeSurface);
     group.add(continuity);
     retainedEarnedCap = {root:continuity,guardianGateRetained:true,
+      // Actual source-HP-unlocked original 3D bronze doorway: only this
+      // retained GPU owner can certify camera-to-climber obstruction.
+      originalGateRoot:realGate,
       originalGalleryTriangles:gallery?.faces ?? 0,
       originalGalleryEnvelope:gallery?.envelope ?? null,
       originalGalleryBytes:gallery?.bytes ?? 0,
@@ -4332,6 +4335,7 @@ export function createTowerWorld(){
     const roots=ranked.slice(0,3).map(candidate=>candidate.root);
     return measureAuthoritativeDeckSightline({
       source,held,camera,body,bodyHalfHeight,gate,platformRoots:roots,
+      originalGateRoot:held.originalGateRoot,
       raycaster:successorDeckRay,direction:successorDeckRayDirection,
       point:successorDeckRayTarget,hits:successorDeckRayHits
     });
