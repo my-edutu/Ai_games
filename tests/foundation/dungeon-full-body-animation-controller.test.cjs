@@ -126,6 +126,43 @@ test('original deeply buried swing toe uses a bounded frame-aware source ankle s
  }
 });
 
+// Actual mobile original 41-joint Walking_A (source-rig #14225659623):
+// after-ankle toe -57.1016mm, heel +247.5284mm; original +.2rad knee
+// trial toe -29.4391mm, heel +275.2944mm. These source SKIN samples
+// are candidate evidence only; native renderer must re-read after applying.
+test('RED: native source knee slew uses measured displayed time without a 60Hz-only cap',async()=>{
+ const {planOriginalSourceSwingCalfAssist:plan}=await load();
+ const original={
+  mode:'move',sourceClipName:'Walking_A',sourceAnatomyVerified:true,
+  sourceLegChainVerified:true,sourceWeight:1,ownerLocomotion:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,rootTravel:.08162,frameAge:.03,floorTopY:-.02,
+  afterAnkleToeY:-.05710157872569257,
+  afterAnkleHeelY:.24752842334021719,
+  ankleLiftMeters:.016,trialCalfToeY:-.029439117486174414,
+  trialCalfHeelY:.2752943900452883,
+  trialAngleRad:.2,previousAssistRad:0
+ };
+ assert.ok(Math.abs(plan({...original,frameInterval:.0167})-.06)<1e-8,
+  'genuine 60Hz native source must retain the established 60mrad cap');
+ const sparse=plan({...original,frameInterval:.0802});
+ assert.ok(sparse>.12&&sparse<=.18000001,
+  '80ms original WebGL step should apply more *time-bounded* licensed knee relief, still below 180mrad');
+ assert.ok(Math.abs(sparse/.0802)<Math.abs(.06/.0167),
+  'sparse-frame motion cannot rotate faster per second than original 60Hz contract');
+ for(const bad of [
+  {frameInterval:0},{frameInterval:-.01},{frameInterval:.201},
+  {frameInterval:NaN},{frameInterval:Infinity},{mode:'hurt'},
+  {reducedMotion:true},{teleport:true},{sourceWeight:.49},
+  {trialCalfHeelY:-.018},{sourceLegChainVerified:false}
+ ])assert.equal(plan({...original,...bad}),0,
+  'no untrusted frame, owner, source or original skinned heel may earn a knee rotation');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/planOriginalSourceSwingCalfAssist\(\{/);
+ assert.match(renderer,/frameInterval:actor\.rigSourceSwingFrameInterval/,
+  'the actual original mixer frame interval must reach the joint slew owner');
+});
+
 test('real 390px original Walking_A calf: accept small but measurable heel-safe source lift with bounded slew',async()=>{
  const {selectOriginalSourceSwingCalfTrial:select,planOriginalSourceSwingCalfAssist:plan}=await load();
  // Actual same-skinned foot and ORIGINAL right lowerleg quaternion probes from
