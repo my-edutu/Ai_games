@@ -3,7 +3,7 @@ import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianScenicOccludesActor } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicEarnedGuardianActing } from './public-lantern-encounter.mjs';
@@ -83,6 +83,30 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   const pickupCameraOffset = new THREE.Vector3(13, 17, 16);
   const world = createMazeWorld({ balanced });
   scene.add(world.group);
+  // The genuinely visible, NON-COLLIDING fossil tide-organ silhouettes may
+  // eclipse the two real actors during an earned autonomous lantern recoil.
+  // Index only authored, already disclosed scenic roots on public updates:
+  // no hidden maze access, no mesh allocation in render, no wall cutaway.
+  const parryScenicRoots = [];
+  const parryScenicBounds = new THREE.Box3();
+  const parryScenicCorner = new THREE.Vector3();
+  function projectedParryScenicBox(root) {
+    parryScenicBounds.setFromObject(root);
+    if (parryScenicBounds.isEmpty()) return null;
+    let left=Infinity, right=-Infinity, bottom=Infinity, top=-Infinity;
+    let nearestZ=Infinity;
+    for(const x of [parryScenicBounds.min.x,parryScenicBounds.max.x])
+      for(const y of [parryScenicBounds.min.y,parryScenicBounds.max.y])
+        for(const z of [parryScenicBounds.min.z,parryScenicBounds.max.z]) {
+          const point=parryScenicCorner.set(x,y,z).project(camera);
+          if(!Number.isFinite(point.x)||!Number.isFinite(point.y)
+            ||!Number.isFinite(point.z))return null;
+          left=Math.min(left,point.x);right=Math.max(right,point.x);
+          bottom=Math.min(bottom,point.y);top=Math.max(top,point.y);
+          nearestZ=Math.min(nearestZ,point.z);
+        }
+    return {left,right,bottom,top,nearestZ};
+  }
 
   const sky = new THREE.HemisphereLight('#fff3df', '#355e5c', 1.42);
   scene.add(sky);
@@ -438,6 +462,14 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       priorPublicSnapshot,previous,snapshot);
     previous = snapshot;
     world.update(snapshot);
+    parryScenicRoots.length=0;
+    world.group.traverse(node=>{
+      if(node.userData?.optionalGuardianSightlineDecor!==true)return;
+      // Every prop originates in the authorized public world builder. This
+      // list is refreshed after rebuilds, never from hidden map navigation.
+      node.visible=true;
+      parryScenicRoots.push(node);
+    });
     updateRoutes(snapshot);
     updateWayfinding(snapshot);
     objectiveCue = publicObjective(snapshot);
@@ -1548,6 +1580,43 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         camera.top=halfHeight;camera.bottom=-halfHeight;
         camera.updateProjectionMatrix();
         camera.updateMatrixWorld();
+      }
+    }
+    // Pass413: actual uncropped 320/390 Pass412 recoil frames have a tall
+    // foreground fossil tree cutting through Pip's lantern and Thornback's
+    // response. A TRUE currently published parry may temporarily tuck away
+    // only a camera-front decorative fossil organ/listening sail if its REAL
+    // projected 3D volume occludes an actor. Walls, terraced foundations,
+    // traps, gates, props, navigation and every unobserved cell remain.
+    // The fixed orthographic actor framing, HUD and privacy gates are untouched.
+    if (parryScenicRoots.length) {
+      const earnedScenicSightline=cameraMode==='follow'
+        && !settings.reducedMotion && !result && !cameraGate
+        && !pressureCameraBeat && !pickupCameraBeat
+        && earnedGuardianFrame && verifiedGuardianModel?.parent
+        && aspect>=.35 && aspect<.60;
+      for(const scenic of parryScenicRoots) {
+        scenic.visible=true;
+        if(!earnedScenicSightline)scenic.userData.parrySightlineHidden=false;
+      }
+      if(earnedScenicSightline){
+        camera.updateMatrixWorld();
+        const pipPhysical=projectedParryScenicBox(explorer.group);
+        const thornbackPhysical=projectedParryScenicBox(verifiedGuardianModel);
+        if(pipPhysical && thornbackPhysical) {
+          for(const scenic of parryScenicRoots) {
+            // No remembered or no-longer-visible scenery can be cut away.
+            if(!s.visibleCells.includes(scenic.userData.cell))continue;
+            const scenicPhysical=projectedParryScenicBox(scenic);
+            if(scenicPhysical && (
+              publicGuardianScenicOccludesActor(pipPhysical,scenicPhysical,true,false)
+              || publicGuardianScenicOccludesActor(thornbackPhysical,scenicPhysical,true,false)
+              || scenic.userData.parrySightlineHidden===true)) {
+              scenic.visible=false;
+              scenic.userData.parrySightlineHidden=true;
+            }
+          }
+        }
       }
     }
     const background = settings.highContrast ? '#50665f' : '#b2c6b6';

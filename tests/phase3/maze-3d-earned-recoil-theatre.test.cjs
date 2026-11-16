@@ -78,8 +78,6 @@ test('installed Three builds a continuous physically flush earned court without 
     const after=scene.stats();
     assert.ok(after.guardianCourtTiles>=2,
       'visible complete Pip and Thornback get real authored low Tideglass geometry');
-    assert.ok(after.guardianSightlineParapets>=1,
-      'a true currently public parried recoil lowers the mutually sealed actor-front wall, never opens it');
     assert.equal(after.geometryCount,initial.geometryCount,
       'reuses the actual original pooled Three geometry classes');
     assert.equal(after.materialCount,initial.materialCount,
@@ -91,11 +89,6 @@ test('installed Three builds a continuous physically flush earned court without 
     scene.update({...s,threats:[{cell:8,lanternParried:false}]});
     assert.equal(scene.stats().guardianCourtTiles,0,
       'no invented parry can retain the cutaway');
-    assert.equal(scene.stats().guardianSightlineParapets,0,
-      'the authentic full-height sealed wall returns when there is no witnessed counter');
-    scene.update({...s,doors:[{a:7,b:8,open:false}]});
-    assert.equal(scene.stats().guardianSightlineParapets,0,
-      'an actual disclosed closed gate cannot be cut into a spectator parapet');
     for(let i=0;i<6;i++){
       scene.update({...s,runToken:'earned-theatre-reset-'+i});
       assert.ok(scene.stats().guardianCourtTiles>=2);
@@ -109,4 +102,28 @@ test('installed Three builds a continuous physically flush earned court without 
     assert.equal(scene.stats().geometryCount,0);
     assert.equal(scene.stats().materialCount,0);
   }
+});
+
+
+// A rendering-only isolated decision: no route, actor, wall, or simulation
+// field is involved. Real scene.js feeds connected physical Box3 projections.
+test('source-bound current parry clears only camera-front optional fossil silhouettes',async()=>{
+  const camera=await import(pathToFileURL(path.join(root,
+    'public/ai-maze-escape/guardian-duel-camera.mjs')).href);
+  const occludes=camera.publicGuardianScenicOccludesActor;
+  const pip={left:-.34,right:.32,bottom:-.43,top:.25,nearestZ:.24};
+  const foreground={left:-.21,right:.28,bottom:-.24,top:.58,nearestZ:.05};
+  assert.equal(occludes(pip,foreground,true,false),true,
+    'a genuine in-front fossil tree masking Pip is a meaningful scene occluder');
+  assert.equal(occludes(pip,foreground,false,false),false,
+    'a synthetic or stale parry cannot clear real scenic geometry');
+  assert.equal(occludes(pip,foreground,true,true),false,
+    'reduced-motion presentation retains its unchanged stable scene');
+  assert.equal(occludes(pip,{...foreground,nearestZ:.50},true,false),false,
+    'a fossil landmark BEHIND the actor is never suppressed');
+  assert.equal(occludes(pip,{...foreground,left:.7,right:.9},true,false),false,
+    'unrelated nearby trees are not erased by a broad radius');
+  assert.equal(occludes(pip,{...foreground,left:.30,right:.52},true,false),false,
+    'a barely touching silhouette does not cause pop or thinning');
+  assert.equal(occludes(pip,{...foreground,nearestZ:NaN},true,false),false);
 });

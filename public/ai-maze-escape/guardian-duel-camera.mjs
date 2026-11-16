@@ -165,3 +165,27 @@ export function publicGuardianEarnedRecoilPhysicalStage(
   if(!Number.isFinite(scale) || scale<1.16)return none;
   return {height:halfHeight/scale,shift:center*halfHeight*aspect,scale};
 }
+
+
+// The installed camera supplies TRUE projected connected-mesh rectangles.
+// During a currently witnessed autonomous lantern counter, a known public,
+// non-colliding fossil ornament may recede from the actor shot if it really
+// covers a meaningful piece of a nearer character in screen space. The caller
+// alone selects optional decor; this is NOT a visibility/path or AI rule.
+export function publicGuardianScenicOccludesActor(actor,scenic,earned=false,reducedMotion=false) {
+  if(!earned||reducedMotion||!actor||!scenic)return false;
+  const properties=['left','right','bottom','top','nearestZ'];
+  if(!properties.every(k=>Number.isFinite(actor[k])&&Number.isFinite(scenic[k])))
+    return false;
+  if(actor.left>=actor.right || actor.bottom>=actor.top
+    || scenic.left>=scenic.right || scenic.bottom>=scenic.top
+    || actor.nearestZ<=-1 || actor.nearestZ>=1
+    || scenic.nearestZ<=-1 || scenic.nearestZ>=1)return false;
+  // Smaller camera NDC depth is nearer. A distant backdrop stays untouched.
+  if(scenic.nearestZ>=actor.nearestZ-.015)return false;
+  const w=Math.max(0,Math.min(actor.right,scenic.right)-Math.max(actor.left,scenic.left));
+  const h=Math.max(0,Math.min(actor.top,scenic.top)-Math.max(actor.bottom,scenic.bottom));
+  // Require actual substantial overlap, not an unrelated plant beside Pip.
+  return w>=Math.max(.08,(actor.right-actor.left)*.17)
+    && h>=Math.max(.09,(actor.top-actor.bottom)*.17);
+}
