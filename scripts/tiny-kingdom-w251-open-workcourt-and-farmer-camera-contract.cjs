@@ -49,28 +49,40 @@ const sightStart=js.indexOf('function realFarmWorkSightline(');
 const sightEnd=js.indexOf('\nfunction getFarmWorkCameraAudit(',sightStart);
 assert(sightStart>0&&sightEnd>sightStart);
 const farmer={name:'Actual farmer',job:'farmer',x:20.5,z:.2,activity:'Harvesting grain'};
+// The original near-grain witness must have a REAL cutting-stage contact
+// before the standing kernels bend. The old fixture lacked 'stage', so the
+// camera correctly treated all ears as standing and failed for the wrong
+// reason. Do not forge the worksite: test both true cut and non-cutting.
+let actualWorkStage='cutting';
 const camera={Math,FARMSTEAD:{fields:[[16.45,24.65,-1.62,3.64]]},
  state:{t:7},terrain:(x,z)=>0,climateAt:()=>({season:1}),
  isWorkingAtSite:p=>p===farmer,getHarvestInteractionAudit:()=>({
- active:true,citizen:farmer.name,contact:[farmer.x,farmer.z,1]})};
+ active:true,citizen:farmer.name,stage:actualWorkStage,
+ contact:[farmer.x,farmer.z,1]})};
 vm.createContext(camera);
 vm.runInContext(js.slice(sightStart,sightEnd)+
  '\nthis.sight=realFarmWorkSightline;',camera);
 const hands=[[20.27,.55,.30],[20.66,.60,.27]]; // real blade-contact bent wheat pocket
-// W373 actual planted wheat changed this previously clear fixed eye: its
-// hand ray genuinely crosses a stalk. Reject it rather than pretending that
-// height or field-entry alone makes a camera safe; the real director surveys
-// alternative authentic eyes and only reserves physically clear candidates.
-const highInteriorEye=camera.sight([20.4,5,.2],farmer,hands);
-assert.equal(highInteriorEye.cameraInsideField,true);
-assert.equal(highInteriorEye.cropFaceBlockers,0);
-assert.equal(highInteriorEye.cropWristBlockers,1,
- 'genuine planted-row geometry must not be hidden to pass the old camera test');
-assert(highInteriorEye.cropForegroundPenalty>0,
- 'an authentically obstructed wrist eye cannot count as a clear camera');
+// The *actual* cutting stroke bends only the kernel pocket around the
+// authoritative contact; the high interior eye is then genuinely clear.
+const highCutEye=camera.sight([20.4,5,.2],farmer,hands);
+assert.equal(highCutEye.cameraInsideField,true);
+assert.equal(highCutEye.cropFaceBlockers,0);
+assert.equal(highCutEye.cropWristBlockers,0);
+assert.equal(highCutEye.cropForegroundPenalty,0);
+assert.equal(highCutEye.physicalInteriorEyeClear,true);
+// A dangerously low real eye stays obstructed even during the valid cut.
 const insideBlocked=camera.sight([20.4,.25,.2],farmer,hands);
 assert(insideBlocked.cropForegroundPenalty>0,
- 'standing ears still reject genuinely obstructed close-up work shots');
+ 'wheat must not disappear around any unsafe low shot');
+// Genuine gathering/tying is NOT cutting: the crop must stand again. If the
+// camera accepts this previously clear eye it would fabricate a passage.
+actualWorkStage='gathering';
+const untouched=camera.sight([20.4,5,.2],farmer,hands);
+assert.equal(untouched.cropFaceBlockers,1);
+assert(untouched.cropWristBlockers>0);
+assert(untouched.cropForegroundPenalty>0);
+assert.equal(untouched.physicalInteriorEyeClear,false);
 const director=js.slice(js.indexOf('function planCitizenCamera('),
  js.indexOf('function isReadableClosedHomeShot('));
 assert.match(director,/realFarmWorkSightline\(shot\.eye,citizen,hands\)/,
