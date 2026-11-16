@@ -44,14 +44,21 @@ export function plannedEarnedClockworkVoidBearings(s,old) {
   const rise=step.y+step.height-old.oldRoofY;
   if(!safe(landingX)||Math.abs(landingX-old.thresholdX)>90000||
     rise<10000||rise>200000)return null;
-  const dir=landingX>=old.thresholdX?1:-1;
-  const xs=[-8000,12000,32000].map(d=>old.thresholdX+dir*d);
+  // The authentic elevated gateway-step, not an arbitrary flat decorative
+  // point, defines the end and HEIGHT of this monumental transfer gantry.
+  // Keep load columns anchored on the real previous roof as the ascent rises.
+  const delta=landingX-old.thresholdX,dir=delta>=0?1:-1;
+  const middleTravel=Math.min(12000,Math.max(3000,Math.abs(delta)*.55));
+  const xs=[old.thresholdX-dir*8000,
+    old.thresholdX+dir*middleTravel,landingX];
   if(xs.some(x=>!safe(x)||x<ground.x||x>ground.x+ground.width||
     x<0||x>s.worldWidth))return null;
   const y=(old.oldRoofY-s.chunkBaseY)/10000;
-  const height=Math.max(5,Math.min(7,1.8+rise/10000*.6));
+  const riseMeters=rise/10000;
+  const height=Math.max(5,Math.min(7,1.8+riseMeters*.6));
   const nodes=xs.map((x,i)=>Object.freeze({x,angle:(x/s.worldWidth-.5)*2.2,
-    sceneY:y,height,materialPhase:['bronze','transition','void'][i]}));
+    anchorY:y,sceneY:y+riseMeters*(i/2),height,
+    materialPhase:['bronze','transition','void'][i]}));
   return Object.freeze({source:'authentic-old-gateway-to-f9-first-step',
     thresholdX:old.thresholdX,landingX,roofId:ground.id,stepId:step.id,
     runToken:s.runToken,nodes:Object.freeze(nodes)});
@@ -72,18 +79,34 @@ export function plannedEarnedClockworkVoidBearings(s,old) {
  */
 export function plannedSourceEarnedSuspendedBearingSections(nodes) {
   if(!Array.isArray(nodes) || nodes.length!==3 ||
-     nodes.some(n=>![n?.angle,n?.sceneY,n?.height].every(Number.isFinite) ||
-       n.height<5 || n.height>7 || Math.abs(n.angle)>2.4))return null;
-  const at=(a,r,y,s)=>({
-    p:[Math.sin(a)*r,y,Math.cos(a)*r],r:[0,a,0],s
+     nodes.some(n=>![n?.angle,n?.sceneY,n?.anchorY,n?.height].every(Number.isFinite) ||
+       n.height<5 || n.height>7 || n.sceneY<n.anchorY ||
+       n.sceneY-n.anchorY>20 || Math.abs(n.angle)>2.4))return null;
+  const at=(a,r,y,s,roll=0)=>({
+    p:[Math.sin(a)*r,y,Math.cos(a)*r],r:[0,a,roll],s
   });
+  // Three instanced batches: orient actual original box steel along the
+  // rising 3D load path (R_Y * R_Z). The source physics and deck stay intact.
+  const pitchedTie=(from,to,radius,offset,width)=>{
+    const angle=(from.angle+to.angle)/2;
+    const delta=to.angle-from.angle;
+    const tangent=2*radius*Math.sin(delta/2);
+    const foot=from.sceneY+from.height+offset;
+    const head=to.sceneY+to.height+offset;
+    const rise=head-foot;
+    const length=Math.hypot(tangent,rise);
+    if(!(length>.15) || !Number.isFinite(length))return null;
+    return at(angle,radius*Math.cos(delta/2),(foot+head)/2,
+      [width,length,width],-Math.atan2(tangent,rise));
+  };
   return nodes.map((station,index)=>{
-    const {angle:a,sceneY:y,height:h}=station;
-    const crown=y+h;
+    const {angle:a,sceneY:y,anchorY,height:h}=station;
+    const crown=y+h,groundedColumnHeight=crown-anchorY;
     const parts=[
-      // All real floor-to-crown compressive supports are anchored BEHIND
-      // the existing inner-wall radius 22.4, never in the front camera rim.
-      at(a,21.6,y+h*.5,[.46,h,.54]),
+      // Every original column is supported by the old real roof plane.
+      // Raised destination steel now connects to the actual higher step
+      // instead of floating horizontally beyond the guardian doorway.
+      at(a,21.6,(anchorY+crown)/2,[.46,groundedColumnHeight,.54]),
       at(a,21.6,crown-.23,[.70,.46,.62]),
       at(a,21.75,crown-.95,[.46,1.50,.45]),
       // A suspended radial compression beam and forged head tie carry the
@@ -102,16 +125,21 @@ export function plannedSourceEarnedSuspendedBearingSections(nodes) {
     ];
     if(index>0){
       const previous=nodes[index-1];
+      // Physically pitched three-dimensional tensile rails carry the true
+      // source-deck rise through one connected original 3D silhouette.
+      // Three remain behind the r22.4 inner wall and just one outboard
+      // crossing runs above every hero/guardian sightline.
+      const ties=[
+        pitchedTie(previous,station,21.6,0,.34),
+        pitchedTie(previous,station,21.6,5.8,.24),
+        pitchedTie(previous,station,21.6,11.6,.20),
+        pitchedTie(previous,station,27.6,11.6,.20),
+      ];
+      if(ties.some(t=>!t))return null;
+      parts.push(...ties);
       const mid=(previous.angle+a)*.5;
-      const innerSpan=21.6*Math.abs(a-previous.angle);
-      const outerSpan=27.6*Math.abs(a-previous.angle);
-      parts.push(at(mid,21.6,crown-.32,[innerSpan+.28,.24,.38]));
-      // Outer sightline remains empty at hero height: ONLY high tensile
-      // crown-to-crown linkage can connect adjacent suspended outriggers.
-      parts.push(at(mid,27.6,crown+.02,[outerSpan+.20,.22,.34]));
-      // High inner-wall tie closes each two-storey load bay while the
-      // original lower gateway remains physically open to both cameras.
-      parts.push(at(mid,21.6,crown+11.6,[innerSpan+.18,.20,.32]));
+      const bracedY=(previous.sceneY+previous.height+crown)/2;
+      parts.push(at(mid,21.6,bracedY,[.55,.24,.68]));
     }
     return parts;
   });
