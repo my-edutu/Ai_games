@@ -19,7 +19,7 @@ const accept=(points)=>{
  }
  for(let i=0;i<(points.length-2)*30;i++)data.push(0);
 };
-const c={data,MARKET_SQUARE:{cx:-1,cz:4.9,rx:7.55,rz:7.05},
+const c={data,FARM_MARKET_STREET_DESTINATION:Object.freeze([-1,10.2]),\n MARKET_SQUARE:{cx:-1,cz:4.9,rx:7.55,rz:7.05},
  terrain,biomeHash:n=>{const f=Math.sin(n*12.9898)*43758.5453;return f-Math.floor(f)},
  rgb:n=>n,marketQuarterStats:stats,materialScope:(_,fn)=>fn(),MATERIAL:{ROAD:3},
  tri:(a,b,d)=>accept([a,b,d]),quad:(a,b,d,e)=>accept([a,b,d,e])};
