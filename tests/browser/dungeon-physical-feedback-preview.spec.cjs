@@ -3,6 +3,7 @@ const {test,expect}=require('@playwright/test');
 const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
 const {classifyAuthenticD04RenderObservation}=require('./dungeon-d04-real-feedback-observation.cjs');
 const {correlateD04OriginalSourceStarts,auditD04ImpactFramePhases}=require('./dungeon-d04-source-start-correlation.cjs');
+const {auditD04ImpactSubmissionWitnesses}=require('./dungeon-d04-impact-submission-witness.cjs');
 const fs=require('node:fs');
 const {createD04CaptureProfile,skippedConcurrentD04Probe}=require('./dungeon-d04-capture-profile.cjs');
 const {decodeSerialRealWebGLMotion,decodeReceiptReadbackMotion,decodeSameWindowReadbackMotion,
@@ -886,6 +887,36 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
   classification:impactFrameAudit.classification,
   damageReceipts:impactFrameAudit.damageReceipts
  }));
+
+ // Keep the evidence for ALL real HP-loss receipts separate from the first
+ // strict damage-tick acceptance. On slow WebGL one early hit can be stale
+ // while a later, independently witnessed fatal HP reaction does reach a
+ // drawable frame and schedules original foley. Neither is decoded contact
+ // pixels or PCM onset. This forensic summary cannot override the RED gate.
+ const submittedImpactAudit=auditD04ImpactSubmissionWitnesses({
+  receipts:lateReceipts,
+  sourceStarts:observed.physicalFeedback?.audio?.recentOriginalStarts??[]
+ });
+ const submissionEvidence={
+  ...submittedImpactAudit,
+  seed:real.seed,scene:real.after.run+':'+real.after.floor,
+  source:'authentic DungeonRuntime -> D04 post-WebGL receipt + original WebAudio start audit',
+  originalSelectedDamageTick:real.after.tick,
+  strictOriginalTickStillRequiresIndependentAcceptance:true,
+  sampleSynchronized:false
+ };
+ fs.writeFileSync('artifacts/dungeon-d04-genuine-impact-submission-witness.json',
+  JSON.stringify(submissionEvidence,null,2)+'\n');
+ await test.info().attach('d04-genuine-impact-submission-witness.json',{
+  body:Buffer.from(JSON.stringify(submissionEvidence,null,2)),
+  contentType:'application/json'
+ });
+ console.log('D04 genuine HP frame and foley witness (NO PCM sync):',
+  JSON.stringify({status:submittedImpactAudit.status,
+   hpReceipts:submittedImpactAudit.hpReceipts,
+   timelyDrawableReceipts:submittedImpactAudit.timelyDrawableReceipts,
+   originalSourceStartMatches:submittedImpactAudit.originalSourceStartMatches,
+   sampleSynchronized:false}));
 
  const timeline={
   source:'real-DungeonRuntime-to-ThreeJS-D04-controller',
