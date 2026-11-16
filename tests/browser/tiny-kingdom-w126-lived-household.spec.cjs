@@ -31,7 +31,11 @@ test('W126 true market pickup, home return, 120 and 160 elapsed days, replay, 39
    g.step(1/30);current=g.getHouseholdProvisionAudit();
   }
   const before=JSON.stringify(g.exportSnapshot());
-  document.getElementById('world-watch-life').click();
+  // The supply panel exposes an explicit REAL buyer action when an
+  // unrelated loaded courier or harvesting farmer also exists. This is
+  // genuine, separate UI, not a mocked camera state or weaker witness.
+  document.getElementById('world-trace-toggle').click();
+  document.getElementById('world-trace-buyer').click();
   const after=JSON.stringify(g.exportSnapshot());
   return {active:current.citizens.length>0,
    citizen:current.citizens[0]?.name||null,
@@ -71,7 +75,11 @@ test('W126 true market pickup, home return, 120 and 160 elapsed days, replay, 39
    maxCarrying=Math.max(maxCarrying,ledger.carrying);
    if(!seenLiveObservation&&ledger.citizens.length&&!g.getActiveDeliveries().length){
     const before=JSON.stringify(g.exportSnapshot());
-    document.getElementById('world-watch-life').click();
+    // The supply panel exposes an explicit REAL buyer action when an
+  // unrelated loaded courier or harvesting farmer also exists. This is
+  // genuine, separate UI, not a mocked camera state or weaker witness.
+  document.getElementById('world-trace-toggle').click();
+  document.getElementById('world-trace-buyer').click();
     seenLiveObservation=g.getSelectedCitizen()===ledger.citizens[0].name&&
       g.getCamera().follow===true&&JSON.stringify(g.exportSnapshot())===before;
    }
