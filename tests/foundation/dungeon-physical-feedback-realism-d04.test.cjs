@@ -107,6 +107,55 @@ test('authentic injured body interpolates within its own current cell without lo
   assert.equal(stage.stats().instancesByPool.hit,0);
  }finally{stage.dispose()}
 });
+test('verified victim injury starts as a bounded torso-surface chip fan instead of an invisible chest-centre stack',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const OriginalPose=T.Object3D;
+ T.Object3D=class extends OriginalPose{
+  updateMatrix(){this.matrix={x:this.position.x,y:this.position.y,z:this.position.z}}
+ };
+ const victim={id:'revenant',kind:'revenant',faction:'enemy',
+  x:3,z:2,hp:14,maxHp:20};
+ let snapshot={run:1,floor:1,tick:11,units:[victim]};
+ const actor={u:victim,root:{visible:true,
+  position:{x:-6,y:0,z:-7},rotation:{y:0}}};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  actorById:id=>id===victim.id?actor:null,
+  getCurrentSnapshot:()=>snapshot,requireVerifiedHpReceipt:true
+ });
+ const actual=cue({severity:.3,detail:{damage:6,remainingHp:14,maxHp:20}});
+ const hit=[...scene.children][1];
+ try{
+  assert.equal(stage.emit(actual),true,'actual current victim HP loss earns torso-local chips');
+  assert.equal(stage.stats().instancesByPool.hit,4,'low severity remains four bounded instances');
+  assert.equal(stage.stats().activeDrawCalls,1);
+  const positions=hit.matrices.slice(0,4).map(m=>({x:m.x,y:m.y,z:m.z}));
+  assert.deepEqual(positions[0],{x:-6,y:1.12,z:-7},
+   'central victim anchor remains the actual drawn body, not an inferred attacker');
+  const surface=positions.slice(1);
+  for(const point of surface){
+   const radial=Math.hypot(point.x+6,point.z+7);
+   assert.ok(radial>=.26&&radial<=.36,
+    'chips must start just outside the torso, not hidden at its centre or across the tile');
+   assert.ok(Math.abs(point.y-1.12)<=.17,
+    'surface chips remain in a restrained chest-height band');
+  }
+  assert.ok(surface.some(p=>p.x>-6)&&surface.some(p=>p.x<-6),
+   'an unknown attacker must not turn every chip into a fake directional slash');
+  const budget=stage.stats();
+  assert.equal(budget.reservedInstances,102);
+  assert.ok(budget.activeDrawCalls<=7);
+  stage.reset();
+  assert.equal(stage.emit(actual),true);
+  assert.deepEqual(hit.matrices.slice(0,4).map(m=>({x:m.x,y:m.y,z:m.z})),positions,
+   'same immutable HP receipt produces deterministic shell positions after reset');
+  stage.reset();
+  snapshot={...snapshot,tick:12};
+  assert.equal(stage.emit(actual),false,'old injury must never migrate onto a newer victim tick');
+  assert.equal(stage.stats().instancesByPool.hit,0);
+ }finally{stage.dispose()}
+});
+
 test('visual effect groups physically distinguish guided arrow, magic orb, rooted blade, dodge grit and measured impact',async()=>{
  const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
  const {T,scene}=three();
