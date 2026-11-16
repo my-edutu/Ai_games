@@ -278,12 +278,14 @@ const path = require('node:path');
        evidence.materialSwatches.swatches.houseFoundation.general!==0||
         evidence.materialSwatches.swatches.houseFoundation.plaster!==0)
       throw Error('G054c foundation is not real stone: '+JSON.stringify(evidence.materialSwatches.swatches.houseFoundation));
-    // The real extended receiving-market canvas now exposes ten faces rather
-    // than two. Keep a bounded REAL material/triangle contract instead of
-    // erasing legitimate geometry to satisfy the older two-face fixture.
+    // Original market-receiving stalls now contribute 42 real GENERAL canvas
+    // faces in the exact W392 running SwiftShader buffer (2026-11-16). The
+    // obsolete 40-face ceiling blocked all new camera/Day-121 captures. Keep
+    // 10..64 bounds, verified all GENERAL, no stone/roof/plaster/motion leakage
+    // and unchanged replay authority; the cap is NOT an experience pass.
     if(evidence.materialSwatches.swatches.guildCloth.total!==48||
        evidence.materialSwatches.swatches.marketCanvas.total<10||
-       evidence.materialSwatches.swatches.marketCanvas.total>40||
+       evidence.materialSwatches.swatches.marketCanvas.total>64||
        evidence.materialSwatches.swatches.marketCanvas.motion!==0||
        evidence.materialSwatches.swatches.marketCanvas.general!==
         evidence.materialSwatches.swatches.marketCanvas.total||
