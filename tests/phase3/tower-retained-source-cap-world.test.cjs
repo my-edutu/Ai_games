@@ -677,8 +677,24 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
       'verified living departure should unlock the original incoming shaft, not keep it hidden indefinitely');
     assert.ok(world.group.getObjectByName('deferred-original-floor-nine-architecture'),
       'actual new-floor geometry must coexist with the original gate pending successful GPU submission');
-    assert.ok(sharedSurface.material.color.equals(firstGroundColor),
-      'no renderer-silent violet roof swap is permitted before a real structural GPU return; physical departure only unlocks the shaft');
+    // The preceding eight real renderer returns HAVE already submitted the
+    // first alpha-visible successor shaft on later steps. The old assertion
+    // claimed there were ZERO shaft returns here and demanded bronze forever:
+    // that incorrectly vetoed a source- and GPU-earned color retirement.
+    // Keep the stronger causal guard: without an actual returned shaft the
+    // original physical F9 roof must remain identical; with one, real source
+    // departure may start its chromatic transition. Browser/native painted
+    // pixels still require separate video-clock proof.
+    const returnedShaftFrames=successorJob?.structuralVisibleReturns??0;
+    assert.ok(Number.isSafeInteger(returnedShaftFrames) &&
+      returnedShaftFrames>=0 && returnedShaftFrames<=successorJob.submittedFrames,
+      'only actual post-draw shaft submissions can authorize optical retirement');
+    if(returnedShaftFrames===0)
+      assert.ok(sharedSurface.material.color.equals(firstGroundColor),
+        'renderer-silent original room cannot recolor its walkable F9 roof');
+    else
+      assert.ok(!sharedSurface.material.color.equals(firstGroundColor),
+        'genuine current far-side support after a returned visible shaft may blend the roof toward F9');
     assert.equal(JSON.stringify([oldFrame,first,realFirstRender]),frozen);
     assert.equal(cold({...realFirstRender,runToken:'other'},
       world.retainedFilmHandoff(realFirstRender)),false);
