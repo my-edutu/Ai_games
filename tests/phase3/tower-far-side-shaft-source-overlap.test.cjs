@@ -96,3 +96,33 @@ test('production GPU owners share source-backed clearance, a real new-shaft retu
   assert.equal(/sourceCertifiedHorizon=.*farSide/.test(world),true);
   assert.equal(/observedEarnedFarSideShaftOverlap\(source,held,job\)/.test(cross),true);
 });
+
+
+test('actual near-threshold Floor9 vertical climb retains old GPU room during airborne approach and raised f9:p2 landing',async()=>{
+  const {observedEarnedFarSideShaftOverlap:overlap}=await proof;
+  const {source,held,job}=realRoute();
+  // Real crossing rises ~126m into f9:p2 while remaining only about 2m
+  // beyond the exit in X. The previous artificial +100000 horizontal
+  // clearance made this already-authenticated path fail the new-world
+  // overlap, retiring the bronze room in one abrupt source-poll cut.
+  source.player.x=held.thresholdX+14000;
+  source.tick=535;
+  const raisedSole=held.oldRoofY+1260000;
+  source.platforms.push({id:'f9:p2',x:held.thresholdX-10000,
+    y:raisedSole-500,width:50000,height:500});
+  source.player.y=raisedSole+source.player.halfHeight;
+  source.player.groundedPlatformId='f9:p2';
+  assert.equal(overlap(source,held,job)?.sourceBound,true,
+    'a genuine supported successor deck must not need a 10m horizontal runway');
+  source.tick=522;
+  source.player.y=held.oldRoofY+80000+source.player.halfHeight;
+  source.player.grounded=false;
+  source.player.groundedPlatformId=null;
+  source.player.state='airborne';
+  source.player.vy=120;
+  assert.equal(overlap(source,held,job)?.sourceBound,true,
+    'genuine flight toward the raised platform retains the physically owned old room');
+  source.player.y=held.oldRoofY+source.player.halfHeight;
+  assert.equal(overlap(source,held,job),null,
+    'near the sill before authentic vertical clearance cannot fade the original door');
+});
