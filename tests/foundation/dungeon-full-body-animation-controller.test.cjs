@@ -6688,5 +6688,5 @@ test('RED: verified full-source residual can accept restrained 140mrad original 
  const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(renderer,/sourceToeJointAdaptiveProbeFrames/);
  assert.match(renderer,/sourceToeJointAdaptiveTrialLast/);
- assert.match(renderer,/[-]\\.14,\\.14/);
+ assert.match(renderer,/\[-\.14,\.14\]/);
 });
