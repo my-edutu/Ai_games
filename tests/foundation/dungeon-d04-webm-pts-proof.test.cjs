@@ -122,3 +122,62 @@ test('primary opted-in real WebGL WebM reports actual encoded video packets when
    'ENCODED_FRAME_TIMING_UNVERIFIED','unproven primary recorder must never earn encoded video evidence');
  }
 });
+
+
+test('D04 distinguishes an actual drawable fatal HP receipt from a stale ordinary hit without claiming audible PCM',()=>{
+ // Deliberately SYNTHETIC receipt fixture shaped like prior authentic diagnostics.
+ // A source.start telemetry match proves only a scheduled WebAudio voice.
+ const {auditD04ImpactSubmissionWitnesses}=require('../browser/dungeon-d04-impact-submission-witness.cjs');
+ const stale={scene:'1:1',kind:'damage',tick:4,cueId:'1:1:4:damage:-:enemy-1-0',
+  visual:true,audio:false,decision:'stale-frame',frameId:12,
+  observedClockMs:11388,submittedClockMs:13996,observationToSubmissionMs:2608,
+  visualDrawableAtSubmission:false};
+ const actual={scene:'1:1',kind:'damage-fatal',tick:7,
+  cueId:'1:1:7:damage-fatal:-:enemy-1-0',visual:true,audio:true,
+  decision:'delivered',frameId:16,observedClockMs:15689,
+  submittedClockMs:15829,observationToSubmissionMs:140,
+  visualDrawableAtSubmission:true};
+ const started={cueId:actual.cueId,sceneKey:actual.scene,tick:7,
+  kind:'damage-fatal',audio:'fatal-impact',verifiedCanonicalCue:true,
+  startedSources:2,scheduledContextMs:5811,
+  estimatedOutputPerformanceMs:15864,sampleSynchronized:false};
+ const observed=auditD04ImpactSubmissionWitnesses({
+  receipts:[stale,actual],sourceStarts:[started]});
+ assert.equal(observed.status,'FRAME_RECEIPT_IMPACT_PRESENT_AUDIO_UNALIGNED');
+ assert.equal(observed.hpReceipts,2);
+ assert.equal(observed.timelyDrawableReceipts,1);
+ assert.equal(observed.originalSourceStartMatches,1);
+ assert.equal(observed.staleOrUnsubmittedReceipts,1);
+ assert.equal(observed.sampleSynchronized,false);
+ assert.equal(observed.audibleImpactVerified,false);
+ assert.ok(observed.cases.some(c=>c.cueId===actual.cueId&&
+  c.status==='DRAWABLE_SUBMITTED_AUDIO_START_ONLY'));
+ assert.ok(observed.cases.some(c=>c.cueId===stale.cueId&&
+  c.status==='STALE_OR_UNSUBMITTED'));
+});
+test('D04 incident proof rejects wrong attackers, stale clocks, duplicate receipts and forged original sound starts',()=>{
+ const {auditD04ImpactSubmissionWitnesses}=require('../browser/dungeon-d04-impact-submission-witness.cjs');
+ const real={scene:'1:1',kind:'damage',tick:8,cueId:'1:1:8:damage:-:vanguard',
+  visual:true,audio:true,decision:'delivered',frameId:22,
+  observedClockMs:2000,submittedClockMs:2110,observationToSubmissionMs:110,
+  visualDrawableAtSubmission:true};
+ const started={cueId:real.cueId,sceneKey:real.scene,tick:8,kind:'damage',
+  audio:'impact',verifiedCanonicalCue:true,startedSources:1,sampleSynchronized:false};
+ const audit=x=>auditD04ImpactSubmissionWitnesses({
+  receipts:[x],sourceStarts:[started]});
+ assert.equal(audit(real).originalSourceStartMatches,1);
+ assert.equal(audit({...real,cueId:'1:1:8:damage:enemy:vanguard'}).timelyDrawableReceipts,0,
+  'attacker-attributed HP cues cannot stand in for victim-only observed injury');
+ assert.equal(audit({...real,submittedClockMs:2500}).timelyDrawableReceipts,0,
+  'a 500ms-old contact cannot be considered timely merely because its cached age said 110ms');
+ assert.equal(audit({...real,visualDrawableAtSubmission:false}).timelyDrawableReceipts,0);
+ assert.equal(audit({...real,decision:'visual-only-submitted'}).originalSourceStartMatches,0);
+ assert.equal(audit({...real,frameId:null}).timelyDrawableReceipts,0);
+ const duplicates=auditD04ImpactSubmissionWitnesses({receipts:[real,real],
+  sourceStarts:[started]});
+ assert.equal(duplicates.timelyDrawableReceipts,0,
+  'duplicate provenance must not manufacture a stronger unique contact claim');
+ assert.equal(duplicates.originalSourceStartMatches,0);
+ assert.equal(auditD04ImpactSubmissionWitnesses({receipts:[real],
+  sourceStarts:[{...started,kind:'swing',audio:'whoosh'}]}).originalSourceStartMatches,0);
+});
