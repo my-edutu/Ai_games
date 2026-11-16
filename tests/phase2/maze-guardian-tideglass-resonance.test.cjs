@@ -34,7 +34,11 @@ test('real live stage receives the same witnessed actor clock and reuses existin
   const scene=fs.readFileSync(path.join(root,'public/ai-maze-escape/scene.js'),'utf8');
   const world=fs.readFileSync(path.join(root,'public/ai-maze-escape/world.js'),'utf8');
   assert.match(scene,/guardianCounterPhase:witnessedCounter\s*\?\s*earnedCounterActor\.counterPhase\s*:\s*undefined/);
-  assert.match(world,/publicGuardianEarnedResonance\(\s*onLane&&earnedParry\?options\.guardianCounterPhase:undefined/);
+  assert.match(world,/publicGuardianEarnedResonance\(\s*onLane&&earnedParry\?guardianCounterPhase:undefined/);
+  assert.match(world,/before && before\.lanternParried!==true/,
+    'a direct Three.js consumer must witness same-run false-to-true, not an already parried first view');
+  assert.match(world,/observedEarnedCounter\.start=t/,
+    'a single shared world fallback cannot create per-cell phantom victory clocks');
   assert.match(world,/mesh\(signal,ring,inlay/);
   assert.match(world,/resonanceState:\{wave:0,glow:0,radius:0\}/);
   assert.doesNotMatch(world,/signal\.counterStart|signal\.counterRunToken/,

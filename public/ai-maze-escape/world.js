@@ -512,6 +512,11 @@ export function createMazeWorld(options = {}) {
   const leafGeometry = geometry(new THREE.ShapeGeometry(leafShape, 5));
   const matrix = new THREE.Matrix4(), rotation = new THREE.Quaternion(), euler = new THREE.Euler(), scale = new THREE.Vector3(), position = new THREE.Vector3();
   let snapshot = null, runToken = null, terrainSignature = '', objectSignature = '', backdropSignature = '', disposed = false;
+  // A single world-owned FALLBACK event witness is needed for direct
+  // Three.js stage consumers that do not pass scene's shared counterPhase.
+  // It can start ONLY on a published, same-run false->true transition.
+  // The normal game source supplies guardianCounterPhase explicitly instead.
+  let observedEarnedCounter = null;
   let batches = [], animations = [], ripples = [], renderedCells = [], stairEdges = [], stairBalustrades = 0, coastalGardens = 0, wallGardens = 0, lastVisibility = '', highContrast = false;
   let coastCanopies = 0, tidalObservatories = 0, sculptedMosaicWalls = 0, tidePennants = 0, perimeterCascades = 0, collapsedPavilions = 0, shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0, gateForecourtParapets = 0, pressureStageParapets = 0, guardianSightlineParapets = 0, gateCourtRosettes = 0;
   let tideFossilGroves = 0, tideFossilAlcoves = 0, fossilGalleryEdges = 0, undercroftButtresses = 0, hangingFacadeGardens = 0, closedTideMedallions = 0;
@@ -3467,6 +3472,33 @@ export function createMazeWorld(options = {}) {
       .map(door => doorEdgeId(door.a, door.b)));
     for (const edge of gateOpeningAt.keys())
       if (!currentOpen.has(edge)) gateOpeningAt.delete(edge);
+    // Existing direct world consumers (including the strict three-cell
+    // physical wave test) have no scene-owned render counter clock. Preserve
+    // their genuinely witnessed PUBLIC before->after event using ONE shared
+    // world witness, never one restartable clock per tile. First-seen already
+    // parried, private-only, hidden, changed-run and ended events cannot
+    // initialize a successful-hit wave.
+    if (snapshot?.runToken !== s.runToken || s.lifecycle!=='running'
+      || s.result || !Array.isArray(s.visibleCells)
+      || !Array.isArray(s.threats)) {
+      observedEarnedCounter=null;
+    } else {
+      const earned=s.threats.find(threat=>{
+        const before=snapshot.threats?.find(previous=>previous.id===threat.id);
+        return Number.isSafeInteger(threat?.cell)
+          && threat.lanternParried===true
+          && before && before.lanternParried!==true
+          && snapshot.visibleCells?.includes(before.cell)
+          && s.visibleCells.includes(threat.cell);
+      });
+      if(earned) observedEarnedCounter={
+        runToken:s.runToken,id:earned.id,cell:earned.cell,start:null
+      };
+      else if(observedEarnedCounter && !s.threats.some(threat=>
+        threat.id===observedEarnedCounter.id
+        && threat.lanternParried===true
+        && s.visibleCells.includes(threat.cell))) observedEarnedCounter=null;
+    }
     const previouslyVisibleCells = new Set(snapshot?.visibleCells || []);
     // A hidden or terminal published snapshot revokes the in-flight physical pressure
     // encounter immediately, even if no render frame or object rebuild runs.
@@ -3633,6 +3665,20 @@ export function createMazeWorld(options = {}) {
     const earnedParry=witnessedLane && options.guardianParried===true
       && snapshot.threats.some(threat=>threat?.cell===guardianCell
         && threat.lanternParried===true);
+    // Normal gameplay uses the exact scene actor-clock 1.15s phase. Only
+    // legacy/direct stage consumers MAY use the authentic earlier published
+    // same-run transition witness; a first-seen parried guardian never can.
+    const directWitness=earnedParry && observedEarnedCounter
+      && observedEarnedCounter.runToken===snapshot.runToken
+      && snapshot.threats.some(threat=>
+        threat.id===observedEarnedCounter.id
+        && threat.cell===guardianCell && threat.lanternParried===true);
+    if(directWitness && observedEarnedCounter.start===null)
+      observedEarnedCounter.start=t;
+    const guardianCounterPhase=Number.isFinite(options.guardianCounterPhase)
+      ?options.guardianCounterPhase
+      :directWitness?Math.max(0,Math.min(1,
+        (t-observedEarnedCounter.start)/1.15)):undefined;
     const alongX=witnessedLane
       && Math.floor(heroCell/snapshot.width)===Math.floor(guardianCell/snapshot.width);
     const alongZ=witnessedLane && heroCell%snapshot.width===guardianCell%snapshot.width;
@@ -3682,7 +3728,7 @@ export function createMazeWorld(options = {}) {
       // The actual public false->true counter phase belongs jointly to Pip,
       // Thornback and this observed physical stage. Never infer a new beat.
       const resonance=publicGuardianEarnedResonance(
-        onLane&&earnedParry?options.guardianCounterPhase:undefined,
+        onLane&&earnedParry?guardianCounterPhase:undefined,
         fromHero,reduced,signal.resonanceState);
       const counterWave=resonance.wave;
       // Stage-wide, sequential, floor-level original Tideglass response.
