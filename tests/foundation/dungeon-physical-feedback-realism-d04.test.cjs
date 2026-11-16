@@ -250,6 +250,53 @@ test('verified HP fragments remain readable at a genuine 336ms frame, not after 
  }finally{reduced.dispose()}
 });
 
+test('D04 real 373ms injury receipts keep ordinary and fatal body chips legible until the 400ms bound',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ for(const injury of [
+  {kind:'damage',audio:'impact',hp:14,damage:6,severity:.3},
+  {kind:'damage-fatal',audio:'fatal-impact',hp:0,damage:20,severity:1}
+ ]){
+  const victim={id:'revenant',kind:'revenant',faction:'enemy',x:3,z:2,
+   hp:injury.hp,maxHp:20};
+  const genuine=cue({
+   id:`1:1:11:${injury.kind}:-:revenant`,
+   kind:injury.kind,audio:injury.audio,duration:.23,severity:injury.severity,
+   detail:{damage:injury.damage,remainingHp:injury.hp,maxHp:20}
+  });
+  const fixture=three(),OriginalPose=fixture.T.Object3D;
+  fixture.T.Object3D=class extends OriginalPose{
+   updateMatrix(){this.matrix={x:this.position.x,y:this.position.y,
+    z:this.position.z,scale:this.scale.x}}
+  };
+  const stage=createPhysicalFeedbackVisuals(fixture.T,fixture.scene,{
+   requireVerifiedHpReceipt:true,
+   getCurrentSnapshot:()=>({run:1,floor:1,tick:11,units:[victim]}),
+   actorById:id=>id===victim.id?{u:victim,root:{visible:true,
+    position:{x:-6,y:0,z:-7},rotation:{y:0}}}:null
+  });
+  try{
+   assert.equal(stage.emit(genuine),true,'only current canonical HP loss earns the fragments');
+   stage.advance(.05,.373);
+   assert.equal(stage.hasDrawableCue(genuine.id),true,
+    'a real 373ms submission must retain a drawable verified injury');
+   const hitMesh=[...fixture.scene.children][1];
+   assert.ok(hitMesh.matrices.slice(1,4).every(m=>m.scale>=.30),
+    'outer real-contact chips at 373ms must not be effectively invisible');
+   stage.advance(.05,.018);
+   assert.equal(stage.hasDrawableCue(genuine.id),true,
+    'the 391ms submitted injury remains within the fixed 400ms deadline');
+   assert.ok(hitMesh.matrices.slice(1,4).every(m=>m.scale>=.30),
+    'late but still eligible impact cannot fade below the readable floor');
+   assert.equal(stage.stats().reservedInstances,102);
+   assert.ok(stage.stats().activeDrawCalls<=7);
+   stage.advance(.05,.009);
+   assert.equal(stage.hasDrawableCue(genuine.id),false,
+    '400ms is a firm retirement bound, not permission to replay a late hit');
+   assert.equal(stage.stats().active,0);
+  }finally{stage.dispose()}
+ }
+});
+
 test('visual effect groups physically distinguish guided arrow, magic orb, rooted blade, dodge grit and measured impact',async()=>{
  const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
  const {T,scene}=three();
