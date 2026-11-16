@@ -67,6 +67,11 @@ async function beginD04LiveAVCapture(page,captureProfile){
    return unavailable('Real canvas MediaRecorder or opted-in output stream unavailable');
   const soundTracks=sound.getAudioTracks();
   if(!soundTracks.length)return unavailable('No opted-in soundstage audio track');
+  // Snapshot actual opt-in and original sound bus state BEFORE encoding.
+  // A later track count, or encoded WebM bytes, cannot prove this consent.
+  const optedInAtStart=document.querySelector('#audio-toggle')?.getAttribute('aria-pressed')==='true';
+  const originalSoundstageTrackLive=soundTracks.length===1&&
+   soundTracks[0]?.readyState==='live';
   // Software-WebGL can render only a few real frames in five seconds.
   // Capture *those submitted frames*, never a synthetic timer-driven redraw.
   let canvasStream=canvas.captureStream(0),videoTracks=canvasStream.getVideoTracks();
@@ -475,6 +480,7 @@ async function beginD04LiveAVCapture(page,captureProfile){
       reason:bounded?null:'Empty or oversized real WebM',
       mimeType:type,bytes:data.length,videoTracks:videoTracks.length,
       audioTracks:soundTracks.length,recordingMs:performance.now()-began,
+      optedInAtStart,originalSoundstageTrackLive,
       framePump:{...framePump},base64:bounded?toBase64(data):null});
     }catch(e){finish({status:'UNAVAILABLE',reason:'Failed reading real WebM: '+String(e)})}
    };
@@ -545,11 +551,17 @@ async function attachD04LiveAVCapture(page,started,testInfo){
  // Independent FALLBACK: Chromium decodes the unchanged real WebM itself
  // when GitHub runners have no ffprobe. A few pixel seeks cannot certify
  // encoded frame counts, event contact, original Opus onset or sample sync.
- let chromiumPixels={status:'UNAVAILABLE',reason:'No genuine same-window WebM'};
- if(started?.status==='STARTED'&&raw.isolated?.sameWindowReadbackAV?.status==='RECORDED'){
+ // On headless software WebGL the serial readback encoder may not produce
+ // a file. Fall back to independent read-only Chromium pixel decoding of the
+ // already recorded PRIMARY, genuine #world canvas plus original sound bus.
+ // This cannot establish blade contact, video PTS or audible PCM alignment.
+ const serialAV=raw.isolated?.sameWindowReadbackAV;
+ const usePrimary=serialAV?.status!=='RECORDED'&&raw.clip?.status==='RECORDED';
+ const chromiumInput=usePrimary?raw.clip:serialAV;
+ let chromiumPixels={status:'UNAVAILABLE',reason:'No genuine original A/V WebM'};
+ if(started?.status==='STARTED'&&chromiumInput?.status==='RECORDED'){
   try{
-   chromiumPixels=await page.evaluate(sampleChromiumDecodedD04WebM,
-    raw.isolated.sameWindowReadbackAV);
+   chromiumPixels=await page.evaluate(sampleChromiumDecodedD04WebM,chromiumInput);
   }catch(error){
    chromiumPixels={status:'UNAVAILABLE',
     reason:'Read-only Chromium decoder: '+String(error).slice(0,120)};
@@ -564,13 +576,18 @@ async function attachD04LiveAVCapture(page,started,testInfo){
    readbackVideo:decodeReceiptReadbackMotion(raw.isolated?.receiptReadbackVideo),
    sameWindowReadbackAV:decodeSameWindowReadbackMotion(raw.isolated?.sameWindowReadbackAV),
    chromiumSameWindow:classifyChromiumDecodedRealWebM(
-    raw.isolated?.sameWindowReadbackAV,chromiumPixels)};
- console.log('D04 native Chromium WebM decode (unaligned only):',JSON.stringify(
-  raw.decoder.chromiumSameWindow));
+    raw.isolated?.sameWindowReadbackAV,usePrimary?{}:chromiumPixels),
+   chromiumPrimary:classifyChromiumDecodedRealWebM(
+    raw.clip,usePrimary?chromiumPixels:{})};
+ const chromiumClassification=usePrimary?
+  raw.decoder.chromiumPrimary:raw.decoder.chromiumSameWindow;
+ console.log('D04 native Chromium WebM decode (unaligned only):',JSON.stringify({
+  inputSource:chromiumInput?.source??null,classification:chromiumClassification
+ }));
  const chromiumReport=JSON.stringify({
-  inputSource:raw.isolated?.sameWindowReadbackAV?.source??null,
+  inputSource:chromiumInput?.source??null,
   webmPacketTiming:webmPts,encodedFrameYield:encodedYield,
-  inspected:chromiumPixels,classification:raw.decoder.chromiumSameWindow,
+  inspected:chromiumPixels,classification:chromiumClassification,
   sampleSynchronized:false,
   caveat:'Real browser decoding of actual WebM; seek snapshots do not count VP8 frames or prove audible combat foley'
  },null,2);
