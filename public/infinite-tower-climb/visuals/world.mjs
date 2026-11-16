@@ -3106,10 +3106,20 @@ export function createTowerWorld(){
     // 12-tick doorstep witness rightly expires, but it must not immediately
     // erase the actual original GPU arch while the boots still occupy it.
     const onOriginalCapRoof=observedRetainedOriginalCapRoofContact(snapshot,held);
+    // This is the same current-source exact-sole/width F9:p2 support already
+    // trusted by material and camera. Observe it BEFORE deciding whether to
+    // retire the actual previous-floor meshes; a previous build observed it
+    // only AFTER onNewRoof was computed, and removed an 84%-opaque bronze gate
+    // on the recorded tick535 first raised landing.
+    if(!options.stale && snapshot.floor===9 &&
+       snapshot.runToken===held.runToken &&
+       observedSourceSuccessorRaisedDeck(snapshot,held.oldRoofY))
+      held.raisedDeckSourceTick=snapshot.tick;
     const onNewRoof=(p?.grounded===true &&
       p.groundedPlatformId==='f9:ground') ||
       !!observedRecordedGuardianDoorstepHandoff(snapshot) ||
-      onOriginalCapRoof;
+      onOriginalCapRoof ||
+      observedSourceRetainedRaisedExit(snapshot,held,held.oldRoofY);
     // After the real source-earned crossing, the old GPU cap/arch physically
     // remains behind a jumping hero. Under slow WebGL it must survive the same
     // actual passage window as the camera and horizon, rather than retire on
@@ -3156,13 +3166,6 @@ export function createTowerWorld(){
       Number.isSafeInteger(p.x) && Number.isSafeInteger(sole) &&
       Math.abs(p.x-held.thresholdX)<=90000 &&
       sole>=held.oldRoofY-2500 && sole<=held.oldRoofY+160000;
-    // Witness the current REAL f9:p2/full-width raised support before any
-    // retirement decision. Its bounded contact receipt may connect the
-    // original physical gate to the next 3D deck through a cold GPU epoch.
-    if(!options.stale && snapshot.floor===9 &&
-       snapshot.runToken===held.runToken &&
-       observedSourceSuccessorRaisedDeck(snapshot,held.oldRoofY))
-      held.raisedDeckSourceTick=snapshot.tick;
     // Do not detach a real old GPU doorway halfway through its authenticated
     // successor ascent simply because the old platform is now below the feet.
     // Both the geometry owner and cloned original-gate materials obey the
@@ -3185,8 +3188,8 @@ export function createTowerWorld(){
           snapshot,held,held.oldRoofY)
             ?SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS:70) ||
         !(p?.health>0) ||
-        (!nearDoor && !onCameraHandoffFlight && !retainedBackdrop &&
-          !sourceDeparture?.sourceBound) ||
+        (!nearDoor && !onNewRoof && !onCameraHandoffFlight &&
+          !retainedBackdrop && !sourceDeparture?.sourceBound) ||
         (!onNewRoof && !justLaunched && !onCameraHandoffFlight &&
           !retainedBackdrop && !sourceDeparture?.sourceBound)) {
       retireEarnedCap();
