@@ -10,7 +10,7 @@ const b=html.indexOf('// W64 read-only CPU witness',a);
 assert(a>0&&b>a,'Original actual planted field missing');
 const source=html.slice(a,b);
 assert.match(source,/W353 human-scale planted field and harvest clearance/);
-assert.match(source,/leafReach:\.115\+d\*\.065/);
+assert.match(source,/leafReach:\.174\+d\*\.074/);
 assert.doesNotMatch(source,/Math\.random\(|people\.push\(|city\.push\(|state\.food\s*[+\-=]/);
 const shader=html.slice(html.indexOf('const vs=\`'),html.indexOf('const fs=\`'));
 assert(shader.includes('W353 actual farmer-visible cutting corridor'));
@@ -42,8 +42,8 @@ for(const season of [0,1,2,3])for(const compact of [true,false]){
 }
 for(let i=0;i<100;i++){
  const p=ctx.profile(19,.2,i,1);
- assert(p.height>.5&&p.height<1.8&&p.leafReach>=.115&&p.leafReach<.181,
-  'human-scale narrow leaves around actual grain ear');
+ assert(p.height>.5&&p.height<1.8&&p.leafReach>=.174&&p.leafReach<.249,
+  'W375 curved seed-rooted leaves must match exact production reach bounds');
  assert.equal(p.authorityModified,false);
 }
 assert.equal(ctx.profile(19,.2,12,1).height,ctx.profile(19,.2,12,1).height);
