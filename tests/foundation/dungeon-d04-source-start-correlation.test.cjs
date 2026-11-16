@@ -118,8 +118,7 @@ test('D04 impact audit does not infer submitted damage from absent, malformed or
   {...authenticLateInjury,frameId:null,submittedClockMs:null},
   {...authenticLateInjury,renderSubmissionMs:1550},
   {...authenticLateInjury,visualAdvanceMs:NaN},
-  {...authenticLateInjury,submittedClockMs:8400},
-  {...authenticLateInjury,decision:'delivered',audio:true,visualDrawableAtSubmission:null}
+  {...authenticLateInjury,submittedClockMs:8400}
  ]){
   const report=auditD04ImpactFramePhases({receipts:[specimen]});
   assert.equal(report.sampleSynchronized,false);
@@ -127,6 +126,17 @@ test('D04 impact audit does not infer submitted damage from absent, malformed or
   assert.notEqual(report.damageReceipts[0].status,'TIMELY_FRAME_RECEIPT_ONLY');
   assert.equal(report.damageReceipts[0].dominantPhase,'UNVERIFIED');
  }
+});
+test('valid but late and non-drawable HP CPU clocks remain measured but not visually accepted',()=>{
+ const specimen={...authenticLateInjury,decision:'delivered',audio:true,
+  visualDrawableAtSubmission:null};
+ const r=auditD04ImpactFramePhases({receipts:[specimen]}).damageReceipts[0];
+ assert.equal(r.status,'UNVERIFIED');
+ assert.equal(r.failureReason,'LATE_OR_CONTRADICTED_SUBMISSION');
+ assert.equal(r.dominantPhase,'RENDERER_CALL_INTERVAL');
+ assert.equal(r.renderSubmissionMs,1281);
+ assert.equal(r.visualSubmissionVerified,false);
+ assert.equal(r.audibleImpactVerified,false);
 });
 test('D04 impact audit rejects duplicate and over-budget histories rather than hiding conflicting evidence',()=>{
  for(const receipts of [
