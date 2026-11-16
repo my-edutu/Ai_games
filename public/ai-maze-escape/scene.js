@@ -94,7 +94,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     parryScenicBounds.setFromObject(root);
     if (parryScenicBounds.isEmpty()) return null;
     let left=Infinity, right=-Infinity, bottom=Infinity, top=-Infinity;
-    let nearestZ=Infinity, farthestZ=-Infinity;
+    let nearestZ=Infinity;
     for(const x of [parryScenicBounds.min.x,parryScenicBounds.max.x])
       for(const y of [parryScenicBounds.min.y,parryScenicBounds.max.y])
         for(const z of [parryScenicBounds.min.z,parryScenicBounds.max.z]) {
@@ -104,9 +104,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           left=Math.min(left,point.x);right=Math.max(right,point.x);
           bottom=Math.min(bottom,point.y);top=Math.max(top,point.y);
           nearestZ=Math.min(nearestZ,point.z);
-          farthestZ=Math.max(farthestZ,point.z);
         }
-    return {left,right,bottom,top,nearestZ,farthestZ};
+    return {left,right,bottom,top,nearestZ};
   }
 
   const sky = new THREE.HemisphereLight('#fff3df', '#355e5c', 1.42);
@@ -1590,7 +1589,6 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // projected 3D volume occludes an actor. Walls, terraced foundations,
     // traps, gates, props, navigation and every unobserved cell remain.
     // The fixed orthographic actor framing, HUD and privacy gates are untouched.
-    let earnedScenicEvidence=null;
     if (parryScenicRoots.length) {
       const earnedScenicSightline=cameraMode==='follow'
         && !settings.reducedMotion && !result && !cameraGate
@@ -1605,29 +1603,20 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         camera.updateMatrixWorld();
         const pipPhysical=projectedParryScenicBox(explorer.group);
         const thornbackPhysical=projectedParryScenicBox(verifiedGuardianModel);
-        let publicRoots=0, sourceOverlaps=0, hiddenRoots=0;
         if(pipPhysical && thornbackPhysical) {
           for(const scenic of parryScenicRoots) {
             // No remembered or no-longer-visible scenery can be cut away.
             if(!s.visibleCells.includes(scenic.userData.cell))continue;
-            publicRoots++;
             const scenicPhysical=projectedParryScenicBox(scenic);
-            const intersects=!!scenicPhysical && (
+            if(scenicPhysical && (
               publicGuardianScenicOccludesActor(pipPhysical,scenicPhysical,true,false)
-              || publicGuardianScenicOccludesActor(thornbackPhysical,scenicPhysical,true,false));
-            if(intersects)sourceOverlaps++;
-            if(intersects || scenic.userData.parrySightlineHidden===true) {
+              || publicGuardianScenicOccludesActor(thornbackPhysical,scenicPhysical,true,false)
+              || scenic.userData.parrySightlineHidden===true)) {
               scenic.visible=false;
               scenic.userData.parrySightlineHidden=true;
-              hiddenRoots++;
             }
           }
         }
-        // Evidence from REAL connected meshes and the current public world.
-        // The native screenshot sidecar can now reject a no-op visually,
-        // without passing this debug witness into the AI or any HUD text.
-        earnedScenicEvidence={roots:parryScenicRoots.length,publicRoots,
-          sourceOverlaps,hiddenRoots,actorsMeasured:!!(pipPhysical&&thornbackPhysical)};
       }
     }
     const background = settings.highContrast ? '#50665f' : '#b2c6b6';
@@ -1926,7 +1915,6 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         // non-passage fossil organ is near Pip. It cannot reveal hidden
         // cells, command the AI or claim an unobserved gameplay event.
         fossilPerformanceShot,
-        earnedParryPhysicalScenicCutaway:earnedScenicEvidence,
         fossilActorPhysicalPose: fossilCue?.strength > .12 ? {
           strength: fossilCue.strength,
           torsoY: explorer.group.getObjectByName('breathing torso')?.position.y ?? null,

@@ -170,26 +170,19 @@ export function publicGuardianEarnedRecoilPhysicalStage(
 // The installed camera supplies TRUE projected connected-mesh rectangles.
 // During a currently witnessed autonomous lantern counter, a known public,
 // non-colliding fossil ornament may recede from the actor shot if it really
-// crosses a meaningful piece of the actor's physical volume in screen space.
-// Do not use an outstretched limb's nearest tip as a torso depth. The caller
+// covers a meaningful piece of a nearer character in screen space. The caller
 // alone selects optional decor; this is NOT a visibility/path or AI rule.
 export function publicGuardianScenicOccludesActor(actor,scenic,earned=false,reducedMotion=false) {
   if(!earned||reducedMotion||!actor||!scenic)return false;
-  const properties=['left','right','bottom','top','nearestZ','farthestZ'];
+  const properties=['left','right','bottom','top','nearestZ'];
   if(!properties.every(k=>Number.isFinite(actor[k])&&Number.isFinite(scenic[k])))
     return false;
   if(actor.left>=actor.right || actor.bottom>=actor.top
     || scenic.left>=scenic.right || scenic.bottom>=scenic.top
-    || actor.nearestZ<=-1 || actor.farthestZ>=1
-    || scenic.nearestZ<=-1 || scenic.farthestZ>=1
-    || actor.farthestZ<actor.nearestZ || scenic.farthestZ<scenic.nearestZ)return false;
-  // Exact native Pass413 320/390 revealed the mistaken near-tip comparison:
-  // Pip's projecting lantern/boots can be closer than the fossil blocking
-  // its torso. Also, 0.015 orthographic NDC is over a metre at near=.1/far=180.
-  // Test the physical fossil's NEAREST surface against the CENTER of the
-  // actual complete actor volume. Only foreground ornament can be hidden.
-  const actorBodyDepth=(actor.nearestZ+actor.farthestZ)*.5;
-  if(scenic.nearestZ>=actorBodyDepth-.002)return false;
+    || actor.nearestZ<=-1 || actor.nearestZ>=1
+    || scenic.nearestZ<=-1 || scenic.nearestZ>=1)return false;
+  // Smaller camera NDC depth is nearer. A distant backdrop stays untouched.
+  if(scenic.nearestZ>=actor.nearestZ-.015)return false;
   const w=Math.max(0,Math.min(actor.right,scenic.right)-Math.max(actor.left,scenic.left));
   const h=Math.max(0,Math.min(actor.top,scenic.top)-Math.max(actor.bottom,scenic.bottom));
   // Require actual substantial overlap, not an unrelated plant beside Pip.
