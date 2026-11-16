@@ -129,8 +129,7 @@ async function sampleChromiumDecodedD04WebM(input){
  const source='chromium-decoded-real-webgl-original-webm';
  const fail=reason=>({source,status:'UNAVAILABLE',reason:String(reason).slice(0,160),
   sampleSynchronized:false});
- // Playwright serializes ONLY this function into the page: authenticate in
- // this realm as well. The module-level sibling remains for Node classifiers.
+ // This function is serialized ALONE into the page, without module helpers.
  const serial=input?.source==='real-webgl-receipt-readback-serial-original-audio';
  const primary=input?.source==='real-canvas-plus-opted-in-soundstage'&&
   /^video\/webm;codecs=vp8,opus$/i.test(input?.mimeType||'')&&
@@ -148,41 +147,36 @@ async function sampleChromiumDecodedD04WebM(input){
   input.videoTracks!==1||input.audioTracks!==1||
   input.optedInAtStart!==true||input.originalSoundstageTrackLive!==true||
   !Number.isSafeInteger(input.bytes)||input.bytes<=1024||
-  input.bytes>4*1024*1024||
-  typeof input.base64!=='string'||
+  input.bytes>4*1024*1024||typeof input.base64!=='string'||
   input.base64.length>Math.ceil(4*1024*1024*4/3)+8)
   return fail('No bounded, opted-in authentic WebGL + soundstage recording');
- let objectUrl=null,video=null;
+ let objectUrl=null,video=null,callbackId=null,callbackActive=false;
  try{
   const binary=atob(input.base64);
   if(binary.length!==input.bytes)return fail('WebM encoded length mismatch');
   const bytes=new Uint8Array(binary.length);
   for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
-  const blob=new Blob([bytes],{type:'video/webm'});
-  objectUrl=URL.createObjectURL(blob);
+  objectUrl=URL.createObjectURL(new Blob([bytes],{type:'video/webm'}));
   video=document.createElement('video');
-  video.muted=true;video.playsInline=true;video.preload='auto';
-  // Muted, hidden, read-only decoder; does not alter the active game scene,
-  // feed the recorder or create an audio output connection.
+  // Decode without audible playback, new AudioContext or game-canvas work.
+  video.muted=true;video.volume=0;video.playsInline=true;video.preload='auto';
   video.style.cssText='position:fixed;left:-10000px;top:-10000px;width:1px;height:1px';
   document.body.appendChild(video);
-  const waitFor=(name,ms)=>{
-   return new Promise(resolve=>{
-    let done=false;
-    const finish=ok=>{if(done)return;done=true;clearTimeout(timer);
-     video.removeEventListener(name,listener);
-     video.removeEventListener('error',onError);resolve(ok)};
-    const listener=()=>finish(true),onError=()=>finish(false);
-    const timer=setTimeout(()=>finish(false),ms);
-    video.addEventListener(name,listener,{once:true});
-    video.addEventListener('error',onError,{once:true});
-   });
-  };
+  const waitFor=(name,ms)=>new Promise(resolve=>{
+   let done=false;
+   const finish=ok=>{if(done)return;done=true;clearTimeout(timer);
+    video.removeEventListener(name,listener);
+    video.removeEventListener('error',onError);resolve(ok)};
+   const listener=()=>finish(true),onError=()=>finish(false);
+   const timer=setTimeout(()=>finish(false),ms);
+   video.addEventListener(name,listener,{once:true});
+   video.addEventListener('error',onError,{once:true});
+  });
   const metadata=waitFor('loadedmetadata',2200);
   video.src=objectUrl;video.load();
   if(!await metadata)return fail('Chromium could not decode WebM metadata');
-  const duration=video.duration;
-  if(!Number.isFinite(duration)||duration<.2||duration>30||
+  const duration=video.duration,finite=Number.isFinite(duration);
+  if((finite&&(duration<.2||duration>30))||
    !Number.isInteger(video.videoWidth)||video.videoWidth<16||
    video.videoWidth>4096||!Number.isInteger(video.videoHeight)||
    video.videoHeight<16||video.videoHeight>4096)
@@ -192,12 +186,9 @@ async function sampleChromiumDecodedD04WebM(input){
   const ctx=checker.getContext('2d',{willReadFrequently:true});
   if(!ctx)return fail('Chromium pixel readback unavailable');
   const samples=[];
-  for(const fraction of [.08,.32,.62,.91]){
-   const requested=Math.min(duration-.015,Math.max(.001,duration*fraction));
-   if(!Number.isFinite(requested)||requested<0)continue;
-   const seek=waitFor('seeked',1300);
-   try{video.currentTime=requested}catch{continue}
-   if(!await seek||video.readyState<2)continue;
+  const samplePixels=at=>{
+   if(!Number.isFinite(at)||at<0||at>30||
+    (samples.length&&at<=samples[samples.length-1].requestedSeconds))return;
    try{
     ctx.drawImage(video,0,0,24,16);
     const pixels=ctx.getImageData(0,0,24,16).data;
@@ -210,23 +201,70 @@ async function sampleChromiumDecodedD04WebM(input){
      const luma=Math.round((r*3+g*6+b)/10);
      min=Math.min(min,luma);max=Math.max(max,luma);
     }
-    samples.push({requestedSeconds:Number(requested.toFixed(5)),
+    samples.push({requestedSeconds:Number(at.toFixed(5)),
      hash:hash.toString(16).padStart(8,'0'),lumaRange:max-min});
-   }catch{return fail('Chromium decoded canvas pixel read failed')}
+   }catch{/* An inaccessible decoded picture is never admitted as evidence. */}
+  };
+  let samplingMode='seek';
+  if(finite){
+   for(const fraction of [.08,.32,.62,.91]){
+    const requested=Math.min(duration-.015,Math.max(.001,duration*fraction));
+    if(!Number.isFinite(requested)||requested<0)continue;
+    const seek=waitFor('seeked',1300);
+    try{video.currentTime=requested}catch{continue}
+    if(!await seek||video.readyState<2)continue;
+    samplePixels(requested);
+   }
+  }else{
+   // Chromium MediaRecorder WebM often has NO Duration element, even though
+   // FFmpeg independently decodes actual VP8 frames. Never call seek(Infinity).
+   // Playback frame callbacks read only decoded real pictures, bounded to
+   // four pictures / 5.3s. This video is muted and detached from the game.
+   samplingMode='playback-frame-callback';
+   if(typeof video.requestVideoFrameCallback!=='function')
+    return fail('Durationless WebM requires decoded video-frame callbacks');
+   await new Promise(resolve=>{
+    let stopped=false;
+    const finish=()=>{if(stopped)return;stopped=true;callbackActive=false;
+     clearTimeout(timeout);resolve()};
+    const timeout=setTimeout(finish,5300);
+    callbackActive=true;
+    const onFrame=(now,metadata)=>{
+     if(stopped)return;
+     if(video.readyState>=2&&Number.isFinite(metadata?.mediaTime))
+      samplePixels(metadata.mediaTime);
+     if(samples.length>=4){finish();return}
+     callbackId=video.requestVideoFrameCallback(onFrame);
+    };
+    callbackId=video.requestVideoFrameCallback(onFrame);
+    try{
+     const playing=video.play();
+     if(playing&&typeof playing.catch==='function')
+      playing.catch(()=>finish());
+    }catch{finish()}
+    video.addEventListener('ended',finish,{once:true});
+    video.addEventListener('error',finish,{once:true});
+   });
   }
   return {source,status:samples.length>=2?'SAMPLED':'UNAVAILABLE',
-   reason:samples.length>=2?null:'Fewer than two decoded seek samples',
+   reason:samples.length>=2?null:'Fewer than two decoded video pictures',
    width:video.videoWidth,height:video.videoHeight,
-   durationSeconds:Number(duration.toFixed(5)),
-   samples,sampleSynchronized:false,
-   limitation:'Decoded seek snapshots are not video-frame counts, presentation PTS or combat/audio sync'};
+   durationSeconds:finite?Number(duration.toFixed(5)):null,
+   samplingMode,samples,sampleSynchronized:false,
+   limitation:'Decoded video pictures are not proven combat contact, original PCM onset or sample-accurate A/V synchronization'};
  }catch(error){return fail('Chromium decoder: '+String(error))}
  finally{
-  if(video){try{video.pause();video.removeAttribute('src');video.load()}catch{}
-   video.remove()}
+  callbackActive=false;
+  if(video){
+   if(callbackId!==null&&typeof video.cancelVideoFrameCallback==='function')
+    try{video.cancelVideoFrameCallback(callbackId)}catch{}
+   try{video.pause();video.removeAttribute('src');video.load()}catch{}
+   video.remove();
+  }
   if(objectUrl)URL.revokeObjectURL(objectUrl);
  }
 }
+
 /**
  * Distinct decoded pictures from the unchanged real WebM can diagnose moving
  * encoded pixels even without FFmpeg. This deliberately never classifies a
@@ -239,8 +277,12 @@ function classifyChromiumDecodedRealWebM(media={},proof={}){
   proof.source!==unavailable.source||proof.status!=='SAMPLED'||
   !Number.isSafeInteger(proof.width)||proof.width<16||proof.width>4096||
   !Number.isSafeInteger(proof.height)||proof.height<16||proof.height>4096||
-  !Number.isFinite(proof.durationSeconds)||proof.durationSeconds<.2||
-  proof.durationSeconds>30||!Array.isArray(proof.samples)||
+  !((proof.samplingMode==='playback-frame-callback'&&
+   proof.durationSeconds===null)||
+   ((proof.samplingMode===undefined||proof.samplingMode==='seek')&&
+    Number.isFinite(proof.durationSeconds)&&proof.durationSeconds>=.2&&
+    proof.durationSeconds<=30))||
+  !Array.isArray(proof.samples)||
   proof.samples.length<2||proof.samples.length>4)
   return unavailable;
  let lastTime=-1;
@@ -248,7 +290,9 @@ function classifyChromiumDecodedRealWebM(media={},proof={}){
   if(!Number.isFinite(sample.requestedSeconds)||
    sample.requestedSeconds<=lastTime||
    sample.requestedSeconds<0||
-   sample.requestedSeconds>=proof.durationSeconds||
+   (proof.samplingMode==='playback-frame-callback'?
+    sample.requestedSeconds>30:
+    sample.requestedSeconds>=proof.durationSeconds)||
    typeof sample.hash!=='string'||!/^[0-9a-f]{8}$/.test(sample.hash)||
    !Number.isSafeInteger(sample.lumaRange)||
    sample.lumaRange<12||sample.lumaRange>255)return unavailable;
