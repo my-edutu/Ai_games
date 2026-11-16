@@ -91,9 +91,19 @@ export function guardianLinkSite(source, t, offset = 0) {
   // service hoist, then return them to their original source cap attachment.
   // The entry (t=0), true cap (t=1), deterministic source HP and all collision
   // remain EXACTLY as published. This is one continuous, real 3D mechanism.
-  const nearHoist = source.guardianHalfHeight > 0 && t > 0 && t < .36
-    ? Math.min(54000, Math.max(48000, source.guardianHalfHeight * 2.8)) *
-      Math.sin(Math.PI * t / .36) ** 2
+  // Genuine original 960x600 danger-camera rays (campaign 43793707722,
+  // source tick 441) struck the FIRST opaque guardian power clutch at 13.77m,
+  // then a bronze rail and HP relay at 15.6m, BEFORE reaching the real hero
+  // centre at 20.29m. Moving the gateway or changing its shader cannot fix
+  // this separate near-camera obstacle. Arch this SAME connected 3D transmission
+  // mechanically ABOVE the active guardian/climber duel before descending
+  // to the real cap. Do not hide the HP clutches, copy the circuit or alter
+  // the source anchors, damage response, renderer count or collision.
+  // Keep the rising and descending limbs continuous, with exact zero lift
+  // at t=0 and t=.44. The high span is inside the monumental clockwork bay.
+  const nearHoist = source.guardianHalfHeight > 0 && t > 0 && t < .44
+    ? Math.min(143000, Math.max(115000, source.guardianHalfHeight * 6.8)) *
+      Math.sin(Math.PI * t / .44) ** 2
     : 0;
   const y = source.fromY + (source.toY - source.fromY) * t +
     Math.sin(Math.PI * t) * 6200 + nearHoist + offset;
