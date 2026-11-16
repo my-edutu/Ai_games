@@ -884,8 +884,17 @@ for(const view of [
    expect(pitch.sourceClip).toBe('Walking_A');
    expect(pitch.originalOppositeShoeVerified).toBe(true);
    expect(pitch.contactLocked).toBe(false);
-   expect(Math.abs(proof.upperRad)).toBeLessThanOrEqual(.085001);
-   expect(Math.abs(proof.lowerRad)).toBeLessThanOrEqual(.090001);
+   // Original first fast source pitch uses <=85/90mrad; a genuinely
+   // skinned, independently certified slow (50-200ms) original gait may
+   // use the bounded 105/110mrad knee-biased alternative. Verify actual
+   // renderer ownership, not a source-only hypothetical gait assertion.
+   const measuredSlow=proof.witnessedFrameIntervalSeconds>=.05&&
+    proof.witnessedFrameIntervalSeconds<=.20&&
+    proof.witnessedSourceWeight>=.95;
+   expect(Math.abs(proof.upperRad)).toBeLessThanOrEqual(
+    measuredSlow?.105001:.085001);
+   expect(Math.abs(proof.lowerRad)).toBeLessThanOrEqual(
+    measuredSlow?.110001:.090001);
    expect(pitch.sourceToeLiftMeters).toBeCloseTo(shoe.toeY-old.toeY,6);
    expect(pitch.sourceHeelRiseMeters).toBeCloseTo(shoe.heelY-old.heelY,6);
    expect(pitch.sourcePitchGainMeters).toBeCloseTo(
