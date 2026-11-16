@@ -28,7 +28,29 @@ npx playwright test -c tests/browser/dungeon-d04.playwright.config.cjs
 
 Open \`http://localhost:4181/dungeon\` for the known spectator and \`http://localhost:4181/dungeon?feedback=d04\` for the preview, using \`npm run dungeon:stream\` once the model assets are present.
 
-**Truthfulness:** the local detached-module tests passed **25/25**, and a separate Chromium audition verified original WebAudio synthesis. The newly added integration-contract test and genuine Dungeon/Three.js browser preview have **not** run on this branch yet; the shared coding tunnel was disconnected. No CI job ran on the new branch as of the latest inspection. The audition WAV is not a real dungeon audiovisual sync test.
+**Initial frozen handoff (historical only):** detached tests passed 25/25 at branch creation; the shared coding tunnel was disconnected then and genuine browser playback had not yet run. This is superseded by the dated exact-head CI evidence below. The original independent audition WAV was never gameplay audiovisual synchronization evidence.
+
+## Exact-head browser acceptance review — 16 November 2026
+
+**Review target:** isolated branch commit \`92c95f262044a3204b333a59ae21b365e6a2c099\`; frozen BEFORE remains \`281735d0910c6b2443648af976003d50412ee324\`.
+**Source:** [GitHub Actions run 43947176376](https://github.com/my-edutu/Ai_games/actions/runs/43947176376) and its [64-file real-game evidence artifact](https://github.com/my-edutu/Ai_games/actions/runs/43947176376/artifacts/14267886937), produced 2026-11-16. The \`contracts\` job passed **410/410 native tests** and \`npm run build\`. The authentic Chrome 157 WebGL job passed **6/7 browser tests** but correctly failed the strict actual-damage admission gate.
+
+### Dominant measured acceptance blocker — browser rendering, NOT a VFX sound-deadline waiver
+
+- **Original, actual DungeonRuntime witness:** seed \`visual-room-art-18\`, run/floor \`1:1\`, adjacent ticks **3→4**, victim count **1**, authenticated checksum \`92c5595b\`. Its exact anonymous damage cue reported **\`stale-frame\`** after **1,302 ms** between source observation and submission. Thus **0/1** selected HP victims had a timely drawable cue; the browser gate returned \`AUTHENTIC_DAMAGE_NOT_VISUALLY_ADMITTED\`. Do **not** replace this RED verdict with later unrelated accepted cues.
+- Across a separate genuine continuing HP receipt audit: **11** distinct injury receipts, **2** drawable/timely at tick **37**, with **2** original \`source.start()\` matches, and **9** stale or unsubmitted. Those two successes are scheduling/retained-draw witnesses, **not** independently decoded visible blade contact or aligned PCM onset.
+- Matched original-authority six-view evidence: **3 existing viewpoints × 1440×900 and 390×844**, **12 matched ticks**, **5 matched HP-loss ticks**, **0** visually drawable HP-loss ticks **across every viewpoint**. This independent trial is not rescued by the later two receipts from another recording.
+- Genuine continuous-preview phase receipts include a desktop frame with **3,778 ms** from D04 visual-advance start through WebGL submission, of which **3,768 ms** was measured around \`renderer.render()\`, with **0 ms** recorded in the D04 visual pass. A separate 390px frame measured **3,199 ms** to submission, **3,193 ms** in \`renderer.render()\`, **0 ms** in the D04 visual pass. These are **measured main-thread phase intervals**, not proof of GPU completion, a specific shader/asset cause, or D04 being universally free.
+- The actual combined WebM had consented original sound and requested-frame receipts; the serial same-window A/V readback contained **6** parsed video packet PTS values (1,043–3,824 ms), but no qualified moving decoded pixels. The authentic **5.5 s / 44.1 kHz mono PCM** has energy without proven physical-contact onset. On this runner, optional \`ffmpeg\`/\`ffprobe\` system decoders were absent and Chromium's muted decoder could not decode video metadata. **Actual audiovisual sample synchronization remains UNVERIFIED.**
+
+### Exact perf-owner handoff (outside D04 edit ownership)
+
+Keep D04 cue causality, scene/one-shot dedup, WebAudio opt-in, 400 ms limit, existing seven pools and fixed draw limits unchanged. The game rendering/performance owner—not this D04 worker—should profile the existing \`renderer.render()\` boundary on authenticated continuous combat frames, compare identical seed/run/floor/tick/checksum in legacy and \`?feedback=d04\` with and without MediaRecorder, and isolate blocking compilation/uploads/driver or readback paths **without guessing which is responsible**. Use already emitted \`slowSubmissionPhase\` frame IDs and the paired desktop/mobile artifacts; record wall-time sections immediately around existing render and frame submission, real GL/canvas configuration and first-frame versus steady-state stages. The observed long renderer intervals are present in legacy comparisons too; do not attribute them to the D04 retained pools without matched proof.
+
+**Exit criterion before D04 can claim genuine real-hit feedback:** fresh same-head Chrome captures must show the **exact selected adjacent HP victim** timely and drawable on a submitted frame within the unchanged 400 ms cutoff, and decoded moving contact pixels must be checked against real original-bus sample onset. Repeat matched six viewpoints and all Warden/miss/block/dodge/arrow/spell scenarios, then a full 20-minute cleanup soak. A working WebM recorder, one timestamped \`source.start()\`, a screenshot, or 410 passing tests do not substitute for these gates.
+
+**Ownership guard:** no change to main, Draft PR #49, \`games/ai-dungeon/src\`, protected character rigs, camera, global light or other owner branches. The legacy spectator remains the default; D04 stays isolated behind \`?feedback=d04\`.
+
 
 ## Mandatory authentic LOOK / FEEL / SOUND trials
 
