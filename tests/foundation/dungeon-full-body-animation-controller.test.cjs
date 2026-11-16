@@ -6699,3 +6699,67 @@ test('RED: verified full-source residual can accept restrained 140mrad original 
  assert.match(renderer,/sourceToeJointAdaptiveTrialLast/);
  assert.match(renderer,/\[-\.14,\.14\]/);
 });
+
+
+// RED-FIRST original KayKit 390px source Walking_A frame, native WebGL
+// Actions #43934118286, source-rig #14260128935, tick 5.
+// REAL skinned Y: swing toe -101.9597mm and heel +177.6691mm, floor -20mm.
+// REAL first-fast paired source hip/knee probe raised toe 11.8513mm but
+// heel 27.2399mm; old >=12mm follow-up threshold wrongly routed into
+// larger HIP arcs. Then real -105/+85mrad was accepted with +14.1522mm toe
+// and +31.1799mm airborne heel, worsening a still-buried original shoe.
+// XZ test trial anchors (except the recorded final receipt) are SYNTHETIC;
+// no alternative knee-biased GLB pose, toe clearance or foot plant is claimed.
+test('RED: real 390px first-fast source swing must not reward an already airborne heel faster than a buried toe',async()=>{
+ const {planOriginalSourceSwingLinkedLegFollowups:follow,
+  chooseOriginalSourceSwingLinkedLegTrial:choose}=await load();
+ const loaded={heelY:-.039206044374257565,toeY:-.0065881908649593965,
+  heelXZ:[-4.834634826373373,-6.957512629162979],
+  toeXZ:[-5.102860035712929,-6.932039462349189]};
+ const swing={heelY:.1776691122270675,toeY:-.10195971086260962,
+  heelXZ:[-4.704255414909162,-7.108059726885979],
+  toeXZ:[-4.808024046586135,-7.136418417871553]};
+ const before={left:loaded,right:swing};
+ const after=(toeLift,heelRise)=>({left:{...loaded},right:{
+  ...swing,toeY:swing.toeY+toeLift,heelY:swing.heelY+heelRise}});
+ const starters=[
+  {upperRad:.09,lowerRad:-.075,
+   after:after(-.006003045582558389,-.028997053358129993)},
+  {upperRad:-.09,lowerRad:.075,
+   after:after(.01185129126092227,.027239871822371087)}
+ ];
+ const gate={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceChainVerified:true,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceBindVerified:true,ownerLocomotion:true,alive:true,visible:true,
+  rootTravel:.010039267836341459,frameAge:0,
+  frameInterval:.016600000000003945,side:'right',floorTopY:-.02,
+  previousLinkedCertified:false,before};
+ const followups=follow({...gate,trials:starters});
+ assert.deepEqual(followups,[[-.075,.09],[-.085,.09]],
+  'spend only TWO remaining real two-shoe reads on knee-led linked joints, not bigger hip swings');
+ const harmful=[...starters,
+  {upperRad:-.105,lowerRad:.085,
+   after:{left:{...loaded},right:{...after(.014152209366108823,.031179922909197855).right,
+    heelXZ:[-4.710922830801984,-7.1077029341644495],
+    toeXZ:[-4.76635909086932,-7.1362502687845115]}}},
+  {upperRad:-.11,lowerRad:.09,after:after(.015098746866662988,.03273019167978236)}
+ ];
+ assert.equal(choose({...gate,trials:harmful}),null,
+  'the ACTUAL heel-amplifying first-fast shoe cannot pass merely because the toe lifted');
+ // Hypothetical knee-led outcome: SYNTHETIC, must be tested on a real GLB
+ // before any visual performance claim; these checks protect the selector.
+ const hypothetical={upperRad:-.075,lowerRad:.09,after:after(.021,.010)};
+ const candidate=choose({...gate,trials:[...starters,hypothetical,
+  {upperRad:-.085,lowerRad:.09,after:after(.019,.012)}]});
+ assert.equal(candidate?.originalSwingPitchProtected,true,
+  'a genuinely measured future knee-led candidate may be accepted only if both shoes earn it');
+ assert.equal(candidate?.contactLocked,false);
+ assert.equal(candidate?.oppositeShoePreserved,true);
+ assert.equal(candidate?.upperRad,-.075);
+ for(const unsafe of [
+  {mode:'hurt'},{reducedMotion:true},{interrupted:true},
+  {sourceClipName:'Idle'},{sourceWeight:.8},{sourceInstanceSame:false}
+ ])assert.equal(choose({...gate,trials:[...starters,hypothetical],...unsafe}),null,
+  'never pose an invalid original-source owner or source clip');
+});
