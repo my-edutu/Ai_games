@@ -587,8 +587,19 @@ async function attachD04LiveAVCapture(page,started,testInfo){
  const usePrimary=chromiumInput===primaryAV;
  // Read actual encoded WebM PTS without mistaking receipt requests for frames.
  // This runs with or without FFprobe and never asserts pixel motion/audio sync.
- const webmPts=inspectRealWebMVideoPTS(raw.isolated?.sameWindowReadbackAV);
- const encodedYield=classifyEncodedFrameYield(raw.isolated?.sameWindowReadbackAV,webmPts);
+ let packetInput=raw.isolated?.sameWindowReadbackAV;
+ let webmPts=inspectRealWebMVideoPTS(packetInput);
+ // The authentic serial A/V recorder may be empty even when the PRIMARY
+ // opted-in canvas/soundstage WebM contains independently decodable packets.
+ // Only after rejecting the serial source, inspect that already-captured
+ // primary recording. This never creates a new encoder or authorizes sound.
+ if(webmPts.status!=='PARSED'){
+  const primaryPacketProof=inspectRealWebMVideoPTS(raw.clip);
+  if(primaryPacketProof.status==='PARSED'){
+   packetInput=raw.clip;webmPts=primaryPacketProof;
+  }
+ }
+ const encodedYield=classifyEncodedFrameYield(packetInput,webmPts);
  raw.decoder={webmPts,encodedYield,
   serialRealVideo:decodeSerialRealWebGLMotion(raw.isolated?.serialRealVideo),
    readbackVideo:decodeReceiptReadbackMotion(raw.isolated?.receiptReadbackVideo),
@@ -606,6 +617,7 @@ async function attachD04LiveAVCapture(page,started,testInfo){
  const chromiumReport=JSON.stringify({
   inputSource:chromiumInput?.source??null,
   failedSerialReason,attemptedAuthenticatedPrimary:primaryPixels!==null,
+  packetCaptureSource:webmPts.status==='PARSED'?packetInput?.source:null,
   webmPacketTiming:webmPts,encodedFrameYield:encodedYield,
   inspected:chromiumPixels,classification:chromiumClassification,
   sampleSynchronized:false,
