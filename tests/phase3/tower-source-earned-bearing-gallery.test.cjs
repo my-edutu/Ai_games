@@ -44,6 +44,46 @@ test('missing real support, wrong run, defeated source or claimed physics veto p
     cap:{id:'f8:cap'}}};
   assert.equal(f(invalid,held),null);
 });
+test('authentic raised F9 step is the actual terminal bearing anchor, not an unrelated flat bronze roof',async()=>{
+  const {plannedEarnedClockworkVoidBearings:f}=await load();
+  const plan=f(source,held);
+  assert.ok(plan);
+  const floorY=(held.oldRoofY-source.chunkBaseY)/10000;
+  const supportedRaisedY=(step.y+step.height-source.chunkBaseY)/10000;
+  assert.equal(plan.nodes[0].sceneY,floorY,'old floor starts on the authenticated original sill');
+  assert.equal(plan.nodes[2].x,step.x+Math.floor(step.width/2),
+    'outgoing steelwork actually terminates at the existing source-authored first raised platform');
+  assert.equal(plan.nodes[2].sceneY,supportedRaisedY,
+    'the upper load bay follows the actual supported rising route instead of a fake level corridor');
+  assert.ok(plan.nodes[1].sceneY>floorY && plan.nodes[1].sceneY<supportedRaisedY);
+  assert.ok(plan.nodes.every(n=>n.anchorY===floorY),
+    'each rising load column remains grounded in the real old roof plane');
+  const alternate={...source,platforms:[ground,{...step,x:step.x+20000,y:step.y+20000}]};
+  const repl=f(alternate,held);
+  assert.ok(repl);
+  assert.notEqual(repl.nodes[2].x,plan.nodes[2].x);
+  assert.notEqual(repl.nodes[2].sceneY,plan.nodes[2].sceneY,
+    'the architecture responds to real platform geometry, never hard-coded hero choreography');
+});
+test('source-grounded elevated transfer trusses carry weight without putting a curtain through the actor',async()=>{
+  const {plannedEarnedClockworkVoidBearings:f,plannedSourceEarnedSuspendedBearingSections:g}=await load();
+  const nodes=f(source,held).nodes, sections=g(nodes);
+  assert.deepEqual(sections.map(x=>x.length),[7,12,12],
+    'two supported pitched inner/outboard load ties connect each actual rising station');
+  assert.ok(sections.every((section,i)=>section.some(part=>
+    Math.abs(Math.hypot(part.p[0],part.p[2])-21.6)<.2 &&
+    part.s[1]>=nodes[i].height+(nodes[i].sceneY-nodes[i].anchorY)-.01 &&
+    Math.abs(part.p[1]-((nodes[i].anchorY+nodes[i].sceneY+nodes[i].height)/2))<.1
+  )),'every main vertical rests on the original source roof and meets its rising source support crown');
+  for(let i=1;i<3;i++){
+    const diagonals=sections[i].filter(part=>Math.abs(part.r[2])>.06 && part.s[1]>1.5);
+    assert.equal(diagonals.length,2,'support continuity comes from pitched physical links, not hanging horizontal beams');
+    assert.ok(diagonals.some(part=>Math.hypot(part.p[0],part.p[2])<22.4));
+    assert.ok(diagonals.some(part=>Math.hypot(part.p[0],part.p[2])>24 &&
+      part.p[1]-part.s[1]/2>1.8));
+  }
+  assert.ok(sections.flat().length<=42,'three original instanced batches retain a bounded draw and upload budget');
+});
 test('the authentic gallery is integrated only in Tower world rebuild, not in simulation or HUD',()=>{
   const world=fs.readFileSync('public/infinite-tower-climb/visuals/world.mjs','utf8');
   assert.match(world,/import \{ plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections \} from '.\/source-earned-bearing-run\.mjs'/);
