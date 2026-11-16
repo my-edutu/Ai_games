@@ -24508,7 +24508,11 @@ function realFarmWorkSightline(eye,citizen,hands=[]){
  // and ears; fixed fields, season and real workers only, no extra geometry.
  const cropHeight=(season===3?.26:season===0?.66:season===1?1.20:1.06)*1.28;
  const contact=getHarvestInteractionAudit();
- const realContact=contact.active&&contact.citizen===citizen.name?contact.contact:null;
+ // Crop is physically parted ONLY during a genuine cutting stroke, matching
+ // the resident vertex shader. Preparing/gathering hands cannot claim a
+ // visual corridor that the still-standing grain never actually opened.
+ const realContact=contact.active&&contact.citizen===citizen.name&&
+  contact.stage==='cutting'&&contact.contact[2]>0?contact.contact:null;
  const face=[citizen.x,terrain(citizen.x,citizen.z)+1.37,citizen.z];
  const wristTargets=hands.length?hands:[
   [citizen.x-.25,terrain(citizen.x,citizen.z)+.54,citizen.z+.32],
@@ -24731,6 +24735,44 @@ function physicallyReadableCourierRouteShot(shot,framing,portrait){
 // W370: a watched REAL farmer is a live labor witness even when the standard
 // Live Shift director is off. Only the authoritative producer and its current
 // actual occupation can activate the physical close-up; no actor or task is staged.
+// W371: reserve exterior, physically wrist-clear eyes for the ACTUAL
+// harvesting citizen before the general scenic cap discards them. The farm,
+// planted stems, blade, workers, fences and camera collisions stay authoritative.
+// Only a bounded set of original view options can enter the detailed survey.
+function reserveActualFarmWristSightlines(options,citizen,hands){
+ const MAX_PHYSICAL_CHECKS=72,MAX_RESERVED_EYES=12;
+ if(!Array.isArray(options)||!citizen||!Array.isArray(hands))
+  throw Error('W371 invalid original crop/wrist camera survey');
+ const eligible=options.filter(o=>o&&o.shot&&
+  o.shot.eyeCollision?.clear===true&&o.shot.blockers===0&&
+  !o.cropEyeInsideField&&o.alignment>.10&&
+  o.shot.projectedWorkerHeightFraction>=.16);
+ // Higher outside-field eyes can look DOWN into the authentic grain-cutting
+ // pocket. These were discarded by the old close-up-first scenic shortlist.
+ eligible.sort((a,b)=>Number(b.shot.pitch>=.48)-Number(a.shot.pitch>=.48)||
+  a.coarse-b.coarse||a.ordinal-b.ordinal);
+ const perBearing=new Map(),reserved=[];
+ let checked=0,cropClear=0,fenceRejected=0;
+ for(const option of eligible){
+  if(checked>=MAX_PHYSICAL_CHECKS||reserved.length>=MAX_RESERVED_EYES)break;
+  const used=perBearing.get(option.angleIndex)||0;
+  if(used>=8)continue;
+  perBearing.set(option.angleIndex,used+1);
+  checked++;
+  const physical=realFarmWorkSightline(option.shot.eye,citizen,hands);
+  option.actualGrainCropWitness=physical;
+  if(!physical.active||physical.cropFaceBlockers!==0||
+   physical.cropWristBlockers!==0||
+   (physical.cameraInsideField&&!physical.physicalInteriorEyeClear))continue;
+  cropClear++;
+  const fence=farmFenceLandmarkOcclusion(option.shot.eye,citizen,hands);
+  if(fence.blockedFace||fence.blockedHands){fenceRejected++;continue;}
+  reserved.push(option);
+ }
+ return {reserved,checked,eligible:eligible.length,cropClear,
+  fenceRejected,maximumChecks:MAX_PHYSICAL_CHECKS,
+  maximumReservations:MAX_RESERVED_EYES,readOnly:true};
+}
 function genuineGrainLaborCameraActive(citizen){
  return Boolean(grainJourney&&citizen&&grainJourney.producer===citizen.name&&
   isWorkingAtSite(citizen));
@@ -24833,7 +24875,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const angles=offsets.map(offset=>base+offset);
  if(working&&realWork)angles.push(preferredYaw);
  const pitches=realFarmWork&&actionCameraPitch===null?
-  (portraitLens?[.14,.23,.32,.42]:[.13,.21,.32,.43]):
+  (portraitLens?[.14,.31,.49,.64]:[.13,.21,.32,.43]):
   unloading?[.21,.29,.38]:
   filmedLoadedCourier?(portraitLens?[.15,.23,.32,.40]:[.16,.24,.32,.40]):
   journeyCamera?[.26,.34,.43]:
@@ -24841,7 +24883,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   [normalPitch,Math.max(.16,normalPitch-.08),
    Math.min(.55,normalPitch+.08)]):[.76];
  const zooms=realFarmWork&&actionCameraZoom===null?
-  (portraitLens?[3.15,3.45,3.8,4.2,4.8,5.6]:[3.8,4.4,5.0,5.9]):
+  (portraitLens?[3.15,3.8,4.6,5.5,6.35,7.3]:[3.8,4.4,5.0,5.9]):
   unloading?(portraitLens?[2.45,2.85,3.35,4.4,5.7]:[3.8,4.4,5.1,5.7,6.8]):
   filmedLoadedCourier?(portraitLens?[2.4,2.8,3.25,4.2,5.45,6.20]:[3.85,4.55,5.25,6.05,7.1]):
   journeyCamera?[6.5,7.6,8.8]:
@@ -24890,11 +24932,25 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
    Math.abs(delta)*.9+Math.abs(z-normalZoom)*.35+
    Math.abs(p-normalPitch)*3;
   possibilities.push({shot,coarse,alignment,angleIndex,
-   ordinal:possibilities.length});
+   cropEyeInsideField:Boolean(cropEye),ordinal:possibilities.length});
  }
  const originalSurveyCandidates=possibilities.length;
+ // A crop-clear harvest view must survive the bounded town-scenic shortlist
+ // instead of losing all exterior high eyes to near-but-wheat-blocked ones.
+ const actualGrainWitness=realFarmWork&&portraitLens?
+  reserveActualFarmWristSightlines(possibilities,citizen,hands):
+  {reserved:[],checked:0,eligible:0,cropClear:0,fenceRejected:0};
  possibilities=planBoundedCameraScenicSurvey(possibilities,
   portraitLens?162:126);
+ const keepGrainEyes=new Set(actualGrainWitness.reserved.map(o=>o.ordinal));
+ for(const option of actualGrainWitness.reserved){
+  if(possibilities.some(o=>o.ordinal===option.ordinal))continue;
+  for(let i=possibilities.length-1;i>=0;i--){
+   if(keepGrainEyes.has(possibilities[i].ordinal))continue;
+   possibilities[i]=option;break;
+  }
+ }
+ possibilities.sort((a,b)=>a.coarse-b.coarse||a.ordinal-b.ordinal);
  for(const option of possibilities){
   const scenic=(working||journeyCamera)?foregroundSceneProjection(
    option.shot.eye,target,roofs):{cover:0,largest:0,volumes:0};
@@ -24919,6 +24975,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  let frontBest=null,frontScore=Infinity,frontFraming=null;
  let readableBest=null,readableScore=Infinity,readableFraming=null;
  let usableFrontBest=null,usableFrontScore=Infinity,usableFrontFraming=null;
+ let physicalGrainHandsBest=null,physicalGrainHandsScore=Infinity,
+  physicalGrainHandsFraming=null,physicalGrainHandsCandidates=0;
  let clearFrontCandidates=0,readableFrontCandidates=0;
  let clearHomewardBest=null,clearHomewardFraming=null,clearHomewardScore=Infinity,
   clearHomewardCandidates=0;
@@ -24929,7 +24987,11 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  // every ray is checked against real roofs, bystanders, forest and work hands.
  // Keep nearby alternatives when fronts are physically blocked.
  const surveyMax=portraitLens?78:56;
- const probes=possibilities.slice(0,portraitLens?40:28);
+ const probes=actualGrainWitness.reserved.slice();
+ for(const option of possibilities){
+  if(probes.length>=(portraitLens?40:28))break;
+  if(!probes.includes(option))probes.push(option);
+ }
  const reserved=portraitLens?24:22;
  // W309: authentic 1024px W308 footage showed Selene's entire workday
  // buried behind a market freight wall, despite an active REAL worker.
@@ -24966,7 +25028,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   shot.foregroundVegetationVolumes=canopy.volumes;
   shot.vegetationFaceBlockers=canopy.faceBlockers;
   const framing=cameraShotFraming(shot,roofs,citizen,hands);
-  const crop=realFarmWork?realFarmWorkSightline(shot.eye,citizen,hands):null;
+  const crop=realFarmWork?
+   (shot.actualGrainCropWitness||realFarmWorkSightline(shot.eye,citizen,hands)):null;
   if(crop)Object.assign(shot,crop);
   const cropPenalty=crop?.cropForegroundPenalty||0;
   const score=coarse+cropPenalty+framing.blockedBodyRays*110+
@@ -24979,6 +25042,27 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
    framing.foregroundSceneCover*(portraitLens?1100:working?700:0)+
    shot.foregroundCargoCover*(portraitLens?1200:650)+
    canopy.cover*(portraitLens?1650:850)+canopy.faceBlockers*550;
+  // The actual cutting wrist is a primary visual subject. A reserved shot
+  // can win only if its physical grain, fence, body, hand, roof, trees and
+  // bystander rays all clear; the world is never faded or moved.
+  const trueGrainHands=realFarmWork&&crop?.active&&
+   crop.cropFaceBlockers===0&&crop.cropWristBlockers===0&&
+   (!crop.cameraInsideField||crop.physicalInteriorEyeClear)&&
+   !(shot.farmFenceSightline?.blockedFace||shot.farmFenceSightline?.blockedHands)&&
+   alignment>.12&&shot.eyeCollision?.clear&&shot.blockers===0&&
+   framing.handBlockers===0&&framing.foregroundCitizenBlockers===0&&
+   framing.blockedBodyRays<=2&&framing.cameraProximityWarnings===0&&
+   shot.foregroundSceneCover<.20&&shot.foregroundActorCoreCover<.22&&
+   shot.foregroundCargoCover<.18&&canopy.faceBlockers===0&&
+   canopy.cover<.27&&shot.projectedWorkerHeightFraction>=(portraitLens?.17:.20);
+  if(trueGrainHands){
+   physicalGrainHandsCandidates++;
+   const cost=score-alignment*90-shot.projectedWorkerHeightFraction*150;
+   if(cost<physicalGrainHandsScore){
+    physicalGrainHandsBest=shot;physicalGrainHandsFraming=framing;
+    physicalGrainHandsScore=cost;
+   }
+  }
   // A real loaded cart gets a clear physically surveyed documentary camera,
   // never an invented courier or a forcibly hidden roof/post/market stand.
   if(filmedLoadedCourier&&
@@ -25073,17 +25157,22 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
     readableFraming=framing;}
   }
  }
- const chosen=receivingBest||routeBest||clearHomewardBest||frontBest||readableBest||usableFrontBest||best,
+ const chosen=receivingBest||routeBest||clearHomewardBest||frontBest||readableBest||
+  physicalGrainHandsBest||usableFrontBest||best,
   framing=receivingBest?receivingFraming:routeBest?routeFraming:clearHomewardBest?clearHomewardFraming:
    frontBest?frontFraming:readableBest?readableFraming:
+   physicalGrainHandsBest?physicalGrainHandsFraming:
    usableFrontBest?usableFrontFraming:bestFraming;
  return {...chosen,...framing,
   courierRouteCamera:filmedLoadedCourier,
   routeHeading:filmedLoadedCourier?walkingFace:null,
   compositionScore:receivingBest?receivingScore:routeBest?routeScore:clearHomewardBest?clearHomewardScore:frontBest?frontScore:
-   readableBest?readableScore:usableFrontBest?usableFrontScore:bestScore,
+   readableBest?readableScore:physicalGrainHandsBest?physicalGrainHandsScore:
+   usableFrontBest?usableFrontScore:bestScore,
   workFacingMode:receivingBest?'verified-worker-hand-and-parcel':
-   routeBest?'clear-physical-loaded-courier':clearHomewardBest?'clear-homeward-path':frontBest?'clear-front':readableBest?'face-and-hands':
+   routeBest?'clear-physical-loaded-courier':clearHomewardBest?'clear-homeward-path':
+   frontBest?'clear-front':readableBest?'face-and-hands':
+   physicalGrainHandsBest?'real-wheat-clear-cutting-hands':
    usableFrontBest?'visible-front':'obstructed',
   readableFrontCandidates,readableReceivingCandidates,routeReadableCandidates,
   witnessedCargoContact:receivingBest?realMarketAim.contact:null,
@@ -25091,6 +25180,13 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   facingAlignment:realWork?Math.cos(chosen.yaw-facing):null,
   walkingFacingAlignment:homecoming?Math.cos(chosen.yaw-facing):null,
   clearFrontCandidates,clearHomewardCandidates,workFacing:facing,portraitLens,
+  physicalGrainHandsCandidates,
+  actualGrainEyesInspected:actualGrainWitness.checked,
+  actualGrainEyesReserved:actualGrainWitness.reserved.length,
+  actualGrainCropClearEyes:actualGrainWitness.cropClear,
+  actualGrainFenceRejected:actualGrainWitness.fenceRejected,
+  actualGrainSelectedHandsClear:Boolean(physicalGrainHandsBest&&
+   chosen===physicalGrainHandsBest),
   viewportAspect:canvas.clientWidth/Math.max(1,canvas.clientHeight),
   originalBlockers:original.blockers,
   farmFenceSightline:realFarmWork?chosen.farmFenceSightline:null,
@@ -25640,6 +25736,10 @@ function workdayCameraCompositionAudit(){
   actualCropWristBlockers:realCrop?.cropWristBlockers??0,
   actualCropCameraInsideField:realCrop?.cameraInsideField??false,
   plantedCropWitnessClear:!cropBlocked,
+  plannedCropClearEyes:lastFollowShot?.actualGrainCropClearEyes??0,
+  plannedCropEyesInspected:lastFollowShot?.actualGrainEyesInspected??0,
+  plannedCropEyesReserved:lastFollowShot?.actualGrainEyesReserved??0,
+  plannedPhysicalGrainHandsCandidates:lastFollowShot?.physicalGrainHandsCandidates??0,
   // The ACTUAL current eye and aim, not a planned camera target.
   projectedWorkerHeightFraction:projectedWorkerBodyFraction(eye,aim,person),
   plannedProjectedWorkerHeightFraction:lastFollowShot?.projectedWorkerHeightFraction??null,
