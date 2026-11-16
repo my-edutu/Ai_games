@@ -147,8 +147,9 @@ test('source-qualified gallery paint survives old cap retirement by returned fra
   const world=fs.readFileSync('public/infinite-tower-climb/visuals/world.mjs','utf8');
   assert.match(world,/sourceEarnedBearingHandoff=\{runToken:snapshot\.runToken/);
   assert.match(world,/handoff\.retiring=true;[\s\S]*?handoff\.retirementStartProgress=handoff\.displayProgress/);
-  assert.match(world,/handoff\.retirementFrames\/8/);
-  assert.match(world,/bearingHandoff\.retirementFrames=Math\.min\(8,[\s\S]*?bearingHandoff\.retirementFrames\+1\)/);
+  assert.match(world,/handoff\.retirementSeconds \/ \.95/);
+  assert.match(world,/advanceSourceEarnedPaletteReturn/);
+  assert.match(world,/bearingHandoff\.retirementSeconds=next\.returnedSeconds/);
   assert.match(world,/snapshot\.runToken===handoff\.runToken/);
   assert.match(world,/sourceEarnedBearingHandoff = null/);
   assert.doesNotMatch(world,/snapshot\.player\.x\s*=|snapshot\.floor\s*=\s*9/);
