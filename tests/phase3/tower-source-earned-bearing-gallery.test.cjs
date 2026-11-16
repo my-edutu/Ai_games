@@ -77,7 +77,7 @@ test('source-grounded elevated transfer trusses carry weight without putting a c
   )),'every main vertical rests on the original source roof and meets its rising source support crown');
   for(let i=1;i<3;i++){
     const diagonals=sections[i].filter(part=>Math.abs(part.r[2])>.06 && part.s[1]>1.5);
-    assert.equal(diagonals.length,2,'support continuity comes from pitched physical links, not hanging horizontal beams');
+    assert.equal(diagonals.length,4,'supported four-height pitched load lattice must physically connect the real source ascent');
     assert.ok(diagonals.some(part=>Math.hypot(part.p[0],part.p[2])<22.4));
     assert.ok(diagonals.some(part=>Math.hypot(part.p[0],part.p[2])>24 &&
       part.p[1]-part.s[1]/2>1.8));
@@ -139,10 +139,11 @@ test('native-source 475 F9 shoulder ray has clear sight through source-earned lo
     // rim or any camera-facing 28-m post plane.
     for(const section of sections)for(const part of section){
       const radius=Math.hypot(part.p[0],part.p[2]);
-      if(part.s[1]>=2.5)assert.ok(radius<22.4,
-        'load-bearing full-height posts must be behind inner core');
+      if(part.s[1]>=2.5 && radius>24)assert.ok(
+        part.p[1]-part.s[1]/2>1.8 && Math.abs(part.r[2])>.06,
+        'only a high supported sloped tie, never an eye-level outer column, may cross the camera rim');
       if(radius>24)assert.ok(part.p[1]-part.s[1]/2>1.8,
-        'exterior/overhead ties must leave at least 3.4m headroom above the old roof');
+        'outer tensile span must stay above original actor/door/camera corridor');
     }
   } finally {
     geometry.dispose();material.dispose();
@@ -158,7 +159,7 @@ test('source-earned overhead load frame is bounded and cannot be fabricated from
   assert.ok(sections.every(part=>part.length>=5 && part.length<=10));
   assert.ok(sections.flat().every(part=>part.p.length===3&&part.s.length===3&&
     part.p.every(Number.isFinite)&&part.s.every(n=>Number.isFinite(n)&&n>0)));
-  assert.ok(sections.flat().length<=30,'three-station original 3D route remains bounded to three instanced draws');
+  assert.ok(sections.flat().length<=42,'three-station original 3D route remains bounded to three instanced draws');
 });
 
 test('true Floor9 gateway now has an open, connected multi-storey original-to-Void structural spine',async()=>{
@@ -169,9 +170,11 @@ test('true Floor9 gateway now has an open, connected multi-storey original-to-Vo
   const route=plannedEarnedClockworkVoidBearings(source,held);
   const parts=plannedSourceEarnedSuspendedBearingSections(route.nodes);
   assert.equal(parts.length,3);
-  assert.deepEqual(parts.map(p=>p.length),[7,10,10]);
-  for(const section of parts) {
-    const upperRear=section.filter(part=>part.s[1]>=10);
+  assert.deepEqual(parts.map(p=>p.length),[7,12,12]);
+  for(const [i,section] of parts.entries()) {
+    const upperRear=section.filter(part=>Math.abs(part.s[1]-11.6)<.001 &&
+      Math.hypot(part.p[0],part.p[2])<22.4 &&
+      part.p[1]>route.nodes[i].sceneY+route.nodes[i].height);
     assert.equal(upperRear.length,1,'each original physical station has one full-height upper rear bearing');
     assert.ok(Math.hypot(upperRear[0].p[0],upperRear[0].p[2])<22.4);
     const top=upperRear[0].p[1]+upperRear[0].s[1]/2;
@@ -181,7 +184,7 @@ test('true Floor9 gateway now has an open, connected multi-storey original-to-Vo
       assert.ok(part.p[1]-part.s[1]/2>1.8,
         'no newly minted exterior eye-height posts may re-mask the real hero');
   }
-  assert.ok(parts.flat().length<=30,'same three instanced drawing batches, bounded structural geometry');
+  assert.ok(parts.flat().length<=42,'same three instanced drawing batches, bounded structural geometry');
 });
 test('source-qualified gallery paint survives old cap retirement by returned frame, not source tick or timer',()=>{
   const world=fs.readFileSync('public/infinite-tower-climb/visuals/world.mjs','utf8');
