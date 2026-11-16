@@ -2121,10 +2121,34 @@ export function createMazeWorld(options = {}) {
         // The older blocked-cell flank rule remains, but a genuine
         // spectator-side public guardian wall may outrank a merely nearby
         // pressure apron. A CONNECTED hazard never earns this cutaway.
+        // Pass412: original native 320/390 PARIED-recoil rays identify
+        // a true tall, impassable public wall lip (cell93) in front of Pip,
+        // although the old near-corridor duel has ended at cell74.
+        // Rebuild only a currently witnessed, same-tier, MUTUALLY SEALED
+        // wall between two published ordinary cells as the EXISTING low,
+        // OPAQUE guardian parapet. Never cut a real gate, moving hazard,
+        // held objective, crossing, elevation break or unknown wall.
+        // This physical wall remains a wall in the authoritative maze.
+        const guardianEarnedRecoilScreen=!!adjacentKnown
+          && earnedRecoilQuiet.has(c.cell) && earnedRecoilQuiet.has(n)
+          && s.visibleCells.includes(c.cell) && s.visibleCells.includes(n)
+          && c.blocked===false && adjacentKnown.blocked===false
+          && !c.trap && !adjacentKnown.trap
+          && !c.checkpoint && !adjacentKnown.checkpoint
+          && !c.clue && !adjacentKnown.clue
+          && c.cell!==s.exitCell && n!==s.exitCell
+          && !s.keys.some(k=>k.cell===c.cell || k.cell===n)
+          && Array.isArray(c.neighbors) && Array.isArray(adjacentKnown.neighbors)
+          && !c.neighbors.includes(n) && !adjacentKnown.neighbors.includes(c.cell)
+          && Math.abs(cellHeight(c.cell,s.width,s.height)
+            -cellHeight(n,s.width,s.height))<1e-8
+          && !s.doors.some(d=>(d.a===c.cell&&d.b===n)
+            ||(d.b===c.cell&&d.a===n));
         const guardianParapet = !publicParapet
-          && (!pressureParapet || guardianForegroundSealedScreen)
+          && (!pressureParapet || guardianForegroundSealedScreen
+            || guardianEarnedRecoilScreen)
           && n>=0 && knownByCell.has(n) && !gateEdges.has(key)
-          && (guardianForegroundSealedScreen
+          && (guardianForegroundSealedScreen || guardianEarnedRecoilScreen
             || ((guardianCauseway.has(c.cell) || guardianCauseway.has(n))
               && (guardianSealedReefScreen ||
                 (((guardianSightlines.has(c.cell) && guardianBlockedRelief.has(n))

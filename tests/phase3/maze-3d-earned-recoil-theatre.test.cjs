@@ -78,6 +78,8 @@ test('installed Three builds a continuous physically flush earned court without 
     const after=scene.stats();
     assert.ok(after.guardianCourtTiles>=2,
       'visible complete Pip and Thornback get real authored low Tideglass geometry');
+    assert.ok(after.guardianSightlineParapets>=1,
+      'a true currently public parried recoil lowers the mutually sealed actor-front wall, never opens it');
     assert.equal(after.geometryCount,initial.geometryCount,
       'reuses the actual original pooled Three geometry classes');
     assert.equal(after.materialCount,initial.materialCount,
@@ -89,6 +91,11 @@ test('installed Three builds a continuous physically flush earned court without 
     scene.update({...s,threats:[{cell:8,lanternParried:false}]});
     assert.equal(scene.stats().guardianCourtTiles,0,
       'no invented parry can retain the cutaway');
+    assert.equal(scene.stats().guardianSightlineParapets,0,
+      'the authentic full-height sealed wall returns when there is no witnessed counter');
+    scene.update({...s,doors:[{a:7,b:8,open:false}]});
+    assert.equal(scene.stats().guardianSightlineParapets,0,
+      'an actual disclosed closed gate cannot be cut into a spectator parapet');
     for(let i=0;i<6;i++){
       scene.update({...s,runToken:'earned-theatre-reset-'+i});
       assert.ok(scene.stats().guardianCourtTiles>=2);
