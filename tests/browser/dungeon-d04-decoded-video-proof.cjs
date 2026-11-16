@@ -114,6 +114,17 @@ function authenticatedOriginalD04WebM(input){
   pump.requestedFrames>0&&pump.requestedFrames<=pump.observedFrameAdvances||
   pump.mode==='native-capture-stream'&&pump.requestedFrames===0;
 }
+/**
+ * Prefer the separately authenticated original readback, but never let a
+ * RECORDED label on an invalid/unfinished serial diagnostic obscure the
+ * real opted-in primary WebGL canvas + original soundstage recording.
+ * Selection alone makes no pixel, timing or PCM synchronization claim.
+ */
+function selectAuthenticatedOriginalD04WebM(serialAV,primaryAV){
+ if(authenticatedOriginalD04WebM(serialAV))return serialAV;
+ if(authenticatedOriginalD04WebM(primaryAV))return primaryAV;
+ return null;
+}
 async function sampleChromiumDecodedD04WebM(input){
  const source='chromium-decoded-real-webgl-original-webm';
  const fail=reason=>({source,status:'UNAVAILABLE',reason:String(reason).slice(0,160),
@@ -254,4 +265,5 @@ function classifyChromiumDecodedRealWebM(media={},proof={}){
 }
 
 module.exports={decodeSerialRealWebGLMotion,decodeReceiptReadbackMotion,decodeSameWindowReadbackMotion,
- sampleChromiumDecodedD04WebM,classifyChromiumDecodedRealWebM};
+ sampleChromiumDecodedD04WebM,classifyChromiumDecodedRealWebM,
+ selectAuthenticatedOriginalD04WebM};
