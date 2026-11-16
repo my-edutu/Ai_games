@@ -3,7 +3,7 @@ import {mergeGeometries} from '/dungeon/vendor/addons/utils/BufferGeometryUtils.
 import {GLTFLoader} from '/dungeon/vendor/addons/loaders/GLTFLoader.js';
 import {clone as cloneSkeleton} from '/dungeon/vendor/addons/utils/SkeletonUtils.js';
 import {planAuthoredMotion,planContactBodyLanguage} from '/dungeon/character-motion-plan.js';
-import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,auditOriginalSourceSwingAnkleSlew,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,confirmOriginalSourceSwingAnkleNetClearance,confirmOriginalSourceSwingToeContinuation,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,confirmOriginalSourceSwingCalfNetClearance,retireOriginalSourceCalfMemory,planOriginalSourceStanceAnkleRelief,chooseOriginalSourceStanceAppliedWitness,chooseOriginalSourceLoadedKneeWitness,chooseOriginalSourceSwingThighSupport,chooseOriginalSourceSwingLinkedLegTrial,planOriginalSourceSwingLinkedLegFollowups,planOriginalSourceAuthoredNeutralBlends,planOriginalSourceSafeNeutralBlendSamples,resolveLicensedIdleJointQuaternionTracks,chooseOriginalSourceAuthoredNeutralLegTrial,certifyOriginalSourceFirstSwingPitch,qualifyOriginalSourceLoadedStanceCompanion,qualifyOriginalSourceAnkleLinkedEscalation,reconcileOriginalSourceAnkleLinkedEscalation,chooseOriginalSourceSwingToeJointRelief,chooseOriginalSourceSwingLinkedToeFinisher,planOriginalSourceDeepSwingFootFollowups,chooseOriginalSourceSwingLinkedFootFinisher,planOriginalSourceFootDorsiflexionAxis,planOriginalSourceWeightedSoleHingeAxis,planOriginalSourceKneeChainFootHingeAxis,planOriginalSourceSwingThighHold,planOriginalSourceSwingThighEaseOut,verifyOriginalSourceOppositeStanceForSwingThigh,reconcileOriginalSourceSwingToeProofWithThigh,planOriginalSourceLoadedPelvisSupport,planOriginalSourceStanceSlideRelief,planOriginalSourceWalkingTorsoCounterturn,planOriginalSourceStanceSampleHandoff,planOriginalSourceStanceSlowFramePrime,planOriginalSourceStanceReliefCarry,verifyOriginalSourceLoadedPelvisFootWitness,verifyRestoredRootOriginalSourceSoleSafety,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingMixerFrameDelta,planImportedWalkingBlendRate,planImportedRealTravelCrossfade,planImportedWitnessedHurtMixerFrame,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedCombatWalkStop,shouldFreezeDeferredImportedCombatWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
+import {planNativeWalkStartFromTravel,planNativeSourceIdleGaitFrame,planOriginalSourceSoleGrounding,composeOriginalSourceGroundedPivotY,selectOriginalOutsolePatchVertices,planOriginalSourceToeBindAxis,planOriginalSourceSwingToeClearance,auditOriginalSourceSwingAnkleSlew,selectOriginalSourceSwingAnkleTrial,confirmOriginalSourceSwingToeLift,confirmOriginalSourceSwingAnkleNetClearance,confirmOriginalSourceSwingToeContinuation,planOriginalSourceSwingCalfAssist,selectOriginalSourceSwingCalfTrial,confirmOriginalSourceSwingCalfNetClearance,retireOriginalSourceCalfMemory,planOriginalSourceStanceAnkleRelief,chooseOriginalSourceStanceAppliedWitness,chooseOriginalSourceLoadedKneeWitness,chooseOriginalSourceSwingThighSupport,chooseOriginalSourceSwingLinkedLegTrial,planOriginalSourceSwingLinkedLegFollowups,planOriginalSourceAuthoredNeutralBlends,planOriginalSourceSafeNeutralBlendSamples,resolveLicensedIdleJointQuaternionTracks,sampleLicensedIdleJointQuaternionAtPhase,chooseOriginalSourceAuthoredNeutralLegTrial,certifyOriginalSourceFirstSwingPitch,qualifyOriginalSourceLoadedStanceCompanion,qualifyOriginalSourceAnkleLinkedEscalation,reconcileOriginalSourceAnkleLinkedEscalation,chooseOriginalSourceSwingToeJointRelief,chooseOriginalSourceSwingLinkedToeFinisher,planOriginalSourceDeepSwingFootFollowups,chooseOriginalSourceSwingLinkedFootFinisher,planOriginalSourceFootDorsiflexionAxis,planOriginalSourceWeightedSoleHingeAxis,planOriginalSourceKneeChainFootHingeAxis,planOriginalSourceSwingThighHold,planOriginalSourceSwingThighEaseOut,verifyOriginalSourceOppositeStanceForSwingThigh,reconcileOriginalSourceSwingToeProofWithThigh,planOriginalSourceLoadedPelvisSupport,planOriginalSourceStanceSlideRelief,planOriginalSourceWalkingTorsoCounterturn,planOriginalSourceStanceSampleHandoff,planOriginalSourceStanceSlowFramePrime,planOriginalSourceStanceReliefCarry,verifyOriginalSourceLoadedPelvisFootWitness,verifyRestoredRootOriginalSourceSoleSafety,inferImportedSourceKneeBendAxis,assessImportedSourceKneeGeometry,measureImportedKneeSegmentsInAssetCoordinates,advanceOriginalSourceSwingTravelWitness,hasOriginalSourceSwingTravelWitness,advanceFullBodyController,auditImportedAnimationClips,planConstrainedFootSupport,planImportedOneShotPhase,planImportedOneShotEntry,planImportedDeathSourceStep,planImportedLivingSourceStep,planImportedWalkingMixerFrameDelta,planImportedWalkingBlendRate,planImportedRealTravelCrossfade,planImportedWitnessedHurtMixerFrame,planImportedWalkingEntryPhase,planImportedWalkingContinuity,planImportedWalkArrivalFreeze,shouldFreezeDeferredImportedWalk,planImportedCombatWalkStop,shouldFreezeDeferredImportedCombatWalk,planImportedWalkExitBrake,planSourceRigLandingRelease,planNativeLandingVisibleDelta,planSourceRigLandingPelvisSupport,planSourceRigWalkReentryRelease,planNativeWalkToGuardGait,planNativeImportedLegOwnership,shouldRestartImportedOneShot,shouldRetainImportedSharedIdleClock,chooseImportedSourceClip} from '/dungeon/full-body-animation-controller.js';
 import {measureSourceRigDeformation,isSourceSoleBoneName} from '/dungeon/native-rig-deformation-plan.js';
 import {planRangedBodyPose,ownsImportedRangedUpperBody} from '/dungeon/ranged-encounter-plan.js';
 import {planSkinnedDefeatPose,planSkinnedHitResponse,resolveImpactSide} from '/dungeon/impact-choreography-plan.js';
@@ -2707,6 +2707,20 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
    return rejectOriginalNeutral('licensed-idle-tracks-unavailable');
   const mounts=[upper,lower,foot],targets=[];
   const verifiedSourceTracks=[];
+  // Source-native temporal contract: all three licensed Idle joints are
+  // sampled at the SAME actual Idle clip time, derived from the live
+  // Walking_A AnimationAction's phase, not three unrelated keyframe zeros.
+  const walkActionClip=actor.activeClip?.getClip?.();
+  const originalWalkClock=actor.activeClip?.time;
+  const originalIdleDuration=sourceIdle?.duration;
+  if(walkActionClip?.name!=='Walking_A'||
+   !Number.isFinite(walkActionClip.duration)||walkActionClip.duration<=.001||
+   !Number.isFinite(originalWalkClock)||originalWalkClock<0||
+   !Number.isFinite(originalIdleDuration)||originalIdleDuration<=.001||
+   originalIdleDuration>30)
+   return rejectOriginalNeutral('licensed-idle-source-clock-not-proven');
+  const originalIdleSourcePhase=
+   (originalWalkClock%walkActionClip.duration)/walkActionClip.duration;
   for(const m of mounts){
    const resolved=resolveLicensedIdleJointQuaternionTracks(
     sourceIdle.tracks,m.bone.name);
@@ -2715,12 +2729,19 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
     {sourceBoneName:m.bone.name,sourceTrackReason:resolved.reason,
      sourceTrackMatches:resolved.sourceTrackMatches,
      sourceTrackNames:resolved.sourceTrackNames});
-   targets.push(new THREE.Quaternion(...resolved.quaternion).normalize());
+   const sampled=sampleLicensedIdleJointQuaternionAtPhase(
+    sourceIdle.tracks,m.bone.name,originalIdleSourcePhase,originalIdleDuration);
+   if(!sampled)return rejectOriginalNeutral(
+    'licensed-idle-phase-track-not-proven',
+    {sourceBoneName:m.bone.name,originalIdleSourcePhase});
+   targets.push(new THREE.Quaternion(...sampled.quaternion).normalize());
    verifiedSourceTracks.push({bone:m.bone.name,
-    sourceTrackMatches:resolved.sourceTrackMatches,
-    equivalentDuplicate:resolved.equivalentDuplicate,
-    sourceKeyframeCount:resolved.sourceKeyframeCount,
-    sourceTrackNames:resolved.sourceTrackNames});
+    sourceTrackMatches:sampled.sourceTrackMatches,
+    equivalentDuplicate:sampled.equivalentDuplicate,
+    sourceKeyframeCount:sampled.sourceKeyframeCount,
+    sourceTrackNames:sampled.sourceTrackNames,
+    sourceSampleTimeSeconds:sampled.sourceSampleTimeSeconds,
+    sourceKeyframeIndices:sampled.sourceKeyframeIndices});
   }
   const original=[upperOriginal.clone(),lowerOriginal.clone(),
    foot.bone.quaternion.clone()];
@@ -2744,6 +2765,8 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
    sourceClip:'Walking_A',reason:'licensed-idle-trials-angle-certified',
    originalSourceJointGapRad:originalGapRad,sourceMaxDeltaRad:.26,
    verifiedIdleJointTracks:verifiedSourceTracks,
+   sourceIdlePhase:originalIdleSourcePhase,
+   sourceIdleSampleTimeSeconds:originalIdleSourcePhase*originalIdleDuration,
    sampleBlends:safeBlends
   };
   return safeBlends;
@@ -2843,6 +2866,8 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
    neutralClip:'Idle',side,sourceProbeCount:4,
    acceptedCandidate:Boolean(candidate),contactLocked:false,before,
    originalSourceJointGapRad:originalNeutralGapRad,
+   sourceIdlePhase:actor.sourceNeutralSwingGateLast?.sourceIdlePhase??null,
+   sourceIdleSampleTimeSeconds:actor.sourceNeutralSwingGateLast?.sourceIdleSampleTimeSeconds??null,
    requestedNeutralBlends:neutralBlends,
    actuallyTestedNeutralBlends:trials.slice(2).map(t=>t.neutralBlend),
    trials:trials.slice(2).map(t=>({

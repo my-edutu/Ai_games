@@ -119,6 +119,66 @@ export function resolveLicensedIdleJointQuaternionTracks(tracks,boneName){
   sourceKeyframeCount:first.times.length,quaternion};
 }
 
+/**
+ * Sample the ACTUAL licensed original Idle quaternion track at a witnessed
+ * Walking_A clock phase. The prior full-leg source-neutral rescue always used
+ * Idle keyframe ZERO, even halfway through the native walking cycle. Real
+ * 390px GLB frames proved that frozen source pose pulled the buried toe
+ * 13–18mm FARTHER into stone, despite staying inside the knee angle limit.
+ *
+ * The caller supplies the authentic Idle clip duration so all THREE source
+ * hip/knee/foot tracks share one absolute source time. Missing, conflicting,
+ * non-linear or malformed imported bindings fail closed. This returns a
+ * source-pose reference, never a foot plant or a hit, and does not tick Mixer.
+ */
+export function sampleLicensedIdleJointQuaternionAtPhase(
+ tracks,boneName,sourcePhase,sourceClipDuration=NaN
+){
+ const audit=resolveLicensedIdleJointQuaternionTracks(tracks,boneName);
+ if(!audit.verified||!finite(sourcePhase)||sourcePhase<0||sourcePhase>=1)
+  return null;
+ const track=tracks.find(t=>t.name===audit.sourceTrackNames[0]);
+ const count=track?.times?.length;
+ if(!count||!track?.values||count>512||
+  (typeof track.getInterpolation==='function'&&
+   track.getInterpolation()!==2301))return null;
+ const first=track.times[0],last=track.times[count-1];
+ const duration=finite(sourceClipDuration)?sourceClipDuration:last;
+ if(!finite(duration)||duration<=0||duration>30)return null;
+ const sourceSampleTimeSeconds=sourcePhase*duration;
+ const target=clamp(sourceSampleTimeSeconds,first,last);
+ let left=0,right=0,alpha=0;
+ if(count>1){
+  right=1;
+  while(right<count-1&&track.times[right]<target)right++;
+  left=Math.max(0,right-1);
+  const span=track.times[right]-track.times[left];
+  if(!(span>0))return null;
+  alpha=clamp((target-track.times[left])/span,0,1);
+ }
+ const start=left*4,end=right*4,a=Array.from(track.values.slice(start,start+4));
+ const b=Array.from(track.values.slice(end,end+4));
+ let dot=a.reduce((v,x,i)=>v+x*b[i],0);
+ if(!finite(dot))return null;
+ if(dot<0){for(let i=0;i<4;i++)b[i]=-b[i];dot=-dot;}
+ let w1=1-alpha,w2=alpha;
+ if(dot<.9995){
+  const theta=Math.acos(clamp(dot,-1,1)),sin=Math.sin(theta);
+  if(sin<1e-7)return null;
+  w1=Math.sin((1-alpha)*theta)/sin;
+  w2=Math.sin(alpha*theta)/sin;
+ }
+ const quaternion=a.map((x,i)=>x*w1+b[i]*w2);
+ const length=Math.hypot(...quaternion);
+ if(!finite(length)||length<.98||length>1.02)return null;
+ for(let i=0;i<4;i++)quaternion[i]/=length;
+ return {
+  ...audit,source:'licensed-original-Idle-phase-sampled-joint',
+  sourcePhase,sourceSampleTimeSeconds,
+  sourceKeyframeIndices:[left,right],quaternion
+ };
+}
+
 export function planOriginalSourceSafeNeutralBlendSamples({
  source='',sourceClipName='',sourceChainVerified=false,
  sourceJointAngularSeparationRad=null,maxJointDeltaRad=.26
