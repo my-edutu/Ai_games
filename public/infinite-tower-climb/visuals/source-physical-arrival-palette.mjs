@@ -147,6 +147,78 @@ function previouslyVerifiedOriginalRaisedReceipt(source,held,roofY) {
     source.tick-held.crossingTick<=SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS;
 }
 
+/**
+ * The true fixed-step Floor9 trace (ticks 495-530) jumps from the old roof
+ * toward the source-authored gateway-step / f9:p2 BEFORE the first raised
+ * sole contact at tick535. A floor-ground footprint-only visual lease ended
+ * during that flight, deleting the original bronze arch at nonzero opacity.
+ *
+ * This is a conservative PRESENTATION bridge, not platform support: it
+ * requires already-defeated original guardian provenance, a real currently
+ * airborne body and an existing next-floor elevated platform physically
+ * near that body. It cannot grant a landing, collision, floor or victory.
+ */
+export function observedSourceAirborneSuccessorApproach(source,held,roofY) {
+  const p=source?.player,w=source?.lastGuardianCrossing;
+  if(!source || !held || source.floor!==9 || source.theme!=='void' ||
+     source.lifecycle!=='running' || !(p?.health>0) ||
+     !source.runToken || source.runToken!==held.runToken ||
+     held.floor!==9 || held.guardianGateRetained!==true ||
+     held.verifiedObservedFloorAdvance!==true ||
+     held.oldCapId!=='f8:cap' || held.oldRoofY!==roofY ||
+     ![source.tick,roofY,held.crossingTick,held.sourceTick,
+       held.thresholdX,held.oldCapX,held.oldCapWidth,
+       p.x,p.y,p.halfWidth,p.halfHeight,p.vy].every(valid) ||
+     held.oldCapWidth<=0 || p.halfWidth<=0 || p.halfHeight<=0 ||
+     held.thresholdX!==held.oldCapX+Math.floor(held.oldCapWidth*.76) ||
+     source.tick<held.sourceTick ||
+     source.tick-held.crossingTick>SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS ||
+     source.tick<held.crossingTick ||
+     p.grounded!==false || p.state!=='airborne' ||
+     p.groundedPlatformId!=null || !Array.isArray(source.platforms))
+    return false;
+  const recorded=w!=null &&
+    w.runToken===source.runToken && w.fromFloor===8 &&
+    w.toFloor===9 && w.cap?.id==='f8:cap' &&
+    w.guardian?.kind==='guardian' && w.guardian.active===false &&
+    Number.isFinite(w.guardian.health) && w.guardian.health<=0 &&
+    [w.sourceTick,w.exitX,w.crossingX,w.halfWidth,w.halfHeight,
+      w.cap.x,w.cap.width,w.cap.y,w.cap.height].every(valid) &&
+    w.cap.width>0 && w.cap.height>0 &&
+    w.cap.x===held.oldCapX && w.cap.width===held.oldCapWidth &&
+    w.cap.y+w.cap.height===roofY &&
+    w.exitX===held.thresholdX &&
+    w.crossingX>=w.exitX && w.crossingX<=w.exitX+60000 &&
+    w.halfWidth===p.halfWidth && w.halfHeight===p.halfHeight &&
+    w.sourceTick===held.crossingTick;
+  const historic=w==null &&
+    previouslyVerifiedOriginalRaisedReceipt(source,held,roofY);
+  if(!(recorded||historic))return false;
+  const sole=p.y-p.halfHeight;
+  if(sole<roofY-2500 || sole>roofY+230000 ||
+     Math.abs(p.x-held.thresholdX)>100000)return false;
+  const ground=source.platforms.find(platform=>
+    platform?.id==='f9:ground' &&
+    [platform.x,platform.y,platform.width,platform.height].every(valid) &&
+    platform.width>0 && platform.height>0 &&
+    platform.y+platform.height===roofY);
+  if(!ground)return false;
+  // Accept the current physically reachable segment, NOT a routeTarget or
+  // supposed future footfall. Never invent f9:p2 or accept a distant ledge.
+  return source.platforms.some(platform=>{
+    if(!platform || typeof platform.id!=='string' ||
+       !/^f9:[a-z0-9-]+$/.test(platform.id) ||
+       platform.id==='f9:ground' || platform.id==='f9:cap' ||
+       ![platform.x,platform.y,platform.width,platform.height].every(valid) ||
+       platform.width<=0 || platform.height<=0)return false;
+    const top=platform.y+platform.height;
+    return top>roofY && top<=roofY+230000 &&
+      p.x+p.halfWidth>=platform.x-30000 &&
+      p.x-p.halfWidth<=platform.x+platform.width+30000 &&
+      top-sole>=-90000 && top-sole<=120000;
+  });
+}
+
 export function observedSourceRetainedRaisedExit(source,held,roofY) {
   const p=source?.player,w=source?.lastGuardianCrossing;
   const historic=previouslyVerifiedOriginalRaisedReceipt(source,held,roofY);
@@ -200,11 +272,14 @@ export function observedSourceOriginalVisibilityWindow(source,held) {
      source.tick<held.sourceTick) return null;
   const raisedSourceSupport=observedSourceRetainedRaisedExit(
     source,held,held.oldRoofY);
-  const maxTicks=raisedSourceSupport
+  const realAirborneApproach=observedSourceAirborneSuccessorApproach(
+    source,held,held.oldRoofY);
+  const maxTicks=raisedSourceSupport || realAirborneApproach
     ?SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS:70;
   if(source.tick-held.sourceTick>maxTicks)return null;
   return {sourceBound:true,sourceTick:source.tick,maxTicks,
-    raisedSourceSupport,limitation:'Real source sightlines, never native-film or gameplay evidence'};
+    raisedSourceSupport,realAirborneApproach,
+    limitation:'Real source sightlines, never native-film or gameplay evidence'};
 }
 
 export function observedSourcePhysicalArrivalPalette(source,held=null) {
@@ -248,23 +323,28 @@ export function observedSourcePhysicalArrivalPalette(source,held=null) {
     const certifiedRaised=previouslyVerifiedOriginalRaisedReceipt(
       source,held,held?.oldRoofY) &&
       observedSourceRetainedRaisedExit(source,held,held.oldRoofY);
-    if(!(liveFirstRoof||certifiedRaised) ||
+    const certifiedFlight=observedSourceAirborneSuccessorApproach(
+      source,held,held?.oldRoofY);
+    if(!(liveFirstRoof||certifiedRaised||certifiedFlight) ||
        ![held?.observedCrossingX,held?.oldRoofY,held?.sourceTick].every(valid) ||
        ground.y+ground.height!==held.oldRoofY)return null;
     crossingX=held.observedCrossingX;roofY=held.oldRoofY;
-    sourceTick=certifiedRaised?held.crossingTick:held.sourceTick;
+    sourceTick=(certifiedRaised||certifiedFlight)
+      ?held.crossingTick:held.sourceTick;
     kind='verified-original-roof-receipt';
   }
   const sole=p.y-p.halfHeight,travel=p.x-crossingX,age=source.tick-sourceTick;
   const realRaisedOpticalExit=observedSourceRetainedRaisedExit(source,held,roofY);
-  const sourceWindow=realRaisedOpticalExit
+  const realAirborneApproach=observedSourceAirborneSuccessorApproach(
+    source,held,roofY);
+  const sourceWindow=realRaisedOpticalExit || realAirborneApproach
     ?SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS:70;
   if(!valid(sole) || !valid(travel) || !valid(age) || age<0 ||
      age>sourceWindow ||
      travel < -SOURCE_GATEWAY_RETURN_TOLERANCE || travel>100000 ||
      sole<roofY-2500 || sole>roofY+230000 ||
      (!observedSourceFloorNineRouteSupport(source,ground,roofY) &&
-       !realRaisedOpticalExit))return null;
+       !realRaisedOpticalExit && !realAirborneApproach))return null;
   // The full-body climber remains warm at the actual old sill, and walks
   // through a 90m material transition into the existing next-floor palette.
   // This changes NO geometry, physics, inputs, tick, enemy or gameplay state.
