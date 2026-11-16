@@ -199,6 +199,57 @@ test('verified HP torso-shell fragments have a restrained but readable first-fra
  }finally{low.dispose()}
 });
 
+test('verified HP fragments remain readable at a genuine 336ms frame, not after 400ms expiry',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const victim={id:'revenant',kind:'revenant',faction:'enemy',x:3,z:2,hp:14,maxHp:20};
+ const live=cue({duration:.23,severity:.3,detail:{damage:6,remainingHp:14,maxHp:20}});
+ const fixture=three(),OriginalPose=fixture.T.Object3D;
+ fixture.T.Object3D=class extends OriginalPose{
+  updateMatrix(){this.matrix={x:this.position.x,y:this.position.y,z:this.position.z,scale:this.scale.x}}
+ };
+ const stage=createPhysicalFeedbackVisuals(fixture.T,fixture.scene,{
+  requireVerifiedHpReceipt:true,
+  getCurrentSnapshot:()=>({run:1,floor:1,tick:11,units:[victim]}),
+  actorById:id=>id===victim.id?{u:victim,root:{visible:true,
+   position:{x:-6,y:0,z:-7},rotation:{y:0}}}:null
+ });
+ try{
+  assert.equal(stage.emit(live),true,'only canonical current actual HP loss receives body chips');
+  stage.advance(.05,.336);
+  assert.equal(stage.hasDrawableCue(live.id),true,
+   'a 336ms actual frame cannot silently erase the first visible genuine impact before the existing 400ms sound deadline');
+  const chips=[...fixture.scene.children][1].matrices.slice(1,4);
+  assert.ok(chips.every(m=>m.scale>=.30),
+   'a technically live but sub-pixel-sized fragment is not a readable physical impact');
+  assert.equal(stage.stats().activeDrawCalls,1);
+  assert.equal(stage.stats().reservedInstances,102);
+  stage.advance(.05,.05);
+  assert.equal(stage.hasDrawableCue(live.id),false,
+   'a 386ms-old impact must retire before the 400ms deadline, not become a permanent ghost');
+  assert.equal(stage.stats().active,0);
+ }finally{stage.dispose()}
+ const short=three();
+ const legacy=createPhysicalFeedbackVisuals(short.T,short.scene);
+ try{
+  assert.equal(legacy.emit(live),true);
+  legacy.advance(.05,.336);
+  assert.equal(legacy.hasDrawableCue(live.id),false,
+   'independent/non-strict visual auditions retain their previous brief lifetime');
+ }finally{legacy.dispose()}
+ const accessible=three();
+ const reduced=createPhysicalFeedbackVisuals(accessible.T,accessible.scene,{
+  reducedMotion:true,reducedFlash:true,requireVerifiedHpReceipt:true,
+  getCurrentSnapshot:()=>({run:1,floor:1,tick:11,units:[victim]})
+ });
+ try{
+  assert.equal(reduced.emit(live),true);
+  assert.ok([...accessible.scene.children][1].material.opacity<=.22);
+  reduced.advance(.05,.336);
+  assert.equal(reduced.hasDrawableCue(live.id),false,
+   'reduced-motion intentionally retains its short non-animated injury alternative');
+ }finally{reduced.dispose()}
+});
+
 test('visual effect groups physically distinguish guided arrow, magic orb, rooted blade, dodge grit and measured impact',async()=>{
  const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
  const {T,scene}=three();
