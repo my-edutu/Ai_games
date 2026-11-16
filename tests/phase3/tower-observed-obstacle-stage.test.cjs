@@ -34,7 +34,8 @@ fs.writeFileSync(file,fs.readFileSync(path.join(root,'public/infinite-tower-clim
   .replace("'./guardian-passage.mjs'", JSON.stringify(pathToFileURL(path.join(root, 'public/infinite-tower-climb/visuals/guardian-passage.mjs')).href))
   .replace("'./world-surface.mjs'",JSON.stringify(surfaceUrl))
   .replace("'./guardian-transmission-layout.mjs'", JSON.stringify(pathToFileURL(path.join(root, 'public/infinite-tower-climb/visuals/guardian-transmission-layout.mjs')).href))
-  .replace("'./mesh-provenance.mjs'", JSON.stringify(pathToFileURL(path.join(root, 'public/infinite-tower-climb/visuals/mesh-provenance.mjs')).href)));
+  .replace("'./mesh-provenance.mjs'", JSON.stringify(pathToFileURL(path.join(root, 'public/infinite-tower-climb/visuals/mesh-provenance.mjs')).href))
+  .replace("'./far-side-shaft-transition.mjs'", JSON.stringify(pathToFileURL(path.join(root, 'public/infinite-tower-climb/visuals/far-side-shaft-transition.mjs')).href)));
 const loaded=Promise.all([import(threeUrl),import(pathToFileURL(file).href)]);
 function snapshot({tick=100,runToken='runA',floor=3,active=true,deckX=160000,rider=false}={}){
   const base=floor*360000;
