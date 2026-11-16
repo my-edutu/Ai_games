@@ -70,7 +70,7 @@ test('D04: valid timely rendered damage still emits once, while muted/restarted 
 });
 
 
-test('D04 verified melee HP loss is staged on the first 240ms real frame, not five capped animation frames',async()=>{
+test('D04 verified melee HP loss stages at the first eligible frame while retaining its 215ms pose annotation',async()=>{
  const {createPhysicalCombatFeedback}=await load();
  let clock=0;
  const rendered=[],played=[];
@@ -99,13 +99,14 @@ test('D04 verified melee HP loss is staged on the first 240ms real frame, not fi
  assert.equal(controller.acknowledgePresentedFrame(1,.02),1);
  assert.equal(played.length,1);
  const receipt=controller.stats().recentDeliveryReceipts.at(-1);
- assert.equal(receipt.scheduledDelayMs,215);
+ assert.equal(receipt.intendedDelayMs,215,'the measured melee pose annotation survives for forensic review');
+ assert.equal(receipt.scheduledDelayMs,0,'verified HP evidence must not wait for an optional pose annotation');
  assert.equal(receipt.decision,'delivered');
  assert.equal(receipt.observationToSubmissionMs,260);
  controller.dispose();
 });
 
-test('D04 gated verified melee waits through a real 190ms interval and stages at 230ms without breaking 400ms deadline',async()=>{
+test('D04 verified melee stages on the first 190ms real frame and never duplicates visual or audio at 230ms',async()=>{
  const {createPhysicalCombatFeedback}=await load();
  let clock=0;
  // An actual HP decrease and verified incoming evidence authorize this delay.
@@ -124,9 +125,10 @@ test('D04 gated verified melee waits through a real 190ms interval and stages at
  timed.enableAudioFromGesture();
  timed.acceptSnapshot(snap(10,30));timed.acceptSnapshot(snap(11,21));
  clock=.19;timed.advance(.05,.19);
- assert.equal(visual.length,0);
+ assert.equal(visual.length,1,'the 190ms frame is the first earned visual opportunity');
+ assert.equal(audio.length,0,'retained art is not a completed WebGL receipt');
  clock=.23;timed.advance(.04,.04);
- assert.equal(visual.length,1);
+ assert.equal(visual.length,1,'the optional 215ms annotation cannot replay already-staged injury');
  assert.equal(audio.length,0);
  clock=.25;
  assert.equal(timed.acknowledgePresentedFrame(2,.02),1);
