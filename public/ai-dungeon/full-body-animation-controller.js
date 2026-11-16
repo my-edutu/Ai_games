@@ -443,6 +443,90 @@ export function chooseOriginalSourceAuthoredNeutralLegTrial({
  * The renderer may spend at most two of its existing four source-skin
  * trial slots on this option, then remeasure the final applied source skin.
  */
+
+/**
+ * Actual 390px source-GLB Walking_A shoe, Session 03 #43966055414:
+ * at 83.3ms the airborne heel was +213.14mm, buried toe -84.63mm,
+ * and the original measured opposite weighted heel/toe remained near stone.
+ * The 120/90mrad thigh+calf starter raised the buried toe 22.719mm,
+ * but elevated the airborne heel 30.796mm: the original 9mm excess-rise
+ * cutoff missed a genuine 8.077mm heel-dominated SOURCE posture.
+ *
+ * Allow the SAME remaining two real skinned-source reads to try a connected
+ * upperleg+lowerleg+foot correction, not a free-standing ankle twitch.
+ * This is ONLY a SOURCE-WITNESSED sampling opportunity, not a foot plant.
+ * The caller must still establish actual Walking_A source joint tracks,
+ * inverse-bind anatomy, a real source foot axis and BOTH genuine skinned
+ * shoe final receipts through chooseOriginalSourceCoupledKneeFootSweep.
+ * No authoritative motion, clip, world root, or extra per-frame probes.
+ */
+export function planOriginalSourceCoupledFootStarter({
+ mode='idle',sourceClipName='',sourceWeight=NaN,
+ sourceInstanceSame=false,ownerLocomotion=false,
+ alive=false,visible=false,teleport=false,reducedMotion=false,
+ interrupted=false,previousLinkedCertified=false,
+ rootTravel=NaN,frameAge=NaN,frameInterval=NaN,
+ side='',floorTopY=NaN,before=null,starterTrials=[]
+}={}){
+ const other=side==='left'?'right':side==='right'?'left':null;
+ const shoe=s=>s&&[s.heelY,s.toeY].every(finite)&&
+  [s.heelXZ,s.toeXZ].every(x=>Array.isArray(x)&&
+   x.length===2&&x.every(finite));
+ if(mode!=='move'||sourceClipName!=='Walking_A'||
+  !finite(sourceWeight)||sourceWeight<.95||sourceWeight>1.001||
+  sourceInstanceSame!==true||ownerLocomotion!==true||
+  alive!==true||visible!==true||teleport||reducedMotion||interrupted||
+  previousLinkedCertified||!other||!finite(floorTopY)||
+  Math.abs(floorTopY+.02)>.005||
+  ![rootTravel,frameAge,frameInterval].every(finite)||
+  rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.15||
+  frameInterval<.008||frameInterval>.15||
+  !shoe(before?.[side])||!shoe(before?.[other])||
+  !Array.isArray(starterTrials)||starterTrials.length!==2)return null;
+ const swing=before[side],loaded=before[other];
+ const proj=Math.hypot(swing.heelXZ[0]-swing.toeXZ[0],
+  swing.heelXZ[1]-swing.toeXZ[1]);
+ const span=Math.hypot(proj,swing.heelY-swing.toeY);
+ const depth=floorTopY-swing.toeY,heelAbove=swing.heelY-floorTopY;
+ if(depth<.05||depth>.12||heelAbove<.16||heelAbove>.34||
+  proj<.04||proj>.16||span<.24||span>.35||
+  ![loaded.heelY,loaded.toeY].every(y=>y>=floorTopY-.055&&
+   y<=floorTopY+.035))return null;
+ const candidates=[];
+ for(const t of starterTrials){
+  const after=t?.after;
+  if(![t?.upperRad,t?.lowerRad].every(finite)||
+   Math.sign(t.upperRad)===Math.sign(t.lowerRad)||
+   Math.abs(Math.abs(t.upperRad)-(frameInterval>=.05?.12:.09))>.000001||
+   Math.abs(Math.abs(t.lowerRad)-(frameInterval>=.05?.09:.075))>.000001||
+   !shoe(after?.[side])||!shoe(after?.[other]))continue;
+  const toeLift=after[side].toeY-swing.toeY;
+  const heelRise=after[side].heelY-swing.heelY;
+  // The measured 8.077mm excess heel rise is now eligible for a BETTER
+  // three-joint trial. It never makes the old worse two-joint pose admissible.
+  if(toeLift<.010||toeLift>.055||heelRise<=toeLift+.0075||
+   heelRise>.04||heelRise<0)continue;
+  const support=after[other];
+  if(Math.abs(support.heelY-loaded.heelY)>.003||
+   Math.abs(support.toeY-loaded.toeY)>.003||
+   Math.hypot(support.heelXZ[0]-loaded.heelXZ[0],
+    support.heelXZ[1]-loaded.heelXZ[1])>.004||
+   Math.hypot(support.toeXZ[0]-loaded.toeXZ[0],
+    support.toeXZ[1]-loaded.toeXZ[1])>.004)continue;
+  candidates.push({sign:Math.sign(t.upperRad),toeLift,heelRise});
+ }
+ if(!candidates.length)return null;
+ const best=candidates.reduce((a,c)=>!a||
+  c.toeLift>a.toeLift?a===null?c:c.toeLift>a.toeLift?c:a:a,null);
+ return Object.freeze({
+  source:'actual-original-source-three-joint-swing-opportunity',
+  sign:best.sign,upperRad:.075*best.sign,
+  lowerRad:-.09*best.sign,
+  toeLiftMeters:best.toeLift,excessHeelRiseMeters:best.heelRise-best.toeLift,
+  expectedSourceSkinnedTrials:2,contactLocked:false
+ });
+}
+
 export function chooseOriginalSourceCoupledKneeFootSweep({
  mode='idle',sourceClipName='',sourceWeight=NaN,
  sourceInstanceSame=false,sourceChainVerified=false,

@@ -6873,3 +6873,66 @@ test('RED: verified source knee+foot can recover a deeply buried swing without l
  assert.match(renderer,/chooseOriginalSourceCoupledKneeFootSweep\(/);
  assert.match(renderer,/sourceCoupledKneeFootProof/);
 });
+
+
+// TEST FIRST / genuine original 390px WebGL source Y receipt: exact-head
+// #43966055414 source-rig artifact #14279305654, tick 2. The XZ positions
+// below represent a plausible labelled TEST GEOMETRY, not a measured source
+// before/after 3-joint intervention. It earns only a bounded PROBE of the
+// original source, never a claim of planted feet, restored contact or IK.
+test('RED: genuine 390px heel-dominant 8.077mm source shoe gets two verified 3-joint probes, never an unearned pose',async()=>{
+ const {planOriginalSourceCoupledFootStarter:plan}=await load();
+ const swing={heelY:.21313660829010464,toeY:-.0846262110379168,
+  heelXZ:[-6.1,-7.08],toeXZ:[-6.155,-7.08]};
+ const loaded={heelY:-.005121018653353602,
+  toeY:.004887871017728418,heelXZ:[-6.3,-7.08],toeXZ:[-6.52,-7.10]};
+ const after=(lift,rise,loadedFoot=loaded)=>({left:{
+  ...swing,toeY:swing.toeY+lift,heelY:swing.heelY+rise
+ },right:{...loadedFoot}});
+ const source={
+  mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,ownerLocomotion:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,previousLinkedCertified:false,
+  rootTravel:.085,frameAge:.03,frameInterval:.08330000000000037,
+  side:'left',floorTopY:-.02,before:{left:swing,right:loaded},
+  starterTrials:[
+   {upperRad:.12,lowerRad:-.09,after:after(-.013029063522606549,
+    -.03416021960520471)},
+   {upperRad:-.12,lowerRad:.09,after:after(.02271891303441303,
+    .030796094599651075)}
+  ]
+ };
+ const proposed=plan(source);
+ assert.equal(proposed?.source,'actual-original-source-three-joint-swing-opportunity');
+ assert.equal(proposed?.sign,-1);
+ assert.equal(proposed?.upperRad,-.075);
+ assert.equal(proposed?.lowerRad,.09);
+ assert.equal(proposed?.expectedSourceSkinnedTrials,2);
+ assert.equal(proposed?.contactLocked,false);
+ assert.ok(proposed.excessHeelRiseMeters>.008&&
+  proposed.excessHeelRiseMeters<.0081,
+  'the real rejected 8.077mm pitch loss must be measured rather than rounded to 9mm');
+ for(const delta of [
+  {mode:'hurt'},{sourceClipName:'Idle'},{sourceWeight:.94},
+  {sourceInstanceSame:false},{ownerLocomotion:false},
+  {alive:false},{visible:false},{teleport:true},
+  {reducedMotion:true},{interrupted:true},
+  {previousLinkedCertified:true},{rootTravel:0},
+  {frameAge:.23},{frameInterval:.3},
+  {before:{left:{...swing,toeY:-.012},right:loaded}},
+  {before:{left:swing,right:{...loaded,toeY:.06}}},
+  {starterTrials:[...source.starterTrials.slice(0,1),
+   {upperRad:-.12,lowerRad:.09,after:after(.02271891303441303,
+    .02971891303441303)}]},
+  {starterTrials:[...source.starterTrials.slice(0,1),
+   {upperRad:-.12,lowerRad:.09,after:after(.02271891303441303,
+    .030796094599651075,{...loaded,toeY:loaded.toeY+.009})}]}
+ ])assert.equal(plan({...source,...delta}),null,
+  'no mismatched source, fake motion, displaced opposite shoe or unproven gain');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/planOriginalSourceCoupledFootStarter\(/);
+ assert.match(renderer,/originalCoupledKneeFootOpportunity:Boolean\(connectedStarter\)/);
+ assert.match(renderer,/chooseOriginalSourceCoupledKneeFootSweep\(/,
+  'only actual FINAL connected 3-joint skinned checks may authorize a pose');
+});
