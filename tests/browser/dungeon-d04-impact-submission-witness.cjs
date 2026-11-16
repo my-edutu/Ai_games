@@ -70,10 +70,13 @@ function auditD04ImpactSubmissionWitnesses({
    invalidOrDuplicateReceipts++;continue;
   }
   const drawable=frameReceiptIsTimelyDrawable(r);
-  const sourceCount=drawable?starts.filter(start=>canonicalOriginalStartMatch(r,start)).length:0;
-  // Any duplicate source.start record leaves attribution unverified. A cue
-  // identity join does not calibrate AudioContext time to PCM or video PTS.
-  const correlated=drawable&&sourceCount===1;
+  // Treat EVERY original start with this cue identity as a contender,
+  // including malformed/forged metadata. Otherwise one valid record could
+  // launder a second mismatched source.start into a false unique witness.
+  // This remains an AudioContext scheduling join, never decoded PCM onset.
+  const sameCueStarts=drawable?starts.filter(start=>start?.cueId===r.cueId):[];
+  const correlated=drawable&&sameCueStarts.length===1&&
+   canonicalOriginalStartMatch(r,sameCueStarts[0]);
   if(drawable)timelyDrawableReceipts++;
   else staleOrUnsubmittedReceipts++;
   if(correlated)originalSourceStartMatches++;
