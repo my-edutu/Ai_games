@@ -3459,6 +3459,9 @@ export function createTowerWorld(){
       structureDeferred:deferStructuralShell, structureBuildMs:null,
       structureBuiltAtSubmitted:null, vistaBuiltAtSubmitted:null,
       firstRenderSubmitted:false, submittedFrames:0,
+      // Measured duration of the last successful returned F9 frame.
+      // Source/browser updates cannot advance this optical clock.
+      lastReturnedDt:0,
       proof:earnedSourceUploadWitness?'recorded-source-gateway':'adjacent-browser-guardian',
       material:null, fade:0, vistaMaterial:null, vistaFade:0,
       structuralMaterials:[],structuralShadows:[],structuralFade:1,
@@ -3514,6 +3517,7 @@ export function createTowerWorld(){
       // Only a returned actual F9 frame advances the staged GPU upload queue.
       job.submittedFrames=Math.min(60,job.submittedFrames+1);
       job.firstRenderSubmitted=true;
+      job.lastReturnedDt=shown;
     }
     // The noninteractive original Floor9 shaft previously arrived OPAQUE on
     // one arbitrary render while the source-owned bronze scene was fading.
@@ -3806,8 +3810,26 @@ export function createTowerWorld(){
         arrival.state==='awaiting-structural-release' && !options.stale &&
         observedPrebuiltVoidShaftRelease(snapshot,passageWitness,
           retainedEarnedCap,arrival,sourceOldGateway)) {
+      // A real F9 render ALREADY returned with the original shaft built and
+      // source-certified clearance. Its duration may prime the first
+      // physically earned transparent successor shot. Otherwise the shaft
+      // remains at zero alpha for another entire GPU return, then appears
+      // abruptly when the next source/browser snapshot jumps forward.
+      // No RAF update, failed draw, fabricated platform or clock can earn it.
+      const lastEarnedDt=arrival.lastReturnedDt;
+      const firstShaftAlpha=options.reducedMotion?1:
+        sourceAlignedIncomingShaftOpacity(snapshot,retainedEarnedCap,
+          Number.isFinite(lastEarnedDt)&&lastEarnedDt>0
+            ?Math.min(1,lastEarnedDt/.8):0);
       arrival.structureBuiltAtSubmitted=arrival.submittedFrames;
       arrival.state='awaiting-structural-submission';
+      if(firstShaftAlpha>arrival.structuralFade) {
+        arrival.structuralFade=firstShaftAlpha;
+        for(const {material,originalOpacity} of arrival.structuralMaterials)
+          material.opacity=originalOpacity*firstShaftAlpha;
+        if(arrival.structuralRoot)
+          arrival.structuralRoot.visible=firstShaftAlpha>.015;
+      }
     }
     if (arrival && arrival.key===key &&
         arrival.state==='awaiting-structural-submission' &&
