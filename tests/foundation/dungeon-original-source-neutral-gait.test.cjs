@@ -299,3 +299,50 @@ test('RED: genuine current-head 390px 35mm buried steep swing receives original 
   after:outcome(.024,.032)}]}),null,
   'lifting the already airborne heel more than the toe is not an accepted connected correction');
 });
+
+/**
+ * Source provenance guard for a REAL defect: native 390px original GLB
+ * sourceNeutralSwingGateLast repeatedly reports two matching 'footr'
+ * original Idle quaternion tracks (Actions #43782482690), so no three-joint
+ * correction is ever sampled. We must resolve only truly identical licensed
+ * source sequences; a merely similar first quaternion, extra suffix bone,
+ * malformed clip or different future pose must never be silently selected.
+ *
+ * The synthetic track arrays below are explicit contract fixtures, NOT a
+ * claim that the actual GLB's duplicate tracks have identical motion.
+ */
+test('RED: original Idle bone track resolver distinguishes identical duplicate bindings from conflicting source motion',async()=>{
+ const {resolveLicensedIdleJointQuaternionTracks:resolve}=await load();
+ const track=(name,values,times=[0,.5,1])=>({name,
+  times:new Float32Array(times),values:new Float32Array(values)});
+ const q0=[0,0,0,1],q1=[0,.1,0,Math.sqrt(.99)];
+ const frames=[...q0,...q1,...q0];
+ const primary=track('Armature.footr.quaternion',frames);
+ const exactAlias=track('footr.quaternion',frames);
+ const positive=resolve([primary,exactAlias],'footr');
+ assert.equal(positive?.verified,true);
+ assert.equal(positive?.sourceTrackMatches,2);
+ assert.equal(positive?.equivalentDuplicate,true);
+ assert.ok(Math.abs(positive.quaternion[3]-1)<1e-7);
+ assert.deepEqual(positive?.sourceTrackNames,['Armature.footr.quaternion','footr.quaternion']);
+ const negated=track('footr.quaternion',frames.map(v=>-v));
+ assert.equal(resolve([primary,negated],'footr')?.verified,true,
+  'q and -q encode the same original rotation at every source sample');
+ const suffixCollision=track('backupfootr.quaternion',[...q0,...q1,...q0]);
+ assert.equal(resolve([primary,suffixCollision],'footr')?.sourceTrackMatches,1,
+  'nearby source bone names cannot masquerade as footr');
+ const changedFuture=track('footr.quaternion',[...q0,...q0,...q1]);
+ for(const bad of [
+  [primary,changedFuture],
+  [primary,track('footr.quaternion',frames,[0,.4,1])],
+  [primary,track('footr.quaternion',[...q0,...q1])],
+  [primary,track('footr.quaternion',[...q0,...q1,NaN,0,0,1])],
+  [primary,track('footr.quaternion',[...q0,...q1,0,0,0,0])],
+ ])assert.notEqual(resolve(bad,'footr')?.verified,true,
+  'conflicting, untimed, truncated, nonfinite or nonunit original clips fail closed');
+ assert.notEqual(resolve([track('fool.quaternion',frames)],'footr')?.verified,true);
+ assert.notEqual(resolve([primary],'foor')?.verified,true);
+ assert.notEqual(resolve([primary],'footr\u0000')?.verified,true);
+ assert.match(renderer,/resolveLicensedIdleJointQuaternionTracks\(/,
+  'native rig renderer must use the source-proven duplicate-safe resolver');
+});
