@@ -4779,17 +4779,55 @@ function fillOriginalGroundAtlasBasePixels(arr,size,extent){
   zWorld[z]=wz;zWind[z]=Math.sin(wz*.035);
   zHash[z]=Math.imul(z+79,668265263);
  }
- for(let z=0;z<size;z++)for(let x=0;x<size;x++){
+ // W383 Phase 1: original valley harmonic pigment on bounded X/Z axes.
+ // Factor 9 two-dimensional frequency fields into cached 1D sin/cos rows,
+ // instead of millions of transcendental functions per cold 512px atlas.
+ // The same exact RGBA material is kept; this cannot move a real worker,
+ // road, home, field, replay event or economic transaction.
+ const xRates=[0.151,-0.078,3.71,-0.63,0.073,0.052,0.43,-0.31,0.089],zRates=[0.063,0.187,1.21,4.17,-0.049,0.094,0.29,0.38];
+ const axis=(world,rates)=>rates.map(rate=>{
+  const sin=new Float64Array(size),cos=new Float64Array(size);
+  for(let i=0;i<size;i++){
+   const angle=world[i]*rate;sin[i]=Math.sin(angle);cos[i]=Math.cos(angle);
+  }
+  return {sin,cos};
+ });
+ const xx=axis(xWorld,xRates),zz=axis(zWorld,zRates);
+ const driftRow=new Float64Array(size),driftRowCos=new Float64Array(size);
+ for(let i=0;i<size;i++){
+  const theta=-zWorld[i]*.063+1.8*zWind[i];
+  driftRow[i]=Math.sin(theta);driftRowCos[i]=Math.cos(theta);
+ }
+ const xs0=xx[0].sin,xc0=xx[0].cos;
+ const xs1=xx[1].sin,xc1=xx[1].cos;
+ const xs2=xx[2].sin,xc2=xx[2].cos;
+ const xs3=xx[3].sin,xc3=xx[3].cos;
+ const xs4=xx[4].sin,xc4=xx[4].cos;
+ const xs5=xx[5].sin,xc5=xx[5].cos;
+ const xs6=xx[6].sin,xc6=xx[6].cos;
+ const xs7=xx[7].sin,xc7=xx[7].cos;
+ const xs8=xx[8].sin,xc8=xx[8].cos;
+ for(let z=0;z<size;z++){
+ const zs0=zz[0].sin[z],zc0=zz[0].cos[z];
+ const zs1=zz[1].sin[z],zc1=zz[1].cos[z];
+ const zs2=zz[2].sin[z],zc2=zz[2].cos[z];
+ const zs3=zz[3].sin[z],zc3=zz[3].cos[z];
+ const zs4=zz[4].sin[z],zc4=zz[4].cos[z];
+ const zs5=zz[5].sin[z],zc5=zz[5].cos[z];
+ const zs6=zz[6].sin[z],zc6=zz[6].cos[z];
+ const zs7=zz[7].sin[z],zc7=zz[7].cos[z];
+ const dS=driftRow[z],dC=driftRowCos[z];
+ for(let x=0;x<size;x++){
   const wx=xWorld[x],wz=zWorld[z];
-  const broad=Math.sin(wx*.151+wz*.063)*Math.cos(wz*.187-wx*.078);
-  const pebbles=Math.sin(wx*3.71+wz*1.21)*Math.cos(wz*4.17-wx*.63);
-  const drainage=Math.sin(wx*.073-wz*.049)+Math.cos(wz*.094+wx*.052);
+  const broad=(xs0[x]*zc0+xc0[x]*zs0)*(xc1[x]*zc1-xs1[x]*zs1);
+  const pebbles=(xs2[x]*zc2+xc2[x]*zs2)*(xc3[x]*zc3-xs3[x]*zs3);
+  const drainage=(xs4[x]*zc4+xc4[x]*zs4)+(xc5[x]*zc5-xs5[x]*zs5);
   const distance=Math.hypot(wx,wz);
   const dry=Math.max(0,Math.min(1,(distance-23)/42));
   const hash=Math.imul((xHash[x]^zHash[z])|0,1274126177);
   const grit=(((hash^(hash>>>16))>>>0)/4294967295-.5)*10;
-  const hummock=Math.sin(wx*.43+wz*.29)*Math.cos(wz*.38-wx*.31);
-  const drift=Math.sin(wx*.089-wz*.063+1.8*zWind[z]);
+  const hummock=(xs6[x]*zc6+xc6[x]*zs6)*(xc7[x]*zc7-xs7[x]*zs7);
+  const drift=(xs8[x]*dC+xc8[x]*dS);
   const exposure=Math.max(0,Math.min(1,(distance-28)/43));
   const shore=Math.abs(wz-(20+3*xRiver[x]));
   const damp=Math.max(0,Math.min(1,(8.2-shore)/6.3));
@@ -4803,6 +4841,7 @@ function fillOriginalGroundAtlasBasePixels(arr,size,extent){
   arr[i+2]=clamp(105+6*broad+2*pebbles-2*dry+3*drainage+
    4*hummock+grit*.48-clay*16+stoneDust*3+damp*3);
   arr[i+3]=255;
+ }
  }
  return arr;
 }
