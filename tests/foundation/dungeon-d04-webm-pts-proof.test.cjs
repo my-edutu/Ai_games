@@ -162,7 +162,7 @@ test('D04 incident proof rejects wrong attackers, stale clocks, duplicate receip
   observedClockMs:2000,submittedClockMs:2110,observationToSubmissionMs:110,
   visualDrawableAtSubmission:true};
  const started={cueId:real.cueId,sceneKey:real.scene,tick:8,kind:'damage',
-  audio:'impact',verifiedCanonicalCue:true,startedSources:1,sampleSynchronized:false};
+  audio:'impact',verifiedCanonicalCue:true,startedSources:1,scheduledContextMs:1234,sampleSynchronized:false};
  const audit=x=>auditD04ImpactSubmissionWitnesses({
   receipts:[x],sourceStarts:[started]});
  assert.equal(audit(real).originalSourceStartMatches,1);
@@ -180,4 +180,37 @@ test('D04 incident proof rejects wrong attackers, stale clocks, duplicate receip
  assert.equal(duplicates.originalSourceStartMatches,0);
  assert.equal(auditD04ImpactSubmissionWitnesses({receipts:[real],
   sourceStarts:[{...started,kind:'swing',audio:'whoosh'}]}).originalSourceStartMatches,0);
+});
+
+test('D04 original impact start history with duplicate cue identity fails closed even if one start is forged',()=>{
+ const {auditD04ImpactSubmissionWitnesses}=require('../browser/dungeon-d04-impact-submission-witness.cjs');
+ // Synthetic canonical HP receipt; source.start records are NOT PCM/onset evidence.
+ const receipt={scene:'1:1',kind:'damage',tick:8,cueId:'1:1:8:damage:-:vanguard',
+  visual:true,audio:true,decision:'delivered',frameId:22,
+  observedClockMs:2000,submittedClockMs:2110,observationToSubmissionMs:110,
+  visualDrawableAtSubmission:true};
+ const started={cueId:receipt.cueId,sceneKey:receipt.scene,tick:8,kind:'damage',
+  audio:'impact',verifiedCanonicalCue:true,startedSources:1,
+  scheduledContextMs:1234,sampleSynchronized:false};
+ const audit=starts=>auditD04ImpactSubmissionWitnesses({
+  receipts:[receipt],sourceStarts:starts});
+ assert.equal(audit([started]).originalSourceStartMatches,1,
+  'one canonical original source start is valid scheduling evidence, not audible PCM');
+ for(const forged of [
+  {...started,audio:'whoosh'},
+  {...started,sceneKey:'8:8'},
+  {...started,scheduledContextMs:undefined},
+  {...started,verifiedCanonicalCue:false},
+  {...started,startedSources:999}
+ ]){
+  const observed=audit([started,forged]);
+  assert.equal(observed.timelyDrawableReceipts,1,
+   'a real drawable receipt remains real despite bad audio telemetry');
+  assert.equal(observed.originalSourceStartMatches,0,
+   'duplicate cueId cannot borrow valid source provenance from another record');
+  assert.equal(observed.status,'FRAME_RECEIPT_IMPACT_PRESENT_AUDIO_UNVERIFIED');
+  assert.equal(observed.sampleSynchronized,false);
+ }
+ assert.equal(audit([started,{...started}]).originalSourceStartMatches,0,
+  'two otherwise canonical source-start records are also ambiguous');
 });
