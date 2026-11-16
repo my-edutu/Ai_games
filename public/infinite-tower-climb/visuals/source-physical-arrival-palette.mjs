@@ -390,7 +390,12 @@ export function observedSourceGatewayDeparturePresence(source,held) {
   // Do not erase the real bronze gate while the actual climber still occupies
   // the threshold. Only a fully-cleared original opening can retire its
   // physically shared surrounding gallery / material.
-  const consumed=wholeBodyCleared
+  // The FIRST old-gateway render is the authentic fully visible grille.
+  // Source motion arriving after that return must not retroactively fade a
+  // frame the GPU never submitted. A second successful return authorizes
+  // physical mesh alpha; the already-rendered F9 roof may take its tiny
+  // (<1.2%) color hint after one returned frame without erasing the gate.
+  const consumed=wholeBodyCleared && held.submittedFrames>=2
     ?Math.min(physical.progress,visibleProgress):0;
   return {sourceBound:true,sourceTick:source.tick,
     actualSourcePosition:true,wholeBodyCleared,
