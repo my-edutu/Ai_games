@@ -531,9 +531,17 @@ export function planOriginalSourceSwingLinkedLegFollowups({
  // on knee-biased original joints, then require a true toe-versus-heel
  // improvement from BOTH weighted shoes before accepting this candidate.
  // No IK target, toe-floor contact, extra probes, authority or new rig.
+ // Actions #43820133899 genuine native desktop: 61.825mm buried toe,
+ // nearly vertical ~300mm original source outsole. The starter lifted the
+ // toe 25.036mm but also lifted the airborne heel 29.558mm. Previous 65mm
+ // cutoff instead spent both spare probes on larger HIP-heavy arcs that
+ // amplified heel elevation. Use only the already validated source shoe
+ // geometry to try the existing knee-biased two-shoe alternatives.
  const slowHeelDominatedSource=slow&&previousLinkedCertified!==true&&
-  floorTopY-original.toeY>=.065&&
+  floorTopY-original.toeY>=.055&&
   original.heelY-floorTopY>=.18&&
+  sourceOutsoleProjection>=.045&&sourceOutsoleProjection<=.10&&
+  sourceOutsoleSpan>=.285&&sourceOutsoleSpan<=.325&&
   best.lift>=.020&&best.heelRise>=.020&&
   best.heelRise>=best.lift*.8;
  if(slowHeelDominatedSource)
@@ -596,6 +604,8 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
  const firstSwingPitchChoices=[];
  const slowStarterChoices=[];
  const slowHeelReliefChoices=[];
+ // At most four already measured real dual-shoe candidates, no new probes.
+ const sourceCertifiedCandidates=[];
  for(const trial of trials){
   const {upperRad,lowerRad,after}=trial??{};
   // 140/105mrad is reserved for a physically observed >=50ms source frame,
@@ -650,6 +660,7 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
    linkedContinuity:prior?'same-certified-source-frame':'safe-first-source-frame',
    source:'measured-original-skinned-linked-leg'
   };
+  sourceCertifiedCandidates.push(candidate);
   if(prior)certifiedChoices.push(candidate);
   if(freshFast){
    kneeBiasedChoices.push(candidate);
@@ -777,6 +788,36 @@ export function chooseOriginalSourceSwingLinkedLegTrial({
      originalToeLiftSacrificeMeters:Math.max(0,starter.liftMeters-chosen.liftMeters)});
    }
   }
+ }
+ // Real original 100ms Walking_A first-swing source clip: a +31.54mm toe
+ // movement was incorrectly accepted while its already raised heel rose
+ // +35.28mm, worsening a buried shoe's vertical pitch. Do not grant a
+ // visible full-body performance unless the SAME original weighted shoe
+ // demonstrably improves toe relative to heel, or is almost clear of stone.
+ // Compare at most four already skinned dual-shoe candidates; no extra
+ // skinning, no new target or contact, no owner/clip/root changes.
+ const outsoleProjected=shift(swing.heelXZ,swing.toeXZ);
+ const outsoleLength=Math.hypot(outsoleProjected,swing.heelY-swing.toeY);
+ const originalSlowSteep=!prior&&frameInterval>=.05&&frameInterval<=.20&&
+  sourceWeight>=.95&&depth>=.055&&depth<=.12&&
+  swing.heelY-floorTopY>=.18&&
+  outsoleProjected>=.045&&outsoleProjected<=.10&&
+  outsoleLength>=.285&&outsoleLength<=.325;
+ if(originalSlowSteep&&best){
+  const safe=sourceCertifiedCandidates.filter(c=>
+   c.liftMeters-(c.afterHeelY-swing.heelY)>=-.002||
+   floorTopY-c.afterToeY<=.02);
+  if(!safe.length)return null;
+  const pitchGain=c=>c.liftMeters-(c.afterHeelY-swing.heelY);
+  const selected=safe.reduce((a,c)=>!a||
+   pitchGain(c)>pitchGain(a)+.001||
+   (Math.abs(pitchGain(c)-pitchGain(a))<=.001&&
+    Math.abs(c.upperRad)+Math.abs(c.lowerRad)<
+     Math.abs(a.upperRad)+Math.abs(a.lowerRad))?c:a,null);
+  // Final original skinned BOTH-shoe measurement is mandatory downstream;
+  // reuse the same source-pitch independent proof as first fast-swing.
+  best=Object.freeze({...selected,originalSwingPitchProtected:true,
+   originalSwingPitchGainMeters:pitchGain(selected)});
  }
  return best;
 }
