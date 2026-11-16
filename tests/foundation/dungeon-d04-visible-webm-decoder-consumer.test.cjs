@@ -25,11 +25,11 @@ test('durationless original WebM decoder presents a visible bounded frame consum
   },
   getBoundingClientRect(){
    // Chromium may deprioritize requestVideoFrameCallback for offscreen video.
-   const visible=/right:\\s*\\d+px/.test(this.style.cssText)&&
-    !/left:\\s*-/.test(this.style.cssText)&&
-    /width:\\s*2px/.test(this.style.cssText)&&
-    /height:\\s*2px/.test(this.style.cssText)&&
-    /opacity:\\s*1(?:;|$)/.test(this.style.cssText);
+   const visible=/right:\s*\d+px/.test(this.style.cssText)&&
+    !/left:\s*-/.test(this.style.cssText)&&
+    /width:\s*2px/.test(this.style.cssText)&&
+    /height:\s*2px/.test(this.style.cssText)&&
+    /opacity:\s*1(?:;|$)/.test(this.style.cssText);
    return {width:visible?2:0,height:visible?2:0};
   },
   requestVideoFrameCallback(cb){this.frameCallback=cb;return ++this.frameCallbackId||1},
