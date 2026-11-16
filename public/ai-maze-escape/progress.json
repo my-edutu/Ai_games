@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-16T06:03:00.000Z",
+  "updatedAt": "2026-11-16T07:46:50.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass416b exact-HEAD native WebGL #43813186423 SUCCESS, verified 40/40 original PNG sidecar hashes and 3/3 actual gate-transition hashes. Direct authentic 320/390 natural seed13 tick8 parry versus Pass415 shows Pip torso/boots still occluded and foreground diorama too busy. REJECT the earned-camera flank candidate; exact Pass415 scene/helper restored with its candidate-only test removed. Rollback's new exact-head CI PENDING; Nintendo quality unmet; PR open draft, unmerged, undeployed."
+    "summary": "Pass418 production candidate: only source-visible mutually sealed camera-facing parry foreground masonry becomes a physically framed, still-closed translucent Tideglass performance window. Exact-head tests and fresh original WebGL 320/390/844/1280 full-frame A/B PENDING; independent critic workspace unavailable. No Nintendo parity claim; draft PR unmerged/undeployed."
   },
   "captures": [
+    {
+      "title": "Pass417 rollback native WebGL successful; Pass418 production sightline candidate awaiting new rendered comparison",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/43814706801/artifacts/14202570407"
+    },
     {
       "title": "Pass416b exact-source native 40/40 PNG + 3 gate SHA verified; 320/390 direct visual A/B rejects camera flank",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/43813186423/artifacts/14201069435"
