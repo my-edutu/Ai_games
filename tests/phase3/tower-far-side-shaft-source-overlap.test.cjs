@@ -90,9 +90,9 @@ test('production GPU owners share source-backed clearance, a real new-shaft retu
   const root=path.resolve(__dirname,'../..');
   const world=fs.readFileSync(path.join(root,'public/infinite-tower-climb/visuals/world.mjs'),'utf8');
   const cross=fs.readFileSync(path.join(root,'public/infinite-tower-climb/visuals/crossfloor-arrival.mjs'),'utf8');
-  assert.match(world,/observedEarnedFarSideShaftOverlap\(snapshot,held,deferredDistantArrival\)/);
-  assert.match(world,/observedReturnedFarSideFade\(held,deferredDistantArrival\)/);
-  assert.match(world,/structuralVisibleReturns/);
-  assert.match(world,/sourceCertifiedHorizon=.*farSide/);
-  assert.match(cross,/observedEarnedFarSideShaftOverlap\(source,held,job\)/);
+  assert.equal(/observedEarnedFarSideShaftOverlap\(snapshot,held,deferredDistantArrival\)/.test(world),true);
+  assert.equal(/observedReturnedFarSideFade\(held,deferredDistantArrival\)/.test(world),true);
+  assert.equal(/structuralVisibleReturns/.test(world),true);
+  assert.equal(/sourceCertifiedHorizon=.*farSide/.test(world),true);
+  assert.equal(/observedEarnedFarSideShaftOverlap\(source,held,job\)/.test(cross),true);
 });
