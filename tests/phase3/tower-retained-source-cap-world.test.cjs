@@ -602,7 +602,7 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
       'warm horizon must receive original recorded HP-zero crossing clock');
     assert.equal(cold(realFirstRender,ownedSourceWitness),true);
     assert.equal(world.diagnostics().deferredDistantArrival?.structureDeferred,true);
-    world.noteFrameSubmitted(realFirstRender,{});
+    world.noteFrameSubmitted(realFirstRender,{},.05);
     const later={...realFirstRender,tick:461,
       player:{...realFirstRender.player,x:gate+29000}};
     world.update(later,.05,.1,{quality:'low'},
@@ -626,6 +626,10 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
       'a genuine observed 10,000-unit step beyond the old sill, not WebGL wall-time, blends the real landing toward void');
     assert.equal(world.diagnostics().retainedSourceCap?.sharedPhysicalRoofColor,
       sharedSurface.material.color.getHexString());
+    // The real-world compositor advances staged alpha from returned WebGL *time*,
+    // not from a fictional count of zero-duration renders. This source-level
+    // Three probe must submit the exact modeled 50ms clock on each return;
+    // absent render duration is a valid zero-time no-fade case elsewhere.
     // Under the source-authenticated handoff the heavy violet shaft stays
     // absent while the REAL bronze doorway and grounded successor roof
     // are visible together. Eight actual returned submissions are not
@@ -636,7 +640,7 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
       const frame={...later,tick:460+step};
       const witness={...passage,handoffSubmittedFrames:step,
         handoffDisplaySeconds:step*.05};
-      world.noteFrameSubmitted(frame,{});
+      world.noteFrameSubmitted(frame,{},.05);
       world.update(frame,.05,.1+step*.05,{quality:'low'},witness);
       resourceCheckpoint('three-clocks-return-'+step+'-end');
     }
