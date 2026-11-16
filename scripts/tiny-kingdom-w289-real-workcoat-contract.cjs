@@ -3,19 +3,22 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const src=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
 const from=src.indexOf('function livedAdultGarmentProfile('),to=src.indexOf('// W63: real medieval fabric',from);
 assert.ok(from>0&&to>from,'real author-owned workcoat source');
-let verts=[];
-const ctx={Math,medievalCitizenIdentity:()=>({name:'Bram',shoulder:.02,waist:.02,hem:.02}),
+let verts=[],resident=[];
+const ctx={Math,data:resident,currentMaterial:0,medievalCitizenIdentity:()=>({name:'Bram',shoulder:.02,waist:.02,hem:.02}),
  rgb:()=>[.5,.5,.5],
- quad:(a,b,c,d)=>{for(const p of [a,b,c,d]){assert.ok(p.every(Number.isFinite));verts.push(...p)}},
+ quad:(a,b,c,d)=>{for(const p of [a,b,c,a,c,d]){assert.ok(p.every(Number.isFinite));verts.push(...p)}},
  tri:(a,b,c)=>{for(const p of [a,b,c]){assert.ok(p.every(Number.isFinite));verts.push(...p)}}};
 vm.runInNewContext(src.slice(from,to),ctx,{filename:'actual-foot-locked-original-workcoat.js'});
 const p={name:'Bram',job:'farmer',phase:1.2};
 const feet=[{ankle:[-.1,.05,.20]},{ankle:[.1,.05,-.20]}];
 const render=(legs,traveling=true,working=false,lean=0)=>{
- verts=[];const rig={traveling,working,legs,acting:{lean}};
+ verts=[];resident.length=0;const rig={traveling,working,legs,acting:{lean}};
  const profile=ctx.garmentProfile(p,0,rig);
  ctx.tailoredGarment(0,0,0,1,[.4,.36,.32],[.7,.6,.4],profile);
- return {v:verts.slice(),triangles:verts.length/9,profile};
+ // Preserve the actual new shaded VBO surface: 10 floats per real emitted
+ // triangle vertex, while the original hem/belt mock emits world positions.
+ const smooth=[];for(let i=0;i<resident.length;i+=10)smooth.push(...resident.slice(i,i+3));
+ return {v:verts.concat(smooth),triangles:verts.length/9+resident.length/30,profile};
 };
 const front=render(feet),back=render(feet.slice().reverse());
 const difference=front.v.reduce((t,x,i)=>t+Math.abs(x-back.v[i]),0);
