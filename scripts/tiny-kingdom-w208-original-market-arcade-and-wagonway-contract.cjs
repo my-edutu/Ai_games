@@ -10,7 +10,19 @@ assert.match(ground,/const acceptedStoneCenters=\[\]/,
  'original market has bounded actual separated stone centers');
 assert.match(ground,/if\(nearby<\.72\)/,
  'the original courtyard stones retain physical clearance');
-assert.match(ground,/const\s+realWheelLane=Math\.abs\(x-3\.22\)/);
+// W388 replaced the obsolete decorative x=3.22 wheel marking with the
+// TRUE 11-section receiving corridor to the original freight destination.
+assert.doesNotMatch(ground,/const\\s+realWheelLane=Math\\.abs\\(x-3\\.22\\)/,
+ 'a dead-end painted wheel lane is not the real freight route');
+assert.match(ground,/const arrival=FARM_MARKET_STREET_DESTINATION/,
+ 'wheelway must terminate at the actual autonomous grain handoff');
+assert.match(ground,/const realReceiptX=arrival\\[0\\],realReceiptZ=arrival\\[1\\]/);
+assert.match(ground,/sections=11/,'preserve full original wheelway sections');
+assert.match(ground,/for\\(const side of \\[-1,1\\]\\)/,'both original wheel tracks');
+assert.match(ground,/marketQuarterStats\\.marketWheelPassages\\+\\+/);
+assert.match(ground,/marketQuarterStats\\.marketDrainSegments\\+\\+/);
+assert.match(ground,/connectedToTrueFreightEnd:true,geometryReplacedNotAdded:true/);
+assert.match(ground,/newCitizens:0,newTransactions:0,affectsNavigation:false/);
 assert.match(src,/marketReceivingSideEnclosure\(\);\s*marketReceivingRoofInterior\(\);/,
  'do not undo original W207 inward roof; connect the same open grain hall');
 const enclosure=between('function marketReceivingSideEnclosure(){','function marketReceivingRoofInterior(){');
