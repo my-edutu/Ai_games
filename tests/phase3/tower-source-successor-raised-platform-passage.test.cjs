@@ -21,7 +21,7 @@ function crossing(){
   const held={runToken,floor:9,guardianGateRetained:true,
     oldCapId:'f8:cap',oldCapX:cap.x,oldCapWidth:cap.width,
     oldRoofY:82000,thresholdX:exitX,sourceTick:454,crossingTick:451,
-    firstWorldRenderTick:475,submittedFrames:1,visibleSeconds:.12,
+    firstWorldRenderTick:475,submittedFrames:1,visibleSeconds:.075,
     originalGatewayOpacity:1,opticalExitSubmitted:false};
   return {source,held};
 }
