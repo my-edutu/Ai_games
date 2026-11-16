@@ -37,8 +37,16 @@ export function observedEarnedFarSideShaftOverlap(source,held,job=null) {
      ground.y+ground.height!==held.oldRoofY ||
      source.tick<held.crossingTick ||
      source.tick-held.crossingTick>150 ||
-     // Both shoulders must be beyond the original physical sill.
-     p.x-p.halfWidth<=held.thresholdX+100000) return null;
+     // The source-owned upper route rises onto f9:p2 with less than 2m
+     // of extra X travel. The former +10m-only rule rejected that ACTUAL
+     // ascent even when both feet stood 12.6m above the old gateway,
+     // causing the retained bronze room to expire before the successor
+     // shaft could share a real returned frame. A genuinely raised sole
+     // (at least 7m, with support or bounded real flight checked below)
+     // is an alternative to physically walking 10m past the threshold.
+     // Never infer this from a destination, floor label or renderer clock.
+     !(p.x-p.halfWidth>held.thresholdX+100000 ||
+       p.y-p.halfHeight>=held.oldRoofY+70000)) return null;
   if(w!=null && (
      w.runToken!==source.runToken ||
      w.fromFloor!==8 || w.toFloor!==9 ||
