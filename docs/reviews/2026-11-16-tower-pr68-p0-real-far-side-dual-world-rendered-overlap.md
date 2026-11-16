@@ -1,0 +1,32 @@
+# P0 — Returned-frame overlap between authentic old guardian room and walkable Floor 9 shaft
+
+**Date:** 2026-11-16. **Active stage:** P0 EVIDENCE + GAME-LOOP TRUTH — **OPEN**. **Leading transformation verdict: NOT EVALUATED.** PR #68 remains draft on PR #58. No merge, deployment or force push.
+
+## Truth inspected before this change
+
+Frozen baseline **`1731b380851162741761c5569e2bc152a0869ca9`**; unmodified frozen transformation ledger blob **`3aac186495b2bbd471c9af6448250c38539b5a63`**. Inspected AGENTS.md, approved design, GAUNTLET.md, the prior original 60+ second native film campaign, all candidate/baseline run outcomes, exact-source CI and the existing old/new source and GPU scene contracts.
+
+Previous full original eight-film desktop/portrait capture [43901650155](https://github.com/my-edutu/Ai_games/actions/runs/43901650155) generated its source-pinned input films. Strict event-to-native A/B film acceptance **FAILED 0/2**; the failed pair-source-events job intentionally vetoed promotion, not missing playable source. The former exact source [43901650073](https://github.com/my-edutu/Ai_games/actions/runs/43901650073) passed 10/10 technical jobs, which is **not** quality acceptance. Film defect still visible around 24–28s: masked full-body climber in bronze machinery, and no readable continuous bronze→violet first Floor 9 world after the genuine crossing.
+
+## One newly isolated systemic cause
+
+World's original cap teardown had an unconditional `physicallyBeyondOriginalDoor` branch that immediately **destroyed the actual prior-room GPU geometry** as soon as a source-supported actor's full width exceeded the old sill by 100,000 units. It made no distinction between *the incoming original shaft being built* and *that shaft having drawn any frame*. Simultaneously, far departure outran the narrower source-palette route and prebuilt-shaft release could still stop after 70 source ticks. Together these made an abrupt entire-room replacement possible **even if the incoming shaft hadn't shared a single returned 3D frame with the old room**. This defect is source-level proven, not yet a newly filmed outcome.
+
+## Cohesive production system implemented
+
+- **Regression first:** `bccd9c4aca3503ed52b2a9e75a083d17197bddec`. [First exact-head CI 43910314078](https://github.com/my-edutu/Ai_games/actions/runs/43910314078) recorded an expected Phase3/0 failure while the new native far-side witness did not exist; the new helper's three pure source tests and final integration contract then established an adversarial acceptance fixture.
+- **Pure source validator and bounded clock:** `81dabc5c34c3632d0078ffb1e54765a0af5503b3` adds `far-side-shaft-transition.mjs`. It requires a verified SAME-RUN prior guardian defeat, authentic grounded source crossing, entire body beyond the physical old sill, exact current Floor 9 platform/sole or bounded actual airborne route, a non-retired ORIGINAL GPU owner and a maximum 150-tick source lease. Forged prior guardians, made-up landing, stale run, unsupported body, infinite GPU return history and mismatched cap reject the overlap.
+- **Authentic incoming shell release:** `720ab7ddac18c8e62ff169f8bc8ef96c40f42327` connects crossfloor-arrival.mjs. The actual deferred original Floor 9 3D shaft can begin revealing after a genuine renderer-returned prebuild when a truly supported far-side departure occurs. Previously it could remain invisible until the original cap vanished.
+- **Actual GPU scene/return coupling:** `ca343f31ca45b6ce1f0d0fbcb61e386e6568793a` changes the production world. A verified far-side body no longer forces the old cap to delete before the incoming original shaft has actually returned visibly. Counts `structuralVisibleReturns` only after successful, nonzero-alpha actual incoming shaft render; only then may the original bronze gate/roof/gallery fade over a bounded **seven returned-frame AND 0.95s rendered-duration** window. No browser polls or stopped GPU consume the clock; same owner, source, restart and upper-floors safety gates remain.
+- **Unified environmental/material presentation:** `2775cff711dd041782ec5832b0d1f2de630f8472` couples the authentic old gateway opacity to Floor 9 route color, noninteractive architecture, sky, fog and light instead of leaving a bronze sky with violet route or vice versa. Only previously verified original crossing/current physical support qualifies.
+- **Regression diagnostics:** `7bd1a0ecf8902281491cdd210c6cbeff5d30e400` prevents a failed source-text assertion from printing the giant entire Three.js source into hosted logs.
+
+No authoritative physics/snapshot, floor win, guardian HP, moving-platform collider, AI intention, terminal state, restart, or non-Tower game code was changed. The original source assets, three-dimensional guardian gate, real Floor 9 ground/raised platforms and source facts remain the only actors and spatial geometry.
+
+## Gates and next highest-impact action
+
+The previous untouched exact-source technical matrix was successful, but the current final SHA **must pass its own** Phase3/full CI; no green result is carried from a previous head. A physical helper contract is necessary, **not sufficient**: it does NOT prove the actual two worlds overlap in rendered native footage or that portrait shows the skinned whole-body climber. No native film, observer, reviewer vote, real device p50/p95/p99 or memory measurement for this change is accepted. Independent **LOOKS 0/5 / FEELS 0/5 / PLAYS 0/5**, all **NOT EVALUATED**.
+
+**Immediate next P0 action:** run the existing nine-job exact immutable `github.sha` 1x normal-speed campaign at desktop 960×600 and portrait 390×844, same seed/tier/capture setup as frozen baseline. Inspect the actual, unmodified 60+ second ascent, moving, guardian/crusher, outcome/restart videos at the real published HP0, crossing, raised platform and Floor 10 events; examine **source tick, render-return, native PTS** separately. Confirm original bronze gateway + entire body + incoming truly walkable Floor 9 are clearly co-visible over at least two consecutive genuine native frames with NO abrupt replacement and no cropped actor or false gate. If either viewport still fails, reopen the combined visual camera/occlusion/world stage. Do not advance to P1 from unit tests or commit count.
+
+**Release** remains blocked on exact source safety, actual devices, 15 independent blind votes and authentic full-motion filmed comparison. No transformation acceptance is claimed.
