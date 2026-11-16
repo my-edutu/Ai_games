@@ -3,7 +3,7 @@
 // Dungeon capture, encoded-pixel comparison or sound synchronization proof.
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {sampleChromiumDecodedD04WebM}=
+const {sampleChromiumDecodedD04WebM,classifyChromiumDecodedRealWebM}=
  require('../browser/dungeon-d04-decoded-video-proof.cjs');
 
 test('durationless original WebM decoder presents a visible bounded frame consumer before collecting pixels',async()=>{
@@ -90,4 +90,96 @@ test('durationless original WebM decoder presents a visible bounded frame consum
   assert.equal(video.isConnected,false,'decoder is detached after the bounded audition');
   assert.equal(revoked,1,'bounded Blob URL must be revoked');
  }finally{for(const id of timers)clearTimeout(id)}
+});
+
+
+test('finite-duration original WebM falls back to muted decoded playback when seeks never complete',async()=>{
+ // Chromium sometimes exposes a finite duration yet cannot seek its sparse
+ // MediaRecorder VP8 cluster. This synthetic DOM models that failure, not a
+ // rendered Dungeon contact, decoded PCM or audiovisual synchronization.
+ const events=new Map(),pending=new Set(),mediaTimes=[.12,.36,.74,1.18];
+ let frame=0,revocations=0,plays=0,draws=0,seekAttempts=0;
+ const schedule=(fn,ms=0)=>{
+  const timer=setTimeout(()=>{pending.delete(timer);fn()},Math.min(ms,120));
+  pending.add(timer);return timer;
+ };
+ const cancel=timer=>{pending.delete(timer);clearTimeout(timer)};
+ const video={
+  src:'',isConnected:false,readyState:0,videoWidth:0,videoHeight:0,
+  duration:2.4,muted:false,volume:1,style:{cssText:''},
+  _currentTime:0,frameCallback:null,
+  get currentTime(){return this._currentTime},
+  set currentTime(value){this._currentTime=value;seekAttempts++},
+  addEventListener(name,fn){events.set(name,fn)},
+  removeEventListener(name,fn){if(events.get(name)===fn)events.delete(name)},
+  getBoundingClientRect(){return {width:this.style.cssText.includes('width:2px')?2:0,
+   height:this.style.cssText.includes('height:2px')?2:0}},
+  load(){
+   if(!this.src)return;
+   schedule(()=>{this.readyState=4;this.videoWidth=390;this.videoHeight=844;
+    events.get('loadedmetadata')?.()},0);
+  },
+  requestVideoFrameCallback(fn){this.frameCallback=fn;return ++this.callbackSerial||1},
+  cancelVideoFrameCallback(){this.frameCallback=null},
+  play(){
+   plays++;
+   const step=()=>{
+    if(!this.frameCallback||mediaTimes.length===0)return;
+    const fn=this.frameCallback;this.frameCallback=null;frame++;
+    fn(0,{mediaTime:mediaTimes.shift()});
+    schedule(step,5);
+   };
+   schedule(step,5);return Promise.resolve();
+  },
+  pause(){},
+  removeAttribute(name){if(name==='src')this.src=''},
+  remove(){this.isConnected=false}
+ };
+ const canvas={getContext:()=>({
+  drawImage(){draws++},
+  getImageData(){
+   const data=new Uint8ClampedArray(24*16*4);
+   for(let i=0;i<data.length;i+=4){
+    data[i]=((i/4)+frame*19)%256;
+    data[i+1]=((i/4)*3)%256;
+    data[i+2]=((i/4)*7)%256;data[i+3]=255;
+   }
+   return {data};
+  }
+ })};
+ const document={visibilityState:'visible',
+  body:{appendChild(node){node.isConnected=true}},
+  createElement(name){return name==='video'?video:canvas}};
+ const binary=Buffer.alloc(2400,37);
+ const input={
+  source:'real-canvas-plus-opted-in-soundstage',status:'RECORDED',
+  mimeType:'video/webm;codecs=vp8,opus',videoTracks:1,audioTracks:1,
+  optedInAtStart:true,originalSoundstageTrackLive:true,
+  bytes:binary.length,base64:binary.toString('base64'),
+  framePump:{mode:'submitted-frame-request',requestedFrames:4,
+   observedFrameAdvances:5,requestFailures:0}
+ };
+ const globals={document,URL:{createObjectURL:()=> 'blob:finite-seek-fixture',
+   revokeObjectURL(){revocations++}},Blob:class{},
+  atob:value=>Buffer.from(value,'base64').toString('binary'),
+  setTimeout:schedule,clearTimeout:cancel};
+ const isolated=Function(...Object.keys(globals),'input',
+  'return ('+sampleChromiumDecodedD04WebM.toString()+')(input)');
+ try{
+  const proof=await isolated(...Object.values(globals),input);
+  assert.equal(seekAttempts,2,'stop seeking after two bounded misses');
+  assert.equal(plays,1,'the authentic WebM is decoded muted at most once');
+  assert.equal(video.muted,true,'browser playback must not audibly emit the original soundtrack');
+  assert.equal(video.volume,0);
+  assert.equal(proof.status,'SAMPLED');
+  assert.equal(proof.samplingMode,'playback-frame-callback');
+  assert.equal(proof.durationSeconds,2.4,'finite duration is still recorded truthfully');
+  assert.equal(proof.samples.length,4);
+  assert.ok(draws>=4);
+  assert.equal(classifyChromiumDecodedRealWebM(input,proof).classification,
+   'BROWSER_DECODED_MOVING_PIXELS_UNALIGNED');
+  assert.equal(proof.sampleSynchronized,false);
+  assert.equal(video.isConnected,false,'all post-capture DOM is removed');
+  assert.equal(revocations,1,'the bounded WebM URL is released');
+ }finally{for(const timer of pending)cancel(timer)}
 });
