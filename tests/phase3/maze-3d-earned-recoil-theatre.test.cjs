@@ -111,19 +111,25 @@ test('source-bound current parry clears only camera-front optional fossil silhou
   const camera=await import(pathToFileURL(path.join(root,
     'public/ai-maze-escape/guardian-duel-camera.mjs')).href);
   const occludes=camera.publicGuardianScenicOccludesActor;
-  const pip={left:-.34,right:.32,bottom:-.43,top:.25,nearestZ:.24};
-  const foreground={left:-.21,right:.28,bottom:-.24,top:.58,nearestZ:.05};
+  const pip={left:-.34,right:.32,bottom:-.43,top:.25,nearestZ:.20,farthestZ:.31};
+  // Measured connected actor depth: a near-protruding lantern can be
+  // IN FRONT of the fossil while the physical torso is BEHIND its leaves.
+  // Pass413's 0.015 nearest-tip threshold incorrectly preserved the tree.
+  const foreground={left:-.21,right:.28,bottom:-.24,top:.58,nearestZ:.245,farthestZ:.34};
   assert.equal(occludes(pip,foreground,true,false),true,
-    'a genuine in-front fossil tree masking Pip is a meaningful scene occluder');
+    'a camera-front fossil masking an actor torso must not be protected by a nearer lantern tip');
   assert.equal(occludes(pip,foreground,false,false),false,
     'a synthetic or stale parry cannot clear real scenic geometry');
   assert.equal(occludes(pip,foreground,true,true),false,
     'reduced-motion presentation retains its unchanged stable scene');
-  assert.equal(occludes(pip,{...foreground,nearestZ:.50},true,false),false,
+  assert.equal(occludes(pip,{...foreground,nearestZ:.35,farthestZ:.50},true,false),false,
     'a fossil landmark BEHIND the actor is never suppressed');
   assert.equal(occludes(pip,{...foreground,left:.7,right:.9},true,false),false,
     'unrelated nearby trees are not erased by a broad radius');
   assert.equal(occludes(pip,{...foreground,left:.30,right:.52},true,false),false,
     'a barely touching silhouette does not cause pop or thinning');
+  assert.equal(occludes(pip,{...foreground,nearestZ:.260,farthestZ:.36},true,false),false,
+    'decoration entirely behind the actor core stays as an authored landmark');
   assert.equal(occludes(pip,{...foreground,nearestZ:NaN},true,false),false);
+  assert.equal(occludes(pip,{...foreground,farthestZ:NaN},true,false),false);
 });
