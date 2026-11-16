@@ -428,3 +428,41 @@ test('RED: original Idle bone track resolver distinguishes identical duplicate b
  assert.match(renderer,/resolveLicensedIdleJointQuaternionTracks\(/,
   'native rig renderer must use the source-proven duplicate-safe resolver');
 });
+
+test('real licensed Idle pose is sampled at the witnessed Walking_A phase, never frozen at source key zero',async()=>{
+ const {sampleLicensedIdleJointQuaternionAtPhase:sample}=await load();
+ const key=(yaw)=>[0,Math.sin(yaw/2),0,Math.cos(yaw/2)];
+ const rotations=[...key(0),...key(Math.PI/2),...key(Math.PI)];
+ const track=(name,values=rotations)=>({name,
+  times:new Float32Array([0,.5,1]),values:new Float32Array(values)});
+ const source=[track('Armature.lowerlegr.quaternion'),
+  track('lowerlegr.quaternion',rotations.map(v=>-v))];
+ const atStart=sample(source,'lowerlegr',0);
+ const quarter=sample(source,'lowerlegr',.25);
+ const midpoint=sample(source,'lowerlegr',.5);
+ const lastQuarter=sample(source,'lowerlegr',.75);
+ const close=(q,expected)=>Math.abs(
+  q.reduce((dot,v,i)=>dot+v*expected[i],0))>.99999;
+ assert.equal(atStart?.source,'licensed-original-Idle-phase-sampled-joint');
+ assert.ok(close(atStart.quaternion,key(0)));
+ assert.ok(close(quarter.quaternion,key(Math.PI/4)));
+ assert.ok(close(midpoint.quaternion,key(Math.PI/2)));
+ assert.ok(close(lastQuarter.quaternion,key(3*Math.PI/4)));
+ assert.deepEqual(midpoint.sourceTrackNames,
+  ['Armature.lowerlegr.quaternion','lowerlegr.quaternion']);
+ assert.equal(midpoint.sourceSampleTimeSeconds,.5);
+ assert.deepEqual(quarter.sourceKeyframeIndices,[0,1]);
+ assert.deepEqual(lastQuarter.sourceKeyframeIndices,[1,2]);
+ assert.equal(quarter.equivalentDuplicate,true);
+ assert.notDeepEqual(quarter.quaternion,atStart.quaternion,
+  'a legal mid-gait source Idle reference must NOT silently use the frame-zero quaternion');
+ for(const bad of [-.01,1,1.01,NaN,Infinity])
+  assert.equal(sample(source,'lowerlegr',bad),null);
+ assert.equal(sample(source,'otherleg',.25),null);
+ assert.equal(sample([source[0],track('lowerlegr.quaternion',
+  [...key(0),...key(0),...key(Math.PI)])],'lowerlegr',.25),null,
+  'conflicting authentic source bindings must still reject the entire connected leg');
+ assert.match(renderer,/sampleLicensedIdleJointQuaternionAtPhase\(/);
+ assert.match(renderer,/actor\.activeClip\.time/);
+ assert.match(renderer,/originalIdleSourcePhase/);
+});
