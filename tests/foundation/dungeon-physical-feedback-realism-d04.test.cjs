@@ -156,6 +156,49 @@ test('verified victim injury starts as a bounded torso-surface chip fan instead 
  }finally{stage.dispose()}
 });
 
+test('verified HP torso-shell fragments have a restrained but readable first-frame footprint, including reduced flash',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const OriginalPose=T.Object3D;
+ T.Object3D=class extends OriginalPose{
+  updateMatrix(){this.matrix={x:this.position.x,y:this.position.y,z:this.position.z,
+   scale:this.scale.x}}
+ };
+ const victim={id:'revenant',kind:'revenant',faction:'enemy',x:3,z:2,hp:14,maxHp:20};
+ const options={actorById:id=>id===victim.id?{
+  u:victim,root:{visible:true,position:{x:-6,y:0,z:-7},rotation:{y:0}}
+ }:null,getCurrentSnapshot:()=>({run:1,floor:1,tick:11,units:[victim]}),
+  requireVerifiedHpReceipt:true};
+ const accepted=cue({severity:.3,detail:{damage:6,remainingHp:14,maxHp:20}});
+ const stage=createPhysicalFeedbackVisuals(T,scene,options);
+ try{
+  assert.equal(stage.emit(accepted),true);
+  const hit=[...scene.children][1];
+  assert.ok(hit.material.opacity>=.45&&hit.material.opacity<=.51,
+   'ordinary authentic HP chips need restrained but legible opacity; no extra light or flash');
+  const core=hit.matrices[0].scale;
+  assert.ok(core>=.5&&core<=.85,'the body-centre reference remains a small fragment');
+  const shell=hit.matrices.slice(1,4).map(m=>m.scale);
+  for(const scale of shell)
+   assert.ok(scale>=.95&&scale<=1.2,
+    'outer shell fragments must not begin as sub-pixel-scale chips relative to their retained geometry');
+  assert.equal(stage.stats().instancesByPool.hit,4);
+  assert.equal(stage.stats().activeDrawCalls,1);
+  assert.equal(stage.stats().reservedInstances,102);
+ }finally{stage.dispose()}
+ const reduced=three(),low=createPhysicalFeedbackVisuals(reduced.T,reduced.scene,{
+  ...options,reducedFlash:true,reducedMotion:true});
+ try{
+  assert.equal(low.emit(accepted),true);
+  const hit=[...reduced.scene.children][1];
+  assert.ok(hit.material.opacity<=.22,
+   'reduced-flash mode must never gain ordinary contact contrast');
+  assert.ok(low.stats().activeDrawCalls<=7);
+  for(let i=0;i<20;i++)low.advance(.05);
+  assert.equal(low.stats().active,0,'stronger static readability must not extend effect lifespan');
+ }finally{low.dispose()}
+});
+
 test('visual effect groups physically distinguish guided arrow, magic orb, rooted blade, dodge grit and measured impact',async()=>{
  const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
  const {T,scene}=three();
