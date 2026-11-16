@@ -736,7 +736,11 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       stepDurationMs:frame.stepDurationMs, explorerPosition:explorer.group.position,
       guardianCell:witnessedCounter?earnedCounterActor.cell:closestThreat?.cell,
       guardianBeat:closestThreat?.encounterBeat,
-      guardianParried:witnessedCounter});
+      guardianParried:witnessedCounter,
+      // One witnessed public 1.15s counter clock drives both actor rigs AND
+      // the connected floor stage. An already-parried first-seen guardian
+      // has no counterPhase and cannot manufacture this earned visual beat.
+      guardianCounterPhase:witnessedCounter ? earnedCounterActor.counterPhase : undefined});
     const pressureProgress=pressureCue
       ? world.publicPressureProgress(pressureCue.cell) : 0;
     // Only the new authoritative PUBLIC wait decision, paired with a still

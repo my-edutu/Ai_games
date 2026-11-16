@@ -1,6 +1,7 @@
 import * as THREE from './vendor/three.module.js';
 import { GATE_RETRACTION_SECONDS, PUBLIC_PRESSURE_VISUAL_SECONDS, observedGateOpenings, gateRetractionPose, observedPressureProgress, publicPressureSequenceSeconds, publicSpentKeyTheatreDrop } from './gate-moment.mjs';
 import { publicKeyCollectionMoment } from './map-view.mjs';
+import { publicGuardianEarnedResonance } from './public-lantern-encounter.mjs';
 
 export const CELL_SIZE = 2.4;
 // Same previously observed key cell for original treasure, collected empty
@@ -1721,8 +1722,19 @@ export function createMazeWorld(options = {}) {
               sentinels.push({lift,crown,lens,sailPivot,sail,crest,side});
             }
           }
+          // A rooted, concentric Tideglass floor response travels from
+          // Pip to Thornback ONLY on their genuinely earned shared counter.
+          // Reuse the existing torus geometry and glow/inlay materials:
+          // zero new GPU geometry or material classes across run resets.
+          const counterRipple=mesh(signal,ring,inlay,0,.035,0,
+            .30,.30,.30,-Math.PI/2);
+          counterRipple.name='Earned public guardian Tideglass resonance '+c.cell;
+          counterRipple.visible=false;
+          counterRipple.castShadow=false;
+          counterRipple.receiveShadow=false;
           guardianTideSignals.push({cell:c.cell,axis:guardianCausewayAxis,
-            faces,sentinels,counterStart:null,counterRunToken:null});
+            faces,sentinels,counterRipple,
+            resonanceState:{wave:0,glow:0,radius:0}});
         }
       }
       // A genuinely PUBLIC trap has its own broad physical pressure court.
@@ -3663,21 +3675,25 @@ export function createMazeWorld(options = {}) {
       // a new collider, invisible path, safe-route instruction or fake hit.
       // Terrain owns this clock; no meshes/materials are created per frame.
       // A different run, unseen/sealed lane or cleared parry instantly resets.
-      if(!onLane || !earnedParry) {
-        signal.counterStart=null;
-        signal.counterRunToken=null;
-      } else if(signal.counterRunToken!==snapshot.runToken
-        ||signal.counterStart===null || t<signal.counterStart) {
-        signal.counterStart=t;
-        signal.counterRunToken=snapshot.runToken;
-      }
       const fromHero=alongX
         ? Math.abs(col-heroCell%snapshot.width)
         : Math.abs(row-Math.floor(heroCell/snapshot.width));
-      const counterWave=onLane&&earnedParry
-        ? reduced?1:Math.max(0,Math.min(1,
-          (t-signal.counterStart-fromHero*.12)/.20))
-        :0;
+      // The old per-tile local counterStart could restart on terrain rebuild,
+      // and even claimed a new victory for a first-seen already-parried foe.
+      // The actual public false->true counter phase belongs jointly to Pip,
+      // Thornback and this observed physical stage. Never infer a new beat.
+      const resonance=publicGuardianEarnedResonance(
+        onLane&&earnedParry?options.guardianCounterPhase:undefined,
+        fromHero,reduced,signal.resonanceState);
+      const counterWave=resonance.wave;
+      // Stage-wide, sequential, floor-level original Tideglass response.
+      // The center lane remains open, original floor/collision unchanged.
+      // Hidden, stale, terminal and reduced-motion frames never pulse.
+      signal.counterRipple.visible=onLane && resonance.glow>.08;
+      if(signal.counterRipple.visible){
+        signal.counterRipple.scale.setScalar(resonance.radius);
+        signal.counterRipple.material=resonance.glow>.48?glow:inlay;
+      }
       // A genuine parry supersedes the warning rather than adding two large
       // hinge angles: never swing physical leaves beyond their outboard limits.
       const warningAction=action*(1-counterWave);
