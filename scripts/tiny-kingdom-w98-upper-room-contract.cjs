@@ -18,6 +18,7 @@ const roof=functionBody('isHippedHouseRoof');
 // W350: W349's real joined casements were missing from this isolated
 // historical house fixture, not from the actual running cottage.
 const casement=functionBody('renderOriginalOccupiedCasement');
+const stoneBond=functionBody('renderAuthenticCottageStoneBond');
 assert.match(house,/box\(x,y\+jettySill,z,w\+\.28,h-jettySill,d\+\.36,plaster\)/,
  'Complete upper-room volume, not a front-only facade');
 assert.doesNotMatch(street,/box\(x,y\+1\.55,front-\.06,w\*\.82,h-1\.62,\.24,plaster\)/,
@@ -57,6 +58,7 @@ function sample(style,variant) {
   ${profile}
   ${roof}
   ${casement}
+  ${stoneBond}
   ${house}
   ${street}
   compactHouse(3,-7,${variant});

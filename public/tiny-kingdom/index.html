@@ -11848,35 +11848,103 @@ function getPopulationMotionAudit(){
 // resident retains a distinct silhouette, without spawning decorative NPCs.
 // All accessories follow the exact existing worker gait and camera-facing
 // transform. No authoritative state, path, seed or inventory is touched.
-function renderCompactOccupationGear(p,x,y,z,s){
+// W379: six REAL autonomous professions now retain a continuous draped
+// garment silhouette even at the Day-120 compact LOD. Former flat box aprons,
+// block capes and paper toolboxes had a toy-like silhouette. Every panel is
+// built in the existing actor mesh and inherits the ORIGINAL rig's genuine
+// traveling/work gait. Headwear identifies occupations, never fictitious
+// inventory, a duplicate worker, simulated goods, or extra GPU allocation.
+function renderCompactOccupationGear(p,x,y,z,s,rig){
+ const start=data.length;
+ const moving=Boolean(rig&&rig.traveling);
+ const working=Boolean(rig&&rig.working);
+ const stride=moving?Math.sin(p.phase*2.7)*.043:0;
+ const lean=working?Math.max(-.5,Math.min(.5,rig.acting?.lean||0))*.058:0;
  const linen=rgb(0xc4b9a0),leather=rgb(0x75543b),straw=rgb(0xbaa175);
+ const walnut=rgb(0x5c493c),felt=rgb(0x746957),wool=rgb(0x747b65);
+ const pt=(a,b,c)=>[x+a*s,y+b*s,
+  z+(c+stride*(1-b*.58)+lean*Math.max(0,b-.4))*s];
+ const panel=(a,b,c,d,color)=>quad(pt(...a),pt(...b),pt(...c),pt(...d),color);
+ const foldApron=(tone,hem,spread)=>{for(const side of [-1,1]){
+  panel([0,.765,.268],[side*.215,.745,.257],
+   [side*spread,hem,.339],[0,hem+.026,.356],tone);
+  panel([side*.215,.745,.257],[side*.285,.720,.197],
+   [side*(spread+.030),hem+.030,.290],
+   [side*spread,hem,.339],tone.map(v=>v*.78));
+ }};
  materialScope(MATERIAL.GENERAL,()=>{
   if(p.job==='farmer'){
-   cylinder(x,y+1.58*s,z,.275*s,.038*s,straw,7);
-   cone(x,y+1.595*s,z,.167*s,.135*s,rgb(0xd1b577),7);
-   box(x,y+.43*s,z+.20*s,.33*s,.38*s,.050*s,linen);
+   // Shaped flax mantle and split harvest apron, attached to the real
+   // waist, not a hovering timber rectangle above the moving knees.
+   cylinder(x,y+1.573*s,z,.273*s,.037*s,straw,7);
+   cone(x,y+1.595*s,z,.168*s,.137*s,rgb(0xd1b577),7);
+   foldApron(linen,.348,.259);
+   for(const side of [-1,1])
+    panel([side*.105,1.056,.146],[side*.296,.971,.113],
+     [side*.300,.755,.266],[side*.065,.808,.281],
+     rgb(0x9a9075));
   }else if(p.job==='gatherer'){
-   cone(x,y+1.59*s,z,.224*s,.15*s,rgb(0x798b60),7);
+   cone(x,y+1.587*s,z,.223*s,.168*s,wool,7);
+   for(const side of [-1,1]){
+    panel([side*.05,1.09,-.153],[side*.30,1.005,-.112],
+     [side*.322,.48,-.248],[side*.09,.56,-.238],wool);
+    panel([side*.30,1.005,-.112],[side*.365,.87,-.166],
+     [side*.354,.55,-.275],[side*.322,.48,-.248],rgb(0x5b7057));
+   }
+   // This is the existing empty occupational basket, NOT a claimed harvest.
    box(x-.26*s,y+.30*s,z+.03*s,.26*s,.28*s,.24*s,straw);
    box(x-.26*s,y+.56*s,z+.03*s,.31*s,.055*s,.27*s,leather);
   }else if(p.job==='forester'){
-   cone(x,y+1.59*s,z,.233*s,.19*s,rgb(0x54694d),7);
-   box(x,y+.43*s,z-.21*s,.31*s,.39*s,.15*s,leather);
-   box(x,y+.83*s,z-.19*s,.34*s,.047*s,.16*s,straw);
+   cone(x,y+1.585*s,z,.229*s,.184*s,rgb(0x54694d),7);
+   for(const side of [-1,1]){
+    panel([0,1.104,-.147],[side*.322,1.007,-.112],
+     [side*.387,.448,-.267],[side*.03,.537,-.235],
+     rgb(0x596d56));
+    panel([side*.322,1.007,-.112],[side*.377,.878,-.160],
+     [side*.40,.47,-.29],[side*.387,.448,-.267],
+     rgb(0x475b48));
+   }
+   panel([-.21,.865,.239],[.21,.865,.239],
+    [.26,.812,.250],[-.25,.812,.250],leather);
   }else if(p.job==='builder'){
-   box(x,y+1.58*s,z,.42*s,.083*s,.39*s,straw);
-   box(x,y+.46*s,z+.19*s,.35*s,.38*s,.058*s,rgb(0xb7a17f));
-   box(x+.22*s,y+.40*s,z+.04*s,.15*s,.23*s,.15*s,leather);
+   // Soft padded working jerkin and joined leather apron, never a rigid
+   // wood chest or a fake building transaction.
+   cylinder(x,y+1.577*s,z,.229*s,.057*s,straw,7);
+   foldApron(rgb(0xa99376),.332,.25);
+   for(const side of [-1,1]){
+    panel([side*.09,1.084,.17],[side*.297,1.010,.10],
+     [side*.333,.875,.21],[side*.12,.90,.255],leather);
+    panel([side*.182,.936,.269],[side*.220,.941,.261],
+     [side*.05,.668,.310],[side*.011,.668,.315],linen);
+   }
   }else if(p.job==='craftsperson'){
-   box(x,y+1.58*s,z,.38*s,.075*s,.34*s,rgb(0x5e6060));
-   box(x,y+.42*s,z+.22*s,.37*s,.43*s,.066*s,leather);
-   box(x,y+.82*s,z+.245*s,.34*s,.065*s,.085*s,linen);
+   cylinder(x,y+1.573*s,z,.190*s,.056*s,rgb(0x5e6060),7);
+   foldApron(rgb(0x93765e),.330,.265);
+   for(const side of [-1,1]){
+    panel([side*.127,1.011,.206],[side*.271,.959,.163],
+     [side*.310,.831,.221],[side*.159,.866,.271],felt);
+    panel([side*.225,.85,.252],[side*.272,.85,.24],
+     [side*.152,.690,.308],[side*.113,.690,.316],linen);
+   }
   }else if(p.job==='merchant'){
-   box(x,y+1.56*s,z,.38*s,.087*s,.38*s,rgb(0x947851));
-   box(x,y+.53*s,z-.19*s,.51*s,.55*s,.091*s,rgb(0x665d48));
-   box(x-.28*s,y+.39*s,z+.04*s,.19*s,.25*s,.15*s,leather);
+   cylinder(x,y+1.572*s,z,.247*s,.052*s,rgb(0x947851),7);
+   // A parted wool trading coat reads as an adult silhouette at low
+   // resolution. The dark throat and hem are cloth, not inventory.
+   for(const side of [-1,1]){
+    panel([side*.07,1.105,.175],[side*.305,1.042,.095],
+     [side*.354,.338,.298],[side*.035,.398,.311],felt);
+    panel([side*.305,1.042,.095],[side*.356,.917,.139],
+     [side*.389,.404,.263],[side*.354,.338,.298],
+     rgb(0x655a46));
+    panel([side*.030,.425,.312],[side*.35,.350,.296],
+     [side*.366,.332,.303],[side*.037,.400,.324],straw);
+   }
   }
  });
+ const triangles=(data.length-start)/30;
+ if(!Number.isInteger(triangles)||triangles>190)
+  throw Error('W379 real compact citizen workwear budget exceeded');
+ return {triangles,authoritativeTransactionsAdded:0};
 }
 let citizenMidVisualIndices=new Set();
 // W243: a coherent adult face and physically owned working fingers on REAL
@@ -12002,7 +12070,7 @@ function compactVillager(p){
   renderCompactOriginalFace(p,i,x,y,z,s,skin,hair,rig,embodiment);
   box(x,y+.40*s,z+.22*s,.22*s,.29*s,.06*s,rgb(0x785b43));
  });
- renderCompactOccupationGear(p,x,y,z,s);
+ renderCompactOccupationGear(p,x,y,z,s,rig);
  renderMedievalWardrobe(p,i,x,y,z,s,rig,
   citizenMidVisualIndices.has(i)?'mid':'far');
  compactCitizenAnimation.lastRoleSilhouettes++;

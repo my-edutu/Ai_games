@@ -32,6 +32,8 @@ const context={
  quad:(a,b,c,d)=>{vec(a);vec(b);vec(c);vec(d);stats.quad++;add(2)},
  limbSegment:(a,b,r,_c,sides=7)=>{vec(a);vec(b);assert.ok(r>0);
  stats.segments++;add(sides*2)},
+ taperedMedievalLimb:(a,b,r0,r1,_c,sides=6)=>{
+  vec(a);vec(b);assert.ok(r0>0&&r1>0);stats.segments++;add(sides*2)},
  ellipsoid:(x,y,z,a,b,c,_col,sides=6)=>{assert.ok([x,y,z,a,b,c].every(Number.isFinite));add(sides*10)},
  cylinder:(x,y,z,r,h,_col,sides=6)=>{assert.ok([x,y,z,r,h].every(Number.isFinite));stats.cylinders++;add(sides*4)},
  isMarketUnloading:p=>p.delivery?.stage==='unloading',

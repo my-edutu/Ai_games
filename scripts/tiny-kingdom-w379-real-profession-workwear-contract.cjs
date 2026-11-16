@@ -4,18 +4,18 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),vm=require('node:vm');
 const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
-const script=html.match(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/i)?.[1];
+const script=html.match(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/i)?.[1];
 assert.ok(script,'must inspect the playable original game');
 new vm.Script(script,{filename:'tiny-kingdom-production.js'});
 const begin=script.indexOf('function renderCompactOccupationGear(');
 const end=script.indexOf('let citizenMidVisualIndices=new Set();',begin);
 assert.ok(begin>=0&&end>begin,'real compact profession geometry required');
 const production=script.slice(begin,end);
-assert.match(production,/function renderCompactOccupationGear\\(p,x,y,z,s,rig\\)/,
+assert.match(production,/function renderCompactOccupationGear\(p,x,y,z,s,rig\)/,
  'genuine compact body must respond to the existing original rig');
-assert.match(production,/rig\\.traveling/);
-assert.match(production,/rig\\.working/);
-assert.doesNotMatch(production,/Math\\.random\\(|(?:^|\\W)state\\s*\\.|deliveryReceipts\\.(?:push|splice)/,
+assert.match(production,/rig\.traveling/);
+assert.match(production,/rig\.working/);
+assert.doesNotMatch(production,/Math\.random\(|(?:^|\W)state\s*\.|deliveryReceipts\.(?:push|splice)/,
  'rendering cannot create authority or random work');
 const jobs=['farmer','gatherer','forester','builder','craftsperson','merchant'];
 const data=[],points=[];
