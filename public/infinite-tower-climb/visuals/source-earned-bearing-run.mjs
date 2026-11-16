@@ -99,7 +99,7 @@ export function plannedSourceEarnedSuspendedBearingSections(nodes) {
     return at(angle,radius*Math.cos(delta/2),(foot+head)/2,
       [width,length,width],-Math.atan2(tangent,rise));
   };
-  return nodes.map((station,index)=>{
+  const sections=nodes.map((station,index)=>{
     const {angle:a,sceneY:y,anchorY,height:h}=station;
     const crown=y+h,groundedColumnHeight=crown-anchorY;
     const parts=[
@@ -143,4 +143,7 @@ export function plannedSourceEarnedSuspendedBearingSections(nodes) {
     }
     return parts;
   });
+  // Reject degenerate source spacing as one atomic stage. The Three.js
+  // caller may never receive a partial array with missing mechanical bays.
+  return sections.every(Array.isArray)?sections:null;
 }
