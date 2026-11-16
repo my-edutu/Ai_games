@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-16T03:12:00.000Z",
+  "updatedAt": "2026-11-16T03:54:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass414 exact-source Chromium WebGL, strict six-reset geometry budget and focused source tests passed. Original full 320/390 native WebGL A/B with Pass413 is visibly inadequate: fossil organs still obscure the real Pip-Thornback earned autonomous parry. Candidate REJECTED and source/test rolled back safely to Pass413. Next task is holistic physical guardian theatre reconstruction. Fixed Nintendo bar unmet; draft, unmerged, undeployed."
+    "summary": "Pass414 depth-only original mobile WebGL A/B was visually rejected and rolled back. Exact rollback-head Maze workflow #43797148171 succeeded. Pass415 now implements a genuinely earned, source-visible coordinated physical tide-organ recession at the Pip–Thornback counter instead of another depth-threshold micro-fix. New exact-commit tests and unaltered 320/390/844/1280 WebGL images are PENDING; no rendered gain or Nintendo parity is claimed. Draft, unmerged, undeployed."
   },
   "captures": [
+    {
+      "title": "Pass414 safe rollback exact-HEAD Chromium WebGL and 40 original PNG SHA-256 matches; baseline for unapproved Pass415",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/43797148171/artifacts/14194938533"
+    },
     {
       "title": "Pass414 original exact-HEAD native 40/40 screenshot sidecar SHA and 3 authentic gate hashes verified; 320/390 visual A/B REJECTED, restoring trusted source",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/43795970387/artifacts/14195020855"

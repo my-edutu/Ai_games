@@ -189,3 +189,33 @@ export function publicGuardianScenicOccludesActor(actor,scenic,earned=false,redu
   return w>=Math.max(.08,(actor.right-actor.left)*.17)
     && h>=Math.max(.09,(actor.top-actor.bottom)*.17);
 }
+
+/**
+ * Actor-facing Tideglass stage clearance, not a depth-only "is in front"
+ * micro-adjustment. The caller must already own a current, same-run,
+ * publicly discovered ACTUAL lantern counter, both connected actor meshes,
+ * and an optional noncolliding fossil prop on a currently visible tile.
+ *
+ * Several exact-WebGL rejected passes compared the nearest tip of Pip's
+ * lantern to a fossil's nearest tip; those boxes did not describe whether
+ * the large fossil organ visually crowded Pip's torso. This strict 2D
+ * silhouette intersection is paired with REAL disclosed-cell proximity
+ * by the scene director. It NEVER operates on wall/route/hazard meshes.
+ */
+export function publicEarnedGuardianScenicStageOverlap(actor,scenic,earned=false) {
+  if(!earned || !actor || !scenic)return false;
+  const props=['left','right','bottom','top','nearestZ'];
+  if(!props.every(k=>Number.isFinite(actor[k])&&Number.isFinite(scenic[k])))return false;
+  if(actor.left>=actor.right || actor.bottom>=actor.top
+    || scenic.left>=scenic.right || scenic.bottom>=scenic.top
+    || actor.nearestZ<=-1 || actor.nearestZ>=1
+    || scenic.nearestZ<=-1 || scenic.nearestZ>=1)return false;
+  // A real substantial intersection, NEVER a nearby but visually
+  // unrelated decoration. NDC values use the unmodified WebGL projection.
+  const width=Math.max(0,Math.min(actor.right,scenic.right)
+    -Math.max(actor.left,scenic.left));
+  const height=Math.max(0,Math.min(actor.top,scenic.top)
+    -Math.max(actor.bottom,scenic.bottom));
+  return width>=Math.max(.08,(actor.right-actor.left)*.15)
+    && height>=Math.max(.09,(actor.top-actor.bottom)*.15);
+}

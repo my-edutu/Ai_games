@@ -3,7 +3,7 @@ import { createExplorer, createWarden } from './characters.js';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianScenicOccludesActor } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicEarnedGuardianActing } from './public-lantern-encounter.mjs';
@@ -1582,41 +1582,81 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         camera.updateMatrixWorld();
       }
     }
-    // Pass413: actual uncropped 320/390 Pass412 recoil frames have a tall
-    // foreground fossil tree cutting through Pip's lantern and Thornback's
-    // response. A TRUE currently published parry may temporarily tuck away
-    // only a camera-front decorative fossil organ/listening sail if its REAL
-    // projected 3D volume occludes an actor. Walls, terraced foundations,
-    // traps, gates, props, navigation and every unobserved cell remain.
-    // The fixed orthographic actor framing, HUD and privacy gates are untouched.
+    // Pass415: the exact-source natural 320/390 parry proves that the
+    // authored, optional tide-organ FOREGROUND itself still dominates
+    // the action. Three rejected depth/visibility micro-fixes did not
+    // reveal Pip's connected lantern counter. Give this original,
+    // NONCOLLIDING scenery a genuine physical tidewall recession while
+    // the actual public parry is witnessed: the whole organ, paired
+    // listening sails and all hinged leaves settle into their plinth as
+    // ONE coordinated rooted silhouette rather than vanishing separately.
+    //
+    // Selection uses both REAL full-actor projected mesh rectangles, the
+    // currently visible original scenic ROOT and BOTH currently public
+    // actor cells. No hidden route, guessed door, map collider, engine AI,
+    // wall, hazard, key, beacon or stage topology can be affected. After
+    // the earned beat, reduced motion, terminal/reset or loss of public
+    // visibility, EVERY optional root restores its unchanged world pose.
     if (parryScenicRoots.length) {
-      const earnedScenicSightline=cameraMode==='follow'
-        && !settings.reducedMotion && !result && !cameraGate
-        && !pressureCameraBeat && !pickupCameraBeat
+      const earnedScenicStage=cameraMode==='follow' && !result
+        && !cameraGate && !pressureCameraBeat && !pickupCameraBeat
         && earnedGuardianFrame && verifiedGuardianModel?.parent
+        && Number.isSafeInteger(s.currentCell)
+        && Number.isSafeInteger(earnedCounterActor?.cell)
+        && s?.lifecycle==='running'
         && aspect>=.35 && aspect<.60;
+      const stageCells=new Set();
+      const visible=new Set(s.visibleCells||[]);
+      // Restore absolute, unchanged ROOT positions for true projected
+      // sculpture envelope inspection, even while last frame was recessed.
+      // This is CPU-side positioning before a single final WebGL draw.
       for(const scenic of parryScenicRoots) {
-        scenic.visible=true;
-        if(!earnedScenicSightline)scenic.userData.parrySightlineHidden=false;
+        if(!Number.isFinite(scenic.userData.parryRecessBaseY))
+          scenic.userData.parryRecessBaseY=scenic.position.y;
+        scenic.position.y=scenic.userData.parryRecessBaseY;
       }
-      if(earnedScenicSightline){
+      if(earnedScenicStage) {
         camera.updateMatrixWorld();
         const pipPhysical=projectedParryScenicBox(explorer.group);
         const thornbackPhysical=projectedParryScenicBox(verifiedGuardianModel);
         if(pipPhysical && thornbackPhysical) {
+          const distance=(a,b)=>Math.abs(a%s.width-b%s.width)
+            +Math.abs(Math.floor(a/s.width)-Math.floor(b/s.width));
           for(const scenic of parryScenicRoots) {
-            // No remembered or no-longer-visible scenery can be cut away.
-            if(!s.visibleCells.includes(scenic.userData.cell))continue;
-            const scenicPhysical=projectedParryScenicBox(scenic);
-            if(scenicPhysical && (
-              publicGuardianScenicOccludesActor(pipPhysical,scenicPhysical,true,false)
-              || publicGuardianScenicOccludesActor(thornbackPhysical,scenicPhysical,true,false)
-              || scenic.userData.parrySightlineHidden===true)) {
-              scenic.visible=false;
-              scenic.userData.parrySightlineHidden=true;
-            }
+            const cell=scenic.userData.cell;
+            if(!Number.isSafeInteger(cell)||!visible.has(cell)
+              ||!s.cells.some(c=>c.cell===cell)
+              ||Math.min(distance(cell,s.currentCell),
+                distance(cell,earnedCounterActor.cell))>3)continue;
+            const projected=projectedParryScenicBox(scenic);
+            if(projected && (
+              publicEarnedGuardianScenicStageOverlap(
+                pipPhysical,projected,true)
+              ||publicEarnedGuardianScenicStageOverlap(
+                thornbackPhysical,projected,true)))
+              stageCells.add(cell);
           }
         }
+      }
+      // A linked three-part sculpture must not pop its detached side
+      // petals back through Pip. Keep the WHOLE public cell together for
+      // the exact active counter; retain the earned decision until it ends.
+      for(const scenic of parryScenicRoots) {
+        const cell=scenic.userData.cell;
+        const eligible=earnedScenicStage && visible.has(cell)
+          && (stageCells.has(cell)||scenic.userData.parrySightlineHidden===true);
+        scenic.userData.parrySightlineHidden=eligible;
+        const previous=Number.isFinite(scenic.userData.parryRecess)
+          ? scenic.userData.parryRecess : 0;
+        const target=eligible?1:0;
+        const step=settings.reducedMotion?1:Math.min(1,Math.max(0,delta)*8);
+        const amount=previous+(target-previous)*step;
+        scenic.userData.parryRecess=amount;
+        // 2.65m is enough to bring the tall fossil shell and listening
+        // petals into the already modeled plinth instead of making an
+        // implausible alpha fade or moving an authoritative structure.
+        scenic.position.y=scenic.userData.parryRecessBaseY-2.65*amount;
+        scenic.visible=true;
       }
     }
     const background = settings.highContrast ? '#50665f' : '#b2c6b6';
