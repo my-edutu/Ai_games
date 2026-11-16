@@ -948,10 +948,10 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    type==='projectile'?.10:.16,type==='projectile'?.30:.31):length;
   // Genuine HP loss may reach its first WebGL submission after a 230ms shard
   // expires but still within the unchanged 400ms sound deadline. Only a
-  // strict, canonical, currently witnessed HP cue gets 380ms of drawable life.
+  // strict, canonical, currently witnessed HP cue gets 398ms of drawable life.
   // This is not a delayed impact claim, an attacker inference or a new pool.
   const verifiedHpFirstFrameLife=type==='hit'&&requireVerifiedHpReceipt?
-   Math.max(flightLife,.38):flightLife;
+   Math.max(flightLife,.398):flightLife;
   // An actual HP drop identifies the victim, never an incoming blade.
   // Previously every tiny chip began INSIDE its chest mesh, where depth
   // testing obscured the first visible impact from most camera directions.
@@ -1056,11 +1056,11 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    // HP loss strengthens the shell modestly, never an attempted swing.
    const initial=p==='dust'?.30:
     slot.ordinal===0?.60+slot.severity*.24:.96+slot.severity*.16;
-   // An authentic 336ms first-frame HP impact must not shrink to a
-   // sub-pixel chip. Preserve monotonic fade and hard expiry without changing
+   // An authentic 373-391ms submitted HP impact must not shrink to a
+   // sub-pixel chip. Keep hard 398ms expiry ahead of the 400ms sound deadline, without changing
    // non-HP dust, geometry auditions or reduced-flash material opacity.
    const contactFade=p==='hit'&&requireVerifiedHpReceipt?
-    Math.pow(fade,.35):fade;
+    Math.pow(fade,.224):fade;
    pose.scale.setScalar(Math.max(.0001,initial*Math.pow(contactFade,1.25)));
   }else if(p==='projectile'||p==='spell'){
    const end=slot.end;
