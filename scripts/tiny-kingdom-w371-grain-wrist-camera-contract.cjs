@@ -39,13 +39,18 @@ assert.equal(found.fenceRejected,1);
 assert.equal(found.checked,4);
 assert(found.maximumChecks<=72&&found.maximumReservations<=12);
 const many=Array.from({length:300},(_,i)=>option(i,i+20));
+// Desktop also requires physically readably surveyed full-body hands, not
+// only the 390px path. Pitch must search over wheat without increasing the
+// original bounded 4x4 desktop angles/pitch/zoom count.
+assert.match(source,/portraitLens\\?\\[\\.14,\\.31,\\.49,\\.64\\]:\\[\\.17,\\.33,\\.49,\\.62\\]/,
+ 'Original desktop farmer crop needs a physical over-stalk option');
 const bounded=vm.runInNewContext(
  'reserveActualFarmWristSightlines(options,citizen,hands)',
  {...vmContext,options:many,citizen:{name:'Bram'},hands:[]},
  {timeout:2000});
 assert(bounded.checked<=72&&bounded.reserved.length<=12,
  'Farm eye inspection and camera emissions must be strictly bounded');
-assert.match(source,/const actualGrainWitness=realFarmWork&&portraitLens\?/,
+assert.match(source,/const actualGrainWitness=realFarmWork\?/,
  'Real portrait farmer must reserve exterior wrist eyes BEFORE scenic pruning');
 assert.match(source,/physicalGrainHandsBest\|\|usableFrontBest\|\|best/,
  'Only physically verified hand-clear views can replace obstructed generic lens');

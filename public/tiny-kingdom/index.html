@@ -24875,7 +24875,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const angles=offsets.map(offset=>base+offset);
  if(working&&realWork)angles.push(preferredYaw);
  const pitches=realFarmWork&&actionCameraPitch===null?
-  (portraitLens?[.14,.31,.49,.64]:[.13,.21,.32,.43]):
+  (portraitLens?[.14,.31,.49,.64]:[.17,.33,.49,.62]):
   unloading?[.21,.29,.38]:
   filmedLoadedCourier?(portraitLens?[.15,.23,.32,.40]:[.16,.24,.32,.40]):
   journeyCamera?[.26,.34,.43]:
@@ -24937,7 +24937,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const originalSurveyCandidates=possibilities.length;
  // A crop-clear harvest view must survive the bounded town-scenic shortlist
  // instead of losing all exterior high eyes to near-but-wheat-blocked ones.
- const actualGrainWitness=realFarmWork&&portraitLens?
+ const actualGrainWitness=realFarmWork?
   reserveActualFarmWristSightlines(possibilities,citizen,hands):
   {reserved:[],checked:0,eligible:0,cropClear:0,fenceRejected:0};
  possibilities=planBoundedCameraScenicSurvey(possibilities,
