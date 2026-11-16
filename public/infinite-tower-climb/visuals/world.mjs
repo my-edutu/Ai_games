@@ -2409,11 +2409,25 @@ export function createTowerWorld(){
         // guardian and walking deck, while crossbars, crest and source-driven
         // energy lattice still read unmistakably LOCKED until earned defeat.
         // No display-only wall or authoritative obstacle is removed.
+        // Real native desktop/portrait victory footage continues to place
+        // steel across the moving protagonist at the ORIGINAL sill. The
+        // centre-seam upright at x=.19 and full waist-height crossbar were
+        // decorative opaque meshes, NOT the authoritative guardian barrier.
+        // Relocate their ORIGINAL six steel components to the two outboard
+        // winch bays, keeping the heavy rails, physical lock crest, source HP
+        // response and paired leaves. The central adult-body aperture is
+        // now open to both cameras throughout the earned approach, not only
+        // after an alpha animation or after the source changes to Floor 9.
+        // Closed source collision is UNCHANGED until the genuine winch finishes.
+        // Still exactly six instanced components per leaf and one metal draw.
         const lattice=[];
-        for(const [x,width] of [[.19,.16],[1.54,.105],[2.9,.16]])
+        for(const [x,width] of [[1.54,.105],[2.35,.11],[2.9,.16]])
           lattice.push({p:[side*x,2.13,0],s:[width,4.12,.28]});
-        for(const [y,thickness] of [[.17,.14],[2.13,.11],[4.09,.14]])
-          lattice.push({p:[side*1.56,y,0],s:[3.08,thickness,.28]});
+        for(const [y,thickness] of [[.17,.14],[2.13,.11],[4.09,.14]]){
+          const waistBrace=y===2.13;
+          lattice.push({p:[side*(waistBrace?2.34:1.56),y,0],
+            s:[waistBrace?1.1:3.08,thickness,.28]});
+        }
         const grille=instanced(wing,bevel(),materials.copper,lattice);
         grille.name=side<0?'GuardianSealBronzeLatticeLeft':'GuardianSealBronzeLatticeRight';
         grille.userData.ambientDetail=true;
