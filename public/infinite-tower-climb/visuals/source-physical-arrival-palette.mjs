@@ -478,6 +478,95 @@ export function sourceOwnedOriginalArchitectureCoverage(source,held) {
   }
   return coverage;
 }
+/**
+ * P0: the full fixed-step climb can travel beyond the 70/110-tick historical
+ * cap lease while its cold original WebGL gateway has reached the native film
+ * only once. This is a VERY short, source-certified optical afterimage of
+ * the real previously rendered geometry, never a new floor/collision/guardian
+ * proof. A true current airborne successor route and an already-witnessed,
+ * same-run HP-zero crossing are mandatory. Actual GPU returns, not source
+ * ticks or a fabricated fps, must complete its fade, under a hard 150-tick
+ * safety limit even on stalled graphics.
+ */
+export function observedCertifiedOriginalGatewayOpticalLease(source,held,handoff) {
+  const p=source?.player, proof=handoff?.lastVerifiedProof;
+  const actual=source?.lastGuardianCrossing;
+  if(source?.floor!==9 || source.theme!=='void' ||
+     source.lifecycle!=='running' || !(p?.health>0) ||
+     !source.runToken || source.runToken!==held?.runToken ||
+     held.floor!==9 || held.guardianGateRetained!==true ||
+     held.verifiedObservedFloorAdvance!==true ||
+     held.oldCapId!=='f8:cap' ||
+     ![source.tick,held.sourceTick,held.oldRoofY,held.thresholdX,
+       held.oldCapX,held.oldCapWidth,held.submittedFrames,
+       p.x,p.y,p.halfHeight,p.halfWidth].every(valid) ||
+     held.oldCapWidth<=0 || p.halfHeight<=0 || p.halfWidth<=0 ||
+     held.thresholdX!==held.oldCapX+Math.floor(held.oldCapWidth*.76) ||
+     held.submittedFrames<1 || held.submittedFrames>=20 ||
+     !Number.isFinite(held.visibleSeconds) ||
+     held.visibleSeconds<0 || held.visibleSeconds>=2.8 ||
+     held.visibleSeconds>held.submittedFrames*.1+1e-8 ||
+     !Number.isFinite(held.lastSourceOldGateOpacity) ||
+     held.lastSourceOldGateOpacity<=0 || held.lastSourceOldGateOpacity>1 ||
+     handoff?.runToken!==source.runToken || handoff.retiring!==true ||
+     proof?.runToken!==source.runToken ||
+     !(proof.kind==='recorded-source-zero-hp' ||
+       proof.kind==='verified-original-roof-receipt') ||
+     ![proof.sourceTick,proof.crossingTick].every(valid) ||
+     proof.crossingTick>proof.sourceTick ||
+     source.tick<proof.sourceTick ||
+     source.tick-proof.crossingTick>150 ||
+     held.sourceTick>source.tick ||
+     (held.crossingTick!=null && held.crossingTick!==proof.crossingTick) ||
+     !valid(handoff.retirementFrames) || handoff.retirementFrames<0 ||
+     handoff.retirementFrames>60 ||
+     !Number.isFinite(handoff.retirementSeconds) ||
+     handoff.retirementSeconds<0 || handoff.retirementSeconds>1.5 ||
+     handoff.retirementSeconds>handoff.retirementFrames*.1+1e-8 ||
+     !Number.isFinite(handoff.retirementStartProgress) ||
+     handoff.retirementStartProgress<0 ||
+     handoff.retirementStartProgress>1) return null;
+  if(actual!=null && (
+     actual.runToken!==source.runToken ||
+     actual.fromFloor!==8 || actual.toFloor!==9 ||
+     actual.sourceTick!==proof.crossingTick ||
+     actual.cap?.id!=='f8:cap' ||
+     !valid(actual.cap?.x) || !valid(actual.cap?.width) ||
+     !valid(actual.cap?.y) || !valid(actual.cap?.height) ||
+     actual.cap.x!==held.oldCapX ||
+     actual.cap.width!==held.oldCapWidth ||
+     actual.cap.y+actual.cap.height!==held.oldRoofY ||
+     actual.exitX!==held.thresholdX ||
+     actual.guardian?.kind!=='guardian' ||
+     actual.guardian.active!==false ||
+     !Number.isFinite(actual.guardian.health) ||
+     actual.guardian.health>0)) return null;
+  // Current actor and the true previous gateway must still occupy one real
+  // connected 3D space. Grounded f9:p2 needs exact sole/width support; a
+  // jumping climber must be genuine airborne, with bounded height and reach.
+  const sole=p.y-p.halfHeight;
+  if(!valid(sole) || sole<held.oldRoofY-2500 ||
+     sole>held.oldRoofY+230000 ||
+     Math.abs(p.x-held.thresholdX)>100000 ||
+     !(p.x-p.halfWidth>=held.thresholdX+4000 ||
+       sole>=held.oldRoofY+70000) ||
+     !(observedSourceSuccessorRaisedDeck(source,held.oldRoofY) ||
+       (p.grounded===false && p.state==='airborne' &&
+        p.groundedPlatformId==null && Number.isFinite(p.vy))))
+    return null;
+  const progress=Math.min(1,
+    handoff.retirementSeconds/.95,handoff.retirementFrames/5);
+  if(progress>=1)return null;
+  const eased=smooth(progress);
+  const opacity=Math.min(held.lastSourceOldGateOpacity,
+    1-(handoff.retirementStartProgress+
+      (1-handoff.retirementStartProgress)*eased));
+  if(opacity<=.01)return null;
+  return {historicalOpticalTail:true,sourceTick:source.tick,
+    authenticatedCrossingTick:proof.crossingTick,opacity,
+    limitation:'Already-rendered original gate only; never a new source event or native visual acceptance'};
+}
+
 export function sourceAlignedIncomingShaftOpacity(source,held,nominalOpacity){
   if(!Number.isFinite(nominalOpacity))return 0;
   // The OLD cap can disappear only when genuinely expired/retired; neither
