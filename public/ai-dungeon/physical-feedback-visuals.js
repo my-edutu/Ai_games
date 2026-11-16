@@ -940,6 +940,14 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   // Keep the arrow kinetic at short ranges without inventing an impact frame.
   const flightLife=limitedFlight?clamp(limitedFlight.travelMeters/(type==='projectile'?7:6),
    type==='projectile'?.10:.16,type==='projectile'?.30:.31):length;
+  // An actual HP drop identifies the victim, never an incoming blade.
+  // Previously every tiny chip began INSIDE its chest mesh, where depth
+  // testing obscured the first visible impact from most camera directions.
+  // Retain one at the witnessed body centre and spread the rest evenly
+  // around a small torso shell; no camera/attacker direction is inferred.
+  // Instance count, retained draw-call budget, lifetime and sound are unchanged.
+  const hitShellRotation=type==='hit'?
+   ((hash(cue.id)%4096)/4096)*Math.PI*2:0;
   let created=0;
   for(let i=0;i<n;i++){
    const index=allocate(pool,clamp(cue.priority,0,10));
@@ -952,8 +960,19 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
    const displacedOccupied=pool.slots[index]!==null;
    if(!displacedOccupied)active++;
    const speed=type==='hit'||type==='dust'?spray(cue.id,i):null;
+   const chipOrigin=warningMarkers?world(warningMarkers[i],.075):{...start};
+   if(type==='hit'&&i>0){
+    const angle=hitShellRotation+(i-1)*Math.PI*2/(n-1);
+    chipOrigin.x+=Math.cos(angle)*.31;
+    chipOrigin.z+=Math.sin(angle)*.31;
+    chipOrigin.y+=((i-1)%3-1)*.10;
+    // Seeded, symmetric outward drift avoids inventing an attack vector.
+    const speedXZ=Math.hypot(speed.vx,speed.vz);
+    speed.vx=Math.cos(angle)*speedXZ;
+    speed.vz=Math.sin(angle)*speedXZ;
+   }
    pool.slots[index]={cue,age:0,life:reducedMotion?Math.min(.13,flightLife):flightLife,
-    origin:warningMarkers?world(warningMarkers[i],.075):{...start},
+    origin:chipOrigin,
     end:flightDestination??(cell(cue.to)?world(cue.to,type==='spell'?1.23:1.19):null),
     priority:cue.priority??1,severity,fragment:speed,index,ordinal:i,
     flightFraction:limitedFlight?.fraction??1,
