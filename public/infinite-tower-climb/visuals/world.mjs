@@ -9,7 +9,7 @@ import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceRetainedRaisedExit, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS } from './source-physical-arrival-palette.mjs';
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
-import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon } from './original-clockwork-architecture-palette.mjs';
+import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections } from './source-earned-bearing-run.mjs';
 
 
@@ -3317,7 +3317,8 @@ export function createTowerWorld(){
       voidColor:new THREE.Color([0x5a5064,0x514b63,0x544a63][i])
     }));
     sourceEarnedBearingHandoff={runToken:snapshot.runToken,displayProgress:0,
-      retiring:false,retirementFrames:0,retirementStartProgress:0};
+      retiring:false,retirementFrames:0,retirementSeconds:0,
+      retirementStartProgress:0};
     // Campaign 43745587650, exact native source tick475: the former r=28.25
     // forged front COLUMN hit the genuine hero's left shoulder before the
     // actor. Build the coherent gallery on inner 21.6m load columns with
@@ -3487,9 +3488,22 @@ export function createTowerWorld(){
     const bearingHandoff=sourceEarnedBearingHandoff;
     if(bearingHandoff?.retiring===true && !options.stale &&
        snapshot?.runToken===bearingHandoff.runToken &&
-       snapshot.floor===9 && snapshot.lifecycle==='running')
-      bearingHandoff.retirementFrames=Math.min(8,
-        bearingHandoff.retirementFrames+1);
+       snapshot.floor===9 && snapshot.lifecycle==='running' &&
+       snapshot.player?.health>0) {
+      // Source-authenticated historical geometry must retire over actual
+      // successful WebGL *time*, not eight rapid submissions. The latter
+      // painted an instant bronze->violet switch in both native 1x videos.
+      // This cannot advance from a browser receipt, stale renderer frame,
+      // another run, terminal state or failed GPU submission.
+      const next=advanceSourceEarnedPaletteReturn({
+        returnedFrames:bearingHandoff.retirementFrames,
+        returnedSeconds:bearingHandoff.retirementSeconds
+      },shown);
+      if(next) {
+        bearingHandoff.retirementFrames=next.returnedFrames;
+        bearingHandoff.retirementSeconds=next.returnedSeconds;
+      }
+    }
     const held=retainedEarnedCap;
     if (held && !options.stale && snapshot &&
         snapshot.runToken===held.runToken &&
@@ -3611,7 +3625,8 @@ export function createTowerWorld(){
         (arrivalRoutePalette || originalClockworkArchitecturalPalette)) {
       sourceEarnedBearingHandoff={runToken:snapshot.runToken,
         displayProgress:0,retiring:false,retirementFrames:0,
-        retirementStartProgress:0,lastVerifiedProof:null};
+        retirementSeconds:0,retirementStartProgress:0,
+        lastVerifiedProof:null};
     }
     const handoff=sourceEarnedBearingHandoff;
     let departure=1;
@@ -3640,10 +3655,14 @@ export function createTowerWorld(){
         handoff.retirementStartProgress=handoff.displayProgress;
       }
       if(handoff.retiring) {
-        // Exactly eight SUCCESSFULLY returned WebGL frames, not source ticks
-        // or browser polls. Keep the cold original F9 route and surroundings
-        // coherent with the existing 3D load-bearing material family.
-        const t=Math.min(1,handoff.retirementFrames/8);
+        // A complete physically certified architectural palette change
+        // takes at least .95s of successfully returned render time AND five
+        // frames: fast software-GPU submissions cannot exhaust the entire
+        // bronze-to-violet environment in a fraction of a displayed second.
+        // The old cap/group and floor-owned palette share the same verified
+        // episode; neither sim ticks nor a dropped frame can age this image.
+        const t=Math.min(1,handoff.retirementSeconds / .95,
+          handoff.retirementFrames / 5);
         const eased=t*t*(3-2*t);
         departure=handoff.retirementStartProgress+
           (1-handoff.retirementStartProgress)*eased;
