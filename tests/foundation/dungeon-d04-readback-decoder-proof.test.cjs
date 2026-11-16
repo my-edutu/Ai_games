@@ -117,6 +117,18 @@ test('the genuine primary canvas and original soundstage can supply decoded pixe
    'BROWSER_DECODE_UNVERIFIED');
  }
 });
+test('Chromium decode sampler stays self-contained when serialized into a clean page realm',async()=>{
+ const {sampleChromiumDecodedD04WebM}=require('../browser/dungeon-d04-decoded-video-proof.cjs');
+ const vm=require('node:vm');
+ // Playwright serializes only this function, not module-level helpers.
+ // A malformed input must fail closed without throwing ReferenceError.
+ const evaluated=vm.runInNewContext('('+sampleChromiumDecodedD04WebM.toString()+')(input)',{
+  input:{status:'UNAVAILABLE'},Number,String
+ });
+ const result=await evaluated;
+ assert.equal(result.status,'UNAVAILABLE');
+ assert.equal(result.sampleSynchronized,false);
+});
 test('Chromium pixel samples do not count as motion when static, blank, corrupted, reversed or over budget',()=>{
  const {classifyChromiumDecodedRealWebM}=require('../browser/dungeon-d04-decoded-video-proof.cjs');
  const media={source:'real-webgl-receipt-readback-serial-original-audio',
