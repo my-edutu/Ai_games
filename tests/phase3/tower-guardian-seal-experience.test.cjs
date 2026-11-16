@@ -164,6 +164,16 @@ test('source-locked bronze gate retains physical bars but lets genuine combat be
       'daylight crosses real open steel in the upper-cap action window');
     assert.ok(castAt(-1.54,1.1).length>0,
       'the source-locked gate still has a physical supporting bar');
+    // The exact original 960x600 and 390x844 full-motion doorway film shows
+    // the bronze MID-TORSO horizontal bar and centre-seam upright covering
+    // the living climber at 24-27 seconds. A visually locked crest and its
+    // source-authored collision stay intact, but the original physical 3D
+    // window must have clear breathing room for the full moving silhouette.
+    assert.equal(castAt(-.86,2.13).length,0,
+      'the real guardian fight sightline must not hit a waist-height opaque crossbar');
+    assert.equal(castAt(-.19,1.8).length,0,
+      'the original centre seam must not put an opaque column across the actor torso');
+
     assert.equal(left.position.x,0);
     assert.equal(right.position.x,0);
     assert.equal(world.diagnostics().guardianGates[0].unlocked,false,
