@@ -610,8 +610,8 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===originalArch,true,
       'original bronze gate GPU identity must survive; never format the gigantic Three.js graph');
     assert.equal(world.diagnostics().deferredDistantArrival?.state,
-      'awaiting-structural-release',
-      'the authentic first-frame Void structure is PREBUILT but held invisible behind the same original gateway');
+      'awaiting-structural-submission',
+      'a genuine returned gateway plus source-supported sill now earns a bounded visible 3D successor shell');
     const hiddenShaft=world.group.getObjectByName('deferred-original-floor-nine-architecture');
     assert.ok(hiddenShaft);
     const shaftOpacity=[];
@@ -619,8 +619,9 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
       if(object.isMesh && object.material?.name==='SourceEarnedIncomingFloorNineShaft')
         shaftOpacity.push(object.material.opacity);
     });
-    assert.ok(shaftOpacity.length>0 && shaftOpacity.every(opacity=>opacity===0),
-      'old bronze must remain the visible scene despite successor geometry already existing');
+    assert.ok(shaftOpacity.length>0 && shaftOpacity.some(opacity=>opacity>0) &&
+      shaftOpacity.every(opacity=>opacity>=0 && opacity<=.28),
+      'source-earned first sill is permitted <=28% true new-shaft depth, with original bronze still present');
     assert.equal(world.diagnostics().vistaLayers,0);
     assert.ok(!sharedSurface.material.color.equals(firstGroundColor),
       'a genuine observed 10,000-unit step beyond the old sill, not WebGL wall-time, blends the real landing toward void');
@@ -644,15 +645,17 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
       'original bronze gate GPU identity must survive; never format the gigantic Three.js graph');
     assert.ok(world.group.getObjectByName('deferred-original-floor-nine-architecture'),
       'the original Void structural meshes are prebuilt hidden after the authentic F9 render');
-    assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-structural-release');
+    assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-structural-submission',
+      'eight matched source returns show the real F9 shaft without retiring the original gate');
     const earlyShaft=world.group.getObjectByName('deferred-original-floor-nine-architecture');
     const earlyOpacity=[];
     earlyShaft.traverse(o=>{
       if(o.isMesh && o.material?.name==='SourceEarnedIncomingFloorNineShaft')
         earlyOpacity.push(o.material.opacity);
     });
-    assert.ok(earlyOpacity.length>0 && earlyOpacity.every(opacity=>opacity===0),
-      'eight returned frames cannot override the original source-earned bronze gateway');
+    assert.ok(earlyOpacity.length>0 && earlyOpacity.some(opacity=>opacity>0) &&
+      earlyOpacity.every(opacity=>opacity>=0 && opacity<=.28),
+      'without a raised/far-side real body, successive GPU returns cannot make the F9 shaft exceed its 28% scenic lease');
     // Authenticated far-side support must open the actual successor shaft
     // FIRST. The original gate cannot disappear while the shaft has yet
     // to contribute one successfully returned structural draw; the old

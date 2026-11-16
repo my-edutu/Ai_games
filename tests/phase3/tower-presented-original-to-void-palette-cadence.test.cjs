@@ -93,7 +93,10 @@ test('a source-authenticated body that has physically left the old sill reveals 
   held.originalArchitectureCoverage=1;
   const near={...source,player:{...source.player,x:held.thresholdX+24000,
     y:10000,grounded:true,vy:0,state:'standing',groundedPlatformId:'f9:ground'}};
-  assert.equal(coverage(near,held),1,'a still-near real bronze gate protects its first old/new shot');
+  // Real grounded sill plus a returned old-gate shot earns <=28% authentic
+  // next-floor structural depth, NOT an opaque cold-world replacement.
+  assert.equal(coverage(near,held),.72,
+    'source-bound first-sill depth still leaves 72% original bronze coverage');
   const far={...near,player:{...near.player,x:held.thresholdX+165000},
     platforms:[{...source.platforms[0],width:300000}]};
   assert.ok(coverage(far,held)<.05,
