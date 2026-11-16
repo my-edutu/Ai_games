@@ -282,14 +282,14 @@ test('D04 real 373ms injury receipts keep ordinary and fatal body chips legible 
    const hitMesh=[...fixture.scene.children][1];
    assert.ok(hitMesh.matrices.slice(1,4).every(m=>m.scale>=.30),
     'outer real-contact chips at 373ms must not be effectively invisible');
-   stage.advance(.05,.018);
+   stage.advance(.018,.018);
    assert.equal(stage.hasDrawableCue(genuine.id),true,
     'the 391ms submitted injury remains within the fixed 400ms deadline');
    assert.ok(hitMesh.matrices.slice(1,4).every(m=>m.scale>=.30),
     'late but still eligible impact cannot fade below the readable floor');
    assert.equal(stage.stats().reservedInstances,102);
    assert.ok(stage.stats().activeDrawCalls<=7);
-   stage.advance(.05,.009);
+   stage.advance(.009,.009);
    assert.equal(stage.hasDrawableCue(genuine.id),false,
     '400ms is a firm retirement bound, not permission to replay a late hit');
    assert.equal(stage.stats().active,0);
