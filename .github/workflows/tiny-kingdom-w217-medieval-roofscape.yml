@@ -4,6 +4,7 @@ on:
     paths:
       - 'public/tiny-kingdom/index.html'
       - 'scripts/tiny-kingdom-w217-hip-roof-contract.cjs'
+      - 'scripts/tiny-kingdom-w380-roof-structure-contract.cjs'
       - 'tests/browser/tiny-kingdom-w217-medieval-roofscape.spec.cjs'
       - '.github/workflows/tiny-kingdom-w217-medieval-roofscape.yml'
   workflow_dispatch:
@@ -26,7 +27,9 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - run: npm run build
       - name: Original roof source contracts
-        run: node scripts/tiny-kingdom-w217-hip-roof-contract.cjs
+        run: |
+          node scripts/tiny-kingdom-w217-hip-roof-contract.cjs
+          node scripts/tiny-kingdom-w380-roof-structure-contract.cjs
       - run: npx playwright install --with-deps chromium
       - name: Original inhabited roofs on desktop and mobile WebGL
         env:

@@ -13,7 +13,7 @@ assert.ok(begin>0&&end>begin,'actual road GPU writer required');
 const helperStart=script.indexOf('function planResidentVertexUpload(');
 const helperEnd=script.indexOf('function getResidentDeltaUploadAudit(',helperStart);
 assert.ok(helperStart>0&&helperEnd>helperStart,'actual production sparse upload planner required');
-const source=script.slice(helperStart,helperEnd)+'\\n'+script.slice(begin,end);
+const source=script.slice(helperStart,helperEnd)+'\n'+script.slice(begin,end);
 let created=0,released=0,fullUploads=0,partialUploads=0;
 const buffers=[],allocations=new Map();
 let activeBuffer=null;

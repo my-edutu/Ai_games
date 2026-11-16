@@ -7804,6 +7804,58 @@ function renderAuthenticCottageStoneBond(x,y,z,w,d,variant,projection){
  if(triangles!==64)throw Error('W378 bonded cottage wall budget changed');
  return triangles;
 }
+// W380: shared real occupied roof timber structure on BOTH original house LODs.
+// Hip and gable members follow the EXISTING clay faces; all joists remain above
+// pedestrian height and inside the original camera/lot envelope. Never create
+// a new house, citizen, road collision, economy event or simulation RNG draw.
+const ORIGINAL_OCCUPIED_ROOF_FRAME_MAX_TRIANGLES=128;
+function renderOriginalOccupiedRoofStructure(x,z,eave,ridge,halfSpan,front,back,hipInset,variant,lod){
+ const before=data.length,gable=hipInset<.01;
+ if(![x,z,eave,ridge,halfSpan,front,back,hipInset].every(Number.isFinite)||
+   ridge<=eave||halfSpan<.6||back<=front||hipInset<0)
+  throw Error('W380 invalid authentic original inhabited roof');
+ const oak=rgb(variant%2?0x69513d:0x74543e);
+ const light=rgb(variant%2?0x8c694a:0x937355);
+ materialScope(MATERIAL.WOOD,()=>{
+  // Actual clay roof edge, with the ridge INSET on a real hipped home.
+  for(const face of [-1,1]){
+   const zz=face<0?front:back,ridgeZ=zz-face*hipInset;
+   for(const side of [-1,1]){
+    limbSegment([x+side*(halfSpan-.060),eave-.045,zz],
+     [x,ridge-.070,ridgeZ],.052,oak,4);
+    limbSegment([x+side*(halfSpan-.205),eave-.315,zz],
+     [x+side*(halfSpan-.138),eave-.065,zz],.039,light,4);
+   }
+   if(gable){
+    // Authentic cross-tie and short kingpost ABOVE the occupied room.
+    const ty=eave+(ridge-eave)*.35;
+    limbSegment([x-halfSpan*.45,ty,zz-.036],
+     [x+halfSpan*.45,ty,zz-.036],.043,oak,4);
+    limbSegment([x,ty,zz-.036],[x,ridge-.090,zz-.036],
+     .032,light,4);
+   }
+  }
+  // Under-eave brackets transfer loads into original house walls. No
+  // decorative upright crosses real footways, windows, doors or couriers.
+  for(const side of [-1,1])for(const fraction of [.31,.69]){
+   const zz=front+(back-front)*fraction;
+   limbSegment([x+side*(halfSpan-.11),eave-.315,zz],
+    [x+side*(halfSpan-.06),eave-.060,zz],.036,oak,4);
+  }
+ });
+ const triangles=(data.length-before)/30;
+ if(!Number.isInteger(triangles)||triangles<96||
+   triangles>ORIGINAL_OCCUPIED_ROOF_FRAME_MAX_TRIANGLES)
+  throw Error('W380 original home roof resource limit violated');
+ villageVisualLod.occupiedRoofFrames++;
+ villageVisualLod.occupiedRoofFrameTriangles+=triangles;
+ villageVisualLod[gable?'occupiedRoofGables':'occupiedRoofHips']++;
+ return {source:'genuine-inhabited-cottage-cold-static-roof-truss',
+  lod,triangles,gable,originalLot:true,abovePedestrianOnly:true,
+  addedHomes:0,addedPeople:0,addedGoods:0,changedNavigation:false,
+  changedAuthoritativeEconomy:false};
+}
+
 function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale,h=houseVisualProfile(x,z,variant,false).height*scale;
  // G054c: plaster is not stacked granite. Preserve stone in the footings,
  // make roof planes roof material, and preserve all original mesh triangles.
@@ -7918,6 +7970,8 @@ else for(let slope=0;slope<2;slope++){
 // Decorative layered roof seams catch light without pretending to be a texture pack.
 for(let i=1;i<=5;i++){let q=i/6;const lx=xx+(x-xx)*q,rx=x+(xr-x)*q,top=y+h+(ridge-h)*q;const front=hip?zy+hipInset*q:zy,back=hip?zz-hipInset*q:zz;quad([lx,top+.018,front],[lx+.025,top+.018,front],[lx+.025,top+.018,back],[lx,top+.018,back],rgb(0x624838));quad([rx,top+.018,front],[rx+.025,top+.018,front],[rx+.025,top+.018,back],[rx,top+.018,back],rgb(0x634b3c))}
 if(detailedJetty)grainwardStructuralDormer(x,z,y+h,y+ridge,(xr-xx)*.5,zy,-1,variant,scale,'home');
+ renderOriginalOccupiedRoofStructure(x,z,y+h,y+ridge,(xr-xx)*.5,zy,zz,
+  hip?hipInset:0,variant,'detailed');
 box(x,y,z-d/2-.045*scale,.66*scale,1.25*scale,.085,rgb(0x76523c));box(x,y+1.03*scale,z-d/2-.084*scale,.07*scale,.055,.07,rgb(0xd5b778));
 for(const side of [-1,1])renderOriginalOccupiedCasement(
  x+side*w*.32,y+h*.43,z-d/2-.082,.40*scale,.51*scale,-1,variant,false);
@@ -8069,6 +8123,8 @@ const villageVisualLod={detailedHomes:0,compactHomes:0,detailedRoofCourses:0,com
 for(const key of ['burgageMaterialHomes','burgageMaterialWallPairs',
  'burgageMaterialGardenBoxes','burgageMaterialDownspouts',
  'burgageMaterialTriangles'])villageVisualLod[key]=0;
+for(const key of ['occupiedRoofFrames','occupiedRoofFrameTriangles',
+ 'occupiedRoofGables','occupiedRoofHips'])villageVisualLod[key]=0;
 for(const key of ['grainwardHomes','grainwardUpperRearBays','grainwardUpperRearBayTriangles','grainwardRoofEdgeBoards','grainwardTimberBraces','grainwardRoofBayTriangles','grainwardAtticBays','grainwardGableVents','grainwardTriangles','grainwardMasonryHomes','grainwardMasonryTriangles','grainwardPortalThresholds','grainwardStreetCanopies','grainwardStreetCanopyTriangles','grainwardTallHomeStories','grainwardTallHomeTriangles'])villageVisualLod[key]=0;
 function getBurgageMaterialAudit(){
  return {source:'original-inhabited-burgage-side-materiality',
@@ -9207,6 +9263,8 @@ villageVisualLod.compactRoofTiles=0;villageVisualLod.compactFramedWindows=0;vill
 for(const key of ['burgageMaterialHomes','burgageMaterialWallPairs',
  'burgageMaterialGardenBoxes','burgageMaterialDownspouts','burgageMaterialTriangles'])
  villageVisualLod[key]=0;
+for(const key of ['occupiedRoofFrames','occupiedRoofFrameTriangles',
+ 'occupiedRoofGables','occupiedRoofHips'])villageVisualLod[key]=0;
 for(const key of ['grainwardHomes','grainwardUpperRearBays','grainwardUpperRearBayTriangles','grainwardRoofEdgeBoards','grainwardTimberBraces','grainwardRoofBayTriangles','grainwardAtticBays','grainwardGableVents','grainwardTriangles','grainwardMasonryHomes','grainwardMasonryTriangles','grainwardPortalThresholds','grainwardStreetCanopies','grainwardStreetCanopyTriangles','grainwardTallHomeStories','grainwardTallHomeTriangles'])villageVisualLod[key]=0;
 streetMorphologyStats={homes:0,highStreetFronts:0,upperJetties:0,
  crossGables:0,shopCanopies:0,framedUpperCasements:0,physicalSignboards:0,
@@ -9657,7 +9715,9 @@ function compactHouse(x,z,variant){
  }
  // W56: an entire grown street of real, locally sourced cottages acquires
  // threshold depth and sheltered entrances, not a decorative display home.
- compactBurgageFrontage(x,z,variant,y,w,d,h,roofStyle);
+ renderOriginalOccupiedRoofStructure(x,z,eave,peak,halfW,roofFront,roofBack,
+   hip?hipInset:0,variant,'compact');
+  compactBurgageFrontage(x,z,variant,y,w,d,h,roofStyle);
 }
 
 // Render-only, per-home authored medieval threshold architecture. Kept inside
