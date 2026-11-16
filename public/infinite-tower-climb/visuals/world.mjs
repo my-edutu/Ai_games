@@ -3317,8 +3317,7 @@ export function createTowerWorld(){
     const originalPresence=returnedBronzeHold
       ?returnedBronzeHold.galleryOpacity
       :(departing?.sourceBound===true || opticalLease || farSide)
-        ?Math.min(held.lastReturnedOriginalGalleryOpacity??.94,
-          .94,originalGatePresence*.94)
+        ?Math.min(.94,originalGatePresence*.94)
         :observedRetainedOriginalBronzeCover(
           held.submittedFrames,held.visibleSeconds);
     held.originalGallerySourceOpacity=originalPresence;
