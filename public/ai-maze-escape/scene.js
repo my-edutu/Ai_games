@@ -650,8 +650,11 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // The existing, physically grounded contact shadow responds to the
       // actual armored body planting its feet. Its x/z/y always follow the
       // disclosed model; no extra mesh, billboard or GPU material is spawned.
-      entry.contact.scale.set(1.22+brace*.16+counterPlant*.12,
-        .96+brace*.08+counterPlant*.06,1);
+      entry.contact.scale.set(1.22+brace*.16,.96+brace*.08,1);
+      // Preserve the verified grounded contact's baseline: only the real
+      // source-earned load additionally spreads its existing oval footprint.
+      entry.contact.scale.x+=counterPlant*.12;
+      entry.contact.scale.y+=counterPlant*.06;
       entry.model.update({
         time:elapsed,delta,moving:threatPose.moving&&!result,heading:entry.heading,
         attentionHeading:actorAttention?Math.atan2(towardExplorerX,towardExplorerZ):undefined,
