@@ -259,3 +259,56 @@ test('durationless decoder executes in an isolated browser realm with no Node im
  assert.equal(video.muted,true,'original sound must not be emitted by decoder');
  assert.equal(video.volume,0);
 });
+
+test('metadata timeout tries muted playback before rejecting a durationless original WebM',async()=>{
+ const vm=require('node:vm');
+ const {sampleChromiumDecodedD04WebM}=require('../browser/dungeon-d04-decoded-video-proof.cjs');
+ let frames=0,timers=0;const listeners=new Map();
+ const video={duration:Infinity,videoWidth:0,videoHeight:0,readyState:0,
+  muted:false,volume:1,style:{},
+  addEventListener(n,fn){if(!listeners.has(n))listeners.set(n,new Set());listeners.get(n).add(fn)},
+  removeEventListener(n,fn){listeners.get(n)?.delete(fn)},
+  emit(n){for(const fn of Array.from(listeners.get(n)||[]))fn()},
+  load(){},pause(){},remove(){},removeAttribute(){},
+  play(){
+   video.videoWidth=688;video.videoHeight=397;video.readyState=2;
+   Promise.resolve().then(()=>video.emit('loadedmetadata'));
+   return Promise.resolve();
+  },
+  requestVideoFrameCallback(fn){
+   Promise.resolve().then(()=>{
+    if(frames<2){frames++;fn(0,{mediaTime:[2.994,3.816][frames-1]})}
+    else video.emit('ended');
+   });return frames+1;
+  },cancelVideoFrameCallback(){}
+ };
+ const ctx={drawImage(){},getImageData(){
+  const data=new Uint8Array(24*16*4);
+  for(let i=0;i<data.length;i+=4){
+   data[i]=((i/4)+frames*17)%210;
+   data[i+1]=((i/4)*2+frames*19)%211;
+   data[i+2]=((i/4)*3+frames*23)%212;data[i+3]=255;
+  }return {data};
+ }};
+ const document={body:{appendChild(){}},createElement(name){
+  if(name==='video')return video;
+  if(name==='canvas')return {getContext:()=>ctx};
+  throw Error('Unapproved DOM element');
+ }};
+ const input={source:'real-canvas-plus-opted-in-soundstage',status:'RECORDED',
+  mimeType:'video/webm;codecs=vp8,opus',videoTracks:1,audioTracks:1,
+  optedInAtStart:true,originalSoundstageTrackLive:true,bytes:2400,
+  base64:'X'.repeat(3200),framePump:{mode:'submitted-frame-request',
+   observedFrameAdvances:3,requestedFrames:3,requestFailures:0}};
+ const decoded=await vm.runInNewContext(
+  '('+sampleChromiumDecodedD04WebM.toString()+')(input)',{
+   input,atob:()=> 'X'.repeat(2400),Uint8Array,
+   Blob:class FakeBlob{},URL:{createObjectURL:()=> 'blob:mock',revokeObjectURL(){}},
+   document,
+   setTimeout(fn){timers++;if(timers===1)Promise.resolve().then(fn);return timers},
+   clearTimeout(){}});
+ assert.equal(decoded.status,'SAMPLED','bounded playback should rescue delayed metadata');
+ assert.equal(decoded.samples.length,2);
+ assert.equal(decoded.sampleSynchronized,false);
+ assert.equal(video.muted,true);
+});
