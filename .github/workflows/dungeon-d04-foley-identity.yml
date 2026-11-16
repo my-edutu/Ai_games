@@ -64,6 +64,7 @@ jobs:
             tests/foundation/dungeon-d04-av-capture-evidence.test.cjs \
             tests/foundation/dungeon-d04-capture-buffer-gate.test.cjs \
             tests/foundation/dungeon-d04-readback-decoder-proof.test.cjs \
+            tests/foundation/dungeon-d04-visible-webm-decoder-consumer.test.cjs \
             tests/foundation/dungeon-d04-webm-pts-proof.test.cjs \
             tests/foundation/dungeon-d04-same-window-av.test.cjs \
             tests/foundation/dungeon-d04-browser-source-parse.test.cjs \
