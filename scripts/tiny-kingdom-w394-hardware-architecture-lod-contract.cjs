@@ -1,0 +1,31 @@
+'use strict';
+// W394 original-authority source gate: not hardware FPS or an art milestone.
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
+const script=html.slice(html.indexOf('<script>')+8,html.lastIndexOf('</script>'));
+new vm.Script(script,{filename:'tiny-kingdom-game.js'});
+const a=script.indexOf('function hardwareResidentArchitecture(');
+const b=script.indexOf('const softwareNoise3=',a);
+assert(a>0&&b>a,'live WebGL material compiler exists');
+const compile=vm.runInNewContext('('+script.slice(a,b).trim()+')');
+const f=script.match(/const fs=`([\s\S]*?)`;\s*function shader\(/);
+assert(f,'full authored WebGL fragment source exists');
+const old=f[1],next=compile(old);
+const begin=old.indexOf('}else if(vMaterial>2.5&&vMaterial<3.5){');
+const end=old.indexOf(' // G128: every real village wall',begin);
+assert(begin>0&&end>begin);
+assert.equal(next.slice(0,begin),old.slice(0,begin),'same river/ground shader');
+assert.equal(next.slice(next.indexOf(' // G128: every real village wall')),
+ old.slice(end),'same original baked material atlas and night response');
+assert.match(next,/residentFarMask=smoothstep\(18\.,38\.,residentMetres\)/);
+assert.match(next,/if\(residentFarMask<1\.\)\{[\s\S]*?G057: limewashed Tudor plaster/);
+assert.match(next,/c=mix\(c,residentAtlasBase,residentFarMask\)/);
+assert.match(next,/G054 dressed stone/);
+assert.match(next,/G054 roof tiling/);
+assert.match(next,/W313: keep full physically shaded materials on hardware/);
+assert.equal(compile(old),next,'same seeded environment yields same shader');
+assert.throws(()=>compile(null));
+assert.throws(()=>compile('wrong material source'));
+assert.match(script,/softwareNoise3\)\):hardwareResidentArchitecture\(fs\);/);
+assert.match(script,/const materialFragmentSource=swiftGpu\?[\s\S]*?bakedSoftwareArchitecture\(/);
+console.log('W394 PASS — full original near material 0–18m; resident baked atlas tier 18–38m; same-authority/no new GPU geometry, hardware/visual proof pending.');

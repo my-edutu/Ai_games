@@ -4178,6 +4178,51 @@ function shader(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);g
 // the same world with a bounded four-corner *projected* noise field only
 // on known SwiftShader. Real graphics hardware retains the full 3D field.
 // This is a renderer-quality tier, not a performance/FPS or art-quality win.
+// W394 Phase 1 — keep the original detailed physical close-up material
+// shader in the 18m production/citizen space. Across 18–38m smoothly blend to
+// the ALREADY-resident 4x2 original medieval architecture atlas: beyond 38m
+// avoid running full expensive per-pixel trilinear stone/wood/roof/plaster/soil
+// noise UNDER that same atlas. This affects neither original geometry nor
+// market receipts, townspeople, climate, texture allocations or save/replay.
+// SwiftShader preserves its existing separate software shader. Hardware
+// GPU FPS and visual fidelity still require ACTUAL matched new-head evidence.
+function hardwareResidentArchitecture(source){
+ if(typeof source!=='string')throw Error('W394 material source required');
+ const start=source.indexOf('}else if(vMaterial>2.5&&vMaterial<3.5){');
+ const end=source.indexOf(' // G128: every real village wall',start);
+ if(start<0||end<=start)throw Error('W394 original material layout missing');
+ const original=source.slice(start+1,end).replace(/^else if/,'if');
+ if(!original.startsWith('if(vMaterial>2.5&&vMaterial<3.5){')||
+    !original.includes('vMaterial>7.5&&vMaterial<8.5'))
+  throw Error('W394 material sources incomplete');
+ const lod=`}else if(vMaterial>2.5&&vMaterial<8.5){
+  float residentMetres=length(eyePosition.xz-vWorld.xz);
+  float residentFarMask=smoothstep(18.,38.,residentMetres);
+  vec3 residentAtlasBase=c;
+  if(vMaterial<3.5)residentAtlasBase*=mix(vec3(1.),vec3(.74,.86,.89),weatherWetness*.61);
+  else if(vMaterial<4.5)residentAtlasBase*=vec3(.97,1.05,.97);
+  else if(vMaterial<5.5)residentAtlasBase*=vec3(.98,.97,.95);
+  else if(vMaterial<6.5)residentAtlasBase*=vec3(1.04,.99,.92);
+  else if(vMaterial<7.5)residentAtlasBase*=vec3(1.02,.98,.93);
+  else residentAtlasBase*=vec3(1.03,1.02,1.0);
+  if(residentFarMask<1.){
+${original}
+  }
+  c=mix(c,residentAtlasBase,residentFarMask);
+ }
+`;
+ return source.slice(0,start)+lod+source.slice(end);
+}
+function getHardwareResidentArchitectureAudit(){
+ return {source:'original-architecture-procedural-near-resident-atlas-far',
+  enabled:gpuAvailable&&!swiftGpu,fullQualityMetres:18,
+  atlasOnlyMetres:38,originalMaterialTags:[3,4,5,6,7,8],
+  originalAtlas:true,originalTriangleBudget:true,
+  noDroppedCitizens:true,noDroppedStructures:true,
+  authorityUnchanged:true,actualHardwareFps:'NOT PROVEN',
+  matchedGameplayAndIndependentCritics:'NOT PROVEN'};
+}
+
 const softwareNoise3=`float noise3(vec3 p){
  vec2 q=p.xz+p.y*vec2(.37,.19);
  vec2 i=floor(q),f=fract(q);f=f*f*(3.-2.*f);
@@ -4210,7 +4255,7 @@ function bakedSoftwareArchitecture(source){
 }
 const materialFragmentSource=swiftGpu?
  bakedSoftwareArchitecture(
-  fs.replace(/float noise3\(vec3 p\)\{[\s\S]*?\n\}/,softwareNoise3)):fs;
+  fs.replace(/float noise3\(vec3 p\)\{[\s\S]*?\n\}/,softwareNoise3)):hardwareResidentArchitecture(fs);
 if(swiftGpu&&materialFragmentSource===fs)
  throw Error('Software architectural material compilation did not activate');
 const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vs));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,materialFragmentSource));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));gl.useProgram(program);
