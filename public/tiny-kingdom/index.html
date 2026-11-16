@@ -17190,11 +17190,22 @@ function fieldToGranaryFootway(){
   const t=(i+.5)/leg.steps;
   if(!walkable(leg.a[0]+leg.dx*t,leg.a[1]+leg.dz*t))return;
  }
+ // W392 single playable rural grain-route spine: the authentic original
+ // field -> granary A* wheelway now uses the very same cambered 3D road cross-
+ // section as the granary -> receiving market -> inhabited-home corridor.
+ // Replace former five flat/decal surfaces with six JOINED physical bands,
+ // sunken ruts and a raised crown; never change stock or pathfinding.
  const earth=[rgb(0x77654f),rgb(0x806e58),rgb(0x705f4e)],
   wheel=[rgb(0x534d42),rgb(0x605547)],
   verge=[rgb(0x728063),rgb(0x899070),rgb(0x77775b)],
-  stone=[rgb(0x938b79),rgb(0xb0a18b),rgb(0x8a8475)];
+  stone=[rgb(0x938b79),rgb(0xb0a18b),rgb(0x8a8475)],
+  palette={earth,wheel,verge};
+ audit.groundModel='real-grain-chain-joined-crowned-service-road';
+ audit.crownedSections=0;audit.crownedMetres=0;
+ audit.surfaceBandsPerSection=6;audit.overlaidFakeWheelMeshes=0;
+ audit.usesExistingCivicBuffer=true;
  for(const leg of legs){
+  const endpoint=[leg.a[0]+leg.dx,leg.a[1]+leg.dz];
   const nx=-leg.dz/leg.len,nz=leg.dx/leg.len;
   const at=(t,offset,lift)=>{
    const x=leg.a[0]+leg.dx*t+nx*offset;
@@ -17204,18 +17215,13 @@ function fieldToGranaryFootway(){
   materialScope(MATERIAL.ROAD,()=>{
    for(let i=0;i<leg.steps;i++){
     const a=i/leg.steps,b=(i+1)/leg.steps,id=leg.k*83+i;
-    upwardRoadQuad(at(a,-.51,.041),at(b,-.51,.041),
-     at(b,.51,.041),at(a,.51,.041),earth[id%3]);audit.earthFaces++;
-    for(const side of [-1,1]){
-     const off=side*.28;
-     upwardRoadQuad(at(a,off-.072,.050),at(b,off-.072,.050),
-      at(b,off+.072,.050),at(a,off+.072,.050),wheel[id%2]);
-     audit.wheelRuts++;
-     upwardRoadQuad(at(a,side*.52,.036),at(b,side*.52,.036),
-      at(b,side*.72,.022),at(a,side*.72,.022),
-      verge[(id+side+4)%3]);audit.grassShoulders++;
-    }
-    audit.sections++;
+    const section=renderGradedRoadSection(
+     leg.a,endpoint,a,b,.72,id,palette,'field');
+    audit.earthFaces++;audit.wheelRuts+=section.wheelGrooves;
+    audit.grassShoulders+=2;audit.crownedSections++;
+    audit.crownedMetres+=section.crownMetres;audit.sections++;
+    // Sparse historic stone crossings remain genuine terrain and never
+    // intersect the existing worker's A* lane or enter the economy ledger.
     if(id%5===0)materialScope(MATERIAL.STONE,()=>{
      for(const side of [-1,1]){
       const off=side*.43;

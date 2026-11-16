@@ -16,6 +16,7 @@ on:
       - scripts/tiny-kingdom-w385-real-exchange-contract.cjs
       - scripts/tiny-kingdom-w386-home-witness-contract.cjs
       - scripts/tiny-kingdom-w387-home-static-gpu-contract.cjs
+      - scripts/tiny-kingdom-w392-crowned-field-lane-contract.cjs
       - .github/workflows/tiny-kingdom-w290-field-district.yml
   workflow_dispatch:
 permissions:
@@ -48,6 +49,7 @@ jobs:
           node scripts/tiny-kingdom-w385-real-exchange-contract.cjs
           node scripts/tiny-kingdom-w386-home-witness-contract.cjs
           node scripts/tiny-kingdom-w387-home-static-gpu-contract.cjs
+          node scripts/tiny-kingdom-w392-crowned-field-lane-contract.cjs
       - name: Confirm production source build
         run: |
           npm ci --no-audit --no-fund
