@@ -31,6 +31,7 @@ on:
       - 'scripts/tiny-kingdom-w301-roofline-contract.cjs'
       - 'scripts/tiny-kingdom-w210-street-boundary-contract.cjs'
       - 'scripts/tiny-kingdom-w129-ground-contact-contract.cjs'
+      - 'scripts/tiny-kingdom-w389-shopfront-approaches-contract.cjs'
       - 'tests/browser/tiny-kingdom-w129-market-architecture.spec.cjs'
       - 'tests/browser/tiny-kingdom-w204-real-market-camera.spec.cjs'
       - '.github/workflows/tiny-kingdom-w129-market.yml'
@@ -62,6 +63,7 @@ jobs:
           node scripts/tiny-kingdom-w129-lived-market-contract.cjs
           node scripts/tiny-kingdom-w106-market-court-contract.cjs
           node scripts/tiny-kingdom-w129-ground-contact-contract.cjs
+          node scripts/tiny-kingdom-w389-shopfront-approaches-contract.cjs
           node scripts/tiny-kingdom-w304-market-sightline-contract.cjs
           node scripts/tiny-kingdom-w305-arcade-material-contract.cjs
           node scripts/tiny-kingdom-w306-real-economic-survey-contract.cjs
