@@ -1353,6 +1353,8 @@ for(const view of [
   originalTwoShoeProof:t.nativeLegOwnership?.sourceToeJointCurrentFrameProofs??null,
   originalSourceGate:t.nativeLegOwnership?.sourceToeJointGateLast??null,
   boundedGateCounts:t.nativeLegOwnership?.sourceToeJointGateCounts??null,
+  adaptiveOriginalSourceToeTrials:t.nativeLegOwnership?.sourceToeJointAdaptiveTrialLast??null,
+  adaptiveOriginalSourceToeProbeFrames:t.nativeLegOwnership?.sourceToeJointAdaptiveProbeFrames??0,
   originalWeightedFeet:t.sourceSolePatchWorld??null
  }));
  // A genuinely displayed original walking source pose must explicitly
@@ -1381,8 +1383,24 @@ for(const view of [
   expect(proof.originalSourceContactLocked).toBe(false);
   expect(t.nativeLegOwnership?.sourceToeJointGateLast?.[side]).toBe(
    linkedToeFinish?'accepted-linked-original-toe-finisher':'accepted-original-source-toe-lift');
+  // A fourth, larger source-toes trial may be selected ONLY on a genuine
+  // original full-weight moving frame after both original 100mrad probes
+  // failed. Match its SAME real source clone and actual two-shoe readback,
+  // rather than assuming an extended hinge is a planted foot.
+  const adaptive=t.nativeLegOwnership?.sourceToeJointAdaptiveTrialLast;
+  if(!linkedToeFinish&&Math.abs(proof.angleRad)>.100001){
+   expect(adaptive?.acceptedCandidate).toBe(true);
+   expect(adaptive?.sourceInstanceId).toBe(t.sourceId);
+   expect(adaptive?.sourceBone).toBe(proof.sourceBone);
+   expect(adaptive?.trialCount).toBe(2);
+   expect(adaptive?.contactLocked).toBe(false);
+   expect(adaptive?.trials.map(v=>Math.abs(v.angleRad)))
+    .toEqual([.14,.14]);
+   expect(t.nativeLegOwnership?.sourceToeJointAdaptiveProbeFrames??0)
+    .toBeGreaterThan(0);
+  }
   expect(Math.abs(proof.angleRad)).toBeLessThanOrEqual(
-   linkedToeFinish?.160001:.100001);
+   linkedToeFinish?.160001:.140001);
   expect(proof.liftMeters).toBeGreaterThanOrEqual(linkedToeFinish?.005:.004);
   if(linkedToeFinish){
    // A real connected-leg/toe joint must update the very same source
