@@ -2711,7 +2711,7 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   // sampled at the SAME actual Idle clip time, derived from the live
   // Walking_A AnimationAction's phase, not three unrelated keyframe zeros.
   const walkActionClip=actor.activeClip?.getClip?.();
-  const originalWalkClock=actor.activeClip?.time;
+  const originalWalkClock=actor.activeClip?actor.activeClip.time:NaN;
   const originalIdleDuration=sourceIdle?.duration;
   if(walkActionClip?.name!=='Walking_A'||
    !Number.isFinite(walkActionClip.duration)||walkActionClip.duration<=.001||
