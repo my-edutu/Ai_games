@@ -12,7 +12,10 @@ const inline=html.slice(html.indexOf('<script>')+8,html.indexOf('</script>',html
 new vm.Script(inline);
 const exchange=from('function physicalVillageExchangeVolumes(){','/* G095:');
 const context={terrain:()=>0,Math,Number,Error};
-vm.runInNewContext(exchange,context,{timeout:1500});
+// The physical camera uses the SAME newly raised original timber canopy as
+// market(x,z); import its real immutable geometry profile into the VM test.
+const profile=from('const EXCHANGE_CANOPY=Object.freeze(', 'function renderOriginalMarketExchangeJoinery(');
+vm.runInNewContext(profile+exchange,context,{timeout:1500});
 const solids=context.physicalVillageExchangeVolumes();
 assert.equal(solids.length,9,'4 sloped clay roof bands, four actual posts and one existing trading table');
 const roof=solids.filter(v=>v.kind==='village-market'||v.kind==='village-market-roof');
