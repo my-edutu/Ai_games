@@ -1181,3 +1181,68 @@ test('D04 counter stinger must preserve observed Warden HP and recovery evidence
   assert.equal(foley.stats().confirmedCueIds,1);
  }finally{foley.dispose()}
 });
+
+
+test('D04 submits independently verified HP injury on its first eligible frame instead of waiting for an optional 215ms melee pose annotation',async()=>{
+ const {planPhysicalFeedback,PHYSICAL_FEEDBACK_DELAYS}=await load('physical-feedback-plan.js');
+ const {createPhysicalCombatFeedback}=await load('physical-combat-feedback.js');
+ const before=snap(10);
+ const after=snap(11,{units:[hero({hp:24,action:'hurt',actionTick:11}),foe()]});
+ const matched={id:'vanguard',kind:'vanguard',faction:'party',
+  x:2,z:2,damage:6,maxHp:30,fatal:false,incoming:true};
+ const annotation={
+  deriveDamageBeats:()=>[matched],
+  verifiedMeleeDelay:()=>PHYSICAL_FEEDBACK_DELAYS.verifiedMeleeImpact
+ };
+ const observed=planPhysicalFeedback(before,after,annotation);
+ assert.equal(observed.length,1);
+ assert.equal(observed[0].kind,'damage');
+ assert.equal(observed[0].proof,'observed-hp-drop');
+ assert.equal(observed[0].actorId,null,'an annotated melee pose does not identify a striker');
+ assert.equal(observed[0].targetId,'vanguard');
+ assert.equal(observed[0].delay,.215,'authoritative presentation annotation remains untouched');
+ let now=100,art=[],sounds=[];
+ const visualAdapter={
+  emit(cue){art.push(cue);return true},advance(){},reset(){},dispose(){},
+  hasLiveCue(){return true},hasDrawableCue(){return true},
+  stats(){return {active:art.length}}
+ };
+ const audioAdapter={
+  enable(){return true},emit(cue){sounds.push(cue);return true},
+  disable(){},flush(){},cleanup(){},dispose(){},
+  stats(){return {activeVoices:0}}
+ };
+ const d=createPhysicalCombatFeedback({
+  visualAdapter,audioAdapter,requirePresentedFrame:true,
+  clock:()=>now,...annotation
+ });
+ try{
+  d.acceptSnapshot(before);
+  assert.equal(d.enableAudioFromGesture(),true);
+  now+=.010;d.acceptSnapshot(after);
+  now+=.010;d.advance(.016,.016);
+  assert.equal(art.length,1,
+   'the real HP injury must be staged for the first usable render; a guessed future blade alignment is not required');
+  assert.equal(art[0].kind,'damage');
+  assert.equal(sounds.length,0,'the visible first-frame attempt cannot bypass the WebGL audio barrier');
+  assert.equal(d.stats().awaitingPresentation,1);
+  now+=.040;assert.equal(d.acknowledgePresentedFrame(1,.015),1);
+  assert.equal(sounds.length,1,'only the verified fresh frame releases original impact sound');
+  const receipt=d.stats().recentDeliveryReceipts.at(-1);
+  assert.equal(receipt.intendedDelayMs,215,'keep original pose annotation in the forensic receipt');
+  assert.equal(receipt.scheduledDelayMs,0,'submitted-frame mode uses HP observation time');
+  assert.equal(receipt.observationToSubmissionMs,50);
+  d.acknowledgePresentedFrame(1,.015);
+  assert.equal(sounds.length,1,'replayed frame cannot replay original impact');
+ }finally{d.dispose()}
+ const legacyArt=[];
+ const legacy=createPhysicalCombatFeedback({
+  visualAdapter:{...visualAdapter,emit(cue){legacyArt.push(cue);return true}},
+  audioAdapter,requirePresentedFrame:false,...annotation
+ });
+ try{
+  legacy.acceptSnapshot(before);legacy.acceptSnapshot(after);
+  legacy.advance(.016,.016);
+  assert.equal(legacyArt.length,0,'non-preview delayed presentation contract remains unchanged');
+ }finally{legacy.dispose()}
+});
