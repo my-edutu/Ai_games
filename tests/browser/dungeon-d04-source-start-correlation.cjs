@@ -112,23 +112,23 @@ function auditD04ImpactFramePhases({receipts=[]}={}){
   const before=r.beforeVisualAdvanceMs,retained=r.visualAdvanceMs,
    emission=r.visualEmissionMs,after=r.afterVisualAdvanceToSubmissionMs,
    render=r.renderSubmissionMs;
-  const phaseVerified=timingVerified&&
-   // A delivered HP receipt without an independently witnessed drawable
-   // effect cannot be called a visually admitted impact, even if CPU clocks
-   // happen to reconcile. It remains unverified rather than a faux pass.
-   !(r.decision==='delivered'&&r.visualDrawableAtSubmission!==true)&&
+  // Keep the CPU timeline independent of the *visual* success decision.
+  // Genuine Chrome had a 308ms damage receipt with complete phase clocks but
+  // no confirmed drawable shard: discarding its timings hid the next
+  // bottleneck, while accepting it as a visible impact would invent pixels.
+  const cpuPhasesVerified=timingVerified&&
    [before,retained,emission,after,render].every(number)&&
    within(before+retained+emission+after,age,3)&&
    render<=after+2;
-  const late=age>400;
-  const stale=phaseVerified&&late&&r.decision==='stale-frame'&&r.audio===false;
+  const late=number(age)&&age>400;
+  const stale=cpuPhasesVerified&&late&&r.decision==='stale-frame'&&r.audio===false;
   // The last condition is a frame receipt, not decoded-pixel or audible
-  // sample evidence; the original browser acceptance remains independent.
-  const timely=phaseVerified&&!late&&r.decision==='delivered'&&
+  // sample evidence; original browser acceptance remains independent.
+  const timely=cpuPhasesVerified&&!late&&r.decision==='delivered'&&
    r.visual===true&&r.audio===true&&
    r.visualDrawableAtSubmission===true;
   let dominantPhase='UNVERIFIED';
-  if(phaseVerified){
+  if(cpuPhasesVerified){
    if(!late)dominantPhase='NO_DOMINANT_STALL_MEASURED';
    else if(render>=400&&render>=age*.5)
     dominantPhase='RENDERER_CALL_INTERVAL';
@@ -136,14 +136,27 @@ function auditD04ImpactFramePhases({receipts=[]}={}){
     dominantPhase='D04_VISUAL_CPU_INTERVAL';
    else dominantPhase='OTHER_OR_MIXED_CPU_INTERVAL';
   }
+  // These are bounded, noncausal CPU partitions only. A missing frame is
+  // distinct from an expired impact, a cancelled effect, or absent pixels.
+  const failureReason=!validFrame(r.frameId)?'NO_SUBMITTED_FRAME_RECEIPT':
+   !timingVerified?'UNTRUSTED_RECEIPT_CLOCKS':
+   !cpuPhasesVerified?'UNRECONCILED_CPU_PHASES':
+   stale?'STALE_RENDER_DEADLINE':
+   late?'LATE_OR_CONTRADICTED_SUBMISSION':
+   r.decision==='delivered'&&r.visualDrawableAtSubmission!==true?
+    'NO_DRAWABLE_HP_EFFECT':
+   timely?'FRAME_RECEIPT_ONLY':'NO_VALID_VISUAL_AUDIO_ADMISSION';
   return Object.freeze({
    cueId:r.cueId,kind:r.kind,scene:r.scene,tick:r.tick,frameId:r.frameId??null,
    status:stale?'STALE_NOT_ACCEPTED':
     timely?'TIMELY_FRAME_RECEIPT_ONLY':'UNVERIFIED',
-   dominantPhase,
+   failureReason,dominantPhase,
    observationToSubmissionMs:number(age)?age:null,
-   renderSubmissionMs:phaseVerified?render:null,
-   rendererSharePct:phaseVerified&&age>0?Math.round(render/age*100):null,
+   renderSubmissionMs:cpuPhasesVerified?render:null,
+   rendererSharePct:cpuPhasesVerified&&age>0?Math.round(render/age*100):null,
+   d04VisualCpuMs:cpuPhasesVerified?retained+emission:null,
+   nonRendererCpuMs:cpuPhasesVerified?Math.max(0,age-retained-emission):null,
+   otherCpuMs:cpuPhasesVerified?Math.max(0,before+after-render):null,
    visualSubmissionVerified:timely,
    audibleImpactVerified:false,
    sampleSynchronized:false
