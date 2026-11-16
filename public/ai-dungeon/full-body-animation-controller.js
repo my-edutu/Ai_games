@@ -51,6 +51,74 @@ export const FULL_BODY_ANIMATION_MODES=MODES;
  * Permit two distinct safe source-skinned probes when a fixed 42% Idle
  * blend exceeds the knee limit but an actual smaller original blend can fit.
  */
+/**
+ * Prove which quaternion is actually authored by the licensed original Idle
+ * clip for ONE imported skeleton joint. The real source player_swordsman GLB
+ * has produced two suffix matches for footr in native WebGL, and previously
+ * rejected the full-leg trial without inspecting whether those source
+ * bindings were truly identical (or one was a suffix-name collision).
+ *
+ * Accept only explicitly bounded, same-keyframe/time, same-rotation tracks.
+ * Quaternion antipodes are equivalent, but a different later keyframe is
+ * NOT: matching only time zero could splice an unrelated source motion.
+ * No Mixer clock, source clip, skeleton, mesh or bind matrix is modified.
+ */
+export function resolveLicensedIdleJointQuaternionTracks(tracks,boneName){
+ const result=(reason,matches=[])=>({verified:false,reason,
+  sourceTrackMatches:matches.length,
+  sourceTrackNames:matches.slice(0,4).map(t=>t.name)});
+ if(!Array.isArray(tracks)||tracks.length<1||tracks.length>1500||
+  typeof boneName!=='string'||!/^[-_a-z0-9]{2,64}$/i.test(boneName))
+  return result('invalid-original-idle-joint-contract');
+ const suffix=boneName.toLowerCase()+'.quaternion';
+ const exactTarget=name=>{
+  if(typeof name!=='string'||name.length>192)return false;
+  const normalized=name.toLowerCase();
+  return normalized===suffix||normalized.endsWith('.'+suffix)||
+   normalized.endsWith('/'+suffix)||normalized.endsWith(']'+suffix);
+ };
+ const matches=tracks.filter(t=>exactTarget(t?.name));
+ if(matches.length<1||matches.length>4)
+  return result('missing-or-excessive-original-idle-joint-track',matches);
+ const valid=t=>{
+  const len=t?.times?.length;
+  if(!Number.isInteger(len)||len<1||len>512||t.values?.length!==len*4)
+   return false;
+  for(let i=0;i<len;i++){
+   const time=t.times[i],p=i*4;
+   if(!Number.isFinite(time)||time<0||
+    (i>0&&!(time>t.times[i-1])))return false;
+   const x=t.values[p],y=t.values[p+1],z=t.values[p+2],
+    w=t.values[p+3];
+   if(![x,y,z,w].every(Number.isFinite)||
+    Math.abs(Math.hypot(x,y,z,w)-1)>.02)return false;
+  }
+  return true;
+ };
+ if(!matches.every(valid))return result('malformed-original-idle-joint-track',matches);
+ const first=matches[0];
+ for(const duplicate of matches.slice(1)){
+  if(duplicate.times.length!==first.times.length)
+   return result('different-original-idle-track-sample-count',matches);
+  for(let i=0;i<first.times.length;i++){
+   if(Math.abs(first.times[i]-duplicate.times[i])>1e-5)
+    return result('different-original-idle-track-times',matches);
+   const p=i*4, a=first.values,b=duplicate.values;
+   const ad=Math.hypot(a[p],a[p+1],a[p+2],a[p+3]),
+    bd=Math.hypot(b[p],b[p+1],b[p+2],b[p+3]);
+   const dot=(a[p]*b[p]+a[p+1]*b[p+1]+
+    a[p+2]*b[p+2]+a[p+3]*b[p+3])/(ad*bd);
+   if(!Number.isFinite(dot)||Math.abs(dot)<1-1e-5)
+    return result('different-original-idle-track-rotations',matches);
+  }
+ }
+ const quaternion=Array.from(first.values.slice(0,4));
+ return {verified:true,sourceTrackMatches:matches.length,
+  sourceTrackNames:matches.map(t=>t.name),
+  equivalentDuplicate:matches.length>1,
+  sourceKeyframeCount:first.times.length,quaternion};
+}
+
 export function planOriginalSourceSafeNeutralBlendSamples({
  source='',sourceClipName='',sourceChainVerified=false,
  sourceJointAngularSeparationRad=null,maxJointDeltaRad=.26
