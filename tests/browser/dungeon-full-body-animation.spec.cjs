@@ -873,6 +873,34 @@ for(const view of [
   expect(proof.sourceClip).toBe('Walking_A');
   expect(proof.contactLocked).toBe(false);
   expect(proof.oppositeShoePreserved).toBe(true);
+  // Genuine source-rig regression #14260128935, 390px tick 5:
+  // a real 16.6ms first-fast Walking_A frame with 81.96mm buried toe
+  // accepted +14.15mm toe lift but +31.18mm already-elevated heel rise.
+  // This live WebGL gate catches that viewer-worse full-leg pose even if
+  // the source planner chose a different four-sample sequence.
+  const born=proof.before?.[side],displayed=proof.after?.[side];
+  if(born&&displayed&&proof.linkedContinuity==='safe-first-source-frame'&&
+   proof.witnessedSourceWeight>=.95&&
+   proof.witnessedFrameIntervalSeconds>=.016&&
+   proof.witnessedFrameIntervalSeconds<.05){
+   const burial=-.02-born.toeY;
+   const projection=Math.hypot(
+    born.heelXZ[0]-born.toeXZ[0],born.heelXZ[1]-born.toeXZ[1]);
+   const fullLength=Math.hypot(projection,born.heelY-born.toeY);
+   const steep=burial>=.055&&burial<=.10&&
+    born.heelY+.02>=.18&&
+    projection>=.045&&projection<=.15&&
+    fullLength>=.285&&fullLength<=.325;
+   if(steep){
+    expect(proof.sourceFirstSwingPitchProof,
+     'real steep first-fast source must carry independent final dual-shoe pitch receipt')
+     .toBeTruthy();
+    const gain=(displayed.toeY-born.toeY)-(displayed.heelY-born.heelY);
+    expect(gain>=-.002001||-.02-displayed.toeY<=.020001,
+     'never worsen a still-buried toe relative to its original airborne heel')
+     .toBe(true);
+   }
+  }
   // First-fast original linked knee/hip pitch certification is separate
   // from historical probe counts. It must be a genuine FINAL same-frame
   // weighted heel+toe measurement of BOTH original CC0 GLB shoes.
