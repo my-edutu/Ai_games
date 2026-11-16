@@ -41,13 +41,14 @@
       "PLAYS": "0/5"
     },
     "realDeviceFrameTimeAndMemory": "NOT EVALUATED",
-    "nextHighestImpact": "Inspect new exact-head 9-job capture & still-red pipeline; if native two-viewport hard cut survives, rebuild actual camera/guardian gate/shaft geometry together before any P1 promotion",
+    "nextHighestImpact": "Now that full valid source entrypoint tests can run, inspect new head's native 1x floor crossing; integrated gateway/climber/shaft still not accepted. If strong 24-30s scene discontinuity persists, prioritize coherent physical gateway/shaft/camera rather than more CI fixture work.",
     "constraints": "Only Infinite Tower; frozen baseline/PR58 untouched; no merge, deployment, force-push or draft conversion",
     "followupCi": "https://github.com/my-edutu/Ai_games/actions/runs/43940958222 — Phase3/1, /2, /3 still FAILED: VM real dependency import, pre-render material assertion and copied-World module import; new fixes amend the same P0 evidence gate",
     "verifiedOriginalPairArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/43932092482/artifacts/14261245017 — four original 70s+ danger WebMs and two-manifest pairing indexed; candidate desktop & portrait hashes match; native acceptance failed 0/2",
     "visuallyInspected24To33Seconds": "Actual candidate desktop: bronze foreground hides climber 24–25s; Floor9 label and violet edges around 26–27s yet old bronze rear shaft; purple world by 28s. Portrait: posts mask climber 24.5–25.5s, Floor9 label while bronze persists 26.5s, large violet shift 28–29s. Sampled source-pinned full movies at 0.5s intervals; no completed full-motion blind acceptance.",
     "intermediateHead": "49dd305654ec0310ecd835e100f8a5a1c46280d6",
-    "followupSource": "exact immutable sha of follow-up capture-request push, not floating branch"
+    "followupSource": "exact immutable sha of follow-up capture-request push, not floating branch",
+    "secondExactHeadCi": "https://github.com/my-edutu/Ai_games/actions/runs/43942220734 — Phase3/1 PASS, Phase3/2 FAIL (copied World missing far-side shaft import), Phase3/3 FAIL (obsolete proof/sourceProof lexical tests). Fixed in next exact-head commit; CI not yet verified."
   },
   "p0RealNearGateVerticalF9ShaftOverlap20261116": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",

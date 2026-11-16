@@ -33,8 +33,10 @@ test('real Tower scene uses the same returned-duration transition for all existi
   assert.match(world,/bearingHandoff\.retirementSeconds=/);
   assert.match(world,/advanceSourceEarnedPaletteReturn\(/);
   assert.match(world,/handoff\.retirementSeconds\s*\/\s*\.95/);
-  assert.match(world,/updateOriginalClockworkSuccessorRoute\(arrivalRoutePalette,proof,opticalTail\)/);
-  assert.match(world,/originalClockworkArchitecturalPalette\.update\(sourceProof,opticalTail\)/);
+  assert.match(world,/const materialProof=livePaletteProof\?\?\(farSideHorizon\?/,
+    'source-certified material proof must be shared across all original-world channels');
+  assert.match(world,/updateOriginalClockworkSuccessorRoute\(arrivalRoutePalette,\s*materialProof,opticalTail\)/);
+  assert.match(world,/originalClockworkArchitecturalPalette\.update\(materialProof,opticalTail\)/);
   assert.match(world,/sourceEarnedBearingPalette\)\s*\{/);
   assert.doesNotMatch(world,/snapshot\.player\.x\s*=/);
 });
