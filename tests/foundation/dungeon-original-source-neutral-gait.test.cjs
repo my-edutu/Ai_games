@@ -195,6 +195,58 @@ test('original Idle knee source-angle budget adapts two full-chain probes instea
    maxJointDeltaRad:.26,...bad}),null);
 });
 
+test('RED: real original mobile 1.8135-rad Idle knee gap gets safe reversible source-chain samples',async()=>{
+ const {planOriginalSourceSafeNeutralBlendSamples:plan,
+  chooseOriginalSourceAuthoredNeutralLegTrial:choose}=await load();
+ // Measured ORIGINAL KayKit source (not a hypothetical source gap):
+ // nine-tick 390px native source-rig Actions #43788636071, SHA 29b91e1,
+ // original Idle vs Walking_A upperlegl/lowerlegl/footl at ticks 7–8.
+ // Original native frame gate said 'original-idle-joint-rotation-budget'.
+ // Only the source joint angular separations are observed here.
+ // All XZ sole endpoints and AFTER candidate shoes remain test fixtures:
+ // native WebGL must independently measure them; never claim a plant.
+ const realSourceGap=[.23162567504770912,1.8135315203505873,.6506337549949619];
+ const safe=plan({source:'licensed-original-Idle-joint-gap',
+  sourceClipName:'Idle',sourceChainVerified:true,
+  sourceJointAngularSeparationRad:realSourceGap,maxJointDeltaRad:.26});
+ assert.ok(safe&&safe.length===2,
+  'do not reject the actual high-gap Idle knee when two small bounded original-mixer blends exist');
+ assert.ok(safe[0]>=.08&&safe[0]<.12);
+ assert.ok(safe[1]>=.12&&safe[1]<.15);
+ assert.ok(safe[1]-safe[0]>=.02);
+ for(const blend of safe)for(const gap of realSourceGap)
+  assert.ok(blend*gap<=.260001,
+   'real original knee, hip and ankle rotations remain within the source-bone angular budget');
+ // A still-buried ORIGINAL skinned swing toe needs REAL toe clearance AND
+ // better toe-to-heel pitch; this hypothetical candidate cannot certify it.
+ const hypothetical={neutralBlend:safe[1],
+  maxJointDeltaRad:safe[1]*realSourceGap[1],
+  after:outcome(.024,-.018)};
+ const picked=choose({...owner,originalSourceJointGapRad:realSourceGap,
+  trials:[hypothetical]});
+ assert.equal(picked?.contactLocked,false);
+ assert.ok(picked?.originalPitchGainMeters>=.04);
+ for(const wrong of [
+  {...owner,originalSourceJointGapRad:null},
+  {...owner,originalSourceJointGapRad:[.23,3.10,.65]},
+  {...owner,originalSourceJointGapRad:realSourceGap,
+   trials:[{...hypothetical,maxJointDeltaRad:.001}]},
+  {...owner,originalSourceJointGapRad:realSourceGap,
+   trials:[{...hypothetical,neutralBlend:.25,maxJointDeltaRad:.26}]},
+  {...owner,originalSourceJointGapRad:realSourceGap,
+   trials:[{...hypothetical,after:outcome(.024,.027)}]},
+  {...owner,originalSourceJointGapRad:realSourceGap,reducedMotion:true}
+ ])assert.equal(choose({...owner,trials:[hypothetical],...wrong}),null,
+  'no source-gap proof, over-budget joints, heel-dominated pose or reduced-motion bypass');
+ // Deny source Idle blending that would be so small it cannot support
+ // meaningful full-leg deformation without exceeding the joint budget.
+ assert.equal(plan({source:'licensed-original-Idle-joint-gap',
+  sourceClipName:'Idle',sourceChainVerified:true,
+  sourceJointAngularSeparationRad:[.20,2.99,.65],maxJointDeltaRad:.26}),null);
+ assert.match(renderer,/originalSourceJointGapRad:originalNeutralGapRad/,
+  'native THREE renderer must verify the identical original gap at selection and final re-skin');
+});
+
 test('native source renderer uses real original joint angular separation to budget Idle trials and restores mixer-owned quaternions',()=>{
  assert.match(renderer,/planOriginalSourceSafeNeutralBlendSamples\(/);
  assert.match(renderer,/original\[i\]\.angleTo\(targets\[i\]\)/);
