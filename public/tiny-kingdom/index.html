@@ -7808,30 +7808,34 @@ function renderOriginalOccupiedCasement(cx,cy,wallZ,width,height,face,variant,co
 // W378: grounded occupied-house masonry on real full/compact homes. Same
 // source triangles enter the existing house cache, never a new frame mesh,
 // house, obstacle, resource, citizen, authority or saved-world record.
-function renderAuthenticCottageStoneBond(x,y,z,w,d,variant,projection){
+function renderAuthenticCottageStoneBond(x,y,z,w,d,variant,projection,compact=false){
  if(![x,y,z,w,d,variant,projection].every(Number.isFinite)||
     w<=1||d<=1||projection<=0)
   throw Error('W378 invalid original occupied cottage foundation');
  const before=data.length;
  const tones=[0xa69b87,0x908a78,0xb7a78f,0x857e6f,
   0xafa38e,0x978c7b].map(rgb);
+ // Real close-up masonry remains fully bonded; distant occupied cottages
+ // keep both physical stone courses and all four outward faces, with the
+ // existing material shader supplying finer mineral variation across bays.
+ const bays=compact?1:4;
  materialScope(MATERIAL.STONE,()=>{
   for(let course=0;course<2;course++){
    const low=y-.042+course*.116,high=low+.108;
    for(const side of [-1,1]){
     const faceZ=z+side*(d*.5+projection);
-    for(let bay=0;bay<4;bay++){
-     const gap=.010,xa=x-w*.5+bay*w/4+gap,
-      xb=x-w*.5+(bay+1)*w/4-gap;
+    for(let bay=0;bay<bays;bay++){
+     const gap=.010,xa=x-w*.5+bay*w/bays+gap,
+      xb=x-w*.5+(bay+1)*w/bays-gap;
      const a=[xa,low,faceZ],b=[xb,low,faceZ],
       c=[xb,high,faceZ],d0=[xa,high,faceZ];
      const tone=tones[(bay*3+course*5+variant+(side+1))%tones.length];
      if(side>0)quad(a,b,c,d0,tone);else quad(d0,c,b,a,tone);
     }
     const faceX=x+side*(w*.5+projection);
-    for(let bay=0;bay<4;bay++){
-     const gap=.010,za=z-d*.5+bay*d/4+gap,
-      zb=z-d*.5+(bay+1)*d/4-gap;
+    for(let bay=0;bay<bays;bay++){
+     const gap=.010,za=z-d*.5+bay*d/bays+gap,
+      zb=z-d*.5+(bay+1)*d/bays-gap;
      const a=[faceX,low,za],b=[faceX,low,zb],
       c=[faceX,high,zb],d0=[faceX,high,za];
      const tone=tones[(bay*5+course*3+variant+(side+3))%tones.length];
@@ -7841,7 +7845,8 @@ function renderAuthenticCottageStoneBond(x,y,z,w,d,variant,projection){
   }
  });
  const triangles=(data.length-before)/30;
- if(triangles!==64)throw Error('W378 bonded cottage wall budget changed');
+ if(triangles!==(compact?16:64))
+  throw Error('W382 bonded cottage LOD budget changed');
  return triangles;
 }
 // W380: shared real occupied roof timber structure on BOTH original house LODs.
@@ -7856,7 +7861,26 @@ function renderOriginalOccupiedRoofStructure(x,z,eave,ridge,halfSpan,front,back,
   throw Error('W380 invalid authentic original inhabited roof');
  const oak=rgb(variant%2?0x69513d:0x74543e);
  const light=rgb(variant%2?0x8c694a:0x937355);
- materialScope(MATERIAL.WOOD,()=>{
+ // Full close-up trusses remain untouched in the genuine detailed LOD.
+ // Compact occupied cottages still have every clay roof, ridge, wall, door,
+ // and casement; thin outward-facing sawn oak bargeboards replace mostly
+ // concealed cylindrical rafters and interior cross-ties. No house disappears.
+ if(lod==='compact'){
+  materialScope(MATERIAL.WOOD,()=>{
+   for(const face of [-1,1]){
+    const zz=face<0?front:back,ridgeZ=zz-face*hipInset;
+    for(const side of [-1,1]){
+     const ax=x+side*(halfSpan-.060),ay=eave-.045,
+      bx=x,by=ridge-.070,dx=bx-ax,dy=by-ay,
+      length=Math.hypot(dx,dy),ox=dy/length*.046,oy=-dx/length*.046;
+     const z0=zz+face*.023,z1=ridgeZ+face*.023;
+     const p=[ax-ox,ay-oy,z0],q=[ax+ox,ay+oy,z0],
+      r=[bx+ox,by+oy,z1],s=[bx-ox,by-oy,z1];
+     if(face<0)quad(s,r,q,p,oak);else quad(p,q,r,s,oak);
+    }
+   }
+  });
+ }else materialScope(MATERIAL.WOOD,()=>{
   // Actual clay roof edge, with the ridge INSET on a real hipped home.
   for(const face of [-1,1]){
    const zz=face<0?front:back,ridgeZ=zz-face*hipInset;
@@ -7884,9 +7908,10 @@ function renderOriginalOccupiedRoofStructure(x,z,eave,ridge,halfSpan,front,back,
   }
  });
  const triangles=(data.length-before)/30;
- if(!Number.isInteger(triangles)||triangles<96||
+ const required=lod==='compact'?8:(gable?128:96);
+ if(!Number.isInteger(triangles)||triangles!==required||
    triangles>ORIGINAL_OCCUPIED_ROOF_FRAME_MAX_TRIANGLES)
-  throw Error('W380 original home roof resource limit violated');
+  throw Error('W382 original home roof LOD resource limit violated');
  villageVisualLod.occupiedRoofFrames++;
  villageVisualLod.occupiedRoofFrameTriangles+=triangles;
  villageVisualLod[gable?'occupiedRoofGables':'occupiedRoofHips']++;
@@ -9564,7 +9589,7 @@ function compactHouse(x,z,variant){
   roofBack=z+d/2+(jettyRoom?.33:.13);
  const hipInset=Math.min((roofBack-roofFront)*.29,halfW*.70),ridgeFront=roofFront+hipInset,ridgeBack=roofBack-hipInset;
  materialScope(MATERIAL.STONE,()=>box(x,y-.05,z,w+.12,.23,d+.12,rgb(0x918977)));
- renderAuthenticCottageStoneBond(x,y,z,w,d,variant,.073);
+ renderAuthenticCottageStoneBond(x,y,z,w,d,variant,.073,true);
  materialScope(MATERIAL.PLASTER,()=>{
   if(jettyRoom){
    // Lower room keeps the original window and doorway plane. Above 1.55m,

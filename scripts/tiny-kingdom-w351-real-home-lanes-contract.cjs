@@ -61,8 +61,11 @@ const firstGeometry=data.slice(),firstAudit={...audit};
 data.length=0;render.build();
 assert.deepEqual(data,firstGeometry,'same town and routes must emit stable real geometry');
 const subsequentAudit=render.audit();
+for(const sample of [firstAudit.roadConstructionCpuMs,subsequentAudit.roadConstructionCpuMs])
+ assert(Number.isFinite(sample)&&sample>=0,
+  'measured route construction work must be bounded and finite, not falsely byte-deterministic wall time');
 for(const [key,value] of Object.entries(firstAudit)){
- if(['routeResidency','reusedOriginalRoutes','originalRouteSearches'].includes(key))continue; // per-build source work changes under safe route retention; unchanged real geometry is asserted below. // genuine cache counters advance while street triangles stay byte-identical.
+ if(['routeResidency','reusedOriginalRoutes','originalRouteSearches','roadConstructionCpuMs'].includes(key))continue; // per-build source work changes under safe route retention; unchanged real geometry is asserted below. // genuine cache counters advance while street triangles stay byte-identical.
  assert.deepEqual(subsequentAudit[key],value,
   'same original town must keep stable physical street geometry and audit: '+key);
 }
