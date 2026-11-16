@@ -88,6 +88,35 @@ test('Chromium decoded WebM witness never upgrades a fabricated or non-opted sou
    'BROWSER_DECODE_UNVERIFIED');
  }
 });
+test('the genuine primary canvas and original soundstage can supply decoded pixels when serial WebM is unavailable',()=>{
+ const {classifyChromiumDecodedRealWebM}=require('../browser/dungeon-d04-decoded-video-proof.cjs');
+ const primary={source:'real-canvas-plus-opted-in-soundstage',status:'RECORDED',
+  mimeType:'video/webm;codecs=vp8,opus',videoTracks:1,audioTracks:1,
+  optedInAtStart:true,originalSoundstageTrackLive:true,bytes:2400,
+  framePump:{mode:'submitted-frame-request',observedFrameAdvances:3,
+   requestedFrames:3,requestFailures:0}};
+ const proof={source:'chromium-decoded-real-webgl-original-webm',status:'SAMPLED',
+  width:1440,height:900,durationSeconds:5.5,
+  samples:[{requestedSeconds:.4,hash:'11111111',lumaRange:75},
+   {requestedSeconds:3.5,hash:'22222222',lumaRange:80}]};
+ const result=classifyChromiumDecodedRealWebM(primary,proof);
+ assert.equal(result.classification,'BROWSER_DECODED_MOVING_PIXELS_UNALIGNED');
+ assert.equal(result.sampleSynchronized,false,'actual VP8 frames alone are never synchronized PCM');
+ for(const unverified of [
+  {...primary,source:'synthetic-2d-canvas-encoder-control-not-gameplay'},
+  {...primary,optedInAtStart:false},
+  {...primary,originalSoundstageTrackLive:false},
+  {...primary,framePump:{...primary.framePump,observedFrameAdvances:0}},
+  {...primary,framePump:{...primary.framePump,requestFailures:1}},
+  {...primary,framePump:{...primary.framePump,requestedFrames:4}},
+  {...primary,mimeType:'video/webm;codecs=vp9'},
+  {...primary,videoTracks:0},
+  {...primary,bytes:4*1024*1024+1}
+ ]){
+  assert.equal(classifyChromiumDecodedRealWebM(unverified,proof).classification,
+   'BROWSER_DECODE_UNVERIFIED');
+ }
+});
 test('Chromium pixel samples do not count as motion when static, blank, corrupted, reversed or over budget',()=>{
  const {classifyChromiumDecodedRealWebM}=require('../browser/dungeon-d04-decoded-video-proof.cjs');
  const media={source:'real-webgl-receipt-readback-serial-original-audio',
