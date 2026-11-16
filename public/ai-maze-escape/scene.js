@@ -1621,8 +1621,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       && s.visibleCells.includes(s.currentCell)
       && s.visibleCells.includes(earnedCounterActor.cell)
       && Array.isArray(s.threats)
-      && s.threats.some(t=>t?.id===earnedCounterActor.id
-        && t.cell===earnedCounterActor.cell && t.lanternParried===true);
+      && s.threats.some(t=>t?.cell===earnedCounterActor.cell
+        && t.lanternParried===true);
     if(!authenticEarnedStage) earnedStageShot=null;
     else {
       explorer.group.updateWorldMatrix(true,true);
@@ -1636,8 +1636,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         earnedStageBoxes[1].getCenter(earnedStageCenterB);
         earnedStageFocus.set((earnedStageCenterA.x+earnedStageCenterB.x)*.5,
           cameraTarget.y,(earnedStageCenterA.z+earnedStageCenterB.z)*.5);
-        const actualStageKey=[s.runToken,earnedCounterActor.id,
-          earnedCounterActor.cell,width,height].join(':');
+        const actualStageKey=[s.runToken,earnedCounterActor.cell,
+          width,height].join(':');
         // World-relative ray origins are parallel to an ORTHOGRAPHIC camera.
         // Raycasting from its center to each actor would give a false result.
         const evaluateEarnedView=(yaw,withRays)=>{

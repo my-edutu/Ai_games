@@ -17,3 +17,7 @@ No fake counter, private map topology, gameplay command, actor relocation, route
 Fresh exact-commit CI, strict six-run reset geometry below 100, new unaltered full-resolution original Chromium 320/390/844/1280 and earned guardian before/after evidence plus sidecar hashes, actual camera yaw and native body-ray clearance, visual side-by-side with baseline and Nintendo official gameplay, fresh independent critic, whole CI and privacy/accessibility checks. Reject and safely restore if the new stage cut is absent, obscures Pip/Thornback or causes cropping/abrupt unreadable motion. Independent critic/Ultracode workspace currently returns `NOT_FOUND`; no independent claim.
 
 **Candidate status: SOURCE ONLY. Visual verdict PENDING. Official Nintendo benchmark NOT MET. DRAFT, unmerged, undeployed; automation stays active.**
+
+## Source integration guard
+
+During the pre-CI source audit, confirmed the actual renderer's `earnedCounterActor` is the published `{cell,x,z}` pose, **not** the threat's `id`. Repaired the candidate authorization and stable shot identity to use the exact currently published parried guardian **cell**, adding a source integration regression before the next exact-HEAD browser run. No unrendered approval is claimed.

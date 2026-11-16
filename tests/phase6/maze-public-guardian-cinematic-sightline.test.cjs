@@ -32,3 +32,13 @@ test('prefer a stronger earned full-body camera, then restrained rotation',async
   assert.equal(choose([base,{...clear,score:5,yaw:1.35},
     {...clear,score:6,yaw:Math.PI}],true),Math.PI);
 });
+
+// Native actor witness is a {cell,x,z} pose, NOT a fabricated threat id.
+// This guards a real previously discovered source integration regression.
+test('camera uses the actual published guardian cell, not a missing pose id',async()=>{
+  const fs=require('node:fs');
+  const scene=fs.readFileSync(path.resolve(__dirname,
+    '../../public/ai-maze-escape/scene.js'),'utf8');
+  assert.match(scene,/s\.threats\.some\(t=>t\?\.cell===earnedCounterActor\.cell/);
+  assert.doesNotMatch(scene,/earnedCounterActor\.id/);
+});
