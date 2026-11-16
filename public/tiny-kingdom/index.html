@@ -15631,7 +15631,7 @@ function farmStalk(x,z,index,season,compact=false){
   season===1?[0xdac079,0xd7b46a,0xc9ad6b][index%3]:
   [0xc8a96e,0xd7b779,0xc1a36c][index%3]);
  const leaf=rgb(season===3?0x777f71:season===0?0x657c50:0x92905c);
- const underside=leaf.map(v=>Math.max(0,v*.76));
+ const underside=rgb(season===3?0x596056:season===0?0x4d5e3e:0x6f6e47);
  const ax=lived.headDirection[0],az=lived.headDirection[1];
  const at=t=>{
   const bow=Math.max(0,(t-.60)/.40),droop=bow*bow*lived.headBend;
