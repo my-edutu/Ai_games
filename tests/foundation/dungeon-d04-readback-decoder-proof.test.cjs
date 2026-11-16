@@ -171,3 +171,38 @@ test('Chromium pixel samples do not count as motion when static, blank, corrupte
   assert.equal(classifyChromiumDecodedRealWebM(media,result).classification,
    'BROWSER_DECODE_UNVERIFIED');
 });
+
+test('durationless genuine MediaRecorder WebM can prove moving decoded pixels only through bounded playback frames',()=>{
+ // Authentic WebM from the prior Dungeon Chrome capture has two VP8 packets
+ // but no finite container duration; Chromium seek-only evidence must fail
+ // closed and a real frame-callback decoder must never invent A/V alignment.
+ const {classifyChromiumDecodedRealWebM}=require('../browser/dungeon-d04-decoded-video-proof.cjs');
+ const media={source:'real-canvas-plus-opted-in-soundstage',status:'RECORDED',
+  mimeType:'video/webm;codecs=vp8,opus',videoTracks:1,audioTracks:1,
+  optedInAtStart:true,originalSoundstageTrackLive:true,bytes:185973,
+  framePump:{mode:'submitted-frame-request',observedFrameAdvances:45,
+   requestedFrames:40,requestFailures:0}};
+ const playback={source:'chromium-decoded-real-webgl-original-webm',
+  status:'SAMPLED',samplingMode:'playback-frame-callback',
+  width:688,height:397,durationSeconds:null,
+  samples:[{requestedSeconds:2.994,hash:'b1a2c3d4',lumaRange:72},
+   {requestedSeconds:3.816,hash:'a2b3c4d5',lumaRange:78}],
+  sampleSynchronized:false};
+ const actual=classifyChromiumDecodedRealWebM(media,playback);
+ assert.equal(actual.classification,'BROWSER_DECODED_MOVING_PIXELS_UNALIGNED');
+ assert.equal(actual.sampleSynchronized,false);
+ assert.equal(actual.distinctFrames,2);
+ for(const wrong of [
+  {...playback,samplingMode:'seek'},
+  {...playback,samples:[playback.samples[0]]},
+  {...playback,samples:[playback.samples[1],playback.samples[0]]},
+  {...playback,samples:[{...playback.samples[0],requestedSeconds:31},playback.samples[1]]},
+  {...playback,samples:[{...playback.samples[0],lumaRange:0},playback.samples[1]]},
+  {...playback,samples:[playback.samples[0],{...playback.samples[1],hash:playback.samples[0].hash}]}
+ ]){
+  const found=classifyChromiumDecodedRealWebM(media,wrong);
+  if(wrong.samples.length===2&&wrong.samples[0].hash===wrong.samples[1].hash){
+   assert.equal(found.classification,'BROWSER_DECODED_STATIC_OR_SPARSE_UNALIGNED');
+  }else assert.equal(found.classification,'BROWSER_DECODE_UNVERIFIED');
+ }
+});
