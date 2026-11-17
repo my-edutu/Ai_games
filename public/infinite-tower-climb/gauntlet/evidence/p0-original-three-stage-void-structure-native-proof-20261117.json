@@ -1,0 +1,38 @@
+{
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "leadingTransformationVerdict": "NOT EVALUATED",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "pr": 68,
+  "draft": true,
+  "activeBasePr": 58,
+  "inspectedHeadBeforeChange": "906ef2a55cdca3de021444f0e6ba567ff1e77aeb",
+  "productionChangeCommit": "7f1e083226994d305bb6c9e6d866791dd0bf89d6",
+  "testCorrectionHead": "6c727a7eabb3cfa509e0b710e9a25d7b3a5473db",
+  "completedPriorExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44051358678 — 10/10 successful at PRIOR head 906ef2a only; not experience proof",
+  "latestExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44056793133 — not yet completed at this evidence write",
+  "precedingNineJobCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44049951806 — 9 real recording/ledge jobs completed; event-aligned paired original footage FAILED 0/2 viewports",
+  "originalFootage": "https://github.com/my-edutu/Ai_games/actions/runs/44049951806/artifacts/14314005424",
+  "biggestObservedExperienceDefect": "Original 1× desktop and portrait actual footage delays the distinct Floor 9 Void world after Floor 9 HUD appears; old bronze gate and original cap mask complete climber, and a grounded physical crossing through co-visible original arch and walkable F9 has not been verified in two consecutive source-aligned native frames.",
+  "causalProductionChange": "The exact original Void 3D tower is divided into three source-return-gated GPU ownership stages: inner load-bearing core, external load-bearing buttresses/geological structure, then original moving halo/crystal biome. Every stage owns independently batched and isolated actual materials; none is newly fabricated proxy geometry. The original F9 ground, active gameplay decks, hazards and original retained guardian gateway remain in the first genuine post-crossing scene. Fades for outer structure and moving biome require subsequent real renderer returns; restoration of full shadow/opaque state and end-of-job lifetime wait for each layer. Default full tower building of other biomes and normal high-tier flow remains unchanged.",
+  "riskToVerify": "Third real render boundary may extend time before all noninteractive Void detail appears; test actual 25fps full-motion F9 crossing and cold-render return durations. Keep Stage P0 open if missing second/third return; do not label this transformation improvement without original film.",
+  "codeTouched": [
+    "public/infinite-tower-climb/visuals/world.mjs",
+    "tests/phase3/tower-deferred-original-f9-structure.test.cjs",
+    "tests/phase3/tower-original-void-staggered-cold-upload.test.cjs"
+  ],
+  "newSourcePinnedNativeCapture": "NOT EVALUATED — request to be made via capture-request.json at immutable commit",
+  "reviewerCounts": {
+    "LOOKS": "0/5",
+    "FEELS": "0/5",
+    "PLAYS": "0/5"
+  },
+  "realDeviceFrameTimeP50P95P99Memory": "NOT EVALUATED",
+  "criteriaRemaining": [
+    "Observe actual full-body climber, original open guardian gateway and walkable F9 architecture simultaneously across >=2 native source-event-aligned consecutive frames in both viewports",
+    "Original 60+s 25fps 960x600 and 390x844 matched seed/tier full episode including guardian victory, Floor 9, Floor 10, outcome and restart",
+    "No camera obstruction, jitter, severe cold upload stall or frame-time/memory regressions on supported actual devices",
+    "Five genuine fresh-context blind critics each for LOOKS FEELS PLAYS (>=4/5 preference each) and independent whole-build assessor"
+  ],
+  "nextHighestImpact": "Inspect newly source-pinned desktop/portrait normal-speed video, native timebase and renderer-return traces. Quantify whether cold shell core appears beside original open arch with whole climber, check that outer and biome layers actually get independent returned submissions and do not starve by Floor 10. If delay persists, diagnose cold GPU program upload and source-vs-native frame matching, not additional cosmetic camera edits.",
+  "safety": "Preserve unchanged frozen transformation.json, PR58 active edits, same PR68 draft branch. No force push, merge, deployment, draft toggle, unrelated games or manufactured reviews."
+}
