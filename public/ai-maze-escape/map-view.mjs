@@ -1,4 +1,25 @@
 /**
+ * Whether a still-active Thornback is actually disclosed to the viewer now.
+ * AI intent may still say "evading-threat" after a previous sighting, even
+ * during a genuinely witnessed CLOSED→OPEN gate lift. That strategy is not
+ * evidence that a visible Warden is still in immediate view. Never infer a
+ * guardian from old AI intent, hidden map cells or synthetic render markers.
+ * This only controls a warning on the spectator HUD, not game authority.
+ */
+export function publicLiveGuardianWarning(snapshot) {
+  if (!snapshot || snapshot.lifecycle !== 'running' || snapshot.result
+    || !Number.isSafeInteger(snapshot.currentCell)
+    || !Array.isArray(snapshot.visibleCells)
+    || !snapshot.visibleCells.includes(snapshot.currentCell)
+    || !Array.isArray(snapshot.threats)) return false;
+  return snapshot.threats.some(threat =>
+    typeof threat?.id === 'string' && threat.id.length > 0
+    && Number.isSafeInteger(threat.cell)
+    && snapshot.visibleCells.includes(threat.cell)
+    && threat.lanternParried !== true);
+}
+
+/**
  * Only a previously disclosed key actually collected in the SAME public run
  * and present in the authoritative public inventory can trigger visual art.
  * No private topology, future prediction or synthetic pickup is allowed.

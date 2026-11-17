@@ -1,4 +1,4 @@
-import { computePublicView, drawMinimap, publicObjective, publicHeldGateStatus, publicKeyCollectionMoment, publicImmediatePressureCue, publicPressureWithdrawalCue, publicVisibleDiagonalPressureCue, publicDistinctPublicPredecessor } from './map-view.mjs';
+import { computePublicView, drawMinimap, publicObjective, publicHeldGateStatus, publicKeyCollectionMoment, publicImmediatePressureCue, publicPressureWithdrawalCue, publicVisibleDiagonalPressureCue, publicDistinctPublicPredecessor, publicLiveGuardianWarning } from './map-view.mjs';
 import { createMazeAudio } from './audio.js';
 import { publicGuardianCounterMoment, publicGuardianCounterHeld, PUBLIC_GUARDIAN_COUNTER_SECONDS } from './public-counter-moment.mjs';
 import { advanceGateVisualClock, PUBLIC_PICKUP_VISUAL_SECONDS, observedGateOpenings } from './gate-moment.mjs';
@@ -131,7 +131,11 @@ function update(value){
   // generic Find a passage / Explore mission. An actually disclosed urgent
   // encounter must outrank a non-urgent landmark without pretending the AI
   // switched actions: intentMode still reports the genuine current AI intent.
-  const exposedDanger=!ended && (value.scene==='danger'||snapshot.intent.mode==='evading-threat');
+  // A published AI "evading" strategy alone does not justify an immediate
+  // visible-Warden alarm over a real moving gate. Keep the alarm when an
+  // un-parried Warden is ACTUALLY in this public frame; never hide one.
+  const exposedDanger=!ended && publicLiveGuardianWarning(snapshot)
+    && (value.scene==='danger'||snapshot.intent.mode==='evading-threat');
   // A witnessed recoil is not an all-clear. A SECOND still-active public
   // guardian retains urgent danger priority; actual AI intent stays untouched.
   const anotherLiveGuardian=Array.isArray(snapshot.threats)
@@ -234,6 +238,11 @@ function update(value){
     eventCaption='Pip stops to inspect the jaws.';
   // An earned, still PUBLIC lantern counter gets a single event, not a
   // speculative warning or a repeated polling caption.
+  // A real closed→open gate needs an audible/captioned consequence even
+  // when another ACTUALLY visible Warden merits the compact danger chip.
+  // A stale evasion intent cannot invent danger or suppress gate feedback.
+  if(witnessedOpenings.length)
+    eventCaption=exposedDanger?'Gate opens. Keep clear of Thornback.':'A locked passage opened.';
   if(earnedCounter)eventCaption="Pip's lantern holds Thornback.";
   wasInDanger=exposedDanger;
   wasNearPressure=!!pressureCue;
