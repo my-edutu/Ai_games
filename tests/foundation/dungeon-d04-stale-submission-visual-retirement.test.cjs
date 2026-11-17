@@ -361,15 +361,19 @@ test('D04 unreadable real wall clock before WebGL revokes unsubmitted injury mat
 
 test('D04 an unverified clock may retire HP shards but cannot erase current Warden warning cells',async()=>{
  const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {canonicalPhysicalWarningFootprint}=await load('physical-feedback-plan.js');
  const {THREE,scene}=stage();
  const cells=[{x:2,z:2},{x:3,z:2}];
- const warning={id:'1:1:11:threat-warning:-:-',sceneKey:'1:1',tick:11,
-  kind:'threat-warning',visual:'warning',audio:'threat-warning',
-  proof:'authority-warning-window',verified:true,detail:{cells},
-  severity:.4,duration:.5,priority:6};
+ const warning={id:'1:1:11:boss-warning-rising:warden-1:-',sceneKey:'1:1',tick:11,
+  kind:'boss-warning-rising',visual:'warning',audio:'boss-warning-rising',
+  proof:'authority-warning-window',verified:true,actorId:'warden-1',targetId:null,
+  from:{x:2,z:2},to:null,duration:.30,priority:8,severity:.7,
+  detail:{cells,shape:'NOVA',attackTick:14,
+   footprintKey:canonicalPhysicalWarningFootprint(cells)}};
  const v=createPhysicalFeedbackVisuals(THREE,scene,{
   getCurrentSnapshot:()=>({run:1,floor:1,tick:11,
-   bossWarning:{warning:true,attackTick:12,turnsUntilImpact:1,cells},
+   bossWarning:{warning:true,shape:'NOVA',attackTick:14,
+    turnsUntilImpact:3,cells},
    units:[{id:'warden-1',kind:'warden',faction:'enemy',hp:100}]})
  });
  try{
