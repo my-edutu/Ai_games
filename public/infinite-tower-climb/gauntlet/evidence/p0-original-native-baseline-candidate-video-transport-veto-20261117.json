@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "leadingTransformationVerdict": "NOT EVALUATED",
+  "branch": "feat/tower-transformation-gauntlet-20261101",
+  "pr": 68,
+  "prDraft": true,
+  "basePr": 58,
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "inspectedBranchHead": "76081d4a497a5e1d6f8cbff391e6b1abe24ce924",
+  "candidatePlayableSourceSha": "2e95139d11a5b33988a8b5a4ec757af2aa04258f",
+  "exactSource9JobCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44116098054",
+  "candidateDangerOriginalArchive": "https://github.com/my-edutu/Ai_games/actions/runs/44116098054/artifacts/14344245832",
+  "baselineDangerOriginalArchive": "https://github.com/my-edutu/Ai_games/actions/runs/44116098054/artifacts/14344155881",
+  "strictPairResult": {
+    "sourceTimelineIndex": "8/8 ordered source stories indexed; not film-event acceptance",
+    "sourceNativeEventSync": "0/2 validated viewport matches — FAILED",
+    "nativeFileIntegrity": "0 reported integrity defects",
+    "noInventedSourceEvents": true
+  },
+  "sourceRecordCorrectionVerified": {
+    "result": "The prior 48-tick same-run immutable guardian record now actually reached returned Three.js F9 frames in both viewports, confirmed by original-scenario exported physical-doorway-submissions.json.",
+    "desktop": {
+      "returnedF9AuditFrames": 8,
+      "immutableGuardianCrossingFrames": 8,
+      "retainedOldGpuFrames": 5,
+      "projectedBothInSafeCameraFrames": 7
+    },
+    "portrait": {
+      "returnedF9AuditFrames": 8,
+      "immutableGuardianCrossingFrames": 8,
+      "retainedOldGpuFrames": 4,
+      "projectedBothInSafeCameraFrames": 6
+    },
+    "note": "These are renderer-projection telemetry, not video pixel co-visibility or proof of user experience."
+  },
+  "originalFullMotionEvidence": {
+    "method": "Downloaded and decoded the unmodified paired desktop and portrait original danger WebM recordings with native 25fps timestamps; inspected genuine sequential source footage and source-pinned original event/projection sidecars. No held fake frames, playback synthesis or retrospective acceptance.",
+    "recordingSeed": "tower-transformation-capture-v1",
+    "graphicsTier": "low",
+    "baselineDesktop": {
+      "sha256": "3e243da3611ed1e191bccae72fab45b7e4b47cda18766f8db457f5d8637e428f",
+      "width": 960,
+      "height": 600,
+      "durationSeconds": 71.08,
+      "hudFloor9Seconds": 20.75,
+      "sustainedVoidSeconds": 21,
+      "hudToVoidSeconds": 0.25
+    },
+    "baselinePortrait": {
+      "sha256": "ea686a81863e1786bab869e4761d23ec7715c38c524ef25687278b078c4922f9",
+      "width": 390,
+      "height": 844,
+      "durationSeconds": 70.96,
+      "hudFloor9Seconds": 19.75,
+      "sustainedVoidSeconds": 19.75,
+      "hudToVoidSeconds": 0
+    },
+    "candidateDesktop": {
+      "sha256": "277f8f227120ec951ab474df354fe3745428e426276d34514d1bca8a780482cb",
+      "width": 960,
+      "height": 600,
+      "durationSeconds": 72.24,
+      "sourceGuardianCrossingTick": 475,
+      "sourceSearchSeconds": 24.548,
+      "hudFloor9Seconds": 26,
+      "sustainedVoidSeconds": 27.25,
+      "hudToVoidSeconds": 1.25,
+      "browserAcceptToFirstWebglReturnMs": 549
+    },
+    "candidatePortrait": {
+      "sha256": "02bcb6527aa0a1ecf9fb47ad3934e4417fd69a50fe27c44980067185b19b216f",
+      "width": 390,
+      "height": 844,
+      "durationSeconds": 72.68,
+      "sourceGuardianCrossingTick": 475,
+      "sourceSearchSeconds": 24.681,
+      "hudFloor9Seconds": 26,
+      "sustainedVoidSeconds": 27.5,
+      "hudToVoidSeconds": 1.5,
+      "browserAcceptToFirstWebglReturnMs": 560
+    },
+    "precisionSeconds": 0.25,
+    "comparisonCaveat": "All original files use same seed/tier and viewport each, but baseline's gameplay progression and missing identical guardian crossing-event trace mean seconds are NOT event-matched. Differences in HUD/color gap are descriptive, not an isolated causal speed regression or a blind preference vote."
+  },
+  "largestObservedFootageDefect": "Candidate continues to show F9 on its HUD before a sustained recognisable Violet/Void shaft. From 24.5–27.5s on desktop, heavy vertical bronze structural rails and foreground stages visually divide the blue climber from the opened original guardian gateway; narrow portrait accentuates the obstruction. Purple raised decks gradually enter but there are NO certified consecutive native frames simultaneously proving fully visible hero, source-open gate and walkable F9. Strong internal NDC/core rays do not replace observed screen pixels.",
+  "independentReview": {
+    "LOOKS": "0/5",
+    "FEELS": "0/5",
+    "PLAYS": "0/5"
+  },
+  "actualDeviceP50P95P99": "NOT EVALUATED",
+  "actualDeviceMemory": "NOT EVALUATED",
+  "exactHeadCI": {
+    "url": "https://github.com/my-edutu/Ai_games/actions/runs/44116376404",
+    "result": "9/10 jobs passed; full contract FAILED due to phase6 unrelated catalogue timeout. All Tower Phase3 partitions passed. No CI-green claim."
+  },
+  "workDoneThisExecution": "Downloaded both original exact-source danger capture archives, decoded all four normal-speed WebMs, examined timestamped matched-viewport chronological frames and source/projection sidecars, verified 8/8 source record persistence and the non-causal native-film delay gap. New gameplay code: NONE; no unjustified cosmetic edit attempted while browser/local repo execution tunnel unavailable.",
+  "unblocker": "Separates source-owned crossing repair (now renderer-observed) from missing compositor-native co-visibility. The next engineering change must target a cohesive real physical gateway/hero/roof camera+world GPU submission instead of snapshot-window/opacity/test-only churn.",
+  "nextHighestImpact": "On same draft PR68, measure actual original geometry IDs/pixel occluders at F9 initial returned frames, then implement a single coherent first-paint portal sightline and old/new world GPU upload pipeline with both genuine F8 gate and F9 walkable roof framed together. Re-film at exact new immutable SHA, desktop 960×600 and portrait 390×844, normal speed >=60s each; inspect original consecutive frames and strict source/PTS checks before P1.",
+  "blockedCapabilities": "Live project tunnel unavailable; browser and actual target device workers not accessible this execution. Remote GitHub Actions/source archives used for real read-only investigation. No valid independent blind critics available.",
+  "frozenBaselineUnchanged": true,
+  "pr58Untouched": true,
+  "merge": false,
+  "deploy": false,
+  "forcePush": false,
+  "prDraftPreserved": true
+}
