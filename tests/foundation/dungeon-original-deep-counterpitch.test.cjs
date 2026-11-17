@@ -500,3 +500,59 @@ test('RED: native fourth toe sample takes real third-sample skinned toe and upda
  const controller=fs.readFileSync(path.join(root,'public/ai-dungeon/full-body-animation-controller.js'),'utf8');
  assert.match(controller,/trial\?\.sourceAdaptiveToeCandidate/);
 });
+
+
+// Session 03 RED: real walking source has a deeply buried *swing* toe despite
+// a verified linked thigh/calf/foot/toes correction. A bounded coordinated
+// upper/lower-leg lift could recover additional clearance without another
+// source-skin read. The WORLD bone/sole coordinates in this unit fixture are
+// synthetic anatomical LEVER examples, NOT footage, contact or IK evidence.
+// Chromium must still independently read the genuine CC0 weighted shoes.
+test('RED: measured source hip-to-knee lever plans only a small supported swing-foot lift',async()=>{
+ const {planOriginalSourceConnectedHipKneeLift:plan}=await load();
+ assert.equal(typeof plan,'function');
+ const source={
+  source:'verified-original-post-coupled-hip-knee-lever',
+  mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceUpperTrackVerified:true,
+  sourceLowerTrackVerified:true,sourceBindVerified:true,
+  sourceToeChainVerified:true,ownerLocomotion:true,
+  alive:true,visible:true,teleport:false,
+  reducedMotion:false,interrupted:false,frameInterval:.0333,
+  floorTopY:-.02,sourceToeWorld:[0,-.055,.2],
+  sourceHeelWorld:[0,.18,.21],
+  sourceHipPivotWorld:[0,.48,-.18],
+  sourceKneePivotWorld:[0,.21,0],
+  sourceHipAxisWorld:[1,0,0],sourceKneeAxisWorld:[1,0,0],
+  upperRad:-.11,lowerRad:.11,footRad:.46
+ };
+ const candidate=plan(source);
+ assert.equal(candidate?.source,source.source);
+ assert.ok(candidate.deltaRad>=.015&&candidate.deltaRad<=.035);
+ assert.ok(candidate.upperRad<-.11&&candidate.upperRad>=-.14501);
+ assert.ok(candidate.lowerRad>.11&&candidate.lowerRad<=.14501);
+ assert.ok(candidate.worldToeLiftEstimateMeters>=.005);
+ assert.ok(candidate.worldHeelLiftEstimateMeters>=0);
+ assert.equal(candidate.originalSourceContactLocked,false);
+ for(const bad of [
+  {sourceWeight:.90},{sourceClipName:'Idle'},
+  {sourceUpperTrackVerified:false},{sourceLowerTrackVerified:false},
+  {sourceBindVerified:false},{sourceToeChainVerified:false},
+  {sourceInstanceSame:false},{ownerLocomotion:false},
+  {sourceToeWorld:[0,.01,.2]}, {sourceHeelWorld:[0,-.02,.21]},
+  {sourceHipAxisWorld:[0,1,0]}, {sourceHipPivotWorld:[0,.48,.2]},
+  {upperRad:.11,lowerRad:.11},{upperRad:-.15},
+  {frameInterval:.50},{teleport:true},{interrupted:true},
+  {reducedMotion:true},{alive:false},{visible:false}
+ ]) assert.equal(plan({...source,...bad}),null,
+  'no extra joint ownership when source bone, travel or hinge evidence fails');
+});
+
+test('RED: source connected fourth-foot sample uses real two-bone clearance before readback',()=>{
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/planOriginalSourceConnectedHipKneeLift\(/);
+ assert.match(renderer,/sourceCoupledHipKneeRelief/);
+ assert.match(renderer,/worldToeLiftEstimateMeters/);
+ const controller=fs.readFileSync(path.join(root,'public/ai-dungeon/full-body-animation-controller.js'),'utf8');
+ assert.match(controller,/trial\?\.sourceCoupledHipKneeRelief/);
+});
