@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "leadingTransformationVerdict": "NOT EVALUATED",
+  "sourceSha": "9d1a46c8fefff7a1e39b2a5bed64145f613d202c",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "candidateQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44090803332",
+  "candidateQualityResult": "10/10 quality/guardrail jobs passed for exact source; not an experience gate",
+  "originalNineJobCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44090803021",
+  "nativeCaptureResult": "9/9 original-source ledge+film jobs passed; strict source-event pairing job failed (0/2); no synchronized A/B acceptance",
+  "originalCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44090803021/artifacts/14331578901",
+  "originalCandidateMotion": "UNEDITED original 25fps WebMs, 960x600 71.44s and 390x844 72.88s, actual game, same seed, low graphics, genuine source; inspected gateway window at 23.5s–29.5s; no modification to original WebM",
+  "verification": {
+    "sourceSequence": "same-episode actual guardian HP decrease, defeat, grounded physical source crossing at tick 475, Floor9 and onward observed in both candidate source sidecars",
+    "sourceToFilm": "NOT VERIFIED: native color/HUD phase is a raster-only diagnostic and not evidence of a physical crossing",
+    "physicalDoorway": "Only 1 actual returned WebGL original doorway witness per viewport; both camera/hero projected safe in that return; ZERO verified two-consecutive-native-frame original gate + whole hero + walkable new floor triple",
+    "baselineMatch": "strict candidate/baseline matched source-event pairing failed; do not manufacture baseline missing guardian beats",
+    "originalVideosInspected": "Manual contact review from ORIGINAL unmodified 1x gameplay 20–35 seconds in desktop and portrait; F8 bronze gate and hero pictured around 24–25.5s, then HUD switches to Floor9 before visibly sustained purple shaft; competing foreground beams and abruptly changing architecture remain",
+    "actualHardware": "NOT EVALUATED; CI software-WebGL submitted interval statistics do not establish physical device frame-time or GPU presentation",
+    "independentReview": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    }
+  },
+  "originalViewportObservations": {
+    "desktop": {
+      "dimensions": "960x600",
+      "durationSeconds": 71.44,
+      "originalWebMSha256": "dd07bec20427ba20aae9a95d1d86a8face692bf5f1bae19909d1e95d7770d60b",
+      "sourceCrossingTick": 475,
+      "sourceEventSearchSeconds": 24.173,
+      "firstBrowserAcceptedTick": 476,
+      "firstRendererSubmittedTick": 476,
+      "browserAcceptedToRendererReturnMs": 478,
+      "rendererReturnToDrawnHudApproxMs": 801.872,
+      "drawnFloor9HudSeconds": 25.5,
+      "sustainedVioletSceneSeconds": 26.5,
+      "hudToVioletSeconds": 1,
+      "samplingUncertaintySeconds": 0.25,
+      "sourceOriginalDoorwayReturnedFrames": 1,
+      "sourceAndDoorProjectedSafeFrames": 1,
+      "submittedSoftwareRenderIntervalMs": {
+        "p50": 96.5,
+        "p95": 260.1,
+        "p99": 727.1,
+        "samples": 240,
+        "notDeviceFps": true
+      }
+    },
+    "portrait": {
+      "dimensions": "390x844",
+      "durationSeconds": 72.88,
+      "originalWebMSha256": "cfd2412e4f6238577bb79c154750aafdd9d1c6203dbeefb140c5da9f21b7de4f",
+      "sourceCrossingTick": 475,
+      "sourceEventSearchSeconds": 24.43,
+      "firstBrowserAcceptedTick": 475,
+      "firstRendererSubmittedTick": 475,
+      "browserAcceptedToRendererReturnMs": 570,
+      "rendererReturnToDrawnHudApproxMs": 516.419,
+      "drawnFloor9HudSeconds": 25.5,
+      "sustainedVioletSceneSeconds": 27.25,
+      "hudToVioletSeconds": 1.75,
+      "samplingUncertaintySeconds": 0.25,
+      "sourceOriginalDoorwayReturnedFrames": 1,
+      "sourceAndDoorProjectedSafeFrames": 1,
+      "submittedSoftwareRenderIntervalMs": {
+        "p50": 77.6,
+        "p95": 181.1,
+        "p99": 271.4,
+        "samples": 240,
+        "notDeviceFps": true
+      }
+    }
+  },
+  "largestDefect": "Original unmodified film still does not contain a verified consecutive GPU-native sequence of source-authenticated opened gate, complete living climber and physically accessible Floor9: camera and scenery form a bronze foreground interruption, HUD appears 1.0s desktop / 1.75s portrait before sustained Void scene, and source-to-native event pairing fails. P0 remains OPEN.",
+  "nextHighestImpact": "Before any additional opacity/camera cosmetics, remove source-to-render/compositor latency through one measurable systemic redesign of Floor9 first-frame CPU scene rebuild and physically visible original gateway. Profile the 478/570ms browser-accept→renderer-return interval and 516–802ms approximate return→drawn HUD gap on actual normal-speed film, then run exact-source desktop/portrait native capture and prove two consecutive original 25fps frames with gate, skinned hero and true walkable F9, including no abnormal jump. Explicitly preserve PR58/base and require blind independent reviews only after validity.",
+  "constraints": {
+    "pr68Draft": true,
+    "pr58Untouched": true,
+    "baselineUnchanged": true,
+    "merged": false,
+    "deployed": false,
+    "forcePushed": false,
+    "unrelatedGamesUntouched": true
+  }
+}
