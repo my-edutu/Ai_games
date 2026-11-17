@@ -5,7 +5,6 @@ import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VI
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
 import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilRevealElevation, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
-import { publicGuardianStageLightLevels } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicEarnedGuardianCounterLightPath } from './public-lantern-encounter.mjs';
 import { publicEarnedGuardianActing } from './public-lantern-encounter.mjs';
@@ -734,23 +733,6 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // passage. Another foreground guardian always takes priority.
     const witnessedCounter=!!earnedCounterActor && !result
       && (!closestThreat?.cell || closestThreat.cell===earnedCounterActor.cell);
-    // Distinctive 3D guardian performance: the EXISTING real hand lantern,
-    // sky, key and opposing shell rim are mixed into a single physical stage.
-    // Do not imply a straight light ray through a closed wall: normal warning
-    // derives ONLY from the already verified public open guardian sightline.
-    // The stronger post-counter beat derives ONLY from the tracked, witnessed
-    // same-run visible Thornback recoil, shared with Pip and floor mechanics.
-    // Continuous interpolation prevents flashes and reuses all four lights.
-    const stageLights=publicGuardianStageLightLevels(
-      !result ? (closestThreat?.strength??0) : 0,
-      witnessedCounter ? earnedCounterActor?.counterPhase : null,
-      settings.reducedMotion);
-    const stageLightEase=settings.reducedMotion ? 1
-      :1-Math.exp(-delta*6);
-    sky.intensity+=(stageLights.ambient-sky.intensity)*stageLightEase;
-    sun.intensity+=(stageLights.sun-sun.intensity)*stageLightEase;
-    rim.intensity+=(stageLights.rim-rim.intensity)*stageLightEase;
-    lanternLight.intensity+=(stageLights.lantern-lanternLight.intensity)*stageLightEase;
     world.animate(elapsed, {...settings, gateTime:gateVisualTime,
       stepDurationMs:frame.stepDurationMs, explorerPosition:explorer.group.position,
       guardianCell:witnessedCounter?earnedCounterActor.cell:closestThreat?.cell,
@@ -2035,12 +2017,6 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           && (pressureSurveySightline.links===1||lanternSurveyTurn.visible),
         witnessedPressureSurveyLinks: pressureSurveySightline?.links??0,
         witnessedLanternWarningVisible: lanternWarning.visible,
-        // Actual GPU-bound light intensities, not an assumed screenshot win.
-        publicGuardianLightStage:stageLights.stage,
-        actualGuardianStageLights:{
-          sky:sky.intensity,sun:sun.intensity,
-          rim:rim.intensity,lantern:lanternLight.intensity,
-        },
         publicLanternRadiusWorld: lanternLight.distance,
         // Read the real Three.js light and articulated cage after the actual
         // WebGL render. Diagnostics cannot substitute for native image review.
