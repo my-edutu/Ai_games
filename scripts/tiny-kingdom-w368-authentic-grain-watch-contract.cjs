@@ -15,7 +15,7 @@ function segment(start,end){
 const functions=segment('function chooseRealGrainWitness(){','function watchRealGrainJourney(){')+
  segment('function watchVillageLife(){',"button('world-watch-life',watchVillageLife)");
 function scenario(people,width=390,alreadyFollowing=false){
- const calls={grain:0,house:0,delivery:0,work:0,supply:0,audit:0};
+ const calls={grain:0,house:0,delivery:0,work:0,supply:0,audit:0,attach:0};
  const context={people,canvas:{clientWidth:width},
   grainJourney:alreadyFollowing?{producer:'Bram'}:null,
   supplyTrailOpen:false,selectedCitizen:0,
@@ -24,6 +24,9 @@ function scenario(people,width=390,alreadyFollowing=false){
    calls.grain++;context.grainJourney={producer:'Bram'};return {active:true,kind:'grain'};
   },
   getRealGrainJourneyAudit:()=>{calls.audit++;return {active:true,kind:'existing-grain'};},
+  // The real documentary attachment is separately validated in playable source.
+  // This isolated VM must inject its dependency rather than fail before dispatch.
+  attachVillageDocumentaryToGrainJourney:()=>{calls.attach++;return true;},
   watchHouseholdErrand:()=>{calls.house++;return {active:true,kind:'household'};},
   watchDelivery:()=>{calls.delivery++;return {active:true,kind:'other-delivery'};},
   watchLiveWorkday:()=>{calls.work++;return {active:true,kind:'workday'};},
@@ -46,6 +49,7 @@ const mobile=scenario([harvest,courier,unloading,irrelevant],390);
 assert.equal(mobile.witness(),unloading,'Follow real unloading before an unrelated fresh harvest');
 assert.equal(mobile.watch().kind,'grain');
 assert.equal(mobile.calls.grain,1);
+assert.equal(mobile.calls.attach,1,'same genuine courier linked to one documentary');
 assert.equal(mobile.calls.house,0,'Do not lose the causal food chain to a generic household errand');
 assert.equal(mobile.calls.delivery,0);
 assert.equal(mobile.calls.supply,0,'390px camera must not be buried under the expanded supply ledger');
@@ -64,6 +68,9 @@ const continuing=scenario([harvest],390,true);
 assert.equal(continuing.watch().kind,'existing-grain','Do not toggle an already observed real parcel off');
 assert.equal(continuing.calls.grain,0);
 assert.equal(continuing.calls.audit,1);
+assert.equal(continuing.calls.attach,1,'existing parcel keeps its documentary');
+assert(src.includes('function attachVillageDocumentaryToGrainJourney(){'),
+ 'the actual original documentary attachment must exist in the playable source');
 assert.match(src,/function updateWorldRibbon\(\)\{[\s\S]*?chooseRealGrainWitness\(\)/,
  'Existing compact ribbon must identify the authentic farm/road documentary');
 console.log('W368 authentic original farmer/courier priority, full workday observer, desktop/390 and no-fake-authority dispatch PASS. Running-game A/B + hardware FPS NOT PROVEN.');
