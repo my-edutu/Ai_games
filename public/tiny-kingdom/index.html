@@ -6007,7 +6007,10 @@ function packLinearResidentScenery(mesh,sceneClass,sourceStart=0){
   const tx=Math.min(vertices[o],vertices[o+10],vertices[o+20]);
   const ty=Math.min(vertices[o+1],vertices[o+11],vertices[o+21]);
   const tz=Math.min(vertices[o+2],vertices[o+12],vertices[o+22]);
-  // W417: the civic-core resident stream begins at sourceStart inside the\n  // shared original draw list. Its left/right extremes must be measured\n  // from the EXACT 30-float GPU triangle, not an unrelated pre-core\n  // building vertex at mesh[o]. An undersized AABB could silently cull\n  // genuine farm/market/house structures from physical-GPU viewpoints.\n  const ux=Math.max(vertices[o],vertices[o+10],vertices[o+20]);
+  // W418: the civic core begins after its original scene prefix. Bound the
+  // exact Float32 resident triangle; a discarded prefix must never hide a
+  // genuine market, farm, home or hall behind an incorrect GPU culling box.
+  const ux=Math.max(vertices[o],vertices[o+10],vertices[o+20]);
   const uy=Math.max(vertices[o+1],vertices[o+11],vertices[o+21]);
   const uz=Math.max(vertices[o+2],vertices[o+12],vertices[o+22]);
   if(!Number.isFinite(tx)||!Number.isFinite(ty)||!Number.isFinite(tz)||
