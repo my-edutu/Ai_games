@@ -561,13 +561,26 @@ export function planOriginalSourceCoupledKneeFootFollowups({
  // Only sparse >=160ms source frames may probe 140mrad, versus 110mrad
  // on a 16–49ms step. 110mrad hip and 240mrad foot remain caps.
  const knee=owner.frameInterval>=.16?.14:.11,sign=starter.sign;
- return Object.freeze([.18,.24].map(footRad=>Object.freeze({
+ // The exact original desktop Walking_A 33.3ms weighted skin recorded
+ // 78.2mm toe burial, +12.7mm heel-dominant starter, and a failed +.24rad
+ // source-ankle probe (17.96mm toe lift, 17.88mm heel lift).
+ // Try a deeper, anatomically connected *source-track-axis* counterpitch
+ // with the SAME two reversible weighted dual-shoe reads, only in this
+ // documented fast, deeply buried and genuinely heel-dominant phase.
+ // This is trial scheduling, NEVER a planted foot or an accepted pose.
+ const depth=owner.floorTopY-owner.before?.[owner.side]?.toeY;
+ const fastDeepHeelDominated=owner.frameInterval>=.03&&
+  owner.frameInterval<=.05&&depth>=.075&&depth<=.12&&
+  starter.excessHeelRiseMeters>=.010&&
+  starter.excessHeelRiseMeters<=.035;
+ const footAngles=fastDeepHeelDominated?[.38,.46]:[.18,.24];
+ return Object.freeze(footAngles.map(footRad=>Object.freeze({
   upperRad:.11*sign,lowerRad:-knee*sign,footRad
  })));
 }
 
 export function chooseOriginalSourceCoupledKneeFootSweep({
- mode='idle',sourceClipName='',sourceWeight=NaN,
+ starter=null,mode='idle',sourceClipName='',sourceWeight=NaN,
  sourceInstanceSame=false,sourceChainVerified=false,
  sourceUpperTrackVerified=false,sourceLowerTrackVerified=false,
  sourceFootTrackVerified=false,sourceBindVerified=false,
@@ -612,7 +625,18 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
   if(![upperRad,lowerRad,footRad].every(finite)||
    Math.abs(upperRad)<.074999||Math.abs(upperRad)>.110001||
    Math.abs(lowerRad)<.074999||Math.abs(lowerRad)>(frameInterval>=.16?.140001:.110001)||
-   Math.abs(footRad)<.119999||Math.abs(footRad)>.240001||
+   Math.abs(footRad)<.119999||
+   (Math.abs(footRad)>.240001&&!(
+    frameInterval>=.03&&frameInterval<=.05&&
+    depth>=.075&&depth<=.12&&
+    starter?.source==='actual-original-source-three-joint-swing-opportunity'&&
+    starter.expectedSourceSkinnedTrials===2&&starter.contactLocked===false&&
+    starter.sign===Math.sign(upperRad)&&
+    Number.isFinite(starter.excessHeelRiseMeters)&&
+    starter.excessHeelRiseMeters>=.010&&
+    starter.excessHeelRiseMeters<=.035&&
+    (Math.abs(footRad-.38)<.000001||Math.abs(footRad-.46)<.000001)
+   ))||
    Math.sign(upperRad)===Math.sign(lowerRad)||
    !valid(shoe)||!valid(loaded))continue;
   const lift=shoe.toeY-swing.toeY;

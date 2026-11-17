@@ -3099,6 +3099,7 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   const coupledOwner={...owner,sourceFootTrackVerified:true,
    sourceAnatomicalFootAxisVerified:true};
   const option=chooseOriginalSourceCoupledKneeFootSweep({...coupledOwner,
+   starter:connectedStarter,
    trials:trials.filter(t=>Number.isFinite(t.footRad))});
   if(!option)return;
   const footRotation=kneeFootCoupled.footDelta;
@@ -3111,6 +3112,7 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   upper.bone.updateWorldMatrix(true,true);
   const after=read();
   const final=chooseOriginalSourceCoupledKneeFootSweep({...coupledOwner,
+   starter:connectedStarter,
    trials:[{upperRad:option.upperRad,lowerRad:option.lowerRad,
     footRad:option.footRad,after}]});
   if(!final||final.oppositeShoePreserved!==true||
