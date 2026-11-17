@@ -418,6 +418,16 @@ test('source-witnessed cold Floor9 keeps distant scenery off the FIRST real fram
     const shaft=world.group.getObjectByName('deferred-original-floor-nine-architecture');
     assert.ok(shaft,
       'the original new-floor architecture returns only after the first genuine render');
+    assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-void-biome-build',
+      'first successful renderer return constructs only authentic load-bearing shell; Void detail awaits ANOTHER returned frame');
+    assert.equal(shaft.visible,false,'noninteractive structural root remains completely culled');
+    for(let i=0;i<12;i++)world.update(newFloor,.05,.1+i*.05,{quality:'low'});
+    assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-void-biome-build',
+      'twelve unsubmitted RAF updates cannot finish CPU construction or spend a GPU receipt');
+    world.noteFrameSubmitted(newFloor,{},.05);
+    world.update(newFloor,.05,.15,{quality:'low'});
+    assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-structural-release',
+      'second real returned F9 frame finishes biome detail, batching, and safe material isolation');
     const shellMaterials=[];
     shaft.traverse(o=>{
       if(o.isMesh && o.material?.name==='SourceEarnedIncomingFloorNineShaft')
@@ -658,8 +668,14 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===originalArch,true,
       'original bronze gate GPU identity must survive; never format the gigantic Three.js graph');
     assert.equal(world.diagnostics().deferredDistantArrival?.state,
+      'awaiting-void-biome-build',
+      'one source-cleared old-door return builds only original load-bearing structure, never a rushed whole-world alpha switch');
+    world.noteFrameSubmitted(later,{},.05);
+    world.update(later,.05,.15,{quality:'low'},
+      {...passage,handoffSubmittedFrames:2,handoffDisplaySeconds:.10});
+    assert.equal(world.diagnostics().deferredDistantArrival?.state,
       'awaiting-structural-submission',
-      'a source-cleared full body and one old-door GPU return may stage the original low-alpha shaft for the NEXT render');
+      'second real-return-owned stage completes same original hidden shaft and only then permits the source-bound aperture');
     const hiddenShaft=world.group.getObjectByName('deferred-original-floor-nine-architecture');
     assert.ok(hiddenShaft);
     const shaftOpacity=[];
@@ -972,6 +988,12 @@ test('source-earned Floor9 paints one actual open Void load path beside the reta
       'the real physical new-floor walkable ground must NEVER be hidden with decorative architecture');
     assert.equal(newShaft.getObjectByName('VoidOpenCoreLoadPath')===undefined,true,
       'the original open core is already visibly built and may NEVER be duplicated during deferred shaft upload');
+    assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-void-biome-build',
+      'first return only constructs the authentic load-bearing shell, with no premature material isolation');
+    world.noteFrameSubmitted(departed,{},.05);
+    world.update(departed,.05,.95,{quality:'low'});
+    assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-structural-release',
+      'second return builds the original Void details and isolates all noninteractive shaft materials');
     const incomingMeshes=[];
     newShaft.traverse(o=>{if(o.isMesh)incomingMeshes.push(o);});
     assert.ok(incomingMeshes.length>0 &&
