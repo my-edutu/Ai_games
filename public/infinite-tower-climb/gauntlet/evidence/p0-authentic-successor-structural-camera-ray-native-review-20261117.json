@@ -46,5 +46,11 @@
     "PLAYS": "0/5"
   },
   "nextMostImportantAction": "Capture new 9-job source-pinned original 1x candidate and baseline, inspect FULL 60+ sec from head including stage transition; if old bronze grid still obscures hero and violet scene cuts, correct actual structural camera occlusion / cold GPU submission pacing with source-authored geometry rather than alpha or test-only changes. Never report P0 passed until event-native matched acceptance.",
-  "noProhibitedActions": true
+  "noProhibitedActions": true,
+  "productionRigidBatchingCorrection": "89f10ea23da8cd5448c9fc0327ee7e610d7769df",
+  "regressionAssertCoversSourceBearingSubtree": "f95745554a20008a7a8352c2295a307aab6b2d3d",
+  "sourceInvariantsClarified": "The authoring F9 bearing group must be a real group of triangle meshes even AFTER finishBatches(); otherwise the camera scores an empty group despite original shapes moved to floorGroup. Source-owned root is now batchRigid'd separately and kept as a bounded boundary; missing plan clears it.",
+  "latestSourcePinnedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44018971362 (for request SHA 0c841125; superseded by subsequent rigid-root fix; do not use for corrected-source acceptance)",
+  "latestExactHeadCI": "https://github.com/my-edutu/Ai_games/actions/runs/44019224659 (at f957455, queued at last check)",
+  "requiredNewFilm": "A new capture-request commit after this review is necessary: only it can pin the new rigid-root fix to original normal-speed 960x600 and 390x844 WebM. Prior candidate film is immutable SHA 0c841 and does NOT include this correction."
 }
