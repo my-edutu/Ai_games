@@ -2986,17 +2986,25 @@ function isForegroundWalkingSkinCandidate(p,i,frame){
  // remains visible with their own full original coat, face, feet and hands.
  // The bone palette follows the real current gait/posture every drawn frame.
  // Only opt in when the optical body is SMALL. Genuine harvest/forge/build,
- // parcels, receipt handoffs and verified household meals still have full
- // live CPU work contacts, as do followed or documentary protagonists.
+ // parcels, receipt handoffs and verified household meals retain full live CPU
+ // contacts. W405: a followed original UNLADEN traveler can keep their full
+ // sculpted 13-joint GPU rig during real locomotion, without freezing loaded
+ // carts, market hands, work gestures, meals or explicit close inspection.
  if(!workingSkinCapable||!gpuAvailable||!frame||!p||p.delivery||
   isMarketUnloading(p)||isWorkingAtSite(p)||
-  ((follow||liveWorkday)&&i===selectedCitizen)||
   ![p.x,p.z,p.phase].every(Number.isFinite))return false;
+ const observed=(follow||liveWorkday)&&i===selectedCitizen;
  const action=p.activity||'';
  const moving=/^(Traveling to |Exploring the valley$|Returning home at dusk$)/.test(action);
  const passive=action==='Resting at home'||
   action==='Waiting for a safe route'||action==='Finding a home';
  if(!moving&&!passive)return false;
+ // The actively followed real person is GPU-resident ONLY in unladen travel:
+ // work/receipt actions immediately return to the live original CPU rig.
+ if(observed&&!moving)return false;
+ if(observed&&Number.isFinite(p.provisions)&&p.provisions>0)return false;
+ if(observed&&typeof verifiedHouseholdMealEvidence==='function'&&
+    Boolean(verifiedHouseholdMealEvidence(p)))return false;
  // Genuine resting people may retain purchased provisions without currently
  // eating; inventory ownership alone is NOT a hand-contact event. Carrying
  // shoppers already have another activity and cannot enter this passive path.
@@ -3016,6 +3024,12 @@ function isForegroundWalkingSkinCandidate(p,i,frame){
  const prior=foregroundResidentCache.get(i);
  const held=Boolean(prior?.skinned&&typeof prior.key==='string'&&
   prior.key.startsWith([i,p.name,p.job].join(':')+':'));
+ // Stricter than passive walkers. A followed adult larger than 24.5% of
+ // screen height (29.5% retained) returns to original live CPU presentation;
+ // offscreen observed actors never consume a GPU slot.
+ if(observed)return projected.visible&&
+  Number.isFinite(projected.heightFraction)&&projected.heightFraction>=0&&
+  projected.heightFraction<(held?.295:.245);
  return !projected.visible||
   physicallySmallWalkingSkinWindow(projected.heightFraction,held);
 }
@@ -3113,7 +3127,11 @@ function prepareForegroundResidents(rows,frame){
  // by the existing live original villager() fallback below.
  const selected=[];
  const ranked=rows.map(row=>({row,
-  priority:isWorkingAtSite(row.p)?2:
+  // The followed legitimate unloaded traveler gets first claim on the
+  // bounded VBO; full-scale work/contact heroes remain in the live CPU path.
+  priority:((follow||liveWorkday)&&row.i===selectedCitizen&&
+    isForegroundWalkingSkinCandidate(row.p,row.i,frame))?3:
+   isWorkingAtSite(row.p)?2:
    isForegroundWalkingSkinCandidate(row.p,row.i,frame)?1:0}));
  ranked.sort((a,b)=>b.priority-a.priority||a.row.i-b.row.i);
  const limited=ranked.slice(0,FOREGROUND_RESIDENT_MAX)
@@ -3353,6 +3371,13 @@ function getForegroundResidentAudit(){
    .filter(row=>row.entry.skinned&&
     ['Resting at home','Waiting for a safe route','Finding a home']
      .includes(row.p.activity)).length,
+  observedUnladenTravelerNames:foregroundResidentVisible
+   .filter(row=>row.entry.skinned&&row.i===selectedCitizen&&
+    (follow||liveWorkday)&&!row.p.delivery&&
+    /^(Traveling to |Exploring the valley$|Returning home at dusk$)/
+     .test(row.p.activity||'')).map(row=>row.p.name),
+  observedTravelScreenGate:{enter:.245,retain:.295},
+  followedActiveContactAlwaysLive:true,
   contactLimitMeters:.015,contactLimitRadians:.010,
   followedWorkerHandsFullyLive:true,loadedAndUnloadingFullyLive:true,
   fullOriginalTriangles:foregroundResidentMesh.length/30,
@@ -3392,6 +3417,12 @@ function getForegroundSkinAudit(){
   deliveryAndMarketUnloadingOriginalHandsPreserved:true,
   passiveSkinnedWithoutReceiptMeal:true,
   passiveSkinMaxHeightFraction:FOREGROUND_WALKING_SKIN_HOLD_SCREEN_HEIGHT,
+  observedUnladenTravelSkinned:foregroundResidentVisible
+   .filter(row=>row.entry.skinned&&row.i===selectedCitizen&&
+    (follow||liveWorkday)&&!row.p.delivery&&
+    /^(Traveling to |Exploring the valley$|Returning home at dusk$)/
+     .test(row.p.activity||'')).length,
+  observedRealWorkAndParcelCpuContacts:true,
   authorityChanged:false,physicalFpsUnmeasured:true};
 }
 let actorGpuStaging=null,actorGpuCapacityFloats=0,
@@ -30951,7 +30982,11 @@ const workingIndices=workingReady?
 // followed workers, cargo and actual receiving hands stay continuously live.
 const foregroundRows=gpuAvailable?people.map((p,i)=>({p,i}))
  .filter(({p,i})=>isForegroundResidentCandidate(p,i,nearPeople)||
-  isForegroundWorksiteCandidate(p,i,nearPeople,commuterFrame)):[];
+  isForegroundWorksiteCandidate(p,i,nearPeople,commuterFrame)||
+  // Same original citizen, saved-state-true movement and handoff continuity:
+  // only the spectator's unloaded travel may use existing GPU joint buffers.
+  ((follow||liveWorkday)&&i===selectedCitizen&&nearPeople.has(i)&&
+   isForegroundWalkingSkinCandidate(p,i,commuterFrame))):[];
 const foregroundReady=prepareForegroundResidents(foregroundRows,commuterFrame);
 const foregroundIndices=foregroundReady?
  new Set(foregroundResidentVisible.map(row=>row.i)):new Set();
