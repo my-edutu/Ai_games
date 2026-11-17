@@ -12,7 +12,7 @@
   "originalFootage": "https://github.com/my-edutu/Ai_games/actions/runs/44042382093/artifacts/14309742994",
   "biggestOriginalFootageDefect": "Original 1x desktop and portrait films obscure the skinned climber behind bronze gateway and show delayed standalone violet F9 room. No verified 2 consecutive native frames of old open arch, full climber and real walkable F9, nor event/video synchronization.",
   "meaningfulProductionChange": "Noninteractive authentic F9 load-bearing 3D shell independently GPU-batched/isolated BEFORE second cold Void crystal/detail build. Its source-authentic 18-24% early aperture can paint with previously returned old bronze gateway on verified physical clearance; genuine Void details/rotating crystals join as independently batched later returned-frame-faded owner with same real-source materials. No simulation/game authority, gateway, guardian, collisions, platforms or other games changed.",
-  "newCI": "https://github.com/my-edutu/Ai_games/actions/runs/44050138703 — pending at ledger update; full technical verdict not claimed",
+  "newCI": "https://github.com/my-edutu/Ai_games/actions/runs/44050612048 — exact-head (447b58b) Phase3 original two-return test initially red because actual measured source-authentic shell =28% while expected 24%; corrected with strict 28%-shell and 0%-unreturned-crystal tests at commit cb1674a7; full revised exact-head CI NOT EVALUATED.",
   "newVideo": "NOT EVALUATED, needs fresh immutable-SHA 9-job actual native capture",
   "independentReviews": {
     "LOOKS": "0/5",
@@ -20,14 +20,53 @@
     "PLAYS": "0/5"
   },
   "realDeviceP50P95P99Memory": "NOT EVALUATED",
-  "nextHighestImpact": "Inspect corrected exact-head quality and nine-job original 25fps WebMs, event/PTS sidecars for same-run original gate full-body climber actual walkable F9 and genuine restart. Compare preceding 0/2 pairing, identify highest-impact residual cold-renderer jump or architecture obstruction; remain P0 until real consecutive joint frames and strict alignment.",
+  "nextHighestImpact": "Do not advance P0: verify corrected latest exact-head technical CI, inspect original 1x full-motion baseline/candidate at source-aligned true floor transition (baseline ~16.3s; candidate ~24.6–24.9s), isolate delayed renderer return and screen-phase truth; keep genuine guardian/outcome/restart. Reopen source-event/frame alignment or cold geometry if still failed, before P1 and before blind reviewers.",
   "safety": "Preserve frozen baseline, PR58 active changes and PR68 draft; no force push, merge or deployment.",
   "sourcePinnedFilmCommit": "84bfef760da456f332691e739619e2ff8d7e1816",
   "requestedNativeCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44049951806 — nine-job same-seed frozen-baseline/candidate filming; in progress at ledger update, results NOT EVALUATED",
   "initialQualityCI": "https://github.com/my-edutu/Ai_games/actions/runs/44049812429 — FAILED Phase3 partitions 2/3 due real source return fixture assumptions about independently faded detail and earlier static whole-shaft batch; corrected both tests without weakening source or visual event evidence.",
   "correctedTestCommits": [
     "9ece17c76b71469107ce6f4a0d75328572f8cbd0",
-    "52c1828723202ac30c4ab40a5b6d7e01ae625602"
+    "52c1828723202ac30c4ab40a5b6d7e01ae625602",
+    "c685f814b3782b430e315c4ea4cbf5b86d79346c",
+    "447b58b997a348c005160c4e5fe727c6b0208e04",
+    "cb1674a701d774fa02097f74ada17477e54aca8d"
   ],
-  "verification": "Substantive production code committed; nine-job candidate source film and corrected exact-head CI pending; no evidence of experiential improvement or video-event pairing yet."
+  "verification": "Production implemented, authenticated original footage captured. Strict native event-pixel comparison FAILED 0/2; therefore P0 gameplay/video acceptance NOT EVALUATED and all independent review gates NOT EVALUATED.",
+  "nativeCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/44049951806 — completed 9/9 original capture/ledge jobs successfully; paired source-event vs native pixels FAILED; leading NOT EVALUATED",
+  "nativeCaptureArtifacts": "https://github.com/my-edutu/Ai_games/actions/runs/44049951806/artifacts/14314005424",
+  "nativeCaptureCandidateSha": "84bfef760da456f332691e739619e2ff8d7e1816",
+  "originalUneditedReview": {
+    "viewports": [
+      "desktop 960x600",
+      "portrait 390x844"
+    ],
+    "fps": 25,
+    "recordingsFound": 16,
+    "sourceTimebasePairs": 8,
+    "sourceStoryDefects": 0,
+    "provenanceDefects": 0,
+    "sourceToFilmStrictEventPairing": "FAILED 0/2",
+    "reviewers": "0/5 LOOKS, 0/5 FEELS, 0/5 PLAYS",
+    "sourceAnchorSeconds": {
+      "desktop": {
+        "baselineFloorTransition": 16.34,
+        "candidateFloorTransition": 24.6
+      },
+      "portrait": {
+        "baselineFloorTransition": 16.33,
+        "candidateFloorTransition": 24.91
+      }
+    },
+    "blockers": [
+      "native-scene-phase-not-confirmed-baseline",
+      "native-scene-phase-not-confirmed-candidate"
+    ],
+    "directRasterInspection": "Original unmodified desktop+portrait 25–32s sampled frames examined: candidate source-earned F9 begins coexisting with some bronze remnants, but physical full-body through actual opened gate + walkable F9 remains unproven as consecutive event-matched original frames. No subjective preference or scene-quality pass."
+  },
+  "runnerSourceProbe": {
+    "source": "https://github.com/my-edutu/Ai_games/actions/runs/44050612048",
+    "observation": "Actual returned source fixture had 6 independently batched real load-bearing shell materials at alpha=0.28 and 10 genuine void-detail materials at alpha=0.0 before detail GPU submission. This is static source-driven geometry probe, NOT native film or hardware evidence.",
+    "boundary": "strict source lease .28; unpainted detail .0; no gameplay collider changes"
+  }
 }
