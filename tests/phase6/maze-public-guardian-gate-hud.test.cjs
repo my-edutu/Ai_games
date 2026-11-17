@@ -9,6 +9,8 @@ const publicModule=()=>import(pathToFileURL(path.resolve(__dirname,
 const state=(override={})=>({
   runToken:'public-gate-witness',lifecycle:'running',result:null,
   width:9,height:9,tick:54,currentCell:40,visibleCells:[40,41],
+  cells:[{cell:40,blocked:false,neighbors:[41]},
+    {cell:41,blocked:false,neighbors:[40]}],doors:[],
   threats:[{id:'thornback-1',cell:41,lanternParried:false}],
   intent:{mode:'evading-threat'},...override
 });
@@ -24,6 +26,22 @@ test('genuine current visible un-parried Warden retains immediate warning',async
 test('stale evasion, hidden threats and already countered guardian cannot fake active Warden',async()=>{
   const {publicLiveGuardianWarning:warning}=await publicModule();
   assert.equal(warning(state({visibleCells:[40]})),false,'historical/hidden Warden is not immediate');
+  assert.equal(warning(state({doors:[{a:40,b:41,open:false}]})),false,
+    'one sealed PUBLIC door blocks immediate physical Warden danger');
+  assert.equal(warning(state({cells:[{cell:40,blocked:false,neighbors:[]},
+    {cell:41,blocked:false,neighbors:[]}]})),false,
+    'visible but disconnected geometry cannot claim a nearby reachable attacker');
+  assert.equal(warning(state({visibleCells:[40,50],
+    cells:[{cell:40,blocked:false,neighbors:[50]},
+      {cell:50,blocked:false,neighbors:[40]}],
+    threats:[{id:'thornback-diagonal',cell:50,lanternParried:false}]})),false,
+    'diagonal disclosed tiles cannot fabricate an open straight action corridor');
+  assert.equal(warning(state({visibleCells:[40,41,42],
+    cells:[{cell:40,blocked:false,neighbors:[41]},
+      {cell:41,blocked:false,neighbors:[40,42]},
+      {cell:42,blocked:false,neighbors:[41]}],
+    threats:[{id:'thornback-two-steps',cell:42,lanternParried:false}]})),true,
+    'a current disclosed TWO-LINK open physical guardian remains truly dangerous');
   assert.equal(warning(state({threats:[]})),false,'AI still evading cannot invent a Warden');
   assert.equal(warning(state({threats:[{id:'thornback-1',cell:41,lanternParried:true}]})),false,
     'a parried Warden is not an active attacker');

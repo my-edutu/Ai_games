@@ -3,7 +3,7 @@
   "updatedAt": "2026-11-17T20:17:20.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass464 source candidate: correctly separate real currently visible un-parried guardian danger from stale public evasion intent when an actual closed→open key gate is physically lifting. A truly simultaneous gate+warden still communicates both with compact urgent HUD and source event caption. Pass463 rollback-HEAD 8/8 native CI, 40/40 original screenshot SHA and 3/3 real gate hashes independently verified. New candidate exact-HEAD screenshots/tests pending; Nintendo bar NOT MET."
+    "summary": "Pass464b SOURCE CANDIDATE: public immediate guardian warning now requires true published, one/two-link reciprocal unlocked physical line of approach, not just an AI evasion intent or visible but sealed/diagonal/disconnected threat. Real gate lift remains communicated, and actual urgent Warden remains in primary HUD. Verified baseline 8/8 WebGL, 40/40 original PNG SHA and 3/3 real gate hashes; new exact-HEAD CI and art review PENDING. Nintendo bar UNMET."
   },
   "captures": [
     {
@@ -296,6 +296,7 @@
     }
   ],
   "changes": [
+    "Pass464b correct same-run source witness to existing publicGuardianOpenSightline (one/two actual public reciprocal unlocked cardinal cells), preserving genuine danger while removing stale or wall-separated false immediate warnings; regression tests for sealed, disconnected, diagonal and true two-link Warden. Exact-HEAD visual gates pending.",
     "Pass464 gameplay-facing HUD contract: only a current genuinely disclosed non-parried guardian may upgrade published evading intent to WARDEN NEARBY; a genuinely witnessed gate lift is always captioned, including during true live danger. No AI/generator/world change, no fake all-clear; exact-HEAD WebGL acceptance pending.",
     "Pass463 gameplay/UX corrective rollback: reject the candidate pressure→guardian hazard relocation after its real source-bound gate opening has contradictory mission display; restore exact verified pre-Pass462 source generator, drop ONLY companion 24-seed test. Fresh complete WebGL and independent visual review pending.",
     "Pass462 source candidate: tie one existing REAL optional pressure trap to naturally generated guardian watchpost within 0–2 truly walkable route steps without adding any passage, threat, fake scene event or private information. Exact-HEAD WebGL source/actual gameplay outcome PENDING.",
@@ -560,7 +561,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
-    "Pass464 evaluate exact-HEAD source tests, 8/8 native WebGL and physical gate mid-lift, 320/390/844/1280 untouched WebGL hash sidecars, unchanged strict six-reset budget <100; if visual or source regression, safely revert. Then design a much stronger full-body guardian/pressure/key/gate stage; official Nintendo bar still unmet.",
+    "Pass464b: latest exact-HEAD source tests + 8/8 native WebGL, gate-mid-lift truthful HUD, untouched 320/390/844/1280 PNG SHA sidecars, three original gate hashes and unchanged <100 geometry budget. Reject if a genuine active Warden is hidden. Nintendo 3D bar still unmet.",
     "Pass463 verify NEW exact-rollback-HEAD source-bound WebGL 8/8, gate mid-lift PASSAGE OPEN, 40/40 PNG SHA + three transition hashes, all four viewports, strict six-reset <100. Then tackle genuinely staged, playable pressure/key/guardian/gate while preserving public danger and visibility.",
     "Pass462 gate: verify 24 seeded real route/pressure/guardian cases, 8/8 native browser, 320/390/844/1280 unaltered WebGL SHA frames and real hazard→guardian→key→gate, strict six-run <100 and ±0.95 actors; artistic rejection if tiny/occluded or unplayed.",
     "Pass460 next hard gate: run exact-HEAD native WebGL and 8 original browser tests; check 320,390,844,1280 full-frame SHA sidecars and wall100 first-hit; compare same-seed guardian brace/recoil directly with Pass459 artifact 14343648781 and Nintendo official gameplay. If visual change is weak or hides actor/pressure/key/gate action, rollback code safely, do not claim win.",
@@ -647,7 +648,7 @@
       "reviewer": "Direct original exact-HEAD WebGL auditor; detached independent artistic critic unavailable",
       "verdict": "SOURCE CANDIDATE only, new-HEAD native rendering/acceptance pending; Nintendo bar not passed",
       "date": "2026-11-17",
-      "summary": "40/40 baseline screenshot hashes and 3/3 gate frame hashes checked. Public visible un-parried threat drives true urgent warning, not stale AI evasion; actual gate event caption coexists with real danger. Strict tests/screenshots pending."
+      "summary": "Original baseline 40/40 source hashes and gate 3/3 checked. Updated public active Warden cue now also uses existing reciprocal open straight one/two-cell physical sightline, rejecting sealed/diagonal/invisible/countered threats. New exact-HEAD CI pending."
     },
     {
       "title": "Pass463 native gate-open/guardian-pressure regression: source trial rejected",

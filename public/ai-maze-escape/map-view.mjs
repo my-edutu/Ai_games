@@ -1,5 +1,8 @@
+import {publicGuardianOpenSightline} from './public-lantern-encounter.mjs';
+
 /**
- * Whether a still-active Thornback is actually disclosed to the viewer now.
+ * Whether a still-active Thornback is actually reachable through a verified
+ * current PUBLIC reciprocal open corridor (one or two cardinal steps).
  * AI intent may still say "evading-threat" after a previous sighting, even
  * during a genuinely witnessed CLOSED→OPEN gate lift. That strategy is not
  * evidence that a visible Warden is still in immediate view. Never infer a
@@ -16,7 +19,8 @@ export function publicLiveGuardianWarning(snapshot) {
     typeof threat?.id === 'string' && threat.id.length > 0
     && Number.isSafeInteger(threat.cell)
     && snapshot.visibleCells.includes(threat.cell)
-    && threat.lanternParried !== true);
+    && threat.lanternParried !== true
+    && publicGuardianOpenSightline(snapshot, threat.cell) > 0);
 }
 
 /**
