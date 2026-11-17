@@ -1641,7 +1641,7 @@ export function createTowerWorld(){
       firstFrameVoidMaterials:distinctSuccessor,
       coreDeferred:false,coreDrawn:true,runToken:snapshot.runToken};
   }
-  function buildTower(height,openClockworkPylons=false){
+  function buildTower(height,openClockworkPylons=false,includeBiomeDetails=true){
     const root=floorGroup;
     // Separate load-bearing vessels leave the central climbing corridor quiet;
     // each biome's machinery belongs to the surrounding architecture.
@@ -1851,7 +1851,7 @@ export function createTowerWorld(){
     if(theme==='ruins')buildRuins(height);
     if(theme==='storm')buildStorm(height);
     if(theme==='clockwork')buildClockwork(height);
-    if(theme==='void')buildVoid(height);
+    if(includeBiomeDetails && theme==='void')buildVoid(height);
   }
   function buildFoundry(height){
     // A complete pressure furnace sits on the right shoulder. Its smaller,
@@ -3694,6 +3694,7 @@ export function createTowerWorld(){
       key, runToken:snapshot.runToken, floor:snapshot.floor,
       height, sourceTick:snapshot.tick, state:'awaiting-actual-first-render',
       structureDeferred:deferStructuralShell, structureBuildMs:null,
+      structureLoadBearingBuildMs:null,structureDetailBuildMs:null,
       structureBuiltAtSubmitted:null, vistaBuiltAtSubmitted:null,
       firstRenderSubmitted:false, submittedFrames:0,
       // Successfully returned frames in which the actual incoming original
@@ -3772,8 +3773,8 @@ export function createTowerWorld(){
        job.structuralFade>.015)
       job.structuralVisibleReturns=Math.min(30,job.structuralVisibleReturns+1);
     const advancing=['awaiting-actual-first-render',
-      'awaiting-structural-release','awaiting-structural-submission',
-      'awaiting-vista-submission'].includes(job.state);
+      'awaiting-void-biome-build','awaiting-structural-release',
+      'awaiting-structural-submission','awaiting-vista-submission'].includes(job.state);
     if(advancing){
       // Only a returned actual F9 frame advances the staged GPU upload queue.
       job.submittedFrames=Math.min(60,job.submittedFrames+1);
@@ -4039,25 +4040,51 @@ export function createTowerWorld(){
         // in that first frame; upload its NON-INTERACTIVE shaft/citadel stage
         // only after it really returned. Reuse all ORIGINAL geometry, never
         // a proxy sky, collider, new floor, actor, fake threshold or cut.
+        // Stage A: keep the real walkable roof, hazards and source-returned
+        // original gate in view while assembling only the existing load-bearing
+        // successor shell. Do not build its costly Void biome crystal/detail
+        // layer before the next genuine WebGL return.
         const began=performance.now(), before=floorGroup.children.length;
         const rotorCount=rotors.length, floaterCount=floaters.length;
-        buildTower(arrival.height,false);
+        buildTower(arrival.height,false,false);
         const structuralRoot=new THREE.Group();
         structuralRoot.name='deferred-original-floor-nine-architecture';
-        // Whole-subtree visibility lets Three skip the real successor
-        // architecture until its source-gated fade is actually visible.
-        // Merely setting each material.opacity=0 never saved GPU draws.
         structuralRoot.visible=false;
         arrival.structuralRoot=structuralRoot;
         const added=floorGroup.children.slice(before);
         for(const child of added)structuralRoot.add(child);
         floorGroup.add(structuralRoot);
+        arrival.structuralRotorStart=rotorCount;
+        arrival.structuralFloaterStart=floaterCount;
+        arrival.structureLoadBearingBuildMs=+(performance.now()-began).toFixed(2);
+        arrival.structureBuiltAtSubmitted=arrival.submittedFrames;
+        arrival.state='awaiting-void-biome-build';
+      } else appendDeferredVista(arrival);
+    }
+    // Stage B only occurs after ANOTHER actual return. Construct the original
+    // Void biome features into the same hidden shaft, then apply the existing
+    // batched mesh/material ownership as a single releaseable structure.
+    // Two CPU build bursts now have a real playable F9 submission between
+    // them; neither source ticks nor RAF polls can skip the second receipt.
+    if(arrival && arrival.key===key &&
+       arrival.state==='awaiting-void-biome-build' && !options.stale &&
+       arrival.structuralRoot?.isGroup &&
+       snapshot.lifecycle==='running' && snapshot.floor===9 &&
+       snapshot.runToken===arrival.runToken &&
+       Number.isSafeInteger(arrival.structureBuiltAtSubmitted) &&
+       arrival.submittedFrames>arrival.structureBuiltAtSubmitted){
+        const detailBuildStartedAt=performance.now();
+        const structuralRoot=arrival.structuralRoot;
+        const nextRootsFrom=floorGroup.children.length;
+        buildVoid(arrival.height);
+        const authenticVoidDetails=floorGroup.children.slice(nextRootsFrom);
+        for(const child of authenticVoidDetails)structuralRoot.add(child);
         // The authentic Void crystal halo and orbiting crystals must keep
         // moving at source tick, not become static rigid batches. The new
         // structure follows the SAME batching policy as the original floor:
         // animated roots are independent, everything else stays bounded.
-        const deferredShellRotors=rotors.slice(rotorCount);
-        const deferredShellFloaters=floaters.slice(floaterCount);
+        const deferredShellRotors=rotors.slice(arrival.structuralRotorStart);
+        const deferredShellFloaters=floaters.slice(arrival.structuralFloaterStart);
         const animatedStructuralRoots=new Set([
           ...deferredShellRotors.map(rotor=>rotor.o),
           ...deferredShellFloaters.map(floater=>floater.o)]);
@@ -4112,13 +4139,13 @@ export function createTowerWorld(){
         for(const geometry of floorGeometries)if(!used.has(geometry)){
           geometry.dispose();floorGeometries.delete(geometry);
         }
-        arrival.structureBuildMs=+(performance.now()-began).toFixed(2);
+        arrival.structureDetailBuildMs=+(performance.now()-detailBuildStartedAt).toFixed(2);
+        arrival.structureBuildMs=+(arrival.structureLoadBearingBuildMs+arrival.structureDetailBuildMs).toFixed(2);
         arrival.structureBuiltAtSubmitted=arrival.submittedFrames;
         // Prebuilt real Void geometry submits at zero opacity WHILE the
         // original bronze doorway remains in the same actual world. The
         // source-owned gateway, not this CPU construction, authorizes reveal.
         arrival.state='awaiting-structural-release';
-      } else appendDeferredVista(arrival);
     }
     if (arrival && arrival.key===key &&
         arrival.state==='awaiting-structural-release' && !options.stale &&
@@ -5050,6 +5077,8 @@ export function createTowerWorld(){
       actualFirstFrameVoidBearingIndex:deferredDistantArrival.actualFirstFrameVoidBearingIndex ?? null,
       deferredPhysicalButtressIndex:deferredDistantArrival.deferredPhysicalButtressIndex ?? null,
       structureBuildMs:deferredDistantArrival.structureBuildMs,
+      structureLoadBearingBuildMs:deferredDistantArrival.structureLoadBearingBuildMs,
+      structureDetailBuildMs:deferredDistantArrival.structureDetailBuildMs,
       structuralFade:+deferredDistantArrival.structuralFade.toFixed(3),
       isolatedStructuralMaterials:deferredDistantArrival.structuralMaterials.length,
       // Mesh visibility, not merely opacity: falsifiable zero-alpha GPU culling.
