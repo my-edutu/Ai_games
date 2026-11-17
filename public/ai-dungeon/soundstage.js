@@ -195,18 +195,18 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
  function recordD04CombatPcmWorklet(seconds,tapBus,sampleRate){
   const maxFrames=Math.ceil(seconds*sampleRate);
   return new Promise(resolve=>{
-   let recorder=null,silence=null,watchdog=null,settled=false;
+   let recorder=null,watchdog=null,settled=false;
    const finish=(reason='complete',payload=null)=>{
     if(settled)return;
     settled=true;
     if(watchdog!==null)clearTimeout(watchdog);
     if(recorder){
      recorder.port.onmessage=null;
+     recorder.onprocessorerror=null;
      try{recorder.port.postMessage({type:'stop'})}catch{}
      try{tapBus.disconnect(recorder)}catch{}
      try{recorder.disconnect()}catch{}
     }
-    try{silence?.disconnect()}catch{}
     if(pcmSession?.finish===finish)pcmSession=null;
     if(reason!=='complete'||!payload){
      resolve({status:'UNAVAILABLE',reason,frames:0,sampleRate});return;
@@ -262,12 +262,16 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
     recorder=new globalThis.AudioWorkletNode(ctx,'d04-original-foley-pcm',{
      numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[1],
      processorOptions:{frames:maxFrames}});
-    silence=ctx.createGain();silence.gain.value=0;
+    // This diagnostic processor fills EVERY output sample with zero.
+    // Do not place an additional zero-gain sink after it: render engines
+    // may prune silent output branches and starve its input PCM recorder.
+    // Direct destination connection remains silent by processor contract.
+    recorder.onprocessorerror=()=>finish('Audio-thread PCM processor failure');
     recorder.port.onmessage=e=>{
      if(e.data?.type==='complete')finish('complete',e.data);
      else if(e.data?.type==='unavailable')finish(String(e.data.reason).slice(0,150));
     };
-    tapBus.connect(recorder);recorder.connect(silence);silence.connect(ctx.destination);
+    tapBus.connect(recorder);recorder.connect(ctx.destination);
    }).catch(error=>finish('Audio-thread PCM unavailable: '+String(error).slice(0,160)));
   });
  }

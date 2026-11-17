@@ -118,3 +118,69 @@ test('D04 real browser requests original FX-only PCM only in the gated spectator
  assert.ok(app.includes("recordOriginalPcm(seconds,physicalFeedback?{source:'d04-combat-fx'}:undefined)"),
   'legacy default records its original mix; only D04 taps the existing combat FX stem');
 });
+
+
+test('D04 audio-thread PCM stays in the live silent output graph, delivers one bounded stem and retires processor errors',async()=>{
+ const {createDungeonSoundstage}=await load();
+ const {ctx,gains}=fakeContext(),nodes=[],requestedModules=[];
+ const oldNode=globalThis.AudioWorkletNode;
+ ctx.audioWorklet={addModule:async url=>{requestedModules.push(url)}};
+ globalThis.AudioWorkletNode=class {
+  constructor(context,name,options){
+   assert.equal(context,ctx);
+   assert.equal(name,'d04-original-foley-pcm');
+   assert.equal(options.numberOfInputs,1);
+   assert.equal(options.numberOfOutputs,1);
+   assert.deepEqual(options.outputChannelCount,[1]);
+   assert.equal(options.processorOptions.frames,24000);
+   this.links=[];this.onprocessorerror=null;
+   this.port={onmessage:null,messages:[],postMessage(message){this.messages.push(message)}};
+   nodes.push(this);
+  }
+  connect(target){this.links.push(target)}
+  disconnect(){this.links.length=0}
+ };
+ let stage=null;
+ try{
+  stage=createDungeonSoundstage(ctx,{suppressCombat:true});
+  assert.equal(stage.enable(),true);
+  const promise=stage.recordOriginalPcm(.5,{source:'d04-combat-fx'});
+  for(let i=0;i<12&&!nodes.length;i++)await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(nodes.length,1,'live D04 processor attached after original module load');
+  assert.deepEqual(requestedModules,['/dungeon/d04-combat-pcm-worklet.js']);
+  const node=nodes[0];
+  assert.ok(gains[3].links.includes(node),'worklet still samples the physical foley bus');
+  assert.ok(gains[3].links.includes(gains[2]),'ordinary original foley remains audible exactly once');
+  assert.ok(node.links.includes(ctx.destination),
+   'worklet outputs verified silence directly to destination, not a prunable zero-gain sink');
+  assert.equal(gains.length,6,'no additional gain node or audible voice for the PCM diagnostic');
+  assert.equal(typeof node.onprocessorerror,'function','processor failures must resolve promptly');
+  const samples=new Int16Array(24000).fill(5000);
+  node.port.onmessage({data:{type:'complete',buffer:samples.buffer,
+   frames:24000,firstFrame:48000,blocks:188,invalidClocks:0,discontinuities:0}});
+  const pcm=await promise;
+  assert.equal(pcm.status,'RECORDED');
+  assert.equal(pcm.captureBus,'d04-combat-fx-pre-master');
+  assert.equal(pcm.captureTopology,'d04-original-foley-audio-thread-v1');
+  assert.equal(pcm.pcmClock.status,'CONTIGUOUS_CONTEXT_TIME_ONLY');
+  assert.equal(pcm.pcmClock.firstSampleContextSeconds,1);
+  assert.equal(pcm.sampleSynchronized,false,'original PCM is not decoded A/V contact');
+  assert.deepEqual(node.port.messages,[{type:'stop'}]);
+  assert.equal(node.links.length,0,'successful stem retires its output connection');
+  assert.equal(node.onprocessorerror,null);
+  assert.ok(gains[3].links.includes(gains[2]),'ordinary D04 foley remains connected');
+  const failedPromise=stage.recordOriginalPcm(.5,{source:'d04-combat-fx'});
+  for(let i=0;i<12&&nodes.length<2;i++)await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(nodes.length,2,'a clean subsequent capture is allowed');
+  nodes[1].onprocessorerror();
+  const failed=await failedPromise;
+  assert.equal(failed.status,'UNAVAILABLE');
+  assert.equal(failed.reason,'Audio-thread PCM processor failure');
+  assert.equal(nodes[1].links.length,0,'error path releases the recording graph');
+  assert.deepEqual(nodes[1].port.messages,[{type:'stop'}]);
+ }finally{
+  stage?.dispose();
+  if(oldNode===undefined)delete globalThis.AudioWorkletNode;
+  else globalThis.AudioWorkletNode=oldNode;
+ }
+});
