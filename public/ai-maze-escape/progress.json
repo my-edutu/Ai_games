@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-17T16:30:00Z",
+  "updatedAt": "2026-11-17T17:18:52Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass459: rejected Pass458 source d9e95be: exact-HEAD native WebGL 44113702132 passed 7/8 browser checks but the authentic 390 guardian brace lost the strict publicly witnessed cell100 dark retaining-wall first-hit (undefined). 24/24 original PNGs with SHA sidecars checked; 1 brace has no sidecar and is uncounted. Previous verified baseline c8826363 native CI succeeded (40/40 PNG SHA sidecars). Scoped original generator rollback and candidate-specific test removal; fresh rollback-HEAD CI/render pending. Official Nintendo gameplay/artistic bar NOT MET."
+    "summary": "Pass461: Pass460 native exact-HEAD workflow 44127089541 succeeded with original 40/40 PNG SHA sidecars and 3/3 true gate-transition hashes verified. Genuine 320/390 earned Pip–Thornback counter A/B versus Pass459 showed the new neutral spectator floor did not resolve foreground occlusion or deliver a substantive playable artistic scene. Rejected and restored only production world.js to source-parent baseline, preserving unrelated work. Fresh rollback-HEAD CI/screenshots pending; official Nintendo benchmark NOT MET."
   },
   "captures": [
+    {
+      "title": "Pass460 exact-HEAD original 4-viewport WebGL, 40/40 native PNG SHA + genuine gate chronology 3/3; artistically rejected against verified Pass459 baseline",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44127089541/artifacts/14347483915"
+    },
     {
       "title": "Pass458 rejected exact-HEAD WebGL partial original capture: 24/24 SHA sidecars, 7/8 browser failure at real cell100 390px foreground ray",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44113702132/artifacts/14341144656"
