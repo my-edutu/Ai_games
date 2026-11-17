@@ -13236,8 +13236,8 @@ const EXCHANGE_CANOPY=Object.freeze({eave:3.18,ridge:3.79,postTop:3.23,
  // side-pitched, post-and-knee-braced roofs now shelter the outer counters;
  // the real common weighing table is OPEN TO THE SKY, not camera-hidden.
  // One coordinate contract binds clay, structural timber and collision.
- supportX:1.97,supportZ:.99,roofX:2.36,roofZ:1.38,
- openSkyHalfWidth:1.22,tableWidth:2.34,tableDepth:.78});
+ supportX:2.72,supportZ:.65,roofX:3.06,roofZ:1.26,
+ openSkyHalfWidth:1.51,tableWidth:2.34,tableDepth:.78});
 function renderOriginalMarketExchangeJoinery(x,y,z){
  const before=data.length;
  const oak=rgb(0x6f523f),weathered=rgb(0x9e7c57),stone=rgb(0xaaa08d);
@@ -13398,6 +13398,10 @@ function market(x,z){
     !centralExchangeStats.originalPostsRetained)
   throw Error('W391 open-human-clearance exchange canopy/post safety');
 }
+// W412: the original civic timber exchange now has a genuinely roof-supported
+// 5.44m post span and 3.02m open-sky public buyer aisle. The same FOUR load-
+// bearing posts and two clay-covered roof wings remain; no worker, goods,
+// delivery target, money, or terrain cell is relocated for recording.
 // W410: the original four stone-footed posts, both physically pitched
 // side roofs and true weighing counter remain present. Only the original
 // pavilion's architecture is rebuilt to open the public work aisle to sky.
@@ -13457,7 +13461,13 @@ const MARKET_ENTRY_ARCH=Object.freeze({
  x:-1.35,z:13.25,postOffset:2.82,postWidth:.18,
  postHeight:3.62,beamHeight:3.48,beamWidth:5.84
 });
+// W412 Phase-1 original render/physical camera spine: this wholly STATIC
+// timber plan is shared by up to hundreds of genuine camera candidates. Include
+// the four central pavilion posts which were VISIBLE but MISSING from market
+// post-specific scoring; never create or remove actual rendered geometry.
+let marketUprightMemo=null,marketUprightBuilds=0,marketUprightHits=0;
 function physicalMarketUprights(){
+ if(marketUprightMemo){marketUprightHits++;return marketUprightMemo;}
  const posts=[];
  for(const [index,stall] of MARKET_STALLS.entries())
   for(const sx of [-1,1])for(const sz of [-1,1]){
@@ -13470,7 +13480,23 @@ function physicalMarketUprights(){
   z:MARKET_ENTRY_ARCH.z,width:MARKET_ENTRY_ARCH.postWidth,
   height:MARKET_ENTRY_ARCH.postHeight,kind:'gateway'
  });
- return posts;
+ // These are exactly the existing four columns rendered by market(0,5).
+ // Their complete physical AABBs stay in physicalVillageExchangeVolumes().
+ for(const sx of [-1,1])for(const sz of [-1,1])posts.push({
+  x:sx*EXCHANGE_CANOPY.supportX,z:5+sz*EXCHANGE_CANOPY.supportZ,
+  width:.292,height:EXCHANGE_CANOPY.postTop,kind:'exchange'
+ });
+ marketUprightBuilds++;
+ marketUprightMemo=Object.freeze(posts.map(p=>Object.freeze(p)));
+ return marketUprightMemo;
+}
+function getPhysicalMarketUprightResidencyAudit(){
+ return {source:'w412-entire-original-market-real-post-witness',
+  builds:marketUprightBuilds,hits:marketUprightHits,
+  modeledPosts:physicalMarketUprights().length,
+  exchangePosts:4,marketStallPosts:16,roadsidePosts:2,
+  immutable:true,actorsMoved:false,inventoryChanged:false,
+  renderedPostsAdded:0,hardwareFps:'NOT MEASURED'};
 }
 // W342: the historic freight gateway has TWO real OUTBOARD timber marker
 // assemblies, not the 5.84m crossing lintel that older camera code invented.
@@ -13510,6 +13536,8 @@ function getMarketGatewayAudit(){
   postHeight:MARKET_ENTRY_ARCH.postHeight,
   openClearWidth:MARKET_ENTRY_ARCH.postOffset*2-MARKET_ENTRY_ARCH.postWidth,
   structuralPosts:physicalMarketUprights().length,
+  originalExchangePostsSurveyed:4,
+  marketUprightBuilds,marketUprightHits,
   originalOutboardCameraTimbers:physicalMarketGatewayVolumes().length,
   phantomCrossAisleLintels:0,
   freightCrossBeams:marketQuarterStats.freightCrossBeams||0,
@@ -25153,6 +25181,9 @@ function followCameraRoofs(){
  // Film them as real solids; this adds NO meshes, draw calls, navigation
  // walls, actors, market transactions or hidden objects.
  for(const post of physicalMarketUprights()){
+  // The four true central columns are already included as full-height
+  // volumes in physicalVillageExchangeVolumes(); don't duplicate rays.
+  if(post.kind==='exchange')continue;
   const bottom=terrain(post.x,post.z),half=post.width*.5+.025;
   roofs.push({x:post.x,z:post.z,rx:half,rz:half,
    bottom,visualBottom:bottom,top:bottom+post.height,
