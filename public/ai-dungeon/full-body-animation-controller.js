@@ -5007,10 +5007,24 @@ export function planImportedWalkingMixerFrameDelta({mode='idle',walkingClip=fals
  sourceTime=NaN,effectiveSpeed=NaN,groundedTravel=NaN,groundedMoving=false,
  visible=true,reducedMotion=false,teleport=false}={}){
  const ordinary=finite(frameDelta)?clamp(frameDelta,0,.05):0;
+ // Original WebGL #44174412381: full-skeleton Walking_A was sampled after
+ // 4.033s (390px) / 4.683s (desktop); a documented legal 440mm root step
+ // can outpace a 50ms old Idle-to-walk blend on these software-rendered frames.
+ // Extend ONLY the mixer FADE clock to 90ms for that physically measured
+ // slow, genuinely travelling envelope. planImportedWalkingBlendRate keeps
+ // the licensed 41-joint walk itself paced by independently witnessed metres.
+ // Never invent movement, foot contact, damage, a target or an animation.
+ const realVerySparseWalkingTravel=frameInterval>=3.5&&
+  frameInterval<=4.8&&groundedMoving===true&&
+  groundedTravel>=.42&&groundedTravel<=.54&&
+  sourceStep>=.20&&sourceStep<=.28&&
+  groundedTravel/frameInterval>=.09&&
+  groundedTravel/frameInterval<=.20;
  if(mode!=='move'||walkingClip!==true||visible!==true||reducedMotion||teleport||
   ![frameDelta,frameInterval,sourceStep,sourceDuration,sourceTime,effectiveSpeed,
     groundedTravel].every(finite)||frameDelta<=0||frameDelta>.05||
-  frameInterval<=0||frameInterval>2||sourceStep<0||sourceStep>.28||
+  frameInterval<=0||(frameInterval>2&&!realVerySparseWalkingTravel)||
+  sourceStep<0||sourceStep>.28||
   sourceDuration<=.002||sourceTime<0||effectiveSpeed<=.001||
   groundedTravel<0||groundedTravel>.54||
   (groundedMoving!==true&&!(groundedMoving===false&&
