@@ -1300,6 +1300,15 @@ export function createTowerWorld(){
       batchRigid(stagedVoidArchitecture.root);
       boundaries.add(stagedVoidArchitecture.root);
     }
+    // Preserve the original three source-owned transition bearing batches
+    // under their SAME physical ray-query group. Otherwise the final global
+    // rigid merge hoists the triangle meshes into floorGroup and leaves this
+    // group's actual camera-visible geometry EMPTY. Still merge rigid parts
+    // inside the owner (three materials, no extra scene or new collision).
+    if(sourceEarnedBearingSightlineRoot?.parent){
+      batchRigid(sourceEarnedBearingSightlineRoot);
+      boundaries.add(sourceEarnedBearingSightlineRoot);
+    }
     // Animated guardian gates are floor-owned siblings of the traversable
     // cap, not part of its exact collision-aligned top geometry. Preserve
     // their skinned/hinged scene nodes across the static floor merge.
@@ -3498,6 +3507,7 @@ export function createTowerWorld(){
     const sections=plannedSourceEarnedSuspendedBearingSections(plan.nodes);
     if(!sections) {
       supportRoot.removeFromParent();
+      sourceEarnedBearingSightlineRoot=null;
       return false;
     }
     const stageParts=sections;
