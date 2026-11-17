@@ -72,28 +72,6 @@ function chooseRoutePressureAlcove(world:MazeWorld,route:number[],offRoute:numbe
   return choices[0]?.trap??null;
 }
 
-// Stage one REAL optional pressure branch shortly before a naturally selected
-// moving guardian, without creating routes, leaking hidden cells or extra traps.
-function guardianPressurePrelude(world:MazeWorld,route:number[],reserved:Set<number>,
- traps:number[],watchpost:{approachIndex:number;spawn:number;retreat:number}):number|null{
- if(!traps.length)return null;
- const routeSet=new Set(route),denied=new Set([...reserved,...traps,watchpost.spawn,watchpost.retreat]);
- for(const back of [1,2,0]){
-  const i=watchpost.approachIndex-back;
-  if(i<1||i>=route.length-1)continue;
-  const court=route[i]!;
-  if(reserved.has(court))continue;
-  // If a genuine reciprocal pressure room is already present, don't move it.
-  if(traps.some(cell=>passageNeighbors(world,court).includes(cell)
-    &&passageNeighbors(world,cell).includes(court)))return null;
-  const choices=passageNeighbors(world,court)
-   .filter(cell=>!routeSet.has(cell)&&!denied.has(cell)
-     &&passageNeighbors(world,cell).includes(court)).sort((a,b)=>a-b);
-  if(choices.length)return choices[0]!;
- }
- return null;
-}
-
 export function populateMazeContent(base:MazeWorld,config:MazeConfig,rng:NamedRng):MazeWorld{
   const world=structuredClone(base),route=solveMaze(world,{start:world.start,goal:world.exit});if(!route)throw new Error('cannot populate unsolved maze');
   const dependencyCount=Math.min(config.keyCount,Math.max(0,Math.floor((route.length-3)/4)));
@@ -123,15 +101,6 @@ export function populateMazeContent(base:MazeWorld,config:MazeConfig,rng:NamedRn
   if(threatCount){
     const watchpost=chooseRouteWatchpost(world,route,threatReserved,minimumDistance,rng);
     if(watchpost){
-      // Keep Thornback's seeded placement/AI intact. Move one already-real
-      // optional trap only to a reciprocal off-route prelude; the rendered
-      // pressure court and guardian can then be encountered as one place.
-      const linked=guardianPressurePrelude(world,route,reserved,world.traps,watchpost);
-      const original=pressureAlcove??world.traps[0];
-      if(linked!==null&&original!==undefined){
-        world.traps=world.traps.map(cell=>cell===original?linked:cell).sort((a,b)=>a-b);
-        threatReserved.delete(original);threatReserved.add(linked);
-      }
       world.threats.push({id:'threat-1',cell:watchpost.spawn,route:[watchpost.spawn,watchpost.retreat],routeIndex:0,direction:1,lastSeenTick:null,active:true});
       threatReserved.add(watchpost.spawn);threatReserved.add(watchpost.retreat);
     }
