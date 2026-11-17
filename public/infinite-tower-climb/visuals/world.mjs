@@ -3706,7 +3706,7 @@ export function createTowerWorld(){
       proof:earnedSourceUploadWitness?'recorded-source-gateway':'adjacent-browser-guardian',
       material:null, fade:0, vistaMaterial:null, vistaFade:0,
       structuralMaterials:[],structuralShadows:[],structuralFade:1,
-      structuralRoot:null,vistaRoot:null,farRoot:null,
+      structuralRoot:null,detailRoot:null,detailMaterials:[],detailShadows:[],detailFade:0,detailBuiltAtSubmitted:null,vistaRoot:null,farRoot:null,
       initialRebuildMs:+(performance.now()-rebuildStartedAt).toFixed(2),
       actualFirstFrameVoidBearings:stagedVoidArchitecture?.coreDrawn===true,
       entireIncomingVoidCoreDeferred:stagedVoidArchitecture?.coreDeferred===true,
@@ -3714,6 +3714,34 @@ export function createTowerWorld(){
       deferredPhysicalButtressIndex:stagedVoidArchitecture?.deferredPylonIndex??null,
       vistaBuildMs:null, deferredBuildMs:null,
     };
+  }
+  // Both original, noninteractive Void layers have independent GPU payloads.
+  // The real route, hazards, gateway and guardian keep their own materials.
+  function isolateIncomingVoidLayer(root,label){
+    const isolated=new Map(),shadows=[];
+    root.traverse(object=>{
+      if(!object.isMesh || !object.material)return;
+      shadows.push({mesh:object,castShadow:object.castShadow});
+      object.castShadow=false;
+      function isolate(original){
+        if(!isolated.has(original)){
+          const material=original.clone();
+          material.name='SourceEarnedIncomingFloorNineShaft';
+          material.transparent=true;material.depthWrite=false;
+          material.opacity=0;material.needsUpdate=true;
+          floorMaterials.add(material);
+          isolated.set(original,{material,sourceColor:original.color,
+            originalOpacity:original.opacity,
+            originalTransparent:original.transparent,
+            originalDepthWrite:original.depthWrite});
+        }
+        return isolated.get(original).material;
+      }
+      object.material=Array.isArray(object.material)
+        ?object.material.map(isolate):isolate(object.material);
+    });
+    root.userData.voidLayer=label;
+    return {materials:[...isolated.values()],shadows};
   }
   function noteFrameSubmitted(snapshot, options={}, renderedDt=0) {
     // Exactly ONE verified renderer.render return can advance the visible
@@ -3826,6 +3854,26 @@ export function createTowerWorld(){
           material.needsUpdate=true;
         }
         for(const {mesh,castShadow} of job.structuralShadows)
+          mesh.castShadow=castShadow;
+      }
+    }
+    // Real biome detail cannot outrun its load path, consume unreturned
+    // footage frames, or suddenly replace the old bronze gateway.
+    if(job.detailMaterials?.length && !options.stale &&
+       Number.isSafeInteger(job.detailBuiltAtSubmitted) &&
+       job.submittedFrames>job.detailBuiltAtSubmitted &&
+       job.structuralFade>.015 && job.detailFade<1){
+      job.detailFade=Math.min(job.structuralFade,job.detailFade+shown/.65);
+      for(const {material,originalOpacity} of job.detailMaterials)
+        material.opacity=originalOpacity*job.detailFade;
+      if(job.detailRoot)job.detailRoot.visible=job.detailFade>.015;
+      if(job.detailFade>=1){
+        for(const {material,originalTransparent,originalDepthWrite} of job.detailMaterials){
+          material.transparent=originalTransparent;
+          material.depthWrite=originalDepthWrite;
+          material.needsUpdate=true;
+        }
+        for(const {mesh,castShadow} of job.detailShadows)
           mesh.castShadow=castShadow;
       }
     }
@@ -3989,9 +4037,13 @@ export function createTowerWorld(){
       originalClockworkArchitecturalPalette.update(sourceAlignedMaterialProof,opticalTail);
     // The deferred F9 shaft copies these EXACT architecture material colors,
     // never a separately aged violet scene. No new shader, draw or collider.
-    if(deferredDistantArrival?.structuralMaterials?.length) {
-      for(const {material,sourceColor} of deferredDistantArrival.structuralMaterials)
-        if(material.color && sourceColor)material.color.copy(sourceColor);
+    if(deferredDistantArrival) {
+      // The same earned bronze-to-Void architectural tint owns BOTH layers.
+      for(const layer of [deferredDistantArrival.structuralMaterials,
+        deferredDistantArrival.detailMaterials]) {
+        for(const {material,sourceColor} of layer||[])
+          if(material.color && sourceColor)material.color.copy(sourceColor);
+      }
     }
     if(sourceEarnedBearingPalette) {
       for(const {material,bronze,voidColor} of sourceEarnedBearingPalette)
@@ -4056,9 +4108,35 @@ export function createTowerWorld(){
         floorGroup.add(structuralRoot);
         arrival.structuralRotorStart=rotorCount;
         arrival.structuralFloaterStart=floaterCount;
+        // The ORIGINAL load-bearing shaft is now independently batched,
+        // GPU-prepared and displayable after a genuine returned F9 gateway
+        // frame, BEFORE cold crystal/detail construction. No proxy floor.
+        structuralRoot.traverse(object=>{
+          if(!object.isMesh)return;
+          object.castShadow=!object.userData.ambientDetail &&
+            (!!object.userData.structural || object.material===materials.stone ||
+              object.material===materials.dark);
+          object.receiveShadow=!object.userData.ambientDetail;
+        });
+        batchRigid(structuralRoot);
+        const shell=isolateIncomingVoidLayer(structuralRoot,'load-bearing-shell');
+        arrival.structuralMaterials=shell.materials;
+        arrival.structuralShadows=shell.shadows;
+        arrival.structuralFade=0;
         arrival.structureLoadBearingBuildMs=+(performance.now()-began).toFixed(2);
         arrival.structureBuiltAtSubmitted=arrival.submittedFrames;
         arrival.state='awaiting-void-biome-build';
+        // Retain every real same-run HP0/crossing, physical clearance and GPU
+        // source proof. An eligible F9 source may now paint the REAL shaft
+        // silhouette at restrained opacity before the next CPU build.
+        const earlyShell=observedSourceEarnedEarlyVoidShaftAperture(
+          snapshot,retainedEarnedCap,arrival);
+        if(earlyShell?.sourceBound===true){
+          arrival.structuralFade=Math.min(.28,earlyShell.alpha);
+          for(const {material,originalOpacity} of arrival.structuralMaterials)
+            material.opacity=originalOpacity*arrival.structuralFade;
+          structuralRoot.visible=arrival.structuralFade>.015;
+        }
       } else appendDeferredVista(arrival);
     }
     // Stage B only occurs after ANOTHER actual return. Construct the original
@@ -4075,76 +4153,45 @@ export function createTowerWorld(){
        arrival.submittedFrames>arrival.structureBuiltAtSubmitted){
         const detailBuildStartedAt=performance.now();
         const structuralRoot=arrival.structuralRoot;
-        const nextRootsFrom=floorGroup.children.length;
+        // The actual shell is already batched, so stage authentic Void
+        // details in an independent GPU owner. Never re-upload the shell
+        // while joining the separately animated original crystals.
+        const from=floorGroup.children.length;
         buildVoid(arrival.height);
-        const authenticVoidDetails=floorGroup.children.slice(nextRootsFrom);
-        for(const child of authenticVoidDetails)structuralRoot.add(child);
-        // The authentic Void crystal halo and orbiting crystals must keep
-        // moving at source tick, not become static rigid batches. The new
-        // structure follows the SAME batching policy as the original floor:
-        // animated roots are independent, everything else stays bounded.
+        const detailRoot=new THREE.Group();
+        detailRoot.name='deferred-authentic-floor-nine-biome-details';
+        detailRoot.visible=false;
+        for(const child of floorGroup.children.slice(from))detailRoot.add(child);
+        structuralRoot.add(detailRoot);
         const deferredShellRotors=rotors.slice(arrival.structuralRotorStart);
         const deferredShellFloaters=floaters.slice(arrival.structuralFloaterStart);
         const animatedStructuralRoots=new Set([
           ...deferredShellRotors.map(rotor=>rotor.o),
           ...deferredShellFloaters.map(floater=>floater.o)]);
-        for(const rotor of deferredShellRotors) batchRigid(rotor.o);
-        structuralRoot.traverse(object=>{
+        for(const rotor of deferredShellRotors)batchRigid(rotor.o);
+        detailRoot.traverse(object=>{
           if(!object.isMesh)return;
           object.castShadow=!object.userData.ambientDetail &&
             (!!object.userData.structural || object.material===materials.stone ||
               object.material===materials.dark);
           object.receiveShadow=!object.userData.ambientDetail;
         });
-        batchRigid(structuralRoot,animatedStructuralRoots);
-        // Cloned per-world structural materials are independent of the
-        // first-frame F9 ground, moving platforms and hazards. A shared
-        // material fade would make the ACTUAL walkable floor disappear.
-        const isolated=new Map(), shadowStates=[];
-        structuralRoot.traverse(object=>{
-          if(!object.isMesh || !object.material)return;
-          shadowStates.push({mesh:object,castShadow:object.castShadow});
-          object.castShadow=false;
-          function isolate(original){
-            if(!isolated.has(original)){
-              const material=original.clone();
-              material.name='SourceEarnedIncomingFloorNineShaft';
-              material.transparent=true;
-              material.depthWrite=false;
-              material.opacity=0;
-              material.needsUpdate=true;
-              floorMaterials.add(material);
-              isolated.set(original,{material,
-                // The isolated shaft has its OWN alpha, but must still follow
-                // the same actual Clockwork->Void architectural source color
-                // as the visible first-painted core. A clone frozen while
-                // the gateway was warm used to stay bronze after a legitimate
-                // later source departure; that turns this into another false
-                // color seam when the deferred shaft finally appears.
-                sourceColor:original.color,
-                originalOpacity:original.opacity,
-                originalTransparent:original.transparent,
-                originalDepthWrite:original.depthWrite});
-            }
-            return isolated.get(original).material;
-          }
-          object.material=Array.isArray(object.material)
-            ?object.material.map(isolate):isolate(object.material);
-        });
-        arrival.structuralMaterials=[...isolated.values()];
-        arrival.structuralShadows=shadowStates;
-        arrival.structuralFade=0;
+        batchRigid(detailRoot,animatedStructuralRoots);
+        const detail=isolateIncomingVoidLayer(detailRoot,'void-biome-detail');
+        arrival.detailRoot=detailRoot;
+        arrival.detailMaterials=detail.materials;
+        arrival.detailShadows=detail.shadows;
+        arrival.detailFade=0;
+        arrival.detailBuiltAtSubmitted=arrival.submittedFrames;
         const used=new Set();
         floorGroup.traverse(object=>{if(object.geometry)used.add(object.geometry);});
         for(const geometry of floorGeometries)if(!used.has(geometry)){
           geometry.dispose();floorGeometries.delete(geometry);
         }
         arrival.structureDetailBuildMs=+(performance.now()-detailBuildStartedAt).toFixed(2);
-        arrival.structureBuildMs=+(arrival.structureLoadBearingBuildMs+arrival.structureDetailBuildMs).toFixed(2);
+        arrival.structureBuildMs=+(arrival.structureLoadBearingBuildMs+
+          arrival.structureDetailBuildMs).toFixed(2);
         arrival.structureBuiltAtSubmitted=arrival.submittedFrames;
-        // Prebuilt real Void geometry submits at zero opacity WHILE the
-        // original bronze doorway remains in the same actual world. The
-        // source-owned gateway, not this CPU construction, authorizes reveal.
         arrival.state='awaiting-structural-release';
     }
     if (arrival && arrival.key===key &&

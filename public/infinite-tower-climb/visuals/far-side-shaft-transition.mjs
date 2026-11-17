@@ -270,8 +270,8 @@ export function observedSourceEarnedEarlyVoidShaftAperture(source, held, job) {
      !job || job.proof!=='recorded-source-gateway' ||
      job.structureDeferred!==true || job.floor!==9 ||
      job.runToken!==source.runToken ||
-     !['awaiting-structural-release','awaiting-structural-submission',
-       'awaiting-vista-submission'].includes(job.state) ||
+     !['awaiting-void-biome-build','awaiting-structural-release',
+       'awaiting-structural-submission','awaiting-vista-submission'].includes(job.state) ||
      ![source.tick,held.firstWorldRenderTick,held.submittedFrames,
        held.oldRoofY,held.thresholdX,held.oldCapX,held.oldCapWidth,
        job.sourceTick,job.submittedFrames,job.structureBuiltAtSubmitted,

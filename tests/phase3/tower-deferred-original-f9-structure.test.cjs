@@ -32,7 +32,8 @@ test('cold source-earned Floor9 starts with authentic grounded roof, then stages
 test('deferred Floor9 shell must retain moving crystal parts rather than merging animated objects into a static GPU batch',()=>{
   assert.match(world,/const animatedStructuralRoots=new Set\(/);
   assert.match(world,/for\(const rotor of deferredShellRotors\)\s*batchRigid\(rotor\.o\)/);
-  assert.match(world,/batchRigid\(structuralRoot,animatedStructuralRoots\)/);
+  assert.match(world,/batchRigid\(structuralRoot\)/);
+  assert.match(world,/batchRigid\(detailRoot,animatedStructuralRoots\)/);
   assert.match(world,/structuralRoot\.name='deferred-original-floor-nine-architecture'/);
   assert.match(world,/deferredDistantArrival\.structureDeferred/);
 });
@@ -48,4 +49,14 @@ test('original shaft uses isolated fading materials and returned-frame clock rat
   assert.match(world,/job\.vistaFade\+shown\/\.55/);
   assert.match(world,/job\.fade\+shown\/\.55/);
   assert.match(world,/job\.structuralShadows/);
+});
+
+test('source-earned shell may paint before crystal build; animated details only fade after returned WebGL frames',()=>{
+  assert.match(world,/const shell=isolateIncomingVoidLayer\(structuralRoot,'load-bearing-shell'\)/);
+  assert.match(world,/arrival\.state='awaiting-void-biome-build'[\s\S]*?observedSourceEarnedEarlyVoidShaftAperture\(/);
+  assert.match(world,/const detail=isolateIncomingVoidLayer\(detailRoot,'void-biome-detail'\)/);
+  assert.match(world,/job\.submittedFrames>job\.detailBuiltAtSubmitted/);
+  assert.match(world,/job\.detailFade=Math\.min\(job\.structuralFade,job\.detailFade\+shown\/\.65\)/);
+  assert.match(world,/for\(const layer of \[deferredDistantArrival\.structuralMaterials,/);
+  assert.doesNotMatch(world,/snapshot\.floor\s*=\s*9|snapshot\.player\.x\s*=/);
 });
