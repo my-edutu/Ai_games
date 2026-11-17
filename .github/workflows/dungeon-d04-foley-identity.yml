@@ -31,6 +31,7 @@ on:
       - tests/browser/dungeon-d04.playwright.config.cjs
       - tests/browser/dungeon-d04-soak.playwright.config.cjs
       - tests/browser/dungeon-d04-real-20min-cleanup-soak.spec.cjs
+      - tests/browser/dungeon-d04-scene-transition-soak-audit.cjs
       - tests/browser/dungeon-d04-av-evidence.cjs
       - tests/browser/dungeon-d04-capture-profile.cjs
       - tests/foundation/dungeon-d04-single-primary-encoder.test.cjs
@@ -69,6 +70,7 @@ jobs:
       - run: node --check tests/browser/dungeon-d04-real-live-authority-capture-pair.spec.cjs
       - run: node --check tests/browser/dungeon-physical-feedback-preview.spec.cjs
       - run: node --check tests/browser/dungeon-d04-real-20min-cleanup-soak.spec.cjs
+      - run: node --check tests/browser/dungeon-d04-scene-transition-soak-audit.cjs
       - run: |
           node --test \
             tests/foundation/dungeon-d04-queue-pressure-audit.test.cjs \
@@ -86,6 +88,7 @@ jobs:
             tests/foundation/dungeon-d04-hp-damage-annotation-fallback.test.cjs \
             tests/foundation/dungeon-d04-hp-hidden-visual-sound-only.test.cjs \
             tests/foundation/dungeon-d04-scene-flush-receipts.test.cjs \
+            tests/foundation/dungeon-d04-scene-transition-soak-audit.test.cjs \
             tests/foundation/dungeon-d04-held-warning-gpu-update.test.cjs \
             tests/foundation/dungeon-d04-pre-submit-wall-deadline.test.cjs \
             tests/foundation/dungeon-d04-submitted-frame-replay-guard.test.cjs \

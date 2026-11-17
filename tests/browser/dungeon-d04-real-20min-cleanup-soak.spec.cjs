@@ -4,6 +4,7 @@
 const {test,expect}=require('@playwright/test');
 const {performance}=require('node:perf_hooks');
 const fs=require('node:fs');
+const {auditD04SampledSceneCleanup}=require('./dungeon-d04-scene-transition-soak-audit.cjs');
 const SOAK_MS=20*60*1000;
 const INTERVAL_MS=5000;
 const artifact='artifacts/dungeon-d04-real-20min-soak-evidence.json';
@@ -87,6 +88,7 @@ test('D04 20-minute real-runtime resource and mute/reload cleanup soak',async({p
   });
  }catch(e){errors.push('Final browser readback: '+String(e))}
  const samples=browser?.samples??[];
+ const sceneCleanup=auditD04SampledSceneCleanup(samples);
  const maxGapMs=samples.reduce((max,s,i)=>i===0?max:
   Math.max(max,s.atMs-samples[i-1].atMs),0);
  const violations=[];
@@ -140,7 +142,7 @@ test('D04 20-minute real-runtime resource and mute/reload cleanup soak',async({p
   maxObservedSampleGapMs:maxGapMs,missingBrowserSamples:browser?.missing??null,
   overflowedBrowserSamples:browser?.overflows??null,
   serverStepProgress:stepProgress,uniquePublicStates,frameProgress,
-  sceneResets,health,violations:violations.slice(0,30),violationCount:violations.length,
+  sceneResets,sceneCleanup,health,violations:violations.slice(0,30),violationCount:violations.length,
   errors,crashes,cleanup,samples,
   limitations:['Sampled D04 receipts are not decoded GPU pixels or PCM.',
    'Browser stalls are recorded as gaps and never interpolated.',
@@ -152,6 +154,9 @@ test('D04 20-minute real-runtime resource and mute/reload cleanup soak',async({p
  console.log('D04 real 20-minute resource soak:',JSON.stringify({
   elapsedNodeMs,observedSamples:samples.length,maxGapMs,
   stepProgress,uniquePublicStates,frameProgress,sceneResets,
+  observedSceneTransitions:sceneCleanup.transitionCount,
+  cleanSampledSceneTransitions:sceneCleanup.cleanupSampleCount,
+  sceneCleanupClassification:sceneCleanup.classification,
   violationCount:violations.length,cleanup,errors,crashes}));
  expect(elapsedNodeMs).toBeGreaterThanOrEqual(SOAK_MS);
  expect(browser?.elapsedBrowserMs??0).toBeGreaterThanOrEqual(SOAK_MS-20000);
@@ -160,6 +165,9 @@ test('D04 20-minute real-runtime resource and mute/reload cleanup soak',async({p
  expect(samples.length).toBeGreaterThanOrEqual(100);
  expect(uniquePublicStates).toBeGreaterThan(10);
  expect(frameProgress).toBeGreaterThan(50);
+ expect(sceneCleanup.classification).toBe('SAMPLED_SCENE_CHANGE_WITH_EMPTY_RESOURCES');
+ expect(sceneCleanup.transitionCount).toBeGreaterThan(0);
+ expect(sceneCleanup.cleanupSampleCount).toBeGreaterThan(0);
  expect(violations).toEqual([]);
  expect(errors).toEqual([]);
  expect(crashes).toEqual([]);
