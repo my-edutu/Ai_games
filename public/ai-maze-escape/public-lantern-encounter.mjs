@@ -197,21 +197,59 @@ export function publicEarnedGuardianActing(snapshot, guardian, ordinary) {
 
 
 /**
- * A PHYSICAL two-link Pip -> Thornback lantern response belongs only to the
- * currently published, earned counter, not a generic warning or first-seen
- * already-parried guardian. The entire corridor must be visible, reciprocal,
- * unblocked and unsealed (publicGuardianOpenSightline). No remembered cell,
- * predicted position, route instruction, damage or private state is consumed.
- * Another currently acting, un-parried guardian takes precedence.
+ * A genuine witnessed earned lantern counter can physically illuminate the
+ * same currently visible Thornback around a TWO-PUBLIC-EDGE CORNER. A bent
+ * pair of original Three.js lantern meshes follows verified reciprocal,
+ * currently disclosed UNLOCKED edges; a diagonal straight beam across a
+ * sealed wall or undiscovered cell is forbidden.
+ *
+ * Only presentation: never reveals private routes, issues an AI command,
+ * invents attack damage, or implies a safely traversable future path.
  */
-export function publicEarnedGuardianCounterBeam(snapshot, guardian, ordinary) {
+export function publicEarnedGuardianCounterLightPath(snapshot, guardian, ordinary) {
   if (!Number.isSafeInteger(guardian?.cell) || guardian.cell < 0
     || !Number.isFinite(guardian?.x) || !Number.isFinite(guardian?.z)
     || !Number.isFinite(guardian?.counterPhase) || guardian.counterPhase < 0
     || guardian.counterPhase >= 1
     || (ordinary?.strength > .35 && ordinary?.lanternParried !== true)
-    || !Array.isArray(snapshot?.threats)
+    || snapshot?.lifecycle!=='running' || snapshot.result
+    || !Number.isSafeInteger(snapshot.width) || snapshot.width < 2
+    || !Number.isSafeInteger(snapshot.height) || snapshot.height < 2
+    || !Number.isSafeInteger(snapshot.currentCell)
+    || !Array.isArray(snapshot.visibleCells) || !Array.isArray(snapshot.cells)
+    || !Array.isArray(snapshot.doors) || !Array.isArray(snapshot.threats)
     || !snapshot.threats.some(threat=>threat?.cell===guardian.cell
-      && threat.lanternParried===true)) return false;
-  return publicGuardianOpenSightline(snapshot,guardian.cell)===2;
+      && threat.lanternParried===true)) return null;
+  const width=snapshot.width, n=width*snapshot.height, hero=snapshot.currentCell;
+  if(hero<0||hero>=n||guardian.cell>=n||hero===guardian.cell)return null;
+  const visible=new Set(snapshot.visibleCells);
+  if(!visible.has(hero)||!visible.has(guardian.cell))return null;
+  const col=(cell)=>cell%width;
+  const row=(cell)=>Math.floor(cell/width);
+  if(Math.abs(col(hero)-col(guardian.cell))
+    +Math.abs(row(hero)-row(guardian.cell))!==2)return null;
+  const known=new Map(snapshot.cells.filter(cell=>visible.has(cell?.cell)
+    &&Number.isSafeInteger(cell.cell)&&cell.cell>=0&&cell.cell<n)
+    .map(cell=>[cell.cell,cell]));
+  const from=known.get(hero),to=known.get(guardian.cell);
+  if(!from||from.blocked||!to||to.blocked
+    || !Array.isArray(from.neighbors))return null;
+  const open=(a,b)=>{
+    if(!a||!b||a.blocked||b.blocked||!Array.isArray(a.neighbors)
+      ||!Array.isArray(b.neighbors)||!a.neighbors.includes(b.cell)
+      ||!b.neighbors.includes(a.cell)
+      ||Math.abs(col(a.cell)-col(b.cell))
+        +Math.abs(row(a.cell)-row(b.cell))!==1)return false;
+    return !snapshot.doors.some(door=>!door?.open
+      &&((door.a===a.cell&&door.b===b.cell)
+        ||(door.b===a.cell&&door.a===b.cell)));
+  };
+  // Deterministic order: only currently public, proven-open intermediary.
+  // Never light through a known trap as though it were a safe passage.
+  for(const id of [...new Set(from.neighbors)].sort((a,b)=>a-b)){
+    const middle=known.get(id);
+    if(middle && middle.trap!==true && open(from,middle) && open(middle,to))
+      return {links:2,midCell:id};
+  }
+  return null;
 }
