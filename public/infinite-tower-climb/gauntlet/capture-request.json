@@ -1,4 +1,37 @@
 {
+  "p0FirstFrameOriginalVoidMaterialIdentityNativeTruth20261117": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH (OPEN)",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateSourceProductionSha": "c37d716085c1aaafb72e8f6a53753ac766db68bf",
+    "candidateSourceCompatibilitySha": "c6f6ee44d2785d434754b9b6bccd29bb2e76d535",
+    "sourcePin": "THE NEW REQUEST COMMIT github.sha, NOT floating branch HEAD",
+    "fixedSeed": "tower-transformation-capture-v1",
+    "quality": "low",
+    "speed": "Original source normal 1x, 25fps, 60+s each, no video edits",
+    "viewports": [
+      "960x600 desktop",
+      "390x844 portrait"
+    ],
+    "scenarios": [
+      "ascent",
+      "moving",
+      "danger",
+      "outcome"
+    ],
+    "priorCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43997811620",
+    "priorOriginalNativeDefect": "Candidate HUD floor9 preceded fully violet 3D scene by 2.75s desktop and 2.50s portrait, strict source/film event-pairing failed 0/2. Compare against BASELINE immutably pinned 1731b38.",
+    "productionChange": "At real source-earned F8 guardian HP0 and F9 grounded original gate, authentic first-render Void rear stays and far-side buttress have separate original Void stone/dark/metal/copper materials; ORIGINAL retained bronze gate, real decks/hazards/climber unchanged.",
+    "mustInspect": "Original unedited native full motion and video event sidecars; co-visible original bronze gateway, skinned hero and genuine cool successor supports in at least two consecutive real frames; inspect portal collision, physical grounded crossing, floor10/outcome/restart, renderer-return tails and frame compositing. Do not treat rendered meshes or synthetic tests as perceptual acceptance.",
+    "qualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44005478734 (pending when requested)",
+    "independentReviews": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "device": "NOT EVALUATED",
+    "nextIfFail": "P0, refine cold renderer staging and camera/physical obstruction, event-matched native timebase. No merge/deploy/baseline move."
+  },
   "p0SourceEarnedFirstFrameFarShoulderActualVoidArchitecture20261117": {
     "stage": "P0 EVIDENCE + GAME LOOP TRUTH (OPEN)",
     "leadingVerdict": "NOT EVALUATED",

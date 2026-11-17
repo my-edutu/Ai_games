@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-11-17",
+  "stage": "P0_EVIDENCE_AND_GAME_LOOP_TRUTH",
+  "leadingVerdict": "NOT EVALUATED",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "existingDraftPr": "https://github.com/my-edutu/Ai_games/pull/68",
+  "preChangeCapturedCandidateSha": "10ab7c9be5a133455078e0cb188001cc4555e577",
+  "sourceProductionCommit": "c37d716085c1aaafb72e8f6a53753ac766db68bf",
+  "sourceHarnessCompatibilityCommit": "c6f6ee44d2785d434754b9b6bccd29bb2e76d535",
+  "nativeOriginalMotionReview": {
+    "workflow": "https://github.com/my-edutu/Ai_games/actions/runs/43997811620",
+    "sourcePairedTimelines": "8/8",
+    "strictOriginalVideoEventPaired": "0/2",
+    "fullFilmAvailable": true,
+    "normalSpeed": true,
+    "baseline": {
+      "desktop": {
+        "hudFloorNineSeconds": 20.25,
+        "sustainedVioletSeconds": 20.25,
+        "hudToWorldGapSeconds": 0,
+        "videoSHA256": "8b3d3d4003688d357e1815e1c77caad3513b497c3f1bf1ef8759d25b0fe2a7d6"
+      },
+      "portrait": {
+        "hudFloorNineSeconds": 18.75,
+        "sustainedVioletSeconds": 19,
+        "hudToWorldGapSeconds": 0.25,
+        "videoSHA256": "3b2f42a7e0e4d40fbdc983a0455d919bd581da439d9c61f1d6f29b092e500655"
+      }
+    },
+    "candidate": {
+      "desktop": {
+        "hudFloorNineSeconds": 26,
+        "sustainedVioletSeconds": 28.75,
+        "hudToWorldGapSeconds": 2.75,
+        "videoSHA256": "694f702c4e9c9c5d0e11e316facabf0d0eeb5b376b9312228f1635c2d99b27ad",
+        "browserAcceptedToFirstWebGLReturnMs": 1008
+      },
+      "portrait": {
+        "hudFloorNineSeconds": 26.5,
+        "sustainedVioletSeconds": 29,
+        "hudToWorldGapSeconds": 2.5,
+        "videoSHA256": "0245c82713964ba37835fc17763dc4b0247b513a161b1b983be689172d99e020",
+        "browserAcceptedToFirstWebGLReturnMs": 846
+      }
+    },
+    "method": "Actual original unmodified 25fps 960x600 & 390x844 danger WebM inspected in full motion and source-specific native-scene-phase sidecars; timestamps are raster classifications +/-0.25s, not causal event or GPU/display frame-time proof",
+    "mostImportantDefect": "Both original films show the actually reached Floor9 with bronze world/foreground obstruction for 2.5-2.75s before sustained violet destination; even slower than preceding candidate (1.25s/1.75s). The first-frame genuine Void rear bearer existed geometrically but shared the old bronze architecture material, so early new world failed to read as successor. Native strict source-event A/B remains vetoed."
+  },
+  "implementation": {
+    "scope": "ACTUAL authored Three.js floor-nine rear frame, open core and far-side original bearing materials ONLY",
+    "result": "Use exclusive floor-owned copies of four original Void structure material channels for the already-authentic F9 first-render source-authenticated rear supports and far-side buttress. The old opened F8 gateway, overlap roof, real f9 deck, moving platforms, hazards, actor and authoritative 20Hz source remain unchanged; their shared palette owner continues normally. The first actual post-gateway frame can display distinct cool successor architecture behind real bronze threshold instead of waiting for whole-world color retirement.",
+    "materialBound": 4,
+    "geometryAdded": 0,
+    "renderPassesAdded": 0,
+    "limitation": "Production code changed; no new normal-speed gameplay film has yet verified visibility, source timing, more legible physical crossing or frame budget."
+  },
+  "tests": {
+    "firstAttempt": "https://github.com/my-edutu/Ai_games/actions/runs/44005212734",
+    "firstAttemptOutcome": "FAILED: old fixture temp-world ESM import maps did not resolve newly added separate module. An engineering regression, not an experience verdict.",
+    "correctedExactHeadQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44005478734",
+    "correctedStatus": "QUEUED when recorded; not claimed passed",
+    "sourceBoundCapture": "REQUESTED on capture-request file update; candidate is immutable github.sha of that request commit, not this prior source hash. NOT EVALUATED until artifact inspected."
+  },
+  "independentReviews": {
+    "LOOKS": 0,
+    "FEELS": 0,
+    "PLAYS": 0
+  },
+  "supportedActualDeviceFrameTimeMemory": "NOT EVALUATED",
+  "leadingTransformationVerdict": "NOT EVALUATED",
+  "biggestRemainingExperienceGap": "Native Floor9 bronze-to-Void room continuity, climber visibility and source-native event alignment remain visibly unverified; material isolation is not acceptance.",
+  "nextHighestImpactAction": "Run the same immutable-source 9-job film campaign, inspect FULL original 960x600/390x844 danger + ascent/outcome clips and exact source receipts; if hero/gate still obscure or HUD leads shaft, reopen world geometry/camera/cold renderer upload rather than celebrating passing tests. Obtain actual-device p50/p95/p99, memory and 5 independent blind critics each pillar before advancing."
+}
