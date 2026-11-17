@@ -6161,5 +6161,42 @@
     "independentPlays": 0,
     "nextAction": "Inspect first genuine F9 returned-frame through next actual successor deck, compare ray owners and consecutive native pixels, repair remaining physical old-new scene continuity if present.",
     "safety": "No baseline move, no PR58 edits, no merge, no deployment, no force push, PR68 stays draft."
+  },
+
+  "p0SourceSupportedFarSideOriginalVoidShaftFirstPaint20261117": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "candidateSourcePin": "EXACT IMMUTABLE github.sha of THIS request commit (contains playable production source 25c4d6f73ba4d0f4f6f8c4ec56a4a3dcbc980fc1), never floating PR HEAD",
+    "frozenBaseline": "1731b380851162741761c5569e2bc152a0869ca9",
+    "branch": "feat/tower-transformation-gauntlet-20261101",
+    "pr": 68,
+    "draft": true,
+    "basePr": 58,
+    "scenario": [
+      "ascent",
+      "moving",
+      "danger",
+      "outcome"
+    ],
+    "viewports": [
+      "960x600",
+      "390x844"
+    ],
+    "seed": "tower-transformation-capture-v1",
+    "graphicsTier": "low",
+    "recording": "Original >=60 seconds 1x continuous unedited 25fps real WebGL gameplay and original source/renderer event sidecars for both baseline and candidate",
+    "meaningfulGameSource": "Original deferred, batched Floor9 noninteractive Void structural shell becomes partially visible in the SAME real 3D scene as the retained original bronze HP-zero gateway when the climber has genuinely reached farther F9 ground/raised supported route; fail-closed exact run, source crossing, first real WebGL return and old GPU gate. No new meshes, actors, colliders, floors or authored victory.",
+    "priorOriginalFilm": "https://github.com/my-edutu/Ai_games/actions/runs/44162896161",
+    "priorDefect": "In original 1x 960x600 AND 390x844 source-pinned candidate, Floor9 HUD first 26.00s, recognizable sustained Void first 27.75s (1.75s visual gap); original bronze foreground obstructs full body, opened gateway and supported receiving deck; strict source/native matching FAILED 0/2. Avoid causal baseline comparison since source events are asymmetric.",
+    "latestPriorExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44181393625 — 10/10 success for OLD source 64c920f7 only; new candidate quality pending",
+    "evaluate": "Inspect complete original full-motion source-aligned F8 guardian/crusher defeat, open gate, grounded receipt, F9 actual source-support, onward real raised and moving decks, outcome/restart. Compare original 25fps pixel PTS, first F9 existing-geometry visible WebGL, scene CPU rebuild/renderer-return latencies, baseline/candidate same seed/tier. Require two consecutive frames with full body, opened real old gate and true walkable F9 in both viewports; no worse foreground cropping/overdraw or GPU stall. New source and native film are NOT YET EVALUATED.",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDeviceFrameTimeMemory": "NOT EVALUATED",
+    "nextHighestImpact": "If structure still appears late, inspect exact built/visible return frames and occluding geometry owners, then reopen P0 physical gateway shaft upload/sightline. Do not advance from P0 on green tests or renderer counters alone.",
+    "safety": "Frozen baseline and transformation.json unchanged; PR58, other games, draft status, merge/deploy/force-push untouched"
   }
 }
