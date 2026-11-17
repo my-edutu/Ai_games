@@ -12,7 +12,7 @@ import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePre
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, createSourceEarnedVoidDepartureMaterials, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections, isolateEarnedFirstFrameVoidMaterials } from './source-earned-bearing-run.mjs';
-import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold, observedSourceEarnedEarlyVoidShaftAperture, observedEarnedGalleryExitClearance } from './far-side-shaft-transition.mjs';
+import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold, observedSourceEarnedEarlyVoidShaftAperture, observedSourceSupportedVoidFirstPaint, observedEarnedGalleryExitClearance } from './far-side-shaft-transition.mjs';
 
 
 /**
@@ -3992,7 +3992,7 @@ export function createTowerWorld(){
       // Hold the already-submitted source-earned aperture until the old gate
       // physically recedes: a slow renderer must not flicker the NEXT real
       // shaft out merely because the climber left the roof on a later tick.
-      const earlyShaft=observedSourceEarnedEarlyVoidShaftAperture(
+      const earlyShaft=observedSourceSupportedVoidFirstPaint(
         snapshot,held,job);
       job.structuralFade=options.reducedMotion?1:Math.max(
         job.structuralFade,
@@ -4293,6 +4293,10 @@ export function createTowerWorld(){
         // The ORIGINAL load-bearing shaft is now independently batched,
         // GPU-prepared and displayable after a genuine returned F9 gateway
         // frame, BEFORE cold crystal/detail construction. No proxy floor.
+        // Both near-sill and physically farther, genuinely supported
+        // F9 routes can reveal this SAME original shell. Slow WebGL may
+        // skip the near-sill interval; keep that genuine far-side actor in
+        // one physical room with the HP-open bronze gate, not an empty scene.
         structuralRoot.traverse(object=>{
           if(!object.isMesh)return;
           object.castShadow=!object.userData.ambientDetail &&
@@ -4311,7 +4315,7 @@ export function createTowerWorld(){
         // Retain every real same-run HP0/crossing, physical clearance and GPU
         // source proof. An eligible F9 source may now paint the REAL shaft
         // silhouette at restrained opacity before the next CPU build.
-        const earlyShell=observedSourceEarnedEarlyVoidShaftAperture(
+        const earlyShell=observedSourceSupportedVoidFirstPaint(
           snapshot,retainedEarnedCap,arrival);
         if(earlyShell?.sourceBound===true){
           arrival.structuralFade=Math.min(.28,earlyShell.alpha);
