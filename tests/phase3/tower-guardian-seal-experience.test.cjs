@@ -8,6 +8,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
+const { resolveTowerWorldFixtureImports } = require('../helpers/tower-world-fixture-imports.cjs');
 
 const root = path.resolve(__dirname, '../..');
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'tower-guardian-seal-'));
@@ -37,7 +38,11 @@ const source = fs.readFileSync(path.join(root, 'public/infinite-tower-climb/visu
   .replace("'./world-surface.mjs'", JSON.stringify(surfaceUrl))
   .replace("'./guardian-transmission-layout.mjs'", JSON.stringify(pathToFileURL(path.join(root, 'public/infinite-tower-climb/visuals/guardian-transmission-layout.mjs')).href))
   .replace("'./mesh-provenance.mjs'", JSON.stringify(pathToFileURL(path.join(root, 'public/infinite-tower-climb/visuals/mesh-provenance.mjs')).href));
-fs.writeFileSync(path.join(scratch, 'world.mjs'), source);
+// Keep deliberate local scene-hierarchy overrides, but resolve any new
+// shipping world imports from the real repository instead of /tmp. Fail
+// closed if the production dependency is missing; never mock a gate mesh.
+fs.writeFileSync(path.join(scratch, 'world.mjs'),
+  resolveTowerWorldFixtureImports(source, { root, fixtureDir: scratch }));
 const loaded = import(pathToFileURL(path.join(scratch, 'world.mjs')).href);
 test.after(() => fs.rmSync(scratch, { recursive: true, force: true }));
 
