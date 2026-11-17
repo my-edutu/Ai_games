@@ -380,3 +380,68 @@ test('RED-first: renderer uses genuine skinned toes bone only within two remaini
  assert.match(scope,/toeRad/);
  assert.match(renderer,/originalSwingToeJointRestore\.push\(\{bone:toeBone,original:toeOriginal\.clone\(\)\}\)/);
 });
+
+
+// Source-specific regression from ACTUAL original 390px native Chromium
+// #44119004252, artifact #14345669607, mobile tick 6 at 33.3ms.
+// The licensed Walking_A Vanguard right shoe: toe -107.771mm, heel
+// +192.575mm; a REAL two-hip/calf + .30/.36rad foot sample recovered
+// at most 17.794mm toe and raised heel 4.434mm, rejected as insufficient.
+// That entire fast-band trial previously could NEVER access the licensed
+// toesr child because the downstream original-toes planner demanded
+// .38/.46rad only. The ToeWorld axis/lever here is an intentionally
+// synthetic planning fixture, NOT observed toe-hinge success or a planted
+// shoe; the final original WebGL weighted two-shoe skin still owns approval.
+test('RED: original 390px fast Walking_A toe-hinge probe retains the measured .30/.36rad coupled source band',async()=>{
+ const {planOriginalSourceCoupledToeHingeFollowups:followup,
+  chooseOriginalSourceCoupledKneeFootSweep:choose}=await load();
+ const measured=[{upperRad:-.11,lowerRad:.11,footRad:.30},
+  {upperRad:-.11,lowerRad:.11,footRad:.36}];
+ const genuineWindow={source:'same-original-GLB-skin-toes-hinge',
+  sourceClipName:'Walking_A',sourceWeight:1,
+  frameInterval:.03330000000000055,sourceInstanceSame:true,
+  sourceFootTrackVerified:true,sourceToeChainVerified:true,
+  sourceToeTrackName:'toesr.quaternion',sourceToeBoneName:'toesr',
+  // Pinned original KayKit source vertex has 100% toesr influence.
+  sourceToeSkinnedWeight:1,
+  sourceToeVertexWorld:[.100,-.10777081432356109,0],
+  sourceToePivotWorld:[0,-.10777081432356109,0],
+  sourceToeAxisWorld:[0,0,-1],
+  sourceBurialMeters:.08777081432356109,originalFollowups:measured,
+  ownerLocomotion:true,alive:true,visible:true,reducedMotion:false,
+  teleport:false,interrupted:false};
+ assert.deepEqual(followup(genuineWindow),[
+  {...measured[1],toeRad:0},
+  {...measured[1],toeRad:-.14}
+ ],'use the original existing FOUR source-skin reads, replacing only the last two with an authenticated true 4-joint comparison');
+ assert.equal(choose({
+  mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceChainVerified:true,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceFootTrackVerified:true,sourceBindVerified:true,
+  sourceAnatomicalFootAxisVerified:true,sourceToeTrackVerified:true,
+  sourceToeChainVerified:true,sourceToeSkinnedWeight:1,
+  ownerLocomotion:true,alive:true,visible:true,
+  rootTravel:.00824626163660129,frameAge:0,
+  frameInterval:.03330000000000055,side:'right',floorTopY:-.02,
+  before:{right:{heelY:.19257548955450823,toeY:-.10777081432356109,
+   heelXZ:[0,0],toeXZ:[.10,0]},
+   left:{heelY:-.03913828454208674,toeY:-.03648081155664422,
+    heelXZ:[1,0],toeXZ:[1.27,0]}},
+  starter:{source:'actual-original-source-three-joint-swing-opportunity',
+   sign:-1,expectedSourceSkinnedTrials:2,contactLocked:false,
+   excessHeelRiseMeters:.005666615},
+  trials:[]}),null,
+  'candidate scheduling cannot bypass a measured native final-skin result');
+ for(const bad of [
+  {sourceToeSkinnedWeight:.89},{sourceToeTrackName:'toesl.quaternion'},
+  {sourceToeChainVerified:false},{sourceFootTrackVerified:false},
+  {sourceInstanceSame:false},{sourceWeight:.94},
+  {frameInterval:.26},{sourceBurialMeters:.004},
+  {interrupted:true},{reducedMotion:true},{teleport:true},
+  {originalFollowups:[measured[1]]},
+  {originalFollowups:[{...measured[0],footRad:.31},measured[1]]},
+  {originalFollowups:[measured[0],{...measured[1],footRad:.46}]}
+ ]) assert.equal(followup({...genuineWindow,...bad}),null,
+  'unsupported original source band, damaged chain and non-native witnesses stay rejected');
+});
