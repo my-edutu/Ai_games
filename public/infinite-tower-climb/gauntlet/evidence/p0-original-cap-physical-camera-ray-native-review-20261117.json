@@ -1,0 +1,51 @@
+{
+  "recordedOn": "2026-11-17",
+  "activeStage": "P0 EVIDENCE + GAME-LOOP TRUTH (OPEN)",
+  "leadingVerdict": "NOT EVALUATED",
+  "candidateImplementationSha": "05960aa20d539a96cd7802025e588d709f386625",
+  "sourceOfLatestInspectedFilm": "40709885b4ee1578b79294001669f107c90637d5",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "evidence": {
+    "fullOriginalEightRunVideos": "https://github.com/my-edutu/Ai_games/actions/runs/44019309912",
+    "strictOriginalFilmEventAlignment": "0/2 viewport source-event aligned pairs despite 8/8 genuine source timelines",
+    "baselineCandidateVideo": "8/8 scenario combinations (baseline+candidate x ascent,moving,danger,outcome) captured at both viewports; NOT passing matched video acceptance",
+    "priorExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44019309800",
+    "priorQualityResult": "9/10 jobs successful; shared phase6 job exit 124 after timeout in offscope suite, not a Tower gameplay acceptance",
+    "newExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44025065522 (in progress at report writing)"
+  },
+  "observedMajorDefect": "Candidate original 1x desktop Floor9 drawn HUD at ~25.75s, sustained violet world ~27s (1.25s). Portrait HUD ~26s, sustained violet at ~27.5s (1.5s). In the 26.75s portrait original frame, huge source-original bronze cap rim fills foreground around the physically moved climber and opened doorway. The previous F9 ray rescue inspected successor decks, incoming bearings and actual old gate, but never the retained original cap roof and skirt. This is a real source-presented camera/world contradiction, NOT evidence of event synchronization.",
+  "gameplayChange": "The real F8 source-cached platform mesh becomes a bounded ninth-sample ray obstruction in the existing exact-run F9 hero plus unlocked gate camera clearance search. Counts body and gate independently and blocks wrong previous cap, wrong run, stale source, nonphysical opacity; checks only actual authored triangle contacts. Source physics, guardian/collision, platform art, material opacity, full-body position and floor advancement unchanged. The final threshold director also cannot trade away original-cap hero/gateway visibility after the preceding clearance pass.",
+  "changedPaths": [
+    "public/infinite-tower-climb/visuals/world.mjs",
+    "public/infinite-tower-climb/visuals/successor-deck-visibility.mjs",
+    "public/infinite-tower-climb/visuals/scene.mjs",
+    "tests/phase3/tower-authentic-successor-deck-visibility.test.cjs"
+  ],
+  "implementationEvidence": "Code committed; test and original-source film NOT YET passed or reviewed for new SHA. Presence of a new ray path is not visual acceptance. New camera candidates must be assessed against actual recording.",
+  "independentCritics": {
+    "LOOKS": {
+      "votes": 0,
+      "needed": 5
+    },
+    "FEELS": {
+      "votes": 0,
+      "needed": 5
+    },
+    "PLAYS": {
+      "votes": 0,
+      "needed": 5
+    }
+  },
+  "realDevice": {
+    "desktop": "NOT EVALUATED",
+    "portrait": "NOT EVALUATED",
+    "p50": "NOT EVALUATED",
+    "p95": "NOT EVALUATED",
+    "p99": "NOT EVALUATED",
+    "memory": "NOT EVALUATED"
+  },
+  "nextHighestImpact": "Inspect exact immutable-source new paired 960x600 and 390x844 original normal-speed films, film source-alignment sidecars and retained original-cap ray counters. If the bronze/void seam or cap blocks the skinned body, optimize the genuine original cap/shaft and camera together, then recapture; never advance to P1 before P0 authentic film gate.",
+  "branch": "feat/tower-transformation-gauntlet-20261101",
+  "pr": "#68 remains draft",
+  "note": "The new capture is requested by adding a fresh ledger entry, without changing baseline or any gameplay source in PR58."
+}
