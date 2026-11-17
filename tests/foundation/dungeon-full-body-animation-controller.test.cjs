@@ -7034,10 +7034,14 @@ test('RED: exact 390px and desktop buried source toe prioritizes bounded hip-kne
  const neutralIndex=renderer.indexOf('const safeNeutralBlends=');
  assert.ok(gateIndex>0&&gateIndex<neutralIndex,
   'same-source heel-dominant coupled opportunity must be tested BEFORE repeated worse Idle');
- assert.match(renderer,/if\(sourceCoupledPriority\)\s*neutralBlends=null;/,
-  'qualified source connected leg must reserve existing two skin reads');
- assert.match(renderer,/connectedStarter=sourceCoupledPriority\?\?/,
-  'renderer must reuse a single source witness without an extra probe');
+ assert.match(renderer,/neutralBlends=!sourceCoupledPriority&&!sourceAnkleProof&&!priorIdleWorsened\?/,
+  'same-frame source coupled gait must short-circuit the rejected Idle planner');
+ assert.match(renderer,/connectedStarter=sourceCoupledPriority;/,
+  'renderer must reuse the exact same source witness without an extra probe');
+ const originalSourceStage=renderer.slice(renderer.indexOf('function stageOriginalSourceSwingLinkedLegAfterMixer('),
+  renderer.indexOf('function stageRigLegsAfterMixer(',renderer.indexOf('function stageOriginalSourceSwingLinkedLegAfterMixer(')));
+ assert.equal((originalSourceStage.match(/planOriginalSourceCoupledFootStarter\(\{/g)||[]).length,1,
+  'exactly one source eligibility plan per original Walking_A frame');
  for(const rig of rigs){
   const after=delta=>({
    right:{...rig.swing,heelY:rig.swing.heelY+delta.heel,

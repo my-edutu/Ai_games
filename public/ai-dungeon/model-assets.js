@@ -2889,9 +2889,12 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   const sourceCoupledPriority=!coupledOwnerBlocker?
    planOriginalSourceCoupledFootStarter({
     ...owner,starterTrials:trials.slice(0,2)}):null;
-  neutralBlends=!sourceAnkleProof&&!priorIdleWorsened?
+  // The connected original Walking_A chain owns the remaining two source
+  // probes. Do not even plan Idle while a same-frame source-foot witness
+  // qualifies: earlier real native Idle trials worsened sole penetration.
+  // A planned-but-discarded Idle offer is not a second source-skin receipt.
+  neutralBlends=!sourceCoupledPriority&&!sourceAnkleProof&&!priorIdleWorsened?
    planOriginalSourceAuthoredNeutralBlends({...owner,starterTrials:trials}):null;
-  if(sourceCoupledPriority)neutralBlends=null;
   if(priorIdleWorsened)rejectOriginalNeutral(
    'measured-original-idle-phase-worsened-both-soles',
    {originalPhase:sourcePhase,
