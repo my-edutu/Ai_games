@@ -877,6 +877,54 @@ for(const view of [
   expect(proof.sourceClip).toBe('Walking_A');
   expect(proof.contactLocked).toBe(false);
   expect(proof.oppositeShoePreserved).toBe(true);
+  // The licensed THREE-joint source foot/hip/knee receipt is NOT the
+  // older TWO-joint linked/continuity certificate. Both paths must pass
+  // genuine source-skinned physical evidence, but cannot borrow each
+  // other's properties or manufacture an authoritative foot plant.
+  if(proof.sourceCoupledKneeFootProof){
+   const coupled=proof.sourceCoupledKneeFootProof;
+   const before=proof.before?.[side],after=proof.after?.[side];
+   expect(coupled.source).toBe('measured-original-skinned-coupled-knee-foot');
+   expect(coupled.sourceJointCount).toBe(3);
+   expect(coupled.sourceClip).toBe('Walking_A');
+   expect(coupled.contactLocked).toBe(false);
+   expect(coupled.oppositeShoePreserved).toBe(true);
+   expect(coupled.originalWorldSolePitchAxisVerified).toBe(true);
+   expect(coupled.finalIndependentSourceSkin).toBe(true);
+   expect(coupled.sourceInstanceId).toBe(frame.sourceId);
+   expect(proof.sourceProbeCount).toBeGreaterThanOrEqual(1);
+   expect(proof.sourceProbeCount).toBeLessThanOrEqual(2);
+   expect(proof.witnessedSourceWeight).toBeGreaterThanOrEqual(.95);
+   expect(proof.witnessedFrameIntervalSeconds).toBeGreaterThanOrEqual(.008);
+   expect(proof.witnessedFrameIntervalSeconds).toBeLessThanOrEqual(.240001);
+   expect(proof.witnessedRootTravelMeters).toBeGreaterThanOrEqual(.008);
+   expect(proof.witnessedRootTravelMeters).toBeLessThanOrEqual(.24);
+   expect(proof.witnessedRootTravelAgeSeconds).toBeGreaterThanOrEqual(0);
+   expect(proof.witnessedRootTravelAgeSeconds).toBeLessThanOrEqual(.150001);
+   expect(proof.sourceFootTrack).toMatch(/foot\\.?[lr]\\.quaternion$/i);
+   expect(proof.sourceBindUpperMeters).toBeGreaterThan(.025);
+   expect(proof.sourceBindLowerMeters).toBeGreaterThan(.025);
+   expect(Number.isFinite(before?.toeY)&&Number.isFinite(before?.heelY)&&
+    Number.isFinite(after?.toeY)&&Number.isFinite(after?.heelY)).toBe(true);
+   const lift=after.toeY-before.toeY,heelRise=after.heelY-before.heelY;
+   expect(lift).toBeCloseTo(proof.toeLiftMeters,6);
+   expect(heelRise).toBeCloseTo(proof.sourceHeelRiseMeters,6);
+   expect(lift).toBeGreaterThanOrEqual(.019999);
+   expect(lift).toBeLessThanOrEqual(.095001);
+   expect(lift-heelRise).toBeGreaterThanOrEqual(-.002001);
+   expect(Math.abs(heelRise)).toBeLessThanOrEqual(.055001);
+   expect(Math.sign(proof.upperRad)).not.toBe(Math.sign(proof.lowerRad));
+   expect(Math.abs(proof.upperRad)).toBeGreaterThanOrEqual(.074999);
+   expect(Math.abs(proof.upperRad)).toBeLessThanOrEqual(.110001);
+   expect(Math.abs(proof.lowerRad)).toBeGreaterThanOrEqual(.074999);
+   expect(Math.abs(proof.lowerRad)).toBeLessThanOrEqual(
+    proof.witnessedFrameIntervalSeconds>=.16?.140001:.110001);
+   expect(Math.abs(proof.footRad)).toBeGreaterThanOrEqual(.119999);
+   expect(Math.abs(proof.footRad)).toBeLessThanOrEqual(.460001);
+   // This true source-skin candidate can improve the toe while it REMAINS
+   // buried; lift alone never claims two-point contact or safe walking.
+   expect(after.toeY).toBeGreaterThan(before.toeY);
+  }else{
   // Genuine source-rig regression #14260128935, 390px tick 5:
   // a real 16.6ms first-fast Walking_A frame with 81.96mm buried toe
   // accepted +14.15mm toe lift but +31.18mm already-elevated heel rise.
@@ -969,6 +1017,7 @@ for(const view of [
   }else{
    expect(Math.abs(proof.upperRad)).toBeLessThanOrEqual(.105001);
    expect(Math.abs(proof.lowerRad)).toBeLessThanOrEqual(.075001);
+  }
   }
   const opposite=side==='left'?'right':'left';
   for(const end of ['toe','heel']){
