@@ -77,7 +77,12 @@ test('live mission source uses the exact public cue before gate, pickup and goal
   assert.match(source,/const pressureApproach=!ended && !exposedDanger && !pressureCue\s*&& !witnessedKeyCelebration/,
     'advisory diagonal pressure may not hide real key collection; urgent contact remains first');
   assert.match(source,/const keyedSealedGate=!ended && !urgent && !pressureApproach/);
-  assert.match(source,/const freshGate=!ended && !urgent && !pressureApproach/);
+  assert.match(source,/const freshGate=!ended && !urgent && !keyedSealedGate\s*&& gateMilestone\?\.runToken===snapshot\.runToken\s*&& hudVisualTime<gateMilestone\.until/);
+  // The earlier advisory-only rule concealed real gate openings beside
+  // published diagonal jaws in original 1280px WebGL. Keep the urgent
+  // physical pressure condition, not a generic diagonal inspection block.
+  assert.match(source,/const freshGate=!ended && !urgent && !keyedSealedGate\\s*&& gateMilestone\\?\\.runToken===snapshot\\.runToken/);
+  assert.match(source,/exposedDanger\\?'Immediate danger':freshGate\\?'PASSAGE OPEN':observingPressure/);
   assert.match(source,/const freshKey=!ended && !urgent && !pressureApproach/);
   assert.match(source,/pressureApproach\?'Watch jaws'/,'sighting cannot claim an active jaw strike');
   assert.match(source,/pressureApproach\?'Jaws in sight'/,
