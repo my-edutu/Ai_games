@@ -3123,7 +3123,7 @@ function retainForegroundPoseWindow(previous,visible,
  }
  return warm;
 }
-function prepareForegroundResidents(rows,frame){
+function prepareForegroundResidents(rows,frame,nearPeople){
  foregroundResidentVisible=[];
  if(!gpuAvailable||!rows.length){
   // Camera absence is not world reset. Actual GPU geometry and pose IDs
@@ -31245,7 +31245,7 @@ const foregroundRows=gpuAvailable?people.map((p,i)=>({p,i}))
   // W413: selected ACTUAL grain cutting / forging / building moves its
   // ORIGINAL thirteen bones on the GPU; moving cargo/receipt hands do not.
   isObservedWorksiteSkinCandidate(p,i,nearPeople)):[];
-const foregroundReady=prepareForegroundResidents(foregroundRows,commuterFrame);
+const foregroundReady=prepareForegroundResidents(foregroundRows,commuterFrame,nearPeople);
 const foregroundIndices=foregroundReady?
  new Set(foregroundResidentVisible.map(row=>row.i)):new Set();
 dynamicPhaseTimes.residentActorManagement=performance.now()-residentActorManagementStart;
