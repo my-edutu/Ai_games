@@ -5895,5 +5895,47 @@
     "physicalDeviceP50P95P99Memory": "NOT EVALUATED",
     "nextAction": "Compare post-change CDP delivered-frame pressure and accepted unique matches versus prior, inspect full original films, source-to-painted-HUD delay and complete grounded crossing. If still discontinuous, refactor cold first-F9 world/frame ownership rather than polishing HUD/camera.",
     "safety": "Do not move frozen baseline; preserve PR58 and PR68 draft; no merge, deploy, force-push, source simulation edits or unrelated games."
+  },
+  "p0OriginalGroundedBronzeToTrueVoidRaisedDestinationSourcePinned20261117": {
+    "stage": "P0 — EVIDENCE + GAME LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateSha": "EXACT IMMUTABLE github.sha of THIS request commit; not an eventually floating branch head",
+    "sourceCodeHeadBeforeRequest": "94c5646302f1602c13ebb2901166ccf5898009c7",
+    "target": "Capture the REAL at-grade bronze Floor8->Floor9 threshold with original source gate and complete climbing hero while the genuine higher moving/raised F9 platforms are already visibly VOID colored. The previous capture's entire first 90m of raised platforms were still bronze and unrecognizable as a distinct next room.",
+    "sourceAuthority": "Unmodified actual 20Hz original gameplay with honest HP-zero guardian defeat, source-grounded threshold, no invented crossing, floor9/10 and restart",
+    "productionCode": "a10642447032d508e3a5654037eeffeb98d123fb; ca4b665abb373c9a862578a586029227a2e2e275; e5ff300576443ac42154d75c544b6ea7ea6e60ae; c636769044f445e0eaad3064592c5c754f2d3752",
+    "testFile": "tests/phase3/tower-original-clockwork-architecture-palette.test.cjs",
+    "lastOriginalCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44068454608",
+    "previousOriginalDesktop": "Real native HUD Floor9 at 26.00s, sustained Void 28.50s => 2.50s delay, source crossing 24.076s; original opened gateway plus full hero plus actual F9 lacked 2 consecutive qualified frames",
+    "previousOriginalPortrait": "Real native HUD Floor9 26.25s, sustained Void classifier inconclusive; source crossed 24.448s; bronze beams occluded body",
+    "structuralNativeA_B": "Frozen baseline lacks candidate's immutable HP0 guardian passage source beats; do not fabricate baseline events or treat matched beat NAMES as visible pixels",
+    "originalRecording": {
+      "viewports": [
+        "960x600",
+        "390x844"
+      ],
+      "tier": "low",
+      "seed": "tower-transformation-capture-v1",
+      "fps": 25,
+      "speed": "1x normal, unmodified",
+      "scenarios": [
+        "ascent",
+        "moving",
+        "danger guardian+crusher and actual threshold",
+        "outcome/restart"
+      ],
+      "minSeconds": 60,
+      "workflows": "existing nine-job original baseline/candidate and strict event pairing",
+      "verify": "Both full-motion original WebMs must be inspected, native-source clocks paired, foreground legacy bronze camera obstruction quantified; at least 2 source-matched successive full-body/gateway/real successor renders per viewport, not mere source timeline/CI"
+    },
+    "independentCritics": {
+      "looks": "0/5",
+      "feels": "0/5",
+      "plays": "0/5"
+    },
+    "hardware": "NOT EVALUATED",
+    "nextAction": "Inspect exact-source CI and new source-pinned candidate video. If blue-violet readable next route appears but live old gateway is still hidden, repair FIRST F9 GPU return latency and camera/world obstruction, not yet P1.",
+    "safety": "PR68 stays draft, no merge/deploy/force-push, no baseline or PR58 edits, no unrelated game."
   }
 }
