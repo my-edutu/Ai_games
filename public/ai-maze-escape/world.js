@@ -1726,6 +1726,44 @@ export function createMazeWorld(options = {}) {
               sentinels.push({lift,crown,lens,sailPivot,sail,crest,side});
             }
           }
+          // An original, ROOTED Tideglass observation mast belongs to the
+          // guardian's genuinely disclosed endpoint, never a hidden or
+          // remembered enemy. This is an elevated silhouette BEHIND Thornback,
+          // not a gate, path, reward, damage effect or navigable structure.
+          // Its two joined sea-shell vanes physically respond to the same
+          // PUBLIC warning and earned counter as Pip, Thornback and the floor.
+          // Reuse existing geometry/material pools; no per-frame allocations.
+          let observatory=null;
+          if(s.threats.some(threat=>threat?.cell===c.cell)){
+            const instrument=new THREE.Group();
+            instrument.name='Witnessed guardian rooted Tideglass weather vane '+c.cell;
+            instrument.position.set(-.77,0,-.77);
+            signal.add(instrument);
+            const root=mesh(instrument,bevel,deepStone,0,.17,0,.46,.35,.45);
+            root.name='Guardian observatory submerged stone anchor '+c.cell;
+            const shaft=mesh(instrument,cylinder,darkJade,0,1.13,0,.16,1.66,.16);
+            shaft.name='Guardian observatory continuous mast '+c.cell;
+            const collar=mesh(instrument,bevel,lightStone,0,1.91,0,.38,.13,.37);
+            collar.name='Guardian observatory upper stone collar '+c.cell;
+            const vanes=[];
+            for(const side of [-1,1]){
+              const hinge=new THREE.Group();
+              hinge.name='Guardian observatory earned shell hinge '+c.cell+' '+side;
+              hinge.position.set(side*.16,2.03,0);
+              instrument.add(hinge);
+              const shell=mesh(hinge,guardianOpenShell,seaGlass,
+                side*.35,.36,0,.48,1.04,.19,0,0,-side*.16);
+              shell.name='Guardian observatory joined upper shell '+c.cell+' '+side;
+              const spar=mesh(hinge,bevel,deepStone,
+                side*.35,.30,.09,.08,.84,.09,0,0,-side*.13);
+              spar.name='Guardian observatory physical shell spar '+c.cell+' '+side;
+              const tip=mesh(hinge,cone,lightStone,
+                side*.45,.90,0,.17,.37,.15,0,0,-side*.20);
+              tip.name='Guardian observatory carved vane crest '+c.cell+' '+side;
+              vanes.push({hinge,shell,tip,side});
+            }
+            observatory={instrument,vanes};
+          }
           // A rooted, concentric Tideglass floor response travels from
           // Pip to Thornback ONLY on their genuinely earned shared counter.
           // Reuse the existing torus geometry and glow/inlay materials:
@@ -1737,7 +1775,7 @@ export function createMazeWorld(options = {}) {
           counterRipple.castShadow=false;
           counterRipple.receiveShadow=false;
           guardianTideSignals.push({cell:c.cell,axis:guardianCausewayAxis,
-            faces,sentinels,counterRipple,
+            faces,sentinels,counterRipple,observatory,
             resonanceState:{wave:0,glow:0,radius:0}});
         }
       }
@@ -3742,6 +3780,15 @@ export function createMazeWorld(options = {}) {
       // A genuine parry supersedes the warning rather than adding two large
       // hinge angles: never swing physical leaves beyond their outboard limits.
       const warningAction=action*(1-counterWave);
+      // The joined high silhouette opens on the REAL guardian brace and
+      // folds backward on the EARNED counter. This is presentation only,
+      // physically rooted behind the actor; do not invent a second exit.
+      if(signal.observatory) for(const vane of signal.observatory.vanes){
+        vane.hinge.rotation.z=reduced?0:vane.side
+          *(.12+.36*warningAction-.54*counterWave);
+        vane.shell.material=counterWave>.18?darkJade:seaGlass;
+        vane.tip.material=counterWave>.18?inlay:warningAction>.3?amber:lightStone;
+      }
       // The FULL linked 3D standard rises with the real published brace,
       // drops on release and instantly neutralizes on hidden/invalid/terminal.
       // Reduced motion preserves color but freezes all physical translation.
