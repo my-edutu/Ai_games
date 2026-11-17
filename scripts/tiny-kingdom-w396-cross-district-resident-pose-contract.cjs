@@ -51,8 +51,11 @@ for(const [label,method,end,cache,limit,budget] of [
  const normalize=src.replace(/\s+/g,' ');
  assert(normalize.includes(cache+'=retainForegroundPoseWindow('+cache+',selected, '+limit+','+budget+')'),
   label+' must bound genuine original actor pose bytes through camera district return');
- assert(src.includes('if(!gpuAvailable)'+cache+'.clear()'),
-  label+' must clear stale GPU scene poses when changing renderer mode');
+  // The real renderer uses braces for worker/commuter fallbacks; previously
+ // this assertion required the obsolete one-line form and failed green code.
+ const gpuUnsupported=new RegExp('if\\s*\\(\\s*!gpuAvailable\\s*\\)\\s*\\{[\\s\\S]{0,160}?'+cache+'\\.clear\\(\\)');
+ assert(gpuUnsupported.test(src),
+  label+' must release stale GPU pose geometry on renderer-mode fallback');
  assert(!src.includes('if(!gpuAvailable||!rows.length){\n  '+cache+'.clear()'),
   label+' must not delete exact genuine pose when no camera actor is admitted');
 }
