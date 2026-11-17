@@ -592,6 +592,17 @@ function measuredOriginalSourceCounterpitchAngles({
  // for connected .30/.36rad thigh/calf/foot world-outsole candidates.
  // The stricter final same-clone both-shoe inspection still owns pose
  // acceptance; no IK target, planted foot, game hit, root move or new rig.
+ // Real source-skin 60-120ms walking windows have 41 keyed joints,
+ // but the separately audited original toe-child hinge is limited to <=50ms.
+ // Give a deeply buried, heel-dominant ORIGINAL walking shoe exactly the
+ // existing two connected thigh-calf-foot trial slots at moderate cadence.
+ // This only changes a trial schedule: BOTH genuinely skinned shoes must pass
+ // the pre-existing same-frame selector and restored-bone final readback.
+ // No added probes, invented contact, root displacement or authority change.
+ if(frameInterval>=.06&&frameInterval<=.12&&
+  depth>=.075&&depth<=.12&&
+  excessHeelRiseMeters>=.004&&excessHeelRiseMeters<=.035)
+  return [.30,.36];
  if(frameInterval>=.015&&frameInterval<=.025&&
   depth>=.090&&depth<=.110&&
   excessHeelRiseMeters>=.010&&excessHeelRiseMeters<=.020)
