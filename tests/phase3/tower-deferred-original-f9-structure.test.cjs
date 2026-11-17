@@ -14,7 +14,7 @@ const world=fs.readFileSync(path,'utf8');
 test('cold source-earned Floor9 starts with authentic grounded roof, then stages original noninteractive tower shell after an actual render return',()=>{
   assert.match(world,/const deferStructuralShell\s*=\s*deferDistant\s*&&\s*earnedSourceUploadWitness\s*&&\s*snapshot\.floor===9\s*&&\s*snapshot\.theme==='void'/);
   assert.match(world,/if\s*\(!deferStructuralShell\)\s*buildTower\(height,theme==='clockwork'\)/);
-  assert.match(world,/if\s*\(arrival\.structureDeferred\)\s*\{[\s\S]*?buildTower\(arrival\.height,false,false\)[\s\S]*?batchRigid\(structuralRoot\)/);
+  assert.match(world,/if\s*\(arrival\.structureDeferred\)\s*\{[\s\S]*?buildTower\(arrival\.height,false,false,'core'\)[\s\S]*?batchRigid\(structuralRoot\)/);
   assert.match(world,/arrival\.state='awaiting-structural-submission'/);
   // The real shell must complete a subsequent renderer submission before the canyon uploads;
   // its source-owned upload may be delayed by an authentic held gateway shot.
@@ -31,9 +31,9 @@ test('cold source-earned Floor9 starts with authentic grounded roof, then stages
 
 test('deferred Floor9 shell must retain moving crystal parts rather than merging animated objects into a static GPU batch',()=>{
   assert.match(world,/const animatedStructuralRoots=new Set\(/);
-  assert.match(world,/for\(const rotor of deferredShellRotors\)\s*batchRigid\(rotor\.o\)/);
+  assert.match(world,/for\(const rotor of newRotors\)\s*batchRigid\(rotor\.o\)/);
   assert.match(world,/batchRigid\(structuralRoot\)/);
-  assert.match(world,/batchRigid\(detailRoot,animatedStructuralRoots\)/);
+  assert.match(world,/batchRigid\(biomeRoot,animatedStructuralRoots\)/);
   assert.match(world,/structuralRoot\.name='deferred-original-floor-nine-architecture'/);
   assert.match(world,/deferredDistantArrival\.structureDeferred/);
 });
@@ -54,7 +54,10 @@ test('original shaft uses isolated fading materials and returned-frame clock rat
 test('source-earned shell may paint before crystal build; animated details only fade after returned WebGL frames',()=>{
   assert.match(world,/const shell=isolateIncomingVoidLayer\(structuralRoot,'load-bearing-shell'\)/);
   assert.match(world,/arrival\.state='awaiting-void-biome-build'[\s\S]*?observedSourceEarnedEarlyVoidShaftAperture\(/);
-  assert.match(world,/const detail=isolateIncomingVoidLayer\(detailRoot,'void-biome-detail'\)/);
+  assert.match(world,/const detail=isolateIncomingVoidLayer\(detailRoot,'outer-bearing-frame'\)/);
+  assert.match(world,/const biome=isolateIncomingVoidLayer\(biomeRoot,'authentic-animated-void-biome'\)/);
+  assert.match(world,/arrival\.peripheryBuiltAtSubmitted=arrival\.submittedFrames/);
+  assert.match(world,/arrival\.biomeBuiltAtSubmitted=arrival\.submittedFrames/);
   assert.match(world,/job\.submittedFrames>job\.detailBuiltAtSubmitted/);
   assert.match(world,/job\.detailFade=Math\.min\(job\.structuralFade,job\.detailFade\+shown\/\.65\)/);
   assert.match(world,/for\(const layer of \[deferredDistantArrival\.structuralMaterials,/);
