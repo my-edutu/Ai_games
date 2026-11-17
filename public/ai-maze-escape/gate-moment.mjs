@@ -98,10 +98,16 @@ export function publicGuardianEarnedResonance(phase,fromHero,reducedMotion=false
   // The .12s/tile delay moves from real hero tile to real guardian tile.
   const elapsed=phase*1.15-fromHero*.12;
   state.wave=reducedMotion?1:Math.max(0,Math.min(1,elapsed/.20));
-  if(!reducedMotion && elapsed>0 && elapsed<.64){
-    const portion=elapsed/.64;
+  // A genuine three-beat counter lasts 1.15s. The former .64s ring
+  // vanished before the publicly witnessed armor collapse and recovery,
+  // leaving no readable physical connection between Pip and Thornback.
+  // Carry ONE progressive low-floor resonance through the actual counter,
+  // without adding a fake hit, extending gameplay authority or looping it.
+  // Its last .03s is dark; a completed counter and reduced motion never flash.
+  if(!reducedMotion && elapsed>0 && elapsed<1.12){
+    const portion=elapsed/1.12;
     state.glow=Math.sin(Math.PI*portion);
-    state.radius=.30+.70*portion;
+    state.radius=.34+.66*portion;
   }
   return state;
 }

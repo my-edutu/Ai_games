@@ -44,3 +44,33 @@ test('real live stage receives the same witnessed actor clock and reuses existin
   assert.doesNotMatch(world,/signal\.counterStart|signal\.counterRunToken/,
     'a rebuilt disclosed court must never invent its own independent victory clock');
 });
+
+
+test('Pass440 complete genuinely earned Tideglass court impulse survives the physical collapse beat, not a synthetic hit',async()=>{
+  const {publicGuardianEarnedResonance:step}=await import(helper);
+  const live={wave:0,glow:0,radius:0};
+  step(.82,0,false,live);
+  const pipLate={...live};
+  step(.82,2,false,live);
+  const guardianLate={...live};
+  assert.equal(pipLate.wave,1);
+  assert.equal(guardianLate.wave,1);
+  assert.ok(pipLate.glow>.40 && guardianLate.glow>.75,
+    'true late parry remains clearly staged for both physical characters');
+  assert.ok(guardianLate.glow>pipLate.glow,
+    'progressively disclosed energy has reached the guardian by the recoil beat');
+  assert.ok(guardianLate.radius>.34 && pipLate.radius>guardianLate.radius,
+    'the same pooled floor pulse grows along already-public corridor cells');
+  step(1,0,false,live);
+  assert.deepEqual(live,{wave:1,glow:0,radius:0},
+    'finished real parry cannot restart the scene or leave a false luminous strike');
+  step(.82,2,true,live);
+  assert.deepEqual(live,{wave:1,glow:0,radius:0},
+    'reduced motion has a truthful settled stage, never an animated flash');
+  const world=fs.readFileSync(path.join(root,'public/ai-maze-escape/world.js'),'utf8');
+  assert.match(world,/signal\.counterRipple\.scale\.setScalar\(resonance\.radius\*1\.75\)/);
+  assert.match(world,/signal\.counterRipple\.visible=onLane && resonance\.glow>\.08/);
+  assert.match(world,/onLane&&earnedParry\?guardianCounterPhase:undefined/);
+  assert.doesNotMatch(world,/new THREE\.TorusGeometry\(.*counter|signal\.counterStart/i,
+    'counter presentation reuses the existing ring and one shared witness clock');
+});

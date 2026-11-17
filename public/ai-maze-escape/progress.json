@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-17T02:03:42Z",
+  "updatedAt": "2026-11-17T03:48:00Z",
   "benchmark": {
     "status": "Not yet passed",
     "summary": "Pass439: exact-HEAD Pass438 WebGL 43992428202 SUCCESS, original 40/40 uncropped PNG SHA pairs and 3/3 real gate hashes verified. Native 320 earned guardian A/B versus Pass437 REJECTS overbuilt eclipse dial: smaller, weaker Pip/Thornback staging; 390 remains crowded. Restore the prior trusted Pass437 world.js only; new rollback exact-HEAD CI and native captures pending. Official Nintendo bar and independent critic NOT met."
@@ -216,6 +216,7 @@
     }
   ],
   "changes": [
+    "Pass440 source candidate: ONE legitimate publicly witnessed 1.15s Pip–Thornback lantern counter now keeps existing pooled Tideglass causeway pulse visible into late physical armor collapse, and enlarges only floor-level ring along already-open published court. Exact-HEAD WebGL/Nintendo-grade visual evidence pending; no invented hit/route/AI/private state.",
     "Pass434 honest source-native review REJECTS Pass433 six-leg candidate: worse/wider smaller 390 actor frame, near-identical 320. Roll back candidate character animation and test to Pass432, correcting real >0.72rad completed-counter→clockless tail pop; preserve original stringent tests, six-reset <100 and all evidence. New exact-HEAD CI/screenshots pending.",
     "Pass433: actual original Pass432 320/390 native captures reviewed; earned counter previously folded Thornback's shell without convincing leg-grounded load. Production now drives all six existing connected hips/knees and lowers actual carapace/mask on that exact same current-run parry clock. No geometry allocations, AI authority or private hints; new CI/render/critique pending.",
     "Pass432: actual already-published same-run lantern counter drives connected Thornback armored-shell collapse, defensive shield load/release, rooted tail-sail reversal and bowed mask/jaw settle; new installed-Three test, no new game action, GPU mesh or private-map knowledge. Exact current-HEAD WebGL original critique pending.",
@@ -468,6 +469,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass440 highest-priority evidence: run new exact-HEAD focused tests, strict six-reset <100, native unaltered 320/390/844/1280 screenshots and SHA sidecars, compare earned guardian mid/late event to parent visual. Reject or roll back if broader floor pulse is still invisible/ornamental or falsely implies a route; full authored playable guardian/pressure/key/gate slice still needed. Independent critic tunnel unavailable.",
     "Pass434 strict new rollback-HEAD whole-repository CI must pass (prior candidate failed 1/875 own guardian end-clock reset test) and exact-HEAD source-bound WebGL full frames/hashes verified; no more marginal microjoint animation. Next substantial work: original cohesive guardians and pressure/gate world composition with consequential action and verified phone size.",
     "Pass433: do NOT accept source-only leg-grounding as art. Exact-SHA Chromium capture 320/390/844/1280, verify all original 40/40 screenshots+3 gate hashes, unchanged six-reset <100, honest collision/actor ±.95/withdrawal .70 and visually compare true defeat vs Pass432. Independently reject/accept against original official Captain Toad; biggest later gap is original authored world storytelling.",
     "Pass432 exact new-HEAD CI and native unaltered 320/390/844/1280 full-frame images: verify real 3-beat loaded→collapse silhouette, both bodies within ±.95 and ray clear, 40/40 PNG hashes+3 gate hashes and <100 six-reset. Reject or revert if no substantial real image impact; independent critic and Nintendo full benchmark still needed.",
@@ -538,6 +540,14 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass440 sustained earned corridor wave — original scene action candidate",
+      "reviewer": "Source-bound original screenshots / strict production contract; independent critic unavailable",
+      "verdict": "SOURCE-ONLY CANDIDATE; EXACT-HEAD 3D RENDER + INDEPENDENT NINTENDO REVIEW PENDING",
+      "date": "2026-11-17",
+      "summary": "Verifiable current public lantern-counter event keeps same real body clock but now holds a grounded Tideglass stage-wide connected wave through late recoil; unchanged game authority/privacy/collision/resource pools. Actual native 320/390 before/after still needed.",
+      "url": "docs/reviews/maze-3d/pass-440-earned-full-counter-tideglass-causeway-candidate-2026-11-17.md"
+    },
     {
       "title": "Pass434 original Pass433 WebGL REJECTION, restore stage and fix genuine release reset",
       "reviewer": "Source-bound original screenshot critique; independent critic unavailable",
@@ -1253,6 +1263,11 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass440 real earned counter floor through guardian collapse",
+      "status": "Unverified candidate; exact-HEAD focused tests/native WebGL pending",
+      "detail": "Parent 784e0b2 WebGL 44000862518 successful with 40/40 original SHA sidecars; new wave duration and physical footprint source change requires fresh exact-HEAD original browser evidence, all prior strict framing/accessibility/privacy/resource tests and independent aesthetic rejection gate."
+    },
     {
       "name": "Pass434 actual failing whole-repo guardian end-clock reset repaired / failed art rollback",
       "status": "New exact-HEAD CI and source image verification pending",

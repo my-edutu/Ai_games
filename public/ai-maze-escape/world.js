@@ -3774,7 +3774,11 @@ export function createMazeWorld(options = {}) {
       // Hidden, stale, terminal and reduced-motion frames never pulse.
       signal.counterRipple.visible=onLane && resonance.glow>.08;
       if(signal.counterRipple.visible){
-        signal.counterRipple.scale.setScalar(resonance.radius);
+        // The original pooled flat ring was unreadable at 320px while both
+        // real actors stayed visible. Make the same floor-bound consequence
+        // span the existing PUBLIC corridor, never a raised collider, beam,
+        // extra model, route hint, hidden tile or screen-space overlay.
+        signal.counterRipple.scale.setScalar(resonance.radius*1.75);
         signal.counterRipple.material=resonance.glow>.48?glow:inlay;
       }
       // A genuine parry supersedes the warning rather than adding two large
