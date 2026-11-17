@@ -326,3 +326,104 @@ export function observedSourceEarnedEarlyVoidShaftAperture(source, held, job) {
     originalGatewayRetained:true,
     limitation:'Partial authentic Void structural materials only after first original 3D WebGL return; no fabricated new scene or native-frame acceptance'};
 }
+
+
+// P0 source-earned CROSSING CLEARANCE, distinct from a cosmetic old-room fade.
+// The genuine post-guardian first Floor 9 view currently retains all massive
+// non-colliding F8 gallery braces at near-full opacity while the returned
+// bronze doorway, living climber and authentic successor decks occupy ONE
+// narrow phone shot. Physically clearing the sill should retire those
+// historical foreground braces faster, NOT retire the walked cap, opened
+// guardian portal or any F9 collision/support/guardian geometry.
+//
+// The source identity, actual old roof and existing HP0 witness are hard
+// prerequisites. The only clock is a SUCCESSFULLY RETURNED Three frame,
+// never a browser packet, unobserved physics step or invented video PTS.
+// A caller may latch the minimum opacity for this SAME retained F8 owner to
+// avoid historical load posts popping back if the climber takes off.
+export function observedEarnedGalleryExitClearance(source,held,{reducedMotion=false}={}) {
+  const p=source?.player,w=source?.lastGuardianCrossing;
+  const ground=source?.platforms?.find(deck=>deck?.id==='f9:ground');
+  if(source?.lifecycle!=='running' || source.floor!==9 ||
+     source.theme!=='void' || typeof source.runToken!=='string' ||
+     !source.runToken || !(p?.health>0) ||
+     !held || held.guardianGateRetained!==true ||
+     held.verifiedObservedFloorAdvance!==true ||
+     held.runToken!==source.runToken || held.floor!==9 ||
+     held.oldCapId!=='f8:cap' || held.opticalExitSubmitted===true ||
+     ![source.tick,p.x,p.y,p.halfWidth,p.halfHeight,p.vy,
+       held.thresholdX,held.oldCapX,held.oldCapWidth,
+       held.oldRoofY,held.crossingTick,held.submittedFrames,
+       ground?.x,ground?.y,ground?.width,ground?.height]
+       .every(valid) ||
+     !Number.isFinite(held.visibleSeconds) ||
+     held.submittedFrames<1 || held.submittedFrames>30 ||
+     held.visibleSeconds<.03 || held.visibleSeconds>=2.8 ||
+     held.visibleSeconds>held.submittedFrames*.1+1e-8 ||
+     !(held.originalGatewayOpacity>.035) ||
+     !(held.originalGallerySourceOpacity>0) ||
+     p.halfWidth<=0 || p.halfHeight<=0 ||
+     held.oldCapWidth<=0 || ground.width<=0 || ground.height<=0 ||
+     held.thresholdX!==held.oldCapX+Math.floor(held.oldCapWidth*.76) ||
+     ground.y+ground.height!==held.oldRoofY ||
+     source.tick<held.crossingTick ||
+     source.tick-held.crossingTick>150 ||
+     p.x-p.halfWidth<held.thresholdX+4000) return null;
+  if(w!=null){
+    if(w.runToken!==source.runToken ||
+       w.fromFloor!==8 || w.toFloor!==9 ||
+       !valid(w.sourceTick) || w.sourceTick!==held.crossingTick ||
+       w.sourceTick>source.tick ||
+       w.cap?.id!=='f8:cap' ||
+       w.cap.x!==held.oldCapX || w.cap.width!==held.oldCapWidth ||
+       w.cap.y+w.cap.height!==held.oldRoofY ||
+       w.exitX!==held.thresholdX ||
+       w.guardian?.kind!=='guardian' ||
+       w.guardian.active!==false ||
+       !Number.isFinite(w.guardian.health) ||
+       w.guardian.health>0) return null;
+  }else if(!valid(held.observedCrossingX) ||
+           !valid(held.observedCrossingY) ||
+           held.observedCrossingX<held.thresholdX ||
+           held.observedCrossingY-held.oldRoofY>30000) {
+    // A late immutable record can only be substituted by the already
+    // independently verified original grounded source receipt stored on
+    // this SAME actual GPU cap owner; a bare Floor9 HUD cannot clear steel.
+    return null;
+  }
+  const sole=p.y-p.halfHeight;
+  const supported=p.grounded===true &&
+    (p.state==='standing' || p.state==='hurt') && p.vy===0 &&
+    typeof p.groundedPlatformId==='string';
+  const deck=supported
+    ?source.platforms.find(s=>s.id===p.groundedPlatformId)
+    :null;
+  const roofContact=supported && p.groundedPlatformId==='f8:cap' &&
+    sole===held.oldRoofY &&
+    p.x-p.halfWidth>=ground.x &&
+    p.x+p.halfWidth<=ground.x+ground.width;
+  const deckContact=deck &&
+    [deck.x,deck.y,deck.width,deck.height].every(valid) &&
+    deck.width>0 && deck.height>0 &&
+    p.x-p.halfWidth>=deck.x &&
+    p.x+p.halfWidth<=deck.x+deck.width &&
+    sole===deck.y+deck.height &&
+    (deck.id==='f9:ground' ||
+      (deck.id.startsWith('f9:p') && sole>=held.oldRoofY &&
+        sole<=held.oldRoofY+230000));
+  const lowFlight=p.grounded===false &&
+    p.state==='airborne' && p.groundedPlatformId==null &&
+    p.x-p.halfWidth>=ground.x &&
+    p.x+p.halfWidth<=ground.x+ground.width &&
+    sole>=held.oldRoofY-2500 && sole<=held.oldRoofY+80000;
+  if(!roofContact && !deckContact && !lowFlight)return null;
+  const returnedProgress=reducedMotion?1:
+    smooth(Math.min(held.submittedFrames/3,held.visibleSeconds/.3));
+  return {sourceBound:true,sourceTick:source.tick,
+    physicallyBeyondOldSill:true,sourceSupport:roofContact?'original-shared-roof':
+      deckContact?'actual-successor-deck':'bounded-actual-low-flight',
+    maxOpacity:reducedMotion?.08:
+      Math.max(.08,1-.92*returnedProgress),
+    affectedMeshes:'historical-noncolliding-gallery-only',
+    limitation:'Actual source crossing and previous successful WebGL returns; neither old portal nor any walkable platform changes, no native-film acceptance'};
+}
