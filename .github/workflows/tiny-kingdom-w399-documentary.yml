@@ -1,0 +1,35 @@
+name: Tiny Kingdom W399 Actual Farmer-to-Home Documentary and Bounded GPU Snapshots
+on:
+  push:
+    branches: [feat/tiny-kingdom-post-main-gauntlet-20261031]
+    paths:
+      - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w399-source-and-documentary-contract.cjs
+      - .github/workflows/tiny-kingdom-w399-documentary.yml
+  workflow_dispatch:
+jobs:
+  source-and-live-workday:
+    runs-on: ubuntu-latest
+    env:
+      CI: 1
+      LIBGL_ALWAYS_SOFTWARE: 1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: node scripts/tiny-kingdom-w399-source-and-documentary-contract.cjs
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Real live 1024px and 390px workday camera, authority unchanged
+        run: npx playwright test tests/browser/tiny-kingdom-w54-world-first-workday.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w399-real-live-documentary
+          path: |
+            artifacts/tiny-kingdom-w54/
+            test-results/
+          retention-days: 14

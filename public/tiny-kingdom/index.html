@@ -4459,6 +4459,8 @@ const dynamicWorldGpuSnapshots=[null,null,null];
 let dynamicWorldDeltaChecks=0,dynamicWorldDeltaPartial=0,
  dynamicWorldDeltaUnchanged=0,dynamicWorldDeltaFull=0,
  dynamicWorldDeltaSavedBytes=0,dynamicWorldDeltaBufferCalls=0;
+let dynamicWorldSnapshotAllocations=0,dynamicWorldSnapshotReuses=0,
+ dynamicWorldSnapshotPatchedFloats=0;
 function planDynamicWorldDelta(before,after,capacityFloats){
  if(!(before instanceof Float32Array)||!(after instanceof Float32Array)||
     !before.length||!after.length||before.length!==after.length||
@@ -4469,6 +4471,28 @@ function planDynamicWorldDelta(before,after,capacityFloats){
   return null;
  return {...dirty,ranges:dirty.ranges||
   (dirty.dirtyFloats?[{firstFloat:dirty.firstFloat,lastFloat:dirty.lastFloat}]:[])};
+}
+// Phase-1 original world GPU buffers: retain the exact last source-order
+// bytes, never a mutable view of CPU staging. Small real crop/cart changes
+// patch only their original 30-float triangles. Unchanged frames do no work.
+// Full uploads reuse allocated snapshots, rather than making a 1.28 MB clone
+// every active hardware frame. Unknown topology allocates a bounded copy.
+function retainDynamicWorldGpuSnapshot(previous,current,delta){
+ if(!(current instanceof Float32Array)||
+    current.length>DYNAMIC_WORLD_DELTA_MAX_FLOATS)return null;
+ if(previous instanceof Float32Array&&previous.length===current.length){
+  if(delta){
+   for(const region of delta.ranges){
+    previous.set(current.subarray(region.firstFloat,region.lastFloat),
+     region.firstFloat);
+    dynamicWorldSnapshotPatchedFloats+=region.lastFloat-region.firstFloat;
+   }
+  }else previous.set(current);
+  dynamicWorldSnapshotReuses++;
+  return previous;
+ }
+ dynamicWorldSnapshotAllocations++;
+ return current.slice();
 }
 function getDynamicWorldDeltaAudit(){
  const retainedFloats=dynamicWorldGpuSnapshots.reduce(
@@ -4481,6 +4505,9 @@ function getDynamicWorldDeltaAudit(){
   unchanged:dynamicWorldDeltaUnchanged,full:dynamicWorldDeltaFull,
   avoidedUploadBytes:dynamicWorldDeltaSavedBytes,
   issuedBufferSubDataCalls:dynamicWorldDeltaBufferCalls,
+  snapshotAllocations:dynamicWorldSnapshotAllocations,
+  snapshotInPlaceReuses:dynamicWorldSnapshotReuses,
+  snapshotPatchedFloats:dynamicWorldSnapshotPatchedFloats,
   exactlySameVerticesAndDrawOrder:true,
   retainsEveryLiveActorAndTransaction:true,
   softwareMeasurementExcluded:true,physicalHardwareFps:'NOT MEASURED'};
@@ -28554,6 +28581,7 @@ function advanceRealGrainJourney(){
   label.dataset.storyStage=plan.stage.toUpperCase();
   if(changed)updateSupplyTrail(true);
  document.getElementById('world-trace-follow').setAttribute('aria-pressed','true');
+ if(grainJourney.villageLife)attachVillageDocumentaryToGrainJourney();
  return changed;
 }
 
@@ -28588,7 +28616,12 @@ function getVillageDocumentaryAudit(){
  }
  function advanceVillageDocumentary(){
   if(!villageDocumentary)return false;
-  if(!follow||(!liveWorkday&&
+  // The physical grain camera observes a genuinely harvesting farmer even
+  // before a real parcel exists. Previous desktop mode dropped the active
+  // documentary at this legitimate live stage (390px courier view survived).
+  const grainWorkday=grainJourney?.villageLife===true&&
+   ['live','delivery','household'].includes(document.body.dataset.workday);
+  if(!follow||(!liveWorkday&&!grainWorkday&&
      !['delivery','household'].includes(document.body.dataset.workday))){
    villageDocumentary=null;document.body.dataset.villageDocumentary='off';
    return false;
@@ -28693,12 +28726,37 @@ function getVillageDocumentaryAudit(){
   return {...householdProvisionAudit(),observing:true,
    citizen:people[index].name,following:follow,authoritativeChanges:false};
  }
- function watchVillageLife(){
+ // Keep the single physical farmer -> loaded courier -> market -> real buyer
+// film synchronized to existing authority. Never invent a worker, a parcel,
+// market credit or home meal for the viewer. Changes only spectator state.
+function attachVillageDocumentaryToGrainJourney(){
+ if(!grainJourney||!follow||!people[selectedCitizen])return false;
+ grainJourney.villageLife=true;
+ const p=people[selectedCitizen];
+ const deliveryId=grainJourney.deliveryId||p.delivery?.id||null;
+ const household=grainJourney.stage==='provisioning'||
+  grainJourney.stage==='consumed';
+ if(!villageDocumentary||villageDocumentary.citizen!==p.name){
+  villageDocumentary={citizen:p.name,stage:'observing',deliveryId,
+   household,stagesSeen:[],cameraCuts:0,
+   continuityTransitions:0,transitions:0};
+ }else{
+  villageDocumentary.deliveryId=deliveryId;
+  villageDocumentary.household=household;
+ }
+ document.body.dataset.villageDocumentary='on';
+ advanceVillageDocumentary();
+ return true;
+}
+function watchVillageLife(){
  // W377: follow the same genuine loaded courier through its real receiving
  // event instead of silently switching to a household buyer (W80/W13 RED).
  // Preserve W125 farmer parcel provenance and W376's genuine buyer when
  // freight/harvest is absent. This camera never changes jobs or stock.
- if(grainJourney)return getRealGrainJourneyAudit();
+ if(grainJourney){
+  attachVillageDocumentaryToGrainJourney();
+  return getRealGrainJourneyAudit();
+ }
  const originalGrain=chooseRealGrainWitness();
  const activeCourier=people.some(p=>Boolean(p.delivery));
  if(originalGrain?.delivery?.resource==='food'){
@@ -28707,18 +28765,9 @@ function getVillageDocumentaryAudit(){
    // The legacy physical-delivery director and newer grain provenance
    // documentary describe ONE actual citizen with ONE original parcel.
    // No duplicate actor or receipt and no cinematic result spoofing.
-   const courier=originalGrain;
-   // The original farmer must still have THIS real escrowed load. Do not
-   // manufacture a delivery witness from a mocked, lost or unrelated actor.
-   if(courier?.delivery?.resource==='food'&&
-      people[selectedCitizen]===courier&&
-      courier.delivery.id===grainJourney?.deliveryId){
-    villageDocumentary={citizen:courier.name,stage:'observing',
-     deliveryId:courier.delivery.id,household:false,stagesSeen:[],
-     cameraCuts:0,continuityTransitions:0,transitions:0};
-    document.body.dataset.villageDocumentary='on';
-    advanceVillageDocumentary();
-   }
+   // The farmer, their actual load and a subsequent verified household
+   // remain one documentary, including the stage before physical loading.
+   attachVillageDocumentaryToGrainJourney();
    if(canvas.clientWidth>520&&!supplyTrailOpen)toggleSupplyTrail();
    return chain;
   }
@@ -28736,6 +28785,7 @@ function getVillageDocumentaryAudit(){
  if(originalGrain){
   const chain=watchRealGrainJourney();
   if(chain){
+   attachVillageDocumentaryToGrainJourney();
    if(canvas.clientWidth>520&&!supplyTrailOpen)toggleSupplyTrail();
    return chain;
   }
@@ -30900,12 +30950,10 @@ if(gpuAvailable){
    dynamicWorldDeltaBufferCalls++;
    dynamicWorldDeltaFull++;
   }
-  // Real GPU memory and comparison memory are each bounded to three
-  // independent slots. This clone is required because the staging buffer
-  // is overwritten by the NEXT authoritative frame.
-  dynamicWorldGpuSnapshots[dynamicFrameActive]=!swiftGpu&&
-   current.length<=DYNAMIC_WORLD_DELTA_MAX_FLOATS?
-   current.slice():null;
+  // Exactly THREE independent bounded source snapshots. A worker/cargo
+  // update never aliases the staging array overwritten next real tick.
+  dynamicWorldGpuSnapshots[dynamicFrameActive]=!swiftGpu?
+   retainDynamicWorldGpuSnapshot(oldGpu,current,partial):null;
  }
  if(cameraMeshReused)cameraDynamicSkippedUploads++;
 }else{
