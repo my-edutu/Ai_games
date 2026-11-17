@@ -3809,13 +3809,17 @@ export function createMazeWorld(options = {}) {
     const signalStrength=rise*(1-.98*recover);
     for(const signal of guardianTideSignals) {
       const col=signal.cell%snapshot.width,row=Math.floor(signal.cell/snapshot.width);
-      const onLane=witnessedLane && ((alongX && signal.axis==='x'
+      // Straight native lanes and the public earned L-corner are mutually
+      // exclusive source-validated routes; never animate an undisclosed tile.
+      const straightX=alongX && signal.axis==='x'
         && row===Math.floor(heroCell/snapshot.width)
         && col>=Math.min(heroCell%snapshot.width,guardianCell%snapshot.width)
-        && col<=Math.max(heroCell%snapshot.width,guardianCell%snapshot.width))
-        || (alongZ && signal.axis==='z' && col===heroCell%snapshot.width
+        && col<=Math.max(heroCell%snapshot.width,guardianCell%snapshot.width);
+      const straightZ=alongZ && signal.axis==='z'
+        && col===heroCell%snapshot.width
         && row>=Math.min(Math.floor(heroCell/snapshot.width),Math.floor(guardianCell/snapshot.width))
-        && row<=Math.max(Math.floor(heroCell/snapshot.width),Math.floor(guardianCell/snapshot.width))))
+        && row<=Math.max(Math.floor(heroCell/snapshot.width),Math.floor(guardianCell/snapshot.width));
+      const onLane=witnessedLane && (straightX||straightZ
         || (signal.corner && !!earnedCorner?.has(signal.cell)));
       const action=onLane?signalStrength:0;
       // The public earned recoil is a THIRD physical court beat: the existing
