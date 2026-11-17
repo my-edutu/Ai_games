@@ -885,7 +885,19 @@ for(const view of [
    const coupled=proof.sourceCoupledKneeFootProof;
    const before=proof.before?.[side],after=proof.after?.[side];
    expect(coupled.source).toBe('measured-original-skinned-coupled-knee-foot');
-   expect(coupled.sourceJointCount).toBe(3);
+   // The original fourth toes child is counted ONLY when its licensed
+   // weighted source skin certificate exists; plain thigh/calf/foot is 3.
+   const toeCoupled=coupled.sourceCoupledToeHingeProof??null;
+   expect(coupled.sourceJointCount).toBe(toeCoupled?4:3);
+   if(toeCoupled){
+    expect(toeCoupled.sourceToeBone).toMatch(/^toes[lr]$/);
+    expect(toeCoupled.sourceToeTrack?.toLowerCase()).toBe(
+     toeCoupled.sourceToeBone+'.quaternion');
+    expect(toeCoupled.sourceToeSkinWeight).toBeGreaterThanOrEqual(.90);
+    expect(Math.abs(toeCoupled.signedOriginalToeRad)).toBeCloseTo(.14,5);
+    expect(toeCoupled.originalSourceContactLocked).toBe(false);
+    expect(toeCoupled.finalIndependentOriginalBothShoes).toBe(true);
+   }
    expect(coupled.sourceClip).toBe('Walking_A');
    expect(coupled.contactLocked).toBe(false);
    expect(coupled.oppositeShoePreserved).toBe(true);
