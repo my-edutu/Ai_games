@@ -5697,5 +5697,30 @@
     "actualHardwareP50P95P99Memory": "NOT EVALUATED",
     "next": "Inspect this new exact candidate footage, source/PTS, GPU-return and 3D depth snapshots; if blocking persists fix warm bronze gateway/real shaft render-owner pacing, not cosmetics.",
     "prohibitedActions": "No merge, deploy, force push, baseline SHA change, PR draft conversion, PR58 rewrite or unrelated games."
+  },
+  "p0CorrectedActualSourceBearingMeshRetainedAfterBatch20261117": {
+    "stage": "P0 OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "exactCandidateSha": "THIS NEW CAPTURE REQUEST github.sha including physical bearing mesh GPU batch fix, never floating branch",
+    "sourceCameraProductionSha": "a0fd54afe4748f4b05d56a45b2cb9b82df2f8caf",
+    "sourceBearingRootPreservationSha": "89f10ea23da8cd5448c9fc0327ee7e610d7769df",
+    "sourceBearingRootTestSha": "f95745554a20008a7a8352c2295a307aab6b2d3d",
+    "sourceRecordBeforeRequestSha": "e500bced0bb0b772dd22fdcd4d73b69ed7e00efd",
+    "previousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44018971362 — source SHA 0c841, does not include rigid-root correction",
+    "latestSourceArtifactBeforeCorrection": "https://github.com/my-edutu/Ai_games/actions/runs/44012048402 — 8 real 1x clips; baseline/candidate source-native strict paired FAILED 0/2",
+    "visualDefect": "Candidate real normal-speed 1x original WebM last reviewed: real skinned climber masked by bronze gate and original structure, F9 HUD to sustained violet world lag desktop 2.00s and portrait 1.75s; no aligned two consecutive full-body/gate/F9 frames demonstrated.",
+    "exactCandidatePlan": "Original 60+ second 1x 25fps normal-speed source-pinned WebM in 960x600 and 390x844, identical seed 'tower-transformation-capture-v1', low tier, ascent/moving/danger/outcome including source HP0/winch/raised F9/10/outcome/restart.",
+    "implementation": "Preserve existing source-authoritative real F9 bearing meshes under their original authoring group during batching. Source-authenticated camera raycasts now truly intersect source-bearing, original F9 buttress and visible deferred void shaft alongside live decks and HP-open gate; selection requires measurable improved actual full-body source ray clearance. Same real camera, no gameplay source modifications.",
+    "strictNativeAcceptance": "Reject if no real simultaneous original opened gateway, complete skinned climber and actual walkable destination for 2+ consecutive native frames in BOTH aspect ratios, continuous source-aligned world palette and restart; strict original source-native event matching (0/2 previously) remains veto.",
+    "qualityCheck": "https://github.com/my-edutu/Ai_games/actions/runs/44019224659 (for f957 commit; source head may advance by this review/request, find exact-head CI)",
+    "independentReviewers": {
+      "looks": "0/5",
+      "feels": "0/5",
+      "plays": "0/5"
+    },
+    "supportedHardware": "NOT EVALUATED",
+    "nextHighestImpact": "Inspect source-pinned original 1x candidate full-motion video around the actual 8->9 transition and read real returned source camera structural ray diagnostics. If gate/hero/new F9 still do not coexist or latency worse, overhaul same-geometry cold render staging, not a test or alpha patch.",
+    "baselineAndBranchSafety": "PR68 stays DRAFT on active PR58; no merge, deployment, force push, frozen baseline rewrite or other game touched."
   }
 }
