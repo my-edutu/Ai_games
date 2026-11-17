@@ -33,11 +33,11 @@ test('deferred authentic F9 architecture spans TWO separate returned GPU frames 
   assert.match(stage,/material\.opacity=0/,
     'no built-on-CPU shaft may appear before source-authenticated opacity release');
   assert.match(stage,/arrival\.structureDetailBuildMs=/);
-  assert.match(source,/if\(!deferStructuralShell\) buildTower\(height,theme==='clockwork'\)/,
+  assert.match(source,/if\s*\(!deferStructuralShell\) buildTower\(height,theme==='clockwork'\)/,
     'normal/high floors and the other four biomes preserve existing full construction');
   assert.match(source,/for\(const p of snapshot\.platforms\|\|\[\]\)/);
   assert.match(source,/for\(const h of snapshot\.hazards\|\|\[\]\)buildHazard/);
-  assert.match(source,/job\.state==='awaiting-void-biome-build'/);
+  assert.match(source,/arrival\.state==='awaiting-void-biome-build'/);
   assert.match(farSide,/\['awaiting-actual-first-render','awaiting-void-biome-build'/);
   assert.match(crossfloor,/job\?\.state==='awaiting-void-biome-build'/);
   assert.doesNotMatch(source,/snapshot\.floor\s*=\s*9|snapshot\.player\.x\s*=/);
