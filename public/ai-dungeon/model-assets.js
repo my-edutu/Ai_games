@@ -1129,6 +1129,7 @@ function auditSourceLoadedPelvisAfterLegs(actor,since,reducedMotion){
     // If even this second measured pose is invalid, preserve the ORIGINAL
     // Mixer plus action-owned base; remove speculative retry proofs as well.
     restoreOriginalSourceLegsAfterRejectedPelvis(actor.rigGaitBones);
+    restoreOriginalSourceSwingToesBeforeMixer(actor);
     actor.sourceSwingToeCorrectionFrames=candidate.sourceCountsBeforeLegs.toe;
     actor.sourceSwingCalfAssistFrames=candidate.sourceCountsBeforeLegs.calf;
     actor.sourceStanceReliefFrames=candidate.sourceCountsBeforeLegs.stance;
