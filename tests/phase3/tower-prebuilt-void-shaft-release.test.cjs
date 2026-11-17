@@ -82,7 +82,11 @@ test('after the original cap has genuinely expired, recorded same-run HP0 crossi
 test('actual Floor9 world uploads original noninteractive shaft after first renderer return, holds alpha zero until source release, then reveals before vista',()=>{
   const world=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
   assert.match(world,/arrival\.submittedFrames>=1 && !options\.stale\) \{/);
-  assert.match(world,/buildTower\(arrival\.height,false,false\)/);
+  assert.match(world,/buildTower\(arrival\.height,false,false,'core'\)/);
+  assert.match(world,/buildTower\(arrival\.height,false,false,'periphery'\)/);
+  assert.match(world,/arrival\.submittedFrames>arrival\.peripheryBuiltAtSubmitted/);
+  assert.match(world,/buildVoid\(arrival\.height\)/);
+  assert.match(world,/arrival\.biomeBuiltAtSubmitted=arrival\.submittedFrames/);
   assert.match(world,/material\.name='SourceEarnedIncomingFloorNineShaft'[\s\S]*?material\.opacity=0/);
   assert.match(world,/arrival\.state='awaiting-structural-release'/);
   assert.match(world,/job\.state!=='awaiting-structural-release'[\s\S]*?job\.structuralFade<1/);
