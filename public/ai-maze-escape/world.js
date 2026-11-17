@@ -3517,7 +3517,7 @@ export function createMazeWorld(options = {}) {
     // consecutive false-to-true witness. Never infer a hit from a skipped tick,
     // first-seen parried actor, old run, hidden cell or terminal snapshot.
     const earned=publicGuardianCounterMoment(snapshot,s);
-    if(earned)observedEarnedCounter={...earned,start:presentationTime};
+    if(earned)observedEarnedCounter={...earned,start:null};
     else if(observedEarnedCounter && (
       observedEarnedCounter.runToken!==s.runToken || s.lifecycle!=='running'
       || !!s.result || presentationTime-observedEarnedCounter.start>=PUBLIC_GUARDIAN_COUNTER_SECONDS
@@ -3705,11 +3705,11 @@ export function createMazeWorld(options = {}) {
         threat.id===observedEarnedCounter.id
         && threat.cell===guardianCell && threat.lanternParried===true);
     if(directWitness && observedEarnedCounter.start===null)
-      observedEarnedCounter.start=t;
+      observedEarnedCounter.start=presentationTime;
     const guardianCounterPhase=Number.isFinite(options.guardianCounterPhase)
       ?options.guardianCounterPhase
       :directWitness?Math.max(0,Math.min(1,
-        (presentationTime-observedEarnedCounter.start)/PUBLIC_GUARDIAN_COUNTER_SECONDS)):undefined;
+        (presentationTime-observedEarnedCounter.start)/1.15)):undefined;
     const alongX=witnessedLane
       && Math.floor(heroCell/snapshot.width)===Math.floor(guardianCell/snapshot.width);
     const alongZ=witnessedLane && heroCell%snapshot.width===guardianCell%snapshot.width;

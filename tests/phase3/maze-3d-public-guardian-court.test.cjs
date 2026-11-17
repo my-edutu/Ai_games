@@ -1361,8 +1361,10 @@ test('Pass348 original guardian shell frame has true through-space and still phy
 
 test('earned public lantern counter propagates a real three-cell 3D court wave, never a fabricated hidden or sealed passage',async()=>{
   const {createMazeWorld}=await load();
-  const source=original();
-  const won={...source,threats:[{id:'thornback',cell:8,lanternParried:true}]};
+  // The physical wave must be earned by an ACTUAL adjacent published tick.
+  // Preserve every strong 3D hinge, shell and six-reset acceptance assertion.
+  const source={...original(),tick:7};
+  const won={...source,tick:8,threats:[{id:'thornback',cell:8,lanternParried:true}]};
   const w=createMazeWorld({balanced:true}),budget=w.stats();
   const leaf=cell=>w.group.getObjectByName('Published guardian warning floor leaf '+cell+' 1');
   const counter={guardianCell:8,guardianParried:true,guardianBeat:0,reducedMotion:false};
