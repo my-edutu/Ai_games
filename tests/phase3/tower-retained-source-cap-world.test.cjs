@@ -658,8 +658,8 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===originalArch,true,
       'original bronze gate GPU identity must survive; never format the gigantic Three.js graph');
     assert.equal(world.diagnostics().deferredDistantArrival?.state,
-      'awaiting-structural-release',
-      'the genuine FIRST 3D shaft build cannot submit until an actual source-cleared returned room is ready');
+      'awaiting-structural-submission',
+      'a source-cleared full body and one old-door GPU return may stage the original low-alpha shaft for the NEXT render');
     const hiddenShaft=world.group.getObjectByName('deferred-original-floor-nine-architecture');
     assert.ok(hiddenShaft);
     const shaftOpacity=[];
@@ -667,8 +667,9 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
       if(object.isMesh && object.material?.name==='SourceEarnedIncomingFloorNineShaft')
         shaftOpacity.push(object.material.opacity);
     });
-    assert.ok(shaftOpacity.length>0 && shaftOpacity.every(opacity=>opacity===0),
-      'CPU construction and a lone cold WebGL return cannot pretend an already-visible F9 shaft');
+    assert.ok(shaftOpacity.length>0 &&
+      shaftOpacity.every(opacity=>opacity>0 && opacity<=.24),
+      'only the bounded optical aperture may be staged for a later render, not opaque scenery or claimed native pixels');
     assert.equal(world.diagnostics().vistaLayers,0);
     assert.ok(!sharedSurface.material.color.equals(firstGroundColor),
       'a genuine observed 10,000-unit step beyond the old sill, not WebGL wall-time, blends the real landing toward void');
@@ -678,10 +679,9 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
     // not from a fictional count of zero-duration renders. This source-level
     // Three probe must submit the exact modeled 50ms clock on each return;
     // absent render duration is a valid zero-time no-fade case elsewhere.
-    // Under the source-authenticated handoff the heavy violet shaft stays
-    // absent while the REAL bronze doorway and grounded successor roof
-    // are visible together. Eight actual returned submissions are not
-    // permission to bury the same threshold behind the purple architecture.
+    // Source-authenticated handoff can now stage restrained depth after one
+    // real original-gateway return. Eight subsequent submissions are still
+    // not permission to bury that original bronze threshold in opaque Void.
     resourceCheckpoint('three-clocks-before-8-real-return-loop');
     for(let step=2;step<=8;step++){
       resourceCheckpoint('three-clocks-return-'+step+'-begin');

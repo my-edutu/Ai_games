@@ -42,6 +42,7 @@ test('an unearned, unsubmitted, stale, counterfeit or obstructed route cannot sh
     ([s,h,j])=>{s.lifecycle='completed';},
     ([s,h,j])=>{s.player.health=0;},
     ([s,h,j])=>{s.player.x=h.thresholdX+6000;},
+    ([s,h,j])=>{s.player.x=h.thresholdX+13000;},
     ([s,h,j])=>{s.player.groundedPlatformId='f9:invented';},
     ([s,h,j])=>{s.platforms[0].y-=10000;},
     ([s,h,j])=>{h.originalGatewayOpacity=.6;},

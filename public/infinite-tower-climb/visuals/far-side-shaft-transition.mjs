@@ -290,7 +290,10 @@ export function observedSourceEarnedEarlyVoidShaftAperture(source, held, job) {
      ground.width<=0 || ground.height<=0 ||
      ground.y+ground.height!==held.oldRoofY ||
      p.halfWidth<=0 || p.halfHeight<=0 ||
-     p.x-p.halfWidth<held.thresholdX+4000 ||
+     // A fully exited source player must also leave the old bronze
+     // sightline. Real recorded first F9 contact clears by 7.2m; the
+     // 4m legal crossing alone does not prove a readable optical opening.
+     p.x-p.halfWidth<held.thresholdX+6000 ||
      p.x-p.halfWidth>held.thresholdX+60000 ||
      p.x-p.halfWidth<ground.x ||
      p.x+p.halfWidth>ground.x+ground.width) return null;
