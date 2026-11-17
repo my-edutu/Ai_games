@@ -41,7 +41,7 @@ test('a projected hero/opened gate does not excuse a new genuine old-cap or Void
 test('original real F8 lens is checked against the same CURRENT source-owned F9 triangles before accepting the camera',()=>{
   const text=fs.readFileSync(path.resolve(__dirname,
     '../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
-  assert.match(text,/assessOriginalGatewayPhysicalCameraBridge\(bridgePhysicalBefore,bridgePhysicalAfter\)/);
+  assert.match(text,/assessOriginalGatewayPhysicalCameraBridge\(\s*bridgePhysicalBefore,bridgePhysicalAfter\)/);
   assert.match(text,/world\.measureSuccessorDeckVisibility\(\s*snapshot,camera\.position,thresholdHero,p\.halfHeight\/SCALE,\s*thresholdGate/);
   assert.match(text,/bridgeProjectionAndCoreSafe && bridgePhysical\.allowed/);
   assert.match(text,/originalGatewayCameraPhysicalVetoed/);
