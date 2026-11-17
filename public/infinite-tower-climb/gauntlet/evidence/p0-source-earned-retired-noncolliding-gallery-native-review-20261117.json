@@ -1,0 +1,62 @@
+{
+  "stage": "P0 — EVIDENCE + GAME-LOOP TRUTH (OPEN)",
+  "leadingVerdict": "NOT EVALUATED",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "sourcePinBeforeCaptureRequest": "2eeac147708b100afcb20bb408220ecdfd7a0e20",
+  "originalPreviousCandidateSha": "8381a3ca6f0c8c2e2656cfc6c95d88970fa75105",
+  "originalPreviousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44077486702",
+  "actualUnmodifiedVideoArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44077486702/artifacts/14324648903",
+  "videoInspection": {
+    "scenario": "danger",
+    "recording": "original 1x 25fps WebMs, ~72 seconds each",
+    "viewports": [
+      "desktop 960x600",
+      "portrait 390x844"
+    ],
+    "inspected": "Real original source-pinned WebM sampled transition frames from 20 to 33 seconds and exact-run browser/source sidecars; not full independent 1x observer acceptance",
+    "mostImportantDefect": "The retained bronze Floor 8 foreground gallery blocks the original living climber and obscures where the opened guardian doorway meets authentic F9. Floor9 HUD precedes distinctly purple destination by ~1.5 seconds on both layouts and source/event-to-native-video pairing fails in both.",
+    "sourceToNativeSearch": {
+      "portrait": {
+        "sourceCrossingApproxSeconds": 24.372,
+        "drawnFloor9HudApproxSeconds": 25.5,
+        "sustainedVioletApproxSeconds": 27.25
+      },
+      "desktop": {
+        "sourceCrossingApproxSeconds": 24.468,
+        "drawnFloor9HudApproxSeconds": 25.75,
+        "sustainedVioletApproxSeconds": 27.5
+      }
+    },
+    "importantCaveat": "Native event search handles are not pixel-proven source events, color transition alone is not a physical portal crossing; previous strict pairing FAILED 0/2; no valid matched baseline defeat event"
+  },
+  "implementation": {
+    "scope": "ONLY source-authenticated Floor8->Floor9 original historic, non-colliding gallery visual owner",
+    "change": "After an actual recorded HP-zero crossing (or independently preserved original-grounded receipt), living current hero must physically stand/launch on a real F9 source deck beyond the original sill AND at least one WebGL frame must have truly returned. Then the genuinely old gallery material retreats across three successful renderer returns/0.3 seconds while the actual bronze guardian gate, collision roof, moving/raised destinations, hazards and actor stay unchanged.",
+    "productionCommits": [
+      "c0b55f4152d7ad512c61259dd21b0463415c1f3a",
+      "2eeac147708b100afcb20bb408220ecdfd7a0e20"
+    ],
+    "testCommit": "0e9c3692bf05d543ddc53e04992e5613fc7967f5",
+    "tests": [
+      "tests/phase3/tower-earned-original-gallery-departure.test.cjs"
+    ],
+    "testStatus": "Red tests observed on test-only commit, exact-source CI for production SHA queued/running; no green assumption",
+    "privacyReplay": "No source actor/HP/position/collision mutation; one bounded return-derived material coefficient tied to immutable run owner; nothing touches PR58"
+  },
+  "qualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44085360272",
+  "captureRequest": "To be source-pinned to request commit after evidence; not yet filmed",
+  "independentFreshContextReviews": {
+    "LOOKS": "0/5",
+    "FEELS": "0/5",
+    "PLAYS": "0/5"
+  },
+  "actualHardwarePerformance": {
+    "p50": "NOT EVALUATED",
+    "p95": "NOT EVALUATED",
+    "p99": "NOT EVALUATED",
+    "memory": "NOT EVALUATED"
+  },
+  "goNoGo": "P0 remains OPEN. Even all quality jobs passing cannot establish gameplay fidelity, uncut source matched video, actual device FPS or a blind review vote.",
+  "nextHighestImpact": "Inspect exact-request desktop and portrait source-pinned full 1x danger/outcome footage frame by frame; verify the original opened gate, entire hero and genuine raised F9 destination share consecutive returned native frames WITHOUT a bronze-post wall/pop. If still blocked, profile first F9 WebGL cold cost and restructure world upload to create visible destination before HUD without inventing source actions.",
+  "forbidden": "No frozen baseline shift, PR58 rewrite, PR68 draft change, merge, deploy, force push or unrelated-game edits."
+}
