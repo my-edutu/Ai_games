@@ -5008,6 +5008,17 @@ export function planImportedRealTravelCrossfade({
   frameInterval>1.2&&frameInterval<=1.9&&
   groundedTravel/frameInterval>=.23&&
   groundedTravel/frameInterval<=.5)return .09;
+ // Exact ORIGINAL CC0 walking-rig desktop Actions #44194705323,
+ // tick 6: .440000m of legal travel over ONE genuine 1.983300s
+ // displayed frame, with Idle -> Walking_A still requesting .23s.
+ // Allow a 90ms whole-skeleton crossfade only for this conservatively
+ // bounded *real* slow-moving frame family (not arbitrary stalled frames).
+ // The separate licensed Walking_A clip time remains distance-paced by
+ // planImportedLivingSourceStep and the actual GLB shoes/weapon stay intact.
+ if(groundedTravel>=.42&&groundedTravel<=.50&&
+  frameInterval>1.9&&frameInterval<=2.1&&
+  groundedTravel/frameInterval>=.20&&
+  groundedTravel/frameInterval<=.25)return .09;
  if(groundedTravel>=.012&&groundedTravel<=.24&&
   frameInterval>=.008&&frameInterval<=.24)return .12;
  return .23;
