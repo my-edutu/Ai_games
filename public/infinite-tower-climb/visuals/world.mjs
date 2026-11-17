@@ -1641,10 +1641,11 @@ export function createTowerWorld(){
       firstFrameVoidMaterials:distinctSuccessor,
       coreDeferred:false,coreDrawn:true,runToken:snapshot.runToken};
   }
-  function buildTower(height,openClockworkPylons=false,includeBiomeDetails=true){
+  function buildTower(height,openClockworkPylons=false,includeBiomeDetails=true,section='full'){
     const root=floorGroup;
     // Separate load-bearing vessels leave the central climbing corridor quiet;
     // each biome's machinery belongs to the surrounding architecture.
+    if(section!=='periphery'){
     if(openClockworkPylons && height>30) {
       // Actual source-pinned 390x844 danger film (42873903171, 14-23s)
       // still places a massive black CENTRAL pressure-well drum behind the
@@ -1691,6 +1692,8 @@ export function createTowerWorld(){
       lathe(root,[[0,-34],[10.8,-34],[12.4,-24],[12.4,height+13],
         [10.2,height+25],[0,height+25]],materials.dark,[0,0,-3]).userData.structural=true;
     }
+    }
+    if(section!=='core'){
     const capStructure=clockworkCapActionClearSpan(theme,height);
     const pylons=capStructure.pylons;
     for(const [i,p]of pylons.entries()){
@@ -1852,6 +1855,7 @@ export function createTowerWorld(){
     if(theme==='storm')buildStorm(height);
     if(theme==='clockwork')buildClockwork(height);
     if(includeBiomeDetails && theme==='void')buildVoid(height);
+    }
   }
   function buildFoundry(height){
     // A complete pressure furnace sits on the right shoulder. Its smaller,
@@ -3706,7 +3710,10 @@ export function createTowerWorld(){
       proof:earnedSourceUploadWitness?'recorded-source-gateway':'adjacent-browser-guardian',
       material:null, fade:0, vistaMaterial:null, vistaFade:0,
       structuralMaterials:[],structuralShadows:[],structuralFade:1,
-      structuralRoot:null,detailRoot:null,detailMaterials:[],detailShadows:[],detailFade:0,detailBuiltAtSubmitted:null,vistaRoot:null,farRoot:null,
+      structuralRoot:null,detailRoot:null,detailMaterials:[],detailShadows:[],detailFade:0,detailBuiltAtSubmitted:null,
+      peripheryBuiltAtSubmitted:null,structureOuterBuildMs:null,
+      biomeRoot:null,biomeMaterials:[],biomeShadows:[],biomeFade:0,biomeBuiltAtSubmitted:null,
+      vistaRoot:null,farRoot:null,
       initialRebuildMs:+(performance.now()-rebuildStartedAt).toFixed(2),
       actualFirstFrameVoidBearings:stagedVoidArchitecture?.coreDrawn===true,
       entireIncomingVoidCoreDeferred:stagedVoidArchitecture?.coreDeferred===true,
@@ -3877,6 +3884,25 @@ export function createTowerWorld(){
           mesh.castShadow=castShadow;
       }
     }
+    // Original Void crystals are a separate real-return-owned GPU stage.
+    if(job.biomeMaterials?.length && !options.stale &&
+       Number.isSafeInteger(job.biomeBuiltAtSubmitted) &&
+       job.submittedFrames>job.biomeBuiltAtSubmitted &&
+       job.structuralFade>.015 && job.biomeFade<1){
+      job.biomeFade=Math.min(job.structuralFade,job.biomeFade+shown/.7);
+      for(const {material,originalOpacity} of job.biomeMaterials)
+        material.opacity=originalOpacity*job.biomeFade;
+      if(job.biomeRoot)job.biomeRoot.visible=job.biomeFade>.015;
+      if(job.biomeFade>=1){
+        for(const {material,originalTransparent,originalDepthWrite} of job.biomeMaterials){
+          material.transparent=originalTransparent;
+          material.depthWrite=originalDepthWrite;
+          material.needsUpdate=true;
+        }
+        for(const {mesh,castShadow} of job.biomeShadows)
+          mesh.castShadow=castShadow;
+      }
+    }
     if(job.vistaMaterial &&
        ['awaiting-vista-submission','fading-remote-arrival','complete'].includes(job.state) &&
        job.vistaFade<1){
@@ -3893,7 +3919,9 @@ export function createTowerWorld(){
     }
     if(job.state==='fading-remote-arrival' &&
        job.fade>=1 && job.vistaFade>=1 &&
-       (!job.structuralMaterials?.length || job.structuralFade>=1)){
+       (!job.structuralMaterials?.length || job.structuralFade>=1) &&
+       (!job.detailMaterials?.length || job.detailFade>=1) &&
+       (!job.biomeMaterials?.length || job.biomeFade>=1)){
       job.state='complete';
       if(job.vistaMaterial){
         job.vistaMaterial.transparent=false;
@@ -4040,7 +4068,7 @@ export function createTowerWorld(){
     if(deferredDistantArrival) {
       // The same earned bronze-to-Void architectural tint owns BOTH layers.
       for(const layer of [deferredDistantArrival.structuralMaterials,
-        deferredDistantArrival.detailMaterials]) {
+        deferredDistantArrival.detailMaterials,deferredDistantArrival.biomeMaterials]) {
         for(const {material,sourceColor} of layer||[])
           if(material.color && sourceColor)material.color.copy(sourceColor);
       }
@@ -4098,7 +4126,7 @@ export function createTowerWorld(){
         // layer before the next genuine WebGL return.
         const began=performance.now(), before=floorGroup.children.length;
         const rotorCount=rotors.length, floaterCount=floaters.length;
-        buildTower(arrival.height,false,false);
+        buildTower(arrival.height,false,false,'core');
         const structuralRoot=new THREE.Group();
         structuralRoot.name='deferred-original-floor-nine-architecture';
         structuralRoot.visible=false;
@@ -4144,31 +4172,24 @@ export function createTowerWorld(){
     // batched mesh/material ownership as a single releaseable structure.
     // Two CPU build bursts now have a real playable F9 submission between
     // them; neither source ticks nor RAF polls can skip the second receipt.
+    // Three actual returned-frame upload owners: original F9 core, outer
+    // clockwork load path and animated Void detail. Do not age presentation
+    // from a guessed source floor, RAF tick or hidden WebGL submission.
     if(arrival && arrival.key===key &&
        arrival.state==='awaiting-void-biome-build' && !options.stale &&
        arrival.structuralRoot?.isGroup &&
        snapshot.lifecycle==='running' && snapshot.floor===9 &&
        snapshot.runToken===arrival.runToken &&
        Number.isSafeInteger(arrival.structureBuiltAtSubmitted) &&
-       arrival.submittedFrames>arrival.structureBuiltAtSubmitted){
-        const detailBuildStartedAt=performance.now();
-        const structuralRoot=arrival.structuralRoot;
-        // The actual shell is already batched, so stage authentic Void
-        // details in an independent GPU owner. Never re-upload the shell
-        // while joining the separately animated original crystals.
-        const from=floorGroup.children.length;
-        buildVoid(arrival.height);
+       arrival.submittedFrames>arrival.structureBuiltAtSubmitted &&
+       !Number.isSafeInteger(arrival.peripheryBuiltAtSubmitted)){
+        const began=performance.now(),from=floorGroup.children.length;
+        buildTower(arrival.height,false,false,'periphery');
         const detailRoot=new THREE.Group();
-        detailRoot.name='deferred-authentic-floor-nine-biome-details';
+        detailRoot.name='deferred-original-floor-nine-outer-buttresses';
         detailRoot.visible=false;
         for(const child of floorGroup.children.slice(from))detailRoot.add(child);
-        structuralRoot.add(detailRoot);
-        const deferredShellRotors=rotors.slice(arrival.structuralRotorStart);
-        const deferredShellFloaters=floaters.slice(arrival.structuralFloaterStart);
-        const animatedStructuralRoots=new Set([
-          ...deferredShellRotors.map(rotor=>rotor.o),
-          ...deferredShellFloaters.map(floater=>floater.o)]);
-        for(const rotor of deferredShellRotors)batchRigid(rotor.o);
+        arrival.structuralRoot.add(detailRoot);
         detailRoot.traverse(object=>{
           if(!object.isMesh)return;
           object.castShadow=!object.userData.ambientDetail &&
@@ -4176,21 +4197,63 @@ export function createTowerWorld(){
               object.material===materials.dark);
           object.receiveShadow=!object.userData.ambientDetail;
         });
-        batchRigid(detailRoot,animatedStructuralRoots);
-        const detail=isolateIncomingVoidLayer(detailRoot,'void-biome-detail');
+        batchRigid(detailRoot);
+        const detail=isolateIncomingVoidLayer(detailRoot,'outer-bearing-frame');
         arrival.detailRoot=detailRoot;
         arrival.detailMaterials=detail.materials;
         arrival.detailShadows=detail.shadows;
         arrival.detailFade=0;
         arrival.detailBuiltAtSubmitted=arrival.submittedFrames;
+        arrival.peripheryBuiltAtSubmitted=arrival.submittedFrames;
+        arrival.structureBuiltAtSubmitted=arrival.submittedFrames;
+        arrival.structureOuterBuildMs=+(performance.now()-began).toFixed(2);
+    }
+    // This third stage can run ONLY after the buttress scene REALLY returned.
+    // Neither the genuine Floater meshes nor rotating halo may be batched into
+    // a static structure or revealed before its separately returned frame.
+    if(arrival && arrival.key===key &&
+       arrival.state==='awaiting-void-biome-build' && !options.stale &&
+       arrival.structuralRoot?.isGroup &&
+       snapshot.lifecycle==='running' && snapshot.floor===9 &&
+       snapshot.runToken===arrival.runToken &&
+       Number.isSafeInteger(arrival.peripheryBuiltAtSubmitted) &&
+       arrival.submittedFrames>arrival.peripheryBuiltAtSubmitted &&
+       !Number.isSafeInteger(arrival.biomeBuiltAtSubmitted)){
+        const began=performance.now(),from=floorGroup.children.length;
+        const rotorStart=rotors.length,floaterStart=floaters.length;
+        buildVoid(arrival.height);
+        const biomeRoot=new THREE.Group();
+        biomeRoot.name='deferred-authentic-floor-nine-crystal-biome';
+        biomeRoot.visible=false;
+        for(const child of floorGroup.children.slice(from))biomeRoot.add(child);
+        arrival.structuralRoot.add(biomeRoot);
+        const newRotors=rotors.slice(rotorStart),newFloaters=floaters.slice(floaterStart);
+        const animatedStructuralRoots=new Set([
+          ...newRotors.map(rotor=>rotor.o),
+          ...newFloaters.map(floater=>floater.o)]);
+        for(const rotor of newRotors)batchRigid(rotor.o);
+        biomeRoot.traverse(object=>{
+          if(!object.isMesh)return;
+          object.castShadow=!object.userData.ambientDetail &&
+            (!!object.userData.structural || object.material===materials.stone ||
+              object.material===materials.dark);
+          object.receiveShadow=!object.userData.ambientDetail;
+        });
+        batchRigid(biomeRoot,animatedStructuralRoots);
+        const biome=isolateIncomingVoidLayer(biomeRoot,'authentic-animated-void-biome');
+        arrival.biomeRoot=biomeRoot;
+        arrival.biomeMaterials=biome.materials;
+        arrival.biomeShadows=biome.shadows;
+        arrival.biomeFade=0;
+        arrival.biomeBuiltAtSubmitted=arrival.submittedFrames;
         const used=new Set();
         floorGroup.traverse(object=>{if(object.geometry)used.add(object.geometry);});
         for(const geometry of floorGeometries)if(!used.has(geometry)){
           geometry.dispose();floorGeometries.delete(geometry);
         }
-        arrival.structureDetailBuildMs=+(performance.now()-detailBuildStartedAt).toFixed(2);
+        arrival.structureDetailBuildMs=+(performance.now()-began).toFixed(2);
         arrival.structureBuildMs=+(arrival.structureLoadBearingBuildMs+
-          arrival.structureDetailBuildMs).toFixed(2);
+          arrival.structureOuterBuildMs+arrival.structureDetailBuildMs).toFixed(2);
         arrival.structureBuiltAtSubmitted=arrival.submittedFrames;
         arrival.state='awaiting-structural-release';
     }
