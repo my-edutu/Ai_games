@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-17T07:39:00Z",
+  "updatedAt": "2026-11-17T08:53:45.251Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass445c original current-HEAD WebGL 44039221235 SUCCESS (221/221 Node, 8/8 native browser, six-run <100, 40/40 PNG+3 gate SHA); actual 390 earned L-corner image differs from Pass444 baseline 1.60/255 mean and has no meaningful physically legible improvement; 320 framing/ornaments worse, mission contradiction persists. Therefore reject Pass445 L-floor stage and restore exactly the known Pass444 world.js, remove candidate test. New rollback-HEAD CI pending; official Nintendo bar unmet."
+    "summary": "Pass446 candidate d7492840 exact-HEAD native WebGL 44048387926 SUCCESS; 40/40 original screenshots and 3/3 true gate hashes verified; strict geometry/framing passed. REAL 320 earned guardian frame barely changes (2.964/255 full-frame RGB MAE) and still shows crowded rails and Avoid warden versus present-tense lantern counter; 390 composition shifts without a clear mechanism win. Official Nintendo bar REJECTS this visually, so only the candidate world.js cutaway is rolled back to Pass445c source. New rollback-HEAD native CI pending. Independent critic NOT_FOUND."
   },
   "captures": [
+    {
+      "title": "Pass446 d7492840 native four-viewport WebGL 40/40 original PNG SHA+3 genuine gate SHA; sealed L-corner cutaway artistically rejected, rolled back",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44048387926/artifacts/14312463601"
+    },
     {
       "title": "Pass445b e4dea3c7 native four-viewport WebGL 40/40 original PNG SHA and three true gate SHA verified; visual improvement rejected",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44039221235/artifacts/14308219285"

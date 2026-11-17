@@ -520,7 +520,7 @@ export function createMazeWorld(options = {}) {
   let batches = [], animations = [], ripples = [], renderedCells = [], stairEdges = [], stairBalustrades = 0, coastalGardens = 0, wallGardens = 0, lastVisibility = '', highContrast = false;
   let coastCanopies = 0, tidalObservatories = 0, sculptedMosaicWalls = 0, tidePennants = 0, perimeterCascades = 0, collapsedPavilions = 0, shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0, gateForecourtParapets = 0, pressureStageParapets = 0, guardianSightlineParapets = 0, gateCourtRosettes = 0;
   let tideFossilGroves = 0, tideFossilAlcoves = 0, fossilGalleryEdges = 0, undercroftButtresses = 0, hangingFacadeGardens = 0, closedTideMedallions = 0;
-  let pressureRetainingGalleries = 0, guardianCourtTiles = 0, guardianBlockedReliefTiles = 0, guardianCausewayTiles = 0, guardianForecourtShoulderTiles = 0, guardianOuterCourtFloorTiles = 0, guardianOuterCourtSealedTiles = 0, shorelineLoadFacades = 0, earnedGuardianSightlineCutaways = 0;
+  let pressureRetainingGalleries = 0, guardianCourtTiles = 0, guardianBlockedReliefTiles = 0, guardianCausewayTiles = 0, guardianForecourtShoulderTiles = 0, guardianOuterCourtFloorTiles = 0, guardianOuterCourtSealedTiles = 0, shorelineLoadFacades = 0;
   // Authored, disclosed wall-side fossils react only to the PUBLIC explorer pose.
   // These are live Three groups, not hidden route markers or a new game system.
   let fossilSails = [], fossilOrgans = [], trapJaws = [], trapSignals = [], guardianTideSignals = [], publicHeroX = 0, publicHeroZ = 0;
@@ -1202,7 +1202,7 @@ export function createMazeWorld(options = {}) {
     for (let j = 0; j < 3; j++) plant(x - span + j * .08, 2.8 - j * .42, z + .17, seed + j * 5, cell, 1.4 - j * .15);
   }
   function rebuildTerrain(s) {
-    pressureRetainingGalleries = 0; guardianCourtTiles = 0; guardianBlockedReliefTiles = 0; guardianCausewayTiles = 0; guardianForecourtShoulderTiles = 0; guardianOuterCourtFloorTiles = 0; guardianOuterCourtSealedTiles = 0; shorelineLoadFacades = 0; earnedGuardianSightlineCutaways = 0;
+    pressureRetainingGalleries = 0; guardianCourtTiles = 0; guardianBlockedReliefTiles = 0; guardianCausewayTiles = 0; guardianForecourtShoulderTiles = 0; guardianOuterCourtFloorTiles = 0; guardianOuterCourtSealedTiles = 0; shorelineLoadFacades = 0;
     clear(terrain); fossilSails = []; fossilOrgans = []; guardianTideSignals = []; batchData = new Map(); renderedCells = s.cells.map(c => c.cell); stairEdges = []; stairBalustrades = 0; tideFossilGroves = 0; tideFossilAlcoves = 0; fossilGalleryEdges = 0; undercroftButtresses = 0; hangingFacadeGardens = 0; closedTideMedallions = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0; gateForecourtParapets = 0; pressureStageParapets = 0; guardianSightlineParapets = 0; gateCourtRosettes = 0;
     const edges = new Set(), columns = new Set(), landmarkSites = new Map();
     const guardianSightlines=publicGuardianStageCells(s);
@@ -2178,36 +2178,13 @@ export function createMazeWorld(options = {}) {
           // mechanical cues; this wall is NOT a crossing or safe-route cue.
           // Never use a private hazard graph or a remembered-only cell.
           ;
-        // A genuinely earned recoil on a disclosed L-corner may have a tall
-        // NONPASSAGE flank beyond the straight-only guardian stage. Replace
-        // ONLY such a verified same-level solid boundary with continuous,
-        // opaque low Tideglass stone. Both CURRENT published sides must deny
-        // passage: never cut away a real open path, gate, pressure mechanism,
-        // undisclosed edge, stair, landmark or another run's old sightline.
-        // This does not alter engine collisions, AI knowledge, or route graph.
-        const earnedGuardianSealedScreen=!!adjacentKnown
-          && earnedRecoilQuiet.has(c.cell) && earnedRecoilQuiet.has(n)
-          && !pressureSightlines.has(c.cell) && !pressureSightlines.has(n)
-          && c.blocked===false && adjacentKnown.blocked===false
-          && !c.trap && !adjacentKnown.trap
-          && !c.checkpoint && !adjacentKnown.checkpoint
-          && !c.clue && !adjacentKnown.clue
-          && c.cell!==s.exitCell && n!==s.exitCell
-          && !s.keys.some(k=>k.cell===c.cell || k.cell===n)
-          && s.visibleCells.includes(c.cell) && s.visibleCells.includes(n)
-          && Array.isArray(c.neighbors) && Array.isArray(adjacentKnown.neighbors)
-          && !c.neighbors.includes(n) && !adjacentKnown.neighbors.includes(c.cell)
-          && Math.abs(cellHeight(c.cell,s.width,s.height)
-            -cellHeight(n,s.width,s.height))<1e-8
-          && !s.doors.some(d=>(d.a===c.cell&&d.b===n)
-            || (d.b===c.cell&&d.a===n));
         // The older blocked-cell flank rule remains, but a genuine
         // spectator-side public guardian wall may outrank a merely nearby
         // pressure apron. A CONNECTED hazard never earns this cutaway.
         const guardianParapet = !publicParapet
-          && (!pressureParapet || guardianForegroundSealedScreen || earnedGuardianSealedScreen)
+          && (!pressureParapet || guardianForegroundSealedScreen)
           && n>=0 && knownByCell.has(n) && !gateEdges.has(key)
-          && (guardianForegroundSealedScreen || earnedGuardianSealedScreen
+          && (guardianForegroundSealedScreen
             || ((guardianCauseway.has(c.cell) || guardianCauseway.has(n))
               && (guardianSealedReefScreen ||
                 (((guardianSightlines.has(c.cell) && guardianBlockedRelief.has(n))
@@ -2215,8 +2192,6 @@ export function createMazeWorld(options = {}) {
                   && (!!c.blocked !== !!knownByCell.get(n).blocked)
                   && !knownByCell.get(n).neighbors?.includes(c.cell)))));
         const fossilStageEdge = fossilSide && fossilSide.n === n;
-        if (earnedGuardianSealedScreen && guardianParapet
-          && !guardianForegroundSealedScreen) earnedGuardianSightlineCutaways++;
         if (publicParapet || pressureParapet || guardianParapet)
           gateForecourtParapet(x + dx * 1.2, z + dz * 1.2, !!dz, c.cell,
             pressureParapet, guardianParapet);
@@ -4154,7 +4129,7 @@ export function createMazeWorld(options = {}) {
   }
   function dispose() {
     if (disposed) return; disposed = true;
-    pressureRetainingGalleries = 0; guardianCourtTiles = 0; guardianBlockedReliefTiles = 0; guardianCausewayTiles = 0; guardianForecourtShoulderTiles = 0; guardianOuterCourtFloorTiles = 0; guardianOuterCourtSealedTiles = 0; shorelineLoadFacades = 0; earnedGuardianSightlineCutaways = 0;
+    pressureRetainingGalleries = 0; guardianCourtTiles = 0; guardianBlockedReliefTiles = 0; guardianCausewayTiles = 0; guardianForecourtShoulderTiles = 0; guardianOuterCourtFloorTiles = 0; guardianOuterCourtSealedTiles = 0; shorelineLoadFacades = 0;
     clear(terrain); clear(objects); clear(backdrop); publicClosedSockets.clear(); gateOpeningAt.clear(); retractingGates.clear(); keyPickupAt.clear();
     for (const g of geometries) g.dispose();
     for (const m of materials) m.dispose();
@@ -4223,7 +4198,7 @@ export function createMazeWorld(options = {}) {
           inwardShearRadians: hinges.length
             ? Math.min(...hinges.map(jaw => jaw.side * jaw.object.rotation.z)) : 0};
       });
-    return { witnessedPressureMechanisms, fossilMotionMaxRadians, earnedGuardianSightlineCutaways, guardianCourtTiles, guardianBlockedReliefTiles, guardianCausewayTiles, guardianForecourtShoulderTiles, guardianOuterCourtFloorTiles, guardianOuterCourtSealedTiles, shorelineLoadFacades, guardianTideSignalTiles:guardianTideSignals.length, renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), stairBalustrades, tideFossilGroves, tideFossilAlcoves, fossilGalleryEdges, undercroftButtresses, hangingFacadeGardens, closedTideMedallions, responsiveFossilSails: fossilSails.length, responsiveFossilOrgans: fossilOrgans.length, responsiveTrapJaws: trapJaws.length, responsiveTrapSignals: trapSignals.length, trapJawOpenMaxRadians: trapJaws.length ? Math.max(...trapJaws.map(jaw => Math.abs(jaw.object.rotation.z))) : 0, coastalGardens, wallGardens, coastCanopies, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, wallWindcatchers, gateForecourtParapets, pressureStageParapets, guardianSightlineParapets, gateCourtRosettes, pressureRetainingGalleries, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
+    return { witnessedPressureMechanisms, fossilMotionMaxRadians, guardianCourtTiles, guardianBlockedReliefTiles, guardianCausewayTiles, guardianForecourtShoulderTiles, guardianOuterCourtFloorTiles, guardianOuterCourtSealedTiles, shorelineLoadFacades, guardianTideSignalTiles:guardianTideSignals.length, renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), stairBalustrades, tideFossilGroves, tideFossilAlcoves, fossilGalleryEdges, undercroftButtresses, hangingFacadeGardens, closedTideMedallions, responsiveFossilSails: fossilSails.length, responsiveFossilOrgans: fossilOrgans.length, responsiveTrapJaws: trapJaws.length, responsiveTrapSignals: trapSignals.length, trapJawOpenMaxRadians: trapJaws.length ? Math.max(...trapJaws.map(jaw => Math.abs(jaw.object.rotation.z))) : 0, coastalGardens, wallGardens, coastCanopies, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, wallWindcatchers, gateForecourtParapets, pressureStageParapets, guardianSightlineParapets, gateCourtRosettes, pressureRetainingGalleries, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
   }
   // On-demand production-mesh ray identification for exact-source native visual
   // diagnosis. Batches contain ONLY public render cells; never enumerate
