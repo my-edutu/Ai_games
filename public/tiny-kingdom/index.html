@@ -2937,6 +2937,19 @@ function getWorksiteSkinContinuityAudit(){
 // unobserved, physically small-but-near REAL professional may reuse a
 // bounded GPU pose. Human-sized hands, the followed actor, loaded freight
 // and receipt handoffs remain continuously live in the original path.
+// W413 Phase 1: the SAME selected farmer, forester, builder or smith at an
+// actual worksite can retain their complete original thirteen-joint 3D body.
+// Work-contact and occupation animation still follow their CURRENT real rig
+// every drawn WebGL frame; no extra worker, task, cargo or harvest is created.
+// A genuine delivery/unloading or verified household meal stays on its
+// full live CPU IK/physical-hand path. Budget/GL failure falls back to villager.
+function isObservedWorksiteSkinCandidate(p,i,nearPeople){
+ return Boolean(workingSkinCapable&&gpuAvailable&&foregroundResidentEnabled&&p&&
+  i===selectedCitizen&&(follow||liveWorkday)&&nearPeople.has(i)&&
+  isWorkingAtSite(p)&&!p.delivery&&!isMarketUnloading(p)&&
+  !verifiedHouseholdMealEvidence(p)&&
+  [p.x,p.z,p.phase,p.workTimer].every(Number.isFinite));
+}
 function isForegroundWorksiteCandidate(p,i,nearPeople,frame){
  if(!gpuAvailable||!foregroundResidentEnabled||!p||!nearPeople.has(i)||
     !isWorkingAtSite(p)||p.delivery||isMarketUnloading(p)||
@@ -3129,7 +3142,8 @@ function prepareForegroundResidents(rows,frame){
  const ranked=rows.map(row=>({row,
   // The followed legitimate unloaded traveler gets first claim on the
   // bounded VBO; full-scale work/contact heroes remain in the live CPU path.
-  priority:((follow||liveWorkday)&&row.i===selectedCitizen&&
+  priority:isObservedWorksiteSkinCandidate(row.p,row.i,nearPeople)?4:
+   ((follow||liveWorkday)&&row.i===selectedCitizen&&
     isForegroundWalkingSkinCandidate(row.p,row.i,frame))?3:
    isWorkingAtSite(row.p)?2:
    isForegroundWalkingSkinCandidate(row.p,row.i,frame)?1:0}));
@@ -3377,6 +3391,11 @@ function getForegroundResidentAudit(){
     /^(Traveling to |Exploring the valley$|Returning home at dusk$)/
      .test(row.p.activity||'')).map(row=>row.p.name),
   observedTravelScreenGate:{enter:.245,retain:.295},
+  observedRealWorksiteSkinNames:foregroundResidentVisible
+   .filter(row=>row.entry.skinned&&row.i===selectedCitizen&&
+     isObservedWorksiteSkinCandidate(row.p,row.i,new Set([row.i])))
+   .map(row=>row.p.name),
+  observedRealWorksiteJointPalette:true,
   followedActiveContactAlwaysLive:true,
   contactLimitMeters:.015,contactLimitRadians:.010,
   followedWorkerHandsFullyLive:true,loadedAndUnloadingFullyLive:true,
@@ -31198,7 +31217,10 @@ const foregroundRows=gpuAvailable?people.map((p,i)=>({p,i}))
   // Same original citizen, saved-state-true movement and handoff continuity:
   // only the spectator's unloaded travel may use existing GPU joint buffers.
   ((follow||liveWorkday)&&i===selectedCitizen&&nearPeople.has(i)&&
-   isForegroundWalkingSkinCandidate(p,i,commuterFrame))):[];
+   isForegroundWalkingSkinCandidate(p,i,commuterFrame))||
+  // W413: selected ACTUAL grain cutting / forging / building moves its
+  // ORIGINAL thirteen bones on the GPU; moving cargo/receipt hands do not.
+  isObservedWorksiteSkinCandidate(p,i,nearPeople)):[];
 const foregroundReady=prepareForegroundResidents(foregroundRows,commuterFrame);
 const foregroundIndices=foregroundReady?
  new Set(foregroundResidentVisible.map(row=>row.i)):new Set();
