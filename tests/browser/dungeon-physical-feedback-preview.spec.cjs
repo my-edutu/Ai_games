@@ -505,7 +505,7 @@ async function beginD04LiveAVCapture(page,captureProfile){
   pumpActive=true;pumpHandle=requestAnimationFrame(sampleRealSubmittedFrame);
   const livePcm=Promise.race([
    Promise.resolve().then(()=>window.__DUNGEON_RECORD_ORIGINAL_PCM__?.(5.5)??unavailable('Live PCM tap missing')),
-   new Promise(resolve=>setTimeout(()=>resolve(unavailable('Live PCM processor timed out')),9000))
+   new Promise(resolve=>setTimeout(()=>resolve(unavailable('Live PCM processor timed out')),17000))
   ]).then(pcm=>{
    if(!pcm)return unavailable('Live PCM gave no result');
    const {wav,...meta}=pcm;
@@ -761,6 +761,7 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
   // Missing from the static serving allowlist until the D04 real-browser
   // trace caught a 404; an absent ESM dependency prevents renderer startup.
   '/dungeon/warden-warning-lifecycle.js',
+  '/dungeon/d04-combat-pcm-worklet.js',
   '/dungeon/original-combat-foley.js',
   '/dungeon/physical-combat-feedback.js'
  ])expect((await request.get(endpoint)).status(),endpoint).toBe(200);

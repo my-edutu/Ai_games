@@ -33,7 +33,7 @@ function auditD04OriginalPcmImpactOnsets({pcm={},receipts=[],sourceStarts=[]}={}
   limitation:'Dedicated physical foley excludes legacy effects but can overlap other genuine combat cues. PCM and original WebAudio source starts share an AudioContext clock, not decoded WebM video PTS or measured speaker onset.'};
  const unavailable=(status,reason)=>({...base,status,reason,candidates:[]});
  if(pcm?.status!=='RECORDED'||pcm?.captureBus!=='d04-combat-fx-pre-master'||
-  pcm?.captureTopology!=='d04-original-foley-only-v1'||
+  !['d04-original-foley-only-v1','d04-original-foley-audio-thread-v1'].includes(pcm?.captureTopology)||
   pcm?.pcmClock?.status!=='CONTIGUOUS_CONTEXT_TIME_ONLY'||
   !Number.isFinite(pcm?.pcmClock?.firstSampleContextSeconds)||
   !Number.isFinite(pcm?.pcmClock?.lastSampleEndContextSeconds))

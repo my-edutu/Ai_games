@@ -36,6 +36,13 @@ test('only real receipt identity + original FX bus + contiguous PCM clock can yi
  assert.equal(a.decodedVideoContact,false);
  assert.equal(a.audibleImpactOnsetVerified,false);
 });
+test('D04 original audio-thread PCM is a valid sampled timeline, not decoded contact or A/V sync',()=>{
+ const x=analyze(fixture({topology:'d04-original-foley-audio-thread-v1'}));
+ assert.equal(x.status,'ORIGINAL_PCM_TRANSIENT_CANDIDATE_VIDEO_UNALIGNED');
+ assert.equal(x.candidateCount,1);
+ assert.equal(x.audibleImpactOnsetVerified,false);
+ assert.equal(x.sampleSynchronized,false);
+});
 test('stale damage, unsubmitted audio, and non-drawable injury never certify PCM contact',()=>{
  for(const change of [{decision:'stale-frame'},{audio:false},
   {frameId:null},{visualDrawableAtSubmission:false}]){

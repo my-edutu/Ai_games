@@ -190,6 +190,88 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
   * the real synth mix independently; never touches microphones or uploads.
   * Unsupported/silent graphs report UNAVAILABLE or SILENT, never a win.
   */
+
+ let pcmWorkletModuleLoad=null;
+ function recordD04CombatPcmWorklet(seconds,tapBus,sampleRate){
+  const maxFrames=Math.ceil(seconds*sampleRate);
+  return new Promise(resolve=>{
+   let recorder=null,silence=null,watchdog=null,settled=false;
+   const finish=(reason='complete',payload=null)=>{
+    if(settled)return;
+    settled=true;
+    if(watchdog!==null)clearTimeout(watchdog);
+    if(recorder){
+     recorder.port.onmessage=null;
+     try{recorder.port.postMessage({type:'stop'})}catch{}
+     try{tapBus.disconnect(recorder)}catch{}
+     try{recorder.disconnect()}catch{}
+    }
+    try{silence?.disconnect()}catch{}
+    if(pcmSession?.finish===finish)pcmSession=null;
+    if(reason!=='complete'||!payload){
+     resolve({status:'UNAVAILABLE',reason,frames:0,sampleRate});return;
+    }
+    const {buffer,frames,firstFrame,blocks,invalidClocks,discontinuities}=payload;
+    if(!(buffer instanceof ArrayBuffer)||buffer.byteLength!==maxFrames*2||
+     frames!==maxFrames||!Number.isSafeInteger(blocks)||blocks<1||
+     !Number.isSafeInteger(invalidClocks)||invalidClocks<0||
+     !Number.isSafeInteger(discontinuities)||discontinuities<0){
+     resolve({status:'UNAVAILABLE',reason:'Invalid bounded audio-thread PCM delivery',
+      frames:0,sampleRate});return;
+    }
+    const samples=new Int16Array(buffer);
+    const wav=new Uint8Array(44+frames*2),view=new DataView(wav.buffer);
+    const ascii=(at,s)=>{for(let i=0;i<s.length;i++)view.setUint8(at+i,s.charCodeAt(i))};
+    ascii(0,'RIFF');view.setUint32(4,wav.length-8,true);ascii(8,'WAVE');
+    ascii(12,'fmt ');view.setUint32(16,16,true);view.setUint16(20,1,true);
+    view.setUint16(22,1,true);view.setUint32(24,sampleRate,true);
+    view.setUint32(28,sampleRate*2,true);view.setUint16(32,2,true);
+    view.setUint16(34,16,true);ascii(36,'data');view.setUint32(40,frames*2,true);
+    let squares=0,peak=0;
+    for(let i=0;i<frames;i++){
+     const raw=samples[i],value=raw/32768;
+     view.setInt16(44+i*2,raw,true);
+     peak=Math.max(peak,Math.abs(value));squares+=value*value;
+    }
+    const rms=Math.sqrt(squares/frames);
+    const trustworthy=Number.isSafeInteger(firstFrame)&&firstFrame>=0&&
+     invalidClocks===0&&discontinuities===0;
+    resolve({status:peak>.0005&&rms>.0001?'RECORDED':'SILENT',
+     sampleRate,channels:1,frames,durationSeconds:frames/sampleRate,
+     captureBus:'d04-combat-fx-pre-master',
+     captureTopology:'d04-original-foley-audio-thread-v1',
+     pcmClock:{status:trustworthy?'CONTIGUOUS_CONTEXT_TIME_ONLY':
+      invalidClocks>0||firstFrame===null?'UNVERIFIED_MISSING_OR_INVALID_CLOCK':
+       'UNVERIFIED_NONCONTIGUOUS_CONTEXT_TIME',
+      clock:'AudioWorkletGlobalScope.currentFrame',blocks,invalidClocks,discontinuities,
+      firstSampleContextSeconds:trustworthy?firstFrame/sampleRate:null,
+      lastSampleEndContextSeconds:trustworthy?(firstFrame+frames)/sampleRate:null},
+     sampleSynchronized:false,bytes:wav.length,peak,rms,format:'PCM16_LE_WAV',wav});
+   };
+   // A suspended browser or stalled audio renderer must never retain a
+   // permanently connected diagnostic node or block later sessions.
+   pcmSession={finish};
+   watchdog=setTimeout(()=>finish('Audio-thread PCM capture timed out'),
+    Math.max(12000,Math.ceil(seconds*1000)+6000));
+   Promise.resolve().then(async()=>{
+    if(!pcmWorkletModuleLoad)
+     pcmWorkletModuleLoad=ctx.audioWorklet.addModule('/dungeon/d04-combat-pcm-worklet.js');
+    try{await pcmWorkletModuleLoad}
+    catch(error){pcmWorkletModuleLoad=null;throw error}
+    if(settled)return;
+    recorder=new globalThis.AudioWorkletNode(ctx,'d04-original-foley-pcm',{
+     numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[1],
+     processorOptions:{frames:maxFrames}});
+    silence=ctx.createGain();silence.gain.value=0;
+    recorder.port.onmessage=e=>{
+     if(e.data?.type==='complete')finish('complete',e.data);
+     else if(e.data?.type==='unavailable')finish(String(e.data.reason).slice(0,150));
+    };
+    tapBus.connect(recorder);recorder.connect(silence);silence.connect(ctx.destination);
+   }).catch(error=>finish('Audio-thread PCM unavailable: '+String(error).slice(0,160)));
+  });
+ }
+
  function recordOriginalPcm(seconds=4,{source='mix'}={}){
   // Isolate only original D04 physical foley, not footfalls/rewards, for
    // the read-only PCM audit. Existing speaker mix and legacy tap are unchanged.
@@ -200,11 +282,18 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
   const tapBus=source==='d04-combat-fx'?physicalFoleyBus:master;
   if(disposed||!started||!enabled||ctx.state!=='running'||!master||
    !tapBus||!Number.isFinite(seconds)||seconds<.5||seconds>10||
-   typeof ctx.createScriptProcessor!=='function'||pcmSession)
+   (!(source==='d04-combat-fx'&&typeof ctx.audioWorklet?.addModule==='function'&&
+      typeof globalThis.AudioWorkletNode==='function')&&
+    typeof ctx.createScriptProcessor!=='function')||pcmSession)
    return Promise.resolve({status:'UNAVAILABLE',reason:'Audio must be opted in, active, bounded and not already recording'});
   const sampleRate=ctx.sampleRate;
   if(!Number.isFinite(sampleRate)||sampleRate<8000||sampleRate>96000)
    return Promise.resolve({status:'UNAVAILABLE',reason:'Invalid live AudioContext sample rate'});
+  // The D04-only audio-thread stem avoids main-thread PCM gaps during WebGL stalls.
+  // Existing legacy/unsupported ScriptProcessor recording is unchanged.
+  if(source==='d04-combat-fx'&&typeof ctx.audioWorklet?.addModule==='function'&&
+   typeof globalThis.AudioWorkletNode==='function')
+   return recordD04CombatPcmWorklet(seconds,tapBus,sampleRate);
   return new Promise(resolve=>{
    let recorder=null,silence=null,frames=0,sumSquares=0,peak=0,settled=false;
    // AudioProcessingEvent.playbackTime anchors real PCM blocks on the
