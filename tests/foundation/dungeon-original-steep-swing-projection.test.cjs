@@ -181,3 +181,47 @@ test('RED: authentic 17 November source mobile micro-projection qualifies for or
  ])assert.equal(plan({...source,...corrupt}),null,
   'arbitrary short shoe or unverified source cannot pass original outsole gate');
 });
+
+
+// Session 03, 17 Nov 2026: exact source-GLB Walking_A 390px
+// shoe with a 59.5mm XZ outsole and ~300mm heel-to-toe vertical drop.
+// The source thigh+calf followup *changes the foot's world basis*. Converting
+// the authentic world-pitch axis through the PRE-THIGH foot quaternion is
+// physically wrong even if the outsole world axis was originally verified.
+// Recompute for each tested imported three-joint candidate; no new skin read,
+// hit, IK target, mesh or root step. Real after-GLB video is still required.
+test('RED: genuine world-outsole axis is converted after source thigh/calf candidate, not before',()=>{
+ const {Bone,Quaternion,Vector3}=require('three');
+ const skeletonRoot=new Bone(),upper=new Bone(),lower=new Bone(),foot=new Bone();
+ skeletonRoot.add(upper);upper.add(lower);lower.add(foot);
+ skeletonRoot.rotation.y=.61;
+ upper.rotation.x=.17;
+ lower.rotation.z=-.11;
+ foot.rotation.y=.29;
+ skeletonRoot.updateMatrixWorld(true);
+ const dx=-3.722258800592407-(-3.665895134576252);
+ const dz=-7.150651891426191-(-7.131502700894674);
+ const worldAxis=new Vector3(-dz,0,dx).normalize();
+ const originalWorld=foot.getWorldQuaternion(new Quaternion());
+ const staleLocal=worldAxis.clone().applyQuaternion(originalWorld.clone().invert());
+ upper.quaternion.multiply(new Quaternion().setFromAxisAngle(new Vector3(1,0,0),-.11));
+ lower.quaternion.multiply(new Quaternion().setFromAxisAngle(new Vector3(0,0,1),.11));
+ upper.updateWorldMatrix(true,true);
+ const candidateWorld=foot.getWorldQuaternion(new Quaternion());
+ const correctedLocal=worldAxis.clone().applyQuaternion(candidateWorld.clone().invert());
+ assert.ok(correctedLocal.clone().applyQuaternion(candidateWorld).angleTo(worldAxis)<1e-6,
+  'new local foot pitch must raise the same verified world-space toe direction');
+ assert.ok(staleLocal.clone().applyQuaternion(candidateWorld).angleTo(worldAxis)>.04,
+  'the old pre-thigh basis points the foot pitch off the true skinned outsole');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const start=renderer.indexOf('for(const {upperRad,lowerRad,footRad} of connectedAngles)');
+ const end=renderer.indexOf('trials.push({upperRad,lowerRad,footRad',start);
+ assert.ok(start>0&&end>start,'actual original-GLB two-candidate foot sweep must exist');
+ const trial=renderer.slice(start,end);
+ assert.match(trial,/upper\.bone\.updateWorldMatrix\(true,true\);[\s\S]*foot\.bone\.getWorldQuaternion\(/,
+  'update the imported upper/lower transforms before mapping the source world pitch into foot-local');
+ assert.match(trial,/footAxis\.copy\(worldSoleAxis\)/,
+  'the world sole direction must be applied to each trial rather than cached before candidate thigh/calf');
+ assert.match(trial,/foot\.bone\.quaternion\.copy\(kneeFootCoupled\.savedFoot\)\.multiply\(/,
+  'real imported foot still receives a reversible local delta');
+});
