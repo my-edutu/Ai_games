@@ -480,7 +480,7 @@ export function planOriginalSourceCoupledFootStarter({
   Math.abs(floorTopY+.02)>.005||
   ![rootTravel,frameAge,frameInterval].every(finite)||
   rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.15||
-  frameInterval<.008||frameInterval>.200001||
+  frameInterval<.008||frameInterval>.240001||
   !shoe(before?.[side])||!shoe(before?.[other])||
   !Array.isArray(starterTrials)||starterTrials.length!==2)return null;
  const swing=before[side],loaded=before[other];
@@ -533,6 +533,39 @@ export function planOriginalSourceCoupledFootStarter({
  });
 }
 
+/**
+ * Original licensed Walking_A mobile source frames span 216–233ms while
+ * real root travel is only 45–82mm. Reserve only the two existing weighted
+ * source-shoe probes for a connected knee/foot counterpitch after exact
+ * same-rig starter readback and verified original tracks + bind.
+ * Eligibility never implies sole contact or accepted skin.
+ */
+export function planOriginalSourceCoupledKneeFootFollowups({
+ starter=null,sourceInstanceId='',sourceChainVerified=false,
+ sourceUpperTrackVerified=false,sourceLowerTrackVerified=false,
+ sourceFootTrackVerified=false,sourceBindVerified=false,
+ sourceAnatomicalFootAxisVerified=false,...owner
+}={}){
+ if(typeof sourceInstanceId!=='string'||!sourceInstanceId||
+  sourceChainVerified!==true||sourceUpperTrackVerified!==true||
+  sourceLowerTrackVerified!==true||sourceFootTrackVerified!==true||
+  sourceBindVerified!==true||sourceAnatomicalFootAxisVerified!==true||
+  starter?.source!=='actual-original-source-three-joint-swing-opportunity'||
+  starter.contactLocked!==false||starter.expectedSourceSkinnedTrials!==2)
+  return null;
+ const observed=planOriginalSourceCoupledFootStarter(owner);
+ if(!observed||observed.sign!==starter.sign||
+  Math.abs(observed.excessHeelRiseMeters-starter.excessHeelRiseMeters)>.001)
+  return null;
+ // The genuine source knee clip moved ~765mrad between measured keys.
+ // Only sparse >=160ms source frames may probe 140mrad, versus 110mrad
+ // on a 16–49ms step. 110mrad hip and 240mrad foot remain caps.
+ const knee=owner.frameInterval>=.16?.14:.11,sign=starter.sign;
+ return Object.freeze([.18,.24].map(footRad=>Object.freeze({
+  upperRad:.11*sign,lowerRad:-knee*sign,footRad
+ })));
+}
+
 export function chooseOriginalSourceCoupledKneeFootSweep({
  mode='idle',sourceClipName='',sourceWeight=NaN,
  sourceInstanceSame=false,sourceChainVerified=false,
@@ -553,7 +586,7 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
   alive!==true||visible!==true||teleport||reducedMotion||interrupted||
   ![rootTravel,frameAge,frameInterval,floorTopY].every(finite)||
   rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.15||
-  frameInterval<.008||frameInterval>.200001||
+  frameInterval<.008||frameInterval>.240001||
   Math.abs(floorTopY+.02)>.005||!opposite||
   !Array.isArray(trials)||trials.length<1||trials.length>2)return null;
  const valid=s=>s&&[s.heelY,s.toeY].every(finite)&&
@@ -578,7 +611,7 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
   const shoe=after?.[side],loaded=after?.[opposite];
   if(![upperRad,lowerRad,footRad].every(finite)||
    Math.abs(upperRad)<.074999||Math.abs(upperRad)>.110001||
-   Math.abs(lowerRad)<.074999||Math.abs(lowerRad)>.110001||
+   Math.abs(lowerRad)<.074999||Math.abs(lowerRad)>(frameInterval>=.16?.140001:.110001)||
    Math.abs(footRad)<.119999||Math.abs(footRad)>.240001||
    Math.sign(upperRad)===Math.sign(lowerRad)||
    !valid(shoe)||!valid(loaded))continue;

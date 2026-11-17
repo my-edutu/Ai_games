@@ -6993,8 +6993,8 @@ test('RED: original three-joint source heel-pitch rejection retargets bounded so
  const end=renderer.indexOf('function stageRigLegsAfterMixer(',start);
  assert.ok(start>0&&end>start);
  const stage=renderer.slice(start,end);
- assert.match(stage,/upperRad:\.11\*sign,lowerRad:-\.11\*sign,track:matches\[0\]\.name/);
- assert.match(stage,/for\(const footRad of \[\.18,\.24\]\)/,
+ assert.match(stage,/planOriginalSourceCoupledKneeFootFollowups\(/);
+ assert.match(stage,/for\(const \{upperRad,lowerRad,footRad\} of connectedAngles\)/,
   'same two skinned GLB slots, now source-measured favorable foot-axis candidates');
  assert.match(stage,/final\.oppositeShoePreserved!==true/);
  assert.match(stage,/final\.contactLocked!==false/);
@@ -7066,7 +7066,7 @@ test('RED: exact 390px and desktop buried source toe prioritizes bounded hip-kne
   for(const bad of [
    {sourceInstanceSame:false},{sourceWeight:.90},{alive:false},{teleport:true},
    {reducedMotion:true},{interrupted:true},{rootTravel:0},
-   {frameInterval:.205},{previousLinkedCertified:true},
+   {frameInterval:.245},{previousLinkedCertified:true},
    {before:{...gate.before,left:{...rig.loaded,toeY:.07}}},
    {starterTrials:[gate.starterTrials[0],{
     ...gate.starterTrials[1],after:after({toe:rig.positive.toe,
@@ -7139,8 +7139,10 @@ test('RED: native 390px sparse Walking_A swing may spend the existing two probes
   {alive:false},{visible:false},{reducedMotion:true},{interrupted:true},
   {teleport:true},{rootTravel:0},{frameInterval:.245}
  ]) {
-  assert.equal(starter({...gate,...bad}),null,
-   'original source probe eligibility must refuse missing authority, source or cadence');
+  if(!Object.hasOwn(bad,'sourceFootTrackVerified')&&
+   !Object.hasOwn(bad,'sourceAnatomicalFootAxisVerified'))
+   assert.equal(starter({...gate,...bad}),null,
+    'source probe eligibility refuses stale movement, source or cadence');
   assert.equal(followups({...gate,...bad,starter:witnessed}),null,
    'joint followups must refuse unsupported source or stale owner');
  }
