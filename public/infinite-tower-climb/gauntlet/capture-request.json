@@ -5858,5 +5858,42 @@
     },
     "realDevicePerformance": "NOT EVALUATED",
     "safety": "No baseline move, PR58 edits, merge, deployment, force push, draft toggle, or other game changes."
+  },
+  "p0PassiveCompositorCapturePressureSourcePinned20261117": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "productionChangeSha": "cd1b4f70b206741cfc5d64a78af2c919e0bff136",
+    "captureCandidate": "EXACT IMMUTABLE github.sha of this new capture-request commit, never branch tip",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "highestImpactQuestion": "Can reduced recording-instrumentation JPEG contention remove source-to-native-paint latency enough to show a grounded source-earned Floor8 guardian gate to Floor9 real walkable shaft transition in BOTH 25fps original recordings?",
+    "measuredPriorCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44057146762",
+    "priorCandidateSha": "d806200b605f0baecc3e8bf186eab444066752f3",
+    "measuredOriginalDesktop": {
+      "capturedAnchors": 23,
+      "acceptedUniquePictureAnchors": 15,
+      "sourceFloor8To9NativeSeconds": 24.366,
+      "drawnHudFloor9Seconds": 25.5,
+      "sustainedVoidSeconds": 26.75,
+      "sourceToFirstReturnedWebGLMs": 537
+    },
+    "measuredOriginalPortrait": {
+      "capturedAnchors": 24,
+      "acceptedUniquePictureAnchors": 13,
+      "sourceFloor8To9NativeSeconds": 24.778,
+      "drawnHudFloor9Seconds": 26,
+      "sustainedVoidSeconds": 27.5,
+      "sourceToFirstReturnedWebGLMs": 551
+    },
+    "implementation": "Reduce CDP Page.startScreencast sampling from every 2nd to every 12th compositor frame, still 85% original Chrome JPEG and 24 bounded unique anchor files. Record delivered frame/transport counters in native-video-clock.json on same observational harness for BOTH baseline and candidate. No gameplay or recording rate modifications and no weaker >=3 native timebase anchor/event gates.",
+    "expectedEvidence": "Eight original >=60s low-tier 1x 25fps baseline/candidate playthroughs, both 960x600 and 390x844, source events, real compositor PNG? NO — true original JPG matching to unedited WebM, CDP transport counters, original physical-doorway submissions, floor9/floor10 and outcome/restart, strict source-event-to-film audit. No inferred pixel match or reviewer score.",
+    "noSelfAcceptance": "A reduction in CDP JPEG messages is a mechanism, not verified FPS, visually seamless gameplay, full film pairing or AAA quality. Inspect genuine normal-speed film; reject if the real full-body climber, original opened gateway and walkable F9 do not coexist in consecutive source-aligned native frames.",
+    "independentReviews": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "physicalDeviceP50P95P99Memory": "NOT EVALUATED",
+    "nextAction": "Compare post-change CDP delivered-frame pressure and accepted unique matches versus prior, inspect full original films, source-to-painted-HUD delay and complete grounded crossing. If still discontinuous, refactor cold first-F9 world/frame ownership rather than polishing HUD/camera.",
+    "safety": "Do not move frozen baseline; preserve PR58 and PR68 draft; no merge, deploy, force-push, source simulation edits or unrelated games."
   }
 }
