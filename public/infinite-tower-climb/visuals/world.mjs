@@ -1010,6 +1010,10 @@ export function createTowerWorld(){
   // guardian departure, rather than leaving frozen bronze bars behind when
   // the old doorway is retired on a slow first successor frame.
   let sourceEarnedBearingPalette=null;
+  // Real retained/first-frame authored bearings are additional silhouette
+  // blockers during the physical F8->F9 ascent, not just scenery. Keep one
+  // noncolliding source-owned camera-ray owner for their live 3D triangles.
+  let sourceEarnedBearingSightlineRoot=null;
   // The original GPU doorway may retire between two WebGL returns while
   // its three REAL Floor9 bearing materials still carry bronze. Preserve
   // that already-earned material state across the source-proof handoff, then
@@ -3442,6 +3446,7 @@ export function createTowerWorld(){
     stagedVoidArchitecture = null;
     arrivalRoutePalette = null;
     sourceEarnedBearingHandoff = null;
+    sourceEarnedBearingSightlineRoot=null;
     lastProtectedUndercroftEntries.length=0;
     successorUndercroftSightline={active:false,meshes:0,rays:0,softened:0};
     rigidUploadBytes=0;rigidExpandedBytes=0;rigidIndexedBatches=0;rigidBatchCount=0;rigidPackedVertexBuffers=0;rigidPriorSeparateVertexBuffers=0;
@@ -3467,6 +3472,7 @@ export function createTowerWorld(){
     supportRoot.userData={source:plan.source,roofId:plan.roofId,
       stepId:plan.stepId,nonInteractive:true,stations:plan.nodes.length};
     floorGroup.add(supportRoot);
+    sourceEarnedBearingSightlineRoot=supportRoot;
     // Three genuinely different forged material phases, not a saturated
     // new-world swap. Reuse original authored box geometry with fixed
     // instancing; bounded to three draw calls / no shadows / no texture fetch.
@@ -4464,9 +4470,22 @@ export function createTowerWorld(){
     }
     ranked.sort((a,b)=>a.score-b.score);
     const roots=ranked.slice(0,3).map(candidate=>candidate.root);
+    // The previous camera fixed real successor-deck and old-gate obstruction,
+    // yet the first returned Void buttress and later REAL monumental shaft
+    // could still conceal the skinned hero or opened gate in portrait. Sample
+    // the actual already-built scene groups, not a second proxy or collider.
+    // Limit this cold doorway ray work to two structural owners per shot.
+    const architectureRoots=[];
+    if(stagedVoidArchitecture?.root?.isGroup &&
+       stagedVoidArchitecture.root.visible!==false)
+      architectureRoots.push(stagedVoidArchitecture.root);
+    const incoming=deferredDistantArrival?.structuralRoot?.visible===true
+      ?deferredDistantArrival.structuralRoot:sourceEarnedBearingSightlineRoot;
+    if(incoming?.isGroup && incoming.visible!==false &&
+       incoming!==architectureRoots[0])architectureRoots.push(incoming);
     return measureAuthoritativeDeckSightline({
       source,held,camera,body,bodyHalfHeight,gate,platformRoots:roots,
-      originalGateRoot:held.originalGateRoot,
+      architectureRoots,originalGateRoot:held.originalGateRoot,
       raycaster:successorDeckRay,direction:successorDeckRayDirection,
       point:successorDeckRayTarget,hits:successorDeckRayHits
     });
