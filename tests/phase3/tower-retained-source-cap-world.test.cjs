@@ -426,8 +426,13 @@ test('source-witnessed cold Floor9 keeps distant scenery off the FIRST real fram
       'twelve unsubmitted RAF updates cannot finish CPU construction or spend a GPU receipt');
     world.noteFrameSubmitted(newFloor,{},.05);
     world.update(newFloor,.05,.15,{quality:'low'});
+    assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-void-biome-build',
+      'second actual return builds original exterior buttresses without crystal detail');
+    assert.ok(shaft.getObjectByName('deferred-original-floor-nine-outer-buttresses')?.isGroup);
+    world.noteFrameSubmitted(newFloor,{},.05);
+    world.update(newFloor,.05,.2,{quality:'low'});
     assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-structural-release',
-      'second real returned F9 frame finishes biome detail, batching, and safe material isolation');
+      'third actual return constructs and isolates the original animated biome');
     const shellMaterials=[];
     shaft.traverse(o=>{
       if(o.isMesh && o.material?.name==='SourceEarnedIncomingFloorNineShaft')
@@ -674,8 +679,15 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
     world.update(later,.05,.15,{quality:'low'},
       {...passage,handoffSubmittedFrames:2,handoffDisplaySeconds:.10});
     assert.equal(world.diagnostics().deferredDistantArrival?.state,
+      'awaiting-void-biome-build',
+      'second actual return finishes only the real outer load-bearing supports');
+    assert.ok(world.group.getObjectByName('deferred-original-floor-nine-outer-buttresses')?.isGroup);
+    world.noteFrameSubmitted(later,{},.05);
+    world.update(later,.05,.2,{quality:'low'},
+      {...passage,handoffSubmittedFrames:3,handoffDisplaySeconds:.15});
+    assert.equal(world.diagnostics().deferredDistantArrival?.state,
       'awaiting-structural-submission',
-      'second real-return-owned stage completes same original hidden shaft and only then permits the source-bound aperture');
+      'third actual return finishes original moving biome before source-certified aperture');
     const hiddenShaft=world.group.getObjectByName('deferred-original-floor-nine-architecture');
     assert.ok(hiddenShaft);
     const shaftOpacity=[];
@@ -687,7 +699,7 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
       shaftOpacity.some(opacity=>opacity>0 && opacity<=.28) &&
       shaftOpacity.every(opacity=>opacity>=0 && opacity<=.28),
       'source-gated returned shell may reach 28% while original Void biome detail remains zero-alpha and unsent');
-    const deferredDetail=hiddenShaft.getObjectByName('deferred-authentic-floor-nine-biome-details');
+    const deferredDetail=hiddenShaft.getObjectByName('deferred-authentic-floor-nine-crystal-biome');
     assert.ok(deferredDetail?.isGroup && deferredDetail.visible===false,
       'authentic biome detail must not steal the first source-authenticated shell shot');
     const details=[];
@@ -707,7 +719,7 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
     // real original-gateway return. Eight subsequent submissions are still
     // not permission to bury that original bronze threshold in opaque Void.
     resourceCheckpoint('three-clocks-before-8-real-return-loop');
-    for(let step=2;step<=8;step++){
+    for(let step=3;step<=8;step++){
       resourceCheckpoint('three-clocks-return-'+step+'-begin');
       const frame={...later,tick:460+step};
       const witness={...passage,handoffSubmittedFrames:step,
@@ -1000,8 +1012,13 @@ test('source-earned Floor9 paints one actual open Void load path beside the reta
       'first return only constructs the authentic load-bearing shell, with no premature material isolation');
     world.noteFrameSubmitted(departed,{},.05);
     world.update(departed,.05,.95,{quality:'low'});
+    assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-void-biome-build',
+      'second real source return builds the actual exterior buttresses, not crystals');
+    assert.ok(newShaft.getObjectByName('deferred-original-floor-nine-outer-buttresses')?.isGroup);
+    world.noteFrameSubmitted(departed,{},.05);
+    world.update(departed,.05,1.0,{quality:'low'});
     assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-structural-release',
-      'second return builds the original Void details and isolates all noninteractive shaft materials');
+      'third actual return builds original crystals and isolates the final noninteractive biome');
     const incomingMeshes=[];
     newShaft.traverse(o=>{if(o.isMesh)incomingMeshes.push(o);});
     assert.ok(incomingMeshes.length>0 &&
@@ -1009,7 +1026,7 @@ test('source-earned Floor9 paints one actual open Void load path beside the reta
         mesh.material?.opacity>=0 && mesh.material?.opacity<=.28 :
         mesh.material.every(material=>material.opacity>=0 && material.opacity<=.28)),
       'real supported source departure permits at most 28% scenic shell while genuine F9 route stays opaque');
-    const newDetails=newShaft.getObjectByName('deferred-authentic-floor-nine-biome-details');
+    const newDetails=newShaft.getObjectByName('deferred-authentic-floor-nine-crystal-biome');
     assert.ok(newDetails?.isGroup && newDetails.visible===false,
       'the separately built original crystal details cannot claim a GPU-returned frame they have not received');
     assert.ok(newShaft.getObjectByName('tapered-structural-pylon'),
