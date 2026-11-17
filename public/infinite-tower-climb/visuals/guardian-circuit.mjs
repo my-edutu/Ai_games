@@ -490,16 +490,41 @@ export function createTowerGuardianCircuit(THREE) {
       return {sourceBound:false,blockedRays:0,softened:false};
     }
     group.updateMatrixWorld(true);
-    let blocked=0;
-    for(const height of [.35,1,1.7]){
+    // The genuine desktop source tick441 ray hit the LEFT SOURCE shoulder
+    // while three centre-line rays missed it. Model the complete PRESENT
+    // skinned body, including both shoulders and lower flanks, from the
+    // authoritative half-width; never predict a jump or create a proxy.
+    // All nine casts reuse the same Raycaster/vector and existing instanced
+    // triangles, with no scene rebuild, new draw or collider change.
+    const widthValid=Number.isSafeInteger(p.halfWidth) &&
+      p.halfWidth>0 && p.halfWidth<=p.halfHeight*1.5;
+    const across=widthValid?Math.min(rise*.72,p.halfWidth/10000*.85):0;
+    const dx=feet.x-camera.position.x,dz=feet.z-camera.position.z;
+    const radial=Math.hypot(dx,dz);
+    const shoulderSamples=across>0 && radial>.1;
+    const sidewaysX=shoulderSamples?dz/radial*across:0;
+    const sidewaysZ=shoulderSamples?-dx/radial*across:0;
+    let blocked=0,shoulderBlocked=0,sampledRays=0;
+    // A full silhouette is safer than a camera-centre optical shortcut:
+    // heads, torso, flank and sole can all be occluded independently.
+    const silhouettes=shoulderSamples
+      ?[[.35,0],[1,0],[1.7,0],[.57,-1],[.57,1],
+        [1.35,-1],[1.35,1],[.21,-1],[.21,1]]
+      :[[.35,0],[1,0],[1.7,0]];
+    for(const [height,side] of silhouettes){
       rayPoint.copy(feet);
       rayPoint.y+=rise*height;
+      if(side){rayPoint.x+=side*sidewaysX;rayPoint.z+=side*sidewaysZ;}
       rayDirection.copy(rayPoint).sub(camera.position);
       const distance=rayDirection.length();
       if(!Number.isFinite(distance) || distance<=.5)continue;
       railRay.set(camera.position,rayDirection.multiplyScalar(1/distance));
       railRay.near=.01;railRay.far=distance-.25;
-      if(railRay.intersectObject(rails,false).length)blocked++;
+      sampledRays++;
+      if(railRay.intersectObject(rails,false).length){
+        blocked++;
+        if(side)shoulderBlocked++;
+      }
     }
     lastBlocked=blocked;lastRayTick=snapshot.tick;
     rayChecks=Math.min(1000000,rayChecks+1);
@@ -507,8 +532,9 @@ export function createTowerGuardianCircuit(THREE) {
     const softened=blocked>0 || (rails.material===railSightlineMaterial && clearReturns<4);
     rails.material=softened?railSightlineMaterial:railMaterial;
     if(softened)softenedProposals=Math.min(1000000,softenedProposals+1);
-    return {sourceBound:true,sourceTick:snapshot.tick,blockedRays:blocked,softened,
-      caveat:'Original live Three.js triangles, not native pixels, performance or preference'};
+    return {sourceBound:true,sourceTick:snapshot.tick,blockedRays:blocked,
+      shoulderBlockedRays:shoulderBlocked,sampledRays,softened,
+      caveat:'Original live Three.js full-source-body silhouette triangles, not native pixels, performance or preference'};
   }
   function diagnostics() {
     return {

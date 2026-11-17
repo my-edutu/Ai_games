@@ -85,3 +85,21 @@ test('four physically clear proposed camera rays restore complete gantry and no 
  assert.equal(rails.count,44);
  assert.equal(stage.diagnostics().shadowCastingMeshes,0);
 });
+
+test('source-sized lateral shoulders and flanks are actually raycast without inventing body size',async t=>{
+ const [api,coords]=await loaded,stage=api.createTowerGuardianCircuit(THREE);
+ t.after(()=>stage.dispose());const frame=source(),unchanged=JSON.stringify(frame);
+ stage.update(frame,{quality:'low'});
+ const {feet,camera,rails}=testRay(stage,frame,coords);
+ const witnessed=stage.protectHeroSightline(frame,camera,feet,{camera:'follow'});
+ assert.equal(witnessed.sampledRays,9,'full present body: three centre + six flank rays');
+ assert.ok(witnessed.blockedRays>=witnessed.shoulderBlockedRays);
+ assert.ok(witnessed.shoulderBlockedRays>=0&&witnessed.shoulderBlockedRays<=6);
+ assert.equal(rails.count,44,'no replacement or extra rendered gate triangles');
+ const missingWidth={...frame,player:{...frame.player,halfWidth:0}};
+ const conservative=stage.protectHeroSightline(missingWidth,camera,feet,{camera:'follow'});
+ assert.equal(conservative.sampledRays,3,'an untrusted missing source width cannot invent shoulders');
+ const forgedWidth={...frame,player:{...frame.player,halfWidth:frame.player.halfHeight*2}};
+ assert.equal(stage.protectHeroSightline(forgedWidth,camera,feet,{camera:'follow'}).sampledRays,3);
+ assert.equal(JSON.stringify(frame),unchanged,'source body/camera/guardian remain unchanged');
+});
