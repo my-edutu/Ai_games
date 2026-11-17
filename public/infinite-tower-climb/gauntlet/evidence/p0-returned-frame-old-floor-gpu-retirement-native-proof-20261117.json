@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "leadingTransformationVerdict": "NOT EVALUATED",
+  "sourceBefore": "1731b380851162741761c5569e2bc152a0869ca9",
+  "originalPreChangeHead": "8edbe95da45209c829893aa814825c12dad5dee6",
+  "productionSourceSha": "d22ad2bc52392980a110e29b113c019b6162568c",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "pr": 68,
+  "draft": true,
+  "basePr": 58,
+  "completedOutcome": "Implemented source-owned old-floor GPU resource retirement across scene ownership + original-world cleanup after the real returned F9 render, with an exact Three.js F8 HP0→F9 grounded passage and reset regression test. This is a systems-level latency intervention, not a visually accepted improvement.",
+  "filesChanged": [
+    "public/infinite-tower-climb/visuals/world.mjs",
+    "tests/phase3/tower-source-returned-old-floor-gpu-retirement.test.cjs"
+  ],
+  "safetyContract": "Only the verified original cap passage in low-tier may queue OLD unowned GPU payload; original retained gate/deck remain owned and visible, F9 decks/hazards unchanged. Max 1024 old resources, <=24 items and <=2ms per actual render return. Queue must flush on new run, other floor or disposal; no source tick/Raf/HTTP can drain it.",
+  "validation": {
+    "sourceQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44106344864",
+    "statusAtRecord": "9/10 jobs completed successfully; phase6 unrelated full-catalogue partition pending. Do not claim green until it completes.",
+    "newSourcePinnedCapture": "Requested by change to capture-request.json in same evidence commit, immutable github.sha of resulting commit; exact run link pending",
+    "newOriginalFootage": "NOT YET CAPTURED",
+    "sourceToFilm": "NOT VERIFIED",
+    "realDevice": "NOT EVALUATED"
+  },
+  "previousEvidence": {
+    "qualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44090803332",
+    "fullMotionCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44090803021",
+    "sourceTick": 475,
+    "desktopBrowserToReturnMs": 478,
+    "portraitBrowserToReturnMs": 570,
+    "desktopHudToWorldSeconds": 1,
+    "portraitHudToWorldSeconds": 1.75,
+    "coVisibleNativeTriple": "NOT VERIFIED",
+    "strictEventPairing": "FAILED BOTH"
+  },
+  "independentReview": {
+    "LOOKS": "0/5",
+    "FEELS": "0/5",
+    "PLAYS": "0/5"
+  },
+  "largestGap": "Original source-earned Bronze→Void gateway still lacks two continuous native source-matched frames showing opened gate, full skinned hero and true walkable Floor9; high cold first-F9 latency and visual occlusion remain until measured after cleanup.",
+  "nextHighestImpact": "Inspect exact new 9-job original WebM and source sidecars at 960x600 and 390x844. Compare source-to-Three build and renderer metrics with previous same-seed original; if upload remains dominant, selectively stage actual first-F9 critical draw geometry and remove camera occlusion. If genuine improvement not observed, revert new reaper; preserve authoritative floor nine and PR58."
+}
