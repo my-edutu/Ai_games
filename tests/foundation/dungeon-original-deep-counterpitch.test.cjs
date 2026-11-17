@@ -556,3 +556,52 @@ test('RED: source connected fourth-foot sample uses real two-bone clearance befo
  const controller=fs.readFileSync(path.join(root,'public/ai-dungeon/full-body-animation-controller.js'),'utf8');
  assert.match(controller,/trial\?\.sourceCoupledHipKneeRelief/);
 });
+
+
+// Additional source-contract unit coverage after real RED run #44163171384.
+// These shoe coordinates are synthetic *gate* fixtures. They are never
+// presented as rendered GLB contact, visual quality or certified planted feet.
+test('licensed fourth connected source-skin trial accepts only witnessed bounded lever and preserves opposite shoe',async()=>{
+ const {planOriginalSourceCoupledFootStarter:starterFn,
+  chooseOriginalSourceCoupledKneeFootSweep:choose}=await load();
+ const starter=starterFn(owner);
+ assert.equal(starter?.sign,-1);
+ const relief={source:'verified-original-post-coupled-hip-knee-lever',
+  upperRad:-.145,lowerRad:.145,footRad:.46,deltaRad:.035,
+  worldToeLiftEstimateMeters:.0063,
+  worldHeelLiftEstimateMeters:.0063,
+  originalSourceContactLocked:false};
+ const adaptive={source:'verified-original-post-coupled-toe-hinge',
+  toeRad:-.32,derivativeMetersPerRad:-.085,
+  originalSourceContactLocked:false};
+ const trial={...relief,toeRad:-.32,
+  sourceCoupledHipKneeRelief:relief,
+  sourceAdaptiveToeCandidate:adaptive,
+  after:after(.055,-.001)};
+ const approved={...owner,starter,sourceToeTrackVerified:true,
+  sourceToeChainVerified:true,sourceToeSkinnedWeight:1};
+ const safe=choose({...approved,trials:[trial]});
+ assert.equal(safe?.source,'measured-original-skinned-coupled-knee-foot');
+ assert.equal(safe?.sourceJointCount,4);
+ assert.equal(safe?.sourceCoupledHipKneeRelief,relief);
+ assert.equal(safe?.oppositeShoePreserved,true);
+ assert.equal(safe?.contactLocked,false);
+ assert.ok(safe.afterToeY<owner.floorTopY,
+  'a still-buried synthetic toe may never be relabelled as planted');
+ for(const bad of [
+  {...trial,sourceCoupledHipKneeRelief:null},
+  {...trial,sourceCoupledHipKneeRelief:{...relief,deltaRad:.05}},
+  {...trial,sourceCoupledHipKneeRelief:{...relief,worldToeLiftEstimateMeters:.09}},
+  {...trial,sourceCoupledHipKneeRelief:{...relief,originalSourceContactLocked:true}},
+  {...trial,sourceCoupledHipKneeRelief:{...relief,upperRad:-.14}},
+  {...trial,after:after(.055,.06)},
+  {...trial,after:after(.055,-.001,{...right,toeY:right.toeY+.005})}
+ ]) assert.equal(choose({...approved,trials:[bad]}),null,
+  'unsafe lever, heel or supporting shoe must fail closed');
+ for(const unsafe of [{sourceToeTrackVerified:false},
+  {sourceToeSkinnedWeight:.85},{sourceChainVerified:false},
+  {sourceBindVerified:false},{interrupted:true},
+  {reducedMotion:true},{teleport:true},{sourceWeight:.8},
+  {rootTravel:0},{frameInterval:.24}])
+   assert.equal(choose({...approved,...unsafe,trials:[trial]}),null);
+});
