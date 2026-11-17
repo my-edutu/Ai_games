@@ -39,7 +39,7 @@ test('the second architectural doorway is a real-world instanced gate with no au
   const fs = require('node:fs');
   const source = fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/guardian-passage.mjs'), 'utf8');
   assert.match(source, /ObservedWalkableGuardianThreshold/);
-  assert.match(source, /new THREE\.InstancedMesh\(box, stone, 6\)/);
+  assert.match(source, /new THREE\.InstancedMesh\(box, stone, 7\)/);
   // The original solid bronze BoxGeometry contract is obsolete. Inspect the
   // REAL Three.js geometry/instance on the source-held gateway instead: no
   // decorative depth hole or opened gate can grant collision clearance.
@@ -51,7 +51,7 @@ test('the second architectural doorway is a real-world instanced gate with no au
     const leaves = effect.group.getObjectByName('WalkableSourceCapRetractingBronzeLeaves');
     const outer = effect.group.getObjectByName('ClearedPassageBronzeLeaf');
     assert.equal(arch?.isInstancedMesh, true);
-    assert.equal(arch.count, 6);
+    assert.equal(arch.count, 7);
     assert.equal(leaves?.isInstancedMesh, true);
     assert.equal(leaves.count, 2);
     assert.equal(leaves.geometry, outer.geometry,
