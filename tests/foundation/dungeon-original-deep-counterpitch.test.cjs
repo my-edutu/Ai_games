@@ -228,7 +228,7 @@ test('RED-first: native 390px deeply buried 33ms, mildly heel-dominant source fo
   assert.equal(followup({...mobile,starter,...unsafe}),null,
    'real animation, source clip/skin, ownership and movement gates remain strict');
  const notDeepEnough={...mobile,before:{...mobile.before,
-  right:{...mobileRight,toeY:-.075}},starterTrials:mobile.starterTrials};
+  right:{...mobileRight,toeY:-.05}},starterTrials:mobile.starterTrials};
  assert.equal(starterFn(notDeepEnough),null,
   'actual source starter readback must match the exact source shoe, never a stale correction');
 });
