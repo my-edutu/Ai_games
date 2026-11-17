@@ -5540,7 +5540,11 @@ test('original linked upper+lower current-frame proof resets and final skinned o
  const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  const frame=renderer.indexOf('function stageRigLegsAfterMixer(');
  assert.ok(frame>0);
- assert.match(renderer.slice(frame,frame+400),
+ // The native source-window diagnostic precedes this reset. Audit every
+ // statement before the first leg early-return, not a brittle 400-char slice.
+ const firstEarlyReturn=renderer.indexOf('if(!actor.rigGaitBones?.length)return;',frame);
+ assert.ok(firstEarlyReturn>frame,'source-rig guard must remain after the current-frame resets');
+ assert.match(renderer.slice(frame,firstEarlyReturn),
   /actor\.sourceSwingLinkedCurrentFrameProofs=\{left:null,right:null\}/,
   'a stale or undefined linked witness must never survive an original mixer frame');
  const start=renderer.indexOf('function stageOriginalSourceSwingLinkedLegAfterMixer(');
