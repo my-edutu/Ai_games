@@ -1,0 +1,11 @@
+# Pass438 — rooted eclipse observatory; source candidate (2026-11-17 UTC)
+
+## Genuine baseline
+PR #53 OPEN DRAFT exact source `614e0fb3b4e4a3e6676a41513e6b8309bf73cc4a`. [Maze WebGL CI 43985538335](https://github.com/my-edutu/Ai_games/actions/runs/43985538335) SUCCESS, [untouched original artifact 14285362955](https://github.com/my-edutu/Ai_games/actions/runs/43985538335/artifacts/14285362955). Independently checked 40/40 full-resolution WebGL PNG/JSON SHA-256 pairs and the 3 public gate transition hashes. Natural earned counter seed13 tick8, guardian moves 91 to74, actors genuinely in frame at 320x740 and 390x844. Side-by-side real baseline still fails the official Nintendo Captain Toad quality benchmark: small slender observatory lost behind Thornback, generic large-water backdrop, cluttered parapets.
+Whole-repository CI 43985538265 separately failed Tiny Kingdom OBS after Maze stream host self-test succeeded; unrelated artifact uploads failed following the halted job.
+
+## Production work unit
+Replace previous barely visible mast with one **joined, rooted Tideglass eclipse observatory** behind the exact publicly witnessed guardian cell: two stone piers, upper lintel, open physical mineral dial, recessed ring, connected shell shutters. This entire mechanism responds to the already genuine published warning and earned Pip lantern counter (amber brace, retracting shell release) with the same source clock as existing Pip/Thornback/floor. No fabricated successful hit, key, route, AI action, private map, gate, damage effect, gameplay authority, renderer resource class, or per-frame geometry.
+
+## Acceptance/rejection
+CANDIDATE ONLY; source modification is not a visual success. Check exact-HEAD focused production CI, original unaltered WebGL playthrough 320x740,390x844,844x390,1280x900, 40 PNG SHA pair checks and 3 gate hashes. Compare A/B against exact baseline and Nintendo official images. Preserve full physical Pip/Thornback strict ±0.95 NDC, 44px controls, no occlusion, reduced-motion and hidden-info privacy, existing six-reset geometry resource budget **<100**. Reject/rollback if upper dial overlaps HUD or obscures actors, or fails to create a genuinely stronger read. Independent critic workers and Ultracode currently unavailable: coding workspace tunnel NOT_FOUND. PR draft remains unmerged/undeployed; Nintendo bar not met.

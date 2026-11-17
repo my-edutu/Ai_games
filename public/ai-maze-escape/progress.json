@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-16T23:57:40.361Z",
+  "updatedAt": "2026-11-17T00:55:59Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass436c: exact-HEAD strict tests exposed one genuine source regression (211/212 passed): direct-world Three.js physical three-cell earned-counter consumer lacked scene-phase clock. Restored a single authenticated, same-run public false→true world fallback while main gameplay retains exact actor phase. No per-cell phantom clock. New exact-HEAD Node/6-reset native WebGL and independent critique PENDING; Nintendo bar unmet."
+    "summary": "Pass438: Pass437 authentic exact-HEAD WebGL run 43985538335 SUCCESS; original 40/40 PNG SHA256 and 3 genuine gate hashes verified, but the slender Tideglass observatory remains illegible against busy guardian architecture. Built one source-bound connected eclipse observatory with physical dial/shutters responding only to a real public guardian warning and earned Pip lantern counter. Pass438 exact-SHA tests, uncropped 320/390/844/1280 captures, independent critique PENDING. Nintendo quality bar unmet."
   },
   "captures": [
+    {
+      "title": "Pass437 exact HEAD 614e0fb3 baseline — 40/40 source-bound unaltered WebGL PNG SHA verified and 3 real gate-frame hashes; full visual bar rejected",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/43985538335/artifacts/14285362955"
+    },
     {
       "title": "Pass433 original exact HEAD baf8101 native 320/390/844/1280 — 40/40 full PNG SHA sidecars + 3/3 true gate SHA, artistic candidate REJECTED",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/43964467448/artifacts/14275891913"
