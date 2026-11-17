@@ -87,6 +87,31 @@ export function publicGuardianLanternReach(snapshot, guardianCell, cellSize, bas
     ?Math.max(safeBase,cellSize*2.9):safeBase;
 }
 
+
+/**
+ * Act-1 warning and ACTUAL earned-counter theatrical light, on existing
+ * scene lights. This never simulates damage, grants vision, opens a route,
+ * or allocates GPU resources. The caller must supply only already witnessed
+ * public, reciprocally reachable guardian attention and a REAL same-run
+ * counter clock. No pulse or flicker: reduced-motion has a steady pose.
+ */
+export function publicGuardianStageLightLevels(publicAttention=0, earnedPhase=null, reducedMotion=false) {
+  const warning=Number.isFinite(publicAttention)
+    ?Math.max(0,Math.min(1,publicAttention)):0;
+  const recoiling=Number.isFinite(earnedPhase)
+    &&earnedPhase>=0&&earnedPhase<1;
+  const earned=recoiling
+    ?(reducedMotion?.66:.96-.26*earnedPhase):0;
+  const stage=Math.max(.58*warning,earned);
+  return {
+    stage,
+    ambient:1.42-.40*stage,
+    sun:2.90-.86*stage,
+    rim:1.04+1.50*stage,
+    lantern:2.10+2.00*stage,
+  };
+}
+
 // Three linked, authored PERFORMANCE beats, not new authoritative AI behavior.
 // 0-.24: notice; .24-.60: physically brace; .60-1: unfold shell.
 // Input is elapsed VISUAL time since the FIRST nearby PUBLIC witness; hidden
