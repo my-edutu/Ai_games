@@ -53,7 +53,10 @@ test('the production 3D camera checks the actual GPU-retained original arch and 
   const thresholdStage=scene.indexOf('    // POST-DIRECTOR PHYSICAL CROSSING:');
   assert.ok(deckStage>0 && thresholdStage>deckStage,
     'deck-ray rescue must precede the final source-bound camera director');
-  assert.match(scene,/deckViewBeforeThreshold = successorDeckCameraLastGain>0/);
+  assert.match(scene,/deckViewBeforeThreshold = world\.measureSuccessorDeckVisibility/);
+  assert.match(scene,/deckViewAfterThreshold\.originalCapBlockedBodyRays>deckViewBeforeThreshold\.originalCapBlockedBodyRays/);
+  assert.match(scene,/deckViewAfterThreshold\.originalCapBlockedGatewayRays>deckViewBeforeThreshold\.originalCapBlockedGatewayRays/);
+  assert.match(scene,/deckViewAfterThreshold\.gatewayBlockedRays>deckViewBeforeThreshold\.gatewayBlockedRays/);
   assert.match(scene,/deckViewAfterThreshold\.bodyBlockedRays>deckViewBeforeThreshold\.bodyBlockedRays/);
   assert.match(scene,/deckViewAfterThreshold\.score>deckViewBeforeThreshold\.score/);
   const reveal=scene.indexOf('world.revealGuardianSightlines(camera,guardianSightPoints);');
