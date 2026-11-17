@@ -322,3 +322,63 @@ test('D04 production HP emission crossing 400ms retires its actual retained frag
   assert.ok(d.stats().visuals.reservedInstances<=104);
  }finally{d.dispose()}
 });
+
+test('D04 unreadable real wall clock before WebGL revokes unsubmitted injury matrices and any pending original sound',async()=>{
+ const {createPhysicalCombatFeedback}=await load('physical-combat-feedback.js');
+ const {THREE,scene}=stage();let now=90;
+ const sounds=[];
+ const d=createPhysicalCombatFeedback({THREE,scene,requirePresentedFrame:true,clock:()=>now,
+  audioAdapter:{enable(){return true},emit(cue){sounds.push(cue);return true},
+   flush(){},disable(){},cleanup(){},dispose(){}}});
+ const snapshot=(tick,hp)=>({run:1,floor:1,tick,events:[],units:[{
+  id:'enemy-1-0',kind:'revenant',faction:'enemy',x:2,z:2,hp,maxHp:30,
+  action:hp<30?'hurt':'idle',actionTick:tick
+ }]});
+ try{
+  assert.equal(d.enableAudioFromGesture(),true);
+  d.acceptSnapshot(snapshot(10,30));d.acceptSnapshot(snapshot(11,20));
+  now=90.016;d.advance(.016,.016);
+  assert.ok(d.stats().visuals.instancesByPool.hit>=4,
+   'the authentic adjacent HP drop reached the production retained GPU pool');
+  assert.equal(d.stats().awaitingPresentation,1);
+  now=NaN; // The monotonic source fails after admission, BEFORE WebGL submission.
+  assert.equal(d.retireStaleBeforeRender(),1,
+   'an unverified pre-render clock must revoke, not render, unsent transients');
+  assert.equal(d.stats().awaitingPresentation,0);
+  assert.equal(d.stats().visuals.instancesByPool.hit,0);
+  assert.equal(d.stats().visuals.activeDrawCalls,0,
+   'cannot leave ghost impact matrices for an unverified actual render');
+  assert.equal(d.stats().recentDeliveryReceipts.at(-1).decision,'unverified-before-render');
+  assert.equal(d.stats().preRenderUnverifiedDropped,1);
+  assert.equal(d.stats().preRenderStaleDropped,0,
+   'clock failure must NOT be presented as a measured >400ms expiry');
+  assert.equal(d.acknowledgePresentedFrame(1,.005),0);
+  assert.deepEqual(sounds,[]);
+  now=90.03;
+  assert.equal(d.retireStaleBeforeRender(),0,'retirement remains idempotent');
+ }finally{d.dispose()}
+});
+
+test('D04 an unverified clock may retire HP shards but cannot erase current Warden warning cells',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {THREE,scene}=stage();
+ const cells=[{x:2,z:2},{x:3,z:2}];
+ const warning={id:'1:1:11:threat-warning:-:-',sceneKey:'1:1',tick:11,
+  kind:'threat-warning',visual:'warning',audio:'threat-warning',
+  proof:'authority-warning-window',verified:true,detail:{cells},
+  severity:.4,duration:.5,priority:6};
+ const v=createPhysicalFeedbackVisuals(THREE,scene,{
+  getCurrentSnapshot:()=>({run:1,floor:1,tick:11,
+   bossWarning:{warning:true,attackTick:12,turnsUntilImpact:1,cells},
+   units:[{id:'warden-1',kind:'warden',faction:'enemy',hp:100}]})
+ });
+ try{
+  assert.equal(v.emit(warning),true);
+  const prior=v.stats().instancesByPool.signal;
+  assert.equal(prior,2);
+  assert.equal(v.retireStaleCue(warning.id,'unverified-before-render'),0);
+  assert.equal(v.stats().instancesByPool.signal,prior,
+   'an unverified CPU clock is not authority to hide live Warden danger');
+  assert.ok(v.stats().reservedInstances<=104);
+ }finally{v.dispose()}
+});
