@@ -86,7 +86,7 @@ test('source-grounded elevated transfer trusses carry weight without putting a c
 });
 test('the authentic gallery is integrated only in Tower world rebuild, not in simulation or HUD',()=>{
   const world=fs.readFileSync('public/infinite-tower-climb/visuals/world.mjs','utf8');
-  assert.match(world,/import \{ plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections \} from '.\/source-earned-bearing-run\.mjs'/);
+  assert.match(world,/import \{ plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections, isolateEarnedFirstFrameVoidMaterials \} from '.\/source-earned-bearing-run\.mjs'/);
   assert.match(world,/function buildEarnedClockworkVoidBearingRoute\(snapshot\)/);
   assert.match(world,/buildEarnedClockworkVoidBearingRoute\(snapshot\);/);
   assert.match(world,/SourceEarnedClockworkVoidBearingGallery/);

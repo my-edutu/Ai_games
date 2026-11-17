@@ -56,7 +56,7 @@ test('production source uses original earned Floor9 architecture, registers disp
   assert.match(src,/held\.guardianGateRetained!==true \|\| snapshot\?\.floor!==9/);
   assert.match(src,/buildVoidOpenCoreLoadPath\(height,frame,'first-frame'\)/);
   assert.match(src,/buildVoidOpenBearingPylon\(body,p,p\.top-8,'first-frame'\)/);
-  assert.match(src,/isolateEarnedFirstFrameVoidMaterials\(frame,materials,/);
+  assert.match(src,/isolateEarnedFirstFrameVoidMaterials\(\s*frame,materials,/);
   assert.match(src,/floorMaterials\.add\(replacement\)/);
   assert.doesNotMatch(src,/snapshot\.floor\s*=\s*9/);
 });

@@ -60,7 +60,10 @@
     "firstAttemptOutcome": "FAILED: old fixture temp-world ESM import maps did not resolve newly added separate module. An engineering regression, not an experience verdict.",
     "correctedExactHeadQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44005478734",
     "correctedStatus": "QUEUED when recorded; not claimed passed",
-    "sourceBoundCapture": "REQUESTED on capture-request file update; candidate is immutable github.sha of that request commit, not this prior source hash. NOT EVALUATED until artifact inspected."
+    "sourceBoundCapture": "REQUESTED on capture-request file update; candidate is immutable github.sha of that request commit, not this prior source hash. NOT EVALUATED until artifact inspected.",
+    "correctedHeadCompatibilityRunObserved": "https://github.com/my-edutu/Ai_games/actions/runs/44005478734 — source runtime partitions reached, Phase3 0 and Phase3 3 failed due stale exact import pattern and multiline own-helper assertion; amended both without changing gameplay. Other partitions pending, no full pass claim.",
+    "testOnlyCorrectionStatus": "Source pin 1f37a21 video capture remains valid and unchanged; next branch push alters tests/evidence only.",
+    "captureRun": "https://github.com/my-edutu/Ai_games/actions/runs/44005647792 — started, exact immutable SHA 1f37a21, ongoing; videos not evaluated."
   },
   "independentReviews": {
     "LOOKS": 0,
