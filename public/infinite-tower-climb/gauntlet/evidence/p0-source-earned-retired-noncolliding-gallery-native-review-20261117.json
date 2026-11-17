@@ -2,7 +2,7 @@
   "stage": "P0 — EVIDENCE + GAME-LOOP TRUTH (OPEN)",
   "leadingVerdict": "NOT EVALUATED",
   "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-  "sourcePinBeforeCaptureRequest": "2eeac147708b100afcb20bb408220ecdfd7a0e20",
+  "sourcePinBeforeCaptureRequest": "046d8e61d3d81a88ad8d77571ef2c4fba0235ba1",
   "originalPreviousCandidateSha": "8381a3ca6f0c8c2e2656cfc6c95d88970fa75105",
   "originalPreviousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44077486702",
   "actualUnmodifiedVideoArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44077486702/artifacts/14324648903",
@@ -40,8 +40,9 @@
     "tests": [
       "tests/phase3/tower-earned-original-gallery-departure.test.cjs"
     ],
-    "testStatus": "Red tests observed on test-only commit, exact-source CI for production SHA queued/running; no green assumption",
-    "privacyReplay": "No source actor/HP/position/collision mutation; one bounded return-derived material coefficient tied to immutable run owner; nothing touches PR58"
+    "testStatus": "Initial exact-source CI 44085360272: 3 new behavioral tests passed, one static guard assertion failed on whitespace in existing code; corrected at 046d8e6. New exact-head CI awaits completion; not claiming success.",
+    "privacyReplay": "No source actor/HP/position/collision mutation; one bounded return-derived material coefficient tied to immutable run owner; nothing touches PR58",
+    "testCorrectionSha": "046d8e61d3d81a88ad8d77571ef2c4fba0235ba1"
   },
   "qualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44085360272",
   "captureRequest": "To be source-pinned to request commit after evidence; not yet filmed",
