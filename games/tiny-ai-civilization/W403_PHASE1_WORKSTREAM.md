@@ -1,0 +1,24 @@
+# Tiny Kingdom W403 — Phase-1 real farm-to-market-to-home workday visibility
+
+## Exact scope and original baseline
+- Only [draft PR #64](https://github.com/my-edutu/Ai_games/pull/64), branch `feat/tiny-kingdom-post-main-gauntlet-20261031`. Code commit [00bb3a5693cb2ae35bb1afcefb29bf797b3023c5](https://github.com/my-edutu/Ai_games/commit/00bb3a5693cb2ae35bb1afcefb29bf797b3023c5), parent `94cd824f34ca52d0cb5eca14e975ea6d2fc314a6`. No merging, main, #43, #59 or #62 writes.
+- Pin unchanged pre-transformation G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1` and [exact unmodified original capture](https://github.com/my-edutu/Ai_games/actions/runs/41301740489/artifacts/13081531738).
+- One playable vertical slice stays active: real farmer harvest → loaded courier physically moves → real market unloading/receipt and stock → real buyer purchases → inhabited cottage. Same authoritative Day1/workday/Day120 and 390px required for any eventual transformation PASS.
+
+## Reproduced RED from actual running game, not test edits
+- [Prior W402 live CI](https://github.com/my-edutu/Ai_games/actions/runs/44022048531) on exact parent: full source PASS, original-ground Worker WebGL tests 1024/390 PASS, **W54 real worker camera tests both FAIL** because the resource ribbon is visible in documentary mode. Actual [downloadable screenshot, Worker JSON and traces](https://github.com/my-edutu/Ai_games/actions/runs/44022048531/artifacts/14301927144) inspected. Trace identifies a genuine film subject (Mira, bartering at market), not staged NPC.
+- Ground Worker genuinely used on both software WebGL scenes, exactly one transfer, no synchronous fallback. Its ~117–119ms generation **wall latency is NOT measured main-thread saved time**. Cold software SwiftShader earlier: 318.2ms total, 108ms civic and 53.7ms landscape. Full GPU hardware/mobile FPS unmeasured.
+
+## One integrated implementation and guarded evidence
+- In original `public/tiny-kingdom/index.html`, do not automatically open the authentic farm-to-household receipt panel when player chooses Watch Village Life. Add a visible real `Grain ledger` tour disclosure (keyboard/touch, synced expanded state), retaining the existing same physical 5-stage supply evidence and Close action. Explicit disclosure is user control, not hidden history. Add final documentary **closed** CSS guard against later competing rules that previously covered the actual villager. Real worker, work hands, load, route, trader credit, citizen target and 3D scene remain unchanged; no fabricated transaction or renderer speedup claims.
+- New `tests/browser/tiny-kingdom-w403-voluntary-grain-ledger.spec.cjs` tests 1024/390 real WebGL documentary, closed ribbon, real optional ledger open/close, touch target, unchanged authoritative export, genuine 3D triangle count and no page errors, produces screenshots and JSON.
+- [New-head W403 CI](https://github.com/my-edutu/Ai_games/actions/runs/44029591307) scheduled; **pending fresh verification** at this checkpoint. Existing W54 previously RED; do not call GREEN until exact-head terminal evidence.
+
+## Persistent top-five blocker impact and measurable milestones
+1. **Rendering spine (active owner):** remove civic 108ms + landscape 53.7ms cold SwiftShader CPU/driver components via durable invalidation/batching and verify measured new-head frame p50/p95/p99. Physical desktop/mobile sustained 30+fps, frame p95 <33.3ms, no egregious spikes or missing workers/homes remains the eventual gate; do not treat Worker wall latency as FPS.
+2. **Growth and replay (renderer/simulation owner):** 120-day and longer software/hardware, all citizens/buildings visible, 160k submitted triangle max, bounded textures/VBO/caches, seed/replay/save checksums identical under matched scene.
+3. **Physical visibility (camera/character owner):** actual wrist-to-crop harvest, loaded real courier, receipt-matched market unloading and home, continuous mobile 390px film; W403 first removes a verified overlay blocker, not the timber/roof obstruction.
+4. **Coherent original art (environment/animation owner):** physically credible contiguous farm, granary, roads, timber/stone market/cottage massing, materials/lighting, natural full-body worker gaits and four real job contacts. Current prototype fails commercial reference.
+5. **Evidence & critics (QA owner):** complete uncropped, matched authoritative checksums for G088 and candidate on Day1, uncut workday, Day120, 390px camera/UI, plus genuinely separate blind LOOK/FEEL/PLAY reviewers. None can be invented or substituted by source CI.
+
+**Scorecard A: NOT PROVEN. Scorecard B: FAIL. Phase 1 continues. Next: inspect W403 true browser images/CI and repair any real workday failure, then tackle measured cold civic/landscape stall and original 3D worker visibility. PR remains draft/unmerged.**
