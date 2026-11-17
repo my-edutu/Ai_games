@@ -1035,6 +1035,8 @@ function auditSourceLoadedPelvisAfterLegs(actor,since,reducedMotion){
   actor.visualPivot.position.y=candidate.baseY;
   actor.visualPivot.updateWorldMatrix(true,true);
   const originalLegsRestored=restoreOriginalSourceLegsAfterRejectedPelvis(actor.rigGaitBones);
+   // Rejected original pelvis and source toes are one visual transaction.
+   restoreOriginalSourceSwingToesBeforeMixer(actor);
   actor.assetRoot?.updateMatrixWorld(true);
   actor.sourceLoadedPelvisRollbackFrames=Math.min(1000000,
    (actor.sourceLoadedPelvisRollbackFrames||0)+1);
