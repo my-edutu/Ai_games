@@ -1,0 +1,50 @@
+{
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "leadingTransformationVerdict": "NOT EVALUATED",
+  "baselineImmutableSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "reviewedImmutableCandidateSha": "f2697eb8edc5a05ddab9c29918f4d3d236bb3d96",
+  "productionSourceHeadBeforeEvidence": "57326f1b0e75eea188808fa862ebd659ce806d6b",
+  "gameFilesModified": [
+    "public/infinite-tower-climb/visuals/successor-deck-visibility.mjs",
+    "public/infinite-tower-climb/visuals/world.mjs",
+    "public/infinite-tower-climb/visuals/scene.mjs"
+  ],
+  "committedImplementation": [
+    "4477b2857864947e3f5b5521f78b9f5a1a0cf1cf",
+    "b1fb1e83ed5e6183153598ed6160685d772bb324",
+    "a0fd54afe4748f4b05d56a45b2cb9b82df2f8caf"
+  ],
+  "committedRegressions": "57326f1b0e75eea188808fa862ebd659ce806d6b",
+  "originalNativeEvidenceWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44012048402",
+  "inspectedOriginalVideo": "1x original full-motion candidate desktop 960×600 and portrait 390×844; native unedited WebM with 0.5s visual inspection 20–28s and 0.25s raster sampling around phase crossing. Video image/raster is not event paired.",
+  "eventProbe": {
+    "desktop": {
+      "observedFloor9HudSeconds": 26,
+      "observedSustainedVioletWorldSeconds": 28,
+      "deltaSeconds": 2
+    },
+    "portrait": {
+      "observedFloor9HudSeconds": 26.5,
+      "observedSustainedVioletWorldSeconds": 28.25,
+      "deltaSeconds": 1.75
+    },
+    "limitation": "Heuristic native timebase, not calibrated source/native video PTS or actual-device FPS. The initial real F9 GPU-return delay was approximately 675ms post-browser, not a GPU hardware frame-time measurement."
+  },
+  "observedLargestDefect": "Original Clockwork copper/bronze structural bars and the retained authentic opened-gate geometry obscure the skinned hero near floor-eight exit; successor Void scene becomes visibly sustained 1.75–2.0 seconds after F9 HUD. A coherent continuous hero+gate+true F9 walkable scene is not independently established.",
+  "recordedGameplay": "Source trace contains genuine defeated guardian, floor-eight/floor-nine movement, onward progression and restart; strict original-video baseline/candidate source event pairing failed 0/2. No invented matched beat accepted.",
+  "exactSourceCi": "https://github.com/my-edutu/Ai_games/actions/runs/44011826290 — 9/10 jobs passed; Phase6 terminated without assertion in inspected job log; full CI NOT accepted.",
+  "actualPlayableChange": "Bounded 3D ray camera rescue now evaluates real source-authored first-return F9 Void buttress, source-earned intermediate structural bearing and the deferred actual Void shaft against same source hero and original bronze gate with real landing-deck triangles. It can choose clearer current-source camera vantage without moving any 3D object, altering physics, changing deterministic ticks or generating an artificial portal.",
+  "sourceTruthSafety": "No mesh/collider/actor/government of source floor changed. Never count a not-yet-visible structural root, fully transparent mesh or a landing duplicated as architecture. At most two original structural root traversals and three real deck owners per view; tests require false/expired proof to veto.",
+  "acceptanceStatus": {
+    "P0": "OPEN",
+    "nativeStrictPair": "FAILED 0/2",
+    "nativeCoVisibleGateHeroVoid": "NOT EVALUATED for new code",
+    "CI": "NOT EVALUATED for new exact head",
+    "deviceP50P95P99Memory": "NOT EVALUATED",
+    "LOOKS": "0/5",
+    "FEELS": "0/5",
+    "PLAYS": "0/5"
+  },
+  "nextMostImportantAction": "Capture new 9-job source-pinned original 1x candidate and baseline, inspect FULL 60+ sec from head including stage transition; if old bronze grid still obscures hero and violet scene cuts, correct actual structural camera occlusion / cold GPU submission pacing with source-authored geometry rather than alpha or test-only changes. Never report P0 passed until event-native matched acceptance.",
+  "noProhibitedActions": true
+}
