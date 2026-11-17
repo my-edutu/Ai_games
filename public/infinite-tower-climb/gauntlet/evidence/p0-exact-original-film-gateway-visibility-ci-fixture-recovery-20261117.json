@@ -52,7 +52,18 @@
     "playableGameSourceModifiedThisExecution": false,
     "exactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44170762965",
     "verification": "QUEUED at source-pinned 80505a6d; no CI pass claimed. Source-authentic full native film, strict pairing and physical gateway visual acceptance still FAILED from most recently inspected 8134b2c footage.",
-    "resolverFinalCommit": "80505a6d4d7693a9eac27b7f9e9f30bdd17c79ea"
+    "resolverFinalCommit": "80505a6d4d7693a9eac27b7f9e9f30bdd17c79ea",
+    "latestExactSourceRecheck": {
+      "completedQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44170762965",
+      "qualityResult": "FAILED 8/10 jobs successful; Phase3 partition 1 and Phase6 failed",
+      "exactFailure": "Phase3 partition 1: 2/3 tower-observed-obstacle-stage.test.cjs tests failed to import actual guardian-clear-sightline-frame.mjs from isolated scratch world (ERR_MODULE_NOT_FOUND); missing test fixture dependency, not verified graphics behavior failure",
+      "affectedSource": "tests/phase3/tower-observed-obstacle-stage.test.cjs",
+      "correctiveCommit": "72e4ced9dfb4e7836f7893411a1a39af07e4a829",
+      "correction": "Preserve existing real moving-platform/hazard tests and local scene-hierarchy copy; resolve previously omitted real shipping relative ESM imports through existing fail-closed helper. No mocks, skipped tests, assertions, gameplay, or authority edits",
+      "phase6": "Unrelated full-catalogue Phase6 job ended with a 75s timeout / exit 124; other game code not edited",
+      "correctedShaQuality": "NOT YET VERIFIED; push CI triggered by test path when admitted",
+      "nativeSourceCapture": "NOT REPEATED: candidate playable renderer bytes unchanged since previous inspected 8134b2c footage"
+    }
   },
   "independentCritics": {
     "LOOKS": "0/5",
@@ -61,7 +72,7 @@
   },
   "realDeviceFrameTimes": "NOT EVALUATED",
   "realDeviceMemory": "NOT EVALUATED",
-  "nextHighestImpactAction": "Check exact-source guardian-seal fixture job; if fixed, return to ONE cohesive Floor8→9 original geometry, source-bound camera, first WebGL submit and event-matched normal-speed video correction, not more test-only iteration.",
+  "nextHighestImpactAction": "First check fresh exact-SHA Phase3 result; resume one cohesive original gateway/foreground and Floor9 first-render architecture fix, then source-event aligned 1x native desktop/portrait capture; do not call CI a quality win",
   "frozenBaselineModified": false,
   "pr58Modified": false,
   "merged": false,
@@ -69,20 +80,31 @@
   "forcePushed": false,
   "prDraftPreserved": true,
   "latestExecution": {
-    "kind": "verified CI evidence blocker repair; no playable code modification",
-    "sourceSha": "80505a6d4d7693a9eac27b7f9e9f30bdd17c79ea",
-    "failedPriorRun": "https://github.com/my-edutu/Ai_games/actions/runs/44166229256",
-    "priorPhase3Partition1": "failure: 10/10 real guardian-seal tests could not load actual world.mjs because of missing relative shipped ESM dependency in isolated fixture",
-    "changedPath": "tests/phase3/tower-guardian-seal-experience.test.cjs",
-    "result": "real shipped dependency resolution wired; candidate exact-head CI queued; gameplay visual improvement NOT MEASURED",
+    "kind": "verified P0 exact-source Three.js test blocker repair; no playable-code modification",
+    "sourceSha": "72e4ced9dfb4e7836f7893411a1a39af07e4a829",
+    "immutableFilmSourceSha": "8134b2c6395a18eb318b0a35501d08cb7602c1e8",
+    "failedQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44170762965",
+    "implementedPath": "tests/phase3/tower-observed-obstacle-stage.test.cjs",
+    "observedBefore": "Two originally valid obstacle/gear tests could not load the actual production gateway sightline ESM dependency in their isolated world fixture",
+    "fix": "Use existing real-source ESM import resolver after intentional fixture rewrites; retain true world geometry, physics snapshot expectations and audio assertions",
+    "sourceCheck": "Remote patch fetched and verified syntactically structured; full Node execution/CI not yet confirmed",
     "newNativeCapture": null,
+    "leadingTransformationVerdict": "NOT EVALUATED",
     "reviewCount": {
       "LOOKS": 0,
       "FEELS": 0,
       "PLAYS": 0
     },
     "realDeviceEvidence": "NOT EVALUATED",
-    "biggestExperienceGap": "Authentic native 1x footage still lacks consecutive matched frames of complete climber, genuinely opened bronze gateway and walkable F9 roof; old bronze obstruction and delayed visible Void remain",
-    "nextAction": "Check exact-source guardian-seal fixture job; if fixed, return to ONE cohesive Floor8→9 original geometry, source-bound camera, first WebGL submit and event-matched normal-speed video correction, not more test-only iteration."
+    "biggestExperienceGap": "Normal-speed original footage still lacks consecutive pixel-level source-matched full climber + genuinely opened bronze gateway + truly walkable F9 successor; last inspected HUD-to-Void gap 1.75 seconds in both 960x600 and 390x844",
+    "nextAction": "First check fresh exact-SHA Phase3 result; resume one cohesive original gateway/foreground and Floor9 first-render architecture fix, then source-event aligned 1x native desktop/portrait capture; do not call CI a quality win",
+    "preserved": {
+      "frozenBaselineSha": true,
+      "pr58": true,
+      "draftPr68": true,
+      "noMerge": true,
+      "noDeploy": true,
+      "noForcePush": true
+    }
   }
 }
