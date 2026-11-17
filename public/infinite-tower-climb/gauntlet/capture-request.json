@@ -1,4 +1,37 @@
 {
+  "p0SourceEarnedFirstFrameFarShoulderActualVoidArchitecture20261117": {
+    "stage": "P0 EVIDENCE + GAME LOOP TRUTH (OPEN)",
+    "leadingVerdict": "NOT EVALUATED",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenBaselinePolicy": "Immutable exact baseline unchanged. github.sha of THIS request commit is the candidate. No branch floating.",
+    "candidateSourceChange": "d596ada95be97dc75762b3a224dc5ccf6ef5c390",
+    "testAndReviewPrecursor": "c1ccd7b7ec7e1356f263e78a6e12eb8bdbab0f43",
+    "fixedSeed": "tower-transformation-capture-v1",
+    "graphicsTier": "low",
+    "viewports": [
+      "960x600 desktop",
+      "390x844 portrait"
+    ],
+    "scenarios": [
+      "ascent",
+      "moving",
+      "danger",
+      "outcome"
+    ],
+    "pace": "Real original source 1x normal speed, 25fps, >=60 seconds per scenario, matched video and immutable source sidecars",
+    "objective": "Review authentic Floor8 guardian/crusher HP-zero, physically opened retained original bronze gate, whole moving skinned actor, real F9 grounded gateway with first-frame existing FAR Void pylon bracing, deferred masses and onward raised platforms through floor10 and outcome/restart. Require 2 actual consecutive native frames with co-visible old gate+actor+real successor, continuous spatial transition and causal source/native PTS alignment in both viewports. Do not report pass from code or CI alone.",
+    "previousCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/43985146666 (8 films recorded; source-native strict match failed)",
+    "newTechnicalCI": "https://github.com/my-edutu/Ai_games/actions/runs/43997605213 (running when requested)",
+    "acceptsUnpairedOriginal": false,
+    "majorKnownDefect": "Last normal-speed 1x candidate has bronze gate obscuring climber and abrupt delayed violet room after Floor9 HUD, desktop gap 1.25s portrait gap 1.75s.",
+    "independentBlindCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "genuineDeviceFrameTimesAndMemory": "NOT EVALUATED",
+    "nextIfFails": "Inspect unedited full motion and real returned-WebGL-source-latency timing; if the far original buttress is not spatially visible or cold uploads worsen, remove it or restructure scene CPU/GPU staging. Stay in P0."
+  },
   "p0ExactHeadCIAndSourceNativeOriginalFilm20261117": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH (OPEN)",
     "leadingVerdict": "NOT EVALUATED",

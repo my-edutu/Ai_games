@@ -945,8 +945,13 @@ test('source-earned Floor9 paints one actual open Void load path beside the reta
     assert.equal(pending?.entireIncomingVoidCoreDeferred,false);
     assert.ok(world.group.getObjectByName('OriginalSourceClockworkThresholdGallery')?.isGroup,
       'the original historic machine room, rather than incoming violet core, backs the first real successor doorway');
-    assert.equal(pending.actualFirstFrameVoidBearingIndex,null,
-      'the nearest pylon must be reserved, not inserted into the first door-camera ray');
+    assert.equal(pending.actualFirstFrameVoidBearingIndex,0,
+      'ONLY the far-side authored original Void shoulder is present with the old opened doorway; the nearest pylon is still deferred');
+    assert.ok(originalOwners.some(owner=>owner.includes('VoidOpenButtressRearPiersAndFrontStanchions')),
+      'source-owned far-side pylon steel appears as authentic first-frame batched structural triangles');
+    assert.equal(originalOwners.some(owner=>owner.includes('VoidOpenButtressFooting') ||
+      owner.includes('VoidOpenButtressCrown')),false,
+      'large original far-pylon masses still await the renderer-returned deferred shaft');
     assert.ok(pending.deferredPhysicalButtressIndex===0 ||
               pending.deferredPhysicalButtressIndex===1,
       'source-authored nearest exterior support is identified for deferred world assembly');
