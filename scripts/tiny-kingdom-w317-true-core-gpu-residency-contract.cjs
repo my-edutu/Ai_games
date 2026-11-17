@@ -24,9 +24,14 @@ function exercise(hardware){
    bufferData:(target,array)=>{assert.ok(array instanceof Float32Array);gpuCalls.uploads++;},
   },
   bindGeometry:()=>{},
-  packLinearResidentScenery:mesh=>({vertices:mesh,ranges:[{
-   first:0,count:mesh.length/10,minX:-1,minY:-1,minZ:-1,
-   maxX:1,maxY:1,maxZ:1}]}),
+  // Production W416/W419 packs the real numeric source into Float32Array,
+  // not a raw cross-realm Array passed to WebGL bufferData.
+  packLinearResidentScenery:(mesh,_class,offset=0)=>{
+   const vertices=Array.isArray(mesh)?new Float32Array(mesh.slice(offset)):mesh;
+   return {vertices,ranges:[{
+    first:0,count:vertices.length/10,minX:-1,minY:-1,minZ:-1,
+    maxX:1,maxY:1,maxZ:1}]};
+  },
   packSpatialScenery:()=>{throw Error('should reuse linear packed original geometry')},
   releaseGeometryBuffer:()=>{gpuCalls.deletes++},
   stationaryFounders:()=> 'founders-stable',
