@@ -71,7 +71,7 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
  let played=0,suppressed=0,peakVoices=0,sceneChanges=0,lastCue='none';
  const active=[],cooldown=new Map(),beds=[],nodes=[],pending=[];
  let contactCuesPlayed=0,contactCuesDropped=0;
- let master=null,bedBus=null,fxBus=null,capture=null,foley=null,pcmSession=null;
+ let master=null,bedBus=null,fxBus=null,physicalFoleyBus=null,capture=null,foley=null,pcmSession=null;
  const now=()=>safe(ctx.currentTime,0,Number.MAX_SAFE_INTEGER,0);
  function addBed(type){
   const oscillator=ctx.createOscillator(),gain=ctx.createGain();
@@ -85,9 +85,16 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
    master=ctx.createGain();master.gain.value=MASTER_GAIN;
    bedBus=ctx.createGain();bedBus.gain.value=.65;
    fxBus=ctx.createGain();fxBus.gain.value=.85;
+   // Only original D04 foley enters this unity-gain child bus.
+   // Footsteps, rewards and the legacy master keep their existing path.
+   if(suppressCombat){
+    physicalFoleyBus=ctx.createGain();physicalFoleyBus.gain.value=1;
+    physicalFoleyBus.connect(fxBus);
+   }
    bedBus.connect(master);fxBus.connect(master);master.connect(ctx.destination);
    foley=createMaterialFoley(ctx);
    nodes.push(master,bedBus,fxBus);
+   if(physicalFoleyBus)nodes.push(physicalFoleyBus);
    addBed('sine');addBed('triangle');
    started=true;return true;
   }catch(error){
@@ -184,13 +191,13 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
   * Unsupported/silent graphs report UNAVAILABLE or SILENT, never a win.
   */
  function recordOriginalPcm(seconds=4,{source='mix'}={}){
-  // Isolate the opt-in D04 original foley FX pre-master for a real browser
-  // sample audit. The soundstage's audible mix and legacy PCM tap are unchanged.
+  // Isolate only original D04 physical foley, not footfalls/rewards, for
+   // the read-only PCM audit. Existing speaker mix and legacy tap are unchanged.
   if(source!=='mix'&&source!=='d04-combat-fx')
    return Promise.resolve({status:'UNAVAILABLE',reason:'Unknown original PCM capture bus'});
   if(source==='d04-combat-fx'&&!suppressCombat)
    return Promise.resolve({status:'UNAVAILABLE',reason:'D04 combat PCM requires opt-in D04 soundstage'});
-  const tapBus=source==='d04-combat-fx'?fxBus:master;
+  const tapBus=source==='d04-combat-fx'?physicalFoleyBus:master;
   if(disposed||!started||!enabled||ctx.state!=='running'||!master||
    !tapBus||!Number.isFinite(seconds)||seconds<.5||seconds>10||
    typeof ctx.createScriptProcessor!=='function'||pcmSession)
@@ -234,6 +241,7 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
     resolve({status:peak>.0005&&rms>.0001?'RECORDED':'SILENT',
      sampleRate,channels:1,frames,durationSeconds:frames/sampleRate,
      captureBus:source==='d04-combat-fx'?'d04-combat-fx-pre-master':'original-master-mix',
+     captureTopology:source==='d04-combat-fx'?'d04-original-foley-only-v1':'legacy-master-mix-v1',
      pcmClock:{status:clockStatus,clock:'AudioProcessingEvent.playbackTime',
       blocks:pcmBlocks,discontinuities,invalidClocks,
       firstSampleContextSeconds:validWindow?firstSampleContextSeconds:null,
@@ -372,5 +380,6 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
   nodes.length=beds.length=0;cooldown.clear();previous=null;
  }
  return {enable,disable,acceptSnapshot,advanceVisualFrame,cueWelcome,footstep,captureStream,
-  combatEffectsInput:()=>started&&enabled?fxBus:null,recordOriginalPcm,stats,dispose};
+  combatEffectsInput:()=>started&&enabled?(suppressCombat?physicalFoleyBus:fxBus):null,
+  recordOriginalPcm,stats,dispose};
 }

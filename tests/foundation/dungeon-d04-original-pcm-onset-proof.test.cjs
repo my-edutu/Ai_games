@@ -4,7 +4,8 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {auditD04OriginalPcmImpactOnsets}=require('../browser/dungeon-d04-original-pcm-onset-proof.cjs');
 const rate=48000,frames=rate,first=0;
-function fixture({burst=true,bus='d04-combat-fx-pre-master',clock='CONTIGUOUS_CONTEXT_TIME_ONLY'}={}){
+function fixture({burst=true,bus='d04-combat-fx-pre-master',
+ topology='d04-original-foley-only-v1',clock='CONTIGUOUS_CONTEXT_TIME_ONLY'}={}){
  const wav=Buffer.alloc(44+frames*2);
  wav.write('RIFF',0);wav.writeUInt32LE(wav.length-8,4);
  wav.write('WAVEfmt ',8);wav.writeUInt32LE(16,16);
@@ -14,7 +15,7 @@ function fixture({burst=true,bus='d04-combat-fx-pre-master',clock='CONTIGUOUS_CO
  wav.write('data',36);wav.writeUInt32LE(frames*2,40);
  if(burst)for(let i=Math.floor(rate*.214);i<Math.floor(rate*.243);i++)
   wav.writeInt16LE(i%2?8500:-8500,44+i*2);
- return {status:'RECORDED',captureBus:bus,pcmClock:{
+ return {status:'RECORDED',captureBus:bus,captureTopology:topology,pcmClock:{
   status:clock,firstSampleContextSeconds:first,lastSampleEndContextSeconds:1},
   sampleRate:rate,frames,bytes:wav.length,wavBase64:wav.toString('base64')};
 }
@@ -63,6 +64,8 @@ test('silent authentic clock samples cannot count as a heard injury',()=>{
 });
 test('legacy master mix, missing clock, invalid WAV and truncated windows are fail-closed',()=>{
  assert.equal(analyze(fixture({bus:'original-master-mix'})).status,'ORIGINAL_PCM_CLOCK_UNVERIFIED');
+ assert.equal(analyze(fixture({topology:'legacy-master-mix-v1'})).status,'ORIGINAL_PCM_CLOCK_UNVERIFIED');
+ assert.equal(analyze(fixture({topology:null})).status,'ORIGINAL_PCM_CLOCK_UNVERIFIED');
  assert.equal(analyze(fixture({clock:'UNVERIFIED_NONCONTIGUOUS_CONTEXT_TIME'})).status,'ORIGINAL_PCM_CLOCK_UNVERIFIED');
  const corrupt=fixture();corrupt.wavBase64='YWJj';
  assert.equal(analyze(corrupt).status,'ORIGINAL_PCM_BYTES_UNVERIFIED');

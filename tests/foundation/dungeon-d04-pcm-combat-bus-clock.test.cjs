@@ -51,12 +51,20 @@ test('D04 FX-only PCM uses real consented FX bus, not ambient master; records co
   assert.equal(stage.enable(),true);
   const p=stage.recordOriginalPcm(.5,{source:'d04-combat-fx'});
   assert.equal(processors.length,1);
-  assert.ok(gains[2].links.includes(processors[0]),'tap the original combat FX bus');
+  assert.equal(gains.length,4,'D04 creates one unity-gain physical output node');
+  assert.equal(stage.combatEffectsInput(),gains[3],'D04 original sound uses its isolated output');
+  assert.equal(gains[3].gain.value,1,'physical foley loudness unchanged');
+  assert.ok(gains[3].links.includes(gains[2]),'D04 foley feeds old FX once');
+  assert.ok(gains[2].links.includes(gains[0]),'old FX still feeds master');
+  assert.ok(gains[3].links.includes(processors[0]),'tap dedicated D04 output');
+  assert.equal(gains[2].links.includes(processors[0]),false,
+   'legacy footfalls and rewards must not enter D04 impact PCM');
   assert.equal(gains[0].links.includes(processors[0]),false,'not the ambience/master mix');
   submitPcm(processors[0]);
   const result=await p;
   assert.equal(result.status,'RECORDED');
   assert.equal(result.captureBus,'d04-combat-fx-pre-master');
+  assert.equal(result.captureTopology,'d04-original-foley-only-v1');
   assert.equal(result.frames,24000);
   assert.equal(result.pcmClock.status,'CONTIGUOUS_CONTEXT_TIME_ONLY');
   assert.equal(result.pcmClock.firstSampleContextSeconds,1);
@@ -65,7 +73,8 @@ test('D04 FX-only PCM uses real consented FX bus, not ambient master; records co
   assert.equal(result.pcmClock.discontinuities,0);
   assert.equal(result.sampleSynchronized,false,
    'an AudioContext timestamp does not prove decoded contact onset or video sync');
-  assert.equal(gains[2].links.includes(processors[0]),false,'tap disconnected after capture');
+  assert.equal(gains[3].links.includes(processors[0]),false,'tap disconnected after capture');
+  assert.ok(gains[3].links.includes(gains[2]),'audio graph still routes after tap release');
  }finally{stage.dispose()}
 });
 test('D04 never fabricates a sample timeline from missing or noncontiguous processor playback times',async()=>{
@@ -99,6 +108,8 @@ test('legacy soundstage cannot opt into D04-only combat PCM and stays on origina
   submitPcm(processors[0]);
   const result=await p;
   assert.equal(result.captureBus,'original-master-mix');
+  assert.equal(result.captureTopology,'legacy-master-mix-v1');
+  assert.equal(gains.length,3,'legacy audio graph remains unchanged');
  }finally{stage.dispose()}
 });
 
