@@ -299,3 +299,53 @@ test('genuine injury receipt separates D04 GPU-cue emission from non-D04 pre-ren
    'real WebGL submission is still NOT encoded VP8/Opus sample alignment');
  }finally{d.dispose()}
 });
+
+
+test('D04 missing HP observation clock fails closed BEFORE WebGL rather than drawing an unverified injury',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ let wall=100, failObservation=false;
+ const retired=[],played=[],emitted=[];
+ const d=createPhysicalCombatFeedback({
+  requirePresentedFrame:true,
+  clock:()=>failObservation?NaN:wall,
+  visualAdapter:{
+   emit(cue){emitted.push(cue);return true},advance(){},
+   hasLiveCue(){return true},hasDrawableCue(){return true},
+   retireStaleCue(id,reason){retired.push({id,reason});return true},
+   reset(){},dispose(){}
+  },
+  audioAdapter:{
+   enable(){return true},emit(cue){played.push(cue);return true},
+   cleanup(){},flush(){},disable(){},dispose(){}
+  }
+ });
+ try{
+  assert.equal(d.enableAudioFromGesture(),true);
+  d.acceptSnapshot(snapshot(10,30));
+  failObservation=true;
+  d.acceptSnapshot(snapshot(11,20)); // Real adjacent HP decrease, but no trustworthy observation time.
+  failObservation=false;
+  wall=100.02;
+  d.advance(.016,.016);
+  assert.equal(emitted.length,1,
+   'the pending genuine HP effect reached an actual upcoming render opportunity');
+  assert.equal(d.stats().awaitingPresentation,1);
+  wall=100.03;
+  assert.equal(d.retireStaleBeforeRender(),1,
+   'missing cue observation cannot certify timely DRAW before actual WebGL submission');
+  assert.deepEqual(retired.map(x=>x.reason),['unverified-before-render']);
+  assert.equal(d.stats().preRenderUnverifiedDropped,1);
+  assert.equal(d.stats().preRenderStaleDropped,0,
+   'unknown event age must not be reported as measured >400ms');
+  assert.equal(d.stats().awaitingPresentation,0);
+  const receipt=d.stats().recentDeliveryReceipts.at(-1);
+  assert.equal(receipt.decision,'unverified-before-render');
+  assert.equal(receipt.frameId,null);
+  assert.equal(receipt.observedClockMs,null);
+  assert.equal(receipt.audio,false);
+  wall=100.04;
+  assert.equal(d.acknowledgePresentedFrame(1,.01),0);
+  assert.deepEqual(played,[],'no later WebAudio start can rehabilitate missing source clock');
+  assert.equal(d.retireStaleBeforeRender(),0,'retirement is idempotent');
+ }finally{d.dispose()}
+});
