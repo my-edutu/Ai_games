@@ -277,7 +277,7 @@ test('RED: rapid genuine 95mm source burial schedules two safer connected outsol
   'a still-buried synthetic toe must never be described as planted');
  for(const bad of [
   {sourceFootTrackVerified:false},{sourceBindVerified:false},
-  {sourceAnatomicalFootAxisVerified:false},{sourceInstanceId:''},
+  {sourceAnatomicalFootAxisVerified:false},{sourceInstanceSame:false},
   {interrupted:true},{teleport:true},{reducedMotion:true},
   {sourceClipName:'Idle'},{sourceWeight:.8},{rootTravel:0},
   {frameInterval:.2501},{frameAge:.25}
