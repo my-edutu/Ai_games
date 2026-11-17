@@ -133,7 +133,8 @@ test('backwards explicit clock must reject HP impact sound instead of laundering
   assert.deepEqual(h.audio,[],'unverified receipt cannot start original foley');
   const r=h.director.stats().recentDeliveryReceipts.at(-1);
   assert.equal(r.audio,false);
-  assert.equal(r.decision,'unverified-frame');
+  assert.equal(r.decision,'unverified-hp-clock-before-emission');
+  assert.equal(h.visual.length,0,'backwards pre-visual clock must allocate no injury art');
   assert.equal(r.observedClockMs,50000);
   assert.equal(r.submittedClockMs,null,
    'invalid/backwards wall stamps must never imply a synchronous impact');
