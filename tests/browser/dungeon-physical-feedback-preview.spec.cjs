@@ -3,6 +3,7 @@ const {test,expect}=require('@playwright/test');
 const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
 const {classifyAuthenticD04RenderObservation}=require('./dungeon-d04-real-feedback-observation.cjs');
 const {correlateD04OriginalSourceStarts,auditD04ImpactFramePhases}=require('./dungeon-d04-source-start-correlation.cjs');
+const {auditD04OriginalPcmImpactOnsets}=require('./dungeon-d04-original-pcm-onset-proof.cjs');
 const {auditD04ImpactSubmissionWitnesses}=require('./dungeon-d04-impact-submission-witness.cjs');
 const fs=require('node:fs');
 const {createD04CaptureProfile,skippedConcurrentD04Probe}=require('./dungeon-d04-capture-profile.cjs');
@@ -679,7 +680,7 @@ async function attachD04LiveAVCapture(page,started,testInfo){
    assessment,retained,limits:{MAX_CLIP_BYTES,MAX_PCM_BYTES},
    caveat:'Separate real-source encoders diagnose combined failure; no measured A/V sync. No borrowed audio.'},null,2)),
   contentType:'application/json'});
- return assessment;
+ return {...assessment,originalPcmProofInput:raw.pcm};
 }
 
 
@@ -870,6 +871,22 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
  // damage, guessed attacker, GPU completion or decoded PCM is inferred.
  // Attach independently of the strict final acceptance assertion, so red
  // browser runs still produce a useful root-cause investigation artifact.
+ // Inspect actual consented FX-bus PCM at the original AudioContext sample
+ // clock. This is not decoded video contact, audible output or A/V sync.
+ const originalPcmOnsets=auditD04OriginalPcmImpactOnsets({
+  pcm:captureAssessment.originalPcmProofInput,receipts:lateReceipts,
+  sourceStarts:observed.physicalFeedback?.audio?.recentOriginalStarts??[]
+ });
+ const originalPcmOnsetsJson=JSON.stringify(originalPcmOnsets,null,2);
+ fs.writeFileSync('artifacts/dungeon-d04-original-pcm-impact-onset-audit.json',
+  originalPcmOnsetsJson+'\n');
+ await test.info().attach('d04-original-pcm-impact-onset-audit.json',{
+  body:Buffer.from(originalPcmOnsetsJson),contentType:'application/json'});
+ console.log('D04 original FX PCM onset (NOT A/V SYNC):',JSON.stringify({
+  status:originalPcmOnsets.status,
+  candidateCount:originalPcmOnsets.candidateCount??0,
+  sampleSynchronized:originalPcmOnsets.sampleSynchronized
+ }));
  const impactFrameAudit=auditD04ImpactFramePhases({receipts:lateReceipts});
  const impactFrameAuditEvidence={
   ...impactFrameAudit,

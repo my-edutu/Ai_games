@@ -34,6 +34,8 @@ on:
       - tests/browser/dungeon-d04-real-feedback-observation.cjs
       - tests/browser/dungeon-d04-impact-submission-witness.cjs
       - tests/browser/dungeon-d04-source-start-correlation.cjs
+      - tests/browser/dungeon-d04-original-pcm-onset-proof.cjs
+      - tests/foundation/dungeon-d04-original-pcm-onset-proof.test.cjs
       - .github/workflows/dungeon-d04-foley-identity.yml
   workflow_dispatch:
 permissions:
@@ -88,6 +90,7 @@ jobs:
             tests/foundation/dungeon-d04-continuous-mode-pair.test.cjs \
             tests/foundation/dungeon-d04-live-queued-warning-stall.test.cjs \
             tests/foundation/dungeon-d04-source-start-correlation.test.cjs \
+            tests/foundation/dungeon-d04-original-pcm-onset-proof.test.cjs \
             tests/foundation/dungeon-d04-stale-submission-visual-retirement.test.cjs \
             tests/foundation/dungeon-d04-revoked-drawn-pose-retirement.test.cjs \
             tests/foundation/dungeon-d04-hp-hidden-visual-sound-only.test.cjs \
