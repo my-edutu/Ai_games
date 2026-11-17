@@ -5937,5 +5937,51 @@
     "hardware": "NOT EVALUATED",
     "nextAction": "Inspect exact-source CI and new source-pinned candidate video. If blue-violet readable next route appears but live old gateway is still hidden, repair FIRST F9 GPU return latency and camera/world obstruction, not yet P1.",
     "safety": "PR68 stays draft, no merge/deploy/force-push, no baseline or PR58 edits, no unrelated game."
+  },
+  "p0SourceEarnedOriginalGalleryVisualExitSourcePinned20261117": {
+    "stage": "P0 — EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceCodeHeadBeforeRequest": "943fbed247b77b1fec30c25572e7af4517f494ab",
+    "candidateSha": "EXACT immutable github.sha OF THIS REQUEST commit; never floating branch head",
+    "mission": "Capture real source-authenticated old non-colliding gallery becoming visually clear after physical Floor8 guardian defeat, grounded gate crossing and true WebGL returns; original bronze guardian gate, skinned climber and genuine raised F9 Void route must coexist in consecutive native frames.",
+    "gameplay": "Original 20Hz source. Absolutely no simulated HP-zero, manual player, renderer-only scene, source-tick injection, edited film or alternative frozen baseline.",
+    "sourceOwnedChange": [
+      "Observed real HP-zero/floor-nine guardian crossing plus current real supported hero beyond sill",
+      "Only the extracted historical F8 NON-COLLIDING gallery material recedes with returned WebGL frames and monotone same-run history",
+      "Original F8 gateway, walkable top and every F9 moving/raised platform/hazard remain unchanged"
+    ],
+    "originalPreviousCandidateSha": "8381a3ca6f0c8c2e2656cfc6c95d88970fa75105",
+    "originalPreviousFilm": "https://github.com/my-edutu/Ai_games/actions/runs/44077486702/artifacts/14324648903",
+    "previousObservedDefect": "25.5-27.5s: F9 HUD begins while retained tall bronze posts/cap occlude original hero and visible new-room route; 0/2 strict event-video pair acceptance.",
+    "recording": {
+      "durationSecondsMinimum": 60,
+      "viewports": [
+        "960x600 desktop",
+        "390x844 portrait"
+      ],
+      "scenarios": [
+        "ascent",
+        "danger",
+        "moving",
+        "outcome"
+      ],
+      "graphicsTier": "low",
+      "seed": "tower-transformation-capture-v1",
+      "speed": "unaltered 1x original WebM",
+      "evidence": "original film SHA256, source ticks/episode, native PTS, compositor screenshots, camera/structural diagnostics"
+    },
+    "mustInspect": "Gate+whole 3D body+walkable F9 spatial continuity and retained bar clearance in actual native 1x video; compare before/after with same seed/tier; source-film event matching is hard gate.",
+    "previousPairing": "FAILED 0/2. Frozen baseline lacks some candidate new source victory beats; do NOT invent matching baseline events.",
+    "quality": "https://github.com/my-edutu/Ai_games/actions/runs/44085360272 (older code included one strict test assertion failure, corrected at 046d8e6); final exact-head CI required",
+    "actualDevicePerformance": "NOT EVALUATED",
+    "independentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "evidencePath": "public/infinite-tower-climb/gauntlet/evidence/p0-source-earned-retired-noncolliding-gallery-native-review-20261117.json",
+    "nextAction": "Inspect full-motion original desktop and portrait clips and verified renderer timing; if transition still loses gate/hero, restructure first F9 GPU world startup and camera visibility before P1.",
+    "safety": "Preserve frozen baseline, PR58 edits, PR68 draft, no merge/deploy/force push or unrelated games."
   }
 }
