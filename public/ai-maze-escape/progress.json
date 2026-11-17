@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-17T07:22:00Z",
+  "updatedAt": "2026-11-17T07:39:00Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass445 source candidate: actual earned L-corner previously had NO stage because world court was straight-only. Real three-cell public reciprocal same-tier corner now drives retained Tideglass physical floor rings and hinges; tall new corner ornaments deliberately excluded. Pass444 original 390 WebGL A/B rejected. Exact-HEAD new WebGL tests/SHA full frame and independent Nintendo art approval pending."
+    "summary": "Pass445c original current-HEAD WebGL 44039221235 SUCCESS (221/221 Node, 8/8 native browser, six-run <100, 40/40 PNG+3 gate SHA); actual 390 earned L-corner image differs from Pass444 baseline 1.60/255 mean and has no meaningful physically legible improvement; 320 framing/ornaments worse, mission contradiction persists. Therefore reject Pass445 L-floor stage and restore exactly the known Pass444 world.js, remove candidate test. New rollback-HEAD CI pending; official Nintendo bar unmet."
   },
   "captures": [
+    {
+      "title": "Pass445b e4dea3c7 native four-viewport WebGL 40/40 original PNG SHA and three true gate SHA verified; visual improvement rejected",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44039221235/artifacts/14308219285"
+    },
     {
       "title": "Pass444 original exact HEAD 6035ae1e 40/40 native PNG SHA; authentic L-corner beam visual rejected, Pass445 baseline",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44036590357/artifacts/14308360905"

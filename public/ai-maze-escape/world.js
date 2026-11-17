@@ -42,65 +42,6 @@ export function publicPressureCourtLink(from, trap, snapshot) {
   return true;
 }
 
-
-/**
- * A TRUE earned guardian recoil can occur around a visible L-shaped corner:
- * the official public actor cells are diagonal, but the public floor itself
- * consists of TWO reciprocal unlocked and level cardinal edges. The earlier
- * straight-only stage left the real 320/390 event on repetitive paving and
- * its original counter-wave never moved any physical floor.
- *
- * Return ONLY the three existing public court tiles in actor-to-actor order.
- * Never turn a diagonal into an imaginary straight crossing, cover a key,
- * flatten stairs, change collision, or infer an unseen/closed/trapped tile.
- * 'corner-x/z' selects an existing hinge orientation and is NOT a route hint.
- */
-export function publicEarnedGuardianCornerCourtCells(s, expectedGuardianCell=null) {
-  const empty=new Map();
-  if(s?.lifecycle!=='running'||s.result
-    || !Number.isSafeInteger(s.width)||s.width<2
-    || !Number.isSafeInteger(s.height)||s.height<2
-    || !Number.isSafeInteger(s.currentCell)
-    || !Array.isArray(s.visibleCells)||!Array.isArray(s.cells)
-    || !Array.isArray(s.threats)||!Array.isArray(s.doors)
-    || !Array.isArray(s.keys))return empty;
-  const visible=new Set(s.visibleCells),width=s.width,n=width*s.height;
-  const known=new Map(s.cells.filter(c=>Number.isSafeInteger(c?.cell)
-    &&c.cell>=0&&c.cell<n&&visible.has(c.cell)).map(c=>[c.cell,c]));
-  const from=known.get(s.currentCell);
-  const reserved=new Set(s.keys.map(k=>k.cell));
-  const ordinary=c=>!!c&&!c.blocked&&!c.trap&&!c.checkpoint&&!c.clue
-    &&c.cell!==s.exitCell&&!reserved.has(c.cell);
-  if(!ordinary(from)||!Array.isArray(from.neighbors))return empty;
-  const col=id=>id%width,row=id=>Math.floor(id/width);
-  const open=(a,b)=>!!a&&!!b&&ordinary(a)&&ordinary(b)
-    &&Array.isArray(a.neighbors)&&Array.isArray(b.neighbors)
-    &&a.neighbors.includes(b.cell)&&b.neighbors.includes(a.cell)
-    &&Math.abs(col(a.cell)-col(b.cell))+Math.abs(row(a.cell)-row(b.cell))===1
-    &&Math.abs(cellHeight(a.cell,s.width,s.height)
-      -cellHeight(b.cell,s.width,s.height))<1e-8
-    &&!s.doors.some(d=>!d.open&&((d.a===a.cell&&d.b===b.cell)
-      ||(d.b===a.cell&&d.a===b.cell)));
-  const targets=s.threats.filter(t=>t?.lanternParried===true
-    &&Number.isSafeInteger(t.cell)
-    &&(expectedGuardianCell===null||t.cell===expectedGuardianCell))
-    .sort((a,b)=>a.cell-b.cell);
-  for(const threat of targets){
-    const to=known.get(threat.cell);
-    if(!ordinary(to)||Math.abs(col(to.cell)-col(from.cell))!==1
-      ||Math.abs(row(to.cell)-row(from.cell))!==1)continue;
-    for(const midId of [...new Set(from.neighbors)].sort((a,b)=>a-b)){
-      const mid=known.get(midId);
-      if(!open(from,mid)||!open(mid,to))continue;
-      const firstAxis=col(from.cell)!==col(mid.cell)?'x':'z';
-      const lastAxis=col(mid.cell)!==col(to.cell)?'x':'z';
-      return new Map([[from.cell,'corner-'+firstAxis],
-        [mid.cell,'corner-'+lastAxis],[to.cell,'corner-'+lastAxis]]);
-    }
-  }
-  return empty;
-}
-
 // A guardian gets a legible, uncluttered PHYSICAL arena only after Pip
 // actually witnesses a reciprocal, unsealed one- or two-edge public corridor.
 // This is deliberately NOT a perception, hazard, safe-route or AI rule. No
@@ -154,7 +95,6 @@ export function publicGuardianStageCells(snapshot) {
       }
     }
   }
-  for(const id of publicEarnedGuardianCornerCourtCells(snapshot).keys()) stage.add(id);
   return stage;
 }
 
@@ -227,8 +167,6 @@ export function publicGuardianCausewayCells(s) {
     }
     if(valid)for(const tile of route)pathTiles.set(tile.cell,axis);
   }
-  for(const [id,axis] of publicEarnedGuardianCornerCourtCells(s))
-    pathTiles.set(id,axis);
   return pathTiles;
 }
 
@@ -1661,8 +1599,7 @@ export function createMazeWorld(options = {}) {
           // glass-colored rim. All pieces are flush (<4cm), purely batched
           // from EXISTING shapes/materials and never affect path/collision.
           guardianCausewayTiles++;
-          const corner=guardianCausewayAxis.startsWith('corner-');
-          const alongX=guardianCausewayAxis==='x'||guardianCausewayAxis==='corner-x';
+          const alongX=guardianCausewayAxis==='x';
           // Pass302: the real 390px brace was STILL a narrow brown strip
           // with both living actors on repeated beige slabs. Build one
           // full-width, distinctive dark Tideglass stage under the *actual*
@@ -1724,7 +1661,7 @@ export function createMazeWorld(options = {}) {
           // with the same public warning as the rooted floor leaves. None
           // draws a speculative route, barrier, attacker or hidden map detail.
           const sentinels=[];
-          if(!corner && (c.cell===s.currentCell || s.threats.some(t=>t?.cell===c.cell))) {
+          if(c.cell===s.currentCell || s.threats.some(t=>t?.cell===c.cell)) {
             for(const side of [-1,1]) {
               const foot=new THREE.Group();
               foot.name='Published guardian Tideglass sentinel footing '+c.cell+' '+side;
@@ -1797,7 +1734,7 @@ export function createMazeWorld(options = {}) {
           // PUBLIC warning and earned counter as Pip, Thornback and the floor.
           // Reuse existing geometry/material pools; no per-frame allocations.
           let observatory=null;
-          if(!corner && s.threats.some(threat=>threat?.cell===c.cell)){
+          if(s.threats.some(threat=>threat?.cell===c.cell)){
             const instrument=new THREE.Group();
             instrument.name='Witnessed guardian rooted Tideglass weather vane '+c.cell;
             instrument.position.set(-.77,0,-.77);
@@ -1837,7 +1774,7 @@ export function createMazeWorld(options = {}) {
           counterRipple.visible=false;
           counterRipple.castShadow=false;
           counterRipple.receiveShadow=false;
-          guardianTideSignals.push({cell:c.cell,axis:alongX?'x':'z',corner,
+          guardianTideSignals.push({cell:c.cell,axis:guardianCausewayAxis,
             faces,sentinels,counterRipple,observatory,
             resonanceState:{wave:0,glow:0,radius:0}});
         }
@@ -3780,9 +3717,6 @@ export function createMazeWorld(options = {}) {
       ?options.guardianCounterPhase
       :directWitness?Math.max(0,Math.min(1,
         (t-observedEarnedCounter.start)/1.15)):undefined;
-    const earnedCorner=earnedParry
-      ?publicEarnedGuardianCornerCourtCells(snapshot,guardianCell):null;
-    const cornerOrder=earnedCorner?[...earnedCorner.keys()]:[];
     const alongX=witnessedLane
       && Math.floor(heroCell/snapshot.width)===Math.floor(guardianCell/snapshot.width);
     const alongZ=witnessedLane && heroCell%snapshot.width===guardianCell%snapshot.width;
@@ -3809,18 +3743,13 @@ export function createMazeWorld(options = {}) {
     const signalStrength=rise*(1-.98*recover);
     for(const signal of guardianTideSignals) {
       const col=signal.cell%snapshot.width,row=Math.floor(signal.cell/snapshot.width);
-      // Straight native lanes and the public earned L-corner are mutually
-      // exclusive source-validated routes; never animate an undisclosed tile.
-      const straightX=alongX && signal.axis==='x'
+      const onLane=witnessedLane && ((alongX && signal.axis==='x'
         && row===Math.floor(heroCell/snapshot.width)
         && col>=Math.min(heroCell%snapshot.width,guardianCell%snapshot.width)
-        && col<=Math.max(heroCell%snapshot.width,guardianCell%snapshot.width);
-      const straightZ=alongZ && signal.axis==='z'
-        && col===heroCell%snapshot.width
+        && col<=Math.max(heroCell%snapshot.width,guardianCell%snapshot.width))
+        || (alongZ && signal.axis==='z' && col===heroCell%snapshot.width
         && row>=Math.min(Math.floor(heroCell/snapshot.width),Math.floor(guardianCell/snapshot.width))
-        && row<=Math.max(Math.floor(heroCell/snapshot.width),Math.floor(guardianCell/snapshot.width));
-      const onLane=witnessedLane && (straightX||straightZ
-        || (signal.corner && !!earnedCorner?.has(signal.cell)));
+        && row<=Math.max(Math.floor(heroCell/snapshot.width),Math.floor(guardianCell/snapshot.width))));
       const action=onLane?signalStrength:0;
       // The public earned recoil is a THIRD physical court beat: the existing
       // rooted leaves and endpoint shell standards open in a short, sequential
@@ -3829,9 +3758,8 @@ export function createMazeWorld(options = {}) {
       // a new collider, invisible path, safe-route instruction or fake hit.
       // Terrain owns this clock; no meshes/materials are created per frame.
       // A different run, unseen/sealed lane or cleared parry instantly resets.
-      const fromHero=signal.corner && earnedCorner?.has(signal.cell)
-        ? cornerOrder.indexOf(signal.cell)
-        : alongX ? Math.abs(col-heroCell%snapshot.width)
+      const fromHero=alongX
+        ? Math.abs(col-heroCell%snapshot.width)
         : Math.abs(row-Math.floor(heroCell/snapshot.width));
       // The old per-tile local counterStart could restart on terrain rebuild,
       // and even claimed a new victory for a first-seen already-parried foe.
