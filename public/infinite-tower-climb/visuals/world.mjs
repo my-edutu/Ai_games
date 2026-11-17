@@ -11,6 +11,7 @@ import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePre
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections } from './source-earned-bearing-run.mjs';
+import { isolateEarnedFirstFrameVoidMaterials } from './source-earned-first-frame-void-materials.mjs';
 import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold } from './far-side-shaft-transition.mjs';
 
 
@@ -1607,7 +1608,20 @@ export function createTowerWorld(){
       frame.add(body);
       buildVoidOpenBearingPylon(body,p,p.top-8,'first-frame');
     }
+    // The last original 1x danger film (SHA 10ab7c9) shows Floor9 HUD for
+    // 2.75s desktop / 2.50s portrait before sustained Void architecture.
+    // All this authentic new-floor steel was globally recolored bronze with
+    // the old room, so the eye sees a SECOND unrelated world appear later.
+    // The retained original F8 HP-open gate remains bronze. Only the actual
+    // already-constructed F9 rear supports and far-side bearing retain their
+    // original Void stone/alloy finishes from the FIRST real 3D submission.
+    // A distinct physical destination exists beyond the old opening while
+    // floor, collider, player, hazard and their materials remain untouched.
+    const distinctSuccessor=isolateEarnedFirstFrameVoidMaterials(
+      frame,materials,replacement=>floorMaterials.add(replacement));
+    frame.userData.firstReturnedVoidMaterials=distinctSuccessor;
     return {root:frame,pylonIndex:farIndex,deferredPylonIndex:nearest,
+      firstFrameVoidMaterials:distinctSuccessor,
       coreDeferred:false,coreDrawn:true,runToken:snapshot.runToken};
   }
   function buildTower(height,openClockworkPylons=false){
