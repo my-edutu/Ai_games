@@ -6198,5 +6198,25 @@
     "actualDeviceFrameTimeMemory": "NOT EVALUATED",
     "nextHighestImpact": "If structure still appears late, inspect exact built/visible return frames and occluding geometry owners, then reopen P0 physical gateway shaft upload/sightline. Do not advance from P0 on green tests or renderer counters alone.",
     "safety": "Frozen baseline and transformation.json unchanged; PR58, other games, draft status, merge/deploy/force-push untouched"
+  },
+  "p0GuardianFullBodySourceOriginalFilmCrossingEvidence20261118": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "newCodeCommit": "4064bc5b2e16bf1612c227c4c7f71253a43def93",
+    "requestedCandidatePin": "EXACT IMMUTABLE github.sha of THIS capture-request commit",
+    "sourceScenario": "Authentic guardian HP and crusher, original clockwork gate, F8->F9 grounded physical passage and source-supported successor, onward motion/outcome/restart",
+    "latestOriginalFilm": "https://github.com/my-edutu/Ai_games/actions/runs/44193713762",
+    "latestSourceCandidateSha": "6c5bb317c9722b69020aedd24bb2793ee82ed935",
+    "primaryOriginalFilmDefect": "Real bronze rails physically obscure source shoulder on F8 tick441; original gate lattice obscures portrait helmet/torso at tick451; source-camera 8/10 desktop,6/7 portrait projected but 0/2 native matched complete crossing. HUD leads recognizably Violet by 1.25s desktop,2.0s portrait within native original films.",
+    "changedSystem": "Real-world guardian circuit 3D InstancedMesh rail occlusion ray checks now full source-backed lateral body silhouette; no physics/gate edits",
+    "requiredReview": "Collect immutable source desktop+portrait 25fps 60s+ WebMs for all real scenes. Inspect actual consecutive native threshold frames and geometry ray owners; check provenance and source event matching without loosening calibration. Reassess rail occlusion, gate/old-cap and Void first-render stalls. Do not call CI or matching generated screenshot a transformation victory.",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "hardware": "NOT EVALUATED",
+    "safety": "PR68 draft, frozen baseline unchanged, PR58 untouched, no merge/deploy/force-push or other game edits"
   }
 }

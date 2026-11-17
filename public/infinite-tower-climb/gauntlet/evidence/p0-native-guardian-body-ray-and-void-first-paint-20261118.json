@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "leadingTransformationVerdict": "NOT EVALUATED",
+  "pr": 68,
+  "branch": "feat/tower-transformation-gauntlet-20261101",
+  "prDraft": true,
+  "basePr": 58,
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "inspectedCandidateVideoSourceSha": "6c5bb317c9722b69020aedd24bb2793ee82ed935",
+  "newlyModifiedProductionSourceSha": "4064bc5b2e16bf1612c227c4c7f71253a43def93",
+  "exactSourceQualityForOldHead": {
+    "run": "https://github.com/my-edutu/Ai_games/actions/runs/44193713853",
+    "head": "6443b547a2e02144a180103987b36d74687f6964",
+    "result": "10/10 completed success; applies to OLD unchanged candidate, not new production commit; CI is veto only"
+  },
+  "realNativeOriginalVideo": {
+    "run": "https://github.com/my-edutu/Ai_games/actions/runs/44193713762",
+    "candidateDanger": "https://github.com/my-edutu/Ai_games/actions/runs/44193713762/artifacts/14377953200",
+    "baselineDanger": "https://github.com/my-edutu/Ai_games/actions/runs/44193713762/artifacts/14376754908",
+    "candidate": {
+      "desktop": {
+        "sourceGuardianCrossingTick": 475,
+        "sourceSearchSeconds": 24.066,
+        "drawnFloorNineHudSeconds": 25.5,
+        "sustainedVioletWorldSeconds": 26.75,
+        "hudToWorldSeconds": 1.25,
+        "authenticReturnedProjectionSamples": 10,
+        "safeHeroAndGateProjectedSamples": 8
+      },
+      "portrait": {
+        "sourceGuardianCrossingTick": 475,
+        "sourceSearchSeconds": 24.189,
+        "drawnFloorNineHudSeconds": 25.25,
+        "sustainedVioletWorldSeconds": 27.25,
+        "hudToWorldSeconds": 2,
+        "authenticReturnedProjectionSamples": 7,
+        "safeHeroAndGateProjectedSamples": 6
+      }
+    },
+    "caveat": "Original 25fps browser WebM inspected at normal-speed segment and sampled original frames; within-film frame observations are NOT matched source timecodes, screen event confirmation, pixel co-visibility verdict, device FPS or baseline/candidate causal comparison",
+    "candidateDangerVideoStatus": "Recorded both viewports, candidate source-bound phase still mismatches native film in 2/2 viewports; event-aligned blind duel 0/2",
+    "frozenBaselineOtherScenarioCapture": "Frozen baseline moving + outcome desktop original-film calibration failed, do not treat full comparative matrix as complete"
+  },
+  "verifiedPrimarySightlineDefect": {
+    "sourceTickDesktop": 441,
+    "sceneFloor": 8,
+    "observedOwner": "GuardianLockTwinBronzeRails (real Three.js InstancedMesh) physically intersects left shoulder ray while centre-line body ray is clear; independent original ray also hits gate centre",
+    "observedSecondDefect": "Original source-locked left gateway lattice still hides helmet/torso at portrait tick451; separately unresolved",
+    "rootCause": "Live guardian circuit protectHeroSightline cast only 3 centre body-height rays; missed authoritative shoulder/flank triangles",
+    "experienceScope": "Genuine source HP-driven guardian/upper-cap encounter character legibility, not floor-nine progression mechanics"
+  },
+  "implemented": {
+    "sourceCommit": "4064bc5b2e16bf1612c227c4c7f71253a43def93",
+    "file": "public/infinite-tower-climb/visuals/guardian-circuit.mjs",
+    "test": "tests/phase3/tower-guardian-physical-rail-sightline.test.cjs",
+    "change": "Nine source-halfWidth-backed whole-body rays (torso/helmet/sole, bilateral shoulders and lower flanks) cast against actual existing instanced bronze rails using reused Raycaster. Softens only decorative noncolliding rail material when physically foregrounding real hero. Rejects missing/forged widths, stale/overview/reduced motion; original HP gate/bolts/colliders/AI unchanged.",
+    "performance": "At most 9 real triangle rays in existing guardian final-camera protection on each eligible returned frame versus prior 3; actual hardware p50/p95/p99 and memory NOT EVALUATED.",
+    "feasibleValidation": "Regression authored for real Three.js rail and invalid source widths, not executed locally because shared repo tunnel unavailable. New exact-head CI on source commit triggered by branch push; results must be inspected."
+  },
+  "outstanding": {
+    "mostImportantFootageDefect": "Actual original bronze foreground/lattice and deck undersides still separate the full real hero, earned open gate and physically supported F9 in native motion. Camera projections (desktop 8/10, portrait 6/7) cannot prove consecutive painted 3D crossing frames.",
+    "strictSourceToNativeEventPairing": "FAILED 0/2",
+    "qualifyingConsecutiveNativeCrossingFrames": "NOT EVALUATED",
+    "genuineIndependentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDevicePerformance": "NOT EVALUATED",
+    "actualDeviceMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Inspect new candidate exact-source 60+ second normal-speed original desktop/portrait film and real geometry-ray ownership. Fix dominant real guardian lattice/old cap foreground and first F9 Void pipeline together if full skinned body + opened gate + source-supported F9 cannot coexist in two consecutive original painted frames. Also repair frozen baseline moving/outcome film clock only without weakening 3-anchor rule."
+  },
+  "safety": {
+    "baselineModified": false,
+    "pr58Modified": false,
+    "otherGamesModified": false,
+    "merge": false,
+    "deploy": false,
+    "forcePush": false,
+    "draftPreserved": true
+  }
+}
