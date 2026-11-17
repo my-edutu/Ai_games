@@ -2852,6 +2852,7 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   upper.bone.updateWorldMatrix(true,true);
   trials.push({upperRad,lowerRad,after:read()});
  };
+ let coupledOwnerBlocker=null;
  try{
   for(const angles of starterAngles)sample(angles);
   // At the previous original 390px WebGL HEAD, two genuine Idle
@@ -2882,7 +2883,7 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   // Preserve existing owner exclusivity: earlier real ankle/stance or
   // last-frame connected source pose must not be overwritten by a new
   // three-joint trial. Record *why* we skipped, never a fabricated plant.
-  const coupledOwnerBlocker=sourceAnkleProof?'original-ankle-owns-frame':
+  coupledOwnerBlocker=sourceAnkleProof?'original-ankle-owns-frame':
    loadedStanceProof?'loaded-stance-owns-frame':
    previousLinkedCertified?'previous-source-linked-owns-frame':null;
   const sourceCoupledPriority=!coupledOwnerBlocker?
