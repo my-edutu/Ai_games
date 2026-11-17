@@ -3,7 +3,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {EventEmitter}=require('node:events');
 const {frameTimestampMs,retainAnchor,beginTowerNativeCompositorAnchors,
-  MIN_SPACING_MS,MAX_ANCHORS}=require('../../scripts/tower-native-compositor-anchors.cjs');
+  MIN_SPACING_MS,MAX_ANCHORS,CDP_FRAME_STRIDE}=require('../../scripts/tower-native-compositor-anchors.cjs');
 test('Chrome compositor timestamp must be epoch seconds near runner clock, not Date.now screenshot endpoint',()=>{
   const now=1794228144000;
   assert.equal(frameTimestampMs({timestamp:1794228144.125},now),1794228144125);
@@ -25,6 +25,10 @@ test('60-second original compositor sampling leaves room for uniquely matched na
     if(retainAnchor(anchors,timestamp))anchors.push({startAtMs:timestamp});
   }
   assert.equal(MAX_ANCHORS,24);
+  assert.equal(CDP_FRAME_STRIDE,12);
+  // A real 25fps 70-second WebM offers ~145 CDP sampling opportunities
+  // despite the lower JPEG transport rate, before 24 archival writes.
+  assert.ok(Math.floor(25*70/CDP_FRAME_STRIDE)>=MAX_ANCHORS*5);
   assert.equal(anchors.length,24);
   assert.equal(anchors[2].startAtMs-origin,MIN_SPACING_MS*2);
   assert.ok(anchors.at(-1).startAtMs-origin >= 60000,
@@ -45,7 +49,7 @@ test('passive CDP capture preserves real browser frame metadata, throttles, ackn
     save:(file,bytes)=>written.push({file,length:bytes.length})});
   assert.equal(collector.started,true);
   assert.deepEqual(calls.find(x=>x.method==='Page.startScreencast')?.args,{
-    format:'jpeg',quality:85,everyNthFrame:2,maxWidth:390,maxHeight:844});
+    format:'jpeg',quality:85,everyNthFrame:CDP_FRAME_STRIDE,maxWidth:390,maxHeight:844});
   const jpeg=Buffer.from([0xff,0xd8,...Array(160).fill(0),0xff,0xd9]).toString('base64');
   client.emit('Page.screencastFrame',{sessionId:1,
     metadata:{timestamp:now/1000},data:jpeg});
@@ -61,6 +65,12 @@ test('passive CDP capture preserves real browser frame metadata, throttles, ackn
     metadata:{timestamp:now/1000},data:jpeg});
   assert.equal(collector.anchors.length,2);
   assert.equal(written.length,2);
+  assert.equal(collector.samplingStats.deliveredCDPFrames,3);
+  assert.equal(collector.samplingStats.storedAnchorCount,2);
+  assert.equal(collector.samplingStats.storedAnchorJPEGBytes,328);
+  assert.equal(collector.samplingStats.deliveredBase64Characters,jpeg.length*3);
+  assert.equal(collector.samplingStats.everyNthCompositorFrame,12);
+  assert.match(collector.samplingStats.meaning,/NOT video FPS/);
   assert.equal(calls.filter(x=>x.method==='Page.screencastFrameAck').length,3);
   await collector.stop();
   assert.ok(calls.some(x=>x.method==='Page.stopScreencast'));
@@ -77,6 +87,8 @@ test('no calibration can be claimed when CDP unavailable',async()=>{
     dir:'/virtual',viewport:{width:960,height:600}});
   assert.equal(collector.started,false);
   assert.equal(collector.anchors.length,0);
+  assert.equal(collector.samplingStats.deliveredCDPFrames,0);
+  assert.equal(collector.samplingStats.storedAnchorCount,0);
   assert.match(collector.errors[0],/CDP unavailable/);
   await collector.stop();
 });

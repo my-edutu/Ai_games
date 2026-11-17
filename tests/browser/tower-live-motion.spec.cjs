@@ -877,6 +877,7 @@ for (const viewport of viewports) {
       },
       passiveCompositorAnchors:{started:compositorAnchors.started,
         recorded:compositorAnchors.anchors.length,
+        capturePressure:compositorAnchors.samplingStats,
         errors:compositorAnchors.errors.slice(0,8),
         timing:'Original Chrome compositor timestamps; matching against original WebM required',
         qualityVerdict:'NOT EVALUATED'},
