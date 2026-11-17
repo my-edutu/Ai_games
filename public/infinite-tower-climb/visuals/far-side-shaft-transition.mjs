@@ -92,7 +92,8 @@ export function observedEarnedFarSideShaftOverlap(source,held,job=null) {
       !valid(job.structuralVisibleReturns) ||
       job.structuralVisibleReturns<0 ||
       job.structuralVisibleReturns>30 ||
-      !['awaiting-actual-first-render','awaiting-structural-release',
+      !['awaiting-actual-first-render','awaiting-void-biome-build',
+        'awaiting-structural-release',
         'awaiting-structural-submission','awaiting-vista-submission',
         'fading-remote-arrival','complete'].includes(job.state)))
     return null;
@@ -219,7 +220,8 @@ export function observedReturnedOriginalArchitectureHold(source,held,job,farSide
      !job || job.runToken!==source.runToken || job.floor!==9 ||
      job.proof!=='recorded-source-gateway' ||
      job.structureDeferred!==true ||
-     !['awaiting-actual-first-render','awaiting-structural-release',
+     !['awaiting-actual-first-render','awaiting-void-biome-build',
+        'awaiting-structural-release',
        'awaiting-structural-submission','awaiting-vista-submission']
        .includes(job.state) ||
      ![source.tick,held.crossingTick,held.firstWorldRenderTick,
