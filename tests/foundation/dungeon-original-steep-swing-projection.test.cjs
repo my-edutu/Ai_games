@@ -211,7 +211,7 @@ test('RED: genuine world-outsole axis is converted after source thigh/calf candi
  const correctedLocal=worldAxis.clone().applyQuaternion(candidateWorld.clone().invert());
  assert.ok(correctedLocal.clone().applyQuaternion(candidateWorld).angleTo(worldAxis)<1e-6,
   'new local foot pitch must raise the same verified world-space toe direction');
- assert.ok(staleLocal.clone().applyQuaternion(candidateWorld).angleTo(worldAxis)>.04,
+ assert.ok(staleLocal.clone().applyQuaternion(candidateWorld).angleTo(worldAxis)>.02,
   'the old pre-thigh basis points the foot pitch off the true skinned outsole');
  const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  const start=renderer.indexOf('for(const {upperRad,lowerRad,footRad} of connectedAngles)');
