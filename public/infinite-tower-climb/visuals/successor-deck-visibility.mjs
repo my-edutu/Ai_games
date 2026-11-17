@@ -25,7 +25,7 @@ function renderedTriangle(hit,root) {
 }
 export function measureAuthoritativeDeckSightline({
   source,held,camera,body,bodyHalfHeight,gate=null,
-  platformRoots,originalGateRoot=null,raycaster,direction,point,hits,stale=false
+  platformRoots,originalGateRoot=null,architectureRoots=[],raycaster,direction,point,hits,stale=false
 }={}) {
   if(stale || source?.floor!==9 || source.theme!=='void' ||
     source.lifecycle!=='running' || !(source.player?.health>0) ||
@@ -39,6 +39,11 @@ export function measureAuthoritativeDeckSightline({
     !Array.isArray(platformRoots) || !platformRoots.length ||
     platformRoots.length>3 || !platformRoots.every(root=>root?.isGroup) ||
     (originalGateRoot!=null && !originalGateRoot.isGroup) ||
+    // Only existing source-owned structural groups, never a second scene,
+    // proxy obstruction or duplicated gameplay collider. Bounded cold path.
+    !Array.isArray(architectureRoots) || architectureRoots.length>2 ||
+    !architectureRoots.every(root=>root?.isGroup &&
+      root!==originalGateRoot && !platformRoots.includes(root)) ||
     !raycaster?.set || !raycaster?.intersectObject ||
     !direction?.copy || !point?.copy ||
     !Array.isArray(hits) || (gate!=null && !valid3(gate)))return null;
@@ -51,7 +56,10 @@ export function measureAuthoritativeDeckSightline({
   // Reuse the existing source-verified F8->F9 camera window and raycaster;
   // never use this gate as an occluder of its OWN gateway target.
   if(originalGateRoot?.visible!==false) originalGateRoot?.updateWorldMatrix(true,true);
+  for(const root of architectureRoots)if(root.visible!==false)
+    root.updateWorldMatrix(true,true);
   let blockedBodyRays=0, blockedGatewayRays=0, rays=0, realTrianglesChecked=0;
+  let architectureBlockedRays=0;
   let originalGateBlockedRays=0;
   // The 390px original footage keeps a centre ray clear while the actual
   // source-width skinned shoulder and the bronze door's upper lip disappear
@@ -95,6 +103,19 @@ export function measureAuthoritativeDeckSightline({
       realTrianglesChecked+=hits.length;
       if(hits.some(hit=>renderedTriangle(hit,root))){blocked=true;break;}
     }
+    // The real first-frame Void buttress, source-earned bearing gallery and
+    // subsequent authentic shaft can physically hide a hero even with every
+    // walkable deck clear. Score genuine currently visible triangle contacts
+    // inside the SAME source-owned camera; never remove actual world steel.
+    if(!blocked)for(const root of architectureRoots){
+      if(root.visible===false)continue;
+      hits.length=0;
+      raycaster.intersectObject(root,true,hits);
+      realTrianglesChecked+=hits.length;
+      if(hits.some(hit=>renderedTriangle(hit,root))){
+        blocked=true;architectureBlockedRays++;break;
+      }
+    }
     hits.length=0;
     // Only an actually rendered bronze gate triangle BETWEEN the final
     // composed camera and one of the genuine seven skinned-body samples
@@ -112,10 +133,11 @@ export function measureAuthoritativeDeckSightline({
     if(blocked){if(sample>=bodySamples)blockedGatewayRays++;else blockedBodyRays++;}
   }
   return {active:true,rays,bodyBlockedRays:blockedBodyRays,
-    originalGateBlockedRays,gatewayBlockedRays:blockedGatewayRays,
+    originalGateBlockedRays,architectureBlockedRays,
+    gatewayBlockedRays:blockedGatewayRays,
     score:blockedBodyRays*2+blockedGatewayRays,
     actualTriangleIntersections:realTrianglesChecked,
-    limitation:'Source-owned real platform and retained guardian gate triangle rays, NOT native pixels, supported-device FPS, or permission to move a collider'};
+    limitation:'Real source-authored F9 deck, original gate, incoming buttress/bearing/shaft triangles; NOT native pixels, device FPS or permission to move colliders'};
 }
 
 
