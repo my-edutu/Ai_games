@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-17T00:55:59Z",
+  "updatedAt": "2026-11-17T02:03:42Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass438: Pass437 authentic exact-HEAD WebGL run 43985538335 SUCCESS; original 40/40 PNG SHA256 and 3 genuine gate hashes verified, but the slender Tideglass observatory remains illegible against busy guardian architecture. Built one source-bound connected eclipse observatory with physical dial/shutters responding only to a real public guardian warning and earned Pip lantern counter. Pass438 exact-SHA tests, uncropped 320/390/844/1280 captures, independent critique PENDING. Nintendo quality bar unmet."
+    "summary": "Pass439: exact-HEAD Pass438 WebGL 43992428202 SUCCESS, original 40/40 uncropped PNG SHA pairs and 3/3 real gate hashes verified. Native 320 earned guardian A/B versus Pass437 REJECTS overbuilt eclipse dial: smaller, weaker Pip/Thornback staging; 390 remains crowded. Restore the prior trusted Pass437 world.js only; new rollback exact-HEAD CI and native captures pending. Official Nintendo bar and independent critic NOT met."
   },
   "captures": [
+    {
+      "title": "Pass438 original exact HEAD 69495c3 candidate: 40/40 full-frame screenshot hashes + 3 real gate hashes passed, 320 earned guardian visual A/B rejected",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/43992428202/artifacts/14288104704"
+    },
     {
       "title": "Pass437 exact HEAD 614e0fb3 baseline — 40/40 source-bound unaltered WebGL PNG SHA verified and 3 real gate-frame hashes; full visual bar rejected",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/43985538335/artifacts/14285362955"
