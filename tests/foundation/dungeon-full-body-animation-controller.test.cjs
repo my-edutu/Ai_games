@@ -7079,3 +7079,80 @@ test('RED: exact 390px and desktop buried source toe prioritizes bounded hip-kne
     rig.view+' rejects stale, unsafe, unsupported, untethered or non-pitch frames');
  }
 });
+
+
+// RED-first, original licensed Walking_A observed at 390px on exact-source
+// Actions #43990435357, original rasterized/cpu-skinned GLB frame 24.
+// The real displayed frame was 216.6ms and its left original weighted toe
+// was 65.926mm below stone while the original heel stood 235.831mm above.
+// The two *measured* native hip/knee trials lifted the toe 24.219mm and
+// heel 28.700mm, worsening pitch by 4.481mm. No coupled after-pose is
+// claimed as measured by these synthetic future test-only predictions.
+test('RED: native 390px sparse Walking_A swing may spend the existing two probes on source-verified knee-biased counterpitch, not claim contact',async()=>{
+ const {planOriginalSourceCoupledFootStarter:starter,
+  planOriginalSourceCoupledKneeFootFollowups:followups,
+  chooseOriginalSourceCoupledKneeFootSweep:choose}=await load();
+ const swing={heelY:.21583078289316468,toeY:-.08592556083075424,
+  heelXZ:[-7.658382766002532,-6.866613473873343],
+  toeXZ:[-7.712440765371059,-6.859180945170282]};
+ const loaded={heelY:-.011781496417656731,toeY:-.025559737992970212,
+  heelXZ:[-7.649439860064496,-7.02588111707648],
+  toeXZ:[-7.895412556507911,-7.140045770951073]};
+ const after=(toe,heel,other=loaded)=>({
+  left:{...swing,toeY:swing.toeY+toe,heelY:swing.heelY+heel},
+  right:{...other}
+ });
+ const gate={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceChainVerified:true,sourceUpperTrackVerified:true,
+  sourceLowerTrackVerified:true,sourceFootTrackVerified:true,
+  sourceBindVerified:true,sourceAnatomicalFootAxisVerified:true,
+  sourceInstanceId:'real-licensed-clone',
+  ownerLocomotion:true,alive:true,visible:true,teleport:false,
+  reducedMotion:false,interrupted:false,previousLinkedCertified:false,
+  rootTravel:.08162171738204282,frameAge:.06,
+  frameInterval:.21659999999999968,side:'left',floorTopY:-.02,
+  before:{left:swing,right:loaded},starterTrials:[
+   {upperRad:.12,lowerRad:-.09,after:after(-.014647521465199681,-.03239003637034468)},
+   {upperRad:-.12,lowerRad:.09,after:after(.024219132300128197,.028700103786500425)}
+  ]};
+ const witnessed=starter(gate);
+ assert.equal(witnessed?.source,'actual-original-source-three-joint-swing-opportunity',
+  'genuine 216.6ms source frame must not silently fall back to more unsafe hip-knee');
+ assert.equal(witnessed.sign,-1);
+ assert.equal(witnessed.contactLocked,false);
+ const angles=followups({...gate,starter:witnessed});
+ assert.deepEqual(angles,[
+  {upperRad:-.11,lowerRad:.14,footRad:.18},
+  {upperRad:-.11,lowerRad:.14,footRad:.24}
+ ],'two independently reskinned original knee-driven probes, no added skinning reads');
+ // This is a labelled SYNTHETIC future source readback solely for checking
+ // that the strict independent actual-skinned selector would remain intact.
+ const hypothetical={upperRad:-.11,lowerRad:.14,footRad:.24,
+  after:after(.025,.018)};
+ const qualified=choose({...gate,trials:[hypothetical]});
+ assert.equal(qualified?.source,'measured-original-skinned-coupled-knee-foot');
+ assert.equal(qualified?.oppositeShoePreserved,true);
+ assert.equal(qualified.contactLocked,false);
+ for(const bad of [
+  {sourceInstanceSame:false},{sourceFootTrackVerified:false},
+  {sourceAnatomicalFootAxisVerified:false},{sourceWeight:.8},
+  {alive:false},{visible:false},{reducedMotion:true},{interrupted:true},
+  {teleport:true},{rootTravel:0},{frameInterval:.245},
+  {starterTrials:[gate.starterTrials[0],{
+    ...gate.starterTrials[1],after:after(.024219,.029,.{
+    })}]}
+ ])if(!bad.starterTrials) {
+  assert.equal(starter({...gate,...bad}),null,
+   'original source probe eligibility must refuse missing authority, source or cadence');
+  assert.equal(followups({...gate,...bad,starter:witnessed}),null,
+   'joint followups must refuse unsupported source or stale owner');
+ }
+ assert.equal(choose({...gate,trials:[{...hypothetical,
+  after:after(.025,.018,{...loaded,heelY:loaded.heelY+.009})}]}),null,
+  'predicted improvement cannot move the original opposite loaded shoe');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/planOriginalSourceCoupledKneeFootFollowups\(/,
+  'original Three.js renderer must consume only the vetted two source joint trials');
+ assert.match(renderer,/sourceCoupledKneeFootProof:/,
+  'final independently reskinned source shoe and original pose restoration still decide');
+});
