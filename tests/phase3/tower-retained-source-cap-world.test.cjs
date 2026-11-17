@@ -686,7 +686,8 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
     assert.ok(shaftOpacity.length>0 &&
       shaftOpacity.some(opacity=>opacity>0 && opacity<=.24) &&
       shaftOpacity.every(opacity=>opacity>=0 && opacity<=.24),
-      'only the real load-bearing shell may stage a bounded optical aperture; new detail must remain non-opaque until a later returned render');
+      'only the real load-bearing shell may stage a bounded optical aperture; material alpha/phase actual='+
+        JSON.stringify({alphas:shaftOpacity,stage:world.diagnostics().deferredDistantArrival?.state}));
     const deferredDetail=hiddenShaft.getObjectByName('deferred-authentic-floor-nine-biome-details');
     assert.ok(deferredDetail?.isGroup && deferredDetail.visible===false,
       'authentic biome detail must not steal the first source-authenticated shell shot');
