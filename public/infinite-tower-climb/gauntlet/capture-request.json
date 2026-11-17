@@ -1,4 +1,20 @@
 {
+  "p0OriginalCapNonWalkableTriangleSightlineSourcePinned20261117": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionImplementationSha": "f57d74915b9e81420aa94b3a29b9a540b457f05e",
+    "candidatePin": "CURRENT immutable github.sha of this request commit; PR68 remains DRAFT and PR58 unchanged",
+    "request": "Execute original 9-job frozen baseline/candidate film campaign with 960x600 and 390x844 real 25fps WebMs, 60+ seconds ascent/danger/outcome/restart and matching source events; camera after old F8 nonwalkable cap skirt mesh protection",
+    "priorOriginalFullMotionRun": "https://github.com/my-edutu/Ai_games/actions/runs/44025247654",
+    "priorDefect": "Floor9 HUD to sustained violet: desktop 26.00->27.50s=1.50s, portrait 26.25->28.50s=2.25s; old F8 bronze cap undercroft blocks portrait body",
+    "reviewRequirement": "Inspect original WebM and actual event sidecar frame-by-frame; strict source-film alignment remains NOT EVALUATED/FAILED until independently verified. A successful Actions job is not game-quality acceptance.",
+    "tests": [
+      "tests/phase3/tower-original-cap-skirt-sightline.test.cjs",
+      "tower-transformation-gate exact-source"
+    ],
+    "safety": "Never move 1731b38 baseline, rewrite PR58, merge, deploy, force push or mark PR68 ready"
+  },
   "p0OriginalClockworkCapBodyAndGatewayRayRescue20261117": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
     "leadingVerdict": "NOT EVALUATED",

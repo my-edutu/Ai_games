@@ -64,9 +64,9 @@
   },
   "realDevices": "NOT EVALUATED",
   "nextHighestImpact": "Run exact-head source-pinned desktop/portrait original 60+s footage; inspect full-motion climber/cap old gateway after F9 HUD, verify old top and guardian remain solid, source+video event timestamps, renderer tails. If source-grounded crossing still cuts 1.5–2.25s before real Void, reopen P0 synchronous shell warmup/staging before moving to P1.",
-  "sourceSHA": "PENDING_ATOMIC_COMMIT",
-  "newCapture": "NOT YET RUN",
-  "newCI": "NOT YET RUN",
+  "sourceSHA": "f57d74915b9e81420aa94b3a29b9a540b457f05e",
+  "newCapture": "REQUESTED_BY_SOURCE_PINNED_CAPTURE_REQUEST_COMMIT; job/footage NOT YET AVAILABLE",
+  "newCI": "EXACT_HEAD_QUALITY_WORKFLOW_TRIGGERED_BY_PRODUCTION_CHANGE; result NOT YET VERIFIED",
   "restrictions": {
     "neverMerge": true,
     "neverDeploy": true,
@@ -74,5 +74,7 @@
     "preserveDraft": true,
     "doNotModifyPR58": true,
     "preserveFrozenBaseline": true
-  }
+  },
+  "acceptanceVerdict": "NOT EVALUATED",
+  "captureRequestKey": "p0OriginalCapNonWalkableTriangleSightlineSourcePinned20261117"
 }
