@@ -445,3 +445,52 @@ test('RED: original 390px fast Walking_A toe-hinge probe retains the measured .3
  ]) assert.equal(followup({...genuineWindow,...bad}),null,
   'unsupported original source band, damaged chain and non-native witnesses stay rejected');
 });
+
+
+// Real AFTER original GLB/390px source-skin from #44130392878:
+// .46rad connected original foot trial lifts ~27.93mm yet leaves the toe
+// ~51.85mm under floor. The fourth fixed -.14rad original toes-child adds
+// ~14.45mm but leaves ~37.4mm burial. A true post-connected world hinge
+// is needed instead of guessing a fixed child angle. All test axes below
+// are SYNTHETIC planning fixtures, not source skin/IK/visual acceptance.
+test('RED: four-joint original toe probe is bounded by actual post-coupled skinned gap and world hinge',async()=>{
+ const {planOriginalSourceAdaptiveToeHingeProbe:plan}=await load();
+ assert.equal(typeof plan,'function');
+ const source={source:'verified-original-post-coupled-toe-hinge',
+  sourceClipName:'Walking_A',sourceWeight:1,frameInterval:.0333,
+  sourceInstanceSame:true,sourceToeTrackVerified:true,
+  sourceToeChainVerified:true,sourceToeSkinnedWeight:1,
+  preplannedToeRad:-.14,
+  sourceToeVertexWorld:[.1,-.07185,0],
+  sourceToePivotWorld:[0,-.07185,0],sourceToeAxisWorld:[0,0,-1],
+  sourceHeelY:.18841,floorTopY:-.02,
+  ownerLocomotion:true,alive:true,visible:true,
+  interrupted:false,teleport:false,reducedMotion:false};
+ assert.equal(plan(source)?.toeRad,-.32);
+ assert.equal(plan({...source,sourceToeVertexWorld:[.1,-.035,0],
+  sourceToePivotWorld:[0,-.035,0]})?.toeRad,-.19);
+ assert.equal(plan({...source,sourceToeAxisWorld:[0,0,1],
+  preplannedToeRad:.14})?.toeRad,.32);
+ for(const bad of [{sourceToeTrackVerified:false},
+  {sourceToeChainVerified:false},{sourceToeSkinnedWeight:.89},
+  {sourceInstanceSame:false},{sourceWeight:.90},
+  {preplannedToeRad:.4},{preplannedToeRad:.14},
+  {sourceToeAxisWorld:[NaN,0,0]},{sourceToeAxisWorld:[0,1,0]},
+  {sourceToeVertexWorld:[0,-.07185,0]},
+  {sourceHeelY:-.2},{floorTopY:.1},{frameInterval:.25},
+  {reducedMotion:true},{teleport:true},{interrupted:true},
+  {ownerLocomotion:false},{alive:false},{visible:false}])
+  assert.equal(plan({...source,...bad}),null,'unsafe toe scheduling must fail closed');
+});
+test('RED: native fourth toe sample takes real third-sample skinned toe and updated source world axis',()=>{
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const start=renderer.indexOf('const boundedConnectedAngles=');
+ const finish=renderer.indexOf('if(!kneeFootCoupled){',start);
+ const scope=renderer.slice(start,finish);
+ assert.ok(start>0&&finish>start);
+ assert.match(scope,/planOriginalSourceAdaptiveToeHingeProbe\(/);
+ assert.match(scope,/sourceAdaptiveToeCandidate/);
+ assert.match(renderer,/sourceAdaptiveToeCandidate:selectedTrial\?\.sourceAdaptiveToeCandidate/);
+ const controller=fs.readFileSync(path.join(root,'public/ai-dungeon/full-body-animation-controller.js'),'utf8');
+ assert.match(controller,/trial\.sourceAdaptiveToeCandidate/);
+});
