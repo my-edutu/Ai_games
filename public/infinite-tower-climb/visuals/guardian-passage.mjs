@@ -588,7 +588,7 @@ export function createTowerGuardianPassage(THREE) {
   const threshold = new THREE.Group();
   threshold.name = 'ObservedWalkableGuardianThreshold';
   threshold.position.set(0, -2, GUARDIAN_PASSAGE_RADII.deck - GUARDIAN_PASSAGE_RADII.lock);
-  const thresholdStones = new THREE.InstancedMesh(box, stone, 6);
+  const thresholdStones = new THREE.InstancedMesh(box, stone, 7);
   thresholdStones.name = 'WalkableSourceCapArchAndBraces';
   thresholdStones.castShadow = false;
   thresholdStones.receiveShadow = false;
@@ -600,14 +600,20 @@ export function createTowerGuardianPassage(THREE) {
   // the original exterior bronze grille. Expand the original structural
   // opening TOGETHER with its exterior source gate: paired outboard piers,
   // a connected raised crown, boot-low sill and side-only tensile stays.
-  // Keep all six real instanced parts, source-supported floor plane, 25m
-  // climber radius, original gate ownership and exact render draw budget.
+  // Keep the same one-instanced-draw budget and original source-supported
+  // roof/gateway ownership. The actual 390x844 candidate's first returned
+  // F9 body-centre ray hit instance 3 (full-width decorative stone sill),
+  // before any full-body/gate native-film co-visibility was established.
+  // Break that NON-COLLIDING bar into two genuine boot-low corner shoes,
+  // with the actual load-bearing floor and real locked exterior gate intact.
+  // No walkable bridge, collision shortcut or extra draw call is introduced.
   // No collider is widened, guessed, removed or newly introduced.
   const thresholdShapes = [
     [-4.12, 2.58, -.18, .44, 5.16, .46, 0],
     [4.12, 2.58, -.18, .44, 5.16, .46, 0],
     [0, 5.34, -.18, 8.65, .40, .46, 0],
-    [0, .06, -.15, 8.04, .12, .34, 0],
+    [-3.85, .06, -.15, .75, .12, .34, 0],
+    [3.85, .06, -.15, .75, .12, .34, 0],
     [-4.12, 6.02, 1.22, .26, 3.36, .28, braceAngle],
     [4.12, 6.02, 1.22, .26, 3.36, .28, braceAngle],
   ];
