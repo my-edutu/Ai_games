@@ -3551,7 +3551,68 @@ export function createTowerWorld(){
   // Exact original source-frame CPU-only world construction witness. A cheap
   // getter avoids the expensive complete scene traverse in the hot render path.
   let lastRebuildWitness = null;
-  function clearFloor(){
+  // The native 1x gateway captures show a 478/570ms browser-accept-to-
+  // renderer-return gap. Rebuilding the genuine Floor9 route is unavoidable;
+  // tearing down every unrelated OLD Floor8 GPU resource during that same
+  // synchronous path is not. Only a verified same-run HP-zero retained cap
+  // may postpone OLD noninteractive resource deletion, and the original
+  // doorway/roof resources remain excluded by their existing ownership sets.
+  // No timers, workers, future floor prediction, extra scene, or source ticks.
+  // At most ONE removed old floor can be queued, with a hard 1024-item bound.
+  const MAX_RETIRED_ITEMS = 1024;
+  const MAX_RETIRE_PER_RETURN = 24;
+  const MAX_RETIRE_WORK_MS = 2;
+  let retiredFloorResources = null;
+  let retirementAudit = {state:'idle',queued:0,released:0,remaining:0,
+    returnedFrames:0,forcedReleases:0,errors:0};
+  function releaseRetiredItem(item) {
+    try { item.dispose(); }
+    catch (error) {
+      retirementAudit.errors++;
+      console.error('Tower former-floor GPU resource disposal failed:',error);
+    }
+  }
+  function finishRetiredFloorResources(reason='owner-ended') {
+    const job=retiredFloorResources;
+    if(!job)return;
+    while(job.cursor<job.items.length) {
+      releaseRetiredItem(job.items[job.cursor++]);
+      retirementAudit.released++;
+    }
+    retirementAudit.remaining=0;
+    retirementAudit.forcedReleases++;
+    retirementAudit.state=reason;
+    retiredFloorResources=null;
+  }
+  function retireAfterReturnedFloorNineFrame(snapshot,options={}) {
+    const job=retiredFloorResources;
+    if(!job)return;
+    // A dead run, different floor, death, or teardown cannot retain old GPU
+    // resources indefinitely waiting for a frame that can no longer arrive.
+    if(snapshot?.runToken!==job.runToken || snapshot?.floor!==9 ||
+       snapshot?.lifecycle!=='running' || !(snapshot.player?.health>0)) {
+      finishRetiredFloorResources('source-owner-ended');
+      return;
+    }
+    if(options.stale) return;
+    // Called only AFTER renderer.render successfully returned: no HTTP
+    // receipt, animation RAF, source tick or failed render spends the budget.
+    const start=performance.now();
+    let released=0;
+    while(job.cursor<job.items.length && released<MAX_RETIRE_PER_RETURN &&
+          (released===0 || performance.now()-start<MAX_RETIRE_WORK_MS)) {
+      releaseRetiredItem(job.items[job.cursor++]);
+      released++;
+    }
+    retirementAudit.released+=released;
+    retirementAudit.returnedFrames++;
+    retirementAudit.remaining=job.items.length-job.cursor;
+    retirementAudit.state=retirementAudit.remaining
+      ?'draining-on-real-render-returns':'drained-after-real-render';
+    if(!retirementAudit.remaining)retiredFloorResources=null;
+  }
+  function clearFloor(deferPreviousSourceFloor=false){
+    finishRetiredFloorResources('superseded-floor-rebuild');
     discardPreparedThresholdGallery();
     deferredDistantArrival = null;
     lastRebuildWitness = null;
@@ -3563,10 +3624,43 @@ export function createTowerWorld(){
     lastProtectedUndercroftEntries.length=0;
     successorUndercroftSightline={active:false,meshes:0,rays:0,softened:0};
     rigidUploadBytes=0;rigidExpandedBytes=0;rigidIndexedBatches=0;rigidBatchCount=0;rigidPackedVertexBuffers=0;rigidPriorSeparateVertexBuffers=0;
-    if(floorGroup){group.remove(floorGroup);floorGroup.traverse(o=>{if(o.isInstancedMesh)o.dispose();});}
+    const canDeferOldGpuDisposal=deferPreviousSourceFloor &&
+      quality==='low' && retainedEarnedCap?.guardianGateRetained===true &&
+      retainedEarnedCap.floor===9 &&
+      typeof retainedEarnedCap.runToken==='string' &&
+      retainedEarnedCap.runToken.length>0;
+    const oldGpuResources=[];
+    const releaseOld=item=>{
+      if(canDeferOldGpuDisposal)oldGpuResources.push(item);
+      else item.dispose();
+    };
+    if(floorGroup){
+      group.remove(floorGroup);
+      floorGroup.traverse(o=>{if(o.isInstancedMesh)releaseOld(o);});
+    }
     // The one source-earned former cap keeps its already-rendered resources.
-    for(const g of floorGeometries)if(!retainedEarnedCap?.ownedGeometries.has(g))g.dispose();
-    for(const m of floorMaterials)if(!retainedEarnedCap?.ownedMaterials.has(m))m.dispose();
+    // Preserve the exact old owned-geometry/material exclusions unchanged.
+    for(const g of floorGeometries)
+      if(!retainedEarnedCap?.ownedGeometries.has(g))releaseOld(g);
+    for(const m of floorMaterials)
+      if(!retainedEarnedCap?.ownedMaterials.has(m))releaseOld(m);
+    if(canDeferOldGpuDisposal && oldGpuResources.length &&
+       oldGpuResources.length<=MAX_RETIRED_ITEMS) {
+      retiredFloorResources={runToken:retainedEarnedCap.runToken,
+        floor:9,items:oldGpuResources,cursor:0};
+      retirementAudit={state:'waiting-for-first-real-floor-nine-return',
+        queued:oldGpuResources.length,released:0,
+        remaining:oldGpuResources.length,returnedFrames:0,
+        forcedReleases:0,errors:0};
+    } else if(oldGpuResources.length) {
+      // Fail closed on large old worlds: do not retain an unbounded second
+      // GPU floor merely to seek a shorter cold rendering interval.
+      retirementAudit={state:'queue-limit-fallback',queued:oldGpuResources.length,
+        released:0,remaining:0,returnedFrames:0,forcedReleases:1,errors:0};
+      for(const item of oldGpuResources){
+        releaseRetiredItem(item);retirementAudit.released++;
+      }
+    }
     floorGeometries.clear();floorMaterials.clear();platforms.clear();hazards.clear();rotors.length=0;floaters.length=0;foregroundGears.length=0;foregroundRacks.length=0;decorativeSightlines.length=0;decorativeOcclusionEvidence.length=0;particles=null;vistaGroup=null;floorGroup=null;occludedGuardianCaps=0;occludedForegroundGears=0;occludedForegroundScreenGears=0;occludedForegroundCorridorGears=0;occludedForegroundClockFaces=0;ruinsPortalVoussoirs=0;ruinsGateLeaves=0;
     ruinsSanctuaryArches=0;ruinsSanctuaryPlants=0;ruinsSanctuaryCascadePanels=0;
     sceneFocus=0;sceneFocusKind='ascent';
@@ -3656,7 +3750,7 @@ export function createTowerWorld(){
     const deferStructuralShell = deferDistant && earnedSourceUploadWitness && snapshot.floor===9 && snapshot.theme==='void';
     const rebuildStartedAt = performance.now();
     beginRetainedCapRebuild(snapshot);
-    clearFloor();originalClockworkArchitecturalPalette=null;
+    clearFloor(deferStructuralShell);originalClockworkArchitecturalPalette=null;
     sourceEarnedBearingPalette=null;
     quality=requestedQuality;theme=THEMES[snapshot.theme]?snapshot.theme:'foundry';const p=PALETTES[theme];
     materials={stone:weather(mat(p.stone,.04,.86)),dark:mat(p.dark,.28,.58),metal:mat(p.metal,.48,.39),copper:mat(theme==='foundry'?0xc88c57:p.metal,.55,.32),edge:mat(p.edge,.12,.68),
@@ -3803,6 +3897,7 @@ export function createTowerWorld(){
     // roof-bearing geometry. A stale poll, skipped source tick or speculative
     // future Floor9 never starts a preparation job.
     prepareOriginalThresholdAfterReturnedClockworkFrame(snapshot,options);
+    retireAfterReturnedFloorNineFrame(snapshot,options);
     const bearingHandoff=sourceEarnedBearingHandoff;
     if(bearingHandoff?.retiring===true && !options.stale &&
        snapshot?.runToken===bearingHandoff.runToken &&
@@ -5172,6 +5267,9 @@ export function createTowerWorld(){
   function lastRebuild() { return lastRebuildWitness ? { ...lastRebuildWitness } : null; }
   function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,
     sourceOwnedSuccessorUndercroft:{...successorUndercroftSightline},
+    previousFloorGpuCleanup:{...retirementAudit,
+      sourceBound:retirementAudit.queued>0,
+      caveat:'Old disconnected GPU resources retired after genuine returned WebGL frames; not measured GPU memory, frame-time or native film'},
     originalClockworkGalleryPrebuild:{...thresholdGalleryPreparation,
       stillOwnedByPrebuild:preparedThresholdGallery!==null},
     retainedSourceCap:retainedEarnedCap?{
@@ -5244,6 +5342,6 @@ export function createTowerWorld(){
       vistaBuildMs:deferredDistantArrival.vistaBuildMs,
       deferredBuildMs:deferredDistantArrival.deferredBuildMs,
     }:null,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
-  function dispose(){if(disposed)return;retireEarnedCap();pendingEarnedCap=null;clearFloor();for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
+  function dispose(){if(disposed)return;retireEarnedCap();pendingEarnedCap=null;clearFloor();finishRetiredFloorResources('disposed');for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
   return{group,update,stageGroundedCapContinuation,retainedFilmHandoff,certifiedPaletteHorizon,noteFrameSubmitted,deferredShaderSubmission,measureSuccessorDeckVisibility,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics,lastRebuild};
 }
