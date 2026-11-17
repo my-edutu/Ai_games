@@ -737,6 +737,27 @@ export function createPhysicalCombatFeedback({
     Number.isFinite(lastVisualAdvanceEndClock)&&
     lastVisualAdvanceEndClock>=observedAt?
     lastVisualAdvanceEndClock-observedAt:null;
+   // The actual opt-in browser supplies a monotonic observation clock.
+   // An HP drop observed while that clock was missing/regressed cannot be
+   // rehabilitated by a healthy next rAF clock. The old frameAge fallback
+   // otherwise allocated genuine-looking injury fragments for this UNKNOWN
+   // event, only to retire them immediately before WebGL. Reject the cue
+   // BEFORE any retained GPU allocation, preserving the sole real first-frame
+   // opportunity for independently timestamped injuries. The older injected
+   // clockless adapter still uses its established bounded frameAge contract.
+   const unverifiedHpClock=requirePresentedFrame&&typeof clock==='function'&&
+    (item.cue.kind==='damage'||item.cue.kind==='damage-fatal')&&
+    item.cue.verified===true&&item.cue.proof==='observed-hp-drop'&&
+    (!Number.isFinite(observedAt)||observedAt<0||
+     !Number.isFinite(lastVisualAdvanceEndClock)||
+     lastVisualAdvanceEndClock<observedAt);
+   if(unverifiedHpClock){
+    pending.splice(pending.indexOf(item),1);
+    expiredQueuedCues++;
+    if(item.audioEpoch!==null)staleAudioDropped++;
+    retainReceipt(item.cue,false,false,null,'unverified-hp-clock-before-emission');
+    continue;
+   }
    const realAge=postVisualWallAge===null?frameAge:
     Math.max(frameAge,postVisualWallAge);
    // Never render or play queued impact after a long visual/WebGL stall.
