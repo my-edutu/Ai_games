@@ -1448,6 +1448,9 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
      // Terminal pre-render and in-emission expiry are real GPU retirements.
      // Rejecting these controller reasons left old HP shards visible on the
      // next WebGL frame despite permanently refusing the associated sound.
+     // If the wall clock becomes invalid BEFORE render, discard only
+     // unsubmitted transients; the Warden authority exception remains below.
+     'unverified-before-render',
      'expired-before-render','expired-during-visual-emission',
      'revoked-drawn-swing-pose','revoked-drawn-body-pose',
      'visual-submission-unverified','authority-revoked-warning',
