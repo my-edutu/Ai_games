@@ -188,8 +188,35 @@ export function observedOriginalClockworkSuccessorDeck(platform, held, runToken)
       !Number.isSafeInteger(platform.height) ||
       platform.height<=0) return false;
   const roof=platform.y+platform.height;
-  return Number.isSafeInteger(roof) &&
-    roof>=held.oldRoofY-2500 && roof<=held.oldRoofY+900000;
+  // The source-physically continuous threshold owns only the true landing
+  // roof. Its FIRST raised/moving successor is already another place: painting
+  // that entire elevated route bronze hid the genuine Void destination for
+  // multiple original native frames after the Floor9 HUD appeared.
+  // Keep the old gateway and its exact-height grounded receiving roof warm,
+  // while the real, separately supported upper climb retains original Void
+  // materials from its first successful draw. No invented platform or contact.
+  return platform.id==='f9:ground' && platform.kind!=='moving' &&
+    Number.isSafeInteger(roof) &&
+    roof>=held.oldRoofY-2500 && roof<=held.oldRoofY+2500;
+}
+
+// Source-earned raised decks use already authored, identical PBR shader types,
+// but separate two shared material owners. Otherwise the global old-room color
+// lease repaints every elevated F9 platform bronze even when the player could
+// clearly SEE the genuine next biome past the physical threshold. This is a
+// spatial distinction, not an artificial scene cut or a new visual prop.
+export function createSourceEarnedVoidDepartureMaterials(materials,held,runToken) {
+  if(held?.floor!==9 || held.guardianGateRetained!==true ||
+     typeof runToken!=='string' || !runToken ||
+     held.runToken!==runToken ||
+     !materials?.landing?.isMaterial || !materials?.copper?.isMaterial ||
+     typeof materials.landing.clone!=='function' ||
+     typeof materials.copper.clone!=='function')return null;
+  const landing=materials.landing.clone();
+  const rim=materials.copper.clone();
+  landing.name='SourceEarnedVoidRaisedLanding';
+  rim.name='SourceEarnedVoidRaisedDeckRim';
+  return {landing,rim};
 }
 
 export function updateOriginalClockworkSuccessorRoute(deck, proof, opticalTail=null) {
