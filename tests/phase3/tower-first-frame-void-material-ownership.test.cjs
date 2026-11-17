@@ -2,7 +2,7 @@
 const {test} = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-const loader = import('../../public/infinite-tower-climb/visuals/source-earned-first-frame-void-materials.mjs');
+const loader = import('../../public/infinite-tower-climb/visuals/source-earned-bearing-run.mjs');
 function material(name) {
   const mat = {isMaterial:true,name,color:{code:name}};
   mat.clone = () => ({isMaterial:true,name:'copied',color:{code:mat.color.code}});
@@ -52,7 +52,7 @@ test('invalid/unowned geometry cannot gain a successor shader owner',async()=>{
 });
 test('production source uses original earned Floor9 architecture, registers disposable materials and preserves guardian/source scope',()=>{
   const src=fs.readFileSync('public/infinite-tower-climb/visuals/world.mjs','utf8');
-  assert.match(src,/import \{ isolateEarnedFirstFrameVoidMaterials \} from '.\/source-earned-first-frame-void-materials\.mjs'/);
+  assert.match(src,/import \{ plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections, isolateEarnedFirstFrameVoidMaterials \} from '.\/source-earned-bearing-run\.mjs'/);
   assert.match(src,/held\.guardianGateRetained!==true \|\| snapshot\?\.floor!==9/);
   assert.match(src,/buildVoidOpenCoreLoadPath\(height,frame,'first-frame'\)/);
   assert.match(src,/buildVoidOpenBearingPylon\(body,p,p\.top-8,'first-frame'\)/);
