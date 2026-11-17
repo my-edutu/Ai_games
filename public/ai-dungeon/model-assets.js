@@ -2967,6 +2967,11 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
      sourceTrackVerified:true
     });
     const footAxis=new THREE.Vector3(...axisAudit.axis);
+    // The source-skinned WORLD outsole remains measured for this frame;
+    // its imported foot-LOCAL axis must follow each thigh/calf candidate.
+    const worldSoleAxis=worldSolePitch?
+     new THREE.Vector3(...worldSolePitch.worldAxis):null;
+    const sourceFootWorld=new THREE.Quaternion();
     if(worldSolePitch){
      // Our first TWO reversible source-skin starter trials left the
      // thigh/calf temporarily rotated. Restore their original imported
@@ -2975,9 +2980,8 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
      upper.bone.quaternion.copy(upperOriginal);
      lower.bone.quaternion.copy(lowerOriginal);
      upper.bone.updateWorldMatrix(true,true);
-     const sourceFootWorld=foot.bone.getWorldQuaternion(
-      new THREE.Quaternion());
-     footAxis.set(...worldSolePitch.worldAxis).applyQuaternion(
+     foot.bone.getWorldQuaternion(sourceFootWorld);
+     footAxis.copy(worldSoleAxis).applyQuaternion(
       sourceFootWorld.invert()).normalize();
     }
     if([footAxis.x,footAxis.y,footAxis.z].every(Number.isFinite)&&
@@ -2999,10 +3003,20 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
         upperDelta.setFromAxisAngle(upperLocalAxis,upperRad));
        lower.bone.quaternion.copy(lowerOriginal).multiply(
         lowerDelta.setFromAxisAngle(lowerLocalAxis,lowerRad));
-       foot.bone.quaternion.copy(kneeFootCoupled.savedFoot).multiply(
+       // Keep original source foot at its unrotated licensed clip pose.
+        // A changed upper/lower bone changes the foot's world basis.
+        if(worldSoleAxis){
+         foot.bone.quaternion.copy(kneeFootCoupled.savedFoot);
+         upper.bone.updateWorldMatrix(true,true);
+         foot.bone.getWorldQuaternion(sourceFootWorld);
+         footAxis.copy(worldSoleAxis).applyQuaternion(
+          sourceFootWorld.invert()).normalize();
+        }
+        foot.bone.quaternion.copy(kneeFootCoupled.savedFoot).multiply(
         kneeFootCoupled.footDelta.setFromAxisAngle(footAxis,footRad));
        upper.bone.updateWorldMatrix(true,true);
-       trials.push({upperRad,lowerRad,footRad,after:read()});
+       trials.push({upperRad,lowerRad,footRad,
+         footLocalAxis:footAxis.clone(),after:read()});
       }
      }
     }
@@ -3156,10 +3170,17 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
    starter:connectedStarter,
    trials:trials.filter(t=>Number.isFinite(t.footRad))});
   if(!option)return;
+  // Re-apply the exact imported foot-local axis of the chosen measured
+  // GLB candidate, never the last sweep sample's stale joint basis.
+  const selectedTrial=trials.find(t=>t.footRad===option.footRad&&
+   t.upperRad===option.upperRad&&t.lowerRad===option.lowerRad);
+  if(kneeFootCoupled.originalWorldSolePitchAxisVerified&&
+   !selectedTrial?.footLocalAxis)return;
   const footRotation=kneeFootCoupled.footDelta;
   upperDelta.setFromAxisAngle(upperLocalAxis,option.upperRad);
   lowerDelta.setFromAxisAngle(lowerLocalAxis,option.lowerRad);
-  footRotation.setFromAxisAngle(kneeFootCoupled.axis,option.footRad);
+  footRotation.setFromAxisAngle(
+   selectedTrial?.footLocalAxis??kneeFootCoupled.axis,option.footRad);
   upper.bone.quaternion.copy(upperOriginal).multiply(upperDelta);
   lower.bone.quaternion.copy(lowerOriginal).multiply(lowerDelta);
   foot.bone.quaternion.copy(kneeFootCoupled.savedFoot).multiply(footRotation);
