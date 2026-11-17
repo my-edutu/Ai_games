@@ -2879,8 +2879,14 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   // footage the licensed Idle reference made burial materially worse.
   // Eligibility is not pose acceptance: exact original tracks, bind, axis,
   // opposite sole and post-apply final source skin must still prove safety.
-  const sourceCoupledPriority=!sourceAnkleProof&&!loadedStanceProof&&
-   !previousLinkedCertified?planOriginalSourceCoupledFootStarter({
+  // Preserve existing owner exclusivity: earlier real ankle/stance or
+  // last-frame connected source pose must not be overwritten by a new
+  // three-joint trial. Record *why* we skipped, never a fabricated plant.
+  const coupledOwnerBlocker=sourceAnkleProof?'original-ankle-owns-frame':
+   loadedStanceProof?'loaded-stance-owns-frame':
+   previousLinkedCertified?'previous-source-linked-owns-frame':null;
+  const sourceCoupledPriority=!coupledOwnerBlocker?
+   planOriginalSourceCoupledFootStarter({
     ...owner,starterTrials:trials.slice(0,2)}):null;
   neutralBlends=!sourceAnkleProof&&!priorIdleWorsened?
    planOriginalSourceAuthoredNeutralBlends({...owner,starterTrials:trials}):null;
@@ -2923,10 +2929,9 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   // failing the existing strict net-clearance selector. Retarget only
   // the SAME two source-skin trial slots to source-favorable +0.18/+0.24,
   // with within-contract 0.11rad thigh+calf. Do not soften validation.
-  connectedStarter=sourceCoupledPriority??(!sourceAnkleProof&&
-   !loadedStanceProof&&!previousLinkedCertified?
-    planOriginalSourceCoupledFootStarter({
-     ...owner,starterTrials:trials.slice(0,2)}):null);
+  // One pure starter qualification per genuine native frame.
+  // The former fallback repeated an identical source-skin calculation.
+  connectedStarter=sourceCoupledPriority;
   if(connectedStarter){
    const track=foot.bone.name.toLowerCase()+'.quaternion';
    const matches=walk.tracks.filter(t=>typeof t?.name==='string'&&
@@ -3016,6 +3021,16 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   candidates:trials.length,adaptiveFollowupUsed:measuredFollowups!==null,
   originalCoupledKneeFootOpportunity:Boolean(connectedStarter),
   originalCoupledKneeFootAttempted:Boolean(kneeFootCoupled),
+  // Pure metadata from the very same measured GLB frame; no extra skin
+  // reads, geometry edits, camera moves, gameplay authority or pose writes.
+  originalCoupledOwnerBlocker:coupledOwnerBlocker,
+  originalCoupledEligibilityReason:kneeFootCoupled?'licensed-foot-three-joint-probed':
+   coupledOwnerBlocker||
+   (connectedStarter?'original-source-foot-axis-or-track-unverified':
+    'actual-original-source-starter-unqualified'),
+  originalCoupledSourceToeDepthMeters:-.02-swing.toeY,
+  originalCoupledStarterHeelExcessMeters:
+   connectedStarter?.excessHeelRiseMeters??null,
   previousLinkedCertified,linkedStartLimited:!previousLinkedCertified&&interval<.05,
   contactLocked:false};
  if(authoredNeutralUsed){

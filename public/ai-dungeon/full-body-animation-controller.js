@@ -550,6 +550,14 @@ function measuredOriginalSourceCounterpitchAngles({
   depth>=.075&&depth<=.12&&
   excessHeelRiseMeters>=.010&&excessHeelRiseMeters<=.035)
   return [.38,.46];
+ // Exact 390px source #44013123534: 33.3ms, 87.028mm buried,
+ // actual +5.359mm airborne heel dominance. Test the same TWO physical
+ // source-skin readbacks with the already certified original foot axis.
+ // Do not widen the larger 38/46rad band or relax the final sole gate.
+ if(frameInterval>=.03&&frameInterval<=.05&&
+  depth>=.075&&depth<=.12&&
+  excessHeelRiseMeters>=.004&&excessHeelRiseMeters<.010)
+  return [.30,.36];
  if(frameInterval>=.015&&frameInterval<.03&&
   depth>=.060&&depth<.075&&
   excessHeelRiseMeters>=.004&&excessHeelRiseMeters<.010)
