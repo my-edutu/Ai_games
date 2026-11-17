@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-11-17",
+  "stage": "P0_EVIDENCE_AND_GAME_LOOP_TRUTH",
+  "stageAcceptance": "OPEN",
+  "leadingTransformationVerdict": "NOT EVALUATED",
+  "pullRequest": "https://github.com/my-edutu/Ai_games/pull/68",
+  "draft": true,
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "productionChangeSha": "2c71ddadf0c622e48fab21841afb7f275f0c6c4b",
+  "firstRegressionCorrectionSha": "b79b4ff470cb18bb0742416c738e10af4f07e0fd",
+  "sourcePinnedCaptureCandidateSha": "github.sha of the commit adding this capture-request and evidence file; DO NOT use floating branch HEAD or reuse older film",
+  "priorAuthenticFootage": {
+    "workflow": "https://github.com/my-edutu/Ai_games/actions/runs/44005647792",
+    "candidateSha": "1f37a21c067ff2fdac5a8f08560240761b606a44",
+    "originalRecordedSegments": "eight genuine 60+ second source-pinned baseline/candidate 1x 25fps films; desktop 960x600 and portrait 390x844",
+    "sourceTimelines": "8/8 paired",
+    "strictNativeEventMatched": "0/2 viewports; comparison veto remains",
+    "nativeDangerRasterHudToVioletSeconds": {
+      "candidateDesktop": 2,
+      "candidatePortrait": 2.5,
+      "baselineDesktop": 0,
+      "baselinePortrait": 0.75
+    },
+    "precisionSeconds": 0.25,
+    "note": "Measured from unedited original desktop/portrait WebM native-scene-phase sidecars and inspected full-motion/1-second contact sheets. HUD/phase timestamps are raster proxies, not observed floor contact, native event synchronization or device GPU frame-time."
+  },
+  "biggestActualVisualDefect": "Original guardian doorway and skinned climber are optically lost in congested bronze structure; new Violet successor world arrives 2.0s desktop / 2.5s portrait after Floor9 HUD in previous candidate, with insufficient old/new architectural overlap. The strictly source-event-matched 1x film remains vetoed.",
+  "productionImplementation": {
+    "surface": "Actual Three.js source-earned F8->F9 architecture and original deferred Void shaft, not overlay or synthetic room",
+    "firstReturnedFrame": "Build authentic noninteractive Void architecture only after renderer.render returned with real original gateway; validated gateway-exited source body with >=6m whole-body clearance and current standing real F9 roof or bounded low flight may expose 18-24% original Void material for NEXT real render; previous 4m-only legal clearance remains optically too crowded and is vetoed.",
+    "laterFrames": "Source-qualified material alpha is monotonic, old gate roof and gallery stay owner-managed, actual physics/platforms/hazards/guardian/actor, prior F8 scope and restart unaffected.",
+    "cannotClaim": "No new source-pinned film exists yet for this SHA; no visual or device performance improvement is proven by code/test assertions."
+  },
+  "tests": {
+    "initialExactSourceRun": "https://github.com/my-edutu/Ai_games/actions/runs/44011480167",
+    "initialResult": "phase3-1 failed two real-World interface expectations; corrected by enforcing additional 2m optical clearance and updating tests to require original gate plus bounded next-render 24% depth instead of old no-early-reveal contract",
+    "correctedExactSourceRun": "https://github.com/my-edutu/Ai_games/actions/runs/44011826290",
+    "correctedStatus": "9/10 jobs successful, phase6 in progress at last inspection. No full CI acceptance claim",
+    "newTests": "tests/phase3/tower-source-earned-first-void-shaft-aperture.test.cjs"
+  },
+  "newCapture": {
+    "triggeringPath": "public/infinite-tower-climb/gauntlet/capture-request.json",
+    "immutableSource": "This joint evidence+capture-request commit's github.sha",
+    "workflowFile": ".github/workflows/tower-transformation-visual-evidence.yml",
+    "recordedSettings": "Actual 1x unedited game WebM, 25fps, >=60s each, low tier, fixed seed tower-transformation-capture-v1, baseline SHA frozen, desktop 960x600 and portrait 390x844, ascent/moving/danger/outcome/restart",
+    "newFilmStatus": "REQUESTED BY COMMIT, NOT INSPECTED, NOT EVALUATED"
+  },
+  "independentCritics": {
+    "LOOKS": "0/5",
+    "FEELS": "0/5",
+    "PLAYS": "0/5"
+  },
+  "hardwareDeviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
+  "nextHighestImpactAction": "Inspect all new original full-motion 1x WebM videos and exact native HUD/world/event sidecars; check authentic old bronze opened gate, full live climber, real grounded F9 roof and new cool successor shaft co-visible across 2+ consecutive native frames BOTH viewports, no cut and no source-event timing mismatch. If rejection persists, correct structural geometry/camera and cold GPU batch ordering together; obtain actual-device p50/p95/p99/memory and 5 genuine independent randomized critics separately for LOOKS FEELS PLAYS before leaving P0.",
+  "prohibitedActionsHonored": "No baseline move, no PR58 edit, no merge, deploy, force push or draft conversion"
+}

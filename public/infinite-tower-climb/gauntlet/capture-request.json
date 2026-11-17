@@ -1,4 +1,36 @@
 {
+  "p0SourceEarnedTrueVoidStructuralApertureAfterReturnedGate20261117": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceProductionSha": "2c71ddadf0c622e48fab21841afb7f275f0c6c4b",
+    "sourceCorrectionSha": "b79b4ff470cb18bb0742416c738e10af4f07e0fd",
+    "sourcePin": "IMMUTABLE github.sha of THIS request commit",
+    "originalGame": "100% source pinned and normal-speed 1x no staged frames, same baseline vs candidate",
+    "quality": "low",
+    "seed": "tower-transformation-capture-v1",
+    "viewport": [
+      "960x600",
+      "390x844"
+    ],
+    "scenarios": [
+      "ascent",
+      "moving",
+      "danger",
+      "outcome"
+    ],
+    "priorNativeWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44005647792",
+    "priorDefect": "Candidate F9 HUD leads substantial violet world by 2.0s desktop and 2.5s portrait; strict native event comparison 0/2. Old door/hero obscured.",
+    "currentChange": "Genuine already-built post-old-gate Void shaft now prepares low-alpha 18-24% real geometry only with first returned old WebGL view AND source-certified >=6m full-body optical departure on exact F9 roof or low flight. No gameplay state, HUD, fabricated gateway or camera cut.",
+    "requiredEvaluation": "Source event paired 1x full-motion 60+s clips, actual opened bronze gate, full real skinned climber and genuine F9 destination simultaneous in BOTH portrait and desktop for >=2 native frames; verify no blank/stall, no severe regressions, restart; do not treat renderer-return CPU ms as device FPS",
+    "qualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44011826290",
+    "independentReviews": {
+      "looks": "0/5",
+      "feels": "0/5",
+      "plays": "0/5"
+    },
+    "realHardware": "NOT EVALUATED"
+  },
   "p0FirstFrameOriginalVoidMaterialIdentityNativeTruth20261117": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH (OPEN)",
     "leadingVerdict": "NOT EVALUATED",
