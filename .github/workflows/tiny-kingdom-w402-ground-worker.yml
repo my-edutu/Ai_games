@@ -1,0 +1,59 @@
+name: Tiny Kingdom W402 Real Immutable Ground Worker and Workday View
+on:
+  push:
+    branches: [feat/tiny-kingdom-post-main-gauntlet-20261031]
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'tests/browser/tiny-kingdom-w402-ground-worker.spec.cjs'
+      - '.github/workflows/tiny-kingdom-w402-ground-worker.yml'
+      - 'games/tiny-ai-civilization/W402_PHASE1_WORKSTREAM.md'
+      - 'public/tiny-kingdom/progress.html'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w402-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  exact-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/browser/tiny-kingdom-w402-ground-worker.spec.cjs
+      - name: Parse actual original playable WebGL source
+        run: node -e "const fs=require('fs'),vm=require('vm');const s=fs.readFileSync('public/tiny-kingdom/index.html','utf8');for(const m of s.matchAll(/<script>([\\s\\S]*?)<\\/script>/g))new vm.Script(m[1]);"
+  actual-workday:
+    needs: exact-source
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      CI: '1'
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npx playwright install chromium
+      - run: npx playwright test tests/browser/tiny-kingdom-w54-world-first-workday.spec.cjs --workers=1 --reporter=line
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w402-ground-worker-workday
+          path: |
+            artifacts/tiny-kingdom-w54/
+            test-results/
+          retention-days: 14
