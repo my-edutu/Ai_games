@@ -5972,13 +5972,24 @@ const SCENIC_LINEAR_LOCAL_EDGE=34;
 const SCENIC_LINEAR_LOCAL_MAX_RANGES=512;
 const scenicLinearPackStats={attempts:0,accepted:0,fallbacks:0,
  residentFloatsWithoutScatter:0,lastClass:null,lastRanges:0,
- coalescedPacks:0,coalescedRanges:0,classes:{}};
-function packLinearResidentScenery(mesh,sceneClass){
+ coalescedPacks:0,coalescedRanges:0,sourceArrayDirectPacks:0,
+ sourceArrayFloatsConverted:0,sourceArrayPassesAvoided:0,classes:{}};
+function packLinearResidentScenery(mesh,sceneClass,sourceStart=0){
  scenicLinearPackStats.attempts++;
- if(!(mesh instanceof Float32Array)||mesh.length%30!==0||!mesh.length){
+ const fromOriginal=Array.isArray(mesh);
+ const floats=mesh?.length-sourceStart;
+ if(!(fromOriginal||mesh instanceof Float32Array)||
+   !Number.isInteger(sourceStart)||sourceStart<0||
+   !Number.isInteger(floats)||floats<=0||floats%30!==0){
   scenicLinearPackStats.fallbacks++;return null;
  }
- const triCount=mesh.length/30;let ranges=[];
+ // W416: copy the ORIGINAL mutable scene stream to immutable GPU float32 and
+ // compute its exact conservative world-space bounds in that SAME traversal.
+ // Rounding happens before bounds are taken: identical to the prior typed
+ // then pack path. Repeated homes, trees and all citizens remain untouched.
+ const vertices=fromOriginal?new Float32Array(floats):
+  sourceStart?mesh.subarray(sourceStart):mesh;
+ const triCount=floats/30;let ranges=[];
  let start=0,count=0,minX=Infinity,minY=Infinity,minZ=Infinity,
   maxX=-Infinity,maxY=-Infinity,maxZ=-Infinity;
  const flush=()=>{
@@ -5989,12 +6000,16 @@ function packLinearResidentScenery(mesh,sceneClass){
  };
  for(let i=0;i<triCount;i++){
   const o=i*30;
-  const tx=Math.min(mesh[o],mesh[o+10],mesh[o+20]);
-  const ty=Math.min(mesh[o+1],mesh[o+11],mesh[o+21]);
-  const tz=Math.min(mesh[o+2],mesh[o+12],mesh[o+22]);
-  const ux=Math.max(mesh[o],mesh[o+10],mesh[o+20]);
-  const uy=Math.max(mesh[o+1],mesh[o+11],mesh[o+21]);
-  const uz=Math.max(mesh[o+2],mesh[o+12],mesh[o+22]);
+  if(fromOriginal){
+   const from=sourceStart+o;
+   for(let j=0;j<30;j++)vertices[o+j]=mesh[from+j];
+  }
+  const tx=Math.min(vertices[o],vertices[o+10],vertices[o+20]);
+  const ty=Math.min(vertices[o+1],vertices[o+11],vertices[o+21]);
+  const tz=Math.min(vertices[o+2],vertices[o+12],vertices[o+22]);
+  const ux=Math.max(mesh[o],vertices[o+10],vertices[o+20]);
+  const uy=Math.max(vertices[o+1],vertices[o+11],vertices[o+21]);
+  const uz=Math.max(vertices[o+2],vertices[o+12],vertices[o+22]);
   if(!Number.isFinite(tx)||!Number.isFinite(ty)||!Number.isFinite(tz)||
     !Number.isFinite(ux)||!Number.isFinite(uy)||!Number.isFinite(uz))
    throw Error('W171 nonfinite retained scenery geometry');
@@ -6036,9 +6051,14 @@ function packLinearResidentScenery(mesh,sceneClass){
  scenicLinearPackStats.accepted++;
  scenicLinearPackStats.lastClass=sceneClass;
  scenicLinearPackStats.lastRanges=ranges.length;
- scenicLinearPackStats.residentFloatsWithoutScatter+=mesh.length;
+ scenicLinearPackStats.residentFloatsWithoutScatter+=vertices.length;
+ if(fromOriginal){
+  scenicLinearPackStats.sourceArrayDirectPacks++;
+  scenicLinearPackStats.sourceArrayFloatsConverted+=vertices.length;
+  scenicLinearPackStats.sourceArrayPassesAvoided++;
+ }
  scenicLinearPackStats.classes[sceneClass]=(scenicLinearPackStats.classes[sceneClass]||0)+1;
- return {vertices:mesh,ranges};
+ return {vertices,ranges};
 }
 function getScenicLinearPackAudit(){
  return {...scenicLinearPackStats,classes:{...scenicLinearPackStats.classes},
@@ -30364,16 +30384,18 @@ function rememberCivicCore(key,sourceStart){
  if(count>CIVIC_CORE_FLOAT_BUDGET){civicCoreSkippedOversize++;return false}
  // One cold-build typed transfer. The cached geometry is never decimated and
  // a new road reuses the same complete 10-float material/normal vertex layout.
- const vertices=new Float32Array(count);
- for(let i=0;i<count;i++)vertices[i]=data[sourceStart+i];
+ const stagedCivic=civicGpuResidencyEnabled?
+  packLinearResidentScenery(data,'civic-core',sourceStart):null;
+ const vertices=stagedCivic?.vertices||new Float32Array(count);
+ if(!stagedCivic)
+  for(let i=0;i<count;i++)vertices[i]=data[sourceStart+i];
  const stats={guildhall:{...guildhallVisualStats},farm:{...farmScene},
   craft:{...craftCounters},market:{...marketQuarterStats},
   foundingStreetfronts:{...highStreetStats}};
  // Upload EXACT original material/vertex sequence once per retained core.
  let buffer=null,ranges=[];
  if(civicGpuResidencyEnabled){
-  const packed=packLinearResidentScenery(vertices,'civic-core')||
-   packSpatialScenery(vertices);
+  const packed=stagedCivic||packSpatialScenery(vertices);
   buffer=gl.createBuffer();
   if(buffer){
    bindGeometry(buffer);
@@ -30987,13 +31009,16 @@ currentMaterial=MATERIAL.FOLIAGE;
  renderEcotonePlanting();
  // This is a single bounded cache, replaced whenever season/snow changes;
  // it is never part of saved-world authority or RNG streams.
- landscapeMeshCache=gpuAvailable?new Float32Array(data):data.slice();landscapeMeshKey=nextTerrainKey;
+ const stagedLandscape=gpuAvailable?
+  packLinearResidentScenery(data,'landscape'):null;
+ landscapeMeshCache=gpuAvailable?
+  (stagedLandscape?.vertices||new Float32Array(data)):data.slice();
+ landscapeMeshKey=nextTerrainKey;
  landscapeMeshTriangles=landscapeMeshCache.length/30;landscapeMeshRebuilds++;
  // Upload climate-dependent terrain, rivers and forest only on climate change.
  // New cottages update the settlement VBO without re-uploading landscape.
  if(gpuAvailable){
-  const packed=packLinearResidentScenery(landscapeMeshCache,'landscape')||
-   packSpatialScenery(landscapeMeshCache);
+  const packed=stagedLandscape||packSpatialScenery(landscapeMeshCache);
   landscapeChunkRanges=packed.ranges;
   landscapeBuffer=gl.createBuffer();landscapeSeasonBufferCreations++;
   bindGeometry(landscapeBuffer);
@@ -31029,8 +31054,12 @@ updateResidentCivicDistrict(nextTerrainKey,daylightStage);
  // keep that exact upload-ready cache, rather than retaining a second ~4M
  // element JS-number array and converting it again for every scenic rebuild.
  // Canvas2D still needs its ordinary mutable Array for dynamic append.
- scenicMeshCache=gpuAvailable?new Float32Array(data):data.slice();scenicMeshKey=staticKey;scenicMeshTriangles=(scenicMeshCache.length+(gpuAvailable?landscapeMeshCache.length+activeCivicMesh().length+homeClusterFloats():0))/30;scenicMeshRebuilds++;
- if(gpuAvailable){const packed=packLinearResidentScenery(scenicMeshCache,'settlement')||packSpatialScenery(scenicMeshCache);settlementChunkRanges=packed.ranges;
+ const stagedSettlement=gpuAvailable?
+  packLinearResidentScenery(data,'settlement'):null;
+ scenicMeshCache=gpuAvailable?
+  (stagedSettlement?.vertices||new Float32Array(data)):data.slice();
+ scenicMeshKey=staticKey;scenicMeshTriangles=(scenicMeshCache.length+(gpuAvailable?landscapeMeshCache.length+activeCivicMesh().length+homeClusterFloats():0))/30;scenicMeshRebuilds++;
+ if(gpuAvailable){const packed=stagedSettlement||packSpatialScenery(scenicMeshCache);settlementChunkRanges=packed.ranges;
  const uploaded=uploadGrowingSettlement(packed,staticKey);
  settlementBuffer=uploaded.buffer;
  retainSettlementSeason(staticKey,scenicMeshCache,settlementChunkRanges,settlementBuffer,uploaded.capacityFloats,uploaded.linearVertices);}
