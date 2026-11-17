@@ -1109,7 +1109,7 @@ export function createWarden(options = {}) {
     // Counter-roll keeps Thornback's modeled bronze mask directed at Pip
     // as its real physical torso falls sideways. End-of-witness, reduced
     // motion and reset all return this connected head hinge to exact +0.
-    head.rotation.z=-earnedStagger*.55;
+    head.rotation.z=earnedStagger===0?0:-earnedStagger*.55;
     // Absolute, source-observed facial acting: the paired bronze shells
     // spread as the REAL foreclaws brace, then withdraw with the SAME earned
     // carapace release. Hidden/terminal/reused rigs go to exact +0; reduced
