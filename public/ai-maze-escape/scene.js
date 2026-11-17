@@ -5,7 +5,7 @@ import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VI
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
 import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilRevealElevation, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
-import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
+import { publicGuardianLanternReach, publicEarnedGuardianCounterBeam } from './public-lantern-encounter.mjs';
 import { publicEarnedGuardianActing } from './public-lantern-encounter.mjs';
 import { publicPressureInspectionTakesFocus } from './public-lantern-encounter.mjs';
 import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicVerifiedPressureRetreatPartner, publicDistinctPublicPredecessor, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicPressureActionHalfHeight, publicPressureDiagonalApproachHalfHeight, publicCameraSettleRate, publicPhysicalPressureHorizontalReframe, publicPhysicalPressureRetreatHalfHeight, publicPhysicalPressureApproachHalfHeight, publicPhysicalPressureHeroReadabilityHalfHeight, publicPressureContactOrbitWeight, publicPressureActorCounterflankX, publicPhysicalPressureContactHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
@@ -845,9 +845,17 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // encounter falls straight back to the original 4m radius. The strict
     // one-link-only projected lantern cone is NOT changed or faked.
     // One retained light; no geometry/material/renderer allocation per frame.
+    // Pass443: when a genuine counter sends Thornback TWO publicly open
+    // reciprocal links away, Pip's real lamp still reaches the same observed
+    // body. The original one-cell warning cone remains deliberately unchanged.
+    // No speculative beam, closed-wall traversal or additional GPU light.
+    const earnedTwoLinkBeam=!result && !!explorerLantern
+      && publicEarnedGuardianCounterBeam(s,earnedCounterActor,closestThreat);
     lanternLight.distance = !result && explorerLantern
       && closestThreat?.strength>.35
-      ? publicGuardianLanternReach(s,closestThreat.cell,CELL_SIZE,4) : 4;
+      ? publicGuardianLanternReach(s,closestThreat.cell,CELL_SIZE,4)
+      : earnedTwoLinkBeam
+        ? publicGuardianLanternReach(s,earnedCounterActor.cell,CELL_SIZE,4) : 4;
     // The self-contained lantern glow signals a truly PUBLIC nearby threat.
     // An unknown/closed passage cannot justify a straight cone, but it can
     // justify Pip's own illuminated caution pose. No new AI action or text.
@@ -877,6 +885,27 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         lanternBeam.quaternion.setFromUnitVectors(lanternBeamAxis,lanternBeamDirection);
         lanternBeam.scale.set(1,length,1);
         lanternBeamMaterial.opacity=.10+Math.min(.08,closestThreat.strength*.08);
+      }
+    }else if(earnedTwoLinkBeam){
+      // No generic beam through a wall: this one exists ONLY while the same
+      // published guardian physically recoils down a fully verified TWO-edge,
+      // straight, visible open court. The existing retained lantern cone is
+      // drawn between Pip's attached hand lamp and Thornback's real body.
+      // A two-link enemy warning without a witnessed parry draws NO ray.
+      explorerLantern.getWorldPosition(lanternFocusOrigin);
+      lanternBeamEnd.set(earnedCounterActor.x,
+        cellHeight(earnedCounterActor.cell,s.width,s.height)+1.02,
+        earnedCounterActor.z);
+      lanternBeamDirection.copy(lanternFocusOrigin).sub(lanternBeamEnd);
+      const length=lanternBeamDirection.length();
+      if(length>.65&&length<CELL_SIZE*2.6){
+        lanternBeam.visible=true;
+        lanternBeam.position.copy(lanternFocusOrigin)
+          .add(lanternBeamEnd).multiplyScalar(.5);
+        lanternBeamDirection.multiplyScalar(1/length);
+        lanternBeam.quaternion.setFromUnitVectors(lanternBeamAxis,lanternBeamDirection);
+        lanternBeam.scale.set(.88,length,.88);
+        lanternBeamMaterial.opacity=settings.highContrast?.34:.27;
       }
     }else if(!result&&explorerLantern&&pressureInspectionStrength>0&&pressureCue){
       // A genuine AI WAIT earns a visible lamp-to-jaw observation, not a

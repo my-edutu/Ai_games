@@ -195,3 +195,23 @@ export function publicEarnedGuardianActing(snapshot, guardian, ordinary) {
 }
 
 
+
+/**
+ * A PHYSICAL two-link Pip -> Thornback lantern response belongs only to the
+ * currently published, earned counter, not a generic warning or first-seen
+ * already-parried guardian. The entire corridor must be visible, reciprocal,
+ * unblocked and unsealed (publicGuardianOpenSightline). No remembered cell,
+ * predicted position, route instruction, damage or private state is consumed.
+ * Another currently acting, un-parried guardian takes precedence.
+ */
+export function publicEarnedGuardianCounterBeam(snapshot, guardian, ordinary) {
+  if (!Number.isSafeInteger(guardian?.cell) || guardian.cell < 0
+    || !Number.isFinite(guardian?.x) || !Number.isFinite(guardian?.z)
+    || !Number.isFinite(guardian?.counterPhase) || guardian.counterPhase < 0
+    || guardian.counterPhase >= 1
+    || (ordinary?.strength > .35 && ordinary?.lanternParried !== true)
+    || !Array.isArray(snapshot?.threats)
+    || !snapshot.threats.some(threat=>threat?.cell===guardian.cell
+      && threat.lanternParried===true)) return false;
+  return publicGuardianOpenSightline(snapshot,guardian.cell)===2;
+}
