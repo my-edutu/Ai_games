@@ -826,6 +826,76 @@ export function planOriginalSourceAdaptiveToeHingeProbe({
   originalSourceContactLocked:false});
 }
 
+/**
+ * Source-rig hip/knee counter-rotation derived from REAL post-coupled
+ * world joint axes and skinned outsole. Planning only: never IK/contact.
+ * The existing fourth dual-shoe trial must independently verify outcome.
+ */
+export function planOriginalSourceConnectedHipKneeLift({
+ source='',mode='idle',sourceClipName='',sourceWeight=NaN,
+ sourceInstanceSame=false,sourceUpperTrackVerified=false,
+ sourceLowerTrackVerified=false,sourceBindVerified=false,
+ sourceToeChainVerified=false,ownerLocomotion=false,
+ alive=false,visible=false,teleport=false,reducedMotion=false,
+ interrupted=false,frameInterval=NaN,floorTopY=NaN,
+ sourceToeWorld=null,sourceHeelWorld=null,
+ sourceHipPivotWorld=null,sourceKneePivotWorld=null,
+ sourceHipAxisWorld=null,sourceKneeAxisWorld=null,
+ upperRad=NaN,lowerRad=NaN,footRad=NaN
+}={}){
+ const vec=v=>Array.isArray(v)&&v.length===3&&v.every(finite);
+ if(source!=='verified-original-post-coupled-hip-knee-lever'||
+  mode!=='move'||sourceClipName!=='Walking_A'||
+  !finite(sourceWeight)||sourceWeight<.95||sourceWeight>1.001||
+  sourceInstanceSame!==true||sourceUpperTrackVerified!==true||
+  sourceLowerTrackVerified!==true||sourceBindVerified!==true||
+  sourceToeChainVerified!==true||ownerLocomotion!==true||
+  alive!==true||visible!==true||teleport||reducedMotion||interrupted||
+  !finite(frameInterval)||frameInterval<.008||frameInterval>.05||
+  !finite(floorTopY)||Math.abs(floorTopY+.02)>.005||
+  ![upperRad,lowerRad,footRad].every(finite)||
+  Math.abs(Math.abs(upperRad)-.11)>.000001||
+  Math.abs(Math.abs(lowerRad)-.11)>.000001||
+  Math.sign(upperRad)===Math.sign(lowerRad)||
+  Math.abs(footRad-.46)>.000001||
+  ![sourceToeWorld,sourceHeelWorld,sourceHipPivotWorld,
+   sourceKneePivotWorld,sourceHipAxisWorld,sourceKneeAxisWorld].every(vec))
+  return null;
+ const length=v=>Math.hypot(...v);
+ const shoeSpan=Math.hypot(...sourceHeelWorld.map((v,i)=>v-sourceToeWorld[i]));
+ if(Math.abs(length(sourceHipAxisWorld)-1)>.01||
+  Math.abs(length(sourceKneeAxisWorld)-1)>.01||
+  sourceHeelWorld[1]-floorTopY<.10||
+  sourceHeelWorld[1]-floorTopY>.37||
+  floorTopY-sourceToeWorld[1]<.014||
+  floorTopY-sourceToeWorld[1]>.075||
+  shoeSpan<.20||shoeSpan>.35)return null;
+ const worldYLever=(axis,pivot,point)=>
+  axis[2]*(point[0]-pivot[0])-axis[0]*(point[2]-pivot[2]);
+ const direction=Math.sign(upperRad);
+ const derivative=point=>direction*(
+  worldYLever(sourceHipAxisWorld,sourceHipPivotWorld,point)-
+  worldYLever(sourceKneeAxisWorld,sourceKneePivotWorld,point));
+ const toeSlope=derivative(sourceToeWorld),heelSlope=derivative(sourceHeelWorld);
+ if(!finite(toeSlope)||toeSlope<.14||toeSlope>.65||
+  !finite(heelSlope)||heelSlope<0||heelSlope>.65||
+  Math.abs(toeSlope-heelSlope)>.10)return null;
+ const burial=floorTopY-sourceToeWorld[1];
+ const deltaRad=clamp((burial-.006)/toeSlope,.015,.035);
+ const toeGain=toeSlope*deltaRad,heelGain=heelSlope*deltaRad;
+ if(toeGain<.005||toeGain>.024||heelGain>.020)return null;
+ return Object.freeze({
+  source:'verified-original-post-coupled-hip-knee-lever',
+  upperRad:upperRad+direction*deltaRad,
+  lowerRad:lowerRad-direction*deltaRad,
+  footRad,deltaRad,
+  worldToeLiftEstimateMeters:toeGain,
+  worldHeelLiftEstimateMeters:heelGain,
+  postCoupledSwingBurialMeters:burial,
+  originalSourceContactLocked:false
+ });
+}
+
 export function chooseOriginalSourceCoupledKneeFootSweep({
  starter=null,mode='idle',sourceClipName='',sourceWeight=NaN,
  sourceInstanceSame=false,sourceChainVerified=false,
@@ -872,6 +942,23 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
   const {upperRad,lowerRad,footRad,after,toeRad=0}=trial??{};
   const shoe=after?.[side],loaded=after?.[opposite];
   const adaptive=trial?.sourceAdaptiveToeCandidate;
+  const hipKneeRelief=trial?.sourceCoupledHipKneeRelief;
+  const provenLever=hipKneeRelief?.source===
+   'verified-original-post-coupled-hip-knee-lever'&&
+   hipKneeRelief.originalSourceContactLocked===false&&
+   finite(hipKneeRelief.deltaRad)&&
+   hipKneeRelief.deltaRad>=.015&&hipKneeRelief.deltaRad<=.035&&
+   finite(hipKneeRelief.worldToeLiftEstimateMeters)&&
+   hipKneeRelief.worldToeLiftEstimateMeters>=.005&&
+   hipKneeRelief.worldToeLiftEstimateMeters<=.024&&
+   finite(hipKneeRelief.worldHeelLiftEstimateMeters)&&
+   hipKneeRelief.worldHeelLiftEstimateMeters>=0&&
+   hipKneeRelief.worldHeelLiftEstimateMeters<=.020&&
+   Math.abs(upperRad-hipKneeRelief.upperRad)<.000001&&
+   Math.abs(lowerRad-hipKneeRelief.lowerRad)<.000001&&
+   Math.abs(footRad-hipKneeRelief.footRad)<.000001&&
+   Math.abs(Math.abs(upperRad)-(.11+hipKneeRelief.deltaRad))<.000001&&
+   Math.abs(Math.abs(lowerRad)-(.11+hipKneeRelief.deltaRad))<.000001;
   const originalAdaptiveToe=adaptive?.source===
    'verified-original-post-coupled-toe-hinge'&&
    finite(adaptive.toeRad)&&Math.abs(toeRad-adaptive.toeRad)<.000001&&
@@ -888,8 +975,9 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
     sourceToeSkinnedWeight>1.0001||
     (Math.abs(Math.abs(toeRad)-.14)>.000001&&!originalAdaptiveToe)||
     frameInterval>.05||sourceWeight<.95))||
-   Math.abs(upperRad)<.074999||Math.abs(upperRad)>.110001||
-   Math.abs(lowerRad)<.074999||Math.abs(lowerRad)>(frameInterval>=.16?.140001:.110001)||
+   Math.abs(upperRad)<.074999||Math.abs(upperRad)>(provenLever?.145001:.110001)||
+   Math.abs(lowerRad)<.074999||Math.abs(lowerRad)>(
+    provenLever?.145001:frameInterval>=.16?.140001)||
    Math.abs(footRad)<.119999||
    (Math.abs(footRad)>.240001&&!(
     starter?.source==='actual-original-source-three-joint-swing-opportunity'&&
@@ -925,7 +1013,8 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
     toeLiftMeters:lift,sourceHeelRiseMeters:heelRise,
     beforeToeY:swing.toeY,afterToeY:shoe.toeY,
     beforeHeelY:swing.heelY,afterHeelY:shoe.heelY,
-    ...(Object.hasOwn(trial,'toeRad')?{toeRad}:{})};
+    ...(Object.hasOwn(trial,'toeRad')?{toeRad}:{}),
+    ...(provenLever?{sourceCoupledHipKneeRelief:hipKneeRelief}:{})};
   }
  }
  if(!best)return null;
