@@ -1,4 +1,4 @@
-name: Tiny Kingdom W415 Real Workday Render Crash Regression
+name: Tiny Kingdom W416 Cold Static Spine and Real Workday
 on:
   pull_request:
     paths:
@@ -6,6 +6,7 @@ on:
       - 'tests/browser/tiny-kingdom-w414-grounded-observer.spec.cjs'
       - 'tests/browser/tiny-kingdom-w413-observed-worksite-runtime.spec.cjs'
       - 'tests/browser/tiny-kingdom-w415-resident-visibility.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w416-direct-static-residency.spec.cjs'
       - '.github/workflows/tiny-kingdom-w414-grounded-observer.yml'
   workflow_dispatch:
 permissions:
@@ -34,6 +35,8 @@ jobs:
         run: node --test tests/browser/tiny-kingdom-w414-grounded-observer.spec.cjs
       - name: Actual selected worker residency and visibility Set contract
         run: node --test tests/browser/tiny-kingdom-w415-resident-visibility.spec.cjs
+      - name: Original civic, landscape and town direct GPU pack contract
+        run: node --test tests/browser/tiny-kingdom-w416-direct-static-residency.spec.cjs
       - run: npm ci --no-audit --no-fund
       - run: npm run build
       - run: npx playwright install --with-deps chromium
