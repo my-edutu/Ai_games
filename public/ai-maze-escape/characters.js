@@ -1110,12 +1110,15 @@ export function createWarden(options = {}) {
         // No extra attack, navigation, collision, or secret AI state.
         // Every phase has deterministic exact-neutral reset at clock expiry.
         if (leg.foreclaw) {
-          leg.foreclaw.rotation.y=leg.side*(alert*.20+plantedClaws*.24
-            +counterLoad*.47-counterRelease*.50-counterCollapse*.38);
-          leg.foreclaw.rotation.x=-plantedClaws*.20-counterLoad*.39
-            +counterRelease*.42+counterCollapse*.24;
-          leg.foreclaw.rotation.z=leg.side*(defensiveSweep*.31
-            -counterRelease*.32-counterCollapse*.41);
+          // Signed negative zero is visually identical but a stale -0
+          // after pooling/reset violates the existing exact-neutral rig gate.
+          // Numeric +0 stabilization creates no meshes or render allocations.
+          leg.foreclaw.rotation.y=(leg.side*(alert*.20+plantedClaws*.24
+            +counterLoad*.47-counterRelease*.50-counterCollapse*.38))||0;
+          leg.foreclaw.rotation.x=(-plantedClaws*.20-counterLoad*.39
+            +counterRelease*.42+counterCollapse*.24)||0;
+          leg.foreclaw.rotation.z=(leg.side*(defensiveSweep*.31
+            -counterRelease*.32-counterCollapse*.41))||0;
         }
       }
     }
