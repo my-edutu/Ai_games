@@ -109,12 +109,25 @@ export function createTowerRenderSnapshot(state:TowerState,options:{includeWindu
       state.enemies.some(e=>e.id===state.guardianGateActuation?.guardianId &&
         e.floor===state.floor&&e.kind==='guardian'&&!e.active&&e.health<=0)
       ?{guardianGateActuation:{...state.guardianGateActuation}}:{}),
+    // A real roof-to-roof guardian crossing is already authoritative on
+    // its exact source tick. The old strict > comparison erased the only
+    // first-F9 receipt, forcing the 3D gate to fall back to a weaker browser
+    // observation. Sparse 20Hz browser/renderer sampling can then take more
+    // than 12 ticks to paint the genuine scene, as the native capture proves.
+    // Retain ONLY the source-issued exact same-run immutable event, bounded
+    // to 48 successor ticks; never invent contact, extend a different run,
+    // touch the frozen baseline, change game physics or restart authority.
     ...(state.config.guardianArenaHazards===true &&
       state.config.guardianSecondWind===true &&
       state.lastGuardianCrossing &&
+      state.lastGuardianCrossing.runToken===checksum({runId:state.runId}) &&
+      state.lastGuardianCrossing.fromFloor===8 &&
+      state.lastGuardianCrossing.toFloor===9 &&
       state.floor===state.lastGuardianCrossing.toFloor &&
-      state.tick>state.lastGuardianCrossing.sourceTick &&
-      state.tick-state.lastGuardianCrossing.sourceTick<=12
+      Number.isSafeInteger(state.lastGuardianCrossing.sourceTick) &&
+      Number.isSafeInteger(state.tick) &&
+      state.tick>=state.lastGuardianCrossing.sourceTick &&
+      state.tick-state.lastGuardianCrossing.sourceTick<=48
       ?{lastGuardianCrossing:state.lastGuardianCrossing}:{}),
     authorityChecksum:checksum({tick:state.tick,floor:state.floor,player:state.player,enemies:state.enemies,projectiles:state.projectiles,pickups:state.pickups,build:state.build,result:state.result})
   };
