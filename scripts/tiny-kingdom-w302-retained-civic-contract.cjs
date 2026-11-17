@@ -57,8 +57,12 @@ function check(resident){
     storedGpu.set(typed,byteOffset/Float32Array.BYTES_PER_ELEMENT);uploads++;
    }},
   bindGeometry:buffer=>assert.equal(buffer.id,7),
-  packLinearResidentScenery:typed=>({vertices:typed,ranges:[{
-   first:0,count:typed.length/10,minX:0,minY:0,minZ:0,maxX:1,maxY:1,maxZ:1}]}),
+  packLinearResidentScenery:(mesh,sceneClass,offset=0)=>{
+   assert.equal(sceneClass,'civic-road');
+   const typed=Array.isArray(mesh)?new Float32Array(mesh.slice(offset)):mesh;
+   return {vertices:typed,ranges:[{
+    first:0,count:typed.length/10,minX:0,minY:0,minZ:0,maxX:1,maxY:1,maxZ:1}]};
+  },
   packSpatialScenery:()=>{throw Error('unexpected spatial scatter')},
   releaseGeometryBuffer:()=>disposed++,
   civicCacheStats:()=>({cachedFloats:90,cachedGpuFloats:storedGpu?.length||0})
@@ -77,9 +81,10 @@ function check(resident){
  assert.equal(uploads,resident?1:0,'only one complete civic resident upload');
  if(resident)assert.deepEqual(Array.from(storedGpu.subarray(0,expected.length)),expected,
   'actual retained GPU buffer must reproduce all original farm-to-market triangles');
- assert.equal(context.cachedTypedRangeCopies,resident?1:0,
-  'one exact typed copy, not JS slice plus second typed allocation');
- assert.equal(context.cachedTypedRangeFloats,resident?90:0);
+ assert.equal(context.cachedTypedRangeCopies,0,
+  'W419 must stage and bound civic road directly from original source offset');
+ assert.equal(context.cachedTypedRangeFloats,0,
+  'no second full road typed allocation before conservative bounds');
  assert.equal(disposed,0);
  assert.equal(context.civicCacheEvictions,0);
  assert.throws(()=>run('rememberCivicScenery("bad",-1,{})'),/W302 invalid original civic source offset/);

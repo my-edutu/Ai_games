@@ -31,10 +31,13 @@ const context={
  civicBuffer:null,civicChunkRanges:[],
  civicCoreBuffer:{id:'real-farm-market-core'},activeCivicCoreKey:'spring-core',
  copyStaticVertexRange:start=>new Float32Array(context.data.slice(start)),
- packLinearResidentScenery:vertices=>({vertices,ranges:[{
-  first:0,count:vertices.length/10,minX:-4,minY:0,minZ:-4,
-  maxX:4,maxY:4,maxZ:4
- }]}),
+ packLinearResidentScenery:(mesh,_kind,offset=0)=>{
+  const vertices=Array.isArray(mesh)?new Float32Array(mesh.slice(offset)):mesh;
+  return {vertices,ranges:[{
+   first:0,count:vertices.length/10,minX:-4,minY:0,minZ:-4,
+   maxX:4,maxY:4,maxZ:4
+  }]};
+ },
  packSpatialScenery:()=>{throw Error('original linear packing must succeed')},
  gl:{
   ARRAY_BUFFER:34962,DYNAMIC_DRAW:35048,STATIC_DRAW:35044,

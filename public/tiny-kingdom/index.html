@@ -6833,20 +6833,29 @@ function rememberCivicScenery(key,source,stats){
  const fromFrame=Number.isInteger(source);
  if(fromFrame&&(source<0||source>data.length))
   throw Error('W302 invalid original civic source offset');
+ // W419: actual granary-to-market and inhabited-home roads now stage GPU
+ // Float32 vertices AND their conservative spatial bounds in one traversal.
+ // Preserve original draw order; a failed pack, VBO or software fallback
+ // still carries every original building and route vertex without proxy art.
+ const floatCount=fromFrame?data.length-source:source?.length;
+ if(!Number.isInteger(floatCount)||floatCount%30!==0)
+  throw Error('Civic mesh is not a complete triangle stream');
+ if(floatCount>CIVIC_CACHE_FLOAT_BUDGET)return false;
+ const sourcePacked=fromFrame&&civicGpuResidencyEnabled?
+  packLinearResidentScenery(data,'civic-road',source):null;
  const vertices=fromFrame?
-  (civicGpuResidencyEnabled?copyStaticVertexRange(source):data.slice(source)):
-  source;
+  (civicGpuResidencyEnabled?
+   (sourcePacked?.vertices||copyStaticVertexRange(source)):
+   data.slice(source)):source;
  if(!vertices||typeof vertices.length!=='number'||vertices.length%30!==0)
   throw Error('Civic mesh is not a complete triangle stream');
- if(vertices.length>CIVIC_CACHE_FLOAT_BUDGET)return false;
- // The typed range is now already the precise retained original geometry.
- // Do not allocate/copy it again; use the SAME vertex view in the civic VBO.
  const retained=civicGpuResidencyEnabled&&!(vertices instanceof Float32Array)?
   new Float32Array(vertices):vertices;
  let buffer=null,ranges=[],capacityFloats=retained.length;
  let recycledRoad=null,civicPackedOriginalOrder=false;
  if(civicGpuResidencyEnabled){
-  const packed=packLinearResidentScenery(retained,'civic')||packSpatialScenery(retained);
+  const packed=sourcePacked||
+   packLinearResidentScenery(retained,'civic')||packSpatialScenery(retained);
   // A newly completed authentic home may alter the freight and inhabited
   // routes without changing the climate, original farm, or material layout.
   // Instead of allocating a new GPU buffer for every built cottage, reclaim

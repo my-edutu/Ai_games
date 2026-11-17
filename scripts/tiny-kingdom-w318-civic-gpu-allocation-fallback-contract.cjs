@@ -28,7 +28,10 @@ function exercise(allocate){
    vertices:new Float32Array(30),buffer:{id:'stale-road'},stats:{}
   }]]),
   copyStaticVertexRange:from=>new Float32Array(ctx.data.slice(from)),
-  packLinearResidentScenery:vertices=>({vertices,ranges:[{first:0,count:vertices.length/10}]}),
+  packLinearResidentScenery:(mesh,_kind,offset=0)=>{
+   const vertices=Array.isArray(mesh)?new Float32Array(mesh.slice(offset)):mesh;
+   return {vertices,ranges:[{first:0,count:vertices.length/10}]};
+  },
   packSpatialScenery:()=>{throw Error('original linear source expected')},
   gl:{ARRAY_BUFFER:34962,STATIC_DRAW:35044,
    createBuffer:()=>allocate?{id:'new-road'}:null,
