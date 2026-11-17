@@ -16,7 +16,7 @@ test('W407 authentic bartering camera gate is isolated from economics',()=>{
  assert.equal(ctx.genuineMarketBarterWitness({...residents[0],x:100}),false);
  assert.equal(ctx.genuineMarketBarterWitness({...residents[0],name:'Other'}),false);
  ctx.follow=false;assert.equal(ctx.genuineMarketBarterWitness(residents[0]),false);
- assert.doesNotMatch(source,/state\s*\.|\.activity\s*=|\.delivery\s*=/,
+ assert.doesNotMatch(source,/state\s*\.|\.activity\s*=(?!=)|\.delivery\s*=(?!=)/,
   'no mutation of activity, stock, saved world or deliveries');
 });
 test('W407 trade lens rejects false clear views, keeps visible citizen and physical posts',()=>{
