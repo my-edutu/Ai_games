@@ -534,6 +534,30 @@ export function planOriginalSourceCoupledFootStarter({
 }
 
 /**
+ * Two source-foot sampling bands restricted to genuine original Walking_A
+ * heel-dominant source deficits. These are TRIAL ANGLES, never sole locks.
+ * Rapid: exact #44006184216 16.7ms, 69.443mm buried, 4.490mm excess heel.
+ * Deep:  exact #43998458689 33.3ms, 78.215mm buried, 12.711mm excess heel.
+ * Each actual skinned dual-shoe read and final source bind/track and
+ * same-frame owner must independently certify any applied original pose.
+ */
+function measuredOriginalSourceCounterpitchAngles({
+ frameInterval=NaN,depth=NaN,excessHeelRiseMeters=NaN
+}={}){
+ if(![frameInterval,depth,excessHeelRiseMeters].every(finite))
+  return null;
+ if(frameInterval>=.03&&frameInterval<=.05&&
+  depth>=.075&&depth<=.12&&
+  excessHeelRiseMeters>=.010&&excessHeelRiseMeters<=.035)
+  return [.38,.46];
+ if(frameInterval>=.015&&frameInterval<.03&&
+  depth>=.060&&depth<.075&&
+  excessHeelRiseMeters>=.004&&excessHeelRiseMeters<.010)
+  return [.28,.34];
+ return null;
+}
+
+/**
  * Original licensed Walking_A mobile source frames span 216–233ms while
  * real root travel is only 45–82mm. Reserve only the two existing weighted
  * source-shoe probes for a connected knee/foot counterpitch after exact
@@ -569,11 +593,10 @@ export function planOriginalSourceCoupledKneeFootFollowups({
  // documented fast, deeply buried and genuinely heel-dominant phase.
  // This is trial scheduling, NEVER a planted foot or an accepted pose.
  const depth=owner.floorTopY-owner.before?.[owner.side]?.toeY;
- const fastDeepHeelDominated=owner.frameInterval>=.03&&
-  owner.frameInterval<=.05&&depth>=.075&&depth<=.12&&
-  starter.excessHeelRiseMeters>=.010&&
-  starter.excessHeelRiseMeters<=.035;
- const footAngles=fastDeepHeelDominated?[.38,.46]:[.18,.24];
+ const footAngles=measuredOriginalSourceCounterpitchAngles({
+  frameInterval:owner.frameInterval,depth,
+  excessHeelRiseMeters:starter.excessHeelRiseMeters
+ })??[.18,.24];
  return Object.freeze(footAngles.map(footRad=>Object.freeze({
   upperRad:.11*sign,lowerRad:-knee*sign,footRad
  })));
@@ -627,15 +650,13 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
    Math.abs(lowerRad)<.074999||Math.abs(lowerRad)>(frameInterval>=.16?.140001:.110001)||
    Math.abs(footRad)<.119999||
    (Math.abs(footRad)>.240001&&!(
-    frameInterval>=.03&&frameInterval<=.05&&
-    depth>=.075&&depth<=.12&&
     starter?.source==='actual-original-source-three-joint-swing-opportunity'&&
     starter.expectedSourceSkinnedTrials===2&&starter.contactLocked===false&&
     starter.sign===Math.sign(upperRad)&&
-    Number.isFinite(starter.excessHeelRiseMeters)&&
-    starter.excessHeelRiseMeters>=.010&&
-    starter.excessHeelRiseMeters<=.035&&
-    (Math.abs(footRad-.38)<.000001||Math.abs(footRad-.46)<.000001)
+    measuredOriginalSourceCounterpitchAngles({
+     frameInterval,depth,
+     excessHeelRiseMeters:starter.excessHeelRiseMeters
+    })?.some(rad=>Math.abs(footRad-rad)<.000001)
    ))||
    Math.sign(upperRad)===Math.sign(lowerRad)||
    !valid(shoe)||!valid(loaded))continue;
