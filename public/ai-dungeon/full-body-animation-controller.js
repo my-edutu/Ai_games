@@ -977,7 +977,7 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
     frameInterval>.05||sourceWeight<.95))||
    Math.abs(upperRad)<.074999||Math.abs(upperRad)>(provenLever?.145001:.110001)||
    Math.abs(lowerRad)<.074999||Math.abs(lowerRad)>(
-    provenLever?.145001:frameInterval>=.16?.140001)||
+    provenLever ? .145001 : (frameInterval>=.16 ? .140001 : .110001))||
    Math.abs(footRad)<.119999||
    (Math.abs(footRad)>.240001&&!(
     starter?.source==='actual-original-source-three-joint-swing-opportunity'&&
