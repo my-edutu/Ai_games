@@ -901,7 +901,7 @@ for(const view of [
    expect(proof.witnessedRootTravelMeters).toBeLessThanOrEqual(.24);
    expect(proof.witnessedRootTravelAgeSeconds).toBeGreaterThanOrEqual(0);
    expect(proof.witnessedRootTravelAgeSeconds).toBeLessThanOrEqual(.150001);
-   expect(proof.sourceFootTrack).toMatch(/foot\\.?[lr]\\.quaternion$/i);
+   expect(proof.sourceFootTrack).toMatch(/foot\.?[lr]\.quaternion$/i);
    expect(proof.sourceBindUpperMeters).toBeGreaterThan(.025);
    expect(proof.sourceBindLowerMeters).toBeGreaterThan(.025);
    expect(Number.isFinite(before?.toeY)&&Number.isFinite(before?.heelY)&&
