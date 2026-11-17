@@ -27,10 +27,12 @@ test('deferred authentic F9 architecture spans TWO separate returned GPU frames 
     'a source poll or animation frame cannot stand in for the first-stage WebGL return');
   assert.match(stage,/buildVoid\(arrival\.height\)/,
     'original Void authored features, not a proxy or alternate scene, complete the second stage');
-  assert.match(stage,/batchRigid\(structuralRoot,animatedStructuralRoots\)/,
-    'deferred original geometry must be batched without freezing its moving crystal rotors');
-  assert.match(stage,/material\.name='SourceEarnedIncomingFloorNineShaft'/);
-  assert.match(stage,/material\.opacity=0/,
+  assert.match(source,/batchRigid\(structuralRoot\)/,
+    'original load-bearing shell is independently batched before detail construction');
+  assert.match(stage,/batchRigid\(detailRoot,animatedStructuralRoots\)/,
+    'genuine rotating Void crystal geometry must not be frozen into rigid detail meshes');
+  assert.match(source,/material\.name='SourceEarnedIncomingFloorNineShaft'/);
+  assert.match(source,/material\.opacity=0/,
     'no built-on-CPU shaft may appear before source-authenticated opacity release');
   assert.match(stage,/arrival\.structureDetailBuildMs=/);
   assert.match(source,/if\s*\(!deferStructuralShell\) buildTower\(height,theme==='clockwork'\)/,
