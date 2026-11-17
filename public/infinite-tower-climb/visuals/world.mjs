@@ -1095,7 +1095,7 @@ export function createTowerWorld(){
   function block(parent,m,pos,scale,rotation=null){return mesh(parent,bevel(),m,pos,scale,rotation);}
   function casting(parent,m,pos,scale,rotation=null){return mesh(parent,rounded(),m,pos,scale,rotation);}
   function lathe(parent,profile,m,pos=[0,0,0],rotation=null,segments=40){
-    return mesh(parent,own(new THREE.LatheGeometry(profile.map(([r,y])=>new THREE.Vector2(r,y)),quality==='low'?Math.min(segments,20):segments)),m,pos,[1,1,1],rotation);
+    return mesh(parent,own(new THREE.LatheGeometry(profile.map(([r,y])=>new THREE.Vector2(r,y)),segments)),m,pos,[1,1,1],rotation);
   }
   function pipe(parent,points,r,m){
     const curve=new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(...p)),false,'centripetal');
