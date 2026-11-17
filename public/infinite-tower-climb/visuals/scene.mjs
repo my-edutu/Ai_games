@@ -5235,6 +5235,11 @@ export function createTowerScene(canvas, settings = {}) {
       // before WebGL. The following noteFrameSubmitted can advance opacity
       // only for the next draw; it cannot prove this draw showed the shell.
       const shaderSubmission=world.deferredShaderSubmission?.(snapshot) ?? null;
+      // The existing route/core camera checks do not cover the separate
+      // source HP gantry. Use the FINAL genuine camera/actor pose before
+      // rendering; only obstructing NON-COLLIDING rail metal may soften.
+      guardianCircuit.protectHeroSightline(snapshot,camera,
+        climber.group.position,options);
       const sceneReadyAt = performance.now();
       renderer.render(scene, camera);
       const rendererReturnedAt = performance.now();

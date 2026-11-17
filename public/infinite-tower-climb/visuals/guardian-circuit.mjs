@@ -147,6 +147,15 @@ export function createTowerGuardianCircuit(THREE) {
   const railMaterial = new THREE.MeshStandardMaterial({
     color: 0x9a7859, metalness: .73, roughness: .43, depthTest: true,
   });
+  // The exact original candidate desktop source ray at F8 tick441 hit
+  // transmission rail instance 29 at 12.03m, hiding the real living hero
+  // 17.52m from the camera. Keep actual gate/HP bolts opaque; ONLY the
+  // noncolliding visual rail has a separate bounded see-through variant.
+  const railSightlineMaterial = railMaterial.clone();
+  railSightlineMaterial.name = 'SourceGuardianFullBodyRayClearance';
+  railSightlineMaterial.transparent = true;
+  railSightlineMaterial.depthWrite = false;
+  railSightlineMaterial.opacity = .2;
   const rails = new THREE.InstancedMesh(railGeometry, railMaterial, RAIL_STEPS * 2);
   rails.name = 'GuardianLockTwinBronzeRails';
   rails.castShadow = false;
@@ -249,6 +258,14 @@ export function createTowerGuardianCircuit(THREE) {
   const clampTint = new THREE.Color();
   let source = null, disposed = false;
   let lastKey = '';
+  const railRay = new THREE.Raycaster();
+  const rayPoint = new THREE.Vector3(), rayDirection = new THREE.Vector3();
+  let clearReturns = 0, lastBlocked = 0, lastRayTick = null;
+  let rayChecks = 0, softenedProposals = 0;
+  function clearSightline(){
+    clearReturns=0;lastBlocked=0;lastRayTick=null;
+    rails.material=railMaterial;
+  }
   let previousSource = null, observedDamageTick = -1;
   let observedDamage = 0, damagedGuardian = '', damagedRun = '', damagedFloor = -1;
   function clear() {
@@ -265,6 +282,7 @@ export function createTowerGuardianCircuit(THREE) {
     observedDamageTick = -1;
     observedDamage = 0;
     damagedGuardian = ''; damagedRun = ''; damagedFloor = -1;
+    clearSightline();
   }
   const mapped = guardianLinkSite;
   function update(snapshot, options = {}) {
@@ -446,6 +464,52 @@ export function createTowerGuardianCircuit(THREE) {
     }
     group.visible = true;
   }
+  // Final camera and actual skinned body only; called immediately before the
+  // genuine render. Current active HP source must exactly own the same 3D
+  // rail. Three physical triangle rays—not projected NDC/canned screenshots—
+  // determine whether a non-colliding front gantry hides feet/torso/helmet.
+  // Nothing in this function may move the hero, gate, camera, or source.
+  function protectHeroSightline(snapshot,camera,feet,view={}){
+    const p=snapshot?.player;
+    if(disposed || !group.visible || rails.count!==RAIL_STEPS*2 ||
+       view.stale || view.reducedMotion || view.camera!=='follow' ||
+       snapshot?.lifecycle!=='running' || !source ||
+       snapshot.runToken!==source.runToken ||
+       snapshot.floor!==source.floor || snapshot.tick!==source.tick ||
+       !Number.isSafeInteger(snapshot.tick) || !(p?.health>0) ||
+       !(p?.halfHeight>0) || !camera?.isCamera ||
+       !camera.position?.isVector3 || !feet?.isVector3 ||
+       ![camera.position.x,camera.position.y,camera.position.z,
+         feet.x,feet.y,feet.z].every(Number.isFinite)){
+      clearSightline();
+      return {sourceBound:false,blockedRays:0,softened:false};
+    }
+    const rise=p.halfHeight/10000;
+    if(!(rise>0 && rise<=12)){
+      clearSightline();
+      return {sourceBound:false,blockedRays:0,softened:false};
+    }
+    group.updateMatrixWorld(true);
+    let blocked=0;
+    for(const height of [.35,1,1.7]){
+      rayPoint.copy(feet);
+      rayPoint.y+=rise*height;
+      rayDirection.copy(rayPoint).sub(camera.position);
+      const distance=rayDirection.length();
+      if(!Number.isFinite(distance) || distance<=.5)continue;
+      railRay.set(camera.position,rayDirection.multiplyScalar(1/distance));
+      railRay.near=.01;railRay.far=distance-.25;
+      if(railRay.intersectObject(rails,false).length)blocked++;
+    }
+    lastBlocked=blocked;lastRayTick=snapshot.tick;
+    rayChecks=Math.min(1000000,rayChecks+1);
+    clearReturns=blocked?0:Math.min(4,clearReturns+1);
+    const softened=blocked>0 || (rails.material===railSightlineMaterial && clearReturns<4);
+    rails.material=softened?railSightlineMaterial:railMaterial;
+    if(softened)softenedProposals=Math.min(1000000,softenedProposals+1);
+    return {sourceBound:true,sourceTick:snapshot.tick,blockedRays:blocked,softened,
+      caveat:'Original live Three.js triangles, not native pixels, performance or preference'};
+  }
   function diagnostics() {
     return {
       sourceBound: true, visible: group.visible, runToken: source?.runToken ?? null,
@@ -465,6 +529,11 @@ export function createTowerGuardianCircuit(THREE) {
       relaySourceTick: source?.tick ?? null,
       observedHealthLossTick: observedDamageTick >= 0 ? observedDamageTick : null,
       healthLossFragments: group.visible ? fractures.count : 0,
+      realHeroRailSightline: {sourceTick:lastRayTick,blockedRays:lastBlocked,
+        softened:group.visible&&rails.material===railSightlineMaterial,
+        capBoltsOpaque:lockBolts.material===railMaterial,
+        rayChecks,softenedProposals,
+        limitation:'Current Three.js ray intersections; no WebM/real device claim'},
       maxExtraDraws: 8, shadowCastingMeshes: 0,
       metric: 'Decorative linked hardware from real live guardian HP and actual cap anchor; not a new collider or verified raster visibility',
       disposed,
@@ -478,6 +547,7 @@ export function createTowerGuardianCircuit(THREE) {
     railGeometry.dispose();
     boltGeometry.dispose();
     railMaterial.dispose();
+    railSightlineMaterial.dispose();
     conductorGeometry.dispose();
     conductorMaterial.dispose();
     terminalGeometry.dispose();
@@ -489,5 +559,5 @@ export function createTowerGuardianCircuit(THREE) {
     shuntGeometry.dispose();
     shuntMaterial.dispose();
   }
-  return { group, update, clear, diagnostics, dispose };
+  return { group, update, protectHeroSightline, clear, diagnostics, dispose };
 }
