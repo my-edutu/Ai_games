@@ -182,24 +182,26 @@ function update(value){
   const urgent=exposedDanger||!!pressureCue;
   elements.broadcast.dataset.urgency=String(urgent);
   elements.broadcast.dataset.pressureApproach=String(!!pressureApproach);
-  byId('run-phase').textContent=ended?(escaped?'JOURNEY COMPLETE':'ATTEMPT ENDED'):counterGoal?'COUNTER LANDED':exposedDanger?'WARDEN NEARBY':observingPressure?'STUDYING JAWS':pressureCue?'PRESSURE NEARBY':pressureApproach?'JAWS IN SIGHT':'LIVE EXPLORATION';
   const landmark=publicObjective(snapshot);
   // Plain-language HUD truth for an already OBSERVED matching-key gate.
   // A real public danger outranks both this gate and any nearby landmark.
   const keyedSealedGate=!ended && !urgent && !pressureApproach && !landmark && publicHeldGateStatus(snapshot);
   // Danger, termination and a currently matching CLOSED lock outrank a
   // collectible celebration; AI intent continues to report its real plan.
-  const freshGate=!ended && !urgent && !pressureApproach && !keyedSealedGate
+  // A witnessed real gate lift outranks advisory diagonal pressure sighting;
+  // only an actual immediate hazard or un-parried public guardian wins.
+  const freshGate=!ended && !urgent && !keyedSealedGate
     && gateMilestone?.runToken===snapshot.runToken
     && hudVisualTime<gateMilestone.until;
   elements.broadcast.dataset.gateMoment=String(freshGate);
+  byId('run-phase').textContent=ended?(escaped?'JOURNEY COMPLETE':'ATTEMPT ENDED'):counterGoal?'COUNTER LANDED':exposedDanger?'WARDEN NEARBY':freshGate?'PASSAGE OPEN':observingPressure?'STUDYING JAWS':pressureCue?'PRESSURE NEARBY':pressureApproach?'JAWS IN SIGHT':'LIVE EXPLORATION';
   const freshKey=!ended && !urgent && !pressureApproach && !keyedSealedGate && !freshGate
     && pickupMilestone?.runToken===snapshot.runToken
     && hudVisualTime<pickupMilestone.until;
-  byId('goal-label').textContent=ended?'Journey result':counterGoal?'Witnessed lantern counter':exposedDanger?'Immediate danger':observingPressure?'Observed pressure court':pressureCue?'Visible pressure hazard':pressureApproach?'Disclosed mechanism':keyedSealedGate?'Known sealed gate':freshGate?'PASSAGE OPEN':freshKey?'KEY FOUND':landmark?'Discovered landmark':'Current goal';
-  byId('goal-title').textContent=ended?(escaped?'Escaped':'Run ended'):counterGoal?'Counter landed':exposedDanger?'Avoid warden':observingPressure?'Study jaws':pressureCue?'Avoid jaws':pressureApproach?'Watch jaws':keyedSealedGate?'Key for gate':freshGate?'Gate opened':freshKey?'Key collected':landmark?(landmark.kind==='key'?'Key spotted':'Exit spotted'):goals[snapshot.intent.mode]||'Find the exit';
+  byId('goal-label').textContent=ended?'Journey result':counterGoal?'Witnessed lantern counter':exposedDanger?'Immediate danger':freshGate?'PASSAGE OPEN':observingPressure?'Observed pressure court':pressureCue?'Visible pressure hazard':pressureApproach?'Disclosed mechanism':keyedSealedGate?'Known sealed gate':freshKey?'KEY FOUND':landmark?'Discovered landmark':'Current goal';
+  byId('goal-title').textContent=ended?(escaped?'Escaped':'Run ended'):counterGoal?'Counter landed':exposedDanger?'Avoid warden':freshGate?'Gate opened':observingPressure?'Study jaws':pressureCue?'Avoid jaws':pressureApproach?'Watch jaws':keyedSealedGate?'Key for gate':freshKey?'Key collected':landmark?(landmark.kind==='key'?'Key spotted':'Exit spotted'):goals[snapshot.intent.mode]||'Find the exit';
   byId('intent-label').textContent=ended?'Result':'Pip';
-  byId('objective').textContent=ended?(escaped?'Exit reached':'Next run soon'):counterGoal?'Thornback recoils; keep moving':exposedDanger?'Keep clear':observingPressure?'Choosing a safe route':pressureCue?'Keep clear of the jaws':pressureApproach?'Jaws in sight':freshGate?'Explore onward':landmark?(landmark.steps===0?'At the landmark':`${landmark.steps} known step${landmark.steps===1?'':'s'} away`):keyedSealedGate?'Gate still closed':'Explore';
+  byId('objective').textContent=ended?(escaped?'Exit reached':'Next run soon'):counterGoal?'Thornback recoils; keep moving':exposedDanger?'Keep clear':freshGate?'Explore onward':observingPressure?'Choosing a safe route':pressureCue?'Keep clear of the jaws':pressureApproach?'Jaws in sight':landmark?(landmark.steps===0?'At the landmark':`${landmark.steps} known step${landmark.steps===1?'':'s'} away`):keyedSealedGate?'Gate still closed':'Explore';
   if(freshKey)byId('objective').textContent='Keep exploring';
   // A witnessed key pickup should not show a second visible "Find key" call
   // directly below "Key collected". Keep the original autonomous strategy

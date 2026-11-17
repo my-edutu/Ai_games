@@ -1,26 +1,54 @@
-import {publicGuardianOpenSightline} from './public-lantern-encounter.mjs';
+/**
+ * A CURRENT, public-only cardinal corridor from Pip to a disclosed Warden.
+ * Keep the spectator HUD self-contained: importing the full lantern renderer
+ * here breaks the real world's temporary, source-only Three.js test fixtures.
+ * This is a warning predicate, not AI authority, movement or camera sight.
+ */
+function publicGuardianWarningCorridor(snapshot, guardianCell) {
+  const width=snapshot.width, height=snapshot.height, hero=snapshot.currentCell;
+  if (!Number.isSafeInteger(width) || width<2
+    || !Number.isSafeInteger(height) || height<2
+    || hero<0 || hero>=width*height || guardianCell<0 || guardianCell>=width*height
+    || !Array.isArray(snapshot.cells) || !Array.isArray(snapshot.doors)) return false;
+  const dx=guardianCell%width-hero%width;
+  const dy=Math.floor(guardianCell/width)-Math.floor(hero/width);
+  const distance=Math.abs(dx)+Math.abs(dy);
+  if(distance<1 || distance>2 || (dx!==0 && dy!==0)) return false;
+  const step=dx?Math.sign(dx):Math.sign(dy)*width;
+  let current=hero;
+  for(let i=0;i<distance;i++){
+    const next=current+step;
+    if(!snapshot.visibleCells.includes(next)) return false;
+    const from=snapshot.cells.find(cell=>cell.cell===current && !cell.blocked);
+    const to=snapshot.cells.find(cell=>cell.cell===next && !cell.blocked);
+    if(!from || !to || !Array.isArray(from.neighbors) || !Array.isArray(to.neighbors)
+      || !from.neighbors.includes(next) || !to.neighbors.includes(current)
+      || snapshot.doors.some(door=>!door.open
+        && ((door.a===current && door.b===next)
+          || (door.b===current && door.a===next)))) return false;
+    current=next;
+  }
+  return true;
+}
 
 /**
- * Whether a still-active Thornback is actually reachable through a verified
- * current PUBLIC reciprocal open corridor (one or two cardinal steps).
- * AI intent may still say "evading-threat" after a previous sighting, even
- * during a genuinely witnessed CLOSED→OPEN gate lift. That strategy is not
- * evidence that a visible Warden is still in immediate view. Never infer a
- * guardian from old AI intent, hidden map cells or synthetic render markers.
- * This only controls a warning on the spectator HUD, not game authority.
+ * A stale evasion AI intent never by itself proves immediate public danger.
+ * Only a currently visible un-parried guardian on a reciprocal unlocked
+ * one- or two-cell PUBLIC corridor earns the urgent stage warning.
+ * This is deliberately a self-contained read-only map predicate.
  */
 export function publicLiveGuardianWarning(snapshot) {
-  if (!snapshot || snapshot.lifecycle !== 'running' || snapshot.result
+  if(!snapshot || snapshot.lifecycle!=='running' || snapshot.result
     || !Number.isSafeInteger(snapshot.currentCell)
     || !Array.isArray(snapshot.visibleCells)
     || !snapshot.visibleCells.includes(snapshot.currentCell)
     || !Array.isArray(snapshot.threats)) return false;
-  return snapshot.threats.some(threat =>
-    typeof threat?.id === 'string' && threat.id.length > 0
+  return snapshot.threats.some(threat=>
+    typeof threat?.id==='string' && threat.id.length>0
     && Number.isSafeInteger(threat.cell)
     && snapshot.visibleCells.includes(threat.cell)
-    && threat.lanternParried !== true
-    && publicGuardianOpenSightline(snapshot, threat.cell) > 0);
+    && threat.lanternParried!==true
+    && publicGuardianWarningCorridor(snapshot,threat.cell));
 }
 
 /**
