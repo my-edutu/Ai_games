@@ -1,5 +1,13 @@
 # Tiny Kingdom W403 — Phase-1 real farm-to-market-to-home workday visibility
 
+## 17 November 2026 W404 continuous Phase-1 checkpoint (same active workstream)
+
+- Branch remains open/draft PR #64, G088 pinned exactly at `2f6deb43feb1a1557848d44def53a6109deb1ab1`. Do not merge, touch main, or integrate #59/#62/#43.
+- Read true [W403 1024px/390px CI](https://github.com/my-edutu/Ai_games/actions/runs/44029591307): five actual WebGL tests passed, one **390px UI test failed**. A trusted second click on the film's Grain ledger was intercepted by the *real* opened Supply panel; [actual screenshot and browser trace](https://github.com/my-edutu/Ai_games/actions/runs/44029591307/artifacts/14304164851) verified the cause. This must be treated as a real touch-playability regression, not an assertion fixture problem.
+- W404 [game+test implementation SHA `003cd1abfad882fae95ebe146b2f30aa0063cbbf`](https://github.com/my-edutu/Ai_games/commit/003cd1abfad882fae95ebe146b2f30aa0063cbbf): on 390px documentary and only when the user opens the original ledger, position its *real* compact, scrollable receipt sheet below the horizontal command row, with reliable 44px touch close control, preserve all five real stages and existing scene, no fabricated actors/transactions. Test adds actual geometry non-overlap and trusted user click close, preserving original exported authority; no force-click acceptance.
+- [Exact W404-head browser CI](https://github.com/my-edutu/Ai_games/actions/runs/44036447026) launched. **IN PROGRESS; result and running screenshot not independently verified yet.** Do not count this repair as LOOK/FEEL/PLAY transformation even if green. Prior genuine software cold civic ~108ms/landscape ~53.7ms within ~318ms cold static remains unsolved; hardware GPU and mobile FPS unavailable.
+- Current true market film shows a low-poly merchant with wooden beam obstructions; foundation remains visibly far below Manor Lords. Focus following runs on the **same** real farm→courier→market→occupied home, source-level architectural renderer overhaul and genuine on-device/matched film evidence. **Experience A NOT PROVEN; commercial B FAIL.**
+
 ## Exact scope and original baseline
 - Only [draft PR #64](https://github.com/my-edutu/Ai_games/pull/64), branch `feat/tiny-kingdom-post-main-gauntlet-20261031`. Code commit [00bb3a5693cb2ae35bb1afcefb29bf797b3023c5](https://github.com/my-edutu/Ai_games/commit/00bb3a5693cb2ae35bb1afcefb29bf797b3023c5), parent `94cd824f34ca52d0cb5eca14e975ea6d2fc314a6`. No merging, main, #43, #59 or #62 writes.
 - Pin unchanged pre-transformation G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1` and [exact unmodified original capture](https://github.com/my-edutu/Ai_games/actions/runs/41301740489/artifacts/13081531738).
