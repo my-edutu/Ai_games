@@ -245,6 +245,10 @@ export function publicGuardianEarnedRecoilRevealElevation(
     return currentY;
   // Change camera PITCH rather than shrinking actors: previous low 11.5m
   // post-parry offset let the foreground deck conceal the authentic boots.
-  // Restore a readable diorama altitude only after the actual counter.
-  return Math.max(currentY,23.0);
+  // Pass467: real 320/390 earned parry WebGL still shows a solid foreground
+  // retaining rail across Thornback's thorax. An earned high-angle diorama
+  // camera sees more of the ALREADY DISCLOSED connected model over that real
+  // wall, without lowering its physical masonry/collision or inventing a hit.
+  // Exact native full-mesh ±.95 and original foreground witnesses must judge it.
+  return Math.max(currentY,30.0);
 }
