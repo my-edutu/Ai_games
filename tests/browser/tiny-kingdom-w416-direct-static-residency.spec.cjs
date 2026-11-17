@@ -9,7 +9,8 @@ function originalPacker(){
  const begin=game.indexOf('const scenicLinearPackStats={');
  const end=game.indexOf('function getScenicLinearPackAudit(){',begin);
  assert.ok(begin>=0&&end>begin,'original linear resident packer exists');
- const ctx=vm.createContext({});
+ // Share the typed-array constructor so cross-context instanceof matches the renderer.
+ const ctx=vm.createContext({Float32Array});
  vm.runInContext([
   'const SCENIC_LINEAR_LOCAL_MAX_TRIANGLES=768;',
   'const SCENIC_LINEAR_LOCAL_MIN_TRIANGLES=96;',
