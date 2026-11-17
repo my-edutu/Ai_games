@@ -34,13 +34,16 @@ function fakeContext(){
  };
  return {ctx,gains,processors};
 }
-function submitPcm(processor,{first=1,invalid=false,gapAt=-1}={}){
+function submitPcm(processor,{first=1,invalid=false,gapAt=-1,verifySilent=false}={}){
  const sampleRate=48000,block=1024;
  for(let i=0;i<24;i++){
   const playbackTime=invalid?undefined:first+i*block/sampleRate+
    (i>=gapAt&&gapAt>=0?.2:0);
+  const out=new Float32Array(block).fill(.7);
   processor.onaudioprocess({playbackTime,
-   inputBuffer:{getChannelData(){return new Float32Array(block).fill(.2)}}});
+   inputBuffer:{getChannelData(){return new Float32Array(block).fill(.2)}},
+   outputBuffer:{getChannelData(){return out}}});
+  if(verifySilent)assert.ok(out.every(v=>v===0),'D04 diagnostic must not replay live FX');
  }
 }
 test('D04 FX-only PCM uses real consented FX bus, not ambient master; records contiguous AudioContext sample window',async()=>{
@@ -51,16 +54,17 @@ test('D04 FX-only PCM uses real consented FX bus, not ambient master; records co
   assert.equal(stage.enable(),true);
   const p=stage.recordOriginalPcm(.5,{source:'d04-combat-fx'});
   assert.equal(processors.length,1);
-  assert.equal(gains.length,7,'D04 gain count includes buses, two ambient beds and PCM silent sink');
+  assert.equal(gains.length,6,'D04 live diagnostic does not create a prunable gain sink');
   assert.equal(stage.combatEffectsInput(),gains[3],'D04 original sound uses its isolated output');
   assert.equal(gains[3].gain.value,1,'physical foley loudness unchanged');
   assert.ok(gains[3].links.includes(gains[2]),'D04 foley feeds old FX once');
   assert.ok(gains[2].links.includes(gains[0]),'old FX still feeds master');
   assert.ok(gains[3].links.includes(processors[0]),'tap dedicated D04 output');
+  assert.ok(processors[0].links.includes(ctx.destination),'D04 direct sink stays active');
   assert.equal(gains[2].links.includes(processors[0]),false,
    'legacy footfalls and rewards must not enter D04 impact PCM');
   assert.equal(gains[0].links.includes(processors[0]),false,'not the ambience/master mix');
-  submitPcm(processors[0]);
+  submitPcm(processors[0],{verifySilent:true});
   const result=await p;
   assert.equal(result.status,'RECORDED');
   assert.equal(result.captureBus,'d04-combat-fx-pre-master');
@@ -85,7 +89,7 @@ test('D04 never fabricates a sample timeline from missing or noncontiguous proce
   try{
    assert.equal(stage.enable(),true);
    const p=stage.recordOriginalPcm(.5,{source:'d04-combat-fx'});
-   submitPcm(processors[0],scenario);
+   submitPcm(processors[0],{...scenario,verifySilent:true});
    const result=await p;
    assert.equal(result.status,'RECORDED','PCM can exist without a trustworthy time axis');
    assert.equal(result.pcmClock.status,scenario.status);
@@ -348,6 +352,40 @@ test('D04 consent-time module failure does not mute foley or permanently poison 
   assert.equal((await pending).status,'RECORDED');
  }finally{
   stage?.dispose();
+  if(oldNode===undefined)delete globalThis.AudioWorkletNode;
+  else globalThis.AudioWorkletNode=oldNode;
+ }
+});
+
+test('D04 hung consent worklet uses direct silent original-FX fallback and fails closed',async()=>{
+ const {createDungeonSoundstage}=await load(),{ctx,gains,processors}=fakeContext();
+ const oldNow=Date.now,oldNode=globalThis.AudioWorkletNode;
+ let clock=100000,stage;
+ ctx.audioWorklet={addModule:()=>new Promise(()=>{})};
+ globalThis.AudioWorkletNode=class {};
+ Date.now=()=>clock;
+ try{
+  stage=createDungeonSoundstage(ctx,{suppressCombat:true});stage.enable();
+  clock+=12001;
+  const recorded=stage.recordOriginalPcm(.5,{source:'d04-combat-fx'});
+  assert.equal(processors.length,1);
+  assert.equal(gains.length,6);
+  assert.ok(processors[0].links.includes(ctx.destination));
+  assert.ok(gains[3].links.includes(gains[2]),'original audible bus unchanged');
+  submitPcm(processors[0],{verifySilent:true});
+  const result=await recorded;
+  assert.equal(result.status,'RECORDED','mock is only a plumbing contract');
+  assert.equal(result.diagnosticFallbackFromStalledWorklet,true);
+  assert.equal(result.sampleSynchronized,false);
+  assert.equal(processors[0].links.length,0);
+  const unsafe=stage.recordOriginalPcm(.5,{source:'d04-combat-fx'});
+  processors[1].onaudioprocess({inputBuffer:{getChannelData(){return new Float32Array(1024)}}});
+  const failed=await unsafe;
+  assert.equal(failed.status,'UNAVAILABLE');
+  assert.match(failed.reason,/diagnostic output unavailable/);
+  assert.equal(processors[1].links.length,0);
+ }finally{
+  stage?.dispose();Date.now=oldNow;
   if(oldNode===undefined)delete globalThis.AudioWorkletNode;
   else globalThis.AudioWorkletNode=oldNode;
  }

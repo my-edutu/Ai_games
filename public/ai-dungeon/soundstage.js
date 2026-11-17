@@ -354,6 +354,8 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
   if(source==='d04-combat-fx'&&typeof ctx.audioWorklet?.addModule==='function'&&
    typeof globalThis.AudioWorkletNode==='function'&&!mainThreadD04Fallback)
    return recordD04CombatPcmWorklet(seconds,tapBus,sampleRate);
+  // D04-only diagnostics need a live output path; legacy routing is unchanged.
+  const directSilentD04Output=source==='d04-combat-fx';
   return new Promise(resolve=>{
    let recorder=null,silence=null,frames=0,sumSquares=0,peak=0,settled=false;
    let fallbackWatchdog=null;
@@ -405,10 +407,23 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
    };
    try{
     recorder=ctx.createScriptProcessor(1024,1,1);
-    silence=ctx.createGain();silence.gain.value=0;
-    // Keep processor alive without doubling any real speaker output.
-    tapBus.connect(recorder);recorder.connect(silence);silence.connect(ctx.destination);
+    if(directSilentD04Output){
+     // A prunable zero-gain sink can starve original FX PCM under WebGL load.
+     tapBus.connect(recorder);recorder.connect(ctx.destination);
+    }else{
+     silence=ctx.createGain();silence.gain.value=0;
+     tapBus.connect(recorder);recorder.connect(silence);silence.connect(ctx.destination);
+    }
     recorder.onaudioprocess=e=>{
+     if(directSilentD04Output){
+      let output=null;
+      try{output=e?.outputBuffer?.getChannelData?.(0)}catch{}
+      if(!output||typeof output.fill!=='function'){
+       finish('D04 diagnostic output unavailable for guaranteed silence');return;
+      }
+      // Never echo original input into the audible destination.
+      output.fill(0);
+     }
      if(settled)return;
      const input=e.inputBuffer.getChannelData(0),length=Math.min(input.length,maxFrames-frames);
      if(length<=0){finish();return;}
