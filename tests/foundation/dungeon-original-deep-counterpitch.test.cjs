@@ -453,6 +453,12 @@ test('RED: original 390px fast Walking_A toe-hinge probe retains the measured .3
 // ~14.45mm but leaves ~37.4mm burial. A true post-connected world hinge
 // is needed instead of guessing a fixed child angle. All test axes below
 // are SYNTHETIC planning fixtures, not source skin/IK/visual acceptance.
+test('null original skinned trial safely fails closed without changing gameplay pose',async()=>{
+ const {chooseOriginalSourceCoupledKneeFootSweep:choose}=await load();
+ const rejected=choose({...owner,starter:{source:'actual-original-source-three-joint-swing-opportunity',expectedSourceSkinnedTrials:2,contactLocked:false,sign:-1,excessHeelRiseMeters:.005},trials:[null]});
+ assert.equal(rejected,null);
+});
+
 test('RED: four-joint original toe probe is bounded by actual post-coupled skinned gap and world hinge',async()=>{
  const {planOriginalSourceAdaptiveToeHingeProbe:plan}=await load();
  assert.equal(typeof plan,'function');

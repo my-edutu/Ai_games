@@ -871,7 +871,7 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
  for(const trial of trials){
   const {upperRad,lowerRad,footRad,after,toeRad=0}=trial??{};
   const shoe=after?.[side],loaded=after?.[opposite];
-  const adaptive=trial.sourceAdaptiveToeCandidate;
+  const adaptive=trial?.sourceAdaptiveToeCandidate;
   const originalAdaptiveToe=adaptive?.source===
    'verified-original-post-coupled-toe-hinge'&&
    finite(adaptive.toeRad)&&Math.abs(toeRad-adaptive.toeRad)<.000001&&
