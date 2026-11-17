@@ -45,16 +45,42 @@ test('D04 CI uses system Chrome only when explicitly enabled',()=>{
   'Preserve desktop capture dimensions');
 });
 
-test('D04 evidence decoder must be optional and may not hide live playback behind apt mirrors',()=>{
+test('D04 evidence decoder may use bounded post-playback provisioning but must never block authentic Chrome',()=>{
  const text=workflow();
- assert.doesNotMatch(text,/sudo\s+apt-get|\bapt-get\s+(?:install|update)/,
-  'Network-dependent apt install must not prevent authentic Dungeon browser playback');
+ const browserCommand='npx playwright test -c tests/browser/dungeon-d04.playwright.config.cjs';
+ const playback=text.indexOf(browserCommand);
+ assert.ok(playback>0,'Require genuine Dungeon Chrome execution');
+ const aptCommands=/\\bapt-get\\s+(?:update|install)\\b/;
+ assert.doesNotMatch(text.slice(0,playback),aptCommands,
+  'Network-dependent decoder installation must never gate genuine Chrome playback');
+ const after=text.slice(playback+browserCommand.length);
+ if(aptCommands.test(after)){
+  const marker='      - name: Best-effort independent FFmpeg and FFprobe provisioning after playback';
+  const stepStart=after.indexOf(marker);
+  assert.ok(stepStart>=0,'Any optional apt provisioning must have a dedicated post-playback step');
+  const nextStep=/\\n      - (?:name|run|uses):/g;
+  nextStep.lastIndex=stepStart+marker.length;
+  const next=nextStep.exec(after);
+  const step=after.slice(stepStart,next?next.index:after.length);
+  assert.doesNotMatch(after.replace(step,''),aptCommands,
+   'Apt must not occur outside the bounded optional post-playback decoder step');
+  assert.match(step,/\\n\\s*if:\\s*always\\(\\)/,
+   'The decoder must run after authentic Chrome even when the strict impact gate fails');
+  assert.match(step,/\\n\\s*timeout-minutes:\\s*[1-3]\\s*(?:\\n|$)/,
+   'Optional native decoder installation needs a short absolute job timeout');
+  assert.match(step,/timeout\\s+\\d+s\\s+sudo\\s+apt-get\\s+update/,
+   'Network-dependent apt update must have an independent bounded deadline');
+  assert.match(step,/timeout\\s+\\d+s\\s+sudo\\s+env\\s+DEBIAN_FRONTEND=noninteractive\\s+apt-get\\s+install/,
+   'Network-dependent apt install must have an independent bounded deadline');
+  assert.match(step,/UNVERIFIED/,
+   'Failed decoder provisioning must explicitly preserve an unverified contact verdict');
+ }
  assert.match(text,/command -v ffprobe/,
-  'Report whether strict decoder is available without assuming it exists');
+  'Report whether the strict decoder is available without assuming it exists');
  assert.match(text,/command -v ffmpeg/,
-  'Report whether frame decoder is available without blocking real browser smoke');
+  'Report whether the frame decoder is available without blocking real browser smoke');
  assert.match(text,/Decoder unavailable.*UNVERIFIED|UNVERIFIED.*decoder unavailable/i,
-  'Missing native decoder must explicitly downgrade evidence instead of claiming a pass');
+  'Missing native decoders must explicitly downgrade evidence instead of claiming a pass');
 });
 
 test('D04 host Chrome CI installs the Playwright video encoder without apt or a browser download',()=>{
