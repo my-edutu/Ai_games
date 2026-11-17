@@ -770,6 +770,62 @@ export function planOriginalSourceCoupledToeHingeFollowups({
  ]);
 }
 
+
+/** Bounded fourth original-source toe trial from the already-skinned
+ * THIRD connected hip/calf/foot candidate, not the stale bind-world axis.
+ * Scheduling is NOT final skin approval, IK or a planted contact.
+ */
+export function planOriginalSourceAdaptiveToeHingeProbe({
+ source='',sourceClipName='',sourceWeight=NaN,frameInterval=NaN,
+ sourceInstanceSame=false,sourceToeTrackVerified=false,
+ sourceToeChainVerified=false,sourceToeSkinnedWeight=NaN,
+ preplannedToeRad=NaN,sourceToeVertexWorld=null,
+ sourceToePivotWorld=null,sourceToeAxisWorld=null,
+ sourceHeelY=NaN,floorTopY=NaN,
+ ownerLocomotion=false,alive=false,visible=false,
+ teleport=false,reducedMotion=false,interrupted=false
+}={}){
+ const vec=v=>Array.isArray(v)&&v.length===3&&v.every(finite);
+ if(source!=='verified-original-post-coupled-toe-hinge'||
+  sourceClipName!=='Walking_A'||!finite(sourceWeight)||
+  sourceWeight<.95||sourceWeight>1.001||
+  !finite(frameInterval)||frameInterval<.008||frameInterval>.05||
+  sourceInstanceSame!==true||sourceToeTrackVerified!==true||
+  sourceToeChainVerified!==true||
+  !finite(sourceToeSkinnedWeight)||sourceToeSkinnedWeight<.90||
+  sourceToeSkinnedWeight>1.0001||
+  ownerLocomotion!==true||alive!==true||visible!==true||
+  teleport||reducedMotion||interrupted||
+  !finite(preplannedToeRad)||
+  Math.abs(Math.abs(preplannedToeRad)-.14)>.000001||
+  !vec(sourceToeVertexWorld)||!vec(sourceToePivotWorld)||
+  !vec(sourceToeAxisWorld)||!finite(sourceHeelY)||
+  !finite(floorTopY)||Math.abs(floorTopY+.02)>.005)return null;
+ const axisLength=Math.hypot(...sourceToeAxisWorld);
+ const lever=sourceToeVertexWorld.map((v,i)=>v-sourceToePivotWorld[i]);
+ const leverLength=Math.hypot(...lever);
+ if(!finite(axisLength)||Math.abs(axisLength-1)>.01||
+  !finite(leverLength)||leverLength<.03||leverLength>.16)return null;
+ const derivative=(sourceToeAxisWorld[2]*lever[0]-
+  sourceToeAxisWorld[0]*lever[2])/axisLength;
+ if(!finite(derivative)||Math.abs(derivative)<.04||
+  Math.abs(derivative)>.16||
+  Math.sign(derivative)!==Math.sign(preplannedToeRad))return null;
+ const burial=floorTopY-sourceToeVertexWorld[1];
+ const heelHeight=sourceHeelY-floorTopY;
+ if(burial<.012||burial>.085||
+  heelHeight<.10||heelHeight>.36)return null;
+ // Aim 4mm over stone when possible, never exceed an extra 18.3deg
+ // on the authentic toes child. The fourth real skin may still reject.
+ const rad=Math.round(clamp((burial+.004)/Math.abs(derivative),.14,.32)*10000)/10000;
+ return Object.freeze({source:'verified-original-post-coupled-toe-hinge',
+  toeRad:Math.sign(derivative)*rad,
+  derivativeMetersPerRad:derivative,
+  postCoupledToeBurialMeters:burial,
+  theoreticalRemainingBurialMeters:Math.max(0,burial-rad*Math.abs(derivative)),
+  originalSourceContactLocked:false});
+}
+
 export function chooseOriginalSourceCoupledKneeFootSweep({
  starter=null,mode='idle',sourceClipName='',sourceWeight=NaN,
  sourceInstanceSame=false,sourceChainVerified=false,
@@ -815,12 +871,22 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
  for(const trial of trials){
   const {upperRad,lowerRad,footRad,after,toeRad=0}=trial??{};
   const shoe=after?.[side],loaded=after?.[opposite];
+  const adaptive=trial.sourceAdaptiveToeCandidate;
+  const originalAdaptiveToe=adaptive?.source===
+   'verified-original-post-coupled-toe-hinge'&&
+   finite(adaptive.toeRad)&&Math.abs(toeRad-adaptive.toeRad)<.000001&&
+   Math.abs(toeRad)>=.139999&&Math.abs(toeRad)<=.320001&&
+   finite(adaptive.derivativeMetersPerRad)&&
+   Math.abs(adaptive.derivativeMetersPerRad)>=.04&&
+   Math.abs(adaptive.derivativeMetersPerRad)<=.16&&
+   Math.sign(toeRad)===Math.sign(adaptive.derivativeMetersPerRad)&&
+   adaptive.originalSourceContactLocked===false;
   if(![upperRad,lowerRad,footRad,toeRad].every(finite)||
    (toeRad!==0&&(
     sourceToeTrackVerified!==true||sourceToeChainVerified!==true||
     !finite(sourceToeSkinnedWeight)||sourceToeSkinnedWeight<.90||
     sourceToeSkinnedWeight>1.0001||
-    Math.abs(Math.abs(toeRad)-.14)>.000001||
+    (Math.abs(Math.abs(toeRad)-.14)>.000001&&!originalAdaptiveToe)||
     frameInterval>.05||sourceWeight<.95))||
    Math.abs(upperRad)<.074999||Math.abs(upperRad)>.110001||
    Math.abs(lowerRad)<.074999||Math.abs(lowerRad)>(frameInterval>=.16?.140001:.110001)||
