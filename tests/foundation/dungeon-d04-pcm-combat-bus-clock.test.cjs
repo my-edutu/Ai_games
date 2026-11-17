@@ -101,3 +101,9 @@ test('legacy soundstage cannot opt into D04-only combat PCM and stays on origina
   assert.equal(result.captureBus,'original-master-mix');
  }finally{stage.dispose()}
 });
+
+test('D04 real browser requests original FX-only PCM only in the gated spectator',()=>{
+ const app=fs.readFileSync(path.join(root,'app.js'),'utf8');
+ assert.ok(app.includes("recordOriginalPcm(seconds,physicalFeedback?{source:'d04-combat-fx'}:undefined)"),
+  'legacy default records its original mix; only D04 taps the existing combat FX stem');
+});

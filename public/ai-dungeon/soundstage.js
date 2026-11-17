@@ -183,9 +183,16 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
   * the real synth mix independently; never touches microphones or uploads.
   * Unsupported/silent graphs report UNAVAILABLE or SILENT, never a win.
   */
- function recordOriginalPcm(seconds=4){
+ function recordOriginalPcm(seconds=4,{source='mix'}={}){
+  // Isolate the opt-in D04 original foley FX pre-master for a real browser
+  // sample audit. The soundstage's audible mix and legacy PCM tap are unchanged.
+  if(source!=='mix'&&source!=='d04-combat-fx')
+   return Promise.resolve({status:'UNAVAILABLE',reason:'Unknown original PCM capture bus'});
+  if(source==='d04-combat-fx'&&!suppressCombat)
+   return Promise.resolve({status:'UNAVAILABLE',reason:'D04 combat PCM requires opt-in D04 soundstage'});
+  const tapBus=source==='d04-combat-fx'?fxBus:master;
   if(disposed||!started||!enabled||ctx.state!=='running'||!master||
-   !Number.isFinite(seconds)||seconds<.5||seconds>10||
+   !tapBus||!Number.isFinite(seconds)||seconds<.5||seconds>10||
    typeof ctx.createScriptProcessor!=='function'||pcmSession)
    return Promise.resolve({status:'UNAVAILABLE',reason:'Audio must be opted in, active, bounded and not already recording'});
   const sampleRate=ctx.sampleRate;
@@ -193,10 +200,14 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
    return Promise.resolve({status:'UNAVAILABLE',reason:'Invalid live AudioContext sample rate'});
   return new Promise(resolve=>{
    let recorder=null,silence=null,frames=0,sumSquares=0,peak=0,settled=false;
+   // AudioProcessingEvent.playbackTime anchors real PCM blocks on the
+   // AudioContext clock. Neither audible onset nor video PTS follows.
+   let pcmBlocks=0,timedBlocks=0,invalidClocks=0,discontinuities=0;
+   let firstSampleContextSeconds=null,lastSampleEndContextSeconds=null;
    const chunks=[],maxFrames=Math.ceil(seconds*sampleRate);
    const finish=(reason='complete')=>{
     if(settled)return;settled=true;
-    try{master.disconnect(recorder)}catch{}
+    try{tapBus.disconnect(recorder)}catch{}
     try{recorder?.disconnect()}catch{}
     try{silence?.disconnect()}catch{}
     if(pcmSession?.finish===finish)pcmSession=null;
@@ -215,19 +226,41 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
      view.setInt16(offset,chunk[i],true);offset+=2;
     }
     const rms=Math.sqrt(sumSquares/Math.max(1,frames));
+    const clockStatus=invalidClocks>0||timedBlocks!==pcmBlocks?
+     'UNVERIFIED_MISSING_OR_INVALID_CLOCK':
+     discontinuities>0?'UNVERIFIED_NONCONTIGUOUS_CONTEXT_TIME':
+      pcmBlocks>0?'CONTIGUOUS_CONTEXT_TIME_ONLY':'UNVERIFIED_MISSING_OR_INVALID_CLOCK';
+    const validWindow=clockStatus==='CONTIGUOUS_CONTEXT_TIME_ONLY';
     resolve({status:peak>.0005&&rms>.0001?'RECORDED':'SILENT',
      sampleRate,channels:1,frames,durationSeconds:frames/sampleRate,
+     captureBus:source==='d04-combat-fx'?'d04-combat-fx-pre-master':'original-master-mix',
+     pcmClock:{status:clockStatus,clock:'AudioProcessingEvent.playbackTime',
+      blocks:pcmBlocks,discontinuities,invalidClocks,
+      firstSampleContextSeconds:validWindow?firstSampleContextSeconds:null,
+      lastSampleEndContextSeconds:validWindow?lastSampleEndContextSeconds:null},
+     // Processor timestamps never certify actual decoded contact samples or
+     // video-to-audio synchronization, even for a contiguous original stem.
+     sampleSynchronized:false,
      bytes:wav.length,peak,rms,format:'PCM16_LE_WAV',wav});
    };
    try{
     recorder=ctx.createScriptProcessor(1024,1,1);
     silence=ctx.createGain();silence.gain.value=0;
     // Keep processor alive without doubling any real speaker output.
-    master.connect(recorder);recorder.connect(silence);silence.connect(ctx.destination);
+    tapBus.connect(recorder);recorder.connect(silence);silence.connect(ctx.destination);
     recorder.onaudioprocess=e=>{
      if(settled)return;
      const input=e.inputBuffer.getChannelData(0),length=Math.min(input.length,maxFrames-frames);
      if(length<=0){finish();return;}
+     const playbackTime=e?.playbackTime;
+     if(Number.isFinite(playbackTime)&&playbackTime>=0){
+      if(timedBlocks===0)firstSampleContextSeconds=playbackTime;
+      else if(lastSampleEndContextSeconds!==null&&
+       Math.abs(playbackTime-lastSampleEndContextSeconds)>.002)discontinuities++;
+      timedBlocks++;
+      lastSampleEndContextSeconds=playbackTime+length/sampleRate;
+     }else invalidClocks++;
+     pcmBlocks++;
      const chunk=new Int16Array(length);
      for(let i=0;i<length;i++){
       const value=Math.max(-1,Math.min(1,Number.isFinite(input[i])?input[i]:0));
