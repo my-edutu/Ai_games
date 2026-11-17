@@ -827,7 +827,7 @@ export function createWarden(options = {}) {
     // The foremost two legs have real articulated pincer tips. During a
     // source-disclosed close encounter they brace toward Pip; they never
     // imply an additional attack, collision, or simulated creature.
-    let pincer=null;
+    let pincer=null,foreclaw=null;
     if (i===0) {
       pincer=pivot(knee,`foreleg pincer ${side}`,[side*.13,-.55,.055]);
       bar(pincer,claw,[0,0,0],[side*.12,-.06,.22],.047);
@@ -837,8 +837,23 @@ export function createWarden(options = {}) {
       const buckler=rounded(pincer,plates,[side*.08,-.04,.12],[.23,.18,.29],.047);
       buckler.rotation.y=side*.13;
       rounded(pincer,claw,[side*.11,-.025,.24],[.12,.06,.17],.025);
+      // A real silhouette-defining, hinged twin sickle grows from the
+      // EXISTING planted foreleg, not an unrelated warning sprite. Both
+      // large opposing ivory/bronze jaws are part of the same living beetle.
+      // Source-authentic guard -> lantern counter -> withdrawal rotates the
+      // whole connected pair without spawning geometry in any render frame.
+      // Sphere and existing rod primitives are already pooled across rigs.
+      foreclaw=pivot(pincer,`guardian broad opposing foreclaw ${side}`,
+        [side*.14,-.06,.16]);
+      const upper=ball(foreclaw,claw,[side*.20,.09,.22],[.27,.13,.39]);
+      upper.rotation.y=-side*.28;
+      const lower=ball(foreclaw,bronze,[side*.14,-.08,.28],[.23,.10,.30]);
+      lower.rotation.y=side*.19;
+      const tooth=ball(foreclaw,claw,[side*.25,.07,.48],[.17,.09,.20]);
+      tooth.rotation.y=-side*.27;
+      bar(foreclaw,bronze,[0,0,0],[side*.14,.01,.20],.047);
     }
-    legs.push({hip,knee,side,index:i,pincer});
+    legs.push({hip,knee,side,index:i,pincer,foreclaw});
   }
   r.finish(); let gait=0, stride=0;
   return {group,dispose:r.dispose,suspendGpuBuffers:r.suspendGpuBuffers,
@@ -1089,6 +1104,19 @@ export function createWarden(options = {}) {
       if (leg.pincer) {
         leg.pincer.rotation.y=alert>0?leg.side*(alert*.42+plantedClaws*.35):0;
         leg.pincer.rotation.z=alert>0?leg.side*defensiveSweep*.50:0;
+        // The *whole* attached broad hooked pincers plant toward Pip in
+        // the genuine disclosed brace, recoil visibly when Pip's actual
+        // lantern lands, then fold away on Thornback's physical withdrawal.
+        // No extra attack, navigation, collision, or secret AI state.
+        // Every phase has deterministic exact-neutral reset at clock expiry.
+        if (leg.foreclaw) {
+          leg.foreclaw.rotation.y=leg.side*(alert*.20+plantedClaws*.24
+            +counterLoad*.47-counterRelease*.50-counterCollapse*.38);
+          leg.foreclaw.rotation.x=-plantedClaws*.20-counterLoad*.39
+            +counterRelease*.42+counterCollapse*.24;
+          leg.foreclaw.rotation.z=leg.side*(defensiveSweep*.31
+            -counterRelease*.32-counterCollapse*.41);
+        }
       }
     }
     // An encounter is a physical performance: the already-modeled front

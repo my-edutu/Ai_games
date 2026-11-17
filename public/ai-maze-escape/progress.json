@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-17T13:59:27.741Z",
+  "updatedAt": "2026-11-17T14:18:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass453: exact Pass452 native WebGL 44095712814 SUCCESS, 40/40 unaltered screenshot sidecars and 3/3 authentic gate SHA independently verified. Full-resolution real 320/390 comparison against Pass451 found added opaque L-corner slabs visually obscure gameplay; artistically REJECTED. Restore Pass451 production geometry/host/tests without losing other work. New rollback exact-HEAD CI and WebGL pending; official Nintendo bar not met."
+    "summary": "Pass454 source candidate on rollback baseline a845ddd5: joined physical Thornback foreclaws tied to observed defender plant, genuine lantern counter and withdrawal; installed-Three tests and exact-HEAD new four-viewport WebGL pending. Baseline Pass453 rollback-focused Maze WebGL 44098367673 SUCCESS; no new rendered visual improvement or Nintendo parity claimed."
   },
   "captures": [
     {
