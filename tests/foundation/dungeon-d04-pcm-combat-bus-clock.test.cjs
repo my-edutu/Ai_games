@@ -270,3 +270,85 @@ test('D04 unresponsive audio-worklet module cannot connect late or leak a record
   else globalThis.AudioWorkletNode=oldNode;
  }
 });
+
+
+test('D04 primes the original PCM worklet on consent before capture, without an extra voice or module fetch',async()=>{
+ const {createDungeonSoundstage}=await load();
+ const {ctx,gains}=fakeContext(),nodes=[];
+ const oldNode=globalThis.AudioWorkletNode;
+ let finishLoad,calls=0;
+ ctx.audioWorklet={addModule:url=>{
+  calls++;
+  assert.equal(url,'/dungeon/d04-combat-pcm-worklet.js');
+  return new Promise(resolve=>{finishLoad=resolve});
+ }};
+ globalThis.AudioWorkletNode=class {
+  constructor(){this.links=[];this.port={onmessage:null,messages:[],
+   postMessage(message){this.messages.push(message)}};nodes.push(this)}
+  connect(target){this.links.push(target)}
+  disconnect(){this.links.length=0}
+ };
+ let stage;
+ try{
+  stage=createDungeonSoundstage(ctx,{suppressCombat:true});
+  assert.equal(calls,0,'no module loading or sound creation before user consent');
+  assert.equal(stage.enable(),true);
+  assert.equal(calls,1,'preload begins immediately after real user audio opt-in');
+  assert.equal(nodes.length,0,'preloading never instantiates or voices a diagnostic processor');
+  assert.equal(stage.stats().voices,0);
+  assert.ok(gains[3].links.includes(gains[2]),'original combat foley still goes to the normal FX mix once');
+  finishLoad();
+  for(let i=0;i<12;i++)await Promise.resolve();
+  const pending=stage.recordOriginalPcm(.5,{source:'d04-combat-fx'});
+  for(let i=0;i<12&&!nodes.length;i++)await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(calls,1,'capture reuses the consent-time module rather than reloading mid-combat');
+  assert.equal(nodes.length,1);
+  const pcm=new Int16Array(24000).fill(2048).buffer;
+  nodes[0].port.onmessage({data:{type:'complete',buffer:pcm,frames:24000,
+   firstFrame:48000,blocks:188,invalidClocks:0,discontinuities:0}});
+  const recorded=await pending;
+  assert.equal(recorded.status,'RECORDED');
+  assert.equal(recorded.captureBus,'d04-combat-fx-pre-master');
+  assert.equal(recorded.sampleSynchronized,false,'preloading is not audible impact/video contact proof');
+  assert.equal(nodes[0].links.length,0,'completed recorder retires its silent output');
+  assert.equal(stage.stats().voices,0,'no audio voice was introduced by diagnostic preload');
+ }finally{
+  stage?.dispose();
+  if(oldNode===undefined)delete globalThis.AudioWorkletNode;
+  else globalThis.AudioWorkletNode=oldNode;
+ }
+});
+
+test('D04 consent-time module failure does not mute foley or permanently poison later PCM recording',async()=>{
+ const {createDungeonSoundstage}=await load();
+ const {ctx}=fakeContext(),nodes=[];
+ const oldNode=globalThis.AudioWorkletNode;
+ let calls=0;
+ ctx.audioWorklet={addModule:()=>{
+  calls++;
+  return calls===1?Promise.reject(Error('temporary module load failure')):Promise.resolve();
+ }};
+ globalThis.AudioWorkletNode=class {
+  constructor(){this.links=[];this.port={onmessage:null,postMessage(){}};nodes.push(this)}
+  connect(target){this.links.push(target)}
+  disconnect(){this.links.length=0}
+ };
+ let stage;
+ try{
+  stage=createDungeonSoundstage(ctx,{suppressCombat:true});
+  assert.equal(stage.enable(),true,'module load is diagnostic-only and cannot block audible opt-in');
+  for(let i=0;i<12;i++)await Promise.resolve();
+  assert.equal(stage.stats().enabled,true);
+  const pending=stage.recordOriginalPcm(.5,{source:'d04-combat-fx'});
+  for(let i=0;i<12&&!nodes.length;i++)await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(calls,2,'failed preloading may be retried only on a requested capture');
+  assert.equal(nodes.length,1);
+  nodes[0].port.onmessage({data:{type:'complete',buffer:new Int16Array(24000).fill(256).buffer,
+   frames:24000,firstFrame:48000,blocks:188,invalidClocks:0,discontinuities:0}});
+  assert.equal((await pending).status,'RECORDED');
+ }finally{
+  stage?.dispose();
+  if(oldNode===undefined)delete globalThis.AudioWorkletNode;
+  else globalThis.AudioWorkletNode=oldNode;
+ }
+});

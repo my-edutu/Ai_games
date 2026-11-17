@@ -181,6 +181,9 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
   enabled=true;
   if(master)automate(master.gain,MASTER_GAIN,.035);
   if(sceneMood){const old=sceneMood;sceneMood=null;setMood(old)}
+  // D04-only diagnostic preparation begins at consent, before later WebGL
+  // render stalls can hold up a first original FX PCM capture request.
+  primeD04CombatPcmModule();
   return true;
  }
  /**
@@ -192,6 +195,21 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
   */
 
  let pcmWorkletModuleLoad=null;
+ function primeD04CombatPcmModule(){
+  // Load only after a fresh user audio opt-in. This creates no sound, no
+  // recorder and no audio voices. A later PCM request reuses the same worklet
+  // module rather than starting its first module load under heavy WebGL.
+  if(!suppressCombat||!enabled||disposed||pcmWorkletModuleLoad||
+   ctx.state!=='running'||typeof ctx.audioWorklet?.addModule!=='function'||
+   typeof globalThis.AudioWorkletNode!=='function')return;
+  try{
+   const load=Promise.resolve(ctx.audioWorklet.addModule('/dungeon/d04-combat-pcm-worklet.js'));
+   pcmWorkletModuleLoad=load;
+   // Optional diagnostic modules must never block gameplay or leak an
+   // unhandled rejection. A failed preload may be retried on a real capture.
+   load.catch(()=>{if(pcmWorkletModuleLoad===load)pcmWorkletModuleLoad=null});
+  }catch{pcmWorkletModuleLoad=null}
+ }
  function recordD04CombatPcmWorklet(seconds,tapBus,sampleRate){
   const maxFrames=Math.ceil(seconds*sampleRate);
   return new Promise(resolve=>{
