@@ -78,9 +78,19 @@ test('first earned F9 WebGL room shares a genuinely far-side Void structural bea
     world.update(arrival,.05,.05,{quality:'low'});
     const first=world.group.getObjectByName('SourceEarnedFirstFrameFarSideVoidButtress');
     assert.ok(first?.isGroup,'source-earned first F9 room now contains the far original successor bearing');
-    assert.ok(first.getObjectByName('VoidOpenButtressRearPiersAndFrontStanchions') ||
-      first.children.some(child=>child.name==='rigid-material-batch'),
-      'original source geometry is present as Three.js meshes or batched steelwork');
+    // All original static meshes are correctly rigid-batched into the SAME
+    // retained source-earned frame (outside the emptied authoring group).
+    // Verify REAL shipped triangles by immutable mesh provenance, not stale
+    // pre-batch names or the existence of a decorative empty Group.
+    let authoredFirstFrameSteel=false;
+    world.group.getObjectByName('SourceEarnedVoidLandingBearingFrame').traverse(object=>{
+      for(const owner of object.geometry?.userData?.originalTriangleOwners??[])
+        if(owner.authoringPath?.includes('SourceEarnedFirstFrameFarSideVoidButtress') &&
+           owner.authoringPath?.includes('VoidOpenButtressRearPiersAndFrontStanchions'))
+          authoredFirstFrameSteel=true;
+    });
+    assert.ok(authoredFirstFrameSteel,
+      'the first-F9 GPU room includes actual far-side source-owned batched pylon triangles');
     assert.ok(world.group.getObjectByName('AuthoritativeGuardianGate')?.isGroup,
       'the same genuine HP-open old guardian doorway remains co-owned');
     assert.ok(world.group.getObjectByName('platform:f9:ground')?.isGroup,

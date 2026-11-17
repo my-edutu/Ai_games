@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-11-17",
+  "stage": "P0_EVIDENCE_AND_GAME_LOOP_TRUTH",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "inspectedHeadSha": "963a8325c7d79f14d4d8bec8b1d18f1f1eb6dd2b",
+  "productionSourceSha": "d596ada95be97dc75762b3a224dc5ccf6ef5c390",
+  "productionCommit": "https://github.com/my-edutu/Ai_games/commit/d596ada95be97dc75762b3a224dc5ccf6ef5c390",
+  "sameDraftPr": "https://github.com/my-edutu/Ai_games/pull/68",
+  "observedStartingEvidence": {
+    "captureWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/43985146666",
+    "candidateCapturedSha": "3e48f85bd3afcf8a3e7f28e1db48e1c184563a20",
+    "nativeDesktopHudToVioletSeconds": 1.25,
+    "nativePortraitHudToVioletSeconds": 1.75,
+    "sourceEventPairs": "0/2 strictly native source/video aligned",
+    "qualityWorkflowAtInspectedHead": "https://github.com/my-edutu/Ai_games/actions/runs/43989186739",
+    "qualityWorkflowStatus": "success; engineering veto only"
+  },
+  "change": {
+    "scope": "Real Three.js source-owned Floor9 architecture only; no simulation, collider, script, gateway or progress mutation",
+    "actual": "One far-side original Void buttress's existing rear steel, tension ties and lintels now join the first valid F8→F9 HP-open guardian gateway scene alongside the real retained bronze arch, source ground and first-frame open core. Only its original heavier footing/crown are deferred; all other original pylons remain deferred. Selection vetoes near-side pylons (<0.85rad lateral separation) and invalid authoring.",
+    "originalRoot": "SourceEarnedFirstFrameFarSideVoidButtress",
+    "provenance": "Original rigid-material-batch retains triangle owner authoring paths",
+    "initialGeometryProof": "source-triggered low-tier world test added; CI needed before asserting passed",
+    "limitation": "A present original 3D source mesh is not a verified native-video visible shared doorway; baseline/candidate look/feel/play not graded"
+  },
+  "tests": {
+    "qualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/43997413369",
+    "status": "IN_PROGRESS when recorded",
+    "realSourcePinnedCaptureAfterChange": "NOT EVALUATED; no new exact-source WebM recorded yet"
+  },
+  "independentReviews": {
+    "looks": 0,
+    "feels": 0,
+    "plays": 0
+  },
+  "hardware": "NOT EVALUATED",
+  "leadingVerdict": "NOT EVALUATED",
+  "biggestGap": "Normal-speed native desktop/portrait footage has not yet proved that the original opened bronze threshold and its genuinely walkable successor shaft share visible spatial continuity without covering the climber.",
+  "nextAction": "Obtain exact candidate-SHA normal-speed desktop 960x600 and portrait 390x844 footage for the same danger/guardian seed and 60+s; inspect actual source-event HUD/gateway/shaft timing and climber pixels. If the new structural far shoulder is unseen or renderer stutters worse, reopen P0 and eliminate cold shader/upload spikes rather than claiming this stage passed."
+}
