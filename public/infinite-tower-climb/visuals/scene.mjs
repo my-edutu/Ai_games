@@ -35,6 +35,7 @@ import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClear
 import { sourceSubmittedDoorwayCameraDt } from './source-submitted-doorway-cadence.mjs';
 import { createTowerVoidProgramPrewarm } from './void-program-prewarm.mjs';
 import { sourceOriginalGatewayCameraBridge, observedOriginalGatewaySubmittedView } from './original-gateway-submitted-camera-bridge.mjs';
+import { assessOriginalGatewayPhysicalCameraBridge } from './original-gateway-camera-ray-contract.mjs';
 import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, observedGroundedHandoffShot, observedAirborneHandoffShot, observedEarnedCrossfloorJointShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { sourceCriticalSightlinePriorities } from './critical-sightlines.mjs';
@@ -2488,6 +2489,7 @@ export function createTowerScene(canvas, settings = {}) {
   let successorDeckCameraLastGain=0, successorArchitectureBlockedRays=0;
   let originalGatewaySubmittedCamera=null;
   let originalGatewayCameraBridgeAccepted=0,originalGatewayCameraBridgeVetoed=0;
+  let originalGatewayCameraPhysicalVetoed=0,originalGatewayCameraPhysicalAccepted=0;
   const guardianOrbitPreviousCamera = new THREE.Vector3();
   const guardianOrbitPreviousFocus = new THREE.Vector3();
   const guardianOrbitHeroNdc = [0,0,0,0];
@@ -4755,6 +4757,20 @@ export function createTowerScene(canvas, settings = {}) {
         camera:options.camera,overview,stale:options.stale,
         reducedMotion:options.reducedMotion});
     if(originalBridge){
+      // Historical camera was actually submitted on F8; that does NOT
+      // prove its current F9 line of sight survives old bronze, a current
+      // raised support or the new Void arch. Measure the current world
+      // BEFORE adopting the archived lens and again AFTER its projection.
+      thresholdHero.copy(climber.group.position);
+      thresholdHero.y+=p.halfHeight/SCALE;
+      const originalPose=guardianTraversalGatePose(
+        coldArchProof.thresholdX,coldArchProof.oldRoofY,
+        snapshot.chunkBaseY,snapshot.worldWidth);
+      if(originalPose)thresholdGate.set(originalPose.x,originalPose.y+2,originalPose.z);
+      const bridgePhysicalBefore=originalPose
+        ?world.measureSuccessorDeckVisibility(
+          snapshot,camera.position,thresholdHero,p.halfHeight/SCALE,
+          thresholdGate,targetPlatform?.id??null):null;
       thresholdPreviousCamera.copy(camera.position);
       thresholdPreviousGaze.copy(lookAt);
       camera.position.lerp(
@@ -4762,12 +4778,6 @@ export function createTowerScene(canvas, settings = {}) {
       lookAt.lerp(
         thresholdBestGaze.set(...originalBridge.gaze),originalBridge.weight);
       camera.lookAt(lookAt); camera.updateMatrixWorld(true);
-      thresholdHero.copy(climber.group.position);
-      thresholdHero.y+=p.halfHeight/SCALE;
-      const originalPose=guardianTraversalGatePose(
-        coldArchProof.thresholdX,coldArchProof.oldRoofY,
-        snapshot.chunkBaseY,snapshot.worldWidth);
-      if(originalPose)thresholdGate.set(originalPose.x,originalPose.y+2,originalPose.z);
       const heroClip=actorSafeProjection.copy(thresholdHero).project(camera);
       const gateClip=originalPose
         ?scratch.copy(thresholdGate).project(camera):null;
@@ -4777,12 +4787,23 @@ export function createTowerScene(canvas, settings = {}) {
       const bridgeGateSafe=!!gateClip && Number.isFinite(gateClip.x) &&
         Math.abs(gateClip.x)<=.80 && Math.abs(gateClip.y)<=.80 &&
         gateClip.z>=-1 && gateClip.z<=1;
-      if(bridgeHeroSafe && bridgeGateSafe &&
-         towerCoreSightlineClear(camera.position,thresholdHero,23.5) &&
-         towerCoreSightlineClear(camera.position,thresholdGate,23.5)){
+      const bridgeProjectionAndCoreSafe=bridgeHeroSafe && bridgeGateSafe &&
+        towerCoreSightlineClear(camera.position,thresholdHero,23.5) &&
+        towerCoreSightlineClear(camera.position,thresholdGate,23.5);
+      const bridgePhysicalAfter=bridgeProjectionAndCoreSafe
+        ?world.measureSuccessorDeckVisibility(
+          snapshot,camera.position,thresholdHero,p.halfHeight/SCALE,
+          thresholdGate,targetPlatform?.id??null):null;
+      const bridgePhysical=assessOriginalGatewayPhysicalCameraBridge(
+        bridgePhysicalBefore,bridgePhysicalAfter);
+      if(bridgeProjectionAndCoreSafe && bridgePhysical.allowed){
         originalGatewayCameraBridgeAccepted++;
+        originalGatewayCameraPhysicalAccepted++;
       }else{
-        // Never privilege a historical doorway over a real visible player.
+        if(bridgeProjectionAndCoreSafe && !bridgePhysical.allowed)
+          originalGatewayCameraPhysicalVetoed++;
+        // Never privilege a historical doorway over a real visible player,
+        // or accept a fully cropped/bronze-obstructed body via NDC alone.
         camera.position.copy(thresholdPreviousCamera);
         lookAt.copy(thresholdPreviousGaze);
         camera.lookAt(lookAt);camera.updateMatrixWorld(true);
@@ -5778,7 +5799,9 @@ export function createTowerScene(canvas, settings = {}) {
           ? originalGatewaySubmittedCamera.originalGuardianHealth:null,
         acceptedFrames:originalGatewayCameraBridgeAccepted,
         vetoedFrames:originalGatewayCameraBridgeVetoed,
-        evidence:'Previously returned old-floor WebGL camera, used only after genuine source HP0; no raster or performance claims'
+        acceptedAfterSourceTriangleAudit:originalGatewayCameraPhysicalAccepted,
+        physicallyVetoedFrames:originalGatewayCameraPhysicalVetoed,
+        evidence:'Previously returned F8 WebGL camera + actual current F9 deck, original cap/gate and shaft triangle score: no native pixel, FPS or transformation claim'
       },
       actorSafeRefinements,
       successorDeckCamera: {probes:successorDeckCameraProbes,
