@@ -2883,8 +2883,13 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   // Preserve existing owner exclusivity: earlier real ankle/stance or
   // last-frame connected source pose must not be overwritten by a new
   // three-joint trial. Record *why* we skipped, never a fabricated plant.
+  // A fully source-skinned, same-frame loaded-ankle companion can share a
+  // DIFFERENT source thigh/calf/foot chain. The former blanket veto left an
+  // observed 89mm buried swing toe untouched in original 390px Walking_A.
+  // Keep the veto if the original source identity, shoe or stance receipt
+  // is not independently certified. A final post-pose recheck follows.
   coupledOwnerBlocker=sourceAnkleProof?'original-ankle-owns-frame':
-   loadedStanceProof?'loaded-stance-owns-frame':
+   loadedStanceProof&&!companion?'loaded-stance-owns-frame':
    previousLinkedCertified?'previous-source-linked-owns-frame':null;
   const sourceCoupledPriority=!coupledOwnerBlocker?
    planOriginalSourceCoupledFootStarter({
@@ -3134,7 +3139,17 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
    starter:connectedStarter,
    trials:[{upperRad:option.upperRad,lowerRad:option.lowerRad,
     footRad:option.footRad,after}]});
-  if(!final||final.oppositeShoePreserved!==true||
+  // An accepted original loaded ankle is another pose owner. Its two
+  // real skinned shoe points must STILL match its own same-GLB receipt
+  // after our three connected source joints have actually moved.
+  const finalCompanion=loadedStanceProof?qualifyOriginalSourceLoadedStanceCompanion({
+   stanceProof:loadedStanceProof,swingSide:side,
+   sourceInstanceId:actor.assetRoot.uuid,sourceClipName:'Walking_A',
+   sourceWeight:weight,floorTopY:-.02,
+   currentLoaded:after?.[opposite],currentSwing:after?.[side]
+  }):null;
+  if(!final||(loadedStanceProof&&!finalCompanion)||
+   final.oppositeShoePreserved!==true||
    final.contactLocked!==false||
    Math.abs(final.toeLiftMeters-option.toeLiftMeters)>.001||
    Math.abs(final.sourceHeelRiseMeters-option.sourceHeelRiseMeters)>.001||
@@ -3156,6 +3171,7 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
    sourceLowerBone:lower.bone.name,sourceFootBone:foot.bone.name,
    sourceFootTrack:kneeFootCoupled.track,
    finalIndependentSourceSkin:true,sourceProbeCount:trials.length,
+   sourceLoadedStanceCompanionVerified:Boolean(finalCompanion),
    before,after,originalSourceContactLocked:false};
   actor.sourceSwingLinkedCurrentFrameProofs[side]={
    ...receipt,sourceCoupledKneeFootProof:receipt,
