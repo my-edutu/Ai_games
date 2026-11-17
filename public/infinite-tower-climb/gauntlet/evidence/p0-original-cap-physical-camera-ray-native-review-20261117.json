@@ -11,7 +11,11 @@
     "baselineCandidateVideo": "8/8 scenario combinations (baseline+candidate x ascent,moving,danger,outcome) captured at both viewports; NOT passing matched video acceptance",
     "priorExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44019309800",
     "priorQualityResult": "9/10 jobs successful; shared phase6 job exit 124 after timeout in offscope suite, not a Tower gameplay acceptance",
-    "newExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44025065522 (in progress at report writing)"
+    "newExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44025065522 (in progress at report writing)",
+    "newCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44025247654 (9-job exact-source baseline/candidate 1x campaign started; film acceptance NOT YET EVALUATED)",
+    "newCaptureCandidateSourceSha": "39c35731b61492d23d0d78e07f61a2d6551cb1bc",
+    "currentCorrectedExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44025348261 (queued at report writing)",
+    "priorQualityRunAfterChange": "https://github.com/my-edutu/Ai_games/actions/runs/44025065522 (failed one outdated physical threshold source-regex assertion; corrected at ade01125)"
   },
   "observedMajorDefect": "Candidate original 1x desktop Floor9 drawn HUD at ~25.75s, sustained violet world ~27s (1.25s). Portrait HUD ~26s, sustained violet at ~27.5s (1.5s). In the 26.75s portrait original frame, huge source-original bronze cap rim fills foreground around the physically moved climber and opened doorway. The previous F9 ray rescue inspected successor decks, incoming bearings and actual old gate, but never the retained original cap roof and skirt. This is a real source-presented camera/world contradiction, NOT evidence of event synchronization.",
   "gameplayChange": "The real F8 source-cached platform mesh becomes a bounded ninth-sample ray obstruction in the existing exact-run F9 hero plus unlocked gate camera clearance search. Counts body and gate independently and blocks wrong previous cap, wrong run, stale source, nonphysical opacity; checks only actual authored triangle contacts. Source physics, guardian/collision, platform art, material opacity, full-body position and floor advancement unchanged. The final threshold director also cannot trade away original-cap hero/gateway visibility after the preceding clearance pass.",
@@ -44,8 +48,10 @@
     "p99": "NOT EVALUATED",
     "memory": "NOT EVALUATED"
   },
-  "nextHighestImpact": "Inspect exact immutable-source new paired 960x600 and 390x844 original normal-speed films, film source-alignment sidecars and retained original-cap ray counters. If the bronze/void seam or cap blocks the skinned body, optimize the genuine original cap/shaft and camera together, then recapture; never advance to P1 before P0 authentic film gate.",
+  "nextHighestImpact": "Inspect original normal-speed new candidate and frozen baseline 960x600 and 390x844 videos from run 44025247654, real event/film alignment and actual cap ray obstruction; verify exact-head phase3 quality after corrected assertion and p95/p99 before deciding next P0 system-level change. Do not claim new visibility success until film inspected.",
   "branch": "feat/tower-transformation-gauntlet-20261101",
   "pr": "#68 remains draft",
-  "note": "The new capture is requested by adding a fresh ledger entry, without changing baseline or any gameplay source in PR58."
+  "note": "The new capture is requested by adding a fresh ledger entry, without changing baseline or any gameplay source in PR58.",
+  "assertionCompatibilityCorrectionSha": "ade01125a59a6d45ab88fb2c382ec9eb1042a4cd",
+  "currentHeadAtEvidenceWrite": "ade01125a59a6d45ab88fb2c382ec9eb1042a4cd"
 }
