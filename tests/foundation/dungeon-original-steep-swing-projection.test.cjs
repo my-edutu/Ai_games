@@ -146,3 +146,38 @@ test('sparse 390px original hip-knee shoe pitch retains independent final source
  ])assert.equal(certify({...input,...bad}),null,
   'final licensed shoes, clip ownership and opposite sole must independently match');
 });
+
+
+// Authentic 17 November 2026 exact-source WebGL #44041479976,
+// 390px Vanguard Walking_A right swing shoe, tick 6 (original-sole patch
+// mobile evidence). Projection is ~59.5mm, not a synthetic 60mm foot.
+// The current 60mm cutoff suppresses outsole-world-pitch even though
+// the SAME skinned source heel and toe verify a non-degenerate 300mm drop.
+// This regression is eligibility ONLY; actual correction still needs the
+// downstream two-shoe re-skin and genuine before/after footage.
+test('RED: authentic 17 November source mobile micro-projection qualifies for original outsole-world pitch',async()=>{
+ const {planOriginalSourceWorldSolePitchAxis:plan}=await load();
+ const source={
+  heelXZ:[-3.665895134576252,-7.131502700894674],
+  toeXZ:[-3.722258800592407,-7.150651891426191],
+  heelY:.1920155532406111,toeY:-.10835566389042844,
+  floorTopY:-.02,sourceSoleVerified:true,sourceTrackVerified:true
+ };
+ const projection=Math.hypot(source.toeXZ[0]-source.heelXZ[0],
+  source.toeXZ[1]-source.heelXZ[1]);
+ assert.ok(projection>.059&&projection<.060,
+  'the genuine original source GLB toe-to-heel horizontal projection must match this regression');
+ const result=plan(source);
+ assert.equal(result?.source,'verified-original-skinned-world-outsole-axis',
+  'near-vertical real source shoe must reach downstream reversible source-skin trials');
+ assert.ok(Math.abs(result.projectionMeters-projection)<1e-8);
+ const dx=source.toeXZ[0]-source.heelXZ[0];
+ const dz=source.toeXZ[1]-source.heelXZ[1];
+ assert.ok(result.worldAxis[2]*dx-result.worldAxis[0]*dz>.059);
+ for(const corrupt of [
+  {sourceSoleVerified:false},{sourceTrackVerified:false},
+  {toeXZ:[source.heelXZ[0]-.035,source.heelXZ[1]]},
+  {heelY:.015},{toeY:-.015},{floorTopY:0}
+ ])assert.equal(plan({...source,...corrupt}),null,
+  'arbitrary short shoe or unverified source cannot pass original outsole gate');
+});
