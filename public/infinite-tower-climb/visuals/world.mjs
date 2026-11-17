@@ -11,7 +11,7 @@ import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePre
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, createSourceEarnedVoidDepartureMaterials, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections, isolateEarnedFirstFrameVoidMaterials } from './source-earned-bearing-run.mjs';
-import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold, observedSourceEarnedEarlyVoidShaftAperture } from './far-side-shaft-transition.mjs';
+import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold, observedSourceEarnedEarlyVoidShaftAperture, observedEarnedGalleryExitClearance } from './far-side-shaft-transition.mjs';
 
 
 /**
@@ -3219,6 +3219,10 @@ export function createTowerWorld(){
       originalGalleryRoot:gallery?.root ?? null,
       originalGalleryOcclusionWeights:Array(gallery?.root.children.length ?? 0).fill(1),
       originalGallerySourceOpacity:1,
+      // Only the genuinely passed, NON-COLLIDING historic gallery can
+      // become a background veil after real returned F9 submissions.
+      // It never shares the actual gate, old roof, moving deck or colliders.
+      galleryExitClearedAlpha:1,galleryExitClearedAtTick:null,
       originalDeckSurface:bronzeSurface,
       originalGatewayMaterialStages:[...originalGatewayMaterialMap.values()],
       originalGatewayOpacity:1,
@@ -3474,12 +3478,31 @@ export function createTowerWorld(){
     // otherwise retain the conservative old-first-frame fallback. The
     // previous 1.25-second gallery fade stayed >80% opaque when the source
     // corridor expired, then all original architecture vanished at once.
-    const originalPresence=returnedBronzeHold
+    let originalPresence=returnedBronzeHold
       ?returnedBronzeHold.galleryOpacity
       :(departing?.sourceBound===true || opticalLease || farSide)
         ?Math.min(.94,originalGatePresence*.94)
         :observedRetainedOriginalBronzeCover(
           held.submittedFrames,held.visibleSeconds);
+    // The original normal-speed portrait film still showed tall F8 gallery
+    // posts masking the live survivor and original doorway after the player
+    // had genuinely crossed onto F9. Keep the portal and shared collision
+    // roof while letting ONLY already-extracted, non-colliding old load bars
+    // recede on successful WebGL returns after HP0 and real boot/flight proof.
+    // A once-cleared same-run corridor never pops opaque again when the
+    // source camera follows a subsequent raised jump; another run retires
+    // the entire original owner through the existing lifecycle guard.
+    const galleryExitClearance=!options.stale
+      ?observedEarnedGalleryExitClearance(snapshot,held,
+        {reducedMotion:options.reducedMotion}):null;
+    if(galleryExitClearance?.sourceBound===true){
+      held.galleryExitClearedAlpha=Math.min(
+        held.galleryExitClearedAlpha??1,galleryExitClearance.maxOpacity);
+      if(held.galleryExitClearedAtTick==null)
+        held.galleryExitClearedAtTick=snapshot.tick;
+    }
+    if(Number.isFinite(held.galleryExitClearedAlpha))
+      originalPresence=Math.min(originalPresence,held.galleryExitClearedAlpha);
     held.originalGallerySourceOpacity=originalPresence;
     if (held.originalDeckSurface)
       held.originalDeckSurface.opacity=originalPresence;
