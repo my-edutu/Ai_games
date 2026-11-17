@@ -14484,12 +14484,12 @@ function marketStallPostPlacement(stall,sx,sz){
  if((sx!==-1&&sx!==1)||(sz!==-1&&sz!==1)||
   (stall.face!==-1&&stall.face!==1))throw Error('W408 invalid support side');
  const front=sz===stall.face;
- return {x:stall.x+sx*(front?1.43:1.23),
+ return {x:stall.x+sx*(front?1.82:1.42),
   z:stall.z+sz*.84,front,structural:true};
 }
 function marketStallSignPlacement(stall){
  if(stall.face!==1&&stall.face!==-1)throw Error('W408 invalid sign face');
- return {x:stall.x+(stall.x<0?-1:1)*1.08,
+ return {x:stall.x+(stall.x<0?-1:1)*1.62,
   z:stall.z+stall.face*1.03,realMarketTrade:stall.trade};
 }
 function marketStall(s,index){
@@ -14516,7 +14516,14 @@ function marketStall(s,index){
    const support=marketStallPostPlacement(s,sx,sz);
    box(support.x,y,support.z,.145,profile.postHeight,.145,timber);
   }
-  box(x,y+.84,z,w-.18,.12,d-.28,rgb(0x986f4d));
+  // W411: physical shallow trade trestle replaces the broad opaque chest.
+  // All real stock, ledger authority and the original merchant stay in place.
+  box(x,y+.87,z+face*.25,w-.18,.095,.82,rgb(0x986f4d));
+  for(const side of [-1,1]){
+   box(x+side*.98,y+.20,z+face*.24,.115,.66,.12,timber);
+   box(x+side*.98,y+.20,z+face*.52,.115,.78,.12,timber);
+   box(x+side*.98,y+.38,z+face*.38,.13,.095,.44,trim);
+  }
   box(x,y+.99,z+face*.54,w-.37,.11,.58,rgb(0xaa8059));
   box(x,y+.77,z+face*.68,w-.32,.13,.11,trim);
   box(x,y+.20,z-face*.67,w-.25,.13,.32,timber);
@@ -14576,7 +14583,7 @@ function marketStall(s,index){
   box(x,y+profile.peak-.09,z,.12,.14,d+.20,timber);
  });
  materialScope(tiled?MATERIAL.ROOF:MATERIAL.GENERAL,()=>{
-  const courses=tiled?7:6,edge=1.53,eave=y+profile.eave,peak=y+profile.peak;
+  const courses=tiled?7:6,edge=1.9,eave=y+profile.eave,peak=y+profile.peak;
   // W386: the TWO real linen merchants use a fully tensioned, sewn five-bay
   // canvas roof, rather than sharing the rigid tiled merchant architecture.
   // Exact four original shops, entrances, inventory, workers and paths remain.
@@ -14629,7 +14636,7 @@ function marketStall(s,index){
      for(let half=0;half<2;half++){
       const a=half*.5,b=(half+1)*.5;
       const at=(f,z0)=>{
-       const xx=x+side*1.53*(1-f),
+       const xx=x+side*1.9*(1-f),
         upper=settledRoofCourseHeight(x,near,far,index,f,z0,eave,peak,.012),
         sag=.21*Math.sin(Math.PI*(z0-near)/(far-near))*
          Math.pow(Math.max(.04,1-f),.72);
@@ -14642,7 +14649,7 @@ function marketStall(s,index){
      }
     }
     for(let tie=0;tie<3;tie++){
-     const zz=near+tie*(far-near)/2,xx=x+side*1.51,
+     const zz=near+tie*(far-near)/2,xx=x+side*1.88,
       ey=settledRoofCourseHeight(x,near,far,index,.014,zz,eave,peak,.012);
      limbSegment([xx,ey+.025,zz-.095],[xx,ey+.025,zz+.095],
       .013,cord,4);
@@ -25052,10 +25059,16 @@ function physicalStreetLevelStallVolumes(){
    profile=marketStallProfile(index);
   // Exact lower trading-table footprint and front counter as emitted by
   // marketStall(); these are real solid oak, not an open roof volume.
-  add('market-stall-counter',x,z,(2.85-.18)/2,(2.14-.28)/2,
-   y+.84,y+.96);
+  add('market-stall-counter',x,z+face*.25,(2.85-.18)/2,.82/2,
+   y+.87,y+.965);
   add('market-stall-counter',x,z+face*.54,(2.85-.37)/2,.58/2,
    y+.99,y+1.10);
+  // Conservatively retain ALL four real trestle legs in camera rays.
+  for(const side of [-1,1])for(const depth of [.24,.52]){
+   const front=depth===.52;
+   add('market-stall-trestle',x+side*.98,z+face*depth,.115/2,.12/2,
+    y+.20,y+(front?.98:.86));
+  }
   // Real broad rear wooden trade screen: this filled most of W309's
   // supposedly unobstructed 1024px workday camera.
   for(const slat of originalMarketOpenRearScreenPlan(stall))
@@ -25128,7 +25141,7 @@ function followCameraRoofs(){
    const base=terrain(stall.x,stall.z),profile=marketStallProfile(index);
    // Real taller roofs must block physical camera rays, unlike open,
    // genuine ground-floor courier/buyer movement under those same eaves.
-   roofs.push({x:stall.x,z:stall.z,rx:1.56,rz:1.18,
+   roofs.push({x:stall.x,z:stall.z,rx:1.93,rz:1.18,
     bottom:base+profile.eave-.46,top:base+profile.peak+.10,
     visualBottom:base+profile.eave-.46,kind:'market-stall'});
   }
@@ -26218,7 +26231,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const normalPitch=unloading?(actionCameraPitch??.29):marketBarter?.48:filmedLoadedCourier?.24:
   householdErrand?.28:householdContinuity?.28:journeyCamera?.34:
   working?(actionCameraPitch??(liveWorkday?(portraitLens?.27:.20):.24)):.76;
- const normalZoom=unloading?(actionCameraZoom??5.7):marketBarter?(portraitLens?3.6:4.3):
+ const normalZoom=unloading?(actionCameraZoom??5.7):marketBarter?(portraitLens?5.4:5.2):
   filmedLoadedCourier?(canvas.clientWidth<500?4.65:5.15):
   householdErrand?(canvas.clientWidth<500?4.25:5.05):
   householdContinuity?(canvas.clientWidth<500?4.25:5.05):journeyCamera?7.6:
@@ -26269,7 +26282,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const zooms=realFarmWork&&actionCameraZoom===null?
   (portraitLens?[3.15,3.8,4.6,5.5,6.35,7.3]:[3.8,4.4,5.0,5.9]):
   unloading?(portraitLens?[2.45,2.85,3.35,4.4,5.7]:[3.8,4.4,5.1,5.7,6.8]):
-  marketBarter?(portraitLens?[2.8,3.25,3.7,4.3,5.0,6.4]:[3.2,3.75,4.2,5.0,6.3,7.6]):
+  marketBarter?(portraitLens?[3.7,4.5,5.4,6.4,7.4]:[4.0,4.8,5.8,6.8,7.6]):
   filmedLoadedCourier?(portraitLens?[2.4,2.8,3.25,4.2,5.45,6.20]:[3.85,4.55,5.25,6.05,7.1]):
   householdErrand?(portraitLens?[3.25,3.7,4.25,4.9,5.65,6.5]:
     [3.7,4.25,4.85,5.55,6.3]):
@@ -26301,7 +26314,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   // G147: a front-facing worker occupying 10% of the screen still cannot
   // communicate their visible labor. Prefer actual human-scale coverage
   // across the full orbit (without accepting roof or hand occlusion).
-  const sizePenalty=(working&&realWork)||unloading||marketBarter||householdErrand||householdContinuity?
+  const sizePenalty=marketBarter?Math.max(0,(portraitLens?.235:.26)-shot.projectedWorkerHeightFraction)*2700:
+   ((working&&realWork)||unloading||householdErrand||householdContinuity)?
    Math.max(0,(portraitLens?.31:.29)-shot.projectedWorkerHeightFraction)*5200:0;
   // Do not choose a physically clear EMPTY road over the genuine
    // escrowed courier. Favor the actual projected actor and real cargo.

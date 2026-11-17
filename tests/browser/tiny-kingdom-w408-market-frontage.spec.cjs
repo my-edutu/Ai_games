@@ -21,7 +21,7 @@ test('W408 the original market has outward front posts and legible outboard sign
    assert.ok(Math.abs(front.x-stall.x)>Math.abs(back.x-stall.x)+.12);
    assert.equal(front.z,stall.z+stall.face*.84);
    assert.equal(back.z,stall.z-stall.face*.84);
-   assert.ok(Math.abs(front.x-stall.x)<1.53,'canopy supports remain beneath the actual eaves');
+   assert.ok(Math.abs(front.x-stall.x)<1.90,'canopy supports remain beneath the actual enlarged eaves');
   }
   const sign=ctx.marketStallSignPlacement(stall);
   assert.ok(Math.abs(sign.x-stall.x)>=.9,'sign is outboard of real buyer');
