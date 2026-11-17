@@ -854,7 +854,8 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
  const {score,...safe}=best;
  return Object.freeze({...safe,side,
   source:'measured-original-skinned-coupled-knee-foot',
-  sourceClip:'Walking_A',sourceJointCount:3,
+  sourceClip:'Walking_A',
+  sourceJointCount:safe.toeRad!==undefined&&safe.toeRad!==0?4:3,
   oppositeShoePreserved:true,contactLocked:false});
 }
 
