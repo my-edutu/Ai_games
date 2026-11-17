@@ -6,6 +6,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
+const { resolveTowerWorldFixtureImports } = require('../helpers/tower-world-fixture-imports.cjs');
 const root=path.resolve(__dirname,'../..');
 const temp=fs.mkdtempSync(path.join(os.tmpdir(),'tower-obstacle-stage-'));
 // Keep the shipping observer as an actual local ESM dependency for the copied world fixture.
@@ -23,7 +24,8 @@ const threeUrl=pathToFileURL(path.join(root,'node_modules/three/build/three.modu
 const coordUrl=pathToFileURL(path.join(root,'public/infinite-tower-climb/visuals/coordinates.mjs')).href;
 const surfaceUrl=pathToFileURL(path.join(root,'public/infinite-tower-climb/visuals/world-surface.mjs')).href;
 const file=path.join(temp,'world.mjs');
-fs.writeFileSync(file,fs.readFileSync(path.join(root,'public/infinite-tower-climb/visuals/world.mjs'),'utf8')
+fs.writeFileSync(file,resolveTowerWorldFixtureImports(
+  fs.readFileSync(path.join(root,'public/infinite-tower-climb/visuals/world.mjs'),'utf8')
   .replace("'/tower/vendor/three.module.js'",JSON.stringify(threeUrl))
   .replace("'./coordinates.mjs'",JSON.stringify(coordUrl))
   .replace("'./crossfloor-arrival.mjs'", JSON.stringify(pathToFileURL(path.join(path.resolve(__dirname, '../..'), 'public/infinite-tower-climb/visuals/crossfloor-arrival.mjs')).href))
@@ -35,7 +37,8 @@ fs.writeFileSync(file,fs.readFileSync(path.join(root,'public/infinite-tower-clim
   .replace("'./world-surface.mjs'",JSON.stringify(surfaceUrl))
   .replace("'./guardian-transmission-layout.mjs'", JSON.stringify(pathToFileURL(path.join(root, 'public/infinite-tower-climb/visuals/guardian-transmission-layout.mjs')).href))
   .replace("'./mesh-provenance.mjs'", JSON.stringify(pathToFileURL(path.join(root, 'public/infinite-tower-climb/visuals/mesh-provenance.mjs')).href))
-  .replace("'./far-side-shaft-transition.mjs'", JSON.stringify(pathToFileURL(path.join(root, 'public/infinite-tower-climb/visuals/far-side-shaft-transition.mjs')).href)));
+  .replace("'./far-side-shaft-transition.mjs'", JSON.stringify(pathToFileURL(path.join(root, 'public/infinite-tower-climb/visuals/far-side-shaft-transition.mjs')).href)),
+  {root, fixtureDir: temp}));
 const loaded=Promise.all([import(threeUrl),import(pathToFileURL(file).href)]);
 function snapshot({tick=100,runToken='runA',floor=3,active=true,deckX=160000,rider=false}={}){
   const base=floor*360000;
