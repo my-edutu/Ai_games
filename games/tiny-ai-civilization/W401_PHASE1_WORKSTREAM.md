@@ -1,5 +1,15 @@
 # Tiny Kingdom — W401 Phase-1 integrated workstream (17 November 2026)
 
+## W406 checkpoint — 17 November 2026 — Phase 1 evidence blocker, NOT an experience milestone
+
+- Scope: exclusively open DRAFT PR #64. Immutable G088 baseline `2f6deb43feb1a1557848d44def53a6109deb1ab1`; no merge or #43/#59/#62 integration.
+- Downloaded and visually compared original screenshots and moving footage from [matched-view but NOT matched-world G088/candidate bundle](https://github.com/my-edutu/Ai_games/actions/runs/44045094246/artifacts/14310814197). Candidate town has substantially more architecture and merchant frontage than baseline; active workers remain small or behind beams, and identical world-state checksums are NOT established (Day1 baseline `2da9a4a2`, candidate `5ff21b84`).
+- Inspected original exact-source 1024px cold-scene artifact [44045094361](https://github.com/my-edutu/Ai_games/actions/runs/44045094361/artifacts/14311891564): 130,888 triangles, 12 people, 14 homes, zero GL errors, SwiftShader wall cold 263.7ms (civic 109.6, landscape 60.3, homes 28.4, terrain 21.1, pack/upload 26.7, atlas 17.5). Hardware GPU p95/p99 absent.
+- Found genuine blocked runtime evidence [44045094407](https://github.com/my-edutu/Ai_games/actions/runs/44045094407): Playwright's web server cannot load `../dist/packages/replay/src/index.js` because W405 runner did not build (source test built only in its *different* runner). Also old [source snapshot 44045094236](https://github.com/my-edutu/Ai_games/actions/runs/44045094236) failed on an assertion that demanded unbraced GPU fallback while new real source correctly uses braces. [Repair 407504c](https://github.com/my-edutu/Ai_games/commit/407504c5c31f3b628a09d09c3f426a594dcf5649) fixes both evidence blockers, changes NO playable game geometry or authority.
+- New exact-head [W405](https://github.com/my-edutu/Ai_games/actions/runs/44052400047) and [source](https://github.com/my-edutu/Ai_games/actions/runs/44052399949) queued/pending when checked. **A LOOK/FEEL/PLAY NOT PROVEN; B commercial reference FAIL.**
+- Keep ONE Phase-1 slice: genuine farmer cutting → loaded courier → verified receiving market → occupied home meal, with Day-120 growth and 390px. Owners and acceptance gates remain as ranked below. Next substantial code pass: durable cold civic/landscape staging based on measured true frame costs plus visible crop/parcel/doorway and physical-camera work, not commit/test tally. Independent critics and representative physical GPU not available.
+
+
 ## Boundaries and source
 - Work ONLY on open draft PR [#64](https://github.com/my-edutu/Ai_games/pull/64), branch `feat/tiny-kingdom-post-main-gauntlet-20261031`. Never merge without separate explicit consent; never update main or integrate divergent #59/#62 or merged #43.
 - Immutable G088 source: `2f6deb43feb1a1557848d44def53a6109deb1ab1`; [real baseline capture](https://github.com/my-edutu/Ai_games/actions/runs/41301740489/artifacts/13081531738).
