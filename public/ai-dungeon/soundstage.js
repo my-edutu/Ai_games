@@ -195,11 +195,12 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
  function recordD04CombatPcmWorklet(seconds,tapBus,sampleRate){
   const maxFrames=Math.ceil(seconds*sampleRate);
   return new Promise(resolve=>{
-   let recorder=null,watchdog=null,settled=false;
+   let recorder=null,loadWatchdog=null,captureWatchdog=null,settled=false;
    const finish=(reason='complete',payload=null)=>{
     if(settled)return;
     settled=true;
-    if(watchdog!==null)clearTimeout(watchdog);
+    if(loadWatchdog!==null)clearTimeout(loadWatchdog);
+    if(captureWatchdog!==null)clearTimeout(captureWatchdog);
     if(recorder){
      recorder.port.onmessage=null;
      recorder.onprocessorerror=null;
@@ -251,14 +252,19 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
    // A suspended browser or stalled audio renderer must never retain a
    // permanently connected diagnostic node or block later sessions.
    pcmSession={finish};
-   watchdog=setTimeout(()=>finish('Audio-thread PCM capture timed out'),
-    Math.max(12000,Math.ceil(seconds*1000)+6000));
+   // Loading a worklet can wait behind software-WebGL main-thread stalls.
+   // Do not spend the actual PCM recording budget before the node exists.
+   // Each phase has its own finite deadline; neither changes the 400 ms
+   // authentic combat impact admission/sound deadline.
+   loadWatchdog=setTimeout(()=>finish('Audio-thread PCM module load timed out'),12000);
    Promise.resolve().then(async()=>{
     if(!pcmWorkletModuleLoad)
      pcmWorkletModuleLoad=ctx.audioWorklet.addModule('/dungeon/d04-combat-pcm-worklet.js');
     try{await pcmWorkletModuleLoad}
     catch(error){pcmWorkletModuleLoad=null;throw error}
     if(settled)return;
+    if(loadWatchdog!==null){clearTimeout(loadWatchdog);loadWatchdog=null}
+    if(ctx.state!=='running')return finish('AudioContext stopped before PCM capture');
     recorder=new globalThis.AudioWorkletNode(ctx,'d04-original-foley-pcm',{
      numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[1],
      processorOptions:{frames:maxFrames}});
@@ -272,6 +278,11 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
      else if(e.data?.type==='unavailable')finish(String(e.data.reason).slice(0,150));
     };
     tapBus.connect(recorder);recorder.connect(ctx.destination);
+    // Do not let a 12 s clock started before addModule() cut off a 5.5 s
+    // original-sample window when the browser's main thread is stalled.
+    // This is an evidence recorder watchdog ONLY, not late audio permission.
+    captureWatchdog=setTimeout(()=>finish('Audio-thread PCM capture timed out'),
+     Math.max(20000,Math.ceil(seconds*1000)+12000));
    }).catch(error=>finish('Audio-thread PCM unavailable: '+String(error).slice(0,160)));
   });
  }

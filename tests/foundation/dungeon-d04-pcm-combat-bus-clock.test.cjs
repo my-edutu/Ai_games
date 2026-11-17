@@ -184,3 +184,89 @@ test('D04 audio-thread PCM stays in the live silent output graph, delivers one b
   else globalThis.AudioWorkletNode=oldNode;
  }
 });
+
+
+test('D04 original PCM recording budget starts after module load and node connection, not before',async()=>{
+ const {createDungeonSoundstage}=await load();
+ const {ctx}=fakeContext(),nodes=[],timers=[];
+ const oldSet=globalThis.setTimeout,oldClear=globalThis.clearTimeout;
+ const oldNode=globalThis.AudioWorkletNode;
+ let completeModule;
+ ctx.audioWorklet={addModule:()=>new Promise(resolve=>{completeModule=resolve})};
+ globalThis.setTimeout=(callback,ms)=>{
+  const timer={callback,ms,cleared:false};timers.push(timer);return timer;
+ };
+ globalThis.clearTimeout=timer=>{if(timer)timer.cleared=true};
+ globalThis.AudioWorkletNode=class {
+  constructor(){this.links=[];this.port={onmessage:null,messages:[],
+   postMessage(value){this.messages.push(value)}};nodes.push(this)}
+  connect(target){this.links.push(target)}
+  disconnect(){this.links.length=0}
+ };
+ let stage=null;
+ try{
+  stage=createDungeonSoundstage(ctx,{suppressCombat:true});
+  assert.equal(stage.enable(),true);
+  const pending=stage.recordOriginalPcm(.5,{source:'d04-combat-fx'});
+  await Promise.resolve();await Promise.resolve();
+  assert.equal(timers.length,1,'only the loading-phase watchdog exists before module resolves');
+  assert.equal(timers[0].ms,12000);
+  assert.equal(nodes.length,0,'no node or PCM samples before browser module completes');
+  completeModule();
+  for(let i=0;i<12&&!nodes.length;i++)await Promise.resolve();
+  assert.equal(nodes.length,1);
+  assert.equal(timers.length,2,'the separate bounded recording watchdog starts after connection');
+  assert.equal(timers[0].cleared,true,'loading timer cannot kill a live recording');
+  assert.ok(timers[1].ms>=20000,'heavy original WebGL stalls allow delayed PCM message delivery');
+  assert.equal(timers[1].cleared,false);
+  const buffer=new Int16Array(24000).fill(2000).buffer;
+  nodes[0].port.onmessage({data:{type:'complete',buffer,frames:24000,
+   firstFrame:48000,blocks:188,invalidClocks:0,discontinuities:0}});
+  const result=await pending;
+  assert.equal(result.status,'RECORDED');
+  assert.equal(result.pcmClock.status,'CONTIGUOUS_CONTEXT_TIME_ONLY');
+  assert.equal(result.sampleSynchronized,false);
+  assert.equal(timers[1].cleared,true,'no orphan PCM timeout after success');
+  assert.deepEqual(nodes[0].port.messages,[{type:'stop'}]);
+ }finally{
+  stage?.dispose();
+  globalThis.setTimeout=oldSet;globalThis.clearTimeout=oldClear;
+  if(oldNode===undefined)delete globalThis.AudioWorkletNode;
+  else globalThis.AudioWorkletNode=oldNode;
+ }
+});
+
+test('D04 unresponsive audio-worklet module cannot connect late or leak a recording session',async()=>{
+ const {createDungeonSoundstage}=await load();
+ const {ctx}=fakeContext(),timers=[],nodes=[];
+ const oldSet=globalThis.setTimeout,oldClear=globalThis.clearTimeout;
+ const oldNode=globalThis.AudioWorkletNode;
+ let finishModule;
+ ctx.audioWorklet={addModule:()=>new Promise(resolve=>{finishModule=resolve})};
+ globalThis.setTimeout=(callback,ms)=>{
+  const timer={callback,ms,cleared:false};timers.push(timer);return timer;
+ };
+ globalThis.clearTimeout=timer=>{if(timer)timer.cleared=true};
+ globalThis.AudioWorkletNode=class {constructor(){nodes.push(this)}};
+ let stage=null;
+ try{
+  stage=createDungeonSoundstage(ctx,{suppressCombat:true});
+  assert.equal(stage.enable(),true);
+  const pending=stage.recordOriginalPcm(.5,{source:'d04-combat-fx'});
+  await Promise.resolve();await Promise.resolve();
+  assert.equal(timers.length,1);
+  timers[0].callback();
+  const result=await pending;
+  assert.equal(result.status,'UNAVAILABLE');
+  assert.equal(result.reason,'Audio-thread PCM module load timed out');
+  finishModule();
+  for(let i=0;i<12;i++)await Promise.resolve();
+  assert.equal(nodes.length,0,'a late-loaded module must not resurrect capture after expiry');
+  assert.equal(timers[0].cleared,true);
+ }finally{
+  stage?.dispose();
+  globalThis.setTimeout=oldSet;globalThis.clearTimeout=oldClear;
+  if(oldNode===undefined)delete globalThis.AudioWorkletNode;
+  else globalThis.AudioWorkletNode=oldNode;
+ }
+});
