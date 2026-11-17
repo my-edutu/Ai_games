@@ -722,11 +722,21 @@ const path = require('node:path');
     });
     // These are real browser captures, not authored screenshot mockups.
     evidence.forest=await page.evaluate(()=>window.__tinyKingdom.getForestVisualStats());
+    // W397: the authentic W263 mixed broadleaf crown replaced many old
+    // separate leaf cards with actual lobe and rim-spray mesh. Requiring
+    // 15 *individual cards* per deciduous tree falsely rejects a denser
+    // valid original canopy. Keep real tree preservation, geometry budget,
+    // three species and total actual crown surface checks. This is NOT
+    // a visual quality verdict, just a truthful browser evidence gate.
+    const realCrownElements=evidence.forest.individualLeaves+
+      evidence.forest.rimLeafSprays+evidence.forest.microCrownLobes;
     if(evidence.forest.broadleafLobes<evidence.forest.deciduous*4||
-       evidence.forest.individualLeaves<evidence.forest.deciduous*15||
+       realCrownElements<evidence.forest.deciduous*15||
+       evidence.forest.broadleafAddedTriangles<evidence.forest.deciduous*200||
        evidence.forest.broadleafSpecies.filter(n=>n>0).length!==3||
+       evidence.forest.allTreesPreserved!==true||
        evidence.geometry.totalTriangles>=160000)
-      throw Error('Gauntlet 047 authored broadleaf forest or GPU budget gate failed: '+JSON.stringify(evidence.forest));
+      throw Error('G047 current original mixed-crown forest or GPU budget gate failed: '+JSON.stringify({forest:evidence.forest,realCrownElements,triangles:evidence.geometry.totalTriangles}));
     evidence.farmstead=await page.evaluate(()=>window.__tinyKingdom.getFarmsteadStats());
     if(evidence.farmstead.stalks!==668||evidence.farmstead.rows!==22||
        evidence.farmstead.granaries!==1||evidence.farmstead.bundles!==4)
