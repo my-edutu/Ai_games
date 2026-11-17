@@ -13400,9 +13400,11 @@ const MARKET_ENTRY_ARCH=Object.freeze({
 function physicalMarketUprights(){
  const posts=[];
  for(const [index,stall] of MARKET_STALLS.entries())
-  for(const sx of [-1,1])for(const sz of [-1,1])
-   posts.push({x:stall.x+sx*1.23,z:stall.z+sz*.84,width:.145,
+  for(const sx of [-1,1])for(const sz of [-1,1]){
+   const support=marketStallPostPlacement(stall,sx,sz);
+   posts.push({...support,width:.145,
     height:marketStallProfile(index).postHeight,kind:'stall'});
+  }
  for(const side of [-1,1])posts.push({
   x:MARKET_ENTRY_ARCH.x+side*MARKET_ENTRY_ARCH.postOffset,
   z:MARKET_ENTRY_ARCH.z,width:MARKET_ENTRY_ARCH.postWidth,
@@ -14414,6 +14416,22 @@ function renderOpenRearTradeScreen(stall,timber,trim){
  marketQuarterStats.openRearScreenPanels+=rearSlats.length;
  marketQuarterStats.openRearScreenGaps+=2;
 }
+// W408: one shared physical timber layout for BOTH rendered shops and camera
+// obstruction. The outward-supported frontage leaves a continuous buyer
+// aisle under the same permanent roof, rather than posts beside the worker.
+// Every original shop, merchant, inventory and navigable destination stays.
+function marketStallPostPlacement(stall,sx,sz){
+ if((sx!==-1&&sx!==1)||(sz!==-1&&sz!==1)||
+  (stall.face!==-1&&stall.face!==1))throw Error('W408 invalid support side');
+ const front=sz===stall.face;
+ return {x:stall.x+sx*(front?1.43:1.23),
+  z:stall.z+sz*.84,front,structural:true};
+}
+function marketStallSignPlacement(stall){
+ if(stall.face!==1&&stall.face!==-1)throw Error('W408 invalid sign face');
+ return {x:stall.x+(stall.x<0?-1:1)*1.08,
+  z:stall.z+stall.face*1.03,realMarketTrade:stall.trade};
+}
 function marketStall(s,index){
  const x=s.x,z=s.z,y=terrain(x,z),w=2.85,d=2.14,face=s.face;
  const profile=marketStallProfile(index);
@@ -14426,12 +14444,18 @@ function marketStall(s,index){
   [0x65734f,0x8d9567,0x4b5943]
  ][index],tiled=index<2;
  materialScope(MATERIAL.STONE,()=>{
-  for(const sx of [-1,1])
-   box(x+sx*1.23,y-.05,z-face*.84,.30,.16,.28,rgb(0x8b8272));
+  // All four actual load-bearing supports now have stone feet, including
+  // the outward front pair; no foundation appears across the buyer aisle.
+  for(const sx of [-1,1])for(const sz of [-1,1]){
+   const support=marketStallPostPlacement(s,sx,sz);
+   box(support.x,y-.05,support.z,.30,.16,.28,rgb(0x8b8272));
+  }
  });
  materialScope(MATERIAL.WOOD,()=>{
-  for(const sx of [-1,1])for(const sz of [-1,1])
-   box(x+sx*1.23,y,z+sz*.84,.145,profile.postHeight,.145,timber);
+  for(const sx of [-1,1])for(const sz of [-1,1]){
+   const support=marketStallPostPlacement(s,sx,sz);
+   box(support.x,y,support.z,.145,profile.postHeight,.145,timber);
+  }
   box(x,y+.84,z,w-.18,.12,d-.28,rgb(0x986f4d));
   box(x,y+.99,z+face*.54,w-.37,.11,.58,rgb(0xaa8059));
   box(x,y+.77,z+face*.68,w-.32,.13,.11,trim);
@@ -14481,9 +14505,9 @@ function marketStall(s,index){
   for(const sx of [-1,1]){
    box(x+sx*1.04,y+.16,z-face*.80,.09,.74,.11,oak);
    for(const sz of [-1,1]){
-    const zz=z+sz*.84;
-    limbSegment([x+sx*1.22,y+1.32,zz],
-     [x+sx*.90,y+2.07,zz],.045,oak,4);
+    const support=marketStallPostPlacement(s,sx,sz);
+    limbSegment([support.x,y+1.32,support.z],
+     [x+sx*.90,y+2.07,support.z],.045,oak,4);
     marketQuarterStats.timberBraces++;
    }
   }
@@ -14571,16 +14595,18 @@ function marketStall(s,index){
  if(profile.structural)grainwardTradehouseEnvelope(s,index,profile);
  if(!profile.structural)grainwardArtisanShopEnvelope(s,index,profile);
   // Keep each original trade name and carved glyph in its original position.
- const boardZ=z+face*1.03,signY=y+1.78;
+ // Trade signs sit on the OUTER arcade edge; the genuine merchant's
+ // working face and parcel exchange can be seen from the public court.
+ const {x:signX,z:boardZ}=marketStallSignPlacement(s),signY=y+1.78;
  materialScope(MATERIAL.WOOD,()=>{
-  box(x,signY,boardZ,1.20,.38,.12,timber);
-  box(x,signY+.12,boardZ+face*.075,1.00,.045,.08,trim);
+  box(signX,signY,boardZ,1.20,.38,.12,timber);
+  box(signX,signY+.12,boardZ+face*.075,1.00,.045,.08,trim);
   for(const sx of [-1,1])
-   box(x+sx*.48,signY-.11,boardZ+face*.05,.075,.36,.08,trim);
-  box(x,signY-.025,boardZ+face*.095,.31,.23,.045,
+   box(signX+sx*.48,signY-.11,boardZ+face*.05,.075,.36,.08,trim);
+  box(signX,signY-.025,boardZ+face*.095,.31,.23,.045,
    rgb([0xc9ad75,0xb0b6ac,0xd6c29a,0x8ea781][index]));
   for(let mark=0;mark<3;mark++)
-   box(x+(mark-1)*.34,signY-.18,boardZ+face*.102,.095,.045,.052,trim);
+   box(signX+(mark-1)*.34,signY-.18,boardZ+face*.102,.095,.045,.052,trim);
  });
  marketQuarterStats.signboards++;marketQuarterStats.stalls++;
  marketQuarterStats.reworkedBooths++;
@@ -24999,8 +25025,10 @@ function physicalStreetLevelStallVolumes(){
      .035,Math.abs(z1-z0)/2,
      y+Math.max(1.12,profile.eave-1.12),y+profile.eave-.16);
   }
-  // Original carved oak sign, directly over the real merchant counter.
-  add('market-stall-sign',x,z+face*1.03,1.20/2,.12/2,
+  // The exact outboard carved oak sign matches real built vertices; never
+  // pretend a centreline sign vanished if it still occupies the image.
+  const sign=marketStallSignPlacement(stall);
+  add('market-stall-sign',sign.x,sign.z,1.20/2,.12/2,
    y+1.78,y+2.16);
  }
  return volumes;
@@ -26032,13 +26060,28 @@ function readableMarketBarterShot(shot,framing,portrait){
   framing.foregroundCitizenBlockers===0&&framing.cameraProximityWarnings===0&&
   shot.projectedWorkerHeightFraction>=(portrait?.16:.19);
 }
-let marketBarterLensBuilds=0,marketBarterClearShots=0;
+// A genuinely visible merchant amid real surrounding market architecture
+// can be preferred over an entirely obstructed rear shot. This distinct
+// PARTIAL verdict is never counted as an unobstructed/clear trade shot.
+function partiallyReadableMarketBarterShot(shot,framing,portrait){
+ if(!shot||!framing)return false;
+ return shot.eyeCollision?.clear===true&&shot.blockers===0&&
+  (shot.marketPostSightline?.centerCover??1)<.085&&
+  shot.foregroundSceneCover<.68&&shot.foregroundActorCoreCover<.20&&
+  shot.foregroundCargoCover<.22&&shot.vegetationFaceBlockers===0&&
+  framing.blockedBodyRays<=2&&framing.handBlockers<=1&&
+  framing.foregroundCitizenBlockers===0&&framing.cameraProximityWarnings===0&&
+  shot.projectedWorkerHeightFraction>=(portrait?.15:.19);
+}
+let marketBarterLensBuilds=0,marketBarterClearShots=0,
+ marketBarterPartialShots=0;
 function getMarketBarterWitnessAudit(){
  const citizen=people[selectedCitizen],active=genuineMarketBarterWitness(citizen),
   shot=active?lastFollowShot:null;
  return {source:'w407-original-real-bartering-citizen-physical-market-lens',
   active,realCitizen:active?citizen.name:null,actualActivity:active?citizen.activity:null,
   builds:marketBarterLensBuilds,readableCandidates:marketBarterClearShots,
+  partialCandidates:marketBarterPartialShots,
   lastView:shot?.marketBarterWitness?{
    mode:shot.workFacingMode,projectedHeight:shot.projectedWorkerHeightFraction,
    postCover:shot.marketPostSightline?.centerCover??null,
@@ -26081,7 +26124,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const waypoint=citizen.path?.length?citizen.path[0]:citizen.target;
  const walkingFace=waypoint?Math.atan2(waypoint[0]-citizen.x,waypoint[1]-citizen.z):preferredYaw;
  const facing=realWork?builderStageAngle(citizen):journeyCamera?walkingFace:
-  unloading?realWorkerFacing(citizen):marketBarter?preferredYaw:null;
+  unloading?realWorkerFacing(citizen):marketBarter?realWorkerFacing(citizen):null;
  // Work is physically forward and below eye level: centre on the real bench
  // and actor, not empty air a metre above the task. Ordinary Follow is intact.
  // Frame the REAL worker and receiving stall together, rather than the
@@ -26182,7 +26225,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  let possibilities=[];
  for(const p of pitches)for(const z of zooms)for(const [angleIndex,angle] of angles.entries()){
   const shot=candidate(angle,p,z);
-  const alignment=realWork||journeyCamera||unloading?Math.cos(angle-facing):0;
+  const alignment=realWork||journeyCamera||unloading||marketBarter?
+   Math.cos(angle-facing):0;
   const delta=Math.atan2(Math.sin(angle-preferredYaw),
    Math.cos(angle-preferredYaw));
   const oppositeYard=unloading&&Math.cos(angle)>-.25?250:0;
@@ -26256,7 +26300,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  possibilities.sort((a,b)=>a.coarse-b.coarse);
  let best=null,bestScore=Infinity,bestFraming=null;
  let marketBarterBest=null,marketBarterFraming=null,marketBarterScore=Infinity,
-  marketBarterReadable=0;
+  marketBarterReadable=0,marketBarterPartialBest=null,marketBarterPartialFraming=null,
+  marketBarterPartialScore=Infinity,marketBarterPartialCandidates=0;
  let routeBest=null,routeFraming=null,routeScore=Infinity,routeReadableCandidates=0;
  let receivingBest=null,receivingFraming=null,receivingScore=Infinity,
   readableReceivingCandidates=0;
@@ -26389,9 +26434,16 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   }
   if(marketBarter&&readableMarketBarterShot(shot,framing,portraitLens)){
     marketBarterReadable++;
-    const tradeScore=score-shot.projectedWorkerHeightFraction*200;
+    const tradeScore=score-alignment*140-shot.projectedWorkerHeightFraction*240;
     if(tradeScore<marketBarterScore){
      marketBarterScore=tradeScore;marketBarterBest=shot;marketBarterFraming=framing;
+    }
+   }else if(marketBarter&&partiallyReadableMarketBarterShot(shot,framing,portraitLens)){
+    marketBarterPartialCandidates++;
+    const partialScore=score-alignment*140-shot.projectedWorkerHeightFraction*240;
+    if(partialScore<marketBarterPartialScore){
+     marketBarterPartialScore=partialScore;
+     marketBarterPartialBest=shot;marketBarterPartialFraming=framing;
     }
    }
    if(score<bestScore){best=shot;bestScore=score;bestFraming=framing;}
@@ -26458,29 +26510,37 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
     readableFraming=framing;}
   }
  }
- if(marketBarter){marketBarterLensBuilds++;marketBarterClearShots=marketBarterReadable;}
- const chosen=receivingBest||routeBest||marketBarterBest||clearHomewardBest||frontBest||readableBest||
+ if(marketBarter){
+  marketBarterLensBuilds++;marketBarterClearShots=marketBarterReadable;
+  marketBarterPartialShots=marketBarterPartialCandidates;
+ }
+ const chosen=receivingBest||routeBest||marketBarterBest||marketBarterPartialBest||
+  clearHomewardBest||frontBest||readableBest||
   physicalGrainHandsBest||usableFrontBest||best,
-  framing=receivingBest?receivingFraming:routeBest?routeFraming:marketBarterBest?marketBarterFraming:clearHomewardBest?clearHomewardFraming:
+  framing=receivingBest?receivingFraming:routeBest?routeFraming:marketBarterBest?marketBarterFraming:
+   marketBarterPartialBest?marketBarterPartialFraming:clearHomewardBest?clearHomewardFraming:
    frontBest?frontFraming:readableBest?readableFraming:
    physicalGrainHandsBest?physicalGrainHandsFraming:
    usableFrontBest?usableFrontFraming:bestFraming;
  return {...chosen,...framing,
   courierRouteCamera:filmedLoadedCourier,
   routeHeading:filmedLoadedCourier?walkingFace:null,
-  compositionScore:receivingBest?receivingScore:routeBest?routeScore:marketBarterBest?marketBarterScore:clearHomewardBest?clearHomewardScore:frontBest?frontScore:
+  compositionScore:receivingBest?receivingScore:routeBest?routeScore:marketBarterBest?marketBarterScore:
+   marketBarterPartialBest?marketBarterPartialScore:clearHomewardBest?clearHomewardScore:frontBest?frontScore:
    readableBest?readableScore:physicalGrainHandsBest?physicalGrainHandsScore:
    usableFrontBest?usableFrontScore:bestScore,
   workFacingMode:receivingBest?'verified-worker-hand-and-parcel':
-   routeBest?'clear-physical-loaded-courier':marketBarterBest?'real-market-barter-clear-view':clearHomewardBest?'clear-homeward-path':
+   routeBest?'clear-physical-loaded-courier':marketBarterBest?'real-market-barter-clear-view':
+   marketBarterPartialBest?'market-barter-partial-visible':clearHomewardBest?'clear-homeward-path':
    frontBest?'clear-front':readableBest?'face-and-hands':
    physicalGrainHandsBest?'real-wheat-clear-cutting-hands':
    usableFrontBest?'visible-front':'obstructed',
   readableFrontCandidates,readableReceivingCandidates,routeReadableCandidates,
   marketBarterWitness:marketBarter,marketBarterReadableCandidates:marketBarterReadable,
+  marketBarterPartialCandidates,
   witnessedCargoContact:receivingBest?realMarketAim.contact:null,
   witnessedParcelIndex:receivingBest?realMarketAim.parcelIndex:null,
-  facingAlignment:realWork?Math.cos(chosen.yaw-facing):null,
+  facingAlignment:realWork||marketBarter?Math.cos(chosen.yaw-facing):null,
   walkingFacingAlignment:homecoming?Math.cos(chosen.yaw-facing):null,
   clearFrontCandidates,clearHomewardCandidates,workFacing:facing,portraitLens,
   physicalGrainHandsCandidates,
