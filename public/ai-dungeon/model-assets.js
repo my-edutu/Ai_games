@@ -3235,7 +3235,8 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
    sourceBindLowerMeters:bind.lowerLength,
    witnessedFrameIntervalSeconds:interval,
    witnessedRootTravelMeters:travel,
-   witnessedSourceWeight:weight
+   witnessedSourceWeight:weight,
+   witnessedRootTravelAgeSeconds:age
   };
   actor.sourceSwingLinkedAcceptedFrames=Math.min(1000000,
    (actor.sourceSwingLinkedAcceptedFrames||0)+1);
