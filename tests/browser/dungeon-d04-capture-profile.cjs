@@ -11,6 +11,16 @@ const SKIPPABLE=Object.freeze([
  'real-webgl-canvas-native-video-only',
  'synthetic-2d-canvas-encoder-control-not-gameplay'
 ]);
+// The diagnostic recorder's OUTER observer must not discard PCM while the
+// bounded soundstage 12s module-load or >=20s capture phase is still active.
+// Evidence-only: this NEVER authorizes any sound after the 400ms combat cutoff.
+const D04_PCM_EVIDENCE_SECONDS=5.5;
+function d04PcmEvidenceWatchdogMs(seconds){
+ if(!Number.isFinite(seconds)||seconds<.5||seconds>10)
+  throw new RangeError('Unbounded D04 PCM duration');
+ const moduleLoadMs=12000,captureMs=Math.max(20000,Math.ceil(seconds*1000)+12000);
+ return moduleLoadMs+captureMs+8000;
+}
 function createD04CaptureProfile(){
  return Object.freeze({
   id:'single-primary-authentic-av',
@@ -18,7 +28,9 @@ function createD04CaptureProfile(){
   concurrentIsolatedProbes:false,
   allowSerialDiagnostics:true,
   audioSource:'opted-in-original-soundstage',
-  sampleSynchronized:false
+  sampleSynchronized:false,
+  pcmCaptureSeconds:D04_PCM_EVIDENCE_SECONDS,
+  pcmReceiptTimeoutMs:d04PcmEvidenceWatchdogMs(D04_PCM_EVIDENCE_SECONDS)
  });
 }
 function skippedConcurrentD04Probe(source){
@@ -26,4 +38,4 @@ function skippedConcurrentD04Probe(source){
  return Object.freeze({source,status:'SKIPPED',reason:REASON,
   evidence:'NOT_CAPTURED_NOT_GAMEPLAY_NOT_AV_PROOF'});
 }
-module.exports={createD04CaptureProfile,skippedConcurrentD04Probe};
+module.exports={createD04CaptureProfile,skippedConcurrentD04Probe,d04PcmEvidenceWatchdogMs};

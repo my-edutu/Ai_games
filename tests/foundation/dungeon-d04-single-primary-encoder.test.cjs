@@ -3,7 +3,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const {createD04CaptureProfile,skippedConcurrentD04Probe}=
+const {createD04CaptureProfile,skippedConcurrentD04Probe,d04PcmEvidenceWatchdogMs}=
  require('../browser/dungeon-d04-capture-profile.cjs');
 
 test('opted-in live D04 browser recording starts exactly one genuine combined A/V encoder',()=>{
@@ -96,4 +96,26 @@ test('same-window original A/V gets the first serial evidence slot, before video
   'the original A/V game window must precede video-only and synthetic controls');
  assert.ok(s.includes("const primaryRecordersSettled=recorder.state==='inactive'&&activeRecorders.size===0;"),
   'serial media probes must still refuse to overlap any primary encoder');
+});
+
+test('original D04 FX PCM browser observer cannot preempt either bounded audio-thread phase',()=>{
+ assert.equal(d04PcmEvidenceWatchdogMs(.5),40000);
+ assert.equal(d04PcmEvidenceWatchdogMs(5.5),40000);
+ assert.equal(d04PcmEvidenceWatchdogMs(10),42000);
+ for(const invalid of [-1,0,NaN,Infinity,11,null,undefined])
+  assert.throws(()=>d04PcmEvidenceWatchdogMs(invalid),RangeError);
+ const profile=createD04CaptureProfile();
+ assert.equal(profile.pcmCaptureSeconds,5.5);
+ assert.equal(profile.pcmReceiptTimeoutMs,40000);
+ const capture=fs.readFileSync(path.resolve(__dirname,
+  '../browser/dungeon-physical-feedback-preview.spec.cjs'),'utf8');
+ assert.match(capture,/window\.__DUNGEON_RECORD_ORIGINAL_PCM__\?\.\(profile\.pcmCaptureSeconds\)/);
+ assert.match(capture,/pcmReceiptWatchdog=setTimeout\(\(\)=>resolve\(unavailable\('Live PCM processor timed out'\)\),profile\.pcmReceiptTimeoutMs\)/);
+ assert.ok(capture.match(/clearTimeout\(pcmReceiptWatchdog\)/g)?.length>=2,
+  'successful and rejected results must both cancel the observer timer');
+ assert.doesNotMatch(capture,/Live PCM processor timed out'\)\),17000\)/);
+ const soundstage=fs.readFileSync(path.resolve(__dirname,
+  '../../public/ai-dungeon/soundstage.js'),'utf8');
+ assert.match(soundstage,/Audio-thread PCM module load timed out'\),12000\)/);
+ assert.match(soundstage,/Math\.max\(20000,Math\.ceil\(seconds\*1000\)\+12000\)/);
 });

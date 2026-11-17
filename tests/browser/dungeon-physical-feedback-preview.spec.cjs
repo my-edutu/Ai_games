@@ -503,16 +503,21 @@ async function beginD04LiveAVCapture(page,captureProfile){
   const nativeVideoProbe=Promise.resolve(disabledProbes.nativeVideoOnly);
   const control2dProbe=Promise.resolve(disabledProbes.control2dOnly);
   pumpActive=true;pumpHandle=requestAnimationFrame(sampleRealSubmittedFrame);
+  let pcmReceiptWatchdog=null;
   const livePcm=Promise.race([
-   Promise.resolve().then(()=>window.__DUNGEON_RECORD_ORIGINAL_PCM__?.(5.5)??unavailable('Live PCM tap missing')),
-   new Promise(resolve=>setTimeout(()=>resolve(unavailable('Live PCM processor timed out')),17000))
+   Promise.resolve().then(()=>window.__DUNGEON_RECORD_ORIGINAL_PCM__?.(profile.pcmCaptureSeconds)??unavailable('Live PCM tap missing')),
+   new Promise(resolve=>{pcmReceiptWatchdog=setTimeout(()=>resolve(unavailable('Live PCM processor timed out')),profile.pcmReceiptTimeoutMs)})
   ]).then(pcm=>{
+   clearTimeout(pcmReceiptWatchdog);
    if(!pcm)return unavailable('Live PCM gave no result');
    const {wav,...meta}=pcm;
    if(wav?.length>44&&wav.length<=2*1024*1024)
     meta.wavBase64=toBase64(wav);
    return meta;
-  }).catch(e=>unavailable('Live PCM capture error: '+String(e)));
+  }).catch(e=>{
+   clearTimeout(pcmReceiptWatchdog);
+   return unavailable('Live PCM capture error: '+String(e));
+  });
   setTimeout(()=>{try{if(recorder.state!=='inactive')recorder.stop()}catch{}},5500);
   window.__D04_REAL_AV_CAPTURE__=Promise.all([clipDone,livePcm,videoProbe,audioProbe,nativeVideoProbe,control2dProbe])
    .then(async ([clip,pcm,videoOnly,audioOnly,nativeVideoOnly,control2dOnly])=>{
