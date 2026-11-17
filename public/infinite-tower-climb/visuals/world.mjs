@@ -1034,30 +1034,41 @@ export function createTowerWorld(){
   const corridorDepths = [0, 0, 0, 0], corridorGuardians = [false, false, false, false];
   function geometry(name,build){if(!primitives.has(name))primitives.set(name,build());return primitives.get(name);}
   const box=()=>geometry('box',()=>new THREE.BoxGeometry(1,1,1));
-  const sphere=()=>geometry('sphere',()=>new THREE.SphereGeometry(1,10,7));
+  const sphere=()=>geometry(`sphere:${quality}`,()=>new THREE.SphereGeometry(1,quality==='low'?8:10,quality==='low'?5:7));
   const cone=()=>geometry('cone',()=>new THREE.ConeGeometry(1,1,6));
-  const cylinder=()=>geometry('cylinder',()=>new THREE.CylinderGeometry(1,1,1,12));
+  const cylinder=()=>geometry(`cylinder:${quality}`,()=>new THREE.CylinderGeometry(1,1,1,quality==='low'?8:12));
   const leaf=()=>geometry('leaf',()=>{
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute([-.5,0,0,0,-.5,0,.5,0,0,0,.5,0,0,0,.18,0,0,-.06],3));
     g.setIndex([0,1,4,1,2,4,2,3,4,3,0,4,1,0,5,2,1,5,3,2,5,0,3,5]);g.computeVertexNormals();return g;
   });
+  // P0 native danger-film bottleneck: original low-tier 390x844 and 960x600
+  // WebM showed ~120–180k submitted triangles, 100+ material draws and
+  // p95 renderer-return intervals >400ms. Those slow returned frames sever
+  // the real bronze-door / Floor9 architectural continuity in motion.
+  // Keep HIGH/NORMAL source-authored topology intact. On LOW only, reduce
+  // subdivisions of non-authoritative curved/extruded ART, not gameplay
+  // physics, silhouettes, collision-aligned platform endpoints, gates,
+  // guardian/obstacle transforms, moving deck position or skinned hero.
+  // Per-quality primitive keys prevent stale low geometry leaking into high
+  // tier after quality toggling or another expedition. No quality claim is
+  // implied until matched 1x native film and real hardware frame-times pass.
   const bevel=()=>geometry('bevel',()=>{
     const s=new THREE.Shape();s.moveTo(-.44,-.5);s.lineTo(.44,-.5);s.lineTo(.5,-.44);s.lineTo(.5,.44);s.lineTo(.44,.5);s.lineTo(-.44,.5);s.lineTo(-.5,.44);s.lineTo(-.5,-.44);s.closePath();
     const g=new THREE.ExtrudeGeometry(s,{depth:.9,steps:1,bevelEnabled:true,bevelSegments:1,bevelSize:.05,bevelThickness:.05});g.translate(0,0,-.45);return g;
   });
-  const rounded=()=>geometry('rounded-casting',()=>{
+  const rounded=()=>geometry(`rounded-casting:${quality}`,()=>{
     const s=new THREE.Shape(),r=.17;
     s.moveTo(-.5+r,-.5);s.lineTo(.5-r,-.5);s.quadraticCurveTo(.5,-.5,.5,-.5+r);
     s.lineTo(.5,.5-r);s.quadraticCurveTo(.5,.5,.5-r,.5);s.lineTo(-.5+r,.5);
     s.quadraticCurveTo(-.5,.5,-.5,.5-r);s.lineTo(-.5,-.5+r);s.quadraticCurveTo(-.5,-.5,-.5+r,-.5);
-    const g=new THREE.ExtrudeGeometry(s,{depth:.76,bevelEnabled:true,bevelSize:.08,bevelThickness:.12,bevelSegments:3,steps:1,curveSegments:4});g.translate(0,0,-.38);return g;
+    const g=new THREE.ExtrudeGeometry(s,{depth:.76,bevelEnabled:true,bevelSize:.08,bevelThickness:.12,bevelSegments:quality==='low'?1:3,steps:1,curveSegments:quality==='low'?3:4});g.translate(0,0,-.38);return g;
   });
-  const corbel=()=>geometry('open-cantilever',()=>{
+  const corbel=()=>geometry(`open-cantilever:${quality}`,()=>{
     // A cast, open web supporting the rear of a route deck. The opening is real.
     const s=new THREE.Shape();s.moveTo(-2.15,.48);s.lineTo(1.8,.48);s.lineTo(1.8,.04);
     s.quadraticCurveTo(.45,-.1,-.2,-1.75);s.quadraticCurveTo(-.55,-2.8,-1.65,-3.05);s.lineTo(-2.15,-3.05);s.closePath();
     const h=new THREE.Path();h.moveTo(-1.65,-.18);h.lineTo(.45,-.18);h.quadraticCurveTo(-.5,-.6,-.75,-1.8);h.quadraticCurveTo(-.95,-2.2,-1.65,-2.35);h.closePath();s.holes.push(h);
-    const g=new THREE.ExtrudeGeometry(s,{depth:.34,bevelEnabled:true,bevelSegments:2,bevelSize:.08,bevelThickness:.08,steps:1,curveSegments:8});g.translate(0,0,-.17);g.rotateY(-Math.PI/2);return g;
+    const g=new THREE.ExtrudeGeometry(s,{depth:.34,bevelEnabled:true,bevelSegments:quality==='low'?1:2,bevelSize:.08,bevelThickness:.08,steps:1,curveSegments:quality==='low'?5:8});g.translate(0,0,-.17);g.rotateY(-Math.PI/2);return g;
   });
   function chipped(variant=0){return geometry(`chipped:${variant}`,()=>{
     const s=new THREE.Shape(),points=[[-.5,-.39],[-.39,-.5],[.12,-.47],[.23,-.43],[.48,-.46],[.47,-.11],[.42,.03],[.5,.33],[.31,.5],[-.16,.47],[-.45,.5],[-.49,.17],[-.45,-.05]];
@@ -1084,23 +1095,23 @@ export function createTowerWorld(){
   function block(parent,m,pos,scale,rotation=null){return mesh(parent,bevel(),m,pos,scale,rotation);}
   function casting(parent,m,pos,scale,rotation=null){return mesh(parent,rounded(),m,pos,scale,rotation);}
   function lathe(parent,profile,m,pos=[0,0,0],rotation=null,segments=40){
-    return mesh(parent,own(new THREE.LatheGeometry(profile.map(([r,y])=>new THREE.Vector2(r,y)),segments)),m,pos,[1,1,1],rotation);
+    return mesh(parent,own(new THREE.LatheGeometry(profile.map(([r,y])=>new THREE.Vector2(r,y)),quality==='low'?Math.min(segments,20):segments)),m,pos,[1,1,1],rotation);
   }
   function pipe(parent,points,r,m){
     const curve=new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(...p)),false,'centripetal');
-    return mesh(parent,own(new THREE.TubeGeometry(curve,Math.max(12,points.length*7),r,8,false)),m);
+    return mesh(parent,own(new THREE.TubeGeometry(curve,quality==='low'?Math.max(10,points.length*5):Math.max(12,points.length*7),r,quality==='low'?6:8,false)),m);
   }
   function radial(o,a,r,y){o.position.set(Math.sin(a)*r,y,Math.cos(a)*r);o.rotation.y=a;return o;}
   function beam(parent,a,b,r,m){tempA.set(...a);tempB.set(...b);const d=tempB.clone().sub(tempA);const o=mesh(parent,cylinder(),m,tempA.clone().add(tempB).multiplyScalar(.5).toArray(),[r,d.length(),r]);o.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());return o;}
   // A curved, solid annular ledge. Exact angular edges preserve the simulation's x extents.
   function sector(inner,outer,angle,height){
-    const steps=Math.max(3,Math.ceil(angle*20)),vertices=[],indices=[];
+    const steps=Math.max(3,Math.ceil(angle*(quality==='low'?14:20))),vertices=[],indices=[];
     for(let i=0;i<=steps;i++){const a=-angle/2+angle*i/steps;for(const y of [0,height])for(const r of [inner,outer])vertices.push(Math.sin(a)*r,y,Math.cos(a)*r);}
     for(let i=0;i<steps;i++){const a=i*4,b=(i+1)*4;for(const [p,q,r,s]of [[a+2,a+3,b+3,b+2],[a,b,b+1,a+1],[a+1,b+1,b+3,a+3],[a,a+2,b+2,b]])indices.push(p,q,r,p,r,s);}
     const end=steps*4;indices.push(0,1,3,0,3,2,end,end+2,end+3,end,end+3,end+1);
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));g.setIndex(indices);g.computeVertexNormals();return own(g);
   }
-  function ring(parent,r,tube,m,y,arc=TAU){const g=own(new THREE.TorusGeometry(r,tube,6,Math.max(20,Math.ceil(arc*16)),arc));const o=mesh(parent,g,m,[0,y,0]);o.rotation.x=Math.PI/2;return o;}
+  function ring(parent,r,tube,m,y,arc=TAU){const g=own(new THREE.TorusGeometry(r,tube,quality==='low'?4:6,quality==='low'?Math.max(14,Math.ceil(arc*11)):Math.max(20,Math.ceil(arc*16)),arc));const o=mesh(parent,g,m,[0,y,0]);o.rotation.x=Math.PI/2;return o;}
   function instanced(parent,g,m,items){const o=new THREE.InstancedMesh(g,m,items.length);items.forEach((s,i)=>{dummy.position.set(...s.p);dummy.rotation.set(...(s.r||[0,0,0]));dummy.scale.set(...(s.s||[1,1,1]));dummy.updateMatrix();o.setMatrixAt(i,dummy.matrix);if(s.c!==undefined)o.setColorAt(i,tint.set(s.c));});o.castShadow=true;o.receiveShadow=true;parent.add(o);return o;}
   function at(a,r,y,s,c){return{p:[Math.sin(a)*r,y,Math.cos(a)*r],r:[0,a,0],s,c};}
   function batchRigid(root,excluded=new Set()){

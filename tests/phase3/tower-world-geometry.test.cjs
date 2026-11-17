@@ -408,3 +408,32 @@ test('source-attributed clockwork guardian gallery opens real upper-air gaps whi
       'clockwork gallery must retire on floor nine');
   } finally{world.dispose();}
 });
+
+test('real low-tier 3D clockwork keeps the authentic world but sends fewer curved/extruded triangles to the renderer', async () => {
+  const [, { createTowerWorld }] = await loaded;
+  const authentic = fixture('clockwork',8,true,true);
+  const sourceBefore = JSON.stringify(authentic);
+  const count = tier => {
+    const world = createTowerWorld();
+    let triangles=0,owners=0;
+    try {
+      world.update(authentic,.016,0,{quality:tier});
+      world.group.traverse(object=>{
+        if(!object.isMesh)return;
+        const g=object.geometry;
+        assert.ok(g?.attributes?.position,'real visual geometry must remain');
+        const faces=(g.index?.count??g.attributes.position.count)/3;
+        triangles += faces*(object.isInstancedMesh?object.count:1);
+        owners++;
+      });
+      assert.ok(owners>0,'the real source floor must still have Three.js geometry');
+      assert.ok(triangles>0);
+      return {triangles,owners};
+    } finally {world.dispose();}
+  };
+  const normal=count('normal'),low=count('low');
+  assert.ok(low.triangles<normal.triangles,
+    'low-tier must actually reduce submitted source-world triangles, not merely advertise LOD: '+JSON.stringify({normal,low}));
+  assert.equal(JSON.stringify(authentic),sourceBefore,
+    'visual tessellation must not mutate a moving deck, source contact, hazard or guardian');
+});
