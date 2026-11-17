@@ -4,7 +4,7 @@ import { PUBLIC_GUARDIAN_COUNTER_SECONDS, publicGuardianCounterMoment, publicGua
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilRevealElevation, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilRevealElevation, publicGuardianMotionPortraitPairShift, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicEarnedGuardianCounterLightPath } from './public-lantern-encounter.mjs';
@@ -1641,11 +1641,27 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // radius, camera panning (not extra zoom) is the safe complete-body
       // correction. Zooming would invalidate the measured projected bounds
       // just before the strict 320px no-crop verification.
+      const originalPairLens=halfHeight;
       if(!earnedGuardianFrame && physicalPairHeight<halfHeight-.02){
         halfHeight=physicalPairHeight;
         camera.left=-halfHeight*aspect;camera.right=halfHeight*aspect;
         camera.top=halfHeight;camera.bottom=-halfHeight;
         camera.updateProjectionMatrix();
+      }
+      // The exact-HEAD motion portrait physically clips broad new foreclaw
+      // at -0.96558 NDC, though the full combined Pip/Thornback pair fits.
+      // Translate ONLY the existing verified, unchanged-lens public camera.
+      // Never reuse projected rectangles after optical zoom or compete
+      // with earned recoil, manual views, pressure, HUD or reduced motion.
+      const motionPairShift=publicGuardianMotionPortraitPairShift(
+        aspect,halfHeight,realBodies,
+        !earnedGuardianFrame && physicalPairHeight>=originalPairLens-.02,
+        settings.reducedMotion);
+      if(motionPairShift) {
+        camera.updateMatrixWorld();
+        pressureReframeRight.setFromMatrixColumn(camera.matrixWorld,0);
+        camera.position.addScaledVector(pressureReframeRight,motionPairShift);
+        camera.updateMatrixWorld();
       }
       // Pass398 real autonomous seed 13: earned public lantern recoil moves
       // Thornback 91 -> 74. The original 390px WebGL shows its FULL carapace
