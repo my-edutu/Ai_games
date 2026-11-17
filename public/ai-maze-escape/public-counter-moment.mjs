@@ -40,3 +40,18 @@ export function publicGuardianCounterHeld(moment, snapshot, visualTime) {
     && snapshot.threats.some(t=>t?.id===moment.id
       && t.cell===moment.cell && t.lanternParried===true);
 }
+
+/**
+ * A physical hit, Follow-camera two-body lens and rooted stage share the
+ * exact finite witnessed counter interval with the HUD. A counter is NEVER
+ * a permanent focus flag: if the published guardian leaves the witnessed
+ * retreat cell, the encounter is over even before the animation clock ends.
+ * The caller also requires a current public visible cell and a running game.
+ */
+export function publicGuardianCounterStageActive(since, witnessedCell, liveCell, parried, visualTime) {
+  const age=visualTime-since;
+  return parried===true && Number.isFinite(since) && Number.isFinite(visualTime)
+    && Number.isSafeInteger(witnessedCell) && witnessedCell>=0
+    && liveCell===witnessedCell && age>=0
+    && age<PUBLIC_GUARDIAN_COUNTER_SECONDS;
+}

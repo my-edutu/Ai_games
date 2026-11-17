@@ -2968,3 +2968,10 @@ The exact same actual `maze-visual-reference-13` public exit frame selected for 
 
 - **REAL source blocker:** exact-HEAD [Pass441 Maze run 44022782832](https://github.com/my-edutu/Ai_games/actions/runs/44022782832) FAILED. The new valid `public-counter-moment.mjs` import was missing from the locked-down server's `PUBLIC_ASSETS` route allowlist, so the browser had no public snapshot, no true WebGL scene, and no six-reset/visual evidence. Chromium WebGL smoke passed, but the full stage could not boot; a failed timeout is not a resource-budget measurement.
 - **Production candidate:** add ONLY this module to the served routes and guard `--self-test` against any subsequent unserved first-party module imports. Do not weaken AI privacy, tests, strict resource budget, camera or mobile limits. Exact-commit CI and authentic new four-viewport images PENDING. [Dated root-cause review](./maze-3d/pass-442-restore-public-module-route-2026-11-17.md). **Nintendo benchmark UNMET; PR #53 stays draft, no merge/deploy.**
+
+
+## Pass451 — release guardian director at real public counter end (2026-11-17 UTC)
+
+- Pass450 exact-HEAD native WebGL 44079319832 SUCCESS (original artifact 14327825126); original mobile parry communicates real landed counter but scene remains crowded and fails fixed Nintendo bar.
+- Production defect: the scene's earned guardian camera/scenery previously keyed off a permanent public `lanternParried` flag; after the two-second on-screen physical/HUD outcome, Follow could stay locked on an old guardian rather than the current autonomous objective. Source candidate unifies genuine consecutive public counter witness, recorded retreat cell, and one exact clock expiry across 3D actor/physical stage and Follow director. Same public map/collision/AI and strict safety thresholds remain.
+- NEW source-bound focused unit and full native WebGL gates PENDING; no claimed new rendered success. Workspace critic/Ultracode NOT_FOUND. [Dated review](./maze-3d/pass-451-release-earned-guardian-director-after-physical-counter-2026-11-17.md). Nintendo parity NOT MET; draft #53 unmerged/undeployed, existing hourly loop active.

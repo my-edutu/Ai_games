@@ -1,6 +1,6 @@
 import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
-import { PUBLIC_GUARDIAN_COUNTER_SECONDS } from './public-counter-moment.mjs';
+import { PUBLIC_GUARDIAN_COUNTER_SECONDS, publicGuardianCounterMoment, publicGuardianCounterStageActive } from './public-counter-moment.mjs';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
@@ -322,7 +322,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     } else scene.add(model.group);
     return {model, contact, cell:threat.cell, cells:[threat.cell],
       progress:0, heading:0, encounterStart:null, encounterBeat:0,
-      lanternParried:false, counterSince:null};
+      lanternParried:false, counterSince:null, counterCell:null};
   };
 
   let settings = { ...initialSettings };
@@ -468,6 +468,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // same-run lantern counter; a newly seen already-parried enemy is not
     // a fresh hit. This clock never alters authoritative simulation rules.
     const previousWardenSnapshot = previous;
+    const witnessedCounterMoment=publicGuardianCounterMoment(previousWardenSnapshot,snapshot);
     previous = snapshot;
     world.update(snapshot);
     parryScenicRoots.length=0;
@@ -524,15 +525,16 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // Only a CURRENTLY witnessed false->true counter on the same
       // tracked disclosed enemy may animate a physically earned recoil.
       // A first-seen/parried, old-run, hidden or guessed guardian never can.
-      const earlier = previousWardenSnapshot?.runToken === snapshot.runToken
-        ? previousWardenSnapshot.threats?.find(t=>t.id===threat.id) : null;
-      const earned = previouslyTracked && entry.lanternParried!==true
-        && threat.lanternParried===true && earlier?.lanternParried!==true
-        && Number.isSafeInteger(earlier?.cell)
-        && previousWardenSnapshot.visibleCells?.includes(earlier.cell)
-        && snapshot.visibleCells?.includes(threat.cell);
-      if(earned)entry.counterSince=gateVisualTime;
-      else if(threat.lanternParried!==true)entry.counterSince=null;
+      // The same consecutive public testimony used by the HUD is the ONLY
+      // permitted start of physical recoil, camera focus and stage animation.
+      // Skipped ticks, first-seen parries and hidden guardians cannot earn it.
+      const earned=previouslyTracked && entry.lanternParried!==true
+        && witnessedCounterMoment?.id===threat.id
+        && witnessedCounterMoment.cell===threat.cell;
+      if(earned){entry.counterSince=gateVisualTime;entry.counterCell=threat.cell;}
+      else if(threat.lanternParried!==true){
+        entry.counterSince=null;entry.counterCell=null;
+      }
       entry.cell = threat.cell;
       entry.lanternParried = threat.lanternParried === true;
     }
@@ -595,9 +597,16 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // This real enemy has already been disclosed by the sanitized public
       // stream. A visibly parried recoil remains a legitimate two-body scene
       // even after distance-based warning strength drops below camera focus.
-      if (!result && entry.lanternParried === true
-        && Array.isArray(s.visibleCells) && s.visibleCells.includes(entry.cell)
-        && separation < earnedCounterDistance) {
+      // A landed lantern counter is a two-second ACTION, not a permanent
+      // camera lock on a once-parried patrol. The follow camera must return
+      // to actual autonomous travel, new threats and discovered objectives.
+      // Require the same presently visible post-counter cell as the HUD.
+      const activeEarnedCounter=!result
+        && publicGuardianCounterStageActive(
+          entry.counterSince,entry.counterCell,entry.cell,
+          entry.lanternParried,gateVisualTime)
+        && Array.isArray(s.visibleCells) && s.visibleCells.includes(entry.cell);
+      if (activeEarnedCounter && separation < earnedCounterDistance) {
         earnedCounterModel = entry.model.group;
         earnedCounterDistance = separation;
         earnedCounterActor = {
@@ -652,11 +661,11 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       const lanternParried=!result && entry.lanternParried;
       // One contiguous physical compress -> recoiling shell -> recovery
       // performance on this EXISTING 3D actor and its actual public patrol root.
-      const counterPhase=lanternParried && entry.counterSince!==null
+      const counterPhase=activeEarnedCounter
         ?clamp((gateVisualTime-entry.counterSince)/PUBLIC_GUARDIAN_COUNTER_SECONDS,0,1):null;
       const counterPlant=counterPhase===null?0
         :Math.max(0,1-Math.abs(counterPhase-.20)/.20);
-      const actorAttention=lanternParried?Math.max(.75,attentionStrength):attentionStrength;
+      const actorAttention=activeEarnedCounter?Math.max(.75,attentionStrength):attentionStrength;
       // The existing, physically grounded contact shadow responds to the
       // actual armored body planting its feet. Its x/z/y always follow the
       // disclosed model; no extra mesh, billboard or GPU material is spawned.
