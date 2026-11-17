@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "leadingTransformationVerdict": "NOT EVALUATED",
+  "branch": "feat/tower-transformation-gauntlet-20261101",
+  "pr": 68,
+  "prDraft": true,
+  "basePr": 58,
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "inspectedProductionSourceSha": "d0ca8ff7ee7eae0b733412c87c4b1696d4535d20",
+  "exactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44150641186 — SUCCESS all ten jobs on inspected source",
+  "lastSourcePinnedCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44150641272 — FAILURE strict pairing although all 8 film/ledge jobs completed",
+  "candidateDangerArchive": "https://github.com/my-edutu/Ai_games/actions/runs/44150641272/artifacts/14359705630",
+  "baselineDangerArchive": "https://github.com/my-edutu/Ai_games/actions/runs/44150641272/artifacts/14358742044",
+  "inspectedOriginalVideo": {
+    "candidateDesktop": {
+      "sourceSha": "d0ca8ff7ee7eae0b733412c87c4b1696d4535d20",
+      "viewport": "960x600",
+      "durationSeconds": 71.6,
+      "guardianCrossingSourceTick": 475,
+      "hudFloor9Seconds": 25.75,
+      "sustainedVoidSeconds": 27.25,
+      "hudToVoidSeconds": 1.5,
+      "renderAcceptToFirstReturnMs": 523
+    },
+    "candidatePortrait": {
+      "sourceSha": "d0ca8ff7ee7eae0b733412c87c4b1696d4535d20",
+      "viewport": "390x844",
+      "durationSeconds": 74.16,
+      "guardianCrossingSourceTick": 475,
+      "hudFloor9Seconds": 26.5,
+      "sustainedVoidSeconds": 28.25,
+      "hudToVoidSeconds": 1.75,
+      "renderAcceptToFirstReturnMs": 455
+    },
+    "sourceToNativeEventPairing": "FAILED; original monochrome/Void phase and drawn HUD alone never establish authentic real world pixel continuity",
+    "note": "Normal-speed original full motion inspected, sidecars source authentic. These delays are within-video observations, NOT event-matched baseline/candidate causal comparisons."
+  },
+  "verifiedSourceRayPrimaryBlocker": {
+    "viewport": "portrait 390x844",
+    "sourceTick": 479,
+    "sourceFloor": 9,
+    "cameraWorld": [
+      11.62,
+      4.14,
+      44.28
+    ],
+    "originalOpenedGatewaySourceExitX": 304896,
+    "targetCentreWorld": [
+      7.107,
+      0.4,
+      23.185
+    ],
+    "targetLipWorld": [
+      7.107,
+      1.6,
+      23.185
+    ],
+    "hitOwner": "ORIGINAL retained AuthoritativeGuardianGate > GuardianGateInset rigid material batch (not inner stone sill)",
+    "actualCentreHit": [
+      8.02,
+      1.15,
+      27.44
+    ],
+    "actualLipHit": [
+      8.02,
+      2.11,
+      27.44
+    ],
+    "opaqueMaterial": true,
+    "followUpTick492": "Original gateway two probe rays unobstructed, though real retracted bronze leaf covers shoulder at opacity .22",
+    "limitation": "Original post ray hit is current-world Three ray evidence, not source-to-video per-pixel or synchronized native video proof."
+  },
+  "productionChange": "Recess ONLY the original non-colliding outer radial GuardianGateInset pier from local z=-.42m to -3.3m along the gate's existing tangent/transmission axis, retain original inner pier and upper crowned beam, and connect outer pier physically via a rigid overhead shoulder tie. No source collision, boss or gate authorization changes. Exact authored old-ray reproduction and candidate OBB clearance checked in focused pure geometry contract.",
+  "newNativeFilmAfterChange": "NOT EVALUATED: source-pinned candidate video and original 25fps frames must be captured for this NEW source SHA before any visual gain can be claimed.",
+  "independentCritics": {
+    "LOOKS": "0/5",
+    "FEELS": "0/5",
+    "PLAYS": "0/5"
+  },
+  "actualHardwareFrameTime": "NOT EVALUATED",
+  "actualHardwareMemory": "NOT EVALUATED",
+  "largestRemainingDefect": "Even after latest inner sill change, original portal masonry outboard pier physically blocks original opened gateway in first source-earned Floor9 portrait shot, plus delayed/coarsely switching bronze/Void world and incomplete event-matched video proof.",
+  "nextHighestImpactAction": "Run exact-immutable new source 9-job captures and inspect original source tick475+ (first F9), actual camera ray owners, full-body hero, old open gate, genuine walkable roof and first raised Void deck in consecutive normal-speed desktop and portrait frames. If exterior post clears but cold 3D scene still cuts, fix first-frame shaft upload/physical destination, not cosmetic HUD or static opacity.",
+  "preserveFrozenBaseline": true,
+  "merge": false,
+  "deploy": false,
+  "forcePush": false,
+  "pr58Modified": false,
+  "prDraftPreserved": true
+}

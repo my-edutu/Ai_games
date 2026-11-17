@@ -3,6 +3,7 @@ import { SCALE, ARC, angleFor, pointFor, guardianGateAnchorX, guardianTraversalG
 import { observedSourceEarnedAirborneHandoff, observedSourceEarnedDoorstepHandoff, observedRecordedGuardianDoorstepHandoff } from './guardian-passage.mjs';
 import { createStoneSurfaceAsset, applyStoneSurface } from './world-surface.mjs';
 import { observedSceneHierarchy } from './scene-hierarchy.mjs';
+import { originalGuardianGatewayClearSightlineFrame } from './guardian-clear-sightline-frame.mjs';
 import { originalMeshPath } from './mesh-provenance.mjs';
 import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs';
 import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedPrebuiltVoidShaftRelease, observedQueuedOriginalCapAtFirstRender, reconcileRecordedOriginalCapCrossing,
@@ -2501,11 +2502,26 @@ export function createTowerWorld(){
       // source-earned 8m adult-body corridor and raise their CONNECTED crown.
       // Original HP-locked grille, energized seal, guardian, cap collider,
       // genuine winch, original geometry ownership and exit X are unchanged.
-      for(const side of [-1,1]){
-        block(doorway,materials.dark,[side*4.15,2.58,-.42],[.34,5.16,.42]);
-        block(doorway,materials.edge,[side*4.15,5.30,-.38],[.43,.20,.5]);
+      // Native source F9 portrait tick479 still saw the ORIGINAL exterior
+      // gate's radial near-side pier in front of the open doorway, even after
+      // the independent inner stone sill was cleared. Move only the non-
+      // colliding OUTER load pier along its transmission return, maintaining
+      // a physically connected upper shoulder into the same crowned portal.
+      // Neither source gate plane, lock, decks nor traversal change.
+      const gatewayFrame=originalGuardianGatewayClearSightlineFrame();
+      for(const pier of gatewayFrame.piers){
+        block(doorway,materials.dark,[pier.x,2.58,pier.z],[.34,5.16,.42]);
+        block(doorway,materials.edge,[pier.x,5.30,pier.z+.04],[.43,.20,.5]);
       }
-      block(doorway,materials.dark,[0,5.34,-.44],[8.65,.22,.46]);
+      const upperOuterTie=gatewayFrame.upperOuterTie;
+      block(doorway,materials.dark,
+        [upperOuterTie.x,upperOuterTie.y,upperOuterTie.z],
+        [upperOuterTie.width,upperOuterTie.height,upperOuterTie.depth]
+      ).name='GuardianExteriorPierUpperShoulderTie';
+      const upperCrown=gatewayFrame.crown;
+      block(doorway,materials.dark,
+        [upperCrown.x,upperCrown.y,upperCrown.z],
+        [upperCrown.width,upperCrown.height,upperCrown.depth]);
       // The opened full-height bronze leaves need an actual high storage
       // volume rather than remaining at helmet height after a wide slide.
       // Each original leaf is raised by its source-earned counterweight drive
