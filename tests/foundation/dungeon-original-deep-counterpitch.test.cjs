@@ -232,3 +232,61 @@ test('RED-first: native 390px deeply buried 33ms, mildly heel-dominant source fo
  assert.equal(starterFn(notDeepEnough),null,
   'actual source starter readback must match the exact source shoe, never a stale correction');
 });
+
+
+// The exact original 390px WebGL source-rig evidence #44068192870
+// has a 16.8ms Walking_A frame with a 95.066mm buried swinging toe,
+// 186.086mm raised heel, and measured starter toe/heel lifts of
+// +11.8598mm / +27.1983mm. Source outsole XZ span was 104.285mm.
+// Coordinates below use a LOCAL test origin, not a recorded world XZ point.
+// Hypothetical followup results are fixtures, NOT genuine WebGL output.
+test('RED: rapid genuine 95mm source burial schedules two safer connected outsole trials',async()=>{
+ const {planOriginalSourceCoupledFootStarter:starterFn,
+  planOriginalSourceCoupledKneeFootFollowups:followups,
+  chooseOriginalSourceCoupledKneeFootSweep:choose}=await load();
+ const right={heelY:.16608585877369186,toeY:-.1150664451108418,
+  heelXZ:[0,0],toeXZ:[.10428536966300812,0]};
+ const left={heelY:-.03992912154381906,toeY:-.005724964955428763,
+  heelXZ:[1,0],toeXZ:[1.27,0]};
+ const after=(lift,rise)=>({
+  right:{...right,toeY:right.toeY+lift,heelY:right.heelY+rise},
+  left:{...left}});
+ const realStarter=[
+  {upperRad:.09,lowerRad:-.075,
+   after:after(-.006017757600225368,-.028955580006220394)},
+  {upperRad:-.09,lowerRad:.075,
+   after:after(.011859776143756079,.027198325120458278)}
+ ];
+ const frame={...owner,side:'right',frameInterval:.016800000000001702,
+  frameAge:.0168,rootTravel:.019291663189028085,
+  before:{right,left},sourceInstanceId:'source-vanguard-clone',
+  starterTrials:realStarter};
+ const starter=starterFn(frame);
+ assert.equal(starter?.sign,-1);
+ assert.ok(Math.abs(starter.excessHeelRiseMeters-.015338548976702199)<1e-10);
+ const expected=[{upperRad:-.11,lowerRad:.11,footRad:.30},
+  {upperRad:-.11,lowerRad:.11,footRad:.36}];
+ assert.deepEqual(followups({...frame,starter}),expected,
+  'reserve the same two existing native skin reads for a bounded three-joint correction');
+ const fixture=choose({...frame,starter,trials:[
+  {...expected[1],after:after(.025,.008)}
+ ]});
+ assert.equal(fixture?.source,'measured-original-skinned-coupled-knee-foot');
+ assert.equal(fixture.contactLocked,false);
+ assert.ok(fixture.afterToeY<frame.floorTopY-.06,
+  'a still-buried synthetic toe must never be described as planted');
+ for(const bad of [
+  {sourceFootTrackVerified:false},{sourceBindVerified:false},
+  {sourceAnatomicalFootAxisVerified:false},{sourceInstanceId:''},
+  {interrupted:true},{teleport:true},{reducedMotion:true},
+  {sourceClipName:'Idle'},{sourceWeight:.8},{rootTravel:0},
+  {frameInterval:.2501},{frameAge:.25}
+ ]){
+  assert.equal(followups({...frame,starter,...bad}),null);
+  assert.equal(choose({...frame,starter,...bad,
+   trials:[{...expected[1],after:after(.025,.008)}]}),null);
+ }
+ assert.equal(choose({...frame,starter,trials:[
+  {...expected[1],after:after(.025,.035)}
+ ]}),null,'excess original airborne heel rise remains unacceptable');
+});
