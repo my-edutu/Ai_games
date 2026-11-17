@@ -639,8 +639,13 @@ test('RED: bounded 100ms source Walking_A with heel-dominant swing samples a con
   source:'same-original-GLB-skin-toes-hinge',sourceClipName:'Walking_A',
   sourceWeight:1,frameInterval:.1001
  }),null,'100ms connected candidates must not bypass the separately audited original toe-track gate');
+ for(const interval of [.051,.121])
+  assert.deepEqual(followups({...slow,frameInterval:interval,starter}),[
+   {upperRad:-.11,lowerRad:.11,footRad:.18},
+   {upperRad:-.11,lowerRad:.11,footRad:.24}
+  ],'outside measured moderate window preserve legacy safe two-probe plan');
  for(const patch of [
-  {frameInterval:.051},{frameInterval:.121},{frameInterval:.241},
+  {frameInterval:.241},
   {rootTravel:0},{frameAge:.16},{sourceWeight:.94},
   {sourceClipName:'Idle'},{teleport:true},{reducedMotion:true},
   {interrupted:true},{sourceInstanceSame:false},
