@@ -34,6 +34,21 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   const box=await ribbon.evaluate(el=>({left:el.getBoundingClientRect().left,
     right:el.getBoundingClientRect().right,height:el.getBoundingClientRect().height}));
   expect(box.left).toBeGreaterThanOrEqual(-1);expect(box.right).toBeLessThanOrEqual(viewport.width+1);
+  // W404: the actual 390px open-ledger capture had its interactive close
+  // control BELOW the real supply panel, so a trusted click never landed.
+  // Compare real boxes rather than hiding the regression with force:true.
+  const geometry=await page.evaluate(()=>{
+    const button=document.getElementById('film-ledger').getBoundingClientRect();
+    const panel=document.getElementById('world-ribbon').getBoundingClientRect();
+    const overlap=Math.max(0,Math.min(button.right,panel.right)-Math.max(button.left,panel.left))*
+      Math.max(0,Math.min(button.bottom,panel.bottom)-Math.max(button.top,panel.top));
+    return {buttonBottom:button.bottom,panelTop:panel.top,panelHeight:panel.height,overlap};
+  });
+  expect(geometry.overlap,'The genuine ledger button must stay reachable').toBe(0);
+  if(viewport.width<=520){
+    expect(geometry.panelTop-geometry.buttonBottom).toBeGreaterThanOrEqual(8);
+    expect(geometry.panelHeight).toBeLessThanOrEqual(185);
+  }
   const content=await page.locator('#world-supply-trail').innerText();
   expect(content.length).toBeGreaterThan(15);
   fs.mkdirSync('artifacts/tiny-kingdom-w403',{recursive:true});
@@ -48,7 +63,7 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(errors).toEqual([]);
   await page.screenshot({path:'artifacts/tiny-kingdom-w403/'+viewport.width+'-real-worker-unobstructed.png'});
   fs.writeFileSync('artifacts/tiny-kingdom-w403/'+viewport.width+'-evidence.json',
-   JSON.stringify({viewport,film:first.film,worker:first.worker,hit,expanded:box,
+   JSON.stringify({viewport,film:first.film,worker:first.worker,hit,expanded:box,geometry,
      currentFilm:end.film,triangles:end.triangles,nativeGpuFps:'NOT MEASURED',
      comparison:'NOT PROVEN'},null,2));
  });
