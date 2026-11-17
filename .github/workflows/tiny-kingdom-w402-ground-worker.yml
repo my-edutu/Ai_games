@@ -5,6 +5,7 @@ on:
     paths:
       - 'public/tiny-kingdom/index.html'
       - 'tests/browser/tiny-kingdom-w402-ground-worker.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w402-ground-worker-live.spec.cjs'
       - '.github/workflows/tiny-kingdom-w402-ground-worker.yml'
       - 'games/tiny-ai-civilization/W402_PHASE1_WORKSTREAM.md'
       - 'public/tiny-kingdom/progress.html'
@@ -48,12 +49,13 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - run: npm run build
       - run: npx playwright install chromium
-      - run: npx playwright test tests/browser/tiny-kingdom-w54-world-first-workday.spec.cjs --workers=1 --reporter=line
+      - run: npx playwright test tests/browser/tiny-kingdom-w402-ground-worker-live.spec.cjs tests/browser/tiny-kingdom-w54-world-first-workday.spec.cjs --workers=1 --reporter=line
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: tiny-kingdom-w402-ground-worker-workday
           path: |
             artifacts/tiny-kingdom-w54/
+            artifacts/tiny-kingdom-w402/
             test-results/
           retention-days: 14
