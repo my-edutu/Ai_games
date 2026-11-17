@@ -1,0 +1,48 @@
+{
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "leadingTransformationVerdict": "NOT EVALUATED",
+  "pr68Draft": true,
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "lastFullyCapturedCandidateSha": "5418fd0c7408f0776b10855c3638b359119a6abf",
+  "lastCapturedNativeRun": "https://github.com/my-edutu/Ai_games/actions/runs/44033036646",
+  "exactPriorHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44033036582 — SUCCESS (10/10), not experience acceptance",
+  "trueSourceMedia": "https://github.com/my-edutu/Ai_games/actions/runs/44033036646/artifacts/14305824075",
+  "nativeInspectedAt": "2026-11-17",
+  "originalFootage": {
+    "conditions": "1x unedited 25fps WebM, seed tower-transformation-capture-v1, low tier",
+    "desktop": {
+      "viewport": "960x600",
+      "drawnFloorNineHudSeconds": 25.75,
+      "sustainedVoidSceneSeconds": 27.25,
+      "hudToSceneDelaySeconds": 1.5,
+      "actualSourceOwnedReturnedDoorwayFrames": 1
+    },
+    "portrait": {
+      "viewport": "390x844",
+      "drawnFloorNineHudSeconds": 25.75,
+      "sustainedVoidSceneSeconds": 27.5,
+      "hudToSceneDelaySeconds": 1.75,
+      "actualSourceOwnedReturnedDoorwayFrames": 1
+    },
+    "sourceEventAndNativeVideoMatched": "FAIL 0/2 viewports",
+    "notes": "Reviewed original unmodified full-motion videos and exact-source render/native PTS sidecars. Distinct foreground bronze lattice and delayed cool-scene reveal persist. Raw pixels are NOT proof of event synchronization; no verified two consecutive co-visible original open gate, full climber and genuine walkable F9."
+  },
+  "inferredSystemicBottleneck": "Single successful first F9 original doorway submission; existing synchronous post-first-return buildTower(original shaft and Void details) combines cold CPU geometry construction, material isolation and rigid batching before the next returned GPU frame. Exact old CPU-world metrics are runner-only, not hardware FPS.",
+  "meaningfullyImplemented": "Source-authentic, low-tier, real F8->F9 post-first-return architecture is now divided into two GPU-return-owned construction stages: build original structural load-bearing shaft (hidden), allow one real WebGL return, then build original Void biome details into SAME hidden owner, batch static geometry while preserving animated crystal rotors, isolate original materials and allow only source-earned shaft release. All real ground/route platforms/hazards/guardian/crossing/restart, five other themes and normal/high full build remain unchanged.",
+  "sourceCodeCommit": "1b4f88afd9bdec25469d599629337406b88730dc",
+  "sourceOwnershipCorrections": [
+    "217c5cd9d716a6c8c0a2ccafdffceb29f9b638c5",
+    "2baa4459e43ba4d4399fcf20dd0bdeaa3ec431fd"
+  ],
+  "reviewedSourceHeadBeforeEvidence": "28125531aeadb794581a740723a9741f77ed0514",
+  "sourcePinnedEvidenceRequest": "NOT EVALUATED — create exact new request at this evidence commit chain; need new 9-job source-pinned capture for this code before comparing experience",
+  "exactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44041633392 — pending at evidence creation; cannot claim pass",
+  "independentCritics": {
+    "LOOKS": "0/5",
+    "FEELS": "0/5",
+    "PLAYS": "0/5"
+  },
+  "physicalDeviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
+  "nextHighestImpactAction": "Check exact-head quality and new immutable-SHA 9-job source-pinned 60+s videos in both viewports, inspect native event-aligned frames near guardian HP0/grounded gateway/F9/10/restart. Compare first-return world/staggered structure CPU staging, source PTS and actual chromatic bridge. If old gate+hero+F9 still not co-visible for two continuous authentic frames, remain P0; investigate cold GPU/provenance before P1.",
+  "constraints": "Do not touch frozen baseline, PR58, unrelated games, merge, deploy, force-push, change draft, or assert acceptance without independent critics and real device gates."
+}
