@@ -1,0 +1,58 @@
+name: Tiny Kingdom W405 Real Followed Travel GPU Skin
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'tests/browser/tiny-kingdom-w405-observed-travel-skin.spec.cjs'
+      - '.github/workflows/tiny-kingdom-w405-observed-travel.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w405-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  observed-travel-source:
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feat/tiny-kingdom-post-main-gauntlet-20261031' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: node --test tests/browser/tiny-kingdom-w405-observed-travel-skin.spec.cjs
+      - run: npm run build
+  running-workday-desktop-mobile:
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feat/tiny-kingdom-post-main-gauntlet-20261031' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Real WebGL worker follow and 390px uncut evidence
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          CI: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w405-observed-travel-runtime.spec.cjs --workers=1 --reporter=line
+      - name: Preserve exact source-pinned gameplay frames and joints
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w405-live-followed-travel
+          path: artifacts/tiny-kingdom-w405/
+          if-no-files-found: warn
+          retention-days: 14
