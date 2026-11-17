@@ -308,3 +308,56 @@ test('RED: actual 17 Nov source loaded-stance proof cannot block a certified opp
  assert.match(coupled,/loadedStanceProof&&!finalCompanion/,
   'reject new three-joint correction if the accepted opposite loaded ankle no longer matches its own receipt');
 });
+
+ 
+// 17 Nov 2026 run #44034337621, genuine 390px original KayKit swordsman
+// Walking_A right shoe. The ORIGINAL skin toe is 73.428mm inside stone while
+// the airborne heel is 206.949mm above it; source anatomical heel/toe
+// horizontal projection is 105.66mm (near-vertical pitch).
+// These are measured source vertex positions, NOT hypothetical after poses.
+test('RED: source-skinned world-space outsole gives a reproducible positive toe-raising pitch axis',async()=>{
+ const {planOriginalSourceWorldSolePitchAxis:plan}=await load();
+ assert.equal(typeof plan,'function','must derive sagittal axis from original GLB world-space outsole');
+ const shoe={heelXZ:[-3.71009021575425,-7.135292721839211],
+  toeXZ:[-3.8151431781397482,-7.146601244711599],
+  heelY:.18694881390722207,toeY:-.09342755207059081};
+ const source={...shoe,floorTopY:-.02,sourceSoleVerified:true,
+  sourceTrackVerified:true};
+ const result=plan(source);
+ assert.equal(result?.source,'verified-original-skinned-world-outsole-axis');
+ assert.equal(result?.contactLocked,false);
+ assert.equal(result?.geometryVerified,true);
+ assert.ok(result.projectionMeters>.105&&result.projectionMeters<.107);
+ assert.equal(result.worldAxis[1],0);
+ assert.ok(Math.abs(Math.hypot(...result.worldAxis)-1)<1e-9);
+ const dx=shoe.toeXZ[0]-shoe.heelXZ[0];
+ const dz=shoe.toeXZ[1]-shoe.heelXZ[1];
+ // Positive joint rotation around this actual world axis must raise the
+ // physical heel->toe vector, independent of imported bone-local handedness.
+ assert.ok(result.worldAxis[2]*dx-result.worldAxis[0]*dz>.10);
+ for(const wrong of [
+  {sourceSoleVerified:false},{sourceTrackVerified:false},
+  {sourceTrackVerified:undefined},{floorTopY:.1},
+  {toeY:-.014},{toeY:NaN},{heelY:-.02},
+  {toeXZ:[shoe.heelXZ[0],shoe.heelXZ[1]]},
+  {toeXZ:[shoe.heelXZ[0]-.3,shoe.heelXZ[1]]},
+  {heelXZ:[NaN,0]},{heelXZ:null}
+ ])assert.equal(plan({...source,...wrong}),null,
+  'source world-foot axis must fail closed for unproven/degenerate shoes');
+});
+
+test('RED: licensed foot uses verified world outsole axis only for genuine skinned source candidate',()=>{
+ const code=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const begin=code.indexOf('function stageOriginalSourceSwingLinkedLegAfterMixer(');
+ const end=code.indexOf('function stageRigLegsAfterMixer(',begin);
+ const stage=code.slice(begin,end);
+ assert.ok(begin>0&&end>begin);
+ assert.match(code.slice(0,6500),/planOriginalSourceWorldSolePitchAxis/);
+ assert.match(stage,/planOriginalSourceWorldSolePitchAxis\(/);
+ assert.match(stage,/foot\.bone\.getWorldQuaternion\(/);
+ assert.match(stage,/\.applyQuaternion\(/);
+ assert.match(stage,/originalWorldSolePitchAxisVerified/);
+ assert.match(stage,/const after=read\(\)/);
+ assert.match(stage,/finalCompanion/);
+ assert.match(stage,/foot\.last\.multiply\(footRotation\)/);
+});
