@@ -1,4 +1,5 @@
 'use strict';
+const {resolveTowerWorldFixtureImports}=require('../helpers/tower-world-fixture-imports.cjs');
 // Source-pin a real camera-to-clockwork-gear sightline; this does NOT amount
 // to blind full-motion quality approval or hardware performance evidence.
 const {test,after}=require('node:test');
@@ -28,7 +29,7 @@ const source=fs.readFileSync(path.join(ROOT,'public/infinite-tower-climb/visuals
   .replace("'./guardian-transmission-layout.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/guardian-transmission-layout.mjs')).href))
   .replace("'./mesh-provenance.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/mesh-provenance.mjs')).href))
   .replace("'./scene-hierarchy.mjs'",JSON.stringify(hierarchyURL));
-fs.writeFileSync(path.join(scratch,'world.mjs'),source);
+fs.writeFileSync(path.join(scratch,'world.mjs'),resolveTowerWorldFixtureImports(source,{root:ROOT,fixtureDir:scratch}));
 const loaded=Promise.all([
   import(threeURL),import(pathToFileURL(path.join(scratch,'world.mjs')).href),
 ]);
