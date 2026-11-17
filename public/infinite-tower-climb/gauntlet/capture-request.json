@@ -5794,5 +5794,38 @@
     "actualDevicePerformance": "NOT EVALUATED",
     "nextHighestImpact": "Inspect exact source-pinned video and returned F9 stage timing in BOTH viewports. If bronze hero/gate/visible F9 still disconnect or strict event pairing fails, reopen P0 cold GPU staging and true route camera before any further stage.",
     "safety": "Draft PR68, PR58 and frozen source baseline untouched; no force push/merge/deploy."
+  },
+  "p0EarnedLoadBearingShellBeforeColdVoidDetailsSourcePinned20261117": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionImplementationSha": "934f74e6381b658b148b75eeba36a33c62a292da",
+    "candidatePin": "github.sha of this immutable PR68 draft capture-request commit, production source at parent HEAD",
+    "seed": "tower-transformation-capture-v1",
+    "tier": "low",
+    "fps": 25,
+    "speed": "normal 1x original unedited WebM",
+    "viewports": [
+      "960x600 desktop",
+      "390x844 portrait"
+    ],
+    "scenarios": [
+      "ascent",
+      "moving",
+      "danger guardian/crusher physically earned Floor9",
+      "outcome restart"
+    ],
+    "priorSourceEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/44042382093 — 8/8 source timelines, strict native pair FAILED 0/2",
+    "requestedSourceEvidence": "Run existing nine-job workflow against immutable request commit; baseline frozen, original source-authentic 60+ seconds in all scenarios",
+    "largestExperienceGap": "Existing bronze original gate and climber occluded before an abrupt violet architecture handoff; require two consecutive originally returned frames with authentic old opened gate, full player and walkable Floor9, matched to immutable source events",
+    "meaningfulChange": "Source-owned authentic load-bearing F9 shaft independently batched before separately built Void crystal details; source-returned physical threshold may reveal original shell during previous GPU frame and later details fade by returned frames only",
+    "independentReviews": {
+      "looks": "0/5",
+      "feels": "0/5",
+      "plays": "0/5"
+    },
+    "realDeviceMetrics": "NOT EVALUATED",
+    "nextAction": "Inspect new exact-head CI, full video, source-event PTS, structural return interval and paired original WebM across 960x600/390x844; keep P0 if mismatch",
+    "safety": "No merge, deploy, force push, change of frozen baseline, PR58 edits or PR draft status"
   }
 }
