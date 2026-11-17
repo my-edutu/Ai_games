@@ -1523,6 +1523,16 @@ body[data-command="world"][data-supply="open"][data-supply-details="closed"]
   overscroll-behavior:contain!important;
  }
 }
+/* W403: do not let a closed spectator ledger obscure an actual citizen's
+   harvest, carried delivery or receiving market in the continuous film.
+   Explicitly opened evidence remains fully inspectable without losing the
+   accessible camera controls, save/restore or original 3D geometry. */
+body[data-command="world"][data-village-documentary="on"]:not([data-street="on"]):not([data-supply="open"]) #world-ribbon{
+ display:none!important;
+}
+body[data-village-documentary="on"] #film-ledger[aria-expanded="true"]{
+ background:#efd29e!important;color:#173b33!important;border-color:#f8e3b6!important;
+}
 </style></head><body>
 <canvas id="world" tabindex="0" aria-label="Live 3D medieval valley. Tap a visible villager to follow genuine work. Drag to orbit, Shift-drag or two-finger drag to pan, pinch or scroll to zoom. Home returns to village, F follows a citizen, V walks the streets; Enter selects a visible citizen."></canvas><div id="citizen-pick-caption" role="status" aria-live="polite" aria-atomic="true"><span id="citizen-pick-copy"></span><progress id="citizen-pick-meter" value="0" max="100" aria-label="Observed citizen's actual shift or delivery progress" hidden></progress></div><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
@@ -1540,7 +1550,7 @@ body[data-command="world"][data-supply="open"][data-supply-details="closed"]
 <div class="feed panel"><h2>✦ Stories unfolding</h2><div id="feed"></div></div>
 <div class="hint">DRAG TO ORBIT · SCROLL TO ZOOM<br>EVERY CITIZEN HAS A NAME AND PURPOSE<br><a href="experience.html">VIEW EXPERIENCE SCORECARD ↗</a> · <a href="progress.html">HISTORY ↗</a></div>
 <aside class="atlas" aria-label="Interactive kingdom map"><div class="atlas-heading"><span>◈ THE KINGDOM ATLAS</span><b>LIVE</b></div><canvas id="atlas-map" width="460" height="330" aria-label="Map of homes and moving villagers; click to move camera"></canvas><div class="atlas-footer"><span id="atlas-season">✧ SEASONAL LANDSCAPE</span><em>↗ PAN CAMERA</em></div><div class="atlas-legend"><span><i style="background:#ffe29b"></i>Village</span><span><i style="background:#f9fce8"></i>People</span><span><i style="background:#7be5f9"></i>River</span></div></aside><div class="bottom"><button id="pause" class="btn active">Ⅱ Pause</button><span class="divider"></span><button class="btn active" id="speed1">1× Real time</button><button class="btn" id="speed4">4×</button><button class="btn" id="speed16">16×</button><span class="divider"></span><button class="btn" id="focus">◎ Follow villager</button><button class="btn" id="camera">◈ Cinematic</button><button class="btn" id="command-toggle" type="button" aria-pressed="false" aria-controls="world-ribbon" aria-keyshortcuts="U">◉ World view</button><button class="btn" id="hud-toggle" aria-pressed="false">⌗ Clear HUD</button><button class="btn" id="save">↓ Save world</button><button class="btn" id="restore">↑ Restore world</button><button class="btn" id="restart">↻ New world</button></div><nav id="camera-tools" role="group" aria-label="3D world camera navigation" data-expanded="false"><button type="button" id="camera-disclosure" aria-label="Show actual camera controls" aria-controls="camera-home camera-near camera-far camera-street camera-survey" aria-expanded="false">☷ Camera</button><button type="button" id="camera-home" aria-label="Return to settlement overview" aria-keyshortcuts="Home">⌂ Village</button><button type="button" id="camera-near" aria-label="Zoom closer to the village" aria-keyshortcuts="Equal">＋ Near</button><button type="button" id="camera-far" aria-label="Zoom farther from the village" aria-keyshortcuts="Minus">− Far</button><button type="button" id="camera-street" aria-label="Enter or exit real street-level view" aria-pressed="false" aria-keyshortcuts="V">♙ Walk</button><button type="button" id="camera-survey" aria-label="Survey the real farm, receiving market and inhabited homes" aria-keyshortcuts="G">⇢ Supply tour</button></nav><div class="toast" id="toast"></div><div id="world-actor-tag" role="status" aria-live="off" hidden></div><button id="cinema-exit" type="button" aria-label="Restore game interface">✧ Restore interface · H</button>
-<div class="world-tour" role="group" aria-label="Explore scenic village camera viewpoints"><small>EXPLORE<br>THE VALLEY</small><button class="tour-btn" type="button" id="forge-follow" aria-pressed="false" aria-label="Follow a genuine craftsperson to the guild forge and watch their actual shift">⚒ Watch smith</button><button class="tour-btn" type="button" id="harvest-follow" aria-pressed="false" aria-label="Follow a real farmer cutting wheat at the original field">🌾 Watch farmer</button><button class="tour-btn" type="button" id="forge-sound" aria-pressed="false" aria-label="Turn on optional sound from real blacksmith strikes">♫ Sound off</button><button class="tour-btn" type="button" id="homecoming-follow" aria-pressed="false" aria-label="Follow a real resident returning to an occupied cottage at dusk">⌂ Homecoming</button><button class="tour-btn" type="button" id="workday-live" aria-pressed="false" aria-label="Watch a villager currently working; select the next live shift">☼ Live shift</button><button class="tour-btn" type="button" id="workday-watch" aria-pressed="false" aria-label="Follow a villager who actually completed work">⚒ Workday</button><button class="tour-btn" type="button" id="delivery-follow" aria-label="Follow a villager carrying real goods to the market">▣ Delivery</button><button class="tour-btn" data-scenic="valley" aria-pressed="true">✦ Village</button><button class="tour-btn" data-scenic="market" aria-pressed="false">◈ Market</button><button class="tour-btn" data-scenic="forge" aria-pressed="false" aria-label="Visit the original outdoor guild forge">⚒ Forge</button><button class="tour-btn" data-scenic="mill" aria-pressed="false">✧ Windmill</button><button class="tour-btn" data-scenic="orchard" aria-pressed="false">❀ Orchard</button><button class="tour-btn" data-scenic="farm" aria-pressed="false" aria-label="Inspect real farm work and village food stores at the granary">✺ Farmland</button><button class="tour-btn" data-scenic="river" aria-pressed="false">≈ Riverside</button><button class="tour-btn" data-scenic="sanctuary" aria-pressed="false">♜ Sanctuary</button><a class="tour-btn" href="experience.html" aria-label="View the latest look, feel, play and commercial reference scorecards">⚑ Scorecard</a></div>
+<div class="world-tour" role="group" aria-label="Explore scenic village camera viewpoints"><small>EXPLORE<br>THE VALLEY</small><button class="tour-btn" id="film-ledger" type="button" aria-controls="world-supply-trail" aria-expanded="false" aria-label="Open the real farm-to-market-to-home grain ledger">◈ Grain ledger</button><button class="tour-btn" type="button" id="forge-follow" aria-pressed="false" aria-label="Follow a genuine craftsperson to the guild forge and watch their actual shift">⚒ Watch smith</button><button class="tour-btn" type="button" id="harvest-follow" aria-pressed="false" aria-label="Follow a real farmer cutting wheat at the original field">🌾 Watch farmer</button><button class="tour-btn" type="button" id="forge-sound" aria-pressed="false" aria-label="Turn on optional sound from real blacksmith strikes">♫ Sound off</button><button class="tour-btn" type="button" id="homecoming-follow" aria-pressed="false" aria-label="Follow a real resident returning to an occupied cottage at dusk">⌂ Homecoming</button><button class="tour-btn" type="button" id="workday-live" aria-pressed="false" aria-label="Watch a villager currently working; select the next live shift">☼ Live shift</button><button class="tour-btn" type="button" id="workday-watch" aria-pressed="false" aria-label="Follow a villager who actually completed work">⚒ Workday</button><button class="tour-btn" type="button" id="delivery-follow" aria-label="Follow a villager carrying real goods to the market">▣ Delivery</button><button class="tour-btn" data-scenic="valley" aria-pressed="true">✦ Village</button><button class="tour-btn" data-scenic="market" aria-pressed="false">◈ Market</button><button class="tour-btn" data-scenic="forge" aria-pressed="false" aria-label="Visit the original outdoor guild forge">⚒ Forge</button><button class="tour-btn" data-scenic="mill" aria-pressed="false">✧ Windmill</button><button class="tour-btn" data-scenic="orchard" aria-pressed="false">❀ Orchard</button><button class="tour-btn" data-scenic="farm" aria-pressed="false" aria-label="Inspect real farm work and village food stores at the granary">✺ Farmland</button><button class="tour-btn" data-scenic="river" aria-pressed="false">≈ Riverside</button><button class="tour-btn" data-scenic="sanctuary" aria-pressed="false">♜ Sanctuary</button><a class="tour-btn" href="experience.html" aria-label="View the latest look, feel, play and commercial reference scorecards">⚑ Scorecard</a></div>
 <div id="workday-activity" role="status" aria-live="polite" aria-atomic="true"></div><progress id="workday-progress" max="100" value="0" aria-label="Progress through the selected villager's actual working shift"></progress><div class="realm-signal" id="realm-signal" role="status" aria-live="off"><i></i><b id="realm-title">A LIVING KINGDOM</b><span id="realm-detail">Every villager shapes the valley</span></div>
 <section id="world-ribbon" role="group" aria-label="World-first kingdom overview">
  <div class="world-identity"><strong>✦ LIVE KINGDOM</strong><small>World-first view · U</small></div>
@@ -28152,6 +28162,14 @@ function toggleSupplyTrail(){
  document.getElementById('world-supply-trail').hidden=!supplyTrailOpen;
  document.getElementById('world-trace-toggle')
   .setAttribute('aria-expanded',String(supplyTrailOpen));
+ // This additional visible tour button opens the very same authentic
+ // economic ledger; closed film never loses user access on a 390px phone.
+ const filmButton=document.getElementById('film-ledger');
+ filmButton.setAttribute('aria-expanded',String(supplyTrailOpen));
+ filmButton.setAttribute('aria-label',supplyTrailOpen?
+  'Close the real farm-to-market-to-home grain ledger':
+  'Open the real farm-to-market-to-home grain ledger');
+ filmButton.textContent=supplyTrailOpen?'◈ Close ledger':'◈ Grain ledger';
  updateSupplyTrail(true);
  return supplyTrailOpen;
 }
@@ -28953,7 +28971,7 @@ function watchVillageLife(){
    // The farmer, their actual load and a subsequent verified household
    // remain one documentary, including the stage before physical loading.
    attachVillageDocumentaryToGrainJourney();
-   if(canvas.clientWidth>520&&!supplyTrailOpen)toggleSupplyTrail();
+   // Voluntary film evidence only: do not cover actual farmer/courier automatically.
    return chain;
   }
  }
@@ -28971,7 +28989,7 @@ function watchVillageLife(){
   const chain=watchRealGrainJourney();
   if(chain){
    attachVillageDocumentaryToGrainJourney();
-   if(canvas.clientWidth>520&&!supplyTrailOpen)toggleSupplyTrail();
+   // Voluntary film evidence only: do not cover actual farmer/courier automatically.
    return chain;
   }
  }
@@ -28988,6 +29006,7 @@ function watchVillageLife(){
 }
 button('world-watch-life',watchVillageLife);
  button('world-trace-toggle',toggleSupplyTrail);
+ button('film-ledger',toggleSupplyTrail);
  button('grain-chain-details',()=>setSupplyTrailDetails(!supplyTrailDetailsOpen));
  document.addEventListener('keydown',e=>{
   if(e.key.toLowerCase()!=='t'||e.ctrlKey||e.metaKey||e.altKey||cinematicHud||
