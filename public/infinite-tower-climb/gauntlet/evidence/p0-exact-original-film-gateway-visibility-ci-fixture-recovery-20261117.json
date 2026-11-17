@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "leadingTransformationVerdict": "NOT EVALUATED",
+  "branch": "feat/tower-transformation-gauntlet-20261101",
+  "pr": 68,
+  "prDraft": true,
+  "basePr": 58,
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "frozenTransformationFileBlobSha": "11d74e436d893ffb38e9be90e8e073b02ebb6b7c",
+  "visualProductionSourceSha": "8134b2c6395a18eb318b0a35501d08cb7602c1e8",
+  "previousTrueWorldChangeSha": "bc4f35bbf262eaa50665974d049a2f30e45e8697",
+  "exactSourceVideoCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44162896161",
+  "baselineDangerVideo": "https://github.com/my-edutu/Ai_games/actions/runs/44162896161/artifacts/14364162144",
+  "candidateDangerVideo": "https://github.com/my-edutu/Ai_games/actions/runs/44162896161/artifacts/14364581838",
+  "originalVideoInspection": {
+    "mode": "original unedited 1x WebM, low graphics, desktop 960x600 and portrait 390x844, sidecar-aligned within each recorded video; NOT blindly paired baseline/candidate event playback",
+    "candidateSourceSha": "8134b2c6395a18eb318b0a35501d08cb7602c1e8",
+    "sourceGuardianFloorNineCrossingTick": 475,
+    "desktop": {
+      "videoDurationSeconds": 72.56,
+      "nativeVideoSha256": "5055f34e91580084279fd51eed90ec88ac4313078912a73221031cf573d6f79f",
+      "floorNineDrawnHudSeconds": 26,
+      "sustainedRecognizableVoidSeconds": 27.75,
+      "hudToVoidDelaySeconds": 1.75,
+      "returnedGatewayRendererSamples": 8,
+      "sourceGuardianCrossingRecordInRendererSamples": "8/8"
+    },
+    "portrait": {
+      "videoDurationSeconds": 72.92,
+      "nativeVideoSha256": "fe588cde8dbc11c0a2459d5c4a0fdbd5e7486fcf3b4bc6d678449184b584c3bf",
+      "floorNineDrawnHudSeconds": 26,
+      "sustainedRecognizableVoidSeconds": 27.75,
+      "hudToVoidDelaySeconds": 1.75,
+      "returnedGatewayRendererSamples": 9,
+      "sourceGuardianCrossingRecordInRendererSamples": "9/9"
+    },
+    "observedMostImportantFootageDefect": "The original 3D bronze columns/side structure visually interrupt the approach at the opened guardian gateway. The genuine successor Void roof/raised route appears later than the Floor9 HUD; the full real climber, opened gateway and source-authoritative receiving deck are not proved together across consecutive matched original native frames.",
+    "limitation": "Within-video 0.25-second-class phase measurements; not an event-matched comparative speed experiment. Renderer camera projections and geometry ray witnesses do not equal a pixel-level native co-visibility proof.",
+    "strictlyPairedNativeSourceToVideo": "FAILED 0/2",
+    "allEightSourcePinnedVideoJobs": "SUCCESS",
+    "ledgeJob": "FAILED",
+    "pairSourceEventsJob": "FAILED"
+  },
+  "verifiedBlocker": {
+    "latestPriorQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44162896135",
+    "result": "FAIL; four phase3 partitions failed on copied Three.js world.mjs import of shipping guardian-clear-sightline-frame.mjs; unrelated phase6 Maze test timed out at 75 seconds",
+    "cause": "Production original gateway frame module added as a live ESM import. Numerous older source-authentic test adapters copy the real world.mjs into isolated /tmp modules but manually replace only an obsolete fixed subset of browser module imports; Node resolves new live module against empty /tmp and fails before real geometry tests start.",
+    "remedy": "New shared actual-world fixture import resolver checks file existence, preserves deliberate scratch-local scene hierarchy overrides, maps all other current shipping relative imports to their exact real file URLs, and fails closed for missing dependencies. Applied to eleven pre-existing real Three.js world test files plus one source module resolver contract.",
+    "resolverFirstCommit": "ae08f39830a39cf92e316dc2b504ef370dc88c09",
+    "resolverFollowupCommit": "432c4b35277d641f7ae14f1359c3e6f141e21946",
+    "playableGameSourceModifiedThisExecution": false,
+    "exactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44165802682",
+    "verification": "PENDING; no claims that CI, legitimate gameplay or visual acceptance passed"
+  },
+  "independentCritics": {
+    "LOOKS": "0/5",
+    "FEELS": "0/5",
+    "PLAYS": "0/5"
+  },
+  "realDeviceFrameTimes": "NOT EVALUATED",
+  "realDeviceMemory": "NOT EVALUATED",
+  "nextHighestImpactAction": "Use exact-head CI to verify the real world/guardian import restoration; then inspect the next genuine full-motion 1x source-pinned game capture. Rework the opened-gate side-arch sightline and first-return Floor9 GPU upload as one accountable physical/visual system until consecutive source-PTS matched native frames contain entire original climber, truly HP-opened guardian gateway, and real walkable receiving roof/first raised Void destination. Keep P0 OPEN until the complete ascent/guardian/crusher/crossing/outcome/restart film chain is actually provable.",
+  "frozenBaselineModified": false,
+  "pr58Modified": false,
+  "merged": false,
+  "deployed": false,
+  "forcePushed": false,
+  "prDraftPreserved": true
+}
