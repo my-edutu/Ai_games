@@ -1,8 +1,83 @@
 {
-  "p0ExactHeadCIAndSourceNativeOriginalFilm20261117": {"stage":"P0 EVIDENCE + GAME-LOOP TRUTH (OPEN)","leadingVerdict":"NOT EVALUATED","baselineSha":"1731b380851162741761c5569e2bc152a0869ca9","candidateSha":"EXACT IMMUTABLE GitHub Actions github.sha ON THIS CAPTURE REQUEST COMMIT (NO FLOATING PR HEAD)","meaningfulSourceSincePreviousCapture":"test-only CI unblocker, game runtime unchanged by implemented fc6d3c6","testUnblockSourceSha":"fc6d3c61312f4d5f99df1729f7fed97c380ad57e","fixedSeed":"tower-transformation-capture-v1","graphicsTier":"low","viewports":["960x600 desktop","390x844 portrait"],"scenarios":["ascent","moving","danger","outcome"],"speed":"unmodified source 1x, 25fps, >=60s each, video and source event sidecars","referenceCI":"https://github.com/my-edutu/Ai_games/actions/runs/43981244002","previousSourceOriginalVideo":"https://github.com/my-edutu/Ai_games/actions/runs/43971270691 — 8/8 clips, strict native matched 0/2","currentTarget":"Independent auth window HP0 tick441; grounded gateway crossing tick475; raised original F9 support tick535; Floor10 619; real outcome/restart. Must verify old bronze gate/full body/actual F9 together >=2 native consecutive frames and honest source-vs-PTS; mismatch FAIL, not fabricated.","independentCritics":{"LOOKS":"0/5","FEELS":"0/5","PLAYS":"0/5"},"realDevicePerf":"NOT EVALUATED","quality":"NOT EVALUATED"},
-
-  "p0SharedBronzeRoomSourceContractAndExactCapture20261116": {"baselineSha":"1731b380851162741761c5569e2bc152a0869ca9","stage":"P0 OPEN","candidateSha":"EXACT github.sha OF THIS NEW CAPTURE-REQUEST COMMIT; no floating branch","unchangedProductionWorldSourceSha":"c88c167ed85a41d36e02cdec0c9b5c3af9babe85","fixedSeed":"tower-transformation-capture-v1","graphicsTier":"low","recorded":"source-authentic 1x 25fps 60+sec real original WebGL, desktop 960x600 portrait 390x844, four scenarios","scenarios":["ascent","moving","danger","outcome"],"purpose":"Source exact after testing contract fix; compare actual returned bronze arch and original skinned climber to real already-walkable F9 roof and incoming Void shaft, corresponding events. No interpolation/mocked actors.","previousCapture":"https://github.com/my-edutu/Ai_games/actions/runs/43971270691 — still pending; candidate C88 production pixels unchanged","leadingVerdict":"NOT EVALUATED","independentVotes":"0/5 LOOKS, 0/5 FEELS, 0/5 PLAYS","devicePerf":"NOT EVALUATED"},
-  "p0ReturnedBronzePaletteRoofShaftOneRoom20261116": {"stage":"P0 OPEN","baselineSha":"1731b380851162741761c5569e2bc152a0869ca9","sourceBefore":"7f0f8e7a1a60b8493ac8ded484b292879cb2059d","candidateSha":"PIN WORKFLOW github.sha EXACTLY INCLUDING THIS CAPTURE REQUEST COMMIT; never floating head","viewports":["960x600 desktop","390x844 portrait"],"seed":"tower-transformation-capture-v1","graphicsTier":"low","playback":"Actual 1x 25fps full-motion original WebGL game, 60+ seconds per scenario, no splice/retime/AI frames","scenarios":["ascent","moving","danger","outcome"],"goal":"Re-evaluate real returned warm F8 bronze gate, full skinned climber and physically walkable F9 successor shared painted optical room before actual first incoming shaft GPU frame, verify source event/PTS and restart. Compare old camera and new candidate without modifying frozen source.","previousEvidence":"https://github.com/my-edutu/Ai_games/actions/runs/43962557494 — 8/8 source/film records but event-native alignment and 0/2 strict visual bridge FAILED","independentCritics":{"LOOKS":"0/5","FEELS":"0/5","PLAYS":"0/5"},"actualDevicePerf":"NOT EVALUATED","completion":"NOT EVALUATED"},
+  "p0ExactHeadCIAndSourceNativeOriginalFilm20261117": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH (OPEN)",
+    "leadingVerdict": "NOT EVALUATED",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateSha": "EXACT IMMUTABLE GitHub Actions github.sha ON THIS CAPTURE REQUEST COMMIT (NO FLOATING PR HEAD)",
+    "meaningfulSourceSincePreviousCapture": "test-only CI unblocker, game runtime unchanged by implemented fc6d3c6",
+    "testUnblockSourceSha": "fc6d3c61312f4d5f99df1729f7fed97c380ad57e",
+    "fixedSeed": "tower-transformation-capture-v1",
+    "graphicsTier": "low",
+    "viewports": [
+      "960x600 desktop",
+      "390x844 portrait"
+    ],
+    "scenarios": [
+      "ascent",
+      "moving",
+      "danger",
+      "outcome"
+    ],
+    "speed": "unmodified source 1x, 25fps, >=60s each, video and source event sidecars",
+    "referenceCI": "https://github.com/my-edutu/Ai_games/actions/runs/43981244002",
+    "previousSourceOriginalVideo": "https://github.com/my-edutu/Ai_games/actions/runs/43971270691 — 8/8 clips, strict native matched 0/2",
+    "currentTarget": "Independent auth window HP0 tick441; grounded gateway crossing tick475; raised original F9 support tick535; Floor10 619; real outcome/restart. Must verify old bronze gate/full body/actual F9 together >=2 native consecutive frames and honest source-vs-PTS; mismatch FAIL, not fabricated.",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "realDevicePerf": "NOT EVALUATED",
+    "quality": "NOT EVALUATED"
+  },
+  "p0SharedBronzeRoomSourceContractAndExactCapture20261116": {
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "stage": "P0 OPEN",
+    "candidateSha": "EXACT github.sha OF THIS NEW CAPTURE-REQUEST COMMIT; no floating branch",
+    "unchangedProductionWorldSourceSha": "c88c167ed85a41d36e02cdec0c9b5c3af9babe85",
+    "fixedSeed": "tower-transformation-capture-v1",
+    "graphicsTier": "low",
+    "recorded": "source-authentic 1x 25fps 60+sec real original WebGL, desktop 960x600 portrait 390x844, four scenarios",
+    "scenarios": [
+      "ascent",
+      "moving",
+      "danger",
+      "outcome"
+    ],
+    "purpose": "Source exact after testing contract fix; compare actual returned bronze arch and original skinned climber to real already-walkable F9 roof and incoming Void shaft, corresponding events. No interpolation/mocked actors.",
+    "previousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/43971270691 — still pending; candidate C88 production pixels unchanged",
+    "leadingVerdict": "NOT EVALUATED",
+    "independentVotes": "0/5 LOOKS, 0/5 FEELS, 0/5 PLAYS",
+    "devicePerf": "NOT EVALUATED"
+  },
+  "p0ReturnedBronzePaletteRoofShaftOneRoom20261116": {
+    "stage": "P0 OPEN",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceBefore": "7f0f8e7a1a60b8493ac8ded484b292879cb2059d",
+    "candidateSha": "PIN WORKFLOW github.sha EXACTLY INCLUDING THIS CAPTURE REQUEST COMMIT; never floating head",
+    "viewports": [
+      "960x600 desktop",
+      "390x844 portrait"
+    ],
+    "seed": "tower-transformation-capture-v1",
+    "graphicsTier": "low",
+    "playback": "Actual 1x 25fps full-motion original WebGL game, 60+ seconds per scenario, no splice/retime/AI frames",
+    "scenarios": [
+      "ascent",
+      "moving",
+      "danger",
+      "outcome"
+    ],
+    "goal": "Re-evaluate real returned warm F8 bronze gate, full skinned climber and physically walkable F9 successor shared painted optical room before actual first incoming shaft GPU frame, verify source event/PTS and restart. Compare old camera and new candidate without modifying frozen source.",
+    "previousEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/43962557494 — 8/8 source/film records but event-native alignment and 0/2 strict visual bridge FAILED",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDevicePerf": "NOT EVALUATED",
+    "completion": "NOT EVALUATED"
+  },
   "p0OriginalGuardianGateHardwareSourceRayCameraRescue20261116": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
     "leadingVerdict": "NOT EVALUATED",
@@ -5429,5 +5504,37 @@
     "reviewPath": "docs/reviews/2026-11-16-tower-pr68-p0-real-render-duration-veto-and-native-evidence.md",
     "nextHighestImpact": "Inspect new exact-head native desktop and portrait original-source footage at the real event tick/PTS correspondence; if obscured hero or bronze/void hard cut remains, rebuild original gateway camera/scene ownership as one visually proven playable arrival, not another test-only patch",
     "guardrails": "Only PR68 draft; PR58 and frozen baseline/ledger untouched. No merge, deployment, force push, reviewer manufacture."
+  },
+  "p0OriginalWorldCurvatureColdDoorwayFullMotion20261117": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH (OPEN)",
+    "candidateSha": "immutable GitHub Actions github.sha on THIS source-pinned capture request commit",
+    "productionCodeCommit": "a977c846cd934dbfed816714b4f1b9d23c04ffcb",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "fixedSeed": "tower-transformation-capture-v1",
+    "graphicsTier": "low",
+    "scenarios": [
+      "ascent",
+      "moving",
+      "danger",
+      "outcome"
+    ],
+    "viewports": [
+      "960x600 desktop",
+      "390x844 portrait"
+    ],
+    "playback": "genuine original 1x normal-speed 25fps 60+sec; preserve original WebM/native PTS/source event sidecars",
+    "P0Defect": "Original pre-change candidate 4ed7a773 danger videos 16-68sec show bronze uprights obscuring skinned climber near 25s, then 27-28s hard bronze-to-violet Floor9 shaft cut without sustained physical source-matched full-body / opened gate / genuine walkable next platform shared shot; strict video match 0/2",
+    "productionChange": "Constrain low-tier original static 3D tower curved/extruded model tessellation across five biomes, preserve exact high/normal world, 3D source decks/guardian/hazards and source physics. Goal increase real returned frames through original gate.",
+    "latestQualityVeto": "43982358166 FAILED 9/10, Phase6 Maze readiness file wall-clock timeout 75s; do not modify unrelated Maze",
+    "previousOriginal9JobCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/43981629028 strict 0/2",
+    "visibleAccept": "at least two consecutive native original painted frames BOTH viewports co-show genuinely opened original bronze gate, complete live skinned actor, real walkable supported F9 roof; continuous bronze-to-violet architectural handoff; corresponding source tick >=475 actual source and native PTS; do not claim CI or polygon counts prove visuals",
+    "qualityVerdict": "NOT EVALUATED",
+    "independentReviews": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "mobileAndDesktopHardware": "NOT EVALUATED",
+    "next": "Inspect exact-head candidate source-pinned original WebMs and full-motion native PTS; measure actual FPS/frame time and low-tier geometry triangle delta; if cut persists return to original gate + camera + cold F9 GPU world as one system"
   }
 }
