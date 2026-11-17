@@ -7,7 +7,7 @@
   "basePr": 58,
   "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
   "inspectedParentSha": "0eefa5b203923488af798ff86b5b870e3f035e1b",
-  "implementationSha": "GitHub commit created by this atomic source/test/evidence write; see commit and workflow HEAD SHA",
+  "implementationSha": "b7a38b9cd74484a53dac1b423dc5fb326983c7ba",
   "why": "Original normal-speed 25fps baseline/candidate Floor8->9 video proves the source guardian record survived to 8/8 F9 renderer audits but showed bronze foreground covering the climber/gateway. Previously reused historic F8 camera required only NDC crop and opaque core clearance, ignoring real source cap/old door/new F9 triangles.",
   "actualCodeChange": "Source-authenticated previously-rendered old camera now requires before/after actual current same-source geometry ray audit, no added original-cap/gate/architecture/body obstruction, and tangible ray improvement or fully clear paths. Wrong/missing observations veto historical lens, preserve existing camera. Bounded two extra existing ray passes only inside 10-12 frame original-bridge window, no geometry/collision/authoritative state changes.",
   "paths": [
@@ -25,7 +25,7 @@
   },
   "verification": "Source patch and test written; new HEAD safety CI and video not yet completed. No claims of visual gain, test pass, CPU p95 or memory.",
   "largestGap": "Need consecutive actual native video frames with skinned climber + genuinely opened bronze gate + walkable floor-nine receiving roof in a visually continuous shot; cold 549/560ms first GPU returns and old structural obstruction unresolved.",
-  "nextHighestImpact": "Run exact-HEAD CI; inspect physical ray veto counters and normal-speed desktop/portrait new candidate WebMs. If original lens gets rejected but hero still obscured, solve current bronze cap/arch geometry and first-F9 GPU staging, not HUD masking or more tests.",
+  "nextHighestImpact": "Inspect nine-job original 1x desktop/portrait recordings at exact requested source SHA and source-event native pairing; compare veto telemetry to actual real body/gate/roof visible pixels, wall-clock first WebGL return and longitudinal source proof. Only P0 pass if real shot satisfies gate.",
   "independentBlindReview": {
     "LOOKS": "0/5",
     "FEELS": "0/5",
@@ -38,5 +38,10 @@
   "merge": false,
   "deploy": false,
   "forcePush": false,
-  "prDraftPreserved": true
+  "prDraftPreserved": true,
+  "testContractCorrectionSha": "0a8f7558e12766d6d50e260b056cb4f467aa6add",
+  "sourcePinnedCapture": "Request committed with same source+test code; candidate is immutable github.sha of THIS request commit, not an invented film",
+  "correctedSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44139305824 (pending at dispatch)",
+  "initialSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44139062299 — Phase3/3 line-break-only test assertion failed; corrected at 0a8f755 without weakening physical helper's passing behavior",
+  "workDoneThisExecution": "Wrote actual scene camera-ray veto, pure geometry comparison contract, phase3 regression, evidence; observed and corrected first-run assertion regex failure, and requested full immutable nine-job true gameplay via capture-request path. New camera effect not yet inspected on native frames."
 }
