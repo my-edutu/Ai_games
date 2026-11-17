@@ -13230,12 +13230,14 @@ let centralExchangeStats={
 // W391: one physical canopy datum shared by actual timbers, roof and collision.
 // Raise the complete REAL roof to clear the lived market's courier/buyer view.
 // This aligns the original exchange with the adjacent receiving arcade.
-const EXCHANGE_CANOPY=Object.freeze({eave:3.18,ridge:4.06,postTop:3.23,
+const EXCHANGE_CANOPY=Object.freeze({eave:3.18,ridge:3.79,postTop:3.23,
  minimumClearance:3.00,
- // W409 original civic weighbridge: four real posts outside the human
- // trade lens. One coordinate contract drives wood, stone and camera solids.
- supportX:1.54,supportZ:.76,roofX:1.89,roofZ:1.27,
- tableWidth:2.34,tableDepth:.78});
+ // W410: the ORIGINAL working exchange remains in place. Two authentic
+ // side-pitched, post-and-knee-braced roofs now shelter the outer counters;
+ // the real common weighing table is OPEN TO THE SKY, not camera-hidden.
+ // One coordinate contract binds clay, structural timber and collision.
+ supportX:1.97,supportZ:.99,roofX:2.36,roofZ:1.38,
+ openSkyHalfWidth:1.22,tableWidth:2.34,tableDepth:.78});
 function renderOriginalMarketExchangeJoinery(x,y,z){
  const before=data.length;
  const oak=rgb(0x6f523f),weathered=rgb(0x9e7c57),stone=rgb(0xaaa08d);
@@ -13248,14 +13250,24 @@ function renderOriginalMarketExchangeJoinery(x,y,z){
   }
  });
  materialScope(MATERIAL.WOOD,()=>{
-  // Six actual pitched rafters belong beneath the TWO unchanged clay
-  // slopes, not freestanding timber across the market/buyer aisle.
-  for(const side of [-1,1])for(const end of [-1,0,1]){
-   const zz=z+end*(EXCHANGE_CANOPY.roofZ-.16);
-   limbSegment([x+side*(EXCHANGE_CANOPY.roofX-.10),y+EXCHANGE_CANOPY.eave-.04,zz],
-    [x,y+EXCHANGE_CANOPY.ridge-.06,zz],.044,end===0?oak:weathered,4);
+  // Six load-bearing pitched rafters across the TWO REAL covered side bays.
+  // A paired continuous ridge/eave set, not a beam over the buyer's face.
+  for(const side of [-1,1]){
+   for(const end of [-1,0,1]){
+    const zz=z+end*(EXCHANGE_CANOPY.roofZ-.16);
+    limbSegment([x+side*(EXCHANGE_CANOPY.roofX-.10),
+      y+EXCHANGE_CANOPY.eave-.04,zz],
+     [x+side*(EXCHANGE_CANOPY.openSkyHalfWidth+.08),
+      y+EXCHANGE_CANOPY.ridge-.07,zz],
+     .044,end===0?oak:weathered,4);
+   }
+   box(x+side*(EXCHANGE_CANOPY.openSkyHalfWidth+.08),
+    y+EXCHANGE_CANOPY.ridge-.07,z,
+    .12,.075,EXCHANGE_CANOPY.roofZ*1.90,oak);
+   box(x+side*(EXCHANGE_CANOPY.roofX-.08),
+    y+EXCHANGE_CANOPY.eave-.06,z,
+    .12,.075,EXCHANGE_CANOPY.roofZ*1.90,weathered);
   }
-  box(x,y+EXCHANGE_CANOPY.ridge-.055,z,.16,.075,2.14,oak);
  });
  const triangles=(data.length-before)/30;
  if(!Number.isInteger(triangles)||triangles<60||triangles>260)
@@ -13304,23 +13316,20 @@ function market(x,z){
   }
   for(const sx of [-1,1])
    box(x+sx*.94,y+.35,z,.062,.085,.73,oak);
+  // Roof wings are cantilevered from FOUR original ground-bearing posts.
+  // All structural members stay outside the human working/buying aisle.
   for(const side of [-1,1]){
-   box(x+side*EXCHANGE_CANOPY.supportX,y+EXCHANGE_CANOPY.eave-.04,z,
-   .12,.14,EXCHANGE_CANOPY.roofZ*1.84,oak);
-   box(x+side*.45,y+EXCHANGE_CANOPY.eave+.27,z, .11,.11,2.13,aged);
-  }
-  box(x,y+EXCHANGE_CANOPY.ridge-.055,z,.14,.14,
-   EXCHANGE_CANOPY.roofZ*1.91,oak);
-  for(const sz of [-1,1]){
-   box(x,y+EXCHANGE_CANOPY.eave-.10,
-    z+sz*(EXCHANGE_CANOPY.roofZ-.12),
-    EXCHANGE_CANOPY.roofX*2-.16,.105,.11,oak);
-   limbSegment([x-(EXCHANGE_CANOPY.roofX-.13),y+EXCHANGE_CANOPY.eave,
-     z+sz*(EXCHANGE_CANOPY.roofZ-.12)],
-    [x,y+EXCHANGE_CANOPY.ridge-.06,z+sz*1.03],.095,oak,5);
-   limbSegment([x+(EXCHANGE_CANOPY.roofX-.13),y+EXCHANGE_CANOPY.eave,
-     z+sz*(EXCHANGE_CANOPY.roofZ-.12)],
-    [x,y+EXCHANGE_CANOPY.ridge-.06,z+sz*1.03],.095,oak,5);
+   box(x+side*EXCHANGE_CANOPY.supportX,
+    y+EXCHANGE_CANOPY.eave-.04,z,
+    .12,.14,EXCHANGE_CANOPY.roofZ*1.84,oak);
+   for(const sz of [-1,1]){
+    limbSegment([x+side*EXCHANGE_CANOPY.supportX,
+      y+EXCHANGE_CANOPY.eave-.47,
+      z+sz*(EXCHANGE_CANOPY.roofZ-.12)],
+     [x+side*(EXCHANGE_CANOPY.openSkyHalfWidth+.08),
+      y+EXCHANGE_CANOPY.ridge-.09,
+      z+sz*(EXCHANGE_CANOPY.roofZ-.12)],.062,aged,5);
+   }
   }
   // Countertop balance is civic equipment, not an invented order or cargo.
   const base=y+.93;
@@ -13335,29 +13344,41 @@ function market(x,z){
  });
  // The same original roof atlas now reads as handmade pitched clay rather
  // than a flat two-colour cloth plane, with physically useful eaves.
+ // Four complete clay roof strips form TWO outward-sloping sheltered
+ // wings; there is NO roof plane spanning the genuine occupied weighing bay.
+ // Both faces remain in the real static civic GPU buffer, not an overlay.
  materialScope(MATERIAL.ROOF,()=>{
-  const eave=y+EXCHANGE_CANOPY.eave,peak=y+EXCHANGE_CANOPY.ridge;
-  for(const side of [-1,1]){
-   const edge0=[x+side*EXCHANGE_CANOPY.roofX,eave,z-EXCHANGE_CANOPY.roofZ],
-    ridge0=[x,peak,z-EXCHANGE_CANOPY.roofZ],
-    ridge1=[x,peak,z+EXCHANGE_CANOPY.roofZ],
-    edge1=[x+side*EXCHANGE_CANOPY.roofX,eave,z+EXCHANGE_CANOPY.roofZ];
-   // Both clay slopes face UP under WebGL back-face culling; reversing the
-   // west slope is essential for an actual bird's-eye village overview.
-   const tone=rgb(side<0?0x876c55:0x99785a);
-   if(side<0)quad(edge1,ridge1,ridge0,edge0,tone);
-   else quad(edge0,ridge0,ridge1,edge1,tone);
+  for(const side of [-1,1])for(let band=0;band<2;band++){
+   const t0=band/2,t1=(band+1)/2,run=EXCHANGE_CANOPY.roofX-
+     EXCHANGE_CANOPY.openSkyHalfWidth;
+   const px=t=>x+side*(EXCHANGE_CANOPY.openSkyHalfWidth+run*t);
+   const py=t=>y+EXCHANGE_CANOPY.ridge-
+     (EXCHANGE_CANOPY.ridge-EXCHANGE_CANOPY.eave)*t;
+   const p0=[px(t0),py(t0),z-EXCHANGE_CANOPY.roofZ],
+    p1=[px(t1),py(t1),z-EXCHANGE_CANOPY.roofZ],
+    p2=[px(t1),py(t1),z+EXCHANGE_CANOPY.roofZ],
+    p3=[px(t0),py(t0),z+EXCHANGE_CANOPY.roofZ];
+   const clay=rgb((side<0?band:1-band)===0?0x92775d:0x806650);
+   if(side<0)quad(p0,p1,p2,p3,clay);
+   else quad(p3,p2,p1,p0,clay);
    centralExchangeStats.roofPanels++;
-   const lip0=[x+side*(EXCHANGE_CANOPY.roofX-.01),eave-.03,
-     z-(EXCHANGE_CANOPY.roofZ+.02)],
-    inner0=[x+side*(EXCHANGE_CANOPY.roofX-.15),eave+.07,
-     z-(EXCHANGE_CANOPY.roofZ+.02)],
-    inner1=[x+side*(EXCHANGE_CANOPY.roofX-.15),eave+.07,
-     z+(EXCHANGE_CANOPY.roofZ+.02)],
-    lip1=[x+side*(EXCHANGE_CANOPY.roofX-.01),eave-.03,
-     z+(EXCHANGE_CANOPY.roofZ+.02)];
-   if(side<0)quad(lip1,inner1,inner0,lip0,rgb(0x705845));
-   else quad(lip0,inner0,inner1,lip1,rgb(0x705845));
+  }
+ });
+ // The timber under-sheathing is real geometry beneath the clay. From a
+ // worker's low camera it reads as a constructed roof, not a floating sheet.
+ materialScope(MATERIAL.WOOD,()=>{
+  for(const side of [-1,1])for(let band=0;band<2;band++){
+   const t0=band/2,t1=(band+1)/2,run=EXCHANGE_CANOPY.roofX-
+     EXCHANGE_CANOPY.openSkyHalfWidth;
+   const px=t=>x+side*(EXCHANGE_CANOPY.openSkyHalfWidth+run*t);
+   const py=t=>y+EXCHANGE_CANOPY.ridge-
+     (EXCHANGE_CANOPY.ridge-EXCHANGE_CANOPY.eave)*t-.095;
+   const p0=[px(t0),py(t0),z-EXCHANGE_CANOPY.roofZ+.025],
+    p1=[px(t1),py(t1),z-EXCHANGE_CANOPY.roofZ+.025],
+    p2=[px(t1),py(t1),z+EXCHANGE_CANOPY.roofZ-.025],
+    p3=[px(t0),py(t0),z+EXCHANGE_CANOPY.roofZ-.025];
+   if(side<0)quad(p3,p2,p1,p0,aged);
+   else quad(p0,p1,p2,p3,aged);
   }
  });
  const joinery=renderOriginalMarketExchangeJoinery(x,y,z);
@@ -13368,7 +13389,8 @@ function market(x,z){
  centralExchangeStats.canopyClearance=EXCHANGE_CANOPY.eave-.18;
  centralExchangeStats.roofDatum=[EXCHANGE_CANOPY.eave,EXCHANGE_CANOPY.ridge];
  centralExchangeStats.originalPostsRetained=centralExchangeStats.originalPostPositions===4;
- centralExchangeStats.openHumanTradeBay='w409-four-outboard-post-open-weighbridge';
+ centralExchangeStats.openHumanTradeBay='w410-physically-roofless-central-weighing-aisle';
+ centralExchangeStats.openSkyTradeWidthMetres=2*EXCHANGE_CANOPY.openSkyHalfWidth;
  centralExchangeStats.postSpanMetres=2*EXCHANGE_CANOPY.supportX;
  centralExchangeStats.tableDepthMetres=EXCHANGE_CANOPY.tableDepth;
  centralExchangeStats.authoritativeChanges=false;
@@ -13376,11 +13398,10 @@ function market(x,z){
     !centralExchangeStats.originalPostsRetained)
   throw Error('W391 open-human-clearance exchange canopy/post safety');
 }
-// W391: original exchange roof, four stone-footed posts and occupied counter
-// remain physically present under the SAME 3.18m/4.06m roof sightline model.
-// Moving real timber up clears human action instead of hiding any structure.
-// No mesh is hidden, no buyer or delivery is fabricated and this cannot
-// modify authoritative paths, inventory, activity or seeded randomness.
+// W410: the original four stone-footed posts, both physically pitched
+// side roofs and true weighing counter remain present. Only the original
+// pavilion's architecture is rebuilt to open the public work aisle to sky.
+// No mesh is camera-hidden or any buyer/transaction/route fabricated.
 function physicalVillageExchangeVolumes(){
  const x=0,z=5,ground=terrain(x,z),volumes=[];
  const add=(kind,px,pz,rx,rz,bottom,top)=>{
@@ -13389,17 +13410,20 @@ function physicalVillageExchangeVolumes(){
    throw Error('W385 invalid original village market solid');
   volumes.push({x:px,z:pz,rx,rz,bottom,visualBottom:bottom,top,kind});
  };
+ // Four conservative real roof AABBs match the two divided, sloping
+ // clay wings. Never invent a solid roof over the daylight working aisle.
  for(const side of [-1,1])for(let band=0;band<2;band++){
-  const u0=band*.5,u1=(band+1)*.5;
-  const x0=x+side*EXCHANGE_CANOPY.roofX*(1-u0),
-   x1=x+side*EXCHANGE_CANOPY.roofX*(1-u1);
-  const y0=ground+EXCHANGE_CANOPY.eave+
-   (EXCHANGE_CANOPY.ridge-EXCHANGE_CANOPY.eave)*u0,
-   y1=ground+EXCHANGE_CANOPY.eave+
-   (EXCHANGE_CANOPY.ridge-EXCHANGE_CANOPY.eave)*u1;
+  const t0=band*.5,t1=(band+1)*.5;
+  const span=EXCHANGE_CANOPY.roofX-EXCHANGE_CANOPY.openSkyHalfWidth;
+  const x0=x+side*(EXCHANGE_CANOPY.openSkyHalfWidth+span*t0);
+  const x1=x+side*(EXCHANGE_CANOPY.openSkyHalfWidth+span*t1);
+  const y0=ground+EXCHANGE_CANOPY.ridge-
+   (EXCHANGE_CANOPY.ridge-EXCHANGE_CANOPY.eave)*t0;
+  const y1=ground+EXCHANGE_CANOPY.ridge-
+   (EXCHANGE_CANOPY.ridge-EXCHANGE_CANOPY.eave)*t1;
   add(side===-1&&band===0?'village-market':'village-market-roof',
    (x0+x1)*.5,z,Math.abs(x1-x0)*.5+.035,EXCHANGE_CANOPY.roofZ+.02,
-   Math.min(y0,y1)-.08,Math.max(y0,y1)+.07);
+   Math.min(y0,y1)-.10,Math.max(y0,y1)+.07);
  }
  for(const sx of [-1,1])for(const sz of [-1,1]){
   const px=x+sx*EXCHANGE_CANOPY.supportX,
@@ -26191,10 +26215,10 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  // of the desktop worksite camera. Frame both worker and real surroundings.
  const portraitLens=Boolean(((working&&realWork)||journeyCamera||unloading||marketBarter)&&canvas.clientWidth>0&&
   canvas.clientWidth<500);
- const normalPitch=unloading?(actionCameraPitch??.29):marketBarter?.36:filmedLoadedCourier?.24:
+ const normalPitch=unloading?(actionCameraPitch??.29):marketBarter?.48:filmedLoadedCourier?.24:
   householdErrand?.28:householdContinuity?.28:journeyCamera?.34:
   working?(actionCameraPitch??(liveWorkday?(portraitLens?.27:.20):.24)):.76;
- const normalZoom=unloading?(actionCameraZoom??5.7):marketBarter?(portraitLens?4.9:5.6):
+ const normalZoom=unloading?(actionCameraZoom??5.7):marketBarter?(portraitLens?3.6:4.3):
   filmedLoadedCourier?(canvas.clientWidth<500?4.65:5.15):
   householdErrand?(canvas.clientWidth<500?4.25:5.05):
   householdContinuity?(canvas.clientWidth<500?4.25:5.05):journeyCamera?7.6:
@@ -26234,7 +26258,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const pitches=realFarmWork&&actionCameraPitch===null?
   (portraitLens?[.14,.31,.49,.64]:[.17,.33,.49,.62]):
   unloading?[.21,.29,.38]:
-  marketBarter?(portraitLens?[.26,.36,.46,.59]:[.27,.38,.50,.61]):
+  marketBarter?(portraitLens?[.32,.46,.61,.74]:[.28,.43,.58,.72]):
   filmedLoadedCourier?(portraitLens?[.15,.23,.32,.40]:[.16,.24,.32,.40]):
   householdErrand?(portraitLens?[.16,.27,.38,.49]:[.18,.28,.38,.50]):
    householdContinuity?(portraitLens?[.16,.27,.38,.49]:[.18,.28,.38,.50]):
@@ -26245,7 +26269,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const zooms=realFarmWork&&actionCameraZoom===null?
   (portraitLens?[3.15,3.8,4.6,5.5,6.35,7.3]:[3.8,4.4,5.0,5.9]):
   unloading?(portraitLens?[2.45,2.85,3.35,4.4,5.7]:[3.8,4.4,5.1,5.7,6.8]):
-  marketBarter?(portraitLens?[3.7,4.3,5.0,6.2,7.5]:[4.1,4.9,5.9,7.1,8.0]):
+  marketBarter?(portraitLens?[2.8,3.25,3.7,4.3,5.0,6.4]:[3.2,3.75,4.2,5.0,6.3,7.6]):
   filmedLoadedCourier?(portraitLens?[2.4,2.8,3.25,4.2,5.45,6.20]:[3.85,4.55,5.25,6.05,7.1]):
   householdErrand?(portraitLens?[3.25,3.7,4.25,4.9,5.65,6.5]:
     [3.7,4.25,4.85,5.55,6.3]):
