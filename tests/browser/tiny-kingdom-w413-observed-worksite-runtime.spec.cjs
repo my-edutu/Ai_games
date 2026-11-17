@@ -28,10 +28,38 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(setup.actual.length,'a genuinely scheduled worker is required').toBeGreaterThan(0);
   expect(setup.watch,'following a real active worksite is required').toBeTruthy();
   expect(setup.selectedTask).toBeTruthy();
+  // Capture the ACTUAL world before any GPU admission assertion. W413 failed
+  // for 150 seconds on both viewports while its real videos showed only sky;
+  // hiding that failure behind a long polling timeout is unacceptable.
+  const folder=path.resolve(__dirname,'../../artifacts/tiny-kingdom-w413');
+  fs.mkdirSync(folder,{recursive:true});
+  const frameBefore=await page.evaluate(()=>window.__tinyKingdom.getFrameProfile().totalFrames);
+  await page.waitForFunction(n=>window.__tinyKingdom.getFrameProfile().totalFrames>n,
+   frameBefore,{timeout:45000});
+  const diagnosis=await page.evaluate(()=>{
+   const g=window.__tinyKingdom,frame=g.getPresentedCameraFrame(),
+    eye=frame?.eye||null;
+   return {selected:g.getSelectedCitizen(),camera:g.getCamera(),frame,
+    terrainAtEye:eye?g.getTerrainHeight(eye[0],eye[2]):null,
+    workday:g.getLiveWorkdayView(),
+    admission:g.getForegroundResidentAudit().selectedWorksiteAdmission,
+    skin:g.getForegroundSkinAudit(),originalResidents:g.getForegroundResidentAudit(),
+    composition:g.getWorkdayCompositionAudit(),
+    visibleDetails:g.getCitizenDetailProjectionAudit(),
+    render:g.renderStats(),coldScene:g.getColdSceneryBuildAudit(),
+    frameProfile:g.getFrameProfile(),replayAuthorityUntouchedByCamera:true};
+  });
+  fs.writeFileSync(path.join(folder,viewport.width+'-first-follow-camera-diagnosis.json'),
+   JSON.stringify({setup,diagnosis,softwareWebGL:true,hardwareFps:'NOT MEASURED'},null,2));
+  await page.screenshot({path:path.join(folder,viewport.width+'-first-real-follow-frame.png')});
+  expect(diagnosis.frame?.eye).toHaveLength(3);
+  expect(diagnosis.terrainAtEye).not.toBeNull();
+  expect(diagnosis.frame.eye[1]-diagnosis.terrainAtEye,
+   'actual workday camera must be above real ground').toBeGreaterThanOrEqual(.49);
   await page.waitForFunction(name=>{
    const g=window.__tinyKingdom;
    return g.getForegroundResidentAudit().observedRealWorksiteSkinNames.includes(name);
-  },setup.selected,{timeout:150000});
+  },setup.selected,{timeout:18000});
   const read=()=>page.evaluate(()=>{
    const g=window.__tinyKingdom;
    return {snapshot:JSON.stringify(g.exportSnapshot()),
@@ -47,8 +75,6 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   const candidate=await read();
   expect(candidate.observed).toContain(setup.selected);
   expect(candidate.skin.jointDraws).toBeGreaterThan(0);
-  const folder=path.resolve(__dirname,'../../artifacts/tiny-kingdom-w413');
-  fs.mkdirSync(folder,{recursive:true});
   await page.screenshot({path:path.join(folder,viewport.width+'-selected-gpu-worker.png')});
   const before=await page.evaluate(()=>{
    const g=window.__tinyKingdom,n=g.getFrameProfile().totalFrames;

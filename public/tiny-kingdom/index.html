@@ -3363,8 +3363,24 @@ function resetForegroundResidents(){
  // Keep only a bounded reusable GPU allocation, never stale scene persons.
 }
 function getForegroundResidentAudit(){
+ // W414: read-only admission diagnostics for real observed actors. A worker
+ // drawn by the correct CPU fallback is NOT a GPU-performance proof.
+ const observed=people[selectedCitizen]||null;
+ const observedDetailed=observed?
+  selectVisibleCitizenDetail().indices.has(selectedCitizen):false;
+ const observedNear=new Set(observedDetailed?[selectedCitizen]:[]);
  return {source:'real-detailed-foreground-nonworking-person-3d-vbo',
   enabled:foregroundResidentEnabled,
+  selectedWorksiteAdmission:observed?{
+   name:observed.name,activity:observed.activity,working:isWorkingAtSite(observed),
+   detailed:observedDetailed,
+   eligible:isObservedWorksiteSkinCandidate(observed,selectedCitizen,observedNear),
+   resident:foregroundResidentVisible.some(row=>row.i===selectedCitizen),
+   physicallySkinned:foregroundResidentVisible.some(row=>row.i===selectedCitizen&&row.entry.skinned),
+   hasSoftwareOrHardwareGpu:gpuAvailable,jointShaderSupported:workingSkinCapable,
+   liveDelivery:Boolean(observed.delivery),
+   originalCpuFallbackAvailable:true,authorityChanged:false
+  }:null,
   visiblePeople:foregroundResidentVisible.length,
   originalNames:foregroundResidentVisible.map(row=>row.p.name),
   // These are genuine occupational actors with authentic original tool and
@@ -25430,6 +25446,14 @@ function getCameraEyeClearanceAudit(){
 }
 function physicalFollowEyeClearance(eye,roofs){
  if(!Array.isArray(eye)||eye.length!==3||eye.some(v=>!Number.isFinite(v)))return {clear:false,kind:'invalid-eye'};
+ // W414: previous roof-only check admitted an eye INSIDE the real raised
+ // terrain. Never hide the earth or actor to obtain a pretty documentary.
+ // A landscape-intersecting eye can see only sky even while geometry draws;
+ // reject it before any high-cost city roof query. The real orbit planner
+ // must choose an exterior eye with >= 50cm physical ground clearance.
+ const eyeGround=terrain(eye[0],eye[2]);
+ if(!Number.isFinite(eyeGround)||eye[1]<eyeGround+.50)
+  return {clear:false,kind:'terrain'};
  cameraEyeCounters.queries++;cameraEyeCounters.potentialTests+=roofs.length;
  const shortlist=cameraEyeCollisionCandidates(eye,roofs);
  if(shortlist)cameraEyeCounters.indexed++;
