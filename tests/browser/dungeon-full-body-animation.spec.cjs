@@ -892,8 +892,10 @@ for(const view of [
    expect(coupled.originalWorldSolePitchAxisVerified).toBe(true);
    expect(coupled.finalIndependentSourceSkin).toBe(true);
    expect(coupled.sourceInstanceId).toBe(frame.sourceId);
+   // The actor measures BOTH original skinned shoes, with at most FOUR
+   // reversible connected source trial receipts; not just two joint angles.
    expect(proof.sourceProbeCount).toBeGreaterThanOrEqual(1);
-   expect(proof.sourceProbeCount).toBeLessThanOrEqual(2);
+   expect(proof.sourceProbeCount).toBeLessThanOrEqual(4);
    expect(proof.witnessedSourceWeight).toBeGreaterThanOrEqual(.95);
    expect(proof.witnessedFrameIntervalSeconds).toBeGreaterThanOrEqual(.008);
    expect(proof.witnessedFrameIntervalSeconds).toBeLessThanOrEqual(.240001);
