@@ -189,8 +189,8 @@ test('source-earned old/new shared 3D threshold has a broad sightline aperture a
   assert.equal(effect.begin(old,next,anchor),true);
   const threshold=effect.group.getObjectByName('ObservedWalkableGuardianThreshold');
   const arches=threshold?.getObjectByName('WalkableSourceCapArchAndBraces');
-  assert.ok(arches?.isInstancedMesh && arches.count===6,
-    'source-retained actual walkable arch must exist with six original structural parts');
+  assert.ok(arches?.isInstancedMesh && arches.count===7,
+    'source-retained original walkable doorway must contain open piers, crown, outboard shoes and stays');
   const pose=new THREE_IMPL.Matrix4(),p=new THREE_IMPL.Vector3(),
     q=new THREE_IMPL.Quaternion(),s=new THREE_IMPL.Vector3();
   const parts=[];
@@ -198,15 +198,26 @@ test('source-earned old/new shared 3D threshold has a broad sightline aperture a
     arches.getMatrixAt(i,pose);pose.decompose(p,q,s);
     parts.push({x:p.x,y:p.y,z:p.z,width:s.x,height:s.y,depth:s.z});
   }
-  const [left,right,crown,sill,leftStay,rightStay]=parts;
+  const [left,right,crown,leftShoe,rightShoe,leftStay,rightStay]=parts;
   assert.ok(left.x<-4 && right.x>4,
     'old bronze side piers must stand physically outside the whole-body portrait sightline');
   assert.ok(-left.x-left.width/2>3.75 && right.x-right.width/2>3.75,
     'both piers give a real uninterrupted >=7.5m source gateway aperture');
   assert.ok(crown.y-crown.height/2>5.0 && crown.width>8.2,
     'a real continuous lintel must crown above the adult airborne silhouette');
-  assert.ok(sill.y+sill.height/2<.2 && sill.width>7.6,
-    'true walkable roof cannot have a shin-high foreground crossbar');
+  // Original 390x844 candidate 9fcf62e, F9 tick484: the old
+  // full-width index-3 source sill intersected a real body-CENTRE ray
+  // at 33.328m with opacity .82, despite a geometrically safe camera.
+  // Two boot-low masonry shoes cannot form that opaque central wall.
+  for(const shoe of [leftShoe,rightShoe])
+    assert.ok(shoe.y+shoe.height/2<.2 && shoe.width<=.85,
+      'the original doorway keeps low, narrow footings, not a full-width bar');
+  assert.ok(leftShoe.x+leftShoe.width/2<=-3.3 &&
+    rightShoe.x-rightShoe.width/2>=3.3,
+    'both source masonry feet must clear at least 6.6m of central body corridor');
+  assert.ok(Math.abs(leftShoe.x+rightShoe.x)<.001 &&
+    Math.abs(leftShoe.width-rightShoe.width)<.001,
+    'the original old/new walkable arch keeps a symmetric physical doorway');
   assert.ok(leftStay.x<-4 && rightStay.x>4,
     'source-tensile corner stays are genuinely outboard rather than a centred foreground X');
   assert.equal(effect.diagnostics().continuousGroundedHandoff,true);
