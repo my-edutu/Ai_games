@@ -5,6 +5,7 @@ const { test, after } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs'), os = require('node:os'), path = require('node:path');
 const { pathToFileURL } = require('node:url');
+const { resolveTowerWorldFixtureImports } = require('../helpers/tower-world-fixture-imports.cjs');
 const ROOT = path.resolve(__dirname, '../..');
 const visuals = path.join(ROOT,'public/infinite-tower-climb/visuals');
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(),'tower-original-gallery-'));
@@ -30,7 +31,7 @@ for(const [from,to] of Object.entries({
   assert.ok(source.includes(from),'shipped import must exist: '+from);
   source = source.replace(from,JSON.stringify(to));
 }
-fs.writeFileSync(local,source);
+fs.writeFileSync(local,resolveTowerWorldFixtureImports(source,{root:ROOT,fixtureDir:scratch}));
 after(()=>fs.rmSync(scratch,{recursive:true,force:true}));
 const loaded = Promise.all([import(threeUri),import(pathToFileURL(local).href)]);
 const CAP_X = 115200, CAP_WIDTH = 249600, EXIT_X = CAP_X + Math.floor(CAP_WIDTH*.76);
