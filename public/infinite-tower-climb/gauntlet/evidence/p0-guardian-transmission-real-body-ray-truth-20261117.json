@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "leadingTransformationVerdict": "NOT EVALUATED",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "verifiedPreviousHead": "e843b1470dbf61bebd148dd0f1434cd9344b64a6",
+  "playableProductionCommit": "7371457c00b7a01ff6a9d4b9c1c9e88a1a8cdeaa",
+  "currentCandidateSourceAtCaptureRequest": "PENDING — pin exact immutable request commit github.sha, not branch float",
+  "sourceCurrentAtInspection": "https://github.com/my-edutu/Ai_games/pull/68",
+  "inspectedOriginalNativeEvidence": {
+    "pinnedPreviousCandidate": "8381a3ca6f0c8c2e2656cfc6c95d88970fa75105",
+    "originalDangerCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44077486702",
+    "originalDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44077486702/artifacts/14324648903",
+    "originalVideosInspected": [
+      "960x600 desktop 25fps 72.04s",
+      "390x844 portrait 25fps 72.48s"
+    ],
+    "previouslyRecordedSourceCrossingTick": 475,
+    "previousStrictSourceToNativeVideoPairs": "FAILED 0/2",
+    "observedSceneDefect": "Actual original 1x guardian footage shows a foreground opaque bronze mechanical transmission over the full 3D climber near the real cap; the opened guardian gateway is visually difficult to follow. Floor 9 HUD and legible Void room stay disconnected. The normal-speed footage cannot prove gate+body+F9 destination together for two consecutive native frames.",
+    "exactCurrentRayEvidence": {
+      "viewport": "960x600",
+      "sourceTick": 441,
+      "sourceFloor": 8,
+      "rayTarget": "real-body-centre",
+      "actualRayObject": "GuardianLockTwinBronzeRails",
+      "instanceId": 29,
+      "railIntersectionMetres": 12.028,
+      "realHeroCentreMetres": 17.52,
+      "differenceMetres": 5.492,
+      "kind": "Read-only current-world Three.js triangle hit; NOT a visible-pixel measurement"
+    },
+    "priorNativeFloorNineScreen": {
+      "desktop": {
+        "drawnHudSeconds": 25.75,
+        "sustainedVioletSeconds": 27.5,
+        "secondsGap": 1.75
+      },
+      "portrait": {
+        "drawnHudSeconds": 25.5,
+        "sustainedVioletSeconds": 27.25,
+        "secondsGap": 1.75
+      }
+    }
+  },
+  "systemicPlayableChange": {
+    "goal": "Physically legible guardian/climber action while preserving the real source HP-operated transmission, collision and original gateway.",
+    "details": "The same source-run/source-tick guardian circuit now checks three bounded final-camera-to-current-drawn-climber physical rays against the actual instanced 3D transmission. Only if the real near-camera metal obscures body rays does the original circuit rail use a dedicated .2-alpha no-depth-write original bronze material. Real cap-bolt instance, HP-driven clutches, guardian seal, world, platform, gameplay snapshots and source decisions stay unmodified; 4 genuinely clear proposed views restore opaque rail with bounded hysteresis. Stale/overview/reduced-motion/source-mismatch/death/restart restore opaque immediately.",
+    "changedFiles": [
+      "public/infinite-tower-climb/visuals/guardian-circuit.mjs",
+      "public/infinite-tower-climb/visuals/scene.mjs",
+      "tests/phase3/tower-guardian-physical-rail-sightline.test.cjs"
+    ],
+    "nonClaims": "Renderer ray intersection is neither source-to-native-video alignment nor actual GPU-composited character readability."
+  },
+  "verification": {
+    "newSourceTests": 3,
+    "productionCommit": "7371457c00b7a01ff6a9d4b9c1c9e88a1a8cdeaa",
+    "qualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44090338037",
+    "qualityAtEvidenceCreation": "PENDING — do not claim success",
+    "newNormalSpeedOriginalCapture": "NOT YET COMPLETED",
+    "realDeviceFrameP50P95P99AndMemory": "NOT EVALUATED",
+    "independentFreshBlindCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "strictNativeEventsMatched": "NOT EVALUATED for new source"
+  },
+  "highestImpactNext": "Inspect exact-head CI, then the new immutable nine-job real-source videos. Verify in the new native 960x600 and 390x844 guardian footage that the transmission no longer hides the genuine living body while visible HP-operated locks remain legible; independently assess F8→F9 physical gate/body/Void destination over two source-aligned consecutive frames. If core gateway still invisible or cold Void presentation late, stay in P0 for architectural composition/first-painted-frame reconstruction, not P1.",
+  "safety": {
+    "frozenBaselineUnchanged": true,
+    "pr68StaysDraft": true,
+    "pr58Untouched": true,
+    "merged": false,
+    "deployed": false,
+    "forcePushed": false,
+    "unrelatedGamesUntouched": true
+  }
+}
