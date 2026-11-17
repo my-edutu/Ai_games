@@ -195,6 +195,8 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
   */
 
  let pcmWorkletModuleLoad=null;
+ // Recorder-fallback age only; never the authentic combat deadline.
+ let pcmWorkletModuleRequestedAtMs=null;
  // Consent-time MODULE promise evidence only: not PCM output, onset or A/V sync.
  let pcmWorkletModuleState='NOT_REQUESTED';
  function primeD04CombatPcmModule(){
@@ -206,6 +208,7 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
    typeof globalThis.AudioWorkletNode!=='function')return;
   try{
    pcmWorkletModuleState='LOADING';
+   pcmWorkletModuleRequestedAtMs=Date.now();
    const load=Promise.resolve(ctx.audioWorklet.addModule('/dungeon/d04-combat-pcm-worklet.js'));
    pcmWorkletModuleLoad=load;
    // A fulfilled addModule promise only certifies module registration.
@@ -287,6 +290,7 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
    Promise.resolve().then(async()=>{
     if(!pcmWorkletModuleLoad){
      pcmWorkletModuleState='LOADING';
+     pcmWorkletModuleRequestedAtMs=Date.now();
      pcmWorkletModuleLoad=ctx.audioWorklet.addModule('/dungeon/d04-combat-pcm-worklet.js');
     }
     try{
@@ -337,13 +341,22 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
   const sampleRate=ctx.sampleRate;
   if(!Number.isFinite(sampleRate)||sampleRate<8000||sampleRate>96000)
    return Promise.resolve({status:'UNAVAILABLE',reason:'Invalid live AudioContext sample rate'});
-  // The D04-only audio-thread stem avoids main-thread PCM gaps during WebGL stalls.
-  // Existing legacy/unsupported ScriptProcessor recording is unchanged.
+  // When consent-time worklet loading has ALREADY stalled over 12s, waiting
+  // another 12s would only lose the real original-combat PCM window. Use
+  // the existing live FX-only ScriptProcessor tap, if available, instead.
+  // Timestamp gaps remain UNVERIFIED; this does not grant late impact sound.
+  const stalledConsentModule=source==='d04-combat-fx'&&
+   pcmWorkletModuleState==='LOADING'&&
+   Number.isFinite(pcmWorkletModuleRequestedAtMs)&&
+   Date.now()-pcmWorkletModuleRequestedAtMs>=12000;
+  const mainThreadD04Fallback=stalledConsentModule&&
+   typeof ctx.createScriptProcessor==='function';
   if(source==='d04-combat-fx'&&typeof ctx.audioWorklet?.addModule==='function'&&
-   typeof globalThis.AudioWorkletNode==='function')
+   typeof globalThis.AudioWorkletNode==='function'&&!mainThreadD04Fallback)
    return recordD04CombatPcmWorklet(seconds,tapBus,sampleRate);
   return new Promise(resolve=>{
    let recorder=null,silence=null,frames=0,sumSquares=0,peak=0,settled=false;
+   let fallbackWatchdog=null;
    // AudioProcessingEvent.playbackTime anchors real PCM blocks on the
    // AudioContext clock. Neither audible onset nor video PTS follows.
    let pcmBlocks=0,timedBlocks=0,invalidClocks=0,discontinuities=0;
@@ -351,6 +364,7 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
    const chunks=[],maxFrames=Math.ceil(seconds*sampleRate);
    const finish=(reason='complete')=>{
     if(settled)return;settled=true;
+    if(fallbackWatchdog!==null){clearTimeout(fallbackWatchdog);fallbackWatchdog=null}
     try{tapBus.disconnect(recorder)}catch{}
     try{recorder?.disconnect()}catch{}
     try{silence?.disconnect()}catch{}
@@ -379,6 +393,7 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
      sampleRate,channels:1,frames,durationSeconds:frames/sampleRate,
      captureBus:source==='d04-combat-fx'?'d04-combat-fx-pre-master':'original-master-mix',
      captureTopology:source==='d04-combat-fx'?'d04-original-foley-only-v1':'legacy-master-mix-v1',
+     diagnosticFallbackFromStalledWorklet:mainThreadD04Fallback,
      pcmClock:{status:clockStatus,clock:'AudioProcessingEvent.playbackTime',
       blocks:pcmBlocks,discontinuities,invalidClocks,
       firstSampleContextSeconds:validWindow?firstSampleContextSeconds:null,
@@ -416,6 +431,11 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
      if(frames>=maxFrames)finish();
     };
     pcmSession={finish};
+    // D04-only bounded original FX diagnostic, one processor, zero speaker
+    // gain. Legacy master recording does not gain a new timer or route.
+    if(source==='d04-combat-fx')fallbackWatchdog=setTimeout(
+     ()=>finish('D04 main-thread PCM capture timed out'),
+     Math.max(20000,Math.ceil(seconds*1000)+12000));
    }catch(e){finish('Audio capture processor unsupported: '+String(e));}
   });
  }
