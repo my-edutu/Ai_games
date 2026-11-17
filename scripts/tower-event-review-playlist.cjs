@@ -35,11 +35,24 @@ function nativeRasterPhase(record,viewport){
     (!phase && scene.phase.status!=='NOT EVALUATED')||
     !(hud.precisionSeconds>0&&hud.precisionSeconds<=.25)||
     (phase && !(phase.precisionSeconds>0&&phase.precisionSeconds<=.25))||
-    (phase && Math.abs(hud.nativeVideoSeconds-phase.nativeSeconds)>.75)||
+    // The 2026-11-17 *original* 1x candidate films render the genuine 9
+    // HUD before the Void palette has fully replaced the bronze aperture:
+    // desktop 25.75s HUD / 27.00s violet, portrait 26.00s / 27.75s.
+    // Treat the native HUD as a RASTER-ONLY search handle, NOT a floor-event
+    // alignment. Keep a bounded, forward-only scene follow-through (<=1.85s);
+    // earlier violet or a later unrelated run's purple scene is a veto.
+    (phase && (phase.nativeSeconds<hud.nativeVideoSeconds-.75 ||
+      phase.nativeSeconds>hud.nativeVideoSeconds+1.85))||
     hud.nativeVideoSeconds<3||hud.nativeVideoSeconds>=clock.originalVideoDurationSeconds-3)return null;
+ const paletteAfterHudSeconds=phase
+   ?Math.round((phase.nativeSeconds-hud.nativeVideoSeconds)*1000)/1000:null;
  return {nativeSeconds:hud.nativeVideoSeconds,
-    evidence:phase?'confirmed-HUD-plus-color-scene':'confirmed-HUD-only-color-stage-inconclusive',
-   sourceToRasterSeconds:Math.round((hud.nativeVideoSeconds-floors[0].nativeVideoSeconds)*1000)/1000};
+    evidence:phase?(paletteAfterHudSeconds>.75
+      ?'observed-HUD-before-delayed-void-palette'
+      :'confirmed-HUD-plus-color-scene')
+      :'confirmed-HUD-only-color-stage-inconclusive',
+    paletteAfterHudSeconds,
+    sourceToRasterSeconds:Math.round((hud.nativeVideoSeconds-floors[0].nativeVideoSeconds)*1000)/1000};
 }
 function planPair(rows,viewport,candidateSha){
   const plan={viewport,status:'NOT EVALUATED',canReview:false,
@@ -143,6 +156,8 @@ function planPair(rows,viewport,candidateSha){
   if(seenA&&seenB)plan.nativeRasterAnchors.push({
     kind:'DRAWN-HUD-8-to-9 (raster only)',baselineSeconds:seenA.nativeSeconds,
     baselineRasterEvidence:seenA.evidence,candidateRasterEvidence:seenB.evidence,
+    baselinePaletteAfterHudSeconds:seenA.paletteAfterHudSeconds,
+    candidatePaletteAfterHudSeconds:seenB.paletteAfterHudSeconds,
     candidateSeconds:seenB.nativeSeconds,
     baselineSourceToRasterSeconds:seenA.sourceToRasterSeconds,
     candidateSourceToRasterSeconds:seenB.sourceToRasterSeconds,

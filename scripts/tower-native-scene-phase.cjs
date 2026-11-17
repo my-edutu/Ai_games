@@ -188,12 +188,31 @@ function inspectOriginalPhase(directory,viewport,expectedSha){
     scores.push(violetSceneFraction(rgb.subarray(i,i+FRAME_BYTES)));
   const observed=findSustainedVoidPhase(scores);
   const nativeHud=sampleOriginalHud(video);
+  // This is a SECOND observed native-film relationship, not the source-event
+  // clock: a correctly painted Floor9 glyph can precede the actual violet
+  // architecture by many 250ms samples while the old clockwork materials
+  // remain onscreen. The gap is a concrete P0 continuity defect to review,
+  // NEVER a reason to pretend the physical crossing appeared in the film.
+  const visibleHandoff=observed&&nativeHud.observed?{
+    status:observed.nativeSeconds-nativeHud.observed.nativeVideoSeconds>.75
+      ?'DRAWN_FLOOR_AHEAD_OF_SUCCESSOR_WORLD'
+      :observed.nativeSeconds<nativeHud.observed.nativeVideoSeconds-.75
+        ?'WORLD_COLOR_AHEAD_OF_DRAWN_FLOOR':'DRAWN_FLOOR_AND_WORLD_NEARBY',
+    originalDrawnHudSeconds:nativeHud.observed.nativeVideoSeconds,
+    originalSustainedVioletSeconds:observed.nativeSeconds,
+    hudToVioletSeconds:Math.round(
+      (observed.nativeSeconds-nativeHud.observed.nativeVideoSeconds)*1000)/1000,
+    uncertaintySeconds:Math.max(observed.precisionSeconds||0,
+      nativeHud.observed.precisionSeconds||0),
+    limitation:'Original raster-phase diagnostic, NOT an authored event, GPU timing, floor-proof or visual acceptance'
+  }:{status:'NOT EVALUATED',limitation:'Missing independently observed original HUD or scene pixels'};
   const result={schemaVersion:1,sourceSha:expectedSha,viewport,scenario:'danger',
     originalWebMSha256:hash,originalWebMBytes:data.length,
     originalVideoUnmodified:true,method:'sampled-native-WebM-stage-chroma',
     phase:compareFilmPhaseToSource(clock,observed,scores.length),
     hud:{...compareHudToSource(clock,nativeHud.observed,nativeHud.frames),
-      recognitionCounts:nativeHud.counts}};
+      recognitionCounts:nativeHud.counts},
+    visibleHandoff};
   // An original native-video floor glyph, the browser receive clock and the
   // returned WebGL call remain distinct. Missing sidecars never become a PASS.
   let motion=null;

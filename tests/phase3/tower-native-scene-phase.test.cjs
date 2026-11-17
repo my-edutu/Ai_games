@@ -104,3 +104,17 @@ test('missing, changed-episode, partial and non-pixel evidence cannot certify a 
     assert.equal(diagnostic.browserAcceptedToRendererReturnMs,undefined);
   }
 });
+
+test('observable native Floor9 HUD to successor world delay is diagnosed without gameplay or GPU claims',()=>{
+ const expected={sourceSha:'f'.repeat(40),viewport:'portrait',
+   originalWebMSha256:'b'.repeat(64),originalWebMBytes:100,
+   originalVideoUnmodified:true};
+ const {visibleHandoff}=JSON.parse(JSON.stringify({...expected,
+   visibleHandoff:{status:'DRAWN_FLOOR_AHEAD_OF_SUCCESSOR_WORLD',
+     originalDrawnHudSeconds:26,originalSustainedVioletSeconds:27.75,
+     hudToVioletSeconds:1.75,uncertaintySeconds:.25}}));
+ assert.equal(visibleHandoff.hudToVioletSeconds,1.75);
+ // The pixel clock is independently observed, never a physical gateway event.
+ assert.equal(compareFilmPhaseToSource({sourceEventTimecodes:[]},
+   {nativeSeconds:27.75},288).eventPixelsConfirmed,false);
+});

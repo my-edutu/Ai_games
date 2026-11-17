@@ -170,3 +170,39 @@ test('insufficient native glyph counts or contradictory chroma veto pixel-phase 
  a.nativeScenePhase.phase.videoPhaseWitness={nativeSeconds:28,precisionSeconds:.25};
  assert.equal(planPair([a,b],'portrait',CANDIDATE).nativeRasterAnchors.length,0);
 });
+
+test('actual 1x candidate HUD leads its *own* violet world by 1.25–1.75s; permit only ungraded raster phase',()=>{
+ const a=make('baseline'),b=make('candidate');
+ for(const r of [a,b]){
+   r.nativeScenePhase.phase.status='SOURCE_CUE_AND_VISIBLE_PHASE_DISAGREE';
+   r.nativeScenePhase.hud.status='SOURCE_CUE_AND_DRAWN_HUD_DISAGREE';
+ }
+ a.nativeScenePhase.hud.visibleHudFloorChange.nativeVideoSeconds=19.75;
+ a.nativeScenePhase.phase.videoPhaseWitness.nativeSeconds=19.75;
+ b.nativeScenePhase.hud.visibleHudFloorChange.nativeVideoSeconds=26;
+ b.nativeScenePhase.phase.videoPhaseWitness.nativeSeconds=27.75;
+ const p=planPair([a,b],'portrait',CANDIDATE);
+ assert.equal(p.canReview,false,'a raster cue is never source-matched passage proof');
+ assert.equal(p.unalignedInspectionOnly,true);
+ assert.equal(p.nativeRasterAnchors.length,1);
+ assert.equal(p.nativeRasterAnchors[0].candidatePaletteAfterHudSeconds,1.75);
+ assert.equal(p.nativeRasterAnchors[0].candidateRasterEvidence,'observed-HUD-before-delayed-void-palette');
+ assert.equal(p.nativeRasterAnchors[0].physicalGatewayCrossingConfirmed,false);
+ assert.match(htmlFor([p]),/'Raster-only cue/);
+ assert.match(p.failures.join(','),/native-scene-phase-not-confirmed/);
+});
+test('a later unrelated purple episode and premature violet image cannot forge a raster cue',()=>{
+ const a=make('baseline'),b=make('candidate');
+ for(const r of [a,b]){
+   r.nativeScenePhase.phase.status='SOURCE_CUE_AND_VISIBLE_PHASE_DISAGREE';
+   r.nativeScenePhase.hud.status='SOURCE_CUE_AND_DRAWN_HUD_DISAGREE';
+ }
+ b.nativeScenePhase.hud.visibleHudFloorChange.nativeVideoSeconds=26;
+ b.nativeScenePhase.phase.videoPhaseWitness.nativeSeconds=28;
+ assert.equal(planPair([a,b],'portrait',CANDIDATE).nativeRasterAnchors.length,0);
+ b.nativeScenePhase.phase.videoPhaseWitness.nativeSeconds=25;
+ assert.equal(planPair([a,b],'portrait',CANDIDATE).nativeRasterAnchors.length,0);
+ b.nativeScenePhase.phase.videoPhaseWitness.nativeSeconds=27.75;
+ b.nativeScenePhase.originalWebMSha256='d'.repeat(64);
+ assert.equal(planPair([a,b],'portrait',CANDIDATE).nativeRasterAnchors.length,0);
+});
