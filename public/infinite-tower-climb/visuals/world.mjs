@@ -2359,7 +2359,10 @@ export function createTowerWorld(){
     // Give only its NON-WALKABLE underside separate bounded material ownership,
     // so actual ray hits can clear the visible silhouette without altering the
     // collision-aligned landing top, moving deck, threats, or source physics.
-    const sourceOwnedUndercroft=sharedPhysicalRoof &&
+    // Camera-safe NON-WALKABLE skirts still belong to genuine raised Void
+    // destination decks even though their top/body no longer share bronze.
+    // Decouple the source-owned camera ray owner from material palette sharing.
+    const sourceOwnedUndercroft=(sharedPhysicalRoof || realDeparture) &&
       p.y+p.height>=retainedEarnedCap.oldRoofY-2500 &&
       p.y+p.height<=retainedEarnedCap.oldRoofY+230000 ? [] : null;
     const undercroftPanelMaterial=(original,name)=>{
