@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "leadingTransformationVerdict": "NOT EVALUATED",
+  "branch": "feat/tower-transformation-gauntlet-20261101",
+  "pr": 68,
+  "prDraft": true,
+  "basePr": 58,
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "inspectedBeforeSourceSha": "9fcf62e7ba6e68b80835642b19c44d918c1b9c87",
+  "productionSha": "b05a7fb73bcc4cb7813ddbe1e693404871e3929a",
+  "redFirstTestShas": [
+    "857c5821a707529444a4a958883e933f869a6f81",
+    "66c1c2dc5c4b2b6f72bc7ff8757f122d440c7069"
+  ],
+  "lastCompletedSourcePinnedNineJobCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44139607018",
+  "lastCompletedCandidateDangerOriginalArchive": "https://github.com/my-edutu/Ai_games/actions/runs/44139607018/artifacts/14352549962",
+  "lastCompletedBaselineDangerOriginalArchive": "https://github.com/my-edutu/Ai_games/actions/runs/44139607018/artifacts/14352869412",
+  "exactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44139607179 — 9/10 jobs passed; phase6 non-Tower catalogue timeout; overall not green",
+  "observedOriginalFootage": {
+    "method": "Unmodified 25fps 1x candidate WebM desktop 960x600 and portrait 390x844, low tier, 60+ seconds, source-pinned to 9fcf62e; native chronological frames compared with actual original sidecar ray owners and source ticks. Observed timings are internal 0.25s-class visual-phase classifications, NOT event-matched baseline vs candidate A/B nor causal speed claim.",
+    "sourceFullGuardianCrossingTick": 475,
+    "desktop": {
+      "hudFloor9Seconds": 26,
+      "sustainedRecognizableVoidSeconds": 27.75,
+      "hudToVoidSeconds": 1.75
+    },
+    "portrait": {
+      "hudFloor9Seconds": 26,
+      "sustainedRecognizableVoidSeconds": 29,
+      "hudToVoidSeconds": 3
+    },
+    "sourceEventToNativeFilmPairing": "FAILED 0/2; real camera target visibility is not actual pixel co-visibility",
+    "specificOriginal3DHit": {
+      "viewport": "portrait 390x844",
+      "sourceFloor": 9,
+      "sourceTick": 484,
+      "endpoint": "real-body-centre",
+      "actualMesh": "WalkableSourceCapArchAndBraces",
+      "instanceId": 3,
+      "distanceWorldMetres": 33.328,
+      "opacity": 0.82,
+      "hitWorldXYZ": [
+        7.09,
+        -1.52,
+        24
+      ],
+      "limitation": "Source-tick-linked Three.js geometry ray, NOT original native-pixel mask or frame-PTS proof. Exact old source-facing instanced entry 3 is the full-width non-colliding stone sill, while live player physics is supported by the real original/next roof."
+    }
+  },
+  "meaningfulProductionChange": "Reconstructed the real original inner threshold's one solid 8.04m-wide NON-COLLIDING cross-sill into two symmetric 0.75m outboard original stone corner shoes at x±3.85, preserving real floor and solid source-locked exterior gate, original 2 piers/crown/2 overhead stays, original skinned hero/HP/physics/progression. 7 instanced shapes remain in the same ONE draw call. This specifically eliminates the original source-ray-hit full-width low opaque mesh along the hero's supported centre walkway, not an artificial actor xray, screenshot or opacity fade.",
+  "technicalTests": "Modified phase3 real-Three grounded threshold and phase5 walkable gate contracts to verify 7 authored instanced pieces, paired low side shoes and >=6.6m clear central aperture. Test commits exist; exact new production-source CI pending. No test-count acceptance.",
+  "currentNewSourceVideo": "NOT EVALUATED; capture must run after this commit and source-pinned camera/guardian analysis must be repeated before claiming better image.",
+  "independentCritics": {
+    "LOOKS": "0/5",
+    "FEELS": "0/5",
+    "PLAYS": "0/5"
+  },
+  "realDeviceP50P95P99": "NOT EVALUATED",
+  "realDeviceMemory": "NOT EVALUATED",
+  "largestUnresolvedDefect": "Even with gate camera NDC and real source HP-zero proof, the original bronze foreground conceals hero/gateway across cold Floor9 and the next Void structure arrives late. Outboard sill fix has NO verified new native-film result.",
+  "nextHighestImpactAction": "Trigger candidate capture at exact immutable source SHA after this source-change and inspect original 1x consecutive 25fps desktop and portrait frame sequence and post-F9 mesh ray owner; require full skinned hero, physically opened original gate, real walkable receiving roof + raised Void deck together, source event/PTS pair strict. If failures persist, rebuild incoming real shaft GPU first-return and opaque F8 side-arch clearance cohesively; do not advance stage.",
+  "frozenBaselineModified": false,
+  "pr58Modified": false,
+  "merge": false,
+  "deploy": false,
+  "forcePush": false,
+  "prDraftPreserved": true
+}
