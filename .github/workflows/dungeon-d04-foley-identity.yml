@@ -29,6 +29,8 @@ on:
       - tests/browser/dungeon-d04-real-render-pair.spec.cjs
       - tests/browser/dungeon-d04-render-cost-pair.cjs
       - tests/browser/dungeon-d04.playwright.config.cjs
+      - tests/browser/dungeon-d04-soak.playwright.config.cjs
+      - tests/browser/dungeon-d04-real-20min-cleanup-soak.spec.cjs
       - tests/browser/dungeon-d04-av-evidence.cjs
       - tests/browser/dungeon-d04-capture-profile.cjs
       - tests/foundation/dungeon-d04-single-primary-encoder.test.cjs
@@ -66,6 +68,7 @@ jobs:
       - run: node --check tests/browser/dungeon-d04-continuous-mode-pair.cjs
       - run: node --check tests/browser/dungeon-d04-real-live-authority-capture-pair.spec.cjs
       - run: node --check tests/browser/dungeon-physical-feedback-preview.spec.cjs
+      - run: node --check tests/browser/dungeon-d04-real-20min-cleanup-soak.spec.cjs
       - run: |
           node --test \
             tests/foundation/dungeon-d04-queue-pressure-audit.test.cjs \
@@ -155,6 +158,41 @@ jobs:
           name: d04-authentic-preview-smoke
           path: |
             artifacts/dungeon-d04-*
+            test-results/**
+          retention-days: 7
+          if-no-files-found: warn
+  real-resource-soak:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 36
+    needs: contracts
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: SHA-verified original CC0 GLB assets
+        run: npm run dungeon:assets:strict
+      - name: Verify preinstalled Chrome
+        run: |
+          command -v google-chrome
+          google-chrome --version
+      - name: Genuine D04 20-minute server-driven resource and cleanup soak
+        run: npx playwright test -c tests/browser/dungeon-d04-soak.playwright.config.cjs
+        env:
+          D04_BROWSER_CHANNEL: chrome
+          DUNGEON_REQUIRE_MODELS: '1'
+      - name: Publish actual soak, errors and cleanup findings even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: d04-real-20min-resource-soak
+          path: |
+            artifacts/dungeon-d04-real-20min-soak-*
             test-results/**
           retention-days: 7
           if-no-files-found: warn
