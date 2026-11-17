@@ -54,7 +54,7 @@ export function createPhysicalCombatFeedback({
   audioInterruptions=0,observedAudioContext=null,audioStateContext=ctx,
   audioStateUnavailable=false,
   unverifiedFrameInterval=false,expiredQueuedCues=0,lateLiveWarningVisuals=0,invalidFrameIntervals=0,
-  framesAcknowledged=0,staleAudioDropped=0,preRenderStaleDropped=0,expiredVisualAudioDropped=0,
+  framesAcknowledged=0,staleAudioDropped=0,preRenderStaleDropped=0,preRenderUnverifiedDropped=0,expiredVisualAudioDropped=0,
   retroactiveAudioSuppressed=0,
    unverifiedVisualLiveness=0,lastPresentedFrame=null,
    highestNumericPresentedFrame=-1,replayedFrameAcks=0,
@@ -678,13 +678,17 @@ export function createPhysicalCombatFeedback({
   if(disposed||!requirePresentedFrame||typeof clock!=='function'||
      awaitingPresentation.length===0)return 0;
   const now=observedWallClock();
-  if(now===null)return 0;
+  // A failed/nonmonotonic browser clock cannot certify retained injury
+  // matrices or staged original sound as timely. The prior early return
+  // allowed an untrusted ghost draw before post-submit audio was rejected.
+  // Revoke unverified transients BEFORE WebGL, retaining live Warden hazard art.
+  const unverifiedClock=now===null;
   let expired=0;
   for(let i=awaitingPresentation.length-1;i>=0;i--){
    const item=awaitingPresentation[i];
    const observedAt=observedAtByCueId.get(item.cue.id);
-   if(!Number.isFinite(observedAt)||observedAt<0||now<observedAt||
-      now-observedAt<=MAX_AUDIO_VISUAL_STALENESS_SECONDS)continue;
+   if(!unverifiedClock&&(!Number.isFinite(observedAt)||observedAt<0||
+      now<observedAt||now-observedAt<=MAX_AUDIO_VISUAL_STALENESS_SECONDS))continue;
    awaitingPresentation.splice(i,1);
    const warningStillLive=item.cue.visual==='warning'&&
     item.cue.proof==='authority-warning-window'&&
@@ -692,7 +696,7 @@ export function createPhysicalCombatFeedback({
    let retiredSafely=!item.visual||warningStillLive;
    if(item.visual&&!warningStillLive){
     const retired=safeCall(()=>visuals?.retireStaleCue?.(
-     item.cue.id,'expired-before-render'));
+     item.cue.id,unverifiedClock?'unverified-before-render':'expired-before-render'));
     retiredSafely=retired===true||
      Number.isSafeInteger(retired)&&retired>0||
      typeof visuals?.hasLiveCue==='function'&&
@@ -700,10 +704,15 @@ export function createPhysicalCombatFeedback({
    }
    if(!retiredSafely)unverifiedVisualLiveness++;
    if(item.soundAuthorized)staleAudioDropped++;
-   preRenderStaleDropped++;expired++;
+   if(unverifiedClock)preRenderUnverifiedDropped++;
+   else preRenderStaleDropped++;
+   expired++;
    retainReceipt(item.cue,item.visual,false,null,
-    warningStillLive?'expired-before-render-live-warning-kept':
-    retiredSafely?'expired-before-render':'expired-before-render-retirement-unverified');
+    warningStillLive?(unverifiedClock?'unverified-before-render-live-warning-kept':
+     'expired-before-render-live-warning-kept'):
+    retiredSafely?(unverifiedClock?'unverified-before-render':'expired-before-render'):
+     unverifiedClock?'unverified-before-render-retirement-unverified':
+      'expired-before-render-retirement-unverified');
   }
   return expired;
  }
@@ -1017,7 +1026,7 @@ export function createPhysicalCombatFeedback({
   audioInterruptions,injectedContextMismatch,injectedOutputMismatch,
   pending:pending.length,queued,emitted:played,visualAccepted,audioAccepted,
   awaitingPresentation:awaitingPresentation.length,
-  preRenderStaleDropped,
+  preRenderStaleDropped,preRenderUnverifiedDropped,
   awaitingAudioFrame:awaitingPresentation.filter(item=>item.soundAuthorized).length,
   awaitingVisualReceipt:awaitingPresentation.filter(item=>!item.soundAuthorized&&item.visual).length,
   // Read-only genuine D04 renderer acknowledgment ID. Three.js
