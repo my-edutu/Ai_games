@@ -558,6 +558,19 @@ function measuredOriginalSourceCounterpitchAngles({
   depth>=.075&&depth<=.12&&
   excessHeelRiseMeters>=.004&&excessHeelRiseMeters<.010)
   return [.30,.36];
+ // Exact original 390px source GLB #44068192870, Walking_A at
+ // 16.8ms: toe 95.066mm buried; heel 186.086mm above stone; verified
+ // 299.870mm source skinned shoe. The genuine starter lifted the toe
+ // +11.860mm but the airborne heel +27.198mm (15.339mm worse pitch).
+ // Prior .18/.24rad followups produced at most +18.777mm real toe
+ // recovery and were rejected. Use the SAME last two source skin reads
+ // for connected .30/.36rad thigh/calf/foot world-outsole candidates.
+ // The stricter final same-clone both-shoe inspection still owns pose
+ // acceptance; no IK target, planted foot, game hit, root move or new rig.
+ if(frameInterval>=.015&&frameInterval<=.025&&
+  depth>=.090&&depth<=.110&&
+  excessHeelRiseMeters>=.010&&excessHeelRiseMeters<=.020)
+  return [.30,.36];
  if(frameInterval>=.015&&frameInterval<.03&&
   depth>=.060&&depth<.075&&
   excessHeelRiseMeters>=.004&&excessHeelRiseMeters<.010)
