@@ -72,6 +72,30 @@ function chooseRoutePressureAlcove(world:MazeWorld,route:number[],offRoute:numbe
   return choices[0]?.trap??null;
 }
 
+// One real, public-discoverable optional pressure room may precede Thornback's
+// existing moving watchpost. These are already reciprocal generator passages:
+// never forge a corridor, change the patrol, or put a trap on the critical route.
+function guardianPressurePrelude(world:MazeWorld,route:number[],reserved:Set<number>,
+ traps:number[],watchpost:{approachIndex:number;spawn:number;retreat:number}):number|null{
+ if(!traps.length)return null;
+ const routeSet=new Set(route);
+ const denied=new Set([...reserved,...traps,watchpost.spawn,watchpost.retreat]);
+ for(const back of [1,2,0]){
+  const i=watchpost.approachIndex-back;
+  if(i<1||i>=route.length-1)continue;
+  const court=route[i]!;
+  if(reserved.has(court))continue;
+  // An existing legitimate staged pressure room is already sufficient.
+  if(traps.some(cell=>passageNeighbors(world,court).includes(cell)
+    &&passageNeighbors(world,cell).includes(court)))return null;
+  const choices=passageNeighbors(world,court)
+   .filter(cell=>!routeSet.has(cell)&&!denied.has(cell)
+     &&passageNeighbors(world,cell).includes(court)).sort((a,b)=>a-b);
+  if(choices.length)return choices[0]!;
+ }
+ return null;
+}
+
 export function populateMazeContent(base:MazeWorld,config:MazeConfig,rng:NamedRng):MazeWorld{
   const world=structuredClone(base),route=solveMaze(world,{start:world.start,goal:world.exit});if(!route)throw new Error('cannot populate unsolved maze');
   const dependencyCount=Math.min(config.keyCount,Math.max(0,Math.floor((route.length-3)/4)));
@@ -101,6 +125,16 @@ export function populateMazeContent(base:MazeWorld,config:MazeConfig,rng:NamedRn
   if(threatCount){
     const watchpost=chooseRouteWatchpost(world,route,threatReserved,minimumDistance,rng);
     if(watchpost){
+      // Tie a genuine off-route pressure prelude to the same lawful patrol.
+      // Pass464b now separately verifies the current PUBLIC guardian before
+      // producing an urgent HUD warning during a physical key-gate opening.
+      // Reintroduce the stage only under the strict unchanged native gates.
+      const linked=guardianPressurePrelude(world,route,reserved,world.traps,watchpost);
+      const original=pressureAlcove??world.traps[0];
+      if(linked!==null&&original!==undefined){
+        world.traps=world.traps.map(cell=>cell===original?linked:cell).sort((a,b)=>a-b);
+        threatReserved.delete(original);threatReserved.add(linked);
+      }
       world.threats.push({id:'threat-1',cell:watchpost.spawn,route:[watchpost.spawn,watchpost.retreat],routeIndex:0,direction:1,lastSeenTick:null,active:true});
       threatReserved.add(watchpost.spawn);threatReserved.add(watchpost.retreat);
     }

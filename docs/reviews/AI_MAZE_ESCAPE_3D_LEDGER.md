@@ -1,3 +1,8 @@
+## Pass465 — re-stage genuine pressure→guardian encounter after corrected HUD (2026-11-17 UTC)
+
+- Parent `46ea63ee4f3242b665bb9304d5095ba6c258a79d` [exact-HEAD WebGL 44169455058](https://github.com/my-edutu/Ai_games/actions/runs/44169455058) **SUCCESS**, 8/8 native checks, unchanged six-reset <100 budget. Retrieved and checked **40/40** original PNG SHA-256 sidecars and all **3/3** real gate before/mid/after hashes. Original 320/390/1280 frames inspected uncropped. Gate event caption now visibly correct; crowded guardian/camera still below Nintendo.
+- Source/gameplay unit: restore only the genuine optional off-route pressure branch preceding unchanged moving Thornback on legally reciprocal passage graph. Same traps, keys, gate, collision and seed replay. Restore 24-seed content regression after successful Pass464b public-Warden gate correction. Native verification of this NEW head **pending**; no artistic win claimed. [Dated critic gate](./maze-3d/pass-465-corrected-gate-pressure-guardian-playable-prelude-2026-11-17.md). Draft PR unchanged, do not merge/deploy/force.
+
 ## Pass463 — reject actual Pass462 native gate/guardian collision; scoped code rollback (2026-11-17 UTC)
 
 - Candidate `e9d70c33e2f6a9d116543ab2d963c617247a7e9f` [native WebGL 44150613137](https://github.com/my-edutu/Ai_games/actions/runs/44150613137) **FAILED 1/8 browser** at original public gate mid-lift: legitimate moving gate present, but live goal was **"Immediate danger"/"Avoid warden"**, not **"PASSAGE OPEN"/"Gate opened"**. Genuine visible guardian hazard must NOT be hidden just to satisfy an assertion. Its source tests/stream/WebGL init and unchanged strict six-reset <100 still passed; whole CI failed separately Tiny Kingdom OBS/uploads.
