@@ -1,6 +1,6 @@
 import { computePublicView, drawMinimap, publicObjective, publicHeldGateStatus, publicKeyCollectionMoment, publicImmediatePressureCue, publicPressureWithdrawalCue, publicVisibleDiagonalPressureCue, publicDistinctPublicPredecessor } from './map-view.mjs';
 import { createMazeAudio } from './audio.js';
-import { publicGuardianCounterMoment, publicGuardianCounterHeld } from './public-counter-moment.mjs';
+import { publicGuardianCounterMoment, publicGuardianCounterHeld, PUBLIC_GUARDIAN_COUNTER_SECONDS } from './public-counter-moment.mjs';
 import { advanceGateVisualClock, PUBLIC_PICKUP_VISUAL_SECONDS, observedGateOpenings } from './gate-moment.mjs';
 
 const MAX_TRAIL=240;
@@ -106,12 +106,12 @@ function update(value){
   if(observedPickup && snapshot.lifecycle==='running')
     pickupMilestone={runToken:snapshot.runToken,until:hudVisualTime+PUBLIC_PICKUP_VISUAL_SECONDS};
   // The guardian's real public false->true lantern counter earns an ACTION
-  // goal for the SAME 1.15s physical recoil. A remembered, skipped, hidden
+  // goal for the SAME bounded physical recoil as the connected 3D body. A remembered, skipped, hidden
   // or first-seen already-parried guardian never earns a new hit announcement.
   const earnedCounter=publicGuardianCounterMoment(previousPublicSnapshot,snapshot);
   if(counterMilestone && !publicGuardianCounterHeld(counterMilestone,snapshot,hudVisualTime))
     counterMilestone=null;
-  if(earnedCounter) counterMilestone={...earnedCounter,until:hudVisualTime+1.15};
+  if(earnedCounter) counterMilestone={...earnedCounter,until:hudVisualTime+PUBLIC_GUARDIAN_COUNTER_SECONDS};
   frame=value;
   window.__MAZE_PUBLIC_STATE__=snapshot;
   window.__MAZE_VIEW__=computePublicView(snapshot,value.camera,cameraMode==='overview');

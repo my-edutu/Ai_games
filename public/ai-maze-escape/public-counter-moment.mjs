@@ -1,3 +1,7 @@
+// One shared, bounded public visual beat: long enough to read Thornback's
+// connected load/rebound/stagger on a phone; never an authoritative AI timer.
+export const PUBLIC_GUARDIAN_COUNTER_SECONDS = 2.0;
+
 /**
  * The one honest lantern-counter outcome for game-first presentation. It is
  * earned by a consecutive, same-run PUBLIC before -> after witness of one

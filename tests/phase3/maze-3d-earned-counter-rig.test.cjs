@@ -153,3 +153,32 @@ test('Pass449 genuine public lantern counter makes the whole connected Thornback
       'all authored GPU/CPU primitive owners release after the six-run sequence');
   }
 });
+
+
+test('Pass450 real witnessed counter and physical scene share an accessible readable two-second clock',async()=>{
+  const {PUBLIC_GUARDIAN_COUNTER_SECONDS,publicGuardianCounterMoment,publicGuardianCounterHeld}=
+    await import(pathToFileURL(path.join(root,'public/ai-maze-escape/public-counter-moment.mjs')).href);
+  const appSource=fs.readFileSync(path.join(root,'public/ai-maze-escape/app.js'),'utf8');
+  assert.equal(PUBLIC_GUARDIAN_COUNTER_SECONDS,2,
+    'a coherent full-body three-beat 3D response remains viewable for two seconds');
+  assert.ok(sceneFile.includes('counterSince)/PUBLIC_GUARDIAN_COUNTER_SECONDS'),
+    'both production actor and physical stage clocks share this one interval');
+  assert.ok(appSource.includes('hudVisualTime+PUBLIC_GUARDIAN_COUNTER_SECONDS'),
+    'the game-first counter goal remains synchronized with visible body acting');
+  const before={runToken:'r',lifecycle:'running',tick:7,result:null,
+    threats:[{id:'threat-1',cell:91,lanternParried:false}],visibleCells:[91,74]};
+  const after={...before,tick:8,threats:[{id:'threat-1',cell:74,lanternParried:true}]};
+  const earned=publicGuardianCounterMoment(before,after);
+  assert.ok(earned,'the source witnessed a real consecutive, identified and visible parry');
+  const current={...earned,until:10+PUBLIC_GUARDIAN_COUNTER_SECONDS};
+  assert.equal(publicGuardianCounterHeld(current,after,11.15),true,
+    'the physical recoil must not vanish before the complete event is readable');
+  assert.equal(publicGuardianCounterHeld(current,after,12),false,
+    'the counter headline must expire, not claim a permanent victory');
+  assert.equal(publicGuardianCounterHeld(current,{...after,visibleCells:[]},11.15),false,
+    'a hidden guardian cannot keep a celebration or leak a position');
+  assert.equal(publicGuardianCounterHeld(current,{...after,runToken:'r2'},11.15),false,
+    'a restarted run cannot inherit a previous guardian celebration');
+  assert.equal(publicGuardianCounterMoment(null,after),null,
+    'a first-seen parried foe is not a new earned hit');
+});

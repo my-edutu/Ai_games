@@ -1,5 +1,6 @@
 import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
+import { PUBLIC_GUARDIAN_COUNTER_SECONDS } from './public-counter-moment.mjs';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
@@ -605,7 +606,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           // physical performance clock belongs only to the SAME tracked,
           // visible false-to-true parry; it is not invented from a HUD flag.
           counterPhase:entry.counterSince!==null
-            ?clamp((gateVisualTime-entry.counterSince)/1.15,0,1):undefined,
+            ?clamp((gateVisualTime-entry.counterSince)/PUBLIC_GUARDIAN_COUNTER_SECONDS,0,1):undefined,
         };
       }
       // Read at native gameplay scale: a disclosed warden one or two cells
@@ -652,7 +653,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // One contiguous physical compress -> recoiling shell -> recovery
       // performance on this EXISTING 3D actor and its actual public patrol root.
       const counterPhase=lanternParried && entry.counterSince!==null
-        ?clamp((gateVisualTime-entry.counterSince)/1.15,0,1):null;
+        ?clamp((gateVisualTime-entry.counterSince)/PUBLIC_GUARDIAN_COUNTER_SECONDS,0,1):null;
       const counterPlant=counterPhase===null?0
         :Math.max(0,1-Math.abs(counterPhase-.20)/.20);
       const actorAttention=lanternParried?Math.max(.75,attentionStrength):attentionStrength;
@@ -738,7 +739,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       guardianCell:witnessedCounter?earnedCounterActor.cell:closestThreat?.cell,
       guardianBeat:closestThreat?.encounterBeat,
       guardianParried:witnessedCounter,
-      // One witnessed public 1.15s counter clock drives both actor rigs AND
+      // One witnessed public shared-duration counter clock drives both actor rigs AND
       // the connected floor stage. An already-parried first-seen guardian
       // has no counterPhase and cannot manufacture this earned visual beat.
       guardianCounterPhase:witnessedCounter ? earnedCounterActor.counterPhase : undefined});
