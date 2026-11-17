@@ -35,8 +35,8 @@
     "2baa4459e43ba4d4399fcf20dd0bdeaa3ec431fd"
   ],
   "reviewedSourceHeadBeforeEvidence": "28125531aeadb794581a740723a9741f77ed0514",
-  "sourcePinnedEvidenceRequest": "NOT EVALUATED — create exact new request at this evidence commit chain; need new 9-job source-pinned capture for this code before comparing experience",
-  "exactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44041633392 — pending at evidence creation; cannot claim pass",
+  "sourcePinnedEvidenceRequest": "https://github.com/my-edutu/Ai_games/actions/runs/44042382093 — nine-job original gameplay campaign IN PROGRESS, candidate pinned to immutable 80915f9369a4672dada9276db446540403d3b714; no new 1x candidate footage evaluated yet",
+  "exactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44042381942 — queued at evidence update, no acceptance claimed",
   "independentCritics": {
     "LOOKS": "0/5",
     "FEELS": "0/5",
@@ -44,5 +44,8 @@
   },
   "physicalDeviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
   "nextHighestImpactAction": "Check exact-head quality and new immutable-SHA 9-job source-pinned 60+s videos in both viewports, inspect native event-aligned frames near guardian HP0/grounded gateway/F9/10/restart. Compare first-return world/staggered structure CPU staging, source PTS and actual chromatic bridge. If old gate+hero+F9 still not co-visible for two continuous authentic frames, remain P0; investigate cold GPU/provenance before P1.",
-  "constraints": "Do not touch frozen baseline, PR58, unrelated games, merge, deploy, force-push, change draft, or assert acceptance without independent critics and real device gates."
+  "constraints": "Do not touch frozen baseline, PR58, unrelated games, merge, deploy, force-push, change draft, or assert acceptance without independent critics and real device gates.",
+  "sourcePinnedCandidateSha": "80915f9369a4672dada9276db446540403d3b714",
+  "implementationValidation": "https://github.com/my-edutu/Ai_games/actions/runs/44042179732 — source d5ee419..., 9/10 jobs success, final Phase6 in progress at last inspection; Phase3 all 4 partitions success. Superseded by exact 80915 head check, no full green claim.",
+  "candidateFootageStatus": "NOT EVALUATED. Distinct from prior already inspected 5418fd0 video; no new claims about improvement."
 }
