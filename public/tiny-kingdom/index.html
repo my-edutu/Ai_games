@@ -26676,6 +26676,69 @@ function getCourierPostCameraAudit(){
 const PORTRAIT_CORE_BAD=.22,PORTRAIT_CORE_CLEAR=.075,
  PORTRAIT_CORE_TRANSITION=.11;
 let portraitCoreRescues=0,portraitCoreExtraSurveys=0;
+// W401: the real worker's transition must not substitute a clear frame with
+// a teleporting observer. Survey up to four genuine intermediate viewpoints
+// on the short angular arc; never move the citizen, parcel, crops or buildings.
+// Failure retains the already surveyed original safe lens.
+let workdayClearArcAttempts=0,workdayClearArcSurveys=0,
+ workdayClearArcSteps=0,workdayClearArcFallbacks=0;
+function chooseWorkdayCameraArc(start,end,valid){
+ if(!Array.isArray(start)||!Array.isArray(end)||start.length!==3||
+  end.length!==3||typeof valid!=='function'||
+  ![...start,...end].every(Number.isFinite)||
+  start[2]<=0||end[2]<=0)return null;
+ const turn=Math.atan2(Math.sin(end[0]-start[0]),Math.cos(end[0]-start[0]));
+ for(const fraction of [.25,.5,.75,1]){
+  const candidate={yaw:start[0]+turn*fraction,
+   pitch:start[1]+(end[1]-start[1])*fraction,
+   zoom:start[2]+(end[2]-start[2])*fraction,fraction};
+  if(valid(candidate)===true)return candidate;
+ }
+ return null;
+}
+function physicallyClearWorkdayCameraArc(citizen,plan,roofs,start,hands=[]){
+ if(!citizen||!plan||!Array.isArray(plan.target)||!Array.isArray(roofs))
+  return null;
+ workdayClearArcAttempts++;
+ const wrists=hands.length?hands:documentaryWorkHandTargets(citizen);
+ const ground=terrain(citizen.x,citizen.z);
+ const found=chooseWorkdayCameraArc(start,[plan.yaw,plan.pitch,plan.zoom],candidate=>{
+  workdayClearArcSurveys++;
+  const radius=Math.cos(candidate.pitch)*candidate.zoom;
+  const eye=[citizen.x+Math.sin(candidate.yaw)*radius,
+   ground+1.02+Math.sin(candidate.pitch)*candidate.zoom,
+   citizen.z+Math.cos(candidate.yaw)*radius];
+  if(!physicalFollowEyeClearance(eye,roofs).clear||
+     followRayBlockers(eye,plan.target,roofs)!==0||
+     wrists.some(hand=>followRayBlockers(eye,hand,roofs)!==0))
+   return false;
+  const scene=foregroundSceneProjection(eye,plan.target,roofs);
+  if(scene.actorCoreCover>=.09||scene.cover>=.24||
+   (scene.cargoCover||0)>=.17)return false;
+  const plants=foregroundVegetationProjection(eye,plan.target);
+  if(plants.faceBlockers!==0||plants.cover>=.24)return false;
+  if(personHasActiveFarmWork(citizen)){
+   const crop=realFarmWorkSightline(eye,citizen,wrists);
+   if(crop.cropFaceBlockers>0||crop.cropWristBlockers>0||
+    (crop.cameraInsideField&&!crop.physicalInteriorEyeClear))return false;
+  }
+  if(isMarketUnloading(citizen)||recentObservedCourierReceipt(citizen)){
+   const posts=marketCourierPostSightline(eye,plan.target);
+   if(posts.centerCover>=.035)return false;
+  }
+  return true;
+ });
+ if(found)workdayClearArcSteps++;
+ else workdayClearArcFallbacks++;
+ return found;
+}
+function getWorkdayClearArcAudit(){
+ return {source:'actual-physical-farm-market-home-camera-transition',
+  attempts:workdayClearArcAttempts,surveys:workdayClearArcSurveys,
+  shortArcSteps:workdayClearArcSteps,originalSafeFallbacks:workdayClearArcFallbacks,
+  maxCandidateEyes:4,readOnly:true,authorityChanged:false,
+  hardwareFps:'NOT MEASURED'};
+}
 function shouldRescuePortraitWorkerCore(width,observing,present,planned,transition){
  return Number.isFinite(width)&&width>0&&width<=520&&Boolean(observing)&&
   [present,planned,transition].every(v=>Number.isFinite(v)&&v>=0&&v<=1)&&
@@ -30347,8 +30410,16 @@ if(follow&&!daybreakReturn){
    if(immediatePortraitWitness&&!portraitCoreRepair)portraitImmediateRescues++;
    // Change only the observer's eye, never the worker, cargo, roofs or world.
    if(portraitCoreRepair)portraitCoreRescues++;
+   // Only a genuine documentary worker with an already clear destination can
+   // take an intermediate collision-checked route. Reduced-motion requests
+   // retain the existing immediate move, and an invalid arc falls back to
+   // the already validated destination; no animation invents an occupation.
+   const arcStep=observingAction&&!reduceMotion&&!portraitAlternativeSelected?
+    physicallyClearWorkdayCameraArc(citizen,plan,roofs,[yaw,pitch,zoom],farmerHands||[]):null;
    focusPoint=[citizen.x,citizen.z];
-   yaw=plan.yaw;pitch=plan.pitch;zoom=plan.zoom;
+   yaw=arcStep?arcStep.yaw:plan.yaw;
+   pitch=arcStep?arcStep.pitch:plan.pitch;
+   zoom=arcStep?arcStep.zoom:plan.zoom;
    if(mustRepairPost){
     courierPostRepairCount++;
     courierPostRepairLast={citizen:citizen.name,
@@ -31163,7 +31234,7 @@ getDailyRhythmAudit:dailyRhythmAudit,getHouseholdProvisionAudit:()=>cloneData(ho
 getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),getForgeSoundAudit:()=>cloneData(getForgeSoundAudit()),pollForgeSound,watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,
  getRealGrainJourneyAudit,getSupplyTrailDetailsAudit,inspectRealGrainStage,watchRealGrainJourney,stopRealGrainJourney,planRealGrainJourney,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
 getMarketStructuralSightline:marketCourierPostSightline,
-getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCentralExchangeAudit:()=>({...centralExchangeStats}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketReceiptDisplayAudit:getMarketReceiptDisplayAudit,getRealMarketReceiptLensForEvidence:id=>chooseRealMarketReceiptLens(id),getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,getGradedRoadAudit,getRealRoadscapeAudit,getFieldToGranaryFootwayAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getRealEconomicSurveyAudit,advanceRealEconomicSurvey,getCameraNavigationAudit,getFreeCameraCollisionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getFarmWorkCameraAudit,
+getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCentralExchangeAudit:()=>({...centralExchangeStats}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketReceiptDisplayAudit:getMarketReceiptDisplayAudit,getRealMarketReceiptLensForEvidence:id=>chooseRealMarketReceiptLens(id),getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,getGradedRoadAudit,getRealRoadscapeAudit,getFieldToGranaryFootwayAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getRealEconomicSurveyAudit,advanceRealEconomicSurvey,getCameraNavigationAudit,getFreeCameraCollisionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getWorkdayClearArcAudit,getFarmWorkCameraAudit,
 getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,getStreetPhysicalOcclusionAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getMarketArcadeCameraAudit:()=>({source:'original-interstall-roof-occlusion',bands:physicalMarketArcadeRoofVolumes(),authorityChanged:false}),getCameraArchitectureResidencyAudit,getCameraRayBroadphaseAudit,getCameraShotProximityAudit,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getGrainwardBridgeAudit,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,
  getInhabitedStreetAccessAudit:()=>({...groundAtlasAccessAudit,topologyKey:groundAtlasAccessTopology,
   builds:groundAtlasAccessRebuilds,realHomes:city.length,rendererOnly:true}),
