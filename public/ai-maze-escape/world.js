@@ -1,4 +1,6 @@
 import * as THREE from './vendor/three.module.js';
+import { PUBLIC_GUARDIAN_COUNTER_SECONDS, publicGuardianCounterMoment } from './public-counter-moment.mjs';
+import { publicWitnessedGuardianRecoilRoute } from './public-recoil-route.mjs';
 import { GATE_RETRACTION_SECONDS, PUBLIC_PRESSURE_VISUAL_SECONDS, observedGateOpenings, gateRetractionPose, observedPressureProgress, publicPressureSequenceSeconds, publicSpentKeyTheatreDrop, publicGuardianEarnedResonance } from './gate-moment.mjs';
 import { publicKeyCollectionMoment } from './map-view.mjs';
 
@@ -1207,6 +1209,8 @@ export function createMazeWorld(options = {}) {
     const edges = new Set(), columns = new Set(), landmarkSites = new Map();
     const guardianSightlines=publicGuardianStageCells(s);
     const guardianCauseway=publicGuardianCausewayCells(s);
+    // A true parry may turn the already-visible, open stage around a corner.
+    const guardianRecoilRoute=publicWitnessedGuardianRecoilRoute(s,observedEarnedCounter);
     const guardianForecourtShoulders=publicGuardianForecourtShoulderCells(s,guardianCauseway);
     const guardianOuterCourt=publicGuardianOuterCourtCells(s,guardianCauseway);
     const guardianForeground=publicGuardianWitnessedForegroundCells(s,guardianCauseway);
@@ -1357,7 +1361,7 @@ export function createMazeWorld(options = {}) {
       // This cannot create a connector or safety cue: only visible, already
       // walkable actor-level tiles receive the EXISTING flush arena inlay.
       const guardianCourtCell=(guardianSightlines.has(c.cell)
-        || earnedRecoilQuiet.has(c.cell)) && !pressureSightline
+        || earnedRecoilQuiet.has(c.cell) || guardianRecoilRoute.has(c.cell)) && !pressureSightline
         && !c.blocked && !c.trap && !c.checkpoint && !c.clue
         && c.cell!==s.exitCell && !s.keys.some(k=>k.cell===c.cell);
       // Source-native Pass341 evidence changed only 0.7017/255 in the 390px
@@ -1386,7 +1390,8 @@ export function createMazeWorld(options = {}) {
       const guardianOuterCourtFloor=guardianOuterCourt.ordinary.has(c.cell)
         && !pressureSightline && !guardianCourtCell && !guardianForecourtShoulder;
       if(guardianOuterCourtFloor)guardianOuterCourtFloorTiles++;
-      const guardianCausewayAxis=guardianCourtCell?guardianCauseway.get(c.cell):null;
+      const guardianCausewayAxis=guardianCourtCell
+        ?(guardianCauseway.get(c.cell)||guardianRecoilRoute.get(c.cell)?.axis):null;
       // Pass325: genuine 390px native rays prove the checkpoint-front terrace
       // stays beige even after Pass324's synthetic foreground test. A known
       // nearby pressure cell can mark this ordinary checkpoint tile as a
@@ -3510,33 +3515,18 @@ export function createMazeWorld(options = {}) {
       .map(door => doorEdgeId(door.a, door.b)));
     for (const edge of gateOpeningAt.keys())
       if (!currentOpen.has(edge)) gateOpeningAt.delete(edge);
-    // Existing direct world consumers (including the strict three-cell
-    // physical wave test) have no scene-owned render counter clock. Preserve
-    // their genuinely witnessed PUBLIC before->after event using ONE shared
-    // world witness, never one restartable clock per tile. First-seen already
-    // parried, private-only, hidden, changed-run and ended events cannot
-    // initialize a successful-hit wave.
-    if (snapshot?.runToken !== s.runToken || s.lifecycle!=='running'
-      || s.result || !Array.isArray(s.visibleCells)
-      || !Array.isArray(s.threats)) {
-      observedEarnedCounter=null;
-    } else {
-      const earned=s.threats.find(threat=>{
-        const before=snapshot.threats?.find(previous=>previous.id===threat.id);
-        return Number.isSafeInteger(threat?.cell)
-          && threat.lanternParried===true
-          && before && before.lanternParried!==true
-          && snapshot.visibleCells?.includes(before.cell)
-          && s.visibleCells.includes(threat.cell);
-      });
-      if(earned) observedEarnedCounter={
-        runToken:s.runToken,id:earned.id,cell:earned.cell,start:null
-      };
-      else if(observedEarnedCounter && !s.threats.some(threat=>
-        threat.id===observedEarnedCounter.id
-        && threat.lanternParried===true
-        && s.visibleCells.includes(threat.cell))) observedEarnedCounter=null;
-    }
+    // Direct world clients and the real scene share the SAME exact public
+    // consecutive false-to-true witness. Never infer a hit from a skipped tick,
+    // first-seen parried actor, old run, hidden cell or terminal snapshot.
+    const earned=publicGuardianCounterMoment(snapshot,s);
+    if(earned)observedEarnedCounter={...earned,start:presentationTime};
+    else if(observedEarnedCounter && (
+      observedEarnedCounter.runToken!==s.runToken || s.lifecycle!=='running'
+      || !!s.result || presentationTime-observedEarnedCounter.start>=PUBLIC_GUARDIAN_COUNTER_SECONDS
+      || !s.visibleCells?.includes(observedEarnedCounter.cell)
+      || !s.threats?.some(t=>t.id===observedEarnedCounter.id
+        && t.cell===observedEarnedCounter.cell && t.lanternParried===true)
+    ))observedEarnedCounter=null;
     const previouslyVisibleCells = new Set(snapshot?.visibleCells || []);
     // A hidden or terminal published snapshot revokes the in-flight physical pressure
     // encounter immediately, even if no render frame or object rebuild runs.
@@ -3591,6 +3581,7 @@ export function createMazeWorld(options = {}) {
     // guardian causeway, not the entire moving FOV or any private topology.
     // An unchanged sightline incurs no extra terrain rebuild on each tick.
     const keyedGuardianCauseway=publicGuardianCausewayCells(s);
+    const keyedRecoilRoute=publicWitnessedGuardianRecoilRoute(s,observedEarnedCounter);
     const keyedOuterCourt=publicGuardianOuterCourtCells(s,keyedGuardianCauseway);
     const keyedForeground=publicGuardianWitnessedForegroundCells(s,keyedGuardianCauseway);
     const keyedEarnedRecoil=publicEarnedGuardianRecoilCourtCells(s);
@@ -3618,6 +3609,7 @@ export function createMazeWorld(options = {}) {
       + '#public-guardian-court:' + [...publicGuardianStageCells(s)].sort((a,b)=>a-b).join('.')
       + '#guardian-blocked-relief:' + [...publicGuardianBlockedReliefCells(s)].sort((a,b)=>a-b).join('.')
       + '#guardian-causeway:' + [...keyedGuardianCauseway].map(([id,axis])=>id+':'+axis).sort().join('.')
+      + '#guardian-earned-corner:' + [...keyedRecoilRoute].map(([id,v])=>id+':'+v.axis+':'+v.step).sort().join('.')
       + '#guardian-reef-visible:' + [...reefVisibility].sort((a,b)=>a-b).join('.')
       + '#guardian-near-floor:' + [...keyedForeground].sort((a,b)=>a-b).join('.')
       + '#guardian-public-peripheral-walls:' + [...keyedPeripheralWalls].sort((a,b)=>a-b).join('.')
@@ -3696,11 +3688,14 @@ export function createMazeWorld(options = {}) {
       if(signal.cell===guardianCell)witnessedGuardian=true;
     }
     const witnessedLane=publicThreat && witnessedHero && witnessedGuardian;
+    const recoilRoute=publicWitnessedGuardianRecoilRoute(snapshot,observedEarnedCounter);
+    const witnessedRecoilCorner=publicThreat && options.guardianParried===true
+      && recoilRoute.has(heroCell) && recoilRoute.has(guardianCell);
     // A lantern counter is NOT a predicted attack or a guessed route:
     // require the SAME presently published guardian's actual successful
     // authoritative flag, a real open floor court, and explicit live stage cue.
     // Without all three, no recoil wave is allowed to animate.
-    const earnedParry=witnessedLane && options.guardianParried===true
+    const earnedParry=(witnessedLane||witnessedRecoilCorner) && options.guardianParried===true
       && snapshot.threats.some(threat=>threat?.cell===guardianCell
         && threat.lanternParried===true);
     // Normal gameplay uses the exact scene actor-clock 1.15s phase. Only
@@ -3716,7 +3711,7 @@ export function createMazeWorld(options = {}) {
     const guardianCounterPhase=Number.isFinite(options.guardianCounterPhase)
       ?options.guardianCounterPhase
       :directWitness?Math.max(0,Math.min(1,
-        (t-observedEarnedCounter.start)/1.15)):undefined;
+        (presentationTime-observedEarnedCounter.start)/PUBLIC_GUARDIAN_COUNTER_SECONDS)):undefined;
     const alongX=witnessedLane
       && Math.floor(heroCell/snapshot.width)===Math.floor(guardianCell/snapshot.width);
     const alongZ=witnessedLane && heroCell%snapshot.width===guardianCell%snapshot.width;
@@ -3758,7 +3753,8 @@ export function createMazeWorld(options = {}) {
       // a new collider, invisible path, safe-route instruction or fake hit.
       // Terrain owns this clock; no meshes/materials are created per frame.
       // A different run, unseen/sealed lane or cleared parry instantly resets.
-      const fromHero=alongX
+      const onRecoilTile=witnessedRecoilCorner && recoilRoute.has(signal.cell);
+      const fromHero=onRecoilTile?recoilRoute.get(signal.cell).step:alongX
         ? Math.abs(col-heroCell%snapshot.width)
         : Math.abs(row-Math.floor(heroCell/snapshot.width));
       // The old per-tile local counterStart could restart on terrain rebuild,
@@ -3766,13 +3762,13 @@ export function createMazeWorld(options = {}) {
       // The actual public false->true counter phase belongs jointly to Pip,
       // Thornback and this observed physical stage. Never infer a new beat.
       const resonance=publicGuardianEarnedResonance(
-        onLane&&earnedParry?guardianCounterPhase:undefined,
+        (onLane||onRecoilTile)&&earnedParry?guardianCounterPhase:undefined,
         fromHero,reduced,signal.resonanceState);
       const counterWave=resonance.wave;
       // Stage-wide, sequential, floor-level original Tideglass response.
       // The center lane remains open, original floor/collision unchanged.
       // Hidden, stale, terminal and reduced-motion frames never pulse.
-      signal.counterRipple.visible=onLane && resonance.glow>.08;
+      signal.counterRipple.visible=(onLane||onRecoilTile) && resonance.glow>.08;
       if(signal.counterRipple.visible){
         // The original pooled flat ring was unreadable at 320px while both
         // real actors stayed visible. Make the same floor-bound consequence
