@@ -188,7 +188,7 @@ test('actual 1x candidate HUD leads its *own* violet world by 1.25–1.75s; perm
  assert.equal(p.nativeRasterAnchors[0].candidatePaletteAfterHudSeconds,1.75);
  assert.equal(p.nativeRasterAnchors[0].candidateRasterEvidence,'observed-HUD-before-delayed-void-palette');
  assert.equal(p.nativeRasterAnchors[0].physicalGatewayCrossingConfirmed,false);
- assert.match(htmlFor([p]),/'Raster-only cue/);
+ assert.match(htmlFor([p]),/Raster-only cue/);
  assert.match(p.failures.join(','),/native-scene-phase-not-confirmed/);
 });
 test('a later unrelated purple episode and premature violet image cannot forge a raster cue',()=>{

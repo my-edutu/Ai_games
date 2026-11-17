@@ -162,6 +162,31 @@ function sourceToOriginalNativePhaseChain(motion,clock,film) {
   };
 }
 
+
+// Classifies two independent measurements from the ORIGINAL native WebM.
+// The drawn HUD is an inspectable UI pixel and the violet fraction a crude
+// scene-color phase, never a physical crossing, guardian hit or GPU timestamp.
+// Both samplers must report finite native PTS before their difference exists.
+function classifyNativeHudWorldHandoff(hud,observed){
+  if(!hud || !observed ||
+     ![hud.nativeVideoSeconds,observed.nativeSeconds,
+       hud.precisionSeconds,observed.precisionSeconds].every(Number.isFinite) ||
+     hud.precisionSeconds<=0 || observed.precisionSeconds<=0)
+    return {status:'NOT EVALUATED',
+      limitation:'Missing or invalid independent original HUD or scene pixel measurements'};
+  const delay=observed.nativeSeconds-hud.nativeVideoSeconds;
+  return {
+    status:delay>.75?'DRAWN_FLOOR_AHEAD_OF_SUCCESSOR_WORLD'
+      :delay<-.75?'WORLD_COLOR_AHEAD_OF_DRAWN_FLOOR'
+      :'DRAWN_FLOOR_AND_WORLD_NEARBY',
+    originalDrawnHudSeconds:hud.nativeVideoSeconds,
+    originalSustainedVioletSeconds:observed.nativeSeconds,
+    hudToVioletSeconds:Math.round(delay*1000)/1000,
+    uncertaintySeconds:Math.max(observed.precisionSeconds,hud.precisionSeconds),
+    limitation:'Original raster-phase diagnostic, NOT authored source event, GPU timing, floor proof or quality acceptance'
+  };
+}
+
 function inspectOriginalPhase(directory,viewport,expectedSha){
   if(!['portrait','desktop'].includes(viewport)||!SOURCE_SHA.test(expectedSha))
     throw Error('invalid immutable source/viewport');
@@ -193,19 +218,7 @@ function inspectOriginalPhase(directory,viewport,expectedSha){
   // architecture by many 250ms samples while the old clockwork materials
   // remain onscreen. The gap is a concrete P0 continuity defect to review,
   // NEVER a reason to pretend the physical crossing appeared in the film.
-  const visibleHandoff=observed&&nativeHud.observed?{
-    status:observed.nativeSeconds-nativeHud.observed.nativeVideoSeconds>.75
-      ?'DRAWN_FLOOR_AHEAD_OF_SUCCESSOR_WORLD'
-      :observed.nativeSeconds<nativeHud.observed.nativeVideoSeconds-.75
-        ?'WORLD_COLOR_AHEAD_OF_DRAWN_FLOOR':'DRAWN_FLOOR_AND_WORLD_NEARBY',
-    originalDrawnHudSeconds:nativeHud.observed.nativeVideoSeconds,
-    originalSustainedVioletSeconds:observed.nativeSeconds,
-    hudToVioletSeconds:Math.round(
-      (observed.nativeSeconds-nativeHud.observed.nativeVideoSeconds)*1000)/1000,
-    uncertaintySeconds:Math.max(observed.precisionSeconds||0,
-      nativeHud.observed.precisionSeconds||0),
-    limitation:'Original raster-phase diagnostic, NOT an authored event, GPU timing, floor-proof or visual acceptance'
-  }:{status:'NOT EVALUATED',limitation:'Missing independently observed original HUD or scene pixels'};
+  const visibleHandoff=classifyNativeHudWorldHandoff(nativeHud.observed,observed);
   const result={schemaVersion:1,sourceSha:expectedSha,viewport,scenario:'danger',
     originalWebMSha256:hash,originalWebMBytes:data.length,
     originalVideoUnmodified:true,method:'sampled-native-WebM-stage-chroma',
@@ -231,4 +244,4 @@ if(require.main===module){
     console.log(JSON.stringify(results.map(({viewport,phase,hud})=>({viewport,phase,hud})),null,2));
   }catch(e){console.error('Original film phase unverified:',e.message);process.exitCode=1;}
 }
-module.exports={violetSceneFraction,findSustainedVoidPhase,compareFilmPhaseToSource,sourceToOriginalNativePhaseChain,inspectOriginalPhase,WIDTH,HEIGHT,FRAME_BYTES};
+module.exports={violetSceneFraction,findSustainedVoidPhase,compareFilmPhaseToSource,sourceToOriginalNativePhaseChain,classifyNativeHudWorldHandoff,inspectOriginalPhase,WIDTH,HEIGHT,FRAME_BYTES};
