@@ -1,4 +1,4 @@
-name: Tiny Kingdom W416 Cold Static Spine and Real Workday
+name: Tiny Kingdom W419 Civic Rendering Spine and Real Workday
 on:
   pull_request:
     paths:
@@ -9,6 +9,7 @@ on:
       - 'tests/browser/tiny-kingdom-w416-direct-static-residency.spec.cjs'
       - 'tests/browser/tiny-kingdom-w417-civic-source-bounds.spec.cjs'
       - '.github/workflows/tiny-kingdom-w414-grounded-observer.yml'
+      - 'scripts/tiny-kingdom-w419-civic-one-pass-contract.cjs'
   workflow_dispatch:
 permissions:
   contents: read
@@ -32,6 +33,8 @@ jobs:
         with:
           node-version: '22'
           cache: npm
+      - name: W419 source-executed civic road one-pass and full-geometry contract
+        run: node scripts/tiny-kingdom-w419-civic-one-pass-contract.cjs
       - name: Real terrain eye, roof and invalid-projection contract
         run: node --test tests/browser/tiny-kingdom-w414-grounded-observer.spec.cjs
       - name: Actual selected worker residency and visibility Set contract
