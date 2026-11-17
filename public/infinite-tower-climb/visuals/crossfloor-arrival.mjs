@@ -322,7 +322,8 @@ export function holdIncomingStructuralShell(source,passage,held,job,sourceGatePr
   // The World owner separately limits retention to 30 returned frames/2.8s.
   const sourceOwnedOriginalStillVisible=
     (job?.state==='awaiting-actual-first-render' ||
-     job?.state==='awaiting-structural-release') &&
+     job?.state==='awaiting-void-biome-build' ||
+      job?.state==='awaiting-structural-release') &&
     job.structureDeferred===true &&
     job.proof==='recorded-source-gateway' &&
     job.runToken===source?.runToken && job.floor===9 &&
@@ -352,7 +353,7 @@ export function holdIncomingStructuralShell(source,passage,held,job,sourceGatePr
   const firstGpuReceipt=job?.proof==='recorded-source-gateway' &&
     observedStagedOriginalCapBeforeRecordedCrossing(source,held);
   if(!job || !['awaiting-actual-first-render',
-        'awaiting-structural-release'].includes(job.state) ||
+        'awaiting-void-biome-build','awaiting-structural-release'].includes(job.state) ||
       job.structureDeferred!==true ||
       !(job.proof==='recorded-source-gateway' || firstGpuReceipt) ||
       job.runToken!==source?.runToken || job.floor!==source?.floor ||
