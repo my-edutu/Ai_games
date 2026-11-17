@@ -1660,11 +1660,27 @@ for(const view of [
  const soleEvidence={seed:sequence.seed,actorId:sequence.actorId,viewport:view.name,
   provenance:'consecutive real DungeonRuntime.step snapshots and original GLB',
   sourceSoleFrames:soleObservations.length,
+ sourceSamplingWindows:trace.map(t=>({
+  tick:t.tick,sourceClip:t.nativeLegOwnership?.clipName??null,
+  actualSourceWindow:t.nativeLegOwnership?.sourceSwingSourceWindowLast??null,
+  originalLinkedProbeFrames:t.nativeLegOwnership?.sourceSwingLinkedProbeFrames??0
+ })),
   rigidGripFrames:soleObservations.filter(s=>s.rigidGripComparable).length,
   trace:trace.map(t=>({tick:t.tick,soleVertexWorld:t.soleVertexWorld,
    nativeLegOwnership:t.nativeLegOwnership,
    sourceWeaponGrip:t.sourceWeaponGrip,soleGrip:t.soleGrip})),
   caveat:'Weighted source sole candidates are not full sole-ground contact or native IK.'};
+ for(const t of trace){
+  if(t.nativeLegOwnership?.clipName!=='Walking_A')continue;
+  const receipt=t.nativeLegOwnership?.sourceSwingSourceWindowLast;
+  expect(receipt?.source).toBe('original-GLB-rendered-motion-window-not-a-plant');
+  expect(receipt?.sourceClip).toBe('Walking_A');
+  expect(receipt?.contactLocked).toBe(false);
+  expect(receipt?.originalSkinnedShoeCertified).toBe(false);
+  expect(receipt?.reason).toEqual(expect.any(String));
+  if((receipt.visibleFrameSeconds??0)>.24)
+   expect(receipt.reason).toBe('source-display-gap-exceeds-four-probe-window');
+ }
  fs.writeFileSync('artifacts/dungeon-full-body-original-sole-hand-'+view.name+'.json',
   JSON.stringify(soleEvidence,null,2));
  await test.info().attach('source-GLB-sole-and-hand-evidence',{

@@ -541,6 +541,31 @@ export function planOriginalSourceCoupledFootStarter({
  * Each actual skinned dual-shoe read and final source bind/track and
  * same-frame owner must independently certify any applied original pose.
  */
+/**
+ * Read-only original source-motion sample-window classification, not a foot
+ * plant or permission to alter a gameplay root. A real sparse 1–3s GLB
+ * frame cannot establish four safe 16–240ms weighted skinning probes.
+ * Geometry, bind, loaded shoe and source-hand checks remain independent.
+ */
+export function classifyOriginalSourceSwingSourceWindow({
+ mode='idle',sourceClipName='',sourceWeight=NaN,
+ alive=false,visible=false,teleport=false,reducedMotion=false,
+ interrupted=false,rootTravel=NaN,frameAge=NaN,frameInterval=NaN
+}={}){
+ if(mode!=='move'||sourceClipName!=='Walking_A'||
+    alive!==true||visible!==true||teleport||reducedMotion||interrupted)
+  return 'original-walking-pose-owner-ineligible';
+ if(!finite(sourceWeight)||sourceWeight<.92)
+  return 'original-walking-crossfade-underweight';
+ if(!finite(frameInterval)||frameInterval<.008||frameInterval>.24)
+  return 'source-display-gap-exceeds-four-probe-window';
+ if(!finite(rootTravel)||rootTravel<.008||rootTravel>.24)
+  return 'source-root-travel-unwitnessed';
+ if(!finite(frameAge)||frameAge<0||frameAge>.15)
+  return 'source-root-travel-stale';
+ return 'original-walking-window-measurable-shoes-unchecked';
+}
+
 function measuredOriginalSourceCounterpitchAngles({
  frameInterval=NaN,depth=NaN,excessHeelRiseMeters=NaN
 }={}){
