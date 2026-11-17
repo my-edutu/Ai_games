@@ -216,7 +216,7 @@ test('RED: genuine world-outsole axis is converted after source thigh/calf candi
   'the old pre-thigh basis points the foot pitch off the true skinned outsole');
  const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  const start=renderer.indexOf('for(const {upperRad,lowerRad,footRad,toeRad=0} of boundedConnectedAngles)');
- const end=renderer.indexOf('trials.push({upperRad,lowerRad,footRad',start);
+ const end=renderer.indexOf('trials.push({upperRad:sweepUpperRad,lowerRad:sweepLowerRad,footRad',start);
  assert.ok(start>0&&end>start,'actual original-GLB two-candidate foot sweep must exist');
  const trial=renderer.slice(start,end);
  assert.match(trial,/upper\.bone\.updateWorldMatrix\(true,true\);[\s\S]*foot\.bone\.getWorldQuaternion\(/,
