@@ -6924,7 +6924,7 @@ test('RED: genuine 390px heel-dominant 8.077mm source shoe gets two verified 3-j
   {before:{left:swing,right:{...loaded,toeY:.06}}},
   {starterTrials:[...source.starterTrials.slice(0,1),
    {upperRad:-.12,lowerRad:.09,after:after(.02271891303441303,
-    .02971891303441303)}]},
+    .02421891303441303)}]},
   {starterTrials:[...source.starterTrials.slice(0,1),
    {upperRad:-.12,lowerRad:.09,after:after(.02271891303441303,
     .030796094599651075,{...loaded,toeY:loaded.toeY+.009})}]}
@@ -6998,4 +6998,84 @@ test('RED: original three-joint source heel-pitch rejection retargets bounded so
   'same two skinned GLB slots, now source-measured favorable foot-axis candidates');
  assert.match(stage,/final\.oppositeShoePreserved!==true/);
  assert.match(stage,/final\.contactLocked!==false/);
+});
+
+
+
+// RED-FIRST — genuine weighted KayKit Walking_A heel/toe XZ and Y from
+// #43982504827 source-rig artifact #14284491267, tick 8, both viewports.
+// Original attempted two-joint source toe/heel deltas are measured.
+// The counterfactual after-XZ holds the source sample fixed for a CONTRACT
+// TEST, NOT a new native skinned result, successful pose or planted foot.
+test('RED: exact 390px and desktop buried source toe prioritizes bounded hip-knee-foot probes over rejected Idle',async()=>{
+ const {planOriginalSourceCoupledFootStarter:plan}=await load();
+ const rigs=[
+  {view:'390px mobile',interval:.1999999999999993,travel:.07811783148824158,
+   swing:{heelY:.20857286623955368,toeY:-.09133936690898192,
+    heelXZ:[-2.6642636109661813,-7.10561353477571],
+    toeXZ:[-2.7178172915444287,-7.136261907240809]},
+   loaded:{heelY:-.026936839457502207,toeY:-.027734554797369956,
+    heelXZ:[-2.7026692203482554,-6.95686830340396],
+    toeXZ:[-2.9729193099906013,-6.931845674157486]},
+   negative:{toe:-.013268613827268072,heel:-.03220170504431341},
+   positive:{toe:.02277275106732976,heel:.028503977893600485}},
+  {view:'desktop',interval:.10000000000000142,travel:.07811783148824158,
+   swing:{heelY:.18844451775011528,toeY:-.11302867964280366,
+    heelXZ:[-2.6857877106507537,-7.109579492226674],
+    toeXZ:[-2.73413129625911,-7.137299054770223]},
+   loaded:{heelY:-.040105734997858994,toeY:-.03609491353048241,
+    heelXZ:[-2.7561092271257652,-6.958493498030336],
+    toeXZ:[-3.02628765060259,-6.933358943285804]},
+   negative:{toe:-.015455390477556452,heel:-.033235512462821054},
+   positive:{toe:.02504014506605763,heel:.02956110300933848}}
+ ];
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const gateIndex=renderer.indexOf('const sourceCoupledPriority=');
+ const neutralIndex=renderer.indexOf('const safeNeutralBlends=');
+ assert.ok(gateIndex>0&&gateIndex<neutralIndex,
+  'same-source heel-dominant coupled opportunity must be tested BEFORE repeated worse Idle');
+ assert.match(renderer,/if\(sourceCoupledPriority\)\s*neutralBlends=null;/,
+  'qualified source connected leg must reserve existing two skin reads');
+ assert.match(renderer,/connectedStarter=sourceCoupledPriority\?\?/,
+  'renderer must reuse a single source witness without an extra probe');
+ for(const rig of rigs){
+  const after=delta=>({
+   right:{...rig.swing,heelY:rig.swing.heelY+delta.heel,
+    toeY:rig.swing.toeY+delta.toe},
+   left:{...rig.loaded}
+  });
+  const gate={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+   sourceInstanceSame:true,ownerLocomotion:true,
+   alive:true,visible:true,teleport:false,reducedMotion:false,
+   interrupted:false,previousLinkedCertified:false,
+   rootTravel:rig.travel,frameAge:.06,frameInterval:rig.interval,
+   side:'right',floorTopY:-.02,
+   before:{left:rig.loaded,right:rig.swing},
+   starterTrials:[
+    {upperRad:.12,lowerRad:-.09,after:after(rig.negative)},
+    {upperRad:-.12,lowerRad:.09,after:after(rig.positive)}
+   ]
+  };
+  const evidence=plan(gate);
+  assert.equal(evidence?.source,'actual-original-source-three-joint-swing-opportunity',
+   rig.view+' actual 4.5–5.7mm pitch loss deserves bounded source probe, NOT accepted pose');
+  assert.equal(evidence.sign,-1);
+  assert.equal(evidence.expectedSourceSkinnedTrials,2);
+  assert.equal(evidence.contactLocked,false);
+  assert.ok(evidence.excessHeelRiseMeters>=.004&&evidence.excessHeelRiseMeters<=.006);
+  for(const bad of [
+   {sourceInstanceSame:false},{sourceWeight:.90},{alive:false},{teleport:true},
+   {reducedMotion:true},{interrupted:true},{rootTravel:0},
+   {frameInterval:.205},{previousLinkedCertified:true},
+   {before:{...gate.before,left:{...rig.loaded,toeY:.07}}},
+   {starterTrials:[gate.starterTrials[0],{
+    ...gate.starterTrials[1],after:after({toe:rig.positive.toe,
+     heel:rig.positive.toe+.001})}]},
+   {starterTrials:[gate.starterTrials[0],{
+    ...gate.starterTrials[1],after:{
+     ...after(rig.positive),left:{...rig.loaded,
+      heelY:rig.loaded.heelY+.008}}}]}
+  ])assert.equal(plan({...gate,...bad}),null,
+    rig.view+' rejects stale, unsafe, unsupported, untethered or non-pitch frames');
+ }
 });
