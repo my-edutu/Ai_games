@@ -1,5 +1,6 @@
 import { computePublicView, drawMinimap, publicObjective, publicHeldGateStatus, publicKeyCollectionMoment, publicImmediatePressureCue, publicPressureWithdrawalCue, publicVisibleDiagonalPressureCue, publicDistinctPublicPredecessor } from './map-view.mjs';
 import { createMazeAudio } from './audio.js';
+import { publicGuardianCounterMoment, publicGuardianCounterHeld } from './public-counter-moment.mjs';
 import { advanceGateVisualClock, PUBLIC_PICKUP_VISUAL_SECONDS, observedGateOpenings } from './gate-moment.mjs';
 
 const MAX_TRAIL=240;
@@ -14,7 +15,7 @@ const query=new URLSearchParams(location.search);
 const motionPreference=matchMedia('(prefers-reduced-motion: reduce)');
 const settings={quality:query.get('quality')==='high'?'high':'auto',reducedMotion:query.get('reducedMotion')==='1'||motionPreference.matches,highContrast:query.get('highContrast')==='1',muted:true,cleanFeed:query.get('cleanFeed')==='1'};
 const audio=createMazeAudio();
-let frame=null, scene=null, fallbackCanvas=null, pollTimer=0, recoveryTimer=0, requestController=null, stopped=false, raf=0, rendererState='loading',cameraMode=query.get('camera')==='overview'?'overview':query.get('camera')==='detail'?'detail':'follow', lastCaption='', lastRunToken='', captionSource='', captionUntil=0, wasInDanger=false, wasNearPressure=false, failedPolls=0, initialising=false, pickupMilestone=null, gateMilestone=null;
+let frame=null, scene=null, fallbackCanvas=null, pollTimer=0, recoveryTimer=0, requestController=null, stopped=false, raf=0, rendererState='loading',cameraMode=query.get('camera')==='overview'?'overview':query.get('camera')==='detail'?'detail':'follow', lastCaption='', lastRunToken='', captionSource='', captionUntil=0, wasInDanger=false, wasNearPressure=false, failedPolls=0, initialising=false, pickupMilestone=null, gateMilestone=null, counterMilestone=null;
 let hudVisualTime=0, lastHudRenderNow=0;
 // Preserve the last DISTINCT public pressure witness across repeated polls of
 // one authoritative tick. This is a presentation predecessor, not AI memory.
@@ -104,6 +105,13 @@ function update(value){
   if(pickupMilestone && (pickupMilestone.runToken!==snapshot.runToken || snapshot.result))pickupMilestone=null;
   if(observedPickup && snapshot.lifecycle==='running')
     pickupMilestone={runToken:snapshot.runToken,until:hudVisualTime+PUBLIC_PICKUP_VISUAL_SECONDS};
+  // The guardian's real public false->true lantern counter earns an ACTION
+  // goal for the SAME 1.15s physical recoil. A remembered, skipped, hidden
+  // or first-seen already-parried guardian never earns a new hit announcement.
+  const earnedCounter=publicGuardianCounterMoment(previousPublicSnapshot,snapshot);
+  if(counterMilestone && !publicGuardianCounterHeld(counterMilestone,snapshot,hudVisualTime))
+    counterMilestone=null;
+  if(earnedCounter) counterMilestone={...earnedCounter,until:hudVisualTime+1.15};
   frame=value;
   window.__MAZE_PUBLIC_STATE__=snapshot;
   window.__MAZE_VIEW__=computePublicView(snapshot,value.camera,cameraMode==='overview');
@@ -124,6 +132,16 @@ function update(value){
   // encounter must outrank a non-urgent landmark without pretending the AI
   // switched actions: intentMode still reports the genuine current AI intent.
   const exposedDanger=!ended && (value.scene==='danger'||snapshot.intent.mode==='evading-threat');
+  // A witnessed recoil is not an all-clear. A SECOND still-active public
+  // guardian retains urgent danger priority; actual AI intent stays untouched.
+  const anotherLiveGuardian=Array.isArray(snapshot.threats)
+    && Array.isArray(snapshot.visibleCells)
+    && snapshot.threats.some(t=>t?.id!==counterMilestone?.id
+      && t?.lanternParried!==true
+      && snapshot.visibleCells.includes(t?.cell));
+  const counterGoal=!ended && !anotherLiveGuardian
+    && publicGuardianCounterHeld(counterMilestone,snapshot,hudVisualTime);
+  elements.broadcast.dataset.counterMoment=String(counterGoal);
   // Real 390px source WebGL at the public one-step pressure court still showed
   // "Key for gate" over visibly moving jaws. Prioritise the ACTUALLY visible
   // adjacent trap in the SAME compact mission chip. This never changes Pip's
@@ -160,7 +178,7 @@ function update(value){
   const urgent=exposedDanger||!!pressureCue;
   elements.broadcast.dataset.urgency=String(urgent);
   elements.broadcast.dataset.pressureApproach=String(!!pressureApproach);
-  byId('run-phase').textContent=ended?(escaped?'JOURNEY COMPLETE':'ATTEMPT ENDED'):exposedDanger?'WARDEN NEARBY':observingPressure?'STUDYING JAWS':pressureCue?'PRESSURE NEARBY':pressureApproach?'JAWS IN SIGHT':'LIVE EXPLORATION';
+  byId('run-phase').textContent=ended?(escaped?'JOURNEY COMPLETE':'ATTEMPT ENDED'):counterGoal?'COUNTER LANDED':exposedDanger?'WARDEN NEARBY':observingPressure?'STUDYING JAWS':pressureCue?'PRESSURE NEARBY':pressureApproach?'JAWS IN SIGHT':'LIVE EXPLORATION';
   const landmark=publicObjective(snapshot);
   // Plain-language HUD truth for an already OBSERVED matching-key gate.
   // A real public danger outranks both this gate and any nearby landmark.
@@ -174,10 +192,10 @@ function update(value){
   const freshKey=!ended && !urgent && !pressureApproach && !keyedSealedGate && !freshGate
     && pickupMilestone?.runToken===snapshot.runToken
     && hudVisualTime<pickupMilestone.until;
-  byId('goal-label').textContent=ended?'Journey result':exposedDanger?'Immediate danger':observingPressure?'Observed pressure court':pressureCue?'Visible pressure hazard':pressureApproach?'Disclosed mechanism':keyedSealedGate?'Known sealed gate':freshGate?'PASSAGE OPEN':freshKey?'KEY FOUND':landmark?'Discovered landmark':'Current goal';
-  byId('goal-title').textContent=ended?(escaped?'Escaped':'Run ended'):exposedDanger?'Avoid warden':observingPressure?'Study jaws':pressureCue?'Avoid jaws':pressureApproach?'Watch jaws':keyedSealedGate?'Key for gate':freshGate?'Gate opened':freshKey?'Key collected':landmark?(landmark.kind==='key'?'Key spotted':'Exit spotted'):goals[snapshot.intent.mode]||'Find the exit';
+  byId('goal-label').textContent=ended?'Journey result':counterGoal?'Witnessed lantern counter':exposedDanger?'Immediate danger':observingPressure?'Observed pressure court':pressureCue?'Visible pressure hazard':pressureApproach?'Disclosed mechanism':keyedSealedGate?'Known sealed gate':freshGate?'PASSAGE OPEN':freshKey?'KEY FOUND':landmark?'Discovered landmark':'Current goal';
+  byId('goal-title').textContent=ended?(escaped?'Escaped':'Run ended'):counterGoal?'Counter landed':exposedDanger?'Avoid warden':observingPressure?'Study jaws':pressureCue?'Avoid jaws':pressureApproach?'Watch jaws':keyedSealedGate?'Key for gate':freshGate?'Gate opened':freshKey?'Key collected':landmark?(landmark.kind==='key'?'Key spotted':'Exit spotted'):goals[snapshot.intent.mode]||'Find the exit';
   byId('intent-label').textContent=ended?'Result':'Pip';
-  byId('objective').textContent=ended?(escaped?'Exit reached':'Next run soon'):exposedDanger?'Keep clear':observingPressure?'Choosing a safe route':pressureCue?'Keep clear of the jaws':pressureApproach?'Jaws in sight':freshGate?'Explore onward':landmark?(landmark.steps===0?'At the landmark':`${landmark.steps} known step${landmark.steps===1?'':'s'} away`):keyedSealedGate?'Gate still closed':'Explore';
+  byId('objective').textContent=ended?(escaped?'Exit reached':'Next run soon'):counterGoal?'Thornback recoils; keep moving':exposedDanger?'Keep clear':observingPressure?'Choosing a safe route':pressureCue?'Keep clear of the jaws':pressureApproach?'Jaws in sight':freshGate?'Explore onward':landmark?(landmark.steps===0?'At the landmark':`${landmark.steps} known step${landmark.steps===1?'':'s'} away`):keyedSealedGate?'Gate still closed':'Explore';
   if(freshKey)byId('objective').textContent='Keep exploring';
   // A witnessed key pickup should not show a second visible "Find key" call
   // directly below "Key collected". Keep the original autonomous strategy
@@ -216,10 +234,7 @@ function update(value){
     eventCaption='Pip stops to inspect the jaws.';
   // An earned, still PUBLIC lantern counter gets a single event, not a
   // speculative warning or a repeated polling caption.
-  const newlyParried=!ended&&snapshot.threats?.some(t=>t.lanternParried===true)
-    &&(previousPublicSnapshot?.runToken!==snapshot.runToken
-      ||!previousPublicSnapshot?.threats?.some(t=>t.lanternParried===true));
-  if(newlyParried)eventCaption="Pip's lantern holds Thornback.";
+  if(earnedCounter)eventCaption="Pip's lantern holds Thornback.";
   wasInDanger=exposedDanger;
   wasNearPressure=!!pressureCue;
   if(eventCaption){

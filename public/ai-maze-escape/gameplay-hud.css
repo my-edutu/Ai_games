@@ -307,3 +307,11 @@ body[data-high-contrast="true"] #broadcast[data-ux-revision="4"] #captions #capt
 body[data-high-contrast="true"] #broadcast[data-ux-revision="4"][data-gate-moment="true"] #hud .mission-block{
   background:#061913;border-color:#ffefb0;
 }
+
+/* Pass441: the ACTUAL one-guardian earned counter briefly takes the existing
+   action chip rather than showing the contradictory "Avoid warden" overlay.
+   Amber mineral confirms an earned counter, NOT safety; another live disclosed
+   guardian keeps urgent danger priority. No animation, panel or touch target. */
+#broadcast[data-ux-revision="4"][data-counter-moment="true"] #hud .mission-block{
+  border-left-color:#ffe097;background:rgba(27,61,48,.94);
+}
