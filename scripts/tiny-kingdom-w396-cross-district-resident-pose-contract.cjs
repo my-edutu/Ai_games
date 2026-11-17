@@ -61,8 +61,17 @@ for(const [label,method,end,cache,limit,budget] of [
 }
 assert(html.includes('if(!restingIndices.has(i)&&!commuterIndices.has(i)&&!workingIndices.has(i))compactVillager(people[i]);'),
  'no authentic villager may be hidden by resident budget decisions');
-assert(html.includes('function start(){resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();')&&
- html.includes('function restoreSnapshot(snapshot){validateSnapshot(snapshot);')&&
- html.includes('resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();'),
- 'world reset and save restore must clear dormant citizen identities');
+// Assert each entry point independently. They now clear the shared GPU-sector
+// ring before the per-profession caches; relying on identical first-call text
+// would incorrectly reject this safer, explicit reset order.
+const gameStart=html.slice(html.indexOf('function start(){'));
+const gameRestore=html.slice(html.indexOf('function restoreSnapshot(snapshot){'));
+for(const [label,body] of [['new game',gameStart],['save restore',gameRestore]]){
+ assert(/resetResidentCommuters\(\);resetWorkingResidents\(\);resetForegroundResidents\(\);/.test(body.slice(0,700)),
+  label+' must clear every old citizen GPU pose before reusing identities');
+ assert(body.slice(0,700).includes('resetActorGpuSnapshots();'),
+  label+' must invalidate cross-sector alternate GPU buffers');
+ assert(body.slice(0,700).includes('clearRestingActorIdentityCache();'),
+  label+' must clear original dormant resting citizen identity cache');
+}
 console.log('W396 PASS: real camera district returns reuse bounded resting / moving / working pose geometry and retain true live/fallback actors; hardware FPS NOT PROVEN');
