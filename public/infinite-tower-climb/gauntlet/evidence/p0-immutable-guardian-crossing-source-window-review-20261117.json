@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "leadingTransformationVerdict": "NOT EVALUATED",
+  "pr": 68,
+  "draft": true,
+  "basePr": 58,
+  "branch": "feat/tower-transformation-gauntlet-20261101",
+  "sourceBefore": "e6b2d6c761fd277071cf23ea45bb53f8e5dd295b",
+  "testFirstSha": "c818d0d936ff56b25ebb43f11e9734fb9e77533e",
+  "productionSourceSha": "e36aeb3af8e186a7cdcf3e71015acbb41506da94",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "exactPriorCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44107038984",
+  "priorQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44107038867",
+  "priorHead": "e6b2d6c761fd277071cf23ea45bb53f8e5dd295b",
+  "observedPriorCI": {
+    "quality": "9/10 passed, phase6 full-catalogue partition timed out on unrelated Maze readiness test; NOT GREEN",
+    "nativeFilmJobs": "nine capture/ledge jobs success, pair-source-events FAIL",
+    "sourceEventAlignment": "0/2 viewports; native-film co-visibility NOT VERIFIED"
+  },
+  "nativeLogs": {
+    "desktop": {
+      "sourceCrossingCueSeconds": 24.4076,
+      "drawnHudFloorNineSeconds": 25.75,
+      "sustainedVioletSeconds": 26.75,
+      "hudToWorldSeconds": 1
+    },
+    "portrait": {
+      "sourceCrossingCueSeconds": 24.7964,
+      "drawnHudFloorNineSeconds": 26,
+      "sustainedVioletSeconds": 27.75,
+      "hudToWorldSeconds": 1.75
+    },
+    "limitation": "Timestamps from exact source-pinned Actions logs and image-phase probes, NOT independent full motion visual acceptance; source-to-native clocks disagree in both viewports"
+  },
+  "verifiedPrimaryBlocker": "The authoritative snapshot projector omitted lastGuardianCrossing at the real first Floor9 source tick (strict >) and after only 12 buffered source ticks. Real 20Hz producer→browser→WebGL delay often outruns that window; downstream original-gateway 3D ownership then falls back to weaker observed grounded receipt. Immutable source event was recorded in applyTowerAction and must not be inferred from pixels.",
+  "completedChange": "Source-owned opt-in guardian crossing is now published on exact crossing tick through bounded 48 successor ticks ONLY for the same runToken, legitimate Floor8→Floor9 event and enabled guardian arena. Original 3D world already consumes this receipt for exact HP0 grounded gateway; original gameplay rules, collisions and camera paths were not changed.",
+  "filesChanged": [
+    "games/infinite-tower-climb/src/presentation/snapshot.ts",
+    "tests/phase3/tower-source-crossing-immutable-snapshot-retention.test.cjs"
+  ],
+  "validation": {
+    "newFocusedTest": "tests/phase3/tower-source-crossing-immutable-snapshot-retention.test.cjs; real TowerRuntime earned crossing and snapshot projection, old/new/out-of-window/different-run/floor/feature flag negative cases",
+    "execution": "GITHUB ACTIONS exact-head validation requested by source/test push; no local repo runtime (connected workspace tunnel unavailable). DO NOT CLAIM TEST PASS until Actions reports.",
+    "newCapture": "Will request exact SHA new 9-job candidate/baseline via capture-request.json commit",
+    "nativeFootage": "NOT INSPECTED for new source",
+    "strictSourceFilm": "NOT EVALUATED",
+    "device": "NOT EVALUATED"
+  },
+  "independentReview": {
+    "LOOKS": "0/5",
+    "FEELS": "0/5",
+    "PLAYS": "0/5"
+  },
+  "largestGap": "Real original 8→9 opened guardian gate, complete 3D climber and physically walkable Floor9 must coexist across consecutive 1× native frames in BOTH viewports. The previous native images still show an abrupt bronze→Void reveal with real source-to-video offset.",
+  "nextHighestImpact": "Run and inspect new exact-SHA 9-job normal-speed desktop/portrait recordings; verify first Floor9 public snapshot now carries SAME-run immutable HP0 crossing and that gateway/hero/roof appear together. If true source receipt now survives but 1.0s/1.75s cold world delay remains, investigate first WebGL upload and camera occlusion, not further speculative transparency tweaks.",
+  "safety": "Baseline 1731b380... remains untouched; never merge/deploy/force push, rewrite PR58, change PR68 draft or modify other games."
+}
