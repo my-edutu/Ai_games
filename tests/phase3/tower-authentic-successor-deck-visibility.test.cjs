@@ -271,6 +271,8 @@ test('runtime samples only first-F9 source structural owners with dual-subject f
   assert.match(world,/stagedVoidArchitecture\.root\.visible/);
   assert.match(world,/deferredDistantArrival\?\.structuralRoot/);
   assert.match(world,/sourceEarnedBearingSightlineRoot=supportRoot/);
+  assert.match(world,/batchRigid\(sourceEarnedBearingSightlineRoot\)/);
+  assert.match(world,/boundaries\.add\(sourceEarnedBearingSightlineRoot\)/);
   assert.match(world,/architectureRoots,originalGateRoot:held\.originalGateRoot/);
   assert.match(scene,/sourceStructuralBlockedRays:successorArchitectureBlockedRays/);
   assert.match(scene,/candidate\.score<bestScore/);
