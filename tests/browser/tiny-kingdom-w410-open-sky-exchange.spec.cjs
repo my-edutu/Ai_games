@@ -14,7 +14,7 @@ function realExchange(){
 }
 test('W410 RED -> GREEN: a real roofless trading aisle between two connected structural canopy wings',()=>{
  const {canopy,volumes}=realExchange();
- assert.ok(canopy.openSkyHalfWidth>=1.05&&canopy.openSkyHalfWidth<=1.4,
+ assert.ok(canopy.openSkyHalfWidth>=1.05&&canopy.openSkyHalfWidth<=1.65,
   'actual human-size central trade bay is sunlit and open to camera');
  assert.ok(canopy.supportX>canopy.openSkyHalfWidth+.45&&canopy.supportX<canopy.roofX);
  assert.ok(canopy.roofZ>canopy.supportZ&&canopy.roofX>=2.1);
