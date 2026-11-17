@@ -12169,6 +12169,21 @@ let villageClothStats={compactResidents:0,detailedResidents:0,compactHemPanels:0
 // Near and middle LODs keep the SAME real rig. A tapered surface connects
 // existing two-bone joints without 224+ spherical knee/elbow triangles per
 // detailed person. Caps are buried by tunic/hand/boot and never used for IK.
+// W420: the original two-bone farmer, forge, builder and courier limb rigs
+// keep their EXACT existing surfaces and 10-float shader layout, but share
+// continuous radial normals instead of six visible hard plastic-looking
+// facet normals. This same per-vertex normal bridge also shapes real hands.
+// No mesh/triangle/bone/actor or original render state is fabricated.
+function packedSmoothLimbQuad(p0,p1,p2,p3,n0,n1,n2,n3,col){
+ const r=col[0],g=col[1],b=col[2],m=currentMaterial;
+ data.push(
+  p0[0],p0[1],p0[2],n0[0],n0[1],n0[2],r,g,b,m,
+  p1[0],p1[1],p1[2],n1[0],n1[1],n1[2],r,g,b,m,
+  p2[0],p2[1],p2[2],n2[0],n2[1],n2[2],r,g,b,m,
+  p0[0],p0[1],p0[2],n0[0],n0[1],n0[2],r,g,b,m,
+  p2[0],p2[1],p2[2],n2[0],n2[1],n2[2],r,g,b,m,
+  p3[0],p3[1],p3[2],n3[0],n3[1],n3[2],r,g,b,m);
+}
 function taperedMedievalLimb(a,b,r0,r1,col,sides=6){
  const dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2];
  const length=Math.hypot(dx,dy,dz);if(length<.00001)return;
@@ -12179,7 +12194,14 @@ function taperedMedievalLimb(a,b,r0,r1,col,sides=6){
  const right=[rx/rl,ry/rl,rz/rl];
  const up=[uy*right[2]-uz*right[1],uz*right[0]-ux*right[2],
   ux*right[1]-uy*right[0]];
- const circle=packedRing(sides);
+ const circle=packedRing(sides),taper=(r0-r1)/length;
+ const normal=(cs,sn)=>{
+  const nx=cs*right[0]+sn*up[0]+ux*taper;
+  const ny=cs*right[1]+sn*up[1]+uy*taper;
+  const nz=cs*right[2]+sn*up[2]+uz*taper;
+  const mag=Math.hypot(nx,ny,nz)||1;
+  return [nx/mag,ny/mag,nz/mag];
+ };
  for(let i=0;i<sides;i++){
   const t=i*2*Math.PI/sides,n=(i+1)*2*Math.PI/sides;
   const c=circle?circle[i*2]:Math.cos(t),v=circle?circle[i*2+1]:Math.sin(t);
@@ -12189,7 +12211,8 @@ function taperedMedievalLimb(a,b,r0,r1,col,sides=6){
    root[2]+r*(cs*right[2]+sn*up[2])];
   const p0=point(a,r0,c,v),p1=point(a,r0,d,w),
    p2=point(b,r1,d,w),p3=point(b,r1,c,v);
-  packedFlatQuad(...p0,...p1,...p2,...p3,col);
+  const n0=normal(c,v),n1=normal(d,w);
+  packedSmoothLimbQuad(p0,p1,p2,p3,n0,n1,n1,n0,col);
  }
 }
 function renderArticulatedHand(wrist,size,skin,side){
@@ -12197,7 +12220,11 @@ function renderArticulatedHand(wrist,size,skin,side){
  // Narrow palm plus thumb/finger groups replace the old ball-like fists.
  materialScope(MATERIAL.GENERAL,()=>{
   const x=wrist[0],y=wrist[1],z=wrist[2];
-  box(x,y-.008*size,z+.013*size,.115*size,.103*size,.108*size,skin);
+  // The same real IK wrist now leads a rounded, tapered woven-work palm,
+  // rather than a square box piercing harvested sheaves and forged tools.
+  // 6 sides = the prior 12 triangles, with no extra citizen/prop.
+  taperedMedievalLimb([x,y+.046*size,z-.015*size],
+   [x,y-.053*size,z+.052*size],.062*size,.053*size,skin,6);
   taperedMedievalLimb([x+side*.045*size,y-.005*size,z+.053*size],
    [x+side*.095*size,y-.055*size,z+.095*size],
    .025*size,.014*size,skin,4);
@@ -15098,8 +15125,25 @@ function emitLivedCanvasSack(x,y,z,rx,ry,rz,variation=0){
  const tone=rgb(palette[((variation%palette.length)+palette.length)%palette.length]);
  const fold=rgb(0x9d8768),neck=rgb(0xb8a07d),twine=rgb(0x816744);
  materialScope(MATERIAL.GENERAL,()=>{
-  // Weighted cloth volume and an actual gathered, bound upper mouth.
+  // Original earned or escrowed sack: deform this SAME 7-ring body, not
+  // the real goods ledger or contact point. Weight widens the lower body,
+  // gathered flax narrows at its tied mouth and the loaded base rests flat
+  // on the existing real market/farmer support instead of resembling an egg.
+  // The body keeps its original vertex/triangle count and material ownership.
+  const sackBodyStart=data.length;
   ellipsoid(x,y,z,rx,ry,rz,tone,7);
+  for(let v=sackBodyStart;v<data.length;v+=10){
+   const unit=(data[v+1]-y)/ry;
+   const gathered=Math.max(0,unit-.08);
+   const slump=Math.max(0,-unit-.20);
+   const silhouette=(1-.31*gathered*gathered)*(1+.095*slump);
+   const azimuth=Math.atan2(data[v+2]-z,data[v]-x);
+   const creasing=1+.014*Math.sin(azimuth*7+variation*.41)*
+    Math.max(0,1-Math.abs(unit));
+   data[v]=x+(data[v]-x)*silhouette*creasing;
+   data[v+2]=z+(data[v+2]-z)*silhouette*creasing;
+   if(unit<-.78)data[v+1]=y+ry*(-.78+.18*(unit+.78));
+  }
   cylinder(x,y+ry*.86,z,rx*.32,ry*.34,neck,6);
   for(const side of [-.64,-.22,.22,.64]){
    const xx=x+side*rx,zz=z+rz*(.77-.15*Math.abs(side));
