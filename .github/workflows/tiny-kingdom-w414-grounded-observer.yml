@@ -1,10 +1,11 @@
-name: Tiny Kingdom W414 Physically Grounded Workday Camera
+name: Tiny Kingdom W415 Real Workday Render Crash Regression
 on:
   pull_request:
     paths:
       - 'public/tiny-kingdom/index.html'
       - 'tests/browser/tiny-kingdom-w414-grounded-observer.spec.cjs'
       - 'tests/browser/tiny-kingdom-w413-observed-worksite-runtime.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w415-resident-visibility.spec.cjs'
       - '.github/workflows/tiny-kingdom-w414-grounded-observer.yml'
   workflow_dispatch:
 permissions:
@@ -31,6 +32,8 @@ jobs:
           cache: npm
       - name: Real terrain eye, roof and invalid-projection contract
         run: node --test tests/browser/tiny-kingdom-w414-grounded-observer.spec.cjs
+      - name: Actual selected worker residency and visibility Set contract
+        run: node --test tests/browser/tiny-kingdom-w415-resident-visibility.spec.cjs
       - run: npm ci --no-audit --no-fund
       - run: npm run build
       - run: npx playwright install --with-deps chromium
