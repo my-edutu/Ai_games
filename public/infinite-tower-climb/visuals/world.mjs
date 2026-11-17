@@ -11,7 +11,7 @@ import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePre
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections, isolateEarnedFirstFrameVoidMaterials } from './source-earned-bearing-run.mjs';
-import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold } from './far-side-shaft-transition.mjs';
+import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold, observedSourceEarnedEarlyVoidShaftAperture } from './far-side-shaft-transition.mjs';
 
 
 /**
@@ -3726,8 +3726,15 @@ export function createTowerWorld(){
       // gateway is invented, and a retired historical owner cannot pin F9.
       const nominalShaftFade=options.reducedMotion?1:
         Math.min(1,job.structuralFade+shown/.8);
-      job.structuralFade=options.reducedMotion?1:
-        sourceAlignedIncomingShaftOpacity(snapshot,held,nominalShaftFade);
+      // Hold the already-submitted source-earned aperture until the old gate
+      // physically recedes: a slow renderer must not flicker the NEXT real
+      // shaft out merely because the climber left the roof on a later tick.
+      const earlyShaft=observedSourceEarnedEarlyVoidShaftAperture(
+        snapshot,held,job);
+      job.structuralFade=options.reducedMotion?1:Math.max(
+        job.structuralFade,
+        sourceAlignedIncomingShaftOpacity(snapshot,held,nominalShaftFade),
+        earlyShaft?.alpha??0);
       for(const {material,originalOpacity} of job.structuralMaterials)
         material.opacity=originalOpacity*job.structuralFade;
       // True GPU culling, not just alpha zero: a Three Mesh with
@@ -4051,10 +4058,18 @@ export function createTowerWorld(){
       // abruptly when the next source/browser snapshot jumps forward.
       // No RAF update, failed draw, fabricated platform or clock can earn it.
       const lastEarnedDt=arrival.lastReturnedDt;
-      const firstShaftAlpha=options.reducedMotion?1:
+      // The original defeated-guardian gateway has already been painted
+      // once. The AUTHENTIC successor shaft built after that return may now
+      // enter the next real submission as a low-alpha depth aperture, even
+      // while the still-opaque bronze doorway stays physically foregrounded.
+      // Reuse only its real source-certified geometry and material owner.
+      const earlyShaft=observedSourceEarnedEarlyVoidShaftAperture(
+        snapshot,retainedEarnedCap,arrival);
+      const firstShaftAlpha=options.reducedMotion?1:Math.max(
+        earlyShaft?.alpha??0,
         sourceAlignedIncomingShaftOpacity(snapshot,retainedEarnedCap,
           Number.isFinite(lastEarnedDt)&&lastEarnedDt>0
-            ?Math.min(1,lastEarnedDt/.8):0);
+            ?Math.min(1,lastEarnedDt/.8):0));
       arrival.structureBuiltAtSubmitted=arrival.submittedFrames;
       arrival.state='awaiting-structural-submission';
       if(firstShaftAlpha>arrival.structuralFade) {

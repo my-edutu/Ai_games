@@ -246,3 +246,78 @@ export function observedReturnedOriginalArchitectureHold(source,held,job,farSide
     incomingReturnedFrames:0,
     limitation:'Last truly returned original 3D materials, current source-supported far-side route; no native pixel or accepted experience claim'};
 }
+
+
+// P0: the first true F9 renderer return may already have built the ORIGINAL
+// noninteractive Void shaft, but waiting for a *second* cold WebGL return
+// concealed that real next room until the bronze gate vanished. Admit only
+// a restrained rear-world material aperture on the NEXT submission, while
+// the actually returned bronze threshold remains opaque and physically
+// cleared by its whole-body climber. No extra meshes, floor, collider, camera,
+// source tick, fake renderer receipt, UI phase or future-position guess.
+export function observedSourceEarnedEarlyVoidShaftAperture(source, held, job) {
+  const p=source?.player,ground=source?.platforms?.find(s=>s?.id==='f9:ground');
+  const w=source?.lastGuardianCrossing;
+  if(source?.floor!==9 || source.theme!=='void' ||
+     source.lifecycle!=='running' || !(p?.health>0) ||
+     typeof source.runToken!=='string' || !source.runToken ||
+     !held || held.guardianGateRetained!==true ||
+     held.verifiedObservedFloorAdvance!==true ||
+     held.runToken!==source.runToken || held.floor!==9 ||
+     held.oldCapId!=='f8:cap' || held.opticalExitSubmitted===true ||
+     !job || job.proof!=='recorded-source-gateway' ||
+     job.structureDeferred!==true || job.floor!==9 ||
+     job.runToken!==source.runToken ||
+     !['awaiting-structural-release','awaiting-structural-submission',
+       'awaiting-vista-submission'].includes(job.state) ||
+     ![source.tick,held.firstWorldRenderTick,held.submittedFrames,
+       held.oldRoofY,held.thresholdX,held.oldCapX,held.oldCapWidth,
+       job.sourceTick,job.submittedFrames,job.structureBuiltAtSubmitted,
+       job.structuralVisibleReturns,p.x,p.y,p.halfWidth,p.halfHeight,
+       ground?.x,ground?.y,ground?.width,ground?.height].every(valid) ||
+     !Number.isFinite(held.visibleSeconds) ||
+     !Number.isFinite(held.originalGatewayOpacity) ||
+     source.tick<held.firstWorldRenderTick ||
+     source.tick-held.firstWorldRenderTick>48 ||
+     held.visibleSeconds<0 || held.visibleSeconds>=2 ||
+     held.originalGatewayOpacity<.72 || held.originalGatewayOpacity>1 ||
+     held.submittedFrames<1 || held.submittedFrames>8 ||
+     job.sourceTick!==held.firstWorldRenderTick ||
+     job.structureBuiltAtSubmitted<1 ||
+     job.submittedFrames<job.structureBuiltAtSubmitted ||
+     job.submittedFrames>8 || job.structuralVisibleReturns>3 ||
+     held.thresholdX!==held.oldCapX+Math.floor(held.oldCapWidth*.76) ||
+     ground.width<=0 || ground.height<=0 ||
+     ground.y+ground.height!==held.oldRoofY ||
+     p.halfWidth<=0 || p.halfHeight<=0 ||
+     p.x-p.halfWidth<held.thresholdX+4000 ||
+     p.x-p.halfWidth>held.thresholdX+60000 ||
+     p.x-p.halfWidth<ground.x ||
+     p.x+p.halfWidth>ground.x+ground.width) return null;
+  if(w!=null && (w.runToken!==source.runToken ||
+     w.fromFloor!==8 || w.toFloor!==9 ||
+     w.cap?.id!=='f8:cap' || w.cap.x!==held.oldCapX ||
+     w.cap.width!==held.oldCapWidth ||
+     w.cap.y+w.cap.height!==held.oldRoofY ||
+     w.exitX!==held.thresholdX ||
+     w.guardian?.kind!=='guardian' ||
+     w.guardian.active!==false ||
+     !Number.isFinite(w.guardian.health) || w.guardian.health>0 ||
+     !valid(w.sourceTick) || w.sourceTick>source.tick)) return null;
+  const sole=p.y-p.halfHeight;
+  // A first 20Hz F9 packet legitimately retains its just-traversed F8 cap
+  // contact ID. That same roof is *also* the genuine f9:ground bottom plane.
+  const roofContact=p.grounded===true && p.vy===0 &&
+    (p.state==='standing'||p.state==='hurt') &&
+    (p.groundedPlatformId==='f9:ground' ||
+     p.groundedPlatformId==='f8:cap') &&
+    sole===held.oldRoofY;
+  const lowFlight=p.grounded===false && p.state==='airborne' &&
+    p.groundedPlatformId==null && Number.isFinite(p.vy) &&
+    sole>=held.oldRoofY-2500 && sole<=held.oldRoofY+80000;
+  if(!roofContact&&!lowFlight)return null;
+  return {sourceBound:true,sourceTick:source.tick,
+    alpha:roofContact?.24:.18,roofContact,
+    originalGatewayRetained:true,
+    limitation:'Partial authentic Void structural materials only after first original 3D WebGL return; no fabricated new scene or native-frame acceptance'};
+}
