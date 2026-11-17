@@ -93,10 +93,15 @@ export function publicGuardianEarnedResonance(phase,fromHero,reducedMotion=false
   const state=output??{wave:0,glow:0,radius:0};
   state.wave=0;state.glow=0;state.radius=0;
   if(!Number.isFinite(phase)||phase<0||phase>1
-    ||!Number.isSafeInteger(fromHero)||fromHero<0||fromHero>2)return state;
+    ||!Number.isSafeInteger(fromHero)||fromHero<0||fromHero>3)return state;
   // Identical 1.15s counter clock to the physical Pip/Thornback bodies.
   // The .12s/tile delay moves from real hero tile to real guardian tile.
-  const elapsed=phase*1.15-fromHero*.12;
+  // Existing three-cell straight counter remains byte-for-byte paced as
+  // before. The newly witnessed fourth L-corner tile uses the complete
+  // shared two-second Pip/Thornback window and then always settles.
+  const longCorner=fromHero===3;
+  const elapsed=phase*(longCorner?2:1.15)-fromHero*.12;
+  if(longCorner && phase>=1)return state;
   state.wave=reducedMotion?1:Math.max(0,Math.min(1,elapsed/.20));
   // A genuine three-beat counter lasts 1.15s. The former .64s ring
   // vanished before the publicly witnessed armor collapse and recovery,
@@ -104,10 +109,17 @@ export function publicGuardianEarnedResonance(phase,fromHero,reducedMotion=false
   // Carry ONE progressive low-floor resonance through the actual counter,
   // without adding a fake hit, extending gameplay authority or looping it.
   // Its last .03s is dark; a completed counter and reduced motion never flash.
-  if(!reducedMotion && elapsed>0 && elapsed<1.12){
-    const portion=elapsed/1.12;
+  const life=longCorner?1.9:1.12;
+  if(!reducedMotion && elapsed>0 && elapsed<life){
+    const portion=elapsed/life;
     state.glow=Math.sin(Math.PI*portion);
     state.radius=.34+.66*portion;
   }
   return state;
 }
+
+// Source-only public counter helpers are re-exported through this already
+// served gameplay module so native ESM and installed-Three data: fixtures
+// share the same public event contracts without private maze imports.
+export { PUBLIC_GUARDIAN_COUNTER_SECONDS, publicGuardianCounterMoment } from './public-counter-moment.mjs';
+export { publicWitnessedGuardianRecoilRoute } from './public-recoil-route.mjs';

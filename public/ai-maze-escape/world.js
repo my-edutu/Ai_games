@@ -1,7 +1,5 @@
 import * as THREE from './vendor/three.module.js';
-import { PUBLIC_GUARDIAN_COUNTER_SECONDS, publicGuardianCounterMoment } from './public-counter-moment.mjs';
-import { publicWitnessedGuardianRecoilRoute } from './public-recoil-route.mjs';
-import { GATE_RETRACTION_SECONDS, PUBLIC_PRESSURE_VISUAL_SECONDS, observedGateOpenings, gateRetractionPose, observedPressureProgress, publicPressureSequenceSeconds, publicSpentKeyTheatreDrop, publicGuardianEarnedResonance } from './gate-moment.mjs';
+import { GATE_RETRACTION_SECONDS, PUBLIC_PRESSURE_VISUAL_SECONDS, observedGateOpenings, gateRetractionPose, observedPressureProgress, publicPressureSequenceSeconds, publicSpentKeyTheatreDrop, publicGuardianEarnedResonance, PUBLIC_GUARDIAN_COUNTER_SECONDS, publicGuardianCounterMoment, publicWitnessedGuardianRecoilRoute } from './gate-moment.mjs';
 import { publicKeyCollectionMoment } from './map-view.mjs';
 
 export const CELL_SIZE = 2.4;

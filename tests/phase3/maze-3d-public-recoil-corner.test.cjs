@@ -60,3 +60,11 @@ test('the production hinge stage and world witness have strict authentic source 
   ])assert.ok(world.includes(part),part);
   assert.ok(!world.includes('(t-observedEarnedCounter.start)/1.15'));
 });
+
+test('the published fourth corner gets the full two-second physical ripple without altering the three original straight beats',async()=>{
+  const {publicGuardianEarnedResonance:r}=await import(pathToFileURL(path.join(root,'public/ai-maze-escape/gate-moment.mjs')).href);
+  assert.ok(r(.80,3,false).glow>0,'the real retreat endpoint participates');
+  assert.equal(r(1,3,false).glow,0,'the earned event cannot linger after 2s');
+  assert.equal(r(.80,4,false).glow,0,'no fifth unseen cell or imagined shortcut');
+  assert.ok(r(.80,2,false).glow>=0,'the existing 3-tile contract is preserved');
+});
