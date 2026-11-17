@@ -25,7 +25,7 @@ function renderedTriangle(hit,root) {
 }
 export function measureAuthoritativeDeckSightline({
   source,held,camera,body,bodyHalfHeight,gate=null,
-  platformRoots,originalGateRoot=null,architectureRoots=[],raycaster,direction,point,hits,stale=false
+  platformRoots,originalGateRoot=null,originalCapRoot=null,architectureRoots=[],raycaster,direction,point,hits,stale=false
 }={}) {
   if(stale || source?.floor!==9 || source.theme!=='void' ||
     source.lifecycle!=='running' || !(source.player?.health>0) ||
@@ -39,11 +39,15 @@ export function measureAuthoritativeDeckSightline({
     !Array.isArray(platformRoots) || !platformRoots.length ||
     platformRoots.length>3 || !platformRoots.every(root=>root?.isGroup) ||
     (originalGateRoot!=null && !originalGateRoot.isGroup) ||
+    (originalCapRoot!=null && (
+      !originalCapRoot.isGroup || held.oldCapId!=='f8:cap' ||
+      originalCapRoot===originalGateRoot ||
+      platformRoots.includes(originalCapRoot))) ||
     // Only existing source-owned structural groups, never a second scene,
     // proxy obstruction or duplicated gameplay collider. Bounded cold path.
     !Array.isArray(architectureRoots) || architectureRoots.length>2 ||
     !architectureRoots.every(root=>root?.isGroup &&
-      root!==originalGateRoot && !platformRoots.includes(root)) ||
+      root!==originalGateRoot && root!==originalCapRoot && !platformRoots.includes(root)) ||
     !raycaster?.set || !raycaster?.intersectObject ||
     !direction?.copy || !point?.copy ||
     !Array.isArray(hits) || (gate!=null && !valid3(gate)))return null;
@@ -56,11 +60,13 @@ export function measureAuthoritativeDeckSightline({
   // Reuse the existing source-verified F8->F9 camera window and raycaster;
   // never use this gate as an occluder of its OWN gateway target.
   if(originalGateRoot?.visible!==false) originalGateRoot?.updateWorldMatrix(true,true);
+  if(originalCapRoot?.visible!==false) originalCapRoot?.updateWorldMatrix(true,true);
   for(const root of architectureRoots)if(root.visible!==false)
     root.updateWorldMatrix(true,true);
   let blockedBodyRays=0, blockedGatewayRays=0, rays=0, realTrianglesChecked=0;
   let architectureBlockedRays=0;
   let originalGateBlockedRays=0;
+  let originalCapBlockedRays=0,originalCapBlockedBodyRays=0,originalCapBlockedGatewayRays=0;
   // The 390px original footage keeps a centre ray clear while the actual
   // source-width skinned shoulder and the bronze door's upper lip disappear
   // behind real Floor9 underside triangles. Test the CURRENT source body,
@@ -116,6 +122,25 @@ export function measureAuthoritativeDeckSightline({
         blocked=true;architectureBlockedRays++;break;
       }
     }
+    // The original F8 cap and its real metallic rim remain in the same
+    // physically walked F9 shot. Previous ray rescue checked F9 decks,
+    // incoming bearings and the gate, but MISSED this enormous old cap:
+    // authentic portrait video shows that bronze foreground masking the
+    // full body after the HUD advances. Read actual retained triangles
+    // instead of hiding a walkable top or alpha-fading an invented proxy.
+    // This optional root belongs only to the HP-zero source-authenticated
+    // old-world owner, is never a collision edit and is raycast only during
+    // the short, already bounded cold doorway camera window.
+    if(!blocked && originalCapRoot?.visible!==false && originalCapRoot){
+      hits.length=0;
+      raycaster.intersectObject(originalCapRoot,true,hits);
+      realTrianglesChecked+=hits.length;
+      if(hits.some(hit=>renderedTriangle(hit,originalCapRoot))){
+        blocked=true;originalCapBlockedRays++;
+        if(sample<bodySamples)originalCapBlockedBodyRays++;
+        else originalCapBlockedGatewayRays++;
+      }
+    }
     hits.length=0;
     // Only an actually rendered bronze gate triangle BETWEEN the final
     // composed camera and one of the genuine seven skinned-body samples
@@ -133,11 +158,13 @@ export function measureAuthoritativeDeckSightline({
     if(blocked){if(sample>=bodySamples)blockedGatewayRays++;else blockedBodyRays++;}
   }
   return {active:true,rays,bodyBlockedRays:blockedBodyRays,
-    originalGateBlockedRays,architectureBlockedRays,
+    originalGateBlockedRays,originalCapBlockedRays,
+    originalCapBlockedBodyRays,originalCapBlockedGatewayRays,
+    architectureBlockedRays,
     gatewayBlockedRays:blockedGatewayRays,
     score:blockedBodyRays*2+blockedGatewayRays,
     actualTriangleIntersections:realTrianglesChecked,
-    limitation:'Real source-authored F9 deck, original gate, incoming buttress/bearing/shaft triangles; NOT native pixels, device FPS or permission to move colliders'};
+    limitation:'Real source-authored F9 decks, retained original F8 cap/gate, and incoming buttress/bearing/shaft triangles; NOT native pixels, device FPS or permission to move colliders'};
 }
 
 

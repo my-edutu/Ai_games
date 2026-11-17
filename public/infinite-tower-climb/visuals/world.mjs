@@ -3129,6 +3129,9 @@ export function createTowerWorld(){
       // Actual source-HP-unlocked original 3D bronze doorway: only this
       // retained GPU owner can certify camera-to-climber obstruction.
       originalGateRoot:realGate,
+      // The genuine F8 cap itself, not only the separately retained gate,
+      // can cover the real F9 climber in portrait. Never duplicate this mesh.
+      originalCapSightlineRoot:root,
       originalGalleryTriangles:gallery?.faces ?? 0,
       originalGalleryEnvelope:gallery?.envelope ?? null,
       originalGalleryBytes:gallery?.bytes ?? 0,
@@ -4496,6 +4499,7 @@ export function createTowerWorld(){
     return measureAuthoritativeDeckSightline({
       source,held,camera,body,bodyHalfHeight,gate,platformRoots:roots,
       architectureRoots,originalGateRoot:held.originalGateRoot,
+      originalCapRoot:held.originalCapSightlineRoot,
       raycaster:successorDeckRay,direction:successorDeckRayDirection,
       point:successorDeckRayTarget,hits:successorDeckRayHits
     });

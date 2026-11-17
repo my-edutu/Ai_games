@@ -4910,11 +4910,14 @@ export function createTowerScene(canvas, settings = {}) {
       // genuinely unobscured full-body climber under the source-owned deck.
       // The ray proof is checked only when this submitted shot actually
       // needed a deck rescue; normal ascent adds no additional raycasting.
-      const deckViewBeforeThreshold = successorDeckCameraLastGain>0
-        ? world.measureSuccessorDeckVisibility(
-            snapshot,camera.position,thresholdHero,p.halfHeight/SCALE,
-            thresholdGate,targetPlatform?.id??null)
-        : null;
+      // A final cosmetic gaze must never undo the source-authentic old-cap,
+      // moving-deck, new-bearing or original-gate clearance. Compare every
+      // source-earned candidate against the ACTUAL final camera, even when
+      // the earlier camera ladder found no better angle. Otherwise a clear
+      // skinned body can disappear behind the old cap on the final correction.
+      const deckViewBeforeThreshold = world.measureSuccessorDeckVisibility(
+        snapshot,camera.position,thresholdHero,p.halfHeight/SCALE,
+        thresholdGate,targetPlatform?.id??null);
       thresholdPreviousCamera.copy(camera.position);
       thresholdPreviousGaze.copy(lookAt);
       measureDuelBodyNdc(thresholdHero,p.halfHeight/SCALE,
@@ -4967,6 +4970,9 @@ export function createTowerScene(canvas, settings = {}) {
           // gateway behind the genuine successor platform triangles.
           if(!deckViewAfterThreshold?.active ||
              deckViewAfterThreshold.bodyBlockedRays>deckViewBeforeThreshold.bodyBlockedRays ||
+             deckViewAfterThreshold.gatewayBlockedRays>deckViewBeforeThreshold.gatewayBlockedRays ||
+             deckViewAfterThreshold.originalCapBlockedBodyRays>deckViewBeforeThreshold.originalCapBlockedBodyRays ||
+             deckViewAfterThreshold.originalCapBlockedGatewayRays>deckViewBeforeThreshold.originalCapBlockedGatewayRays ||
              deckViewAfterThreshold.score>deckViewBeforeThreshold.score)
             best=0;
         }

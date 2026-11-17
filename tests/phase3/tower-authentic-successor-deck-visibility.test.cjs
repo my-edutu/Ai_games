@@ -277,3 +277,58 @@ test('runtime samples only first-F9 source structural owners with dual-subject f
   assert.match(scene,/sourceStructuralBlockedRays:successorArchitectureBlockedRays/);
   assert.match(scene,/candidate\.score<bestScore/);
 });
+
+// Original matched portrait film 44019309912: the F8 bronze retained cap itself
+// fills the foreground. Camera must see those authentic triangles, not invent
+// an invisible old floor or fade the real walkable deck to clear the hero.
+test('the actual retained bronze cap is part of the cold doorway camera score, while opacity and source vetoes stay authoritative',async()=>{
+  const THREE=await three;
+  const {measureAuthoritativeDeckSightline}=await loaded;
+  const f=fixture(THREE);f.measure=measureAuthoritativeDeckSightline;
+  f.held.oldCapId='f8:cap';
+  const cap=new THREE.Group();cap.name='OriginalPhysicallyWalkedF8Cap';
+  const metal=new THREE.MeshStandardMaterial({color:0x8c704e});
+  const geometry=new THREE.BoxGeometry(2.5,4,1.2);
+  const oldCapRim=new THREE.Mesh(geometry,metal);
+  oldCapRim.position.set(0,2,2.4);cap.add(oldCapRim);
+  f.roof.children[0].position.x=100;
+  const before=JSON.stringify([f.source,f.held]);
+  try {
+    const clear=sample(f,[0,2,6],[0,2,0]);
+    assert.equal(clear.score,0,'real next-floor decks are out of sightline');
+    const covered=sample(f,[0,2,6],[0,2,0],{originalCapRoot:cap});
+    assert.ok(covered.originalCapBlockedBodyRays>0);
+    assert.ok(covered.originalCapBlockedGatewayRays>0);
+    assert.ok(covered.score>clear.score);
+    assert.ok(covered.rays<=9,'same bounded real source body/gate ray sample');
+    const exterior=sample(f,[10,3,6],[0,2,0],{originalCapRoot:cap});
+    assert.ok(exterior.score<covered.score,'original roof has a real clearer exterior camera');
+    metal.transparent=true;metal.opacity=0;
+    assert.equal(sample(f,[0,2,6],[0,2,0],{originalCapRoot:cap}).score,0,
+      'GPU-invisible historical metal is not a reason to move the camera');
+    metal.opacity=1;cap.visible=false;
+    assert.equal(sample(f,[0,2,6],[0,2,0],{originalCapRoot:cap}).score,0);
+    cap.visible=true;
+    assert.equal(sample(f,[0,2,6],[0,2,0],{originalCapRoot:f.roof}),null,
+      'cannot count same genuine roof as both a live F9 deck and old cap');
+    assert.equal(sample(f,[0,2,6],[0,2,0],{originalCapRoot:cap,
+      held:{...f.held,oldCapId:'f7:cap'}}),null,
+      'a wrong previously walked cap must not borrow F8 guardian proof');
+    assert.equal(sample(f,[0,2,6],[0,2,0],{originalCapRoot:cap,
+      source:{...f.source,runToken:'different-run'}}),null);
+    assert.equal(JSON.stringify([f.source,f.held]),before,
+      'camera never edits real physics, run, HP, or floor progress');
+  } finally {geometry.dispose();metal.dispose();f.geometry.dispose();f.material.dispose();}
+});
+
+test('old-cap sightline is owned by the genuine retained F8 deck and the final corrected F9 camera',()=>{
+  const fs=require('node:fs');
+  const world=fs.readFileSync(path.resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
+  const scene=fs.readFileSync(path.resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+  assert.match(world,/originalCapSightlineRoot:root/);
+  assert.match(world,/originalCapRoot:held\.originalCapSightlineRoot/);
+  assert.match(scene,/deckViewBeforeThreshold = world\.measureSuccessorDeckVisibility/);
+  assert.match(scene,/originalCapBlockedBodyRays>deckViewBeforeThreshold\.originalCapBlockedBodyRays/);
+});
