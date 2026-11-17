@@ -61,9 +61,9 @@ test('live stage distinguishes real moving gate feedback from true simultaneous 
     'a remembered AI strategy cannot override the public gate-opening stage');
   assert.match(source,/const freshGate=!ended && !urgent && !keyedSealedGate\s*&& gateMilestone\?\.runToken===snapshot\.runToken\s*&& hudVisualTime<gateMilestone\.until/,
     'real danger outranks the gate; a witnessed gate outranks only advisory pressure sighting');
-  assert.match(source,/exposedDanger\\?'Immediate danger':freshGate\\?'PASSAGE OPEN':observingPressure/,
+  assert.match(source,/exposedDanger\?'Immediate danger':freshGate\?'PASSAGE OPEN':observingPressure/,
     'actual guardian danger stays first, but a real moving gate beats non-dangerous jaws inspection');
-  assert.match(source,/exposedDanger\\?'Avoid warden':freshGate\\?'Gate opened':observingPressure/,
+  assert.match(source,/exposedDanger\?'Avoid warden':freshGate\?'Gate opened':observingPressure/,
     'the same live action sentence cannot claim Watch jaws during a real gate lift');
   assert.match(source,/if\(witnessedOpenings\.length\)\s*eventCaption=exposedDanger\?'Gate opens\. Keep clear of Thornback\.':'A locked passage opened\.'/,
     'real CLOSED-to-OPEN gates remain narrated when Warden and gate genuinely coincide');
