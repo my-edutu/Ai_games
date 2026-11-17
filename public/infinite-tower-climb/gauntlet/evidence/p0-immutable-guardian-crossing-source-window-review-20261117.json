@@ -42,10 +42,12 @@
   "validation": {
     "newFocusedTest": "tests/phase3/tower-source-crossing-immutable-snapshot-retention.test.cjs; real TowerRuntime earned crossing and snapshot projection, old/new/out-of-window/different-run/floor/feature flag negative cases",
     "execution": "GITHUB ACTIONS exact-head validation requested by source/test push; no local repo runtime (connected workspace tunnel unavailable). DO NOT CLAIM TEST PASS until Actions reports.",
-    "newCapture": "Will request exact SHA new 9-job candidate/baseline via capture-request.json commit",
+    "newCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44116098054 (exact immutable request-commit SHA 2e95139d; QUEUED at recorded inspection; actual new film NOT YET AVAILABLE)",
     "nativeFootage": "NOT INSPECTED for new source",
     "strictSourceFilm": "NOT EVALUATED",
-    "device": "NOT EVALUATED"
+    "device": "NOT EVALUATED",
+    "exactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44116098120 (PENDING at recorded inspection; no success claim)",
+    "sourceCodeChecks": "GitHub compare e6b2d6c..2e95139d shows exactly four scoped changed files; transformation.json blob 11d74e436d893ffb38e9be90e8e073b02ebb6b7c is unchanged"
   },
   "independentReview": {
     "LOOKS": "0/5",
@@ -54,5 +56,7 @@
   },
   "largestGap": "Real original 8→9 opened guardian gate, complete 3D climber and physically walkable Floor9 must coexist across consecutive 1× native frames in BOTH viewports. The previous native images still show an abrupt bronze→Void reveal with real source-to-video offset.",
   "nextHighestImpact": "Run and inspect new exact-SHA 9-job normal-speed desktop/portrait recordings; verify first Floor9 public snapshot now carries SAME-run immutable HP0 crossing and that gateway/hero/roof appear together. If true source receipt now survives but 1.0s/1.75s cold world delay remains, investigate first WebGL upload and camera occlusion, not further speculative transparency tweaks.",
-  "safety": "Baseline 1731b380... remains untouched; never merge/deploy/force push, rewrite PR58, change PR68 draft or modify other games."
+  "safety": "Baseline 1731b380... remains untouched; never merge/deploy/force push, rewrite PR58, change PR68 draft or modify other games.",
+  "requestedCaptureSha": "2e95139d11a5b33988a8b5a4ec757af2aa04258f",
+  "reportStatus": "Implemented and committed source-truth correction + real-runtime regression test; automatic exact-source CI and 9-job campaign requested. No source-to-native visual acceptance, device benchmark or independent reviewer claim."
 }
