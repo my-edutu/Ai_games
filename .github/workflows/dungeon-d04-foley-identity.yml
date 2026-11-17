@@ -6,6 +6,7 @@ on:
     paths:
       - public/ai-dungeon/original-combat-foley.js
       - public/ai-dungeon/app.js
+      - public/ai-dungeon/soundstage.js
       - tests/browser/dungeon-d04-decoded-video-proof.cjs
       - tests/browser/dungeon-d04-webm-pts-proof.cjs
       - public/ai-dungeon/physical-combat-feedback.js
@@ -92,6 +93,7 @@ jobs:
             tests/foundation/dungeon-d04-hp-hidden-visual-sound-only.test.cjs \
             tests/foundation/dungeon-d04-swing-rig-receipt-continuity.test.cjs \
             tests/foundation/dungeon-d04-audio-frame-deadline.test.cjs \
+            tests/foundation/dungeon-d04-pcm-combat-bus-clock.test.cjs \
             tests/foundation/dungeon-d04-first-drawable-sword-foley.test.cjs \
             tests/foundation/dungeon-d04-original-foley-cue-identity.test.cjs \
             tests/foundation/dungeon-d04-strict-original-foley-provenance.test.cjs \
