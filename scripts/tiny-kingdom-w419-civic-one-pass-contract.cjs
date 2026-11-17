@@ -52,7 +52,8 @@ function exercise(gpu=true,allocation=true){
  };
  vm.runInNewContext(source,ctx,{timeout:2000});
  const ok=vm.runInNewContext('rememberCivicScenery("spring:shader-light:actual-civic-roads:12",90,{finalMaterial:1})',ctx,{timeout:2000});
- assert.equal(ok,gpu&&allocation);
+ assert.equal(ok,!gpu||allocation,
+  'software must preserve full civic scene without a GPU, hardware denies failed VBO');
  assert.deepEqual(ctx.data,stream,'source stays intact for original fallback and authority');
  if(gpu){
   assert.equal(calls.copies,0,'source offset must NOT make one full typed copy then pack again');
