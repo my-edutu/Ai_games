@@ -32,12 +32,12 @@ test('W412 four actual exchange posts are surveyed, memoized, and never duplicat
  assert.match(posts,/EXCHANGE_CANOPY\.supportX/);
  assert.match(posts,/EXCHANGE_CANOPY\.supportZ/);
  assert.match(posts,/marketUprightMemo/);
- const camera=section('function followCameraRoofs(){','function getFollowCameraRoofsAudit');
+ const camera=section('function followCameraRoofs(){','function cameraOcclusionModel(');
  // The four physical exchange posts already exist in physicalVillageExchangeVolumes.
  // Include them in post-specific sightline checks but only ONCE in AABB ray index.
  assert.match(camera,/post\.kind==='exchange'/);
  assert.match(camera,/physicalVillageExchangeVolumes\(\)/);
- const sight=section('function marketPostSightline(', '/* W67');
+ const sight=section('function marketCourierPostSightline(', '/* W67');
  assert.match(sight,/physicalMarketUprights\(\)\.concat\(physicalReceivingHallPosts\(\)\)/);
  assert.doesNotMatch(posts,/people\.|state\.|Math\.random/);
 });
