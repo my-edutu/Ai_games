@@ -104,7 +104,7 @@ test('real World bounds the palette to the retained original same-run F9 gate an
   assert.match(world,/originalClockworkArchitecturalPalette\.update\(sourceAlignedMaterialProof,opticalTail\)/);
 });
 
-test('the shared ORIGINAL corridor palette covers only source-owned near-roof successor decks',async()=>{
+test('the original earned doorway holds only the true level F9 receiving roof, not the distinct raised Void route',async()=>{
   const {observedOriginalClockworkSuccessorDeck}=await palette;
   const held={runToken:'actual-run',floor:9,guardianGateRetained:true,
     oldRoofY:6500,originalDeckSurface:{color:new Color(0xa06a35)}};
@@ -112,7 +112,9 @@ test('the shared ORIGINAL corridor palette covers only source-owned near-roof su
   const moving={id:'f9:p1',kind:'moving',y:606000,height:500};
   const remote={id:'f9:p4',kind:'static',y:1006000,height:500};
   assert.equal(observedOriginalClockworkSuccessorDeck(ground,held,'actual-run'),true);
-  assert.equal(observedOriginalClockworkSuccessorDeck(moving,held,'actual-run'),true);
+  assert.equal(observedOriginalClockworkSuccessorDeck(moving,held,'actual-run'),false);
+  assert.equal(observedOriginalClockworkSuccessorDeck({...ground,id:'f9:p2',y:605999},held,'actual-run'),false);
+  assert.equal(observedOriginalClockworkSuccessorDeck({...ground,y:9000},held,'actual-run'),false);
   assert.equal(observedOriginalClockworkSuccessorDeck(remote,held,'actual-run'),false);
   assert.equal(observedOriginalClockworkSuccessorDeck(ground,held,'other-run'),false);
   assert.equal(observedOriginalClockworkSuccessorDeck(ground,{...held,guardianGateRetained:false},'actual-run'),false);
@@ -120,7 +122,7 @@ test('the shared ORIGINAL corridor palette covers only source-owned near-roof su
   assert.equal(observedOriginalClockworkSuccessorDeck({...ground,height:-1},held,'actual-run'),false);
   assert.equal(observedOriginalClockworkSuccessorDeck({...ground,id:'f8:cap'},held,'actual-run'),false);
 });
-test('source-authentic first 90m of F9 platforms share one material palette and return to true void without recoloring hazard cues',async()=>{
+test('source-authentic grounded F9 threshold shares bronze only until its destination; palette still restores without touching hazard cues',async()=>{
   const {updateOriginalClockworkSuccessorRoute}=await palette;
   const top={color:new Color(0x726982)},body={color:new Color(0xb5a0ec)},
     rim={color:new Color(0x6a577e)},mint={color:new Color(0xa7eecc)};
@@ -154,5 +156,36 @@ test('real F9 world uses shared original successor corridor materials on near ro
   assert.match(world,/originalClockworkArchitecturalPalette\.update\(sourceAlignedMaterialProof,opticalTail\)/);
   assert.match(world,/p.kind==='moving'\?materials.mint/);
   assert.match(world,/if\(sharedPhysicalRoof && !arrivalRoutePalette\)/);
+  assert.match(world,/createSourceEarnedVoidDepartureMaterials\(/);
+  assert.match(world,/realVoidDeparturePalette\?\.landing/);
+  assert.match(world,/realVoidDeparturePalette\?\.rim/);
   assert.doesNotMatch(world,/materials\.crystal\.color\.lerp\(/);
+});
+
+test('original Void destination PBR shaders remain isolated from bronze roof tint and same-run invalidation',async()=>{
+  const {createSourceEarnedVoidDepartureMaterials:create,
+    createOriginalClockworkArchitecturalPalette}=await palette;
+  class Surface {
+    constructor(hex){this.isMaterial=true;this.color=new Color(hex);this.name='base'}
+    clone(){const copy=new Surface(0);copy.color=this.color.clone();return copy}
+  }
+  const materials={landing:new Surface(0x726982),copper:new Surface(0x6a577e)};
+  const held={runToken:'actual-run',floor:9,guardianGateRetained:true};
+  const raised=create(materials,held,'actual-run');
+  assert.ok(raised);
+  assert.notStrictEqual(raised.landing,materials.landing);
+  assert.notStrictEqual(raised.rim,materials.copper);
+  const raisedTop=raised.landing.color.clone(),raisedRim=raised.rim.color.clone();
+  // Exact old bronze source certificate tints the real at-grade roof only;
+  // the separately supported upper decks have already inherited Void paint.
+  const architectural=createOriginalClockworkArchitecturalPalette(materials,bronze);
+  architectural.update(earned);
+  assert.ok(materials.landing.color.equals(new Color(bronze.landing)));
+  assert.ok(materials.copper.color.equals(new Color(bronze.metal)));
+  assert.ok(raised.landing.color.equals(raisedTop));
+  assert.ok(raised.rim.color.equals(raisedRim));
+  assert.equal(create(materials,{...held,runToken:'other'},'actual-run'),null);
+  assert.equal(create(materials,{...held,guardianGateRetained:false},'actual-run'),null);
+  assert.equal(create(materials,held,'other-run'),null);
+  assert.equal(create(materials,held,''),null);
 });
