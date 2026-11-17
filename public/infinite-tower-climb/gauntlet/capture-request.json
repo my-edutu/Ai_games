@@ -5536,5 +5536,32 @@
     },
     "mobileAndDesktopHardware": "NOT EVALUATED",
     "next": "Inspect exact-head candidate source-pinned original WebMs and full-motion native PTS; measure actual FPS/frame time and low-tier geometry triangle delta; if cut persists return to original gate + camera + cold F9 GPU world as one system"
+  },
+  "p0AuthoredPylonPreservedLowTierRealGameplay20261117": {
+    "stage": "P0 OPEN",
+    "sourceSHA": "EXACT IMMUTABLE github.sha on this capture request commit; do not inherit previous trial's native film",
+    "productionCodeSHA": "7a43ef599ca57d4b4292dc36c97c62cae02872d4",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "fixedSeed": "tower-transformation-capture-v1",
+    "graphicsTier": "low",
+    "viewports": [
+      "desktop 960x600",
+      "portrait 390x844"
+    ],
+    "scenarios": [
+      "ascent",
+      "moving",
+      "danger",
+      "outcome"
+    ],
+    "originalFilm": "60+ seconds actual game at 1x 25fps for each viewport/scenario, authentic WebM; matched source events and native PTS required",
+    "correctedSource": "Pylon lathe full 40-segment structure restored after P0 Phase3 evidence test veto. Remaining low-tier static model curved/recessed detail reduce triangles without changing platform endpoints, guardian, moving deck, crusher or source physics. NORMAL and HIGH models unchanged.",
+    "previousUnacceptedTrial": "https://github.com/my-edutu/Ai_games/actions/runs/43984808435 — source 0f59dc0.., invalid as corrected code acceptance",
+    "exactHeadCI": "https://github.com/my-edutu/Ai_games/actions/runs/43984986775 — pending at dispatch; do not infer passing",
+    "mustInspect": "Original bronze gateway hero occlusion especially ~25-27s, abrupt original Clockwork-to-Void room cut ~27-28s; require ≥2 consecutive real video frames in BOTH viewport with fully visible live skinned body, unlocked original gate and actual walkable F9 support, coherent architectural motion; GPU/CPU source event delay and full outcome/restart.",
+    "verdict": "NOT EVALUATED",
+    "independentLookFeelPlay": "0/5 each",
+    "trueDeviceFrameTimeAndMemory": "NOT EVALUATED",
+    "noMergeDeployForcePushOrBaselineChange": true
   }
 }
