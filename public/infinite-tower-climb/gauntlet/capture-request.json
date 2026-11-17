@@ -6052,5 +6052,31 @@
     },
     "actualHardwarePerf": "NOT EVALUATED",
     "safety": "No edits to frozen baseline, PR58, other games; no merge, deploy, force-push or change to draft status."
+  },
+  "p0SourceImmutableGuardianCrossingExactTickAndBufferedDelivery20261117": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionSourceSha": "e36aeb3af8e186a7cdcf3e71015acbb41506da94",
+    "candidateSha": "EXACT IMMUTABLE github.sha OF THIS REQUEST COMMIT, NEVER FLOATING HEAD",
+    "scenario": [
+      "ascent",
+      "moving",
+      "danger",
+      "outcome"
+    ],
+    "seed": "tower-transformation-capture-v1",
+    "quality": "low",
+    "viewports": [
+      "960x600",
+      "390x844"
+    ],
+    "sourceCorrection": "Publish exact source-authoritative 8→9 zero-HP crossing on the FIRST real Floor9 tick, through <=48 buffered successor ticks in the same run only; no simulated movement, no fake victory, no invented renderer frames.",
+    "priorNineJobRun": "https://github.com/my-edutu/Ai_games/actions/runs/44107038984",
+    "priorResult": "9 native capture/ledge jobs success; pairing failed in BOTH viewports 0/2; exact latest source crossing cue to image phase diverges. Drawn F9 HUD leads stable violet world by 1.00s desktop, 1.75s portrait; does not prove coherent physical gateway.",
+    "test": "tests/phase3/tower-source-crossing-immutable-snapshot-retention.test.cjs",
+    "request": "Exact head original real 1x WebM >=60s in both viewports, inspect complete source-authenticated F8 HP0 guardian/crusher victory, source-authentic physical threshold, whole-body climber, real f9:ground support, Floor9 onward, outcome and next-run restart; compare immutable source sidecars to native frames. Do not count compositor returns as painted evidence.",
+    "blinding": "0/5 independent LOOKS, 0/5 FEELS, 0/5 PLAYS; no blind acceptance; real hardware NOT EVALUATED",
+    "safety": "Keep frozen baseline, PR58 and Draft PR68; no merge/deploy/force push or other games"
   }
 }
