@@ -26014,6 +26014,39 @@ function realHouseholdCameraSubject(citizen,selected,mode,following){
    'Traveling home with provisions'
   ].includes(citizen.activity));
 }
+// W407: Only the genuinely selected, currently bartering citizen in the
+// original market is an eligible trade witness. This is presentation-only.
+function genuineMarketBarterWitness(citizen){
+ return Boolean(follow&&citizen&&people[selectedCitizen]===citizen&&
+  citizen.activity==='Bartering at market'&&
+  Number.isFinite(citizen.x)&&Number.isFinite(citizen.z)&&
+  MARKET_STALLS.some(stall=>Math.hypot(citizen.x-stall.x,citizen.z-stall.z)<=8));
+}
+function readableMarketBarterShot(shot,framing,portrait){
+ if(!shot||!framing)return false;
+ return shot.eyeCollision?.clear===true&&shot.blockers===0&&
+  (shot.marketPostSightline?.centerCover??1)<.085&&
+  shot.foregroundSceneCover<.42&&shot.foregroundActorCoreCover<.20&&
+  shot.foregroundCargoCover<.22&&shot.vegetationFaceBlockers===0&&
+  framing.blockedBodyRays<=2&&framing.handBlockers<=1&&
+  framing.foregroundCitizenBlockers===0&&framing.cameraProximityWarnings===0&&
+  shot.projectedWorkerHeightFraction>=(portrait?.16:.19);
+}
+let marketBarterLensBuilds=0,marketBarterClearShots=0;
+function getMarketBarterWitnessAudit(){
+ const citizen=people[selectedCitizen],active=genuineMarketBarterWitness(citizen),
+  shot=active?lastFollowShot:null;
+ return {source:'w407-original-real-bartering-citizen-physical-market-lens',
+  active,realCitizen:active?citizen.name:null,actualActivity:active?citizen.activity:null,
+  builds:marketBarterLensBuilds,readableCandidates:marketBarterClearShots,
+  lastView:shot?.marketBarterWitness?{
+   mode:shot.workFacingMode,projectedHeight:shot.projectedWorkerHeightFraction,
+   postCover:shot.marketPostSightline?.centerCover??null,
+   sceneCover:shot.foregroundSceneCover,actorCover:shot.foregroundActorCoreCover,
+   eyeClear:shot.eyeCollision?.clear,blockedRays:shot.blockers}:null,
+  noInventedTrades:true,noHiddenArchitecture:true,authorityUnchanged:true,
+  physicalHardwareFps:'NOT MEASURED'};
+}
 function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const realWork=isWorkingAtSite(citizen);
  const realFarmWork=realWork&&citizen.job==='farmer'&&
@@ -26026,6 +26059,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const householdContinuity=realHouseholdCameraObserver(citizen,people[selectedCitizen],
   document.body.dataset.workday,follow);
  const marketStory=isObservedRealCourier(citizen);
+ const marketBarter=genuineMarketBarterWitness(citizen);
  const actualWorkStage=realWork?getAuthenticWorkGesture(citizen).stage:'off';
  // A player's lens follows the real cutting wrist and sheaf, not empty air.
  const workFocusHeight=citizen.job==='farmer'?
@@ -26033,7 +26067,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   citizen.job==='builder'?.86:citizen.job==='craftsperson'?.91:.94;
  const working=Boolean(forceWorkday||liveWorkday||
   genuineGrainLaborCameraActive(citizen)||
-  document.body.dataset.citizenInspect==='on'||marketStory||householdErrand||householdContinuity);
+  document.body.dataset.citizenInspect==='on'||marketStory||marketBarter||householdErrand||householdContinuity);
  const unloading=Boolean(marketStory&&
   (citizen.delivery?.stage==='unloading'||realReceipt));
  const homecoming=document.body.dataset.workday==='homecoming';
@@ -26047,7 +26081,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const waypoint=citizen.path?.length?citizen.path[0]:citizen.target;
  const walkingFace=waypoint?Math.atan2(waypoint[0]-citizen.x,waypoint[1]-citizen.z):preferredYaw;
  const facing=realWork?builderStageAngle(citizen):journeyCamera?walkingFace:
-  unloading?realWorkerFacing(citizen):null;
+  unloading?realWorkerFacing(citizen):marketBarter?preferredYaw:null;
  // Work is physically forward and below eye level: centre on the real bench
  // and actor, not empty air a metre above the task. Ordinary Follow is intact.
  // Frame the REAL worker and receiving stall together, rather than the
@@ -26076,12 +26110,12 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const roofs=followCameraRoofs();
  // The portrait lens is a genuine different field of view, not a CSS crop
  // of the desktop worksite camera. Frame both worker and real surroundings.
- const portraitLens=Boolean(((working&&realWork)||journeyCamera||unloading)&&canvas.clientWidth>0&&
+ const portraitLens=Boolean(((working&&realWork)||journeyCamera||unloading||marketBarter)&&canvas.clientWidth>0&&
   canvas.clientWidth<500);
- const normalPitch=unloading?(actionCameraPitch??.29):filmedLoadedCourier?.24:
+ const normalPitch=unloading?(actionCameraPitch??.29):marketBarter?.36:filmedLoadedCourier?.24:
   householdErrand?.28:householdContinuity?.28:journeyCamera?.34:
   working?(actionCameraPitch??(liveWorkday?(portraitLens?.27:.20):.24)):.76;
- const normalZoom=unloading?(actionCameraZoom??5.7):
+ const normalZoom=unloading?(actionCameraZoom??5.7):marketBarter?(portraitLens?4.9:5.6):
   filmedLoadedCourier?(canvas.clientWidth<500?4.65:5.15):
   householdErrand?(canvas.clientWidth<500?4.25:5.05):
   householdContinuity?(canvas.clientWidth<500?4.25:5.05):journeyCamera?7.6:
@@ -26115,12 +26149,13 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  // G132 used the old survey yaw to generate every camera possibility; in a
  // dense grown village that produced an almost perfectly REAR-facing builder.
  // In documentary work mode search the REAL work-facing orbit first.
- const base=(working&&realWork)||journeyCamera||unloading?facing:preferredYaw;
+ const base=(working&&realWork)||journeyCamera||unloading||marketBarter?facing:preferredYaw;
  const angles=offsets.map(offset=>base+offset);
  if(working&&realWork)angles.push(preferredYaw);
  const pitches=realFarmWork&&actionCameraPitch===null?
   (portraitLens?[.14,.31,.49,.64]:[.17,.33,.49,.62]):
   unloading?[.21,.29,.38]:
+  marketBarter?(portraitLens?[.26,.36,.46,.59]:[.27,.38,.50,.61]):
   filmedLoadedCourier?(portraitLens?[.15,.23,.32,.40]:[.16,.24,.32,.40]):
   householdErrand?(portraitLens?[.16,.27,.38,.49]:[.18,.28,.38,.50]):
    householdContinuity?(portraitLens?[.16,.27,.38,.49]:[.18,.28,.38,.50]):
@@ -26131,6 +26166,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const zooms=realFarmWork&&actionCameraZoom===null?
   (portraitLens?[3.15,3.8,4.6,5.5,6.35,7.3]:[3.8,4.4,5.0,5.9]):
   unloading?(portraitLens?[2.45,2.85,3.35,4.4,5.7]:[3.8,4.4,5.1,5.7,6.8]):
+  marketBarter?(portraitLens?[3.7,4.3,5.0,6.2,7.5]:[4.1,4.9,5.9,7.1,8.0]):
   filmedLoadedCourier?(portraitLens?[2.4,2.8,3.25,4.2,5.45,6.20]:[3.85,4.55,5.25,6.05,7.1]):
   householdErrand?(portraitLens?[3.25,3.7,4.25,4.9,5.65,6.5]:
     [3.7,4.25,4.85,5.55,6.3]):
@@ -26161,7 +26197,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   // G147: a front-facing worker occupying 10% of the screen still cannot
   // communicate their visible labor. Prefer actual human-scale coverage
   // across the full orbit (without accepting roof or hand occlusion).
-  const sizePenalty=(working&&realWork)||unloading||householdErrand||householdContinuity?
+  const sizePenalty=(working&&realWork)||unloading||marketBarter||householdErrand||householdContinuity?
    Math.max(0,(portraitLens?.31:.29)-shot.projectedWorkerHeightFraction)*5200:0;
   // Do not choose a physically clear EMPTY road over the genuine
    // escrowed courier. Favor the actual projected actor and real cargo.
@@ -26210,7 +26246,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   option.shot.foregroundCargoCover=scenic.cargoCover||0;
   option.shot.foregroundSceneLargest=scenic.largest;
   option.shot.foregroundSceneVolumes=scenic.volumes;
-  const realPost=unloading?marketCourierPostSightline(option.shot.eye,target):null;
+  const realPost=(unloading||marketBarter)?marketCourierPostSightline(option.shot.eye,target):null;
   option.shot.marketPostSightline=realPost;
   option.coarse+=(realPost?.centerCover||0)*6400+
    (scenic.actorCoreCover||0)*(portraitLens?4300:3900)+
@@ -26219,6 +26255,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  }
  possibilities.sort((a,b)=>a.coarse-b.coarse);
  let best=null,bestScore=Infinity,bestFraming=null;
+ let marketBarterBest=null,marketBarterFraming=null,marketBarterScore=Infinity,
+  marketBarterReadable=0;
  let routeBest=null,routeFraming=null,routeScore=Infinity,routeReadableCandidates=0;
  let receivingBest=null,receivingFraming=null,receivingScore=Infinity,
   readableReceivingCandidates=0;
@@ -26271,7 +26309,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   if(!probes.includes(option))probes.push(option);
  }
  for(const {shot,coarse,alignment} of probes){
-  const canopy=((working&&realWork)||journeyCamera||unloading)?foregroundVegetationProjection(shot.eye,target):
+  const canopy=((working&&realWork)||journeyCamera||unloading||marketBarter)?foregroundVegetationProjection(shot.eye,target):
    {cover:0,largest:0,volumes:0,faceBlockers:0};
   shot.foregroundVegetationCover=canopy.cover;
   shot.foregroundVegetationLargest=canopy.largest;
@@ -26349,7 +26387,14 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
     clearHomewardScore=score;
    }
   }
-  if(score<bestScore){best=shot;bestScore=score;bestFraming=framing;}
+  if(marketBarter&&readableMarketBarterShot(shot,framing,portraitLens)){
+    marketBarterReadable++;
+    const tradeScore=score-shot.projectedWorkerHeightFraction*200;
+    if(tradeScore<marketBarterScore){
+     marketBarterScore=tradeScore;marketBarterBest=shot;marketBarterFraming=framing;
+    }
+   }
+   if(score<bestScore){best=shot;bestScore=score;bestFraming=framing;}
   const clearFront=working&&realWork&&
    (!crop||(!crop.cropFaceBlockers&&!crop.cropWristBlockers&&
     (!crop.cameraInsideField||crop.physicalInteriorEyeClear)))&&alignment>.12&&
@@ -26413,24 +26458,26 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
     readableFraming=framing;}
   }
  }
- const chosen=receivingBest||routeBest||clearHomewardBest||frontBest||readableBest||
+ if(marketBarter){marketBarterLensBuilds++;marketBarterClearShots=marketBarterReadable;}
+ const chosen=receivingBest||routeBest||marketBarterBest||clearHomewardBest||frontBest||readableBest||
   physicalGrainHandsBest||usableFrontBest||best,
-  framing=receivingBest?receivingFraming:routeBest?routeFraming:clearHomewardBest?clearHomewardFraming:
+  framing=receivingBest?receivingFraming:routeBest?routeFraming:marketBarterBest?marketBarterFraming:clearHomewardBest?clearHomewardFraming:
    frontBest?frontFraming:readableBest?readableFraming:
    physicalGrainHandsBest?physicalGrainHandsFraming:
    usableFrontBest?usableFrontFraming:bestFraming;
  return {...chosen,...framing,
   courierRouteCamera:filmedLoadedCourier,
   routeHeading:filmedLoadedCourier?walkingFace:null,
-  compositionScore:receivingBest?receivingScore:routeBest?routeScore:clearHomewardBest?clearHomewardScore:frontBest?frontScore:
+  compositionScore:receivingBest?receivingScore:routeBest?routeScore:marketBarterBest?marketBarterScore:clearHomewardBest?clearHomewardScore:frontBest?frontScore:
    readableBest?readableScore:physicalGrainHandsBest?physicalGrainHandsScore:
    usableFrontBest?usableFrontScore:bestScore,
   workFacingMode:receivingBest?'verified-worker-hand-and-parcel':
-   routeBest?'clear-physical-loaded-courier':clearHomewardBest?'clear-homeward-path':
+   routeBest?'clear-physical-loaded-courier':marketBarterBest?'real-market-barter-clear-view':clearHomewardBest?'clear-homeward-path':
    frontBest?'clear-front':readableBest?'face-and-hands':
    physicalGrainHandsBest?'real-wheat-clear-cutting-hands':
    usableFrontBest?'visible-front':'obstructed',
   readableFrontCandidates,readableReceivingCandidates,routeReadableCandidates,
+  marketBarterWitness:marketBarter,marketBarterReadableCandidates:marketBarterReadable,
   witnessedCargoContact:receivingBest?realMarketAim.contact:null,
   witnessedParcelIndex:receivingBest?realMarketAim.parcelIndex:null,
   facingAlignment:realWork?Math.cos(chosen.yaw-facing):null,
@@ -26722,7 +26769,7 @@ function observedWorkdayCameraPlan(citizen,preferredYaw){
  const homecomingEntryBand=doorEntry?Math.round(doorEntry.swing*8):0;
  const receipt=recentObservedCourierReceipt(citizen);
  const observeDelivery=isObservedRealCourier(citizen);
- const observeWorkday=(liveWorkday&&isWorkingAtSite(citizen))||
+ const observeWorkday=(liveWorkday&&(isWorkingAtSite(citizen)||genuineMarketBarterWitness(citizen)))||
   genuineGrainLaborCameraActive(citizen);
  if(!observeHome&&!observeDelivery&&!observeWorkday&&!observeHousehold){
   liveShotPlanCache=null;
@@ -26871,7 +26918,7 @@ function physicallyClearWorkdayCameraArc(citizen,plan,roofs,start,hands=[]){
    if(crop.cropFaceBlockers>0||crop.cropWristBlockers>0||
     (crop.cameraInsideField&&!crop.physicalInteriorEyeClear))return false;
   }
-  if(isMarketUnloading(citizen)||recentObservedCourierReceipt(citizen)){
+  if(isMarketUnloading(citizen)||recentObservedCourierReceipt(citizen)||genuineMarketBarterWitness(citizen)){
    const posts=marketCourierPostSightline(eye,plan.target);
    if(posts.centerCover>=.035)return false;
   }
@@ -30488,9 +30535,9 @@ if(follow&&!daybreakReturn){
   // A narrow ORIGINAL market upright may cover the real courier's hands
   // without filling enough of the screen to trigger the broad roof/canopy
   // obstruction model. Measure the actual camera and the real planned lens.
-  const observeMarketHandoff=document.body.dataset.workday==='delivery'&&
-   Boolean(citizen.delivery?.stage==='unloading'||
-    recentObservedCourierReceipt(citizen));
+  const observeMarketHandoff=Boolean(genuineMarketBarterWitness(citizen)||
+   (document.body.dataset.workday==='delivery'&&
+    (citizen.delivery?.stage==='unloading'||recentObservedCourierReceipt(citizen))));
   const presentPost=observeMarketHandoff?
    marketCourierPostSightline(eye,plan.target):null;
   const destinationPost=observeMarketHandoff?
@@ -31404,7 +31451,7 @@ getDailyRhythmAudit:dailyRhythmAudit,getHouseholdProvisionAudit:()=>cloneData(ho
  getCottageDoorResidencyAudit,setCottageDoorResidencyForTesting,getSoftwareResolutionAudit,getHardwareResolutionAudit,getSimulationFrameDelta:simulationFrameDelta,getHouseholdLightAudit:()=>({...householdLightAudit}),getNightHomesResidencyAudit,setNightHomesResidencyForTesting,getOccupiedHearthCount:()=>occupiedHearths,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,
 getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),getForgeSoundAudit:()=>cloneData(getForgeSoundAudit()),pollForgeSound,watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,
  getRealGrainJourneyAudit,getSupplyTrailDetailsAudit,inspectRealGrainStage,watchRealGrainJourney,stopRealGrainJourney,planRealGrainJourney,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
-getMarketStructuralSightline:marketCourierPostSightline,
+getMarketStructuralSightline:marketCourierPostSightline,getMarketBarterWitnessAudit,
 getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCentralExchangeAudit:()=>({...centralExchangeStats}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketReceiptDisplayAudit:getMarketReceiptDisplayAudit,getRealMarketReceiptLensForEvidence:id=>chooseRealMarketReceiptLens(id),getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,getGradedRoadAudit,getRealRoadscapeAudit,getFieldToGranaryFootwayAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getRealEconomicSurveyAudit,advanceRealEconomicSurvey,getCameraNavigationAudit,getFreeCameraCollisionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getWorkdayClearArcAudit,getFarmWorkCameraAudit,
 getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,getStreetPhysicalOcclusionAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getMarketArcadeCameraAudit:()=>({source:'original-interstall-roof-occlusion',bands:physicalMarketArcadeRoofVolumes(),authorityChanged:false}),getCameraArchitectureResidencyAudit,getCameraRayBroadphaseAudit,getCameraShotProximityAudit,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getGrainwardBridgeAudit,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,
  getInhabitedStreetAccessAudit:()=>({...groundAtlasAccessAudit,topologyKey:groundAtlasAccessTopology,
