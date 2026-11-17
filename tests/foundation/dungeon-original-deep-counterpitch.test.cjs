@@ -183,3 +183,52 @@ test('RED-first: original 16.7ms buried source foot receives two bounded faster 
    after:afterRapid(.027,.004)}
  ]}),null,'33ms deep phase source counterpitch cannot leak into rapid frame');
 });
+
+
+// EXACT completed 17 Nov source WebGL #44013123534 / 390px artifact
+// #14299526737, native Walking_A tick 6 (33.3ms): original shoe toe
+// -107.028mm, heel +194.868mm, actual source starter delta +17.925mm
+// toe and +23.285mm heel. This is +5.359mm excess airborne heel.
+// Fixture XZ below is borrowed from another source moment and is NOT
+// evidence of a same-frame world-space sole, candidate or foot plant.
+test('RED-first: native 390px deeply buried 33ms, mildly heel-dominant source foot reserves two licensed connected counterpitch reads',async()=>{
+ const {planOriginalSourceCoupledFootStarter:starterFn,
+  planOriginalSourceCoupledKneeFootFollowups:followup}=await load();
+ const mobileRight={heelY:.19486790388392836,toeY:-.10702810946958062,
+  heelXZ:[-3.6886531080650844,-7.131151300520951],
+  toeXZ:[-3.7385027234365555,-7.1422241004059766]};
+ const mobileLeft={heelY:-.025123405203951656,toeY:-.026881819122444257,
+  heelXZ:[-3.7536611860420876,-6.967522346055006],
+  toeXZ:[-4.023606838881545,-6.939721802349725]};
+ const afterMobile=(toeLift,heelLift)=>({
+  right:{...mobileRight,toeY:mobileRight.toeY+toeLift,
+   heelY:mobileRight.heelY+heelLift},
+  left:{...mobileLeft}
+ });
+ const mobile={...owner,side:'right',frameInterval:.03330000000000055,
+  frameAge:.0333,rootTravel:.009831086296817122,
+  before:{right:mobileRight,left:mobileLeft},starterTrials:[
+   {upperRad:.09,lowerRad:-.075,
+    after:afterMobile(-.01213654939339838,-.025663033435648325)},
+   {upperRad:-.09,lowerRad:.075,
+    after:afterMobile(.01792513341812961,.02328459246952927)}
+  ]
+ };
+ const starter=starterFn(mobile);
+ assert.equal(starter?.sign,-1);
+ assert.ok(Math.abs(starter.excessHeelRiseMeters-.00535945905139966)<1e-9);
+ assert.deepEqual(followup({...mobile,starter}),[
+  {upperRad:-.11,lowerRad:.11,footRad:.30},
+  {upperRad:-.11,lowerRad:.11,footRad:.36}
+ ],'exact remaining two reversible original GLB shoe samples, no synthetic contact');
+ for(const unsafe of [{sourceWeight:.8},{interrupted:true},
+  {sourceFootTrackVerified:false},{sourceBindVerified:false},
+  {sourceInstanceSame:false},{rootTravel:0},{reducedMotion:true},
+  {frameInterval:.25}])
+  assert.equal(followup({...mobile,starter,...unsafe}),null,
+   'real animation, source clip/skin, ownership and movement gates remain strict');
+ const notDeepEnough={...mobile,before:{...mobile.before,
+  right:{...mobileRight,toeY:-.075}},starterTrials:mobile.starterTrials};
+ assert.equal(starterFn(notDeepEnough),null,
+  'actual source starter readback must match the exact source shoe, never a stale correction');
+});
