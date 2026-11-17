@@ -83,3 +83,73 @@ test('Pass426 scene clock demands a tracked same-run public false-to-true witnes
   assert.ok(sceneFile.includes('counterPhase=lanternParried && entry.counterSince!==null'),
     'only an actual current publicly parried guardian receives the clock');
 });
+
+
+test('Pass449 genuine public lantern counter makes the whole connected Thornback stagger and recover', async()=>{
+  const {createWarden,rigPrimitiveResourceStats}=await production;
+  for(const balanced of [false,true]) {
+    const initial=rigPrimitiveResourceStats();
+    const warden=createWarden({balanced});
+    const torso=warden.group.getObjectByName('armored body');
+    const mask=warden.group.getObjectByName('warden mask');
+    const left=warden.group.getObjectByName('leg -1 0');
+    const right=warden.group.getObjectByName('leg 1 0');
+    assert.ok(torso?.parent&&mask?.parent===torso&&left?.parent&&right?.parent,
+      'every recoil beat belongs to the original complete physical guardian');
+    const originalShapes=new Set(),originalMaterials=new Set();
+    warden.group.traverse(n=>{if(n.geometry)originalShapes.add(n.geometry);if(n.material)originalMaterials.add(n.material)});
+    const source={heading:0,attentionHeading:0,attentionStrength:.9,encounterBeat:0,
+      lanternParried:true,danger:1,moving:false,delta:0,time:0,reducedMotion:false};
+    const pose=(extra)=>{
+      warden.update({...source,...extra});
+      return {roll:torso.rotation.z,shift:torso.position.x,face:mask.rotation.z,
+        left:left.rotation.z,right:right.rotation.z};
+    };
+    try{
+      const loaded=pose({counterPhase:.20}),rebounded=pose({counterPhase:.60});
+      const collapsed=pose({counterPhase:.83}),neutral=pose({counterPhase:1});
+      assert.ok(loaded.roll>.16 && rebounded.roll<-.32,
+        'the full connected shell visibly winds and recoils in opposite directions');
+      assert.ok(collapsed.roll>rebounded.roll+.70,
+        'a genuine landed counter must visibly topple the original armored body');
+      assert.ok(collapsed.shift>rebounded.shift+.5,
+        'the carapace performs an actual stagger over its planted existing legs');
+      assert.ok(Math.abs(collapsed.face+collapsed.roll*.55)<1e-9,
+        'the real mask counter-rolls toward Pip while the connected shell falls');
+      assert.ok(Math.abs(collapsed.right)>Math.abs(collapsed.left)+.30,
+        'one existing foreleg bears the stagger while the opposite foreleg withdraws');
+      assert.deepEqual(neutral,{roll:0,shift:0,face:0,left:0,right:0},
+        'all physical stagger axes return to zero when source counter ends');
+      assert.deepEqual(pose({counterPhase:1}),neutral,
+        'same public clock produces the same physical neutral state');
+      const firstSeen=pose({counterPhase:undefined});
+      assert.deepEqual(firstSeen,neutral,
+        'first-seen already-parried warden cannot fake a newly earned impact');
+      const fake=pose({lanternParried:false,counterPhase:.83});
+      const noImpact=pose({lanternParried:false,counterPhase:undefined});
+      assert.deepEqual(fake,noImpact,
+        'an unearned counter clock does not influence physical acting');
+      const reduced=pose({reducedMotion:true,counterPhase:.83});
+      assert.deepEqual(reduced,pose({reducedMotion:true,counterPhase:.20}),
+        'reduced motion does not topple an already-observed living opponent');
+      assert.deepEqual(pose({result:'escape',counterPhase:.83}),
+        pose({result:'escape',counterPhase:.20}),
+        'terminal result suppresses any stale win presentation');
+      for(let run=0;run<6;run++){
+        pose({counterPhase:.83,time:run});
+        warden.reset();
+        assert.equal(torso.rotation.z,0);
+        assert.equal(torso.position.x,0);
+        assert.equal(mask.rotation.z,0);
+      }
+      const shapes=new Set(),materials=new Set();
+      warden.group.traverse(n=>{if(n.geometry)shapes.add(n.geometry);if(n.material)materials.add(n.material)});
+      assert.deepEqual(shapes,originalShapes,'six real body performances reuse every 3D geometry');
+      assert.deepEqual(materials,originalMaterials,'no new material for an earned counter');
+    }finally{
+      warden.dispose();
+    }
+    assert.deepEqual(rigPrimitiveResourceStats(),initial,
+      'all authored GPU/CPU primitive owners release after the six-run sequence');
+  }
+});

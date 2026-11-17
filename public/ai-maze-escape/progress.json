@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-17T10:58:00.000Z",
+  "updatedAt": "2026-11-17T11:39:15.360Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass448 rejects the Pass447 four-physical-light stage after exact-HEAD native WebGL #44067437197 SUCCESS; original artifact 14321147913 40/40 unaltered PNG SHA and 3/3 genuine gate hashes checked; original prior rollback HEAD 631dd749 #44050664933 artifact 14313832689 likewise 40/40+3/3 verified. Real 390 guardian frame light diff 7.662/255 RGB channel mean, no significant visual action/story; 320 composition difference is confounded by camera/pose and remains crowded, with Avoid warden vs Pip's lantern holds Thornback contradiction. Official Nintendo bar REJECTS. Pass447 scene/light source and sole test removed, baseline source restored; fresh rollback-HEAD CI pending. Independent critic NOT_FOUND."
+    "summary": "Pass449 source-only event-driven whole-body guardian recoil: existing connected armored body, forelegs and bronze mask now load/rebound/stagger/settle only on a real witnessed public lantern counter. Previous exact rollback-HEAD WebGL 44068924606 passed all browser and strict six-reset gates, original 40/40 screenshot and 3/3 true gate SHA matches verified. New candidate exact-HEAD native WebGL AND independent artistic review PENDING. 320/390 baseline already truthfully say Counter landed; do not create false HUD fixes. Official Nintendo benchmark unmet."
   },
   "captures": [
+    {
+      "title": "Pass448 rollback-HEAD native four-viewport original source-bound WebGL 40/40 PNG SHA + 3/3 gate SHA validated; Pass449 visual baseline",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44068924606/artifacts/14322002568"
+    },
     {
       "title": "Pass446 rollback exact-head native WebGL baseline 40/40 PNG+3 true gate SHA verified",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44050664933/artifacts/14313832689"
@@ -240,6 +244,7 @@
     }
   ],
   "changes": [
+    "Pass449 — 2026-11-17 UTC: one source-bound, player-visible event-linked physical guardian acting unit: same-run witnessed earned lantern parry drives original connected Thornback armored torso roll/translation, asymmetrical true foreleg brace, counter-rolling bronze mask, full recovery. Added installed-Three phase/reuse tests; no new GPU class, AI, collision, secret map, route, camera, HUD change. New render pending, benchmark not met.",
     "Pass448 — 2026-11-17 UTC: Exact HEAD native WebGL 40/40+3 SHA artifacts verified for previous and candidate, original 320/390/844/1280 full-frame critic rejects ineffective light-stage storytelling. Source-only rollback of scene.js and public lantern helper to trusted baseline and removal of new stage-light test in one conflict-safe commit; no extra doc-only HEAD. AI/navigation/privacy/strict budget unchanged, new rollback CI pending, benchmark NOT MET.",
     "Pass447 — 2026-11-17 UTC: source-only original three-beat public guardian light direction on already allocated real WebGL scene lights; explicit warning vs earned real recoil and stable reduced-motion; no new graphic resources/AI/hidden navigation/camera. New exact-source native captures and independent Nintendo critic pending; benchmark NOT MET.",
     "Pass444 visually grounded code revision: Pass443 real 320/390 WebGL rejected straight-only earned lantern ray; implement visible 2-link public open bent physical court using existing TWO scene cone meshes connected at confirmed non-trap published corner, no source-private AI/collision or new GPU geometry.",
@@ -497,6 +502,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass449 strict acceptance: source-HEAD WebGL build/focused tests/6-run <100, original SHA-verified full-resolution 320/390/844/1280 game, genuine guardian counter side-by-side with Pass448. Reject if acting is still hidden by architecture, if any physical envelope clips beyond ±.95, or if Nintendo-style original readable scene remains lacking; independent critic access remains disconnected.",
     "Pass448: Author coherent true playable Pip–Thornback physical environment rather than another micro-light/low-wall experiment; fix true 320 counter/mission timing as part of gameplay beat. Require original source-matched full native four-viewport and independent visual proof, preserve strict CI thresholds.",
     "Pass447 strict gate: SHA-match genuine source-capture native WebGL 320/390/844/1280, inspect complete real guardian counter lighting against the original same-seed baseline and fixed Captain Toad references, reject weak light change or actor/puzzle readability regression; keep original geometry, framing and privacy tests.",
     "Pass444 exact new-HEAD browser and independent review: verify L-bend original 320/390 screenshots actually show Pip-to-Thornback physical light without implying unsafe path/cropping, retaining four viewport ±0.95, six-reset <100, all privacy, 44px and reduced-motion; rollback if invisible or cluttered. Whole-repo CI still separate.",
@@ -572,6 +578,13 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass449 original full-body earned guardian counter source candidate",
+      "reviewer": "Source-bound implementer; native independent artistic critic disconnected",
+      "verdict": "SOURCE CANDIDATE ONLY — new exact-HEAD full-frame WebGL not yet inspected; Nintendo bar NOT MET",
+      "date": "2026-11-17T11:39:15.360Z",
+      "summary": "Previous exact-HEAD original 320/390 frames show real counter with correct chip but weak guardian physical consequence. New torso/forelegs/mask shared counter phase strengthens actual articulated action; strict same-run public witness and reduced/terminal/reset gates remain. Must re-render before any visual win claim."
+    },
     {
       "title": "Pass448 original exact-source Pass447 lighting A/B rejected",
       "reviewer": "In-house original two-native-artifact source-bound screenshot critic; independent critic unavailable",
@@ -1325,6 +1338,11 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass449 connected real guardian counter full-body",
+      "status": "Source work unit committed pending exact HEAD native CI and rendered four viewport evidence",
+      "detail": "Pass448 rollback WebGL #44068924606 passed strict native 6-run budget and 40/40+3 original full frame hashes. New tests and full-scale physical poses require new exact head validation; original source screenshot comparison / independent critic pending."
+    },
     {
       "name": "Pass444 earned OPEN two-link corner lantern",
       "status": "New source candidate, current HEAD native capture pending",

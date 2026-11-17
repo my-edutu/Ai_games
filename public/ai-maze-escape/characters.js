@@ -1056,25 +1056,36 @@ export function createWarden(options = {}) {
     // ACTUAL witnessed warning: Thornback crouches behind its planted foreclaws,
     // then recoils taller on the same shell-release beat. It is a connected,
     // source-public defensive performance, not a strike or authoritative move.
-    body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018)-plantedClaws*.20+display*.085*alert+(parried?.19:0)-counterLoad*.16+counterRelease*.08-counterCollapse*.09;
+    body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018)-plantedClaws*.20+display*.085*alert+(parried?.19:0)-counterLoad*.16+counterRelease*.08-counterCollapse*.23;
     body.rotation.x=-s.danger*.055-alert*.11-plantedClaws*.34+display*.19*alert+(parried?.42:0)+counterLoad*.23-counterRelease*.19-counterCollapse*.30;
     body.rotation.y=lookYaw*.4;
-    body.rotation.z=Math.sin(relativeLook)*alert*.06;
+    // The native earned-counter portrait shows Thornback almost stationary
+    // even after Pip genuinely wins one public, authoritative lantern parry.
+    // Transfer that impact through the ENTIRE connected carapace: a compact
+    // guarded wind-up, a contrary rebound, then an unbalanced retreat.
+    // This is not extra gameplay damage or a decorative flash. The engine
+    // already moved the physical patrol root; only its articulated torso
+    // staggers. No secret knowledge, new geometry or per-frame allocation.
+    const earnedStagger=counterPhase===null?0:
+      .18*counterLoad-.34*counterRelease+.52*counterCollapse;
+    body.rotation.z=Math.sin(relativeLook)*alert*.06+earnedStagger;
+    body.position.x=.18*counterLoad-.29*counterRelease+.38*counterCollapse;
     for (const leg of legs) {
       const phase=gait+(leg.index%2===0?0:Math.PI)+(leg.side===1?Math.PI:0);
       leg.hip.rotation.y=Math.sin(phase)*stride*.24*amount;
       const hipSplay=Math.max(0,Math.cos(phase))*stride*.15*amount
-        +(leg.index===0?defensiveSweep*.48:0);
+        +(leg.index===0?defensiveSweep*.48:0)
+        +(leg.index===0?(leg.side===1?.55:.08)*counterCollapse:0);
       const kneeCounter=Math.max(0,Math.cos(phase))*stride*.16*amount
         +(leg.index===0?defensiveSweep*.24:0);
       // Both sides explicitly reset to +0 when the event disappears.
       leg.hip.rotation.z=hipSplay>0?leg.side*hipSplay:0;
       leg.knee.rotation.z=kneeCounter>0?-leg.side*kneeCounter:0;
       leg.hip.rotation.x=leg.index===0 && alert>0
-        ?-alert*.32-plantedClaws*.86-counterLoad*.48+counterRelease*.18
+        ?-alert*.32-plantedClaws*.86-counterLoad*.48+counterRelease*.18+(leg.side===1?.43:-.12)*counterCollapse
         :leg.index===2?alert*.08+counterRelease*.20:0;
       leg.knee.rotation.x=leg.index===0
-        ?alert*.20+plantedClaws*.66+counterLoad*.43-counterRelease*.14:0;
+        ?alert*.20+plantedClaws*.66+counterLoad*.43-counterRelease*.14+(leg.side===1?-.25:.12)*counterCollapse:0;
       if (leg.pincer) {
         leg.pincer.rotation.y=alert>0?leg.side*(alert*.42+plantedClaws*.35):0;
         leg.pincer.rotation.z=alert>0?leg.side*defensiveSweep*.50:0;
@@ -1095,6 +1106,10 @@ export function createWarden(options = {}) {
     head.position.z=.73+alert*.07+plantedClaws*.18-display*.065*alert+counterLoad*.105-counterRelease*.06-counterCollapse*.075;
     head.rotation.x=s.win?.16:s.lose?-.13:-.045-s.danger*.065-plantedClaws*.36+display*.18*alert+(parried?.24:0)+counterLoad*.20-counterRelease*.23-counterCollapse*.28;
     head.rotation.y=Math.sin(s.time*.8)*.08*(1-stride)*amount*(1-alert)+lookYaw;
+    // Counter-roll keeps Thornback's modeled bronze mask directed at Pip
+    // as its real physical torso falls sideways. End-of-witness, reduced
+    // motion and reset all return this connected head hinge to exact +0.
+    head.rotation.z=-earnedStagger*.55;
     // Absolute, source-observed facial acting: the paired bronze shells
     // spread as the REAL foreclaws brace, then withdraw with the SAME earned
     // carapace release. Hidden/terminal/reused rigs go to exact +0; reduced
