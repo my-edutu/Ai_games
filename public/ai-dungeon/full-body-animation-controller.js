@@ -572,6 +572,50 @@ function measuredOriginalSourceCounterpitchAngles({
  * same-rig starter readback and verified original tracks + bind.
  * Eligibility never implies sole contact or accepted skin.
  */
+/**
+ * Original CC0 shoe-only geometry contract for a source WALKING swing.
+ *
+ * An imported heel 200mm above ground with the skinned toe 70-100mm
+ * below it makes the shoe almost vertical. The authored foot track's
+ * local bend axis is not by itself a pitch axis for the rendered outsole
+ * after the original skeleton has been oriented in world space.
+ *
+ * Derive a sagittal rotation axis from the *current source-skinned*
+ * heel->toe XZ direction, not from guessed local X or synthetic IK.
+ * The renderer conjugates this world axis into the imported foot bone's
+ * original world quaternion, trials real native skin, then retains a pose
+ * only if the existing stricter two-shoe final skin verifier approves.
+ * No foot locking, transformed geometry, pelvis translation or authority.
+ */
+export function planOriginalSourceWorldSolePitchAxis({
+ heelXZ=null,toeXZ=null,heelY=NaN,toeY=NaN,floorTopY=NaN,
+ sourceSoleVerified=false,sourceTrackVerified=false
+}={}){
+ const valid=x=>Array.isArray(x)&&x.length===2&&x.every(finite);
+ if(sourceSoleVerified!==true||sourceTrackVerified!==true||
+  !valid(heelXZ)||!valid(toeXZ)||
+  ![heelY,toeY,floorTopY].every(finite)||
+  Math.abs(floorTopY+.02)>.005)return null;
+ const dx=toeXZ[0]-heelXZ[0],dz=toeXZ[1]-heelXZ[1];
+ const projection=Math.hypot(dx,dz);
+ const drop=heelY-toeY,span=Math.hypot(projection,drop);
+ // Genuine 390px #44034337621 original Walking_A right shoe measured
+ // XZ projection ~106mm, heel-to-toe drop ~280mm and full span ~300mm.
+ // Avoid a degenerate or unrelated shoe: these are not arbitrary targets.
+ if(projection<.060||projection>.17||
+  drop<.17||drop>.335||span<.27||span>.35||
+  floorTopY-toeY<.05||floorTopY-toeY>.13||
+  heelY-floorTopY<.14||heelY-floorTopY>.35)return null;
+ // A positive right-handed rotation about F x Y raises the ACTUAL
+ // horizontal heel->toe vector toward +Y, regardless of actor facing.
+ const axis=Object.freeze([-dz/projection,0,dx/projection]);
+ return Object.freeze({
+  source:'verified-original-skinned-world-outsole-axis',
+  worldAxis:axis,projectionMeters:projection,sourceShoeSpanMeters:span,
+  sourceShoeDropMeters:drop,contactLocked:false,geometryVerified:true
+ });
+}
+
 export function planOriginalSourceCoupledKneeFootFollowups({
  starter=null,sourceInstanceId='',sourceChainVerified=false,
  sourceUpperTrackVerified=false,sourceLowerTrackVerified=false,
