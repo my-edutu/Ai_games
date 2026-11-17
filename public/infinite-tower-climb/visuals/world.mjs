@@ -2306,7 +2306,7 @@ export function createTowerWorld(){
     const items=[];for(let i=0;i<48;i++){const a=-1.8+noise(i)*3.6,r=30+noise(i+3)*22;items.push({p:[Math.sin(a)*r,-5+noise(i+9)*(height+23),Math.cos(a)*r],s:[.035+noise(i)*.045,.035+noise(i)*.045,.035+noise(i)*.045]});}
     particles=instanced(floorGroup,sphere(),materials.particle,items);particles.userData.items=items;particles.castShadow=false;particles.receiveShadow=false;
   }
-  function buildPlatform(p,width,guardianCap=false){
+  function buildPlatform(p,width,guardianCap=false,sourceRunToken=null){
     const root=new THREE.Group();root.name=`platform:${p.id}`;floorGroup.add(root);
     const angle=p.width/width*ARC,h=p.height/SCALE;
     const sourceBodyMaterial=theme==='ruins'?materials.stone:theme==='void'?materials.crystal:theme==='clockwork'?materials.copper:materials.metal;
@@ -2322,7 +2322,7 @@ export function createTowerWorld(){
     // instead of painting 90m of genuine raised gameplay bronze. Shared
     // floor-owned materials retain batching and the original shader types.
     const sharedPhysicalRoof=theme==='void' &&
-      observedOriginalClockworkSuccessorDeck(p,retainedEarnedCap,lastSnapshot?.runToken);
+      observedOriginalClockworkSuccessorDeck(p,retainedEarnedCap,sourceRunToken);
     if(sharedPhysicalRoof && !arrivalRoutePalette){
       const bronze=retainedEarnedCap.originalDeckSurface.color.clone();
       const body=sourceBodyMaterial.clone();
@@ -2339,11 +2339,11 @@ export function createTowerWorld(){
     }
     const realDeparture=theme==='void' && !sharedPhysicalRoof &&
       p.id?.startsWith('f9:') && p.id!=='f9:ground' &&
-      retainedEarnedCap?.runToken===lastSnapshot?.runToken &&
+      retainedEarnedCap?.runToken===sourceRunToken &&
       retainedEarnedCap?.guardianGateRetained===true;
     if(realDeparture && !realVoidDeparturePalette){
       realVoidDeparturePalette=createSourceEarnedVoidDepartureMaterials(
-        materials,retainedEarnedCap,lastSnapshot?.runToken);
+        materials,retainedEarnedCap,sourceRunToken);
       if(realVoidDeparturePalette){
         floorMaterials.add(realVoidDeparturePalette.landing);
         floorMaterials.add(realVoidDeparturePalette.rim);
@@ -3692,7 +3692,7 @@ export function createTowerWorld(){
         (snapshot.enemies||[]).some(e=>e.kind==='guardian' &&
           (!Number.isSafeInteger(e.floor)||e.floor===snapshot.floor) &&
           typeof e.id==='string' && !!e.id && Number.isFinite(e.health));
-      buildPlatform(p,snapshot.worldWidth,sourceGateCap);
+      buildPlatform(p,snapshot.worldWidth,sourceGateCap,snapshot.runToken);
     }
     buildEarnedClockworkVoidBearingRoute(snapshot);
     for(const h of snapshot.hazards||[])buildHazard(h,snapshot.worldWidth);
