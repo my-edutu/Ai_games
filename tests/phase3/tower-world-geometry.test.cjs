@@ -1,4 +1,5 @@
 'use strict';
+const { resolveTowerWorldFixtureImports } = require('../helpers/tower-world-fixture-imports.cjs');
 const assert = require('node:assert/strict');
 const { test, after } = require('node:test');
 const fs = require('node:fs');
@@ -30,7 +31,7 @@ const source = fs.readFileSync(SOURCE, 'utf8')
   .replace("'./guardian-transmission-layout.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/guardian-transmission-layout.mjs')).href))
   .replace("'./mesh-provenance.mjs'", JSON.stringify(provenanceURL));
 const localModule = path.join(scratch, 'world.mjs');
-fs.writeFileSync(localModule, source);
+fs.writeFileSync(localModule, resolveTowerWorldFixtureImports(source,{root:ROOT,fixtureDir:scratch}));
 const loaded = Promise.all([import(threeURL), import(pathToFileURL(localModule).href), import(coordinatesURL), import(surfaceURL)]);
 after(() => fs.rmSync(scratch, { recursive: true, force: true }));
 

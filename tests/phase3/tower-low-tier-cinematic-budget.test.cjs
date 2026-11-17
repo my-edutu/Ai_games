@@ -1,4 +1,5 @@
 'use strict';
+const { resolveTowerWorldFixtureImports } = require('../helpers/tower-world-fixture-imports.cjs');
 const { test, after } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -35,7 +36,7 @@ const source = fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visu
   .replace("'./guardian-transmission-layout.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/guardian-transmission-layout.mjs')).href))
   .replace("'./mesh-provenance.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/mesh-provenance.mjs')).href));
 const moduleFile = path.join(scratch, 'world.mjs');
-fs.writeFileSync(moduleFile, source);
+fs.writeFileSync(moduleFile, resolveTowerWorldFixtureImports(source,{root:ROOT,fixtureDir:scratch}));
 const loaded = Promise.all([import(threeURL), import(pathToFileURL(moduleFile).href)]);
 after(() => fs.rmSync(scratch, { recursive: true, force: true }));
 

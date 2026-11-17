@@ -1,4 +1,5 @@
 'use strict';
+const { resolveTowerWorldFixtureImports } = require('../helpers/tower-world-fixture-imports.cjs');
 const assert = require('node:assert/strict');
 const {test, after} = require('node:test');
 const fs = require('node:fs');
@@ -24,7 +25,7 @@ const source = raw.replace("'/tower/vendor/three.module.js'", JSON.stringify(thr
   .replace("'./guardian-transmission-layout.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/guardian-transmission-layout.mjs')).href))
   .replace("'./mesh-provenance.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/mesh-provenance.mjs')).href))
   .replace("'./scene-hierarchy.mjs'", JSON.stringify(localURL('public/infinite-tower-climb/visuals/scene-hierarchy.mjs')));
-const modulePath = path.join(scratch,'world.mjs');fs.writeFileSync(modulePath,source);
+const modulePath = path.join(scratch,'world.mjs');fs.writeFileSync(modulePath,resolveTowerWorldFixtureImports(source,{root:ROOT,fixtureDir:scratch}));
 const loaded = Promise.all([import(threeURL),import(pathToFileURL(modulePath).href)]);
 const themes = ['foundry','ruins','storm','clockwork','void'];
 function fixture(theme,floor=0){return Object.freeze({runToken:'vista-contract',floor,theme,

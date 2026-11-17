@@ -1,4 +1,5 @@
 'use strict';
+const { resolveTowerWorldFixtureImports } = require('../helpers/tower-world-fixture-imports.cjs');
 // Safety contract for PRESENT camera-responsive non-colliding clockwork scenery.
 // This is not a gameplay-video judgment or LOOKS/FEELS/PLAYS Gauntlet vote.
 const { test, after } = require('node:test');
@@ -45,7 +46,7 @@ for (const [browserImport, nativeURL] of Object.entries(importURLs)) {
     'shipped world import has moved: ' + browserImport);
   installedWorld = installedWorld.replace(browserImport, JSON.stringify(nativeURL));
 }
-fs.writeFileSync(importedWorld, installedWorld);
+fs.writeFileSync(importedWorld, resolveTowerWorldFixtureImports(installedWorld,{root:ROOT,fixtureDir:scratch}));
 const loaded = Promise.all([
   import(threeURL),
   import(pathToFileURL(importedWorld).href),

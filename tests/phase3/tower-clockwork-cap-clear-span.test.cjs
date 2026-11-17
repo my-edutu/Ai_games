@@ -1,4 +1,5 @@
 'use strict';
+const { resolveTowerWorldFixtureImports } = require('../helpers/tower-world-fixture-imports.cjs');
 const { test, after } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -82,7 +83,7 @@ test('the actual batched Three.js cap leaves the body-height forward arc open', 
     patched = patched.replace(original, JSON.stringify(replacement));
   }
   const modulePath = path.join(temp, 'world.mjs');
-  fs.writeFileSync(modulePath, patched);
+  fs.writeFileSync(modulePath, resolveTowerWorldFixtureImports(patched,{root:ROOT,fixtureDir:temp}));
   const [THREE, { createTowerWorld }] = await Promise.all([
     import(threeURL),import(pathToFileURL(modulePath).href),
   ]);

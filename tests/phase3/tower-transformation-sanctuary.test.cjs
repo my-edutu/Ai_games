@@ -1,4 +1,5 @@
 'use strict';
+const { resolveTowerWorldFixtureImports } = require('../helpers/tower-world-fixture-imports.cjs');
 // Source-bound tests for the first transformation-first environment vertical slice.
 // A geometry PASS is not an art-quality PASS: judge real paired GPU screenshots separately.
 const test = require('node:test');
@@ -36,7 +37,7 @@ const source = fs.readFileSync(srcPath, 'utf8')
   .replace("'./original-gallery-foreground.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/original-gallery-foreground.mjs')).href))
   .replace("'./source-physical-arrival-palette.mjs'", JSON.stringify(pathToFileURL(path.join(ROOT, 'public/infinite-tower-climb/visuals/source-physical-arrival-palette.mjs')).href));
 const localPath = path.join(fixtureDir, 'world.mjs');
-fs.writeFileSync(localPath, source);
+fs.writeFileSync(localPath, resolveTowerWorldFixtureImports(source,{root:ROOT,fixtureDir:fixtureDir}));
 const loaded = Promise.all([import(threeURL), import(pathToFileURL(localPath).href)]);
 test.after(() => fs.rmSync(fixtureDir, { recursive: true, force: true }));
 

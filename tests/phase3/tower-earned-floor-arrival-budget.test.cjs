@@ -1,4 +1,5 @@
 'use strict';
+const { resolveTowerWorldFixtureImports } = require('../helpers/tower-world-fixture-imports.cjs');
 // Source-authenticated Floor 8→9 GPU critical-path regression. Engineering
 // checks, NOT a LOOKS/FEELS/PLAYS vote or presented-frame performance claim.
 const test=require('node:test');
@@ -26,7 +27,7 @@ const source=raw.replace("'/tower/vendor/three.module.js'",JSON.stringify(three)
   .replace("'./mesh-provenance.mjs'",JSON.stringify(file('public/infinite-tower-climb/visuals/mesh-provenance.mjs')))
   .replace("'./scene-hierarchy.mjs'",JSON.stringify(file('public/infinite-tower-climb/visuals/scene-hierarchy.mjs')))
   .replace("'./far-side-shaft-transition.mjs'",JSON.stringify(file('public/infinite-tower-climb/visuals/far-side-shaft-transition.mjs')));
-fs.writeFileSync(path.join(tmp,'world.mjs'),source);
+fs.writeFileSync(path.join(tmp,'world.mjs'),resolveTowerWorldFixtureImports(source,{root:ROOT,fixtureDir:tmp}));
 const loaded=import(pathToFileURL(path.join(tmp,'world.mjs')).href);
 const cap={id:'f8:cap',kind:'oneway',x:115200,y:3212000,width:249600,height:12000};
 const prior=()=>({runToken:'genuine-episode',tick:448,floor:8,lifecycle:'running',
