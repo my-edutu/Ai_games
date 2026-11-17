@@ -60,7 +60,8 @@ test('a real licensed Idle full-leg trial does not throw after the original reve
   reversibleFinally<skinReceipt,
   'source-neutral receipt must survive actual reversible source skin probes');
  const probeBody=stage.slice(reversibleTry,reversibleFinally);
- assert.match(probeBody,/neutralBlends=!sourceAnkleProof\\?/);
+ assert.match(probeBody,/neutralBlends=!sourceCoupledPriority&&!sourceAnkleProof&&!priorIdleWorsened\\?/,
+  'only a frame without verified source-connected owner may plan a licensed Idle probe');
  assert.doesNotMatch(probeBody,/\\b(?:const|let|var)\\s+neutralBlends\\s*=/,
   'a try-local shadow will crash when authentic source probes reach final receipt');
  assert.match(stage.slice(reversibleFinally),/actuallyTestedNeutralBlends:trials/);
