@@ -498,5 +498,5 @@ test('RED: native fourth toe sample takes real third-sample skinned toe and upda
  assert.match(scope,/sourceAdaptiveToeCandidate/);
  assert.match(renderer,/sourceAdaptiveToeCandidate:selectedTrial\?\.sourceAdaptiveToeCandidate/);
  const controller=fs.readFileSync(path.join(root,'public/ai-dungeon/full-body-animation-controller.js'),'utf8');
- assert.match(controller,/trial\.sourceAdaptiveToeCandidate/);
+ assert.match(controller,/trial\?\.sourceAdaptiveToeCandidate/);
 });
