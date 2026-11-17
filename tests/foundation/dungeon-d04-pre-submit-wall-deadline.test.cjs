@@ -66,7 +66,10 @@ test('a real clock below the deadline does not double-charge the same renderer i
 });
 
 test('configured but untrusted receipt clock fails closed even when raw-frame age is also stale',async()=>{
- const r=await run({clock:()=>NaN,renderSeconds:.39});
+ // Observation and visual clocks are trusted; only the post-WebGL
+ // receipt becomes unavailable, independently exercising that gate.
+ let calls=0;
+ const r=await run({clock:()=>++calls>=5?NaN:100,renderSeconds:.39});
  assert.equal(r.delivered,0,'an invalid real receipt clock cannot certify audio');
  assert.equal(r.played.length,0);
  assert.equal(r.stats.recentDeliveryReceipts.at(-1).decision,'unverified-frame');
@@ -187,7 +190,9 @@ test('D04 receipt separates pre-advance, visual-work and post-visual frame stall
 
 test('a missing or nonmonotonic D04 visual-work sample cannot fabricate phase attribution',async()=>{
  const {createPhysicalCombatFeedback}=await load();
- const values=[100,100.05,99.9,100.2];
+ // The visual advance itself is trusted, but post-emission attribution
+ // regresses; this must never produce invented visual emission timing.
+ const values=[100,100.05,100.07,99.9,100.2];
  const d=createPhysicalCombatFeedback({
   requirePresentedFrame:true,clock:()=>values.shift()??100.2,
   visualAdapter:{emit(){return true},advance(){},
@@ -205,7 +210,8 @@ test('a missing or nonmonotonic D04 visual-work sample cannot fabricate phase at
   const receipt=d.stats().recentDeliveryReceipts.at(-1);
   assert.equal(receipt.observationToSubmissionMs,200);
   assert.equal(receipt.beforeVisualAdvanceMs,50);
-  assert.equal(receipt.visualAdvanceMs,null);
+  assert.equal(receipt.visualAdvanceMs,20);
+  assert.equal(receipt.visualEmissionMs,null);
   assert.equal(receipt.afterVisualAdvanceToSubmissionMs,null);
   assert.equal(receipt.sampleSynchronized,false);
  }finally{d.dispose()}
@@ -322,14 +328,15 @@ test('D04 missing HP observation clock fails closed BEFORE WebGL rather than dra
  try{
   assert.equal(d.enableAudioFromGesture(),true);
   d.acceptSnapshot(snapshot(10,30));
-  failObservation=true;
-  d.acceptSnapshot(snapshot(11,20)); // Real adjacent HP decrease, but no trustworthy observation time.
-  failObservation=false;
+  d.acceptSnapshot(snapshot(11,20)); // Real adjacent HP decrease has trusted time.
   wall=100.02;
   d.advance(.016,.016);
+  // Now lose the current clock AFTER a genuine cue is staged. The separate
+  // pre-render guard still must retire that art before any WebGL draw.
   assert.equal(emitted.length,1,
    'the pending genuine HP effect reached an actual upcoming render opportunity');
   assert.equal(d.stats().awaitingPresentation,1);
+  failObservation=true;
   wall=100.03;
   assert.equal(d.retireStaleBeforeRender(),1,
    'missing cue observation cannot certify timely DRAW before actual WebGL submission');
@@ -341,8 +348,9 @@ test('D04 missing HP observation clock fails closed BEFORE WebGL rather than dra
   const receipt=d.stats().recentDeliveryReceipts.at(-1);
   assert.equal(receipt.decision,'unverified-before-render');
   assert.equal(receipt.frameId,null);
-  assert.equal(receipt.observedClockMs,null);
+  assert.equal(receipt.observedClockMs,100000);
   assert.equal(receipt.audio,false);
+  failObservation=false;
   wall=100.04;
   assert.equal(d.acknowledgePresentedFrame(1,.01),0);
   assert.deepEqual(played,[],'no later WebAudio start can rehabilitate missing source clock');
