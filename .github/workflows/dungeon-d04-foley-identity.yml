@@ -40,6 +40,7 @@ on:
       - tests/browser/dungeon-d04-impact-submission-witness.cjs
       - tests/browser/dungeon-d04-source-start-correlation.cjs
       - tests/browser/dungeon-d04-original-pcm-onset-proof.cjs
+      - tests/browser/dungeon-d04-stereo-stem-decoder.cjs
       - tests/foundation/dungeon-d04-original-pcm-onset-proof.test.cjs
       - .github/workflows/dungeon-d04-foley-identity.yml
   workflow_dispatch:
@@ -64,6 +65,7 @@ jobs:
       - run: node --check public/ai-dungeon/original-combat-foley.js
       - run: node --check public/ai-dungeon/d04-combat-pcm-worklet.js
       - run: node --check tests/browser/dungeon-d04-capture-profile.cjs
+      - run: node --check tests/browser/dungeon-d04-stereo-stem-decoder.cjs
       - run: node --check tests/browser/dungeon-d04-impact-submission-witness.cjs
       - run: node --check tests/browser/dungeon-d04-live-authority-pair.cjs
       - run: node --check tests/browser/dungeon-d04-continuous-mode-pair.cjs
@@ -100,6 +102,8 @@ jobs:
             tests/foundation/dungeon-d04-live-queued-warning-stall.test.cjs \
             tests/foundation/dungeon-d04-source-start-correlation.test.cjs \
             tests/foundation/dungeon-d04-original-pcm-onset-proof.test.cjs \
+            tests/foundation/dungeon-d04-original-stereo-capture.test.cjs \
+            tests/foundation/dungeon-d04-stereo-stem-decoder.test.cjs \
             tests/foundation/dungeon-d04-stale-submission-visual-retirement.test.cjs \
             tests/foundation/dungeon-d04-revoked-drawn-pose-retirement.test.cjs \
             tests/foundation/dungeon-d04-hp-hidden-visual-sound-only.test.cjs \
@@ -154,6 +158,12 @@ jobs:
         env:
           D04_BROWSER_CHANNEL: chrome
           DUNGEON_REQUIRE_MODELS: '1'
+      - name: Decode original left mix and right combat-FX stem when decoders are installed
+        if: always()
+        run: |
+          node tests/browser/dungeon-d04-stereo-stem-decoder.cjs \
+            artifacts/dungeon-d04-real-canvas-original-sound.webm \
+            artifacts/dungeon-d04-original-stereo-stem-decoded-audit.json
       - name: Publish authentic screenshot and source diagnostics if generated
         if: always()
         uses: actions/upload-artifact@v4
