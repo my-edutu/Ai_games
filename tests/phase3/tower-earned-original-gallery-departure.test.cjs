@@ -93,6 +93,6 @@ test('real world retires only old noninteractive gallery; keeps original gate an
  assert.match(world,/held\.galleryExitClearedAlpha/);
  assert.match(world,/Math\.min\(originalPresence,held\.galleryExitClearedAlpha\)/);
  assert.match(world,/held\.originalGatewayOpacity=originalGatePresence/);
- assert.match(world,/if\(held\.originalDeckSurface\)/);
+ assert.match(world,/if\s*\(held\.originalDeckSurface\)/);
  assert.doesNotMatch(world,/snapshot\.player\.(?:x|y|state)\s*=/);
 });
