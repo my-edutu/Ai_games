@@ -215,7 +215,7 @@ test('RED: genuine world-outsole axis is converted after source thigh/calf candi
  assert.ok(staleLocal.clone().applyQuaternion(candidateWorld).angleTo(worldAxis)>.02,
   'the old pre-thigh basis points the foot pitch off the true skinned outsole');
  const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
- const start=renderer.indexOf('for(const {upperRad,lowerRad,footRad} of connectedAngles)');
+ const start=renderer.indexOf('for(const {upperRad,lowerRad,footRad,toeRad=0} of boundedConnectedAngles)');
  const end=renderer.indexOf('trials.push({upperRad,lowerRad,footRad',start);
  assert.ok(start>0&&end>start,'actual original-GLB two-candidate foot sweep must exist');
  const trial=renderer.slice(start,end);
@@ -223,6 +223,8 @@ test('RED: genuine world-outsole axis is converted after source thigh/calf candi
   'update the imported upper/lower transforms before mapping the source world pitch into foot-local');
  assert.match(trial,/footAxis\.copy\(worldSoleAxis\)/,
   'the world sole direction must be applied to each trial rather than cached before candidate thigh/calf');
+ assert.match(trial,/toeBone\.quaternion\.copy\(toeOriginal\)/,
+  'original licensed toe must be reset before applying a measured fourth-joint candidate');
  assert.match(trial,/foot\.bone\.quaternion\.copy\(kneeFootCoupled\.savedFoot\)\.multiply\(/,
   'real imported foot still receives a reversible local delta');
 });

@@ -112,7 +112,10 @@ test('actual renderer binds the certified starter into BOTH initial and final 3-
  const ownerStage=renderer.slice(renderer.indexOf('function stageOriginalSourceSwingLinkedLegAfterMixer('),
   renderer.indexOf('function stageRigLegsAfterMixer('));
  assert.match(ownerStage,/planOriginalSourceCoupledKneeFootFollowups\(/);
- assert.match(ownerStage,/for\(const \{upperRad,lowerRad,footRad\} of connectedAngles\)/);
+ assert.match(ownerStage,/for\(const \{upperRad,lowerRad,footRad,toeRad=0\} of boundedConnectedAngles\)/);
+ assert.match(ownerStage,/const boundedConnectedAngles=sourceToeAngles\?\?connectedAngles/);
+ assert.match(ownerStage,/toeBone\.quaternion\.copy\(toeOriginal\)/,
+  'original toe hinge is reversibly sampled with the source thigh/calf/foot chain');
  assert.match(ownerStage,/finally\{\s*upper\.bone\.quaternion\.copy\(upperOriginal\)/,
   'source GLB hips/knees and original foot return to correct source before next animation frame');
 });

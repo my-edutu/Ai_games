@@ -7022,8 +7022,12 @@ test('RED: original three-joint source heel-pitch rejection retargets bounded so
  assert.ok(start>0&&end>start);
  const stage=renderer.slice(start,end);
  assert.match(stage,/planOriginalSourceCoupledKneeFootFollowups\(/);
- assert.match(stage,/for\(const \{upperRad,lowerRad,footRad\} of connectedAngles\)/,
+ assert.match(stage,/for\(const \{upperRad,lowerRad,footRad,toeRad=0\} of boundedConnectedAngles\)/,
   'same two skinned GLB slots, now source-measured favorable foot-axis candidates');
+ assert.match(stage,/const boundedConnectedAngles=sourceToeAngles\?\?connectedAngles/,
+  'native two-sample source toe hinge must remain optional, never a new skin pass');
+ assert.match(stage,/toeBone\.quaternion\.copy\(toeOriginal\)/,
+  'source child toes must return to original mixer pose before each sample');
  assert.match(stage,/final\.oppositeShoePreserved!==true/);
  assert.match(stage,/final\.contactLocked!==false/);
 });
