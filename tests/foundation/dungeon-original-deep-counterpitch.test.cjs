@@ -605,3 +605,51 @@ test('licensed fourth connected source-skin trial accepts only witnessed bounded
   {rootTravel:0},{frameInterval:.24}])
    assert.equal(choose({...approved,...unsafe,trials:[trial]}),null);
 });
+
+
+// Source rig crossfade is still mostly delivered in 60-120ms display windows.
+// This specific fixture uses an independently bounded original-skin shoe shape
+// and hypothetical post-probe deltas; it is not a claim of witnessed after video.
+test('RED: bounded 100ms source Walking_A with heel-dominant swing samples a connected knee-foot counterpitch before abandoning the two-shoe evidence',async()=>{
+ const {planOriginalSourceCoupledFootStarter:starterFn,
+  planOriginalSourceCoupledKneeFootFollowups:followups,
+  chooseOriginalSourceCoupledKneeFootSweep:choose,
+  planOriginalSourceCoupledToeHingeFollowups:toePlanner}=await load();
+ const slow={...owner,frameInterval:.1001,frameAge:.04,rootTravel:.055,
+  starterTrials:[
+   {upperRad:.12,lowerRad:-.09,after:after(-.010,-.025)},
+   {upperRad:-.12,lowerRad:.09,after:after(.016,.028)}
+  ]};
+ const starter=starterFn(slow);
+ assert.equal(starter?.source,'actual-original-source-three-joint-swing-opportunity');
+ assert.equal(starter.sign,-1);
+ assert.deepEqual(followups({...slow,starter}),[
+  {upperRad:-.11,lowerRad:.11,footRad:.30},
+  {upperRad:-.11,lowerRad:.11,footRad:.36}
+ ],'use exactly two original connected source skinning trials, not another arbitrary hip twitch');
+ const safe={upperRad:-.11,lowerRad:.11,footRad:.36,
+  after:after(.033,.008)};
+ const result=choose({...slow,starter,trials:[safe]});
+ assert.equal(result?.source,'measured-original-skinned-coupled-knee-foot');
+ assert.equal(result?.sourceJointCount,3);
+ assert.equal(result?.oppositeShoePreserved,true);
+ assert.equal(result?.contactLocked,false);
+ assert.ok(result.afterToeY<slow.floorTopY,'an improved buried toe is not an invented planted sole');
+ assert.equal(toePlanner({
+  source:'same-original-GLB-skin-toes-hinge',sourceClipName:'Walking_A',
+  sourceWeight:1,frameInterval:.1001
+ }),null,'100ms connected candidates must not bypass the separately audited original toe-track gate');
+ for(const patch of [
+  {frameInterval:.051},{frameInterval:.121},{frameInterval:.241},
+  {rootTravel:0},{frameAge:.16},{sourceWeight:.94},
+  {sourceClipName:'Idle'},{teleport:true},{reducedMotion:true},
+  {interrupted:true},{sourceInstanceSame:false},
+  {sourceFootTrackVerified:false},{sourceBindVerified:false}
+ ])assert.equal(followups({...slow,...patch,starter}),null,
+  'no extra source leg counterpitch outside the actual owner, frame and licensed bone contract: '+JSON.stringify(patch));
+ assert.equal(choose({...slow,starter,trials:[{...safe,after:after(.033,.042)}]}),null,
+  'rising heel faster than toe is not physically coherent');
+ assert.equal(choose({...slow,starter,trials:[{...safe,
+  after:after(.033,.008,{...right,toeY:right.toeY+.009})}]}),null,
+  'loaded opposite skinned shoe must remain intact');
+});
