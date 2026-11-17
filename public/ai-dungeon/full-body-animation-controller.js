@@ -734,10 +734,22 @@ export function planOriginalSourceCoupledToeHingeFollowups({
   !Array.isArray(originalFollowups)||originalFollowups.length!==2)
   return null;
  const [lower,base]=originalFollowups;
+ // The actual CC0 390px Walking_A swing (native #44119004252) uses
+ // the original fast .30/.36rad source-sole counterpitch band, not the
+ // separate deeper .38/.46rad band. Previously the rigid .38/.46-only
+ // toe-child contract made a real, weighted toesr hinge impossible on
+ // that entire genuine mobile movement window. Retain only these TWO
+ // separately audited source-clip bands: do not enlarge ankle angles,
+ // add skinning probes or treat a candidate as foot contact.
+ const deepSourceBand=Math.abs(lower?.footRad-.38)<=.000001&&
+  Math.abs(base?.footRad-.46)<=.000001;
+ const fastSourceBand=Math.abs(lower?.footRad-.30)<=.000001&&
+  Math.abs(base?.footRad-.36)<=.000001&&
+  frameInterval>=.03&&frameInterval<=.05&&
+  sourceBurialMeters>=.075&&sourceBurialMeters<=.12;
  if(![lower?.upperRad,lower?.lowerRad,lower?.footRad,
     base?.upperRad,base?.lowerRad,base?.footRad].every(finite)||
-  Math.abs(lower.footRad-.38)>.000001||
-  Math.abs(base.footRad-.46)>.000001||
+  !(deepSourceBand||fastSourceBand)||
   Math.abs(base.upperRad-lower.upperRad)>.000001||
   Math.abs(base.lowerRad-lower.lowerRad)>.000001||
   Math.sign(base.upperRad)===Math.sign(base.lowerRad)||
