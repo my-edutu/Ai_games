@@ -599,10 +599,15 @@ export function planOriginalSourceWorldSolePitchAxis({
  const dx=toeXZ[0]-heelXZ[0],dz=toeXZ[1]-heelXZ[1];
  const projection=Math.hypot(dx,dz);
  const drop=heelY-toeY,span=Math.hypot(projection,drop);
- // Genuine 390px #44034337621 original Walking_A right shoe measured
- // XZ projection ~106mm, heel-to-toe drop ~280mm and full span ~300mm.
- // Avoid a degenerate or unrelated shoe: these are not arbitrary targets.
- if(projection<.060||projection>.17||
+ // Two genuine original Walking_A right shoes, same CC0 41-joint rig:
+ // #44034337621 source outsole projected ~106mm; #44041479976
+ // at 390px tick 6 projected 59.53mm while its 300mm heel/toe drop
+ // and both source joints remained independently measured. The old 60mm
+ // minimum rejected that legitimately near-vertical outsole before the
+ // two reversible skinned counterpitch trials. Keep >=50mm *and* the
+ // strict 270-350mm three-dimensional shoe span, depth, source-track
+ // and final independently re-skinned BOTH-shoe safety gates.
+ if(projection<.050||projection>.17||
   drop<.17||drop>.335||span<.27||span>.35||
   floorTopY-toeY<.05||floorTopY-toeY>.13||
   heelY-floorTopY<.14||heelY-floorTopY>.35)return null;
