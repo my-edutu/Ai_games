@@ -1,0 +1,51 @@
+name: Tiny Kingdom W397 Real Resident GPU Workday
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w397-resident-gpu-contract.cjs'
+      - 'tests/browser/tiny-kingdom-w397-gpu-district.spec.cjs'
+      - '.github/workflows/tiny-kingdom-w397-gpu-district.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  actual-gpu-sector-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/tiny-kingdom-w397-resident-gpu-contract.cjs
+  actual-browser-desktop-mobile:
+    needs: actual-gpu-sector-source
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Original people and physical district moves in running WebGL
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w397-gpu-district.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w397-real-GPU-return
+          path: |
+            artifacts/tiny-kingdom-w397/
+            test-results/
+          retention-days: 14

@@ -1792,11 +1792,11 @@ function prepareRestingActorMesh(rows){
  restingActorVisible=false;restingActorLastDirtyActors=0;
  restingActorLastUploadBytes=0;
  if(!gpuAvailable||!rows.length){
-  restingActorKey='';restingActorCitizens=0;
-  // Camera-only disappearance is not a world reset. Dormant original
-  // meshes remain bounded and are not submitted as visible citizens.
-  if(!gpuAvailable)restingActorCache.clear();
-  restingActorLayoutKey='';return false;
+  restingActorCitizens=0;
+  // An empty camera district draws none of these original citizens, but
+  // their exact packed GPU VBO remains for a same-world, same-pose return.
+  if(!gpuAvailable){restingActorCache.clear();restingActorKey='';
+   restingActorLayoutKey='';}return false;
  }
  if(rows.length>RESTING_ACTOR_MAX){
   restingActorOverflowFallbacks++;restingActorKey='';
@@ -1985,10 +1985,10 @@ function prepareResidentCommuters(rows){
  commuterResidentVisible=[];
  if(!gpuAvailable||!rows.length){
   // W396 physical camera switching keeps genuine past pose bytes warm.
-  if(!gpuAvailable)commuterResidentCache.clear();
-  commuterResidentKey='';
-  commuterResidentLayoutKey='';commuterResidentMesh=new Float32Array(0);
-  commuterResidentJointData=new Float32Array(0);return false;
+  if(!gpuAvailable){commuterResidentCache.clear();
+   commuterResidentKey='';commuterResidentLayoutKey='';
+   commuterResidentMesh=new Float32Array(0);
+   commuterResidentJointData=new Float32Array(0);}return false;
  }
  const beforeAll=restingActorCounters();
  const selected=[],limited=rows.slice(0,COMMUTER_RESIDENT_MAX);
@@ -2039,6 +2039,22 @@ function prepareResidentCommuters(rows){
   offset+=row.entry.mesh.length;
  }
  const layoutKey=selected.map(({i,entry})=>i+':'+entry.mesh.length).join('|');
+ const sectorPoseKey=selected.map(({i,entry})=>i+':'+entry.revision).join('|');
+ const sector=chooseResidentGpuSector('commuter',layoutKey,sectorPoseKey,{
+  buffer:commuterResidentBuffer,capacity:commuterResidentCapacity,
+  mesh:commuterResidentMesh,jointBuffer:commuterResidentJointBuffer,
+  jointCapacity:commuterResidentJointCapacity,jointData:commuterResidentJointData,
+  layoutKey:commuterResidentLayoutKey,poseKey:commuterResidentKey});
+ ({buffer:commuterResidentBuffer,capacity:commuterResidentCapacity,
+  mesh:commuterResidentMesh,jointBuffer:commuterResidentJointBuffer,
+  jointCapacity:commuterResidentJointCapacity,jointData:commuterResidentJointData,
+  layoutKey:commuterResidentLayoutKey,poseKey:commuterResidentKey}=sector.active);
+ if(sector.restored){
+  commuterResidentCache=retainForegroundPoseWindow(commuterResidentCache,selected,
+   COMMUTER_RESIDENT_MAX,COMMUTER_RESIDENT_FLOAT_BUDGET);
+  commuterResidentVisible=selected;return true;
+ }
+
  const dirtyActors=selected.reduce((n,row)=>n+(row.fresh?1:0),0);
  const dirtyFloats=selected.reduce((n,row)=>n+(row.fresh?row.entry.mesh.length:0),0);
  const coalesce=shouldCoalesceResidentGpuUploads(total,dirtyActors,dirtyFloats);
@@ -2164,6 +2180,7 @@ function getResidentCommuterAudit(){
   physicalHardwareFpsNotMeasured:true,authorityModified:false};
 }
 function resetResidentCommuters(){
+ resetResidentGpuSector('commuter');
  commuterResidentCache.clear();commuterResidentKey='';
  commuterResidentLayoutKey='';
  commuterResidentVisible=[];commuterResidentMesh=new Float32Array(0);
@@ -2180,6 +2197,67 @@ function shouldCoalesceResidentGpuUploads(totalFloats,changedActors,dirtyFloats)
   (changedActors>=3&&dirtyFloats*2>=totalFloats));
 }
 
+// W397 Phase 1: bounded two-view GPU residency for the same real workday.
+// Each category owns its current original actor buffer and ONE alternate.
+// No impostors, extra society, authority changes, or stale rig revisions.
+const RESIDENT_GPU_SECTOR_GROUPS=['commuter','working','foreground'];
+const residentGpuSectorSpares={commuter:null,working:null,foreground:null};
+const residentGpuSectorCounters={
+ commuter:{switches:0,warmReturns:0,recycled:0},
+ working:{switches:0,warmReturns:0,recycled:0},
+ foreground:{switches:0,warmReturns:0,recycled:0}
+};
+function emptyResidentGpuSector(){
+ return {buffer:null,capacity:0,mesh:new Float32Array(0),
+  jointBuffer:null,jointCapacity:0,jointData:new Float32Array(0),
+  layoutKey:'',poseKey:''};
+}
+function chooseResidentGpuSector(kind,layoutKey,poseKey,active){
+ if(!RESIDENT_GPU_SECTOR_GROUPS.includes(kind)||!active||
+    typeof layoutKey!=='string'||!layoutKey||typeof poseKey!=='string')
+  throw Error('W397 invalid authentic actor GPU district');
+ if(!active.buffer||!active.mesh.length||!active.layoutKey||
+    active.layoutKey===layoutKey)return {active,restored:false};
+ const saved=residentGpuSectorSpares[kind];
+ const restored=Boolean(saved?.buffer&&saved.mesh.length&&
+  saved.layoutKey===layoutKey&&saved.poseKey===poseKey);
+ // Replace only the LRU spare when revision changes. Its old vertex bytes
+ // are invalidated; full authentic CPU->GPU upload is then mandatory.
+ const next=restored?saved:saved?
+  {...saved,mesh:new Float32Array(0),jointData:new Float32Array(0),
+   layoutKey:'',poseKey:''}:emptyResidentGpuSector();
+ residentGpuSectorSpares[kind]=active;
+ residentGpuSectorCounters[kind].switches++;
+ if(restored)residentGpuSectorCounters[kind].warmReturns++;
+ else if(saved)residentGpuSectorCounters[kind].recycled++;
+ return {active:next,restored};
+}
+function resetResidentGpuSector(kind){
+ if(!RESIDENT_GPU_SECTOR_GROUPS.includes(kind))
+  throw Error('W397 invalid GPU district reset');
+ const spare=residentGpuSectorSpares[kind];
+ if(spare&&gpuAvailable){
+  if(spare.buffer)gl.deleteBuffer(spare.buffer);
+  if(spare.jointBuffer)gl.deleteBuffer(spare.jointBuffer);
+ }
+ residentGpuSectorSpares[kind]=null;
+}
+function getResidentGpuDistrictAudit(){
+ const groups={};let spareGpuCapacityBytes=0,spareCpuBytes=0;
+ for(const kind of RESIDENT_GPU_SECTOR_GROUPS){
+  const slot=residentGpuSectorSpares[kind];
+  const gpuBytes=slot?(slot.capacity+slot.jointCapacity)*4:0;
+  const cpuBytes=slot?(slot.mesh.byteLength+slot.jointData.byteLength):0;
+  spareGpuCapacityBytes+=gpuBytes;spareCpuBytes+=cpuBytes;
+  groups[kind]={...residentGpuSectorCounters[kind],spareSlots:slot?1:0,
+   spareGpuCapacityBytes:gpuBytes,spareCpuBytes:cpuBytes};
+ }
+ return {kind:'two-district-original-actor-GPU-VBO-LRU',groups,
+  maxGpuSlotsPerClass:2,maxDormantSlotsTotal:3,
+  spareGpuCapacityBytes,spareCpuBytes,
+  exactOriginalVerticesAndJointIds:true,authorityUnmodified:true,
+  neitherSoftwareNorHardwareFpsClaimed:true};
+}
 // W121 Phase 1: the REAL compact residents performing actual paid work, but
 // projected as tiny or offscreen, keep their own bounded GPU pose residency.
 // No fictional peasants, simulated work, actor removal or workTimer edits.
@@ -2521,10 +2599,9 @@ function prepareWorkingResidents(rows){
  workingResidentVisible=[];
  if(!gpuAvailable||!rows.length){
   // W396 return to same true worker after an unselected street lens.
-  if(!gpuAvailable)workingResidentCache.clear();
-  workingResidentKey='';
-  workingResidentLayoutKey='';
-  workingResidentMesh=new Float32Array(0);return false;
+  if(!gpuAvailable){workingResidentCache.clear();
+   workingResidentKey='';workingResidentLayoutKey='';
+   workingResidentMesh=new Float32Array(0);}return false;
  }
  const beforeAll=restingActorCounters();
  const selected=[],limited=rows.slice(0,WORKING_RESIDENT_MAX);
@@ -2578,6 +2655,22 @@ function prepareWorkingResidents(rows){
  // Membership and true geometry lengths control layout. A hand moving in
  // its existing rig never repacks/uploads all other real workers.
  const layoutKey=selected.map(({i,entry})=>i+':'+entry.mesh.length).join('|');
+ const sectorPoseKey=selected.map(({i,entry})=>i+':'+entry.revision).join('|');
+ const sector=chooseResidentGpuSector('working',layoutKey,sectorPoseKey,{
+  buffer:workingResidentBuffer,capacity:workingResidentCapacity,
+  mesh:workingResidentMesh,jointBuffer:workingResidentJointBuffer,
+  jointCapacity:workingResidentJointCapacity,jointData:workingResidentJointData,
+  layoutKey:workingResidentLayoutKey,poseKey:workingResidentKey});
+ ({buffer:workingResidentBuffer,capacity:workingResidentCapacity,
+  mesh:workingResidentMesh,jointBuffer:workingResidentJointBuffer,
+  jointCapacity:workingResidentJointCapacity,jointData:workingResidentJointData,
+  layoutKey:workingResidentLayoutKey,poseKey:workingResidentKey}=sector.active);
+ if(sector.restored){
+  workingResidentCache=retainForegroundPoseWindow(workingResidentCache,selected,
+   WORKING_RESIDENT_MAX,WORKING_RESIDENT_FLOAT_BUDGET);
+  workingResidentVisible=selected;return true;
+ }
+
  const dirtyActors=selected.reduce((n,row)=>n+(row.fresh?1:0),0);
  const dirtyFloats=selected.reduce((n,row)=>
   n+(row.fresh?row.entry.mesh.length:0),0);
@@ -2712,6 +2805,7 @@ function getWorkingResidentAudit(){
   authorityModified:false,physicalGpuFpsNotMeasured:true};
 }
 function resetWorkingResidents(){
+ resetResidentGpuSector('working');
  workingResidentCache.clear();workingResidentVisible=[];
  workingResidentMesh=new Float32Array(0);
  workingResidentJointData=new Float32Array(0);
@@ -2752,7 +2846,7 @@ let foregroundResidentJointBuffer=null,foregroundResidentJointCapacity=0,
  foregroundSkinDrawCalls=0,foregroundSkinMatrices=0,
  foregroundSkinBindBuilds=0,foregroundSkinFullUploads=0,
  foregroundSkinPartialUploads=0,foregroundSkinFallbacks=0;
-let foregroundResidentCache=new Map(),foregroundResidentVisible=[],
+let foregroundResidentSignature='',foregroundResidentCache=new Map(),foregroundResidentVisible=[],
  foregroundResidentBuffer=null,foregroundResidentCapacity=0,
  foregroundResidentMesh=new Float32Array(0),foregroundResidentLayoutKey='',
  foregroundResidentPoseBuilds=0,foregroundResidentReuses=0,
@@ -2958,9 +3052,10 @@ function retainForegroundPoseWindow(previous,visible,
 function prepareForegroundResidents(rows,frame){
  foregroundResidentVisible=[];
  if(!gpuAvailable||!rows.length){
-  // Preserve original full-body meshes across genuine camera districts.
-  foregroundResidentLayoutKey='';
-  foregroundResidentMesh=new Float32Array(0);return false;
+  // Camera absence is not world reset. Actual GPU geometry and pose IDs
+  // survive without submitting a missing or duplicate actor.
+  if(!gpuAvailable){foregroundResidentLayoutKey='';
+   foregroundResidentMesh=new Float32Array(0);}return false;
  }
  const beforeAll=restingActorCounters();
  // Preserve the limited full-original GPU slots for workers actually using
@@ -3036,6 +3131,21 @@ function prepareForegroundResidents(rows,frame){
   offset+=row.entry.mesh.length;
  }
  const layoutKey=selected.map(({i,entry})=>i+':'+entry.mesh.length).join('|');
+ const sectorPoseKey=selected.map(({i,entry})=>i+':'+entry.revision).join('|');
+ const sector=chooseResidentGpuSector('foreground',layoutKey,sectorPoseKey,{
+  buffer:foregroundResidentBuffer,capacity:foregroundResidentCapacity,
+  mesh:foregroundResidentMesh,jointBuffer:foregroundResidentJointBuffer,
+  jointCapacity:foregroundResidentJointCapacity,jointData:foregroundResidentJointData,
+  layoutKey:foregroundResidentLayoutKey,poseKey:foregroundResidentSignature});
+ ({buffer:foregroundResidentBuffer,capacity:foregroundResidentCapacity,
+  mesh:foregroundResidentMesh,jointBuffer:foregroundResidentJointBuffer,
+  jointCapacity:foregroundResidentJointCapacity,jointData:foregroundResidentJointData,
+  layoutKey:foregroundResidentLayoutKey,poseKey:foregroundResidentSignature}=sector.active);
+ if(sector.restored){
+  foregroundResidentCache=retainForegroundPoseWindow(foregroundResidentCache,selected);
+  foregroundResidentVisible=selected;return true;
+ }
+
  const needJoint=workingSkinCapable&&selected.some(row=>row.entry.skinned);
  if(!foregroundResidentBuffer)foregroundResidentBuffer=gl.createBuffer();
  if(needJoint&&!foregroundResidentJointBuffer)
@@ -3097,7 +3207,8 @@ function prepareForegroundResidents(rows,frame){
   }
  }
  foregroundResidentCache=retainForegroundPoseWindow(foregroundResidentCache,selected);foregroundResidentVisible=selected;
- foregroundResidentLayoutKey=layoutKey;return true;
+ foregroundResidentLayoutKey=layoutKey;
+ foregroundResidentSignature=sectorPoseKey;return true;
 }
 function drawForegroundResidentMesh(){
  if(!gpuAvailable||!foregroundResidentVisible.length||!foregroundResidentBuffer)return;
@@ -3166,6 +3277,7 @@ function setForegroundResidentEnabledForTesting(enabled){
  lastFrozenFrameKey=null;presentationEpoch++;
 }
 function resetForegroundResidents(){
+ resetResidentGpuSector('foreground');foregroundResidentSignature='';
  foregroundResidentCache.clear();foregroundResidentVisible=[];
  foregroundResidentMesh=new Float32Array(0);foregroundResidentLayoutKey='';
  foregroundResidentJointData=new Float32Array(0);
@@ -30849,7 +30961,7 @@ drawForegroundResidentMesh();
   cloneData(getAuthenticWorkGesture(people[index])):null,
  getFaceTopologyCacheAudit,getSimulationTickDebtAudit,
  getRestingActorResidencyAudit,getResidentCommuterAudit,getWorkingResidentAudit,
- getWorkingSkinAudit,getWorkSkinPaletteAudit,setWorkingSkinEnabledForTesting,
+ getWorkingSkinAudit,getWorkSkinPaletteAudit,getResidentGpuDistrictAudit,setWorkingSkinEnabledForTesting,
  getForegroundResidentAudit,getForegroundSkinAudit,setForegroundResidentEnabledForTesting,
  getSocialEncounterAudit:()=>cloneData(getSocialEncounterAudit()),
  getWorkIntentMemoAudit:()=>cloneData(getWorkIntentMemoAudit()),
