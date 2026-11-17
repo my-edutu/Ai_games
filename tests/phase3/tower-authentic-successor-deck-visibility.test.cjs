@@ -220,3 +220,58 @@ test('physical guardian hardware is wired into the real retained gateway and sub
   assert.match(scene,/world\.measureSuccessorDeckVisibility\(/);
   assert.match(scene,/candidate\.bodyBlockedRays<=existingDeckView\.bodyBlockedRays/);
 });
+
+test('authentic first-F9 buttress and late shaft are additional physical camera occluders, not invented decks',async()=>{
+  const THREE=await three;
+  const {measureAuthoritativeDeckSightline}=await loaded;
+  for(const aspect of [960/600,390/844]){
+    const f=fixture(THREE);f.measure=measureAuthoritativeDeckSightline;
+    f.roof.children[0].position.x=100;
+    const structure=new THREE.Group();
+    structure.name='SourceEarnedFirstFrameFarSideVoidButtress';
+    const metal=new THREE.MeshStandardMaterial({color:0x544a63});
+    const geometry=new THREE.BoxGeometry(2.5,4,1.2);
+    const beam=new THREE.Mesh(geometry,metal);
+    beam.position.set(0,2,2.4);structure.add(beam);
+    const other=new THREE.Group();other.name='SourceEarnedClockworkVoidBearingGallery';
+    try{
+      const original=JSON.stringify([f.source,f.held]);
+      const clearDecks=sample(f,[0,2,6],[0,2,0]);
+      assert.equal(clearDecks.score,0,'real deck was moved out of the ray');
+      const blocked=sample(f,[0,2,6],[0,2,0],{architectureRoots:[structure,other]});
+      assert.equal(blocked.active,true);
+      assert.ok(blocked.architectureBlockedRays>0,'existing Void structural mesh is real camera occlusion');
+      assert.ok(blocked.bodyBlockedRays>0,'the real skinned source actor cannot be ignored');
+      assert.ok(blocked.rays<=9,'do not create unbounded new render-frame rays');
+      const recovered=sample(f,[10,3,6],[0,2,0],{architectureRoots:[structure,other]});
+      assert.ok(recovered.score<blocked.score,
+        'existing exterior shoulder search sees an authentically clearer current shot');
+      metal.transparent=true;metal.opacity=0;
+      assert.equal(sample(f,[0,2,6],[0,2,0],{architectureRoots:[structure]}).score,0,
+        'fully transparent authentic structural mesh must not trigger a fake camera rescue');
+      metal.opacity=1;structure.visible=false;
+      assert.equal(sample(f,[0,2,6],[0,2,0],{architectureRoots:[structure]}).score,0,
+        'GPU-hidden shaft is not a visually occluding architecture');
+      assert.equal(sample(f,[0,2,6],[0,2,0],{architectureRoots:[f.roof]}),null,
+        'do not score a real platform twice as a structural proxy');
+      assert.equal(sample(f,[0,2,6],[0,2,0],
+        {architectureRoots:[structure,other,new THREE.Group()]}),null,
+        'strictly bounded maximum two authentic architecture subtrees');
+      assert.equal(JSON.stringify([f.source,f.held]),original,
+        '3D visibility never mutates the real 20Hz player, floor or last crossing');
+    }finally{geometry.dispose();metal.dispose();f.geometry.dispose();f.material.dispose();}
+  }
+});
+test('runtime samples only first-F9 source structural owners with dual-subject full-body clearance',()=>{
+  const fs=require('node:fs');
+  const world=fs.readFileSync(path.resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
+  const scene=fs.readFileSync(path.resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+  assert.match(world,/stagedVoidArchitecture\.root\.visible/);
+  assert.match(world,/deferredDistantArrival\?\.structuralRoot/);
+  assert.match(world,/sourceEarnedBearingSightlineRoot=supportRoot/);
+  assert.match(world,/architectureRoots,originalGateRoot:held\.originalGateRoot/);
+  assert.match(scene,/sourceStructuralBlockedRays:successorArchitectureBlockedRays/);
+  assert.match(scene,/candidate\.score<bestScore/);
+});
