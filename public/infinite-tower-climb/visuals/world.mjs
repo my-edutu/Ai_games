@@ -976,6 +976,27 @@ export function clockworkCapActionClearSpan(theme,height) {
   return {pylons,geology,overheadLinks};
 }
 
+// P0: The far *original* Void shoulder can be shared with the still-visible
+// source-earned bronze gate without bringing an opaque foreground pier into
+// the same climber/guardian sightline. This chooses from the EXISTING F9
+// authoring geometry only; it cannot authorize a crossing or build a floor.
+export function sourceEarnedFarSideButtressIndex(routeAngle,pylons){
+  if(!Number.isFinite(routeAngle)||!Array.isArray(pylons)||pylons.length<2)
+    return null;
+  const offsets=[0,1].map(i=>{
+    const p=pylons[i];
+    if(!p||![p.a,p.r,p.R,p.top,p.bottom].every(Number.isFinite))return null;
+    if(p.r<15||p.R<=0||p.top<=p.bottom)return null;
+    return Math.abs(Math.atan2(Math.sin(p.a-routeAngle),
+      Math.cos(p.a-routeAngle)));
+  });
+  if(offsets.some(x=>x===null))return null;
+  const index=offsets[0]>=offsets[1]?0:1;
+  // The source actor occupies the forward 25m annulus. Preserve a generous
+  // lateral angular opening and do not force a distant pylon on a bad source.
+  return offsets[index]>=.85?index:null;
+}
+
 export function createTowerWorld(){
   const group=new THREE.Group();group.name='InfiniteTowerWorld';
   const stoneSurface=createStoneSurfaceAsset(THREE);
@@ -1474,21 +1495,28 @@ export function createTowerWorld(){
       const posts=instanced(core,bevel(),materials.stone,supports);
       posts.name='VoidOpenCoreRearLoadPosts';posts.userData.structural=true;
   }
-  function buildVoidOpenBearingPylon(body,p,shoulder) {
+  function buildVoidOpenBearingPylon(body,p,shoulder,mode='complete') {
         // The violet outer buttresses previously formed three enormous
         // opaque shafts across the new-floor and retained-door camera rays.
         // Rebuild them as supported arches with rear bearing posts, low
         // exterior stanchions and upper tension members. The authentic F9
         // platform/hazard geometry remains untouched and fully opaque.
         const baseY=-15,topY=shoulder+3,corner=p.R*.71;
-        const foundation=lathe(body,[[0,p.bottom],[p.R*.74,p.bottom],
-          [p.R*.95,p.bottom+2],[p.R*.94,-19],
-          [p.R*.76,baseY],[0,baseY]],materials.stone);
-        foundation.name='VoidOpenButtressFooting';
-        foundation.userData.structural=true;
-        const roof=lathe(body,[[p.R*.45,topY-1],[p.R*.59,topY-.5],
-          [p.R*.59,topY+1],[p.R*.45,topY+1.5]],materials.stone);
-        roof.name='VoidOpenButtressCrown';roof.userData.structural=true;
+        // Only the rear bracing and slim ties enter the first F9 return.
+        // The heavy original footing/crown are built once, *later*, under
+        // the already-source-gated deferred architecture owner. This is the
+        // SAME authored physical pylon split at its construction joints.
+        if(mode!=='first-frame'){
+          const foundation=lathe(body,[[0,p.bottom],[p.R*.74,p.bottom],
+            [p.R*.95,p.bottom+2],[p.R*.94,-19],
+            [p.R*.76,baseY],[0,baseY]],materials.stone);
+          foundation.name='VoidOpenButtressFooting';
+          foundation.userData.structural=true;
+          const roof=lathe(body,[[p.R*.45,topY-1],[p.R*.59,topY-.5],
+            [p.R*.59,topY+1],[p.R*.45,topY+1.5]],materials.stone);
+          roof.name='VoidOpenButtressCrown';roof.userData.structural=true;
+        }
+        if(mode==='deferred-masses')return;
         const uprights=[];
         for(const sx of [-1,1])for(const sz of [-1,1]){
           const tip=sz<0?topY:Math.min(10,topY-9);
@@ -1566,7 +1594,20 @@ export function createTowerWorld(){
     // Void finish on source-owned departure. The full source F9 ground,
     // moving decks, hazards and actor are unaffected.
     buildVoidOpenCoreLoadPath(height,frame,'first-frame');
-    return {root:frame,pylonIndex:null,deferredPylonIndex:nearest,
+    // An empty successor silhouette on the first real F9 GPU return caused
+    // native film to show a bronze chamber, then an unrelated violet shaft.
+    // Carry one genuine FAR-SHOULDER F9 bearing beside the original opened
+    // gate in the SAME scene/submission, at its existing authored transform.
+    // Never move the nearest foreground pylon into the skinned action lane.
+    const farIndex=sourceEarnedFarSideButtressIndex(routeAngle,pylons);
+    if(farIndex!==null){
+      const p=pylons[farIndex],body=new THREE.Group();
+      radial(body,p.a,p.r,0);
+      body.name='SourceEarnedFirstFrameFarSideVoidButtress';
+      frame.add(body);
+      buildVoidOpenBearingPylon(body,p,p.top-8,'first-frame');
+    }
+    return {root:frame,pylonIndex:farIndex,deferredPylonIndex:nearest,
       coreDeferred:false,coreDrawn:true,runToken:snapshot.runToken};
   }
   function buildTower(height,openClockworkPylons=false){
@@ -1622,14 +1663,16 @@ export function createTowerWorld(){
     const capStructure=clockworkCapActionClearSpan(theme,height);
     const pylons=capStructure.pylons;
     for(const [i,p]of pylons.entries()){
-      // This existing nearest buttress was already constructed alongside the
-      // source-retained original gateway; do not create another one later.
-      if(theme==='void' && height>30 &&
-         stagedVoidArchitecture?.pylonIndex===i)continue;
+      // One physically FAR F9 pylon's real steelwork already belongs to the
+      // first source-earned GPU room. Build ONLY its original heavy masses
+      // here; the other two full authentic pylons remain deferred as before.
+      const firstFrameSteel=theme==='void' && height>30 &&
+        stagedVoidArchitecture?.pylonIndex===i;
       const body=new THREE.Group();radial(body,p.a,p.r,0);root.add(body);body.name='tapered-structural-pylon';
       const shoulder=p.top-8;
       if(theme==='void' && height>30) {
-        buildVoidOpenBearingPylon(body,p,shoulder);
+        buildVoidOpenBearingPylon(body,p,shoulder,
+          firstFrameSteel?'deferred-masses':'complete');
       } else if(openClockworkPylons) {
         // Original 390x844 native footage at a0146896 still shows a real
         // 'tapered-structural-pylon' cutting through the living guardian.

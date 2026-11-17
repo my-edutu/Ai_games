@@ -61,6 +61,44 @@ function next(){
       width:480000,height:cap.height}],
     enemies:[],player:{...body,groundedPlatformId:'f9:ground'}};
 }
+test('first earned F9 WebGL room shares a genuinely far-side Void structural bearing with the original HP-open bronze gateway',async()=>{
+  const [{createTowerWorld,sourceEarnedFarSideButtressIndex}]=await loaded;
+  const source=old(),arrival=next(),world=createTowerWorld();
+  const unchanged=JSON.stringify([source,arrival]);
+  try{
+    assert.equal(sourceEarnedFarSideButtressIndex((gate/480000-.5)*2.2,
+      [{a:-.66,r:16.8,R:4.9,bottom:-31,top:52},
+        {a:.67,r:16.65,R:5.25,bottom:-35,top:42}]),0);
+    assert.equal(sourceEarnedFarSideButtressIndex(0,
+      [{a:-.66,r:16.8,R:4.9,bottom:-31,top:52},
+        {a:.67,r:16.65,R:5.25,bottom:-35,top:42}]),null,
+      'do not stage an unsafe near-side pylon without angular clearance');
+    world.update(source,.05,0,{quality:'low'});
+    assert.equal(world.stageGroundedCapContinuation(source,arrival),true);
+    world.update(arrival,.05,.05,{quality:'low'});
+    const first=world.group.getObjectByName('SourceEarnedFirstFrameFarSideVoidButtress');
+    assert.ok(first?.isGroup,'source-earned first F9 room now contains the far original successor bearing');
+    assert.ok(first.getObjectByName('VoidOpenButtressRearPiersAndFrontStanchions') ||
+      first.children.some(child=>child.name==='rigid-material-batch'),
+      'original source geometry is present as Three.js meshes or batched steelwork');
+    assert.ok(world.group.getObjectByName('AuthoritativeGuardianGate')?.isGroup,
+      'the same genuine HP-open old guardian doorway remains co-owned');
+    assert.ok(world.group.getObjectByName('platform:f9:ground')?.isGroup,
+      'actual Floor9 landing physics/rendered geometry is never deferred');
+    assert.equal(world.group.getObjectByName('deferred-original-floor-nine-architecture'),undefined,
+      'the expensive noninteractive shell is still absent before the first returned frame');
+    assert.equal(world.diagnostics().deferredDistantArrival.actualFirstFrameVoidBearingIndex,0);
+    world.noteFrameSubmitted(arrival,{quality:'low'},.05);
+    world.update(arrival,.05,.1,{quality:'low'});
+    assert.ok(world.group.getObjectByName('deferred-original-floor-nine-architecture')?.isGroup,
+      'only a returned actual F9 submission begins construction of other masses');
+    assert.equal(world.group.getObjectByName('SourceEarnedFirstFrameFarSideVoidButtress')===first,true,
+      'original far bearing is not rebuilt or replaced during deferred uploads');
+    assert.equal(JSON.stringify([source,arrival]),unchanged,
+      'no scene transition is permitted to alter authoritative source snapshots');
+  }finally{world.dispose();}
+});
+
 test('one real returned Floor8 renderer frame prepares bounded original gallery BEFORE the cold Floor9 rebuild and transfers exact same-owned geometry',async()=>{
   const [{createTowerWorld}]=await loaded;
   const first=old(),second=next(),world=createTowerWorld();
