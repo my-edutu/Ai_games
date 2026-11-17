@@ -32,6 +32,7 @@ on:
       - tests/browser/dungeon-d04-av-evidence.cjs
       - tests/browser/dungeon-d04-capture-profile.cjs
       - tests/foundation/dungeon-d04-single-primary-encoder.test.cjs
+      - tests/foundation/dungeon-physical-feedback-preview-integration.test.cjs
       - tests/browser/dungeon-d04-real-feedback-observation.cjs
       - tests/browser/dungeon-d04-impact-submission-witness.cjs
       - tests/browser/dungeon-d04-source-start-correlation.cjs
@@ -108,7 +109,8 @@ jobs:
             tests/foundation/dungeon-d04-simultaneous-verified-impact-foley.test.cjs \
             tests/foundation/dungeon-d04-simultaneous-verified-swing-foley.test.cjs \
             tests/foundation/dungeon-physical-feedback-d04.test.cjs \
-            tests/foundation/dungeon-physical-feedback-realism-d04.test.cjs
+            tests/foundation/dungeon-physical-feedback-realism-d04.test.cjs \
+            tests/foundation/dungeon-physical-feedback-preview-integration.test.cjs
       - run: npm run build
   real-preview:
     runs-on: ubuntu-24.04

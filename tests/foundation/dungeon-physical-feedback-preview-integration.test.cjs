@@ -27,7 +27,8 @@ test('combat audio is suppressed only for D04 preview while ambient and reward c
  for(const channel of ['weapon','ranged','magic','impact','block','evade','interrupt','counter','boss']){
   assert.ok(sound.includes("'"+channel+"'"),channel+' must be excluded from duplicate output');
  }
- assert.match(sound,/combatEffectsInput:\(\)=>started&&enabled\?fxBus:null/);
+ assert.match(sound,/physicalFoleyBus\.connect\(fxBus\)/);
+  assert.match(sound,/combatEffectsInput:\(\)=>started&&enabled\?\(suppressCombat\?physicalFoleyBus:fxBus\):null/);
  assert.match(app,/attachAudioContext\(ambience,\{output:soundstage\.combatEffectsInput\(\)\}\)/);
 });
 
@@ -102,7 +103,11 @@ test('D04 consent-preloaded PCM module is observed before actual A/V and authent
  assert.match(browser,/timeout:20000/,'bounded browser module preflight');
  assert.match(browser,/sampleSynchronized:false/);
  assert.match(browser,/authorityUnchangedBeforeRealInjury:true/);
- assert.match(browser,/AUTHENTIC_DAMAGE_NOT_VISUALLY_ADMITTED/);
+ const classifier=read('tests/browser/dungeon-d04-real-feedback-observation.cjs');
+  assert.match(classifier,/AUTHENTIC_DAMAGE_NOT_VISUALLY_ADMITTED/,
+   'the strict authentic damage classifier must retain its explicit RED outcome');
+  assert.match(browser,/classifyAuthenticD04RenderObservation\(\{/,
+   'a real browser receipt, not a literal string in the test body, decides the RED outcome');
  assert.match(browser,/\.toBe\('VISUAL_ADMITTED_NOT_AV_VERIFIED'\)/,
   'module-resolution telemetry must not bypass the still-RED real-damage gate');
 });
