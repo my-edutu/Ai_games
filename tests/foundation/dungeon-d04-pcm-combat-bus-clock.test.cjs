@@ -51,7 +51,7 @@ test('D04 FX-only PCM uses real consented FX bus, not ambient master; records co
   assert.equal(stage.enable(),true);
   const p=stage.recordOriginalPcm(.5,{source:'d04-combat-fx'});
   assert.equal(processors.length,1);
-  assert.equal(gains.length,4,'D04 creates one unity-gain physical output node');
+  assert.equal(gains.length,6,'D04 adds exactly one bus beyond legacy and two existing bed voices');
   assert.equal(stage.combatEffectsInput(),gains[3],'D04 original sound uses its isolated output');
   assert.equal(gains[3].gain.value,1,'physical foley loudness unchanged');
   assert.ok(gains[3].links.includes(gains[2]),'D04 foley feeds old FX once');
@@ -109,7 +109,7 @@ test('legacy soundstage cannot opt into D04-only combat PCM and stays on origina
   const result=await p;
   assert.equal(result.captureBus,'original-master-mix');
   assert.equal(result.captureTopology,'legacy-master-mix-v1');
-  assert.equal(gains.length,3,'legacy audio graph remains unchanged');
+  assert.equal(gains.length,5,'legacy keeps three buses and two existing bed voices');
  }finally{stage.dispose()}
 });
 
