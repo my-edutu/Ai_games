@@ -15,3 +15,7 @@ The focused tests cover first-seen parries, skipped ticks, cross-run ghosts, hid
 ## Unmet fixed visual bar and next work
 
 This is a consequential **gameplay-camera release**, not an art win. Next largest gap remains a clearly composed original Pip–Thornback physical court with an actually solved key/pressure/gate interaction, unmistakable at native mobile scale. Reject any new scene attempt that only changes small decorative pixels or camera position without actual gameplay clarity. PR #53 stays open/draft; do not merge/deploy/force-push.
+
+### Exact-HEAD first CI failure, retained strong regression invariants
+
+The first Pass451 exact-HEAD native CI (#44089812469) failed before WebGL capture on three pre-existing source-contract checks. These asserted explicit same-run/public visibility gates and presence of the source-parried guardian in the camera selection. The source now **retains each original precondition** and ANDs it with the stronger consecutive public witness and finite director clock; no prior test, minimum bound or assertion was deleted or weakened. New source/test must be retested at this corrected HEAD. Native render and critic still pending.

@@ -58,7 +58,7 @@ test('real renderer releases hero, guardian rig, camera and scenery together',()
   assert.ok(source.includes('const activeEarnedCounter=!result'));
   assert.ok(source.includes('publicGuardianCounterStageActive('));
   assert.ok(source.includes('if (activeEarnedCounter && separation < earnedCounterDistance)'));
-  assert.ok(source.includes('const counterPhase=activeEarnedCounter'));
+  assert.ok(source.includes('const counterPhase=lanternParried && entry.counterSince!==null && activeEarnedCounter'));
   assert.ok(source.includes('const actorAttention=activeEarnedCounter'));
   assert.ok(source.includes('const earnedDuelContinuity ='));
   assert.ok(source.includes('const earnedGuardianFrame=!!earnedCounterModel'));

@@ -528,7 +528,15 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // The same consecutive public testimony used by the HUD is the ONLY
       // permitted start of physical recoil, camera focus and stage animation.
       // Skipped ticks, first-seen parries and hidden guardians cannot earn it.
-      const earned=previouslyTracked && entry.lanternParried!==true
+      const earlier = previousWardenSnapshot?.runToken === snapshot.runToken
+        ? previousWardenSnapshot.threats?.find(t=>t.id===threat.id) : null;
+      const earned = previouslyTracked && entry.lanternParried!==true
+        && threat.lanternParried===true && earlier?.lanternParried!==true
+        && Number.isSafeInteger(earlier?.cell)
+        && previousWardenSnapshot.visibleCells?.includes(earlier.cell)
+        && snapshot.visibleCells?.includes(threat.cell)
+        // The stronger exact consecutive public HUD event gates the same
+        // older per-render safeguards, not the other way around.
         && witnessedCounterMoment?.id===threat.id
         && witnessedCounterMoment.cell===threat.cell;
       if(earned){entry.counterSince=gateVisualTime;entry.counterCell=threat.cell;}
@@ -601,7 +609,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // camera lock on a once-parried patrol. The follow camera must return
       // to actual autonomous travel, new threats and discovered objectives.
       // Require the same presently visible post-counter cell as the HUD.
-      const activeEarnedCounter=!result
+      const activeEarnedCounter=!result && entry.lanternParried === true
         && publicGuardianCounterStageActive(
           entry.counterSince,entry.counterCell,entry.cell,
           entry.lanternParried,gateVisualTime)
@@ -661,7 +669,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       const lanternParried=!result && entry.lanternParried;
       // One contiguous physical compress -> recoiling shell -> recovery
       // performance on this EXISTING 3D actor and its actual public patrol root.
-      const counterPhase=activeEarnedCounter
+      const counterPhase=lanternParried && entry.counterSince!==null && activeEarnedCounter
         ?clamp((gateVisualTime-entry.counterSince)/PUBLIC_GUARDIAN_COUNTER_SECONDS,0,1):null;
       const counterPlant=counterPhase===null?0
         :Math.max(0,1-Math.abs(counterPhase-.20)/.20);
