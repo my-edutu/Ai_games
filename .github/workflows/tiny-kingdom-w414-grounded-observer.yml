@@ -1,4 +1,4 @@
-name: Tiny Kingdom W419 Civic Rendering Spine and Real Workday
+name: Tiny Kingdom W420 Lived Workskin and Credited Market Footage
 on:
   pull_request:
     paths:
@@ -10,6 +10,7 @@ on:
       - 'tests/browser/tiny-kingdom-w417-civic-source-bounds.spec.cjs'
       - '.github/workflows/tiny-kingdom-w414-grounded-observer.yml'
       - 'scripts/tiny-kingdom-w419-civic-one-pass-contract.cjs'
+      - 'scripts/tiny-kingdom-w420-continuous-workskin-contract.cjs'
   workflow_dispatch:
 permissions:
   contents: read
@@ -33,6 +34,8 @@ jobs:
         with:
           node-version: '22'
           cache: npm
+      - name: W420 RED first — live workskin / earned grain original mesh contract
+        run: node scripts/tiny-kingdom-w420-continuous-workskin-contract.cjs
       - name: W419 source-executed civic road one-pass and full-geometry contract
         run: node scripts/tiny-kingdom-w419-civic-one-pass-contract.cjs
       - name: Original civic road, GPU fallback and true core integration contracts
