@@ -2485,7 +2485,7 @@ export function createTowerScene(canvas, settings = {}) {
   // Incremental corrective shoulder uses only actually built platform
   // triangles and the final camera; it has no authoritative gameplay owner.
   let successorDeckCameraProbes=0,successorDeckCameraRescues=0;
-  let successorDeckCameraLastGain=0;
+  let successorDeckCameraLastGain=0, successorArchitectureBlockedRays=0;
   let originalGatewaySubmittedCamera=null;
   let originalGatewayCameraBridgeAccepted=0,originalGatewayCameraBridgeVetoed=0;
   const guardianOrbitPreviousCamera = new THREE.Vector3();
@@ -4819,6 +4819,12 @@ export function createTowerScene(canvas, settings = {}) {
         thresholdGate,targetPlatform?.id??null);
       if(existingDeckView?.active && existingDeckView.score>0) {
         successorDeckCameraProbes=Math.min(1000000,successorDeckCameraProbes+1);
+        // The full-body ray can now strike the ACTUAL source-owned F9
+        // first-frame Void bearing or later shaft, not only its landing deck
+        // and original guardian gate. These are actual intersections and do
+        // not establish native video visibility or 3D renderer performance.
+        successorArchitectureBlockedRays=Math.min(1000000,
+          successorArchitectureBlockedRays+(existingDeckView.architectureBlockedRays||0));
         thresholdPreviousCamera.copy(camera.position);
         thresholdPreviousGaze.copy(lookAt);
         const initialAzimuth=Math.atan2(camera.position.x,camera.position.z);
@@ -5767,7 +5773,8 @@ export function createTowerScene(canvas, settings = {}) {
       successorDeckCamera: {probes:successorDeckCameraProbes,
         accepted:successorDeckCameraRescues,
         lastRealTriangleScoreGain:successorDeckCameraLastGain,
-        limitation:'Real successor-deck triangle raycasts only, not actual native video, performance or acceptance'},
+        sourceStructuralBlockedRays:successorArchitectureBlockedRays,
+        limitation:'Real successor decks, genuine first-F9 bearings, deferred shaft and HP-open original gate triangle rays; not native video, FPS or acceptance'},
       portraitAimCorrections,
       jointShotApplications,
       jointShotLastGain: Number(jointShotLastGain.toFixed(4)),
