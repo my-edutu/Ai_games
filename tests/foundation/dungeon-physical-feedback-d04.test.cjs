@@ -1246,3 +1246,58 @@ test('D04 submits independently verified HP injury on its first eligible frame i
   assert.equal(legacyArt.length,0,'non-preview delayed presentation contract remains unchanged');
  }finally{legacy.dispose()}
 });
+
+
+test('D04 refuses untrusted real HP observation clocks BEFORE allocating impact GPU slots, preserving valid and clockless paths',async()=>{
+ const {createPhysicalCombatFeedback}=await load('physical-combat-feedback.js');
+ const snapshot=(tick,hp)=>snap(tick,{units:[hero(),foe({hp})]});
+ async function scenario(mode){
+  let now=10;
+  const emitted=[],retired=[],started=[];
+  const visual={
+   advance(){},emit(cue){emitted.push(cue);return true},
+   retireStaleCue(id,reason){retired.push({id,reason});return 1},
+   reset(){},dispose(){},stats(){return {active:emitted.length}}
+  };
+  const foley={
+   enable(){return true},disable(){},cleanup(){},flush(){},dispose(){},
+   emit(cue){started.push(cue);return true},stats(){return {}}
+  };
+  const feedback=createPhysicalCombatFeedback({
+   visualAdapter:visual,audioAdapter:foley,requirePresentedFrame:true,
+   ...(mode==='clockless'?{}:{clock:()=>now})
+  });
+  try{
+   feedback.acceptSnapshot(snapshot(10,30));
+   assert.equal(feedback.enableAudioFromGesture(),true);
+   if(mode==='regressed'){
+    feedback.acceptSnapshot(snapshot(11,30)); // Establish trusted clock.
+    now=9; // Authenticated HP decrease arrives with a backwards clock.
+    feedback.acceptSnapshot(snapshot(12,21));
+   }else{
+    if(mode==='missing')now=NaN;
+    feedback.acceptSnapshot(snapshot(11,21));
+   }
+   now=10.02; // Clock recovers BEFORE the next genuine visual pass.
+   feedback.advance(.016,.016);
+   const damageEmissions=emitted.filter(c=>c.kind==='damage'||c.kind==='damage-fatal');
+   if(mode==='missing'||mode==='regressed'){
+    assert.equal(damageEmissions.length,0,
+     'unknown original HP observation time must never transiently allocate contact art');
+    assert.equal(feedback.stats().expiredQueuedCues,1,
+     'fail closed in the D04 pending queue, before WebGL retirement is needed');
+    assert.equal(feedback.stats().awaitingPresentation,0);
+   }else{
+    assert.equal(damageEmissions.length,1,
+     'genuine timely injury and explicitly clockless legacy adapter still stage normally');
+   }
+   feedback.retireStaleBeforeRender();
+   feedback.acknowledgePresentedFrame(1,.005);
+   if(mode==='missing'||mode==='regressed')
+    assert.equal(started.length,0,'no late or unverified injury sound can start');
+   assert.equal(retired.length,0,
+    'untrusted impact must not need a later GPU repair after being emitted');
+  }finally{feedback.dispose()}
+ }
+ for(const mode of ['missing','regressed','valid','clockless'])await scenario(mode);
+});
