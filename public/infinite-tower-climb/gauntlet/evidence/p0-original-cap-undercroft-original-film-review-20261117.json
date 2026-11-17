@@ -1,0 +1,78 @@
+{
+  "stage": "P0_EVIDENCE_GAME_LOOP_TRUTH",
+  "status": "OPEN",
+  "assessorVerdict": "NOT EVALUATED",
+  "source": {
+    "repo": "my-edutu/Ai_games",
+    "branch": "feat/tower-transformation-gauntlet-20261101",
+    "previousHead": "5e95f62908cbf3f6a6dcae171d6c400e348693f1",
+    "baseDraftPR": 58,
+    "candidateDraftPR": 68,
+    "frozenBaseline": "1731b380851162741761c5569e2bc152a0869ca9"
+  },
+  "authenticPriorCapture": {
+    "runUrl": "https://github.com/my-edutu/Ai_games/actions/runs/44025247654",
+    "sourceSHA": "39c35731b61492d23d0d78e07f61a2d6551cb1bc",
+    "qualityWorkflowUrl": "https://github.com/my-edutu/Ai_games/actions/runs/44025565487",
+    "qualityJobsPassed": 10,
+    "qualityJobsTotal": 10,
+    "strictSourceFilmPairing": "FAILED_IN_BOTH_VIEWPORTS",
+    "fullMotionFootageInspected": true,
+    "device": "GitHub Linux Chromium software WebGL; not real device"
+  },
+  "nativeOriginalFootage": {
+    "desktop": {
+      "viewport": "960x600",
+      "hudFloor9Seconds": 26,
+      "sustainedVoidSeconds": 27.5,
+      "observableGapSeconds": 1.5
+    },
+    "portrait": {
+      "viewport": "390x844",
+      "hudFloor9Seconds": 26.25,
+      "sustainedVoidSeconds": 28.5,
+      "observableGapSeconds": 2.25
+    }
+  },
+  "defect": {
+    "severity": "P0_BLOCKER",
+    "moment": "Original 25fps Floor8->9 gateway at 26-29s, especially 390x844",
+    "expected": "Authenticated climber and opened HP-zero guardian doorway remain readable while the real next-floor world enters",
+    "observed": "The F8 bronze cap's actual thick nonwalkable undercroft occupies the foreground over the live F9 skinned climber; old bronze dominates before abrupt sustained violet world",
+    "why": "Current physical camera ray sees original cap but camera candidates cannot consistently clear its large actual bronze skirt; existing per-panel camera alpha protects F9 undersides but not the retained original F8 cap skirts",
+    "change": "Preserve two real guardian-cap nonwalkable skirt triangles across batching; clone only their materials at authenticated F8->9 ownership; feed these exact meshes into existing bounded six-panel final-camera source-owned ray softening alongside nearest successor deck skirts",
+    "limitations": "Not validated by new normal-speed captures. Does not yet resolve cold Void shaft upload, source↔WebM event alignment or prove video acceptance."
+  },
+  "testsPlanned": [
+    "tests/phase3/tower-original-cap-skirt-sightline.test.cjs",
+    "exact-head Tower Phase3/Phase6 CI",
+    "new source-pinned 9-job full-motion baseline/candidate capture"
+  ],
+  "reviewCounts": {
+    "looks": {
+      "independent": 0,
+      "required": 5
+    },
+    "feels": {
+      "independent": 0,
+      "required": 5
+    },
+    "plays": {
+      "independent": 0,
+      "required": 5
+    }
+  },
+  "realDevices": "NOT EVALUATED",
+  "nextHighestImpact": "Run exact-head source-pinned desktop/portrait original 60+s footage; inspect full-motion climber/cap old gateway after F9 HUD, verify old top and guardian remain solid, source+video event timestamps, renderer tails. If source-grounded crossing still cuts 1.5–2.25s before real Void, reopen P0 synchronous shell warmup/staging before moving to P1.",
+  "sourceSHA": "PENDING_ATOMIC_COMMIT",
+  "newCapture": "NOT YET RUN",
+  "newCI": "NOT YET RUN",
+  "restrictions": {
+    "neverMerge": true,
+    "neverDeploy": true,
+    "neverForcePush": true,
+    "preserveDraft": true,
+    "doNotModifyPR58": true,
+    "preserveFrozenBaseline": true
+  }
+}

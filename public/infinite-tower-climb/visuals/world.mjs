@@ -1325,7 +1325,12 @@ export function createTowerWorld(){
       if(p.traveler)batchRigid(p.traveler);
       if(p.countergear)batchRigid(p.countergear);
       if(p.actuator)batchRigid(p.actuator);
-      batchRigid(p.root,new Set([p.traveler,p.countergear,p.actuator,p.gearVisual].filter(Boolean)));
+      // The old guardian cap's genuine non-walkable side panels must remain
+      // individual ray-queryable TRIANGLES across the real source crossing.
+      // The rest of the cap, every other source platform and all its gameplay
+      // components retain the normal rigid batching and unchanged physics.
+      batchRigid(p.root,new Set([p.traveler,p.countergear,p.actuator,
+        p.gearVisual,p.originalCapSkirtOwner].filter(Boolean)));
     }
     for(const e of hazards.values()){
       batchRigid(e.live,new Set(e.spin?[e.spin]:[]));
@@ -2355,6 +2360,22 @@ export function createTowerWorld(){
       outerUnderMaterial,[0,h-.64,0]);
     const innerUnder=mesh(root,sector(22.5,26.97,angle,.10),
       innerUnderMaterial,[0,h-.74,0]);
+    // Keep ONLY the genuine guardian-cap's two non-walkable bronze side
+    // skirts as separate authored meshes. Ordinary decks still batch.
+    // A later, source-authenticated Floor8->9 crossing can then clear
+    // real foreground TRIANGLES without ever fading the collision-aligned
+    // landing top, guardian gate, or retained physical cap rim.
+    const originalCapSkirtOwner=guardianCap && p.id==='f8:cap'
+      ?new THREE.Group():null;
+    if(originalCapSkirtOwner){
+      originalCapSkirtOwner.name='OriginalSourceF8CapNonWalkableSkirts';
+      root.add(originalCapSkirtOwner);
+      originalCapSkirtOwner.add(outerUnder,innerUnder);
+      for(const skirt of [outerUnder,innerUnder]){
+        skirt.userData.ambientDetail=true;
+        skirt.castShadow=false;
+      }
+    }
     if(sourceOwnedUndercroft){
       sourceOwnedUndercroft.push(
         {mesh:outerUnder,material:outerUnderMaterial,tint:bodyMaterial},
@@ -2699,6 +2720,7 @@ export function createTowerWorld(){
     }
     platforms.set(p.id,{root,angle,width:p.width,height:p.height,
       capMaterials,capLandingMaterial,arrivalSurface,sourceOwnedUndercroft,
+      originalCapSkirtOwner,
       // The actual F9 support has its own original bronze-to-violet materials;
       // shared crystals, danger indicators and future landing platforms do not.
       arrivalPalette:arrivalSurface?arrivalRoutePalette:null,
@@ -2854,6 +2876,15 @@ export function createTowerWorld(){
   function retireEarnedCap() {
     if (!retainedEarnedCap) return;
     const held = retainedEarnedCap;
+    // Retire the exact original-cap skirt materials from the final-camera
+    // ray list before disposing their owned source meshes. Never leave an
+    // obsolete owner in the next source run's camera material state.
+    if(held.originalCapUndercroft?.length){
+      const retiring=new Set(held.originalCapUndercroft);
+      for(let index=lastProtectedUndercroftEntries.length-1;index>=0;index--)
+        if(retiring.has(lastProtectedUndercroftEntries[index]))
+          lastProtectedUndercroftEntries.splice(index,1);
+    }
     // A verified passage may end early (death, new run, changed location).
     // Restore the real F9 ground's canonical void material in that same
     // frame; never leave a historical bronze tint on an unrelated route.
@@ -3065,6 +3096,28 @@ export function createTowerWorld(){
         existingMesh.renderOrder = 2;
       }
     }
+    // The SOURCE-OWNED old cap has a real walkable top and two distinct,
+    // non-walkable exterior skirts. Keep its original two actual skirt
+    // meshes (never copy geometry), and give only their shaders independent
+    // camera-ray alpha under the already verified guardian victory.
+    // Its top/rim, gate, collision, moving platforms and source records
+    // remain opaque and unmodified. A detached/batched skirt is NOT eligible.
+    const originalCapUndercroft=[];
+    const oldSkirts=sourceEntry.originalCapSkirtOwner;
+    if(oldSkirts?.parent===root && oldSkirts.children.length===2 &&
+       oldSkirts.children.every(mesh=>mesh.isMesh &&
+         mesh.material && !Array.isArray(mesh.material))){
+      for(const skirt of oldSkirts.children){
+        const tint=skirt.material;
+        const material=tint.clone();
+        material.name='SourceEarnedOriginalF8NonWalkableSkirt';
+        material.transparent=false;material.opacity=1;
+        material.depthWrite=true;
+        floorMaterials.add(material);
+        skirt.material=material;
+        originalCapUndercroft.push({mesh:skirt,material,tint});
+      }
+    }
     // Retain the SAME connected original structural pixels, but do not
     // synchronously rescan all Floor8 triangles during the cold first F9
     // render if a genuine prior Clockwork frame already prepared them.
@@ -3132,6 +3185,7 @@ export function createTowerWorld(){
       // The genuine F8 cap itself, not only the separately retained gate,
       // can cover the real F9 climber in portrait. Never duplicate this mesh.
       originalCapSightlineRoot:root,
+      originalCapUndercroft,
       originalGalleryTriangles:gallery?.faces ?? 0,
       originalGalleryEnvelope:gallery?.envelope ?? null,
       originalGalleryBytes:gallery?.bytes ?? 0,
@@ -4535,6 +4589,11 @@ export function createTowerWorld(){
     // The original gate and actor are both protected; landing tops stay
     // completely opaque. No source-bound original arch -> no soft deck.
     const undercroftEntries=[];
+    const originalCapUnder=lastSnapshot?.floor===9 &&
+      lastSnapshot?.runToken===retainedEarnedCap?.runToken &&
+      retainedEarnedCap?.guardianGateRetained===true &&
+      retainedEarnedCap?.originalCapUndercroft?.length===2
+        ?retainedEarnedCap.originalCapUndercroft:null;
     if(Array.isArray(lastSnapshot?.platforms)){
       const sourceActor=lastSnapshot.player;
       const candidates=lastSnapshot.platforms
@@ -4548,9 +4607,13 @@ export function createTowerWorld(){
             (p.id===sourceActor.groundedPlatformId?-25:0)
         }))
         .sort((a,b)=>a.score-b.score);
-      for(const candidate of candidates.slice(0,3))
+      // Two real former-cap skirts take priority when the old bronze roof
+      // physically occludes the actor in narrow portrait. Keep exactly
+      // six maximum active skirts: former F8 cap (2) + nearest F9 decks (4).
+      for(const candidate of candidates.slice(0,originalCapUnder?2:3))
         undercroftEntries.push(...platforms.get(candidate.id).sourceOwnedUndercroft);
     }
+    if(originalCapUnder)undercroftEntries.push(...originalCapUnder);
     if(lastProtectedUndercroftEntries.length){
       const selected=new Set(undercroftEntries);
       const noLongerProtected=lastProtectedUndercroftEntries
