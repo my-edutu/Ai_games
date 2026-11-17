@@ -328,6 +328,43 @@ export function observedSourceEarnedEarlyVoidShaftAperture(source, held, job) {
 }
 
 
+// P0 coherent far-side first paint. In original 1x gameplay, slow WebGL may
+// consume the near-sill 6–60m interval while uploading the REAL Floor9 shell.
+// The climber then stands on a source-authoritative farther F9 deck, the
+// opened original F8 gateway is still actually GPU-retained, but the whole
+// new-world load path remains culled until a later, unrelated-looking frame.
+// Admit the ALREADY BUILT original noninteractive load path beside that gate
+// on the next returned submission. Never manufacture a platform, render
+// receipt, crossing, victory, camera pose or violet full-screen replacement.
+export function observedSourceSupportedVoidFirstPaint(source, held, job) {
+  const near=observedSourceEarnedEarlyVoidShaftAperture(source,held,job);
+  if(near?.sourceBound===true)return near;
+  const far=observedEarnedFarSideShaftOverlap(source,held,job);
+  if(far?.sourceBound!==true ||
+     far.sourceTick!==source?.tick ||
+     far.incomingReturnedFrames!==0 ||
+     held?.opticalExitSubmitted===true ||
+     !job || job.structureDeferred!==true ||
+     !['awaiting-void-biome-build','awaiting-structural-release',
+       'awaiting-structural-submission','awaiting-vista-submission'].includes(job.state) ||
+     !valid(held.firstWorldRenderTick) ||
+     !valid(held.submittedFrames) || held.submittedFrames<1 ||
+     !valid(job.sourceTick) ||
+     job.sourceTick!==held.firstWorldRenderTick ||
+     !valid(job.structureBuiltAtSubmitted) ||
+     job.structureBuiltAtSubmitted<1 ||
+     !valid(job.submittedFrames) ||
+     job.submittedFrames<job.structureBuiltAtSubmitted ||
+     job.submittedFrames>12 ||
+     !valid(job.structuralVisibleReturns) ||
+     job.structuralVisibleReturns!==0) return null;
+  return {sourceBound:true,sourceTick:source.tick,
+    alpha:far.grounded?.26:.20,
+    basis:'genuine-far-side-supported-route',
+    originalGatewayRetained:true,
+    limitation:'Already-built original Floor9 structural geometry and genuine supported far-side body; native pixels, WebGL return and visual acceptance remain unverified'};
+}
+
 // P0 source-earned CROSSING CLEARANCE, distinct from a cosmetic old-room fade.
 // The genuine post-guardian first Floor 9 view currently retains all massive
 // non-colliding F8 gallery braces at near-full opacity while the returned
