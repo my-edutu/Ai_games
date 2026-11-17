@@ -7137,11 +7137,8 @@ test('RED: native 390px sparse Walking_A swing may spend the existing two probes
   {sourceInstanceSame:false},{sourceFootTrackVerified:false},
   {sourceAnatomicalFootAxisVerified:false},{sourceWeight:.8},
   {alive:false},{visible:false},{reducedMotion:true},{interrupted:true},
-  {teleport:true},{rootTravel:0},{frameInterval:.245},
-  {starterTrials:[gate.starterTrials[0],{
-    ...gate.starterTrials[1],after:after(.024219,.029,.{
-    })}]}
- ])if(!bad.starterTrials) {
+  {teleport:true},{rootTravel:0},{frameInterval:.245}
+ ]) {
   assert.equal(starter({...gate,...bad}),null,
    'original source probe eligibility must refuse missing authority, source or cadence');
   assert.equal(followups({...gate,...bad,starter:witnessed}),null,
