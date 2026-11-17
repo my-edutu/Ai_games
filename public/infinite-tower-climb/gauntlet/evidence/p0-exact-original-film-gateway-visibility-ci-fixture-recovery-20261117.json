@@ -76,7 +76,7 @@
   },
   "realDeviceFrameTimes": "NOT EVALUATED",
   "realDeviceMemory": "NOT EVALUATED",
-  "nextHighestImpactAction": "Confirm latest exact-source Three.js threshold-gallery and moving-deck CI; then target a coherent real Floor8 bronze gateway/complete hero/physically supported F9 first render and verify consecutive genuine native video frames, not more cosmetic/test theater",
+  "nextHighestImpactAction": "Inspect new exact-source quality results and genuine 25fps desktop/portrait original 60s+ danger sequence; compare real source crossing to two CONSECUTIVE painted frames with complete climber, authentic opened bronze gateway and supported F9 ground/raised route. If old brown columns or shaft first paint still disrupt, reopen real F8 gallery geometry and GPU-stage scheduling. P0 stays open.",
   "frozenBaselineModified": false,
   "pr58Modified": false,
   "merged": false,
@@ -84,24 +84,34 @@
   "forcePushed": false,
   "prDraftPreserved": true,
   "latestExecution": {
-    "kind": "P0 verifiable test-execution blocker repair across actual hazard/deck and original structural gallery test fixtures",
-    "sourceSha": "05448be2abc7c3201193a90526658144a49a240e",
-    "firstFixSha": "72e4ced9dfb4e7836f7893411a1a39af07e4a829",
+    "kind": "P0 genuine supported Floor9 route / original Void first-frame structural co-visibility",
+    "precedingCleanQualitySha": "64c920f7ced22eda02c3d44c3e28a206ee77cfa4",
+    "regressionFirstTestCommit": "8ef442a6303c02263f513e203e5137c1ed89678f",
+    "sourceProofCommit": "d52434259ec52ed955bdf12a42e44220d711f83b",
+    "realWorldPresentationCommit": "25c4d6f73ba4d0f4f6f8c4ec56a4a3dcbc980fc1",
+    "realPlayableChange": true,
+    "concreteOutcome": "The genuine source-owned Floor9 Void load-bearing shell, already built after a returned gateway scene frame, can now enter the same real 3D scene while the HP-zero old bronze doorway is still retained even if a slow renderer skipped the previous near-sill 6–60m source window. Requires a same-run recorded crossing, actual supported far-side F9 body, genuine returned old gateway and unpainted previously built structural geometry. Never creates floor/platform/actor/collider, fake video, synthetic shader scene or source event.",
+    "gameplayAuthority": "Unmodified immutable 20Hz simulation, real guardian/crusher/collisions/ground/moving decks/restart; presentation-only original structure visibility.",
+    "performance": "No new geometry, shader programs, render passes, sources or audio; previously culled real original shaft now draws at max 0.26 alpha when source-proven. GPU first-return and device p50/p95/p99/memory remain NOT EVALUATED.",
+    "tests": "Added source-proof, negative cross-run/ghost-gate/unsupported route tests and real world update/returned-frame wiring contract. Remote exact-source tests pending; test-first red was authored but its failure not executed locally because shared workspace tunnel unavailable.",
+    "precedingFootage": "https://github.com/my-edutu/Ai_games/actions/runs/44162896161",
     "lastInspectedPlayableFilmSha": "8134b2c6395a18eb318b0a35501d08cb7602c1e8",
-    "ci": "https://github.com/my-edutu/Ai_games/actions/runs/44180560337 (phase3 shard1 FAILED; new commit requires exact-head rerun)",
-    "sourceContract": "Full 3D geometry / hazard tests were not executed when original relative module could not resolve from /tmp; two actual original-world test import pipelines corrected without mocking world or touching game files",
-    "testResults": "Remote exact-head CI failure observed prior to second fix; latest correction CI NOT YET VERIFIED",
-    "newNativeCapture": null,
-    "actualPlayableChange": false,
-    "biggestExperienceGap": "Original baseline/candidate real-motion footage still fails strict source-aligned gateway co-visibility and shows 1.75-second delayed Void in both viewports",
+    "observedDefect": "Same prior source film: Floor9 HUD leads sustained visible Void by 1.75s both 960x600 desktop and 390x844 portrait; opaque bronze foreground obscures complete climber+real gateway+walkable F9. 0/2 strict source-to-video matched.",
+    "newNativeCapture": "NOT YET CAPTURED; source-pinned request to be issued after evidence/review commit",
     "reviewers": {
       "LOOKS": "0/5",
       "FEELS": "0/5",
       "PLAYS": "0/5"
     },
-    "realDeviceFrameTime": "NOT EVALUATED",
+    "realDeviceFrameTimes": "NOT EVALUATED",
     "realDeviceMemory": "NOT EVALUATED",
     "leadingTransformationVerdict": "NOT EVALUATED",
-    "nextAction": "Confirm latest exact-source Three.js threshold-gallery and moving-deck CI; then target a coherent real Floor8 bronze gateway/complete hero/physically supported F9 first render and verify consecutive genuine native video frames, not more cosmetic/test theater"
-  }
+    "nextAction": "Inspect new exact-source quality results and genuine 25fps desktop/portrait original 60s+ danger sequence; compare real source crossing to two CONSECUTIVE painted frames with complete climber, authentic opened bronze gateway and supported F9 ground/raised route. If old brown columns or shaft first paint still disrupt, reopen real F8 gallery geometry and GPU-stage scheduling. P0 stays open."
+  },
+  "lastConfirmedExactHeadQuality": {
+    "sourceSha": "64c920f7ced22eda02c3d44c3e28a206ee77cfa4",
+    "workflow": "https://github.com/my-edutu/Ai_games/actions/runs/44181393625",
+    "result": "SUCCESS 10/10 jobs; CI is a veto, not native film or stage acceptance"
+  },
+  "currentPlayableSourceSha": "25c4d6f73ba4d0f4f6f8c4ec56a4a3dcbc980fc1"
 }
