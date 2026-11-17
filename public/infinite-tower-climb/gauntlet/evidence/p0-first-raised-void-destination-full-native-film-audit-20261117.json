@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "leadingTransformationVerdict": "NOT EVALUATED",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "verifiedBranchAtInspection": "174cb9f7b74847cf3e882007b131ad1e3aa6690e",
+  "productionCodeCommits": [
+    "a10642447032d508e3a5654037eeffeb98d123fb",
+    "ca4b665abb373c9a862578a586029227a2e2e275",
+    "e5ff300576443ac42154d75c544b6ea7ea6e60ae",
+    "c636769044f445e0eaad3064592c5c754f2d3752"
+  ],
+  "sourceAtEvidenceRequest": "c636769044f445e0eaad3064592c5c754f2d3752",
+  "oldCandidateSourceSha": "e51b36fbea012b64e510f12c28cd5cb7eebcbb8e",
+  "oldCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44068454608",
+  "originalArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44068454608/artifacts/14321118289",
+  "eventPairArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44068454608/artifacts/14321832115",
+  "inspectedOriginalFullMotion": {
+    "originalWebmPreserved": true,
+    "normalSpeedOneToOne": true,
+    "viewports": {
+      "desktop": "960x600 at 25fps, 72.16 seconds",
+      "portrait": "390x844 at 25fps, 73.44 seconds"
+    },
+    "desktop": {
+      "sourceEarnedCrossingNativePtsSeconds": 24.076,
+      "firstPaintedFloorNineHudSeconds": 26,
+      "sustainedVoidPaintSeconds": 28.5,
+      "hudToVoidSeconds": 2.5,
+      "firstReturnedWebglAfterSourceMs": "Source/browser and browser/render separately recorded; approximate source-to-first-visible delay 1.9s",
+      "verifiedOldOpenedGateAndWholeBodyTwoFrames": false
+    },
+    "portrait": {
+      "sourceEarnedCrossingNativePtsSeconds": 24.448,
+      "firstPaintedFloorNineHudSeconds": 26.25,
+      "sustainedVoidPaintSeconds": null,
+      "sustainedVoidStatus": "NOT EVALUATED by the strict chroma classifier; visual samples remain bronze-dominated past the first F9 HUD",
+      "verifiedOldOpenedGateAndWholeBodyTwoFrames": false
+    },
+    "nativeCodeEventPairing": "FAILED 0/2; native-scene-phase confirmation absent baseline and candidate",
+    "retainedGatewayOriginalReturnedFrames": {
+      "desktop": 1,
+      "portrait": 1
+    },
+    "originalAtoBSourceAsymmetry": "Frozen baseline danger recording does not observe genuine guardian-source-defeated, physical threshold or earned handoff, whereas candidate does; never invent those matching baseline source events.",
+    "primaryDefect": "Long source crossing-to-composited-pixel gap plus first F9 brown platform dominance; original bronze foreground still obscures actual skinned body and earned gate. Post-crossing next-biome destination is not legible in enough consecutive native frames."
+  },
+  "compositorSamplingAudit": {
+    "currentStride": 12,
+    "priorStride": 2,
+    "currentDesktop": {
+      "deliveredJpegs": 24,
+      "retainedCompositorFrames": 15
+    },
+    "currentPortrait": {
+      "deliveredJpegs": 29,
+      "retainedCompositorFrames": 17
+    },
+    "inference": "Reduced nominal sampling did not establish any latency improvement; no claims of causal FPS or native improvement."
+  },
+  "significantSystemChange": "The source-earned bronze material lease is now limited to the actual same-height grounded receiving platform. The real F9 raised/moving destinations remain original Void-colored via two shared floor-owned cloned PBR materials; source-owned successor camera-ray softening for real raised deck skirts is retained. Actual source runToken owns the material creation, not a potentially stale preceding browser frame. No added route, geometry, gameplay authority or encounter clock.",
+  "testEvidence": "New source-unit and shared material independence tests at tests/phase3/tower-original-clockwork-architecture-palette.test.cjs; exact-head quality CI pending, not a pass",
+  "newOriginalFootage": "NOT YET CAPTURED — request must be source-pinned to exact immutable capture commit",
+  "independentCritics": {
+    "LOOKS": "0/5",
+    "FEELS": "0/5",
+    "PLAYS": "0/5"
+  },
+  "realDeviceMemoryAndP50P95P99": "NOT EVALUATED",
+  "safety": {
+    "frozenBaselineUnchanged": true,
+    "pr68Draft": true,
+    "pr58Untouched": true,
+    "merged": false,
+    "deployed": false,
+    "forcePushed": false
+  },
+  "nextHighestImpact": "Inspect the next exact candidate native desktop and portrait full-motion videos at source F8 guardian defeat→grounded doorway→raised original Void platforms; require 2 consecutive source-matched full-body/gate/real F9 frames, no worsened occlusion or cut. If still failed, prioritize renderer first-paint latency and physical camera source film—not more material adjustments. Do not advance to P1."
+}
