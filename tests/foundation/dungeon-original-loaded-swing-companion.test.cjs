@@ -255,3 +255,56 @@ test('RED: a measured knee-biased coupled-leg candidate can supersede a gentler 
  assert.equal(choose({...input,reducedMotion:true,trials}),null);
  assert.equal(choose({...input,sourceInstanceSame:false,trials}),null);
 });
+
+
+test('RED: actual 17 Nov source loaded-stance proof cannot block a certified opposite three-joint trial',async()=>{
+ const {planOriginalSourceCoupledFootStarter:plan,
+  qualifyOriginalSourceLoadedStanceCompanion:qualify}=await load();
+ // Current successful original-GLB native evidence: Actions #44026505076,
+ // 390px original-sole-hand, moving Vanguard tick 4. BEFORE shoe Y/XZ
+ // and observed two reversible hip/knee Y deltas are REAL. The same-frame
+ // corrected trial endpoints were not retained, so XZ trial endpoints
+ // below are deliberately unchanged TEST FIXTURES, not a foot-lock claim.
+ const original={
+  left:{heelY:.1892907499903583,toeY:-.10902769829719822,
+   heelXZ:[-5.916862276157013,-7.09819251499003],
+   toeXZ:[-5.974403611383031,-7.065151969390551]},
+  right:{heelY:-.04367564098229761,toeY:-.04395863361982173,
+   heelXZ:[-5.964261663520712,-7.24625794161531],
+   toeXZ:[-6.2354609653139415,-7.235480226648034]}
+ };
+ const observed=[[-.011243465110824608,-.03192170633354621],
+  [.02084800772740744,.028416972055301193]];
+ const starterTrials=observed.map(([toe,heel],i)=>({
+  upperRad:i?-.12:.12,lowerRad:i?.09:-.09,
+  after:{left:{...original.left,toeY:original.left.toeY+toe,
+   heelY:original.left.heelY+heel},
+   right:{...original.right}}
+ }));
+ const candidate=plan({mode:'move',sourceClipName:'Walking_A',
+  sourceWeight:1,sourceInstanceSame:true,ownerLocomotion:true,
+  alive:true,visible:true,reducedMotion:false,teleport:false,
+  interrupted:false,previousLinkedCertified:false,
+  rootTravel:.05,frameAge:.05,frameInterval:.1001,
+  floorTopY:-.02,side:'left',before:original,starterTrials});
+ assert.equal(candidate?.source,'actual-original-source-three-joint-swing-opportunity');
+ assert.equal(candidate?.sign,-1);
+ assert.equal(candidate?.contactLocked,false);
+ assert.ok(candidate.excessHeelRiseMeters>.007&&candidate.excessHeelRiseMeters<.008);
+ const certified=qualify(options);
+ assert.equal(certified?.loadedShoePreserved,true);
+ assert.equal(qualify({...options,sourceInstanceId:'stale-source'}),null);
+ const source=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const begin=source.indexOf('function stageOriginalSourceSwingLinkedLegAfterMixer(');
+ const end=source.indexOf('function stageRigLegsAfterMixer(',begin);
+ assert.ok(begin>=0&&end>begin);
+ const stage=source.slice(begin,end);
+ assert.match(stage,/loadedStanceProof&&!companion\?'loaded-stance-owns-frame'/,
+  'a SAME-frame independently certified loaded shoe may coexist with a separately skinned swing trial');
+ const coupled=stage.slice(stage.indexOf('if(kneeFootCoupled){'),
+  stage.indexOf('const selected=chooseOriginalSourceSwingLinkedLegTrial('));
+ assert.match(coupled,/const finalCompanion=loadedStanceProof\?qualifyOriginalSourceLoadedStanceCompanion\(/,
+  'do not retain a new three-joint pose without rechecking the loaded shoe at FINAL skinned readback');
+ assert.match(coupled,/loadedStanceProof&&!finalCompanion/,
+  'reject new three-joint correction if the accepted opposite loaded ankle no longer matches its own receipt');
+});
