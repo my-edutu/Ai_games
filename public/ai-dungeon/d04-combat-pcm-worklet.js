@@ -11,12 +11,16 @@ class D04OriginalFoleyPcmProcessor extends AudioWorkletProcessor {
   this.limit=Number.isSafeInteger(requested)&&requested>=2048&&requested<=960000?requested:0;
   this.samples=new Int16Array(this.limit);
   this.written=0;this.blocks=0;this.discontinuities=0;this.invalidClocks=0;
-  this.firstFrame=null;this.expectedFrame=null;this.active=this.limit>0;
+  this.firstFrame=null;this.expectedFrame=null;this.active=this.limit>0;this.awaitingStop=false;
   this.port.onmessage=e=>{if(e.data?.type==='stop')this.active=false};
  }
  process(inputs,outputs){
   for(const channel of outputs[0]??[])channel.fill(0);
   if(!this.active)return false;
+  // Preserve the transferable PCM delivery until the main thread explicitly
+  // acknowledges it; the browser may be inside a multi-second WebGL call.
+  // The already-zeroed output remains silent and no further samples accrue.
+  if(this.awaitingStop)return true;
   const source=inputs[0]?.[0];
   const quantum=outputs[0]?.[0]?.length??source?.length??128;
   if(!Number.isSafeInteger(quantum)||quantum<1||quantum>2048){
@@ -36,13 +40,13 @@ class D04OriginalFoleyPcmProcessor extends AudioWorkletProcessor {
   }
   this.written+=count;
   if(this.written===this.limit){
-   this.active=false;
+   this.awaitingStop=true;
    const buffer=this.samples.buffer;
    // A SINGLE bounded transfer, not thousands of main-thread audio events.
    this.port.postMessage({type:'complete',buffer,frames:this.written,
     firstFrame:this.firstFrame,blocks:this.blocks,invalidClocks:this.invalidClocks,
     discontinuities:this.discontinuities},[buffer]);
-   return false;
+   return true;
   }
   return true;
  }
