@@ -23,7 +23,7 @@ test('original WebGL 390 motion guardian and Pip entire physical boxes get a saf
  assert.equal(shift(1.2,h,real,true,false),0);
  assert.equal(shift(aspect,h,[real[0]],true,false),0);
  assert.equal(shift(aspect,h,[{...real[0],left:NaN},real[1]],true,false),0);
- assert.equal(shift(aspect,h,[{...real[0],left:-1.2},real[1]],true,false),
+ assert.equal(shift(aspect,h,[{...real[0],left:-1.2},real[1]],true,false),0,
    'cannot hide a physically unfit model by changing camera');
  assert.equal(shift(aspect,h,[{...real[0],left:-.58,right:.05}, {...real[1],right:.7}],true,false),0);
  assert.ok(source.includes('const motionPairShift=publicGuardianMotionPortraitPairShift('));

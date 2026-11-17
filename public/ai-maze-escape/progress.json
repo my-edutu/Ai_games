@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-17T14:49:05.621Z",
+  "updatedAt": "2026-11-17T14:50:42.880Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass456 repairs confirmed syntax error in the source-bound full-physical-actor camera test on PR HEAD e349412e; previous exact-HEAD WebGL and whole CI failed before native captures. Pass455 new camera/foreclaws native shot and strict six-reset budget MUST still be re-tested; no visual/artistic success claimed. Fixed Captain Toad benchmark unmet."
+    "summary": "Pass456b: first missing-bracket test parser fixed, but exact e349 test had second malformed negative assertion; exact db5d6dfe CI now failed because descriptive test message was treated as expected string instead of zero. This commit fixes the test ONLY, retaining the strict actual public physical pan. Native 320/390/844/1280 WebGL and six-reset gate pending, Nintendo quality benchmark unmet."
   },
   "captures": [
+    {
+      "title": "Pass456b CI 44107329886 identified malformed negative-test expected arg, no source-bound browser imagery; repair pending fresh exact-HEAD",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44107329886"
+    },
     {
       "title": "Pass456 pre-repair exact-HEAD native workflow stopped in test parser, not renderer; re-capture pending",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44105708752"
