@@ -145,7 +145,8 @@ test('source-authentic grounded F9 threshold shares bronze only until its destin
 });
 test('real F9 world uses shared original successor corridor materials on near route, not global crystal or danger warning channels',()=>{
   const world=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
-  assert.match(world,/observedOriginalClockworkSuccessorDeck\(p,retainedEarnedCap,lastSnapshot\?\.runToken\)/);
+  assert.match(world,/observedOriginalClockworkSuccessorDeck\(p,retainedEarnedCap,sourceRunToken\)/);
+  assert.match(world,/buildPlatform\(p,snapshot.worldWidth,sourceGateCap,snapshot.runToken\)/);
   assert.match(world,/updateOriginalClockworkSuccessorRoute\(arrivalRoutePalette,\s*sourceAlignedMaterialProof,opticalTail\)/);
   assert.match(world,/const sourceAlignedMaterialProof=returnedBronzePaletteLock\?\{/,
     'a source-verified returned old GPU owner must keep the real near-roof route and monumental world in one painted room');
