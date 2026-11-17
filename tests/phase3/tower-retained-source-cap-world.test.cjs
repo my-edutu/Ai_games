@@ -684,8 +684,16 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
         shaftOpacity.push(object.material.opacity);
     });
     assert.ok(shaftOpacity.length>0 &&
-      shaftOpacity.every(opacity=>opacity>0 && opacity<=.24),
-      'only the bounded optical aperture may be staged for a later render, not opaque scenery or claimed native pixels');
+      shaftOpacity.some(opacity=>opacity>0 && opacity<=.24) &&
+      shaftOpacity.every(opacity=>opacity>=0 && opacity<=.24),
+      'only the real load-bearing shell may stage a bounded optical aperture; new detail must remain non-opaque until a later returned render');
+    const deferredDetail=hiddenShaft.getObjectByName('deferred-authentic-floor-nine-biome-details');
+    assert.ok(deferredDetail?.isGroup && deferredDetail.visible===false,
+      'authentic biome detail must not steal the first source-authenticated shell shot');
+    const details=[];
+    deferredDetail.traverse(mesh=>{if(mesh.isMesh && mesh.material?.name==='SourceEarnedIncomingFloorNineShaft') details.push(mesh.material.opacity);});
+    assert.ok(details.length>0 && details.every(value=>value===0),
+      'unreturned crystal details remain truly invisible, not a counterfeit already-painted room');
     assert.equal(world.diagnostics().vistaLayers,0);
     assert.ok(!sharedSurface.material.color.equals(firstGroundColor),
       'a genuine observed 10,000-unit step beyond the old sill, not WebGL wall-time, blends the real landing toward void');
@@ -997,10 +1005,13 @@ test('source-earned Floor9 paints one actual open Void load path beside the reta
     const incomingMeshes=[];
     newShaft.traverse(o=>{if(o.isMesh)incomingMeshes.push(o);});
     assert.ok(incomingMeshes.length>0 &&
-      incomingMeshes.every(mesh=>mesh.material?.opacity===0 ||
-        (Array.isArray(mesh.material) &&
-          mesh.material.every(material=>material.opacity===0))),
-      'real core and pylons have independent zero-opacity deferred materials, never hide the real F9 platforms');
+      incomingMeshes.every(mesh=>!Array.isArray(mesh.material) ?
+        mesh.material?.opacity>=0 && mesh.material?.opacity<=.28 :
+        mesh.material.every(material=>material.opacity>=0 && material.opacity<=.28)),
+      'real supported source departure permits at most 28% scenic shell while genuine F9 route stays opaque');
+    const newDetails=newShaft.getObjectByName('deferred-authentic-floor-nine-biome-details');
+    assert.ok(newDetails?.isGroup && newDetails.visible===false,
+      'the separately built original crystal details cannot claim a GPU-returned frame they have not received');
     assert.ok(newShaft.getObjectByName('tapered-structural-pylon'),
       'the actual new exterior buttresses must still be constructed after departure');
     const deferredOriginalOwners=[];
