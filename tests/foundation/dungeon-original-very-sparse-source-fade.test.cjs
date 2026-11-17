@@ -46,3 +46,37 @@ test('very sparse fade rejects stationary, invalid, unwitnessed, hidden or disru
  ])assert.equal(mixer({...base,...patch}),.05,
   'no additional source fade from untrusted native gait: '+JSON.stringify(patch));
 });
+
+
+// Exact native ORIGINAL CC0 source receipt, Actions #44194705323,
+// artifacts dungeon-full-body-original-sole-hand-desktop.json, tick 6:
+// legal root moved 0.4400000000000004m in 1.983300000000007s,
+// previous source clip Idle -> Walking_A, real fade planner returned .23s.
+// This is one recorded interval and real travel, not combined samples.
+// RED-first expected .09s whole ORIGINAL skeleton fade; source distance
+// clock, loaded shoe, attachments and gameplay are NOT modified here.
+test('RED-first: genuine 1.9833-second, 440mm original desktop root travel accelerates the entire 41-joint source fade',async()=>{
+ const {planImportedRealTravelCrossfade:fade,
+  planImportedLivingSourceStep:step}=await load();
+ const frame={mode:'move',previousMode:'idle',sourceClipName:'Walking_A',
+  ownerLocomotion:true,groundedMoving:true,
+  groundedTravel:.4400000000000004,frameInterval:1.983300000000007,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false};
+ assert.equal(fade(frame),.09,
+  'actual licensed GLB movement must not leave the whole rig on 230ms Idle crossfade');
+ const source=step({mode:'move',walkingClip:true,sourceDuration:1.0416666666666667,
+  effectiveSpeed:1.25,sourceTime:.16,frameInterval:frame.frameInterval,
+  groundedTravel:frame.groundedTravel,groundedMoving:true,teleport:false,
+  reducedMotion:false,visible:true,frameDelta:.05});
+ assert.equal(source,.28,
+  'real rooted distance, never accelerated mixer-fade time, owns original walking knees and soles');
+ for(const patch of [{alive:false},{visible:false},{teleport:true},
+  {interrupted:true},{reducedMotion:true},{ownerLocomotion:false},
+  {groundedMoving:false},{groundedTravel:0},{groundedTravel:.02},
+  {groundedTravel:.6},{frameInterval:3.1},{previousMode:'attack'},
+  {sourceClipName:'Idle'}, {frameInterval:NaN}]){
+  assert.equal(fade({...frame,...patch}),.23,
+   'must preserve old fade when unqualified: '+JSON.stringify(patch));
+ }
+});
