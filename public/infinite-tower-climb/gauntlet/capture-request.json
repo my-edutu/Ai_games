@@ -5661,5 +5661,41 @@
     "independentLookFeelPlay": "0/5 each",
     "trueDeviceFrameTimeAndMemory": "NOT EVALUATED",
     "noMergeDeployForcePushOrBaselineChange": true
+  },
+  "p0SourceVisibleActualF9StructuralRayCameraRescue20261117": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "immutableBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionCameraCommit": "a0fd54afe4748f4b05d56a45b2cb9b82df2f8caf",
+    "exactCandidateSha": "IMMUTABLE github.sha OF THIS CAPTURE REQUEST commit; not floating PR68 HEAD",
+    "sourceRegressionsCommit": "57326f1b0e75eea188808fa862ebd659ce806d6b",
+    "reviewedPriorSha": "f2697eb8edc5a05ddab9c29918f4d3d236bb3d96",
+    "priorNineJobCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44012048402",
+    "candidateNativeDefect": "Original 1x native film candidate: Floor9 HUD precedes sustained Void visible shaft by desktop 2.00s / portrait 1.75s; original steel silhouettes bury skinned actor. Strict native-event matches failed 0/2; no subjective acceptance.",
+    "meaningfulProductionChange": "World + source-bound physical raycaster + live camera rescue now score actual first-F9 Void buttress, source-authored transition bearing and deferred structural shaft as extra genuine occluders, with original bronze gate and <=3 actually walkable successor decks; candidate camera may move ONLY to genuinely clearer current-source exterior. No collision, model replacement, source tick, floor or synthetic gameplay.",
+    "recordOriginalNativeWebM": true,
+    "requiredSpeed": "original 1x normal 25fps at least 60s per video, unchanged source",
+    "fixedSeed": "tower-transformation-capture-v1",
+    "tier": "low",
+    "scenarios": [
+      "ascent",
+      "moving",
+      "danger",
+      "outcome"
+    ],
+    "viewports": [
+      "960x600 desktop",
+      "390x844 portrait"
+    ],
+    "strictAcceptance": "Require event paired 1x full-motion source vs authentic GPU film; original opened gate, complete skinned hero, actual F9 walkable route and source-built Void shaft together for >=2 consecutive real frames both viewports; floor9->floor10->outcome->restart. Report unmet when baseline lacks paired genuine beats; no manufacture.",
+    "newestEvidenceFile": "public/infinite-tower-climb/gauntlet/evidence/p0-authentic-successor-structural-camera-ray-native-review-20261117.json",
+    "independentReviewers": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualHardwareP50P95P99Memory": "NOT EVALUATED",
+    "next": "Inspect this new exact candidate footage, source/PTS, GPU-return and 3D depth snapshots; if blocking persists fix warm bronze gateway/real shaft render-owner pacing, not cosmetics.",
+    "prohibitedActions": "No merge, deploy, force push, baseline SHA change, PR draft conversion, PR58 rewrite or unrelated games."
   }
 }
