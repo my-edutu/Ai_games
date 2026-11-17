@@ -248,25 +248,3 @@ export function publicGuardianEarnedRecoilRevealElevation(
   // Restore a readable diorama altitude only after the actual counter.
   return Math.max(currentY,23.0);
 }
-
-/** Center only the actual complete publicly witnessed motion guardian and Pip.
- * Exact 390x844 WebGL showed left=-.96558, hero right=+.79715:
- * both FULL silhouettes fit +/- .92 after one camera-right translation.
- * Refuse physically wider, unknown, reduced-motion and non-portrait cases.
- * No model scaling, crop, new WebGL buffers or hidden AI state. */
-export function publicGuardianMotionPortraitPairShift(
-  aspect,halfHeight,bodies,eligible=false,reducedMotion=false) {
-  if(!eligible||reducedMotion||!Number.isFinite(aspect)
-    ||aspect<.35||aspect>=.60||!Number.isFinite(halfHeight)
-    ||halfHeight<=0||!Array.isArray(bodies)||bodies.length!==2)return 0;
-  for(const b of bodies) {
-    if(!b||!['left','right','bottom','top'].every(k=>Number.isFinite(b[k]))
-      ||b.left>=b.right||b.bottom>=b.top||b.top>=.92||b.bottom<=-.92)return 0;
-  }
-  const left=Math.min(bodies[0].left,bodies[1].left);
-  const right=Math.max(bodies[0].right,bodies[1].right);
-  const safe=.92;
-  if(right-left>safe*2||left>=-safe&&right<=safe)return 0;
-  const low=right-safe,high=left+safe,mid=(left+right)*.5;
-  return Math.max(low,Math.min(high,mid))*halfHeight*aspect;
-}

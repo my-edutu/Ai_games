@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-17T14:50:42.880Z",
+  "updatedAt": "2026-11-17T14:58:42.907Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass456b: first missing-bracket test parser fixed, but exact e349 test had second malformed negative assertion; exact db5d6dfe CI now failed because descriptive test message was treated as expected string instead of zero. This commit fixes the test ONLY, retaining the strict actual public physical pan. Native 320/390/844/1280 WebGL and six-reset gate pending, Nintendo quality benchmark unmet."
+    "summary": "Pass457: authenticated new exact-HEAD WebGL 44107651908 yielded 6/8 strict browser checks although build/source tests + unchanged 6-reset geometry <100 passed. Actual 390 new pair camera ±.909 within strict ±.95 but 2.31m public course ray lost; authentic 320 parry Thornback boots occulted by real masonry. Original SHA-verified captures REJECT broad foreclaws/camera. Safely restored only Pass454/455 source and candidate tests to Pass453 baseline; new rollback-HEAD WebGL pending. Official Captain Toad full bar unmet."
   },
   "captures": [
+    {
+      "title": "Pass457 original exact-HEAD 390/320 WebGL rejection: 23/23 sidecar PNG SHA verified, 6/8 strict browser, real course/boots visibility failures",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44107651908/artifacts/14338348813"
+    },
     {
       "title": "Pass456b CI 44107329886 identified malformed negative-test expected arg, no source-bound browser imagery; repair pending fresh exact-HEAD",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44107329886"
