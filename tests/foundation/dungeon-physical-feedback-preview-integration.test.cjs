@@ -82,3 +82,27 @@ test('D04 transitive relative modules are routable in the real stream (not just 
   }
  }
 });
+
+test('D04 consent-preloaded PCM module is observed before actual A/V and authentic HP release without upgrading evidence',()=>{
+ const sound=read('public/ai-dungeon/soundstage.js');
+ const browser=read('tests/browser/dungeon-physical-feedback-preview.spec.cjs');
+ assert.match(sound,/let pcmWorkletModuleState='NOT_REQUESTED'/);
+ for(const state of ['LOADING','RESOLVED','REJECTED'])
+  assert.ok(sound.includes("pcmWorkletModuleState='"+state+"'"),state+' module-promise state');
+ assert.match(sound,/d04PcmModuleState:suppressCombat\?pcmWorkletModuleState:null/);
+ assert.match(sound,/load\.then\(\(\)=>\{/);
+ assert.ok(sound.indexOf('primeD04CombatPcmModule();')>sound.indexOf('function enable(){'));
+ const clicked=browser.indexOf('await button.click();');
+ const preflight=browser.indexOf('const pcmModulePreflight=');
+ const capture=browser.indexOf('const captureStarted=optedIn?');
+ const trueHp=browser.indexOf('ceiling=1;');
+ assert.ok(clicked>=0&&clicked<preflight&&preflight<capture&&capture<trueHp,
+  'promise preflight only after real opt-in and before combined original A/V + genuine authority damage');
+ assert.match(browser,/page\.waitForFunction\(\(\)=>\['RESOLVED','REJECTED'\]/);
+ assert.match(browser,/timeout:20000/,'bounded browser module preflight');
+ assert.match(browser,/sampleSynchronized:false/);
+ assert.match(browser,/authorityUnchangedBeforeRealInjury:true/);
+ assert.match(browser,/AUTHENTIC_DAMAGE_NOT_VISUALLY_ADMITTED/);
+ assert.match(browser,/\.toBe\('VISUAL_ADMITTED_NOT_AV_VERIFIED'\)/,
+  'module-resolution telemetry must not bypass the still-RED real-damage gate');
+});

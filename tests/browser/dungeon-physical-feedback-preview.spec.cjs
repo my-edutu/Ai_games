@@ -811,6 +811,30 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
    {timeout:20000}).toBe(true);
   expect((await page.evaluate(()=>window.__DUNGEON_RENDER_DIAGNOSTICS__?.soundstage?.suppressCombat))).toBe(true);
  }
+ // The real Chrome PCM module previously timed out under WebGL pressure.
+ // Permit the already-consented AudioWorklet module promise to SETTLE before
+ // starting the same genuine A/V + isolated-PCM recording. Authority is
+ // still on the unchanged BEFORE snapshot; we do not invent an event, play
+ // a synthetic audition, extend combat's 400ms limit, or call this PCM proof.
+ const pcmModulePreflight={modulePromise:'NO_AUDIO_OPT_IN',sampleSynchronized:false};
+ if(optedIn){
+  try{
+   await page.waitForFunction(()=>['RESOLVED','REJECTED'].includes(
+    window.__DUNGEON_RENDER_DIAGNOSTICS__?.soundstage?.d04PcmModuleState
+   ),null,{timeout:20000});
+  }catch{
+   // A stalled software renderer or missing worklet may leave this pending.
+   // Preserve that status and attempt the bounded original capture anyway.
+  }
+  pcmModulePreflight.modulePromise=await page.evaluate(()=>
+   window.__DUNGEON_RENDER_DIAGNOSTICS__?.soundstage?.d04PcmModuleState??'UNOBSERVED');
+ }
+ await test.info().attach('d04-consented-pcm-module-preflight.json',{
+  body:Buffer.from(JSON.stringify({
+   ...pcmModulePreflight,
+   meaning:'AudioWorklet.addModule promise state only, not decoded PCM or contact',
+   authorityUnchangedBeforeRealInjury:true
+  },null,2)),contentType:'application/json'});
  // Record the ACTUAL running canvas and spectator's consented original sound
  // before releasing the real HP-loss transition, not a detached audio audition.
  const captureStarted=optedIn?await beginD04LiveAVCapture(page, createD04CaptureProfile()):

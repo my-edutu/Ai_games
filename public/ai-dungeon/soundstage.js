@@ -195,6 +195,8 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
   */
 
  let pcmWorkletModuleLoad=null;
+ // Consent-time MODULE promise evidence only: not PCM output, onset or A/V sync.
+ let pcmWorkletModuleState='NOT_REQUESTED';
  function primeD04CombatPcmModule(){
   // Load only after a fresh user audio opt-in. This creates no sound, no
   // recorder and no audio voices. A later PCM request reuses the same worklet
@@ -203,12 +205,19 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
    ctx.state!=='running'||typeof ctx.audioWorklet?.addModule!=='function'||
    typeof globalThis.AudioWorkletNode!=='function')return;
   try{
+   pcmWorkletModuleState='LOADING';
    const load=Promise.resolve(ctx.audioWorklet.addModule('/dungeon/d04-combat-pcm-worklet.js'));
    pcmWorkletModuleLoad=load;
-   // Optional diagnostic modules must never block gameplay or leak an
-   // unhandled rejection. A failed preload may be retried on a real capture.
-   load.catch(()=>{if(pcmWorkletModuleLoad===load)pcmWorkletModuleLoad=null});
-  }catch{pcmWorkletModuleLoad=null}
+   // A fulfilled addModule promise only certifies module registration.
+   // It is never counted as audio-thread PCM, audible onset or A/V contact.
+   load.then(()=>{
+    if(pcmWorkletModuleLoad===load)pcmWorkletModuleState='RESOLVED';
+   },()=>{
+    if(pcmWorkletModuleLoad===load){
+     pcmWorkletModuleLoad=null;pcmWorkletModuleState='REJECTED';
+    }
+   });
+  }catch{pcmWorkletModuleLoad=null;pcmWorkletModuleState='REJECTED'}
  }
  function recordD04CombatPcmWorklet(seconds,tapBus,sampleRate){
   const maxFrames=Math.ceil(seconds*sampleRate);
@@ -276,10 +285,16 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
    // authentic combat impact admission/sound deadline.
    loadWatchdog=setTimeout(()=>finish('Audio-thread PCM module load timed out'),12000);
    Promise.resolve().then(async()=>{
-    if(!pcmWorkletModuleLoad)
+    if(!pcmWorkletModuleLoad){
+     pcmWorkletModuleState='LOADING';
      pcmWorkletModuleLoad=ctx.audioWorklet.addModule('/dungeon/d04-combat-pcm-worklet.js');
-    try{await pcmWorkletModuleLoad}
-    catch(error){pcmWorkletModuleLoad=null;throw error}
+    }
+    try{
+     await pcmWorkletModuleLoad;
+     if(pcmWorkletModuleState==='LOADING')pcmWorkletModuleState='RESOLVED';
+    }catch(error){
+     pcmWorkletModuleLoad=null;pcmWorkletModuleState='REJECTED';throw error;
+    }
     if(settled)return;
     if(loadWatchdog!==null){clearTimeout(loadWatchdog);loadWatchdog=null}
     if(ctx.state!=='running')return finish('AudioContext stopped before PCM capture');
@@ -490,7 +505,9 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
    enabled,started,disposed,voices:active.length,peakVoices,voiceCap:MAX_VOICES,
    cuesPlayed:played,cuesSuppressed:suppressed,sceneChanges,
    mood:sceneMood?.mood??'unavailable',biome:sceneMood?.biome??null,
-   lastCue,masterGain:MASTER_GAIN,suppressCombat,pendingContactCues:pending.length,contactCuesPlayed,contactCuesDropped,
+   lastCue,masterGain:MASTER_GAIN,suppressCombat,
+   d04PcmModuleState:suppressCombat?pcmWorkletModuleState:null,
+   pendingContactCues:pending.length,contactCuesPlayed,contactCuesDropped,
    foley:foley?.stats()??null,engine:'original-synth-web-audio'
   };
  }
