@@ -5983,5 +5983,38 @@
     "evidencePath": "public/infinite-tower-climb/gauntlet/evidence/p0-source-earned-retired-noncolliding-gallery-native-review-20261117.json",
     "nextAction": "Inspect full-motion original desktop and portrait clips and verified renderer timing; if transition still loses gate/hero, restructure first F9 GPU world startup and camera visibility before P1.",
     "safety": "Preserve frozen baseline, PR58 edits, PR68 draft, no merge/deploy/force push or unrelated games."
+  },
+  "p0OriginalHPGuardianRealRayClimberOcclusionAfterSourceVideo20261117": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionSourceSha": "7371457c00b7a01ff6a9d4b9c1c9e88a1a8cdeaa",
+    "evidenceSourceSha": "b42dcea3116f4eebdeb2254ce930e6f35c86278f",
+    "candidate": "EXACT immutable github.sha of this capture-request commit, never floating PR branch",
+    "video": [
+      "original normal 1x 25fps 960x600",
+      "original normal 1x 25fps 390x844"
+    ],
+    "seed": "tower-transformation-capture-v1",
+    "tier": "low",
+    "completeEpisodes": [
+      "ascent",
+      "moving",
+      "danger guardian and crusher",
+      "outcome and restart"
+    ],
+    "inspectedSourceOriginalVideo": "https://github.com/my-edutu/Ai_games/actions/runs/44077486702/artifacts/14324648903",
+    "observedUneditedDefect": "In actual F8 tick441 desktop source ray, original hp gantry instance29 was at 12.028m, real climber at 17.52m. Original video still 1.75s late bringing violet scene behind F9 HUD in both viewports. Strict native event pairs FAILED 0/2.",
+    "realChange": "Three physical final-camera ray intersections with original drawn living hero now selectively soften only noninteractive source guardian rail at alpha .2, keeping opaque true HP clutches/cap bolts and physical gateway, no gameplay/input change, source-run/token/tick guarded, reset on stale/death/restart.",
+    "mustInspect": "Actual new source and 1x full video 60+ seconds: before/after whether complete live hero appears unobscured amid HP transmission, true guardian/cap win, physical crossing, opened original gateway and real successor route in >=2 matched native frames; negative effects on readability/jitter/material sorting/performance/restart. No subjective thumbs-up without real video.",
+    "qualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44090338037 (pending)",
+    "evidencePath": "public/infinite-tower-climb/gauntlet/evidence/p0-guardian-transmission-real-body-ray-truth-20261117.json",
+    "reviewers": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "device": "NOT EVALUATED",
+    "nextIfFail": "Remain P0; specifically address original gateway and real successor architecture visibility and genuine cold-frame latency. No new cosmetic edit until source/native footage identifies one load-bearing defect."
   }
 }
