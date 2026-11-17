@@ -24,3 +24,23 @@ test('reject invalid, unbounded and nonfinite decoded PCM',()=>{
  const n=pcm(32,()=>NaN,()=>0.001);
  assert.equal(inspectPcm(n).status,'INVALID_STEREO_PCM');
 });
+
+test('actual dual mono is NOT an isolated combat channel despite energy',()=>{
+ const b=pcm(4800,i=>Math.sin(i/11)*0.003,i=>Math.sin(i/11)*0.003);
+ const r=inspectPcm(b);
+ assert.equal(r.status,'COMBAT_FX_CHANNELS_NOT_DISTINCT');
+ assert.equal(r.independentChannelEvidence,false);
+ assert.equal(r.sampleSynchronized,false);
+});
+test('near-identical Opus-like channel leakage must not pass independent-stem proof',()=>{
+ const b=pcm(4800,i=>Math.sin(i/11)*0.003,i=>Math.sin(i/11)*0.003+Math.sin(i/7)*0.000004);
+ assert.equal(inspectPcm(b).status,'COMBAT_FX_CHANNELS_NOT_DISTINCT');
+});
+test('distinct live-style right FX energy remains strictly UNALIGNED',()=>{
+ const b=pcm(4800,i=>0.006*Math.sin(i/7),i=>i>=2000&&i<4000?0.002*Math.sin(i/11):0);
+ const r=inspectPcm(b);
+ assert.equal(r.status,'DECODED_ORIGINAL_FX_STEM_UNALIGNED');
+ assert.equal(r.independentChannelEvidence,true);
+ assert.equal(r.sampleSynchronized,false);
+ assert.equal(r.physicalContactOnsetVerified,false);
+});

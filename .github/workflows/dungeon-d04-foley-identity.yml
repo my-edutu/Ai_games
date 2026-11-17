@@ -158,6 +158,22 @@ jobs:
         env:
           D04_BROWSER_CHANNEL: chrome
           DUNGEON_REQUIRE_MODELS: '1'
+      # Keep Chrome combat playback and the strict red impact gate independent
+      # of package mirrors: only AFTER playback, best-effort decoded PCM proof.
+      # This is deliberately bounded and must not convert absent decoders
+      # or sample energy into passing contact synchronization.
+      - name: Best-effort independent FFmpeg and FFprobe provisioning after playback
+        if: always()
+        timeout-minutes: 3
+        run: |
+          if command -v ffprobe >/dev/null && command -v ffmpeg >/dev/null; then
+            echo "D04 native decoders already available"
+          elif timeout 100s sudo apt-get update -qq && timeout 70s sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends ffmpeg; then
+            command -v ffprobe
+            command -v ffmpeg
+          else
+            echo "::warning::D04 decoder provisioning unavailable; decoded PCM remains UNVERIFIED, authentic Chrome result unchanged"
+          fi
       - name: Decode original left mix and right combat-FX stem when decoders are installed
         if: always()
         run: |

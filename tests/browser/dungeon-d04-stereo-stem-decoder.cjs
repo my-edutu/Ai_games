@@ -11,23 +11,32 @@ function inspectPcm(pcm,{channels=2,sampleRate=SAMPLE_RATE}={}){
    pcm.byteLength===0||pcm.byteLength%8!==0||pcm.byteLength>MAX_SECONDS*SAMPLE_RATE*8)
   return {status:'INVALID_STEREO_PCM',sampleSynchronized:false};
  const frames=pcm.byteLength/8,peak=[0,0],sum=[0,0],above=[0,0],first=[null,null];
+ let channelDifferenceEnergy=0;
  for(let i=0;i<frames;i++)for(let c=0;c<2;c++){
   const v=pcm.readFloatLE(i*8+c*4);
   if(!Number.isFinite(v)||Math.abs(v)>1.01)
    return {status:'INVALID_STEREO_PCM',sampleSynchronized:false};
   const a=Math.abs(v);peak[c]=Math.max(peak[c],a);sum[c]+=v*v;
+  if(c===1){const difference=v-pcm.readFloatLE(i*8);channelDifferenceEnergy+=difference*difference;}
   if(a>0.00005){above[c]++;if(first[c]===null)first[c]=i/SAMPLE_RATE;}
  }
  const rms=sum.map(n=>Math.sqrt(n/frames));
  const distinctCombatStem=peak[1]>.0005&&rms[1]>.000005&&above[1]>=20;
- return {status:distinctCombatStem?'DECODED_ORIGINAL_FX_STEM_UNALIGNED':
-  'COMBAT_FX_STEM_SILENT_OR_UNVERIFIED',
+ // Opus joint-stereo can add tiny per-channel noise to a duplicated mono
+ // source. Right-channel energy alone does NOT prove an isolated FX bus.
+ const channelDifferenceRms=Math.sqrt(channelDifferenceEnergy/frames);
+ const channelsNotDistinct=distinctCombatStem&&
+  channelDifferenceRms<=Math.max(0.00002,Math.max(...rms)*0.025);
+ return {status:!distinctCombatStem?'COMBAT_FX_STEM_SILENT_OR_UNVERIFIED':
+  channelsNotDistinct?'COMBAT_FX_CHANNELS_NOT_DISTINCT':
+  'DECODED_ORIGINAL_FX_STEM_UNALIGNED',
   sampleSynchronized:false,decodedVideoContact:false,physicalContactOnsetVerified:false,
   decoderEvidence:'actual decoded stereo Opus PCM, not oscillator scheduling',
   sampleRate,channels,frames,durationSeconds:frames/sampleRate,
+  channelDifferenceRms,independentChannelEvidence:distinctCombatStem&&!channelsNotDistinct,
   mixLeft:{peak:peak[0],rms:rms[0],samplesAboveNoise:above[0],firstAboveNoiseSeconds:first[0]},
   originalCombatFxRight:{peak:peak[1],rms:rms[1],samplesAboveNoise:above[1],firstAboveNoiseSeconds:first[1]},
-  limitation:'Opus decoding establishes an isolated right-channel original FX stem; without authenticated event-to-encoded-PTS mapping and visible contact it cannot prove injury or audiovisual synchronization'};
+  limitation:'Different stereo channels and decoded FX energy do not identify a gameplay event. Encoded PTS, authenticated impact clock and moving-contact pixels must be aligned separately before claiming physical audiovisual synchronization'};
 }
 function run(input){
  const ffmpeg=process.env.D04_FFMPEG||'ffmpeg';
