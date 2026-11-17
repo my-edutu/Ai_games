@@ -24,6 +24,10 @@ const elements={
   sceneCard:document.getElementById('scene-card'),
   sceneTitle:document.getElementById('scene-title'),
   sceneMessage:document.getElementById('scene-message'),
+  cinemaChapter:document.getElementById('cinema-chapter'),
+  cinemaBiome:document.getElementById('cinema-biome'),
+  cinemaTension:document.getElementById('cinema-tension'),
+  cinemaHunter:document.getElementById('cinema-hunter'),
 };
 const query=new URLSearchParams(location.search);
 const settings={
@@ -39,6 +43,7 @@ if(settings.cleanFeed)elements.broadcast.classList.add('clean-feed');
 let frame=null;
 let lastCaption='The explorer is mapping the nearest frontier.';
 let animationTime=0;
+let lastMinimapRender=0;
 let pollTimer=0;
 let stopped=false;
 
@@ -275,6 +280,7 @@ function update(frameValue){
   const snapshot=frameValue.snapshot;
   if(!snapshot)return;
   window.__MAZE_PUBLIC_STATE__=snapshot;
+  window.dispatchEvent(new CustomEvent('maze:frame',{detail:frameValue}));
   window.__MAZE_VIEW__=computePublicView(snapshot,frameValue.camera);
   elements.tick.textContent=String(snapshot.tick);
   elements.steps.textContent=String(Math.max(0,snapshot.travelledRoute.length-1));
@@ -287,6 +293,14 @@ function update(frameValue){
   elements.confidence.style.width=`${Math.round(snapshot.intent.confidence*100)}%`;
   elements.inventory.textContent=snapshot.inventory.length?snapshot.inventory.join(' • '):'No keys collected';
   elements.profile.textContent=`PROFILE: ${snapshot.profile.toUpperCase()} • L${snapshot.level}`;
+  const themes={tree:'THE FORGOTTEN COURTYARD',loops:'THE VERDANT LABYRINTH',
+    chambers:'THE SUNKEN SANCTUARY',layers:'THE UNDERCRYPT',hunter:'THE WRAITH CITADEL'};
+  elements.cinemaChapter.textContent=`CHAPTER ${String(snapshot.level).padStart(2,'0')} • AUTONOMOUS EXPEDITION`;
+  elements.cinemaBiome.textContent=themes[snapshot.profile]??'THE UNKNOWN MAZE';
+  elements.cinemaTension.textContent=snapshot.threats.length
+    ?'A presence stirs in the corridors.'
+    :snapshot.inventory.length?'Clues gathered. The exit draws closer.':'Every passage hides another possibility.';
+  elements.cinemaHunter.hidden=snapshot.threats.length===0;
   elements.integrity.textContent=`INTEGRITY: ${snapshot.authorityChecksum?'VERIFIED':'CHECKING'}`;
   const captions=frameValue.audio?.captions??[];
   if(captions.length)lastCaption=captions.at(-1);
@@ -331,7 +345,10 @@ async function poll(){
 
 function animate(now){
   animationTime=now;
-  if(frame?.snapshot)draw(frame.snapshot,frame.scene,frame.camera);
+  if(frame?.snapshot && (!window.__MAZE_3D_READY__ || now-lastMinimapRender>160)){
+    draw(frame.snapshot,frame.scene,frame.camera);
+    lastMinimapRender=now;
+  }
   requestAnimationFrame(animate);
 }
 

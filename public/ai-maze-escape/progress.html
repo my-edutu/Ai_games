@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>AI Maze Escape — Live Gauntlet Progress</title>
+  <link rel="stylesheet" href="/maze/progress.css">
+</head>
+<body>
+  <header class="topbar">
+    <a href="/maze">← LIVE GAME</a>
+    <span class="chip"><span class="pulse"></span>GAUNTLET LOOP • REVIEW BUILD</span>
+  </header>
+  <main>
+    <div class="intro">
+      <div><p class="eyebrow">EDUTU / AUTONOMOUS GAMES</p><h1>AI MAZE <em>ESCAPE</em><br>GAUNTLET PROGRESS</h1>
+      <p id="quality-bar">Loading quality bar…</p></div>
+      <div class="verdict"><span>VISUAL QUALITY VERDICT</span><strong id="verdict">UNVERIFIED</strong><small>No blind A/B result has been recorded.</small></div>
+    </div>
+    <section class="metrics" aria-label="Current live game state">
+      <article><span>RUN HEALTH</span><strong id="health">CONNECTING</strong></article>
+      <article><span>SIMULATION TICK</span><strong id="tick">—</strong></article>
+      <article><span>DISCOVERED</span><strong id="discovery">—</strong></article>
+      <article><span>AI DECISION</span><strong id="intent">—</strong></article>
+      <article><span>RENDER MODE</span><strong id="render-mode">WAITING</strong></article>
+      <article><span>FRAME RATE / GPU CALLS</span><strong id="render-performance">—</strong></article>
+      <article><span>CHARACTER MESH / RIG</span><strong id="hero-rig">WAITING</strong></article>
+      <article><span>ENEMY ANIMATION RIG</span><strong id="ghost-rig">WAITING</strong></article>
+      <article><span>SCENE EFFECTS / COLOR</span><strong id="scene-grade">WAITING</strong></article>
+    </section>
+    <div class="columns">
+      <section class="panel" aria-labelledby="live-title">
+        <header><h2 id="live-title">Live build</h2><a href="/maze?cleanFeed=1" target="_blank" rel="noopener">Full view ↗</a></header>
+        <iframe title="Actual running AI Maze Escape live game" src="/maze?cleanFeed=1" loading="lazy"></iframe>
+        <p class="note">This is the real autonomous runtime, not a concept render. Three.js WebGL renders when available; the proven 2D broadcast is retained as a fallback.</p>
+      </section>
+      <section class="panel" aria-labelledby="work-title">
+        <header><h2 id="work-title">Workstream gates</h2><span class="tiny">ONLY EVIDENCED WORK IS COMPLETE</span></header>
+        <ol id="milestones" class="milestones"></ol>
+      </section>
+    </div>
+    <section class="panel scorecard" aria-labelledby="scorecard-title">
+      <header><div><p class="eyebrow">MEASURABLE REFERENCE COMPARISON</p><h2 id="scorecard-title">Where we stand against the Gauntlet</h2></div><span class="quality-legend">Code shipped ≠ reference quality achieved</span></header>
+      <div id="goal-cards" class="goal-grid" aria-label="Gauntlet quality goals"></div>
+    </section>
+    <section class="panel history" aria-labelledby="history-title">
+      <header><h2 id="history-title">Gauntlet rounds & critic findings</h2><span id="last-updated"></span></header>
+      <div id="rounds"></div>
+    </section>
+    <footer>Reference: The Talos Principle 2 • Little Nightmares III • Labyrinthine. No comparison is considered won without actual gameplay captures, independent review, and regression testing.</footer>
+  </main>
+  <script src="/maze/progress.js" defer></script>
+</body>
+</html>
