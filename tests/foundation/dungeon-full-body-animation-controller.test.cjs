@@ -5573,6 +5573,28 @@ test('original linked upper+lower current-frame proof resets and final skinned o
 });
 
 
+test('RED: genuine original coupled foot certificate carries bounded current-frame root-travel age',()=>{
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const start=renderer.indexOf('function stageOriginalSourceSwingLinkedLegAfterMixer(');
+ const end=renderer.indexOf('function stageRigLegsAfterMixer(',start);
+ assert.ok(start>0&&end>start,'inspect only the original imported source leg owner');
+ const section=renderer.slice(start,end);
+ const starts=[...section.matchAll(/actor\\.sourceSwingLinkedCurrentFrameProofs\\[side\\]=\\{/g)]
+  .map(match=>match.index);
+ assert.equal(starts.length,2,'the original linked and original coupled certificates must remain distinct');
+ assert.match(section,/!Number\\.isFinite\\(age\\)\\|\\|age<0\\|\\|age>\\.15/,
+  'the real root-travel age must be finite and inside its existing safety window');
+ for(let i=0;i<starts.length;i++){
+  const close=section.indexOf('};',starts[i]);
+  assert.ok(close>starts[i],'source certificate must close before final frame composition');
+  const receipt=section.slice(starts[i],close+2);
+  assert.match(receipt,/witnessedFrameIntervalSeconds:interval/);
+  assert.match(receipt,/witnessedRootTravelMeters:travel/);
+  assert.match(receipt,/witnessedRootTravelAgeSeconds:age/,
+   'real WebGL accepted source certificate '+i+' must carry the same witnessed age as the original clip gate');
+ }
+});
+
 test('RED: verified slow native swing frame may still clear a buried toe with both source shoes witnessed',async()=>{
  const {chooseOriginalSourceSwingLinkedLegTrial:choose}=await load();
  // Genuine source-rig CI #43577448721 passes both 1721-step films but its
