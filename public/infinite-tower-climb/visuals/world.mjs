@@ -9,7 +9,7 @@ import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceFloorNineRouteSupport, observedSourceRetainedRaisedExit, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS, observedCertifiedOriginalGatewayOpticalLease } from './source-physical-arrival-palette.mjs';
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
-import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn } from './original-clockwork-architecture-palette.mjs';
+import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, createSourceEarnedVoidDepartureMaterials, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections, isolateEarnedFirstFrameVoidMaterials } from './source-earned-bearing-run.mjs';
 import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold, observedSourceEarnedEarlyVoidShaftAperture } from './far-side-shaft-transition.mjs';
 
@@ -1024,6 +1024,7 @@ export function createTowerWorld(){
   // architecture and the SAME world's sky/fog/light. No independent clock.
   let sourceCertifiedHorizon=null;
   let arrivalRoutePalette=null;
+  let realVoidDeparturePalette=null;
   let stagedVoidArchitecture=null;
   // These are real authored Floor9 side-skirts, never the top or collider.
   // Old/new threshold and final-camera protection share this one scoped owner.
@@ -2315,10 +2316,11 @@ export function createTowerWorld(){
     // platform, overlay, collider, route, vertices or gameplay clock.
     // The first actual Floor9 route is one physical successor of the
     // original opened bronze gateway, not a series of unrelated purple decks.
-    // Source-qualified platform tops within 90m of the old roof use THREE
-    // shared, floor-owned materials. Even an early real moving platform shares
-    // this structural family; its mint landing/hazard signals remain bright.
-    // Sharing avoids per-platform shader groups, extra draws and GPU uploads.
+    // The old physically earned gateway continues into the exact-height F9
+    // grounded roof, but higher authentic Void decks are already another
+    // monumental destination. Keep their own original color from first draw,
+    // instead of painting 90m of genuine raised gameplay bronze. Shared
+    // floor-owned materials retain batching and the original shader types.
     const sharedPhysicalRoof=theme==='void' &&
       observedOriginalClockworkSuccessorDeck(p,retainedEarnedCap,lastSnapshot?.runToken);
     if(sharedPhysicalRoof && !arrivalRoutePalette){
@@ -2335,9 +2337,23 @@ export function createTowerWorld(){
         rimVoid:rim.color.clone()};
       top.color.copy(bronze);
     }
+    const realDeparture=theme==='void' && !sharedPhysicalRoof &&
+      p.id?.startsWith('f9:') && p.id!=='f9:ground' &&
+      retainedEarnedCap?.runToken===lastSnapshot?.runToken &&
+      retainedEarnedCap?.guardianGateRetained===true;
+    if(realDeparture && !realVoidDeparturePalette){
+      realVoidDeparturePalette=createSourceEarnedVoidDepartureMaterials(
+        materials,retainedEarnedCap,lastSnapshot?.runToken);
+      if(realVoidDeparturePalette){
+        floorMaterials.add(realVoidDeparturePalette.landing);
+        floorMaterials.add(realVoidDeparturePalette.rim);
+      }
+    }
     const bodyMaterial=sharedPhysicalRoof?arrivalRoutePalette.body:sourceBodyMaterial;
-    const arrivalRim=sharedPhysicalRoof?arrivalRoutePalette.rim:null;
-    const arrivalSurface=sharedPhysicalRoof?arrivalRoutePalette.top:null;
+    const arrivalRim=sharedPhysicalRoof?arrivalRoutePalette.rim:
+      realDeparture?realVoidDeparturePalette?.rim:null;
+    const arrivalSurface=sharedPhysicalRoof?arrivalRoutePalette.top:
+      realDeparture?realVoidDeparturePalette?.landing:null;
     // The genuine early raised Floor9 platform can stand BETWEEN the camera
     // and the real skinned hero during the old bronze gateway handoff.
     // Give only its NON-WALKABLE underside separate bounded material ownership,
@@ -3515,6 +3531,7 @@ export function createTowerWorld(){
     lastRebuildWitness = null;
     stagedVoidArchitecture = null;
     arrivalRoutePalette = null;
+    realVoidDeparturePalette = null;
     sourceEarnedBearingHandoff = null;
     sourceEarnedBearingSightlineRoot=null;
     lastProtectedUndercroftEntries.length=0;
