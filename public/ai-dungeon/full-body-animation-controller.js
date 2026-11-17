@@ -480,7 +480,7 @@ export function planOriginalSourceCoupledFootStarter({
   Math.abs(floorTopY+.02)>.005||
   ![rootTravel,frameAge,frameInterval].every(finite)||
   rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.15||
-  frameInterval<.008||frameInterval>.15||
+  frameInterval<.008||frameInterval>.200001||
   !shoe(before?.[side])||!shoe(before?.[other])||
   !Array.isArray(starterTrials)||starterTrials.length!==2)return null;
  const swing=before[side],loaded=before[other];
@@ -504,7 +504,13 @@ export function planOriginalSourceCoupledFootStarter({
   const heelRise=after[side].heelY-swing.heelY;
   // The measured 8.077mm excess heel rise is now eligible for a BETTER
   // three-joint trial. It never makes the old worse two-joint pose admissible.
-  if(toeLift<.010||toeLift>.055||heelRise<=toeLift+.0075||
+  // Actual two original-GLB frames show heel-rise exceeding toe-rise by
+  // 4.521mm (desktop) and 5.731mm (390px). The former 7.5mm
+  // qualification excluded both, diverting the last two skin samples
+  // into original Idle source blends that further buried the toe.
+  // This ONLY allocates existing hip+knee+foot skinned probes; strict
+  // final original-shoe pitch/opposite-sole acceptance is unchanged.
+  if(toeLift<.010||toeLift>.055||heelRise<=toeLift+.004||
    heelRise>.04||heelRise<0)continue;
   const support=after[other];
   if(Math.abs(support.heelY-loaded.heelY)>.003||
@@ -547,7 +553,7 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
   alive!==true||visible!==true||teleport||reducedMotion||interrupted||
   ![rootTravel,frameAge,frameInterval,floorTopY].every(finite)||
   rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.15||
-  frameInterval<.008||frameInterval>.15||
+  frameInterval<.008||frameInterval>.200001||
   Math.abs(floorTopY+.02)>.005||!opposite||
   !Array.isArray(trials)||trials.length<1||trials.length>2)return null;
  const valid=s=>s&&[s.heelY,s.toeY].every(finite)&&

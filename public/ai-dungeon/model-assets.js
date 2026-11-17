@@ -2872,8 +2872,19 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
    reducedMotion,interrupted:Boolean(actor.fullBody?.interrupted),
    toeY:swing.toeY,heelY:swing.heelY
   });
+  // The original loaded shoe and SAME displayed Walking_A skin prove the
+  // first two hip/knee samples lifted the airborne heel MORE than the toe.
+  // Give an original connected hip+knee+foot candidate FIRST access to the
+  // existing last two native skin reads. In true 1440px and 390px source
+  // footage the licensed Idle reference made burial materially worse.
+  // Eligibility is not pose acceptance: exact original tracks, bind, axis,
+  // opposite sole and post-apply final source skin must still prove safety.
+  const sourceCoupledPriority=!sourceAnkleProof&&!loadedStanceProof&&
+   !previousLinkedCertified?planOriginalSourceCoupledFootStarter({
+    ...owner,starterTrials:trials.slice(0,2)}):null;
   neutralBlends=!sourceAnkleProof&&!priorIdleWorsened?
    planOriginalSourceAuthoredNeutralBlends({...owner,starterTrials:trials}):null;
+  if(sourceCoupledPriority)neutralBlends=null;
   if(priorIdleWorsened)rejectOriginalNeutral(
    'measured-original-idle-phase-worsened-both-soles',
    {originalPhase:sourcePhase,
@@ -2881,9 +2892,12 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
     sameLicensedSourceInstance:true,
     fallback:'original-connected-Walking_A-measured-two-probe-followups'});
   if(!neutralBlends&&!priorIdleWorsened)rejectOriginalNeutral(
-   sourceAnkleProof?'prior-original-ankle-correction-owned':
+   sourceCoupledPriority?'measured-heel-dominant-original-foot-chain-priority':
+    sourceAnkleProof?'prior-original-ankle-correction-owned':
     'source-neutral-planner-not-qualified',
-   {realSourceStarterLifts:trials.slice(0,2).map(t=>({
+   {sourceCoupledPriorityEligible:Boolean(sourceCoupledPriority),
+    sourceCoupledExcessHeelRiseMeters:sourceCoupledPriority?.excessHeelRiseMeters??null,
+    realSourceStarterLifts:trials.slice(0,2).map(t=>({
     sourceToeLiftMeters:t.after?.[side]?.toeY-swing.toeY,
     sourceHeelRiseMeters:t.after?.[side]?.heelY-swing.heelY
    }))});
@@ -2909,9 +2923,10 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   // failing the existing strict net-clearance selector. Retarget only
   // the SAME two source-skin trial slots to source-favorable +0.18/+0.24,
   // with within-contract 0.11rad thigh+calf. Do not soften validation.
-  connectedStarter=!sourceAnkleProof&&!loadedStanceProof&&
-   !previousLinkedCertified?planOriginalSourceCoupledFootStarter({
-    ...owner,starterTrials:trials.slice(0,2)}):null;
+  connectedStarter=sourceCoupledPriority??(!sourceAnkleProof&&
+   !loadedStanceProof&&!previousLinkedCertified?
+    planOriginalSourceCoupledFootStarter({
+     ...owner,starterTrials:trials.slice(0,2)}):null);
   if(connectedStarter){
    const track=foot.bone.name.toLowerCase()+'.quaternion';
    const matches=walk.tracks.filter(t=>typeof t?.name==='string'&&
