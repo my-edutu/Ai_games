@@ -72,35 +72,6 @@ function chooseRoutePressureAlcove(world:MazeWorld,route:number[],offRoute:numbe
   return choices[0]?.trap??null;
 }
 
-// A SECOND optional, genuinely reachable pressure alcove may share the
-// moving guardian's publicly traversable stretch of the journey. This is
-// generation of REAL game hazards in existing reciprocal side passages,
-// not a visual overlay, hidden-map hint, added wall, scripted Pip movement
-// or manipulation of Thornback's patrol. The main route stays trap-free.
-function guardianPressureCompanion(
-  world:MazeWorld,route:number[],
-  guardian:{approachIndex:number;spawn:number;retreat:number},
-  unavailable:Set<number>,
-):number|null{
-  const mainRoute=new Set(route);
-  const options:{approachIndex:number;trap:number}[]=[];
-  const start=Math.max(3,guardian.approachIndex-2);
-  const end=Math.min(route.length-3,guardian.approachIndex+2);
-  for(let i=start;i<=end;i++){
-    const approach=route[i]!;
-    if(unavailable.has(approach))continue;
-    for(const trap of passageNeighbors(world,approach)){
-      if(mainRoute.has(trap)||unavailable.has(trap)
-        ||!passageNeighbors(world,trap).includes(approach))continue;
-      options.push({approachIndex:i,trap});
-    }
-  }
-  options.sort((a,b)=>Math.abs(a.approachIndex-guardian.approachIndex)
-    -Math.abs(b.approachIndex-guardian.approachIndex)
-    ||a.approachIndex-b.approachIndex||a.trap-b.trap);
-  return options[0]?.trap??null;
-}
-
 export function populateMazeContent(base:MazeWorld,config:MazeConfig,rng:NamedRng):MazeWorld{
   const world=structuredClone(base),route=solveMaze(world,{start:world.start,goal:world.exit});if(!route)throw new Error('cannot populate unsolved maze');
   const dependencyCount=Math.min(config.keyCount,Math.max(0,Math.floor((route.length-3)/4)));
@@ -127,26 +98,11 @@ export function populateMazeContent(base:MazeWorld,config:MazeConfig,rng:NamedRn
   if(route.length>4)world.checkpoints=[route[Math.floor(route.length/2)]];
   const threatCount=Math.min(config.threatCount,8),threatReserved=new Set<number>([...reserved,...world.traps]);
   const minimumDistance=Math.max(3,config.visibilityRadius+1);
-  const watchpost=threatCount
-    ?chooseRouteWatchpost(world,route,threatReserved,minimumDistance,rng):null;
-  if(watchpost){
-    world.threats.push({id:'threat-1',cell:watchpost.spawn,route:[watchpost.spawn,watchpost.retreat],routeIndex:0,direction:1,lastSeenTick:null,active:true});
-    threatReserved.add(watchpost.spawn);threatReserved.add(watchpost.retreat);
-    // Preserve the early, optional pressure court and the SAME generated
-    // original guardian patrol. Relocate just ONE of the other random,
-    // off-route traps to a distinct, reciprocal side alcove within two
-    // main-route steps of that real patrol's approach, when it exists.
-    // If no eligible alcove exists, leave the generated world unchanged.
-    if(config.trapCount>1 && world.traps.length>1){
-      const forbidden=new Set<number>([...threatReserved]);
-      const companion=guardianPressureCompanion(world,route,watchpost,forbidden);
-      const displaced=world.traps.find(cell=>cell!==pressureAlcove);
-      if(companion!==null && displaced!==undefined){
-        world.traps=world.traps.map(cell=>cell===displaced?companion:cell)
-          .sort((a,b)=>a-b);
-        threatReserved.delete(displaced);
-        threatReserved.add(companion);
-      }
+  if(threatCount){
+    const watchpost=chooseRouteWatchpost(world,route,threatReserved,minimumDistance,rng);
+    if(watchpost){
+      world.threats.push({id:'threat-1',cell:watchpost.spawn,route:[watchpost.spawn,watchpost.retreat],routeIndex:0,direction:1,lastSeenTick:null,active:true});
+      threatReserved.add(watchpost.spawn);threatReserved.add(watchpost.retreat);
     }
   }
   const threatCandidates=Array.from({length:world.width*world.height},(_,cell)=>cell)

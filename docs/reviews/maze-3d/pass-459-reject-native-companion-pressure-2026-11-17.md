@@ -1,0 +1,17 @@
+# Pass459 — reject Pass458’s genuine native stage regression and restore the verified baseline (2026-11-17)
+
+**PR #53** · candidate commit `d9e95be286932bc867ccb8618c235caea08562ce` · earlier verified source `c8826363a408826a0177c9a0a8290f4744aad0e5` · fixed Nintendo bar **NOT MET**.
+
+## Exact-HEAD native review, not source-count approval
+
+- [Pass458 WebGL #44113702132](https://github.com/my-edutu/Ai_games/actions/runs/44113702132) checked out exact candidate HEAD and finished **7 of 8** strict browser tests; the unchanged six actual run reset / geometry budget **<100** passed and focused source tests had no failures.
+- The real 390×844 autonomous guardian-brace shot fails the original foreground-ray requirement: the uncropped ray grid no longer FIRST hits the authentic already publicly witnessed cell **100** dark-mineral retaining wall (2.32×0.34×0.39). The test received `undefined` instead of cell 100 at [maze-review.spec.cjs:855](https://github.com/my-edutu/Ai_games/blob/d9e95be286932bc867ccb8618c235caea08562ce/tests/browser/maze-review.spec.cjs#L855). This is a real shot-composition/geometry-witness regression, NOT permission to delete or loosen the source first-hit test.
+- Downloaded original partial [Pass458 artifact 14341144656](https://github.com/my-edutu/Ai_games/actions/runs/44113702132/artifacts/14341144656) and checked **24/24 PNGs with individual JSON SHA-256 sidecars**; an additional native brace image lacks a sidecar and is explicitly *not counted*. The corresponding original [Pass457 rollback baseline artifact 14341300473](https://github.com/my-edutu/Ai_games/actions/runs/44109091621/artifacts/14341300473) verified **40/40** original PNG sidecars and passed its strict browser gates.
+- Direct review of unaltered native 390 brace and other matching original images finds appreciably different stage composition, **not** a reliably clearer complete Pip–Thornback–pressure–key–gate experience. The altered forecourt removes the required foreground retaining-body first hit. The original scene is still visually cluttered and below [the fixed Captain Toad reference](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/).
+- Whole-repo [CI #44113702336](https://github.com/my-edutu/Ai_games/actions/runs/44113702336) failed separately at Tiny Kingdom OBS and downstream artifact steps; this is not mistaken for a Maze WebGL product failure.
+
+## Corrective production action
+
+Restore ONLY `games/ai-maze-escape/src/generation/content.ts` from precisely verified pre-candidate parent `c8826363a408826a0177c9a0a8290f4744aad0e5` (blob `7465613d3e990dbcf8132f34ef7f2772d02eaba9`). Remove ONLY `tests/phase2/maze-guardian-pressure-companion.test.cjs`, the test introduced specifically for the rejected world change. The original mandatory route, one early optional pressure branch, key/gate, actual AI, no-hidden-map rule, camera, character assets, touch and all strict tests remain as before. Preserve Pass458 evidence and this dated review rather than hiding the failed trial. No artificial pixel edits, test exemptions, changed numerical tolerance, force push, merge or deploy.
+
+**New rollback-HEAD CI and WebGL source images remain REQUIRED; no fresh post-rollback pass is claimed here.** Detached builder/artist and Ultracode remain unavailable. The fixed Nintendo gameplay/visual benchmark is still unmet. Next material unit: one intentionally authored playable true guardian–pressure–key–gate sequence that survives all original physical camera-first-hit gates on all four viewports.

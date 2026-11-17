@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-17T15:22:25.768Z",
+  "updatedAt": "2026-11-17T15:35:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass458: previous rollback-HEAD WebGL 44109091621 SUCCEEDED with 40/40 original PNG SHA sidecars; whole-repo CI 44109092514 FAILED separately. New source candidate places a second REAL optional, reciprocal pressure alcove near the unchanged moving guardian watchpost only when a distinct legal branch exists; existing early pressure court and required key/gate/exit route remain. New exact-HEAD native render, six-reset budget, full campaign safety and independent critic PENDING. The original Nintendo Captain Toad benchmark is NOT MET."
+    "summary": "Pass459: rejected Pass458 source d9e95be: exact-HEAD native WebGL 44113702132 passed 7/8 browser checks but the authentic 390 guardian brace lost the strict publicly witnessed cell100 dark retaining-wall first-hit (undefined). 24/24 original PNGs with SHA sidecars checked; 1 brace has no sidecar and is uncounted. Previous verified baseline c8826363 native CI succeeded (40/40 PNG SHA sidecars). Scoped original generator rollback and candidate-specific test removal; fresh rollback-HEAD CI/render pending. Official Nintendo gameplay/artistic bar NOT MET."
   },
   "captures": [
+    {
+      "title": "Pass458 rejected exact-HEAD WebGL partial original capture: 24/24 SHA sidecars, 7/8 browser failure at real cell100 390px foreground ray",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44113702132/artifacts/14341144656"
+    },
     {
       "title": "Pass457 rollback exact-HEAD c8826363 real full-frame native WebGL 40/40 SHA sidecars verified; strict focused CI success; Pass458 baseline",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44109091621/artifacts/14341300473"
@@ -280,6 +284,7 @@
     }
   ],
   "changes": [
+    "Pass459 2026-11-17: reject source-bound native 390 foreground geometry witness failure introduced by second optional guardian-side pressure trap. Restore only pre-Pass458 content generation source and remove its one focused speculative test; keep all real privacy, camera framing and six-reset strict tests. Fresh exact-HEAD native rollback render pending; no art victory.",
     "Pass458 2026-11-17: production content generator conditionally relocates ONE existing additional off-route pressure trap onto a real separate reciprocal side alcove within two required-route steps of original selected moving Thornback, preserving early pressure branch, trap count, deterministic seed and mandatory key/gate/exit safe route. New live-generation/graph contract test; source candidate only; original renderer verdict pending.",
     "Pass449 — 2026-11-17 UTC: one source-bound, player-visible event-linked physical guardian acting unit: same-run witnessed earned lantern parry drives original connected Thornback armored torso roll/translation, asymmetrical true foreleg brace, counter-rolling bronze mask, full recovery. Added installed-Three phase/reuse tests; no new GPU class, AI, collision, secret map, route, camera, HUD change. New render pending, benchmark not met.",
     "Pass448 — 2026-11-17 UTC: Exact HEAD native WebGL 40/40+3 SHA artifacts verified for previous and candidate, original 320/390/844/1280 full-frame critic rejects ineffective light-stage storytelling. Source-only rollback of scene.js and public lantern helper to trusted baseline and removal of new stage-light test in one conflict-safe commit; no extra doc-only HEAD. AI/navigation/privacy/strict budget unchanged, new rollback CI pending, benchmark NOT MET.",
@@ -539,6 +544,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass459 source/review gate: confirm exact rollback HEAD strict native 320/390/844/1280 captures, 40/40 original SHA sidecars, 8/8 browser and <100 geometry. Then design a substantially more coherent true guardian-pressure-key-gate encounter, no invented private routes or screen crop.",
     "Pass458 exact source gate: full seed campaign safety and 320/390/844/1280 native WebGL with strict ±.95, resource six-run <100, full Pip/Thornback and truthful public secondary pressure discovery. Reject if spatially coupled stage fails to deliver coherent playable encounter or makes viewport framing worse; independent critic unavailable.",
     "Pass449 strict acceptance: source-HEAD WebGL build/focused tests/6-run <100, original SHA-verified full-resolution 320/390/844/1280 game, genuine guardian counter side-by-side with Pass448. Reject if acting is still hidden by architecture, if any physical envelope clips beyond ±.95, or if Nintendo-style original readable scene remains lacking; independent critic access remains disconnected.",
     "Pass448: Author coherent true playable Pip–Thornback physical environment rather than another micro-light/low-wall experiment; fix true 320 counter/mission timing as part of gameplay beat. Require original source-matched full native four-viewport and independent visual proof, preserve strict CI thresholds.",
@@ -616,6 +622,13 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass459 exact-native rejection: companion pressure loses required genuine 390 public retaining wall witness",
+      "reviewer": "Source-bound original 390 WebGL A/B and CI log reviewer; separate critic unavailable",
+      "verdict": "REJECT Pass458; scoped production rollback, new exact-HEAD native gate PENDING; Nintendo quality NOT MET",
+      "date": "2026-11-17T15:35:00.000Z",
+      "summary": "7/8 native browser; original 390 brace lost first-hit authentic public dark retaining body cell100. 24/24 original PNGs with SHA sidecars checked; one image uncounted; retain strict thresholds."
+    },
     {
       "title": "Pass458 actual public guardian and second pressure encounter coupling",
       "reviewer": "Production source review; detached artistic critic unavailable (coding workspace NOT_FOUND)",
@@ -1383,6 +1396,11 @@
     }
   ],
   "verification": [
+    {
+      "name": "Pass459 rollback of real Pass458 390 guardian foreground witness failure",
+      "status": "Scoped source rollback committed subject to new exact-HEAD native CI; no acceptance claim",
+      "detail": "Previous pre-change exact-HEAD 44109091621 succeeded, candidate exact HEAD 44113702132 failed 1/8; 24/24 candidate PNG SHA sidecars verified; browser comparison original, no Nintendo parity."
+    },
     {
       "name": "Pass458 real guardian/pressure compound encounter",
       "status": "Candidate source created; exact-HEAD CI, campaign and native source-bound screenshot gate PENDING",
