@@ -72,6 +72,7 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
  const active=[],cooldown=new Map(),beds=[],nodes=[],pending=[];
  let contactCuesPlayed=0,contactCuesDropped=0;
  let master=null,bedBus=null,fxBus=null,physicalFoleyBus=null,capture=null,foley=null,pcmSession=null;
+ let captureMerger=null,captureStemGain=null;
  const now=()=>safe(ctx.currentTime,0,Number.MAX_SAFE_INTEGER,0);
  function addBed(type){
   const oscillator=ctx.createOscillator(),gain=ctx.createGain();
@@ -456,9 +457,18 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
  }
  function revokeCapture(){
   if(!capture)return;
-  try{master?.disconnect(capture)}catch{}
+  try{master?.disconnect(captureMerger??capture)}catch{}
+  if(captureStemGain){
+   try{physicalFoleyBus?.disconnect(captureStemGain)}catch{}
+   try{captureStemGain.disconnect()}catch{}
+  }
+  try{captureMerger?.disconnect()}catch{}
+  captureStemGain=null;captureMerger=null;
   try{capture.disconnect?.()}catch{}
   for(const track of capture.stream?.getAudioTracks?.()||[])try{track.stop?.()}catch{}
+  // Mute must release every old MediaStream destination, including repeated opt-ins.
+  const index=nodes.indexOf(capture);
+  if(index>=0)nodes.splice(index,1);
   capture=null;
  }
  function disable(){
@@ -529,8 +539,27 @@ export function createDungeonSoundstage(ctx,{reducedMotion=false,suppressCombat=
   if(!capture){
    try{
     capture=ctx.createMediaStreamDestination();
-    master.connect(capture);nodes.push(capture);
-   }catch{return null}
+    // D04 capture-only stereo: left=actual opt-in soundstage mix;
+    // right=isolated ORIGINAL combat FX. The same MediaRecorder gets ONE
+    // authentic track alongside the existing real WebGL canvas. Its right
+    // channel may be decoded without stalled main-thread PCM observers.
+    // Speaker output and legacy capture stay unchanged. A stereo stream
+    // alone does not certify contact, PCM onset or audiovisual sync.
+    if(suppressCombat&&physicalFoleyBus&&
+     typeof ctx.createChannelMerger==='function'){
+     captureMerger=ctx.createChannelMerger(2);
+     captureStemGain=ctx.createGain();
+     captureStemGain.gain.value=MASTER_GAIN*fxBus.gain.value;
+     master.connect(captureMerger,0,0);
+     physicalFoleyBus.connect(captureStemGain);
+     captureStemGain.connect(captureMerger,0,1);
+     captureMerger.connect(capture);
+    }else master.connect(capture);
+    nodes.push(capture);
+   }catch(error){
+    revokeCapture();
+    return null;
+   }
   }
   return capture.stream;
  }
