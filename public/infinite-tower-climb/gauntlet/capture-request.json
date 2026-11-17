@@ -6109,5 +6109,39 @@
     "realDeviceFrameTime": "NOT EVALUATED",
     "realDeviceMemory": "NOT EVALUATED",
     "safety": "Never merge, deploy, force-push, change PR68 draft, frozen baseline or PR58; no other games"
+  },
+  "p0SourceOwnedWalkableGatewayClearBodyPassageFilm20261117": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionSourceSha": "b05a7fb73bcc4cb7813ddbe1e693404871e3929a",
+    "candidatePin": "EXACT immutable github.sha of this capture-request commit; never the moving head",
+    "pr": 68,
+    "draft": true,
+    "basePr": 58,
+    "priorCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44139607018",
+    "priorCandidateOriginal": "https://github.com/my-edutu/Ai_games/actions/runs/44139607018/artifacts/14352549962",
+    "observedOriginalDefect": "960x600 native 26.00s HUD F9 to 27.75s Void (1.75s), portrait 390x844 26.00s to 29.00s (3.00s); baseline story cannot event-match. Genuine portrait tick484 full-body centre ray intersects WalkableSourceCapArchAndBraces instance 3 (0.82 opacity, distance 33.328 world m), which was a noncolliding 8.04m-wide visual sill.",
+    "changedActualGame": "Original same instanced walkable threshold now consists of true supported arch, left/right 0.75m low masonry shoes instead of one opaque central 8.04m sill, original side piers, overhead side braces, unchanged source-locked real exterior door/collisions/health/floor physics; zero new draw passes.",
+    "scenarios": [
+      "ascent",
+      "moving",
+      "danger",
+      "outcome"
+    ],
+    "viewports": [
+      "960x600",
+      "390x844"
+    ],
+    "seed": "tower-transformation-capture-v1",
+    "graphicsTier": "low",
+    "recording": "Original continuous 1x 25fps >=60s unedited authentic baseline AND candidate at exact source SHA, source events, renderer returns and camera physical-ray diagnostics",
+    "acceptance": "Strict source event / original PTS alignment; at least two consecutive native frames in BOTH viewports show full skinned hero, genuinely HP0-open original guardian doorway, true walkable roof and first supported F9 Void route together; credible 1x overall fluidity. If source/raster mismatch, FAIL. No accepted LOOKS/FEELS/PLAYS until five independently blind randomized reviewers per pillar and hardware performance.",
+    "independentLOOKS": "0/5",
+    "independentFEELS": "0/5",
+    "independentPLAYS": "0/5",
+    "realDeviceP50P95P99Memory": "NOT EVALUATED",
+    "nextHighestImpact": "Inspect new original 1x films and exact mesh-ray owners at tick475 onward. If original source arch no longer blocks but violet room remains missing, fix authored incoming first WebGL shader/geometry and old/new scene continuity together; remain P0.",
+    "safety": "Do not change frozen baseline, PR58, PR draft, merge, deploy, force-push or other games"
   }
 }
