@@ -5579,10 +5579,12 @@ test('RED: genuine original coupled foot certificate carries bounded current-fra
  const end=renderer.indexOf('function stageRigLegsAfterMixer(',start);
  assert.ok(start>0&&end>start,'inspect only the original imported source leg owner');
  const section=renderer.slice(start,end);
- const starts=[...section.matchAll(/actor\\.sourceSwingLinkedCurrentFrameProofs\\[side\\]=\\{/g)]
-  .map(match=>match.index);
+ const marker='actor.sourceSwingLinkedCurrentFrameProofs[side]={';
+ const starts=[];
+ for(let at=0;(at=section.indexOf(marker,at))>=0;at+=marker.length)
+  starts.push(at);
  assert.equal(starts.length,2,'the original linked and original coupled certificates must remain distinct');
- assert.match(section,/!Number\\.isFinite\\(age\\)\\|\\|age<0\\|\\|age>\\.15/,
+ assert.ok(section.includes('!Number.isFinite(age)||age<0||age>.15'),
   'the real root-travel age must be finite and inside its existing safety window');
  for(let i=0;i<starts.length;i++){
   const close=section.indexOf('};',starts[i]);
