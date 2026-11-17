@@ -1,4 +1,5 @@
 'use strict';
+const { resolveTowerWorldFixtureImports } = require('../helpers/tower-world-fixture-imports.cjs');
 // Measured P0: browser->real WebGL render return dominates source Floor9.
 // This inspects the ACTUAL assembled world, not a duplicate batch algorithm.
 const test = require('node:test');
@@ -26,7 +27,7 @@ const src = fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals
   .replace("'./mesh-provenance.mjs'", JSON.stringify(file('public/infinite-tower-climb/visuals/mesh-provenance.mjs')))
   .replace("'./scene-hierarchy.mjs'", JSON.stringify(file('public/infinite-tower-climb/visuals/scene-hierarchy.mjs')))
   .replace("'./far-side-shaft-transition.mjs'", JSON.stringify(file('public/infinite-tower-climb/visuals/far-side-shaft-transition.mjs')));
-fs.writeFileSync(path.join(tmp, 'world.mjs'), src);
+fs.writeFileSync(path.join(tmp, 'world.mjs'), resolveTowerWorldFixtureImports(src,{root:ROOT,fixtureDir:tmp}));
 const worldModule = import(pathToFileURL(path.join(tmp, 'world.mjs')).href);
 const provenanceModule = import(file('public/infinite-tower-climb/visuals/mesh-provenance.mjs'));
 const snapshot = () => ({

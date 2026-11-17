@@ -1,4 +1,5 @@
 'use strict';
+const { resolveTowerWorldFixtureImports } = require('../helpers/tower-world-fixture-imports.cjs');
 // Real shipped Three.js Floor8->9 original cap resource ownership; the source
 // validator already resides in guardian-passage.mjs, never a fake win fixture.
 const {test,after,beforeEach,afterEach}=require('node:test');
@@ -23,7 +24,7 @@ const source=fs.readFileSync(path.join(ROOT,'public/infinite-tower-climb/visuals
   .replace("'./mesh-provenance.mjs'",JSON.stringify(uri('mesh-provenance.mjs')))
   .replace("'./original-gallery-foreground.mjs'",JSON.stringify(uri('original-gallery-foreground.mjs')))
   .replace("'./far-side-shaft-transition.mjs'",JSON.stringify(uri('far-side-shaft-transition.mjs')));
-fs.writeFileSync(local,source);
+fs.writeFileSync(local,resolveTowerWorldFixtureImports(source,{root:ROOT,fixtureDir:scratch}));
 after(()=>fs.rmSync(scratch,{recursive:true,force:true}));
 const loaded=Promise.all([import(pathToFileURL(local).href),
   import(uri('guardian-passage.mjs'))]);

@@ -1,4 +1,5 @@
 'use strict';
+const { resolveTowerWorldFixtureImports } = require('../helpers/tower-world-fixture-imports.cjs');
 // The incoming Floor9 physical art may not become an opaque wall that buries
 // the real old floor's HP-opened bronze arch in the original 1x footage.
 // This is geometry safety, never film or gameplay-quality acceptance.
@@ -19,7 +20,7 @@ for(const n of ['coordinates','world-surface','scene-hierarchy','mesh-provenance
  'guardian-passage','crossfloor-arrival','source-physical-arrival-palette','original-clockwork-architecture-palette','original-gallery-foreground','source-earned-bearing-run','guardian-transmission-layout','far-side-shaft-transition'])
  source=source.replace("'./"+n+".mjs'",JSON.stringify(local(n)));
 const destination=path.join(dir,'world.mjs');
-fs.writeFileSync(destination,source);
+fs.writeFileSync(destination,resolveTowerWorldFixtureImports(source,{root:ROOT,fixtureDir:dir}));
 const load=Promise.all([import(three),import(pathToFileURL(destination).href)]);
 function snapshot(theme,floor){
  return {runToken:'void-aperture-original',tick:120,floor,theme,
