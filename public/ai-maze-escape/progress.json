@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-17T05:14:59.041Z",
+  "updatedAt": "2026-11-17T06:13:00Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass441 candidate: true first-hand public Pip/Thornback lantern counter HUD synchronizes mission chip and caption to the real 91→74 earned recoil, rejects ghost success and honors other active threats. Pass440 exact-HEAD CI 44013615014 succeeded and original 40/40 PNG SHA plus 3/3 real gate SHA verified, but scene remains crowded and Nintendo visual benchmark unpassed. New exact-HEAD CI and uncropped native 320/390/844/1280 acceptance PENDING; independent critic workspace unavailable."
+    "summary": "Pass442 production blocker fix: exact-HEAD Pass441 Maze CI 44022782832 FAILED: all native browser renders timed out because new public-counter-moment.mjs is excluded from the explicit /maze static-asset allowlist (module 404; no app.js boot). Added it to the allowlist and a self-test check for missing first-party module routes. This is a source candidate, not yet a passed CI/rendered win; original Nintendo gameplay bar and independent critic remain unmet."
   },
   "captures": [
     {
