@@ -290,3 +290,33 @@ test('RED: rapid genuine 95mm source burial schedules two safer connected outsol
   {...expected[1],after:after(.025,.035)}
  ]}),null,'excess original airborne heel rise remains unacceptable');
 });
+
+
+// Exact 17 November 2026 genuine source GLB WebGL, Actions #44077727181.
+// Both native nine-tick films passed, but linked-leg probes stayed ZERO.
+// The source clip, legal root travel and original render interval must give
+// a precise non-plant rejection receipt rather than fake 24fps acceptance.
+test('RED: classify why real original full-body walking shoe trials are not sampled',async()=>{
+ const {classifyOriginalSourceSwingSourceWindow:reason}=await load();
+ const legal={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,rootTravel:.028223914853704977,
+  frameAge:0,frameInterval:.016699999999996606};
+ assert.equal(reason(legal),'original-walking-window-measurable-shoes-unchecked');
+ assert.equal(reason({...legal,sourceWeight:.6086958646774292}),
+  'original-walking-crossfade-underweight');
+ assert.equal(reason({...legal,frameInterval:3.2331999999999965}),
+  'source-display-gap-exceeds-four-probe-window');
+ assert.equal(reason({...legal,frameInterval:1.4331999999999994}),
+  'source-display-gap-exceeds-four-probe-window');
+ assert.equal(reason({...legal,rootTravel:0}),
+  'source-root-travel-unwitnessed');
+ assert.equal(reason({...legal,frameAge:.15001}),
+  'source-root-travel-stale');
+ for(const denied of [{sourceClipName:'Idle'},{mode:'attack'},
+  {alive:false},{visible:false},{interrupted:true},
+  {teleport:true},{reducedMotion:true},{sourceWeight:NaN},
+  {frameInterval:NaN},{rootTravel:NaN},{frameAge:NaN}])
+  assert.notEqual(reason({...legal,...denied}),
+   'original-walking-window-measurable-shoes-unchecked');
+});
