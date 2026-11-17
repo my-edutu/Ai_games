@@ -687,8 +687,13 @@ export function createPhysicalCombatFeedback({
   for(let i=awaitingPresentation.length-1;i>=0;i--){
    const item=awaitingPresentation[i];
    const observedAt=observedAtByCueId.get(item.cue.id);
-   if(!unverifiedClock&&(!Number.isFinite(observedAt)||observedAt<0||
-      now<observedAt||now-observedAt<=MAX_AUDIO_VISUAL_STALENESS_SECONDS))continue;
+   // A readable CURRENT clock does not repair a missing/nonmonotonic
+   // observation time for this particular authority cue. Keep that injury
+   // UNKNOWN, not "fresh", and retire unverified retained art before WebGL.
+   const unverifiedCueClock=unverifiedClock||
+    !Number.isFinite(observedAt)||observedAt<0||now<observedAt;
+   if(!unverifiedCueClock&&
+      now-observedAt<=MAX_AUDIO_VISUAL_STALENESS_SECONDS)continue;
    awaitingPresentation.splice(i,1);
    const warningStillLive=item.cue.visual==='warning'&&
     item.cue.proof==='authority-warning-window'&&
@@ -696,7 +701,7 @@ export function createPhysicalCombatFeedback({
    let retiredSafely=!item.visual||warningStillLive;
    if(item.visual&&!warningStillLive){
     const retired=safeCall(()=>visuals?.retireStaleCue?.(
-     item.cue.id,unverifiedClock?'unverified-before-render':'expired-before-render'));
+     item.cue.id,unverifiedCueClock?'unverified-before-render':'expired-before-render'));
     retiredSafely=retired===true||
      Number.isSafeInteger(retired)&&retired>0||
      typeof visuals?.hasLiveCue==='function'&&
@@ -704,14 +709,14 @@ export function createPhysicalCombatFeedback({
    }
    if(!retiredSafely)unverifiedVisualLiveness++;
    if(item.soundAuthorized)staleAudioDropped++;
-   if(unverifiedClock)preRenderUnverifiedDropped++;
+   if(unverifiedCueClock)preRenderUnverifiedDropped++;
    else preRenderStaleDropped++;
    expired++;
    retainReceipt(item.cue,item.visual,false,null,
-    warningStillLive?(unverifiedClock?'unverified-before-render-live-warning-kept':
+    warningStillLive?(unverifiedCueClock?'unverified-before-render-live-warning-kept':
      'expired-before-render-live-warning-kept'):
-    retiredSafely?(unverifiedClock?'unverified-before-render':'expired-before-render'):
-     unverifiedClock?'unverified-before-render-retirement-unverified':
+    retiredSafely?(unverifiedCueClock?'unverified-before-render':'expired-before-render'):
+     unverifiedCueClock?'unverified-before-render-retirement-unverified':
       'expired-before-render-retirement-unverified');
   }
   return expired;
