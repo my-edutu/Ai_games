@@ -5772,5 +5772,27 @@
     "supportedHardware": "NOT EVALUATED",
     "nextHighestImpact": "Inspect source-pinned original 1x candidate full-motion video around the actual 8->9 transition and read real returned source camera structural ray diagnostics. If gate/hero/new F9 still do not coexist or latency worse, overhaul same-geometry cold render staging, not a test or alpha patch.",
     "baselineAndBranchSafety": "PR68 stays DRAFT on active PR58; no merge, deployment, force push, frozen baseline rewrite or other game touched."
+  },
+  "p0OriginalVoidShaftTwoReturnedFrameCpuStagesSourcePinned20261117": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "exactCandidateSha": "The immutable github.sha of THIS capture-request commit; never float branch or compare unmatching SHAs",
+    "productionCommit": "1b4f88afd9bdec25469d599629337406b88730dc",
+    "currentSourceBeforeCaptureRequest": "d5ee4198461248c41eb7b3ab0cd0181e7f05beef",
+    "intendedProductionChange": "Split genuine source-earned noninteractive Void load-bearing shell and separately animated/meshed original biome detail into two CPU build stages separated by a REAL returned F9 WebGL frame. Batch whole original structural root after second return; the walkable F9 roof, original HP-open gateway, climber, guardian, hazards, outcome/restart stay source authoritative.",
+    "motivatingUnmodifiedCandidate": "https://github.com/my-edutu/Ai_games/actions/runs/44033036646 — candidate SHA 5418fd0..., 8 original unmodified 25fps 60+sec WebMs",
+    "nativeDefect": "In previous original footage, HUD Floor9 at 25.75s for both; sustained violet at desktop 27.25s (1.50s gap), portrait 27.50s (1.75s). Only ONE original source-owned returned F9 doorway frame each; strict source-to-native pairing FAIL 0/2.",
+    "campaign": "Existing complete nine-job baseline/candidate: same seed tower-transformation-capture-v1, low graphics, original 25fps normal speed, desktop 960x600 + portrait 390x844; genuine ascent/moving/guardian/crusher/grounded F9/10/outcome/restart. Preserve full source-native event and video clocks, no fake scene/critics.",
+    "testing": "https://github.com/my-edutu/Ai_games/actions/runs/44042179732 — exact source CI at request time in progress, not a pass",
+    "newEvidence": "public/infinite-tower-climb/gauntlet/evidence/p0-returned-frame-staggered-original-void-shell-native-film-review-20261117.json",
+    "reviewers": {
+      "looks": "0/5",
+      "feels": "0/5",
+      "plays": "0/5"
+    },
+    "actualDevicePerformance": "NOT EVALUATED",
+    "nextHighestImpact": "Inspect exact source-pinned video and returned F9 stage timing in BOTH viewports. If bronze hero/gate/visible F9 still disconnect or strict event pairing fails, reopen P0 cold GPU staging and true route camera before any further stage.",
+    "safety": "Draft PR68, PR58 and frozen source baseline untouched; no force push/merge/deploy."
   }
 }
