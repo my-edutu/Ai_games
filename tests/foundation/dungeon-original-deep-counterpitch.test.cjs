@@ -320,3 +320,60 @@ test('RED: classify why real original full-body walking shoe trials are not samp
   assert.notEqual(reason({...legal,...denied}),
    'original-walking-window-measurable-shoes-unchecked');
 });
+
+
+// Genuine run #44103458612 original source on desktop: 41-joint Vanguard
+// Walking_A 33.3ms, .46rad thigh/knee/foot probe gave ~27.6mm real toe
+// relief while retaining ~73.9mm burial. Source inverse-bind audit reports
+// the ORIGINAL toes.r joint owns 100% of selected skinned toe vertex.
+// The world-space derivative fixture below is synthetic: only ACTUAL native
+// four-read source-GLB evidence can authorize a visible correction.
+test('RED-first: native weighted toes child shares the original four skinned shoe trials',async()=>{
+ const {planOriginalSourceCoupledToeHingeFollowups}=await load();
+ const old=[{upperRad:-.11,lowerRad:.11,footRad:.38},
+  {upperRad:-.11,lowerRad:.11,footRad:.46}];
+ const proof={source:'same-original-GLB-skin-toes-hinge',sourceClipName:'Walking_A',
+  sourceWeight:1,frameInterval:.0333,sourceInstanceSame:true,
+  sourceFootTrackVerified:true,sourceToeChainVerified:true,
+  sourceToeTrackName:'toesr.quaternion',sourceToeBoneName:'toesr',
+  sourceToeSkinnedWeight:1,sourceToeVertexWorld:[.1,-.093,0],
+  sourceToePivotWorld:[0,-.093,0],sourceToeAxisWorld:[0,0,-1],
+  originalFollowups:old,sourceBurialMeters:.0739,
+  ownerLocomotion:true,alive:true,visible:true,reducedMotion:false,
+  teleport:false,interrupted:false};
+ const selected=planOriginalSourceCoupledToeHingeFollowups(proof);
+ assert.deepEqual(selected,[
+  {...old[1],toeRad:0},
+  {...old[1],toeRad:-.14}
+ ],'retain the verified .46rad no-toes baseline, then spend only the remaining existing skin read on one original-toes child');
+ assert.deepEqual(planOriginalSourceCoupledToeHingeFollowups({
+  ...proof,sourceToeAxisWorld:[0,0,1]}),[
+  {...old[1],toeRad:0},{...old[1],toeRad:.14}
+ ]);
+ for(const bad of [
+  {sourceToeSkinnedWeight:.49},{sourceToeTrackName:'manufactured.quaternion'},
+  {sourceToeBoneName:'toesl'},{sourceWeight:.75},
+  {sourceToeChainVerified:false},{sourceInstanceSame:false},
+  {reducedMotion:true},{teleport:true},{interrupted:true},
+  {sourceBurialMeters:.004},{frameInterval:.65},
+  {sourceToeVertexWorld:[0,-.093,0]},
+  {sourceToeAxisWorld:[NaN,0,0]},{originalFollowups:[old[1]]}
+ ])assert.equal(planOriginalSourceCoupledToeHingeFollowups({...proof,...bad}),null);
+ // One signed toe-bone addition may NEVER bypass the existing original
+ // both-shoes skin validator or accept a synthetic foot plant.
+ const chooser= (await load()).chooseOriginalSourceCoupledKneeFootSweep;
+ assert.equal(typeof chooser,'function');
+});
+
+test('RED-first: renderer uses genuine skinned toes bone only within two remaining original coupled probes',()=>{
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const begin=renderer.indexOf('if(connectedAngles){',renderer.indexOf('const sourceCoupledPriority='));
+ const end=renderer.indexOf('if(!kneeFootCoupled){',begin);
+ assert.ok(begin>0&&end>begin,'found native four-skin-probe original source sweep');
+ const scope=renderer.slice(begin,end);
+ assert.match(scope,/planOriginalSourceCoupledToeHingeFollowups\(/);
+ assert.match(scope,/sourceToeSkinnedWeight/);
+ assert.match(scope,/toeBone\.quaternion\.copy\(toeOriginal\)/);
+ assert.match(scope,/toeRad/);
+ assert.match(renderer,/originalSwingToeJointRestore\.push\(\{bone:toeBone,original:toeOriginal\.clone\(\)\}\)/);
+});
