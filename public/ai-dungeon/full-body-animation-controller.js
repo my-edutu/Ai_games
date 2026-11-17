@@ -697,12 +697,75 @@ export function planOriginalSourceCoupledKneeFootFollowups({
  })));
 }
 
+/**
+ * Source-weighted toes hinge in the EXISTING two remaining original skinned
+ * dual-shoe probes. The plain .46rad connected candidate is always retained.
+ * Only an actual toes[l/r] source track and >=90%-weighted original toe
+ * vertex with a verified upward world-space rotation derivative may schedule
+ * a final .14rad trial. An actual final both-shoe skin read still decides.
+ * This is not IK, a foot plant, authoritative travel or an invented contact.
+ */
+export function planOriginalSourceCoupledToeHingeFollowups({
+ source='',sourceClipName='',sourceWeight=NaN,frameInterval=NaN,
+ sourceInstanceSame=false,sourceFootTrackVerified=false,
+ sourceToeChainVerified=false,sourceToeBoneName='',sourceToeTrackName='',
+ sourceToeSkinnedWeight=NaN,sourceToeVertexWorld=null,
+ sourceToePivotWorld=null,sourceToeAxisWorld=null,
+ sourceBurialMeters=NaN,originalFollowups=null,
+ ownerLocomotion=false,alive=false,visible=false,
+ teleport=false,reducedMotion=false,interrupted=false
+}={}){
+ const vec=v=>Array.isArray(v)&&v.length===3&&v.every(finite);
+ if(source!=='same-original-GLB-skin-toes-hinge'||
+  sourceClipName!=='Walking_A'||!finite(sourceWeight)||
+  sourceWeight<.95||sourceWeight>1.001||
+  !finite(frameInterval)||frameInterval<.008||frameInterval>.05||
+  !finite(sourceBurialMeters)||sourceBurialMeters<.03||
+  sourceBurialMeters>.12||sourceInstanceSame!==true||
+  sourceFootTrackVerified!==true||sourceToeChainVerified!==true||
+  ownerLocomotion!==true||alive!==true||visible!==true||
+  teleport||reducedMotion||interrupted||
+  !/^toes[lr]$/.test(sourceToeBoneName)||
+  sourceToeTrackName.toLowerCase()!==sourceToeBoneName+'.quaternion'||
+  !finite(sourceToeSkinnedWeight)||sourceToeSkinnedWeight<.90||
+  sourceToeSkinnedWeight>1.0001||
+  !vec(sourceToeVertexWorld)||!vec(sourceToePivotWorld)||
+  !vec(sourceToeAxisWorld)||
+  !Array.isArray(originalFollowups)||originalFollowups.length!==2)
+  return null;
+ const [lower,base]=originalFollowups;
+ if(![lower?.upperRad,lower?.lowerRad,lower?.footRad,
+    base?.upperRad,base?.lowerRad,base?.footRad].every(finite)||
+  Math.abs(lower.footRad-.38)>.000001||
+  Math.abs(base.footRad-.46)>.000001||
+  Math.abs(base.upperRad-lower.upperRad)>.000001||
+  Math.abs(base.lowerRad-lower.lowerRad)>.000001||
+  Math.sign(base.upperRad)===Math.sign(base.lowerRad)||
+  Math.abs(base.upperRad)>.110001||Math.abs(base.lowerRad)>.110001)
+  return null;
+ const axisLength=Math.hypot(...sourceToeAxisWorld);
+ const lever=sourceToeVertexWorld.map((v,i)=>v-sourceToePivotWorld[i]);
+ const leverLength=Math.hypot(...lever);
+ const derivative=(sourceToeAxisWorld[2]*lever[0]-
+  sourceToeAxisWorld[0]*lever[2])/axisLength;
+ if(!finite(axisLength)||Math.abs(axisLength-1)>.01||
+  !finite(leverLength)||leverLength<.03||leverLength>.16||
+  !finite(derivative)||Math.abs(derivative)<.018||
+  Math.abs(derivative)>.16)return null;
+ return Object.freeze([
+  Object.freeze({...base,toeRad:0}),
+  Object.freeze({...base,toeRad:Math.sign(derivative)*.14})
+ ]);
+}
+
 export function chooseOriginalSourceCoupledKneeFootSweep({
  starter=null,mode='idle',sourceClipName='',sourceWeight=NaN,
  sourceInstanceSame=false,sourceChainVerified=false,
  sourceUpperTrackVerified=false,sourceLowerTrackVerified=false,
  sourceFootTrackVerified=false,sourceBindVerified=false,
  sourceAnatomicalFootAxisVerified=false,ownerLocomotion=false,
+ sourceToeTrackVerified=false,sourceToeChainVerified=false,
+ sourceToeSkinnedWeight=NaN,
  alive=false,visible=false,teleport=false,reducedMotion=false,
  interrupted=false,rootTravel=NaN,frameAge=NaN,frameInterval=NaN,
  side='',floorTopY=NaN,before=null,trials=[]
@@ -738,9 +801,15 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
    y>=floorTopY-.055&&y<=floorTopY+.035))return null;
  let best=null;
  for(const trial of trials){
-  const {upperRad,lowerRad,footRad,after}=trial??{};
+  const {upperRad,lowerRad,footRad,after,toeRad=0}=trial??{};
   const shoe=after?.[side],loaded=after?.[opposite];
-  if(![upperRad,lowerRad,footRad].every(finite)||
+  if(![upperRad,lowerRad,footRad,toeRad].every(finite)||
+   (toeRad!==0&&(
+    sourceToeTrackVerified!==true||sourceToeChainVerified!==true||
+    !finite(sourceToeSkinnedWeight)||sourceToeSkinnedWeight<.90||
+    sourceToeSkinnedWeight>1.0001||
+    Math.abs(Math.abs(toeRad)-.14)>.000001||
+    frameInterval>.05||sourceWeight<.95))||
    Math.abs(upperRad)<.074999||Math.abs(upperRad)>.110001||
    Math.abs(lowerRad)<.074999||Math.abs(lowerRad)>(frameInterval>=.16?.140001:.110001)||
    Math.abs(footRad)<.119999||
@@ -777,7 +846,8 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
    best={upperRad,lowerRad,footRad,score:scored,
     toeLiftMeters:lift,sourceHeelRiseMeters:heelRise,
     beforeToeY:swing.toeY,afterToeY:shoe.toeY,
-    beforeHeelY:swing.heelY,afterHeelY:shoe.heelY};
+    beforeHeelY:swing.heelY,afterHeelY:shoe.heelY,
+    ...(Object.hasOwn(trial,'toeRad')?{toeRad}:{})};
   }
  }
  if(!best)return null;
