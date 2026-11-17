@@ -116,3 +116,70 @@ test('actual renderer binds the certified starter into BOTH initial and final 3-
  assert.match(ownerStage,/finally\{\s*upper\.bone\.quaternion\.copy\(upperOriginal\)/,
   'source GLB hips/knees and original foot return to correct source before next animation frame');
 });
+
+// 17 November genuine #44006184216, exact original desktop skinned
+// Walking_A frame 16.7ms, toe -89.443mm, heel +211.815mm against
+// -20mm stone. The second REAL native hip/knee probe raised the toe
+// 17.865mm but the airborne heel 22.355mm (+4.490mm heel-dominant).
+// Real Y and sample deltas below are from that very same frame.
+// The XZ values, rig ID and 19.29mm root travel are contract fixtures
+// inherited above, NOT recorded for this frame and NOT visual evidence.
+test('RED-first: original 16.7ms buried source foot receives two bounded faster counterpitch opportunities',async()=>{
+ const {planOriginalSourceCoupledFootStarter:starterFn,
+  planOriginalSourceCoupledKneeFootFollowups:followup,
+  chooseOriginalSourceCoupledKneeFootSweep:choose}=await load();
+ const rapidLeft={...left,toeY:-.08944286220909287,
+  heelY:.21181497803018653};
+ const rapidRight={...right,toeY:-.03736678529634406,
+  heelY:-.023498471365476066};
+ const afterRapid=(toeLift,heelLift)=>({
+  left:{...rapidLeft,toeY:rapidLeft.toeY+toeLift,
+   heelY:rapidLeft.heelY+heelLift},
+  right:{...rapidRight}
+ });
+ const fast={...owner,frameInterval:.01670000000000016,
+  frameAge:.0167,before:{left:rapidLeft,right:rapidRight},
+  starterTrials:[
+   {upperRad:.09,lowerRad:-.075,
+    after:afterRapid(-.01216026406441749,-.024841835681171376)},
+   {upperRad:-.09,lowerRad:.075,
+    after:afterRapid(.01786519306023121,.022355418772534164)}
+  ]
+ };
+ const starter=starterFn(fast);
+ assert.equal(starter?.sign,-1,
+  'genuine heel-dominated connected leg opportunity');
+ assert.ok(Math.abs(starter.excessHeelRiseMeters-.004490225712302954)<1e-9);
+ assert.deepEqual(followup({...fast,starter}),[
+  {upperRad:-.11,lowerRad:.11,footRad:.28},
+  {upperRad:-.11,lowerRad:.11,footRad:.34}
+ ],'reserve precisely the existing two weighed source shoe probes');
+ // Synthetic after-skin candidate merely verifies the final pure gate:
+ // actual source feet MUST independently pass the exact same check in WebGL.
+ const synthetic=choose({...fast,starter,trials:[
+  {upperRad:-.11,lowerRad:.11,footRad:.34,
+   after:afterRapid(.027,.004)}
+ ]});
+ assert.equal(synthetic?.source,'measured-original-skinned-coupled-knee-foot');
+ assert.equal(synthetic?.contactLocked,false);
+ assert.ok(synthetic.afterToeY<fast.floorTopY,
+  'candidate lift must never be mislabelled as planted');
+ for(const unsafe of [{frameInterval:.08},{rootTravel:0},
+  {sourceFootTrackVerified:false},{sourceBindVerified:false},
+  {sourceWeight:.82},{reducedMotion:true},{interrupted:true},
+  {teleport:true},{alive:false},{sourceClipName:'Idle'}]){
+  assert.equal(followup({...fast,starter,...unsafe}),null);
+  assert.equal(choose({...fast,starter,...unsafe,trials:[
+   {upperRad:-.11,lowerRad:.11,footRad:.34,
+    after:afterRapid(.027,.004)}
+  ]}),null);
+ }
+ assert.equal(choose({...fast,starter,trials:[
+  {upperRad:-.11,lowerRad:.11,footRad:.34,
+   after:afterRapid(.012,.031)}
+ ]}),null,'unsafe actual heel increase must be rejected');
+ assert.equal(choose({...fast,starter,trials:[
+  {upperRad:-.11,lowerRad:.11,footRad:.46,
+   after:afterRapid(.027,.004)}
+ ]}),null,'33ms deep phase source counterpitch cannot leak into rapid frame');
+});
