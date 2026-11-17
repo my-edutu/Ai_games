@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-17T13:37:22.688Z",
+  "updatedAt": "2026-11-17T13:59:27.741Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass452 source candidate: original 3D Tideglass floor/hinges now respond along a maximum four-edge currently published reciprocal OPEN L-corridor to a genuinely parried Thornback. Strict same-run public witness, 2-second shared clock. Pass451 exact WebGL 44090155436 SUCCESS and 40/40 native PNG hashes reviewed; NEW Pass452 full native four-viewport visual/strict geometry/full CI and independent critic PENDING. Official Nintendo benchmark not met."
+    "summary": "Pass453: exact Pass452 native WebGL 44095712814 SUCCESS, 40/40 unaltered screenshot sidecars and 3/3 authentic gate SHA independently verified. Full-resolution real 320/390 comparison against Pass451 found added opaque L-corner slabs visually obscure gameplay; artistically REJECTED. Restore Pass451 production geometry/host/tests without losing other work. New rollback exact-HEAD CI and WebGL pending; official Nintendo bar not met."
   },
   "captures": [
+    {
+      "title": "Pass452 exact-HEAD original WebGL 40/40 PNG SHA and three gate hashes verified; visually REJECTED at real 320/390 guardian recoil (Pass453 rollback)",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44095712814/artifacts/14335080490"
+    },
     {
       "title": "Pass451 exact source WebGL #44090155436 native 40/40 original PNG SHA verified, before Pass452 candidate",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44090155436/artifacts/14331472559"
