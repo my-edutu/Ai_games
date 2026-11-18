@@ -57,6 +57,29 @@ test('source-backed actual skinned shoulders and opened guardian gate lip are se
   assert.equal(JSON.stringify(setup.source),initial,'presentation cannot change authoritative state');
 });
 
+test('post-guardian portrait camera counts genuine full-sole platform obstruction rather than accepting a clipped climber',async()=>{
+  const {measureAuthoritativeDeckSightline:measure}=await sightline;
+  const setup=currentFrame();
+  const originalSource=JSON.stringify(setup.source);
+  const mesh={isMesh:true,visible:true,parent:setup.root,
+    material:{visible:true,transparent:false,opacity:1}};
+  setup.raycaster.intersectObject=(_root,_deep,hits)=>{
+    setup.samples.push({x:setup.point.x,y:setup.point.y,z:setup.point.z});
+    if(setup.point.y < -1.32)hits.push({object:mesh});
+    return hits;
+  };
+  const result=measure({...setup,bodyHalfHeight:1.4,
+    platformRoots:[setup.root]});
+  assert.equal(result.active,true);
+  assert.ok(setup.samples.some(sample=>sample.y===-1.4),
+    'original center/helmet/76%-sole geometry missed this filmed actual foot');
+  assert.ok(result.bodyBlockedRays>=1,
+    'real source platform may occlude feet even if centre and shoulders are clear');
+  assert.equal(result.gatewayBlockedRays,0,
+    'a blocked sole cannot fabricate an opened gate occlusion');
+  assert.equal(JSON.stringify(setup.source),originalSource);
+});
+
 test('camera search escalates in 3D and only for observed source-blocking body or gate rays in BOTH viewports',async()=>{
   const {sourceDeckGatewayClearanceCandidates:plan}=await physical;
   const bodyBlocked={active:true,bodyBlockedRays:2,gatewayBlockedRays:0};
