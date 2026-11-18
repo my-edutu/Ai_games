@@ -840,6 +840,40 @@ for(const view of [
     skinnedShoes:t.sourceSolePatchWorld??null}))},null,2))
  });
 
+
+ // The last same-clone source-skinned probe may have spent its two remaining
+ // slots on an actual toes[l/r] child hinge, NOT just a proposed ankle angle.
+ // Attribute each qualifying trial to a licensed source track and >=90%
+ // weighted toe vertex. A remeasured and rejected trial remains a rejection;
+ // no viewer foot plant or improved rendered pose is inferred.
+ const sparseToeProofs=trace.map(t=>({
+  tick:t.tick,clipName:t.nativeLegOwnership?.clipName??null,
+  sourceId:t.sourceId,
+  probe:t.nativeLegOwnership?.sourceSwingLinkedLastProbe??null
+ }));
+ for(const e of sparseToeProofs){
+  const p=e.probe;
+  if(!p||!(p.sourceToeHingeTrialCount>0))continue;
+  expect(p.sourceClip,'true original GLB source toe trial').toBe('Walking_A');
+  expect(p.sourceToeHingeTrialEligible,
+   'source toe source-track and weighting must be independently verified').toBe(true);
+  expect(p.sourceToeChildBone).toMatch(/^toes[lr]$/i);
+  expect(p.sourceToeChildTrack).toMatch(/toes[lr]\.quaternion$/i);
+  expect(p.sourceToeChildSkinnedWeight).toBeGreaterThanOrEqual(.9);
+  expect(p.sourceToeHingeTrialCount).toBeLessThanOrEqual(1);
+  expect(p.candidateMeasurements.some(c=>
+   Number.isFinite(c.toeRad)&&Math.abs(c.toeRad)>.13999&&
+   Math.abs(c.toeRad)<=.320001)).toBe(true);
+  expect(p.contactLocked).toBe(false);
+ }
+ await test.info().attach('original-source-sparse-toe-child-actual-probes',{
+  contentType:'application/json',body:Buffer.from(JSON.stringify({
+   viewport:view.name,actorId:sequence.actorId,
+   source:'actual source GLB clips, toe child, weighted skin and same-frame probes',
+   frames:sparseToeProofs,
+   limitation:'A valid original source hinge trial may still be rejected by final two-shoe skinning. No planted sole or rendered improvement is assumed.'
+  },null,2))
+ });
  // Historical accepted source-pose receipts survive sparse browser reads,
  // but never masquerade as a current-frame foot plant. The native receipt
  // comes from REAL accepted source-skinned same-GLB both-shoe vertices.
