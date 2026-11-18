@@ -4,6 +4,7 @@ import { createTowerColdFloorResolution } from './cold-floor-resolution.mjs';
 import { observedGroundedBiomeThreshold } from './biome-threshold.mjs';
 import { auditOriginalGuardianCrossing } from './gateway-source-audit.mjs';
 import { createTowerWorld, THEMES } from './world.mjs';
+import { observedSourceEarnedVoidHorizon } from './source-earned-void-horizon.mjs';
 import { sourceTriangleOwner } from './mesh-provenance.mjs';
 import { observedLandingHazardPressure } from './landing-pressure.mjs';
 import { createClimber, createEnemy } from './characters.mjs';
@@ -2059,6 +2060,11 @@ export function createTowerScene(canvas, settings = {}) {
     return {from:colors('clockwork'),to:colors('void')};
   })();
   let lastBiomeHandoffOldWeight=0;
+  // An original, truly returned successor bearing can release the distant
+  // F9 atmosphere without recoloring the still-physical bronze doorway.
+  // Keep its source-earned progress monotone through real airborne movement;
+  // reset on restart, floor change or replay seek, never on a GPU stall.
+  let earnedVoidSkyLease={runToken:null,sourceTick:-1,maxOldWeight:1};
   let renderPixelRatio = 1, basePixelRatio = 1, resolutionDirty = false;
 
   const hemi = new THREE.HemisphereLight(0xe8e0d3, 0x442a32, .72);
@@ -5173,7 +5179,27 @@ export function createTowerScene(canvas, settings = {}) {
     // Only a current genuine crossing or its eight-return source-certified
     // material tail is eligible. A missing/invalid witness stays violet.
     const certifiedHorizon=world.certifiedPaletteHorizon?.(snapshot);
-    const oldWeight=Math.max(thresholdLight?.oldWeight ?? 0,certifiedHorizon?.oldWeight ?? 0);
+    const oldWeightBeforeVoid=Math.max(thresholdLight?.oldWeight ?? 0,
+      certifiedHorizon?.oldWeight ?? 0);
+    // Old HP-open gate and cap retain their OWN warm PBR materials. Only the
+    // spatially distant original Void sky/fog/environment can cool sooner,
+    // after an already-returned real Void bearing and actual F9 support/flight.
+    // A floor HUD, stale source packet or pre-render geometry is insufficient.
+    const earnedVoidHorizon=observedSourceEarnedVoidHorizon(snapshot,
+      world.retainedFilmHandoff?.(snapshot)??null,
+      world.deferredShaderSubmission?.(snapshot)??null);
+    if(snapshot?.floor!==9 || !snapshot?.runToken ||
+      earnedVoidSkyLease.runToken!==snapshot.runToken ||
+      !Number.isSafeInteger(snapshot.tick) ||
+      snapshot.tick<earnedVoidSkyLease.sourceTick)
+      earnedVoidSkyLease={runToken:snapshot?.floor===9?snapshot.runToken:null,
+        sourceTick:-1,maxOldWeight:1};
+    if(earnedVoidHorizon?.sourceBound===true)
+      earnedVoidSkyLease.maxOldWeight=Math.min(earnedVoidSkyLease.maxOldWeight,
+        earnedVoidHorizon.maxOldHorizonWeight);
+    if(Number.isSafeInteger(snapshot?.tick))
+      earnedVoidSkyLease.sourceTick=snapshot.tick;
+    const oldWeight=Math.min(oldWeightBeforeVoid,earnedVoidSkyLease.maxOldWeight);
     if(thresholdLight || certifiedHorizon || lastBiomeHandoffOldWeight>0){
       const from=thresholdColors.from,to=thresholdColors.to;
       scene.fog.color.copy(to.fog).lerp(from.fog,oldWeight);

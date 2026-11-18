@@ -5437,6 +5437,18 @@ export function createTowerWorld(){
         snapshot.tick<job.sourceTick) return null;
     return {sourceBound:true,runToken:job.runToken,floor:9,
       sourceTick:snapshot.tick,
+      // Only the REAL earlier successful WebGL returns of the original
+      // attached Void bearing frame may unlock a beyond-the-gate horizon.
+      // The current draw cannot borrow its own future renderer receipt.
+      firstBearingReturnedFrames:
+        job.actualFirstFrameVoidBearings===true &&
+        stagedVoidArchitecture?.runToken===job.runToken &&
+        stagedVoidArchitecture.root?.isGroup===true &&
+        stagedVoidArchitecture.root.name==='SourceEarnedVoidLandingBearingFrame' &&
+        stagedVoidArchitecture.root.visible===true &&
+        stagedVoidArchitecture.root.parent===floorGroup &&
+        stagedVoidArchitecture.root.children.length>0
+          ?job.firstBearingReturnedFrames:0,
       structuralVisibleOnSubmittedFrame:
         job.structuralRoot?.visible===true && job.structuralFade>.015};
   }

@@ -488,5 +488,46 @@
       "noForcePush": true,
       "pr68Draft": true
     }
+  },
+  "p0SourceReturnedVoidAtmosphereOriginalBronzeDoorSeparation20261118": {
+    "activeStage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "sourceLastInspected": "3ec363453f6c2fb58b6ef24f17baa2b8fcbd98aa",
+    "baseline": "1731b380851162741761c5569e2bc152a0869ca9",
+    "exactPreviousNativeFilm": "https://github.com/my-edutu/Ai_games/actions/runs/44247641709",
+    "exactPreviousQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44247641794",
+    "nativeDangerFilm": {
+      "sourceAuthenticGuardianHp0Tick": 475,
+      "viewports": "960x600 and 390x844, 25fps unedited normal-speed full motion >70s",
+      "desktopHUDToVoidSeconds": 1.75,
+      "portraitHUDToVoidSeconds": 2,
+      "firstF9AcceptToRendererReturnMs": {
+        "desktop": 724,
+        "portrait": 549
+      },
+      "strictEventMatchedNativeDuel": "FAILED 0/2",
+      "authenticLedge": "PASS source-only",
+      "originalClips": "8/8",
+      "quality": "10/10 pass (code contract only)"
+    },
+    "observedBiggestDefect": "Original complete skinned climber, HP-open actual bronze gateway and supported Floor9 cannot be visually proven together across two source-aligned consecutive native frames; warm global Clockwork fog/sky/lighting persists after real Void bearings and authentic route are source-live, making successor shaft bronze and then appearing to jump violet. This is a testable code hypothesis; new result not yet observed.",
+    "mechanism": "Separate old local bronze gateway's material palette from spatially beyond-the-gate global Void sky/fog/environment. Require same-run original HP0, actual far-side supported/airborne body, genuine f9:ground and true prior returned original Void bearing, then monotone easing over returned-frame/time budget. No source/physics/HP/platform edits.",
+    "changedPaths": [
+      "public/infinite-tower-climb/visuals/world.mjs",
+      "public/infinite-tower-climb/visuals/scene.mjs",
+      "public/infinite-tower-climb/visuals/source-earned-void-horizon.mjs",
+      "tests/phase3/tower-source-earned-void-horizon.test.cjs"
+    ],
+    "newSourceSHA": "candidate GitHub commit SHA of this exact multi-file capture request — verify after push",
+    "captureRequest": "New 9-job immutable SHA candidate/frozen baseline expected on capture-request path push; NOT VERIFIED until jobs and native frames examined",
+    "lookFeelsPlays": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "deviceFrameTimeP50P95P99": "NOT EVALUATED",
+    "deviceMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Inspect new exact SHA original full-motion and source/PTS 960x600+390x844 clips, preserve physical old gate and verify cold GPU and co-visibility. If hue still late or silhouette obstructed, inspect outer old cap and camera framing, not another test-count cosmetic patch.",
+    "safety": "No modification to frozen baseline, PR58, unrelated games; no merge/deploy/force-push/draft-state changes."
   }
 }

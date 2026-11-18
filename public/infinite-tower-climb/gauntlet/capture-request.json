@@ -6388,5 +6388,25 @@
     },
     "realDevicePerformanceAndMemory": "NOT EVALUATED",
     "safety": "Do not modify PR58, frozen baseline, other games; no merge, deploy, force push, mark PR68 ready. PR68 stays draft."
+  },
+  "p0SourceReturnedVoidAtmosphereOriginalBronzeDoorSeparation20261118": {
+    "stage": "P0 OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSHA": "1731b380851162741761c5569e2bc152a0869ca9",
+    "lastInspectedSourceSHA": "3ec363453f6c2fb58b6ef24f17baa2b8fcbd98aa",
+    "lastInspectedNativeCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44247641709",
+    "lastInspectedQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44247641794",
+    "newCandidateSHA": "this exact immutable capture-request commit SHA, never floating branch",
+    "sourceCode": "Source-earned original F9 exterior atmosphere decoupled from still-warm physical HP0 guardian gate after actual source-owned Void bearings return; no gameplay authority or fake visual proof.",
+    "sourceTruth": "Original HP0 guardian F8 exit crossing source tick 475, grounded/real-airborne F9 route with existing retained original door",
+    "capture": "8 original normal-speed full-motion baseline/candidate movies (60+seconds), exact seed, low tier, 960x600/390x844, genuine native PTS plus source sidecars; strict pair gate allowed to FAIL",
+    "acceptance": "Two consecutive native film frames in both viewports must independently show COMPLETE climber+opened actual F8 gateway+walkable F9 while source-event aligned. A passed CI or purple pixels do not suffice.",
+    "independentVotes": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualHardware": "NOT EVALUATED",
+    "safety": "Remain PR68 draft, preserve frozen baseline, PR58 and other games, no merge/deploy/force-push"
   }
 }
