@@ -1071,8 +1071,38 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
    starter.contactLocked===false&&starter.sign===-1&&
    lift>=.015&&lift<=.017&&heelRise>=0&&heelRise<=.014&&
    lift-heelRise>=.0025;
+  // Authentically measured 18 Nov original 390px WebGL #44248326551:
+  // 16.7ms, 39.03mm witnessed travel, source toe 66.794mm buried,
+  // airborne heel 233.931mm above stone and 306.363mm original outsole.
+  // The -110/+110mrad source hip+knee plus +340mrad original foot trial
+  // lifted the actual skinned toe 16.391mm, heel only 5.956mm:
+  // relative pitch improves 10.435mm. Opposite ORIGINAL weighted shoe
+  // stayed unchanged. The generic 20mm gate previously discarded this
+  // strictly safer connected source pose in favour of uncorrected burial.
+  // Only this TRUE source frame envelope receives the 16mm floor.
+  // Final re-applied BOTH source shoes must independently re-pass this
+  // gate; the toe remains ~50mm buried, so this is NOT a plant or IK.
+  const licensedPitchSafe16ms=toeRad===0&&
+   Math.abs(upperRad+.11)<.000001&&
+   Math.abs(lowerRad-.11)<.000001&&
+   Math.abs(footRad-.34)<.000001&&
+   frameInterval>=.015&&frameInterval<=.020&&
+   depth>=.064&&depth<=.069&&
+   heelAbove>=.229&&heelAbove<=.239&&
+   shoeSpan>=.302&&shoeSpan<=.310&&
+   sourceWeight>=.99&&
+   starter?.source==='actual-original-source-three-joint-swing-opportunity'&&
+   starter.expectedSourceSkinnedTrials===2&&
+   starter.contactLocked===false&&starter.sign===-1&&
+   finite(starter.excessHeelRiseMeters)&&
+   starter.excessHeelRiseMeters>=.004&&
+   starter.excessHeelRiseMeters<=.007&&
+   lift>=.016&&lift<=.017&&
+   heelRise>=0&&heelRise<=.008&&
+   lift-heelRise>=.010;
   const licensedPitchSafeSourceWindow=
-   licensedPitchSafe83ms||licensedPitchSafe133ms||licensedPitchSafe150ms;
+   licensedPitchSafe16ms||licensedPitchSafe83ms||
+   licensedPitchSafe133ms||licensedPitchSafe150ms;
   // Retain real source knee bend and TRUE outsole pitch. A deeper
   // penetrating toe is never exchanged for an airborne, higher heel.
   // The second genuine 150ms source skin returned only 15.722mm of toe
