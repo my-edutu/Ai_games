@@ -453,3 +453,69 @@ test('real successor annulus remains clear through floor-nine approach without r
     clean(cleared,old);
   }
 });
+
+test('true F9 roof approach and bronze exterior share a tapered clear 3D camera corridor, leaving the original side-bearing intact',async()=>{
+  const [THREE,world]=await loaded;
+  const old=new THREE.Group(), originalMeshes=[];
+  const originalSource=()=>{
+    function bronze(radius,tangent,rise,height=5){
+      const m=new THREE.Mesh(new THREE.BoxGeometry(1.3,height,1.3),
+        new THREE.MeshStandardMaterial({color:0x986b45,roughness:.68}));
+      m.name='OriginalHistoricalNonCollidingGalleryShoulder';
+      m.userData.structural=true;
+      m.position.set(Math.sin(at)*radius+Math.cos(at)*tangent,
+        roof+rise,Math.cos(at)*radius-Math.sin(at)*tangent);
+      old.add(m);originalMeshes.push(m);
+    }
+    // Real original architectural obstructions in the UNCONNECTED wedge
+    // between the older r31..50/t<=15 aperture and r22..31.5/t<=32
+    // authentic F9 landing path. They are neither guardian nor collider.
+    bronze(39,19,6,7);
+    bronze(37,22,20,5);
+    bronze(31.2,29,12,6);
+    // This old, outer machine load path remains part of the bronze room.
+    bronze(40,26,5,9);
+  };
+  originalSource();
+  const saved=originalMeshes.map(m=>m.position.clone());
+  const opts={includeOriginalFlanks:true,maxFaces:256,maxBatches:5};
+  let before=null,after=null;
+  const hits=(root,r,t,y)=>{
+    root.updateWorldMatrix(true,true);
+    const origin=new THREE.Vector3(
+      Math.sin(at)*r+Math.cos(at)*t,roof+y,
+      Math.cos(at)*r-Math.sin(at)*t);
+    return new THREE.Raycaster(origin,
+      new THREE.Vector3(-Math.sin(at),0,-Math.cos(at)),0,35)
+      .intersectObjects(root.children,false).length;
+  };
+  try{
+    before=world.extractOriginalClockworkThresholdGallery(
+      THREE,old,EXIT_X,ROOF_Y,BASE_Y,WIDTH,opts);
+    after=world.extractOriginalClockworkThresholdGallery(
+      THREE,old,EXIT_X,ROOF_Y,BASE_Y,WIDTH,{
+        ...opts,clearPhysicalExit:true});
+    assert.ok(before && after && after.faces>0);
+    for(const [r,t,y] of [[46,19,6],[44,22,20],[38,29,12]]){
+      assert.ok(hits(before.root,r,t,y)>0,
+        'a real old gallery column obscured the original body/roof route');
+      assert.equal(hits(after.root,r,t,y),0,
+        'the physical overhead/shoulder negative space must stay continuous after gateway crossing');
+    }
+    assert.ok(hits(after.root,50,26,5)>0,
+      'bronze machine-room flange outside the source-earned route must survive');
+    assert.ok(after.faces<=256 && after.bytes===after.faces*96,
+      'single bounded historical source-only gallery, not an extra room');
+    assert.ok(after.root.children.length<=5);
+    originalMeshes.forEach((m,i)=>{
+      assert.equal(m.parent,old,'the real previous floor must remain unmodified');
+      assert.ok(m.position.equals(saved[i]),'no original world geometry moved');
+    });
+  }finally{
+    for(const gallery of [before,after])if(gallery)
+      for(const mesh of gallery.root.children){
+        mesh.geometry.dispose();mesh.material.dispose();
+      }
+    old.traverse(m=>{if(m.geometry)m.geometry.dispose();if(m.material)m.material.dispose();});
+  }
+});

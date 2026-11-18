@@ -164,6 +164,28 @@ export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresh
       v=>32-tangentOf(v),
       v=>v.y-(roof-2),
       v=>roof+26-v.y
+    ],
+    // The historic F8 gallery had TWO disjoint-looking clearances: the
+    // actual r~25 source-footprint route (through tangent 32), and the
+    // farther r31..50 external old cap (only through tangent 15). The
+    // intervening solid bronze shoulder stayed directly in front of the
+    // live moving hero/gateway on BOTH original 1x recordings. Cut one
+    // joined, TAPERING physical sight corridor through ONLY the historical,
+    // non-colliding COPIED F8 steel, not through the original gate, cap,
+    // physics, walkable destination or source-bearing loads.
+    //
+    // At r31.5 this overlaps the real F9 roof corridor; at its near side
+    // it overlaps the existing exterior doorway clearance. The apex pulls
+    // back toward the old arch at greater radius, leaving the source-authored
+    // r40 / tangent23 flanking load path physically intact. No opacity
+    // fallback, billboard, extra geometry draw or invented platform.
+    [
+      v=>radialOf(v)-30.8,
+      v=>47-radialOf(v),
+      v=>tangentOf(v)-13.4,
+      v=>32-1.4*Math.max(0,radialOf(v)-31.5)-tangentOf(v),
+      v=>v.y-(roof-1.7),
+      v=>roof+26-v.y
     ]
   ];
   function clipHalfPolygon(polygon,plane,inside) {
