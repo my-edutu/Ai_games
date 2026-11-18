@@ -59,9 +59,9 @@
     "feasibleValidation": "Regression authored for real Three.js rail and invalid source widths, not executed locally because shared repo tunnel unavailable. New exact-head CI on source commit triggered by branch push; results must be inspected."
   },
   "outstanding": {
-    "mostImportantFootageDefect": "Latest immutable candidate 9c88174 1x F9 original HUD→sustained Void delay: 1.50s desktop and 1.75s portrait, with historical bronze foreground obscuring a continuous actor–gateway–walkable F9 composition. A native movie of the newly shifted original Void vault is still unavailable, and source/pixel event pairing fails in 2/2 viewports.",
-    "strictSourceToNativeEventPairing": "FAILED 0/2",
-    "qualifyingConsecutiveNativeCrossingFrames": "NOT EVALUATED",
+    "mostImportantFootageDefect": "NEW exact-original-5a7cb47 1x 25fps WebM HUD9→sustained violet world desktop 1.50s (25.75–27.25) and portrait 2.00s (25–27). Bronze foreground still breaks complete real hero–opened HP gate–supported F9 co-visibility. Native/source frame pairing FAILED 0/2; unchanged from source authority perspective.",
+    "strictSourceToNativeEventPairing": "FAILED 0/2 at run 44213465180",
+    "qualifyingConsecutiveNativeCrossingFrames": "NOT VERIFIED 0/2",
     "genuineIndependentCritics": {
       "LOOKS": "0/5",
       "FEELS": "0/5",
@@ -69,7 +69,7 @@
     },
     "actualDevicePerformance": "NOT EVALUATED",
     "actualDeviceMemory": "NOT EVALUATED",
-    "nextHighestImpactAction": "First obtain 60+s new 1x 960x600 + 390x844 original immutable film on EXACT HEAD including the first-render original Void vault, plus actual first-F9 WebGL return costs and geometry-ray owners. Verify live animated vault, no duplicates and that the VOID room appears while HP-open bronze gate and grounded hero remain visible in consecutive source-aligned native frames; if first-render GPU upload regresses, reduce crystal draw cost or reconsider early transfer. Retry strict 0/2 event alignment without manufacturing missing frozen-baseline source beats; measure actual devices and recruit independent reviewers only after evidence qualifies."
+    "nextHighestImpactAction": "Stay P0. Address the SYSTEMIC source-authentic bronze-old-gallery → originally walkable F9 destination scene handoff and first actual WebGL render cost as one intervention (not another cosmetic ray/opacity tweak). Preserve old HP-open doorway while source-verified, decongest OLD noncolliding gallery and stage real successor shaft with few returns; add exact source-to-video clock anchors. Re-run frozen-source 1x A/B and inspect two consecutive original frames in BOTH viewports before P1. No independent reviewer vote before credible pair."
   },
   "safety": {
     "baselineModified": false,
@@ -129,5 +129,67 @@
     "newExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44211367311 — status pending at this evidence commit; no green claim",
     "newOriginalGameplayCapture": "NOT YET CAPTURED for 36deb253; prior recording is immutable 9c88174. Source-pinned manual campaign workflow dispatch not exposed by connected GitHub actions.",
     "blindAcceptance": "NOT EVALUATED"
+  },
+  "freshOriginalVaultFilm20261118": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceOfNewOriginalFilm": "5a7cb47229e75aa903a53f9c47a4e799e594fd2f",
+    "actualPlayableWorldSourceChangedInThisExecution": false,
+    "verifiedUnblocker": "Prior source changes 32313e7 and 0e84911 had no first-return original-game recordings because the 9-job workflow only runs on an immutable capture-request path push. Appended source-locked request at 5a7cb47 and successfully ran all eight baseline/candidate 1x WebM recordings and authentic same-run ledge witness against this exact commit.",
+    "campaign": "https://github.com/my-edutu/Ai_games/actions/runs/44213465180",
+    "candidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44213465180/artifacts/14387930662",
+    "previousCandidateDangerCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44201339220",
+    "comparisonSourceSha": "9c88174fa7c7cadbbda9a2be134bf48cbeff63e2",
+    "currentOriginalNativeCandidate": {
+      "videoType": "unchanged browser-captured 1x 25fps WebM, ~72s, exactly 960x600 desktop and 390x844 portrait; matched source/gameplay sidecars; observed actual transition frames near 24–29s, NOT a fabricated edit or exhaustive human blind critique",
+      "desktop": {
+        "firstDrawnFloorNineHudSeconds": 25.75,
+        "firstSustainedOriginalVioletEnvironmentSeconds": 27.25,
+        "hudToWorldSeconds": 1.5,
+        "firstFloorNineBrowserAcceptToRendererReturnMs": 601,
+        "immutableCrossingReturnedCameraWitnesses": 8,
+        "sourceAuthenticatedPaintedGroundedSamples": 0,
+        "gateAndClimberProjectedSafeWitnesses": 6
+      },
+      "portrait": {
+        "firstDrawnFloorNineHudSeconds": 25,
+        "firstSustainedOriginalVioletEnvironmentSeconds": 27,
+        "hudToWorldSeconds": 2,
+        "firstFloorNineBrowserAcceptToRendererReturnMs": 543,
+        "immutableCrossingReturnedCameraWitnesses": 9,
+        "sourceAuthenticatedPaintedGroundedSamples": 0,
+        "gateAndClimberProjectedSafeWitnesses": 7
+      },
+      "biggestObservedDefect": "Despite first-scene insertion of the actual animated original Void vault, retained F8 bronze/gateway architecture still dominates F9 HUD scenes. The original successor environment is fully recognizable only substantially later. The skinned hero, HP-open real gateway and source-supported F9 walking destination are not independently confirmed co-visible on two consecutive matched original film frames in either viewport.",
+      "sourceEvent": "true guardian crossing fixed-step tick 475; source event clock is NOT the native video PTS clock",
+      "strictFilmEventPairing": "FAILED 0/2 viewports, not equivalent to 8/8 source sidecar integrity",
+      "environment": "GitHub hosted Chromium/WebGL2 software capture; first browser-accepted-to-renderer-return ms is NOT real phone/desktop GPU FPS or frame-time quantile"
+    },
+    "precedingOriginalNativeCandidate": {
+      "sourceSha": "9c88174fa7c7cadbbda9a2be134bf48cbeff63e2",
+      "desktopHudToWorldSeconds": 1.5,
+      "portraitHudToWorldSeconds": 1.75,
+      "firstFloorNineBrowserAcceptToRendererReturnMs": {
+        "desktop": 536,
+        "portrait": 584
+      },
+      "comparisonCaveat": "Only within-video phase durations, not matched source/native baseline causal speed comparisons. New portrait delay appears longer but neither original videos nor source events are strictly event-matched."
+    },
+    "sourceChainAndChecks": {
+      "authenticLedgeJob": "SUCCEEDED true source 3200-tick guardian/crusher to grounded crossing onward and restart; this is not original rendered-frame confirmation",
+      "originalClips": "8/8 completed and accepted by video-integrity checks",
+      "pairSourceEvents": "FAILED strict event-aligned A/B 0/2; eight source timelines indexed; 0 integrity defects",
+      "qualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44213465017",
+      "qualityVerdict": "FAILED 9/10: all four Tower phase3 partitions, integrity, foundation, phase2, phase4, phase5 SUCCESS. Unrelated phase6 maze-readiness-score test timed out at 75s (exit 124). No edits to Maze permitted. CI is a veto, not a quality score."
+    },
+    "independentFreshContextCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualSupportedDeviceFrameTimeP50P95P99": "NOT EVALUATED",
+    "actualSupportedDeviceMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Stay P0. Address the SYSTEMIC source-authentic bronze-old-gallery → originally walkable F9 destination scene handoff and first actual WebGL render cost as one intervention (not another cosmetic ray/opacity tweak). Preserve old HP-open doorway while source-verified, decongest OLD noncolliding gallery and stage real successor shaft with few returns; add exact source-to-video clock anchors. Re-run frozen-source 1x A/B and inspect two consecutive original frames in BOTH viewports before P1. No independent reviewer vote before credible pair."
   }
 }
