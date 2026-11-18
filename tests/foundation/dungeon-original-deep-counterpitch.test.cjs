@@ -658,3 +658,75 @@ test('RED: bounded 100ms source Walking_A with heel-dominant swing samples a con
   after:after(.033,.008,{...right,toeY:right.toeY+.009})}]}),null,
   'loaded opposite skinned shoe must remain intact');
 });
+
+
+// RED-first genuine source-skin scenario: exact 390px original Walking_A,
+// run #44233843203, native artifact #14397695861, tick 6.
+// Original source frame: 133.3ms; right toe -89.440621mm, heel +211.497743mm,
+// floor -20mm, root movement 47.824095mm. The same source 4-probe report
+// measured -110/+110/+240mrad hip/knee/foot: toe +16.643084mm,
+// elevated heel +13.808181mm, original opposite shoe unchanged.
+// Actual global XZ positions were NOT provided in that nested probe receipt;
+// the coordinates below are a geometry-matched synthetic 307mm outsole and
+// explicitly NOT an original source-space readback or a planted-foot claim.
+test('RED: exact licensed 133ms 390px swinging Vanguard three-joint sole gains pitch without admitting heel-dominant or unsupported motion',async()=>{
+ const {planOriginalSourceCoupledFootStarter:starterFn,
+  chooseOriginalSourceCoupledKneeFootSweep:choose}=await load();
+ const buried={heelY:.21149774279081252,toeY:-.08944062143436118,
+  heelXZ:[0,0],toeXZ:[.068,0]};
+ const loaded={heelY:-.01591527465656707,toeY:-.026072674993528777,
+  heelXZ:[1,0],toeXZ:[1.25,0]};
+ const shoes={left:loaded,right:buried};
+ const afterPair=(toeLift,heelLift,support=loaded)=>({
+  right:{...buried,toeY:buried.toeY+toeLift,
+   heelY:buried.heelY+heelLift,
+   heelXZ:[.0074313182935574,0],
+   toeXZ:[.068+.02279583640287625,0]},
+  left:{...support}
+ });
+ const real={...owner,side:'right',before:shoes,
+  frameInterval:.13329999999999842,frameAge:.03,
+  rootTravel:.04782409489028368,
+  starterTrials:[
+   {upperRad:.12,lowerRad:-.09,
+    after:afterPair(-.014041815524834286,-.03265289930634119)},
+   {upperRad:-.12,lowerRad:.09,
+    after:afterPair(.023592626784849968,.028981939169081455)}
+  ]};
+ const starter=starterFn(real);
+ assert.equal(starter?.source,'actual-original-source-three-joint-swing-opportunity');
+ assert.equal(starter?.sign,-1);
+ const measured={upperRad:-.11,lowerRad:.11,footRad:.24,
+  after:afterPair(.01664308413408004,.013808181211668963)};
+ const actual=choose({...real,starter,trials:[measured]});
+ assert.equal(actual?.source,'measured-original-skinned-coupled-knee-foot',
+  'admit the measured source three-joint pitch only after independently certified original skinned shoes');
+ assert.equal(actual?.sourceJointCount,3);
+ assert.equal(actual?.contactLocked,false);
+ assert.equal(actual?.oppositeShoePreserved,true);
+ assert.ok(actual?.toeLiftMeters>=.016&&actual?.toeLiftMeters<.017);
+ assert.ok(actual?.toeLiftMeters-actual?.sourceHeelRiseMeters>.0025,
+  'heel-to-toe pitch improved in the source-skinned trial');
+ assert.ok(actual?.afterToeY<real.floorTopY-.05,
+  'the still deeply buried toe is NOT a planted foot');
+ for(const invalid of [
+  {frameInterval:.165},{frameInterval:.099},{rootTravel:0},
+  {frameAge:.16},{sourceWeight:.9},{sourceInstanceSame:false},
+  {sourceChainVerified:false},{sourceFootTrackVerified:false},
+  {sourceBindVerified:false},{sourceAnatomicalFootAxisVerified:false},
+  {ownerLocomotion:false},{alive:false},{visible:false},
+  {teleport:true},{reducedMotion:true},{interrupted:true},
+  {sourceClipName:'Idle'}
+ ])assert.equal(choose({...real,...invalid,starter,trials:[measured]}),null,
+  'no alternate owner, unverified source rig or different timing can borrow the recorded source pose: '+JSON.stringify(invalid));
+ for(const invalid of [
+  {...measured,footRad:.28},
+  {...measured,after:afterPair(.01664,.0185)},
+  {...measured,after:afterPair(.010,.005)},
+  {...measured,after:afterPair(.01664,.0138,{...loaded,toeY:loaded.toeY+.005})},
+  {...measured,after:afterPair(.01664,.0138,{...loaded,heelXZ:[1.01,0]})}
+ ])assert.equal(choose({...real,starter,trials:[invalid]}),null,
+  'source angle, pitch, minimum measured lift and actual opposite shoe remain strict');
+ assert.equal(choose({...real,trials:[measured]}),null,
+  'missing licensed starter may never produce a foot-pose correction');
+});
