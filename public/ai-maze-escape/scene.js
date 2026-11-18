@@ -4,7 +4,7 @@ import { PUBLIC_GUARDIAN_COUNTER_SECONDS, publicGuardianCounterMoment, publicGua
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilRevealElevation, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilFinalPairShift, publicGuardianEarnedRecoilRevealElevation, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicEarnedGuardianCounterLightPath } from './public-lantern-encounter.mjs';
@@ -1687,6 +1687,51 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         camera.top=halfHeight;camera.bottom=-halfHeight;
         camera.updateProjectionMatrix();
         camera.updateMatrixWorld();
+      }
+      // The original exact-HEAD 320x740 NATURAL seed-13 tick94 WebGL
+      // physically clipped Pip at -0.955425 after the preceding earned-stage
+      // lens and pan, although both complete actors FIT in the same frame.
+      // The older pre-zoom measurements could not see this real final crop.
+      // Re-measure their ACTUAL connected world boxes AFTER all lens changes.
+      // Correct only a source-witnessed Follow recoil that can fit both
+      // actors inside a stronger +/-0.94 full-body screen margin. Preserve
+      // both models, action scale, scenery, hidden map and gameplay authority.
+      if(earnedGuardianFrame && verifiedGuardianModel?.parent){
+        const finalEarnedBodies=[];
+        camera.updateMatrixWorld();
+        for(const root of [explorer.group,verifiedGuardianModel]){
+          pressureReframeEnvelope.makeEmpty();
+          root.updateWorldMatrix(true,true);
+          root.traverseVisible(mesh=>{
+            if(!mesh.isMesh||!mesh.geometry)return;
+            if(!mesh.geometry.boundingBox)mesh.geometry.computeBoundingBox();
+            if(mesh.geometry.boundingBox)pressureReframeEnvelope.union(
+              pressureReframePiece.copy(mesh.geometry.boundingBox)
+                .applyMatrix4(mesh.matrixWorld));
+          });
+          if(pressureReframeEnvelope.isEmpty())break;
+          let left=Infinity,right=-Infinity,bottom=Infinity,top=-Infinity,valid=true;
+          for(const x of [pressureReframeEnvelope.min.x,pressureReframeEnvelope.max.x])
+            for(const y of [pressureReframeEnvelope.min.y,pressureReframeEnvelope.max.y])
+              for(const z of [pressureReframeEnvelope.min.z,pressureReframeEnvelope.max.z]){
+                const p=pressureReframePoint.set(x,y,z).project(camera);
+                if(!Number.isFinite(p.x)||!Number.isFinite(p.y)
+                  ||!Number.isFinite(p.z)||p.z<=-1||p.z>=1)valid=false;
+                else{
+                  left=Math.min(left,p.x);right=Math.max(right,p.x);
+                  bottom=Math.min(bottom,p.y);top=Math.max(top,p.y);
+                }
+              }
+          if(!valid||left>=right||bottom>=top)break;
+          finalEarnedBodies.push({left,right,bottom,top});
+        }
+        const finalEarnedShift=publicGuardianEarnedRecoilFinalPairShift(
+          aspect,halfHeight,finalEarnedBodies,true,settings.reducedMotion);
+        if(finalEarnedShift){
+          pressureReframeRight.setFromMatrixColumn(camera.matrixWorld,0);
+          camera.position.addScaledVector(pressureReframeRight,finalEarnedShift);
+          camera.updateMatrixWorld();
+        }
       }
     }
     // Pass415: the exact-source natural 320/390 parry proves that the

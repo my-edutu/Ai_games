@@ -248,3 +248,32 @@ export function publicGuardianEarnedRecoilRevealElevation(
   // Restore a readable diorama altitude only after the actual counter.
   return Math.max(currentY,23.0);
 }
+
+/**
+ * Final, source-bound portrait correction AFTER the earned-recoil stage's
+ * optical zoom and vertical pan. Earlier pair bounds were measured BEFORE
+ * those lens changes; original native 320x740 seed-13 tick94 then showed
+ * Pip at -0.955425 NDC (strict -0.95), while Thornback reached +0.904315.
+ * The complete current models really fit together (1.859741 NDC wide).
+ *
+ * Recenter their current CONNECTED mesh silhouettes in existing camera-right
+ * world units, with a stronger +/-0.94 margin. Never scale, crop, invent an
+ * encounter, inspect private cells, relax thresholds or silently fit a pair
+ * wider than the available physical screen. Caller supplies post-zoom bounds.
+ */
+export function publicGuardianEarnedRecoilFinalPairShift(
+  aspect,halfHeight,bodies,earned=false,reducedMotion=false){
+  if(!earned||reducedMotion||!Number.isFinite(aspect)
+    ||aspect<.35||aspect>=.60||!Number.isFinite(halfHeight)
+    ||halfHeight<=0||!Array.isArray(bodies)||bodies.length!==2)return 0;
+  for(const body of bodies)
+    if(!body||!['left','right','bottom','top'].every(k=>Number.isFinite(body[k]))
+      ||body.left>=body.right||body.bottom>=body.top)return 0;
+  const left=Math.min(bodies[0].left,bodies[1].left);
+  const right=Math.max(bodies[0].right,bodies[1].right);
+  const safe=.94;
+  if(right-left>safe*2 || left>=-safe&&right<=safe)return 0;
+  const low=right-safe,high=left+safe;
+  if(low>high)return 0;
+  return Math.max(low,Math.min(high,(left+right)*.5))*halfHeight*aspect;
+}
