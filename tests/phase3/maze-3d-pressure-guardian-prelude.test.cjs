@@ -38,3 +38,22 @@ test('real generated pressure and guardian court preserve exact playable topolog
  assert.ok(paired>=4,'a substantial share of seeded adventures must now physically connect pressure before the same moving guardian');
  assert.ok(paired<=watchposts,'only truly reachable watchposts may count as linked encounter evidence');
 });
+
+test('authored objective relay requires real forward key pickup followed by its matching critical gate',()=>{
+ const {forwardKeyGateDistance}=load('games/ai-maze-escape/src/generation/content.js');
+ const route=[10,11,12,13,14,15,16,17,18,19];
+ const world={keys:[{id:'key-1',cell:14,collected:false}],
+  doors:[{id:'door-1',a:16,b:17,requiredKeyId:'key-1',critical:true,open:false}]};
+ assert.equal(forwardKeyGateDistance(world,route,11),3,
+  'the actual key must come after a real guardian route approach');
+ assert.equal(forwardKeyGateDistance(world,route,14),Infinity,
+  'a guardian AFTER the pickup is not a pressure-to-key chapter');
+ assert.equal(forwardKeyGateDistance(world,route,0),Infinity,
+  'a key more than seven actual journey steps away is not the same chapter');
+ assert.equal(forwardKeyGateDistance({...world,doors:[{...world.doors[0],a:30,b:31}]},route,11),Infinity,
+  'an untraversed gate is not a claimed objective resolution');
+ assert.equal(forwardKeyGateDistance({...world,doors:[{...world.doors[0],critical:false}]},route,11),Infinity,
+  'a noncritical gate is not the required objective');
+ assert.equal(forwardKeyGateDistance({...world,doors:[{...world.doors[0],requiredKeyId:'other'}]},route,11),Infinity,
+  'an unrelated key and door must not be presented as a causal chapter');
+});

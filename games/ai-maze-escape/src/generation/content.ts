@@ -8,6 +8,27 @@ export function doorBetween(world:MazeWorld,a:number,b:number):MazeDoor|undefine
 function shortestDistance(world:MazeWorld,start:number,goal:number){const path=solveMaze(world,{start,goal});return path?path.length-1:Number.POSITIVE_INFINITY}
 function chooseUnique(candidates:number[],count:number,rng:NamedRng,stream:string){const pool=[...candidates],out:number[]=[];while(pool.length&&out.length<count){const index=rng.nextInt(stream,pool.length);out.push(pool.splice(index,1)[0])}return out}
 
+// A true forward chapter requires the SAME route to collect a required key
+// AFTER the guardian approach and subsequently CROSS its matching real door.
+// Merely counting a nearby key or any decorative closed gate would be false.
+export function forwardKeyGateDistance(world:MazeWorld,route:number[],approachIndex:number):number{
+  if(!Number.isInteger(approachIndex)||approachIndex<0
+    ||approachIndex>=route.length-1)return Infinity;
+  let shortest=Infinity;
+  for(const key of world.keys){
+    const pickup=route.indexOf(key.cell);
+    if(pickup<=approachIndex||pickup-approachIndex>7)continue;
+    const crossing=world.doors.some(door=>door.critical
+      &&door.requiredKeyId===key.id
+      &&route.some((cell,index)=>index>pickup
+        &&index>0
+        &&((route[index-1]===door.a&&cell===door.b)
+          ||(route[index-1]===door.b&&cell===door.a))));
+    if(crossing)shortest=Math.min(shortest,pickup-approachIndex);
+  }
+  return shortest;
+}
+
 // Put one real moving Thornback patrol within an OPEN, traversable side branch
 // of the mandatory journey. The guardian still occupies and patrols its own
 // generated cells; Pip discovers it through normal public observation. This is
@@ -94,7 +115,28 @@ function chooseRouteWatchpost(world:MazeWorld,route:number[],unavailable:Set<num
     return candidate!==null && exits.includes(candidate)
       && passageNeighbors(world,candidate).includes(approach);
   });
-  const shortlist=sharedCourt.length?sharedCourt:nearby;
+  // Prefer an ACTUAL connected pressure -> moving Thornback -> critical key
+  // -> matching gate journey when those four authored objects exist in the
+  // unchanged map. Choose ONLY from lawful straight/open watchposts. This
+  // changes the world's consequential encounter order, not cosmetic props.
+  // It never creates passages, hazards, keys, gates or autonomous AI knowledge.
+  const extended=pool.slice(0,Math.min(12,pool.length));
+  const stagedCourt=extended.filter(choice=>{
+    const approach=route[choice.approachIndex]!;
+    const exits=passageNeighbors(world,approach);
+    return traps.some(trap=>exits.includes(trap)
+      &&passageNeighbors(world,trap).includes(approach))
+      || guardianPressurePrelude(world,route,reserved,traps,choice)!==null;
+  });
+  const forwardCourt=stagedCourt.map(choice=>({
+    choice,distance:forwardKeyGateDistance(world,route,choice.approachIndex)
+  })).filter(candidate=>candidate.distance<=7);
+  const nearestKey=forwardCourt.length
+    ? Math.min(...forwardCourt.map(candidate=>candidate.distance)):Infinity;
+  const authored=forwardCourt.filter(candidate=>candidate.distance===nearestKey)
+    .map(candidate=>candidate.choice);
+  const shortlist=authored.length?authored
+    :sharedCourt.length?sharedCourt:nearby;
   return shortlist[rng.nextInt('threat-policy:route-watchpost',shortlist.length)]!;
 }
 

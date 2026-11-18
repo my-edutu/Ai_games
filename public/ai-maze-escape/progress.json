@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-18T09:54:44.325Z",
+  "updatedAt": "2026-11-18T10:57:22.091Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass478 reviewed true Pass477 source-matched WebGL SUCCESS 8/8 (unaltered six-scene-reset <100); downloaded original 14413239973 artifact, verified 40/40 PNG hashes and 3/3 genuine gate transition hashes. Direct full-frame mobile guardian/pressure and landscape gate A/B against original Pass476 artifact shows same blocked Thornback and no independently judgeable stage/gameplay visibility improvement; reject Pass477 third-ring decorative spectator candidate and restore only its world.js + candidate-specific test. New exact rollback HEAD CI pending. Whole repo Pass477 failed unrelated Tiny OBS and upload steps, not accepted as green. Official Nintendo bar NOT MET; independent critic/Ultracode coding workspace NOT_FOUND. PR 53 open draft, hourly active."
+    "summary": "Pass479 code candidate: from existing real straight/reciprocal pressure-Thornback patrols prefer a nearby onward critical key with its actual downstream gate, to build a consequential single route chapter rather than isolated props. Parent Pass478 native WebGL 44280424975 SUCCESS 8/8, 40/40 original PNG SHA sidecars rehashed; whole-repo 44280425001 fails unrelated Tiny Kingdom OBS/upload tasks. Candidate exact-head CI and real 320/390/844/1280 public playthrough remain UNVERIFIED; no rendered or Nintendo-quality win, independent critic unavailable. PR 53 open draft; hourly active."
   },
   "captures": [
     {
@@ -340,6 +340,12 @@
     }
   ],
   "changes": [
+    {
+      "title": "Pass479 — authored pressure/Thornback/key/gate forward route chapter (candidate, exact-HEAD visual verification pending)",
+      "description": "Within lawful straight moving-guardian pressure stages choose an actually subsequent key and matching route-crossed critical gate when available. Seeded fallback preserved; no AI/private-state shortcut. Source test rejects fake gates. Parent original WebGL 8/8 and 40/40 PNG SHA verified; new gameplay/visual CI pending.",
+      "date": "2026-11-18",
+      "status": "Candidate — not rendered-accepted"
+    },
     "Pass475 production rollback of artistically rejected event-light-only candidate after original full-resolution Pass472/474 WebGL comparison: scene.js and stream allowlist restore verified Pass472 blobs; unreferenced encounter-lighting helper and helper-only tests deleted; same prior gameplay/collision/AI/strict visual thresholds. New exact-HEAD validation PENDING.",
     "Pass474 real browser delivery fix: exact Pass473 Maze stream self-test FAILED before WebGL (missingRoutes scene.js -> encounter-lighting.mjs). Production explicit allowlist includes the existing light module; native screenshot/geometry/CI and independent artistic verdict require new exact-HEAD evidence. No gameplay-rule/privacy/geometry/camera/test relaxations.",
     "Pass469b: full-repo source test caught genuine straight-guardian-patrol regression (seed maze-visual-reference-0). Production chooser now preserves any legally available straight two-cell guardian performance before a bent pressure-stage candidate; pressure alignment remains first among genuine straight patrols. Neither strict source test nor physical/mobile/resource thresholds changed. Fresh CI/native required.",
@@ -700,6 +706,11 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass479 forward objective relay source gate",
+      "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-479-forward-objective-relay-2026-11-18.md",
+      "status": "Source candidate — WebGL and independent critic pending"
+    },
     {
       "title": "Pass475 authentic source-bound 472→474 lighting A/B rejection",
       "reviewer": "In-session exact source SHA and uncropped matched-public-tick visual analysis (detached independent critic unavailable)",
@@ -1537,6 +1548,12 @@
     }
   ],
   "verification": [
+    {
+      "title": "Pass478 exact-parent WebGL 8/8, original 40/40 screenshot SHA256 pairs checked; Pass479 fresh CI pending",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44280424975",
+      "date": "2026-11-18",
+      "status": "Parent verified, new candidate pending"
+    },
     {
       "name": "Pass475 native lighting candidate critique",
       "status": "Original Pass474 WebGL 8/8 and 40+3 image hash verification succeeded; full art/gameplay verdict REJECTED; rollback HEAD tests pending",
