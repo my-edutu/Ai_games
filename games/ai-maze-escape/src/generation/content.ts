@@ -77,7 +77,24 @@ function chooseRouteWatchpost(world:MazeWorld,route:number[],unavailable:Set<num
   const pool=alignedStaged.length?alignedStaged
     :alignedChoices.length?alignedChoices
       :staged.length?staged:choices;
-  const shortlist=pool.slice(0,Math.min(6,pool.length));
+  // Give the physically connected Pressure Court and Thornback ONE observable
+  // route-side room when the original passages permit it. First preserve the
+  // six nearest *straight* eligible watchposts above, then prefer those with
+  // an actual reciprocal pressure alcove on that SAME disclosed approach.
+  // Both hazards remain optional off-route cells: no forged link, trap budget,
+  // key/door, escape route, AI perception or patrol movement is changed.
+  const nearby=pool.slice(0,Math.min(6,pool.length));
+  const sharedCourt=nearby.filter(choice=>{
+    const approach=route[choice.approachIndex]!;
+    const exits=passageNeighbors(world,approach);
+    const actual=traps.some(trap=>exits.includes(trap)
+      &&passageNeighbors(world,trap).includes(approach));
+    if(actual)return true;
+    const candidate=guardianPressurePrelude(world,route,reserved,traps,choice);
+    return candidate!==null && exits.includes(candidate)
+      && passageNeighbors(world,candidate).includes(approach);
+  });
+  const shortlist=sharedCourt.length?sharedCourt:nearby;
   return shortlist[rng.nextInt('threat-policy:route-watchpost',shortlist.length)]!;
 }
 
@@ -110,7 +127,7 @@ function guardianPressurePrelude(world:MazeWorld,route:number[],reserved:Set<num
  if(!traps.length)return null;
  const routeSet=new Set(route);
  const denied=new Set([...reserved,...traps,watchpost.spawn,watchpost.retreat]);
- for(const back of [1,2,0]){
+ for(const back of [0,1,2]){
   const i=watchpost.approachIndex-back;
   if(i<1||i>=route.length-1)continue;
   const court=route[i]!;

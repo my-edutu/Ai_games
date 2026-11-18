@@ -9,7 +9,7 @@ const {parseMazeConfig}=load('games/ai-maze-escape/src/config/schema.js');
 test('real generated pressure and guardian court preserve exact playable topology and key-gate solvability',()=>{
  const config=parseMazeConfig({width:17,height:15,profile:'loops',loopChancePermille:160,
     visibilityRadius:2,keyCount:1,trapCount:2,threatCount:1});
- let paired=0,watchposts=0;
+ let paired=0,watchposts=0,sharedStage=0;
  for(let n=0;n<24;n++){
   const seed='real-watchpost-pressure-'+n;
   const w=generateMaze(config,NamedRng.fromSeed(seed)).world;
@@ -27,11 +27,14 @@ test('real generated pressure and guardian court preserve exact playable topolog
   const indices=route.flatMap((c,i)=>passageNeighbors(w,c).includes(guardian.route[0])?[i]:[]);
   if(!indices.length)continue;
   watchposts++;
+  if(indices.some(i=>w.traps.some(t=>passageNeighbors(w,route[i]).includes(t)
+    &&passageNeighbors(w,t).includes(route[i]))))sharedStage++;
   if(indices.some(i=>[1,2,0].some(d=>i-d>0&&w.traps.some(t=>
     passageNeighbors(w,route[i-d]).includes(t)
     &&passageNeighbors(w,t).includes(route[i-d])))))paired++;
  }
  assert.ok(watchposts>0,'campaign exercises actual reachable moving watchposts');
+ assert.ok(sharedStage>=1,'the actual guardian approach must share a lawful pressure-side court in seeded gameplay');
  assert.ok(paired>=4,'a substantial share of seeded adventures must now physically connect pressure before the same moving guardian');
  assert.ok(paired<=watchposts,'only truly reachable watchposts may count as linked encounter evidence');
 });
