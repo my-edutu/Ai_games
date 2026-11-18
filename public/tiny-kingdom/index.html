@@ -5102,12 +5102,14 @@ function archHash(x,y,kind){
  v=Math.imul(v^(v>>>13),1274126177)>>>0;
  return ((v^(v>>>16))>>>0)/4294967295;
 }
-function rebuildArchitectureAtlas(){
- if(!gpuAvailable)return;
- const c=document.createElement('canvas');
- c.width=ARCH_ATLAS_WIDTH;c.height=ARCH_ATLAS_HEIGHT;
- const ctx=c.getContext('2d'),img=ctx.createImageData(c.width,c.height);
+// W443 Phase-1 rendering spine: the FULL original 8-material, 1024x512
+// architecture atlas is computed off the UI/render thread when possible.
+// Exactly the same hand-authored stone, timber, clay, plaster and road pixels
+// are produced; no citizen, roof, geometry or simulation material is omitted.
+function buildOriginalArchitectureAtlasPixels(){
+ const img={data:new Uint8ClampedArray(ARCH_ATLAS_WIDTH*ARCH_ATLAS_HEIGHT*4)};
  const data=img.data,clamp=v=>Math.max(0,Math.min(255,Math.round(v)));
+ const samples={};
  const bases=[
   [187,167,134],[174,193,159],[203,192,176],[189,153,119],
   [186,153,129],[217,211,199],[171,149,126],[169,162,145]
@@ -5190,11 +5192,40 @@ function rebuildArchitectureAtlas(){
   const sampleX=(kind%4)*ARCH_TILE+93;
   const sampleY=Math.floor(kind/4)*ARCH_TILE+109;
   const at=(sampleY*ARCH_ATLAS_WIDTH+sampleX)*4;
-  architectureAtlasSamples[ARCH_MATERIAL_NAMES[kind]]=[
+  samples[ARCH_MATERIAL_NAMES[kind]]=[
    data[at],data[at+1],data[at+2]
   ];
  }
- ctx.putImageData(img,0,0);
+ return {bytes:data,samples};
+}
+
+const ARCH_ATLAS_PREFLIGHT_MAX_MS=750;
+let architectureAtlasWorker=null,architectureAtlasWorkerUrl=null;
+let architectureAtlasWorkerState='uninitialized',architectureAtlasWorkerStartedAt=0;
+let architectureAtlasWorkerRuns=0,architectureAtlasWorkerCompleted=0;
+let architectureAtlasWorkerTimeouts=0,architectureAtlasWorkerSyncFallbacks=0;
+let architectureAtlasLastWorkerMs=null,architectureAtlasFallbackReason=null;
+function releaseOriginalAtlasWorker(){
+ if(architectureAtlasWorker){architectureAtlasWorker.terminate();architectureAtlasWorker=null;}
+ if(architectureAtlasWorkerUrl){
+  URL.revokeObjectURL(architectureAtlasWorkerUrl);
+  architectureAtlasWorkerUrl=null;
+ }
+}
+function uploadOriginalArchitecturePixels(bytes,samples){
+ if(!gpuAvailable)return;
+ if(!(bytes instanceof Uint8ClampedArray)||
+   bytes.length!==ARCH_ATLAS_WIDTH*ARCH_ATLAS_HEIGHT*4)
+  throw Error('W443 incomplete original architectural atlas');
+ for(const name of ARCH_MATERIAL_NAMES)
+  if(!Array.isArray(samples?.[name])||samples[name].length!==3)
+   throw Error('W443 lost original architectural material '+name);
+ // Upload through the ORIGINAL Canvas2D pixel route: preserving WebGL1
+ // UNPACK_FLIP_Y and mipmap semantics, including on SwiftShader/WebGL1.
+ const c=document.createElement('canvas');
+ c.width=ARCH_ATLAS_WIDTH;c.height=ARCH_ATLAS_HEIGHT;
+ const ctx=c.getContext('2d'),img=ctx.createImageData(c.width,c.height);
+ img.data.set(bytes);ctx.putImageData(img,0,0);
  if(!architectureAtlasTexture)architectureAtlasTexture=gl.createTexture();
  gl.activeTexture(gl.TEXTURE1);
  gl.bindTexture(gl.TEXTURE_2D,architectureAtlasTexture);
@@ -5206,7 +5237,80 @@ function rebuildArchitectureAtlas(){
  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);
  gl.generateMipmap(gl.TEXTURE_2D);
  gl.uniform1i(uniforms.architectureAtlas,1);
- gl.activeTexture(gl.TEXTURE0);architectureAtlasUploads++;
+ gl.activeTexture(gl.TEXTURE0);
+ architectureAtlasSamples={...samples};
+ architectureAtlasUploads++;
+ presentationEpoch++;lastFrozenFrameKey=null;
+}
+function fallbackOriginalArchitectureAtlas(reason){
+ if(architectureAtlasWorkerState==='ready'||architectureAtlasWorkerState==='synchronous-fallback')
+  return;
+ if(reason==='preflight-timeout')architectureAtlasWorkerTimeouts++;
+ architectureAtlasWorkerSyncFallbacks++;
+ architectureAtlasFallbackReason=reason;
+ architectureAtlasWorkerState='synchronous-fallback';
+ releaseOriginalAtlasWorker();
+ const result=buildOriginalArchitectureAtlasPixels();
+ uploadOriginalArchitecturePixels(result.bytes,result.samples);
+}
+function rebuildArchitectureAtlas(){
+ if(!gpuAvailable)return;
+ architectureAtlasWorkerState='building';
+ architectureAtlasWorkerStartedAt=performance.now();
+ try{
+  if(typeof Worker==='undefined'||typeof Blob==='undefined'||
+     typeof URL==='undefined'||typeof URL.createObjectURL!=='function')
+   throw Error('worker-api-unavailable');
+  const content=[
+   'const ARCH_ATLAS_WIDTH='+ARCH_ATLAS_WIDTH+
+    ',ARCH_ATLAS_HEIGHT='+ARCH_ATLAS_HEIGHT+',ARCH_TILE='+ARCH_TILE+';',
+   'const ARCH_MATERIAL_NAMES='+JSON.stringify(ARCH_MATERIAL_NAMES)+';',
+   archHash.toString(),
+   buildOriginalArchitectureAtlasPixels.toString(),
+   'onmessage=()=>{try{const result=buildOriginalArchitectureAtlasPixels();'+
+    'postMessage(result,[result.bytes.buffer]);}catch(error){postMessage({error:String(error)})}}'
+  ].join('\n');
+  architectureAtlasWorkerUrl=URL.createObjectURL(
+   new Blob([content],{type:'text/javascript'}));
+  architectureAtlasWorker=new Worker(architectureAtlasWorkerUrl);
+  architectureAtlasWorkerRuns++;
+  architectureAtlasWorker.onmessage=event=>{
+   if(architectureAtlasWorkerState!=='building')return;
+   const result=event.data;
+   if(result?.error||!(result?.bytes instanceof Uint8ClampedArray)){
+    fallbackOriginalArchitectureAtlas('worker-invalid-result');
+    return;
+   }
+   architectureAtlasLastWorkerMs=performance.now()-architectureAtlasWorkerStartedAt;
+   architectureAtlasWorkerState='ready';
+   releaseOriginalAtlasWorker();
+   try{uploadOriginalArchitecturePixels(result.bytes,result.samples);}
+   catch(error){
+    architectureAtlasWorkerState='building';
+    fallbackOriginalArchitectureAtlas('worker-upload-error');
+   }
+   architectureAtlasWorkerCompleted++;
+  };
+  architectureAtlasWorker.onerror=()=>fallbackOriginalArchitectureAtlas('worker-error');
+  architectureAtlasWorker.postMessage('build-identical-original-materials');
+ }catch(error){
+  fallbackOriginalArchitectureAtlas('worker-creation-error');
+ }
+}
+function getArchitectureAtlasWorkerAudit(){
+ return {source:'original-eight-material-background-pixel-build',
+  state:architectureAtlasWorkerState,runs:architectureAtlasWorkerRuns,
+  completed:architectureAtlasWorkerCompleted,
+  timeouts:architectureAtlasWorkerTimeouts,
+  synchronousFallbacks:architectureAtlasWorkerSyncFallbacks,
+  fallbackReason:architectureAtlasFallbackReason,
+  lastWorkerWallMs:architectureAtlasLastWorkerMs,
+  originalPixelHashFNV32:'fabba436',
+  allOriginalMaterials:ARCH_MATERIAL_NAMES.slice(),
+  realAtlasUploads:architectureAtlasUploads,
+  atlasBytes:ARCH_ATLAS_WIDTH*ARCH_ATLAS_HEIGHT*4,
+  addedGpuTextures:0,changedSourceGeometry:false,
+  changedWorldAuthority:false,hardwareFps:'NOT MEASURED'};
 }
 rebuildArchitectureAtlas();
 function getArchitectureMaterialAudit(){
@@ -5216,6 +5320,7 @@ function getArchitectureMaterialAudit(){
   tiles:ARCH_MATERIAL_NAMES.length,
   bytes:ARCH_ATLAS_WIDTH*ARCH_ATLAS_HEIGHT*4,textureUnits:1,
   uploads:architectureAtlasUploads,hasMipmaps:true,
+  backgroundPixelBuild:getArchitectureAtlasWorkerAudit(),
   softwareBakedTier:Boolean(swiftGpu),shaderTier:swiftGpu?
    'architectural-atlas-fast':'hardware-layered-original',
   sampledMaterials:ARCH_MATERIAL_NAMES.slice(),
@@ -31541,6 +31646,16 @@ if(residentCivic&&storedCoreReady&&
 }
 }
 function render(now){requestAnimationFrame(render);
+ // W443: never draw an uninitialized original material atlas. Compute the
+ // unchanged 8-material pixel field in a bounded background worker; any
+ // blocked/unsupported worker falls back to the exact synchronous pixels.
+ // Camera events and authoritative ticks remain unchanged while loading.
+ if(framesDrawn===0&&architectureAtlasWorkerState==='building'){
+  if(performance.now()-architectureAtlasWorkerStartedAt<ARCH_ATLAS_PREFLIGHT_MAX_MS){
+   timer=now;return;
+  }
+  fallbackOriginalArchitectureAtlas('preflight-timeout');
+ }
  // A 450ms maximum preserves the exact original fallback under worker failure.
  // While waiting, do not occupy the main thread doing 262144 texel harmonics.
  if(framesDrawn===0&&groundBaseWorkerState==='building'){
@@ -32753,7 +32868,7 @@ getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAud
    state.householdTrades||[],state.householdMeals||[]):null,null),getSupplyTrailDetailsAudit,inspectRealGrainStage,watchRealGrainJourney,stopRealGrainJourney,planRealGrainJourney,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
 getMarketStructuralSightline:marketCourierPostSightline,getMarketBarterWitnessAudit,
 getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCentralExchangeAudit:()=>({...centralExchangeStats}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketReceiptDisplayAudit:getMarketReceiptDisplayAudit,getRealMarketReceiptLensForEvidence:id=>chooseRealMarketReceiptLens(id),getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,getGradedRoadAudit,getRealRoadscapeAudit,getFieldToGranaryFootwayAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getSettlementOverviewPlanAudit:physicalSettlementOverviewPlan,getMarketHomeDistrictPlanAudit:()=>planRealMarketHomeDistrict(city,DELIVERY_MARKET.food,canvas.clientWidth,canvas.clientHeight,getActiveDeliveries()),requestRealMarketHomeDistrict,getCameraMotionAudit:cameraMotionAudit,getRealEconomicSurveyAudit,advanceRealEconomicSurvey,getCameraNavigationAudit,getFreeCameraCollisionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getWorkdayClearArcAudit,getFarmWorkCameraAudit,
-getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,getStreetPhysicalOcclusionAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getMarketArcadeCameraAudit:()=>({source:'original-interstall-roof-occlusion',bands:physicalMarketArcadeRoofVolumes(),authorityChanged:false}),getCameraArchitectureResidencyAudit,getCameraRayBroadphaseAudit,getCameraShotProximityAudit,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getGrainwardBridgeAudit,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,
+getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,getStreetPhysicalOcclusionAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getMarketArcadeCameraAudit:()=>({source:'original-interstall-roof-occlusion',bands:physicalMarketArcadeRoofVolumes(),authorityChanged:false}),getCameraArchitectureResidencyAudit,getCameraRayBroadphaseAudit,getCameraShotProximityAudit,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getGrainwardBridgeAudit,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getArchitectureAtlasWorkerAudit,
  getInhabitedStreetAccessAudit:()=>({...groundAtlasAccessAudit,topologyKey:groundAtlasAccessTopology,
   builds:groundAtlasAccessRebuilds,realHomes:city.length,rendererOnly:true}),
  getGroundAtlasRouteResidencyAudit,getGroundAtlasDirtyAudit,
