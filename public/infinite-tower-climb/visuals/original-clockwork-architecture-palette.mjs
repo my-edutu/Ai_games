@@ -157,6 +157,15 @@ export function createOriginalClockworkArchitecturalPalette(materials,bronzePale
         architecturalMaterials:channels.length,
         untouched:'hazards, warnings, emissive route and character cues'};
     },
+    // Floor 9's REAL original stone/steel belong beyond the bronze HP-open
+    // doorway, not to the historical gallery's color lease. Return a copy of
+    // the untouched authored shader color captured before any source-backed
+    // bronze blending. No source event, shader, geometry or GPU allocation.
+    nativeColorFor(material) {
+      if(material?.isMaterial!==true)return null;
+      const entry=channels.find(c=>materials[c.key]===material);
+      return entry?entry.normal.clone():null;
+    },
     restore(){
       for(const c of channels)c.color.copy(c.normal);
       lastWeight=0;sourceTick=null;
