@@ -904,7 +904,9 @@
     },
     "deviceFrameTimeP50P95P99": "NOT EVALUATED",
     "deviceMemory": "NOT EVALUATED",
-    "nextAction": "After CI, rework actual old bronze cap/post geometry and real F9 transition as one physical sightline. Re-capture 60+s normal-speed paired source-aligned full gameplay, not cropped HUD/chroma-only heuristics.",
-    "safety": "PR68 DRAFT, PR58 unchanged, frozen SHA and blob unchanged; no merge, deploy, force-push, unrelated game edits."
+    "nextAction": "Verify new source-pinned quality including three corrected Tower CPU fixture scenes; preserve P0 failed native video pairing, then rebuild original old bronze foreground/new real roof connection from real gameplay.",
+    "safety": "PR68 DRAFT, PR58 unchanged, frozen SHA and blob unchanged; no merge, deploy, force-push, unrelated game edits.",
+    "followUpOriginalExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44306208975 — Phase3 shard3 (adaptive resolution) PASS after first fix; Phase3 shard2 FAIL now in another CPU scene mock tests/phase3/tower-lighting-resource.test.cjs; precise same missing world.sourceEarnedOriginalGateGeometry interface observed as 0 expected 1 first render and 0 expected 4 PMREM. Fix third Tower fixture; Phase6 independent run may still fail, no claim of all-green.",
+    "followUpChange": "Extend the same authentic no-gate null-return fixture contract to lighting/reflection resource runner; no production or assertions touched."
   }
 }
