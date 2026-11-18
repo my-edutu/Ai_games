@@ -631,5 +631,45 @@
     "deviceFrameTime": "NOT EVALUATED",
     "deviceMemory": "NOT EVALUATED",
     "nextHighestImpactAction": "Verify new exact-source corrected CI first; inspect new full original candidate 91ad danger/outcome and true source/frame co-visibility. If still blocked, rebuild physical first-return camera with complete body/gate/real f9 deck and remove remaining bronze rails, not mere color opacity. Keep P0 open."
+  },
+  "p0OriginalOpenedGatewayToWalkableFloorNineThreeSubjectShot20261118": {
+    "activeStage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedPreviousSourceSha": "91ad4e1d48735442ffeddabf8173128e64cd67e9",
+    "inspectedPreviousNativeFilm": "https://github.com/my-edutu/Ai_games/actions/runs/44250489452",
+    "previousActualOriginalFilm": "25fps unedited 1x original 960x600/390x844: within-film drawn F9 HUD to sustained Void ~1.00s desktop / .75s portrait; original bronze cap/door still obscures climber and grounded successor. Strict source-matched native episode 0/2, FAIL.",
+    "lastVerifiedExactSourceQuality": {
+      "sha": "f8e6b6f5fc8b1b697cc0f9045d8d7ada25fd36b3",
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44253687509",
+      "result": "10/10 SUCCESS on PREVIOUS source only; technical veto not experience acceptance"
+    },
+    "thisRunImplementation": {
+      "testContractSha": "fad435b763986054f5d2d2125d8e10f02c9fbd1e",
+      "helperSha": "c485987a0a08c7fb03679eccf413debc7dcde299",
+      "actualThreeCameraSourceSha": "e287acc8f6f808ebb14e91d9522eead240afa0e3",
+      "paths": [
+        "public/infinite-tower-climb/visuals/physical-threshold-shot.mjs",
+        "public/infinite-tower-climb/visuals/scene.mjs",
+        "tests/phase3/tower-physical-crossfloor-three-subject-shot.test.cjs"
+      ],
+      "change": "New source-authenticated same-run HP-zero or validated original GPU-receipt Floor9 ground anchor on the EXISTING f9:ground roof past the bronze sill; cold first-submission inherited camera and genuine 3D ray-candidate ladder must retain previously visible actual Floor9 walkway, not only climber + gateway. Final reversible small-step exterior follow camera may actively rebalance genuine skinned body + opened original door + real walkable F9 landing; full-body/old-gate projection, opaque tower core, true F9 deck/architectural triangle and original cap visibility vetoes continue to outrank any cinematic correction. No new platform/collider/route, fake gate, independent camera or gameplay authority mutation.",
+      "newExactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44260807582 — pending at evidence write; no pass claimed",
+      "newOriginalFilm": "NOT YET CAPTURED for three-subject change, must request and inspect source SHA exact normal-speed original WebM desktop and portrait",
+      "nativePixelImprovement": "NOT EVALUATED; projected 3D geometry and unit tests cannot establish source-matched painted frames",
+      "qualityStatus": "PENDING"
+    },
+    "largestRemainingDefect": "At least two consecutive fully source-aligned actual native full-motion frames showing complete skinned climber, original HP0 opened guardian arch, true walked f9:ground, onward Void together in BOTH viewports remain unverified; prior strict paired original duel 0/2.",
+    "independentReviewCounts": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDevice": {
+      "frameTimes": "NOT EVALUATED p50/p95/p99",
+      "memory": "NOT EVALUATED"
+    },
+    "nextHighestImpactAction": "Check exact-head CI, record original low-tier deterministic 60+s 1x 25fps baseline/candidate desktop/portrait all ascent/danger/outcome, inspect native PTS+source WebGL return and real hero/gateway/deck consecutive pixels. If remaining bronze obstructions stay, correct actual old gate/cap geometric sightline, not color/CI theater; stay P0.",
+    "safety": "Only PR68 branch Tower source/tests/evidence; PR58 untouched, frozen baseline preserved, no merge, deploy, force push, draft conversion or unrelated games."
   }
 }
