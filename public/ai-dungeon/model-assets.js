@@ -5128,6 +5128,9 @@ function stageOriginalSourceSwingLinkedFootAfterMixer(actor,reducedMotion){
 // the optional loaded-stance stage. This is historical evidence, never a
 // current-frame pose, world-space lock, acceptance of contact or extra skin.
 function rememberOriginalSourceAppliedSwingEvidence(actor){
+ if(actor.sourceSwingLinkedLastAppliedEvidence&&
+  actor.sourceSwingLinkedLastAppliedEvidence.sourceInstanceId!==actor.assetRoot?.uuid)
+  actor.sourceSwingLinkedLastAppliedEvidence=null;
  if(actor.fullBody?.mode!=='move'||actor.activeImportedClipName!=='Walking_A'||
   actor.u?.hp<=0||!actor.assetRoot?.uuid||
   actor.root?.visible!==true||actor.locomotionTeleport||
@@ -5139,7 +5142,7 @@ function rememberOriginalSourceAppliedSwingEvidence(actor){
   const b=proof?.before?.[side],a=proof?.after?.[side],
    lb=proof?.before?.[other],la=proof?.after?.[other];
   if(!proof||proof.sourceInstanceId!==actor.assetRoot.uuid||
-   proof.sourceClip!=='Walking_A'||proof.originalSourceContactLocked!==false||
+   proof.sourceClip!=='Walking_A'||(proof.originalSourceContactLocked!==false&&proof.contactLocked!==false)||
    ![b?.toeY,b?.heelY,a?.toeY,a?.heelY,
      lb?.toeY,lb?.heelY,la?.toeY,la?.heelY].every(finite)||
    a.toeY<=b.toeY||
