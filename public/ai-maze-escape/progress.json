@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-18T20:24:14.000Z",
+  "updatedAt": "2026-11-18T21:51:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass487 exact SHA eca27a44 focused native WebGL SUCCESS 8/8 incl six-reset <100, with original artifact 14464725683 independently verified 40/40 PNG hashes and three real gate-transition PNG hashes. Original full-size 390 guardian/pressure/key/gate remain independently separate moments, cluttered compared with Nintendo and no natural same-run completed chapter. Pass488 code candidate prioritizes a legally reciprocal SAME-tier two-cell key gallery after linked guardian instead of an earlier cross-tier stair, retaining fallback and game authority. New HEAD tests/WebGL, actual gallery before/after and independent art critic PENDING. Whole repo CI 44380663445 fails separate Tiny Kingdom OBS/evidence stages."
+    "summary": "Pass488 exact SHA 07ddefff native WebGL workflow 44393068318 SUCCESS; artifact 14468614196 exists but its raw screenshots were NOT re-downloaded, hash-checked or artistically judged this run. Whole-repo CI 44393068312 fails separate Tiny Kingdom OBS and artifact uploads. Pass489 original weather vane physically telescopes on a witnessed guardian brace and retracts on actual release/earned counter; same true public lane, unchanged AI/collision/strict thresholds. Installed-Three and new exact-HEAD native captures pending; Nintendo-quality and natural continuous chapter remain unproven."
   },
   "captures": [
+    {
+      "title": "Pass488 exact SHA 07ddefff focused WebGL 8 browser checks SUCCESS; original artifact exists but not independently rehashed in Pass489",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44393068318/artifacts/14468614196"
+    },
     {
       "title": "Pass487 exact-head native WebGL SUCCESS 8/8: 40 full-resolution source PNG hashes and 3 real chronological gate hashes verified; Pass488 old-state baseline only",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44380663494/artifacts/14464725683"
@@ -357,6 +361,12 @@
   ],
   "changes": [
     {
+      "title": "Pass489 — coherent original physical guardian warning mast retraction",
+      "description": "The existing rooted original 3D Tideglass mast/collar/two shell vanes now rise together on the actual publicly witnessed guardian brace, retract on real release/parry and remain still for reduced motion. Original observed stage, paths, AI, collision, resource pools and visual thresholds unchanged. Installed-Three regression; exact-HEAD native WebGL artistic approval pending.",
+      "date": "2026-11-18",
+      "status": "Code/test candidate; source-matched WebGL and independent visual review pending"
+    },
+    {
       "title": "Pass488 — prefer an authored single-tier real two-link treasure detour",
       "description": "A formerly earliest route-legal stair-tier required-key chamber could win even when another real same-level reciprocal two-link branch exists and can receive the actual joined 3D Tideglass physical stage. Prefer the real connected single-tier gallery first; preserve stepped-two-link, one-step and route fallbacks. Inventory solver test checks full real 11×9 branch and return to matching gate, blocked and guardian-occupied negatives. Exact-HEAD source/renderer approval pending.",
       "date": "2026-11-18",
@@ -688,6 +698,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass489: exact-HEAD focused native WebGL of real mast notice/brace/release/recoil on four viewport sizes, SHA-verified original full-frame capture, independent Nintendo side-by-side, full uninterrupted playable flagship level. Reject on occlusion or framing regression.",
     "Pass488: exact-HEAD source test/WebGL four full-frame viewports; capture an AUTHENTIC actual selected connected two-link same-tier key gallery with charged/spent physical changes, and verify an uninterrupted naturally generated pressure→Thornback→key→matching gate→escape run before art signoff.",
     "Pass487: ensure new exact-HEAD source tests, true four-viewport full-frame WebGL and source-SHA hash sidecars; inspect *actual shown* gallery charged/spent states and natural pressure→guardian→treasure→gate→escape in one run. Reject against official Nintendo benchmark if physical sails obscure gameplay.",
     "Pass486: rerun exact-SHA installed-Three source suite and 8/8 native WebGL + four full-frame SHA-matched viewports. Reject if any true 3D scene runtime failure, budget/framing/AI leak; finish public-knowledge-only natural pressure→Thornback→two-cell key→gate→escape and independent official art critique.",
@@ -781,6 +792,11 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass489 witnessed guardian physical mast retracts on genuine brace/release",
+      "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-489-real-public-guardian-mast-retraction-2026-11-18.md",
+      "status": "Production code and installed Three regression candidate; exact-head native critic pending"
+    },
     {
       "title": "Pass488 source-bound same-tier treasure gallery versus cross-tier fallback generation",
       "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-488-single-tier-authored-key-gallery-2026-11-18.md",

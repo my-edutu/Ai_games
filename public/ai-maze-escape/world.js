@@ -1862,7 +1862,7 @@ export function createMazeWorld(options = {}) {
               tip.name='Guardian observatory carved vane crest '+c.cell+' '+side;
               vanes.push({hinge,shell,tip,side});
             }
-            observatory={instrument,vanes};
+            observatory={instrument,vanes,shaft,collar};
           }
           // A rooted, concentric Tideglass floor response travels from
           // Pip to Thornback ONLY on their genuinely earned shared counter.
@@ -3894,11 +3894,26 @@ export function createMazeWorld(options = {}) {
       // The joined high silhouette opens on the REAL guardian brace and
       // folds backward on the EARNED counter. This is presentation only,
       // physically rooted behind the actor; do not invent a second exit.
-      if(signal.observatory) for(const vane of signal.observatory.vanes){
-        vane.hinge.rotation.z=reduced?0:vane.side
-          *(.12+.36*warningAction-.54*counterWave);
-        vane.shell.material=counterWave>.18?darkJade:seaGlass;
-        vane.tip.material=counterWave>.18?inlay:warningAction>.3?amber:lightStone;
+      if(signal.observatory){
+        // Pass489: a permanently tall (over 3m) shell mast sat between Pip
+        // and Thornback in actual 390px recoil frames. Its ORIGINAL rooted
+        // geometry now telescopes UP only during a genuinely witnessed brace,
+        // then returns to its low, clear resting silhouette on release/parry.
+        // The bottom stays embedded in the same stone anchor at y=.30; no
+        // static "victory" mast, hit effect, collider, unseen enemy, new mesh,
+        // or knowledge beyond the public lane. Reduced motion remains still.
+        const mastLift=reduced?0:Math.max(0,Math.min(1,warningAction));
+        const mastHeight=.78+.88*mastLift;
+        signal.observatory.shaft.scale.y=mastHeight;
+        signal.observatory.shaft.position.y=.30+mastHeight*.5;
+        signal.observatory.collar.position.y=.25+mastHeight;
+        for(const vane of signal.observatory.vanes){
+          vane.hinge.position.y=.37+mastHeight;
+          vane.hinge.rotation.z=reduced?0:vane.side
+            *(.12+.36*warningAction-.54*counterWave);
+          vane.shell.material=counterWave>.18?darkJade:seaGlass;
+          vane.tip.material=counterWave>.18?inlay:warningAction>.3?amber:lightStone;
+        }
       }
       // The FULL linked 3D standard rises with the real published brace,
       // drops on release and instantly neutralizes on hidden/invalid/terminal.
