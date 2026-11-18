@@ -770,5 +770,54 @@
     "actualDeviceMemory": "NOT EVALUATED",
     "nextHighestImpactAction": "Inspect exact-SHA quality and genuine new 9-job original full-motion capture (960x600 & 390x844); verify source-grounded dual-edge guide is actually drawn and affects the physical Floor8->9 camera story, with two adjacent source-aligned hero+gate+F9 pixels. If not, remove false-legibility and rebuild REAL old-bronze support/gate sightline, not another color fade.",
     "safety": "Frozen transformation file unchanged; PR58 untouched, PR68 open draft; no merge, deployment or force push."
+  },
+  "p0Run11OriginalVideoAirborneRouteAndExactHead20261118": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedPreviousCandidateSourceSha": "4a614c5940915b5c47e8e5ba3846e4dbe5aaa01b",
+    "priorNineJobRealGameplay": "https://github.com/my-edutu/Ai_games/actions/runs/44279575249",
+    "priorOriginalCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44279575249/artifacts/14416861791",
+    "originalMotionInspected": "Unmodified 71.72s desktop 960x600 and 73.00s portrait 390x844 at 25fps, full visible F8 guardian-to-F9 transition around 23-31s plus matched original source sidecars",
+    "strongestFootageDefect": "No verified consecutive co-visible native frames of full moving hero, opened source HP-zero old gate and actual walkable successor Floor9; 0s measured warm-to-cool continuity",
+    "originalPhaseEvidence": {
+      "desktop": {
+        "drawnHudF9Seconds": 25.75,
+        "sustainedVoidSeconds": 26.75,
+        "hudToWorldSeconds": 1
+      },
+      "portrait": {
+        "drawnHudF9Seconds": 26,
+        "sustainedVoidSeconds": 26.75,
+        "hudToWorldSeconds": 0.75
+      },
+      "precisionSeconds": 0.25,
+      "sourceToNativeEventPairing": "FAILED 0/2",
+      "warning": "Phase detection is real native WebM but not physical-source/body pixel certification or a causal performance gain"
+    },
+    "primaryStructuralRepair": "The prior route would reject source-authenticated first Floor9 airborne receipts and instantly retire the real roof; honor only verified fixed-step recorded crossing, draw existing old cap and real successor roof together, never light unobserved airborne footsteps",
+    "codeCommit": "a8ebc5aa31f329bcc4024b5e744eae7f29087226",
+    "testsCommits": [
+      "3316a3dfd607f546a55495313f8e7fb53f4cd40e",
+      "4412695294c1ec6e681882436d2765981b47b62b"
+    ],
+    "codeFile": "public/infinite-tower-climb/visuals/guardian-passage.mjs",
+    "tests": [
+      "tests/phase3/tower-source-recorded-gateway-handoff.test.cjs",
+      "tests/phase3/tower-floor-nine-grounded-runway.test.cjs"
+    ],
+    "priorExactHeadCI": "https://github.com/my-edutu/Ai_games/actions/runs/44279575276 — 9/10, Phase3/1 expected old lexical branch and failed; repaired assertion retains production fail-closed handling",
+    "newExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44286824458 — pending at filing, no green claim",
+    "newOriginalGameCapture": "NOT YET RECORDED for implementation SHA; immutable source-pinned request to follow",
+    "authenticatedCaptureConditions": "Original baseline/candidate 960x600 and 390x844, seed tower-transformation-capture-v1, low tier, 1x, 25fps, 60+s, ascent/moving/danger/outcome-restart",
+    "genuineIndependentCriticVotes": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "hardwareFrameTimeP50P95P99": "NOT EVALUATED",
+    "deviceMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Run new immutable candidate original full-motion evidence; inspect earned threshold roof under both airborne and standing frames. If two consecutive source-paired co-visible frames are still absent, overhaul physical old bronze gate/cap plus F9 shaft composition together, not fades.",
+    "safety": "Same draft PR68 based on PR58; frozen baseline and transformation.json untouched; no unrelated game, merge, deploy, force-push, draft conversion"
   }
 }
