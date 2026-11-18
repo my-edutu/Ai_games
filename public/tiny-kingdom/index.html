@@ -8865,6 +8865,77 @@ function renderOriginalOccupiedRoofStructure(x,z,eave,ridge,halfSpan,front,back,
   changedAuthoritativeEconomy:false};
 }
 
+// W432: a physical occupied lower room in the EXISTING eight detailed homes.
+// Replace the previously solid plaster cube and painted-on immovable front
+// door with perimeter walls, an actual clear opening, floor and lived-in
+// joinery. Every object stays inside the real authoritative home footprint.
+// Static, cached town VBO only: never a fictional resident, meal or transaction.
+let originalOccupiedRoomStats={builtInstances:0,emittedTriangles:0,
+ doorwayOpenings:0,interiorFixtures:0,lastDoorWidth:0,lastDoorHeight:0};
+function getOriginalOccupiedRoomAudit(){
+ return {...originalOccupiedRoomStats,
+  source:'original-occupied-cottage-real-doorway-and-room',
+  maxTrianglesPerHome:150,additionalGpuBuffers:0,
+  rendering:'original-stationary-settlement-cache',
+  realHouseIdsUnchanged:true,extraBuildings:0,extraCitizens:0,
+  extraInventory:0,changesNavigation:false,changesEconomy:false,
+  authorityModified:false,hardwareFps:'NOT MEASURED',
+  lookFeelPlayGate:'NOT PROVEN'};
+}
+function renderOriginalOccupiedRoomShell(x,y,z,w,d,wallHeight,scale,plasterTone){
+ if(![x,y,z,w,d,wallHeight,scale].every(Number.isFinite)||
+    scale<=0||w<=.95*scale||d<=1.1*scale)
+  throw Error('W432 original cottage room dimensions invalid');
+ const before=data.length,base=y+.19*scale,
+  thickness=.135*scale,doorWidth=.76*scale,
+  doorHeight=1.27*scale,doorSide=(w-doorWidth)*.5;
+ if(doorSide<=.30*scale||wallHeight<=doorHeight+.075*scale)
+  throw Error('W432 real inhabited doorway cannot fit lower cottage');
+ // Four full outer perimeter walls, except the genuine open front door.
+ // Both front-side piers and the timber-supported top lintel are real
+ // geometry. All surfaces have inward faces, unlike the former solid cube.
+ materialScope(MATERIAL.PLASTER,()=>{
+  box(x,base,z+d*.5-thickness*.5,w,wallHeight,thickness,plasterTone);
+  for(const side of [-1,1]){
+   box(x+side*(w*.5-thickness*.5),base,z,
+    thickness,wallHeight,d-thickness,plasterTone);
+   box(x+side*(doorWidth*.5+doorSide*.5),base,
+    z-d*.5+thickness*.5,doorSide,wallHeight,thickness,plasterTone);
+  }
+  box(x,base+doorHeight,z-d*.5+thickness*.5,
+   doorWidth,wallHeight-doorHeight,thickness,plasterTone);
+ });
+ // One original home floor and a restrained occupied-house hearth: no new
+ // supplies, light source, workbench, citizen or artificial home meal.
+ materialScope(MATERIAL.STONE,()=>{
+  box(x,base+.008,z,w-2*thickness,.045*scale,d-2*thickness,
+   rgb(0x8a806f));
+  box(x-.48*scale,base+.055*scale,z+d*.29,
+   .51*scale,.20*scale,.37*scale,rgb(0x817766));
+ });
+ materialScope(MATERIAL.WOOD,()=>{
+  // Household joinery remains behind and to the side of the unchanged
+  // passage; a real resident may still reach their same front doorway.
+  box(x+.45*scale,base+.07*scale,z+d*.27,
+   .68*scale,.34*scale,.23*scale,rgb(0x75563e));
+  box(x+.40*scale,base+.87*scale,z+d*.38,
+   .91*scale,.07*scale,.17*scale,rgb(0x987653));
+  box(x,base+doorHeight-.052*scale,z-d*.5-.024*scale,
+   .89*scale,.09*scale,.075*scale,rgb(0x77523b));
+ });
+ const triangles=(data.length-before)/30;
+ if(!Number.isInteger(triangles)||triangles>150||triangles<90)
+  throw Error('W432 original furnished room exceeds retained city budget');
+ originalOccupiedRoomStats.builtInstances++;
+ originalOccupiedRoomStats.emittedTriangles+=triangles;
+ originalOccupiedRoomStats.doorwayOpenings++;
+ originalOccupiedRoomStats.interiorFixtures+=4;
+ originalOccupiedRoomStats.lastDoorWidth=doorWidth;
+ originalOccupiedRoomStats.lastDoorHeight=doorHeight;
+ return {triangles,doorWidth,doorHeight,
+  fixedOuterWalls:true,doorwayOpen:true,originalHome:true};
+}
+
 function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale,h=houseVisualProfile(x,z,variant,false).height*scale;
  // G054c: plaster is not stacked granite. Preserve stone in the footings,
  // make roof planes roof material, and preserve all original mesh triangles.
@@ -8878,10 +8949,10 @@ function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)
  const plasterTone=variant%2?rgb(0xe1c7a0):rgb(0xd1bc97);
  materialScope(MATERIAL.PLASTER,()=>{
   if(detailedJetty){
-   box(x,y+.19*scale,z,w,1.36*scale,d,plasterTone);
+   renderOriginalOccupiedRoomShell(x,y,z,w,d,1.36*scale,scale,plasterTone);
    box(x,y+1.55*scale,z,w+.28*scale,h-1.55*scale,
     d+.30*scale,plasterTone);
-  }else box(x,y+.19*scale,z,w,h-.19*scale,d,plasterTone);
+  }else renderOriginalOccupiedRoomShell(x,y,z,w,d,h-.19*scale,scale,plasterTone);
  });
  if(detailedJetty){
   const oak=rgb(0x694d36),frame=rgb(0xbfad91),glass=rgb(0x4e6771);
@@ -8981,7 +9052,8 @@ for(let i=1;i<=5;i++){let q=i/6;const lx=xx+(x-xx)*q,rx=x+(xr-x)*q,top=y+h+(ridg
 if(detailedJetty)grainwardStructuralDormer(x,z,y+h,y+ridge,(xr-xx)*.5,zy,-1,variant,scale,'home');
  renderOriginalOccupiedRoofStructure(x,z,y+h,y+ridge,(xr-xx)*.5,zy,zz,
   hip?hipInset:0,variant,'detailed');
-box(x,y,z-d/2-.045*scale,.66*scale,1.25*scale,.085,rgb(0x76523c));box(x,y+1.03*scale,z-d/2-.084*scale,.07*scale,.055,.07,rgb(0xd5b778));
+// The genuinely open lower doorway replaces the old opaque false door.
+// The existing dynamic oak door leaf is still operated by real homecoming.
 for(const side of [-1,1])renderOriginalOccupiedCasement(
  x+side*w*.32,y+h*.43,z-d/2-.082,.40*scale,.51*scale,-1,variant,false);
 // Structural timber posts and chimney establish scale and depth.
@@ -32334,7 +32406,7 @@ getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStr
  getInhabitedStreetAccessAudit:()=>({...groundAtlasAccessAudit,topologyKey:groundAtlasAccessTopology,
   builds:groundAtlasAccessRebuilds,realHomes:city.length,rendererOnly:true}),
  getGroundAtlasRouteResidencyAudit,getGroundAtlasDirtyAudit,
- getOriginalCivicGroundContactAudit,getRealHomeLaneAlbedoAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getSceneTriangleReconciliation,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGrainShockConservationAudit,getGranaryArchitectureAudit,getGrainwardDistrictAudit:getGrainwardDistrictAudit,getGrainwardDormerAudit,getGrainwardTransferNodeAudit,getInhabitedSkylineAudit,getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getEcotoneVisualStats,getValleySurfaceBuildAudit,getTerrainBaseResidencyAudit,getRiverReedVisualAudit,getForestVisualStats:()=>({
+ getOriginalCivicGroundContactAudit,getRealHomeLaneAlbedoAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getSceneTriangleReconciliation,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGrainShockConservationAudit,getGranaryArchitectureAudit,getGrainwardDistrictAudit:getGrainwardDistrictAudit,getGrainwardDormerAudit,getGrainwardTransferNodeAudit,getInhabitedSkylineAudit,getOriginalOccupiedRoomAudit,getGranarySupplyAudit:granarySupplyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getEcotoneVisualStats,getValleySurfaceBuildAudit,getTerrainBaseResidencyAudit,getRiverReedVisualAudit,getForestVisualStats:()=>({
  silhouette:'w263-original-broken-crown-and-fir-tier',
  allTreesPreserved:true,additionalCanopyTriangles:0,
  sourceTrees:trees.length,
