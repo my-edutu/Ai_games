@@ -464,3 +464,40 @@ export function observedEarnedGalleryExitClearance(source,held,{reducedMotion=fa
     affectedMeshes:'historical-noncolliding-gallery-only',
     limitation:'Actual source crossing and previous successful WebGL returns; neither old portal nor any walkable platform changes, no native-film acceptance'};
 }
+
+
+// P0 architectural handoff: the formerly useful Floor8 gallery consists of
+// SOURCE-CLIPPED, noninteractive historical triangles, not the original HP
+// gate or collision-aligned cap. Its eight translucent batches otherwise stack
+// into a persistent bronze curtain even after the real F9 shaft has painted.
+// Retire that OLD detached gallery only after (1) the identical genuinely
+// defeated guardian and real supported F9 body clear the old sill, AND (2)
+// at least TWO successfully returned frames include nonzero original Void
+// structural geometry. This is stronger than a source clock, a render
+// submission without visible successor architecture, or a floor HUD change.
+// The true F8 gate/cap and all F9 gameplay stay independently owned/visible.
+export function observedReturnedGalleryHandoffClearance(source,held,job) {
+  const realExit=observedEarnedGalleryExitClearance(source,held);
+  if(realExit?.sourceBound!==true ||
+      !job || job.proof!=='recorded-source-gateway' ||
+      job.structureDeferred!==true || job.floor!==9 ||
+      job.runToken!==source.runToken ||
+      !valid(job.sourceTick) || job.sourceTick>source.tick ||
+      !valid(job.submittedFrames) || job.submittedFrames<2 ||
+      !valid(job.structureBuiltAtSubmitted) ||
+      job.structureBuiltAtSubmitted<1 ||
+      job.submittedFrames<=job.structureBuiltAtSubmitted ||
+      !valid(job.structuralVisibleReturns) ||
+      job.structuralVisibleReturns<2 ||
+      job.structuralVisibleReturns>job.submittedFrames ||
+      !Number.isFinite(job.structuralFade) ||
+      job.structuralFade<=.015 || job.structuralFade>1 ||
+      job.structuralRoot?.visible!==true ||
+      !['awaiting-void-biome-build','awaiting-structural-release',
+        'awaiting-structural-submission','awaiting-vista-submission',
+        'fading-remote-arrival','complete'].includes(job.state)) return null;
+  return {sourceBound:true,sourceTick:source.tick,galleryOnly:true,
+    successorReturnedFrames:job.structuralVisibleReturns,
+    maxOpacity:0,
+    limitation:'Actual supported crossing plus two returned original F9-shaft frames; a renderer return is NOT independently checked pixel visibility'};
+}
