@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-18T11:52:00.000Z",
+  "updatedAt": "2026-11-18T13:35:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass480: actual Pass479b source-bound native WebGL 44290460770 FAILED 7/8 because all six authentic production seeds lacked a publicly open reciprocal Pip-Thornback encounter; unchanged six-reset geometry and other 7 browser checks passed. Restore byte-identical Pass478 generator rather than falsify the encounter or relax evidence, and add a source regression using the same real public frames. Whole repo source build/Maze stream passed but unrelated Tiny Kingdom OBS and uploads failed. Fresh rollback HEAD CI and original screenshot SHA/visual approval pending; Nintendo bar unmet; detached coding/critic unavailable. PR 53 remains draft and automation active."
+    "summary": "Pass481 source candidate: retain the last verified straight publicly reciprocal Thornback watchpost and linked physical pressure room; if an existing matching critical gate is downstream, move an earlier required key to a safe unoccupied route cell two to six steps AFTER that guardian. This changes playable objective order, not camera/UI cosmetics, and leaves deterministic public-only AI, trap/gate/guardian topology and strict browser thresholds untouched. Pass480 exact-HEAD native 44299655138 SUCCESS 8/8; 40/40 original PNG sidecar hashes verified. New Pass481 exact-source CI and truly consecutive pressure→guardian→key→gate playthrough still pending. Nintendo benchmark unmet; independent critic workspace unavailable."
   },
   "captures": [
     {
@@ -340,6 +340,12 @@
     }
   ],
   "changes": [
+    {
+      "title": "Pass481 — existing real pressure + unchanged straight Thornback → required forward key → matching critical gate",
+      "description": "A lawful earlier key is relocated to an unoccupied main-route cell after the verified guardian ONLY if its physical pressure prelude and matching downstream gate both exist. No guardian re-selection, forged route or AI hidden-state access. New commit needs strict native evidence and full playthrough.",
+      "date": "2026-11-18",
+      "status": "Gameplay source candidate; exact-HEAD CI/rendered visual verdict pending"
+    },
     {
       "title": "Pass480 — reject failed forward-objective watchpost selection; restore native encounter and guard real public sightline",
       "description": "Pass479b native real WebGL failed 1 of 8: no open public reciprocal guardian corridor in 6 production seed sequences. Restore exact Pass478 generator and add source regression using same production captures, no fabricated AI/public state or lowered native/geometry budgets. New exact-HEAD tests pending; no visual win.",

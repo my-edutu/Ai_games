@@ -143,6 +143,34 @@ function guardianPressurePrelude(world:MazeWorld,route:number[],reserved:Set<num
  return null;
 }
 
+// Preserve the already verified straight guardian: do not rerank its spawn.
+// A genuine previously-early required key may instead become a post-guardian
+// objective, strictly ahead on walkable route ground and before its own gate.
+export function forwardGuardianKeyCell(
+ world:MazeWorld,route:number[],approachIndex:number
+):{keyId:string;cell:number}|null{
+ if(!Number.isInteger(approachIndex)||approachIndex<1
+   ||approachIndex>=route.length-4)return null;
+ const occupied=new Set<number>([world.start,world.exit,
+   ...world.keys.map(key=>key.cell),...world.doors.flatMap(door=>[door.a,door.b]),
+   ...world.traps,...world.clues,...world.checkpoints,...world.blockedCells]);
+ for(const key of world.keys){
+   const oldIndex=route.indexOf(key.cell);
+   if(oldIndex<1||oldIndex>=approachIndex)continue;
+   const crossing=route.findIndex((cell,index)=>index>approachIndex+3
+     &&world.doors.some(door=>door.critical&&door.requiredKeyId===key.id
+       &&((route[index-1]===door.a&&cell===door.b)
+         ||(route[index-1]===door.b&&cell===door.a))));
+   if(crossing<0)continue;
+   const last=Math.min(approachIndex+6,crossing-2);
+   for(let i=approachIndex+2;i<=last;i++){
+     const cell=route[i]!;
+     if(!occupied.has(cell))return {keyId:key.id,cell};
+   }
+ }
+ return null;
+}
+
 export function populateMazeContent(base:MazeWorld,config:MazeConfig,rng:NamedRng):MazeWorld{
   const world=structuredClone(base),route=solveMaze(world,{start:world.start,goal:world.exit});if(!route)throw new Error('cannot populate unsolved maze');
   const dependencyCount=Math.min(config.keyCount,Math.max(0,Math.floor((route.length-3)/4)));
@@ -183,6 +211,24 @@ export function populateMazeContent(base:MazeWorld,config:MazeConfig,rng:NamedRn
         threatReserved.delete(original);threatReserved.add(linked);
       }
       world.threats.push({id:'threat-1',cell:watchpost.spawn,route:[watchpost.spawn,watchpost.retreat],routeIndex:0,direction:1,lastSeenTick:null,active:true});
+      // Never move the guardian, trap, gate, routes or private AI knowledge:
+      // require an actual reciprocal pressure room at this SAME straight
+      // two-cell watchpost before shifting its existing matching key forward.
+      const joinedPressure=watchpost.straight&&[0,1,2].some(back=>{
+        const court=route[watchpost.approachIndex-back];
+        return court!==undefined&&world.traps.some(trap=>
+          passageNeighbors(world,court).includes(trap)
+          &&passageNeighbors(world,trap).includes(court));
+      });
+      if(joinedPressure){
+        const relay=forwardGuardianKeyCell(world,route,watchpost.approachIndex);
+        if(relay){
+          const key=world.keys.find(item=>item.id===relay.keyId)!;
+          key.cell=relay.cell;
+          reserved.add(relay.cell);
+          threatReserved.add(relay.cell);
+        }
+      }
       threatReserved.add(watchpost.spawn);threatReserved.add(watchpost.retreat);
     }
   }

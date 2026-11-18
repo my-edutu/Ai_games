@@ -55,3 +55,50 @@ test('fixed production reference seeds retain a genuine PUBLIC reciprocal Pip-Th
  assert.ok(witness.frame.snapshot.threats.some(threat=>
   publicGuardianOpenSightline(witness.frame.snapshot,threat.cell)>0));
 });
+test('the same real guardian can lead to a matching REQUIRED forward key and physical gate',()=>{
+ const {forwardGuardianKeyCell}=load('games/ai-maze-escape/src/generation/content.js');
+ const route=[10,11,12,13,14,15,16,17,18,19,20];
+ const world={start:10,exit:20,keys:[{id:'key-1',cell:11,collected:false}],
+  doors:[{id:'door-1',a:17,b:18,requiredKeyId:'key-1',critical:true,open:false}],
+  traps:[],clues:[],checkpoints:[],blockedCells:[]};
+ assert.deepEqual(forwardGuardianKeyCell(world,route,3),{keyId:'key-1',cell:15});
+ assert.equal(forwardGuardianKeyCell({...world,keys:[{...world.keys[0],cell:16}]},route,3),null,
+   'do not shift a key that is already forward of the guardian');
+ assert.equal(forwardGuardianKeyCell({...world,doors:[{...world.doors[0],requiredKeyId:'other'}]},route,3),null);
+ assert.equal(forwardGuardianKeyCell({...world,doors:[{...world.doors[0],critical:false}]},route,3),null);
+ assert.deepEqual(forwardGuardianKeyCell({...world,checkpoints:[15]},route,3),{keyId:'key-1',cell:16},
+   'protect real checkpoints');
+ assert.equal(forwardGuardianKeyCell({...world,clues:[15,16]},route,3),null,
+   'never overwrite real clue objects');
+});
+test('24 authentic worlds can create pressure, straight guardian, then key and exact gate',()=>{
+ const config=parseMazeConfig({width:17,height:15,profile:'loops',loopChancePermille:160,
+  visibilityRadius:2,keyCount:1,trapCount:2,threatCount:1});
+ let chapters=0;
+ for(let n=0;n<24;n++){
+   const w=generateMaze(config,NamedRng.fromSeed('real-watchpost-pressure-'+n)).world;
+   const route=solveMaze(w,{start:w.start,goal:w.exit}),routeSet=new Set(route);
+   assert.ok(solveMazeWithInventory(w),'critical route remains playable');
+   const actor=w.threats[0];if(!actor)continue;
+   for(let i=2;i<route.length-4;i++){
+     const entry=route[i],side=actor.route[0],retreat=actor.route[1];
+     if(!passageNeighbors(w,entry).includes(side)||routeSet.has(side)||routeSet.has(retreat))continue;
+     const er=Math.floor(entry/w.width),ec=entry%w.width,sr=Math.floor(side/w.width),
+       sc=side%w.width,rr=Math.floor(retreat/w.width),rc=retreat%w.width;
+     if(rr-sr!==sr-er||rc-sc!==sc-ec)continue;
+     const pressure=[0,1,2].some(back=>w.traps.some(trap=>
+       passageNeighbors(w,route[i-back]).includes(trap)
+       &&passageNeighbors(w,trap).includes(route[i-back])));
+     if(!pressure)continue;
+     const relay=w.keys.some(key=>{
+       const pickup=route.indexOf(key.cell);
+       return pickup>i+1&&pickup<=i+6&&w.doors.some(door=>
+         door.critical&&door.requiredKeyId===key.id
+         &&route.some((cell,j)=>j>pickup+1
+           &&((route[j-1]===door.a&&cell===door.b)||(route[j-1]===door.b&&cell===door.a))));
+     });
+     if(relay){chapters++;break}
+   }
+ }
+ assert.ok(chapters>=1,'seeded world must include at least one real connected chapter');
+});
