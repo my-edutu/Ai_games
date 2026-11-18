@@ -5191,6 +5191,8 @@ export function planImportedRealTravelCrossfade({
 export function planImportedWalkingMixerFrameDelta({mode='idle',walkingClip=false,
  frameDelta=0,frameInterval=frameDelta,sourceStep=NaN,sourceDuration=NaN,
  sourceTime=NaN,effectiveSpeed=NaN,groundedTravel=NaN,groundedMoving=false,
+ sourceClipName='',sourceInstanceSame=false,sourceFadeStartedThisFrame=false,
+ transitionFromClip='',transitionFadeSeconds=NaN,sourceWeight=NaN,
  visible=true,reducedMotion=false,teleport=false}={}){
  const ordinary=finite(frameDelta)?clamp(frameDelta,0,.05):0;
  // Original WebGL #44174412381: full-skeleton Walking_A was sampled after
@@ -5215,16 +5217,44 @@ export function planImportedWalkingMixerFrameDelta({mode='idle',walkingClip=fals
   groundedTravel<0||groundedTravel>.54||
   (groundedMoving!==true&&!(groundedMoving===false&&
     sourceStep===0&&groundedTravel<=.0015&&frameInterval<=.5)))return ordinary;
+ // Exact original imported 41-joint WebGL desktop #44279466514:
+ // Idle -> Walking_A at true 19.641mm / 500ms root travel displayed
+ // only ~.3913 source weight because its 230ms fade was clocked at 90ms.
+ // Three.AnimationAction reports weight 1 BEFORE its first mixer.update(),
+ // despite crossFadeFrom scheduling the fade at zero. Therefore authenticate
+ // the actual same-frame crossFadeFrom call and original source clip instead
+ // of mistaking the pre-mixer effective weight for a completed transition.
+ // Spend the remaining original fade in ONE bounded real displayed frame,
+ // while planImportedWalkingBlendRate leaves all 41 original keyed joints
+ // advancing ONLY by this frame's independently measured root metres.
+ // No new target, foot plant, root translation, clip seek, or extra mixer.
+ const originalSourceFadeCatchup=sourceClipName==='Walking_A'&&
+  sourceInstanceSame===true&&sourceFadeStartedThisFrame===true&&
+  transitionFromClip==='Idle'&&
+  finite(transitionFadeSeconds)&&transitionFadeSeconds>=.18&&
+  transitionFadeSeconds<=.25&&finite(sourceWeight)&&
+  sourceWeight>=0&&sourceWeight<=1.001&&
+  sourceDuration>=.75&&sourceDuration<=1.3&&
+  frameInterval>=.25&&frameInterval<=.65&&
+  groundedMoving===true&&groundedTravel>=.012&&groundedTravel<=.08&&
+  groundedTravel/frameInterval>=.02&&
+  groundedTravel/frameInterval<=.2&&
+  sourceStep>=.005&&sourceStep<=.09;
+ if(originalSourceFadeCatchup)return Math.min(transitionFadeSeconds,frameInterval);
  return Math.min(.09,Math.max(ordinary,frameInterval));
 }
 
 export function planImportedWalkingBlendRate({mode='idle',sourceStep=0,
  frameDelta=0,frameInterval=frameDelta,sourceDuration=0,sourceTime=0,
  effectiveSpeed=1,walkingClip=false,groundedMoving=false,groundedTravel=0,
+ sourceClipName='',sourceInstanceSame=false,sourceFadeStartedThisFrame=false,
+ transitionFromClip='',transitionFadeSeconds=NaN,sourceWeight=NaN,
  teleport=false,reducedMotion=false,visible=true}={}){
  const visibleStep=planImportedWalkingMixerFrameDelta({
   mode,walkingClip,frameDelta,frameInterval,sourceStep,sourceDuration,
   sourceTime,effectiveSpeed,groundedTravel,groundedMoving,
+  sourceClipName,sourceInstanceSame,sourceFadeStartedThisFrame,
+  transitionFromClip,transitionFadeSeconds,sourceWeight,
   visible,reducedMotion,teleport
  });
  if(mode!=='move'||!walkingClip||teleport||reducedMotion||
