@@ -58,7 +58,8 @@ for(const width of [1024,390]){
   expect(district.triangles).toBeGreaterThan(0);expect(district.triangles).toBeLessThan(160000);
   expect(district.gl).toBe(0);expect(district.overflow).toBeLessThanOrEqual(0);
   expect(errors).toEqual([]);
-  if(width===390)await page.locator('#camera-disclosure').click();
+  await page.locator('#camera-disclosure').click();
+  await expect(page.locator('#camera-home')).toBeVisible();
   await page.locator('#camera-home').click();
   await page.waitForTimeout(3200);
   const ended=await page.evaluate(()=>{const g=window.__tinyKingdom;
