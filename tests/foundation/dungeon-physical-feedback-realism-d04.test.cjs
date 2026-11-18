@@ -2389,7 +2389,7 @@ test('strict D04 fatal HP evidence remains visible at the unique public cell whe
    'duplicate current victim IDs are never an unambiguous anchor');
   check({...current,units:[{...victim,hp:1}]},{...victim},false,false,
    'an alive public victim cannot receive a fatal impact');
-  check(current,{...victim},true,true,
+  check({run:1,floor:1,tick:11,units:[victim]},{...victim},true,true,
    'existing live visible-body HP anchoring remains unchanged');
  }finally{stage.dispose()}
 });
