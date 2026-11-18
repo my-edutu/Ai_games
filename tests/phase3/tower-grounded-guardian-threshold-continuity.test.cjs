@@ -142,7 +142,13 @@ test('historic immediate floor change keeps the original short exterior memory i
  try{
   const old={...source(),enemies:[{...source().enemies[0],active:true,health:1}]};
   const next=successor();
+  assert.equal(effect.unlock(source(),anchor),true);
+  assert.equal(effect.diagnostics().supportedRouteEdgePieces,24,
+    'earned previous source may have an authentic pre-crossing guide');
   assert.equal(effect.begin(old,next,anchor),true);
+  assert.equal(effect.diagnostics().supportedRouteEdgePieces,0,
+    'a contradictory living-guardian source cannot inherit a visual walkable Floor9');
+  assert.equal(effect.diagnostics().inlayPieces,0);
   assert.equal(effect.diagnostics().continuousGroundedHandoff,false);
   assert.equal(effect.diagnostics().exteriorMemoryFrameVisible,true);
   assert.equal(effect.diagnostics().innerDoorAssemblyVisible,false);

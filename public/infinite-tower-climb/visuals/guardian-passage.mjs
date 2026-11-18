@@ -1407,8 +1407,23 @@ export function createTowerGuardianPassage(THREE) {
     stage = 'handoff';
     continuousGroundedHandoff = carryRealThreshold;
     if(carryRealThreshold) {
-      placeSuccessorRunway(previous,source,anchor);
+      // All new passage art must rest on BOTH real collider-aligned floors.
+      // Source guardian proof by itself cannot license an unsupported path.
+      const supported=placeSuccessorRunway(previous,source,anchor);
       placeRetainedOldCap(previous,source,anchor);
+      if(!supported){
+        capInlay.visible=false;capInlay.count=0;
+        capRouteEdges.visible=false;capRouteEdges.count=0;
+        inlayMode='none';inlayProgress=0;inlaySourceTick=-1;
+      }
+    } else {
+      // An older immediate floor advance can preserve only its short
+      // historical exterior memory. Do not carry a route from a preceding
+      // earned-open frame into a non-grounded or contradictory source.
+      capInlay.visible=false;capInlay.count=0;
+      capRouteEdges.visible=false;capRouteEdges.count=0;
+      capDeckEcho.visible=false;capDeckEcho.count=0;
+      inlayMode='none';inlayProgress=0;inlaySourceTick=-1;
     }
     // A genuinely defeated, grounded, whole-body cap crossing keeps the
     // physical same-lane inner arch visible across the scene rebuild. Do NOT
