@@ -290,3 +290,51 @@ test('original WebAudio node preparation cannot outlive the 400ms injury deadlin
   assert.equal(foley.stats().recentOriginalStarts[0].sampleSynchronized,false);
  }finally{foley.dispose()}
 });
+
+test('original layered HP impact revokes later native source starts if first start crosses 400ms',async()=>{
+ const {createOriginalCombatFoley}=await import(pathToFileURL(path.resolve(
+  __dirname,'../../public/ai-dungeon/original-combat-foley.js')).href);
+ let wall=.01,blockFirst=true,disconnects=0;
+ const started=[],stopped=[];
+ const param=()=>({value:0,setValueAtTime(){},exponentialRampToValueAtTime(){}});
+ const node=kind=>({gain:param(),frequency:param(),Q:{value:0},
+  connect(){},disconnect(){disconnects++},
+  start(){started.push(kind);
+   if(kind==='noise'&&blockFirst){wall=.55;blockFirst=false}
+  },
+  stop(){stopped.push(kind)}
+ });
+ const ctx={state:'running',currentTime:.01,destination:node('destination'),
+  createGain:()=>node('gain'),createBiquadFilter:()=>node('filter'),
+  createOscillator:()=>node('partial'),
+  createBufferSource:()=>node('noise'),
+  createBuffer(_channels,length,rate){return {
+   length,sampleRate:rate,duration:length/rate,
+   getChannelData:()=>new Float32Array(length)
+  }}
+ };
+ const cue={id:'1:1:11:damage:-:vanguard',sceneKey:'1:1',
+  tick:11,kind:'damage',visual:'hit',audio:'impact',
+  proof:'observed-hp-drop',verified:true,actorId:null,targetId:'vanguard',
+  from:null,to:{x:2,z:2},detail:{damage:9,maxHp:30,remainingHp:21},
+  priority:6,severity:.3};
+ const foley=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+ try{
+  assert.equal(foley.enable(),true);
+  assert.equal(foley.emit(cue,{beforeSourceStart:()=>wall<=.4}),false,
+   'an original partial must not begin after an earlier source.start blocks beyond the deadline');
+  assert.deepEqual(started,['noise'],
+   'only the source that started before the stall may enter native WebAudio');
+  assert.ok(stopped.includes('noise'),'cancel the already-started partial voice');
+  assert.ok(disconnects>=3,'retire its connected native audio graph');
+  assert.equal(foley.stats().recentOriginalStarts.length,0,
+   'partial source-starts must never become delivered-contact evidence');
+  assert.equal(foley.stats().activeVoices,0);
+  assert.equal(foley.stats().deviceFailures,0,'deadline rejection is not device failure');
+  wall=.02;ctx.currentTime=.02;
+  assert.equal(foley.emit(cue,{beforeSourceStart:()=>wall<=.4}),true,
+   'deadline rejection must not consume the canonical HP cue identity');
+  assert.ok(started.includes('partial'),'a later independently timely attempt can play its recipe');
+  assert.equal(foley.stats().recentOriginalStarts.length,1);
+ }finally{foley.dispose()}
+});
