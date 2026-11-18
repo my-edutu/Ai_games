@@ -5845,9 +5845,16 @@ test('RED: genuine 390px long source frame must complete Walking_A full-body own
   'the actual mobile original .44m/1.77s full-skeleton walk should not linger in Idle');
  assert.equal(fade({...witness,previousMode:'guard'}),.09);
  assert.equal(fade({...witness,frameInterval:1.2}),.09);
+ // 18 Nov original desktop GLB: 440mm/1.9833s shares the same genuine
+ // 41-bone Walking_A fade contract. Do not misclassify a 1.95s frame as
+ // unsafe after accepting that measured adjacent native interval.
+ assert.equal(fade({...witness,frameInterval:1.95}),.09,
+  'legally witnessed source travel retains the fast whole-body blend');
+ assert.equal(fade({...witness,frameInterval:1.9833}),.09,
+  'exact original desktop CC0 source interval must remain eligible');
  for(const change of [
   {groundedTravel:.3},{groundedTravel:.55},{groundedTravel:.005},
-  {frameInterval:1.95},{frameInterval:0},{frameInterval:3},
+  {frameInterval:2.101},{frameInterval:0},{frameInterval:3},
   {frameInterval:1.83,groundedTravel:.42},
   {mode:'hurt'},{mode:'attack'},{mode:'cast'},{mode:'defeat'},
   {sourceClipName:'Idle'},{previousMode:'attack'},
