@@ -68,8 +68,15 @@ function chooseRouteWatchpost(world:MazeWorld,route:number[],unavailable:Set<num
   // seed stream and original fallback when no suitable pressure room exists.
   const alignedStaged=staged.filter(choice=>choice.straight);
   const alignedChoices=choices.filter(choice=>choice.straight);
-  const pool=alignedStaged.length?alignedStaged:staged.length?staged
-    :alignedChoices.length?alignedChoices:choices;
+  // Whole-repository phase-2 gameplay contract is MORE stringent than
+  // the focused phase-3 test: whenever any authentic straight two-cell
+  // approach exists, a bent guardian corridor is unacceptable. Never
+  // trade away actor readability for pressure proximity. Prefer a linked
+  // pressure room WITHIN genuine straight options, otherwise keep the
+  // aligned guardian and its unchanged lawful fallback.
+  const pool=alignedStaged.length?alignedStaged
+    :alignedChoices.length?alignedChoices
+      :staged.length?staged:choices;
   const shortlist=pool.slice(0,Math.min(6,pool.length));
   return shortlist[rng.nextInt('threat-policy:route-watchpost',shortlist.length)]!;
 }

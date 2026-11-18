@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-18T01:08:00Z",
+  "updatedAt": "2026-11-18T01:19:00Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass469 source candidate prioritizes real seeded pressure→Thornback patrol staging before key/gate progression; previous rollback-HEAD 25ee6f17 native WebGL 44206230895 SUCCESS, 40/40 actual uncropped PNG SHA and 3/3 genuine gate SHA verified. Exact NEW HEAD TypeScript, gameplay ratio, strict six-reset, native gameplay screenshots and independent Nintendo visual gate PENDING; no completed artistic win. Detached critic/Ultracode NOT_FOUND."
+    "summary": "Pass469b corrects confirmed real Phase 2 guardian straight-line visibility regression (first Pass469 whole CI 44213904168 failed seed maze-visual-reference-0); linked-straight > any straight > linked-bend > fallback. New exact corrected HEAD whole CI and authentic native 320/390/844/1280 + 40 SHA and 3 gate checks PENDING. Previously verified Pass468 rollback original source native all 8, 40/40+3/3. No Nintendo parity; detached critic unavailable."
   },
   "captures": [
     {
@@ -316,6 +316,7 @@
     }
   ],
   "changes": [
+    "Pass469b: full-repo source test caught genuine straight-guardian-patrol regression (seed maze-visual-reference-0). Production chooser now preserves any legally available straight two-cell guardian performance before a bent pressure-stage candidate; pressure alignment remains first among genuine straight patrols. Neither strict source test nor physical/mobile/resource thresholds changed. Fresh CI/native required.",
     "Pass469 new generation-only authored vertical-slice candidate: prefer an actual reciprocal, off-critical-route optional pressure alcove within 0–2 real main-route steps BEFORE the same moving Thornback watchpost; select coherent straight patrol if available; original deterministic/fallback content, trap count and playable key-gate solution preserved. Source tests + exact-new-HEAD native WebGL PENDING.",
     "Pass468 visually rejects Pass467's 30m earned-guardian high-angle camera: 320/390 original native full-frame captures remain dominated by opaque foreground rail and disjoint pressure–guardian blocking; restore 23m verified baseline only, after 8/8 and 40/40+3/3 native evidence. No threshold, privacy, gameplay authority or geometry changes.",
     "Pass467 original counter scene: during a real witnessed, published earned guardian recoil in narrow Follow only, higher physical 3D camera sightline over unchanged opaque solid rail, preserving source privacy, actor meshes, collision, AI, reduced-motion and existing strict gates. New exact-HEAD WebGL render pending.",
@@ -585,6 +586,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass469b exact-corrected-HEAD whole repo strict Phase2 straight patrol + Phase3 24 seeds, 8 browser WebGL, 6 resets <100, full uncropped original four viewport and gate hashes. Reject until real observed pressure-to-guardian sequence, no occlusion, and fixed Nintendo visual gate supported.",
     "Pass469: confirm 24-seed pressure-to-guardian gameplay contract, actual spontaneous AI wait/lantern counter/key-gate progression, exact-new-HEAD 8 native full-frame WebGL 320/390/844/1280, screenshot SHA/camera strict clipping, <100 six-reset. Reject if fragmented visually; Nintendo reference not met.",
     "Pass467 exact-new-HEAD 320/390/844/1280 original native full-frame WebGL/40 SHA sidecars + three gate hashes; inspect earned guardian rail/body visibility and reject if perspective worsens real encounters; unchanged ±.95 NDC, full first-hit masonry, withdrawal ≥.70, 44px and six-reset <100 all required.",
     "Pass465 exact-HEAD: 24 seeded content tests + real native eight browser/unchanged six reset <100 + original four viewport source SHA and observed pressure-to-guardian-to-gate. Reject/revert if visual effect is weak, physically occluded, or old gate warning conflict recurs.",
@@ -670,6 +672,13 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass469b preserve physical straight guardian before pressure-linked bend",
+      "reviewer": "Existing independent phase-2 whole-repo strict source test",
+      "verdict": "REGRESSION DIAGNOSED AND PRODUCTION CORRECTED; new exact HEAD validation pending",
+      "date": "2026-11-18",
+      "summary": "The first 4d32baf candidate passed focused phase3 but failed real Phase2 seed0 straight two-cell guardian invariant. Corrected source precedence, no weakened test."
+    },
     {
       "title": "Pass469 coherent real pressure–Thornback generator staging",
       "reviewer": "Source-bound prior native-image review; detached independent critic unavailable",
