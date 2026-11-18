@@ -4900,8 +4900,13 @@ export function planImportedLivingSourceStep({mode='idle',age=0,sourceTime=0,
   // independently witnessed to be stationary. Other invalid/noisy
   // locomotion receipts retain the previous elapsed-time fallback.
   if(groundedMoving!==true)
+   // Genuine 390px original GLB, Actions #44394789335 tick 8:
+   // visible Walking_A at full source weight after a 1.0334s rendered
+   // interval, but ZERO measured root travel. Holding the real source
+   // joint clock avoids fabricating 50ms of shoe motion. This is NOT a
+   // source contact lock. Fade weights advance on a separate mixer clock.
    return groundedMoving===false&&groundedTravel<=.0015&&
-    frameInterval<=.5?0:ordinary;
+    frameInterval<=1.2?0:ordinary;
   // Base source gait time on the SAME real root travel at 60Hz and slow capture.
   // Fixed-frame playback at ordinary rates previously lagged a fast-moving
   // root and oversped a creeping actor relative to its real footfall phase.
@@ -5370,7 +5375,7 @@ export function planImportedWalkingMixerFrameDelta({mode='idle',walkingClip=fals
   sourceDuration<=.002||sourceTime<0||effectiveSpeed<=.001||
   groundedTravel<0||groundedTravel>.54||
   (groundedMoving!==true&&!(groundedMoving===false&&
-    sourceStep===0&&groundedTravel<=.0015&&frameInterval<=.5)))return ordinary;
+    sourceStep===0&&groundedTravel<=.0015&&frameInterval<=1.2)))return ordinary;
  // Exact original imported 41-joint WebGL desktop #44279466514:
  // Idle -> Walking_A at true 19.641mm / 500ms root travel displayed
  // only ~.3913 source weight because its 230ms fade was clocked at 90ms.
@@ -5423,7 +5428,7 @@ export function planImportedWalkingBlendRate({mode='idle',sourceStep=0,
  // original knees/ankles remain stopped, never inventing root travel.
  if(groundedMoving!==true)
   return groundedMoving===false&&groundedTravel<=.0015&&
-   frameInterval<=.5&&sourceStep===0?0:null;
+   frameInterval<=1.2&&sourceStep===0?0:null;
  return sourceStep/visibleStep;
 }
 
