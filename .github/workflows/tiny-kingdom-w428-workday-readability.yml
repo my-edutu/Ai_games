@@ -1,0 +1,47 @@
+name: Tiny Kingdom W428 Real Workday Readability
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'tests/browser/tiny-kingdom-w428-controls-contract.cjs'
+      - 'tests/browser/tiny-kingdom-w428-mobile-workday.spec.cjs'
+      - '.github/workflows/tiny-kingdom-w428-workday-readability.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w428-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  original-workday-mobile:
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feat/tiny-kingdom-post-main-gauntlet-20261031' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 26
+    env:
+      CI: '1'
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Verify actual citizen geometry and original accessible controls
+        run: node --test tests/browser/tiny-kingdom-w428-controls-contract.cjs
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Capture complete real game, deskop and 390px control interactions
+        run: npx playwright test tests/browser/tiny-kingdom-w428-mobile-workday.spec.cjs --workers=1 --reporter=line
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w428-original-real-game-workday
+          path: |
+            artifacts/tiny-kingdom-w428/
+            test-results/
+          if-no-files-found: warn
+          retention-days: 14

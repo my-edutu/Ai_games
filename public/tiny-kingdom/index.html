@@ -1619,6 +1619,57 @@ body[data-village-documentary="on"] #film-ledger[aria-expanded="true"]{
   min-height:44px!important;touch-action:manipulation;
  }
 }
+/* W428: true 390px workday-first control dock. Pause stays a 44px live
+   action even when the original playback, camera, save and restore controls
+   are collapsed. The accessible disclosure restores EVERY original control;
+   no keyboard input, world state, 3D citizen or economic event is altered.
+   Only this physical viewport uses the compact spectator treatment. */
+#mobile-transport-disclosure{display:none}
+@media(max-width:520px){
+ #mobile-transport-disclosure{
+  position:fixed;display:inline-flex!important;align-items:center;
+  justify-content:center;left:8px;bottom:calc(8px + env(safe-area-inset-bottom));
+  z-index:38;min-height:44px;min-width:116px;padding:8px 13px;
+  border:1px solid #d8c18f;border-radius:12px;
+  background:rgba(23,45,37,.94);color:#fff1d1;
+  font:700 12px/1.2 system-ui;touch-action:manipulation;cursor:pointer;
+ }
+ #mobile-transport-disclosure:focus-visible{
+  outline:3px solid #ffd988;outline-offset:2px;
+ }
+ #mobile-transport-disclosure[aria-expanded="true"]{
+  background:#ecd1a0;color:#263c32;
+ }
+ #transport-actions[data-mobile-collapsed="true"]{
+  left:auto!important;right:8px!important;
+  bottom:calc(8px + env(safe-area-inset-bottom))!important;
+  transform:none!important;width:auto!important;max-width:calc(100vw - 140px)!important;
+  min-height:44px!important;padding:3px 4px!important;
+  display:flex!important;overflow:visible!important;flex-wrap:nowrap!important;
+  border-radius:12px!important;
+ }
+ #transport-actions[data-mobile-collapsed="true"] > :not(#pause){
+  display:none!important;
+ }
+ #transport-actions[data-mobile-collapsed="true"] #pause{
+  display:inline-flex!important;align-items:center;justify-content:center;
+  min-width:84px!important;min-height:44px!important;
+  padding:9px 11px!important;white-space:nowrap;
+ }
+ #transport-actions[data-mobile-collapsed="false"]{
+  left:8px!important;right:8px!important;
+  bottom:calc(61px + env(safe-area-inset-bottom))!important;
+  transform:none!important;width:auto!important;
+  max-width:calc(100vw - 16px)!important;max-height:min(40dvh,290px)!important;
+  overflow-y:auto!important;overscroll-behavior:contain!important;
+  justify-content:flex-start!important;flex-wrap:wrap!important;
+  padding:7px!important;gap:5px!important;
+ }
+ #transport-actions[data-mobile-collapsed="false"] .btn{
+  min-height:44px!important;touch-action:manipulation!important;
+ }
+}
+body[data-hud="cinema"] #mobile-transport-disclosure{display:none!important}
 </style></head><body>
 <canvas id="world" tabindex="0" aria-label="Live 3D medieval valley. Tap a visible villager to follow genuine work. Drag to orbit, Shift-drag or two-finger drag to pan, pinch or scroll to zoom. Home returns to village, F follows a citizen, V walks the streets; Enter selects a visible citizen."></canvas><div id="citizen-pick-caption" role="status" aria-live="polite" aria-atomic="true"><span id="citizen-pick-copy"></span><progress id="citizen-pick-meter" value="0" max="100" aria-label="Observed citizen's actual shift or delivery progress" hidden></progress></div><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
@@ -1635,7 +1686,7 @@ body[data-village-documentary="on"] #film-ledger[aria-expanded="true"]{
 <div class="panel" id="citizen-card"><h2>☼ Citizen spotlight</h2><button class="btn" id="cycleCitizen" style="font-size:10px;margin:-8px 0 12px;padding:6px 10px;border:1px solid #bdc8a850;border-radius:9px;background:#23382f;color:#dfcfad;cursor:pointer">↻ Next citizen</button><div style="font-family:Georgia,serif;font-size:20px" id="citizen-name">Alina</div><div style="color:#b7c7b8;font-size:12px;line-height:1.7;margin-top:6px" id="citizen-detail">Farmer · tending the fields</div><div style="font-size:10px;color:#d9c08a;margin-top:9px" id="citizen-bond">Every citizen has a story.</div></div></div>
 <div class="feed panel"><h2>✦ Stories unfolding</h2><div id="feed"></div></div>
 <div class="hint">DRAG TO ORBIT · SCROLL TO ZOOM<br>EVERY CITIZEN HAS A NAME AND PURPOSE<br><a href="experience.html">VIEW EXPERIENCE SCORECARD ↗</a> · <a href="progress.html">HISTORY ↗</a></div>
-<aside class="atlas" aria-label="Interactive kingdom map"><div class="atlas-heading"><span>◈ THE KINGDOM ATLAS</span><b>LIVE</b></div><canvas id="atlas-map" width="460" height="330" aria-label="Map of homes and moving villagers; click to move camera"></canvas><div class="atlas-footer"><span id="atlas-season">✧ SEASONAL LANDSCAPE</span><em>↗ PAN CAMERA</em></div><div class="atlas-legend"><span><i style="background:#ffe29b"></i>Village</span><span><i style="background:#f9fce8"></i>People</span><span><i style="background:#7be5f9"></i>River</span></div></aside><div class="bottom"><button id="pause" class="btn active">Ⅱ Pause</button><span class="divider"></span><button class="btn active" id="speed1">1× Real time</button><button class="btn" id="speed4">4×</button><button class="btn" id="speed16">16×</button><span class="divider"></span><button class="btn" id="focus">◎ Follow villager</button><button class="btn" id="camera">◈ Cinematic</button><button class="btn" id="command-toggle" type="button" aria-pressed="false" aria-controls="world-ribbon" aria-keyshortcuts="U">◉ World view</button><button class="btn" id="hud-toggle" aria-pressed="false">⌗ Clear HUD</button><button class="btn" id="save">↓ Save world</button><button class="btn" id="restore">↑ Restore world</button><button class="btn" id="restart">↻ New world</button></div><nav id="camera-tools" role="group" aria-label="3D world camera navigation" data-expanded="false"><button type="button" id="camera-disclosure" aria-label="Show actual camera controls" aria-controls="camera-home camera-near camera-far camera-street camera-survey" aria-expanded="false">☷ Camera</button><button type="button" id="camera-home" aria-label="Return to settlement overview" aria-keyshortcuts="Home">⌂ Village</button><button type="button" id="camera-near" aria-label="Zoom closer to the village" aria-keyshortcuts="Equal">＋ Near</button><button type="button" id="camera-far" aria-label="Zoom farther from the village" aria-keyshortcuts="Minus">− Far</button><button type="button" id="camera-street" aria-label="Enter or exit real street-level view" aria-pressed="false" aria-keyshortcuts="V">♙ Walk</button><button type="button" id="camera-survey" aria-label="Survey the real farm, receiving market and inhabited homes" aria-keyshortcuts="G">⇢ Supply tour</button></nav><div class="toast" id="toast"></div><div id="market-stock-tag" role="status" aria-live="off" hidden></div><div id="world-actor-tag" role="status" aria-live="off" hidden></div><button id="cinema-exit" type="button" aria-label="Restore game interface">✧ Restore interface · H</button>
+<aside class="atlas" aria-label="Interactive kingdom map"><div class="atlas-heading"><span>◈ THE KINGDOM ATLAS</span><b>LIVE</b></div><canvas id="atlas-map" width="460" height="330" aria-label="Map of homes and moving villagers; click to move camera"></canvas><div class="atlas-footer"><span id="atlas-season">✧ SEASONAL LANDSCAPE</span><em>↗ PAN CAMERA</em></div><div class="atlas-legend"><span><i style="background:#ffe29b"></i>Village</span><span><i style="background:#f9fce8"></i>People</span><span><i style="background:#7be5f9"></i>River</span></div></aside><button id="mobile-transport-disclosure" type="button" aria-controls="transport-actions" aria-expanded="false" aria-label="Expand all original world playback, save, and camera controls">☷ Controls</button><div class="bottom" id="transport-actions" data-mobile-collapsed="true"><button id="pause" class="btn active">Ⅱ Pause</button><span class="divider"></span><button class="btn active" id="speed1">1× Real time</button><button class="btn" id="speed4">4×</button><button class="btn" id="speed16">16×</button><span class="divider"></span><button class="btn" id="focus">◎ Follow villager</button><button class="btn" id="camera">◈ Cinematic</button><button class="btn" id="command-toggle" type="button" aria-pressed="false" aria-controls="world-ribbon" aria-keyshortcuts="U">◉ World view</button><button class="btn" id="hud-toggle" aria-pressed="false">⌗ Clear HUD</button><button class="btn" id="save">↓ Save world</button><button class="btn" id="restore">↑ Restore world</button><button class="btn" id="restart">↻ New world</button></div><nav id="camera-tools" role="group" aria-label="3D world camera navigation" data-expanded="false"><button type="button" id="camera-disclosure" aria-label="Show actual camera controls" aria-controls="camera-home camera-near camera-far camera-street camera-survey" aria-expanded="false">☷ Camera</button><button type="button" id="camera-home" aria-label="Return to settlement overview" aria-keyshortcuts="Home">⌂ Village</button><button type="button" id="camera-near" aria-label="Zoom closer to the village" aria-keyshortcuts="Equal">＋ Near</button><button type="button" id="camera-far" aria-label="Zoom farther from the village" aria-keyshortcuts="Minus">− Far</button><button type="button" id="camera-street" aria-label="Enter or exit real street-level view" aria-pressed="false" aria-keyshortcuts="V">♙ Walk</button><button type="button" id="camera-survey" aria-label="Survey the real farm, receiving market and inhabited homes" aria-keyshortcuts="G">⇢ Supply tour</button></nav><div class="toast" id="toast"></div><div id="market-stock-tag" role="status" aria-live="off" hidden></div><div id="world-actor-tag" role="status" aria-live="off" hidden></div><button id="cinema-exit" type="button" aria-label="Restore game interface">✧ Restore interface · H</button>
 <div class="world-tour" role="group" aria-label="Explore scenic village camera viewpoints"><small>EXPLORE<br>THE VALLEY</small><button class="tour-btn" id="film-ledger" type="button" aria-controls="world-supply-trail" aria-expanded="false" aria-label="Open the real farm-to-market-to-home grain ledger">◈ Grain ledger</button><button class="tour-btn" type="button" id="forge-follow" aria-pressed="false" aria-label="Follow a genuine craftsperson to the guild forge and watch their actual shift">⚒ Watch smith</button><button class="tour-btn" type="button" id="harvest-follow" aria-pressed="false" aria-label="Follow a real farmer cutting wheat at the original field">🌾 Watch farmer</button><button class="tour-btn" type="button" id="forge-sound" aria-pressed="false" aria-label="Turn on optional sound from real blacksmith strikes">♫ Sound off</button><button class="tour-btn" type="button" id="homecoming-follow" aria-pressed="false" aria-label="Follow a real resident returning to an occupied cottage at dusk">⌂ Homecoming</button><button class="tour-btn" type="button" id="workday-live" aria-pressed="false" aria-label="Watch a villager currently working; select the next live shift">☼ Live shift</button><button class="tour-btn" type="button" id="workday-watch" aria-pressed="false" aria-label="Follow a villager who actually completed work">⚒ Workday</button><button class="tour-btn" type="button" id="delivery-follow" aria-label="Follow a villager carrying real goods to the market">▣ Delivery</button><button class="tour-btn" data-scenic="valley" aria-pressed="true">✦ Village</button><button class="tour-btn" data-scenic="market" aria-pressed="false">◈ Market</button><button class="tour-btn" data-scenic="forge" aria-pressed="false" aria-label="Visit the original outdoor guild forge">⚒ Forge</button><button class="tour-btn" data-scenic="mill" aria-pressed="false">✧ Windmill</button><button class="tour-btn" data-scenic="orchard" aria-pressed="false">❀ Orchard</button><button class="tour-btn" data-scenic="farm" aria-pressed="false" aria-label="Inspect real farm work and village food stores at the granary">✺ Farmland</button><button class="tour-btn" data-scenic="river" aria-pressed="false">≈ Riverside</button><button class="tour-btn" data-scenic="sanctuary" aria-pressed="false">♜ Sanctuary</button><a class="tour-btn" href="experience.html" aria-label="View the latest look, feel, play and commercial reference scorecards">⚑ Scorecard</a></div>
 <div id="workday-activity" role="status" aria-live="polite" aria-atomic="true"></div><section id="grain-live-strip" role="status" aria-live="polite" aria-atomic="false" aria-label="Real linked grain journey evidence" hidden>
  <div class="grain-live-head"><strong id="grain-live-caption">Waiting for a real farmer</strong><button id="grain-live-details" type="button" aria-controls="world-supply-trail" aria-label="Inspect genuine parcel evidence">View receipts</button></div>
@@ -12229,13 +12280,20 @@ function tailoredGarment(x,y,z,size,cloth,trim,profile){
   // W289: reshape EXISTING eight fitted panels for each planted foot and
   // occupation beat. No extra geometry, simulated motion or new GPU buffers.
   const hang=Math.max(0,Math.min(1,(1.16-r.y)/.76));
-  const pleat=hang*(.012*Math.sin(panel*2.35+physical.stride*4.5)+
-   .007*physical.lean);
-  const swing=hang*(physical.stride*.17+physical.lean*.044);
-  const toeLift=hang*.020*Math.max(0,ca*physical.stride);
-  return [x+(sa*(r.rx+pleat)+swing*.24)*size,
+  // W428: each *existing* full-body wool panel now clears the genuine
+  // forward stepping knee while the opposite hem settles behind the heel.
+  // Same original eight-panel closed shell, 104 triangles and IK gait.
+  const pleat=hang*(.020*Math.sin(panel*2.35+physical.stride*4.5)+
+   .010*physical.lean);
+  const swing=hang*(physical.stride*.22+physical.lean*.055);
+  const hemSweep=hang*hang*physical.stride*.080;
+  const outerFold=hang*hang*.036*Math.abs(sa)*
+   Math.min(1,Math.abs(physical.stride)*3);
+  const toeLift=hang*.035*Math.max(0,ca*physical.stride);
+  return [x+(sa*(r.rx+pleat+outerFold)+swing*.24)*size,
    y+(r.y+toeLift)*size,
-   z+(ca*(r.rz+Math.abs(pleat)*.40)+r.z+swing)*size];
+   z+(ca*(r.rz+Math.abs(pleat)*.40)+r.z+swing+
+    hemSweep*ca)*size];
  });
  const shell=rings.map(verticesFor),normals=continuousWorkcoatNormals(shell,n);
  const shade=(c,f)=>c.map(v=>Math.max(0,Math.min(1,v*f)));
@@ -13077,20 +13135,20 @@ function compactVillager(p){
   for(let sideIndex=0;sideIndex<2;sideIndex++){
    const leg=rig.legs[sideIndex],arm=rig.arms[sideIndex],j=sideIndex===0?1:6;
    let from=data.length;
-   limbSegment(joint(leg.hip),joint(leg.knee),.084*s,leggings,4);
+   taperedMedievalLimb(joint(leg.hip),joint(leg.knee),.104*s,.085*s,leggings,4);
    tagWorkSkinRange(j,from);
    from=data.length;
-   limbSegment(joint(leg.knee),joint(leg.ankle),.072*s,leggings,4);
+   taperedMedievalLimb(joint(leg.knee),joint(leg.ankle),.085*s,.058*s,leggings,4);
    tagWorkSkinRange(j+1,from);
    const foot=joint(leg.ankle);from=data.length;
    renderRollingBoot(foot[0],foot[1]+.003*s,foot[2]+.09*s,
      .18*s,.10*s,.29*s,boots,leg);
    tagWorkSkinRange(j+2,from);
    from=data.length;
-   limbSegment(joint(arm.shoulder),joint(arm.elbow),.088*s,cloth,4);
+   taperedMedievalLimb(joint(arm.shoulder),joint(arm.elbow),.106*s,.076*s,cloth,4);
    tagWorkSkinRange(j+3,from);
    from=data.length;
-   limbSegment(joint(arm.elbow),joint(arm.wrist),.074*s,cloth,4);
+   taperedMedievalLimb(joint(arm.elbow),joint(arm.wrist),.076*s,.053*s,cloth,4);
    tagWorkSkinRange(j+4,from);
    // The authentic work hand follows the SAME two-bone IK wrist and GPU bone.
    // Do not spend fingers on a human too small to read at projected far LOD.
@@ -32056,6 +32114,22 @@ drawForegroundResidentMesh();
 }
 // W159: original 3D scene stays exposed on mobile until actual camera actions
  // are deliberately opened. This DOM-only control cannot modify authority.
+ // W428: all original controls remain DOM-backed and keyboard-operable.
+ // Never infer button availability from observer FPS; this toggles only UI.
+ const mobileTransportDisclosure=document.getElementById('mobile-transport-disclosure');
+ const transportActions=document.getElementById('transport-actions');
+ function setMobileTransportExpanded(expanded){
+  const open=Boolean(expanded);
+  transportActions.dataset.mobileCollapsed=String(!open);
+  mobileTransportDisclosure.setAttribute('aria-expanded',String(open));
+  mobileTransportDisclosure.setAttribute('aria-label',open?
+   'Collapse world controls; keep Pause visible':
+   'Expand all original world playback, save, and camera controls');
+  return open;
+ }
+ mobileTransportDisclosure.addEventListener('click',()=>
+  setMobileTransportExpanded(
+   mobileTransportDisclosure.getAttribute('aria-expanded')!=='true'));
  const cameraToolNav=document.getElementById('camera-tools');
  const cameraDisclosure=document.getElementById('camera-disclosure');
  function setCameraToolsExpanded(expanded){
