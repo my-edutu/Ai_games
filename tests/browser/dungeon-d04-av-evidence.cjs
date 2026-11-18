@@ -8,6 +8,10 @@
  * Keep this pure and conservative: a missing device, silent track, codec
  * failure or synthetic audition is UNVERIFIED, not a passing realism score.
  */
+const {createD04CaptureProfile}=require('./dungeon-d04-capture-profile.cjs');
+// Bounded genuine original capture plus at most two seconds for MediaRecorder stop/finalization.
+// This is evidence classification ONLY: never changes the 400ms combat audio cutoff.
+const MAX_PRIMARY_AV_WALL_MS=createD04CaptureProfile().primaryMaxClipMs+2000;
 const MAX_CLIP_BYTES=20*1024*1024;
 const MAX_PCM_BYTES=2*1024*1024;
 const MAX_ISOLATED_VIDEO_BYTES=MAX_CLIP_BYTES;
@@ -36,12 +40,12 @@ function classifyCanvasTrackDelivery({delivery={},encodedBytes=0,submittedFrames
   !Number.isSafeInteger(submittedFrames)||submittedFrames<0||
   !Number.isSafeInteger(encodedBytes)||encodedBytes<0||encodedBytes>MAX_CLIP_BYTES||
   !events.every(e=>['mute','unmute','ended'].includes(e.kind)&&
-   Number.isFinite(e.atMs)&&e.atMs>=0&&e.atMs<=20000))
+   Number.isFinite(e.atMs)&&e.atMs>=0&&e.atMs<=MAX_PRIMARY_AV_WALL_MS))
   return 'TRACK_DELIVERY_UNVERIFIED';
  let lastTime=-1,lastPresented=0,lastMedia=-1;
  for(const observation of observations){
   if(!Number.isFinite(observation.atMs)||observation.atMs<0||
-   observation.atMs>20000||observation.atMs<=lastTime||
+   observation.atMs>MAX_PRIMARY_AV_WALL_MS||observation.atMs<=lastTime||
    !Number.isSafeInteger(observation.presentedFrames)||
    observation.presentedFrames<=lastPresented||
    !Number.isFinite(observation.mediaTime)||observation.mediaTime<lastMedia||
@@ -78,7 +82,7 @@ function classifyCanvasSubmissionTiming({delivery={},framePump={}}={}){
   return 'SUBMISSION_TIMING_UNVERIFIED';
  let lastAt=-1,lastReceipt=-1;
  for(const sample of samples){
-  if(!Number.isFinite(sample.atMs)||sample.atMs<0||sample.atMs>20000||
+  if(!Number.isFinite(sample.atMs)||sample.atMs<0||sample.atMs>MAX_PRIMARY_AV_WALL_MS||
    sample.atMs<=lastAt||!Number.isSafeInteger(sample.receipt)||
    sample.receipt<=lastReceipt||
    typeof sample.requestAttempted!=='boolean'||
@@ -92,7 +96,7 @@ function classifyCanvasSubmissionTiming({delivery={},framePump={}}={}){
  let lastEvent=-1;
  for(const event of events){
   if(!['mute','unmute','ended'].includes(event.kind)||
-   !Number.isFinite(event.atMs)||event.atMs<0||event.atMs>20000||
+   !Number.isFinite(event.atMs)||event.atMs<0||event.atMs>MAX_PRIMARY_AV_WALL_MS||
    event.atMs<lastEvent)return 'SUBMISSION_TIMING_UNVERIFIED';
   lastEvent=event.atMs;
  }
@@ -355,7 +359,7 @@ function assessD04Capture({optedIn=false,clip={},pcm={},frames={},isolated={},tr
   /^video\/webm(?:;|$)/i.test(clip.mimeType||'')&&
   clip.videoTracks===1&&clip.audioTracks>=1&&
   Number.isSafeInteger(clip.bytes)&&clip.bytes>1024&&clip.bytes<=MAX_CLIP_BYTES&&
-  Number.isFinite(clip.recordingMs)&&clip.recordingMs>=1000&&clip.recordingMs<=15500;
+  Number.isFinite(clip.recordingMs)&&clip.recordingMs>=1000&&clip.recordingMs<=MAX_PRIMARY_AV_WALL_MS;
  const liveOriginalPcm=optedIn===true&&pcm.status==='RECORDED'&&
   Number.isSafeInteger(pcm.sampleRate)&&pcm.sampleRate>=8000&&pcm.sampleRate<=96000&&
   pcm.channels===1&&Number.isSafeInteger(pcm.frames)&&pcm.frames>=2048&&
