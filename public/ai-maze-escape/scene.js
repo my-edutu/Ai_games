@@ -1,4 +1,5 @@
 import * as THREE from './vendor/three.module.js';
+import {publicEncounterLighting,easePublicEncounterLighting} from './encounter-lighting.mjs';
 import { createExplorer, createWarden } from './characters.js';
 import { PUBLIC_GUARDIAN_COUNTER_SECONDS, publicGuardianCounterMoment, publicGuardianCounterStageActive } from './public-counter-moment.mjs';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
@@ -762,6 +763,27 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       guardianCounterPhase:witnessedCounter ? earnedCounterActor.counterPhase : undefined});
     const pressureProgress=pressureCue
       ? world.publicPressureProgress(pressureCue.cell) : 0;
+
+    // One source-authenticated physical light composition for the actual
+    // pressure jaws / Thornback brace. Only the current PUBLIC encounter cue
+    // alters the four EXISTING Three lights; nothing is spawned per frame.
+    // Smoothly darken the distant diorama and lift the warm Pip lamp and
+    // guardian rim so real movement reads at native mobile size. There is no
+    // fake warning, fog reveal, AI prediction or collider change.
+    const lightTarget=publicEncounterLighting({
+      guardianStrength:closestThreat?.strength??0,
+      guardianBeat:closestThreat?.encounterBeat??0,
+      pressureStrength:pressureCue?.strength??0,
+      pressureProgress,
+      terminal:!!result,reducedMotion:settings.reducedMotion
+    });
+    const lightPose=easePublicEncounterLighting({
+      sky:sky.intensity,sun:sun.intensity,rim:rim.intensity,
+      lantern:lanternLight.intensity
+    },lightTarget,motionDelta);
+    sky.intensity=lightPose.sky; sun.intensity=lightPose.sun;
+    rim.intensity=lightPose.rim; lanternLight.intensity=lightPose.lantern;
+
     // Only the new authoritative PUBLIC wait decision, paired with a still
     // visible pressure prop, earns Pip a held lantern-survey pose. Mere
     // proximity does not invent an inspection; a public Warden outranks it.
