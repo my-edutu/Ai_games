@@ -42,5 +42,5 @@ test('W424 390px farmer orbit now favors planted work instead of giant sky, with
  assert.match(code,/portraitLens\?\[\.29,\.41,\.54,\.65\]/);
  assert.match(code,/physicalFollowEyeClearance\(eye,roofs\)/);
  assert.match(code,/followRayBlockers\(eye,target,roofs\)/);
- assert.doesNotMatch(code,/citizen\.activity\s*=|state\.food\s*=|Math\.random/);
+ assert.doesNotMatch(code,/citizen\.activity\s*=(?!=)|state\.food\s*=(?!=)|Math\.random/);
 });
