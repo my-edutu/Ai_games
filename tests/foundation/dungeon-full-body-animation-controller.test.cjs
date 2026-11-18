@@ -7306,3 +7306,47 @@ test('RED: original 390px 83.4ms three-joint source shoe earns a verified 17mm p
  assert.equal(choose({...source,frameInterval:.20,trials:[measured]}),null,
   '83ms original-source band must not license a distant frame cadence');
 });
+
+
+// Measured original CC0 Walking_A source-skinned shoe endpoints, not a
+// fabricated contact: 18 Nov real 390px source artifact #14426878152,
+// native tick8 has loaded left heel=-33.24187mm, toe=-31.07442mm,
+// other right swing heel=+190.097mm, toe=-111.518mm; stone top=-20mm.
+// Its frame interval was 200ms, but that tick had no fresh root travel;
+// the .04m legal travel below is deliberately SYNTHETIC to exercise the
+// source-motion gate. No claim that the saved tick used/applied this lift.
+// Previous genuine desktop loaded shoe #43137309946 was -34.0313/-51.1265mm.
+// Avoid the old fixed 8mm cap on a *genuinely eligible* sparse displayed
+// movement frame, but never jump, hover the other sole, create IK or authority.
+test('RED: licensed loaded pelvis uses real displayed interval for bounded two-shoe recovery',async()=>{
+ const {planOriginalSourceLoadedPelvisSupport:plan}=await load();
+ const base={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  ownerLocomotion:true,rootTravel:.04,frameAge:.03,frameInterval:.20,
+  floorTopY:-.02,floorEvidence:'authored-cube-floor-top',
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,previousLiftMeters:0,
+  left:{heelY:-.033241870059319625,toeY:-.031074420822779766},
+  right:{heelY:.19009722723102532,toeY:-.11151761954485478}};
+ const native=plan(base);
+ assert.equal(native?.side,'left','original two-point loaded shoe only');
+ assert.ok(native.liftMeters>.0115&&native.liftMeters<.013,
+  'measured two-point source support should close ~12mm of burial on a 200ms frame');
+ const desktop=plan({...base,left:{heelY:.1449076,toeY:-.1177656},
+  right:{heelY:-.0340313,toeY:-.0511265}});
+ assert.equal(desktop?.side,'right');
+ assert.ok(desktop.liftMeters>.022&&desktop.liftMeters<=.024,
+  'source-loaded 31mm-deep original toe should earn a time-bounded pelvis response');
+ const fast=plan({...base,frameInterval:.016});
+ assert.equal(fast?.liftMeters,.008,'original 60Hz body displacement remains capped at 8mm');
+ for(const invalid of [
+  {frameInterval:0},{frameInterval:NaN},{frameInterval:.26},
+  {mode:'hurt'},{mode:'defeat'},{sourceClipName:'Idle'},
+  {rootTravel:0},{ownerLocomotion:false},
+  {reducedMotion:true},{interrupted:true},{teleport:true},
+  {left:{heelY:-.004,toeY:-.003},right:{heelY:-.033,toeY:-.031}}
+ ])assert.equal(plan({...base,...invalid}),null,
+  'cannot manufacture pelvis support outside genuine source/sole owner');
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(model,/frameInterval:actor\\.rigSourceSwingFrameInterval/,
+  'the live original GLB must pass its real display interval to the planner');
+});
