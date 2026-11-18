@@ -1,3 +1,5 @@
+import { applyStoneSurface } from './world-surface.mjs';
+
 // P0: prepare bounded Void material GPU program variants while the SOURCE is
 // still on the real Clockwork floor. This is an offscreen shader compilation,
 // never an alternate game scene, screenshot, simulated Floor 9 or movement.
@@ -5,6 +7,7 @@
 // Three's program reference counts cannot delete the warmed programs early.
 export function createTowerVoidProgramPrewarm(THREE, renderer, liveScene, camera) {
   let phase = 'idle', scratch = null, geometry = null, materials = [];
+  let originalStoneLookup = null;
   let epoch = 0, releaseAfterCompile = false, startedAtSource = null;
   let firstError = null, completions = 0;
   let floorNineFirstTick = null, floorNineSubmittedFrames = 0;
@@ -16,6 +19,8 @@ export function createTowerVoidProgramPrewarm(THREE, renderer, liveScene, camera
     scratch?.clear();
     geometry?.dispose();
     for (const material of materials) material.dispose();
+    originalStoneLookup?.dispose();
+    originalStoneLookup = null;
     scratch = null; geometry = null; materials = [];
     releaseAfterCompile = false;
     queuedReleaseReason = null;
@@ -39,16 +44,37 @@ export function createTowerVoidProgramPrewarm(THREE, renderer, liveScene, camera
         roughness:.23,emissive:0x7758ae,emissiveIntensity:.35});
       const reveal = new THREE.MeshStandardMaterial({color:0x726982,metalness:.35,
         roughness:.62,transparent:true,depthWrite:false,opacity:.6});
-      materials = [stone, alloy, crystal, reveal];
+      // The real first Floor9 GPU frame uses the ORIGINAL shader-modified
+      // triplanar weathered stone (world-surface.mjs), including its distinct
+      // instanced rigid-deck program. Warming four generic StandardMaterial
+      // boxes alone left the FIRST true stone/architecture programs compiling
+      // synchronously on the same frame as the source-earned gateway crossing.
+      // This tiny texture only satisfies a valid sampler during offscreen
+      // compilation; the real world's independently loaded stone asset is
+      // untouched and no future game scene or actor is rendered.
+      originalStoneLookup = new THREE.DataTexture(
+        new Uint8Array([151, 151, 151, 255]), 1, 1);
+      originalStoneLookup.colorSpace = THREE.SRGBColorSpace;
+      originalStoneLookup.needsUpdate = true;
+      const weatheredStone = applyStoneSurface(
+        new THREE.MeshStandardMaterial({
+          color:0x514963,metalness:.04,roughness:.86
+        }), {texture:originalStoneLookup,available:{value:0}});
+      materials = [stone, alloy, crystal, reveal, weatheredStone];
       for (const material of materials) {
         const mesh = new THREE.Mesh(geometry, material);
         mesh.castShadow = false;
         scratch.add(mesh);
       }
-      // The original world uses rigid indexed batches AND instanced decks.
-      const instance = new THREE.InstancedMesh(geometry, alloy, 1);
-      instance.castShadow = false;
-      scratch.add(instance);
+      // Warm the TWO actually distinct source programs: ordinary alloy
+      // instancing and the shader-modified weathered-stone instancing.
+      // Geometry, draw and texture budgets are offscreen only. Programs stay
+      // retained through the first source-certified visible F9 shaft return.
+      for (const material of [alloy, weatheredStone]) {
+        const instance = new THREE.InstancedMesh(geometry, material, 1);
+        instance.castShadow = false;
+        scratch.add(instance);
+      }
       startedAtSource = {runToken:snapshot.runToken, floor:snapshot.floor, tick:snapshot.tick};
       phase = 'compiling';
       const currentEpoch = epoch;
@@ -122,6 +148,8 @@ export function createTowerVoidProgramPrewarm(THREE, renderer, liveScene, camera
   function diagnostics() {
     return {phase, variantCount:materials.length, completions,
       startedAtSource, error:firstError, releaseReason,
+      originalWeatheredStoneVariants:materials.length===5?2:0,
+      ownedPrewarmStoneTextures:originalStoneLookup?1:0,
       floorNineFirstTick,floorNineSubmittedFrames,deferredInvisibleReturns,
       evidence:'Programs retained until actual source-owned shaft submission or 24-F9-return/70-tick cap. No GPU timing, native film, or performance pass.'};
   }
