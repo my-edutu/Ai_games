@@ -3764,6 +3764,48 @@ test('live original stance skinned-foot safety reads each weighted source vertex
 });
 
 
+test('real mobile 1.0334s no-travel frame holds licensed walking soles while source fades',async()=>{
+ const {planImportedLivingSourceStep:step,
+  planImportedWalkingBlendRate:blend,
+  planImportedWalkingMixerFrameDelta:mixerDelta}=await load();
+ // Source: genuine 390px Walking_A tick 8, previous-head Actions #44394789335
+ // full-body-original-sole-hand-mobile.json. Original GLB weight 1,
+ // rendered-frame interval 1.033400s, latest local root displacement 0m.
+ // A synthetic negative control based on that real frame; neither a captured
+ // treadmill measurement nor an artificial contact/authority step.
+ const source={mode:'move',sourceClipName:'Walking_A',sourceTime:.367,
+  sourceDuration:1.0416666269302368,effectiveSpeed:1.25,
+  frameDelta:.05,frameInterval:1.0334000000000039,
+  walkingClip:true,groundedMoving:false,groundedTravel:0,
+  visible:true,reducedMotion:false,teleport:false};
+ let time=source.sourceTime,fade=0;
+ for(let frame=0;frame<4;frame++){
+  const data={...source,sourceTime:time};
+  const nativeStep=step(data);
+  const mixerStep=mixerDelta({...data,sourceStep:nativeStep});
+  const walkingScale=blend({...data,sourceStep:nativeStep});
+  assert.equal(nativeStep,0,'the unchanged lawful root may not treadmill the original Walking_A source toes');
+  assert.equal(mixerStep,.09,'original mixer source-fade weights still advance on bounded visible time');
+  assert.equal(walkingScale,0,'only actual 41-joint walk keyframe time pauses, not crossfades');
+  time+=nativeStep*data.effectiveSpeed;fade+=mixerStep;
+ }
+ assert.equal(time,source.sourceTime);
+ assert.ok(fade>=.23,'source Idle/Walk crossfade may complete in actual visible frames');
+ const moved={...source,groundedMoving:true,groundedTravel:.044,frameInterval:.35};
+ const lawful=step(moved);
+ assert.ok(lawful>0&&lawful<=.28);
+ assert.ok(blend({...moved,sourceStep:lawful})>0);
+ for(const changed of [{frameInterval:3},{groundedTravel:.02},
+  {teleport:true},{visible:false},{reducedMotion:true},
+  {walkingClip:false},{mode:'attack'},{sourceDuration:0},
+  {sourceTime:NaN}]){
+  const frame={...source,...changed};
+  const nativeStep=step(frame);
+  assert.notEqual(nativeStep,0,'untrusted source clock must not be held by this bounded exception');
+  assert.equal(blend({...frame,sourceStep:nativeStep}),null);
+ }
+});
+
 test('witnessed zero-travel native Walking_A holds feet without freezing the mixer crossfade',async()=>{
  const {planImportedLivingSourceStep:sourceStep,planImportedWalkingBlendRate:blend}=await load();
  // Modelled no-travel visible frame, anchored to the ACTUAL imported
