@@ -22,8 +22,11 @@ const frame=(unit,rest={})=>({unit,actionAge:.15,frameDelta:.016,...rest});
 test('RED: original source Idle-to-Walking_A fade completes after witnessed 500ms frame without running feet',async()=>{
  const {planImportedWalkingMixerFrameDelta:delta,planImportedWalkingBlendRate:rate}=await load();
  const real={mode:'move',walkingClip:true,sourceClipName:'Walking_A',
-  sourceInstanceSame:true,transitionFromClip:'Idle',
-  transitionFadeSeconds:.23,sourceWeight:0,
+  sourceInstanceSame:true,sourceFadeStartedThisFrame:true,
+  transitionFromClip:'Idle',
+  // Before mixer.update the new Three.js action reports weight 1 even
+  // though crossFadeFrom schedules its REAL initial interpolant at zero.
+  transitionFadeSeconds:.23,sourceWeight:1,
   frameDelta:.05,frameInterval:.5,groundedMoving:true,
   groundedTravel:.019641225088436798,sourceStep:.0193,
   sourceDuration:1.04166663,sourceTime:.25,effectiveSpeed:1.25,
@@ -36,7 +39,7 @@ test('RED: original source Idle-to-Walking_A fade completes after witnessed 500m
  for(const invalid of [
   {sourceClipName:'Idle'},{transitionFromClip:'Hit_A'},
   {sourceInstanceSame:false},{transitionFadeSeconds:.12},
-  {sourceWeight:1},{groundedTravel:0},{groundedMoving:false},
+  {sourceFadeStartedThisFrame:false},{sourceWeight:NaN},{groundedTravel:0},{groundedMoving:false},
   {visible:false},{reducedMotion:true},{teleport:true},
   {mode:'hurt'},{frameInterval:4},{sourceStep:.40}
  ]){
