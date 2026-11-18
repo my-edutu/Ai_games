@@ -975,6 +975,7 @@ function stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion){
   ownerLocomotion:actor.fullBody.owner.locomotion===true,
   rootTravel:actor.rigRecentGroundedTravel,
   frameAge:actor.rigRecentGroundedAge,
+  frameInterval:actor.rigSourceSwingFrameInterval??.016,
   alive:actor.u.hp>0,visible:actor.root.visible,
   teleport:Boolean(actor.locomotionTeleport),reducedMotion,
   interrupted:Boolean(actor.fullBody.interrupted),
