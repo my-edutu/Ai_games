@@ -425,5 +425,68 @@
     "nextHighestImpactAction": "Inspect exact-commit desktop and portrait original 1x full-motion with decoded native PTS and source events; count real first-bearing GPU receipts, old gallery exit and two co-visible hero/HP-open guardian gateway/walkable F9 raster frames. If still masked, correct original F8 cap/gate camera geometry and first-shaft composition; do not advance P1.",
     "safety": "No modification to frozen transformation.json or PR58, no unrelated games, no merge/deploy/force-push, keep PR68 draft",
     "safetyCorrection": "Same stage: explicit null original-bearing owner veto and a focused missing/detached owner regression; no gameplay-authority changes; re-run exact-head test and videos, no acceptance asserted"
+  },
+  "p0ExactSourceSpatialVoidFinish20261118": {
+    "activeStage": "P0 OPEN — authentic Floor8 guardian-to-physical Floor9 visual continuity",
+    "newProductionSha": "2a3052bee11ac88275fa82f6259daf774de741bd",
+    "testSha": "b6f6318891d5dcdec4b1bbf9d5347819d6bffcf7",
+    "paletteSha": "cc7d6bf742d2d2529e09ab16d93544237bc8cc7c",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "lastInspectedCandidateSha": "31f21030885c51dcd4bf1e9635d173c3eab6a852",
+    "lastExactHeadQuality": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44240621575",
+      "result": "10/10 jobs SUCCESS on OLD candidate 31f2103; not a visual acceptance"
+    },
+    "lastOriginalFilm": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44240621691",
+      "candidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44240621691/artifacts/14399632142",
+      "method": "ORIGINAL unedited normal-speed 1x 25fps actual Chromium WebM; 960x600 desktop and 390x844 portrait, over 70 seconds each; baseline pinned to 1731b38; native-scene-phase.json and sourceToPresentationTrace inspected",
+      "sourceAuthenticGuardian": "Source tick 475 original HP-zero guardian cap crossing, follow-on F9 route; headless authentic ledge and all 8 original film jobs succeeded",
+      "strictEventAlignedDuel": "FAILED 0/2 viewports; baseline lacks same original F8 guardian crossing; cannot invent paired footage",
+      "desktop": {
+        "drawnF9HudSeconds": 25.5,
+        "sustainedRecognizableVoidSeconds": 27,
+        "withinFilmLagSeconds": 1.5,
+        "precisionSeconds": 0.25,
+        "browserAcceptedF9ToRendererReturnMs": 588,
+        "nativeSourceMatchedCoVisibleHeroOpenGateWalkableF9Frames": 0
+      },
+      "portrait": {
+        "drawnF9HudSeconds": 25.5,
+        "sustainedRecognizableVoidSeconds": 27,
+        "withinFilmLagSeconds": 1.5,
+        "precisionSeconds": 0.25,
+        "browserAcceptedF9ToRendererReturnMs": 525,
+        "nativeSourceMatchedCoVisibleHeroOpenGateWalkableF9Frames": 0
+      },
+      "caution": "Chroma and HUD are from genuine native film but are not strict source/frame event synchronization. Browser/render-return timing from hosted software Chromium, not real-device frame-time, memory, or causal A/B.",
+      "visuallyInspectedDefect": "Actual original 1x moving skinned hero and first Floor9 decks visibly coexist with brown Clockwork steel/shaft long after F9 HUD; recognizable fully violet successor shaft does not appear until ~1.5 seconds later in BOTH viewports. Source diagnostics indicate historic detached gallery already disappeared around early F9, suggesting remaining strong bronze finish is shared-material legacy tint on ORIGINAL successor architecture, not solely old gallery occlusion."
+    },
+    "newActualPlayableIntervention": {
+      "mechanism": "World now isolates source-earned deferred F9 shaft load-path, outer buttresses, and biome native material color from Clockwork bronze shared-material palette AFTER authenticated HP-zero crossing; preserved authored 3D geometry/lighting shader types, scene root, GPU staging, and legitimate alpha/returned-frame gates unchanged.",
+      "paletteAPI": "Native authored pre-lease material color captured and supplied as a fresh clone; cannot mutate original palette memory; unknown materials fail closed.",
+      "sourceGate": "Only recorded-source-gateway deferred job with same retained owner token/guardian gate and theme void; no unrelated floors, old F8 arch, gameplay platforms, hazard cues, hero/controller or source timeline changed.",
+      "exactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44247262374 — pending at documentation authoring; do not mark green without job results",
+      "exactNewCandidateFullMotion": "NOT YET CAPTURED on final immutable commit; new request will trigger existing nine-job campaign",
+      "outcome": "Implemented in actual production Three world, no observed visual improvement claimed until authentic new WebMs arrive; new independent perception NOT EVALUATED"
+    },
+    "independentReviewVotes": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualSupportedDeviceFrameTimes": "NOT EVALUATED (p50/p95/p99)",
+    "actualSupportedDeviceMemory": "NOT EVALUATED",
+    "fullFilmEventAlignment": "FAILED 0/2 previous capture; NOT EVALUATED on new change",
+    "nextHighestImpactAction": "Inspect new exact-source 60+second desktop/portrait 1x original footage and source event sidecars after this native-finish separation, including two consecutive genuine native frames of complete climber + original opened HP0 gateway + supported real F9. If still brown, isolate historic gateway-only camera obstruction versus first-F9 scene lighting/horizon and support, not another unverified opacity tweak. Keep P0 OPEN.",
+    "safety": {
+      "baselineUntouched": true,
+      "pr58Untouched": true,
+      "otherGamesUntouched": true,
+      "noMerge": true,
+      "noDeploy": true,
+      "noForcePush": true,
+      "pr68Draft": true
+    }
   }
 }
