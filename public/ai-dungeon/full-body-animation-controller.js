@@ -1100,6 +1100,39 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
    lift>=.016&&lift<=.017&&
    heelRise>=0&&heelRise<=.008&&
    lift-heelRise>=.010;
+  // Connected original-source biomechanical pitch receipt, not another
+  // absolute-frame timestamp exception. Actual 18 Nov original desktop
+  // #44254353600 sampled a 100ms Walking_A Vanguard swing: toe
+  // -98.134181mm vs -20mm stone, heel +198.728072mm, 305.325mm
+  // true source-skinned outsole, other source shoe unchanged. The REAL
+  // -110/+110/+360mrad hip/calf/foot skin trial raised the buried toe
+  // 17.415432mm but the airborne heel only 3.537226mm: +13.878207mm
+  // true relative sole-pitch improvement. A generic 20mm toe-lift floor
+  // discarded this physically better original triple-joint result.
+  // This wider evidence-backed biomechanical envelope requires the
+  // source-authored connected angles, robust pitch >12mm, original full
+  // clip weight, verified anatomical shoe and zero loaded-shoe drift.
+  // The renderer MUST independently re-skin the chosen final both-shoe
+  // pose before retaining even a small benefit. Still ~60mm BURIED,
+  // never a plant, IK success, visual Gauntlet pass or gameplay step.
+  const strongSourcePitchRecovery=toeRad===0&&
+   Math.abs(upperRad+.11)<.000001&&
+   Math.abs(lowerRad-.11)<.000001&&
+   Math.abs(footRad-.36)<.000001&&
+   frameInterval>=.075&&frameInterval<=.145&&
+   depth>=.075&&depth<=.11&&
+   heelAbove>=.19&&heelAbove<=.28&&
+   shoeSpan>=.285&&shoeSpan<=.325&&
+   sourceWeight>=.99&&
+   starter?.source==='actual-original-source-three-joint-swing-opportunity'&&
+   starter.expectedSourceSkinnedTrials===2&&
+   starter.contactLocked===false&&starter.sign===-1&&
+   finite(starter.excessHeelRiseMeters)&&
+   starter.excessHeelRiseMeters>=.004&&
+   starter.excessHeelRiseMeters<=.012&&
+   lift>=.017&&lift<=.030&&
+   heelRise>=0&&heelRise<=.008&&
+   lift-heelRise>=.012;
   const licensedPitchSafeSourceWindow=
    licensedPitchSafe16ms||licensedPitchSafe83ms||
    licensedPitchSafe133ms||licensedPitchSafe150ms;
@@ -1110,7 +1143,8 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
   // pitch SAFER. Keep the 16mm floor for the prior 83/133ms bands;
   // spend the lower 15mm floor on the exact 150ms three-joint witness only.
   const sourcePitchMinLift=licensedPitchSafe150ms?.015:
-   licensedPitchSafeSourceWindow?.016:Math.max(.02,depth*.20);
+   licensedPitchSafeSourceWindow?.016:
+   strongSourcePitchRecovery?.017:Math.max(.02,depth*.20);
   if(lift<sourcePitchMinLift||lift>.095||
    lift-heelRise<-.002||Math.abs(heelRise)>.055||
    shoe.toeY>floorTopY+.045||
