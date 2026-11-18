@@ -502,15 +502,19 @@ export function planOriginalSourceCoupledFootStarter({
    !shoe(after?.[side])||!shoe(after?.[other]))continue;
   const toeLift=after[side].toeY-swing.toeY;
   const heelRise=after[side].heelY-swing.heelY;
-  // The measured 8.077mm excess heel rise is now eligible for a BETTER
-  // three-joint trial. It never makes the old worse two-joint pose admissible.
-  // Actual two original-GLB frames show heel-rise exceeding toe-rise by
-  // 4.521mm (desktop) and 5.731mm (390px). The former 7.5mm
-  // qualification excluded both, diverting the last two skin samples
-  // into original Idle source blends that further buried the toe.
-  // This ONLY allocates existing hip+knee+foot skinned probes; strict
-  // final original-shoe pitch/opposite-sole acceptance is unchanged.
-  if(toeLift<.010||toeLift>.055||heelRise<=toeLift+.004||
+  // The measured 8.077mm excess heel rise is eligible for BETTER
+  // three-joint probes, never automatic acceptance of the worse leg pose.
+  // Original 390px Walking_A source run #44394789335, 150ms LEFT swing:
+  // measured +26.307884mm buried-toe lift vs +29.026190mm airborne-heel
+  // rise (2.718306mm worsening). The former 4mm allocation threshold
+  // sent the two remaining source-skin trials to hip+knee-only followups,
+  // which left the toe 64.635mm inside stone. Reserve those SAME two
+  // trials for licensed hip+knee+foot where the source sole and both
+  // skinned shoes can be independently rechecked. 2.5mm is above the
+  // 0.75mm final skin-rollback tolerance; lower/noisy dominance fails.
+  // This is only trial eligibility, NEVER contact, new IK, or source pose
+  // acceptance. The final full-source two-shoe gates remain unchanged.
+  if(toeLift<.010||toeLift>.055||heelRise<=toeLift+.0025||
    heelRise>.04||heelRise<0)continue;
   const support=after[other];
   if(Math.abs(support.heelY-loaded.heelY)>.003||
