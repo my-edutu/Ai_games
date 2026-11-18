@@ -6470,5 +6470,22 @@
     },
     "actualDevice": "p50/p95/p99, memory NOT EVALUATED",
     "next": "Inspect exact new-source CI and new normal-speed full-motion desktop/portrait original event-paired clips, keep P0 open if unresolved. No baseline, PR58, unrelated game, merge/deploy/draft/force changes."
+  },
+  "p0AuthenticGroundedTwoEdgeGatewayWalk20261118": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceCommit": "20aad8d932e0e29b54d2fccd97feb30e27df881b",
+    "correctedFailClosedSourceSha": "05ef39ebb28a6baae7324d5d8b385c960caec4f9",
+    "candidatePin": "EXACT immutable github.sha of this capture request; never floating branch HEAD",
+    "previousSource": "f64294ed5ad589330e2bb039bcfcb4a1ae75d983",
+    "priorOriginalCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44269449958",
+    "priorOriginalCandidateDanger": "https://github.com/my-edutu/Ai_games/actions/runs/44269449958/artifacts/14414425582",
+    "request": "9-job real baseline vs changed actual game original 1x 25fps 60s+ 960x600 and 390x844 all four source scenarios, focused real Floor8 HP0 gate->F9 grounded walking and restart; retain native PTS + underlying 20Hz events and render return diagnostics",
+    "nonNegotiable": "Do NOT infer visual acceptance from source projection, violet palette or HUD glyph. Require two consecutive verified original drawn frames of entire climber + source-open old gate + actually supported F9 ground. Preserve exact baseline and reviewers 0/5.",
+    "changedSystem": "Source-grounded two-sided 24-segment edge narrative across existing 4 old-cap + 8 F9-route modules, true source-tick footstep progression, fail-closed when unsupported, one instanced unshadowed draw; no new walkable platform/collision/guardian wins.",
+    "sourceQuality": "Queued exact SHA quality workflow; not claimed passing",
+    "qualityComparability": "Frozen baseline lacks identical earned gateway episode, so real native comparison may fail pairing without fabricated frames",
+    "restrictions": "DRAFT PR68 only. No merge, deploy, force push, baseline edit, PR58 edit or other-game modifications"
   }
 }

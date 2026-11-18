@@ -704,5 +704,71 @@
     "largestGap": "Physical two-frame source-aligned co-visibility of entire original climber + genuinely opened HP-zero F8 gate + walkable Floor Nine still unverified; native original event-pairing 0/2. Need new code candidate footage and no-regression checks.",
     "preciseNext": "Inspect new exact immutable source quality; obtain new nine-job original baseline/candidate 1x/25fps 60+s desktop/portrait source-pinned evidence; inspect FULL motion, PTS, source transition ticks and consecutive gateway/ground pixels. If still obscured, fix the actual original bronze cap/gateway material/physical passage geometry rather than cosmetic fades or test-count edits; remain P0.",
     "safety": "Do not change frozen baseline file, PR58, other games, merge/deploy, force-push, PR68 draft state."
+  },
+  "p0AuthenticGroundedTwoEdgeGatewayWalk20261118": {
+    "activeStage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "priorNativeReviewedSourceSha": "f64294ed5ad589330e2bb039bcfcb4a1ae75d983",
+    "priorOriginalSourcePinnedRun": "https://github.com/my-edutu/Ai_games/actions/runs/44269449958",
+    "priorExactQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44269449967",
+    "priorExactQuality": "10/10 jobs SUCCESS on PREVIOUS f64294e, CI is veto only",
+    "priorAuthenticStory": "9-job real film: 8/8 original source stories, all 8 normal-speed WebMs, strict source-to-native original blind event pairing FAILED 0/2; real guardian crossing source tick475; genuine reviewer verdict NOT EVALUATED",
+    "priorVideoSha256": {
+      "desktop": "70c3696acdb58c56fa966c941a585f48fb0e29f8b4dd5edb3886cbcb27b8ea9d",
+      "portrait": "3376c56e5ee0771ed558c593c04f3b42b00a4fa8bc0b66946d37024928b3fdd9"
+    },
+    "priorNativeGlyphAndVoid": {
+      "desktop": {
+        "hud9Second": 25.25,
+        "sustainedVioletSecond": 26,
+        "hudToVioletSeconds": 0.75,
+        "uncertaintySeconds": 0.25
+      },
+      "portrait": {
+        "hud9Second": 25.75,
+        "sustainedVioletSecond": 26,
+        "hudToVioletSeconds": 0.25,
+        "uncertaintySeconds": 0.25
+      }
+    },
+    "priorStrictRendererWitness": {
+      "desktop": {
+        "returnedFrames": 9,
+        "safeHeroGateProjections": 8,
+        "groundedPaintedReceiptFrames": 0
+      },
+      "portrait": {
+        "returnedFrames": 6,
+        "safeHeroGateProjections": 4,
+        "groundedPaintedReceiptFrames": 0
+      }
+    },
+    "criticalOriginalFootageDefect": "Actually inspected original 23-30s continuous motion and 25fps frames of both desktop 960x600 and portrait 390x844: tall bronze old-world supports and cap obscure authentic opened gate, new violet roof and tiny skinned climber; no accepted consecutive source-aligned real pixels show complete body+HP0 gateway+grounded Floor9. Faster chroma does not prove crossing.",
+    "meaningfulCode": {
+      "sourceCommit": "20aad8d932e0e29b54d2fccd97feb30e27df881b",
+      "failClosedCommit": "05ef39ebb28a6baae7324d5d8b385c960caec4f9",
+      "actualFiles": [
+        "public/infinite-tower-climb/visuals/guardian-passage.mjs",
+        "tests/phase3/tower-grounded-guardian-threshold-continuity.test.cjs",
+        "tests/phase3/tower-guardian-passage.test.cjs"
+      ],
+      "intervention": "Extend original 12 source-rooted old-cap/successor wayfinding modules with two physical roof-edge inlays per segment (24 total) on both actually supported platform tops, controlled by exact seeded source x/tick and ground contact; route retracts on source loss/stale run; no invented bridge, actor move, victory, hit or physics.",
+      "boundedCosts": "One additional 24-instance THREE.InstancedMesh, one extra unshadowed material color-pass draw during authentic gateway passage; reuse original box geometry. New edge material disposed by passage owner. Device p50/p95/p99 and memory NOT EVALUATED.",
+      "negativePath": "Prevent leaking path from older HP0 source into contradictory immediate live guardian or ungrounded/unsupported F9 handoff; original history-only memory remains supported, dual-edge path inactive.",
+      "regressionTests": "Scene-owned actual Three.js matrices for side lanes; 24 source-driven edge instances; old/new real-roof continuity, no collider/shadows, invalid path fail-closed, stale/no-ground withdraw. CI pending; no local full test run reported."
+    },
+    "newSourceQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44279171896 — PENDING at request",
+    "newCaptureStatus": "Requested by same immutable capture-request change; no new original video result at evidence write",
+    "strictNativeEventAlignedPass": "NOT VERIFIED (0/2 previous)",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDeviceFrameTime": "NOT EVALUATED",
+    "actualDeviceMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Inspect exact-SHA quality and genuine new 9-job original full-motion capture (960x600 & 390x844); verify source-grounded dual-edge guide is actually drawn and affects the physical Floor8->9 camera story, with two adjacent source-aligned hero+gate+F9 pixels. If not, remove false-legibility and rebuild REAL old-bronze support/gate sightline, not another color fade.",
+    "safety": "Frozen transformation file unchanged; PR58 untouched, PR68 open draft; no merge, deployment or force push."
   }
 }
