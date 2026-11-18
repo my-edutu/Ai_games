@@ -363,7 +363,7 @@ test('original source gallery forms a continuous three-dimensional earned doorwa
   // They were outside the original threshold-only negative space.
   const landingPost=sourceBearing(41,8,6,8);
   const overhead=sourceBearing(29,0,19,3);
-  const flank=sourceBearing(25,14,5,8);
+  const flank=sourceBearing(40,23,5,8);
   let uncut=null,cut=null;
   function nativeRayHits(gallery,radius,tangent,rise){
     if(!gallery)return 0;
@@ -391,7 +391,7 @@ test('original source gallery forms a continuous three-dimensional earned doorwa
       'real overhead bearing originally obscured the first raised-platform camera');
     assert.equal(nativeRayHits(cut,42,0,19),0,
       'actual 12.6m source-raised headroom now has a physical aperture');
-    assert.ok(nativeRayHits(cut,53,14,5)>0,
+    assert.ok(nativeRayHits(cut,53,23,5)>0,
       'the non-colliding flanking Clockwork load path remains visible and connected');
     assert.equal(landingPost.parent,old);
     assert.equal(overhead.parent,old);
@@ -407,5 +407,49 @@ test('original source gallery forms a continuous three-dimensional earned doorwa
   }finally{
     if(uncut)for(const m of uncut.root.children){m.geometry.dispose();m.material.dispose();}
     clean(cut,old);
+  }
+});
+
+test('real successor annulus remains clear through floor-nine approach without removing original exterior bronze supports',async()=>{
+  const [THREE,world]=await loaded;
+  const old=new THREE.Group();
+  function bearing(radius,tangent,rise,height){
+    const mesh=new THREE.Mesh(new THREE.BoxGeometry(.75,height,.75),
+      new THREE.MeshStandardMaterial({color:0x8b7454}));
+    mesh.name='old-source-structural-bearing';mesh.userData.structural=true;
+    mesh.position.set(Math.sin(at)*radius+Math.cos(at)*tangent,
+      roof+rise,Math.cos(at)*radius-Math.sin(at)*tangent);
+    old.add(mesh);return mesh;
+  }
+  const near=bearing(25,17,5,4),raised=bearing(25,24,19,4);
+  const outside=bearing(40,23,5,9);
+  function hits(g,r,t,rise){
+    if(!g)return 0;
+    g.root.updateMatrixWorld(true,true);
+    const p=new THREE.Vector3(Math.sin(at)*r+Math.cos(at)*t,
+      roof+rise,Math.cos(at)*r-Math.sin(at)*t);
+    return new THREE.Raycaster(p,new THREE.Vector3(-Math.sin(at),0,-Math.cos(at)),0,35)
+      .intersectObjects(g.root.children,false).length;
+  }
+  let original=null,cleared=null;
+  try{
+    original=world.extractOriginalClockworkThresholdGallery(THREE,old,
+      EXIT_X,ROOF_Y,BASE_Y,WIDTH,{includeOriginalFlanks:true,maxFaces:256,maxBatches:4});
+    cleared=world.extractOriginalClockworkThresholdGallery(THREE,old,
+      EXIT_X,ROOF_Y,BASE_Y,WIDTH,{includeOriginalFlanks:true,
+        clearPhysicalExit:true,maxFaces:256,maxBatches:4});
+    assert.ok(original && cleared && cleared.faces>0,'actual original gallery remains');
+    assert.ok(hits(original,53,17,5)>0,'real historic near-route post was visible');
+    assert.ok(hits(original,53,24,19)>0,'real historic upper-route bearing was visible');
+    assert.equal(hits(cleared,53,17,5),0,'true annular Floor9 walking route is no longer blocked');
+    assert.equal(hits(cleared,53,24,19),0,'raised approach maintains true 3D headroom');
+    assert.ok(hits(cleared,53,23,5)>0,'outside original structural shoulder survives');
+    for(const mesh of [near,raised,outside])assert.equal(mesh.parent,old,
+      'shipped original F8 world was never modified; only its historical copy was clipped');
+    assert.ok(cleared.faces<=256 && cleared.root.children.length<=4);
+    assert.equal(cleared.bytes,cleared.faces*96);
+  }finally{
+    if(original)for(const m of original.root.children){m.geometry.dispose();m.material.dispose();}
+    clean(cleared,old);
   }
 });

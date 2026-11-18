@@ -147,6 +147,22 @@ export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresh
       v=>13-tangentOf(v),
       v=>v.y-(roof+9),
       v=>roof+26-v.y
+    ],
+    // Original Floor9 successor ground follows the same r~25 annular
+    // walking route BEYOND the defeated gate. The earlier exterior volume
+    // (r31..50) missed the old structural posts at r25, t12..30, so the
+    // skinned climber remained occluded even after earning the passage.
+    // Overlap the original gate at t10..12 and clear its TRUE contiguous
+    // walking/headroom route, never the source guardian, decks or hitboxes.
+    // Cut ONLY already-extracted, non-colliding original F8 gallery faces.
+    // Outside radius 31.5 the load-bearing flanks remain original and intact.
+    [
+      v=>radialOf(v)-22,
+      v=>31.5-radialOf(v),
+      v=>tangentOf(v)-10,
+      v=>32-tangentOf(v),
+      v=>v.y-(roof-2),
+      v=>roof+26-v.y
     ]
   ];
   function clipHalfPolygon(polygon,plane,inside) {
