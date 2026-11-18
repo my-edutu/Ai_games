@@ -179,6 +179,70 @@ export function sourceWalkableCrossfloorProjectionHeld(before,after) {
     overflowAfter<=overflowBefore+.035;
 }
 
+
+/*
+ * The original 1x Floor8 -> Floor9 film showed a second P0 failure beyond
+ * offscreen cropping: a source-true old gateway, full climber and next-floor
+ * walkable endpoint can all project INSIDE the viewport yet visually stack
+ * into one bronze silhouette. Previous sourceDoorwayFrameGain and
+ * sourceWalkableCrossfloorFrameGain were ZERO in this case, so the director
+ * never even tested a better genuine 3D angle.
+ *
+ * Score the ENTIRE current three-subject on-screen composition, not a
+ * synthetic cutscene or fake destination. The caller only invokes this with
+ * an immutable HP-zero source passage and a real f9:ground roof, and vetoes
+ * every improving camera against authentic old-cap, gate, gallery, Void
+ * bearing, successor-deck triangles and solid-core rays before accepting it.
+ * Prevent cheating by shrinking the actor/gate or moving a subject offscreen.
+ * This is an optical *proposal*; only native film can demonstrate success.
+ */
+export function sourceThreeSubjectSilhouetteRelief(
+  beforeHero,beforeDoor,beforeWalkable,
+  afterHero,afterDoor,afterWalkable,
+  heroCoreClear,doorCoreClear,walkableCoreClear
+) {
+  if (![beforeHero,beforeDoor,afterHero,afterDoor].every(valid) ||
+      !validWalkableNdc(beforeWalkable) || !validWalkableNdc(afterWalkable) ||
+      heroCoreClear!==true || doorCoreClear!==true ||
+      walkableCoreClear!==true ||
+      beforeHero[3]<.055 || beforeDoor[3]<.035 ||
+      afterHero[3]<beforeHero[3]*.90 ||
+      afterDoor[3]<beforeDoor[3]*.84 ||
+      Math.abs(afterHero[0])+afterHero[3]*.12>.76 ||
+      Math.abs(afterHero[1])+afterHero[3]>.76 ||
+      Math.abs(afterDoor[0])+afterDoor[3]*.12>.82 ||
+      Math.abs(afterDoor[1])+afterDoor[3]>.82 ||
+      Math.abs(afterWalkable[0])>.84 ||
+      Math.abs(afterWalkable[1])>.78)
+    return 0;
+  const overlap=(a,b,minX,minY)=>{
+    const dx=(a[0]-b[0])/minX;
+    const dy=(a[1]-b[1])/minY;
+    return Math.max(0,1-Math.hypot(dx,dy));
+  };
+  const crowded=(hero,door,route)=>{
+    const hg=overlap(hero,door,
+      Math.max(.16,hero[3]*.75+door[3]*.58),
+      Math.max(.20,hero[3]+door[3]*.72));
+    const gr=overlap(door,route,
+      Math.max(.16,door[3]*.63+.10),
+      Math.max(.18,door[3]*.70+.11));
+    const hr=overlap(hero,route,
+      Math.max(.19,hero[3]*.70+.10),
+      Math.max(.20,hero[3]*.82+.10));
+    return 1.15*hg+.82*gr+.65*hr;
+  };
+  const before=crowded(beforeHero,beforeDoor,beforeWalkable);
+  const after=crowded(afterHero,afterDoor,afterWalkable);
+  // This is not a licence to improve separation by sacrificing the current
+  // camera's previously readable full body, open door or real landing.
+  if(before<.035 || after>=before-.002 ||
+      overflow(afterHero,.61,.65)>overflow(beforeHero,.61,.65)+.014 ||
+      overflow(afterDoor,.60,.67)>overflow(beforeDoor,.60,.67)+.014)
+    return 0;
+  return Math.min(.28,before-after);
+}
+
 // The post-director Floor9 doorway search previously selected the best
 // projected pair and tested real world triangles ONLY after ranking. When
 // that winning trial passed behind the original F8 cap, it discarded the

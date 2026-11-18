@@ -145,3 +145,41 @@ test('composed final physical camera ranks ONLY individually source-ray-safe tri
   assert.match(stage,/camera\.position\.set\(Math\.sin\(angle\)\*candidateRadius/);
   assert.match(stage,/towerCoreSightlineClear\(camera\.position,thresholdGate/);
 });
+
+test('HP-zero three-subject shot can improve genuine in-frame silhouette separation without pretending a crop',async()=>{
+  const {sourceThreeSubjectSilhouetteRelief:relief}=await helpers;
+  // All three authentic projected subjects fit already; older cropping-only
+  // directors returned zero and allowed the opened gate to disappear behind
+  // the skinned player and actual successor roof in original portrait film.
+  const hero=[-.02,.07,.5,.20],gate=[.04,.08,.5,.16],roof=[.10,.09,.5];
+  const separatedHero=[-.20,.06,.5,.20];
+  const separatedGate=[.14,.07,.5,.16];
+  const separatedRoof=[.41,.08,.5];
+  const gain=relief(hero,gate,roof,separatedHero,separatedGate,separatedRoof,true,true,true);
+  assert.ok(gain>.04,'safe genuine three-body separation merits a source ray trial');
+  assert.equal(relief(hero,gate,roof,hero,gate,roof,true,true,true),0,
+    'unchanged in-frame overlap is not a camera improvement');
+  assert.equal(relief(hero,gate,roof,separatedHero,separatedGate,separatedRoof,false,true,true),0,
+    'solid-core body ray may never earn an optical correction');
+  assert.equal(relief(hero,gate,roof,separatedHero,separatedGate,separatedRoof,true,true,false),0,
+    'actual walkable roof must have a real clear core ray');
+  assert.equal(relief(hero,gate,roof,[.91,.06,.5,.20],separatedGate,separatedRoof,true,true,true),0,
+    'moving the actor outside the safe viewport is not relief');
+  assert.equal(relief(hero,gate,roof,[-.20,.06,.5,.07],separatedGate,separatedRoof,true,true,true),0,
+    'reducing the actor to a tiny speck is not relief');
+  assert.equal(relief(hero,gate,roof,separatedHero,[.14,.07,.5,.04],separatedRoof,true,true,true),0,
+    'shrinking the actual opened gate is not relief');
+  assert.equal(relief(hero,gate,roof,separatedHero,separatedGate,[.95,.08,.5],true,true,true),0,
+    'an offscreen authentic Floor9 destination cannot earn a better shot');
+});
+test('final camera attempts source-backed in-frame triad relief only with real world-triangle veto',()=>{
+  const code=fs.readFileSync(path.resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+  const shot=code.slice(code.indexOf('// POST-DIRECTOR PHYSICAL CROSSING:'),
+    code.indexOf('world.revealGuardianSightlines(camera,guardianSightPoints);'));
+  assert.match(shot,/physicalWalkableShot\?\.sourceBound===true\s*\?sourceThreeSubjectSilhouetteRelief\(/);
+  assert.match(shot,/routeGain,steelGain,silhouetteRelief/);
+  assert.match(shot,/if\(!sourceThreeSubjectRaySafe\(\s*deckViewBeforeThreshold,currentRays\)\)continue;/);
+  assert.match(shot,/towerCoreSightlineClear\(camera\.position,thresholdWalkable,23\.5\)/);
+  assert.match(shot,/camera\.position\.copy\(bestScore<existingDeckView\.score/);
+});

@@ -32,7 +32,7 @@ import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCamer
 import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardianDuelEdgePressure, guardianLiveFightLockPriority } from './guardian-gate-intrusion.mjs';
 import { observedGuardianTransmissionCorners } from './guardian-transmission-layout.mjs';
 import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
-import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe } from './physical-threshold-shot.mjs';
+import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe } from './physical-threshold-shot.mjs';
 import { sourceSubmittedDoorwayCameraDt } from './source-submitted-doorway-cadence.mjs';
 import { createTowerVoidProgramPrewarm } from './void-program-prewarm.mjs';
 import { sourceOriginalGatewayCameraBridge, observedOriginalGatewaySubmittedView } from './original-gateway-submitted-camera-bridge.mjs';
@@ -5075,9 +5075,21 @@ export function createTowerScene(canvas, settings = {}) {
           const steelGain=gateSteelAfter?.sourceBound===true &&
             gateSteelBefore?.sourceBound===true
               ?Math.max(0,gateSteelAfter.score-gateSteelBefore.score)*.32:0;
+          // The genuine guardian door, skinned climber and ACTUAL walkable
+          // Floor9 roof may all fit yet overlap in one unreadable silhouette.
+          // Offer a reversible composition correction even without crop;
+          // it must still win the exact same real Three.js triangle veto
+          // below. No additional camera, cut, source action or GPU draw.
+          const silhouetteRelief=physicalWalkableShot?.sourceBound===true
+            ?sourceThreeSubjectSilhouetteRelief(
+              thresholdHeroBefore,thresholdGateBefore,thresholdWalkableBefore,
+              thresholdHeroAfter,thresholdGateAfter,thresholdWalkableAfter,
+              true,true,towerCoreSightlineClear(camera.position,thresholdWalkable,23.5))
+            :0;
           const gain=Math.max(sourceDoorwayFrameGain(
             thresholdHeroBefore,thresholdGateBefore,
-            thresholdHeroAfter,thresholdGateAfter,true,true),routeGain,steelGain);
+            thresholdHeroAfter,thresholdGateAfter,true,true),
+            routeGain,steelGain,silhouetteRelief);
           if(gain>best){
             // A projected NDC winner can still hide the climber behind the
             // actual old cap, opened grille, live F9 deck or Void bearing.
