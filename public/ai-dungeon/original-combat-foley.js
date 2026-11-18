@@ -492,7 +492,7 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
   param.exponentialRampToValueAtTime(peak,t+attack);
   param.exponentialRampToValueAtTime(.0001,t+length);
  }
- function emit(cue){
+ function emit(cue,options=null){
   if(disposed||!enabled||ctx?.state!=='running')return false;
   // Only explicitly owned catalogue entries may allocate original foley.
   // Prototype names are neither real sound recipes nor device failures.
@@ -627,6 +627,19 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
    const voice={sources,nodes,stopAt,priority,noiseOffset,startedAt:t,done:false};
    const lastSource=sources.at(-1);
    if(lastSource)lastSource.onended=()=>stopVoice(voice);
+   // Node allocation and parameter setup can block the JS main thread AFTER
+   // the controller's WebGL receipt. Check the ORIGINAL observation deadline
+   // at the final point before scheduling ANY native WebAudio source. A
+   // rejected candidate owns no voice/cooldown/canonical cue identity.
+   // This is a safety gate, not evidence of audible PCM or physical contact.
+   if(typeof options?.beforeSourceStart==='function'){
+    let stillTimely=false;
+    try{stillTimely=options.beforeSourceStart()===true}catch{}
+    if(!stillTimely){
+     for(const node of nodes)try{node.disconnect?.()}catch{}
+     dropped++;return false;
+    }
+   }
    for(const source of sources){
     if(source===n)source.start(t,noiseOffset);
     else source.start(t);

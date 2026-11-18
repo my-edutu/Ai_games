@@ -685,7 +685,36 @@ export function createPhysicalCombatFeedback({
       'unverified-before-original-start',submittedWallClock,visualDrawable);
     continue;
    }
-   const audible=!!safeCall(()=>foley?.emit?.(soundCue));
+   // An original WebAudio source can be allocated well AFTER this boundary:
+   // native node creation/filter setup may block before source.start(). Pass
+   // a bounded last-chance check to the D04 foley engine itself. The check
+   // samples the same monotonic observation clock, never retimes the damage
+   // cue or substitutes a scheduled start for decoded audible contact.
+   let preSourceStartRejection=null;
+   const beforeSourceStart=()=>{
+    if(typeof clock!=='function')return true;
+    const startClock=observedWallClock();
+    if(startClock===null||!Number.isFinite(observedWallAt)||
+       observedWallAt<0||startClock<observedWallAt){
+     preSourceStartRejection='unverified-before-source-start';
+     return false;
+    }
+    if(startClock-observedWallAt>MAX_AUDIO_VISUAL_STALENESS_SECONDS){
+     preSourceStartRejection='stale-before-source-start';
+     return false;
+    }
+    return true;
+   };
+   const audible=!!safeCall(()=>foley?.emit?.(soundCue,{beforeSourceStart}));
+   if(preSourceStartRejection!==null){
+    staleAudioDropped++;
+    if(item.visual)safeCall(()=>visuals?.retireStaleCue?.(
+     item.cue.id,preSourceStartRejection==='stale-before-source-start'?
+      'stale-frame':'unverified-frame'));
+    retainReceipt(item.cue,item.visual,false,frameId,
+     preSourceStartRejection,submittedWallClock,visualDrawable);
+    continue;
+   }
    if(audible){audioAccepted++;released++}
    retainReceipt(item.cue,item.visual,audible,frameId,
     audible?'delivered':'foley-rejected',submittedWallClock,visualDrawable);
