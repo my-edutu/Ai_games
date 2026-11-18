@@ -5032,6 +5032,7 @@ export function createTowerWorld(){
       source,held,camera,body,bodyHalfHeight,gate,platformRoots:roots,
       architectureRoots,originalGateRoot:held.originalGateRoot,
       originalCapRoot:held.originalCapSightlineRoot,
+      originalGalleryRoot:held.originalGalleryRoot,
       raycaster:successorDeckRay,direction:successorDeckRayDirection,
       point:successorDeckRayTarget,hits:successorDeckRayHits
     });
