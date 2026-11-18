@@ -10676,8 +10676,12 @@ function planOriginalNeighbourhoodDetail(lots,anchor,limit){
 // inhabited house continues through its complete compact GPU rendering.
 // W439's physical town overview starts at >=43 m and remains unchanged.
 const HOME_DETAIL_LOCAL_ORBIT_ZOOM=35;
-function realHomeDetailViewMode(homeCount,residentHomes,onStreet,following,cinematicView,physicalZoom){
- if(!residentHomes||homeCount<=12)return 'overview';
+// W446: home geometry fidelity belongs to the player's physical camera,
+// NOT the renderer implementation (one complete settlement buffer versus
+// spatial resident VBOs). Both paths must show exactly the same inhabited
+// houses at the same level of detail and never change save/world authority.
+function realHomeDetailViewMode(homeCount,_residentHomes,onStreet,following,cinematicView,physicalZoom){
+ if(homeCount<=12)return 'overview';
  if(onStreet||following)return 'inspection';
  return !cinematicView&&Number.isFinite(physicalZoom)&&
   physicalZoom<=HOME_DETAIL_LOCAL_ORBIT_ZOOM?'inspection':'overview';
@@ -10710,6 +10714,7 @@ function getHomeDetailPolicyAudit(){
   activeDetailedHomeLimit:HOME_DETAIL_INSPECTION_LIMIT,
   localOrbitInspectionMaxZoom:HOME_DETAIL_LOCAL_ORBIT_ZOOM,
   originalOverviewDetailLimit:VILLAGE_LOD_LIMIT,
+  rendererModeLodParity:true,rendererPathDoesNotPickDifferentHouses:true,
   allOriginalHomesRetained:true,hardwareFPS:'NOT MEASURED',
   rendererBudgetRequiresRealVerification:true,
   changesJobs:false,changesNavigation:false,changesEconomy:false};

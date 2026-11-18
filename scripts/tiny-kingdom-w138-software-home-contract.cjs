@@ -36,4 +36,31 @@ for(const token of [
  'getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride',
  'lastFrameTriangles='
 ])assert(html.includes(token),token);
+
+// W446 RED before the fix: the same authentic market camera selected eight
+// distant high-detail houses with a complete VBO, but six physically local
+// cottages with resident/dirty blocks. That is NOT rendering parity.
+// Execute the actual production function, not a copied substitute.
+const lodFrom=html.indexOf('function realHomeDetailViewMode(');
+const lodTo=html.indexOf('function currentHomeDetailAnchor()',lodFrom);
+assert(lodFrom>0&&lodTo>lodFrom);
+const cameraMode=new Function('HOME_DETAIL_LOCAL_ORBIT_ZOOM',
+ html.slice(lodFrom,lodTo)+'return realHomeDetailViewMode;')(35);
+for(const count of [13,28,35,120])for(const zoom of [12,20,23,35,43,70]){
+ for(const onStreet of [false,true])for(const following of [false,true]){
+  const a=cameraMode(count,true,onStreet,following,false,zoom);
+  const b=cameraMode(count,false,onStreet,following,false,zoom);
+  assert.equal(a,b,'identical original camera must not change actual home detail with GPU partition mode');
+  assert.equal(a,(onStreet||following||zoom<=35)?'inspection':'overview',
+   'real workday proximity must select truthful occupied-cottage details');
+ }
+}
+for(const count of [3,12])for(const zoom of [5,23,70])
+ assert.equal(cameraMode(count,true,true,true,false,zoom),'overview',
+  'original founding geometry remains fully detailed without extra switching');
+assert.equal(cameraMode(35,true,false,false,true,23),'overview',
+ 'cinematic view remains established original overview policy');
+assert.match(html,/rendererModeLodParity:true/);
+console.log('W446 original home LOD equals across complete/dirty GPU rendering for 192 physical camera cases; real 120-day browser evidence remains required.');
+
 console.log('W138 8 RED/GREEN source policy cases + actual-scene key + preserved real homes/16m/GL budgets PASS; WebGL/Day120/physical FPS NOT VERIFIED.');
