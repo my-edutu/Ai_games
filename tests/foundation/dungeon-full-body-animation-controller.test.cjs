@@ -3283,7 +3283,7 @@ test('source-loaded pelvis bridge uses authentic two-point walking shoe contact,
  // Source-only comments are not extra frame stages. Check exact consecutive
  // executable calls after stripping line comments, without a brittle byte cap.
  const live=model.slice(model.indexOf('function updateActor('));
- const calls=live.replace(/\\/\\/[^\\n]*/g,'').split('\\n').map(line=>line.trim());
+ const calls=live.replace(/\/\/[^\n]*/g,'').split('\n').map(line=>line.trim()).filter(Boolean);
  const slide=calls.indexOf('stageOriginalSourceStanceSlideAfterMixer(actor,reducedMotion,sourceFrameInterval,sourceFrameVisible);');
  assert.ok(slide>=0,'the real update must stage source stance after source legs');
  assert.deepEqual(calls.slice(slide+1,slide+4),[
@@ -7425,7 +7425,7 @@ test('RED: rejected final-source pelvis lift preserves independently verified na
  const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  const audit=renderer.slice(renderer.indexOf('function auditSourceLoadedPelvisAfterLegs('),
   renderer.indexOf('/** Read the real SkeletonUtils-cloned source GLB rest segments'));
- assert.match(audit,/certifyOriginalSourcePostLegPelvisRollback\\(/);
+ assert.match(audit,/certifyOriginalSourcePostLegPelvisRollback\(/);
  assert.match(audit,/preserveOriginalSourceLegs/);
  assert.ok(audit.indexOf('certifyOriginalSourcePostLegPelvisRollback(')<
   audit.indexOf('restoreOriginalSourceLegsAfterRejectedPelvis('),
