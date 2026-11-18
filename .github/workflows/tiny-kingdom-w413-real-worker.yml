@@ -31,6 +31,8 @@ jobs:
           cache: npm
       - name: Verify active original worksite and excluded real contacts
         run: node --test tests/browser/tiny-kingdom-w413-observed-workskin.spec.cjs
+      - name: W421 original medieval market and retained materials contract
+        run: node scripts/tiny-kingdom-w421-architectural-contract.cjs
       - run: npm ci --no-audit --no-fund
       - run: npm run build
       - run: npx playwright install --with-deps chromium
