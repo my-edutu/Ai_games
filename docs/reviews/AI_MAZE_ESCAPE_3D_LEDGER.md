@@ -1,3 +1,13 @@
+## Pass474 — real browser ESM delivery blocker repaired (2026-11-18 UTC)
+
+- Exact Pass473 `ab92b30b3fd243cddde11f7e34532d95a4fd7f8b` [native WebGL 44243806467](https://github.com/my-edutu/Ai_games/actions/runs/44243806467) **FAILED BEFORE SCREENSHOTS**, stream self-test reported `missingRoutes:["scene.js -> encounter-lighting.mjs"]`. Whole-repo [44243806546](https://github.com/my-edutu/Ai_games/actions/runs/44243806546) hit same Maze self-test fault. All 227 focused Maze source checks passed, but served gameplay did not; no Pass473 actual WebGL artifact or visual verdict exists. Real critical browser delivery regression, not SwiftShader issue.
+
+- Production correction: explicit allowlisted static module `encounter-lighting.mjs` now reachable by `scene.js` from `/maze/encounter-lighting.mjs`, within existing strict file boundary. Existing `unservedPublicImports()` self-test prevents recurrence. No game rules, AI/privacy, actor geometry, resources, cameras, UI or thresholds changed. [Dated review](docs/reviews/maze-3d/pass-474-served-scene-graph-blocker-2026-11-18.md).
+
+- New exact-commit CI/browser artifact, four-viewports, hash-verified native frames and lighting A/B **PENDING**. Fixed Nintendo benchmark **NOT MET**, detached critic/Ultracode unavailable (workspace `NOT_FOUND`). PR #53 OPEN DRAFT, unmerged, undeployed; hourly Gauntlet active.
+
+--- 
+
 ## Pass473 — witnessed pressure / guardian stage light choreography candidate (2026-11-18 UTC)
 
 - Prior exact source `22be5c02c0fa1e9ac36256640d0190d994faa823` native [44237318037](https://github.com/my-edutu/Ai_games/actions/runs/44237318037) SUCCESS including strict six-reset <100; downloaded original [artifact 14398703284](https://github.com/my-edutu/Ai_games/actions/runs/44237318037/artifacts/14398703284), verified 40/40 authentic PNG SHA sidecars and inspected full-frame 390px pressure / Thornback captures. They show functioning real mechanisms but busy architectural hierarchy and non-consecutive captured pressure/guardian beats. Nintendo visual bar REJECTED.
