@@ -68,6 +68,9 @@ test('earned Floor 9 receives a real source-grounded arrival composition until t
     assert.equal(d.action.jump,false);
     assert.equal(d.action.dash,false);
     assert.equal(d.intent.mode,'aligning');
+    assert.ok(d.intent.summary.includes(age<12 ? 'guardian threshold' : 'Floor Nine') ||
+      d.intent.summary.includes(age<12 ? 'Floor Nine' : 'authentic landing'),
+      'the actor's actual source-intent exposes the two observable grounded beats');
     assert.ok(d.action.move===0||d.action.move===1);
   }
   assert.equal(JSON.stringify({...s,tick:500}),before,

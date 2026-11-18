@@ -876,16 +876,22 @@ function observedEarnedCapReacquisition(state:TowerState,obs:TowerObservation,
       confidence:.96,fallbackUsed:false,targetPlatformId:cap.id}};
 }
 
-// The real 1x 2026-11-14 Floor8->9 film exposed an authoritative problem,
-// not a tint problem: on the first tick AFTER a genuine grounded boss-gate
-// crossing the pilot immediately jumped >13m, then climbed ~65m before the
-// cold world could submit its first frame. The original doorway and actual
-// full-body soles therefore never shared a convincing grounded passage.
-// Spend a bounded first HALF-SECOND walking and settling on the SAME real
-// f9:ground, before the existing genuine gateway-step ascent resumes.
-// This is a normal autonomous action, not a movement override, frozen replay
-// change, timer-driven pose, invulnerability grant or additional platform.
-// Published hazards, opponent decisions and recovery have priority above it.
+// P0 systemic source-authentic camera/gameplay contract: the browser WebGL
+// source tick can be more than one DISPLAY second ahead of the unchanged
+// original WebM. The former ten-tick (0.5s) first-roof stride launched the
+// real hero vertically toward f9:p2 BEFORE a single viewer-visible frame
+// could establish the opened gate, complete grounded hero and walkable F9.
+// Do not add a cinema hold or fake a delayed floor award. Spend a finite
+// 36 *real 20Hz ticks* walking and settling along the EXISTING colliding
+// successor roof, then resume autonomous ascent. The original gate, source
+// route markers, camera and grounded pose can therefore coexist as actual
+// gameplay during the first slow software-WebGL submission.
+// Incoming missiles, hazard jaws, low health and enemies are handled earlier
+// in chooseTowerAction. The guardian must be genuinely defeated and the
+// same-run original body crossing immutably recorded; every action remains
+// an ordinary physics input, with no renderer timing affecting authority.
+const EARNED_GATEWAY_ROOF_WALK_TICKS=36;
+const EARNED_GATEWAY_OLD_SILL_SETTLE_TICKS=12;
 function observedEarnedGatewayGroundedStride(state:TowerState,
   obs:TowerObservation):TowerDecision|null {
   const w=state.lastGuardianCrossing,p=obs.player;
@@ -895,54 +901,67 @@ function observedEarnedGatewayGroundedStride(state:TowerState,
      !w || !p || w.runToken!==checksum({runId:state.runId}) ||
      w.fromFloor!==8 || w.toFloor!==9 ||
      w.cap?.id!=='f8:cap' || w.guardian?.kind!=='guardian' ||
-     w.guardian.active!==false || w.guardian.health>0 ||
+     w.guardian.floor!==8 || w.guardian.active!==false ||
+     !Number.isFinite(w.guardian.health) || w.guardian.health>0 ||
      !Number.isSafeInteger(w.sourceTick) ||
      !Number.isSafeInteger(obs.tick) || obs.tick!==state.tick ||
-     obs.tick-w.sourceTick<0 || obs.tick-w.sourceTick>=10 ||
+     obs.tick-w.sourceTick<0 ||
+     obs.tick-w.sourceTick>=EARNED_GATEWAY_ROOF_WALK_TICKS ||
      !p.grounded || state.player.state!=='standing' ||
      p.groundedPlatformId!=='f9:ground' || p.health<=0 ||
      w.halfWidth!==state.player.halfWidth ||
      w.halfHeight!==state.player.halfHeight ||
-     !Number.isSafeInteger(w.crossingX) ||
-     !Number.isSafeInteger(w.crossingY) ||
-     !Number.isSafeInteger(p.position.x) ||
-     !Number.isSafeInteger(p.position.y) ||
-     !Number.isFinite(p.velocity.x)) return null;
+     ![w.crossingX,w.crossingY,w.exitX,w.cap.x,w.cap.y,
+       w.cap.width,w.cap.height,p.position.x,p.position.y]
+       .every(Number.isSafeInteger) ||
+     !Number.isFinite(p.velocity.x) ||
+     w.cap.width<=0 || w.cap.height<=0 ||
+     w.exitX!==w.cap.x+Math.floor(w.cap.width*.76) ||
+     w.crossingX<w.exitX+w.halfWidth+4000 ||
+     p.position.x<w.crossingX-5000 ||
+     p.position.x>w.crossingX+90000) return null;
   const ground=obs.platforms.find(platform=>platform.id==='f9:ground');
-  if(!ground || !Number.isSafeInteger(ground.x) ||
-     !Number.isSafeInteger(ground.y) ||
-     !Number.isSafeInteger(ground.width) ||
-     !Number.isSafeInteger(ground.height) ||
+  if(!ground || ![ground.x,ground.y,ground.width,ground.height]
+       .every(Number.isSafeInteger) ||
      ground.width<=0 || ground.height<=0 ||
+     // Both sides of the threshold occupy the SAME real source top. No
+     // copied mesh, guessed old floor or camera paint can earn the stride.
+     w.cap.y+w.cap.height!==ground.y+ground.height ||
      w.crossingY-w.halfHeight!==ground.y+ground.height ||
      p.position.y-state.player.halfHeight!==ground.y+ground.height ||
-     p.position.x<w.crossingX-5000 ||
      p.position.x-state.player.halfWidth<ground.x ||
      p.position.x+state.player.halfWidth>ground.x+ground.width)
      return null;
-  // Preserve the original forward stride, but brake BEFORE the real ground
-  // edge; source physics supplies acceleration, friction and solid contact.
   const safeRight=ground.x+ground.width-state.player.halfWidth-10000;
-  if(safeRight<=w.crossingX) return null;
-  // The actual 475-tick source-run arrived with +6300 horizontal velocity.
-  // Sprinting another 28m overshoots the first ascent launch and then forces
-  // a 19m U-turn on the same roof. Hand over with a source-observed launch
-  // sightline instead of driving toward a pre-scripted far-right point.
+  if(safeRight<=w.crossingX)return null;
   const nextStep=obs.platforms.find(platform=>platform.id==='f9:gateway-step');
-  const firstLaunch=nextStep?launchX(ground,nextStep,state.player.halfWidth):w.crossingX;
+  // The first grounded act genuinely decelerates through the old seal; the
+  // second walks toward the actual next deck but NEVER jumps or dashes until
+  // the original gateway and successor roof have occupied multiple genuine
+  // source snapshots. All motion comes from fixed-step physics.
+  const age=obs.tick-w.sourceTick;
+  const leavingSill=age>=EARNED_GATEWAY_OLD_SILL_SETTLE_TICKS;
+  const firstLaunch=nextStep
+    ?launchX(ground,nextStep,state.player.halfWidth):w.crossingX;
   const brakingRunout=Math.max(state.config.maxRunSpeed,
     state.config.groundFriction*10);
-  const goal=Math.min(safeRight,w.crossingX+brakingRunout,
+  const firstGoal=Math.min(safeRight,w.crossingX+brakingRunout,
     Math.max(w.crossingX,firstLaunch)+brakingRunout);
+  const onwardGoal=Math.min(safeRight,w.crossingX+50000,
+    Math.max(w.crossingX,firstLaunch)+brakingRunout);
+  const goal=leavingSill?Math.max(firstGoal,onwardGoal):firstGoal;
   const friction=Math.max(1,state.config.groundFriction);
   const stopping=Math.max(0,p.velocity.x)**2/(2*friction);
   const wanted:TowerAction['move']=
     p.position.x+Math.max(0,p.velocity.x)+stopping+3000<goal?1:0;
   const move=guardedEvasion(state,obs,wanted);
   return {action:action(move),
-    intent:{mode:'aligning',summary:move===1
-      ?'Walking through the earned guardian threshold'
-      :'Settling onto the real Floor Nine landing',
+    intent:{mode:'aligning',
+      summary:!leavingSill
+        ?(move===1?'Walking through the earned guardian threshold':
+          'Settling onto the real Floor Nine landing')
+        :(move===1?'Walking the real Floor Nine roof toward its first climb':
+          'Reading the next authentic landing from the open gateway'),
       confidence:.97,fallbackUsed:false,targetPlatformId:ground.id}};
 }
 
