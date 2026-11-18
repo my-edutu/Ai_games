@@ -6,6 +6,7 @@ on:
       - public/tiny-kingdom/index.html
       - scripts/tiny-kingdom-w423-grain-visible-strip-contract.cjs
       - scripts/tiny-kingdom-w424-living-farm-sky-contract.cjs
+      - scripts/tiny-kingdom-w425-real-contact-motion-contract.cjs
       - tests/browser/tiny-kingdom-w424-real-farm-sky.spec.cjs
       - tests/browser/tiny-kingdom-w423-visible-proof-strip.spec.cjs
       - .github/workflows/tiny-kingdom-w423-real-grain-proof.yml
@@ -23,6 +24,8 @@ jobs:
         run: node scripts/tiny-kingdom-w423-grain-visible-strip-contract.cjs
       - name: W424 real crop geometry, sky and physical camera contract
         run: node scripts/tiny-kingdom-w424-living-farm-sky-contract.cjs
+      - name: W425 real original worker contact and meal motion contract
+        run: node scripts/tiny-kingdom-w425-real-contact-motion-contract.cjs
       - run: npm ci
       - run: npm run build
       - run: npx playwright install --with-deps chromium

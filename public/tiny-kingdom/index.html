@@ -11855,7 +11855,9 @@ function citizenRigPose(p){
    contact:working||hauling&&!traveling?'stance':traveling?(grounded?'stance':'swing'):'idle',
    stridePhase:unit,stanceMetres:traveling?stanceMetres:0};
  });
- const verifiedMeal=verifiedHouseholdMealEvidence(p);
+ const verifiedMeal=p.provisionMealRecorded===true?
+  verifiedHouseholdMealEvidence(p):null;
+ const mealMotion=realRecordedMealMotion(verifiedMeal);
  const arms=[-1,1].map(side=>{
   // The task hand traces a large, job-specific silhouette while the other
   // hand steadies tools or goods. No additional animation geometry is needed.
@@ -11895,7 +11897,7 @@ function citizenRigPose(p){
   }else if(verifiedMeal&&side===1){
    // One authentic ongoing consumption. The original two-bone arm, not
    // a separate cinematic hand, carries the real bread toward the mouth.
-   const bite=.5+.5*Math.sin(p.phase*1.8);
+   const bite=mealMotion.lift;
    ({elbow,wrist}=solveWorkArmIK([.30,1.015,0],
     [.19,.84+.38*bite,.34-.14*bite],1));
   }else if(social&&side===1){
@@ -11917,6 +11919,7 @@ function citizenRigPose(p){
   return {shoulder,elbow,wrist};
  });
  const pose={legs,arms,working,traveling,hauling,acting,social,pelvisDrop,
+  mealMotion,
   stride:Math.sin(phase)*intensity,
   laborCadence:{source:'real-working-citizen',planted:working,
    beat:acting.beat,cycle:acting.cycle,strike:acting.strike,stage:acting.stage,
@@ -12308,7 +12311,7 @@ function taperedMedievalLimb(a,b,r0,r1,col,sides=6){
   packedSmoothLimbQuad(p0,p1,p2,p3,n0,n1,n1,n0,col);
  }
 }
-function renderArticulatedHand(wrist,size,skin,side){
+function renderArticulatedHand(wrist,size,skin,side,person=null){
  // Original planted/job wrist IK remains authoritative for hand placement.
  // Narrow palm plus thumb/finger groups replace the old ball-like fists.
  materialScope(MATERIAL.GENERAL,()=>{
@@ -12324,6 +12327,23 @@ function renderArticulatedHand(wrist,size,skin,side){
   taperedMedievalLimb([x-side*.026*size,y-.041*size,z+.045*size],
    [x-side*.026*size,y-.089*size,z+.063*size],
    .027*size,.012*size,skin,4);
+  // An ACTUALLY observed worker, unloading courier or verified buyer gets
+  // three articulated, slimmer finger forms following the original IK wrist.
+  // Unobserved workers retain their complete existing hands and render budget.
+  // This is NOT another citizen or a duplicated parcel-grabbing actor.
+  const closeContact=Boolean(person&&person===people[selectedCitizen]&&follow&&
+   (isWorkingAtSite(person)||isMarketUnloading(person)||
+    isLoadedCourierOnRoad(person)||
+    (person.provisionMealRecorded===true&&
+     verifiedHouseholdMealEvidence(person))));
+  if(closeContact)for(let finger=0;finger<3;finger++){
+   const lateral=(finger-1)*.033*size;
+   taperedMedievalLimb(
+    [x+lateral,y-.046*size,z+.058*size],
+    [x+lateral*.85,y-(.103-(finger===1?.013:0))*size,
+     z+.109*size],
+    .015*size,.0085*size,skin,4);
+  }
  });
 }
 // A few intentional, large forms outperform tiny decorative surfaces:
@@ -12610,6 +12630,35 @@ function faceNormalField(profile){
   faceNormalCache.delete(faceNormalCache.keys().next().value);
  return normals;
 }
+// W425: actual paid-for farmer grain is eaten only at the original recorded
+// home meal. Drive the SAME arm and facial rig with elapsed authoritative
+// meal time, not the frozen distance-only travel phase. This adds no meals,
+// resource changes, fake actor or new animation clock. Paused worlds pause.
+function realRecordedMealMotion(evidence){
+ if(!evidence||!Number.isFinite(evidence.elapsedHours)||
+    evidence.elapsedHours<0||
+    evidence.elapsedHours>HOME_MEAL_ACTION_HOURS)
+  return {active:false,lift:0,chew:0,elapsedHours:null};
+ const t=evidence.elapsedHours;
+ const window=Math.max(0,Math.min(1,t*8,
+  (HOME_MEAL_ACTION_HOURS-t)*8));
+ const cycle=t*Math.PI*3.4;
+ return {active:true,
+  lift:(.5+.5*Math.sin(cycle))*window,
+  chew:(.5+.5*Math.sin(cycle*2-.7))*window,
+  elapsedHours:t};
+}
+function getRealRecordedMealMotionAudit(citizen=people[selectedCitizen]?.name){
+ const person=people.find(p=>p.name===citizen);
+ const proof=person?.provisionMealRecorded===true?
+  verifiedHouseholdMealEvidence(person):null;
+ const motion=realRecordedMealMotion(proof);
+ return {source:'one-actual-credited-farmer-lot-and-reached-home',
+  citizen:proof?.citizen||null,receiptId:proof?.receiptId||null,
+  active:motion.active,lift:motion.lift,chew:motion.chew,
+  elapsedHours:motion.elapsedHours,changesAuthority:false,
+  originalCitizenOnly:true,addsMeals:false};
+}
 // G148: facial acting is driven by real occupation, phase and energy.
 // It is an authored expression of authoritative animation, not fake moods,
 // hidden agents, extra simulation events or an RNG draw.
@@ -12619,11 +12668,16 @@ function citizenFacialActing(p,index){
  const effort=active?Math.min(1,.36+.55*pulse):0;
  const energy=Number.isFinite(p.energy)?p.energy:70;
  const tiredness=Math.max(0,Math.min(1,(70-energy)/70));
+ const actualMeal=p.provisionMealRecorded===true&&
+  p.activity==='Resting at home'?
+  verifiedHouseholdMealEvidence(p):null;
+ const mealMotion=realRecordedMealMotion(actualMeal);
  const cycle=((state.t*4.2+index*1.73)%9+9)%9;
  const blink=Math.max(0,1-Math.abs(cycle-3.1)/.15);
  return {effort,blink,
   squint:Math.min(1,effort*.43+tiredness*.22),
-  mouthOpen:Math.min(1,effort*.62)};
+  mouthOpen:mealMotion.active?.08+.37*mealMotion.chew:
+   Math.min(1,effort*.62)};
 }
 function getCitizenActingAudit(name=people[selectedCitizen]?.name){
  const index=people.findIndex(p=>p.name===name);
@@ -12732,8 +12786,10 @@ function citizenEmbodiedPose(p,index,rig=citizenRigPose(p)){
  const delta=Math.atan2(Math.sin(socialYaw-routeYaw),Math.cos(socialYaw-routeYaw));
  const headYaw=baseHeadYaw+(rig.social?
   Math.max(-.48,Math.min(.48,delta))*rig.social.strength:0);
- const headPitch=traveling?.017+.009*Math.abs(Math.sin(phase)):
+ const ordinaryHeadPitch=traveling?.017+.009*Math.abs(Math.sin(phase)):
   working?.085+.135*beat:.023;
+ const headPitch=rig.mealMotion?.active?
+  .075+.075*rig.mealMotion.lift:ordinaryHeadPitch;
  const rise=traveling?.019*(1-Math.abs(Math.sin(phase))):
   working?.009*Math.sin(clock):.004*Math.sin(state.t*.8+index*.83);
  return {source:'actual-citizen-embodied-locomotion-and-labor',
@@ -13040,7 +13096,7 @@ function compactVillager(p){
    // Do not spend fingers on a human too small to read at projected far LOD.
    if(citizenMidVisualIndices.has(i)||rig.working||rig.hauling){
     const handStart=data.length;
-    renderArticulatedHand(joint(arm.wrist),s,skin,sideIndex===0?-1:1);
+    renderArticulatedHand(joint(arm.wrist),s,skin,sideIndex===0?-1:1,p);
     tagWorkSkinRange(j+4,handStart);
    }
   }
@@ -13158,7 +13214,7 @@ for(let sideIndex=0;sideIndex<2;sideIndex++){
   .084*size,.061*size,c,6);
  tagWorkSkinRange(j+4,from);
  from=data.length;
- renderArticulatedHand(worldJoint(arm.wrist),size,skin,sideIndex===0?-1:1);
+ renderArticulatedHand(worldJoint(arm.wrist),size,skin,sideIndex===0?-1:1,p);
  tagWorkSkinRange(j+4,from);
 }
 // Sculpted neck and head with a real facial front (positive Z).
@@ -20271,7 +20327,13 @@ function renderMarketHandoffs(){
       .068,rgb(j%2?0x99734c:0x6c4b32),5);
      box(px,py+.065,pz,.045,.032,.16,rgb(0xbca47a));
     }else{
-     emitLivedCanvasSack(px,py,pz,.19,.26,.19,j);
+     // The SAME escrowed sack slumps onto the receiving wood once its
+     // authoritative cart → wrist → dock motion reaches the actual shelf.
+     // A changing cloth silhouette is contact feedback, never extra stock.
+     const settled=Math.max(0,Math.min(1,(parcel.phase-.64)/.30));
+     const spreading=1+.16*settled;
+     emitLivedCanvasSack(px,py-.03*settled,pz,
+      .19*spreading,.26*(1-.16*settled),.19*spreading,j);
     }
    });
    marketHandoffRenderStats.parcels++;
