@@ -25,12 +25,12 @@ test('W433 bounded two-sided original occupied rooms have genuine clear opposite
  const room=s.renderCompactOccupiedRoomShell(x,y,z,w,d,1.97,0xb9aa91);
  assert.equal(room.triangles,46);
  assert.equal(room.doorWidth,.76);
- assert.equal(room.doorHeight,1.26);
+ assert.ok(Math.abs(room.doorHeight-1.72)<1e-9,'adult-clear grown-home doorway');
  assert.equal(room.passageFaces,2);
  assert.equal(s.quads.length,23);
  // No *full-height* original front/rear panel spans the centered doorway.
  for(const front of [z-d/2,z+d/2]){
-  const low=y+.18,doorTop=low+1.26;
+  const low=y+.18,doorTop=low+1.72;
   const portalFace=s.quads.filter(q=>q.slice(0,4).every(p=>
    Math.abs(p[2]-front)<1e-9)&&
    Math.min(...q.slice(0,4).map(p=>p[1]))<doorTop-.01);
@@ -52,4 +52,21 @@ test('W433 keep render code parseable and original authoritative economy untouch
  for(const fn of ['advanceRealGrainJourney','exportSnapshot','restoreSnapshot',
   'renderVerifiedHomeMeal','renderCottageHomecomingDoors'])
   assert.ok(source.includes('function '+fn+'('),fn);
+});
+
+// W435: this source-level red gate is paired with the actual retained shell.
+// Both versions of the town must let adult citizens approach a genuinely open
+// doorway; raising a false door texture alone does not meet this requirement.
+test('W435 founding and grown tall cottages retain adult-clear real entrances and roof supports',()=>{
+ const match=source.match(/const jettyRoom=h>2\\.5,jettySill=([0-9.]+);/);
+ assert.ok(match,'actual growing-house storey datum exists');
+ const sill=Number(match[1]);
+ assert.ok(sill>=2.15,'tall grown lower room remains human height');
+ const grown=makeShell().renderCompactOccupiedRoomShell(4,2,-3,2.5,2.2,sill-.18,0xb9aa91);
+ assert.ok(grown.doorHeight>=1.7&&grown.doorWidth>=.76);
+ assert.match(source,/doorHeight=1\\.72\\*scale/,'founding doorway uses adult clearance');
+ assert.match(source,/renderOriginalOccupiedRoomShell\\(x,y,z,w,d,2\\.0\\*scale,scale,plasterTone\\)/);
+ const doors=source.slice(source.indexOf('function renderCottageHomecomingDoors('),source.indexOf('// W101: original working citizens'));
+ assert.match(doors,/h=1\\.72,w=\\.70/,'actual swinging oak leaf occupies human-scale entry');
+ assert.match(source,/const jettyRoom=h>2\\.5,jettySill=2\\.18/);
 });
