@@ -273,7 +273,7 @@ test('original WebAudio node preparation cannot outlive the 400ms injury deadlin
   tick:11,kind:'damage',visual:'hit',audio:'impact',
   proof:'observed-hp-drop',verified:true,actorId:null,targetId:'vanguard',
   from:null,to:{x:2,z:2},detail:{damage:9,maxHp:30,remainingHp:21},
-  priority:6,severity:.5};
+  priority:6,severity:.3}; // 9 / 30: satisfy strict positive HP-delta causality
  const foley=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
  try{
   assert.equal(foley.enable(),true);
