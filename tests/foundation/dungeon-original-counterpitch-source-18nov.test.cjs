@@ -208,7 +208,7 @@ test('RED: 183ms heel-dominant licensed swing spends same two physical foot tria
  const starter=start({...baseline,starterTrials:probes});
  assert.equal(starter?.source,'actual-original-source-three-joint-swing-opportunity');
  assert.ok(starter.excessHeelRiseMeters>.013&&starter.excessHeelRiseMeters<.014);
- const owner={...baseline,starter,
+ const owner={...baseline,starter,starterTrials:probes,
   sourceInstanceId:'original-same-GLB-41-joint-mobile',
   sourceChainVerified:true,sourceUpperTrackVerified:true,
   sourceLowerTrackVerified:true,sourceFootTrackVerified:true,
