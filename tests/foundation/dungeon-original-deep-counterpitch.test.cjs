@@ -877,3 +877,67 @@ test('RED-first: real 16.7ms original 390px three-joint source pitch rescue is e
   ...selected,footRad:.35
  }]}),null,'no guessed foot angle beyond measured source trial');
 });
+
+
+// Actual exact-head 18 Nov native desktop source proof:
+// #44254353600, original player_swordsman.glb Walking_A, 100ms.
+// Left swing toe -98.134181mm, heel +198.728072mm, floor -20mm.
+// The fourth true both-shoe skin read at -110/+110/+360mrad recovered
+// 17.415432mm toe while rising the airborne heel only 3.537226mm.
+// Original source outsole XZ projection 71.386188mm, span 305.324721mm;
+// original other shoe heel/toe -35.867/-34.734mm were unchanged.
+// XZ anchors below are SYNTHETIC world translations respecting the original
+// measured span and shift magnitudes; not claimed as video coordinates.
+// No contact, source-clip retiming, joint invention or authority mutation.
+test('RED-first: measured original 100ms desktop three-joint shoe pitch is accepted only with genuine two-shoe proof',async()=>{
+ const {chooseOriginalSourceCoupledKneeFootSweep:choose}=await load();
+ const left={toeY:-.09813418119412332,heelY:.19872807214704796,
+  heelXZ:[0,0],toeXZ:[.07138618763484618,0]};
+ const right={heelY:-.03586705961319439,toeY:-.03473372218494759,
+  heelXZ:[1,0],toeXZ:[1.27,0]};
+ const source={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceChainVerified:true,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceFootTrackVerified:true,sourceBindVerified:true,
+  sourceAnatomicalFootAxisVerified:true,ownerLocomotion:true,
+  alive:true,visible:true,reducedMotion:false,teleport:false,
+  interrupted:false,rootTravel:.045,frameAge:.03,frameInterval:.10,
+  side:'left',floorTopY:-.02,before:{left,right},
+  starter:{source:'actual-original-source-three-joint-swing-opportunity',
+   sign:-1,expectedSourceSkinnedTrials:2,contactLocked:false,
+   excessHeelRiseMeters:.008573677549026965}};
+ const measured={upperRad:-.11,lowerRad:.11,footRad:.36,
+  after:{left:{...left,
+   toeY:left.toeY+.01741543239946003,
+   heelY:left.heelY+.0035372258834572845,
+   heelXZ:[.006341764309567057,0],
+   toeXZ:[left.toeXZ[0]+.03609917985814321,0]},
+   right:{...right}}};
+ const accepted=choose({...source,trials:[measured]});
+ assert.equal(accepted?.source,'measured-original-skinned-coupled-knee-foot');
+ assert.equal(accepted?.oppositeShoePreserved,true);
+ assert.equal(accepted?.contactLocked,false);
+ assert.ok(accepted.afterToeY<source.floorTopY-.06,
+  'measured trial is still deeply buried; never report a plant');
+ assert.ok(accepted.toeLiftMeters-accepted.sourceHeelRiseMeters>.013);
+ // A bare heel-dominant twitch, source loss or different clip does not
+ // acquire the authentic original 100ms pitch gate.
+ for(const bad of [{sourceWeight:.8},{frameInterval:.30},
+  {rootTravel:0},{frameAge:.16},{sourceChainVerified:false},
+  {sourceFootTrackVerified:false},{sourceBindVerified:false},
+  {sourceInstanceSame:false},{mode:'hurt'},{alive:false},
+  {interrupted:true},{teleport:true},{reducedMotion:true},
+  {ownerLocomotion:false}])
+  assert.equal(choose({...source,...bad,trials:[measured]}),null);
+ const worse={...measured,after:{...measured.after,
+  left:{...measured.after.left,heelY:left.heelY+.019}}};
+ assert.equal(choose({...source,trials:[worse]}),null,
+  'airborne heel rising more than actual toe loses physical pitch');
+ const movedLoaded={...measured,after:{...measured.after,
+  right:{...right,toeY:right.toeY+.006}}};
+ assert.equal(choose({...source,trials:[movedLoaded]}),null,
+  'swing correction cannot lift the original supporting shoe');
+ const wrongAngle={...measured,footRad:.43};
+ assert.equal(choose({...source,trials:[wrongAngle]}),null,
+  'reject unmeasured source foot angle');
+});
