@@ -10,6 +10,43 @@ const load=()=>import('data:text/javascript;base64,'+
 const hero=(action='idle',actionTick=12,hp=30)=>({id:'hero-1',kind:'vanguard',action,actionTick,hp,maxHp:30});
 const frame=(unit,rest={})=>({unit,actionAge:.15,frameDelta:.016,...rest});
 
+// Genuine ORIGINAL desktop source-rig WebGL after native Actions #44279466514:
+// a lawful Walking_A source-owner fade from Idle still had only ~.391305
+// effective weight after a .500s displayed gap and .019641m source-root
+// travel. The crossfade is 230ms but its former mixer update was capped at
+// 90ms even though the source foot clip is correctly distance paced.
+// The first rAF after this delay must complete only the licensed skeleton's
+// already-started fade, NOT advance 500ms of Walking_A feet.
+// This is a measured original source witness; sourceStep below is a fixture
+// derived from an original 1.0416666s clip and observed root distance.
+test('RED: original source Idle-to-Walking_A fade completes after witnessed 500ms frame without running feet',async()=>{
+ const {planImportedWalkingMixerFrameDelta:delta,planImportedWalkingBlendRate:rate}=await load();
+ const real={mode:'move',walkingClip:true,sourceClipName:'Walking_A',
+  sourceInstanceSame:true,transitionFromClip:'Idle',
+  transitionFadeSeconds:.23,sourceWeight:0,
+  frameDelta:.05,frameInterval:.5,groundedMoving:true,
+  groundedTravel:.019641225088436798,sourceStep:.0193,
+  sourceDuration:1.04166663,sourceTime:.25,effectiveSpeed:1.25,
+  visible:true,reducedMotion:false,teleport:false};
+ const fade=delta(real),scale=rate(real);
+ assert.ok(Math.abs(fade-.23)<1e-8,
+  'complete actual 230ms licensed 41-joint fade after 500ms visible gap');
+ assert.ok(scale!==null&&Math.abs(fade*scale-real.sourceStep)<1e-10,
+  'Walking_A remains exactly distance-paced despite faster weight crossfade');
+ for(const invalid of [
+  {sourceClipName:'Idle'},{transitionFromClip:'Hit_A'},
+  {sourceInstanceSame:false},{transitionFadeSeconds:.12},
+  {sourceWeight:1},{groundedTravel:0},{groundedMoving:false},
+  {visible:false},{reducedMotion:true},{teleport:true},
+  {mode:'hurt'},{frameInterval:4},{sourceStep:.40}
+ ]){
+  const frame={...real,...invalid};
+  assert.ok(delta(frame)<=.09+1e-9,
+   'unverified source, nonmoving, injury, accessibility and long-gap frames cannot earn rapid fade');
+ }
+});
+
+
 // RED from exact-head genuine 390px original Walking_A GLB frames 61->62,
 // artifact 14016206479 (2026-11-13). The LEFT shoe's *projected* outsole
 // shortened 42.36mm as its heel lifted, but real 3D heel->toe length moved
