@@ -3801,7 +3801,8 @@ test('real mobile 1.0334s no-travel frame holds licensed walking soles while sou
   {sourceTime:NaN}]){
   const frame={...source,...changed};
   const nativeStep=step(frame);
-  assert.notEqual(nativeStep,0,'untrusted source clock must not be held by this bounded exception');
+  if(frame.mode==='attack') assert.equal(nativeStep,0,'attack owns its source one-shot, never advance Walking_A');
+  else assert.notEqual(nativeStep,0,'untrusted walking frame must not earn the stationary-hold exception');
   assert.equal(blend({...frame,sourceStep:nativeStep}),null);
  }
 });
