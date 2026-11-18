@@ -1382,9 +1382,23 @@ test('earned public lantern counter propagates a real three-cell 3D court wave, 
     w.animate(2.9,{...counter,guardianBeat:.5});
     assert.ok([6,7,8].every(cell=>Math.abs(leaf(cell).parent.rotation.x)<=1.45+1e-8),
       'an overlapping real brace and earned counter cannot over-rotate its connected leaf into the aisle');
-    const crown=w.group.getObjectByName('Published guardian Tideglass sentinel crown 8 1');
-    assert.ok(crown.parent.position.y>.2,
-      'existing joined endpoint standard participates in the true counterflow');
+    // Pass491: the source-bound Pass490 counter LOWERS the entire original
+    // linked sentinel standard. Earlier regression still expected the former
+    // RISING pose and blocked all genuine browser screenshots. Test the full
+    // physical hierarchy at BOTH published actor endpoints, not only a glow.
+    const standards=[6,8].flatMap(cell=>[-1,1].map(side=>({
+      cell,side,
+      crown:w.group.getObjectByName('Published guardian Tideglass sentinel crown '+cell+' '+side)
+    })));
+    assert.ok(standards.every(({cell,side,crown})=>{
+      const lift=crown?.parent;
+      return lift?.isGroup
+        && lift.getObjectByName('Published guardian Tideglass joined sentinel shaft '+cell+' '+side)?.parent===lift
+        && lift.getObjectByName('Published guardian Tideglass sentinel lens '+cell+' '+side)?.parent===lift
+        && lift.getObjectByName('Published guardian Tideglass rooted shell-fan hinge '+cell+' '+side)?.parent===lift;
+    }), 'all FOUR real sentinel shafts, crowns, lenses and shell hinges descend as joined 3D mechanisms');
+    assert.ok(standards.every(({crown})=>crown.parent.position.y<-.55),
+      'genuine earned parry substantially LOWERS all four whole physical standards into rooted footings');
     // The previous real earned mobile capture exposed four upright panels:
     // the full parry rotated away the original 1.28rad OUTBOARD shell rest,
     // returning the physical fan almost to vertical. A successful lantern
@@ -1398,6 +1412,8 @@ test('earned public lantern counter propagates a real three-cell 3D court wave, 
     assert.ok(shell.rotation.x+shellPivot.rotation.x>1.4,
       'the physically connected shell is nearly horizontal during earned passage release');
     w.animate(3,{...counter,guardianParried:false});
+    assert.ok(standards.every(({crown})=>Math.abs(crown.parent.position.y-.04)<1e-10),
+      'clearing the source-earned parry restores every connected standard to its exact rooted resting height');
     // -0 and +0 are the same neutral physical hinge angle; the immutable
     // geometry/visibility gate concerns absolute position, not IEEE-754 sign.
     assert.ok(Math.abs(shellPivot.rotation.x)<1e-10,
@@ -1412,6 +1428,9 @@ test('earned public lantern counter propagates a real three-cell 3D court wave, 
     assert.ok(Math.abs(leaf(6).parent.rotation.x)<1e-10,'private-only information cannot earn public stage movement');
     w.update(won);
     w.animate(6,{...counter,reducedMotion:true});
+    assert.ok(standards.every(({cell,side})=>
+      Math.abs(w.group.getObjectByName('Published guardian Tideglass sentinel crown '+cell+' '+side).parent.position.y-.04)<1e-10),
+      'reduced motion holds all four rooted physical standards still, without fake descent');
     assert.ok([6,7,8].every(cell=>leaf(cell).parent.rotation.x===0),
       'reduced-motion presents earned state without sweeping large geometry');
     assert.equal(w.stats().geometryCount,budget.geometryCount);
