@@ -26,7 +26,6 @@ function sourceEarnedFloorNine(){
     y:9*state.config.chunkHeight-28000,
     width:Math.floor(state.config.worldWidth*.52),height:12000};
   // This is exactly the same physical roof: old F8 cap, true F9 ground.
-  cap.y-=12000;
   assert.equal(ground.y+ground.height,cap.y+cap.height);
   const exitX=guardianArenaExitX(cap);
   state.tick=500;
