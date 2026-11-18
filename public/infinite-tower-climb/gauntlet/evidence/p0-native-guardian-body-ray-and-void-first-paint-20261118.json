@@ -1089,5 +1089,35 @@
       "noForcePush": true,
       "otherGamesUntouched": true
     }
+  },
+  "p0SourceEarnedConnectedBronzeSightCorridor20261118_1740": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "originalFilmSourceSha": "b7d3db1bf33ac5448113f5cbbd34325ac761f208",
+    "priorFullMotionRun": "https://github.com/my-edutu/Ai_games/actions/runs/44350341205",
+    "candidateDangerVideoArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44350341205/artifacts/14447778916",
+    "footageObserved": "Downloaded original, uncut normal-speed 25fps desktop 960x600 and portrait 390x844 candidate danger WebMs; viewed 23-31 seconds. Floor8 bronze upper cap clears into violet Floor9 but foreground bronze bars/hanging struts remain between original HP-open gateway, skinned hero and supported new roof. Desktop F9 HUD ~26s, recognizably sustained violet ~27s; portrait F9 HUD ~26s, new shaft ~26.75s. These are within-film visual observations, NOT source-aligned two-frame acceptance.",
+    "originalSourceTimeline": "Source replay genuinely reached 8->9 at fixed-step tick 475 and subsequently advanced, but strict native source-event film alignment FAILED 0/2; eight matched scenario source timelines index without integrity defects; DO NOT treat indexed metadata as verified native pixels.",
+    "exactOldCodeGap": "Retained original historical gallery had separate source-only physical clear volumes: r22..31.5/t10..32 for genuine F9 roof and r31..50/t-5..15 for exterior doorway. A continuous bronze wedge between these cutouts remained across the follow/portrait camera's real hero/raised-landing sightline. Original F8 platform, guardian portal, physics and F9 ground are independently owned and untouched.",
+    "connectedProductionChange": "In source-extracted historical NON-COLLIDING F8 gallery triangles only, subtract a physically overlapping sloped shoulder daylight volume r30.8..47/t>=13.4 with taper t<=32-1.4*max(0,r-31.5), and roof[-1.7,+26]. It joins real old-gate and F9 route apertures while retaining r40/t23 and farther load-bearing bronze flank. This is actual original-copied THREE mesh negative space, no opacity trick, no fabricated platform/gateway/collider/defeat, no new mesh draw.",
+    "productionAndTestSha": "6beea1e7b552ad5691ebb1b37ad80a0e91597c66",
+    "sourcePaths": [
+      "public/infinite-tower-climb/visuals/world.mjs",
+      "tests/phase3/tower-original-threshold-gallery-priority.test.cjs"
+    ],
+    "testContract": "New actual THREE ray tests compare before/after obstructions at outer bronze shoulder and elevated headroom, retain exterior r40/t26 original load path, source mesh positions and <=256-face/<5-batch limits. Tests are COMMITTED but NOT independently confirmed green at evidence write; run CI/film.",
+    "productionQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44361196056 — queued at most recent check; NOT passed",
+    "priorQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44350470280 — 9/10; 4 Tower Phase3 partitions succeeded, unrelated Phase6 Maze timeout remains whole-workflow veto. Do NOT edit other games.",
+    "newCandidateSourcePin": "Immutable github.sha of new capture-request commit after productionAndTestSha; inspect run metadata before claiming results",
+    "independentReviewCounts": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedActualDeviceFrameTimeP50P95P99": "NOT EVALUATED",
+    "actualDeviceMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Inspect new source-pinned exact-head Tower THREE regression and real desktop+portrait original 60+s films and paired native event clocks. Demand 2 consecutive full climber + original HP-open gate + genuine walkable F9 frames in each; verify world didn't lose supported flanks/camera and no new renderer stalls. If absent, locate remaining exact original door/cap triangle owner and cold WebGL first-return blocker; remain P0, not P1.",
+    "safety": "No change to frozen transformation.json baseline, PR58, other games, gameplay authority, merge/deploy/force push or PR68 open-draft status."
   }
 }

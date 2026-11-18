@@ -6648,5 +6648,20 @@
     "codeAndTest": "public/infinite-tower-climb/visuals/successor-deck-visibility.mjs; public/infinite-tower-climb/visuals/world.mjs; tests/phase3/tower-source-original-gallery-camera-score.test.cjs",
     "reviewRequirement": "Compare synchronized gameplay with frozen baseline ONLY if native source timebases genuinely pair, perform 5 fresh independent blinded LOOKS/FEELS/PLAYS assessments and actual-device p50/p95/p99 plus memory. If unavailable mark NOT EVALUATED. Technical CI is a veto.",
     "safety": "No baseline move, PR58 edits, unrelated-game modifications, merge, deploy, force push or PR68 draft-state alteration"
+  },
+  "p0SourceEarnedConnectedBronzeSightCorridor20261118_1740": {
+    "stage": "P0 OPEN — SOURCE-EARNED CONNECTED PHYSICAL BRONZE CORRIDOR",
+    "leadingVerdict": "NOT EVALUATED",
+    "baseline": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionSourceSha": "6beea1e7b552ad5691ebb1b37ad80a0e91597c66",
+    "candidatePin": "IMMUTABLE github.sha of this request-file commit, NOT floating branch head",
+    "priorCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44350341205",
+    "oldVisualVeto": "Real 25fps original candidate desktop 960x600 and portrait 390x844 retain overlapping bronze posts at the original F8 opened guardian gate / genuine Floor9 roof. Event aligned film comparison FAILED 0/2; source index 8/8, not a visual grade.",
+    "requiredCapture": "Nine jobs: source-original >=60s each scenario ascent/moving/danger/outcome/restart, matched frozen baseline 1731b38, seed tower-transformation-capture-v1, low graphics, desktop 960x600 + portrait 390x844, 1x true 25fps original WebM and source event sidecars. No mock frames.",
+    "implementation": "Tapered physically connected negative-space corridor in historical copied F8 Three.js gallery, original side bearings preserved; no opacity-only patch, no collider/source win changes.",
+    "requiredInspection": "See complete skinned body, real HP-unlocked bronze gateway and visibly walkable F9 roof in at least two consecutive source-aligned native frames BOTH viewports, no hard violet cut/blank renderer interval; continue through F9, outcome and genuine restart. Check actual close-up geometry, camera jitter, frame-time and memory on actual hardware.",
+    "regression": "tests/phase3/tower-original-threshold-gallery-priority.test.cjs (new actual THREE ray/mesh coverage); exact-head CI is a veto not a quality grade",
+    "reviewers": "Independent fresh-context randomized authentic full-motion LOOKS 0/5, FEELS 0/5, PLAYS 0/5; NOT EVALUATED",
+    "prohibition": "Do not change source baseline, PR58, other games, deploy/merge/force push or PR68 draft state."
   }
 }
