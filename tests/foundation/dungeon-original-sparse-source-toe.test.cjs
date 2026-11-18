@@ -132,3 +132,42 @@ test('connected native toe-child candidate requires genuine post-mixer BOTH-shoe
   assert.equal(m.chooseOriginalSourceCoupledKneeFootSweep({...owner,...change}),
    null,'untrusted source/toe/loaded opposite shoe must fail: '+Object.keys(change));
 });
+
+test('RED: latest genuine 150ms original toe burial earns a bounded 11/11/24 source-toes child candidate',async()=>{
+ const m=await controller();
+ // Genuine 19 Nov source-run #44420458247 original mobile Walking_A:
+ // left weighted toe -.080332m and heel +.223560m at 150.0ms.
+ // Parent -110/+110/+180/+240mrad skinned source attempts all left the
+ // toe buried. Synthetic XZ/pivot/skin weights only validate the planner;
+ // do NOT present this as a measured after-GLB toe response.
+ const raw=toe.slice();raw[1]=-.08033203580294723;
+ const sourceFrame={...frame,frameInterval:.15000000000000036,
+  sourceToeVertexWorld:raw,
+  sourceToePivotWorld:[raw[0]+.08,raw[1]+.018,raw[2]],
+  sourceBurialMeters:-.02-raw[1],
+  originalFollowups:[
+   {upperRad:-.11,lowerRad:.11,footRad:.18},
+   {upperRad:-.11,lowerRad:.11,footRad:.24}
+  ]};
+ const offer=m.planOriginalSourceCoupledToeHingeFollowups(sourceFrame);
+ assert.equal(offer?.length,2,'reuse original final two weighted dual-shoe probes');
+ assert.equal(offer[1]?.toeRad,-.14);
+ assert.equal(offer[1]?.lowerRad,.11);
+ const adaptive=m.planOriginalSourceAdaptiveToeHingeProbe({
+  source:'verified-original-post-coupled-toe-hinge',
+  sourceClipName:'Walking_A',sourceWeight:1,
+  frameInterval:.15000000000000036,sourceInstanceSame:true,
+  sourceToeTrackVerified:true,sourceToeChainVerified:true,
+  sourceToeSkinnedWeight:.98,preplannedToeRad:-.14,
+  sourceToeVertexWorld:raw,
+  sourceToePivotWorld:[raw[0]+.08,raw[1]+.018,raw[2]],
+  sourceToeAxisWorld:[0,0,1],sourceHeelY:.238,
+  floorTopY:-.02,ownerLocomotion:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false
+ });
+ assert.ok(adaptive?.toeRad<0);
+ assert.ok(Math.abs(adaptive.toeRad)<=.300001,
+  'a genuine 150ms frame cannot flex licensed toes faster than 2rad/s');
+ assert.equal(m.planOriginalSourceCoupledToeHingeFollowups({
+  ...sourceFrame,frameInterval:.09}),null);
+});
