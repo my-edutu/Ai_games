@@ -44,16 +44,18 @@ test('authored objective relay requires real forward key pickup followed by its 
  const route=[10,11,12,13,14,15,16,17,18,19];
  const world={keys:[{id:'key-1',cell:14,collected:false}],
   doors:[{id:'door-1',a:16,b:17,requiredKeyId:'key-1',critical:true,open:false}]};
- assert.equal(forwardKeyGateDistance(world,route,11),3,
+ assert.equal(forwardKeyGateDistance(world,route,1),3,
   'the actual key must come after a real guardian route approach');
- assert.equal(forwardKeyGateDistance(world,route,14),Infinity,
+ assert.equal(forwardKeyGateDistance(world,route,4),Infinity,
   'a guardian AFTER the pickup is not a pressure-to-key chapter');
- assert.equal(forwardKeyGateDistance(world,route,0),Infinity,
+ const distant={keys:[{...world.keys[0],cell:18}],
+  doors:[{...world.doors[0],a:18,b:19}]};
+ assert.equal(forwardKeyGateDistance(distant,route,0),Infinity,
   'a key more than seven actual journey steps away is not the same chapter');
- assert.equal(forwardKeyGateDistance({...world,doors:[{...world.doors[0],a:30,b:31}]},route,11),Infinity,
+ assert.equal(forwardKeyGateDistance({...world,doors:[{...world.doors[0],a:30,b:31}]},route,1),Infinity,
   'an untraversed gate is not a claimed objective resolution');
- assert.equal(forwardKeyGateDistance({...world,doors:[{...world.doors[0],critical:false}]},route,11),Infinity,
+ assert.equal(forwardKeyGateDistance({...world,doors:[{...world.doors[0],critical:false}]},route,1),Infinity,
   'a noncritical gate is not the required objective');
- assert.equal(forwardKeyGateDistance({...world,doors:[{...world.doors[0],requiredKeyId:'other'}]},route,11),Infinity,
+ assert.equal(forwardKeyGateDistance({...world,doors:[{...world.doors[0],requiredKeyId:'other'}]},route,1),Infinity,
   'an unrelated key and door must not be presented as a causal chapter');
 });
