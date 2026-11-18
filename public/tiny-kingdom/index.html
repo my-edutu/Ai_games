@@ -6663,11 +6663,22 @@ uniform float skyTime;
 void main(){
  float horizon=smoothstep(0.0,.98,skyUv.y);
  vec3 color=mix(horizonColor,zenithColor,pow(horizon,.67));
- float layer=smoothstep(.18,.37,skyUv.y)*(1.-smoothstep(.76,1.0,skyUv.y));
- float wave=sin(skyUv.x*13.5+skyUv.y*6.8-skyTime*.0028)
-    +.40*sin(skyUv.x*29.8-skyUv.y*11.2+skyTime*.0014);
- float coverage=smoothstep(.08,1.1,wave)*layer*skyCloud;
- color=mix(color,mix(vec3(.39,.45,.55),vec3(.88,.91,.86),skyDaylight),coverage*.54);
+ // W424: coherent original cloud banks instead of the W423 portrait's
+ // towering vertical white stripes. Two orthogonal moving weather bands
+ // must BOTH meet for a cloud, breaking full-height one-dimensional pillars.
+ // One atmospheric pass; no sky geometry, extra buffer, texture, or RNG.
+ float layer=smoothstep(.24,.53,skyUv.y)*
+  (1.-smoothstep(.88,1.0,skyUv.y));
+ vec2 weather=vec2(skyUv.x*8.8-skyTime*.0028,skyUv.y*10.7);
+ float bend=sin(weather.y*.94+weather.x*.34)*.47;
+ float across=sin(weather.x*1.19+weather.y*.55+bend);
+ float along=sin(weather.y*1.33-weather.x*.49+skyTime*.0016);
+ float broken=sin(weather.x*2.34+weather.y*1.27-skyTime*.0009);
+ float mass=across*.51+along*.54+broken*.21;
+ float coverage=smoothstep(.28,.94,mass)*layer*
+  min(.85,skyCloud*.54);
+ vec3 cloudTone=mix(vec3(.45,.51,.53),vec3(.82,.86,.83),skyDaylight);
+ color=mix(color,cloudTone,coverage*.44);
  float theta=skyTime*.2617993878; // time is measured in simulation hours
  vec2 sun=vec2(.5+.27*cos(theta),.55+.27*sin(theta));
  float dist=distance(skyUv,sun*vec2(1.,1.32));
@@ -17111,7 +17122,10 @@ function rootedLanceolateGrainBlade(anchor,reach,side,heading,leaf,underside,det
  const tip=[anchor[0]+dx*reach+curl*(-dz),
   anchor[1]-.061-.016*(.5+.5*Math.sin(index*.89)),
   anchor[2]+dz*reach+curl*dx];
- const width=.014+.010*(.5+.5*Math.sin(index*.63));
+ // W424 planted wheat now reads as a continuous human-scale cereal
+ // canopy at the same exact seed roots, 4/2 triangles per bent leaf,
+ // resident buffers and authentic harvesting wrist contacts.
+ const width=.024+.015*(.5+.5*Math.sin(index*.63));
  const left=[shoulder[0]-dz*width,shoulder[1]+.008,
   shoulder[2]+dx*width];
  const right=[shoulder[0]+dz*width,shoulder[1]-.004,
@@ -26486,7 +26500,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   canvas.clientWidth<500);
  const normalPitch=unloading?(actionCameraPitch??.29):marketBarter?.48:filmedLoadedCourier?.24:
   householdErrand?.28:householdContinuity?.28:journeyCamera?.34:
-  working?(actionCameraPitch??(liveWorkday?(portraitLens?.27:.20):.24)):.76;
+  working?(actionCameraPitch??(liveWorkday?(portraitLens?
+   (realFarmWork?.41:.27):.20):.24)):.76;
  const normalZoom=unloading?(actionCameraZoom??5.7):marketBarter?(portraitLens?5.4:5.2):
   filmedLoadedCourier?(canvas.clientWidth<500?4.65:5.15):
   householdErrand?(canvas.clientWidth<500?4.25:5.05):
@@ -26525,7 +26540,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  const angles=offsets.map(offset=>base+offset);
  if(working&&realWork)angles.push(preferredYaw);
  const pitches=realFarmWork&&actionCameraPitch===null?
-  (portraitLens?[.14,.31,.49,.64]:[.17,.33,.49,.62]):
+  (portraitLens?[.29,.41,.54,.65]:[.17,.33,.49,.62]):
   unloading?[.21,.29,.38]:
   marketBarter?(portraitLens?[.32,.46,.61,.74]:[.28,.43,.58,.72]):
   filmedLoadedCourier?(portraitLens?[.15,.23,.32,.40]:[.16,.24,.32,.40]):
