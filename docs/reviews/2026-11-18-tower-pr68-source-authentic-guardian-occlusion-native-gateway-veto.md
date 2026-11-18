@@ -52,3 +52,24 @@ Original opened bronze architecture still dominates the source-earned F9 view, w
 **Evidence required next:** true normal-speed 960×600 and 390×844 original-WebGL clips from the exact production + test SHA, strict 20Hz source/native PTS correlation, first F9 renderer-return evidence, actual retained old-gate triangles, two consecutive real-frame co-visible intact skinned hero + HP-open gate + source-walkable F9 route. Compare against frozen 1731b38; the baseline lacks a matched guardian crossing, so neither fabricated pairing nor independent-review votes can be used to claim acceptance. Real-device p50/p95/p99 and memory remain NOT EVALUATED; independent LOOKS/FEELS/PLAYS remain 0/5. Stay P0.
 
 **Safety:** frozen transformation baseline preserved, PR58 untouched, PR68 open draft, no merge/deploy/force-push or unrelated-game source changes.
+
+## Follow-up P0 · immutable a15ca05 original full-motion footage and first F9 return breakdown (2026-11-18)
+
+Inspected the successful 8/8 unmodified 1x videos and actual candidate danger WebM/renderer sidecars from [source-pinned run 44217384447](https://github.com/my-edutu/Ai_games/actions/runs/44217384447). This campaign captures precisely candidate `a15ca05eccb826c018bb2b34e0277f609422a51e` against **unchanged** frozen `1731b380851162741761c5569e2bc152a0869ca9`. The authentic ledge job passed; `pair-source-events` **failed** strict original A/B pairing despite eight complete source-timeline sidecars, so there is no full-loop visual acceptance. [Candidate full-motion danger footage and reports](https://github.com/my-edutu/Ai_games/actions/runs/44217384447/artifacts/14389142196) and [baseline original danger footage](https://github.com/my-edutu/Ai_games/actions/runs/44217384447/artifacts/14390190191) are preserved. The frozen baseline does not supply an identical earned F8 guardian episode; never fabricate one.
+
+**Native original film, not NDC guesses:** desktop 960×600 Floor9 HUD at 26.50s, sustained visually recognizable Void at 28.25s (**1.75s** within-film lag). Portrait 390×844 HUD at 25.75s, sustained Void at 27.75s (**2.00s**). Old bronze framing remains in the passage, then the purple environment develops later. Source guardian crossing was fixed-step tick **475**. Two source-grounded gate/climber safe-projection witnesses per viewport do not prove original raster visibility. **Zero** accepted painted grounded-gateway frames; certainly not two consecutive source-paired original native frames of complete climber + truly opened gate + physically supported F9 destination. This is the leading P0 experience defect.
+
+The existing `sourceToPresentationTrace` already provides a *real* CPU/WebGL boundary at the first F9 returned frame, so a new instrumentation patch is unnecessary:
+
+| Browser F9 accept → first Three return | Desktop tick 478 | Portrait tick 476 |
+|---|---:|---:|
+| Full accepted-to-return wall interval | **1,099ms** | **1,097ms** |
+| JavaScript scene update, INCLUDING rebuild | 345.9ms | 418.8ms |
+| Exact original world rebuild, SUBSET of scene update | 236.7ms | 220.4ms |
+| First `renderer.render` return duration | 299.6ms | 260.2ms |
+| Total measured update + render | 645.5ms | 679.0ms |
+| Remaining scheduling/other wall interval (unattributed) | 453.5ms | 418.0ms |
+
+The desktop first F9 frame reported 119 draw calls and 95,949 triangles at software framebuffer scale 0.6. The remaining wall interval does NOT establish a GPU stall, nor do Three-return times establish actual-device frame-time p50/p95/p99. Timing pairs are not a controlled baseline performance comparison. **New actionable finding:** adjusting the four-batch old historical gallery *after* multiple returned frames cannot fix the approximately **1.1-second first-source-F9-to-return delay**. Primary work is a cohesive performance and picture pipeline intervention to reduce cold original Floor9 CPU scene construction and WebGL first submission **without changing authoritative simulation, old HP-open gateway, physical supported decks, hazards or restart**. No new playable-code change or new source-pinned candidate movie was produced in this investigation run.
+
+[Exact-head quality run 44217384459](https://github.com/my-edutu/Ai_games/actions/runs/44217384459): 9/10 successful, all four Tower Phase3 jobs succeeded; unrelated Phase6 Maze readiness timed out at 75 seconds (exit 124). Overall CI is a **FAIL/veto**, not a Tower gameplay score. No Maze edit permitted. **Stage P0 OPEN; leading verdict NOT EVALUATED**. LOOKS 0/5, FEELS 0/5, PLAYS 0/5 genuine independent critics. Real supported-device frame-time and memory NOT EVALUATED. Next is a substantive exact-source first-F9 critical-path change followed by real native desktop and portrait motion inspection, not another documentation-only or cosmetic acceptance claim. PR68 remains open/draft, frozen baseline file and PR58 remain untouched; no merge, deploy or force-push.
