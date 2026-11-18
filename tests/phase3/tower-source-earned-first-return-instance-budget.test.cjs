@@ -53,6 +53,13 @@ test('shipping world applies preservation only under exact same-run earned cold-
   assert.match(world,/chooseSourceEarnedFirstReturnInstancing/);
   assert.match(world,/snapshot\.floor===9/);
   assert.match(world,/retainedEarnedCap\?\.guardianGateRetained===true/);
+  // True source bearing/path owner tests inspect ORIGINAL post-batch face
+  // provenance. Keep those first-return load paths batched; only existing
+  // source walkable platform ornament supports this bounded cold shortcut.
+  assert.match(world,/\[\.\.\.platforms\.values\(\)\]\.some\(entry=>entry\.root===root/);
+  assert.match(world,/root\.name\?\.startsWith\('platform:f9:'\)/);
+  assert.match(world,/stagedVoidArchitecture\?\.root\?\.isGroup===true/);
+  assert.match(world,/!deferredDistantArrival/);
   assert.match(world,/coldOriginalInstanceDraws/);
   assert.match(world,/estimatedAvoidedPackedBytes/);
   assert.match(world,/isAnimated:/);
