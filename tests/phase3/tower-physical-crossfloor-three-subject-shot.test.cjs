@@ -121,18 +121,48 @@ test('real old cap, gate, bearing and deck rays veto a falsely clearer projected
   const {sourceThreeSubjectRaySafe:safe}=await helpers;
   const before={active:true,bodyBlockedRays:2,gatewayBlockedRays:1,
     originalGateBlockedRays:1,originalCapBlockedBodyRays:1,
-    originalCapBlockedGatewayRays:0,architectureBlockedRays:1,score:5};
+    originalCapBlockedGatewayRays:0,originalCapBlockedRays:1,
+    originalGalleryBlockedRays:2,originalGalleryBlockedBodyRays:1,
+    originalGalleryBlockedGatewayRays:1,
+    architectureBlockedRays:1,score:5};
   assert.equal(safe(before,{...before,bodyBlockedRays:1,
     originalCapBlockedBodyRays:0,score:3}),true);
   for(const field of ['bodyBlockedRays','gatewayBlockedRays',
     'originalGateBlockedRays','originalCapBlockedBodyRays',
-    'originalCapBlockedGatewayRays','architectureBlockedRays','score']){
+    'originalCapBlockedGatewayRays','originalCapBlockedRays',
+    'originalGalleryBlockedRays','originalGalleryBlockedBodyRays',
+    'originalGalleryBlockedGatewayRays',
+    'architectureBlockedRays','score']){
     const next={...before,[field]:before[field]+1};
     assert.equal(safe(before,next),false,field);
   }
   assert.equal(safe(before,null),false);
   assert.equal(safe({...before,active:false},before),false);
   assert.equal(safe(before,{...before,score:NaN}),false);
+  assert.equal(safe(before,{...before,originalGalleryBlockedRays:undefined}),false,
+    'missing physical-gallery ray evidence cannot license a camera');
+});
+
+test('same-source physical ray relief changes camera priority, but not when bronze or live decks get worse',async()=>{
+  const {sourceThreeSubjectPhysicalGain:gain,
+    sourceThreeSubjectRaySafe:safe}=await helpers;
+  const base={active:true,bodyBlockedRays:3,gatewayBlockedRays:2,
+    originalGateBlockedRays:1,originalCapBlockedRays:1,
+    originalCapBlockedBodyRays:1,originalCapBlockedGatewayRays:0,
+    originalGalleryBlockedRays:2,originalGalleryBlockedBodyRays:1,
+    originalGalleryBlockedGatewayRays:1,architectureBlockedRays:1,score:8};
+  const improved={...base,bodyBlockedRays:2,gatewayBlockedRays:1,
+    originalGalleryBlockedRays:1,originalGalleryBlockedGatewayRays:0,score:5};
+  assert.equal(safe(base,improved),true);
+  assert.ok(gain(base,improved)>.10,
+    'real uncloaked hero/gateway must compete even with no crop relief');
+  assert.equal(gain(base,base),0,'no empty camera preference');
+  assert.equal(gain(base,{...improved,originalCapBlockedRays:2}),0,
+    'no rescue by hiding the original floor-eight cap');
+  assert.equal(gain(base,{...improved,originalGalleryBlockedBodyRays:2}),0,
+    'no rescue by hiding the source-sized hero behind bronze');
+  assert.equal(gain(base,{...improved,architectureBlockedRays:2}),0,
+    'no rescue through real void bearing triangles');
 });
 test('composed final physical camera ranks ONLY individually source-ray-safe triad candidates',()=>{
   const code=fs.readFileSync(path.resolve(__dirname,
@@ -181,5 +211,7 @@ test('final camera attempts source-backed in-frame triad relief only with real w
   assert.match(shot,/routeGain,steelGain,silhouetteRelief/);
   assert.match(shot,/if\(!sourceThreeSubjectRaySafe\(\s*deckViewBeforeThreshold,currentRays\)\)continue;/);
   assert.match(shot,/towerCoreSightlineClear\(camera\.position,thresholdWalkable,23\.5\)/);
-  assert.match(shot,/camera\.position\.copy\(bestScore<existingDeckView\.score/);
+  assert.match(shot,/sourceThreeSubjectPhysicalGain\(\s*deckViewBeforeThreshold,currentRays\)/);
+  assert.match(shot,/const gain=Math\.max\(opticalGain,physicalGain\)/);
+  assert.match(shot,/if\(!sourceThreeSubjectRaySafe\(\s*deckViewBeforeThreshold,deckViewAfterThreshold\)\)/);
 });

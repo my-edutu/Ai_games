@@ -32,7 +32,7 @@ import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCamer
 import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardianDuelEdgePressure, guardianLiveFightLockPriority } from './guardian-gate-intrusion.mjs';
 import { observedGuardianTransmissionCorners } from './guardian-transmission-layout.mjs';
 import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
-import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe } from './physical-threshold-shot.mjs';
+import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe, sourceThreeSubjectPhysicalGain } from './physical-threshold-shot.mjs';
 import { sourceSubmittedDoorwayCameraDt } from './source-submitted-doorway-cadence.mjs';
 import { createTowerVoidProgramPrewarm } from './void-program-prewarm.mjs';
 import { sourceOriginalGatewayCameraBridge, observedOriginalGatewaySubmittedView } from './original-gateway-submitted-camera-bridge.mjs';
@@ -5086,24 +5086,26 @@ export function createTowerScene(canvas, settings = {}) {
               thresholdHeroAfter,thresholdGateAfter,thresholdWalkableAfter,
               true,true,towerCoreSightlineClear(camera.position,thresholdWalkable,23.5))
             :0;
-          const gain=Math.max(sourceDoorwayFrameGain(
+          const opticalGain=Math.max(sourceDoorwayFrameGain(
             thresholdHeroBefore,thresholdGateBefore,
             thresholdHeroAfter,thresholdGateAfter,true,true),
             routeGain,steelGain,silhouetteRelief);
+          // Candidate scoring must include authentic Three.js ray clearance,
+          // not just NDC projection. This same bounded live mesh query checks
+          // the ORIGINAL gallery/roof/gate, active F9 platforms and new Void
+          // bearings. Reject a newly hidden body or gateway BEFORE ranking.
+          let physicalGain=0;
+          if(deckViewBeforeThreshold?.active){
+            const currentRays=world.measureSuccessorDeckVisibility(
+              snapshot,camera.position,thresholdHero,p.halfHeight/SCALE,
+              thresholdGate,targetPlatform?.id??null);
+            if(!sourceThreeSubjectRaySafe(
+              deckViewBeforeThreshold,currentRays))continue;
+            physicalGain=sourceThreeSubjectPhysicalGain(
+              deckViewBeforeThreshold,currentRays);
+          }
+          const gain=Math.max(opticalGain,physicalGain);
           if(gain>best){
-            // A projected NDC winner can still hide the climber behind the
-            // actual old cap, opened grille, live F9 deck or Void bearing.
-            // Earlier code vetted ONLY the winner after ranking and reverted
-            // the whole pass when it failed. Vet each promising REAL trial
-            // before accepting it so the next physically clear proposal
-            // remains eligible. Keep the final exact-camera recheck too.
-            if(deckViewBeforeThreshold?.active){
-              const currentRays=world.measureSuccessorDeckVisibility(
-                snapshot,camera.position,thresholdHero,p.halfHeight/SCALE,
-                thresholdGate,targetPlatform?.id??null);
-              if(!sourceThreeSubjectRaySafe(
-                deckViewBeforeThreshold,currentRays))continue;
-            }
             best=gain;
             thresholdBestCamera.copy(camera.position);
             thresholdBestGaze.copy(lookAt);
@@ -5119,12 +5121,12 @@ export function createTowerScene(canvas, settings = {}) {
             thresholdGate,targetPlatform?.id??null);
           // Final camera cannot re-hide the actual drawn hero or original
           // gateway behind the genuine successor platform triangles.
-          if(!deckViewAfterThreshold?.active ||
-             deckViewAfterThreshold.bodyBlockedRays>deckViewBeforeThreshold.bodyBlockedRays ||
-             deckViewAfterThreshold.gatewayBlockedRays>deckViewBeforeThreshold.gatewayBlockedRays ||
-             deckViewAfterThreshold.originalCapBlockedBodyRays>deckViewBeforeThreshold.originalCapBlockedBodyRays ||
-             deckViewAfterThreshold.originalCapBlockedGatewayRays>deckViewBeforeThreshold.originalCapBlockedGatewayRays ||
-             deckViewAfterThreshold.score>deckViewBeforeThreshold.score)
+          // Revalidate ALL original bronze gallery, F8 cap/gate, Void
+          // architecture and live F9 deck ray owners using the same proof
+          // applied to each candidate. The former final check omitted the
+          // gallery and could reintroduce the curtain in native portrait.
+          if(!sourceThreeSubjectRaySafe(
+               deckViewBeforeThreshold,deckViewAfterThreshold))
             best=0;
         }
         if (best>0){

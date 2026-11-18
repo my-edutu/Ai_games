@@ -266,14 +266,40 @@ export function sourceWalkableThreeSubjectOrbitCandidates(steps,hasRealDeck){
 // rays for ANY of the original three subjects. Never rank a crop-only fix
 // above a genuinely unobstructed actor/arch/deck.
 export function sourceThreeSubjectRaySafe(before,after){
+  // The old historical bronze gallery was already raycast by World but
+  // never vetoed here. A trial could improve centreline NDC and still
+  // introduce REAL old-gallery triangles across the skinned hero/gate.
+  // Compare all original-scene owners, not merely the successor decks.
   const keys=['bodyBlockedRays','gatewayBlockedRays',
     'originalGateBlockedRays','originalCapBlockedBodyRays',
-    'originalCapBlockedGatewayRays','architectureBlockedRays','score'];
+    'originalCapBlockedGatewayRays','originalCapBlockedRays',
+    'originalGalleryBlockedRays','originalGalleryBlockedBodyRays',
+    'originalGalleryBlockedGatewayRays',
+    'architectureBlockedRays','score'];
   if(before?.active!==true || after?.active!==true ||
      keys.some(k=>!Number.isSafeInteger(before[k]) ||
        !Number.isSafeInteger(after[k]) || before[k]<0 || after[k]<0))
     return false;
   return keys.every(k=>after[k]<=before[k]);
+}
+
+// Physical-first optical selection: the old final director ranked only a
+// projected shape improvement. In original 1x footage the bronze gallery,
+// former cap and successor platform were all actual triangles between the
+// camera and the *real* skinned climber. Prefer small rays-verified clearance
+// even when the two NDC silhouettes are already inside the frame. Every
+// counted ray is the World owner's source-sized, current Three.js mesh hit;
+// no invented route, ray, FPS or synthetic footage enters this score.
+export function sourceThreeSubjectPhysicalGain(before,after){
+  if(!sourceThreeSubjectRaySafe(before,after))return 0;
+  const body=before.bodyBlockedRays-after.bodyBlockedRays;
+  const gate=before.gatewayBlockedRays-after.gatewayBlockedRays;
+  const bronze=before.originalGalleryBlockedRays-
+    after.originalGalleryBlockedRays;
+  const oldGate=before.originalGateBlockedRays-after.originalGateBlockedRays;
+  // Bounded influence: this is an incremental exterior camera step, not
+  // permission to choose a tiny hero or lose the genuine walkable roof.
+  return Math.min(.32,body*.105+gate*.10+bronze*.035+oldGate*.025);
 }
 
 // A *third* source-authenticated subject can initiate a small reversible
