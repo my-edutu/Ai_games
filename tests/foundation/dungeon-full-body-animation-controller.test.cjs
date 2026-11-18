@@ -3280,8 +3280,8 @@ test('source-loaded pelvis bridge uses authentic two-point walking shoe contact,
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(model,/planOriginalSourceLoadedPelvisSupport\(/,
   'actual Three.js must use the genuine original-skinned measurements');
- assert.match(model,/stageSourceLoadedPelvisBeforeLegs\(actor,reducedMotion\);[\s\S]{0,100}stageRigLegsAfterMixer\(/,
-  'grounded support belongs after current-frame source pose and before original ankle/calf proof');
+ assert.match(model,/stageOriginalSourceStanceSlideAfterMixer\(actor,reducedMotion,sourceFrameInterval,sourceFrameVisible\);[\s\S]{0,180}stageSourceLoadedPelvisBeforeLegs\(actor,reducedMotion\);[\s\S]{0,120}auditSourceLoadedPelvisAfterLegs\(/,
+  'original loaded pelvis support must use the FINAL source-skinned stance after ankle/calf and slide staging');
 });
 
 
@@ -7349,4 +7349,43 @@ test('RED: licensed loaded pelvis uses real displayed interval for bounded two-s
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(model,/frameInterval:actor\.rigSourceSwingFrameInterval/,
   'the live original GLB must pass its real display interval to the planner');
+});
+
+
+// RED: same original mobile GLB full-weight Walking_A, ~183ms displayed
+// frame and separately skinned LOADED heel/toe. The legacy pre-leg pelvis
+// trial was often rolled back by later ankle/knee overlays. After those
+// same-source, reversible leg operations the entire visible hierarchy must
+// test a single bounded support correction on the FINAL two-shoe geometry,
+// before any historical pose receipt. No extra mixer step or contact lock.
+test('RED: source pelvis support witnesses FINAL two-shoe pose after native leg and stance work',async()=>{
+ const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const start=model.indexOf(' stageRigCranialAfterMixer(actor);');
+ const end=model.indexOf(' if(actor.draperyPanels?.length)',start);
+ assert.ok(start>0&&end>start,'inspect the actual current source-mixer animation staging');
+ const stage=model.slice(start,end);
+ const positions=[
+  'stageRigLegsAfterMixer(actor,poseAge,reducedMotion);',
+  'stageOriginalSourceStanceSlideAfterMixer(actor,reducedMotion,sourceFrameInterval,sourceFrameVisible);',
+  'stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion);',
+  'auditSourceLoadedPelvisAfterLegs(actor,poseAge,reducedMotion);',
+  'rememberOriginalSourceAppliedSwingEvidence(actor);'
+ ].map(v=>stage.indexOf(v));
+ assert.ok(positions.every(p=>p>=0)&&positions.every((p,i)=>i===0||p>positions[i-1]),
+  'original two-shoe pelvic lift must be solved only after the final original source leg/slide pose');
+ assert.equal(stage.match(/stageSourceLoadedPelvisBeforeLegs\(actor,reducedMotion\);/g)?.length,1,
+  'no additional per-frame original source skinning pass');
+ const {planOriginalSourceLoadedPelvisSupport:plan}=await load();
+ const measured=plan({
+  mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  ownerLocomotion:true,rootTravel:.066019,frameAge:.03,
+  frameInterval:.183,alive:true,visible:true,
+  floorTopY:-.02,floorEvidence:'authored-cube-floor-top',
+  left:{heelY:-.0332,toeY:-.0311},
+  right:{heelY:.183,toeY:-.086},previousLiftMeters:0
+ });
+ assert.ok(measured&&measured.side==='left');
+ assert.ok(measured.liftMeters>.011&&measured.liftMeters<.014);
+ assert.equal(measured.source,'measured-original-GLB-loaded-heel-and-toe');
+ assert.ok(measured.afterWorstMeters<measured.beforeWorstMeters-.010);
 });
