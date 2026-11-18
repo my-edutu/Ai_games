@@ -171,18 +171,35 @@ export function forwardGuardianKeyCell(
    // object untouched. Never create fake passages or use hidden AI knowledge.
    // A terminal dead end prevents a hidden second shortcut around the court.
    const mainRoute=new Set(route);
+   let oneStepChamber:number|null=null;
    if(Number.isInteger(world.width)&&world.width>0
      &&Number.isInteger(world.height)&&world.height>0
      &&Array.isArray(world.passages)){
      for(let i=approachIndex+2;i<=last;i++){
        const entry=route[i]!;
-       const alcoves=passageNeighbors(world,entry).filter(cell=>
+       const firstSteps=passageNeighbors(world,entry).filter(cell=>
          !mainRoute.has(cell)&&!occupied.has(cell)&&!avoid.has(cell)
-         &&passageNeighbors(world,cell).length===1
-         &&passageNeighbors(world,cell).includes(entry)
          &&!doorBetween(world,entry,cell)).sort((a,b)=>a-b);
-       if(alcoves.length)return {keyId:key.id,cell:alcoves[0]!};
+       for(const first of firstSteps){
+         const links=passageNeighbors(world,first);
+         if(!links.includes(entry))continue; // the gallery must be reciprocal
+         if(links.length===1){
+           if(oneStepChamber===null)oneStepChamber=first;
+           continue;
+         }
+         if(links.length!==2)continue;
+         const shrine=links.find(cell=>cell!==entry);
+         if(shrine===undefined||mainRoute.has(shrine)||occupied.has(shrine)
+           ||avoid.has(shrine)||doorBetween(world,first,shrine))continue;
+         const shrineLinks=passageNeighbors(world,shrine);
+         // The real two-link return journey creates a meaningful key detour.
+         // Neither hidden shortcuts nor sealed passages count as a chamber.
+         if(shrineLinks.length===1&&shrineLinks[0]===first)
+           return {keyId:key.id,cell:shrine};
+       }
      }
+     // Preserve existing direct side alcoves when no deeper room is legal.
+     if(oneStepChamber!==null)return {keyId:key.id,cell:oneStepChamber};
    }
    // If genuine side chambers do not exist, retain Pass481's original safe
    // public main-route pickup instead of manufacturing a chamber or dead end.

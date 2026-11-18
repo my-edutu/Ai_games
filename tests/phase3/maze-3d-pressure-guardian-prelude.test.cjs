@@ -141,3 +141,38 @@ test('authentic reciprocal post-Thornback side alcove makes a consequential key 
    'the main-route fallback must never place a required key on a physical doorway endpoint');
  assert.notEqual(lockedFallback.cell,16,'the required key must never spawn beyond its locked side door');
 });
+
+test('authentic two-passage post-guardian key chamber demands a real return trip before its critical gate',()=>{
+ const {forwardGuardianKeyCell,solveMazeWithInventory}=load('games/ai-maze-escape/src/generation/content.js');
+ const {passageNeighbors}=load('games/ai-maze-escape/src/generation/solver.js');
+ const route=Array.from({length:11},(_,i)=>i),passages=Array(33).fill(0);
+ for(let i=0;i<10;i++){passages[i]|=2;passages[i+1]|=8;}
+ // True reciprocal passage 5 <-> 16 <-> 27; 27 is a physical dead end.
+ passages[5]|=4;passages[16]|=1|4;passages[27]|=1;
+ const world={schemaVersion:1,width:11,height:3,passages,start:0,exit:10,
+   keys:[{id:'key-1',cell:1,collected:false}],
+   doors:[{id:'door-1',a:8,b:9,requiredKeyId:'key-1',critical:true,open:false,temporaryUntilTick:null}],
+   traps:[],clues:[],checkpoints:[],threats:[],blockedCells:[],profile:'tree'};
+ assert.deepEqual(passageNeighbors(world,16).sort((a,b)=>a-b),[5,27]);
+ assert.deepEqual(passageNeighbors(world,27),[16]);
+ assert.deepEqual(forwardGuardianKeyCell(world,route,3),{keyId:'key-1',cell:27});
+ const shifted=structuredClone(world);shifted.keys[0].cell=27;
+ const journey=solveMazeWithInventory(shifted);
+ assert.ok(journey,'Pip must reach the key and return before the matching locked gate');
+ assert.ok(journey.cells.includes(27));
+ assert.ok(journey.cells.filter(cell=>cell===16).length>=2,'enter and leave the same physical gallery');
+ assert.ok(journey.keyOrder.includes('key-1')&&journey.doorOrder.includes('door-1'));
+ assert.equal(forwardGuardianKeyCell({...world,blockedCells:[27]},route,3).cell,5,
+   'blocked treasure shrine cannot hold required key');
+ assert.equal(forwardGuardianKeyCell(world,route,3,new Set([16,27])).cell,5,
+   'guardian occupied gallery cannot hold required key');
+ assert.equal(forwardGuardianKeyCell({...world,traps:[16]},route,3).cell,5,
+   'actual pressure jaws cannot become a key hallway');
+ const locked=structuredClone(world);
+ locked.doors.push({id:'side-door',a:16,b:27,requiredKeyId:'other',critical:false,open:false,temporaryUntilTick:null});
+ assert.equal(forwardGuardianKeyCell(locked,route,3).cell,5,
+   'closed secondary door forbids unreachable objective');
+ const oneWay=structuredClone(world);oneWay.passages[27]=0;
+ assert.equal(forwardGuardianKeyCell(oneWay,route,3).cell,5,
+   'nonreciprocal passage cannot be used as safe shrine');
+});

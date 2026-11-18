@@ -1,3 +1,9 @@
+## Pass484 — original two-link post-guardian key side chamber (2026-11-18 UTC)
+
+- Verified Pass483 exact-head [WebGL 44328226815](https://github.com/my-edutu/Ai_games/actions/runs/44328226815) SUCCESS 8/8 incl strict six-reset <100, retrieved 40/40 genuine full-frame PNG SHA sidecars and three authentic gate chronology hashes from artifact 14437869094. Original full 390px Thornback counter remains obscured by stage masonry; Nintendo bar **UNMET**. Whole-repository CI 44328226667 fails separate Tiny Kingdom OBS and downstream artifact uploads.
+- One consequential real-world-generation change: prefer an actually reciprocal TWO-passage dead-end side key chamber after a straight pressure–Thornback court, before the real matching required gate, requiring Pip to return through the same physical gallery. Preserve 1-step chamber/route fallback, actual topology, AI, collisions, deterministic RNG, keys, traps, strict visual/resource thresholds. New 11×3 solver journey and blocked/guardian/hazard/locked/one-way negatives. [Dated review](./maze-3d/pass-484-deeper-physical-post-guardian-key-chamber-2026-11-18.md).
+- New exact-HEAD browser CI, original mobile/landscape/desktop captures and naturally occurring entire chapter NOT YET verified. Independent critic/Ultracode tunnel NOT_FOUND. PR remains draft/unmerged/undeployed; Gauntlet active.
+
 ## Pass483 — Pass482 pre-render CI failure traced to incorrect locked-door negative fixture (2026-11-18T14:47:37.770Z)
 
 - Prior exact HEAD `4dc0d9840c680ac2f9a26b07727b65bbfc324951` [Maze WebGL 44323365583](https://github.com/my-edutu/Ai_games/actions/runs/44323365583) FAILED before browser capture: **231/232** focused tests; same test failed [whole repo 44323365590](https://github.com/my-edutu/Ai_games/actions/runs/44323365590). No new source-bound Pass482 images exist, so visual verdict is still PENDING.

@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-18T14:47:37.770Z",
+  "updatedAt": "2026-11-18T16:36:02.492Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass483 fixes a REAL pre-render CI blocker in the Pass482 locked side-alcove negative fixture: the fixture put a side-door endpoint at cell 5 but wrongly expected the required-key fallback on that doorway; actual protected physical route correctly selects cell 6, avoiding both gated cell 5 and locked chamber 16. No production code, AI, collision, strict geometry/framing/accessibility thresholds or HUD changed. Prior exact-HEAD native WebGL 44323365583 failed source tests 231/232 before screenshots, whole CI 44323365590 failed same test; new exact-HEAD native WebGL and natural pressure→Thornback→side-key→gate chapter still awaiting confirmation. Nintendo benchmark unmet, independent critic workspace unavailable. PR remains draft, never merge/deploy."
+    "summary": "Pass483 exact-HEAD native WebGL 8/8 succeeded; 40/40 original PNG SHA sidecars and three authentic gate hashes verified. Pass484 candidate favors a real two-link terminal side-key chamber after pressure–guardian and before matching gate when actual reciprocal passages allow; a true return journey, without adding geometry or changing AI. New exact-HEAD CI/rendering/natural encounter pending. Nintendo benchmark unmet; independent critic disconnected. Draft PR never merge/deploy."
   },
   "captures": [
     {
@@ -345,6 +345,12 @@
   ],
   "changes": [
     {
+      "title": "Pass484 — two-passage side-key chamber is a consequential exploration detour",
+      "description": "Prefer a genuine reciprocal 5→16→27-style terminal side chamber for the required matching key after Thornback. Pip must enter, collect and return before opening the real gate. Preserve 1-step and main-route fallbacks and every strict collision/privacy/visual budget.",
+      "date": "2026-11-18",
+      "status": "Production+tests candidate; exact-HEAD native/CI acceptance pending"
+    },
+    {
       "title": "Pass483 — unblock authentic rendering by correcting locked side-door negative gameplay fixture",
       "description": "Real pre-render CI failed because test expected key placement on new locked door endpoint cell 5. Preserve production safety, assert lawful fallback cell 6 outside both the locked alcove and physical gate endpoints; no thresholds weakened and no rendered improvement claimed.",
       "date": "2026-11-18",
@@ -646,6 +652,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass484: verify own exact-SHA source/CI and four unaltered 320/390/844/1280 native frames; produce same natural pressure–Thornback–two-link key–gate playthrough, blind artistic verdict against official Captain Toad.",
     "Pass475 next: exact HEAD native four-viewport screenshot CI 8/8 and unchanged 6-reset <100, full source-based gameplay/physical stage; prioritize an authored whole-scene visible pressure–Thornback–key/gate action sequence rather than another light-only change.",
     "Pass474 next independent gate: confirm new source HEAD stream self-test green, eight native WebGL browser checks and six-reset <100 resource budget, retrieve dated full 320/390/844/1280 pressure/guardian/gate PNGs with SHA; reject lighting visually if actor/hazard readability not materially better than Pass472. Do not claim Nintendo parity.",
     "Pass469b exact-corrected-HEAD whole repo strict Phase2 straight patrol + Phase3 24 seeds, 8 browser WebGL, 6 resets <100, full uncropped original four viewport and gate hashes. Reject until real observed pressure-to-guardian sequence, no occlusion, and fixed Nintendo visual gate supported.",
@@ -734,6 +741,11 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass484 two-passage key return journey source review",
+      "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-484-deeper-physical-post-guardian-key-chamber-2026-11-18.md",
+      "status": "Unverified candidate; Nintendo benchmark unmet"
+    },
     {
       "title": "Pass480 source-bound public encounter failure and rollback review",
       "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-480-reject-forward-relay-public-corridor-regression-2026-11-18.md",
@@ -1581,6 +1593,12 @@
     }
   ],
   "verification": [
+    {
+      "title": "Pass483 8/8 native WebGL, verified 40/40 PNG hashes + 3 true gate hashes; Pass484 approval pending",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44328226815",
+      "date": "2026-11-18",
+      "status": "Baseline verified; Pass484 not yet approved"
+    },
     {
       "title": "Pass479b native 7/8 — missing real public guardian corridor; six-reset geometry passed; Pass480 correction CI pending",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44290460770",
