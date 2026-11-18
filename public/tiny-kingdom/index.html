@@ -4077,6 +4077,7 @@ uniform vec2 windmillRotor;
 // W135: genuine original forge smoke now shares durable civic VBO.
 uniform vec3 forgeSmokeAnchor;
 uniform vec3 workLightPosition;uniform float workLightStrength;
+uniform float forgeBellowsCompression;
 // G148 crop contact from an existing worker; no authority or VBO changes.
 uniform vec4 harvestContact;uniform vec4 completedHarvestA;uniform vec4 completedHarvestB;
 uniform float harvestProgress;uniform float harvestFloor;uniform float villageSmokeDensity;
@@ -4178,6 +4179,12 @@ void main(){
   float animatedRadius=.15+.18*progress;
   world=nowCenter+(position-restCenter)*(animatedRadius/originalRadius);
   surfaceMaterial=0.0;
+ }
+ // W450 vertex-only authored compression follows genuine smith impact; no CPU
+ // rebuilding the original full bellows body and no extra inventory.
+ if(materialId>20.0&&materialId<21.0){
+  world.y+=forgeBellowsCompression*.13;
+  surfaceMaterial=6.0;
  }
  // W91 static real four-sail windmill and deterministic rain/snow vertex motion.
  // Their complete, unpruned geometry stays resident across real workday ticks.
@@ -4756,7 +4763,7 @@ function getMaterialShaderTierAudit(){
   originalWorldAndAuthorityUnchanged:true,
   realHardwareFps:'NOT PROVEN',lookFeelPlay:'NOT PROVEN'};
 }
-const uniforms={viewProjection:gl.getUniformLocation(program,'viewProjection'),fogColor:gl.getUniformLocation(program,'fogColor'),sunDirection:gl.getUniformLocation(program,'sunDirection'),sunTint:gl.getUniformLocation(program,'sunTint'),sunStrength:gl.getUniformLocation(program,'sunStrength'),ambientBlend:gl.getUniformLocation(program,'ambientBlend'),worldTime:gl.getUniformLocation(program,'worldTime'),windmillRotor:gl.getUniformLocation(program,'windmillRotor'),weatherWetness:gl.getUniformLocation(program,'weatherWetness'),eyePosition:gl.getUniformLocation(program,'eyePosition'),groundAtlas:gl.getUniformLocation(program,'groundAtlas'),architectureAtlas:gl.getUniformLocation(program,'architectureAtlas'),groundAtlasFast:gl.getUniformLocation(program,'groundAtlasFast'),forgeSmokeAnchor:gl.getUniformLocation(program,'forgeSmokeAnchor'),workLightPosition:gl.getUniformLocation(program,'workLightPosition'),workLightStrength:gl.getUniformLocation(program,'workLightStrength'),harvestContact:gl.getUniformLocation(program,'harvestContact'),harvestProgress:gl.getUniformLocation(program,'harvestProgress'),harvestFloor:gl.getUniformLocation(program,'harvestFloor'),completedHarvestA:gl.getUniformLocation(program,'completedHarvestA'),completedHarvestB:gl.getUniformLocation(program,'completedHarvestB'),villageSmokeDensity:gl.getUniformLocation(program,'villageSmokeDensity'),commuterEnabled:gl.getUniformLocation(program,'commuterEnabled'),commuterOrigin:gl.getUniformLocation(program,'commuterOrigin'),commuterMotion:gl.getUniformLocation(program,'commuterMotion'),workSkinActive:gl.getUniformLocation(program,'workSkinActive'),workBone:gl.getUniformLocation(program,'workBone[0]'),shadowTransition:gl.getUniformLocation(program,'shadowTransition'),
+const uniforms={viewProjection:gl.getUniformLocation(program,'viewProjection'),fogColor:gl.getUniformLocation(program,'fogColor'),sunDirection:gl.getUniformLocation(program,'sunDirection'),sunTint:gl.getUniformLocation(program,'sunTint'),sunStrength:gl.getUniformLocation(program,'sunStrength'),ambientBlend:gl.getUniformLocation(program,'ambientBlend'),worldTime:gl.getUniformLocation(program,'worldTime'),windmillRotor:gl.getUniformLocation(program,'windmillRotor'),weatherWetness:gl.getUniformLocation(program,'weatherWetness'),eyePosition:gl.getUniformLocation(program,'eyePosition'),groundAtlas:gl.getUniformLocation(program,'groundAtlas'),architectureAtlas:gl.getUniformLocation(program,'architectureAtlas'),groundAtlasFast:gl.getUniformLocation(program,'groundAtlasFast'),forgeSmokeAnchor:gl.getUniformLocation(program,'forgeSmokeAnchor'),workLightPosition:gl.getUniformLocation(program,'workLightPosition'),workLightStrength:gl.getUniformLocation(program,'workLightStrength'),forgeBellowsCompression:gl.getUniformLocation(program,'forgeBellowsCompression'),harvestContact:gl.getUniformLocation(program,'harvestContact'),harvestProgress:gl.getUniformLocation(program,'harvestProgress'),harvestFloor:gl.getUniformLocation(program,'harvestFloor'),completedHarvestA:gl.getUniformLocation(program,'completedHarvestA'),completedHarvestB:gl.getUniformLocation(program,'completedHarvestB'),villageSmokeDensity:gl.getUniformLocation(program,'villageSmokeDensity'),commuterEnabled:gl.getUniformLocation(program,'commuterEnabled'),commuterOrigin:gl.getUniformLocation(program,'commuterOrigin'),commuterMotion:gl.getUniformLocation(program,'commuterMotion'),workSkinActive:gl.getUniformLocation(program,'workSkinActive'),workBone:gl.getUniformLocation(program,'workBone[0]'),shadowTransition:gl.getUniformLocation(program,'shadowTransition'),
  villageLanterns:gl.getUniformLocation(program,'villageLanterns[0]'),
  commuterLanterns:gl.getUniformLocation(program,'commuterLanterns[0]')};
 // The genuine lamp source and terrain are declared later in this script.
@@ -20260,21 +20267,30 @@ function getForgeEmbodimentAudit(){
  return {source:'actual-forge-citizen-anvil-alignment',
   workers,authoritativeChanges:false,anvil:CRAFT_ANVIL.slice()};
 }
-function renderOccupiedForgeYard(){
- const first=data.length,audit=getForgeWorkdayAudit(),
-  cycle=getForgeCraftCycleAudit();
- forgeWorkdayRender={activeWorkers:audit.activeWorkers.length,
-  bellows:0,sparks:0,metalPieces:0,steamWisps:0,triangles:0};
- if(!audit.activeWorkers.length)return;
- const [fx,fz]=audit.outdoorHearth;
- // An existing charcoal hearth is in the actual yard, not in a remote
- // market set. The one real forging shift drives one shared leather bellows.
- const worker=cycle.workers[0];
- const compression=worker.impact,by=terrain(fx-1.17,fz+.53);
+// W450 | Same real smith, same original bellows, retained fixed housing/lid.
+// The moving four hinge rods, contact sparks, billet and steam stay live.
+const FORGE_BELLOWS_RESIDENT_FLOAT_BUDGET=8192;
+let forgeBellowsResidentBuffer=null,forgeBellowsResidentMesh=null,
+ forgeBellowsResidentCapacity=0,forgeBellowsResidentActive=false,
+ forgeBellowsResidentOverride=null,forgeBellowsFrameCompression=0,
+ forgeBellowsResidentBuilds=0,forgeBellowsResidentReuses=0,
+ forgeBellowsResidentUploads=0,forgeBellowsResidentDrawCalls=0,
+ forgeBellowsResidentDisposals=0,forgeBellowsResidentFallbacks=0;
+function renderForgeBellowsFixed(fx,fz,compression,tagged=false){
+ const by=terrain(fx-1.17,fz+.53),x=fx-1.17,z=fz+.53;
  materialScope(MATERIAL.WOOD,()=>{
-  const x=fx-1.17,z=fz+.53,oak=rgb(0x76543a),leather=rgb(0x986f51);
+  const oak=rgb(0x76543a),leather=rgb(0x986f51);
   box(x,by+.10,z,.61,.20,.44,oak);
+  const lidStart=data.length;
   box(x,by+.28+compression*.13,z,.63,.07,.46,leather);
+  if(tagged)for(let i=lidStart+9;i<data.length;i+=10)data[i]=20.5;
+  limbSegment([x+.27,by+.20,z],
+   [fx-.50,terrain(fx,fz)+.83,fz],.047,rgb(0x65615a),5);
+ });
+}
+function renderForgeBellowsMovingRods(fx,fz,compression){
+ const by=terrain(fx-1.17,fz+.53),x=fx-1.17,z=fz+.53,oak=rgb(0x76543a);
+ materialScope(MATERIAL.WOOD,()=>{
   for(const side of [-1,1]){
    const sx=x+side*.27;
    limbSegment([sx,by+.18,z-.20],
@@ -20282,11 +20298,92 @@ function renderOccupiedForgeYard(){
    limbSegment([sx,by+.18,z+.19],
     [sx,by+.30+compression*.13,z+.19],.025,oak,5);
   }
-  // The physical nozzle connects the bellows to the original forge coals.
-  limbSegment([x+.27,by+.20,z],[fx-.50,terrain(fx,fz)+.83,fz],
-   .047,rgb(0x65615a),5);
-  forgeWorkdayRender.bellows=1;
  });
+}
+function disposeForgeBellowsResidentMesh(){
+ if(forgeBellowsResidentBuffer&&gpuAvailable){
+  releaseGeometryBuffer(forgeBellowsResidentBuffer);forgeBellowsResidentDisposals++;
+ }
+ forgeBellowsResidentBuffer=null;forgeBellowsResidentMesh=null;
+ forgeBellowsResidentCapacity=0;forgeBellowsResidentActive=false;
+ forgeBellowsFrameCompression=0;
+}
+function forgeBellowsResidencyRequested(){
+ return Boolean(gpuAvailable&&(forgeBellowsResidentOverride===null?
+  !swiftGpu:forgeBellowsResidentOverride));
+}
+function prepareForgeBellowsResidentMesh(audit,cycle){
+ forgeBellowsResidentActive=false;
+ if(!audit.activeWorkers.length||!cycle.workers.length)return false;
+ forgeBellowsFrameCompression=cycle.workers[0].impact;
+ if(!forgeBellowsResidencyRequested())return false;
+ if(forgeBellowsResidentBuffer&&forgeBellowsResidentMesh){
+  forgeBellowsResidentReuses++;forgeBellowsResidentActive=true;return true;
+ }
+ const [fx,fz]=audit.outdoorHearth,oldData=data,oldMaterial=currentMaterial;
+ let mesh;data=[];
+ try{
+  renderForgeBellowsFixed(fx,fz,0,true);
+  mesh=new Float32Array(data);
+ }finally{data=oldData;currentMaterial=oldMaterial;}
+ if(mesh.length%30)throw Error('W450 forge GPU VBO not whole triangles');
+ if(mesh.length>FORGE_BELLOWS_RESIDENT_FLOAT_BUDGET){
+  forgeBellowsResidentFallbacks++;return false;
+ }
+ forgeBellowsResidentBuffer=gl.createBuffer();
+ if(!forgeBellowsResidentBuffer){forgeBellowsResidentFallbacks++;return false;}
+ bindGeometry(forgeBellowsResidentBuffer);
+ forgeBellowsResidentCapacity=Math.ceil(Math.max(1,mesh.length)/1024)*1024;
+ gl.bufferData(gl.ARRAY_BUFFER,forgeBellowsResidentCapacity*4,gl.STATIC_DRAW);
+ if(mesh.length)gl.bufferSubData(gl.ARRAY_BUFFER,0,mesh);
+ forgeBellowsResidentMesh=mesh;forgeBellowsResidentActive=true;
+ forgeBellowsResidentBuilds++;forgeBellowsResidentUploads++;
+ return true;
+}
+function drawForgeBellowsResidentMesh(){
+ if(!forgeBellowsResidentActive||!forgeBellowsResidentBuffer||
+   !forgeBellowsResidentMesh?.length)return;
+ bindGeometry(forgeBellowsResidentBuffer);
+ gl.drawArrays(gl.TRIANGLES,0,forgeBellowsResidentMesh.length/10);
+ forgeBellowsResidentDrawCalls++;
+}
+function setForgeBellowsResidencyForTesting(value){
+ if(value!==null&&value!==true&&value!==false)
+  throw Error('Invalid forge renderer mode');
+ forgeBellowsResidentOverride=value;disposeForgeBellowsResidentMesh();
+ cameraDynamicCache=null;cameraActorCache=null;cameraDynamicKey='';
+ lastFrozenFrameKey=null;presentationEpoch++;
+}
+function getForgeBellowsResidentAudit(){
+ return {source:'real-smith-original-geometry-GPU-lid-and-live-rods',
+  requested:forgeBellowsResidencyRequested(),active:forgeBellowsResidentActive,
+  compression:forgeBellowsFrameCompression,
+  triangles:forgeBellowsResidentActive?(forgeBellowsResidentMesh?.length||0)/30:0,
+  buffers:forgeBellowsResidentBuffer?1:0,maxBuffers:1,
+  capacityFloats:forgeBellowsResidentCapacity,
+  floatBudget:FORGE_BELLOWS_RESIDENT_FLOAT_BUDGET,
+  builds:forgeBellowsResidentBuilds,reuses:forgeBellowsResidentReuses,
+  uploads:forgeBellowsResidentUploads,drawCalls:forgeBellowsResidentDrawCalls,
+  disposals:forgeBellowsResidentDisposals,overBudgetFallbacks:forgeBellowsResidentFallbacks,
+  changesCitizens:false,changesInventory:false,changesReplay:false,
+  nativeHardwareFps:'NOT MEASURED'};
+}
+function renderOccupiedForgeYard(){
+ const first=data.length,audit=getForgeWorkdayAudit(),
+  cycle=getForgeCraftCycleAudit();
+ forgeWorkdayRender={activeWorkers:audit.activeWorkers.length,
+  bellows:0,sparks:0,metalPieces:0,steamWisps:0,triangles:0};
+ forgeBellowsResidentActive=false;
+ if(!audit.activeWorkers.length)return;
+ const [fx,fz]=audit.outdoorHearth;
+ // An existing charcoal hearth is in the actual yard, not in a remote
+ // market set. The one real forging shift drives one shared leather bellows.
+ const worker=cycle.workers[0];
+ const compression=worker.impact,by=terrain(fx-1.17,fz+.53);
+ const residentBellows=prepareForgeBellowsResidentMesh(audit,cycle);
+ if(!residentBellows)renderForgeBellowsFixed(fx,fz,compression);
+ renderForgeBellowsMovingRods(fx,fz,compression);
+ forgeWorkdayRender.bellows=1;
  // Actual hammer impacts briefly wake the outdoor charcoal. Individual
  // sparks are small stable 3D triangles, derived from the same worker phase,
  // never an unbounded particle system or a time-based game-economy change.
@@ -20332,7 +20429,8 @@ function renderOccupiedForgeYard(){
    }
   });
  }
- forgeWorkdayRender.triangles=(data.length-first)/30;
+ forgeWorkdayRender.triangles=(data.length-first)/30+
+  (forgeBellowsResidentActive?forgeBellowsResidentMesh.length/30:0);
 }
 
 /* G092 continuous occupational theatre: readable, human-scale original
@@ -23535,7 +23633,7 @@ function renderStories(){const feed=document.getElementById('feed');feed.replace
 function uniqueCitizenName(index){const given=names[index%names.length];const generation=Math.floor(index/names.length);return generation?given+' '+(generation===1?'II':String(generation+1)):given}
 function report(s){stories.unshift({day:Math.floor(state.t/24)+1,text:s});stories=stories.slice(0,6);renderStories()}
 let courierPostRepairCount=0,courierPostRepairLast=null;
-function start(){resetActorGpuSnapshots();resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();restingActorKey='';clearRestingActorIdentityCache();restingActorVisible=false;restingActorCitizens=0;disposeLivingVillageMotion();disposeNightHomesResidentMesh();clearHomeClusterCache();independentHousingGrowthWitnesses.length=0;householdContactHistory.length=0;disposeRecordedWorkResidentMesh();disposeCompletedHarvestResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;daybreakLastCompleted=null;disposeEconomyResidentMesh();disposeLedgerWitnessResidentMesh();villageDocumentary=null;document.body.dataset.villageDocumentary='off';clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');presentationEpoch++;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();clearLandscapeSeasonCache();landscapeMeshCache=null;landscapeMeshKey='';seed=83127;resetSoftwareDebtDrain();accumulator=0;selectedCitizen=0;routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;city.splice(12);invalidateHomeNavigationIndex();state={t:7,food:180,wood:90,gold:42,homes:city.length,buildCount:city.length+2,happiness:78,lastStory:0};people=names.slice(0,12).map((name,i)=>({name,job:jobs[i%jobs.length],trait:['patient','curious','bold','generous','resourceful','loyal'][i%6],x:(rand()-.5)*14,z:(rand()-.5)*11,target:[(rand()-.5)*24,(rand()-.5)*20],phase:rand()*8,friend:null,bonds:{},energy:60+rand()*40,hunger:rand()*20,activity:'Exploring the valley',workTimer:0,provisions:0,provisionVisits:0,lastProvisionAttemptDay:-1,friendshipRecorded:false}));for(const p of people){if(!walkable(p.x,p.z)){const spot=navSnap(p.x,p.z);if(spot)[p.x,p.z]=navPoint(...spot)}choose(p)}stories=[];report('The first families arrive in a lush and untamed valley.');report('A new settlement is born beneath the old mountain ridge.');updateUI()}
+function start(){resetActorGpuSnapshots();resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();restingActorKey='';clearRestingActorIdentityCache();restingActorVisible=false;restingActorCitizens=0;disposeLivingVillageMotion();disposeNightHomesResidentMesh();clearHomeClusterCache();independentHousingGrowthWitnesses.length=0;householdContactHistory.length=0;disposeRecordedWorkResidentMesh();disposeForgeBellowsResidentMesh();disposeCompletedHarvestResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;daybreakLastCompleted=null;disposeEconomyResidentMesh();disposeLedgerWitnessResidentMesh();villageDocumentary=null;document.body.dataset.villageDocumentary='off';clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');presentationEpoch++;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();clearLandscapeSeasonCache();landscapeMeshCache=null;landscapeMeshKey='';seed=83127;resetSoftwareDebtDrain();accumulator=0;selectedCitizen=0;routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;city.splice(12);invalidateHomeNavigationIndex();state={t:7,food:180,wood:90,gold:42,homes:city.length,buildCount:city.length+2,happiness:78,lastStory:0};people=names.slice(0,12).map((name,i)=>({name,job:jobs[i%jobs.length],trait:['patient','curious','bold','generous','resourceful','loyal'][i%6],x:(rand()-.5)*14,z:(rand()-.5)*11,target:[(rand()-.5)*24,(rand()-.5)*20],phase:rand()*8,friend:null,bonds:{},energy:60+rand()*40,hunger:rand()*20,activity:'Exploring the valley',workTimer:0,provisions:0,provisionVisits:0,lastProvisionAttemptDay:-1,friendshipRecorded:false}));for(const p of people){if(!walkable(p.x,p.z)){const spot=navSnap(p.x,p.z);if(spot)[p.x,p.z]=navPoint(...spot)}choose(p)}stories=[];report('The first families arrive in a lush and untamed valley.');report('A new settlement is born beneath the old mountain ridge.');updateUI()}
 // Walkable navigation is separate from decorative geometry. Deterministic bounded A*
 // prevents villagers crossing house interiors or swimming through the river.
 const NAV_LIMIT=40,NAV_BUDGET=3200,NAV_SPACING=1.15;
@@ -32657,7 +32755,7 @@ const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,focusHeight=follow
   eye[2]+Math.cos(streetYaw)*Math.cos(streetTilt)*8
  ]:retreat?retreat.target.slice():threshold?threshold.target.slice():workTarget;
  const lens=cameraLensProfile(w,h);
- let m=mat4multiply(perspective(lens.verticalRadians,w/h,.1,190),lookAt(eye,cameraTarget,[0,1,0]));lastCitizenPickFrame={matrix:m,eye:eye.slice(),target:cameraTarget.slice(),width:w,height:h};updateRealMarketStockTag(m);updateWorldActorTag(m);gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);const radiance=lightingProfile(state.t);gl.uniform1f(uniforms.sunStrength,radiance.solar);gl.uniform1f(uniforms.ambientBlend,radiance.ambientBlend);gl.uniform1f(uniforms.worldTime,state.t);if(gpuAvailable)gl.uniform3f(uniforms.forgeSmokeAnchor,CRAFT_DISTRICT.x+2.48,terrain(CRAFT_DISTRICT.x,CRAFT_DISTRICT.z)+7.49,CRAFT_DISTRICT.z+1.18);if(gpuAvailable)gl.uniform1f(uniforms.commuterEnabled,0);if(gpuAvailable)gl.uniform1f(uniforms.workSkinActive,0);if(gpuAvailable)gl.uniform1f(uniforms.villageSmokeDensity,climateAt(state.t).season===3?4:3);if(gpuAvailable)gl.uniform2f(uniforms.windmillRotor,-27,terrain(-27,-18)+4.25);gl.uniform1f(uniforms.weatherWetness,climateMaterialProfile(state.t).precipitation);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));const activeLight=observedWorkLightProfile();gl.uniform3f(uniforms.workLightPosition,activeLight.x,activeLight.y,activeLight.z);gl.uniform1f(uniforms.workLightStrength,activeLight.strength);
+ let m=mat4multiply(perspective(lens.verticalRadians,w/h,.1,190),lookAt(eye,cameraTarget,[0,1,0]));lastCitizenPickFrame={matrix:m,eye:eye.slice(),target:cameraTarget.slice(),width:w,height:h};updateRealMarketStockTag(m);updateWorldActorTag(m);gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);const radiance=lightingProfile(state.t);gl.uniform1f(uniforms.sunStrength,radiance.solar);gl.uniform1f(uniforms.ambientBlend,radiance.ambientBlend);gl.uniform1f(uniforms.worldTime,state.t);if(gpuAvailable)gl.uniform3f(uniforms.forgeSmokeAnchor,CRAFT_DISTRICT.x+2.48,terrain(CRAFT_DISTRICT.x,CRAFT_DISTRICT.z)+7.49,CRAFT_DISTRICT.z+1.18);if(gpuAvailable)gl.uniform1f(uniforms.commuterEnabled,0);if(gpuAvailable)gl.uniform1f(uniforms.workSkinActive,0);if(gpuAvailable)gl.uniform1f(uniforms.villageSmokeDensity,climateAt(state.t).season===3?4:3);if(gpuAvailable)gl.uniform2f(uniforms.windmillRotor,-27,terrain(-27,-18)+4.25);gl.uniform1f(uniforms.weatherWetness,climateMaterialProfile(state.t).precipitation);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));const activeLight=observedWorkLightProfile();gl.uniform3f(uniforms.workLightPosition,activeLight.x,activeLight.y,activeLight.z);gl.uniform1f(uniforms.workLightStrength,activeLight.strength);if(gpuAvailable)gl.uniform1f(uniforms.forgeBellowsCompression,forgeBellowsResidentActive?forgeBellowsFrameCompression:0);
 const farmContact=getHarvestInteractionAudit();
 // Canvas2D fallback implements only the original uniform1f/3f shims.
 if(gpuAvailable){
@@ -32682,6 +32780,7 @@ const nonFieldTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.
  (economyResidentActive?economyResidentMesh?.length||0:0)+
  (ledgerWitnessResidentActive?ledgerWitnessResidentMesh?.length||0:0)+
  (recordedWorkActive?recordedWorkMesh?.length||0:0)+
+  (forgeBellowsResidentActive?forgeBellowsResidentMesh?.length||0:0)+
  (completedHarvestResidentActive?completedHarvestResidentMesh?.length||0:0)+
  (worksiteFixtureActive?worksiteFixtureMesh?.length||0:0)+
  (courierTrailResidentActive?courierTrailResidentMesh?.length||0:0)+
@@ -32786,6 +32885,7 @@ const gpuUploadStart=performance.now(),residentSubmissionStart=gpuUploadStart;
 drawEconomyResidentMesh();
 drawLedgerWitnessResidentMesh();
 drawRecordedWorkResidentMesh();
+drawForgeBellowsResidentMesh();
 drawCompletedHarvestResidentMesh();
 drawWorksiteFixtureResidentMesh();
 drawCourierTrailResidentMesh();
@@ -33045,7 +33145,7 @@ drawForegroundResidentMesh();
     setCameraToolsExpanded(false);
   });
  }
- requestAnimationFrame(render);window.__tinyKingdom={getGroundBaseWorkerAudit,getRealHomeLaneNetworkAudit,getMarketTransitionCameraAudit,getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:setSimulationSpeed,step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getHomeNavigationIndexAudit,getCitizenSocialIndexAudit,getNavNodeGridAudit,getNavSegmentMemoAudit,getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getCitizenAnatomy,getCitizenEmbodiment,getEllipsoidShellAudit,getPopulationMotionAudit,getVillageClothAudit,getMedievalPopulationAudit,getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getCitizenGaitAudit:(index=0)=>cloneData(getCitizenGaitAudit(index)),
+ requestAnimationFrame(render);window.__tinyKingdom={getForgeBellowsResidentAudit,setForgeBellowsResidencyForTesting,getGroundBaseWorkerAudit,getRealHomeLaneNetworkAudit,getMarketTransitionCameraAudit,getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:setSimulationSpeed,step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getHomeNavigationIndexAudit,getCitizenSocialIndexAudit,getNavNodeGridAudit,getNavSegmentMemoAudit,getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getCitizenAnatomy,getCitizenEmbodiment,getEllipsoidShellAudit,getPopulationMotionAudit,getVillageClothAudit,getMedievalPopulationAudit,getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getCitizenGaitAudit:(index=0)=>cloneData(getCitizenGaitAudit(index)),
  getCitizenRigCacheAudit:()=>({...getCitizenRigCacheAudit()}),
  getWorksiteSkinContinuityAudit,
  getAuthenticWorkdayAudit,getCourierCartGripAudit,

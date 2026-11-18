@@ -12,7 +12,9 @@ on:
       - 'scripts/tiny-kingdom-w331-physical-night-corridor-contract.cjs'
       - 'scripts/tiny-kingdom-w447-fringed-crown-contract.cjs'
       - 'scripts/tiny-kingdom-w448-original-near-forest-contract.cjs'
+      - 'scripts/tiny-kingdom-w450-real-forge-residency-contract.cjs'
       - 'tests/browser/tiny-kingdom-w138-real-grown-home.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w450-real-forge-bellows.spec.cjs'
       - '.github/workflows/tiny-kingdom-w138-software-growth.yml'
   workflow_dispatch:
 permissions:
@@ -44,6 +46,8 @@ jobs:
         run: node scripts/tiny-kingdom-w447-fringed-crown-contract.cjs
       - name: W448 original near-forest rooted fronds, original workers and static budget
         run: node scripts/tiny-kingdom-w448-original-near-forest-contract.cjs
+      - name: W450 test-first original smith fixed/active geometry, bounded GPU buffer and true no-inventory side effects
+        run: node scripts/tiny-kingdom-w450-real-forge-residency-contract.cjs
       # Playwright's shared webServer starts Snake/Maze/Ant/Tower services from dist.
       # Without a compiled replay package, the W138 Day-120 game never launches.
       - name: Build shared browser server dependencies before 120-day WebGL capture
@@ -54,6 +58,10 @@ jobs:
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
         run: npx playwright test tests/browser/tiny-kingdom-w138-real-grown-home.spec.cjs --workers=1
+      - name: W450 actual autonomous smith, same-state WebGL residency parity and 390px captured workday
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w450-real-forge-bellows.spec.cjs --workers=1
       - name: Preserve video, 1024px and 390px images and runtime audits even on failure
         if: always()
         uses: actions/upload-artifact@v4
