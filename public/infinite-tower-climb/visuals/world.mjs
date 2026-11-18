@@ -4011,12 +4011,26 @@ export function createTowerWorld(){
       object.castShadow=false;
       function isolate(original){
         if(!isolated.has(original)){
+          // The original successor shaft is physically BEYOND the retained
+          // bronze doorway. A warm Clockwork color lease on shared floor
+          // materials must not repaint the new Void room bronze for several
+          // 1x native frames, then suddenly flip it purple. Capture the exact
+          // authored pre-lease PBR tint, not a made-up object or screenshot.
+          // Only the same-run HP0 authenticated Floor9 deferred shaft owns
+          // this independent material; source platforms, guardian/old gate,
+          // active hazards and normal floors keep their existing finishes.
+          const nativeTint=deferredDistantArrival?.proof==='recorded-source-gateway' &&
+            deferredDistantArrival.runToken===retainedEarnedCap?.runToken &&
+            retainedEarnedCap?.guardianGateRetained===true &&
+            theme==='void'
+            ?originalClockworkArchitecturalPalette?.nativeColorFor(original):null;
           const material=original.clone();
+          if(nativeTint)material.color.copy(nativeTint);
           material.name='SourceEarnedIncomingFloorNineShaft';
           material.transparent=true;material.depthWrite=false;
           material.opacity=0;material.needsUpdate=true;
           floorMaterials.add(material);
-          isolated.set(original,{material,sourceColor:original.color,
+          isolated.set(original,{material,sourceColor:nativeTint??original.color,
             originalOpacity:original.opacity,
             originalTransparent:original.transparent,
             originalDepthWrite:original.depthWrite});
