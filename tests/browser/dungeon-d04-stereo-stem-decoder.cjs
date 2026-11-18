@@ -4,7 +4,9 @@
 const fs=require('node:fs');
 const path=require('node:path');
 const {spawnSync}=require('node:child_process');
-const MAX_SECONDS=30;
+// The original single-recorder forensic capture now has a bounded 42s window.
+// Allow 3s container/audio-tail headroom, retaining a finite 17.3 MB PCM cap.
+const MAX_SECONDS=45;
 const SAMPLE_RATE=48000;
 function inspectPcm(pcm,{channels=2,sampleRate=SAMPLE_RATE}={}){
  if(channels!==2||sampleRate!==SAMPLE_RATE||!Buffer.isBuffer(pcm)||
@@ -54,6 +56,8 @@ function run(input){
   '-ac','2','-ar',String(SAMPLE_RATE),'-c:a','pcm_f32le','-f','f32le','pipe:1'],
   {timeout:45000,maxBuffer:MAX_SECONDS*SAMPLE_RATE*8+1024});
  if(decoded.error?.code==='ENOENT')return {status:'DECODER_UNAVAILABLE',sampleSynchronized:false,reason:'ffmpeg not installed'};
+ if(decoded.error?.code==='ENOBUFS')return {status:'DECODE_BUFFER_EXCEEDED',
+  sampleSynchronized:false,reason:'Bounded stereo PCM exceeds 45s diagnostic limit'};
  if(decoded.status!==0)return {status:'DECODE_FAILED',sampleSynchronized:false,
   reason:String(decoded.stderr||'').slice(0,240)};
  return {...inspectPcm(decoded.stdout),source:path.basename(input),encodedCodec:stream.codec_name,
