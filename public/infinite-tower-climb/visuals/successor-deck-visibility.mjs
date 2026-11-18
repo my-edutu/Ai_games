@@ -86,11 +86,11 @@ export function measureAuthoritativeDeckSightline({
   for(let sample=0;sample<samples;sample++){
     point.copy(gate && sample>=bodySamples ? gate:body);
     if(sample===1)point.y+=bodyHalfHeight*.76;
-    else if(sample===2)point.y-=bodyHalfHeight*.72;
+    else if(sample===2)point.y-=bodyHalfHeight; // Exact source sole, not a raised proxy
     else if(sample>=3 && sample<bodySamples){
       const sign=sample===3||sample===5?-1:1;
       point.x+=sideX*sign;point.z+=sideZ*sign;
-      point.y+=sample<5?bodyHalfHeight*.48:-bodyHalfHeight*.36;
+      point.y+=sample<5?bodyHalfHeight*.48:-bodyHalfHeight*.90;
     } else if(gate && sample===bodySamples+1) point.y+=1.2;
     direction.copy(point).sub(camera);
     const distance=direction.length();
