@@ -4224,7 +4224,11 @@ export function planOriginalSourceLoadedPelvisSupport({
  for(const [side,foot] of qualified){
   const beforeWorst=Math.max(Math.abs(foot.heelY-floorTopY),
    Math.abs(foot.toeY-floorTopY));
-  const ideal=Math.max(0,Math.min(.024,floorTopY-(foot.heelY+foot.toeY)/2));
+  // Keep the prior 16mm total limit on normal 60Hz source frames; the
+  // enlarged 24mm supported offset is reserved for a genuinely sparse
+  // displayed source frame with fresh legal movement and dual-shoe skin.
+  const maxLift=frameInterval<=.025?.016:.024;
+  const ideal=Math.max(0,Math.min(maxLift,floorTopY-(foot.heelY+foot.toeY)/2));
   // The genuine 390px licensed GLB has 200ms visible moving frames with a
   // buried two-point support shoe. A fixed 8mm/frame rule leaves the loaded
   // foot below the floor even when the FULL original 41-joint frame had
@@ -4232,9 +4236,9 @@ export function planOriginalSourceLoadedPelvisSupport({
   // spend at most 24mm total (<=.125m/s extra beyond 16ms) only for an
   // independently witnessed sparse frame. Real final weighted BOTH-shoe
   // skinned vertices still decide whether this whole-body lift is retained.
-  const frameBudget=Math.min(.024,.008+Math.max(0,frameInterval-.016)*.125);
+  const frameBudget=Math.min(maxLift,.008+Math.max(0,frameInterval-.016)*.125);
   const lift=clamp(ideal,Math.max(0,previousLiftMeters-frameBudget),
-   Math.min(.024,previousLiftMeters+frameBudget));
+   Math.min(maxLift,previousLiftMeters+frameBudget));
   if(lift<=.00001)continue;
   const afterHeel=foot.heelY+lift,afterToe=foot.toeY+lift;
   const afterWorst=Math.max(Math.abs(afterHeel-floorTopY),
