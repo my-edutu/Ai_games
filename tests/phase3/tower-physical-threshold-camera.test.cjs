@@ -54,11 +54,17 @@ test('the production 3D camera checks the actual GPU-retained original arch and 
   assert.ok(deckStage>0 && thresholdStage>deckStage,
     'deck-ray rescue must precede the final source-bound camera director');
   assert.match(scene,/deckViewBeforeThreshold = world\.measureSuccessorDeckVisibility/);
-  assert.match(scene,/deckViewAfterThreshold\.originalCapBlockedBodyRays>deckViewBeforeThreshold\.originalCapBlockedBodyRays/);
-  assert.match(scene,/deckViewAfterThreshold\.originalCapBlockedGatewayRays>deckViewBeforeThreshold\.originalCapBlockedGatewayRays/);
-  assert.match(scene,/deckViewAfterThreshold\.gatewayBlockedRays>deckViewBeforeThreshold\.gatewayBlockedRays/);
-  assert.match(scene,/deckViewAfterThreshold\.bodyBlockedRays>deckViewBeforeThreshold\.bodyBlockedRays/);
-  assert.match(scene,/deckViewAfterThreshold\.score>deckViewBeforeThreshold\.score/);
+  // The final camera now shares ONE strict live-geometry veto rather than
+  // five scattered field comparisons, and it includes the historical gallery.
+  assert.match(scene,/if\(!sourceThreeSubjectRaySafe\(\s*deckViewBeforeThreshold,deckViewAfterThreshold\)\)/);
+  assert.match(scene,/sourceThreeSubjectPhysicalGain\(\s*deckViewBeforeThreshold,currentRays\)/);
+  const source=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/physical-threshold-shot.mjs'),'utf8');
+  for(const field of ['bodyBlockedRays','gatewayBlockedRays',
+    'originalCapBlockedBodyRays','originalCapBlockedGatewayRays',
+    'originalGalleryBlockedBodyRays','originalGalleryBlockedGatewayRays',
+    'architectureBlockedRays','score'])
+    assert.match(source,new RegExp("'"+field+"'"),
+      'do not drop real physical sightline veto: '+field);
   const reveal=scene.indexOf('world.revealGuardianSightlines(camera,guardianSightPoints);');
   const finalLook=scene.lastIndexOf('camera.lookAt(lookAt);',reveal);
   const finalMatrices=scene.lastIndexOf('camera.updateMatrixWorld(true);',reveal);

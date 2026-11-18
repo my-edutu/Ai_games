@@ -330,7 +330,12 @@ test('old-cap sightline is owned by the genuine retained F8 deck and the final c
   assert.match(world,/originalCapSightlineRoot:root/);
   assert.match(world,/originalCapRoot:held\.originalCapSightlineRoot/);
   assert.match(scene,/deckViewBeforeThreshold = world\.measureSuccessorDeckVisibility/);
-  assert.match(scene,/originalCapBlockedBodyRays>deckViewBeforeThreshold\.originalCapBlockedBodyRays/);
+  assert.match(scene,/sourceThreeSubjectRaySafe\(\s*deckViewBeforeThreshold,deckViewAfterThreshold\)/);
+  const physical=fs.readFileSync(path.resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/physical-threshold-shot.mjs'),'utf8');
+  assert.match(physical,/'originalCapBlockedBodyRays'/);
+  assert.match(physical,/'originalGalleryBlockedBodyRays'/);
+  assert.match(scene,/sourceThreeSubjectPhysicalGain\(\s*deckViewBeforeThreshold,currentRays\)/);
 });
 
 
