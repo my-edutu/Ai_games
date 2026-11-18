@@ -12,6 +12,19 @@ for(const width of [1024,390]){
   await page.setContent(html);
   await page.waitForFunction(()=>window.__tinyKingdom?.renderStats()?.lastFrameTriangles>0,
     null,{timeout:150000});
+  // W434 observe the actual open founded-house street elevation at Day 1
+  // before advancing precisely the SAME authoritative world 120 days.
+  await page.evaluate(()=>{
+   const game=window.__tinyKingdom;
+   const home=game.getInhabitedSkylineAudit().lots.find(h=>
+    !h.compact&&(h.style===1||h.style===3));
+   if(home)game.setCamera({yaw:Math.PI,pitch:.30,zoom:6.2,
+    focus:[home.x,home.z]});
+  });
+  await page.waitForTimeout(900);
+  const earlyRoot=path.resolve(__dirname,'../../artifacts/tiny-kingdom-w433');
+  fs.mkdirSync(earlyRoot,{recursive:true});
+  await page.screenshot({path:path.join(earlyRoot,width+'-W434-real-Day1-open-threshold.png')});
   const api=await page.evaluate(()=>{
    const game=window.__tinyKingdom;game.setSpeed(0);
    const initial=game.exportSnapshot();

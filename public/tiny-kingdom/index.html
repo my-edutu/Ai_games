@@ -10963,6 +10963,21 @@ function getCompactRainCaskAudit(){
   reclaimedTriangles:n*27,completeStavesPerButt:6,
   residentInExistingHouseVbo:true,noInventedWaterStock:true};
 }
+// W434 Phase-1: a common actual doorway clearance for BOTH founded and
+// grown homes. Roof bays may shelter window niches but may not build an
+// opaque cantilever through the existing resident's open threshold.
+// These measurements change only the retained visual mesh, not navigation.
+function planOriginalOpenThreshold(width,doorWidth=.76){
+ if(!Number.isFinite(width)||!Number.isFinite(doorWidth)||
+    width<2||doorWidth<.6||doorWidth>=width)
+  throw Error('W434 original house dimensions invalid');
+ const halfClear=Math.max(.48,doorWidth*.5+.10);
+ const halfOuter=width*.43;
+ if(halfOuter-halfClear<.35)
+  throw Error('W434 street-side roof bay cannot clear real doorway');
+ return {halfClear,halfOuter,clearWidth:halfClear*2,doorWidth,
+  sideBayWidth:halfOuter-halfClear,untouchedHomeFootprint:true};
+}
 function compactBurgageFrontage(x,z,variant,y,w,d,h,roofStyle){
  const first=data.length,front=z-d*.5-.35,wall=z-d*.5-.10;
  const timber=rgb([0x654936,0x594739,0x69513f,0x57483a][roofStyle]);
@@ -10989,16 +11004,25 @@ function compactBurgageFrontage(x,z,variant,y,w,d,h,roofStyle){
   }
  });
  if(roofStyle===0||roofStyle===2){
-  const outer=front-.16,inner=wall+.10,low=y+1.64,high=y+1.93;
-  materialScope(MATERIAL.ROOF,()=>{
-   quad([x-.83,low,outer],[x,high,outer],[x,high,inner],[x-.83,low,inner],roof);
-   quad([x,high,outer],[x+.83,low,outer],[x+.83,low,inner],[x,high,inner],roof);
-  });
-  materialScope(MATERIAL.WOOD,()=>{
-   tri([x-.80,low-.025,outer-.014],[x+.80,low-.025,outer-.014],
-     [x,high-.025,outer-.014],timber);
-   box(x,high-.035,front-.02,.09,.08,.75,sill);
-  });
+  // W434 physically clear compact portal: TWO genuinely roofed side bays
+  // protect the oak window/porch posts but leave the REAL .76m entrance and
+  // the roof-to-floor interior sightline entirely open from the street.
+  // Replaces the former solid roof triangle and centre-spanning fascia.
+  const opening=planOriginalOpenThreshold(w);
+  const outer=front-.16,inner=wall+.10,low=y+1.78,high=y+1.98;
+  for(const side of [-1,1]){
+   const near=x+side*opening.halfClear,far=x+side*opening.halfOuter;
+   materialScope(MATERIAL.ROOF,()=>{
+    quad([near,high,inner],[far,high,inner],
+     [far,low,outer],[near,low,outer],roof);
+   });
+   materialScope(MATERIAL.WOOD,()=>{
+    quad([near,low-.025,outer-.013],[far,low-.025,outer-.013],
+     [far,low+.033,outer-.013],[near,low+.033,outer-.013],timber);
+    tri([far,low-.028,outer],[far,high-.027,inner],
+     [far-side*.095,high-.027,inner],sill);
+   });
+  }
  }
  villageVisualLod.compactPorchFrames++;
  // One roof-water cask at the back corner, INSIDE the house's original
@@ -11199,15 +11223,25 @@ function medievalStreetMorphology(x,z,variant,index,isCompact){
   });
   streetMorphologyStats.crossGables++;
  }else{
-  // A small real canopy rather than painted shop decals or a new obstacle.
-  const e=y+(h>2.5?1.70:1.44);
-  materialScope(MATERIAL.ROOF,()=>{
-   quad([x-w*.36,e+.37,face+.05],[x+w*.36,e+.37,face+.05],
-        [x+w*.36,e+.07,front-.46],[x-w*.36,e+.07,front-.46],roof);
-  });
-  materialScope(MATERIAL.WOOD,()=>{
-   box(x,e+.025,front-.45,w*.72,.075,.09,timber);
-  });
+  // W434 actual original threshold: no spanning central canopy. The former
+  // wide low roof and thick oak fascia obscured the real open room in 390px
+  // street views. Two narrow, structurally braced side shelters flank that
+  // passage. They live in the SAME one-time cached original cottage VBO.
+  const opening=planOriginalOpenThreshold(w);
+  const e=y+(h>2.5?2.04:1.90),outer=front-.39,root=face+.04;
+  for(const side of [-1,1]){
+   const near=x+side*opening.halfClear,far=x+side*opening.halfOuter;
+   materialScope(MATERIAL.ROOF,()=>{
+    quad([near,e+.19,root],[far,e+.19,root],
+     [far,e-.055,outer],[near,e-.055,outer],roof);
+   });
+   materialScope(MATERIAL.WOOD,()=>{
+    quad([near,e-.095,outer-.014],[far,e-.095,outer-.014],
+     [far,e-.015,outer-.014],[near,e-.015,outer-.014],timber);
+    tri([far,e-.095,outer],[far,e+.19,root],
+     [far-side*.12,e+.19,root],lit);
+   });
+  }
   streetMorphologyStats.shopCanopies++;
  }
  // Sparse fixed guild/trade signboards communicate use, never fake commerce.
