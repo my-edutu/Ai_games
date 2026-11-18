@@ -1075,7 +1075,13 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
    licensedPitchSafe83ms||licensedPitchSafe133ms||licensedPitchSafe150ms;
   // Retain real source knee bend and TRUE outsole pitch. A deeper
   // penetrating toe is never exchanged for an airborne, higher heel.
-  if(lift<(licensedPitchSafeSourceWindow?.016:Math.max(.02,depth*.20))||lift>.095||
+  // The second genuine 150ms source skin returned only 15.722mm of toe
+  // lift, while its independently measured heel lag made the actual
+  // pitch SAFER. Keep the 16mm floor for the prior 83/133ms bands;
+  // spend the lower 15mm floor on the exact 150ms three-joint witness only.
+  const sourcePitchMinLift=licensedPitchSafe150ms?.015:
+   licensedPitchSafeSourceWindow?.016:Math.max(.02,depth*.20);
+  if(lift<sourcePitchMinLift||lift>.095||
    lift-heelRise<-.002||Math.abs(heelRise)>.055||
    shoe.toeY>floorTopY+.045||
    shoe.heelY-floorTopY<.08||shoe.heelY-floorTopY>.37||
