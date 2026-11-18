@@ -7198,3 +7198,71 @@ test('RED: native 390px sparse Walking_A swing may spend the existing two probes
  assert.match(renderer,/sourceCoupledKneeFootProof:/,
   'final independently reskinned source shoe and original pose restoration still decide');
 });
+
+
+// RED-first from actual original-GLB mobile source nine-tick artifact
+// #14393368969, Actions #44225650486, tick 8, \`Walking_A\`.
+// Original left heel +.208156m, toe -.089333m; opposite heel -.012581m,
+// toe -.007856m. Reversible signed hip -.11, knee +.11, foot +.24rad
+// recovered .017084m at the toe versus .016091m at an airborne heel,
+// unlike the earlier rejected heel-dominant knee-only candidate.
+// The source artifact only gives XZ SHIFT MAGNITUDES for that candidate,
+// so the absolute XZ coordinates below are explicitly reconstructed
+// test fixtures; genuine post-application skinned WebGL proof remains due.
+test('RED: original 390px 83.4ms three-joint source shoe earns a verified 17mm pitch-safe recovery',async()=>{
+ const {chooseOriginalSourceCoupledKneeFootSweep:choose}=await load();
+ const swing={heelY:.20815623663711696,toeY:-.08933309078888432,
+  heelXZ:[0,0],toeXZ:[.058059805872674355,0]};
+ const support={heelY:-.012580875373613413,toeY:-.007855528298167894,
+  heelXZ:[0,.20],toeXZ:[.25,.20]};
+ const after=(toeGain=.017083877208129497,heelGain=.016091267010991617,
+  supportHeelGain=0)=>({
+  left:{heelY:swing.heelY+heelGain,toeY:swing.toeY+toeGain,
+   heelXZ:[.004205932154052585,0],
+   toeXZ:[.058059805872674355+.01639818633486303,0]},
+  right:{...support,heelY:support.heelY+supportHeelGain}
+ });
+ const source={
+  mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceChainVerified:true,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceFootTrackVerified:true,sourceBindVerified:true,
+  sourceAnatomicalFootAxisVerified:true,ownerLocomotion:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,rootTravel:.016437051794493396,frameAge:0,
+  frameInterval:.08340000000000103,side:'left',floorTopY:-.02,
+  before:{left:swing,right:support},
+  starter:{source:'actual-original-source-three-joint-swing-opportunity',
+   expectedSourceSkinnedTrials:2,contactLocked:false,sign:-1,
+   excessHeelRiseMeters:.0074533383051460095}
+ };
+ const measured={upperRad:-.11,lowerRad:.11,footRad:.24,after:after()};
+ const chosen=choose({...source,trials:[measured]});
+ assert.equal(chosen?.source,'measured-original-skinned-coupled-knee-foot',
+  'real 17.08mm toe lift and 16.09mm airborne-heel rise improves source sole pitch');
+ assert.equal(chosen.sourceJointCount,3);
+ assert.ok(Math.abs(chosen.toeLiftMeters-.017083877208129497)<1e-9);
+ assert.ok(chosen.toeLiftMeters-chosen.sourceHeelRiseMeters>.0009);
+ assert.equal(chosen.contactLocked,false);
+ assert.equal(chosen.oppositeShoePreserved,true);
+ for(const bad of [
+  {mode:'hurt'},{sourceClipName:'Idle'},{sourceWeight:.8},
+  {sourceInstanceSame:false},{sourceChainVerified:false},
+  {sourceUpperTrackVerified:false},{sourceLowerTrackVerified:false},
+  {sourceFootTrackVerified:false},{sourceBindVerified:false},
+  {sourceAnatomicalFootAxisVerified:false},
+  {ownerLocomotion:false},{alive:false},{visible:false},
+  {teleport:true},{reducedMotion:true},{interrupted:true},
+  {rootTravel:0},{frameAge:.16},{frameInterval:.25}
+ ])assert.equal(choose({...source,...bad,trials:[measured]}),null,
+  'no unwitnessed, interrupted, inaccessible or dead source pose');
+ for(const bad of [
+  {...measured,footRad:.30},
+  {...measured,after:after(.014,.011)},
+  {...measured,after:after(.017083877208129497,.019)},
+  {...measured,after:after(.017083877208129497,.016091267010991617,.005)}
+ ])assert.equal(choose({...source,trials:[bad]}),null,
+  'no generic angle, trivial toe gain, worse sole pitch or moving loaded shoe');
+ assert.equal(choose({...source,frameInterval:.20,trials:[measured]}),null,
+  '83ms original-source band must not license a distant frame cadence');
+});
