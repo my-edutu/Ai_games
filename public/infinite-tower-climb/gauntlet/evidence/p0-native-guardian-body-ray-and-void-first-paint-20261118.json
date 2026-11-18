@@ -394,5 +394,35 @@
       "noForcePush": true,
       "noUnrelatedGameChanges": true
     }
+  },
+  "p0SourceBoundFirstOriginalVoidBearingGalleryRetirement20261118": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "branch": "feat/tower-transformation-gauntlet-20261101",
+    "pr": 68,
+    "prDraft": true,
+    "basePr": 58,
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "precedingCandidateSha": "8c9e4fc53273f9054cc37bad589f6144ac541cab",
+    "precedingCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44234827434",
+    "precedingQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44234827437",
+    "exactPrecedingResults": "8/8 unedited original videos and authentic-ledge pass; strict 0/2 native event pairs; 9/10 quality jobs, unrelated Phase6 Maze timeout. Overall gates FAIL.",
+    "observedFootageDefect": "At 960x600 first Floor9 HUD to sustained recognisable Void approx 1.25s; at 390x844 approx 2.00s. Original 3D bronze gallery/rails remain across the real hero/gateway and walkable successor for several first-return frames.",
+    "sourceTimeMeasurements": "First-source-F9 accepted->renderer return 556ms desktop/476ms portrait; CPU world rebuild 113.2ms/100.6ms, renderer-return 107.3ms/100.0ms (GitHub Chromium software-WebGL only, not device p95 or causal baseline).",
+    "implementation": "Make the original already-submitted source-earned Void rear bearings a separate first-return owner. Count only actual source-matched, visible-attached real THREE group after successful renderer return; after >=3 real returns, true guardian HP-zero, real supported far-side body and eased old gallery <=16%, retire only detached non-colliding old Clockwork gallery. Preserve actual F8 open guardian gate, collision-aligned cap, F9 platforms and obstacles, hero and simulation.",
+    "implementationSourcePin": "Candidate immutable github.sha of THIS commit; new capture request triggers the nine-job original film workflow.",
+    "proposedCapture": "UNVERIFIED — new exact-source 9-job candidate/frozen baseline campaign triggered by this commit; do not pre-claim completion.",
+    "tests": [
+      "tests/phase3/tower-first-return-bearing-gallery-retirement.test.cjs",
+      "tests/phase3/tower-original-gallery-source-gpu-retirement.test.cjs"
+    ],
+    "independentReviews": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "deviceFrameTimeAndMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Inspect exact-commit desktop and portrait original 1x full-motion with decoded native PTS and source events; count real first-bearing GPU receipts, old gallery exit and two co-visible hero/HP-open guardian gateway/walkable F9 raster frames. If still masked, correct original F8 cap/gate camera geometry and first-shaft composition; do not advance P1.",
+    "safety": "No modification to frozen transformation.json or PR58, no unrelated games, no merge/deploy/force-push, keep PR68 draft"
   }
 }

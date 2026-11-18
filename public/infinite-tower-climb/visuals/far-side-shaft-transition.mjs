@@ -501,3 +501,52 @@ export function observedReturnedGalleryHandoffClearance(source,held,job) {
     maxOpacity:0,
     limitation:'Actual supported crossing plus two returned original F9-shaft frames; a renderer return is NOT independently checked pixel visibility'};
 }
+
+
+// P0: release the obsolete non-colliding Clockwork gallery based on the
+// ORIGINAL Void bearing that was actually attached and returned in the FIRST
+// source-earned F9 scene, rather than waiting for two further costly
+// post-crossing structural-shaft WebGL uploads. The HP-open bronze door, cap,
+// walkable F9 platforms, crushers and source authority are never affected.
+// Three returned WebGL frames and a substantially faded old gallery make
+// retirement gradual; a source packet, fake first-frame flag or a bare F9 HUD
+// cannot claim a rendered replacement. Not native-pixel/visibility proof.
+export function observedFirstReturnedVoidBearingGalleryRetirement(source, held, job, originalBearing) {
+  const clearance=observedEarnedGalleryExitClearance(source, held);
+  const root=originalBearing?.root;
+  if(clearance?.sourceBound!==true || clearance.maxOpacity>.16 ||
+      !held?.originalGalleryRoot?.isGroup ||
+      held.originalGalleryRoot.visible!==true ||
+      !Array.isArray(held.originalGalleryRoot.children) ||
+      held.originalGalleryRoot.children.length===0 ||
+      !job || job.runToken!==source.runToken || job.floor!==9 ||
+      job.proof!=='recorded-source-gateway' ||
+      job.structureDeferred!==true ||
+      job.actualFirstFrameVoidBearings!==true ||
+      job.entireIncomingVoidCoreDeferred!==false ||
+      !Number.isSafeInteger(job.sourceTick) ||
+      job.sourceTick>source.tick ||
+      !Number.isSafeInteger(job.submittedFrames) ||
+      !Number.isSafeInteger(job.firstBearingReturnedFrames) ||
+      job.firstBearingReturnedFrames<3 ||
+      job.firstBearingReturnedFrames>job.submittedFrames ||
+      job.submittedFrames>30 ||
+      !Number.isSafeInteger(held.submittedFrames) ||
+      job.firstBearingReturnedFrames>held.submittedFrames ||
+      originalBearing.runToken!==source.runToken ||
+      originalBearing.coreDrawn!==true ||
+      originalBearing.coreDeferred!==false ||
+      root?.isGroup!==true ||
+      root.name!=='SourceEarnedVoidLandingBearingFrame' ||
+      root.visible!==true ||
+      root.parent?.name!=='floor:9:void' ||
+      !Array.isArray(root.children) || root.children.length===0 ||
+      !root.children.some(child=>child.isMesh || child.children?.length>0))
+    return null;
+  return {
+    sourceBound:true, sourceTick:source.tick, galleryOnly:true,
+    originalBearingReturnedFrames:job.firstBearingReturnedFrames,
+    maxOpacity:0,
+    limitation:'Three successful source-matched real Three.js first-bearing returns and a separately grounded/flight-proven corridor; not native pixels or an independent visual verdict'
+  };
+}

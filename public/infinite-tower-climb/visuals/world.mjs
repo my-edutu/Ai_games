@@ -12,7 +12,7 @@ import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePre
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, createSourceEarnedVoidDepartureMaterials, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections, isolateEarnedFirstFrameVoidMaterials } from './source-earned-bearing-run.mjs';
-import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold, observedSourceEarnedEarlyVoidShaftAperture, observedSourceSupportedVoidFirstPaint, observedEarnedGalleryExitClearance, observedReturnedGalleryHandoffClearance } from './far-side-shaft-transition.mjs';
+import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold, observedSourceEarnedEarlyVoidShaftAperture, observedSourceSupportedVoidFirstPaint, observedEarnedGalleryExitClearance, observedReturnedGalleryHandoffClearance, observedFirstReturnedVoidBearingGalleryRetirement } from './far-side-shaft-transition.mjs';
 import { chooseSourceEarnedFirstReturnInstancing } from './source-earned-first-return-instancing.mjs';
 
 
@@ -3618,7 +3618,17 @@ export function createTowerWorld(){
     // remain separate, never culled or granted phantom physics.
     const returnedGalleryExit=!options.stale
       ?observedReturnedGalleryHandoffClearance(snapshot,held,deferredDistantArrival):null;
-    if(returnedGalleryExit?.sourceBound===true)
+    // Previous normal-speed 1x films kept tall old bronze braces over the
+    // REAL new floor until several costly later Void-shaft submissions. The
+    // first returned Void core already provides authentic destination mass.
+    // Retire ONLY the extracted NON-COLLIDING gallery after its own material
+    // has eased below 16% AND three real first-bearing renderer returns.
+    // Keep the original opened guardian doorway and collision-aligned cap.
+    const firstBearingGalleryExit=!options.stale
+      ?observedFirstReturnedVoidBearingGalleryRetirement(
+        snapshot,held,deferredDistantArrival,stagedVoidArchitecture):null;
+    if(returnedGalleryExit?.sourceBound===true ||
+       firstBearingGalleryExit?.sourceBound===true)
       held.galleryExitClearedAlpha=0;
     if(Number.isFinite(held.galleryExitClearedAlpha))
       originalPresence=Math.min(originalPresence,held.galleryExitClearedAlpha);
@@ -3969,6 +3979,10 @@ export function createTowerWorld(){
       // Successfully returned frames in which the actual incoming original
       // shaft had nonzero material and was not culled from the 3D scene.
       structuralVisibleReturns:0,
+      // The already-authored first-return Void load-bearing group is drawn
+      // before every deferred full-shaft upload. Only real returned renders
+      // can increment this witness, not source packets or scene construction.
+      firstBearingReturnedFrames:0,
       // Measured duration of the last successful returned F9 frame.
       // Source/browser updates cannot advance this optical clock.
       lastReturnedDt:0,
@@ -4070,6 +4084,22 @@ export function createTowerWorld(){
         snapshot.lifecycle!=='running' || snapshot.runToken!==job.runToken ||
         snapshot.floor!==job.floor || key!==job.key ||
         snapshot.tick<job.sourceTick) return false;
+    // The original Void rear bearings were included in the FIRST cold
+    // Floor9 GPU submission, unlike the deferred monumental outer shell.
+    // Track attached, nonempty original geometry only AFTER the actual
+    // renderer returned, to allow safe handoff of obsolete bronze scenery.
+    // This is a draw-submission owner, NOT proof of raster visibility.
+    if(job.structureDeferred && job.proof==='recorded-source-gateway' &&
+       job.actualFirstFrameVoidBearings===true &&
+       job.entireIncomingVoidCoreDeferred===false &&
+       stagedVoidArchitecture?.runToken===snapshot.runToken &&
+       stagedVoidArchitecture?.root?.isGroup===true &&
+       stagedVoidArchitecture.root.name==='SourceEarnedVoidLandingBearingFrame' &&
+       stagedVoidArchitecture.root.visible===true &&
+       stagedVoidArchitecture.root.parent===floorGroup &&
+       stagedVoidArchitecture.root.children.length>0)
+      job.firstBearingReturnedFrames=Math.min(30,
+        job.firstBearingReturnedFrames+1);
     if(job.structureDeferred && job.structuralRoot?.visible===true &&
        job.structuralFade>.015)
       job.structuralVisibleReturns=Math.min(30,job.structuralVisibleReturns+1);
@@ -5458,6 +5488,8 @@ export function createTowerWorld(){
       sourceTick:deferredDistantArrival.sourceTick,
       state:deferredDistantArrival.state,
       structuralVisibleReturns:deferredDistantArrival.structuralVisibleReturns,
+      firstBearingReturnedFrames:deferredDistantArrival.firstBearingReturnedFrames,
+      firstReturnBearingQualifiesForGalleryClearance:deferredDistantArrival.actualFirstFrameVoidBearings===true && deferredDistantArrival.entireIncomingVoidCoreDeferred===false,
       firstRenderSubmitted:deferredDistantArrival.firstRenderSubmitted,
       submittedFrames:deferredDistantArrival.submittedFrames,
       proof:deferredDistantArrival.proof,
