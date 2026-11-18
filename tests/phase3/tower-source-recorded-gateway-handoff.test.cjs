@@ -151,7 +151,7 @@ test('first authentic Floor9 packet at source crossing tick retains the only ori
 test('first browser Floor9 packet may be a real early airborne jump after an unobserved but source-recorded grounded crossing',async()=>{
   const {observedRecordedGuardianAirborneHandoff,
     observedSourceEarnedAirborneHandoff,observedGroundedGuardianHandoff,
-    createTowerGuardianPassage}=await source;
+    observedFloorNineRunway,createTowerGuardianPassage}=await source;
   const THREE=await import('../../node_modules/three/build/three.module.js');
   const {pointFor}=await import('../../public/infinite-tower-climb/visuals/coordinates.mjs');
   const [w,next]=witnessed();
@@ -164,6 +164,8 @@ test('first browser Floor9 packet may be a real early airborne jump after an uno
   assert.equal(observedSourceEarnedAirborneHandoff(old,airborne),true);
   assert.equal(observedGroundedGuardianHandoff(old,airborne),false,
     'the CURRENT player is still airborne, not a forged grounded landing');
+  assert.ok(observedFloorNineRunway(old,airborne),
+    'the roof that actually supported the recorded crossing still exists during early source-authenticated flight');
   const passage=createTowerGuardianPassage(THREE);
   try{
     assert.equal(passage.begin(old,airborne,
@@ -172,8 +174,24 @@ test('first browser Floor9 packet may be a real early airborne jump after an uno
       'a true grounded SOURCE crossing continues visually into an airborne first browser frame');
     assert.equal(passage.diagnostics().innerDoorAssemblyVisible,true);
     assert.equal(passage.diagnostics().retainedOldCapPieces,12);
-    assert.equal(passage.diagnostics().inlayInheritedOldCapPieces,0,
-      'no fake grounded Floor9 footsteps may appear during an airborne observation');
+    const stage=passage.diagnostics();
+    assert.equal(stage.inlayInheritedOldCapPieces,4,
+      'actual old cap and successor roof are still a physically connected route below the airborne hero');
+    assert.equal(stage.supportedRouteEdgePieces,24);
+    assert.equal(stage.inlayMode,'successor-ground');
+    assert.ok(stage.inlayProgress < (airborne.player.x-stage.inlayFromX)/
+      (stage.inlayToX-stage.inlayFromX),
+      'the flight may show the real roof, but only the recorded grounded crossing earns tread illumination');
+    const storedProgress=stage.inlayProgress;
+    const continued={...airborne,tick:455,player:{...airborne.player,
+      x:airborne.player.x+6000,y:airborne.player.y+6000}};
+    assert.equal(passage.trackSuccessor(continued),true,
+      'validated early flight must not erase the physically existing source roof');
+    assert.equal(passage.diagnostics().inlayProgress,storedProgress,
+      'airborne x motion is not new grounded footsteps');
+    assert.equal(passage.trackSuccessor({...continued,tick:464}),false,
+      'expired recorded crossing cannot keep a misleading old-floor trail');
+    assert.equal(passage.diagnostics().supportedRouteEdgePieces,0);
   }finally{passage.dispose();}
   assert.equal(JSON.stringify(airborne),saved);
   for(const candidate of [
