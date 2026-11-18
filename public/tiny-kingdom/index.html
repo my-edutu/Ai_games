@@ -12690,9 +12690,9 @@ function livedAdultGarmentProfile(p,idx,rig){
  const identity=medievalCitizenIdentity(p,idx);
  const stride=rig.traveling?Math.sin(p.phase*2.7):0;
  const labor=rig.working?Math.max(-.6,Math.min(.6,rig.acting.lean||0)):0;
- const shoulder=.256+(idx%3)*.011+identity.shoulder*.78;
+ const shoulder=.241+(idx%3)*.010+identity.shoulder*.72;
  const waist=.188+(idx%4)*.006+identity.waist*.72;
- const hem=.282+(idx%3)*.011+identity.hem*.72;
+ const hem=.258+(idx%3)*.009+identity.hem*.66;
  const drape=Math.max(-.042,Math.min(.042,.026*stride+.016*labor));
  return {shoulder,waist,hem,drape,role:p.job,
   fromRealGait:rig.traveling,fromRealLabor:rig.working};
@@ -12716,7 +12716,7 @@ function garmentProfile(p,idx,rig){
   panelCount:8,surfaceTriangles:104,hemSway:sway,
   clothMotion:realWorkcoatMotion(p,rig),
   rings:[
-   {y:p.job==='merchant'?.36:.42,rx:fit.hem,rz:.242+(idx%3)*.006,z:sway},
+   {y:p.job==='merchant'?.42:.46,rx:fit.hem,rz:.222+(idx%3)*.006,z:sway},
    {y:.62,rx:fit.waist+.019,rz:.188,z:sway*.52},
    {y:.79,rx:fit.waist,rz:.180,z:sway*.25},
    {y:1.02,rx:fit.shoulder,rz:.204,z:0},
@@ -12801,7 +12801,7 @@ function tailoredGarment(x,y,z,size,cloth,trim,profile){
  const top=rings[rings.length-1],center=[x,y+top.y*size,z];
  for(let i=0;i<n;i++)tri(center,shell[shell.length-1][i],
   shell[shell.length-1][i+1],shade(cloth,.92));
- const hem=rings[0],hemBand={...hem,y:.465,rx:hem.rx*.99,rz:hem.rz*.99};
+ const hem=rings[0],hemBand={...hem,y:.515,rx:hem.rx*.99,rz:hem.rz*.99};
  const beltLow={y:.685,rx:rings[1].rx*.955,rz:rings[1].rz*.97,z:rings[1].z};
  const beltHigh={y:.755,rx:rings[2].rx*1.035,rz:rings[2].rz*1.04,z:rings[2].z};
  const hemShell=verticesFor(hemBand),beltLowShell=verticesFor(beltLow),
@@ -13046,7 +13046,7 @@ function renderRealVillageWorkwear(p,index,x,y,z,size,rig,cloth,compact){
   const physical=realWorkcoatMotion(p,rig);
   const gait=physical.stride*2.2, labor=physical.lean;
   const rings=[
-   {y:.365,rx:fit.hem,rz:.241,d:fit.drape+.010*gait,pleat:.027},
+   {y:.445,rx:fit.hem,rz:.221,d:fit.drape+.010*gait,pleat:.027},
    {y:.600,rx:fit.waist+.018,rz:.180,d:fit.drape*.58,pleat:.013},
    {y:.975,rx:fit.shoulder,rz:.204,d:fit.drape*.17,pleat:.008},
    {y:1.170,rx:.150,rz:.131,d:0,pleat:0}
@@ -13075,7 +13075,7 @@ function renderRealVillageWorkwear(p,index,x,y,z,size,rig,cloth,compact){
       normals[band][panel],normals[band][panel+1],
       normals[band+1][panel+1],normals[band+1][panel],
       shade(cloth,1+((panel%3)-1)*.075-(band===0?.06:0)));
-   const hem={...rings[0],y:.435,rx:rings[0].rx*.98,rz:rings[0].rz*.98};
+   const hem={...rings[0],y:.497,rx:rings[0].rx*.98,rz:rings[0].rz*.98};
    const hemShell=verticesFor(hem,0);
    for(let panel=0;panel<8;panel++)
     quad(shell[0][panel],shell[0][panel+1],
@@ -13088,7 +13088,7 @@ function renderRealVillageWorkwear(p,index,x,y,z,size,rig,cloth,compact){
  if(['farmer','gatherer','builder','craftsperson'].includes(p.job)){
   const linen=rgb(p.job==='craftsperson'?0x94745d:
    p.job==='builder'?0xb6a087:p.job==='farmer'?0xc6b493:0xa8a28b);
-  const top=y+.77*size,bottom=y+.395*size;
+  const top=y+.77*size,bottom=y+.452*size;
   const fold=(cx,cy,depth)=>[x+cx*size,cy,
    z+(depth+sway*(1-(cy-y)/(.77*size)))*size];
   const ul=fold(-.18,top,.260),um=fold(0,top,.269),ur=fold(.18,top,.260),
@@ -13376,7 +13376,7 @@ function turnCitizenHead(first,last,x,y,z,size,pose){
 // W33 physical weight is applied during the existing citizen rotation pass.
 // Never walk the already-large dynamic mesh a second time per frame.
 const CITIZEN_HEAD_ANATOMY=Object.freeze({
- headVerticalScale:.50,headHorizontalScale:.76,neckPivot:1.37,
+ headVerticalScale:.54,headHorizontalScale:.68,neckPivot:1.26,
  unscaledCrown:1.735,unscaledJaw:1.185,totalBodyHeight:1.735,
  compactAndDetailed:true
 });
@@ -13641,10 +13641,10 @@ function compactVillager(p){
      .18*s,.10*s,.29*s,boots,leg);
    tagWorkSkinRange(j+2,from);
    from=data.length;
-   taperedMedievalLimb(joint(arm.shoulder),joint(arm.elbow),.106*s,.076*s,cloth,4);
+   taperedMedievalLimb(joint(arm.shoulder),joint(arm.elbow),.095*s,.068*s,cloth,4);
    tagWorkSkinRange(j+3,from);
    from=data.length;
-   taperedMedievalLimb(joint(arm.elbow),joint(arm.wrist),.076*s,.053*s,cloth,4);
+   taperedMedievalLimb(joint(arm.elbow),joint(arm.wrist),.068*s,.050*s,cloth,4);
    tagWorkSkinRange(j+4,from);
    // The authentic work hand follows the SAME two-bone IK wrist and GPU bone.
    // Do not spend fingers on a human too small to read at projected far LOD.
@@ -13761,11 +13761,11 @@ for(let sideIndex=0;sideIndex<2;sideIndex++){
  tagWorkSkinRange(j+2,from);
  from=data.length;
  taperedMedievalLimb(worldJoint(arm.shoulder),worldJoint(arm.elbow),
-  .115*size,.084*size,c,6);
+  .099*size,.073*size,c,6);
  tagWorkSkinRange(j+3,from);
  from=data.length;
  taperedMedievalLimb(worldJoint(arm.elbow),worldJoint(arm.wrist),
-  .084*size,.061*size,c,6);
+  .073*size,.053*size,c,6);
  tagWorkSkinRange(j+4,from);
  from=data.length;
  renderArticulatedHand(worldJoint(arm.wrist),size,skin,sideIndex===0?-1:1,p);
@@ -21994,6 +21994,14 @@ function emitStreetCargo(p,x,y,z,size){
    }
   });
  }
+ // W444 real economic actor: the AUTHENTIC loaded two-wheeled cart above
+ // already displays the courier's entire escrowed physical shipment. The old
+ // second full body-mounted sack duplicated the SAME cargo and made the
+ // documented Day-8 harvester look like two floating shipping boxes.
+ // Never fake or double count visible goods; keep the separate legitimate
+ // off-delivery workday witness below. All original worker IK and cart wheels
+ // still move on their real, authority-backed route and receipt timeline.
+ if(p.delivery)return;
  if(unloading&&!stillLoaded)return;
  // W365 physical courier reconstruction: original screenshot showed a
  // large rigid oak BOX affixed to every real walking citizen's back. That

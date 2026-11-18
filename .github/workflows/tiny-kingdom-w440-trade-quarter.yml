@@ -5,6 +5,7 @@ on:
     paths:
       - 'public/tiny-kingdom/index.html'
       - 'scripts/tiny-kingdom-w443-architecture-atlas-worker-contract.cjs'
+      - 'scripts/tiny-kingdom-w444-real-courier-silhouette-contract.cjs'
       - 'tests/browser/tiny-kingdom-w440-trade-quarter.test.cjs'
       - 'tests/browser/tiny-kingdom-w440-trade-quarter.spec.cjs'
       - '.github/workflows/tiny-kingdom-w440-trade-quarter.yml'
@@ -31,6 +32,7 @@ jobs:
           node-version: '22'
           cache: npm
       - run: node --test scripts/tiny-kingdom-w443-architecture-atlas-worker-contract.cjs
+      - run: node --test scripts/tiny-kingdom-w444-real-courier-silhouette-contract.cjs
       - run: node --test tests/browser/tiny-kingdom-w440-trade-quarter.test.cjs
       - run: npm ci --no-audit --no-fund
       - run: npm run build
