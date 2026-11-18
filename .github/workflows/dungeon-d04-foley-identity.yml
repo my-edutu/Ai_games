@@ -104,6 +104,7 @@ jobs:
             tests/foundation/dungeon-d04-original-pcm-onset-proof.test.cjs \
             tests/foundation/dungeon-d04-original-stereo-capture.test.cjs \
             tests/foundation/dungeon-d04-stereo-stem-decoder.test.cjs \
+            tests/foundation/dungeon-d04-extended-stereo-decoder.test.cjs \
             tests/foundation/dungeon-d04-stale-submission-visual-retirement.test.cjs \
             tests/foundation/dungeon-d04-revoked-drawn-pose-retirement.test.cjs \
             tests/foundation/dungeon-d04-hp-hidden-visual-sound-only.test.cjs \
