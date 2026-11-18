@@ -4595,6 +4595,7 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
  stageOriginalSourceSwingLinkedToesAfterMixer(actor,reducedMotion);
  stageOriginalSourceSwingLinkedFootAfterMixer(actor,reducedMotion);
  stageOriginalSourceStanceSlideAfterMixer(actor,reducedMotion,sourceFrameInterval,sourceFrameVisible);
+ rememberOriginalSourceAppliedSwingEvidence(actor);
  if(actor.draperyPanels?.length){
   const clothAction=actor.fullBody?.mode??actor.u.action??'idle';
    const clothAge=actor.fullBody?.holding||actor.fullBody?.owner.injury||actor.fullBody?.owner.evasion?poseAge:since;
@@ -5117,6 +5118,51 @@ function stageOriginalSourceSwingLinkedFootAfterMixer(actor,reducedMotion){
   actor.sourceLinkedFootAcceptedFrames=Math.min(1000000,
    (actor.sourceLinkedFootAcceptedFrames||0)+1);
   mark(side,'accepted-original-linked-foot-skin-clearance');
+ }
+}
+
+// Sparse rAF sampling repeatedly missed the actual accepted original
+// hip/knee/foot frame (currentFrameProofs resets on the next Mixer tick).
+// Retain ONE bounded read-only LAST-ACCEPTED receipt from the already
+// independently source-skinned heel/toe chain, AFTER toe/foot finishers and
+// the optional loaded-stance stage. This is historical evidence, never a
+// current-frame pose, world-space lock, acceptance of contact or extra skin.
+function rememberOriginalSourceAppliedSwingEvidence(actor){
+ if(actor.fullBody?.mode!=='move'||actor.activeImportedClipName!=='Walking_A'||
+  actor.u?.hp<=0||!actor.assetRoot?.uuid||
+  actor.root?.visible!==true||actor.locomotionTeleport||
+  actor.fullBody?.interrupted)return;
+ const finite=Number.isFinite;
+ for(const side of ['left','right']){
+  const proof=actor.sourceSwingLinkedCurrentFrameProofs?.[side];
+  const other=side==='left'?'right':'left';
+  const b=proof?.before?.[side],a=proof?.after?.[side],
+   lb=proof?.before?.[other],la=proof?.after?.[other];
+  if(!proof||proof.sourceInstanceId!==actor.assetRoot.uuid||
+   proof.sourceClip!=='Walking_A'||proof.originalSourceContactLocked!==false||
+   ![b?.toeY,b?.heelY,a?.toeY,a?.heelY,
+     lb?.toeY,lb?.heelY,la?.toeY,la?.heelY].every(finite)||
+   a.toeY<=b.toeY||
+   Math.abs(la.toeY-lb.toeY)>.003||
+   Math.abs(la.heelY-lb.heelY)>.003)continue;
+  actor.sourceSwingLinkedLastAppliedEvidence={
+   source:'last-original-source-skinned-pose-not-a-foot-plant',
+   sourceInstanceId:proof.sourceInstanceId,sourceClip:'Walking_A',
+   side,acceptedCount:actor.sourceSwingLinkedAcceptedFrames||0,
+   finalToeY:a.toeY,finalHeelY:a.heelY,
+   priorToeY:b.toeY,priorHeelY:b.heelY,
+   toeLiftMeters:a.toeY-b.toeY,heelDeltaMeters:a.heelY-b.heelY,
+   relativeSolePitchGainMeters:(a.toeY-b.toeY)-(a.heelY-b.heelY),
+   remainingToeBurialMeters:Math.max(0,-.02-a.toeY),
+   loadedHeelDeltaMeters:la.heelY-lb.heelY,
+   loadedToeDeltaMeters:la.toeY-lb.toeY,
+   sourceWeight:proof.witnessedSourceWeight??null,
+   frameIntervalSeconds:proof.witnessedFrameIntervalSeconds??null,
+   witnessedRootTravelMeters:proof.witnessedRootTravelMeters??null,
+   footBone:proof.sourceFootBone??null,
+   sourceTrack:proof.sourceFootTrack??null,
+   lastAcceptedHistorical:true,contactLocked:false,plantedCertified:false
+  };
  }
 }
 
@@ -5691,6 +5737,7 @@ function inspectSourceRigDeformation(actors){
      sourceSwingSourceWindowLast:actor.sourceSwingSourceWindowLast??null,
      sourceSwingLinkedLastProbe:actor.sourceSwingLinkedLastProbe??null,
      sourceSwingLinkedAcceptedFrames:actor.sourceSwingLinkedAcceptedFrames||0,
+     sourceSwingLinkedLastAppliedEvidence:actor.sourceSwingLinkedLastAppliedEvidence??null,
   sourceSwingLoadedCompanionProbeFrames:actor.sourceSwingLoadedCompanionProbeFrames||0,
   sourceSwingLoadedCompanionAcceptedFrames:actor.sourceSwingLoadedCompanionAcceptedFrames||0,
      sourceLinkedFootCurrentFrameProofs:actor.sourceLinkedFootCurrentFrameProofs??null,

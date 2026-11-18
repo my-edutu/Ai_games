@@ -806,6 +806,40 @@ for(const view of [
     skinnedShoes:t.sourceSolePatchWorld??null}))},null,2))
  });
 
+ // Historical accepted source-pose receipts survive sparse browser reads,
+ // but never masquerade as a current-frame foot plant. The native receipt
+ // comes from REAL accepted source-skinned same-GLB both-shoe vertices.
+ for(const frame of trace){
+  const owner=frame.nativeLegOwnership;
+  const count=owner?.sourceSwingLinkedAcceptedFrames??0;
+  const last=owner?.sourceSwingLinkedLastAppliedEvidence;
+  if(count>0){
+   expect(last,'accepted original full-leg pose needs durable evidence').toBeTruthy();
+   expect(last.source).toBe('last-original-source-skinned-pose-not-a-foot-plant');
+   expect(last.lastAcceptedHistorical).toBe(true);
+   expect(last.sourceClip).toBe('Walking_A');
+   expect(last.sourceInstanceId).toBe(frame.sourceId);
+   expect(last.acceptedCount).toBeGreaterThanOrEqual(1);
+   expect(last.acceptedCount).toBeLessThanOrEqual(count);
+   expect(last.toeLiftMeters).toBeGreaterThan(0);
+   expect(last.remainingToeBurialMeters).toBeGreaterThanOrEqual(0);
+   expect(Math.abs(last.loadedHeelDeltaMeters)).toBeLessThanOrEqual(.003001);
+   expect(Math.abs(last.loadedToeDeltaMeters)).toBeLessThanOrEqual(.003001);
+   expect(last.contactLocked).toBe(false);
+   expect(last.plantedCertified).toBe(false);
+  }
+ }
+ await test.info().attach('historical-final-source-skinned-leg-pose',{
+  contentType:'application/json',
+  body:Buffer.from(JSON.stringify({viewport:view.name,headSha:process.env.GITHUB_SHA??null,
+   acceptance:'NOT a planted foot or fluent-animation acceptance',
+   frames:trace.map(t=>({tick:t.tick,sourceId:t.sourceId,
+    currentSourceClip:t.nativeLegOwnership?.clipName??null,
+    acceptedFrames:t.nativeLegOwnership?.sourceSwingLinkedAcceptedFrames??0,
+    lastApplied:t.nativeLegOwnership?.sourceSwingLinkedLastAppliedEvidence??null
+   }))},null,2))
+ });
+
  // The three-joint licensed Idle/Walking_A escape was previously excluded
  // for an actual 57.8mm buried source toe by a 60mm threshold. Preserve
  // BOTH the attempted genuine source probes and any independently skinned
