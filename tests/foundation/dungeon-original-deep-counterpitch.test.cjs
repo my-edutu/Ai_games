@@ -797,3 +797,83 @@ test('RED: second real 150ms source-skinned Vanguard gait may keep its measured 
  ])assert.equal(choose({...source,starter,trials:[bad]}),null,
   'reject heel-dominant swing, missing source toe gain, changed loaded shoe or angle');
 });
+
+
+// 18 Nov 2026 exact source-GLB WebGL #44248326551, mobile original
+// Walking_A tick 8, 16.7ms, original player_swordsman 41-joint skeleton:
+// true right toe=-86.793739mm, heel=+213.931391mm, stone top=-20mm.
+// The REAL four both-shoe trials were:
+// initial -90/+75mrad hip/knee: toe +17.452mm, heel +23.074mm (worse pitch);
+// connected -110/+110mrad plus +340mrad foot: toe +16.391mm,
+// heel +5.956mm (pitch improves 10.435mm), supporting shoe unchanged.
+// Trial after still buries the toe 50.403mm. NO plant/IK/visible pass.
+// Raw source XZ shift *magnitudes* are real (6.942mm/33.476mm);
+// below anchors are expressly reconstructed to match source 306.363mm
+// shoe length; do NOT present XZ as captured world-patch positions.
+test('RED-first: real 16.7ms original 390px three-joint source pitch rescue is eligible only after two-shoe skin proof',async()=>{
+ const {planOriginalSourceCoupledFootStarter:planStarter,
+  chooseOriginalSourceCoupledKneeFootSweep:choose}=await load();
+ const right={toeY:-.08679373932033976,heelY:.21393139128936753,
+  heelXZ:[0,0],toeXZ:[.05850465751282023,0]};
+ const left={heelY:-.013333799403240202,toeY:-.023269049880951482,
+  heelXZ:[1,0],toeXZ:[1.27,0]};
+ const after=(toeLift,heelRise,toeShift=0,heelShift=0,support=left)=>({
+  right:{...right,toeY:right.toeY+toeLift,heelY:right.heelY+heelRise,
+   heelXZ:[heelShift,0],toeXZ:[right.toeXZ[0]+toeShift,0]},
+  left:{...support}
+ });
+ const fixture={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceInstanceId:'source-vanguard-original',
+  sourceChainVerified:true,sourceUpperTrackVerified:true,
+  sourceLowerTrackVerified:true,sourceFootTrackVerified:true,
+  sourceBindVerified:true,sourceAnatomicalFootAxisVerified:true,
+  ownerLocomotion:true,alive:true,visible:true,teleport:false,
+  reducedMotion:false,interrupted:false,previousLinkedCertified:false,
+  rootTravel:.03903010841073806,frameAge:.06670000000000087,
+  frameInterval:.01670000000000016,side:'right',floorTopY:-.02,
+  before:{left,right},starterTrials:[
+   {upperRad:.09,lowerRad:-.075,
+    after:after(-.011672830917331359,-.02546005908684526)},
+   {upperRad:-.09,lowerRad:.075,
+    after:after(.017451502406568065,.02307390102883622)}
+  ]};
+ const starter=planStarter(fixture);
+ assert.equal(starter?.sign,-1,
+  'source GLB actual heel-dominant starter must be witnessed');
+ assert.ok(Math.abs(starter.excessHeelRiseMeters-.005622398622268154)<1e-9);
+ const selected={upperRad:-.11,lowerRad:.11,footRad:.34,
+  after:after(.016391183796119813,.0059564415093493195,
+   .033476051339980425,.00694196583952994)};
+ const result=choose({...fixture,starter,trials:[selected]});
+ assert.equal(result?.source,'measured-original-skinned-coupled-knee-foot');
+ assert.equal(result?.contactLocked,false);
+ assert.ok(result.afterToeY<fixture.floorTopY-.05,
+  'source toe remains deeply buried: never mislabel as foot plant');
+ assert.ok(result.toeLiftMeters-result.sourceHeelRiseMeters>.0104);
+ // This exception is NOT a generic permission to accept all 16mm toe lifts.
+ const worse={upperRad:-.11,lowerRad:.11,footRad:.28,
+  after:after(.01590877294175093,.01059473611325118,
+   .02475121987786443,.006632585046640077)};
+ assert.equal(choose({...fixture,starter,trials:[worse]}),null);
+ for(const unsafe of [
+  {frameInterval:.0333},{frameInterval:.025},
+  {sourceWeight:.8},{rootTravel:0},{frameAge:.18},
+  {sourceInstanceSame:false},{sourceFootTrackVerified:false},
+  {sourceBindVerified:false},{interrupted:true},{reducedMotion:true},
+  {teleport:true},{alive:false},{mode:'hurt'},
+  {sourceClipName:'Idle'}
+ ]) assert.equal(choose({...fixture,...unsafe,starter,trials:[selected]}),null,
+  'no stale, non-source or interrupted owner may use the GLB exception');
+ assert.equal(choose({...fixture,starter,trials:[{
+  ...selected,after:after(.016391183796119813,.020,
+   .033476051339980425,.00694196583952994)
+ }]}),null,'airborne heel dominance must not pass');
+ assert.equal(choose({...fixture,starter,trials:[{
+  ...selected,after:after(.016391183796119813,.0059564415093493195,
+   .033476051339980425,.00694196583952994,
+   {...left,toeY:left.toeY+.005})
+ }]}),null,'loaded original source shoe may not be lifted');
+ assert.equal(choose({...fixture,starter,trials:[{
+  ...selected,footRad:.35
+ }]}),null,'no guessed foot angle beyond measured source trial');
+});
