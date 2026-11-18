@@ -1277,6 +1277,30 @@
     },
     "actualDevicePerformanceAndMemory": "NOT EVALUATED",
     "nextAction": "Inspect exact new source-pinned native desktop+portrait 1x films around source crossing, seek actual body/open original gate/walkable F9 co-visible for two adjacent PTS frames; if not, rebuild the threshold camera/structural staging as one coherent source-grounded transition. Do not advance P1.",
-    "safety": "No frozen baseline edit, no PR58 write, no merge/deploy/force-push/draft conversion, no unrelated game edits."
+    "safety": "No frozen baseline edit, no PR58 write, no merge/deploy/force-push/draft conversion, no unrelated game edits.",
+    "newCandidateSourceSha": "6b9d926594343f372542281b7f93e82c1d111b97",
+    "completedNewOriginalRun": "https://github.com/my-edutu/Ai_games/actions/runs/44403631264",
+    "filmResult": "Completed 8/8 original unaltered 1x 25fps baseline/candidate 60+s clips and guardian source job, BUT pair-source-events FAILED 0/2 viewports; 10 jobs total, 9 passed, 1 failed. Verified by original 960x600 72.28s desktop and 390x844 72.40s portrait candidate danger film frames.",
+    "beforeAfterNativeTimeObservation": {
+      "priorDesktop": "F9 visible ~26.0s; first new-platform jump ~26.50s",
+      "newDesktop": "F9 visibly grounded ~26.0s through 27.0s, airborne ~27.25s",
+      "priorPortrait": "F9 visibly grounded ~26.0s; airborne ~26.25s",
+      "newPortrait": "F9 visibly grounded ~26.0–26.5s; airborne ~26.75s",
+      "interpretation": "The new source-owned 36-tick two-beat walk gives a visible longer ground beat, but original HP-open steel still not validated together with complete hero/true F9 destination in consecutive source-aligned WebM frames. The bronze-to-violet swap remains visually abrupt. Source event pair acceptance 0/2, so no P0 closure."
+    },
+    "twoDeterministicLocalSourceAudits": {
+      "checkedSha": "0e8003e4c703c0a0c21a4efd5dc993951b9efb0c",
+      "scripts": "node scripts/tower-guardian-source-witness.cjs (twice); node scripts/tower-campaign-audit.cjs",
+      "fixedStepHz": 20,
+      "stepsPerRun": 3200,
+      "deterministicExactReplay": true,
+      "fullSameRunSourceChainObserved": true,
+      "firstThreeSourceEpisodesComplete": true,
+      "finalEpisodeIncomplete": true,
+      "verdict": "COMPLETE_SOURCE_EPISODE_ONLY — not native-camera/video or gameplay acceptance"
+    },
+    "newVideoTimebase": "8/8 paired source-native transport offsets CALIBRATED, 0/2 visual event verification. Source provenance verified but visible native events not certified by original video.",
+    "requiredNextAction": "P0 architecture/shot continuity: inspect actual retained opened guardian gate and historic bronze shoulder plus Floor9 grounded actor camera at ~25.5–27.0 in BOTH original films; fix coherent old/new structural and camera ownership until original authentic three-subject framing is present in two PTS-adjacent source-matched frames. Do not treat increased ground time as a PASS.",
+    "currentTechnicalQuality": "Fresh exact-head workflow for syntax-corrected source test https://github.com/my-edutu/Ai_games/actions/runs/44403874397 still in progress at assessment; prior 6b9 quality failed because regression test had a JavaScript assertion-quote syntax error, subsequently corrected in 447f400c0fa4063bd97139c0731aa906dcde9817."
   }
 }
