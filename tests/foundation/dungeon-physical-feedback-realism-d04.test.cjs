@@ -248,9 +248,53 @@ test('verified HP fragments remain readable at a genuine 336ms frame, not after 
   assert.equal(reduced.emit(live),true);
   assert.ok([...accessible.scene.children][1].material.opacity<=.22);
   reduced.advance(.05,.336);
+  assert.equal(reduced.hasDrawableCue(live.id),true,
+   'verified reduced-motion HP loss remains drawable on a timely 336ms first frame');
+  reduced.advance(.064,.064);
   assert.equal(reduced.hasDrawableCue(live.id),false,
-   'reduced-motion intentionally retains its short non-animated injury alternative');
+   'the accessible cue still retires at 400ms, not beyond the sound deadline');
  }finally{reduced.dispose()}
+});
+
+test('verified reduced-motion injury retains a stationary victim-local pose through a 336ms first frame',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const fixture=three(),OriginalPose=fixture.T.Object3D;
+ fixture.T.Object3D=class extends OriginalPose{
+  updateMatrix(){this.matrix={x:this.position.x,y:this.position.y,z:this.position.z,
+   rx:this.rotation.x,ry:this.rotation.y,rz:this.rotation.z,scale:this.scale.x}}
+ };
+ const victim={id:'revenant',kind:'revenant',faction:'enemy',x:3,z:2,hp:14,maxHp:20};
+ const actual=cue({severity:.3,duration:.23,
+  detail:{damage:6,remainingHp:14,maxHp:20}});
+ const stage=createPhysicalFeedbackVisuals(fixture.T,fixture.scene,{
+  reducedMotion:true,reducedFlash:true,requireVerifiedHpReceipt:true,
+  getCurrentSnapshot:()=>({run:1,floor:1,tick:11,units:[victim]}),
+  actorById:id=>id===victim.id?{u:victim,root:{visible:true,
+   position:{x:-6,y:0,z:-7},rotation:{y:0}}}:null
+ });
+ const hit=[...fixture.scene.children][1];
+ const positionAndRotation=()=>hit.matrices.slice(0,4).map(
+  m=>({x:m.x,y:m.y,z:m.z,rx:m.rx,ry:m.ry,rz:m.rz}));
+ try{
+  assert.equal(stage.emit(actual),true,'only witnessed real HP loss may admit a chip');
+  const first=positionAndRotation();
+  assert.equal(first.length,4);
+  assert.ok(hit.material.opacity<=.22,'reduced flash must remain subdued');
+  stage.advance(.05,.336);
+  assert.equal(stage.hasDrawableCue(actual.id),true,
+   'a first frame at 336ms must keep the accessible injury visible');
+  assert.deepEqual(positionAndRotation(),first,
+   'reduced motion must not translate or spin victim-local injury fragments');
+  stage.advance(.05,.05);
+  assert.equal(stage.hasDrawableCue(actual.id),true,'386ms remains within the fixed window');
+  assert.deepEqual(positionAndRotation(),first,'no last-frame ballistic jump');
+  stage.advance(.014,.014);
+  assert.equal(stage.hasDrawableCue(actual.id),false,
+   'the exact 400ms boundary must clear the accessible HP cue');
+  assert.equal(stage.stats().active,0);
+  assert.equal(stage.stats().reservedInstances,102);
+  assert.ok(stage.stats().activeDrawCalls<=7);
+ }finally{stage.dispose()}
 });
 
 test('D04 real 373ms injury receipts keep ordinary and fatal body chips legible until the 400ms bound',async()=>{

@@ -952,6 +952,11 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   // This is not a delayed impact claim, an attacker inference or a new pool.
   const verifiedHpFirstFrameLife=type==='hit'&&requireVerifiedHpReceipt?
    Math.max(flightLife,.398):flightLife;
+  // A genuinely witnessed HP injury must survive a timely first WebGL frame
+  // even for reduced-motion viewers, but never extend the 400ms audio clock.
+  // Non-authoritative auditions and all non-injury cues keep shorter envelopes.
+  const reducedMotionLife=type==='hit'&&requireVerifiedHpReceipt?
+   .398:Math.min(.13,flightLife);
   // An actual HP drop identifies the victim, never an incoming blade.
   // Previously every tiny chip began INSIDE its chest mesh, where depth
   // testing obscured the first visible impact from most camera directions.
@@ -983,7 +988,7 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
     speed.vx=Math.cos(angle)*speedXZ;
     speed.vz=Math.sin(angle)*speedXZ;
    }
-   pool.slots[index]={cue,age:0,life:reducedMotion?Math.min(.13,flightLife):verifiedHpFirstFrameLife,
+   pool.slots[index]={cue,age:0,life:reducedMotion?reducedMotionLife:verifiedHpFirstFrameLife,
     origin:chipOrigin,
     end:flightDestination??(cell(cue.to)?world(cue.to,type==='spell'?1.23:1.19):null),
     priority:cue.priority??1,severity,fragment:speed,index,ordinal:i,
@@ -1044,11 +1049,15 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   }else if(p==='hit'||p==='dust'){
    // Stable ballistic micro-fragments; gravity and tumble stay cosmetic.
    // An unknown source never becomes a flying sword or fake attack direction.
-   const f=slot.fragment;
-   pose.position.set(origin.x+f.vx*slot.age,
-    origin.y+f.vy*slot.age-1.45*slot.age*slot.age,
-    origin.z+f.vz*slot.age);
-   pose.rotation.set(f.spin*slot.age,f.spin*slot.age*.6,-f.spin*slot.age*.36);
+   // Motion-sensitive viewers retain a stationary victim-local fracture.
+   // Symmetric ballistic translation/tumble are normal-mode cosmetics only.
+   if(!reducedMotion){
+    const f=slot.fragment;
+    pose.position.set(origin.x+f.vx*slot.age,
+     origin.y+f.vy*slot.age-1.45*slot.age*slot.age,
+     origin.z+f.vz*slot.age);
+    pose.rotation.set(f.spin*slot.age,f.spin*slot.age*.6,-f.spin*slot.age*.36);
+   }
    // The three to five verified surface chips must register at low-resolution
    // stream scale without a billboard, camera adaptation, extra emitter or
    // artificial hit direction. Keep the precise body-centre witness quieter;
