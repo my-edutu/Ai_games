@@ -533,6 +533,7 @@ export function observedFirstReturnedVoidBearingGalleryRetirement(source, held, 
       job.submittedFrames>30 ||
       !Number.isSafeInteger(held.submittedFrames) ||
       job.firstBearingReturnedFrames>held.submittedFrames ||
+      !originalBearing ||
       originalBearing.runToken!==source.runToken ||
       originalBearing.coreDrawn!==true ||
       originalBearing.coreDeferred!==false ||

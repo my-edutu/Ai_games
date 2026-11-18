@@ -63,6 +63,8 @@ test('fake first-return flag, no real attached original 3D mesh or fewer success
     {...j,entireIncomingVoidCoreDeferred:true},
     {...j,sourceTick:s.tick+1}
   ])assert.equal(retire(s,h,variant,b),null);
+  assert.equal(retire(s,h,j,null),null,'missing original GPU bearing must fail closed');
+  assert.equal(retire(s,h,j,{}),null,'untrusted first-return metadata cannot retire bronze gallery');
   assert.equal(retire(s,{...h,submittedFrames:2},j,b),null);
   assert.equal(retire(s,{...h,visibleSeconds:.05},j,b),null);
   assert.equal(retire(s,{...h,originalGalleryRoot:{isGroup:true,children:[]}},j,b),null);

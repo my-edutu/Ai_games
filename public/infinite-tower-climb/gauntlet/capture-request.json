@@ -6356,6 +6356,7 @@
       "FEELS": "0/5",
       "PLAYS": "0/5"
     },
-    "actualHardware": "NOT EVALUATED"
+    "actualHardware": "NOT EVALUATED",
+    "sourceSafetyRevision": "Source branch HEAD of this latest request commit; original-bearing null owner fails closed; previously queued 95c candidate capture must not be advertised as exact new HEAD."
   }
 }
