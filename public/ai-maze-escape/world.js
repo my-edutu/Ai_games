@@ -1442,13 +1442,6 @@ export function createMazeWorld(options = {}) {
         && !pressureSightline && !guardianCourtCell && !guardianForecourtShoulder;
       if(guardianOuterCourtFloor)guardianOuterCourtFloorTiles++;
       const guardianCausewayAxis=guardianCourtCell?guardianCauseway.get(c.cell):null;
-      // Never override a genuinely disclosed moving pressure mechanism,
-      // live guardian performance, critical objective, or an actual stair.
-      // This is a physically connected, public two-room key detour only.
-      const treasureGalleryCourse=!pressureSightline&&!guardianCourtCell
-        &&!guardianForecourtShoulder&&!guardianOuterCourtFloor
-        &&!witnessedForeground&&!c.trap&&!c.blocked
-        ? treasureGallery.get(c.cell) : null;
       // Pass325: genuine 390px native rays prove the checkpoint-front terrace
       // stays beige even after Pass324's synthetic foreground test. A known
       // nearby pressure cell can mark this ordinary checkpoint tile as a
@@ -1458,6 +1451,13 @@ export function createMazeWorld(options = {}) {
       const witnessedForeground=guardianForeground.has(c.cell)
         && !guardianCourtCell && !guardianForecourtShoulder
         && !guardianOuterCourtFloor && c.trap!==true;
+      // Never override a genuinely disclosed moving pressure mechanism,
+      // live guardian performance, critical objective, or an actual stair.
+      // This is a physically connected, public two-room key detour only.
+      const treasureGalleryCourse=!pressureSightline&&!guardianCourtCell
+        &&!guardianForecourtShoulder&&!guardianOuterCourtFloor
+        &&!witnessedForeground&&!c.trap&&!c.blocked
+        ? treasureGallery.get(c.cell) : null;
       // A discovered moving Tide-Shear needs an actual *continuous* stage,
       // not another carpet of tiny floor glyphs. Unite only surrounding
       // already-published ordinary walkable tiles into a quiet mineral apron.
