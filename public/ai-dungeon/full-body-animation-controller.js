@@ -4196,7 +4196,7 @@ export function verifyOriginalSourceLoadedPelvisFootWitness({
  */
 export function planOriginalSourceLoadedPelvisSupport({
  mode='idle',sourceClipName='',sourceWeight=NaN,ownerLocomotion=false,
- rootTravel=NaN,frameAge=NaN,alive=true,visible=true,
+ rootTravel=NaN,frameAge=NaN,frameInterval=.016,alive=true,visible=true,
  teleport=false,reducedMotion=false,interrupted=false,
  floorTopY=NaN,floorEvidence='',
  left=null,right=null,previousLiftMeters=0
@@ -4205,11 +4205,12 @@ export function planOriginalSourceLoadedPelvisSupport({
   !finite(sourceWeight)||sourceWeight<.5||sourceWeight>1||
   ownerLocomotion!==true||alive!==true||visible!==true||
   teleport||reducedMotion||interrupted||
-  ![rootTravel,frameAge,floorTopY,previousLiftMeters].every(finite)||
+  ![rootTravel,frameAge,frameInterval,floorTopY,previousLiftMeters].every(finite)||
   rootTravel<=.003||rootTravel>.54||frameAge<0||frameAge>.18||
+  frameInterval<.008||frameInterval>.24||
   floorEvidence!=='authored-cube-floor-top'||
   Math.abs(floorTopY+.02)>.003||
-  previousLiftMeters<0||previousLiftMeters>.01601)return null;
+  previousLiftMeters<0||previousLiftMeters>.02401)return null;
  if(!left||!right||![left.heelY,left.toeY,right.heelY,right.toeY].every(finite))
   return null;
  const feet={left,right};
@@ -4223,11 +4224,17 @@ export function planOriginalSourceLoadedPelvisSupport({
  for(const [side,foot] of qualified){
   const beforeWorst=Math.max(Math.abs(foot.heelY-floorTopY),
    Math.abs(foot.toeY-floorTopY));
-  const ideal=Math.max(0,Math.min(.016,floorTopY-(foot.heelY+foot.toeY)/2));
-  // A real 8mm-per-displayed-frame ceiling avoids a sudden 16mm whole-body
-  // jump when the native 41-joint source foot enters its loaded stroke.
-  const lift=clamp(ideal,Math.max(0,previousLiftMeters-.008),
-   Math.min(.016,previousLiftMeters+.008));
+  const ideal=Math.max(0,Math.min(.024,floorTopY-(foot.heelY+foot.toeY)/2));
+  // The genuine 390px licensed GLB has 200ms visible moving frames with a
+  // buried two-point support shoe. A fixed 8mm/frame rule leaves the loaded
+  // foot below the floor even when the FULL original 41-joint frame had
+  // time for a slow, supported pelvis transfer. Preserve 8mm at 60Hz;
+  // spend at most 24mm total (<=.125m/s extra beyond 16ms) only for an
+  // independently witnessed sparse frame. Real final weighted BOTH-shoe
+  // skinned vertices still decide whether this whole-body lift is retained.
+  const frameBudget=Math.min(.024,.008+Math.max(0,frameInterval-.016)*.125);
+  const lift=clamp(ideal,Math.max(0,previousLiftMeters-frameBudget),
+   Math.min(.024,previousLiftMeters+frameBudget));
   if(lift<=.00001)continue;
   const afterHeel=foot.heelY+lift,afterToe=foot.toeY+lift;
   const afterWorst=Math.max(Math.abs(afterHeel-floorTopY),
