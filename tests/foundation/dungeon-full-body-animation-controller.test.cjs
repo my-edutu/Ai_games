@@ -7347,6 +7347,6 @@ test('RED: licensed loaded pelvis uses real displayed interval for bounded two-s
  ])assert.equal(plan({...base,...invalid}),null,
   'cannot manufacture pelvis support outside genuine source/sole owner');
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
- assert.match(model,/frameInterval:actor\\.rigSourceSwingFrameInterval/,
+ assert.match(model,/frameInterval:actor\.rigSourceSwingFrameInterval/,
   'the live original GLB must pass its real display interval to the planner');
 });
