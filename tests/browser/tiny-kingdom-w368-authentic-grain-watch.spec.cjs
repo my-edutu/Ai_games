@@ -58,6 +58,9 @@ for(const profile of [
     checksum:g.exportSnapshot().checksum,
     watchText:document.getElementById('world-watch-life').textContent,
     supplyOpen:!document.getElementById('world-supply-trail').hidden,
+    proof:g.getGrainProofStripAudit(),
+    compactProofVisible:!document.getElementById('grain-live-strip').hidden&&
+     getComputedStyle(document.getElementById('grain-live-strip')).display!=='none',
     overflow:Math.max(0,document.documentElement.scrollWidth-innerWidth)};
   });
   expect(after.audit.active,'The camera did not enter the real grain documentary').toBe(true);
@@ -75,10 +78,20 @@ for(const profile of [
   }
   expect(after.checksum,'A spectator click changed authoritative simulation').toBe(before.beforeChecksum);
   expect(after.overflow).toBe(0);
-  if(profile.viewport.width===390)expect(after.supplyOpen,
-   'Portrait documentary must not open an obstructing supply ledger').toBe(false);
-  else expect(after.supplyOpen,
-   'Desktop must expose the real five-stage ledger').toBe(true);
+  // W423: the original film exposes the genuine parcel in a COMPACT
+  // five-stage stage strip on BOTH viewports; the full source ledger is
+  // always opt-in to keep real 3D citizens unobstructed. The older desktop
+  // auto-expansion assertion contradicted W403 voluntary evidence design.
+  expect(after.supplyOpen,
+   'Unrequested full ledger must never cover the actual farmer at either viewport')
+   .toBe(false);
+  expect(after.compactProofVisible,
+   'The original visible real-parcel proof should replace the old caption')
+   .toBe(true);
+  expect(after.proof.visible).toBe(true);
+  expect(after.proof.producer).toBe(after.audit.producer);
+  expect(after.proof.steps.length).toBe(5);
+  expect(after.proof.changesAuthority).toBe(false);
   await page.waitForTimeout(1200);
   await page.screenshot({path:path.join(output,profile.name+'-real-grain-follow.png')});
   const second=await page.evaluate(()=>window.__tinyKingdom.getRealGrainJourneyAudit());
