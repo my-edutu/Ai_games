@@ -723,6 +723,31 @@ for(const view of [
  for(const frame of trace){
   const fade=frame.nativeLegOwnership?.originalRealTravelFade;
   if(!fade)continue;
+  // Exact original 41-joint source witness: desktop tick 6 in
+  // #44279466514 returned 0.391305 Walking_A weight even after the
+  // actor genuinely travelled 19.641mm across a 500ms displayed frame.
+  // The code may accelerate only a NEW verified Idle -> Walking_A fade,
+  // not the licensed source clip's distance-paced knee/foot keyframes.
+  const witnessedSourceGap=fade.sourceClipName==='Walking_A'&&
+   fade.previousSourceClipName==='Idle'&&fade.seconds===.23&&
+   fade.interrupted===false&&fade.witnessedRootMovement===true&&
+   fade.rootTravelMeters>=.012&&fade.rootTravelMeters<=.08&&
+   fade.frameIntervalSeconds>=.25&&fade.frameIntervalSeconds<=.65&&
+   fade.rootTravelMeters/fade.frameIntervalSeconds>=.02&&
+   fade.rootTravelMeters/fade.frameIntervalSeconds<=.2;
+  if(witnessedSourceGap&&frame.nativeLegOwnership?.clipName==='Walking_A'){
+   const proof=frame.nativeLegOwnership.originalWalkFadeLastProof;
+   expect(proof?.source,'must reflect the REAL post-mixer source clip, not a suggested fade')
+    .toBe('actual-original-Idle-Walking_A-same-frame-mixer');
+   expect(proof.sourceFirstFrameOnly).toBe(true);
+   expect(proof.originalContactLocked).toBe(false);
+   expect(proof.witnessedRootTravelMeters).toBeCloseTo(fade.rootTravelMeters,5);
+   expect(proof.originalRequestedFadeSeconds).toBe(.23);
+   expect(proof.actualMixerDeltaSeconds).toBeCloseTo(.23,5);
+   expect(proof.appliedWalkingActionScale*proof.actualMixerDeltaSeconds)
+    .toBeCloseTo(proof.originalSourceStepSeconds,5);
+   expect(proof.originalPostMixerWeight).toBeGreaterThan(.98);
+  }
   expect(fade.syntheticContact).toBe(false);
   expect(fade.contactLocked).toBe(false);
   expect([.09,.12,.23]).toContain(fade.seconds);
