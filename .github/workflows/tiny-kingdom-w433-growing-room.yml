@@ -1,0 +1,47 @@
+name: Tiny Kingdom W433 Grown House Physical Settlement
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'tests/browser/tiny-kingdom-w433-growing-room.test.cjs'
+      - 'tests/browser/tiny-kingdom-w433-growing-room.spec.cjs'
+      - '.github/workflows/tiny-kingdom-w433-growing-room.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w433-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  retained-grown-town-and-autonomy:
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feat/tiny-kingdom-post-main-gauntlet-20261031' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 32
+    env:
+      CI: '1'
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Genuine original grown-home source RED to GREEN contract
+        run: node --test tests/browser/tiny-kingdom-w433-growing-room.test.cjs
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Real grown town and physical rooms at 1024 and 390 pixels
+        run: npx playwright test tests/browser/tiny-kingdom-w433-growing-room.spec.cjs --workers=1 --reporter=line
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w433-original-growing-room
+          path: |
+            artifacts/tiny-kingdom-w433/
+            test-results/
+          if-no-files-found: warn
+          retention-days: 14
