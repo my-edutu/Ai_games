@@ -58,3 +58,20 @@ test('RED: real original source rAF cadence is measurable without inventing rend
  assert.equal(bad.observedCallbackFps,null);
  assert.equal(measure(null,8,'vanguard').comparablePairs,0);
 });
+
+
+test('RED: passive original rAF source ID must come from the live GLB binding, never copied from a prior audit',()=>{
+ const fs=require('node:fs'),path=require('node:path');
+ const root=path.resolve(__dirname,'../..');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const browser=fs.readFileSync(path.join(root,'tests/browser/dungeon-full-body-animation.spec.cjs'),'utf8');
+ const binding=renderer.match(/sourceClipBindings:authored\.slice\(0,6\)\.map\(a=>\(\{[\s\S]*?\}\)\)/)?.[0]??'';
+ assert.match(binding,/sourceInstanceId:a\.assetRoot\?\.uuid\?\?null/,
+  'original source clone UUID must be read directly from each live source binding');
+ const passive=browser.slice(browser.indexOf('async function captureOriginalPassiveRafCadence('),
+  browser.indexOf('async function captureOriginalRafSourceFrames('));
+ assert.match(passive,/sourceInstanceId:clip\?\.sourceInstanceId\?\?null/,
+  'each observed rAF callback must use its own source binding UUID, never a pre-audit constant');
+ assert.doesNotMatch(passive,/sourceInstanceId,\s*visible:/,
+  'a copied source ID would fabricate same-clone evidence throughout the sample');
+});
