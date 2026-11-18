@@ -4967,11 +4967,24 @@ function rebuildArchitectureAtlas(){
     if(edge<.038)shade=-.43;
     else if(edge<.095)tone+=.12;
     tone+=.06*Math.sin(x*.37+y*.16);
+     // w421HandQuarried: each genuine stone course wears unequal hand-cut
+     // joints, chiselled edges and different mineral grain in the SAME atlas.
+     const handCut=archHash(Math.floor(bx),row,17);
+     const chipped=archHash(x>>2,y>>2,12);
+     tone+=.09*(handCut-.5)-.052*(chipped>.91?1:0);
+     if(edge<.029+.018*handCut)shade-=.075;
    }else if(kind===3){ // oak long-grain, separate hand-cut planks
     const plank=fx*8,edge=Math.min(plank%1,1-plank%1);
     const knots=Math.sin(y*.24+x*.09+Math.sin(y*.02)*2.9);
     tone+=.14*knots+.09*grain;
     if(edge<.022)shade=-.27;
+     // w421OakHeartwood: real oak annual grain curves around individual knots.
+     const plankId=Math.floor(plank);
+     const knotX=(plankId+.27+.30*archHash(plankId,3,8))/8;
+     const knotY=.25+.5*archHash(plankId,7,8);
+     const oakRing=Math.hypot((fx-knotX)*17,(fy-knotY)*3);
+     tone+=.095*Math.sin(oakRing*9.8)*Math.exp(-oakRing*.85);
+     if(oakRing<.16)tone-=.19;
    }else if(kind===4){ // irregular fired-clay overlapping roof tiles
     const row=Math.floor(fy*13),by=fy*13-row;
     const across=fx*9+(row%2)*.5,ax=across-Math.floor(across);
@@ -4981,11 +4994,18 @@ function rebuildArchitectureAtlas(){
     else if(by>.77)tone+=.09;
     const patina=archHash(x>>3,y>>3,kind);
     tone-=patina>.80?.10:0;
+     // w421ClayRoof: imperfect hand-fired tile camber and kiln-to-kiln pigment.
+     const clayCamber=Math.sin(Math.PI*ax)*Math.sin(Math.PI*by);
+     tone+=.14*(clayCamber-.4)+.16*(archHash(Math.floor(across),row,17)-.5);
+     if(edge<.043)shade-=.08;
    }else if(kind===5){ // trowelled limewash, vertical rain runoff
     const wash=Math.sin(fx*18.+Math.sin(fy*15.)*.7);
     tone+=.07*wash+.09*grain;
     tone-=.22*Math.max(0,Math.sin(fx*52.+fy*1.5))*
      Math.max(0,(fy-.42));
+     // w421Limewash: fine trowelled lime aggregate and worn lower courses.
+     const limeAggregate=archHash(x>>2,y>>2,17)-.5;
+     tone+=.094*limeAggregate-.028*Math.max(0,fy-.68);
    }else if(kind===6){ // woven linen for surviving market canopy assets
     tone+=.10*Math.sin(x*.55)*Math.sin(y*.61)+.09*grain;
    }else{ // forged iron with subdued beaten metal speckle
@@ -14437,9 +14457,32 @@ function grainwardTradehouseEnvelope(stall,index,profile){
    }
   });
  }
+ // W421 originalMarketCasementCount: actual glazed upper windows on the TWO
+ // existing trading houses receive true outward-folded oak shutters, stone
+ // sills and hand-fitted lintels. The public buyer aisle stays fully open.
+ // This is the SAME retained static civic VBO; no forged stock, agents or roads.
+ materialScope(MATERIAL.WOOD,()=>{
+  const oak=rgb(index===0?0x805e43:0x735d49),
+   edge=rgb(index===0?0xb4976d:0x9f8a76),iron=rgb(0x57544b);
+  for(const side of [-1,1]){
+   const cx=x+side*.52,front=z+face*.953,sill=front+face*.080;
+   box(cx,y+2.303,sill,.68,.078,.18,edge);
+   box(cx,y+2.821,sill,.66,.082,.14,oak);
+   for(const hinge of [-1,1]){
+    const leafX=cx+hinge*.324;
+    box(leafX,y+2.56,front+face*.025,.117,.43,.057,oak);
+    box(leafX,y+2.763,front+face*.08,.135,.036,.048,edge);
+    box(leafX,y+2.357,front+face*.08,.135,.036,.048,edge);
+    box(leafX,y+2.56,front+face*.087,.022,.24,.020,iron);
+   }
+   for(const post of [-1,1])
+    box(cx+post*.265,y+2.56,sill,.052,.49,.07,oak);
+  }
+ });
+ marketQuarterStats.originalMarketCasementCount+=4;
  const triangles=(data.length-first)/30;
- if(!Number.isInteger(triangles)||triangles<100||triangles>800)
-  throw Error('W196 tradehouse geometry budget exceeded');
+ if(!Number.isInteger(triangles)||triangles<100||triangles>1150)
+  throw Error('W421 original tradehouse geometry budget exceeded');
  marketQuarterStats.tradehouseShells++;
  marketQuarterStats.tradehouseTriangles+=triangles;
  marketQuarterStats.tradehouseWindows+=2;
@@ -14868,6 +14911,7 @@ function marketQuarter(){
  marketQuarterStats={artisanShells:0,artisanShellTriangles:0,
   artisanShellWallPanels:0,artisanShellJoinery:0,
   tradehouseShells:0,tradehouseTriangles:0,tradehouseWindows:0,
+  originalMarketCasementCount:0,
   stalls:0,pavingStones:0,mortarTriangles:0,signboards:0,
   wovenCanopyFacets:0,wovenCanopyStitches:0,wovenCanopyLashings:0,
   reworkedBooths:0,tileRoofs:0,canvasRoofs:0,timberBraces:0,
