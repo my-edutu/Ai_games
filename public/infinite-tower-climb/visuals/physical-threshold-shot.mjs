@@ -1,3 +1,6 @@
+import { pointFor } from './coordinates.mjs';
+import { observedSourceFloorNineRouteSupport, observedSourceOriginalVisibilityWindow } from './source-physical-arrival-palette.mjs';
+
 // One final physically measured camera arbitration for the SAME source-earned
 // old bronze gateway and the actually drawn living climber. This scores real
 // projected body/door positions, not game ticks, a cosmetic fade or CI success.
@@ -82,4 +85,123 @@ export function sourceDeckGatewayClearanceCandidates(aspect, actualDeckRays) {
       actualDeckRays.bodyBlockedRays+actualDeckRays.gatewayBlockedRays===0)
     return null;
   return aspect<.85 ? PORTRAIT_SOURCE_CLEARANCE : DESKTOP_SOURCE_CLEARANCE;
+}
+
+// Three-subject COLD Floor8 guardian -> Floor9 walkway composition.
+// Unlike a colored HUD, the third subject is a point on the ACTUAL already
+// authored walkable f9:ground mesh beyond the genuine HP-zero gateway.
+// This ONLY informs the real follow camera. No platform, future footfall,
+// doorway, collision, source tick, AI decision or player position is made.
+export function observedSourceWalkableCrossfloorShot(source, held) {
+  const p=source?.player, w=source?.lastGuardianCrossing;
+  if(source?.lifecycle!=='running' || source.floor!==9 ||
+      source.theme!=='void' || !(p?.health>0) ||
+      !Array.isArray(source.platforms) ||
+      !held || held.guardianGateRetained!==true ||
+      held.floor!==9 || held.oldCapId!=='f8:cap' ||
+      held.runToken!==source.runToken ||
+      typeof source.runToken!=='string' || !source.runToken ||
+      !observedSourceOriginalVisibilityWindow(source,held)?.sourceBound ||
+      ![source.tick,source.chunkBaseY,source.worldWidth,
+        held.sourceTick,held.thresholdX,held.oldRoofY,
+        held.oldCapX,held.oldCapWidth,p.x,p.y,p.halfWidth,p.halfHeight]
+        .every(Number.isSafeInteger) ||
+      source.worldWidth<=0 || held.oldCapWidth<=0 ||
+      p.halfWidth<=0 || p.halfHeight<=0 ||
+      held.thresholdX!==held.oldCapX+Math.floor(held.oldCapWidth*.76))
+    return null;
+  // A published but contradictory guardian crossing must always veto a
+  // lower-authority historical camera receipt.
+  if(w!=null) {
+    const cap=w.cap, guardian=w.guardian;
+    if(w.runToken!==source.runToken || w.fromFloor!==8 || w.toFloor!==9 ||
+       cap?.id!=='f8:cap' || cap.x!==held.oldCapX ||
+       cap.width!==held.oldCapWidth ||
+       cap.y+cap.height!==held.oldRoofY ||
+       w.exitX!==held.thresholdX ||
+       !Number.isSafeInteger(w.sourceTick) ||
+       w.sourceTick!==held.crossingTick ||
+       source.tick<w.sourceTick ||
+       guardian?.kind!=='guardian' || guardian.active!==false ||
+       !Number.isFinite(guardian.health) || guardian.health>0)
+      return null;
+  } else if(held.verifiedObservedFloorAdvance!==true ||
+      held.crossingTick!=null || source.tick-held.sourceTick>12)
+    return null;
+  const ground=source.platforms.find(deck=>deck?.id==='f9:ground');
+  if(!ground || ![ground.x,ground.y,ground.width,ground.height]
+        .every(Number.isSafeInteger) ||
+      ground.width<=0 || ground.height<=0 ||
+      ground.y+ground.height!==held.oldRoofY ||
+      !observedSourceFloorNineRouteSupport(source,ground,held.oldRoofY))
+    return null;
+  // This shot is for the ACTUAL just-crossed old sill. Do not drag the lens
+  // backward during the later authentic jump to f9:p2 or a distant ascent.
+  const soles=p.y-p.halfHeight;
+  if(soles<held.oldRoofY-2500 || soles>held.oldRoofY+22000 ||
+      Math.abs(p.x-held.thresholdX)>90000)return null;
+  const nearest=Math.max(held.thresholdX+p.halfWidth+2000,
+    ground.x+p.halfWidth+2000);
+  const farthest=ground.x+ground.width-p.halfWidth-2000;
+  if(nearest>farthest || farthest>source.worldWidth ||
+      nearest<0)return null;
+  // This is existing grounded corridor geometry just ahead of the living
+  // climber, not an invented player destination or simulated landing.
+  const x=Math.max(nearest,Math.min(farthest,p.x+20000));
+  const world=pointFor(x,held.oldRoofY,source.chunkBaseY,
+    source.worldWidth,25);
+  if(![world.x,world.y,world.z].every(finite))return null;
+  return {sourceBound:true,sourceTick:source.tick,platformId:ground.id,
+    anchorX:x,world:[world.x,world.y+.2,world.z],
+    limitation:'Actual post-guardian walkable F9 roof point only; projection is not painted/native video evidence'};
+}
+
+function validWalkableNdc(ndc) {
+  return Array.isArray(ndc) && ndc.length===3 &&
+    ndc.every(finite) && ndc[2]>=-1 && ndc[2]<=1;
+}
+// If the genuine third physical subject was already legible, camera repairs
+// for two other subjects must not throw it outside the same safe screen.
+// The caller independently verifies real core/triangle paths and can only
+// invoke this with a source-earned anchor, never a guessed targetPlatform.
+export function sourceWalkableCrossfloorProjectionHeld(before,after) {
+  if(!validWalkableNdc(before) || !validWalkableNdc(after))return false;
+  const overflowBefore=Math.max(0,Math.abs(before[0])-.72)+
+    Math.max(0,Math.abs(before[1])-.70);
+  const overflowAfter=Math.max(0,Math.abs(after[0])-.72)+
+    Math.max(0,Math.abs(after[1])-.70);
+  return Math.abs(after[0])<=.88 && Math.abs(after[1])<=.82 &&
+    overflowAfter<=overflowBefore+.035;
+}
+// A *third* source-authenticated subject can initiate a small reversible
+// gaze correction even when the old gateway is already legible. This stops
+// the camera treating a visible bronze arch and player over featureless air
+// as a completed physical arrival. Existing real-geometry rays must still
+// veto any candidate that re-hides the skinned actor or old gate.
+export function sourceWalkableCrossfloorFrameGain(
+    beforeHero,beforeDoor,beforeRoute,afterHero,afterDoor,afterRoute,
+    heroClear,doorClear,routeClear) {
+  if(![beforeHero,beforeDoor,afterHero,afterDoor].every(valid) ||
+     !validWalkableNdc(beforeRoute) || !validWalkableNdc(afterRoute) ||
+     heroClear!==true || doorClear!==true || routeClear!==true ||
+     afterHero[3]<.055 ||
+     Math.abs(afterHero[0])+afterHero[3]*.12>=.82 ||
+     Math.abs(afterHero[1])+afterHero[3]>=.82 ||
+     Math.abs(afterDoor[0])+afterDoor[3]*.12>=.84 ||
+     Math.abs(afterDoor[1])+afterDoor[3]>=.84 ||
+     Math.abs(afterRoute[0])>=.90 || Math.abs(afterRoute[1])>=.83)
+    return 0;
+  const before=Math.max(0,Math.abs(beforeRoute[0])-.61)+
+    Math.max(0,Math.abs(beforeRoute[1])-.64);
+  const after=Math.max(0,Math.abs(afterRoute[0])-.61)+
+    Math.max(0,Math.abs(afterRoute[1])-.64);
+  const heroBefore=overflow(beforeHero,.61,.65);
+  const heroAfter=overflow(afterHero,.61,.65);
+  const gateBefore=overflow(beforeDoor,.60,.67);
+  const gateAfter=overflow(afterDoor,.60,.67);
+  if(before<.045 || after>before-.012 ||
+      heroAfter>heroBefore+.025 || gateAfter>gateBefore+.025)
+    return 0;
+  return Math.min(1,before-after+
+    (heroBefore-heroAfter)*.5+(gateBefore-gateAfter)*.5);
 }
