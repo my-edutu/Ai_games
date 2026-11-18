@@ -72,3 +72,63 @@ test('invalid sparse source toe motion never invents toe contact or an extra ani
   assert.equal(proposal,null,JSON.stringify(change)+' must not claim source toe trial');
  }
 });
+
+test('connected native toe-child candidate requires genuine post-mixer BOTH-shoe receipts before it can win',async()=>{
+ const m=await controller();
+ // BEFORE original licensed 390px Walking_A mobile frame (source-rig
+ // #14477439727); AFTER below is a *synthetic* reachable skinned-source
+ // contract fixture. It is NOT a claim that this pose was rendered.
+ const before={
+  left:{heelY:.22242287960120563,toeY:-.07759606115121545,
+   heelXZ:[-7.664535706275483,-6.873200425645406],
+   toeXZ:[-7.724593053808082,-6.875358909740754]},
+  right:{heelY:-.0030574266981496477,toeY:-.016939974035467348,
+   heelXZ:[-7.637298531970188,-7.031612574960136],
+   toeXZ:[-7.883080988889005,-7.146184025685571]}
+ };
+ const after={
+  left:{heelY:.2364,toeY:-.0340,heelXZ:[-7.661,-6.871],
+   toeXZ:[-7.722,-6.878]},right:{...before.right}
+ };
+ const trial={
+  upperRad:-.11,lowerRad:.14,footRad:.24,toeRad:-.32,after,
+  sourceAdaptiveToeCandidate:{
+   source:'verified-original-post-coupled-toe-hinge',
+   toeRad:-.32,derivativeMetersPerRad:-.08,
+   originalSourceContactLocked:false
+  }
+ };
+ const owner={
+  starter:{source:'actual-original-source-three-joint-swing-opportunity',
+   expectedSourceSkinnedTrials:2,contactLocked:false,sign:-1,
+   excessHeelRiseMeters:.006661908192396038},
+  mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceChainVerified:true,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceFootTrackVerified:true,sourceBindVerified:true,
+  sourceAnatomicalFootAxisVerified:true,ownerLocomotion:true,
+  sourceToeTrackVerified:true,sourceToeChainVerified:true,
+  sourceToeSkinnedWeight:.98,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false,
+  rootTravel:.0936068512326651,frameAge:.05,
+  frameInterval:.2167,side:'left',floorTopY:-.02,before,trials:[trial]
+ };
+ const accepted=m.chooseOriginalSourceCoupledKneeFootSweep(owner);
+ assert.equal(accepted?.source,'measured-original-skinned-coupled-knee-foot');
+ assert.equal(accepted?.sourceJointCount,4);
+ assert.equal(accepted?.oppositeShoePreserved,true);
+ assert.equal(accepted?.contactLocked,false);
+ assert.ok(accepted?.toeLiftMeters>.04);
+ const illegal=[
+  {sourceToeSkinnedWeight:.2},{sourceToeTrackVerified:false},
+  {sourceClipName:'Idle'},{frameInterval:.08},{teleport:true},
+  {reducedMotion:true},{interrupted:true},{sourceInstanceSame:false},
+  {trials:[{...trial,after:{...after,
+   right:{...after.right,toeY:before.right.toeY+.020}}}]},
+  {trials:[{...trial,after:{...after,
+   left:{...after.left,heelY:.30}}}]}
+ ];
+ for(const change of illegal)
+  assert.equal(m.chooseOriginalSourceCoupledKneeFootSweep({...owner,...change}),
+   null,'untrusted source/toe/loaded opposite shoe must fail: '+Object.keys(change));
+});
