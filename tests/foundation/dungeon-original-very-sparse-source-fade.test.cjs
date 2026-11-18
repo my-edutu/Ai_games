@@ -80,3 +80,52 @@ test('RED-first: genuine 1.9833-second, 440mm original desktop root travel accel
    'must preserve old fade when unqualified: '+JSON.stringify(patch));
  }
 });
+
+
+// Source-cadence receipt from genuine 390px CC0 Walking_A #44263430159:
+// source RAF patch tick 2, frames 28->29, BOTH source clip weights 1,
+// 0.35000000000000053s shown, lawful 0.1552315424295374m root travel,
+// original Walking_A 1.0416666269302368s, source 0.79053356->0.94308028.
+// It establishes the original travelled cadence ONLY. The test's idle->walk
+// entry is an explicitly constructed transition fixture, not a claimed
+// source screenshot; no ground contact, extra step or hit is synthesized.
+test('RED: genuinely travelled 350ms source gait completes a bounded whole-rig blend without accelerating original clip distance',async()=>{
+ const {planImportedLivingSourceStep:step,
+  planImportedWalkingMixerFrameDelta:mixer,
+  planImportedWalkingBlendRate:rate,
+  planImportedRealTravelCrossfade:fade}=await load();
+ const frame={mode:'move',walkingClip:true,sourceClipName:'Walking_A',
+  previousMode:'idle',ownerLocomotion:true,alive:true,
+  visible:true,teleport:false,reducedMotion:false,interrupted:false,
+  sourceDuration:1.0416666269302368,sourceTime:.7905335633173898,
+  effectiveSpeed:1,frameDelta:.05,
+  frameInterval:.35000000000000053,groundedMoving:true,
+  groundedTravel:.1552315424295374};
+ const originalStep=step(frame);
+ assert.ok(originalStep>.10&&originalStep<.20,
+  'the original walking source must remain paced by 155mm witnessed travel');
+ assert.equal(mixer({...frame,sourceStep:originalStep}),.09,
+  'whole-skeleton crossfade should not need five 350ms display frames');
+ assert.ok(Math.abs(rate({...frame,sourceStep:originalStep})*.09-originalStep)<1e-9,
+  'no source knee/ankle cycle speed-up when only crossfade clock changes');
+ assert.equal(fade(frame),.12,'original Idle -> Walking_A owns a bounded 120ms fade');
+ for(const patch of [
+  {mode:'hurt'},{walkingClip:false},{groundedMoving:false},
+  {groundedTravel:0},{groundedTravel:.004},
+  {frameInterval:.80},{groundedTravel:.50},{frameInterval:NaN},
+  {teleport:true},{reducedMotion:true},{visible:false},
+  {sourceDuration:0},{effectiveSpeed:0}
+ ]){
+  const untrusted={...frame,...patch};
+  assert.equal(mixer({...untrusted,sourceStep:originalStep}),.05,
+   'invalid or unwitnessed cadence cannot speed original fade clock: '+JSON.stringify(patch));
+ }
+ for(const patch of [{mode:'hurt'},{previousMode:'attack'},
+  {ownerLocomotion:false},{interrupted:true},{alive:false},
+  {groundedMoving:false},{groundedTravel:0},{groundedTravel:.004},
+  {frameInterval:.8},{teleport:true},{reducedMotion:true},
+  {visible:false}]){
+  assert.equal(fade({...frame,...patch}),.23,
+   'invalid authored transition retains source prior fade: '+JSON.stringify(patch));
+ }
+});
