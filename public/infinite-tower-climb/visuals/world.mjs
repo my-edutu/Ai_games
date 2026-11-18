@@ -1614,6 +1614,15 @@ export function createTowerWorld(){
     // Void finish on source-owned departure. The full source F9 ground,
     // moving decks, hazards and actor are unaffected.
     buildVoidOpenCoreLoadPath(height,frame,'first-frame');
+    // The already-authored crystalline vault is genuinely inside the
+    // newly constructed F9 shaft (r=18.4), behind the r=25 traversable
+    // route and original HP-open gateway. Source-backed successor ground
+    // and the retained old cap are both real; this seven-mesh landmark can
+    // identify the destination on the FIRST genuine WebGL submission rather
+    // than three cold post-gateway uploads later. Its actual rotor/crystals
+    // keep their existing animation and disposal owners. The deferred
+    // buildVoid stage skips ONLY this already-built original vault.
+    buildVoid(height,'first-return-vault',frame);
     // An empty successor silhouette on the first real F9 GPU return caused
     // native film to show a bronze chamber, then an unrelated violet shaft.
     // Carry one genuine FAR-SHOULDER F9 bearing beside the original opened
@@ -1641,6 +1650,7 @@ export function createTowerWorld(){
     frame.userData.firstReturnedVoidMaterials=distinctSuccessor;
     return {root:frame,pylonIndex:farIndex,deferredPylonIndex:nearest,
       firstFrameVoidMaterials:distinctSuccessor,
+      landmarkBuilt:true,landmarkName:'OriginalVoidVaultHaloAndCrystals',
       coreDeferred:false,coreDrawn:true,runToken:snapshot.runToken};
   }
   function buildTower(height,openClockworkPylons=false,includeBiomeDetails=true,section='full'){
@@ -2199,18 +2209,34 @@ export function createTowerWorld(){
     // gear-only sightline protection even after the rotating teeth cleared.
     linkClockFaceScenery(foregroundGears.find(entry => entry.root===main),clock,floorMaterials);
   }
-  function buildVoid(height){
-    const vault=new THREE.Group();radial(vault,.03,18.4,20);floorGroup.add(vault);
-    const halo=new THREE.Group();vault.add(halo);
-    mesh(halo,own(new THREE.TorusGeometry(5.7,.2,6,40)),materials.crystal);
-    mesh(halo,own(new THREE.TorusGeometry(6.3,.07,5,40)),materials.glow,[0,0,-.2]);
-    halo.rotation.z=.32;rotors.push({o:halo,speed:.04});
-    for(let i=0;i<5;i++){
-      const a=i/5*TAU,crystal=mesh(vault,geometry('vault-crystal',()=>new THREE.OctahedronGeometry(1,0)),materials.crystal,[Math.sin(a)*5.8,Math.cos(a)*5.8,.3],[.65,1.4,.65],[0,0,-a]);
-      floaters.push({o:crystal,y:crystal.position.y,phase:i*1.8,speed:.18});
+  // The original Void vault is a REAL authored Floor9 object, not a proxy
+  // arrival cue. The cold renderer previously waited through core, outer
+  // buttresses and biome GPU submissions before painting this identifiable
+  // crystalline chamber. Stage only its existing bounded central halo and
+  // five crystals with the first source-earned F9 body/deck/gateway frame.
+  // The later biome stage builds ONLY the original remaining rock outcrops;
+  // never duplicate the vault, dispose its shared materials, or invent an
+  // extra gameplay surface. Every other biome, graphics tier and unearned
+  // Floor9 render keeps the former complete construction.
+  function buildVoid(height,segment='complete',parent=floorGroup){
+    const firstVault=segment==='first-return-vault';
+    const vaultedAlready=stagedVoidArchitecture?.landmarkBuilt===true;
+    if(firstVault || (segment==='complete' && !vaultedAlready)){
+      const vault=new THREE.Group();
+      vault.name='OriginalVoidVaultHaloAndCrystals';
+      radial(vault,.03,18.4,20);parent.add(vault);
+      const halo=new THREE.Group();vault.add(halo);
+      mesh(halo,own(new THREE.TorusGeometry(5.7,.2,6,40)),materials.crystal);
+      mesh(halo,own(new THREE.TorusGeometry(6.3,.07,5,40)),materials.glow,[0,0,-.2]);
+      halo.rotation.z=.32;rotors.push({o:halo,speed:.04});
+      for(let i=0;i<5;i++){
+        const a=i/5*TAU,crystal=mesh(vault,geometry('vault-crystal',()=>new THREE.OctahedronGeometry(1,0)),materials.crystal,[Math.sin(a)*5.8,Math.cos(a)*5.8,.3],[.65,1.4,.65],[0,0,-a]);
+        floaters.push({o:crystal,y:crystal.position.y,phase:i*1.8,speed:.18});
+      }
     }
+    if(firstVault)return;
     for(const [a,y]of [[-.73,4],[.89,30]]){
-      const root=new THREE.Group();radial(root,a,20.8,y);floorGroup.add(root);
+      const root=new THREE.Group();radial(root,a,20.8,y);parent.add(root);
       mesh(root,fracturedMass(2),materials.dark,[0,0,0],[3.9,12,3.2]);block(root,materials.glow,[0,0,1.65],[.1,9,.1]);
       for(const sign of [-1,1])mesh(root,geometry('vault-crystal',()=>new THREE.OctahedronGeometry(1,0)),materials.crystal,[sign*1.3,sign*2,1.7],[.4,1.4,.45],[0,0,sign*.25]);
     }
