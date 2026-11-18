@@ -2400,11 +2400,47 @@ test('D04 real original A/V capture retains a bounded later genuine injury windo
  // after the old 5.5s original WebM ended; that silence cannot be contact proof.
  assert.ok(profile.primaryClipMs>=20000&&profile.primaryClipMs<=25000,
   'single original WebM must cover a later genuine admitted HP impact');
- assert.ok(profile.primaryWatchdogMs>=profile.primaryClipMs+8000&&profile.primaryWatchdogMs<=40000,
+ assert.ok(profile.primaryWatchdogMs>=profile.primaryMaxClipMs+8000&&profile.primaryWatchdogMs<=60000,
   'bounded watchdog must not preempt that source-authentic recording');
  assert.equal(profile.concurrentRecorders.length,1);
  assert.equal(profile.concurrentIsolatedProbes,false);
  assert.equal(profile.audioSource,'opted-in-original-soundstage');
  assert.equal(profile.sampleSynchronized,false,'recorded sound does not prove contact sync');
  assert.equal(profile.pcmCaptureSeconds,5.5,'short independent PCM remains separately unverified');
+});
+
+
+test('D04 original A/V capture can follow an admitted real impact without extending the 400ms sound cutoff',()=>{
+ const {selectD04AdmittedHpContactForRecording:select}=
+  require('../browser/dungeon-d04-contact-window.cjs');
+ const profile=require('../browser/dungeon-d04-capture-profile.cjs').createD04CaptureProfile();
+ assert.ok(profile.primaryMaxClipMs>profile.primaryClipMs);
+ assert.ok(profile.primaryMaxClipMs<=42000);
+ assert.ok(profile.primaryWatchdogMs>profile.primaryMaxClipMs+8000);
+ assert.ok(profile.primaryPostContactTailMs>=1000&&profile.primaryPostContactTailMs<=2500);
+ assert.deepEqual(profile.concurrentRecorders,['real-canvas-plus-opted-in-soundstage']);
+ assert.equal(profile.sampleSynchronized,false);
+ const receipt={cueId:'1:1:24:damage:-:enemy-1-2',kind:'damage',scene:'1:1',
+  tick:24,frameId:75,decision:'delivered',visual:true,audio:true,
+  visualDrawableAtSubmission:true,observationToSubmissionMs:65,
+  observedClockMs:73812,submittedClockMs:73877};
+ const sound={cueId:receipt.cueId,kind:'damage',sceneKey:'1:1',tick:24,audio:'impact',
+  startedSources:2,verifiedCanonicalCue:true,scheduledContextMs:65161};
+ const find=(r=[receipt],s=[sound],first=40,last=75)=>
+  select({receipts:r,sourceStarts:s,firstFrameId:first,lastFrameId:last});
+ assert.deepEqual(find(),{cueId:receipt.cueId,kind:'damage',scene:'1:1',tick:24,frameId:75,ageMs:65});
+ for(const mutation of [
+  {kind:'swing'},{decision:'stale-frame'},{visualDrawableAtSubmission:false},
+  {audio:false},{visual:false},{observationToSubmissionMs:401},{frameId:39},
+  {frameId:76},{tick:25},{scene:'1:2'},
+  {cueId:'1:1:24:damage:invented-attacker:enemy-1-2'}
+ ])assert.equal(find([{...receipt,...mutation}]),null,JSON.stringify(mutation));
+ for(const mutation of [
+  {cueId:'other'},{kind:'swing'},{sceneKey:'1:2'},{tick:25},{audio:'swing'},
+  {verifiedCanonicalCue:false},{startedSources:0},{scheduledContextMs:NaN}
+ ])assert.equal(find([receipt],[{...sound,...mutation}]),null,JSON.stringify(mutation));
+ assert.equal(find([receipt],[]),null);
+ assert.equal(find([receipt],[sound],75,74),null);
+ assert.equal(find(Array(65).fill(receipt)),null);
+ assert.equal(find([receipt],Array(65).fill(sound)),null);
 });

@@ -7,6 +7,7 @@ const {auditD04OriginalPcmImpactOnsets}=require('./dungeon-d04-original-pcm-onse
 const {auditD04ImpactSubmissionWitnesses}=require('./dungeon-d04-impact-submission-witness.cjs');
 const fs=require('node:fs');
 const {createD04CaptureProfile,skippedConcurrentD04Probe}=require('./dungeon-d04-capture-profile.cjs');
+const {selectD04AdmittedHpContactForRecording}=require('./dungeon-d04-contact-window.cjs');
 const {decodeSerialRealWebGLMotion,decodeReceiptReadbackMotion,decodeSameWindowReadbackMotion,
  sampleChromiumDecodedD04WebM,classifyChromiumDecodedRealWebM,
  selectAuthenticatedOriginalD04WebM}=require('./dungeon-d04-decoded-video-proof.cjs');
@@ -118,6 +119,8 @@ async function beginD04LiveAVCapture(page,captureProfile){
    submissionSamples:[]
   };
   let lastSubmittedFrame=before,pumpActive=false,pumpHandle=null;
+  let contactStopTimer=null,maxClipTimer=null;
+  const stopPrimary=()=>{try{if(recorder.state!=='inactive')recorder.stop()}catch{};};
 
   // Diagnose whether this ACTUAL canvas capture track delivers frames at all.
   // A muted HTMLVideoElement consumes the borrowed track; it never draws to
@@ -447,6 +450,27 @@ async function beginD04LiveAVCapture(page,captureProfile){
      if(framePump.submissionSamples.length<32)framePump.submissionSamples.push({
       atMs:Math.max(0,performance.now()-began),receipt,requestAttempted,requestSucceeded
      });
+     // The original recorder was already recording BEFORE this observed
+     // event. A bounded retained tail may cover its REAL original sound;
+     // delivered/source.start are NOT decoded audible PCM or contact pixels.
+     // Never stop early for stale, silent, non-HP, invented-attacker or
+     // out-of-window events. The 400ms permission gate is unchanged.
+     if(!framePump.authenticHpContactWindow &&
+      typeof window.__D04_TEST_CONTACT_CAPTURE_GATE__==='function'){
+      const actual=window.__DUNGEON_RENDER_DIAGNOSTICS__?.physicalFeedback;
+      const contact=window.__D04_TEST_CONTACT_CAPTURE_GATE__({
+       receipts:actual?.recentDeliveryReceipts,
+       sourceStarts:actual?.audio?.recentOriginalStarts,
+       firstFrameId:before,lastFrameId:receipt
+      });
+      if(contact){
+       const observedAtMs=Math.max(0,performance.now()-began);
+       framePump.authenticHpContactWindow={...contact,observedAtMs,
+        evidence:'CPU submitted drawable HP + original source.start only; decoded contact/onset unverified'};
+       const remainingMin=Math.max(0,profile.primaryClipMs-observedAtMs);
+       contactStopTimer=setTimeout(stopPrimary,Math.max(remainingMin,profile.primaryPostContactTailMs));
+      }
+     }
     }else if(receipt<lastSubmittedFrame){
      // WebGL recovery/reset is not a new frame in the previous receipt epoch.
      lastSubmittedFrame=receipt;framePump.rendererEpochChanges++;
@@ -464,6 +488,8 @@ async function beginD04LiveAVCapture(page,captureProfile){
   const clipDone=new Promise(resolve=>{
    let settled=false;
    const finish=clip=>{if(settled)return;settled=true;clearTimeout(watchdog);
+    if(contactStopTimer!==null)clearTimeout(contactStopTimer);
+    if(maxClipTimer!==null)clearTimeout(maxClipTimer);
     // The independent video encoder still owns the borrowed canvas track.
     // Do not stop it until ALL same-source encoders have finished.
     resolve(clip)};
@@ -518,9 +544,11 @@ async function beginD04LiveAVCapture(page,captureProfile){
    clearTimeout(pcmReceiptWatchdog);
    return unavailable('Live PCM capture error: '+String(e));
   });
-  // Only an authentic longer original A/V window can include later HP starts.
-  // This timer does not preserve expired combat cues or authorize late audio.
-  setTimeout(()=>{try{if(recorder.state!=='inactive')recorder.stop()}catch{}},profile.primaryClipMs);
+  // A 22s minimum and 42s hard cap replace a blind fixed 22s termination.
+  // Only matching *already submitted* HP plus original start can stop after
+  // 1.8s of audio tail. If none appears, keep RED evidence and stop at cap.
+  // This changes no effect, recorded source, sound or 400ms permission.
+  maxClipTimer=setTimeout(stopPrimary,profile.primaryMaxClipMs);
   window.__D04_REAL_AV_CAPTURE__=Promise.all([clipDone,livePcm,videoProbe,audioProbe,nativeVideoProbe,control2dProbe])
    .then(async ([clip,pcm,videoOnly,audioOnly,nativeVideoOnly,control2dOnly])=>{
     // Freeze authentic game receipt timing BEFORE beginning any serial
@@ -784,6 +812,10 @@ test('D04 gated preview observes genuine public damage, safe effect bounds and r
   if(cursor<ceiling)cursor++;
   return route.fulfill({json:snapshot});
  });
+ // Inject the SAME pure tested observer function, with no dependency on
+ // authored/simulated combat. Browser use is diagnostic only, not a producer.
+ await page.addInitScript({content:'window.__D04_TEST_CONTACT_CAPTURE_GATE__=('+
+  selectD04AdmittedHpContactForRecording.toString()+');'});
  // Explicit forensic-only capture buffer: browser recorder can inspect the
  // actual retained WebGL output without changing the normal D04/legacy path.
  await page.goto('/dungeon?feedback=d04&captureProbe=retain');
