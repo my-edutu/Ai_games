@@ -821,5 +821,63 @@
     "safety": "Same draft PR68 based on PR58; frozen baseline and transformation.json untouched; no unrelated game, merge, deploy, force-push, draft conversion",
     "newCandidateCapturePin": "84f54179b898071d013b0ff5ac563cde430998ce",
     "sourceProductionUnchangedSince": "a8ebc5aa31f329bcc4024b5e744eae7f29087226"
+  },
+  "p0ActualOriginalGatewaySinglePortalPhysicalCrossing20261118": {
+    "activeStage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "pr": "https://github.com/my-edutu/Ai_games/pull/68 (OPEN DRAFT)",
+    "sourceSha": "c72fa6d38abe2d9915830a87a719b4283785a3ed",
+    "immutableCapturePin": "Exact new GitHub Actions github.sha of THIS capture-request commit; never floating branch",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenTransformationFileGitBlob": "11d74e436d893ffb38e9be90e8e073b02ebb6b7c",
+    "previousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44287599235",
+    "previousSourcePin": "84f54179b898071d013b0ff5ac563cde430998ce",
+    "previousExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44287985727 — 10/10 SUCCESS on previous source, not on new code",
+    "previousAuthenticEventCapture": "Eight unaltered 60+ second 1x/25fps baseline and candidate desktop 960x600 and portrait 390x844 WebM captures plus 8/8 paired authentic source timelines, zero integrity defects; strict source-aligned film comparison FAILED both viewports (0/2)",
+    "strongestVerifiedFootageGap": "Previous unedited original-film audits showed at least two overlapping complete old-architecture bronze gateways/cap supports over the moving climber and genuine Floor9 roof; zero verified pair of consecutive event-aligned native frames showing complete living body, source-open old gateway and actually walkable Floor9 together in BOTH viewports. New source film NOT YET inspected; no visual improvement claimed",
+    "rootCauseCodeInspection": "On successful real F8->F9 handoff, World retains the original source-HP-open realGate separately from the original cap. Guardian passage simultaneously carries another full-height 7-instance stone arch and 2 large bronze leaves under EarnedWalkableInnerGateAssembly. Two separate noncolliding 3D facades obscure the same physical passage. Older fixes changed camera, palette or treads, but did not arbitrate the duplicate source/scene owners.",
+    "meaningfulCode": {
+      "commit": "c72fa6d38abe2d9915830a87a719b4283785a3ed",
+      "files": [
+        "public/infinite-tower-climb/visuals/world.mjs",
+        "public/infinite-tower-climb/visuals/guardian-passage.mjs",
+        "public/infinite-tower-climb/visuals/passage-live-witness.mjs",
+        "public/infinite-tower-climb/visuals/scene.mjs",
+        "tests/phase3/tower-original-gateway-single-physical-portal.test.cjs"
+      ],
+      "action": "Observe only same-run, source-HP-earned original gate ATTACHED in actual Floor9 Three.js world, after the real World update. When available, stop submitting the duplicate full-height noncolliding inner arch and huge inner leaf meshes; retain real gate, original cap, true F9 geometry, guardian/HP, physical controls, 12 grounded route inlays and 24 edge parts. If proof expires or gate is removed, immediately restore the original inner fallback during the still-valid passage. World accepts a source-bound single-gate passage witness without requiring hidden duplicate to remain visible. Never invent game or GPU frame truth.",
+      "bound": "Only Floor9 void, running living same run and exact source tick, original real gate group physically parented under original retained cap owner, genuine old HP-open passage; no other biomes/games, colliders or AI",
+      "initialVerification": "Source and regression tests committed, new exact-head CI NOT YET CONFIRMED; no locally runnable checkout. Previous successful quality run belongs to prior SHA",
+      "expectedDrawBudget": "At most remove 2 redundant gateway instanced 3D draws when original source-owned real gate exists; unchanged original gateway, walkway and source simulation. Real hardware draw/frame cost NOT MEASURED"
+    },
+    "newCapture": {
+      "status": "REQUESTED in this commit, awaits actual workflow artifacts and manual original full-motion review",
+      "seed": "tower-transformation-capture-v1",
+      "tier": "low",
+      "viewports": [
+        "960x600",
+        "390x844"
+      ],
+      "fps": 25,
+      "speed": "unaltered 1x",
+      "scenario": [
+        "ascent",
+        "moving-platform",
+        "guardian/crusher/danger and earned crossing",
+        "outcome/restart"
+      ],
+      "minimumDuration": "60+ seconds per scenario",
+      "acceptance": "Two CONSECUTIVE originally rendered native video frames with complete climber, legitimately opened original 3D gate, actual physically walkable supported F9 ground/void after grounded crossing, source-to-native PTS event alignment, no severe regression in either viewport; CI is veto not experience score"
+    },
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDeviceFrameTimesP50P95P99": "NOT EVALUATED",
+    "actualDeviceMemory": "NOT EVALUATED",
+    "strictVideoAcceptance": "NOT EVALUATED — preceding 0/2 FAIL",
+    "nextHighestImpactAction": "Inspect exact new-source CI and complete new native 60+s original baseline/candidate 9-job campaign, correlate guardian HP0/real seal/open-gate, actual full skinned climber and F9 grounded source events with returned WebGL and unedited video frames. If one-portal still fails, isolate original cap/real bronze structural triangle occluders with actual candidate source video; stay P0.",
+    "safety": "Frozen baseline and transformation file unchanged; PR58 untouched, PR68 remains draft; no merge, deployment, force push or unrelated games."
   }
 }
