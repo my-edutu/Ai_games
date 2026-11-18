@@ -973,9 +973,21 @@ test('source-earned Floor9 paints one actual open Void load path beside the reta
       'new opaque nearest Void pylon must not screen the real still-visible bronze gateway on first F9');
     assert.equal(world.group.getObjectByName('tapered-structural-pylon')===undefined,true,
       'all incoming exterior buttresses wait for physical source departure; gameplay floor stays');
-    let meshes=0; bearing.traverse(o=>{if(o.isMesh)meshes++;});
-    assert.ok(meshes>=2 && meshes<=6,
-      'only the bounded source-authored OPEN core is present, never a full cold exterior shaft');
+    // The first source-authenticated F9 render now carries the ORIGINAL
+    // small Void vault: two actual halo meshes and five moving crystals.
+    // Previous low-tier 2..6 rigid steel batches remain, so seven additional
+    // genuine authored visual meshes are the exact new bounded first draw.
+    const originalVault=bearing.getObjectByName('OriginalVoidVaultHaloAndCrystals');
+    assert.ok(originalVault?.isGroup,'genuine F9 destination must be physically present');
+    let vaultMeshes=0,meshes=0;
+    originalVault.traverse(o=>{if(o.isMesh)vaultMeshes++;});
+    bearing.traverse(o=>{if(o.isMesh)meshes++;});
+    assert.equal(vaultMeshes,7,'2 genuine halo meshes and 5 original floating crystals, never a full cloned biome');
+    assert.ok(meshes>=9 && meshes<=13,
+      'source-owned bracing plus 7 real Void landmark meshes; no entire cold exterior shaft');
+    const animatedHalo=originalVault.children.find(o=>o.isGroup);
+    assert.ok(animatedHalo?.children.length===2,
+      'the original rotating halo must remain a live scene node, not a rigid baked batch');
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===bronzeArch,true);
     const pending=world.diagnostics().deferredDistantArrival;
     assert.equal(pending?.actualFirstFrameVoidBearings,true);
@@ -1030,6 +1042,14 @@ test('source-earned Floor9 paints one actual open Void load path beside the reta
     const newDetails=newShaft.getObjectByName('deferred-authentic-floor-nine-crystal-biome');
     assert.ok(newDetails?.isGroup && newDetails.visible===false,
       'the separately built original crystal details cannot claim a GPU-returned frame they have not received');
+    const vaultCopies=[];
+    world.group.traverse(o=>{
+      if(o.name==='OriginalVoidVaultHaloAndCrystals')vaultCopies.push(o);
+    });
+    assert.equal(vaultCopies.length,1,
+      'later original Void rock construction may never recreate the already-rendered live vault');
+    assert.equal(vaultCopies[0],originalVault,
+      'the exact same original animated source-owned object persists across returned stages');
     assert.ok(newShaft.getObjectByName('tapered-structural-pylon'),
       'the actual new exterior buttresses must still be constructed after departure');
     const deferredOriginalOwners=[];
