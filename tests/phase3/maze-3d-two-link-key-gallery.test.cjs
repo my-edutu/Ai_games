@@ -41,7 +41,7 @@ test('a two-link key shrine is one OPEN currently disclosed gallery, never a gue
  assert.deepEqual([...gallery({...s,keys:[{...s.keys[0],cell:24}]})],[],
    'a key in the middle of the passage is not a terminal shrine');
  assert.deepEqual([...gallery({...s,privateMaze:{keys:[{cell:25}],passages:[23,24,25]},
-    secretGoal:25})].keys()],[24,25],
+    secretGoal:25}).keys()],[24,25],
    'private fields cannot alter a source-public art decision');
  assert.deepEqual([...gallery({...s,keys:[{...s.keys[0],collected:true}]})]
    .map(([cell,value])=>[cell,value.collected]),[[24,true],[25,true]],

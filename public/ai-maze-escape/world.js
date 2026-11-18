@@ -3701,6 +3701,12 @@ export function createMazeWorld(options = {}) {
       + '#public-guardian-court:' + [...publicGuardianStageCells(s)].sort((a,b)=>a-b).join('.')
       + '#guardian-blocked-relief:' + [...publicGuardianBlockedReliefCells(s)].sort((a,b)=>a-b).join('.')
       + '#guardian-causeway:' + [...keyedGuardianCauseway].map(([id,axis])=>id+':'+axis).sort().join('.')
+      // Include only the real, visible key gallery AND its authentic spent
+      // state. Otherwise collecting the key could leave the previous full
+      // floor material cached while the moving shrine itself updates.
+      + '#public-key-gallery:' + [...publicTwoLinkTreasureGallery(s)]
+        .map(([id,part])=>id+':'+part.keyId+':'+part.axis+':'+(+part.collected))
+        .sort().join('.')
       + '#guardian-reef-visible:' + [...reefVisibility].sort((a,b)=>a-b).join('.')
       + '#guardian-near-floor:' + [...keyedForeground].sort((a,b)=>a-b).join('.')
       + '#guardian-public-peripheral-walls:' + [...keyedPeripheralWalls].sort((a,b)=>a-b).join('.')
