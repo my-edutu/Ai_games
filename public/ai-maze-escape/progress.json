@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-18T09:08:26.764Z",
+  "updatedAt": "2026-11-18T09:54:44.325Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass477 candidate: verified parent f7fb142 native WebGL SUCCESS 8/8 and six-reset <100; independently SHA checked original 40/40 full PNG sidecars + 3/3 genuine gate hashes from artifact 14411581601. Natural 320x740 earned parry full Pip left -.92047 and Thornback right +.92047 within unchanged +/-.95; artistically still crowded and Nintendo benchmark NOT MET. Built source-bound third-ring physically SEALED spectator relief only on genuinely visible blocked same-tier cells after public parry, excludes real pressure, keys/gates, no new geometry classes or AI/collision/map leaks. New exact-HEAD full gameplay screenshots/CI pending; do not claim a visual win. Whole repo parent 898/898 tests but failed unrelated Tiny OBS script. Independent critic/Ultracode workspace unavailable."
+    "summary": "Pass478 reviewed true Pass477 source-matched WebGL SUCCESS 8/8 (unaltered six-scene-reset <100); downloaded original 14413239973 artifact, verified 40/40 PNG hashes and 3/3 genuine gate transition hashes. Direct full-frame mobile guardian/pressure and landscape gate A/B against original Pass476 artifact shows same blocked Thornback and no independently judgeable stage/gameplay visibility improvement; reject Pass477 third-ring decorative spectator candidate and restore only its world.js + candidate-specific test. New exact rollback HEAD CI pending. Whole repo Pass477 failed unrelated Tiny OBS and upload steps, not accepted as green. Official Nintendo bar NOT MET; independent critic/Ultracode coding workspace NOT_FOUND. PR 53 open draft, hourly active."
   },
   "captures": [
+    {
+      "title": "Pass477 exact-source native WebGL 8/8, 40/40 original screenshot hashes and 3 genuine gate hashes; full-frame A/B rejected third-ring spectator relief against Pass476",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44273265349/artifacts/14413239973"
+    },
     {
       "title": "Pass476 original exact-HEAD WebGL SUCCESS 8/8; verified 40/40 PNG hashes, all 3 gate transition hashes; true 320px earned counter whole physical Pip/Thornback fit, Pass477 scenic candidate pending",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44268054641/artifacts/14411581601"

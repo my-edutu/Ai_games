@@ -294,7 +294,7 @@ export function publicGuardianWitnessedForegroundCells(s,causeway=publicGuardian
  * actors; the original walls, impassable tiles, pressure jaws, keys and
  * gates remain. This neutral visual forecourt must never signal a route.
  */
-export function publicEarnedGuardianRecoilCourtCells(s,{spectator=false,sealedReef=false}={}) {
+export function publicEarnedGuardianRecoilCourtCells(s,{spectator=false}={}) {
   const quiet=new Set();
   if (s?.lifecycle!=='running'||s.result
     ||!Number.isSafeInteger(s.currentCell)||!Number.isSafeInteger(s.width)
@@ -329,17 +329,11 @@ export function publicEarnedGuardianRecoilCourtCells(s,{spectator=false,sealedRe
       // Widen only the optional-dressing exclusion. The real actor-level
       // low blocked stone treatment remains unchanged, and a different
       // elevation NEVER authorizes a fake playable floor or shortcut.
-      // After an ACTUAL lantern-parried recoil, the third disclosed same-tier
-      // BLOCKED spectator cell can still erect a tall pavilion in front of
-      // Thornback. Reconstruct only its decorative skyline as low, continuous,
-      // unmistakably sealed Tideglass reef. Never extend the passable court,
-      // mark a crossing, alter collisions, or consult an undisclosed cell.
-      if(sealedReef && (spectator || c.blocked!==true))continue;
       if(spectator && c.blocked!==false)continue;
-      const radius=sealedReef?3:spectator?4:2;
+      const radius=spectator?4:2;
       if(distance(c.cell,hero.cell)>radius
         &&distance(c.cell,guardian.cell)>radius)continue;
-      if((sealedReef||!spectator) && !actorLevels.some(level=>Math.abs(
+      if(!spectator && !actorLevels.some(level=>Math.abs(
         cellHeight(c.cell,s.width,s.height)-level)<1e-8))continue;
       quiet.add(c.cell);
     }
@@ -1240,13 +1234,7 @@ export function createMazeWorld(options = {}) {
     // The latter changes no platform heights, walls, gates or path surfaces.
     const earnedSpectatorHorizon=publicEarnedGuardianRecoilCourtCells(
       s,{spectator:true});
-    // Actual earned counter: build only CURRENTLY DISCLOSED, genuinely
-    // impassable third-ring spectator blocks as low SEALED mineral galleries.
-    // Actor and pressure cells remain exactly where collision places them.
-    const earnedSealedReefs=publicEarnedGuardianRecoilCourtCells(
-      s,{sealedReef:true});
     const guardianQuietRing=new Set([
-      ...earnedSealedReefs,
       ...(guardianCauseway.has(s.currentCell)
         ? [...guardianForecourtShoulders,...guardianOuterCourt.ordinary,
           ...guardianPeripheralWalls] : []),
@@ -2296,8 +2284,7 @@ export function createMazeWorld(options = {}) {
         // towers over the physical Pip–Thornback performance. Replace ONLY
         // decorative blocked-cell ornament with a sealed mineral reef.
         if ((guardianBlockedRelief.has(c.cell) || guardianOuterCourt.sealed.has(c.cell)
-          || (earnedRecoilQuiet.has(c.cell) && c.blocked===true)
-          || earnedSealedReefs.has(c.cell))
+          || (earnedRecoilQuiet.has(c.cell) && c.blocked===true))
           && !pressureSightline) {
           if(guardianOuterCourt.sealed.has(c.cell))guardianOuterCourtSealedTiles++;
           guardianBlockedReliefTiles++;
