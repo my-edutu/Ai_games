@@ -10669,9 +10669,22 @@ function planOriginalNeighbourhoodDetail(lots,anchor,limit){
  }).sort((a,b)=>Number(b.visible)-Number(a.visible)||a.d-b.d||a.i-b.i)
  .slice(0,Math.min(limit,lots.length)).map(row=>row.i));
 }
+// Phase 1 W445: the original market-and-three-inhabited-homes camera (W440)
+// operates at 20-35 m, beyond the old 14 m locality threshold. Give the
+// six actual houses in view the existing full-detail home meshes instead of
+// spending eight full-detail slots on distant houses. Every other original
+// inhabited house continues through its complete compact GPU rendering.
+// W439's physical town overview starts at >=43 m and remains unchanged.
+const HOME_DETAIL_LOCAL_ORBIT_ZOOM=35;
+function realHomeDetailViewMode(homeCount,residentHomes,onStreet,following,cinematicView,physicalZoom){
+ if(!residentHomes||homeCount<=12)return 'overview';
+ if(onStreet||following)return 'inspection';
+ return !cinematicView&&Number.isFinite(physicalZoom)&&
+  physicalZoom<=HOME_DETAIL_LOCAL_ORBIT_ZOOM?'inspection':'overview';
+}
 function currentHomeDetailAnchor(){
- const inspect=homeClustersEnabled()&&city.length>12&&
-  (streetWalk||follow||(!cinematic&&zoom<14));
+ const inspect=realHomeDetailViewMode(city.length,homeClustersEnabled(),
+  streetWalk,follow,cinematic,zoom)==='inspection';
  const position=streetWalk?streetPosition:focusPoint;
  // The street eye faces streetYaw, while an orbital eye looks towards its
  // focus from the opposite direction of its current yaw and zoom radius.
@@ -10695,6 +10708,7 @@ function getHomeDetailPolicyAudit(){
   movementThresholdMetres:HOME_DETAIL_ANCHOR_METERS,
   rotationThresholdRadians:HOME_DETAIL_TURN_THRESHOLD_RAD,
   activeDetailedHomeLimit:HOME_DETAIL_INSPECTION_LIMIT,
+  localOrbitInspectionMaxZoom:HOME_DETAIL_LOCAL_ORBIT_ZOOM,
   originalOverviewDetailLimit:VILLAGE_LOD_LIMIT,
   allOriginalHomesRetained:true,hardwareFPS:'NOT MEASURED',
   rendererBudgetRequiresRealVerification:true,

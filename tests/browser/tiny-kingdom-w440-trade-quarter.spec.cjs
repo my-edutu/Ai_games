@@ -54,6 +54,7 @@ for(const width of [1024,390]){
    return {checksum:g.exportSnapshot().checksum,day:g.metrics().day,
     camera:g.getCamera(),stage:g.getRealEconomicSurveyAudit().last,
     triangles:g.renderStats().lastFrameTriangles,
+    actualHomeGPU:g.getHomePartitionAudit(),
     gl:document.getElementById('world').getContext('webgl')?.getError()??-1,
     overflow:document.documentElement.scrollWidth-innerWidth};});
   expect(district.checksum).toBe(grown.checksum);
@@ -62,6 +63,12 @@ for(const width of [1024,390]){
   expect(district.camera.zoom).toBeLessThan(grown.town.zoom+2);
   expect(district.camera.zoom).toBeLessThanOrEqual(width===390?38:33);
   expect(district.triangles).toBeGreaterThan(0);expect(district.triangles).toBeLessThan(160000);
+  // All original Day121 homes remain physically present. Nearby real ones
+  // now occupy six actual detailed resident VBO slots, not remote founders.
+  expect(district.actualHomeGPU.detailPolicy.mode).toBe('inspection');
+  expect(district.actualHomeGPU.detailPolicy.activeDetailedHomeLimit).toBe(6);
+  expect(district.actualHomeGPU.activeHomes).toBe(grown.trade.realHomes);
+  expect(district.actualHomeGPU.staleDrawn).toBe(0);
   expect(district.gl).toBe(0);expect(district.overflow).toBeLessThanOrEqual(0);
   expect(errors).toEqual([]);
   await page.locator('#camera-disclosure').click();
@@ -78,7 +85,8 @@ for(const width of [1024,390]){
   fs.writeFileSync(path.join(root,width+'-proof.json'),JSON.stringify({
    actualDay:grown.day,realHomes:grown.trade.realHomes,realPeople:ended.people,
    originalFullTown:grown.town,realEconomicDistrict:grown.trade,
-   physicalCamera:district.camera,triangles:district.triangles,glError:district.gl,
+   physicalCamera:district.camera,triangles:district.triangles,
+   actualHomeGPU:district.actualHomeGPU,glError:district.gl,
    pageErrors:errors,unchangedAuthoritativeSnapshot:grown.checksum===ended.checksum,
    softwareWebGL:true,physicalHardwareFPS:'NOT MEASURED',
    independentBlindAB:'NOT PROVEN',experienceGate:'NOT PROVEN'

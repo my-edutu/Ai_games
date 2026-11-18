@@ -1,3 +1,19 @@
+## W445 · Phase 1 persistent integrated workstream · 18 November 2026
+**Pinned G088:** `2f6deb43feb1a1557848d44def53a6109deb1ab1`. **Exact playable source:** `30bcc9a9c091e4a7d171c638891212847c743280`. **Only** open DRAFT PR #64; no merges or #43/#59/#62 integration.
+
+**Pre-change real evidence:** successful [W443 full WebGL video + PNGs](https://github.com/my-edutu/Ai_games/actions/runs/44361424678/artifacts/14456047809), 35 grown real homes, 28 citizens, real market-quarter ~26.77 m desktop / ~31.55 m 390px zoom; 390px 159,996 / 160,000 triangles. The actual code selected local detailed 3D homes only at <14 m zoom. Hence the existing genuine 20–35 m market-and-nearby-home camera missed locality, used distant overview housing detail and showed locally compact cottages. **W445 same integrated slice:** select six original full-detail inhabited homes using physical frustum at <=35 m, preserve every remaining compact house, unchanged actual farm → loaded cart → credited market → buying inhabitant/home meal, and retain original dirty block VBOs. Uncut real W445 screenshots/video, native hardware FPS and blind A/B remain NOT PROVEN pending CI.
+
+**Ranked blocking impact / owners / measurable gates (unchanged):**
+1. Rendering spine (Phase 1): isolate civic 108ms / landscape ~54ms and world packing, use same-world CPU/GPU device traces, bounded persistent VBOs; physical 30+ FPS desktop AND mobile, p95<=33.3ms and no memory slope. SwiftShader isn't hardware.
+2. Connected inhabited environment (Phase 2): significant coherent ORIGINAL field→granary→market→home architecture, visually distinct from G088 in matched running wide, workday, Day121 mobile shots.
+3. Real workers (Phase 3): continuous actual harvest, loaded handcart + unload/receipt, forge/build, consumption, stable 3D human anatomy and IK contact, no staged actors.
+4. Camera/economy usability (Phase 4): real local occupied houses actually have readable 3D materials in physical trade camera, 390px unobstructed 44px controls and saved-world identity unaffected, <160k triangles, no page/GL errors and no lost touch commands.
+5. Independent evidence/reliability (Phase 5): same-source/seed G088 vs candidate Day1/workday/Day121 mobile uncropped film, deterministic 120-day + long soak, physical p95 and separate fresh blind LOOK/FEEL/PLAY critics.
+
+**Gate A meaningful transformation NOT PROVEN; gate B Manor Lords commercial quality FAIL.** Next: inspect W445 exact-head video and screenshot differences; if LOD pop or budget/memory regression, return to Phase1 and repair. Never merge.
+
+---
+
 ## W437 persistent Phase 1 priority · 18 November 2026 · Critical original live-game API export unblock — same Phase 1 workstream
 - **Pinned reference / identity:** G088 `2f6deb43feb1a1557848d44def53a6109deb1ab1`; solely open draft PR #64 `feat/tiny-kingdom-post-main-gauntlet-20261031`. No merge or divergent branch integration.
 - **Evidence BEFORE source editing:** downloaded actual 1024px and 390px W430 moving video/stills (run 44253096780, artifact 14405282974) and exact current-head W433 recorded failing 60MB browser video/trace (run 44292138896, artifact 14423321814). Videos actually draw low-poly town and advance Day 1 to 9, but the API never publishes; Playwright waits 150s and cannot run Day-120. Original trace contains precise `ReferenceError: getGranarySupplyAudit is not defined` at the `window.__tinyKingdom` export. Found two bad export bindings in the SAME declaration: undefined `getGranarySupplyAudit` shorthand, and loft audit incorrectly mapped to `granarySupplyAudit`.
