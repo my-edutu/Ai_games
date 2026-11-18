@@ -1,4 +1,4 @@
-import { pointFor, SCALE, GUARDIAN_CAP_CORRIDOR } from './coordinates.mjs';
+import { pointFor, SCALE, ARC, GUARDIAN_CAP_CORRIDOR } from './coordinates.mjs';
 import { towerPassageLiveWitness } from './passage-live-witness.mjs';
 
 // The original bronze guardian lock is an OUTSIDE mechanism at radius 27.78,
@@ -828,6 +828,30 @@ export function createTowerGuardianPassage(THREE) {
   capInlay.frustumCulled = false;
   capInlay.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   group.add(capInlay);
+  // Source-authentic floor 8 -> 9 passage. The original dozen dots do not
+  // show which real old-cap roof connects to the real successor landing in
+  // original desktop and portrait gameplay. Two recessed edge channels run
+  // alongside the same 12 source-backed segments: four over the original
+  // earned cap and eight over the actually generated Floor9 ground. Their
+  // color advances only when the player physically walks there. These are
+  // not a predicted path, collision bridge or alternative progression rule.
+  // One extra instanced draw reuses the owned box, no new geometry or light.
+  const edgeMaterial = new THREE.MeshStandardMaterial({
+    color:0xffffff,metalness:.67,roughness:.39,
+    emissive:0x102b25,emissiveIntensity:.24,depthTest:true
+  });
+  ownedMaterials.push(edgeMaterial);
+  const capRouteEdges=new THREE.InstancedMesh(box,edgeMaterial,24);
+  capRouteEdges.name='SourceSupportedGuardianThresholdEdgeRun';
+  capRouteEdges.visible=false;capRouteEdges.count=0;
+  capRouteEdges.castShadow=false;capRouteEdges.receiveShadow=false;
+  capRouteEdges.frustumCulled=false;
+  capRouteEdges.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  group.add(capRouteEdges);
+  const edgePose=new THREE.Object3D();
+  const edgeIdle=new THREE.Color(0x766c5a);
+  const edgeEarned=new THREE.Color(0x8fdac2);
+  const edgeTint=new THREE.Color();
   // Retain a narrow, authentic piece of the old guardian cap during the
   // source-earned Floor8→9 handoff. The ordinary world rebuild discards
   // every old-platform draw in its first cold Floor9 frame. An open gateway
@@ -972,7 +996,39 @@ export function createTowerGuardianPassage(THREE) {
       capInlay.setColorAt(i,inlayTint);
     }
     if (capInlay.instanceColor) capInlay.instanceColor.needsUpdate = true;
+    if(capRouteEdges.visible && capRouteEdges.count===capInlay.count*2){
+      for(let i=0;i<capRouteEdges.count;i++){
+        const fraction=(Math.floor(i/2)+.5)/capInlay.count;
+        // Only behind the source's REAL footsteps may metal become mint.
+        const crossed=fraction<=inlayProgress?.81:0;
+        const leading=Math.max(0,1-Math.abs(fraction-inlayProgress)*11);
+        edgeTint.copy(edgeIdle).lerp(edgeEarned,
+          Math.max(crossed,.20*leading));
+        capRouteEdges.setColorAt(i,edgeTint);
+      }
+      if(capRouteEdges.instanceColor)
+        capRouteEdges.instanceColor.needsUpdate=true;
+    }
     inlaySourceTick = source.tick;
+  }
+  // Use the authoritative platform top and the original pointFor angular
+  // mapping. Both longitudinal lengths come from actual segment endpoints.
+  // Radial positions stay INSIDE 22.4..27.18, to the sides of the body.
+  function placeEarnedDeckEdges(segment,x,top,source,anchor,spanX){
+    const cs=Math.cos(anchor.angle),sn=Math.sin(anchor.angle);
+    const tangentLength=Math.min(2.25,Math.max(.18,
+      spanX/source.worldWidth*ARC*GUARDIAN_PASSAGE_RADII.deck*.90));
+    for(const [side,radius] of [24.22,26.68].entries()){
+      const p=pointFor(x,top+420,source.chunkBaseY,source.worldWidth,radius);
+      const dx=p.x-anchor.x,dz=p.z-anchor.z;
+      edgePose.position.set(cs*dx-sn*dz,p.y-anchor.y,sn*dx+cs*dz);
+      edgePose.rotation.set(0,p.angle-anchor.angle,0);
+      edgePose.scale.set(tangentLength,.055,.085);
+      edgePose.updateMatrix();
+      const index=segment*2+side;
+      capRouteEdges.setMatrixAt(index,edgePose.matrix);
+      capRouteEdges.setColorAt(index,edgeIdle);
+    }
   }
   function placeEarnedCapInlay(source, earned, anchor) {
     const cap=earned.cap;
@@ -981,6 +1037,7 @@ export function createTowerGuardianPassage(THREE) {
     const cs=Math.cos(anchor.angle), sn=Math.sin(anchor.angle);
     capInlay.count=12;
     capInlay.visible=true;
+    capRouteEdges.count=24;capRouteEdges.visible=true;
     inlayFromX=fromX; inlayToX=exitX; inlayMode='earned-cap';
     inlayProgress=0;
     inlaySourceTick=-1;
@@ -1001,9 +1058,13 @@ export function createTowerGuardianPassage(THREE) {
       inlayPose.updateMatrix();
       capInlay.setMatrixAt(i,inlayPose.matrix);
       capInlay.setColorAt(i,inlayUnlit);
+      placeEarnedDeckEdges(i,x,cap.y+cap.height,source,anchor,
+        (exitX-fromX)/capInlay.count);
     }
     capInlay.instanceMatrix.needsUpdate=true;
-    if (capInlay.instanceColor) capInlay.instanceColor.needsUpdate=true;
+    capRouteEdges.instanceMatrix.needsUpdate=true;
+    if(capInlay.instanceColor) capInlay.instanceColor.needsUpdate=true;
+    if(capRouteEdges.instanceColor)capRouteEdges.instanceColor.needsUpdate=true;
     updateInlaySourceProgress(source,earned);
   }
 
@@ -1052,6 +1113,7 @@ export function createTowerGuardianPassage(THREE) {
     const cs = Math.cos(anchor.angle), sn = Math.sin(anchor.angle);
     capInlay.count = 12;
     capInlay.visible = true;
+    capRouteEdges.count=24;capRouteEdges.visible=true;
     inlayFromX=oldMarkStart; inlayToX=route.toX;
     inlayMode='successor-ground';
     inlayProgress=0; inlaySourceTick=-1;
@@ -1073,9 +1135,15 @@ export function createTowerGuardianPassage(THREE) {
       inlayPose.updateMatrix();
       capInlay.setMatrixAt(i,inlayPose.matrix);
       capInlay.setColorAt(i,inlayUnlit);
+      // The first four sections use real old-cap contact, never an
+      // interpolated air bridge; remaining eight use actual F9 ground.
+      placeEarnedDeckEdges(i,x,top,next,anchor,
+        onOldCap?(route.fromX-oldMarkStart)/4:(route.toX-route.fromX)/8);
     }
     capInlay.instanceMatrix.needsUpdate=true;
+    capRouteEdges.instanceMatrix.needsUpdate=true;
     if(capInlay.instanceColor)capInlay.instanceColor.needsUpdate=true;
+    if(capRouteEdges.instanceColor)capRouteEdges.instanceColor.needsUpdate=true;
     updateInlaySourceProgress(next);
     return true;
   }
@@ -1092,7 +1160,9 @@ export function createTowerGuardianPassage(THREE) {
       source.lifecycle!=='running' || !(p?.health>0) ||
       p.grounded!==true || (p.groundedPlatformId!==`f${floor}:ground` &&
         !observedRecordedGuardianDoorstepHandoff(source))) {
-      capInlay.visible=false; capInlay.count=0; inlayMode='retired';
+      capInlay.visible=false; capInlay.count=0;
+      capRouteEdges.visible=false;capRouteEdges.count=0;
+      inlayMode='retired';
       return false;
     }
     if(Number.isSafeInteger(source.tick) && source.tick>inlaySourceTick &&
@@ -1146,6 +1216,7 @@ export function createTowerGuardianPassage(THREE) {
     fallenArmor.visible = false; fallenArmor.count = 0;
     powerBreak.visible = false; powerBreak.count = 0;
     capInlay.visible = false; capInlay.count = 0;
+    capRouteEdges.visible=false;capRouteEdges.count=0;
     capDeckEcho.visible = false; capDeckEcho.count = 0;
     capEchoMaterial.opacity = .76;
     inlayProgress = 0; inlaySourceTick = -1;
@@ -1557,6 +1628,8 @@ export function createTowerGuardianPassage(THREE) {
         proof: 'World-space inner deck doorway mirrors actual source-earned exterior unlock; raster/collision quality NOT verified',
       } : null,
       inlayPieces: capInlay.count,
+      supportedRouteEdgePieces:capRouteEdges.visible?capRouteEdges.count:0,
+      supportedRouteEdgeDraws:capRouteEdges.visible?1:0,
       inlayInheritedOldCapPieces: group.visible && stage==='handoff' &&
         continuousGroundedHandoff && inlayMode==='successor-ground' ? 4:0,
       retainedOldCapPieces: group.visible && capDeckEcho.visible ? capDeckEcho.count:0,

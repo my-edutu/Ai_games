@@ -63,8 +63,14 @@ test('actual open Floor8 arch stays at radius 25 THROUGH the Floor9 scene rebuil
   const threshold=effect.group.getObjectByName('ObservedWalkableGuardianThreshold');
   const memory=effect.group.getObjectByName('EarnedGuardianPassageMemory');
   const inlay=effect.group.getObjectByName('WitnessedGuardianCapWalkwayInlay');
-  assert.ok(threshold&&memory&&inlay);
+  const edge=effect.group.getObjectByName('SourceSupportedGuardianThresholdEdgeRun');
+  assert.ok(threshold&&memory&&inlay&&edge?.isInstancedMesh);
   assert.equal(inlay.visible,true,'earned cap path is visible before crossing');
+  assert.equal(edge.count,24,'two true-roof edges share each earned path section');
+  assert.equal(edge.castShadow,false);
+  assert.equal(edge.userData.collider,undefined);
+  assert.equal(effect.diagnostics().supportedRouteEdgePieces,24);
+  assert.equal(effect.diagnostics().supportedRouteEdgeDraws,1);
   const oldInlay=new THREE_IMPL.Matrix4();
   inlay.getMatrixAt(0,oldInlay);
   assert.equal(threshold.visible,true);
@@ -82,6 +88,16 @@ test('actual open Floor8 arch stays at radius 25 THROUGH the Floor9 scene rebuil
   assert.equal(effect.diagnostics().stage,'handoff');
   assert.equal(inlay.visible,true,'new-floor real grounded lane continues the physical bronze story');
   assert.equal(effect.diagnostics().inlayMode,'successor-ground');
+  assert.equal(edge.count,24,'old supported cap and successor ground connect through the same route owner');
+  const a=new THREE_IMPL.Matrix4(),b=new THREE_IMPL.Matrix4(),
+    pa=new THREE_IMPL.Vector3(),pb=new THREE_IMPL.Vector3();
+  edge.getMatrixAt(0,a);edge.getMatrixAt(1,b);
+  pa.setFromMatrixPosition(a);pb.setFromMatrixPosition(b);
+  assert.ok(pa.distanceTo(pb)>2.2 && pa.distanceTo(pb)<2.7,
+    'source-anchored strips flank, not obstruct, the climber');
+  edge.getMatrixAt(8,b);
+  assert.notDeepEqual(a.elements,b.elements,
+    'real successor roof must not reuse old-cap strip positions');
   assert.equal(effect.diagnostics().inlayFromX,Math.max(cap.x,gate-32000),
     'four physical old-cap marks now survive before the real Floor9 runway');
    assert.equal(effect.diagnostics().inlayInheritedOldCapPieces,4);
@@ -103,6 +119,8 @@ test('actual open Floor8 arch stays at radius 25 THROUGH the Floor9 scene rebuil
   assert.equal(effect.trackSuccessor({...next,tick:454,
     player:{...next.player,grounded:false}}),false);
   assert.equal(inlay.visible,false,'the trail retires when source feet leave the supported ground');
+  assert.equal(edge.visible,false,'un-grounded successor cannot retain visual walkway');
+  assert.equal(effect.diagnostics().supportedRouteEdgePieces,0);
   effect.update(.3,{reducedMotion:true});
   assert.equal(threshold.visible,true);
   effect.update(.3,{stale:true});

@@ -101,7 +101,7 @@ test('the real event creates a separated 3D bronze passage with bounded resource
     });
     assert.ok(effect.group.getObjectByName('ObservedWalkableGuardianThreshold'),
       'an added physical doorway must be present on the same actual grounded cap lane');
-    assert.equal(meshCount, 21, 'the source-grounded former cap, inlay and threshold must remain bounded and non-colliding');
+    assert.equal(meshCount, 22, 'source-grounded cap plus one new bounded instanced edge draw stays non-colliding');
     assert.equal(effect.diagnostics().fragmentInstances, 8);
     assert.ok(effect.focusPoint()?.y > anchor.y + .5);
     assert.equal(effect.diagnostics().shadows, 0);
