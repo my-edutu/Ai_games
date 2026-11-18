@@ -1301,3 +1301,50 @@ test('D04 refuses untrusted real HP observation clocks BEFORE allocating impact 
  }
  for(const mode of ['missing','regressed','valid','clockless'])await scenario(mode);
 });
+
+
+test('D04 withholds a second real HP foley cue if first same-frame sound work consumes the original 400ms deadline',async()=>{
+ const {createPhysicalCombatFeedback,MAX_AUDIO_VISUAL_STALENESS_SECONDS}=await load('physical-combat-feedback.js');
+ let now=100;
+ const started=[];
+ const visuals={
+  emit(){return true},advance(){},hasLiveCue(){return true},
+  hasDrawableCue(){return true},retireStaleCue(){return true},
+  reset(){},dispose(){}
+ };
+ const audio={
+  enable(){return true},emit(cue){
+   started.push(cue.id);
+   if(started.length===1)now+=MAX_AUDIO_VISUAL_STALENESS_SECONDS+.02;
+   return true;
+  },flush(){},disable(){},cleanup(){},dispose(){}
+ };
+ const c=createPhysicalCombatFeedback({
+  requirePresentedFrame:true,clock:()=>now,visualAdapter:visuals,audioAdapter:audio
+ });
+ const initial=snap(10);
+ const injured=snap(11,{units:[
+  hero({hp:19,action:'hurt',actionTick:11}),
+  foe({hp:17,action:'hurt',actionTick:11})
+ ]});
+ try{
+  c.acceptSnapshot(initial);
+  assert.equal(c.enableAudioFromGesture(),true);
+  assert.equal(c.acceptSnapshot(injured),2,'two independent public HP losses');
+  now+=.01;
+  c.advance(.016,.016);
+  assert.equal(c.stats().awaitingPresentation,2,'both injuries entered the actual frame queue');
+  now+=.02;
+  c.acknowledgePresentedFrame(1,.008);
+  assert.equal(started.length,1,
+   'the second same-frame HP sound must not start 420ms after the first blocked the main thread');
+  const receipts=c.stats().recentDeliveryReceipts.filter(x=>
+   x.frameId===1&&(x.kind==='damage'||x.kind==='damage-fatal'));
+  assert.equal(receipts.length,2);
+  assert.equal(receipts.filter(x=>x.audio).length,1);
+  assert.equal(receipts.filter(x=>x.decision==='stale-before-original-start').length,1);
+  assert.ok(receipts.every(x=>x.observationToSubmissionMs<=400),
+   'both genuine WebGL receipts were timely; the later original start was not');
+  assert.equal(c.stats().staleAudioDropped>=1,true);
+ }finally{c.muteAudio();c.dispose()}
+});
