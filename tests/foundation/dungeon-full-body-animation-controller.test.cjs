@@ -3280,8 +3280,17 @@ test('source-loaded pelvis bridge uses authentic two-point walking shoe contact,
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(model,/planOriginalSourceLoadedPelvisSupport\(/,
   'actual Three.js must use the genuine original-skinned measurements');
- assert.match(model,/stageOriginalSourceStanceSlideAfterMixer\(actor,reducedMotion,sourceFrameInterval,sourceFrameVisible\);[\s\S]{0,180}stageSourceLoadedPelvisBeforeLegs\(actor,reducedMotion\);[\s\S]{0,120}auditSourceLoadedPelvisAfterLegs\(/,
-  'original loaded pelvis support must use the FINAL source-skinned stance after ankle/calf and slide staging');
+ // Source-only comments are not extra frame stages. Check exact consecutive
+ // executable calls after stripping line comments, without a brittle byte cap.
+ const live=model.slice(model.indexOf('function updateActor('));
+ const calls=live.replace(/\\/\\/[^\\n]*/g,'').split('\\n').map(line=>line.trim());
+ const slide=calls.indexOf('stageOriginalSourceStanceSlideAfterMixer(actor,reducedMotion,sourceFrameInterval,sourceFrameVisible);');
+ assert.ok(slide>=0,'the real update must stage source stance after source legs');
+ assert.deepEqual(calls.slice(slide+1,slide+4),[
+  'stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion);',
+  'auditSourceLoadedPelvisAfterLegs(actor,poseAge,reducedMotion);',
+  'rememberOriginalSourceAppliedSwingEvidence(actor);'
+ ],'final loaded pelvis support must directly follow source stance and precede historical source-pose evidence');
 });
 
 
@@ -7388,4 +7397,37 @@ test('RED: source pelvis support witnesses FINAL two-shoe pose after native leg 
  assert.ok(measured.liftMeters>.011&&measured.liftMeters<.014);
  assert.equal(measured.source,'measured-original-GLB-loaded-heel-and-toe');
  assert.ok(measured.afterWorstMeters<measured.beforeWorstMeters-.010);
+});
+
+
+test('RED: rejected final-source pelvis lift preserves independently verified native leg pose without a second gait replay',async()=>{
+ const {certifyOriginalSourcePostLegPelvisRollback:certify}=await load();
+ assert.equal(typeof certify,'function');
+ // From the authentic 390px source-weighted sole trace, not invented IK goals.
+ const before={left:{heelY:-.0332026,toeY:-.0310419},
+  right:{heelY:.09969715,toeY:-.04080034}};
+ const exact={left:{...before.left},right:{...before.right}};
+ const valid=certify({source:'post-final-source-legs-pelvis-only',
+  before,after:exact});
+ assert.equal(valid?.source,'original-GLB-post-leg-sole-pair-restored');
+ assert.equal(valid?.feetVerified,2);
+ assert.equal(valid?.preserveOriginalSourceLegs,true);
+ assert.equal(valid?.contactLocked,false);
+ for(const bad of [
+  {source:'unverified-GLB'},
+  {before:null},{after:null},
+  {after:{...exact,left:{...exact.left,toeY:exact.left.toeY-.0016}}},
+  {after:{...exact,right:{...exact.right,heelY:exact.right.heelY+.004}}},
+  {after:{...exact,right:{...exact.right,toeY:NaN}}},
+  {after:{...exact,left:null}}
+ ])assert.equal(certify({source:'post-final-source-legs-pelvis-only',
+  before,after:exact,...bad}),null);
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const audit=renderer.slice(renderer.indexOf('function auditSourceLoadedPelvisAfterLegs('),
+  renderer.indexOf('/** Read the real SkeletonUtils-cloned source GLB rest segments'));
+ assert.match(audit,/certifyOriginalSourcePostLegPelvisRollback\\(/);
+ assert.match(audit,/preserveOriginalSourceLegs/);
+ assert.ok(audit.indexOf('certifyOriginalSourcePostLegPelvisRollback(')<
+  audit.indexOf('restoreOriginalSourceLegsAfterRejectedPelvis('),
+  'only verified both-shoe restoration may skip legacy six-joint rollback');
 });
