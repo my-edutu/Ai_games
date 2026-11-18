@@ -12,7 +12,7 @@ function chooseUnique(candidates:number[],count:number,rng:NamedRng,stream:strin
 // of the mandatory journey. The guardian still occupies and patrols its own
 // generated cells; Pip discovers it through normal public observation. This is
 // not a cinematic spawn, hidden-information oracle or forced capture.
-function chooseRouteWatchpost(world:MazeWorld,route:number[],unavailable:Set<number>,minimumDistance:number,rng:NamedRng){
+function chooseRouteWatchpost(world:MazeWorld,route:number[],unavailable:Set<number>,minimumDistance:number,rng:NamedRng,reserved:Set<number>,traps:number[]){
   const routeCells=new Set(route),ideal=Math.floor(route.length*0.35);
   const choices:{approachIndex:number;spawn:number;retreat:number;straight:boolean}[]=[];
   for(let index=Math.max(2,minimumDistance);index<route.length-2;index++){
@@ -45,8 +45,31 @@ function chooseRouteWatchpost(world:MazeWorld,route:number[],unavailable:Set<num
   // If a real straight side corridor exists, NEVER randomly select an
   // off-axis bend. At both patrol endpoints the public one/two-cell view
   // then supports the same physical Pip–Thornback encounter contract.
+  // Prefer a REAL, traversable pressure-side room within two mandatory
+  // journey steps BEFORE the very same moving Thornback watchpost. The
+  // previous selection ranked a visually isolated guardian first and only
+  // afterwards attempted to attach a trap; most watchposts therefore had
+  // no causal pressure-to-guardian sequence. This preference changes seeded
+  // content selection, NOT passage geometry or the autonomous agent's
+  // knowledge. Actual pressure remains optional and never blocks the key route.
+  const staged=traps.length?choices.filter(choice=>{
+    for(const back of [1,2,0]){
+      const index=choice.approachIndex-back;
+      if(index<1||index>=route.length-1||reserved.has(route[index]!))continue;
+      const court=route[index]!;
+      if(traps.some(cell=>passageNeighbors(world,court).includes(cell)
+        &&passageNeighbors(world,cell).includes(court)))return true;
+    }
+    return guardianPressurePrelude(world,route,reserved,traps,choice)!==null;
+  }):[];
+  // A straight, legal two-cell patrol is preferable *among* genuinely staged
+  // encounters; never sacrifice an available connected pressure performance
+  // merely to select an isolated straight guardian. Preserve the deterministic
+  // seed stream and original fallback when no suitable pressure room exists.
+  const alignedStaged=staged.filter(choice=>choice.straight);
   const alignedChoices=choices.filter(choice=>choice.straight);
-  const pool=alignedChoices.length?alignedChoices:choices;
+  const pool=alignedStaged.length?alignedStaged:staged.length?staged
+    :alignedChoices.length?alignedChoices:choices;
   const shortlist=pool.slice(0,Math.min(6,pool.length));
   return shortlist[rng.nextInt('threat-policy:route-watchpost',shortlist.length)]!;
 }
@@ -123,7 +146,7 @@ export function populateMazeContent(base:MazeWorld,config:MazeConfig,rng:NamedRn
   const threatCount=Math.min(config.threatCount,8),threatReserved=new Set<number>([...reserved,...world.traps]);
   const minimumDistance=Math.max(3,config.visibilityRadius+1);
   if(threatCount){
-    const watchpost=chooseRouteWatchpost(world,route,threatReserved,minimumDistance,rng);
+    const watchpost=chooseRouteWatchpost(world,route,threatReserved,minimumDistance,rng,reserved,world.traps);
     if(watchpost){
       // Tie a genuine off-route pressure prelude to the same lawful patrol.
       // Pass464b now separately verifies the current PUBLIC guardian before

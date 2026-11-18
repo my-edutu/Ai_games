@@ -32,5 +32,6 @@ test('real generated pressure and guardian court preserve exact playable topolog
     &&passageNeighbors(w,t).includes(route[i-d])))))paired++;
  }
  assert.ok(watchposts>0,'campaign exercises actual reachable moving watchposts');
- assert.ok(paired>0,'at least one actual seeded adventure has a connected pressure prelude');
+ assert.ok(paired>=4,'a substantial share of seeded adventures must now physically connect pressure before the same moving guardian');
+ assert.ok(paired<=watchposts,'only truly reachable watchposts may count as linked encounter evidence');
 });
