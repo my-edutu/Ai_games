@@ -28,7 +28,7 @@ test('W431 all eight original civic contacts are sourced from physically real bu
  const posts=spots.filter(x=>x.id.startsWith('market-bearing'));
  assert.equal(posts.length,4);
  assert.deepEqual(posts.map(x=>x.x).sort((a,b)=>a-b),[-2.72,-2.72,2.72,2.72]);
- assert.ok(posts.every(x=>Math.abs(x.z-5)===.65));
+ assert.ok(posts.every(x=>Math.abs(Math.abs(x.z-5)-.65)<1e-9));
  assert.ok(spots.every(x=>x.rx>0&&x.rz>0));
 });
 test('W431 source-driven atlas paints 8 bounded sites without changing economic or geometric authority',()=>{
