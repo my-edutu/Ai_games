@@ -24,7 +24,14 @@ test('source-earned authentic first-bearing returns cool ONLY successor environm
  const value=observe(source,held,submission);
  assert.equal(value.sourceBound,true);
  assert.equal(value.realFlight,true);
- assert(value.maxOldHorizonWeight>.05 && value.maxOldHorizonWeight<.5);
+ // With five real submitted-bearing returns, .50s gives a smoothstep of
+ // 0.9657 (old horizon ~.0343), not >.05. The former numeric bound falsely
+ // vetoed a legitimate near-complete fade; check the entire real trajectory.
+ const midway=observe(source,{...held,visibleSeconds:.35},submission);
+ assert(midway && midway.maxOldHorizonWeight>.2 &&
+   midway.maxOldHorizonWeight<.6);
+ assert(value.maxOldHorizonWeight>0 && value.maxOldHorizonWeight<.1);
+ assert(value.maxOldHorizonWeight<midway.maxOldHorizonWeight);
  assert.equal(observe(source,held,{...submission,firstBearingReturnedFrames:1})?.maxOldHorizonWeight,1);
  assert.equal(observe(source,{...held,submittedFrames:7,visibleSeconds:.6},
    {...submission,firstBearingReturnedFrames:7})?.maxOldHorizonWeight,0);

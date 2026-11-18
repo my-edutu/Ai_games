@@ -586,5 +586,50 @@
     "actualDeviceFrameTime": "NOT EVALUATED",
     "actualDeviceMemory": "NOT EVALUATED",
     "nextHighestImpactAction": "Once source 91ad4e1 authentic capture actually runs, inspect entire original transition in desktop and portrait and compare exact native drawn HUD/world timing. If still obscured, rebuild camera's actual old-gate-to-F9 grounded co-visibility and cold scene submission, preserving source HP victory; require two adjacent source-aligned real pixels. Do not treat green CI, purple frames or video clock calibration as P0 acceptance."
+  },
+  "p0NewSourceAuthenticVoidFilmAndCiVeto20261118": {
+    "activeStage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "sourceSha": "91ad4e1d48735442ffeddabf8173128e64cd67e9",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "captureRun": "https://github.com/my-edutu/Ai_games/actions/runs/44250489452",
+    "qualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44250489456",
+    "candidateDangerOriginalArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44250489452/artifacts/14405085407",
+    "originalNativeVideo": "Both exact-source desktop 960x600 and portrait 390x844 25fps source danger WebM artifacts downloaded; 23.6–30.8s continuous segment sampled at .4s; no co-visibility or independent reviewer acceptance claimed",
+    "originalNativeFilmPhases": {
+      "desktop": {
+        "originalWebMSha256": "0cf896ba56765ced2f4d5ee249669b14c2a2d3f194ce03ab622c3076ef990007",
+        "hud9Seconds": 25.75,
+        "sustainedOriginalVioletSeconds": 26.75,
+        "lagSeconds": 1,
+        "firstBrowserF9Tick": 479,
+        "browserF9ToWebGlReturnMs": 678
+      },
+      "portrait": {
+        "originalWebMSha256": "10e071862c561bd14f8078221be4d788848cde5f110ebfb06f20ab144ba450dd",
+        "hud9Seconds": 26.5,
+        "sustainedOriginalVioletSeconds": 27.25,
+        "lagSeconds": 0.75,
+        "firstBrowserF9Tick": 482,
+        "browserF9ToWebGlReturnMs": 619
+      }
+    },
+    "previousSourcePhases": {
+      "sha": "3ec363453f6c2fb58b6ef24f17baa2b8fcbd98aa",
+      "desktopLagSeconds": 1.75,
+      "portraitLagSeconds": 2
+    },
+    "observations": "Native phase estimates are within-film sampled color/HUD witnesses ±.25s, not matched causal effect. New film appears to reach visually violet world earlier in both viewports but dark old bronze bars remain between player and genuine original gate/ground; no two source-aligned adjacent raster frames proving whole live body + opened F8 arch + walkable F9. Do not pass P0.",
+    "captureTechnicalStatus": "All eight baseline/candidate normal-speed original WebMs and authentic-ledger job succeeded; pair-source-events final authenticity/visual duel remained failed (0/2), not experience acceptance",
+    "exactNewHeadQualityVeto": "Phase3 partition 0 failed a real new horizon regression, test expected maxOldHorizonWeight>.05 at visibleSeconds=.5 and 5 real bearing returns. Shipping smoothstep computes .03429355; a too-strict fixture bound, not a demonstrated physics or scene regression. Test now asserts monotone, time-bounded real fade at .35s/.5s and full .6s. Full exact-head quality still NOT verified after correction.",
+    "codeChangedThisRun": "No production gameplay source edited; repaired only incorrect real horizon regression bound after CI red, together with grounded original native-film evidence",
+    "independentReviewCounts": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "deviceFrameTime": "NOT EVALUATED",
+    "deviceMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Verify new exact-source corrected CI first; inspect new full original candidate 91ad danger/outcome and true source/frame co-visibility. If still blocked, rebuild physical first-return camera with complete body/gate/real f9 deck and remove remaining bronze rails, not mere color opacity. Keep P0 open."
   }
 }
