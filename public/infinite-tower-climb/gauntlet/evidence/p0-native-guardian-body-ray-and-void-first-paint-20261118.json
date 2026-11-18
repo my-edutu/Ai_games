@@ -7,8 +7,8 @@
   "prDraft": true,
   "basePr": 58,
   "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
-  "inspectedCandidateVideoSourceSha": "6c5bb317c9722b69020aedd24bb2793ee82ed935",
-  "newlyModifiedProductionSourceSha": "4064bc5b2e16bf1612c227c4c7f71253a43def93",
+  "inspectedCandidateVideoSourceSha": "9c88174fa7c7cadbbda9a2be134bf48cbeff63e2",
+  "newlyModifiedProductionSourceSha": "0e84911135337aed246419dd33b7e16238c13690",
   "exactSourceQualityForOldHead": {
     "run": "https://github.com/my-edutu/Ai_games/actions/runs/44193713853",
     "head": "6443b547a2e02144a180103987b36d74687f6964",
@@ -59,7 +59,7 @@
     "feasibleValidation": "Regression authored for real Three.js rail and invalid source widths, not executed locally because shared repo tunnel unavailable. New exact-head CI on source commit triggered by branch push; results must be inspected."
   },
   "outstanding": {
-    "mostImportantFootageDefect": "Actual original bronze foreground/lattice and deck undersides still separate the full real hero, earned open gate and physically supported F9 in native motion. Camera projections (desktop 8/10, portrait 6/7) cannot prove consecutive painted 3D crossing frames.",
+    "mostImportantFootageDefect": "Latest immutable candidate 9c88174 1x F9 original HUD→sustained Void delay: 1.50s desktop and 1.75s portrait, with historical bronze foreground obscuring a continuous actor–gateway–walkable F9 composition. A native movie of the newly shifted original Void vault is still unavailable, and source/pixel event pairing fails in 2/2 viewports.",
     "strictSourceToNativeEventPairing": "FAILED 0/2",
     "qualifyingConsecutiveNativeCrossingFrames": "NOT EVALUATED",
     "genuineIndependentCritics": {
@@ -69,7 +69,7 @@
     },
     "actualDevicePerformance": "NOT EVALUATED",
     "actualDeviceMemory": "NOT EVALUATED",
-    "nextHighestImpactAction": "Inspect new candidate exact-source 60+ second normal-speed original desktop/portrait film and real geometry-ray ownership. Fix dominant real guardian lattice/old cap foreground and first F9 Void pipeline together if full skinned body + opened gate + source-supported F9 cannot coexist in two consecutive original painted frames. Also repair frozen baseline moving/outcome film clock only without weakening 3-anchor rule."
+    "nextHighestImpactAction": "First obtain 60+s new 1x 960x600 + 390x844 original immutable film on EXACT HEAD including the first-render original Void vault, plus actual first-F9 WebGL return costs and geometry-ray owners. Verify live animated vault, no duplicates and that the VOID room appears while HP-open bronze gate and grounded hero remain visible in consecutive source-aligned native frames; if first-render GPU upload regresses, reduce crystal draw cost or reconsider early transfer. Retry strict 0/2 event alignment without manufacturing missing frozen-baseline source beats; measure actual devices and recruit independent reviewers only after evidence qualifies."
   },
   "safety": {
     "baselineModified": false,
@@ -79,5 +79,55 @@
     "deploy": false,
     "forcePush": false,
     "draftPreserved": true
+  },
+  "latestSourcePinnedOriginalFilm": {
+    "capturedSourceSha": "9c88174fa7c7cadbbda9a2be134bf48cbeff63e2",
+    "referenceBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "exactCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/44201339220",
+    "candidateDangerOriginalArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44201339220/artifacts/14381502462",
+    "originalNativeResolutionAndPlayback": "25fps unmodified WebM; desktop 960x600; portrait 390x844; >70 seconds full motion in both",
+    "scenario": "danger/guardian/crossing/continued F9 only; does not constitute ascent/outcome/native device review",
+    "originalVideoEvents": {
+      "desktop": {
+        "sourceGuardianCrossingTick": 475,
+        "drawnFloorNineHudSeconds": 25.75,
+        "firstSustainedVioletWorldSeconds": 27.25,
+        "hudToWorldSeconds": 1.5,
+        "immutableCrossingReturnedCameraWitnesses": 9,
+        "retainedOriginalGateReturnedFrames": 5,
+        "sourceAuthenticatedGroundedPaintSamples": 0
+      },
+      "portrait": {
+        "sourceGuardianCrossingTick": 475,
+        "drawnFloorNineHudSeconds": 25.75,
+        "firstSustainedVioletWorldSeconds": 27.5,
+        "hudToWorldSeconds": 1.75,
+        "immutableCrossingReturnedCameraWitnesses": 9,
+        "retainedOriginalGateReturnedFrames": 4,
+        "sourceAuthenticatedGroundedPaintSamples": 0
+      }
+    },
+    "strongestObservedDefect": "For the genuine F8→F9 crossing the HUD and animated body reach F9 while giant historical bronze foreground/gate dominates; recognizable original Violet architecture does not coexist until 1.50s desktop / 1.75s portrait later. No source-aligned consecutive original painted frames demonstrate complete climber + HP-open gateway + walkable F9 together.",
+    "sourceNativePairRun": "https://github.com/my-edutu/Ai_games/actions/runs/44201339220",
+    "strictFullMotionEventPairing": "FAILED 0/2; baseline missing independent same-source guardian defeat and grounded crossing; 0/5 independent reviewer votes in LOOKS, FEELS, PLAYS",
+    "sourceOnlyHeadlessContinuation": "The authentic ledge workflow proves deterministic F8 guardian fight, earned cap crossing, F9 progression and later outcome/restart source sequence; NOT a rendered movie or paired film",
+    "caveat": "PTS and compositor anchor source events do not prove the same picture was displayed on consecutive native frames. Source-authored 3D projected visibility is not native film. No controlled causality against baseline or actual-device FPS."
+  },
+  "latestImplementation": {
+    "stage": "P0 OPEN — source-authentic first-destination visual continuity",
+    "productionCommits": [
+      "32313e760b8849065eb10e6c588d2e19d84b5511",
+      "0e84911135337aed246419dd33b7e16238c13690"
+    ],
+    "headBeforeEvidence": "36deb253450c325790d9fed2f28902b73c1438c7",
+    "testCommit": "36deb253450c325790d9fed2f28902b73c1438c7",
+    "productionFile": "public/infinite-tower-climb/visuals/world.mjs",
+    "regressionFile": "tests/phase3/tower-original-void-vault-first-return.test.cjs",
+    "actualPlayableChange": "Bring the existing central Void vault's REAL halo and five physically placed animated crystals into the first source-authenticated F9 scene beside the original retained HP-open guardian gateway and source F9 ground. The deferred three-return original shaft still constructs its two remaining geological silhouettes. Floor ownership is disjoint: no cloned vault, mock environment, new collider, unearned floor or freeze. Preserve the real rotor/floater transforms through rigid batching instead of inadvertently baking them into a static floor buffer.",
+    "performanceCostNotYetMeasured": "Seven original visual meshes shift earlier to first F9 GPU submission, potentially making its cold shader/geometry cost WORSE; actual p50/p95/p99 and memory NOT EVALUATED. First-return World buffers and present-time need source-pinned rerun before improvement is claimed.",
+    "priorExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44201339246 — 10/10 on immutable 9c88174 (BEFORE change)",
+    "newExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44211367311 — status pending at this evidence commit; no green claim",
+    "newOriginalGameplayCapture": "NOT YET CAPTURED for 36deb253; prior recording is immutable 9c88174. Source-pinned manual campaign workflow dispatch not exposed by connected GitHub actions.",
+    "blindAcceptance": "NOT EVALUATED"
   }
 }
