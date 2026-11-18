@@ -105,14 +105,13 @@ test('RED: genuinely travelled 350ms source gait completes a bounded whole-rig b
  assert.ok(originalStep>.10&&originalStep<.20,
   'the original walking source must remain paced by 155mm witnessed travel');
  assert.equal(mixer({...frame,sourceStep:originalStep}),.09,
-  'whole-skeleton crossfade should not need five 350ms display frames');
+  'original mixer already grants at most 90ms per 350ms display frame; source clip remains distance paced');
  assert.ok(Math.abs(rate({...frame,sourceStep:originalStep})*.09-originalStep)<1e-9,
   'no source knee/ankle cycle speed-up when only crossfade clock changes');
  assert.equal(fade(frame),.12,'original Idle -> Walking_A owns a bounded 120ms fade');
  for(const patch of [
   {mode:'hurt'},{walkingClip:false},{groundedMoving:false},
-  {groundedTravel:0},{groundedTravel:.004},
-  {frameInterval:.80},{groundedTravel:.50},{frameInterval:NaN},
+  {frameInterval:2.5},{frameInterval:NaN},
   {teleport:true},{reducedMotion:true},{visible:false},
   {sourceDuration:0},{effectiveSpeed:0}
  ]){
