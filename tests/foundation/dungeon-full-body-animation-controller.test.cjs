@@ -7449,3 +7449,62 @@ test('RED: rejected final-source pelvis lift preserves independently verified na
   audit.indexOf('restoreOriginalSourceLegsAfterRejectedPelvis('),
   'only verified both-shoe restoration may skip legacy six-joint rollback');
 });
+
+
+// TEST FIRST — 2026-11-18 real mobile 150ms slow-swing connected-foot allocation. Exact Y deltas and frame
+// interval from genuine 390px original source-GLB Actions #44394789335,
+// dungeon-full-body-native-stance-window-mobile.json, tick-2 prior linked
+// trial. XZ values below are CONTRACT GEOMETRY (not a new skinned witness).
+// The original +/-120/90mrad probe lifted the buried left toe 26.307884mm
+// but raised its already-airborne heel 29.026190mm, an independently
+// witnessed 2.718306mm worsening of sole pitch. This must allocate the SAME
+// two remaining source hip+knee+foot probes, not accept the bad leg pose.
+// A three-joint pose is still UNPROVEN until re-skinned on the original GLB.
+test('RED: real 150ms mobile original swing with 2.718mm heel dominance gets bounded source foot-chain probes',async()=>{
+ const {planOriginalSourceCoupledFootStarter:plan}=await load();
+ const swing={heelY:.18672094383190574,toeY:-.11770692845022002,
+  heelXZ:[-8.17,-6.82],toeXZ:[-8.23,-6.81]};
+ const loaded={heelY:-.03161355980365971,toeY:-.02980341291374434,
+  heelXZ:[-7.78,-6.82],toeXZ:[-7.83,-7.05]};
+ const after=(lift,rise,opposite=loaded)=>({
+  left:{...swing,toeY:swing.toeY+lift,heelY:swing.heelY+rise},
+  right:{...opposite}
+ });
+ const owner={
+  mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,ownerLocomotion:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false,
+  previousLinkedCertified:false,rootTravel:.06550995313985908,
+  frameAge:.04,frameInterval:.15000000000000036,
+  side:'left',floorTopY:-.02,before:{left:swing,right:loaded},
+  starterTrials:[
+   {upperRad:.12,lowerRad:-.09,
+    after:after(-.016774867422480327,-.032808405381880346)},
+   {upperRad:-.12,lowerRad:.09,
+    after:after(.026307884379297222,.029026190279607816)}
+  ]
+ };
+ const opportunity=plan(owner);
+ assert.equal(opportunity?.source,'actual-original-source-three-joint-swing-opportunity',
+  'original measured 2.718mm worsening must allocate remaining source foot-chain trials');
+ assert.equal(opportunity?.sign,-1);
+ assert.equal(opportunity?.expectedSourceSkinnedTrials,2);
+ assert.equal(opportunity?.contactLocked,false);
+ assert.ok(Math.abs(opportunity.excessHeelRiseMeters-
+  .002718305900310594)<.00001,'source-derived vertical gap must stay exact');
+ for(const invalid of [
+  {sourceClipName:'Idle'},{sourceInstanceSame:false},
+  {sourceWeight:.7},{alive:false},{visible:false},
+  {rootTravel:0},{frameAge:.3},{frameInterval:.26},
+  {interrupted:true},{teleport:true},{reducedMotion:true},
+  {previousLinkedCertified:true},
+  {starterTrials:[owner.starterTrials[0],
+   {upperRad:-.12,lowerRad:.09,
+    after:after(.026307884379297222,.028107884379297222)}]},
+  {starterTrials:[owner.starterTrials[0],
+   {upperRad:-.12,lowerRad:.09,
+    after:after(.026307884379297222,.029026190279607816,
+     {...loaded,toeY:loaded.toeY+.009})}]}
+ ])assert.equal(plan({...owner,...invalid}),null,
+  'non-source, unsafe, unmeasured or too-small heel dominance cannot grant a trial');
+});
