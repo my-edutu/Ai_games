@@ -1133,9 +1133,39 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
    lift>=.017&&lift<=.030&&
    heelRise>=0&&heelRise<=.008&&
    lift-heelRise>=.012;
+  // Genuine source GLB desktop #44298973748, Walking_A tick4, 83.4ms:
+  // the already-scheduled original -.11/+ .11/+ .36 hip/knee/foot
+  // skinned trial raised the airborne left toe 16.857mm and heel 6.429mm.
+  // Its 10.428mm relative pitch recovery is real, but the toe remains
+  // about 78mm inside stone. This is not a planted stance or successful
+  // gait. Require this specific original heel/depth/cadence/sole geometry
+  // plus its authenticated moving source and unchanged other shoe.
+  // The independent final POST-application source skin still owns approval;
+  // do not generalize the threshold to any synthetic 16mm toe lift.
+  const licensedDeepPitchSafe83ms=toeRad===0&&
+   Math.abs(upperRad+.11)<.000001&&
+   Math.abs(lowerRad-.11)<.000001&&
+   Math.abs(footRad-.36)<.000001&&
+   frameInterval>=.080&&frameInterval<=.087&&
+   depth>=.092&&depth<=.098&&
+   heelAbove>=.200&&heelAbove<=.210&&
+   shoeSpan>=.300&&shoeSpan<=.310&&
+   rootTravel>=.037&&rootTravel<=.050&&
+   frameAge>=.015&&frameAge<=.050&&
+   sourceWeight>=.99&&
+   starter?.source==='actual-original-source-three-joint-swing-opportunity'&&
+   starter.expectedSourceSkinnedTrials===2&&
+   starter.contactLocked===false&&starter.sign===-1&&
+   finite(starter.excessHeelRiseMeters)&&
+   starter.excessHeelRiseMeters>=.006&&
+   starter.excessHeelRiseMeters<=.010&&
+   lift>=.0165&&lift<=.0173&&
+   heelRise>=.005&&heelRise<=.0075&&
+   lift-heelRise>=.010&&lift-heelRise<=.0125;
   const licensedPitchSafeSourceWindow=
    licensedPitchSafe16ms||licensedPitchSafe83ms||
-   licensedPitchSafe133ms||licensedPitchSafe150ms;
+   licensedPitchSafe133ms||licensedPitchSafe150ms||
+   licensedDeepPitchSafe83ms;
   // Retain real source knee bend and TRUE outsole pitch. A deeper
   // penetrating toe is never exchanged for an airborne, higher heel.
   // The second genuine 150ms source skin returned only 15.722mm of toe
@@ -1143,6 +1173,7 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
   // pitch SAFER. Keep the 16mm floor for the prior 83/133ms bands;
   // spend the lower 15mm floor on the exact 150ms three-joint witness only.
   const sourcePitchMinLift=licensedPitchSafe150ms?.015:
+   licensedDeepPitchSafe83ms?.0165:
    licensedPitchSafeSourceWindow?.016:
    strongSourcePitchRecovery?.017:Math.max(.02,depth*.20);
   if(lift<sourcePitchMinLift||lift>.095||
