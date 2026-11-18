@@ -130,7 +130,10 @@ test('the real Tower scene uses adaptive backing resolution without downgrading 
   const actor = () => ({ group: new real.Group(), animate() {}, dispose() {} });
   const context = { THREE: { ...real, WebGLRenderer: Renderer, PMREMGenerator: class { fromEquirectangular() { throw new Error('fixture reflection unavailable'); } dispose() {} } },
     ...coordinates, createRenderProgress, createTowerFinale, createTowerRouteIntent, createTowerLandingApproach, createTowerMovingDeckSuspension, createTowerHazardPressure, witnessedHealthPickup, createTowerAtmosphere, createTowerGuardianShotStage, createObservedGuardianGuardStage, createObservedMovingDeckRide, observedHealthRecovery, createTowerRecoveryTransfer, guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue, createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianPassage, observedUnlockedGuardianCap, createTowerGuardianPassage, snapshotVelocity: () => 0, createClimber: actor, createEnemy: actor,
-    createTowerWorld: () => ({ group: new real.Group(), update() {}, revealGuardianSightlines() {}, protectRouteSightlines() {}, diagnostics() { return {}; }, dispose() {} }),
+    createTowerWorld: () => ({ group: new real.Group(), update() {}, revealGuardianSightlines() {}, protectRouteSightlines() {},
+      // Production queries source-owned gateway geometry every submitted frame.
+      // This floor-zero fixture has no original HP-open gate to submit.
+      sourceEarnedOriginalGateGeometry() { return null; }, diagnostics() { return {}; }, dispose() {} }),
     THEMES: { foundry: { sun: 0xffdfbc, ambient: 0xe8e0d3, fog: 0x99796d } },
     innerWidth: 1920, devicePixelRatio: 1.5, performance: { now: () => now },
     document: { visibilityState: 'visible', addEventListener() {}, removeEventListener() {} },

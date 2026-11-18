@@ -40,7 +40,10 @@ test('enemy health fill stays correctly layered and actual combat damage has a l
   const actor = () => ({ group: new real.Group(), animate() {}, dispose() {} });
   const context = { THREE: { ...real, WebGLRenderer: Renderer, PMREMGenerator: class { fromEquirectangular() { throw new Error('CPU fixture'); } dispose() {} } },
     ...coordinates, createRenderProgress, createTowerFinale, createTowerRouteIntent, createTowerLandingApproach, createTowerMovingDeckSuspension, createTowerHazardPressure, observedActionStage, witnessedHealthPickup, createTowerAtmosphere, observedTraversalKinetics, createTowerGuardianShotStage, createObservedGuardianGuardStage, createObservedMovingDeckRide, observedHealthRecovery, createTowerRecoveryTransfer, guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCameraRescue, createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage, observedGuardianPassage, observedUnlockedGuardianCap, createTowerGuardianPassage, snapshotVelocity: () => 0, createClimber: actor, createEnemy: actor,
-    createTowerWorld: () => ({ group: new real.Group(), update() {}, revealGuardianSightlines() {}, protectRouteSightlines() {}, dispose() {} }),
+    createTowerWorld: () => ({ group: new real.Group(), update() {}, revealGuardianSightlines() {}, protectRouteSightlines() {},
+      // Production queries source-owned gateway geometry every submitted frame.
+      // This floor-zero fixture has no original HP-open gate to submit.
+      sourceEarnedOriginalGateGeometry() { return null; }, dispose() {} }),
     THEMES: { foundry: { sun: 0xffdfbc, ambient: 0xe8e0d3, fog: 0x99796d } },
     innerWidth: 960, devicePixelRatio: 1, performance: { now: () => 100 },
     document: { visibilityState: 'visible', addEventListener() {}, removeEventListener() {} },
