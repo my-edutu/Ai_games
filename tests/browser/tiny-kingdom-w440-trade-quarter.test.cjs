@@ -28,3 +28,29 @@ test('W440: existing mobile controls + actual physical sightline, not world stat
  assert.match(director,/freeCameraReturn/);
  assert.doesNotMatch(director,/(?:state\.food\s*[+*/-]?=|people\.push|city\.push|deliveryReceipts\.push|step\()/);
 });
+test('W442: a genuinely loaded food courier near real market joins occupied-homes camera without staging actors',()=>{
+ const plan=new Function(between('function planRealMarketHomeDistrict(','function requestRealMarketHomeDistrict()')+';return planRealMarketHomeDistrict')();
+ const homes=[[0,10,0],[-3,11,1],[1,12,0],[-4,9,0],[2,9,1],[14,3,0]];
+ const market=[-1,10.2],baseline=plan(homes,market,390,844);
+ const genuine={id:'fixture-original-1',citizen:'Real Worker',resource:'food',amount:2.5,stage:'unloading',x:7,z:10.1};
+ const unrelated=[{...genuine,id:'wood-1',resource:'wood'},
+  {...genuine,id:'remote-1',x:70,z:90},
+  {...genuine,id:'empty',amount:0},
+  {...genuine,id:'resting',stage:'resting'}];
+ assert.equal(plan(homes,market,390,844,unrelated).observedLiveCargo,null);
+ const original=JSON.stringify([homes,market,genuine]);
+ const framed=plan(homes,market,390,844,[...unrelated,genuine]);
+ assert.equal(framed.observedLiveCargo.id,genuine.id);
+ assert.equal(framed.observedLiveCargo.citizen,genuine.citizen);
+ assert.equal(framed.observedLiveCargo.stage,'unloading');
+ assert.equal(framed.observedLiveCargoIsAuthoritative,true);
+ assert.ok(framed.focus[0]>baseline.focus[0]);
+ assert.ok(framed.zoom<=35&&framed.zoom>=27);
+ assert.equal(framed.newCitizens,0);assert.equal(framed.newTransactions,0);
+ assert.equal(JSON.stringify([homes,market,genuine]),original);
+ assert.throws(()=>plan(homes,market,390,844,{}),/loads must be an array/);
+ const source=between('function requestRealMarketHomeDistrict(){','function requestSettlementOverview(){');
+ assert.match(source,/const loads=getActiveDeliveries\(\)/);
+ assert.match(source,/canvas\.clientWidth,canvas\.clientHeight,loads/);
+ assert.match(html,/#camera-tools\[data-expanded="false"\] > #camera-market-homes/);
+});

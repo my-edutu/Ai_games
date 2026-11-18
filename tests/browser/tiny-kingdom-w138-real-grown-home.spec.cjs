@@ -143,6 +143,11 @@ test('W138 real 120-day software town unchanged across complete vs dirty home re
      expect(before.toggleWidth).toBeGreaterThanOrEqual(44);
      expect(before.toggleHeight).toBeGreaterThanOrEqual(44);
      expect(before.expanded).toBe('false');
+     // The original W428 mobile dock collapses all except Pause; expand it
+     // deliberately before asserting the live touch targets (W442).
+     const disclosure=filmPage.locator('#mobile-transport-disclosure');
+     await disclosure.click();
+     await expect(disclosure).toHaveAttribute('aria-expanded','true');
      // W336 RED gate: the active ORIGINAL Day-121 human and economy viewer
      // must have 44px minimum touch targets for every VISIBLE action.
      // Desktop is unchanged; hidden commands remain in the Command desk.
@@ -161,6 +166,8 @@ test('W138 real 120-day software town unchanged across complete vs dirty home re
       expect(action.width).toBeGreaterThanOrEqual(44);
       expect(action.height).toBeGreaterThanOrEqual(44);
      }
+     await disclosure.click();
+     await expect(disclosure).toHaveAttribute('aria-expanded','false');
      await filmPage.locator('#world-trace-toggle').click();
      const opened=await filmPage.evaluate(()=>{
       const button=document.getElementById('world-trace-toggle');

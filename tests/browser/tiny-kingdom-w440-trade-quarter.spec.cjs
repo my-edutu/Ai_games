@@ -16,6 +16,12 @@ for(const width of [1024,390]){
    day:g.metrics().day,checksum:g.exportSnapshot().checksum,
    town:g.getSettlementOverviewPlanAudit(),trade:g.getMarketHomeDistrictPlanAudit()};});
   expect(start.day).toBe(1);expect(start.trade.realHomes).toBe(start.town.actualHomes);
+  if(width===390){
+   await expect(page.locator('#camera-market-homes')).toBeVisible();
+   const touch=await page.locator('#camera-market-homes').boundingBox();
+   expect(touch.width).toBeGreaterThanOrEqual(44);
+   expect(touch.height).toBeGreaterThanOrEqual(44);
+  }
   await page.locator('#camera-disclosure').click();
   await expect(page.locator('#camera-market-homes')).toBeVisible();
   await page.locator('#camera-market-homes').click();

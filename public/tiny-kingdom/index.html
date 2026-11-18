@@ -1683,6 +1683,18 @@ body[data-village-documentary="on"] #film-ledger[aria-expanded="true"]{
  }
 }
 body[data-hud="cinema"] #mobile-transport-disclosure{display:none!important}
+/* W442: direct 44px view of the real receiving market and current courier.
+   Avoid an extra disclosure tap when exploring a 390px quiet village;
+   genuine active citizen films keep the entire world-first collapsed layout. */
+@media(max-width:520px){
+ body[data-command="world"][data-workday="off"]:not([data-street="on"]):not([data-hud="cinema"])
+ #camera-tools[data-expanded="false"] > #camera-market-homes{
+  display:inline-flex!important;min-height:44px!important;height:44px!important;
+  min-width:104px!important;width:100%!important;padding:7px 8px!important;
+  font:700 11px/1.2 system-ui!important;color:#ffefc8!important;
+  background:#355744!important;border:1px solid #bca87b!important;
+ }
+}
 </style></head><body>
 <canvas id="world" tabindex="0" aria-label="Live 3D medieval valley. Tap a visible villager to follow genuine work. Drag to orbit, Shift-drag or two-finger drag to pan, pinch or scroll to zoom. Home returns to village, F follows a citizen, V walks the streets; Enter selects a visible citizen."></canvas><div id="citizen-pick-caption" role="status" aria-live="polite" aria-atomic="true"><span id="citizen-pick-copy"></span><progress id="citizen-pick-meter" value="0" max="100" aria-label="Observed citizen's actual shift or delivery progress" hidden></progress></div><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
@@ -28599,7 +28611,7 @@ function physicalSettlementOverviewPlan(width=canvas.clientWidth,height=canvas.c
 // elevated wide view, the player can enter an actual market-to-home district
 // without pretending nearby people, food parcels, roads or residences exist.
 // This is pure observational geometry over original saved-world lot positions.
-function planRealMarketHomeDistrict(homes,market,width,height){
+function planRealMarketHomeDistrict(homes,market,width,height,deliveries=[]){
  if(!Array.isArray(homes)||homes.length===0||
   !Array.isArray(market)||market.length<2||
   ![market[0],market[1],width,height].every(Number.isFinite)||
@@ -28607,26 +28619,38 @@ function planRealMarketHomeDistrict(homes,market,width,height){
   homes.some(lot=>!Array.isArray(lot)||lot.length<2||
    !Number.isFinite(lot[0])||!Number.isFinite(lot[1])))
   throw Error('W440 trade quarter must use finite actual homes and market');
+ if(!Array.isArray(deliveries))throw Error('W442 original loads must be an array');
  const near=homes.map((lot,index)=>({
    index,point:[lot[0],lot[1]],
    distance:Math.hypot(lot[0]-market[0],lot[1]-market[1])
   })).sort((a,b)=>a.distance-b.distance||a.index-b.index)
    .slice(0,Math.min(3,homes.length));
+ // Read-only integration: a genuine loaded food courier entering the actual
+ // market quarter can share this physical frame with three occupied homes.
+ // Remote/unloaded/unrelated workers cannot turn into staged film actors.
+ const nearbyCargo=deliveries.filter(d=>d&&d.resource==='food'&&
+  typeof d.id==='string'&&d.id&&typeof d.citizen==='string'&&d.citizen&&
+  Number.isFinite(d.x)&&Number.isFinite(d.z)&&
+  Number.isFinite(d.amount)&&d.amount>0&&
+  ['travel','hauling','unloading'].includes(d.stage)&&
+  Math.hypot(d.x-market[0],d.z-market[1])<=12);
+ nearbyCargo.sort((a,b)=>Number(b.stage==='unloading')-
+  Number(a.stage==='unloading')||
+  Math.hypot(a.x-market[0],a.z-market[1])-
+  Math.hypot(b.x-market[0],b.z-market[1])||
+  a.id.localeCompare(b.id));
+ const cargo=nearbyCargo[0]||null,cargoWeight=cargo?2:0;
  const focus=[
-  (market[0]*2+near.reduce((sum,row)=>sum+row.point[0],0))/
-   (near.length+2),
-  (market[1]*2+near.reduce((sum,row)=>sum+row.point[1],0))/
-   (near.length+2)
+  (market[0]*2+near.reduce((sum,row)=>sum+row.point[0],0)+
+   (cargo?cargo.x*cargoWeight:0))/(near.length+2+cargoWeight),
+  (market[1]*2+near.reduce((sum,row)=>sum+row.point[1],0)+
+   (cargo?cargo.z*cargoWeight:0))/(near.length+2+cargoWeight)
  ];
  const radius=Math.max(Math.hypot(focus[0]-market[0],
   focus[1]-market[1]),...near.map(row=>
-   Math.hypot(row.point[0]-focus[0],row.point[1]-focus[1])));
+   Math.hypot(row.point[0]-focus[0],row.point[1]-focus[1])),
+   cargo?Math.hypot(cargo.x-focus[0],cargo.z-focus[1]):0);
  const mobile=width<=520;
- // The real market plus its three nearest constructed homes is the close
- // playable workday view. The existing separate village camera still frames
- // ALL homes, including Day-121 growth; changing this lens never deletes,
- // culls or simulates a house, citizen or market receipt. This deliberately
- // prioritises visible street-level work over a seven-house aerial postcard.
  const zoom=Math.max(mobile?27:20,
   Math.min(mobile?35:30,(radius+4)*(mobile?1.92:1.60)));
  return {source:'original-real-market-and-inhabited-cottage-district',
@@ -28634,6 +28658,10 @@ function planRealMarketHomeDistrict(homes,market,width,height){
   districtHomeCount:near.length,market:market.slice(0,2),
   inspectedHomeLots:near.map(row=>row.point),
   inspectedHomeIndices:near.map(row=>row.index),
+  observedLiveCargo:cargo?{id:cargo.id,citizen:cargo.citizen,
+   resource:cargo.resource,amount:cargo.amount,stage:cargo.stage,
+   x:cargo.x,z:cargo.z}:null,
+  observedLiveCargoIsAuthoritative:Boolean(cargo),
   focus:focus.map(n=>Math.max(-40,Math.min(40,n))),
   radius,yaw:2.15,pitch:mobile?.94:.82,zoom,
   viewportWidth:width,viewportHeight:height,
@@ -28643,8 +28671,9 @@ function planRealMarketHomeDistrict(homes,market,width,height){
   hardwareFPS:'NOT MEASURED'};
 }
 function requestRealMarketHomeDistrict(){
+ const loads=getActiveDeliveries();
  const plan=planRealMarketHomeDistrict(city,DELIVERY_MARKET.food,
-  canvas.clientWidth,canvas.clientHeight);
+  canvas.clientWidth,canvas.clientHeight,loads);
  const from={yaw,pitch,zoom,focus:focusPoint.slice()};
  // Reuse the SAME measured physical roof/camera obstruction survey, genuine
  // camera interpolation and user-interrupt behavior as farm->market->homes.
@@ -28668,7 +28697,6 @@ function requestRealMarketHomeDistrict(){
    elapsed:0,duration:swiftGpu?.55:.85};
  }
  // Real work/market provenance is read, NEVER advanced or reenacted.
- const loads=getActiveDeliveries();
  const credited=deliveryReceipts.filter(row=>
   row.resource==='food'&&row.creditedAtUnloading===true).length;
  realEconomicSurveyVisits++;
@@ -28676,8 +28704,11 @@ function requestRealMarketHomeDistrict(){
   activeRealLoads:loads.length,actualCreditedFoodReceipts:credited};
  const button=document.getElementById('camera-market-homes');
  button.dataset.stage='market-home-district';
- showToast('Real trade quarter: '+plan.districtHomeCount+
-  ' inhabited lots near market · '+loads.length+' genuine live loads');
+ showToast(plan.observedLiveCargo?
+  'Trade quarter: real '+plan.observedLiveCargo.citizen+
+   ' carrying '+plan.observedLiveCargo.amount.toFixed(1)+' food to market':
+  'Real trade quarter: '+plan.districtHomeCount+
+   ' inhabited lots near market · '+loads.length+' genuine live loads');
  setCommandView('world','user');presentationEpoch++;
  return {accepted:true,...realEconomicSurveyLast};
 }
