@@ -65,7 +65,7 @@ test('first-floor-nine rigid batching preserves the TRUE source-animated vault, 
 });
 
 test('the first-frame original Void landmark retains existing GPU-owner and restricted cold-tier policy',()=>{
-  assert.match(source,/if\(!deferStructuralShell\) buildTower\(height,theme==='clockwork'\)/);
+  assert.match(source,/if\s*\(!deferStructuralShell\)\s*buildTower\(height,theme==='clockwork'\)/);
   assert.match(source,/if\(!deferDistant\)\{buildDistantWorld\(height\);buildVista\(height\);\}/);
   assert.match(source,/frame\.userData\.firstReturnedVoidMaterials=distinctSuccessor/);
   assert.match(source,/const distinctSuccessor=isolateEarnedFirstFrameVoidMaterials\(\s*frame,materials,replacement=>floorMaterials\.add\(replacement\)\)/);
