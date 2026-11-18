@@ -76,7 +76,7 @@ test('W436 growing settlement loft replaces the solid second-storey box with pie
  assert.match(source,/renderCompactOccupiedUpperLoft\(x,y,z,w\+\.28,d\+\.36,jettySill,h-jettySill,plaster\)/);
  assert.doesNotMatch(source,/box\(x,y\+jettySill,z,w\+\.28,h-jettySill,d\+\.36,plaster\)/);
  assert.match(source,/getCompactOccupiedRoomAudit,getCompactUpperLoftAudit/);
- const a=source.indexOf('function renderCompactOccupiedUpperLoft('),
+ const a=source.indexOf('let compactUpperLoftStats='),
   b=source.indexOf('function compactHouse(',a);
  assert.ok(a>0&&b>a);
  const data=[],faces=[];
