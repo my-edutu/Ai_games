@@ -3386,8 +3386,26 @@ test('rejected original loaded pelvis trial restores all six licensed source leg
   'each original joint must remember its source-owned base angle before testing sole rescue');
  assert.match(adapter,/restoreOriginalSourceLegsAfterRejectedPelvis\(actor\.rigGaitBones\)/,
   'final original-heel/toe rejection must actively remove unsupported source ankle and calf overlays');
- assert.match(adapter,/actor\.visualPivot\.position\.y=candidate\.baseY;[\s\S]{0,220}restoreOriginalSourceLegsAfterRejectedPelvis/,
-  'the rejected body root must be restored BEFORE the exact imported leg-pose rollback');
+ // The final pelvis trial now occurs AFTER the complete licensed leg pose.
+ // A rejected lift first restores the body pivot, then independently re-skins
+ // BOTH shoes. The original six-joint rollback is deliberately conditional:
+ // a certified restored pose retains completed native leg animations.
+ // Never require the old pre-leg adjacent calls or count comments as stages.
+ const auditStart=adapter.indexOf('function auditSourceLoadedPelvisAfterLegs(');
+ const auditEnd=adapter.indexOf('/** Read the real SkeletonUtils-cloned source GLB rest segments',auditStart);
+ assert.ok(auditStart>=0&&auditEnd>auditStart,'inspect real post-leg renderer stage');
+ const audit=adapter.slice(auditStart,auditEnd);
+ const rootRestore=audit.indexOf('actor.visualPivot.position.y=candidate.baseY;');
+ const rescanned=audit.indexOf('const restoredShoes=',rootRestore);
+ const sameSource=audit.indexOf('const preserved=certifyOriginalSourcePostLegPelvisRollback({',rescanned);
+ const preserve=audit.indexOf('if(preserved?.preserveOriginalSourceLegs){',sameSource);
+ const fallback=audit.indexOf('const originalLegsRestored=restoreOriginalSourceLegsAfterRejectedPelvis(actor.rigGaitBones);',preserve);
+ assert.ok(rootRestore>=0&&rescanned>rootRestore&&sameSource>rescanned&&
+  preserve>sameSource&&fallback>preserve,
+  'rejected root restores before two-shoe re-skin; only uncertified poses roll back original native legs');
+ assert.match(audit.slice(preserve,fallback),/originalLegsRestored:false,[\s\S]*?return;/,
+  'verified original source feet must keep their completed licensed leg pose, without running fallback');
+
 });
 
 
