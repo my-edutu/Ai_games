@@ -47,8 +47,16 @@ const many=Array.from({length:300},(_,i)=>option(i,i+20));
 // Desktop also requires physically readably surveyed full-body hands, not
 // only the 390px path. Pitch must search over wheat without increasing the
 // original bounded 4x4 desktop angles/pitch/zoom count.
-assert(source.includes('(portraitLens?[.14,.31,.49,.64]:[.17,.33,.49,.62]):'),
- 'Original desktop farmer crop needs a physical over-stalk option');
+const pitchMarker='const pitches=realFarmWork&&actionCameraPitch===null?';
+const pitchStart=source.indexOf(pitchMarker);
+assert(pitchStart>=0,'Real farmer must have an original physical crop-eye search');
+const pitchSnippet=source.slice(pitchStart,pitchStart+190);
+const low=pitchSnippet.indexOf(']:['),high=pitchSnippet.indexOf('])',low);
+assert(low>=0&&high>low,'Desktop crop pitch selection must remain readable');
+const desktopPitches=pitchSnippet.slice(low+3,high).split(',').map(Number);
+assert(desktopPitches.length>=4&&desktopPitches.some(p=>p>=.49)&&
+ desktopPitches.some(p=>p<=.20),
+ 'Original desktop farmer needs both a low eye and over-stalk physical pitch');
 const bounded=vm.runInNewContext(
  'reserveActualFarmWristSightlines(options,citizen,hands)',
  {...vmContext,options:many,citizen:{name:'Bram'},hands:[]},

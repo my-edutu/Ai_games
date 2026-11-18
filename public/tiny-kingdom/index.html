@@ -29094,7 +29094,8 @@ function chooseRealMarketReceiptLens(receiptId){
     z+Math.cos(yaw)*radius];
    checked++;if(nearGoods)surveysNearGoods++;
    if(!physicalFollowEyeClearance(eye,roofs).clear||
-      followRayBlockers(eye,aim,roofs)!==0)continue;
+      followRayBlockers(eye,aim,roofs)!==0||
+      !terrainClearWorkerSightline(eye,aim))continue;
    const frame=projectMarketReceiptShelves(eye,aim,
     actualShelfPoints,tanHorizontal,tanVertical);
    if(frame.visibleShelves!==2||frame.minHeightFraction<.018)continue;
@@ -29151,6 +29152,8 @@ function inspectPhysicalMarketWitnessEye(eye,lens,roofs){
  if(!safe.clear)return {clear:false,reason:'occupied-eye'};
  if(followRayBlockers(eye,lens.aim,roofs)!==0)
   return {clear:false,reason:'real-architecture-ray'};
+ if(!terrainClearWorkerSightline(eye,lens.aim))
+  return {clear:false,reason:'physical-terrain-ray'};
  const post=marketCourierPostSightline(eye,lens.aim);
  if(post.centerCover>.25)return {clear:false,reason:'real-trading-post'};
  const vegetation=foregroundVegetationProjection(eye,lens.aim);
@@ -29225,7 +29228,8 @@ function chooseRealGrainHomeLens(home){
    if(outward<=.25)continue;
    surveyed++;
    if(!physicalFollowEyeClearance(eye,roofs).clear||
-      followRayBlockers(eye,candidate.aim,roofs)>0)continue;
+      followRayBlockers(eye,candidate.aim,roofs)>0||
+      !terrainClearWorkerSightline(eye,candidate.aim))continue;
    const canopy=foregroundVegetationProjection(eye,candidate.aim);
    if(canopy.faceBlockers>0||canopy.cover>=.32)continue;
    const scenic=foregroundSceneProjection(eye,candidate.aim,roofs);
@@ -29278,6 +29282,8 @@ function inspectRealHomeCamera(home,eye){
   blockers=followRayBlockers(eye,front.aim,roofs);
  if(!physical.clear||blockers!==0)
   return {clear:false,reason:!physical.clear?'physical-eye':'real-roof-ray'};
+ if(!terrainClearWorkerSightline(eye,front.aim))
+  return {clear:false,reason:'physical-terrain-ray'};
  const plants=foregroundVegetationProjection(eye,front.aim),
   scene=foregroundSceneProjection(eye,front.aim,roofs);
  const clear=plants.faceBlockers===0&&plants.cover<.32&&scene.cover<.44;

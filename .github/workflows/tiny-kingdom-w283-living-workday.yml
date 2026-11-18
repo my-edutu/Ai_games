@@ -4,6 +4,7 @@ on:
     paths:
       - public/tiny-kingdom/index.html
       - scripts/tiny-kingdom-w283-physical-residency.cjs
+      - scripts/tiny-kingdom-w427-physical-continuity.cjs
       - .github/workflows/tiny-kingdom-w283-living-workday.yml
 jobs:
   immutable-original-human-and-real-camera-contract:
@@ -16,6 +17,8 @@ jobs:
           node-version: '22'
       - name: W283 real full-body skin + physically checked moving courier
         run: node scripts/tiny-kingdom-w283-physical-residency.cjs
+      - name: W427 real credited market and inhabited-home terrain camera contract
+        run: node scripts/tiny-kingdom-w427-physical-continuity.cjs
       - name: W426 original terrain, roof and moving-cart camera contract
         run: node scripts/tiny-kingdom-w279-physical-eye-broadphase.cjs
       - name: Existing original 13-joint human GPU motion contract

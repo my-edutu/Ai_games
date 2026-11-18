@@ -21,6 +21,7 @@ assert.equal(ctx.gate(.449,true),true);
 assert.equal(ctx.gate(.450,true),false);
 assert.equal(ctx.gate(NaN,true),false);
 assert.equal(ctx.gate(-1,true),false);
+let terrainHeight=0;
 const blockers={clear:false},actor={
  name:'Actual farmer courier',job:'farmer',activity:'Traveling to market',
  x:.58,z:0,delivery:{id:'real-receipt-7',stage:'travel'},
@@ -34,17 +35,18 @@ const camera={
  shot:{yaw:0,pitch:.24,zoom:5.15,target:[0,.91,0],
   routeHeading:0,courierRouteCamera:true}
 };
+const terrainSightline=section('const TERRAIN_SIGHTLINE_MAX_SEGMENTS=28;', '// W280: the genuine workday director');
 const production=section('const COURIER_SHOT_TRANSLATE_MAX_METRES=', 'function observedWorkdayCameraPlan(');
 const env={Math,Number,city:Array(14),canvas:{clientWidth:390,clientHeight:844},
  actionCameraZoom:null,actionCameraPitch:null,
  cameraArchitectureTopologyKey:()=> 'physical-lots-14',
- terrain:()=>0,followCameraRoofs:()=>[],
+ terrain:()=>terrainHeight,followCameraRoofs:()=>[],
  physicalFollowEyeClearance:()=>({clear:!blockers.clear}),
  followRayBlockers:()=>0,
  foregroundSceneProjection:()=>({cover:.03,cargoCover:.02,buildingCover:.01,volumes:2}),
  foregroundVegetationProjection:()=>({cover:.04,faceBlockers:0}),
  projectedWorkerBodyFraction:()=>.29};
-vm.runInNewContext(production+';this.check=tryReusePhysicalCourierShot;',env);
+vm.runInNewContext(terrainSightline+production+';this.check=tryReusePhysicalCourierShot;',env);
 const before=JSON.stringify(actor),planned=env.check(camera,actor,0,1400);
 assert.ok(planned,'genuine straight courier should get a physical revalidation');
 assert.equal(planned.physicallyRevalidatedCourierShot,true);
@@ -55,6 +57,10 @@ assert.equal(env.check(camera,{...actor,path:[[12,0]]},0,1400),null,
  'real route turns must force a complete orbit replan');
 assert.equal(env.check(camera,{...actor,x:3},0,1400),null,
  'large movement cannot reuse the old eye');
+terrainHeight=3.5;
+assert.equal(env.check(camera,actor,0,1400),null,
+ 'Terrain-blocked real freight sightline must invalidate cached follow lens');
+terrainHeight=0;
 blockers.clear=true;
 assert.equal(env.check(camera,actor,0,1400),null,
  'blocked physical eye must fall back to original 3D camera search');
