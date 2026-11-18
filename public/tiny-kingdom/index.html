@@ -28567,11 +28567,39 @@ function getRealEconomicSurveyAudit(){
   inventedTransactions:0,manualInputCancelsTransition:true,
   authorityChanged:false,hardwareFPS:'NOT MEASURED'};
 }
+// W439 original-city framing: use ACTUAL constructed home coordinates,
+// not a staged model, imaginary destination or an edited saved state. The
+// view includes the full current settlement footprint, so the Day-120 town
+// does not collapse into one unreadable frontage on narrow devices.
+// This planner runs only when Home/overview is explicitly requested.
+function physicalSettlementOverviewPlan(width=canvas.clientWidth,height=canvas.clientHeight){
+ const lens=cameraLensProfile(width,height);
+ const homes=city.filter(lot=>Array.isArray(lot)&&
+  Number.isFinite(lot[0])&&Number.isFinite(lot[1]));
+ let minX=Infinity,maxX=-Infinity,minZ=Infinity,maxZ=-Infinity;
+ for(const lot of homes){
+  minX=Math.min(minX,lot[0]);maxX=Math.max(maxX,lot[0]);
+  minZ=Math.min(minZ,lot[1]);maxZ=Math.max(maxZ,lot[1]);
+ }
+ if(!homes.length){minX=maxX=minZ=maxZ=0;}
+ const focus=[(minX+maxX)/2,(minZ+maxZ)/2];
+ const radius=Math.hypot((maxX-minX)/2+3.5,(maxZ-minZ)/2+3.5);
+ const halfHorizontal=lens.horizontalDegrees*Math.PI/360;
+ const proposedZoom=Math.max(43,Math.min(85,
+  (radius+2)/Math.max(.32,Math.tan(halfHorizontal))));
+ return {source:'real-grown-settlement-camera-framing',
+  actualHomes:homes.length,focus,zoom:proposedZoom,
+  horizontalDegrees:lens.horizontalDegrees,verticalDegrees:lens.verticalDegrees,
+  viewportWidth:width,viewportHeight:height,extent:[minX,minZ,maxX,maxZ],
+  originalHomeGeometryPreserved:true,authorityMutated:false,
+  newRenderMeshes:0,newCitizens:0,hardwareFps:'NOT MEASURED'};
+}
 function requestSettlementOverview(){
  const from={yaw,pitch,zoom,focus:focusPoint.slice()};
  const before=follow&&previousFollowCamera?previousFollowCamera:null;
- const target=before?{yaw:before.yaw,pitch:before.pitch,zoom:before.zoom,
-  focus:before.focus.slice()}:{yaw:.7,pitch:.88,zoom:43,focus:[0,0]};
+ const realTown=physicalSettlementOverviewPlan();
+ const target={yaw:before?before.yaw:.7,pitch:before?before.pitch:.88,
+  zoom:Math.max(realTown.zoom,before?.zoom||0),focus:realTown.focus.slice()};
  if(streetWalk)setStreetWalk(false);
  if(liveWorkday||document.body.dataset.workday!=='off')stopWorkdayWatch();
  if(follow)setCitizenFollow(false);
@@ -30891,7 +30919,12 @@ function cameraLensProfile(width=canvas.clientWidth,height=canvas.clientHeight){
  const aspect=Math.max(.25,Math.min(4,width/Math.max(1,height)));
  const nativeHorizontal=2*Math.atan(Math.tan(CAMERA_STANDARD_VFOV/2)*aspect);
  const mode=streetWalk?'pedestrian':follow?'citizen-follow':'settlement-overview';
- const minimumHorizontalDegrees=streetWalk?52:follow?48:0;
+ // W439: mobile settlement-overview was the ONLY spectator mode using
+ // an uncorrected 27.6-degree horizontal lens at 390px. The real grown town
+ // looked like a single plaster wall rather than a settlement. Retain
+ // physically correct perspective, never hide or remove an actual house.
+ const minimumHorizontalDegrees=streetWalk?52:follow?48:
+  width<=600&&aspect<.85?50:0;
  const responsive=width<=600&&aspect<.85&&minimumHorizontalDegrees>0&&
   nativeHorizontal<minimumHorizontalDegrees*Math.PI/180;
  const requested=2*Math.atan(Math.tan(minimumHorizontalDegrees*Math.PI/360)/aspect);
@@ -32596,7 +32629,7 @@ getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAud
   grainJourney?planRealGrainJourney(grainJourney,people,deliveryReceipts,
    state.householdTrades||[],state.householdMeals||[]):null,null),getSupplyTrailDetailsAudit,inspectRealGrainStage,watchRealGrainJourney,stopRealGrainJourney,planRealGrainJourney,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
 getMarketStructuralSightline:marketCourierPostSightline,getMarketBarterWitnessAudit,
-getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCentralExchangeAudit:()=>({...centralExchangeStats}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketReceiptDisplayAudit:getMarketReceiptDisplayAudit,getRealMarketReceiptLensForEvidence:id=>chooseRealMarketReceiptLens(id),getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,getGradedRoadAudit,getRealRoadscapeAudit,getFieldToGranaryFootwayAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getCameraMotionAudit:cameraMotionAudit,getRealEconomicSurveyAudit,advanceRealEconomicSurvey,getCameraNavigationAudit,getFreeCameraCollisionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getWorkdayClearArcAudit,getFarmWorkCameraAudit,
+getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCentralExchangeAudit:()=>({...centralExchangeStats}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketReceiptDisplayAudit:getMarketReceiptDisplayAudit,getRealMarketReceiptLensForEvidence:id=>chooseRealMarketReceiptLens(id),getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,getGradedRoadAudit,getRealRoadscapeAudit,getFieldToGranaryFootwayAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getSettlementOverviewPlanAudit:physicalSettlementOverviewPlan,getCameraMotionAudit:cameraMotionAudit,getRealEconomicSurveyAudit,advanceRealEconomicSurvey,getCameraNavigationAudit,getFreeCameraCollisionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getWorkdayClearArcAudit,getFarmWorkCameraAudit,
 getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,getStreetPhysicalOcclusionAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getMarketArcadeCameraAudit:()=>({source:'original-interstall-roof-occlusion',bands:physicalMarketArcadeRoofVolumes(),authorityChanged:false}),getCameraArchitectureResidencyAudit,getCameraRayBroadphaseAudit,getCameraShotProximityAudit,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getGrainwardBridgeAudit,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,
  getInhabitedStreetAccessAudit:()=>({...groundAtlasAccessAudit,topologyKey:groundAtlasAccessTopology,
   builds:groundAtlasAccessRebuilds,realHomes:city.length,rendererOnly:true}),
