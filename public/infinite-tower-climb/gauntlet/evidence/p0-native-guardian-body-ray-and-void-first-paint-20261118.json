@@ -218,5 +218,76 @@
     },
     "deviceFrameTimeAndMemory": "NOT EVALUATED",
     "nextHighestImpactAction": "Inspect exact-head Tower Phase3 and native 1x desktop/portrait danger video event sidecars for this change; if bronze overlap remains, address stage-one cold WebGL first-render CPU/GPU and physical cap/gateway sightline, not more visual opacity patches. Do not advance P0 without 2 consecutive source-paired original frames."
+  },
+  "p0NativeHistoricalGalleryRetirementCandidateAudit20261118": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "candidateSha": "a15ca05eccb826c018bb2b34e0277f609422a51e",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "exactSourceCapture": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44217384447",
+      "sourceSha": "a15ca05eccb826c018bb2b34e0277f609422a51e",
+      "normalSpeedScenarios": [
+        "ascent",
+        "moving",
+        "danger",
+        "outcome"
+      ],
+      "videoJobs": "8/8 succeeded",
+      "authenticLedge": "success",
+      "strictPairSourceEvents": "FAIL — 8/8 source timelines integrity paired but strict original baseline/candidate event-film acceptance not satisfied",
+      "originalDangerDesktop": "https://github.com/my-edutu/Ai_games/actions/runs/44217384447/artifacts/14390190191",
+      "candidateDangerDesktopAndPortrait": "https://github.com/my-edutu/Ai_games/actions/runs/44217384447/artifacts/14389142196"
+    },
+    "exactSourceQuality": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44217384459",
+      "jobs": "9/10 success; phase6 failed due 75s timeout in tests/phase6/maze-readiness-score.test.cjs; no Maze code changes permitted",
+      "towerPhase3": "4/4 partitions SUCCESS",
+      "overall": "FAIL, CI veto"
+    },
+    "inspectedOriginalFilm": {
+      "method": "Downloaded original candidate danger artifact ZIP, extracted original unmodified 1x desktop and portrait live.webm, visually inspected the actual 22–32-second full-motion passage with original frames at 0.5–1s intervals and reviewed native-scene-phase.json, physical-doorway-submissions.json and renderer witness files.",
+      "desktop": {
+        "originalWebMSha256": "e9685397bf3898caa02068b9c92fd2c8c30e826d4546d5dc832d50cfc5ce3ecb",
+        "sourceGuardianCrossingTick": 475,
+        "sourceEventSearchSeconds": 24.453,
+        "firstBrowserFloorNineTick": 478,
+        "sourceToBrowserAcceptMs": 157,
+        "browserAcceptToRendererReturnMs": 1099,
+        "firstReturnedFloorNineTick": 478,
+        "firstRenderReturnCostMs": 299.6,
+        "drawnFloorNineHudSeconds": 26.5,
+        "sustainedVoidVisualSeconds": 28.25,
+        "hudToVoidSeconds": 1.75,
+        "projectedSafeGuardianGatewayAndClimberFrames": 2,
+        "sourcePaintedGroundedGateFrames": 0
+      },
+      "portrait": {
+        "originalWebMSha256": "2c464a3078274650e6267a489d0de1dd4bc3fcad5f94823fbfa884ca79d7f20f",
+        "sourceGuardianCrossingTick": 475,
+        "sourceEventSearchSeconds": 24.302,
+        "firstBrowserFloorNineTick": 476,
+        "sourceToBrowserAcceptMs": 96,
+        "browserAcceptToRendererReturnMs": 1097,
+        "firstReturnedFloorNineTick": 476,
+        "firstRenderReturnCostMs": 260.2,
+        "drawnFloorNineHudSeconds": 25.75,
+        "sustainedVoidVisualSeconds": 27.75,
+        "hudToVoidSeconds": 2,
+        "projectedSafeGuardianGatewayAndClimberFrames": 2,
+        "sourcePaintedGroundedGateFrames": 0
+      },
+      "mostImportantNativeFootageDefect": "Despite source-authenticated Floor 8 guardian defeat and supported Floor 9 onward traversal, there is no source-aligned consecutive original video proof of the complete climber, HP-open retained guardian gateway and actual walkable F9 destination in one continuous physical crossing. During the visible F9 HUD scene, old bronze gallery posts and pale warm space dominate; the monumental purple Void architecture becomes sustained ~1.75s desktop/~2.00s portrait later.",
+      "criticalNewFinding": "Both viewports show approximately 1.10s of accepted Floor9 browser state to first successful Three.js renderer return before old/new scene optical clearance is even possible. Desktop first actual renderer.render call itself took ~300ms and portrait ~260ms. This is an observed Chromium software-renderer presentation bottleneck, NOT actual-device GPU p95/p99, not proof of a causal speed regression, and cannot be fixed solely by reducing an already-returned historical-gallery alpha.",
+      "importantQualification": "The native purple chroma heuristic and HUD pixel classifier do not prove physically visible contact, guardian hit, or native source event alignment. Projected safe NDC positions are not visible skin pixels. The baseline lacks the identical earned guardian episode; do not claim blind paired victory or fabricate matching frames."
+    },
+    "sourceAndSafety": "Reviewed AGENTS.md, binding 2026-11-01 transformation design, Tower GAUNTLET.md, actual World deferred geometry/return logic, both PR68/PR58 status and exact-head jobs. Original frozen transformation.json and PR58 untouched. No playable-code change or new claim of performance gain in this execution.",
+    "independentReviews": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDeviceFrameTimeAndMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Stay P0: instrument first F9 cold rebuild CPU interval separately from renderer.render return and actual source-browser clock in the existing original capture sidecar; then redesign the source-earned first Floor9 structural upload to move or eliminate the observed ~1.1s initial return stall while retaining old HP-open gateway and all real playable decks. Recapture normal-speed original desktop/portrait from exact changed SHA, inspect two consecutive event-aligned frames of authentic gateway, climber and F9 route. Do not advance to P1 on test green alone."
   }
 }
