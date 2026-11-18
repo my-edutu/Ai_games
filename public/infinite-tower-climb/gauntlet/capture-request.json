@@ -6557,5 +6557,35 @@
     "actualDeviceP50P95P99Memory": "NOT EVALUATED",
     "result": "NOT EVALUATED until real original WebM, exact event pairing, hardware and five genuinely independent critics pass.",
     "restrictions": "Do not modify frozen baseline, PR58 or unrelated games; never merge/deploy/force-push/mark draft ready."
+  },
+  "p0OriginalCapFullSoleNativeReplay20261118_1554": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "reviewedCurrentHead": "67c1127060b7546e784aefb33bca643c79ecfddb",
+    "candidatePin": "immutable github.sha of this capture-request commit",
+    "request": "Unaltered original baseline/candidate 9-job full-motion 1x at 25fps, seed tower-transformation-capture-v1, low tier, desktop 960x600 and portrait 390x844, ascent/moving/danger/guardian/physical F8-F9 crossing/outcome/restart. Explicitly inspect newly included full-sole source visibility and actual F8-cap/successor architecture after 4 commits newer than previous f13902b film.",
+    "precedingFilm": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44315786284",
+      "candidateSha": "f13902b076c72ea1cc6cdfcaea2b880c6076b754",
+      "desktop": {
+        "hud9Seconds": 26.5,
+        "violetSeconds": 27.5
+      },
+      "portrait": {
+        "hud9Seconds": 26.25,
+        "violetSeconds": 27.25
+      },
+      "strictPair": "FAILED 0/2",
+      "defect": "Unedited film: abrupt warm-bronze→violet cut and occluded 390px body; original single gateway and true successor ground are not jointly visible on source-paired consecutive native frames."
+    },
+    "acceptance": "Require two consecutive verifiable original pixel frames showing complete living climber, HP-open original guardian gate, actual walkable Floor9 destination, plus strict native/source pairing in both viewports. Do not treat green CI/projection as gameplay improvement.",
+    "independentReviews": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualHardware": "NOT EVALUATED",
+    "safety": "Only PR68 draft source, no PR58 edits/baseline changes/merge/deploy/force push/unrelated games"
   }
 }
