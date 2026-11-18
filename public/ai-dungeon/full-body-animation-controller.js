@@ -3139,7 +3139,14 @@ export function planOriginalSourceDeepSwingFootFollowups({
   teleport||reducedMotion||interrupted||
   ![rootTravel,frameAge,frameInterval,floorTopY].every(finite)||
   rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.15||
-  frameInterval<.10||frameInterval>.15||
+  // Exact original 390px Walking_A linked source at Actions #44290560418
+  // witnessed a 66.7ms render interval, genuine live root travel and a
+  // near-loaded opposite shoe while the swing toe remained deeply buried.
+  // Include only this faster mobile cadence in reversible source-bone
+  // FOLLOWUP TRIALS; final acceptance still requires same-GLB weighted
+  // heel+toe re-skin, unchanged loaded shoe, anatomical axes and rollback.
+  // A candidate is not a planted foot and must never become an IK target.
+  frameInterval<.06||frameInterval>.15||
   Math.abs(floorTopY+.02)>.005||
   !['left','right'].includes(side)||trials.length!==2||
   linkedProof?.source!=='measured-original-skinned-linked-leg'||
