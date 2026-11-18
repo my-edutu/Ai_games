@@ -403,17 +403,22 @@ for(const view of [
     const beforeAudit=await nativeRigProof(page);
     const first=beforeAudit.actors.find(a=>a.id===sequence.actorId);
     const passive=await captureOriginalPassiveRafCadence(page,
-     sequence.actorId,snap.tick,first?.sourceInstanceId??'');
+     sequence.actorId,snap.tick);
     const afterAudit=await nativeRigProof(page);
     const sameSource=Boolean(first?.sourceInstanceId&&
      first.sourceInstanceId===afterAudit.actors.find(a=>a.id===sequence.actorId)
       ?.sourceInstanceId);
     const reported=summarizeOriginalSourceRafCadence(
      passive.samples,snap.tick,sequence.actorId);
+    expect(sameSource,
+     'the original GLB clone must exist unchanged before and after passive source rAF sampling').toBe(true);
+    const measuredSourceCallbacks=passive.samples.filter(s=>
+     s.sourceInstanceId===first.sourceInstanceId).length;
     const evidence={viewport:view.name,actorId:sequence.actorId,
      actualAuthorityTick:snap.tick,
      source:'actual original GLB rAF callbacks, not WebM requested fps',
      originalCloneSameAtEndpoints:sameSource,
+     actualSameOriginalGLBCallbackCount:measuredSourceCallbacks,
      callbackCount:passive.callbacks,...reported,
      limitation:'A single unchanged authority tick cannot certify physical travelling feet, sustained contact, six-character performance or 24fps full-game motion.'};
     fs.writeFileSync('artifacts/dungeon-full-body-native-raf-cadence-'+view.name+'.json',
@@ -2006,8 +2011,8 @@ for(const view of [
  * is audited only before and after the window. NOT six-role motion proof,
  * 24fps certification, foot IK or a simulated authoritative step.
  */
-async function captureOriginalPassiveRafCadence(page,actorId,expectedTick,sourceInstanceId){
- return page.evaluate(({actorId,expectedTick,sourceInstanceId})=>new Promise(resolve=>{
+async function captureOriginalPassiveRafCadence(page,actorId,expectedTick){
+ return page.evaluate(({actorId,expectedTick})=>new Promise(resolve=>{
   const samples=[];let callbacks=0,done=false;
   const finish=()=>{if(done)return;done=true;clearTimeout(safety);
    resolve({callbacks,samples});};
@@ -2019,13 +2024,13 @@ async function captureOriginalPassiveRafCadence(page,actorId,expectedTick,source
    const clip=d?.authored3D?.sourceClipBindings?.find(c=>c.id===actorId);
    samples.push({frame:d?.frame??null,tick:d?.renderedState?.tick??null,
     actorId,sourceClipName:clip?.clipName??null,
-    sourceInstanceId,visible:document.visibilityState==='visible',
-    timeMs:timestamp});
+    sourceInstanceId:clip?.sourceInstanceId??null,
+    visible:document.visibilityState==='visible',timeMs:timestamp});
    if(callbacks>=32)finish();
    else requestAnimationFrame(witness);
   }
   requestAnimationFrame(witness);
- }),{actorId,expectedTick,sourceInstanceId});
+ }),{actorId,expectedTick});
 }
 
 /**
