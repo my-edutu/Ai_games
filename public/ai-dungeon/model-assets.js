@@ -3271,6 +3271,17 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   originalWorldSolePitchAxisVerified:
    kneeFootCoupled?.originalWorldSolePitchAxisVerified===true,
   originalWorldSolePitchAxisProof:kneeFootCoupled?.worldSolePitchProof??null,
+  // Read-only original full-body source report: do not imply an actual toe
+  // correction from a candidate or synthesize a heel/toe contact. Distinguish
+  // source track/vertex ineligibility from a tested-but-rejected GLB result.
+  sourceToeChildBone:kneeFootCoupled?.toeBone?.name??null,
+  sourceToeChildTrack:kneeFootCoupled?.toeSourceTrack??null,
+  sourceToeChildSkinnedWeight:Number.isFinite(
+   kneeFootCoupled?.toeSkinnedWeight)?
+   kneeFootCoupled.toeSkinnedWeight:null,
+  sourceToeHingeTrialEligible:kneeFootCoupled?.toeHingeEligible===true,
+  sourceToeHingeTrialCount:trials.filter(t=>
+   Number.isFinite(t.toeRad)&&t.toeRad!==0).length,
   // Pure metadata from the very same measured GLB frame; no extra skin
   // reads, geometry edits, camera moves, gameplay authority or pose writes.
   originalCoupledOwnerBlocker:coupledOwnerBlocker,
