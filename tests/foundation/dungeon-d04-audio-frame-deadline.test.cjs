@@ -207,3 +207,86 @@ test('D04 muted visual-only damage expires before draw without retroactive audio
  assert.equal(controller.stats().audioOptedIn,false);
  controller.dispose();
 });
+
+
+test('D04 pre-source WebAudio preparation cannot revive a stale authentic HP injury',async()=>{
+ const {createPhysicalCombatFeedback}=await load();
+ let wall=20,actualStarts=0;
+ const retired=[];
+ const d=createPhysicalCombatFeedback({
+  requirePresentedFrame:true,clock:()=>wall,
+  visualAdapter:{
+   emit(){return true},advance(){},hasLiveCue(){return true},
+   hasDrawableCue(){return true},
+   retireStaleCue(id,reason){retired.push({id,reason});return true},
+   reset(){},dispose(){}
+  },
+  audioAdapter:{
+   enable(){return true},
+   emit(_cue,options){
+    // The genuine source preparation can block AFTER the controller's
+    // pre-emit check but BEFORE original AudioScheduledSourceNode.start().
+    wall+=.445;
+    if(options?.beforeSourceStart?.()!==true)return false;
+    actualStarts++;return true;
+   },
+   flush(){},cleanup(){},disable(){},dispose(){}
+  }
+ });
+ try{
+  assert.equal(d.enableAudioFromGesture(),true);
+  d.acceptSnapshot(snap(10,30));
+  d.acceptSnapshot(snap(11,21)); // One actual adjacent-tick HP loss.
+  wall+=.02;d.advance(.016,.016);
+  wall+=.02;
+  assert.equal(d.acknowledgePresentedFrame(1,.01),0);
+  assert.equal(actualStarts,0,'no original sound source may start after 400ms');
+  const receipt=d.stats().recentDeliveryReceipts.at(-1);
+  assert.equal(receipt.decision,'stale-before-source-start');
+  assert.equal(receipt.audio,false);
+  assert.equal(receipt.frameId,1,'do not invent a different successful frame');
+  assert.deepEqual(retired.map(x=>x.reason),['stale-frame'],
+   'an already-submitted old transient must not survive the next WebGL draw');
+  assert.equal(d.acknowledgePresentedFrame(2,.01),0);
+ }finally{d.dispose()}
+});
+
+test('original WebAudio node preparation cannot outlive the 400ms injury deadline or consume its cue identity',async()=>{
+ const {createOriginalCombatFoley}=await import(pathToFileURL(path.resolve(
+  __dirname,'../../public/ai-dungeon/original-combat-foley.js')).href);
+ let wall=0,stalled=true,actualStarts=0,disconnects=0;
+ const param=()=>({value:0,setValueAtTime(){},exponentialRampToValueAtTime(){}});
+ const node=()=>({gain:param(),frequency:param(),Q:{value:0},
+  connect(){},disconnect(){disconnects++},start(){actualStarts++},stop(){}});
+ const ctx={state:'running',currentTime:0,destination:node(),
+  createGain:node,createBiquadFilter:node,createOscillator:node,
+  createBufferSource(){
+   if(stalled){wall=.55;stalled=false} // expensive native source allocation
+   return node();
+  },
+  createBuffer(_channels,length,rate){return {
+   length,sampleRate:rate,duration:length/rate,
+   getChannelData:()=>new Float32Array(length)
+  }}
+ };
+ const cue={id:'1:1:11:damage:-:vanguard',sceneKey:'1:1',
+  tick:11,kind:'damage',visual:'hit',audio:'impact',
+  proof:'observed-hp-drop',verified:true,actorId:null,targetId:'vanguard',
+  from:null,to:{x:2,z:2},detail:{damage:9,maxHp:30,remainingHp:21},
+  priority:6,severity:.5};
+ const foley=createOriginalCombatFoley(ctx,{requireVerifiedContact:true});
+ try{
+  assert.equal(foley.enable(),true);
+  assert.equal(foley.emit(cue,{beforeSourceStart:()=>wall<=.4}),false);
+  assert.equal(actualStarts,0,'no native source.start() after expensive preparation');
+  assert.ok(disconnects>=3,'aborted unscheduled nodes are disconnected');
+  assert.equal(foley.stats().recentOriginalStarts.length,0);
+  assert.equal(foley.stats().deviceFailures,0,'deadline expiry is not a device error');
+  wall=.1;ctx.currentTime=.1;
+  assert.equal(foley.emit(cue,{beforeSourceStart:()=>wall<=.4}),true,
+   'the rejected candidate did not consume original one-shot identity');
+  assert.ok(actualStarts>=1,'a fresh, explicitly timely source can still start');
+  assert.equal(foley.stats().recentOriginalStarts.length,1);
+  assert.equal(foley.stats().recentOriginalStarts[0].sampleSynchronized,false);
+ }finally{foley.dispose()}
+});
