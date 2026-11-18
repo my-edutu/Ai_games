@@ -16,7 +16,8 @@ for(const width of [1024,390]){
    day:g.metrics().day,checksum:g.exportSnapshot().checksum,
    town:g.getSettlementOverviewPlanAudit(),trade:g.getMarketHomeDistrictPlanAudit()};});
   expect(start.day).toBe(1);expect(start.trade.realHomes).toBe(start.town.actualHomes);
-  if(width===390)await page.locator('#camera-disclosure').click();
+  await page.locator('#camera-disclosure').click();
+  await expect(page.locator('#camera-market-homes')).toBeVisible();
   await page.locator('#camera-market-homes').click();
   await page.waitForTimeout(2400);
   await page.screenshot({path:path.join(root,width+'-day1-real-market-homes.png')});
@@ -34,7 +35,12 @@ for(const width of [1024,390]){
   expect(grown.day).toBeGreaterThanOrEqual(120);
   expect(grown.trade.realHomes).toBeGreaterThanOrEqual(start.trade.realHomes);
   expect(grown.trade.zoom).toBeLessThan(grown.town.zoom);
-  if(width===390)await page.locator('#camera-disclosure').click();
+  expect(grown.trade.districtHomeCount).toBe(3);
+  expect(grown.trade.zoom).toBeLessThanOrEqual(width===390?35:30);
+  expect(grown.trade.actualBuildingsUnchanged).toBe(true);
+  expect(grown.trade.newCitizens).toBe(0);
+  await page.locator('#camera-disclosure').click();
+  await expect(page.locator('#camera-market-homes')).toBeVisible();
   await page.locator('#camera-market-homes').click();
   await page.waitForTimeout(3400);
   await page.screenshot({path:path.join(root,width+'-day121-actual-lived-market-homes.png')});
@@ -48,6 +54,7 @@ for(const width of [1024,390]){
   expect(district.stage.physicalSafe).toBe(true);
   expect(district.stage.districtHomeCount).toBeGreaterThan(0);
   expect(district.camera.zoom).toBeLessThan(grown.town.zoom+2);
+  expect(district.camera.zoom).toBeLessThanOrEqual(width===390?38:33);
   expect(district.triangles).toBeGreaterThan(0);expect(district.triangles).toBeLessThan(160000);
   expect(district.gl).toBe(0);expect(district.overflow).toBeLessThanOrEqual(0);
   expect(errors).toEqual([]);
