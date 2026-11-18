@@ -32,7 +32,7 @@ import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCamer
 import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardianDuelEdgePressure, guardianLiveFightLockPriority } from './guardian-gate-intrusion.mjs';
 import { observedGuardianTransmissionCorners } from './guardian-transmission-layout.mjs';
 import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
-import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates } from './physical-threshold-shot.mjs';
+import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain } from './physical-threshold-shot.mjs';
 import { sourceSubmittedDoorwayCameraDt } from './source-submitted-doorway-cadence.mjs';
 import { createTowerVoidProgramPrewarm } from './void-program-prewarm.mjs';
 import { sourceOriginalGatewayCameraBridge, observedOriginalGatewaySubmittedView } from './original-gateway-submitted-camera-bridge.mjs';
@@ -2608,6 +2608,24 @@ export function createTowerScene(canvas, settings = {}) {
   const physicalDoorwaySubmissionAudit = [];
   let physicalDoorwayAuditEpisode = null;
   const thresholdHero = new THREE.Vector3(), thresholdGate = new THREE.Vector3();
+  // Genuine third subject of the original guardian passage: the already
+  // authored walkable F9 ground beyond its HP-open gate, not a HUD target.
+  const thresholdWalkable = new THREE.Vector3();
+  const thresholdWalkableProjection = new THREE.Vector3();
+  const thresholdWalkableBefore = [0,0,0], thresholdWalkableAfter = [0,0,0];
+  function recordWalkableProjection(out) {
+    thresholdWalkableProjection.copy(thresholdWalkable).project(camera);
+    out[0]=thresholdWalkableProjection.x;
+    out[1]=thresholdWalkableProjection.y;
+    out[2]=thresholdWalkableProjection.z;
+    return out;
+  }
+  function walkablePreviouslyReadable(projection) {
+    return projection.every(Number.isFinite) &&
+      projection[2]>=-1 && projection[2]<=1 &&
+      Math.abs(projection[0])<=.78 && Math.abs(projection[1])<=.76 &&
+      towerCoreSightlineClear(camera.position,thresholdWalkable,23.5);
+  }
   const thresholdGaze = new THREE.Vector3(), thresholdPreviousGaze = new THREE.Vector3();
   const thresholdPreviousCamera = new THREE.Vector3(), thresholdBestCamera = new THREE.Vector3();
   const thresholdBestGaze = new THREE.Vector3(), thresholdProjection = new THREE.Vector3();
@@ -4758,6 +4776,10 @@ export function createTowerScene(canvas, settings = {}) {
     // snaps to an unrelated violet shot before the actor walks through.
     // Rebase the OLD lens into the new chunk, then blend it out by genuinely
     // returned Floor9 frames. Geometry/source authority remain unchanged.
+    const physicalWalkableShot = coldArchLens?.sourceBound===true &&
+      coldArchProof ? observedSourceWalkableCrossfloorShot(snapshot,coldArchProof) : null;
+    if(physicalWalkableShot?.sourceBound===true)
+      thresholdWalkable.set(...physicalWalkableShot.world);
     const originalBridge=sourceOriginalGatewayCameraBridge(
       snapshot,coldArchProof,originalGatewaySubmittedCamera,{
         camera:options.camera,overview,stale:options.stale,
@@ -4773,6 +4795,8 @@ export function createTowerScene(canvas, settings = {}) {
         coldArchProof.thresholdX,coldArchProof.oldRoofY,
         snapshot.chunkBaseY,snapshot.worldWidth);
       if(originalPose)thresholdGate.set(originalPose.x,originalPose.y+2,originalPose.z);
+      const bridgeWalkableHeld=!!physicalWalkableShot &&
+        walkablePreviouslyReadable(recordWalkableProjection(thresholdWalkableBefore));
       const bridgePhysicalBefore=originalPose
         ?world.measureSuccessorDeckVisibility(
           snapshot,camera.position,thresholdHero,p.halfHeight/SCALE,
@@ -4802,7 +4826,12 @@ export function createTowerScene(canvas, settings = {}) {
           thresholdGate,targetPlatform?.id??null):null;
       const bridgePhysical=assessOriginalGatewayPhysicalCameraBridge(
         bridgePhysicalBefore,bridgePhysicalAfter);
-      if(bridgeProjectionAndCoreSafe && bridgePhysical.allowed){
+      const bridgeKeepsWalkable=!bridgeWalkableHeld ||
+        (towerCoreSightlineClear(camera.position,thresholdWalkable,23.5) &&
+          sourceWalkableCrossfloorProjectionHeld(thresholdWalkableBefore,
+            recordWalkableProjection(thresholdWalkableAfter)));
+      if(bridgeProjectionAndCoreSafe && bridgePhysical.allowed &&
+          bridgeKeepsWalkable){
         originalGatewayCameraBridgeAccepted++;
         originalGatewayCameraPhysicalAccepted++;
       }else{
@@ -4844,6 +4873,8 @@ export function createTowerScene(canvas, settings = {}) {
       const existingDeckView=world.measureSuccessorDeckVisibility(
         snapshot,camera.position,thresholdHero,p.halfHeight/SCALE,
         thresholdGate,targetPlatform?.id??null);
+      const walkableHeldForDeck=!!physicalWalkableShot &&
+        walkablePreviouslyReadable(recordWalkableProjection(thresholdWalkableBefore));
       if(existingDeckView?.active && existingDeckView.score>0) {
         successorDeckCameraProbes=Math.min(1000000,successorDeckCameraProbes+1);
         // The full-body ray can now strike the ACTUAL source-owned F9
@@ -4873,6 +4904,14 @@ export function createTowerScene(canvas, settings = {}) {
           camera.lookAt(lookAt);camera.updateMatrixWorld(true);
           if(!towerCoreSightlineClear(camera.position,thresholdHero,23.5) ||
              !towerCoreSightlineClear(camera.position,thresholdGate,23.5))
+            continue;
+          // Source-authenticated F9 ground was already in the previous
+          // readable frame: no dramatic clearance orbit may silently crop
+          // the physical route while rescuing only body + old bronze arch.
+          if(walkableHeldForDeck &&
+             (!towerCoreSightlineClear(camera.position,thresholdWalkable,23.5) ||
+              !sourceWalkableCrossfloorProjectionHeld(thresholdWalkableBefore,
+                recordWalkableProjection(thresholdWalkableAfter))))
             continue;
           measureDuelBodyNdc(thresholdHero,p.halfHeight/SCALE,
             camera,duelTop,duelBottom,thresholdHeroAfter);
@@ -4951,7 +4990,14 @@ export function createTowerScene(canvas, settings = {}) {
         camera,duelTop,duelBottom,thresholdHeroBefore);
       measureDuelBodyNdc(thresholdGate,2.1,
         camera,duelTop,duelBottom,thresholdGateBefore);
+      const walkableHeldBeforeThreshold=!!physicalWalkableShot &&
+        walkablePreviouslyReadable(recordWalkableProjection(thresholdWalkableBefore));
+      // Actually show the legitimate floor beyond the OPEN physical gate,
+      // not merely the old arch and actor against empty atmospheric space.
+      // Keep the existing small-frame speed cap, exterior core safety,
+      // real-deck triangle veto and exact original source condition.
       thresholdGaze.copy(thresholdHero).lerp(thresholdGate,.50);
+      if(physicalWalkableShot)thresholdGaze.lerp(thresholdWalkable,.24);
       thresholdGaze.sub(thresholdPreviousGaze);
       const gazeDistance=thresholdGaze.length();
       if (gazeDistance > .0001) {
@@ -4976,9 +5022,24 @@ export function createTowerScene(canvas, settings = {}) {
             camera,duelTop,duelBottom,thresholdHeroAfter);
           measureDuelBodyNdc(thresholdGate,2.1,
             camera,duelTop,duelBottom,thresholdGateAfter);
-          const gain=sourceDoorwayFrameGain(
+          let routeGain=0;
+          if(physicalWalkableShot){
+            const actualRouteCoreClear=towerCoreSightlineClear(
+              camera.position,thresholdWalkable,23.5);
+            recordWalkableProjection(thresholdWalkableAfter);
+            if(walkableHeldBeforeThreshold &&
+               (!actualRouteCoreClear ||
+                !sourceWalkableCrossfloorProjectionHeld(
+                  thresholdWalkableBefore,thresholdWalkableAfter)))
+              continue;
+            routeGain=sourceWalkableCrossfloorFrameGain(
+              thresholdHeroBefore,thresholdGateBefore,thresholdWalkableBefore,
+              thresholdHeroAfter,thresholdGateAfter,thresholdWalkableAfter,
+              true,true,actualRouteCoreClear);
+          }
+          const gain=Math.max(sourceDoorwayFrameGain(
             thresholdHeroBefore,thresholdGateBefore,
-            thresholdHeroAfter,thresholdGateAfter,true,true);
+            thresholdHeroAfter,thresholdGateAfter,true,true),routeGain);
           if (gain>best){
             best=gain;
             thresholdBestCamera.copy(camera.position);
