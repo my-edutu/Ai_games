@@ -1,11 +1,12 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-18T21:51:00.000Z",
+  "updatedAt": "2026-11-18T22:32:02.376Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass488 exact SHA 07ddefff native WebGL workflow 44393068318 SUCCESS; artifact 14468614196 exists but its raw screenshots were NOT re-downloaded, hash-checked or artistically judged this run. Whole-repo CI 44393068312 fails separate Tiny Kingdom OBS and artifact uploads. Pass489 original weather vane physically telescopes on a witnessed guardian brace and retracts on actual release/earned counter; same true public lane, unchanged AI/collision/strict thresholds. Installed-Three and new exact-HEAD native captures pending; Nintendo-quality and natural continuous chapter remain unproven."
+    "summary": "Pass489 exact SHA d20ffe54 focused native WebGL workflow 44405036107 SUCCESS 8/8 including unchanged six-reset geometry <100. Its original artifact 14476735603 was downloaded and 40/40 original full-resolution PNG sidecars plus all 3 genuine gate chronology hashes were independently verified; original uncropped 390px parry still obscures Pip/Thornback with four tall signal towers. Pass490 makes all four existing connected guardian sentinels physically descend into rooted footings on the genuinely witnessed earned lantern counter (rather than rise), leaving normal public brace intact. New Pass490 exact-HEAD CI/WebGL renders pending; official Nintendo quality and natural continuous pressure–guardian–key–gate–escape not yet proven. Whole-repo Pass489 CI fails separate Tiny Kingdom OBS/artifact uploads; independent worker tunnel unavailable. OPEN DRAFT, no merge/deploy."
   },
   "captures": [
+    {"title":"Pass489 exact source d20ffe54 WebGL 8/8 success, 40/40 untouched full-frame PNG hashes and all 3 chronological gate hashes verified; Pass490 original comparison baseline","url":"https://github.com/my-edutu/Ai_games/actions/runs/44405036107/artifacts/14476735603"},
     {
       "title": "Pass488 exact SHA 07ddefff focused WebGL 8 browser checks SUCCESS; original artifact exists but not independently rehashed in Pass489",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44393068318/artifacts/14468614196"

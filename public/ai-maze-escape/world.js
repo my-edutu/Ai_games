@@ -3915,11 +3915,18 @@ export function createMazeWorld(options = {}) {
           vane.tip.material=counterWave>.18?inlay:warningAction>.3?amber:lightStone;
         }
       }
-      // The FULL linked 3D standard rises with the real published brace,
-      // drops on release and instantly neutralizes on hidden/invalid/terminal.
-      // Reduced motion preserves color but freezes all physical translation.
+      // The FULL linked 3D standard rises with the genuine public brace.
+      // Original uncropped 390px earned-counter WebGL shows the four elevated
+      // shell fans still masking Pip and a retreating Thornback after the win.
+      // A real earned counter now draws their WHOLE connected shafts, crowns,
+      // lenses and hinged shells DOWN into the original rooted stone footings,
+      // sequentially from Pip toward Thornback on the existing witnessed wave.
+      // This is an actual reversible physical collapse, not a transparent
+      // mesh, phantom attack, new passage, moved actor, hidden clue or collider.
+      // Release without an earned parry returns them to their resting height.
+      // Reduced motion always stays settled and completely still.
       for(const beacon of signal.sentinels){
-        beacon.lift.position.y=reduced ? .04 : .04+warningAction*.42+counterWave*.22;
+        beacon.lift.position.y=reduced ? .04 : .04+warningAction*.42-counterWave*.84;
         beacon.crown.material=counterWave>.1?inlay:action>.28?amber:seaGlass;
         beacon.lens.material=counterWave>.1?lightStone:action>.28?amber:inlay;
         // The entire linked shell fan opens laterally into the non-walkable
