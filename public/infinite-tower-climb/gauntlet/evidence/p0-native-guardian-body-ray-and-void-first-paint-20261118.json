@@ -807,8 +807,8 @@
       "tests/phase3/tower-floor-nine-grounded-runway.test.cjs"
     ],
     "priorExactHeadCI": "https://github.com/my-edutu/Ai_games/actions/runs/44279575276 — 9/10, Phase3/1 expected old lexical branch and failed; repaired assertion retains production fail-closed handling",
-    "newExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44286824458 — pending at filing, no green claim",
-    "newOriginalGameCapture": "NOT YET RECORDED for implementation SHA; immutable source-pinned request to follow",
+    "newExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44287599023 — PENDING on immutable 84f54179; CI is veto, no pass claim",
+    "newOriginalGameCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44287599235 — QUEUED on immutable 84f54179, uninspected; no result/cosmetic improvement claim",
     "authenticatedCaptureConditions": "Original baseline/candidate 960x600 and 390x844, seed tower-transformation-capture-v1, low tier, 1x, 25fps, 60+s, ascent/moving/danger/outcome-restart",
     "genuineIndependentCriticVotes": {
       "LOOKS": "0/5",
@@ -818,6 +818,8 @@
     "hardwareFrameTimeP50P95P99": "NOT EVALUATED",
     "deviceMemory": "NOT EVALUATED",
     "nextHighestImpactAction": "Run new immutable candidate original full-motion evidence; inspect earned threshold roof under both airborne and standing frames. If two consecutive source-paired co-visible frames are still absent, overhaul physical old bronze gate/cap plus F9 shaft composition together, not fades.",
-    "safety": "Same draft PR68 based on PR58; frozen baseline and transformation.json untouched; no unrelated game, merge, deploy, force-push, draft conversion"
+    "safety": "Same draft PR68 based on PR58; frozen baseline and transformation.json untouched; no unrelated game, merge, deploy, force-push, draft conversion",
+    "newCandidateCapturePin": "84f54179b898071d013b0ff5ac563cde430998ce",
+    "sourceProductionUnchangedSince": "a8ebc5aa31f329bcc4024b5e744eae7f29087226"
   }
 }
