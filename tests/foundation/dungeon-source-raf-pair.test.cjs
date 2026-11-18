@@ -28,3 +28,33 @@ test('invalid samples fail closed without manufacturing an actor or event',()=>{
  assert.equal(pairOriginalSourceFrames([f(1),f(2)],-1,'vanguard').pairs.length,0);
  assert.equal(pairOriginalSourceFrames([f(1),f(2)],8,'').pairs.length,0);
 });
+
+
+// Original-GLB render cadence, not an encoded WebM packet frame rate.
+// This contract must never treat held milestones, skipped native rAF frames,
+// different source actors, or different authority ticks as fluid animation.
+test('RED: real original source rAF cadence is measurable without inventing rendered frames',()=>{
+ const {summarizeOriginalSourceRafCadence:measure}=
+  require('../browser/dungeon-source-raf-pair.cjs');
+ const s=(frame,ms,more={})=>({
+  frame,tick:8,actorId:'vanguard',sourceClipName:'Walking_A',
+  sourceInstanceId:'licensed-vanguard-1',
+  visible:true,timeMs:ms,...more
+ });
+ const stable=measure([s(101,0),s(102,40),s(103,80),s(104,120)],8,'vanguard');
+ assert.equal(stable.comparablePairs,3);
+ assert.equal(stable.medianFrameGapMs,40);
+ assert.equal(stable.p95FrameGapMs,40);
+ assert.equal(stable.observedCallbackFps,25);
+ assert.equal(stable.nativeMotionVerified,false,
+  'even a true 25Hz screenshot cadence never certifies travelling soles or all six source rigs');
+ assert.equal(stable.requestedCaptureFps,undefined,
+  'MediaRecorder 24fps request is not true delivered WebGL animation evidence');
+ const bad=measure([s(101,0),s(102,40,{tick:9}),
+  s(105,100),s(106,105,{sourceInstanceId:'different-GLB'}),
+  s(107,145,{visible:false}),s(108,180,{timeMs:NaN})],8,'vanguard');
+ assert.equal(bad.comparablePairs,0);
+ assert.ok(bad.rejectedPairs>=5);
+ assert.equal(bad.observedCallbackFps,null);
+ assert.equal(measure(null,8,'vanguard').comparablePairs,0);
+});
