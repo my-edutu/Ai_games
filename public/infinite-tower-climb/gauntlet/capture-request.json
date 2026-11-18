@@ -6408,5 +6408,40 @@
     },
     "actualHardware": "NOT EVALUATED",
     "safety": "Remain PR68 draft, preserve frozen baseline, PR58 and other games, no merge/deploy/force-push"
+  },
+  "p0OriginalOpenedGuardianWalkableFloorNineThreeSubjectNative20261118": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "actualProductionThreeCameraSourceSha": "e287acc8f6f808ebb14e91d9522eead240afa0e3",
+    "productionRegressionTestSha": "fad435b763986054f5d2d2125d8e10f02c9fbd1e",
+    "candidatePin": "EXACT immutable GitHub Actions github.sha OF THIS capture-request commit, never floating branch HEAD",
+    "seed": "tower-transformation-capture-v1",
+    "graphicsTier": "low",
+    "viewports": [
+      "960x600 desktop",
+      "390x844 portrait"
+    ],
+    "nativePlayback": "Original unchanged 1x at 25fps, >=60 seconds each complete recorded scenario; no splices, staged poses, synthetic images, invented events",
+    "scenarios": [
+      "ascent",
+      "moving-platform traversal",
+      "real guardian, crusher, HP0 and physical F8-to-F9 gateway",
+      "outcome and fresh restart"
+    ],
+    "objective": "Inspect original physical source earned guardian gateway as climber passes a grounded existing f9:ground threshold; test whether cold inherited lens, actual triangle blocker camera recovery, and final cautious three-subject aim keep COMPLETE original skinned hero, OPEN HP0 bronze gateway and GENUINELY walkable F9 source ground visible together for >=2 consecutive true source-event-paired native frames on both desktop and portrait. Require full source WebGL returned-frame and native PTS correspondence, later F9/F10 and outcome/restart, and all genuine no-regression gates.",
+    "predecessorExactQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44253687509 — 10/10 completed on OLD f8e6b6f source; candidate e287acc quality pending at request",
+    "lastOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44250489452 — all 8 baseline/candidate originals recorded; strict 0/2 event-aligned source A/B; approx HUD→Void desktop 1.00s portrait 0.75s. Original bronze cap/gate continues covering body and route",
+    "noFabrication": "No code CI, clip existence, original video metadata, chroma or source proof substitutes actual painted whole-body/gate/deck pixels. The frozen baseline may lack the same boss episode: leave unmatched comparison NOT EVALUATED, never manufacture reviewer preference",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "hardware": {
+      "frameTime": "NOT EVALUATED p50/p95/p99",
+      "memory": "NOT EVALUATED"
+    },
+    "next": "Inspect full original native 1x and exact-head CI, compare cold camera/route source screen NDC and actual cap/gate triangle rays. If co-visibility still fails, correct the actual occluding bronze cap/gate architecture or viewport camera shot, staying P0. No draft conversion, PR58 edit, merge, deploy or force-push."
   }
 }
