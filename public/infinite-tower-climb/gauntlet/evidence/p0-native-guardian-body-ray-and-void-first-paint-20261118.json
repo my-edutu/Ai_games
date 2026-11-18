@@ -279,7 +279,32 @@
       },
       "mostImportantNativeFootageDefect": "Despite source-authenticated Floor 8 guardian defeat and supported Floor 9 onward traversal, there is no source-aligned consecutive original video proof of the complete climber, HP-open retained guardian gateway and actual walkable F9 destination in one continuous physical crossing. During the visible F9 HUD scene, old bronze gallery posts and pale warm space dominate; the monumental purple Void architecture becomes sustained ~1.75s desktop/~2.00s portrait later.",
       "criticalNewFinding": "Both viewports show approximately 1.10s of accepted Floor9 browser state to first successful Three.js renderer return before old/new scene optical clearance is even possible. Desktop first actual renderer.render call itself took ~300ms and portrait ~260ms. This is an observed Chromium software-renderer presentation bottleneck, NOT actual-device GPU p95/p99, not proof of a causal speed regression, and cannot be fixed solely by reducing an already-returned historical-gallery alpha.",
-      "importantQualification": "The native purple chroma heuristic and HUD pixel classifier do not prove physically visible contact, guardian hit, or native source event alignment. Projected safe NDC positions are not visible skin pixels. The baseline lacks the identical earned guardian episode; do not claim blind paired victory or fabricate matching frames."
+      "importantQualification": "The native purple chroma heuristic and HUD pixel classifier do not prove physically visible contact, guardian hit, or native source event alignment. Projected safe NDC positions are not visible skin pixels. The baseline lacks the identical earned guardian episode; do not claim blind paired victory or fabricate matching frames.",
+      "exactFirstReturnedFrameProfiler": {
+        "source": "Unmodified original candidate desktop/portrait danger motion.json sourceToPresentationTrace from actions run 44217384447; existing scene.mjs renderProgress measurements; no new instrumentation needed",
+        "desktop": {
+          "browserAcceptedToFirstReturnMs": 1099,
+          "sceneUpdateMs": 345.9,
+          "withinSceneUpdateWorldRebuildMs": 236.7,
+          "rendererReturnMs": 299.6,
+          "totalMeasuredRenderWorkMs": 645.5,
+          "unattributedSchedulingAndOtherTimeMs": 453.5,
+          "firstFloorNineDrawCalls": 119,
+          "firstFloorNineTriangles": 95949,
+          "sourceTick": 478,
+          "softwareCanvasResolutionScale": 0.6
+        },
+        "portrait": {
+          "browserAcceptedToFirstReturnMs": 1097,
+          "sceneUpdateMs": 418.8,
+          "withinSceneUpdateWorldRebuildMs": 220.4,
+          "rendererReturnMs": 260.2,
+          "totalMeasuredRenderWorkMs": 679,
+          "unattributedSchedulingAndOtherTimeMs": 418,
+          "sourceTick": 476
+        },
+        "integrityNotes": "WorldRebuildMs is INCLUDED in sceneUpdateMs and must not be added twice. Unattributed time is wall interval minus measured JS scene and WebGL return work; not necessarily GPU idle or network. Source age and actual displayed compositor PTS remain separately uncalibrated. Measurements are Chromium software renderer, not hardware FPS or statistically sampled GPU frame-time budget."
+      }
     },
     "sourceAndSafety": "Reviewed AGENTS.md, binding 2026-11-01 transformation design, Tower GAUNTLET.md, actual World deferred geometry/return logic, both PR68/PR58 status and exact-head jobs. Original frozen transformation.json and PR58 untouched. No playable-code change or new claim of performance gain in this execution.",
     "independentReviews": {
@@ -288,6 +313,6 @@
       "PLAYS": "0/5"
     },
     "actualDeviceFrameTimeAndMemory": "NOT EVALUATED",
-    "nextHighestImpactAction": "Stay P0: instrument first F9 cold rebuild CPU interval separately from renderer.render return and actual source-browser clock in the existing original capture sidecar; then redesign the source-earned first Floor9 structural upload to move or eliminate the observed ~1.1s initial return stall while retaining old HP-open gateway and all real playable decks. Recapture normal-speed original desktop/portrait from exact changed SHA, inspect two consecutive event-aligned frames of authentic gateway, climber and F9 route. Do not advance to P1 on test green alone."
+    "nextHighestImpactAction": "P0: Existing sourceToPresentationTrace already separates World CPU rebuild 220–237ms, total scene update 346–419ms and first renderer return 260–300ms. Do NOT add redundant diagnostic instrumentation. Make a substantial source-authentic original F9 critical-path CPU/scene and first-submission renderer-cost reduction, not more old-gallery opacity micro-edits; preserve real HP-open gateway and all actual F9 collision/support geometry. Re-capture immutable source exact SHA and inspect consecutive native original frames with ground + gate + full climber in both viewports. Baseline still lacks identical earned guardian episode, so strict matched P6 critic votes remain NOT EVALUATED."
   }
 }
