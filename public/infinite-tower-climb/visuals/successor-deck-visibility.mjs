@@ -222,7 +222,20 @@ export function protectSourceSuccessorUndercroft({
   const currentPosition=camera.position;
   const dx=body.x-currentPosition.x,dz=body.z-currentPosition.z;
   const length=Math.hypot(dx,dz);
+  // The ORIGINAL 390x844 WebM at f13902b shows opaque old-cap skirt
+  // triangles on the *actual full-body sole ray* while the old five-ray
+  // shoulder/helmet samples report the route clear. Keep two additional
+  // lower silhouette rays bounded by the CURRENT authoritative collision
+  // width; never invent a body, future pose or proxy obstruction.
+  const p=source.player;
+  const authenticWidth=Number.isSafeInteger(p?.halfWidth) &&
+    Number.isSafeInteger(p?.halfHeight) &&
+    p.halfWidth>0 && p.halfHeight>0 &&
+    p.halfWidth<=p.halfHeight*1.5;
   const side=length>.01?Math.min(.55,bodyHalfHeight*.36):0;
+  const footSide=authenticWidth && length>.01
+    ?Math.min(side,bodyHalfHeight*p.halfWidth/p.halfHeight*.82):0;
+  const bodySamples=footSide>0?8:6;
   for(const entry of safeEntries){
     const {mesh,material,tint}=entry;
     if(tint?.color?.isColor && material.color?.copy)
@@ -233,9 +246,12 @@ export function protectSourceSuccessorUndercroft({
     mesh.updateWorldMatrix?.(true,false);
     let blocked=false;
     if(mesh.visible!==false){
-      const sampleCount=gate?6:5;
+      // Centre, helmet, near sole, two real shoulders, EXACT sole and
+      // source-width lower ankles; optional original gate centre/lip.
+      // <=10 rays per existing skirt, <=6 source-owned skirts total.
+      const sampleCount=bodySamples+(gate?2:0);
       for(let s=0;s<sampleCount;s++){
-        point.copy(s===5?gate:body);
+        point.copy(gate && s>=bodySamples?gate:body);
         if(s===1)point.y+=bodyHalfHeight*.82;
         else if(s===2)point.y-=bodyHalfHeight*.76;
         else if(s===3 || s===4){
@@ -243,7 +259,14 @@ export function protectSourceSuccessorUndercroft({
           const sign=s===3?1:-1;
           point.x+=sign*side*dz/Math.max(.01,length);
           point.z-=sign*side*dx/Math.max(.01,length);
-        }
+        } else if(s===5) {
+          point.y-=bodyHalfHeight;
+        } else if(s>=6 && s<bodySamples) {
+          point.y-=bodyHalfHeight*.92;
+          const sign=s===6?1:-1;
+          point.x+=sign*footSide*dz/Math.max(.01,length);
+          point.z-=sign*footSide*dx/Math.max(.01,length);
+        } else if(gate && s===bodySamples+1) point.y+=1.2;
         direction.copy(point).sub(currentPosition);
         const distance=direction.length();
         if(!finite(distance)||distance<=.4)continue;
