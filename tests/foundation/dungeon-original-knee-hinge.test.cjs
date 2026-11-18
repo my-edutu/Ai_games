@@ -309,7 +309,7 @@ test('RED: deeply buried original ankle may escalate to linked hip-knee only on 
 });
 
 
-test('RED: genuine 390px original swinging-calf 200mrad trial may recover buried toe within 1.5mm pitch-noise budget',async()=>{
+test('real original 390px steep calf must refuse a worsening source-shoe pitch despite toe lift',async()=>{
  const {selectOriginalSourceSwingCalfTrial:select,
   confirmOriginalSourceSwingCalfNetClearance:confirm}=await load();
  // Actual source-skinned player_swordsman.glb, mobile nine-tick receipt
@@ -328,19 +328,22 @@ test('RED: genuine 390px original swinging-calf 200mrad trial may recover buried
    {signed:-.2,toe:-.08224629296919025,heel:.20952298448658355},
    {signed:.2,toe:-.03535431468506266,heel:.2702638529305913}
   ]};
- const positive=select(source);
- assert.equal(positive?.signed,.2,
-  'the real 26.69mm toe gain should not be discarded for 0.87mm of heel-dominant pitch difference');
- assert.ok(positive.toe-source.afterAnkleToeY>.026);
- assert.ok(positive.heel-source.afterAnkleHeelY-(positive.toe-source.afterAnkleToeY)<.0015);
+ const originalTrial=source.trials[3];
+ assert.ok(originalTrial.toe-source.afterAnkleToeY>.026);
+ assert.ok(originalTrial.heel-source.afterAnkleHeelY-(originalTrial.toe-source.afterAnkleToeY)>.0008);
+ assert.equal(select(source),null,
+  'the true 26.69mm toe gain also raises the airborne heel 27.56mm, steepening the buried source shoe');
  // Separate synthetic final outcomes, NOT observed GLB at 180mrad. The
  // renderer must STILL re-skin at the actual applied angle and veto unsafe
  // two-shoe, XZ, deformation, owner or weapon continuity before acceptance.
  const restricted={floorTopY:-.02,
   beforeToeY:source.afterAnkleToeY,beforeHeelY:source.afterAnkleHeelY,
   afterToeY:-.0380,afterHeelY:.2673,appliedAngleRad:.18};
- assert.equal(confirm(restricted),true,
-  'same-GLB final probe with 24mm toe relief and sub-mm shoe-pitch drift may be retained');
+ assert.equal(confirm(restricted),false,
+  'synthetic final trial still buries its toe while raising heel slightly faster: not a physical correction');
+ const pitchSafeHypothesis={...restricted,afterHeelY:.264};
+ assert.equal(confirm(pitchSafeHypothesis),true,
+  'a clearly labelled synthetic flatter-shoe trial remains eligible for independent original-GLB skinning');
  for(const altered of [
   {afterHeelY:.2697},
   {afterToeY:-.056,afterHeelY:.2492},
@@ -348,7 +351,7 @@ test('RED: genuine 390px original swinging-calf 200mrad trial may recover buried
   {afterHeelY:.45},
   {appliedAngleRad:.21},
   {floorTopY:.1}
- ])assert.equal(confirm({...restricted,...altered}),false,
+ ])assert.equal(confirm({...pitchSafeHypothesis,...altered}),false,
   'unverified steepening, tiny lift, deeper toe, invalid knee or stone must remain fail closed');
  assert.equal(select({...source,trials:source.trials.map(t=>t.signed===.2?
   {...t,heel:t.heel+.003}:t)}),null,

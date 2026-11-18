@@ -2284,19 +2284,13 @@ export function planOriginalSourceSwingCalfAssist({
  * and changes neither mixer keys nor the authoritative character position.
  */
 /**
- * A pinned source-skinned 390px Walking_A calf probe raised an already buried
- * swinging toe 26.69mm while raising its airborne heel 27.56mm. A <1mm
- * difference across a >300mm shoe is below a visible pitch change, yet the
- * old strict inequality discarded almost 27mm of real clearance. Allow only
- * a >=18mm measured toe recovery with <=1.5mm AND <=6% heel-dominant drift.
- * This does NOT certify foot contact: the renderer still applies its strictly
- * bounded original bone delta, independently re-skins BOTH shoes, and may
- * revert the entire pose. No root motion, IK target or new probe is added.
+ * Real original 390px source skin exposed a false positive in the previous
+ * heel-dominant <1.5mm tolerance: the +0.2rad knee raised the toe 26.69mm
+ * but the airborne heel 27.56mm, making a still-buried shoe more toe-down.
+ * Reject even submillimetre steepening while the actual toe remains buried.
+ * A genuinely cleared toe may pass the existing other-sole and final native
+ * skinning gates; no sole lock or target is inferred from these heights.
  */
-const isNearNeutralSourceSwingPitch=(toeLift,heelRise)=>
- finite(toeLift)&&finite(heelRise)&&
- toeLift>=.018&&heelRise>toeLift&&
- heelRise-toeLift<=Math.min(.0015,toeLift*.06);
 
 export function confirmOriginalSourceSwingCalfNetClearance({
  floorTopY=NaN,beforeToeY=NaN,afterToeY=NaN,
@@ -2320,8 +2314,7 @@ export function confirmOriginalSourceSwingCalfNetClearance({
  // and left 9.4mm of toe inside stone. Veto an even more vertical foot.
  const steepBuriedSource=initialHeel>=.20&&toeIntrusion>=.025&&
   floorTopY-afterToeY>.005;
- if(steepBuriedSource&&afterHeelY-beforeHeelY>actualLift+.000001&&
-  !isNearNeutralSourceSwingPitch(actualLift,afterHeelY-beforeHeelY))
+ if(steepBuriedSource&&afterHeelY-beforeHeelY>actualLift+.000001)
   return false;
  const stillDeep=toeIntrusion>.035&&floorTopY-afterToeY>.025;
  return !stillDeep||actualLift+0.000001>=toeIntrusion*.10;
@@ -2360,8 +2353,7 @@ export function selectOriginalSourceSwingCalfTrial({
   const steepBuriedSource=afterAnkleHeelY-floorTopY>=.20&&
    floorTopY-afterAnkleToeY>=.025&&floorTopY-toe>.005;
   if(steepBuriedSource&&heel-afterAnkleHeelY>
-   toe-afterAnkleToeY+.000001&&
-   !isNearNeutralSourceSwingPitch(toe-afterAnkleToeY,heel-afterAnkleHeelY))
+   toe-afterAnkleToeY+.000001)
    continue;
   // Rank only the same original skinned sole samples already gathered.
   // An extra 3mm of toe lift is not worth making an airborne shoe
