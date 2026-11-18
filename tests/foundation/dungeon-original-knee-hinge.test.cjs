@@ -307,3 +307,50 @@ test('RED: deeply buried original ankle may escalate to linked hip-knee only on 
  assert.match(source,/actor\.sourceSwingToeCurrentFrameProofs\[side\]=reconciled/);
  assert.match(source,/actor\.sourceSwingLinkedCurrentFrameProofs\[side\]=\{/);
 });
+
+
+test('RED: genuine 390px original swinging-calf 200mrad trial may recover buried toe within 1.5mm pitch-noise budget',async()=>{
+ const {selectOriginalSourceSwingCalfTrial:select,
+  confirmOriginalSourceSwingCalfNetClearance:confirm}=await load();
+ // Actual source-skinned player_swordsman.glb, mobile nine-tick receipt
+ // at 08ba1ffa / Actions #44210502484, tick 8, floor top -20mm.
+ // The right lowerlegr X-axis is authenticated by Walking_A (6 keys,
+ // 0.7647668rad peak), 0.170670m upper and 0.112316m lower inverse binds.
+ // These four toe/heel endpoints were measured on the SAME source frame;
+ // they are not the hypothetical final 180mrad applied-joint sample.
+ const source={floorTopY:-.02,
+  afterAnkleToeY:-.06204499368480179,
+  afterAnkleHeelY:.2427077612842324,
+  previousAssistRad:0,
+  trials:[
+   {signed:-.1,toe:-.07301364467472421,heel:.2267409528934365},
+   {signed:.1,toe:-.04944993513436013,heel:.2572638745874555},
+   {signed:-.2,toe:-.08224629296919025,heel:.20952298448658355},
+   {signed:.2,toe:-.03535431468506266,heel:.2702638529305913}
+  ]};
+ const positive=select(source);
+ assert.equal(positive?.signed,.2,
+  'the real 26.69mm toe gain should not be discarded for 0.87mm of heel-dominant pitch difference');
+ assert.ok(positive.toe-source.afterAnkleToeY>.026);
+ assert.ok(positive.heel-source.afterAnkleHeelY-(positive.toe-source.afterAnkleToeY)<.0015);
+ // Separate synthetic final outcomes, NOT observed GLB at 180mrad. The
+ // renderer must STILL re-skin at the actual applied angle and veto unsafe
+ // two-shoe, XZ, deformation, owner or weapon continuity before acceptance.
+ const restricted={floorTopY:-.02,
+  beforeToeY:source.afterAnkleToeY,beforeHeelY:source.afterAnkleHeelY,
+  afterToeY:-.0380,afterHeelY:.2673,appliedAngleRad:.18};
+ assert.equal(confirm(restricted),true,
+  'same-GLB final probe with 24mm toe relief and sub-mm shoe-pitch drift may be retained');
+ for(const altered of [
+  {afterHeelY:.2697},
+  {afterToeY:-.056,afterHeelY:.2492},
+  {afterToeY:-.093},
+  {afterHeelY:.45},
+  {appliedAngleRad:.21},
+  {floorTopY:.1}
+ ])assert.equal(confirm({...restricted,...altered}),false,
+  'unverified steepening, tiny lift, deeper toe, invalid knee or stone must remain fail closed');
+ assert.equal(select({...source,trials:source.trials.map(t=>t.signed===.2?
+  {...t,heel:t.heel+.003}:t)}),null,
+  'a 3.87mm shoe-pitch regression is NOT source-corrected walking');
+});
