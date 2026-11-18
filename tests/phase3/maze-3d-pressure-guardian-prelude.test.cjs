@@ -134,6 +134,10 @@ test('authentic reciprocal post-Thornback side alcove makes a consequential key 
    'never treat one-way/non-reciprocal map knowledge as a chamber');
  const gated=structuredClone(world);
  gated.doors.push({id:'side-door',a:5,b:16,requiredKeyId:'uncollected',critical:false,open:false,temporaryUntilTick:null});
- assert.equal(forwardGuardianKeyCell(gated,route,3).cell,5,
-   'a locked side alcove cannot hide its own required key');
+ const lockedFallback=forwardGuardianKeyCell(gated,route,3);
+ assert.deepEqual(lockedFallback,{keyId:'key-1',cell:6},
+   'the locked alcove is forbidden; cell 5 is now a real doorway endpoint, so use the next safe route tile');
+ assert.ok(!gated.doors.some(door=>door.a===lockedFallback.cell||door.b===lockedFallback.cell),
+   'the main-route fallback must never place a required key on a physical doorway endpoint');
+ assert.notEqual(lockedFallback.cell,16,'the required key must never spawn beyond its locked side door');
 });
