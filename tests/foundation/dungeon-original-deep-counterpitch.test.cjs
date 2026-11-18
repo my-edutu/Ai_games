@@ -941,3 +941,56 @@ test('RED-first: measured original 100ms desktop three-joint shoe pitch is accep
  assert.equal(choose({...source,trials:[wrongAngle]}),null,
   'reject unmeasured source foot angle');
 });
+
+
+// Genuine source window from original CC0 Walking_A 390px mobile WebGL
+// Actions #44290560418, native sole/hand trace tick6:
+// observed 66.7ms, left swing toe Y=-.11532459m, heel +.18262032m,
+// opposite near-loaded heel Y=-.04125572m/toe=-.03472260m.
+// Crucially, the trial shoe XZ and 12mm toe lift BELOW are a *synthetic*
+// test hypothesis, NOT observed successful applied source-foot motion.
+// This planner may only offer further angles for the ACTUAL GLB adapter
+// to try and independently re-skin; an eligible offer is NOT foot IK.
+test('RED: genuine 390px 66.7ms licensed linked-leg followup must remeasure both original shoes',async()=>{
+ const {planOriginalSourceDeepSwingFootFollowups:follow}=await load();
+ const left={heelY:.1826203152506556,toeY:-.11532459384370104,
+  heelXZ:[-3.71,-6.95],toeXZ:[-3.75,-6.94]};
+ const right={heelY:-.0412557182111836,toeY:-.03472259852533576,
+  heelXZ:[-3.83,-7.11],toeXZ:[-4.09,-7.13]};
+ const linkedProof={source:'measured-original-skinned-linked-leg',
+  sourceClip:'Walking_A',sourceInstanceId:'source-clone-mobile-tick6',
+  side:'left',contactLocked:false,oppositeShoePreserved:true,
+  upperRad:-.12,lowerRad:.09};
+ const measuredHypothesis={angleRad:-.12,axisKind:'original-clip-track',
+  after:{left:{...left,toeY:left.toeY+.0125,heelY:left.heelY+.002,
+   heelXZ:[left.heelXZ[0]+.002,left.heelXZ[1]],
+   toeXZ:[left.toeXZ[0]+.007,left.toeXZ[1]]},right}};
+ const source={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceInstanceId:'source-clone-mobile-tick6',
+  sourceFootChainVerified:true,sourceFootTrackVerified:true,
+  ownerLocomotion:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false,
+  rootTravel:.02808118335357416,frameAge:.0333,
+  frameInterval:.0667,side:'left',floorTopY:-.02,
+  linkedProof,before:{left,right},trials:[measuredHypothesis,{
+   ...measuredHypothesis,angleRad:.12,
+   after:{left:{...left,toeY:left.toeY-.007},right}}]};
+ assert.deepEqual(follow(source),[-.18,-.24],
+  'offer two bounded source-bone followups only after a heel-safe linked source trial');
+ // Preserve every authority/accessibility/bind/source and footwear gate.
+ for(const bad of [
+  {mode:'hurt'},{sourceClipName:'Idle'},{sourceWeight:.8},
+  {sourceInstanceSame:false},{sourceFootChainVerified:false},
+  {sourceFootTrackVerified:false},{ownerLocomotion:false},
+  {alive:false},{visible:false},{teleport:true},
+  {reducedMotion:true},{interrupted:true},{rootTravel:0},
+  {frameAge:.2},{frameInterval:.0333},{frameInterval:.16},
+  {linkedProof:{...linkedProof,sourceInstanceId:'other-source-clone'}},
+  {linkedProof:{...linkedProof,oppositeShoePreserved:false}},
+  {trials:[{...measuredHypothesis,after:{left:{
+   ...measuredHypothesis.after.left,heelY:left.heelY+.011},right}}]},
+  {trials:[{...measuredHypothesis,after:{left:
+   measuredHypothesis.after.left,right:{...right,toeY:right.toeY+.006}}}]}
+ ])assert.equal(follow({...source,...bad}),null,
+   'no illegal action, stale source, unmeasured shoe or unsafe trial may earn a stronger hinge');
+});
