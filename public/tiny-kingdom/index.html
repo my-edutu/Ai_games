@@ -11743,7 +11743,7 @@ function branchFrame(a,b){
 }
 // Gauntlet 047: render-only, budgeted, individually oriented conifer boughs.
 // Neither tree species nor needle orientation uses authoritative game RNG.
-const forestVisualStats={deciduous:0,conifers:0,needleBoughs:0,needleFanTriangles:0,branchTriangles:0,crownPalette:new Set(),broadleafLobes:0,individualLeaves:0,originalLeafTriangles:0,broadleafSpecies:[0,0,0],broadleafAddedTriangles:0,microCrownLobes:0,rimLeafSprays:0};
+const forestVisualStats={deciduous:0,conifers:0,needleBoughs:0,needleFanTriangles:0,branchTriangles:0,crownPalette:new Set(),broadleafLobes:0,individualLeaves:0,originalLeafTriangles:0,broadleafSpecies:[0,0,0],broadleafAddedTriangles:0,microCrownLobes:0,rimLeafSprays:0,nearBranchFans:0};
 // G089B: stable world-space forest importance, zero gameplay authority impact.
 // Near crowns remain exact, distant trunks/cones/crown cores all remain visible.
 let forestLodStats={renderedTrees:0,nearTrees:0,midTrees:0,farTrees:0,
@@ -11900,6 +11900,36 @@ function leafWhorl(tip,spread,season,style,seed,bladeCount=5){
  }
 }
 
+// W448: let the *existing* near broadleaf boughs breathe instead of hiding
+// the physical market/harvest corridor behind two spherical satellite blobs.
+// Two rooted five-blade sprays emerge from INSIDE the same main canopy lobe;
+// each actual tree, trunk, primary crown, job, nav edge and GPU buffer survives.
+// Previous: two 24-face sub-crowns + one 20-face distal whorl = 68 triangles.
+// Current: two double-sided five-blade fans = 40; -28 per actual near bough.
+// No procedural RNG, no camera-dependent resident mesh rebuild.
+function renderOriginalNearBroadleafFans(center,angle,radius,speciesWidth,speciesHeight,season,style,seed){
+ if(!Array.isArray(center)||center.length!==3||!center.every(Number.isFinite)||
+    ![angle,radius,speciesWidth,speciesHeight,seed].every(Number.isFinite)||
+    radius<=0||speciesWidth<=0||speciesHeight<=0||
+    !Number.isInteger(season)||season<0||season>3||
+    !Number.isInteger(style)||style<0||style>2)
+  throw Error('W448 invalid original rooted branch foliage');
+ for(let flank=0;flank<2;flank++){
+  const sign=flank?1:-1,
+   bearing=angle+sign*(.82+.12*Math.sin(seed+flank)),
+   reach=radius*(.58+.085*Math.cos(seed+flank*2));
+  // Anchor is still embedded inside the original physical parent lobe.
+  const root=[center[0]+Math.cos(bearing)*reach*speciesWidth,
+   center[1]-(flank?.17:.03)*radius*speciesHeight,
+   center[2]+Math.sin(bearing)*reach];
+  leafWhorl(root,radius*(.77+.09*Math.sin(seed*1.1+flank)),
+   season,style,seed+flank*.97,5);
+ }
+ forestVisualStats.nearBranchFans+=2;
+ forestLodStats.reclaimedTriangles+=28;
+ return 40;
+}
+
 function tree(x,z,s=1){
  const detailTier=forestDetailTier(x,z);
  forestLodStats.renderedTrees++;
@@ -11943,15 +11973,9 @@ function tree(x,z,s=1){
      false,true,detailTier==='far'?'far':detailTier!=='near');
     // Smaller outlying crowns are attached to branch tips. The position,
     // material and orientation are derived only from persistent coordinates.
-    for(let rim=0;rim<(detailTier==='near'?2:0);rim++){
-     const a=angle+(rim===0?.89:-1.06)+signature*.17,
-       far=radius*(rim===0?.69:.64);
-     crownLobe(center[0]+Math.cos(a)*far*speciesWidth,
-       center[1]+(rim===0?.17:-.22)*s*speciesHeight,
-       center[2]+Math.sin(a)*far,
-       radius*.35*speciesWidth,radius*.38*speciesHeight,radius*.39,
-       rgb(leafPalette[(i+rim+1)%3]),x*.24-z*.18+i*1.7+rim*.83,true);
-    }
+    if(detailTier==='near')renderOriginalNearBroadleafFans(
+     center,angle,radius,speciesWidth,speciesHeight,season,style,
+     x*.24-z*.18+i*1.7);
     if(detailTier!=='near'){
       // 6 cap + 12 belt + 6 underside triangles per overlapping micro-lobe.
       forestLodStats.skippedMicroLobes+=2;
@@ -11960,16 +11984,10 @@ function tree(x,z,s=1){
     leafWhorl([center[0]+.15*s,center[1]+.27*s,center[2]],radius*.83,season,style,
       x*.17+z*.11+i,detailTier==='near'?5:3);
     if(detailTier!=='near')forestLodStats.reclaimedTriangles+=8;
-    if(detailTier==='near'){
-      leafWhorl([center[0]+Math.cos(angle)*radius*.72*speciesWidth,
-         center[1]+.10*s*speciesHeight,
-         center[2]+Math.sin(angle)*radius*.72],radius*.69,season,style,
-        x*.23-z*.13+i*1.9);
-    }else{
-      // The primary five-blade whorl remains. This redundant distal whorl
-      // was 20 invisible backface-safe triangles at village-wide scale.
-      forestLodStats.skippedLeafWhorls++;
-      forestLodStats.reclaimedTriangles+=20;
+    if(detailTier!=='near'){
+     // Far/middle tiers retain their identical prior compact branches.
+     forestLodStats.skippedLeafWhorls++;
+     forestLodStats.reclaimedTriangles+=20;
     }
     forestVisualStats.rimLeafSprays++;
    });
@@ -32940,7 +32958,7 @@ getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStr
  needleBoughs:forestVisualStats.needleBoughs,
  needleFanTriangles:forestVisualStats.needleFanTriangles,
  branchTriangles:forestVisualStats.branchTriangles,
- broadleafLobes:forestVisualStats.broadleafLobes,microCrownLobes:forestVisualStats.microCrownLobes,rimLeafSprays:forestVisualStats.rimLeafSprays,individualLeaves:forestVisualStats.individualLeaves,broadleafSpecies:forestVisualStats.broadleafSpecies.slice(),broadleafAddedTriangles:forestVisualStats.broadleafAddedTriangles,
+ broadleafLobes:forestVisualStats.broadleafLobes,microCrownLobes:forestVisualStats.microCrownLobes,rimLeafSprays:forestVisualStats.rimLeafSprays,nearBranchFans:forestVisualStats.nearBranchFans,individualLeaves:forestVisualStats.individualLeaves,broadleafSpecies:forestVisualStats.broadleafSpecies.slice(),broadleafAddedTriangles:forestVisualStats.broadleafAddedTriangles,
  crownColors:forestVisualStats.crownPalette.size
 }),getGuildhallVisualStats:()=>({...guildhallVisualStats}),getStreetMorphologyStats:()=>({...streetMorphologyStats,archetypes:streetMorphologyStats.archetypes.slice()}),getCottageFacadeStats:()=>({...cottageFacadeStats,styles:cottageFacadeStats.styles.map((count,style)=>({style,count})).filter(row=>row.count>0)}),getLightingProfile:lightingProfile,getCraftDistrictStats:()=>({...CRAFT_DISTRICT,...craftCounters}),getCottageEffects:()=>({activeChimneys,smokePuffs,smokeTriangles,smokeMaxRadius}),getHearthSmokeAudit,getLivingVillageMotionAudit,getScenicCullReferenceAudit,getScenicCullHierarchyAudit,getScenicBvhAudit,getGeometryVaoAudit,setGeometryVaoEnabledForTesting,getScenicDrawPlanCacheAudit,getScenicCoherentAudit,getScenicCoherentReferenceAudit,getLiveHudCadenceAudit,
 getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:{...scenicVisibilityStats.landscape},
