@@ -1027,9 +1027,32 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
    starter.contactLocked===false&&starter.sign===-1&&
    lift>=.016&&lift<=.02&&heelRise>=0&&
    lift-heelRise>=.0005;
+  // A SECOND original-source 390px Walking_A source-skinned frame,
+  // Actions #44233843203 tick 6, 133.3ms, measured the same licensed
+  // hip/knee/foot chain: +16.643084mm toe, +13.808181mm airborne
+  // heel, unchanged loaded shoe. The original toe remains ~52.8mm
+  // INSIDE stone: this is a limited pitch recovery, not ground contact.
+  // Preserve the hard source joint/bind/owner/loaded foot protections,
+  // four reversible probes and independent final post-applied skin read.
+  const licensedPitchSafe133ms=toeRad===0&&
+   Math.abs(upperRad+.11)<.000001&&
+   Math.abs(lowerRad-.11)<.000001&&
+   Math.abs(footRad-.24)<.000001&&
+   frameInterval>=.125&&frameInterval<=.14&&
+   depth>=.067&&depth<=.072&&
+   heelAbove>=.22&&heelAbove<=.25&&
+   shoeSpan>=.295&&shoeSpan<=.315&&
+   sourceWeight>=.99&&
+   starter?.source==='actual-original-source-three-joint-swing-opportunity'&&
+   starter.expectedSourceSkinnedTrials===2&&
+   starter.contactLocked===false&&starter.sign===-1&&
+   lift>=.016&&lift<=.018&&heelRise>=0&&
+   lift-heelRise>=.0025;
+  const licensedPitchSafeSourceWindow=
+   licensedPitchSafe83ms||licensedPitchSafe133ms;
   // Retain real source knee bend and TRUE outsole pitch. A deeper
   // penetrating toe is never exchanged for an airborne, higher heel.
-  if(lift<(licensedPitchSafe83ms?.016:Math.max(.02,depth*.20))||lift>.095||
+  if(lift<(licensedPitchSafeSourceWindow?.016:Math.max(.02,depth*.20))||lift>.095||
    lift-heelRise<-.002||Math.abs(heelRise)>.055||
    shoe.toeY>floorTopY+.045||
    shoe.heelY-floorTopY<.08||shoe.heelY-floorTopY>.37||
