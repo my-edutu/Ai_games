@@ -42,16 +42,32 @@ for(const width of [390,1024]){
    await expect(page.locator('#save')).toBeVisible();
    await expect(page.locator('#restore')).toBeVisible();
    await expect(page.locator('#speed4')).toBeVisible();
+   await expect(page.locator('#focus')).toBeVisible();
+   await expect(page.locator('#camera')).toBeVisible();
    const full=await page.locator('#transport-actions').boundingBox();
    expect(full.height).toBeLessThanOrEqual(300);
    await page.screenshot({path:path.join(root,'390-all-original-controls-open.png')});
+   await page.locator('#restore').focus();
+   await page.keyboard.press('Escape');
+   await expect(disclosure).toHaveAttribute('aria-expanded','false');
+   await expect(disclosure).toBeFocused();
+   await expect(page.locator('#save')).toBeHidden();
+   await disclosure.click();
+   await expect(page.locator('#save')).toBeVisible();
    await disclosure.click();
    await expect(page.locator('#save')).toBeHidden();
    await expect(page.locator('#pause')).toBeVisible();
   }else{
    await expect(page.locator('#mobile-transport-disclosure')).toBeHidden();
+   // Desktop retains original world-first mode: Save appears through its
+   // existing Full command toggle, never by forcing mobile-only CSS.
+   await expect(page.locator('#save')).toBeHidden();
+   await page.locator('#command-toggle').click();
    await expect(page.locator('#save')).toBeVisible();
+   await expect(page.locator('#restore')).toBeVisible();
    await page.screenshot({path:path.join(root,'1024-original-controls.png')});
+   await page.locator('#command-toggle').click();
+   await expect(page.locator('#save')).toBeHidden();
   }
   const after=await page.evaluate(()=>({
    snapshot:JSON.stringify(window.__tinyKingdom.exportSnapshot()),

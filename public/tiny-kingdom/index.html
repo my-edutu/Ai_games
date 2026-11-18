@@ -32131,9 +32131,21 @@ drawForegroundResidentMesh();
  // Never infer button availability from observer FPS; this toggles only UI.
  const mobileTransportDisclosure=document.getElementById('mobile-transport-disclosure');
  const transportActions=document.getElementById('transport-actions');
+ // W429: World-view workday CSS has complex high-specificity :not() gates.
+ // A deliberate user disclosure must take precedence without changing World
+ // mode, simulation authority, saved state or permanently showing buttons.
+ const mobileTransportMedia=window.matchMedia('(max-width: 520px)');
  function setMobileTransportExpanded(expanded){
-  const open=Boolean(expanded);
+  const open=Boolean(expanded)&&mobileTransportMedia.matches;
   transportActions.dataset.mobileCollapsed=String(!open);
+  for(const action of transportActions.querySelectorAll(':scope > .btn')){
+   if(open)action.style.setProperty('display','inline-flex','important');
+   else action.style.removeProperty('display');
+  }
+  for(const divider of transportActions.querySelectorAll(':scope > .divider')){
+   if(open)divider.style.setProperty('display','none','important');
+   else divider.style.removeProperty('display');
+  }
   mobileTransportDisclosure.setAttribute('aria-expanded',String(open));
   mobileTransportDisclosure.setAttribute('aria-label',open?
    'Collapse world controls; keep Pause visible':
@@ -32143,6 +32155,19 @@ drawForegroundResidentMesh();
  mobileTransportDisclosure.addEventListener('click',()=>
   setMobileTransportExpanded(
    mobileTransportDisclosure.getAttribute('aria-expanded')!=='true'));
+ // Escape dismisses a touch or keyboard-opened panel and restores the
+ // disclosure focus, while keeping Pause immediately accessible.
+ transportActions.addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&
+    mobileTransportDisclosure.getAttribute('aria-expanded')==='true'){
+   event.preventDefault();event.stopPropagation();
+   setMobileTransportExpanded(false);
+   mobileTransportDisclosure.focus();
+  }
+ });
+ // A rotated/resized viewport must never retain mobile inline visibility on
+ // desktop, nor leave the control's aria-expanded claim stale.
+ mobileTransportMedia.addEventListener('change',()=>setMobileTransportExpanded(false));
  const cameraToolNav=document.getElementById('camera-tools');
  const cameraDisclosure=document.getElementById('camera-disclosure');
  function setCameraToolsExpanded(expanded){
