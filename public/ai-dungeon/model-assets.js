@@ -3930,6 +3930,16 @@ function changeAction(actor,action,forceRestart=false,frameDelta=.016,sourceFram
      interrupted:Boolean(actor.fullBody?.interrupted)
     }));
    next.crossFadeFrom(previous,crossfadeSeconds,false);
+   // This flag describes a crossFadeFrom performed on THIS exact rendered
+   // source frame, not a stale transition receipt or an assumed source
+   // weight. It is reset at the start of each subsequent original rig update.
+   // The original Mixer action often reports weight 1 BEFORE its fade is
+   // evaluated, so never infer this fact from getEffectiveWeight() alone.
+   if(action==='move'&&clip.name==='Walking_A'&&
+    previous.getClip?.()?.name==='Idle'&&crossfadeSeconds===.23&&
+    actor.assetRoot?.uuid&&actor.fullBody?.owner?.locomotion===true&&
+    actor.groundedPerformance?.moving===true&&sourceFrameVisible)
+    actor.sourceWalkFadeStartedThisFrame=true;
    // A strictly presentation-only trace: it says which REAL imported
    // source clip was faded, not that a planted foot or movement occurred.
    // Read alongside the existing live source weight and both skinned shoes.
@@ -4104,6 +4114,9 @@ function stageSkinnedDefeatAfterMixer(actor,reducedMotion){
 
 function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt,sourceFrameVisible=true){
  if(!actor.authored||!actor.mixer)return;
+ // A previous frame's imported fade can never receive a second full-fade
+ // catch-up. Only changeAction() after this reset can authorize it.
+ actor.sourceWalkFadeStartedThisFrame=false;
  // Source-rig toe relief uses the actual visible-frame interval, not capped
  // mixer dt or fabricated authority movement. This is read-only timing.
  actor.rigSourceSwingFrameInterval=sourceFrameInterval;
@@ -4226,6 +4239,15 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
     actor.root.position.z-actor.rigGaitPosition.z):0,
   groundedMoving:Boolean(actor.fullBody?.owner.locomotion&&actor.groundedPerformance?.moving),
   walkingClip:/(?:walk|run|move)/i.test(actor.activeImportedClipName||''),
+  // Exact same-frame original crossFadeFrom receipt: no clip, time or skin
+  // mutation. Read alongside the true original pose weight after Mixer.
+  sourceClipName:actor.activeImportedClipName??'',
+  sourceInstanceSame:Boolean(actor.assetRoot?.uuid&&
+   actor.sourceRealTravelFadeReceipt?.sourceClipName===actor.activeImportedClipName),
+  sourceFadeStartedThisFrame:actor.sourceWalkFadeStartedThisFrame===true,
+  transitionFromClip:actor.sourceRealTravelFadeReceipt?.previousSourceClipName??'',
+  transitionFadeSeconds:actor.sourceRealTravelFadeReceipt?.seconds??NaN,
+  sourceWeight:actor.activeClip?.getEffectiveWeight?.()??NaN,
   teleport:Boolean(actor.locomotionTeleport)
  };
  const sourceStep=freezeSource?0:actor.fullBody.mode==='defeat'?
