@@ -1,3 +1,9 @@
+## Pass480 — real Pass479 native guardian sightline regression; rollback and public-source evidence guard (2026-11-18 UTC)
+
+- Exact `1cbe9b7cced60b96b4db19a8b2766d4360b445be`: [native WebGL 44290460770](https://github.com/my-edutu/Ai_games/actions/runs/44290460770) FAILED 7/8; test @193 found **zero authentic open public reciprocal Pip/Thornback corridors** in six actual production seed sequences. Unchanged six-scene-reset geometry, WebGL startup, pressure/gate/earned recoil tests PASSED; do not call native CI green. Artifact 14421571585 exists but screenshot hashes not inspected by this run.
+- Whole-repo [44290460723](https://github.com/my-edutu/Ai_games/actions/runs/44290460723): build, source tests and Maze stream PASS; separate Tiny Kingdom OBS and downstream evidence uploads FAIL. Candidate Pass479's forward key/gate watchpost selection sacrifices real visible encounter proof; reject the candidate rather than weaken authentic native test.
+- Hands-on production rollback restores exact Pass478 `content.ts` blob and replaces candidate-only test with real six-seed public sightline source regression. No artificial actor relocation, hidden map access, passage edits, reduced strict thresholds, merge/deploy/force. Dated [review](./maze-3d/pass-480-reject-forward-relay-public-corridor-regression-2026-11-18.md). New exact-HEAD CI / original native captures REQUIRED; no Nintendo visual win. Coding tunnel, independent critic and Ultracode unavailable (`NOT_FOUND`); automation active.
+
 ## Pass478 — Pass477 exact-source browser passed but physical art A/B REJECTED; rollback only candidate (2026-11-18 UTC)
 
 ## Pass479 — genuine forward objective relay candidate (2026-11-18 UTC)

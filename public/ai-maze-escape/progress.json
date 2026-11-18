@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-18T10:57:22.091Z",
+  "updatedAt": "2026-11-18T11:52:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass479 code candidate: from existing real straight/reciprocal pressure-Thornback patrols prefer a nearby onward critical key with its actual downstream gate, to build a consequential single route chapter rather than isolated props. Parent Pass478 native WebGL 44280424975 SUCCESS 8/8, 40/40 original PNG SHA sidecars rehashed; whole-repo 44280425001 fails unrelated Tiny Kingdom OBS/upload tasks. Candidate exact-head CI and real 320/390/844/1280 public playthrough remain UNVERIFIED; no rendered or Nintendo-quality win, independent critic unavailable. PR 53 open draft; hourly active."
+    "summary": "Pass480: actual Pass479b source-bound native WebGL 44290460770 FAILED 7/8 because all six authentic production seeds lacked a publicly open reciprocal Pip-Thornback encounter; unchanged six-reset geometry and other 7 browser checks passed. Restore byte-identical Pass478 generator rather than falsify the encounter or relax evidence, and add a source regression using the same real public frames. Whole repo source build/Maze stream passed but unrelated Tiny Kingdom OBS and uploads failed. Fresh rollback HEAD CI and original screenshot SHA/visual approval pending; Nintendo bar unmet; detached coding/critic unavailable. PR 53 remains draft and automation active."
   },
   "captures": [
     {
@@ -340,6 +340,12 @@
     }
   ],
   "changes": [
+    {
+      "title": "Pass480 — reject failed forward-objective watchpost selection; restore native encounter and guard real public sightline",
+      "description": "Pass479b native real WebGL failed 1 of 8: no open public reciprocal guardian corridor in 6 production seed sequences. Restore exact Pass478 generator and add source regression using same production captures, no fabricated AI/public state or lowered native/geometry budgets. New exact-HEAD tests pending; no visual win.",
+      "date": "2026-11-18",
+      "status": "Corrective source commit — exact-HEAD retest pending"
+    },
     {
       "title": "Pass479 — authored pressure/Thornback/key/gate forward route chapter (candidate, exact-HEAD visual verification pending)",
       "description": "Within lawful straight moving-guardian pressure stages choose an actually subsequent key and matching route-crossed critical gate when available. Seeded fallback preserved; no AI/private-state shortcut. Source test rejects fake gates. Parent original WebGL 8/8 and 40/40 PNG SHA verified; new gameplay/visual CI pending.",
@@ -706,6 +712,11 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass480 source-bound public encounter failure and rollback review",
+      "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-480-reject-forward-relay-public-corridor-regression-2026-11-18.md",
+      "status": "Failed candidate rejected; rollback WebGL retest pending"
+    },
     {
       "title": "Pass479 forward objective relay source gate",
       "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-479-forward-objective-relay-2026-11-18.md",
@@ -1548,6 +1559,12 @@
     }
   ],
   "verification": [
+    {
+      "title": "Pass479b native 7/8 — missing real public guardian corridor; six-reset geometry passed; Pass480 correction CI pending",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44290460770",
+      "date": "2026-11-18",
+      "status": "Failed real encounter test, no independent image approval"
+    },
     {
       "title": "Pass478 exact-parent WebGL 8/8, original 40/40 screenshot SHA256 pairs checked; Pass479 fresh CI pending",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44280424975",

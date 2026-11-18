@@ -39,23 +39,19 @@ test('real generated pressure and guardian court preserve exact playable topolog
  assert.ok(paired<=watchposts,'only truly reachable watchposts may count as linked encounter evidence');
 });
 
-test('authored objective relay requires real forward key pickup followed by its matching critical gate',()=>{
- const {forwardKeyGateDistance}=load('games/ai-maze-escape/src/generation/content.js');
- const route=[10,11,12,13,14,15,16,17,18,19];
- const world={keys:[{id:'key-1',cell:14,collected:false}],
-  doors:[{id:'door-1',a:16,b:17,requiredKeyId:'key-1',critical:true,open:false}]};
- assert.equal(forwardKeyGateDistance(world,route,1),3,
-  'the actual key must come after a real guardian route approach');
- assert.equal(forwardKeyGateDistance(world,route,4),Infinity,
-  'a guardian AFTER the pickup is not a pressure-to-key chapter');
- const distant={keys:[{...world.keys[0],cell:18}],
-  doors:[{...world.doors[0],a:18,b:19}]};
- assert.equal(forwardKeyGateDistance(distant,route,0),Infinity,
-  'a key more than seven actual journey steps away is not the same chapter');
- assert.equal(forwardKeyGateDistance({...world,doors:[{...world.doors[0],a:30,b:31}]},route,1),Infinity,
-  'an untraversed gate is not a claimed objective resolution');
- assert.equal(forwardKeyGateDistance({...world,doors:[{...world.doors[0],critical:false}]},route,1),Infinity,
-  'a noncritical gate is not the required objective');
- assert.equal(forwardKeyGateDistance({...world,doors:[{...world.doors[0],requiredKeyId:'other'}]},route,1),Infinity,
-  'an unrelated key and door must not be presented as a causal chapter');
+test('fixed production reference seeds retain a genuine PUBLIC reciprocal Pip-Thornback corridor',async()=>{
+ const {scenarios}=require('../../scripts/capture-maze-3d.cjs');
+ const {publicGuardianOpenSightline}=await import('../../public/ai-maze-escape/public-lantern-encounter.mjs');
+ // Same seeded real runtime snapshots used by the native WebGL browser test:
+ // no forced guardian position, no invented observation, no private route.
+ const {sequences}=scenarios();
+ const witness=sequences.flat().find(({frame})=>{
+  const snapshot=frame.snapshot;
+  return snapshot.lifecycle==='running'&&!snapshot.result
+   &&snapshot.threats.some(threat=>publicGuardianOpenSightline(snapshot,threat.cell)>0);
+ });
+ assert.ok(witness,
+  'real production seeds must preserve an authentic discovered open one/two-cell guardian approach');
+ assert.ok(witness.frame.snapshot.threats.some(threat=>
+  publicGuardianOpenSightline(witness.frame.snapshot,threat.cell)>0));
 });
