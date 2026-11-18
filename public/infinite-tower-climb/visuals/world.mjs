@@ -13,6 +13,7 @@ import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, p
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, createSourceEarnedVoidDepartureMaterials, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections, isolateEarnedFirstFrameVoidMaterials } from './source-earned-bearing-run.mjs';
 import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold, observedSourceEarnedEarlyVoidShaftAperture, observedSourceSupportedVoidFirstPaint, observedEarnedGalleryExitClearance, observedReturnedGalleryHandoffClearance } from './far-side-shaft-transition.mjs';
+import { chooseSourceEarnedFirstReturnInstancing } from './source-earned-first-return-instancing.mjs';
 
 
 /**
@@ -1033,6 +1034,10 @@ export function createTowerWorld(){
   const lastProtectedUndercroftEntries=[];
   // Actual source-floor static GPU attribute/index payload, not driver memory.
   let rigidUploadBytes=0, rigidExpandedBytes=0, rigidIndexedBatches=0, rigidBatchCount=0, rigidPackedVertexBuffers=0, rigidPriorSeparateVertexBuffers=0;
+  // Diagnostic only: exact source attribute/matrix bytes vs hypothetical packed
+  // expansion, NOT measured GPU upload, FPS, memory allocation or quality.
+  let coldOriginalInstanceDraws=0, coldOriginalInstanceAvoidedBytes=0;
+  let coldOriginalInstanceSourceBytes=0, coldOriginalInstancePackedBytes=0;
   const primitives=new Map(),platforms=new Map(),hazards=new Map(),rotors=[],floaters=[],foregroundGears=[];
   const foregroundRacks=[],decorativeSightlines=[];
   // Passive, bounded current-camera forensic samples; NEVER a video quality verdict.
@@ -1147,9 +1152,51 @@ export function createTowerWorld(){
     root.updateWorldMatrix(true,true);
     const inverse=new THREE.Matrix4().copy(root.matrixWorld).invert(),batches=new Map(),retired=[];
     const local=new THREE.Matrix4(),instance=new THREE.Matrix4();
+    // ONLY the genuine low-tier first F9 scene, with SAME-run HP-zero bronze
+    // door and currently staged actual Void destination, can preserve
+    // static source casings as native THREE.InstancedMesh objects.
+    // Later deferred shaft uploads, ordinary floors and all graphics tiers
+    // retain the existing exact batching route and animation exclusions.
+    const genuineFirstReturn=quality==='low' &&
+      retainedEarnedCap?.guardianGateRetained===true &&
+      retainedEarnedCap.floor===9 &&
+      stagedVoidArchitecture?.runToken===retainedEarnedCap.runToken &&
+      stagedVoidArchitecture?.root?.isGroup===true &&
+      !deferredDistantArrival;
     function collect(o){
       if(o!==root&&excluded.has(o))return;
       if(o.isMesh&&!Array.isArray(o.material)&&(!o.isInstancedMesh||(o.count<=100&&!o.instanceColor))){
+        if(o.isInstancedMesh && genuineFirstReturn){
+          const a=o.geometry?.attributes;
+          const sourceIndexCount=o.geometry?.index?.count ??
+            a?.position?.count ?? 0;
+          const sourceBytes=attribute=>attribute?.isInterleavedBufferAttribute
+            ?attribute.data?.array?.byteLength:attribute?.array?.byteLength;
+          const choice=chooseSourceEarnedFirstReturnInstancing({
+            quality,sourceEarned:genuineFirstReturn,
+            count:o.count,usedDraws:coldOriginalInstanceDraws,
+            instanceColor:!!o.instanceColor,
+            // Live moving-deck suspension, moving hazard indicators, hero and
+            // animated Void vault keep their OWN previously excluded roots.
+            // Also forbid deliberate per-frame matrix-driven scene owners.
+            isAnimated:o.userData?.sourceAnimated===true,
+            sourceVertices:a?.position?.count ?? 0,sourceIndexCount,
+            positionBytes:sourceBytes(a?.position),
+            normalBytes:sourceBytes(a?.normal),uvBytes:sourceBytes(a?.uv),
+            indexBytes:o.geometry?.index?.array?.byteLength ?? 0
+          });
+          if(choice.preserve){
+            coldOriginalInstanceDraws++;
+            coldOriginalInstanceAvoidedBytes+=choice.estimatedAvoidedPackedBytes;
+            coldOriginalInstanceSourceBytes+=choice.existingSourceAndMatricesBytes;
+            coldOriginalInstancePackedBytes+=choice.packedBatchBytes;
+            // Keep the identical SOURCE vertices, per-instance transforms,
+            // material, shadow settings, and original raycast identity.
+            // Crucially avoid CPU copying/unindexing these vertices in this
+            // one measured cold source-F9 construction; bounded extra draws.
+            return;
+          }
+        }
         const id=`${o.material.uuid}:${o.castShadow}:${o.receiveShadow}`;
         if(!batches.has(id))batches.set(id,{material:o.material,cast:o.castShadow,receive:o.receiveShadow,parts:[]});
         const b=batches.get(id);local.multiplyMatrices(inverse,o.matrixWorld);
@@ -3695,6 +3742,8 @@ export function createTowerWorld(){
     lastProtectedUndercroftEntries.length=0;
     successorUndercroftSightline={active:false,meshes:0,rays:0,softened:0};
     rigidUploadBytes=0;rigidExpandedBytes=0;rigidIndexedBatches=0;rigidBatchCount=0;rigidPackedVertexBuffers=0;rigidPriorSeparateVertexBuffers=0;
+    coldOriginalInstanceDraws=0;coldOriginalInstanceAvoidedBytes=0;
+    coldOriginalInstanceSourceBytes=0;coldOriginalInstancePackedBytes=0;
     const canDeferOldGpuDisposal=deferPreviousSourceFloor &&
       quality==='low' && retainedEarnedCap?.guardianGateRetained===true &&
       retainedEarnedCap.floor===9 &&
@@ -5379,6 +5428,14 @@ export function createTowerWorld(){
       materialCount:retainedEarnedCap.ownedMaterials.size,
       purpose:'Original GPU-resident cap AND HP-opened separate real guardian doorway retained under one source-grounded transform; no new physics, GPU-pixel or blind-review claim'
     }:null,
+    sourceEarnedFirstReturnInstancing:{
+      preservedOriginalInstanceDraws:coldOriginalInstanceDraws,
+      estimatedAvoidedPackedBytes:coldOriginalInstanceAvoidedBytes,
+      existingSourceAndMatricesBytes:coldOriginalInstanceSourceBytes,
+      packedBatchBytesIfExpanded:coldOriginalInstancePackedBytes,
+      limit:8,
+      caveat:'Compare original Three CPU attribute payload to packed vertex expansion; not measured GPU memory or performance, frame-time or visual acceptance'
+    },
     rigidBatchUploadBudget:{actualAttributeAndIndexBytes:rigidUploadBytes,
       previousExpandedAttributeBytes:rigidExpandedBytes,
       indexedBatches:rigidIndexedBatches,batches:rigidBatchCount,
