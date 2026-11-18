@@ -101,3 +101,73 @@ test('strict GLB ownership, real loaded shoe, heel pitch and source joint contro
   assert.equal(choose({trials:[good],...c}),null,
    'source-skin candidate must not survive unsupported joint ownership, worsened heel or a moved supporting shoe');
 });
+
+
+// Native source-rig regression from exact HEAD 05d57b5f, Actions
+// #44317893239, 390px original GLB Walking_A tick6, 166.7ms / 66.019mm
+// real root displacement. The current selector retains +.18rad foot
+// despite the weighted heel rising 1.338mm MORE than the toe. The same
+// four native source-skin probes observed a +.24rad foot trial whose toe
+// rose 19.582mm and heel 17.787mm: 1.794mm real counterpitch instead.
+// Y coordinates and XZ SHIFT MAGNITUDES originate in the GLB diagnostic;
+// the alternative XZ VECTOR DIRECTIONS below are explicitly reconstructed,
+// not represented as raw source XZ endpoints. This is a selection/ownership
+// regression, NOT a certified foot plant, 24fps footage or independent A/B.
+test('RED: real sparse mobile Walking_A chooses counterpitch, not heel-dominant toe-only clearance',async()=>{
+ const {chooseOriginalSourceCoupledKneeFootSweep:choose}=await load();
+ const start={
+  left:{heelY:-.0305167624482367,toeY:-.028575180047730596,
+   heelXZ:[-3.7293078722809687,-6.965906830021458],
+   toeXZ:[-3.9993025281789563,-6.938438547212616]},
+  right:{heelY:.20021949960968285,toeY:-.10067496599241343,
+   heelXZ:[-3.678570801527236,-7.11843267275472],
+   toeXZ:[-3.730606178229726,-7.144371095459603]}
+ };
+ const heelDominant={
+  upperRad:-.11,lowerRad:.14,footRad:.18,
+  after:{left:{...start.left},
+   right:{heelY:.2223033556447336,toeY:-.07992956693770206,
+    heelXZ:[-3.689599797198224,-7.113557773638578],
+    toeXZ:[-3.712559615112503,-7.161684550764056]}}
+ };
+ const betterPitch={
+  upperRad:-.11,lowerRad:.14,footRad:.24,
+  after:{left:{...start.left},
+   right:{
+    heelY:start.right.heelY+.017787495642723694,
+    toeY:start.right.toeY+.019581958084194828,
+    // Authentic shift LENGTHS 10.912mm heel / 24.370mm toe;
+    // synthetic directions to complete the pure selector fixture.
+    heelXZ:[start.right.heelXZ[0]+.010912401852480177,start.right.heelXZ[1]],
+    toeXZ:[start.right.toeXZ[0]+.02436987434701877,start.right.toeXZ[1]]
+   }}
+ };
+ const source={
+  mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceChainVerified:true,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceFootTrackVerified:true,sourceBindVerified:true,
+  sourceAnatomicalFootAxisVerified:true,ownerLocomotion:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,rootTravel:.06601862321323837,
+  frameAge:0,frameInterval:.16669999999999874,
+  floorTopY:-.02,side:'right',before:start,
+  starter:{source:'actual-original-source-three-joint-swing-opportunity',
+   sign:-1,expectedSourceSkinnedTrials:2,contactLocked:false,
+   excessHeelRiseMeters:.005308016844984817},
+  trials:[heelDominant,betterPitch]
+ };
+ const chosen=choose(source);
+ assert.equal(chosen?.footRad,.24,
+  'real four-source-probe selection must not prefer a heel-dominant correction');
+ assert.ok(chosen.toeLiftMeters>=.0195&&chosen.toeLiftMeters<=.0197);
+ assert.ok(chosen.toeLiftMeters-chosen.sourceHeelRiseMeters>=.0015,
+  'true airborne sole pitch must improve, not make vertical shoe steeper');
+ assert.equal(chosen.oppositeShoePreserved,true);
+ assert.equal(chosen.contactLocked,false);
+ for(const invalid of [{sourceInstanceSame:false},{sourceBindVerified:false},
+  {sourceWeight:.7},{rootTravel:0},{teleport:true},{reducedMotion:true},
+  {interrupted:true},{mode:'hurt'}])
+  assert.equal(choose({...source,...invalid}),null,
+   'unlicensed, unowned or nonmoving rig cannot receive physical source pose');
+});
