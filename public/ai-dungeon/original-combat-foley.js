@@ -632,17 +632,27 @@ export function createOriginalCombatFoley(ctx,{output=null,requireVerifiedContac
    // at the final point before scheduling ANY native WebAudio source. A
    // rejected candidate owns no voice/cooldown/canonical cue identity.
    // This is a safety gate, not evidence of audible PCM or physical contact.
-   if(typeof options?.beforeSourceStart==='function'){
-    let stillTimely=false;
-    try{stillTimely=options.beforeSourceStart()===true}catch{}
-    if(!stillTimely){
-     for(const node of nodes)try{node.disconnect?.()}catch{}
-     dropped++;return false;
-    }
-   }
+   // Native source.start()/stop() can block after the first clock guard.
+   // Never begin a LATER original partial once its observed HP injury expired.
+   // Stop and disconnect already-started layers instead of recording a
+   // partially scheduled impact as a confirmed original foley start.
+   // Clockless auditions retain their prior, unmeasured scheduling behavior.
+   let nativeStarted=0;
+   const stillBeforeDeadline=()=>{
+    if(typeof options?.beforeSourceStart!=='function')return true;
+    try{return options.beforeSourceStart()===true}catch{return false}
+   };
+   const abandonLateNative=()=>{
+    for(let i=0;i<nativeStarted;i++)try{sources[i].stop?.()}catch{}
+    for(const node of nodes)try{node.disconnect?.()}catch{}
+    dropped++;return false;
+   };
+   if(!stillBeforeDeadline())return abandonLateNative();
    for(const source of sources){
+    if(nativeStarted>0&&!stillBeforeDeadline())return abandonLateNative();
     if(source===n)source.start(t,noiseOffset);
     else source.start(t);
+    nativeStarted++;
     source.stop(stopAt);
    }
    // Commit priority replacement only AFTER all sources were successfully
