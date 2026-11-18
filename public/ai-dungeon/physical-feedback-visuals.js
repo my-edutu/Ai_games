@@ -673,6 +673,39 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   // A stale or invisible body never falls back to a fake floor-height
   // release/recovery ring, even though the authority proved the event.
   if(type==='trail'||wardenBodySignal)return null;
+  // A real terminal HP loss can hide its dying presentation rig before the
+  // first timely feedback frame. Missing asset and hidden death are different
+  // from an unrelated LIVE body: recover only a uniquely witnessed fatal
+  // public victim at this EXACT tick and cell, with the cached rig's identity,
+  // kind, faction and HP transition independently agreeing. No attacker,
+  // strike direction, reused cell or historical death is inferred.
+  // Ordinary nonfatal hidden bodies and stale/wrong-cell rigs stay rejected.
+  if(victim&&actor&&requireVerifiedHpReceipt&&
+    cue.kind==='damage-fatal'&&actor.root?.visible===false&&
+    typeof getCurrentSnapshot==='function'){
+   let latest=null;
+   try{latest=getCurrentSnapshot()}catch{return null}
+   if(!latest||!Number.isSafeInteger(latest.tick)||latest.tick!==cue.tick||
+    !Number.isSafeInteger(latest.run)||!Number.isSafeInteger(latest.floor)||
+    latest.run+':'+latest.floor!==cue.sceneKey||
+    !Array.isArray(latest.units))return null;
+   let witness=null;
+   for(let i=0;i<Math.min(latest.units.length,256);i++){
+    const u=latest.units[i];
+    if(u?.id!==cue.targetId)continue;
+    if(witness)return null;
+    witness=u;
+   }
+   const drawn=actor.u;
+   if(witness&&witness.hp===0&&matchesCurrentHpReceipt(cue,witness)&&
+    cell(witness)&&witness.x===at.x&&witness.z===at.z&&
+    drawn?.id===witness.id&&drawn.kind===witness.kind&&
+    drawn.faction===witness.faction&&cell(drawn)&&
+    drawn.x===witness.x&&drawn.z===witness.z&&
+    drawnHpMatchesObservedTransition(cue,drawn,witness))
+    return world(at,1.07);
+   return null;
+  }
   if(actor)return null; // Stale/wrong-cell actor: suppress disconnected art.
   // A model that has not loaded is not permission to attach HP chips to
   // yesterday's empty tile. The planner observed a real HP drop, but the

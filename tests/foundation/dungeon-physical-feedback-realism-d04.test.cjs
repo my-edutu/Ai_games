@@ -2346,3 +2346,50 @@ test('D04 actual HP chips have a legible but bounded physical footprint without 
   assert.ok(hit.material.opacity<=.51,'avoid a neon flare or enlarged material flash');
  }finally{visual.dispose()}
 });
+
+test('strict D04 fatal HP evidence remains visible at the unique public cell when the dying rig is hidden',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const victim={id:'revenant',kind:'revenant',faction:'enemy',x:3,z:2,hp:0,maxHp:20};
+ let current={run:1,floor:1,tick:11,units:[victim]};
+ const actor={u:{...victim},root:{visible:false,
+  position:{x:-6,y:0,z:-7},rotation:{y:0}}};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  requireVerifiedHpReceipt:true,
+  actorById:id=>id==='revenant'?actor:null,
+  getCurrentSnapshot:()=>current
+ });
+ const fatal=cue({id:'1:1:11:damage-fatal:-:revenant',
+  kind:'damage-fatal',audio:'fatal-impact',severity:1,
+  detail:{damage:20,maxHp:20,remainingHp:0}});
+ const check=(snapshot,drawn,visible,expected,reason)=>{
+  stage.reset();current=snapshot;actor.u=drawn;actor.root.visible=visible;
+  assert.equal(stage.emit(fatal),expected,reason);
+  assert.equal(stage.stats().instancesByPool.hit,expected?6:0,
+   'only authenticated death may allocate retained injury fragments');
+ };
+ try{
+  check(current,{...victim},false,true,
+   'the independently witnessed fatal HP loss stays drawable after the dying rig is hidden');
+  assert.equal(stage.stats().reservedInstances,102);
+  assert.ok(stage.stats().activeDrawCalls<=7);
+  check(current,{...victim,hp:20},false,true,
+   'exact cached pre-death HP is independently reconciled to the observed terminal delta');
+  check(current,{...victim,hp:19},false,false,
+   'unrelated cached HP cannot borrow the fatal event');
+  check(current,{...victim,maxHp:30},false,false,
+   'different-capacity hidden models cannot borrow a death');
+  check(current,{...victim,x:4},false,false,
+   'an old hidden model at another public cell cannot borrow the injury');
+  check(current,{...victim,id:'unrelated'},false,false,
+   'recycled actor identity must not project fragments');
+  check({...current,tick:12},{...victim},false,false,
+   'an old fatal event cannot repaint a subsequent tick');
+  check({...current,units:[victim,{...victim}]},{...victim},false,false,
+   'duplicate current victim IDs are never an unambiguous anchor');
+  check({...current,units:[{...victim,hp:1}]},{...victim},false,false,
+   'an alive public victim cannot receive a fatal impact');
+  check(current,{...victim},true,true,
+   'existing live visible-body HP anchoring remains unchanged');
+ }finally{stage.dispose()}
+});
