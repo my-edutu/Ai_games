@@ -7,9 +7,9 @@ test('W440: market-home 3D director uses only original finite occupied homes and
  const plan=new Function(between('function planRealMarketHomeDistrict(','function requestRealMarketHomeDistrict()')+';return planRealMarketHomeDistrict')();
  const homes=[[0,10,0],[-3,11,1],[1,12,0],[-4,9,0],[2,9,1],[-6,9,2],[3,8,0],[-24,-4,1],[16,-11,2]];
  const old=JSON.stringify(homes),market=[-1,10.2],p=plan(homes,market,390,844),desktop=plan(homes,market,1024,640);
- assert.equal(p.stage,'market-home-district');assert.equal(p.realHomes,9);assert.equal(p.districtHomeCount,7);
- assert.ok(p.inspectedHomeIndices.every(i=>i>=0&&i<7));assert.ok(p.zoom>=32&&p.zoom<=47);
- assert.ok(desktop.zoom>=23&&desktop.zoom<=36);assert.deepEqual(p.market,market);
+ assert.equal(p.stage,'market-home-district');assert.equal(p.realHomes,9);assert.equal(p.districtHomeCount,3);
+ assert.ok(p.inspectedHomeIndices.every(i=>i>=0&&i<7));assert.ok(p.zoom>=27&&p.zoom<=35);
+ assert.ok(desktop.zoom>=20&&desktop.zoom<=30);assert.deepEqual(p.market,market);
  assert.equal(JSON.stringify(homes),old);assert.equal(p.newCitizens,0);
  assert.equal(p.newTransactions,0);assert.equal(p.newMeshes,0);assert.equal(p.authorityChanged,false);
  assert.throws(()=>plan([],market,390,844),/actual homes/);
