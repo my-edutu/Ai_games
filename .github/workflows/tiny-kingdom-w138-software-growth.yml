@@ -10,6 +10,7 @@ on:
       - 'scripts/tiny-kingdom-w138-software-home-contract.cjs'
       - 'scripts/tiny-kingdom-w330-authentic-night-worksite-light-contract.cjs'
       - 'scripts/tiny-kingdom-w331-physical-night-corridor-contract.cjs'
+      - 'scripts/tiny-kingdom-w447-fringed-crown-contract.cjs'
       - 'tests/browser/tiny-kingdom-w138-real-grown-home.spec.cjs'
       - '.github/workflows/tiny-kingdom-w138-software-growth.yml'
   workflow_dispatch:
@@ -38,6 +39,8 @@ jobs:
         run: node scripts/tiny-kingdom-w330-authentic-night-worksite-light-contract.cjs
       - name: W331 actual street facing light and followed real commuter regression
         run: node scripts/tiny-kingdom-w331-physical-night-corridor-contract.cjs
+      - name: W447 real near-crown 48-face and far-tier geometry source regression
+        run: node scripts/tiny-kingdom-w447-fringed-crown-contract.cjs
       # Playwright's shared webServer starts Snake/Maze/Ant/Tower services from dist.
       # Without a compiled replay package, the W138 Day-120 game never launches.
       - name: Build shared browser server dependencies before 120-day WebGL capture

@@ -11817,9 +11817,16 @@ function coniferTierCanopy(x,y,z,r,h,col,seed){
   tri(point(i),point((i+1)%sides),tip,i%3===0?shadow:
    i%3===1?col:sunlit);
 }
+// W447 Phase-1 actual woodland environmental spine: a mature nearby tree
+// now has an irregular closed centre PLUS six individually drooping, two-sided
+// leaf sprays. This is STATIC seasonal GPU geometry, not a camera impostor;
+// all original roots, branches, species, world coordinates and tree counts stay.
+// Reallocate a near lobe's 54 polygon faces into 24 core + 24 paired spray
+// faces (48 total); unchanged far (20), middle (28) and fine (24) tiers.
 function crownLobe(cx,cy,cz,rx,ry,rz,col,seed,fine=false,countAsForest=true,coarse=false){
- const segments=fine?6:coarse==='far'?5:coarse?7:9,
-  latitudes=(fine?[.32,.74]:coarse?[.29,.76]:[.23,.54,.81]).map(t=>t*Math.PI),rings=[];
+ const near=!fine&&!coarse,segments=fine||near?6:coarse==='far'?5:7;
+ const latitudes=fine?[.32,.74]:near?[.30,.74]:[.29,.76];
+ const rings=[];
  const pt=(lat,i)=>{
   const az=i*Math.PI*2/segments,contour=woodlandCrownContour(seed,lat,az);
   return [cx+Math.sin(lat)*Math.cos(az)*rx*contour.radius+contour.sweep*rx,
@@ -11827,17 +11834,42 @@ function crownLobe(cx,cy,cz,rx,ry,rz,col,seed,fine=false,countAsForest=true,coar
    cz+Math.sin(lat)*Math.sin(az)*rz*contour.radius+
     .065*Math.cos(seed*.47-az*1.3)*Math.sin(lat)*rz];
  };
- for(const lat of latitudes){const ring=[];for(let i=0;i<segments;i++)ring.push(pt(lat,i));rings.push(ring)}
+ for(const t of latitudes){
+  const ring=[];for(let i=0;i<segments;i++)ring.push(pt(t*Math.PI,i));
+  rings.push(ring);
+ }
  const colors=[col,col.map(v=>Math.min(1,v*1.07)),col.map(v=>Math.max(0,v*.88))];
  const top=[cx,cy+ry,cz],bottom=[cx,cy-ry,cz];
- for(let i=0;i<segments;i++){const j=(i+1)%segments;tri(top,rings[0][j],rings[0][i],colors[0]);}
- for(let r=0;r<rings.length-1;r++)for(let i=0;i<segments;i++){
-  const j=(i+1)%segments,a=rings[r][i],b=rings[r][j],c=rings[r+1][j],d=rings[r+1][i];
-  tri(a,b,c,colors[(r+i)%3]);tri(a,c,d,colors[(r+i+1)%3]);
+ for(let i=0;i<segments;i++){
+  const j=(i+1)%segments;
+  tri(top,rings[0][j],rings[0][i],colors[0]);
+  tri(rings[0][i],rings[0][j],rings[1][j],colors[(i+1)%3]);
+  tri(rings[0][i],rings[1][j],rings[1][i],colors[(i+2)%3]);
+  tri(rings[1][i],rings[1][j],bottom,colors[2]);
  }
- for(let i=0;i<segments;i++){const j=(i+1)%segments;tri(rings[rings.length-1][i],rings[rings.length-1][j],bottom,colors[2]);}
- if(countAsForest){forestVisualStats.broadleafLobes++;
-  if(fine)forestVisualStats.microCrownLobes++;}
+ // Six hanging 3D fronds replace the old unused middle latitude ring of
+ // smooth near crowns. Two front facets + two reverse facets each, all
+ // joined to actual canopy vertices. Deliberately no fringe on distant
+ // crowns, whose original material/geometry and visual budgets are retained.
+ if(near)for(let i=0;i<segments;i++){
+  const az=i*Math.PI*2/segments;
+  const anchor=rings[0][i],under=rings[1][i];
+  const reach=1.14+.19*Math.sin(seed*1.7+i*2.3),
+   sweep=.16*Math.sin(seed*.83+i*1.9);
+  const tip=[cx+Math.cos(az+sweep)*rx*reach,
+   cy-ry*(.42+.16*Math.sin(seed+i*2.7)),
+   cz+Math.sin(az+sweep)*rz*reach];
+  const bend=[tip[0]*.92+cx*.08,tip[1]-.16*ry,tip[2]*.92+cz*.08];
+  const shadow=colors[(i+2)%3],light=colors[(i+1)%3];
+  tri(anchor,under,tip,light);
+  tri(under,bend,tip,shadow);
+  tri(tip,under,anchor,shadow);
+  tri(tip,bend,under,light);
+ }
+ if(countAsForest){
+  forestVisualStats.broadleafLobes++;
+  if(fine)forestVisualStats.microCrownLobes++;
+ }
 }
 function leafBlade(base,tip,width,col,seed){
  const dx=tip[0]-base[0],dz=tip[2]-base[2],len=Math.hypot(dx,dz)||1;
