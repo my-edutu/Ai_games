@@ -17,6 +17,60 @@ export function cellHeight(cell, width, height) {
   const band = Math.min(2, Math.max(0, Math.floor(row * 3 / Math.max(1, height))));
   return (2 - band) * 1.4;
 }
+
+// A two-passage treasure detour earns ONE connected original Tideglass gallery,
+// but ONLY while the actual key and all three reciprocal open cells are PUBLIC.
+// Discovery is not a private solver instruction: no hidden cell, remembered
+// threat route, inferred shortcut or undisclosed collectible can select art.
+// Both causeway tiles stay flush and wholly traversable, even after collection.
+export function publicTwoLinkTreasureGallery(s) {
+  const gallery = new Map();
+  if (!s || !Number.isSafeInteger(s.width) || !Number.isSafeInteger(s.height)
+    || !Array.isArray(s.cells) || !Array.isArray(s.visibleCells)
+    || !Array.isArray(s.keys) || !Array.isArray(s.doors)) return gallery;
+  const visible = new Set(s.visibleCells);
+  const known = new Map(s.cells.filter(c => Number.isSafeInteger(c?.cell))
+    .map(c => [c.cell, c]));
+  const usable = id => {
+    const c = known.get(id);
+    return c && visible.has(id) && c.blocked === false
+      && c.trap !== true && c.clue !== true && c.checkpoint !== true
+      && id !== s.exitCell && !s.threats?.some(t => t.cell === id);
+  };
+  const adjacent = (a,b) => Math.abs(a%s.width-b%s.width)
+    + Math.abs(Math.floor(a/s.width)-Math.floor(b/s.width)) === 1;
+  const trulyOpen = (a,b) => adjacent(a,b)
+    && known.get(a)?.neighbors?.includes(b)
+    && known.get(b)?.neighbors?.includes(a)
+    && !s.doors.some(d => (d.a === a && d.b === b)
+      || (d.a === b && d.b === a));
+  for (const key of s.keys) {
+    const end = key?.cell;
+    if (!Number.isSafeInteger(end) || !usable(end) || gallery.has(end)) continue;
+    const terminal = known.get(end);
+    if (!Array.isArray(terminal.neighbors) || terminal.neighbors.length !== 1) continue;
+    const middle = terminal.neighbors[0], midCell = known.get(middle);
+    if (!usable(middle) || gallery.has(middle)
+      || s.keys.some(other => other !== key && other.cell === middle)
+      || !Array.isArray(midCell?.neighbors) || midCell.neighbors.length !== 2
+      || !trulyOpen(middle,end)) continue;
+    const entry = midCell.neighbors.find(id => id !== end), entryCell = known.get(entry);
+    if (!Number.isSafeInteger(entry) || !usable(entry)
+      || !Array.isArray(entryCell?.neighbors) || entryCell.neighbors.length < 3
+      || s.keys.some(other => other.cell === entry)
+      || !trulyOpen(entry,middle)) continue;
+    if (![entry,middle,end].every(id =>
+      cellHeight(id,s.width,s.height) === cellHeight(end,s.width,s.height))) continue;
+    // The middle, not the optional entry's unrelated public route, receives
+    // the architectural course. Its axis is the REAL middle-to-shrine edge.
+    const axis = Math.floor(middle/s.width) === Math.floor(end/s.width) ? 'x' : 'z';
+    const part = {keyId:key.id, collected:key.collected === true, axis};
+    gallery.set(middle,part);
+    gallery.set(end,part);
+  }
+  return gallery;
+}
+
 // A drawn pressure-court approach is honest only across a FULLY public,
 // reciprocal, level, unsealed connection. Proximity alone is not a doorway;
 // no render path may infer the private maze or a hidden walkable shortcut.
@@ -520,7 +574,7 @@ export function createMazeWorld(options = {}) {
   let batches = [], animations = [], ripples = [], renderedCells = [], stairEdges = [], stairBalustrades = 0, coastalGardens = 0, wallGardens = 0, lastVisibility = '', highContrast = false;
   let coastCanopies = 0, tidalObservatories = 0, sculptedMosaicWalls = 0, tidePennants = 0, perimeterCascades = 0, collapsedPavilions = 0, shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0, gateForecourtParapets = 0, pressureStageParapets = 0, guardianSightlineParapets = 0, gateCourtRosettes = 0;
   let tideFossilGroves = 0, tideFossilAlcoves = 0, fossilGalleryEdges = 0, undercroftButtresses = 0, hangingFacadeGardens = 0, closedTideMedallions = 0;
-  let pressureRetainingGalleries = 0, guardianCourtTiles = 0, guardianBlockedReliefTiles = 0, guardianCausewayTiles = 0, guardianForecourtShoulderTiles = 0, guardianOuterCourtFloorTiles = 0, guardianOuterCourtSealedTiles = 0, shorelineLoadFacades = 0;
+  let pressureRetainingGalleries = 0, treasureGalleryTiles = 0, guardianCourtTiles = 0, guardianBlockedReliefTiles = 0, guardianCausewayTiles = 0, guardianForecourtShoulderTiles = 0, guardianOuterCourtFloorTiles = 0, guardianOuterCourtSealedTiles = 0, shorelineLoadFacades = 0;
   // Authored, disclosed wall-side fossils react only to the PUBLIC explorer pose.
   // These are live Three groups, not hidden route markers or a new game system.
   let fossilSails = [], fossilOrgans = [], trapJaws = [], trapSignals = [], guardianTideSignals = [], publicHeroX = 0, publicHeroZ = 0;
@@ -1202,9 +1256,10 @@ export function createMazeWorld(options = {}) {
     for (let j = 0; j < 3; j++) plant(x - span + j * .08, 2.8 - j * .42, z + .17, seed + j * 5, cell, 1.4 - j * .15);
   }
   function rebuildTerrain(s) {
-    pressureRetainingGalleries = 0; guardianCourtTiles = 0; guardianBlockedReliefTiles = 0; guardianCausewayTiles = 0; guardianForecourtShoulderTiles = 0; guardianOuterCourtFloorTiles = 0; guardianOuterCourtSealedTiles = 0; shorelineLoadFacades = 0;
+    treasureGalleryTiles = 0; pressureRetainingGalleries = 0; guardianCourtTiles = 0; guardianBlockedReliefTiles = 0; guardianCausewayTiles = 0; guardianForecourtShoulderTiles = 0; guardianOuterCourtFloorTiles = 0; guardianOuterCourtSealedTiles = 0; shorelineLoadFacades = 0;
     clear(terrain); fossilSails = []; fossilOrgans = []; guardianTideSignals = []; batchData = new Map(); renderedCells = s.cells.map(c => c.cell); stairEdges = []; stairBalustrades = 0; tideFossilGroves = 0; tideFossilAlcoves = 0; fossilGalleryEdges = 0; undercroftButtresses = 0; hangingFacadeGardens = 0; closedTideMedallions = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0; gateForecourtParapets = 0; pressureStageParapets = 0; guardianSightlineParapets = 0; gateCourtRosettes = 0;
     const edges = new Set(), columns = new Set(), landmarkSites = new Map();
+    const treasureGallery=publicTwoLinkTreasureGallery(s);
     const guardianSightlines=publicGuardianStageCells(s);
     const guardianCauseway=publicGuardianCausewayCells(s);
     const guardianForecourtShoulders=publicGuardianForecourtShoulderCells(s,guardianCauseway);
@@ -1387,6 +1442,13 @@ export function createMazeWorld(options = {}) {
         && !pressureSightline && !guardianCourtCell && !guardianForecourtShoulder;
       if(guardianOuterCourtFloor)guardianOuterCourtFloorTiles++;
       const guardianCausewayAxis=guardianCourtCell?guardianCauseway.get(c.cell):null;
+      // Never override a genuinely disclosed moving pressure mechanism,
+      // live guardian performance, critical objective, or an actual stair.
+      // This is a physically connected, public two-room key detour only.
+      const treasureGalleryCourse=!pressureSightline&&!guardianCourtCell
+        &&!guardianForecourtShoulder&&!guardianOuterCourtFloor
+        &&!witnessedForeground&&!c.trap&&!c.blocked
+        ? treasureGallery.get(c.cell) : null;
       // Pass325: genuine 390px native rays prove the checkpoint-front terrace
       // stays beige even after Pass324's synthetic foreground test. A known
       // nearby pressure cell can mark this ordinary checkpoint tile as a
@@ -1495,6 +1557,7 @@ export function createMazeWorld(options = {}) {
       const guardianPressureBackdrop = witnessedForeground
         && pressureCourtApron && !pressureCourtBasin;
       const floorMaterial = pressureCourtBasin ? darkJade
+        : treasureGalleryCourse ? (treasureGalleryCourse.collected ? clay : deepStone)
         : guardianPressureBackdrop ? seaGlass : pressureCourtApron
         ? (tier === 2 ? lightStone : tier === 1 ? stone : seaGlass)
         : guardianCourtCell ? seaGlass
@@ -1542,6 +1605,25 @@ export function createMazeWorld(options = {}) {
           .039, z+(basinFacesEastWest ? 0 : direction*1.07),
           basinFacesEastWest ? .12 : 1.38, .024,
           basinFacesEastWest ? 1.38 : .12, c.cell);
+      } else if (treasureGalleryCourse) {
+        // A two-cell, stage-width ORIGINAL mineral causeway gives the real
+        // side-key detour its own recognizable place. Both genuine cells use
+        // the same cardinal axis, so the flush stone/glass course reads as one
+        // connected gallery leading to the existing articulated key theatre.
+        // The entire course visibly becomes warm spent clay ONLY when the
+        // public key is really collected. No invented pressure, fake gate,
+        // extra collider, resource class, HUD direction or hidden route.
+        treasureGalleryTiles++;
+        const alongX=treasureGalleryCourse.axis==='x';
+        block(floorMaterial,x,-.035,z,2.31,.07,2.31,c.cell);
+        add(box,deepStone,x,.006,z,2.19,.012,2.19,c.cell);
+        add(box,treasureGalleryCourse.collected?clay:seaGlass,x,.016,z,
+          alongX?2.13:1.28,.015,alongX?1.28:2.13,c.cell);
+        for(const side of [-1,1]){
+          add(box,inlay,x+(alongX?0:side*.77),.030,
+            z+(alongX?side*.77:0),
+            alongX?2.12:.105,.018,alongX?.105:2.12,c.cell);
+        }
       } else if (pressureCourtApron || guardianCourtCell || guardianForecourtShoulder || guardianOuterCourtFloor || witnessedForeground || variation(c.cell + 50) > .55) {
         block(floorMaterial, x, -.035, z, 2.31, .07, 2.31, c.cell);
         for (const sign of [-1, 1]) {
@@ -3555,6 +3637,7 @@ export function createMazeWorld(options = {}) {
     const publicPosition=cellPosition(s.currentCell,s.width,s.height);
     publicHeroX=publicPosition.x; publicHeroZ=publicPosition.z;
     if (runToken !== s.runToken) {
+      treasureGalleryTiles=0;
       // An empty but valid disclosed run produces an empty terrain key. A
       // sentinel distinct from that key is mandatory after a run change:
       // otherwise old renderedCells diagnostics can survive with no meshes.
@@ -4129,7 +4212,7 @@ export function createMazeWorld(options = {}) {
   }
   function dispose() {
     if (disposed) return; disposed = true;
-    pressureRetainingGalleries = 0; guardianCourtTiles = 0; guardianBlockedReliefTiles = 0; guardianCausewayTiles = 0; guardianForecourtShoulderTiles = 0; guardianOuterCourtFloorTiles = 0; guardianOuterCourtSealedTiles = 0; shorelineLoadFacades = 0;
+    treasureGalleryTiles = 0; pressureRetainingGalleries = 0; guardianCourtTiles = 0; guardianBlockedReliefTiles = 0; guardianCausewayTiles = 0; guardianForecourtShoulderTiles = 0; guardianOuterCourtFloorTiles = 0; guardianOuterCourtSealedTiles = 0; shorelineLoadFacades = 0;
     clear(terrain); clear(objects); clear(backdrop); publicClosedSockets.clear(); gateOpeningAt.clear(); retractingGates.clear(); keyPickupAt.clear();
     for (const g of geometries) g.dispose();
     for (const m of materials) m.dispose();
@@ -4198,7 +4281,7 @@ export function createMazeWorld(options = {}) {
           inwardShearRadians: hinges.length
             ? Math.min(...hinges.map(jaw => jaw.side * jaw.object.rotation.z)) : 0};
       });
-    return { witnessedPressureMechanisms, fossilMotionMaxRadians, guardianCourtTiles, guardianBlockedReliefTiles, guardianCausewayTiles, guardianForecourtShoulderTiles, guardianOuterCourtFloorTiles, guardianOuterCourtSealedTiles, shorelineLoadFacades, guardianTideSignalTiles:guardianTideSignals.length, renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), stairBalustrades, tideFossilGroves, tideFossilAlcoves, fossilGalleryEdges, undercroftButtresses, hangingFacadeGardens, closedTideMedallions, responsiveFossilSails: fossilSails.length, responsiveFossilOrgans: fossilOrgans.length, responsiveTrapJaws: trapJaws.length, responsiveTrapSignals: trapSignals.length, trapJawOpenMaxRadians: trapJaws.length ? Math.max(...trapJaws.map(jaw => Math.abs(jaw.object.rotation.z))) : 0, coastalGardens, wallGardens, coastCanopies, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, wallWindcatchers, gateForecourtParapets, pressureStageParapets, guardianSightlineParapets, gateCourtRosettes, pressureRetainingGalleries, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
+    return { witnessedPressureMechanisms, fossilMotionMaxRadians, treasureGalleryTiles, guardianCourtTiles, guardianBlockedReliefTiles, guardianCausewayTiles, guardianForecourtShoulderTiles, guardianOuterCourtFloorTiles, guardianOuterCourtSealedTiles, shorelineLoadFacades, guardianTideSignalTiles:guardianTideSignals.length, renderedCells: [...renderedCells], stairEdges: stairEdges.map(edge => [...edge]), stairBalustrades, tideFossilGroves, tideFossilAlcoves, fossilGalleryEdges, undercroftButtresses, hangingFacadeGardens, closedTideMedallions, responsiveFossilSails: fossilSails.length, responsiveFossilOrgans: fossilOrgans.length, responsiveTrapJaws: trapJaws.length, responsiveTrapSignals: trapSignals.length, trapJawOpenMaxRadians: trapJaws.length ? Math.max(...trapJaws.map(jaw => Math.abs(jaw.object.rotation.z))) : 0, coastalGardens, wallGardens, coastCanopies, tidalObservatories, sculptedMosaicWalls, tidePennants, perimeterCascades, collapsedPavilions, shellBasins, windcatcherTowers, wallWindcatchers, gateForecourtParapets, pressureStageParapets, guardianSightlineParapets, gateCourtRosettes, pressureRetainingGalleries, retractingPublicGates: retractingGates.size, movingGateMinBarsHeightRatio, geometryCount: geometries.size, materialCount: materials.size, textureCount: textures.size, knownCells: renderedCells.length, meshes, batches: batches.length, instances, geometries: geometries.size, materials: materials.size, animatedObjects: animations.length, disposed };
   }
   // On-demand production-mesh ray identification for exact-source native visual
   // diagnosis. Batches contain ONLY public render cells; never enumerate
