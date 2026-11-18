@@ -1846,6 +1846,18 @@ function getSoftwareResolutionAudit(){
   lastDrawSubmissionP75Ms:softwareLastP75,
   policy:'observed-submission-cost-only-not-authority'};
 }
+// W430 Phase-1 material spine evidence; policy, NEVER an inferred FPS win.
+function getSoftwareSceneMaterialAudit(){
+ return {kind:'original-real-road-and-foliage-material-spine',
+  renderer:gpuName,softwareWebGL:swiftGpu,active:gpuAvailable&&swiftGpu,
+  sourceRoad:'one-retained-world-aligned-ground-atlas-plus-cell-grit',
+  sourceFoliage:'existing-architecture-atlas-plus-cell-leaf-fleck',
+  roadAtlasResident:Boolean(groundAtlasTexture),
+  sameOriginalFarmToMarketToHomeRoutes:true,originalTreeGeometryAndWindPreserved:true,
+  hardwareProceduralPathPreserved:true,extraGpuTextures:0,extraWorldTriangles:0,
+  economyAndReplayModified:false,softwareFpsBenefit:'NOT MEASURED',
+  physicalGpuFps:'NOT MEASURED',experienceGate:'NOT PROVEN'};
+}
 // G056: presentation-only frame signature. Paused, still cameras need no further
 // CPU mesh reconstruction or GPU draw until a visual input/state revision occurs.
 let presentationEpoch=0,lastFrozenFrameKey=null,idleFrames=0;
@@ -4466,15 +4478,33 @@ void main(){
   c=mix(c,vec3(.60,.68,.60),bankFoam*foamBreak*(.13+.08*weatherWetness));
   c*=1.-weatherWetness*.06;
  }else if(vMaterial>2.5&&vMaterial<3.5){
-  // G054 washed footpaths: contiguous earth, mineral grit and sparse
-  // hard pebbles read at pedestrian height without changing walkable paths.
-  float dust=noise3(vWorld*vec3(.71,1.,.71));
-  float gravel=noise3(vWorld*vec3(7.4,1.5,7.4));
-  float pebble=hash3(vec3(floor(vWorld.xz*15.),3.));
-  c*=.66+.28*dust+.18*gravel+.09*step(.88,pebble);
+  // W430: the genuine granary -> market -> inhabited-home road network is
+  // ALREADY baked into the topology-keyed original 512px ground atlas.
+  // Reuse exact real route pixels on slow software WebGL rather than running
+  // TWO 8-corner trilinear noise fields for every road or paving fragment.
+  // Hardware preserves its existing high-fidelity spatial noise pipeline.
+  if(groundAtlasFast>.5){
+   // W430 real freight route: persistent original ground source, not a new path.
+   vec2 roadUV=clamp((vWorld.xz+vec2(92.0))/184.0,vec2(0.),vec2(1.));
+   vec3 retainedRoadColor=texture2D(groundAtlas,roadUV).rgb*2.0;
+   float roadGrit=hash3(vec3(floor(vWorld.xz*11.0),3.0));
+   c*=mix(vec3(.76),clamp(retainedRoadColor,vec3(.63),vec3(1.28)),.58)*
+    (.92+.15*roadGrit);
+  }else{
+   float dust=noise3(vWorld*vec3(.71,1.,.71));
+   float gravel=noise3(vWorld*vec3(7.4,1.5,7.4));
+   float pebble=hash3(vec3(floor(vWorld.xz*15.),3.));
+   c*=.66+.28*dust+.18*gravel+.09*step(.88,pebble);
+  }
   c*=mix(vec3(1.0),vec3(.71,.81,.82),weatherWetness*.67);
  }else if(vMaterial>3.5&&vMaterial<4.5){
-  c*=.75+.38*noise3(vWorld*3.5);
+  // W430: original canopy still receives the existing architectural material
+  // atlas later in this shader, wind/displacement and every triangle unchanged.
+  // Software uses one rooted spatial leaf-cell hash instead of eight 3D hashes.
+  if(groundAtlasFast>.5){
+   float leafFleck=hash3(vec3(floor(vWorld.xz*3.5),floor(vWorld.y*3.5)));
+   c*=.77+.34*leafFleck;
+  }else c*=.75+.38*noise3(vWorld*3.5);
   c+=vec3(.018,.052,.016)*pow(max(dot(n,normalize(sunDirection)),0.),2.);
  }else if(vMaterial>4.5&&vMaterial<5.5){
   // W313: keep full physically shaded materials on hardware; on software
@@ -32224,7 +32254,7 @@ drawForegroundResidentMesh();
  getStreetCargoProjectionAudit:()=>cloneData(getStreetCargoProjectionAudit()),getFieldWindAudit:(time=state.t)=>cloneData(getFieldWindAudit(time)),getAmbientGpuResidencyAudit:()=>({...getAmbientGpuResidencyAudit()}),getWeatherVertexMotionProbe,getOccupationalPerformance:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData({citizen:people[index].name,job:people[index].job,...occupationalPerformance(people[index])}):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getSelectedCitizenTaskAudit,getCitizenPickCandidates,getCitizenOrbitAudit,getCitizenPickAudit:()=>({...citizenPickAudit}),getWorkdayEvents:()=>cloneData(workdayEvents),getStreetCargoWitnesses:()=>cloneData(streetCargoWitnesses()),getActiveDeliveries:()=>cloneData(getActiveDeliveries()),getSupplyTrailSnapshot:()=>cloneData(getSupplyTrailSnapshot()),getPhysicalMarketParcelAudit:id=>cloneData(getPhysicalMarketParcelAudit(id)),getCourierLoadPresentation:workerName=>cloneData(getCourierLoadPresentation(workerName)),getCourierTransferMotion:workerName=>cloneData(courierTransferMotion(workerName)),getCourierTrailAudit,getCourierTrailResidencyAudit,
  setCourierTrailResidencyForTesting,getDeliveryEconomyAudit:()=>cloneData(getDeliveryEconomyAudit()),getDeliveryReceipts:()=>cloneData(getDeliveryReceipts()),getMarketHandoffs:()=>cloneData(getMarketHandoffs()),getMarketParcelDeliveryPose:id=>cloneData(getMarketParcelDeliveryPose(id)),getCourierHandContact:person=>cloneData(courierWorldHandContact(person)),getMarketHandoffRenderStats:()=>({...marketHandoffRenderStats}),watchDelivery,watchHomecoming,getHomecomingView,getHomecomingThresholdCameraAudit,getWorkdayView,getActiveWorksites,watchHarvestShift,getHarvestInteractionAudit,getHarvestVisibilityAudit,getHarvestAftermathAudit,getCitizenActingAudit,
 getDailyRhythmAudit:dailyRhythmAudit,getHouseholdProvisionAudit:()=>cloneData(householdProvisionAudit()),getCarriedHouseholdProvisionPose:person=>cloneData(getCarriedHouseholdProvisionPose(person)),getVerifiedHouseholdMealEvidence:person=>cloneData(verifiedHouseholdMealEvidence(person)),getVerifiedHomeMealHand:person=>cloneData(getVerifiedHomeMealHand(person)),getVerifiedHomeMealRenderStats:()=>({...actualHouseholdMealVisualStats}),getHouseholdCarriedSackStats:()=>({...householdCarriedSackStats}),getReceiptHouseholdAudit:()=>cloneData(receiptHouseholdAudit()),getVerifiedEconomyRenderStats:()=>({...verifiedEconomyRenderStats}),getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getVillageNightLightingAudit,getMaterialShaderTierAudit,getHardwareResidentArchitectureAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getCottageHomecomingAudit,getCottageDoorRenderAudit:()=>({...cottageDoorRenderAudit}),
- getCottageDoorResidencyAudit,setCottageDoorResidencyForTesting,getSoftwareResolutionAudit,getHardwareResolutionAudit,getSimulationFrameDelta:simulationFrameDelta,getHouseholdLightAudit:()=>({...householdLightAudit}),getNightHomesResidencyAudit,setNightHomesResidencyForTesting,getOccupiedHearthCount:()=>occupiedHearths,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,
+ getCottageDoorResidencyAudit,setCottageDoorResidencyForTesting,getSoftwareResolutionAudit,getSoftwareSceneMaterialAudit,getHardwareResolutionAudit,getSimulationFrameDelta:simulationFrameDelta,getHouseholdLightAudit:()=>({...householdLightAudit}),getNightHomesResidencyAudit,setNightHomesResidencyForTesting,getOccupiedHearthCount:()=>occupiedHearths,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,
 getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),getForgeSoundAudit:()=>cloneData(getForgeSoundAudit()),pollForgeSound,watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,
  getRealGrainJourneyAudit,getGrainProofStripAudit:()=>planVisibleGrainChain(grainJourney,
   grainJourney?planRealGrainJourney(grainJourney,people,deliveryReceipts,
