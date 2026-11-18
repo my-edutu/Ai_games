@@ -32138,9 +32138,24 @@ drawForegroundResidentMesh();
  function setMobileTransportExpanded(expanded){
   const open=Boolean(expanded)&&mobileTransportMedia.matches;
   transportActions.dataset.mobileCollapsed=String(!open);
+  // W429 CSS/hit-target probe: old World-view layout fixes dock height to
+  // 52px, clipping Restore/Restart; the world ledger can intercept clicks.
+  // The explicit open state gets bounded natural height and hit priority.
+  if(open){
+   transportActions.style.setProperty('height','auto','important');
+   transportActions.style.setProperty('z-index','39','important');
+  }else{
+   transportActions.style.removeProperty('height');
+   transportActions.style.removeProperty('z-index');
+  }
   for(const action of transportActions.querySelectorAll(':scope > .btn')){
-   if(open)action.style.setProperty('display','inline-flex','important');
-   else action.style.removeProperty('display');
+   if(open){
+    action.style.setProperty('display','inline-flex','important');
+    action.style.setProperty('min-width','44px','important');
+   }else{
+    action.style.removeProperty('display');
+    action.style.removeProperty('min-width');
+   }
   }
   for(const divider of transportActions.querySelectorAll(':scope > .divider')){
    if(open)divider.style.setProperty('display','none','important');

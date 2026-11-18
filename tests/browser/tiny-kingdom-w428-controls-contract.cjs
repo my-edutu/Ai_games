@@ -11,6 +11,9 @@ test('W428 complete original 390px input remains accessible from a 44px compact 
  assert.match(html,/#transport-actions\[data-mobile-collapsed="true"\] > :not\(#pause\)/);
  assert.match(html,/\[data-mobile-collapsed="false"\] \.btn/);
  assert.match(html,/min-height:44px!important/);
+ assert.match(html,/transportActions.style.setProperty\('height','auto','important'\)/);
+ assert.match(html,/transportActions.style.setProperty\('z-index','39','important'\)/);
+ assert.match(html,/action.style.setProperty\('min-width','44px','important'\)/);
  // The old world-view :not(#pause):not(#speed1)...!important CSS hid
  // user-requested Save, Restore and Speed even after W428 expansion.
  assert.match(html,/action\.style\.setProperty\('display','inline-flex','important'\)/);

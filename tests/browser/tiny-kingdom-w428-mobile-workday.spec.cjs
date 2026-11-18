@@ -46,6 +46,27 @@ for(const width of [390,1024]){
    await expect(page.locator('#camera')).toBeVisible();
    const full=await page.locator('#transport-actions').boundingBox();
    expect(full.height).toBeLessThanOrEqual(300);
+   // A visible button may still be clipped by the World ledger or
+   // the old fixed-height dock. Check actual touch geometry and hit target.
+   const realControls=await page.evaluate(()=>{
+    const dock=document.getElementById('transport-actions');
+    return {height:dock.clientHeight,scroll:dock.scrollHeight,
+     buttons:['pause','speed1','speed4','speed16','focus','camera',
+      'save','restore','restart'].map(id=>{
+      const el=document.getElementById(id),r=el.getBoundingClientRect();
+      const actual=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
+      return {id,w:r.width,h:r.height,
+       inside:r.left>=0&&r.top>=0&&r.right<=innerWidth&&r.bottom<=innerHeight,
+       hittable:actual===el||el.contains(actual)};
+     })};
+   });
+   expect(realControls.scroll).toBeLessThanOrEqual(realControls.height+2);
+   for(const action of realControls.buttons){
+    expect(action.w,action.id).toBeGreaterThanOrEqual(44);
+    expect(action.h,action.id).toBeGreaterThanOrEqual(44);
+    expect(action.inside,action.id).toBe(true);
+    expect(action.hittable,action.id).toBe(true);
+   }
    await page.screenshot({path:path.join(root,'390-all-original-controls-open.png')});
    await page.locator('#restore').focus();
    await page.keyboard.press('Escape');
