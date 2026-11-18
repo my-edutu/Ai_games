@@ -6218,5 +6218,40 @@
     },
     "hardware": "NOT EVALUATED",
     "safety": "PR68 draft, frozen baseline unchanged, PR58 untouched, no merge/deploy/force-push or other game edits"
+  },
+  "p0ImmutableFirstReturnedOriginalVoidVaultNativeFilm20261118": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionSourceSha": "1757387c08cf30a972003ed055ab3f50151a278d",
+    "immutableCandidatePin": "github.sha of THIS newly committed capture request; no floating branch",
+    "reason": "First real original F9 Void vault halo + five animated crystals moved into source-earned F9 first submitted scene in production SHA 0e849111. No original 1x film of that implementation yet. Exact source CI passed nine Tower/other shards but unrelated phase6 maze-readiness-score timed out; do not claim green or perception win.",
+    "previousOriginalFilm": "https://github.com/my-edutu/Ai_games/actions/runs/44201339220",
+    "originalFilmDefect": "Last assessed candidate 9c88174: genuine HUD floor9 at 25.75s, sustained violet world 27.25s desktop and 27.50s portrait (1.50s / 1.75s). Strict same-source native-frame alignment failed 0/2; actor/real bronze gateway/walkable F9 never proved co-visible for two consecutive original frames.",
+    "capturePolicy": {
+      "seed": "tower-transformation-capture-v1",
+      "quality": "low",
+      "source": "unchanged candidate vs immutable frozen baseline",
+      "scenarios": [
+        "ascent",
+        "moving",
+        "danger",
+        "outcome"
+      ],
+      "viewports": [
+        "960x600 desktop",
+        "390x844 portrait"
+      ],
+      "playback": "normal-speed 1x unmodified 25fps WebM >=60 seconds per scenario",
+      "sourceEventPairing": "actual original screenshots/video timestamps with source tick and WebGL return; no unpaired substitute"
+    },
+    "inspect": "First F9 25–33 second shot: original retained HP-open old gate, COMPLETE source climber and genuine supported F9 destination must appear together >=2 consecutive actual film frames; inspect animated original central vault, first-F9 GPU return cost, no duplicate crystals, gateway/camera occluders, floor10/restart, baseline event compatibility.",
+    "independentReview": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "realDeviceFrameTimeAndMemory": "NOT EVALUATED",
+    "safety": "Do not touch PR58, frozen baseline/transformation.json, merge, deploy, force-push, ready-status or unrelated game."
   }
 }
