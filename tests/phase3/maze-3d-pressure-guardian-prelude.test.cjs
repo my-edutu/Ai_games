@@ -176,3 +176,50 @@ test('authentic two-passage post-guardian key chamber demands a real return trip
  assert.equal(forwardGuardianKeyCell(oneWay,route,3).cell,5,
    'nonreciprocal passage cannot be used as safe shrine');
 });
+
+test('an actual level Tideglass side gallery wins over an earlier stepped chamber, then requires key return',()=>{
+ const {forwardGuardianKeyCell,solveMazeWithInventory}=load('games/ai-maze-escape/src/generation/content.js');
+ const {passageNeighbors}=load('games/ai-maze-escape/src/generation/solver.js');
+ const width=11,height=9,passages=Array(width*height).fill(0);
+ const connect=(a,b)=>{
+   assert.equal(Math.abs(a%width-b%width)+Math.abs(Math.floor(a/width)-Math.floor(b/width)),1);
+   if(b===a+1){passages[a]|=2;passages[b]|=8}
+   else if(b===a-1){passages[a]|=8;passages[b]|=2}
+   else if(b===a+width){passages[a]|=4;passages[b]|=1}
+   else {passages[a]|=1;passages[b]|=4}
+ };
+ // Both branches are authentic reciprocal passages from the mandatory row-3
+ // journey. The EARLIER row-2/row-1 chamber crosses the actual terrain tier.
+ // The LATER row-4/row-5 room is one connected, same-elevation 3D stage.
+ const route=Array.from({length:11},(_,index)=>33+index);
+ for(let i=0;i<route.length-1;i++)connect(route[i],route[i+1]);
+ connect(38,27); connect(27,16);
+ connect(39,50); connect(50,61);
+ const world={schemaVersion:1,width,height,passages,start:33,exit:43,
+  keys:[{id:'key-1',cell:34,collected:false}],
+  doors:[{id:'door-1',a:41,b:42,requiredKeyId:'key-1',critical:true,open:false,temporaryUntilTick:null}],
+  traps:[],clues:[],checkpoints:[],threats:[],blockedCells:[],profile:'tree'};
+ assert.deepEqual(passageNeighbors(world,38).sort((a,b)=>a-b),[27,37,39]);
+ assert.deepEqual(passageNeighbors(world,39).sort((a,b)=>a-b),[38,40,50]);
+ assert.deepEqual(passageNeighbors(world,50).sort((a,b)=>a-b),[39,61]);
+ const picked=forwardGuardianKeyCell(world,route,3);
+ assert.deepEqual(picked,{keyId:'key-1',cell:61},
+  'prefer the actual same-height connected treasure court, not an earlier stepped passage');
+ const shifted=structuredClone(world);shifted.keys[0].cell=picked.cell;
+ const journey=solveMazeWithInventory(shifted);
+ assert.ok(journey,'real physical gallery must remain solvable without new passages');
+ assert.ok(journey.cells.includes(61),'Pip must discover the actual terminal shrine');
+ assert.ok(journey.cells.filter(cell=>cell===50).length>=2,
+  'Pip must physically retrace the same gallery before the real matching gate');
+ assert.ok(journey.keyOrder.includes('key-1')&&journey.doorOrder.includes('door-1'));
+ assert.deepEqual(forwardGuardianKeyCell({...world,blockedCells:[61]},route,3),
+  {keyId:'key-1',cell:16},
+  'when the joined gallery is blocked, keep the old legal stepped detour');
+ assert.deepEqual(forwardGuardianKeyCell(world,route,3,new Set([50,61])),
+  {keyId:'key-1',cell:16},
+  'an occupied guardian corridor cannot become a treasure shortcut');
+ const original=JSON.stringify(world);
+ assert.deepEqual(forwardGuardianKeyCell(world,route,3),picked,
+  'repeated generation policy yields the identical public-visit objective');
+ assert.equal(JSON.stringify(world),original,'selection cannot modify topology or AI state');
+});

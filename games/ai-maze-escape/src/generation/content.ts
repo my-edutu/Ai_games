@@ -143,6 +143,17 @@ function guardianPressurePrelude(world:MazeWorld,route:number[],reserved:Set<num
  return null;
 }
 
+// A true two-room treasure court is one visually continuous, walkable tier.
+// Prefer this authored physical stage when legitimate generation contains it.
+// The terrain's public three-band stair profile is fixed from row coordinates;
+// neither the AI nor the renderer gains knowledge of undiscovered passages.
+// A multi-tier legal chamber remains an entirely playable fallback.
+function sharesTreasureTerrace(world:MazeWorld,entry:number,middle:number,shrine:number):boolean{
+ const tier=(cell:number)=>Math.min(2,Math.max(0,Math.floor(
+  Math.floor(cell/world.width)*3/Math.max(1,world.height))));
+ return tier(entry)===tier(middle)&&tier(middle)===tier(shrine);
+}
+
 // Preserve the already verified straight guardian: do not rerank its spawn.
 // A genuine previously-early required key may instead become a post-guardian
 // objective, strictly ahead on walkable route ground and before its own gate.
@@ -172,6 +183,7 @@ export function forwardGuardianKeyCell(
    // A terminal dead end prevents a hidden second shortcut around the court.
    const mainRoute=new Set(route);
    let oneStepChamber:number|null=null;
+   let steppedTwoLinkChamber:number|null=null;
    if(Number.isInteger(world.width)&&world.width>0
      &&Number.isInteger(world.height)&&world.height>0
      &&Array.isArray(world.passages)){
@@ -194,11 +206,20 @@ export function forwardGuardianKeyCell(
          const shrineLinks=passageNeighbors(world,shrine);
          // The real two-link return journey creates a meaningful key detour.
          // Neither hidden shortcuts nor sealed passages count as a chamber.
-         if(shrineLinks.length===1&&shrineLinks[0]===first)
-           return {keyId:key.id,cell:shrine};
+         if(shrineLinks.length===1&&shrineLinks[0]===first){
+           // A same-elevation real gallery earns the connected raised-to-spent
+           // Tideglass 3D stage. An earlier multi-tier passage cannot take its
+           // place merely because its route index happens to be smaller.
+           if(sharesTreasureTerrace(world,entry,first,shrine))
+             return {keyId:key.id,cell:shrine};
+           if(steppedTwoLinkChamber===null)steppedTwoLinkChamber=shrine;
+         }
        }
      }
-     // Preserve existing direct side alcoves when no deeper room is legal.
+     // If there is no physically level two-link gallery, keep the previous
+     // legal multi-tier detour before one-step / main-route fallbacks.
+     if(steppedTwoLinkChamber!==null)
+       return {keyId:key.id,cell:steppedTwoLinkChamber};
      if(oneStepChamber!==null)return {keyId:key.id,cell:oneStepChamber};
    }
    // If genuine side chambers do not exist, retain Pass481's original safe
