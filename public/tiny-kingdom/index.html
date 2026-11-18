@@ -1668,6 +1668,19 @@ body[data-village-documentary="on"] #film-ledger[aria-expanded="true"]{
  #transport-actions[data-mobile-collapsed="false"] .btn{
   min-height:44px!important;touch-action:manipulation!important;
  }
+ /* The original World mode intentionally hides save/speed/restart buttons.
+    An explicit Controls disclosure must override those historical rules,
+    including their important selectors, without changing World mode itself. */
+ #transport-actions[data-mobile-collapsed="false"] > .btn{
+  display:inline-flex!important;align-items:center!important;
+ }
+ #transport-actions[data-mobile-collapsed="false"] > #save,
+ #transport-actions[data-mobile-collapsed="false"] > #restore,
+ #transport-actions[data-mobile-collapsed="false"] > #restart,
+ #transport-actions[data-mobile-collapsed="false"] > #speed4,
+ #transport-actions[data-mobile-collapsed="false"] > #speed16{
+  display:inline-flex!important;
+ }
 }
 body[data-hud="cinema"] #mobile-transport-disclosure{display:none!important}
 </style></head><body>
