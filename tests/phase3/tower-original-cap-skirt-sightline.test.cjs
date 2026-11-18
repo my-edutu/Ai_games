@@ -57,7 +57,7 @@ test('real original F8 cap non-walkable skirts clear the live F9 climber/gateway
       assert.equal(result.active,true);
       assert.equal(result.meshes,6);
       assert.ok(result.softened>0);
-      assert.ok(result.rays<=36,'six original 3D panels with six source rays each');
+      assert.ok(result.rays<=60,'at most ten current source-owned full-body/door rays for six authentic panels');
       assert.ok(entries.some(entry=>entry.material.opacity<=.035),
         'the real old-cap foreground, not a synthetic proxy, can clear');
       assert.equal(top.material.opacity,1);
@@ -72,6 +72,66 @@ test('real original F8 cap non-walkable skirts clear the live F9 climber/gateway
       top.geometry.dispose();topMaterial.dispose();
       for(const resource of dispose)resource.dispose();
     }
+  }
+});
+
+
+test('unedited 390px guardian crossing: an opaque old-cap skirt covering only the original full-body sole is removed from depth, not its walkable roof',async()=>{
+  const THREE=await three;
+  const {protectSourceSuccessorUndercroft:protect}=await loaded;
+  const source={runToken:'original-full-sole-passage',lifecycle:'running',floor:9,
+    theme:'void',tick:479,player:{health:4,halfWidth:9000,halfHeight:14000}};
+  const held={runToken:source.runToken,floor:9,sourceTick:475,
+    guardianGateRetained:true,oldCapId:'f8:cap',
+    thresholdX:310000,oldRoofY:345000};
+  const scene=new THREE.Scene();
+  const root=new THREE.Group();scene.add(root);
+  const roofMaterial=new THREE.MeshStandardMaterial({color:0x936f42});
+  const roof=new THREE.Mesh(new THREE.BoxGeometry(8,.12,4),roofMaterial);
+  roof.position.set(0,5,2.7);root.add(roof);
+  // With camera z=6 and body z=0, the original near-sole ray reaches
+  // y~1.51 at z=2.8, but the true sole ray reaches y~1.36. This existing
+  // bronze underside was recorded in front of the portrait climber's shoes
+  // while the previous 76%-sole test missed it entirely.
+  const tint=new THREE.MeshStandardMaterial({color:0x825b3b});
+  const material=tint.clone();
+  const skirt=new THREE.Mesh(new THREE.BoxGeometry(.6,.07,.12),material);
+  skirt.position.set(0,1.36,2.8);root.add(skirt);
+  const camera=new THREE.PerspectiveCamera(55,390/844,.1,100);
+  camera.position.set(0,2,6);camera.updateMatrixWorld(true);
+  scene.updateMatrixWorld(true);
+  const opts={source,held,camera,body:new THREE.Vector3(0,2,0),
+    bodyHalfHeight:1.2,entries:[{mesh:skirt,material,tint}],
+    raycaster:new THREE.Raycaster(),direction:new THREE.Vector3(),
+    point:new THREE.Vector3(),hits:[],dt:1/25};
+  try{
+    const before=JSON.stringify([source,held]);
+    // Verify the actual original panel intersects ONLY the genuine foot ray,
+    // rather than creating a test that any existing shoulder check could pass.
+    const ray=new THREE.Raycaster(camera.position,
+      new THREE.Vector3(0,-.64,-3.2).normalize(),0,20);
+    assert.ok(ray.intersectObject(skirt,false).length>0,
+      'the full-body skinned sole has a real source-mesh ray obstruction');
+    ray.set(camera.position,new THREE.Vector3(0,-.4864,-3.2).normalize());
+    assert.equal(ray.intersectObject(skirt,false).length,0,
+      'the old shortened 76%-sole sampler genuinely missed this real skirt');
+    const result=protect(opts);
+    assert.equal(result.active,true);
+    assert.equal(result.softened,1);
+    assert.ok(result.rays<=8);
+    assert.equal(material.opacity,.035);
+    assert.equal(material.depthWrite,false);
+    assert.equal(roofMaterial.opacity,1);
+    assert.equal(roofMaterial.depthWrite,true);
+    assert.equal(JSON.stringify([source,held]),before);
+    opts.source={...source,runToken:'different-run'};
+    assert.equal(protect(opts).active,false,
+      'a different episode cannot retain the original garment clearance');
+    assert.equal(material.opacity,1);
+    assert.equal(material.depthWrite,true);
+  }finally{
+    roof.geometry.dispose();roofMaterial.dispose();
+    skirt.geometry.dispose();tint.dispose();material.dispose();
   }
 });
 
