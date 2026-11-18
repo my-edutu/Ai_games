@@ -6587,5 +6587,52 @@
     },
     "actualHardware": "NOT EVALUATED",
     "safety": "Only PR68 draft source, no PR58 edits/baseline changes/merge/deploy/force push/unrelated games"
+  },
+  "p0RealGpuSkirtBatchRayIdentity20261118_1641": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceImplementationSha": "70ee3e4b773924fcd5af04c71b3bb22130a9f47f",
+    "pr68": "https://github.com/my-edutu/Ai_games/pull/68",
+    "preImplementationOriginalCandidateSha": "ec7ff12f2db32ba17dd83ea915926ecd66b6aba4",
+    "preImplementationOriginalCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44330962359",
+    "originalCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44330962359/artifacts/14437999768",
+    "originalEvidence": "Original unmodified 25fps 1x 60+s WebMs inspected on desktop 960x600 and portrait 390x844 with native-scene-phase and original submitted geometry forensics. Authentic fixed-step HP0 guardian crossing tick 475, eight original scenario source/film stories indexed, 0 provenance defects, source-to-film event-duel FAILED 0/2 viewports. This is real film, not staged frames or blind reviewer acceptance.",
+    "observedNativeTransition": {
+      "desktop": {
+        "drawnF9HudSeconds": 26.5,
+        "sustainedF9VioletSeconds": 27.25,
+        "hudToWorldSeconds": 0.75,
+        "firstF9BrowserAcceptToWebGLReturnMs": 951
+      },
+      "portrait": {
+        "drawnF9HudSeconds": 25.75,
+        "sustainedF9VioletSeconds": 27,
+        "hudToWorldSeconds": 1.25,
+        "firstF9BrowserAcceptToWebGLReturnMs": 954
+      },
+      "precision": "approximately ±0.25s native phase; ~951ms browser acceptance/renderer return is not actual-device frame time"
+    },
+    "strongestObservedDefect": "Genuine old bronze and later original F9 non-walkable opaque platform undersides intersect or mask full-body/gate sightlines. Source pinned post-render camera-forensics recorded real `rigid-material-batch` occlusion by `SourceOwnedF9NonWalkableInnerDeckSkirt` at desktop F9 tick503 and `SourceOwnedF9NonWalkableOuterDeckSkirt` at portrait F9 tick518; original source-owned skirt ray helper retained DETACHED authoring meshes after finishBatches instead of the actual uploaded batches. Still no 2 adjacent source-matched real pixels co-visible full climber, opened F8 guardian gate, walkable F9 ground.",
+    "actualImplementation": "The actual World now rebinds each eligible original F9 non-walkable outer/inner skirt ray entry after rigid batching to its unique real attached uploaded material batch. The sole live portrait/desktop camera ray and opacity protection query current rendered geometry rather than removed authored meshes. No additional draw, actor, fake floor/gateway, collider or movement, and real landing top remains opaque. Invalid or ambiguous owner is rejected, source-owned opacity restores on expiry.",
+    "changedProductionFiles": [
+      "public/infinite-tower-climb/visuals/world.mjs",
+      "public/infinite-tower-climb/visuals/successor-deck-visibility.mjs"
+    ],
+    "regressionFile": "tests/phase3/tower-authentic-successor-deck-visibility.test.cjs",
+    "newRegressionCases": "Three real Three.js tests: unique material batch rebind/real occlusion in 960x600 and 390x844; forged/ambiguous/missing identity fail closed; production wiring after rigid platform batch. Tests and exact-head CI NOT verified at initial write.",
+    "newExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44338475946 — queued/in progress; not a PASS",
+    "preImplementationExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44330962455 — 10/10 SUCCESS on prior ec7ff12 only",
+    "followingEvidenceCapture": "REQUESTED by this new capture-request commit; pin exact immutable workflow github.sha not floating branch. New full video outcomes NOT YET EVALUATED.",
+    "genuineIndependentReviews": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDeviceFrameTimeP50P95P99": "NOT EVALUATED",
+    "actualDeviceMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Verify exact-source all Tower Phase3 regression partitions and 9-job original capture from new immutable sha, view entire 1x danger/moving/outcome desktop/portrait and exact source/native PTS. Check source-owned nonwalkable skirt camera rays now hit actual rigid-material-batch and reveal complete skinned body without hiding real platform top, and require 2 adjacent source-aligned native frames of actor + earned HP-open original arch + genuine walkable F9. If still broken, investigate remaining old cap/gate and cold first-return ~950ms architecture; P0 remains OPEN.",
+    "safety": "PR68 remains OPEN DRAFT, PR58 and frozen baseline/transformation.json unchanged, no other game changes, force-push, merge or deployment",
+    "request": "Re-run original 9-job candidate/frozen baseline capture (4 scenarios ascent/moving/danger/guardian crossing/outcome-restart, low tier, seed tower-transformation-capture-v1, 25fps 1x normal-speed 60s+), source pin immutable github.sha of this capture-request commit; include desktop 960x600 and portrait 390x844. Strict event-native pairing must be honestly failed if unmatched; no synthetic source or film improvement claim."
   }
 }
