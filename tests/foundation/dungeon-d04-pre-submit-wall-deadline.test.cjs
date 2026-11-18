@@ -130,8 +130,8 @@ test('one public snapshot and one submitted frame use one clock sample per bound
   assert.equal(visual.filter(c=>c.proof==='observed-hp-drop').length,2);
   const beforeReceiptCalls=calls;
   assert.equal(director.acknowledgePresentedFrame(1,.012),2);
-  assert.equal(calls-beforeReceiptCalls,1,
-   'one real renderer acknowledgement supplies exactly one trusted timestamp');
+  assert.equal(calls-beforeReceiptCalls,3,
+   'one shared real WebGL receipt clock plus two per-cue last-chance original-sound deadline checks');
   const receipts=director.stats().recentDeliveryReceipts.filter(r=>r.audio);
   assert.equal(receipts.length,2);
   assert.equal(new Set(receipts.map(r=>r.observedClockMs)).size,1);
