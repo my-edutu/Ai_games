@@ -1172,10 +1172,35 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
   // lift, while its independently measured heel lag made the actual
   // pitch SAFER. Keep the 16mm floor for the prior 83/133ms bands;
   // spend the lower 15mm floor on the exact 150ms three-joint witness only.
+  // Original 390px GLB Actions #44317893239 (Walking_A tick6) exposed
+  // two genuinely re-skinned connected hip/calf/foot trials in the same
+  // 166.7ms/66mm lawful source frame. The nominal +180mrad foot trial
+  // raised the buried toe 20.745mm but the airborne heel 22.084mm:
+  // a steeper vertical shoe. The +240mrad foot trial raised the toe
+  // 19.582mm and heel only 17.787mm, recovering 1.794mm of true
+  // outsole pitch with the loaded other shoe unchanged. A rigid 20mm
+  // toe-only gate discarded the physically better trial.
+  // Generalize ONLY to measured original connected joints with genuine
+  // source outsole geometry, clip ownership and a POSITIVE relative
+  // heel-to-toe change. Four read-only weighted source-skin probes plus
+  // independent final re-skin must still certify the chosen candidate.
+  const measuredSaferSourcePitch=toeRad===0&&sourceWeight>=.99&&
+   starter?.source==='actual-original-source-three-joint-swing-opportunity'&&
+   starter.expectedSourceSkinnedTrials===2&&
+   starter.contactLocked===false&&starter.sign===Math.sign(upperRad)&&
+   frameInterval>=.12&&frameInterval<=.24&&
+   depth>=.06&&depth<=.11&&heelAbove>=.16&&heelAbove<=.32&&
+   shoeSpan>=.285&&shoeSpan<=.325&&
+   Math.abs(upperRad)>=.09&&Math.abs(upperRad)<=.12&&
+   Math.abs(lowerRad)>=.10&&Math.abs(lowerRad)<=.145&&
+   Math.abs(footRad)>=.18&&Math.abs(footRad)<=.240001&&
+   lift>=.018&&lift<.020&&heelRise>=0&&heelRise<=.024&&
+   lift-heelRise>=.0015;
   const sourcePitchMinLift=licensedPitchSafe150ms?.015:
    licensedDeepPitchSafe83ms?.0165:
    licensedPitchSafeSourceWindow?.016:
-   strongSourcePitchRecovery?.017:Math.max(.02,depth*.20);
+   strongSourcePitchRecovery?.017:
+   measuredSaferSourcePitch?.018:Math.max(.02,depth*.20);
   if(lift<sourcePitchMinLift||lift>.095||
    lift-heelRise<-.002||Math.abs(heelRise)>.055||
    shoe.toeY>floorTopY+.045||
@@ -1186,7 +1211,11 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
    Math.abs(loaded.toeY-support.toeY)>.003||
    dist(loaded.heelXZ,support.heelXZ)>.004||
    dist(loaded.toeXZ,support.toeXZ)>.004)continue;
-  const scored=lift-Math.max(0,heelRise)*.35;
+  // The weighted source sole must recover pitch as a connected foot,
+  // not win merely by lifting a nearly vertical, already-airborne heel.
+  // Existing pure source and final re-skinned two-shoe guards still apply.
+  const scored=lift-Math.max(0,heelRise)*.35+
+   Math.max(0,lift-heelRise)*.60;
   if(!best||scored>best.score+.0005||
    (Math.abs(scored-best.score)<=.0005&&
     Math.abs(upperRad)+Math.abs(lowerRad)+Math.abs(footRad)<
