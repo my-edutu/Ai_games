@@ -28611,7 +28611,7 @@ function planRealMarketHomeDistrict(homes,market,width,height){
    index,point:[lot[0],lot[1]],
    distance:Math.hypot(lot[0]-market[0],lot[1]-market[1])
   })).sort((a,b)=>a.distance-b.distance||a.index-b.index)
-   .slice(0,Math.min(7,homes.length));
+   .slice(0,Math.min(3,homes.length));
  const focus=[
   (market[0]*2+near.reduce((sum,row)=>sum+row.point[0],0))/
    (near.length+2),
@@ -28622,18 +28622,20 @@ function planRealMarketHomeDistrict(homes,market,width,height){
   focus[1]-market[1]),...near.map(row=>
    Math.hypot(row.point[0]-focus[0],row.point[1]-focus[1])));
  const mobile=width<=520;
- // A bounded, physically surveyed 3D lens: 7 actual homes remain in view
- // rather than W439's 35-house postage-stamp mobile panoramas. Never cull
- // a citizen or structure to make this tighter composition appear clear.
- const zoom=Math.max(mobile?32:23,
-  Math.min(mobile?47:36,(radius+5)*(mobile?2.45:1.82)));
+ // The real market plus its three nearest constructed homes is the close
+ // playable workday view. The existing separate village camera still frames
+ // ALL homes, including Day-121 growth; changing this lens never deletes,
+ // culls or simulates a house, citizen or market receipt. This deliberately
+ // prioritises visible street-level work over a seven-house aerial postcard.
+ const zoom=Math.max(mobile?27:20,
+  Math.min(mobile?35:30,(radius+4)*(mobile?1.92:1.60)));
  return {source:'original-real-market-and-inhabited-cottage-district',
   stage:'market-home-district',realHomes:homes.length,
   districtHomeCount:near.length,market:market.slice(0,2),
   inspectedHomeLots:near.map(row=>row.point),
   inspectedHomeIndices:near.map(row=>row.index),
   focus:focus.map(n=>Math.max(-40,Math.min(40,n))),
-  radius,yaw:2.15,pitch:mobile?1.11:.94,zoom,
+  radius,yaw:2.15,pitch:mobile?.94:.82,zoom,
   viewportWidth:width,viewportHeight:height,
   originalWorldOnly:true,actualBuildingsUnchanged:true,
   newCitizens:0,newTransactions:0,newMeshes:0,
@@ -32690,7 +32692,10 @@ drawForegroundResidentMesh();
  });
  for(const action of cameraToolNav.querySelectorAll('button:not(#camera-disclosure)')){
   action.addEventListener('click',()=>{
-   if(window.matchMedia('(max-width: 520px)').matches)
+   // The real village must remain visible after choosing a camera lens:
+   // close the navigation palette on desktop too, not just at 390px.
+   if(document.body.dataset.command==='world'||
+      window.matchMedia('(max-width: 520px)').matches)
     setCameraToolsExpanded(false);
   });
  }
