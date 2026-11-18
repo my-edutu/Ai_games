@@ -7857,6 +7857,8 @@ function geometryAudit(){
    'invalidNormals','invalidColors','outOfBounds'])animated[key]+=realRuts[key];
   animated.aligned=animated.aligned&&realRuts.aligned;
  }
+ if(gpuAvailable&&completedHarvestResidentActive&&completedHarvestResidentMesh)
+  addSceneGeometryStats(animated,completedHarvestResidentMesh);
  if(gpuAvailable&&recordedWorkActive&&recordedWorkMesh){
   const traces=inspectMeshGeometry(recordedWorkMesh);
   for(const key of ['floats','vertices','triangles','invalidComponents',
@@ -23060,8 +23062,8 @@ function getHarvestAftermathAudit(){
    a decorative bag. The patch is clamped INSIDE the field footprint; its
    count, coordinates and decay come solely from real workdayEvents.
    Presentational only: no stock changes, invented actors or seeded draws. */
-function renderCompletedHarvestWitnesses(){
- const sites=completedHarvestVisuals(),beginning=data.length;
+function renderCompletedHarvestWitnesses(sites=completedHarvestVisuals()){
+ const beginning=data.length;
  let rows=0,stubble=0,sheaves=0;
  for(const site of sites){
   const field=FARMSTEAD.fields.find(([x0,x1,z0,z1])=>
@@ -23106,6 +23108,125 @@ function renderCompletedHarvestWitnesses(){
  }
  completedHarvestRenderStats={sites:sites.length,rows,stubble,sheaves,
   triangles:(data.length-beginning)/30};
+}
+// W449 Phase 1: the ORIGINAL harvested farm's 5 real cut furrows and
+// authentic credited sheaves belong in a single durable GPU mesh. Their
+// identity comes ONLY from positive authoritative farmer work events and
+// the original 6-hour fade. No fabricated cargo, field, citizen or stock.
+// Newly earned work, fade changes, disappearance and restore invalidate the
+// exact complete mesh; unsupported/software and budget overflow use the
+// unchanged per-frame renderer. The mobile/webGL triangle integrity audit
+// counts the same full world on BOTH render implementations.
+const COMPLETED_HARVEST_RESIDENT_FLOAT_BUDGET=65536;
+let completedHarvestResidentBuffer=null,completedHarvestResidentMesh=null,
+ completedHarvestResidentKey='',completedHarvestResidentCapacity=0,
+ completedHarvestResidentActive=false,completedHarvestResidentOverride=null;
+let completedHarvestResidentBuilds=0,completedHarvestResidentReuses=0,
+ completedHarvestResidentUploads=0,completedHarvestResidentDrawCalls=0,
+ completedHarvestResidentDisposals=0,completedHarvestResidentFallbacks=0,
+ completedHarvestResidentLastEvents=0;
+function completedHarvestResidentSignature(sites){
+ if(!Array.isArray(sites))throw Error('W449 invalid harvest source events');
+ return sites.map(site=>[
+  site.eventId,site.x,site.z,site.foodEarned,site.strength
+ ].join(':')).join('|');
+}
+function completedHarvestResidencyRequested(){
+ return Boolean(gpuAvailable&&(completedHarvestResidentOverride===null?
+  !swiftGpu:completedHarvestResidentOverride));
+}
+function disposeCompletedHarvestResidentMesh(){
+ if(completedHarvestResidentBuffer&&gpuAvailable){
+  releaseGeometryBuffer(completedHarvestResidentBuffer);
+  completedHarvestResidentDisposals++;
+ }
+ completedHarvestResidentBuffer=null;completedHarvestResidentMesh=null;
+ completedHarvestResidentKey='';completedHarvestResidentCapacity=0;
+ completedHarvestResidentActive=false;
+}
+function prepareCompletedHarvestResidentMesh(){
+ completedHarvestResidentActive=false;
+ if(!completedHarvestResidencyRequested())return false;
+ const sites=completedHarvestVisuals();
+ completedHarvestResidentLastEvents=sites.length;
+ if(!sites.length){
+  completedHarvestRenderStats={sites:0,rows:0,stubble:0,sheaves:0,triangles:0};
+  if(completedHarvestResidentBuffer)disposeCompletedHarvestResidentMesh();
+  return true;
+ }
+ const key=completedHarvestResidentSignature(sites);
+ if(completedHarvestResidentBuffer&&completedHarvestResidentMesh&&
+    completedHarvestResidentKey===key){
+  completedHarvestResidentReuses++;completedHarvestResidentActive=true;
+  return true;
+ }
+ const previousData=data,previousMaterial=currentMaterial;
+ let mesh;
+ data=[];
+ try{
+  // Exactly the original stubble, real sheaves, normals, colours and order.
+  renderCompletedHarvestWitnesses(sites);
+  mesh=new Float32Array(data);
+ }finally{data=previousData;currentMaterial=previousMaterial;}
+ if(mesh.length%30)throw Error('W449 original harvested field triangles not aligned');
+ if(mesh.length>COMPLETED_HARVEST_RESIDENT_FLOAT_BUDGET){
+  completedHarvestResidentFallbacks++;
+  disposeCompletedHarvestResidentMesh();
+  return false;
+ }
+ if(!completedHarvestResidentBuffer)
+  completedHarvestResidentBuffer=gl.createBuffer();
+ if(!completedHarvestResidentBuffer)
+  throw Error('W449 cannot allocate original harvest VBO');
+ bindGeometry(completedHarvestResidentBuffer);
+ if(mesh.length>completedHarvestResidentCapacity){
+  completedHarvestResidentCapacity=
+   Math.ceil(Math.max(1,mesh.length)/8192)*8192;
+  gl.bufferData(gl.ARRAY_BUFFER,completedHarvestResidentCapacity*4,
+   gl.DYNAMIC_DRAW);
+ }
+ if(mesh.length)gl.bufferSubData(gl.ARRAY_BUFFER,0,mesh);
+ completedHarvestResidentMesh=mesh;completedHarvestResidentKey=key;
+ completedHarvestResidentBuilds++;completedHarvestResidentUploads++;
+ completedHarvestResidentActive=true;
+ return true;
+}
+function drawCompletedHarvestResidentMesh(){
+ if(!completedHarvestResidentActive||!completedHarvestResidentMesh?.length)
+  return;
+ bindGeometry(completedHarvestResidentBuffer);
+ gl.drawArrays(gl.TRIANGLES,0,completedHarvestResidentMesh.length/10);
+ completedHarvestResidentDrawCalls++;
+}
+function setCompletedHarvestResidencyForTesting(value){
+ if(value!==null&&value!==true&&value!==false)
+  throw Error('Invalid original harvest renderer override');
+ completedHarvestResidentOverride=value;
+ disposeCompletedHarvestResidentMesh();
+ // A renderer-mode switch must redraw the EXACT same authoritative instant.
+ cameraDynamicCache=null;cameraActorCache=null;cameraDynamicKey='';
+ lastFrozenFrameKey=null;presentationEpoch++;
+}
+function getCompletedHarvestResidencyAudit(){
+ return {source:'positive-authoritative-farmer-harvest-retained-GPU',
+  requested:completedHarvestResidencyRequested(),
+  active:completedHarvestResidentActive,
+  authenticVisibleEvents:completedHarvestResidentLastEvents,
+  meshFloats:completedHarvestResidentMesh?.length||0,
+  triangles:completedHarvestResidentActive?
+   (completedHarvestResidentMesh?.length||0)/30:0,
+  buffers:completedHarvestResidentBuffer?1:0,maxBuffers:1,
+  capacityFloats:completedHarvestResidentCapacity,
+  floatBudget:COMPLETED_HARVEST_RESIDENT_FLOAT_BUDGET,
+  builds:completedHarvestResidentBuilds,reuses:completedHarvestResidentReuses,
+  uploads:completedHarvestResidentUploads,
+  drawCalls:completedHarvestResidentDrawCalls,
+  disposals:completedHarvestResidentDisposals,
+  overBudgetFallbacks:completedHarvestResidentFallbacks,
+  eventIndexed:true,exactGeometry:true,authorityModified:false,
+  softwareRendererExcludedByDefault:true,
+  nativeHardwareFps:'NOT MEASURED',
+  fallback:'complete original harvested furrows and credited sheaves'};
 }
 // W126 measured finger-to-original-cart-shaft contact, not a fake cargo prop.
 function getCourierCartGripAudit(){
@@ -23414,7 +23535,7 @@ function renderStories(){const feed=document.getElementById('feed');feed.replace
 function uniqueCitizenName(index){const given=names[index%names.length];const generation=Math.floor(index/names.length);return generation?given+' '+(generation===1?'II':String(generation+1)):given}
 function report(s){stories.unshift({day:Math.floor(state.t/24)+1,text:s});stories=stories.slice(0,6);renderStories()}
 let courierPostRepairCount=0,courierPostRepairLast=null;
-function start(){resetActorGpuSnapshots();resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();restingActorKey='';clearRestingActorIdentityCache();restingActorVisible=false;restingActorCitizens=0;disposeLivingVillageMotion();disposeNightHomesResidentMesh();clearHomeClusterCache();independentHousingGrowthWitnesses.length=0;householdContactHistory.length=0;disposeRecordedWorkResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;daybreakLastCompleted=null;disposeEconomyResidentMesh();disposeLedgerWitnessResidentMesh();villageDocumentary=null;document.body.dataset.villageDocumentary='off';clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');presentationEpoch++;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();clearLandscapeSeasonCache();landscapeMeshCache=null;landscapeMeshKey='';seed=83127;resetSoftwareDebtDrain();accumulator=0;selectedCitizen=0;routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;city.splice(12);invalidateHomeNavigationIndex();state={t:7,food:180,wood:90,gold:42,homes:city.length,buildCount:city.length+2,happiness:78,lastStory:0};people=names.slice(0,12).map((name,i)=>({name,job:jobs[i%jobs.length],trait:['patient','curious','bold','generous','resourceful','loyal'][i%6],x:(rand()-.5)*14,z:(rand()-.5)*11,target:[(rand()-.5)*24,(rand()-.5)*20],phase:rand()*8,friend:null,bonds:{},energy:60+rand()*40,hunger:rand()*20,activity:'Exploring the valley',workTimer:0,provisions:0,provisionVisits:0,lastProvisionAttemptDay:-1,friendshipRecorded:false}));for(const p of people){if(!walkable(p.x,p.z)){const spot=navSnap(p.x,p.z);if(spot)[p.x,p.z]=navPoint(...spot)}choose(p)}stories=[];report('The first families arrive in a lush and untamed valley.');report('A new settlement is born beneath the old mountain ridge.');updateUI()}
+function start(){resetActorGpuSnapshots();resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();restingActorKey='';clearRestingActorIdentityCache();restingActorVisible=false;restingActorCitizens=0;disposeLivingVillageMotion();disposeNightHomesResidentMesh();clearHomeClusterCache();independentHousingGrowthWitnesses.length=0;householdContactHistory.length=0;disposeRecordedWorkResidentMesh();disposeCompletedHarvestResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;daybreakLastCompleted=null;disposeEconomyResidentMesh();disposeLedgerWitnessResidentMesh();villageDocumentary=null;document.body.dataset.villageDocumentary='off';clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');presentationEpoch++;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();clearLandscapeSeasonCache();landscapeMeshCache=null;landscapeMeshKey='';seed=83127;resetSoftwareDebtDrain();accumulator=0;selectedCitizen=0;routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;city.splice(12);invalidateHomeNavigationIndex();state={t:7,food:180,wood:90,gold:42,homes:city.length,buildCount:city.length+2,happiness:78,lastStory:0};people=names.slice(0,12).map((name,i)=>({name,job:jobs[i%jobs.length],trait:['patient','curious','bold','generous','resourceful','loyal'][i%6],x:(rand()-.5)*14,z:(rand()-.5)*11,target:[(rand()-.5)*24,(rand()-.5)*20],phase:rand()*8,friend:null,bonds:{},energy:60+rand()*40,hunger:rand()*20,activity:'Exploring the valley',workTimer:0,provisions:0,provisionVisits:0,lastProvisionAttemptDay:-1,friendshipRecorded:false}));for(const p of people){if(!walkable(p.x,p.z)){const spot=navSnap(p.x,p.z);if(spot)[p.x,p.z]=navPoint(...spot)}choose(p)}stories=[];report('The first families arrive in a lush and untamed valley.');report('A new settlement is born beneath the old mountain ridge.');updateUI()}
 // Walkable navigation is separate from decorative geometry. Deterministic bounded A*
 // prevents villagers crossing house interiors or swimming through the river.
 const NAV_LIMIT=40,NAV_BUDGET=3200,NAV_SPACING=1.15;
@@ -32349,7 +32470,7 @@ renderWorkdayTraces();
 dynamicPhaseTimes.residentWorkGeometry=performance.now()-worksiteGeometryStart;
 renderOccupiedForgeYard();
 if(!prepareCourierTrailResidentMesh())renderRealCourierWheelTrails();
-renderCompletedHarvestWitnesses();
+if(!prepareCompletedHarvestResidentMesh())renderCompletedHarvestWitnesses();
 dynamicPhaseTimes.worksiteGeometry=performance.now()-worksiteGeometryStart;
 const householdGeometryStart=performance.now();
 if(!prepareNightHomesResidentMesh()){renderOccupiedHearths();renderHouseholdThresholds();}
@@ -32561,6 +32682,7 @@ const nonFieldTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.
  (economyResidentActive?economyResidentMesh?.length||0:0)+
  (ledgerWitnessResidentActive?ledgerWitnessResidentMesh?.length||0:0)+
  (recordedWorkActive?recordedWorkMesh?.length||0:0)+
+ (completedHarvestResidentActive?completedHarvestResidentMesh?.length||0:0)+
  (worksiteFixtureActive?worksiteFixtureMesh?.length||0:0)+
  (courierTrailResidentActive?courierTrailResidentMesh?.length||0:0)+
  (marketShutterResidentActive?marketShutterResidentMesh?.length||0:0)+
@@ -32664,6 +32786,7 @@ const gpuUploadStart=performance.now(),residentSubmissionStart=gpuUploadStart;
 drawEconomyResidentMesh();
 drawLedgerWitnessResidentMesh();
 drawRecordedWorkResidentMesh();
+drawCompletedHarvestResidentMesh();
 drawWorksiteFixtureResidentMesh();
 drawCourierTrailResidentMesh();
 drawResidentMarketShutters();
@@ -32936,7 +33059,8 @@ drawForegroundResidentMesh();
  getWorkIntentMemoAudit:()=>cloneData(getWorkIntentMemoAudit()),
  getRealWorksiteFrameAudit:()=>cloneData(getRealWorksiteFrameAudit()),
  getStreetCargoProjectionAudit:()=>cloneData(getStreetCargoProjectionAudit()),getFieldWindAudit:(time=state.t)=>cloneData(getFieldWindAudit(time)),getAmbientGpuResidencyAudit:()=>({...getAmbientGpuResidencyAudit()}),getWeatherVertexMotionProbe,getOccupationalPerformance:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData({citizen:people[index].name,job:people[index].job,...occupationalPerformance(people[index])}):null,getGarmentProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(garmentProfile(people[index],index,citizenRigPose(people[index]))):null,getFaceProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceProfile(people[index],index)):null,getFaceNormalProfile:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(faceNormalField(faceProfile(people[index],index))):null,getSelectedCitizen:()=>people[selectedCitizen]?.name,getSelectedCitizenTaskAudit,getCitizenPickCandidates,getCitizenOrbitAudit,getCitizenPickAudit:()=>({...citizenPickAudit}),getWorkdayEvents:()=>cloneData(workdayEvents),getStreetCargoWitnesses:()=>cloneData(streetCargoWitnesses()),getActiveDeliveries:()=>cloneData(getActiveDeliveries()),getSupplyTrailSnapshot:()=>cloneData(getSupplyTrailSnapshot()),getPhysicalMarketParcelAudit:id=>cloneData(getPhysicalMarketParcelAudit(id)),getCourierLoadPresentation:workerName=>cloneData(getCourierLoadPresentation(workerName)),getCourierTransferMotion:workerName=>cloneData(courierTransferMotion(workerName)),getCourierTrailAudit,getCourierTrailResidencyAudit,
- setCourierTrailResidencyForTesting,getDeliveryEconomyAudit:()=>cloneData(getDeliveryEconomyAudit()),getDeliveryReceipts:()=>cloneData(getDeliveryReceipts()),getMarketHandoffs:()=>cloneData(getMarketHandoffs()),getMarketParcelDeliveryPose:id=>cloneData(getMarketParcelDeliveryPose(id)),getCourierHandContact:person=>cloneData(courierWorldHandContact(person)),getMarketHandoffRenderStats:()=>({...marketHandoffRenderStats}),watchDelivery,watchHomecoming,getHomecomingView,getHomecomingThresholdCameraAudit,getWorkdayView,getActiveWorksites,watchHarvestShift,getHarvestInteractionAudit,getHarvestVisibilityAudit,getHarvestAftermathAudit,getCitizenActingAudit,
+ setCourierTrailResidencyForTesting,getDeliveryEconomyAudit:()=>cloneData(getDeliveryEconomyAudit()),getDeliveryReceipts:()=>cloneData(getDeliveryReceipts()),getMarketHandoffs:()=>cloneData(getMarketHandoffs()),getMarketParcelDeliveryPose:id=>cloneData(getMarketParcelDeliveryPose(id)),getCourierHandContact:person=>cloneData(courierWorldHandContact(person)),getMarketHandoffRenderStats:()=>({...marketHandoffRenderStats}),watchDelivery,watchHomecoming,getHomecomingView,getHomecomingThresholdCameraAudit,getWorkdayView,getActiveWorksites,watchHarvestShift,getHarvestInteractionAudit,getHarvestVisibilityAudit,getHarvestAftermathAudit,getCompletedHarvestResidencyAudit,
+ setCompletedHarvestResidencyForTesting,getCitizenActingAudit,
 getDailyRhythmAudit:dailyRhythmAudit,getHouseholdProvisionAudit:()=>cloneData(householdProvisionAudit()),getCarriedHouseholdProvisionPose:person=>cloneData(getCarriedHouseholdProvisionPose(person)),getVerifiedHouseholdMealEvidence:person=>cloneData(verifiedHouseholdMealEvidence(person)),getVerifiedHomeMealHand:person=>cloneData(getVerifiedHomeMealHand(person)),getVerifiedHomeMealRenderStats:()=>({...actualHouseholdMealVisualStats}),getHouseholdCarriedSackStats:()=>({...householdCarriedSackStats}),getReceiptHouseholdAudit:()=>cloneData(receiptHouseholdAudit()),getVerifiedEconomyRenderStats:()=>({...verifiedEconomyRenderStats}),getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getVillageNightLightingAudit,getMaterialShaderTierAudit,getHardwareResidentArchitectureAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getCottageHomecomingAudit,getCottageDoorRenderAudit:()=>({...cottageDoorRenderAudit}),
  getCottageDoorResidencyAudit,setCottageDoorResidencyForTesting,getSoftwareResolutionAudit,getSoftwareSceneMaterialAudit,getHardwareResolutionAudit,getSimulationFrameDelta:simulationFrameDelta,getHouseholdLightAudit:()=>({...householdLightAudit}),getNightHomesResidencyAudit,setNightHomesResidencyForTesting,getOccupiedHearthCount:()=>occupiedHearths,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,
 getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),getForgeSoundAudit:()=>cloneData(getForgeSoundAudit()),pollForgeSound,watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,
