@@ -34,6 +34,7 @@ on:
       - tests/browser/dungeon-d04-scene-transition-soak-audit.cjs
       - tests/browser/dungeon-d04-av-evidence.cjs
       - tests/browser/dungeon-d04-capture-profile.cjs
+      - tests/browser/dungeon-d04-contact-window.cjs
       - tests/foundation/dungeon-d04-single-primary-encoder.test.cjs
       - tests/foundation/dungeon-physical-feedback-preview-integration.test.cjs
       - tests/browser/dungeon-d04-real-feedback-observation.cjs
@@ -65,6 +66,7 @@ jobs:
       - run: node --check public/ai-dungeon/original-combat-foley.js
       - run: node --check public/ai-dungeon/d04-combat-pcm-worklet.js
       - run: node --check tests/browser/dungeon-d04-capture-profile.cjs
+      - run: node --check tests/browser/dungeon-d04-contact-window.cjs
       - run: node --check tests/browser/dungeon-d04-stereo-stem-decoder.cjs
       - run: node --check tests/browser/dungeon-d04-impact-submission-witness.cjs
       - run: node --check tests/browser/dungeon-d04-live-authority-pair.cjs
@@ -84,6 +86,7 @@ jobs:
             tests/foundation/dungeon-d04-same-window-av.test.cjs \
             tests/foundation/dungeon-d04-browser-source-parse.test.cjs \
             tests/foundation/dungeon-d04-single-primary-encoder.test.cjs \
+            tests/foundation/dungeon-d04-fatal-contact-window.test.cjs \
             tests/foundation/dungeon-d04-host-chrome-ci.test.cjs \
             tests/foundation/dungeon-d04-real-feedback-observation.test.cjs \
             tests/foundation/dungeon-d04-snapshot-arrival-clock.test.cjs \

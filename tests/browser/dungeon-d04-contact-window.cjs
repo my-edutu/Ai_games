@@ -29,7 +29,8 @@ function selectD04AdmittedHpContactForRecording({receipts,sourceStarts,firstFram
    Math.abs((receipt.submittedClockMs-receipt.observedClockMs)-receipt.observationToSubmissionMs)>1)continue;
   const started=sourceStarts.some(start=>start?.cueId===receipt.cueId&&
    start.kind===receipt.kind&&start.sceneKey===receipt.scene&&
-   start.tick===receipt.tick&&start.audio==='impact'&&
+   start.tick===receipt.tick&&
+   start.audio===(receipt.kind==='damage-fatal'?'fatal-impact':'impact')&&
    start.verifiedCanonicalCue===true&&
    Number.isSafeInteger(start.startedSources)&&start.startedSources>0&&
    Number.isFinite(start.scheduledContextMs));
