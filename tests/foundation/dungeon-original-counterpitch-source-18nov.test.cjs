@@ -171,3 +171,67 @@ test('RED: real sparse mobile Walking_A chooses counterpitch, not heel-dominant 
   assert.equal(choose({...source,...invalid}),null,
    'unlicensed, unowned or nonmoving rig cannot receive physical source pose');
 });
+
+
+// Session 03: genuine original source-rig, 390px, Actions #44330216576,
+// source artifact #14442906106, Vanguard Walking_A at mobile tick 4.
+// Measured skinned swing toe -97.922634mm, heel +189.892794mm vs stone
+// top -20mm, shoe span 300.994263mm/projected 88.089872mm.
+// Original -120/+90mrad hip/knee trial lifted toe 19.397416mm but its
+// already-airborne heel 32.551439mm: 13.154mm WORSE sole pitch.
+// Existing linked -110/+140/+180 and +240mrad trial readbacks remained
+// heel-dominant. The same two slots should now *measure*, NOT promise,
+// stronger connected licensed foot angles. XZ vectors and 40mm root travel
+// below are explicitly SYNTHETIC owner fixtures, not original readbacks.
+// Real source Y/shape/interval and starter Y deltas remain source-derived.
+test('RED: 183ms heel-dominant licensed swing spends same two physical foot trials on deeper counterpitch',async()=>{
+ const {planOriginalSourceCoupledFootStarter:start,
+  planOriginalSourceCoupledKneeFootFollowups:follow}=await load();
+ const swing={heelY:.18989279396921924,toeY:-.09792263441787451,
+  heelXZ:[0,0],toeXZ:[.08808987195484298,0]};
+ const support={heelY:-.03439058381135052,
+  toeY:-.006971902352616778,heelXZ:[0,.35],toeXZ:[.27,.35]};
+ const before={left:swing,right:support};
+ const baseline={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,ownerLocomotion:true,alive:true,visible:true,
+  reducedMotion:false,teleport:false,interrupted:false,
+  previousLinkedCertified:false,rootTravel:.04,frameAge:0,
+  frameInterval:.18329999999999913,floorTopY:-.02,side:'left',before};
+ const probes=[
+  {upperRad:.12,lowerRad:-.09,after:{left:{...swing,
+   heelY:swing.heelY-.035544294170716084,
+   toeY:swing.toeY-.00971582565850733},right:support}},
+  {upperRad:-.12,lowerRad:.09,after:{left:{...swing,
+   heelY:swing.heelY+.03255143909805855,
+   toeY:swing.toeY+.019397415926140443},right:support}}
+ ];
+ const starter=start({...baseline,starterTrials:probes});
+ assert.equal(starter?.source,'actual-original-source-three-joint-swing-opportunity');
+ assert.ok(starter.excessHeelRiseMeters>.013&&starter.excessHeelRiseMeters<.014);
+ const owner={...baseline,starter,
+  sourceInstanceId:'original-same-GLB-41-joint-mobile',
+  sourceChainVerified:true,sourceUpperTrackVerified:true,
+  sourceLowerTrackVerified:true,sourceFootTrackVerified:true,
+  sourceBindVerified:true,sourceAnatomicalFootAxisVerified:true};
+ assert.deepEqual(follow(owner),[
+  {upperRad:-.11,lowerRad:.14,footRad:.30},
+  {upperRad:-.11,lowerRad:.14,footRad:.36}
+ ],'two existing native source skin reads, no extra per-frame probes');
+ for(const changed of [
+  {sourceClipName:'Idle'}, {sourceWeight:.4},
+  {sourceBindVerified:false},{sourceFootTrackVerified:false},
+  {sourceInstanceId:'',starter:{...starter,source:'unverified'}},
+  {frameInterval:.25},{reducedMotion:true},{teleport:true},
+  {interrupted:true},{rootTravel:0},{alive:false},
+  {starter:{...starter,contactLocked:true}}
+ ])assert.equal(follow({...owner,...changed}),null,
+   'fail closed on invalid licensed source, ownership, movement or joint contract');
+ // Nearby but distinct faster source windows preserve their existing
+ // lower joint angles rather than automatically receiving deep counterpitch.
+ const faster={...baseline,frameInterval:.145};
+ const fasterStarter=start({...faster,starterTrials:probes});
+ assert.deepEqual(follow({...owner,...faster,starter:fasterStarter}),[
+  {upperRad:-.11,lowerRad:.11,footRad:.18},
+  {upperRad:-.11,lowerRad:.11,footRad:.24}
+ ]);
+});
