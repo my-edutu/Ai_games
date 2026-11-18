@@ -2,7 +2,7 @@
 const {test,expect}=require('@playwright/test');
 const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
 const fs=require('node:fs');
-const {pairOriginalSourceFrames}=require('./dungeon-source-raf-pair.cjs');
+const {pairOriginalSourceFrames,summarizeOriginalSourceRafCadence}=require('./dungeon-source-raf-pair.cjs');
 const {isUninterruptedMeleeWitness,isUninjuredIdleRecovery,isExactNativeClipWitness,isUninterruptedRangedWitness}=require('./dungeon-animation-witness.cjs');
 fs.mkdirSync('artifacts',{recursive:true});
 
@@ -393,6 +393,35 @@ for(const view of [
   // while the SAME legal authority tick is still active. This runs only in
   // this browser test, never in production per-frame skinning.
   if(probedMotion<3&&snap.units.find(u=>u.id===sequence.actorId)?.action==='move'){
+
+   // Original organic five-stage films are browser-polled and their WebM
+   // packet rate is NOT the live WebGL rAF rate. In the first TRUE walking
+   // tick, measure passive consecutive renderer callbacks without per-frame
+   // expensive skinned-mesh scans, and independently audit the licensed GLB
+   // instance at both endpoints. This never adjusts the source/authority.
+   if(probedMotion===0){
+    const beforeAudit=await nativeRigProof(page);
+    const first=beforeAudit.actors.find(a=>a.id===sequence.actorId);
+    const passive=await captureOriginalPassiveRafCadence(page,
+     sequence.actorId,snap.tick,first?.sourceInstanceId??'');
+    const afterAudit=await nativeRigProof(page);
+    const sameSource=Boolean(first?.sourceInstanceId&&
+     first.sourceInstanceId===afterAudit.actors.find(a=>a.id===sequence.actorId)
+      ?.sourceInstanceId);
+    const reported=summarizeOriginalSourceRafCadence(
+     passive.samples,snap.tick,sequence.actorId);
+    const evidence={viewport:view.name,actorId:sequence.actorId,
+     actualAuthorityTick:snap.tick,
+     source:'actual original GLB rAF callbacks, not WebM requested fps',
+     originalCloneSameAtEndpoints:sameSource,
+     callbackCount:passive.callbacks,...reported,
+     limitation:'A single unchanged authority tick cannot certify physical travelling feet, sustained contact, six-character performance or 24fps full-game motion.'};
+    fs.writeFileSync('artifacts/dungeon-full-body-native-raf-cadence-'+view.name+'.json',
+     JSON.stringify(evidence,null,2));
+    await test.info().attach('original-native-rAF-cadence-'+view.name,{
+     contentType:'application/json',body:Buffer.from(JSON.stringify(evidence,null,2))
+    });
+   }
    const sampled=await captureOriginalRafSourceFrames(page,sequence.actorId,snap.tick);
    const paired=pairOriginalSourceFrames(sampled.frames,snap.tick,sequence.actorId);
    rafWindows.push({tick:snap.tick,callbackCount:sampled.callbacks,
@@ -1967,6 +1996,37 @@ for(const view of [
 });
 
 
+
+
+/**
+ * PASSIVE browser-rAF cadence from the ORIGINAL visible Three.js stage.
+ * Unlike milestone WebM packet rate, these are real renderer callbacks
+ * with individual time stamps. No expensive sole scan or test-only
+ * deformation calculation runs inside this callback. The original clone
+ * is audited only before and after the window. NOT six-role motion proof,
+ * 24fps certification, foot IK or a simulated authoritative step.
+ */
+async function captureOriginalPassiveRafCadence(page,actorId,expectedTick,sourceInstanceId){
+ return page.evaluate(({actorId,expectedTick,sourceInstanceId})=>new Promise(resolve=>{
+  const samples=[];let callbacks=0,done=false;
+  const finish=()=>{if(done)return;done=true;clearTimeout(safety);
+   resolve({callbacks,samples});};
+  const safety=setTimeout(finish,4200);
+  function witness(timestamp){
+   if(done)return;
+   callbacks++;
+   const d=window.__DUNGEON_RENDER_DIAGNOSTICS__;
+   const clip=d?.authored3D?.sourceClipBindings?.find(c=>c.id===actorId);
+   samples.push({frame:d?.frame??null,tick:d?.renderedState?.tick??null,
+    actorId,sourceClipName:clip?.clipName??null,
+    sourceInstanceId,visible:document.visibilityState==='visible',
+    timeMs:timestamp});
+   if(callbacks>=32)finish();
+   else requestAnimationFrame(witness);
+  }
+  requestAnimationFrame(witness);
+ }),{actorId,expectedTick,sourceInstanceId});
+}
 
 /**
  * A BOUNDED test-only requestAnimationFrame sampler of original source GLB
