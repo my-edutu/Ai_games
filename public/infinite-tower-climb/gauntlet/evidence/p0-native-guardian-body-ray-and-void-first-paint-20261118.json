@@ -1215,5 +1215,42 @@
     "actualDeviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
     "nextHighestImpactAction": "Inspect fresh original native desktop/portrait danger 60+s 1x source-cued F8 original HP-open gate to true walkable F9; demand two consecutive source-matched frames with full moving actor+actual steel+real roof. If still disconnected, inspect first renderer state/camera ray and the bronze cap/gate depth ordering plus 541/544ms first returned draw; fix architecture/visibility as one system. Repair frozen baseline ascent uncalibrated native clock without reclassifying incomplete film. P0 remains open.",
     "safety": "Frozen baseline unchanged, PR58 untouched, PR68 remains DRAFT; no merge/deploy/force-push/unrelated game edits."
+  },
+  "p0SourceOpenedOriginalInstancedLatticeCameraEvidence20261118": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "oldFilm": {
+      "exactSourceSha": "a541e790689db0feef8b18007a510630812fb7e0",
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44385852324",
+      "candidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44385852324/artifacts/14466756091",
+      "film": "unedited 1× 25fps 72+ s; desktop 960x600, portrait 390x844",
+      "filmObservation": "Original Clockwork bronze foreground and gate lattice interrupt near the Floor8→9 transition around 26 seconds; floor-nine label/violet world are visible but independently source-matched consecutive true three-subject pixels not accepted.",
+      "sourceNativeEventPair": "FAILED 0/2 viewports; eight individual source-pinned normal-speed capture jobs SUCCESS",
+      "quality": "https://github.com/my-edutu/Ai_games/actions/runs/44385852271 — 9/10, Phase6 failure; technical veto not gameplay verdict"
+    },
+    "verifiedRootCause": "Original final camera source-owned gate projection had explicit !object.isInstancedMesh skip. Authentic HP-driven paired six-piece bronze grilles were not included in actual metal projection and camera decisions.",
+    "redTest": {
+      "commit": "cbb8b9e3c01969fe3d146776ce64803190238736",
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44390691002",
+      "observed": "Phase3 partition 3 failed 2/2 new real-Three.js tests on old helper; exact original instanced source object omitted."
+    },
+    "change": {
+      "commit": "a99c3f7b5529078fb2b37343ea70ebd2ca79019c",
+      "file": "public/infinite-tower-climb/visuals/original-guardian-gate-steel-projection.mjs",
+      "behavior": "Source-animated true InstancedMesh lattice per-instance world matrix projection in the existing source-gated final 3-subject camera; material and ancestor invisibility veto; bounded 80 meshes, 12 per grille, 24 total instances. No simulations or fabricated geometry.",
+      "exactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44390901950 — NOT YET VERIFIED",
+      "newFilmEffect": "NOT EVALUATED — no unedited original source-paired video yet"
+    },
+    "evaluations": {
+      "nativeTripleViewports": "0/2 VERIFIED",
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5",
+      "actualDeviceFrameP50P95P99": "NOT EVALUATED",
+      "actualDeviceMemory": "NOT EVALUATED"
+    },
+    "nextHighestImpact": "Read a99 exact CI and new immutable original 9-job film, inspect full-motion 1x F8 HP0 guardian steel/complete 3D hero/walkable F9 together in consecutive PTS-matched frames; if not achieved, identify real obstructing bronze/shaft geometry and cold frame time; stay P0.",
+    "safety": "Keep frozen SHA and transformation.json unchanged; PR58 untouched; PR68 draft; no unrelated games/merge/deploy/force push."
   }
 }
