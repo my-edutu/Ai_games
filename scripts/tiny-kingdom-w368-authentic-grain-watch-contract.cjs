@@ -56,7 +56,7 @@ assert.equal(mobile.calls.supply,0,'390px camera must not be buried under the ex
 const desktop=scenario([harvest,courier,irrelevant],1024);
 assert.equal(desktop.witness(),courier,'A loaded real courier is preferred to unrelated harvest');
 assert.equal(desktop.watch().kind,'grain');
-assert.equal(desktop.calls.supply,1,'Desktop exposes existing truthful supply chronology');
+assert.equal(desktop.calls.supply,0,'Desktop genuine workday must remain unobstructed; existing ledger is opt-in');
 const fresh=scenario([harvest,irrelevant],390);
 assert.equal(fresh.witness(),harvest);
 assert.equal(fresh.watch().kind,'grain');
