@@ -5169,6 +5169,20 @@ export function planImportedRealTravelCrossfade({
   frameInterval>1.9&&frameInterval<=2.1&&
   groundedTravel/frameInterval>=.20&&
   groundedTravel/frameInterval<=.25)return .09;
+ // Genuine 390px source Walking_A RAF pair, #44263430159: 350ms
+ // between original source poses, 155.2315mm of legal root travel, and
+ // 1.0416666s source clip. At ~0.44m/s, the normal 230ms Idle->Walk
+ // fade outlasts two displayed frames and leaves the whole 41-joint rig
+ // visibly interpolating while its real root has already progressed.
+ // Shorten ONLY this witnessed travel/elapsed-time source crossfade to
+ // 120ms. The original clip remains distance paced via the independent
+ // sourceStep/visibleStep planner; no invented contact, step or IK target.
+ // The RAF witness is continuous Walking_A; an Idle->Walk entry in this
+ // range is a guarded transition fixture, not a claimed captured entry.
+ if(groundedTravel>=.12&&groundedTravel<=.24&&
+  frameInterval>=.25&&frameInterval<=.50&&
+  groundedTravel/frameInterval>=.30&&
+  groundedTravel/frameInterval<=.90)return .12;
  if(groundedTravel>=.012&&groundedTravel<=.24&&
   frameInterval>=.008&&frameInterval<=.24)return .12;
  return .23;
