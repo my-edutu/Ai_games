@@ -11,7 +11,8 @@ const code=html.slice(start,end);
 for(const token of [
  'const poseKey=residentRestingKey([{p,i}]);',
  'restingActorCache.get(i)',
- 'restingActorCache=next',
+ 'restingActorCache=retainForegroundPoseWindow(restingActorCache,selected,',
+ 'RESTING_ACTOR_MAX,RESTING_ACTOR_FLOAT_BUDGET)',
  'restingActorLayoutKey=layoutKey',
  'gl.bufferSubData(gl.ARRAY_BUFFER,row.offset*4,row.entry.mesh)',
  'restingActorMesh.set(row.entry.mesh,row.offset)',
@@ -22,6 +23,24 @@ for(const token of [
  'return false; // all original citizens use live compact geometry',
  'finally{data=prior;currentMaterial=priorMaterial}',
 ])assert(code.includes(token),'missing original real-actor residency contract: '+token);
+// W447 supporting Phase-1 CI repair: source uses the W343 LRU bounded
+// sleeping-person pose retention instead of the removed immediate-only
+// restingActorCache=next. Exercise the actual pure production function.
+assert(!code.includes('restingActorCache=next'),
+ 'W343 must keep bounded dormant original citizen poses');
+const helperStart=html.indexOf('function retainForegroundPoseWindow(');
+const helperEnd=html.indexOf('function prepareForegroundResidents(',helperStart);
+assert(helperStart>0&&helperEnd>helperStart,'bounded actor cache helper exists');
+const helper=html.slice(helperStart,helperEnd);
+const retain=new Function(helper+';return retainForegroundPoseWindow;')();
+const entry=(key)=>({key,mesh:new Float32Array(30)});
+const prior=new Map([[0,entry('a')],[1,entry('b')]]);
+const fresh=retain(prior,[{i:2,entry:entry('c')}],2,60);
+assert.deepEqual([...fresh.keys()],[1,2],'LRU evicts oldest full body, not live people');
+const reused=retain(fresh,[{i:1,entry:fresh.get(1)}],2,60);
+assert.deepEqual([...reused.keys()],[2,1],'original resident pose reuse refreshes LRU');
+assert.throws(()=>retain(new Map(),[{i:0,entry:{mesh:new Float32Array(4)}}],2,60),
+ /invalid original full-body mesh/,'invalid body geometry must not enter cache');
 assert(html.includes('cloth:diff(a.cloth,b.cloth),roles:diff(a.roles,b.roles),'),
  'unchanged original citizen reuse cannot double-count profession metrics');
 assert(html.includes("function restoreSnapshot(snapshot){validateSnapshot(snapshot);restingActorKey='';clearRestingActorIdentityCache();"),
