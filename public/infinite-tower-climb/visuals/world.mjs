@@ -15,6 +15,7 @@ import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkS
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections, isolateEarnedFirstFrameVoidMaterials } from './source-earned-bearing-run.mjs';
 import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold, observedSourceEarnedEarlyVoidShaftAperture, observedSourceSupportedVoidFirstPaint, observedEarnedGalleryExitClearance, observedReturnedGalleryHandoffClearance, observedFirstReturnedVoidBearingGalleryRetirement } from './far-side-shaft-transition.mjs';
 import { chooseSourceEarnedFirstReturnInstancing } from './source-earned-first-return-instancing.mjs';
+import { projectOriginalGuardianGateSteel } from './original-guardian-gate-steel-projection.mjs';
 
 
 /**
@@ -5502,6 +5503,16 @@ export function createTowerWorld(){
       structuralVisibleOnSubmittedFrame:
         job.structuralRoot?.visible===true && job.structuralFade>.015};
   }
+  // Camera proposals consult steel from the REAL retained opened gate, not
+  // the aperture centre where a ray can legitimately find no metal at all.
+  // Scope every call to the current immutable World snapshot and source HP0
+  // passage, and return numbers only, never writable GPU objects.
+  function projectedOriginalGateSteel(snapshot,camera) {
+    if (snapshot!==lastSnapshot || !sourceEarnedOriginalGateGeometry(snapshot))
+      return null;
+    return projectOriginalGuardianGateSteel(THREE,
+      retainedEarnedCap.originalGateRoot,camera);
+  }
   function lastRebuild() { return lastRebuildWitness ? { ...lastRebuildWitness } : null; }
   // The ACTUAL source-earned HP-open F8 gate remains a child of this Floor9
   // World, not a second drawn doorway or a fabricated pixel witness.
@@ -5614,5 +5625,5 @@ export function createTowerWorld(){
       deferredBuildMs:deferredDistantArrival.deferredBuildMs,
     }:null,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;retireEarnedCap();pendingEarnedCap=null;clearFloor();finishRetiredFloorResources('disposed');for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
-  return{group,update,stageGroundedCapContinuation,sourceEarnedOriginalGateGeometry,retainedFilmHandoff,certifiedPaletteHorizon,noteFrameSubmitted,deferredShaderSubmission,measureSuccessorDeckVisibility,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics,lastRebuild};
+  return{group,update,stageGroundedCapContinuation,sourceEarnedOriginalGateGeometry,retainedFilmHandoff,certifiedPaletteHorizon,noteFrameSubmitted,deferredShaderSubmission,projectedOriginalGateSteel,measureSuccessorDeckVisibility,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics,lastRebuild};
 }

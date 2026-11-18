@@ -4989,6 +4989,10 @@ export function createTowerScene(canvas, settings = {}) {
       const deckViewBeforeThreshold = world.measureSuccessorDeckVisibility(
         snapshot,camera.position,thresholdHero,p.halfHeight/SCALE,
         thresholdGate,targetPlatform?.id??null);
+      // Native 1x film showed that the door CENTRE could project safely even
+      // when no real original gate steel survived in camera space. Score the
+      // attached HP-open 3D portal itself as a third physical subject.
+      const gateSteelBefore=world.projectedOriginalGateSteel(snapshot,camera);
       thresholdPreviousCamera.copy(camera.position);
       thresholdPreviousGaze.copy(lookAt);
       measureDuelBodyNdc(thresholdHero,p.halfHeight/SCALE,
@@ -5005,8 +5009,11 @@ export function createTowerScene(canvas, settings = {}) {
       if(physicalWalkableShot)thresholdGaze.lerp(thresholdWalkable,.24);
       thresholdGaze.sub(thresholdPreviousGaze);
       const gazeDistance=thresholdGaze.length();
-      if (gazeDistance > .0001) {
-        thresholdGaze.multiplyScalar(Math.min(1,thresholdSteps.gazeMetres/gazeDistance));
+      if (gazeDistance > .0001 ||
+          (gateSteelBefore?.sourceBound===true &&
+           gateSteelBefore.projectedMetalArea<.012)) {
+        if(gazeDistance>.0001)
+          thresholdGaze.multiplyScalar(Math.min(1,thresholdSteps.gazeMetres/gazeDistance));
         const originalAngle=Math.atan2(camera.position.x,camera.position.z);
         const radius=Math.hypot(camera.position.x,camera.position.z);
         let best=0;
@@ -5054,9 +5061,23 @@ export function createTowerScene(canvas, settings = {}) {
               thresholdHeroAfter,thresholdGateAfter,thresholdWalkableAfter,
               true,true,actualRouteCoreClear);
           }
+          const gateSteelAfter=gateSteelBefore?.sourceBound===true
+            ?world.projectedOriginalGateSteel(snapshot,camera):null;
+          // A two-dimensional empty portal-centre can never justify
+          // losing the actual physical piers/crown from the camera. Allow
+          // a modest gain for rescuing REAL steel, only in the existing
+          // source-owned three-subject frame and subject to body/deck rays.
+          if(gateSteelBefore?.sourceBound===true &&
+             (!gateSteelAfter?.sourceBound ||
+              (gateSteelBefore.projectedMetalArea>.012 &&
+               gateSteelAfter.projectedMetalArea <
+                 gateSteelBefore.projectedMetalArea*.75)))continue;
+          const steelGain=gateSteelAfter?.sourceBound===true &&
+            gateSteelBefore?.sourceBound===true
+              ?Math.max(0,gateSteelAfter.score-gateSteelBefore.score)*.32:0;
           const gain=Math.max(sourceDoorwayFrameGain(
             thresholdHeroBefore,thresholdGateBefore,
-            thresholdHeroAfter,thresholdGateAfter,true,true),routeGain);
+            thresholdHeroAfter,thresholdGateAfter,true,true),routeGain,steelGain);
           if(gain>best){
             // A projected NDC winner can still hide the climber behind the
             // actual old cap, opened grille, live F9 deck or Void bearing.
