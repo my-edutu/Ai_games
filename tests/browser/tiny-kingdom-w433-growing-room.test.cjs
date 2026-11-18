@@ -72,9 +72,9 @@ test('W435 founding and grown tall cottages retain adult-clear real entrances an
 });
 
 test('W436 growing settlement loft replaces the solid second-storey box with pierced real geometry',()=>{
- assert.match(source,/function renderCompactOccupiedUpperLoft\\(/);
- assert.match(source,/renderCompactOccupiedUpperLoft\\(x,y,z,w\\+\\.28,d\\+\\.36,jettySill,h-jettySill,plaster\\)/);
- assert.doesNotMatch(source,/box\\(x,y\\+jettySill,z,w\\+\\.28,h-jettySill,d\\+\\.36,plaster\\)/);
+ assert.match(source,/function renderCompactOccupiedUpperLoft\(/);
+ assert.match(source,/renderCompactOccupiedUpperLoft\(x,y,z,w\+\.28,d\+\.36,jettySill,h-jettySill,plaster\)/);
+ assert.doesNotMatch(source,/box\(x,y\+jettySill,z,w\+\.28,h-jettySill,d\+\.36,plaster\)/);
  assert.match(source,/getCompactOccupiedRoomAudit,getCompactUpperLoftAudit/);
  const a=source.indexOf('function renderCompactOccupiedUpperLoft('),
   b=source.indexOf('function compactHouse(',a);
