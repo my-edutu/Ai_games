@@ -314,5 +314,48 @@
     },
     "actualDeviceFrameTimeAndMemory": "NOT EVALUATED",
     "nextHighestImpactAction": "P0: Existing sourceToPresentationTrace already separates World CPU rebuild 220–237ms, total scene update 346–419ms and first renderer return 260–300ms. Do NOT add redundant diagnostic instrumentation. Make a substantial source-authentic original F9 critical-path CPU/scene and first-submission renderer-cost reduction, not more old-gallery opacity micro-edits; preserve real HP-open gateway and all actual F9 collision/support geometry. Re-capture immutable source exact SHA and inspect consecutive native original frames with ground + gate + full climber in both viewports. Baseline still lacks identical earned guardian episode, so strict matched P6 critic votes remain NOT EVALUATED."
+  },
+  "p0SourceEarnedNativeInstanceCriticalPath20261118": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "candidateProductionSha": "658eb254b0a4fd1e1eae447b4d54ba519f93870c",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "committedChanges": [
+      "f2abfb94ce44893cb8831324da1bbbc816524660 focused test-first",
+      "a445a6257fef042ec832223092ad0469de013639 bounded source-instancing pure policy",
+      "658eb254b0a4fd1e1eae447b4d54ba519f93870c shipping world integration"
+    ],
+    "changedProductionFiles": [
+      "public/infinite-tower-climb/visuals/source-earned-first-return-instancing.mjs",
+      "public/infinite-tower-climb/visuals/world.mjs"
+    ],
+    "focusedTest": "tests/phase3/tower-source-earned-first-return-instance-budget.test.cjs",
+    "observedOriginalFailure": "Prior exact-candidate original film at a15ca05: browser accepted authentic Floor9 but first returned WebGL took 1099ms desktop and 1097ms portrait; 236.7ms/220.4ms inside World synchronous rebuild and 299.6ms/260.2ms in first render (software-hosted Chromium). 1.75s/2.00s F9-HUD-to-sustained-Void within film; strict event-aligned original video acceptance FAILED both viewports.",
+    "systemicChange": "In the genuine low-tier HP-zero source-backed retained-bronze-gateway to first successor Void scene, preserve up to eight ORIGINAL non-animated color-uniform Three.InstancedMesh casting batches instead of synchronously turning each source instance into duplicated vertex triangles. Keep actual source vertex/index buffers, transforms, materials/shadows and 3D geometry owner, and do not apply to future/ordinary floors, high tier, animated owners, missing proof, colored-per-instance assets or more than eight extra draws. Keeps every true source platform, hazard, guardian doorway and physics unchanged.",
+    "expectedNotProved": "Pure policy calculates hypothetical CPU packed-vertex bytes versus existing original attribute+matrix bytes and caps extra draws. This is an architectural mechanism to reduce initial synchronous build and data expansion, NOT verified first-render time, FPS, GPU memory, visible native improvement or source/native event pairing.",
+    "ci": {
+      "productionExactSource": "https://github.com/my-edutu/Ai_games/actions/runs/44232114625",
+      "status": "PENDING at time evidence was written; no full green or focused suite pass claimed",
+      "previousExactSource": "https://github.com/my-edutu/Ai_games/actions/runs/44217384459 — FAILED 9/10 due unrelated Maze Phase6 timeout, Tower Phase3 4/4 success before this change"
+    },
+    "requiredNewOriginalCapture": "NOT YET AVAILABLE FOR 658eb254; must trigger 9-job immutable candidate capture-request push, with true 1x WebM desktop 960x600 portrait 390x844 matched seed/tier, source traces and original baseline.",
+    "observableEvidenceToCompare": "p0 source tick475 true guardian exit, browser F9 accept to first THREE render return, world cpuBuildMs, first render duration/draws/triangles, bounded sourceEarnedFirstReturnInstancing diagnostics. Never confuse estimated packed bytes with measured device GPU.",
+    "mostImportantKnownFootageDefect": "No two CONSECUTIVE source-aligned original painted frames in either viewport show complete skinned climber, physically opened F8 original bronze doorway and genuine walkable F9 route co-visible; warm bronze gallery dominates, successor Void world appears delayed.",
+    "independentFreshContextCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "deviceFrameTimeMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Obtain exact-candidate 9-job original film and inspect unedited normal-speed full-motion desktop+portrait with source event sidecars. Confirm new feature actually preserves >0 source casings, inspect first-return CPU/render duration and draw-call deltas and strict original gate/body/walkable platform co-visibility. If still failed, continue P0 first-return render workload and structural sightline work, not minor cosmetic edits.",
+    "safety": {
+      "pr68Draft": true,
+      "frozenBaselineUnchanged": true,
+      "pr58Untouched": true,
+      "otherGamesUntouched": true,
+      "noMerge": true,
+      "noDeploy": true,
+      "noForcePush": true
+    }
   }
 }
