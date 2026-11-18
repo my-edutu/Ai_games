@@ -4262,6 +4262,35 @@ export function verifyRestoredRootOriginalSourceSoleSafety({
  return Object.freeze({source,floorTopY,feetVerified:2,contactLocked:false});
 }
 
+/**
+ * Preserve a completed, original-source thigh/knee/ankle frame if a later
+ * presentation-only pelvis lift is rejected. A final-stage pelvis trial
+ * modifies ONLY visualPivot.y, with no subsequent leg stage before audit.
+ * Restoring the exact original pivot must therefore restore BOTH authentic
+ * weighted shoes to their pre-lift values. Prove all four endpoints to within
+ * 0.75mm before retaining the source leg overlays. Any missing or drifting
+ * source-skin readback falls through to the existing six-joint safe rollback.
+ *
+ * This is NOT a planted foot, IK target, gameplay step or source retarget.
+ */
+export function certifyOriginalSourcePostLegPelvisRollback({
+ source='',before=null,after=null
+}={}){
+ if(source!=='post-final-source-legs-pelvis-only'||!before||!after)
+  return null;
+ for(const side of ['left','right']){
+  const prior=before[side],restored=after[side];
+  if(!prior||!restored||
+   ![prior.heelY,prior.toeY,restored.heelY,restored.toeY].every(finite)||
+   Math.abs(prior.heelY-restored.heelY)>.00075||
+   Math.abs(prior.toeY-restored.toeY)>.00075)return null;
+ }
+ return Object.freeze({
+  source:'original-GLB-post-leg-sole-pair-restored',
+  feetVerified:2,preserveOriginalSourceLegs:true,contactLocked:false
+ });
+}
+
 export function verifyOriginalSourceLoadedPelvisFootWitness({
  before=null,after=null,otherBefore=null,otherAfter=null,floorTopY=NaN
 }={}){
