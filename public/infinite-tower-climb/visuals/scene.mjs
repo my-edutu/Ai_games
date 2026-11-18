@@ -3336,6 +3336,11 @@ export function createTowerScene(canvas, settings = {}) {
     ledgeContactEvidence = ledgeTarget ? measureLedgeFingertip(climber.group, ledgeTarget, targetPlatform.id) : null;
     finale.update(snapshot, climber.group.position, elapsed, options);
     passage.update(dt, options);
+    // The original already-retained source-HP-open old gate is the physical
+    // doorway. Do not double its silhouette with another facade after the
+    // real F9 roof is accepted; never suppress on mere source HP/HUD alone.
+    passage.preferOriginalSourceGateway(snapshot,
+      world.sourceEarnedOriginalGateGeometry(snapshot),options);
     attackArc.visible = !!p.attacking && p.health > 0;
     if (attackArc.visible && positionStrikeCue(attackArc, climber.group, camera)) {
       attackArc.rotateZ(p.facing > 0 ? -.8 : Math.PI - .8);

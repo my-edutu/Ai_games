@@ -1212,6 +1212,7 @@ export function createTowerGuardianPassage(THREE) {
   let runToken = null, floor = null, sourceTick = -1;
   let age = 0, defeatAge = 0, disposed = false, stage = 'none', approachOpen = 0;
   let continuousGroundedHandoff = false;
+  let originalSourceGatewayGeometryPreferred = false;
   // A received Floor 9 snapshot is not a visible arch. Cold WebGL can consume
   // multiple seconds before the FIRST successful scene submission. Only an
   // exact run/floor/tick renderer return may begin the bounded handoff beat.
@@ -1255,6 +1256,7 @@ export function createTowerGuardianPassage(THREE) {
     defeatAge = 0;
     approachOpen = 0;
     continuousGroundedHandoff = false;
+    originalSourceGatewayGeometryPreferred = false;
     handoffSubmittedFrames = 0; handoffDisplaySeconds = 0;
     handoffUnsubmittedSeconds = 0; handoffStartAge = 0;
     sealedLattice.visible = false;
@@ -1372,6 +1374,7 @@ export function createTowerGuardianPassage(THREE) {
     sourceTick = source.tick;
     stage = 'earned-open';
     continuousGroundedHandoff = false;
+    originalSourceGatewayGeometryPreferred = false;
     handoffSubmittedFrames = 0; handoffDisplaySeconds = 0;
     handoffUnsubmittedSeconds = 0; handoffStartAge = 0;
     // The real, freshly unlocked deck is already shown by the INNER cap
@@ -1428,6 +1431,7 @@ export function createTowerGuardianPassage(THREE) {
     sourceTick = source.tick;
     stage = 'handoff';
     continuousGroundedHandoff = carryRealThreshold;
+    originalSourceGatewayGeometryPreferred = false;
     if(carryRealThreshold) {
       // All new passage art must rest on BOTH real collider-aligned floors.
       // Source guardian proof by itself cannot license an unsupported path.
@@ -1528,7 +1532,7 @@ export function createTowerGuardianPassage(THREE) {
       innerDoorAssembly.position.y = arrive >= 1 ? 0 : -1.4 * (1 - arrive);
     } else {
       innerDoorAssembly.visible = stage === 'handoff' &&
-        continuousGroundedHandoff;
+        continuousGroundedHandoff && !originalSourceGatewayGeometryPreferred;
       innerDoorAssembly.position.y = 0;
     }
     const fade = stage === 'earned-open' || locked ? 1 :
@@ -1557,6 +1561,31 @@ export function createTowerGuardianPassage(THREE) {
     leafMaterial.opacity = locked ? .88 :
       stage === 'handoff' ? .26 * fade : .74 * fade;
     glow.opacity = .65 * fade;
+  }
+  // On the earned Floor9 crossing the original HP-open guardian gate and
+  // the old inner threshold are TWO independent full-size bronze portals.
+  // Retire only the duplicate non-colliding threshold arch/metal leaves while
+  // World owns the original same-run 3D gateway. Keep the unchanged real
+  // cap, source-supported F9 route and its inlays. Restore the fallback if
+  // the original gate is retired or any source/scene proof is lost.
+  function preferOriginalSourceGateway(source,originalGeometry,options={}) {
+    invalidateDiagnostics();
+    const usable=!disposed && !options.stale && group.visible &&
+      stage==='handoff' && continuousGroundedHandoff &&
+      source?.lifecycle==='running' && source.floor===9 &&
+      source.theme==='void' && source.runToken===runToken &&
+      source.player?.health>0 &&
+      Number.isSafeInteger(source.tick) && source.tick>=sourceTick &&
+      originalGeometry?.sourceBound===true &&
+      originalGeometry.originalGatewayGeometryPresent===true &&
+      originalGeometry.oldCapId==='f8:cap' &&
+      originalGeometry.runToken===runToken &&
+      originalGeometry.floor===floor &&
+      originalGeometry.sourceTick===source.tick;
+    originalSourceGatewayGeometryPreferred=usable;
+    if(group.visible && stage==='handoff')
+      innerDoorAssembly.visible=continuousGroundedHandoff && !usable;
+    return usable;
   }
   function cameraWeight() {
     if (!group.visible || stage === 'guardian-locked') return 0;
@@ -1605,6 +1634,7 @@ export function createTowerGuardianPassage(THREE) {
       handoffVisibleWindowSeconds,continuousGroundedHandoff,
       exteriorMemoryFrameVisible:memoryFrame.visible,
       innerDoorAssemblyVisible:innerDoorAssembly.visible,
+      originalSourceGatewayGeometryPreferred,
       sourceMeasuredApproachOpen:approachOpen,
       inlayProgress,inlaySourceTick,focus:focusPosition
     });
@@ -1625,6 +1655,7 @@ export function createTowerGuardianPassage(THREE) {
       continuousGroundedHandoff: group.visible && stage === 'handoff' &&
         continuousGroundedHandoff,
       innerDoorAssemblyVisible: group.visible && innerDoorAssembly.visible,
+      originalSourceGatewayGeometryPreferred: group.visible && originalSourceGatewayGeometryPreferred,
       innerDoorAssemblyLift: Number(innerDoorAssembly.position.y.toFixed(4)),
       durationSeconds: duration,
       sourceMeasuredApproachOpen: approachOpen,
@@ -1650,7 +1681,8 @@ export function createTowerGuardianPassage(THREE) {
         // is drawn here, not two additional solid threshold submissions.
         extraDraws: stage === 'guardian-locked' ? 1 :
           stage === 'earned-open' ||
-          (stage === 'handoff' && continuousGroundedHandoff) ? 2 : 0,
+          (stage === 'handoff' && continuousGroundedHandoff &&
+           !originalSourceGatewayGeometryPreferred) ? 2 : 0,
         collider: false, sourceSimulationSealActive: stage === 'guardian-locked',
         redundantExteriorMemorySuppressed: !memoryFrame.visible,
         verticalLatticeVisible: sealedLattice.visible,
@@ -1699,5 +1731,5 @@ export function createTowerGuardianPassage(THREE) {
     for (const geometry of ownedGeometry) geometry.dispose();
     for (const material of ownedMaterials) material.dispose();
   }
-  return { group, lock, unlock, begin, trackSuccessor, update, noteFrameSubmitted, clear, cameraWeight, focusPoint, liveWitness, diagnostics, dispose };
+  return { group, lock, unlock, begin, trackSuccessor, update, preferOriginalSourceGateway, noteFrameSubmitted, clear, cameraWeight, focusPoint, liveWitness, diagnostics, dispose };
 }

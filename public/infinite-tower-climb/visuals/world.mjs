@@ -3445,7 +3445,10 @@ export function createTowerWorld(){
       passageWitness.active===true &&
       passageWitness.stage==='handoff' &&
       passageWitness.continuousGroundedHandoff===true &&
-      passageWitness.innerDoorAssemblyVisible===true &&
+      (passageWitness.innerDoorAssemblyVisible===true ||
+        (passageWitness.originalSourceGatewayGeometryPreferred===true &&
+         held.originalGateRoot?.parent===held.root &&
+         held.root?.parent===group && held.originalGatewayOpacity>.035)) &&
       passageWitness.exteriorMemoryFrameVisible===false &&
       passageWitness.runToken===held.runToken &&
       passageWitness.floor===held.floor &&
@@ -5453,6 +5456,29 @@ export function createTowerWorld(){
         job.structuralRoot?.visible===true && job.structuralFade>.015};
   }
   function lastRebuild() { return lastRebuildWitness ? { ...lastRebuildWitness } : null; }
+  // The ACTUAL source-earned HP-open F8 gate remains a child of this Floor9
+  // World, not a second drawn doorway or a fabricated pixel witness.
+  function sourceEarnedOriginalGateGeometry(snapshot) {
+    const held=retainedEarnedCap;
+    if(!held || !snapshot || snapshot.lifecycle!=='running' ||
+       snapshot.floor!==9 || snapshot.theme!=='void' ||
+       !(snapshot.player?.health>0) ||
+       typeof snapshot.runToken!=='string' ||
+       snapshot.runToken!==held.runToken ||
+       !Number.isSafeInteger(snapshot.tick) ||
+       snapshot.tick<held.sourceTick ||
+       held.floor!==9 || held.oldCapId!=='f8:cap' ||
+       held.guardianGateRetained!==true ||
+       held.sourceAlignedPassage!==true ||
+       !(held.originalGatewayOpacity>.035) ||
+       held.root?.parent!==group || held.root.visible!==true ||
+       held.originalGateRoot?.parent!==held.root ||
+       held.originalGateRoot.visible!==true) return null;
+    return {sourceBound:true,runToken:held.runToken,
+      floor:9,sourceTick:snapshot.tick,oldCapId:'f8:cap',
+      originalGatewayGeometryPresent:true,
+      evidence:'Current retained source-owned original gateway scene geometry, not painted pixels'};
+  }
   function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,
     sourceOwnedSuccessorUndercroft:{...successorUndercroftSightline},
     previousFloorGpuCleanup:{...retirementAudit,
@@ -5541,5 +5567,5 @@ export function createTowerWorld(){
       deferredBuildMs:deferredDistantArrival.deferredBuildMs,
     }:null,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;retireEarnedCap();pendingEarnedCap=null;clearFloor();finishRetiredFloorResources('disposed');for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
-  return{group,update,stageGroundedCapContinuation,retainedFilmHandoff,certifiedPaletteHorizon,noteFrameSubmitted,deferredShaderSubmission,measureSuccessorDeckVisibility,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics,lastRebuild};
+  return{group,update,stageGroundedCapContinuation,sourceEarnedOriginalGateGeometry,retainedFilmHandoff,certifiedPaletteHorizon,noteFrameSubmitted,deferredShaderSubmission,measureSuccessorDeckVisibility,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics,lastRebuild};
 }

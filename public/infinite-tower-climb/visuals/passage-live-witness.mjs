@@ -19,6 +19,7 @@ export function towerPassageLiveWitness(s) {
     continuousGroundedHandoff:handoff,
     exteriorMemoryFrameVisible:active && s?.exteriorMemoryFrameVisible===true,
     innerDoorAssemblyVisible:active && s?.innerDoorAssemblyVisible===true,
+    originalSourceGatewayGeometryPreferred:handoff && s?.originalSourceGatewayGeometryPreferred===true,
     sourceMeasuredApproachOpen:s?.sourceMeasuredApproachOpen??0,
     inlayProgress:s?.inlayProgress??0,
     inlaySourceTick:s?.inlaySourceTick??-1,
