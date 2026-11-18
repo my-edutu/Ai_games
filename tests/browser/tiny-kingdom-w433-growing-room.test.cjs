@@ -18,7 +18,7 @@ test('W433 grown homes use a hollow real room rather than duplicate opaque plast
  assert.match(source,/renderCompactOccupiedRoomShell\(x,y,z,w,d,h-\.18,plaster\)/);
  assert.doesNotMatch(source,/box\(x,y\+\.18,z,w,jettySill-\.18,d,plaster\)/);
  assert.doesNotMatch(source,/box\(x,y\+\.20,face,\.51,1\.11,\.12,timber\)/);
- assert.match(source,/getOriginalOccupiedRoomAudit,getCompactOccupiedRoomAudit/);
+ assert.match(source,/getInhabitedSkylineAudit,getOriginalOccupiedRoomAudit,getGranarySupplyAudit,getCompactOccupiedRoomAudit/);
 });
 test('W433 bounded two-sided original occupied rooms have genuine clear opposite entrances',()=>{
  const s=makeShell(),x=4,y=2,z=-3,w=2.5,d=2.2;
