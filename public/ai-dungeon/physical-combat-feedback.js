@@ -659,6 +659,32 @@ export function createPhysicalCombatFeedback({
      soundCue={...item.cue,detail:{...item.cue.detail,
       measuredHandMetersPerSecond:metersPerSecond}};
    }
+   // A genuine WebGL submission can admit several independent cues at once.
+   // If synthesis/adapter work for an EARLIER cue blocks the JS main thread,
+   // their shared submittedWallClock no longer proves the NEXT original sound
+   // starts within the unchanged 400ms observation deadline. Recheck only at
+   // this final synchronous foley-call boundary; do not move the first
+   // observation clock, infer attacker/contact, or replay a missed sound.
+   // Clockless injected/legacy adapters retain their old deterministic gate.
+   const justBeforeOriginalStart=typeof clock==='function'?observedWallClock():null;
+   const originalStartClockVerified=typeof clock!=='function'||(
+    justBeforeOriginalStart!==null&&Number.isFinite(observedWallAt)&&
+    observedWallAt>=0&&justBeforeOriginalStart>=observedWallAt);
+   const originalStartStale=originalStartClockVerified&&
+    typeof clock==='function'&&
+    justBeforeOriginalStart-observedWallAt>MAX_AUDIO_VISUAL_STALENESS_SECONDS;
+   if(!originalStartClockVerified||originalStartStale){
+    staleAudioDropped++;
+    // The just-submitted visual cannot be undone. Do not let its stale
+    // retained matrices appear again on the NEXT genuine WebGL submission.
+    // The visual owner independently protects still-live Warden footprints.
+    if(item.visual)safeCall(()=>visuals?.retireStaleCue?.(
+     item.cue.id,originalStartStale?'stale-frame':'unverified-frame'));
+    retainReceipt(item.cue,item.visual,false,frameId,
+     originalStartStale?'stale-before-original-start':
+      'unverified-before-original-start',submittedWallClock,visualDrawable);
+    continue;
+   }
    const audible=!!safeCall(()=>foley?.emit?.(soundCue));
    if(audible){audioAccepted++;released++}
    retainReceipt(item.cue,item.visual,audible,frameId,
