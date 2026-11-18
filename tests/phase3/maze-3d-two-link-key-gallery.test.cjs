@@ -63,6 +63,31 @@ test('original joined full-tile 3D treasure corridor is real pooled Three geomet
    'physical course must reuse installed Three geometries');
  assert.equal(first.materialCount,initial.materialCount,
    'physical course must reuse installed Three materials');
+ // Inspect the actual pooled 3D matrices, not a source string or a count
+ // invented by a scene diagnostic. Both original tiles have two standing
+ // sails outside the lane; the genuine key pickup must physically lower all
+ // four into a spent-clay course without a geometry/material budget increase.
+ const THREE=await import(three);
+ const gallerySails=(expectedHeight)=>{
+   const matrix=new THREE.Matrix4(),position=new THREE.Vector3(),
+     quaternion=new THREE.Quaternion(),scale=new THREE.Vector3();
+   let count=0;
+   for(const node of w.group.children[1].children){
+     if(!node.isInstancedMesh)continue;
+     for(let i=0;i<node.count;i++){
+       node.getMatrixAt(i,matrix);
+       matrix.decompose(position,quaternion,scale);
+       const onGallery=Math.abs(position.x)<.0001 || Math.abs(position.x-2.4)<.0001;
+       const besideLane=Math.abs(Math.abs(position.z+2.4)-.96)<.0001;
+       if(onGallery&&besideLane&&Math.abs(scale.y-expectedHeight)<.0001
+         &&Math.abs(scale.x-1.77)<.0001&&Math.abs(scale.z-.15)<.0001)
+         count++;
+     }
+   }
+   return count;
+ };
+ assert.equal(gallerySails(.62),4,
+   'both published treasure tiles must have genuine raised 3D sea-glass sails');
  assert.equal(JSON.stringify(s),unchanged,'no key, AI movement, world collision or hidden data changes');
  w.update({...s,visibleCells:[23,24]});
  assert.equal(w.stats().treasureGalleryTiles,0,
@@ -70,6 +95,12 @@ test('original joined full-tile 3D treasure corridor is real pooled Three geomet
  w.update({...s,keys:[{...s.keys[0],collected:true}]});
  assert.equal(w.stats().treasureGalleryTiles,2,
    'same true public layout physically persists as spent treasure after collection');
+ assert.equal(gallerySails(.12),4,
+   'a real collected key must lower all four 3D gallery sails into spent clay');
+ assert.equal(gallerySails(.62),0,
+   'the charged 3D sails must not remain after the actual key collection');
+ assert.equal(w.stats().geometryCount,initial.geometryCount);
+ assert.equal(w.stats().materialCount,initial.materialCount);
  for(let i=0;i<6;i++){
    w.update({...s,runToken:'real-gallery-reset-'+i});
    assert.equal(w.stats().treasureGalleryTiles,2);

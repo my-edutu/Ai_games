@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-18T18:24:14.232Z",
+  "updatedAt": "2026-11-18T19:19:16.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass485 exact HEAD 8ee9b8d9 failed before rendering: 51/235 native source tests failed from real terrain ReferenceError witnessedForeground accessed before initialization at world.js:1450; whole repository CI also failed. Pass486 moves the same public-foreground declaration ahead of physically selected two-cell treasure gallery; no gameplay topology, AI, collision or thresholds changed. Exact-HEAD source tests and true WebGL screenshots PENDING. Only Pass484 original 8/8 SHA-verified native images remain valid baseline. Crowded guardian and natural chapter unfinished; Nintendo bar unmet, no independent critic."
+    "summary": "Pass486 exact HEAD cc03fc06 native WebGL SUCCESS 8/8 with unchanged six-reset <100; original artifact 14459350709 independently downloaded, 40/40 PNG sidecars and three genuine gate hashes verified. Actual 320/390 full-frame guardian and pressure remain compositionally crowded and Nintendo-quality NOT MET; natural complete chapter remains unproved. Pass487 source candidate makes four physical gallery fins collapse to low clay only on publicly reported key pickup. New-source exact-HEAD CI/WebGL and independent critic PENDING. Whole-repository 44369437890 failed separate Tiny Kingdom OBS and evidence uploads."
   },
   "captures": [
+    {
+      "title": "Pass486 native 8/8, 40/40 original full-resolution dated images + genuine 3/3 gate chronology; Pass487 prior state baseline only",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44369437939/artifacts/14459350709"
+    },
     {
       "title": "Pass484 exact-HEAD native WebGL 8/8, 40 verified full-resolution source PNG SHA sidecars and 3 true gate-transition hashes; Pass485 next source candidate",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44349160726/artifacts/14449095925"
@@ -349,6 +353,12 @@
   ],
   "changes": [
     {
+      "title": "Pass487 — physical two-cell treasure sails fold when the actual key is collected",
+      "description": "Publicly visible, reciprocal, same-height two-link gallery receives paired low 3D sea-glass side sails, remaining outside Pip's clear lane. Only the real public collected state lowers all four into spent-clay fins. Uses only pooled Three geometries/materials; collision, hidden knowledge, AI and existing thresholds unchanged. New installed-Three regression inspects physical matrices in charged/spent states. Exact-HEAD rendering and independent critic pending.",
+      "date": "2026-11-18",
+      "status": "Production and physical model test candidate; exact-HEAD native verdict pending"
+    },
+    {
       "title": "Pass486 — repair actual Pass485 native scene crash before rendering",
       "description": "Native build stopped before browser frames: 51/235 source tests failed because witness foreground was used before its const initialization in rebuildTerrain. Reorder the existing genuine public-state terrain predicate before 2-cell key gallery selection; no route/AI/privacy/collider/geometry class change. Preserve all strict browser and six-reset budgets. Exact-HEAD tests and rendered captures pending.",
       "date": "2026-11-18",
@@ -668,6 +678,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass487: ensure new exact-HEAD source tests, true four-viewport full-frame WebGL and source-SHA hash sidecars; inspect *actual shown* gallery charged/spent states and natural pressure→guardian→treasure→gate→escape in one run. Reject against official Nintendo benchmark if physical sails obscure gameplay.",
     "Pass486: rerun exact-SHA installed-Three source suite and 8/8 native WebGL + four full-frame SHA-matched viewports. Reject if any true 3D scene runtime failure, budget/framing/AI leak; finish public-knowledge-only natural pressure→Thornback→two-cell key→gate→escape and independent official art critique.",
     "Pass485: verify exact-head CI and 320/390/844/1280 original full-frame WebGL; genuine simultaneous key-gallery screenshot and naturally occurring same-run pressure→Thornback→two-link treasure→gate→escape, detached art critic against original official Nintendo visuals.",
     "Pass484: verify own exact-SHA source/CI and four unaltered 320/390/844/1280 native frames; produce same natural pressure–Thornback–two-link key–gate playthrough, blind artistic verdict against official Captain Toad.",
@@ -759,6 +770,11 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass487 charged-to-spent physical Tideglass two-link key-gallery stage",
+      "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-487-physical-key-gallery-sails-2026-11-18.md",
+      "status": "Source+strict physical regression candidate, not rendered approved"
+    },
     {
       "title": "Pass486 actual native scene initialization crash repair, original screenshot gate still pending",
       "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-486-native-scene-public-foreground-tdz-blocker-2026-11-18.md",
@@ -1621,6 +1637,12 @@
     }
   ],
   "verification": [
+    {
+      "title": "Pass486 exact-HEAD real WebGL 8/8 incl six-reset <100; 40/40 source PNG SHA matches and three authentic gate hash matches",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44369437939",
+      "date": "2026-11-18",
+      "status": "Verified incoming native render; artistic benchmark rejected and Pass487 untested"
+    },
     {
       "title": "Pass485 original HEAD 8ee9b8d9 native WebGL blocked before screenshots: 51/235 installed Three source failures, same witnessedForeground TDZ; Pass486 correction pending exact-source verification",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44361630814",

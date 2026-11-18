@@ -1624,6 +1624,24 @@ export function createMazeWorld(options = {}) {
             z+(alongX?side*.77:0),
             alongX?2.12:.105,.018,alongX?.105:2.12,c.cell);
         }
+        // Pass487: the original two-cell key detour has an actual PHYSICAL
+        // before/after, not just a colour-changing floor or a HUD notice.
+        // Two continuous sea-glass side sails per published gallery tile
+        // rise outside the central walking lane. They settle into low clay
+        // courses only AFTER the same key is publicly collected. This is
+        // neither a barrier, a safe-route instruction, nor another secret
+        // key: it uses the existing pooled 3D bevel/materials and the
+        // already-authoritative key state. Never place sails across a
+        // pressure hazard, sealed edge, hidden passage or guardian court.
+        const sailHeight=treasureGalleryCourse.collected?.12:.62;
+        const sailCentre=.06+sailHeight*.5;
+        for(const side of [-1,1]){
+          const sx=x+(alongX?0:side*.96);
+          const sz=z+(alongX?side*.96:0);
+          add(bevel,treasureGalleryCourse.collected?clay:seaGlass,
+            sx,sailCentre,sz,alongX?1.77:.15,sailHeight,
+            alongX?.15:1.77,c.cell);
+        }
       } else if (pressureCourtApron || guardianCourtCell || guardianForecourtShoulder || guardianOuterCourtFloor || witnessedForeground || variation(c.cell + 50) > .55) {
         block(floorMaterial, x, -.035, z, 2.31, .07, 2.31, c.cell);
         for (const sign of [-1, 1]) {
