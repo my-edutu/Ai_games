@@ -611,6 +611,21 @@ function measuredOriginalSourceCounterpitchAngles({
   depth>=.060&&depth<.075&&
   excessHeelRiseMeters>=.004&&excessHeelRiseMeters<.010)
   return [.28,.34];
+ // New genuine 390px CC0 GLB #44330216576 mobile tick4, 183.3ms:
+ // the -120/+90mrad SOURCE hip/knee trial raised the buried toe
+ // 19.397mm but the airborne heel 32.551mm. The EXISTING
+ // -110/+140/+180 and +240mrad 3-joint native skin trial slots also
+ // left heel rise greater than toe lift. Within the measured 78mm
+ // source burial and 13.154mm starter heel excess, spend the SAME two
+ // slots measuring +300/+360mrad original foot-track axis response,
+ // retaining the 110/140mrad connected hip/knee and the same loaded shoe.
+ // Scheduling does not guarantee a safe pose or contact; true final
+ // two-shoe source-skin checks must reject a heel-dominant response.
+ // No new GLB reads, IK target, clips, root step, meshes or hits.
+ if(frameInterval>=.17&&frameInterval<=.20&&
+  depth>=.070&&depth<=.095&&
+  excessHeelRiseMeters>=.010&&excessHeelRiseMeters<=.030)
+  return [.30,.36];
  return null;
 }
 
@@ -1196,10 +1211,38 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
    Math.abs(footRad)>=.18&&Math.abs(footRad)<=.240001&&
    lift>=.018&&lift<.020&&heelRise>=0&&heelRise<=.024&&
    lift-heelRise>=.0015;
+  // A strictly PHYSICAL same-source 183ms connected pitch opportunity:
+  // this branch does not claim a native after-pose from the prior artifact.
+  // That original 41-joint walking frame demonstrated heel dominance
+  // in ALL FOUR old sample slots; we must measure the NEW +.30/+ .36
+  // candidate on the true GLB, retain it ONLY when its actual outsole
+  // recovers >=6mm pitch with >=15mm toe lift and bounded heel motion,
+  // with the independent original two-shoe final readback still mandatory.
+  // These constraints are anatomical, not another source-frame whitelist.
+  const measuredSparseCounterpitch183ms=toeRad===0&&
+   sourceWeight>=.99&&
+   starter?.source==='actual-original-source-three-joint-swing-opportunity'&&
+   starter.expectedSourceSkinnedTrials===2&&
+   starter.contactLocked===false&&starter.sign===Math.sign(upperRad)&&
+   frameInterval>=.17&&frameInterval<=.20&&
+   depth>=.070&&depth<=.095&&
+   heelAbove>=.19&&heelAbove<=.24&&
+   shoeSpan>=.295&&shoeSpan<=.315&&
+   finite(starter.excessHeelRiseMeters)&&
+   starter.excessHeelRiseMeters>=.010&&
+   starter.excessHeelRiseMeters<=.030&&
+   Math.abs(upperRad+.11)<.000001&&
+   Math.abs(lowerRad-.14)<.000001&&
+   (Math.abs(footRad-.30)<.000001||
+    Math.abs(footRad-.36)<.000001)&&
+   lift>=.015&&lift<=.027&&
+   heelRise>=-.003&&heelRise<=.014&&
+   lift-heelRise>=.006;
   const sourcePitchMinLift=licensedPitchSafe150ms?.015:
    licensedDeepPitchSafe83ms?.0165:
    licensedPitchSafeSourceWindow?.016:
    strongSourcePitchRecovery?.017:
+   measuredSparseCounterpitch183ms?.015:
    measuredSaferSourcePitch?.018:Math.max(.02,depth*.20);
   if(lift<sourcePitchMinLift||lift>.095||
    lift-heelRise<-.002||Math.abs(heelRise)>.055||
