@@ -32,7 +32,7 @@ import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCamer
 import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardianDuelEdgePressure, guardianLiveFightLockPriority } from './guardian-gate-intrusion.mjs';
 import { observedGuardianTransmissionCorners } from './guardian-transmission-layout.mjs';
 import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
-import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain } from './physical-threshold-shot.mjs';
+import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe } from './physical-threshold-shot.mjs';
 import { sourceSubmittedDoorwayCameraDt } from './source-submitted-doorway-cadence.mjs';
 import { createTowerVoidProgramPrewarm } from './void-program-prewarm.mjs';
 import { sourceOriginalGatewayCameraBridge, observedOriginalGatewaySubmittedView } from './original-gateway-submitted-camera-bridge.mjs';
@@ -5005,13 +5005,25 @@ export function createTowerScene(canvas, settings = {}) {
         const originalAngle=Math.atan2(camera.position.x,camera.position.z);
         const radius=Math.hypot(camera.position.x,camera.position.z);
         let best=0;
-        for (const shoulder of [0,-1,1]) {
+        // A source-earned third walkable subject permits a bounded
+        // six-choice physical pullback/shoulder search. The first three
+        // proposals preserve the prior exact lens. No original gate or
+        // authoritative F9 roof -> no pullback proposals at all.
+        const threeSubjectTrials=physicalWalkableShot?.sourceBound===true
+          ?sourceWalkableThreeSubjectOrbitCandidates(thresholdSteps,true)
+          :null;
+        const opticalTrials=threeSubjectTrials||
+          [[0,0,0],[-thresholdSteps.orbitRadians,0,0],
+            [thresholdSteps.orbitRadians,0,0]];
+        for (const [yaw,pullback,lift] of opticalTrials) {
           camera.position.copy(thresholdPreviousCamera);
           lookAt.copy(thresholdPreviousGaze).add(thresholdGaze);
-          if (shoulder && radius>25){
-            const angle=originalAngle+shoulder*thresholdSteps.orbitRadians;
-            camera.position.x=Math.sin(angle)*radius;
-            camera.position.z=Math.cos(angle)*radius;
+          if (radius>25 && (yaw || pullback || lift)){
+            const angle=originalAngle+yaw;
+            const candidateRadius=radius+pullback;
+            camera.position.set(Math.sin(angle)*candidateRadius,
+              thresholdPreviousCamera.y+lift,
+              Math.cos(angle)*candidateRadius);
           }
           if (!towerCoreSightlineClear(camera.position,thresholdHero,23.5) ||
               !towerCoreSightlineClear(camera.position,thresholdGate,23.5))
@@ -5040,7 +5052,20 @@ export function createTowerScene(canvas, settings = {}) {
           const gain=Math.max(sourceDoorwayFrameGain(
             thresholdHeroBefore,thresholdGateBefore,
             thresholdHeroAfter,thresholdGateAfter,true,true),routeGain);
-          if (gain>best){
+          if(gain>best){
+            // A projected NDC winner can still hide the climber behind the
+            // actual old cap, opened grille, live F9 deck or Void bearing.
+            // Earlier code vetted ONLY the winner after ranking and reverted
+            // the whole pass when it failed. Vet each promising REAL trial
+            // before accepting it so the next physically clear proposal
+            // remains eligible. Keep the final exact-camera recheck too.
+            if(deckViewBeforeThreshold?.active){
+              const currentRays=world.measureSuccessorDeckVisibility(
+                snapshot,camera.position,thresholdHero,p.halfHeight/SCALE,
+                thresholdGate,targetPlatform?.id??null);
+              if(!sourceThreeSubjectRaySafe(
+                deckViewBeforeThreshold,currentRays))continue;
+            }
             best=gain;
             thresholdBestCamera.copy(camera.position);
             thresholdBestGaze.copy(lookAt);

@@ -43,6 +43,11 @@ export function sourceDoorwayFrameSteps(dt, aspect) {
   return {
     gazeMetres: Math.min(.64, frame * (aspect < .85 ? 9 : 7)),
     orbitRadians: Math.min(.035, frame * (aspect < .85 ? .72 : .55)),
+    // One camera's bounded radial withdrawal/physical shoulder lift,
+    // NOT a jump cut or separate cinematic camera. Only the source-earned
+    // three-subject shot below may use these values.
+    pullbackMetres: Math.min(.65, frame * (aspect < .85 ? 10 : 8)),
+    liftMetres: Math.min(.31, frame * (aspect < .85 ? 5.5 : 4)),
   };
 }
 
@@ -173,6 +178,40 @@ export function sourceWalkableCrossfloorProjectionHeld(before,after) {
   return Math.abs(after[0])<=.88 && Math.abs(after[1])<=.82 &&
     overflowAfter<=overflowBefore+.035;
 }
+
+// The post-director Floor9 doorway search previously selected the best
+// projected pair and tested real world triangles ONLY after ranking. When
+// that winning trial passed behind the original F8 cap, it discarded the
+// entire search even if a second camera could see the REAL gate, full actor
+// and walkable Floor9 together. Try a small one-frame physical orbit AND
+// exterior pullback; check each meaningful proposal with the actual current
+// source-owned meshes before ranking. These are frame increments (metres),
+// not a teleported camera, invented landing or camera mode override.
+export function sourceWalkableThreeSubjectOrbitCandidates(steps,hasRealDeck){
+  if(hasRealDeck!==true || !steps ||
+     ![steps.orbitRadians,steps.pullbackMetres,steps.liftMetres].every(finite) ||
+     steps.orbitRadians<=0 || steps.orbitRadians>.035 ||
+     steps.pullbackMetres<=0 || steps.pullbackMetres>.65 ||
+     steps.liftMetres<=0 || steps.liftMetres>.31)return null;
+  const a=steps.orbitRadians,d=steps.pullbackMetres,h=steps.liftMetres;
+  return [[0,0,0],[-a,0,0],[a,0,0],
+    [0,d,h],[-a,d,h],[a,d,h]];
+}
+// Only an existing, source-authenticated F8 cap/gate and F9 geometry may
+// witness this choice. Reject absent, stale, nonfinite or worsened real mesh
+// rays for ANY of the original three subjects. Never rank a crop-only fix
+// above a genuinely unobstructed actor/arch/deck.
+export function sourceThreeSubjectRaySafe(before,after){
+  const keys=['bodyBlockedRays','gatewayBlockedRays',
+    'originalGateBlockedRays','originalCapBlockedBodyRays',
+    'originalCapBlockedGatewayRays','architectureBlockedRays','score'];
+  if(before?.active!==true || after?.active!==true ||
+     keys.some(k=>!Number.isSafeInteger(before[k]) ||
+       !Number.isSafeInteger(after[k]) || before[k]<0 || after[k]<0))
+    return false;
+  return keys.every(k=>after[k]<=before[k]);
+}
+
 // A *third* source-authenticated subject can initiate a small reversible
 // gaze correction even when the old gateway is already legible. This stops
 // the camera treating a visible bronze arch and player over featureless air

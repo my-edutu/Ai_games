@@ -97,3 +97,51 @@ test('real composed scene keeps all THREE source-earned subjects protected throu
   assert.match(scene,/physicalThresholdFrameGain/);
   assert.doesNotMatch(scene,/snapshot\.player\.(?:x|y)\s*=/);
 });
+
+test('source-earned F9 camera can search reversible shoulder and pullback only with a REAL walkable third subject',async()=>{
+  const {sourceDoorwayFrameSteps:steps,
+    sourceWalkableThreeSubjectOrbitCandidates:candidates}=await helpers;
+  for(const aspect of [960/600,390/844]){
+    const s=steps(1/25,aspect);
+    const trials=candidates(s,true);
+    assert.equal(trials.length,6);
+    assert.deepEqual(trials[0],[0,0,0]);
+    assert.ok(trials[3][1]>0 && trials[3][1]<=.65);
+    assert.ok(trials[3][2]>0 && trials[3][2]<=.31);
+    assert.ok(trials[4][0]<0 && trials[5][0]>0);
+    assert.ok(trials.every(([yaw,dolly,lift])=>
+      Math.abs(yaw)<=.035 && dolly>=0 && lift>=0),
+      'camera travel must remain frame-bounded');
+    assert.equal(candidates(s,false),null,'no fictional successor deck camera');
+    assert.equal(candidates({...s,pullbackMetres:Infinity},true),null);
+    assert.equal(candidates({...s,orbitRadians:.4},true),null);
+  }
+});
+test('real old cap, gate, bearing and deck rays veto a falsely clearer projected shot BEFORE ranking',async()=>{
+  const {sourceThreeSubjectRaySafe:safe}=await helpers;
+  const before={active:true,bodyBlockedRays:2,gatewayBlockedRays:1,
+    originalGateBlockedRays:1,originalCapBlockedBodyRays:1,
+    originalCapBlockedGatewayRays:0,architectureBlockedRays:1,score:5};
+  assert.equal(safe(before,{...before,bodyBlockedRays:1,
+    originalCapBlockedBodyRays:0,score:3}),true);
+  for(const field of ['bodyBlockedRays','gatewayBlockedRays',
+    'originalGateBlockedRays','originalCapBlockedBodyRays',
+    'originalCapBlockedGatewayRays','architectureBlockedRays','score']){
+    const next={...before,[field]:before[field]+1};
+    assert.equal(safe(before,next),false,field);
+  }
+  assert.equal(safe(before,null),false);
+  assert.equal(safe({...before,active:false},before),false);
+  assert.equal(safe(before,{...before,score:NaN}),false);
+});
+test('composed final physical camera ranks ONLY individually source-ray-safe triad candidates',()=>{
+  const code=fs.readFileSync(path.resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+  const stage=code.slice(code.indexOf('// POST-DIRECTOR PHYSICAL CROSSING:'),
+    code.indexOf('world.revealGuardianSightlines(camera,guardianSightPoints);'));
+  assert.match(stage,/sourceWalkableThreeSubjectOrbitCandidates\(thresholdSteps,true\)/);
+  assert.match(stage,/if\(!sourceThreeSubjectRaySafe\(\s*deckViewBeforeThreshold,currentRays\)\)continue;/);
+  assert.match(stage,/world\.measureSuccessorDeckVisibility\(/);
+  assert.match(stage,/camera\.position\.set\(Math\.sin\(angle\)\*candidateRadius/);
+  assert.match(stage,/towerCoreSightlineClear\(camera\.position,thresholdGate/);
+});
