@@ -1123,7 +1123,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       targetHeight = cameraMode === 'detail'
         ? publicDetailEncounterHalfHeight(aspect, closestThreat?.strength)
         : height < 340 ? 5.4
-        : cameraGate ? (gateStoryCloseup ? 3.92
+        : cameraGate ? (gateStoryCloseup ? 3.58
           : ((keyLockCloseup || openingKeyedBeat) ? (aspect < .9 ? 4.70 : 4.55) : (aspect < .9 ? 5.42 : 5.05)))
         // Match the previously recorded safe keyed-pressure optical scale,
         // but place that budget around the ACTUAL actor/jaw pair rather than

@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-18T01:19:00Z",
+  "updatedAt": "2026-11-18T02:34:00Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass469b corrects confirmed real Phase 2 guardian straight-line visibility regression (first Pass469 whole CI 44213904168 failed seed maze-visual-reference-0); linked-straight > any straight > linked-bend > fallback. New exact corrected HEAD whole CI and authentic native 320/390/844/1280 + 40 SHA and 3 gate checks PENDING. Previously verified Pass468 rollback original source native all 8, 40/40+3/3. No Nintendo parity; detached critic unavailable."
+    "summary": "Pass470 exact Pass469b native gate screenshot regression: full real Pip silhouette width 0.24393 NDC vs unchanged strict >0.258. A genuine source-witnessed landscape open-gate-only camera reframing candidate now staged; new exact-HEAD native 8/8 and full SHA captures PENDING. Earlier corrected Pass469b WebGL 7/8 FAILED, independent critic and Ultracode unavailable. Official Nintendo parity NOT passed."
   },
   "captures": [
+    {
+      "title": "Pass469b original exact-HEAD native WebGL 7/8 FAILED: real 1280 gate-mid Pip physical silhouette width .24393 below unchanged .258; Pass470 candidate screenshot proof PENDING",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44214797622/artifacts/14387819947"
+    },
     {
       "title": "Pass468 original rollback exact-source 8/8 WebGL baseline; verified 40/40 PNG sidecars and 3 real chronological gate PNG hashes (NEW candidate not yet captured)",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44206230895/artifacts/14383623802"
