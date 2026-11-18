@@ -12,7 +12,7 @@ import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePre
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, createSourceEarnedVoidDepartureMaterials, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections, isolateEarnedFirstFrameVoidMaterials } from './source-earned-bearing-run.mjs';
-import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold, observedSourceEarnedEarlyVoidShaftAperture, observedSourceSupportedVoidFirstPaint, observedEarnedGalleryExitClearance } from './far-side-shaft-transition.mjs';
+import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold, observedSourceEarnedEarlyVoidShaftAperture, observedSourceSupportedVoidFirstPaint, observedEarnedGalleryExitClearance, observedReturnedGalleryHandoffClearance } from './far-side-shaft-transition.mjs';
 
 
 /**
@@ -3554,6 +3554,17 @@ export function createTowerWorld(){
       if(held.galleryExitClearedAtTick==null)
         held.galleryExitClearedAtTick=snapshot.tick;
     }
+    // The genuine, original Void shaft has now participated in TWO actually
+    // returned source-validated frames while the survivor is supported beyond
+    // the HP-open sill. The previously extracted, non-colliding Floor8 gallery
+    // is no longer an active room: retire it completely instead of stacking
+    // eight low-alpha bronze layers over the real new destination. The true
+    // HP gate, roof/cap, source F9 ground, moving decks and hazard visuals
+    // remain separate, never culled or granted phantom physics.
+    const returnedGalleryExit=!options.stale
+      ?observedReturnedGalleryHandoffClearance(snapshot,held,deferredDistantArrival):null;
+    if(returnedGalleryExit?.sourceBound===true)
+      held.galleryExitClearedAlpha=0;
     if(Number.isFinite(held.galleryExitClearedAlpha))
       originalPresence=Math.min(originalPresence,held.galleryExitClearedAlpha);
     held.originalGallerySourceOpacity=originalPresence;
@@ -3569,6 +3580,13 @@ export function createTowerWorld(){
       material.opacity=originalPresence;
       material.depthWrite=!transparent;
     }
+    // Opacity zero is NOT a draw-call veto in Three.js. Stop submitting
+    // historic non-colliding gallery triangles once the actual successor
+    // returned-frame and grounded-clearance proof above retires them.
+    // The separately held original gateway, cap and source platforms keep
+    // their own visibility and scene ownership.
+    if(held.originalGalleryRoot)
+      held.originalGalleryRoot.visible=originalPresence>.015;
     // The authentic F9 roof must not change from bronze to violet all at
     // once behind an otherwise still-present old gateway. Its original
     // gameplay geometry is unchanged; interpolate only its existing
