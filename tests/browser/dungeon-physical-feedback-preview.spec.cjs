@@ -488,8 +488,8 @@ async function beginD04LiveAVCapture(page,captureProfile){
     }catch(e){finish({status:'UNAVAILABLE',reason:'Failed reading real WebM: '+String(e)})}
    };
    const watchdog=setTimeout(()=>{try{if(recorder.state!=='inactive')recorder.stop()}catch{}
-     finish({status:'UNAVAILABLE',reason:'WebM recorder did not finish inside 15-second budget',
-      framePump:{...framePump}})},15000);
+     finish({status:'UNAVAILABLE',reason:'Primary original WebM exceeded bounded capture watchdog',
+      framePump:{...framePump}})},profile.primaryWatchdogMs);
   });
   try{recorder.start(250);registerRecorder(recorder)}
   catch(e){finishCanvasDeliveryMonitor();stopFramePump();videoTracks.forEach(t=>t.stop());
@@ -518,7 +518,9 @@ async function beginD04LiveAVCapture(page,captureProfile){
    clearTimeout(pcmReceiptWatchdog);
    return unavailable('Live PCM capture error: '+String(e));
   });
-  setTimeout(()=>{try{if(recorder.state!=='inactive')recorder.stop()}catch{}},5500);
+  // Only an authentic longer original A/V window can include later HP starts.
+  // This timer does not preserve expired combat cues or authorize late audio.
+  setTimeout(()=>{try{if(recorder.state!=='inactive')recorder.stop()}catch{}},profile.primaryClipMs);
   window.__D04_REAL_AV_CAPTURE__=Promise.all([clipDone,livePcm,videoProbe,audioProbe,nativeVideoProbe,control2dProbe])
    .then(async ([clip,pcm,videoOnly,audioOnly,nativeVideoOnly,control2dOnly])=>{
     // Freeze authentic game receipt timing BEFORE beginning any serial

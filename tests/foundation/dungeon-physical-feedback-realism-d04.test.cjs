@@ -2393,3 +2393,18 @@ test('strict D04 fatal HP evidence remains visible at the unique public cell whe
    'existing live visible-body HP anchoring remains unchanged');
  }finally{stage.dispose()}
 });
+
+test('D04 real original A/V capture retains a bounded later genuine injury window without extra encoders',()=>{
+ const profile=require('../browser/dungeon-d04-capture-profile.cjs').createD04CaptureProfile();
+ // Chrome admitted a later authentic tick-11 HP impact and original source
+ // after the old 5.5s original WebM ended; that silence cannot be contact proof.
+ assert.ok(profile.primaryClipMs>=20000&&profile.primaryClipMs<=25000,
+  'single original WebM must cover a later genuine admitted HP impact');
+ assert.ok(profile.primaryWatchdogMs>=profile.primaryClipMs+8000&&profile.primaryWatchdogMs<=40000,
+  'bounded watchdog must not preempt that source-authentic recording');
+ assert.equal(profile.concurrentRecorders.length,1);
+ assert.equal(profile.concurrentIsolatedProbes,false);
+ assert.equal(profile.audioSource,'opted-in-original-soundstage');
+ assert.equal(profile.sampleSynchronized,false,'recorded sound does not prove contact sync');
+ assert.equal(profile.pcmCaptureSeconds,5.5,'short independent PCM remains separately unverified');
+});

@@ -15,6 +15,12 @@ const SKIPPABLE=Object.freeze([
 // bounded soundstage 12s module-load or >=20s capture phase is still active.
 // Evidence-only: this NEVER authorizes any sound after the 400ms combat cutoff.
 const D04_PCM_EVIDENCE_SECONDS=5.5;
+// Real tick-11 HP contact was admitted >14s after the earlier primary
+// 5.5s WebM started. Retain ONE consented original canvas+soundstage window
+// long enough to attempt decoding that later real contact. This does not
+// extend D04's 400ms sound deadline or establish sample synchronization.
+const D04_PRIMARY_AV_CLIP_MS=22000;
+const D04_PRIMARY_AV_WATCHDOG_MS=34000;
 function d04PcmEvidenceWatchdogMs(seconds){
  if(!Number.isFinite(seconds)||seconds<.5||seconds>10)
   throw new RangeError('Unbounded D04 PCM duration');
@@ -29,6 +35,8 @@ function createD04CaptureProfile(){
   allowSerialDiagnostics:true,
   audioSource:'opted-in-original-soundstage',
   sampleSynchronized:false,
+  primaryClipMs:D04_PRIMARY_AV_CLIP_MS,
+  primaryWatchdogMs:D04_PRIMARY_AV_WATCHDOG_MS,
   pcmCaptureSeconds:D04_PCM_EVIDENCE_SECONDS,
   pcmReceiptTimeoutMs:d04PcmEvidenceWatchdogMs(D04_PCM_EVIDENCE_SECONDS)
  });
