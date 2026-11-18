@@ -47,10 +47,40 @@ test('D04 requires actual frame progress, bounded duration and bounded files',()
   {frames:{before:20,after:20}},
   {frames:{before:20,after:19}},
   {clip:{...good.clip,recordingMs:150}},
-  {clip:{...good.clip,recordingMs:16000}},
+  {clip:{...good.clip,recordingMs:45000}},
   {clip:{...good.clip,bytes:25000000}},
   {pcm:{...good.pcm,sampleRate:192000}}
  ])assert.equal(assessD04Capture({...good,...variation}).classification,'UNVERIFIED');
+});
+
+test('D04 31-second real original-canvas recording is transport-only, never contact or sample synchronization',()=>{
+ const clip={...good.clip,bytes:815028,recordingMs:31076.4,
+  framePump:{...good.clip.framePump,observedFrameAdvances:35,requestedFrames:35}};
+ const assessment=assessD04Capture({...good,clip,
+  pcm:{...good.pcm,status:'SILENT'}});
+ assert.equal(assessment.combinedVideoAudio,true,
+  'the actual 31-second original video+audio transport must not be rejected by obsolete 15.5-second policy');
+ assert.equal(assessment.liveOriginalPcm,false);
+ assert.equal(assessment.classification,'UNVERIFIED');
+ assert.equal(assessment.sampleSynchronized,false);
+});
+test('D04 original track and frame clocks allow the bounded 42-second capture, but never unbounded time',()=>{
+ const {classifyCanvasTrackDelivery,classifyCanvasSubmissionTiming}=require('../browser/dungeon-d04-av-evidence.cjs');
+ const delivery={source:'real-webgl-canvas-capture-video-monitor',mode:'request-video-frame-callback',
+  playStatus:'PLAYING',presentation:'visible-2px-real-track',consumerVisibleAtStart:true,
+  clock:'performance-now-relative-capture-start',mutedAtStart:false,mutedAtStop:false,events:[],
+  frames:[{atMs:28000,presentedFrames:3,mediaTime:26,submittedReceipt:35}]};
+ const framePump={mode:'submitted-frame-request',submissionSamples:[
+  {atMs:27000,receipt:35,requestAttempted:true,requestSucceeded:true}]};
+ assert.equal(classifyCanvasTrackDelivery({delivery,encodedBytes:815028,submittedFrames:35}),
+  'CANVAS_FRAMES_DELIVERED_AND_ENCODED_UNALIGNED');
+ assert.equal(classifyCanvasSubmissionTiming({delivery,framePump}),
+  'PRESENTED_CANVAS_FRAME_RECEIPT_TIMED');
+ assert.equal(classifyCanvasTrackDelivery({delivery:{...delivery,frames:[
+  {...delivery.frames[0],atMs:45000}]},encodedBytes:815028,submittedFrames:35}),
+  'TRACK_DELIVERY_UNVERIFIED');
+ assert.equal(classifyCanvasSubmissionTiming({delivery,framePump:{...framePump,submissionSamples:[
+  {...framePump.submissionSamples[0],atMs:45000}]}},),'SUBMISSION_TIMING_UNVERIFIED');
 });
 
 test('D04 retains a manifest and exact browser bytes on a passing CI run',()=>{
