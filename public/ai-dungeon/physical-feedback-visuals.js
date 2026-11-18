@@ -1316,6 +1316,38 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   lastAdvancePotentialBufferBytes=potentialBufferBytes;
   advanceFrames=Math.min(Number.MAX_SAFE_INTEGER,advanceFrames+1);
  }
+ // Accessible sword sound is emitted without a measured blade trail, so a
+ // cached actor.u is NOT sufficient authority. A reused drawn body can still
+ // show yesterday's attack after the CURRENT public snapshot has cancelled it.
+ // Recheck the unique public action owner and scene only at sound admission /
+ // frame receipt, not every visual-frame transform. The same bounded 96
+ // action-owner / 256 duplicate-ID integrity window is used by the planner.
+ // This never infers a hit, creates an attacker, or reads private game state.
+ function currentPublicSwingSource(cue,u){
+  if(!requireVerifiedHpReceipt)return true; // standalone visual auditions
+  if(typeof getCurrentSnapshot!=='function'||
+   !isCanonicalVerifiedCombatFoleyCue(cue))return false;
+  let current=null;
+  try{current=getCurrentSnapshot()}catch{return false}
+  if(!current||!Number.isSafeInteger(current.tick)||
+   current.tick!==cue.tick||!Number.isSafeInteger(current.run)||
+   !Number.isSafeInteger(current.floor)||
+   current.run+':'+current.floor!==cue.sceneKey||
+   !Array.isArray(current.units))return false;
+  let witness=null;
+  for(let i=0;i<Math.min(current.units.length,256);i++){
+   const candidate=current.units[i];
+   if(candidate?.id!==cue.actorId)continue;
+   if(witness||i>=PHYSICAL_FEEDBACK_MAX_EVENT_SCAN)return false;
+   witness=candidate;
+  }
+  return !!witness&&witness.kind===u.kind&&
+   witness.faction===u.faction&&
+   witness.x===cue.from?.x&&witness.z===cue.from?.z&&
+   u.x===witness.x&&u.z===witness.z&&
+   witness.action==='attack'&&witness.actionTick===cue.tick&&
+   Number.isFinite(witness.hp)&&witness.hp>0;
+ }
  // Reduced-motion intentionally removes the animated sword ribbon. A
  // real public attack attempt may still make an accessible, sound-only whoosh,
  // but the same living, visible actor MUST still be performing that attack.
@@ -1331,7 +1363,8 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
   const u=actor?.u;
   if(u?.id!==cue.actorId||!['vanguard','revenant','warden'].includes(u.kind)||
    u.action!=='attack'||u.actionTick!==cue.tick||
-   !Number.isFinite(u.hp)||u.hp<=0)return false;
+   !Number.isFinite(u.hp)||u.hp<=0||
+   !currentPublicSwingSource(cue,u))return false;
   return sampleActor(cue.actorId,cue.from)!==null;
  }
  // A delayed launch may be *sound-only* when its retained flight is
