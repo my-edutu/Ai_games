@@ -1162,7 +1162,15 @@ export function createTowerWorld(){
       retainedEarnedCap.floor===9 &&
       stagedVoidArchitecture?.runToken===retainedEarnedCap.runToken &&
       stagedVoidArchitecture?.root?.isGroup===true &&
-      !deferredDistantArrival;
+      !deferredDistantArrival &&
+      // Preserve SOURCE provenance as batched triangles in the real
+      // first-frame Void load-bearing core, far-side pylon, old gateway and
+      // all 3D camera-ray gallery owners. Native instancing is ONLY for the
+      // existing true F9 walkable-platform ornamental casting descendants;
+      // never replace recorded source triangle-owner paths required by
+      // guardian/threshold occlusion acceptance.
+      [...platforms.values()].some(entry=>entry.root===root &&
+        root.name?.startsWith('platform:f9:'));
     function collect(o){
       if(o!==root&&excluded.has(o))return;
       if(o.isMesh&&!Array.isArray(o.material)&&(!o.isInstancedMesh||(o.count<=100&&!o.instanceColor))){
