@@ -147,7 +147,8 @@ function guardianPressurePrelude(world:MazeWorld,route:number[],reserved:Set<num
 // A genuine previously-early required key may instead become a post-guardian
 // objective, strictly ahead on walkable route ground and before its own gate.
 export function forwardGuardianKeyCell(
- world:MazeWorld,route:number[],approachIndex:number
+ world:MazeWorld,route:number[],approachIndex:number,
+ avoid:ReadonlySet<number>=new Set()
 ):{keyId:string;cell:number}|null{
  if(!Number.isInteger(approachIndex)||approachIndex<1
    ||approachIndex>=route.length-4)return null;
@@ -163,9 +164,31 @@ export function forwardGuardianKeyCell(
          ||(route[index-1]===door.b&&cell===door.a))));
    if(crossing<0)continue;
    const last=Math.min(approachIndex+6,crossing-2);
+   // A REAL one-door-side alcove asks Pip to discover and enter a physical
+   // chamber to collect the critical key. It must be reached from an existing
+   // reciprocal open passage AFTER Thornback but BEFORE the matching gate.
+   // Keep every hazard, guardian patrol, route, blocked tile and authored
+   // object untouched. Never create fake passages or use hidden AI knowledge.
+   // A terminal dead end prevents a hidden second shortcut around the court.
+   const mainRoute=new Set(route);
+   if(Number.isInteger(world.width)&&world.width>0
+     &&Number.isInteger(world.height)&&world.height>0
+     &&Array.isArray(world.passages)){
+     for(let i=approachIndex+2;i<=last;i++){
+       const entry=route[i]!;
+       const alcoves=passageNeighbors(world,entry).filter(cell=>
+         !mainRoute.has(cell)&&!occupied.has(cell)&&!avoid.has(cell)
+         &&passageNeighbors(world,cell).length===1
+         &&passageNeighbors(world,cell).includes(entry)
+         &&!doorBetween(world,entry,cell)).sort((a,b)=>a-b);
+       if(alcoves.length)return {keyId:key.id,cell:alcoves[0]!};
+     }
+   }
+   // If genuine side chambers do not exist, retain Pass481's original safe
+   // public main-route pickup instead of manufacturing a chamber or dead end.
    for(let i=approachIndex+2;i<=last;i++){
      const cell=route[i]!;
-     if(!occupied.has(cell))return {keyId:key.id,cell};
+     if(!occupied.has(cell)&&!avoid.has(cell))return {keyId:key.id,cell};
    }
  }
  return null;
@@ -221,7 +244,8 @@ export function populateMazeContent(base:MazeWorld,config:MazeConfig,rng:NamedRn
           &&passageNeighbors(world,trap).includes(court));
       });
       if(joinedPressure){
-        const relay=forwardGuardianKeyCell(world,route,watchpost.approachIndex);
+        const relay=forwardGuardianKeyCell(world,route,watchpost.approachIndex,
+          new Set([watchpost.spawn,watchpost.retreat]));
         if(relay){
           const key=world.keys.find(item=>item.id===relay.keyId)!;
           key.cell=relay.cell;

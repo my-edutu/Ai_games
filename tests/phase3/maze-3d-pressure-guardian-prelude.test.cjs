@@ -102,3 +102,38 @@ test('24 authentic worlds can create pressure, straight guardian, then key and e
  }
  assert.ok(chapters>=1,'seeded world must include at least one real connected chapter');
 });
+
+
+test('authentic reciprocal post-Thornback side alcove makes a consequential key detour without inventing a passage',()=>{
+ const {forwardGuardianKeyCell,solveMazeWithInventory}=load('games/ai-maze-escape/src/generation/content.js');
+ const {passageNeighbors}=load('games/ai-maze-escape/src/generation/solver.js');
+ const route=Array.from({length:11},(_,i)=>i),passages=Array(22).fill(0);
+ for(let i=0;i<10;i++){passages[i]|=2;passages[i+1]|=8;}
+ passages[5]|=4; passages[16]|=1; // REAL reciprocal route cell 5 -> dead-end alcove 16
+ const world={schemaVersion:1,width:11,height:2,passages,start:0,exit:10,
+   keys:[{id:'key-1',cell:1,collected:false}],
+   doors:[{id:'door-1',a:8,b:9,requiredKeyId:'key-1',critical:true,open:false,temporaryUntilTick:null}],
+   traps:[],clues:[],checkpoints:[],threats:[],blockedCells:[],profile:'tree'};
+ assert.deepEqual(passageNeighbors(world,5).includes(16),true);
+ assert.deepEqual(passageNeighbors(world,16),[5]);
+ const chosen=forwardGuardianKeyCell(world,route,3,new Set([17]));
+ assert.deepEqual(chosen,{keyId:'key-1',cell:16},
+   'the actual optional dead-end chamber, not the main route, holds the forward key');
+ const shifted=structuredClone(world);
+ shifted.keys[0].cell=chosen.cell;
+ const playable=solveMazeWithInventory(shifted);
+ assert.ok(playable,'Pip can physically collect the side-room key and open its true gate');
+ assert.ok(playable.cells.includes(16));
+ assert.ok(playable.keyOrder.indexOf('key-1')>=0 && playable.doorOrder.indexOf('door-1')>=0);
+ assert.equal(forwardGuardianKeyCell({...world,blockedCells:[16]},route,3).cell,5,
+   'do not send an objective to a blocked alcove');
+ assert.equal(forwardGuardianKeyCell(world,route,3,new Set([16])).cell,5,
+   'never overlap the real guardian patrol');
+ const oneWay=structuredClone(world);oneWay.passages[16]=0;
+ assert.equal(forwardGuardianKeyCell(oneWay,route,3).cell,5,
+   'never treat one-way/non-reciprocal map knowledge as a chamber');
+ const gated=structuredClone(world);
+ gated.doors.push({id:'side-door',a:5,b:16,requiredKeyId:'uncollected',critical:false,open:false,temporaryUntilTick:null});
+ assert.equal(forwardGuardianKeyCell(gated,route,3).cell,5,
+   'a locked side alcove cannot hide its own required key');
+});

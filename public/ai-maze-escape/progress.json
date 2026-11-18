@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-18T13:35:00.000Z",
+  "updatedAt": "2026-11-18T14:18:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass481 source candidate: retain the last verified straight publicly reciprocal Thornback watchpost and linked physical pressure room; if an existing matching critical gate is downstream, move an earlier required key to a safe unoccupied route cell two to six steps AFTER that guardian. This changes playable objective order, not camera/UI cosmetics, and leaves deterministic public-only AI, trap/gate/guardian topology and strict browser thresholds untouched. Pass480 exact-HEAD native 44299655138 SUCCESS 8/8; 40/40 original PNG sidecar hashes verified. New Pass481 exact-source CI and truly consecutive pressure→guardian→key→gate playthrough still pending. Nintendo benchmark unmet; independent critic workspace unavailable."
+    "summary": "Pass482 candidate introduces a genuine post-Thornback key DETOUR: on already generated reciprocal dead-end branch beside the route, after the linked physical pressure/guardian stage and before the SAME critical gate, move an existing required key to a safe chamber. Fall back to unchanged Pass481 route pickup if no lawful room. Pass481 exact-HEAD native CI 44317072292 SUCCESS 8/8, original artifact 14434126140 verified 40/40 PNG JSON sidecars and 3 true gate hashes; real guardian/pressure 390px art still crowded and well below official Nintendo Captain Toad. New source tests, full screen WebGL, actual one-run chapter, independent critic and whole CI PENDING. Never merge/deploy/force, PR remains draft."
   },
   "captures": [
+    {
+      "title": "Pass481 exact HEAD f809ca43 native WebGL 8/8, verified 40/40 original PNG SHA sidecars and three true gate before/mid/after SHA; Pass482 side-alcove gameplay candidate pending",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44317072292/artifacts/14434126140"
+    },
     {
       "title": "Pass477 exact-source native WebGL 8/8, 40/40 original screenshot hashes and 3 genuine gate hashes; full-frame A/B rejected third-ring spectator relief against Pass476",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44273265349/artifacts/14413239973"
@@ -340,6 +344,12 @@
     }
   ],
   "changes": [
+    {
+      "title": "Pass482 — truly reciprocal side-room required key beyond pressure/Thornback and before matching gate",
+      "description": "One original required key may appear in a genuine empty one-link dead-end chamber after the same verified guardian, requiring a playable discovery detour; strictly before its matching downstream critical gate. All original passages, collision, AI, traps and guardian patrol remain unchanged. Exact new-HEAD native/WebGL acceptance pending.",
+      "date": "2026-11-18",
+      "status": "Production gameplay candidate, exact-HEAD CI/rendered/independent art approval pending"
+    },
     {
       "title": "Pass481 — existing real pressure + unchanged straight Thornback → required forward key → matching critical gate",
       "description": "A lawful earlier key is relocated to an unoccupied main-route cell after the verified guardian ONLY if its physical pressure prelude and matching downstream gate both exist. No guardian re-selection, forged route or AI hidden-state access. New commit needs strict native evidence and full playthrough.",
