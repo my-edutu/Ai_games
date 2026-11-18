@@ -235,3 +235,55 @@ test('RED: 183ms heel-dominant licensed swing spends same two physical foot tria
   {upperRad:-.11,lowerRad:.11,footRad:.24}
  ]);
 });
+
+
+// PROSPECTIVE response only: the real source measured .18/.24 ankle trials
+// were heel-dominant. The +.36 trial below has NEVER been skinned/filmed;
+// its Y/XZ values are a *hypothesis* to assert a fail-closed selection
+// contract should a future exact original GLB trial actually find this pose.
+// This is not a claim that the GLB can achieve the estimated improvement.
+test('RED: 183ms source probe may retain independently measured safe deeper counterpitch, never heel-dominant deformation',async()=>{
+ const {chooseOriginalSourceCoupledKneeFootSweep:choose}=await load();
+ const left={heelY:.18989279396921924,toeY:-.09792263441787451,
+  heelXZ:[0,0],toeXZ:[.08808987195484298,0]};
+ const right={heelY:-.03439058381135052,
+  toeY:-.006971902352616778,heelXZ:[0,.35],toeXZ:[.27,.35]};
+ const before={left,right};
+ const starter={source:'actual-original-source-three-joint-swing-opportunity',
+  sign:-1,expectedSourceSkinnedTrials:2,contactLocked:false,
+  excessHeelRiseMeters:.013154023171918106};
+ const good={upperRad:-.11,lowerRad:.14,footRad:.36,
+  after:{left:{heelY:left.heelY+.008,toeY:left.toeY+.018,
+   heelXZ:[.005,0],toeXZ:[.105,0]},right}};
+ const bad={upperRad:-.11,lowerRad:.14,footRad:.30,
+  after:{left:{heelY:left.heelY+.018,toeY:left.toeY+.020,
+   heelXZ:[.005,0],toeXZ:[.101,0]},right}};
+ const input={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceChainVerified:true,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceFootTrackVerified:true,sourceBindVerified:true,
+  sourceAnatomicalFootAxisVerified:true,ownerLocomotion:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,rootTravel:.04,frameAge:0,
+  frameInterval:.18329999999999913,floorTopY:-.02,side:'left',
+  before,starter,trials:[bad,good]};
+ const result=choose(input);
+ assert.equal(result?.footRad,.36);
+ assert.equal(result?.contactLocked,false);
+ assert.equal(result?.oppositeShoePreserved,true);
+ assert.ok(result.toeLiftMeters>=.018-1e-8);
+ assert.ok(result.toeLiftMeters-result.sourceHeelRiseMeters>=.009);
+ for(const damaged of [
+  {sourceInstanceSame:false},{sourceBindVerified:false},
+  {sourceWeight:.5},{sourceClipName:'Idle'},{mode:'hurt'},
+  {frameInterval:.35},{teleport:true},{interrupted:true},
+  {reducedMotion:true},{rootTravel:0},
+  {trials:[{...good,after:{...good.after,
+   right:{...right,toeY:right.toeY+.009}}}]},
+  {trials:[{...good,after:{...good.after,
+   left:{...good.after.left,heelY:left.heelY+.018}}}]},
+  {trials:[{...good,after:{...good.after,
+   left:{...good.after.left,toeXZ:[.20,0]}}}]}
+ ])assert.equal(choose({...input,...damaged}),null,
+   'no untrusted source, worse loaded shoe, excessive deformation or heel-dominant acceptance');
+});
