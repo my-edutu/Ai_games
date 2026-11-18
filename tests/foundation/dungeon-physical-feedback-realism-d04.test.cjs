@@ -2444,3 +2444,48 @@ test('D04 original A/V capture can follow an admitted real impact without extend
  assert.equal(find(Array(65).fill(receipt)),null);
  assert.equal(find([receipt],Array(65).fill(sound)),null);
 });
+
+test('strict reduced-motion sword whoosh requires the CURRENT unique public attack, not a stale cached rig',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const unit={id:'revenant',kind:'revenant',faction:'enemy',
+  x:3,z:2,hp:20,maxHp:20,action:'attack',actionTick:11};
+ let current={run:1,floor:1,tick:11,units:[{...unit}]};
+ const actor={u:{...unit},root:{
+  visible:true,position:{x:-6,y:0,z:-7},rotation:{y:0}}};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  actorById:id=>id==='revenant'?actor:null,
+  getCurrentSnapshot:()=>current,reducedMotion:true,
+  requireVerifiedHpReceipt:true
+ });
+ const swing=cue({id:'1:1:11:swing:revenant:-',kind:'swing',
+  visual:'trail',audio:'whoosh',actorId:'revenant',targetId:null,
+  from:{x:3,z:2},to:null,proof:'authority-attempt-not-hit'});
+ const admits=(should,reason)=>
+  assert.equal(stage.hasAuthenticatedSwingAction(swing),should,reason);
+ try{
+  admits(true,'living visible current public attack retains accessible attempt-only whoosh');
+  current={...current,units:[{...unit,action:'guard'}]};
+  admits(false,'cached attack cannot sound after CURRENT authority cancelled it');
+  current={...current,units:[{...unit,hp:0}]};
+  admits(false,'current dead performer cannot be a sword source');
+  current={...current,units:[{...unit,actionTick:10}]};
+  admits(false,'previous action tick does not authorize fresh whoosh');
+  current={...current,units:[{...unit,x:4}]};
+  admits(false,'an authoritative different cell is not the drawn source');
+  current={...current,units:[{...unit,kind:'mystic'}]};
+  admits(false,'reused ID with different kind cannot borrow a whoosh');
+  current={...current,units:[{...unit},{...unit}]};
+  admits(false,'duplicate current public IDs are ambiguous, never array-first');
+  current={...current,units:[{...unit}],tick:12};
+  admits(false,'old tick cannot play from a new public snapshot');
+  current={...current,tick:11,run:2};
+  admits(false,'another run cannot authorize the old scene');
+  current={run:1,floor:1,tick:11,units:[{...unit}]};
+  admits(true,'exact public attack recovers when authoritative witness is restored');
+  actor.root.visible=false;
+  admits(false,'no invisible or unloaded emitter gains sound');
+  assert.equal(stage.stats().reservedInstances,102,'no additional retained instances');
+  assert.ok(stage.stats().activeDrawCalls<=7,'no additional render draw calls');
+ }finally{stage.dispose()}
+});
