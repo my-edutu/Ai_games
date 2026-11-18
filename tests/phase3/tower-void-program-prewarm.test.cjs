@@ -10,10 +10,12 @@ function fakeThree(){
  const disposed=[];
  class Scene {constructor(){this.children=[];}add(o){this.children.push(o);}clear(){this.children=[];}}
  class BoxGeometry {dispose(){disposed.push('geometry');}}
+ class DataTexture {dispose(){disposed.push('texture');}}
  class MeshStandardMaterial {constructor(o){this.settings=o;}dispose(){disposed.push('material');}}
  class Mesh {constructor(g,m){this.geometry=g;this.material=m;}}
- class InstancedMesh extends Mesh {}
- return {Three:{Scene,BoxGeometry,MeshStandardMaterial,Mesh,InstancedMesh},disposed};
+ class InstancedMesh extends Mesh {constructor(g,m,count){super(g,m);this.isInstancedMesh=true;this.count=count;}}
+ return {Three:{Scene,BoxGeometry,DataTexture,MeshStandardMaterial,Mesh,InstancedMesh,
+   SRGBColorSpace:'srgb'},disposed};
 }
 const src={floor:8,theme:'clockwork',lifecycle:'running',runToken:'exp-a',tick:30,player:{health:30}};
 const opts={camera:'follow',stale:false,quality:'low'};
@@ -28,7 +30,22 @@ test('prewarms only a legitimate real Clockwork frame with one offscreen compile
  assert.equal(warm.begin(src,opts),true);
  assert.equal(warm.begin(src,opts),false);
  assert.equal(calls,1);assert.equal(observed.live,live);assert.equal(observed.camera,camera);
- assert.equal(observed.stage.children.length,5);
+ assert.equal(observed.stage.children.length,7,
+   'include real original weathered stone shader and both static/instanced variants');
+ assert.equal(observed.stage.children.filter(m=>m.isInstancedMesh).length,2);
+ const originalStone=observed.stage.children.filter(m=>
+   m.material?.customProgramCacheKey?.()==='tower-original-triplanar-stone-v1');
+ assert.equal(originalStone.length,2,'exact same shader owner must compile in rigid and instanced forms');
+ assert.equal(originalStone.filter(m=>m.isInstancedMesh).length,1);
+ const shader={uniforms:{},vertexShader:'#include <begin_vertex>',
+   fragmentShader:'#include <color_fragment>\n#include <roughnessmap_fragment>\n#include <normal_fragment_maps>'};
+ originalStone[0].material.onBeforeCompile(shader);
+ assert.match(shader.vertexShader,/vTowerStonePosition/);
+ assert.match(shader.fragmentShader,/towerStoneSample/);
+ assert.equal(shader.uniforms.towerStoneAvailable.value,0,
+   'shader prewarming must never claim real stone texture availability');
+ assert.equal(warm.diagnostics().originalWeatheredStoneVariants,2);
+ assert.equal(warm.diagnostics().ownedPrewarmStoneTextures,1);
  assert.equal(warm.diagnostics().phase,'compiling');
  warm.onSubmittedFrame({...src,floor:8});
  releaseWork();await new Promise(r=>setImmediate(r));
@@ -36,7 +53,8 @@ test('prewarms only a legitimate real Clockwork frame with one offscreen compile
  assert.equal(disposed.length,0,'program references must persist before first real F9 submission');
  warm.onSubmittedFrame({...src,floor:9,tick:452});
  assert.equal(warm.diagnostics().phase,'released');
- assert.equal(disposed.length,5);
+ assert.equal(disposed.length,7);
+ assert.equal(warm.diagnostics().ownedPrewarmStoneTextures,0);
 });
 test('async GPU compile failure never fails authoritative gameplay',async()=>{
  const {createTowerVoidProgramPrewarm}=await load();
@@ -45,7 +63,7 @@ test('async GPU compile failure never fails authoritative gameplay',async()=>{
  assert.equal(warm.begin(src,opts),true);
  warm.onSubmittedFrame({...src,floor:9});rejectWork(new Error('webgl compile failed'));
  await new Promise(r=>setImmediate(r));
- assert.equal(warm.diagnostics().phase,'failed-open');assert.equal(f.disposed.length,5);
+ assert.equal(warm.diagnostics().phase,'failed-open');assert.equal(f.disposed.length,7);
 });
 test('source restart retires old asynchronous shader program owner',async()=>{
  const {createTowerVoidProgramPrewarm}=await load();const f=fakeThree();let finish;
@@ -53,7 +71,7 @@ test('source restart retires old asynchronous shader program owner',async()=>{
  assert.equal(warm.begin(src,opts),true);
  warm.onSubmittedFrame({...src,runToken:'exp-b',tick:1,floor:8});
  finish();await new Promise(r=>setImmediate(r));
- assert.equal(warm.diagnostics().phase,'released');assert.equal(f.disposed.length,5);
+ assert.equal(warm.diagnostics().phase,'released');assert.equal(f.disposed.length,7);
 });
 test('real scene wires graphics-loss cleanup and reports passive warmup status',()=>{
  const text=fs.readFileSync(path.join(__dirname,'../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
@@ -83,7 +101,7 @@ test('source-authenticated deferred shaft keeps prepared GPU programs until its 
  assert.equal(f.disposed.length,0);
  warm.onSubmittedFrame({...src,floor:9,tick:460},receipt(460,true));
  assert.equal(warm.diagnostics().phase,'released');
- assert.equal(f.disposed.length,5);
+ assert.equal(f.disposed.length,7);
 });
 test('deferred shader references cannot leak indefinitely or be retained under a forged run/receipt',async()=>{
  const {createTowerVoidProgramPrewarm}=await load();
@@ -101,7 +119,7 @@ test('deferred shader references cannot leak indefinitely or be retained under a
    a.warm.onSubmittedFrame({...src,floor:9,tick:452+index},receipt(452+index));
  assert.equal(a.warm.diagnostics().phase,'released',
    '24 unseen GPU returns are an absolute bound on held program references');
- assert.equal(a.f.disposed.length,5);
+ assert.equal(a.f.disposed.length,7);
  const b=await create();
  b.warm.onSubmittedFrame({...src,floor:9,tick:452},{...receipt(452),runToken:'unrelated'});
  assert.equal(b.warm.diagnostics().phase,'released');
@@ -128,5 +146,5 @@ test('an async compile completing AFTER a real visible structural return release
    structuralVisibleOnSubmittedFrame:true});
  finish();await new Promise(r=>setImmediate(r));
  assert.equal(warm.diagnostics().phase,'released');
- assert.equal(f.disposed.length,5);
+ assert.equal(f.disposed.length,7);
 });
