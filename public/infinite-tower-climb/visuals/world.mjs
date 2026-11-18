@@ -1299,7 +1299,18 @@ export function createTowerWorld(){
   function finishBatches(){
     const boundaries=new Set([particles,vistaGroup,...platforms.values()].map(e=>e?.root||e).filter(Boolean));
     if(stagedVoidArchitecture?.root){
-      batchRigid(stagedVoidArchitecture.root);
+      // This owner now carries the FIRST genuinely earned original F9 Void
+      // vault, including its actual animated halo and five floating crystals.
+      // Rigid merging them here would silently bake source-tick animation
+      // into a static batch, despite keeping references in rotors/floaters.
+      // Keep the real moving meshes alive in their already-authored parent;
+      // batch only the supported stone and steel beside them. The standard
+      // deferred biome path keeps its own equivalent animation exclusion.
+      const animatedFirstReturn=new Set([
+        ...rotors.map(rotor=>rotor.o),
+        ...floaters.map(floater=>floater.o)
+      ]);
+      batchRigid(stagedVoidArchitecture.root,animatedFirstReturn);
       boundaries.add(stagedVoidArchitecture.root);
     }
     // Preserve the original three source-owned transition bearing batches
