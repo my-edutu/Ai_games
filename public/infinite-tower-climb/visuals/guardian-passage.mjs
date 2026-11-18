@@ -344,7 +344,12 @@ export function observedSourceEarnedAirborneHandoff(previous,next) {
 export function observedFloorNineRunway(previous, next) {
   if (previous?.floor !== 8 || next?.floor !== 9 ||
       !(observedGroundedGuardianHandoff(previous, next) ||
-        observedSourceEarnedDoorstepHandoff(previous,next)) ||
+        observedSourceEarnedDoorstepHandoff(previous,next) ||
+        // The authority witnessed grounded contact *before* this jump.
+        // Native first F9 browser frames are often airborne; the real
+        // old cap / new ground remains a physical route below the body.
+        // Only the exact, bounded same-run crossing receipt can prove it.
+        observedSourceEarnedAirborneHandoff(previous,next)) ||
       !Number.isSafeInteger(next.chunkBaseY) ||
       !Number.isSafeInteger(next.worldWidth) || next.worldWidth <= 0)
     return null;
@@ -1144,7 +1149,15 @@ export function createTowerGuardianPassage(THREE) {
     capRouteEdges.instanceMatrix.needsUpdate=true;
     if(capInlay.instanceColor)capInlay.instanceColor.needsUpdate=true;
     if(capRouteEdges.instanceColor)capRouteEdges.instanceColor.needsUpdate=true;
-    updateInlaySourceProgress(next);
+    // Highlight only source-certified BOOT contact. A skipped browser frame
+    // may first arrive airborne above the real roof; its x is *not* another
+    // grounded footstep. The immutable crossing stores the last actual
+    // contacted X. Do not invent an intermediate source snapshot.
+    if(next.player.grounded===true)updateInlaySourceProgress(next);
+    else updateInlaySourceProgress({
+      tick:next.lastGuardianCrossing.sourceTick,
+      player:{x:next.lastGuardianCrossing.crossingX}
+    });
     return true;
   }
   // Follow ONLY the supported source floor-nine ground. Leave old progress
@@ -1156,17 +1169,26 @@ export function createTowerGuardianPassage(THREE) {
       stage!=='handoff' || !continuousGroundedHandoff ||
       inlayMode!=='successor-ground') return false;
     const p=source?.player;
-    if(source.runToken!==runToken || source.floor!==floor ||
-      source.lifecycle!=='running' || !(p?.health>0) ||
-      p.grounded!==true || (p.groundedPlatformId!==`f${floor}:ground` &&
-        !observedRecordedGuardianDoorstepHandoff(source))) {
+    const groundedContact=p?.grounded===true &&
+      (p.groundedPlatformId===`f${floor}:ground` ||
+        !!observedRecordedGuardianDoorstepHandoff(source));
+    // Do not erase a real, supported successor roof on the first airborne
+    // source packet when the authority already recorded the exact grounded
+    // crossing. Flight only keeps EXISTING unlit roof marks; it never
+    // advances their earned color or extends the crossing lease.
+    const certifiedFlight=p?.grounded===false &&
+      !!observedRecordedGuardianAirborneHandoff(source);
+    if(source?.runToken!==runToken || source?.floor!==floor ||
+      source?.lifecycle!=='running' || !(p?.health>0) ||
+      (!groundedContact && !certifiedFlight)) {
       capInlay.visible=false; capInlay.count=0;
       capRouteEdges.visible=false;capRouteEdges.count=0;
       inlayMode='retired';
       return false;
     }
-    if(Number.isSafeInteger(source.tick) && source.tick>inlaySourceTick &&
-       Number.isFinite(p.x)) updateInlaySourceProgress(source);
+    if(groundedContact && Number.isSafeInteger(source.tick) &&
+       source.tick>inlaySourceTick && Number.isFinite(p.x))
+      updateInlaySourceProgress(source);
     return true;
   }
   function poseFragments(seconds, still) {
