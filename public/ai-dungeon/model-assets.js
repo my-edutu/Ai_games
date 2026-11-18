@@ -4127,6 +4127,9 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
    actionAge:since,frameDelta:dt,frameInterval:sourceFrameInterval,visible:sourceFrameVisible,reducedMotion,
     teleport:Boolean(actor.locomotionTeleport)
   });
+  if(actor.fullBody.mode!=='move'||actor.fullBody.interrupted||
+   actor.locomotionTeleport||reducedMotion)
+   actor.sourceWalkingFadeLastProof=null;
   if(actor.fullBody.interrupted)actor.fullBodyInterruptions=Math.min(1000000,(actor.fullBodyInterruptions||0)+1);
   if(actor.fullBody.restarted)actor.fullBodyRestarts=Math.min(1000000,(actor.fullBodyRestarts||0)+1);
   const poseAge=actor.fullBody.age;
@@ -4339,6 +4342,28 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
   }
  }finally{
   if(priorWalkSpeed!==null)outgoing.setEffectiveTimeScale(priorWalkSpeed);
+ }
+ // Receipt from the ACTUAL single Three.js Mixer step. Exposed only on
+ // explicit rig diagnostic request, without additional skinned mesh reads.
+ if(actor.sourceWalkFadeStartedThisFrame===true&&
+  originalStep.sourceClipName==='Walking_A'&&
+  originalStep.sourceInstanceSame===true){
+  actor.sourceWalkingFadeLastProof={
+   source:'actual-original-Idle-Walking_A-same-frame-mixer',
+   sourceInstanceId:actor.assetRoot?.uuid??null,
+   witnessedTick:actor.u.actionTick??null,
+   clipName:actor.activeImportedClipName,
+   observedFrameIntervalSeconds:sourceFrameInterval,
+   witnessedRootTravelMeters:originalStep.groundedTravel,
+   originalRequestedFadeSeconds:originalStep.transitionFadeSeconds,
+   actualMixerDeltaSeconds:walkMixerDelta,
+   originalSourceStepSeconds:sourceStep,
+   appliedWalkingActionScale:walkingBlendRate,
+   originalPostMixerWeight:actor.activeClip?.getEffectiveWeight?.()??null,
+   originalPostMixerClipTimeSeconds:actor.activeClip?.time??null,
+   sourceFirstFrameOnly:true,
+   originalContactLocked:false
+  };
  }
  // The original Idle mixer can still rotate a paused Walking_A shoe by
  // blending its skinned thigh, knee and ankle tracks toward Idle. Release
@@ -5623,6 +5648,8 @@ function inspectSourceRigDeformation(actors){
    guardOwned:Boolean(actor.fullBody?.owner.guard),
    nativeLegOwnership:{
     originalRealTravelFade:actor.sourceRealTravelFadeReceipt??null,
+    // LAST real post-Mixer source clip proof; not contact or a plant.
+    originalWalkFadeLastProof:actor.sourceWalkingFadeLastProof??null,
     clipName:actor.activeImportedClipName??null,
     originalSourceWeight:actor.activeClip?.getEffectiveWeight?.()??null,
     overlayScale:actor.rigNativeLegOverlayScale??1,
