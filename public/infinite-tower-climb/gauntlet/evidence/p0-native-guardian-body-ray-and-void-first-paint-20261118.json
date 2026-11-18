@@ -953,5 +953,55 @@
       "forcePush": false,
       "draftPreserved": true
     }
+  },
+  "p0Run11ArchivedOriginalFilmAndUnfilmedLatestCamera20261118_1554": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenTransformationGitBlob": "11d74e436d893ffb38e9be90e8e073b02ebb6b7c",
+    "inspectedOriginalGameplaySourceSha": "f13902b076c72ea1cc6cdfcaea2b880c6076b754",
+    "inspectedCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44315786284",
+    "candidateDangerOriginalWebM": "https://github.com/my-edutu/Ai_games/actions/runs/44315786284/artifacts/14431574941",
+    "authenticFilming": "Unedited low-tier seed tower-transformation-capture-v1 normal-speed 25fps original Chromium WebM, source-pinned desktop 960x600 and portrait 390x844; complete 60+s danger clips reviewed in full-motion at the physical passage and through first Floor9 frames. Original frame-phase sidecars inspected alongside film; those sidecars alone do not prove gameplay.",
+    "nativeOriginalFilm": {
+      "desktop": {
+        "sourceGuardianCrossingTick": 475,
+        "sourceSearchSeconds": 24.814,
+        "originalDrawnFloor9HudSeconds": 26.5,
+        "originalSustainedVioletSeconds": 27.5,
+        "hudBeforeRecognizableVoidSeconds": 1,
+        "sourceToDrawnHudSeconds": 1.686,
+        "sourceToVioletSeconds": 2.686
+      },
+      "portrait": {
+        "sourceGuardianCrossingTick": 475,
+        "sourceSearchSeconds": 24.727,
+        "originalDrawnFloor9HudSeconds": 26.25,
+        "originalSustainedVioletSeconds": 27.25,
+        "hudBeforeRecognizableVoidSeconds": 1,
+        "sourceToDrawnHudSeconds": 1.523,
+        "sourceToVioletSeconds": 2.523
+      },
+      "primaryRealFootageDefect": "Hard bronze-to-violet visual break without a continuous readable walkable gateway composition; hero in portrait is dwarfed/partly obscured at historical bronze-to-F9 crossing. No demonstrated consecutive event-aligned original film frames proving full skinned hero + genuine opened HP-zero F8 gate + actually walkable F9 roof together in both viewports. Original WebM visual sampling and phase heuristics are NOT independently validated source-to-pixel crossing."
+    },
+    "lastCampaignResult": "All 8 original 60+s baseline/candidate videos and authentic ledge succeeded; strict source-event original-film pairing FAILED 0/2, despite 8/8 source timelines indexed with 0 integrity defects.",
+    "previousQuality": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44315786202",
+      "verdict": "9/10; all Tower Phase3 partitions and integrity succeeded; unrelated Phase6 maze-readiness-score timed out at 75s (exit124). Whole CI FAIL, not an experience score. No other-game edits."
+    },
+    "currentProductionCodeHeadAudited": "67c1127060b7546e784aefb33bca643c79ecfddb",
+    "currentUnfilmedCode": "Four Tower-only commits since last original candidate film include actual source-owned F8 cap/F9 underside full-sole ray checks and test coverage in successor-deck-visibility.mjs, tower-original-cap-skirt-sightline.test.cjs, tower-source-silhouette-successor-camera-rescue.test.cjs. No native experience claim for this code until film is inspected.",
+    "exactHeadNewOriginalCaptureRequestCommit": "ec7ff12f2db32ba17dd83ea915926ecd66b6aba4",
+    "requestFile": "public/infinite-tower-climb/gauntlet/capture-request.json",
+    "newCampaignStatus": "Request pushed to same PR68 branch. New run ID/artifact/quality result NOT YET VERIFIED through GitHub at evidence creation; no passing claim.",
+    "reviewVotes": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualHardwareFrameTimeP50P95P99": "NOT EVALUATED",
+    "actualDeviceMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Inspect new exact-source candidate full-motion baseline/candidate 9-job capture after real sole/cap improvements and correlate clock, original gate, full moving body, actual F9 grounded roof on two consecutive 1x desktop+portrait frames. If mismatch persists, rebuild physical scene handoff/renderer cold-start and original structural occluders as one P0 system, not opacity/camera microadjustments. Keep P1 blocked.",
+    "safety": "PR68 open draft, PR58 and frozen transformation SHA/blob untouched; no other games, merge, deployment, force push or draft conversion."
   }
 }
