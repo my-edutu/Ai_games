@@ -730,3 +730,70 @@ test('RED: exact licensed 133ms 390px swinging Vanguard three-joint sole gains p
  assert.equal(choose({...real,trials:[measured]}),null,
   'missing licensed starter may never produce a foot-pose correction');
 });
+
+
+// RED FIRST — second physically witnessed native 390px shoe at tick 8,
+// Actions #44233843203 artifact #14397695861 (original player_swordsman.glb).
+// 150ms measured skin probe, right toe at -99.102385mm and heel 199.072599mm;
+// the original -110/+110/+240mrad three-joint trial lifted the still-buried
+// toe 15.722129mm, heel 12.888112mm (pitch +2.834017mm), with no changed
+// supporting shoe. These XZ offsets model the separately measured signed
+// deltas; source foot coordinates were not emitted by this nested receipt.
+// The example tests controller selection, NOT a certified planted foot or
+// actual after-change pose. Original native WebGL must independently retest.
+test('RED: second real 150ms source-skinned Vanguard gait may keep its measured safer hip-knee-foot pitch across consecutive original walking samples',async()=>{
+ const {planOriginalSourceCoupledFootStarter:starterFn,
+  chooseOriginalSourceCoupledKneeFootSweep:choose}=await load();
+ const buried={heelY:.1990725988221172,toeY:-.09910238545436453,
+  heelXZ:[0,0],toeXZ:[.06736912337861349,0]};
+ const loaded={heelY:-.035933146809678185,
+  toeY:-.03596639891380841,
+  heelXZ:[1,0],toeXZ:[1.25,0]};
+ const afterPair=(toeLift,heelLift,support=loaded)=>({
+  right:{...buried,toeY:buried.toeY+toeLift,
+   heelY:buried.heelY+heelLift,
+   heelXZ:[.007156980118132039,0],
+   toeXZ:[.06736912337861349+.021465058087637365,0]},
+  left:{...support}
+ });
+ const source={...owner,side:'right',
+  before:{left:loaded,right:buried},frameInterval:.14999999999999858,
+  frameAge:.03,rootTravel:.04,starterTrials:[
+   {upperRad:.12,lowerRad:-.09,
+    after:afterPair(-.011228157020910401,-.03184780005077947)},
+   {upperRad:-.12,lowerRad:.09,
+    after:afterPair(.02078329607562064,.028289055074330216)}
+  ]};
+ const starter=starterFn(source);
+ assert.equal(starter?.source,'actual-original-source-three-joint-swing-opportunity');
+ assert.equal(starter?.sign,-1);
+ const measured={upperRad:-.11,lowerRad:.11,footRad:.24,
+  after:afterPair(.015722129495721132,.012888111720327555)};
+ const safe=choose({...source,starter,trials:[measured]});
+ assert.equal(safe?.source,'measured-original-skinned-coupled-knee-foot',
+  'do not drop a second witnessed same-GLB heel-safe joint chain solely because the source frame took 150ms');
+ assert.equal(safe?.sourceJointCount,3);
+ assert.equal(safe?.oppositeShoePreserved,true);
+ assert.equal(safe?.contactLocked,false);
+ assert.ok(safe.toeLiftMeters>.0157&&safe.toeLiftMeters<.0158);
+ assert.ok(safe.toeLiftMeters-safe.sourceHeelRiseMeters>.0028);
+ assert.ok(safe.afterToeY<source.floorTopY-.06,
+  'even this accepted candidate remains a deeply buried swing toe, NEVER certified contact');
+ for(const bad of [
+  {frameInterval:.13},{frameInterval:.17},{rootTravel:0},
+  {frameAge:.16},{sourceWeight:.91},{sourceChainVerified:false},
+  {sourceFootTrackVerified:false},{sourceBindVerified:false},
+  {sourceAnatomicalFootAxisVerified:false},{ownerLocomotion:false},
+  {alive:false},{reducedMotion:true},{teleport:true},{interrupted:true},
+  {sourceClipName:'Idle'}
+ ])assert.equal(choose({...source,...bad,starter,trials:[measured]}),null,
+  'only original licensed moving rig and witnessed second source window can use this relief');
+ for(const bad of [
+  {...measured,footRad:.36},
+  {...measured,after:afterPair(.01572,.0151)},
+  {...measured,after:afterPair(.009,.002)},
+  {...measured,after:afterPair(.015722,.012888,
+   {...loaded,toeY:loaded.toeY+.008})}
+ ])assert.equal(choose({...source,starter,trials:[bad]}),null,
+  'reject heel-dominant swing, missing source toe gain, changed loaded shoe or angle');
+});
