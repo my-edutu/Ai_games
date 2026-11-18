@@ -96,6 +96,13 @@ test('first earned F9 WebGL room shares a genuinely far-side Void structural bea
       'the same genuine HP-open old guardian doorway remains co-owned');
     assert.ok(world.group.getObjectByName('platform:f9:ground')?.isGroup,
       'actual Floor9 landing physics/rendered geometry is never deferred');
+    const cold=world.diagnostics().sourceEarnedFirstReturnInstancing;
+    assert.ok(cold.preservedOriginalInstanceDraws>0 && cold.preservedOriginalInstanceDraws<=8,
+      'the source-earned real wide landing uses actual retained original Three instancing, not a policy-only no-op');
+    assert.ok(cold.estimatedAvoidedPackedBytes>=cold.preservedOriginalInstanceDraws*16384,
+      'the source-qualified first returned frame avoids real repeated CPU vertex packing');
+    assert.ok(cold.existingSourceAndMatricesBytes<cold.packedBatchBytesIfExpanded,
+      'original source attribute and instance matrices are cheaper than expanding vertices');
     assert.equal(world.group.getObjectByName('deferred-original-floor-nine-architecture'),undefined,
       'the expensive noninteractive shell is still absent before the first returned frame');
     assert.equal(world.diagnostics().deferredDistantArrival.actualFirstFrameVoidBearingIndex,0);
