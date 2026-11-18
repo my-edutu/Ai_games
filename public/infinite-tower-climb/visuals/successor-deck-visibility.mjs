@@ -296,3 +296,51 @@ export function protectSourceSuccessorUndercroft({
   return {active:true,meshes:safeEntries.length,rays,softened,
     limitation:'Final-camera real successor 3D underside triangle visibility only; source progression and walkable tops unchanged; not a native film pass'};
 }
+
+/**
+ * P0: the renderer's rigid batching removes the original source-platform
+ * Mesh and uploads its triangles under a new mesh. An obsolete reference
+ * cannot raycast the actual submitted undercroft, even when it still carries
+ * the same material. Rebind only the two non-walkable, uniquely material-owned
+ * source skirts to the real root-attached packed triangles; no new GPU draws,
+ * invented collision, proxy destination, frame clock or source mutation.
+ *
+ * A missing/ambiguous rendered owner fails closed: callers restore fully
+ * opaque panels rather than granting unearned see-through geometry.
+ */
+export function rebindSourceOwnedUndercroft(root, entries) {
+  const result={bound:0,retained:0,rejected:0};
+  if(!root?.isGroup || !Array.isArray(entries) ||
+      entries.length<1 || entries.length>2)return result;
+  const packed=root.children.filter(mesh=>mesh?.isMesh &&
+    mesh.name==='rigid-material-batch' &&
+    mesh.geometry?.attributes?.position);
+  const used=new Set();
+  for(const entry of entries){
+    if(!entry?.material || used.has(entry.material)){
+      if(entry)entry.mesh=null;
+      result.rejected++;
+      continue;
+    }
+    used.add(entry.material);
+    const candidates=packed.filter(mesh=>mesh.material===entry.material);
+    if(candidates.length===1){
+      entry.mesh=candidates[0];
+      result.bound++;
+      continue;
+    }
+    // The actual old guardian-cap skirt is deliberately kept out of the
+    // batching tree. Accept that live owner only when still attached to
+    // precisely the genuine source-platform group.
+    let parent=entry.mesh;
+    while(parent && parent!==root)parent=parent.parent;
+    if(parent===root && entry.mesh?.isMesh &&
+        entry.mesh.material===entry.material && candidates.length===0)
+      result.retained++;
+    else {
+      entry.mesh=null;
+      result.rejected++;
+    }
+  }
+  return result;
+}

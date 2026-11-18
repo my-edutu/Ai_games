@@ -332,3 +332,98 @@ test('old-cap sightline is owned by the genuine retained F8 deck and the final c
   assert.match(scene,/deckViewBeforeThreshold = world\.measureSuccessorDeckVisibility/);
   assert.match(scene,/originalCapBlockedBodyRays>deckViewBeforeThreshold\.originalCapBlockedBodyRays/);
 });
+
+
+test('real uploaded successor skirt replaces a detached authored ray mesh after static batching, in both actual viewport ratios',async()=>{
+  const THREE=await three;
+  const {rebindSourceOwnedUndercroft,protectSourceSuccessorUndercroft:protect}=await loaded;
+  for(const aspect of [960/600,390/844]){
+    const roof=new THREE.Group(),scene=new THREE.Scene();scene.add(roof);
+    const tint=new THREE.MeshStandardMaterial({color:0x69557e});
+    const mat=tint.clone();
+    const oldGeometry=new THREE.BoxGeometry(2.5,4,1.2);
+    const detached=new THREE.Mesh(oldGeometry,mat);
+    detached.position.set(30,2,2.4);
+    roof.add(detached);
+    roof.remove(detached); // Exactly what batchRigid does to authored meshes
+    const originalTop=new THREE.Mesh(new THREE.BoxGeometry(4,.15,2),
+      new THREE.MeshStandardMaterial({color:0xb8b0e0}));
+    originalTop.position.set(0,5,2.4);roof.add(originalTop);
+    // Same uploaded material, but REAL renderer triangles now live at this
+    // root-attached batched object, not at the detached authoring transform.
+    const packed=new THREE.Mesh(new THREE.BoxGeometry(2.5,4,1.2),mat);
+    packed.name='rigid-material-batch';
+    packed.position.set(0,2,2.4);
+    packed.geometry.userData.originalTriangleOwners=[
+      {startFace:0,endFace:12,authoringPath:'platform:f9:gateway-step/outerUnder'}];
+    roof.add(packed);
+    scene.updateMatrixWorld(true);
+    const camera=new THREE.PerspectiveCamera(55,aspect,.1,100);
+    camera.position.set(0,2,6);camera.updateMatrixWorld(true);
+    const entry={mesh:detached,material:mat,tint};
+    const args={source:{runToken:'real-original-gateway',floor:9,
+        theme:'void',lifecycle:'running',tick:478,
+        player:{health:5,halfWidth:9000,halfHeight:14000}},
+      held:{runToken:'real-original-gateway',floor:9,sourceTick:475,
+        guardianGateRetained:true,oldCapId:'f8:cap',oldRoofY:345000,
+        thresholdX:310000},
+      camera,body:new THREE.Vector3(0,2,0),bodyHalfHeight:1.2,
+      gate:new THREE.Vector3(0,2,0),entries:[entry],
+      raycaster:new THREE.Raycaster(),direction:new THREE.Vector3(),
+      point:new THREE.Vector3(),hits:[],dt:1/25};
+    try{
+      assert.equal(protect(args).softened,0,
+        'detached original mesh cannot see the uploaded body obstruction');
+      assert.equal(mat.opacity,1);
+      const binding=rebindSourceOwnedUndercroft(roof,[entry]);
+      assert.deepEqual(binding,{bound:1,retained:0,rejected:0});
+      assert.equal(entry.mesh,packed,'ray probes now target real submitted triangles');
+      assert.equal(entry.mesh.parent,roof);
+      assert.ok(protect(args).softened>0,
+        'the genuine batched undercroft now yields to live body and gateway rays');
+      assert.equal(mat.opacity,.035);
+      assert.equal(mat.depthWrite,false);
+      assert.equal(originalTop.material.opacity,1);
+      assert.equal(originalTop.material.depthWrite,true);
+      args.source={...args.source,tick:550};
+      assert.equal(protect(args).active,false);
+      assert.equal(mat.opacity,1,'source expiry restores real opaque underside');
+      assert.equal(mat.depthWrite,true);
+    }finally{
+      oldGeometry.dispose();packed.geometry.dispose();mat.dispose();
+      tint.dispose();originalTop.geometry.dispose();originalTop.material.dispose();
+    }
+  }
+});
+test('ambiguous, forged and missing GPU batch owners cannot redirect source-owned skirt probes',async()=>{
+  const THREE=await three;
+  const {rebindSourceOwnedUndercroft:rebind}=await loaded;
+  const root=new THREE.Group(),material=new THREE.MeshStandardMaterial();
+  const old=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),material);
+  const first=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),material);
+  const second=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),material);
+  first.name=second.name='rigid-material-batch';
+  root.add(first,second);
+  const entry={mesh:old,material};
+  try{
+    assert.deepEqual(rebind(root,[entry]),{bound:0,retained:0,rejected:1},
+      'two identical submitted material owners do not grant a guess');
+    assert.equal(entry.mesh,null);
+    root.remove(second);
+    assert.deepEqual(rebind(root,[entry]),{bound:1,retained:0,rejected:0});
+    assert.equal(entry.mesh,first);
+    assert.deepEqual(rebind(new THREE.Group(),[entry]),{bound:0,retained:0,rejected:1});
+    assert.equal(entry.mesh,null);
+  }finally{
+    old.geometry.dispose();first.geometry.dispose();second.geometry.dispose();
+    material.dispose();
+  }
+});
+test('production binds authored F9 skirt references to physically present packed GPU triangles after batching',()=>{
+  const fs=require('node:fs');
+  const src=fs.readFileSync(path.resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
+  assert.match(src,/batchRigid\(p\.root,new Set/);
+  assert.match(src,/rebindSourceOwnedUndercroft\(p\.root,p\.sourceOwnedUndercroft\)/);
+  assert.match(src,/originalCapSkirtOwner/);
+});

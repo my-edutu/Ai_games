@@ -10,6 +10,7 @@ import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceFloorNineRouteSupport, observedSourceRetainedRaisedExit, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS, observedCertifiedOriginalGatewayOpticalLease } from './source-physical-arrival-palette.mjs';
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
+import { rebindSourceOwnedUndercroft } from './successor-deck-visibility.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, createSourceEarnedVoidDepartureMaterials, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections, isolateEarnedFirstFrameVoidMaterials } from './source-earned-bearing-run.mjs';
 import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold, observedSourceEarnedEarlyVoidShaftAperture, observedSourceSupportedVoidFirstPaint, observedEarnedGalleryExitClearance, observedReturnedGalleryHandoffClearance, observedFirstReturnedVoidBearingGalleryRetirement } from './far-side-shaft-transition.mjs';
@@ -1415,6 +1416,13 @@ export function createTowerWorld(){
       // components retain the normal rigid batching and unchanged physics.
       batchRigid(p.root,new Set([p.traveler,p.countergear,p.actuator,
         p.gearVisual,p.originalCapSkirtOwner].filter(Boolean)));
+      // Static batches are the meshes ACTUALLY submitted to WebGL. A
+      // previous camera ray queried removed authoring meshes while the
+      // visible non-walkable F9 undersides stayed opaque across the hero.
+      // Rebind to the unique uploaded material batch without creating
+      // another geometry draw, changing the solid landing top or AI state.
+      if(p.sourceOwnedUndercroft?.length)
+        rebindSourceOwnedUndercroft(p.root,p.sourceOwnedUndercroft);
     }
     for(const e of hazards.values()){
       batchRigid(e.live,new Set(e.spin?[e.spin]:[]));
