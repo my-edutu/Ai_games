@@ -6297,5 +6297,35 @@
     "reviewers": "LOOKS 0/5 FEELS 0/5 PLAYS 0/5",
     "hardware": "NOT EVALUATED",
     "safety": "Do not change baseline/PR58/draft/other games, merge/deploy/force push"
+  },
+  "p0ExactNewFirstReturnNativeCandidateRequest20261118": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "candidateProductionAndTestHead": "7cd3917191cc1ce2ed68ddb45530adfdf59c1c39",
+    "candidateCaptureCommit": "github.sha from this immutable request commit",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "seed": "tower-transformation-capture-v1",
+    "tier": "low",
+    "desktop": "960x600",
+    "portrait": "390x844",
+    "fps": 25,
+    "speed": "1x original continuous 60+s",
+    "scenarios": [
+      "ascent",
+      "moving",
+      "danger guardian + crusher + real F8→F9 gateway",
+      "outcome and restart"
+    ],
+    "why": "Last candidate source-earned initial-retained Three.InstancedMesh work at 7cd3917 had exact-source 10/10 CI but ZERO new native original videos; no visual/performance claim. Record and inspect true F9 first-render timing and actual visible complete hero, HP-open bronze gate, source-walkable F9 together in 2 consecutive source-paired frames in BOTH viewports.",
+    "comparison": "Frozen baseline must remain immutable, report unmatched source episodes as failed/not evaluated (not fabricated).",
+    "previousMeasurements": "Old a15ca05 original normal-speed candidate: first floor9 source accepted to renderer return 1099ms desktop / 1097ms portrait; HUD-to-recognizable Void 1.75s / 2.00s. Old measurements are NOT new candidate performance.",
+    "latestQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44233198669 10/10 success for 7cd3917, engineering veto only",
+    "reviewers": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "hardware": "NOT EVALUATED",
+    "next": "Inspect original WebMs, unedited source event sidecars, first F9 rebuilt CPU ms/renderer return, actual preserved instance draws, camera/sightline and strict pairing. Keep P0 until evidence passes."
   }
 }
