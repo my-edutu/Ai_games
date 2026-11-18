@@ -25,7 +25,7 @@ function renderedTriangle(hit,root) {
 }
 export function measureAuthoritativeDeckSightline({
   source,held,camera,body,bodyHalfHeight,gate=null,
-  platformRoots,originalGateRoot=null,originalCapRoot=null,architectureRoots=[],raycaster,direction,point,hits,stale=false
+  platformRoots,originalGateRoot=null,originalCapRoot=null,originalGalleryRoot=null,architectureRoots=[],raycaster,direction,point,hits,stale=false
 }={}) {
   if(stale || source?.floor!==9 || source.theme!=='void' ||
     source.lifecycle!=='running' || !(source.player?.health>0) ||
@@ -45,9 +45,21 @@ export function measureAuthoritativeDeckSightline({
       platformRoots.includes(originalCapRoot))) ||
     // Only existing source-owned structural groups, never a second scene,
     // proxy obstruction or duplicated gameplay collider. Bounded cold path.
+    // Preserve actual old-world bronze gallery as a separate, source-owned
+    // camera obstacle, never a forged/double-counted scene group.
+    (originalGalleryRoot!=null && (
+      !originalGalleryRoot.isGroup ||
+      originalGalleryRoot!==held.originalGalleryRoot ||
+      originalGalleryRoot===originalGateRoot ||
+      originalGalleryRoot===originalCapRoot ||
+      platformRoots.includes(originalGalleryRoot) ||
+      !finite(held.originalGallerySourceOpacity) ||
+      held.originalGallerySourceOpacity<0 ||
+      held.originalGallerySourceOpacity>1)) ||
     !Array.isArray(architectureRoots) || architectureRoots.length>2 ||
     !architectureRoots.every(root=>root?.isGroup &&
-      root!==originalGateRoot && root!==originalCapRoot && !platformRoots.includes(root)) ||
+      root!==originalGateRoot && root!==originalCapRoot &&
+      root!==originalGalleryRoot && !platformRoots.includes(root)) ||
     !raycaster?.set || !raycaster?.intersectObject ||
     !direction?.copy || !point?.copy ||
     !Array.isArray(hits) || (gate!=null && !valid3(gate)))return null;
@@ -61,12 +73,15 @@ export function measureAuthoritativeDeckSightline({
   // never use this gate as an occluder of its OWN gateway target.
   if(originalGateRoot?.visible!==false) originalGateRoot?.updateWorldMatrix(true,true);
   if(originalCapRoot?.visible!==false) originalCapRoot?.updateWorldMatrix(true,true);
+  if(originalGalleryRoot?.visible!==false && held.originalGallerySourceOpacity>.055)
+    originalGalleryRoot?.updateWorldMatrix(true,true);
   for(const root of architectureRoots)if(root.visible!==false)
     root.updateWorldMatrix(true,true);
   let blockedBodyRays=0, blockedGatewayRays=0, rays=0, realTrianglesChecked=0;
   let architectureBlockedRays=0;
   let originalGateBlockedRays=0;
   let originalCapBlockedRays=0,originalCapBlockedBodyRays=0,originalCapBlockedGatewayRays=0;
+  let originalGalleryBlockedRays=0,originalGalleryBlockedBodyRays=0,originalGalleryBlockedGatewayRays=0;
   // The 390px original footage keeps a centre ray clear while the actual
   // source-width skinned shoulder and the bronze door's upper lip disappear
   // behind real Floor9 underside triangles. Test the CURRENT source body,
@@ -122,6 +137,22 @@ export function measureAuthoritativeDeckSightline({
         blocked=true;architectureBlockedRays++;break;
       }
     }
+    // The non-colliding REAL old bronze gallery may obscure the skinned
+    // climber or open portal even when the platform, cap and guardian
+    // meshes clear. Check it BEFORE selecting a physical camera correction;
+    // the later transparency pass cannot rescue a rejected camera pose.
+    // This reuses the same nine body/gate rays, not a new source frame.
+    if(!blocked && originalGalleryRoot && originalGalleryRoot.visible!==false &&
+       held.originalGallerySourceOpacity>.055){
+      hits.length=0;
+      raycaster.intersectObject(originalGalleryRoot,true,hits);
+      realTrianglesChecked+=hits.length;
+      if(hits.some(hit=>renderedTriangle(hit,originalGalleryRoot))){
+        blocked=true;originalGalleryBlockedRays++;
+        if(sample<bodySamples)originalGalleryBlockedBodyRays++;
+        else originalGalleryBlockedGatewayRays++;
+      }
+    }
     // The original F8 cap and its real metallic rim remain in the same
     // physically walked F9 shot. Previous ray rescue checked F9 decks,
     // incoming bearings and the gate, but MISSED this enormous old cap:
@@ -160,6 +191,8 @@ export function measureAuthoritativeDeckSightline({
   return {active:true,rays,bodyBlockedRays:blockedBodyRays,
     originalGateBlockedRays,originalCapBlockedRays,
     originalCapBlockedBodyRays,originalCapBlockedGatewayRays,
+    originalGalleryBlockedRays,originalGalleryBlockedBodyRays,
+    originalGalleryBlockedGatewayRays,
     architectureBlockedRays,
     gatewayBlockedRays:blockedGatewayRays,
     score:blockedBodyRays*2+blockedGatewayRays,
