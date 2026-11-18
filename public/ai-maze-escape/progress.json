@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-18T08:33:05.075Z",
+  "updatedAt": "2026-11-18T09:08:26.764Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass476 candidate: real exact-HEAD Pass475 WebGL 7/8 (NOT GREEN), natural autonomous 320x740 tick94 earned recoil cropped full physical Pip left -0.955425 vs unchanged -0.95. Original partial artifact: 40 matching screenshot SHA sidecars, one JSON without PNG; 390 frame passed. New post-zoom connected dual-body camera-right correction requires strict fresh 8/8 original full-frame WebGL and critical visual review; no rendered win yet. Whole-repo 895/895 tests passed but job failed unrelated Tiny Kingdom OBS/artifact uploads. Nintendo benchmark NOT MET. Independent detached agents unavailable."
+    "summary": "Pass477 candidate: verified parent f7fb142 native WebGL SUCCESS 8/8 and six-reset <100; independently SHA checked original 40/40 full PNG sidecars + 3/3 genuine gate hashes from artifact 14411581601. Natural 320x740 earned parry full Pip left -.92047 and Thornback right +.92047 within unchanged +/-.95; artistically still crowded and Nintendo benchmark NOT MET. Built source-bound third-ring physically SEALED spectator relief only on genuinely visible blocked same-tier cells after public parry, excludes real pressure, keys/gates, no new geometry classes or AI/collision/map leaks. New exact-HEAD full gameplay screenshots/CI pending; do not claim a visual win. Whole repo parent 898/898 tests but failed unrelated Tiny OBS script. Independent critic/Ultracode workspace unavailable."
   },
   "captures": [
+    {
+      "title": "Pass476 original exact-HEAD WebGL SUCCESS 8/8; verified 40/40 PNG hashes, all 3 gate transition hashes; true 320px earned counter whole physical Pip/Thornback fit, Pass477 scenic candidate pending",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44268054641/artifacts/14411581601"
+    },
     {
       "title": "Pass474 exact-HEAD rendered candidate 8/8, 40/40 PNG sidecars + 3 original gate hashes verified; visual A/B REJECTED against Pass472",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44249648818/artifacts/14404415046"
