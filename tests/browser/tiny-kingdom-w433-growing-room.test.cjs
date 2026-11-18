@@ -58,15 +58,39 @@ test('W433 keep render code parseable and original authoritative economy untouch
 // Both versions of the town must let adult citizens approach a genuinely open
 // doorway; raising a false door texture alone does not meet this requirement.
 test('W435 founding and grown tall cottages retain adult-clear real entrances and roof supports',()=>{
- const match=source.match(/const jettyRoom=h>2\\.5,jettySill=([0-9.]+);/);
+ const match=source.match(/const jettyRoom=h>2\.5,jettySill=([0-9.]+);/);
  assert.ok(match,'actual growing-house storey datum exists');
  const sill=Number(match[1]);
  assert.ok(sill>=2.15,'tall grown lower room remains human height');
  const grown=makeShell().renderCompactOccupiedRoomShell(4,2,-3,2.5,2.2,sill-.18,0xb9aa91);
  assert.ok(grown.doorHeight>=1.7&&grown.doorWidth>=.76);
- assert.match(source,/doorHeight=1\\.72\\*scale/,'founding doorway uses adult clearance');
- assert.match(source,/renderOriginalOccupiedRoomShell\\(x,y,z,w,d,2\\.0\\*scale,scale,plasterTone\\)/);
+ assert.match(source,/doorHeight=1\.72\*scale/,'founding doorway uses adult clearance');
+ assert.match(source,/renderOriginalOccupiedRoomShell\(x,y,z,w,d,2\.0\*scale,scale,plasterTone\)/);
  const doors=source.slice(source.indexOf('function renderCottageHomecomingDoors('),source.indexOf('// W101: original working citizens'));
- assert.match(doors,/h=1\\.72,w=\\.70/,'actual swinging oak leaf occupies human-scale entry');
- assert.match(source,/const jettyRoom=h>2\\.5,jettySill=2\\.18/);
+ assert.match(doors,/h=1\.72,w=\.70/,'actual swinging oak leaf occupies human-scale entry');
+ assert.match(source,/const jettyRoom=h>2\.5,jettySill=2\.18/);
+});
+
+test('W436 growing settlement loft replaces the solid second-storey box with pierced real geometry',()=>{
+ assert.match(source,/function renderCompactOccupiedUpperLoft\\(/);
+ assert.match(source,/renderCompactOccupiedUpperLoft\\(x,y,z,w\\+\\.28,d\\+\\.36,jettySill,h-jettySill,plaster\\)/);
+ assert.doesNotMatch(source,/box\\(x,y\\+jettySill,z,w\\+\\.28,h-jettySill,d\\+\\.36,plaster\\)/);
+ assert.match(source,/getCompactOccupiedRoomAudit,getCompactUpperLoftAudit/);
+ const a=source.indexOf('function renderCompactOccupiedUpperLoft('),
+  b=source.indexOf('function compactHouse(',a);
+ assert.ok(a>0&&b>a);
+ const data=[],faces=[];
+ const loft=new Function('data','quad','materialScope','MATERIAL','rgb',
+  source.slice(a,b)+'return {renderCompactOccupiedUpperLoft,getCompactUpperLoftAudit};')(
+   data,(...args)=>{faces.push(args);for(let i=0;i<60;i++)data.push(0)},
+   (_,f)=>f(),{PLASTER:1,WOOD:2,WINDOW_GLOW:3},v=>v);
+ const result=loft.renderCompactOccupiedUpperLoft(3,1,-2,3.0,2.5,2.18,1.2,0xeeeeee);
+ assert.equal(result.triangles,54);
+ assert.equal(result.windowApertures,2);
+ assert.equal(result.changesWorldAuthority,false);
+ assert.equal(result.extraGpuBuffers,0);
+ assert.equal(loft.getCompactUpperLoftAudit().triangles,54);
+ assert.equal(loft.getCompactUpperLoftAudit().instances,1);
+ assert.equal(faces.length,27);
+ assert.throws(()=>loft.renderCompactOccupiedUpperLoft(0,0,0,2,2,2,.3,0),/dimensions invalid/);
 });

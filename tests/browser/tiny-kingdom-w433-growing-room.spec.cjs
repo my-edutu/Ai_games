@@ -59,6 +59,7 @@ for(const width of [1024,390]){
   const after=await page.evaluate(()=>{
    const game=window.__tinyKingdom;
    return {audit:game.getCompactOccupiedRoomAudit(),
+    loft:game.getCompactUpperLoftAudit(),
     stats:game.renderStats(),
     metrics:game.metrics(),
     gl:document.getElementById('world').getContext('webgl')?.getError()??-1,
@@ -66,6 +67,12 @@ for(const width of [1024,390]){
     checksum:game.exportSnapshot().checksum};
   });
   expect(after.metrics.day).toBeGreaterThanOrEqual(120);
+  expect(after.loft.newGpuBuffers).toBe(0);
+  expect(after.loft.changedAuthority).toBe(false);
+  if(result.houses.some(h=>h.compact&&(h.style===1||h.style===3))){
+   expect(after.loft.instances).toBeGreaterThan(0);
+   expect(after.loft.windowApertures).toBeGreaterThanOrEqual(2);
+  }
   expect(after.audit.currentOriginalHouseholds).toBe(result.houses.length);
   expect(after.audit.modifiedEconomy).toBe(false);
   expect(after.stats.lastFrameTriangles).toBeLessThan(160000);
@@ -80,7 +87,8 @@ for(const width of [1024,390]){
    JSON.stringify({viewport:width,sourceWorld:'unchanged-original-seed-steps',
     day:after.metrics.day,households:result.houses.length,
     actualCompactHomes:result.houses.filter(h=>h.compact).length,
-    originalRoom:after.audit,submittedTriangles:after.stats.lastFrameTriangles,
+    originalRoom:after.audit,upperLoft:after.loft,
+    submittedTriangles:after.stats.lastFrameTriangles,
     gl:after.gl,errors,sourceCommit:process.env.GITHUB_SHA||'local-branch',
     nativeHardwareFps:'NOT MEASURED',independentBlindedAB:'NOT PROVEN'},null,2));
   const video=page.video();await page.close();
