@@ -935,10 +935,12 @@ function readOriginalSwingSoleY(candidate){
 
 
 /**
- * Original weighted Walking_A skinned shoe load, not a new foot-lock or IK.
- * Run after this frame's visual body/root composition and before original
- * ankle/calf safety probes. The source mixer remains the exclusive base-pose
- * owner. Recheck after all six original leg mounts have been drawn.
+ * Original weighted Walking_A skinned support, not a foot-lock or IK.
+ * This historically named helper now executes AFTER original clip, all six
+ * mounted source leg overlays and stance/skid reconciliation. Read both
+ * finalized original weighted heel/toe patches, then audit the complete
+ * skinned visual-pelvis offset before the frame's durable evidence receipt.
+ * The mixer remains the exclusive source owner; never move authority.
  */
 function stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion){
  actor.sourceLoadedPelvisFrameProof=null;
@@ -953,6 +955,17 @@ function stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion){
    bones.some(m=>m.side===side&&m.part===part&&m.bone?.isBone)));
  const previous=actor.sourceLoadedPelvisLiftMeters||0;
  actor.sourceLoadedPelvisLiftMeters=0;
+ // A real original leg correction that already claimed this frame wins over
+ // a secondary whole-body lift. Do not double-spend source-skin work or
+ // falsify the cached final outsole evidence after a confirmed swing/stance.
+ const hasSourceLegClaim=['left','right'].some(side=>
+  actor.sourceSwingLinkedCurrentFrameProofs?.[side]||
+  actor.sourceSwingThighCurrentFrameProofs?.[side]||
+  actor.sourceNeutralSwingCurrentFrameProofs?.[side]||
+  actor.sourceStanceKneeCurrentFrameProofs?.[side]||
+  actor.sourceStanceSoleCurrentFrameProofs?.[side]||
+  actor.sourceSwingToeCurrentFrameProofs?.[side]);
+ if(hasSourceLegClaim||actor.sourceSwingToeCorrectionsThisFrame>0)return;
  if(!fullSourceLegs||actor.fullBody?.mode!=='move'||actor.activeImportedClipName!=='Walking_A'||
   actor.fullBody?.owner?.locomotion!==true||
   actor.u.hp<=0||actor.root?.visible!==true||reducedMotion||
@@ -4583,9 +4596,10 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
  stageRigPelvisAfterMixer(actor);
  stageRigArmsAfterMixer(actor,poseAge,reducedMotion);
  stageRigForearmsAfterMixer(actor,poseAge,reducedMotion);
- stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion);
+ // The original license-owned clip/leg chain must settle BEFORE measuring
+ // the actual weighted stance foot. A pre-leg pelvis lift was being undone
+ // when later source ankle/knee trials changed the same shoe.
  stageRigLegsAfterMixer(actor,poseAge,reducedMotion);
- auditSourceLoadedPelvisAfterLegs(actor,poseAge,reducedMotion);
  stageRigMeleeAfterMixer(actor,poseAge,reducedMotion,sourceFrameInterval,sourceFrameVisible);
  stageRigRangedAfterMixer(actor,poseAge,reducedMotion);
  stageSkinnedHitAfterMixer(actor,reducedMotion);
@@ -4595,6 +4609,13 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
  stageOriginalSourceSwingLinkedToesAfterMixer(actor,reducedMotion);
  stageOriginalSourceSwingLinkedFootAfterMixer(actor,reducedMotion);
  stageOriginalSourceStanceSlideAfterMixer(actor,reducedMotion,sourceFrameInterval,sourceFrameVisible);
+ // This is the LAST original source-skin presentation adjustment, after
+ // every animated thigh/knee/ankle and root skid correction. Measure both
+ // FINAL shoes, lift only a witnessed loaded sole, re-skin, and roll back
+ // atomically before storing the actual frame receipt. No extra probes:
+ // the same existing pelvis dual-shoe read is simply ordered after legs.
+ stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion);
+ auditSourceLoadedPelvisAfterLegs(actor,poseAge,reducedMotion);
  rememberOriginalSourceAppliedSwingEvidence(actor);
  if(actor.draperyPanels?.length){
   const clothAction=actor.fullBody?.mode??actor.u.action??'idle';
