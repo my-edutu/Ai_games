@@ -6542,5 +6542,20 @@
     },
     "realDeviceFrameTimesAndMemory": "NOT EVALUATED",
     "safety": "No baseline/PR58/other games changes, merge, deployment, force push or draft status changes"
+  },
+  "p0PhysicalF9HistoricGalleryCorridor20261118": {
+    "stage": "P0 OPEN",
+    "sourceImplementationSha": "82949ec02aea6d2d92d6f725161b8add7682dc8c",
+    "pin": "IMMUTABLE github.sha OF THIS capture-request COMMIT",
+    "baseline": "1731b380851162741761c5569e2bc152a0869ca9",
+    "exactSourceCI": "https://github.com/my-edutu/Ai_games/actions/runs/44315381289",
+    "priorOriginalFilm": "https://github.com/my-edutu/Ai_games/actions/runs/44297553260",
+    "lastObserved": "Desktop and portrait source-crossing visual acceptance failed; old bronze foreground still masks climber/gateway. Prior strict paired native events 0/2.",
+    "capture": "Original source-authentic uninterrupted normal-speed baseline/candidate videos in ascent, moving, danger with earned guardian/physical crossing, and outcome/restart. Desktop 960x600 and portrait 390x844, source sidecars and accurate event pairing, >=60s each, seed tower-transformation-capture-v1 low tier, no recuts.",
+    "measurement": "Inspect whether original F8 gallery is absent from real F9 annular walking/raised headroom in native frames, while old HP-open gateway and outer load-bearing bronze still visibly connect to actual next floor; verify first-return cost, no cap clipping, no blank or new stall; 2+ consecutive source-paired frames in both viewports.",
+    "independentCritics": "0/5 each LOOKS, FEELS, PLAYS; never synthetic",
+    "actualDeviceP50P95P99Memory": "NOT EVALUATED",
+    "result": "NOT EVALUATED until real original WebM, exact event pairing, hardware and five genuinely independent critics pass.",
+    "restrictions": "Do not modify frozen baseline, PR58 or unrelated games; never merge/deploy/force-push/mark draft ready."
   }
 }

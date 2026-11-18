@@ -908,5 +908,50 @@
     "safety": "PR68 DRAFT, PR58 unchanged, frozen SHA and blob unchanged; no merge, deploy, force-push, unrelated game edits.",
     "followUpOriginalExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44306208975 — Phase3 shard3 (adaptive resolution) PASS after first fix; Phase3 shard2 FAIL now in another CPU scene mock tests/phase3/tower-lighting-resource.test.cjs; precise same missing world.sourceEarnedOriginalGateGeometry interface observed as 0 expected 1 first render and 0 expected 4 PMREM. Fix third Tower fixture; Phase6 independent run may still fail, no claim of all-green.",
     "followUpChange": "Extend the same authentic no-gate null-return fixture contract to lighting/reflection resource runner; no production or assertions touched."
+  },
+  "p0PhysicalF9HistoricGalleryCorridor20261118": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "sourceImplementationSha": "82949ec02aea6d2d92d6f725161b8add7682dc8c",
+    "branch": "feat/tower-transformation-gauntlet-20261101",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "mainDefectObservedPriorSource": "Original native 25fps desktop+portrait films still have ~0.75s of HUD9-first then Void world; historical bronze foreground obscures a complete hero + original HP-open gate + genuine F9 roof together. Source/native frame pairing FAILED in both viewports; no new film for this commit yet.",
+    "verifiedCodeGap": "Historical extracted original F8 gallery physically subtracts an initial gate box (r22..33,t<=12) and an exterior landing volume (r31..50), but leaves OLD noncolliding steel at real source F9 walkable radius r~25 between tangent 12m and 30m. The complete skinned hero crosses this literal gap before historical steel is retired.",
+    "realPlayableCodeChange": "Added one source-original triangle polygon-clipping volume r22..31.5, tangent 10..32, height old roof -2..+26, continuous with already source-authorized gate aperture. Only the extracted noncolliding historical gallery is cut; source original F8 geometry, HP gate, roofs, real F9 platforms, guardian/crusher and collisions unchanged. Existing source-mesh UV/normal interpolation and 3600 face/8 material bounds remain.",
+    "changedPaths": [
+      "public/infinite-tower-climb/visuals/world.mjs",
+      "tests/phase3/tower-original-threshold-gallery-priority.test.cjs"
+    ],
+    "regression": "Added real THREE original bearing-ray tests for previously obstructing r25/t17 roof post and r25/t24 raised headroom, while retaining a r40/t23 original exterior load path; existing continuous-gallery regression flank moved from now-authentic walking lane to outside support.",
+    "previousExactHeadQuality": {
+      "source": "4c7ad40ded3ee7f9bafeb66a58bf6cda86e5c78a",
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44306549073",
+      "result": "9/10 completed success; unrelated Phase6 job failed. This is NOT the quality result of new implementation."
+    },
+    "pendingQuality": {
+      "source": "82949ec02aea6d2d92d6f725161b8add7682dc8c",
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44315381289",
+      "status": "Queued at inspection, not passed"
+    },
+    "captureRequest": "Same-branch capture-request.json update in evidence commit, candidate must be pinned to capture commit's immutable github.sha (not production SHA alone). No new original video has yet been evaluated.",
+    "testExecution": "No local project checkout or browser; focused test not executed locally. Exact-head CI queued. Pure code and source-Git-object inspection only; zero gameplay performance or film improvement claimed.",
+    "genuineIndependentReviewCounts": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "hardwareFrameP50P95P99": "NOT EVALUATED",
+    "hardwareMemory": "NOT EVALUATED",
+    "eventAlignedNativeGatewayCoVisibility": "NOT VERIFIED (0/2 viewports)",
+    "nextHighImpact": "Inspect exact-source quality AND unedited desktop/portrait 1x original gameplay + source timestamps. Require consecutive source-aligned frames showing full skinned hero, HP-open original gate and actual walkable F9. If still obstructed, ray-identify remaining original cap/guardian/camera triangle and correct physical geometry; do not advance P0.",
+    "safety": {
+      "baselineModified": false,
+      "pr58Modified": false,
+      "otherGamesModified": false,
+      "merge": false,
+      "deploy": false,
+      "forcePush": false,
+      "draftPreserved": true
+    }
   }
 }
