@@ -34,7 +34,7 @@ test('W434 flanking canopy geometry replaces the obstructing spanning roofs in B
   assert.match(v,/for\(const side of \[-1,1\]\)/);
  }
  assert.match(source,/renderCompactOccupiedRoomShell\(x,y,z,w,d,jettySill-\.18,plaster\)/);
- assert.match(source,/renderOriginalOccupiedRoomShell\(x,y,z,w,d,1\.36\*scale,scale,plasterTone\)/);
+ assert.match(source,/renderOriginalOccupiedRoomShell\(x,y,z,w,d,2\.0\*scale,scale,plasterTone\)/);
 });
 test('W434 original renderer and economic authority still parse and exist',()=>{
  for(const m of source.matchAll(/<script>([\s\S]*?)<\/script>/g))new Function(m[1]);

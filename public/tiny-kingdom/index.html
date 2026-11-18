@@ -8888,7 +8888,7 @@ function renderOriginalOccupiedRoomShell(x,y,z,w,d,wallHeight,scale,plasterTone)
   throw Error('W432 original cottage room dimensions invalid');
  const before=data.length,base=y+.19*scale,
   thickness=.135*scale,doorWidth=.76*scale,
-  doorHeight=1.27*scale,doorSide=(w-doorWidth)*.5;
+  doorHeight=1.72*scale,doorSide=(w-doorWidth)*.5;
  if(doorSide<=.30*scale||wallHeight<=doorHeight+.075*scale)
   throw Error('W432 real inhabited doorway cannot fit lower cottage');
  // Four full outer perimeter walls, except the genuine open front door.
@@ -8949,8 +8949,8 @@ function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)
  const plasterTone=variant%2?rgb(0xe1c7a0):rgb(0xd1bc97);
  materialScope(MATERIAL.PLASTER,()=>{
   if(detailedJetty){
-   renderOriginalOccupiedRoomShell(x,y,z,w,d,1.36*scale,scale,plasterTone);
-   box(x,y+1.55*scale,z,w+.28*scale,h-1.55*scale,
+   renderOriginalOccupiedRoomShell(x,y,z,w,d,2.0*scale,scale,plasterTone);
+   box(x,y+2.19*scale,z,w+.28*scale,h-2.19*scale,
     d+.30*scale,plasterTone);
   }else renderOriginalOccupiedRoomShell(x,y,z,w,d,h-.19*scale,scale,plasterTone);
  });
@@ -8961,11 +8961,11 @@ function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)
    // visibly bear the upper room. All remain above the ground-level path.
    for(const face of [-1,1]){
     const outerZ=z+face*(d*.5+.155*scale);
-    box(x,y+1.51*scale,outerZ,w+.25*scale,.09*scale,.085*scale,oak);
+    box(x,y+2.15*scale,outerZ,w+.25*scale,.09*scale,.085*scale,oak);
     for(const side of [-1,1]){
      const xx=x+side*w*.39;
-     limbSegment([xx,y+1.21*scale,z+face*(d*.5-.045*scale)],
-      [xx,y+1.59*scale,outerZ],.045*scale,oak,4);
+     limbSegment([xx,y+1.78*scale,z+face*(d*.5-.045*scale)],
+      [xx,y+2.24*scale,outerZ],.045*scale,oak,4);
     }
    }
   });
@@ -8974,14 +8974,14 @@ function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)
   // Reuse exactly the original shader/material stream, no new GPU buffers.
   materialScope(MATERIAL.WINDOW_GLOW,()=>{
    for(const side of [-1,1]){
-    const sx=x+side*(w*.5+.154*scale),lo=y+1.91*scale,
-     hi=y+2.27*scale,za=z-.25*scale,zb=z+.25*scale;
+    const sx=x+side*(w*.5+.154*scale),lo=y+2.44*scale,
+     hi=y+2.80*scale,za=z-.25*scale,zb=z+.25*scale;
     const a=[sx,lo,za],b=[sx,lo,zb],c=[sx,hi,zb],d0=[sx,hi,za];
     if(side<0)quad(a,b,c,d0,glass);else quad(d0,c,b,a,glass);
    }
    for(const offset of [-.25,.25]){
     const cx=x+offset*w,zz=z+d*.5+.154*scale,
-     lo=y+1.91*scale,hi=y+2.27*scale;
+     lo=y+2.44*scale,hi=y+2.80*scale;
     quad([cx-.18*scale,lo,zz],[cx+.18*scale,lo,zz],
      [cx+.18*scale,hi,zz],[cx-.18*scale,hi,zz],glass);
    }
@@ -8989,13 +8989,13 @@ function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)
   materialScope(MATERIAL.WOOD,()=>{
    for(const side of [-1,1]){
     const sx=x+side*(w*.5+.161*scale),
-     lo=y+1.91*scale,hi=y+2.27*scale,za=z-.024*scale,zb=z+.024*scale;
+     lo=y+2.44*scale,hi=y+2.80*scale,za=z-.024*scale,zb=z+.024*scale;
     const a=[sx,lo,za],b=[sx,lo,zb],c=[sx,hi,zb],d0=[sx,hi,za];
     if(side<0)quad(a,b,c,d0,frame);else quad(d0,c,b,a,frame);
    }
    for(const offset of [-.25,.25]){
     const cx=x+offset*w,zz=z+d*.5+.165*scale,
-     lo=y+1.91*scale,hi=y+2.27*scale;
+     lo=y+2.44*scale,hi=y+2.80*scale;
     quad([cx-.022*scale,lo,zz],[cx+.022*scale,lo,zz],
      [cx+.022*scale,hi,zz],[cx-.022*scale,hi,zz],frame);
    }
@@ -10609,10 +10609,10 @@ function getCompactOccupiedRoomAudit(){
 }
 function renderCompactOccupiedRoomShell(x,y,z,w,d,roomHeight,plasterTone){
  if(![x,y,z,w,d,roomHeight].every(Number.isFinite)||
-    w<1.6||d<1.5||roomHeight<=1.43)
+    w<1.6||d<1.5||roomHeight<=1.80)
   throw Error('W433 genuine growing-town room dimensions invalid');
  const before=data.length,low=y+.18,high=low+roomHeight,
-  doorHalf=.38,topDoor=low+1.26,
+  doorHalf=.38,topDoor=low+1.72,
   left=x-w*.5,right=x+w*.5,front=z-d*.5,back=z+d*.5;
  // Both sides of every inhabited wall remain viewable from the player's
  // ordinary free camera. There are no one-way missing facades or invisible
@@ -10682,7 +10682,7 @@ function compactHouse(x,z,variant){
  // the prior paper-thin extra facade pasted over a one-storey solid box.
  // The projecting room starts above head height; pedestrian footprint,
  // collisions, rooms, home IDs, deterministic AI and save data do not move.
- const jettyRoom=h>2.5,jettySill=1.55;
+ const jettyRoom=h>2.5,jettySill=2.18;
  const eave=y+h,peak=eave+roofPitch,
   halfW=w/2+(jettyRoom?.30:.15);
  const roofFront=z-d/2-(jettyRoom?.33:.13),
@@ -21005,7 +21005,7 @@ function renderCottageHomecomingDoors(){
  // Closed panels remain world geometry only during that person's true rest.
  for(const entry of [...doors,...closedDoors]){
   const {doorX,doorZ,tx,tz,nx,nz,swing}=entry;
-  const y=terrain(doorX,doorZ)+.15,h=1.18,w=.57;
+  const y=terrain(doorX,doorZ)+.15,h=1.72,w=.70;
   const leftX=doorX-tx*w*.5,leftZ=doorZ-tz*w*.5;
   const rightX=doorX+tx*w*.5,rightZ=doorZ+tz*w*.5;
   const oak=rgb(0x604530),dark=rgb(0x382d26),iron=rgb(0x66665a);
