@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-18T02:34:00Z",
+  "updatedAt": "2026-11-18T03:12:00Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass470 exact Pass469b native gate screenshot regression: full real Pip silhouette width 0.24393 NDC vs unchanged strict >0.258. A genuine source-witnessed landscape open-gate-only camera reframing candidate now staged; new exact-HEAD native 8/8 and full SHA captures PENDING. Earlier corrected Pass469b WebGL 7/8 FAILED, independent critic and Ultracode unavailable. Official Nintendo parity NOT passed."
+    "summary": "Pass471 exact Pass470 native WebGL 8/8 SUCCESS, original 40/40 screenshot SHA sidecars and three real gate hashes verified. Authentic 1280 mid-gate full Pip NDC width .2890 > strict .258, height .6832 > .585; previous .2439 failed. Whole-repository 893/895 source tests passed: exactly 2 obsolete optical 3.92 assertions. Test-only correction to actual safe 3.58 plus actual 1280/844 Three projections, native strict thresholds unchanged. New exact-HEAD CI pending. Full 320/390 guardian still crowded, Nintendo bar unmet; independent critic/Ultracode unavailable."
   },
   "captures": [
+    {
+      "title": "Pass470 original production source WebGL 8/8; 40/40 PNG SHA sidecars + three true gate hashes; genuine Pip width .289 > .258 at moving gate",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44225159313/artifacts/14392532723"
+    },
     {
       "title": "Pass469b original exact-HEAD native WebGL 7/8 FAILED: real 1280 gate-mid Pip physical silhouette width .24393 below unchanged .258; Pass470 candidate screenshot proof PENDING",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44214797622/artifacts/14387819947"
