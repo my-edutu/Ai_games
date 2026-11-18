@@ -749,7 +749,7 @@ export function planOriginalSourceCoupledToeHingeFollowups({
  if(source!=='same-original-GLB-skin-toes-hinge'||
   sourceClipName!=='Walking_A'||!finite(sourceWeight)||
   sourceWeight<.95||sourceWeight>1.001||
-  !finite(frameInterval)||frameInterval<.008||frameInterval>.05||
+  !finite(frameInterval)||frameInterval<.008||frameInterval>.240001||
   !finite(sourceBurialMeters)||sourceBurialMeters<.03||
   sourceBurialMeters>.12||sourceInstanceSame!==true||
   sourceFootTrackVerified!==true||sourceToeChainVerified!==true||
@@ -777,13 +777,31 @@ export function planOriginalSourceCoupledToeHingeFollowups({
   Math.abs(base?.footRad-.36)<=.000001&&
   frameInterval>=.03&&frameInterval<=.05&&
   sourceBurialMeters>=.075&&sourceBurialMeters<=.12;
+ // TRUE original 390px 216.7ms Walking_A skin, 18 Nov source artifact
+ // #14477439727: 57.6mm original toe burial, 222.4mm airborne heel,
+ // .30598m anatomical outsole, .0936m witnessed root travel. The
+ // original hip(-.11)/knee(+.14)/foot(.18,.24) candidate repeatedly
+ // raises the heel too much. Instead of speculative bigger hip angles,
+ // spend the SAME remaining two source-skinned reads on the verified
+ // original toes[l/r] child of the foot. The sampled hinge will be
+ // derived from its real toe lever after the first foot candidate.
+ // This can fail closed if toe weighting / source track is absent.
+ // A >=160ms true displayed source interval supports <=.32rad at under
+ // 2rad/s; a short frame keeps its stricter source-owned band.
+ const sparseSourceBand=Math.abs(lower?.footRad-.18)<=.000001&&
+  Math.abs(base?.footRad-.24)<=.000001&&
+  frameInterval>=.16&&frameInterval<=.240001&&
+  sourceBurialMeters>=.05&&sourceBurialMeters<=.12&&
+  Math.abs(lower?.upperRad+.11)<=.000001&&
+  Math.abs(lower?.lowerRad-.14)<=.000001;
  if(![lower?.upperRad,lower?.lowerRad,lower?.footRad,
     base?.upperRad,base?.lowerRad,base?.footRad].every(finite)||
-  !(deepSourceBand||fastSourceBand)||
+  !(deepSourceBand||fastSourceBand||sparseSourceBand)||
   Math.abs(base.upperRad-lower.upperRad)>.000001||
   Math.abs(base.lowerRad-lower.lowerRad)>.000001||
   Math.sign(base.upperRad)===Math.sign(base.lowerRad)||
-  Math.abs(base.upperRad)>.110001||Math.abs(base.lowerRad)>.110001)
+  Math.abs(base.upperRad)>.110001||
+  Math.abs(base.lowerRad)>(sparseSourceBand?.140001:.110001))
   return null;
  const axisLength=Math.hypot(...sourceToeAxisWorld);
  const lever=sourceToeVertexWorld.map((v,i)=>v-sourceToePivotWorld[i]);
@@ -819,7 +837,7 @@ export function planOriginalSourceAdaptiveToeHingeProbe({
  if(source!=='verified-original-post-coupled-toe-hinge'||
   sourceClipName!=='Walking_A'||!finite(sourceWeight)||
   sourceWeight<.95||sourceWeight>1.001||
-  !finite(frameInterval)||frameInterval<.008||frameInterval>.05||
+  !finite(frameInterval)||frameInterval<.008||frameInterval>.240001||
   sourceInstanceSame!==true||sourceToeTrackVerified!==true||
   sourceToeChainVerified!==true||
   !finite(sourceToeSkinnedWeight)||sourceToeSkinnedWeight<.90||
@@ -843,6 +861,13 @@ export function planOriginalSourceAdaptiveToeHingeProbe({
   Math.sign(derivative)!==Math.sign(preplannedToeRad))return null;
  const burial=floorTopY-sourceToeVertexWorld[1];
  const heelHeight=sourceHeelY-floorTopY;
+ // Sparse source-owned toes cannot be treated as continuous 60Hz IK.
+ // They are a single reversible <=320mrad source child-hinge candidate
+ // on the real weighted toe and its true original clip track; actual
+ // both-shoe final skin, phase and same-frame ownership decide retention.
+ const sparseSourceFrame=frameInterval>=.16&&frameInterval<=.240001&&
+  burial>=.012&&burial<=.085&&heelHeight>=.18&&heelHeight<=.36;
+ if(frameInterval>.05&&!sparseSourceFrame)return null;
  if(burial<.012||burial>.085||
   heelHeight<.10||heelHeight>.36)return null;
  // Aim 4mm over stone when possible, never exceed an extra 18.3deg
@@ -998,13 +1023,23 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
    Math.abs(adaptive.derivativeMetersPerRad)<=.16&&
    Math.sign(toeRad)===Math.sign(adaptive.derivativeMetersPerRad)&&
    adaptive.originalSourceContactLocked===false;
+  // The exact original 216.7ms sparse-source toes-child candidate must
+  // remain attached to measured parent hip/knee/foot and original toe
+  // source track. Do not relax the fast clip contract for other frames.
+  const sourceSparseToeCandidate=originalAdaptiveToe&&
+   frameInterval>=.16&&frameInterval<=.240001&&
+   depth>=.05&&depth<=.12&&
+   Math.abs(upperRad+.11)<=.000001&&
+   Math.abs(lowerRad-.14)<=.000001&&
+   Math.abs(footRad-.24)<=.000001&&
+   sourceWeight>=.99;
   if(![upperRad,lowerRad,footRad,toeRad].every(finite)||
    (toeRad!==0&&(
     sourceToeTrackVerified!==true||sourceToeChainVerified!==true||
     !finite(sourceToeSkinnedWeight)||sourceToeSkinnedWeight<.90||
     sourceToeSkinnedWeight>1.0001||
     (Math.abs(Math.abs(toeRad)-.14)>.000001&&!originalAdaptiveToe)||
-    frameInterval>.05||sourceWeight<.95))||
+    (frameInterval>.05&&!sourceSparseToeCandidate)||sourceWeight<.95))||
    Math.abs(upperRad)<.074999||Math.abs(upperRad)>(provenLever?.145001:.110001)||
    Math.abs(lowerRad)<.074999||Math.abs(lowerRad)>(
     provenLever ? .145001 : (frameInterval>=.16 ? .140001 : .110001))||
