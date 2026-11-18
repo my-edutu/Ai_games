@@ -16,8 +16,9 @@ function extract(start,end){
 const source=extract('const CAMERA_RAY_CELL_METERS=8,','function followRayBlockers(')+
  extract('const cameraEyeCounters=', '// A clear centre ray');
 const kinds=new Set(['home','hall','granary','courier-cart','arcade','belfry','receiving-hall-post']);
+let groundHeight=0;
 const ctx=vm.createContext({WeakMap,Map,Set,Array,Number,Math,
- PHYSICAL_FOLLOW_EYE_KINDS:kinds,terrain:()=>0,
+ PHYSICAL_FOLLOW_EYE_KINDS:kinds,terrain:()=>groundHeight,
  cameraOcclusionStaticRows:new WeakMap()});
 vm.runInContext(source,ctx,{timeout:3000});
 const examine=vm.runInContext('physicalFollowEyeClearance',ctx);
@@ -25,6 +26,7 @@ const proximity=vm.runInContext('cameraShotProximityWarnings',ctx);
 const exhaustive=(eye,rows)=>{
  if(!Array.isArray(eye)||eye.length!==3||eye.some(v=>!Number.isFinite(v)))
   return {clear:false,kind:'invalid-eye'};
+ if(eye[1]<groundHeight+.50)return {clear:false,kind:'terrain'};
  for(const r of rows){
   if(!kinds.has(r.kind))continue;
   const bottom=r.bottom??(-.22);
@@ -73,6 +75,24 @@ const beyond=Array.from({length:145},(_,i)=>({
  x:(i%16)*4-33,z:Math.floor(i/16)*4-20,rx:1.2,
  rz:1.2,top:3,kind:'home'}));
 sample(beyond);
+// W414 established genuine 50cm ground clearance: the old W279 roof-only
+// oracle incorrectly accepted a camera eye buried in the real terrain.
+assert.equal(examine([0,.49,0],[]).kind,'terrain');
+assert.deepEqual([examine([48,1.5,48],[]).clear,
+ examine([48,1.5,48],[]).kind],[true,null]);
+// W426 source-bound real camera sightline, with the actual ground function.
+const terrainSight=vm.runInContext('terrainClearWorkerSightline',ctx);
+assert.equal(terrainSight([-3,1.8,0],[3,1.8,0]),true);
+groundHeight=2.4;
+assert.equal(terrainSight([-3,1.8,0],[3,1.8,0]),false,
+ 'observer must not film a worker through raised physical terrain');
+groundHeight=0;
+assert.equal(terrainSight([-3,2.1,0],[3,1.1,0]),true);
+assert.equal(terrainSight([0,0,NaN],[3,1,0]),false);
+const groundAudit=vm.runInContext('getTerrainSightlineAudit',ctx)();
+assert(groundAudit.surveys>=3&&groundAudit.samples>=3&&
+ groundAudit.terrainOcclusions>=1);
+assert.equal(groundAudit.authorityChanged,false);
 assert.equal(examine([NaN,0,0],combined).kind,'invalid-eye');
 const audit=vm.runInContext('getCameraEyeClearanceAudit',ctx)();
 assert(audit.indexed>0&&audit.fallback>0);

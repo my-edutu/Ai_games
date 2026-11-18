@@ -15,8 +15,10 @@ const actual=html.slice(first,last);
 const compact=html.slice(last,html.indexOf('function villager(p){',last));
 assert.match(compact,/renderCompactOriginalFace\(p,i,x,y,z,s,skin,hair,rig,embodiment\)/,
  'real compact citizens must render their own original detailed face');
-assert.match(compact,/renderArticulatedHand\(joint\(arm\.wrist\),s,skin,sideIndex===0\?-1:1\)/,
+assert.match(compact,/renderArticulatedHand\(joint\(arm\.wrist\),s,skin,sideIndex===0\?-1:1,p\)/,
  'genuine working hands must follow actual autonomous IK wrists');
+assert.match(compact,/if\(citizenMidVisualIndices\.has\(i\)\|\|rig\.working\|\|rig\.hauling\)/,
+ 'human IK hands remain tied to genuinely visible, hauling or working residents');
 assert.match(compact,/tagWorkSkinRange\(j\+4,handStart\)/,
  'working fingers must join the existing 13-joint GPU bone, never freeze');
 assert.doesNotMatch(actual,/\b(?:people\.(?:push|splice)|city\.(?:push|splice)|state\.(?:food|wood|gold|t)\s*=|Math\.random\s*\()/,

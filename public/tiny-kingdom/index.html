@@ -25729,6 +25729,43 @@ function physicalFollowEyeClearance(eye,roofs){
  }
  return {clear:true,kind:null};
 }
+// W426 Phase 1: survey genuine intervening terrain between the real camera
+// and original worker, loaded courier, receiving market or household door.
+// A clear spectator eye alone does not guarantee a visible real worksite.
+// No actor, house, ground vertex or authoritative action is modified.
+const TERRAIN_SIGHTLINE_MAX_SEGMENTS=28;
+let terrainSightlineSurveys=0,terrainSightlineSamples=0,
+ terrainSightlineObstructions=0;
+function terrainClearWorkerSightline(eye,target){
+ if(!Array.isArray(eye)||!Array.isArray(target)||
+    eye.length!==3||target.length!==3||
+    ![...eye,...target].every(Number.isFinite))return false;
+ terrainSightlineSurveys++;
+ const dx=target[0]-eye[0],dz=target[2]-eye[2],
+  length=Math.hypot(dx,dz),
+  count=Math.min(TERRAIN_SIGHTLINE_MAX_SEGMENTS,
+   Math.max(4,Math.ceil(length/1.15)));
+ for(let i=1;i<count;i++){
+  const t=i/count,
+   x=eye[0]+dx*t,z=eye[2]+dz*t,
+   y=eye[1]+(target[1]-eye[1])*t;
+  terrainSightlineSamples++;
+  const ground=terrain(x,z);
+  if(!Number.isFinite(ground)||y<ground+.07){
+   terrainSightlineObstructions++;
+   return false;
+  }
+ }
+ return true;
+}
+function getTerrainSightlineAudit(){
+ return {source:'bounded-physical-original-terrain-camera-sightline',
+  maxSegments:TERRAIN_SIGHTLINE_MAX_SEGMENTS,
+  surveys:terrainSightlineSurveys,samples:terrainSightlineSamples,
+  terrainOcclusions:terrainSightlineObstructions,
+  noWorldOrCameraTeleport:true,authorityChanged:false,
+  hardwareFps:'NOT MEASURED'};
+}
 // W280: the genuine workday director evaluates many legal camera shots. The
 // old framing pass scanned EVERY Day-120 building for each shot merely to
 // count roof proximity. Use the SAME conservative 8m physical volume index
@@ -26589,7 +26626,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
    foregroundSceneVolumes:scenic.volumes,
    foregroundVegetationCover:0,vegetationFaceBlockers:0,
    marketPostSightline,eyeCollision:physicalFollowEyeClearance(eye,roofs),
-   blockers:followRayBlockers(eye,target,roofs)};
+   blockers:followRayBlockers(eye,target,roofs)+
+    Number(!terrainClearWorkerSightline(eye,target))};
  };
  const original=candidate(preferredYaw);
  const offsets=[0,Math.PI/10,-Math.PI/10,Math.PI/5,-Math.PI/5,
@@ -27018,7 +27056,9 @@ function planHomecomingThresholdCamera(citizen,entry){
      checked++;
      const blockers=followRayBlockers(eye,target,roofs);
      const doorRayBlockers=followRayBlockers(eye,door,roofs);
-     if(blockers||doorRayBlockers)continue;
+     if(blockers||doorRayBlockers||
+       !terrainClearWorkerSightline(eye,target)||
+       !terrainClearWorkerSightline(eye,door))continue;
      clearShots++;
      const scenic=foregroundSceneProjection(eye,target,roofs);
      const foliage=foregroundVegetationProjection(eye,target);
@@ -27206,7 +27246,8 @@ function tryReusePhysicalCourierShot(cache,citizen,preferredYaw,now){
   scene=foregroundSceneProjection(eye,target,roofs),
   plants=foregroundVegetationProjection(eye,target),
   human=projectedWorkerBodyFraction(eye,target,citizen);
- if(!clearance.clear||blockers!==0||scene.cover>=.20||
+ if(!clearance.clear||blockers!==0||
+   !terrainClearWorkerSightline(eye,target)||scene.cover>=.20||
    (scene.cargoCover||0)>=.18||plants.faceBlockers!==0||
    plants.cover>=.26||!Number.isFinite(human)||human<.16){
   courierShotPhysicalRejections++;return null;
@@ -27373,7 +27414,9 @@ function physicallyClearWorkdayCameraArc(citizen,plan,roofs,start,hands=[]){
    citizen.z+Math.cos(candidate.yaw)*radius];
   if(!physicalFollowEyeClearance(eye,roofs).clear||
      followRayBlockers(eye,plan.target,roofs)!==0||
-     wrists.some(hand=>followRayBlockers(eye,hand,roofs)!==0))
+     !terrainClearWorkerSightline(eye,plan.target)||
+     wrists.some(hand=>followRayBlockers(eye,hand,roofs)!==0||
+       !terrainClearWorkerSightline(eye,hand)))
    return false;
   const scene=foregroundSceneProjection(eye,plan.target,roofs);
   if(scene.actorCoreCover>=.09||scene.cover>=.24||
@@ -31120,7 +31163,8 @@ if(follow&&!daybreakReturn){
    focusPoint[1]+Math.cos(yaw)*radius];
   const target=[citizen.x,terrain(citizen.x,citizen.z)+1.02,citizen.z];
   const roofs=portraitPhysicalRoofs||followCameraRoofs(),
-   obstructed=followRayBlockers(eye,target,roofs)>0;
+   obstructed=followRayBlockers(eye,target,roofs)>0||
+    !terrainClearWorkerSightline(eye,target);
   // A narrow ORIGINAL market upright may cover the real courier's hands
   // without filling enough of the screen to trigger the broad roof/canopy
   // obstruction model. Measure the actual camera and the real planned lens.
