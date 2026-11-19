@@ -105,12 +105,12 @@ test('production World uses real render submission owner and expires lease into 
   const w=fs.readFileSync(path.resolve(__dirname,
     '../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
   assert.match(w,/held\.lastReturnedOldGatewayOpacity=Math\.max\(0,/);
-  assert.match(w,/const returnedBronzeHold=!options\\.stale\\s*\\?observedReturnedOriginalArchitectureHold\\(/,
+  assert.match(w,/const returnedBronzeHold=!options\.stale\s*\?observedReturnedOriginalArchitectureHold\(/,
     'active old-departure witness must not bypass the last returned gate');
-  assert.match(w,/const returnedBronzePaletteLock=!options\\.stale && !options\\.reducedMotion\\s*\\?observedReturnedOriginalArchitectureHold\\(/);
-  assert.match(w,/const oldRoomWitness=farSideHorizon \\|\\| returnedBronzePaletteLock/,
+  assert.match(w,/const returnedBronzePaletteLock=!options\.stale && !options\.reducedMotion\s*\?observedReturnedOriginalArchitectureHold\(/);
+  assert.match(w,/const oldRoomWitness=farSideHorizon \|\| returnedBronzePaletteLock/,
     'near roof and raised ascent share a single source-returned world climate');
-  assert.match(w,/if\\(oldRoomWitness\\) departure=Math\\.min\\(departure,1-certifiedOldRoomWeight\\)/);
+  assert.match(w,/if\(oldRoomWitness\) departure=Math\.min\(departure,1-certifiedOldRoomWeight\)/);
   assert.match(w,/held\.lastReturnedOriginalGalleryOpacity=Math\.max\(0,/);
   assert.match(w,/observedReturnedOriginalArchitectureHold\(\s*snapshot,held,deferredDistantArrival,farSide\)/);
   assert.match(w,/returnedBronzeHold\?\.gateOpacity\?\?sourceDeparture\?\.opacity/);
