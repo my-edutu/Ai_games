@@ -2528,6 +2528,17 @@ export function confirmOriginalSourceSwingAnkleNetClearance({
  if(lift===null)return false;
  const depth=floorTopY-beforeToeY;
  const remaining=floorTopY-afterToeY;
+ // Exact original licensed 390px Walking_A source skin (Actions
+ // #44582648853, frame6) raised an already airborne heel +12.893mm for
+ // only +4.751mm of toe relief. Calf source-skin already rejects
+ // heel-dominated knee articulation, but the preceding ANKLE bypassed
+ // that physical rule before a safer connected hip/knee option was tested.
+ // Retain original 1440px source poses that lower the heel while raising
+ // the toe. This is fail-closed source pitch protection, not contact or IK.
+ const heelDominatedBuriedSource=beforeHeelY-floorTopY>=.20&&
+  depth>=.025&&remaining>.008;
+ if(heelDominatedBuriedSource&&afterHeelY-beforeHeelY>lift+.000001)
+  return false;
  return !(depth>.055&&remaining>.025&&
   lift+1e-9<Math.max(.010,depth*.10));
 }
