@@ -855,6 +855,11 @@ body[data-village-documentary="on"] #world-actor-tag{display:none!important}
  overflow-wrap:anywhere;color:#f6ead5}
 /* W377 separate, accessible buyer observer: two truthful physical stories
  * must never compete for an unrelated one-click camera priority. */
+#world-trace-arm{grid-column:1/-1;min-height:44px;border:1px solid #d7bd88;
+ border-radius:9px;background:#30463b;color:#f9e8c0;padding:9px 12px;
+ font:700 12px/1.3 system-ui;cursor:pointer;touch-action:manipulation}
+#world-trace-arm[aria-pressed="true"]{background:#aab895;color:#172f26}
+#world-trace-arm:focus-visible{outline:3px solid #f1d59a;outline-offset:3px}
 #world-trace-buyer{grid-column:1/-1;min-height:44px;border:1px solid #d4bd8d;
  border-radius:9px;background:#2f5044;color:#fff1cf;padding:8px 10px;
  font:700 11px/1.3 system-ui;cursor:pointer;touch-action:manipulation}
@@ -1752,6 +1757,7 @@ body[data-hud="cinema"] #mobile-transport-disclosure{display:none!important}
   <div class="supply-stage"><small>Resident meal</small><output id="supply-meal">No traced household meal</output></div>
   <div class="supply-stage"><small>Households</small><output id="supply-home">Waiting for residents</output></div>
   <button id="world-trace-follow" type="button" aria-label="Follow a real producer or loaded courier">Follow real work</button>
+  <button id="world-trace-arm" type="button" aria-pressed="false" aria-live="polite" aria-label="Watch the next genuine farmer and follow their real grain delivery">Track next real grain harvest</button>
   <button id="world-trace-buyer" type="button" aria-label="Follow the real citizen collecting household provisions">Follow real buyer</button>
   <button id="world-trace-home" type="button" aria-pressed="false"
    aria-label="Inspect the real cottage of this verified household meal" hidden>Inspect recorded meal home</button>
@@ -23842,6 +23848,11 @@ function genuineWorkdayShotDecision(shot,portrait){
 // Read-only W13 film progression; never part of world save or seeded rules.
 let villageDocumentary=null;
 let grainJourney=null;
+// W469: only the player-requested camera waits for an actual worker.
+// No timer/seed/rules, synthetic labour, actor, cargo, stock or market receipt.
+let grainObservationArmed=false,grainObservationStarts=0,
+ grainObservationCancels=0,grainObservationWaitingFrames=0;
+
 function chooseFilmableWorker(rows,excluded=-1){
  const eligible=rows.filter(row=>row.index!==excluded&&isWorkingAtSite(row.person));
  if(!eligible.length)return null;
@@ -24032,7 +24043,7 @@ function renderStories(){const feed=document.getElementById('feed');feed.replace
 function uniqueCitizenName(index){const given=names[index%names.length];const generation=Math.floor(index/names.length);return generation?given+' '+(generation===1?'II':String(generation+1)):given}
 function report(s){stories.unshift({day:Math.floor(state.t/24)+1,text:s});stories=stories.slice(0,6);renderStories()}
 let courierPostRepairCount=0,courierPostRepairLast=null;
-function start(){resetActorGpuSnapshots();resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();restingActorKey='';clearRestingActorIdentityCache();restingActorVisible=false;restingActorCitizens=0;disposeLivingVillageMotion();disposeNightHomesResidentMesh();clearHomeClusterCache();independentHousingGrowthWitnesses.length=0;householdContactHistory.length=0;disposeRecordedWorkResidentMesh();disposeForgeBellowsResidentMesh();disposeCompletedHarvestResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;daybreakLastCompleted=null;disposeEconomyResidentMesh();disposeLedgerWitnessResidentMesh();villageDocumentary=null;document.body.dataset.villageDocumentary='off';clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');presentationEpoch++;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();clearLandscapeSeasonCache();landscapeMeshCache=null;landscapeMeshKey='';seed=83127;resetSoftwareDebtDrain();accumulator=0;selectedCitizen=0;routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;city.splice(12);invalidateHomeNavigationIndex();state={t:7,food:180,wood:90,gold:42,homes:city.length,buildCount:city.length+2,happiness:78,lastStory:0};people=names.slice(0,12).map((name,i)=>({name,job:jobs[i%jobs.length],trait:['patient','curious','bold','generous','resourceful','loyal'][i%6],x:(rand()-.5)*14,z:(rand()-.5)*11,target:[(rand()-.5)*24,(rand()-.5)*20],phase:rand()*8,friend:null,bonds:{},energy:60+rand()*40,hunger:rand()*20,activity:'Exploring the valley',workTimer:0,provisions:0,provisionVisits:0,lastProvisionAttemptDay:-1,friendshipRecorded:false}));for(const p of people){if(!walkable(p.x,p.z)){const spot=navSnap(p.x,p.z);if(spot)[p.x,p.z]=navPoint(...spot)}choose(p)}stories=[];report('The first families arrive in a lush and untamed valley.');report('A new settlement is born beneath the old mountain ridge.');applyOriginalMobileMarketArrival();updateUI()}
+function start(){if(grainObservationArmed)cancelGrainObservationArm();grainJourney=null;updateGrainObservationArmUi();resetActorGpuSnapshots();resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();restingActorKey='';clearRestingActorIdentityCache();restingActorVisible=false;restingActorCitizens=0;disposeLivingVillageMotion();disposeNightHomesResidentMesh();clearHomeClusterCache();independentHousingGrowthWitnesses.length=0;householdContactHistory.length=0;disposeRecordedWorkResidentMesh();disposeForgeBellowsResidentMesh();disposeCompletedHarvestResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;daybreakLastCompleted=null;disposeEconomyResidentMesh();disposeLedgerWitnessResidentMesh();villageDocumentary=null;document.body.dataset.villageDocumentary='off';clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');presentationEpoch++;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();clearLandscapeSeasonCache();landscapeMeshCache=null;landscapeMeshKey='';seed=83127;resetSoftwareDebtDrain();accumulator=0;selectedCitizen=0;routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;city.splice(12);invalidateHomeNavigationIndex();state={t:7,food:180,wood:90,gold:42,homes:city.length,buildCount:city.length+2,happiness:78,lastStory:0};people=names.slice(0,12).map((name,i)=>({name,job:jobs[i%jobs.length],trait:['patient','curious','bold','generous','resourceful','loyal'][i%6],x:(rand()-.5)*14,z:(rand()-.5)*11,target:[(rand()-.5)*24,(rand()-.5)*20],phase:rand()*8,friend:null,bonds:{},energy:60+rand()*40,hunger:rand()*20,activity:'Exploring the valley',workTimer:0,provisions:0,provisionVisits:0,lastProvisionAttemptDay:-1,friendshipRecorded:false}));for(const p of people){if(!walkable(p.x,p.z)){const spot=navSnap(p.x,p.z);if(spot)[p.x,p.z]=navPoint(...spot)}choose(p)}stories=[];report('The first families arrive in a lush and untamed valley.');report('A new settlement is born beneath the old mountain ridge.');applyOriginalMobileMarketArrival();updateUI()}
 // Walkable navigation is separate from decorative geometry. Deterministic bounded A*
 // prevents villagers crossing house interiors or swimming through the river.
 const NAV_LIMIT=40,NAV_BUDGET=3200,NAV_SPACING=1.15;
@@ -28899,6 +28910,7 @@ function workdayCameraCompositionAudit(){
   portraitCorePhysicalTargetRequired:true};
 }
 function setCitizenFollow(enabled){
+ if(grainObservationArmed)cancelGrainObservationArm();
  if(!enabled&&grainJourney){
   grainJourney=null;
   document.getElementById('world-trace-follow').setAttribute('aria-pressed','false');
@@ -29773,7 +29785,8 @@ function setReferenceCapture(enabled){
 }
 
 function stopWorkdayWatch(){
- grainJourney=null;
+ if(grainObservationArmed)cancelGrainObservationArm();
+ grainJourney=null;updateGrainObservationArmUi();
  document.getElementById('world-trace-follow').setAttribute('aria-pressed','false');
  daybreakReturn=null;homecomingWitnessHold=null;
  villageDocumentary=null;document.body.dataset.villageDocumentary='off';
@@ -30887,7 +30900,7 @@ function getRealGrainJourneyAudit(){
 }
 function stopRealGrainJourney(){
  if(!grainJourney)return false;
- grainJourney=null;
+ grainJourney=null;updateGrainObservationArmUi();
  document.getElementById('world-trace-follow').setAttribute('aria-pressed','false');
  stopWorkdayWatch();
  if(follow)setCitizenFollow(false);
@@ -30903,7 +30916,69 @@ function chooseRealGrainWitness(){
   farmers.find(p=>p.delivery?.resource==='food')||
   farmers.find(p=>p.activity==='Harvesting grain')||null;
 }
+function updateGrainObservationArmUi(){
+ const button=document.getElementById('world-trace-arm');
+ if(!button)return;
+ const tracking=Boolean(grainJourney);
+ const label=tracking?'Stop tracking this real-grain workday':
+  grainObservationArmed?'Waiting for actual harvest · tap to cancel':
+  'Track next real grain harvest';
+ if(button.textContent!==label)button.textContent=label;
+ button.setAttribute('aria-pressed',String(tracking||grainObservationArmed));
+ button.setAttribute('aria-label',label);
+}
+function cancelGrainObservationArm(){
+ if(!grainObservationArmed)return false;
+ grainObservationArmed=false;grainObservationCancels++;
+ updateGrainObservationArmUi();return true;
+}
+function getGrainObservationQueueAudit(){
+ return {source:'opt-in-authority-neutral-actual-farmer-observer',
+  armed:grainObservationArmed,tracking:Boolean(grainJourney),
+  successfulActualObservations:grainObservationStarts,
+  userOrCameraCancels:grainObservationCancels,
+  waitingRenderFrames:grainObservationWaitingFrames,
+  selectedProducer:grainJourney?.producer||null,
+  selectedRealFarmerCurrentlyWorking:Boolean(chooseRealGrainWitness()),
+  inventedCitizens:0,createdDeliveries:0,addedInventory:0,
+  altersAuthority:false,savedInReplay:false,
+  fullParcelFilmProven:false,hardwareFPS:'NOT MEASURED'};
+}
+function toggleQueuedGrainObservation(){
+ if(grainJourney){
+  stopRealGrainJourney();updateGrainObservationArmUi();
+  return getGrainObservationQueueAudit();
+ }
+ if(grainObservationArmed){
+  cancelGrainObservationArm();return getGrainObservationQueueAudit();
+ }
+ if(chooseRealGrainWitness()){
+  const started=watchRealGrainJourney();
+  if(started)grainObservationStarts++;
+  updateGrainObservationArmUi();
+  return getGrainObservationQueueAudit();
+ }
+ // Never modify the simulation in order to force a camera subject.
+ grainObservationArmed=true;
+ updateGrainObservationArmUi();
+ return getGrainObservationQueueAudit();
+}
+function advanceQueuedGrainObservation(){
+ if(!grainObservationArmed)return false;
+ if(follow||streetWalk||cinematic){
+  cancelGrainObservationArm();return false;
+ }
+ if(!chooseRealGrainWitness()){
+  grainObservationWaitingFrames++;return false;
+ }
+ grainObservationArmed=false;
+ const started=watchRealGrainJourney();
+ if(started)grainObservationStarts++;
+ updateGrainObservationArmUi();
+ return Boolean(started);
+}
 function watchRealGrainJourney(){
+ if(grainObservationArmed)cancelGrainObservationArm();
  if(grainJourney)return stopRealGrainJourney();
  // No invented farmers, carts, goods, receipts or forced work.
  const p=chooseRealGrainWitness();
@@ -30922,7 +30997,7 @@ function watchRealGrainJourney(){
  if(!follow)setCitizenFollow(true);
  updateFollowCamera(builderStageAngle(p));
  setCommandView('world');updateUI();advanceRealGrainJourney();
- updateSupplyTrail(true);renderVisibleGrainChain();
+ updateSupplyTrail(true);renderVisibleGrainChain();updateGrainObservationArmUi();
  return getRealGrainJourneyAudit();
 }
 function advanceRealGrainJourney(){
@@ -31217,6 +31292,7 @@ function watchVillageLife(){
  return getVillageDocumentaryAudit();
 }
 button('world-watch-life',watchVillageLife);
+ button('world-trace-arm',toggleQueuedGrainObservation);
  button('grain-live-details',()=>{if(!supplyTrailOpen)toggleSupplyTrail();});
  button('world-trace-toggle',toggleSupplyTrail);
  button('film-ledger',toggleSupplyTrail);
@@ -33107,6 +33183,7 @@ function render(now){requestAnimationFrame(render);
   if(drained.pendingTicks){renderBacklogFrames++;scheduleSoftwareDebtDrain()}
  }
  // Continue an actual workday across real occupations after a shift ends.
+ if(grainObservationArmed)advanceQueuedGrainObservation();
  if(follow&&liveWorkday&&!grainJourney)advanceLiveWorkdayDirector();
  if(grainJourney)advanceRealGrainJourney();
  pollForgeSound();
@@ -34230,7 +34307,9 @@ drawForegroundResidentMesh();
 getDailyRhythmAudit:dailyRhythmAudit,getHouseholdProvisionAudit:()=>cloneData(householdProvisionAudit()),getCarriedHouseholdProvisionPose:person=>cloneData(getCarriedHouseholdProvisionPose(person)),getVerifiedHouseholdMealEvidence:person=>cloneData(verifiedHouseholdMealEvidence(person)),getVerifiedHomeMealHand:person=>cloneData(getVerifiedHomeMealHand(person)),getVerifiedHomeMealRenderStats:()=>({...actualHouseholdMealVisualStats}),getHouseholdCarriedSackStats:()=>({...householdCarriedSackStats}),getReceiptHouseholdAudit:()=>cloneData(receiptHouseholdAudit()),getVerifiedEconomyRenderStats:()=>({...verifiedEconomyRenderStats}),getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getVillageNightLightingAudit,getMaterialShaderTierAudit,getHardwareResidentArchitectureAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getCottageHomecomingAudit,getCottageDoorRenderAudit:()=>({...cottageDoorRenderAudit}),
  getCottageDoorResidencyAudit,setCottageDoorResidencyForTesting,getSoftwareResolutionAudit,getSoftwareSceneMaterialAudit,getHardwareResolutionAudit,getSimulationFrameDelta:simulationFrameDelta,getHouseholdLightAudit:()=>({...householdLightAudit}),getNightHomesResidencyAudit,setNightHomesResidencyForTesting,getOccupiedHearthCount:()=>occupiedHearths,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,
 getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),getForgeSoundAudit:()=>cloneData(getForgeSoundAudit()),pollForgeSound,watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,
- getRealGrainJourneyAudit,getGrainProofStripAudit:()=>planVisibleGrainChain(grainJourney,
+ getRealGrainJourneyAudit,getGrainObservationQueueAudit,
+ toggleQueuedGrainObservation,advanceQueuedGrainObservation,
+ getGrainProofStripAudit:()=>planVisibleGrainChain(grainJourney,
   grainJourney?planRealGrainJourney(grainJourney,people,deliveryReceipts,
    state.householdTrades||[],state.householdMeals||[]):null,null),getSupplyTrailDetailsAudit,inspectRealGrainStage,watchRealGrainJourney,stopRealGrainJourney,planRealGrainJourney,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
 getMarketStructuralSightline:marketCourierPostSightline,getMarketBarterWitnessAudit,
