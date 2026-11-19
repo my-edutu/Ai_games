@@ -99,3 +99,53 @@ test('RED: same original source rig can carry a moving exit across a truly witne
    'no moving exit on absent, stale, implausible or unowned original root proof: '+
     JSON.stringify(patch));
 });
+
+
+test('RED: genuine original-source micro-arrival can retain a bounded 41-joint landing fade',async()=>{
+ const {planImportedWalkExitMovingFade:fade}=await load();
+ // REAL prior successful exact-source Actions #44468433107,
+ // 17-tick 1440px/390px WebGL source-mixer receipts, NOT synthetic gait.
+ // Both true 0.43mm and 2.59mm on-frame XZ distances belonged to
+ // original live Walking_A -> Idle, original weight=1 and running=true,
+ // but the single-frame >=8mm cache had no qualifying recent receipt.
+ const source={
+  mode:'idle',previousMode:'move',
+  previousClipName:'Walking_A',nextClipName:'Idle',
+  sourceInstanceSame:true,previousSourceRunning:true,
+  previousSourceWeight:1,alive:true,visible:true,
+  teleport:false,interrupted:false,reducedMotion:false,
+  recentGroundedTravel:0,recentGroundedAge:0,
+  recentGroundedFrameInterval:NaN
+ };
+ for(const [groundedTravel,frameInterval] of [
+  [.0004268210031952435,.0166], // actual desktop tick 3
+  [.0020819470293620412,.0167], // actual desktop tick 16
+  [.00042949015223223,.0167], // actual 390px tick 3
+  [.002592800852315502,.0166] // actual 390px tick 16
+ ]){
+  assert.equal(fade({...source,groundedTravel,frameInterval}),.30,
+   'actual imported source movement supports a modest, not invented, soft landing');
+ }
+ const rejected=[
+  {groundedTravel:0,frameInterval:.0167},
+  {groundedTravel:.0002,frameInterval:.0167},
+  {groundedTravel:.004,frameInterval:.0167},
+  {groundedTravel:.002,frameInterval:.010},
+  {groundedTravel:.002,frameInterval:.4},
+  {groundedTravel:.002,frameInterval:.0167,recentGroundedTravel:.001},
+  {groundedTravel:.002,frameInterval:.0167,recentGroundedAge:.04},
+  {groundedTravel:.002,frameInterval:.0167,recentGroundedFrameInterval:.05},
+  {groundedTravel:.002,frameInterval:.0167,previousSourceWeight:.5},
+  {groundedTravel:.002,frameInterval:.0167,previousSourceRunning:false},
+  {groundedTravel:.002,frameInterval:.0167,previousClipName:'Idle'},
+  {groundedTravel:.002,frameInterval:.0167,sourceInstanceSame:false},
+  {groundedTravel:.002,frameInterval:.0167,alive:false},
+  {groundedTravel:.002,frameInterval:.0167,visible:false},
+  {groundedTravel:.002,frameInterval:.0167,interrupted:true},
+  {groundedTravel:.002,frameInterval:.0167,teleport:true},
+  {groundedTravel:.002,frameInterval:.0167,reducedMotion:true}
+ ];
+ for(const patch of rejected)assert.equal(fade({
+  ...source,groundedTravel:.002,frameInterval:.0167,...patch
+ }),.23,'unwitnessed or interrupted original source cannot earn landing fade '+JSON.stringify(patch));
+});
