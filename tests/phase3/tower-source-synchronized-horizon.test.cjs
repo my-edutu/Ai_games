@@ -9,11 +9,11 @@ const oldGate={sourceBound:true,sourceTick:512,
 
 test('the real gateway keeps warm sky until returned F9 bearings earn monotone distant cooling',async()=>{
  const {sourceSynchronizedHorizonWeight:weight}=await helper;
- assert.equal(weight(source,1,1,oldGate),.9845);
- assert.equal(weight(source,1,1,{...oldGate,oldWeight:.7}),.7);
+ assert.equal(weight(source,1,1,oldGate),1);
+ assert.equal(weight(source,1,1,{...oldGate,oldWeight:.7}),1);
  assert.equal(weight(source,1,.2,{...oldGate,oldWeight:.1}),.2);
  assert.equal(weight(source,.6,1,oldGate),.6);
- assert.equal(weight(source,1,1,{...oldGate,oldWeight:0}),0);
+ assert.equal(weight(source,1,1,{...oldGate,oldWeight:0}),1);
  assert.equal(weight(source,1,0,oldGate),0,
    'an already-earned monotone F9 atmosphere lease must not rewarm under a retained gateway');
 });
@@ -38,22 +38,26 @@ test('no stale, forged, dead, mismatched or unreturned physical doorway may hold
  assert.equal(weight(source,1,Infinity,oldGate),0);
 });
 
-test('previously source-validated original doorway keeps its actual sky, fog and floor together through early Void bearing upload',async()=>{
+test('source-certified original gateway material never overrides earned monotone distant atmospheric lease',async()=>{
  const {sourceSynchronizedHorizonWeight:weight}=await helper;
  const {observedCertifiedClockworkHorizon:certify}=await import('../../public/infinite-tower-climb/visuals/original-clockwork-architecture-palette.mjs');
  const physical={sourceBound:true,kind:'recorded-source-zero-hp',
    sourceTick:source.tick,crossingTick:475,oldWeight:.82};
  const current=certify(source,physical);
  assert.equal(current.kind,'live-same-run-physical-gateway');
- assert.equal(weight(source,1,1,current),.82,
-   'early returned Void bearing may cool distant sky, not the genuinely retained current old-room materials');
+ assert.equal(weight(source,1,1,current),1,
+   'without a returned F9 bearing, old sky remains warm while original gate still owns its materials');
+ assert.equal(weight(source,1,.5,current),.5,
+   'previously earned source-backed F9 atmospheric lease must not be rewarmed by current old gateway');
  const tail={historicalOpticalTail:true,previouslySourceVerified:true,
    runToken:source.runToken,authenticatedSourceTick:511,authenticatedCrossingTick:475,
    returnedFrames:4,returnedSeconds:.31,oldWeight:.61};
  const previous=certify(source,null,tail);
  assert.equal(previous.kind,'previous-certified-returned-material');
- assert.equal(weight(source,.9,1,previous),.61,
-   'source-validated returned material tail must not share a warm roof with an instant purple sky');
+ assert.equal(weight(source,.9,1,previous),.9,
+   'a previous old-room material receipt does not independently repaint the already-cooled distant atmosphere');
+ assert.equal(weight(source,.9,.2,previous),.2,
+   'genuinely earned cold atmosphere persists independently of original gateway material tail');
  assert.equal(weight(source,.4,1,current),.4,'never exceed current original-room coverage');
  assert.equal(weight(source,1,.25,{...current,sourceTick:511}),.25);
  assert.equal(weight(source,1,.25,{...current,historicalOpticalTail:true}),.25);
@@ -73,7 +77,7 @@ test('real World separates noncolliding gallery clearance from bronze sill color
  assert.match(world,/held\.originalDeckSurface\.opacity=Math\.max\(originalPresence,\s*Math\.min\(\.94,originalGatePresence\)\)/);
  assert.match(world,/held\.originalGalleryRoot\.visible=originalPresence>\.015/);
  assert.match(world,/arrival\.color\.copy\(materials\.landing\.color\)\.lerp\(/);
- assert.match(scene,/sourceSynchronizedHorizonWeight\\(snapshot,\\s*oldWeightBeforeVoid,earnedVoidSkyLease\\.maxOldWeight,\\s*certifiedHorizon,earnedVoidHorizon\\)/);
+ assert.match(scene,/sourceSynchronizedHorizonWeight\(snapshot,\s*oldWeightBeforeVoid,\s*earnedVoidSkyLease\.maxOldWeight,\s*certifiedHorizon,\s*earnedVoidHorizon\)/);
  assert.match(scene,/skyMaterial\.uniforms\.top\.value\.copy\(to\.top\)\.lerp\(from\.top,oldWeight\)/);
  assert.match(scene,/scene\.fog\.color\.copy\(to\.fog\)\.lerp\(from\.fog,oldWeight\)/);
 });
