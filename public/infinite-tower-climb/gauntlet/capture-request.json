@@ -7079,5 +7079,32 @@
     "realDeviceP50P95P99Memory": "NOT EVALUATED",
     "nextAction": "After capture, inspect original films and native PTS/renderer/world GPU envelope; return to architecture handoff if first genuine co-paint remains zero seconds. Keep P0 open until visual truth, P1 blocked.",
     "safety": "PR68 remains draft; PR58 and frozen baseline unchanged, no merge, deploy, force push or work on unrelated games."
+  },
+  "p0OriginalOutcomeDesktopSparseCompositorEvidence44508004326Followup20261119": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "precedingImmutableCandidateSha": "27403f6d790ddffe85a81646d4c5a18633815a32",
+    "precedingOriginal9JobFilm": "https://github.com/my-edutu/Ai_games/actions/runs/44508004326",
+    "preceding10JobExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44508004358 — 10/10 technical jobs passed, not experience acceptance",
+    "actualOriginalVideoInspection": "Decoded unedited 1x candidate danger desktop/portrait WebM at PTS 23-30 seconds; bronze-to-violet first Floor9 phase has 0.00 seconds sustained shared-room bridge in native phase evidence in BOTH viewports. Neither current shot nor native event-aligned 2-frame complete actor+authentic gate+walkable successor meets P0 acceptance.",
+    "verifiedFrozenCaptureBlocker": "Original frozen baseline outcome desktop WebM is preserved and depicts authentic outcome/restart but neutral 1/12 compositor sampling produced just six JPEGs; four ambiguous, only two unique original-WebM matches, not the required >=3 over >=15 seconds. Baseline portrait matched nine.",
+    "changedObserverSourceCommits": [
+      "a511d474124f9fc0f718e7441f3886dc5055783b",
+      "b6d3fc9de44e8b95b1a82b97089b7187baa1fa6b"
+    ],
+    "explicitExperiment": "Capture IDENTICAL source SHA baseline and candidate with neutral original Chrome compositor witness everyNthFrame 5 instead of 12; unchanged 24 JPEG cap, 2.8s unique-image separation, strict video PTS/hash/seed/tier and no fake event cue. Monitor transport impact (up to 350 CDP frames @25fps/70s versus 146 old). No claim of success until artifact inspection.",
+    "requestedCapture": "Source-pinned nine-job immutable baseline/candidate original 1x 25fps, >=60s films, ascent, moving floor7, upper-cap danger floor8, outcome/restart floor0; desktop 960x600 and portrait 390x844; identical seed tower-transformation-capture-v1 and low tier.",
+    "candidatePin": "IMMUTABLE github.sha of this capture-request commit, never moving PR HEAD",
+    "originalReviewerGate": "Two consecutive true native source-event-matched gameplay frames showing full moving hero, genuine opened guardian HP0 gate and walkable Floor9 together, and no hard architectural cut; strict 2/2 native danger pairing required",
+    "pendingCIAndCapture": "NOT EVALUATED — new run links / results must be read after GitHub checks",
+    "blindReviews": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDeviceP50P95P99Memory": "NOT EVALUATED",
+    "nextHighestImpact": "Inspect capture jobs and real scene phase/video difference, verified min3 baseline outcome unique anchors, compare native fps/CPU harm. If hard bronze-to-violet persists, correct underlying Floor9 first-paint/architectural owner in meaningful single system slice; leave P0 open.",
+    "safety": "Only PR68 open draft branch, baseline fixed, PR58 untouched, never merge/deploy/force-push or edit other games."
   }
 }
