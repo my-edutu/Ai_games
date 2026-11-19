@@ -31128,7 +31128,12 @@ function updateRealMarketReceiptWitness(plan){
 function chooseRealGrainHomeLens(home){
  const front=realGrainHomeFrontage(home);if(!front)return null;
  const roofs=followCameraRoofs(),ground=terrain(front.x,front.z);
- const angles=[0,-.28,.28,-.58,.58,-.95,.95];
+ // W479: inspect actual original cottage threshold from more than a roof-high
+ // overview. Physical volume/ray/ground/vegetation checks still own admission;
+ // the additional eyes never move, hide or fabricate the resident or house.
+ const angles=[0,-.22,.22,-.44,.44,-.72,.72,-1.04,1.04];
+ const {tanVertical}=physicalCameraProjection();
+ if(!Number.isFinite(tanVertical)||tanVertical<=0)return null;
  let surveyed=0,clear=0;
  // First seek the PRESENT, verified resident at their authentic entrance.
  // If every physical eye is blocked, retain the existing empty-exterior
@@ -31141,7 +31146,8 @@ function chooseRealGrainHomeLens(home){
  for(const candidate of candidates){
   const baseYaw=Math.atan2(candidate.normal[0],candidate.normal[1]);
   const pitches=candidate.hasHumanSubject?[.14,.23,.33]:[.16,.25,.35];
-  const distances=candidate.hasHumanSubject?[3.9,4.7,5.8,7.0]:[5.0,5.9,6.9,8.2];
+  const distances=candidate.hasHumanSubject?[3.7,4.4,5.4,6.8]:
+   [4.4,5.2,6.3,7.8];
   let bestCost=Infinity;
   for(const pitch of pitches)for(const zoom of distances)for(const offset of angles){
    const yaw=baseYaw+offset,radius=Math.cos(pitch)*zoom;
@@ -31159,16 +31165,28 @@ function chooseRealGrainHomeLens(home){
    if(canopy.faceBlockers>0||canopy.cover>=.32)continue;
    const scenic=foregroundSceneProjection(eye,candidate.aim,roofs);
    if(scenic.cover>=.44)continue;
+   // Estimated viewport fraction of a 1.65m original-world human-scale
+   // threshold at the ACTUAL visible door. This is camera geometry, not a
+   // fabricated door or a measured character silhouette. Closer is rewarded
+   // only after every existing real-scene obstruction test has passed.
+   const sightlineMeters=Math.hypot(eye[0]-candidate.aim[0],
+    eye[1]-candidate.aim[1],eye[2]-candidate.aim[2]);
+   const projectedThreshold1p65mHeightFraction=1.65/
+    (2*sightlineMeters*tanVertical);
+   if(!Number.isFinite(projectedThreshold1p65mHeightFraction)||
+      projectedThreshold1p65mHeightFraction<=0)continue;
    clear++;
-   const ideal=candidate.hasHumanSubject?4.8:5.6;
+   const ideal=candidate.hasHumanSubject?4.6:5.2;
    const cost=canopy.cover*1100+scenic.cover*850+
     (scenic.cargoCover||0)*500+Math.abs(offset)*32+
-    Math.abs(pitch-.23)*45+(zoom-ideal)**2*5;
+    Math.abs(pitch-.23)*45+(zoom-ideal)**2*5-
+    Math.min(.34,projectedThreshold1p65mHeightFraction)*380;
    if(cost<bestCost){
     bestCost=cost;
     best={yaw,pitch,zoom,aim:candidate.aim.slice(),
      homeIndex:front.homeIndex,homeKey:front.homeKey,
      eye:eye.slice(),sceneCover:scenic.cover,canopyCover:canopy.cover,
+     projectedThreshold1p65mHeightFraction,
      canopyFaceBlockers:canopy.faceBlockers,blockingVolumes:0,
      hasHumanSubject:candidate.hasHumanSubject,
      doorKey:candidate.doorKey,requestedDoorKey:front.doorKey,
@@ -31287,6 +31305,8 @@ function getRealGrainJourneyAudit(){
    homeIndex:grainJourney.homeLens.homeIndex,
    homeKey:grainJourney.homeLens.homeKey,
    zoom:grainJourney.homeLens.zoom,
+   projectedThreshold1p65mHeightFraction:
+    grainJourney.homeLens.projectedThreshold1p65mHeightFraction??null,
    sceneCover:grainJourney.homeLens.sceneCover,
    canopyCover:grainJourney.homeLens.canopyCover,
    physicalBlockers:grainJourney.homeLens.blockingVolumes,

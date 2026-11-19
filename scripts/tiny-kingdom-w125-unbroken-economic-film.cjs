@@ -244,8 +244,16 @@ async function film(browser,profile){
       'No real collision-surveyed cottage door available');
     assert.equal(physicallyEarned.visit?.realMealHomeIndex,e.meal.homeIndex,
       'Camera inspected a different resident home');
-    assert(physicallyEarned.physicalView?.clearShots>0,
+    // W479: the production witness exposes `clear` (number of surveyed
+    // physically legal eyes), NOT the stale `clearShots` property. The older
+    // assertion falsely failed genuine earned meals on both full viewports.
+    assert(physicallyEarned.physicalView?.clear>0,
       'No physically clear real cottage door camera shot');
+    assert(physicallyEarned.physicalView?.surveyed>=
+      physicallyEarned.physicalView.clear,
+      'Cottage camera did not report its actual world-ray survey');
+    assert(physicallyEarned.physicalView?.projectedThreshold1p65mHeightFraction>.06,
+      'Earned cottage threshold is optically unreadable in its genuine view');
     result.stages.earnedPhysicalCottage=physicallyEarned;
     await page.waitForTimeout(650);
     const homeShot=name+'-real-meal-home-door.png';
