@@ -979,6 +979,18 @@ export function createWarden(options = {}) {
       ? Math.max(0,Math.min(1,(encounter-.24)/.22))
         *(.67+.46*Math.max(0,Math.min(1,(beat-.12)/.38)))
         *(1-display) : 0;
+    // Pass510: real 320/390 WebGL of the ACTUAL counter shows the mint
+    // botanical armour hiding the bronze mask/body at the decisive recoil,
+    // even after four guardian standards physically withdrew. This is
+    // Thornback's OWN connected geometry. On a CURRENT, public, same-run
+    // earned parry, fold both existing living sea-glass crests and fixed
+    // ivory tideblades BACK over the shell: reveal the recognizable beetle
+    // head, planted claws and counter stagger instead of another tall screen.
+    // Finite smooth entry/exit preserves ordinary witnessed brace/release,
+    // reduced-motion, unknown threat, terminal and reset poses. No mesh,
+    // route, hit, collider or authoritative actor coordinate is added.
+    const earnedShellClearance=counterPhase===null?0:
+      Math.max(0,Math.min(1,Math.min(counterPhase/.16,(1-counterPhase)/.16)));
     for (const {vane,side} of tailVanes) {
       // First sight keeps the armored tail close. The PUBLIC brace fans the
       // rooted vanes out before the shell unseals; no invented enemy action.
@@ -1014,7 +1026,8 @@ export function createWarden(options = {}) {
       // brace, then stand proud only during the earned physical shell reveal.
       // Explicit positive zero clears the pose after withdrawal, terminal or
       // reused runs, including for reduced-motion callers.
-      shellHalf.tideblade.rotation.x=tidebladeFold>0?-tidebladeFold:0;
+      const bladeRecession=Math.max(tidebladeFold,.86*earnedShellClearance);
+      shellHalf.tideblade.rotation.x=bladeRecession>0?-bladeRecession:0;
       // A neutral/terminal pose must reset to +0 on both sides. Negative
       // zero can survive a signed-angle multiplication and break strict
       // replay/teardown invariants even when the rendered pose looks flat.
@@ -1034,9 +1047,14 @@ export function createWarden(options = {}) {
       // across recognition, planting and final shell release. The same RIGGED
       // physical sail now UNFURLS through height and spread, only during the
       // genuinely witnessed public stage. Hidden/terminal returns to neutral.
-      shellHalf.fronds.scale.y=counterPhase!==null
-        ?1.05-.51*counterCollapse
+      shellHalf.fronds.scale.y=parried
+        ?1-.51*earnedShellClearance-.22*counterCollapse
         :(alert>.24 && hasWitnessBeat) ? (.54+.75*display) : 1;
+      // The TRUE earned counter collapses the large front botanical screen
+      // backwards in local armour space, exposing its connected head rather
+      // than shrinking/dissolving an enemy. +0 reset is deliberate.
+      shellHalf.fronds.rotation.x=earnedShellClearance>0
+        ?-1.10*earnedShellClearance:0;
       shellHalf.fronds.rotation.z=encounter?shellHalf.side*(.05+.25*display):0;
       shellHalf.fronds.rotation.y=alert>0&&!s.reduced
         ?shellHalf.side*Math.sin(s.time*1.3)*alert*.075:0;
