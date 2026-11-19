@@ -83,9 +83,9 @@ test('actual returned successor bearings gradually cool distant world atmosphere
  const earned={sourceBound:true,sourceTick:source.tick,
    firstBearingReturnedFrames:6,maxOldHorizonWeight:0};
  assert.equal(weight(source,1,0,certified),1);
- assert.equal(weight(source,1,0,certified,earned),.58,
+ assert.ok(Math.abs(weight(source,1,0,certified,earned)-.58)<1e-10,
    'genuinely returned original F9 bearings reveal distant atmosphere without erasing the bronze threshold');
- assert.equal(weight(source,.5,0,certified,earned),.29);
+ assert.ok(Math.abs(weight(source,.5,0,certified,earned)-.29)<1e-10);
  assert.equal(weight(source,1,.8,certified,earned),.8);
  for(const falseProof of [
    {...earned,sourceBound:false},
