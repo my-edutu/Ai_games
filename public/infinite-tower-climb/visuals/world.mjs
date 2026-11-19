@@ -13,7 +13,7 @@ import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, p
 import { rebindSourceOwnedUndercroft } from './successor-deck-visibility.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, createSourceEarnedVoidDepartureMaterials, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn, observedRenderedOriginalDoorwayRoom, coherentOriginalBearingDeparture } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections, isolateEarnedFirstFrameVoidMaterials } from './source-earned-bearing-run.mjs';
-import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold, observedSourceEarnedEarlyVoidShaftAperture, observedSourceSupportedVoidFirstPaint, observedEarnedGalleryExitClearance, observedReturnedGalleryHandoffClearance, observedFirstReturnedVoidBearingGalleryRetirement } from './far-side-shaft-transition.mjs';
+import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold, observedSourceEarnedEarlyVoidShaftAperture, observedSourceSupportedVoidFirstPaint, observedEarnedGalleryExitClearance, observedReturnedGalleryHandoffClearance, observedFirstReturnedVoidBearingGalleryRetirement, observedSourceReturnedCoreBeforeScenicUpload } from './far-side-shaft-transition.mjs';
 import { chooseSourceEarnedFirstReturnInstancing } from './source-earned-first-return-instancing.mjs';
 import { observedReturnedSuccessorRoomReady, observedSupportedReturnedShaftDepth } from './original-room-returned-exit.mjs';
 import { projectOriginalGuardianGateSteel } from './original-guardian-gate-steel-projection.mjs';
@@ -4073,7 +4073,7 @@ export function createTowerWorld(){
       firstRenderSubmitted:false, submittedFrames:0,
       // Successfully returned frames in which the actual incoming original
       // shaft had nonzero material and was not culled from the 3D scene.
-      structuralVisibleReturns:0,
+      structuralVisibleReturns:0, structuralVisibleSeconds:0,
       // The already-authored first-return Void load-bearing group is drawn
       // before every deferred full-shaft upload. Only real returned renders
       // can increment this witness, not source packets or scene construction.
@@ -4210,8 +4210,14 @@ export function createTowerWorld(){
       job.firstBearingReturnedFrames=Math.min(30,
         job.firstBearingReturnedFrames+1);
     if(job.structureDeferred && job.structuralRoot?.visible===true &&
-       job.structuralFade>.015)
+       job.structuralFade>.015) {
+      // Count ONLY a successful, nonzero authentic F9 load-bearing GPU
+      // submission; no source poll, cold CPU construction or stalled draw
+      // can permit the next heavy shader/build stage.
       job.structuralVisibleReturns=Math.min(30,job.structuralVisibleReturns+1);
+      job.structuralVisibleSeconds=Math.min(3,
+        job.structuralVisibleSeconds+shown);
+    }
     const advancing=['awaiting-actual-first-render',
       'awaiting-void-biome-build','awaiting-structural-release',
       'awaiting-structural-submission','awaiting-vista-submission'].includes(job.state);
@@ -4620,7 +4626,9 @@ export function createTowerWorld(){
        snapshot.runToken===arrival.runToken &&
        Number.isSafeInteger(arrival.structureBuiltAtSubmitted) &&
        arrival.submittedFrames>arrival.structureBuiltAtSubmitted &&
-       !Number.isSafeInteger(arrival.peripheryBuiltAtSubmitted)){
+       !Number.isSafeInteger(arrival.peripheryBuiltAtSubmitted) &&
+       observedSourceReturnedCoreBeforeScenicUpload(snapshot,
+         retainedEarnedCap,arrival,'periphery')){
         const began=performance.now(),from=floorGroup.children.length;
         buildTower(arrival.height,false,false,'periphery');
         const detailRoot=new THREE.Group();
@@ -4656,7 +4664,9 @@ export function createTowerWorld(){
        snapshot.runToken===arrival.runToken &&
        Number.isSafeInteger(arrival.peripheryBuiltAtSubmitted) &&
        arrival.submittedFrames>arrival.peripheryBuiltAtSubmitted &&
-       !Number.isSafeInteger(arrival.biomeBuiltAtSubmitted)){
+       !Number.isSafeInteger(arrival.biomeBuiltAtSubmitted) &&
+       observedSourceReturnedCoreBeforeScenicUpload(snapshot,
+         retainedEarnedCap,arrival,'biome')){
         const began=performance.now(),from=floorGroup.children.length;
         const rotorStart=rotors.length,floaterStart=floaters.length;
         buildVoid(arrival.height);
