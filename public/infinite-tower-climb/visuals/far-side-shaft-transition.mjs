@@ -298,15 +298,78 @@ export function observedEarnedSillDepthExposure(source, held, job=null) {
 // only while the separately proven living body is truly supported far-side.
 // The existing far-side fade owns retirement as soon as a NEW real shaft
 // submission returns; this is not native visual acceptance.
+// Preserve the actual ALREADY-RETURNED original Clockwork gate and cap on
+// the living Floor9 receiving roof when the *real* successor shaft has zero
+// returned structural frames. The former optical safeguard existed only for
+// a body >100m past the sill or >7m above it. In source-pinned native 1x
+// footage, both viewports cut to an unrelated purple room DURING the genuine
+// near-roof crossing, before either of those far-side conditions held.
+// A floor label, future destination, offscreen build or a pose guess cannot
+// qualify; source HP0, exact collision-aligned roof support, current body
+// bounds and the original WebGL-returned old gate are all required.
+// This does NOT add a platform, frame, clock, collision or camera.
+export function observedReturnedNearRoofOriginalRoom(source,held,job) {
+  const p=source?.player,w=source?.lastGuardianCrossing;
+  const cap=w?.cap,g=w?.guardian;
+  const roof=source?.platforms?.find(x=>x?.id==='f9:ground');
+  if(source?.floor!==9 || source.theme!=='void' ||
+     source.lifecycle!=='running' || !(p?.health>0) ||
+     typeof source.runToken!=='string' || !source.runToken ||
+     !valid(source.tick) ||
+     !held || held.runToken!==source.runToken || held.floor!==9 ||
+     held.oldCapId!=='f8:cap' ||
+     held.guardianGateRetained!==true ||
+     held.verifiedObservedFloorAdvance!==true ||
+     held.opticalExitSubmitted===true ||
+     ![p.x,p.y,p.halfWidth,p.halfHeight,p.vy,
+       roof?.x,roof?.y,roof?.width,roof?.height,
+       held.thresholdX,held.oldCapX,held.oldCapWidth,
+       held.oldRoofY,held.crossingTick].every(valid) ||
+     !(p.halfWidth>0) || !(p.halfHeight>0) ||
+     p.grounded!==true ||
+     (p.state!=='standing' && p.state!=='hurt') ||
+     p.groundedPlatformId!=='f9:ground' || p.vy!==0 ||
+     !(roof.width>0) || !(roof.height>0) ||
+     p.y-p.halfHeight!==held.oldRoofY ||
+     roof.y+roof.height!==held.oldRoofY ||
+     p.x-p.halfWidth<roof.x ||
+     p.x+p.halfWidth>roof.x+roof.width ||
+     p.x-p.halfWidth<held.thresholdX ||
+     p.x-p.halfWidth>held.thresholdX+100000 ||
+     held.thresholdX!==held.oldCapX+Math.floor(held.oldCapWidth*.76) ||
+     source.tick<held.crossingTick ||
+     source.tick-held.crossingTick>150 ||
+     !w || w.runToken!==source.runToken ||
+     w.fromFloor!==8 || w.toFloor!==9 ||
+     !valid(w.sourceTick) || w.sourceTick!==held.crossingTick ||
+     w.exitX!==held.thresholdX ||
+     cap?.id!=='f8:cap' ||
+     ![cap.x,cap.y,cap.width,cap.height].every(valid) ||
+     cap.x!==held.oldCapX || cap.width!==held.oldCapWidth ||
+     cap.y+cap.height!==held.oldRoofY ||
+     g?.kind!=='guardian' || g.active!==false ||
+     !Number.isFinite(g.health) || g.health>0 ||
+     !job || job.runToken!==source.runToken || job.floor!==9 ||
+     job.proof!=='recorded-source-gateway' ||
+     job.structureDeferred!==true || job.structuralVisibleReturns!==0)
+    return null;
+  return {sourceBound:true,sourceTick:source.tick,
+    wholeBodySupportedNearSill:true,incomingReturnedFrames:0,
+    limitation:'Actual Floor9 roof support plus same-run HP-zero gateway and prior real old WebGL return; not a native pixel verdict'};
+}
+
 export function observedReturnedOriginalArchitectureHold(source,held,job,farSide) {
+  const near=farSide?.sourceBound===true
+    ?null:observedReturnedNearRoofOriginalRoom(source,held,job);
   if(source?.floor!==9 || source.theme!=='void' ||
      source.lifecycle!=='running' || !(source.player?.health>0) ||
      !source.runToken || source.runToken!==held?.runToken ||
      held.floor!==9 || held.guardianGateRetained!==true ||
      held.verifiedObservedFloorAdvance!==true ||
      held.opticalExitSubmitted===true ||
-     farSide?.sourceBound!==true || farSide.sourceTick!==source.tick ||
-     farSide.wholeBodyFarSide!==true || farSide.incomingReturnedFrames!==0 ||
+     ((farSide?.sourceBound!==true || farSide.sourceTick!==source.tick ||
+       farSide.wholeBodyFarSide!==true || farSide.incomingReturnedFrames!==0) &&
+       near?.sourceBound!==true) ||
      !job || job.runToken!==source.runToken || job.floor!==9 ||
      job.proof!=='recorded-source-gateway' ||
      job.structureDeferred!==true ||
