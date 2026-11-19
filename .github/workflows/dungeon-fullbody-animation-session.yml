@@ -52,6 +52,12 @@ jobs:
           path: |
             artifacts/dungeon-full-body-*
             artifacts/dungeon-*
+            # Original CC0/SHA-verified source skeletons for independent 41-joint
+            # inverse-bind, keyframe-track and true skinned-sole analysis. These
+            # are fetched by the strict pinned 20-asset check above, not edited
+            # or used as replacement geometry. Retained with this review only.
+            public/ai-dungeon/models/player/*.glb
+            public/ai-dungeon/models/enemy/*.glb
             test-results/**
             evidence/dungeon/gauntlet-latest.json
           if-no-files-found: warn
