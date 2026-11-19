@@ -14,8 +14,8 @@ const production=import('data:text/javascript;base64,'+
 test('Pass507 earned live counter visibly springs the original connected full-body guardian above the reef, then lands',async()=>{
   const {createWarden,rigPrimitiveResourceStats}=await production;
   for(const balanced of [false,true]){
-    const initial=rigPrimitiveResourceStats();
     const warden=createWarden({balanced});
+    const initial=rigPrimitiveResourceStats();
     const body=warden.group.getObjectByName('armored body');
     const leftLeg=warden.group.getObjectByName('leg -1 0');
     const rightLeg=warden.group.getObjectByName('leg 1 0');
