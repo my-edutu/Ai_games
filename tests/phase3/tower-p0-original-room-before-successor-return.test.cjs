@@ -94,6 +94,9 @@ test('the actual old-world material owner consumes near-roof return evidence in 
   assert.match(world,/returnedBronzeHold\.galleryOpacity/);
   const helper=fs.readFileSync('public/infinite-tower-climb/visuals/far-side-shaft-transition.mjs','utf8');
   assert.match(helper,/job\.structuralVisibleReturns!==0/);
-  assert.match(world,/sourceDeparture\?\.sourceBound!==true/);
+  assert.match(world,/const returnedReplacement=physicallyBeyondOriginalDoor &&\s*observedReturnedSuccessorRoomReady\(/,
+    'retirement requires a returned real successor instead of just source departure');
+  assert.match(world,/const awaitingSourceReturnedReplacement=physicallyBeyondOriginalDoor &&\s*!returnedReplacement/,
+    'a living old gateway remains during genuine cold-shaft GPU loading');
   assert.doesNotMatch(world,/snapshot\.player\.(?:x|y|grounded|health)\s*=/);
 });
