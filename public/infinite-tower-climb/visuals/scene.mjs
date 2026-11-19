@@ -5,6 +5,7 @@ import { observedGroundedBiomeThreshold } from './biome-threshold.mjs';
 import { auditOriginalGuardianCrossing } from './gateway-source-audit.mjs';
 import { createTowerWorld, THEMES } from './world.mjs';
 import { observedSourceEarnedVoidHorizon } from './source-earned-void-horizon.mjs';
+import { sourceSynchronizedHorizonWeight } from './source-synchronized-horizon.mjs';
 import { sourceTriangleOwner } from './mesh-provenance.mjs';
 import { observedLandingHazardPressure } from './landing-pressure.mjs';
 import { createClimber, createEnemy } from './characters.mjs';
@@ -5325,7 +5326,15 @@ export function createTowerScene(canvas, settings = {}) {
         earnedVoidHorizon.maxOldHorizonWeight);
     if(Number.isSafeInteger(snapshot?.tick))
       earnedVoidSkyLease.sourceTick=snapshot.tick;
-    const oldWeight=Math.min(oldWeightBeforeVoid,earnedVoidSkyLease.maxOldWeight);
+    // A real returned bronze gateway cannot be surrounded by an instantly
+    // violet sky while its physically continuous successor roof is still
+    // source-certified bronze. The early Void horizon is a *distant* scenic
+    // optimization, not authority to overrule the actually returned old
+    // doorway. Preserve an old-light minimum only for the exact same-run,
+    // current-tick far-side shared room; both fade with the gateway's
+    // renderer-return opacity. All other floors retain the early lease.
+    const oldWeight=sourceSynchronizedHorizonWeight(snapshot,
+      oldWeightBeforeVoid,earnedVoidSkyLease.maxOldWeight,certifiedHorizon);
     if(thresholdLight || certifiedHorizon || lastBiomeHandoffOldWeight>0){
       const from=thresholdColors.from,to=thresholdColors.to;
       scene.fog.color.copy(to.fog).lerp(from.fog,oldWeight);

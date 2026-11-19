@@ -3697,8 +3697,18 @@ export function createTowerWorld(){
     if(Number.isFinite(held.galleryExitClearedAlpha))
       originalPresence=Math.min(originalPresence,held.galleryExitClearedAlpha);
     held.originalGallerySourceOpacity=originalPresence;
+    // The non-colliding old gallery can be removed early once a real
+    // successor bearing returns, without erasing the still-walkable ORIGINAL
+    // bronze sill underneath the actually open HP-zero gateway. The native
+    // source-pinned desktop frame at tick512 retained the original gate at
+    // .9845 but had already driven this roof's old-palette weight to ZERO:
+    // an obvious split between one real physical doorway and its footfall.
+    // Keep only this existing shader color lease aligned to the *same*
+    // source-qualified original gateway. Gallery mesh visibility stays
+    // independently bounded and may safely retire; no new collider or mesh.
     if (held.originalDeckSurface)
-      held.originalDeckSurface.opacity=originalPresence;
+      held.originalDeckSurface.opacity=Math.max(originalPresence,
+        originalGatePresence);
     if(originalGatePresence>.01 || originalPresence>.01)
       held.opticalExitSubmitted=false;
     for(const material of held.originalGalleryMaterials){

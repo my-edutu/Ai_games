@@ -64,7 +64,8 @@ test('real World receipts only, old HP-door material preserved, no physics autho
  assert.match(w,/firstBearingReturnedFrames:\s*[\s\S]*?job\.firstBearingReturnedFrames:0/);
  assert.match(w,/stagedVoidArchitecture\.root\.parent===floorGroup/);
  assert.match(scene,/observedSourceEarnedVoidHorizon\(snapshot,/);
- assert.match(scene,/const oldWeight=Math\.min\(oldWeightBeforeVoid,earnedVoidSkyLease\.maxOldWeight\)/);
+ assert.match(scene,/sourceSynchronizedHorizonWeight\(snapshot,/);
+ assert.match(scene,/certifiedHorizon\);/);
  assert.match(scene,/earnedVoidSkyLease\.sourceTick=snapshot\.tick/);
  assert.doesNotMatch(scene,/snapshot\.player\.(?:x|y|health|grounded)\s*=/);
 });
