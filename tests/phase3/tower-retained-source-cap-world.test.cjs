@@ -786,8 +786,20 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
          world.diagnostics().deferredDistantArrival?.state==='awaiting-structural-submission'){
         const justBuiltBiome=world.group.getObjectByName('deferred-authentic-floor-nine-crystal-biome');
         assert.equal(justBuiltBiome?.isGroup,true);
-        assert.equal(justBuiltBiome.visible,false,
-          'the original biome is culled at assembly and cannot impersonate a returned GPU frame');
+        // The state changes to "awaiting-structural-submission" only
+        // AFTER the assembly update. An actual returned frame may have
+        // advanced the biome's staged alpha before this observation, so
+        // unconditional hidden-geometry assertions falsely reject the real
+        // returned-frame pipeline. Check the SAME owner's submitted-frame
+        // provenance instead: an unreturned subtree cannot draw.
+        const reveal=world.diagnostics().deferredDistantArrival;
+        const returnedAfterBuild=reveal.submittedFrames>reveal.biomeBuiltAtSubmitted;
+        assert.equal(justBuiltBiome.visible,
+          returnedAfterBuild && reveal.biomeFade>.015,
+          'the genuine crystal biome must be culled until a post-assembly renderer return earned its visible alpha');
+        if(!returnedAfterBuild)
+          assert.equal(reveal.biomeFade,0,
+            'CPU construction is never a submitted WebGL crystal frame');
         firstBiomeBuildObserved=true;
       }
       resourceCheckpoint('three-clocks-return-'+step+'-end');
