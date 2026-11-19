@@ -9350,7 +9350,8 @@ function renderOriginalOccupiedRoofStructure(x,z,eave,ridge,halfSpan,front,back,
 // joinery. Every object stays inside the real authoritative home footprint.
 // Static, cached town VBO only: never a fictional resident, meal or transaction.
 let originalOccupiedRoomStats={builtInstances:0,emittedTriangles:0,
- doorwayOpenings:0,interiorFixtures:0,lastDoorWidth:0,lastDoorHeight:0};
+ doorwayOpenings:0,interiorFixtures:0,hearthRecesses:0,householdTables:0,
+ lastDoorWidth:0,lastDoorHeight:0};
 function getOriginalOccupiedRoomAudit(){
  return {...originalOccupiedRoomStats,
   source:'original-occupied-cottage-real-doorway-and-room',
@@ -9370,9 +9371,10 @@ function renderOriginalOccupiedRoomShell(x,y,z,w,d,wallHeight,scale,plasterTone)
   doorHeight=1.72*scale,doorSide=(w-doorWidth)*.5;
  if(doorSide<=.30*scale||wallHeight<=doorHeight+.075*scale)
   throw Error('W432 real inhabited doorway cannot fit lower cottage');
- // Four full outer perimeter walls, except the genuine open front door.
- // Both front-side piers and the timber-supported top lintel are real
- // geometry. All surfaces have inward faces, unlike the former solid cube.
+ // W480: retain the six physical perimeter volumes and the exact real
+ // door aperture; replace the old three blocky interior furnishings with
+ // economical stone hearth joinery and a real supported household table.
+ // One immutable house VBO, no generated citizen or simulated meal.
  materialScope(MATERIAL.PLASTER,()=>{
   box(x,base,z+d*.5-thickness*.5,w,wallHeight,thickness,plasterTone);
   for(const side of [-1,1]){
@@ -9384,37 +9386,79 @@ function renderOriginalOccupiedRoomShell(x,y,z,w,d,wallHeight,scale,plasterTone)
   box(x,base+doorHeight,z-d*.5+thickness*.5,
    doorWidth,wallHeight-doorHeight,thickness,plasterTone);
  });
- // One original home floor and a restrained occupied-house hearth: no new
- // supplies, light source, workbench, citizen or artificial home meal.
  materialScope(MATERIAL.STONE,()=>{
   box(x,base+.008,z,w-2*thickness,.045*scale,d-2*thickness,
    rgb(0x8a806f));
-  box(x-.48*scale,base+.055*scale,z+d*.29,
-   .51*scale,.20*scale,.37*scale,rgb(0x817766));
+  // An actual fireplace on the rear-left masonry wall. Thin, two-faced
+  // stone piers have visible depth instead of consuming 3D box primitives.
+  const fx=x-.48*scale,fz=z+d*.5-thickness-.018*scale;
+  const ash=rgb(0x998a76),lime=rgb(0xb1a08b);
+  for(const side of [-1,1]){
+   const xx=fx+side*.20*scale,front=fz-.105*scale;
+   const a=[xx-.045*scale,base+.045*scale,front],
+    b=[xx-.045*scale,base+.68*scale,front],
+    c=[xx+.045*scale,base+.68*scale,front],
+    d0=[xx+.045*scale,base+.045*scale,front];
+   quad(a,b,c,d0,side<0?ash:lime);
+   quad(d0,c,[c[0],c[1],fz],[d0[0],d0[1],fz],ash);
+  }
+  box(fx,base+.685*scale,fz-.063*scale,
+   .53*scale,.115*scale,.21*scale,ash);
+ });
+ materialScope(MATERIAL.GENERAL,()=>{
+  // A non-emissive soot-black opening behind the TRUE stone chimney.
+  // It is NOT a claimed burning fire, food purchase or staged consumption.
+  const fx=x-.48*scale,fz=z+d*.5-thickness-.009*scale,
+   dark=rgb(0x342f2b);
+  quad([fx-.145*scale,base+.11*scale,fz],
+   [fx-.145*scale,base+.60*scale,fz],
+   [fx+.145*scale,base+.60*scale,fz],
+   [fx+.145*scale,base+.11*scale,fz],dark);
  });
  materialScope(MATERIAL.WOOD,()=>{
-  // Household joinery remains behind and to the side of the unchanged
-  // passage; a real resident may still reach their same front doorway.
-  box(x+.45*scale,base+.07*scale,z+d*.27,
-   .68*scale,.34*scale,.23*scale,rgb(0x75563e));
-  box(x+.40*scale,base+.87*scale,z+d*.38,
-   .91*scale,.07*scale,.17*scale,rgb(0x987653));
+  // A recognisable small oak work-and-meal table to the RIGHT of the clear
+  // central entrance. Its legs are real upright 3D faces, not a flat label.
+  const tx=x+.49*scale,tz=z+.07*scale,oak=rgb(0x795739),
+   edge=rgb(0x60442f),chair=rgb(0x997553);
+  box(tx,base+.455*scale,tz,.60*scale,.065*scale,.46*scale,oak);
+  for(const side of [-1,1]){
+   const xx=tx+side*.225*scale,zf=tz-.167*scale;
+   quad([xx-.033*scale,base+.055*scale,zf],
+    [xx-.033*scale,base+.46*scale,zf],
+    [xx+.033*scale,base+.46*scale,zf],
+    [xx+.033*scale,base+.055*scale,zf],edge);
+   quad([xx+.033*scale,base+.055*scale,zf],
+    [xx+.033*scale,base+.46*scale,zf],
+    [xx+.033*scale,base+.46*scale,zf+.24*scale],
+    [xx+.033*scale,base+.055*scale,zf+.24*scale],edge);
+  }
+  // Restrained backrest: an inhabitant may live here, but NO meal is acted
+  // without the original authoritative eating state and moving real citizen.
+  const zz=tz+.255*scale,l=tx-.22*scale,r=tx+.22*scale;
+  quad([l,base+.48*scale,zz],[l,base+.92*scale,zz],
+   [r,base+.92*scale,zz],[r,base+.48*scale,zz],chair);
+  quad([r,base+.48*scale,zz+.014*scale],
+   [r,base+.92*scale,zz+.014*scale],
+   [l,base+.92*scale,zz+.014*scale],
+   [l,base+.48*scale,zz+.014*scale],edge);
   box(x,base+doorHeight-.052*scale,z-d*.5-.024*scale,
    .89*scale,.09*scale,.075*scale,rgb(0x77523b));
  });
  const triangles=(data.length-before)/30;
- if(!Number.isInteger(triangles)||triangles>150||triangles<90)
-  throw Error('W432 original furnished room exceeds retained city budget');
+ if(!Number.isInteger(triangles)||triangles!==142||triangles>150)
+  throw Error('W480 original furnished medieval room budget/parity failed');
  originalOccupiedRoomStats.builtInstances++;
  originalOccupiedRoomStats.emittedTriangles+=triangles;
  originalOccupiedRoomStats.doorwayOpenings++;
- originalOccupiedRoomStats.interiorFixtures+=4;
+ originalOccupiedRoomStats.interiorFixtures+=6;
+ originalOccupiedRoomStats.hearthRecesses++;
+ originalOccupiedRoomStats.householdTables++;
  originalOccupiedRoomStats.lastDoorWidth=doorWidth;
  originalOccupiedRoomStats.lastDoorHeight=doorHeight;
  return {triangles,doorWidth,doorHeight,
-  fixedOuterWalls:true,doorwayOpen:true,originalHome:true};
+  fixedOuterWalls:true,doorwayOpen:true,originalHome:true,
+  genuineHearth:true,originalFurnitureOnly:true};
 }
-
 function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale,h=houseVisualProfile(x,z,variant,false).height*scale;
  // G054c: plaster is not stacked granite. Preserve stone in the footings,
  // make roof planes roof material, and preserve all original mesh triangles.
