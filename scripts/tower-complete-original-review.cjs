@@ -21,11 +21,18 @@ function archivePlan(rows,scenario,viewport,candidateSha,frozenSha) {
   const originals=[a[0],b[0]];
   const width=viewport==='desktop'?960:390;
   const height=viewport==='desktop'?600:844;
+  const uncalibrated=[];
+  // Native decoder/immutable WebM provenance and source-to-video TIMEBASE
+  // are separate checks. A genuine 60s original may be safe for raw unaligned
+  // inspection even if the CDP visual-anchor fit failed. Never assign event
+  // cues, "canReview", votes or a passing comparison from that raw film.
   for(let i=0;i<2;i++){
     const record=originals[i],sha=i===0?frozenSha:candidateSha;
     const clock=record.videoClock,meta=record.motion,audit=record.nativeFilmAudit;
     const native=audit?.viewports?.filter(v=>v.viewport===viewport);
     const audited=native?.length===1?native[0]:null;
+    const calibrated=clock?.status==='CALIBRATED';
+    if(!calibrated)uncalibrated.push(record.source);
     if(record.sourceSha!==sha||record.index?.sourceSha!==sha||
        record.index?.scenario!==scenario ||
        clock?.sourceSha!==sha||clock?.scenario!==scenario||
@@ -34,13 +41,14 @@ function archivePlan(rows,scenario,viewport,candidateSha,frozenSha) {
        !record.videoPresent||!HASH.test(record.videoSha256||'')||
        !(record.videoBytes>0)||
        typeof record.videoPath!=='string'||!record.videoPath||
-       clock?.status!=='CALIBRATED'||
        clock?.originalWebMSha256!==record.videoSha256||
        clock?.originalWebMBytes!==record.videoBytes||
        clock?.originalVideoUnmodified!==true||
        clock?.viewport?.name!==viewport||
        clock?.viewport?.width!==width||clock?.viewport?.height!==height||
-       !(clock?.originalVideoDurationSeconds>=60)||
+       (calibrated && !(clock.originalVideoDurationSeconds>=60))||
+       (Number.isFinite(clock?.originalVideoDurationSeconds) &&
+         clock.originalVideoDurationSeconds<60)||
        !(meta?.actualWallSeconds>=60)||
        audit?.sourceSha!==sha||audit?.scenario!==scenario||
        audit?.status!=='SOURCE_VIDEO_TRANSPORT_ONLY'||
@@ -63,11 +71,29 @@ function archivePlan(rows,scenario,viewport,candidateSha,frozenSha) {
   if(plan.failures.length)return plan;
   plan.files={baseline:originals[0].videoPath,candidate:originals[1].videoPath};
   plan.hashes={baseline:originals[0].videoSha256,candidate:originals[1].videoSha256};
-  plan.fullVideoSeconds={baseline:originals[0].videoClock.originalVideoDurationSeconds,
-    candidate:originals[1].videoClock.originalVideoDurationSeconds};
+  plan.fullVideoSeconds=Object.fromEntries(originals.map(record=>{
+    const native=record.nativeFilmAudit.viewports.find(v=>v.viewport===viewport).native;
+    // The independent decoded PTS span, not an invented or transferred
+    // browser wall offset, is the only raw-film duration when timebase fails.
+    return [record.source, record.videoClock.status==='CALIBRATED'
+      ?record.videoClock.originalVideoDurationSeconds
+      :native.lastPtsSeconds-native.firstPtsSeconds];
+  }));
   plan.shuffleAB=createHash('sha256').update(
     originals[0].videoSha256+':'+originals[1].videoSha256+':'+
     scenario+':'+viewport).digest()[0]%2===1;
+  if(uncalibrated.length){
+    // Keep the unedited authenticated originals inspectable; explicitly veto
+    // matching and record the exact source whose native timeline failed.
+    plan.failures.push(...uncalibrated.map(source=>
+      'uncalibrated-native-source-video-clock-'+source));
+    plan.uncalibratedSources=uncalibrated;
+    plan.nativeTimebaseVerified=false;
+    plan.originalVideoAuthenticated=true;
+    plan.unalignedInspectionOnly=true;
+    plan.caveat='Transport-authenticated unedited 60+s native WebM only. Native source-event clock FAILED; visual inspection is unaligned and NOT EVALUATED. No event cue, vote or acceptance.';
+    return plan;
+  }
   // No event cue is inferred from a scenario's file name, seed or clock:
   // ordinary ascent, moving hazards and outcome/restart are observed later.
   plan.unalignedInspectionOnly=true;
