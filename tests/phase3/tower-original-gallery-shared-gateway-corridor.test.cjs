@@ -76,3 +76,46 @@ test('corridor rescue never runs without actual current source-owned guardian ga
     assert.equal(res.corridorSoftened||0,0,'never dim historical geometry without the live physical corridor');
   }
 });
+
+test('actual Three.js triangle intersection clears only the real bronze post between original gateway and skinned hero in both camera aspect ratios',async()=>{
+  const THREE=await import('three');
+  const {protectHistoricalGallerySightline}=await source;
+  for(const aspect of [960/600,390/844]){
+    const original=fixture(aspect),scene=new THREE.Group();
+    const bronze=new THREE.Mesh(new THREE.BoxGeometry(.45,3.6,.45),
+      new THREE.MeshStandardMaterial({color:0x9c7849,opacity:.94,transparent:true,depthWrite:false}));
+    bronze.name='genuine non-colliding prior Floor8 gallery post';
+    bronze.position.set(0,1.6,6);scene.add(bronze);
+    const clear=new THREE.Mesh(new THREE.BoxGeometry(.45,3.6,.45),
+      new THREE.MeshStandardMaterial({color:0x9c7849,opacity:.94,transparent:true,depthWrite:false}));
+    clear.position.set(8,1.6,6);scene.add(clear);
+    scene.updateWorldMatrix(true,true);
+    const camera=new THREE.PerspectiveCamera(55,aspect,.1,150);
+    camera.position.set(0,3,12);camera.lookAt(0,1.5,0);
+    camera.updateMatrixWorld(true);
+    original.args.camera=camera;
+    original.args.actor=new THREE.Vector3(2,1,0);
+    original.args.gateway=new THREE.Vector3(-2,2,0);
+    original.args.raycaster=new THREE.Raycaster();
+    original.args.direction=new THREE.Vector3();
+    original.args.point=new THREE.Vector3();
+    original.args.held.originalGalleryRoot=scene;
+    original.args.held.originalGalleryOcclusionWeights=[1,1];
+    const before=JSON.stringify(original.snapshot);
+    try {
+      const observed=protectHistoricalGallerySightline(original.args);
+      assert.equal(observed.active,true);
+      assert.equal(observed.corridorSoftened,1,
+        'an actual old-world triangle bisects the otherwise unobstructed live gateway-to-climber composition');
+      assert.equal(observed.softened,1,'only the genuinely struck original gallery post dims');
+      assert.ok(observed.corridorRays>0 && observed.rays<=96);
+      assert.ok(bronze.material.opacity<.04,'old non-walkable steel opens a clear visual passage');
+      assert.equal(clear.material.opacity,.94,'separate original supports retain real materials');
+      assert.equal(original.held.originalGatewayOpacity,1,'genuine HP-open gate not touched');
+      assert.equal(JSON.stringify(original.snapshot),before,'no change to source gameplay truth');
+    } finally {
+      bronze.geometry.dispose();bronze.material.dispose();
+      clear.geometry.dispose();clear.material.dispose();
+    }
+  }
+});
