@@ -1,3 +1,10 @@
+## Pass504 — public Tideglass inscription now influences bounded genuine exploration (2026-11-19 UTC)
+
+- Incoming exact PR #53 HEAD `39ac19b27400d0edb3fbdadb4973863fdb18ec75`. A presently or previously **observed** unvisited clue gets a legal safe-route objective only within eight real moves and a two-step detour against the nearest discovered frontier. Physical entry produces the original real clue engine event; minimal native goal/intent labels. Existing threat, pressure, key/exit priorities, collision, deterministic replay, hidden-map/privacy, and strict NDC/geometry limits unchanged. Focused regression includes genuine passage/engine event, stale/visited, sealed and hidden exclusions.
+- **Candidate; source CI/native WebGL and same-run default flagship pacing audit pending.** 485-tick counter-to-key gap and 390px Thornback occlusion remain unaccepted until original exact-source evidence. [Dated review](./maze-3d/pass-504-public-clue-pacing-2026-11-19.md). Draft PR, no merge/deploy.
+
+---
+
 ## Pass503 — keep all independent gate/pressure/Detail source contracts after authentic escape finale (2026-11-19 UTC)
 
 - Pass502 exact commit `7a1550462da816ca698439f00058850ac9a89092` [whole-repo CI 44473670899](https://github.com/my-edutu/Ai_games/actions/runs/44473670899) reached 912/915 tests but failed three **obsolete exact-string source assertions** in otherwise unchanged gate crane, pressure lens and Detail camera contracts. Original physical source and strict cameras remain present; all 3 failures expected the pre-finally terminal first branch `cameraOffset.lerp(openingStageView` / `targetHeight = cameraMode...`. No test budget or physical threshold is lowered.

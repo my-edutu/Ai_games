@@ -65,8 +65,8 @@ function formatTime(ticks,interval=360){
     ? `${Math.floor(seconds/3600)}:${part(Math.floor(seconds%3600/60))}:${part(seconds%60)}`
     : `${Math.floor(seconds/60)}:${part(seconds%60)}`;
 }
-const intentLabels={'exploring':'Exploring','inspecting-hazard':'Inspecting jaws','returning-key':'Find key','unlocking-route':'At gate','searching-exit':'To exit','evading-threat':'Evading','revising-map':'Rerouting','fallback':'Exploring','escaped':'Escaped'};
-const goals={'exploring':'Find passage','inspecting-hazard':'Study jaws','returning-key':'Find key','unlocking-route':'Gate ahead','searching-exit':'Find the exit','evading-threat':'Avoid warden','revising-map':'New route','fallback':'Explore','escaped':'Escaped'};
+const intentLabels={'exploring':'Exploring','following-clue':'Following clue','inspecting-hazard':'Inspecting jaws','returning-key':'Find key','unlocking-route':'At gate','searching-exit':'To exit','evading-threat':'Evading','revising-map':'Rerouting','fallback':'Exploring','escaped':'Escaped'};
+const goals={'exploring':'Find passage','following-clue':'Read inscription','inspecting-hazard':'Study jaws','returning-key':'Find key','unlocking-route':'Gate ahead','searching-exit':'Find the exit','evading-threat':'Avoid warden','revising-map':'New route','fallback':'Explore','escaped':'Escaped'};
 function viewerCaption(value){
   if(/^Key collected:/i.test(value))return 'Pip found a key.';
   if(/^Route unlocked:/i.test(value))return 'A locked passage opened.';

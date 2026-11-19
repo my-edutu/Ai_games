@@ -380,6 +380,31 @@ export function chooseMazeAction(
       || a.frontier - b.frontier,
     );
 
+  // An actually observed Tideglass clue is now a consequential navigation
+  // goal instead of merely being a collectible encountered by chance.
+  // Follow only a PUBLIC or previously remembered inscription in the belief
+  // graph, never an undiscovered clue or an oracle solver coordinate.
+  // The bounded two-step detour prevents clue-reading from replacing the
+  // nearest safe frontier with another long, aimless across-maze journey.
+  const nearestFrontierSteps = frontierCandidates[0]?.path?.path.length
+    ?? Number.POSITIVE_INFINITY;
+  const clueRoutes = observation.cells
+    .filter(cell => cell.clue && !cell.blocked
+      && belief.cells[String(cell.cell)]?.visits === 0)
+    .map(cell => ({
+      cell: cell.cell,
+      decision: targetDecision(
+        observation, belief, cell.cell, 'following-clue',
+        'Pip spotted a Tideglass inscription and is taking a known safe passage to read it.',
+      ),
+    }))
+    .filter(item => item.decision
+      && item.decision.plannedPath.length <= 9
+      && item.decision.plannedPath.length <= nearestFrontierSteps + 2)
+    .sort((a, b) => a.decision!.plannedPath.length - b.decision!.plannedPath.length
+      || a.cell - b.cell);
+  if (clueRoutes.length) return clueRoutes[0]!.decision!;
+
   if (frontierCandidates.length) {
     const selected = cyclic && frontierCandidates.length > 1
       ? frontierCandidates[1]!
