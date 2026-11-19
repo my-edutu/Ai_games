@@ -4014,6 +4014,24 @@ function changeAction(actor,action,forceRestart=false,frameDelta=.016,sourceFram
      interrupted:Boolean(actor.fullBody?.interrupted)
     }));
    next.crossFadeFrom(previous,crossfadeSeconds,false);
+   // On-demand frame-aligned evidence, never an instruction to pose a bone.
+   // A long moving exit must be distinguished from an unqualified 230ms fade
+   // using the ORIGINAL GLB source action, actual travel and exact mixer call.
+   if(['idle','guard'].includes(action)&&actor.currentAction==='move'&&
+    previous.getClip?.()?.name==='Walking_A'&&clip.name==='Idle'){
+    const witnessed= current&&prior?Math.hypot(current.x-prior.x,current.z-prior.z):NaN;
+    actor.sourceWalkExitFadeReceipt={
+     source:'original-Walking_A-to-Idle-mixer-crossfade',
+     sourceInstanceId:actor.assetRoot?.uuid??null,
+     fromClip:'Walking_A',toClip:clip.name,toMode:action,
+     originalPreviousWeight:previous.getEffectiveWeight?.()??null,
+     originalPreviousRunning:Boolean(previous.isRunning?.()&&!previous.paused),
+     rootTravelMeters:Number.isFinite(witnessed)?witnessed:null,
+     frameIntervalSeconds:sourceFrameInterval,selectedFadeSeconds:crossfadeSeconds,
+     candidateSelected:crossfadeSeconds>.23,
+     contactLocked:false,syntheticMovement:false
+    };
+   }
    // This flag describes a crossFadeFrom performed on THIS exact rendered
    // source frame, not a stale transition receipt or an assumed source
    // weight. It is reset at the start of each subsequent original rig update.
@@ -4201,6 +4219,8 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
  // A previous frame's imported fade can never receive a second full-fade
  // catch-up. Only changeAction() after this reset can authorize it.
  actor.sourceWalkFadeStartedThisFrame=false;
+ // A source-fade receipt belongs to the authentic transition frame only.
+ actor.sourceWalkExitFadeReceipt=null;
  // Source-rig toe relief uses the actual visible-frame interval, not capped
  // mixer dt or fabricated authority movement. This is read-only timing.
  actor.rigSourceSwingFrameInterval=sourceFrameInterval;
@@ -5907,7 +5927,8 @@ function inspectSourceRigDeformation(actors){
      actor.activeClip.getClip().duration:null,
     weight:Number.isFinite(actor.activeClip.getEffectiveWeight?.())?
      actor.activeClip.getEffectiveWeight():null,
-    running:Boolean(actor.activeClip.isRunning?.())
+    running:Boolean(actor.activeClip.isRunning?.()),
+    movingExitFade:actor.sourceWalkExitFadeReceipt??null
    }:null,
    // Explicit ON-DEMAND read of the authentic source action, not a synthetic
    // animation timer. This never scans skin vertices or advances the mixer.
