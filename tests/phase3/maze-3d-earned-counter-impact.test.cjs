@@ -39,7 +39,7 @@ test('stale, unseen, first-seen, terminal or unrelated parry never earns a hit e
  ])assert.equal(stage(...invalid),null);
 });
 test('the actual native WebGL director connects the pulse to an earned, public, open corridor',()=>{
- assert.match(scene,/publicEarnedCounterImpactStage\(s,earnedCounterActor,settings\.reducedMotion\)/);
+ assert.match(scene,/const counterImpact=publicEarnedCounterImpactStage\(\s*s,earnedCounterActor,settings\.reducedMotion\)/);
  assert.match(scene,/if\(counterImpact && explorerLantern && earnedCounterModel\?\.parent/);
  assert.match(scene,/publicLanternEncounter\(s,earnedCounterActor\.cell\)/);
  assert.match(scene,/earnedTwoLinkPath/);
