@@ -29,6 +29,10 @@ for(const width of [1024,390]){
   expect(inspect.population).toBeGreaterThanOrEqual(12);
   expect(inspect.room.builtInstances).toBeGreaterThanOrEqual(1);
   expect(inspect.room.doorwayOpenings).toBeGreaterThanOrEqual(1);
+  expect(inspect.room.hearthRecesses).toBeGreaterThanOrEqual(1);
+  expect(inspect.room.householdTables).toBeGreaterThanOrEqual(1);
+  expect(inspect.room.emittedTriangles).toBe(inspect.room.builtInstances*142);
+  expect(inspect.room.authorityModified).toBe(false);
   expect(inspect.room.maxTrianglesPerHome).toBeLessThanOrEqual(150);
   expect(inspect.room.authorityModified).toBe(false);
   await page.waitForTimeout(1900);
