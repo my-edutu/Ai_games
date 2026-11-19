@@ -3614,7 +3614,15 @@ export function createTowerWorld(){
     // independently validated current far-side body and finite GPU lease.
     // The first real incoming-shaft submission ends this interlock; source
     // time alone never creates a painted frame, new world or fake doorway.
-    const returnedBronzeHold=!options.stale && farSide
+    // Source-owned old metal and the ACTUAL walkable successor roof form
+    // one physical camera corridor. Before the original shaft has returned,
+    // do not discard its ALREADY PAINTED old-gateway room merely because
+    // the true grounded survivor is not yet 100m past the sill. The near
+    // case is separately HP0/roof/old-GPU certified; an active, freshly
+    // earned source-departure still has priority, as does far-side physics.
+    // The first real structural return automatically ends this bounded hold.
+    const returnedBronzeHold=!options.stale &&
+      (farSide || sourceDeparture?.sourceBound!==true)
       ?observedReturnedOriginalArchitectureHold(
         snapshot,held,deferredDistantArrival,farSide):null;
     held.sourceAlignedPassage=samePassage || sourceColdFrame || !!farSide ||
