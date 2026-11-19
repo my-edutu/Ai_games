@@ -25,7 +25,7 @@ const size=t=>{
  triangles=0;context.emitCrown(0,2,0,1,1,1,[.5,.7,.5],.5,false,false,t);
  return triangles;
 };
-assert.equal(size(false),54,'near trees remain full articulated 3D crowns');
+assert.equal(size(false),48,'near trees retain the W447 genuine 24-core/24-spray 3D canopy');
 assert.equal(size(true),28,'mid trees preserve previously proven silhouette');
 assert.equal(size('far'),20,'distant 3D crown cuts eight subpixel triangles');
 const wood=html.slice(html.indexOf('function tree('),
@@ -36,4 +36,4 @@ assert.match(wood,/workingFieldEdgeNearTrees\+\+/);
 assert.match(html,/forestLodStats=\{renderedTrees:0,nearTrees:0,midTrees:0,farTrees:0,\n  workingFieldEdgeNearTrees:0/);
 assert.match(html,/farmMarketStreet\(\)/);
 assert.match(html,/drawResidentFarmFields\(eye,planes/);
-console.log('W327 original production RED-before / GREEN-after: truthful 54/28/20 canopy, real field-edge near forest, no changed authority; real gameplay/Day120/physical GPU NOT PROVEN.');
+console.log('W327 original production RED-before / GREEN-after: truthful current 48/28/20 canopy, real field-edge near forest, no changed authority; real gameplay/Day120/physical GPU NOT PROVEN.');
