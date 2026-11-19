@@ -7,7 +7,7 @@ const finite=Number.isFinite;
 const point=p=>Array.isArray(p)&&p.length===3&&p.every(finite);
 const shoe=s=>s&&point(s.heel)&&point(s.toe);
 const reject=reason=>({eligible:false,reason,contactLocked:false,plantCertified:false});
-function auditOriginalSourceRafSolePair({before=null,after=null,floorTopY=NaN}={}){
+function auditOriginalSourceSolePair({before=null,after=null,floorTopY=NaN,poseOnly=false}={}){
  if(!before||!after||typeof before!=='object'||typeof after!=='object')
   return reject('invalid-original-source-sample');
  if(typeof before.actorId!=='string'||!before.actorId||
@@ -47,6 +47,7 @@ function auditOriginalSourceRafSolePair({before=null,after=null,floorTopY=NaN}={
    duration-before.sourceClipTime+after.sourceClipTime:NaN;
  if(!finite(phaseStep)||phaseStep<0||phaseStep>duration*.40)
   return reject('discontinuous-source-clip-phase');
+ if(poseOnly&&phaseStep<.001)return reject('nonadvancing-source-clip');
  if(!point(before.rootWorld)||!point(after.rootWorld))return reject('invalid-source-root');
  const b=before.sourceSolePatchWorld,a=after.sourceSolePatchWorld;
  if(!['left','right'].every(side=>shoe(b?.[side])&&shoe(a?.[side]))||
@@ -56,7 +57,7 @@ function auditOriginalSourceRafSolePair({before=null,after=null,floorTopY=NaN}={
  const dz=after.rootWorld[2]-before.rootWorld[2];
  const rootTravel=Math.hypot(dx,dz);
  if(rootTravel>.24)return reject('discontinuous-source-root');
- if(rootTravel<.00025)return reject('no-witnessed-root-travel');
+ if(rootTravel<.00025&&!poseOnly)return reject('no-witnessed-root-travel');
  const shoes={};
  for(const side of ['left','right']){
   const first=b[side],last=a[side];
@@ -77,14 +78,26 @@ function auditOriginalSourceRafSolePair({before=null,after=null,floorTopY=NaN}={
   };
  }
  return {
-  eligible:true,sourceInstanceId:before.sourceInstanceId,
+  eligible:!poseOnly,poseEligible:true,poseOnly,
+  sourceInstanceId:before.sourceInstanceId,
   actorId:before.actorId,authorityTick:before.authorityTick,
   beforeFrame:before.frame,afterFrame:after.frame,frameDelta:1,
   elapsedSeconds:dt/1000,sourceClipPhaseDeltaSeconds:phaseStep,
   rootTravelMeters:rootTravel,sourceClip:'Walking_A',
   sourceHandGripStable:true,shoes,contactLocked:false,plantCertified:false,
-  source:'two-live-source-skinned-soles-and-same-tick-rAF',
-  warning:'This is not support-force evidence, IK, a ground-contact lock, or fluent animation certification.'
+  source:poseOnly?'two-live-original-pose-only-rAF-soles':
+   'two-live-source-skinned-soles-and-same-tick-rAF',
+  warning:poseOnly?'Original keyed-source pose only; NO witnessed root locomotion, contact, plant or fluent-motion certification.':
+   'This is not support-force evidence, IK, a ground-contact lock, or fluent animation certification.'
  };
 }
-module.exports={auditOriginalSourceRafSolePair};
+// Keep the historical moving-root witness strict; this second bounded diagnostic
+// can observe genuine same-tick keyed pose changes on a stationary root, but
+// cannot be interpreted as locomotion, planted foot or a smooth FPS pass.
+function auditOriginalSourceRafSolePair(options={}){
+ return auditOriginalSourceSolePair({...options,poseOnly:false});
+}
+function auditOriginalSourcePoseOnlyPair(options={}){
+ return auditOriginalSourceSolePair({...options,poseOnly:true});
+}
+module.exports={auditOriginalSourceRafSolePair,auditOriginalSourcePoseOnlyPair};
