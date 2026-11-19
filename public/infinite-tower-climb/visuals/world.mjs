@@ -11,10 +11,11 @@ import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact
 import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceFloorNineRouteSupport, observedSourceRetainedRaisedExit, observedSourceAirborneSuccessorApproach, observedSourceOriginalVisibilityWindow, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS, observedCertifiedOriginalGatewayOpticalLease } from './source-physical-arrival-palette.mjs';
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
 import { rebindSourceOwnedUndercroft } from './successor-deck-visibility.mjs';
-import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, createSourceEarnedVoidDepartureMaterials, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn, observedRenderedOriginalDoorwayRoom } from './original-clockwork-architecture-palette.mjs';
+import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, createSourceEarnedVoidDepartureMaterials, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn, observedRenderedOriginalDoorwayRoom, coherentOriginalBearingDeparture } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections, isolateEarnedFirstFrameVoidMaterials } from './source-earned-bearing-run.mjs';
 import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold, observedSourceEarnedEarlyVoidShaftAperture, observedSourceSupportedVoidFirstPaint, observedEarnedGalleryExitClearance, observedReturnedGalleryHandoffClearance, observedFirstReturnedVoidBearingGalleryRetirement } from './far-side-shaft-transition.mjs';
 import { chooseSourceEarnedFirstReturnInstancing } from './source-earned-first-return-instancing.mjs';
+import { observedReturnedSuccessorRoomReady } from './original-room-returned-exit.mjs';
 import { projectOriginalGuardianGateSteel } from './original-guardian-gate-steel-projection.mjs';
 
 
@@ -3591,7 +3592,21 @@ export function createTowerWorld(){
         snapshot,held,deferredDistantArrival,farSide):null;
     held.sourceAlignedPassage=samePassage || sourceColdFrame || !!farSide ||
       sourceDeparture?.sourceBound===true || authenticRaisedFlight;
-    if ((physicallyBeyondOriginalDoor && !farSide) || options.stale || snapshot.runToken !== held.runToken ||
+    // The actual first-episode native WebMs still replaced the original
+    // Clockwork arch with a fully violet room within one 25fps sample, even
+    // though the first incoming shaft had not yet been returned by WebGL.
+    // Source position BEYOND the gate is NOT proof of a displayed successor.
+    // Old cap retirement needs both the real floor/guardian/source clearance
+    // above and a returned successor shaft plus a previously drawn optical
+    // fade of the original gateway. Bounded source/return safety exits remain.
+    const returnedReplacement=physicallyBeyondOriginalDoor &&
+      observedReturnedSuccessorRoomReady(
+        snapshot,held,deferredDistantArrival);
+    const awaitingSourceReturnedReplacement=physicallyBeyondOriginalDoor &&
+      !returnedReplacement && !options.stale &&
+      held.originalGatewayOpacity>.01 &&
+      held.submittedFrames<30 && held.visibleSeconds<2.8;
+    if (returnedReplacement || options.stale || snapshot.runToken !== held.runToken ||
         snapshot.floor !== held.floor || snapshot.lifecycle !== 'running' ||
         !Number.isSafeInteger(snapshot.tick) ||
         // The source palette, original-arch camera and physical raised-deck
@@ -3604,7 +3619,8 @@ export function createTowerWorld(){
         // F9 raised-flight visibility window. A separate 70-tick world-only
         // deadline can otherwise delete the still-painted original doorway
         // even while the real moving body and successor deck remain eligible.
-        snapshot.tick<held.sourceTick || snapshot.tick-held.sourceTick>((opticalLease || farSide)
+        snapshot.tick<held.sourceTick || snapshot.tick-held.sourceTick>((opticalLease || farSide ||
+          awaitingSourceReturnedReplacement)
           ?150:(sourceVisibilityWindow?.maxTicks??70)) ||
         !(p?.health>0) ||
         (!nearDoor && !onNewRoof && !onCameraHandoffFlight &&
@@ -4454,6 +4470,11 @@ export function createTowerWorld(){
     if(sharedDoorwayMaterialProof && !returnedBronzePaletteLock)
       sourceCertifiedHorizon=observedCertifiedClockworkHorizon(
         snapshot,sharedDoorwayMaterialProof,opticalTail)??sourceCertifiedHorizon;
+    // The same original metal bearing palette MUST NOT independently
+    // become violet behind a still-opaque source-certified original gate.
+    // Preserve the first authentic raised F9 platform's own Void material.
+    departure=coherentOriginalBearingDeparture(
+      snapshot,sharedDoorwayMaterialProof,departure);
     const sourceAlignedMaterialProof=returnedBronzePaletteLock?{
       sourceBound:true,sourceTick:snapshot.tick,
       crossingTick:retainedEarnedCap.crossingTick,

@@ -272,7 +272,7 @@ export function observedRenderedOriginalDoorwayRoom(source, held, physical) {
      physical.oldWeight<0 || physical.oldWeight>1) return null;
   const returnedRoomWeight=Math.min(
     held.originalGatewayOpacity,held.originalDeckSurface.opacity);
-  return {...physical,
+  return {...physical,runToken:source.runToken,
     oldWeight:Math.max(physical.oldWeight,returnedRoomWeight),
     sharedOriginalGpuRoom:true,
     limitation:'Source-certified HP-open gate and real returned original cap paint, not native pixel or video acceptance'};
@@ -298,4 +298,29 @@ export function updateOriginalClockworkSuccessorRoute(deck, proof, opticalTail=n
   return {sourceBound:valid,historicalOpticalTail:tail,
     sourceTick:valid?proof.sourceTick:null,
     oldWeight:weight};
+}
+
+/**
+ * Keep ORIGINAL non-colliding bronze-to-Void bearing metal in the same
+ * returned, source-certified optical room as the authentic guardian gate,
+ * actual receiving roof, architecture and sky. A source position alone,
+ * fabricated run, expired clock, new unrelated floor or stale proof cannot
+ * preserve an earlier biome. This affects only existing GPU material colors,
+ * never the separately raised F9 routes, combat, physics or progression.
+ */
+export function coherentOriginalBearingDeparture(source,roomProof,departure) {
+  if(!boundedWeight(departure))return 1;
+  if(source?.lifecycle!=='running' || source.floor!==9 ||
+     source.theme!=='void' || !(source.player?.health>0) ||
+     typeof source.runToken!=='string' || !source.runToken ||
+     !Number.isSafeInteger(source.tick) ||
+     roomProof?.sharedOriginalGpuRoom!==true ||
+     roomProof.sourceBound!==true ||
+     roomProof.runToken!==source.runToken ||
+     roomProof.sourceTick!==source.tick ||
+     !actualSourceKind(roomProof.kind) ||
+     !Number.isSafeInteger(roomProof.crossingTick) ||
+     roomProof.crossingTick>source.tick ||
+     !boundedWeight(roomProof.oldWeight))return departure;
+  return Math.min(departure,1-roomProof.oldWeight);
 }
