@@ -81,8 +81,8 @@ test('no historical gate, fake source, old run, unsupported floor, dead hero, st
 test('World applies one returned original room certificate to near roof, shaft architecture and sky without changing gameplay',()=>{
   const world=fs.readFileSync(path.resolve(__dirname,
     '../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
-  assert.match(world,/observedRenderedOriginalDoorwayRoom\(snapshot,retainedEarnedCap,materialProof\)/);
-  assert.match(world,/observedCertifiedClockworkHorizon\(snapshot,sharedDoorwayMaterialProof,opticalTail\)/);
+  assert.match(world,/observedRenderedOriginalDoorwayRoom\(\s*snapshot,retainedEarnedCap,materialProof\)/);
+  assert.match(world,/observedCertifiedClockworkHorizon\(\s*snapshot,sharedDoorwayMaterialProof,opticalTail\)/);
   assert.match(world,/sourceAlignedMaterialProof=returnedBronzePaletteLock\?/);
   assert.match(world,/updateOriginalClockworkSuccessorRoute\(arrivalRoutePalette,\s*sourceAlignedMaterialProof,opticalTail\)/);
   assert.doesNotMatch(world,/snapshot\.player\.x\s*=/);
