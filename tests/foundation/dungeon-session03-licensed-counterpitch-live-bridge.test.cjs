@@ -112,3 +112,60 @@ test('REAL original-pose renderer must invoke and rollback the certified counter
  assert.match(renderer,/stageLicensedSourceSwingCounterpitchAfterMixer\(actor,reducedMotion\)/,
   'source mixer owner actually invokes the witnessed original-rig correction');
 });
+
+
+test('actual source toe-child finishing certificate improves the original linked three-joint shoe without claiming a plant',async()=>{
+ const {certifyLicensedCounterpitchToeFinish:certify}=await source;
+ assert.equal(typeof certify,'function');
+ const left=shoe(.18505782723677852,-.026411240831095674);
+ const right=shoe(.005642947798000755,-.013260510673651723);
+ const afterCounterpitch={left,right};
+ const proof={
+  source:'measured-original-licensed-source-counterpitch',
+  sourceClip:'Walking_A',side:'left',
+  sourceInstanceId:'real-original-skeleton-instance',
+  finalIndependentSourceSkin:true,originalOppositeShoeVerified:true,
+  sourceOriginalRootTravelWitnessed:true,
+  residualToeBurialMeters:.006411240831095674,
+  contactLocked:false,plantCertified:false,after:afterCounterpitch
+ };
+ const base={proof,before:afterCounterpitch,side:'left',
+  sourceInstanceId:'real-original-skeleton-instance',
+  sourceInstanceSame:true,sourceClipName:'Walking_A',
+  sourceToeTrackVerified:true,sourceToeBoneParentVerified:true,
+  angleRad:.12,floorTopY:-.02};
+ const improved={left:shoe(.185,-.0219),right};
+ const certificate=certify({...base,after:improved});
+ assert.ok(certificate,'source toe-child hinge lifts a REAL still-buried toe');
+ assert.ok(certificate.toeLiftMeters>=.004);
+ assert.ok(certificate.residualToeBurialMeters<.002);
+ assert.equal(certificate.plantCertified,false);
+ assert.equal(certificate.contactLocked,false);
+ for(const patch of [
+  {sourceToeTrackVerified:false},
+  {sourceToeBoneParentVerified:false},
+  {sourceInstanceSame:false},
+  {sourceClipName:'Idle'},
+  {sourceInstanceId:'different skeleton'},
+  {angleRad:.26},
+  {proof:{...proof,residualToeBurialMeters:.051}},
+  {before:{left:shoe(.200,-.0264),right}},
+  {after:{left:shoe(.185,-.028),right}},
+  {after:{left:shoe(.18,-.0219),right}},
+  {after:{left:shoe(.185,-.009),right}},
+  {after:{left:shoe(.185,-.0219),right:shoe(.013,-.0132)}}
+ ])assert.equal(certify({...base,after:improved,...patch}),null,
+  'unsafe or stale two-shoe source hinge denied: '+JSON.stringify(patch));
+});
+
+test('original licensed counterpitch owns optional true toes-child finisher AFTER both-shoe certification',()=>{
+ assert.match(renderer,/certifyLicensedCounterpitchToeFinish/);
+ assert.match(renderer,/stageLicensedSourceToeFinisherAfterCounterpitch\(actor,reducedMotion\)/);
+ const sourceIndex=renderer.indexOf(' stageLicensedSourceSwingCounterpitchAfterMixer(actor,reducedMotion);');
+ const toeIndex=renderer.indexOf(' stageLicensedSourceToeFinisherAfterCounterpitch(actor,reducedMotion);');
+ const evidenceIndex=renderer.indexOf(' rememberOriginalSourceAppliedSwingEvidence(actor);');
+ assert.ok(sourceIndex>=0&&sourceIndex<toeIndex&&toeIndex<evidenceIndex,
+  'correct real stage ordering prevents a stale counterpitch sole receipt');
+ assert.match(renderer,/actor\.originalSwingToeJointRestore\.push\(/,
+  'toe child original local quaternion must be restored before imported mixer');
+});
