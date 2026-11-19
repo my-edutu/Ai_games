@@ -218,5 +218,52 @@
     "actualDevice": "NOT EVALUATED",
     "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
     "nextHighestImpact": "Await exact-head quality, inspect entire actual original 1x video at immutable capture source and event-native PTS. If still cold room-swap, correct real 3D shader/world/GPU/camera as a cohesive P0 gameplay issue, not tests."
+  },
+  "p0NativeFilmAfterLatestRequestNearRoofClimateLock20261119_2226": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedHeadBeforeChange": "ccf04a847b924b7b13b021d91540c919f42de060",
+    "latestOriginalSourceSha": "8e407534a8b782ff6a2d10599b8748cba7161616",
+    "sourcePinnedNineJob": "https://github.com/my-edutu/Ai_games/actions/runs/44611221955",
+    "sourceOriginalCandidateDanger": "https://github.com/my-edutu/Ai_games/actions/runs/44611221955/artifacts/14573166606",
+    "sourceOriginalBaselineDanger": "https://github.com/my-edutu/Ai_games/actions/runs/44611221955/artifacts/14571919858",
+    "originalUnedited25fpsNativeFilm": {
+      "desktop": {
+        "viewport": "960x600",
+        "durationSeconds": 72.04,
+        "sourceSha": "8e407534a8b782ff6a2d10599b8748cba7161616",
+        "sha256": "16d61b5615aa1684436f83021e609daeaf40a92845220c605bfca59478b573d6",
+        "drawnF9HudSeconds": 25.75,
+        "sustainedVioletSeconds": 26.5,
+        "hudToVioletSeconds": 0.75
+      },
+      "portrait": {
+        "viewport": "390x844",
+        "durationSeconds": 72.56,
+        "sourceSha": "8e407534a8b782ff6a2d10599b8748cba7161616",
+        "sha256": "9b4cc494b375e45da9a91f8f30f3eaf9155ce681e2142472927abbab1f21fd78",
+        "drawnF9HudSeconds": 26,
+        "sustainedVioletSeconds": 26.5,
+        "hudToVioletSeconds": 0.5
+      }
+    },
+    "genuineCaptureResults": "Eight of eight original baseline/candidate scenario jobs and authentic ledge job succeeded; full source-event pairing failed 0/2 viewports; original anonymous paired artifact exists but is NOT accepted native-event evidence.",
+    "observedDefect": "Personally decoded original real 1x WebM at PTS 23.5–32s in both viewports. Visible whole-room warm-to-cold cut, 0s sustained shared bronze/violet bridge in native phase audit; no accepted two consecutive event-aligned hero + opened HP0 gateway + physically walkable F9 frames. Portrait intermittently hides full actor behind original bars around threshold; onward F9 ascent visually exists.",
+    "verifiedSystemGap": "Real `observedReturnedOriginalArchitectureHold()` explicitly supports source-grounded F9 roof near old gate before first returned successor core, yet original 3D gateway material and world sky/fog/shaft palette only consumed that held return when farSideHorizon already met far/raised criterion. An active source-departure could also bypass returned old material while no successor paint returned.",
+    "productionChange": "Route the SAME genuine returned-old-room witness into gateway material owner and world sky/lighting/original bearing/successor material coherence while standing near true old gateway F9 roof; release on first incoming returned structure. No physics, guardian, clip, camera, seed, clock, environment proxy, synthetic source, or game outcomes created.",
+    "productionCommit": "fc402e53747d84a50ecb704881eadb4c460c753c",
+    "focusedTestCommit": "be30c758d9639130005b1dc7c4cc1cd51d9f4484",
+    "earlierCI": "https://github.com/my-edutu/Ai_games/actions/runs/44611221717 — 9/10, test-only false veto on gallery zero-alpha, already fixed in later ccf04a8; this new production code is NOT certified by that CI.",
+    "currentExactHeadTests": "NOT YET EVALUATED; source-pinned workflow pending/request next",
+    "currentExactHeadNativeVideo": "NOT YET CAPTURED; prior 8e407 film cannot validate new fix",
+    "genuineIndependentCriticCounts": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDeviceP50P95P99Memory": "NOT EVALUATED",
+    "nextHighestImpact": "Run exact-source green safety checks and new nine-job matched 60s+ 25fps 1x recording on PR68; inspect genuine desktop and portrait PTS and source-event calibration for at least two contiguous frames co-painting full climber, authentic HP0 original bronze guardian gate and truly walkable F9; if still zero overlap fix first WebGL shaft material handoff and portrait framing, not another isolated test. Keep P0 open.",
+    "boundaries": "Same open DRAFT PR68; PR58 and frozen baseline unchanged, no force-push/merge/deploy, no Tiny Kingdom/Maze/AI vs 1000 Floors."
   }
 }
