@@ -1,0 +1,30 @@
+{
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "leadingAssessorVerdict": "NOT EVALUATED",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "inspectedHeadSha": "cbcf7e85ba5d8bd061542b31a92c0d900f9e53ce",
+  "newestCompletedQuality": {
+    "run": "https://github.com/my-edutu/Ai_games/actions/runs/44630564072",
+    "conclusion": "failure",
+    "details": "9/10 jobs succeeded; phase6 shard0 exceeded its per-file 75-second timeout (exit 124). All four Tower phase3 shards passed. A CI veto, not a game quality judgment."
+  },
+  "newestFullCapture": {
+    "run": "https://github.com/my-edutu/Ai_games/actions/runs/44621081989",
+    "sourceSha": "f5f645a378dfe8ac0f92b214fff1afe94fd1f5a0",
+    "originalClips": "8/8 plus ledge",
+    "strictDangerEventToNative": "FAILED 0/2 viewports",
+    "note": "Pre-change footage: no accepted co-visible physical gateway, moving full-body climber and walkable Floor9; earlier native HUD-to-violet gap ~1.25 seconds in both viewports."
+  },
+  "evidenceBackedBlocker": "A genuinely supported f9:p2 source snapshot can be the first renderable Floor9 browser observation after an expensive cold floor rebuild; the low-tier framebuffer guard accepted only f9:ground/f8:cap or flight. Thus an authentic raised-deck first return could allocate the full canvas during the exact shader/geometry cold handoff.",
+  "meaningfulChange": "The one-epoch low-tier WebGL framebuffer policy also admits exact source-owned f9:p2 grounded sole contact on the real successor platform, only when existing independent guardian HP-zero same-run handoff provenance passes. One bounded .72 drawing buffer is maintained through actual WebGL returns and restored once; physics, snapshots, moving platforms, camera, game loop, and opacity rules unchanged.",
+  "tests": "Two new original-source contract tests for supported p2 admission, continued airborne submitted frames, restoration, and eight invalid/fabricated sources. Not executed locally; must verify exact-head GitHub CI and real original 1x footage. No performance improvement or native acceptance asserted.",
+  "independence": {
+    "LOOKS": "0/5",
+    "FEELS": "0/5",
+    "PLAYS": "0/5"
+  },
+  "deviceFrameTimeAndMemory": "NOT EVALUATED",
+  "biggestExperienceGap": "Actual normal-speed Floor8→9 arch/full-moving-hero/walkable-F9 co-presentation remains unproved in both viewport films; strict native pairing 0/2. The source-owned first Floor9 structural GPU return and portrait sightline remain the main aesthetic/gameplay blockers.",
+  "nextHighestImpact": "Capture the new immutable source in original 960x600 and 390x844 25fps >=60s baseline/candidate films, inspect full-motion gateway/hero/roof under actual event pairs and cold return timings; if still 0s overlap prioritize a coherent first-return floor9 GPU structural/camera handoff. Do not enter P1.",
+  "safeguards": "Draft PR68 only, no Tiny Kingdom/Maze/1000 Floors, baseline never changed, PR58 untouched, no force push/merge/deploy."
+}

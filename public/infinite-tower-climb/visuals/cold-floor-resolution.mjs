@@ -27,11 +27,30 @@ function liveFrame(snapshot, options) {
 
 function realRoofOrFlight(snapshot) {
   const p = snapshot.player;
-  return (p.grounded === true &&
+  if ((p.grounded === true &&
       (p.groundedPlatformId === 'f9:ground' ||
        p.groundedPlatformId === 'f8:cap')) ||
     (p.grounded === false && p.state === 'airborne' &&
-     p.groundedPlatformId == null && Number.isFinite(p.vy));
+     p.groundedPlatformId == null && Number.isFinite(p.vy))) return true;
+  // Native Floor 9 arrivals may first reach the renderer already on the REAL
+  // raised p2 deck, because the preceding full WebGL rebuild took longer than
+  // a simulation tick. Previously this source-authentic first return skipped
+  // the reduced drawing-buffer epoch entirely, reintroducing the largest
+  // framebuffer allocation at the original cold guardian-doorway handoff.
+  // Accept only actual grounded sole contact on the source-owned f9:p2 solid.
+  // eligibleStart() STILL requires the independently certified same-run,
+  // defeated-guardian physical crossing before any display budget can start.
+  if (p.grounded !== true || p.groundedPlatformId !== 'f9:p2' ||
+      p.vy !== 0 || !Array.isArray(snapshot.platforms) ||
+      ![p.x,p.y,p.halfWidth,p.halfHeight].every(Number.isSafeInteger) ||
+      p.halfWidth <= 0 || p.halfHeight <= 0) return false;
+  const deck = snapshot.platforms.find(q => q?.id === 'f9:p2');
+  return !!deck &&
+    [deck.x,deck.y,deck.width,deck.height].every(Number.isSafeInteger) &&
+    deck.width > 0 && deck.height > 0 &&
+    p.y - p.halfHeight === deck.y + deck.height &&
+    p.x - p.halfWidth >= deck.x &&
+    p.x + p.halfWidth <= deck.x + deck.width;
 }
 
 function eligibleStart(snapshot, passage, retained, options) {
