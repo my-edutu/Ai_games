@@ -83,5 +83,59 @@
     "deploy": true,
     "forcePush": true,
     "pr68Draft": true
+  },
+  "p0GroundedReceivingRoofContinuityRun20261119": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "sourceImplementationCommit": "95fb7d9790f586808ec12bb0c737a36c288b6e6e",
+    "testsCommit": "79f22f60dc7a3d150a476c9dfcc72e3ba2b2dd12",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "previousReviewedCandidateSha": "68bd97cff9f5998a4f0584ec1f4990750c80acea",
+    "priorFullMotionCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44564555717",
+    "previousNativeDiagnostic": {
+      "desktop": "Floor9 HUD 25.75s; violet 26.25s (0.50s gap)",
+      "portrait": "Floor9 HUD 26.00s; violet 27.00s (1.00s gap)",
+      "sustainedWarmCoolBridge": "0s in both",
+      "strictSourceToVideoDangerPair": "0/2",
+      "sourceAndIntegrityPairs": "8/8; native alignment veto",
+      "notFromNewCommit": true
+    },
+    "newRootCause": "Source+GPU proof gap: early genuine grounded F9 receiving roof permits left foot 6–60m beyond gate, elevated/far-side lease only begins >100m horizontal or +7m vertical; a living fully grounded body at +85m with HP0, verified walkable roof and genuine returned previous 3D frame was rejected by both, leaving built original successor 3D shaft invisible.",
+    "realImplementation": "Reuse already-constructed original Void core in the physically supported 6–100m grounded F9 receiving-roof corridor, at <=0.22 alpha only after source-matched HP-zero gateway, exact full-body sole/roof contact, nonempty original World structural root, >=1 returned real WebGL frame, and bounded run/retention clocks. This fills one source-evidence gap without editing physics, actor, gate, collision, input, HUD, camera or game outcome.",
+    "regression": "New tests assert near and far policies both previously refuse grounded +85m, this owner permits original-world 22% first paint, and 27 negative provenance/contact/return tampering scenarios veto. Test committed, exact-head execution not yet verified.",
+    "exactHeadCI": "NOT EVALUATED — no quality result yet for 79f22f60dc7a3d150a476c9dfcc72e3ba2b2dd12",
+    "newCapture": "REQUEST NOT YET COMMITTED; will pin exact capture-request commit SHA",
+    "sourceNativeEventAlignedSharedFrames": "NOT EVALUATED",
+    "blindReviews": {
+      "LOOKS": {
+        "completed": 0,
+        "required": 5
+      },
+      "FEELS": {
+        "completed": 0,
+        "required": 5
+      },
+      "PLAYS": {
+        "completed": 0,
+        "required": 5
+      }
+    },
+    "actualDevice": {
+      "p50": "NOT EVALUATED",
+      "p95": "NOT EVALUATED",
+      "p99": "NOT EVALUATED",
+      "memory": "NOT EVALUATED"
+    },
+    "biggestRemainingExperienceGap": "Genuine HP-open bronze gateway, moving climber and walkable F9 remain not proven together in consecutive native event-matched frames; portrait foreground rail/camera and abrupt bronze-violet scene remain visible in the previously recorded full-motion WebMs.",
+    "nextHighestImpact": "Trigger immutable-source nine-job original 1x matched desktop/portrait capture; verify exact-head tests and native videos including true old/new shaft first-return and 2 consecutive source-aligned shared-room frames; if still failing, fix physical foreground camera/steel sightline and cold first-frame presentation.",
+    "safety": {
+      "pr68Draft": true,
+      "pr58Unmodified": true,
+      "frozenBaselineUnmodified": true,
+      "noMerge": true,
+      "noDeploy": true,
+      "noForcePush": true,
+      "unrelatedGamesUnmodified": true
+    }
   }
 }
