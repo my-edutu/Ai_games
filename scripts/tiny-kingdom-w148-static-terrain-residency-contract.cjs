@@ -34,7 +34,9 @@ for(let i=0;i<35000;i++)assert(Object.is(
  sample.terrain(1000+i*.1,-2500+i*.31),
  sample.rawTerrain(1000+i*.1,-2500+i*.31)));
 assert(sample.stats().size<=32768,'Terrain cache memory must remain bounded');
-assert(sample.stats().clears>=1,'Stale capacity must be cleared before growth');
+assert(sample.stats().evictedRows>=1,'Stale spatial height rows must be evicted at capacity');
+assert.equal(sample.stats().clears,0,'An entire hot terrain cache must not be discarded for one new height');
+assert.equal(sample.stats().fullFlushOnCapacity,false);
 const epoch=sample.epoch();
 assert.equal(sample.enable(false),false);
 assert.equal(sample.epoch(),epoch+1,'Presentation must invalidate after A/B toggle');

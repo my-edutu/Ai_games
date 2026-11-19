@@ -8212,20 +8212,36 @@ function rawTerrain(x,z){
 // Dynamic citizens, navigation, and simulation always use rawTerrain directly
 // through the disabled-by-default fast path. Never quantize coordinates: roads,
 // riverbanks, architecture and normals require bit-identical heights.
+// W456 Phase 1: one exact, bounded spatial height memo shared by the real
+// seasonal valley, farm-to-market roads and occupied house static builders.
+// Numeric x/z lanes avoid allocating thousands of temporary string keys.
+// Evict the oldest complete x lane when capacity is reached: never flush the
+// entire 32k height field and trigger a sudden all-miss scenery rebuild.
+// Dynamic simulation/navigation still bypass this presentation-only cache.
 const STATIC_TERRAIN_MEMO_LIMIT=32768;
 const staticTerrainMemo=new Map();
+let staticTerrainMemoPairs=0,staticTerrainMemoEvictedRows=0;
 let staticTerrainMemoActive=false,staticTerrainMemoOverride=null;
 let staticTerrainMemoHits=0,staticTerrainMemoMisses=0,staticTerrainMemoClears=0;
 function terrain(x,z){
  if(!staticTerrainMemoActive||!Number.isFinite(x)||!Number.isFinite(z))
   return rawTerrain(x,z);
- const key=x+','+z,hit=staticTerrainMemo.get(key);
- if(hit!==undefined){staticTerrainMemoHits++;return hit}
+ let lane=staticTerrainMemo.get(x);
+ if(lane&&lane.has(z)){staticTerrainMemoHits++;return lane.get(z)}
  const height=rawTerrain(x,z);staticTerrainMemoMisses++;
- if(staticTerrainMemo.size>=STATIC_TERRAIN_MEMO_LIMIT){
-  staticTerrainMemo.clear();staticTerrainMemoClears++;
+ if(staticTerrainMemoPairs>=STATIC_TERRAIN_MEMO_LIMIT){
+  const oldestX=staticTerrainMemo.keys().next().value;
+  const oldest=staticTerrainMemo.get(oldestX);
+  if(oldest){
+   staticTerrainMemoPairs-=oldest.size;
+   staticTerrainMemo.delete(oldestX);
+   staticTerrainMemoEvictedRows++;
+   if(oldestX===x)lane=null;
+  }
  }
- staticTerrainMemo.set(key,height);
+ if(!lane){lane=new Map();staticTerrainMemo.set(x,lane)}
+ lane.set(z,height);
+ staticTerrainMemoPairs++;
  return height;
 }
 function setStaticTerrainMemoEnabledForTesting(value){
@@ -8235,8 +8251,10 @@ function setStaticTerrainMemoEnabledForTesting(value){
  return value!==false;
 }
 function getStaticTerrainMemoAudit(){
- return {source:'pure-render-terrain-samples',active:staticTerrainMemoActive,
-  size:staticTerrainMemo.size,cap:STATIC_TERRAIN_MEMO_LIMIT,
+ return {source:'exact-render-terrain-spatial-lanes',active:staticTerrainMemoActive,
+  size:staticTerrainMemoPairs,cap:STATIC_TERRAIN_MEMO_LIMIT,
+  xRows:staticTerrainMemo.size,evictedRows:staticTerrainMemoEvictedRows,
+  exactNumericCoordinateKeys:true,fullFlushOnCapacity:false,
   enabled:staticTerrainMemoOverride!==false,
   hits:staticTerrainMemoHits,misses:staticTerrainMemoMisses,
   clears:staticTerrainMemoClears,changesNavigation:false,changesAuthority:false};

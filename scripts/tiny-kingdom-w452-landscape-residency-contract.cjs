@@ -8,7 +8,7 @@ const script=html.slice(html.indexOf('<script>')+8,html.lastIndexOf('</script>')
 new vm.Script(script);
 assert.match(script,/function drawOriginalRetainedLandscape\(planes,ctx\)/);
 assert.match(script,/scenicVisibilityStats\.landscape=drawOriginalRetainedLandscape\(planes,/);
-assert.match(script,/function originalLandscapeStaticShaderSafe\(mesh\)/);
+assert.match(script,/function originalLandscapeStaticShaderSafe\(mesh,sceneClass='landscape'\)/);
 assert.match(script,/const landscapeStaticProgramSafety=new WeakMap\(\)/);
 assert.match(script,/landscapeStaticSpecializedTriangles\+=audit\.visibleTriangles/);
 // The W454 five-class material batch deliberately moved restoration to

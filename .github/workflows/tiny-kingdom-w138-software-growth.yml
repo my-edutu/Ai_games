@@ -15,6 +15,7 @@ on:
       - 'scripts/tiny-kingdom-w450-real-forge-residency-contract.cjs'
       - 'scripts/tiny-kingdom-w451-resident-integrity-contract.cjs'
       - 'scripts/tiny-kingdom-w452-landscape-residency-contract.cjs'
+      - 'scripts/tiny-kingdom-w456-render-terrain-cache-contract.cjs'
       - 'tests/browser/tiny-kingdom-w138-real-grown-home.spec.cjs'
       - 'tests/browser/tiny-kingdom-w450-real-forge-bellows.spec.cjs'
       - 'tests/browser/tiny-kingdom-w452-static-landscape.spec.cjs'
@@ -56,6 +57,8 @@ jobs:
         run: node scripts/tiny-kingdom-w451-resident-integrity-contract.cjs
       - name: W452 original landscape program safety, foliage, worker preservation and renderer source
         run: node scripts/tiny-kingdom-w452-landscape-residency-contract.cjs
+      - name: W456 exact original static terrain spatial cache has bounded lanes, no global eviction cliff
+        run: node scripts/tiny-kingdom-w456-render-terrain-cache-contract.cjs
       # Playwright's shared webServer starts Snake/Maze/Ant/Tower services from dist.
       # Without a compiled replay package, the W138 Day-120 game never launches.
       - name: Build shared browser server dependencies before 120-day WebGL capture
