@@ -361,3 +361,79 @@ test('RED: licensed foot uses verified world outsole axis only for genuine skinn
  assert.match(stage,/finalCompanion/);
  assert.match(stage,/foot\.last\.multiply\(footRotation\)/);
 });
+
+/**
+ * Source-data regression from ORIGINAL 390px 2d7aa6d7 exact-head WebGL
+ * (Actions #44509780056, source-rig artifact #14526121892, native original
+ * nine-tick Vanguard source sole at tick 8).
+ *
+ * Witnessed original weighted sole: right toe -0.08329217637639375m;
+ * heel +0.21725844230381428m; source outsole XZ span 0.0597519613m;
+ * true 16.6ms frame and 0.06053508m legal root travel.
+ * Authentic original THREE-JOINT (-.11,+.11,+.34rad) source-skin trial
+ * raised toe +0.016547402112m while heel rose only +0.005985948433m
+ * and opposite original shoe Y was IDENTICAL.
+ *
+ * The source report supplies XZ DRIFT MAGNITUDES, not signed coordinates.
+ * XZ coordinates here are explicitly reconstructed contract fixtures with
+ * true measured projection/drift magnitudes: unit pass is not itself
+ * an accepted original after-application pose or a two-point foot plant.
+ */
+test('RED: exact 390px source-skinned 63.292mm toe burial can choose safer connected original hip-knee-foot pitch, not contact',async()=>{
+ const {chooseOriginalSourceCoupledKneeFootSweep:choose}=await load();
+ const sourceToe=-.08329217637639375;
+ const sourceHeel=.21725844230381428;
+ const sourceToeLift=.016547402112179505;
+ const sourceHeelRise=.005985948433355204;
+ const projected=.059751961309188785;
+ const before={
+  right:{heelY:sourceHeel,toeY:sourceToe,heelXZ:[0,0],toeXZ:[projected,0]},
+  left:{heelY:-.011601225601712329,toeY:-.021313066527788496,
+   heelXZ:[0,0],toeXZ:[.295,0]}
+ };
+ const trial={
+  upperRad:-.11,lowerRad:.11,footRad:.34,
+  after:{
+   right:{heelY:sourceHeel+sourceHeelRise,toeY:sourceToe+sourceToeLift,
+    heelXZ:[.00572193066175208,0],
+    toeXZ:[projected+.03190097494419216,0]},
+   left:{...before.left}
+  }
+ };
+ const base={
+  starter:{source:'actual-original-source-three-joint-swing-opportunity',
+   expectedSourceSkinnedTrials:2,contactLocked:false,sign:-1,
+   excessHeelRiseMeters:.0054574185189363855},
+  mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceChainVerified:true,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceFootTrackVerified:true,sourceBindVerified:true,
+  sourceAnatomicalFootAxisVerified:true,ownerLocomotion:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,rootTravel:.0605350847111068,
+  frameAge:.01659999999999684,frameInterval:.01659999999999684,
+  side:'right',floorTopY:-.02,before,trials:[trial]
+ };
+ const earned=choose(base);
+ assert.equal(earned?.source,'measured-original-skinned-coupled-knee-foot');
+ assert.equal(earned?.sourceJointCount,3);
+ assert.equal(earned?.oppositeShoePreserved,true);
+ assert.equal(earned?.contactLocked,false);
+ assert.ok(earned.toeLiftMeters>.016&&earned.toeLiftMeters<.017);
+ assert.ok(earned.toeLiftMeters-earned.sourceHeelRiseMeters>.010,
+  'real original-source toe gain must exceed airborne heel rise');
+ for(const altered of [
+  {sourceClipName:'Idle'},
+  {sourceWeight:.75},
+  {sourceAnatomicalFootAxisVerified:false},
+  {rootTravel:0},
+  {interrupted:true},
+  {reducedMotion:true},
+  {trials:[{...trial,footRad:.48}]},
+  {trials:[{...trial,after:{...trial.after,left:{
+   ...trial.after.left,toeY:trial.after.left.toeY+.005}}}]},
+  {trials:[{...trial,after:{...trial.after,right:{
+   ...trial.after.right,heelY:sourceHeel+.027}}}]}
+ ])assert.equal(choose({...base,...altered}),null,
+  'unwitnessed clip, unsafe second shoe or worse heel must fail closed');
+});
