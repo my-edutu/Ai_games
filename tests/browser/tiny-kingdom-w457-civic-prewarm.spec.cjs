@@ -237,3 +237,78 @@ test('W462 original landscape retained across frames is EXACT live world includi
  expect(phone.gl).toBe(0);expect(phone.overflow).toBeLessThanOrEqual(0);
  expect(errors).toEqual([]);await mobile.close();
 });
+
+
+test('W463 actual original homes warm one occupied lot per stage with exact Day-1 and phone geometry',async({browser},info)=>{
+ test.setTimeout(450000);
+ const readings=[];
+ for(const mode of ['prewarm','original']){
+  const page=await browser.newPage({viewport:{width:1024,height:720}});
+  const pageErrors=[];page.on('pageerror',error=>pageErrors.push(error.message));
+  await page.setContent(mode==='original'?source.replace('<head>',
+   '<head><script>window.__TINY_KINGDOM_DISABLE_HOME_PREFLIGHT__=true;<\/script>'):source);
+  await page.evaluate(()=>window.__tinyKingdom.setSpeed(0));
+  await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,
+   null,{timeout:150000});
+  const a=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   return {warm:g.getOriginalHomePreflightAudit(),
+    homes:g.getHouseGeometryCacheAudit(),
+    hash:g.getOriginalHomesSourceHash(),checksum:g.exportSnapshot().checksum,
+    time:g.getState().state.t,citizens:g.metrics().citizens,
+    buildings:g.metrics().buildings,triangles:g.getGeometryAudit().totalTriangles,
+    frameTriangles:g.renderStats().lastFrameTriangles,
+    cold:g.getColdSceneryBuildAudit(),
+    gl:document.querySelector('#world').getContext('webgl')?.getError(),
+    overflow:document.documentElement.scrollWidth-innerWidth};
+  });
+  await info.attach('W463-'+mode+'-desktop.png',{body:await page.screenshot(),contentType:'image/png'});
+  await info.attach('W463-'+mode+'-desktop.json',{body:Buffer.from(JSON.stringify(a,null,2)),
+   contentType:'application/json'});
+  expect(pageErrors).toEqual([]);expect(a.gl).toBe(0);
+  expect(a.overflow).toBeLessThanOrEqual(0);
+  expect(a.hash).toMatch(/^[a-f0-9]{8}$/);
+  expect(a.triangles).toBeLessThan(160000);
+  expect(a.citizens).toBeGreaterThanOrEqual(12);
+  expect(a.homes.cachedFloats).toBeLessThanOrEqual(a.homes.floatBudget);
+  if(mode==='prewarm'){
+   expect(a.warm.completed).toBe(1);expect(a.warm.failures).toBe(0);
+   expect(a.warm.last.finished).toBe(true);
+   expect(a.warm.last.lotCount).toBe(a.buildings-2);
+   expect(a.warm.last.samples).toHaveLength(a.warm.last.lotCount);
+   expect(a.warm.last.samples.map(x=>x.index)).toEqual(
+    Array.from({length:a.warm.last.lotCount},(_,i)=>i));
+  }else expect(a.warm.completed).toBe(0);
+  readings.push(a);await page.close();
+ }
+ expect(readings[0].checksum).toBe(readings[1].checksum);
+ expect(readings[0].time).toBe(readings[1].time);
+ expect(readings[0].buildings).toBe(readings[1].buildings);
+ expect(readings[0].hash).toBe(readings[1].hash);
+ expect(readings[0].triangles).toBe(readings[1].triangles);
+ expect(readings[0].frameTriangles).toBe(readings[1].frameTriangles);
+ const mobile=await browser.newPage({viewport:{width:390,height:844}});
+ const errors=[];mobile.on('pageerror',e=>errors.push(e.message));
+ await mobile.setContent(source);
+ await mobile.evaluate(()=>window.__tinyKingdom.setSpeed(0));
+ await mobile.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,
+  null,{timeout:150000});
+ const proof=await mobile.evaluate(()=>{
+  const g=window.__tinyKingdom;
+  return {hash:g.getOriginalHomesSourceHash(),
+   checksum:g.exportSnapshot().checksum,
+   warm:g.getOriginalHomePreflightAudit(),
+   triangles:g.getGeometryAudit().totalTriangles,
+   gl:document.querySelector('#world').getContext('webgl')?.getError(),
+   overflow:document.documentElement.scrollWidth-innerWidth};
+ });
+ await info.attach('W463-original-homes-390.png',{body:await mobile.screenshot(),contentType:'image/png'});
+ await info.attach('W463-original-homes-390.json',{body:Buffer.from(JSON.stringify(proof,null,2)),contentType:'application/json'});
+ expect(proof.warm.completed).toBe(1);
+ expect(proof.hash).toBe(readings[0].hash);
+ expect(proof.checksum).toBe(readings[0].checksum);
+ expect(proof.triangles).toBeLessThan(160000);
+ expect(proof.gl).toBe(0);expect(proof.overflow).toBeLessThanOrEqual(0);
+ expect(errors).toEqual([]);
+ await mobile.close();
+});
