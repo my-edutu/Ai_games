@@ -2489,3 +2489,51 @@ test('strict reduced-motion sword whoosh requires the CURRENT unique public atta
   assert.ok(stage.stats().activeDrawCalls<=7,'no additional render draw calls');
  }finally{stage.dispose()}
 });
+
+test('strict drawn sword whoosh loses sound permission when CURRENT public attack is cancelled before frame receipt',async()=>{
+ const {createPhysicalFeedbackVisuals}=await load('physical-feedback-visuals.js');
+ const {T,scene}=three();
+ const unit={id:'revenant',kind:'revenant',faction:'enemy',
+  x:3,z:2,hp:20,maxHp:20,action:'attack',actionTick:11};
+ let current={run:1,floor:1,tick:11,units:[{...unit}]};
+ const hand={isBone:true,world:{x:-5.82,y:1.2,z:-7},
+  updateWorldMatrix(){},getWorldPosition(out){
+   return out.set(this.world.x,this.world.y,this.world.z);
+  }};
+ const actor={u:{...unit},authored:true,assetRoot:{},
+  rigMeleeBones:[{part:'wrist',bone:hand}],
+  root:{visible:true,position:{x:-6,y:0,z:-7},rotation:{y:0}}};
+ const stage=createPhysicalFeedbackVisuals(T,scene,{
+  actorById:id=>id==='revenant'?actor:null,
+  getCurrentSnapshot:()=>current,requireVerifiedHpReceipt:true
+ });
+ const attempt=cue({id:'1:1:11:swing:revenant:-',kind:'swing',
+  visual:'trail',audio:'whoosh',actorId:'revenant',targetId:null,
+  from:{x:3,z:2},to:null,proof:'authority-attempt-not-hit'});
+ try{
+  assert.equal(stage.emit(attempt),true,'one current public sword gesture can stage its retained ribbon');
+  hand.world.x+=.12;stage.advance(.016,.016);
+  assert.equal(stage.hasDrawableCue(attempt.id),true,'actual moving wrist creates a submitted-frame candidate');
+  assert.equal(stage.hasAuthenticatedSwingPose(attempt),true,'same current source permits one whoosh, not HP injury');
+  current={...current,units:[{...unit,action:'guard'}]};
+  assert.equal(stage.hasAuthenticatedSwingPose(attempt),false,
+   'a drawn ribbon must NOT authorize sound from an attack cancelled in current public authority');
+  current={...current,units:[{...unit,hp:0}]};
+  assert.equal(stage.hasAuthenticatedSwingPose(attempt),false,
+   'a dying public swordsman cannot emit an old whoosh');
+  current={...current,units:[{...unit},{...unit}]};
+  assert.equal(stage.hasAuthenticatedSwingPose(attempt),false,
+   'duplicate public action-owner IDs are never a source proof');
+  current={...current,units:[{...unit}],tick:12};
+  assert.equal(stage.hasAuthenticatedSwingPose(attempt),false,
+   'a later tick cannot authenticate an old measured wrist');
+  current={...current,tick:11,run:2};
+  assert.equal(stage.hasAuthenticatedSwingPose(attempt),false,
+   'a later run cannot borrow a measured earlier-scene sword');
+  current={run:1,floor:1,tick:11,units:[{...unit}]};
+  assert.equal(stage.hasAuthenticatedSwingPose(attempt),true,
+   'matching current public attack and same measured wrist retain legitimate sound');
+  assert.equal(stage.stats().reservedInstances,102,'no new retained geometry');
+  assert.ok(stage.stats().activeDrawCalls<=7,'no increase in effect draw calls');
+ }finally{stage.dispose()}
+});
