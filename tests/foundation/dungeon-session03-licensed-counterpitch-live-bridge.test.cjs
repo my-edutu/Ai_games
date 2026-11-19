@@ -83,6 +83,27 @@ test('heel lift, opposite-shoe displacement, and unverified final clip reject',a
  assert.equal(certify({...args,sourceClipName:'Idle',after:{
   right:shoe(.225,-.080),left:loaded}}),null,'wrong source clip');
 });
+
+test('sparse original walking frame is allowed only with fresh directly witnessed same-frame root movement',async()=>{
+ const {planLicensedSourceSwingCounterpitch:plan}=await source;
+ const sparse={...owner,frameInterval:.38,rootTravel:.05,frameAge:.02};
+ assert.equal(plan(sparse),null,'a sparse displayed gap cannot grant source motion');
+ const candidate=plan({...sparse,sparseFrameVerified:true});
+ assert.ok(candidate,'only verified fresh real root travel may open a bounded source-skinned trial');
+ assert.ok(candidate.footRad<0&&candidate.footRad>=-.851);
+ assert.equal(candidate.contactLocked,false);
+ assert.equal(candidate.plantCertified,false);
+ for(const bad of [
+  {frameAge:.036},{rootTravel:.011},{frameInterval:.421},
+  {sourceWeight:.75},{sourceClipName:'Idle'},{teleport:true},
+  {ownerLocomotion:false},{reducedMotion:true}
+ ])assert.equal(plan({...sparse,sparseFrameVerified:true,...bad}),null,
+  'sparse witness rejected: '+JSON.stringify(bad));
+ assert.match(renderer,/actor\.rigLastGroundedTravel/,
+  'renderer must use current original root displacement, not a stale receipt');
+ assert.match(renderer,/Math\.abs\(direct-travel\)<=\.001/,
+  'sparse candidate must match direct travel to source stride evidence');
+});
 test('REAL original-pose renderer must invoke and rollback the certified counterpitch',()=>{
  assert.match(renderer,/planLicensedSourceSwingCounterpitch/,
   'required native source planner wired into model-assets');

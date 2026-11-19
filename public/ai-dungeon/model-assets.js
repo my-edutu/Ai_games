@@ -4859,10 +4859,18 @@ function stageLicensedSourceSwingCounterpitchAfterMixer(actor,reducedMotion){
  const phase=actor.activeClip.time,interval=actor.rigSourceSwingFrameInterval;
  const travel=actor.rigRecentGroundedTravel,age=actor.rigRecentGroundedAge;
  const weight=actor.activeClip.getEffectiveWeight?.()??NaN;
+ // A sparse WebGL frame is eligible ONLY when this SAME rendered frame
+ // contains fresh non-teleport root displacement. A historical receipt,
+ // an asserted walking label or a static clip cannot invent locomotion.
+ const direct=actor.rigLastGroundedTravel;
+ const sparseFrameVerified=Number.isFinite(interval)&&interval>.24&&
+  interval<=.42&&Number.isFinite(direct)&&direct>=.012&&direct<=.24&&
+  Math.abs(direct-travel)<=.001&&age>=0&&age<=.035;
  const side=phase>.03&&phase<.335?'right':
   phase>.515&&phase<.875?'left':null;
  if(!side||![phase,interval,travel,age,weight].every(Number.isFinite)||
-  interval<.008||interval>.24||travel<.008||travel>.24||
+  interval<.008||(interval>.24&&!sparseFrameVerified)||
+  travel<.008||travel>.24||
   age<0||age>.15||weight<.985||weight>1.001)return;
  const other=side==='right'?'left':'right';
  const claimed=s=>Boolean(
@@ -4920,7 +4928,8 @@ function stageLicensedSourceSwingCounterpitchAfterMixer(actor,reducedMotion){
   frameInterval:interval,rootTravel:travel,frameAge:age,
   side,floorTopY:-.02,before,
   previousFootRad:samePrevious?previous.appliedFootRad:0,
-  previousSameSourceFrame:samePrevious
+  previousSameSourceFrame:samePrevious,
+  sparseFrameVerified
  });
  if(!plan)return;
  actor.sourceLicensedCounterpitchTrialFrames=Math.min(1000000,

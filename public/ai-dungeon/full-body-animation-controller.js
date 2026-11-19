@@ -5930,7 +5930,8 @@ export function planLicensedSourceSwingCounterpitch({
  interrupted=false,teleport=false,reducedMotion=false,
  frameInterval=NaN,rootTravel=NaN,frameAge=NaN,
  side='',floorTopY=NaN,before=null,
- previousFootRad=0,previousSameSourceFrame=false
+ previousFootRad=0,previousSameSourceFrame=false,
+ sparseFrameVerified=false
 }={}){
  const other=side==='right'?'left':side==='left'?'right':null;
  if(source!=='verified-licensed-source-native-counterpitch'||
@@ -5947,7 +5948,9 @@ export function planLicensedSourceSwingCounterpitch({
   sourceClipDurationSeconds<1.040||sourceClipDurationSeconds>1.044||
   sourceClipTimeSeconds<0||sourceClipTimeSeconds>sourceClipDurationSeconds||
   sourceWeight<.985||sourceWeight>1.001||
-  frameInterval<.008||frameInterval>.240001||
+  frameInterval<.008||frameInterval>.420001||
+  (frameInterval>.240001&&!(sparseFrameVerified===true&&
+   rootTravel>=.012&&frameAge<=.035))||
   rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.15||
   Math.abs(floorTopY+.02)>.005||
   previousFootRad>.00001||previousFootRad<-.851||
@@ -5977,7 +5980,10 @@ export function planLicensedSourceSwingCounterpitch({
  const previous=previousSameSourceFrame?Math.abs(previousFootRad):0;
  // Rate is limited by the genuine displayed interval: a 16.7ms frame must
  // not rotate an imported source ankle ~49 degrees in one image.
- const frameStep=Math.min(.85,Math.max(.15,4.5*frameInterval));
+ // The original limb can advance over a verified sparse display interval,
+ // but its angular rate is still bounded by the historical 240ms step.
+ // A late browser frame never licenses an extra 41-joint animation cycle.
+ const frameStep=Math.min(.85,Math.max(.15,4.5*Math.min(frameInterval,.24)));
  const footMagnitude=Math.min(.85*envelope,previous+frameStep);
  if(footMagnitude<.14)return null;
  const chainShare=footMagnitude/.85;
