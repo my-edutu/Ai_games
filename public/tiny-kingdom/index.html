@@ -4972,6 +4972,12 @@ function getResidentHomeShaderAudit(){
   extraGpuPrograms:residentHomeProgram?1:0,
   specializedDrawFrames:residentHomeShaderDrawFrames,
   specializedDrawTriangles:residentHomeShaderDrawTriangles,
+  landscapeShaderEligibleFrames:landscapeStaticSpecializedFrames,
+  landscapeShaderTriangles:landscapeStaticSpecializedTriangles,
+  landscapeFallbackFrames:landscapeStaticFallbackFrames,
+  landscapeSafetyScans:landscapeStaticSafetyScans,
+  landscapeSafetyCacheHits:landscapeStaticSafetyCacheHits,
+  landscapeUnsafeMeshes:landscapeStaticSafetyRejected,
   originalFallbackFrames:residentHomeShaderFallbackFrames,
   physicalHardwareFps:'NOT MEASURED',independentA_B:'NOT PROVEN'};
 }
@@ -9697,6 +9703,46 @@ function recallHomeClusterKeys(keys){
   homeClusterCache.delete(entry.key);homeClusterCache.set(entry.key,entry);
  }
  return true;
+}
+// W452 Phase 1: share the existing original static-house WebGL program with
+// complete season-resident TERRAIN/FOREST/RIVER meshes. It skips live worker,
+// smoke and windmill branches ONLY when every actual vertex material tag is
+// static; tree sway, sun, original ground/water textures and night lights stay.
+// One safety scan per real typed mesh identity, NEVER per submitted frame.
+// Every unsafe tag falls back to the full live shader with zero geometry loss.
+const landscapeStaticProgramSafety=new WeakMap();
+let landscapeStaticSafetyScans=0,landscapeStaticSafetyRejected=0,
+ landscapeStaticSpecializedFrames=0,landscapeStaticSpecializedTriangles=0,
+ landscapeStaticFallbackFrames=0,landscapeStaticSafetyCacheHits=0;
+function originalLandscapeStaticShaderSafe(mesh){
+ if(!(mesh instanceof Float32Array)||!mesh.length||mesh.length%30)return false;
+ const cached=landscapeStaticProgramSafety.get(mesh);
+ if(cached!==undefined){landscapeStaticSafetyCacheHits++;return cached}
+ let safe=true;
+ for(let i=9;i<mesh.length;i+=10){
+  const tag=mesh[i];
+  // Tags 10.5+ animate original sails, weather, market, homes and forge.
+  // Those geometries require the complete original program, even on hardware.
+  if(!Number.isFinite(tag)||tag<0||tag>=10.5){safe=false;break}
+ }
+ landscapeStaticProgramSafety.set(mesh,safe);
+ landscapeStaticSafetyScans++;
+ if(!safe)landscapeStaticSafetyRejected++;
+ return safe;
+}
+function drawOriginalRetainedLandscape(planes,ctx){
+ if(!residentHomeShaderEnabled()||!landscapeBuffer||
+    !originalLandscapeStaticShaderSafe(landscapeMeshCache)){
+  landscapeStaticFallbackFrames++;
+  return drawVisibleStaticChunks(landscapeBuffer,landscapeChunkRanges,planes);
+ }
+ bindRealResidentHomeMaterial(ctx);
+ let audit;
+ try{audit=drawVisibleStaticChunks(landscapeBuffer,landscapeChunkRanges,planes)}
+ finally{gl.useProgram(program)}
+ landscapeStaticSpecializedFrames++;
+ landscapeStaticSpecializedTriangles+=audit.visibleTriangles;
+ return audit;
 }
 function drawHomeClusters(planes,ctx=null){
  const audits=[],specialized=Boolean(homeClusterActive.length&&ctx&&
@@ -32807,7 +32853,8 @@ const fieldLodDraw=gpuAvailable?drawResidentFarmFields(eye,planes,Math.max(0,160
 lastFrameTriangles=nonFieldTriangles+(gpuAvailable?farmFieldLastTriangles:0);
 if(gpuAvailable){
  scenicVisibilityStats.farmFields=fieldLodDraw;
- scenicVisibilityStats.landscape=drawVisibleStaticChunks(landscapeBuffer,landscapeChunkRanges,planes);
+ scenicVisibilityStats.landscape=drawOriginalRetainedLandscape(planes,
+  {matrix:m,atmosphere,radiance,eye,activeLight,time:state.t});
  scenicVisibilityStats.settlement=drawVisibleStaticChunks(settlementBuffer,settlementChunkRanges,planes);
  scenicVisibilityStats.homes=drawHomeClusters(planes,
   {matrix:m,atmosphere,radiance,eye,activeLight,time:state.t});

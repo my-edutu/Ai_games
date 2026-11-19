@@ -14,8 +14,10 @@ on:
       - 'scripts/tiny-kingdom-w448-original-near-forest-contract.cjs'
       - 'scripts/tiny-kingdom-w450-real-forge-residency-contract.cjs'
       - 'scripts/tiny-kingdom-w451-resident-integrity-contract.cjs'
+      - 'scripts/tiny-kingdom-w452-landscape-residency-contract.cjs'
       - 'tests/browser/tiny-kingdom-w138-real-grown-home.spec.cjs'
       - 'tests/browser/tiny-kingdom-w450-real-forge-bellows.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w452-static-landscape.spec.cjs'
       - '.github/workflows/tiny-kingdom-w138-software-growth.yml'
   workflow_dispatch:
 permissions:
@@ -51,6 +53,8 @@ jobs:
         run: node scripts/tiny-kingdom-w450-real-forge-residency-contract.cjs
       - name: W451 actual submitted civic core, forge and ledger triangle integrity
         run: node scripts/tiny-kingdom-w451-resident-integrity-contract.cjs
+      - name: W452 original landscape program safety, foliage, worker preservation and renderer source
+        run: node scripts/tiny-kingdom-w452-landscape-residency-contract.cjs
       # Playwright's shared webServer starts Snake/Maze/Ant/Tower services from dist.
       # Without a compiled replay package, the W138 Day-120 game never launches.
       - name: Build shared browser server dependencies before 120-day WebGL capture
@@ -65,6 +69,10 @@ jobs:
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
         run: npx playwright test tests/browser/tiny-kingdom-w450-real-forge-bellows.spec.cjs --workers=1
+      - name: W452 same-authority 1024px / 390px running landscape full versus specialized vertex program
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w452-static-landscape.spec.cjs --workers=1
       - name: Preserve video, 1024px and 390px images and runtime audits even on failure
         if: always()
         uses: actions/upload-artifact@v4
