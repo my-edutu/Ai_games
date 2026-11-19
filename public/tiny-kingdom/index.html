@@ -4676,8 +4676,14 @@ void main(){
  // One persistent WebGL texture replaces per-caster static shadow draw.
  if(solarShadowAtlasActive>.5 &&
    ((vMaterial>.5&&vMaterial<1.5)||(vMaterial>2.5&&vMaterial<3.5))){
-  float staticGroundShade=texture2D(solarShadowAtlas,
-   clamp((vWorld.xz+vec2(48.))/96.,vec2(0.),vec2(1.))).r;
+  // Outside the physically covered valley the material must stay lit;
+  // sampling a clamped edge would smear the last roof shadow to the horizon.
+  vec2 solarUv=(vWorld.xz+vec2(48.))/96.;
+  float staticGroundShade=1.;
+  if(all(greaterThanEqual(solarUv,vec2(0.)))&&
+     all(lessThanEqual(solarUv,vec2(1.))))
+   staticGroundShade=texture2D(solarShadowAtlas,
+    clamp((vWorld.xz+vec2(48.))/96.,vec2(0.),vec2(1.))).r;
   c*=staticGroundShade;
  }
  c=mix(c,fogColor,vFog);
@@ -8696,28 +8702,55 @@ function setSolarShadowAtlasForTesting(enabled){
  clearStaticShadowCache();solarAtlasKey='';
  presentationEpoch++;lastFrozenFrameKey=null;
 }
-function stampSolarAtlasCaster(x,z,rx,rz,height,sun,dense){
+// W474: grounded original roof footprints and lobed rooted canopies, NOT
+// floating elliptical stamps. One bounded CPU raster into W473's single
+// persistent GPU texture; no extra scene triangles, draw calls or authority.
+function stampSolarAtlasCaster(x,z,rx,rz,height,sun,dense,shape='canopy'){
  if(![x,z,rx,rz,height].every(Number.isFinite)||rx<=0||rz<=0||
     Math.abs(x)>40||Math.abs(z)>40||sun.strength<=0)return;
+ if(shape!=='roof'&&shape!=='canopy')throw Error('W474 caster shape');
  const [sx,,sz]=dropShadowPoint(x,z,height,sun);
  const extentX=rx*1.15,extentZ=rz*1.15;
+ const roof=shape==='roof',padding=.17;
+ const x0=roof?Math.min(x,sx):sx,z0=roof?Math.min(z,sz):sz;
+ const x1=roof?Math.max(x,sx):sx,z1=roof?Math.max(z,sz):sz;
  const toPixel=v=>(v+SOLAR_ATLAS_EXTENT)*
   SOLAR_ATLAS_SIZE/(SOLAR_ATLAS_EXTENT*2);
- const left=Math.max(0,Math.floor(toPixel(sx-extentX)));
- const right=Math.min(SOLAR_ATLAS_SIZE-1,Math.ceil(toPixel(sx+extentX)));
- const top=Math.max(0,Math.floor(toPixel(sz-extentZ)));
- const bottom=Math.min(SOLAR_ATLAS_SIZE-1,Math.ceil(toPixel(sz+extentZ)));
+ const left=Math.max(0,Math.floor(toPixel(x0-extentX-padding)));
+ const right=Math.min(SOLAR_ATLAS_SIZE-1,Math.ceil(toPixel(x1+extentX+padding)));
+ const top=Math.max(0,Math.floor(toPixel(z0-extentZ-padding)));
+ const bottom=Math.min(SOLAR_ATLAS_SIZE-1,Math.ceil(toPixel(z1+extentZ+padding)));
  const step=SOLAR_ATLAS_EXTENT*2/SOLAR_ATLAS_SIZE;
+ const dx=sx-x,dz=sz-z,raySquared=dx*dx+dz*dz;
  let touched=0;
  for(let iz=top;iz<=bottom;iz++){
-  const dz=(-SOLAR_ATLAS_EXTENT+(iz+.5)*step-sz)/extentZ;
+  const worldZ=-SOLAR_ATLAS_EXTENT+(iz+.5)*step;
   for(let ix=left;ix<=right;ix++){
-   const dx=(-SOLAR_ATLAS_EXTENT+(ix+.5)*step-sx)/extentX;
-   const radius=Math.hypot(dx,dz);
+   const worldX=-SOLAR_ATLAS_EXTENT+(ix+.5)*step;
+   let radius,weight=1;
+   if(roof){
+    // Sweep the REAL house's footprint from stone contact toward the
+    // projected eaves. A slanted, soft-edged, rectangular load-bearing
+    // silhouette replaces the free-floating ellipse, including near ground.
+    const t=raySquared>.0001?
+     Math.max(0,Math.min(1,((worldX-x)*dx+(worldZ-z)*dz)/raySquared)):0;
+    const ux=Math.abs(worldX-(x+dx*t))/extentX;
+    const uz=Math.abs(worldZ-(z+dz*t))/extentZ;
+    radius=Math.max(ux,uz);
+    weight=.72+.28*t;
+   }else{
+    // Three overlapping crown masses project from the ACTUAL rooted tree.
+    // No invented canopy positions, seeds or simulation entities.
+    const u=(worldX-sx)/extentX,v=(worldZ-sz)/extentZ;
+    radius=Math.min(
+     Math.hypot((u+.20)/.91,(v+.08)/.88),
+     Math.hypot((u-.29)/.80,(v-.13)/.77),
+     Math.hypot((u+.08)/.84,(v+.32)/.73));
+   }
    if(radius>=1)continue;
-   const fade=Math.min(1,(1-radius)/.78);
+   const fade=Math.max(0,Math.min(1,(1-radius)*(roof?7:4.3)));
    const feather=fade*fade*(3-2*fade);
-   const value=Math.round(255*(1-(dense?.49:.27)*sun.strength*feather));
+   const value=Math.round(255*(1-(dense?.49:.27)*sun.strength*feather*weight));
    const at=(iz*SOLAR_ATLAS_SIZE+ix)*4;
    if(value<solarAtlasPixels[at]){
     solarAtlasPixels[at]=solarAtlasPixels[at+1]=solarAtlasPixels[at+2]=value;
@@ -8756,15 +8789,15 @@ function prepareSolarShadowAtlas(time,sun){
    for(const [x,z,k] of city){
     if(!Number.isFinite(x)||!Number.isFinite(z))continue;
     stampSolarAtlasCaster(x,z,(2.4+k*.42)*.73,
-     (2.1+k*.18)*.62,2.4,staticSun,true);
+     (2.1+k*.18)*.62,2.4,staticSun,true,'roof');
    }
-   stampSolarAtlasCaster(0,-1,3.3,2.7,5.1,staticSun,true);
-   stampSolarAtlasCaster(-27,-18,1.75,1.3,5.4,staticSun,true);
-   stampSolarAtlasCaster(29,10,4.0,4.3,7.1,staticSun,true);
+   stampSolarAtlasCaster(0,-1,3.3,2.7,5.1,staticSun,true,'roof');
+   stampSolarAtlasCaster(-27,-18,1.75,1.3,5.4,staticSun,true,'roof');
+   stampSolarAtlasCaster(29,10,4.0,4.3,7.1,staticSun,true,'roof');
    for(const tree of trees){
     if(Math.hypot(tree.x-29,tree.z-10)<8)continue;
     stampSolarAtlasCaster(tree.x,tree.z,.71*tree.s,
-     .63*tree.s,2.7*tree.s,staticSun,false);
+     .63*tree.s,2.7*tree.s,staticSun,false,'canopy');
    }
   }
   gl.activeTexture(gl.TEXTURE2);
