@@ -14,15 +14,21 @@ test('W457 original complete civic core is frame-sliced without changing authore
   const html=mode==='original'?source.replace('<head>',
    '<head><script>window.__TINY_KINGDOM_DISABLE_CIVIC_PREWARM__=true;<\/script>'):source;
   await page.setContent(html);
+  // Freeze the authoritative clock BEFORE either loading strategy presents
+  // its first scene. W458's false triangle comparison used food 189 vs 186.
+  // Same seed alone is not equivalent-world proof.
+  await page.evaluate(()=>window.__tinyKingdom.setSpeed(0));
   await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,
    null,{timeout:150000});
-  await page.locator('#pause').click();
+  // Remain paused at the SAME world time; the camera remains interactable.
   const snap=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
    return {prewarm:g.getCivicCorePrewarmAudit(),
     core:g.getCivicCoreResidencyAudit(),
     scene:g.renderStats(),cold:g.getColdSceneryBuildAudit(),
     triangles:g.getGeometryAudit().totalTriangles,
+    geometry:g.getGeometryAudit(),worldChecksum:g.exportSnapshot().checksum,
+    worldTime:g.getState().state.t,
     people:g.metrics().citizens,buildings:g.metrics().buildings,
     gl:document.querySelector('#world').getContext('webgl')?.getError(),
     overflow:document.documentElement.scrollWidth-innerWidth};
@@ -45,13 +51,21 @@ test('W457 original complete civic core is frame-sliced without changing authore
    // Software WebGL must stage the authentic CPU vertex fallback.
    expect(snap.prewarm.delivery).toBe(snap.core.gpuResident?'resident-GPU-VBO':'complete-CPU-vertex-cache');
    expect(snap.prewarm.completed).toBe(1);
-   expect(snap.prewarm.last.slices).toHaveLength(10);
+   expect(snap.prewarm.last.slices).toHaveLength(13);
+   expect(snap.prewarm.last.slices.map(s=>s.name)).toEqual([
+    'guildhall','original-grain-near-tier','original-grain-far-tier',
+    'grain-GPU-residency','granary-and-threshing-yard',
+    'windmill-fences-bridge','sanctuary-forge','receiving-market',
+    'market-quarter','authentic-high-street','original-streetfronts',
+    'village-fixtures','exact-GPU-residency']);
    expect(snap.prewarm.last.residentCoreHash).toBe(snap.core.sourceHash);
    expect(snap.core.reuses).toBeGreaterThanOrEqual(1);
   }else expect(snap.prewarm.completed).toBe(0);
   results.push({mode,...snap});
   await page.close();
  }
+ expect(results[0].worldChecksum).toBe(results[1].worldChecksum);
+ expect(results[0].worldTime).toBe(results[1].worldTime);
  expect(results[0].core.sourceHash).toBe(results[1].core.sourceHash);
  expect(results[0].triangles).toBe(results[1].triangles);
  expect(results[0].scene.lastFrameTriangles).toBe(results[1].scene.lastFrameTriangles);
@@ -60,12 +74,14 @@ test('W457 original complete civic core is frame-sliced without changing authore
  const page=await browser.newPage({viewport:{width:390,height:844}});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.setContent(source);
+ await page.evaluate(()=>window.__tinyKingdom.setSpeed(0));
  await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,
   null,{timeout:150000});
  const mobile=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
   return {core:g.getCivicCoreResidencyAudit(),prewarm:g.getCivicCorePrewarmAudit(),
    triangles:g.getGeometryAudit().totalTriangles,people:g.metrics().citizens,
+   worldChecksum:g.exportSnapshot().checksum,
    overflow:document.documentElement.scrollWidth-innerWidth,
    gl:document.querySelector('#world').getContext('webgl')?.getError()};
  });
@@ -75,6 +91,7 @@ test('W457 original complete civic core is frame-sliced without changing authore
  expect(mobile.prewarm.delivery).toBe(mobile.core.gpuResident?'resident-GPU-VBO':'complete-CPU-vertex-cache');
  expect(mobile.prewarm.completed).toBe(1);
  expect(mobile.core.sourceHash).toBe(results[0].core.sourceHash);
+ expect(mobile.worldChecksum).toBe(results[0].worldChecksum);
  expect(mobile.triangles).toBeLessThan(160000);
  expect(mobile.overflow).toBeLessThanOrEqual(0);
  expect(mobile.gl).toBe(0);

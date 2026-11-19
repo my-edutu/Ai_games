@@ -19073,7 +19073,7 @@ let farmFieldSeasonCachedFloats=0,farmFieldSeasonHits=0,
  farmFieldSeasonSkippedOversize=0,farmFieldSeasonAvoidedFloats=0,
  farmFieldGpuHandleReuses=0,farmFieldGpuResizes=0;
 const farmFieldGpuCapacities=[0,0];
-function getOrBuildFarmSeasonMeshes(season){
+function getOrBuildFarmSeasonMeshes(season,prebuilt=null){
  if(!Number.isInteger(season)||season<0||season>3)
   throw Error('W182 invalid original farm season');
  const cached=farmFieldSeasonCache.get(season);
@@ -19086,9 +19086,16 @@ function getOrBuildFarmSeasonMeshes(season){
  }
  const prior={...farmScene};let near,far,counters;
  try{
-  near=buildOriginalCropMesh(season,false);
-  counters={...farmScene};Object.assign(farmScene,prior);
-  far=buildOriginalCropMesh(season,true);
+  if(prebuilt){
+   if(prebuilt.season!==season||!(prebuilt.near instanceof Float32Array)||
+      !(prebuilt.far instanceof Float32Array)||!prebuilt.counters)
+    throw Error('W459 invalid original staged crop geometry');
+   ({near,far,counters}=prebuilt);
+  }else{
+   near=buildOriginalCropMesh(season,false);
+   counters={...farmScene};Object.assign(farmScene,prior);
+   far=buildOriginalCropMesh(season,true);
+  }
   if(!near.length||!far.length||far.length>near.length||
    (far.length===near.length&&season!==3)||
    near.plotRanges.length!==FARMSTEAD.fields.length||
@@ -32155,10 +32162,16 @@ if(residentCivic&&storedCoreReady&&
 // on a separate animation-frame turn before the complete first scene is
 // allowed to draw; no proxy geometry, invented citizen or new world state.
 // The original synchronous renderer is the bounded failure fallback.
+// W459: split the original near/far planted crop geometry and driver upload
+// from the granary. W458 observed a single 86.1ms farmstead preparation slice
+// on software WebGL; this avoids reconstructing both crop tiers in ONE RAF.
+// Every actual rooted row, GPU buffer, source vertex and fallback stays intact.
 const CIVIC_CORE_PREWARM_STAGES=[
- 'guildhall','farmstead','windmill-fences-bridge','sanctuary-forge',
- 'receiving-market','market-quarter','authentic-high-street',
- 'original-streetfronts','village-fixtures','exact-GPU-residency'
+ 'guildhall','original-grain-near-tier','original-grain-far-tier',
+ 'grain-GPU-residency','granary-and-threshing-yard',
+ 'windmill-fences-bridge','sanctuary-forge','receiving-market',
+ 'market-quarter','authentic-high-street','original-streetfronts',
+ 'village-fixtures','exact-GPU-residency'
 ];
 let civicCorePrewarm=null,civicCorePrewarmDisabled=false;
 let civicCorePrewarmRuns=0,civicCorePrewarmCompleted=0,
@@ -32221,25 +32234,45 @@ function prewarmOriginalCivicCoreBeforeFirstScene(){
  try{
   switch(work.stage){
    case 0: resetHighStreetBuildStats();hall(0,-1);break;
-   case 1: farmstead();break;
+   case 1:
+    work.farmSeason=climateAt(state.t).season;
+    work.priorFarmScene={...farmScene};
+    work.farmNear=buildOriginalCropMesh(work.farmSeason,false);
+    work.nearFarmCounters={...farmScene};
+    Object.assign(farmScene,work.priorFarmScene);
+    break;
    case 2:
+    work.farmFar=buildOriginalCropMesh(work.farmSeason,true);
+    Object.assign(farmScene,work.priorFarmScene);
+    break;
+   case 3:
+    // Reuse the production cache's SAME bounds, range validation and LRU.
+    // A GPU failure continues through the original full-field CPU fallback.
+    getOrBuildFarmSeasonMeshes(work.farmSeason,{
+     season:work.farmSeason,near:work.farmNear,far:work.farmFar,
+     counters:work.nearFarmCounters});
+    work.farmNear=null;work.farmFar=null;
+    prepareResidentFarmFields(work.farmSeason);
+    break;
+   case 4: farmstead();break;
+   case 5:
     windmill(-27,-18,0);
     fenceLine(16,-2,6,false,FIELD_TO_GRANARY_GATE);
     fenceLine(16,4,6);fenceLine(16,-2,4,true);fenceLine(25,-2,4,true);
     riverBridge();break;
-   case 3: hillsideSanctuary();forgeWorkshop();break;
-   case 4: market(0,5);break;
-   case 5: marketQuarter();break;
-   case 6:
-    highStreetStats.totalTriangles=renderFoundingHighStreetLanes();break;
-   case 7:
-    highStreetStats.totalTriangles+=renderFoundingStreetfronts();break;
-   case 8: renderRetainedCivicFixtures();break;
+   case 6: hillsideSanctuary();forgeWorkshop();break;
+   case 7: market(0,5);break;
+   case 8: marketQuarter();break;
    case 9:
+    highStreetStats.totalTriangles=renderFoundingHighStreetLanes();break;
+   case 10:
+    highStreetStats.totalTriangles+=renderFoundingStreetfronts();break;
+   case 11: renderRetainedCivicFixtures();break;
+   case 12:
     if(!rememberCivicCore(key,0)||
        !civicCoreCache.get(key)?.vertices?.length||
        (civicGpuResidencyEnabled&&!civicCoreCache.get(key)?.buffer))
-      throw Error('W458 unable to retain complete original civic vertices');
+      throw Error('W459 unable to retain complete original civic vertices');
     break;
    default:throw Error('W457 invalid civic prewarm stage');
   }
