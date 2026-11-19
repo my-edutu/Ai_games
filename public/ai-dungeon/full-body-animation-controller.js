@@ -5405,7 +5405,9 @@ export function planImportedWalkExitMovingFade({
  mode='idle',previousMode='idle',previousClipName='',nextClipName='',
  sourceInstanceSame=false,previousSourceRunning=false,
  previousSourceWeight=NaN,alive=false,visible=false,teleport=false,
- interrupted=false,reducedMotion=false,groundedTravel=NaN,frameInterval=NaN
+ interrupted=false,reducedMotion=false,groundedTravel=NaN,frameInterval=NaN,
+ recentGroundedTravel=NaN,recentGroundedAge=NaN,
+ recentGroundedFrameInterval=NaN
 }={}){
  if(!['idle','guard'].includes(mode)||previousMode!=='move'||
   previousClipName!=='Walking_A'||nextClipName!=='Idle'||
@@ -5414,14 +5416,26 @@ export function planImportedWalkExitMovingFade({
   previousSourceWeight>1.001||alive!==true||visible!==true||
   teleport||interrupted||reducedMotion||
   !finite(groundedTravel)||!finite(frameInterval)||
-  groundedTravel<.035||groundedTravel>.54||
+  groundedTravel<0||groundedTravel>.54||
   frameInterval<.016||frameInterval>1.2)return .23;
  const observedSpeed=groundedTravel/frameInterval;
- if(observedSpeed<.20||observedSpeed>2.5)return .23;
- // A full original walk-to-idle joint blend may span the remaining root
- // travel. This is a cosmetic crossfade only, not a source-foot contact
- // lock or a faster/different source-mixer movement step.
- return frameInterval<=.55?.34:.40;
+ if(groundedTravel>=.035&&observedSpeed>=.20&&observedSpeed<=2.5)
+  return frameInterval<=.55?.34:.40;
+ // Genuine 390px original WebGL Walk->Idle crossfades started on
+ // 2.259mm/16.6ms rendered-root motion. A current microstep is not
+ // sufficient: require independent <=100ms-old same-GLB walking root
+ // displacement, original source action and plausible observed speed.
+ // Cosmetic 340ms source skeleton blend only, no invented IK/contact.
+ if(frameInterval<=.10&&groundedTravel>=.00035&&
+  groundedTravel<=.012&&
+  [recentGroundedTravel,recentGroundedAge,recentGroundedFrameInterval].every(finite)&&
+  recentGroundedTravel>=.008&&recentGroundedTravel<=.24&&
+  recentGroundedAge>=0&&recentGroundedAge<=.10&&
+  recentGroundedFrameInterval>=.016&&recentGroundedFrameInterval<=.25){
+  const recentSpeed=recentGroundedTravel/recentGroundedFrameInterval;
+  if(recentSpeed>=.20&&recentSpeed<=2.5)return .34;
+ }
+ return .23;
 }
 
 export function planImportedRealTravelCrossfade({

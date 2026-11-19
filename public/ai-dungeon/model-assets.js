@@ -551,6 +551,7 @@ function bindRigArmGestures(actor){
   bone:cranialBone,ratio:planCranialRatio(actor.u.kind),applied:false,bearingLast:new THREE.Quaternion(),bearingInverse:new THREE.Quaternion(),bearingNext:new THREE.Quaternion(),bearingEuler:new THREE.Euler()
  }:null;
  actor.rigGaitPosition=actor.root?.position?.clone?.()??null;
+ actor.rigRecentGroundedFrameInterval=null;
  actor.walkLandingPose=null;actor.walkLandingCaptureNeeded=false;actor.walkLandingFrames=0;
  actor.rigGaitPhase=0;actor.rigGaitWeight=0;actor.rigGaitSettling=false;actor.rigNativeLegOverlayScale=1;actor.nativeWalkEntryPoseHeld=false;actor.rigGaitPeak=0;actor.rigContactBracePeak=0;
 }
@@ -856,6 +857,11 @@ function stageRigGroundedStride(actor,reducedMotion,dt,sourceFrameInterval=dt,so
  });
  actor.rigRecentGroundedTravel=recentSwingTravel.travel;
  actor.rigRecentGroundedAge=recentSwingTravel.age;
+ // Cache only a prior genuine same-clip rendered-root displacement interval.
+ if(recentSwingTravel.travel>=.008&&recentSwingTravel.age===0)
+  actor.rigRecentGroundedFrameInterval=sourceFrameInterval;
+ else if(recentSwingTravel.travel<.008)
+  actor.rigRecentGroundedFrameInterval=null;
  if(current&&previous)previous.copy(current);
  const mode=actor.fullBody?.mode||'idle';
  const walking=actor.fullBody?.owner.locomotion===true;
@@ -3998,6 +4004,9 @@ function changeAction(actor,action,forceRestart=false,frameDelta=.016,sourceFram
       previousSourceWeight:previous.getEffectiveWeight?.()??NaN,
       groundedTravel:current&&prior?
        Math.hypot(current.x-prior.x,current.z-prior.z):NaN,
+      recentGroundedTravel:actor.rigRecentGroundedTravel??NaN,
+      recentGroundedAge:actor.rigRecentGroundedAge??NaN,
+      recentGroundedFrameInterval:actor.rigRecentGroundedFrameInterval??NaN,
       frameInterval:sourceFrameInterval,alive:actor.u.hp>0,
       visible:sourceFrameVisible,teleport:Boolean(actor.locomotionTeleport),
       reducedMotion:Boolean(actor.fullBody?.reducedMotion),
@@ -4013,6 +4022,10 @@ function changeAction(actor,action,forceRestart=false,frameDelta=.016,sourceFram
      reducedMotion:Boolean(actor.fullBody?.reducedMotion),
      interrupted:Boolean(actor.fullBody?.interrupted)
     }));
+   const originalPreviousWeightBeforeFade=previous.getEffectiveWeight?.()??NaN;
+
+   const originalPreviousRunningBeforeFade=Boolean(previous.isRunning?.()&&!previous.paused);
+
    next.crossFadeFrom(previous,crossfadeSeconds,false);
    // On-demand frame-aligned evidence, never an instruction to pose a bone.
    // A long moving exit must be distinguished from an unqualified 230ms fade
@@ -4024,9 +4037,17 @@ function changeAction(actor,action,forceRestart=false,frameDelta=.016,sourceFram
      source:'original-Walking_A-to-Idle-mixer-crossfade',
      sourceInstanceId:actor.assetRoot?.uuid??null,
      fromClip:'Walking_A',toClip:clip.name,toMode:action,
-     originalPreviousWeight:previous.getEffectiveWeight?.()??null,
-     originalPreviousRunning:Boolean(previous.isRunning?.()&&!previous.paused),
+     originalPreviousWeight:Number.isFinite(originalPreviousWeightBeforeFade)?
+      originalPreviousWeightBeforeFade:null,
+     originalPreviousRunning:originalPreviousRunningBeforeFade,
      rootTravelMeters:Number.isFinite(witnessed)?witnessed:null,
+     recentRootTravelMeters:Number.isFinite(actor.rigRecentGroundedTravel)?
+      actor.rigRecentGroundedTravel:null,
+     recentRootAgeSeconds:Number.isFinite(actor.rigRecentGroundedAge)?
+      actor.rigRecentGroundedAge:null,
+     recentRootFrameIntervalSeconds:Number.isFinite(actor.rigRecentGroundedFrameInterval)?
+      actor.rigRecentGroundedFrameInterval:null,
+
      frameIntervalSeconds:sourceFrameInterval,selectedFadeSeconds:crossfadeSeconds,
      candidateSelected:crossfadeSeconds>.23,
      contactLocked:false,syntheticMovement:false
