@@ -39,6 +39,8 @@ jobs:
       - name: Deterministic authoritative dungeon campaign
         run: npm run dungeon:gauntlet
       - run: npm run dungeon:assets:strict
+      - name: Audit exact original six-role GLB source clip, skin, bind and hand socket
+        run: node --test tests/foundation/dungeon-session03-licensed-source-rig-contract.test.cjs
       - run: npx playwright install chromium
       - name: Capture real imported rig travel, combat, skin and defeat
         run: npx playwright test -c tests/browser/dungeon.playwright.config.cjs tests/browser/dungeon-full-body-animation.spec.cjs tests/browser/dungeon-session03-continuous-motion.spec.cjs tests/browser/dungeon-authored-motion.spec.cjs tests/browser/dungeon-rig-attachments.spec.cjs tests/browser/dungeon-fabric-drape.spec.cjs tests/browser/dungeon-endgame-epilogue.spec.cjs
