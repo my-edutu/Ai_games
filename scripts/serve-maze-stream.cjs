@@ -1,5 +1,6 @@
 'use strict';
 const fs=require('node:fs');const http=require('node:http');const path=require('node:path');const{checksum}=require('../dist/packages/replay/src/index.js');const{MazeRuntime}=require('../dist/games/ai-maze-escape/src/runtime/run.js');const{buildMazeRenderSnapshot}=require('../dist/games/ai-maze-escape/src/presentation/snapshot.js');const{MazePresentationController}=require('../dist/games/ai-maze-escape/src/presentation/controller.js');
+const{chooseFlagshipLiveSeed}=require('./maze-flagship-chapter.cjs');
 const ROOT=path.resolve(__dirname,'..'),PUBLIC_ROOT=path.join(ROOT,'public','ai-maze-escape'),STREAM_CONFIG=Object.freeze({width:17,height:11,profile:'chambers',level:4,intermissionTicks:12,maxTicks:18000,visibilityRadius:3,loopChancePermille:170,keyCount:2,trapCount:5,threatCount:1,memoryTtl:400,noProgressTicks:3000,repairAttempts:3});
 function createSession(seed='maze-stream-reference',config=STREAM_CONFIG,policy='partial-observation'){const runtime=MazeRuntime.create(config,seed,{policy}),controller=new MazePresentationController({replayCapacity:360,maxEntities:2048,muted:false});let cursor=0;controller.accept(buildMazeRenderSnapshot(runtime.state),runtime.events.slice(cursor));cursor=runtime.events.length;return{runtime,controller,get cursor(){return cursor},set cursor(value){cursor=value}}}
 function advance(session){session.runtime.step();const events=session.runtime.events.slice(session.cursor);session.cursor=session.runtime.events.length;return session.controller.accept(buildMazeRenderSnapshot(session.runtime.state),events)}
@@ -47,7 +48,9 @@ function serve() {
   const argument=process.argv.find(value=>value.startsWith('--port='));
   const port=Number(argument?.split('=')[1]??process.env.PORT??4174);
   if(!Number.isInteger(port)||port<1||port>65535)throw new RangeError('port');
-  const session=createSession(process.env.MAZE_SEED||'maze-stream-reference');
+  const selected=process.env.MAZE_SEED||chooseFlagshipLiveSeed(
+    candidate=>MazeRuntime.create(STREAM_CONFIG,candidate,{policy:'partial-observation'}).state.world).seed;
+  const session=createSession(selected);
   let lastStepAt=Date.now(),simulationFault=false;
   const interval=setInterval(()=>{
     try{advance(session);lastStepAt=Date.now();simulationFault=false}
