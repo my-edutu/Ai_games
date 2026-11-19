@@ -221,7 +221,37 @@ async function film(browser,profile){
     },e.meal.citizen);
     await page.screenshot({path:path.join(out,name+'-earned-household.png')});
     result.screenshots.push(name+'-earned-household.png');
-    await page.waitForTimeout(1100);result.status='PASS';
+    // W478 new running-game acceptance: an optional late observer can now
+    // visit the ORIGINAL verified meal's physically surveyed cottage.
+    // Check exact same immutable household event/receipt, same saved-world
+    // checksum and real 390px viewport; NEVER stage a meal or actor.
+    const physicallyEarned=await page.evaluate(()=>{
+     const g=window.__tinyKingdom,before=g.exportSnapshot().checksum;
+     const proof=g.latestVerifiedGrainHomeTrace();
+     const visit=g.inspectLatestVerifiedGrainHome();
+     return {before,after:g.exportSnapshot().checksum,
+      proof,visit,buttonExists:Boolean(document.getElementById('world-verified-home')),
+      physicalView:visit?.homeExteriorSightline||null};
+    });
+    assert(physicallyEarned.buttonExists,'Missing reachable player meal-home control');
+    assert.equal(physicallyEarned.after,physicallyEarned.before,
+      'Physical home visit must not mutate real economics');
+    assert.equal(physicallyEarned.proof?.trace.deliveryId,complete.id,
+      'Cottage observer mixed two different harvest lots');
+    assert.equal(physicallyEarned.visit?.verifiedHomeMeal,true,
+      'Cottage observer invented/unlinked completed meal');
+    assert.equal(physicallyEarned.visit?.homeCameraActive,true,
+      'No real collision-surveyed cottage door available');
+    assert.equal(physicallyEarned.visit?.realMealHomeIndex,e.meal.homeIndex,
+      'Camera inspected a different resident home');
+    assert(physicallyEarned.physicalView?.clearShots>0,
+      'No physically clear real cottage door camera shot');
+    result.stages.earnedPhysicalCottage=physicallyEarned;
+    await page.waitForTimeout(650);
+    const homeShot=name+'-real-meal-home-door.png';
+    await page.screenshot({path:path.join(out,homeShot)});
+    result.screenshots.push(homeShot);
+    await page.waitForTimeout(450);result.status='PASS';
     break;
    }
    if(stage==='courier'&&followed&&byId.get(followed)?.events.receipt){

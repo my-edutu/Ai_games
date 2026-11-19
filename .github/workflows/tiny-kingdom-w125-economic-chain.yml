@@ -4,6 +4,7 @@ on:
     paths:
       - 'public/tiny-kingdom/index.html'
       - 'scripts/tiny-kingdom-w125-market-household-contract.cjs'
+      - 'scripts/tiny-kingdom-w478-earned-meal-home-contract.cjs'
       - 'scripts/tiny-kingdom-w270-presentation-hotpath.cjs'
       - 'scripts/tiny-kingdom-w125-unbroken-economic-film.cjs'
       - '.github/workflows/tiny-kingdom-w125-economic-chain.yml'
@@ -31,6 +32,8 @@ jobs:
         run: node scripts/tiny-kingdom-w270-presentation-hotpath.cjs
       - name: W125 original-source test-first farmer market home ledger
         run: node scripts/tiny-kingdom-w125-market-household-contract.cjs
+      - name: W478 strict genuine historic meal and cottage access negative contracts
+        run: node scripts/tiny-kingdom-w478-earned-meal-home-contract.cjs
       - run: npx playwright install --with-deps chromium
       - name: Unedited real-time browser video of accelerated authentic fixed-step desktop and mobile economy
         env:

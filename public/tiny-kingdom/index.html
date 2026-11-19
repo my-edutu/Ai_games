@@ -608,6 +608,15 @@ body{color:var(--tk-art-paper)}
  font:700 11px/1.15 system-ui;cursor:pointer}
 #world-watch-life:focus-visible{outline:3px solid #ebca8b;outline-offset:2px}
 #world-watch-life:hover{background:#3d5847}
+/* W478: proof-only access to a physically verified, real inhabited lot.
+   No extra modal, floating camera overlay or invented household actor. */
+#world-verified-home[hidden]{display:none!important}
+#world-verified-home{min-height:44px;max-width:210px;padding:8px 11px;
+ border:1px solid #dfc28c;border-radius:9px;background:#334e3a;
+ color:#faeac9;font:700 11px/1.2 system-ui;white-space:normal;
+ cursor:pointer;touch-action:manipulation}
+#world-verified-home:focus-visible{outline:3px solid #ffe4af;outline-offset:2px}
+@media(max-width:520px){#world-verified-home{max-width:148px;font-size:10px}}
 @media(min-width:791px){
  body[data-command="world"]:not([data-workday="live"]):not([data-workday="delivery"]) #world-ribbon{
   top:auto;bottom:98px;gap:8px;max-width:min(880px,calc(100vw - 28px));
@@ -1775,7 +1784,7 @@ body[data-village-documentary="on"] #world-live-roles{display:none!important}
  <div class="world-measure"><span class="world-glyph">✧</span><strong id="world-gold">42</strong><small>Gold</small></div>
  <span id="world-story" aria-live="off">Your villagers write their own chronicle.</span>
  <button id="world-watch-life" type="button" aria-label="Follow a real worker or courier in the living village">⚒ Watch village life</button>
- <button id="world-trace-toggle" type="button" aria-expanded="false" aria-controls="world-supply-trail" aria-label="Show the actual farm to market supply trail" aria-keyshortcuts="T">◈ Supply</button>
+ <button id="world-trace-toggle" type="button" aria-expanded="false" aria-controls="world-supply-trail" aria-label="Show the actual farm to market supply trail" aria-keyshortcuts="T">◈ Supply</button><button id="world-verified-home" type="button" hidden aria-label="Visit the cottage of a verified grain recipient">⌂ Real meal home</button>
  <div id="world-supply-trail" role="group" aria-label="Real farm to market to home economic activity" hidden><div id="grain-chain" role="group" aria-label="One real parcel evidence stages"><div id="grain-chain-caption">Live town activity is not evidence of one linked parcel</div><div id="grain-chain-steps"><button id="grain-chain-field" type="button" aria-label="Field: Waiting" aria-pressed="false" data-target="supply-field" data-evidence="waiting">Field<small>Waiting</small></button><button id="grain-chain-road" type="button" aria-label="Cart: Waiting" aria-pressed="false" data-target="supply-cargo" data-evidence="waiting">Cart<small>Waiting</small></button><button id="grain-chain-market" type="button" aria-label="Market: Waiting" aria-pressed="false" data-target="supply-receipt" data-evidence="waiting">Market<small>Waiting</small></button><button id="grain-chain-purchase" type="button" aria-label="Buyer: Waiting" aria-pressed="false" data-target="supply-trade" data-evidence="waiting">Buyer<small>Waiting</small></button><button id="grain-chain-meal" type="button" aria-label="Home: Waiting" aria-pressed="false" data-target="supply-meal" data-evidence="waiting">Home<small>Waiting</small></button></div><button id="grain-chain-details" type="button" aria-expanded="false" aria-controls="supply-field supply-cargo supply-receipt supply-trade supply-meal supply-home">Show receipt details</button></div>
   <div class="supply-stage"><small>Field</small><output id="supply-field">No harvest underway</output></div>
   <div class="supply-stage"><small>In transit</small><output id="supply-cargo">No loaded courier</output></div>
@@ -30412,6 +30421,19 @@ function updateWorldRibbon(){
    watchButton.setAttribute('aria-label',
     'Follow a real worker in the living village');
   }
+  // A late-arriving player can discover a REAL linked farmer parcel, market
+  // purchase and meal, then visit that original cottage. No invented event.
+  const earned=latestVerifiedGrainHomeTrace();
+  const earnedButton=document.getElementById('world-verified-home');
+  earnedButton.hidden=!earned||Boolean(grainJourney);
+  earnedButton.disabled=!earned;
+  if(earned&&!grainJourney){
+   const value='⌂ '+earned.plan.consumer+'’s meal home';
+   if(earnedButton.textContent!==value)earnedButton.textContent=value;
+   earnedButton.setAttribute('aria-label',
+    'Visit '+earned.plan.consumer+' original cottage; verified grain from '+
+    earned.trace.producer+'. Historical meal, not a reenactment');
+  }
   updateSupplyTrail();
 }
 
@@ -30798,6 +30820,73 @@ function planRealGrainHomeWitness(plan,citizens,homes){
  return {homeIndex:plan.homeIndex,x:lot[0],z:lot[1],resident:resident.name,
   atHome,mealId:plan.mealId,source:'verified-original-home-record-not-a-reenactment'};
 }
+// W478 Phase 1: optional observer of a REAL fully settled farmer-to-home
+// journey even when the player did not initiate tracking before the harvest.
+// Same conserved parcel ID, positive credited market receipt, actual buyer
+// transaction and recorded meal; never infer a meal from overall food stock.
+// This function observes only bounded existing receipt arrays, never the sim.
+function latestVerifiedGrainHomeTrace(
+ receipts=deliveryReceipts,trades=state.householdTrades||[],
+ meals=state.householdMeals||[],citizens=people,homes=city){
+ if(![receipts,trades,meals,citizens,homes].every(Array.isArray))return null;
+ let latest=null;
+ for(const meal of meals){
+  if(!meal||typeof meal.id!=='string'||!Number.isFinite(meal.time))continue;
+  const trade=trades.find(t=>t?.id===meal.id&&
+   t.receiptId===meal.receiptId&&t.citizen===meal.citizen);
+  const receipt=receipts.find(r=>r?.id===meal.receiptId&&
+   r.resource==='food'&&r.creditedAtUnloading===true);
+  if(!trade||!receipt)continue;
+  const trace={producer:receipt.citizen,deliveryId:receipt.id,
+   tradeId:trade.id};
+  const plan=planRealGrainJourney(trace,citizens,receipts,trades,meals);
+  if(plan?.stage!=='consumed'||plan.mealId!==meal.id)continue;
+  const home=planRealGrainHomeWitness(plan,citizens,homes);
+  if(!home)continue;
+  if(!latest||meal.time>latest.time)
+   latest={trace,plan,home,mealTime:meal.time,
+    source:'verified-authoritative-farmer-receipt-trade-home',
+    authorityModified:false,reenactedMeal:false};
+ }
+ return latest;
+}
+// Clicking historical proof changes the PHYSICAL playable camera, not
+// anyone's job, residence, delivery inventory, RNG, replay or saved state.
+// A resident may already have walked away; never stage an actor or meal.
+function inspectLatestVerifiedGrainHome(){
+ const earned=latestVerifiedGrainHomeTrace();
+ if(!earned)return null;
+ const lens=chooseRealGrainHomeLens(earned.home);
+ if(!lens){
+  showToast('Real meal recorded; no unobstructed cottage view yet');
+  return null;
+ }
+ const index=people.findIndex(p=>p.name===earned.plan.consumer);
+ if(index<0)return null;
+ if(streetWalk)setStreetWalk(false);
+ if(grainJourney)stopRealGrainJourney();
+ else if(liveWorkday||document.body.dataset.workday!=='off')
+  stopWorkdayWatch();
+ selectedCitizen=index;
+ document.body.dataset.workday='household';
+ if(!follow)setCitizenFollow(true);
+ grainJourney={...earned.trace,stage:'consumed',
+  stagesSeen:['consumed'],subjectChanges:0,
+  homeWitness:true,homeLens:lens,
+  marketWitness:false,marketLens:null,marketAttempt:null,
+  historicalReview:true};
+ // The actual surveyed original cottage door is visible on the first frame;
+ // otherwise an aerial camera eases through real roofs at software FPS.
+ focusPoint=[earned.home.x,earned.home.z];
+ yaw=lens.yaw;pitch=lens.pitch;zoom=lens.zoom;
+ lastFollowShot=null;liveShotPlanCache=null;
+ presentationEpoch++;lastFrozenFrameKey=null;
+ setCommandView('world');updateUI();
+ advanceRealGrainJourney();updateSupplyTrail(true);
+ renderVisibleGrainChain();updateGrainObservationArmUi();
+ return getRealGrainJourneyAudit();
+}
+
 function getRealGrainHomeWitness(){
  if(!grainJourney)return null;
  const plan=planRealGrainJourney(grainJourney,people,deliveryReceipts,
@@ -31768,6 +31857,7 @@ function inspectRealGrainStage(name){
   if(supplyTrailOpen)toggleSupplyTrail();
  });
  button('world-trace-home',toggleRealGrainHomeWitness);
+ button('world-verified-home',inspectLatestVerifiedGrainHome);
  button('world-open-command',()=>setCommandView('command','user'));
  button('camera-home',requestSettlementOverview);
  button('camera-market-homes',requestRealMarketHomeDistrict);
@@ -34739,7 +34829,8 @@ drawForegroundResidentMesh();
 getDailyRhythmAudit:dailyRhythmAudit,getHouseholdProvisionAudit:()=>cloneData(householdProvisionAudit()),getCarriedHouseholdProvisionPose:person=>cloneData(getCarriedHouseholdProvisionPose(person)),getVerifiedHouseholdMealEvidence:person=>cloneData(verifiedHouseholdMealEvidence(person)),getVerifiedHomeMealHand:person=>cloneData(getVerifiedHomeMealHand(person)),getVerifiedHomeMealRenderStats:()=>({...actualHouseholdMealVisualStats}),getHouseholdCarriedSackStats:()=>({...householdCarriedSackStats}),getReceiptHouseholdAudit:()=>cloneData(receiptHouseholdAudit()),getVerifiedEconomyRenderStats:()=>({...verifiedEconomyRenderStats}),getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getVillageNightLightingAudit,getMaterialShaderTierAudit,getHardwareResidentArchitectureAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getCottageHomecomingAudit,getCottageDoorRenderAudit:()=>({...cottageDoorRenderAudit}),
  getCottageDoorResidencyAudit,setCottageDoorResidencyForTesting,getSoftwareResolutionAudit,getSoftwareSceneMaterialAudit,getHardwareResolutionAudit,getSimulationFrameDelta:simulationFrameDelta,getHouseholdLightAudit:()=>({...householdLightAudit}),getNightHomesResidencyAudit,setNightHomesResidencyForTesting,getOccupiedHearthCount:()=>occupiedHearths,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,
 getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),getForgeSoundAudit:()=>cloneData(getForgeSoundAudit()),pollForgeSound,watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,
- getRealGrainJourneyAudit,getGrainObservationQueueAudit,
+ getRealGrainJourneyAudit,inspectLatestVerifiedGrainHome,
+ latestVerifiedGrainHomeTrace:()=>latestVerifiedGrainHomeTrace(),getGrainObservationQueueAudit,
  toggleQueuedGrainObservation,advanceQueuedGrainObservation,
  getGrainProofStripAudit:()=>planVisibleGrainChain(grainJourney,
   grainJourney?planRealGrainJourney(grainJourney,people,deliveryReceipts,
