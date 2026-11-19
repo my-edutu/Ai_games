@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-19T04:20:00.000Z",
+  "updatedAt": "2026-11-19T05:45:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass497 focused native WebGL 44447099510 passed 8/8: original 40/40 full-frame PNG SHA sidecars and three true chronological gate hashes independently verified at exact SHA 45de43a2. Native 390 guardian still too visually busy for Nintendo benchmark; complete default-seed autonomous chapter NOT proven. Pass498 adds a strict single-token partial-observation pressure→guardian→earned-counter→shrine/key→return→matching-gate→exit audit after uncropped captures; exact-new-HEAD CI/real completion PENDING. No art/gameplay win claimed; PR stays OPEN DRAFT."
+    "summary": "Pass498 exact SHA 9dd559fa native 8/8 and 244/244 source PASS, real unaltered original 40/40 PNG hashes plus 3 gate-transition hashes independently verified; single default live partial-observation Pip AI ACTUALLY completed pressure+Thornback tick29, earned counter33, key518, return520, gate523, escape529, one run token. This proves a complete SIMULATION journey, not Nintendo visual parity; real 390px Thornback remains crowded. Pass499 builds a physical event-driven portal finale, new exact-HEAD source, WebGL and independent visual critique pending. Whole repo red in unrelated Tiny Kingdom. PR stays open draft, never merged/deployed."
   },
   "captures": [
+    {
+      "title": "Pass498 exact HEAD 9dd559fa full original native screenshots 40/40 verified PNG SHA sidecars plus 3 gate hashes; same-run natural AI escape 529-tick JSON audit",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44458287276/artifacts/14499632891"
+    },
     {
       "title": "Pass492 exact HEAD a0af351c native WebGL SUCCESS, 40/40 original unaltered PNG sidecar SHA256 and true 3/3 gate before/mid/after SHA256 independently verified; Pass493 old source baseline",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44429707977/artifacts/14486186788"
@@ -372,6 +376,12 @@
     }
   ],
   "changes": [
+    {
+      "title": "Pass499 original terminal scene: real public AI escape opens connected physical Tideglass shutters and lifts existing portal veil",
+      "date": "2026-11-19",
+      "status": "Production candidate; new exact-HEAD rendering and source CI pending",
+      "description": "The genuine completed flagship seed now has a player-visible physical victory response in the existing 3D exit. Two rooted hinged shutters swing out on real public same-run terminal escape; the existing portal veil rises. True installed Three transforms, reduced motion, false capture/hidden exit and six-run resource budget covered by new unchanged-threshold regression."
+    },
     {
       "title": "Pass498 — make natural single-run flagship completion a real acceptance gate",
       "date": "2026-11-19",
@@ -752,6 +762,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass499: newly committed source must pass exact-HEAD regression, maintain six-reset <100 and produce genuine 320/390/844/1280 full-frame WebGL terminal opening; compare actual original frames with fixed Nintendo benchmark and independently reject guardian occlusion/pacing before any full win.",
     "Pass498: inspect exact-new-HEAD strict natural autonomous chapter JSON outcome alongside 320/390/844/1280 original screenshots; if non-escape or missing event, repair the real default gameplay, not microscopic scenery. Independently critique actual camera actor/guardian readability before acceptance.",
     "Pass497: exact-new-HEAD source test 244/244 and native four viewport source-bound WebGL, unchanged strict six-reset <100, verify guardian reef actually reveals both complete actors (no visual claim from fixed test); then same-run real pressure→Thornback→gallery→key→gate→escape and independent critic.",
     "Pass496: first verify new HEAD strict original source test selects authentic tideglass-live-chapter-1387 (Pass494 241/242 failure), then source-matched unaltered native 320/390/844/1280 screenshots, six reset <100, and actual uninterrupted partial-observation AI pressure→guardian→key→gate→exit; reject if AI never finishes or guardian physically obscured.",
@@ -853,6 +864,11 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass499 verified natural escape and physical portal resolution",
+      "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-499-completed-flagship-public-exit-finale-2026-11-19.md",
+      "status": "Real gameplay completion verified; new in-world terminal scene pending WebGL/critic"
+    },
     {
       "title": "Pass498 real single-run public AI flagship acceptance gate",
       "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-498-uninterrupted-live-autonomous-chapter-gate-2026-11-19.md",
@@ -1760,6 +1776,12 @@
     }
   ],
   "verification": [
+    {
+      "title": "Pass498 exact HEAD natural flagship 529-tick public AI escape and original 40 PNG + 3 gate image hashes",
+      "date": "2026-11-19",
+      "status": "SUCCESS eight native WebGL tests, 244 source, true autonomous escape; full visual bar not met",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44458287276"
+    },
     {
       "title": "Pass497 exact SHA focused 8/8 native WebGL 40/40 original PNG and three true gate image hashes independently reverified; default continuous journey still unproven",
       "date": "2026-11-19",

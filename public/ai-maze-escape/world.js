@@ -457,6 +457,9 @@ export function createMazeWorld(options = {}) {
   const gateOpeningAt = new Map(), retractingGates = new Map();
   // Only previously disclosed, same-run, inventory-confirmed pickups animate.
   const keyPickupAt = new Map();
+  // One public, same-run terminal ESCAPE makes the already-disclosed physical
+  // portal answer Pip. No private solver result or inferred escape route.
+  let exitVictoryRig = null, exitVictoryAt = null;
   // Mesh references stay out of userData so Three.js serialization/cloning
   // remains safe; obsolete disclosed doors can be collected automatically.
   const gateDrives = new WeakMap();
@@ -3530,6 +3533,28 @@ export function createMazeWorld(options = {}) {
     const veil = mesh(p, portalDisc, portalVeil, 0, 1.18, -.53, .65, .84, 1);
     veil.castShadow = false; veil.receiveShadow = false;
     const halo = mesh(p, ring, glow, 0, 1.18, -.51, .68, .86, .68);
+    // Actual single-run victory needs an authored ENDING inside the playable
+    // stage, not only a HUD result. Two articulated Tideglass side shutters
+    // remain attached outside the original clear portal opening: they never
+    // represent a new lock, move Pip, or change the authoritative exit cell.
+    // On genuine public escape they hinge OUT from the real stone jambs while
+    // the existing portal veil rises into its arch, exposing the crossing.
+    // No new geometry/material type, dynamic object allocation or fake goal.
+    const victoryWings = [];
+    for (const side of [-1,1]) {
+      const hinge = new THREE.Group();
+      hinge.name = 'Disclosed exit articulated tide-wing hinge ' + side;
+      hinge.position.set(side * .77, 1.04, -.535);
+      p.add(hinge);
+      const fin = mesh(hinge, bevel, darkJade,
+        -side * .19, 0, 0, .34, 1.12, .14);
+      fin.name = 'Disclosed exit attached tide-wing body ' + side;
+      mesh(hinge, bevel, seaGlass,
+        -side * .19, 0, .082, .24, .97, .052);
+      mesh(hinge, cylinder, gold, 0, -.49, -.015, .075, .16, .075);
+      victoryWings.push({hinge,side});
+    }
+    exitVictoryRig = {wings:victoryWings,veil,halo};
     // A two-tower tide observatory gives the *actually disclosed* exit a
     // destination-scale silhouette rather than another anonymous stone tile.
     // Every element is local to the already-known exit prop, without a walkable
@@ -3599,6 +3624,7 @@ export function createMazeWorld(options = {}) {
         [cell, {pressureSince, pressureLastTime}]));
     const nowVisible = new Set(s.visibleCells);
     publicClosedSockets.clear(); retractingGates.clear();
+    exitVictoryRig = null;
     clear(objects); animations = []; trapJaws = []; trapSignals = [];
     for (const key of s.keys) keyProp(key, s);
     for (const door of s.doors) doorProp(door, s);
@@ -3667,6 +3693,20 @@ export function createMazeWorld(options = {}) {
         && threat.lanternParried===true
         && s.visibleCells.includes(threat.cell))) observedEarnedCounter=null;
     }
+    // A terminal outcome is only a witnessed portal event when Pip was
+    // genuinely playing in the SAME run, reaches the actually published exit
+    // and that exact exit is presently visible. A new run, failure or hidden
+    // endpoint immediately revokes the clock; first-seen terminal snapshots
+    // can show a settled state but cannot manufacture an opening transition.
+    const publicEscape = s.result?.reason === 'escape'
+      && s.currentCell === s.exitCell
+      && Array.isArray(s.visibleCells) && s.visibleCells.includes(s.exitCell)
+      && Array.isArray(s.cells) && s.cells.some(c=>c.cell===s.exitCell);
+    if (publicEscape && snapshot?.runToken === s.runToken
+      && snapshot.lifecycle === 'running' && !snapshot.result)
+      exitVictoryAt = {runToken:s.runToken,start:presentationTime};
+    else if (!publicEscape || exitVictoryAt?.runToken !== s.runToken)
+      exitVictoryAt = null;
     const previouslyVisibleCells = new Set(snapshot?.visibleCells || []);
     // A hidden or terminal published snapshot revokes the in-flight physical pressure
     // encounter immediately, even if no render frame or object rebuild runs.
@@ -3781,6 +3821,26 @@ export function createMazeWorld(options = {}) {
     presentationTime = Number.isFinite(options.gateTime) && options.gateTime >= 0
       ? options.gateTime : t;
     const reduced = !!options.reducedMotion;
+    // A complete public escape has a complete physical resolution. This is
+    // the existing discovered portal, NOT an extra scene or synthetic AI
+    // action. With no witnessed prior running frame, render the truthful
+    // terminal pose directly, with no falsely replayed victory animation.
+    if(exitVictoryRig){
+      const earned = snapshot?.result?.reason==='escape'
+        && snapshot.currentCell===snapshot.exitCell
+        && snapshot.visibleCells?.includes(snapshot.exitCell);
+      const observed = earned && exitVictoryAt?.runToken===snapshot.runToken;
+      const elapsed = observed ? Math.max(0,presentationTime-exitVictoryAt.start) : Infinity;
+      const unit = !earned ? 0 : reduced || !Number.isFinite(elapsed)
+        ? 1 : Math.max(0,Math.min(1,elapsed/1.4));
+      const opened = unit*unit*(3-2*unit);
+      for(const {hinge,side} of exitVictoryRig.wings)
+        hinge.rotation.y=side*.98*opened;
+      exitVictoryRig.veil.position.y=1.18+.40*opened;
+      exitVictoryRig.veil.scale.y=.84*(1-.64*opened);
+      exitVictoryRig.halo.scale.set(
+        .68*(1+.22*opened),.86*(1+.22*opened),.68*(1+.22*opened));
+    }
     // Animate the SAME four source-disclosed, pooled-geometry gallery fins on
     // the authenticated public key transition. No new draw calls, object churn,
     // unknown cells, collision edits, fake key or timer-owned gameplay.
@@ -4303,7 +4363,7 @@ export function createMazeWorld(options = {}) {
   function dispose() {
     if (disposed) return; disposed = true;
     treasureGalleryTiles = 0; pressureRetainingGalleries = 0; guardianCourtTiles = 0; guardianBlockedReliefTiles = 0; guardianCausewayTiles = 0; guardianForecourtShoulderTiles = 0; guardianOuterCourtFloorTiles = 0; guardianOuterCourtSealedTiles = 0; shorelineLoadFacades = 0;
-    clear(terrain); clear(objects); clear(backdrop); publicClosedSockets.clear(); gateOpeningAt.clear(); retractingGates.clear(); keyPickupAt.clear();
+    clear(terrain); clear(objects); clear(backdrop); publicClosedSockets.clear(); gateOpeningAt.clear(); retractingGates.clear(); keyPickupAt.clear(); exitVictoryRig=null; exitVictoryAt=null;
     for (const g of geometries) g.dispose();
     for (const m of materials) m.dispose();
     for (const t of textures) t.dispose(); textures.clear();
