@@ -7766,7 +7766,7 @@ function retainLandscapeSeason(key,mesh,buffer,ranges){
   landscapeSeasonEvictions++;
  }
 }
-let terrainCache=null,terrainCacheKey='',terrainRebuilds=0,terrainCacheTriangles=0,lastFrameTriangles=0;
+let terrainCache=null,terrainCacheKey='',terrainRebuilds=0,terrainCacheTriangles=0,lastFrameTriangles=0,lastFrameFullSceneTriangles=0,viewFarmBudgetAudit=null;
  // W149: complete landscape VBO residency is checked before expensive base
  // valley and horizon source construction. This never changes world authority.
  let lastTerrainBaseClimateKey='',terrainBaseResidentSkips=0;
@@ -7990,8 +7990,9 @@ function getSceneTriangleReconciliation(){
    climateAt(state.t).weather==='snow'?240:0):0;
  return {source:'real-seasonal-farm-and-occupied-home-integrity',
   auditedTriangles:audited.totalTriangles,lastFrameTriangles,
+  lastFrameFullSceneTriangles,viewFarmBudgetAudit,
   weatherTrianglesEstimated:weather,
-  unaccountedTriangles:lastFrameTriangles-weather-audited.totalTriangles,
+  unaccountedTriangles:lastFrameFullSceneTriangles-weather-audited.totalTriangles,
   currentDrawnFieldTriangles:farmFieldLastTriangles,
   fieldPlots:farmFieldLastDrawnPlots.map(({plot,mode,triangles})=>({plot,mode,triangles})),
   actualNightHomeTriangles:nightHomesActive?(nightHomesMesh?.length||0)/30:0,
@@ -18972,6 +18973,38 @@ function farmFieldLodChoice(distance,previous='far'){
 // Both camera-selected tiers retain EVERY root, furrow and seed-head source;
 // no field is culled for budget reasons, and a deficit remains a visible FAIL.
 // Prioritise the real working farmer's plot, not the easiest distant screenshot.
+// W468 Phase 1: use the triangles the actual retained camera submits instead
+// of charging farms for distant original chunks rejected by real frustum tests.
+// Resident geometry, buildings, rooted crops and economy stay authoritative.
+// Include batch-bridged overdraw: bridging cannot create free GPU headroom.
+function planViewFarmTriangleBudget(nonFieldTriangles,classes,triangleLimit=160000){
+ if(!Number.isFinite(nonFieldTriangles)||nonFieldTriangles<0||
+    !Number.isFinite(triangleLimit)||triangleLimit<=0)
+  throw Error('W468 invalid actual view budget');
+ const keys=['landscape','settlement','homes','civicCore','civic'];
+ let culledStaticTriangles=0,bridgedStaticTriangles=0,visibleStaticTriangles=0;
+ for(const key of keys){
+  const row=classes?.[key];
+  if(!row||![row.visibleTriangles,row.culledTriangles,row.bridgedTriangles]
+      .every(n=>Number.isFinite(n)&&n>=0))
+   throw Error('W468 invalid real '+key+' draw coverage');
+  culledStaticTriangles+=row.culledTriangles;
+  bridgedStaticTriangles+=row.bridgedTriangles;
+  visibleStaticTriangles+=row.visibleTriangles;
+ }
+ const issuedNonFieldTriangles=
+  nonFieldTriangles-culledStaticTriangles+bridgedStaticTriangles;
+ if(issuedNonFieldTriangles<0)
+  throw Error('W468 frustum accounting exceeds source geometry');
+ return {source:'actual-retained-frustum-issued-scene-budget',
+  triangleLimit,conservativeNonFieldTriangles:nonFieldTriangles,
+  visibleStaticTriangles,culledStaticTriangles,bridgedStaticTriangles,
+  issuedNonFieldTriangles,
+  availableFieldTriangles:Math.max(0,triangleLimit-issuedNonFieldTriangles),
+  nonFieldAlreadyOverBudget:issuedNonFieldTriangles>triangleLimit,
+  originalGeometryConserved:true,authorityModified:false,
+  measuredHardwareFps:false};
+}
 function chooseBudgetedFarmPlotModes(plots,triangleBudget){
  if(!Number.isFinite(triangleBudget)||triangleBudget<0)
   throw Error('W245 invalid original field budget');
@@ -33791,9 +33824,11 @@ const nonFieldTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.
  (foregroundResidentVisible.length?foregroundResidentMesh.length:0):data.length)/30+
  (gpuAvailable?(atmosphere.climate.weather==='rain'?200:
   atmosphere.climate.weather==='snow'?240:0):0);
-const fieldLodDraw=gpuAvailable?drawResidentFarmFields(eye,planes,Math.max(0,160000-nonFieldTriangles)):
- {drawCalls:0,triangles:0,mode:'complete-civic-fallback'};
-lastFrameTriangles=nonFieldTriangles+(gpuAvailable?farmFieldLastTriangles:0);
+let fieldLodDraw={drawCalls:0,driverCalls:0,multiDrawBatches:0,
+ triangles:0,mode:'complete-civic-fallback'};
+// Submit all genuine retained fixed houses, roads, shops and hills FIRST.
+// The real six-plane visible ranges then set the crop draw-tier budget;
+// neither offscreen static triangles nor their cached CPU copies cost a draw.
 if(gpuAvailable){
  const staticDistrictContext={matrix:m,atmosphere,radiance,eye,activeLight,time:state.t};
  scenicVisibilityStats.farmFields=fieldLodDraw;
@@ -33819,6 +33854,23 @@ if(gpuAvailable){
     issuedTriangles:0,savedDrawCalls:0,maxBridgeTriangles:SCENIC_BRIDGE_MAX_TRIANGLES,
     invalidRanges:0,driverCalls:0,multiDrawBatches:0,multiDrawRanges:0};
  }finally{finishResidentStaticMaterialBatch()}
+ viewFarmBudgetAudit=planViewFarmTriangleBudget(nonFieldTriangles,{
+  landscape:scenicVisibilityStats.landscape,
+  settlement:scenicVisibilityStats.settlement,
+  homes:scenicVisibilityStats.homes,
+  civicCore:scenicVisibilityStats.civicCore,
+  civic:scenicVisibilityStats.civic
+ });
+ // All original plotted rows remain present: the selected near/far tier can
+ // spend only genuine camera-visible headroom, never imaginary offscreen cost.
+ fieldLodDraw=drawResidentFarmFields(
+  eye,planes,viewFarmBudgetAudit.availableFieldTriangles);
+ lastFrameTriangles=viewFarmBudgetAudit.issuedNonFieldTriangles+
+  fieldLodDraw.triangles;
+ viewFarmBudgetAudit.issuedViewTriangles=lastFrameTriangles;
+ viewFarmBudgetAudit.viewBudgetBreached=lastFrameTriangles>160000;
+ viewFarmBudgetAudit.fieldTriangles=fieldLodDraw.triangles;
+ viewFarmBudgetAudit.farmRowsNeverDroppedForBudget=true;
  scenicVisibilityStats.totalSubmittedTriangles=scenicVisibilityStats.landscape.visibleTriangles+
   scenicVisibilityStats.settlement.visibleTriangles+scenicVisibilityStats.civic.visibleTriangles+
   scenicVisibilityStats.civicCore.visibleTriangles+
@@ -33880,6 +33932,11 @@ if(gpuAvailable){
   }
  }
 }
+// Preserve the source-wide geometry reconciliation separately from actual
+// camera submissions. Neither metric may masquerade as hardware frame time.
+lastFrameFullSceneTriangles=nonFieldTriangles+
+ (gpuAvailable?farmFieldLastTriangles:0);
+if(!gpuAvailable){lastFrameTriangles=lastFrameFullSceneTriangles;viewFarmBudgetAudit=null;}
 // W351: isolate ACTUAL GL submission/copy costs under the same authoritative
 // frame and scene. Previous gpuUpload combined nine resident draw calls with
 // typed-array uploads; it could not identify the dominant Phase 1 stall.
@@ -34207,7 +34264,7 @@ getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:
  totalSavedDrawCalls:scenicVisibilityStats.totalSavedDrawCalls,
  batchMode:scenicVisibilityStats.batchMode,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,getDynamicWorldDeltaAudit,planDynamicGpuRing,getColdSceneryBuildAudit,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getCivicCoreResidencyAudit,getCivicCorePrewarmAudit,getCivicRoadDirtyAudit,getSettlementResidentStats,getResidentDeltaUploadAudit,getHouseGeometryCacheAudit,getResidentHomeShaderAudit,setResidentHomeShaderForTesting,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getInhabitedFootwayAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCompactStoneCoursingAudit,getCompactRainCaskAudit,getFarmFieldResidencyAudit,getUpcomingFarmSeasonPrewarmAudit,advanceUpcomingFarmSeasonPrewarmForTesting,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,setCitizenFrameProjectionMemoForTesting,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,lastFrameFullSceneTriangles,viewFarmBudgetAudit:viewFarmBudgetAudit?{...viewFarmBudgetAudit}:null,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,getDynamicWorldDeltaAudit,planDynamicGpuRing,getColdSceneryBuildAudit,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getCivicCoreResidencyAudit,getCivicCorePrewarmAudit,getCivicRoadDirtyAudit,getSettlementResidentStats,getResidentDeltaUploadAudit,getHouseGeometryCacheAudit,getResidentHomeShaderAudit,setResidentHomeShaderForTesting,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getInhabitedFootwayAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCompactStoneCoursingAudit,getCompactRainCaskAudit,getFarmFieldResidencyAudit,getUpcomingFarmSeasonPrewarmAudit,advanceUpcomingFarmSeasonPrewarmForTesting,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,setCitizenFrameProjectionMemoForTesting,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,
   getEconomyCpuCacheAudit,setEconomyCpuCacheForTesting,
  getLedgerWitnessResidencyAudit,setLedgerWitnessResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
  getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,

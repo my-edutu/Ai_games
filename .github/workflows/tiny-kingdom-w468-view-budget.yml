@@ -1,0 +1,44 @@
+name: Tiny Kingdom W468 Retained View Budget and Real Mobile-Day121
+on:
+  push:
+    branches: [feat/tiny-kingdom-post-main-gauntlet-20261031]
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w468-view-budget-contract.cjs'
+      - '.github/workflows/tiny-kingdom-w468-view-budget.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w468-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  actual-desktop-and-mobile-retained-view:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      CI: '1'
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: node --test scripts/tiny-kingdom-w468-view-budget-contract.cjs
+      - run: npm run build
+      - run: npx playwright install chromium
+      - run: npx playwright test tests/browser/tiny-kingdom-w465-mobile-arrival.spec.cjs --workers=1 --reporter=line
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w468-real-desktop-mobile-day1-day121
+          path: |
+            artifacts/tiny-kingdom-w465/
+            test-results/
+          if-no-files-found: error
+          retention-days: 14
