@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-19T02:27:00.000Z",
+  "updatedAt": "2026-11-19T03:43:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass494 exact-source WebGL 44442757517 failed one of 242 source checks BEFORE capture: default bounded seeds lacked any true joined autonomous chapter. Its actual 2048-seed original generation/solver diagnostic found tideglass-live-chapter-1387 (guardian threat-1, pressure cell107, key2 chamber72/entry90, gate door2). Pass496 production correction pins this LEGAL unmodified seed inside unchanged bounded 48 cap and strengthens exact-seed regression; Pass495 blocked spectator low opaque reef candidate preserved. New CI/native source-bound 320/390/844/1280 and natural complete partial-observation AI run NOT VERIFIED. Official Nintendo benchmark NOT MET, whole-repo CI previously red, no independent critic available. PR open DRAFT unmerged/undeployed."
+    "summary": "Pass496 exact SHA b97a737 genuine flagship seed test PASSED, but focused WebGL 44445111073 stopped before capture at 243/244 source tests: the spectator-visibility regression wrongly expected the entire public actor low-court to disappear when only blocked spectator cell 34 left current visibility. Pass497 corrects the strict test contract: public 17/18/19 remain, hidden 34 must be absent. No production game logic/strict budgets changed. New exact-HEAD tests/WebGL/native full-frame SHA and uninterrupted partial-observation AI escape PENDING. Nintendo benchmark not achieved; PR open DRAFT, unmerged and undeployed."
   },
   "captures": [
     {
@@ -373,6 +373,12 @@
   ],
   "changes": [
     {
+      "title": "Pass497 — repair exact-source 243/244 CI blocker without hiding public actor court",
+      "description": "Real focused WebGL 44445111073 failed before native renders because test expected zero public staging cells after blocked spectator 34 became hidden; original production legitimately still stages currently visible actor cells 17/18/19. Stronger regression now asserts precisely those three still-visible cells and excludes 34; retains privacy/negative cases, geometry and camera thresholds. Pass496 real flagship seed check passed in that workflow. Newly committed tests/WebGL not yet verified.",
+      "date": "2026-11-19",
+      "status": "CI-blocker regression correction; new SHA source/native evidence pending"
+    },
+    {
       "title": "Pass496 — fix actual default live flagship source CI blocker with authentic generated seed",
       "description": "Pass494 strict 241/242 source suite exposed that no original 43 startup candidates contained one actually connected pressure–Thornback–two-link key–matching gate chapter. Its real deterministic 2,048-world generation search discovered qualifying unaltered tideglass-live-chapter-1387. Now the default bounded live selector checks that source-authentic seed at startup instead of silently falling back. Exact-seed regression added; all true-world topology, original rules, public AI perception, user MAZE_SEED, strict budgets and test thresholds unchanged. New source WebGL/continuous AI run pending.",
       "date": "2026-11-19",
@@ -740,6 +746,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass497: exact-new-HEAD source test 244/244 and native four viewport source-bound WebGL, unchanged strict six-reset <100, verify guardian reef actually reveals both complete actors (no visual claim from fixed test); then same-run real pressure→Thornback→gallery→key→gate→escape and independent critic.",
     "Pass496: first verify new HEAD strict original source test selects authentic tideglass-live-chapter-1387 (Pass494 241/242 failure), then source-matched unaltered native 320/390/844/1280 screenshots, six reset <100, and actual uninterrupted partial-observation AI pressure→guardian→key→gate→exit; reject if AI never finishes or guardian physically obscured.",
     "Pass495: exact-HEAD visual first; reject if genuine source-bound 390px full-body Thornback remains hidden behind blocked spectator foliage or scene loses art depth. SHA-check original unaltered 320/390/844/1280 pressure/guardian/key/gate. Require same-live-seed autonomous pressure→guardian→two-room key→gate→escape before any victory claim.",
     "Pass494: confirm selected live seed truly contains one pressure→Thornback→same-tier 2-cell key→matching gate chapter, capture its ACTUAL continuous autonomous AI outcome and every strict 320/390/844/1280 unaltered WebGL beat, compare Nintendo quality and reject still-hidden guardian.",
@@ -839,6 +846,11 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass497 exact-HEAD visible court 243/244 CI regression repair",
+      "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-497-visible-guardian-court-ci-regression-2026-11-19.md",
+      "status": "Confirmed actual failed Pass496 CI; corrected strict source contract, pending Pass497 CI and rendered critique"
+    },
     {
       "title": "Pass496 genuine failed CI/live seed source-blocker repair",
       "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-496-real-flagship-seed-source-ci-repair-2026-11-19.md",
@@ -1736,6 +1748,12 @@
     }
   ],
   "verification": [
+    {
+      "title": "Pass496 exact SHA b97a737 243/244 original source tests; genuine flagship source seed passed, contradictory spectator stage test blocked native capture",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44445111073",
+      "date": "2026-11-19",
+      "status": "FAILED; one regression assertion, no images generated; Pass497 corrective CI pending"
+    },
     {
       "title": "Pass493 exact HEAD 90f60c1c native WebGL 8/8 incl six resets <100, 40 original fullframe screenshot SHA256 and real 3 gate transition hashes verified",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44436875945",

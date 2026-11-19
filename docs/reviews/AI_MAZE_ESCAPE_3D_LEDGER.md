@@ -1,3 +1,11 @@
+## Pass497 — exact-source guardian court 243/244 test blocker (2026-11-19 UTC)
+
+- **Real failed HEAD CI:** [focused WebGL 44445111073](https://github.com/my-edutu/Ai_games/actions/runs/44445111073) checked out `b97a737722e809bf393d681151e36b9395bfc57d`, but stopped **before native screenshots** at **243/244 tests**. The only failure was a contradictory expected empty set after hiding a *blocked spectator*: genuine publicly visible hero/guardian court cells 17, 18, 19 correctly remain, and hidden blocked spectator cell 34 is correctly excluded. The strict real generated flagship seed test passed.
+- **Contract repair:** exact visible public low-court equality `[17,18,19]` plus explicit `!has(34)`, retaining all negative privacy/visibility, six-reset geometry <100 and camera acceptance thresholds. No production scene or game authority edited. [Dated original-source review](./maze-3d/pass-497-visible-guardian-court-ci-regression-2026-11-19.md).
+- **PENDING:** new exact-HEAD source/native full-viewport WebGL 320/390/844/1280 and SHA-256 images; verify real player-visible improvement and full same-run pressure→guardian→key→gate→escape. Previous uncropped mobile Thornback still obscured. No independent critic. **NOT Nintendo-quality passed**, open draft, never merge/deploy/force push.
+
+---
+
 ## Pass496 — repair actual Pass494 live flagship startup seed failure (2026-11-19 UTC)
 
 - **Material CI blocker:** Pass494 [exact-head WebGL 44442757517](https://github.com/my-edutu/Ai_games/actions/runs/44442757517) **FAIL** before WebGL: 241/242 source checks passed but strict chapter test failed because bounded original seeds contained no full, physically connected pressure→Thornback→two-link gallery→matching gate journey. CI's authentic expanded 2048-world deterministic generation/solver diagnostic found real `tideglass-live-chapter-1387`, actual guardian `threat-1`, pressure cell107, key2 cell72, return entry90 and matching door2. Whole repository 44442757603 fails same source test. The original default live stream silently fell back to an unqualified seed: NOT a flagship. This is a real gameplay continuity failure.

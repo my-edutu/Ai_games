@@ -34,8 +34,14 @@ test('Pass495 public earned recoil includes only observed impassable spectator s
   assert.equal(quiet(s,{spectator:true}).has(34),true,
     'observed blocked third-ring foreground is eligible for a real LOW SEALED scenic reef');
   assert.equal(quiet(s,{spectator:true}).has(42),false,'distant blocked landmark stays a full skyline silhouette');
-  assert.deepEqual([...quiet({...s,visibleCells:[17,18,19,42]},{spectator:true})],[],
-    'a previously observed but currently hidden spectator cannot reveal a stage');
+  // The three still-visible, genuinely public actor-floor cells remain a
+  // legitimate low court. Hiding spectator 34 must not suppress their stage;
+  // nor may it continue lowering that previously discovered solid terrace.
+  const afterOcclusion=quiet({...s,visibleCells:[17,18,19,42]},{spectator:true});
+  assert.deepEqual([...afterOcclusion].sort((a,b)=>a-b),[17,18,19],
+    'visible public actor court persists but the hidden blocked spectator is excluded');
+  assert.equal(afterOcclusion.has(34),false,
+    'a previously observed, now-hidden blocked spectator cannot remain lowered');
   assert.deepEqual([...quiet({...s,threats:[{id:'thornback',cell:19}]},{spectator:true})],[],
     'no published lantern parry means no earned blocked spectator');
   assert.deepEqual([...quiet({...s,result:{reason:'capture'}},{spectator:true})],[]);
