@@ -7398,5 +7398,47 @@
     "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
     "nextHighestImpact": "Inspect immutable films and source/native pairing; if 0s mixed room continues, fix genuine cold first-F9 CPU/GPU frame and camera physical sightline as one systemic issue.",
     "constraints": "Keep draft PR68, PR58, and frozen baseline; no merge/deploy/force push/unrelated game."
+  },
+  "p0RealNativeFirstF9ColdSceneCutRecheck20261119_2130": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateSource": "EXACT immutable github.sha of this capture-request commit containing all near-roof returned-world fixes; NEVER floating HEAD",
+    "priorCandidate": "e36bdca45e34bf91a99d73e3febcaf56a41a8ef2",
+    "priorCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44603378396",
+    "previousOriginalNativeResult": "8/8 baseline/candidate original 60s+ films and ledge succeeded, strict event-to-native source pairing failed 0/2. Independently rechecked 72s/73.96s original danger WebMs: 0s sustained shared old/new room; HUD→violet 0.5s both viewports; portrait hero briefly obstructed by old bronze posts.",
+    "sincePreviousFilmProductionCommits": [
+      "38f51c8bf6bf4de165c66db3f32a87a2f2976576",
+      "5c87b4aa03f5b1e469be134088baf920797033d7b",
+      "eceabcd427a6a481bee807578a413a5fd02c5150"
+    ],
+    "captureConditions": {
+      "seed": "tower-transformation-capture-v1",
+      "tier": "low",
+      "fps": 25,
+      "speed": "1x unmodified real gameplay",
+      "viewports": [
+        "960x600",
+        "390x844"
+      ],
+      "scenarios": [
+        "ascent",
+        "moving",
+        "danger",
+        "outcome/restart"
+      ],
+      "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9"
+    },
+    "requiredEvidence": "Uncut 60s+ original WebMs both viewports each scenario with SHA-256, original public 20Hz source, guardian/crusher HP0 real exit, physical Floor9 support and raised route, real result/restart and precise renderer/submission/PTS sidecars. Never infer accepted gate/actor/F9 pixels from source projection or sampled chroma.",
+    "requiredVisualGate": "2 consecutive event-aligned genuine normal-speed native video frames per viewport showing complete moving hero, genuinely open original defeated guardian gate, physically walkable Floor9 with coherent bronze→violet shared architectural continuity and unobstructed hero; report NOT EVALUATED otherwise.",
+    "currentQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44608446260 — queued at inspection",
+    "independentReviews": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "hardware": "NOT EVALUATED",
+    "nextAction": "Inspect newest exact-source normal-speed original desktop/portrait danger 23–32s alongside full ascent/moving/outcome; verify actual same-room gate/body/roof in 2 adjacent event-paired frames, measure HUD-violet gap and portrait crop; if cut persists, reopen P0 returned first-shaft geometry/material ownership at actual native presentation timing, not an unrelated cosmetic/test patch.",
+    "safeguards": "PR68 draft, PR58 and baseline SHA unchanged, no merge/deploy/force-push, no excluded games."
   }
 }
