@@ -43,31 +43,29 @@ export function sourceSynchronizedHorizonWeight(source,oldWeightBeforeVoid,
     certifiedHorizon.historicalOpticalTail===true;
   if(!earnedFarSide && !liveGate && !returnedTail)return ordinary;
   const sameRoom=Math.max(ordinary,Math.min(old,certifiedHorizon.oldWeight));
-  // Real 1x desktop/portrait at immutable ee1a98d: the drawn F9 survivor
-  // stands on the true successor roof while the inherited bronze room and
-  // global fog/sky remain visually unchanged for 1.75s/2.5s, then the
-  // entire backdrop turns violet in one harsh cut. The actual first-return
-  // Void vault/steel is already attached behind the opened old gateway.
-  // Do NOT use a second animation clock or an arbitrary floor counter.
-  // The separately certified, CURRENT source-supported survivor and at
-  // least two previously returned ORIGINAL Void bearing frames may softly
-  // acclimatize the shared distant sky/fog/light into the new biome while
-  // the old gateway and collision-aligned roof KEEP their source materials.
-  // Only 42% of the warm room can cool this way: the original physical
-  // bronze gate remains recognizable through the exterior passage. Actual
-  // source/material retirement still owns the final full Void transition.
-  if(returnedSuccessor?.sourceBound!==true ||
-     returnedSuccessor.sourceTick!==source.tick ||
-     !Number.isSafeInteger(returnedSuccessor.firstBearingReturnedFrames) ||
-     returnedSuccessor.firstBearingReturnedFrames<2 ||
-     returnedSuccessor.firstBearingReturnedFrames>30 ||
-     !Number.isFinite(returnedSuccessor.maxOldHorizonWeight) ||
-     returnedSuccessor.maxOldHorizonWeight<0 ||
-     returnedSuccessor.maxOldHorizonWeight>1)
-    return sameRoom;
-  const earnedCooling=.42*(1-returnedSuccessor.maxOldHorizonWeight);
-  // Never re-warm beyond the live source-certified optical coverage or
-  // overrule the current early-Void lease. This modifies only the existing
-  // Three.js scene atmosphere, not floor ownership, movement or film.
-  return Math.max(ordinary,sameRoom*(1-earnedCooling));
+  // Original 1x native film from immutable 0420b5c: Floor 9 HUD at
+  // 26.5s desktop / 26.0s portrait, but the distant Void world did not
+  // settle until 30.0s / 29.75s. The 42%-only ambient cooling ceiling
+  // kept the world majority-bronze after real F9 geometry had appeared,
+  // then snapped to purple when the old source material finally retired.
+  //
+  // The Scene owns a monotone, run-scoped distant atmosphere lease; ONLY
+  // returned WebGL frames that observedSourceEarnedVoidHorizon verifies
+  // against real HP0 guardian, walkable F9 flight/support and renderer
+  // duration can spend that lease. Do not REWARM an already-earned distant
+  // lease when a GPU stall or later source tick removes the live receipt.
+  // The original bronze gate, 3D roof, guardian tells and gameplay authority
+  // retain their independent World/source-owned materials and mechanics.
+  const returnedNow=returnedSuccessor?.sourceBound===true &&
+    returnedSuccessor.runToken===source.runToken &&
+    returnedSuccessor.sourceTick===source.tick &&
+    Number.isSafeInteger(returnedSuccessor.firstBearingReturnedFrames) &&
+    returnedSuccessor.firstBearingReturnedFrames>=2 &&
+    returnedSuccessor.firstBearingReturnedFrames<=30 &&
+    Number.isFinite(returnedSuccessor.maxOldHorizonWeight) &&
+    returnedSuccessor.maxOldHorizonWeight>=0 &&
+    returnedSuccessor.maxOldHorizonWeight<=1;
+  const distantOldBound=returnedNow
+    ?Math.min(distant,returnedSuccessor.maxOldHorizonWeight):distant;
+  return Math.min(sameRoom,distantOldBound);
 }

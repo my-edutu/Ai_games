@@ -23,6 +23,7 @@ test('source-earned authentic first-bearing returns cool ONLY successor environm
  const {source,held,submission}=sample();
  const value=observe(source,held,submission);
  assert.equal(value.sourceBound,true);
+ assert.equal(value.runToken,source.runToken,'earned horizon is bound to the authentic guardian run');
  assert.equal(value.realFlight,true);
  // With five real submitted-bearing returns, .50s gives a smoothstep of
  // 0.9657 (old horizon ~.0343), not >.05. The former numeric bound falsely
@@ -65,7 +66,7 @@ test('real World receipts only, old HP-door material preserved, no physics autho
  assert.match(w,/stagedVoidArchitecture\.root\.parent===floorGroup/);
  assert.match(scene,/observedSourceEarnedVoidHorizon\(snapshot,/);
  assert.match(scene,/sourceSynchronizedHorizonWeight\(snapshot,/);
- assert.match(scene,/certifiedHorizon\);/);
+ assert.match(scene,/certifiedHorizon,earnedVoidHorizon\);/);
  assert.match(scene,/earnedVoidSkyLease\.sourceTick=snapshot\.tick/);
  assert.doesNotMatch(scene,/snapshot\.player\.(?:x|y|health|grounded)\s*=/);
 });

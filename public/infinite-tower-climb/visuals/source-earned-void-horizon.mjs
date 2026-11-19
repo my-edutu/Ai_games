@@ -60,7 +60,7 @@ export function observedSourceEarnedVoidHorizon(source,held,submission) {
   const byReturns=(submission.firstBearingReturnedFrames-1)/4;
   const byTime=Math.max(0,(held.visibleSeconds-.10)/.45);
   const progress=smooth(Math.min(byReturns,byTime));
-  return {sourceBound:true,sourceTick:source.tick,grounded,realFlight,
+  return {sourceBound:true,runToken:source.runToken,sourceTick:source.tick,grounded,realFlight,
     firstBearingReturnedFrames:submission.firstBearingReturnedFrames,
     maxOldHorizonWeight:1-progress,
     limitation:'Actual same-run guardian HP0, physical F9 support/flight, previously returned original bearing; not painted native pixels or gameplay authority'};

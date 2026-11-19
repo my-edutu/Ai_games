@@ -7,13 +7,15 @@ const source={runToken:'real-guardian-episode',floor:9,theme:'void',
 const oldGate={sourceBound:true,sourceTick:512,
   kind:'physically-supported-returned-old-and-new-shaft',oldWeight:.9845};
 
-test('real returned original gateway anchors its already-walkable successor roof and sky despite early distant Void cooling',async()=>{
+test('the real gateway keeps warm sky until returned F9 bearings earn monotone distant cooling',async()=>{
  const {sourceSynchronizedHorizonWeight:weight}=await helper;
- assert.equal(weight(source,1,0,oldGate),.9845);
- assert.equal(weight(source,1,.2,{...oldGate,oldWeight:.7}),.7);
+ assert.equal(weight(source,1,1,oldGate),.9845);
+ assert.equal(weight(source,1,1,{...oldGate,oldWeight:.7}),.7);
  assert.equal(weight(source,1,.2,{...oldGate,oldWeight:.1}),.2);
- assert.equal(weight(source,.6,0,oldGate),.6);
- assert.equal(weight(source,1,0,{...oldGate,oldWeight:0}),0);
+ assert.equal(weight(source,.6,1,oldGate),.6);
+ assert.equal(weight(source,1,1,{...oldGate,oldWeight:0}),0);
+ assert.equal(weight(source,1,0,oldGate),0,
+   'an already-earned monotone F9 atmosphere lease must not rewarm under a retained gateway');
 });
 
 test('no stale, forged, dead, mismatched or unreturned physical doorway may hold old atmosphere',async()=>{
@@ -43,16 +45,16 @@ test('previously source-validated original doorway keeps its actual sky, fog and
    sourceTick:source.tick,crossingTick:475,oldWeight:.82};
  const current=certify(source,physical);
  assert.equal(current.kind,'live-same-run-physical-gateway');
- assert.equal(weight(source,1,0,current),.82,
+ assert.equal(weight(source,1,1,current),.82,
    'early returned Void bearing may cool distant sky, not the genuinely retained current old-room materials');
  const tail={historicalOpticalTail:true,previouslySourceVerified:true,
    runToken:source.runToken,authenticatedSourceTick:511,authenticatedCrossingTick:475,
    returnedFrames:4,returnedSeconds:.31,oldWeight:.61};
  const previous=certify(source,null,tail);
  assert.equal(previous.kind,'previous-certified-returned-material');
- assert.equal(weight(source,.9,0,previous),.61,
+ assert.equal(weight(source,.9,1,previous),.61,
    'source-validated returned material tail must not share a warm roof with an instant purple sky');
- assert.equal(weight(source,.4,0,current),.4,'never exceed current original-room coverage');
+ assert.equal(weight(source,.4,1,current),.4,'never exceed current original-room coverage');
  assert.equal(weight(source,1,.25,{...current,sourceTick:511}),.25);
  assert.equal(weight(source,1,.25,{...current,historicalOpticalTail:true}),.25);
  assert.equal(weight(source,1,.25,{...previous,historicalOpticalTail:false}),.25);
@@ -79,21 +81,26 @@ test('real World separates noncolliding gallery clearance from bronze sill color
 test('actual returned successor bearings gradually cool distant world atmosphere, not source-owned old gate or gameplay',async()=>{
  const {sourceSynchronizedHorizonWeight:weight}=await helper;
  const certified={sourceBound:true,sourceTick:source.tick,
-   kind:'live-same-run-physical-gateway',oldWeight:1};
- const earned={sourceBound:true,sourceTick:source.tick,
+   kind:'live-same-run-physical-gateway',historicalOpticalTail:false,oldWeight:1};
+ const earned={sourceBound:true,runToken:source.runToken,sourceTick:source.tick,
    firstBearingReturnedFrames:6,maxOldHorizonWeight:0};
- assert.equal(weight(source,1,0,certified),1);
- assert.ok(Math.abs(weight(source,1,0,certified,earned)-.58)<1e-10,
-   'genuinely returned original F9 bearings reveal distant atmosphere without erasing the bronze threshold');
- assert.ok(Math.abs(weight(source,.5,0,certified,earned)-.29)<1e-10);
- assert.equal(weight(source,1,.8,certified,earned),.8);
+ assert.equal(weight(source,1,1,certified),1);
+ assert.equal(weight(source,1,0,certified,earned),0,
+   'fully returned original successor may cool distant light without recoloring true bronze doorway');
+ assert.equal(weight(source,.5,0,certified,earned),0);
+ assert.equal(weight(source,1,.8,certified,{...earned,maxOldHorizonWeight:.8}),.8);
+ assert.equal(weight(source,1,.48,certified,{...earned,maxOldHorizonWeight:.48}),.48);
+ assert.equal(weight(source,1,.12,certified,{...earned,maxOldHorizonWeight:.12}),.12);
+ assert.equal(weight(source,1,.12,certified),.12,
+   'a stalled renderer cannot reverse already-earned source-bound atmospheric cooling');
  for(const falseProof of [
    {...earned,sourceBound:false},
+   {...earned,runToken:'other-run'},
    {...earned,sourceTick:source.tick-1},
    {...earned,firstBearingReturnedFrames:1},
    {...earned,maxOldHorizonWeight:NaN},
    {...earned,maxOldHorizonWeight:-.1},
    {...earned,maxOldHorizonWeight:1.1}
- ])assert.equal(weight(source,1,0,certified,falseProof),1);
+ ])assert.equal(weight(source,1,1,certified,falseProof),1);
  assert.equal(weight({...source,runToken:''},1,0,certified,earned),0);
 });
