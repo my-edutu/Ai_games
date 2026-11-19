@@ -5856,6 +5856,7 @@ function inspectSourceRigDeformation(actors){
   const sourceWeaponGrip=sourceWeaponHandGrip(actor,hands.right);
   const rootWorld=worldJoint(actor.root);
   actorsOut.push({id:actor.u.id,kind:actor.u.kind,mode:actor.fullBody?.mode||'idle',
+   sourceVisible:actor.root?.visible===true,
    bindReferenceSource:'original-inverse-bind-matrices',
    bindReferenceSegments:baseline.segments.length,bindReferenceComplete,
    sourceMeshCount:actor.nativePresentation?.skinnedMeshes||0,

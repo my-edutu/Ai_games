@@ -9,6 +9,7 @@ const {test,expect}=require('@playwright/test');
 const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
 const fs=require('node:fs');
 const path=require('node:path');
+const {auditOriginalSourceRafSolePair}=require('./dungeon-session03-original-skin-pair.cjs');
 const SEED='visual-room-art-18';
 const VIEWS=[{name:'desktop',width:1440,height:900},
  {name:'mobile',width:390,height:844}];
@@ -109,7 +110,7 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
  // Actual original 3D canvas film, not a contact sheet or a requested-FPS claim.
  const film=await startOriginalCanvasFilm(page,view.name);
  expect(film.started.status,JSON.stringify(film.started)).toBe('RECORDING');
- const rows=[];
+ const rows=[],nativeSourceRafPairs=[];
  try{
   for(let step=1;step<scenario.slice.length;step++){
    current=scenario.slice[step];
@@ -124,6 +125,8 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
     const rig=window.__DUNGEON_SOURCE_RIG_DEFORMATION__?.();
     const a=rig?.actors?.find(x=>x.kind==='vanguard');
     return {frame:diag?.frame??null,
+     actorId:a?.id??null,authorityTick:window.__DUNGEON_PUBLIC_STATE__?.tick??null,
+     visible:a?.sourceVisible===true,timeMs:performance.now(),
      tick:window.__DUNGEON_PUBLIC_STATE__?.tick??null,
      checksum:diag?.renderedState?.checksum??null,
      rigSourceActors:rig?.summary?.sourceActors??null,
@@ -132,6 +135,7 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
      sourceInstanceId:a?.sourceInstanceId??null,
      sourceClip:a?.sourceActionSample?.clipName??null,
      sourceClipTime:a?.sourceActionSample?.time??null,
+     sourceClipDuration:a?.sourceActionSample?.duration??null,
      sourceWeight:a?.sourceActionSample?.weight??null,
      // Original mixer transition receipt. A null / ordinary 230ms exit is
      // a genuine rejected guard, NEVER accepted full-body gait evidence.
@@ -158,6 +162,32 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
    expect(sample.invalidMatrices).toBe(0);
    expect(sample.sourceWeaponGrip?.attachedToGripSocket,
     'original Vanguard source sword must stay on handslotr').toBe(true);
+   // Native rAF AFTER the previous source skin; same untouched public tick.
+   // No extra source animation, synthetic root movement, contacts or hits.
+   // Reject mismatched source clone, missed frame, invalid skin or stale clip.
+   const after=await page.evaluate(async()=>{
+    await new Promise(resolve=>requestAnimationFrame(resolve));
+    const diag=window.__DUNGEON_RENDER_DIAGNOSTICS__;
+    const rig=window.__DUNGEON_SOURCE_RIG_DEFORMATION__?.();
+    const a=rig?.actors?.find(x=>x.kind==='vanguard');
+    return {frame:diag?.frame??null,
+     actorId:a?.id??null,authorityTick:window.__DUNGEON_PUBLIC_STATE__?.tick??null,
+     visible:a?.sourceVisible===true,timeMs:performance.now(),
+     checksum:diag?.renderedState?.checksum??null,
+     sourceInstanceId:a?.sourceInstanceId??null,
+     sourceClip:a?.sourceActionSample?.clipName??null,
+     sourceClipTime:a?.sourceActionSample?.time??null,
+     sourceClipDuration:a?.sourceActionSample?.duration??null,
+     sourceWeight:a?.sourceActionSample?.weight??null,
+     rootWorld:a?.rootWorld??null,
+     sourceSolePatchWorld:a?.sourceSolePatchWorld??null,
+     sourceWeaponGrip:a?.sourceWeaponGrip?
+      {socketName:a.sourceWeaponGrip.socketName,
+       attachedToGripSocket:a.sourceWeaponGrip.attachedToGripSocket}:null};
+   });
+   nativeSourceRafPairs.push({publicTick:current.tick,
+    sourceBeforeFrame:sample.frame,sourceAfterFrame:after.frame,
+    ...auditOriginalSourceRafSolePair({before:sample,after,floorTopY:-.02})});
    // Native stream sees actual published ticks at production 350ms cadence.
    await page.waitForTimeout(350);
   }
@@ -172,6 +202,14 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
    genuineVanguardTravelSteps:scenario.genuineVanguardTravel,
    originalAuthoritySnapshots:scenario.slice.length,
    actualFrames:rows,errors,video,
+   // True original next-render-frame imported-clip and BOTH skinned shoe
+   // readbacks, including explicit reasons when no match survives.
+   nativeSourceRafPairs,
+   genuineSameTickOriginalSkinPairs:nativeSourceRafPairs.filter(x=>x.eligible).length,
+   originalSourceRafRejections:nativeSourceRafPairs.reduce((acc,p)=>{
+    if(!p.eligible)acc[p.reason]=(acc[p.reason]||0)+1;
+    return acc;
+   },{}),
    walkExitFadeObserved:rows.filter(x=>x.movingExitFade?.fromClip==='Walking_A').length,
    movingExitFadeSelected:rows.filter(x=>x.movingExitFade?.candidateSelected===true).length,
    // Independent AFTER visual evidence must show if this new connected
@@ -190,7 +228,7 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
        leftHeelAboveMeters:shoe.left.heel[1]-floorTopY,
        rightHeelAboveMeters:shoe.right.heel[1]-floorTopY};
      }),
-   warning:'These are real renderer samples and canvas frames. 24 is a MediaRecorder request, not actual encoded FPS. Missing consecutive skinned contact, heel support, foot-slide and independent multi-role critique remain failures.'};
+   warning:'These are native WebGL original-rig measurements, not foot plants. A requested MediaRecorder 24fps is not actual animation FPS. Ineligible pairs, missing source skin, absent two-point support or independent multi-role critique remain failures.'};
   const out='artifacts/dungeon-full-body-continuous-'+view.name+'.json';
   fs.writeFileSync(out,JSON.stringify(evidence,null,2));
   await test.info().attach('session03-uninterrupted-original-motion-'+view.name,{
@@ -199,6 +237,7 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
   expect(film.getBytes(),'original canvas WebM should be nonempty').toBeGreaterThan(2048);
  }
  expect(rows.length).toBe(16);
+ expect(nativeSourceRafPairs.length).toBe(16);
  expect(new Set(rows.map(x=>x.frame)).size,
   'film must include genuinely advancing renderer frames').toBeGreaterThanOrEqual(10);
  expect(rows.some(x=>x.sourceClip==='Walking_A'),
