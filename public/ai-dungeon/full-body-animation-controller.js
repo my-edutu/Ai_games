@@ -5902,3 +5902,159 @@ export function planImportedOneShotPhase({mode='idle',actionTick=null,age=0,sour
  const remainingSeconds=(target-Math.min(ceiling,startTime+advance))/effectiveSpeed;
  return {valid:true,align,startTime,driftSeconds,remainingSeconds};
 }
+
+
+/**
+ * Provenance: six immutable TacticalSlash/KayKit GLB binaries contain a
+ * 1.0416666s Walking_A with a zero-translating source root but a severely
+ * toe-down SWING outsole. Independent original BIN skinning at 0.150s right
+ * and 0.625s left measured ~0.31-0.33m heel-above-toe pitch. A local negative
+ * X counterpitch linked to a small opposing upperleg/lowerleg bend can relieve
+ * that pose. It is NOT a source modification, IK plant, fabricated step or
+ * synthetic combat witness. This pure planner only permits reversible
+ * original-joint trials; the renderer must re-skin BOTH original shoes.
+ */
+const PINNED_COUNTERPITCH_ROLES=new Set([
+ 'vanguard','revenant','warden','ranger','mystic','cultist'
+]);
+const counterpitchShoe=s=>s&&[s.heelY,s.toeY].every(finite)&&
+ [s.heelXZ,s.toeXZ].every(v=>Array.isArray(v)&&v.length===2&&v.every(finite));
+export function planLicensedSourceSwingCounterpitch({
+ source='',sourceRole='',mode='idle',sourceClipName='',
+ sourceClipDurationSeconds=NaN,sourceClipTimeSeconds=NaN,
+ sourceWeight=NaN,sourceInstanceSame=false,
+ sourceOriginalUpperTrackVerified=false,sourceOriginalLowerTrackVerified=false,
+ sourceOriginalFootTrackVerified=false,sourceOriginalBindVerified=false,
+ sourceBoneChainVerified=false,sourceFootLocalXAxisVerified=false,
+ ownerLocomotion=false,alive=false,visible=false,
+ interrupted=false,teleport=false,reducedMotion=false,
+ frameInterval=NaN,rootTravel=NaN,frameAge=NaN,
+ side='',floorTopY=NaN,before=null,
+ previousFootRad=0,previousSameSourceFrame=false
+}={}){
+ const other=side==='right'?'left':side==='left'?'right':null;
+ if(source!=='verified-licensed-source-native-counterpitch'||
+  !PINNED_COUNTERPITCH_ROLES.has(sourceRole)||mode!=='move'||
+  sourceClipName!=='Walking_A'||sourceInstanceSame!==true||
+  sourceOriginalUpperTrackVerified!==true||
+  sourceOriginalLowerTrackVerified!==true||
+  sourceOriginalFootTrackVerified!==true||
+  sourceOriginalBindVerified!==true||sourceBoneChainVerified!==true||
+  sourceFootLocalXAxisVerified!==true||ownerLocomotion!==true||
+  alive!==true||visible!==true||interrupted||teleport||reducedMotion||
+  !other||![sourceClipDurationSeconds,sourceClipTimeSeconds,sourceWeight,
+    frameInterval,rootTravel,frameAge,floorTopY,previousFootRad].every(finite)||
+  sourceClipDurationSeconds<1.040||sourceClipDurationSeconds>1.044||
+  sourceClipTimeSeconds<0||sourceClipTimeSeconds>sourceClipDurationSeconds||
+  sourceWeight<.985||sourceWeight>1.001||
+  frameInterval<.008||frameInterval>.240001||
+  rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.15||
+  Math.abs(floorTopY+.02)>.005||
+  previousFootRad>.00001||previousFootRad<-.851||
+  (!previousSameSourceFrame&&Math.abs(previousFootRad)>.00001)||
+  !counterpitchShoe(before?.[side])||
+  !counterpitchShoe(before?.[other]))return null;
+ const swing=before[side],support=before[other];
+ const depth=floorTopY-swing.toeY,heelAbove=swing.heelY-floorTopY;
+ const pitch=swing.heelY-swing.toeY;
+ const shoeSpan=Math.hypot(
+  swing.heelXZ[0]-swing.toeXZ[0],
+  swing.heelXZ[1]-swing.toeXZ[1],pitch);
+ if(depth<-.040||depth>.12||heelAbove<.14||heelAbove>.39||
+  pitch<.245||pitch>.365||shoeSpan<.255||shoeSpan>.46||
+  ![support.heelY,support.toeY].every(y=>
+   y>=floorTopY-.055&&y<=floorTopY+.085))return null;
+ // The two source clip SWING lobes are measured from the unaltered GLBs;
+ // reject mid-stance, stale phase and role-independent pelvis heuristics.
+ const phase=sourceClipTimeSeconds;
+ const start=side==='right'?.03:.515,full=side==='right'?.135:.625,
+  tail=side==='right'?.205:.745,end=side==='right'?.335:.875;
+ if(phase<=start||phase>=end)return null;
+ const fade=phase<full?(phase-start)/(full-start):
+  phase<=tail?1:(end-phase)/(end-tail);
+ const envelope=clamp(fade,0,1);
+ if(envelope<.12)return null;
+ const previous=previousSameSourceFrame?Math.abs(previousFootRad):0;
+ // Rate is limited by the genuine displayed interval: a 16.7ms frame must
+ // not rotate an imported source ankle ~49 degrees in one image.
+ const frameStep=Math.min(.85,Math.max(.15,4.5*frameInterval));
+ const footMagnitude=Math.min(.85*envelope,previous+frameStep);
+ if(footMagnitude<.14)return null;
+ const chainShare=footMagnitude/.85;
+ return Object.freeze({
+  source:'verified-licensed-source-native-counterpitch',
+  sourceRole,sourceClip:'Walking_A',side,
+  sourceClipTimeSeconds:phase,sourceClipDurationSeconds,
+  upperRad:-.08*chainShare,lowerRad:.08*chainShare,
+  footRad:-footMagnitude,
+  sourceWeightedPitchMeters:pitch,
+  sourceToeBurialMeters:Math.max(0,depth),
+  originalSourceBoneChainVerified:true,
+  sourceOriginalRootTravelWitnessed:true,
+  sourceActualClipPhaseVerified:true,
+  contactLocked:false,plantCertified:false
+ });
+}
+/**
+ * Final acceptance is not the trial's number. Require the actual ORIGINAL
+ * weighted heel/toe vertices of both shoes AFTER applying the selected
+ * original three-bone product, and then require an independent final re-read.
+ * A partial pitch rescue may remain buried; that is explicitly NOT a plant.
+ */
+export function certifyLicensedSourceSwingCounterpitch({
+ plan=null,before=null,after=null,
+ sourceInstanceSame=false,sourceClipName='',side='',
+ floorTopY=NaN
+}={}){
+ const other=side==='right'?'left':side==='left'?'right':null;
+ if(!other||plan?.source!=='verified-licensed-source-native-counterpitch'||
+  plan.sourceClip!=='Walking_A'||plan.side!==side||
+  plan.originalSourceBoneChainVerified!==true||
+  plan.sourceOriginalRootTravelWitnessed!==true||
+  plan.sourceActualClipPhaseVerified!==true||
+  plan.contactLocked!==false||plan.plantCertified!==false||
+  ![plan.upperRad,plan.lowerRad,plan.footRad].every(finite)||
+  plan.upperRad>=0||plan.lowerRad<=0||
+  Math.abs(plan.upperRad)>.081||Math.abs(plan.lowerRad)>.081||
+  plan.footRad>=-.139||plan.footRad<-.851||
+  sourceClipName!=='Walking_A'||sourceInstanceSame!==true||
+  !finite(floorTopY)||Math.abs(floorTopY+.02)>.005||
+  ![before?.[side],before?.[other],
+    after?.[side],after?.[other]].every(counterpitchShoe))return null;
+ const original=before[side],corrected=after[side],
+  loaded=before[other],loadedAfter=after[other];
+ const drift=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+ const toeLift=corrected.toeY-original.toeY;
+ const heelDelta=corrected.heelY-original.heelY;
+ const originalPitch=original.heelY-original.toeY;
+ const correctedPitch=corrected.heelY-corrected.toeY;
+ const pitchGain=originalPitch-correctedPitch;
+ // During the first source frame a safe heel-lowering response can
+ // improve the impossible near-vertical outsole before the toe clears.
+ // But a toe-down or heel-up result cannot earn this certificate.
+ if(toeLift<-.002||toeLift>.155||
+  heelDelta>-.005||heelDelta<-.160||
+  pitchGain<.012||pitchGain>.25||
+  correctedPitch<-.04||correctedPitch>originalPitch-.011||
+  corrected.toeY>floorTopY+.095||
+  corrected.heelY<floorTopY+.06||
+  drift(corrected.heelXZ,original.heelXZ)>.30||
+  drift(corrected.toeXZ,original.toeXZ)>.30||
+  Math.abs(loadedAfter.heelY-loaded.heelY)>.003||
+  Math.abs(loadedAfter.toeY-loaded.toeY)>.003||
+  drift(loadedAfter.heelXZ,loaded.heelXZ)>.004||
+  drift(loadedAfter.toeXZ,loaded.toeXZ)>.004)return null;
+ return Object.freeze({
+  source:'measured-original-licensed-source-counterpitch',
+  sourceRole:plan.sourceRole,sourceClip:'Walking_A',side,
+  appliedUpperRad:plan.upperRad,appliedLowerRad:plan.lowerRad,
+  appliedFootRad:plan.footRad,
+  toeLiftMeters:toeLift,heelDeltaMeters:heelDelta,
+  pitchImprovementMeters:pitchGain,
+  residualToeBurialMeters:Math.max(0,floorTopY-corrected.toeY),
+  sourceOriginalRootTravelWitnessed:true,
+  originalOppositeShoeVerified:true,
+  finalOriginalSkinnedSourceRequired:true,
+  contactLocked:false,plantCertified:false
+ });
+}
