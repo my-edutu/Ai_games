@@ -7053,5 +7053,31 @@
     "actualDeviceP50P95P99Memory": "NOT EVALUATED",
     "nextHighestImpact": "Inspect exact-head CI test failures first, then decode original 60s+ native videos around source tick475 to 535 plus restart, align actual PTS to original F9 scene phase. If 0s co-paint persists, fix actual first Floor9 GPU loading / 3D framing across shared threshold instead of re-aging color clocks.",
     "safety": "Never move frozen baseline, PR58, merge/deploy/force push/change PR68 draft or excluded games."
+  },
+  "p0OriginalNativeOutcomeClockVetoAndZeroBridgeRecapture20261119_1137": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "reason": "Native original 9-job candidate 2de4019 run 44499216483 retained eight original films, but baseline outcome desktop clock was not calibrated, strict danger event pairing 0/2, and original native 8->9 cold bronze-to-violet phase showed ZERO shared bridge seconds in both layouts.",
+    "previousFilm": "https://github.com/my-edutu/Ai_games/actions/runs/44499216483",
+    "previousQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44499216373 — 9/10 success, unrelated Maze test 75s timeout veto",
+    "sourceChanges": [
+      "ca1b485d412cdc189e38cc11fb04d72d0b940e3e",
+      "49c0d67ba834cc28712c1247b57e21fa3a713002"
+    ],
+    "sourceLedgerCommit": "52198fce44b9badbe3b1a4ac0bae54b26b9e9672",
+    "assessment": "Do not infer transformed gameplay from source-handshake, code test, or native calibration. New code only preserves hash-authenticated unaligned original 60+s WebM for human inspection when native event-clock fails; no forged cue or quality vote.",
+    "sourcePinnedCapture": "The nine-job workflow MUST checkout this request commit as immutable github.sha; frozen baseline remains fixed. Campaign gets all four real source 1x scenarios (ascent, moving, guardian/crusher danger, result/restart), baseline/candidate desktop 960x600 & portrait 390x844, 25fps, seed tower-transformation-capture-v1, low tier and unmodified files.",
+    "sourceSynchronousResult": "NOT EVALUATED — no new original clips yet",
+    "originalMostImportantDefect": "desktop actual HUD F9 25.75s -> violet stage 26.5s, portrait HUD 26.00s -> violet 26.75s, old/new architectural shared bridge 0.00s in both; full actor+HP-open gate+walkable F9 remains visually unproved",
+    "strictAcceptance": "Two consecutive original WebM source/event matched 25fps frames showing complete moving hero, authentic opened original gate and walkable Floor9 together in BOTH layouts; danger source HP0+crusher, real grounded walk-through then first raised F9 route, result and restart, source event pairing 2/2, no hard world cuts.",
+    "independentBlind": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "realDeviceP50P95P99Memory": "NOT EVALUATED",
+    "nextAction": "After capture, inspect original films and native PTS/renderer/world GPU envelope; return to architecture handoff if first genuine co-paint remains zero seconds. Keep P0 open until visual truth, P1 blocked.",
+    "safety": "PR68 remains draft; PR58 and frozen baseline unchanged, no merge, deploy, force push or work on unrelated games."
   }
 }
