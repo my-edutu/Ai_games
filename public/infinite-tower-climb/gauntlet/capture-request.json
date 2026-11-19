@@ -7360,5 +7360,43 @@
     "actualDeviceP50P95P99AndMemory": "NOT EVALUATED",
     "nextHighestImpact": "Inspect full-motion source-pinned new danger films and provenance. Fix remaining cold F9 650-700ms return latency / first shaft staging and foreground compositional blocking if same-room shared visual evidence still fails.",
     "safeguards": "PR68 remains open DRAFT, PR58 untouched, frozen baseline unchanged. Never merge, deploy, force-push or edit Tiny Kingdom, Maze, AI vs 1000 Floors."
+  },
+  "p0OriginalGpuWorldMaterialSingleRoomWitness20261119_2000": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateSource": "EXACT immutable github.sha of THIS capture-request commit (includes scene/World/biome production and regression test commits); not floating PR head",
+    "productionCommits": [
+      "899fb1b2decb436fe849e628453ec7c28871dd14",
+      "ad9528c2d0f4b33e9c8f3e1dc5fcf6c240cc6f4a"
+    ],
+    "redFirstTestCommit": "da33e5b211b6fc1365e2609eed7ad2f9e38e0c77",
+    "previousOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44591285973",
+    "priorOriginalCandidateSha": "2284cc3fb7db3996564fa2f503ef4e2b1436c999",
+    "previousNativeResults": "8/8 original videos and ledge passed, strict event pairing 0/2 viewport FAILED; native HUD F9->violet gap 0.5s desktop/0.75s portrait; 0s sustained warm/cool bridge both",
+    "sourceFix": "Existing real 3D World old HP0 gate/roof/gallery opacity is now exported as exact-current-source authenticated primitive material receipt and consumed by sky/fog/sun instead of recalculated from incomplete camera proxy. Original actor/roof/geometry/collisions/gameplay preserved; no native quality pass claimed.",
+    "scenarios": [
+      "ascent",
+      "moving",
+      "danger",
+      "outcome"
+    ],
+    "viewports": [
+      "960x600",
+      "390x844"
+    ],
+    "seed": "tower-transformation-capture-v1",
+    "tier": "low",
+    "capture": "Original unedited normal 1x >60s 25fps WebM and 20Hz actual source, matching immutable frozen baseline; browser accept/renderer return, original native PTS, hash and real audio source sidecars; no fabricated/staged frame, timewarp or sampling substitution.",
+    "requiredProof": "Two adjacent source-to-native-event-paired REAL frames in both viewports with complete moving climber, genuinely HP0-opened original F8 guardian arch and physically walkable F9 receiving roof together. See full moving-platform/guardian/crusher loop, route onward and authentic result/restart. Visual shared architectural bridge and comfort must be objectively checked; nonzero shader opacity alone does not pass.",
+    "exactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44602704669 — pending at request time",
+    "independentReviewCounts": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
+    "nextHighestImpact": "Inspect immutable films and source/native pairing; if 0s mixed room continues, fix genuine cold first-F9 CPU/GPU frame and camera physical sightline as one systemic issue.",
+    "constraints": "Keep draft PR68, PR58, and frozen baseline; no merge/deploy/force push/unrelated game."
   }
 }
