@@ -197,5 +197,26 @@
     "actualDeviceP50P95P99AndMemory": "NOT EVALUATED",
     "nextHighestImpact": "Inspect newest exact-source normal-speed original desktop/portrait danger 23–32s alongside full ascent/moving/outcome; verify actual same-room gate/body/roof in 2 adjacent event-paired frames, measure HUD-violet gap and portrait crop; if cut persists, reopen P0 returned first-shaft geometry/material ownership at actual native presentation timing, not an unrelated cosmetic/test patch.",
     "constraints": "No changes to PR58, frozen baseline, excluded games, main, deploy, merge, force-push or draft status."
+  },
+  "p0ExactHeadOldGalleryZeroAlphaCIContract20261119_2145": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "observedFailingHead": "9180b60db914086c45f7de0bbfaee2030d6b231f",
+    "qualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44608446260",
+    "actualResult": "9/10 jobs PASS; phase3 shard1 FAIL at tests/phase3/tower-original-door-before-shaft-first-return.test.cjs:64",
+    "actualFailure": "Test expected null for returned original gallery opacity exactly 0, but actual source-authenticated returning HP-open gateway is 0.84 opacity and old noncolliding gallery remains 0 alpha. Production explicitly supports preserving gate and non-resurrection of retired steel.",
+    "correction": "Keep proven returned HP-open original gate when historical decorative gallery opacity was 0; assert gallery 0 and gate 0.84, still veto invalid gallery alpha <0/>1 and original gate 0; technical test-only change, NOT gameplay or video quality.",
+    "immutableFilmCandidateSource": "8e407534a8b782ff6a2d10599b8748cba7161616",
+    "capture": "https://github.com/my-edutu/Ai_games/actions/runs/44611221955",
+    "knownCaptureAtInspection": "QUEUED; 0 newly inspected media",
+    "newQualityBeforeTestFix": "https://github.com/my-edutu/Ai_games/actions/runs/44611221717 — QUEUED; no pass claimed",
+    "reviewers": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDevice": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "nextHighestImpact": "Await exact-head quality, inspect entire actual original 1x video at immutable capture source and event-native PTS. If still cold room-swap, correct real 3D shader/world/GPU/camera as a cohesive P0 gameplay issue, not tests."
   }
 }

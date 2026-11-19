@@ -61,7 +61,14 @@ test('shader source, run, death, previous-frame and resource bounds veto invente
   assert.equal(hold({...source,tick:659},held,job,proof),null);
   assert.equal(hold(source,{...held,submittedFrames:0},job,proof),null);
   assert.equal(hold(source,{...held,lastReturnedOldGatewayOpacity:0},job,proof),null);
-  assert.equal(hold(source,{...held,lastReturnedOriginalGalleryOpacity:0},job,proof),null);
+  const retiredGallery=hold(source,
+    {...held,lastReturnedOriginalGalleryOpacity:0},job,proof);
+  assert.equal(retiredGallery?.gateOpacity,.84,
+    'a real returned HP-open gate must survive independently of retired decorative steel');
+  assert.equal(retiredGallery?.galleryOpacity,0,
+    'the previously zero-alpha noncolliding bronze gallery cannot be resurrected');
+  assert.equal(hold(source,{...held,lastReturnedOriginalGalleryOpacity:-.01},job,proof),null);
+  assert.equal(hold(source,{...held,lastReturnedOriginalGalleryOpacity:1.01},job,proof),null);
   assert.equal(hold(source,{...held,visibleSeconds:2.8},job,proof),null);
   assert.equal(hold(source,{...held,firstWorldRenderTick:481},job,proof),null);
   assert.equal(hold(source,held,{...job,structuralVisibleReturns:1},proof),null,
