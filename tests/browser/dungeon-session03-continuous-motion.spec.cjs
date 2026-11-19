@@ -182,5 +182,16 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
   'film must include genuinely advancing renderer frames').toBeGreaterThanOrEqual(10);
  expect(rows.some(x=>x.sourceClip==='Walking_A'),
   'at least one sampled source-mixer action must be genuinely Walking_A').toBe(true);
+ // This is a measured original Three.js crossFadeFrom receipt, not a
+ // source-code planner assertion or a claimed planted foot. Both actual
+ // viewports must exercise the tested 300ms native soft landing on the
+ // original deterministic 17-tick journey after the guarded source fix.
+ expect(rows.some(x=>x.movingExitFade?.fromClip==='Walking_A'&&
+  x.movingExitFade?.candidateSelected===true&&
+  x.movingExitFade?.selectedFadeSeconds===.30&&
+  x.movingExitFade?.originalPreviousRunning===true&&
+  x.movingExitFade?.originalPreviousWeight>=.9&&
+  x.movingExitFade?.contactLocked===false),
+  'original live Walking_A->Idle must actually select the guarded source-micro-arrival fade').toBe(true);
  expect(errors).toEqual([]);
 });
