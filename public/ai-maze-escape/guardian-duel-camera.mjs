@@ -243,10 +243,17 @@ export function publicGuardianEarnedRecoilRevealElevation(
   if(!earned||reducedMotion||!Number.isFinite(aspect)
     ||aspect<.35||aspect>=.60||!Number.isFinite(currentY)||currentY<=0)
     return currentY;
-  // Change camera PITCH rather than shrinking actors: previous low 11.5m
-  // post-parry offset let the foreground deck conceal the authentic boots.
-  // Restore a readable diorama altitude only after the actual counter.
-  return Math.max(currentY,23.0);
+  // Pass508 original source-bound 390px earned-recoil frame (Pass507, tick94)
+  // still hides most of Thornback behind the PUBLIC foreground reef and raised
+  // stone deck, even with its authentic full-body spring. A genuinely earned
+  // Follow shot needs to look OVER that solid deck rather than making the
+  // character taller, fading a real wall or exposing an undiscovered tile.
+  // Tilt only the live already-witnessed post-counter camera upward to a
+  // higher, isometric 31m orbit. Existing full-mesh strict +/-0.95 NDC,
+  // visible-stage privacy and no-crop screenshot gates still decide acceptance.
+  // No motion/optical change for threat warnings, reduced motion, other
+  // viewports, replay, terminal scenes or hidden/stale counter events.
+  return Math.max(currentY,31.0);
 }
 
 /**

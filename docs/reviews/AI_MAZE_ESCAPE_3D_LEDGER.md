@@ -1,3 +1,11 @@
+## Pass508 — native Pass507 art rejection: source-earned camera clears actual mobile foreground (2026-11-19 UTC)
+
+- Original exact-SHA [Pass507 WebGL 44494789299](https://github.com/my-edutu/Ai_games/actions/runs/44494789299) **SUCCESS**, with all focused tests, native 320/390/844/1280 WebGL, strict six-reset <100, and uninterrupted flagship AI escape gate green. Personally verified **42/42 paired original full PNG SHA sidecars** from the original 44-PNG artifact. The original unaltered 390px earned tick94 shows the full purple Thornback obscured by solid foreground architecture despite Pass507's grounded jump. **Native art review rejects the image**; physical full-model framing passes but actual character readability fails.
+- **Pass508 authored optical response:** only the genuine same-run published mobile earned Follow counter raises its elevated above-reef camera from **23m to 31m**; real walls, AI/collision, hidden/public data, original complete actor ±0.95 limits, reduced motion and HUD untouched. Focused test updated for the new intended camera sightline, not loosened. [Full dated source/evidence review](./maze-3d/pass-508-native-guardian-above-reef-camera-2026-11-19.md).
+- **NEW HEAD** native 390px artistic and strict framing verdict **PENDING**. Whole-repo CI still red separately; fresh-context agents/Ultracode unavailable (coding tunnel NOT_FOUND). Official Nintendo bar **NOT MET**. PR open/draft, not merged/deployed. Post-guardian 485-tick key journey remains the next major pacing gap.
+
+---
+
 ## Pass507 — genuine earned Thornback full-body spring against native mobile occlusion (2026-11-19 UTC)
 
 - Incoming verified original [Pass506 native WebGL 44486479722](https://github.com/my-edutu/Ai_games/actions/runs/44486479722) **SUCCESS** on `a6619e9267f1259e90a822179aa465e3c3bf2f00`, 42/42 direct image SHA sidecars matched, separate 3-frame gate manifest present; the authentic uncropped 390px escape now exposes Pip and portal instead of the old duplicative ESCAPED overlay. Native earned-recoil 390px photo still shows the real guardian shell crowded by foreground mineral plant silhouettes, despite NDC bounds passing.
