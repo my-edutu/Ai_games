@@ -40,7 +40,7 @@ test('real World separates noncolliding gallery clearance from bronze sill color
  const world=fs.readFileSync('public/infinite-tower-climb/visuals/world.mjs','utf8');
  const scene=fs.readFileSync('public/infinite-tower-climb/visuals/scene.mjs','utf8');
  assert.match(world,/held\.originalGallerySourceOpacity=originalPresence/);
- assert.match(world,/held\.originalDeckSurface\.opacity=Math\.max\(originalPresence,\s*originalGatePresence\)/);
+ assert.match(world,/held\.originalDeckSurface\.opacity=Math\.max\(originalPresence,\s*Math\.min\(\.94,originalGatePresence\)\)/);
  assert.match(world,/held\.originalGalleryRoot\.visible=originalPresence>\.015/);
  assert.match(world,/arrival\.color\.copy\(materials\.landing\.color\)\.lerp\(/);
  assert.match(scene,/sourceSynchronizedHorizonWeight\(snapshot,\s*oldWeightBeforeVoid,earnedVoidSkyLease\.maxOldWeight,certifiedHorizon\)/);

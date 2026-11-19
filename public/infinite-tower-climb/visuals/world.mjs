@@ -3706,9 +3706,14 @@ export function createTowerWorld(){
     // Keep only this existing shader color lease aligned to the *same*
     // source-qualified original gateway. Gallery mesh visibility stays
     // independently bounded and may safely retire; no new collider or mesh.
+    // A .94 cap on the historical overlay keeps the REAL next-floor depth
+    // and hazard silhouettes readable at the still-occupied sill. It also
+    // prevents a stationary source body and repeated renderer returns from
+    // turning this shared room into an opaque cover. The actual HP gate
+    // remains independently source-driven and can be fully opaque.
     if (held.originalDeckSurface)
       held.originalDeckSurface.opacity=Math.max(originalPresence,
-        originalGatePresence);
+        Math.min(.94,originalGatePresence));
     if(originalGatePresence>.01 || originalPresence>.01)
       held.opticalExitSubmitted=false;
     for(const material of held.originalGalleryMaterials){
