@@ -1,3 +1,11 @@
+## Pass498 — strict single-run autonomous flagship chapter gate (2026-11-19 UTC)
+
+- **Prior exact-source verified:** Pass497 [focused WebGL 44447099510](https://github.com/my-edutu/Ai_games/actions/runs/44447099510) SUCCESS 8/8 on \`45de43a22ff3d5ca8b879ce23a90a29ef318eb2d\`, original [artifact 14493782799](https://github.com/my-edutu/Ai_games/actions/runs/44447099510/artifacts/14493782799) downloaded and independently verified **40/40 original full-frame PNG SHA-256 sidecars plus three real gate chronology hashes**. Uncropped native 390 earned recoil still visually crowded; not a Nintendo parity win. Whole monorepo 44447099527 fails in separate Tiny Kingdom OBS.
+- **New concrete acceptance barrier:** source-bound \`partial-observation\` actual default live autonomous run must observe genuine public pressure, named Thornback, earned lantern counter, shrine, real key, return, matching gate and exit in one original unbroken run token and monotonic ticks. Script stores truthful first-seen public checksums and source SHA to dated JSON, failing rather than claiming victory if AI stalls/captures/dies/misses a beat. Not oracle AI, not screenshots spliced from different seeds.
+- **Workflow source:** strict audit follows genuine unmodified 4-viewport WebGL capture to preserve full images even when natural chapter fails. NEW exact-HEAD CI, original image visual rejudgement, independent critic pending. No production engine/AI/geometry/privacy/threshold touched in this acceptance-infrastructure work unit. [Dated review](./maze-3d/pass-498-uninterrupted-live-autonomous-chapter-gate-2026-11-19.md). Draft PR remains unmerged/undeployed; fixed Nintendo bar unmet.
+
+---
+
 ## Pass497 — exact-source guardian court 243/244 test blocker (2026-11-19 UTC)
 
 - **Real failed HEAD CI:** [focused WebGL 44445111073](https://github.com/my-edutu/Ai_games/actions/runs/44445111073) checked out `b97a737722e809bf393d681151e36b9395bfc57d`, but stopped **before native screenshots** at **243/244 tests**. The only failure was a contradictory expected empty set after hiding a *blocked spectator*: genuine publicly visible hero/guardian court cells 17, 18, 19 correctly remain, and hidden blocked spectator cell 34 is correctly excluded. The strict real generated flagship seed test passed.

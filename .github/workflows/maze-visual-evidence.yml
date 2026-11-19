@@ -10,6 +10,7 @@ on:
       - 'tests/browser/maze-3d.spec.cjs'
       - 'tests/phase3/maze-*.test.cjs'
       - 'scripts/capture-maze-3d.cjs'
+      - 'scripts/audit-maze-flagship-chapter.cjs'
       - '.github/workflows/maze-visual-evidence.yml'
   workflow_dispatch:
 
@@ -98,6 +99,11 @@ jobs:
       - name: Capture source-bound Maze browser evidence
         if: success() || steps.geometry.outcome == 'failure'
         run: npx playwright test tests/browser/maze-review.spec.cjs --workers=1 --reporter=list
+      # This intentionally runs AFTER native captures. A real failure must not
+      # starve the source-bound 320/390/844/1280 images needed to diagnose it.
+      # Fatal for acceptance; the following always() artifact retains its JSON.
+      - name: Audit one natural pressure guardian gallery key gate escape
+        run: node scripts/audit-maze-flagship-chapter.cjs
       - name: Preserve dated actual screenshots and source hashes
         if: always()
         uses: actions/upload-artifact@v7

@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-19T03:43:00.000Z",
+  "updatedAt": "2026-11-19T04:20:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass496 exact SHA b97a737 genuine flagship seed test PASSED, but focused WebGL 44445111073 stopped before capture at 243/244 source tests: the spectator-visibility regression wrongly expected the entire public actor low-court to disappear when only blocked spectator cell 34 left current visibility. Pass497 corrects the strict test contract: public 17/18/19 remain, hidden 34 must be absent. No production game logic/strict budgets changed. New exact-HEAD tests/WebGL/native full-frame SHA and uninterrupted partial-observation AI escape PENDING. Nintendo benchmark not achieved; PR open DRAFT, unmerged and undeployed."
+    "summary": "Pass497 focused native WebGL 44447099510 passed 8/8: original 40/40 full-frame PNG SHA sidecars and three true chronological gate hashes independently verified at exact SHA 45de43a2. Native 390 guardian still too visually busy for Nintendo benchmark; complete default-seed autonomous chapter NOT proven. Pass498 adds a strict single-token partial-observation pressure→guardian→earned-counter→shrine/key→return→matching-gate→exit audit after uncropped captures; exact-new-HEAD CI/real completion PENDING. No art/gameplay win claimed; PR stays OPEN DRAFT."
   },
   "captures": [
     {
@@ -372,6 +372,12 @@
     }
   ],
   "changes": [
+    {
+      "title": "Pass498 — make natural single-run flagship completion a real acceptance gate",
+      "date": "2026-11-19",
+      "status": "Source test/workflow pending new exact-HEAD CI",
+      "description": "Adds a genuine default live seed partial-observation continuous runtime audit after existing native Chromium/WebGL captures; requires pressure, Thornback encounter and earned lantern counter, actual shrine key return, same matching gate and escape in one run token. Emits public-snapshot first-seen checksums; fails rather than granting false gameplay success. No engine, AI, scene art or thresholds modified."
+    },
     {
       "title": "Pass497 — repair exact-source 243/244 CI blocker without hiding public actor court",
       "description": "Real focused WebGL 44445111073 failed before native renders because test expected zero public staging cells after blocked spectator 34 became hidden; original production legitimately still stages currently visible actor cells 17/18/19. Stronger regression now asserts precisely those three still-visible cells and excludes 34; retains privacy/negative cases, geometry and camera thresholds. Pass496 real flagship seed check passed in that workflow. Newly committed tests/WebGL not yet verified.",
@@ -746,6 +752,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass498: inspect exact-new-HEAD strict natural autonomous chapter JSON outcome alongside 320/390/844/1280 original screenshots; if non-escape or missing event, repair the real default gameplay, not microscopic scenery. Independently critique actual camera actor/guardian readability before acceptance.",
     "Pass497: exact-new-HEAD source test 244/244 and native four viewport source-bound WebGL, unchanged strict six-reset <100, verify guardian reef actually reveals both complete actors (no visual claim from fixed test); then same-run real pressure→Thornback→gallery→key→gate→escape and independent critic.",
     "Pass496: first verify new HEAD strict original source test selects authentic tideglass-live-chapter-1387 (Pass494 241/242 failure), then source-matched unaltered native 320/390/844/1280 screenshots, six reset <100, and actual uninterrupted partial-observation AI pressure→guardian→key→gate→exit; reject if AI never finishes or guardian physically obscured.",
     "Pass495: exact-HEAD visual first; reject if genuine source-bound 390px full-body Thornback remains hidden behind blocked spectator foliage or scene loses art depth. SHA-check original unaltered 320/390/844/1280 pressure/guardian/key/gate. Require same-live-seed autonomous pressure→guardian→two-room key→gate→escape before any victory claim.",
@@ -846,6 +853,11 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass498 real single-run public AI flagship acceptance gate",
+      "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-498-uninterrupted-live-autonomous-chapter-gate-2026-11-19.md",
+      "status": "Strict new source gate pending exact-HEAD CI; no independent artistic win"
+    },
     {
       "title": "Pass497 exact-HEAD visible court 243/244 CI regression repair",
       "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-497-visible-guardian-court-ci-regression-2026-11-19.md",
@@ -1748,6 +1760,12 @@
     }
   ],
   "verification": [
+    {
+      "title": "Pass497 exact SHA focused 8/8 native WebGL 40/40 original PNG and three true gate image hashes independently reverified; default continuous journey still unproven",
+      "date": "2026-11-19",
+      "status": "SUCCESS exact-source visual pipeline; natural full run remains open",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44447099510"
+    },
     {
       "title": "Pass496 exact SHA b97a737 243/244 original source tests; genuine flagship source seed passed, contradictory spectator stage test blocked native capture",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44445111073",
