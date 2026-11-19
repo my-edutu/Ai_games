@@ -6810,5 +6810,29 @@
     },
     "deviceP50P95P99AndMemory": "NOT EVALUATED",
     "safety": "Do not move frozen baseline, PR58, merge, deploy, force push, remove draft status, or touch other games."
+  },
+  "p0AllFourOriginalScenesReviewCapture20261119_0325": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateParentSha": "5d5613f16225ac314eefe3b3630701046d9639cf",
+    "reason": "Completed source-locked 9-job 44439546115 proved 8/8 unedited original WebMs but 0/2 strict source-event/native-film match. The blind reviewer ZIP was restricted to danger (5 files) before commits 76710f5,b67673d,e68b785,6596ff3,9b7d459. Need live proof new four-scenario anonymous unchanged-film copy and hash validation, with all sixteen 60s+ original WebMs from 4 scenarios × 2 viewports × 2 source builds.",
+    "expectedArtifacts": [
+      "tower-motion-baseline-* ×4",
+      "tower-motion-candidate-* ×4",
+      "tower-ungraded-event-pairs",
+      "tower-blind-original-duel"
+    ],
+    "candidateBinding": "workflow checkout github.sha, not this parent's SHA; verify all sixteen SHA256 original bytes against source sidecars",
+    "exactReviewedPriorEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/44439546115",
+    "sourceGap": "Floor8→Floor9 still has split original gateway/body/walkable roof native pixels: portrait 26.0s subject disappears, returns cold around 26.5–27s. Hosted first F9 browser accept-to-return 826ms desktop /723ms portrait; not actual-device performance.",
+    "next": "Inspect complete reviewer artifact file count, playback and event manifests; if packaging fails fix verified packaging blocker, if passes target live F9 cold render/update and shared gateway successor world, then re-film.",
+    "safety": "Never move baseline, rewrite PR58, alter draft state, merge, deploy, force-push or change excluded games.",
+    "independentReviews": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "deviceP50P95P99AndMemory": "NOT EVALUATED"
   }
 }
