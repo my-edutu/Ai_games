@@ -52,7 +52,12 @@ test('shipped 3D follow camera and source diagnostics support later guardian cap
   const scene=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
   assert.match(scene,/camera\.aspect > 0 && camera\.aspect < 2\.5/);
   assert.match(scene,/earnedGatewayEscortResponse\(camera\.aspect, cameraDt\)/);
-  assert.match(scene,/const cameraDt = sourceSubmittedDoorwayCameraDt\(dt,coldArchLens,snapshot,options\)/);
+  // Camera starts from the source-submitted doorway clock, then may enlarge
+  // its step only when the REAL current source-sized body is cropped.
+  // The scene intentionally uses `let` (not `const`) for that safety veto.
+  assert.match(scene,/let cameraDt = sourceSubmittedDoorwayCameraDt\(dt,coldArchLens,snapshot,options\)/);
+  assert.match(scene,/cameraDt = sourceCroppedHeroRecoveryDt\(dt,cameraDt,\s*projection,coldArchLens,snapshot,options\)/);
+  assert.match(scene,/if \(cameraDt < dt && Number\.isFinite\(camera\.aspect\)/);
   assert.doesNotMatch(scene,/earnedGatewayEscortResponse\(camera\.aspect, dt\)/,
     'the earned door and living body share one source-qualified camera submission clock');
   assert.match(scene,/const earnedSource = !options\.stale &&/);

@@ -47,5 +47,27 @@
   "constraints": "Keep frozen baseline, PR68 draft, active PR58 edits unchanged. No merge, deploy, force push or unrelated game files.",
   "priorNativeSourceSha": "362e2331be494822275d55f78ebdd943b38117d9",
   "capturedAtUtc": "2026-11-19",
-  "note": "Narrative native inspection not independent blind vote; candidate correction must be filmed before any visual success claim"
+  "note": "Narrative native inspection not independent blind vote; candidate correction must be filmed before any visual success claim",
+  "p0SourcePinnedRun8NativeOriginalAndCIContractReview": {
+    "stage": "P0 OPEN — evidence + game-loop truth",
+    "leadingVerdict": "NOT EVALUATED",
+    "observedCandidateSha": "e32fd8113df7475294b1361ccbd3f8449d6991e6",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "observedFilm": "https://github.com/my-edutu/Ai_games/actions/runs/44460970003",
+    "candidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44460970003/artifacts/14500281855",
+    "videoEvidence": "Native unmodified candidate danger WebM in desktop 960x600 and portrait 390x844, 25fps; inspected actual 1x original frames at 24.75, 25.00, 25.25, 25.50, 25.75, 26.00, 26.25, 26.50, 26.75 and 27.00 seconds. Full >60s clips retained.",
+    "desktopObservation": "Original video shows F8 bronze gallery and full hero near 26.25s then visibly presents a purple-trimmed authentic F9 roof around 26.50s; old bronze vertical struts remain in front/behind the new setting. Floor indicator becomes 9. Original HP-zero gate, full hero and physically occupied F9 still NOT certified co-visible in two consecutive source-aligned original frames.",
+    "portraitObservation": "Original 390x844 floor indicator changes to 9 at approximately 25.50s, while the actual F9 purple shaft is already visible. Actual hero runs/stands on the first real roof and then jumps to a raised deck; color/architecture handoff is abrupt and the original opened arch is not jointly discernible with new walkable floor in consecutive calibrated frames.",
+    "independentTimingDiagnostics": "Original candidate desktop native scene phase records drawn 9 at 26.50s vs source event search 24.7677s, delta +1.732s. Portrait drawn HUD 9 at 25.25s vs source 24.2513s, delta +0.999s, and sustained violet around 26.0s. These are diagnostics, NOT measured physical event-to-pixel latency; desktop palette classifier returns NOT EVALUATED. Portrait sustained phase offset about 0.75s from HUD.",
+    "sourceTruth": "Actual film sidecars report same-episode authoritative guardian defeat/gateway crossing, first F9 renderer-return frame tick 476, returned real original gate for 3 submitted F9 frames, and genuine onward play; filmed pixels still not source-event matched. Do not equate submitted Three.js projections with actual painted pixels.",
+    "qualityCIVeto": "https://github.com/my-edutu/Ai_games/actions/runs/44460969938 — 9/10 jobs pass; one phase3 shard fails obsolete literal `const cameraDt` assertion, while source intentionally uses `let` to permit a body-crop safety correction. The same obsolete assertion vetoes the separate authentic-ledge job on the nine-job film run.",
+    "blockerFix": "Refresh the actual source-contract regression (let + bounded sourceCroppedHeroRecoveryDt) rather than revert new source-safe camera behavior; run exact-head quality and ledge checks after correction.",
+    "blindReviews": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDeviceP50P95P99Memory": "NOT EVALUATED",
+    "nextAction": "Verify the updated CI/ledge checks at the exact new SHA. Then repair the highest-impact ORIGINAL filmed threshold staging: simultaneously visible physical opened guardian arch and walkable F9 sill with the authentic moving body and no cold bronze->violet wipe; recapture immutable candidate vs frozen baseline desktop and portrait with real source-to-native PTS and review ≥60s. Do not enter P1 yet."
+  }
 }
