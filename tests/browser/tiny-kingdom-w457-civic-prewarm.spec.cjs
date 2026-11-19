@@ -253,6 +253,7 @@ test('W463 actual original homes warm one occupied lot per stage with exact Day-
   const a=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
    return {warm:g.getOriginalHomePreflightAudit(),
+    scheduler:g.getCooperativeFirstSceneAudit(),
     homes:g.getHouseGeometryCacheAudit(),
     hash:g.getOriginalHomesSourceHash(),checksum:g.exportSnapshot().checksum,
     time:g.getState().state.t,citizens:g.metrics().citizens,
@@ -272,6 +273,10 @@ test('W463 actual original homes warm one occupied lot per stage with exact Day-
   expect(a.citizens).toBeGreaterThanOrEqual(12);
   expect(a.homes.cachedFloats).toBeLessThanOrEqual(a.homes.floatBudget);
   if(mode==='prewarm'){
+   expect(a.scheduler.source).toBe('complete-original-world-cooperative-civic-landscape-home-preparation');
+   expect(a.scheduler.completed).toBe(true);
+   expect(a.scheduler.homeStagesDuringCivic).toBeGreaterThan(0);
+   expect(a.scheduler.rounds).toBeGreaterThanOrEqual(a.scheduler.frames);
    expect(a.warm.completed).toBe(1);expect(a.warm.failures).toBe(0);
    expect(a.warm.last.finished).toBe(true);
    expect(a.warm.last.lotCount).toBe(a.buildings-2);
@@ -296,6 +301,7 @@ test('W463 actual original homes warm one occupied lot per stage with exact Day-
  const proof=await mobile.evaluate(()=>{
   const g=window.__tinyKingdom;
   return {hash:g.getOriginalHomesSourceHash(),
+   scheduler:g.getCooperativeFirstSceneAudit(),
    checksum:g.exportSnapshot().checksum,
    warm:g.getOriginalHomePreflightAudit(),
    triangles:g.getGeometryAudit().totalTriangles,
@@ -305,6 +311,8 @@ test('W463 actual original homes warm one occupied lot per stage with exact Day-
  await info.attach('W463-original-homes-390.png',{body:await mobile.screenshot(),contentType:'image/png'});
  await info.attach('W463-original-homes-390.json',{body:Buffer.from(JSON.stringify(proof,null,2)),contentType:'application/json'});
  expect(proof.warm.completed).toBe(1);
+ expect(proof.scheduler.homeStagesDuringCivic).toBeGreaterThan(0);
+ expect(proof.scheduler.completed).toBe(true);
  expect(proof.hash).toBe(readings[0].hash);
  expect(proof.checksum).toBe(readings[0].checksum);
  expect(proof.triangles).toBeLessThan(160000);
