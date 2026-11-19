@@ -8,7 +8,7 @@ import { originalMeshPath } from './mesh-provenance.mjs';
 import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs';
 import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedPrebuiltVoidShaftRelease, observedQueuedOriginalCapAtFirstRender, reconcileRecordedOriginalCapCrossing,
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
-import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceFloorNineRouteSupport, observedSourceRetainedRaisedExit, observedSourceAirborneSuccessorApproach, observedSourceOriginalVisibilityWindow, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS, observedCertifiedOriginalGatewayOpticalLease } from './source-physical-arrival-palette.mjs';
+import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceFloorNineRouteSupport, observedSourceRetainedRaisedExit, observedSourceAirborneSuccessorApproach, observedSourceOriginalVisibilityWindow, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS, observedCertifiedOriginalGatewayOpticalLease, observedReturnedSharedRoomPalette } from './source-physical-arrival-palette.mjs';
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
 import { rebindSourceOwnedUndercroft } from './successor-deck-visibility.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, createSourceEarnedVoidDepartureMaterials, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn, observedRenderedOriginalDoorwayRoom, coherentOriginalBearingDeparture } from './original-clockwork-architecture-palette.mjs';
@@ -4465,9 +4465,20 @@ export function createTowerWorld(){
     // source room to the actual retained 3D gate/deck material opacity (not
     // to an unrelated fresh timer or the most recent AI/source distance).
     // The far-side returned-shaft lock keeps priority if it is active.
-    const sharedDoorwayMaterialProof=!options.stale && !options.reducedMotion
+    const originalDoorwayMaterialProof=!options.stale && !options.reducedMotion
       ?observedRenderedOriginalDoorwayRoom(
         snapshot,retainedEarnedCap,materialProof):null;
+    // The same old material must survive the cold F9 GPU interval in SKY,
+    // floor-ground, returned bearing and deferred structural shell, not just
+    // on the last visible grille. Match immutable HP-zero source and real
+    // already-returned incoming shaft frames before any extra warm color.
+    const returnedCoPaint=!options.stale && !options.reducedMotion
+      ?observedReturnedSharedRoomPalette(
+        snapshot,retainedEarnedCap,deferredDistantArrival):null;
+    const sharedDoorwayMaterialProof=returnedCoPaint &&
+      (!originalDoorwayMaterialProof ||
+       returnedCoPaint.oldWeight>originalDoorwayMaterialProof.oldWeight)
+      ?returnedCoPaint:originalDoorwayMaterialProof;
     if(sharedDoorwayMaterialProof && !returnedBronzePaletteLock)
       sourceCertifiedHorizon=observedCertifiedClockworkHorizon(
         snapshot,sharedDoorwayMaterialProof,opticalTail)??sourceCertifiedHorizon;
