@@ -33,12 +33,14 @@ test('real Tower scene uses the same returned-duration transition for all existi
   assert.match(world,/bearingHandoff\.retirementSeconds=/);
   assert.match(world,/advanceSourceEarnedPaletteReturn\(/);
   assert.match(world,/handoff\.retirementSeconds\s*\/\s*\.95/);
-  assert.match(world,/const materialProof=livePaletteProof\?\?\(farSideHorizon\?/,
+  assert.match(world,/const materialProof=livePaletteProof\?\?\(oldRoomWitness\?/,
     'source-certified material proof must be shared across all original-world channels');
   assert.match(world,/updateOriginalClockworkSuccessorRoute\(arrivalRoutePalette,\s*sourceAlignedMaterialProof,opticalTail\)/);
   assert.match(world,/originalClockworkArchitecturalPalette\.update\(sourceAlignedMaterialProof,opticalTail\)/);
-  assert.ok(world.includes('const returnedBronzePaletteLock=farSideHorizon') &&
-    world.includes('observedReturnedOriginalArchitectureHold('));
+  assert.ok(world.includes('const returnedBronzePaletteLock=!options.stale && !options.reducedMotion') &&
+    world.includes('observedReturnedOriginalArchitectureHold(') &&
+    world.includes('const oldRoomWitness=farSideHorizon || returnedBronzePaletteLock'),
+    'original returned GPU room must be shared by true near-roof and raised far-side source support');
   assert.ok(world.includes('const sourceAlignedMaterialProof=returnedBronzePaletteLock?{'),
     'all pre-return material channels must share the authorized returned-bronze proof');
   assert.ok(world.includes('if(sourceEarnedBearingPalette) {'));
