@@ -7551,3 +7551,86 @@ test('RED: real 150ms mobile original swing with 2.718mm heel dominance gets bou
  ])assert.equal(plan({...owner,...invalid}),null,
   'non-source, unsafe, unmeasured or too-small heel dominance cannot grant a trial');
 });
+
+
+// RED FIRST (19 Nov 2026) — The independent original desktop Walking_A
+// source-skinned post-correction sample measured toe -0.052873m, heel
+// +0.170339m against stone -0.020m: 32.873mm of residual burial. That
+// RECORDED sample used a foot joint and is NOT an eligible preceding
+// hip/knee-only frame. The previous-frame certificate below is explicitly
+// a COUNTERFACTUAL HIP/KNEE-ONLY CONTRACT using those measured world Ys;
+// it does not pretend the source video witnessed that provenance. The
+// next-frame before-shoe/skin probes are similarly contract specimens.
+// The test checks that a prior original ankle-UNTOUCHED re-skinned hip/knee
+// correction cannot starve the next independently re-skinned source foot
+// opportunity merely because it reduced toe burial below 50mm.
+test('RED: residual 32.873mm toe burial after original hip-knee-only proof can graduate to four-joint source trial, never invented foot ownership',async()=>{
+ const {planOriginalSourceCoupledFootStarter:plan}=await load();
+ const loaded={heelY:-.014,toeY:-.016,heelXZ:[0,.20],toeXZ:[.24,.20]};
+ const swing={heelY:.170844,toeY:-.115923,
+  heelXZ:[0,0],toeXZ:[.061,0]};
+ const after=(toeLift,heelRise,other=loaded)=>({
+  left:{...swing,toeY:swing.toeY+toeLift,
+   heelY:swing.heelY+heelRise},right:{...other}
+ });
+ const prior={
+  source:'measured-original-skinned-linked-leg',
+  sourceInstanceId:'original-licensed-same-clone',
+  sourceClip:'Walking_A',side:'left',
+  sourceUpperBone:'upperlegl',sourceLowerBone:'lowerlegl',
+  finalIndependentSourceSkin:true,
+  oppositeShoePreserved:true,contactLocked:false,
+  linkedOriginalFootFinisher:null,sourceCoupledKneeFootProof:null,
+  witnessedFrameIntervalSeconds:.0333,
+  witnessedRootTravelMeters:.019292,
+  witnessedSourceWeight:1,upperRad:-.11,lowerRad:.11,
+  after:{left:{...swing,heelY:.170339,toeY:-.052873},
+   right:{...loaded}}
+ };
+ const source={
+  mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,ownerLocomotion:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false,
+  previousLinkedCertified:true,previousLinkedOriginalProof:prior,
+  sourceInstanceId:'original-licensed-same-clone',
+  sourceUpperBone:'upperlegl',sourceLowerBone:'lowerlegl',
+  rootTravel:.019292,frameAge:.0333,frameInterval:.0333,
+  side:'left',floorTopY:-.020,before:{left:swing,right:loaded},
+  starterTrials:[
+   {upperRad:.09,lowerRad:-.075,after:after(-.009,-.020)},
+   {upperRad:-.09,lowerRad:.075,after:after(.027,.032)}
+  ]
+ };
+ const candidate=plan(source);
+ assert.equal(candidate?.source,'actual-original-source-three-joint-swing-opportunity',
+  'a preceding source-skinned ankle-untouched leg still 32.873mm buried must not own next source foot');
+ assert.equal(candidate?.contactLocked,false);
+ assert.equal(candidate?.expectedSourceSkinnedTrials,2);
+ assert.equal(candidate?.sign,-1);
+ for(const wrong of [
+  {source:'unverified-leg'}, {finalIndependentSourceSkin:false},
+  {sourceInstanceId:'other-clone'}, {sourceClip:'Idle'},
+  {sourceUpperBone:'other-thigh'}, {sourceLowerBone:'other-calf'},
+  {linkedOriginalFootFinisher:{}}, {sourceCoupledKneeFootProof:{}},
+  {oppositeShoePreserved:false}, {contactLocked:true},
+  {witnessedFrameIntervalSeconds:.09},
+  {witnessedRootTravelMeters:0},{witnessedSourceWeight:.89},
+  {after:{...prior.after,left:{...prior.after.left,toeY:-.044}}},
+  {after:{...prior.after,right:{...loaded,toeY:.044}}},
+  {after:{...prior.after,left:{...prior.after.left,heelY:.4}}}
+ ])assert.equal(plan({...source,
+   previousLinkedOriginalProof:{...prior,...wrong}}),null,
+   'only original, same-GLB, actual-final-skin, foot-untouched two-shoe previous proof qualifies');
+ for(const wrong of [
+  {sourceInstanceId:'other-clone'}, {frameInterval:.08},
+  {sourceWeight:.98},{reducedMotion:true},{interrupted:true},
+  {rootTravel:0}, {sourceClipName:'Idle'},
+  {before:{left:{...swing,toeY:-.038},right:loaded}},
+  {starterTrials:[source.starterTrials[0],
+   {...source.starterTrials[1],after:after(.027,.030)}]}
+ ])assert.equal(plan({...source,...wrong}),null,
+   'next source sample still needs fresh motion, original clipping and measured heel dominance');
+ // This planner only schedules the ORIGINAL two remaining source-skinned
+ // foot-chain trials. Imported rig, final two shoe readback and no-pop
+ // delivery remain independent browser evidence gates.
+});
