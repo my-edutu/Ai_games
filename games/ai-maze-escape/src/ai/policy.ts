@@ -406,9 +406,22 @@ export function chooseMazeAction(
   if (clueRoutes.length) return clueRoutes[0]!.decision!;
 
   if (frontierCandidates.length) {
-    const selected = cyclic && frontierCandidates.length > 1
+    // Finish a PUBLIC safe frontier branch rather than visually zig-zag
+    // between equally short unseen frontiers as their relative distances
+    // change on consecutive moves. Follow the previous observed navigation
+    // intent only while it remains a genuine reachable frontier costing at
+    // most TWO extra legal steps. Loops and any newly discovered priority
+    // (guardian, key, known exit or inscription) retain their existing rules.
+    // Never read the world seed, private tiles or a future guardian route.
+    const previousFrontier = !cyclic
+      && (state.ai.mode === 'exploring' || state.ai.mode === 'revising-map')
+      && Number.isSafeInteger(state.ai.targetCell)
+      ? frontierCandidates.find(item => item.frontier === state.ai.targetCell
+        && item.path!.path.length <= nearestFrontierSteps + 2)
+      : undefined;
+    const selected = previousFrontier ?? (cyclic && frontierCandidates.length > 1
       ? frontierCandidates[1]!
-      : frontierCandidates[0]!;
+      : frontierCandidates[0]!);
     const path = selected.path!;
     return {
       action: { kind: 'move', targetCell: path.path[1]! },
