@@ -71,6 +71,7 @@ function archivePlan(rows,scenario,viewport,candidateSha,frozenSha) {
   // No event cue is inferred from a scenario's file name, seed or clock:
   // ordinary ascent, moving hazards and outcome/restart are observed later.
   plan.unalignedInspectionOnly=true;
+  plan.originalVideoAuthenticated=true;
   plan.caveat='Unedited 60+s original WebM, hash-bound to source; scene beats and frame-visible action NOT independently verified.';
   return plan;
 }
@@ -80,7 +81,18 @@ function completeOriginalFilmPlans(rows,dangerPlans,candidateSha,frozenSha) {
     if(scenario==='danger'){
       const plan=dangerPlans.find(p=>p.viewport===viewport);
       if(!plan)throw Error('missing guardian danger plan '+viewport);
-      plans.push({...plan,scenario:'danger'});
+      const original=archivePlan(rows,'danger',viewport,candidateSha,frozenSha);
+      plans.push({...plan,scenario:'danger',
+        originalVideoAuthenticated:original.originalVideoAuthenticated===true,
+        // Authentic original bytes and source-event pairing are SEPARATE
+        // gates. A 1.3s honest source-to-pixel delay must fail pairing,
+        // never disappear from the full ORIGINAL visual review.
+        unalignedInspectionOnly:original.originalVideoAuthenticated===true &&
+          (plan.unalignedInspectionOnly===true || plan.canReview!==true),
+        ...(original.originalVideoAuthenticated!==true?{
+          canReview:false,failures:[...plan.failures,
+            'authentic-original-film-missing-or-invalid',...original.failures]
+        }:{})});
     }else plans.push(archivePlan(rows,scenario,viewport,candidateSha,frozenSha));
   }
   return plans;
