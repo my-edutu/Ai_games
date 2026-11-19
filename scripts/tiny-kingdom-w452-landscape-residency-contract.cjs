@@ -11,7 +11,14 @@ assert.match(script,/scenicVisibilityStats\.landscape=drawOriginalRetainedLandsc
 assert.match(script,/function originalLandscapeStaticShaderSafe\(mesh\)/);
 assert.match(script,/const landscapeStaticProgramSafety=new WeakMap\(\)/);
 assert.match(script,/landscapeStaticSpecializedTriangles\+=audit\.visibleTriangles/);
-assert.match(script,/finally\{gl\.useProgram\(program\)\}/);
+// The W454 five-class material batch deliberately moved restoration to
+// finishResidentStaticMaterialBatch(). The old W452 literal assert on a
+// finally{gl.useProgram(program)} string is now a false failure. Require
+// BOTH the fallback restoration and exception-safe enclosing batch instead.
+assert.match(script,/function useOriginalStaticMaterialProgram\(\)\{[\s\S]*?gl\.useProgram\(program\)/);
+assert.match(script,/function finishResidentStaticMaterialBatch\(\)\{[\s\S]*?useOriginalStaticMaterialProgram\(\)/);
+assert.match(script,/finally\{if\(!residentStaticBatchOpen\)useOriginalStaticMaterialProgram\(\)\}/);
+assert.match(script,/try\{[\s\S]*?scenicVisibilityStats\.landscape=drawOriginalRetainedLandscape\(planes,[\s\S]*?finally\{finishResidentStaticMaterialBatch\(\)\}/);
 assert.match(script,/return drawVisibleStaticChunks\(landscapeBuffer,landscapeChunkRanges,planes\)/);
 // Evaluate the exact original material-tag guard with every legal/illegal
 // material, including the original farm, weather and animated forge markers.
