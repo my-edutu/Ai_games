@@ -6064,3 +6064,72 @@ export function certifyLicensedSourceSwingCounterpitch({
   contactLocked:false,plantCertified:false
  });
 }
+
+
+/**
+ * Final original toes[l/r] child articulation after a successfully re-skinned
+ * hip→knee→ankle counterpitch. This is a narrowly bounded continuation of a
+ * SAME-frame source proof, not a new footplant or IK target.
+ *
+ * Both soles must remain the exact original GLB weighted mesh. The toe may
+ * finish only a shallow (2–35mm) remaining burial and may not lift the heel,
+ * move the loaded shoe, overshoot the floor, or consume an old frame receipt.
+ * The caller must independently repeat the final source-skin measurement.
+ */
+export function certifyLicensedCounterpitchToeFinish({
+ proof=null,before=null,after=null,side='',sourceInstanceId='',
+ sourceInstanceSame=false,sourceClipName='',
+ sourceToeTrackVerified=false,sourceToeBoneParentVerified=false,
+ angleRad=NaN,floorTopY=NaN
+}={}){
+ const other=side==='left'?'right':side==='right'?'left':null;
+ const valid=s=>s&&[s.heelY,s.toeY,
+  ...(s.heelXZ||[]),...(s.toeXZ||[])].every(Number.isFinite)&&
+  Array.isArray(s.heelXZ)&&s.heelXZ.length===2&&
+  Array.isArray(s.toeXZ)&&s.toeXZ.length===2;
+ if(!other||proof?.source!=='measured-original-licensed-source-counterpitch'||
+  proof.sourceClip!=='Walking_A'||proof.side!==side||
+  proof.sourceInstanceId!==sourceInstanceId||!sourceInstanceId||
+  proof.finalIndependentSourceSkin!==true||
+  proof.originalOppositeShoeVerified!==true||
+  proof.sourceOriginalRootTravelWitnessed!==true||
+  proof.contactLocked!==false||proof.plantCertified!==false||
+  sourceClipName!=='Walking_A'||sourceInstanceSame!==true||
+  sourceToeTrackVerified!==true||sourceToeBoneParentVerified!==true||
+  !Number.isFinite(angleRad)||Math.abs(angleRad)<.06||
+  Math.abs(angleRad)>.160001||!Number.isFinite(floorTopY)||
+  Math.abs(floorTopY+.02)>.005||
+  ![proof.residualToeBurialMeters].every(Number.isFinite)||
+  proof.residualToeBurialMeters<.002||proof.residualToeBurialMeters>.035||
+  ![before?.[side],before?.[other],after?.[side],after?.[other],
+    proof.after?.[side],proof.after?.[other]].every(valid))return null;
+ const distance=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+ const same=(a,b)=>Math.abs(a.heelY-b.heelY)<=.001&&
+  Math.abs(a.toeY-b.toeY)<=.001&&
+  distance(a.heelXZ,b.heelXZ)<=.001&&
+  distance(a.toeXZ,b.toeXZ)<=.001;
+ if(!same(before[side],proof.after[side])||
+  !same(before[other],proof.after[other])||
+  Math.abs((floorTopY-before[side].toeY)-
+    proof.residualToeBurialMeters)>.002)return null;
+ const heelChange=after[side].heelY-before[side].heelY;
+ const toeLift=after[side].toeY-before[side].toeY;
+ if(toeLift<.0025||toeLift>.020||
+  Math.abs(heelChange)>.0025||
+  after[side].toeY>floorTopY+.005||
+  distance(after[side].heelXZ,before[side].heelXZ)>.006||
+  distance(after[side].toeXZ,before[side].toeXZ)>.04||
+  Math.abs(after[other].heelY-before[other].heelY)>.002||
+  Math.abs(after[other].toeY-before[other].toeY)>.002||
+  distance(after[other].heelXZ,before[other].heelXZ)>.003||
+  distance(after[other].toeXZ,before[other].toeXZ)>.003)return null;
+ return Object.freeze({
+  source:'measured-licensed-counterpitch-original-toes-child',
+  side,sourceClip:'Walking_A',angleRad,
+  toeLiftMeters:toeLift,heelChangeMeters:heelChange,
+  residualToeBurialMeters:Math.max(0,floorTopY-after[side].toeY),
+  sourceToeTrackVerified:true,originalOppositeShoeVerified:true,
+  requiresIndependentFinalSkin:true,
+  contactLocked:false,plantCertified:false
+ });
+}
