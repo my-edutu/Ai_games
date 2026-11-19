@@ -774,6 +774,7 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
     // real original-gateway return. Eight subsequent submissions are still
     // not permission to bury that original bronze threshold in opaque Void.
     resourceCheckpoint('three-clocks-before-8-real-return-loop');
+    let firstBiomeBuildObserved=false;
     for(let step=3;step<=8;step++){
       resourceCheckpoint('three-clocks-return-'+step+'-begin');
       const frame={...later,tick:460+step};
@@ -781,6 +782,14 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
         handoffDisplaySeconds:step*.05};
       world.noteFrameSubmitted(frame,{},.05);
       world.update(frame,.05,.1+step*.05,{quality:'low'},witness);
+      if(!firstBiomeBuildObserved &&
+         world.diagnostics().deferredDistantArrival?.state==='awaiting-structural-submission'){
+        const justBuiltBiome=world.group.getObjectByName('deferred-authentic-floor-nine-crystal-biome');
+        assert.equal(justBuiltBiome?.isGroup,true);
+        assert.equal(justBuiltBiome.visible,false,
+          'the original biome is culled at assembly and cannot impersonate a returned GPU frame');
+        firstBiomeBuildObserved=true;
+      }
       resourceCheckpoint('three-clocks-return-'+step+'-end');
     }
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===originalArch,true,
@@ -794,8 +803,8 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
     const deferredDetail=world.group.getObjectByName('deferred-authentic-floor-nine-crystal-biome');
     assert.equal(deferredDetail?.isGroup,true,
       'original animated biome may assemble only after >=3 returned structural frames and >=200ms');
-    assert.equal(deferredDetail.visible,false,
-      'assembled but unreturned crystals must remain culled from the original GPU submission');
+    assert.equal(firstBiomeBuildObserved,true,
+      'the real returned-core gate must eventually permit safe biome construction');
     const earlyShaft=world.group.getObjectByName('deferred-original-floor-nine-architecture');
     const earlyOpacity=[];
     earlyShaft.traverse(o=>{
