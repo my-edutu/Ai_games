@@ -4925,6 +4925,33 @@ function specializeResidentHomeVertexShader(source){
 let residentHomeProgram=null,residentHomeUniforms=null,residentHomeShaderError=null,
  residentHomeShaderOverride=null,residentHomeShaderDrawFrames=0,
  residentHomeShaderDrawTriangles=0,residentHomeShaderFallbackFrames=0;
+// W454: all five original static GPU classes belong to ONE camera/time
+// presentation. Keep the material program and same uniforms resident across
+// landscape, town, real occupied homes, receiving core and growing streets.
+// No meshes, citizens, roads, shader materials or authoritative ticks change.
+let residentStaticBatchOpen=false,residentStaticBatchProgram='main',
+ residentStaticMaterialBatches=0,residentStaticMaterialProgramSwitches=0,
+ residentStaticMaterialUniformUploads=0,residentStaticMaterialUniformReuses=0,
+ residentStaticMaterialSpecialistCalls=0,residentStaticUniformFrame=-1;
+function beginResidentStaticMaterialBatch(){
+ if(residentStaticBatchOpen)throw Error('W454 nested static draw batch');
+ residentStaticBatchOpen=true;residentStaticBatchProgram='main';
+ residentStaticMaterialBatches++;
+}
+function useOriginalStaticMaterialProgram(){
+ if(!residentStaticBatchOpen||residentStaticBatchProgram!=='main'){
+  gl.useProgram(program);
+  if(residentStaticBatchOpen)residentStaticMaterialProgramSwitches++;
+  residentStaticBatchProgram='main';
+ }
+}
+function finishResidentStaticMaterialBatch(){
+ if(!residentStaticBatchOpen)throw Error('W454 static batch not opened');
+ // Restore the original program for genuine moving workers, shadows and
+ // GPU joint rigs even when an earlier material-specific draw failed.
+ useOriginalStaticMaterialProgram();
+ residentStaticBatchOpen=false;
+}
 if(gpuAvailable){
  const candidate=gl.createProgram();
  if(candidate)try{
@@ -4982,11 +5009,37 @@ function getResidentHomeShaderAudit(){
    civicCore:{...residentDistrictShaderStats.civicCore},
    civic:{...residentDistrictShaderStats.civic}},
   originalFallbackFrames:residentHomeShaderFallbackFrames,
+  staticMaterialBatch:{
+   batches:residentStaticMaterialBatches,
+   programSwitches:residentStaticMaterialProgramSwitches,
+   uniformUploads:residentStaticMaterialUniformUploads,
+   uniformReuses:residentStaticMaterialUniformReuses,
+   specialistDrawCalls:residentStaticMaterialSpecialistCalls,
+   currentBatchOpen:residentStaticBatchOpen,
+   lastUniformFrame:residentStaticUniformFrame,
+   sameFrameUniforms:true,fullShaderRestoredAfterBatch:true,
+   unmodifiedAuthoritativeWorld:true
+  },
   physicalHardwareFps:'NOT MEASURED',independentA_B:'NOT PROVEN'};
 }
 function bindRealResidentHomeMaterial(ctx){
  const u=residentHomeUniforms;
- gl.useProgram(residentHomeProgram);
+ residentStaticMaterialSpecialistCalls++;
+ if(!residentStaticBatchOpen||residentStaticBatchProgram!=='specialist'){
+  gl.useProgram(residentHomeProgram);
+  if(residentStaticBatchOpen)residentStaticMaterialProgramSwitches++;
+  residentStaticBatchProgram='specialist';
+ }
+ // GLSL uniforms persist through gl.useProgram(original) and back. A single
+ // completed frame shares exact time, eye, light and camera for all five static
+ // classes. Do not re-sort real carried lantern owners and re-upload every
+ // static uniform for each authentic district VBO.
+ if(residentStaticUniformFrame===framesDrawn){
+  residentStaticMaterialUniformReuses++;
+  return;
+ }
+ residentStaticUniformFrame=framesDrawn;
+ residentStaticMaterialUniformUploads++;
  gl.uniformMatrix4fv(u.viewProjection,false,ctx.matrix);
  gl.uniform3f(u.sunDirection,Math.cos(ctx.time/24*6.283),
   .3+ctx.atmosphere.daylight*.9,Math.sin(ctx.time/24*6.283));
@@ -9737,12 +9790,13 @@ function drawOriginalRetainedLandscape(planes,ctx){
  if(!residentHomeShaderEnabled()||!landscapeBuffer||
     !originalLandscapeStaticShaderSafe(landscapeMeshCache)){
   landscapeStaticFallbackFrames++;
+  useOriginalStaticMaterialProgram();
   return drawVisibleStaticChunks(landscapeBuffer,landscapeChunkRanges,planes);
  }
  bindRealResidentHomeMaterial(ctx);
  let audit;
  try{audit=drawVisibleStaticChunks(landscapeBuffer,landscapeChunkRanges,planes)}
- finally{gl.useProgram(program)}
+ finally{if(!residentStaticBatchOpen)useOriginalStaticMaterialProgram()}
  landscapeStaticSpecializedFrames++;
  landscapeStaticSpecializedTriangles+=audit.visibleTriangles;
  return audit;
@@ -9763,12 +9817,13 @@ function drawOriginalRetainedDistrictClass(name,target,ranges,mesh,planes,ctx){
  if(!residentHomeShaderEnabled()||!target||
     !originalLandscapeStaticShaderSafe(mesh)){
   stats.fallbacks++;
+  useOriginalStaticMaterialProgram();
   return drawVisibleStaticChunks(target,ranges,planes);
  }
  bindRealResidentHomeMaterial(ctx);
  let audit;
  try{audit=drawVisibleStaticChunks(target,ranges,planes)}
- finally{gl.useProgram(program)}
+ finally{if(!residentStaticBatchOpen)useOriginalStaticMaterialProgram()}
  stats.frames++;
  stats.triangles+=audit.visibleTriangles;
  return audit;
@@ -9777,6 +9832,7 @@ function drawHomeClusters(planes,ctx=null){
  const audits=[],specialized=Boolean(homeClusterActive.length&&ctx&&
   residentHomeShaderEnabled());
  if(specialized)bindRealResidentHomeMaterial(ctx);
+ else useOriginalStaticMaterialProgram();
  try{
  for(const entry of homeClusterActive){
   if(homeClusterCache.get(entry.key)!==entry){
@@ -9784,7 +9840,7 @@ function drawHomeClusters(planes,ctx=null){
   }
   audits.push(drawVisibleStaticChunks(entry.buffer,entry.ranges,planes));
  }
- }finally{if(specialized)gl.useProgram(program)}
+ }finally{if(specialized&&!residentStaticBatchOpen)useOriginalStaticMaterialProgram()}
  if(specialized){
   residentHomeShaderDrawFrames++;
   residentHomeShaderDrawTriangles+=audits.reduce((sum,row)=>
@@ -32883,6 +32939,8 @@ lastFrameTriangles=nonFieldTriangles+(gpuAvailable?farmFieldLastTriangles:0);
 if(gpuAvailable){
  const staticDistrictContext={matrix:m,atmosphere,radiance,eye,activeLight,time:state.t};
  scenicVisibilityStats.farmFields=fieldLodDraw;
+ beginResidentStaticMaterialBatch();
+ try{
  scenicVisibilityStats.landscape=drawOriginalRetainedLandscape(planes,staticDistrictContext);
  scenicVisibilityStats.settlement=drawOriginalRetainedDistrictClass(
   'settlement',settlementBuffer,settlementChunkRanges,scenicMeshCache,
@@ -32902,6 +32960,7 @@ if(gpuAvailable){
     drawCalls:0,strictDrawCalls:0,bridgedTriangles:0,bridgedChunks:0,
     issuedTriangles:0,savedDrawCalls:0,maxBridgeTriangles:SCENIC_BRIDGE_MAX_TRIANGLES,
     invalidRanges:0,driverCalls:0,multiDrawBatches:0,multiDrawRanges:0};
+ }finally{finishResidentStaticMaterialBatch()}
  scenicVisibilityStats.totalSubmittedTriangles=scenicVisibilityStats.landscape.visibleTriangles+
   scenicVisibilityStats.settlement.visibleTriangles+scenicVisibilityStats.civic.visibleTriangles+
   scenicVisibilityStats.civicCore.visibleTriangles+
