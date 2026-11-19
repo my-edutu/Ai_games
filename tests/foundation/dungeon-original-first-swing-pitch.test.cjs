@@ -158,10 +158,10 @@ test('RED: the genuine 390px source ankle must not raise an already airborne hee
   beforeToeY:-.07045647785691661,
   afterToeY:-.06570524261231639,
   beforeHeelY:.23086051292237672,
-  afterHeelY:.24375318981086622
+  afterHeelY:.23968721635364357
  };
  assert.equal(clear(heelDominated),false,
-  'a submerged toe gaining 4.75mm while its airborne heel rises 12.89mm is NOT physically grounded relief');
+  'a submerged toe gaining 4.75mm while its airborne heel rises 8.827mm is NOT physically grounded relief');
  // Same original source, actual 1440px tick6: a connected ankle lifts the toe
  // 18.039mm and lowers the heel 17.682mm; keep this safe result admissible.
  assert.equal(clear({floorTopY,appliedAngleRad:-.22,
