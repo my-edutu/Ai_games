@@ -1048,13 +1048,13 @@ export function createWarden(options = {}) {
       // physical sail now UNFURLS through height and spread, only during the
       // genuinely witnessed public stage. Hidden/terminal returns to neutral.
       shellHalf.fronds.scale.y=parried
-        ?1-.51*earnedShellClearance-.22*counterCollapse
+        ?1-.61*earnedShellClearance-.22*counterCollapse
         :(alert>.24 && hasWitnessBeat) ? (.54+.75*display) : 1;
       // The TRUE earned counter collapses the large front botanical screen
       // backwards in local armour space, exposing its connected head rather
       // than shrinking/dissolving an enemy. +0 reset is deliberate.
       shellHalf.fronds.rotation.x=earnedShellClearance>0
-        ?-1.10*earnedShellClearance:0;
+        ?-1.48*earnedShellClearance:0;
       shellHalf.fronds.rotation.z=encounter?shellHalf.side*(.05+.25*display):0;
       shellHalf.fronds.rotation.y=alert>0&&!s.reduced
         ?shellHalf.side*Math.sin(s.time*1.3)*alert*.075:0;
@@ -1130,9 +1130,17 @@ export function createWarden(options = {}) {
     // withdraws beneath the actual opening shell, rather than letting the
     // face disappear behind a fixed backpack in mobile native gameplay.
     // Terminal/reduced poses remain deterministic with no new meshes.
-    head.position.y=.27+plantedClaws*.13-display*.045*alert-counterLoad*.09+counterRelease*.055-counterCollapse*.11;
-    head.position.z=.73+alert*.07+plantedClaws*.18-display*.065*alert+counterLoad*.105-counterRelease*.06-counterCollapse*.075;
-    head.rotation.x=s.win?.16:s.lose?-.13:-.045-s.danger*.065-plantedClaws*.36+display*.18*alert+(parried?.24:0)+counterLoad*.20-counterRelease*.23-counterCollapse*.28;
+    // Pass519: the exact original 320/390px earned-counter portrait still
+    // shows a crumpled ivory/bronze mass instead of Thornback's eyes and jaw.
+    // On the SAME current, public, time-limited landed lantern counter,
+    // unfold the existing linked cheek guards and bring the REAL articulated
+    // mask visibly above and ahead of its surrounding botanical shields.
+    // This is a consequential physical recoil/readable gaze, not a fake hit,
+    // new icon, secret sightline, actor-root movement or per-frame allocation.
+    // End-of-witness, reduced motion and terminal return to original poses.
+    head.position.y=.27+plantedClaws*.13-display*.045*alert-counterLoad*.09+counterRelease*.43-counterCollapse*.11;
+    head.position.z=.73+alert*.07+plantedClaws*.18-display*.065*alert+counterLoad*.105+counterRelease*.36-counterCollapse*.075;
+    head.rotation.x=s.win?.16:s.lose?-.13:-.045-s.danger*.065-plantedClaws*.36+display*.18*alert+(parried?.24:0)+counterLoad*.20-counterRelease*.54-counterCollapse*.28;
     head.rotation.y=Math.sin(s.time*.8)*.08*(1-stride)*amount*(1-alert)+lookYaw;
     // Counter-roll keeps Thornback's modeled bronze mask directed at Pip
     // as its real physical torso falls sideways. End-of-witness, reduced
@@ -1143,8 +1151,8 @@ export function createWarden(options = {}) {
     // carapace release. Hidden/terminal/reused rigs go to exact +0; reduced
     // motion holds a still, truthful pose with no time-based blinking.
     for (const {hinge,side} of facialShells) {
-      hinge.rotation.y=encounter>0?side*(.10+.48*brace-.40*display):0;
-      hinge.rotation.z=encounter>0?side*(.07+.27*brace-.22*display):0;
+      hinge.rotation.y=encounter>0?side*(.10+.48*brace-.40*display+.88*counterRelease):0;
+      hinge.rotation.z=encounter>0?side*(.07+.27*brace-.22*display+.50*counterRelease):0;
     }
     for (const {antenna,side} of antennae) {
       antenna.rotation.z=side*(.08+alert*.40)+(s.reduced?0:Math.sin(s.time*1.7+side)*.04)*(1-alert*.5);
