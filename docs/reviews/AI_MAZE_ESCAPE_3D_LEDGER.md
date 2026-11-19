@@ -1,3 +1,10 @@
+## Pass515 — actual parried near-Thornback visibility priority (2026-11-19 UTC)
+
+- [Exact-HEAD Pass514 native WebGL #44562818447](https://github.com/my-edutu/Ai_games/actions/runs/44562818447) SUCCESS (source `5f085248faf04861cec30cbcc3f3ed785a68211d`): downloaded authentic original artifact 14551259172 and recomputed **42/42 PNG + sidecar SHA-256 matches**. Same full 390px earned-counter shot still buries Thornback behind its own armour/foreground. Pass514/Pass512 picture difference averaged **1.30/255 RGB** despite new camera code; NOT a visual win. Strict original 6-reset geometry <100 and real chapter gate pass at incoming SHA; whole-repository CI fails separately.
+- **Production candidate:** a visible **same-model, same-run already-parried guardian** must not be excluded from the earned physical front-quarter camera just because public proximity attention remains positive. Current unlike/unparried guardian preserves priority. Never show hidden guardian, move camera for unearned parry or fake AI action. Natural exact-source WebGL + original unchanged framing/privacy/AI/pacing tests and independent art review **PENDING**. No merge, deploy or force. [Dated original critique](./maze-3d/pass-515-native-guardian-near-parry-camera-priority-2026-11-19.md).
+
+---
+
 ## Pass514 — physically redirected source-earned Pip/Thornback counter scene (2026-11-19 UTC)
 
 - Incoming exact PR HEAD `5f62ca62447fbd265089b59c592dd33beee031a1`: [native WebGL 44550333493](https://github.com/my-edutu/Ai_games/actions/runs/44550333493) SUCCESS, real six-reset geometry <100 and Pass513 default autonomous chapter ≤200 / counter-to-key ≤120 source checks passed. Official Nintendo-quality artistic bar still REJECTED from original 390px guardian screenshot.
