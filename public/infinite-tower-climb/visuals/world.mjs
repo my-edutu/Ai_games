@@ -11,7 +11,7 @@ import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact
 import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceFloorNineRouteSupport, observedSourceRetainedRaisedExit, observedSourceAirborneSuccessorApproach, observedSourceOriginalVisibilityWindow, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS, observedCertifiedOriginalGatewayOpticalLease } from './source-physical-arrival-palette.mjs';
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
 import { rebindSourceOwnedUndercroft } from './successor-deck-visibility.mjs';
-import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, createSourceEarnedVoidDepartureMaterials, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn } from './original-clockwork-architecture-palette.mjs';
+import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, createSourceEarnedVoidDepartureMaterials, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn, observedRenderedOriginalDoorwayRoom } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections, isolateEarnedFirstFrameVoidMaterials } from './source-earned-bearing-run.mjs';
 import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold, observedSourceEarnedEarlyVoidShaftAperture, observedSourceSupportedVoidFirstPaint, observedEarnedGalleryExitClearance, observedReturnedGalleryHandoffClearance, observedFirstReturnedVoidBearingGalleryRetirement } from './far-side-shaft-transition.mjs';
 import { chooseSourceEarnedFirstReturnInstancing } from './source-earned-first-return-instancing.mjs';
@@ -4442,11 +4442,23 @@ export function createTowerWorld(){
     // eligible without the genuine far-side body + actual GPU return witness.
     // After the successor shaft returns visibly, the existing source-owned
     // palette and bounded returned-frame retirement regain control.
+    // Actual original 1x Floor9 frames retained the HP-open bronze gate
+    // almost fully opaque while its SAME physical ground roof, shaft palette
+    // and sky had already turned Violet. Bind the current already-certified
+    // source room to the actual retained 3D gate/deck material opacity (not
+    // to an unrelated fresh timer or the most recent AI/source distance).
+    // The far-side returned-shaft lock keeps priority if it is active.
+    const sharedDoorwayMaterialProof=!options.stale && !options.reducedMotion
+      ?observedRenderedOriginalDoorwayRoom(
+        snapshot,retainedEarnedCap,materialProof):null;
+    if(sharedDoorwayMaterialProof && !returnedBronzePaletteLock)
+      sourceCertifiedHorizon=observedCertifiedClockworkHorizon(
+        snapshot,sharedDoorwayMaterialProof,opticalTail)??sourceCertifiedHorizon;
     const sourceAlignedMaterialProof=returnedBronzePaletteLock?{
       sourceBound:true,sourceTick:snapshot.tick,
       crossingTick:retainedEarnedCap.crossingTick,
       kind:'verified-original-roof-receipt',oldWeight:1
-    }:materialProof;
+    }:(sharedDoorwayMaterialProof??materialProof);
     if(arrivalRoutePalette)
       updateOriginalClockworkSuccessorRoute(arrivalRoutePalette,
         sourceAlignedMaterialProof,opticalTail);
