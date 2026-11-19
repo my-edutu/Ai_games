@@ -2272,6 +2272,76 @@ export function auditOriginalSourceSwingAnkleSlew({
  * guard, strike, hurt, teleport, reduced-motion, hidden or interrupted actors
  * unchanged. No source clip, footstep, hit, target or authority is invented.
  */
+/**
+ * Original-source shoe evidence for uninterrupted small but REAL displayed-root
+ * travel. The genuine 17-frame desktop/390px original Walking_A films showed
+ * sub-3mm displacement on many advancing source-mixer frames. A strict >=8mm
+ * per-frame gate starves the connected pelvis/hip/knee/foot probe even though
+ * one continuous licensed clone can actually travel >=8mm across 5-8 frames.
+ *
+ * This accumulates only NET measured world-root XZ distance for one unbroken
+ * original Walking_A source/actor, NOT invented movement, additive step length,
+ * a foot contact, source phase override, or an IK target. Direction changes
+ * and stale/discontinuous frames fail closed. The existing real original
+ * skinned heel/toe two-shoe trial/final rollback still decides every pose.
+ *
+ * Per actor: one bounded constant-size receipt; no new skin reads or allocations
+ * proportional to elapsed play. Reset on combat, injury, visibility, clip
+ * fade, genuine authority stop, teleport, reduced motion or source swap.
+ */
+const EMPTY_NATIVE_MICRO_WALK=Object.freeze({
+ sourceInstanceId:null,anchorRootX:null,anchorRootZ:null,
+ lastRootX:null,lastRootZ:null,elapsed:0,frames:0,movingFrames:0,
+ pathMeters:0,travel:0,certified:false,contactLocked:false,
+ syntheticMovement:false
+});
+export function advanceOriginalSourceMicroTravelWindow({
+ previous=null,sourceInstanceId='',rootX=NaN,rootZ=NaN,
+ mode='idle',sourceClipName='',sourceWeight=NaN,ownerLocomotion=false,
+ groundedMoving=false,alive=false,visible=false,teleport=false,
+ reducedMotion=false,interrupted=false,frameInterval=NaN
+}={}){
+ if(typeof sourceInstanceId!=='string'||!sourceInstanceId||
+  mode!=='move'||sourceClipName!=='Walking_A'||
+  !finite(sourceWeight)||sourceWeight<.95||sourceWeight>1.001||
+  ownerLocomotion!==true||groundedMoving!==true||alive!==true||
+  visible!==true||teleport||reducedMotion||interrupted||
+  ![rootX,rootZ,frameInterval].every(finite)||
+  frameInterval<.008||frameInterval>.05)return EMPTY_NATIVE_MICRO_WALK;
+ const seed=()=>({
+  sourceInstanceId,anchorRootX:rootX,anchorRootZ:rootZ,
+  lastRootX:rootX,lastRootZ:rootZ,elapsed:0,frames:1,movingFrames:0,
+  pathMeters:0,travel:0,certified:false,
+  contactLocked:false,syntheticMovement:false
+ });
+ if(previous?.sourceInstanceId!==sourceInstanceId||
+  ![previous.anchorRootX,previous.anchorRootZ,
+   previous.lastRootX,previous.lastRootZ,previous.elapsed,
+   previous.pathMeters,previous.frames,previous.movingFrames].every(finite)||
+  previous.elapsed<0||previous.elapsed+frameInterval>.15||
+  previous.frames<1||previous.frames>=10)return seed();
+ const step=Math.hypot(rootX-previous.lastRootX,rootZ-previous.lastRootZ);
+ // An >4mm jump cannot be silently counted as several missing microframes.
+ // A stationary frame is a legitimate source sample, not a new ground step.
+ if(!finite(step)||step>.004001)return seed();
+ const elapsed=previous.elapsed+frameInterval;
+ const frames=previous.frames+1;
+ const movingFrames=previous.movingFrames+(step>=.00025?1:0);
+ const pathMeters=previous.pathMeters+step;
+ const net=Math.hypot(rootX-previous.anchorRootX,
+  rootZ-previous.anchorRootZ);
+ const meanSpeed=elapsed>0?net/elapsed:0;
+ const certified=step>=.00025&&movingFrames>=4&&
+  net>=.008&&net<=.04&&pathMeters<=.04&&
+  // Back-and-forth jitter may have path length but no persistent route.
+  net>=pathMeters*.85&&meanSpeed>=.05&&meanSpeed<=.3;
+ return {sourceInstanceId,
+  anchorRootX:previous.anchorRootX,anchorRootZ:previous.anchorRootZ,
+  lastRootX:rootX,lastRootZ:rootZ,elapsed,frames,movingFrames,
+  pathMeters,travel:certified?net:0,certified,
+  contactLocked:false,syntheticMovement:false};
+}
+
 const EMPTY_NATIVE_SWING_TRAVEL=Object.freeze({travel:0,age:0});
 export function advanceOriginalSourceSwingTravelWitness({
  previousTravel=0,previousAge=0,travel=0,frameInterval=0,
