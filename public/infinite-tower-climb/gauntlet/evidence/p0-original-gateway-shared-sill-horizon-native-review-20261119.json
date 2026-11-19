@@ -161,5 +161,37 @@
     "actualDeviceP50P95P99Memory": "NOT EVALUATED",
     "nextHighestImpact": "Read exact-head P0 quality; fix genuine red regressions. Inspect newly captured original candidate vs frozen baseline 60+sec WebMs in both viewports, align source tick475/roof step F9/guardian defeat and restart to native PTS; if cold returned-room still changes in a single video frame, address actual first-F9 GPU load budget and upper-cap/void shot composition, not another cosmetic patch.",
     "safety": "PR68 remains open draft on unchanged PR58 base. Do not change frozen baseline, merge, deploy, force push, unrelated games or draft status."
+  },
+  "p0SourcePinned44508004326NativeHardCutAndOutcomeCalibration20261119": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "observedCandidateSha": "27403f6d790ddffe85a81646d4c5a18633815a32",
+    "immutableCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44508004326",
+    "immutableExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44508004358",
+    "quality": "10/10 completed successful; safety only, never a transformation vote",
+    "originalCapture": "7/8 recording jobs successful; baseline outcome clock failed; retained all eight real unedited native WebM artifacts",
+    "strictEventToNativeDangerPairing": "0/2 (desktop 960x600 and portrait 390x844) — FAILED",
+    "originalCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44508004326/artifacts/14523786405",
+    "frozenBaselineDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44508004326/artifacts/14522578321",
+    "frozenOutcomeArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44508004326/artifacts/14524032055",
+    "physicallyInspectedNativeVideo": "Original complete full-motion unaltered candidate desktop/portrait danger WebM, FFmpeg stills across PTS 23-30s; actual old-to-new architectural transition remains a hard color/world cut",
+    "biggestExperienceGap": "Zero sustained warm-to-violet shared-room bridge in both native phase sidecars; two event-aligned original consecutive frames showing full moving hero + authentic HP-open original guardian gateway + real walkable Floor9 are unverified",
+    "verifiedCaptureBlocker": "Frozen baseline outcome desktop original 70+s film kept, but original CDP stream at everyNthFrame=12 yielded only 6 compositor JPEGs; 4 matched ambiguously (uniqueness margins .2014, .00694, .02431, .01042) and only 2 distinct matched anchors survived; need >=3 over >=15s. Frozen portrait outcome already calibrated 9 anchors.",
+    "completedCodeChange": "Neutral browser-observer screenshot sampling changed 1/12 to 1/5 for baseline and candidate alike; <=24 stored, >=2800ms apart; strict native WebM PTS/hash, original pixel uniqueness and event pairing unchanged; no gameplay authority/scene/physics changed",
+    "sourceCommits": [
+      "a511d474124f9fc0f718e7441f3886dc5055783b",
+      "b6d3fc9de44e8b95b1a82b97089b7187baa1fa6b"
+    ],
+    "observerCost": "At 25fps 70s, up to 350 delivered CDP JPEG opportunities vs about 146 previously; actual CPU/recording impact and improvement NOT YET MEASURED",
+    "nextCampaign": "A fresh exact immutable source request to follow in capture-request.json. URL/status NOT YET VERIFIED.",
+    "genuineIndependentReviewCounts": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDeviceP50P95P99AndMemory": "NOT EVALUATED",
+    "nextHighestImpact": "Run exact-head quality and new frozen/candidate 9-job original film; inspect real JPEG sampling/unique native-clock anchors plus video transport/FPS regression. Then fix the proven hard old Clockwork→Void architectural first-paint with source-pinned aligned full-motion footage. Do not advance P1.",
+    "safety": "Baseline fixed; PR68 draft, PR58 unchanged; excluded games untouched; never merge, deploy or force push."
   }
 }
