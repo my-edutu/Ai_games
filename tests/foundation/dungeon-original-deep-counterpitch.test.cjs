@@ -1102,3 +1102,52 @@ test('RED: 390px world-sole-verified shallow-deep native swing gets two bounded 
    left:{...support,toeY:support.toeY+.007}}}
  ]}),null,'genuinely loaded other shoe must remain unchanged');
 });
+
+ 
+// RED contract for the *currently unanswered* original 390px source frame:
+// real 41-joint Vanguard Walking_A at 16.7ms, 55.094mm buried right toe,
+// 226.132mm airborne heel, 56.412mm projected sole, 55.072mm real travel
+// (#44538631095 original source-rig JSON). The original +.18/+ .24rad
+// connected trial gave +15.678mm toe and +13.795mm heel; the NEW +.34rad
+// source-world pitch outcome is UNKNOWN until matched real WebGL proof.
+// Accordingly the proposed final shoe numbers below are SYNTHETIC acceptance
+// bounds, NOT a claim that the GLB has actually achieved them.
+test('RED: original-world-sole-certified shallow 390px swing can keep genuine measured 7mm pitch recovery with opposite shoe untouched',async()=>{
+ const {planOriginalSourceCoupledFootStarter:starterFn,
+  chooseOriginalSourceCoupledKneeFootSweep:choose}=await load();
+ const swing={heelY:.22613207808975871,toeY:-.07509437666382304,
+  heelXZ:[0,0],toeXZ:[.05641176130110398,0]};
+ const support={heelY:.001625474441659048,toeY:-.0073747421244237145,
+  heelXZ:[1,0],toeXZ:[1.27,0]};
+ const after=(toeLift,heelRise,loaded=support)=>({
+  right:{...swing,toeY:swing.toeY+toeLift,heelY:swing.heelY+heelRise},
+  left:{...loaded}
+ });
+ const original={...owner,side:'right',sourceInstanceId:'licensed-source-Vanguard',
+  sourceWorldSolePitchVerified:true,rootTravel:.0550718537285535,
+  frameAge:.0666,frameInterval:.0167,before:{right:swing,left:support},
+  starterTrials:[
+   {upperRad:.09,lowerRad:-.075,after:after(-.011950643203940237,-.02557728286215713)},
+   {upperRad:-.09,lowerRad:.075,after:after(.017735671658202445,.023192449166117263)}
+  ]};
+ const starter=starterFn(original);
+ assert.equal(starter?.sign,-1,'original same-rig starter remains required');
+ const candidate={upperRad:-.11,lowerRad:.11,footRad:.34,
+  after:after(.014,.006)};
+ const accepted=choose({...original,starter,trials:[candidate]});
+ assert.equal(accepted?.source,'measured-original-skinned-coupled-knee-foot',
+  'accept ONLY actual final-skinned positive outsole-pitch rescue, not invented plant');
+ assert.equal(accepted.contactLocked,false);
+ assert.ok(accepted.afterToeY<original.floorTopY);
+ for(const rejected of [
+  {sourceWorldSolePitchVerified:false},
+  {sourceClipName:'Idle'},{sourceWeight:.8},{rootTravel:0},
+  {reducedMotion:true},{interrupted:true},{frameAge:.2}
+ ])assert.equal(choose({...original,...rejected,starter,trials:[candidate]}),null);
+ for(const trial of [
+  {...candidate,after:after(.014,.011)},
+  {...candidate,after:after(.011,.001)},
+  {...candidate,after:after(.014,.006,{...support,heelY:support.heelY+.005})},
+ ])assert.equal(choose({...original,starter,trials:[trial]}),null,
+  'no heel-dominant, insufficient-toe or changed supporting-shoe pass');
+});
