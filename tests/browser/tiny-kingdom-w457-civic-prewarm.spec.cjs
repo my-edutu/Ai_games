@@ -171,3 +171,69 @@ test('W461 anticipatory original next-season farm scene is bounded and authority
  expect(mobile.gl).toBe(0);
  await page.close();
 });
+
+test('W462 original landscape retained across frames is EXACT live world including 390px',async({browser},info)=>{
+ test.setTimeout(450000);
+ const shots=[];
+ for(const mode of ['prewarm','original']){
+  const page=await browser.newPage({viewport:{width:1024,height:720}});
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.setContent(mode==='original'?source.replace('<head>',
+   '<head><script>window.__TINY_KINGDOM_DISABLE_LANDSCAPE_PREWARM__=true;<\/script>'):source);
+  await page.evaluate(()=>window.__tinyKingdom.setSpeed(0));
+  await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,
+   null,{timeout:150000});
+  const audit=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   return {warm:g.getOriginalLandscapePrewarmAudit(),
+    landscape:g.getLandscapeSeasonCacheStats(),hash:g.getOriginalLandscapeSourceHash(),
+    checksum:g.exportSnapshot().checksum,t:g.getState().state.t,
+    triangles:g.getGeometryAudit().totalTriangles,frame:g.renderStats().lastFrameTriangles,
+    citizens:g.metrics().citizens,buildings:g.metrics().buildings,
+    gl:document.querySelector('#world').getContext('webgl')?.getError(),
+    overflow:document.documentElement.scrollWidth-innerWidth};
+  });
+  await info.attach('W462-'+mode+'-1024.png',{body:await page.screenshot(),contentType:'image/png'});
+  await info.attach('W462-'+mode+'-original.json',{body:Buffer.from(JSON.stringify(audit,null,2)),contentType:'application/json'});
+  expect(errors).toEqual([]);expect(audit.gl).toBe(0);expect(audit.overflow).toBeLessThanOrEqual(0);
+  expect(audit.citizens).toBeGreaterThanOrEqual(12);
+  expect(audit.buildings).toBeGreaterThanOrEqual(12);
+  expect(audit.triangles).toBeLessThan(160000);
+  expect(audit.hash).toMatch(/^[0-9a-f]{8}$/);
+  expect(audit.landscape.entries).toBeGreaterThanOrEqual(1);
+  expect(audit.landscape.cachedFloats).toBeLessThanOrEqual(audit.landscape.floatBudget);
+  if(mode==='prewarm'){
+   expect(audit.warm.completed).toBe(1);expect(audit.warm.failures).toBe(0);
+   expect(audit.warm.last.samples.map(s=>s.name)).toEqual([
+    'original-valley-horizon','original-river-0','original-river-1','original-river-2',
+    'original-river-3','river-mouths-roads-forest-reset',
+    'original-trees-0','original-trees-1','original-trees-2','original-trees-3',
+    'rock-flowers-grass-ecotone','original-landscape-GPU-residency']);
+   expect(audit.warm.last.sourceHash).toBe(audit.hash);
+  }else expect(audit.warm.completed).toBe(0);
+  shots.push(audit);await page.close();
+ }
+ expect(shots[0].checksum).toBe(shots[1].checksum);
+ expect(shots[0].t).toBe(shots[1].t);
+ expect(shots[0].hash).toBe(shots[1].hash);
+ expect(shots[0].triangles).toBe(shots[1].triangles);
+ expect(shots[0].frame).toBe(shots[1].frame);
+ const mobile=await browser.newPage({viewport:{width:390,height:844}});
+ const errors=[];mobile.on('pageerror',e=>errors.push(e.message));
+ await mobile.setContent(source);
+ await mobile.evaluate(()=>window.__tinyKingdom.setSpeed(0));
+ await mobile.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,
+  null,{timeout:150000});
+ const phone=await mobile.evaluate(()=>{
+  const g=window.__tinyKingdom;
+  return {hash:g.getOriginalLandscapeSourceHash(),checksum:g.exportSnapshot().checksum,
+   triangles:g.getGeometryAudit().totalTriangles,completed:g.getOriginalLandscapePrewarmAudit().completed,
+   gl:document.querySelector('#world').getContext('webgl')?.getError(),
+   overflow:document.documentElement.scrollWidth-innerWidth};
+ });
+ await info.attach('W462-original-390.png',{body:await mobile.screenshot(),contentType:'image/png'});
+ expect(phone.hash).toBe(shots[0].hash);expect(phone.checksum).toBe(shots[0].checksum);
+ expect(phone.completed).toBe(1);expect(phone.triangles).toBeLessThan(160000);
+ expect(phone.gl).toBe(0);expect(phone.overflow).toBeLessThanOrEqual(0);
+ expect(errors).toEqual([]);await mobile.close();
+});
