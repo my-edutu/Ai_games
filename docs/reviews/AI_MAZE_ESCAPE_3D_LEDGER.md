@@ -1,3 +1,10 @@
+## Pass514 — physically redirected source-earned Pip/Thornback counter scene (2026-11-19 UTC)
+
+- Incoming exact PR HEAD `5f62ca62447fbd265089b59c592dd33beee031a1`: [native WebGL 44550333493](https://github.com/my-edutu/Ai_games/actions/runs/44550333493) SUCCESS, real six-reset geometry <100 and Pass513 default autonomous chapter ≤200 / counter-to-key ≤120 source checks passed. Official Nintendo-quality artistic bar still REJECTED from original 390px guardian screenshot.
+- **One player-visible production candidate:** Follow camera on CURRENT SAME-RUN genuine earned counter chooses a front-quarter view of the actual public guardian-to-Pip facing axis, radius unchanged, original above-floor elevation and physical NDC no-crop thresholds preserved. It is not a micro-material fix, speculative actor, simulated move, hidden map, game rule or a second camera. Focused deterministic/visibility/reduced-motion regression included. **New exact-SHA native WebGL and independent visual approval PENDING; do NOT claim a win.** No deploy/merge/force. [Dated review](./maze-3d/pass-514-original-guardian-front-quarter-camera-candidate-2026-11-19.md).
+
+---
+
 ## Pass513 — independently verified natural 136-tick chapter, new strict pacing regression lock (2026-11-19 UTC)
 
 - **Real Pass512 gameplay win, not inferred from source tests:** incoming `9f8bb809e58ec6872dbb62d3aaf2391cebbfc913`, [exact-source WebGL 44545588367](https://github.com/my-edutu/Ai_games/actions/runs/44545588367) SUCCESS 9/9 browser checks, actual six-reset geometry <100, and original artifact 14540428756. Independently verified **42/42 unaltered original PNG SHA sidecars** and **3/3 genuine 1280px gate hashes**. Uninterrupted default partial-observation seed earned counter tick33, key tick125, opened matching gate tick130 and escaped tick136. Earlier key518, escape529: **485 -> 92 guardian-to-key ticks and 529 -> 136 full ticks**.

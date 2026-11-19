@@ -231,6 +231,48 @@ export function publicEarnedGuardianScenicStageOverlap(actor,scenic,earned=false
 }
 
 /**
+ * Earned lantern-counter front-quarter camera direction.
+ *
+ * The authentic 390px public counter footage puts the connected Thornback
+ * head behind its enormous own dorsal armor. Moving more decorative meshes
+ * and raising the camera never revealed its acting. Instead, select a
+ * physically different, three-quarter silhouette of the SAME current
+ * Pip/Thornback pair: the camera rotates toward Thornback's genuine
+ * facing relationship to the already witnessed Pip, preserving both
+ * connected bodies and the original full-frame NDC acceptance checks.
+ *
+ * This is presentation ONLY. The caller proves a currently visible,
+ * same-run, genuinely earned public counter in Follow. No hidden enemy
+ * coordinates, private map, animation clock, solver move or collider enters.
+ * In-place Vector3 mutation avoids allocating during a native WebGL frame.
+ */
+export function setPublicEarnedGuardianFrontQuarterOffset(
+  offset,aspect,hero,guardian,earned=false,reducedMotion=false) {
+  if(!earned||reducedMotion||!Number.isFinite(aspect)
+    ||aspect<.35||aspect>=.60
+    ||![offset?.x,offset?.y,offset?.z,hero?.x,hero?.z,
+      guardian?.x,guardian?.z].every(Number.isFinite))return false;
+  const dx=hero.x-guardian.x,dz=hero.z-guardian.z;
+  const separation=Math.hypot(dx,dz);
+  const radius=Math.hypot(offset.x,offset.z);
+  if(separation<.65||radius<1)return false;
+  const normal=Math.atan2(offset.z,offset.x);
+  const face=Math.atan2(dz,dx);
+  const difference=angle=>Math.atan2(Math.sin(angle-normal),Math.cos(angle-normal));
+  // Keep a readable side of the actual mask (not a dead-on flat overlap).
+  // Pick the nearer 45-degree quarter and limit cinematic rotation to
+  // 1.30 rad from the already source-verified above-deck camera.
+  const flank=Math.PI*.25;
+  const left=difference(face-flank),right=difference(face+flank);
+  const delta=Math.abs(left)<=Math.abs(right)?left:right;
+  const turn=Math.max(-1.30,Math.min(1.30,delta));
+  if(Math.abs(turn)<.045)return false;
+  offset.x=radius*Math.cos(normal+turn);
+  offset.z=radius*Math.sin(normal+turn);
+  return true;
+}
+
+/**
  * Post-parry physical lens lift. The trusted native 320/390 seed-13 tick-8
  * source rays strike disclosed tile 93's floor BEFORE reaching Pip's torso
  * and boots. Only the already-gated same-run, visibly earned Follow recoil

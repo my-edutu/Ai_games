@@ -4,7 +4,7 @@ import { PUBLIC_GUARDIAN_COUNTER_SECONDS, publicGuardianCounterMoment, publicGua
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilFinalPairShift, publicGuardianEarnedRecoilRevealElevation, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilFinalPairShift, publicGuardianEarnedRecoilRevealElevation, setPublicEarnedGuardianFrontQuarterOffset, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicEarnedGuardianCounterLightPath } from './public-lantern-encounter.mjs';
@@ -1455,6 +1455,17 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     earnedRecoilCameraOffset.copy(portraitCameraOffset);
     earnedRecoilCameraOffset.y = publicGuardianEarnedRecoilRevealElevation(
       aspect,earnedRecoilCameraOffset.y,earnedDuelContinuity,settings.reducedMotion);
+    // Pass514: after a real same-run counter, stage Thornback's REAL face
+    // and Pip together from their currently published relationship, not
+    // the generic rear-dorsal +X/+Z portrait. The original exact-source
+    // 390px image proved the back shell hid its expression despite a
+    // spring, four sinking sentinels and folded sea-glass sails. This
+    // three-quarter public shot is an authored scene change, not a marker.
+    // Complete physical model NDC, collision and privacy tests stay strict.
+    if(earnedDuelContinuity && earnedCounterModel?.parent)
+      setPublicEarnedGuardianFrontQuarterOffset(
+        earnedRecoilCameraOffset,aspect,pose,earnedCounterModel.position,
+        true,settings.reducedMotion);
     cameraOffset.lerp(publicVictoryScene ? escapeCameraOffset
       : openingStageView ? openingGateCameraOffset
       : cameraGate ? sealedGateCameraOffset
