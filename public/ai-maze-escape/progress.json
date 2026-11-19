@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-19T14:29:00.000Z",
+  "updatedAt": "2026-11-19T15:02:25.782Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass512: Pass511 exact-source WebGL #44530466241 8/8 success, authentic 529-tick escape unchanged, 42/42 original mobile/desktop PNG hashes matched; the old frontier-memory candidate did NOT shorten guardian33→key518. 390px Thornback still obscured by its own shell and foreground court. New production candidate scores ONLY publicly known near-shortest frontier routes by actual revisits; independent new SHA gameplay and native visual verdict pending. No Nintendo-quality win. PR open draft."
+    "summary": "Pass513: exact Pass512 SHA 9f8bb809 native WebGL workflow #44545588367 passed all 9 browser checks and the unchanged six-reset geometry gate <100. The genuine uninterrupted partial-observation Tideglass flagship now earns counter at tick 33, key at tick 125 and escape at tick 136, versus 33/518/529 previously (485 -> 92 post-counter ticks). Independently rehashed 42/42 original full-frame PNG sidecars and all three gate chronology hashes. Native 390px counter remains visually obscured: Nintendo art bar NOT met. New strict default-chapter pacing regression gate now requires <=120 counter-to-key and <=200 complete escape ticks; must pass new exact-HEAD CI. No AI, renderer, privacy, geometry or camera behavior modified in Pass513. PR stays open DRAFT."
   },
   "captures": [
+    {
+      "title": "Pass512 original 9f8bb809 exact-source native 9/9 WebGL, 42/42 SHA PNGs plus 3 gate hashes; natural 136-tick escape and 125-tick key",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44545588367/artifacts/14540428756"
+    },
     {
       "title": "Pass511 exact HEAD a75673cf native WebGL SUCCESS, 42/42 source-matched full-frame PNG sidecars, unchanged natural key518/escape529; Pass512 candidate pending",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44530466241/artifacts/14534706423"
@@ -396,6 +400,12 @@
     }
   ],
   "changes": [
+    {
+      "title": "Pass513 preserve Pass512's real 529 -> 136 tick autonomous-chapter improvement in strict continuous-gameplay CI",
+      "date": "2026-11-19",
+      "status": "New audit gate committed; new exact-HEAD CI and independent art review pending",
+      "description": "No policy retuning. The unchanged actual public-knowledge-only AI now collected the key at tick125 instead of tick518, confirmed on original exact-HEAD continuous audit; strict new regression gate fails if earned counter-to-key exceeds 120 ticks or full escape exceeds 200, keeping all other acceptance intact."
+    },
     {
       "title": "Pass506 source-bound authored victory stage unblocked instead of duplicate center modal",
       "date": "2026-11-19",
@@ -794,6 +804,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass513: strongest visual blocker is authentic full 390px earned-counter shot: Thornback's bronze face/armor still lost behind its own living sea-glass and stone silhouette. Treat as a holistic whole-body/camera court redesign, not more tiny crest hinges. Independently inspect new actual full-frame WebGL and full ±.95 no-crop with official Nintendo fixed reference. New pace gate must pass exact HEAD; no independent critic or Ultracode available.",
     "Pass506: require new exact-SHA real WebGL after visual-clipping duplicate success modal; check source PNG hashes and physical live portal/actor are finally visible at 390/1280 with original strict NDC full-body and six-run <100. Guardian occlusion, pacing and official Nintendo independent art bar still outstanding.",
     "Pass500: verify strict updated installed Three exit hinge/veil test and exact-source screenshot CI; if green, capture actual terminal native scene and resolve still occluded Thornback as Nintendo-quality critic blocker.",
     "Pass499: newly committed source must pass exact-HEAD regression, maintain six-reset <100 and produce genuine 320/390/844/1280 full-frame WebGL terminal opening; compare actual original frames with fixed Nintendo benchmark and independently reject guardian occlusion/pacing before any full win.",
@@ -898,6 +909,11 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass513 independently checked Pass512 original native pacing win and strict regression lock",
+      "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-513-verified-native-gameplay-pace-and-art-reject-2026-11-19.md",
+      "status": "True 136-tick escape accepted as pacing win; guardian art rejected; new CI pacing gate pending"
+    },
     {
       "title": "Pass506 original verified escape portal duplication removal candidate",
       "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-506-original-escape-portal-no-modal-2026-11-19.md",
@@ -1815,6 +1831,12 @@
     }
   ],
   "verification": [
+    {
+      "title": "Pass512 exact SHA real 9/9 WebGL, six-reset geometry <100, source-bound native originals 42/42 paired PNG SHA and 3/3 gate SHA, unforced key125 escape136",
+      "date": "2026-11-19",
+      "status": "PASS gameplay pace; FAIL fixed Nintendo-quality 390px Thornback silhouette art bar",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44545588367"
+    },
     {
       "title": "Pass505 original exact HEAD full native WebGL and autonomous flagship finale; 44/44 PNG hashes independently reverified; duplicate victory modal blocks actual portal",
       "date": "2026-11-19",

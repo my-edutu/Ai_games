@@ -76,6 +76,23 @@ try{
     const a=audit.witnesses[order[i-1]],b=audit.witnesses[order[i]];
     if(a&&b&&a.tick>b.tick)audit.issues.push('Chronology mismatch: '+order[i-1]+' after '+order[i]);
   }
+  // Game-first pacing regression: the actual default live seed used to wander
+  // for 485 ticks between Pip's earned counter and its key. Pass512's lawful
+  // public-route revisit preference shortened that same uninterrupted journey
+  // to 92 ticks (33 -> 125), escape at 136 rather than 529. Protect this
+  // PLAYER-VISIBLE victory without changing the policy, selected seed or any
+  // of the existing strict geometry, visual, safety or accessibility gates.
+  // A future long walk must fail acceptance even if escape eventually occurs.
+  const counterTick=audit.witnesses.earnedCounter?.tick;
+  const keyTick=audit.witnesses.keyCollected?.tick;
+  const counterToKey=Number.isSafeInteger(counterTick)&&Number.isSafeInteger(keyTick)
+    ?keyTick-counterTick:null;
+  audit.pacing={counterToKeyTicks:counterToKey,escapeTicks:audit.result?.tick??null,
+    maxCounterToKeyTicks:120,maxEscapeTicks:200};
+  if(audit.result?.reason==='escape' && counterToKey!==null && counterToKey>120)
+    audit.issues.push('Flagship post-counter path regressed: '+counterToKey+' ticks > 120');
+  if(audit.result?.reason==='escape' && audit.result.tick>200)
+    audit.issues.push('Flagship complete escape pace regressed: '+audit.result.tick+' ticks > 200');
 }catch(error){
   audit.issues.push('Audit runtime error: '+String(error?.message??error));
 }

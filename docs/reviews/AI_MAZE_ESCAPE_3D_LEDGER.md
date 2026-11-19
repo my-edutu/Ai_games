@@ -1,3 +1,11 @@
+## Pass513 — independently verified natural 136-tick chapter, new strict pacing regression lock (2026-11-19 UTC)
+
+- **Real Pass512 gameplay win, not inferred from source tests:** incoming `9f8bb809e58ec6872dbb62d3aaf2391cebbfc913`, [exact-source WebGL 44545588367](https://github.com/my-edutu/Ai_games/actions/runs/44545588367) SUCCESS 9/9 browser checks, actual six-reset geometry <100, and original artifact 14540428756. Independently verified **42/42 unaltered original PNG SHA sidecars** and **3/3 genuine 1280px gate hashes**. Uninterrupted default partial-observation seed earned counter tick33, key tick125, opened matching gate tick130 and escaped tick136. Earlier key518, escape529: **485 -> 92 guardian-to-key ticks and 529 -> 136 full ticks**.
+- **Pass513 hard regression implementation:** make the existing real chapter audit fail on counter-to-key >120 or full escape >200 actual ticks (no forced moves, no new AI, test relaxation, screenshot edits, hidden knowledge or changed seed). **New exact-HEAD CI still required**.
+- **Visual REJECT against fixed Nintendo Captain Toad:** actual full-frame native 390px earned guardian still obscures much of Thornback behind its own sculpted sea-glass armor and busy court, despite full actor physical NDC bounds. No independent artistic critic/Ultracode connection. Whole repository CI red in other-game checks. [Dated review](./maze-3d/pass-513-verified-native-gameplay-pace-and-art-reject-2026-11-19.md). PR open DRAFT, unmerged, undeployed; keep Gauntlet active.
+
+---
+
 ## Pass512 — replace ineffective frontier target memory with bounded public revisit cost (2026-11-19 UTC)
 
 - Pass511 exact HEAD `a75673cfb64a8ae4be884a5afa68c42cd6c1c099`, [native WebGL 44530466241](https://github.com/my-edutu/Ai_games/actions/runs/44530466241) SUCCESS **8/8**, including strict <100 six-reset resource check and natural default partial-observation escape **529 ticks**. Original artifact 14534706423 downloaded and **42/42 paired unaltered PNG SHA256 sidecars** matched, 390px guardian still visually crowded and original 390px escape portal remains visible. The expected pacing improvement from Pass511 **DID NOT OCCUR**: key still tick518 after counter33 (485 ticks).
