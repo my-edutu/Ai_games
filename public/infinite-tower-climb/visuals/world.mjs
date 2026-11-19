@@ -15,7 +15,7 @@ import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkS
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections, isolateEarnedFirstFrameVoidMaterials } from './source-earned-bearing-run.mjs';
 import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold, observedSourceEarnedEarlyVoidShaftAperture, observedSourceSupportedVoidFirstPaint, observedEarnedGalleryExitClearance, observedReturnedGalleryHandoffClearance, observedFirstReturnedVoidBearingGalleryRetirement } from './far-side-shaft-transition.mjs';
 import { chooseSourceEarnedFirstReturnInstancing } from './source-earned-first-return-instancing.mjs';
-import { observedReturnedSuccessorRoomReady } from './original-room-returned-exit.mjs';
+import { observedReturnedSuccessorRoomReady, observedSupportedReturnedShaftDepth } from './original-room-returned-exit.mjs';
 import { projectOriginalGuardianGateSteel } from './original-guardian-gate-steel-projection.mjs';
 
 
@@ -4248,7 +4248,8 @@ export function createTowerWorld(){
       job.structuralFade=options.reducedMotion?1:Math.max(
         job.structuralFade,
         sourceAlignedIncomingShaftOpacity(snapshot,held,nominalShaftFade),
-        earlyShaft?.alpha??0);
+        earlyShaft?.alpha??0,
+        observedSupportedReturnedShaftDepth(snapshot,held,job)?.alpha??0);
       for(const {material,originalOpacity} of job.structuralMaterials)
         material.opacity=originalOpacity*job.structuralFade;
       // True GPU culling, not just alpha zero: a Three Mesh with

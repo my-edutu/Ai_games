@@ -91,3 +91,36 @@ test('real World binds both outgoing geometry retention and original bearings to
   assert.match(w,/departure=coherentOriginalBearingDeparture\(\s*snapshot,sharedDoorwayMaterialProof,departure\)/);
   assert.match(w,/held\.opticalExitSubmitted=held\.originalGatewayOpacity<=\.01/);
 });
+
+test('cold but already built original successor gains only a bounded returned-frame depth aperture while full-body F9 support is true',async()=>{
+ const {observedSupportedReturnedShaftDepth:depth}=await replacement;
+ const {source,held,job}=originalFirstEpisode();
+ const gate=304896;
+ const live={...source,tick:518,
+   player:{health:4,grounded:true,state:'standing',vy:0,
+     groundedPlatformId:'f9:ground',x:gate+160000,y:3238000,
+     halfWidth:9000,halfHeight:14000},
+   platforms:[{id:'f9:ground',x:0,y:3212000,width:480000,height:12000}]};
+ const old={...held,oldCapX:115200,oldCapWidth:249600,thresholdX:gate,
+   oldRoofY:3224000,sourceTick:476,firstWorldRenderTick:476,
+   crossingTick:475,submittedFrames:7,visibleSeconds:.35};
+ const snapshot={...live,lastGuardianCrossing:{
+   runToken:source.runToken,sourceTick:475,fromFloor:8,toFloor:9,
+   cap:{id:'f8:cap',x:115200,y:3212000,width:249600,height:12000},
+   exitX:gate,guardian:{kind:'guardian',active:false,health:0}}};
+ const returned={...job,sourceTick:476,submittedFrames:7,structureBuiltAtSubmitted:4,
+   structuralVisibleReturns:0,structuralFade:0,
+   structuralRoot:{isGroup:true,visible:false},
+   state:'awaiting-structural-submission'};
+ assert.equal(depth(snapshot,old,returned)?.alpha,.22);
+ assert.equal(depth(snapshot,old,{...returned,submittedFrames:4}),null,
+   'no actual post-structure GPU return means no new visual aperture');
+ assert.equal(depth(snapshot,old,{...returned,structuralRoot:{isGroup:false}}),null);
+ assert.equal(depth(snapshot,old,{...returned,runToken:'other'}),null);
+ assert.equal(depth({...snapshot,player:{...snapshot.player,grounded:false}},old,returned),null);
+ assert.equal(depth({...snapshot,lastGuardianCrossing:null},old,returned),null);
+ assert.equal(depth(snapshot,{...old,guardianGateRetained:false},returned),null);
+ assert.equal(depth(snapshot,{...old,visibleSeconds:2.9},returned),null);
+ assert.equal(depth(snapshot,old,{...returned,structuralVisibleReturns:1}),null,
+   'after one returned visible frame, existing full shaft fade takes over');
+});
