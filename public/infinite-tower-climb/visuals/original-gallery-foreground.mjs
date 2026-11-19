@@ -3,6 +3,10 @@
 // survivor during a narrow portrait follow shot. The old cap, opened guardian
 // door, moving platforms, hazards and gameplay colliders are NEVER softened.
 import { observedSourceOriginalVisibilityWindow } from './source-physical-arrival-palette.mjs';
+// Three real sightline anchors along the current, source-owned gate-to-actor
+// crossing. They are observation rays, never synthetic body positions,
+// predicted traversals or gameplay colliders.
+const PHYSICAL_GATEWAY_CORRIDOR_FRACTIONS = [.25,.5,.75];
 // Raycast only source-owned, previously submitted, real Three.js gallery
 // mesh batches (at most eight); no x-ray actor or invented gateway geometry.
 //
@@ -41,7 +45,7 @@ export function protectHistoricalGallerySightline({
   // The producer caps unique ORIGINAL material batches at eight, and the
   // active 3D sightline sees no additional draw or asset allocation.
   const count=Math.min(8,meshes.length,held.originalGalleryOcclusionWeights.length);
-  let rays=0,softened=0;
+  let rays=0,softened=0,corridorRays=0,corridorSoftened=0;
   const sourceOpacity=Math.max(0,Math.min(1,held.originalGallerySourceOpacity));
   // The genuine 390px native footage shows a retained bronze post masking
   // the hero's SHOULDER even when centre/head/sole rays all miss. Recover
@@ -69,6 +73,16 @@ export function protectHistoricalGallerySightline({
     [gateway.x,gateway.y,gateway.z].every(Number.isFinite) &&
     Math.hypot(gateway.x-camera.position.x,gateway.z-camera.position.z)<130;
   const samples=raysPerBatch+(actualGate?2:0);
+  // A broad original bronze post can split the physical doorway from the
+  // moving climber WITHOUT hitting either body's exact silhouette rays.
+  // The original full-motion desktop and portrait film showed this problem.
+  // Probe only the ACTUAL visual line connecting those two current source
+  // endpoints, when their real 3D positions form a bounded single shot.
+  // Never soften the source gate itself, roof, successor route or hazards.
+  const physicalCorridor=actualGate &&
+    Math.hypot(actor.x-gateway.x,actor.z-gateway.z)<=48 &&
+    Math.abs(actor.y-gateway.y)<=Math.max(12,halfHeight*3);
+  const bodyCorridorY=actor.y+halfHeight*.4;
   for(let i=0;i<count;i++){
     const mesh=meshes[i],material=mesh?.material;
     if(!mesh?.isMesh || !material || Array.isArray(material))continue;
@@ -111,6 +125,28 @@ export function protectHistoricalGallerySightline({
         hitBuffer.length=0;
       }
     }
+    if(!hit && physicalCorridor && mesh.visible!==false) {
+      // Three equally spaced witness points lie BETWEEN the already
+      // observed original guardian opening and skinned body's CURRENT 3D
+      // position. These are rays through real historic triangles, not
+      // projections of future gameplay or an invented corridor mesh.
+      for(const fraction of PHYSICAL_GATEWAY_CORRIDOR_FRACTIONS){
+        point.x=actor.x+(gateway.x-actor.x)*fraction;
+        point.y=bodyCorridorY+(gateway.y-bodyCorridorY)*fraction;
+        point.z=actor.z+(gateway.z-actor.z)*fraction;
+        direction.copy(point).sub(camera.position);
+        const distance=direction.length();
+        if(!Number.isFinite(distance)||distance<=.4)continue;
+        raycaster.set(camera.position,direction.multiplyScalar(1/distance));
+        raycaster.near=0;raycaster.far=distance-.25;
+        hitBuffer.length=0;
+        rays++;corridorRays++;
+        if(raycaster.intersectObject(mesh,false,hitBuffer).length>0){
+          hit=true;corridorSoftened++;hitBuffer.length=0;break;
+        }
+        hitBuffer.length=0;
+      }
+    }
     // Occlusion responds in this actual drawn camera frame. Restore smoothly
     // once the real actor moves beyond the gallery, without material pop or
     // a second material clock. Reduced motion removes interpolation.
@@ -134,7 +170,7 @@ export function protectHistoricalGallerySightline({
     }
     material.opacity=opacity;
   }
-  return {active:true,meshes:count,rays,softened};
+  return {active:true,meshes:count,rays,softened,corridorRays,corridorSoftened};
 }
 
 // The same source-authenticated old/new foreground owner exposes a separate
