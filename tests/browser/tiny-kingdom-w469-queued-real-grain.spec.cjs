@@ -28,6 +28,11 @@ for(const width of [390,1024]){
   }));
   expect(initial.checksum).toBe(before); // presentation NEVER changes seeded authority
   expect(initial.queue.armed||initial.queue.tracking).toBe(true);
+  // Explicit observation should reveal the playable real town, not leave a
+  // supply modal obscuring the mobile farmer. Supply stays reopenable.
+  expect(await page.locator('body').getAttribute('data-supply')).toBe('closed');
+  expect(await page.locator('#world-trace-toggle').isVisible()).toBe(true);
+
   expect(initial.queue.createdDeliveries).toBe(0);
   expect(initial.queue.addedInventory).toBe(0);
   const advance=await page.evaluate(()=>{
@@ -84,6 +89,10 @@ for(const width of [390,1024]){
   expect(errors).toEqual([]);
   await page.screenshot({path:path.join(root,width+'-actual-farmer-workday.png')});
   const beforeStop=await page.evaluate(()=>window.__tinyKingdom.exportSnapshot().checksum);
+  if(!await target.isVisible()){
+    await page.locator('#world-trace-toggle').click();
+  }
+  expect(await target.isVisible()).toBe(true);
   await target.click();
   const stopped=await page.evaluate(()=>({
    audit:window.__tinyKingdom.getGrainObservationQueueAudit(),
