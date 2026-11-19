@@ -21,7 +21,7 @@ test('W473 retains real seeded static casters, moving feet and the original soft
  assert.match(section,/stampSolarAtlasCaster\(-27,-18/);
  assert.match(section,/stampSolarAtlasCaster\(29,10/);
  assert.doesNotMatch(section,/Math\.random|people\.push\(|city\.push\(|state\.[a-z]+\s*=/);
- assert.match(section,/!swiftGpu/);
+ assert.match(html,/function solarShadowAtlasEnabled\(\)\{[\s\S]*?solarAtlasOverride===null\?!swiftGpu:solarAtlasOverride/);
  assert.match(html,/window\.__tinyKingdom=\{getSolarShadowAtlasAudit,setSolarShadowAtlasForTesting,/);
 });
 test('W473 shader uses world-anchored ground and road shadow factor, never roofs or actors',()=>{
@@ -30,7 +30,7 @@ test('W473 shader uses world-anchored ground and road shadow factor, never roofs
  assert.match(html,/clamp\(\(vWorld\.xz\+vec2\(48\.\)\)\/96\./);
  assert.match(html,/c\*=staticGroundShade/);
  assert.match(html,/gl\.uniform1i\(uniforms\.solarShadowAtlas,2\)/);
- assert.match(html,/gl\\.uniform1i\\(u\\.solarShadowAtlas,2\\)/);
- assert.match(html,/gl\\.uniform1f\\(u\\.solarShadowAtlasActive,solarShadowAtlasEnabled\\(\\)\\?1:0\\)/);
+ assert.match(html,/gl\.uniform1i\(u\.solarShadowAtlas,2\)/);
+ assert.match(html,/gl\.uniform1f\(u\.solarShadowAtlasActive,solarShadowAtlasEnabled\(\)\?1:0\)/);
  assert.match(html,/'architectureAtlas','solarShadowAtlas','solarShadowAtlasActive'/);
 });
