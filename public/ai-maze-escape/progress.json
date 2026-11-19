@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-19T16:08:44.734Z",
+  "updatedAt": "2026-11-19T17:32:20.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass514 candidate: Pass513 exact-source 5f62ca62 native WebGL workflow 44550333493 passed; authentic 390px Thornback counter artwork still fails the fixed Nintendo bar despite recovered 136-tick true autonomous escape. New physical camera stage rotates ONLY a genuinely witnessed earned counter toward the actual public Pip-to-Thornback front quarter, without changing radius, renderer geometry, AI, privacy, strict NDC, HUD or game rules. Focused tests and NEW exact-HEAD WebGL screenshot/art critique pending, no visual win claimed. Whole-repo CI has unrelated failing checks; draft PR never merge/deploy."
+    "summary": "Pass515 candidate: Pass514 exact-source WebGL #44562818447 succeeded with 42/42 independently rehashed original full-frame screenshot sidecars and six-reset <100, but the real 390px guardian counter still obscures Thornback; front-quarter camera effect ~1.30/255 RGB average vs earlier frame, visually REJECTED against Nintendo. Source root cause: true nearby parried guardian retains positive public warning strength and was excluded from the new earned counter shot. New same-visible-model publicly parried priority in development; full new exact-HEAD rendered and independent validation pending. Whole repo CI separately red; no merge/deploy/force."
   },
   "captures": [
+    {
+      "title": "Pass514 exact HEAD 5f085248 native WebGL SUCCESS, original 42/42 SHA sidecars verified; authentic earned guardian portrait visually rejected, Pass515 candidate pending",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44562818447/artifacts/14551259172"
+    },
     {
       "title": "Pass512 original 9f8bb809 exact-source native 9/9 WebGL, 42/42 SHA PNGs plus 3 gate hashes; natural 136-tick escape and 125-tick key",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44545588367/artifacts/14540428756"
