@@ -1,4 +1,41 @@
 {
+  "p0RaisedSourceP2ColdWebglOneEpochSourceCapture20261120": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateSource": "EXACT immutable github.sha OF THIS capture-request commit; NOT floating branch HEAD",
+    "sourceGameplayChangeSha": "ed10b347df2012ddfffc91850c27aee7bae28a4f",
+    "observedPredecessorCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44621081989",
+    "observedPredecessorCandidateSha": "f5f645a378dfe8ac0f92b214fff1afe94fd1f5a0",
+    "observedPredecessorNativeVerdict": "8 original gameplay recording jobs plus original ledge passed; strict danger event/native PTS pairing FAILED 0/2 desktop/portrait, original bronze/violet shared arch not accepted.",
+    "meaningfulProductionChange": "One low-tier cold WebGL drawing buffer epoch now recognizes only physically grounded source-authenticated f9:p2 true-platform sole after original guardian zero-HP handoff, instead of allocating full buffer at first authentic raised-deck successor render.",
+    "conditions": {
+      "seed": "tower-transformation-capture-v1",
+      "tier": "low",
+      "baseline": "1731b380851162741761c5569e2bc152a0869ca9",
+      "viewports": [
+        "960x600 desktop",
+        "390x844 portrait"
+      ],
+      "originalCapture": "25fps 1x unmodified WebM >=60s",
+      "scenarios": [
+        "ascent",
+        "moving",
+        "danger/guardian",
+        "outcome/restart"
+      ],
+      "jobs": "nine actual source-pinned original jobs including ledge; strict unedited event pairs"
+    },
+    "acceptance": "No acceptance assumed from capture job success. Require first returned GPU timebase, 2/2 strict native event pairs, 2 consecutive native source-matched frames of true HP0 gateway+moving full hero+walkable successor room, no major regression, 5 independent reviewers per pillar and actual device safety.",
+    "independentReviews": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDeviceFrameTimeAndMemory": "NOT EVALUATED",
+    "nextHighestImpact": "Check actual return timings and original unmodified 25–29s Floor9 doorway in BOTH source-pinned desktop/portrait films; address first successor structural GPU build and foreground sightline if cold room replacement persists.",
+    "safeguards": "PR68 stays DRAFT; do not alter baseline, PR58, unrelated games, deploy, merge or force push."
+  },
   "p0ExactImmutableNearRoofClimateFullLoopNineJob20261119_2226": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
     "leadingVerdict": "NOT EVALUATED",
