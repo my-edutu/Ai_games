@@ -61,7 +61,7 @@ test('a source-only floor label, false victory, wrong roof/contact or zero retur
     f=>{f.source.player.groundedPlatformId='fictional';},
     f=>{f.source.player.y+=1000;},
     f=>{f.source.player.x=f.held.thresholdX+3000;},
-    f=>{f.source.player.x=f.held.thresholdX+125000;},
+    f=>{f.source.player.x=f.held.thresholdX+300000;},
     f=>{f.source.platforms[0].y-=1000;},
     f=>{f.source.lastGuardianCrossing.guardian.health=4;},
     f=>{f.source.lastGuardianCrossing.guardian.active=true;},
