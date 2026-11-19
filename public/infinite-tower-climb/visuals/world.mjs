@@ -5698,6 +5698,16 @@ export function createTowerWorld(){
       structureDetailBuildMs:deferredDistantArrival.structureDetailBuildMs,
       structuralFade:+deferredDistantArrival.structuralFade.toFixed(3),
       isolatedStructuralMaterials:deferredDistantArrival.structuralMaterials.length,
+      // A built crystal subtree is NOT proof it has ever been included in a
+      // completed GPU submission. Expose its actual build-return clock and
+      // painted visibility separately so source/film reviews cannot count
+      // its already-aged alpha as an initial cold-F9 image.
+      biomeBuiltAtSubmitted:deferredDistantArrival.biomeBuiltAtSubmitted,
+      biomeFade:+deferredDistantArrival.biomeFade.toFixed(3),
+      biomeRootVisible:deferredDistantArrival.biomeRoot?.visible??null,
+      detailBuiltAtSubmitted:deferredDistantArrival.detailBuiltAtSubmitted,
+      detailFade:+deferredDistantArrival.detailFade.toFixed(3),
+      detailRootVisible:deferredDistantArrival.detailRoot?.visible??null,
       // Mesh visibility, not merely opacity: falsifiable zero-alpha GPU culling.
       structuralRootVisible:deferredDistantArrival.structuralRoot?.visible??null,
       vistaRootVisible:deferredDistantArrival.vistaRoot?.visible??null,
