@@ -3087,7 +3087,8 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
      const connectedAngles=planOriginalSourceCoupledKneeFootFollowups({
       ...owner,starter:connectedStarter,starterTrials:trials.slice(0,2),
       sourceInstanceId:actor.assetRoot.uuid,
-      sourceFootTrackVerified:true,sourceAnatomicalFootAxisVerified:true
+      sourceFootTrackVerified:true,sourceAnatomicalFootAxisVerified:true,
+      sourceWorldSolePitchVerified:Boolean(worldSolePitch)
      });
      if(connectedAngles){
       // Original license/bind source: true toe vertex and toes[l/r] joint.
@@ -3414,6 +3415,8 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
  if(kneeFootCoupled){
   const coupledOwner={...owner,sourceFootTrackVerified:true,
     sourceAnatomicalFootAxisVerified:true,
+    sourceWorldSolePitchVerified:
+     kneeFootCoupled.originalWorldSolePitchAxisVerified===true,
     sourceToeTrackVerified:kneeFootCoupled.toeHingeEligible,
     sourceToeChainVerified:kneeFootCoupled.toeHingeEligible,
     sourceToeSkinnedWeight:kneeFootCoupled.toeSkinnedWeight};
