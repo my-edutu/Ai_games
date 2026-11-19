@@ -12,7 +12,7 @@ function chooseUnique(candidates:number[],count:number,rng:NamedRng,stream:strin
 // of the mandatory journey. The guardian still occupies and patrols its own
 // generated cells; Pip discovers it through normal public observation. This is
 // not a cinematic spawn, hidden-information oracle or forced capture.
-function chooseRouteWatchpost(world:MazeWorld,route:number[],unavailable:Set<number>,minimumDistance:number,rng:NamedRng,reserved:Set<number>,traps:number[]){
+export function chooseRouteWatchpost(world:MazeWorld,route:number[],unavailable:Set<number>,minimumDistance:number,rng:NamedRng,reserved:Set<number>,traps:number[],pressureAlcove:number|null=null){
   const routeCells=new Set(route),ideal=Math.floor(route.length*0.35);
   const choices:{approachIndex:number;spawn:number;retreat:number;straight:boolean}[]=[];
   for(let index=Math.max(2,minimumDistance);index<route.length-2;index++){
@@ -95,7 +95,40 @@ function chooseRouteWatchpost(world:MazeWorld,route:number[],unavailable:Set<num
       && passageNeighbors(world,candidate).includes(approach);
   });
   const shortlist=sharedCourt.length?sharedCourt:nearby;
-  return shortlist[rng.nextInt('threat-policy:route-watchpost',shortlist.length)]!;
+  // Prefer ONE naturally connected pressure -> straight Thornback -> key
+  // detour -> matching gate chapter, when the ORIGINAL legal passages offer
+  // it. Previously the random shortlist could pick an otherwise valid
+  // guardian with no actual post-guardian two-tile Tideglass treasure court.
+  // Preview the very same real pressure relocation and forward key policy.
+  // This is content generation, never AI foresight or an invented crossing.
+  const completeChapters=shortlist.filter(choice=>{
+    if(!choice.straight || !traps.length)return false;
+    const linked=guardianPressurePrelude(world,route,reserved,traps,choice);
+    const original=pressureAlcove??traps[0]!;
+    const nextTraps=linked===null?traps:traps.map(cell=>cell===original?linked:cell);
+    const joinedPressure=[0,1,2].some(back=>{
+      const court=route[choice.approachIndex-back];
+      return court!==undefined&&nextTraps.some(trap=>
+        passageNeighbors(world,court).includes(trap)
+        &&passageNeighbors(world,trap).includes(court));
+    });
+    if(!joinedPressure)return false;
+    const relay=forwardGuardianKeyCell({...world,traps:nextTraps},
+      route,choice.approachIndex,new Set([choice.spawn,choice.retreat]));
+    if(!relay)return false;
+    const shrineLinks=passageNeighbors(world,relay.cell);
+    if(shrineLinks.length!==1)return false;
+    const middle=shrineLinks[0]!;
+    const middleLinks=passageNeighbors(world,middle);
+    if(middleLinks.length!==2)return false;
+    const entry=middleLinks.find(cell=>cell!==relay.cell);
+    return entry!==undefined && route.includes(entry)
+      && sharesTreasureTerrace(world,entry,middle,relay.cell);
+  });
+  const playable=completeChapters.length?completeChapters:shortlist;
+  // Same named seeded draw and exact original fallbacks when no such stage
+  // exists; threat routes, colliders, trap counts and keys remain genuine.
+  return playable[rng.nextInt('threat-policy:route-watchpost',playable.length)]!;
 }
 
 // One genuine optional pressure court on the early public journey: earlier
@@ -259,7 +292,7 @@ export function populateMazeContent(base:MazeWorld,config:MazeConfig,rng:NamedRn
   const threatCount=Math.min(config.threatCount,8),threatReserved=new Set<number>([...reserved,...world.traps]);
   const minimumDistance=Math.max(3,config.visibilityRadius+1);
   if(threatCount){
-    const watchpost=chooseRouteWatchpost(world,route,threatReserved,minimumDistance,rng,reserved,world.traps);
+    const watchpost=chooseRouteWatchpost(world,route,threatReserved,minimumDistance,rng,reserved,world.traps,pressureAlcove);
     if(watchpost){
       // Tie a genuine off-route pressure prelude to the same lawful patrol.
       // Pass464b now separately verifies the current PUBLIC guardian before

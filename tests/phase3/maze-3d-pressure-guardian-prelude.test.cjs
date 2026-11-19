@@ -223,3 +223,59 @@ test('an actual level Tideglass side gallery wins over an earlier stepped chambe
   'repeated generation policy yields the identical public-visit objective');
  assert.equal(JSON.stringify(world),original,'selection cannot modify topology or AI state');
 });
+
+test('one actual seed preview favors the shared pressure / straight guardian / same-tier treasure chapter, not disconnected montage',()=>{
+ const {chooseRouteWatchpost,forwardGuardianKeyCell,solveMazeWithInventory}=
+   load('games/ai-maze-escape/src/generation/content.js');
+ const width=11,height=9,passages=Array(width*height).fill(0);
+ const link=(a,b)=>{
+   assert.equal(Math.abs(a%width-b%width)+Math.abs(Math.floor(a/width)-Math.floor(b/width)),1);
+   if(b===a+1){passages[a]|=2;passages[b]|=8}
+   else if(b===a-1){passages[a]|=8;passages[b]|=2}
+   else if(b===a+width){passages[a]|=4;passages[b]|=1}
+   else {passages[a]|=1;passages[b]|=4}
+ };
+ const route=Array.from({length:11},(_,i)=>33+i);
+ for(let i=0;i<route.length-1;i++)link(route[i],route[i+1]);
+ // Both guardians have true straight patrols and reciprocal pressure rooms;
+ // only the EARLIER one can precede a level two-passage key-gallery detour
+ // before the matching physical gate. No corridor or actor is fabricated.
+ link(36,25);link(25,14); // guardian A
+ link(39,50);link(50,61); // guardian B
+ link(36,47);link(38,27); // genuine off-route pressure rooms
+ link(38,49);link(49,60); // genuine SAME-tier terminal treasure gallery
+ const world={schemaVersion:1,width,height,passages,start:33,exit:43,
+   keys:[{id:'key-1',cell:34,collected:false}],
+   doors:[{id:'door-1',a:41,b:42,requiredKeyId:'key-1',critical:true,open:false,temporaryUntilTick:null}],
+   traps:[27,47],clues:[],checkpoints:[],threats:[],blockedCells:[],profile:'loops'};
+ const reserved=new Set([33,43,34,41,42]);
+ const unavailable=new Set([27,47,49,60]);
+ const original=JSON.stringify(world);
+ for(let i=0;i<6;i++){
+   const chosen=chooseRouteWatchpost(world,route,unavailable,3,
+     NamedRng.fromSeed('original-chapter-priority-'+i),reserved,world.traps,47);
+   assert.ok(chosen && chosen.straight,'only actual open straight guardian branches are eligible');
+   assert.equal(chosen.approachIndex,3,
+     'the real pressure / guardian / key-return chapter wins over the later non-gallery patrol');
+   assert.equal(chosen.spawn,25);
+   assert.equal(chosen.retreat,14);
+   const relay=forwardGuardianKeyCell(world,route,chosen.approachIndex,
+     new Set([chosen.spawn,chosen.retreat]));
+   assert.deepEqual(relay,{keyId:'key-1',cell:60});
+   const shifted=structuredClone(world);shifted.keys[0].cell=relay.cell;
+   const path=solveMazeWithInventory(shifted);
+   assert.ok(path && path.keyOrder.includes('key-1') && path.doorOrder.includes('door-1'),
+     'the same real labyrinth must remain playable through the critical gate');
+   assert.ok(path.cells.filter(c=>c===49).length>=2,
+     'Pip must physically enter and leave the original two-room key court');
+ }
+ assert.equal(JSON.stringify(world),original,
+   'selection cannot edit passages, pressure, guardian routes, collision or knowledge');
+ // If the treasured dead end becomes blocked, the previous lawful guardian
+ // selection remains available rather than inventing a key or breaking play.
+ const blocked={...world,blockedCells:[60]};
+ const fallback=chooseRouteWatchpost(blocked,route,unavailable,3,
+   NamedRng.fromSeed('legal-fallback'),reserved,blocked.traps,47);
+ assert.ok(fallback && [3,6].includes(fallback.approachIndex),
+   'a missing physical gallery must preserve the original deterministic fallback');
+});
