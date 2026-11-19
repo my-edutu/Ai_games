@@ -7,7 +7,7 @@ const html=fs.readFileSync(path.resolve(__dirname,'../../public/tiny-kingdom/ind
 for(const width of [1024,390]){
  test('W473 same-world native shadow-atlas candidate and Day121 original citizens '+width,async({browser})=>{
   test.setTimeout(540000);
-  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+  const errors=[];
   const height=width===390?844:768;
   const dir=path.resolve(__dirname,'../../artifacts/tiny-kingdom-w473');
   fs.mkdirSync(dir,{recursive:true});
@@ -16,6 +16,9 @@ for(const width of [1024,390]){
    recordVideo:{dir,size:{width,height}}
   });
   const page=await context.newPage();
+  // Register before navigation, but only after the page exists. Previously
+  // this threw a ReferenceError before any real WebGL capture could start.
+  page.on('pageerror',e=>errors.push(String(e)));
   await page.setContent(html);
   await page.waitForFunction(()=>window.__tinyKingdom?.renderStats()?.lastFrameTriangles>0,null,{timeout:180000});
   await page.evaluate(()=>{
