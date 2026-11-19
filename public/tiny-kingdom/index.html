@@ -29530,45 +29530,129 @@ function planOriginalMobileMarketArrival(width,height){
   initialOnly:true,simulatedActors:0,simulatedReceipts:0,
   changesAuthority:false};
 }
+// W470: choose the initial 390px spectator eye using REAL rendered sightlines
+// and physically projected market/doorway/citizen positions. The prior first-
+// acceptable orbit (22.38m from the court in the recorded W465 screenshot)
+// passed collision tests while leaving work hidden behind a canopy of roofs.
+// This is a one-time read-only camera decision, never a staged worker or event.
+function projectRealMobileCourtPoint(view,eye,point){
+ const target=[view.focus[0],.25,view.focus[1]],
+  ray=target.map((v,i)=>v-eye[i]),length=Math.hypot(...ray)||1,
+  f=ray.map(v=>v/length),flat=Math.hypot(f[0],f[2])||1,
+  right=[-f[2]/flat,0,f[0]/flat],
+  up=[-f[0]*f[1]/flat,flat,-f[2]*f[1]/flat],
+  d=point.map((v,i)=>v-eye[i]),
+  depth=d.reduce((sum,v,i)=>sum+v*f[i],0),
+  optical=physicalCameraProjection();
+ if(depth<=.2)return {onScreen:false,depth,x:null,y:null};
+ const x=(d[0]*right[0]+d[2]*right[2])/
+  (depth*optical.tanHorizontal),
+  y=d.reduce((sum,v,i)=>sum+v*up[i],0)/
+  (depth*optical.tanVertical);
+ return {x,y,depth,onScreen:Number.isFinite(x)&&Number.isFinite(y)&&
+  Math.abs(x)<.88&&y>-.67&&y<.58};
+}
+function scoreRealMobileMarketArrival(view,plan,volumes){
+ const sight=freeCameraSightline(view,volumes);
+ if(!sight.clear)return null;
+ const market=plan.trueReceivingMarket,home=plan.firstHome,
+  dock=[market[0],terrain(...market)+.85,market[1]],
+  doorway=[home[0],terrain(...home)+.85,home[1]],
+  court=projectRealMobileCourtPoint(view,sight.eye,dock),
+  frontage=projectRealMobileCourtPoint(view,sight.eye,doorway);
+ // The receiving dock and real occupied entrance are both ground-level,
+ // not synthetic labels or a high aerial footprint. A building may genuinely
+ // block either; record that honestly and do not remove it.
+ const dockBlocked=followRayBlockers(sight.eye,dock,volumes)>0,
+  entranceBlocked=followRayBlockers(sight.eye,doorway,volumes)>0;
+ let readableCitizen=null,citizenScreenHeight=0,visibleActualCitizens=0;
+ const optical=physicalCameraProjection();
+ for(const p of people){
+  if(Math.hypot(p.x-market[0],p.z-market[1])>9.5)continue;
+  const ground=terrain(p.x,p.z),
+   head=[p.x,ground+1.5,p.z],foot=[p.x,ground+.06,p.z],
+   face=projectRealMobileCourtPoint(view,sight.eye,head),
+   boots=projectRealMobileCourtPoint(view,sight.eye,foot);
+  if(!face.onScreen||!boots.onScreen||
+    followRayBlockers(sight.eye,head,volumes)>0)continue;
+  visibleActualCitizens++;
+  const height=Math.abs(face.y-boots.y)*.5;
+  if(height>citizenScreenHeight){
+   citizenScreenHeight=height;readableCitizen=p.name;
+  }
+ }
+ // Make a short, legible real market workday preferable to an aesthetically
+ // clear but remote roof panorama. The physical clearance rule is mandatory.
+ const score=
+  (court.onScreen?14:-12)+(frontage.onScreen?4:0)+
+  (!dockBlocked&&court.onScreen?8:0)+
+  (!entranceBlocked&&frontage.onScreen?3:0)+
+  Math.min(12,citizenScreenHeight*95)+
+  Math.min(visibleActualCitizens,3)*2-
+  sight.foregroundSceneCover*9-
+  sight.dominantCover*3-
+  view.zoom*.24-
+  view.pitch*.75;
+ return {view,score,marketOnscreen:court.onScreen,
+  marketRayClear:!dockBlocked,homeOnscreen:frontage.onScreen,
+  homeRayClear:!entranceBlocked,visibleActualCitizens,
+  closestReadableCitizen:readableCitizen,
+  citizenScreenHeight:Number(citizenScreenHeight.toFixed(4)),
+  marketProjected:court,homeProjected:frontage,
+  foregroundSceneCover:sight.foregroundSceneCover,
+  originalWorldOnly:true,changesAuthority:false};
+}
 function applyOriginalMobileMarketArrival(){
  const width=canvas.clientWidth,height=canvas.clientHeight;
  if(framesDrawn!==0||window.__TINY_KINGDOM_DISABLE_MOBILE_ARRIVAL__===true)
   return false;
  const plan=planOriginalMobileMarketArrival(width,height);
  if(!plan)return false;
- const nearAngles=[
-  [plan.yaw,plan.pitch,plan.zoom],
-  [plan.yaw-.32,plan.pitch+.12,plan.zoom+1.5],
-  [plan.yaw+.32,plan.pitch+.14,plan.zoom+1.5],
-  [plan.yaw,plan.pitch+.28,plan.zoom+3],
-  [plan.yaw-.6,plan.pitch+.25,plan.zoom+5],
-  [plan.yaw+.6,plan.pitch+.25,plan.zoom+5]
+ const market=plan.trueReceivingMarket,
+  court=market.slice(),anchor=plan.focus.slice();
+ const candidateRows=[
+  [plan.yaw,.44,12.5,court],[plan.yaw-.35,.48,13.5,court],
+  [plan.yaw+.35,.48,13.5,court],
+  [plan.yaw-.70,.56,15,court],[plan.yaw+.70,.56,15,court],
+  [plan.yaw+1.25,.50,15.5,court],
+  [plan.yaw-1.25,.50,15.5,court],
+  [plan.yaw,.60,15.5,anchor],
+  [plan.yaw-.42,.62,17,anchor],
+  [plan.yaw+.42,.62,17,anchor],
+  [plan.yaw,.74,18.5,anchor],
+  [plan.yaw-.54,.73,20,anchor],
+  [plan.yaw+.54,.73,20,anchor],
+  [plan.yaw,plan.pitch,plan.zoom,anchor]
  ];
- let accepted=null,arrivalKind='not-visible',attempts=0;
- // safeFreeOrbit may return a last-known clear position from an unrelated
- // workday. Never advertise that stale position as a real market view.
- const anchored=(v,anchor,limit)=>v&&Array.isArray(v.focus)&&
-  Math.hypot(v.focus[0]-anchor[0],v.focus[1]-anchor[1])<=limit;
- for(const [a,p,z] of nearAngles){
+ const roofs=followCameraRoofs();
+ let best=null,attempts=0,validCompositions=0;
+ for(const [a,p,z,f] of candidateRows){
   attempts++;
-  const shot=safeFreeOrbit(a,p,z,plan.focus);
-  if(anchored(shot,plan.focus,2.7)){
-   accepted=shot;arrivalKind='near-court';break;
-  }
+  const view={yaw:a,pitch:p,zoom:z,focus:f};
+  const sample=scoreRealMobileMarketArrival(view,plan,roofs);
+  if(!sample||!sample.marketOnscreen)continue;
+  validCompositions++;
+  if(!best||sample.score>best.score)best=sample;
  }
+ let accepted=best?.view||null,
+  arrivalKind=accepted?'physically-scored-receiving-court':'not-visible';
  if(!accepted){
-  // Physically blocked: only then widen to the actual ORIGINAL occupied
-  // market district, never hide or move a building to manufacture a view.
+  // Preserve the previous strict physically repaired district fallback when
+  // the actual market is fully blocked by genuine Day-1 architecture.
   const wideAngles=[
-   [plan.districtYaw,plan.districtPitch,plan.districtZoom],
-   [plan.districtYaw-.36,plan.districtPitch+.1,plan.districtZoom+2],
-   [plan.districtYaw+.36,plan.districtPitch+.1,plan.districtZoom+2]
+   [plan.yaw,plan.pitch,plan.zoom,plan.focus],
+   [plan.districtYaw,plan.districtPitch,plan.districtZoom,plan.districtFocus],
+   [plan.districtYaw-.36,plan.districtPitch+.1,plan.districtZoom+2,plan.districtFocus],
+   [plan.districtYaw+.36,plan.districtPitch+.1,plan.districtZoom+2,plan.districtFocus]
   ];
-  for(const [a,p,z] of wideAngles){
+  const anchored=(v,anchor,limit)=>v&&Array.isArray(v.focus)&&
+   Math.hypot(v.focus[0]-anchor[0],v.focus[1]-anchor[1])<=limit;
+  for(const [a,p,z,f] of wideAngles){
    attempts++;
-   const shot=safeFreeOrbit(a,p,z,plan.districtFocus);
-   if(anchored(shot,plan.districtFocus,3.2)){
-    accepted=shot;arrivalKind='wide-district-recovery';break;
+   const shot=safeFreeOrbit(a,p,z,f);
+   if(anchored(shot,f,3.2)){
+    accepted=shot;arrivalKind='safe-previous-district-fallback';
+    best=scoreRealMobileMarketArrival(shot,plan,roofs);break;
    }
   }
  }
@@ -29576,15 +29660,31 @@ function applyOriginalMobileMarketArrival(){
   attempted:true,applied:Boolean(accepted),attempts,arrivalKind,
   reason:accepted?'physical-'+arrivalKind:'physical-roof-or-terrain-blocked',
   actualHomes:plan.realHomes,firstHome:plan.firstHome.slice(),
-  firstHomeIndex:plan.firstHomeIndex,market:plan.trueReceivingMarket.slice(),
+  firstHomeIndex:plan.firstHomeIndex,market:market.slice(),
   targetCourtFocus:plan.focus.slice(),
   nearCargoVisible:plan.nearCargoVisible,
   visibleOccupiedHomeLots:plan.lots.map(p=>p.slice()),
-  trueMarket:plan.trueReceivingMarket.slice(),
+  trueMarket:market.slice(),
+  composition:{
+   source:'w470-original-physical-market-workday-composition',
+   physicallySurveyedAngles:candidateRows.length,
+   safeMarketCompositions:validCompositions,
+   realMarketOnScreen:Boolean(best?.marketOnscreen),
+   realMarketRayClear:Boolean(best?.marketRayClear),
+   originalHomeOnScreen:Boolean(best?.homeOnscreen),
+   originalHomeRayClear:Boolean(best?.homeRayClear),
+   actualCitizensInFrame:best?.visibleActualCitizens??0,
+   actualCitizen:best?.closestReadableCitizen??null,
+   actualCitizenScreenHeight:best?.citizenScreenHeight??0,
+   genuineForegroundCover:best?.foregroundSceneCover??null,
+   noActorsOrGoodsCreated:true,hardwareFPS:'NOT MEASURED',
+   experienceGate:'NOT PROVEN'
+  },
   camera:accepted?{yaw:accepted.yaw,pitch:accepted.pitch,
    zoom:accepted.zoom,focus:accepted.focus.slice()}:null,
   cameraOnly:true,authoritativeChanges:false};
- if(!accepted)return false; // Keep the original full uncut village instead.
+ if(!accepted)return false;
+ freeCameraLastClear={...accepted,focus:accepted.focus.slice()};
  yaw=accepted.yaw;pitch=accepted.pitch;zoom=accepted.zoom;
  focusPoint=accepted.focus.slice();
  presentationEpoch++;lastFrozenFrameKey=null;

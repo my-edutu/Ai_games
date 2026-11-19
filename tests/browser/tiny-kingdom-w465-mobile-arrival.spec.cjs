@@ -48,6 +48,20 @@ for(const width of [390,1024]){
    expect(opening.audit.cameraOnly).toBe(true);
    expect(opening.audit.authoritativeChanges).toBe(false);
    expect(opening.audit.visibleOccupiedHomeLots.length).toBe(3);
+   // W470: a physically clear camera is insufficient if it only films roofs.
+   // Inspect the REAL receiving dock projection and genuine worker evidence,
+   // rather than accepting first unoccluded orbit or manufacturing inhabitants.
+   const composition=opening.audit.composition;
+   expect(composition.source).toBe('w470-original-physical-market-workday-composition');
+   expect(composition.physicallySurveyedAngles).toBe(14);
+   expect(composition.safeMarketCompositions).toBeGreaterThan(0);
+   expect(composition.realMarketOnScreen).toBe(true);
+   expect(typeof composition.realMarketRayClear).toBe('boolean');
+   expect(typeof composition.originalHomeOnScreen).toBe('boolean');
+   expect(composition.actualCitizensInFrame).toBeGreaterThanOrEqual(0);
+   expect(composition.noActorsOrGoodsCreated).toBe(true);
+   expect(composition.hardwareFPS).toBe('NOT MEASURED');
+
    expect(opening.camera.zoom).toBeLessThan(40);
    const touch=await page.locator('#camera-market-homes').boundingBox();
    expect(touch?.width).toBeGreaterThanOrEqual(44);
