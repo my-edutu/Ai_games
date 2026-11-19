@@ -7176,5 +7176,50 @@
     "exactHeadCI": "https://github.com/my-edutu/Ai_games/actions/runs/44525961559 — pending; no claimed pass",
     "nextHighestImpact": "Inspect this new exact-source original native WebM in both views, compare 25-28s continuous warm/cool room, new core return counts/time, portrait hero occlusion, physically earned F9 and outcome/restart; if core remains invisible, correct actual camera/geometry and GPU upload path, hold P0.",
     "safety": "PR68 draft only; preserve PR58, baseline, excluded games; no merge/deploy/force-push."
+  },
+  "p0Run11OriginalReturnedSkyFogAndVoidBearingCrossfloor20261119": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidatePin": "EXACT immutable github.sha of THIS capture-request.json commit, not the floating head",
+    "observedPreviousCandidateSha": "ee1a98d601c6fffac0d03bf8c89f9cfd7b6ce7d4",
+    "priorNineJobCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44536321610",
+    "previousOriginalGameFilmFindings": "Original 1x at HUD-F9 25.5s but sustained new Void architecture 27.25s desktop (+1.75s), 28.0s portrait (+2.5s); original guardian gate and full moving climber are still not jointly legible with next floor in consecutive source-aligned frames; old bronze foreground rails remain.",
+    "previousTrueFilmEventAlignment": "0/2 strict danger A/B; eight authentic baseline/candidate scenario/viewport pairs preserved 8/8; native source and 3D camera projection evidence NOT equivalent to video pixels.",
+    "completedProductionCommits": [
+      "36a3015750c5e9c330133373b0a04c83b6324b5c",
+      "cd9521380c65cdbc69ff8fb52013745f25cbc9f7"
+    ],
+    "testCommits": [
+      "82bda4071e79ecfe8950759bae4943342ea5b837",
+      "9064b0a1ddcf1dbbcffcf6822b5044de17f6dd7d"
+    ],
+    "correction": "Actual original F9 first-bearing returned shader owner softly acclimatizes the real sky/fog/light up to 42% into the genuinely earned Void biome during the old HP-open bronze doorway room lifetime. Only true same-source current-tick original-gate certificate and >=2 returned real original F9-bearing WebGL submissions qualify. Existing F9 first-return vault, guardian gate, roof, climber, crushers, moving decks, source physics and gate remain unchanged.",
+    "scenarios": [
+      "ascent",
+      "moving",
+      "danger",
+      "outcome"
+    ],
+    "viewportPixels": [
+      "960x600",
+      "390x844"
+    ],
+    "seed": "tower-transformation-capture-v1",
+    "tier": "low",
+    "speed": "1x normal; >=60s true original 25fps WebM; unmodified 20Hz host; frozen baseline vs exact candidate SHA",
+    "captureRequirements": "Full original WebMs, hash/PST source/GPU/browser clocks, no modifications, matched scenario/seed/tier, guardian/press danger plus real physical Floor9 landing and raised traversal and restart",
+    "requiredAcceptance": "Two consecutive ORIGINAL source/PTS-aligned native frames in each viewport with full moving 3D climber, truly open original HP-zero portal, genuine walkable F9 and connected old/new 3D architecture. Strict source-to-film event pairing 2/2 and no major regressions. Not satisfied by source ticks, HUD, NDC or static contact sheet.",
+    "previousExactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44536321616 — prior 10/10 CI veto only; new CI checks required",
+    "candidateCI": "CI for current changed source pending; not a pass claim.",
+    "sourceVideoPairings": "NOT EVALUATED AFTER CHANGE",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "deviceP50P95P99AndMemory": "NOT EVALUATED",
+    "nextAction": "Examine first 25-29s actual new original film on both viewports and normal-speed continuous gate/hero/roof, then correct physical foreground original gate sightline if not co-visible; hold P0.",
+    "guards": "No baseline movement, no Tiny Kingdom/Maze/AI vs 1000 Floors, PR58 unchanged, PR68 stays DRAFT; no merge/deploy/force-push."
   }
 }
