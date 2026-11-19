@@ -1,4 +1,38 @@
 {
+  "p0ExactImmutableNearRoofClimateFullLoopNineJob20261119_2226": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateSource": "EXACT immutable github.sha OF THIS capture-request commit; not floating PR68 branch HEAD",
+    "productionSourceSha": "fc402e53747d84a50ecb704881eadb4c460c753c",
+    "focusedTestSha": "be30c758d9639130005b1dc7c4cc1cd51d9f4484",
+    "previousOriginalNineJob": "https://github.com/my-edutu/Ai_games/actions/runs/44611221955",
+    "previousCandidateSourceSha": "8e407534a8b782ff6a2d10599b8748cba7161616",
+    "previousActualVideoResult": "8/8 original 60s+ baseline/candidate 1x films and authentic ledge succeeded; original native danger 0/2 event-paired, no sustained bronze/violet shared-room bridge; desktop HUD→violet 0.75s, portrait 0.5s. Genuine independent reviewers 0/5 all pillars.",
+    "newPlayableChange": "Source-returned grounded near-roof original guardian gateway old material now supplies same sky/fog/bearing/successor palette as actual open gate until FIRST returned successor structure; source-only early gateway retirement no longer bypasses this real last-return witness.",
+    "conditions": {
+      "seed": "tower-transformation-capture-v1",
+      "tier": "low",
+      "recording": "original unmodified 25fps 1x Chromium WebM, at least 60s each",
+      "baseline": "1731b380851162741761c5569e2bc152a0869ca9",
+      "viewports": [
+        "desktop 960x600",
+        "portrait 390x844"
+      ],
+      "scenarios": [
+        "ascent",
+        "moving",
+        "danger/guardian",
+        "outcome/restart"
+      ],
+      "jobs": "eight original baseline/candidate scenarios plus authentic ledge; nine recording jobs and separate event pairing"
+    },
+    "requirements": "Exact source SHA on every film, original SHA-256, no simulation clock edits; visual inspect native full-motion source-event-aligned 2 consecutive frames full moving hero + genuine HP-zero guardian original gateway + physically walkable F9 in same coherent shared-room shot in BOTH viewports, with no portrait crop; verify actual onward and restart. Never claim rendered projection or HUD proves pixel success.",
+    "quality": "Run exact-head guardrails; technical pass veto only, NOT game transformation",
+    "assessor": "NOT EVALUATED until genuine 5 independent randomized blind critics per LOOKS FEELS PLAYS >=4/5 plus device safety",
+    "nextAction": "Inspect fresh exact-source native film, first structural return, old material transparency, original gateway actor sightline and event pairing; if 0s bridge persists, correct actual first successor render and body-camera stage together, remain P0.",
+    "boundaries": "PR68 DRAFT only, no force-push/merge/deploy, frozen baseline and PR58 edits untouched, no unrelated games."
+  },
   "p0RealOriginalSkyGateRoofReturnedRoomNineJob20261119_1445": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
     "leadingVerdict": "NOT EVALUATED",
