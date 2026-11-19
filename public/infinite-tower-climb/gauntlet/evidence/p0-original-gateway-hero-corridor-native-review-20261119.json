@@ -43,5 +43,53 @@
   },
   "hardwareFrameTimesAndMemory": "NOT EVALUATED",
   "nextHighestImpact": "Inspect new exact-head focused/quality CI and genuine source-pinned 1x matched candidate/baseline 60s original 960x600/390x844 danger/outcome movies. Require 2 consecutive event-aligned native frames with full moving hero, HP0 opened real F8 gate and actual walkable F9 in one coherent view. If still 0s mixed room, prioritize CPU/GPU cold first Floor9 rebuild and real camera sightline, rather than more isolated shader tweaks.",
-  "constraints": "PR68 draft, PR58 unchanged, frozen baseline immutable, no merge/deploy/force-push; no Tiny Kingdom/Maze/AI vs 1000 Floors."
+  "constraints": "PR68 draft, PR58 unchanged, frozen baseline immutable, no merge/deploy/force-push; no Tiny Kingdom/Maze/AI vs 1000 Floors.",
+  "followUpP0ExactWorldGpuMaterialReceipt20261119": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "reviewedHeadBeforeChange": "520dd326727b02f5784cf50f55efd23ff44f2d38",
+    "newProductionCommits": [
+      "899fb1b2decb436fe849e628453ec7c28871dd14",
+      "ad9528c2d0f4b33e9c8f3e1dc5fcf6c240cc6f4a"
+    ],
+    "newRedFirstTestCommit": "da33e5b211b6fc1365e2609eed7ad2f9e38e0c77",
+    "nativeOriginalCandidateSourceSha": "2284cc3fb7db3996564fa2f503ef4e2b1436c999",
+    "nativeOriginalCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/44591285973",
+    "candidateOriginalDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44591285973/artifacts/14565769337",
+    "originalNative25fps": {
+      "desktop": {
+        "viewport": "960x600",
+        "durationSeconds": 71.64,
+        "HUD9Seconds": 25.5,
+        "violetWorldSeconds": 26,
+        "splitSeconds": 0.5,
+        "mixedBridgeSeconds": 0,
+        "sourceEventNativePair": "FAILED"
+      },
+      "portrait": {
+        "viewport": "390x844",
+        "durationSeconds": 72.48,
+        "HUD9Seconds": 25.5,
+        "violetWorldSeconds": 26.25,
+        "splitSeconds": 0.75,
+        "mixedBridgeSeconds": 0,
+        "sourceEventNativePair": "FAILED"
+      }
+    },
+    "evidenceLimits": "8/8 genuine >60s original baseline/candidate video jobs and ledge succeeded; pair-source-events failed 0/2 strict danger alignment. Source/Three projection and chroma labels do not authenticate contiguous HP0 gate/full moving actor/walkable real F9 native pixels.",
+    "causeFromExactCode": "Scene biome-threshold.mjs re-ran old bronze architecture coverage on the reduced retainedFilmHandoff proxy. That proxy intentionally lacks mutable real GPU gallery materials, raised-support and optical lease fields; sourceOwnedOriginalArchitectureCoverage changes its result when recertified on incomplete proof. World now exports one exact-snapshot scalar material receipt; biome sky/fog/light uses the original world's real old gateway and architecture cover if immutable same-run HP0 cap and return cadence match.",
+    "implementationScope": "Real existing scene environment and source-certified original 3D materials only; no gameplay AI/physics, victory, geometry, authoring art, portal or extra GPU pass.",
+    "exactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44602704669 — pending when recorded; no pass claimed",
+    "tests": "Added focused source/World immutable receipt, stale/dead/mismatched HP0 veto and actual producer/consumer integration contracts. Exact-head CI is pending; no local full-game browser available.",
+    "independentBlindReviews": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "hardwareP50P95P99Memory": "NOT EVALUATED",
+    "largestGap": "Abrupt bronze/violet old-new room, 0s sustained mixed room, missing strict event-matched 2+ contiguous normal-speed native frames proving complete moving hero + truly opened original HP0 gate + physically walkable F9 in desktop and portrait.",
+    "nextAction": "Run source-pinned matched nine-job original 1x >=60s baseline/candidate capture at immutable new SHA, inspect actual native full-motion and returned GPU material/horizon state. If mixed-room remains zero, target first F9 cold CPU/GPU and physical camera occlusion, not another test-only patch.",
+    "safeguards": "Draft PR68 remains open, PR58 untouched, baseline immutable, no merge/deploy/force-push or excluded-game modifications."
+  }
 }
