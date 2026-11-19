@@ -108,7 +108,7 @@ test('RED: pose-only source-rig motion can be witnessed without inventing root t
   {sourceWeaponGrip:{socketName:'handslotr',attachedToGripSocket:false}}
  ]){
   const invalid=poseOnly({before:a,after:{...b,...altered},floorTopY:-.02});
-  assert.equal(invalid?.poseEligible,true===false,
+  assert.equal(Boolean(invalid?.poseEligible),false,
    'no stale GLB, clip or event may qualify a source-only motion: '+JSON.stringify(altered));
  }
 });
