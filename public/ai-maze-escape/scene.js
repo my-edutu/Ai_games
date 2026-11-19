@@ -4,7 +4,7 @@ import { PUBLIC_GUARDIAN_COUNTER_SECONDS, publicGuardianCounterMoment, publicGua
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilFinalPairShift, publicGuardianEarnedRecoilRevealElevation, setPublicEarnedGuardianFrontQuarterOffset, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilFinalPairShift, publicGuardianEarnedRecoilRevealElevation, setPublicEarnedGuardianFrontQuarterOffset, publicEarnedGuardianCounterCameraPriority, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicEarnedGuardianCounterLightPath } from './public-lantern-encounter.mjs';
@@ -1383,12 +1383,23 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // Pass400: native 390px recoil tick7->8 keeps the disclosed guardian in
     // view but re-aims at Pip. Sustain the *real* two-body target only for the
     // same-run currently published parried guardian and original duel orbit.
+    // Pass515: original exact-HEAD rendered earned counter still showed
+    // Thornback from behind because the previous camera excluded any
+    // positive public warning strength. A truly countered guardian can
+    // STILL be visible nearby, with positive warning, while retreating.
+    // Frame this SAME PUBLIC parried model; do not steal another guardian's
+    // warning camera or inherit stale/unearned/private enemy state.
     const earnedDuelContinuity = cameraMode==='follow' && !result
-      && !settings.reducedMotion && !closestThreat?.strength
-      && !!earnedCounterModel && lastWitnessedGuardianStageRunToken===s.runToken
+      && !settings.reducedMotion
+      && publicEarnedGuardianCounterCameraPriority(
+        earnedCounterModel,closestThreatModel,closestThreat?.strength,
+        closestThreat?.lanternParried)
+      && lastWitnessedGuardianStageRunToken===s.runToken
       && aspect>=.35 && aspect<.60 && !cameraGate
       && !pressureCameraBeat && !openingStageView && !showPickup;
-    if (earnedDuelContinuity) {
+    // A nearby reciprocal public warning already has an actor-pair target.
+    // Do not double-shift that same camera aim when the earned lens wins.
+    if (earnedDuelContinuity && !closestThreat?.strength) {
       const recoilAim=publicGuardianEarnedRecoilPairFocus(
         aspect,pose,earnedCounterModel.position,true,settings.reducedMotion,CELL_SIZE);
       desiredTarget.x+=recoilAim.x;
