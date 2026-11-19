@@ -59,6 +59,9 @@ jobs:
         run: node scripts/tiny-kingdom-w452-landscape-residency-contract.cjs
       - name: W456 exact original static terrain spatial cache has bounded lanes, no global eviction cliff
         run: node scripts/tiny-kingdom-w456-render-terrain-cache-contract.cjs
+# W456 critical evidence retention: each Playwright invocation otherwise clears
+# test-results/ and destroys the preceding real Day-120 desktop/mobile film.
+# Keep 4 isolated suite subfolders, then upload ALL unchanged source videos.
       # Playwright's shared webServer starts Snake/Maze/Ant/Tower services from dist.
       # Without a compiled replay package, the W138 Day-120 game never launches.
       - name: Build shared browser server dependencies before 120-day WebGL capture
@@ -68,19 +71,19 @@ jobs:
       - name: Genuine 120-day renderer comparison, real 390px gameplay and W336 touch contract
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
-        run: npx playwright test tests/browser/tiny-kingdom-w138-real-grown-home.spec.cjs --workers=1
+        run: npx playwright test tests/browser/tiny-kingdom-w138-real-grown-home.spec.cjs --workers=1 --output=test-results/w138-day120-world
       - name: W450 actual autonomous smith, same-state WebGL residency parity and 390px captured workday
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
-        run: npx playwright test tests/browser/tiny-kingdom-w450-real-forge-bellows.spec.cjs --workers=1
+        run: npx playwright test tests/browser/tiny-kingdom-w450-real-forge-bellows.spec.cjs --workers=1 --output=test-results/w450-original-forge
       - name: W452 same-authority 1024px / 390px running landscape full versus specialized vertex program
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
-        run: npx playwright test tests/browser/tiny-kingdom-w452-static-landscape.spec.cjs --workers=1
+        run: npx playwright test tests/browser/tiny-kingdom-w452-static-landscape.spec.cjs --workers=1 --output=test-results/w452-landscape-parity
       - name: Phase 1 actual grown-world same-eye GPU resident actor projection parity (1024px and 390px)
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
-        run: npx playwright test tests/browser/tiny-kingdom-phase1-resident-projection.spec.cjs --workers=1
+        run: npx playwright test tests/browser/tiny-kingdom-phase1-resident-projection.spec.cjs --workers=1 --output=test-results/phase1-resident-projection
       - name: Preserve video, 1024px and 390px images and runtime audits even on failure
         if: always()
         uses: actions/upload-artifact@v4
