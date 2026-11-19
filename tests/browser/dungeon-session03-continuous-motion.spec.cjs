@@ -133,6 +133,9 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
      sourceClip:a?.sourceActionSample?.clipName??null,
      sourceClipTime:a?.sourceActionSample?.time??null,
      sourceWeight:a?.sourceActionSample?.weight??null,
+     // Original mixer transition receipt. A null / ordinary 230ms exit is
+     // a genuine rejected guard, NEVER accepted full-body gait evidence.
+     movingExitFade:a?.sourceActionSample?.movingExitFade??null,
      rootWorld:a?.rootWorld??null,
      sourceSolePatchWorld:a?.sourceSolePatchWorld??null,
      sourceWeaponGrip:a?.sourceWeaponGrip?
@@ -164,6 +167,8 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
    genuineVanguardTravelSteps:scenario.genuineVanguardTravel,
    originalAuthoritySnapshots:scenario.slice.length,
    actualFrames:rows,errors,video,
+   walkExitFadeObserved:rows.filter(x=>x.movingExitFade?.fromClip==='Walking_A').length,
+   movingExitFadeSelected:rows.filter(x=>x.movingExitFade?.candidateSelected===true).length,
    warning:'These are real renderer samples and canvas frames. 24 is a MediaRecorder request, not actual encoded FPS. Missing consecutive skinned contact, heel support, foot-slide and independent multi-role critique remain failures.'};
   const out='artifacts/dungeon-full-body-continuous-'+view.name+'.json';
   fs.writeFileSync(out,JSON.stringify(evidence,null,2));
