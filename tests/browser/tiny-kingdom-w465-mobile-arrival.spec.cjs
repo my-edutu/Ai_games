@@ -21,6 +21,9 @@ for(const width of [390,1024]){
    return {audit:g.getOriginalMobileMarketArrivalAudit(),
     snapshot:g.exportSnapshot().checksum,camera:g.getCamera(),
     metrics:g.metrics(),triangles:g.renderStats().lastFrameTriangles,
+    fullSceneTriangles:g.renderStats().lastFrameFullSceneTriangles,
+    viewBudget:g.renderStats().viewFarmBudgetAudit,
+    fieldBudget:g.getFarmFieldResidencyAudit().sceneBudget,
     preflight:g.getCooperativeFirstSceneAudit(),
     loadingHidden:document.getElementById('kingdom-stage-status').hidden,
     gl:document.getElementById('world').getContext('webgl')?.getError()??-1,
@@ -32,6 +35,11 @@ for(const width of [390,1024]){
   expect(opening.triangles).toBeGreaterThan(0);
   expect(opening.triangles).toBeLessThan(160000);
   expect(opening.loadingHidden).toBe(true);
+  expect(opening.viewBudget.source).toBe('actual-retained-frustum-issued-scene-budget');
+  expect(opening.viewBudget.issuedViewTriangles).toBe(opening.triangles);
+  expect(opening.viewBudget.viewBudgetBreached).toBe(false);
+  expect(opening.fullSceneTriangles).toBeGreaterThanOrEqual(opening.triangles-opening.viewBudget.bridgedStaticTriangles);
+  expect(opening.fieldBudget.droppedPlotsForBudget).toBe(0);
   expect(opening.gl).toBe(0);
   expect(opening.overflow).toBeLessThanOrEqual(0);
   if(width===390){
@@ -66,14 +74,26 @@ for(const width of [390,1024]){
   expect(grown.metrics.day).toBeGreaterThanOrEqual(120);
   expect(grown.metrics.buildings).toBeGreaterThanOrEqual(opening.metrics.buildings);
   await page.waitForTimeout(2500);
-  const ending=await page.evaluate(()=>({
-   checksum:window.__tinyKingdom.exportSnapshot().checksum,
-   triangles:window.__tinyKingdom.renderStats().lastFrameTriangles,
+  const ending=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   return {
+   checksum:g.exportSnapshot().checksum,
+   triangles:g.renderStats().lastFrameTriangles,
+   fullSceneTriangles:g.renderStats().lastFrameFullSceneTriangles,
+   viewBudget:g.renderStats().viewFarmBudgetAudit,
+   fieldBudget:g.getFarmFieldResidencyAudit().sceneBudget,
    gl:document.getElementById('world').getContext('webgl')?.getError()??-1,
-   overflow:document.documentElement.scrollWidth-innerWidth}));
+   overflow:document.documentElement.scrollWidth-innerWidth};
+  });
   expect(ending.checksum).toBe(grown.checksum);
   expect(ending.triangles).toBeGreaterThan(0);
   expect(ending.triangles).toBeLessThan(160000);
+  expect(ending.viewBudget.source).toBe('actual-retained-frustum-issued-scene-budget');
+  expect(ending.viewBudget.issuedViewTriangles).toBe(ending.triangles);
+  expect(ending.viewBudget.viewBudgetBreached).toBe(false);
+  expect(ending.fullSceneTriangles).toBeGreaterThanOrEqual(ending.triangles-ending.viewBudget.bridgedStaticTriangles);
+  expect(ending.fieldBudget.droppedPlotsForBudget).toBe(0);
+  expect(ending.fieldBudget.originalPlotsPreserved).toBe(true);
   expect(ending.gl).toBe(0);expect(ending.overflow).toBeLessThanOrEqual(0);
   expect(errors).toEqual([]);
   await page.screenshot({path:path.join(root,width+'-day121-uncut-populated-town.png')});

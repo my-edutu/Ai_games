@@ -5,6 +5,7 @@ on:
     paths:
       - 'public/tiny-kingdom/index.html'
       - 'scripts/tiny-kingdom-w468-view-budget-contract.cjs'
+      - 'tests/browser/tiny-kingdom-w465-mobile-arrival.spec.cjs'
       - '.github/workflows/tiny-kingdom-w468-view-budget.yml'
   workflow_dispatch:
 permissions:
