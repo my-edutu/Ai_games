@@ -247,3 +247,38 @@ test('320px portrait retains every presentation control with usable hit targets'
     expect(rect.right).toBeLessThanOrEqual(320);
   }
 });
+
+// A real completed public run should announce success without covering the
+// finale. The graphics-unavailable result card is independently protected by
+// the existing fallback test above.
+test('earned victory keeps original WebGL portal visible behind a screenreader-only outcome', async ({ page }) => {
+  const { MazeRuntime } = require('../../dist/games/ai-maze-escape/src/runtime/run.js');
+  const { buildMazeRenderSnapshot } = require('../../dist/games/ai-maze-escape/src/presentation/snapshot.js');
+  const { MazePresentationController } = require('../../dist/games/ai-maze-escape/src/presentation/controller.js');
+  const runtime = MazeRuntime.create({ width: 7, height: 7, profile: 'tree', keyCount: 0, trapCount: 0, threatCount: 0 }, 'real-portal-clearance');
+  for (let i = 0; i < 1000 && !runtime.state.result; i++) runtime.step();
+  expect(runtime.state.result?.reason).toBe('escape', 'never invent a result to assert the UI');
+  const presentation = new MazePresentationController();
+  presentation.accept(buildMazeRenderSnapshot(runtime.state), runtime.events);
+  const frame = presentation.frame(390, 844);
+  await page.route('**/maze/state*', route => route.fulfill({ json: frame }));
+  for (const viewport of [{width:390,height:844},{width:1280,height:900}]) {
+    await page.setViewportSize(viewport);
+    await page.goto(`${base}/maze`);
+    await expect(page.locator('#maze')).toHaveAttribute('data-renderer', 'webgl');
+    await expect(page.locator('#run-phase')).toHaveText('JOURNEY COMPLETE');
+    await expect(page.locator('#goal-title')).toHaveText('Escaped');
+    await expect(page.locator('#scene-title')).toHaveText('ESCAPED');
+    await expect(page.locator('#scene-card')).toHaveAttribute('role', 'status');
+    await expect(page.locator('#scene-card')).toHaveAttribute('data-presentation', 'announcement-only');
+    const stage = await page.evaluate(() => {
+      const canvas = document.querySelector('#maze').getBoundingClientRect();
+      const card = document.querySelector('#scene-card').getBoundingClientRect();
+      return { canvas:{width:canvas.width,height:canvas.height}, card:{width:card.width,height:card.height} };
+    });
+    expect(stage.canvas.width).toBe(viewport.width);
+    expect(stage.canvas.height).toBe(viewport.height);
+    expect(stage.card.width).toBeLessThanOrEqual(1.1);
+    expect(stage.card.height).toBeLessThanOrEqual(1.1);
+  }
+});

@@ -45,9 +45,18 @@ function refreshSceneCard(){
   // as a second banner over the actual 3D stage on narrow phones.
   elements.broadcast.dataset.connection=failedPolls?'reconnecting':graphicsUnavailable
     ?'graphics-degraded':snapshot?'live':'connecting';
+  // Preserve the result as a live accessible announcement, but never place
+  // a duplicate modal over the witnessed opening portal while WebGL is live.
+  // The existing goal chip already visibly says Escaped; on graphics loss,
+  // the ordinary full-size outcome card remains available.
+  elements.sceneCard.dataset.presentation='overlay';
   if(frame?.scene==='result'){
     const outcome=snapshot?.result?.reason;
-    showCard(outcome==='escape'?'ESCAPED':outcome==='capture'?'CAUGHT':outcome==='timer-expired'?'TIME UP':'RUN OVER',outcome==='escape'?'Pip made it out.':'Next maze loading');return
+    showCard(outcome==='escape'?'ESCAPED':outcome==='capture'?'CAUGHT':outcome==='timer-expired'?'TIME UP':'RUN OVER',outcome==='escape'?'Pip made it out.':'Next maze loading');
+    if(outcome==='escape' && !failedPolls && !graphicsUnavailable){
+      elements.sceneCard.dataset.presentation='announcement-only';
+    }
+    return;
   }
   if(frame?.scene==='intermission'){showCard('NEXT MAZE','New run loading');return}
   if(failedPolls){showCard('RECONNECTING','Last known scene retained');return}

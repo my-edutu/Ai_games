@@ -315,3 +315,14 @@ body[data-high-contrast="true"] #broadcast[data-ux-revision="4"][data-gate-momen
 #broadcast[data-ux-revision="4"][data-counter-moment="true"] #hud .mission-block{
   border-left-color:#ffe097;background:rgba(27,61,48,.94);
 }
+
+/* Pass506: keep the actual earned exit portal and Pip visible at the decisive
+   terminal beat. This remains a real role=status announcement for assistive
+   tech; WebGL failure/reconnection and unsuccessful outcomes retain the
+   existing full card, and the already-visible Journey Result chip persists. */
+#broadcast[data-ux-revision="4"] #scene-card[data-presentation="announcement-only"]{
+  position:absolute;left:0;top:0;transform:none;width:1px;height:1px;
+  min-width:0;max-width:none;overflow:hidden;clip-path:inset(50%);
+  padding:0;margin:0;border:0;white-space:nowrap;box-shadow:none;
+  backdrop-filter:none;
+}
