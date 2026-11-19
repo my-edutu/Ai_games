@@ -9,7 +9,8 @@ const {test,expect}=require('@playwright/test');
 const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
 const fs=require('node:fs');
 const path=require('node:path');
-const {auditOriginalSourceRafSolePair}=require('./dungeon-session03-original-skin-pair.cjs');
+const {auditOriginalSourceRafSolePair,auditOriginalSourcePoseOnlyPair}=
+ require('./dungeon-session03-original-skin-pair.cjs');
 const SEED='visual-room-art-18';
 const VIEWS=[{name:'desktop',width:1440,height:900},
  {name:'mobile',width:390,height:844}];
@@ -110,7 +111,7 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
  // Actual original 3D canvas film, not a contact sheet or a requested-FPS claim.
  const film=await startOriginalCanvasFilm(page,view.name);
  expect(film.started.status,JSON.stringify(film.started)).toBe('RECORDING');
- const rows=[],nativeSourceRafPairs=[];
+ const rows=[],nativeSourceRafPairs=[],nativeSourcePosePairs=[];
  try{
   for(let step=1;step<scenario.slice.length;step++){
    current=scenario.slice[step];
@@ -188,6 +189,12 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
    nativeSourceRafPairs.push({publicTick:current.tick,
     sourceBeforeFrame:sample.frame,sourceAfterFrame:after.frame,
     ...auditOriginalSourceRafSolePair({before:sample,after,floorTopY:-.02})});
+   // READ-ONLY independent keyed-pose witness. A stationary source root
+   // can still animate its licensed skeleton, but must NEVER count as a
+   // foot plant or as valid authoritative root movement.
+   nativeSourcePosePairs.push({publicTick:current.tick,
+    sourceBeforeFrame:sample.frame,sourceAfterFrame:after.frame,
+    ...auditOriginalSourcePoseOnlyPair({before:sample,after,floorTopY:-.02})});
    // Native stream sees actual published ticks at production 350ms cadence.
    await page.waitForTimeout(350);
   }
@@ -206,6 +213,12 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
    // readbacks, including explicit reasons when no match survives.
    nativeSourceRafPairs,
    genuineSameTickOriginalSkinPairs:nativeSourceRafPairs.filter(x=>x.eligible).length,
+   nativeSourcePosePairs,
+   genuineSourcePoseOnlyPairs:nativeSourcePosePairs.filter(x=>x.poseEligible).length,
+   sourcePoseOnlyRejections:nativeSourcePosePairs.reduce((acc,p)=>{
+    if(!p.poseEligible)acc[p.reason]=(acc[p.reason]||0)+1;
+    return acc;
+   },{}),
    originalSourceRafRejections:nativeSourceRafPairs.reduce((acc,p)=>{
     if(!p.eligible)acc[p.reason]=(acc[p.reason]||0)+1;
     return acc;
@@ -238,6 +251,9 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
  }
  expect(rows.length).toBe(16);
  expect(nativeSourceRafPairs.length).toBe(16);
+ expect(nativeSourcePosePairs.length).toBe(16);
+ expect(nativeSourcePosePairs.every(x=>x.contactLocked===false&&
+  x.plantCertified===false&&x.eligible===false)).toBe(true);
  expect(new Set(rows.map(x=>x.frame)).size,
   'film must include genuinely advancing renderer frames').toBeGreaterThanOrEqual(10);
  expect(rows.some(x=>x.sourceClip==='Walking_A'),
