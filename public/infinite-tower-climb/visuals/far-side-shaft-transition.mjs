@@ -6,6 +6,79 @@ const valid=Number.isSafeInteger;
 const clamp=n=>Math.max(0,Math.min(1,n));
 const smooth=n=>{const t=clamp(n);return t*t*(3-2*t);};
 
+/**
+ * P0 — keep the authentic, already-rendered Floor 9 load-bearing core in
+ * shared view with the HP-open original Clockwork gateway BEFORE triggering
+ * two costly noninteractive detail/shader uploads on software WebGL.
+ *
+ * Both incoming and original material owners must be this same source run.
+ * A returned Three.js submission is not proof of native video pixels, but
+ * source polling, CPU construction, HUD floor labels and a stalled frame
+ * cannot certify a mixed-world shot or spend this upload gate.
+ *
+ * Once the original old-room material is gone (or the original owner is
+ * legitimately disposed), the expensive scenic uploads may proceed normally.
+ * Gameplay platforms, hazards, boss, protagonist and collision are never
+ * deferred by this policy.
+ */
+export function observedSourceReturnedCoreBeforeScenicUpload(source,held,job,stage) {
+  if(source?.floor!==9 || source.theme!=='void' ||
+     source.lifecycle!=='running' || !(source.player?.health>0) ||
+     typeof source.runToken!=='string' || !source.runToken ||
+     !Number.isSafeInteger(source.tick) ||
+     !job || job.runToken!==source.runToken || job.floor!==9 ||
+     job.proof!=='recorded-source-gateway' ||
+     job.structureDeferred!==true ||
+     job.state!=='awaiting-void-biome-build' ||
+     !Number.isSafeInteger(job.sourceTick) ||
+     job.sourceTick>source.tick ||
+     !Number.isSafeInteger(job.submittedFrames) ||
+     !Number.isSafeInteger(job.structureBuiltAtSubmitted) ||
+     job.submittedFrames<=job.structureBuiltAtSubmitted ||
+     !Number.isSafeInteger(job.structuralVisibleReturns) ||
+     job.structuralVisibleReturns<0 ||
+     !Number.isFinite(job.structuralVisibleSeconds) ||
+     job.structuralVisibleSeconds<0 || job.structuralVisibleSeconds>3 ||
+     !job.structuralRoot?.isGroup ||
+     (stage!=='periphery' && stage!=='biome')) return false;
+  if(stage==='biome' &&
+      (!Number.isSafeInteger(job.peripheryBuiltAtSubmitted) ||
+       job.submittedFrames<=job.peripheryBuiltAtSubmitted))return false;
+  const originalStillPainted=held?.guardianGateRetained===true &&
+    held.runToken===source.runToken && held.floor===9 &&
+    held.oldCapId==='f8:cap' &&
+    held.verifiedObservedFloorAdvance===true &&
+    Number.isSafeInteger(held.crossingTick) &&
+    held.crossingTick<=source.tick &&
+    Number.isSafeInteger(held.firstWorldRenderTick) &&
+    held.firstWorldRenderTick===job.sourceTick &&
+    held.opticalExitSubmitted!==true &&
+    Number.isFinite(held.originalGatewayOpacity) &&
+    held.originalGatewayOpacity>.15 &&
+    Number.isSafeInteger(held.submittedFrames) &&
+    held.submittedFrames>0 &&
+    Number.isFinite(held.visibleSeconds) &&
+    held.visibleSeconds>=0 && held.visibleSeconds<2.8 &&
+    source.lastGuardianCrossing?.runToken===source.runToken &&
+    source.lastGuardianCrossing.fromFloor===8 &&
+    source.lastGuardianCrossing.toFloor===9 &&
+    source.lastGuardianCrossing.guardian?.kind==='guardian' &&
+    source.lastGuardianCrossing.guardian.active===false &&
+    Number.isFinite(source.lastGuardianCrossing.guardian.health) &&
+    source.lastGuardianCrossing.guardian.health<=0;
+  if(!originalStillPainted)return true;
+  // Gate noninteractive upload bursts behind actual successfully returned,
+  // source-matched NONZERO core paint. The third return protects its
+  // first real successor silhouette when the heavy animated biome compiles.
+  const requiredReturns=stage==='periphery'?2:3;
+  const requiredSeconds=stage==='periphery'?.12:.20;
+  return job.structuralRoot.visible===true &&
+    job.structuralFade>.015 &&
+    job.structuralVisibleReturns>=requiredReturns &&
+    job.structuralVisibleSeconds>=requiredSeconds;
+}
+
+
 // An optical overlap is legitimate only when the real full-body actor has
 // completely LEFT the old threshold and still has authoritative support.
 // A floor label, a route target, an unobserved jump, or an opaque camera
