@@ -5380,7 +5380,8 @@ export function createTowerScene(canvas, settings = {}) {
     // current-tick far-side shared room; both fade with the gateway's
     // renderer-return opacity. All other floors retain the early lease.
     const oldWeight=sourceSynchronizedHorizonWeight(snapshot,
-      oldWeightBeforeVoid,earnedVoidSkyLease.maxOldWeight,certifiedHorizon);
+      oldWeightBeforeVoid,earnedVoidSkyLease.maxOldWeight,
+      certifiedHorizon,earnedVoidHorizon);
     if(thresholdLight || certifiedHorizon || lastBiomeHandoffOldWeight>0){
       const from=thresholdColors.from,to=thresholdColors.to;
       scene.fog.color.copy(to.fog).lerp(from.fog,oldWeight);
