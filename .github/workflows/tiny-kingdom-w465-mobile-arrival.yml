@@ -33,7 +33,10 @@ jobs:
       # each requires the compiled dist/packages/* tree before a Tiny test starts.
       - run: npm run build
       - run: node --test scripts/tiny-kingdom-w466-market-court-contract.cjs
-      - run: npx playwright install --with-deps chromium
+      # Ubuntu runner already includes Chromium runtime libraries; --with-deps invokes
+      # apt and currently fails on external 503 mirrors before any game frames run.
+      # Install the exact @playwright/test 1.55.0 browser binary without apt.
+      - run: npx playwright install chromium
       - run: npx playwright test tests/browser/tiny-kingdom-w465-mobile-arrival.spec.cjs --workers=1 --reporter=line
       - if: always()
         uses: actions/upload-artifact@v4
