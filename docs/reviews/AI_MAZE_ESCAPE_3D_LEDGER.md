@@ -1,3 +1,11 @@
+## Pass501 — real flagship portal finale and native terminal image gate (2026-11-19 UTC)
+
+- Exact incoming Pass500 SHA `f5631435361129853c4e3d70a4d44000de82b28a`; [focused native workflow 44462831814](https://github.com/my-edutu/Ai_games/actions/runs/44462831814) SUCCESS, original artifact 14501291218 independently downloaded; full 529-tick flagship AI remains previously verified. Whole-repository CI failed separately at Tiny Kingdom OBS.
+- Built a real three-quarter terminal Follow shot of Pip and the opening physical exit, only on current, publicly disclosed actual escape; added **source-run** Playwright full-portal/actor geometry and original two-viewport WebGL SHA screenshot gate. Candidate HEAD tests/render **PENDING**, independent artistic win NOT claimed; no new gameplay authority, hidden map, merged code or weakened limits.
+- [Dated review](./maze-3d/pass-501-source-authentic-portal-finale-camera-2026-11-19.md); next critical gap unchanged crowded Thornback earned recoil + long 485-tick post-counter wandering. Maintain draft PR and hourly automation.
+
+---
+
 ## Pass500 — repair exact-source signed-zero physical exit assertion (2026-11-19 UTC)
 
 - **Real Pass499 failure on SHA `ba81f808623cc2e3e53f1651379e21cee645e849`:** [focused WebGL 44462436543](https://github.com/my-edutu/Ai_games/actions/runs/44462436543) stopped **before original render** at **244/245 source checks**. All preceding world, AI, privacy, installed Three tests passed; newly introduced test alone incorrectly treated a perfectly neutral **-0 radians** on the left anchored hinge as different from **+0**. Neither orientation nor rendered pose differs. It was not a physics/animation regression.

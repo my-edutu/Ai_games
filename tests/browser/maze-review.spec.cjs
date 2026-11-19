@@ -2376,3 +2376,70 @@ test('a NATURAL autonomous lantern counter has source-bound physical before/reco
   await capture('earned',witness.after,390,844);
   await capture('earned-mobile',witness.after,320,740);
 });
+
+
+// Pass501: actual autonomous flagship finale, not a mocked result or
+// artistically substituted screenshot. One public, unforced, unreset run.
+test('uninterrupted flagship escape exposes real portal opening in native portrait and desktop',async({page})=>{
+  const fs=require('node:fs'),path=require('node:path');
+  const {createHash}=require('node:crypto');
+  const {MazeRuntime}=require('../../dist/games/ai-maze-escape/src/runtime/run.js');
+  const {buildMazeRenderSnapshot}=require('../../dist/games/ai-maze-escape/src/presentation/snapshot.js');
+  const {MazePresentationController}=require('../../dist/games/ai-maze-escape/src/presentation/controller.js');
+  const {config}=require('../../scripts/capture-maze-3d.cjs');
+  const seed='tideglass-live-chapter-1387';
+  const runtime=MazeRuntime.create(config,seed,{policy:'partial-observation'});
+  const controller=new MazePresentationController({replayCapacity:360,maxEntities:2048});
+  let cursor=0,final=null,terminal=null,runToken=null;
+  for(let i=0;i<1100;i++){
+    const snapshot=buildMazeRenderSnapshot(runtime.state);
+    if(runToken===null)runToken=snapshot.runToken;
+    expect(snapshot.runToken,'no autonomous restart').toBe(runToken);
+    controller.accept(snapshot,runtime.events.slice(cursor));cursor=runtime.events.length;
+    if(snapshot.result){
+      terminal=snapshot;
+      final={...controller.frame(1600,1000),stepDurationMs:360};
+      break;
+    }
+    runtime.step();
+  }
+  expect(terminal?.result?.reason,'true flagship AI must escape').toBe('escape');
+  expect(terminal.currentCell).toBe(terminal.exitCell);
+  expect(terminal.visibleCells).toContain(terminal.exitCell);
+  expect(terminal.cells.some(c=>c.cell===terminal.exitCell)).toBe(true);
+  const dir=path.resolve(__dirname,'../../artifacts/maze-phase3');
+  fs.mkdirSync(dir,{recursive:true});
+  await page.route('**/maze/state*',route=>route.fulfill({json:final}));
+  for(const [width,height] of [[390,844],[1280,900]]){
+    await page.setViewportSize({width,height});
+    await page.goto(base+'/maze?camera=follow',{waitUntil:'domcontentloaded'});
+    await waitForRealMazeStage(page,{minFrames:3,timeout:60000});
+    // The source terminal result drives existing articulated Three.js wings.
+    await page.waitForTimeout(1750);
+    const d=await page.evaluate(()=>window.__MAZE_3D__);
+    expect(d?.tick).toBe(terminal.tick);
+    expect(d?.runToken).toBe(runToken);
+    expect(d?.publicVictoryScene).toBe(true);
+    expect(d?.explorerModelFullyInFrame,'entire original Pip must fit').toBe(true);
+    expect(d?.terminalPortalBounds?.fullyInFrame,
+      'complete original portal and observatory must fit').toBe(true);
+    expect(d?.terminalWingAngles?.length).toBe(2);
+    expect(Math.abs(d.terminalWingAngles[0]),
+      'real left wing must open').toBeGreaterThan(.50);
+    expect(Math.abs(d.terminalWingAngles[1]),
+      'real right wing must open').toBeGreaterThan(.50);
+    expect(d?.cameraHalfHeight,
+      'real finale must be visually closer').toBeLessThan(width<500?5.3:4.6);
+    const file=path.join(dir,'natural-flagship-escape-'+width+'.png');
+    await page.screenshot({path:file,fullPage:true});
+    fs.writeFileSync(file.slice(0,-4)+'.json',JSON.stringify({
+      capturedAt:new Date().toISOString(),seed,runToken,tick:terminal.tick,
+      publicChecksum:terminal.publicChecksum,viewport:{width,height},
+      imageSha256:createHash('sha256').update(fs.readFileSync(file)).digest('hex'),
+      sourceSha:require('node:child_process').execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),
+      source:'Exact-source continuous real partial-observation escape and original full-frame Chromium WebGL; no fake movement, hidden map or crop.',
+      physical:{portal:d.terminalPortalBounds,wingAngles:d.terminalWingAngles,
+        pip:d.explorerPhysicalBounds,cameraHalfHeight:d.cameraHalfHeight}
+    },null,2));
+  }
+});

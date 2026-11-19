@@ -84,6 +84,9 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   // witnessed public key collection. Reuse this offset; no per-frame objects,
   // synthetic treasure, actor movement, hidden data or additional HUD prose.
   const pickupCameraOffset = new THREE.Vector3(13, 17, 16);
+  // A true publicly witnessed escape earns Pip and the OPENING Tideglass
+  // arch one meaningful 3D finale. Reused vector, no new frame allocations.
+  const escapeCameraOffset = new THREE.Vector3(9, 16, 24);
   const world = createMazeWorld({ balanced });
   scene.add(world.group);
   // The genuinely visible, NON-COLLIDING fossil tide-organ silhouettes may
@@ -982,6 +985,13 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     let portraitEncounterOrbit = 0;
     let fossilPerformanceShot = false;
     let pressureCameraBeat = false;
+    // The terminal-only optical stage is earned by the SAME current,
+    // disclosed, source-authentic escape. It must not stage a failed run,
+    // an undiscovered exit, a new run or manual spectator controls.
+    const publicVictoryScene = cameraMode === 'follow' && result === 'escape'
+      && Number.isSafeInteger(s.exitCell) && s.currentCell === s.exitCell
+      && Array.isArray(s.visibleCells) && s.visibleCells.includes(s.exitCell)
+      && Array.isArray(s.cells) && s.cells.some(c=>c.cell===s.exitCell);
     if (cameraMode === 'overview') {
       const positions = s.cells.map(cell => cellPosition(cell.cell, s.width, s.height));
       const minX = Math.min(...positions.map(p => p.x)), maxX = Math.max(...positions.map(p => p.x));
@@ -995,7 +1005,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // actors one bounded shared stage; preserve Follow and portrait restraint.
       // The guardian world position exists only in public snapshot models.
       const frameThreat=publicEncounterFrameWeight(closestThreat?.strength,cameraMode,result,aspect);
-      desiredTarget.set(pose.x+(closestThreat?.x-pose.x||0)*frameThreat,ground+.25,pose.z+(closestThreat?.z-pose.z||0)*frameThreat);
+      desiredTarget.set(pose.x+(closestThreat?.x-pose.x||0)*frameThreat,
+        ground+(publicVictoryScene?1.00:.25),pose.z+(closestThreat?.z-pose.z||0)*frameThreat);
       // Actual exact-source 320×740 WebGL (2026-11-04, tick 13) exposed
       // Thornback's articulated right sail at +0.974 NDC: its center passed
       // while its complete physical silhouette failed the strict ±.95 gate.
@@ -1120,7 +1131,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // closed doors, unauthenticated openings, overview or Detail.
       // Native WebGL silhouette and HUD/occlusion acceptance remain mandatory.
       const gateStoryCloseup = !!openingGateBeat && aspect >= 1.1;
-      targetHeight = cameraMode === 'detail'
+      targetHeight = publicVictoryScene ? (aspect < .9 ? 5.10 : 4.35)
+        : cameraMode === 'detail'
         ? publicDetailEncounterHalfHeight(aspect, closestThreat?.strength)
         : height < 340 ? 5.4
         : cameraGate ? (gateStoryCloseup ? 3.58
@@ -1380,8 +1392,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // autonomous 180ms diagonal step on the full-width 320px stage. Apply
     // only when that public hazard stage is selected, never for hidden traps.
     const blend = settings.reducedMotion || frames === 0 ? 1
-      : 1 - Math.exp(-delta * publicCameraSettleRate(
-        pickupCameraBeat, publicFollowEncounter, pressureCameraBeat, openingStageView));
+      : 1 - Math.exp(-delta * (publicVictoryScene ? 10 : publicCameraSettleRate(
+        pickupCameraBeat, publicFollowEncounter, pressureCameraBeat, openingStageView)));
     cameraTarget.lerp(desiredTarget, blend);
     halfHeight += (targetHeight - halfHeight) * blend;
     camera.left = -halfHeight * aspect; camera.right = halfHeight * aspect;
@@ -1434,7 +1446,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     earnedRecoilCameraOffset.copy(portraitCameraOffset);
     earnedRecoilCameraOffset.y = publicGuardianEarnedRecoilRevealElevation(
       aspect,earnedRecoilCameraOffset.y,earnedDuelContinuity,settings.reducedMotion);
-    cameraOffset.lerp(openingStageView ? openingGateCameraOffset
+    cameraOffset.lerp(publicVictoryScene ? escapeCameraOffset
+      : openingStageView ? openingGateCameraOffset
       : cameraGate ? sealedGateCameraOffset
       : earnedDuelContinuity ? earnedRecoilCameraOffset
       : portraitEncounterOrbit ? portraitCameraOffset
@@ -1854,6 +1867,15 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       };
       const visibleGuardianSilhouettes=[...wardens.values()]
         .map(({model})=>physicalSilhouette(model.group));
+      // Measure the complete REAL connected terminal portal, including
+      // the observatory and wing hinges. No test-only mesh or screenshot crop.
+      const terminalPortal=publicVictoryScene
+        ?world.group.getObjectByName('Disclosed exit portal'):null;
+      const terminalPortalBounds=terminalPortal
+        ?physicalSilhouette(terminalPortal):null;
+      const terminalWingAngles=terminalPortal?[-1,1].map(side=>
+        terminalPortal.getObjectByName('Disclosed exit articulated tide-wing hinge '+side)
+          ?.rotation.y??null):null;
       // Public-only original trap geometry evidence: measure its actual hinged
       // full-mesh 3D envelope in the same source-bound WebGL screenshot.
       // This never enumerates hidden hazards or commands the autonomous agent.
@@ -2055,6 +2077,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         routeQueue: cells.length, world: stats, contextLost: false,
         disclosedThreats: wardens.size, wardensInFrame, wardensWithMargin,
         guardianModelsFullyInFrame, guardianPhysicalBounds:visibleGuardianSilhouettes,
+        publicVictoryScene, terminalPortalBounds, terminalWingAngles,
         observedTrapPhysicalBounds,
         explorerModelFullyInFrame:!!explorerSilhouette?.fullyInFrame,
         explorerPhysicalBounds:explorerSilhouette,
