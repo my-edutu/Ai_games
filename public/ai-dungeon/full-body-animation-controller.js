@@ -2529,7 +2529,7 @@ export function confirmOriginalSourceSwingAnkleNetClearance({
  const depth=floorTopY-beforeToeY;
  const remaining=floorTopY-afterToeY;
  // Exact original licensed 390px Walking_A source skin (Actions
- // #44582648853, frame6) raised an already airborne heel +12.893mm for
+ // #44582648853, frame6) raised an already airborne heel +8.827mm for
  // only +4.751mm of toe relief. Calf source-skin already rejects
  // heel-dominated knee articulation, but the preceding ANKLE bypassed
  // that physical rule before a safer connected hip/knee option was tested.
