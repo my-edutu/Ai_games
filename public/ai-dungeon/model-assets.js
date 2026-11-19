@@ -6051,6 +6051,12 @@ function inspectSourceRigDeformation(actors){
      actor.sourceStanceVisualOffset?.z??0),
     sourceStanceSlideCarryFrames:actor.sourceStanceCarryFrames||0,
     sourceStanceSlideCarryPeakMeters:actor.sourceStanceCarryPeakMeters||0,
+    // Distinct from an actual planted foot: native weighted original-skin
+    // counterpitch is only a bounded source swing rescue, never root/HP.
+    sourceLicensedCounterpitchTrialFrames:actor.sourceLicensedCounterpitchTrialFrames||0,
+    sourceLicensedCounterpitchSelectedFrames:actor.sourceLicensedCounterpitchSelectedFrames||0,
+    sourceLicensedCounterpitchCurrentFrame:actor.sourceLicensedCounterpitchCurrentFrame??null,
+    sourceLicensedCounterpitchLastProof:actor.sourceLicensedCounterpitchLastProof??null,
     sourceNeutralSwingAcceptedFrames:actor.sourceNeutralSwingAcceptedFrames||0,
     sourceNeutralSwingCurrentFrameProofs:actor.sourceNeutralSwingCurrentFrameProofs??null,
     sourceNeutralSwingLastProbe:actor.sourceNeutralSwingLastProbe??null,
