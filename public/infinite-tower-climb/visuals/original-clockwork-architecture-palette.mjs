@@ -291,9 +291,24 @@ export function updateOriginalClockworkSuccessorRoute(deck, proof, opticalTail=n
   const tail=!valid && materialTailValid(opticalTail);
   const weight=valid?proof.oldWeight:tail?opticalTail.oldWeight:0;
   if (deck) {
+    // One physically walkable roof cannot show a violet rim, luminous
+    // underside and crystals while its exact source HP-open gate and landing
+    // top are still bronze. The previous .48/.82 weighting bled neon Void
+    // into the FIRST genuinely shared F9 frame in both original 1x films.
+    // Tint all *roof-owned* channels together; higher real F9 platforms,
+    // enemies, hazard glows and world lighting retain separate source owners.
     deck.top.color.copy(deck.topVoid).lerp(deck.bronze,weight);
-    deck.body.color.copy(deck.bodyVoid).lerp(deck.bronze,.82*weight);
-    if(deck.rim)deck.rim.color.copy(deck.rimVoid).lerp(deck.bronze,.48*weight);
+    deck.body.color.copy(deck.bodyVoid).lerp(deck.bronze,weight);
+    if(deck.rim)deck.rim.color.copy(deck.rimVoid).lerp(deck.bronze,weight);
+    if(deck.glow) {
+      deck.glow.color.copy(deck.glowVoid).lerp(deck.glowWarm,weight);
+      deck.glow.emissive.copy(deck.glowEmissiveVoid).lerp(deck.glowWarm,weight);
+    }
+    if(deck.crystal) {
+      deck.crystal.color.copy(deck.crystalVoid).lerp(deck.crystalWarm,weight);
+      deck.crystal.emissive.copy(deck.crystalEmissiveVoid)
+        .lerp(deck.crystalEmissiveWarm,weight);
+    }
   }
   return {sourceBound:valid,historicalOpticalTail:tail,
     sourceTick:valid?proof.sourceTick:null,
