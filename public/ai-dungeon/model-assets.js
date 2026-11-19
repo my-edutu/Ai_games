@@ -5052,13 +5052,16 @@ function stageLicensedSourceToeFinisherAfterCounterpitch(actor,reducedMotion){
   const original=toe.quaternion.clone();
   const axis=new THREE.Vector3(...audit.axis);
   const delta=new THREE.Quaternion();
+  const interval=proof.witnessedFrameIntervalSeconds;
+  if(!Number.isFinite(interval)||interval<.02||interval>.24)continue;
+  const toeAngle=Math.min(.12,3*interval);
   const candidateArgs={proof,before,side,sourceInstanceId:asset.uuid,
    sourceInstanceSame:true,sourceClipName:clip.name,
    sourceToeTrackVerified:true,sourceToeBoneParentVerified:true,
    floorTopY:-.02};
   let best=null;
   try{
-   for(const angleRad of [-.12,.12]){
+   for(const angleRad of [-toeAngle,toeAngle]){
     toe.quaternion.copy(original).multiply(
      delta.setFromAxisAngle(axis,angleRad));
     toe.updateWorldMatrix(true,true);
