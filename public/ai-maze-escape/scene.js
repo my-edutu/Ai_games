@@ -1,6 +1,7 @@
 import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
 import { PUBLIC_GUARDIAN_COUNTER_SECONDS, publicGuardianCounterMoment, publicGuardianCounterStageActive } from './public-counter-moment.mjs';
+import { publicEarnedCounterImpactStage } from './public-counter-impact.mjs';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
@@ -151,6 +152,32 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   lanternSurveyTurn.name='Observed pressure survey lantern corner';
   lanternSurveyTurn.visible=false;
   scene.add(lanternBeam,lanternSurveyTurn);
+  // Source-earned counter: the existing diffuse cone alone was not a readable
+  // Pip-to-Thornback action at native 320/390px. Add a restrained physical
+  // light core along ONLY known open one/two-link paths and an expanding impact
+  // ring fixed to the ACTUAL visible enemy. Both resources are constructed
+  // once, reused for every run and removed on visibility loss/terminal/reset.
+  // Nothing in this visual feedback affects the simulation, AI or collisions.
+  const counterCoreGeometry=new THREE.CylinderGeometry(.09,.09,1,10,1,true);
+  const counterCoreMaterial=new THREE.MeshBasicMaterial({
+    color:'#b7ffe9',transparent:true,opacity:.7,depthWrite:false,
+    side:THREE.DoubleSide,blending:THREE.AdditiveBlending
+  });
+  const counterCoreStraight=new THREE.Mesh(counterCoreGeometry,counterCoreMaterial);
+  const counterCoreTurn=new THREE.Mesh(counterCoreGeometry,counterCoreMaterial);
+  counterCoreStraight.name='Earned public lantern counter light core';
+  counterCoreTurn.name='Earned public lantern counter second open link';
+  counterCoreStraight.visible=false;counterCoreTurn.visible=false;
+  scene.add(counterCoreStraight,counterCoreTurn);
+  const counterImpactGeometry=new THREE.TorusGeometry(.82,.115,8,40);
+  const counterImpactMaterial=new THREE.MeshBasicMaterial({
+    color:'#ffe7a7',transparent:true,opacity:.76,depthWrite:false,
+    side:THREE.DoubleSide
+  });
+  const counterImpactRing=new THREE.Mesh(counterImpactGeometry,counterImpactMaterial);
+  counterImpactRing.name='Earned physical Thornback lantern counter impact';
+  counterImpactRing.visible=false;
+  scene.add(counterImpactRing);
   const lanternSurveyCorner=new THREE.Vector3();
   const placePublicSurveyCone=(mesh,from,to)=>{
     lanternBeamDirection.copy(from).sub(to);
@@ -893,6 +920,9 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // cone. Real models provide both endpoints; no hidden route/wall guessing.
     lanternBeam.visible=false;
     lanternSurveyTurn.visible=false;
+    counterCoreStraight.visible=false;
+    counterCoreTurn.visible=false;
+    counterImpactRing.visible=false;
     let pressureSurveySightline=null;
     if(!result&&explorerLantern&&closestThreat?.strength>.35
       &&publicLanternEncounter(s,closestThreat.cell)){
@@ -952,6 +982,43 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           if(!second){lanternBeam.visible=false;lanternSurveyTurn.visible=false;}
         }
       }
+    }
+    // A real, current, same-run lantern counter is a two-body ACTION. Use
+    // the same public actor clock that drives Thornback's shell recoil and
+    // Pip's physical lantern. The bright centerline is not allowed through
+    // an unknown, blocked or sealed corridor: only the already validated
+    // reciprocal direct link or the genuine open two-link bend may emit it.
+    const counterImpact=publicEarnedCounterImpactStage(
+      s,earnedCounterActor,settings.reducedMotion);
+    if(counterImpact && explorerLantern && earnedCounterModel?.parent
+      && (earnedTwoLinkPath || publicLanternEncounter(s,earnedCounterActor.cell))){
+      explorerLantern.getWorldPosition(lanternFocusOrigin);
+      counterImpactRing.position.copy(earnedCounterModel.position);
+      counterImpactRing.position.y+=1.18;
+      counterImpactRing.rotation.y=Math.atan2(
+        pose.x-earnedCounterActor.x,pose.z-earnedCounterActor.z);
+      counterImpactRing.scale.setScalar(counterImpact.scale);
+      counterImpactMaterial.opacity=counterImpact.opacity;
+      counterCoreMaterial.opacity=counterImpact.coreOpacity;
+      let connected=false;
+      if(earnedTwoLinkPath){
+        const middle=cellPosition(earnedTwoLinkPath.midCell,s.width,s.height);
+        lanternSurveyCorner.set(middle.x,
+          cellHeight(earnedTwoLinkPath.midCell,s.width,s.height)+1.23,
+          middle.z);
+        connected=placePublicSurveyCone(
+          counterCoreStraight,lanternFocusOrigin,lanternSurveyCorner)
+          && placePublicSurveyCone(
+            counterCoreTurn,lanternSurveyCorner,counterImpactRing.position);
+      }else{
+        connected=placePublicSurveyCone(
+          counterCoreStraight,lanternFocusOrigin,counterImpactRing.position);
+      }
+      if(!connected){
+        counterCoreStraight.visible=false;
+        counterCoreTurn.visible=false;
+      }
+      counterImpactRing.visible=connected;
     }
     guide.material.opacity = settings.highContrast ? .95 : .65;
 
@@ -2242,6 +2309,9 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     world.dispose(); explorer.dispose();
     scene.remove(pickupBurst); pickupGeometry.dispose(); pickupMaterial.dispose(); pickupBurst.clear();
     scene.remove(lanternBeam,lanternSurveyTurn); lanternBeamGeometry.dispose(); lanternBeamMaterial.dispose();
+    scene.remove(counterCoreStraight,counterCoreTurn,counterImpactRing);
+    counterCoreGeometry.dispose(); counterCoreMaterial.dispose();
+    counterImpactGeometry.dispose(); counterImpactMaterial.dispose();
     for (const entry of wardens.values()) removeWarden(entry);
     wardens.clear();
     // Fully release the deliberately bounded dormant GPU rig on final teardown.

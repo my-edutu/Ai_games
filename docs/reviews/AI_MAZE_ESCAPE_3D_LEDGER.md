@@ -1,3 +1,11 @@
+## Pass516 — real visible public lantern impact candidate (2026-11-19 UTC)
+
+- Incoming exact source \`7afa9b9d4a7da44f8728e193f5597fc1309c99d8\`: [native WebGL 44580732413](https://github.com/my-edutu/Ai_games/actions/runs/44580732413) **SUCCESS**; original artifact 14559191662 retrieved and **42/42 paired full PNG SHA hashes** independently rechecked. Actual 390px earned guardian \`6e3726fb...\` still hides the energy-transfer story in a small clay-colored Thornback against dense ruins despite a real full-body recoil and camera.
+- New SOURCE-CANDIDATE (not a rendered win): a visible, world-space ring on the CURRENT truly parried connected Thornback plus two pooled bright core meshes only along a source-verified disclosed reciprocal one/two-edge light path. Real same-run counterPhase controls bounded pulse; no first-seen/replay ghost, hidden-map ray, simulated hit, modified AI/physics/collider, reduced-motion animation, extra HUD or relaxed tests. Geometry resources are retained once and disposed. [Full dated original render critique and acceptance gate](./maze-3d/pass-516-public-guardian-lantern-impact-2026-11-19.md).
+- Exact-new-HEAD CI, uncropped screenshots, six-reset <100, NDC framing and independent art verdict remain PENDING; whole CI red separately on other games. Draft PR open, unmerged/undeployed. No final quality win.
+
+---
+
 ## Pass515 — actual parried near-Thornback visibility priority (2026-11-19 UTC)
 
 - [Exact-HEAD Pass514 native WebGL #44562818447](https://github.com/my-edutu/Ai_games/actions/runs/44562818447) SUCCESS (source `5f085248faf04861cec30cbcc3f3ed785a68211d`): downloaded authentic original artifact 14551259172 and recomputed **42/42 PNG + sidecar SHA-256 matches**. Same full 390px earned-counter shot still buries Thornback behind its own armour/foreground. Pass514/Pass512 picture difference averaged **1.30/255 RGB** despite new camera code; NOT a visual win. Strict original 6-reset geometry <100 and real chapter gate pass at incoming SHA; whole-repository CI fails separately.

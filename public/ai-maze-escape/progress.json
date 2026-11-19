@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-19T17:32:20.000Z",
+  "updatedAt": "2026-11-19T19:15:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass515 candidate: Pass514 exact-source WebGL #44562818447 succeeded with 42/42 independently rehashed original full-frame screenshot sidecars and six-reset <100, but the real 390px guardian counter still obscures Thornback; front-quarter camera effect ~1.30/255 RGB average vs earlier frame, visually REJECTED against Nintendo. Source root cause: true nearby parried guardian retains positive public warning strength and was excluded from the new earned counter shot. New same-visible-model publicly parried priority in development; full new exact-HEAD rendered and independent validation pending. Whole repo CI separately red; no merge/deploy/force."
+    "summary": "Pass516 source candidate: exact Pass515 native WebGL 44580732413 SUCCESS on 7afa9b9d, original 42/42 paired full-frame PNG SHA verified, 390px earned guardian still has weak lantern-to-Thornback contact storytelling. Production now stages a pooled 3D impact ring and core light ONLY on the existing genuine public counter with verified reciprocal one/two open links; no AI changes. New exact-HEAD screenshot/CI and independent Nintendo quality review PENDING; benchmark NOT MET, draft, no merge/deploy."
   },
   "captures": [
+    {
+      "title": "Pass515 exact 7afa9b9d native WebGL success; 42/42 original SHA-verified PNG sidecars, natural 136-tick chapter; Pass516 source light-impact candidate not yet rendered",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44580732413/artifacts/14559191662"
+    },
     {
       "title": "Pass514 exact HEAD 5f085248 native WebGL SUCCESS, original 42/42 SHA sidecars verified; authentic earned guardian portrait visually rejected, Pass515 candidate pending",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44562818447/artifacts/14551259172"
