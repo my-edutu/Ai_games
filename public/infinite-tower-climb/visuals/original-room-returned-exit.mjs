@@ -1,3 +1,5 @@
+import { observedSourceAirborneSuccessorApproach } from './source-physical-arrival-palette.mjs';
+
 // P0: a source position beyond the real F8 gateway must never be confused
 // with an ORIGINAL successor shaft that has actually returned on WebGL.
 // This is a display-only retirement interlock; it cannot modify the
@@ -53,7 +55,8 @@ export function observedReturnedSuccessorRoomReady(source,old,job) {
  * Returned successor depth cannot be blocked by a still-present genuine
  * bronze gate when the hero has already walked the full actual far-side roof.
  * Source position is NOT enough: exact F8 guardian zero-HP, old roof = real
- * F9 ground, full-body supported contact, same run, old original GPU
+ * F9 ground, grounded real roof OR authenticated raised-flight support,
+ * same run, old original GPU
  * ownership, an already assembled original successor load-bearing shaft and
  * a successful returned structural-submission frame are all mandatory.
  * This is only an initial 22% background optical overlap behind the original
@@ -85,12 +88,10 @@ export function observedSupportedReturnedShaftDepth(source,held,job) {
      held.opticalExitSubmitted===true ||
      held.thresholdX!==held.oldCapX+Math.floor(held.oldCapWidth*.76) ||
      ground.y+ground.height!==held.oldRoofY ||
-     p.grounded!==true || p.state!=='standing' || p.vy!==0 ||
-     p.groundedPlatformId!=='f9:ground' ||
-     p.y-p.halfHeight!==held.oldRoofY ||
-     p.x-p.halfWidth<ground.x ||
-     p.x+p.halfWidth>ground.x+ground.width ||
-     p.x-p.halfWidth<=held.thresholdX+100000 ||
+     // Actual original tick521: x346796, threshold304896. The former
+     // 100k MINIMUM excluded the authentic far-side roof/step corridor.
+     p.x-p.halfWidth<=held.thresholdX ||
+     p.x-p.halfWidth>held.thresholdX+100000 ||
      held.submittedFrames<1 || held.submittedFrames>=30 ||
      !Number.isFinite(held.visibleSeconds) ||
      held.visibleSeconds<0 || held.visibleSeconds>=2.8 ||
@@ -119,6 +120,17 @@ export function observedSupportedReturnedShaftDepth(source,held,job) {
      job.structuralFade<0 || job.structuralFade>1 ||
      job.structuralRoot?.isGroup!==true ||
      !['awaiting-structural-submission','awaiting-vista-submission'].includes(job.state))
+    return null;
+  const supportedRoof=p.grounded===true && p.state==='standing' &&
+    p.vy===0 && p.groundedPlatformId==='f9:ground' &&
+    p.y-p.halfHeight===held.oldRoofY &&
+    p.x-p.halfWidth>=ground.x &&
+    p.x+p.halfWidth<=ground.x+ground.width;
+  // The real F9 climber is airborne for the already-authored raised p2
+  // during the original film gap. Reuse the strict same-run guardian-HP0,
+  // present-body, source-reachable-deck witness; never invent a landing.
+  if(!supportedRoof &&
+     !observedSourceAirborneSuccessorApproach(source,held,held.oldRoofY))
     return null;
   return {sourceBound:true,sourceTick:source.tick,alpha:.22,
     requiresReturnedOriginalSuccessor:true,

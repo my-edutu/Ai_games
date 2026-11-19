@@ -98,7 +98,7 @@ test('cold but already built original successor gains only a bounded returned-fr
  const gate=304896;
  const live={...source,tick:518,
    player:{health:4,grounded:true,state:'standing',vy:0,
-     groundedPlatformId:'f9:ground',x:gate+160000,y:3238000,
+     groundedPlatformId:'f9:ground',x:gate+45000,y:3238000,
      halfWidth:9000,halfHeight:14000},
    platforms:[{id:'f9:ground',x:0,y:3212000,width:480000,height:12000}]};
  const old={...held,oldCapX:115200,oldCapWidth:249600,thresholdX:gate,
@@ -112,7 +112,26 @@ test('cold but already built original successor gains only a bounded returned-fr
    structuralVisibleReturns:0,structuralFade:0,
    structuralRoot:{isGroup:true,visible:false},
    state:'awaiting-structural-submission'};
- assert.equal(depth(snapshot,old,returned)?.alpha,.22);
+ assert.equal(depth(snapshot,old,returned)?.alpha,.22,
+   'real roof contact immediately beyond gate must see returned shaft');
+ assert.equal(depth({...snapshot,player:{...snapshot.player,
+   x:gate+snapshot.player.halfWidth}},old,returned),null,
+   'full body has not crossed genuine gate');
+ // Real fixed-step candidate danger tick521, current F9 step flight.
+ const airborne={...snapshot,tick:521,
+   player:{...snapshot.player,x:346796,y:3319000,vy:-12000,
+     grounded:false,state:'airborne',groundedPlatformId:null},
+   platforms:[...snapshot.platforms,
+     {id:'f9:p2',x:320000,y:3330000,width:40000,height:20000}],
+   lastGuardianCrossing:{...snapshot.lastGuardianCrossing,
+     crossingX:321096,halfWidth:9000,halfHeight:14000}};
+ assert.equal(depth(airborne,old,returned)?.alpha,.22,
+   'authentic airborne next-step corridor must not hide returned shaft');
+ assert.equal(depth({...airborne,platforms:airborne.platforms.slice(0,1)},old,returned),null,
+   'no invented raised deck');
+ assert.equal(depth({...airborne,lastGuardianCrossing:{
+   ...airborne.lastGuardianCrossing,guardian:{kind:'guardian',active:true,health:4}
+ }},old,returned),null,'living guardian still vetoes passage');
  assert.equal(depth(snapshot,old,{...returned,submittedFrames:4}),null,
    'no actual post-structure GPU return means no new visual aperture');
  assert.equal(depth(snapshot,old,{...returned,structuralRoot:{isGroup:false}}),null);
