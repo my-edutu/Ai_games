@@ -222,5 +222,55 @@
     "actualDeviceP50P95P99AndMemory": "NOT EVALUATED",
     "nextHighestImpact": "Run exact-head quality and new frozen/candidate 9-job original film; inspect real JPEG sampling/unique native-clock anchors plus video transport/FPS regression. Then fix the proven hard old Clockwork→Void architectural first-paint with source-pinned aligned full-motion footage. Do not advance P1.",
     "safety": "Baseline fixed; PR68 draft, PR58 unchanged; excluded games untouched; never merge, deploy or force push."
+  },
+  "p0Run11OriginalImmuneGatewayReturnedAtmosphere20261119": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "reviewedCandidateSourceSha": "ee1a98d601c6fffac0d03bf8c89f9cfd7b6ce7d4",
+    "reviewedNineJobOriginalFilm": "https://github.com/my-edutu/Ai_games/actions/runs/44536321610",
+    "reviewedOriginalDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44536321610/artifacts/14536402033",
+    "verifiedOriginalFilmSha256": {
+      "desktop": "f668dc6e79a193d9f1783e537dbaf9afbd00077e8fad3ccd9e6877b9b9211e53",
+      "portrait": "df896c0d9928cc61e67f468c41aa38014737d0fe09f6f1b863697060c33b9586"
+    },
+    "actualFullMotionObservation": "Downloaded ORIGINAL, unedited candidate 60+s WebMs, extracted source-matched native 23..29s footage for 960x600 and 390x844. Both portray the full moving climber transitioning from warm bronze to a distinct violet successor room, but original HP-open gate is not clearly legible in a sustained native shared-room shot. Prominent old bronze foreground rails/columns remain across the departure; F9 floor glyph already visible while the background is still old bronze.",
+    "observedNativeHUDToNewRoomSeconds": {
+      "desktop": 1.75,
+      "portrait": 2.5
+    },
+    "nativeWarmToCoolMixedRoomSeconds": {
+      "desktop": 0,
+      "portrait": 0.25
+    },
+    "originalSourceCameraProof": "Renderer-return physics/sightline sidecars report true immutable HP0 tick475 and 3 desktop, 4 portrait projected clear original-gateway+full-hero frames, but NDC projection is NOT a filmed jointly visible physical gateway.",
+    "precedingExactHeadCI": "https://github.com/my-edutu/Ai_games/actions/runs/44536321616 — completed SUCCESS (technical veto only)",
+    "precedingStrictVideoPairing": "https://github.com/my-edutu/Ai_games/actions/runs/44536321610 — FAILED; event-aligned danger A/B 0/2 viewports, original scene pairs preserved 8/8.",
+    "chosenSystemGap": "Actual first-return F9 vault and rear source-owned steel are already built and uniquely Void-material staged, but certified old-room global sky/fog/light is held fully Clockwork until late optical lease; native architecture then changes abruptly even while a legitimate old gate remains.",
+    "productionChanges": [
+      "36a3015750c5e9c330133373b0a04c83b6324b5c — source-only gradual distant sky/fog/light cooling after >=2 source-returned original F9 structural-bearing frames and supported real F9 body; original old gateway/roof remain bronze",
+      "cd9521380c65cdbc69ff8fb52013745f25cbc9f7 — scene.mjs consumes same live observer certificate as physical gateway, no renderer timestamp assumption"
+    ],
+    "testChange": "82bda4071e79ecfe8950759bae4943342ea5b837 — coverage for genuine same-current-tick returned bearer, forged/stale/no GPU owner, bounded 42% early shared-room mixing, prior behavior without witness",
+    "latestExactHeadCIBeforeEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/44546071608 — pending at observation; NOT a pass claim",
+    "newRealGameplayCapture": "New source-pinned 9-job original 1x baseline/candidate capture requested after evidence record via capture-request.json; check workflow at exact final commit. NOT YET RUN/ACCEPTED.",
+    "acceptedConsecutiveOriginalGateHeroF9Frames": {
+      "desktop": 0,
+      "portrait": 0
+    },
+    "independentFreshContextCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDevice": {
+      "frameTimeP50": "NOT EVALUATED",
+      "frameTimeP95": "NOT EVALUATED",
+      "frameTimeP99": "NOT EVALUATED",
+      "memory": "NOT EVALUATED"
+    },
+    "mostImportantRemainingExperienceGap": "Physically OPEN original HP0 gate is not clearly filmed with full moving hero and walkable Floor9 for >=2 consecutive genuinely source/PTS-aligned original native frames in both viewports. Hard background replacement still unverified after this change.",
+    "nextHighestImpact": "Inspect newly source-pinned normal-speed actual WebMs; if shared original gate remains obscured by bronze foreground, correct SOURCE-OWNED original gateway/foreground 3D silhouette and GPU exposure with real camera rays; do not patch mere tests or count CI as aesthetics.",
+    "constraints": "Frozen SHA unchanged, PR58 untouched, PR68 draft, no merge/deploy/force-push, no unrelated game edits."
   }
 }
