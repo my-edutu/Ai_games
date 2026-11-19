@@ -78,11 +78,39 @@ test('shader source, run, death, previous-frame and resource bounds veto invente
   assert.equal(hold(source,held,job,{...proof,incomingReturnedFrames:1}),null);
   assert.equal(hold(source,held,job,null),null);
 });
+test('source-supported near-roof crossing preserves returned bronze climate only until real successor paint',async()=>{
+  const {observedEarnedFarSideShaftOverlap:far,
+    observedReturnedOriginalArchitectureHold:hold}=await loader;
+  const {source,held,job}=realDeparture();
+  // The real successor ground shares the original roof. Standing 12m past
+  // the HP-open threshold is NOT the raised/far-side case (>7m sole rise).
+  source.player={...source.player,x:held.thresholdX+12000,
+    y:held.oldRoofY+source.player.halfHeight,
+    grounded:true,groundedPlatformId:'f9:ground',state:'standing',vy:0};
+  assert.equal(far(source,held,job),null);
+  const lock=hold(source,held,job,null);
+  assert.equal(lock?.gateOpacity,.84);
+  assert.equal(lock?.galleryOpacity,.77);
+  assert.equal(lock?.incomingReturnedFrames,0);
+  assert.equal(hold(source,held,{...job,structuralVisibleReturns:1},null),null,
+    'the first real incoming core return must end the retained old climate');
+  assert.equal(hold({...source,runToken:'other-run'},held,job,null),null);
+  assert.equal(hold({...source,lastGuardianCrossing:{...source.lastGuardianCrossing,
+    guardian:{kind:'guardian',active:true,health:1}}},held,job,null),null);
+  assert.equal(hold({...source,player:{...source.player,
+    grounded:false,groundedPlatformId:null}},held,job,null),null);
+});
 test('production World uses real render submission owner and expires lease into normal far-side fade',()=>{
   const fs=require('node:fs');
   const w=fs.readFileSync(path.resolve(__dirname,
     '../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
   assert.match(w,/held\.lastReturnedOldGatewayOpacity=Math\.max\(0,/);
+  assert.match(w,/const returnedBronzeHold=!options\\.stale\\s*\\?observedReturnedOriginalArchitectureHold\\(/,
+    'active old-departure witness must not bypass the last returned gate');
+  assert.match(w,/const returnedBronzePaletteLock=!options\\.stale && !options\\.reducedMotion\\s*\\?observedReturnedOriginalArchitectureHold\\(/);
+  assert.match(w,/const oldRoomWitness=farSideHorizon \\|\\| returnedBronzePaletteLock/,
+    'near roof and raised ascent share a single source-returned world climate');
+  assert.match(w,/if\\(oldRoomWitness\\) departure=Math\\.min\\(departure,1-certifiedOldRoomWeight\\)/);
   assert.match(w,/held\.lastReturnedOriginalGalleryOpacity=Math\.max\(0,/);
   assert.match(w,/observedReturnedOriginalArchitectureHold\(\s*snapshot,held,deferredDistantArrival,farSide\)/);
   assert.match(w,/returnedBronzeHold\?\.gateOpacity\?\?sourceDeparture\?\.opacity/);
