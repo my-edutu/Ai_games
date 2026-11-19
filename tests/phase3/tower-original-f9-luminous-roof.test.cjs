@@ -91,7 +91,7 @@ test('no invalid crossing may retain a warm emitting floor or a false bronze arr
 test('the actual world isolates only true F9 ground luminous architecture, never active hazard/raised decks or floor simulation',()=>{
   const source=fs.readFileSync('public/infinite-tower-climb/visuals/world.mjs','utf8');
   assert.match(source,/const sharedPhysicalRoof=theme==='void'/);
-  assert.match(source,/originalClockworkSuccessorDeck\(p,retainedEarnedCap,sourceRunToken\)/);
+  assert.match(source,/observedOriginalClockworkSuccessorDeck\(p,retainedEarnedCap,sourceRunToken\)/);
   assert.match(source,/const glow=materials\.glow\.clone\(\)/);
   assert.match(source,/const crystal=materials\.crystal\.clone\(\)/);
   assert.match(source,/sharedPhysicalRoof\?arrivalRoutePalette\.glow:materials\.glow/);
