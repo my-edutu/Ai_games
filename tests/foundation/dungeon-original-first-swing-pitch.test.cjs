@@ -144,3 +144,35 @@ test('RED: applied original hip+knee pitch must earn a SECOND independent final 
  assert.match(renderer,/sourceFirstSwingPitchProof/,
   'independent real shoe receipt must be exposed for native Chromium review');
 });
+
+
+test('RED: the genuine 390px source ankle must not raise an already airborne heel faster than its still-buried toe',async()=>{
+ const {confirmOriginalSourceSwingAnkleNetClearance:clear}=await load();
+ const floorTopY=-.02;
+ // Original imported 41-joint CC0 Vanguard GLB; actual Actions #44582648853
+ // 390px nine-tick Walking_A tick6, fully weighted, 150ms displayed frame,
+ // 61.700mm lawful root travel, source shoe vertices BEFORE and after ANKLE.
+ // The later calf/thigh partial lift still leaves the toe under the floor.
+ const heelDominated={
+  floorTopY,appliedAngleRad:.13333333333333258,
+  beforeToeY:-.07045647785691661,
+  afterToeY:-.06570524261231639,
+  beforeHeelY:.23086051292237672,
+  afterHeelY:.24375318981086622
+ };
+ assert.equal(clear(heelDominated),false,
+  'a submerged toe gaining 4.75mm while its airborne heel rises 12.89mm is NOT physically grounded relief');
+ // Same original source, actual 1440px tick6: a connected ankle lifts the toe
+ // 18.039mm and lowers the heel 17.682mm; keep this safe result admissible.
+ assert.equal(clear({floorTopY,appliedAngleRad:-.22,
+  beforeToeY:-.07785897483905205,
+  afterToeY:-.05981957732259175,
+  beforeHeelY:.18373169099865297,
+  afterHeelY:.1660495676936464}),true);
+ // Genuine short source ankle candidates which improve shoe pitch must survive
+ // independently of screen size, while nonexistent lifts and illegal pose ranges fail.
+ assert.equal(clear({...heelDominated,
+  afterToeY:heelDominated.beforeToeY+.016,
+  afterHeelY:heelDominated.beforeHeelY+.004}),true);
+ assert.equal(clear({...heelDominated,afterToeY:heelDominated.beforeToeY}),false);
+});
