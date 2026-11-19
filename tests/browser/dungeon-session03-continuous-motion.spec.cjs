@@ -144,7 +144,12 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
      sourceLinkedFoot:a?.nativeLegOwnership?
       {probeFrames:a.nativeLegOwnership.sourceLinkedFootProbeFrames??0,
        acceptedFrames:a.nativeLegOwnership.sourceLinkedFootAcceptedFrames??0,
-       last:a.nativeLegOwnership.sourceLinkedFootProbeLast??null}:null};
+       last:a.nativeLegOwnership.sourceLinkedFootProbeLast??null}:null,
+     // Exact rendered original GLB world-root witness; NOT a generated step,
+     // heel/toe plant, IK correction, target or source pose by itself.
+     microWalk:a?.nativeLegOwnership?
+      {selected:Boolean(a.nativeLegOwnership.originalMicroTravelSelected),
+       receipt:a.nativeLegOwnership.originalMicroTravelWitness??null}:null};
    });
    rows.push({...sample,authorityTick:current.tick});
    expect(sample.checksum,'real WebGL source must display this legal tick').toBe(current.checksum);
@@ -169,6 +174,22 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
    actualFrames:rows,errors,video,
    walkExitFadeObserved:rows.filter(x=>x.movingExitFade?.fromClip==='Walking_A').length,
    movingExitFadeSelected:rows.filter(x=>x.movingExitFade?.candidateSelected===true).length,
+   // Independent AFTER visual evidence must show if this new connected
+   // shoe-correction eligibility is EVER used, and whether buried toes remain.
+   // Missing/wrong clips never become a false zero-penetration claim.
+   witnessedMicroWalkSelections:rows.filter(x=>x.microWalk?.selected).length,
+   originalWalkingShoeEvidence:rows.filter(x=>x.sourceClip==='Walking_A'&&
+    x.sourceWeight>=.9&&['left','right'].every(side=>
+     Number.isFinite(x.sourceSolePatchWorld?.[side]?.toe?.[1])&&
+     Number.isFinite(x.sourceSolePatchWorld?.[side]?.heel?.[1]))).map(x=>{
+      const floorTopY=-.02,shoe=x.sourceSolePatchWorld;
+      return {frame:x.frame,tick:x.tick,
+       microWalkSelected:Boolean(x.microWalk?.selected),
+       leftToePenetrationMeters:Math.max(0,floorTopY-shoe.left.toe[1]),
+       rightToePenetrationMeters:Math.max(0,floorTopY-shoe.right.toe[1]),
+       leftHeelAboveMeters:shoe.left.heel[1]-floorTopY,
+       rightHeelAboveMeters:shoe.right.heel[1]-floorTopY};
+     }),
    warning:'These are real renderer samples and canvas frames. 24 is a MediaRecorder request, not actual encoded FPS. Missing consecutive skinned contact, heel support, foot-slide and independent multi-role critique remain failures.'};
   const out='artifacts/dungeon-full-body-continuous-'+view.name+'.json';
   fs.writeFileSync(out,JSON.stringify(evidence,null,2));
