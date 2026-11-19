@@ -418,6 +418,91 @@ export function observedSourceEarnedEarlyVoidShaftAperture(source, held, job) {
 }
 
 
+// P0 continuous, source-authenticated ground corridor from the real bronze
+// guardian sill to the far-side climb. The original short-range aperture
+// stops at +60m and the raised/far-side witness starts only at +100m or a
+// genuine +7m sole rise. Under cold WebGL a REAL grounded climber can occupy
+// the 60–100m receiving roof when its FIRST original successor core finally
+// finishes building; both former witnesses then return null. The renderer
+// submits a bronze-only room and later a disconnected violet room.
+//
+// Grant <=22% of the ALREADY-BUILT noninteractive real shaft's materials
+// ONLY if the original HP-zero crossing, exact walkable successor roof, full
+// body, live original GPU gateway and at least one actual returned WebGL
+// frame all agree. Never grant gameplay progress, a fictional bridge,
+// a recorded screenshot, an extra draw pass or source/native synchronization.
+export function observedGroundedReceivingRoofColdPaint(source,held,job) {
+  const p=source?.player,w=source?.lastGuardianCrossing;
+  const cap=w?.cap,g=w?.guardian;
+  const roof=source?.platforms?.find(s=>s?.id==='f9:ground');
+  if(source?.lifecycle!=='running' || source.floor!==9 ||
+    source.theme!=='void' || typeof source.runToken!=='string' ||
+    !source.runToken || !valid(source.tick) ||
+    !p || !(p.health>0) || p.grounded!==true ||
+    (p.state!=='standing' && p.state!=='hurt') ||
+    p.groundedPlatformId!=='f9:ground' || p.vy!==0 ||
+    ![p.x,p.y,p.halfWidth,p.halfHeight,
+      roof?.x,roof?.y,roof?.width,roof?.height].every(valid) ||
+    p.halfWidth<=0 || p.halfHeight<=0 ||
+    !roof || roof.width<=0 || roof.height<=0 ||
+    !held || held.runToken!==source.runToken || held.floor!==9 ||
+    held.guardianGateRetained!==true ||
+    held.verifiedObservedFloorAdvance!==true ||
+    held.oldCapId!=='f8:cap' || held.opticalExitSubmitted===true ||
+    ![held.oldCapX,held.oldCapWidth,held.oldRoofY,
+      held.thresholdX,held.crossingTick,held.firstWorldRenderTick,
+      held.submittedFrames].every(valid) ||
+    held.oldCapWidth<=0 || held.submittedFrames<1 ||
+    held.submittedFrames>12 ||
+    !Number.isFinite(held.visibleSeconds) ||
+    held.visibleSeconds<0 || held.visibleSeconds>=2.8 ||
+    held.visibleSeconds>held.submittedFrames*.1+1e-8 ||
+    !Number.isFinite(held.originalGatewayOpacity) ||
+    held.originalGatewayOpacity<=.035 ||
+    held.originalGatewayOpacity>1 ||
+    held.thresholdX!==held.oldCapX+Math.floor(held.oldCapWidth*.76) ||
+    roof.y+roof.height!==held.oldRoofY ||
+    p.y-p.halfHeight!==held.oldRoofY ||
+    p.x-p.halfWidth<roof.x || p.x+p.halfWidth>roof.x+roof.width ||
+    // Preserve exactly one contiguous region: the near 6–60m aperture and
+    // the far >100m / elevated-step path retain their existing stricter
+    // separate contracts.
+    p.x-p.halfWidth<held.thresholdX+6000 ||
+    p.x-p.halfWidth>held.thresholdX+100000 ||
+    source.tick<held.crossingTick ||
+    source.tick-held.crossingTick>150 ||
+    !w || w.runToken!==source.runToken || w.fromFloor!==8 ||
+    w.toFloor!==9 || !valid(w.sourceTick) ||
+    w.sourceTick!==held.crossingTick || w.sourceTick>source.tick ||
+    cap?.id!=='f8:cap' || ![cap.x,cap.y,cap.width,cap.height].every(valid) ||
+    cap.width<=0 || cap.height<=0 ||
+    cap.x!==held.oldCapX || cap.width!==held.oldCapWidth ||
+    cap.y+cap.height!==held.oldRoofY || w.exitX!==held.thresholdX ||
+    g?.kind!=='guardian' || g.active!==false ||
+    !Number.isFinite(g.health) || g.health>0 ||
+    !job || job.runToken!==source.runToken || job.floor!==9 ||
+    job.proof!=='recorded-source-gateway' ||
+    job.structureDeferred!==true ||
+    !['awaiting-void-biome-build','awaiting-structural-release',
+      'awaiting-structural-submission','awaiting-vista-submission']
+      .includes(job.state) ||
+    !valid(job.sourceTick) ||
+    job.sourceTick!==held.firstWorldRenderTick ||
+    job.sourceTick>source.tick ||
+    !valid(job.structureBuiltAtSubmitted) ||
+    job.structureBuiltAtSubmitted<1 ||
+    !valid(job.submittedFrames) ||
+    job.submittedFrames<job.structureBuiltAtSubmitted ||
+    job.submittedFrames>12 ||
+    job.structuralVisibleReturns!==0 ||
+    job.structuralRoot?.isGroup!==true ||
+    !(job.structuralRoot.children?.length>0)) return null;
+  return {sourceBound:true,sourceTick:source.tick,grounded:true,
+    alpha:.22,basis:'authentic-grounded-receiving-roof-corridor',
+    originalGatewayRetained:true,
+    limitation:'Live HP-zero old gateway, exact full-body F9 roof support, built original successor core and actual previous renderer return; not native pixels'};
+}
+
 // P0 coherent far-side first paint. In original 1x gameplay, slow WebGL may
 // consume the near-sill 6–60m interval while uploading the REAL Floor9 shell.
 // The climber then stands on a source-authoritative farther F9 deck, the
@@ -429,6 +514,8 @@ export function observedSourceEarnedEarlyVoidShaftAperture(source, held, job) {
 export function observedSourceSupportedVoidFirstPaint(source, held, job) {
   const near=observedSourceEarnedEarlyVoidShaftAperture(source,held,job);
   if(near?.sourceBound===true)return near;
+  const roof=observedGroundedReceivingRoofColdPaint(source,held,job);
+  if(roof?.sourceBound===true)return roof;
   const far=observedEarnedFarSideShaftOverlap(source,held,job);
   if(far?.sourceBound!==true ||
      far.sourceTick!==source?.tick ||
