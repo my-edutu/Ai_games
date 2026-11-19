@@ -1,3 +1,11 @@
+## Pass507 — genuine earned Thornback full-body spring against native mobile occlusion (2026-11-19 UTC)
+
+- Incoming verified original [Pass506 native WebGL 44486479722](https://github.com/my-edutu/Ai_games/actions/runs/44486479722) **SUCCESS** on `a6619e9267f1259e90a822179aa465e3c3bf2f00`, 42/42 direct image SHA sidecars matched, separate 3-frame gate manifest present; the authentic uncropped 390px escape now exposes Pip and portal instead of the old duplicative ESCAPED overlay. Native earned-recoil 390px photo still shows the real guardian shell crowded by foreground mineral plant silhouettes, despite NDC bounds passing.
+- **Pass507 production candidate:** the existing entire connected Thornback body now executes one substantial 0.94-world-unit source-earned vertical spring between counter phase .25–.79, returning grounded before the .83 topple; real AI/collider/world position, privacy, camera, reduced motion, resources and thresholds unchanged. Installed Three tests require true substantial body displacement, reset, fake/unseen/terminal exclusion and zero GPU resource additions. [Review](./maze-3d/pass-507-earned-guardian-full-body-recoil-2026-11-19.md).
+- **Exact-HEAD source CI and new authentic full-resolution rendered verdict PENDING.** Original Nintendo benchmark remains **NOT MET**, and independent critic/Ultracode remains unavailable (workspace tunnel NOT_FOUND). No merge/deploy. Next reject/accept the genuine 390px counter frame, then chapter pacing (529 ticks; counter-to-key 485 ticks).
+
+---
+
 ## Pass505 — repair actual Pass503 native full-frame ending obstruction (2026-11-19 UTC)
 
 - **Confirmed exact-head real blocker:** Pass503 [native WebGL 44474480759](https://github.com/my-edutu/Ai_games/actions/runs/44474480759) rendered 8/9 browser tests successfully, but failed the authentic uninterrupted 390px escape camera: actual optical half-height **7.725846** instead of required **<5.3**. Generic mobile full-bleed expansion undid the terminal-specific 5.10 authored shot. Earlier source, Chromium initialization and six-reset geometry <100 were green. This is **not** a stale test.

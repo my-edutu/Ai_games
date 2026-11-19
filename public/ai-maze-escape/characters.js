@@ -906,6 +906,16 @@ export function createWarden(options = {}) {
       ?Math.max(0,Math.min(1,options.counterPhase)):null;
     const counterLoad=counterPhase===null?0:Math.max(0,1-Math.abs(counterPhase-.20)/.20);
     const counterRelease=counterPhase===null?0:Math.max(0,1-Math.abs(counterPhase-.60)/.36);
+    // The actual native 390px earned counter still buries Thornback's shell
+    // behind the foreground reef. Let the SAME complete, connected body make
+    // one visible load -> spring-clear -> grounded stumble. The real AI has
+    // already earned its lantern parry and moved along its own lawful route.
+    // This local vertical performance never changes the patrol cell, path,
+    // collision, contact shadow, unseen threats or authoritative position.
+    // The quadratic endpoints make the leap land smoothly before the .83
+    // collapse; reduced-motion/false/stale counters get exactly zero lift.
+    const counterVault=counterPhase===null?0:
+      Math.sin(Math.PI*Math.max(0,Math.min(1,(counterPhase-.25)/.54)))**2;
     // Source-earned parry has a THIRD, unambiguously different outcome: the
     // connected armor folds around a retreating, winded Thornback. The
     // settled defeat is earned by this guardian's already-observed counter,
@@ -1056,7 +1066,7 @@ export function createWarden(options = {}) {
     // ACTUAL witnessed warning: Thornback crouches behind its planted foreclaws,
     // then recoils taller on the same shell-release beat. It is a connected,
     // source-public defensive performance, not a strike or authoritative move.
-    body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018)-plantedClaws*.20+display*.085*alert+(parried?.19:0)-counterLoad*.16+counterRelease*.08-counterCollapse*.23;
+    body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018)-plantedClaws*.20+display*.085*alert+(parried?.19:0)-counterLoad*.16+counterRelease*.08+counterVault*.94-counterCollapse*.23;
     body.rotation.x=-s.danger*.055-alert*.11-plantedClaws*.34+display*.19*alert+(parried?.42:0)+counterLoad*.23-counterRelease*.19-counterCollapse*.30;
     body.rotation.y=lookYaw*.4;
     // The native earned-counter portrait shows Thornback almost stationary
