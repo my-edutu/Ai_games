@@ -44,6 +44,23 @@ export function observedSourceReturnedCoreBeforeScenicUpload(source,held,job,sta
   if(stage==='biome' &&
       (!Number.isSafeInteger(job.peripheryBuiltAtSubmitted) ||
        job.submittedFrames<=job.peripheryBuiltAtSubmitted))return false;
+  // A contradictory immutable guardian event is never permission to
+  // build the scenic successor under a still-present original gateway.
+  // An absent event can occur in a late browser receipt; the retained
+  // prior source-certified GPU owner, when present, remains authoritative.
+  const crossing=source.lastGuardianCrossing;
+  if(crossing && (
+      crossing.runToken!==source.runToken ||
+      crossing.fromFloor!==8 || crossing.toFloor!==9 ||
+      crossing.cap?.id!=='f8:cap' ||
+      crossing.guardian?.kind!=='guardian' ||
+      crossing.guardian.active!==false ||
+      !Number.isFinite(crossing.guardian.health) ||
+      crossing.guardian.health>0 ||
+      !Number.isSafeInteger(crossing.sourceTick) ||
+      crossing.sourceTick>source.tick ||
+      (Number.isSafeInteger(held?.crossingTick) &&
+       crossing.sourceTick!==held.crossingTick))) return false;
   const originalStillPainted=held?.guardianGateRetained===true &&
     held.runToken===source.runToken && held.floor===9 &&
     held.oldCapId==='f8:cap' &&
