@@ -71,7 +71,29 @@ test('real World separates noncolliding gallery clearance from bronze sill color
  assert.match(world,/held\.originalDeckSurface\.opacity=Math\.max\(originalPresence,\s*Math\.min\(\.94,originalGatePresence\)\)/);
  assert.match(world,/held\.originalGalleryRoot\.visible=originalPresence>\.015/);
  assert.match(world,/arrival\.color\.copy\(materials\.landing\.color\)\.lerp\(/);
- assert.match(scene,/sourceSynchronizedHorizonWeight\(snapshot,\s*oldWeightBeforeVoid,earnedVoidSkyLease\.maxOldWeight,certifiedHorizon\)/);
+ assert.match(scene,/sourceSynchronizedHorizonWeight\\(snapshot,\\s*oldWeightBeforeVoid,earnedVoidSkyLease\\.maxOldWeight,\\s*certifiedHorizon,earnedVoidHorizon\\)/);
  assert.match(scene,/skyMaterial\.uniforms\.top\.value\.copy\(to\.top\)\.lerp\(from\.top,oldWeight\)/);
  assert.match(scene,/scene\.fog\.color\.copy\(to\.fog\)\.lerp\(from\.fog,oldWeight\)/);
+});
+
+test('actual returned successor bearings gradually cool distant world atmosphere, not source-owned old gate or gameplay',async()=>{
+ const {sourceSynchronizedHorizonWeight:weight}=await helper;
+ const certified={sourceBound:true,sourceTick:source.tick,
+   kind:'live-same-run-physical-gateway',oldWeight:1};
+ const earned={sourceBound:true,sourceTick:source.tick,
+   firstBearingReturnedFrames:6,maxOldHorizonWeight:0};
+ assert.equal(weight(source,1,0,certified),1);
+ assert.equal(weight(source,1,0,certified,earned),.58,
+   'genuinely returned original F9 bearings reveal distant atmosphere without erasing the bronze threshold');
+ assert.equal(weight(source,.5,0,certified,earned),.29);
+ assert.equal(weight(source,1,.8,certified,earned),.8);
+ for(const falseProof of [
+   {...earned,sourceBound:false},
+   {...earned,sourceTick:source.tick-1},
+   {...earned,firstBearingReturnedFrames:1},
+   {...earned,maxOldHorizonWeight:NaN},
+   {...earned,maxOldHorizonWeight:-.1},
+   {...earned,maxOldHorizonWeight:1.1}
+ ])assert.equal(weight(source,1,0,certified,falseProof),1);
+ assert.equal(weight({...source,runToken:''},1,0,certified,earned),0);
 });
