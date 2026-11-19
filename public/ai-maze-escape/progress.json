@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-19T05:45:00.000Z",
+  "updatedAt": "2026-11-19T05:55:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass498 exact SHA 9dd559fa native 8/8 and 244/244 source PASS, real unaltered original 40/40 PNG hashes plus 3 gate-transition hashes independently verified; single default live partial-observation Pip AI ACTUALLY completed pressure+Thornback tick29, earned counter33, key518, return520, gate523, escape529, one run token. This proves a complete SIMULATION journey, not Nintendo visual parity; real 390px Thornback remains crowded. Pass499 builds a physical event-driven portal finale, new exact-HEAD source, WebGL and independent visual critique pending. Whole repo red in unrelated Tiny Kingdom. PR stays open draft, never merged/deployed."
+    "summary": "Pass498 genuine one-run partial-observation pressure tick29, Thornback counter33, key518, return520, matching gate523, actual escape529 VERIFIED with exact SHA source and original native image hashes. Pass499 physical in-world escape finale committed, but exact SHA ba81f808 focused WebGL STOPPED 244/245 tests on newly introduced test's negative-zero versus positive-zero equality assertion (actual geometry neutral). Pass500 repairs this test strictly with sub-picoradian neutral check AND strengthens real portal veil movement assertions. New exact-HEAD tests and source-bound renders PENDING. Thornback occlusion and Nintendo visual parity remain unmet; whole repo Tiny Kingdom separately red; PR OPEN DRAFT."
   },
   "captures": [
     {
@@ -376,6 +376,12 @@
     }
   ],
   "changes": [
+    {
+      "title": "Pass500 unblock exact-source 244/245 exit-film test on neutral signed-zero, strengthen actual rising veil geometry",
+      "date": "2026-11-19",
+      "status": "Test correction candidate pending new native CI",
+      "description": "The one failing novel exit test compared left hinge -0 radians against +0 exactly. Both are physically identical; replace four neutral-pose assertions with absolute rotation <1e-12, preserving stringent contract, and add original physical veil position/scale before/mid/after tests. Production visual/AI and strict thresholds unchanged."
+    },
     {
       "title": "Pass499 original terminal scene: real public AI escape opens connected physical Tideglass shutters and lifts existing portal veil",
       "date": "2026-11-19",
@@ -762,6 +768,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass500: verify strict updated installed Three exit hinge/veil test and exact-source screenshot CI; if green, capture actual terminal native scene and resolve still occluded Thornback as Nintendo-quality critic blocker.",
     "Pass499: newly committed source must pass exact-HEAD regression, maintain six-reset <100 and produce genuine 320/390/844/1280 full-frame WebGL terminal opening; compare actual original frames with fixed Nintendo benchmark and independently reject guardian occlusion/pacing before any full win.",
     "Pass498: inspect exact-new-HEAD strict natural autonomous chapter JSON outcome alongside 320/390/844/1280 original screenshots; if non-escape or missing event, repair the real default gameplay, not microscopic scenery. Independently critique actual camera actor/guardian readability before acceptance.",
     "Pass497: exact-new-HEAD source test 244/244 and native four viewport source-bound WebGL, unchanged strict six-reset <100, verify guardian reef actually reveals both complete actors (no visual claim from fixed test); then same-run real pressure→Thornback→gallery→key→gate→escape and independent critic.",
@@ -1776,6 +1783,12 @@
     }
   ],
   "verification": [
+    {
+      "title": "Pass499 focused source 244/245 red due -0 vs +0 in newly added test; 8 native frames not yet reached",
+      "date": "2026-11-19",
+      "status": "FAIL test blocker; corrected Pass500",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44462436543"
+    },
     {
       "title": "Pass498 exact HEAD natural flagship 529-tick public AI escape and original 40 PNG + 3 gate image hashes",
       "date": "2026-11-19",

@@ -1,3 +1,10 @@
+## Pass500 — repair exact-source signed-zero physical exit assertion (2026-11-19 UTC)
+
+- **Real Pass499 failure on SHA `ba81f808623cc2e3e53f1651379e21cee645e849`:** [focused WebGL 44462436543](https://github.com/my-edutu/Ai_games/actions/runs/44462436543) stopped **before original render** at **244/245 source checks**. All preceding world, AI, privacy, installed Three tests passed; newly introduced test alone incorrectly treated a perfectly neutral **-0 radians** on the left anchored hinge as different from **+0**. Neither orientation nor rendered pose differs. It was not a physics/animation regression.
+- **Repair without weakening quality bar:** test now requires `Math.abs(actualHingeRotation)<1e-12` on BOTH installed 3D shutters for all reset/hidden/failure cases, and adds real Three veil before/mid/end Y/scale assertions to strengthen the physical finale. The production artwork, AI, world, strict ±0.95 NDC, resource budget <100, privacy and scene are unchanged. New exact-HEAD focused native WebGL and repository CI pending. [Pass499 review](./maze-3d/pass-499-completed-flagship-public-exit-finale-2026-11-19.md) remains the authored vertical slice; this is its CI unblock, not another cosmetic pass. No merge/deploy/force-push; no Nintendo-quality win.
+
+---
+
 ## Pass499 — proven natural flagship escape and original in-world portal finale (2026-11-19 UTC)
 
 - **Original verified exact-SHA Pass498:** focused [native WebGL run 44458287276](https://github.com/my-edutu/Ai_games/actions/runs/44458287276) **SUCCESS** at `9dd559fa0e8ba405ad006ae46f470555cd7e474b`; 244/244 source, 8/8 native, strict six-reset <100. Retrieved [original artifact 14499632891](https://github.com/my-edutu/Ai_games/actions/runs/44458287276/artifacts/14499632891), independently verified 40/40 original full-frame screenshot SHA256 sidecars and true before/middle/after gate hashes 3/3; no crop. Whole repository 44458287232 separately fails Tiny Kingdom OBS. The true native 390 earned guardian still visually masks Thornback: Nintendo benchmark **NOT MET**.
