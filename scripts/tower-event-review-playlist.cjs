@@ -5,7 +5,7 @@
 const fs=require('node:fs'),path=require('node:path');
 const {createHash}=require('node:crypto');
 const {collect,FROZEN}=require('./tower-event-pairing.cjs');
-const VIEWPORTS=['desktop','portrait'];
+const {SCENARIOS,VIEWPORTS,completeOriginalFilmPlans}=require('./tower-complete-original-review.cjs');
 const REQUIRED=['guardian-hp-decrease','floor-transition'];
 const OPTIONAL=['guardian-source-defeated','guardian-source-physical-threshold','guardian-earned-floor-nine-handoff'];
 
@@ -184,12 +184,12 @@ function htmlFor(plans){
   // never contacts a server, stores a vote, displays source SHAs, or retimes
   // the original 1x videos. The private JSON retains the identity/provenance.
   const publicPlans=plans.filter(p=>p.canReview||p.unalignedInspectionOnly).map(p=>({
-    viewport:p.viewport, swap:p.shuffleAB, synchronized:p.canReview,
+    scenario:p.scenario||'danger',viewport:p.viewport, swap:p.shuffleAB, synchronized:p.canReview,
     anchors:p.anchors.map(a=>({kind:a.kind,a:a.baselineSeconds,b:a.candidateSeconds})),
     rasterAnchors:p.nativeRasterAnchors.map(a=>({kind:a.kind,a:a.baselineSeconds,b:a.candidateSeconds})),
     // In the reviewer-only bundle the file paths never reveal source order.
-    files:{a:'review-media/'+p.viewport+'-a.webm',
-      b:'review-media/'+p.viewport+'-b.webm'}
+    files:{a:'review-media/'+((p.scenario&&p.scenario!=='danger')?p.scenario+'-':'')+p.viewport+'-a.webm',
+      b:'review-media/'+((p.scenario&&p.scenario!=='danger')?p.scenario+'-':'')+p.viewport+'-b.webm'}
   }));
   const data=JSON.stringify(publicPlans).replace(/</g,'\\u003c');
   return '<!doctype html>\n'+
@@ -203,8 +203,8 @@ function htmlFor(plans){
   '.message{margin-top:18px;font-size:.92rem;color:#c3d4db}h2{margin:6px 0}'+
   '@media(max-width:600px){body{padding:10px}.players{gap:5px}video{height:55vh}}'+
   '</style><header><h1>Unedited Tower duel — anonymous A/B</h1>'+
-  '<p>These are TWO complete original, 1× speed source-pinned recordings. Choose a shared source event only when raster-aligned; otherwise cue separately observed drawn HUD 8→9 pixels, not an authoritative gateway event. This is an inspection aid, <strong>not proof of rendered causality or a quality verdict</strong>. Both clips remain unmodified. Different gameplay may occur between events.</p></header>'+
-  '<div class="controls"><label>Viewport <select id="viewport"></select></label>'+
+  '<p>These are TWO complete original, 1× speed source-pinned recordings for EACH of four scenarios. Only the danger scene has possible source search cues; an observed HUD 8→9 is RASTER-ONLY. Other scenarios remain unaligned full-motion inspection, never falsely synchronized. This is an inspection aid, <strong>not proof of rendered causality or a quality verdict</strong>. Both clips remain unmodified. Different gameplay may occur between events.</p></header>'+
+  '<div class="controls"><label>Scene <select id="scenario"></select></label><label>Viewport <select id="viewport"></select></label>'+
   '<label>Source event <select id="event"></select></label>'+
   '<button id="cue">Cue both 3s before observed phase</button><button id="play">Play both at 1×</button><button id="pause">Pause both</button></div>'+
   '<div class="players"><section><h2>A</h2><video id="a" controls playsinline preload="metadata"></video></section>'+
@@ -212,7 +212,10 @@ function htmlFor(plans){
   '<p class="message" id="status" role="status">No review has been submitted or counted. For LOOKS, FEELS and PLAYS judgments, inspect the full original movies and all ascent, movement, outcome and restart recordings independently.</p>'+
   '<script>const plans='+data+';const $=id=>document.getElementById(id);let plan,anchor,playing=false;'+
   'const opts=(el,values)=>{el.replaceChildren();for(const [label,value] of values){const o=document.createElement("option");o.textContent=label;o.value=value;el.append(o)}};'+
-  'opts($("viewport"),plans.map((p,i)=>[p.viewport,i]));function reset(){plan=plans[Number($("viewport").value)];'+
+  'opts($("scenario"),["ascent","moving","danger","outcome"].map(s=>[s,s]));'+
+  'function renderViewports(){const selected=$("viewport").value;opts($("viewport"),plans.filter(p=>p.scenario===$("scenario").value).map(p=>[p.viewport,p.viewport]));'+
+  'if([...$("viewport").options].some(o=>o.value===selected))$("viewport").value=selected;reset();}'+
+  'function reset(){plan=plans.find(p=>p.scenario===$("scenario").value&&p.viewport===$("viewport").value);if(!plan)return;'+
   'const alt=(new URLSearchParams(location.search).get("swap")==="1");'+
   'const paths=alt?[plan.files.b,plan.files.a]:[plan.files.a,plan.files.b];'+
   '$("a").src=paths[0];$("b").src=paths[1];'+
@@ -227,33 +230,42 @@ function htmlFor(plans){
   '$("status").textContent=plan.synchronized?"Source search cue: "+anchor.kind+". Exact event pixels are NOT evaluated.":"Raster-only cue: authentic drawn floor 8→9; source-event synchronization, guardian victory and grounded crossing are NOT VERIFIED. Complete original films are unchanged; quality NOT EVALUATED."}'+
   'async function play(){playing=true;for(const id of ["a","b"]){$(id).playbackRate=1;}await Promise.allSettled([$("a").play(),$("b").play()])}'+
   'function pause(){playing=false;$("a").pause();$("b").pause()}'+
-  '$("viewport").onchange=reset;$("event").onchange=cue;$("cue").onclick=cue;$("play").onclick=play;$("pause").onclick=pause;'+
+  '$("scenario").onchange=renderViewports;$("viewport").onchange=reset;$("event").onchange=cue;$("cue").onclick=cue;$("play").onclick=play;$("pause").onclick=pause;'+
   // Re-anchor only if >350ms drift; preserved native source speed, no time stretch.
   'setInterval(()=>{if(!plan?.synchronized||!playing||!anchor||$("a").paused||$("b").paused)return;'+
   'const swap=plan.swap !== (new URLSearchParams(location.search).get("swap")==="1");'+
   'const delta=(swap?anchor.a-anchor.b:anchor.b-anchor.a);'+
   'if(Math.abs(($("b").currentTime-$("a").currentTime)-delta)>.35){$("b").currentTime=$("a").currentTime+delta;}},500);'+
-  'reset();</script></html>\n';
+  'renderViewports();</script></html>\n';
 }
 function writeReview(root,out,candidateSha){
   if(!/^[0-9a-f]{40}$/.test(candidateSha||''))throw Error('missing immutable candidate SHA');
   const rows=collect(root);
-  const plans=VIEWPORTS.map(viewport=>planPair(rows,viewport,candidateSha));
+  const dangerPlans=VIEWPORTS.map(viewport=>planPair(rows,viewport,candidateSha));
+  const plans=completeOriginalFilmPlans(rows,dangerPlans,candidateSha,FROZEN);
   const report={schemaVersion:1,stage:'P0 ungraded original full-motion event-aligned review',
     frozenBaselineSha:FROZEN,candidateSha,verdict:'NOT EVALUATED',
     eventPixelsConfirmed:false,fullMotionPaired:false,
     independentlyReviewed:{looks:0,feels:0,plays:0},
     hardware:'NOT EVALUATED',mediaOriginalBytesUnmodified:true,
     caveat:'Matching source-event names and native PTS do NOT prove identical decisions, visible cause/effect, viewer preference or supported-device performance.',
-    plans,nativeRasterOnlyViewports:plans.filter(p=>p.unalignedInspectionOnly&&p.nativeRasterAnchors.length).map(p=>p.viewport),
-    missingScenarios:['ascent','moving','outcome']};
+    plans,nativeRasterOnlyViewports:plans.filter(p=>p.scenario==='danger'&&p.unalignedInspectionOnly&&p.nativeRasterAnchors.length).map(p=>p.viewport),
+    completeAuthenticScenarios:SCENARIOS.filter(s=>VIEWPORTS.every(v=>plans.some(p=>p.scenario===s&&p.viewport===v&&!p.failures.length))),
+    missingScenarios:SCENARIOS.filter(s=>!VIEWPORTS.every(v=>plans.some(p=>p.scenario===s&&p.viewport===v&&!p.failures.length))),
+    reviewScope:'Four full original films per viewport; all eight before/after scene pairs remain ungraded until visual source/event and independent review'};
   fs.mkdirSync(out,{recursive:true});
   for(const plan of plans){
     if(!plan.canReview&&!plan.unalignedInspectionOnly)continue;
     for(const source of ['baseline','candidate']){
-      const record=rows.find(r=>r.source===source&&r.scenario==='danger'&&r.viewport===plan.viewport);
+      const record=rows.find(r=>r.source===source&&r.scenario===plan.scenario&&r.viewport===plan.viewport);
+      if(!record)throw Error('missing original film '+source+'/'+plan.scenario+'/'+plan.viewport);
       const position=source===(plan.shuffleAB?'candidate':'baseline')?'a':'b';
-      const from=path.join(root,record.videoPath),to=path.join(out,'blind-review','review-media',plan.viewport+'-'+position+'.webm');
+      const from=path.resolve(root,record.videoPath);
+      const relative=path.relative(path.resolve(root),from);
+      if(!relative||relative.startsWith('..'+path.sep)||path.isAbsolute(relative))
+        throw Error('untrusted original film location');
+      const prefix=plan.scenario==='danger'?'':plan.scenario+'-';
+      const to=path.join(out,'blind-review','review-media',prefix+plan.viewport+'-'+position+'.webm');
       fs.mkdirSync(path.dirname(to),{recursive:true});fs.copyFileSync(from,to);
       const hash=createHash('sha256').update(fs.readFileSync(to)).digest('hex');
       if(hash!==plan.hashes[source])throw Error('copy-sha256-mismatch');
@@ -266,7 +278,7 @@ function writeReview(root,out,candidateSha){
   fs.writeFileSync(path.join(out,'blind-review','index.html'),htmlFor(plans));
   report.reviewerOnlyDirectory='blind-review/';
   report.shareOnlyThisDirectoryWithIndependentCritics=true;
-  report.unalignedOriginalViewports=plans.filter(p=>p.unalignedInspectionOnly).map(p=>p.viewport);
+  report.unalignedOriginalViewports=plans.filter(p=>p.unalignedInspectionOnly).map(p=>p.scenario+'/'+p.viewport);
   fs.writeFileSync(path.join(out,'review-manifest.json'),JSON.stringify(report,null,2)+'\n');
   return report;
 }
@@ -274,8 +286,8 @@ if(require.main===module){
   const root=process.argv[2]||'artifacts/tower-event-pair-input';
   const out=process.argv[3]||'artifacts/tower-event-pairs';
   const report=writeReview(root,out,process.env.TOWER_EXPECTED_CANDIDATE_SHA);
-  process.stdout.write('Unedited event-aligned duel A/B: '+report.plans.filter(p=>p.canReview).length+
-    '/2 viewports; independent experience NOT EVALUATED.\n');
+  process.stdout.write('Unedited event-aligned danger A/B: '+report.plans.filter(p=>p.scenario==='danger'&&p.canReview).length+
+    '/2 viewports; full authentic scene pairs '+report.plans.filter(p=>!p.failures.length).length+'/8; independent experience NOT EVALUATED.\n');
   if(report.plans.some(p=>p.failures.length))process.exitCode=1;
 }
 module.exports={planPair,writeReview,htmlFor};
