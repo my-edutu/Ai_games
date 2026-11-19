@@ -93,7 +93,10 @@ test('production GPU owners share source-backed clearance, a real new-shaft retu
   assert.equal(/observedEarnedFarSideShaftOverlap\(snapshot,held,deferredDistantArrival\)/.test(world),true);
   assert.equal(/observedReturnedFarSideFade\(held,deferredDistantArrival\)/.test(world),true);
   assert.equal(/structuralVisibleReturns/.test(world),true);
-  assert.equal(/sourceCertifiedHorizon=.*farSide/.test(world),true);
+  assert.match(world,/const oldRoomWitness=farSideHorizon \|\| returnedBronzePaletteLock/,
+    'far-side source proof AND genuine returned near-sill gateway proof jointly own world climate');
+  assert.match(world,/sourceCertifiedHorizon=oldRoomWitness \?/,
+    'sky and material channels may use only genuine old-world crossing witnesses');
   assert.equal(/observedEarnedFarSideShaftOverlap\(source,held,job\)/.test(cross),true);
 });
 
