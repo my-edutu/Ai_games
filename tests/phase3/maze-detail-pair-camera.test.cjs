@@ -13,7 +13,12 @@ test('real narrow Detail guardian staging uses the public pair balance, not a hi
   const scene = fs.readFileSync(source, 'utf8');
   const stage = scene.indexOf('const frameThreat=publicEncounterFrameWeight(');
   const balance = scene.indexOf("if (cameraMode === 'detail' && !result && closestThreat?.strength", stage);
-  const target = scene.indexOf('targetHeight = cameraMode === \'detail\'', stage);
+  // The true escaped Follow camera now precedes Detail's independent shot.
+  // Preserve and verify the complete ordering of the original Detail pair
+  // balance and its own lens, not just an old one-line camera assignment.
+  const target = scene.indexOf('targetHeight = publicVictoryScene ?', stage);
+  const detail = scene.indexOf("cameraMode === 'detail'", target);
+  assert.ok(detail > target, 'Detail remains a distinct camera branch after actual escaped Follow');
   assert.ok(stage >= 0 && balance > stage && target > balance,
     'the genuine public Detail encounter must balance both silhouettes before projection');
   const scope = scene.slice(balance, target);

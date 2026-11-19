@@ -1,0 +1,5 @@
+# Pass502 — real source CI gate correction (2026-11-19 UTC)
+
+Pass501 SHA `1fee2442f361de435f6d71f1d65a57e1ecda8daa` [focused WebGL CI 44473367069](https://github.com/my-edutu/Ai_games/actions/runs/44473367069) failed before browser evidence, 244/245 Node tests. Exact `tests/phase3/maze-detail-pair-camera.test.cjs` assumed `targetHeight = cameraMode === 'detail'` is the first lens dispatch. It now correctly begins with a separate true-public-escape Follow case while the ORIGINAL Detail guard and full actor balancing remain present and ordered. That test failed solely on a stale exact line, not a source defect or SwiftShader stall.
+
+Strengthen the static test to require (a) original source-public physical pair balance, (b) genuine terminal branch, (c) still-independent Detail branch in correct order and unchanged ±0.95 NDC. This is a focused CI repair, NOT a visual win; the new native 390/1280 full-arch screenshots must still pass and be independently inspected before approval. Fixed Nintendo benchmark not met, separate Tiny Kingdom CI red. PR #53 stays OPEN DRAFT, unmerged, undeployed; hourly Gauntlet stays active.

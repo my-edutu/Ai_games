@@ -1,3 +1,10 @@
+## Pass502 — repair Detail-camera lexical test after separate real escaped Follow stage (2026-11-19 UTC)
+
+- Pass501 [exact-SHA source CI 44473367069](https://github.com/my-edutu/Ai_games/actions/runs/44473367069) failed **244/245** due to a real stale static-test needle expecting the Detail camera to begin at `targetHeight = cameraMode === 'detail'`, while the new escaped-only optical branch safely precedes it. Production scene parses; all installed Three/source privacy tests passed. No source/WebGL screenshots were produced on Pass501.
+- Test now verifies genuine guardian Detail pair-balancing still occurs before the correct *separate* Detail branch and its lens, **after** the new conditional terminal Follow branch. No changed production camera, privacy, collision, acceptance threshold, geometry budget or screenshot test. New exact-HEAD CI including original 390/1280 terminal physical capture pending. [Pass501 review](./maze-3d/pass-501-source-authentic-portal-finale-camera-2026-11-19.md). Nintendo bar unmet; draft PR #53, no merge/deploy.
+
+---
+
 ## Pass501 — real flagship portal finale and native terminal image gate (2026-11-19 UTC)
 
 - Exact incoming Pass500 SHA `f5631435361129853c4e3d70a4d44000de82b28a`; [focused native workflow 44462831814](https://github.com/my-edutu/Ai_games/actions/runs/44462831814) SUCCESS, original artifact 14501291218 independently downloaded; full 529-tick flagship AI remains previously verified. Whole-repository CI failed separately at Tiny Kingdom OBS.
