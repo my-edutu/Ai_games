@@ -38,7 +38,7 @@ test('RED-first: original clone, next native frame, unchanged public tick and re
  assert.ok(Math.abs(r.rootTravelMeters-.003)<1e-9);
  assert.ok(Math.abs(r.shoes.right.afterToeBurialMeters-.058)<1e-9);
  assert.ok(Math.abs(r.shoes.right.swingToeLiftMeters-.012)<1e-9);
- assert.equal(r.shoes.left.heelSlideRelativeToRootMeters,0);
+ assert.ok(Math.abs(r.shoes.left.heelSlideRelativeToRootMeters)<1e-10);
  assert.equal(r.contactLocked,false);
  assert.equal(r.plantCertified,false,'two skinned samples alone cannot prove a legal foot plant');
 });
