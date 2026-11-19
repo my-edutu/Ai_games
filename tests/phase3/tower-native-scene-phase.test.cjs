@@ -41,6 +41,38 @@ test('true source observation over two seconds ahead of native palette is a cue 
   assert.equal(compareFilmPhaseToSource({sourceEventTimecodes:[]},{nativeSeconds:25.5},290).status,'NOT EVALUATED');
 });
 
+
+test('original first-gateway HUD window rejects purple from a later restarted episode',()=>{
+  // Source-pinned 7c5f2c1 original candidate films reported violet at ~69s
+  // because their first 26-30s gateway was mixed-color / interrupted.
+  // A later episode has no permission to stand in for the real first crossing.
+  const warm=Array(100).fill(.02);
+  const thinBurst=Array(2).fill(.65);
+  const interrupted=Array(10).fill(.06);
+  const mixed=Array(20).fill(.16);
+  const late=Array(110).fill(.02);
+  const laterCool=Array(24).fill(.58);
+  const scores=[...warm,...thinBurst,...interrupted,...mixed,...late,...laterCool];
+  assert.ok(findSustainedVoidPhase(scores).nativeSeconds>40,
+    'the unbounded chroma search would improperly select a later episode');
+  assert.equal(findSustainedVoidPhase(scores,4,{startSeconds:25,endSeconds:30}),null,
+    'first gateway must remain unverified if its original film lacks sustained chroma');
+  assert.equal(findSustainedVoidPhase(scores,4,{startSeconds:NaN,endSeconds:30}),null);
+  assert.equal(findSustainedVoidPhase(scores,4,{startSeconds:30,endSeconds:29}),null);
+});
+test('a genuinely sustained first scene inside the painted-HUD window remains observable, never event-proven',()=>{
+  const warm=Array(100).fill(.02),bridge=Array(5).fill(.14),
+    first=Array(32).fill(.5),later=Array(100).fill(.02);
+  const scores=[...warm,...bridge,...first,...later];
+  const observed=findSustainedVoidPhase(scores,4,{startSeconds:25,endSeconds:30});
+  assert.equal(observed.nativeSeconds,26.25);
+  assert.equal(findSustainedVoidPhase(scores,4,{startSeconds:40,endSeconds:42}),null);
+  const clock={sourceEventTimecodes:[{kind:'floor-transition',fromFloor:8,
+    toFloor:9,observedEpisode:0,inOriginalVideo:true,
+    sourceTick:475,nativeVideoSeconds:24.5}]};
+  assert.equal(compareFilmPhaseToSource(clock,observed,300).eventPixelsConfirmed,false);
+});
+
 test('real source acceptance, Three return and original HUD pixels remain three separate clocks',()=>{
   const {sourceToOriginalNativePhaseChain}=require('../../scripts/tower-native-scene-phase.cjs');
   const sha='f'.repeat(40), videoHash='a'.repeat(64);

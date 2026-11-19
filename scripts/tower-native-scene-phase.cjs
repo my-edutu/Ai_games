@@ -20,11 +20,25 @@ function violetSceneFraction(frame){
     }
   return purple/total;
 }
-function findSustainedVoidPhase(scores,fps=FPS){
+function findSustainedVoidPhase(scores,fps=FPS,firstEpisodeWindow=null){
   if(!Array.isArray(scores)||scores.length<24||!(fps>0))return null;
+  // A full 72s danger film can contain later genuine purple episodes after
+  // outcome/restart. Never substitute that *later* violet room for the FIRST
+  // Floor8->9 gateway. The optional window comes ONLY from original painted
+  // 8->9 HUD pixels, never a source-event search timestamp. Chroma still does
+  // not prove that HUD, opened gateway, floor or physical passage.
+  if(firstEpisodeWindow &&
+     (![firstEpisodeWindow.startSeconds,firstEpisodeWindow.endSeconds]
+        .every(Number.isFinite) ||
+      firstEpisodeWindow.startSeconds<0 ||
+      firstEpisodeWindow.endSeconds<=firstEpisodeWindow.startSeconds))
+    return null;
   // Short purple spells, UI and intermittent flares cannot become a floor.
   const warm=Math.ceil(3*fps),cool=Math.ceil(1*fps),min=.22;
   for(let i=warm;i<=scores.length-cool;i++){
+    if(firstEpisodeWindow &&
+       (i/fps<firstEpisodeWindow.startSeconds ||
+        i/fps>firstEpisodeWindow.endSeconds))continue;
     const future=scores.slice(i,i+cool);
     if(!future.every(x=>Number.isFinite(x)&&x>=min))continue;
     // A legitimate cold-floor arrival may spend 0.5–2s in a partially
@@ -211,8 +225,19 @@ function inspectOriginalPhase(directory,viewport,expectedSha){
   const scores=[];
   for(let i=0;i<rgb.length;i+=FRAME_BYTES)
     scores.push(violetSceneFraction(rgb.subarray(i,i+FRAME_BYTES)));
-  const observed=findSustainedVoidPhase(scores);
   const nativeHud=sampleOriginalHud(video);
+  const hud=nativeHud.observed;
+  // A video with no independently legible FIRST 8->9 drawn HUD cannot be
+  // assigned a successor scene by finding purple later in a restarted run.
+  // This does not retime video or forgive the 1.4-1.5s source/event split.
+  const firstHud=Number.isFinite(hud?.nativeVideoSeconds) &&
+    hud.observedDigitBefore===8 && hud.observedDigitAfter===9;
+  const firstEpisodeWindow=firstHud?{
+    startSeconds:Math.max(0,hud.nativeVideoSeconds-.75),
+    endSeconds:Math.min(clock.originalVideoDurationSeconds,hud.nativeVideoSeconds+4)
+  }:null;
+  const observed=firstEpisodeWindow
+    ?findSustainedVoidPhase(scores,FPS,firstEpisodeWindow):null;
   // This is a SECOND observed native-film relationship, not the source-event
   // clock: a correctly painted Floor9 glyph can precede the actual violet
   // architecture by many 250ms samples while the old clockwork materials
@@ -222,6 +247,8 @@ function inspectOriginalPhase(directory,viewport,expectedSha){
   const result={schemaVersion:1,sourceSha:expectedSha,viewport,scenario:'danger',
     originalWebMSha256:hash,originalWebMBytes:data.length,
     originalVideoUnmodified:true,method:'sampled-native-WebM-stage-chroma',
+    firstEpisodeWindow,firstEpisodeWindowProof:'Original 8->9 painted HUD only; no source/GPU/native event correspondence',
+    firstEpisodeColorResult:observed?'SUSTAINED_SCENE_COLOR_NEAR_FIRST_HUD':'NOT EVALUATED',
     phase:compareFilmPhaseToSource(clock,observed,scores.length),
     hud:{...compareHudToSource(clock,nativeHud.observed,nativeHud.frames),
       recognitionCounts:nativeHud.counts},
