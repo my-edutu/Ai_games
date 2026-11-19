@@ -5,7 +5,7 @@
 // This pure policy never grants a floor, victory, collision or GPU evidence.
 const clamp=x=>Math.max(0,Math.min(1,x));
 export function sourceSynchronizedHorizonWeight(source,oldWeightBeforeVoid,
-    earnedVoidSkyMaxOldWeight,certifiedHorizon) {
+    earnedVoidSkyMaxOldWeight,certifiedHorizon,returnedSuccessor=null) {
   if(!Number.isFinite(oldWeightBeforeVoid) ||
       !Number.isFinite(earnedVoidSkyMaxOldWeight))return 0;
   const old=clamp(oldWeightBeforeVoid);
@@ -42,5 +42,32 @@ export function sourceSynchronizedHorizonWeight(source,oldWeightBeforeVoid,
   const returnedTail=kind==='previous-certified-returned-material' &&
     certifiedHorizon.historicalOpticalTail===true;
   if(!earnedFarSide && !liveGate && !returnedTail)return ordinary;
-  return Math.max(ordinary,Math.min(old,certifiedHorizon.oldWeight));
+  const sameRoom=Math.max(ordinary,Math.min(old,certifiedHorizon.oldWeight));
+  // Real 1x desktop/portrait at immutable ee1a98d: the drawn F9 survivor
+  // stands on the true successor roof while the inherited bronze room and
+  // global fog/sky remain visually unchanged for 1.75s/2.5s, then the
+  // entire backdrop turns violet in one harsh cut. The actual first-return
+  // Void vault/steel is already attached behind the opened old gateway.
+  // Do NOT use a second animation clock or an arbitrary floor counter.
+  // The separately certified, CURRENT source-supported survivor and at
+  // least two previously returned ORIGINAL Void bearing frames may softly
+  // acclimatize the shared distant sky/fog/light into the new biome while
+  // the old gateway and collision-aligned roof KEEP their source materials.
+  // Only 42% of the warm room can cool this way: the original physical
+  // bronze gate remains recognizable through the exterior passage. Actual
+  // source/material retirement still owns the final full Void transition.
+  if(returnedSuccessor?.sourceBound!==true ||
+     returnedSuccessor.sourceTick!==source.tick ||
+     !Number.isSafeInteger(returnedSuccessor.firstBearingReturnedFrames) ||
+     returnedSuccessor.firstBearingReturnedFrames<2 ||
+     returnedSuccessor.firstBearingReturnedFrames>30 ||
+     !Number.isFinite(returnedSuccessor.maxOldHorizonWeight) ||
+     returnedSuccessor.maxOldHorizonWeight<0 ||
+     returnedSuccessor.maxOldHorizonWeight>1)
+    return sameRoom;
+  const earnedCooling=.42*(1-returnedSuccessor.maxOldHorizonWeight);
+  // Never re-warm beyond the live source-certified optical coverage or
+  // overrule the current early-Void lease. This modifies only the existing
+  // Three.js scene atmosphere, not floor ownership, movement or film.
+  return Math.max(ordinary,sameRoom*(1-earnedCooling));
 }
