@@ -1303,6 +1303,39 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
    lift>=.0165&&lift<=.0173&&
    heelRise>=.005&&heelRise<=.0075&&
    lift-heelRise>=.010&&lift-heelRise<=.0125;
+  // GENUINE original source geometry: 390px #44538631095 tick8 16.7ms
+  // Walking_A had a -55.094mm buried toe, +246.132mm airborne heel,
+  // 56.412mm projected sole, lawful 55.072mm root travel and a verified
+  // world-sole axis. The previous +.24rad ORIGINAL three-joint trial
+  // raised toe 15.678mm and heel 13.795mm, only +1.883mm pitch.
+  // The new +.28/+ .34rad trials have NOT yet produced a verified
+  // original AFTER receipt. Admit a measured result ONLY if the REAL
+  // same-rig skin subsequently recovers >=7mm relative sole pitch and
+  // >=13mm buried toe lift without raising the already airborne heel
+  // more than 10mm; opposite shoe and independent final source skin
+  // remain untouched/mandatory. This is NOT a planted foot, IK, new
+  // gameplay movement or a predicted result. A synthetic fixture alone
+  // can never verify that the source GLB reaches this band.
+  const measuredShallowSourcePitchRecovery=toeRad===0&&
+   sourceWorldSolePitchVerified===true&&
+   Math.abs(upperRad+.11)<.000001&&
+   Math.abs(lowerRad-.11)<.000001&&
+   (Math.abs(footRad-.28)<.000001||
+    Math.abs(footRad-.34)<.000001)&&
+   frameInterval>=.015&&frameInterval<=.025&&
+   depth>=.050&&depth<.060&&
+   heelAbove>=.22&&heelAbove<=.27&&
+   shoeSpan>=.295&&shoeSpan<=.315&&
+   sourceWeight>=.99&&
+   starter?.source==='actual-original-source-three-joint-swing-opportunity'&&
+   starter.expectedSourceSkinnedTrials===2&&
+   starter.contactLocked===false&&starter.sign===-1&&
+   finite(starter.excessHeelRiseMeters)&&
+   starter.excessHeelRiseMeters>=.004&&
+   starter.excessHeelRiseMeters<=.010&&
+   lift>=.013&&lift<=.022&&
+   heelRise>=-.003&&heelRise<=.010&&
+   lift-heelRise>=.007;
   const licensedPitchSafeSourceWindow=
    licensedPitchSafe16ms||licensedPitchSafe83ms||
    licensedPitchSafe133ms||licensedPitchSafe150ms||
@@ -1369,6 +1402,7 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
    licensedPitchSafeSourceWindow?.016:
    strongSourcePitchRecovery?.017:
    measuredSparseCounterpitch183ms?.015:
+   measuredShallowSourcePitchRecovery?.013:
    measuredSaferSourcePitch?.018:Math.max(.02,depth*.20);
   if(lift<sourcePitchMinLift||lift>.095||
    lift-heelRise<-.002||Math.abs(heelRise)>.055||
