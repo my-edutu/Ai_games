@@ -515,7 +515,17 @@ export function planOriginalSourceCoupledFootStarter({
    prior.witnessedSourceWeight<.95||
    frameInterval>.05||sourceWeight<.99||
    !shoe(priorSwing)||!shoe(priorLoaded)||
-   priorSwing.toeY>floorTopY-.05||
+   // A FINAL original-skinned hip/knee-only frame can clear much of the
+   // buried toe without finishing the source foot. The measured desktop
+   // original source sole still had 32.873mm of burial after a prior
+   // correction. That actual prior correction included FOOT ownership and
+   // is deliberately ineligible above; a separately authenticated
+   // ankle-UNTOUCHED hip/knee-only receipt with the same residual depth
+   // must not starve the NEXT four-joint original source trial. Require
+   // >=25mm residual here, plus >=50mm burial on the CURRENT real source
+   // shoes below. Final independently re-skinned two-shoe selection still
+   // owns acceptance, never this scheduling-only threshold.
+   priorSwing.toeY>floorTopY-.025||
    priorSwing.toeY<floorTopY-.12||
    priorSwing.heelY<floorTopY+.16||
    priorSwing.heelY>floorTopY+.34||
