@@ -81,7 +81,9 @@ test('the actual old-world material owner consumes near-roof return evidence in 
   const world=fs.readFileSync('public/infinite-tower-climb/visuals/world.mjs','utf8');
   assert.match(world,/observedReturnedOriginalArchitectureHold\(\s*snapshot,held,deferredDistantArrival,farSide\)/);
   assert.match(world,/returnedBronzeHold\?\.gateOpacity/);
-  assert.match(world,/returnedBronzeHold\?\.galleryOpacity/);
-  assert.match(world,/job\.structuralVisibleReturns===0/);
+  assert.match(world,/returnedBronzeHold\.galleryOpacity/);
+  const helper=fs.readFileSync('public/infinite-tower-climb/visuals/far-side-shaft-transition.mjs','utf8');
+  assert.match(helper,/job\.structuralVisibleReturns!==0/);
+  assert.match(world,/sourceDeparture\?\.sourceBound!==true/);
   assert.doesNotMatch(world,/snapshot\.player\.(?:x|y|grounded|health)\s*=/);
 });
