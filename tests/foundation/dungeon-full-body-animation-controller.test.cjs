@@ -3286,11 +3286,15 @@ test('source-loaded pelvis bridge uses authentic two-point walking shoe contact,
  const calls=live.replace(/\/\/[^\n]*/g,'').split('\n').map(line=>line.trim()).filter(Boolean);
  const slide=calls.indexOf('stageOriginalSourceStanceSlideAfterMixer(actor,reducedMotion,sourceFrameInterval,sourceFrameVisible);');
  assert.ok(slide>=0,'the real update must stage source stance after source legs');
- assert.deepEqual(calls.slice(slide+1,slide+4),[
+ // The licensed full-chain counterpitch runs after the completed loaded
+ // pelvis skin audit but before the historical evidence receipt. This strict
+ // sequence detects missing, reordered or duplicated source-pose owners.
+ assert.deepEqual(calls.slice(slide+1,slide+5),[
   'stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion);',
   'auditSourceLoadedPelvisAfterLegs(actor,poseAge,reducedMotion);',
+  'stageLicensedSourceSwingCounterpitchAfterMixer(actor,reducedMotion);',
   'rememberOriginalSourceAppliedSwingEvidence(actor);'
- ],'final loaded pelvis support must directly follow source stance and precede historical source-pose evidence');
+ ],'loaded pelvis skin must precede licensed source counterpitch and historical evidence');
 });
 
 
