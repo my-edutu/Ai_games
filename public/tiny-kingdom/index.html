@@ -4978,6 +4978,9 @@ function getResidentHomeShaderAudit(){
   landscapeSafetyScans:landscapeStaticSafetyScans,
   landscapeSafetyCacheHits:landscapeStaticSafetyCacheHits,
   landscapeUnsafeMeshes:landscapeStaticSafetyRejected,
+  staticDistrict:{settlement:{...residentDistrictShaderStats.settlement},
+   civicCore:{...residentDistrictShaderStats.civicCore},
+   civic:{...residentDistrictShaderStats.civic}},
   originalFallbackFrames:residentHomeShaderFallbackFrames,
   physicalHardwareFps:'NOT MEASURED',independentA_B:'NOT PROVEN'};
 }
@@ -9742,6 +9745,32 @@ function drawOriginalRetainedLandscape(planes,ctx){
  finally{gl.useProgram(program)}
  landscapeStaticSpecializedFrames++;
  landscapeStaticSpecializedTriangles+=audit.visibleTriangles;
+ return audit;
+}
+// W453 Phase 1: the actual occupied town, receiving core and evolving road
+// meshes share a static GPU vertex path only when all their original material
+// tags are proven non-animated. The fallback always draws EVERY original range.
+// The source Float32Array identity changes on climate or true construction,
+// so its one-time WeakMap safety certificate cannot outlive its geometry.
+const residentDistrictShaderStats={
+ settlement:{frames:0,triangles:0,fallbacks:0},
+ civicCore:{frames:0,triangles:0,fallbacks:0},
+ civic:{frames:0,triangles:0,fallbacks:0}
+};
+function drawOriginalRetainedDistrictClass(name,target,ranges,mesh,planes,ctx){
+ const stats=residentDistrictShaderStats[name];
+ if(!stats)throw Error('W453 unknown genuine district GPU class');
+ if(!residentHomeShaderEnabled()||!target||
+    !originalLandscapeStaticShaderSafe(mesh)){
+  stats.fallbacks++;
+  return drawVisibleStaticChunks(target,ranges,planes);
+ }
+ bindRealResidentHomeMaterial(ctx);
+ let audit;
+ try{audit=drawVisibleStaticChunks(target,ranges,planes)}
+ finally{gl.useProgram(program)}
+ stats.frames++;
+ stats.triangles+=audit.visibleTriangles;
  return audit;
 }
 function drawHomeClusters(planes,ctx=null){
@@ -32852,20 +32881,23 @@ const fieldLodDraw=gpuAvailable?drawResidentFarmFields(eye,planes,Math.max(0,160
  {drawCalls:0,triangles:0,mode:'complete-civic-fallback'};
 lastFrameTriangles=nonFieldTriangles+(gpuAvailable?farmFieldLastTriangles:0);
 if(gpuAvailable){
+ const staticDistrictContext={matrix:m,atmosphere,radiance,eye,activeLight,time:state.t};
  scenicVisibilityStats.farmFields=fieldLodDraw;
- scenicVisibilityStats.landscape=drawOriginalRetainedLandscape(planes,
-  {matrix:m,atmosphere,radiance,eye,activeLight,time:state.t});
- scenicVisibilityStats.settlement=drawVisibleStaticChunks(settlementBuffer,settlementChunkRanges,planes);
- scenicVisibilityStats.homes=drawHomeClusters(planes,
-  {matrix:m,atmosphere,radiance,eye,activeLight,time:state.t});
+ scenicVisibilityStats.landscape=drawOriginalRetainedLandscape(planes,staticDistrictContext);
+ scenicVisibilityStats.settlement=drawOriginalRetainedDistrictClass(
+  'settlement',settlementBuffer,settlementChunkRanges,scenicMeshCache,
+  planes,staticDistrictContext);
+ scenicVisibilityStats.homes=drawHomeClusters(planes,staticDistrictContext);
  scenicVisibilityStats.civicCore=civicCoreBuffer?
-  drawVisibleStaticChunks(civicCoreBuffer,civicCoreChunkRanges,planes):
+  drawOriginalRetainedDistrictClass('civicCore',civicCoreBuffer,
+   civicCoreChunkRanges,activeCivicCoreMesh(),planes,staticDistrictContext):
   {totalChunks:0,visibleChunks:0,visibleTriangles:0,culledTriangles:0,
    drawCalls:0,strictDrawCalls:0,bridgedTriangles:0,bridgedChunks:0,
    issuedTriangles:0,savedDrawCalls:0,maxBridgeTriangles:SCENIC_BRIDGE_MAX_TRIANGLES,
    invalidRanges:0,driverCalls:0,multiDrawBatches:0,multiDrawRanges:0};
  scenicVisibilityStats.civic=civicBuffer?
-  drawVisibleStaticChunks(civicBuffer,civicChunkRanges,planes):
+  drawOriginalRetainedDistrictClass('civic',civicBuffer,
+   civicChunkRanges,activeCivicMesh(),planes,staticDistrictContext):
   {totalChunks:0,visibleChunks:0,visibleTriangles:0,culledTriangles:0,
     drawCalls:0,strictDrawCalls:0,bridgedTriangles:0,bridgedChunks:0,
     issuedTriangles:0,savedDrawCalls:0,maxBridgeTriangles:SCENIC_BRIDGE_MAX_TRIANGLES,
