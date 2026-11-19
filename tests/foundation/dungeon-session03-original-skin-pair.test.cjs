@@ -78,3 +78,37 @@ test('RED-first: stationary, teleport-sized and reversed source-time samples can
  assert.equal(pair({before:null,after:next(),floorTopY:-.02}).eligible,false);
  assert.equal(pair({before:sample(),after:null,floorTopY:-.02}).eligible,false);
 });
+
+test('RED: pose-only source-rig motion can be witnessed without inventing root travel or a planted foot',()=>{
+ const {auditOriginalSourcePoseOnlyPair:poseOnly}=require(
+  '../browser/dungeon-session03-original-skin-pair.cjs');
+ assert.equal(typeof poseOnly,'function','requires a separate original source-pose evidence contract');
+ const a=sample();
+ const b={...next(),rootWorld:[0,0,0]};
+ // Same ORIGINAL weighted source clip advances the toes within a native
+ // renderer frame while the authoritative root remains stationary.
+ // These are synthetic contract points, NOT genuine after-change WebGL.
+ assert.equal(pair({before:a,after:b,floorTopY:-.02}).reason,
+  'no-witnessed-root-travel','moving-root contract must stay strict');
+ const r=poseOnly({before:a,after:b,floorTopY:-.02});
+ assert.equal(r?.poseEligible,true);
+ assert.equal(r.eligible,false,'source-only motion must never be a locomotion receipt');
+ assert.equal(r.poseOnly,true);
+ assert.equal(r.contactLocked,false);
+ assert.equal(r.plantCertified,false);
+ assert.equal(r.rootTravelMeters,0);
+ assert.equal(r.source,'two-live-original-pose-only-rAF-soles');
+ assert.ok(r.sourceClipPhaseDeltaSeconds>.04);
+ assert.ok(r.shoes.right.swingToeLiftMeters>.01);
+ for(const altered of [
+  {sourceInstanceId:'another-original-clone'},
+  {checksum:'unrelated-authority-tick'},
+  {authorityTick:11},{sourceClip:'Idle'},
+  {sourceWeight:.3},{sourceClipTime:a.sourceClipTime},
+  {sourceWeaponGrip:{socketName:'handslotr',attachedToGripSocket:false}}
+ ]){
+  const invalid=poseOnly({before:a,after:{...b,...altered},floorTopY:-.02});
+  assert.equal(invalid?.poseEligible,true===false,
+   'no stale GLB, clip or event may qualify a source-only motion: '+JSON.stringify(altered));
+ }
+});
