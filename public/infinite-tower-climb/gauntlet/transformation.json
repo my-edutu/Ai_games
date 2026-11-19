@@ -1,5 +1,10 @@
 {
   "p0RaisedSourceP2ColdWebglBuffer20261120": {
+    "implementationCommitSha": "ed10b347df2012ddfffc91850c27aee7bae28a4f",
+    "immutableCaptureSourceSha": "853e770fc92fab36a5382ca34b6195573a31f1e2",
+    "newSourceCapture": {"run":"https://github.com/my-edutu/Ai_games/actions/runs/44639440503","sourceSha":"853e770fc92fab36a5382ca34b6195573a31f1e2","statusAtInspection":"QUEUED","result":"NOT REVIEWED"},
+    "newExactSourceQuality": {"run":"https://github.com/my-edutu/Ai_games/actions/runs/44639440597","sourceSha":"853e770fc92fab36a5382ca34b6195573a31f1e2","statusAtInspection":"PENDING","result":"NO PASS CLAIMED"},
+    "note": "Original baseline/candidate film is pinned to immutable capture-request commit; gameplay fix is ed10b347, while the new evidence and safety gate remain unverified.",
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
     "leadingAssessorVerdict": "NOT EVALUATED",
     "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
