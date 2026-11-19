@@ -5030,7 +5030,8 @@ if(gpuAvailable){
   const keys=['viewProjection','sunDirection','sunTint','sunStrength',
    'ambientBlend','worldTime','workLightPosition','workLightStrength','fogColor',
    'eyePosition','weatherWetness','groundAtlas','groundAtlasFast',
-   'architectureAtlas','villageLanterns[0]','commuterLanterns[0]'];
+   'architectureAtlas','solarShadowAtlas','solarShadowAtlasActive',
+   'villageLanterns[0]','commuterLanterns[0]'];
   residentHomeUniforms=Object.fromEntries(keys.map(k=>
    [k.replace(/\[0\]$/,''),gl.getUniformLocation(candidate,k)]));
  }catch(error){
@@ -5117,6 +5118,11 @@ function bindRealResidentHomeMaterial(ctx){
  gl.uniform1i(u.groundAtlas,0);
  gl.uniform1f(u.groundAtlasFast,swiftGpu?1:0);
  gl.uniform1i(u.architectureAtlas,1);
+ // Native resident landscape/district/home uses an independent shader program.
+ // Bind the SAME real static shadow texture and enabled state as the dynamic
+ // original shader, or the full town would lose its grounded solar penumbrae.
+ gl.uniform1i(u.solarShadowAtlas,2);
+ gl.uniform1f(u.solarShadowAtlasActive,solarShadowAtlasEnabled()?1:0);
  gl.uniform4fv(u.villageLanterns,compileAuthenticVillageLights());
  gl.uniform4fv(u.commuterLanterns,selectAuthenticCarriedLights());
 }
