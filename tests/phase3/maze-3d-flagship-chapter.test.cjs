@@ -25,6 +25,8 @@ test('the native live opening picks a REAL joined chapter without changing gener
   }
   assert.ok(chosen.chapter,
     'No generated seed offers an honest pressure / straight Thornback / same-level two-link key / matching gate; improve the real level before calling it flagship');
+  assert.equal(chosen.seed,'tideglass-live-chapter-1387',
+    'the original CI-discovered seed is selected in production, not a fallback or montage');
   const original=makeWorld(chosen.seed);
   const saved=JSON.stringify(original);
   assert.deepEqual(naturalFlagshipChapter(original),chosen.chapter);

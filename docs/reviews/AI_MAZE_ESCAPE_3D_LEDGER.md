@@ -1,3 +1,11 @@
+## Pass496 — repair actual Pass494 live flagship startup seed failure (2026-11-19 UTC)
+
+- **Material CI blocker:** Pass494 [exact-head WebGL 44442757517](https://github.com/my-edutu/Ai_games/actions/runs/44442757517) **FAIL** before WebGL: 241/242 source checks passed but strict chapter test failed because bounded original seeds contained no full, physically connected pressure→Thornback→two-link gallery→matching gate journey. CI's authentic expanded 2048-world deterministic generation/solver diagnostic found real `tideglass-live-chapter-1387`, actual guardian `threat-1`, pressure cell107, key2 cell72, return entry90 and matching door2. Whole repository 44442757603 fails same source test. The original default live stream silently fell back to an unqualified seed: NOT a flagship. This is a real gameplay continuity failure.
+- **Production correction:** add exactly that discovered *unchanged-world seed* near the front of the existing immutable selection list (44 candidates, still <=48) and strengthen exact-seed test. Keep strict `naturalFlagshipChapter`, fallback, user `MAZE_SEED` override, partial-observation AI, real topology and budgets untouched; no hidden-info shortcut, montage or forced win.
+- **PENDING:** exact-new-HEAD focused CI, six-run <100, native four-viewport SHA screenshots, independent character-occlusion critique and full natural AI pressure/guardian/key/gate/escape playthrough; [review](./maze-3d/pass-496-real-flagship-seed-source-ci-repair-2026-11-19.md). Pass495 blocked-spectator physical low-reef also pending actual rendering. NOT Nintendo quality complete. PR DRAFT, NEVER merge/deploy/force push.
+
+---
+
 ## Pass495 — publicly known blocked spectator reef for a genuinely earned 390px guardian recoil (2026-11-19 UTC)
 
 - **Incoming exact head** `b1997d00b7c87a0af9cbbc8cd38731b5fac62f98`. Original Pass493 source-bound 390×844 guardian recoil was inspected in the unmodified GitHub Actions artifact 14488649200; **40/40 original image SHA-256 sidecars and 3/3 actual chronological gate hashes independently match**. Thornback remains physically occluded behind tall noncolliding foreground vegetation/ornament even though the unrelaxed full-body framing limits hold. The Nintendo Captain Toad bar is NOT MET.

@@ -8,6 +8,10 @@ const { solveMazeWithInventory } =
   require('../dist/games/ai-maze-escape/src/generation/content.js');
 const DEFAULT_SEEDS = Object.freeze([
   'maze-stream-reference',
+  // TRUE_CHAPTER_DISCOVERY from exact-source Pass494 CI 44442757517:
+  // this original unmodified world satisfies the strict connected solver.
+  // Pin the witnessed seed inside the original bounded startup candidate set.
+  'tideglass-live-chapter-1387',
   ...[3,13,5,0,1,2].map(index=>`maze-visual-reference-${index}`),
   ...Array.from({length:36},(_,index)=>`tideglass-live-chapter-${index}`)
 ]);
