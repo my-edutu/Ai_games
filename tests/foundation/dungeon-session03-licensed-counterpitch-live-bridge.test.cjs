@@ -126,6 +126,7 @@ test('actual source toe-child finishing certificate improves the original linked
   sourceInstanceId:'real-original-skeleton-instance',
   finalIndependentSourceSkin:true,originalOppositeShoeVerified:true,
   sourceOriginalRootTravelWitnessed:true,
+  witnessedFrameIntervalSeconds:.1334,
   residualToeBurialMeters:.006411240831095674,
   contactLocked:false,plantCertified:false,after:afterCounterpitch
  };
@@ -149,6 +150,7 @@ test('actual source toe-child finishing certificate improves the original linked
   {sourceInstanceId:'different skeleton'},
   {angleRad:.26},
   {proof:{...proof,residualToeBurialMeters:.051}},
+  {proof:{...proof,witnessedFrameIntervalSeconds:.0167}},
   {before:{left:shoe(.200,-.0264),right}},
   {after:{left:shoe(.185,-.028),right}},
   {after:{left:shoe(.18,-.0219),right}},
