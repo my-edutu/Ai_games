@@ -83,8 +83,13 @@ test('late immutable HP-zero crossing reveals only the actually supported beyond
     opticalExitSubmitted:false};
   assert.equal(observedLateImmutableFarRoofDeparture(
     groundedFar,held,after.platforms[0]),true);
-  assert.equal(sourceOwnedOriginalArchitectureCoverage(groundedFar,held),0,
-    'the true far roof must not inherit a 100%-opaque old room after its first returned F9 submission');
+  const firstCoverage=sourceOwnedOriginalArchitectureCoverage(groundedFar,held);
+  const laterCoverage=sourceOwnedOriginalArchitectureCoverage(groundedFar,{
+    ...held,submittedFrames:9,visibleSeconds:1.25});
+  assert.ok(firstCoverage>0 && firstCoverage<1,
+    'cold one-to-four-return F9 cannot remove the entire bronze room in one hard native frame');
+  assert.ok(laterCoverage>=0 && laterCoverage<firstCoverage,
+    'real subsequent GPU returns permit the far roof to gradually expose the existing Void shaft');
   const invalid=[
     {...groundedFar,lastGuardianCrossing:null},
     {...groundedFar,lastGuardianCrossing:{
