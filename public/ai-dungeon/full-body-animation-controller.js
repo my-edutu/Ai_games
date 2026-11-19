@@ -6093,11 +6093,16 @@ export function certifyLicensedCounterpitchToeFinish({
   proof.finalIndependentSourceSkin!==true||
   proof.originalOppositeShoeVerified!==true||
   proof.sourceOriginalRootTravelWitnessed!==true||
+  !Number.isFinite(proof.witnessedFrameIntervalSeconds)||
+  proof.witnessedFrameIntervalSeconds<.008||
+  proof.witnessedFrameIntervalSeconds>.240001||
   proof.contactLocked!==false||proof.plantCertified!==false||
   sourceClipName!=='Walking_A'||sourceInstanceSame!==true||
   sourceToeTrackVerified!==true||sourceToeBoneParentVerified!==true||
   !Number.isFinite(angleRad)||Math.abs(angleRad)<.06||
-  Math.abs(angleRad)>.160001||!Number.isFinite(floorTopY)||
+  Math.abs(angleRad)>.160001||
+  Math.abs(angleRad)>3*proof.witnessedFrameIntervalSeconds||
+  !Number.isFinite(floorTopY)||
   Math.abs(floorTopY+.02)>.005||
   ![proof.residualToeBurialMeters].every(Number.isFinite)||
   proof.residualToeBurialMeters<.002||proof.residualToeBurialMeters>.035||
