@@ -1914,6 +1914,25 @@ let liveMotionCacheBuilds=0,liveMotionCacheReuses=0;
 // W93: complete REAL citizens have their own WebGL vertex stream, separate
 // from actual worksite/economy props. Never change their pose or save data.
 const ACTOR_GPU_RING_SLOTS=3;
+// W471 same-world rendering-spine test: retaining four original 3D GPU actor
+// meshes can add a second costly CPU staging step on the software rasterizer.
+// Use the ORIGINAL live detailed/compact 3D bodies on software WebGL, never
+// lower the population or hide citizens. Physical hardware keeps all bounded
+// existing resident meshes, real joint transforms, tools and parcel contacts.
+// The override is an audit-only switch for paused equal-world A/B captures.
+let residentActorGpuOverride=null;
+function residentActorGpuEnabled(){
+ return Boolean(gpuAvailable&&
+  (residentActorGpuOverride===null?!swiftGpu:residentActorGpuOverride));
+}
+function setResidentActorGpuForTesting(value){
+ if(value!==null&&value!==true&&value!==false)
+  throw Error('W471 invalid WebGL resident actor tier override');
+ residentActorGpuOverride=value;
+ cameraDynamicCache=null;cameraActorCache=null;cameraDynamicKey='';
+ lastFrozenFrameKey=null;presentationEpoch++;
+ return getActorResidencyAudit();
+}
 let actorStreamSplitEnabled=gpuAvailable&&!swiftGpu,actorDynamicVertexScratch=[],
  actorFrameData=[],cameraActorCache=null,actorFrameCitizens=0;
 const actorFrameGpuBuffers=[null,null,null],actorFrameStorage=[0,0,0];
@@ -3646,6 +3665,10 @@ function setActorStreamSplitForTesting(enabled){
 function getActorResidencyAudit(){
  return {source:'complete-real-citizen-independent-webgl-stream',
   enabled:gpuAvailable&&actorStreamSplitEnabled,
+  residentActorGpuEnabled:residentActorGpuEnabled(),
+  softwareTierCpuFallback:Boolean(gpuAvailable&&swiftGpu&&!residentActorGpuEnabled()),
+  defaultPolicy:residentActorGpuOverride===null?'software-live-hardware-resident':'test-override',
+  originalCitizensPreserved:true,changesAuthority:false,
   actorFloats:actorStreamSplitEnabled&&gpuAvailable?actorFrameData.length:0,
   worldFloats:data.length,totalFloats:data.length+
    (actorStreamSplitEnabled&&gpuAvailable?actorFrameData.length:0),
@@ -33865,7 +33888,7 @@ const residentActorManagementStart=performance.now();
 // continue rebuilding live IK/held-tool geometry every authoritative step.
 // One real-person index, passed through four ACTUAL GPU-admission tiers.
  // Each later stage honors the preceding stage's actually accepted actors.
-const residentRows=gpuAvailable?people.map((p,i)=>({p,i})):[];
+const residentRows=residentActorGpuEnabled()?people.map((p,i)=>({p,i})):[];
 const restingRows=residentRows
  .filter(({p,i})=>isResidentRestingCandidate(p,i,nearPeople));
 const restingReady=prepareRestingActorMesh(restingRows);
@@ -33873,7 +33896,7 @@ const restingIndices=restingReady?new Set(restingRows.map(row=>row.i)):new Set()
 // Only actual small commuters are considered. Near humans and real labour
 // receive full per-tick original geometry, regardless of this optimization.
 // Reuse the projection already calculated by citizen-detail admission.
-const commuterFrame=gpuAvailable?detailPlan.cameraFrame:null;
+const commuterFrame=residentActorGpuEnabled()?detailPlan.cameraFrame:null;
 const commuterRows=residentRows
  .filter(({p,i})=>!restingIndices.has(i)&&
   isResidentCommuterCandidate(p,i,nearPeople,commuterFrame));
@@ -34459,6 +34482,7 @@ renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainH
  getLedgerWitnessResidencyAudit,setLedgerWitnessResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
  getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,
  getActorResidencyAudit,getActorGpuDeltaAudit,setActorStreamSplitForTesting,
+ setResidentActorGpuForTesting,
  setStaticBatchBridgingForTesting,getScenicMultiDrawAudit,setScenicMultiDrawForTesting,getCourierPostCameraAudit,evaluateCourierPostRepairPolicy,getDaybreakReturnAudit,getCameraDynamicCacheStats,getCitizenOrbitDetailAudit,getCourierDocumentaryCameraAudit,setCamera:o=>{// Authored camera checks and manual pointer input share real roof safety.
  freeCameraReturn=null;
  if(streetWalk)setStreetWalk(false);
