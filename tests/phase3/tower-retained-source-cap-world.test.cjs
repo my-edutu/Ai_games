@@ -739,13 +739,15 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
     assert.equal(world.diagnostics().deferredDistantArrival?.state,
       'awaiting-void-biome-build',
       'second actual return finishes only the real outer load-bearing supports');
-    assert.ok(world.group.getObjectByName('deferred-original-floor-nine-outer-buttresses')?.isGroup);
+    assert.equal(world.group.getObjectByName('deferred-original-floor-nine-outer-buttresses'),undefined,
+      'one nonzero returned core frame / 50ms is NOT the two-frame 120ms scenic-upload budget');
     world.noteFrameSubmitted(later,{},.05);
     world.update(later,.05,.2,{quality:'low'},
       {...passage,handoffSubmittedFrames:3,handoffDisplaySeconds:.15});
     assert.equal(world.diagnostics().deferredDistantArrival?.state,
-      'awaiting-structural-submission',
-      'third actual return finishes original moving biome before source-certified aperture');
+      'awaiting-void-biome-build',
+      'two nonzero core returns / 100ms must NOT bypass the 120ms original-gateway scenic-upload interlock');
+    assert.equal(world.group.getObjectByName('deferred-original-floor-nine-outer-buttresses'),undefined);
     const hiddenShaft=world.group.getObjectByName('deferred-original-floor-nine-architecture');
     assert.ok(hiddenShaft);
     const shaftOpacity=[];
@@ -757,13 +759,8 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
       shaftOpacity.some(opacity=>opacity>0 && opacity<=.28) &&
       shaftOpacity.every(opacity=>opacity>=0 && opacity<=.28),
       'source-gated returned shell may reach 28% while original Void biome detail remains zero-alpha and unsent');
-    const deferredDetail=hiddenShaft.getObjectByName('deferred-authentic-floor-nine-crystal-biome');
-    assert.ok(deferredDetail?.isGroup && deferredDetail.visible===false,
-      'authentic biome detail must not steal the first source-authenticated shell shot');
-    const details=[];
-    deferredDetail.traverse(mesh=>{if(mesh.isMesh && mesh.material?.name==='SourceEarnedIncomingFloorNineShaft') details.push(mesh.material.opacity);});
-    assert.ok(details.length>0 && details.every(value=>value===0),
-      'unreturned crystal details remain truly invisible, not a counterfeit already-painted room');
+    assert.equal(hiddenShaft.getObjectByName('deferred-authentic-floor-nine-crystal-biome'),undefined,
+      'unbuilt crystal biome cannot steal a real returned gateway/core frame or claim invisible GPU evidence');
     assert.equal(world.diagnostics().vistaLayers,0);
     assert.ok(!sharedSurface.material.color.equals(firstGroundColor),
       'a genuine observed 10,000-unit step beyond the old sill, not WebGL wall-time, blends the real landing toward void');
@@ -792,6 +789,13 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
       'the original Void structural meshes are prebuilt hidden after the authentic F9 render');
     assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-structural-submission',
       'eight matched source returns show the real F9 shaft without retiring the original gate');
+    assert.equal(world.group.getObjectByName('deferred-original-floor-nine-outer-buttresses')?.isGroup,true,
+      'original outer supports may upload only after >=2 returned visible structural frames and >=120ms');
+    const deferredDetail=world.group.getObjectByName('deferred-authentic-floor-nine-crystal-biome');
+    assert.equal(deferredDetail?.isGroup,true,
+      'original animated biome may assemble only after >=3 returned structural frames and >=200ms');
+    assert.equal(deferredDetail.visible,false,
+      'assembled but unreturned crystals must remain culled from the original GPU submission');
     const earlyShaft=world.group.getObjectByName('deferred-original-floor-nine-architecture');
     const earlyOpacity=[];
     earlyShaft.traverse(o=>{
