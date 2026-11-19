@@ -1036,3 +1036,69 @@ test('RED: a consecutively witnessed source-skinned hip-knee swing may earn conn
  ])assert.equal(plan({...options,...corrupt}),null,
   'stale, already ankle-owned, changed action, invalid skin or slow samples cannot inherit a previous pose: '+Object.keys(corrupt));
 });
+
+ 
+// Source-only test fixture: original 390px licensed Vanguard Walking_A tick 8,
+// successful Actions #44538631095, source-rig artifact #14538757868.
+// This is a genuine 16.7ms, 55.094mm buried-toe frame with 55.072mm
+// witnessed root movement and an independently skinned 56.412mm projected
+// outsole axis. Y deltas below are actual source-skin reads; XZ coordinates
+// are LOCAL geometry-preserving test coordinates, not recorded world points.
+// No corrected AFTER source pose has been witnessed for the new trial band.
+test('RED: 390px world-sole-verified shallow-deep native swing gets two bounded three-joint trials, never an assumed plant',async()=>{
+ const {planOriginalSourceCoupledFootStarter:starterFn,
+  planOriginalSourceCoupledKneeFootFollowups:followups,
+  chooseOriginalSourceCoupledKneeFootSweep:choose}=await load();
+ const swing={heelY:.22613207808975871,toeY:-.07509437666382304,
+  heelXZ:[0,0],toeXZ:[.05641176130110398,0]};
+ const support={heelY:.001625474441659048,toeY:-.0073747421244237145,
+  heelXZ:[1,0],toeXZ:[1.27,0]};
+ const after=(toeLift,heelRise)=>({
+  right:{...swing,toeY:swing.toeY+toeLift,heelY:swing.heelY+heelRise},
+  left:{...support}});
+ const scene={...owner,sourceInstanceId:'licensed-Vanguard-390px',
+  side:'right',rootTravel:.0550718537285535,
+  frameInterval:.0167,frameAge:.0666,
+  before:{right:swing,left:support},
+  starterTrials:[
+   {upperRad:.09,lowerRad:-.075,
+    after:after(-.011950643203940237,-.02557728286215713)},
+   {upperRad:-.09,lowerRad:.075,
+    after:after(.017735671658202445,.023192449166117263)}
+  ],
+  sourceWorldSolePitchVerified:true};
+ const starter=starterFn(scene);
+ assert.equal(starter?.source,'actual-original-source-three-joint-swing-opportunity');
+ assert.ok(Math.abs(starter.excessHeelRiseMeters-.005456777507914817)<1e-9);
+ const angles=[{upperRad:-.11,lowerRad:.11,footRad:.28},
+  {upperRad:-.11,lowerRad:.11,footRad:.34}];
+ assert.deepEqual(followups({...scene,starter}),angles,
+  'world-sole axis verified from the same original GLB: reuse TWO existing skinned trials');
+ assert.deepEqual(followups({...scene,starter,sourceWorldSolePitchVerified:false}),[
+  {upperRad:-.11,lowerRad:.11,footRad:.18},
+  {upperRad:-.11,lowerRad:.11,footRad:.24}
+ ],'missing original world-sole certificate keeps the old conservative source schedule');
+ // SYNTHETIC post-skin success only: actual GLB must independently reproduce
+ // toe/heel and opposite-shoe results before the renderer may own this pose.
+ const hypothetical={...angles[1],after:after(.028,.008)};
+ const accepted=choose({...scene,starter,trials:[hypothetical]});
+ assert.equal(accepted?.source,'measured-original-skinned-coupled-knee-foot');
+ assert.equal(accepted?.contactLocked,false);
+ assert.ok(accepted.afterToeY<scene.floorTopY,
+  'the source toe remains below stone; this is strictly NOT a foot-plant certificate');
+ for(const denied of [
+  {sourceWorldSolePitchVerified:false},{sourceFootTrackVerified:false},
+  {sourceBindVerified:false},{sourceInstanceSame:false},
+  {sourceWeight:.85},{rootTravel:0},{frameInterval:.30},
+  {frameAge:.16},{interrupted:true},{reducedMotion:true},
+  {teleport:true},{sourceClipName:'Idle'}
+ ])assert.equal(choose({...scene,...denied,starter,trials:[hypothetical]}),null,
+  'cannot admit high-pitch source trials without full original owner/skin/motion contract');
+ assert.equal(choose({...scene,starter,trials:[
+  {...angles[1],after:after(.028,.040)}
+ ]}),null,'airborne heel may not gain more than the buried toe');
+ assert.equal(choose({...scene,starter,trials:[
+  {...angles[1],after:{right:hypothetical.after.right,
+   left:{...support,toeY:support.toeY+.007}}}
+ ]}),null,'genuinely loaded other shoe must remain unchanged');
+});
