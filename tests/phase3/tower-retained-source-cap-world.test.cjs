@@ -62,6 +62,51 @@ function next(){
       width:480000,height:cap.height}],
     enemies:[],player:{...body,groundedPlatformId:'f9:ground'}};
 }
+test('late immutable HP-zero crossing reveals only the actually supported beyond-cap roof, not a HUD jump or invented guardian win',async()=>{
+  const {observedLateImmutableFarRoofDeparture,
+    sourceOwnedOriginalArchitectureCoverage}=await import(uri('source-physical-arrival-palette.mjs'));
+  const after=next(),before=old();
+  const groundedFar={...after,tick:467,
+    player:{...after.player,x:gate+160000},
+    lastGuardianCrossing:{
+      runToken:after.runToken,sourceTick:451,fromFloor:8,toFloor:9,
+      cap:before.platforms[0],exitX:gate,crossingX:gate+13000,
+      halfWidth:body.halfWidth,halfHeight:body.halfHeight,
+      guardian:before.enemies[0]}};
+  const held={runToken:after.runToken,floor:9,guardianGateRetained:true,
+    verifiedObservedFloorAdvance:true,oldCapId:'f8:cap',
+    oldCapX:cap.x,oldCapWidth:cap.width,oldRoofY:cap.y+cap.height,
+    thresholdX:gate,sourceTick:460,firstWorldRenderTick:460,
+    crossingTick:null,submittedFrames:4,visibleSeconds:.2,
+    originalGatewayOpacity:1,originalArchitectureCoverage:1,
+    originalGalleryMaterials:[],originalDeckSurface:{opacity:1},
+    opticalExitSubmitted:false};
+  assert.equal(observedLateImmutableFarRoofDeparture(
+    groundedFar,held,after.platforms[0]),true);
+  assert.equal(sourceOwnedOriginalArchitectureCoverage(groundedFar,held),0,
+    'the true far roof must not inherit a 100%-opaque old room after its first returned F9 submission');
+  const invalid=[
+    {...groundedFar,lastGuardianCrossing:null},
+    {...groundedFar,lastGuardianCrossing:{
+      ...groundedFar.lastGuardianCrossing,runToken:'foreign'}},
+    {...groundedFar,lastGuardianCrossing:{
+      ...groundedFar.lastGuardianCrossing,
+      guardian:{...before.enemies[0],active:true,health:1}}},
+    {...groundedFar,player:{...groundedFar.player,grounded:false}},
+    {...groundedFar,player:{...groundedFar.player,
+      groundedPlatformId:'f9:imaginary'}},
+    {...groundedFar,player:{...groundedFar.player,x:gate+30000}},
+    {...groundedFar,runToken:'foreign'}
+  ];
+  for(const fake of invalid){
+    assert.equal(observedLateImmutableFarRoofDeparture(
+      fake,held,after.platforms[0]),false,
+      'only genuine far supported same-run zero-HP passage earns this optical release');
+    assert.equal(sourceOwnedOriginalArchitectureCoverage(fake,held),fake.runToken==='foreign'?0:1,
+      'an unearned far passage cannot erase original architecture through this late witness');
+  }
+});
+
 test('first earned F9 WebGL room shares a genuinely far-side Void structural bearing with the original HP-open bronze gateway',async()=>{
   const [{createTowerWorld,sourceEarnedFarSideButtressIndex}]=await loaded;
   const source=old(),arrival=next(),world=createTowerWorld();

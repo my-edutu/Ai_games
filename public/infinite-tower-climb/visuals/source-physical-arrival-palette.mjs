@@ -485,6 +485,60 @@ export function observedSourceGatewayDeparturePresence(source,held) {
     limitation:'Existing original gate material only; no actual video pixel or acceptance claim'};
 }
 
+// A cold host may miss the *near* first-F9 source packet and first observe
+// the real climber already beyond the entire old F8 cap on the actual F9 roof.
+// That is NOT an excuse to keep the old bronze room covering a completely
+// separate, successfully returned new-world shaft. Certify the late far-side
+// exit from the immutable same-run HP-zero crossing, the exact shared roof,
+// present full-width grounded contact, and the original GPU owner. No guessed
+// route/portal/pose, renderer receipt or change to the authoritative simulation.
+export function observedLateImmutableFarRoofDeparture(source,held,ground) {
+  const p=source?.player,w=source?.lastGuardianCrossing,c=w?.cap;
+  if(source?.lifecycle!=='running' || source.floor!==9 ||
+     source.theme!=='void' || !(p?.health>0) ||
+     !source.runToken || held?.runToken!==source.runToken ||
+     held.floor!==9 || held.guardianGateRetained!==true ||
+     held.verifiedObservedFloorAdvance!==true ||
+     held.oldCapId!=='f8:cap' ||
+     ![source.tick,held.sourceTick,held.firstWorldRenderTick,
+       held.submittedFrames,held.oldCapX,held.oldCapWidth,held.oldRoofY,
+       held.thresholdX,p.x,p.y,p.halfWidth,p.halfHeight,
+       ground?.x,ground?.y,ground?.width,ground?.height,
+       w?.sourceTick,w?.exitX,w?.crossingX,w?.halfWidth,w?.halfHeight,
+       c?.x,c?.y,c?.width,c?.height].every(valid) ||
+     held.oldCapWidth<=0 || ground.width<=0 || ground.height<=0 ||
+     p.halfWidth<=0 || p.halfHeight<=0 ||
+     held.thresholdX!==held.oldCapX+Math.floor(held.oldCapWidth*.76) ||
+     ground?.id!=='f9:ground' ||
+     ground.y+ground.height!==held.oldRoofY ||
+     c?.id!=='f8:cap' || c.x!==held.oldCapX ||
+     c.width!==held.oldCapWidth ||
+     c.y+c.height!==held.oldRoofY ||
+     w.runToken!==source.runToken || w.fromFloor!==8 ||
+     w.toFloor!==9 || w.exitX!==held.thresholdX ||
+     w.crossingX<w.exitX || w.crossingX>w.exitX+60000 ||
+     w.halfWidth!==p.halfWidth || w.halfHeight!==p.halfHeight ||
+     w.guardian?.kind!=='guardian' ||
+     w.guardian.active!==false ||
+     !valid(w.guardian.health) || w.guardian.health>0 ||
+     w.sourceTick>held.sourceTick ||
+     held.sourceTick-w.sourceTick>12 ||
+     (held.crossingTick!=null && held.crossingTick!==w.sourceTick) ||
+     source.tick<held.sourceTick || source.tick-w.sourceTick>70 ||
+     source.tick<held.firstWorldRenderTick ||
+     held.submittedFrames<1 || held.submittedFrames>=30 ||
+     p.grounded!==true || p.groundedPlatformId!=='f9:ground' ||
+     !(p.state==='standing'||p.state==='hurt') || p.vy!==0 ||
+     p.y-p.halfHeight!==held.oldRoofY ||
+     p.x-p.halfWidth<ground.x ||
+     p.x+p.halfWidth>ground.x+ground.width ||
+     // The full real player must have cleared the entire old cap, not just
+     // stepped 4m through its still-visible opened gateway.
+     p.x-p.halfWidth<held.oldCapX+held.oldCapWidth+4000)
+    return false;
+  return true;
+}
+
 // P0 physical 8→9 rendering: one bounded, source-authenticated optical
 // envelope for the ORIGINAL bronze gateway, connected roof and gallery.
 // Browser acceptance and a returned WebGL frame do not establish native pixels.
@@ -590,6 +644,12 @@ export function sourceOwnedOriginalArchitectureCoverage(source,held) {
   const sillDepth=observedEarnedSillDepthExposure(source,held);
   if(sillDepth?.sourceBound===true)
     coverage=Math.min(coverage,1-sillDepth.maxDepthReveal);
+  // A later immutable crossing can arrive after the first browser F9 packet.
+  // If the actually grounded living body is already beyond the WHOLE original
+  // cap, stop letting that off-camera bronze room hide the true incoming
+  // shaft. The new geometry still requires its own successful GPU returns.
+  if(observedLateImmutableFarRoofDeparture(source,held,ground))
+    coverage=0;
   return coverage;
 }
 /**
