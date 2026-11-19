@@ -5549,6 +5549,10 @@ export function createTowerWorld(){
   // traversal in the camera/light hot path; never expose writable GPU roots.
   function retainedFilmHandoff(snapshot) {
     const held=retainedEarnedCap;
+    // This witness is consumed by the CURRENT sky/fog update, never by a
+    // future source poll. Read source-owned 3D material alpha only from the
+    // exact original World snapshot that last updated those materials.
+    if (snapshot !== lastSnapshot || snapshot?.runToken !== held?.runToken) return null;
     const immutable=observedSourceEarnedColdFrameContinuation(snapshot,held);
     const priorGrounded=!immutable &&
       observedStagedOriginalCapBeforeRecordedCrossing(snapshot,held);
@@ -5574,6 +5578,14 @@ export function createTowerWorld(){
       originalGatewayOpacity:held.originalGatewayOpacity,
       originalArchitectureCoverage:
         sourceOwnedOriginalArchitectureCoverage(snapshot,held),
+      // The already source/renderer-certified original gate, roof and
+      // non-colliding gallery live in WORLD. The thin public camera/horizon
+      // witness lacks the World-owned raised-support and material fields;
+      // asking it to re-run the same coverage calculation produced a
+      // different sky/lighting clock from the actual 3D bronze materials.
+      // Export a scalar immutable receipt for this exact current snapshot.
+      originalArchitectureWorldCertified:true,
+      originalArchitectureCoverageSourceTick:snapshot.tick,
       ...(priorGrounded?{
         guardianGateRetained:true,
         verifiedObservedFloorAdvance:held.verifiedObservedFloorAdvance,
