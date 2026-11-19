@@ -85,7 +85,6 @@ test('source, pixel, privacy and recording contracts veto forged or short films'
   r=>{r.videoClock.originalWebMSha256='0'.repeat(64);},
   r=>{r.nativeFilmAudit.viewports[0].problems=['tampered'];},
   r=>{r.motion.viewport.width=999;},
-  r=>{r.videoClock.status='NOT EVALUATED';},
   r=>{r.index.sourceSha='0'.repeat(40);}
  ];
  for(const mutate of cases){
@@ -99,6 +98,53 @@ test('source, pixel, privacy and recording contracts veto forged or short films'
  b.motion.reducedMotion=true;
  assert.match(archivePlan([a,b],'moving','portrait',CANDIDATE,FROZEN).failures.join(','),
    /capture-conditions-not-matched/);
+});
+test('uncalibrated baseline outcome remains transport-authenticated raw film, never synchronized evidence',()=>{
+ const a=film('baseline','outcome','desktop'),b=film('candidate','outcome','desktop');
+ a.videoClock.status='NOT EVALUATED';
+ a.videoClock.calibration={status:'NOT EVALUATED',
+   reason:'Fewer than three distinct, unambiguous native-frame visual anchors'};
+ delete a.videoClock.originalVideoDurationSeconds;
+ const p=archivePlan([a,b],'outcome','desktop',CANDIDATE,FROZEN);
+ assert.equal(p.status,'NOT EVALUATED');
+ assert.equal(p.canReview,false);
+ assert.equal(p.sourceEventMatched,false);
+ assert.equal(p.eventPixelsConfirmed,false);
+ assert.equal(p.originalVideoAuthenticated,true);
+ assert.equal(p.nativeTimebaseVerified,false);
+ assert.equal(p.unalignedInspectionOnly,true);
+ assert.deepEqual(p.uncalibratedSources,['baseline']);
+ assert.match(p.failures.join(','),/uncalibrated-native-source-video-clock-baseline/);
+ assert.equal(p.fullVideoSeconds.baseline,66);
+ assert.equal(p.files.baseline,a.videoPath);
+ assert.equal(p.hashes.baseline,a.videoSha256);
+ assert.match(p.caveat,/Native source-event clock FAILED/);
+ const items=completeOriginalFilmPlans(library().map(r=>
+   r.scenario==='outcome' && r.viewport==='desktop' && r.source==='baseline'?a:r),
+   VIEWPORTS.map(fakeDanger),CANDIDATE,FROZEN);
+ const documented=items.find(r=>r.scenario==='outcome'&&r.viewport==='desktop');
+ assert.equal(documented.unalignedInspectionOnly,true);
+ assert.equal(documented.canReview,false);
+ assert.equal(documented.sourceEventMatched,false);
+});
+test('clock failure does not excuse tampered or too-short original bytes',()=>{
+ for(const mutate of [
+  a=>{a.nativeFilmAudit.viewports[0].problems=['corrupted-original-WebM'];},
+  a=>{a.nativeFilmAudit.viewports[0].originalWebMSha256='f'.repeat(64);},
+  a=>{a.nativeFilmAudit.viewports[0].native.lastPtsSeconds=25;},
+  a=>{a.videoClock.originalWebMBytes=12;},
+  a=>{a.motion.actualWallSeconds=40;},
+  a=>{a.videoClock.sourceSha='0'.repeat(40);},
+ ]){
+  const a=film('baseline','outcome','desktop'),b=film('candidate','outcome','desktop');
+  a.videoClock.status='NOT EVALUATED';
+  delete a.videoClock.originalVideoDurationSeconds;
+  mutate(a);
+  const p=archivePlan([a,b],'outcome','desktop',CANDIDATE,FROZEN);
+  assert.equal(p.unalignedInspectionOnly,false);
+  assert.equal(p.originalVideoAuthenticated,undefined);
+  assert.ok(p.failures.some(x=>/unverified-original/.test(x)));
+ }
 });
 test('correct coverage never manufactures event frame alignment or positive votes',()=>{
  const a=film('baseline','outcome','desktop'),b=film('candidate','outcome','desktop');
