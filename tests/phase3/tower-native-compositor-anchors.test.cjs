@@ -25,10 +25,16 @@ test('60-second original compositor sampling leaves room for uniquely matched na
     if(retainAnchor(anchors,timestamp))anchors.push({startAtMs:timestamp});
   }
   assert.equal(MAX_ANCHORS,24);
-  assert.equal(CDP_FRAME_STRIDE,12);
-  // A real 25fps 70-second WebM offers ~145 CDP sampling opportunities
-  // despite the lower JPEG transport rate, before 24 archival writes.
-  assert.ok(Math.floor(25*70/CDP_FRAME_STRIDE)>=MAX_ANCHORS*5);
+  // Real frozen baseline outcome desktop 44508004326 had only six
+  // 1/12 compositor frames in 70s; four failed original-film uniqueness.
+  // The 1/5 observer must obtain at least twelve opportunities even for
+  // a 1fps compositor without relaxing the three independent native
+  // picture matches, minimum span, event timing or transport integrity.
+  assert.equal(CDP_FRAME_STRIDE,5);
+  assert.ok(Math.floor(1*70/CDP_FRAME_STRIDE)>=12);
+  // At 25fps, 1/5 stays bounded rather than requesting every browser
+  // compositor frame; no synthetic frames or automatic calibration.
+  assert.ok(Math.floor(25*70/CDP_FRAME_STRIDE)<400);
   assert.equal(anchors.length,24);
   assert.equal(anchors[2].startAtMs-origin,MIN_SPACING_MS*2);
   assert.ok(anchors.at(-1).startAtMs-origin >= 60000,
@@ -69,7 +75,7 @@ test('passive CDP capture preserves real browser frame metadata, throttles, ackn
   assert.equal(collector.samplingStats.storedAnchorCount,2);
   assert.equal(collector.samplingStats.storedAnchorJPEGBytes,328);
   assert.equal(collector.samplingStats.deliveredBase64Characters,jpeg.length*3);
-  assert.equal(collector.samplingStats.everyNthCompositorFrame,12);
+  assert.equal(collector.samplingStats.everyNthCompositorFrame,5);
   assert.match(collector.samplingStats.meaning,/NOT video FPS/);
   assert.equal(calls.filter(x=>x.method==='Page.screencastFrameAck').length,3);
   await collector.stop();
