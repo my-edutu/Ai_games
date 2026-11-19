@@ -42,6 +42,7 @@ test('W450 same authentic smith workstation in resident vs original WebGL paths 
    return {snap:JSON.stringify(g.exportSnapshot()),current:g.metrics(),
     actualWork:g.getForgeCraftCycleAudit(),
     bellows:g.getForgeBellowsResidentAudit(),geometry:g.getGeometryAudit(),
+    reconciliation:g.getSceneTriangleReconciliation(),
     glError:gl?.getError(),overflow:document.documentElement.scrollWidth-innerWidth};
   });
   await info.attach('W450-real-smith-'+viewport.width+'-'+(enabled?'resident':'original')+'.png',{
@@ -55,6 +56,8 @@ test('W450 same authentic smith workstation in resident vs original WebGL paths 
   expect(evidence.glError).toBe(0);
   expect(evidence.overflow).toBeLessThanOrEqual(0);
   expect(evidence.geometry.totalTriangles).toBeLessThan(160000);
+  expect(evidence.reconciliation.auditedTriangles).toBe(evidence.geometry.totalTriangles);
+  expect(evidence.reconciliation.unaccountedTriangles).toBe(0);
   expect(evidence.bellows.active).toBe(enabled);
   if(enabled){
    expect(evidence.bellows.buffers).toBe(1);

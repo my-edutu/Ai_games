@@ -7801,7 +7801,7 @@ function geometryAudit(){
  // W76 complete real cottage GPU meshes are included in every integrity,
  // material and <160k-triangle budget check, never visually removed.
  if(gpuAvailable)for(const mesh of [
-  landscapeMeshCache||[],activeCivicMesh(),
+  landscapeMeshCache||[],activeCivicMesh(),activeCivicCoreMesh(),
   ...homeClusterActive.map(entry=>entry.mesh)]){
   const part=inspectMeshGeometry(mesh);
   for(const key of ['floats','vertices','triangles','invalidComponents','invalidNormals','invalidColors','outOfBounds'])fixed[key]+=part[key];
@@ -7866,6 +7866,13 @@ function geometryAudit(){
  }
  if(gpuAvailable&&completedHarvestResidentActive&&completedHarvestResidentMesh)
   addSceneGeometryStats(animated,completedHarvestResidentMesh);
+ // W451: include real submitted retained forge and verified ledger geometry
+ // in every complete-scene normal, material and triangle inspection.
+ // The former W450 forge path silently undercounted 34 real triangles.
+ if(gpuAvailable&&forgeBellowsResidentActive&&forgeBellowsResidentMesh)
+  addSceneGeometryStats(animated,forgeBellowsResidentMesh);
+ if(gpuAvailable&&ledgerWitnessResidentActive&&ledgerWitnessResidentMesh)
+  addSceneGeometryStats(animated,ledgerWitnessResidentMesh);
  if(gpuAvailable&&recordedWorkActive&&recordedWorkMesh){
   const traces=inspectMeshGeometry(recordedWorkMesh);
   for(const key of ['floats','vertices','triangles','invalidComponents',
