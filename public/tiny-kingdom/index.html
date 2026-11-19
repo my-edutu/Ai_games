@@ -29451,15 +29451,37 @@ function planOriginalMobileMarketArrival(width,height){
  const eligible=Number.isFinite(width)&&Number.isFinite(height)&&
   width>=280&&width<=520&&height>=490&&city.length>0;
  if(!eligible)return null;
- const plan=planRealMarketHomeDistrict(city,DELIVERY_MARKET.food,
+ const district=planRealMarketHomeDistrict(city,DELIVERY_MARKET.food,
   width,height,getActiveDeliveries());
+ // The genuine receiving dock is the subject of the first PORTRAIT frame,
+ // not three distant cottage ROOFS. The nearest real occupied threshold
+ // shares that frame; the original other homes remain fully drawn, unharmed.
+ const market=DELIVERY_MARKET.food,firstHome=district.inspectedHomeLots[0];
+ const cargo=district.observedLiveCargo;
+ const nearCargo=cargo&&Math.hypot(cargo.x-market[0],cargo.z-market[1])<7;
+ const focus=[
+  market[0]*.64+firstHome[0]*.36,
+  market[1]*.64+firstHome[1]*.36
+ ];
+ if(nearCargo){
+  focus[0]=focus[0]*.87+cargo.x*.13;
+  focus[1]=focus[1]*.87+cargo.z*.13;
+ }
+ const frontageSpan=Math.hypot(firstHome[0]-market[0],
+  firstHome[1]-market[1]);
+ const zoom=Math.max(16,Math.min(24,14.5+frontageSpan*.8));
  return {source:'real-original-market-and-three-inhabited-entrances',
-  focus:plan.focus.slice(),yaw:plan.yaw,pitch:plan.pitch,
-  zoom:plan.zoom,realHomes:plan.realHomes,
-  homeIndices:plan.inspectedHomeIndices.slice(),
-  lots:plan.inspectedHomeLots.map(p=>p.slice()),
-  trueReceivingMarket:DELIVERY_MARKET.food.slice(),
-  realCarriedFood:plan.observedLiveCargo,
+  focus,yaw:district.yaw,pitch:.76,zoom,
+  // The previous district-wide composition is a documented SAFE fallback
+  // when genuine timber / occupied house walls block the close camera.
+  districtFocus:district.focus.slice(),districtYaw:district.yaw,
+  districtPitch:district.pitch,districtZoom:district.zoom,
+  firstHome:firstHome.slice(),firstHomeIndex:district.inspectedHomeIndices[0],
+  realHomes:district.realHomes,
+  homeIndices:district.inspectedHomeIndices.slice(),
+  lots:district.inspectedHomeLots.map(p=>p.slice()),
+  trueReceivingMarket:market.slice(),
+  realCarriedFood:cargo,nearCargoVisible:Boolean(nearCargo),
   initialOnly:true,simulatedActors:0,simulatedReceipts:0,
   changesAuthority:false};
 }
@@ -29469,29 +29491,55 @@ function applyOriginalMobileMarketArrival(){
   return false;
  const plan=planOriginalMobileMarketArrival(width,height);
  if(!plan)return false;
- const orientations=[
+ const nearAngles=[
   [plan.yaw,plan.pitch,plan.zoom],
-  [plan.yaw+.36,plan.pitch,plan.zoom],
-  [plan.yaw-.36,plan.pitch,plan.zoom],
-  [plan.yaw,Math.max(.65,plan.pitch-.10),plan.zoom+2],
-  [.7,.90,Math.min(35,plan.zoom+2)]
+  [plan.yaw-.32,plan.pitch+.12,plan.zoom+1.5],
+  [plan.yaw+.32,plan.pitch+.14,plan.zoom+1.5],
+  [plan.yaw,plan.pitch+.28,plan.zoom+3],
+  [plan.yaw-.6,plan.pitch+.25,plan.zoom+5],
+  [plan.yaw+.6,plan.pitch+.25,plan.zoom+5]
  ];
- let accepted=null,attempts=0;
- for(const [a,p,z] of orientations){
+ let accepted=null,arrivalKind='not-visible',attempts=0;
+ // safeFreeOrbit may return a last-known clear position from an unrelated
+ // workday. Never advertise that stale position as a real market view.
+ const anchored=(v,anchor,limit)=>v&&Array.isArray(v.focus)&&
+  Math.hypot(v.focus[0]-anchor[0],v.focus[1]-anchor[1])<=limit;
+ for(const [a,p,z] of nearAngles){
   attempts++;
-  accepted=safeFreeOrbit(a,p,z,plan.focus);
-  if(accepted)break;
+  const shot=safeFreeOrbit(a,p,z,plan.focus);
+  if(anchored(shot,plan.focus,2.7)){
+   accepted=shot;arrivalKind='near-court';break;
+  }
+ }
+ if(!accepted){
+  // Physically blocked: only then widen to the actual ORIGINAL occupied
+  // market district, never hide or move a building to manufacture a view.
+  const wideAngles=[
+   [plan.districtYaw,plan.districtPitch,plan.districtZoom],
+   [plan.districtYaw-.36,plan.districtPitch+.1,plan.districtZoom+2],
+   [plan.districtYaw+.36,plan.districtPitch+.1,plan.districtZoom+2]
+  ];
+  for(const [a,p,z] of wideAngles){
+   attempts++;
+   const shot=safeFreeOrbit(a,p,z,plan.districtFocus);
+   if(anchored(shot,plan.districtFocus,3.2)){
+    accepted=shot;arrivalKind='wide-district-recovery';break;
+   }
+  }
  }
  originalMobileArrivalAudit={...originalMobileArrivalAudit,
-  attempted:true,applied:Boolean(accepted),attempts,
-  reason:accepted?'physical-original-market-view':'physical-roof-or-terrain-blocked',
-  actualHomes:plan.realHomes,
+  attempted:true,applied:Boolean(accepted),attempts,arrivalKind,
+  reason:accepted?'physical-'+arrivalKind:'physical-roof-or-terrain-blocked',
+  actualHomes:plan.realHomes,firstHome:plan.firstHome.slice(),
+  firstHomeIndex:plan.firstHomeIndex,market:plan.trueReceivingMarket.slice(),
+  targetCourtFocus:plan.focus.slice(),
+  nearCargoVisible:plan.nearCargoVisible,
   visibleOccupiedHomeLots:plan.lots.map(p=>p.slice()),
   trueMarket:plan.trueReceivingMarket.slice(),
   camera:accepted?{yaw:accepted.yaw,pitch:accepted.pitch,
    zoom:accepted.zoom,focus:accepted.focus.slice()}:null,
   cameraOnly:true,authoritativeChanges:false};
- if(!accepted)return false; // Keep the original full, uncut village view.
+ if(!accepted)return false; // Keep the original full uncut village instead.
  yaw=accepted.yaw;pitch=accepted.pitch;zoom=accepted.zoom;
  focusPoint=accepted.focus.slice();
  presentationEpoch++;lastFrozenFrameKey=null;
