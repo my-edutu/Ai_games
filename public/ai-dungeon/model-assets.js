@@ -3242,6 +3242,13 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
         upper.bone.updateWorldMatrix(true,true);
         trials.push({upperRad:sweepUpperRad,lowerRad:sweepLowerRad,footRad,
          ...(sourceToeAngles?{toeRad:appliedToeRad}:{}),
+         // Source-sampled original toes child + verified clip, bind,
+         // weighted skinned vertex and world lever; a separate post-
+         // coupled adaptive derivative is not the ONLY legal evidence
+         // when FOUR actual original skin readbacks prove safe pitch.
+         // Final independent two-shoe source skin must still approve.
+         ...(sourceToeAngles&&toeRad!==0&&!sourceAdaptiveToeCandidate?
+          {sourcePreplannedToeHingeVerified:true}:{}),
          ...(sourceAdaptiveToeCandidate?{sourceAdaptiveToeCandidate}:{}),
          ...(sourceCoupledHipKneeRelief?{sourceCoupledHipKneeRelief}:{}),
          footLocalAxis:footAxis.clone(),after:read()});
@@ -3454,6 +3461,8 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
     footRad:option.footRad,
      ...(option.toeRad!==undefined?{toeRad:option.toeRad}:{}),
      sourceAdaptiveToeCandidate:selectedTrial?.sourceAdaptiveToeCandidate,
+     sourcePreplannedToeHingeVerified:
+      selectedTrial?.sourcePreplannedToeHingeVerified===true,
      sourceCoupledHipKneeRelief:selectedTrial?.sourceCoupledHipKneeRelief,
      after}]});
   // An accepted original loaded ankle is another pose owner. Its two
