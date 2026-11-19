@@ -45,8 +45,10 @@
     "cause": "Existing integration test demanded periphery assembly after only 1 nonzero returned core frame/50ms, but strict source/GPU policy requires >=2 visible structural submissions and >=120ms before any outer scenic upload, then >=3 / >=200ms before biome.",
     "correctiveCommit": "900127c11cf0060ecbf841cffaac163c92f95d8e",
     "changeKind": "real-Three source-contract test schedule and negative no-premature-upload assertions; NO gameplay production change; threshold not relaxed.",
-    "exactHeadQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44530367537",
-    "qualityStatusAtRecord": "QUEUED - not counted as passing"
+    "exactHeadQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44531155172",
+    "qualityStatusAtRecord": "PENDING - no pass claim",
+    "additionalFrameAccurateRegressionCommit": "8b3dd852baa0f400fa694e91e8b16668f18851d2",
+    "additionalCorrection": "Checks crystal biome is genuinely culled on assembly frame, not after later returned frames may have earned its visibility."
   },
   "sourcePinnedOutputs": {
     "newProductionCaptureAtCorrectiveHead": "NOT RUN",
