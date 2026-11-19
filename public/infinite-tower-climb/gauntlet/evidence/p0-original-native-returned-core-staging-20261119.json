@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "stage": "P0",
+  "stageVerdict": "OPEN",
+  "transformationVerdict": "NOT EVALUATED",
+  "evaluatedAtUtc": "2026-11-19",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "immutableFootage": {
+    "candidateSha": "efc88570befed9f26e6109d73b25d5d91a00ac8d",
+    "captureWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44526602418",
+    "candidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44526602418/artifacts/14532040495",
+    "baselineSourceSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "original": true,
+    "fullMotion": true,
+    "acceptedEventAligned": false,
+    "observations": {
+      "desktop": {
+        "viewport": "960x600",
+        "hudFloorNineSeconds": 26,
+        "sustainedVioletSeconds": 26.75,
+        "hudWorldGapSeconds": 0.75,
+        "precisionSeconds": 0.25,
+        "nativeVideoSha256": "4e2ef42a2ff3f68d65af7205f8a6d3d23e2f3da9fc8669f16e0c7a892bb37a94",
+        "browserAcceptedToWebglReturnMs": 713
+      },
+      "portrait": {
+        "viewport": "390x844",
+        "hudFloorNineSeconds": 25.25,
+        "sustainedVioletSeconds": 26.25,
+        "hudWorldGapSeconds": 1,
+        "precisionSeconds": 0.25,
+        "nativeVideoSha256": "33404e3a4a47ce9b7a9d17805117d7aa18213d7c196e2f7b462dbffdf1f90148",
+        "browserAcceptedToWebglReturnMs": 670
+      },
+      "nativeChromaSharedRoomSeconds": 0,
+      "sourceEventAlignedDesktopPortrait": "0/2",
+      "limitation": "Chroma and drawn-HUD timing are source-hash-verified unedited-film diagnostics; neither certifies the opened guardian gate and actual support pixels."
+    }
+  },
+  "strongestExperienceDefect": "Unedited normal-speed crossing still changes from warm bronze to violet before demonstrating a sustained, co-visible original opened guardian gateway, full moving protagonist and physically walkable Floor9, especially in portrait behind foreground bars.",
+  "verifiedPrimaryBlocker": {
+    "priorQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44526602416",
+    "status": "FAILED 9/10 jobs",
+    "failedTest": "tests/phase3/tower-retained-source-cap-world.test.cjs:742",
+    "cause": "Existing integration test demanded periphery assembly after only 1 nonzero returned core frame/50ms, but strict source/GPU policy requires >=2 visible structural submissions and >=120ms before any outer scenic upload, then >=3 / >=200ms before biome.",
+    "correctiveCommit": "900127c11cf0060ecbf841cffaac163c92f95d8e",
+    "changeKind": "real-Three source-contract test schedule and negative no-premature-upload assertions; NO gameplay production change; threshold not relaxed.",
+    "exactHeadQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44530367537",
+    "qualityStatusAtRecord": "QUEUED - not counted as passing"
+  },
+  "sourcePinnedOutputs": {
+    "newProductionCaptureAtCorrectiveHead": "NOT RUN",
+    "fullSceneCoVisibleNativeFramePair": "NOT EVALUATED",
+    "matchedSeedTierDevice": "NOT EVALUATED"
+  },
+  "independentBlindReview": {
+    "LOOKS": {
+      "candidatePreferences": 0,
+      "totalIndependentCritics": 5
+    },
+    "FEELS": {
+      "candidatePreferences": 0,
+      "totalIndependentCritics": 5
+    },
+    "PLAYS": {
+      "candidatePreferences": 0,
+      "totalIndependentCritics": 5
+    }
+  },
+  "actualDevice": {
+    "p50": "NOT EVALUATED",
+    "p95": "NOT EVALUATED",
+    "p99": "NOT EVALUATED",
+    "memory": "NOT EVALUATED"
+  },
+  "nextHighestImpact": "Verify exact-head P0 source-contract CI; inspect first-F9 actual original 1x paired frame after new returned-core staging, prioritize genuine source→Three→native bridge and reduced foreground rail occlusion, not further evidence pipeline tweaks.",
+  "prohibitedChangesUnchanged": {
+    "baseline": true,
+    "pr58": true,
+    "merge": true,
+    "deploy": true,
+    "forcePush": true,
+    "pr68Draft": true
+  }
+}
