@@ -7,7 +7,10 @@ const start=html.indexOf('const FARM_FIELD_MESH_FLOAT_LIMIT=');
 const end=html.indexOf('function drawResidentFarmFields(',start);
 assert(start>0&&end>start,'Real crop functions must exist');
 const crop=html.slice(start,end);
-assert.match(crop,/function getOrBuildFarmSeasonMeshes\(season\)/);
+// Real W459 segmented crop preflight accepts both the original uncached
+// call and the source-exact prebuilt two-field meshes. Test the current API.
+assert.match(crop,/function getOrBuildFarmSeasonMeshes\\(season,prebuilt=null\\)/);
+assert.match(crop,/if\\(prebuilt\\)/);
 assert.match(crop,/farmFieldSeasonCache=new Map\(\)/);
 assert.match(crop,/farmFieldGpuCapacities=\[0,0\]/);
 assert.match(crop,/gl\.bufferSubData\(gl\.ARRAY_BUFFER,0,meshes\[i\]\)/);
