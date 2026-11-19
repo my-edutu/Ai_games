@@ -18,6 +18,18 @@ export function cellHeight(cell, width, height) {
   return (2 - band) * 1.4;
 }
 
+// A real, witnessed key collection must collapse the four joined gallery fins
+// over time rather than teleporting from raised glass to spent clay. Both
+// endpoints are noncolliding source-disclosed scenery, never moving hazards.
+// Late joins, resets and reduced motion go directly to the truthful final pose.
+export function publicTreasureGallerySailHeight(collected,elapsed=Infinity,reducedMotion=false){
+  if(!collected)return .62;
+  if(reducedMotion||!Number.isFinite(elapsed))return .12;
+  const phase=Math.max(0,Math.min(1,elapsed/1.20));
+  const ease=phase*phase*(3-2*phase);
+  return .62-.50*ease;
+}
+
 // A two-passage treasure detour earns ONE connected original Tideglass gallery,
 // but ONLY while the actual key and all three reciprocal open cells are PUBLIC.
 // Discovery is not a private solver instruction: no hidden cell, remembered
@@ -577,7 +589,7 @@ export function createMazeWorld(options = {}) {
   let pressureRetainingGalleries = 0, treasureGalleryTiles = 0, guardianCourtTiles = 0, guardianBlockedReliefTiles = 0, guardianCausewayTiles = 0, guardianForecourtShoulderTiles = 0, guardianOuterCourtFloorTiles = 0, guardianOuterCourtSealedTiles = 0, shorelineLoadFacades = 0;
   // Authored, disclosed wall-side fossils react only to the PUBLIC explorer pose.
   // These are live Three groups, not hidden route markers or a new game system.
-  let fossilSails = [], fossilOrgans = [], trapJaws = [], trapSignals = [], guardianTideSignals = [], publicHeroX = 0, publicHeroZ = 0;
+  let fossilSails = [], fossilOrgans = [], trapJaws = [], trapSignals = [], guardianTideSignals = [], treasureGallerySignals = [], publicHeroX = 0, publicHeroZ = 0;
   let batchData = new Map();
   const clear = (target) => {
     for (const child of [...target.children]) {
@@ -592,7 +604,9 @@ export function createMazeWorld(options = {}) {
   const add = (geo, mat, x, y, z, sx, sy, sz, cell = -1, rx = 0, ry = 0, rz = 0) => {
     const key = `${geo.id}:${mat.id}`;
     if (!batchData.has(key)) batchData.set(key, { geo, mat, entries: [] });
-    batchData.get(key).entries.push({ matrix: transform(x, y + (cell >= 0 && snapshot ? cellHeight(cell, snapshot.width, snapshot.height) : 0), z, sx, sy, sz, rx, ry, rz).clone(), cell });
+    const entry = { matrix: transform(x, y + (cell >= 0 && snapshot ? cellHeight(cell, snapshot.width, snapshot.height) : 0), z, sx, sy, sz, rx, ry, rz).clone(), cell };
+    batchData.get(key).entries.push(entry);
+    return entry;
   };
   const block = (mat, x, y, z, sx, sy, sz, cell = -1, ry = 0) => add(bevel, mat, x, y, z, sx, sy, sz, cell, 0, ry);
   const finishBatches = () => {
@@ -600,7 +614,10 @@ export function createMazeWorld(options = {}) {
     for (const { geo, mat, entries } of batchData.values()) {
       const mesh = new THREE.InstancedMesh(geo, mat, entries.length);
       mesh.castShadow = ![leaf, leafDark, seaFern, moss, flower, rippleMaterial].includes(mat); mesh.receiveShadow = true;
-      entries.forEach((entry, i) => { mesh.setMatrixAt(i, entry.matrix); mesh.setColorAt(i, new THREE.Color(0xffffff)); });
+      entries.forEach((entry, i) => {
+        mesh.setMatrixAt(i, entry.matrix); mesh.setColorAt(i, new THREE.Color(0xffffff));
+        if(entry.gallerySignal){entry.gallerySignal.mesh=mesh;entry.gallerySignal.index=i;}
+      });
       mesh.instanceMatrix.needsUpdate = true; mesh.computeBoundingSphere();
       terrain.add(mesh); batches.push({ mesh, entries });
     }
@@ -1257,7 +1274,7 @@ export function createMazeWorld(options = {}) {
   }
   function rebuildTerrain(s) {
     treasureGalleryTiles = 0; pressureRetainingGalleries = 0; guardianCourtTiles = 0; guardianBlockedReliefTiles = 0; guardianCausewayTiles = 0; guardianForecourtShoulderTiles = 0; guardianOuterCourtFloorTiles = 0; guardianOuterCourtSealedTiles = 0; shorelineLoadFacades = 0;
-    clear(terrain); fossilSails = []; fossilOrgans = []; guardianTideSignals = []; batchData = new Map(); renderedCells = s.cells.map(c => c.cell); stairEdges = []; stairBalustrades = 0; tideFossilGroves = 0; tideFossilAlcoves = 0; fossilGalleryEdges = 0; undercroftButtresses = 0; hangingFacadeGardens = 0; closedTideMedallions = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0; gateForecourtParapets = 0; pressureStageParapets = 0; guardianSightlineParapets = 0; gateCourtRosettes = 0;
+    clear(terrain); fossilSails = []; fossilOrgans = []; guardianTideSignals = []; treasureGallerySignals = []; batchData = new Map(); renderedCells = s.cells.map(c => c.cell); stairEdges = []; stairBalustrades = 0; tideFossilGroves = 0; tideFossilAlcoves = 0; fossilGalleryEdges = 0; undercroftButtresses = 0; hangingFacadeGardens = 0; closedTideMedallions = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0; gateForecourtParapets = 0; pressureStageParapets = 0; guardianSightlineParapets = 0; gateCourtRosettes = 0;
     const edges = new Set(), columns = new Set(), landmarkSites = new Map();
     const treasureGallery=publicTwoLinkTreasureGallery(s);
     const guardianSightlines=publicGuardianStageCells(s);
@@ -1633,14 +1650,21 @@ export function createMazeWorld(options = {}) {
         // key: it uses the existing pooled 3D bevel/materials and the
         // already-authoritative key state. Never place sails across a
         // pressure hazard, sealed edge, hidden passage or guardian court.
-        const sailHeight=treasureGalleryCourse.collected?.12:.62;
+        const pickupStart=keyPickupAt.get(treasureGalleryCourse.keyId);
+        const sailAge=Number.isFinite(pickupStart)?presentationTime-pickupStart:Infinity;
+        const sailHeight=publicTreasureGallerySailHeight(
+          treasureGalleryCourse.collected,sailAge);
         const sailCentre=.06+sailHeight*.5;
         for(const side of [-1,1]){
           const sx=x+(alongX?0:side*.96);
           const sz=z+(alongX?side*.96:0);
-          add(bevel,treasureGalleryCourse.collected?clay:seaGlass,
-            sx,sailCentre,sz,alongX?1.77:.15,sailHeight,
-            alongX?.15:1.77,c.cell);
+          const signal={keyId:treasureGalleryCourse.keyId,
+            collected:treasureGalleryCourse.collected,x:sx,z:sz,
+            floorY:cellHeight(c.cell,s.width,s.height),
+            width:alongX?1.77:.15,depth:alongX?.15:1.77};
+          const entry=add(bevel,treasureGalleryCourse.collected?clay:seaGlass,
+            sx,sailCentre,sz,signal.width,sailHeight,signal.depth,c.cell);
+          entry.gallerySignal=signal;treasureGallerySignals.push(signal);
         }
       } else if (pressureCourtApron || guardianCourtCell || guardianForecourtShoulder || guardianOuterCourtFloor || witnessedForeground || variation(c.cell + 50) > .55) {
         block(floorMaterial, x, -.035, z, 2.31, .07, 2.31, c.cell);
@@ -3751,6 +3775,20 @@ export function createMazeWorld(options = {}) {
     presentationTime = Number.isFinite(options.gateTime) && options.gateTime >= 0
       ? options.gateTime : t;
     const reduced = !!options.reducedMotion;
+    // Animate the SAME four source-disclosed, pooled-geometry gallery fins on
+    // the authenticated public key transition. No new draw calls, object churn,
+    // unknown cells, collision edits, fake key or timer-owned gameplay.
+    for(const signal of treasureGallerySignals){
+      if(!signal.collected||!signal.mesh)continue;
+      const start=keyPickupAt.get(signal.keyId);
+      const elapsed=Number.isFinite(start)?presentationTime-start:Infinity;
+      const height=publicTreasureGallerySailHeight(true,elapsed,reduced);
+      signal.mesh.setMatrixAt(signal.index,transform(signal.x,
+        signal.floorY+.06+height*.5,signal.z,signal.width,height,signal.depth));
+      signal.mesh.instanceMatrix.needsUpdate=true;
+      // The original raised .62m instance bounding sphere contains every
+      // later smaller pose; re-computing it each frame would waste CPU.
+    }
     // Carved bronze portcullises physically withdraw into their own lintel.
     // The passage was already opened by the real engine; this is cosmetic.
     // Animation is held on the same 3D gate between source polling updates.
@@ -4263,7 +4301,7 @@ export function createMazeWorld(options = {}) {
     for (const g of geometries) g.dispose();
     for (const m of materials) m.dispose();
     for (const t of textures) t.dispose(); textures.clear();
-    geometries.clear(); materials.clear(); batches = []; animations = []; ripples = []; fossilSails = []; fossilOrgans = []; trapJaws = []; trapSignals = []; guardianTideSignals = []; batchData.clear(); snapshot = null; renderedCells = []; stairEdges = []; stairBalustrades = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0; gateForecourtParapets = 0; pressureStageParapets = 0; guardianSightlineParapets = 0; gateCourtRosettes = 0; tideFossilGroves = 0; tideFossilAlcoves = 0; fossilGalleryEdges = 0; undercroftButtresses = 0; hangingFacadeGardens = 0; closedTideMedallions = 0; group.clear();
+    geometries.clear(); materials.clear(); batches = []; animations = []; ripples = []; fossilSails = []; fossilOrgans = []; trapJaws = []; trapSignals = []; guardianTideSignals = []; treasureGallerySignals = []; batchData.clear(); snapshot = null; renderedCells = []; stairEdges = []; stairBalustrades = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0; gateForecourtParapets = 0; pressureStageParapets = 0; guardianSightlineParapets = 0; gateCourtRosettes = 0; tideFossilGroves = 0; tideFossilAlcoves = 0; fossilGalleryEdges = 0; undercroftButtresses = 0; hangingFacadeGardens = 0; closedTideMedallions = 0; group.clear();
   }
   // Actual modeled, PUBLICLY disclosed fossil-organ attention. The living
   // sculpture exists only when a safe published tile and its closed wall are

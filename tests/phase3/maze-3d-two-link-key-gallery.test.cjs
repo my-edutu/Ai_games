@@ -112,3 +112,46 @@ test('original joined full-tile 3D treasure corridor is real pooled Three geomet
  assert.equal(w.stats().treasureGalleryTiles,0);
  assert.equal(publicTwoLinkTreasureGallery(s).size,2);
 });
+
+// Source-authentic time sequence: unlike an abrupt state swap, the TWO real
+// publicly discovered gallery tiles move their FOUR current Three instances.
+test('witnessed public key acquisition smoothly drops the entire 3D Tideglass gallery without a fake hit or new GPU resources',async()=>{
+ const {createMazeWorld,publicTreasureGallerySailHeight:height}=await load();
+ const THREE=await import(three),w=createMazeWorld({balanced:true});
+ const s={...published(),tick:40},baseline=w.stats();
+ const heights=()=>{
+   const out=[],m=new THREE.Matrix4(),p=new THREE.Vector3(),q=new THREE.Quaternion(),sc=new THREE.Vector3();
+   for(const node of w.group.children[1].children){
+     if(!node.isInstancedMesh)continue;
+     for(let i=0;i<node.count;i++){
+       node.getMatrixAt(i,m);m.decompose(p,q,sc);
+       if((Math.abs(p.x)<.0001||Math.abs(p.x-2.4)<.0001)
+         && Math.abs(Math.abs(p.z+2.4)-.96)<.0001
+         && Math.abs(sc.x-1.77)<.0001&&Math.abs(sc.z-.15)<.0001)out.push(sc.y);
+     }
+   }
+   return out.sort((a,b)=>a-b);
+ };
+ const all=(v)=>assert.ok(heights().length===4&&heights().every(h=>Math.abs(h-v)<1e-5),
+   'the same FOUR honest 3D side sails must be in the correct timed pose: '+JSON.stringify(heights()));
+ w.update(s);w.animate(0);all(.62);
+ w.update({...s,tick:41,keys:[{...s.keys[0],collected:true}],inventory:['key-1']});
+ all(.62); // true public before->after key collection begins at the raised stage
+ w.animate(.6,{gateTime:.6});all(height(true,.6));
+ assert.ok(height(true,.6)>.12&&height(true,.6)<.62,'a real intermediate physical collapse exists');
+ w.animate(1.21,{gateTime:1.21});all(.12);
+ w.animate(1.21,{gateTime:1.21,reducedMotion:true});all(.12);
+ assert.equal(w.stats().geometryCount,baseline.geometryCount);
+ assert.equal(w.stats().materialCount,baseline.materialCount);
+ // An already-collected first encounter with no witnessed transition settles
+ // immediately; a reset cannot replay a previous key event or show hidden map.
+ w.update({...s,tick:1,runToken:'fresh-uncollected'});all(.62);
+ w.update({...s,tick:2,runToken:'fresh-uncollected',keys:[{...s.keys[0],collected:true}]});all(.12);
+ w.update({...s,tick:3,runToken:'fresh-uncollected',visibleCells:[23,24]});
+ assert.equal(w.stats().treasureGalleryTiles,0);
+ for(let i=0;i<6;i++){
+   w.update({...s,runToken:'gallery-playback-reset-'+i});
+   assert.ok(w.stats().geometryCount<100,'the original six-reset budget remains unchanged');
+ }
+ w.dispose();assert.equal(w.stats().geometryCount,0);assert.equal(w.stats().materialCount,0);
+});
