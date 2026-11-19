@@ -3621,8 +3621,14 @@ export function createTowerWorld(){
     // case is separately HP0/roof/old-GPU certified; an active, freshly
     // earned source-departure still has priority, as does far-side physics.
     // The first real structural return automatically ends this bounded hold.
-    const returnedBronzeHold=!options.stale &&
-      (farSide || sourceDeparture?.sourceBound!==true)
+    // The source-certified NEAR-ROOF actor can still be standing on the
+    // original, collision-aligned F9 sill while the first successor shell
+    // has returned ZERO painted frames. An active departure is not evidence
+    // that a new room was drawn: keep the last truly returned original
+    // gateway material until the incoming core itself participates in a
+    // returned frame. The pure witness independently vetoes every unsafe
+    // run, guardian, support, or frame state, including on first arrival.
+    const returnedBronzeHold=!options.stale
       ?observedReturnedOriginalArchitectureHold(
         snapshot,held,deferredDistantArrival,farSide):null;
     held.sourceAlignedPassage=samePassage || sourceColdFrame || !!farSide ||
@@ -4458,41 +4464,39 @@ export function createTowerWorld(){
     // invented crossing/actor or a new presentation timer.
     sourceCertifiedHorizon=!options.stale && !options.reducedMotion
       ?observedCertifiedClockworkHorizon(snapshot,livePaletteProof,opticalTail):null;
-    // Keep the SKY and authentic Floor9 architectural palette in the same
-    // physical room as the still-returning original bronze gate. This only
-    // samples the previously proven old GPU owner and CURRENT supported
-    // far-side body; without the witness everything remains normal Void.
+    // A CURRENT, physically supported Floor9 survivor and the LAST returned
+    // original HP-zero gateway jointly own the same roof, shaft materials,
+    // fog, light and sky. Previously only the >7m raised/far-side case
+    // reached this palette, while the real near-roof crossing already had
+    // an independent validated returned-original-room witness. That split
+    // could paint violet everywhere behind an opaque bronze doorway.
+    // No palette history is accepted from a future target, floor HUD or
+    // ordinary elapsed source tick. Reduced motion stays instantaneous.
     const farSideHorizon=!options.stale && !options.reducedMotion
       ?observedEarnedFarSideShaftOverlap(snapshot,retainedEarnedCap,deferredDistantArrival):null;
-    // Only source-backed old geometry observed AFTER a successful renderer
-    // return may hold the whole original warm room. A grounded departure
-    // cannot independently recolor the roof, shaft, fog or bearings before
-    // a first nonzero incoming structural frame has actually returned.
-    const returnedBronzePaletteLock=farSideHorizon
+    const returnedBronzePaletteLock=!options.stale && !options.reducedMotion
       ?observedReturnedOriginalArchitectureHold(
         snapshot,retainedEarnedCap,deferredDistantArrival,farSideHorizon):null;
-    const farSideOldWeight=farSideHorizon
-      ?(returnedBronzePaletteLock?1:retainedEarnedCap.originalGatewayOpacity):null;
-    sourceCertifiedHorizon=farSideHorizon ?{
+    const oldRoomWitness=farSideHorizon || returnedBronzePaletteLock;
+    const certifiedOldRoomWeight=returnedBronzePaletteLock?1
+      :(farSideHorizon?retainedEarnedCap.originalGatewayOpacity:null);
+    sourceCertifiedHorizon=oldRoomWitness ?{
       sourceBound:true,sourceTick:snapshot.tick,
-      oldWeight:Math.max(sourceCertifiedHorizon?.oldWeight??0,farSideOldWeight),
+      oldWeight:Math.max(sourceCertifiedHorizon?.oldWeight??0,certifiedOldRoomWeight),
       kind:'physically-supported-returned-old-and-new-shaft',
       limitation:'Original GPU geometry and current genuine source route, not native-film visual acceptance'
     }:sourceCertifiedHorizon;
-    // Preserve the original metal tint as well as sky/lighting until the
-    // same returned real geometry visibly recedes (no action/tell tinting).
-    if(farSideHorizon) departure=Math.min(departure,1-farSideOldWeight);
-    // The live source sample always outranks history. Where the climber
-    // has verifiably cleared the old sill, the same ORIGINAL GPU mesh
-    // and currently supporting source contact supply the material proof:
-    // previous code blended sky bronze while every structural material
-    // flipped to Void in one draw. The far-side proof cannot create a floor,
-    // platform, defeating blow or submitted frame.
-    const materialProof=livePaletteProof??(farSideHorizon?{
+    // Retire the OLD climate and metal no sooner than the real original
+    // gateway, then hand control back immediately on the first returned
+    // incoming structural frame. Do not re-color independently.
+    if(oldRoomWitness) departure=Math.min(departure,1-certifiedOldRoomWeight);
+    // A real old-gate body/roof witness also supplies coherent materials;
+    // this is never a simulated floor, collider or successful pixel claim.
+    const materialProof=livePaletteProof??(oldRoomWitness?{
       sourceBound:true,sourceTick:snapshot.tick,
       crossingTick:retainedEarnedCap.crossingTick,
       kind:'verified-original-roof-receipt',
-      oldWeight:farSideOldWeight
+      oldWeight:certifiedOldRoomWeight
     }:null);
     // The previously returned bronze gateway is authoritative for the
     // currently co-visible destination paint, even when the newest source
