@@ -8,7 +8,7 @@ import { originalMeshPath } from './mesh-provenance.mjs';
 import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs';
 import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedPrebuiltVoidShaftRelease, observedQueuedOriginalCapAtFirstRender, reconcileRecordedOriginalCapCrossing,
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
-import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceFloorNineRouteSupport, observedSourceRetainedRaisedExit, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS, observedCertifiedOriginalGatewayOpticalLease } from './source-physical-arrival-palette.mjs';
+import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceFloorNineRouteSupport, observedSourceRetainedRaisedExit, observedSourceAirborneSuccessorApproach, observedSourceOriginalVisibilityWindow, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS, observedCertifiedOriginalGatewayOpticalLease } from './source-physical-arrival-palette.mjs';
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
 import { rebindSourceOwnedUndercroft } from './successor-deck-visibility.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, createSourceEarnedVoidDepartureMaterials, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn } from './original-clockwork-architecture-palette.mjs';
@@ -3479,8 +3479,19 @@ export function createTowerWorld(){
       observedSourceFloorNineRouteSupport(snapshot,
         snapshot.platforms?.find(platform=>platform?.id==='f9:ground'),
         held.oldRoofY);
-    const onNewRoof=(p?.grounded===true &&
-      p.groundedPlatformId==='f9:ground') ||
+    // The actual source-pinned portrait passage remained on Floor 9 at
+    // tick 521 while jumping toward the genuine f9:p2 deck. Source/camera/
+    // palette already accepted this exact HP0-and-platform-grounded *origin*
+    // of flight, but the 3D world owner independently rejected it, tearing
+    // down the ORIGINAL bronze gate/gallery at nonzero opacity. Keep the
+    // already-rendered physical old world during this strictly validated
+    // in-between step; never invent contact, gate defeat or a future frame.
+    const authenticRaisedFlight=!options.stale &&
+      observedSourceAirborneSuccessorApproach(snapshot,held,held.oldRoofY);
+    const sourceVisibilityWindow=!options.stale
+      ?observedSourceOriginalVisibilityWindow(snapshot,held):null;
+    const onNewRoof=authenticRaisedFlight ||
+      (p?.grounded===true && p.groundedPlatformId==='f9:ground') ||
       !!observedRecordedGuardianDoorstepHandoff(snapshot) ||
       onOriginalCapRoof ||
       observedSourceRetainedRaisedExit(snapshot,held,held.oldRoofY);
@@ -3579,7 +3590,7 @@ export function createTowerWorld(){
       ?observedReturnedOriginalArchitectureHold(
         snapshot,held,deferredDistantArrival,farSide):null;
     held.sourceAlignedPassage=samePassage || sourceColdFrame || !!farSide ||
-      sourceDeparture?.sourceBound===true;
+      sourceDeparture?.sourceBound===true || authenticRaisedFlight;
     if ((physicallyBeyondOriginalDoor && !farSide) || options.stale || snapshot.runToken !== held.runToken ||
         snapshot.floor !== held.floor || snapshot.lifecycle !== 'running' ||
         !Number.isSafeInteger(snapshot.tick) ||
@@ -3589,9 +3600,12 @@ export function createTowerWorld(){
         // gateway and gallery while the same source-authenticated passage
         // was still eligible in the returned F9 camera, producing the
         // abrupt native bronze-to-violet replacement on a cold renderer.
+        // World, camera, palette and occlusion must share the SAME actual
+        // F9 raised-flight visibility window. A separate 70-tick world-only
+        // deadline can otherwise delete the still-painted original doorway
+        // even while the real moving body and successor deck remain eligible.
         snapshot.tick<held.sourceTick || snapshot.tick-held.sourceTick>((opticalLease || farSide)
-          ?150:(observedSourceRetainedRaisedExit(snapshot,held,held.oldRoofY)
-            ?SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS:70)) ||
+          ?150:(sourceVisibilityWindow?.maxTicks??70)) ||
         !(p?.health>0) ||
         (!nearDoor && !onNewRoof && !onCameraHandoffFlight &&
           !retainedBackdrop && !sourceDeparture?.sourceBound && !opticalLease && !farSide) ||
