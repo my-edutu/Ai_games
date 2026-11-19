@@ -250,8 +250,8 @@ function writeReview(root,out,candidateSha){
     hardware:'NOT EVALUATED',mediaOriginalBytesUnmodified:true,
     caveat:'Matching source-event names and native PTS do NOT prove identical decisions, visible cause/effect, viewer preference or supported-device performance.',
     plans,nativeRasterOnlyViewports:plans.filter(p=>p.scenario==='danger'&&p.unalignedInspectionOnly&&p.nativeRasterAnchors.length).map(p=>p.viewport),
-    completeAuthenticScenarios:SCENARIOS.filter(s=>VIEWPORTS.every(v=>plans.some(p=>p.scenario===s&&p.viewport===v&&!p.failures.length))),
-    missingScenarios:SCENARIOS.filter(s=>!VIEWPORTS.every(v=>plans.some(p=>p.scenario===s&&p.viewport===v&&!p.failures.length))),
+    completeAuthenticScenarios:SCENARIOS.filter(s=>VIEWPORTS.every(v=>plans.some(p=>p.scenario===s&&p.viewport===v&&p.originalVideoAuthenticated===true))),
+    missingScenarios:SCENARIOS.filter(s=>!VIEWPORTS.every(v=>plans.some(p=>p.scenario===s&&p.viewport===v&&p.originalVideoAuthenticated===true))),
     reviewScope:'Four full original films per viewport; all eight before/after scene pairs remain ungraded until visual source/event and independent review'};
   fs.mkdirSync(out,{recursive:true});
   for(const plan of plans){
@@ -287,7 +287,7 @@ if(require.main===module){
   const out=process.argv[3]||'artifacts/tower-event-pairs';
   const report=writeReview(root,out,process.env.TOWER_EXPECTED_CANDIDATE_SHA);
   process.stdout.write('Unedited event-aligned danger A/B: '+report.plans.filter(p=>p.scenario==='danger'&&p.canReview).length+
-    '/2 viewports; full authentic scene pairs '+report.plans.filter(p=>!p.failures.length).length+'/8; independent experience NOT EVALUATED.\n');
+    '/2 viewports; full authentic scene pairs '+report.plans.filter(p=>p.originalVideoAuthenticated===true).length+'/8; independent experience NOT EVALUATED.\n');
   if(report.plans.some(p=>p.failures.length))process.exitCode=1;
 }
 module.exports={planPair,writeReview,htmlFor};
