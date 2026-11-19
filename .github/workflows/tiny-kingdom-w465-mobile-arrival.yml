@@ -1,0 +1,42 @@
+name: Tiny Kingdom W465 Actual Mobile Market Arrival
+on:
+  push:
+    branches: [feat/tiny-kingdom-post-main-gauntlet-20261031]
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'tests/browser/tiny-kingdom-w465-mobile-arrival.spec.cjs'
+      - '.github/workflows/tiny-kingdom-w465-mobile-arrival.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w465-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  actual-mobile-and-desktop-day1-day121:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 38
+    env:
+      CI: '1'
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test tests/browser/tiny-kingdom-w465-mobile-arrival.spec.cjs --workers=1 --reporter=line
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w465-actual-day1-day121-mobile-and-desktop
+          path: |
+            artifacts/tiny-kingdom-w465/
+            test-results/
+          if-no-files-found: warn
+          retention-days: 14

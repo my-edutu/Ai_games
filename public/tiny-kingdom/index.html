@@ -1695,8 +1695,20 @@ body[data-hud="cinema"] #mobile-transport-disclosure{display:none!important}
   background:#355744!important;border:1px solid #bca87b!important;
  }
 }
+
+/* W465: tell the truth while all actual buildings are being constructed.
+   This transient caption cannot act as a fake gameplay frame or block input. */
+#kingdom-stage-status{position:fixed;z-index:16;left:50%;top:48%;
+ transform:translate(-50%,-50%);pointer-events:none;text-align:center;
+ width:min(284px,calc(100vw - 28px));padding:16px 20px;
+ background:rgba(12,33,33,.93);border:1px solid rgba(244,209,151,.62);
+ border-radius:16px;box-shadow:0 14px 32px #001618b3;
+ color:#f6e1b2;font:700 13px/1.5 system-ui,-apple-system,sans-serif}
+#kingdom-stage-status small{display:block;margin-top:4px;
+ color:#c2d5ce;font:500 11px/1.5 system-ui}
+#kingdom-stage-status[hidden]{display:none!important}
 </style></head><body>
-<canvas id="world" tabindex="0" aria-label="Live 3D medieval valley. Tap a visible villager to follow genuine work. Drag to orbit, Shift-drag or two-finger drag to pan, pinch or scroll to zoom. Home returns to village, F follows a citizen, V walks the streets; Enter selects a visible citizen."></canvas><div id="citizen-pick-caption" role="status" aria-live="polite" aria-atomic="true"><span id="citizen-pick-copy"></span><progress id="citizen-pick-meter" value="0" max="100" aria-label="Observed citizen's actual shift or delivery progress" hidden></progress></div><div class="vignette"></div>
+<canvas id="world" tabindex="0" aria-label="Live 3D medieval valley. Tap a visible villager to follow genuine work. Drag to orbit, Shift-drag or two-finger drag to pan, pinch or scroll to zoom. Home returns to village, F follows a citizen, V walks the streets; Enter selects a visible citizen."></canvas><div id="kingdom-stage-status" role="status" aria-live="polite">Rebuilding the real valley<small id="kingdom-stage-detail">Terrain, occupied houses and market · complete world before play</small></div><div id="citizen-pick-caption" role="status" aria-live="polite" aria-atomic="true"><span id="citizen-pick-copy"></span><progress id="citizen-pick-meter" value="0" max="100" aria-label="Observed citizen's actual shift or delivery progress" hidden></progress></div><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
 <div class="sidebar"><div class="panel"><h2>✧ Kingdom overview</h2><div class="stats"><div class="stat"><strong id="population">12</strong><label>Villagers</label></div><div class="stat"><strong id="buildings">9</strong><label>Buildings</label></div><div class="stat"><strong id="happiness">78%</strong><label>Happiness</label></div><div class="stat"><strong id="year">01</strong><label>Year</label></div></div><div style="margin-top:18px;color:#b4c8b8;font-size:11px">Civilization progress</div><div class="meter"><span id="progress" style="width:23%"></span></div><div style="font-size:10px;color:#8fac99">The valley is growing on its own.</div></div><div class="panel"><h2>◈ Village resources</h2><div class="resource"><span>🌾 Food stores</span><b id="food">180</b></div><div class="resource"><span>🪵 Timber</span><b id="wood">90</b></div><div class="resource"><span>🪙 Treasury</span><b id="gold">42</b></div><div class="resource"><span>⚒ At work sites</span><b id="working">0</b></div>
 <div id="economic-observatory" aria-label="Daily food, timber and gold trends">
@@ -23987,7 +23999,7 @@ function renderStories(){const feed=document.getElementById('feed');feed.replace
 function uniqueCitizenName(index){const given=names[index%names.length];const generation=Math.floor(index/names.length);return generation?given+' '+(generation===1?'II':String(generation+1)):given}
 function report(s){stories.unshift({day:Math.floor(state.t/24)+1,text:s});stories=stories.slice(0,6);renderStories()}
 let courierPostRepairCount=0,courierPostRepairLast=null;
-function start(){resetActorGpuSnapshots();resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();restingActorKey='';clearRestingActorIdentityCache();restingActorVisible=false;restingActorCitizens=0;disposeLivingVillageMotion();disposeNightHomesResidentMesh();clearHomeClusterCache();independentHousingGrowthWitnesses.length=0;householdContactHistory.length=0;disposeRecordedWorkResidentMesh();disposeForgeBellowsResidentMesh();disposeCompletedHarvestResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;daybreakLastCompleted=null;disposeEconomyResidentMesh();disposeLedgerWitnessResidentMesh();villageDocumentary=null;document.body.dataset.villageDocumentary='off';clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');presentationEpoch++;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();clearLandscapeSeasonCache();landscapeMeshCache=null;landscapeMeshKey='';seed=83127;resetSoftwareDebtDrain();accumulator=0;selectedCitizen=0;routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;city.splice(12);invalidateHomeNavigationIndex();state={t:7,food:180,wood:90,gold:42,homes:city.length,buildCount:city.length+2,happiness:78,lastStory:0};people=names.slice(0,12).map((name,i)=>({name,job:jobs[i%jobs.length],trait:['patient','curious','bold','generous','resourceful','loyal'][i%6],x:(rand()-.5)*14,z:(rand()-.5)*11,target:[(rand()-.5)*24,(rand()-.5)*20],phase:rand()*8,friend:null,bonds:{},energy:60+rand()*40,hunger:rand()*20,activity:'Exploring the valley',workTimer:0,provisions:0,provisionVisits:0,lastProvisionAttemptDay:-1,friendshipRecorded:false}));for(const p of people){if(!walkable(p.x,p.z)){const spot=navSnap(p.x,p.z);if(spot)[p.x,p.z]=navPoint(...spot)}choose(p)}stories=[];report('The first families arrive in a lush and untamed valley.');report('A new settlement is born beneath the old mountain ridge.');updateUI()}
+function start(){resetActorGpuSnapshots();resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();restingActorKey='';clearRestingActorIdentityCache();restingActorVisible=false;restingActorCitizens=0;disposeLivingVillageMotion();disposeNightHomesResidentMesh();clearHomeClusterCache();independentHousingGrowthWitnesses.length=0;householdContactHistory.length=0;disposeRecordedWorkResidentMesh();disposeForgeBellowsResidentMesh();disposeCompletedHarvestResidentMesh();recordedWorkVisibleEvents=0;courierPostRepairCount=0;courierPostRepairLast=null;daybreakReturn=null;daybreakLastCompleted=null;disposeEconomyResidentMesh();disposeLedgerWitnessResidentMesh();villageDocumentary=null;document.body.dataset.villageDocumentary='off';clearCourierWheelTrails();workdayEvents.length=0;deliveryReceipts.length=0;workdaySequence=0;workdaySelected=-1;clearLiveWorkdayState();workdayRenderStats.sceneMarkers=0;workdayRenderStats.animatedTools=0;workdayRenderStats.activeWorksites=0;workdayRenderStats.activeTriangles=0;document.body.dataset.workday='off';document.getElementById('workday-activity').textContent='';document.getElementById('workday-watch').setAttribute('aria-pressed','false');presentationEpoch++;cameraDynamicCache=null;cameraDynamicKey='';scenicMeshCache=null;scenicMeshKey='';clearStaticShadowCache();clearSettlementSeasonCache();clearCivicSceneryCache();clearHouseGeometryCache();clearLandscapeSeasonCache();landscapeMeshCache=null;landscapeMeshKey='';seed=83127;resetSoftwareDebtDrain();accumulator=0;selectedCitizen=0;routeCache.clear();routeCacheRevision=-1;cacheHits=0;cacheMisses=0;city.splice(12);invalidateHomeNavigationIndex();state={t:7,food:180,wood:90,gold:42,homes:city.length,buildCount:city.length+2,happiness:78,lastStory:0};people=names.slice(0,12).map((name,i)=>({name,job:jobs[i%jobs.length],trait:['patient','curious','bold','generous','resourceful','loyal'][i%6],x:(rand()-.5)*14,z:(rand()-.5)*11,target:[(rand()-.5)*24,(rand()-.5)*20],phase:rand()*8,friend:null,bonds:{},energy:60+rand()*40,hunger:rand()*20,activity:'Exploring the valley',workTimer:0,provisions:0,provisionVisits:0,lastProvisionAttemptDay:-1,friendshipRecorded:false}));for(const p of people){if(!walkable(p.x,p.z)){const spot=navSnap(p.x,p.z);if(spot)[p.x,p.z]=navPoint(...spot)}choose(p)}stories=[];report('The first families arrive in a lush and untamed valley.');report('A new settlement is born beneath the old mountain ridge.');applyOriginalMobileMarketArrival();updateUI()}
 // Walkable navigation is separate from decorative geometry. Deterministic bounded A*
 // prevents villagers crossing house interiors or swimming through the river.
 const NAV_LIMIT=40,NAV_BUDGET=3200,NAV_SPACING=1.15;
@@ -29425,6 +29437,75 @@ function planRealMarketHomeDistrict(homes,market,width,height,deliveries=[]){
   renderingOnly:true,authorityChanged:false,
   hardwareFPS:'NOT MEASURED'};
 }
+// W465 Phase 1: expose the EXISTING market-to-occupied-home street at
+// meaningful scale on first 390px arrival, rather than filming its roofs as
+// tiny shapes at the bottom of a distant overview. This is one physical,
+ // obstacle-tested player CAMERA preset, never a new citizen, market,
+ // house, load or simulated action. Full settlement overview remains one tap.
+let originalMobileArrivalAudit={attempted:false,applied:false,
+ source:'actual-receiving-market-and-three-nearest-occupied-homes',
+ reason:'not-initial-portrait',actualHomes:0,visibleOccupiedHomeLots:[],
+ camera:null,attempts:0,authoritativeChanges:false,hardwareFPS:'NOT MEASURED',
+ experienceGate:'NOT PROVEN'};
+function planOriginalMobileMarketArrival(width,height){
+ const eligible=Number.isFinite(width)&&Number.isFinite(height)&&
+  width>=280&&width<=520&&height>=490&&city.length>0;
+ if(!eligible)return null;
+ const plan=planRealMarketHomeDistrict(city,DELIVERY_MARKET.food,
+  width,height,getActiveDeliveries());
+ return {source:'real-original-market-and-three-inhabited-entrances',
+  focus:plan.focus.slice(),yaw:plan.yaw,pitch:plan.pitch,
+  zoom:plan.zoom,realHomes:plan.realHomes,
+  homeIndices:plan.inspectedHomeIndices.slice(),
+  lots:plan.inspectedHomeLots.map(p=>p.slice()),
+  trueReceivingMarket:DELIVERY_MARKET.food.slice(),
+  realCarriedFood:plan.observedLiveCargo,
+  initialOnly:true,simulatedActors:0,simulatedReceipts:0,
+  changesAuthority:false};
+}
+function applyOriginalMobileMarketArrival(){
+ const width=canvas.clientWidth,height=canvas.clientHeight;
+ if(framesDrawn!==0||window.__TINY_KINGDOM_DISABLE_MOBILE_ARRIVAL__===true)
+  return false;
+ const plan=planOriginalMobileMarketArrival(width,height);
+ if(!plan)return false;
+ const orientations=[
+  [plan.yaw,plan.pitch,plan.zoom],
+  [plan.yaw+.36,plan.pitch,plan.zoom],
+  [plan.yaw-.36,plan.pitch,plan.zoom],
+  [plan.yaw,Math.max(.65,plan.pitch-.10),plan.zoom+2],
+  [.7,.90,Math.min(35,plan.zoom+2)]
+ ];
+ let accepted=null,attempts=0;
+ for(const [a,p,z] of orientations){
+  attempts++;
+  accepted=safeFreeOrbit(a,p,z,plan.focus);
+  if(accepted)break;
+ }
+ originalMobileArrivalAudit={...originalMobileArrivalAudit,
+  attempted:true,applied:Boolean(accepted),attempts,
+  reason:accepted?'physical-original-market-view':'physical-roof-or-terrain-blocked',
+  actualHomes:plan.realHomes,
+  visibleOccupiedHomeLots:plan.lots.map(p=>p.slice()),
+  trueMarket:plan.trueReceivingMarket.slice(),
+  camera:accepted?{yaw:accepted.yaw,pitch:accepted.pitch,
+   zoom:accepted.zoom,focus:accepted.focus.slice()}:null,
+  cameraOnly:true,authoritativeChanges:false};
+ if(!accepted)return false; // Keep the original full, uncut village view.
+ yaw=accepted.yaw;pitch=accepted.pitch;zoom=accepted.zoom;
+ focusPoint=accepted.focus.slice();
+ presentationEpoch++;lastFrozenFrameKey=null;
+ return true;
+}
+function getOriginalMobileMarketArrivalAudit(){
+ return {...originalMobileArrivalAudit,
+  visibleOccupiedHomeLots:originalMobileArrivalAudit.visibleOccupiedHomeLots.map(
+   p=>p.slice()),
+  camera:originalMobileArrivalAudit.camera?
+   {...originalMobileArrivalAudit.camera,
+    focus:originalMobileArrivalAudit.camera.focus.slice()}:null};
+}
+
 function requestRealMarketHomeDistrict(){
  const loads=getActiveDeliveries();
  const plan=planRealMarketHomeDistrict(city,DELIVERY_MARKET.food,
@@ -32874,7 +32955,14 @@ function prepareCooperativeFirstScene(){
 }
 
 function render(now){requestAnimationFrame(render);
- if(prepareCooperativeFirstScene()){timer=now;return;}
+ if(prepareCooperativeFirstScene()){
+  const detail=document.getElementById('kingdom-stage-detail');
+  if(detail&&firstScenePrepFrames%5===1)
+   detail.textContent='Original homes '+Math.min(city.length,
+    originalHomePreflight?.stage??originalHomePreflightLast?.lots.length??0)+
+    '/'+city.length+' · civic / landscape preparation';
+  timer=now;return;
+ }
 
  // W443: never draw an uninitialized original material atlas. Compute the
  // unchanged 8-material pixel field in a bounded background worker; any
@@ -33914,6 +34002,10 @@ drawForegroundResidentMesh();
  });
  if(frameProfileSamples.length>FRAME_PROFILE_LIMIT)frameProfileSamples.shift();
  updateSoftwareResolution(frameProfileEnd-frameSubmitStart,frameProfileEnd-frameProfileStart);
+ if(framesDrawn===1){
+  const preparing=document.getElementById('kingdom-stage-status');
+  if(preparing)preparing.hidden=true;
+ }
  frameProfileCount++;
  // Pin real day, camera mode, actual backing scale and viewport together.
  // Frozen idle time must not masquerade as sluggish active gameplay.
@@ -34014,7 +34106,7 @@ drawForegroundResidentMesh();
     setCameraToolsExpanded(false);
   });
  }
- requestAnimationFrame(render);window.__tinyKingdom={getOriginalLandscapePrewarmAudit,getOriginalLandscapeSourceHash,getOriginalHomePreflightAudit,getCooperativeFirstSceneAudit,getOriginalHomesSourceHash,getForgeBellowsResidentAudit,setForgeBellowsResidencyForTesting,getGroundBaseWorkerAudit,getRealHomeLaneNetworkAudit,getMarketTransitionCameraAudit,getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:setSimulationSpeed,step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getHomeNavigationIndexAudit,getCitizenSocialIndexAudit,getNavNodeGridAudit,getNavSegmentMemoAudit,getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getCitizenAnatomy,getCitizenEmbodiment,getEllipsoidShellAudit,getPopulationMotionAudit,getVillageClothAudit,getMedievalPopulationAudit,getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getCitizenGaitAudit:(index=0)=>cloneData(getCitizenGaitAudit(index)),
+ requestAnimationFrame(render);window.__tinyKingdom={getOriginalMobileMarketArrivalAudit,planOriginalMobileMarketArrival,getOriginalLandscapePrewarmAudit,getOriginalLandscapeSourceHash,getOriginalHomePreflightAudit,getCooperativeFirstSceneAudit,getOriginalHomesSourceHash,getForgeBellowsResidentAudit,setForgeBellowsResidencyForTesting,getGroundBaseWorkerAudit,getRealHomeLaneNetworkAudit,getMarketTransitionCameraAudit,getState:()=>JSON.parse(JSON.stringify({state,people:people.map(({name,job,x,z,target})=>({name,job,x,z,target}))})),setSpeed:setSimulationSpeed,step,reset:start,renderer:()=>canvas.getContext('webgl')?'webgl':'software',metrics:()=>({citizens:people.length,buildings:city.length+2,day:Math.floor(state.t/24)+1,food:state.food,wood:state.wood,gold:state.gold,relationships:people.filter(p=>p.friend).length}),route:(a,b)=>routeBetween(a[0],a[1],b[0],b[1]),walkable:(p)=>walkable(p[0],p[1]),getHomeNavigationIndexAudit,getCitizenSocialIndexAudit,getNavNodeGridAudit,getNavSegmentMemoAudit,getNavigation:()=>people.map(p=>({name:p.name,position:[p.x,p.z],target:p.target,remaining:p.path?.length||0,path:p.path,activity:p.activity,hunger:p.hunger,energy:p.energy})),exportSnapshot,restoreSnapshot,saveWorld,restoreWorld,climateAt,skyConditions,getCitizenProfiles:()=>cloneData(people.map(({name,job,trait,friend,bonds,energy,hunger,activity})=>({name,job,trait,friend,bonds,energy,hunger,activity}))),getCitizenAnatomy,getCitizenEmbodiment,getEllipsoidShellAudit,getPopulationMotionAudit,getVillageClothAudit,getMedievalPopulationAudit,getRigPose:(index=0)=>Number.isInteger(index)&&index>=0&&index<people.length?cloneData(citizenRigPose(people[index])):null,getCitizenGaitAudit:(index=0)=>cloneData(getCitizenGaitAudit(index)),
  getCitizenRigCacheAudit:()=>({...getCitizenRigCacheAudit()}),
  getWorksiteSkinContinuityAudit,
  getAuthenticWorkdayAudit,getCourierCartGripAudit,
