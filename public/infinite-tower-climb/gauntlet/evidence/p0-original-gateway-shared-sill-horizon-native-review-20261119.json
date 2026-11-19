@@ -1,0 +1,51 @@
+{
+  "schema": "tower-native-p0-v1",
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "leadingVerdict": "NOT EVALUATED",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "previousCandidateSha": "362e2331be494822275d55f78ebdd943b38117d9",
+  "observedOriginalNativeVideo": "https://github.com/my-edutu/Ai_games/actions/runs/44436758207",
+  "dangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44436758207/artifacts/14489477975",
+  "priorStrictNativePairing": "0/2 desktop/portrait; real 8/8 source/video jobs succeeded; source/film cue A/B vetoed, not a P0 pass",
+  "priorSourceToVioletPhaseSeconds": {
+    "desktop": 2.011,
+    "portrait": 1.993
+  },
+  "priorHudToSustainedVioletSeconds": {
+    "desktop": 0.5,
+    "portrait": 0.75
+  },
+  "originalDurationsSeconds": {
+    "desktop": 71.72,
+    "portrait": 72.56
+  },
+  "sourceDefect": "Actual desktop returned F9 tick512 retained original HP-open gateway opacity .9845 while the original bronze walkable deck color weight already fell to 0; portrait tick518 gate opacity .1999 but roof 0. Original 1x footage abruptly cuts bronze chamber to violet successor with no accepted consecutive source-calibrated shared-room frames.",
+  "productionCommits": [
+    "9fb9bf7c0b94829201195e1db0c493ff3e7a7c07",
+    "6c42070c717ea94b07afa8c0b4659ca9e5e0ede8"
+  ],
+  "concretePlayableChange": "Synchronized genuinely retained source-owned original HP-open gate, physically walkable original sill/real F9 ground and scene sky/fog/lighting. Noncolliding extracted bronze gallery can retire independently; real walkable historical overlay no longer fades to zero while gate nearly opaque. Exact source/return-qualified horizon certificate vetoes premature cool sky on same gateway, without changing physics or inventing painter success. Historical roof capped .94 transparency for foreground safety.",
+  "initialCI": "https://github.com/my-edutu/Ai_games/actions/runs/44438668364 failed original-stationary-cap-overopacity fixture; corrected with source-safe .94 bounded old deck overlay.",
+  "correctedExactSourceCI": "https://github.com/my-edutu/Ai_games/actions/runs/44439158466; phase3 0/1/2/3 completed green when reviewed; remaining jobs pending at documentation.",
+  "followupCapturePin": "immutable github.sha of the capture-request commit; do not grade preceding source commit as filmed",
+  "seed": "tower-transformation-capture-v1",
+  "tier": "low",
+  "viewports": [
+    "960x600 desktop",
+    "390x844 portrait"
+  ],
+  "normalSpeed": "25fps real original 1x >=60s, source-native PTS/event calibration and unedited WebM, baseline vs candidate ascent, moving, danger, outcome/restart",
+  "acceptance": "Inspect BOTH unmodified real films for moving complete hero, genuinely HP-open original gateway and physically walkable F9 in at least two consecutive source-time-calibrated original frames, with coherent old/new room and no camera/material/pacing regression; verify source event 441/475/521/535/619/restart. CI is veto not proof.",
+  "independentCritics": {
+    "LOOKS": "0/5",
+    "FEELS": "0/5",
+    "PLAYS": "0/5"
+  },
+  "deviceP50P95P99AndMemory": "NOT EVALUATED",
+  "biggestExperienceGap": "Exact source-native event/visible guardian crossing alignment fails and shared-room visual acceptance is not established on new source; previous 2s event-to-palette latency persists as a P0 risk.",
+  "nextAction": "Inspect newly requested candidate original desktop/portrait danger films immediately on complete artifact availability, compare timing with 362e233 source; if still abrupt, prioritize browser accepted→submitted→video PTS compositor synchronization and actual original gateway/roof ownership, not minor camera/CSS changes.",
+  "constraints": "Keep frozen baseline, PR68 draft, active PR58 edits unchanged. No merge, deploy, force push or unrelated game files.",
+  "priorNativeSourceSha": "362e2331be494822275d55f78ebdd943b38117d9",
+  "capturedAtUtc": "2026-11-19",
+  "note": "Narrative native inspection not independent blind vote; candidate correction must be filmed before any visual success claim"
+}
