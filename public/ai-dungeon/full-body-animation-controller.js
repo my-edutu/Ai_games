@@ -1112,13 +1112,45 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
    Math.abs(lowerRad-(frameInterval>=.16?.14:.11))<=.000001&&
    Math.abs(footRad-.24)<=.000001&&
    sourceWeight>=.99;
+  // A GENUINE original desktop 233.3ms Vanguard Walking_A four-joint
+  // trial (Actions #44570706458 / original source rig #14556845860)
+  // used the separately source-track/bind/weighted-vertex-qualified
+  // toes[l] child. Its -140mrad native toe hinge, attached to the
+  // original -.11/+.14/+.24rad thigh/calf/foot chain, produced
+  // +23.735535mm skinned buried-toe lift and +17.676298mm airborne
+  // heel rise: +6.059237mm REAL source outsole pitch, loaded other shoe
+  // unchanged. At 233ms the preplanned source toe lever is legal even
+  // when a NEW post-coupled lever estimate fails its stricter .04 slope
+  // gate: we have an independent four-joint GLB skin readback instead.
+  // Only this physically measured cadence/geometry/trial combination is
+  // eligible; final same-GLB both-shoe re-skin and source original pose
+  // rollback STILL decide. Toe remains ~36mm buried: never a plant.
+  const sourceSparsePreplannedToeCandidate=
+   trial?.sourcePreplannedToeHingeVerified===true&&
+   !originalAdaptiveToe&&toeRad===-.14&&
+   sourceWorldSolePitchVerified===true&&
+   frameInterval>=.215&&frameInterval<=.240001&&
+   depth>=.055&&depth<=.065&&
+   heelAbove>=.22&&heelAbove<=.265&&
+   shoeSpan>=.300&&shoeSpan<=.315&&
+   Math.abs(upperRad+.11)<=.000001&&
+   Math.abs(lowerRad-.14)<=.000001&&
+   Math.abs(footRad-.24)<=.000001&&
+   sourceWeight>=.99&&
+   starter?.source==='actual-original-source-three-joint-swing-opportunity'&&
+   starter.expectedSourceSkinnedTrials===2&&
+   starter.contactLocked===false&&starter.sign===-1&&
+   finite(starter.excessHeelRiseMeters)&&
+   starter.excessHeelRiseMeters>=.003&&
+   starter.excessHeelRiseMeters<=.008;
   if(![upperRad,lowerRad,footRad,toeRad].every(finite)||
    (toeRad!==0&&(
     sourceToeTrackVerified!==true||sourceToeChainVerified!==true||
     !finite(sourceToeSkinnedWeight)||sourceToeSkinnedWeight<.90||
     sourceToeSkinnedWeight>1.0001||
     (Math.abs(Math.abs(toeRad)-.14)>.000001&&!originalAdaptiveToe)||
-    (frameInterval>.05&&!sourceSparseToeCandidate)||sourceWeight<.95))||
+    (frameInterval>.05&&!sourceSparseToeCandidate&&
+     !sourceSparsePreplannedToeCandidate)||sourceWeight<.95))||
    Math.abs(upperRad)<.074999||Math.abs(upperRad)>(provenLever?.145001:.110001)||
    Math.abs(lowerRad)<.074999||Math.abs(lowerRad)>(
     provenLever ? .145001 : (frameInterval>=.16 ? .140001 : .110001))||
@@ -1137,6 +1169,15 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
    !valid(shoe)||!valid(loaded))continue;
   const lift=shoe.toeY-swing.toeY;
   const heelRise=shoe.heelY-swing.heelY;
+  // A measured source toe-child pose must win on the true *coupled*
+  // outsole, not on optimistic vertical toe-only numbers. Keep a
+  // narrower >=5mm true pitch gain, <=20mm heel rise and <=30mm sole
+  // lateral deformation in addition to generic dual-shoe safety.
+  if(sourceSparsePreplannedToeCandidate&&(
+   lift<.022||lift>.035||heelRise<0||heelRise>.020||
+   lift-heelRise<.005||
+   dist(shoe.heelXZ,swing.heelXZ)>.018||
+   dist(shoe.toeXZ,swing.toeXZ)>.030))continue;
   // The real 390px original Walking_A skinned tick-8 source receipt
   // (Actions #44225650486, same GLB, both source shoes) has a rare safe
   // .11 hip / .11 knee / .24 foot counterpitch: toe +17.084mm, already
