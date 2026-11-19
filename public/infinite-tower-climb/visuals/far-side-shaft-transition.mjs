@@ -393,7 +393,10 @@ export function observedReturnedOriginalArchitectureHold(source,held,job,farSide
      held.visibleSeconds<0 || held.visibleSeconds>=2.8 ||
      held.lastReturnedOldGatewayOpacity<=.01 ||
      held.lastReturnedOldGatewayOpacity>1 ||
-     held.lastReturnedOriginalGalleryOpacity<=.01 ||
+     // An already-visible zero-alpha, NONCOLLIDING historical gallery does
+     // not disqualify the genuine still-painted opened gate. Its returned
+     // zero remains zero; never resurrect old braces to keep the gateway.
+     held.lastReturnedOriginalGalleryOpacity<0 ||
      held.lastReturnedOriginalGalleryOpacity>1) return null;
   return {sourceBound:true,sourceTick:source.tick,
     gateOpacity:held.lastReturnedOldGatewayOpacity,
