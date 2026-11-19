@@ -265,5 +265,53 @@
     "actualDeviceP50P95P99Memory": "NOT EVALUATED",
     "nextHighestImpact": "Run exact-source green safety checks and new nine-job matched 60s+ 25fps 1x recording on PR68; inspect genuine desktop and portrait PTS and source-event calibration for at least two contiguous frames co-painting full climber, authentic HP0 original bronze guardian gate and truly walkable F9; if still zero overlap fix first WebGL shaft material handoff and portrait framing, not another isolated test. Keep P0 open.",
     "boundaries": "Same open DRAFT PR68; PR58 and frozen baseline unchanged, no force-push/merge/deploy, no Tiny Kingdom/Maze/AI vs 1000 Floors."
+  },
+  "p0FirstOriginalAfterNearRoofClimateLiveFilm20261119_2244": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaseline": "1731b380851162741761c5569e2bc152a0869ca9",
+    "newSourcePinnedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44621081989",
+    "exactCandidateFilmSha": "f5f645a378dfe8ac0f92b214fff1afe94fd1f5a0",
+    "sourceProductionCommit": "fc402e53747d84a50ecb704881eadb4c460c753c",
+    "candidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44621081989/artifacts/14576784476",
+    "original8VideoJobs": "All eight original baseline/candidate scenario recording jobs completed successfully (plus authentic ledge); strict pair-source-events job FAILED — candidate danger not admitted for 0/2 viewports",
+    "newUneditedActualFilms": {
+      "desktop": {
+        "viewport": "960x600",
+        "durationSeconds": 72.56,
+        "hudFloor9NativePTS": 26.75,
+        "sustainedVioletNativePTS": 28,
+        "hudToVioletSeconds": 1.25,
+        "bridgeSeconds": 0,
+        "sha256": "ae69e5e46dc0c2d0ccc7c9ebef4732e0447814349117753bd2d5a0a14ecadc3c"
+      },
+      "portrait": {
+        "viewport": "390x844",
+        "durationSeconds": 72.72,
+        "hudFloor9NativePTS": 26.25,
+        "sustainedVioletNativePTS": 27.5,
+        "hudToVioletSeconds": 1.25,
+        "bridgeSeconds": 0,
+        "sha256": "482f0b4a541823bac0dada4e4e5f20e66b9f3c48b06b15ada99096d746bc8415"
+      }
+    },
+    "inspection": "Downloaded exact SHA zip, decoded and visually reviewed original 1x native WebMs PTS 24.5–29.5s including adjacent quarter-second samples and verified native-scene-phase sidecars and event-index. Bronze old gateway→violet roof still changes in one visually disjoint chamber stage; source-backed shared full hero + HP0 gate + physical F9 in 2 consecutive event-paired frames NOT VERIFIED. Portrait full-body becomes small and partly intersected by old steel during the switch.",
+    "comparison": "Earlier immutable 8e407 film HUD→violet 0.75s desktop and 0.5s portrait, 0s bridge. Current 1.25s both viewports, 0s bridge: NO demonstrated improvement. Not a randomized matched-run effect size or verified regression attribution; independent capture variation may affect precise latency.",
+    "CI": "https://github.com/my-edutu/Ai_games/actions/runs/44621082259 — in progress on film SHA; phase3 test contracts from initial new production commit failed outdated far-side-only lexemes. Updated three Tower-only assertions in commits e7d9040, 912f34f, 4affc41; latest exact-head https://github.com/my-edutu/Ai_games/actions/runs/44621685369 pending. Independently unrelated phase6 Maze-readiness test timed out 75s in earlier run, untouched by design.",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDevicePerf": "NOT EVALUATED",
+    "biggestExperienceGap": "Cold first incoming original Floor9 load-bearing GPU structural construction/return and camera visibility remain separated from drawn Floor9 event by 1.25s in both real films; current material-only near-roof lock did not achieve sustained cross-floor same-room shot.",
+    "nextHighestImpact": "Do NOT advance P0 or claim source-only palette is enough. Profile real first F9 source browser accepted→renderer returned→native 25fps and structuralRoots/oldGateway material visibility; architect actual already-GPU-prepared successor load-bearing silhouette before cold build, without camera/body/collider invention or F8 FPS regression. Then re-capture full 9-job immutable original films and enforce event-native matched 2+ consecutive co-painted shared gateway+hero+walkable F9 frames. Preserve frozen baseline, PR68 draft and PR58.",
+    "commitShas": [
+      "fc402e53747d84a50ecb704881eadb4c460c753c",
+      "be30c758d9639130005b1dc7c4cc1cd51d9f4484",
+      "e7d9040dfec04d2e965a776f609953d3921f2d3e",
+      "912f34f9e0350065cc282af052ccb0788826c991",
+      "4affc417bda1480b50b78930e2d5c51c8e3b09ef"
+    ]
   }
 }
