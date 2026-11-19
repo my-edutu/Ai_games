@@ -620,10 +620,24 @@ export function classifyOriginalSourceSwingSourceWindow({
 }
 
 function measuredOriginalSourceCounterpitchAngles({
- frameInterval=NaN,depth=NaN,excessHeelRiseMeters=NaN
+ frameInterval=NaN,depth=NaN,excessHeelRiseMeters=NaN,
+ sourceWorldSolePitchVerified=false
 }={}){
  if(![frameInterval,depth,excessHeelRiseMeters].every(finite))
   return null;
+ // The original 390px 16.7ms Vanguard Walking_A tick 8 (Actions
+ // #44538631095) has a measured 306.463mm skinned outsole, 56.412mm
+ // horizontal projection and 55.094mm buried swing toe. Both original
+ // shoes and +5.457mm heel-dominant thigh/calf starter were re-read from
+ // the SAME CC0 GLB. Only a separately VERIFIED source-skinned world
+ // heel-to-toe axis may schedule the two existing 280/340mrad connected
+ // hip/knee/foot probes in this shallower source phase. No extra probes,
+ // contact claims, root movement, or loosening of final two-shoe skin gate.
+ if(sourceWorldSolePitchVerified===true&&
+  frameInterval>=.015&&frameInterval<=.025&&
+  depth>=.05&&depth<.06&&
+  excessHeelRiseMeters>=.004&&excessHeelRiseMeters<=.010)
+  return [.28,.34];
  if(frameInterval>=.03&&frameInterval<=.05&&
   depth>=.075&&depth<=.12&&
   excessHeelRiseMeters>=.010&&excessHeelRiseMeters<=.035)
@@ -742,7 +756,8 @@ export function planOriginalSourceCoupledKneeFootFollowups({
  starter=null,sourceInstanceId='',sourceChainVerified=false,
  sourceUpperTrackVerified=false,sourceLowerTrackVerified=false,
  sourceFootTrackVerified=false,sourceBindVerified=false,
- sourceAnatomicalFootAxisVerified=false,...owner
+ sourceAnatomicalFootAxisVerified=false,
+ sourceWorldSolePitchVerified=false,...owner
 }={}){
  if(typeof sourceInstanceId!=='string'||!sourceInstanceId||
   sourceChainVerified!==true||sourceUpperTrackVerified!==true||
@@ -769,7 +784,8 @@ export function planOriginalSourceCoupledKneeFootFollowups({
  const depth=owner.floorTopY-owner.before?.[owner.side]?.toeY;
  const footAngles=measuredOriginalSourceCounterpitchAngles({
   frameInterval:owner.frameInterval,depth,
-  excessHeelRiseMeters:starter.excessHeelRiseMeters
+  excessHeelRiseMeters:starter.excessHeelRiseMeters,
+  sourceWorldSolePitchVerified
  })??[.18,.24];
  return Object.freeze(footAngles.map(footRad=>Object.freeze({
   upperRad:.11*sign,lowerRad:-knee*sign,footRad
@@ -1018,7 +1034,8 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
  sourceInstanceSame=false,sourceChainVerified=false,
  sourceUpperTrackVerified=false,sourceLowerTrackVerified=false,
  sourceFootTrackVerified=false,sourceBindVerified=false,
- sourceAnatomicalFootAxisVerified=false,ownerLocomotion=false,
+ sourceAnatomicalFootAxisVerified=false,
+ sourceWorldSolePitchVerified=false,ownerLocomotion=false,
  sourceToeTrackVerified=false,sourceToeChainVerified=false,
  sourceToeSkinnedWeight=NaN,
  alive=false,visible=false,teleport=false,reducedMotion=false,
@@ -1112,7 +1129,8 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
     starter.sign===Math.sign(upperRad)&&
     measuredOriginalSourceCounterpitchAngles({
      frameInterval,depth,
-     excessHeelRiseMeters:starter.excessHeelRiseMeters
+     excessHeelRiseMeters:starter.excessHeelRiseMeters,
+     sourceWorldSolePitchVerified
     })?.some(rad=>Math.abs(footRad-rad)<.000001)
    ))||
    Math.sign(upperRad)===Math.sign(lowerRad)||
