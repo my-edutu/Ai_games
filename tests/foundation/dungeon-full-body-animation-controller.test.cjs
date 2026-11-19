@@ -7627,7 +7627,7 @@ test('RED: residual 32.873mm toe burial after original hip-knee-only proof can g
   {rootTravel:0}, {sourceClipName:'Idle'},
   {before:{left:{...swing,toeY:-.038},right:loaded}},
   {starterTrials:[source.starterTrials[0],
-   {...source.starterTrials[1],after:after(.027,.030)}]}
+   {...source.starterTrials[1],after:after(.027,.029)}]}
  ])assert.equal(plan({...source,...wrong}),null,
    'next source sample still needs fresh motion, original clipping and measured heel dominance');
  // This planner only schedules the ORIGINAL two remaining source-skinned
