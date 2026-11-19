@@ -751,13 +751,17 @@ export function createWarden(options = {}) {
     upperRim.rotation.z=-side*.12;
     // Eyes sit above (not exclusively on the vertical front of) the mask;
     // the camera reads one clear gaze direction even at 320px.
-    const socket=ball(head,dark,[side*.205,.25,.215],[.22,.125,.205]);
+    // The previous original 390px image reduced both orange optics to faint
+    // pinpoints swallowed by a dark brow. Move the existing physical lenses
+    // above and FORWARD of the upper rim, while retaining their rooted sockets.
+    // This is broad playable-scale character anatomy, not a screen-space icon.
+    const socket=ball(head,dark,[side*.205,.285,.25],[.23,.13,.215]);
     socket.name=`rooted guardian upper optical socket ${side}`;
     socket.rotation.x=-.25;
-    const optic=ball(head,red,[side*.205,.316,.287],[.169,.100,.126]);
+    const optic=ball(head,red,[side*.205,.370,.395],[.205,.132,.164]);
     optic.name=`rooted guardian raised optical lens ${side}`;
     optic.rotation.x=-.28;
-    const brow=rounded(head,claw,[side*.195,.364,.242],[.30,.075,.15],.023);
+    const brow=rounded(head,claw,[side*.195,.435,.255],[.30,.075,.15],.023);
     brow.rotation.z=-side*.13;
     brow.rotation.x=-.17;
     const cheek=rounded(head,plates,[side*.38,.027,.093],[.23,.25,.40],.048);
@@ -1138,10 +1142,33 @@ export function createWarden(options = {}) {
     // This is a consequential physical recoil/readable gaze, not a fake hit,
     // new icon, secret sightline, actor-root movement or per-frame allocation.
     // End-of-witness, reduced motion and terminal return to original poses.
+    // An authentic earned hit needs a readable FACE, not yet another
+    // armor crest. The original 390px source-bound before/after remained
+    // near-identical even after the mask hinge lifted. Broaden the same
+    // connected bronze mask and its real eyes for the finite recoil interval.
+    // No changed guardian cell, collision, world size, geometry ownership or
+    // static first-seen enemy. Terminal/reduced/expired neutral is exactly 1.
+    head.scale.setScalar(1+counterRelease*.28);
     head.position.y=.27+plantedClaws*.13-display*.045*alert-counterLoad*.09+counterRelease*.43-counterCollapse*.11;
     head.position.z=.73+alert*.07+plantedClaws*.18-display*.065*alert+counterLoad*.105+counterRelease*.36-counterCollapse*.075;
     head.rotation.x=s.win?.16:s.lose?-.13:-.045-s.danger*.065-plantedClaws*.36+display*.18*alert+(parried?.24:0)+counterLoad*.20-counterRelease*.54-counterCollapse*.28;
-    head.rotation.y=Math.sin(s.time*.8)*.08*(1-stride)*amount*(1-alert)+lookYaw;
+    // Keep Thornback's attention on the witnessed Pip while allowing its
+    // attached bronze face to yield toward the REAL viewing camera during
+    // the earned counter recoil. Earlier mobile full-frame renders looked at
+    // its dorsal armor even when the entire mask moved upward. This finite,
+    // <=0.64rad partial head turn preserves the real actor/patrol root and
+    // gives the raised, separated optics a readable 3/4 silhouette.
+    // The camera vector is presentation-only; an unseen/stale parry, an
+    // invalid viewer, terminal or reduced-motion cannot trigger this act.
+    const viewer=options.viewerPosition;
+    const viewerAngle=counterRelease>0 && viewer
+      && Number.isFinite(viewer.x) && Number.isFinite(viewer.z)
+      ? Math.atan2(viewer.x-group.position.x,viewer.z-group.position.z) : NaN;
+    const lookToViewer=Number.isFinite(viewerAngle)
+      ? Math.max(-.8,Math.min(.8,Math.atan2(
+        Math.sin(viewerAngle-group.rotation.y),Math.cos(viewerAngle-group.rotation.y))))
+        *counterRelease*.8 : 0;
+    head.rotation.y=Math.sin(s.time*.8)*.08*(1-stride)*amount*(1-alert)+lookYaw+lookToViewer;
     // Counter-roll keeps Thornback's modeled bronze mask directed at Pip
     // as its real physical torso falls sideways. End-of-witness, reduced
     // motion and reset all return this connected head hinge to exact +0.

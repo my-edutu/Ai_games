@@ -716,7 +716,11 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         time:elapsed,delta,moving:threatPose.moving&&!result,heading:entry.heading,
         attentionHeading:actorAttention?Math.atan2(towardExplorerX,towardExplorerZ):undefined,
         attentionStrength:actorAttention,encounterBeat:entry.encounterBeat,
+        // The actual, publicly chosen camera supplies only a physical viewing
+        // direction for Thornback's connected mask during an EARNED recoil.
+        // No AI or undisclosed sightline consults it.
         lanternParried,counterPhase,danger:1,result,reducedMotion:settings.reducedMotion,
+        viewerPosition:camera.position,
       });
     }
     // Authentic same-run public CLOSED→OPEN testimony drives both Pip's

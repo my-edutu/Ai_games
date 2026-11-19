@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-19T22:33:10.166Z",
+  "updatedAt": "2026-11-19T23:20:42.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass519 candidate: Pass518 exact HEAD bade5993 native WebGL #44623304254 SUCCESS; 42/42 original full-frame SHA256 pairs verified. Both earned-counter actors complete inside strict NDC at 320/390, but authentic close-up still hides Thornback expressive face. Nintendo bar rejected. Production code now lifts/protrudes the SAME current genuine public parried guardian bronze mask, fans its attached cheek armor and folds existing sea-glass fronds for a physical recoil; no AI/collision/hidden map change. New exact-HEAD native render, CI, fresh-context critic and before/after proof PENDING. PR draft, no merge/deploy."
+    "summary": "Pass519 exact bd6bd9b1 native WebGL #44629806097 SUCCESS, original 42/42 PNG and 3/3 gate SHA sidecars independently verified. 390 and 320 earned-counter bodies inside unchanged ±0.95 and natural 136-tick chapter accepted. Actual visually near-identical to Pass518 (RGB MAE 0.763/255), Thornback face still unreadable vs official Captain Toad; candidate rejected. Pass520 production source candidate now enlarges/restages connected earned-recoil face, forward-raised optics and partial real-camera head turn, with strict reset/reduced-motion/unknown protections. New exact-HEAD native screenshot, whole CI and detached independent visual verdict PENDING. PR draft, no merge/deploy."
   },
   "captures": [
+    {
+      "title": "Pass519 exact bd6bd9b1 WebGL SUCCESS, 42/42 original full PNG hashes and three gate transitions; natural 136-tick exit. Authentic 390/320 earned Thornback face REJECTED; Pass520 candidate requires new true render",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44629806097/artifacts/14580759703"
+    },
     {
       "title": "Pass518 exact HEAD bade5993: native WebGL success, 42/42 original full-frame SHA-256 PNG sidecars; 390/320 real guardian visually rejected; Pass519 mask-exposure production candidate not yet render-approved",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44623304254/artifacts/14578258161"

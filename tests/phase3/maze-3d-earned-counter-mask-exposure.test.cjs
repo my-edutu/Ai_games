@@ -60,3 +60,40 @@ test('Pass519 earned true-public counter exposes the connected 3D mask and fans 
   }
   assert.deepEqual(rigPrimitiveResourceStats(),ownership);
 });
+
+test('Pass520 real publicly earned recoil exposes larger face/optics toward actual camera, with truthful neutral and no new geometry',async()=>{
+  const {createWarden,rigPrimitiveResourceStats}=await load();
+  const initial=rigPrimitiveResourceStats();
+  for (const balanced of [true,false]) {
+    const w=createWarden({balanced}),face=w.group.getObjectByName('warden mask');
+    assert.ok(face,'original articulated face remains physically connected');
+    const geometryBefore=new Set();w.group.traverse(n=>{if(n.geometry)geometryBefore.add(n.geometry)});
+    const still={...baseline,delta:0};
+    w.update({...still,counterPhase:.6});
+    const noCameraYaw=face.rotation.y;
+    assert.ok(face.scale.x>1.24&&face.scale.x<1.31,
+      'the earned reaction visibly widens the entire genuine face');
+    w.update({...still,counterPhase:.6,
+      viewerPosition:{x:w.group.position.x+10,z:w.group.position.z+10}});
+    assert.ok(face.rotation.y>noCameraYaw+.12,
+      'current scene camera earns a restrained face-quarter instead of the dorsal view');
+    assert.ok(face.rotation.y-noCameraYaw<=.64+1e-8,
+      'the connected face cannot unrealistically swivel beyond the cap');
+    w.update({...still,counterPhase:null,
+      viewerPosition:{x:10,z:10}});
+    assert.equal(face.scale.x,1,'expired event cannot keep an enlarged mask');
+    w.update({...still,counterPhase:.6,reducedMotion:true,
+      viewerPosition:{x:10,z:10}});
+    assert.equal(face.scale.x,1,'reduced motion keeps truthful, stable anatomy');
+    w.update({...still,counterPhase:.6,attentionStrength:0,
+      viewerPosition:{x:10,z:10}});
+    assert.equal(face.scale.x,1,'unknown enemy cannot perform earned cinematic');
+    w.update({...still,counterPhase:.6,result:'escape',
+      viewerPosition:{x:10,z:10}});
+    assert.equal(face.scale.x,1,'terminal run never retains a parry pose');
+    const after=new Set();w.group.traverse(n=>{if(n.geometry)after.add(n.geometry)});
+    assert.deepEqual(after,geometryBefore,'no new render geometry in a frame');
+    w.dispose();
+  }
+  assert.deepEqual(rigPrimitiveResourceStats(),initial);
+});
