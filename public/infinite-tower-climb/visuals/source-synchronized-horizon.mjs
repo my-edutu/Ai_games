@@ -19,8 +19,28 @@ export function sourceSynchronizedHorizonWeight(source,oldWeightBeforeVoid,
      typeof source.runToken!=='string' || !source.runToken ||
      !Number.isSafeInteger(source.tick) ||
      certifiedHorizon?.sourceBound!==true ||
-     certifiedHorizon.kind!=='physically-supported-returned-old-and-new-shaft' ||
      certifiedHorizon.sourceTick!==source.tick ||
-     !Number.isFinite(certifiedHorizon.oldWeight))return ordinary;
-  return Math.max(ordinary,Math.min(old,clamp(certifiedHorizon.oldWeight)));
+     !Number.isFinite(certifiedHorizon.oldWeight) ||
+     certifiedHorizon.oldWeight<0 || certifiedHorizon.oldWeight>1)
+    return ordinary;
+  // The World GPU owner has THREE distinct genuinely qualified old-room
+  // paint receipts. The original far-side route was already protected, but
+  // the live source-crossing and previously returned material-tail receipts
+  // were wrongly treated as "ordinary" distant sky. After an early real
+  // Void bearing return, that monotone sky lease reaches zero WHILE the
+  // current already-rendered roof/gate and the original stone/steel are
+  // still bronze. This paints one physical threshold as two unrelated rooms.
+  // Never let distant Void cooling overrule any of the SAME World-owned,
+  // current-tick, source/return-validated material receipts. The tail was
+  // validated against the frozen guardian/run and finite returned-frame age
+  // by observedCertifiedClockworkHorizon before it reached this function.
+  // No source receipt => no warm scene, fake crossing, or extra GPU clock.
+  const kind=certifiedHorizon.kind;
+  const earnedFarSide=kind==='physically-supported-returned-old-and-new-shaft';
+  const liveGate=kind==='live-same-run-physical-gateway' &&
+    certifiedHorizon.historicalOpticalTail===false;
+  const returnedTail=kind==='previous-certified-returned-material' &&
+    certifiedHorizon.historicalOpticalTail===true;
+  if(!earnedFarSide && !liveGate && !returnedTail)return ordinary;
+  return Math.max(ordinary,Math.min(old,certifiedHorizon.oldWeight));
 }
