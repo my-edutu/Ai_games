@@ -150,6 +150,13 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
       {probeFrames:a.nativeLegOwnership.sourceLinkedFootProbeFrames??0,
        acceptedFrames:a.nativeLegOwnership.sourceLinkedFootAcceptedFrames??0,
        last:a.nativeLegOwnership.sourceLinkedFootProbeLast??null}:null,
+     // Witnessed rendered original skinned pose, not an inferred contact.
+     // Missing or unselected corrections stay explicit in the real film.
+     licensedCounterpitch:a?.nativeLegOwnership?
+      {trialFrames:a.nativeLegOwnership.sourceLicensedCounterpitchTrialFrames??0,
+       selectedFrames:a.nativeLegOwnership.sourceLicensedCounterpitchSelectedFrames??0,
+       current:a.nativeLegOwnership.sourceLicensedCounterpitchCurrentFrame??null,
+       last:a.nativeLegOwnership.sourceLicensedCounterpitchLastProof??null}:null,
      // Exact rendered original GLB world-root witness; NOT a generated step,
      // heel/toe plant, IK correction, target or source pose by itself.
      microWalk:a?.nativeLegOwnership?
@@ -229,6 +236,19 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
    // shoe-correction eligibility is EVER used, and whether buried toes remain.
    // Missing/wrong clips never become a false zero-penetration claim.
    witnessedMicroWalkSelections:rows.filter(x=>x.microWalk?.selected).length,
+   licensedCounterpitchEverSelected:rows.some(x=>
+    (x.licensedCounterpitch?.selectedFrames??0)>0),
+   licensedCounterpitchPeakSelections:Math.max(0,...rows.map(x=>
+    x.licensedCounterpitch?.selectedFrames??0)),
+   licensedCounterpitchLiveReceipts:rows.filter(x=>
+    x.licensedCounterpitch?.current?.left||
+    x.licensedCounterpitch?.current?.right).map(x=>({
+     frame:x.frame,tick:x.tick,clip:x.sourceClip,
+     sourceClipTime:x.sourceClipTime,
+     originalBeforeAfter:x.licensedCounterpitch.current,
+     currentSkinnedSoles:x.sourceSolePatchWorld,
+     originalWeaponAttached:x.sourceWeaponGrip?.attachedToGripSocket===true
+    })),
    originalWalkingShoeEvidence:rows.filter(x=>x.sourceClip==='Walking_A'&&
     x.sourceWeight>=.9&&['left','right'].every(side=>
      Number.isFinite(x.sourceSolePatchWorld?.[side]?.toe?.[1])&&
