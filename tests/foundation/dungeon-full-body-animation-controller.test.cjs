@@ -7634,3 +7634,57 @@ test('RED: residual 32.873mm toe burial after original hip-knee-only proof can g
  // foot-chain trials. Imported rig, final two shoe readback and no-pop
  // delivery remain independent browser evidence gates.
 });
+
+
+test('RED: consecutive real original Walking_A root microsteps earn a bounded physical source-shoe trial without inventing a step',async()=>{
+ const {advanceOriginalSourceMicroTravelWindow:advance}=await load();
+ assert.equal(typeof advance,'function',
+  'the existing 8mm gate must accept only physically accumulated same-GLB travel, not a guessed step');
+ const good={sourceInstanceId:'actual-licensed-GLB-clone-1',
+  mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  ownerLocomotion:true,groundedMoving:true,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,frameInterval:.01667,rootZ:-1.5};
+ let receipt=null;
+ for(const [i,x] of [0,.0017,.0034,.0051,.0068,.0085].entries()){
+  receipt=advance({...good,previous:receipt,rootX:x});
+  if(i<5)assert.equal(receipt.certified,false,
+   'fewer than eight true net millimetres cannot authorize real skinned correction');
+ }
+ assert.equal(receipt.certified,true,
+  'six continuous real original root samples should expose 8.5mm net travel');
+ assert.ok(Math.abs(receipt.travel-.0085)<1e-8);
+ assert.ok(receipt.frames>=5&&receipt.elapsed<=.15);
+ assert.equal(receipt.sourceInstanceId,good.sourceInstanceId);
+ assert.equal(receipt.contactLocked,false);
+ assert.equal(receipt.syntheticMovement,false);
+ const jitter=[0,.002,0,.002,0,.002];
+ let backAndForth=null;
+ for(const x of jitter)
+  backAndForth=advance({...good,previous:backAndForth,rootX:x});
+ assert.equal(backAndForth.certified,false,
+  'oscillation in place is not real sustained displacement');
+ for(const bad of [
+  {mode:'idle'},{sourceClipName:'Idle'},{sourceWeight:.94},
+  {sourceInstanceId:'different-GLB'},{ownerLocomotion:false},
+  {groundedMoving:false},{alive:false},{visible:false},
+  {teleport:true},{reducedMotion:true},{interrupted:true},
+  {frameInterval:.5},{rootX:NaN},{rootZ:Infinity}
+ ]){
+  const result=advance({...good,previous:receipt,rootX:.0102,...bad});
+  assert.equal(result.certified,false,
+   'invalid action, clone, health, timing, accessibility or evidence may not borrow old travel: '+JSON.stringify(bad));
+ }
+ const jump=advance({...good,previous:receipt,rootX:.050});
+ assert.equal(jump.certified,false,
+  'one large unconnected new sample must not fabricate a gait path');
+ let stale=null;
+ for(let i=0;i<12;i++)stale=advance({...good,previous:stale,rootX:.0009*i});
+ assert.equal(stale.certified,false,
+  'stale gait anchor must expire rather than bridge over a long recording');
+ const actualRenderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(actualRenderer,/advanceOriginalSourceMicroTravelWindow\(/,
+  'real imported original Walking_A renderer must consume this read-only gait evidence');
+ assert.match(actualRenderer,/rigRecentGroundedTravel/,
+  'existing source-skinned dual-shoe trials remain the final physical verifier');
+});
