@@ -19157,6 +19157,147 @@ function getOrBuildFarmSeasonMeshes(season,prebuilt=null){
  }else farmFieldSeasonSkippedOversize++;
  return entry;
 }
+// W461 Phase 1: stage the NEXT ORIGINAL farm climate during genuine browser
+// idle turns, rather than regenerating both full crop tiers in an active frame
+// every nine days. All authentic planted rows, counters, jobs, routes, market
+// receipts, save state, and synchronous full-geometry fallback remain intact.
+const UPCOMING_FARM_PREWARM_STAGES=Object.freeze([
+ 'near-field-0','near-field-1','join-near',
+ 'far-field-0','far-field-1','join-far','cache-complete-original-season'
+]);
+let upcomingFarmPrewarm=null,upcomingFarmPrewarmLast=null,
+ upcomingFarmPrewarmRuns=0,upcomingFarmPrewarmCompleted=0,
+ upcomingFarmPrewarmFailures=0,upcomingFarmPrewarmResets=0,
+ upcomingFarmPrewarmIdlePending=false,upcomingFarmPrewarmFailedSeason=-1;
+function upcomingFarmSeasonWindow(){
+ const fromSeason=climateAt(state.t).season;
+ const span=SEASON_DAYS*24;
+ return {fromSeason,toSeason:(fromSeason+1)%4,
+  hoursRemaining:span-((state.t%span)+span)%span};
+}
+function futureOriginalFarmCounters(){
+ return {rows:0,stalks:0,seedHeads:0,stalkTriangles:0,
+  stalkVisualModel:'w111-two-complete-seasonal-crop-tiers',
+  bundles:0,granaries:0,waterSegments:0};
+}
+function getUpcomingFarmSeasonPrewarmAudit(){
+ const job=upcomingFarmPrewarm||upcomingFarmPrewarmLast;
+ return {source:'original-next-season-autonomous-worksite-mesh-spine',
+  window:upcomingFarmSeasonWindow(),stages:UPCOMING_FARM_PREWARM_STAGES.length,
+  activeStage:upcomingFarmPrewarm?.stage??null,
+  runs:upcomingFarmPrewarmRuns,completed:upcomingFarmPrewarmCompleted,
+  failures:upcomingFarmPrewarmFailures,resets:upcomingFarmPrewarmResets,
+  idlePending:upcomingFarmPrewarmIdlePending,
+  last:job?{fromSeason:job.fromSeason,toSeason:job.toSeason,
+   finished:job.finished,failedReason:job.failedReason||null,
+   stages:job.samples.map(s=>({...s})),
+   maxStageMs:Math.max(0,...job.samples.map(s=>s.ms)),
+   totalStageMs:job.samples.reduce((n,s)=>n+s.ms,0),
+   nearSourceHash:job.nearSourceHash||null,farSourceHash:job.farSourceHash||null,
+   originalPlots:FARMSTEAD.fields.length,
+   originalRows:FARMSTEAD.fields.reduce((n,f)=>n+f[4],0)}:null,
+  cachedSeasons:[...farmFieldSeasonCache.keys()],
+  cachedFloats:farmFieldSeasonCachedFloats,
+  cachedFloatBudget:FARM_FIELD_SEASON_CPU_FLOAT_BUDGET,
+  authorityChanged:false,originalFarmerCountUnchanged:true,
+  physicalGPUFps:'NOT MEASURED'};
+}
+function advanceUpcomingFarmSeasonPrewarm(force=false){
+ const {fromSeason,toSeason,hoursRemaining}=upcomingFarmSeasonWindow();
+ if(upcomingFarmPrewarm&&(upcomingFarmPrewarm.fromSeason!==fromSeason||
+    upcomingFarmPrewarm.toSeason!==toSeason)){
+  upcomingFarmPrewarm=null;upcomingFarmPrewarmResets++;
+ }
+ if(!force&&hoursRemaining>48)return false;
+ if(upcomingFarmPrewarmFailedSeason===toSeason)return false;
+ if(farmFieldSeasonCache.has(toSeason))return true;
+ if(!upcomingFarmPrewarm){
+  upcomingFarmPrewarm={fromSeason,toSeason,stage:0,samples:[],
+   nearParts:[],farParts:[],finished:false,failedReason:null};
+  upcomingFarmPrewarmRuns++;
+ }
+ const job=upcomingFarmPrewarm,priorScene=farmScene,priorMaterial=currentMaterial;
+ const name=UPCOMING_FARM_PREWARM_STAGES[job.stage];
+ const started=performance.now();
+ try{
+  switch(job.stage){
+   case 0:
+    farmScene=futureOriginalFarmCounters();
+    job.nearParts=[buildOriginalCropMesh(toSeason,false,[0])];
+    job.nearCounts={...farmScene};break;
+   case 1:
+    farmScene={...job.nearCounts};
+    job.nearParts.push(buildOriginalCropMesh(toSeason,false,[1]));
+    job.nearCounts={...farmScene};break;
+   case 2:job.near=joinOriginalCropPlotMeshes(job.nearParts);
+    job.nearParts=null;break;
+   case 3:
+    farmScene=futureOriginalFarmCounters();
+    job.farParts=[buildOriginalCropMesh(toSeason,true,[0])];
+    job.farCounts={...farmScene};break;
+   case 4:
+    farmScene={...job.farCounts};
+    job.farParts.push(buildOriginalCropMesh(toSeason,true,[1]));
+    job.farCounts={...farmScene};break;
+   case 5:job.far=joinOriginalCropPlotMeshes(job.farParts);
+    job.farParts=null;break;
+   case 6:{
+    const rows=FARMSTEAD.fields.reduce((n,f)=>n+f[4],0);
+    if(!job.near?.length||!job.far?.length||
+       job.near.length+job.far.length>FARM_FIELD_SEASON_CPU_FLOAT_BUDGET||
+       job.near.rowRanges.length!==rows||job.far.rowRanges.length!==rows)
+     throw Error('W461 future real field would exceed bounded complete row cache');
+    job.nearSourceHash=hashAuthenticCivicCoreVertices(job.near);
+    job.farSourceHash=hashAuthenticCivicCoreVertices(job.far);
+    getOrBuildFarmSeasonMeshes(toSeason,{
+     season:toSeason,near:job.near,far:job.far,counters:job.nearCounts});
+    if(!farmFieldSeasonCache.has(toSeason))
+     throw Error('W461 future original crop season not retained');
+    job.near=null;job.far=null;job.finished=true;break;
+   }
+   default:throw Error('W461 invalid authentic climate prewarm stage');
+  }
+  job.samples.push({name,ms:performance.now()-started});
+  job.stage++;
+ }catch(error){
+  job.failedReason=String(error?.message||error);
+  upcomingFarmPrewarmFailures++;
+  upcomingFarmPrewarmFailedSeason=toSeason;
+  upcomingFarmPrewarmLast=job;upcomingFarmPrewarm=null;
+  console.warn('W461 original-season idle preparation failed; use full seasonal fallback',error);
+  return false;
+ }finally{
+  // All geometry assembly is presentation-only; never leak prefetch-only
+  // farming counters, draw materials or an altered simulation into the game.
+  farmScene=priorScene;currentMaterial=priorMaterial;
+ }
+ if(job.finished){
+  upcomingFarmPrewarmLast=job;upcomingFarmPrewarm=null;
+  upcomingFarmPrewarmCompleted++;
+  return true;
+ }
+ return false;
+}
+function advanceUpcomingFarmSeasonPrewarmForTesting(){
+ return advanceUpcomingFarmSeasonPrewarm(true);
+}
+function scheduleUpcomingFarmSeasonPrewarm(){
+ if(!gpuAvailable||upcomingFarmPrewarmIdlePending||
+    upcomingFarmSeasonWindow().hoursRemaining>48||
+    typeof window.requestIdleCallback!=='function')return;
+ const toSeason=upcomingFarmSeasonWindow().toSeason;
+ if(farmFieldSeasonCache.has(toSeason)||
+    upcomingFarmPrewarmFailedSeason===toSeason)return;
+ upcomingFarmPrewarmIdlePending=true;
+ window.requestIdleCallback(deadline=>{
+  upcomingFarmPrewarmIdlePending=false;
+  // If the browser is busy, avoid introducing a new main-thread stall.
+  // The current-season renderer retains its complete synchronous fallback.
+  if(deadline.timeRemaining()<12)return;
+  advanceUpcomingFarmSeasonPrewarm();
+  if(upcomingFarmPrewarm)scheduleUpcomingFarmSeasonPrewarm();
+ },{timeout:1200});
+}
 function prepareResidentFarmFields(season){
  if(!gpuAvailable||farmFieldResidentDisabled)return false;
  if(season===farmFieldResidentSeason&&farmFieldNear&&farmFieldFar){
@@ -33489,6 +33630,8 @@ drawForegroundResidentMesh();
  idleFrames=0;
  // Only a completed presentation may become the reusable frozen frame.
  lastFrozenFrameKey=frozenViewKey;
+ // The next ORIGINAL crop season is prepared only on genuine browser idle time.
+ scheduleUpcomingFarmSeasonPrewarm();
 }
 // W159: original 3D scene stays exposed on mobile until actual camera actions
  // are deliberately opened. This DOM-only control cannot modify authority.
@@ -33629,7 +33772,7 @@ getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:
  totalSavedDrawCalls:scenicVisibilityStats.totalSavedDrawCalls,
  batchMode:scenicVisibilityStats.batchMode,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,getDynamicWorldDeltaAudit,planDynamicGpuRing,getColdSceneryBuildAudit,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getCivicCoreResidencyAudit,getCivicCorePrewarmAudit,getCivicRoadDirtyAudit,getSettlementResidentStats,getResidentDeltaUploadAudit,getHouseGeometryCacheAudit,getResidentHomeShaderAudit,setResidentHomeShaderForTesting,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getInhabitedFootwayAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCompactStoneCoursingAudit,getCompactRainCaskAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,setCitizenFrameProjectionMemoForTesting,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,getDynamicWorldDeltaAudit,planDynamicGpuRing,getColdSceneryBuildAudit,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getCivicCoreResidencyAudit,getCivicCorePrewarmAudit,getCivicRoadDirtyAudit,getSettlementResidentStats,getResidentDeltaUploadAudit,getHouseGeometryCacheAudit,getResidentHomeShaderAudit,setResidentHomeShaderForTesting,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getInhabitedFootwayAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCompactStoneCoursingAudit,getCompactRainCaskAudit,getFarmFieldResidencyAudit,getUpcomingFarmSeasonPrewarmAudit,advanceUpcomingFarmSeasonPrewarmForTesting,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,setCitizenFrameProjectionMemoForTesting,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,
   getEconomyCpuCacheAudit,setEconomyCpuCacheForTesting,
  getLedgerWitnessResidencyAudit,setLedgerWitnessResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
  getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,
