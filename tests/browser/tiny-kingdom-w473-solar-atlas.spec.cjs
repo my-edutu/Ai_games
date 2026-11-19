@@ -2,12 +2,20 @@
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs'),path=require('node:path');
 const html=fs.readFileSync(path.resolve(__dirname,'../../public/tiny-kingdom/index.html'),'utf8');
-test.use({video:'on'});
+// Use a dedicated context per viewport: setViewportSize AFTER the page fixture
+// was created produced cropped 800x450 WebM while claiming 390x844 footage.
 for(const width of [1024,390]){
- test('W473 same-world native shadow-atlas candidate and Day121 original citizens '+width,async({page})=>{
+ test('W473 same-world native shadow-atlas candidate and Day121 original citizens '+width,async({browser})=>{
   test.setTimeout(540000);
   const errors=[];page.on('pageerror',e=>errors.push(String(e)));
-  await page.setViewportSize({width,height:width===390?844:768});
+  const height=width===390?844:768;
+  const dir=path.resolve(__dirname,'../../artifacts/tiny-kingdom-w473');
+  fs.mkdirSync(dir,{recursive:true});
+  const context=await browser.newContext({
+   viewport:{width,height},deviceScaleFactor:1,
+   recordVideo:{dir,size:{width,height}}
+  });
+  const page=await context.newPage();
   await page.setContent(html);
   await page.waitForFunction(()=>window.__tinyKingdom?.renderStats()?.lastFrameTriangles>0,null,{timeout:180000});
   await page.evaluate(()=>{
@@ -18,8 +26,6 @@ for(const width of [1024,390]){
    g.setSpeed(0);
   });
   await page.waitForTimeout(1500);
-  const dir=path.resolve(__dirname,'../../artifacts/tiny-kingdom-w473');
-  fs.mkdirSync(dir,{recursive:true});
   async function audit(){
    return page.evaluate(()=>{
     const g=window.__tinyKingdom,s=g.renderStats(),m=g.metrics(),
@@ -80,5 +86,6 @@ for(const width of [1024,390]){
   const video=page.video();
   await page.close();
   if(video)await video.saveAs(path.join(dir,width+'-actual-playable.webm'));
+  await context.close();
  });
 }

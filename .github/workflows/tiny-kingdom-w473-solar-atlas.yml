@@ -7,6 +7,7 @@ on:
       - 'scripts/tiny-kingdom-w473-shadow-atlas-contract.cjs'
       - 'scripts/tiny-kingdom-w473-shadow-raster.cjs'
       - 'scripts/tiny-kingdom-w474-caster-geometry.cjs'
+      - 'scripts/tiny-kingdom-w474-video-proof.cjs'
       - 'tests/browser/tiny-kingdom-w473-solar-atlas.spec.cjs'
       - '.github/workflows/tiny-kingdom-w473-solar-atlas.yml'
   workflow_dispatch:
@@ -38,6 +39,7 @@ jobs:
       - run: npm run build
       - run: npx playwright install chromium
       - run: npx playwright test tests/browser/tiny-kingdom-w473-solar-atlas.spec.cjs --workers=1 --reporter=line
+      - run: node scripts/tiny-kingdom-w474-video-proof.cjs
       - if: always()
         uses: actions/upload-artifact@v4
         with:
