@@ -994,3 +994,45 @@ test('RED: genuine 390px 66.7ms licensed linked-leg followup must remeasure both
  ])assert.equal(follow({...source,...bad}),null,
    'no illegal action, stale source, unmeasured shoe or unsafe trial may earn a stronger hinge');
 });
+
+test('RED: a consecutively witnessed source-skinned hip-knee swing may earn connected foot followups without a fresh pop',async()=>{
+ const {planOriginalSourceCoupledFootStarter:plan}=await load();
+ // Actual source 33.3ms buried-toe / heel starter is the original
+ // licensed desktop source fixture above. The PRIOR-frame receipt below
+ // is a deliberately constructed strict contract witness, NOT a second
+ // captured GLB frame or proof of a real foot plant.
+ const prior={
+  source:'measured-original-skinned-linked-leg',
+  sourceClip:'Walking_A',sourceInstanceId:owner.sourceInstanceId,
+  sourceUpperBone:'upperlegl',sourceLowerBone:'lowerlegl',
+  side:'left',contactLocked:false,oppositeShoePreserved:true,
+  finalIndependentSourceSkin:true,
+  witnessedFrameIntervalSeconds:.0333,
+  witnessedRootTravelMeters:.01929,witnessedSourceWeight:1,
+  after:after(.020,.019)
+ };
+ const options={...owner,previousLinkedCertified:true,
+  sourceUpperBone:'upperlegl',sourceLowerBone:'lowerlegl',
+  previousLinkedOriginalProof:prior};
+ const qualified=plan(options);
+ assert.equal(qualified?.source,
+  'actual-original-source-three-joint-swing-opportunity',
+  'one consecutive already certified hip-knee source frame must not permanently starve the real connected ankle');
+ assert.equal(qualified?.expectedSourceSkinnedTrials,2);
+ assert.equal(qualified?.contactLocked,false);
+ for(const corrupt of [
+  {previousLinkedOriginalProof:null},
+  {previousLinkedOriginalProof:{...prior,sourceInstanceId:'different-rig'}},
+  {previousLinkedOriginalProof:{...prior,sourceClip:'Idle'}},
+  {previousLinkedOriginalProof:{...prior,sourceUpperBone:'other'}},
+  {previousLinkedOriginalProof:{...prior,finalIndependentSourceSkin:false}},
+  {previousLinkedOriginalProof:{...prior,after:after(.075,.019)}},
+  {previousLinkedOriginalProof:{...prior,linkedOriginalFootFinisher:{angleRad:-.12}}},
+  {previousLinkedOriginalProof:{...prior,sourceCoupledKneeFootProof:{footRad:.24}}},
+  {previousLinkedOriginalProof:{...prior,witnessedFrameIntervalSeconds:.3}},
+  {frameInterval:.1001},
+  {sourceWeight:.91},{interrupted:true},{reducedMotion:true},
+  {sourceInstanceSame:false}
+ ])assert.equal(plan({...options,...corrupt}),null,
+  'stale, already ankle-owned, changed action, invalid skin or slow samples cannot inherit a previous pose: '+Object.keys(corrupt));
+});
