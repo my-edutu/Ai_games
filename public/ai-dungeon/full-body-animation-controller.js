@@ -5435,6 +5435,23 @@ export function planImportedWalkExitMovingFade({
   const recentSpeed=recentGroundedTravel/recentGroundedFrameInterval;
   if(recentSpeed>=.20&&recentSpeed<=2.5)return .34;
  }
+ // Original exact-source 19 Nov mobile/desktop 17-tick WebGL at
+ // c30752a: 10 lawful Walking_A->Idle mixer receipts had a genuinely
+ // travelling visual root (0.427-2.593mm per ~16.6ms), but no single
+ // >=8mm rAF displacement survived the independent recent-root cache.
+ // Do NOT fabricate a previous step or downgrade the >=8mm skin/IK gate.
+ // On this narrower REAL micro-arrival, preserve the entire imported
+ // skeleton for only 300ms instead of abandoning its gait at 230ms.
+ // Require an authentic live strong Walking_A owner, sub-50ms source
+ // timing, a strictly positive measured current displacement, plausible
+ // low landing velocity and explicitly NO qualifying earlier source step.
+ // No stationary/teleported/invalid/slow-frame actor earns a fade.
+ if(previousSourceWeight>=.9&&frameInterval>=.016&&frameInterval<=.05&&
+  groundedTravel>=.00035&&groundedTravel<=.003&&
+  groundedTravel/frameInterval>=.02&&
+  groundedTravel/frameInterval<=.20&&
+  recentGroundedTravel===0&&recentGroundedAge===0&&
+  Number.isNaN(recentGroundedFrameInterval))return .30;
  return .23;
 }
 
