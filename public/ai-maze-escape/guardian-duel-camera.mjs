@@ -246,6 +246,22 @@ export function publicEarnedGuardianScenicStageOverlap(actor,scenic,earned=false
  * coordinates, private map, animation clock, solver move or collider enters.
  * In-place Vector3 mutation avoids allocating during a native WebGL frame.
  */
+/**
+ * Source-earned camera priority for an ALREADY VISIBLE counter, not an AI
+ * attack or newly discovered enemy. The old Follow stage required zero
+ * public proximity warning; a genuinely parried close Thornback can
+ * remain visibly nearby, so its own physical reaction never got framed.
+ * A DIFFERENT currently dangerous guardian still owns the warning shot.
+ * Models are current sanitized scene instances, not private map actors.
+ */
+export function publicEarnedGuardianCounterCameraPriority(
+  earnedModel, attentionModel, attentionStrength, attentionParried) {
+  if(!earnedModel)return false;
+  if(attentionStrength==null || attentionStrength===0)return true;
+  if(!Number.isFinite(attentionStrength)||attentionStrength<0)return false;
+  return attentionModel===earnedModel && attentionParried===true;
+}
+
 export function setPublicEarnedGuardianFrontQuarterOffset(
   offset,aspect,hero,guardian,earned=false,reducedMotion=false) {
   if(!earned||reducedMotion||!Number.isFinite(aspect)
