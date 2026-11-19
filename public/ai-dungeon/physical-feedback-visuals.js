@@ -1380,6 +1380,15 @@ export function createPhysicalFeedbackVisuals(THREE,scene,{
  function hasAuthenticatedSwingPose(cue){
   if(disposed||cue?.kind!=='swing'||cue?.visual!=='trail'||
    cue?.proof!=='authority-attempt-not-hit')return false;
+  // A measured, drawable wrist ribbon is historical pose evidence, NOT
+  // permission to sound a swing after public authority cancelled its owner.
+  // Recheck the current UNIQUE scene/tick/action only at audio admission and
+  // the presented-frame witness, never on each visual-frame transform.
+  if(requireVerifiedHpReceipt){
+   let actor=null;
+   try{actor=actorById(cue.actorId)}catch{return false}
+   if(!actor||!currentPublicSwingSource(cue,actor.u))return false;
+  }
   const hand=anchor(cue,'trail');
   if(!hand)return false;
   // An old measured ribbon can remain drawable when the actual skinned rig
