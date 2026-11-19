@@ -7246,8 +7246,7 @@
     "actualDeviceP50P95P99AndMemory": "NOT EVALUATED",
     "nextHighestImpactP0Action": "Inspect exact-head source and native 1x >60s desktop 960x600/portrait 390x844 recordings from the new run, validate strict event-to-video PTS pairing, confirm sustained real old-to-new room overlap with original moving actor/gate/walkable F9; if still absent, fix real 3D foreground steel aperture/camera/first shader return rather than another isolated tint/CI patch.",
     "constraints": "Baseline unchanged. No Tiny Kingdom, Maze, or AI vs 1000 Floors files edited; PR58 unmodified, PR68 stays draft, no merge/deploy/force-push."
-  }
-,
+  },
   "p0OriginalPhysicalReceivingRoofLuminousContinuity20261119_1654": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
     "leadingVerdict": "NOT EVALUATED",
@@ -7279,5 +7278,51 @@
     "actualDeviceP50P95P99Memory": "NOT EVALUATED",
     "nextHighestImpact": "Decode this source-pinned original 960x600 and 390x844 complete 60s+ native WebM and paired original F8->F9 event/PTS. If violet roof/body/glow still abruptly pop or full moving actor/gate/roof are occluded, correct true foreground mesh aperture/camera and first-GL frame rather than another color/test micro-patch. Stay P0.",
     "safety": "Keep PR68 draft, PR58 work untouched, unchanged frozen baseline, excluded games untouched, no merge/deploy/force-push."
+  },
+  "p0GroundedSourceRoofReturnCoreFirstPaintNineJob20261119": {
+    "stage": "P0 — EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionFixSha": "95fb7d9790f586808ec12bb0c737a36c288b6e6e",
+    "regressionTestsSha": "79f22f60dc7a3d150a476c9dfcc72e3ba2b2dd12",
+    "candidate": "EXACT immutable github.sha of THIS capture-request commit (not floating PR HEAD)",
+    "previousFullMotionCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44564555717",
+    "previousCandidateSource": "68bd97cff9f5998a4f0584ec1f4990750c80acea",
+    "importantPreviousFootageDefect": "Unedited genuine full-motion candidate: Floor9 HUD 25.75s vs sustained Void 26.25s desktop, 26.00s vs 27.00s portrait, no sustained old/new shared-room chroma bridge; original HP-zero open arch, complete moving climber, walkable F9 not event-to-PTS aligned in two consecutive native frames, 0/2 strict pairing.",
+    "sourceDefectFixed": "Source and renderer guards left a genuinely grounded F9 roof 60–100m beyond old sill between the 6–60m early aperture and >100m horizontal or +7m raised far-side overlap; already-built original Void core then remained culled despite real prior WebGL return and original HP0 gateway.",
+    "realCodeChange": "Grant at most 22% original noninteractive source-built successor shaft in exact full-body supported real F9 ground corridor, only after recorded same-run guardian HP0, authentic cap geometry, retained old WebGL doorway, first real returned source-matched F9 frame, nonempty original root and bounded returned-source clocks; do not alter authority or video.",
+    "scenarios": [
+      "ascent",
+      "moving",
+      "danger",
+      "outcome"
+    ],
+    "matrix": "frozen baseline and immutable candidate in all 4 scenarios, 8 normal-speed jobs + authentic ledge/source job = 9",
+    "viewports": [
+      "960x600 desktop",
+      "390x844 portrait"
+    ],
+    "seed": "tower-transformation-capture-v1",
+    "tier": "low",
+    "normalSpeed": "1x original genuine 25fps WebM, >=60s; no authored frames, no simulated victory, keep original compositor/native WebM bytes",
+    "strictAcceptance": "For BOTH viewports and matched events, >=2 consecutive source-to-native-aligned frames co-show full moving real climber, HP-zero original open guardian gateway and physically supported true Floor9; confirm after raised/moving deck and real outcome/restart. CI is veto, not an experience pass.",
+    "expectedVideoResult": "NOT EVALUATED until new jobs finish and genuine original native films independently inspected",
+    "independentCritics": {
+      "LOOKS": {
+        "completed": 0,
+        "required": 5
+      },
+      "FEELS": {
+        "completed": 0,
+        "required": 5
+      },
+      "PLAYS": {
+        "completed": 0,
+        "required": 5
+      }
+    },
+    "actualDevicePerformanceAndMemory": "NOT EVALUATED",
+    "nextHighestImpact": "Read new exact-SHA quality CI and all native footage; compare real first-F9 source events/WebGL returns against actual native PTS and three-subject sightline. If gap persists, fix authentic original foreground rail/camera rather than weakening strict pairing.",
+    "safeguards": "Never change frozen baseline, PR58 source, PR68 draft, unrelated games, merge, deploy, or force-push."
   }
 }
