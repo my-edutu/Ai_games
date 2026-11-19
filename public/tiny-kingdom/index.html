@@ -31966,11 +31966,22 @@ function getCivicCoreResidencyAudit(){
   gpuResident:Boolean(civicGpuResidencyEnabled&&civicCoreBuffer),
   gpuUploads:civicCoreGpuUploads,gpuDisposals:civicCoreGpuDisposals,
   gpuTriangles:activeCivicCoreMesh().length/30,
+  sourceHash:civicCoreCache.get(activeCivicCoreKey)?.sourceHash||null,
   originalFixedFixtureTriangles:civicStaticFixtureTriangles,
   originalFixedFixtureBuilds:civicStaticFixtureBuilds,
   newGpuBuffers:civicCoreGpuUploads-civicCoreGpuDisposals,
   modifiesCitizens:false,modifiesEconomy:false,modifiesNavigation:false,
   affectsSavedReplay:false,hardwareFps:'NOT MEASURED'};
+}
+// W457: hash the actual complete Float32 civic vertices, not a camera
+// frame, estimated material count or a synthetic stand-in for the town.
+function hashAuthenticCivicCoreVertices(vertices){
+ if(!(vertices instanceof Float32Array)||vertices.length%30!==0)
+  throw Error('W457 missing or incomplete original civic Float32 stream');
+ const words=new Uint32Array(vertices.buffer,vertices.byteOffset,vertices.length);
+ let hash=2166136261;
+ for(let i=0;i<words.length;i++)hash=Math.imul(hash^words[i],16777619);
+ return (hash>>>0).toString(16).padStart(8,'0');
 }
 function rememberCivicCore(key,sourceStart){
  const count=data.length-sourceStart;
@@ -32006,7 +32017,7 @@ function rememberCivicCore(key,sourceStart){
  }
  civicCoreCache.delete(key);
  civicCoreCache.set(key,{vertices,stats,finalMaterial:currentMaterial,
-  buffer,ranges});
+  sourceHash:hashAuthenticCivicCoreVertices(vertices),buffer,ranges});
  if(civicGpuResidencyEnabled&&buffer){
   civicCoreBuffer=buffer;civicCoreChunkRanges=ranges;
  }
@@ -32138,7 +32149,126 @@ if(residentCivic&&storedCoreReady&&
  if(civicGpuResidencyEnabled&&stored)data.length=civicStart;
 }
 }
+// W457 — FIRST-PLAYABLE-FRAME civic spine: never construct the entire
+// original town's 3D hall/farm/granary/forge/market/high street in one
+// single 100ms+ main-thread task. Each source-exact piece is assembled
+// on a separate animation-frame turn before the complete first scene is
+// allowed to draw; no proxy geometry, invented citizen or new world state.
+// The original synchronous renderer is the bounded failure fallback.
+const CIVIC_CORE_PREWARM_STAGES=[
+ 'guildhall','farmstead','windmill-fences-bridge','sanctuary-forge',
+ 'receiving-market','market-quarter','authentic-high-street',
+ 'original-streetfronts','village-fixtures','exact-GPU-residency'
+];
+let civicCorePrewarm=null,civicCorePrewarmDisabled=false;
+let civicCorePrewarmRuns=0,civicCorePrewarmCompleted=0,
+ civicCorePrewarmFailures=0,civicCorePrewarmResets=0,
+ civicCorePrewarmLast=null;
+function getCivicCorePrewarmAudit(){
+ const candidate=civicCorePrewarm;
+ const latest=candidate||civicCorePrewarmLast;
+ return {kind:'original-civic-subsystem-main-thread-slices',
+  measuredBy:'performance.now CPU/driver wall; NOT GPU elapsed or hardware FPS',
+  enabled:!civicCorePrewarmDisabled,stages:CIVIC_CORE_PREWARM_STAGES.length,
+  runs:civicCorePrewarmRuns,completed:civicCorePrewarmCompleted,
+  failures:civicCorePrewarmFailures,resets:civicCorePrewarmResets,
+  activeStage:candidate?.stage??null,
+  last:latest?{key:latest.key,finished:!candidate&&latest.finished,
+   slices:latest.samples.map(item=>({...item})),
+   totalSliceMs:latest.samples.reduce((sum,item)=>sum+item.ms,0),
+   maximumSliceMs:Math.max(0,...latest.samples.map(item=>item.ms)),
+   residentCoreHash:civicCoreCache.get(latest.key)?.sourceHash||null,
+   failedReason:latest.failedReason||null}:null,
+  preservesAllCivicMeshes:true,changesAuthoritativeState:false,
+  physicalGPUFps:'NOT MEASURED'};
+}
+function prewarmOriginalCivicCoreBeforeFirstScene(){
+ if(framesDrawn!==0||!gpuAvailable||!civicGpuResidencyEnabled||
+    civicCorePrewarmDisabled||window.__TINY_KINGDOM_DISABLE_CIVIC_PREWARM__===true)
+  return false;
+ const climate=climateAt(state.t);
+ const terrainKey=climate.season+':'+(climate.season===3&&
+  climate.weather==='snow'?1:0);
+ const stage=skyConditions(state.t).daylight<.55?'night':'day';
+ const key=civicCoreResidencyKey(terrainKey,stage);
+ if(civicCoreCache.has(key))return false;
+ const lotProof=city.map(lot=>lot.join(',')).join('|');
+ if(civicCorePrewarm&&(civicCorePrewarm.key!==key||
+   civicCorePrewarm.lotProof!==lotProof||
+   civicCorePrewarm.sourceTime!==state.t)){
+  civicCorePrewarm=null;civicCorePrewarmResets++;
+  // An imported or changed world requires the original synchronous
+  // reconstruction, never the stale partially staged geometry.
+  return false;
+ }
+ if(!civicCorePrewarm){
+  civicCorePrewarm={key,lotProof,sourceTime:state.t,
+   stage:0,mesh:[],material:MATERIAL.STONE,samples:[],finished:false,
+   failedReason:null};
+  civicCorePrewarmRuns++;
+ }
+ const work=civicCorePrewarm,formerData=data,formerMaterial=currentMaterial;
+ data=work.mesh;currentMaterial=work.material;
+ const name=CIVIC_CORE_PREWARM_STAGES[work.stage];
+ const from=data.length,started=performance.now();
+ let successful=false;
+ try{
+  switch(work.stage){
+   case 0: resetHighStreetBuildStats();hall(0,-1);break;
+   case 1: farmstead();break;
+   case 2:
+    windmill(-27,-18,0);
+    fenceLine(16,-2,6,false,FIELD_TO_GRANARY_GATE);
+    fenceLine(16,4,6);fenceLine(16,-2,4,true);fenceLine(25,-2,4,true);
+    riverBridge();break;
+   case 3: hillsideSanctuary();forgeWorkshop();break;
+   case 4: market(0,5);break;
+   case 5: marketQuarter();break;
+   case 6:
+    highStreetStats.totalTriangles=renderFoundingHighStreetLanes();break;
+   case 7:
+    highStreetStats.totalTriangles+=renderFoundingStreetfronts();break;
+   case 8: renderRetainedCivicFixtures();break;
+   case 9:
+    if(!rememberCivicCore(key,0)||
+       !civicCoreCache.get(key)?.buffer)
+      throw Error('W457 unable to retain complete original civic GPU VBO');
+    break;
+   default:throw Error('W457 invalid civic prewarm stage');
+  }
+  if(data.length>CIVIC_CORE_FLOAT_BUDGET||
+     data.length%30!==0)
+   throw Error('W457 civic prewarm exceeds complete source triangle bound');
+  work.samples.push({name,ms:performance.now()-started,
+   cumulativeOriginalTriangles:data.length/30,
+   addedOriginalTriangles:(data.length-from)/30});
+  work.material=currentMaterial;work.stage++;
+  successful=true;
+ }catch(error){
+  work.failedReason=String(error?.message||error);
+  civicCorePrewarmFailures++;civicCorePrewarmDisabled=true;
+  // Preserve diagnostics and explicitly restore the intact CPU fallback.
+  console.error('W457 original civic prewarm failed; exact full renderer fallback',error);
+ }finally{
+  data=formerData;currentMaterial=formerMaterial;
+ }
+ if(!successful){
+  civicCorePrewarmLast=work;civicCorePrewarm=null;
+  return false;
+ }
+ if(work.stage>=CIVIC_CORE_PREWARM_STAGES.length){
+  work.finished=true;work.mesh.length=0;
+  civicCorePrewarmLast=work;civicCorePrewarm=null;
+  civicCorePrewarmCompleted++;
+  // The initial complete scene now uses recallCivicCore and draws all homes
+  // and workers normally, without staging an incomplete playable village.
+  return false;
+ }
+ return true;
+}
 function render(now){requestAnimationFrame(render);
+ if(prewarmOriginalCivicCoreBeforeFirstScene()){timer=now;return;}
+
  // W443: never draw an uninitialized original material atlas. Compute the
  // unchanged 8-material pixel field in a bounded background worker; any
  // blocked/unsupported worker falls back to the exact synchronous pixels.
@@ -33406,7 +33536,7 @@ getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:
  totalSavedDrawCalls:scenicVisibilityStats.totalSavedDrawCalls,
  batchMode:scenicVisibilityStats.batchMode,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,getDynamicWorldDeltaAudit,planDynamicGpuRing,getColdSceneryBuildAudit,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getCivicCoreResidencyAudit,getCivicRoadDirtyAudit,getSettlementResidentStats,getResidentDeltaUploadAudit,getHouseGeometryCacheAudit,getResidentHomeShaderAudit,setResidentHomeShaderForTesting,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getInhabitedFootwayAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCompactStoneCoursingAudit,getCompactRainCaskAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,setCitizenFrameProjectionMemoForTesting,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,getDynamicWorldDeltaAudit,planDynamicGpuRing,getColdSceneryBuildAudit,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getCivicCoreResidencyAudit,getCivicCorePrewarmAudit,getCivicRoadDirtyAudit,getSettlementResidentStats,getResidentDeltaUploadAudit,getHouseGeometryCacheAudit,getResidentHomeShaderAudit,setResidentHomeShaderForTesting,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getInhabitedFootwayAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCompactStoneCoursingAudit,getCompactRainCaskAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,setCitizenFrameProjectionMemoForTesting,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,
   getEconomyCpuCacheAudit,setEconomyCpuCacheForTesting,
  getLedgerWitnessResidencyAudit,setLedgerWitnessResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
  getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,

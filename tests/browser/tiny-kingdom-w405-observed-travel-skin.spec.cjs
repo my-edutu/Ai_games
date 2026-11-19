@@ -55,7 +55,7 @@ test('W405 real cargo, unloading, work contacts and meals never enter shader-onl
   'unsupported GPU joints must never remove citizen');
 });
 test('W405 nearby non-hero work and real registered source geometry remain',()=>{
- const render=sourceBetween('const foregroundRows=gpuAvailable?', 'dynamicPhaseTimes.residentActorManagement=');
+ const render=sourceBetween('const foregroundRows=residentRows', 'dynamicPhaseTimes.residentActorManagement=');
  assert.match(render,/isForegroundResidentCandidate\(p,i,nearPeople\)/);
  assert.match(render,/isForegroundWorksiteCandidate\(p,i,nearPeople,commuterFrame\)/);
  assert.match(render,/isForegroundWalkingSkinCandidate\(p,i,commuterFrame\)/,

@@ -1,0 +1,45 @@
+name: Tiny Kingdom W457 Original Civic Frame-Sliced GPU Spine
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'tests/browser/tiny-kingdom-w457-civic-prewarm.spec.cjs'
+      - '.github/workflows/tiny-kingdom-w457-civic-prewarm.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w457-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  complete-real-original-civic:
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feat/tiny-kingdom-post-main-gauntlet-20261031' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Verify real original followed travelers still have working body skin
+        run: node --test tests/browser/tiny-kingdom-w405-observed-travel-skin.spec.cjs
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Film uncut actual original and prewarmed desktop plus 390px town
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          CI: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w457-civic-prewarm.spec.cjs --workers=1 --reporter=line --output=test-results/w457-civic
+      - name: Preserve actual screenshots/videos/core identity and CPU-stage traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w457-original-civic-split
+          path: test-results/
+          if-no-files-found: warn
+          retention-days: 14
