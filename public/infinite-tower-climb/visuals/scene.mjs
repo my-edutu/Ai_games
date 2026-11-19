@@ -34,7 +34,7 @@ import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardi
 import { observedGuardianTransmissionCorners } from './guardian-transmission-layout.mjs';
 import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
 import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe, sourceThreeSubjectPhysicalGain } from './physical-threshold-shot.mjs';
-import { sourceSubmittedDoorwayCameraDt } from './source-submitted-doorway-cadence.mjs';
+import { sourceSubmittedDoorwayCameraDt, sourceCroppedHeroRecoveryDt } from './source-submitted-doorway-cadence.mjs';
 import { createTowerVoidProgramPrewarm } from './void-program-prewarm.mjs';
 import { sourceOriginalGatewayCameraBridge, observedOriginalGatewaySubmittedView } from './original-gateway-submitted-camera-bridge.mjs';
 import { assessOriginalGatewayPhysicalCameraBridge } from './original-gateway-camera-ray-contract.mjs';
@@ -3648,7 +3648,53 @@ export function createTowerScene(canvas, settings = {}) {
     // camera and all its safety directors away from the original doorway.
     // This affects only source-proven next-floor presentation; the fixed-step
     // simulation, real hero position and elapsed game time remain untouched.
-    const cameraDt = sourceSubmittedDoorwayCameraDt(dt,coldArchLens,snapshot,options);
+    let cameraDt = sourceSubmittedDoorwayCameraDt(dt,coldArchLens,snapshot,options);
+    // At 20Hz, a stalled first-F9 WebGL render can advance the authentic
+    // climber far beyond the last painted Clockwork frame. Applying the same
+    // 40ms camera freeze to a now-CROPPED real body is a camera safety failure,
+    // not cinematic continuity. Measure the CURRENT source-sized skinned hero
+    // (sole, helmet, both shoulders) in the actual previous camera, without
+    // inventing movement or changing the old HP-open doorway/route.
+    if (cameraDt < dt && Number.isFinite(camera.aspect) &&
+        camera.aspect > 0 && Number.isSafeInteger(p.halfHeight) &&
+        Number.isSafeInteger(p.halfWidth) &&
+        p.halfHeight > 0 && p.halfWidth > 0) {
+      camera.updateMatrixWorld(true);
+      const origin = climber.group.position;
+      const halfHeight = p.halfHeight / SCALE;
+      const halfWidth = p.halfWidth / SCALE;
+      const projection = {sourceTick:snapshot.tick,aspect:camera.aspect,
+        maxAbsX:0,maxAbsY:0,depthValid:true};
+      const observeClimberClip = point => {
+        if (![point.x,point.y,point.z].every(Number.isFinite)) {
+          projection.depthValid=false;
+          return;
+        }
+        projection.maxAbsX=Math.max(projection.maxAbsX,Math.abs(point.x));
+        projection.maxAbsY=Math.max(projection.maxAbsY,Math.abs(point.y));
+        if (point.z < -1 || point.z > 1) projection.depthValid=false;
+      };
+      observeClimberClip(actorSafeProjection.copy(climber.group.position).project(camera));
+      observeClimberClip(actorSafeProjection.set(origin.x,
+        origin.y + halfHeight*2, origin.z).project(camera));
+      const axisX = origin.x-camera.position.x;
+      const axisZ = origin.z-camera.position.z;
+      const length = Math.hypot(axisX,axisZ);
+      if (length > .1) {
+        const shoulderX=axisZ/length*halfWidth;
+        const shoulderZ=-axisX/length*halfWidth;
+        observeClimberClip(actorSafeProjection.set(origin.x+shoulderX,
+          origin.y+halfHeight,origin.z+shoulderZ).project(camera));
+        observeClimberClip(actorSafeProjection.set(origin.x-shoulderX,
+          origin.y+halfHeight,origin.z-shoulderZ).project(camera));
+      } else projection.depthValid=false;
+      // All existing final camera/core/gate/deck ray vetoes STILL execute.
+      // Give a genuinely cropped hero <=140ms of camera catch-up, not an
+      // unseen 0.5s jump or a fake recorded source frame. Normal shared-room
+      // shots retain the original 40ms source-submitted gateway cadence.
+      cameraDt = sourceCroppedHeroRecoveryDt(dt,cameraDt,
+        projection,coldArchLens,snapshot,options);
+    }
     if (cameraDt < dt) {
       sourceSubmittedDoorwayLimitedFrames = Math.min(1000000,
         sourceSubmittedDoorwayLimitedFrames + 1);
