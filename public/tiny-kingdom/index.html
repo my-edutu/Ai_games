@@ -19002,13 +19002,19 @@ function disposeResidentFarmFields(){
  farmFieldGpuCapacities[0]=0;farmFieldGpuCapacities[1]=0;
  farmFieldPlotLods=[];farmFieldLastDrawnPlots=[];farmFieldCulledPlots=0;
 }
-function buildOriginalCropMesh(season,compact){
+function buildOriginalCropMesh(season,compact,selectedPlots=null){
  const previousData=data,previousMaterial=currentMaterial;
  let mesh;
  const plotRanges=[],rowRanges=[];
+ const selected=selectedPlots===null?FARMSTEAD.fields.map((_,i)=>i):selectedPlots;
+ if(!Array.isArray(selected)||!selected.length||
+    selected.some(i=>!Number.isInteger(i)||i<0||i>=FARMSTEAD.fields.length)||
+    new Set(selected).size!==selected.length||
+    selected.some((i,n)=>n>0&&i<=selected[n-1]))
+   throw Error('W460 invalid real planted field selection');
  try{
   data=[];
-  for(let i=0;i<FARMSTEAD.fields.length;i++){
+  for(const i of selected){
    const start=data.length,field=FARMSTEAD.fields[i];
    // All furrows and every genuine seeded grain stem retain the exact
    // W111 source order. Pack each original contiguous plot as a draw range.
@@ -19060,6 +19066,39 @@ function buildOriginalCropMesh(season,compact){
    rowRanges.reduce((n,p)=>n+p.count,0)!==mesh.length/10)
   throw Error('W112 field mesh exceeds bounded complete storage');
  return mesh;
+}
+// W460: retain every authentic planted plot's Float32 vertex and row order.
+// No camera-based crop disappearance, made-up jobs, or altered game outcomes.
+function joinOriginalCropPlotMeshes(parts){
+ if(!Array.isArray(parts)||parts.length!==FARMSTEAD.fields.length)
+   throw Error('W460 missing complete original planted parcels');
+ let size=0;
+ for(let i=0;i<parts.length;i++){
+  const part=parts[i],plot=part?.plotRanges?.[0];
+  if(!(part instanceof Float32Array)||!part.length||part.length%30||
+     part.plotRanges.length!==1||plot.plot!==i||plot.first!==0||
+     plot.firstRow!==0||part.rowRanges.length!==FARMSTEAD.fields[i][4]||
+     part.rowRanges.some(row=>row.plot!==i))
+    throw Error('W460 invalid planted plot or row');
+  size+=part.length;
+ }
+ if(size>FARM_FIELD_MESH_FLOAT_LIMIT)
+   throw Error('W460 original field source exceeds bounds');
+ const full=new Float32Array(size),plotRanges=[],rowRanges=[];
+ let offset=0;
+ for(const part of parts){
+  const first=offset/10,firstRow=rowRanges.length;
+  full.set(part,offset);
+  plotRanges.push({...part.plotRanges[0],first,firstRow});
+  for(const row of part.rowRanges)
+   rowRanges.push({...row,first:row.first+first});
+  offset+=part.length;
+ }
+ full.plotRanges=plotRanges;full.rowRanges=rowRanges;
+ if(plotRanges.reduce((n,p)=>n+p.count,0)!==size/10||
+    rowRanges.reduce((n,row)=>n+row.count,0)!==size/10)
+  throw Error('W460 omitted authentic planted geometry');
+ return full;
 }
 // W182: retain all original seasonal near/far crop geometry, no new farming
 // authority. Four original season meshes share a bounded CPU LRU; two genuine
@@ -19345,6 +19384,8 @@ function getFarmFieldResidencyAudit(){
   eyeDistance:farmFieldLastDistance,drawnTriangles:farmFieldLastTriangles,
   nearTriangles:(farmFieldNear?.mesh.length||0)/30,
   farTriangles:(farmFieldFar?.mesh.length||0)/30,
+  nearSourceHash:farmFieldNear?.mesh?hashAuthenticCivicCoreVertices(farmFieldNear.mesh):null,
+  farSourceHash:farmFieldFar?.mesh?hashAuthenticCivicCoreVertices(farmFieldFar.mesh):null,
   buffers:Number(Boolean(farmFieldNear?.buffer))+Number(Boolean(farmFieldFar?.buffer)),
   maxBuffers:FARM_FIELD_MESH_MAX_BUFFERS,
   residentBytes:((farmFieldNear?.mesh.length||0)+(farmFieldFar?.mesh.length||0))*4,
@@ -32167,7 +32208,8 @@ if(residentCivic&&storedCoreReady&&
 // on software WebGL; this avoids reconstructing both crop tiers in ONE RAF.
 // Every actual rooted row, GPU buffer, source vertex and fallback stays intact.
 const CIVIC_CORE_PREWARM_STAGES=[
- 'guildhall','original-grain-near-tier','original-grain-far-tier',
+ 'guildhall','near-field-0','near-field-1','near-field-merge',
+ 'far-field-0','far-field-1','far-field-merge',
  'grain-GPU-residency','granary-and-threshing-yard',
  'windmill-fences-bridge','sanctuary-forge','receiving-market',
  'market-quarter','authentic-high-street','original-streetfronts',
@@ -32192,6 +32234,8 @@ function getCivicCorePrewarmAudit(){
    totalSliceMs:latest.samples.reduce((sum,item)=>sum+item.ms,0),
    maximumSliceMs:Math.max(0,...latest.samples.map(item=>item.ms)),
    residentCoreHash:civicCoreCache.get(latest.key)?.sourceHash||null,
+   nearCropHash:latest.nearCropHash||null,
+   farCropHash:latest.farCropHash||null,
    failedReason:latest.failedReason||null}:null,
   preservesAllCivicMeshes:true,changesAuthoritativeState:false,
   physicalGPUFps:'NOT MEASURED'};
@@ -32215,6 +32259,8 @@ function prewarmOriginalCivicCoreBeforeFirstScene(){
  if(civicCorePrewarm&&(civicCorePrewarm.key!==key||
    civicCorePrewarm.lotProof!==lotProof||
    civicCorePrewarm.sourceTime!==state.t)){
+  if(civicCorePrewarm.priorFarmScene)
+   Object.assign(farmScene,civicCorePrewarm.priorFarmScene);
   civicCorePrewarm=null;civicCorePrewarmResets++;
   // An imported or changed world requires the original synchronous
   // reconstruction, never the stale partially staged geometry.
@@ -32237,42 +32283,47 @@ function prewarmOriginalCivicCoreBeforeFirstScene(){
    case 1:
     work.farmSeason=climateAt(state.t).season;
     work.priorFarmScene={...farmScene};
-    work.farmNear=buildOriginalCropMesh(work.farmSeason,false);
-    work.nearFarmCounters={...farmScene};
-    Object.assign(farmScene,work.priorFarmScene);
-    break;
+    work.nearParts=[buildOriginalCropMesh(work.farmSeason,false,[0])];break;
    case 2:
-    work.farmFar=buildOriginalCropMesh(work.farmSeason,true);
-    Object.assign(farmScene,work.priorFarmScene);
-    break;
+    work.nearParts.push(buildOriginalCropMesh(work.farmSeason,false,[1]));break;
    case 3:
-    // Reuse the production cache's SAME bounds, range validation and LRU.
-    // A GPU failure continues through the original full-field CPU fallback.
-    getOrBuildFarmSeasonMeshes(work.farmSeason,{
-     season:work.farmSeason,near:work.farmNear,far:work.farmFar,
-     counters:work.nearFarmCounters});
-    work.farmNear=null;work.farmFar=null;
-    prepareResidentFarmFields(work.farmSeason);
-    break;
-   case 4: farmstead();break;
+    work.farmNear=joinOriginalCropPlotMeshes(work.nearParts);
+    work.nearFarmCounters={...farmScene};work.nearParts=null;
+    Object.assign(farmScene,work.priorFarmScene);break;
+   case 4:
+    work.farParts=[buildOriginalCropMesh(work.farmSeason,true,[0])];break;
    case 5:
+    work.farParts.push(buildOriginalCropMesh(work.farmSeason,true,[1]));break;
+   case 6:
+    work.farmFar=joinOriginalCropPlotMeshes(work.farParts);work.farParts=null;
+    Object.assign(farmScene,work.priorFarmScene);break;
+   case 7:
+    work.nearCropHash=hashAuthenticCivicCoreVertices(work.farmNear);
+    work.farCropHash=hashAuthenticCivicCoreVertices(work.farmFar);
+    getOrBuildFarmSeasonMeshes(work.farmSeason,{
+      season:work.farmSeason,near:work.farmNear,far:work.farmFar,
+      counters:work.nearFarmCounters});
+    work.farmNear=null;work.farmFar=null;
+    prepareResidentFarmFields(work.farmSeason);break;
+   case 8: farmstead();break;
+   case 9:
     windmill(-27,-18,0);
     fenceLine(16,-2,6,false,FIELD_TO_GRANARY_GATE);
     fenceLine(16,4,6);fenceLine(16,-2,4,true);fenceLine(25,-2,4,true);
     riverBridge();break;
-   case 6: hillsideSanctuary();forgeWorkshop();break;
-   case 7: market(0,5);break;
-   case 8: marketQuarter();break;
-   case 9:
+   case 10: hillsideSanctuary();forgeWorkshop();break;
+   case 11: market(0,5);break;
+   case 12: marketQuarter();break;
+   case 13:
     highStreetStats.totalTriangles=renderFoundingHighStreetLanes();break;
-   case 10:
+   case 14:
     highStreetStats.totalTriangles+=renderFoundingStreetfronts();break;
-   case 11: renderRetainedCivicFixtures();break;
-   case 12:
+   case 15: renderRetainedCivicFixtures();break;
+   case 16:
     if(!rememberCivicCore(key,0)||
        !civicCoreCache.get(key)?.vertices?.length||
        (civicGpuResidencyEnabled&&!civicCoreCache.get(key)?.buffer))
-      throw Error('W459 unable to retain complete original civic vertices');
+      throw Error('W460 incomplete original civic vertices');
     break;
    default:throw Error('W457 invalid civic prewarm stage');
   }
@@ -32293,6 +32344,8 @@ function prewarmOriginalCivicCoreBeforeFirstScene(){
   data=formerData;currentMaterial=formerMaterial;
  }
  if(!successful){
+  if(work.priorFarmScene)Object.assign(farmScene,work.priorFarmScene);
+  work.nearParts=null;work.farParts=null;work.farmNear=null;work.farmFar=null;
   civicCorePrewarmLast=work;civicCorePrewarm=null;
   return false;
  }

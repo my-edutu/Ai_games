@@ -34,12 +34,14 @@ jobs:
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
           CI: '1'
-        run: npx playwright test tests/browser/tiny-kingdom-w457-civic-prewarm.spec.cjs --workers=1 --reporter=line --output=test-results/w457-civic
+          PLAYWRIGHT_HTML_OUTPUT_DIR: test-results/w460-evidence-report
+          PLAYWRIGHT_HTML_OPEN: never
+        run: npx playwright test tests/browser/tiny-kingdom-w457-civic-prewarm.spec.cjs --workers=1 --reporter=line,html --output=test-results/w457-civic
       - name: Preserve actual screenshots/videos/core identity and CPU-stage traces
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: tiny-kingdom-w457-original-civic-split
           path: test-results/
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 14

@@ -27,7 +27,7 @@ test('W457 original complete civic core is frame-sliced without changing authore
     core:g.getCivicCoreResidencyAudit(),
     scene:g.renderStats(),cold:g.getColdSceneryBuildAudit(),
     triangles:g.getGeometryAudit().totalTriangles,
-    geometry:g.getGeometryAudit(),worldChecksum:g.exportSnapshot().checksum,
+    geometry:g.getGeometryAudit(),farm:g.getFarmFieldResidencyAudit(),worldChecksum:g.exportSnapshot().checksum,
     worldTime:g.getState().state.t,
     people:g.metrics().citizens,buildings:g.metrics().buildings,
     gl:document.querySelector('#world').getContext('webgl')?.getError(),
@@ -51,14 +51,17 @@ test('W457 original complete civic core is frame-sliced without changing authore
    // Software WebGL must stage the authentic CPU vertex fallback.
    expect(snap.prewarm.delivery).toBe(snap.core.gpuResident?'resident-GPU-VBO':'complete-CPU-vertex-cache');
    expect(snap.prewarm.completed).toBe(1);
-   expect(snap.prewarm.last.slices).toHaveLength(13);
+   expect(snap.prewarm.last.slices).toHaveLength(17);
    expect(snap.prewarm.last.slices.map(s=>s.name)).toEqual([
-    'guildhall','original-grain-near-tier','original-grain-far-tier',
+    'guildhall','near-field-0','near-field-1','near-field-merge',
+    'far-field-0','far-field-1','far-field-merge',
     'grain-GPU-residency','granary-and-threshing-yard',
     'windmill-fences-bridge','sanctuary-forge','receiving-market',
     'market-quarter','authentic-high-street','original-streetfronts',
     'village-fixtures','exact-GPU-residency']);
    expect(snap.prewarm.last.residentCoreHash).toBe(snap.core.sourceHash);
+   expect(snap.prewarm.last.nearCropHash).toBe(snap.farm.nearSourceHash);
+   expect(snap.prewarm.last.farCropHash).toBe(snap.farm.farSourceHash);
    expect(snap.core.reuses).toBeGreaterThanOrEqual(1);
   }else expect(snap.prewarm.completed).toBe(0);
   results.push({mode,...snap});
@@ -67,6 +70,9 @@ test('W457 original complete civic core is frame-sliced without changing authore
  expect(results[0].worldChecksum).toBe(results[1].worldChecksum);
  expect(results[0].worldTime).toBe(results[1].worldTime);
  expect(results[0].core.sourceHash).toBe(results[1].core.sourceHash);
+ expect(results[0].farm.nearSourceHash).toBe(results[1].farm.nearSourceHash);
+ expect(results[0].farm.farSourceHash).toBe(results[1].farm.farSourceHash);
+ expect(results[0].farm.plotRanges).toEqual(results[1].farm.plotRanges);
  expect(results[0].triangles).toBe(results[1].triangles);
  expect(results[0].scene.lastFrameTriangles).toBe(results[1].scene.lastFrameTriangles);
  // Original houses, market and granary remain present on a physical mobile
@@ -79,7 +85,7 @@ test('W457 original complete civic core is frame-sliced without changing authore
   null,{timeout:150000});
  const mobile=await page.evaluate(()=>{
   const g=window.__tinyKingdom;
-  return {core:g.getCivicCoreResidencyAudit(),prewarm:g.getCivicCorePrewarmAudit(),
+  return {core:g.getCivicCoreResidencyAudit(),prewarm:g.getCivicCorePrewarmAudit(),farm:g.getFarmFieldResidencyAudit(),
    triangles:g.getGeometryAudit().totalTriangles,people:g.metrics().citizens,
    worldChecksum:g.exportSnapshot().checksum,
    overflow:document.documentElement.scrollWidth-innerWidth,
@@ -91,6 +97,8 @@ test('W457 original complete civic core is frame-sliced without changing authore
  expect(mobile.prewarm.delivery).toBe(mobile.core.gpuResident?'resident-GPU-VBO':'complete-CPU-vertex-cache');
  expect(mobile.prewarm.completed).toBe(1);
  expect(mobile.core.sourceHash).toBe(results[0].core.sourceHash);
+ expect(mobile.farm.nearSourceHash).toBe(results[0].farm.nearSourceHash);
+ expect(mobile.farm.farSourceHash).toBe(results[0].farm.farSourceHash);
  expect(mobile.worldChecksum).toBe(results[0].worldChecksum);
  expect(mobile.triangles).toBeLessThan(160000);
  expect(mobile.overflow).toBeLessThanOrEqual(0);
