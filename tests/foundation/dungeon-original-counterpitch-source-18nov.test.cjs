@@ -287,3 +287,54 @@ test('RED: 183ms source probe may retain independently measured safe deeper coun
  ])assert.equal(choose({...input,...damaged}),null,
    'no untrusted source, worse loaded shoe, excessive deformation or heel-dominant acceptance');
 });
+
+
+test('original 150ms licensed three-joint pitch can be recognised without weakening the generic 20mm shoe gate',()=>{
+ // Exact independently witnessed original 390px source skin from failing
+ // WebGL at f26a04b6 / Actions 44529028565; source right-shoe readback.
+ // The toe is STILL buried: this proves neither contact nor visual quality.
+ const {certifyOriginalSource150msThreeJointPitch}=require(
+  '../browser/dungeon-session03-coupled-pitch-proof.cjs');
+ const proof={
+  sourceInstanceId:'original-same-clone',sourceClip:'Walking_A',
+  sourceWeight:1,witnessedSourceWeight:1,
+  witnessedFrameIntervalSeconds:.14999999999999858,
+  witnessedRootTravelMeters:.07515023427613743,
+  witnessedRootTravelAgeSeconds:0,sourceProbeCount:4,
+  oppositeShoePreserved:true,finalIndependentSourceSkin:true,
+  originalWorldSolePitchAxisVerified:true,contactLocked:false
+ };
+ const coupled={
+  source:'measured-original-skinned-coupled-knee-foot',
+  sourceClip:'Walking_A',sourceJointCount:3,
+  upperRad:-.11,lowerRad:.11,footRad:.24,toeRad:0,
+  oppositeShoePreserved:true,contactLocked:false,
+  finalIndependentSourceSkin:true
+ };
+ const before={toeY:-.0971185077954275,heelY:.2030813074415244};
+ const after={toeY:-.08095895075468096,heelY:.21615966579343246};
+ const actual=certifyOriginalSource150msThreeJointPitch({proof,coupled,before,after});
+ assert.ok(actual,'genuine 150ms source pitch with 16.159mm lift should be classified, not falsely rejected as a generic pose');
+ assert.equal(actual.contactLocked,false);
+ assert.equal(actual.plantCertified,false);
+ assert.ok(actual.toeLiftMeters>=.016&&actual.toeLiftMeters<.02);
+ assert.ok(actual.relativePitchGainMeters>=.0025);
+ const rejected=[
+  {proof:{...proof,witnessedFrameIntervalSeconds:.09}},
+  {proof:{...proof,witnessedSourceWeight:.8}},
+  {proof:{...proof,finalIndependentSourceSkin:false}},
+  {proof:{...proof,witnessedRootTravelMeters:0}},
+  {proof:{...proof,oppositeShoePreserved:false}},
+  {proof:{...proof,sourceInstanceId:''}},
+  {coupled:{...coupled,sourceJointCount:4}},
+  {coupled:{...coupled,footRad:.36}},
+  {coupled:{...coupled,oppositeShoePreserved:false}},
+  {before:{...before,toeY:-.11}},
+  {after:{...after,toeY:-.094}},
+  {after:{...after,heelY:.225}},
+ ];
+ for(const invalid of rejected)
+  assert.equal(certifyOriginalSource150msThreeJointPitch({
+   proof,coupled,before,after,...invalid
+  }),null,'only independently source-qualified 150ms licensed pitch can use the narrow exception');
+});
