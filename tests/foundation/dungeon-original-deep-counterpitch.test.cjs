@@ -1151,3 +1151,72 @@ test('RED: original-world-sole-certified shallow 390px swing can keep genuine me
  ])assert.equal(choose({...original,starter,trials:[trial]}),null,
   'no heel-dominant, insufficient-toe or changed supporting-shoe pass');
 });
+
+
+// VERIFIED BEFORE sole numbers and original four-skinned-shoe trial deltas:
+// Actions #44570706458, original source-rig artifact #14556845860,
+// genuine 1440px Vanguard Walking_A 233.3ms tick-4 frame on SHA 26d5676c.
+// XZ below preserves the measured 51.739mm source outsole projection but
+// is a LOCAL CONTRACT FIXTURE, not an invented paired AFTER screen capture.
+// The original loaded opposite skinned shoe did not move in any of four trials.
+// The positive fourth native thigh/calf/foot/toes[l] probe is +23.7355mm toe,
+// +17.6763mm heel (6.0592mm improved pitch), still ~35.759mm in stone.
+test('RED: 233ms licensed desktop toes-child hip-knee-foot chain retains a real measured safer outsole pitch, not a foot plant',async()=>{
+ const {planOriginalSourceCoupledFootStarter:plan,
+  chooseOriginalSourceCoupledKneeFootSweep:choose}=await load();
+ const sourceSwing={heelY:.22280565885263134,toeY:-.07949453120689878,
+  heelXZ:[0,0],toeXZ:[.05173882251232221,0]};
+ const sourceSupport={heelY:.003473126636236841,
+  toeY:-.008797885236894617,
+  heelXZ:[1,0],toeXZ:[1.28,0]};
+ const skinned=(toe,heel,support=sourceSupport)=>({
+  left:{...sourceSwing,toeY:sourceSwing.toeY+toe,
+   heelY:sourceSwing.heelY+heel},
+  right:{...support}
+ });
+ const src={...owner,sourceInstanceId:'authentic-41-joint-Vanguard-desktop',
+  side:'left',sourceWorldSolePitchVerified:true,
+  sourceToeTrackVerified:true,sourceToeChainVerified:true,
+  sourceToeSkinnedWeight:1,
+  rootTravel:.05,frameAge:.03,frameInterval:.2333,
+  before:{left:sourceSwing,right:sourceSupport},
+  starterTrials:[
+   {upperRad:.12,lowerRad:-.09,
+    after:skinned(-.014068673366762194,-.03227424146533772)},
+   {upperRad:-.12,lowerRad:.09,
+    after:skinned(.023636583821103375,.028618552736668218)}
+  ]};
+ const starter=plan(src);
+ assert.equal(starter?.sign,-1);
+ assert.ok(Math.abs(starter.excessHeelRiseMeters-.004981968915564843)<1e-9);
+ const observed={upperRad:-.11,lowerRad:.14,footRad:.24,
+  toeRad:-.14,sourcePreplannedToeHingeVerified:true,
+  after:skinned(.023735534913938067,.01767629816146879)};
+ const outcome=choose({...src,starter,trials:[observed]});
+ assert.equal(outcome?.source,'measured-original-skinned-coupled-knee-foot');
+ assert.equal(outcome.sourceJointCount,4);
+ assert.equal(outcome.contactLocked,false);
+ assert.ok(outcome.afterToeY<src.floorTopY,
+  'real trial remains ~35.8mm below stone: never certify planted gait');
+ assert.ok(outcome.toeLiftMeters-outcome.sourceHeelRiseMeters>.006);
+ for(const denied of [
+  {sourceWorldSolePitchVerified:false},{sourceToeTrackVerified:false},
+  {sourceToeChainVerified:false},{sourceToeSkinnedWeight:.7},
+  {sourceFootTrackVerified:false},{sourceBindVerified:false},
+  {sourceWeight:.8},{rootTravel:0},{frameAge:.2},
+  {sourceClipName:'Idle'},{reducedMotion:true},{interrupted:true},
+  {teleport:true},{frameInterval:.25}
+ ]) assert.equal(choose({...src,...denied,starter,trials:[observed]}),null,
+  'original native imported toe/foot authority and legal root travel must hold');
+ for(const unsafe of [
+  {...observed,sourcePreplannedToeHingeVerified:false},
+  {...observed,toeRad:-.32},
+  {...observed,footRad:.30},
+  {...observed,after:skinned(.023735534913938067,.022)},
+  {...observed,after:skinned(.014,.006)},
+  {...observed,after:skinned(.023735534913938067,.01767629816146879,
+   {...sourceSupport,toeY:sourceSupport.toeY+.005})}
+ ]) assert.equal(choose({...src,starter,trials:[unsafe]}),null,
+  'no unverified toe lever, wrong source angles, heel-dominance or changed loaded shoe');
+ // This receipt does not establish 24fps walking, foot plants or all-role acceptance.
+});
