@@ -413,15 +413,28 @@ export function chooseMazeAction(
     // most TWO extra legal steps. Loops and any newly discovered priority
     // (guardian, key, known exit or inscription) retain their existing rules.
     // Never read the world seed, private tiles or a future guardian route.
-    const previousFrontier = !cyclic
+    // The genuine 529-tick flagship audit showed that simple target memory
+    // alone did not shorten the long post-counter journey. Prefer a SAFE
+    // near-shortest route that actually crosses fewer repeatedly visited
+    // PUBLIC cells. Only frontiers within two legal steps of the closest
+    // candidate qualify: do not speculate about undiscovered keys, walls,
+    // guardians or directions. A genuine cycle still abandons the fork.
+    const remembered = !cyclic
       && (state.ai.mode === 'exploring' || state.ai.mode === 'revising-map')
-      && Number.isSafeInteger(state.ai.targetCell)
-      ? frontierCandidates.find(item => item.frontier === state.ai.targetCell
-        && item.path!.path.length <= nearestFrontierSteps + 2)
-      : undefined;
-    const selected = previousFrontier ?? (cyclic && frontierCandidates.length > 1
+      ? state.ai.targetCell : null;
+    const ranked = frontierCandidates
+      .filter(item => item.path!.path.length <= nearestFrontierSteps + 2)
+      .map(item => {
+        const repeatCost = item.path!.path.slice(1, -1).reduce((sum, cell) =>
+          sum + Math.min(5, Math.max(0, (belief.cells[String(cell)]?.visits ?? 0) - 1)), 0);
+        return { item, score: (item.path!.path.length - 1) * 2 + repeatCost };
+      })
+      .sort((a, b) => a.score - b.score
+        || Number(b.item.frontier === remembered) - Number(a.item.frontier === remembered)
+        || a.item.frontier - b.item.frontier);
+    const selected = cyclic && frontierCandidates.length > 1
       ? frontierCandidates[1]!
-      : frontierCandidates[0]!);
+      : ranked[0]!.item;
     const path = selected.path!;
     return {
       action: { kind: 'move', targetCell: path.path[1]! },
@@ -430,7 +443,7 @@ export function chooseMazeAction(
         confidence: cyclic ? 0.72 : 0.8,
         explanation: cyclic
           ? 'The recent route repeated; switching to a different observed frontier.'
-          : 'Expanding the nearest reachable frontier using only discovered passages.',
+          : 'Expanding a near-shortest frontier while avoiding repeated public corridors.',
         nodeExpansions: path.expansions,
         fallbackUsed: false,
       },

@@ -1,3 +1,11 @@
+## Pass512 — replace ineffective frontier target memory with bounded public revisit cost (2026-11-19 UTC)
+
+- Pass511 exact HEAD `a75673cfb64a8ae4be884a5afa68c42cd6c1c099`, [native WebGL 44530466241](https://github.com/my-edutu/Ai_games/actions/runs/44530466241) SUCCESS **8/8**, including strict <100 six-reset resource check and natural default partial-observation escape **529 ticks**. Original artifact 14534706423 downloaded and **42/42 paired unaltered PNG SHA256 sidecars** matched, 390px guardian still visually crowded and original 390px escape portal remains visible. The expected pacing improvement from Pass511 **DID NOT OCCUR**: key still tick518 after counter33 (485 ticks).
+- Production attempt chooses among legally reachable frontiers only within TWO known steps of closest; penalizes genuinely previously visited cells in those known route prefixes (bounded revisit cost), ties preserve previous public target, loops and active priorities remain. Goal: more coherent exploration and fewer repeated route walks; no private key/maze, invented event, encounter, weakened framing or geometry budget.
+- Focused tests check same-length branch with real revisits and the two-step detour ceiling. **New exact-HEAD pacing and 8/8 native evidence PENDING; NO pacing/visual win claimed.** Whole repo 44530466352 fails at separate Tiny Kingdom OBS after successful Build and test. Independent critic/Ultracode workspace NOT_FOUND. Open DRAFT PR #53; unmerged/undeployed; scheduled gauntlet stays active. [Review](./maze-3d/pass-512-public-revisit-budget-native-2026-11-19.md).
+
+---
+
 ## Pass511 — public frontier follow-through candidate after exact-head native Pass510 critique (2026-11-19 UTC)
 
 - Incoming exact PR HEAD `e947c8c367ffb90520867684072b8d74f6c96891`: [native WebGL 44527312071](https://github.com/my-edutu/Ai_games/actions/runs/44527312071) **SUCCESS**, its original [artifact 14532897070](https://github.com/my-edutu/Ai_games/actions/runs/44527312071/artifacts/14532897070) downloaded. Independently validated **42/42 original PNG and JSON SHA256 sidecars** (no crop), original unforced 529-tick default Tideglass escape, six-reset geometry <100. Whole-repo CI red separately in Tiny Kingdom OBS.

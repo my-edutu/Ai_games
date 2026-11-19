@@ -51,3 +51,27 @@ test('a genuine repeated path cycle abandons the remembered goal and explores el
   assert.equal(d.targetCell,3);
   assert.equal(d.intent.mode,'revising-map');
 });
+
+test('prefer a NEW safe public corridor over repeated marching through familiar tiles',()=>{
+  const s=scenario(null);
+  s.belief.cells['4'].visits=7;
+  s.belief.cells['0'].visits=6;
+  const d=chooseMazeAction(s.state,s.observation,s.belief);
+  assert.equal(d.targetCell,3,'equally short frontier with fewer actual revisits must win');
+  assert.deepEqual(d.plannedPath,[5,6,7,3]);
+  assert.deepEqual(d.action,{kind:'move',targetCell:6});
+});
+test('do not chase a distant imagined novelty over an actual nearby frontier',()=>{
+  const s=scenario(null);
+  s.belief.cells['4'].visits=7;
+  s.belief.cells['0'].visits=6;
+  // All these links are PUBLIC, but the newly discovered branch has become
+  // at least three legal steps longer than the closest safe frontier.
+  s.belief.cells['7'].neighbors=[6,8];
+  for(const [id,neighbors] of [
+    [8,[7,9]],[9,[8,10]],[10,[9,3]]
+  ])s.belief.cells[String(id)]=cell(id,neighbors);
+  const d=chooseMazeAction(s.state,s.observation,s.belief);
+  assert.equal(d.targetCell,1,'two-step candidate cap protects ordinary route length');
+  assert.deepEqual(d.action,{kind:'move',targetCell:4});
+});

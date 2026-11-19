@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-19T13:00:00.000Z",
+  "updatedAt": "2026-11-19T14:29:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass511: Pass510 exact-HEAD native WebGL #44527312071 succeeded; original 42/42 paired full-frame screenshot hashes verified and 529-tick natural partial-observation escape confirmed. Mobile Thornback is partially more readable but 390px remains crowded; NOT Nintendo-quality pass. Public legal frontier follow-through is new gameplay candidate for 485-tick post-guardian delay; no pacing win claimed before exact-head natural audit. Independent critic unavailable; PR open draft."
+    "summary": "Pass512: Pass511 exact-source WebGL #44530466241 8/8 success, authentic 529-tick escape unchanged, 42/42 original mobile/desktop PNG hashes matched; the old frontier-memory candidate did NOT shorten guardian33→key518. 390px Thornback still obscured by its own shell and foreground court. New production candidate scores ONLY publicly known near-shortest frontier routes by actual revisits; independent new SHA gameplay and native visual verdict pending. No Nintendo-quality win. PR open draft."
   },
   "captures": [
+    {
+      "title": "Pass511 exact HEAD a75673cf native WebGL SUCCESS, 42/42 source-matched full-frame PNG sidecars, unchanged natural key518/escape529; Pass512 candidate pending",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44530466241/artifacts/14534706423"
+    },
     {
       "title": "Pass510 exact HEAD e947c8c WebGL SUCCESS: 42/42 native original PNG-SHA sidecars validated; uninterrupted default escape at 529 ticks; 390px guardian remains crowded; Pass511 candidate pending",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44527312071/artifacts/14532897070"
