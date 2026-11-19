@@ -90,6 +90,12 @@
     "hardwareP50P95P99Memory": "NOT EVALUATED",
     "largestGap": "Abrupt bronze/violet old-new room, 0s sustained mixed room, missing strict event-matched 2+ contiguous normal-speed native frames proving complete moving hero + truly opened original HP0 gate + physically walkable F9 in desktop and portrait.",
     "nextAction": "Run source-pinned matched nine-job original 1x >=60s baseline/candidate capture at immutable new SHA, inspect actual native full-motion and returned GPU material/horizon state. If mixed-room remains zero, target first F9 cold CPU/GPU and physical camera occlusion, not another test-only patch.",
-    "safeguards": "Draft PR68 remains open, PR58 untouched, baseline immutable, no merge/deploy/force-push or excluded-game modifications."
+    "safeguards": "Draft PR68 remains open, PR58 untouched, baseline immutable, no merge/deploy/force-push or excluded-game modifications.",
+    "newImmutableCaptureSourceSha": "e36bdca45e34bf91a99d73e3febcaf56a41a8ef2",
+    "newImmutableCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/44603378396",
+    "newExactSourceQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44603378404",
+    "requestResultAtInspection": "All eight original baseline/candidate motion jobs and the authentic ledge job were in progress; zero new movie result or acceptance is claimed.",
+    "qualityObserved": "At source ad9528c2, 9/10 technical jobs passed including all four phase3 shards and integrity; phase6 0 failed exit 124 in tests/phase6/maze-readiness-score.test.cjs due 75s timeout (unrelated game code untouched). This is a veto, not a Tower pass. New exact-source e36bdca45 CI has 9 jobs passing, phase6 in progress at inspection; no 10/10 asserted.",
+    "newProductionShaMatchesCapture": true
   }
 }
