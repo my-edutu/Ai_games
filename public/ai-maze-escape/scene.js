@@ -1146,7 +1146,16 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       // old in-page canvas. Preserve the already-disclosed pair/terrain span
       // without altering object scale, AI, hidden cells or route direction.
       if (cameraMode === 'follow' && height >= 340) {
-        targetHeight = publicFullBleedFollowHalfHeight(aspect, targetHeight);
+        // A genuine same-run terminal Follow shot already has its OWN
+        // physically tested full-model frame. The ordinary narrow portrait
+        // sea-stage expansion would enlarge its authored 5.10 half-height to
+        // 7.73 on 390px (actual failing native SHA 6f45fbee ancestry),
+        // making Pip and the opening portal tiny again. Keep that safety
+        // expansion for EVERY running/failed/hidden/reduced/manual view.
+        // Do not weaken the downstream real Pip/arch +/-0.95 WebGL checks:
+        // this is only a closer optical request, not automatic approval.
+        targetHeight = publicVictoryScene ? targetHeight
+          : publicFullBleedFollowHalfHeight(aspect, targetHeight);
         // Real native 390px tick5: Pip was only 0.46979 NDC wide, below
         // the unchanged >0.49 readable-action bar, even with BOTH real
         // silhouettes in-frame. Tighten only a witnessed pressure-first

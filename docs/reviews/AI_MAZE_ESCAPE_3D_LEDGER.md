@@ -1,3 +1,11 @@
+## Pass505 — repair actual Pass503 native full-frame ending obstruction (2026-11-19 UTC)
+
+- **Confirmed exact-head real blocker:** Pass503 [native WebGL 44474480759](https://github.com/my-edutu/Ai_games/actions/runs/44474480759) rendered 8/9 browser tests successfully, but failed the authentic uninterrupted 390px escape camera: actual optical half-height **7.725846** instead of required **<5.3**. Generic mobile full-bleed expansion undid the terminal-specific 5.10 authored shot. Earlier source, Chromium initialization and six-reset geometry <100 were green. This is **not** a stale test.
+- **Production fix:** only authentic same-run publicly witnessed terminal Follow excludes *generic exploratory portrait ocean widening*; all other states preserve the original safety lens. **Do not change the strict native ±0.95 full Pip + connected moving arch/observatory, hinge angle or <5.3 test**. Added explicit source guard regression; exact-HEAD native evidence PENDING, artistic acceptance PENDING. [Dated review](./maze-3d/pass-505-authentic-terminal-portrait-stage-2026-11-19.md).
+- Pass504 original observed clue-guided exploration also awaits exact-source natural chapter pacing verdict; no unproven 485-tick benefit, no Nintendo-quality win, no merge/deploy.
+
+---
+
 ## Pass504 — public Tideglass inscription now influences bounded genuine exploration (2026-11-19 UTC)
 
 - Incoming exact PR #53 HEAD `39ac19b27400d0edb3fbdadb4973863fdb18ec75`. A presently or previously **observed** unvisited clue gets a legal safe-route objective only within eight real moves and a two-step detour against the nearest discovered frontier. Physical entry produces the original real clue engine event; minimal native goal/intent labels. Existing threat, pressure, key/exit priorities, collision, deterministic replay, hidden-map/privacy, and strict NDC/geometry limits unchanged. Focused regression includes genuine passage/engine event, stale/visited, sealed and hidden exclusions.
