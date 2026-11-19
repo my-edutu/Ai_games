@@ -1,3 +1,11 @@
+## Pass518 — native guardian parry artwork rejected; 30-degree physical portrait candidate (2026-11-19 UTC)
+
+- Authentic Pass517 [native WebGL 44601909063](https://github.com/my-edutu/Ai_games/actions/runs/44601909063) SUCCESS on exact incoming `0409014b6ec85eed6a149333169b5750b254a63d`. Original [artifact 14568297566](https://github.com/my-edutu/Ai_games/actions/runs/44601909063/artifacts/14568297566) ZIP SHA256 `3f4348cd16462491019a632c36e51ae13bead851a14c883a04ae205b8e29894c`, original **42/42** PNG SHA sidecars and **3/3** chronological gate images independently rechecked. Actual 390/320 Pip/Thornback parry image shows a brighter physically connected public lantern line, but both actors remain too small, divided by clutter: Nintendo quality REJECTED. Full CI separately red (Tiny Kingdom OBS).
+- New one-unit source candidate: real current SAME-RUN public-earned Follow camera rotates toward nearer 30-degree face-quarter rather than 45, with safe 1.82rad bounded azimuth rather than 1.30; unchanged physical radius/elevation, actor/world physics, AI/private knowledge, reduced motion, HUD, original +/- .95/withdrawal and <100 geometry gates. True-pair projection math predicts ~39% less horizontal separation; NOT original rendered evidence. Focused direct portrait math/negative tests added. [Dated original critique and next strict acceptance](./maze-3d/pass-518-source-bound-earned-counter-portrait-redirection-2026-11-19.md).
+- New exact-HEAD screenshot CI, original frame visual critique, independent worker and Nintendo acceptance PENDING. PR remains DRAFT, unmerged/undeployed; Gauntlet active.
+
+---
+
 ## Pass516 — real visible public lantern impact candidate (2026-11-19 UTC)
 
 - Incoming exact source \`7afa9b9d4a7da44f8728e193f5597fc1309c99d8\`: [native WebGL 44580732413](https://github.com/my-edutu/Ai_games/actions/runs/44580732413) **SUCCESS**; original artifact 14559191662 retrieved and **42/42 paired full PNG SHA hashes** independently rechecked. Actual 390px earned guardian \`6e3726fb...\` still hides the energy-transfer story in a small clay-colored Thornback against dense ruins despite a real full-body recoil and camera.

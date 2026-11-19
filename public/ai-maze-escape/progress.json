@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-19T19:15:00.000Z",
+  "updatedAt": "2026-11-19T21:51:35.650Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass516 source candidate: exact Pass515 native WebGL 44580732413 SUCCESS on 7afa9b9d, original 42/42 paired full-frame PNG SHA verified, 390px earned guardian still has weak lantern-to-Thornback contact storytelling. Production now stages a pooled 3D impact ring and core light ONLY on the existing genuine public counter with verified reciprocal one/two open links; no AI changes. New exact-HEAD screenshot/CI and independent Nintendo quality review PENDING; benchmark NOT MET, draft, no merge/deploy."
+    "summary": "Pass518 source candidate: Pass517 exact HEAD 0409014b WebGL #44601909063 SUCCESS; original 42/42 full-frame PNG and 3/3 gate transition hashes validated. True earned-counter 320/390 actors are physically in frame but too separated and small; Nintendo bar rejected. Production source now stages only current publicly earned Pip/Thornback portrait from nearer 30-degree front quarter (was 45), bounded 1.82rad (was 1.30), preserving camera radius/elevation, true original strict NDC and private AI. Source math predicts 39% separation compression; new exact-HEAD native screenshots/CI and independent art verdict PENDING, no quality win claimed. Draft, no merge/deploy."
   },
   "captures": [
+    {
+      "title": "Pass517 exact-head 0409014b WebGL SUCCESS: 42 original native PNG pairs plus 3 genuine gate hashes; source candidate Pass518 not yet screenshot-approved",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44601909063/artifacts/14568297566"
+    },
     {
       "title": "Pass515 exact 7afa9b9d native WebGL success; 42/42 original SHA-verified PNG sidecars, natural 136-tick chapter; Pass516 source light-impact candidate not yet rendered",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44580732413/artifacts/14559191662"

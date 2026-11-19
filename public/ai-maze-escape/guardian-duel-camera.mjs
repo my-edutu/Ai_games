@@ -275,13 +275,18 @@ export function setPublicEarnedGuardianFrontQuarterOffset(
   const normal=Math.atan2(offset.z,offset.x);
   const face=Math.atan2(dz,dx);
   const difference=angle=>Math.atan2(Math.sin(angle-normal),Math.cos(angle-normal));
-  // Keep a readable side of the actual mask (not a dead-on flat overlap).
-  // Pick the nearer 45-degree quarter and limit cinematic rotation to
-  // 1.30 rad from the already source-verified above-deck camera.
-  const flank=Math.PI*.25;
+  // Pass518 genuine full-frame 320/390 earned counter: both published
+  // actors occupied opposite edges, too small for a readable face/reaction.
+  // Stage the nearer 30-degree face-quarter, not a nearly sideways 45-degree
+  // silhouette, and permit the REAL azimuth to reach that view from +X/+Z.
+  // This compresses physical pair separation in projection before the
+  // existing FULL connected-mesh NDC lens fitter. Radius/elevation, actor
+  // roots, hidden-map protection and strict no-crop thresholds are unchanged.
+  // Accept only after fresh, uncropped exact-SHA source-bound WebGL evidence.
+  const flank=Math.PI/6;
   const left=difference(face-flank),right=difference(face+flank);
   const delta=Math.abs(left)<=Math.abs(right)?left:right;
-  const turn=Math.max(-1.30,Math.min(1.30,delta));
+  const turn=Math.max(-1.82,Math.min(1.82,delta));
   if(Math.abs(turn)<.045)return false;
   offset.x=radius*Math.cos(normal+turn);
   offset.z=radius*Math.sin(normal+turn);
