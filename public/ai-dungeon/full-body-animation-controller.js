@@ -5383,6 +5383,47 @@ export function planImportedWitnessedHurtMixerFrame({
  * Guard/idle return, death, cast, hurt, attack, escape, teleport, reduced
  * motion and uncorroborated movement preserve the established fade.
  */
+/**
+ * Genuine imported source-rig WALK->Idle/Guard tail. A legal authoritative
+ * arrival may begin fading into original Idle while the rendered root is
+ * STILL covering previously authorized travel. Keep the same 41 keyed joints
+ * crossfading as one body for a bounded, measured part of that movement.
+ *
+ * Source fact, not an inferred hit or planted foot: authentic 390px CC0
+ * Walking_A rAF evidence witnessed 155.23mm/350ms of root travel; the
+ * older continuous film has multiple original Idle source poses during
+ * visible ~1m tick-to-tick movement. That footage is NOT a captured exit
+ * transition, so this remains a source-owner hypothesis requiring AFTER
+ * WebGL verification, not proof of clean contact or fluency.
+ *
+ * No new clip, clip time seek, root translation, IK, gameplay authority,
+ * damage, camera or accessory transformation. A stopped actor, invalid rig,
+ * death, interruption, accessibility mode or nonmoving source frame keeps
+ * the existing ordinary 230ms imported fade.
+ */
+export function planImportedWalkExitMovingFade({
+ mode='idle',previousMode='idle',previousClipName='',nextClipName='',
+ sourceInstanceSame=false,previousSourceRunning=false,
+ previousSourceWeight=NaN,alive=false,visible=false,teleport=false,
+ interrupted=false,reducedMotion=false,groundedTravel=NaN,frameInterval=NaN
+}={}){
+ if(!['idle','guard'].includes(mode)||previousMode!=='move'||
+  previousClipName!=='Walking_A'||nextClipName!=='Idle'||
+  sourceInstanceSame!==true||previousSourceRunning!==true||
+  !finite(previousSourceWeight)||previousSourceWeight<.55||
+  previousSourceWeight>1.001||alive!==true||visible!==true||
+  teleport||interrupted||reducedMotion||
+  !finite(groundedTravel)||!finite(frameInterval)||
+  groundedTravel<.035||groundedTravel>.54||
+  frameInterval<.016||frameInterval>1.2)return .23;
+ const observedSpeed=groundedTravel/frameInterval;
+ if(observedSpeed<.20||observedSpeed>2.5)return .23;
+ // A full original walk-to-idle joint blend may span the remaining root
+ // travel. This is a cosmetic crossfade only, not a source-foot contact
+ // lock or a faster/different source-mixer movement step.
+ return frameInterval<=.55?.34:.40;
+}
+
 export function planImportedRealTravelCrossfade({
  mode='idle',previousMode='idle',sourceClipName='',
  ownerLocomotion=false,groundedMoving=false,groundedTravel=NaN,
