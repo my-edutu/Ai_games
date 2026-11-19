@@ -1718,6 +1718,27 @@ body[data-hud="cinema"] #mobile-transport-disclosure{display:none!important}
 body[data-grain-tracking="on"] #world-supply-trail #world-trace-follow{
  display:none!important;
 }
+
+/* W476: actual visible workers, original camera and live authority only. */
+#world-live-roles{position:fixed;inset:0;z-index:14;pointer-events:none}
+#world-live-roles[hidden],#world-live-roles button[hidden],
+body[data-hud="cinema"] #world-live-roles,
+body[data-village-documentary="on"] #world-live-roles{display:none!important}
+#world-live-roles button{position:absolute;transform:translate(-50%,-100%);
+ pointer-events:auto;min-height:44px;max-width:194px;min-width:116px;
+ padding:7px 10px;text-align:left;white-space:normal;cursor:pointer;
+ background:rgba(24,40,33,.92);color:#fff5d8;
+ border:1px solid #d6b983;border-radius:12px;
+ box-shadow:0 5px 17px #071812b8;font:650 11px/1.25 system-ui}
+#world-live-roles button::after{content:"";position:absolute;top:100%;left:50%;
+ transform:translateX(-50%);border:5px solid transparent;border-top-color:#d6b983}
+#world-live-roles strong{display:block;font-size:11px;color:#f8db9e}
+#world-live-roles small{display:block;margin-top:2px;font-size:10px;
+ font-weight:500;line-height:1.28;color:#d8e9d4}
+#world-live-roles button[data-kind="cargo"]{border-color:#9ad9c5}
+#world-live-roles button:focus-visible{outline:3px solid #fff0b7;outline-offset:3px}
+@media(max-width:520px){#world-live-roles button{max-width:148px;min-height:44px;
+ padding:6px 8px}#world-live-roles small{font-size:9px}}
 </style></head><body>
 <canvas id="world" tabindex="0" aria-label="Live 3D medieval valley. Tap a visible villager to follow genuine work. Drag to orbit, Shift-drag or two-finger drag to pan, pinch or scroll to zoom. Home returns to village, F follows a citizen, V walks the streets; Enter selects a visible citizen."></canvas><div id="kingdom-stage-status" role="status" aria-live="polite">Rebuilding the real valley<small id="kingdom-stage-detail">Terrain, occupied houses and market · complete world before play</small></div><div id="citizen-pick-caption" role="status" aria-live="polite" aria-atomic="true"><span id="citizen-pick-copy"></span><progress id="citizen-pick-meter" value="0" max="100" aria-label="Observed citizen's actual shift or delivery progress" hidden></progress></div><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
@@ -1734,7 +1755,7 @@ body[data-grain-tracking="on"] #world-supply-trail #world-trace-follow{
 <div class="panel" id="citizen-card"><h2>☼ Citizen spotlight</h2><button class="btn" id="cycleCitizen" style="font-size:10px;margin:-8px 0 12px;padding:6px 10px;border:1px solid #bdc8a850;border-radius:9px;background:#23382f;color:#dfcfad;cursor:pointer">↻ Next citizen</button><div style="font-family:Georgia,serif;font-size:20px" id="citizen-name">Alina</div><div style="color:#b7c7b8;font-size:12px;line-height:1.7;margin-top:6px" id="citizen-detail">Farmer · tending the fields</div><div style="font-size:10px;color:#d9c08a;margin-top:9px" id="citizen-bond">Every citizen has a story.</div></div></div>
 <div class="feed panel"><h2>✦ Stories unfolding</h2><div id="feed"></div></div>
 <div class="hint">DRAG TO ORBIT · SCROLL TO ZOOM<br>EVERY CITIZEN HAS A NAME AND PURPOSE<br><a href="experience.html">VIEW EXPERIENCE SCORECARD ↗</a> · <a href="progress.html">HISTORY ↗</a></div>
-<aside class="atlas" aria-label="Interactive kingdom map"><div class="atlas-heading"><span>◈ THE KINGDOM ATLAS</span><b>LIVE</b></div><canvas id="atlas-map" width="460" height="330" aria-label="Map of homes and moving villagers; click to move camera"></canvas><div class="atlas-footer"><span id="atlas-season">✧ SEASONAL LANDSCAPE</span><em>↗ PAN CAMERA</em></div><div class="atlas-legend"><span><i style="background:#ffe29b"></i>Village</span><span><i style="background:#f9fce8"></i>People</span><span><i style="background:#7be5f9"></i>River</span></div></aside><button id="mobile-transport-disclosure" type="button" aria-controls="transport-actions" aria-expanded="false" aria-label="Expand all original world playback, save, and camera controls">☷ Controls</button><div class="bottom" id="transport-actions" data-mobile-collapsed="true"><button id="pause" class="btn active">Ⅱ Pause</button><span class="divider"></span><button class="btn active" id="speed1">1× Real time</button><button class="btn" id="speed4">4×</button><button class="btn" id="speed16">16×</button><span class="divider"></span><button class="btn" id="focus">◎ Follow villager</button><button class="btn" id="camera">◈ Cinematic</button><button class="btn" id="command-toggle" type="button" aria-pressed="false" aria-controls="world-ribbon" aria-keyshortcuts="U">◉ World view</button><button class="btn" id="hud-toggle" aria-pressed="false">⌗ Clear HUD</button><button class="btn" id="save">↓ Save world</button><button class="btn" id="restore">↑ Restore world</button><button class="btn" id="restart">↻ New world</button></div><nav id="camera-tools" role="group" aria-label="3D world camera navigation" data-expanded="false"><button type="button" id="camera-disclosure" aria-label="Show actual camera controls" aria-controls="camera-home camera-market-homes camera-near camera-far camera-street camera-survey" aria-expanded="false">☷ Camera</button><button type="button" id="camera-home" aria-label="Return to settlement overview" aria-keyshortcuts="Home">⌂ Village</button><button type="button" id="camera-market-homes" aria-label="View real market and inhabited cottages" aria-keyshortcuts="D">⌂ Trade quarter</button><button type="button" id="camera-near" aria-label="Zoom closer to the village" aria-keyshortcuts="Equal">＋ Near</button><button type="button" id="camera-far" aria-label="Zoom farther from the village" aria-keyshortcuts="Minus">− Far</button><button type="button" id="camera-street" aria-label="Enter or exit real street-level view" aria-pressed="false" aria-keyshortcuts="V">♙ Walk</button><button type="button" id="camera-survey" aria-label="Survey the real farm, receiving market and inhabited homes" aria-keyshortcuts="G">⇢ Supply tour</button></nav><div class="toast" id="toast"></div><div id="market-stock-tag" role="status" aria-live="off" hidden></div><div id="world-actor-tag" role="status" aria-live="off" hidden></div><button id="cinema-exit" type="button" aria-label="Restore game interface">✧ Restore interface · H</button>
+<aside class="atlas" aria-label="Interactive kingdom map"><div class="atlas-heading"><span>◈ THE KINGDOM ATLAS</span><b>LIVE</b></div><canvas id="atlas-map" width="460" height="330" aria-label="Map of homes and moving villagers; click to move camera"></canvas><div class="atlas-footer"><span id="atlas-season">✧ SEASONAL LANDSCAPE</span><em>↗ PAN CAMERA</em></div><div class="atlas-legend"><span><i style="background:#ffe29b"></i>Village</span><span><i style="background:#f9fce8"></i>People</span><span><i style="background:#7be5f9"></i>River</span></div></aside><button id="mobile-transport-disclosure" type="button" aria-controls="transport-actions" aria-expanded="false" aria-label="Expand all original world playback, save, and camera controls">☷ Controls</button><div class="bottom" id="transport-actions" data-mobile-collapsed="true"><button id="pause" class="btn active">Ⅱ Pause</button><span class="divider"></span><button class="btn active" id="speed1">1× Real time</button><button class="btn" id="speed4">4×</button><button class="btn" id="speed16">16×</button><span class="divider"></span><button class="btn" id="focus">◎ Follow villager</button><button class="btn" id="camera">◈ Cinematic</button><button class="btn" id="command-toggle" type="button" aria-pressed="false" aria-controls="world-ribbon" aria-keyshortcuts="U">◉ World view</button><button class="btn" id="hud-toggle" aria-pressed="false">⌗ Clear HUD</button><button class="btn" id="save">↓ Save world</button><button class="btn" id="restore">↑ Restore world</button><button class="btn" id="restart">↻ New world</button></div><nav id="camera-tools" role="group" aria-label="3D world camera navigation" data-expanded="false"><button type="button" id="camera-disclosure" aria-label="Show actual camera controls" aria-controls="camera-home camera-market-homes camera-near camera-far camera-street camera-survey" aria-expanded="false">☷ Camera</button><button type="button" id="camera-home" aria-label="Return to settlement overview" aria-keyshortcuts="Home">⌂ Village</button><button type="button" id="camera-market-homes" aria-label="View real market and inhabited cottages" aria-keyshortcuts="D">⌂ Trade quarter</button><button type="button" id="camera-near" aria-label="Zoom closer to the village" aria-keyshortcuts="Equal">＋ Near</button><button type="button" id="camera-far" aria-label="Zoom farther from the village" aria-keyshortcuts="Minus">− Far</button><button type="button" id="camera-street" aria-label="Enter or exit real street-level view" aria-pressed="false" aria-keyshortcuts="V">♙ Walk</button><button type="button" id="camera-survey" aria-label="Survey the real farm, receiving market and inhabited homes" aria-keyshortcuts="G">⇢ Supply tour</button></nav><div class="toast" id="toast"></div><div id="market-stock-tag" role="status" aria-live="off" hidden></div><div id="world-actor-tag" role="status" aria-live="off" hidden></div><div id="world-live-roles" aria-label="Visible real workers" hidden><button type="button" data-slot="0" hidden aria-label="Follow real working citizen"><strong></strong><small></small></button><button type="button" data-slot="1" hidden aria-label="Follow real working citizen"><strong></strong><small></small></button><button type="button" data-slot="2" hidden aria-label="Follow real working citizen"><strong></strong><small></small></button></div><button id="cinema-exit" type="button" aria-label="Restore game interface">✧ Restore interface · H</button>
 <div class="world-tour" role="group" aria-label="Explore scenic village camera viewpoints"><small>EXPLORE<br>THE VALLEY</small><button class="tour-btn" id="film-ledger" type="button" aria-controls="world-supply-trail" aria-expanded="false" aria-label="Open the real farm-to-market-to-home grain ledger">◈ Grain ledger</button><button class="tour-btn" type="button" id="forge-follow" aria-pressed="false" aria-label="Follow a genuine craftsperson to the guild forge and watch their actual shift">⚒ Watch smith</button><button class="tour-btn" type="button" id="harvest-follow" aria-pressed="false" aria-label="Follow a real farmer cutting wheat at the original field">🌾 Watch farmer</button><button class="tour-btn" type="button" id="forge-sound" aria-pressed="false" aria-label="Turn on optional sound from real blacksmith strikes">♫ Sound off</button><button class="tour-btn" type="button" id="homecoming-follow" aria-pressed="false" aria-label="Follow a real resident returning to an occupied cottage at dusk">⌂ Homecoming</button><button class="tour-btn" type="button" id="workday-live" aria-pressed="false" aria-label="Watch a villager currently working; select the next live shift">☼ Live shift</button><button class="tour-btn" type="button" id="workday-watch" aria-pressed="false" aria-label="Follow a villager who actually completed work">⚒ Workday</button><button class="tour-btn" type="button" id="delivery-follow" aria-label="Follow a villager carrying real goods to the market">▣ Delivery</button><button class="tour-btn" data-scenic="valley" aria-pressed="true">✦ Village</button><button class="tour-btn" data-scenic="market" aria-pressed="false">◈ Market</button><button class="tour-btn" data-scenic="forge" aria-pressed="false" aria-label="Visit the original outdoor guild forge">⚒ Forge</button><button class="tour-btn" data-scenic="mill" aria-pressed="false">✧ Windmill</button><button class="tour-btn" data-scenic="orchard" aria-pressed="false">❀ Orchard</button><button class="tour-btn" data-scenic="farm" aria-pressed="false" aria-label="Inspect real farm work and village food stores at the granary">✺ Farmland</button><button class="tour-btn" data-scenic="river" aria-pressed="false">≈ Riverside</button><button class="tour-btn" data-scenic="sanctuary" aria-pressed="false">♜ Sanctuary</button><a class="tour-btn" href="experience.html" aria-label="View the latest look, feel, play and commercial reference scorecards">⚑ Scorecard</a></div>
 <div id="workday-activity" role="status" aria-live="polite" aria-atomic="true"></div><section id="grain-live-strip" role="status" aria-live="polite" aria-atomic="false" aria-label="Real linked grain journey evidence" hidden>
  <div class="grain-live-head"><strong id="grain-live-caption">Waiting for a real farmer</strong><button id="grain-live-details" type="button" aria-controls="world-supply-trail" aria-label="Inspect genuine parcel evidence">View receipts</button></div>
@@ -32516,6 +32537,92 @@ function updateWorldActorTag(cameraMatrix){
  audit.label=title;audit.cargoId=load?.id||null;
  worldActorTagAudit=audit;
 }
+// W476 original-world worker readability, NEVER fabricated actors or receipts.
+const workBeaconRoot=document.getElementById('world-live-roles'),
+ workBeaconSlots=[...workBeaconRoot.querySelectorAll('button[data-slot]')];
+let workBeaconAudit={source:'projected-real-live-work',markers:[],
+ authorityModified:false,createdActors:0,createdTransactions:0};
+function updateLiveWorkBeacons(matrix){
+ const rect=canvas.getBoundingClientRect(),width=rect.width,height=rect.height;
+ const audit={source:'projected-real-live-work',markers:[],
+  eligible:0,occluded:0,width,height,
+  authorityModified:false,createdActors:0,createdTransactions:0,
+  independentExperienceReview:'NOT PROVEN'};
+ const clear=()=>{
+  workBeaconRoot.hidden=true;
+  for(const slot of workBeaconSlots){slot.hidden=true;delete slot.dataset.actorIndex}
+  workBeaconAudit=audit;
+ };
+ if(!gpuAvailable||streetWalk||follow||cinematicHud||grainJourney||
+   commandView!=='world'||document.body.dataset.villageDocumentary==='on'||
+   (document.body.dataset.workday||'off')!=='off'||
+   width<300||height<380||!lastCitizenPickFrame?.eye){clear();return}
+ const candidates=[],eye=lastCitizenPickFrame.eye,roofs=followCameraRoofs();
+ const limit=width<=520?2:3;
+ for(let index=0;index<people.length;index++){
+  const p=people[index],cargo=p.delivery,working=isWorkingAtSite(p);
+  if(!cargo&&!working)continue;
+  audit.eligible++;
+  const point=[p.x,terrain(p.x,p.z)+1.16,p.z],m=matrix;
+  const cw=m[3]*point[0]+m[7]*point[1]+m[11]*point[2]+m[15];
+  if(!Number.isFinite(cw)||cw<=.1||cw>44)continue;
+  const nx=(m[0]*point[0]+m[4]*point[1]+m[8]*point[2]+m[12])/cw;
+  const ny=(m[1]*point[0]+m[5]*point[1]+m[9]*point[2]+m[13])/cw;
+  if(!Number.isFinite(nx)||!Number.isFinite(ny)||
+     Math.abs(nx)>.88||Math.abs(ny)>.80)continue;
+  const x=(1+nx)*width*.5,y=(1-ny)*height*.5-21;
+  const margin=width<=520?76:102;
+  if(x<margin||x>width-margin||
+    y<(width<=520?190:142)||y>height-(width<=520?150:135))continue;
+  if(followRayBlockers(eye,point,roofs)>0){audit.occluded++;continue}
+  const harvesting=p.job==='farmer'&&p.activity==='Harvesting grain'&&working;
+  const kind=cargo?'cargo':harvesting?'harvest':'work';
+  const detail=cargo?
+   (cargo.stage==='unloading'?'Unloading ':'Carrying ')+cargo.amount+' '+cargo.resource:
+   p.activity;
+  const priority=cargo?5:harvesting?4:p.job==='blacksmith'?3:
+   p.job==='builder'?2:1;
+  candidates.push({index,name:p.name,kind,detail,x,y,depth:cw,
+   id:cargo?.id||null,priority});
+ }
+ candidates.sort((a,b)=>b.priority-a.priority||a.depth-b.depth||a.index-b.index);
+ const picked=[];
+ for(const row of candidates){
+  if(picked.some(old=>Math.abs(old.x-row.x)<(width<=520?148:185)&&
+    Math.abs(old.y-row.y)<76))continue;
+  picked.push(row);
+  if(picked.length>=limit)break;
+ }
+ for(let i=0;i<workBeaconSlots.length;i++){
+  const slot=workBeaconSlots[i],row=picked[i];
+  if(!row){slot.hidden=true;delete slot.dataset.actorIndex;continue}
+  const title=slot.querySelector('strong'),detail=slot.querySelector('small');
+  if(title.textContent!==row.name)title.textContent=row.name;
+  if(detail.textContent!==row.detail)detail.textContent=row.detail;
+  slot.dataset.actorIndex=String(row.index);slot.dataset.kind=row.kind;
+  const label='Follow real '+row.name+', '+row.detail;
+  if(slot.getAttribute('aria-label')!==label)slot.setAttribute('aria-label',label);
+  slot.style.left=rect.left+row.x+'px';
+  slot.style.top=rect.top+row.y+'px';
+  slot.hidden=false;audit.markers.push({...row,occluded:false});
+ }
+ workBeaconRoot.hidden=!audit.markers.length;
+ workBeaconAudit=audit;
+}
+workBeaconRoot.addEventListener('click',event=>{
+ const slot=event.target.closest('button[data-actor-index]');
+ if(!slot||slot.hidden||workBeaconRoot.hidden)return;
+ const index=Number(slot.dataset.actorIndex),p=people[index];
+ if(!Number.isInteger(index)||!p||(!p.delivery&&!isWorkingAtSite(p)))return;
+ const visible=getCitizenPickCandidates().find(c=>c.index===index&&c.visible);
+ if(!visible)return;
+ selectedCitizen=index;document.body.dataset.citizenInspect='on';
+ setCitizenFollow(true);refreshPickedCitizenCaption();updateUI();
+});
+function getLiveWorkBeaconAudit(){
+ return {...workBeaconAudit,markers:workBeaconAudit.markers.map(x=>({...x})),
+  maxSlots:workBeaconAudit.width<=520?2:3,changesSimulation:false};
+}
 // W136: the old every-14-rendered-frame HUD cadence made REAL food, worker,
 // courier and household events appear up to eight seconds late at ~1.7
 // SwiftShader FPS. Wall-clock cadence is a presentation boundary only.
@@ -34168,7 +34275,7 @@ const elevation=Math.sin(pitch)*zoom,rad=Math.cos(pitch)*zoom,focusHeight=follow
   eye[2]+Math.cos(streetYaw)*Math.cos(streetTilt)*8
  ]:retreat?retreat.target.slice():threshold?threshold.target.slice():workTarget;
  const lens=cameraLensProfile(w,h);
- let m=mat4multiply(perspective(lens.verticalRadians,w/h,.1,190),lookAt(eye,cameraTarget,[0,1,0]));lastCitizenPickFrame={matrix:m,eye:eye.slice(),target:cameraTarget.slice(),width:w,height:h};updateRealMarketStockTag(m);updateWorldActorTag(m);gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);const radiance=lightingProfile(state.t);gl.uniform1f(uniforms.sunStrength,radiance.solar);gl.uniform1f(uniforms.ambientBlend,radiance.ambientBlend);gl.uniform1f(uniforms.worldTime,state.t);if(gpuAvailable)gl.uniform3f(uniforms.forgeSmokeAnchor,CRAFT_DISTRICT.x+2.48,terrain(CRAFT_DISTRICT.x,CRAFT_DISTRICT.z)+7.49,CRAFT_DISTRICT.z+1.18);if(gpuAvailable)gl.uniform1f(uniforms.commuterEnabled,0);if(gpuAvailable)gl.uniform1f(uniforms.workSkinActive,0);if(gpuAvailable)gl.uniform1f(uniforms.villageSmokeDensity,climateAt(state.t).season===3?4:3);if(gpuAvailable)gl.uniform2f(uniforms.windmillRotor,-27,terrain(-27,-18)+4.25);gl.uniform1f(uniforms.weatherWetness,climateMaterialProfile(state.t).precipitation);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));const activeLight=observedWorkLightProfile();gl.uniform3f(uniforms.workLightPosition,activeLight.x,activeLight.y,activeLight.z);gl.uniform1f(uniforms.workLightStrength,activeLight.strength);if(gpuAvailable)gl.uniform1f(uniforms.forgeBellowsCompression,forgeBellowsResidentActive?forgeBellowsFrameCompression:0);
+ let m=mat4multiply(perspective(lens.verticalRadians,w/h,.1,190),lookAt(eye,cameraTarget,[0,1,0]));lastCitizenPickFrame={matrix:m,eye:eye.slice(),target:cameraTarget.slice(),width:w,height:h};updateRealMarketStockTag(m);updateWorldActorTag(m);updateLiveWorkBeacons(m);gl.uniformMatrix4fv(uniforms.viewProjection,false,m);gl.uniform3f(uniforms.fogColor,...atmosphere.fog);gl.uniform3f(uniforms.sunTint,...atmosphere.light);const radiance=lightingProfile(state.t);gl.uniform1f(uniforms.sunStrength,radiance.solar);gl.uniform1f(uniforms.ambientBlend,radiance.ambientBlend);gl.uniform1f(uniforms.worldTime,state.t);if(gpuAvailable)gl.uniform3f(uniforms.forgeSmokeAnchor,CRAFT_DISTRICT.x+2.48,terrain(CRAFT_DISTRICT.x,CRAFT_DISTRICT.z)+7.49,CRAFT_DISTRICT.z+1.18);if(gpuAvailable)gl.uniform1f(uniforms.commuterEnabled,0);if(gpuAvailable)gl.uniform1f(uniforms.workSkinActive,0);if(gpuAvailable)gl.uniform1f(uniforms.villageSmokeDensity,climateAt(state.t).season===3?4:3);if(gpuAvailable)gl.uniform2f(uniforms.windmillRotor,-27,terrain(-27,-18)+4.25);gl.uniform1f(uniforms.weatherWetness,climateMaterialProfile(state.t).precipitation);gl.uniform3f(uniforms.eyePosition,eye[0],eye[1],eye[2]);gl.uniform3f(uniforms.sunDirection,Math.cos(state.t/24*6.283),.3+atmosphere.daylight*.9,Math.sin(state.t/24*6.283));const activeLight=observedWorkLightProfile();gl.uniform3f(uniforms.workLightPosition,activeLight.x,activeLight.y,activeLight.z);gl.uniform1f(uniforms.workLightStrength,activeLight.strength);if(gpuAvailable)gl.uniform1f(uniforms.forgeBellowsCompression,forgeBellowsResidentActive?forgeBellowsFrameCompression:0);
 const farmContact=getHarvestInteractionAudit();
 // Canvas2D fallback implements only the original uniform1f/3f shims.
 if(gpuAvailable){
@@ -34620,7 +34727,7 @@ getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAud
   grainJourney?planRealGrainJourney(grainJourney,people,deliveryReceipts,
    state.householdTrades||[],state.householdMeals||[]):null,null),getSupplyTrailDetailsAudit,inspectRealGrainStage,watchRealGrainJourney,stopRealGrainJourney,planRealGrainJourney,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
 getMarketStructuralSightline:marketCourierPostSightline,getMarketBarterWitnessAudit,
-getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCentralExchangeAudit:()=>({...centralExchangeStats}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketReceiptDisplayAudit:getMarketReceiptDisplayAudit,getRealMarketReceiptLensForEvidence:id=>chooseRealMarketReceiptLens(id),getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,getGradedRoadAudit,getRealRoadscapeAudit,getFieldToGranaryFootwayAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getSettlementOverviewPlanAudit:physicalSettlementOverviewPlan,getMarketHomeDistrictPlanAudit:()=>planRealMarketHomeDistrict(city,DELIVERY_MARKET.food,canvas.clientWidth,canvas.clientHeight,getActiveDeliveries()),requestRealMarketHomeDistrict,getCameraMotionAudit:cameraMotionAudit,getRealEconomicSurveyAudit,advanceRealEconomicSurvey,getCameraNavigationAudit,getFreeCameraCollisionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getWorkdayCompositionAudit:workdayCameraCompositionAudit,getWorkdayClearArcAudit,getFarmWorkCameraAudit,
+getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCentralExchangeAudit:()=>({...centralExchangeStats}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketReceiptDisplayAudit:getMarketReceiptDisplayAudit,getRealMarketReceiptLensForEvidence:id=>chooseRealMarketReceiptLens(id),getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,getGradedRoadAudit,getRealRoadscapeAudit,getFieldToGranaryFootwayAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getSettlementOverviewPlanAudit:physicalSettlementOverviewPlan,getMarketHomeDistrictPlanAudit:()=>planRealMarketHomeDistrict(city,DELIVERY_MARKET.food,canvas.clientWidth,canvas.clientHeight,getActiveDeliveries()),requestRealMarketHomeDistrict,getCameraMotionAudit:cameraMotionAudit,getRealEconomicSurveyAudit,advanceRealEconomicSurvey,getCameraNavigationAudit,getFreeCameraCollisionAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getLiveWorkBeaconAudit,getWorkdayCompositionAudit:workdayCameraCompositionAudit,getWorkdayClearArcAudit,getFarmWorkCameraAudit,
 getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,getStreetPhysicalOcclusionAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getMarketArcadeCameraAudit:()=>({source:'original-interstall-roof-occlusion',bands:physicalMarketArcadeRoofVolumes(),authorityChanged:false}),getCameraArchitectureResidencyAudit,getCameraRayBroadphaseAudit,getCameraShotProximityAudit,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getGrainwardBridgeAudit,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getArchitectureAtlasWorkerAudit,
  getInhabitedStreetAccessAudit:()=>({...groundAtlasAccessAudit,topologyKey:groundAtlasAccessTopology,
   builds:groundAtlasAccessRebuilds,realHomes:city.length,rendererOnly:true}),
