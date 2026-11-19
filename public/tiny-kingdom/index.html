@@ -12266,42 +12266,29 @@ function tree(x,z,s=1){
  }
 }
 // W110: one original terrain-bound village road, continuous and unblocked.
+// W472: the original three connected village high streets share the same
+// terrain-graded, wheel-rutted six-band road spine as the REAL field→granary→
+// receiving-market→occupied-home corridors. This REPLACES the earlier flat
+// centre slab and separate raised sticker ruts, retaining every street node,
+// exact lateral clearance, the original material atlas, and the resident
+// seasonal landscape VBO. Longer joined sections save repeated height samples
+// and stay below the old road triangle count; no navigation or AI changes.
 function path(points,width=1){
- const clay=[rgb(0x8d8068),rgb(0x857660),rgb(0x94836b)];
- const rut=[rgb(0x6c614e),rgb(0x756551)];
- const verge=[rgb(0x75815c),rgb(0x87906a),rgb(0x777953)];
- const stone=[rgb(0x999183),rgb(0xa9a18d),rgb(0x888578)];
+ const palette={
+  earth:[rgb(0x8d8068),rgb(0x857660),rgb(0x94836b)],
+  wheel:[rgb(0x6c614e),rgb(0x756551)],
+  verge:[rgb(0x75815c),rgb(0x87906a),rgb(0x777953)]
+ };
  for(let section=0;section<points.length-1;section++){
-  const a=points[section],b=points[section+1],dx=b[0]-a[0],
-   dz=b[1]-a[1],length=Math.hypot(dx,dz);
+  const a=points[section],b=points[section+1],
+   dx=b[0]-a[0],dz=b[1]-a[1],length=Math.hypot(dx,dz);
   if(length<.001)continue;
-  const nx=dz/length,nz=-dx/length,half=width*.5;
-  const count=Math.ceil(length/.70);
-  const at=(t,across,lift)=>{
-   const x=a[0]+dx*t+nx*across,z=a[1]+dz*t+nz*across;
-   return [x,terrain(x,z)+lift,z];
-  };
-  const strip=(t,u,left,right,height,col)=>quad(
-   at(t,right,height),at(t,left,height),
-   at(u,left,height),at(u,right,height),col);
+  // Identical shared endpoints and existing width including the old .23m
+  // verges. The terrain height of an endpoint is sampled only once per band.
+  const count=Math.ceil(length/.82),half=width*.5;
   for(let j=0;j<count;j++){
    const t=j/count,u=(j+1)/count,k=section*131+j;
-   // Worn clay carriageway with genuine low, traversable wagon wear.
-   strip(t,u,-half,half,.036,clay[k%clay.length]);
-   for(const sign of [-1,1]){
-    const track=sign*half*.55;
-    strip(t,u,track-.075,track+.075,.045,rut[(k+(sign+1)/2)%2]);
-    const left=sign<0?-half-.23:half;
-    const right=sign<0?-half:half+.23;
-    strip(t,u,left,right,.027,verge[(k+section+1)%verge.length]);
-   }
-   // Flush, sparse stone repairs, not a fake uniform pavement grid.
-   if(k%6===2){
-    const side=k%2===0?1:-1;
-    const left=side<0?-half-.14:half-.02;
-    const right=side<0?-half+.02:half+.14;
-    strip(t+.09/count,u-.13/count,left,right,.052,stone[k%3]);
-   }
+   renderGradedRoadSection(a,b,t,u,half,k,palette,'village');
   }
  }
 }
