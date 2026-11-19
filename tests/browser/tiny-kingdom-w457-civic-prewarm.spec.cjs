@@ -42,6 +42,8 @@ test('W457 original complete civic core is frame-sliced without changing authore
   expect(snap.core.sourceHash).toMatch(/^[0-9a-f]{8}$/);
   if(mode==='prewarm'){
    expect(snap.prewarm.failures).toBe(0);
+   // Software WebGL must stage the authentic CPU vertex fallback.
+   expect(snap.prewarm.delivery).toBe(snap.core.gpuResident?'resident-GPU-VBO':'complete-CPU-vertex-cache');
    expect(snap.prewarm.completed).toBe(1);
    expect(snap.prewarm.last.slices).toHaveLength(10);
    expect(snap.prewarm.last.residentCoreHash).toBe(snap.core.sourceHash);
@@ -70,6 +72,7 @@ test('W457 original complete civic core is frame-sliced without changing authore
  await info.attach('W457-390-real.png',{body:await page.screenshot(),contentType:'image/png'});
  await info.attach('W457-390-real.json',{body:Buffer.from(JSON.stringify(mobile,null,2)),
   contentType:'application/json'});
+ expect(mobile.prewarm.delivery).toBe(mobile.core.gpuResident?'resident-GPU-VBO':'complete-CPU-vertex-cache');
  expect(mobile.prewarm.completed).toBe(1);
  expect(mobile.core.sourceHash).toBe(results[0].core.sourceHash);
  expect(mobile.triangles).toBeLessThan(160000);

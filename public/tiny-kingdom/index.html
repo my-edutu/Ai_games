@@ -32170,6 +32170,7 @@ function getCivicCorePrewarmAudit(){
  return {kind:'original-civic-subsystem-main-thread-slices',
   measuredBy:'performance.now CPU/driver wall; NOT GPU elapsed or hardware FPS',
   enabled:!civicCorePrewarmDisabled,stages:CIVIC_CORE_PREWARM_STAGES.length,
+  delivery:civicGpuResidencyEnabled?'resident-GPU-VBO':'complete-CPU-vertex-cache',
   runs:civicCorePrewarmRuns,completed:civicCorePrewarmCompleted,
   failures:civicCorePrewarmFailures,resets:civicCorePrewarmResets,
   activeStage:candidate?.stage??null,
@@ -32183,7 +32184,12 @@ function getCivicCorePrewarmAudit(){
   physicalGPUFps:'NOT MEASURED'};
 }
 function prewarmOriginalCivicCoreBeforeFirstScene(){
- if(framesDrawn!==0||!gpuAvailable||!civicGpuResidencyEnabled||
+ // Prepare the COMPLETE civic core on software WebGL too. The former
+ // GPU-residency guard skipped all ten slices on SwiftShader and left its
+ // 100ms+ original civic construction in a single cold frame. Hardware
+ // retains the GPU VBO; software retains every original Float32 vertex
+ // for the existing CPU rendering path. Neither path invents objects.
+ if(framesDrawn!==0||!gpuAvailable||
     civicCorePrewarmDisabled||window.__TINY_KINGDOM_DISABLE_CIVIC_PREWARM__===true)
   return false;
  const climate=climateAt(state.t);
@@ -32231,8 +32237,9 @@ function prewarmOriginalCivicCoreBeforeFirstScene(){
    case 8: renderRetainedCivicFixtures();break;
    case 9:
     if(!rememberCivicCore(key,0)||
-       !civicCoreCache.get(key)?.buffer)
-      throw Error('W457 unable to retain complete original civic GPU VBO');
+       !civicCoreCache.get(key)?.vertices?.length||
+       (civicGpuResidencyEnabled&&!civicCoreCache.get(key)?.buffer))
+      throw Error('W458 unable to retain complete original civic vertices');
     break;
    default:throw Error('W457 invalid civic prewarm stage');
   }

@@ -1,3 +1,8 @@
+### W458 · 19 November 2026 · Phase 1 authentic civic prewarm software-path unblock; NO experience milestone
+- Read actual W457 CI 44463880676: browser drew 12 citizens/17 buildings/134457 triangles and no page/GL errors, but zero prewarm runs/completions because software WebGL disabled hardware civic VBO. Inspected downloadable Playwright trace and actual screenshot; no visually transformative improvement.
+- W458 playable blob 5e701e96455e01888ac930b2fd9f09d45de718bf permits ten complete original civic pieces to be staged on software WebGL before first full scene; retains identical source Float32 CPU vertices, preserving all market, farm, road, homes, forge, authority/replay, and hardware VBO when available. Test now checks actual CPU/GPU delivery mode at 1024px and 390px. Exact current-source CI/pairwise parity pending. No measured fps gain or independent review.
+- Scorecard A substantial G088 LOOK/FEEL/PLAY NOT PROVEN; B Manor Lords FAIL. Current phase 1 unchanged. Next: inspect terminal CI plus authentic video, parity, long soak, driver timing, then major integrated civic/working-citizen reconstruction. No merge.
+
 # Tiny Kingdom — W401 Phase-1 integrated workstream (17 November 2026)
 
 ### W457 · 19 November 2026 · Phase-1 same workstream: frame-sliced ORIGINAL civic GPU core (candidate, NOT YET PROVEN)
