@@ -132,8 +132,8 @@ test('source-authentic grounded F9 threshold shares bronze only until its destin
   const result=updateOriginalClockworkSuccessorRoute(source,earned);
   assert.equal(result.sourceBound,true);
   assert.ok(top.color.equals(source.bronze));
-  assert.ok(body.color.equals(new Color(0xb5a0ec).lerp(source.bronze,.82)));
-  assert.ok(rim.color.equals(new Color(0x6a577e).lerp(source.bronze,.48)));
+  assert.ok(body.color.equals(source.bronze), 'body must share the opened physical gate palette');
+  assert.ok(rim.color.equals(source.bronze), 'rim cannot leak early violet through the original gate');
   assert.ok(mint.color.equals(new Color(0xa7eecc)));
   updateOriginalClockworkSuccessorRoute(source,{...earned,sourceTick:470,oldWeight:.5});
   const intermediate=top.color.clone();
