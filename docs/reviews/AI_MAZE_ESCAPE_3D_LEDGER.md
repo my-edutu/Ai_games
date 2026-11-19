@@ -1,3 +1,11 @@
+## Pass495 — publicly known blocked spectator reef for a genuinely earned 390px guardian recoil (2026-11-19 UTC)
+
+- **Incoming exact head** `b1997d00b7c87a0af9cbbc8cd38731b5fac62f98`. Original Pass493 source-bound 390×844 guardian recoil was inspected in the unmodified GitHub Actions artifact 14488649200; **40/40 original image SHA-256 sidecars and 3/3 actual chronological gate hashes independently match**. Thornback remains physically occluded behind tall noncolliding foreground vegetation/ornament even though the unrelaxed full-body framing limits hold. The Nintendo Captain Toad bar is NOT MET.
+- **Production change:** keep every currently published, truly impassable camera-side spectator tile physically blocked but render its optional tall decorative relic as a low, opaque, connected Tideglass load reef during a currently public guardian counter. Previously, cross-height visible **blocked** third-ring spectator cells were excluded from the otherwise existing recoil skyline cutaway. Never reveal hidden cells, displace walls or close an open passage, suppress real hazards/keys/gates, alter AI/navigation, or lower any budget. Other horizons remain tall.
+- **Candidate only:** new exact-HEAD source and original 320/390/844/1280 WebGL evidence, six-reset <100 confirmation, observed continuous same-run pressure/guardian/gallery/key/gate/escape, and independent critic PENDING. Existing connected-world Pass494 seed selection is preserved. No false artistic win or deploy/merge/force push. [Review](./maze-3d/pass-495-visible-blocked-spectator-low-reef-2026-11-19.md).
+
+---
+
 ## Pass494 — real single-seed live flagship opening (2026-11-19 UTC)
 
 - **Verified incoming exact HEAD:** `90f60c1c6b7be486a07ca3298a29745229eb06d0`. [Pass493 native WebGL run 44436875945](https://github.com/my-edutu/Ai_games/actions/runs/44436875945) SUCCESS, source tests, browser screenshots, unchanged strict six-scene geometry <100. Retrieved original artifact 14488649200 and matched 40/40 original PNG hash sidecars and 3/3 actual key-gate before/mid/after hashes. Uncropped 390px earned counter still physically crowded: Thornback is hard to distinguish behind sails, masonry and nearby columns. Fixed Nintendo Captain Toad bar NOT MET. Whole repository run 44436875807 fails the separate Tiny Kingdom OBS source step (build/tests passed).
