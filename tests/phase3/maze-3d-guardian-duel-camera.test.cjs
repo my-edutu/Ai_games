@@ -235,9 +235,9 @@ test('Pass398b real public guardian parry remains a complete physical mobile sho
 
 test('Pass399 genuine published earned recoil keeps the same witnessed portrait orbit while both actors are still visible',()=>{
   assert.match(scene,/lastWitnessedGuardianStageRunToken = s\.runToken/);
-  assert.match(scene,/const earnedDuelContinuity = cameraMode==='follow' && !result[\\s\\S]*?!settings\\.reducedMotion[\\s\\S]*?publicEarnedGuardianCounterCameraPriority\\(/,
+  assert.match(scene,/const earnedDuelContinuity = cameraMode==='follow' && !result[\s\S]*?!settings\.reducedMotion[\s\S]*?publicEarnedGuardianCounterCameraPriority\(/,
     'a genuine still-near parried guardian is no longer discarded by public warning strength');
-  assert.match(scene,/publicEarnedGuardianCounterCameraPriority\\(\\s*earnedCounterModel,closestThreatModel,closestThreat\\?\\.strength,\\s*closestThreat\\?\\.lanternParried\\)[\\s\\S]*?lastWitnessedGuardianStageRunToken===s\\.runToken/,
+  assert.match(scene,/publicEarnedGuardianCounterCameraPriority\(\s*earnedCounterModel,closestThreatModel,closestThreat\?\.strength,\s*closestThreat\?\.lanternParried\)[\s\S]*?lastWitnessedGuardianStageRunToken===s\.runToken/,
     'same current visible model AND same current run are required; no competitor, stale or hidden guardian may steal the shot');
   assert.match(scene,/aspect>=\.35 && aspect<\.60 && !cameraGate[\s\S]*?!pressureCameraBeat && !openingStageView && !showPickup/);
   assert.match(scene,/earnedRecoilCameraOffset\.copy\(portraitCameraOffset\)/,
@@ -270,7 +270,7 @@ test('Pass400 authentic public earned recoil retains bounded two-body aim, never
  ])assert.deepEqual(aim(...args),{x:0,z:0});
  assert.ok(aim(390/844,hero,{x:14.4,z:12},true,false,2.4).x<=2.04+1e-10);
  assert.match(scene,/const earnedDuelContinuity = cameraMode==='follow' && !result/);
- assert.match(scene,/publicEarnedGuardianCounterCameraPriority\\(\\s*earnedCounterModel,closestThreatModel,closestThreat\\?\\.strength,\\s*closestThreat\\?\\.lanternParried\\)[\\s\\S]*?lastWitnessedGuardianStageRunToken===s\\.runToken/,
+ assert.match(scene,/publicEarnedGuardianCounterCameraPriority\(\s*earnedCounterModel,closestThreatModel,closestThreat\?\.strength,\s*closestThreat\?\.lanternParried\)[\s\S]*?lastWitnessedGuardianStageRunToken===s\.runToken/,
     'same current visible model AND same current run are required; no competitor, stale or hidden guardian may steal the shot');
  assert.match(scene,/publicGuardianEarnedRecoilPairFocus\(\s*aspect,pose,earnedCounterModel\.position,true,settings\.reducedMotion,CELL_SIZE\)/);
  assert.match(scene,/cameraTarget\.lerp\(desiredTarget, blend\)/);
