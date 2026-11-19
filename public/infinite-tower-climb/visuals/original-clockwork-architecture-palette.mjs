@@ -228,6 +228,56 @@ export function createSourceEarnedVoidDepartureMaterials(materials,held,runToken
   return {landing,rim};
 }
 
+/**
+ * P0: returned real Clockwork metal and its coplanar, walkable F9 receiving
+ * roof must not have independent paint timelines. In original 1x candidate
+ * t518, the opened HP-zero gate was still 98.45% opaque and the retained
+ * bronze cap 94%, but the source-distance-only Floor9 materials had already
+ * turned nearly violet. That is one genuine doorway painted as two different
+ * rooms. This *existing GPU owner* caps the old-room paint while the same
+ * certified living 8->9 source handoff remains valid. No additional mesh,
+ * shader, guessed landing, renderer clock, collision or gameplay authority.
+ * The separately supported RAISED F9 decks are not touched by this helper.
+ */
+export function observedRenderedOriginalDoorwayRoom(source, held, physical) {
+  const tick=source?.tick;
+  if(source?.lifecycle!=='running' || source.floor!==9 ||
+     source.theme!=='void' || !(source.player?.health>0) ||
+     typeof source.runToken!=='string' || !source.runToken ||
+     !Number.isSafeInteger(tick) ||
+     held?.runToken!==source.runToken || held.floor!==9 ||
+     held.oldCapId!=='f8:cap' ||
+     held.guardianGateRetained!==true ||
+     held.verifiedObservedFloorAdvance!==true ||
+     held.opticalExitSubmitted===true ||
+     !Number.isSafeInteger(held.crossingTick) ||
+     !Number.isSafeInteger(held.firstWorldRenderTick) ||
+     tick<held.firstWorldRenderTick || tick<held.crossingTick ||
+     tick-held.crossingTick>110 ||
+     !Number.isSafeInteger(held.submittedFrames) ||
+     held.submittedFrames<1 || held.submittedFrames>=30 ||
+     !Number.isFinite(held.visibleSeconds) ||
+     held.visibleSeconds<0 || held.visibleSeconds>=2.8 ||
+     !Number.isFinite(held.originalGatewayOpacity) ||
+     held.originalGatewayOpacity<0 || held.originalGatewayOpacity>1 ||
+     !Number.isFinite(held.originalDeckSurface?.opacity) ||
+     held.originalDeckSurface.opacity<0 ||
+     held.originalDeckSurface.opacity>1 ||
+     physical?.sourceBound!==true ||
+     !['recorded-source-zero-hp','verified-original-roof-receipt'].includes(
+       physical.kind) ||
+     physical.sourceTick!==tick ||
+     physical.crossingTick!==held.crossingTick ||
+     !Number.isFinite(physical.oldWeight) ||
+     physical.oldWeight<0 || physical.oldWeight>1) return null;
+  const returnedRoomWeight=Math.min(
+    held.originalGatewayOpacity,held.originalDeckSurface.opacity);
+  return {...physical,
+    oldWeight:Math.max(physical.oldWeight,returnedRoomWeight),
+    sharedOriginalGpuRoom:true,
+    limitation:'Source-certified HP-open gate and real returned original cap paint, not native pixel or video acceptance'};
+}
+
 export function updateOriginalClockworkSuccessorRoute(deck, proof, opticalTail=null) {
   // Recreate each material's exact F9 baseline on every source receipt; no
   // accumulation, no timers, no mutation of action/guardian/hazard materials.
