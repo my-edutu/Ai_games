@@ -36,6 +36,34 @@ test('no stale, forged, dead, mismatched or unreturned physical doorway may hold
  assert.equal(weight(source,1,Infinity,oldGate),0);
 });
 
+test('previously source-validated original doorway keeps its actual sky, fog and floor together through early Void bearing upload',async()=>{
+ const {sourceSynchronizedHorizonWeight:weight}=await helper;
+ const {observedCertifiedClockworkHorizon:certify}=await import('../../public/infinite-tower-climb/visuals/original-clockwork-architecture-palette.mjs');
+ const physical={sourceBound:true,kind:'recorded-source-zero-hp',
+   sourceTick:source.tick,crossingTick:475,oldWeight:.82};
+ const current=certify(source,physical);
+ assert.equal(current.kind,'live-same-run-physical-gateway');
+ assert.equal(weight(source,1,0,current),.82,
+   'early returned Void bearing may cool distant sky, not the genuinely retained current old-room materials');
+ const tail={historicalOpticalTail:true,previouslySourceVerified:true,
+   runToken:source.runToken,authenticatedSourceTick:511,authenticatedCrossingTick:475,
+   returnedFrames:4,returnedSeconds:.31,oldWeight:.61};
+ const previous=certify(source,null,tail);
+ assert.equal(previous.kind,'previous-certified-returned-material');
+ assert.equal(weight(source,.9,0,previous),.61,
+   'source-validated returned material tail must not share a warm roof with an instant purple sky');
+ assert.equal(weight(source,.4,0,current),.4,'never exceed current original-room coverage');
+ assert.equal(weight(source,1,.25,{...current,sourceTick:511}),.25);
+ assert.equal(weight(source,1,.25,{...current,historicalOpticalTail:true}),.25);
+ assert.equal(weight(source,1,.25,{...previous,historicalOpticalTail:false}),.25);
+ assert.equal(weight(source,1,.25,{...previous,sourceBound:false}),.25);
+ assert.equal(weight({...source,runToken:'',tick:512},1,0,current),0);
+ assert.equal(weight({...source,floor:10},1,0,previous),0);
+ assert.equal(weight(source,1,.25,{sourceBound:true,sourceTick:512,
+   kind:'HUD-F9-only',oldWeight:1}),.25);
+ assert.equal(weight(source,1,.25,null),.25);
+});
+
 test('real World separates noncolliding gallery clearance from bronze sill color and synchronizes actual scene lights',()=>{
  const world=fs.readFileSync('public/infinite-tower-climb/visuals/world.mjs','utf8');
  const scene=fs.readFileSync('public/infinite-tower-climb/visuals/scene.mjs','utf8');
