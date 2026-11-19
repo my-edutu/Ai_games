@@ -30,7 +30,7 @@ function actualSourceRoof(){
   const job={runToken,floor:9,proof:'recorded-source-gateway',
     sourceTick:480,structureDeferred:true,state:'awaiting-void-biome-build',
     submittedFrames:3,structureBuiltAtSubmitted:1,
-    structuralVisibleReturns:0,structuralRoot:{isGroup:true,visible:false}};
+    structuralVisibleReturns:0,structuralRoot:{isGroup:true,visible:false,children:[{name:'original-void-bearing'}]}};
   return {source,held,job};
 }
 
