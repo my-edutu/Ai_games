@@ -75,7 +75,7 @@
     "p99": "NOT EVALUATED",
     "memory": "NOT EVALUATED"
   },
-  "nextHighestImpact": "Verify exact-head P0 source-contract CI; inspect first-F9 actual original 1x paired frame after new returned-core staging, prioritize genuine source→Three→native bridge and reduced foreground rail occlusion, not further evidence pipeline tweaks.",
+  "nextHighestImpact": "After verifying exact-head quality, implement a source-backed single-frame first-F9 receiving architecture and bounded structural shader/upload solution, preserving the actual old HP-open gate and full hero/camera; capture original normal-speed matched baseline/candidate films and inspect event-aligned foreground in both viewports before P1.",
   "prohibitedChangesUnchanged": {
     "baseline": true,
     "pr58": true,
@@ -136,6 +136,71 @@
       "noDeploy": true,
       "noForcePush": true,
       "unrelatedGamesUnmodified": true
+    }
+  },
+  "p0ExactSourceGatewayContractRecoveryRun20261119": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "inspectionSourceSha": "62ba71a388070d2381745c0e63d4d6c2ef9f97c8",
+    "latestCodeShaBeforeEvidence": "1dd6d97b515b3fc33bc917e6569a0a1e0c0e9cff",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "verifiedPriorFailures": {
+      "qualityUrl": "https://github.com/my-edutu/Ai_games/actions/runs/44622258430",
+      "originalOutcome": "FAILED: phase3 shards 0 and 1",
+      "failure1": "tower-original-door-before-shaft-first-return.test.cjs malformed regex produced Node SyntaxError and stopped entire phase3 shard 1",
+      "failure2": "tower-original-clockwork-architecture-palette.test.cjs two assertions expected obsolete far-side-only eligibility, but production now uses source-certified near-roof OR far-side returned architecture",
+      "failure3": "Follow-up source run 44629870507 also exposed obsolete sourceDeparture!==true predicate in tower-p0-original-room-before-successor-return.test.cjs, conflicting with real returned-shaft retirement policy"
+    },
+    "completedCorrectiveCommits": [
+      {
+        "sha": "e6b5b06c4f25a08ea47ace73512d867ca8c0d788",
+        "scope": "Repair four invalid source-contract regular expressions; tested against actual authoritative world source text"
+      },
+      {
+        "sha": "61f5853fefb00b161b00c9637a5d1bc2e963cc0b",
+        "scope": "Update three stale palette-source assertions to near-roof/far-side source-returned proof"
+      },
+      {
+        "sha": "1dd6d97b515b3fc33bc917e6569a0a1e0c0e9cff",
+        "scope": "Assert physically departed guardian gate cannot retire until real successor GPU-room return"
+      }
+    ],
+    "technicalValidation": {
+      "staticSourcePatternChecks": "PASS for corrected assertions against fetched source, including original source-run provenance and returned-scene interlock",
+      "localNodeTests": "NOT RUN — remote coding workspace tunnel unavailable; no local checkout",
+      "latestExactSourceQualityUrl": "https://github.com/my-edutu/Ai_games/actions/runs/44630405109",
+      "latestExactSourceQualityOutcome": "PENDING at inspection — no pass claimed",
+      "newNineJobVideo": "NOT CAPTURED for these test-only commits; no visual improvement inferred"
+    },
+    "priorOriginalNativeFilm": {
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44621081989",
+      "candidateSha": "f5f645a378dfe8ac0f92b214fff1afe94fd1f5a0",
+      "desktop": "72.56s; Floor9 HUD to violet world 1.25s",
+      "portrait": "72.72s; Floor9 HUD to violet world 1.25s",
+      "sustainedCoVisibleBridge": "0 seconds demonstrated",
+      "strictSourceEventNativePair": "FAILED 0/2; not re-reviewed as new film this run"
+    },
+    "independentReviews": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDevice": {
+      "p50": "NOT EVALUATED",
+      "p95": "NOT EVALUATED",
+      "p99": "NOT EVALUATED",
+      "memory": "NOT EVALUATED"
+    },
+    "largestExperienceGap": "First genuine F9 structural GPU return still trails the source/HUD; original bronze gateway, full animated body and walkable violet architecture not proven together in event-aligned consecutive native desktop/portrait frames; portrait foreground occlusion persists.",
+    "nextHighestImpact": "After verifying exact-head quality, implement a source-backed single-frame first-F9 receiving architecture and bounded structural shader/upload solution, preserving the actual old HP-open gate and full hero/camera; capture original normal-speed matched baseline/candidate films and inspect event-aligned foreground in both viewports before P1.",
+    "constraints": {
+      "pr68Draft": true,
+      "pr58Untouched": true,
+      "baselineUnchanged": true,
+      "noMerge": true,
+      "noDeploy": true,
+      "noForcePush": true,
+      "unrelatedGamesUntouched": true
     }
   }
 }
