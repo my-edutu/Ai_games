@@ -30,4 +30,7 @@ test('W473 shader uses world-anchored ground and road shadow factor, never roofs
  assert.match(html,/clamp\(\(vWorld\.xz\+vec2\(48\.\)\)\/96\./);
  assert.match(html,/c\*=staticGroundShade/);
  assert.match(html,/gl\.uniform1i\(uniforms\.solarShadowAtlas,2\)/);
+ assert.match(html,/gl\\.uniform1i\\(u\\.solarShadowAtlas,2\\)/);
+ assert.match(html,/gl\\.uniform1f\\(u\\.solarShadowAtlasActive,solarShadowAtlasEnabled\\(\\)\\?1:0\\)/);
+ assert.match(html,/'architectureAtlas','solarShadowAtlas','solarShadowAtlasActive'/);
 });
