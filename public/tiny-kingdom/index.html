@@ -5004,7 +5004,9 @@ function getResidentHomeShaderAudit(){
   landscapeFallbackFrames:landscapeStaticFallbackFrames,
   landscapeSafetyScans:landscapeStaticSafetyScans,
   landscapeSafetyCacheHits:landscapeStaticSafetyCacheHits,
-  landscapeUnsafeMeshes:landscapeStaticSafetyRejected,
+  landscapeUnsafeMeshes:landscapeStaticUnsafeLandscape,
+  districtUnsafeMeshes:landscapeStaticUnsafeDistricts,
+  allUnsafeStaticMeshes:landscapeStaticSafetyRejected,
   staticDistrict:{settlement:{...residentDistrictShaderStats.settlement},
    civicCore:{...residentDistrictShaderStats.civicCore},
    civic:{...residentDistrictShaderStats.civic}},
@@ -9768,9 +9770,12 @@ function recallHomeClusterKeys(keys){
 // Every unsafe tag falls back to the full live shader with zero geometry loss.
 const landscapeStaticProgramSafety=new WeakMap();
 let landscapeStaticSafetyScans=0,landscapeStaticSafetyRejected=0,
+ // Distinguish actual landscape admission from genuine animated-market
+ // district fallback. Unsafe districts are never hidden or misreported.
+ landscapeStaticUnsafeLandscape=0,landscapeStaticUnsafeDistricts=0,
  landscapeStaticSpecializedFrames=0,landscapeStaticSpecializedTriangles=0,
  landscapeStaticFallbackFrames=0,landscapeStaticSafetyCacheHits=0;
-function originalLandscapeStaticShaderSafe(mesh){
+function originalLandscapeStaticShaderSafe(mesh,sceneClass='landscape'){
  if(!(mesh instanceof Float32Array)||!mesh.length||mesh.length%30)return false;
  const cached=landscapeStaticProgramSafety.get(mesh);
  if(cached!==undefined){landscapeStaticSafetyCacheHits++;return cached}
@@ -9783,7 +9788,11 @@ function originalLandscapeStaticShaderSafe(mesh){
  }
  landscapeStaticProgramSafety.set(mesh,safe);
  landscapeStaticSafetyScans++;
- if(!safe)landscapeStaticSafetyRejected++;
+ if(!safe){
+  landscapeStaticSafetyRejected++;
+  if(sceneClass==='landscape')landscapeStaticUnsafeLandscape++;
+  else landscapeStaticUnsafeDistricts++;
+ }
  return safe;
 }
 function drawOriginalRetainedLandscape(planes,ctx){
@@ -9815,7 +9824,7 @@ function drawOriginalRetainedDistrictClass(name,target,ranges,mesh,planes,ctx){
  const stats=residentDistrictShaderStats[name];
  if(!stats)throw Error('W453 unknown genuine district GPU class');
  if(!residentHomeShaderEnabled()||!target||
-    !originalLandscapeStaticShaderSafe(mesh)){
+    !originalLandscapeStaticShaderSafe(mesh,name)){
   stats.fallbacks++;
   useOriginalStaticMaterialProgram();
   return drawVisibleStaticChunks(target,ranges,planes);

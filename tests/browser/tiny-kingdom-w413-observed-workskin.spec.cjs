@@ -18,7 +18,7 @@ test('W413 genuine selected worksite hero admits full-detail 13-bone resident, n
  assert.match(policy,/isMarketUnloading\(p\)/);
  assert.match(policy,/verifiedHouseholdMealEvidence/);
  assert.doesNotMatch(policy,/state\.\w+\s*=|people\.(?:push|splice)|Math\.random/);
- const roster=extract('const foregroundRows=gpuAvailable?', 'const foregroundReady=');
+ const roster=extract('const foregroundRows=residentRows', 'const foregroundReady=');
  assert.match(roster,/isObservedWorksiteSkinCandidate\(p,i,nearPeople\)/);
  const rank=extract('const ranked=rows.map(', 'ranked.sort(');
  assert.match(rank,/isObservedWorksiteSkinCandidate\(row.p,row.i,nearPeople\)/);

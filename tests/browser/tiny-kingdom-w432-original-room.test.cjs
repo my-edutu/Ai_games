@@ -5,7 +5,7 @@ const source=fs.readFileSync(path.resolve(__dirname,'../../public/tiny-kingdom/i
 const start=source.indexOf('let originalOccupiedRoomStats='),end=source.indexOf('function house(',start);
 test('W432 real original room shells are present only in detailed existing homes',()=>{
  assert.ok(start>0&&end>start);
- assert.match(source,/renderOriginalOccupiedRoomShell\(x,y,z,w,d,1\.36\*scale,scale,plasterTone\)/);
+ assert.match(source,/renderOriginalOccupiedRoomShell\(x,y,z,w,d,2\.0\*scale,scale,plasterTone\)/);
  assert.match(source,/renderOriginalOccupiedRoomShell\(x,y,z,w,d,h-\.19\*scale,scale,plasterTone\)/);
  assert.doesNotMatch(source,/box\(x,y,z-d\/2-\.045\*scale,\.66\*scale,1\.25\*scale,\.085,rgb\(0x76523c\)\)/);
  assert.match(source,/getInhabitedSkylineAudit,getOriginalOccupiedRoomAudit,getGranarySupplyAudit/);
@@ -22,11 +22,11 @@ function makeRoom(){
 }
 test('W432 daylight occupied doorway has real empty center and furnished room inside same footprint',()=>{
  const scene=makeRoom();
- const r=scene.renderOriginalOccupiedRoomShell(7,0,-4,2.7,2.5,1.36,1,0xc9b79c);
+ const r=scene.renderOriginalOccupiedRoomShell(7,0,-4,2.7,2.5,2.0,1,0xc9b79c);
  assert.equal(r.triangles,132);
  assert.equal(scene.calls.length,11);
  assert.equal(r.doorWidth,.76);
- assert.equal(r.doorHeight,1.27);
+ assert.equal(r.doorHeight,1.72);
  const openingFront=-4-2.5/2+.135/2;
  const tallFront=scene.calls.filter(c=>Math.abs(c[2]-openingFront)<1e-8&&c[4]>1.0);
  assert.equal(tallFront.length,2,'two original front wall leaves with no opaque full-height center');

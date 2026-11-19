@@ -42,6 +42,11 @@ test('W452 complete original season landscape is identical when GPU static verte
   expect(evidence.geom.totalTriangles).toBeLessThan(160000);
   expect(evidence.shader.linked).toBe(true);
   expect(evidence.shader.enabled).toBe(enabled);
+  // The original landscape and authentic animated districts have separate
+  // admission counters. An unsafe market mesh must use the complete shader,
+  // not fail a valid terrain pass or disappear from the live picture.
+  expect(evidence.shader.landscapeUnsafeMeshes+evidence.shader.districtUnsafeMeshes)
+   .toBe(evidence.shader.allUnsafeStaticMeshes);
   if(enabled){
    expect(evidence.shader.landscapeShaderEligibleFrames).toBeGreaterThan(0);
    expect(evidence.shader.landscapeUnsafeMeshes).toBe(0);

@@ -93,8 +93,10 @@ assert.match(seasonSource,/civicCoreBuffer\s*=\s*seasonalCore\.buffer/,
 assert.match(seasonSource,/activeCivicCoreMesh\(\)\.length/,
  'seasonal visual geometry budget includes the complete original civic core');
 const hardware=exercise(true),software=exercise(false);
-assert.match(script,/scenicVisibilityStats\.civicCore\s*=\s*civicCoreBuffer\s*\?[\s\S]*?drawVisibleStaticChunks/,
- 'real playable WebGL must issue the genuine complete original core draw');
+assert.match(script,/scenicVisibilityStats\.civicCore\s*=\s*civicCoreBuffer\s*\?[\s\S]*?drawOriginalRetainedDistrictClass\(\s*'civicCore',civicCoreBuffer/,
+ 'real playable WebGL must submit genuine original farm-market core through the bounded district renderer');
+assert.match(script,/function drawOriginalRetainedDistrictClass\([\s\S]*?return drawVisibleStaticChunks\(target,ranges,planes\);/,
+ 'nonresident or unsafe original core must still draw every original range');
 assert.match(script,/activeCivicCoreMesh\(\)\.length/,
  'Day-120 triangle guard must include split real civic core');
 console.log('W317 PASS: genuine core GPU mesh drawn separately from dirty streets, no repeated original core upload on near-road construction; software full-geometry fallback, season and reset bounded. Hardware FPS NOT MEASURED.',hardware,software);
