@@ -106,3 +106,68 @@ test('W457 original complete civic core is frame-sliced without changing authore
  expect(errors).toEqual([]);
  await page.close();
 });
+
+
+// W461 test-first: climate-prefetch must reuse EXACT original next-season plots,
+// never advance the world, invent a worker, or erase current visible fields.
+test('W461 anticipatory original next-season farm scene is bounded and authority-neutral',async({browser},info)=>{
+ test.setTimeout(180000);
+ const page=await browser.newPage({viewport:{width:1024,height:720}});
+ const pageErrors=[];page.on('pageerror',e=>pageErrors.push(e.message));
+ await page.setContent(source);
+ await page.evaluate(()=>window.__tinyKingdom.setSpeed(0));
+ await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0,
+  null,{timeout:150000});
+ const proof=await page.evaluate(()=>{
+  const g=window.__tinyKingdom,checksum=g.exportSnapshot().checksum;
+  const original=g.getFarmFieldResidencyAudit(),
+   originalScene=g.getGeometryAudit().totalTriangles,
+   originalPeople=g.metrics().citizens,
+   originalDay=g.metrics().day;
+  const steps=[];
+  for(let i=0;i<7;i++)steps.push(g.advanceUpcomingFarmSeasonPrewarmForTesting());
+  const planned=g.getUpcomingFarmSeasonPrewarmAudit(),
+   after=g.getFarmFieldResidencyAudit();
+  return {checksum,afterChecksum:g.exportSnapshot().checksum,original,after,
+   originalScene,afterScene:g.getGeometryAudit().totalTriangles,
+   originalPeople,afterPeople:g.metrics().citizens,originalDay,afterDay:g.metrics().day,
+   steps,planned,gl:document.querySelector('#world').getContext('webgl')?.getError()};
+ });
+ await info.attach('W461-next-real-season-1024.json',{body:Buffer.from(JSON.stringify(proof,null,2)),
+  contentType:'application/json'});
+ expect(pageErrors).toEqual([]);
+ expect(proof.gl).toBe(0);
+ expect(proof.checksum).toBe(proof.afterChecksum);
+ expect(proof.originalScene).toBe(proof.afterScene);
+ expect(proof.originalPeople).toBe(proof.afterPeople);
+ expect(proof.originalDay).toBe(proof.afterDay);
+ expect(proof.original.nearSourceHash).toBe(proof.after.nearSourceHash);
+ expect(proof.original.farSourceHash).toBe(proof.after.farSourceHash);
+ expect(proof.planned.completed).toBe(1);
+ expect(proof.planned.failures).toBe(0);
+ expect(proof.planned.last.stages.map(s=>s.name)).toEqual([
+  'near-field-0','near-field-1','join-near',
+  'far-field-0','far-field-1','join-far','cache-complete-original-season']);
+ expect(proof.planned.last.nearSourceHash).toMatch(/^[a-f0-9]{8}$/);
+ expect(proof.planned.last.farSourceHash).toMatch(/^[a-f0-9]{8}$/);
+ expect(proof.planned.last.originalPlots).toBe(2);
+ expect(proof.planned.last.originalRows).toBe(22);
+ expect(proof.after.seasonCacheKeys).toContain(1);
+ expect(proof.after.seasonCacheEntries).toBeLessThanOrEqual(4);
+ expect(proof.after.seasonCacheFloats).toBeLessThanOrEqual(proof.after.seasonCacheBudgetFloats);
+ expect(proof.after.originalPlotCount).toBe(2);
+ await page.setViewportSize({width:390,height:844});
+ await page.waitForFunction(()=>window.__tinyKingdom?.renderStats().lastFrameTriangles>0);
+ await info.attach('W461-next-real-season-390.png',{body:await page.screenshot(),
+  contentType:'image/png'});
+ const mobile=await page.evaluate(()=>({
+  checksum:window.__tinyKingdom.exportSnapshot().checksum,
+  overflow:document.documentElement.scrollWidth-innerWidth,
+  triangles:window.__tinyKingdom.getGeometryAudit().totalTriangles,
+  gl:document.querySelector('#world').getContext('webgl')?.getError()}));
+ expect(mobile.checksum).toBe(proof.checksum);
+ expect(mobile.overflow).toBeLessThanOrEqual(0);
+ expect(mobile.triangles).toBeLessThan(160000);
+ expect(mobile.gl).toBe(0);
+ await page.close();
+});
