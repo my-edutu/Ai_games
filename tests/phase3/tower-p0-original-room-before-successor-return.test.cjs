@@ -45,6 +45,15 @@ test('the authentic supported Floor9 receiving roof retains ACTUALLY returned or
     'a render-only optical lease cannot mutate authoritative source or renderer history');
 });
 
+test('an already-faded NONCOLLIDING old gallery does not veto still-returned authentic HP-zero gateway',async()=>{
+  const {observedReturnedOriginalArchitectureHold:receipt}=await hold;
+  const f=genuineNearRoof();
+  f.held.lastReturnedOriginalGalleryOpacity=0;
+  const r=receipt(f.source,f.held,f.job,null);
+  assert.equal(r?.gateOpacity,.87,'original gate persists until actually returned successor');
+  assert.equal(r?.galleryOpacity,0,'must not resurrect previously retired obstructing old steel');
+});
+
 test('no hold without original HP-zero gate, live supported roof and independently returned genuine old 3D world',async()=>{
   const {observedReturnedOriginalArchitectureHold:receipt}=await hold;
   for(const mutate of [
@@ -67,6 +76,7 @@ test('no hold without original HP-zero gate, live supported roof and independent
     f=>{f.held.submittedFrames=0;},
     f=>{f.held.lastReturnedOldGatewayTick=601;},
     f=>{f.held.lastReturnedOldGatewayOpacity=0;},
+    f=>{f.held.lastReturnedOriginalGalleryOpacity=-.1;},
     f=>{f.job.proof='floor-label';},
     f=>{f.job.runToken='other';},
     f=>{f.job.structuralVisibleReturns=1;},
