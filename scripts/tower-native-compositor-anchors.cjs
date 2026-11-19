@@ -13,6 +13,15 @@ const path=require('node:path');
 // throughout the same continuous 60-75s recording; never relax the three
 // unambiguous, span-separated native video match requirement.
 // At most 24 JPEGs, separated by >=2.8 seconds, are retained (usually <3MB).
+// Exact original source outcome 44508004326: baseline desktop yielded just
+// SIX sampled compositor JPEGs in 70s with everyNthFrame:12; four were
+// nonunique against the native WebM, leaving only two admissible anchors.
+// The recording itself contains action, a result and restart. Sampling the
+// compositor at 1/5 instead provides opportunities between those events
+// without modifying the original pixels, their PTS, the game or acceptance.
+// Both frozen baseline and candidate run the IDENTICAL observer. Archive size
+// remains capped at 24; this is a bounded calibration unblocker to assess
+// on the next real source-pinned recording, not an alignment or FPS claim.
 // This is read-only evidence capture, never a game-clock or image substitute.
 // In real 25fps candidate danger video, 23-24 stored JPEGs yielded 15/13
 // independently matched original WebM anchors. CDP was asked to encode ONE
@@ -21,8 +30,11 @@ const path=require('node:path');
 // just to store <=24 anchors. Sample 1/12 instead: ~146 opportunities,
 // still substantially above the 24-anchor cap and 3-unique-match gate.
 // This is a capture-interference experiment, NOT measured performance gain.
+// The 1/5 stride adds a bounded JPEG transport cost (maximum 350 delivered
+// 25fps frames in 70s versus roughly 146 at 1/12). This is NOT evidence of
+// better frame rate; save observed transport stats and veto actual regression.
 // Both immutable baseline and candidate use this same observational harness.
-const MIN_SPACING_MS=2800, MAX_ANCHORS=24, CDP_FRAME_STRIDE=12;
+const MIN_SPACING_MS=2800, MAX_ANCHORS=24, CDP_FRAME_STRIDE=5;
 function frameTimestampMs(metadata,nowMs){
   const seconds=metadata?.timestamp;
   if(!Number.isFinite(seconds)||seconds<1_000_000_000)return null;
