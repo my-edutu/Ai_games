@@ -2469,14 +2469,39 @@ export function createTowerWorld(){
       const body=sourceBodyMaterial.clone();
       const rim=materials.copper.clone();
       const top=materials.landing.clone();
+      // The ORIGINAL receiving roof also owns a visible outer luminous
+      // rolled lip and underside crystals. Their preexisting, shared Void
+      // shaders were independent of the bronze cap/roof material lease:
+      // normal-speed 960px and portrait footage showed an instantly purple
+      // neon ring through an otherwise bronze physical gateway. Isolate
+      // only this real f9:ground roof's decorative channels, not any raised
+      // deck, guardian warning, hazard glow or another platform material.
+      const glow=materials.glow.clone();
+      const crystal=materials.crystal.clone();
       top.name='SourceEarnedSharedPhysicalArrivalRoof';
       body.name='SourceEarnedOriginalSuccessorRouteBody';
       rim.name='SourceEarnedOriginalSuccessorRouteRim';
+      glow.name='SourceEarnedPhysicalRoofLuminousRim';
+      crystal.name='SourceEarnedPhysicalRoofUndercroftCrystal';
       floorMaterials.add(body);floorMaterials.add(rim);floorMaterials.add(top);
-      arrivalRoutePalette={bronze,top,body,rim,
+      floorMaterials.add(glow);floorMaterials.add(crystal);
+      const warmGlow=new THREE.Color(PALETTES.clockwork.glow);
+      const warmCrystal=new THREE.Color(PALETTES.clockwork.metal)
+        .lerp(warmGlow,.33);
+      arrivalRoutePalette={bronze,top,body,rim,glow,crystal,
         topVoid:top.color.clone(),bodyVoid:body.color.clone(),
-        rimVoid:rim.color.clone()};
-      top.color.copy(bronze);
+        rimVoid:rim.color.clone(),
+        glowVoid:glow.color.clone(),glowEmissiveVoid:glow.emissive.clone(),
+        crystalVoid:crystal.color.clone(),
+        crystalEmissiveVoid:crystal.emissive.clone(),
+        glowWarm:warmGlow,crystalWarm:warmCrystal,
+        crystalEmissiveWarm:warmCrystal.clone().multiplyScalar(.75)};
+      // The first actual GPU return must be warm across every receiving
+      // surface; subsequent real source/renderer evidence controls the blend.
+      top.color.copy(bronze);glow.color.copy(warmGlow);
+      glow.emissive.copy(warmGlow);
+      crystal.color.copy(warmCrystal);
+      crystal.emissive.copy(arrivalRoutePalette.crystalEmissiveWarm);
     }
     const realDeparture=theme==='void' && !sharedPhysicalRoof &&
       p.id?.startsWith('f9:') && p.id!=='f9:ground' &&
@@ -2602,8 +2627,10 @@ export function createTowerWorld(){
       const shards=[];for(let i=0;i<faceCount;i++){
         const item=at(-angle*.43+(i+.5)*angle*.86/faceCount,22.6,h-1.2,[.26,.6+noise(i)*.4,.36]);item.r[2]=.22;shards.push(item);
       }
-      instanced(root,geometry('void-undercroft',()=>new THREE.OctahedronGeometry(1,0)),materials.crystal,shards);
-      mesh(root,sector(27.04,27.17,angle,.05),materials.glow,[0,h-.37,0]);
+      instanced(root,geometry('void-undercroft',()=>new THREE.OctahedronGeometry(1,0)),
+        sharedPhysicalRoof?arrivalRoutePalette.crystal:materials.crystal,shards);
+      mesh(root,sector(27.04,27.17,angle,.05),
+        sharedPhysicalRoof?arrivalRoutePalette.glow:materials.glow,[0,h-.37,0]);
     }
     // An original, physically modeled guardian seal makes the boss gate's
     // authoritative lock/unlock legible even without HUD text or sound.
