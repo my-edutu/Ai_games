@@ -69,6 +69,33 @@ for(const [width,height] of [[1024,640],[390,844]]){
    expect(await page.evaluate(()=>window.__tinyKingdom.getCamera().follow)).toBe(true);
    expect(await page.evaluate(()=>JSON.stringify(window.__tinyKingdom.exportSnapshot())))
     .toBe(proof.snapshot);
+   // W477: observe the genuine selected worker through the physical 3D eye.
+   await page.waitForTimeout(900);
+   const followed=await page.evaluate(()=>({
+    selection:window.__tinyKingdom.getLiveWorkBeaconAudit().lastSelectedOriginalWorker,
+    tag:window.__tinyKingdom.getWorldActorTagAudit(),
+    camera:window.__tinyKingdom.getCamera(),
+    snapshot:JSON.stringify(window.__tinyKingdom.exportSnapshot())
+   }));
+   expect(followed.selection.citizen).toBe(first.name);
+   expect(followed.selection.authorityModified).toBe(false);
+   expect(followed.selection.createdActors).toBe(0);
+   expect(followed.selection.createdTransactions).toBe(0);
+   expect(['surveyed-original-worker','original-safe-follow'])
+    .toContain(followed.selection.lens);
+   expect(followed.camera.follow).toBe(true);
+   expect(followed.tag.citizen).toBe(first.name);
+   expect(followed.tag.authorityMutated).toBe(false);
+   expect(followed.snapshot).toBe(proof.snapshot);
+   await page.screenshot({path:path.join(root,width+'-real-worker-follow.png')});
+   // The actual video continues real autonomous movement after the capture.
+   await page.evaluate(()=>window.__tinyKingdom.setSpeed(1));
+   await page.waitForTimeout(1400);
+   fs.writeFileSync(path.join(root,width+'-physical-follow.json'),
+    JSON.stringify({viewport:[width,height],selection:followed.selection,
+     tag:followed.tag,camera:followed.camera,
+     postFollowSnapshot:await page.evaluate(()=>window.__tinyKingdom.exportSnapshot()),
+     independentExperienceReview:'NOT PROVEN'},null,2));
   }
   fs.writeFileSync(path.join(root,width+'-proof.json'),JSON.stringify({
    viewport:[width,height],originalPop:truth.citizens,buildings:truth.buildings,

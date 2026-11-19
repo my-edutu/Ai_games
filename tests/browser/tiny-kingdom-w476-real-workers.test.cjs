@@ -13,6 +13,10 @@ test('W476 uses only genuinely employed roof-visible actors, bounded at 390px',(
  assert.match(source,/#world-live-roles button:focus-visible/);
  assert.match(source,/updateWorldActorTag\(m\);updateLiveWorkBeacons\(m\);/);
  assert.match(source,/<div id="world-live-roles"[^>]* hidden>/);
+ assert.ok(source.includes("lastSelectedOriginalWorker:workBeaconFollowChoice"));
+ assert.ok(source.includes("workerShot&&anchorSelectedWorkdayCamera(workerShot)"));
+ assert.ok(source.includes("document.body.dataset.citizenInspect==='on'"));
+ assert.ok(source.includes("lens:physicallySurveyed?"));
 });
 test('W476 full game syntax and authoritative economy and save remain',()=>{
  for(const match of source.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g))

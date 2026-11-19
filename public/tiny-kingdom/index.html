@@ -32475,7 +32475,8 @@ function updateWorldActorTag(cameraMatrix){
  const viewMode=document.body.dataset.workday||'off';
  const observing=Boolean(person&&follow&&!streetWalk&&!cinematicHud&&
   (viewMode==='live'||viewMode==='delivery'||viewMode==='household'||
-   viewMode==='homecoming'||viewMode==='on'));
+   viewMode==='homecoming'||viewMode==='on'||
+   document.body.dataset.citizenInspect==='on'));
  const rect=canvas.getBoundingClientRect();
  const width=rect.width,height=rect.height;
  const audit={source:'projected-real-citizen-head-and-work',
@@ -32542,6 +32543,10 @@ const workBeaconRoot=document.getElementById('world-live-roles'),
  workBeaconSlots=[...workBeaconRoot.querySelectorAll('button[data-slot]')];
 let workBeaconAudit={source:'projected-real-live-work',markers:[],
  authorityModified:false,createdActors:0,createdTransactions:0};
+// W477: a player choosing a REAL visible worker receives a physically
+// surveyed 3D workday view rather than a generic roof-obscured follow lens.
+// This records presentation evidence only, never economic or agent state.
+let workBeaconFollowChoice=null;
 function updateLiveWorkBeacons(matrix){
  const rect=canvas.getBoundingClientRect(),width=rect.width,height=rect.height;
  const audit={source:'projected-real-live-work',markers:[],
@@ -32617,10 +32622,23 @@ workBeaconRoot.addEventListener('click',event=>{
  const visible=getCitizenPickCandidates().find(c=>c.index===index&&c.visible);
  if(!visible)return;
  selectedCitizen=index;document.body.dataset.citizenInspect='on';
- setCitizenFollow(true);refreshPickedCitizenCaption();updateUI();
+ setCitizenFollow(true);
+ // The worksite may be visible from above but invisible behind a roof after
+ // generic follow. Prefer the SAME physical original-worker eye survey used
+ // for real workday documentary; retain safe original follow as fallback.
+ const originalWork=isWorkingAtSite(p),workerShot=originalWork?
+  chooseFilmableWorker([{person:p,index}]):null;
+ const physicallySurveyed=Boolean(workerShot&&anchorSelectedWorkdayCamera(workerShot));
+ workBeaconFollowChoice={source:'original-worker-physical-follow',
+  citizen:p.name,job:p.job,deliveryId:p.delivery?.id||null,
+  actualWorkAtSelection:originalWork,physicallySurveyed,
+  lens:physicallySurveyed?'surveyed-original-worker':'original-safe-follow',
+  authorityModified:false,createdActors:0,createdTransactions:0};
+ refreshPickedCitizenCaption();updateUI();
 });
 function getLiveWorkBeaconAudit(){
  return {...workBeaconAudit,markers:workBeaconAudit.markers.map(x=>({...x})),
+  lastSelectedOriginalWorker:workBeaconFollowChoice?{...workBeaconFollowChoice}:null,
   maxSlots:workBeaconAudit.width<=520?2:3,changesSimulation:false};
 }
 // W136: the old every-14-rendered-frame HUD cadence made REAL food, worker,
