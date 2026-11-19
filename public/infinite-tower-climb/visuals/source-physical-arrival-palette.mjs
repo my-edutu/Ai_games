@@ -649,7 +649,12 @@ export function sourceOwnedOriginalArchitectureCoverage(source,held) {
   // cap, stop letting that off-camera bronze room hide the true incoming
   // shaft. The new geometry still requires its own successful GPU returns.
   if(observedLateImmutableFarRoofDeparture(source,held,ground))
-    coverage=0;
+    // Clearing the *entire* historical bronze room after just one first F9
+    // GPU return creates precisely the hard violet cut seen in native film.
+    // Release its NONINTERACTIVE incoming-shaft sightline only as actual
+    // returned frames and displayed GPU duration accrue, like the same
+    // original physical gate; never from HUD/simulation distance alone.
+    coverage*=1-observedOriginalGatewayOpticalBudget(held);
   return coverage;
 }
 /**
@@ -747,6 +752,85 @@ export function observedCertifiedOriginalGatewayOpticalLease(source,held,handoff
   return {historicalOpticalTail:true,sourceTick:source.tick,
     authenticatedCrossingTick:proof.crossingTick,opacity,
     limitation:'Already-rendered original gate only; never a new source event or native visual acceptance'};
+}
+
+/**
+ * The first actually returned guardian doorway and first Floor9 shaft are
+ * ONE ORIGINAL physically connected room. Native desktop + portrait 1x
+ * footage (44489480762) draws a warm HP-open exit and then a fully violet
+ * sky without any sustained shared-room frames. An eligible source actor
+ * may advance through many fixed ticks while a cold GPU returns ZERO new
+ * structural frames. Do not let that unpainted successor recolor the roof,
+ * bearings, sky and old gateway independently.
+ *
+ * This is only a read-only source/return co-paint certificate. It preserves
+ * the already-existing old material until the actual shaft has participated
+ * in returned WebGL frames. It never paints a pixel, fabricates a frame,
+ * invents a threshold/guardian/landing or changes physics/gameplay. The
+ * caller uses its same oldWeight for original architecture and atmosphere.
+ */
+export function observedReturnedSharedRoomPalette(source,held,job) {
+  const p=source?.player,w=source?.lastGuardianCrossing,c=w?.cap;
+  const ground=source?.platforms?.find(x=>x?.id==='f9:ground');
+  if(source?.lifecycle!=='running' || source.floor!==9 ||
+     source.theme!=='void' || !(p?.health>0) ||
+     typeof source.runToken!=='string' || !source.runToken ||
+     held?.runToken!==source.runToken || held.floor!==9 ||
+     held.guardianGateRetained!==true ||
+     held.verifiedObservedFloorAdvance!==true ||
+     held.oldCapId!=='f8:cap' || held.opticalExitSubmitted===true ||
+     job?.runToken!==source.runToken || job.floor!==9 ||
+     job.proof!=='recorded-source-gateway' ||
+     job.structureDeferred!==true ||
+     ![source.tick,held.sourceTick,held.crossingTick,
+       held.firstWorldRenderTick,held.submittedFrames,
+       held.oldCapX,held.oldCapWidth,held.oldRoofY,held.thresholdX,
+       p.x,p.y,p.halfWidth,p.halfHeight,
+       ground?.x,ground?.y,ground?.width,ground?.height,
+       w?.sourceTick,w?.exitX,w?.crossingX,w?.halfWidth,w?.halfHeight,
+       c?.x,c?.y,c?.width,c?.height,
+       job.sourceTick,job.structuralVisibleReturns].every(valid) ||
+     held.oldCapWidth<=0 || p.halfWidth<=0 || p.halfHeight<=0 ||
+     ground.width<=0 || ground.height<=0 ||
+     held.oldCapX!==c.x || held.oldCapWidth!==c.width ||
+     c.id!=='f8:cap' || c.y+c.height!==held.oldRoofY ||
+     ground.y+ground.height!==held.oldRoofY ||
+     held.thresholdX!==c.x+Math.floor(c.width*.76) ||
+     w.runToken!==source.runToken || w.fromFloor!==8 || w.toFloor!==9 ||
+     w.sourceTick!==held.crossingTick || w.sourceTick>source.tick ||
+     w.exitX!==held.thresholdX || w.crossingX<w.exitX ||
+     w.crossingX>w.exitX+60000 ||
+     w.halfWidth!==p.halfWidth || w.halfHeight!==p.halfHeight ||
+     w.guardian?.kind!=='guardian' || w.guardian.active!==false ||
+     !Number.isFinite(w.guardian.health) || w.guardian.health>0 ||
+     held.sourceTick<held.crossingTick ||
+     source.tick<held.sourceTick || source.tick-held.crossingTick>110 ||
+     held.firstWorldRenderTick>source.tick ||
+     job.sourceTick!==held.firstWorldRenderTick ||
+     held.submittedFrames<1 || held.submittedFrames>=30 ||
+     !Number.isFinite(held.visibleSeconds) ||
+     held.visibleSeconds<0 || held.visibleSeconds>=2.8 ||
+     !(held.originalGatewayOpacity>.01) ||
+     held.originalGatewayOpacity>1 ||
+     !(held.originalDeckSurface?.opacity>.01) ||
+     held.originalDeckSurface.opacity>1 ||
+     job.structuralVisibleReturns<0 || job.structuralVisibleReturns>30 ||
+     !observedSourceFloorNineRouteSupport(source,ground,held.oldRoofY) &&
+     !observedSourceAirborneSuccessorApproach(source,held,held.oldRoofY) &&
+     !observedSourceRetainedRaisedExit(source,held,held.oldRoofY))
+    return null;
+  // A new shaft's first return earns depth but not instantaneous 100% Void
+  // lighting. Its following returns progressively retire the same warm
+  // architecture. The source cannot spend these returns by advancing ticks.
+  const paintedProgress=smooth((job.structuralVisibleReturns-1)/5);
+  const oldWeight=Math.min(held.originalGatewayOpacity,
+    held.originalDeckSurface.opacity)*(1-paintedProgress);
+  if(oldWeight<=.01)return null;
+  return {sourceBound:true,runToken:source.runToken,
+    sourceTick:source.tick,crossingTick:w.sourceTick,
+    kind:'recorded-source-zero-hp',sharedOriginalGpuRoom:true,
+    oldWeight,returnedStructuralFrames:job.structuralVisibleReturns,
+    limitation:'Source/returned-WebGL material cohesion only; native pixels, event pairing and experience NOT EVALUATED'};
 }
 
 export function sourceAlignedIncomingShaftOpacity(source,held,nominalOpacity){
