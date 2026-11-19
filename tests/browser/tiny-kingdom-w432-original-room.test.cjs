@@ -13,18 +13,21 @@ test('W432 real original room shells are present only in detailed existing homes
  assert.match(source,/function verifiedHouseholdMealEvidence\(person\)/);
 });
 function makeRoom(){
- const calls=[],data=[];
+ const calls=[],faces=[],data=[];
  const box=(...args)=>{calls.push(args);for(let i=0;i<360;i++)data.push(0);};
- const api=new Function('data','box','materialScope','MATERIAL','rgb',
+ const quad=(...args)=>{faces.push(args);for(let i=0;i<60;i++)data.push(0);};
+ const api=new Function('data','box','quad','materialScope','MATERIAL','rgb',
   source.slice(start,end)+'return {renderOriginalOccupiedRoomShell,getOriginalOccupiedRoomAudit};'
- )(data,box,(_,f)=>f(),{PLASTER:1,STONE:2,WOOD:3},v=>v);
- return {calls,data,...api};
+ )(data,box,quad,(_,f)=>f(),{PLASTER:1,STONE:2,WOOD:3,GENERAL:4},v=>v);
+ return {calls,faces,data,...api};
 }
 test('W432 daylight occupied doorway has real empty center and furnished room inside same footprint',()=>{
  const scene=makeRoom();
  const r=scene.renderOriginalOccupiedRoomShell(7,0,-4,2.7,2.5,2.0,1,0xc9b79c);
- assert.equal(r.triangles,132);
- assert.equal(scene.calls.length,11);
+ assert.equal(r.triangles,142);
+ assert.equal(scene.calls.length,10);
+ assert.equal(scene.faces.length,11,'original stone hearth, table legs and chair back must be genuinely surfaced, not painted onto UI');
+ assert.ok(scene.faces.every(q=>q.length===5&&q.slice(0,4).every(p=>p.length===3&&p.every(Number.isFinite))));
  assert.equal(r.doorWidth,.76);
  assert.equal(r.doorHeight,1.72);
  const openingFront=-4-2.5/2+.135/2;
@@ -44,8 +47,10 @@ test('W432 daylight occupied doorway has real empty center and furnished room in
 test('W432 tall detailed cottage keeps its original upper-storey joinery and bounded triangles',()=>{
  const s=makeRoom();
  const r=s.renderOriginalOccupiedRoomShell(-2,1,5,3.0,2.6,3.54,1,0xcabb97);
- assert.equal(r.triangles,132);
+ assert.equal(r.triangles,142);
  assert.equal(s.getOriginalOccupiedRoomAudit().maxTrianglesPerHome,150);
+ assert.equal(s.getOriginalOccupiedRoomAudit().hearthRecesses,1);
+ assert.equal(s.getOriginalOccupiedRoomAudit().householdTables,1);
  assert.throws(()=>s.renderOriginalOccupiedRoomShell(0,0,0,.6,1,.8,1,0),/dimensions invalid/);
  assert.throws(()=>s.renderOriginalOccupiedRoomShell(0,0,0,2.7,2.5,1.27,1,0),/doorway cannot fit/);
 });
