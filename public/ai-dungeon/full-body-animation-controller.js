@@ -465,6 +465,8 @@ export function planOriginalSourceCoupledFootStarter({
  sourceInstanceSame=false,ownerLocomotion=false,
  alive=false,visible=false,teleport=false,reducedMotion=false,
  interrupted=false,previousLinkedCertified=false,
+ previousLinkedOriginalProof=null,sourceInstanceId='',
+ sourceUpperBone='',sourceLowerBone='',
  rootTravel=NaN,frameAge=NaN,frameInterval=NaN,
  side='',floorTopY=NaN,before=null,starterTrials=[]
 }={}){
@@ -476,13 +478,50 @@ export function planOriginalSourceCoupledFootStarter({
   !finite(sourceWeight)||sourceWeight<.95||sourceWeight>1.001||
   sourceInstanceSame!==true||ownerLocomotion!==true||
   alive!==true||visible!==true||teleport||reducedMotion||interrupted||
-  previousLinkedCertified||!other||!finite(floorTopY)||
+  !other||!finite(floorTopY)||
   Math.abs(floorTopY+.02)>.005||
   ![rootTravel,frameAge,frameInterval].every(finite)||
   rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.15||
   frameInterval<.008||frameInterval>.240001||
   !shoe(before?.[side])||!shoe(before?.[other])||
   !Array.isArray(starterTrials)||starterTrials.length!==2)return null;
+ // Consecutive legally moving source frames need an opportunity to
+ // graduate an already measured hip+knee-only leg to a connected source
+ // foot. A previous accepted counter-rotation is NOT permission to stack
+ // an ankle twist: a single immediately preceding original GLB receipt,
+ // already re-skinned AFTER final application, must prove the same rig,
+ // both shoes, unbroken clip, unused foot ownership and a still-buried
+ // toe. The renderer continues to perform the same 2+2 bounded source
+ // probes and its independent final two-shoe recheck. No IK or root move.
+ if(previousLinkedCertified){
+  const prior=previousLinkedOriginalProof;
+  const priorSwing=prior?.after?.[side],priorLoaded=prior?.after?.[other];
+  if(!sourceInstanceId||!sourceUpperBone||!sourceLowerBone||
+   prior?.source!=='measured-original-skinned-linked-leg'||
+   prior.sourceInstanceId!==sourceInstanceId||
+   prior.sourceClip!=='Walking_A'||prior.side!==side||
+   prior.sourceUpperBone!==sourceUpperBone||
+   prior.sourceLowerBone!==sourceLowerBone||
+   prior.finalIndependentSourceSkin!==true||
+   prior.oppositeShoePreserved!==true||prior.contactLocked!==false||
+   prior.linkedOriginalFootFinisher||prior.sourceCoupledKneeFootProof||
+   !finite(prior.witnessedFrameIntervalSeconds)||
+   prior.witnessedFrameIntervalSeconds<.008||
+   prior.witnessedFrameIntervalSeconds>.05||
+   !finite(prior.witnessedRootTravelMeters)||
+   prior.witnessedRootTravelMeters<.008||
+   prior.witnessedRootTravelMeters>.24||
+   !finite(prior.witnessedSourceWeight)||
+   prior.witnessedSourceWeight<.95||
+   frameInterval>.05||sourceWeight<.99||
+   !shoe(priorSwing)||!shoe(priorLoaded)||
+   priorSwing.toeY>floorTopY-.05||
+   priorSwing.toeY<floorTopY-.12||
+   priorSwing.heelY<floorTopY+.16||
+   priorSwing.heelY>floorTopY+.34||
+   ![priorLoaded.heelY,priorLoaded.toeY].every(y=>
+    y>=floorTopY-.055&&y<=floorTopY+.035))return null;
+ }
  const swing=before[side],loaded=before[other];
  const proj=Math.hypot(swing.heelXZ[0]-swing.toeXZ[0],
   swing.heelXZ[1]-swing.toeXZ[1]);

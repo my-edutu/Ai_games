@@ -2753,6 +2753,9 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
  const owner={
   mode:'move',sourceClipName:'Walking_A',sourceWeight:weight,
   previousLinkedCertified,
+  previousLinkedOriginalProof:previousLinkedCertified?preceding:null,
+  sourceInstanceId:actor.assetRoot.uuid,
+  sourceUpperBone:upper.bone.name,sourceLowerBone:lower.bone.name,
   previousUpperRad:previousLinkedCertified?preceding.upperRad:0,
   previousLowerRad:previousLinkedCertified?preceding.lowerRad:0,
   sourceInstanceSame:Boolean(actor.assetRoot?.uuid),sourceChainVerified:true,
@@ -2948,7 +2951,8 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   // is not independently certified. A final post-pose recheck follows.
   coupledOwnerBlocker=sourceAnkleProof?'original-ankle-owns-frame':
    loadedStanceProof&&!companion?'loaded-stance-owns-frame':
-   previousLinkedCertified?'previous-source-linked-owns-frame':null;
+   previousLinkedCertified&&preceding?.finalIndependentSourceSkin!==true?
+    'previous-source-linked-unverified-final-skin':null;
   const sourceCoupledPriority=!coupledOwnerBlocker?
    planOriginalSourceCoupledFootStarter({
     ...owner,starterTrials:trials.slice(0,2)}):null;
@@ -3545,7 +3549,7 @@ function stageOriginalSourceSwingLinkedLegAfterMixer(actor,side,reducedMotion){
   ...certified,sourceInstanceId:actor.assetRoot.uuid,
   sourceClip:'Walking_A',sourceAnkleEscalationVerified:Boolean(reconciled),
   sourceLoadedStanceCompanionVerified:Boolean(finalCompanion),
-  sourceFirstSwingPitchProof,
+  sourceFirstSwingPitchProof,finalIndependentSourceSkin:true,
   sourceUpperBone:upper.bone.name,
   sourceLowerBone:lower.bone.name,before,after,
   sourceUpperTrack:upperAxis.trackName,sourceLowerTrack:lowerAxis.trackName,
