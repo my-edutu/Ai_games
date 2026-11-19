@@ -55,7 +55,10 @@ test('actual Three camera projected gate, helmet and feet remain framed at 1280 
 });
 
 test('portrait, manual detail, observed guardian and reduced motion keep their existing safe stage',()=>{
-  assert.match(scene,/targetHeight = cameraMode === 'detail'/);
+  assert.match(scene,/targetHeight = publicVictoryScene \? \(aspect < \.9 \? 5\.10 : 4\.35\)/,
+    'new terminal-only physical stage must be explicit, not a blanket camera override');
+  assert.match(scene,/: cameraMode === 'detail'/,
+    'original independent manual Detail lens must still own its own camera');
   assert.match(scene,/: height < 340 \? 5\.4/);
   assert.match(scene,/: cameraGate \? \(gateStoryCloseup \? 3\.58/);
   assert.match(scene,/aspect < \.9 \? 4\.70 : 4\.55/);

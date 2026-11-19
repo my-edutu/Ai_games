@@ -1,3 +1,10 @@
+## Pass503 — keep all independent gate/pressure/Detail source contracts after authentic escape finale (2026-11-19 UTC)
+
+- Pass502 exact commit `7a1550462da816ca698439f00058850ac9a89092` [whole-repo CI 44473670899](https://github.com/my-edutu/Ai_games/actions/runs/44473670899) reached 912/915 tests but failed three **obsolete exact-string source assertions** in otherwise unchanged gate crane, pressure lens and Detail camera contracts. Original physical source and strict cameras remain present; all 3 failures expected the pre-finally terminal first branch `cameraOffset.lerp(openingStageView` / `targetHeight = cameraMode...`. No test budget or physical threshold is lowered.
+- Strengthened source tests to demand new SAME-RUN PUBLIC escape guard and priority, separately preserved original gate crane, witnessed pressure selection, manual Detail lens and all real geometry. Focused native Pass502 [44473670887](https://github.com/my-edutu/Ai_games/actions/runs/44473670887) was still capturing at correction time; **new exact-HEAD Pass503 browser images pending**. Whole Nintendo bar not met, unrelated Tiny Kingdom CI also red. [Dated review](./maze-3d/pass-503-preserved-native-camera-source-contracts-2026-11-19.md).
+
+---
+
 ## Pass502 — repair Detail-camera lexical test after separate real escaped Follow stage (2026-11-19 UTC)
 
 - Pass501 [exact-SHA source CI 44473367069](https://github.com/my-edutu/Ai_games/actions/runs/44473367069) failed **244/245** due to a real stale static-test needle expecting the Detail camera to begin at `targetHeight = cameraMode === 'detail'`, while the new escaped-only optical branch safely precedes it. Production scene parses; all installed Three/source privacy tests passed. No source/WebGL screenshots were produced on Pass501.

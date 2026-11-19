@@ -60,7 +60,12 @@ test('physical gate crane is gated on authentic public transition, never a perma
     'the real WebGL gate crane must use its witnessed public edge AND native viewport aspect');
   assert.match(scene,/openingGateToHero = openingA && openingB/,'camera derives solely from witnessed public physical coordinates');
   assert.match(scene,/focus = openingGateBeat\s*\? composePublicGateOpeningFocus\(gateDelta, aspect\)/);
-  assert.match(scene,/cameraOffset\.lerp\(openingStageView \? openingGateCameraOffset/);
+  // The genuine terminal-only camera now has first priority; the original
+  // source-published gate crane must still be second and never get bypassed
+  // by an ordinary Follow, hidden or failed escape.
+  assert.match(scene,/cameraOffset\.lerp\(publicVictoryScene \? escapeCameraOffset/);
+  assert.match(scene,/: openingStageView \? openingGateCameraOffset/);
+  assert.match(scene,/publicVictoryScene = cameraMode === 'follow' && result === 'escape'/);
   assert.match(scene,/cameraMode === 'follow' && !settings\.reducedMotion\s*\? publicOpeningMoment : null/);
   assert.match(scene,/closestThreat\?\.strength/);
 });

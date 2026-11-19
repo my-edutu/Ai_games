@@ -29,8 +29,10 @@ test('authentic pressure jaw pair gets an actual distinct near-frontal 3D stage,
     'contact framing must respond to the true actor side, not a fixed right post occlusion');
   assert.match(scene,/pose\.x, publicPressureTrap\?\.x, CELL_SIZE/,
     'camera counter-flank may use only the visible Pip/jaw physical relationship');
-  assert.match(scene,/cameraOffset\.lerp\(openingStageView/,
-    'the shared original smooth camera transition must remain in use');
+  assert.match(scene,/cameraOffset\.lerp\(publicVictoryScene \? escapeCameraOffset/,
+    'the original shared lerp remains in use, now with the separately guarded real terminal Follow stage');
+  assert.match(scene,/: pressurePortraitStage \? pressureStageCameraOffset/,
+    'the real pressure-facing stage remains selected by the unchanged publicly witnessed hazard');
   assert.match(scene,/pressureReframeEnvelope\.union\(/,
     'the existing strict real-mesh safety pass must remain active');
 });
