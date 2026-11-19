@@ -128,5 +128,38 @@
     "biggestExperienceGap": "Abrupt bronze Clockwork -> violet F9 cut and missing two consecutive source-paired original film frames jointly showing real moving hero, opened HP0 guardian gate and walkable F9 roof; baseline ascent original film also uncalibrated.",
     "nextHighestImpactAction": "Inspect new exact-head Phase3 shard and nine-job artifacts first; repair any concrete red regression. Decode full 60+s unedited desktop and portrait films, align original F8 HP0 victory/roof/raised F9/restart with native PTS; if old/new physical shared scene still absent, fix compositor/geometry as one load-bearing P0 change rather than test-only churn.",
     "safety": "PR68 remains draft. Frozen baseline intact. PR58 untouched. No force-push, merge or deployment."
+  },
+  "p0NativeReturnedRoomCoPaintAfter44489480762": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "observedCandidateSha": "0cad5da3fa0bb15ee486363f5afa25aa23ff7ba8",
+    "implementedSourceSha": "9fc090bc8548edb5f9318c98911ce6c03eb23009",
+    "sourceChangeCommits": [
+      "43f9fa1fb5cbc3926724db7e809b837c153f2dad",
+      "627e9e68c3f8b27380a889ad6e6e4e561b3b7913",
+      "4f008d37ddda5060ed14ae0af364dd23ffe8462e",
+      "9fc090bc8548edb5f9318c98911ce6c03eb23009"
+    ],
+    "exactPreviousQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44489480534 — SUCCESS all 10/10 jobs for old source 0cad5da3, NOT a new candidate result",
+    "actualOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44489480762",
+    "nativeCandidateDangerArtifacts": {
+      "desktopAndPortrait": "https://github.com/my-edutu/Ai_games/actions/runs/44489480762/artifacts/14513111485",
+      "baseline": "https://github.com/my-edutu/Ai_games/actions/runs/44489480762/artifacts/14513385056"
+    },
+    "originalFootageInspection": "Unedited candidate 25fps native desktop around 25.75s HUD9, 26.25s sustained violet; portrait HUD9 around 25.50s, violet around 26.0s. Native 0-second co-painted warm/cool bridge; portrait moving hero partly cropped around 24.5–27s. No accepted two consecutive joint hero+HP-open gate+walkable F9 original frames. Original event review job fails 0/2 strict danger source-to-native event pairing, although all eight source/video capture jobs and 8/8 source timeline integrity pass.",
+    "systemicCause": "Two independent source clocks: a far-side late immutable HP-zero source snapshot may instantly force original-architecture coverage to zero after one returned old-gate frame; concurrently source physical distance can recolor Floor9 roof/bearings/sky violet before nonzero successor structural frames returned. Native imagery showed abrupt old bronze room replacement with new violet frame.",
+    "implemented": "Source-authenticated returned-room proof verifies current F9 living supported body, HP-zero defeated original guardian, exact old F8 cap = real F9 roof, retained original GPU materials and matching job, then holds ONE oldWeight for original deck, architectural bearings and atmosphere until actual returned successor structural frames progressively earn release. Far-roof sightline coverage now recedes via existing real WebGL submitted-frame AND displayed-duration budget rather than immediate zero. No boss/physics/platform/input/camera changes, no synthetic replay or native pixel claims.",
+    "focusedTests": "New phase3 tower-p0-shared-room-returned-paint.test.cjs source/returned-frame gradation and negative controls; changed old retained-cap-world fixture to require progressive release. Tests committed, NOT RUN locally because coding tunnel unavailable; exact SHA CI required before pass.",
+    "sourcePinnedNewCapture": "Requested by next capture-request.json evidence commit on immutable github.sha; no new video result yet",
+    "acceptedVideo": "NOT EVALUATED — 2/2 source-event-to-native danger viewport pairing and consecutive real moving hero/gate/roof frames remain required",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDeviceP50P95P99Memory": "NOT EVALUATED",
+    "nextHighestImpact": "Read exact-head P0 quality; fix genuine red regressions. Inspect newly captured original candidate vs frozen baseline 60+sec WebMs in both viewports, align source tick475/roof step F9/guardian defeat and restart to native PTS; if cold returned-room still changes in a single video frame, address actual first-F9 GPU load budget and upper-cap/void shot composition, not another cosmetic patch.",
+    "safety": "PR68 remains open draft on unchanged PR58 base. Do not change frozen baseline, merge, deploy, force push, unrelated games or draft status."
   }
 }
