@@ -14,6 +14,15 @@ const config={width:17,height:11,profile:'chambers',level:4,
 const makeWorld=seed=>MazeRuntime.create(config,seed,{policy:'partial-observation'}).state.world;
 test('the native live opening picks a REAL joined chapter without changing generation or handing an oracle to the AI',()=>{
   const chosen=chooseFlagshipLiveSeed(makeWorld);
+  if(!chosen.chapter){
+    // Keep the real strict gate RED. Source diagnostics search additional
+    // authentic generated worlds ONCE in CI so the next production commit
+    // can pin a verified legal seed inside the unchanged <=48 startup cap.
+    // Never invent a path, remove a test or slow down the live startup scan.
+    const expanded=chooseFlagshipLiveSeed(makeWorld,
+      Array.from({length:2048},(_,i)=>`tideglass-live-chapter-${i}`));
+    process.stdout.write('TRUE_CHAPTER_DISCOVERY='+JSON.stringify(expanded)+'\\n');
+  }
   assert.ok(chosen.chapter,
     'No generated seed offers an honest pressure / straight Thornback / same-level two-link key / matching gate; improve the real level before calling it flagship');
   const original=makeWorld(chosen.seed);
