@@ -4030,7 +4030,14 @@ export function createMazeWorld(options = {}) {
       // Release without an earned parry returns them to their resting height.
       // Reduced motion always stays settled and completely still.
       for(const beacon of signal.sentinels){
-        beacon.lift.position.y=reduced ? .04 : .04+warningAction*.42-counterWave*.84;
+        // Pass509 native 320/390 earned-recoil frames still show the four
+        // WHOLE sea-glass sentinel towers screening Thornback even after
+        // the 31m camera lift. On the real PUBLIC lantern counter the same
+        // attached towers retract a full 1.55m into their original grounded
+        // footings, sequentially with the existing Pip-to-Thornback wave.
+        // Their original warning/brace remains tall, ordinary release returns
+        // to neutral, and no wall, collider, goal, AI, or GPU pool moves.
+        beacon.lift.position.y=reduced ? .04 : .04+warningAction*.42-counterWave*1.55;
         beacon.crown.material=counterWave>.1?inlay:action>.28?amber:seaGlass;
         beacon.lens.material=counterWave>.1?lightStone:action>.28?amber:inlay;
         // The entire linked shell fan opens laterally into the non-walkable

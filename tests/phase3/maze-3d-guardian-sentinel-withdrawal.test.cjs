@@ -66,8 +66,16 @@ test('a genuine earned Pip counter physically withdraws both original guardian s
     world.animate(1.1,{...cue,guardianBeat:1,guardianParried:false,guardianCounterPhase:.95});
     assert.ok(pose().every(y=>y>.03),'first-seen already-parried guardian cannot earn a fresh counter');
     world.animate(1.2,{...cue,guardianBeat:1,guardianParried:true,guardianCounterPhase:.95});
-    assert.ok(pose().every(y=>y<-.75),
-      'genuine earned counter collapses full original linked 3D towers below the repeated foreground stage');
+    assert.ok(pose().every(y=>y<-1.4),
+      'genuine earned counter retracts the whole original connected standards beneath the public stage');
+    // Verify BOTH sentinels at BOTH truly published actor endpoints, not just
+    // one hand-picked decorative part. No fake parry/teleport/collider change.
+    for (const cell of [6,8]) for (const side of [-1,1]) {
+      const shaft=world.group.getObjectByName(
+        'Published guardian Tideglass joined sentinel shaft '+cell+' '+side);
+      assert.ok(shaft?.parent && shaft.parent.position.y<-1.4,
+        'every real source-earned endpoint sentinel clears the actor sightline');
+    }
     assert.ok(world.stats().geometryCount===initialStats.geometryCount
       && world.stats().materialCount===initialStats.materialCount,
       'no new GPU material or geometry classes are allocated by the win');
