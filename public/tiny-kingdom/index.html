@@ -31360,31 +31360,59 @@ function citizenDetailCameraFrame(){
   tanVertical,tanHorizontal:tanVertical*lens.aspect};
 }
 function projectRealCitizenDetail(p,frame){
+ // Reuse the SAME physical viewport/authority-tick projection for genuine
+ // commuters, active worksite residents and foreground GPU joint bodies.
+ // The WeakMap belongs to ONE bounded camera plan: no saved-state cache.
+ const memo=citizenFrameProjectionMemoEnabled?frame?.actorProjectionMemo:null;
+ const cached=memo?.get(p);
+ if(cached){citizenFrameProjectionMemoHits++;return cached;}
  const point=[p.x,terrain(p.x,p.z)+.93,p.z];
  const rel=point.map((v,i)=>v-frame.eye[i]);
  const dot=b=>rel[0]*b[0]+rel[1]*b[1]+rel[2]*b[2];
  const depth=dot(frame.forward);
- if(depth<=.35)return {visible:false,depth,heightFraction:0,
+ let result;
+ if(depth<=.35)result={visible:false,depth,heightFraction:0,
   screenX:0,screenY:0};
- const screenX=dot(frame.right)/(depth*frame.tanHorizontal);
- const screenY=dot(frame.up)/(depth*frame.tanVertical);
- // Actual authentic actor: head and ankles straddle its 0.93-metre centre.
- const heightFraction=1.72/(2*depth*frame.tanVertical);
- const visible=heightFraction>.045&&
-  Math.abs(screenX)<1.13&&
-  Math.abs(screenY)<1.12+heightFraction*.55;
- return {visible,depth,heightFraction,screenX,screenY};
+ else{
+  const screenX=dot(frame.right)/(depth*frame.tanHorizontal);
+  const screenY=dot(frame.up)/(depth*frame.tanVertical);
+  // The actual actor's head and ankles straddle the original centre.
+  const heightFraction=1.72/(2*depth*frame.tanVertical);
+  const visible=heightFraction>.045&&
+   Math.abs(screenX)<1.13&&
+   Math.abs(screenY)<1.12+heightFraction*.55;
+  result={visible,depth,heightFraction,screenX,screenY};
+ }
+ if(memo){memo.set(p,result);citizenFrameProjectionMemoBuilds++;}
+ else citizenFrameProjectionMemoBypasses++;
+ return result;
 }
 // W108 Phase 1: one bounded real-camera/authoritative-tick citizen plan.
 // All citizens/real delivery parcels remain; this is read-only, not a sim.
 let citizenProjectionCache=null,citizenProjectionBuilds=0,
  citizenProjectionHits=0,citizenProjectionActorsLast=0;
+// Phase 1: a bounded one-frame projection index shared by all real resident
+// GPU/CPU rendering classes, never across state, camera or restore changes.
+let citizenFrameProjectionMemoEnabled=true,citizenFrameProjectionMemoHits=0,
+ citizenFrameProjectionMemoBuilds=0,citizenFrameProjectionMemoBypasses=0;
+function setCitizenFrameProjectionMemoForTesting(value){
+ if(value!==null&&value!==true&&value!==false)
+  throw Error('Invalid physical citizen projection memo override');
+ citizenFrameProjectionMemoEnabled=value!==false;
+ citizenProjectionCache=null;
+ presentationEpoch++;lastFrozenFrameKey=null;
+ return citizenFrameProjectionMemoEnabled;
+}
 function citizenProjectionCacheAudit(){return {
  source:'same-real-camera-and-world-epoch-worker-detail',
  entries:citizenProjectionCache?1:0,maxEntries:1,
  builds:citizenProjectionBuilds,hits:citizenProjectionHits,
  projectedActorsLast:citizenProjectionActorsLast,
  cachedActors:citizenProjectionCache?.plan?.audit.population||0,
+ frameProjectionMemo:{enabled:citizenFrameProjectionMemoEnabled,
+  hits:citizenFrameProjectionMemoHits,builds:citizenFrameProjectionMemoBuilds,
+  bypasses:citizenFrameProjectionMemoBypasses,maxCachedFrames:1,
+  exactActorAndCameraIdentity:true,readOnly:true},
  noOmittedCitizens:true,noNewPeople:true,authorityModified:false};}
 // W209 Phase 1: actual camera-projected body size, not an arbitrary 32m
 // zoom cutoff, now governs expensive founding-hamlet faces. A small, genuine
@@ -31447,6 +31475,9 @@ function selectVisibleCitizenDetail(){
     citizenProjectionCache.people===people){
   citizenProjectionHits++;return citizenProjectionCache.plan;
  }
+ // Project EVERY citizen in this real camera before detailed/compact priority
+ // selection; no offscreen resident or worker is removed from the game.
+ if(citizenFrameProjectionMemoEnabled)frame.actorProjectionMemo=new WeakMap();
  const projected=people.map((p,i)=>({i,...projectRealCitizenDetail(p,frame)}));
  const onScreen=projected.filter(row=>row.visible)
   .sort((a,b)=>b.heightFraction-a.heightFraction||
@@ -31545,7 +31576,8 @@ function selectVisibleCitizenDetail(){
    horizontalDegrees:frame.lens.horizontalDegrees},
   proof:'all original citizens have real detailed or articulated compact meshes; no authoritative changes'
  };
- const plan={indices,midIndices,mode,budget,anchorIndex,audit};
+ const plan={indices,midIndices,mode,budget,anchorIndex,audit,
+  cameraFrame:frame};
  citizenProjectionCache={key:sceneKey,people,plan};
  citizenProjectionBuilds++;citizenProjectionActorsLast=n;
  return plan;
@@ -32788,31 +32820,35 @@ const residentActorManagementStart=performance.now();
 // A truly resting, stationary distant human can retain the SAME original
 // compact mesh on the GPU while the genuinely moving and working citizens
 // continue rebuilding live IK/held-tool geometry every authoritative step.
-const restingRows=gpuAvailable?people.map((p,i)=>({p,i}))
- .filter(({p,i})=>isResidentRestingCandidate(p,i,nearPeople)):[];
+// One real-person index, passed through four ACTUAL GPU-admission tiers.
+ // Each later stage honors the preceding stage's actually accepted actors.
+const residentRows=gpuAvailable?people.map((p,i)=>({p,i})):[];
+const restingRows=residentRows
+ .filter(({p,i})=>isResidentRestingCandidate(p,i,nearPeople));
 const restingReady=prepareRestingActorMesh(restingRows);
 const restingIndices=restingReady?new Set(restingRows.map(row=>row.i)):new Set();
 // Only actual small commuters are considered. Near humans and real labour
 // receive full per-tick original geometry, regardless of this optimization.
-const commuterFrame=gpuAvailable?citizenDetailCameraFrame():null;
-const commuterRows=gpuAvailable?people.map((p,i)=>({p,i}))
+// Reuse the projection already calculated by citizen-detail admission.
+const commuterFrame=gpuAvailable?detailPlan.cameraFrame:null;
+const commuterRows=residentRows
  .filter(({p,i})=>!restingIndices.has(i)&&
-  isResidentCommuterCandidate(p,i,nearPeople,commuterFrame)):[];
+  isResidentCommuterCandidate(p,i,nearPeople,commuterFrame));
 const commuterReady=prepareResidentCommuters(commuterRows);
 const commuterIndices=commuterReady?
  new Set(commuterResidentVisible.map(row=>row.i)):new Set();
 // W121: farther real professionals still perform their original authoritative
 // tasks; only their fully intact compact presentation is retained in one VBO.
-const workingRows=gpuAvailable?people.map((p,i)=>({p,i}))
+const workingRows=residentRows
  .filter(({p,i})=>!restingIndices.has(i)&&!commuterIndices.has(i)&&
-  isResidentWorkingCandidate(p,i,nearPeople,commuterFrame)):[];
+  isResidentWorkingCandidate(p,i,nearPeople,commuterFrame));
 const workingReady=prepareWorkingResidents(workingRows);
 const workingIndices=workingReady?
  new Set(workingResidentVisible.map(row=>row.i)):new Set();
 // W124: retain original sculpted near-person geometry for off-duty people
 // AND small, genuinely working mid-distance professionals. Visible large or
 // followed workers, cargo and actual receiving hands stay continuously live.
-const foregroundRows=gpuAvailable?people.map((p,i)=>({p,i}))
+const foregroundRows=residentRows
  .filter(({p,i})=>isForegroundResidentCandidate(p,i,nearPeople)||
   isForegroundWorksiteCandidate(p,i,nearPeople,commuterFrame)||
   // Same original citizen, saved-state-true movement and handoff continuity:
@@ -32821,7 +32857,7 @@ const foregroundRows=gpuAvailable?people.map((p,i)=>({p,i}))
    isForegroundWalkingSkinCandidate(p,i,commuterFrame))||
   // W413: selected ACTUAL grain cutting / forging / building moves its
   // ORIGINAL thirteen bones on the GPU; moving cargo/receipt hands do not.
-  isObservedWorksiteSkinCandidate(p,i,nearPeople)):[];
+  isObservedWorksiteSkinCandidate(p,i,nearPeople));
 const foregroundReady=prepareForegroundResidents(foregroundRows,commuterFrame,nearPeople);
 const foregroundIndices=foregroundReady?
  new Set(foregroundResidentVisible.map(row=>row.i)):new Set();
@@ -33343,7 +33379,7 @@ getScenicVisibilityStats:()=>({homes:{...scenicVisibilityStats.homes},landscape:
  totalSavedDrawCalls:scenicVisibilityStats.totalSavedDrawCalls,
  batchMode:scenicVisibilityStats.batchMode,
  explanation:'WebGL static vertex submissions only; excludes moving citizens/sky and is not measured FPS'}),
-renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,getDynamicWorldDeltaAudit,planDynamicGpuRing,getColdSceneryBuildAudit,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getCivicCoreResidencyAudit,getCivicRoadDirtyAudit,getSettlementResidentStats,getResidentDeltaUploadAudit,getHouseGeometryCacheAudit,getResidentHomeShaderAudit,setResidentHomeShaderForTesting,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getInhabitedFootwayAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCompactStoneCoursingAudit,getCompactRainCaskAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,
+renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainHorizonTriangles,lastFrameTriangles,scenicMeshRebuilds,scenicMeshTriangles,scenicMeshKey,staticGpuUploads,landscapeGpuUploads,dynamicGpuAllocations,dynamicGpuUploads,dynamicGpuCapacityFloats,dualBufferGPU:gpuAvailable,dynamicGpuRingBuffers:dynamicFrameBuffers.filter(Boolean).length}),getDynamicGpuRingAudit,getDynamicWorldDeltaAudit,planDynamicGpuRing,getColdSceneryBuildAudit,getStaticTerrainMemoAudit,setStaticTerrainMemoEnabledForTesting,getLandscapeCacheStats:()=>({key:landscapeMeshKey,rebuilds:landscapeMeshRebuilds,reuses:landscapeMeshReuses,triangles:landscapeMeshTriangles,floats:landscapeMeshCache?.length||0}),getLandscapeSeasonCacheStats,getCivicSceneryCacheStats:civicCacheStats,getCivicCoreResidencyAudit,getCivicRoadDirtyAudit,getSettlementResidentStats,getResidentDeltaUploadAudit,getHouseGeometryCacheAudit,getResidentHomeShaderAudit,setResidentHomeShaderForTesting,getHomePartitionAudit,getStationarySettlementAudit,setHomePartitionOverride,renderQuality,setRenderQuality,getFrameProfile,getDrawCadenceAudit,getGpuFrameTimerAudit,getShadowCacheAudit,shadowStats:()=>({triangles:castShadowTriangles,...sunShadow(state.t)}),getShadowGradientAudit:shadowGradientAudit,sampleSunShadow:(time)=>sunShadow(time),sampleCanopyShadow:(x,z)=>Array.from({length:9},(_,i)=>canopyShadowVariation(x,z,i*Math.PI/4)),getEconomyHistory:()=>cloneData(uiHistory),getHudMode:()=>cinematicHud?'cinema':'full',setHudMode:setCinematicHud,setReferenceCapture,getCommandView:()=>commandView,setCommandView,skyStats:()=>({enabled:gpuAvailable,passes:skyPassCount,model:'day-night-atmosphere-v1',palette:skyColorProfile(state.t)}),getSkyPalette:skyColorProfile,getFoliageWindProbe:(x,y,z,time=state.t)=>foliageWindProbe(x,y,z,time),getBurgageMaterialAudit,getInhabitedFootwayAudit,getVillageVisualLod:()=>({...villageVisualLod,fullDetailLimit:VILLAGE_LOD_LIMIT,population:people.length,homes:city.length}),getRoofCoursingAudit,getCompactStoneCoursingAudit,getCompactRainCaskAudit,getFarmFieldResidencyAudit,getCitizenDetailPolicy:()=>({...citizenDetailPolicy}),getCitizenDetailProjectionAudit:()=>selectVisibleCitizenDetail().audit,getCitizenProjectionCacheAudit:citizenProjectionCacheAudit,setCitizenFrameProjectionMemoForTesting,getDynamicVertexPoolAudit,getEconomyResidencyAudit,setEconomyResidencyForTesting,
   getEconomyCpuCacheAudit,setEconomyCpuCacheForTesting,
  getLedgerWitnessResidencyAudit,setLedgerWitnessResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
  getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,
