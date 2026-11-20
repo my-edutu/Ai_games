@@ -527,3 +527,59 @@ test('RED-first: real 390px licensed toesl hinge can grow across one authenticat
  assert.match(renderer,/sourceLicensedCounterpitchPreviousFrame/,
   'the next authenticated original frame must read only its IMMEDIATE prior frame');
 });
+
+
+test('certify an original full-leg toes-child angular continuation ONLY from the last licensed weighted two-shoe readback',async()=>{
+ const {certifyLicensedCounterpitchToeFinish:certify}=await source;
+ const id='exact-original-41-joint-clone',support=shoe(-.018,-.018);
+ const swing=shoe(.186,-.090),before={left:support,right:swing};
+ const proof={source:'measured-original-licensed-source-counterpitch',
+  sourceInstanceId:id,side:'right',sourceClip:'Walking_A',
+  sourceClipTimeSeconds:.089976,finalIndependentSourceSkin:true,
+  originalOppositeShoeVerified:true,sourceOriginalRootTravelWitnessed:true,
+  contactLocked:false,plantCertified:false,
+  witnessedFrameIntervalSeconds:.0167,
+  witnessedRootTravelMeters:.0106,
+  witnessedDirectFrameTravelMeters:.0106,
+  witnessedFrameAgeSeconds:0,residualToeBurialMeters:.070,after:before};
+ const previous={...proof,sourceClipTimeSeconds:.072976,
+  witnessedRootTravelMeters:.011,
+  licensedOriginalToeChildFinisher:{
+   source:'measured-licensed-counterpitch-original-toes-child',
+   angleRad:-.0501,sourceBone:'toesr',sourceTrack:'toesr.quaternion',
+   side:'right',sourceToeTrackVerified:true,
+   finalIndependentSourceSkin:true,originalOppositeShoeVerified:true,
+   contactLocked:false,plantCertified:false
+  }};
+ const originalToeContinuity={
+  sourceInstanceId:id,sourceClipName:'Walking_A',
+  sourceClipTimeSeconds:.089976,sourceClipDurationSeconds:1.0416666,
+  sourceWeight:1,sourceToeBoneName:'toesr',
+  sourceToeTrackName:'toesr.quaternion',side:'right',
+  frameInterval:.0167,ownerLocomotion:true,alive:true,visible:true,
+  interrupted:false,teleport:false,reducedMotion:false,previous};
+ const args={proof,before,side:'right',sourceInstanceId:id,
+  sourceInstanceSame:true,sourceClipName:'Walking_A',
+  sourceToeTrackVerified:true,sourceToeBoneParentVerified:true,
+  floorTopY:-.02,angleRad:-.1002};
+ // AFTER deliberately synthesized to exercise the strict existing source
+ // two-shoe certificate. This is NOT an asserted new GLB recording.
+ const after={left:support,right:{...swing,
+  heelY:.185,toeY:-.084,toeXZ:[.089,0]}};
+ const verified=certify({...args,after,originalToeContinuity});
+ assert.ok(verified,'a real prior -50.1mrad native toe may advance another <=50.1mrad');
+ assert.equal(verified.plantCertified,false);
+ assert.equal(verified.contactLocked,false);
+ for(const patch of [
+  {originalToeContinuity:null},
+  {originalToeContinuity:{...originalToeContinuity,
+   sourceInstanceId:'other-source-clone'}},
+  {originalToeContinuity:{...originalToeContinuity,sourceClipName:'Idle'}},
+  {originalToeContinuity:{...originalToeContinuity,
+   previous:{...previous,licensedOriginalToeChildFinisher:{
+    ...previous.licensedOriginalToeChildFinisher,sourceTrack:'spine.quaternion'}}}},
+  {angleRad:+.1002},{angleRad:-.12},
+  {after:{left:{...support,toeY:-.011},right:after.right}}
+ ])assert.equal(certify({...args,after,originalToeContinuity,...patch}),null,
+  'cannot borrow a stale clip/rig/toe track or skip native angular-rate and opposite-shoe proof');
+});

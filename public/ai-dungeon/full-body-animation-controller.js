@@ -5976,6 +5976,67 @@ const PINNED_COUNTERPITCH_ROLES=new Set([
 ]);
 const counterpitchShoe=s=>s&&[s.heelY,s.toeY].every(finite)&&
  [s.heelXZ,s.toeXZ].every(v=>Array.isArray(v)&&v.length===2&&v.every(finite));
+
+/**
+ * Two original toes[l/r] source-weighted trial angles, based only on the
+ * immediately preceding SAME licensed GLB clone, clip, child track, and
+ * independently re-skinned two-shoe receipt. Does not create contact, IK,
+ * targets, root movement, extra GPU work or a successful pose assertion.
+ */
+export function planLicensedSourceToeChildContinuityCandidates({
+ sourceInstanceId='',sourceClipName='',sourceClipTimeSeconds=NaN,
+ sourceClipDurationSeconds=NaN,sourceWeight=NaN,
+ sourceToeBoneName='',sourceToeTrackName='',side='',frameInterval=NaN,
+ ownerLocomotion=false,alive=false,visible=false,
+ interrupted=false,teleport=false,reducedMotion=false,previous=null
+}={}){
+ const right=side==='right',left=side==='left';
+ const start=right?.03:.515,end=right?.335:.875;
+ if((!right&&!left)||!sourceInstanceId||
+  sourceClipName!=='Walking_A'||
+  sourceToeBoneName!=='toes'+(left?'l':'r')||
+  sourceToeTrackName!==sourceToeBoneName+'.quaternion'||
+  ![sourceClipTimeSeconds,sourceClipDurationSeconds,sourceWeight,frameInterval].every(finite)||
+  sourceClipDurationSeconds<1.040||sourceClipDurationSeconds>1.044||
+  sourceClipTimeSeconds<=start||sourceClipTimeSeconds>=end||
+  sourceWeight<.985||sourceWeight>1.001||
+  frameInterval<.008||frameInterval>.420001||
+  ownerLocomotion!==true||alive!==true||visible!==true||
+  interrupted||teleport||reducedMotion)return null;
+ const step=3*frameInterval,first=Math.min(.12,step);
+ const fallback=Object.freeze([-first,first]);
+ const last=previous?.licensedOriginalToeChildFinisher;
+ const signed=last?.angleRad,oldPhase=previous?.sourceClipTimeSeconds;
+ // An unverified earlier pose never contributes any angle or timing budget.
+ if(!previous||previous.source!=='measured-original-licensed-source-counterpitch'||
+  previous.sourceInstanceId!==sourceInstanceId||
+  previous.sourceClip!=='Walking_A'||previous.side!==side||
+  previous.finalIndependentSourceSkin!==true||
+  previous.originalOppositeShoeVerified!==true||
+  previous.contactLocked!==false||previous.plantCertified!==false||
+  !finite(previous.witnessedFrameIntervalSeconds)||
+  previous.witnessedFrameIntervalSeconds<.008||
+  previous.witnessedFrameIntervalSeconds>.05||
+  !finite(previous.witnessedRootTravelMeters)||
+  previous.witnessedRootTravelMeters<.008||
+  previous.witnessedRootTravelMeters>.24||
+  frameInterval>.05||
+  !finite(oldPhase)||oldPhase<=start||oldPhase>=end||
+  sourceClipTimeSeconds<=oldPhase||
+  sourceClipTimeSeconds-oldPhase>Math.min(.05,3*frameInterval)||
+  last?.source!=='measured-licensed-counterpitch-original-toes-child'||
+  last.side!==side||last.sourceBone!==sourceToeBoneName||
+  last.sourceTrack!==sourceToeTrackName||
+  last.finalIndependentSourceSkin!==true||
+  last.originalOppositeShoeVerified!==true||
+  last.sourceToeTrackVerified!==true||
+  last.contactLocked!==false||last.plantCertified!==false||
+  !finite(signed)||Math.abs(signed)<.018||Math.abs(signed)>.120001)
+  return fallback;
+ const expanded=Math.sign(signed)*Math.min(.12,Math.abs(signed)+step);
+ return Object.freeze([signed,expanded]);
+}
+
 export function planLicensedSourceSwingCounterpitch({
  source='',sourceRole='',mode='idle',sourceClipName='',
  sourceClipDurationSeconds=NaN,sourceClipTimeSeconds=NaN,
@@ -6181,7 +6242,7 @@ export function certifyLicensedCounterpitchToeFinish({
  proof=null,before=null,after=null,side='',sourceInstanceId='',
  sourceInstanceSame=false,sourceClipName='',
  sourceToeTrackVerified=false,sourceToeBoneParentVerified=false,
- angleRad=NaN,floorTopY=NaN
+ angleRad=NaN,floorTopY=NaN,originalToeContinuity=null
 }={}){
  const other=side==='left'?'right':side==='right'?'left':null;
  // Original 390px WebGL source #44768341460 still had 70.04mm of toe
@@ -6208,6 +6269,25 @@ export function certifyLicensedCounterpitchToeFinish({
   Number.isFinite(proof.witnessedFrameAgeSeconds)&&
   proof.witnessedFrameAgeSeconds>=0&&
   proof.witnessedFrameAgeSeconds<=.035);
+ // A cumulative toe-child correction is permitted only when the very
+ // same prior independently source-skinned original child receipt passes
+ // the current clip/bone/phase owner check and the TRUE <=3rad/s delta.
+ const priorToe=originalToeContinuity?.previous?.licensedOriginalToeChildFinisher;
+ const permittedAngles=originalToeContinuity?
+  planLicensedSourceToeChildContinuityCandidates({
+   ...originalToeContinuity,sourceInstanceId,sourceClipName,side,
+   sourceClipTimeSeconds:proof?.sourceClipTimeSeconds,
+   frameInterval:proof?.witnessedFrameIntervalSeconds
+  }):null;
+ const accumulatedSourceToe=Boolean(
+  priorToe&&permittedAngles?.some(a=>Math.abs(a-angleRad)<=.000001)&&
+  finite(priorToe.angleRad)&&
+  Math.abs(angleRad-priorToe.angleRad)<=
+   3*(proof?.witnessedFrameIntervalSeconds??NaN)+.000001&&
+  Math.sign(angleRad)===Math.sign(priorToe.angleRad)&&
+  originalToeContinuity.sourceInstanceId===sourceInstanceId&&
+  originalToeContinuity.sourceClipName===sourceClipName&&
+  originalToeContinuity.side===side);
  const valid=s=>s&&[s.heelY,s.toeY,
   ...(s.heelXZ||[]),...(s.toeXZ||[])].every(Number.isFinite)&&
   Array.isArray(s.heelXZ)&&s.heelXZ.length===2&&
@@ -6241,7 +6321,8 @@ export function certifyLicensedCounterpitchToeFinish({
   sourceToeTrackVerified!==true||sourceToeBoneParentVerified!==true||
   !Number.isFinite(angleRad)||Math.abs(angleRad)<.018||
   Math.abs(angleRad)>.160001||
-  Math.abs(angleRad)>3*proof.witnessedFrameIntervalSeconds||
+  (Math.abs(angleRad)>3*proof.witnessedFrameIntervalSeconds+.000001&&
+   !accumulatedSourceToe)||
   !Number.isFinite(floorTopY)||
   Math.abs(floorTopY+.02)>.005||
   ![proof.residualToeBurialMeters].every(Number.isFinite)||
