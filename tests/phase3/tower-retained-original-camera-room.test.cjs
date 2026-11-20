@@ -1,8 +1,10 @@
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import { observedRetainedSourceOriginalOpticalRoom } from '../../public/infinite-tower-climb/visuals/source-physical-arrival-palette.mjs';
-import { observedSourceBoundColdDoorwayLens } from '../../public/infinite-tower-climb/visuals/cold-doorway-camera.mjs';
-import { pointFor } from '../../public/infinite-tower-climb/visuals/coordinates.mjs';
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const imports=Promise.all([
+  import('../../public/infinite-tower-climb/visuals/source-physical-arrival-palette.mjs'),
+  import('../../public/infinite-tower-climb/visuals/cold-doorway-camera.mjs'),
+  import('../../public/infinite-tower-climb/visuals/coordinates.mjs'),
+]);
 
 function fixture() {
   const cap={id:'f8:cap',x:115200,y:3212000,width:249600,height:12000};
@@ -28,7 +30,8 @@ function fixture() {
   return {source,held};
 }
 
-test('source-authenticated original GPU room remains eligible during the real first F9 jump',()=>{
+test('source-authenticated original GPU room remains eligible during the real first F9 jump',async()=>{
+  const [{observedRetainedSourceOriginalOpticalRoom},{observedSourceBoundColdDoorwayLens},{pointFor}]=await imports;
   const {source,held}=fixture();
   const proof=observedRetainedSourceOriginalOpticalRoom(source,held);
   assert.equal(proof?.sourceBound,true);
@@ -43,7 +46,8 @@ test('source-authenticated original GPU room remains eligible during the real fi
   assert.ok(lens.span<26 && lens.rise<28);
 });
 
-test('no false old-room certificate for unrelated run, unearned HP, ghost support or retired mesh',()=>{
+test('no false old-room certificate for unrelated run, unearned HP, ghost support or retired mesh',async()=>{
+  const [{observedRetainedSourceOriginalOpticalRoom}]=await imports;
   for(const mutation of [
     (s,h)=>{s.runToken='other-run';},
     (s,h)=>{s.lastGuardianCrossing.guardian.health=1;},
@@ -64,13 +68,16 @@ test('no false old-room certificate for unrelated run, unearned HP, ghost suppor
   }
 });
 
-test('camera cannot borrow old GPU receipt from a different source tick',()=>{
+test('camera cannot borrow old GPU receipt from a different source tick',async()=>{
+  const [,{observedSourceBoundColdDoorwayLens},{pointFor}]=await imports;
   const {source,held}=fixture();
   const actor=pointFor(source.player.x,source.player.y,
     source.chunkBaseY,source.worldWidth,25);
   // A current authentic but already completely faded gateway cannot be
   // repainted by a stale source-validated optical receipt.
   held.originalGatewayOpacity=0;
+  held.submittedFrames=60;
+  held.visibleSeconds=2.9;
   held.sourceOwnedOriginalCameraRoom=true;
   held.sourceOwnedOriginalCameraRoomTick=source.tick-1;
   const lens=observedSourceBoundColdDoorwayLens(source,held,actor,.46);

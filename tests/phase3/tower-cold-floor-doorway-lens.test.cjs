@@ -109,7 +109,9 @@ test('scene camera receives the source-owned optical gateway witness beyond the 
   const world=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
   assert.match(world,/const visibleOriginalGateway=.*observedSourceGatewayDeparturePresence\(snapshot,held\)/s);
   assert.match(world,/guardianGateRetained:held\.guardianGateRetained===true/);
-  assert.match(world,/if\(!immutable && !priorGrounded && !visibleOriginalGateway\)return null/);
+  assert.match(world,/const ownedSourceRoom=held\.root\?\.parent===group/);
+  assert.match(world,/observedRetainedSourceOriginalOpticalRoom\(snapshot,held\)/);
+  assert.match(world,/if\(!immutable && !priorGrounded && !visibleOriginalGateway &&\s*!ownedSourceRoom\)return null/);
 });
 
 test('source-earned first F9 return-step keeps real original camera across bounded AI reversal on desktop AND portrait',async()=>{
