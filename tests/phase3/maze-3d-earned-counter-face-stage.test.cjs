@@ -36,17 +36,23 @@ test('Pass518 no invented parry shot for unearned, reduced, landscape, desktop o
 test('Pass522 genuine lantern impact retains the prior two-actor witness before opening the 3D retreat view',async()=>{
   const {publicEarnedGuardianCounterCameraAct:stage}=await load();
   assert.equal(stage(0,true,false),0,'the first real contact stays on its already witnessed action camera');
-  assert.equal(stage(.09,true,false),0);
-  // Pass523 original 390px source image proved the generic portrait offset
-  // was NOT the camera that actually photographed the previous warning.
-  // Hold the true previous rendered angle through contact, then still reach
-  // the complete existing physical guardian retreat within the SAME 2s cue.
-  assert.equal(stage(.18,true,false),0,'do not move the shot before impact is legible');
-  assert.equal(stage(.27,true,false),0);
+  // Pass526: original 390px photographed contact retains both complete
+  // models but masks the actual guardian face behind glass foliage. The later
+  // authentic higher 320px view already exposes the face. Keep first contact,
+  // then earn that SAME physical higher reveal before the two-second hit ends.
+  // These are independent stronger, numerical choreography checks; no
+  // model-frame geometry, privacy, motion or gameplay gate is relaxed.
+  assert.equal(stage(.08,true,false),0,'keep genuine first impact at actual previously rendered view');
+  const first=stage(.09,true,false);
+  assert.ok(first>0 && first<.01,'first camera movement is smooth, not a sudden cut');
+  const early=stage(.18,true,false),quarter=stage(.27,true,false);
+  assert.ok(early>.08 && early<.10 && quarter>.27 && quarter<.30,
+    'real guardian face reveal must begin during the parry rather than after the action');
   const beginning=stage(.34,true,false),middle=stage(.56,true,false);
-  assert.ok(beginning>0 && beginning<middle && middle<1,
-    'earned counter smoothly advances after the witnessed initial contact');
-  assert.equal(stage(.85,true,false),1,'the authentic public retreat lens must still complete before cue expiration');
+  assert.ok(beginning>.45 && beginning<.50 && middle>.96 && middle<1,
+    'already-authentic high physical guardian camera is reached in the original 2s witness');
+  assert.equal(stage(.62,true,false),1,'the genuine guardian reveal reaches its current physical geometry before expiry');
+  assert.equal(stage(.85,true,false),1,'the source cue expires without a second camera jump');
   assert.equal(stage(.95,true,false),1);
   assert.equal(stage(1,true,false),1);
   for(const age of [-1,NaN,Infinity,null,undefined])
