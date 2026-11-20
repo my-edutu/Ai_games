@@ -108,6 +108,21 @@ test('W125 390px touch buttons, two-finger dolly/pan, reduced motion, and real s
   expect(rect.height,id+' must be at least 44px').toBeGreaterThanOrEqual(44);
  }
  await expect(page.locator('#world-trace-toggle')).toContainText('Supply');
+ // W495 real mobile hit-test: the unfolded playback controls must never
+ // intercept the grain-ledger toggle. No force-click/DOM click bypasses.
+ const touchClearance=await page.evaluate(()=>{
+  const toggle=document.querySelector('#world-trace-toggle');
+  const bounds=toggle.getBoundingClientRect();
+  const transport=document.querySelector('#transport-actions').getBoundingClientRect();
+  const centerX=bounds.left+bounds.width/2,centerY=bounds.top+bounds.height/2;
+  const target=document.elementFromPoint(centerX,centerY);
+  return {centerTarget:target===toggle||toggle.contains(target),
+   clearance:transport.top-bounds.bottom,
+   insideScreen:centerY>=0&&centerY<=innerHeight};
+ });
+ expect(touchClearance.insideScreen).toBe(true);
+ expect(touchClearance.centerTarget,'Real phone finger reaches Supply').toBe(true);
+ expect(touchClearance.clearance,'Supply stays above expanded controls').toBeGreaterThanOrEqual(6);
  await page.locator('#world-trace-toggle').click();
  await expect(page.locator('#world-supply-trail')).toBeVisible();
  const ledgerVisibility=await page.locator('#world-ribbon').evaluate(el=>{
