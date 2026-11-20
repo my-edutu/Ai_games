@@ -219,3 +219,38 @@ test('real 60Hz original counterpitch may finish its shallow buried toe at a rat
  assert.match(renderer,/proof\.witnessedFrameAgeSeconds<=\.035/,
   'stale source frames must remain ineligible');
 });
+
+test('licensed full-leg 60Hz/30Hz counterpitch must obey its own actual angular-rate budget',async()=>{
+ const {planLicensedSourceSwingCounterpitch:plan,
+  certifyLicensedSourceSwingCounterpitch:certify}=await source;
+ // The previous genuine original Vanguard desktop receipt applied 150mrad
+ // in 16.8ms (8.93 rad/s). A source-rig, full-leg overlay must not make
+ // a one-frame angular snap while the toe child is limited to 3rad/s.
+ const sixty=plan({...owner,frameInterval:.0168,rootTravel:.010155,frameAge:0});
+ assert.ok(sixty,'genuine 16.8ms moving-root licensed source walking must remain eligible');
+ assert.ok(Math.abs(sixty.footRad)<=3*.0168+1e-7,
+  'native 60Hz three-bone correction must not jump 150mrad at once');
+ assert.ok(Math.abs(sixty.upperRad)<.08&&Math.abs(sixty.lowerRad)<.08,
+  'thigh and calf must participate rather than an isolated toe hinge');
+ const thirty=plan({...owner,frameInterval:.0333,rootTravel:.01929,frameAge:0});
+ assert.ok(thirty);
+ assert.ok(Math.abs(thirty.footRad)<=3*.0333+1e-7,
+  'real 30Hz source frame obeys the same 3rad/s bound');
+ const sparse=plan({...owner,frameInterval:.3153,rootTravel:.05,frameAge:.02,
+  sparseFrameVerified:true});
+ assert.ok(sparse);
+ assert.ok(Math.abs(sparse.footRad)<=3*.24+1e-7,
+  'verified late frames do not borrow unlimited past angular budget');
+ const small={right:shoe(.242,-.082),left:loaded};
+ const native=certify({plan:sixty,before,after:small,
+  sourceInstanceSame:true,sourceClipName:'Walking_A',
+  side:'right',floorTopY:-.02});
+ assert.ok(native,'a 3mm toe/3mm heel physically measured improvement must remain legal at 60Hz');
+ assert.equal(native.contactLocked,false);
+ assert.equal(native.plantCertified,false);
+ assert.equal(certify({plan:sixty,before,
+  after:{right:shoe(.248,-.082),left:loaded},
+  sourceInstanceSame:true,sourceClipName:'Walking_A',
+  side:'right',floorTopY:-.02}),null,
+  'rate-limited correction still must never accept a rising swing heel');
+});
