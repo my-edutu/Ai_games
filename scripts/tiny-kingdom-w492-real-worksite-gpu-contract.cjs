@@ -26,8 +26,11 @@ const mock={Array,Set,Math,Number,Float32Array,
  isWorkingAtSite:p=>Boolean(p.active),
  isMarketUnloading:()=>false,verifiedHouseholdMealEvidence:()=>false,
  isForegroundWorksiteCandidate:(p,i)=>p.active&&i!==2,
- isForegroundWalkingSkinCandidate:p=>!p.active,
+ isForegroundWalkingSkinCandidate:p=>!p.active&&Boolean(p.activity)&&
+  (/^Traveling to /.test(p.activity)||
+   ['Resting at home','Waiting for a safe route','Finding a home'].includes(p.activity)),
  isResidentRestingCandidate:p=>p.activity==='Resting at home',
+ isResidentWorkingCandidate:(p,i,near)=>p.active&&!near.has(i)&&i!==2,
  isResidentCommuterCandidate:p=>(p.activity||'').startsWith('Traveling'),
  projectRealCitizenDetail:()=>({visible:true,heightFraction:.05}),
  // The audit must inspect real-selected GPU buffers without silently
