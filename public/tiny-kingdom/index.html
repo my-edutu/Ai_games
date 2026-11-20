@@ -2235,10 +2235,21 @@ let commuterResidentJointBuffer=null,commuterResidentJointCapacity=0,
  commuterResidentJointData=new Float32Array(0),commuterSkinDrawCalls=0,
  commuterJointUploads=0,commuterJointUploadBytes=0;
 
+// W503 integrated Phase-1 original worker-to-household journey. One source
+// truth for genuine unladen travel: workbound commuters, outdoor exploration,
+// physical dusk homecoming, and the newly covered empty-handed meal return.
+// Loaded courier, purchased provision and receipt hands remain live CPU paths.
+function isOriginalUnladenTravelStage(p){
+ if(!p||typeof p.activity!=='string')return false;
+ if(/^(Traveling to |Exploring the valley$|Returning home at dusk$)/.test(p.activity))
+  return true;
+ return p.activity==='Traveling home for a meal'&&
+  !(Number.isFinite(p.provisions)&&p.provisions>0);
+}
 function isResidentCommuterCandidate(p,i,nearPeople,frame){
  if(!gpuAvailable||nearPeople.has(i)||!p||p.delivery||
     isWorkingAtSite(p)||isMarketUnloading(p))return false;
- if(!(/^(Traveling to |Exploring the valley$|Returning home at dusk$)/.test(p.activity||''))||
+ if(!isOriginalUnladenTravelStage(p)||
     !Number.isFinite(p.x)||!Number.isFinite(p.z)||!Number.isFinite(p.phase))return false;
  // Read the REAL optical projection; all physically close, large-on-screen
  // figures retain live two-bone feet and wrists. No citizen is omitted.
@@ -2441,7 +2452,9 @@ function drawResidentCommuters(){
 }
 function getResidentCommuterAudit(){
  return {source:'original-real-route-compact-actor-retained-gpu-poses',
-  actualCitizens:commuterResidentVisible.length,groupBuffers:commuterResidentBuffer?1:0,
+  actualCitizens:commuterResidentVisible.length,
+   originalNames:commuterResidentVisible.map(row=>row.p.name),
+   groupBuffers:commuterResidentBuffer?1:0,
   cachedPoseEntries:commuterResidentCache.size,maxCitizens:COMMUTER_RESIDENT_MAX,
   triangles:commuterResidentVisible.length?commuterResidentMesh.length/30:0,
   floats:commuterResidentMesh.length,maxFloats:COMMUTER_RESIDENT_FLOAT_BUDGET,
@@ -3276,7 +3289,7 @@ function isForegroundWalkingSkinCandidate(p,i,frame){
   ![p.x,p.z,p.phase].every(Number.isFinite))return false;
  const observed=(follow||liveWorkday)&&i===selectedCitizen;
  const action=p.activity||'';
- const moving=/^(Traveling to |Exploring the valley$|Returning home at dusk$)/.test(action);
+ const moving=isOriginalUnladenTravelStage(p);
  const passive=action==='Resting at home'||
   action==='Waiting for a safe route'||action==='Finding a home';
  if(!moving&&!passive)return false;
@@ -3659,7 +3672,7 @@ function getForegroundResidentAudit(){
    .filter(row=>isWorkingAtSite(row.p)).length,
   physicallySkinnedCommuters:foregroundResidentVisible
    .filter(row=>row.entry.skinned&&!isWorkingAtSite(row.p)&&
-    /^(Traveling to |Exploring the valley$|Returning home at dusk$)/.test(row.p.activity||'')).length,
+    isOriginalUnladenTravelStage(row.p)).length,
   walkingSkinScreenWindow:{enter:FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT,
    retain:FOREGROUND_WALKING_SKIN_HOLD_SCREEN_HEIGHT},
   mediumShotNonContactOriginalGpuSkin:true,
@@ -3672,8 +3685,7 @@ function getForegroundResidentAudit(){
   observedUnladenTravelerNames:foregroundResidentVisible
    .filter(row=>row.entry.skinned&&row.i===selectedCitizen&&
     (follow||liveWorkday)&&!row.p.delivery&&
-    /^(Traveling to |Exploring the valley$|Returning home at dusk$)/
-     .test(row.p.activity||'')).map(row=>row.p.name),
+    isOriginalUnladenTravelStage(row.p)).map(row=>row.p.name),
   observedTravelScreenGate:{enter:.245,retain:.295},
   observedRealWorksiteSkinNames:foregroundResidentVisible
    .filter(row=>row.entry.skinned&&row.i===selectedCitizen&&
@@ -3723,8 +3735,7 @@ function getForegroundSkinAudit(){
   observedUnladenTravelSkinned:foregroundResidentVisible
    .filter(row=>row.entry.skinned&&row.i===selectedCitizen&&
     (follow||liveWorkday)&&!row.p.delivery&&
-    /^(Traveling to |Exploring the valley$|Returning home at dusk$)/
-     .test(row.p.activity||'')).length,
+    isOriginalUnladenTravelStage(row.p)).length,
   observedRealWorkAndParcelCpuContacts:true,
   authorityChanged:false,physicalFpsUnmeasured:true};
 }

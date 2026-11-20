@@ -6,6 +6,7 @@ on:
       - 'scripts/tiny-kingdom-w221-real-commuter-gpu-skin-contract.cjs'
       - '.github/workflows/tiny-kingdom-w221-real-commuter-skin.yml'
       - 'tests/browser/tiny-kingdom-w221-original-commuter-gpu.spec.cjs'
+      - 'tests/tiny-kingdom-w503-unladen-journey.cjs'
   workflow_dispatch:
 permissions:
   contents: read
@@ -29,6 +30,8 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: Original commuter GPU joint contract and fallback
         run: node scripts/tiny-kingdom-w221-real-commuter-gpu-skin-contract.cjs
+      - name: W503 authentic unladen market-to-home renderer contract
+        run: node tests/tiny-kingdom-w503-unladen-journey.cjs
       - name: Verify complete game builds
         run: npm run build
       - name: Install real Chromium WebGL software test environment
