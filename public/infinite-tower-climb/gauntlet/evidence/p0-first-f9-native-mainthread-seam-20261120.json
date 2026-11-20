@@ -219,6 +219,15 @@
       "noDeploy": true,
       "noForcePush": true,
       "noOtherGames": true
+    },
+    "priorCaptureFinalVerified": {
+      "campaign": "https://github.com/my-edutu/Ai_games/actions/runs/44662433915",
+      "sourceSha": "ac335694fa59f1790283196eeb567af712f07972",
+      "originalRecordings": "8/8 completed successfully; authentic original ledge job succeeded",
+      "strictEventToNativePairing": "FAILED 0/2 desktop and portrait",
+      "pairingJob": "https://github.com/my-edutu/Ai_games/actions/runs/44662433915/job/136052205746",
+      "jobLog": "Unedited event-aligned danger A/B: 0/2 viewports; full authentic scene pairs 8/8; independent experience NOT EVALUATED.",
+      "limitation": "This verifies the PRIOR film only. New per-render-frame matrix cache source-pinned campaign requested at 69a95be; its jobs and native movie outcome not yet confirmed."
     }
   }
 }
