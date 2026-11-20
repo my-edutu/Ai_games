@@ -7972,5 +7972,30 @@
       "PR58Untouched": true,
       "baselineMoved": false
     }
+  },
+  "p0OriginalGatewayCameraReturnedRoomNativeRetest20261120_1253": {
+    "stage": "P0 OPEN — NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedHeadBeforeCapture": "0694fec5a293457f5a5556ce489e5215ac5dfce4",
+    "baselineRef": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateRef": "${{ github.sha }}",
+    "originalMatchedFootage": "Eight 60+ second native 1x 25fps baseline/candidate ascent, danger, moving, outcome/restart desktop 960x600 and portrait 390x844 with same seeds/tiers plus authentic ledge and strict source-to-video pairing",
+    "originalFailure": "Strict source-aligned gateway+climber+F9 = 0/2 on f1176f4",
+    "why": "Retest authentic gateway-hero-successor shot after production camera+gate returned-frame clock synchronization at latest source HEAD",
+    "independentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "deviceMetrics": "NOT EVALUATED",
+    "safety": {
+      "PR68Draft": true,
+      "PR58Untouched": true,
+      "frozenBaselineUnchanged": true,
+      "noMerge": true,
+      "noDeploy": true,
+      "noForcePush": true,
+      "otherGamesUntouched": true
+    }
   }
 }

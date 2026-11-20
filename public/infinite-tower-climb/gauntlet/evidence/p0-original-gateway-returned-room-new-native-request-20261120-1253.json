@@ -1,0 +1,53 @@
+{
+  "stage": "P0 OPEN",
+  "leadingAssessorVerdict": "NOT EVALUATED",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "inspectedHead": "0694fec5a293457f5a5556ce489e5215ac5dfce4",
+  "previousCandidateSha": "f1176f4462f50c53a7e3413817d1398c995fa0da",
+  "previousCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44726597234",
+  "previousSourceNarratives": "8/8 original episodes; authentic ledge passes",
+  "previousStrictNativeCrossing": "0/2",
+  "priorVideoIntegrity": {
+    "desktop": {
+      "durationSeconds": 72.52,
+      "originalWebMSha256": "59097e329de70363d5b59fddc860b43d8c9d808b247f65c02de5f006903bea39",
+      "sourceFloorNineSeconds": 24.790008110575997,
+      "visibleHUD9Seconds": 26,
+      "violetEnvironmentSeconds": 26.75,
+      "sustainedOldNewOverlapSeconds": 0
+    },
+    "portrait": {
+      "durationSeconds": 72.16,
+      "originalWebMSha256": "fe6b792e52a06c1e5a295bcd3a2ba7321d691c0e7f4b8c5811f1cfda6f72db8a",
+      "sourceFloorNineSeconds": 24.42154633218716,
+      "visibleHUD9Seconds": 25.75,
+      "violetEnvironmentSeconds": 26.25,
+      "sustainedOldNewOverlapSeconds": 0
+    }
+  },
+  "directVideoInspection": "Downloaded unmodified original danger desktop+portrait WebM artifact 14624597458 and inspected temporally ordered frames at 23.5–30s. No continuous full moving hero+open original portal+walkable successor. This is previous production footage only, NOT updated camera/material code evidence.",
+  "lastProductionChanges": [
+    "97cb4cb5eefa09c5cc1dbf72c6bc8ad30bac38f3",
+    "bcf4204dc581519499bbddadeb3af6207f5bd961",
+    "ecf185605331403bff869df42449f83ea7373635"
+  ],
+  "qualityCheck": "https://github.com/my-edutu/Ai_games/actions/runs/44730617255",
+  "latestNineJobCapture": "Requested by this new capture-request commit; Actions github.sha is exact immutable new candidate source",
+  "largestDefect": "In original f1176f4 live 1x films the source reaches F9 at ~24.79s desktop/~24.42s portrait, but visible HUD9 appears at 26.00s/25.75s and violet room establishes at 26.75s/26.25s. Unedited native footage has no sustained bronze-to-violet shared room or source-aligned full moving hero+real HP-zero gateway+grounded F9 successor; portrait foreground bars obscure the passage.",
+  "nextHighestImpactAction": "Inspect exact new nine-job 25fps 1x full native 960x600/390x844 films and strict source-to-frame pairing for guardian floor 8 to walkable floor 9 after the extended material/camera return changes; if failure persists fix true original steel, whole actor, receiving roof and portrait occlusion together before P1.",
+  "independentCritics": {
+    "LOOKS": 0,
+    "FEELS": 0,
+    "PLAYS": 0
+  },
+  "deviceFrameTimePercentilesAndMemory": "NOT EVALUATED",
+  "constraints": {
+    "pr68Draft": true,
+    "pr58Untouched": true,
+    "baselineMoved": false,
+    "merge": false,
+    "deploy": false,
+    "forcePush": false,
+    "otherGames": false
+  }
+}
