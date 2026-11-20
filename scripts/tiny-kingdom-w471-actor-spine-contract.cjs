@@ -15,8 +15,8 @@ test('software WebGL defaults to original complete live citizen bodies',()=>{
  assert.equal(fn(true,true,true),true); // compare with previous resident path
  assert.equal(fn(true,false,false),false); // compare with old live geometry path
 });
-test('same policy applies to all four real resident admission tiers',()=>{
- const from=html.indexOf('const residentRows=residentActorGpuEnabled()?');
+test('both hardware and software worksite tiers share four true resident admission stages',()=>{
+ const from=html.indexOf('const residentRows=authenticWorkerGpuResidentRows(people,nearPeople,detailPlan.cameraFrame);');
  const to=html.indexOf('dynamicPhaseTimes.residentActorManagement=',from);
  assert(from>0&&to>from);
  const frame=html.slice(from,to);
@@ -24,7 +24,10 @@ test('same policy applies to all four real resident admission tiers',()=>{
  assert.match(frame,/const commuterRows=residentRows/);
  assert.match(frame,/const workingRows=residentRows/);
  assert.match(frame,/const foregroundRows=residentRows/);
- assert.match(frame,/const commuterFrame=residentActorGpuEnabled\(\)/);
+ assert.match(frame,/const commuterFrame=residentActorProjectionFrame\(detailPlan\)/);
+ assert.match(html,/function authenticWorkerGpuResidentRows\(/);
+ assert.match(html,/function isSoftwareWorksiteVisible\(/);
+ assert.match(frame,/prepareForegroundResidents\(foregroundRows,commuterFrame,nearPeople\)/);
 });
 test('software path cannot silently drop a real citizen or replace actual 3D body',()=>{
  const start=html.indexOf('const liveActorGeometryStart=performance.now();');
