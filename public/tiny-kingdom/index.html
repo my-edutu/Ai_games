@@ -19638,7 +19638,11 @@ let economyResidentCapacity=0,economyResidentActive=false,economyResidentOverrid
 let economyResidentUploads=0,economyResidentReuses=0,economyResidentBuilds=0;
 let economyResidentDisposals=0,economyResidentOverBudget=0,economyResidentDrawCalls=0;
 function economyResidencyRequested(){
- return Boolean(gpuAvailable&&(economyResidentOverride===null?!swiftGpu:economyResidentOverride));
+ // W502: original market sacks, true credited grain and granary stores use
+ // their existing bounded resident VBO on software WebGL as well as hardware.
+ // Their authoritative stock signature still invalidates every genuine
+ // sale/receipt. A denied allocation falls back to the full CPU renderer.
+ return Boolean(gpuAvailable&&economyResidentOverride!==false);
 }
 function disposeEconomyResidentMesh(){
  if(economyResidentBuffer&&gpuAvailable){
@@ -19661,7 +19665,9 @@ function prepareEconomyResidentMesh(){
  if(!economyResidencyRequested())return false;
  const signature=economyResidencySignature();
  if(economyResidentBuffer&&economyResidentMesh&&economyResidentKey===signature){
-  economyResidentActive=true;economyResidentReuses++;return true;
+  economyResidentActive=true;economyResidentReuses++;
+  economyResidentAvoidedDynamicFloats+=economyResidentMesh.length;
+  return true;
  }
  // Render EXACT original true inventory into an isolated CPU scratch before
  // returning to the normal animated workers/cargo stream. This changes only
@@ -19681,6 +19687,12 @@ function prepareEconomyResidentMesh(){
   economyResidentOverBudget++;disposeEconomyResidentMesh();return false;
  }
  if(!economyResidentBuffer)economyResidentBuffer=gl.createBuffer();
+ if(!economyResidentBuffer){
+  // A lost or denied original WebGL allocation is NOT a game failure or
+  // permission to hide goods. The caller renders identical live inventory.
+  economyResidentAllocationFailures++;economyResidentOverBudget++;
+  return false;
+ }
  bindGeometry(economyResidentBuffer);
  if(mesh.length>economyResidentCapacity){
   economyResidentCapacity=Math.ceil(Math.max(1,mesh.length)/8192)*8192;
@@ -19709,6 +19721,10 @@ function setEconomyResidencyForTesting(value){
 function getEconomyResidencyAudit(){
  return {source:'real-inventory-geometry-residency',
   enabled:economyResidencyRequested(),active:economyResidentActive,
+  softwareWebGL:swiftGpu,softwareDefaultResident:Boolean(gpuAvailable&&swiftGpu&&economyResidentOverride===null),
+  avoidedDynamicFloats:economyResidentAvoidedDynamicFloats,
+  avoidedCpuStagingBytes:economyResidentAvoidedDynamicFloats*4,
+  allocationFallbacks:economyResidentAllocationFailures,
   key:economyResidentKey,buffers:economyResidentBuffer?1:0,
   maxBuffers:1,gpuBufferFloats:economyResidentMesh?.length||0,
   cpuResidentFloats:economyResidentMesh?.length||0,
@@ -19762,7 +19778,8 @@ function appendEconomySoftwareCache(){
 }
 function getEconomyCpuCacheAudit(){
  return {source:'original-authentic-economy-software-mesh-cache',
-  enabled:gpuAvailable&&economyCpuCacheOverride!==false&&
+  enabled:gpuAvailable&&!economyResidencyRequested()&&
+   economyCpuCacheOverride!==false&&
    (swiftGpu||economyCpuCacheOverride===true),
   key:economyCpuKey,builds:economyCpuBuilds,reuses:economyCpuReuses,
   overBudgetFallbacks:economyCpuFallbacks,
@@ -23277,7 +23294,13 @@ function prepareWorksiteFixtureResidentMesh(sites){
    prior.id===parts[i].id&&prior.offset===parts[i].offset&&
    prior.length===parts[i].mesh.length));
  if(!worksiteFixtureBuffer)worksiteFixtureBuffer=gl.createBuffer();
- if(!worksiteFixtureBuffer)throw Error('W236 workstation GPU allocation failed');
+ if(!worksiteFixtureBuffer){
+  // W502: preserve the complete original live harvest/forge/builder scene
+  // instead of crashing the page when WebGL refuses a retained VBO.
+  worksiteFixtureAllocationFailures++;
+  disposeWorksiteFixtureMesh();
+  return false;
+ }
  bindGeometry(worksiteFixtureBuffer);
  const grew=floats>worksiteFixtureCapacity;
  if(grew){
@@ -23348,6 +23371,7 @@ function getWorksiteFixtureResidencyAudit(){
    .reduce((sum,part)=>sum+part.mesh.length,0),
   dirtyRegionUploads:true,
   disposals:worksiteFixtureDisposals,overBudgetFallbacks:worksiteFixtureOverBudget,
+  allocationFallbacks:worksiteFixtureAllocationFailures,
   actualWorkstations:workdayRenderStats.activeWorksites,
   preservesAnimatedHumanJobs:true,authorityModified:false,
   stationaryDressingJobs:['forester','farmer','builder','merchant','craftsperson','gatherer'],
