@@ -54,8 +54,8 @@ const responsive=new Function(
  'const VILLAGE_LOD_LIMIT=8; const HOME_DETAIL_INSPECTION_LIMIT=6;'+
  script.slice(policyStart,policyEnd)+
  'return originalResponsiveHomeDetailLimit;')();
-assert.equal(responsive(35,'inspection',390,844),4,
- 'dense 390px portrait keeps 4 full 3D homes, all others compact');
+assert.equal(responsive(35,'inspection',390,844),3,
+ 'W488 real Day-121 390px overloaded view retains 3 fully sculpted homes, all 32 others stay visibly inhabited and three-dimensional');
 assert.equal(responsive(35,'inspection',650,780),5,
  'mid-size view keeps 5 physical full-detail homes');
 assert.equal(responsive(35,'inspection',1024,640),6,
