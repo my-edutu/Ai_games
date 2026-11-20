@@ -7947,5 +7947,30 @@
       "baselineUnchanged": true,
       "otherGamesUntouched": true
     }
+  },
+  "p0ExactFrameSourceSightlineNativeCapture20261120_1158": {
+    "stage": "P0 OPEN — NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "newProductionSha": "22a1ef9a00d84807c7b506dea26a71c9852ac99d",
+    "priorOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44717752877",
+    "comparison": "Four source-authentic baseline/candidate original scenes with matched seed/tier/window in both desktop 960x600 and portrait 390x844, >=60sec normal-speed full motion; true ledge and strict native source-to-film pairing",
+    "priority": "First actual Floor9 bridge hero+opened original steel+new walkable 3D architecture in one continuous event-aligned shot; measure per-frame World frameScopedSuccessorSightlineMemo and first cold F9 camera CPU if in diagnostics",
+    "previousNativeStatus": "8/8 matched authentic source stories, strict event-to-native crossing 0/2",
+    "sourceOfTruth": "This exact capture-request commit SHA: record the Actions run head, never a branch-moving result",
+    "reviewers": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "devices": "NOT EVALUATED",
+    "remaining": "No proof of physical old-gate walk and new 3D room together; portrait foreground cap obscures body",
+    "safety": {
+      "draft": true,
+      "noMerge": true,
+      "noDeploy": true,
+      "noForcePush": true,
+      "PR58Untouched": true,
+      "baselineMoved": false
+    }
   }
 }

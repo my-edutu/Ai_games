@@ -13453,5 +13453,48 @@
       "forcePush": false,
       "otherGames": false
     }
+  },
+  "p0RealNativeGatewayRayMemoAndOpticalDefect20261120_1158": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenBaselineMoved": false,
+    "branchHeadInspectedBeforeProduction": "c19ed739204d3c7fa26b2f5fa14fd5fc87fff2e7",
+    "productionCommitSha": "22a1ef9a00d84807c7b506dea26a71c9852ac99d",
+    "productionChange": "Exact same-frame memo of REAL camera-to-current F9 deck, old cap/gate/gallery and Void architecture triangle occlusion verdicts. Reversible camera directors retain full first-time physical rays. Cache bounded at 24, keyed by current source run/tick, landing, gate/gallery opacity and 3D camera/body/gateway; flush each World frame and after source-owned foreground material changes. No fixed-step/guardian/platform/contact or quality tier edits.",
+    "priorNativeCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44717752877",
+    "capturedCandidateSourceSha": "5f10f503889519676d9ffc7e75dff2303cdac451",
+    "nativeRecordingEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/44717752877/artifacts/14621051371",
+    "fullComparisonArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44717752877/artifacts/14621147041",
+    "observedNative": "Downloaded and inspected original candidate full-motion danger WebM (960x600) and portrait 390x844 native WebM with per-tick source+camera material diagnostics. At visible Floor9 HUD the 3D scene changes to violet without sustained real opened bronze guardian gate + complete moving hero + actual walkable F9 platform. Strict event-to-video pairing failed desktop and portrait 0/2; authentic source stories 8/8 with no integrity defects. No acceptance claim.",
+    "observedSourceCamera": "First candidate F9 desktop sampled tick476: prior genuine F8 gateway camera accepted 1, physical veto 0, source-owned original GPU opacity 1 and 6 current skirt meshes with 0 softened; tick516 accepted 12 and 2/6 skirts softened just before old gate retirement around tick534. Portrait sampled tick475: 4 accepted, 0 veto; tick502: 8 accepted, 2 physical veto, zero skirt softening; by tick525 old gate opacity zero. Browser render acceptance is not pixel evidence or hardware FPS.",
+    "measuredPriorScene": "First Floor9 scene camera/lighting has historically dominated browser CPU; exact ray memo targets its repeated source-owned camera/geometry tests. No improvement is claimed until new source-pinned capture measures cache hits, scene costs and genuine video.",
+    "qualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44725907005",
+    "qualityAtWrite": "Nine of 10 exact-source quality jobs passed including 4/4 Tower Phase3 shards; unrelated phase6 shard in progress; no full workflow success claimed.",
+    "newNativeCapture": "New exact-commit 9-job baseline/candidate original recording requested through paired capture-request update; source SHA equals evidence commit made from production commit, not a guessed immutable SHA.",
+    "preservedOriginalFiles": [
+      "public/infinite-tower-climb/visuals/world.mjs",
+      "public/infinite-tower-climb/visuals/frame-sightline-memo.mjs",
+      "tests/phase3/tower-frame-scoped-sightline-memo.test.cjs"
+    ],
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDeviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
+    "largestExperienceGap": "Original guardian→F9 remains a visually abrupt change. In both 1x native films bronze-to-violet architectural overlap with fully visible moving climber and physical successor is not accepted; camera bridge exists but does not establish visual passage.",
+    "nextHighestImpactAction": "Inspect new immutable capture source+native clips and frame memo hits; if camera CPU work remains high or painted continuous gateway absent, fix actual old-gateway/hero/roof exterior composition and material occlusion as one 3D system before P1. Never grade or infer pixels from source-only ray data.",
+    "evidenceFile": "public/infinite-tower-climb/gauntlet/evidence/p0-native-physical-camera-ray-reuse-20261120.json",
+    "reviewFile": "docs/reviews/2026-11-20-tower-pr68-source-ray-memo-native-gateway-review.md",
+    "safeguards": {
+      "pr68Draft": true,
+      "pr58Untouched": true,
+      "frozenBaselineUnchanged": true,
+      "merge": false,
+      "deploy": false,
+      "forcePush": false,
+      "unrelatedGames": false
+    }
   }
 }

@@ -1,0 +1,59 @@
+{
+  "source": "22a1ef9a00d84807c7b506dea26a71c9852ac99d",
+  "originalCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44717752877",
+  "observations": {
+    "desktop": [
+      {
+        "tick": 476,
+        "cameraAccepted": 1,
+        "physicalVeto": 0,
+        "gateOpacity": 1,
+        "skirtMeshes": 6,
+        "softenedSkirts": 0
+      },
+      {
+        "tick": 516,
+        "cameraAccepted": 12,
+        "physicalVeto": 0,
+        "gateOpacity": 0.9845,
+        "skirtMeshes": 6,
+        "softenedSkirts": 2
+      },
+      {
+        "tick": 534,
+        "oldGatewayRetired": true
+      }
+    ],
+    "portrait": [
+      {
+        "tick": 475,
+        "cameraAccepted": 4,
+        "physicalVeto": 0,
+        "gateOpacity": 1,
+        "skirtMeshes": 6,
+        "softenedSkirts": 0
+      },
+      {
+        "tick": 502,
+        "cameraAccepted": 8,
+        "physicalVeto": 2,
+        "gateOpacity": 0.9845,
+        "skirtMeshes": 6,
+        "softenedSkirts": 0
+      },
+      {
+        "tick": 525,
+        "oldGateOpacity": 0,
+        "oldGatewayRetired": false
+      }
+    ]
+  },
+  "native": "Both unedited 1x films show sudden bronze-F8 to violet-F9 room handoff; no consecutive native frames proving original opened gate, complete skinned hero and F9 walkable successor in one physically crossed scene.",
+  "pairResult": "source 8/8; strict source-to-native danger 0/2",
+  "verification": "No new matched capture evaluated at production SHA; browser frame-time and native device metrics NOT EVALUATED",
+  "independentCritics": {
+    "LOOKS": 0,
+    "FEELS": 0,
+    "PLAYS": 0
+  }
+}
