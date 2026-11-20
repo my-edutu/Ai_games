@@ -1,4 +1,37 @@
 {
+  "p0OriginalCoreReturnedGatewayNativeSeam20261120_0052": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedPriorBranchHeadSha": "ef7fdd15b05d8e811a41a82d421dbd8369f20916",
+    "productionCommitSha": "cbd9f49d981feb4a1bee1e97c733e61d4684ff29",
+    "contractCommitSha": "8a2b55c4583f89e90763cae497090dbcd5c16049",
+    "candidateCaptureSha": "c964a9612b71f4b55275ab336b0b835f2736eae5",
+    "newExactSourceCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44647678493",
+    "newExactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44647678481",
+    "recordingAndQualityStatus": "CAPTURE IN PROGRESS and QUALITY PENDING at inspection, not accepted or green. Previous 44639440597: 9/10 quality jobs, unrelated Phase6 Maze 75s timeout. Do not touch Maze.",
+    "latestOriginalFilm": "https://github.com/my-edutu/Ai_games/actions/runs/44639440503 at source 853e770fc92fab36a5382ca34b6195573a31f1e2: 8/8 source pairs with 0 integrity defects; danger true source-to-native pairing 0/2; source crossing tick475; desktop HUD26.00s/violet26.50s; portrait HUD25.75s/violet26.50s; both have 0s sustained architectural bridge. First Floor9 actual browser→WebGL return 694ms/652ms.",
+    "meaningfulChange": "While true original defeated-guardian gate remains GPU-retained and source-certified, schedule the original noninteractive periphery GPU build only after >=4 real nonzero core returns and >=0.32 returned display seconds; animated biome after >=6 and >=0.52. Once original gate actually exits, do not block scenic completion. No gameplay mechanics changed.",
+    "exactEvidence": "public/infinite-tower-climb/gauntlet/evidence/p0-original-core-returned-window-native-audit-20261120.json",
+    "technicalReview": "docs/reviews/2026-11-20-tower-pr68-returned-core-gateway-native-review.md",
+    "blindCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedHardwareFrameTimeAndMemory": "NOT EVALUATED",
+    "biggestExperienceGap": "No accepted consecutive same-shot source-matched native gateway/full moving hero/walkable Floor9; cold Floor9 scene and native compositor still show abrupt architectural cut. Film cannot yet prove transformation.",
+    "nextHighestImpactAction": "Inspect full new matched 1x original source 44647678493; validate all three physical elements and continuous scenic change in 960x600 and 390x844, inspect source/browser/WebGL native PTS. On failure reopen scene construction and camera optical handoff, not minor CSS or test-only patches. P1 blocked.",
+    "safeguards": {
+      "pr68Draft": true,
+      "pr58Untouched": true,
+      "baselineUnchanged": true,
+      "noMerge": true,
+      "noDeploy": true,
+      "noForcePush": true,
+      "noOtherGameEdits": true
+    }
+  },
   "p0RaisedSourceP2ColdWebglBuffer20261120": {
     "implementationCommitSha": "ed10b347df2012ddfffc91850c27aee7bae28a4f",
     "immutableCaptureSourceSha": "853e770fc92fab36a5382ca34b6195573a31f1e2",
