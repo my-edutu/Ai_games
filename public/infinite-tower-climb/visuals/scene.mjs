@@ -3066,8 +3066,24 @@ export function createTowerScene(canvas, settings = {}) {
     }
   }
 
+  // P0: attribution of the actual first cold successor scene frame. The
+  // existing A/B films report ~296-311ms sceneUpdate but only ~102-119ms
+  // worldRebuild. Bound the trace to twelve CPU updates per real run; a
+  // renderer return below is required before it can enter evidence.
+  let firstF9TraceRun = null;
+  let firstF9TraceSamples = 0;
+  let firstF9SceneTiming = null;
   function update(dt) {
     if (!snapshot) return;
+    if (firstF9TraceRun !== snapshot.runToken) {
+      firstF9TraceRun = snapshot.runToken;
+      firstF9TraceSamples = 0;
+      firstF9SceneTiming = null;
+    }
+    const traceFirstF9 = !options.stale && snapshot.floor === 9 &&
+      snapshot.theme === 'void' && snapshot.lifecycle === 'running' &&
+      snapshot.player?.health > 0 && firstF9TraceSamples < 12;
+    const coldSceneStart = traceFirstF9 ? performance.now() : null;
     // update() runs only with a valid context. Snapshot/theme changes accepted
     // during interruption therefore cannot allocate replacement GPU resources.
     if (reflectionDirty) {
@@ -3084,7 +3100,9 @@ export function createTowerScene(canvas, settings = {}) {
     }
     // The real old cap/door, environmental horizon and camera share the
     // existing source-verified submitted-frame passage clock.
+    const beforeColdWorld = traceFirstF9 ? performance.now() : null;
     world.update(snapshot, dt, elapsed, options, passage.diagnostics());
+    const afterColdWorld = traceFirstF9 ? performance.now() : null;
     // Only the actually selected/occupied source moving deck gets an extra
     // non-colliding mechanical undercarriage; duplicate render frames do not
     // advance it, and live guardians retain visual priority.
@@ -3563,6 +3581,7 @@ export function createTowerScene(canvas, settings = {}) {
     }
     const currentGuardianDrawPoint = guardianDrawnSourceTick === snapshot.tick
       ? guardianDrawnCenter : null;
+    const beforeColdCamera = traceFirstF9 ? performance.now() : null;
     const portrait = camera.aspect < .85;
     const overview = options.camera === 'overview';
     let targetY;
@@ -5405,6 +5424,17 @@ export function createTowerScene(canvas, settings = {}) {
         (LIGHTING.clockwork.reflection-LIGHTING.void.reflection)*oldWeight;
     }
     lastBiomeHandoffOldWeight=oldWeight;
+    if (traceFirstF9) {
+      const endColdScene = performance.now();
+      firstF9SceneTiming = {
+        runToken: snapshot.runToken, sourceTick: snapshot.tick,
+        sceneSetupMs: beforeColdWorld - coldSceneStart,
+        worldUpdateMs: afterColdWorld - beforeColdWorld,
+        heroThreatMs: beforeColdCamera - afterColdWorld,
+        cameraLightingMs: endColdScene - beforeColdCamera,
+      };
+      firstF9TraceSamples++;
+    }
   }
 
   function clearTowerRenderFault() {
@@ -5629,11 +5659,21 @@ export function createTowerScene(canvas, settings = {}) {
         coldWorld?.sourceTick === snapshot.tick &&
         coldWorld?.key === `${snapshot.runToken}:${snapshot.floor}:${snapshot.theme}:${options.quality}`
         ? coldWorld.cpuBuildMs : null;
+      const currentFirstF9Timing = firstF9SceneTiming?.runToken === snapshot.runToken &&
+        firstF9SceneTiming.sourceTick === snapshot.tick &&
+        snapshot.floor === 9 && snapshot.theme === 'void' && !options.stale
+          ? firstF9SceneTiming : null;
       renderProgress.submitted(snapshot, rendererReturnedAt, Date.now(), {
         sceneUpdateMs: sceneReadyAt - submissionStart,
         rendererReturnMs: rendererReturnedAt - sceneReadyAt,
         worldRebuildMs: coldWorldMs,
         totalSubmissionMs: rendererReturnedAt - submissionStart,
+        firstF9MainThread: currentFirstF9Timing ? {
+          sceneSetupMs: currentFirstF9Timing.sceneSetupMs,
+          worldUpdateMs: currentFirstF9Timing.worldUpdateMs,
+          heroThreatMs: currentFirstF9Timing.heroThreatMs,
+          cameraLightingMs: currentFirstF9Timing.cameraLightingMs,
+        } : null,
       });
       // The callback owns UI-only phase coherence: never let an HTML failure
       // convert a genuinely submitted 3D frame into a fake renderer failure.
