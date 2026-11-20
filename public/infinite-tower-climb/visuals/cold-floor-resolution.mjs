@@ -1,3 +1,4 @@
+import { observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 // P0: Framebuffer budget for the ACTUAL source-earned Clockwork->Void crossing.
 // A cold WebGL frame can return after the autonomous climber has already
 // jumped off Floor9's genuine arrival roof. The former grounded-only rule
@@ -82,8 +83,26 @@ function eligibleStart(snapshot, passage, retained, options) {
     snapshot.lastGuardianCrossing.guardian.active === false &&
     snapshot.lastGuardianCrossing.guardian.health <= 0 &&
     snapshot.lastGuardianCrossing?.cap?.id === 'f8:cap';
-  if (!ownedPassage && !ownedOriginal) return null;
-  return ownedOriginal ? retained.crossingTick : passage.sourceTick;
+  // Exact original 1x films first return a VERIFIED grounded F9 receipt
+  // before lastGuardianCrossing is published. World already owns the real
+  // defeated F8 guardian's HP-open 3D gateway and identical walkable roof.
+  // Refusing the cold drawing buffer here means the single most expensive
+  // original F9 frame renders at full size even when the passage cue expired.
+  // Borrow the existing strict physical provenance contract, not a floor
+  // label, previous run, inferred win, or cosmetic actor interpolation.
+  const firstOriginalReceipt = snapshot.lastGuardianCrossing == null &&
+    retained?.originalArchitectureWorldCertified === true &&
+    retained.originalArchitectureCoverageSourceTick === snapshot.tick &&
+    Number.isFinite(retained.originalGatewayOpacity) &&
+    retained.originalGatewayOpacity > .035 &&
+    retained.originalGatewayOpacity <= 1 &&
+    observedStagedOriginalCapBeforeRecordedCrossing(snapshot,retained) &&
+    snapshot.player?.grounded === true &&
+    snapshot.player.groundedPlatformId === 'f9:ground' &&
+    snapshot.player.vy === 0;
+  if (!ownedPassage && !ownedOriginal && !firstOriginalReceipt) return null;
+  return ownedOriginal ? retained.crossingTick :
+    firstOriginalReceipt ? retained.tick : passage.sourceTick;
 }
 
 export function createTowerColdFloorResolution() {
@@ -116,8 +135,10 @@ export function createTowerColdFloorResolution() {
     }
     const sourceTick = eligibleStart(snapshot, passage, retained, options);
     if (sourceTick === null ||
-        (finished?.runToken === snapshot.runToken &&
-         finished.sourceTick === sourceTick)) return 1;
+        // A late immutable guardian crossing names an EARLIER source tick
+        // than the already-rendered first grounded F9 receipt. Both belong
+        // to ONE physical 8→9 doorway; never allocate a second cold buffer.
+        finished?.runToken === snapshot.runToken) return 1;
     bound = {runToken:snapshot.runToken, floor:9,
       sourceTick, lastTick:snapshot.tick};
     submittedFrames = 0;
