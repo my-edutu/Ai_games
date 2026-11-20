@@ -8,8 +8,8 @@
     "contractCommitSha": "8a2b55c4583f89e90763cae497090dbcd5c16049",
     "candidateCaptureSha": "c964a9612b71f4b55275ab336b0b835f2736eae5",
     "newExactSourceCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44647678493",
-    "newExactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44647678481",
-    "recordingAndQualityStatus": "CAPTURE IN PROGRESS and QUALITY PENDING at inspection, not accepted or green. Previous 44639440597: 9/10 quality jobs, unrelated Phase6 Maze 75s timeout. Do not touch Maze.",
+    "newExactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44648203151",
+    "recordingAndQualityStatus": "COMPLETED failed native event-pair job: 9/9 ledge/8 original gameplay source jobs succeeded, strict danger original source/native alignment 0/2. Exact-source 992e0d1 quality integrity + four Tower phase3 jobs succeeded; Phase6 remaining in progress at last inspection; no complete green CI.",
     "latestOriginalFilm": "https://github.com/my-edutu/Ai_games/actions/runs/44639440503 at source 853e770fc92fab36a5382ca34b6195573a31f1e2: 8/8 source pairs with 0 integrity defects; danger true source-to-native pairing 0/2; source crossing tick475; desktop HUD26.00s/violet26.50s; portrait HUD25.75s/violet26.50s; both have 0s sustained architectural bridge. First Floor9 actual browser→WebGL return 694ms/652ms.",
     "meaningfulChange": "While true original defeated-guardian gate remains GPU-retained and source-certified, schedule the original noninteractive periphery GPU build only after >=4 real nonzero core returns and >=0.32 returned display seconds; animated biome after >=6 and >=0.52. Once original gate actually exits, do not block scenic completion. No gameplay mechanics changed.",
     "exactEvidence": "public/infinite-tower-climb/gauntlet/evidence/p0-original-core-returned-window-native-audit-20261120.json",
@@ -20,8 +20,8 @@
       "PLAYS": "0/5"
     },
     "supportedHardwareFrameTimeAndMemory": "NOT EVALUATED",
-    "biggestExperienceGap": "No accepted consecutive same-shot source-matched native gateway/full moving hero/walkable Floor9; cold Floor9 scene and native compositor still show abrupt architectural cut. Film cannot yet prove transformation.",
-    "nextHighestImpactAction": "Inspect full new matched 1x original source 44647678493; validate all three physical elements and continuous scenic change in 960x600 and 390x844, inspect source/browser/WebGL native PTS. On failure reopen scene construction and camera optical handoff, not minor CSS or test-only patches. P1 blocked.",
+    "biggestExperienceGap": "New original 25fps desktop and portrait 1x clips show 0s sustained bronze-to-violet scenic bridge and no accepted consecutive actual opened gate/moving complete climber/physical F9 roof. The scenic upload delay itself did not cure the initial 730/679ms cold F9 return or bronze portrait foreground occlusion.",
+    "nextHighestImpactAction": "Profile and repair actual cold Floor9 scene construction + first GPU submission, real old/new world native PTS, portrait historical steel sightline; do not count further wait thresholds as experience. Re-capture full 1x source-pinned gameplay and align true events; P1 blocked.",
     "safeguards": {
       "pr68Draft": true,
       "pr58Untouched": true,
@@ -30,6 +30,15 @@
       "noDeploy": true,
       "noForcePush": true,
       "noOtherGameEdits": true
+    },
+    "sourceIntegrationSafetyCommitSha": "992e0d1240ac6e341957facf5c5424e7aaad4b90",
+    "latestCandidateOriginalFilm": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44647678493",
+      "sha": "c964a9612b71f4b55275ab336b0b835f2736eae5",
+      "sourcePhysicalCrossingTick": 475,
+      "desktop": "native HUD25.75s, sustained violet26.25s, gap0.50s, zero sustained warm/cool phase bridge, first F9 browser→WebGL return 730ms",
+      "portrait": "native HUD25.75s, sustained violet26.25s, gap0.50s, zero sustained warm/cool bridge, first F9 browser→WebGL return 679ms",
+      "independentEventMatch": "0/2 strict danger paired native viewports; original video full length source-pinned; no asserted accepted visual improvement."
     }
   },
   "p0RaisedSourceP2ColdWebglBuffer20261120": {
