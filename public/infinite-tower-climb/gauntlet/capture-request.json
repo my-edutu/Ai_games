@@ -1,4 +1,43 @@
 {
+  "p0SourceCorrectGatewayMatrixEpochCapture20261120_0353": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "candidateCodeHead": "db7600c527ab2b949bbd2fe977ad53a1421816ab",
+    "sourceCapture": "EXACT immutable SHA of this capture-request commit, not mutable PR68 HEAD",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "meaningfulProductionChange": "Frame-local owner-private reuse of true source-owned platform, historical cap/gateway, bronze gallery and Void bearing world matrices across up to seven alternate physical camera clearance probes per real frame, with mandatory epoch renewal even when 20Hz source snapshot tick repeats; original triangle ray vetoes, renderer, gameplay and collision unchanged.",
+    "predecessorOriginalCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44662433915",
+    "predecessorNativeEvidence": "Original 1x 25fps candidate desktop/portrait films: 0s sustained warm-to-cool shared architecture and 0.5s HUD-to-violet transition; first returned F9 sceneUpdate 288.6ms/285.2ms with camera+lighting stage 182.1/179.0ms, worldUpdate 105.6/103.5ms. Browser CPU diagnostics, not GPU/device performance.",
+    "matchConditions": {
+      "seed": "tower-transformation-capture-v1",
+      "quality": "low",
+      "fps": 25,
+      "normalSpeed": 1,
+      "minSeconds": 60,
+      "desktop": "960x600",
+      "portrait": "390x844",
+      "scenarios": [
+        "ascent",
+        "moving",
+        "danger/guardian",
+        "outcome/restart"
+      ]
+    },
+    "requiredChecks": [
+      "Rebuild both exact frozen source SHAs; verify full 9-job real capture including source-event integrity and strict decoded-native-video alignment",
+      "Compare first returned Floor9 camera+lighting CPU duration against original 182.1ms/179.0ms in same capture environment, report camera bound rather than ungrounded device speedup",
+      "Inspect unmodified WebM for >=2 consecutive physically source-paired frames with HP-open bronze gateway, complete real moving climber and walkable F9 roof; preserve foreground optical visibility in portrait",
+      "Enforce no new camera, forced source tick, altered collision, fake win/restart or false shared-room clip",
+      "Leave P0 OPEN and NOT EVALUATED if strict source/native pairing is missing or old/new architectural continuity still fails"
+    ],
+    "reviewCounts": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDeviceMetrics": "NOT EVALUATED",
+    "safeguards": "No baseline move, PR58 changes, unrelated games, merge/deploy/force push or PR68 draft conversion."
+  },
   "p0FirstFloorNineMainThreadSourcePinnedAttribution20261120_0326": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
     "verdict": "NOT EVALUATED",
