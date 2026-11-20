@@ -93,5 +93,35 @@
     "noBaselineMove": true,
     "noPR58Edits": true,
     "noUnrelatedGames": true
+  },
+  "followUp20261120_0326": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "assessorVerdict": "NOT EVALUATED",
+    "codeChanged": true,
+    "playableExperienceChanged": false,
+    "reason": "Measured source-pinned first-F9 sceneUpdate ~296–311ms, worldRebuild only 102–119ms included, but no trusted cost partition for remainder. This is a profiling/unblocker change, NOT a passed optical crossing.",
+    "productionSourceAttributionCommit": "0190db4e90f54c52574b9ba17eeec1dbceccde82",
+    "returnedFrameEvidenceContractCommit": "a5653232ae8faa791a6667c67fd25332a976f335",
+    "focusedRegressionCommit": "e09b42d37f0b8661d2ec11babb1b2e3de61e14aa",
+    "immutableGameplayCaptureSha": "ac335694fa59f1790283196eeb567af712f07972",
+    "immutableGameplayCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/44662433915",
+    "codeQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44662200476",
+    "captureHeadQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44662433894",
+    "methods": "Eight bounded source-owned F9 CPU frame updates, plus stage partitions sceneSetup/worldUpdate/heroThreat/cameraLighting, scoped to exact source tick. Only a genuinely returned Three.js render can emit firstF9MainThread, and the actual decoded WebM must still be evaluated independently.",
+    "observedLastCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44651645274 — 8/8 original movies and authentic ledge; 0/2 strict danger native alignment, zero sustained bronze/Void bridge; 1st F9 browser sceneUpdate desktop 310.5ms/portrait 295.5ms; this new source has no accepted video yet.",
+    "actualCodeChecks": "PENDING at evidence-record write. An earlier instrumentation-only intermediate workflow 44662050838 finished 9/10 due to phase6 shard; Tower phase3 4/4 successful, not new head nor full green CI.",
+    "genuineBlindReviews": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "realDevice": {
+      "p50": "NOT EVALUATED",
+      "p95": "NOT EVALUATED",
+      "p99": "NOT EVALUATED",
+      "memory": "NOT EVALUATED"
+    },
+    "nextAction": "Inspect new exact-SHA firstF9MainThread trace in desktop/portrait original danger native video, identify dominant worldUpdate vs actor/camera vs sceneSetup cost, then fix the true first-F9 scene hot path and gateway/body optical occlusion, re-record and strictly source-align; do not advance P1.",
+    "ledgerLimitation": "transformation.json is 1.2MB and connected fetch_file returned empty even by bounded line range; previous ledger preserved unmodified rather than risk destructive overwrite. This follow-up is persisted in existing evidence and technical review."
   }
 }
