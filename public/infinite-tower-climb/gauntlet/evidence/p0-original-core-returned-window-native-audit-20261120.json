@@ -82,5 +82,46 @@
     "run": "https://github.com/my-edutu/Ai_games/actions/runs/44648203151",
     "status": "COMPLETED FAILURE 9/10: integrity and all four Tower Phase3 shards passed; Phase6 shard0 timed out at tests/phase6/maze-readiness-score.test.cjs (exit124). No complete CI pass; Maze files remain untouched.",
     "concreteFix": "Source-authentic retained-gate Three integration now exercises sixteen real modeled 50ms submitted returns to prove staggered .32s and .52s budgets, rather than obsolete eight-return timing; separate focused helper tests updated."
+  },
+  "p0FirstSourceAuthenticGroundedFloor9Framebuffer20261120_0107": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenBaselineMoved": false,
+    "inspectedHeadBeforeCommit": "4b9e1e59ce34a11ec09957d4f197aa74ddc1cbc8",
+    "sourceProductionAndRegressionCommitSha": "74c3c9295cf418f5a1d6d6f1f093472c1da7c733",
+    "exactHeadQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44651275797",
+    "qualityAtRecord": "Exact-code workflow 44651275797 9/10 completed including all 4 Tower Phase3 jobs; Phase6 pending.",
+    "priorFullyGreenQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44648866955",
+    "priorFullyGreenQualitySha": "554a185cf5c4f70f2ba2b54d46af04088dcb636c",
+    "nativePredecessorSourceSha": "c964a9612b71f4b55275ab336b0b835f2736eae5",
+    "predecessorAuthenticVideo": "https://github.com/my-edutu/Ai_games/actions/runs/44647678493",
+    "priorSourceAndNativeResult": "8 baseline/candidate original 60s+ films and authentic ledge passed; 0/2 strict event-aligned danger native viewports; no accepted sustained original bronze+F9 Void shared-room. Real F9 browser-to-renderer return ~730ms desktop and ~679ms portrait. These are browser-renderer delays, not GPU timing or measured device FPS.",
+    "verifiedRootCauseAndIntervention": "The immutable lastGuardianCrossing record can be absent on the first source-certified grounded original-gateway Floor9 WebGL submission, so existing cold-floor framebuffer could reject that most expensive real first frame unless a short optional passage cue survived. Reuse the existing strict old cap + genuine same-run old-guardian HP-open grounded receipt (plus current World owner and old gate material) to allocate ONE low-tier 0.72 framebuffer epoch before the renderer. Late immutable crossing with an earlier tick cannot re-arm a second epoch in the same run. No generated floor, physics, guardian outcome, old-arch ownership, or video claim.",
+    "sourceSafety": "Valid only exact original World source owner with sourceTick-match and drawn gate >0.035, strict first grounding on original f9:ground and valid roof/footprint; stale/wrong/other-run/dead/contradictory source, low-tier/reduced-motion/user camera vetoes unchanged.",
+    "tests": "New tests/phase3/tower-first-native-floor-nine-framebuffer.test.cjs covers eligible first pre-event GPU epoch, 8 submitted returns/one restoration, late immutable event not replaying second epoch, negative source/mismatch/stale/high-tier and real scene ordering. CI latest Tower Phase3 passed; no fresh browser used.",
+    "candidateVideoRequest": "New nine-job exact immutable capture initiated by capture-request.json change in this evidence commit; source is the exact new commit SHA, not branch head. Capture is not yet evaluated.",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "deviceP50P95P99AndMemory": "NOT EVALUATED",
+    "biggestExperienceGap": "First genuine HP-open bronze doorway to source-owned walkable F9 still unproven with complete moving climber in consecutive event-matched original desktop+portrait native frames; compositor source-to-video remains 0/2 and portrait old steel obscures hero.",
+    "nextHighestImpact": "Inspect immutable-source new 60s+ original desktop 960x600 and portrait 390x844 clips, pair exact event clocks and assess actual first renderer-return duration and old/new shared physical silhouette. If gap persists profile first structural GPU draw and foreground steel ray ownership; stay in P0, do not tune cosmetic timers or advance P1.",
+    "safeguards": {
+      "draftPR68": true,
+      "PR58Untouched": true,
+      "baselineUnchanged": true,
+      "merge": false,
+      "deploy": false,
+      "forcePush": false,
+      "otherGameEdits": false
+    },
+    "scope": "Measured first new-F9 drawing-buffer eligibility, not native FPS, pixels or device performance.",
+    "sourceCodePaths": [
+      "public/infinite-tower-climb/visuals/cold-floor-resolution.mjs",
+      "tests/phase3/tower-first-native-floor-nine-framebuffer.test.cjs"
+    ]
   }
 }
