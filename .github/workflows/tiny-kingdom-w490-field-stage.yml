@@ -1,0 +1,45 @@
+name: Tiny Kingdom W490 Real Staged Field Work Residency
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - public/tiny-kingdom/index.html
+      - tests/node/tiny-kingdom-w490-staged-worksite.test.cjs
+      - tests/browser/tiny-kingdom-w490-staged-worksite.spec.cjs
+      - .github/workflows/tiny-kingdom-w490-field-stage.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w490-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  authenticated-staged-field:
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feat/tiny-kingdom-post-main-gauntlet-20261031' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 34
+    env:
+      CI: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: node --test tests/node/tiny-kingdom-w490-staged-worksite.test.cjs
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test tests/browser/tiny-kingdom-w92-resident-workstations.spec.cjs --workers=1
+      - run: npx playwright test tests/browser/tiny-kingdom-w490-staged-worksite.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w490-authentic-stage-parity-desktop-mobile
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 14
