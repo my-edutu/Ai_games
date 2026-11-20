@@ -4613,7 +4613,7 @@ export function verifyRestoredRootOriginalSourceSoleSafety({
  * This is NOT a planted foot, IK target, gameplay step or source retarget.
  */
 export function certifyOriginalSourcePostLegPelvisRollback({
- source='',before=null,after=null
+ source='',before=null,after=null,requireWorldXZ=false
 }={}){
  if(source!=='post-final-source-legs-pelvis-only'||!before||!after)
   return null;
@@ -4623,6 +4623,17 @@ export function certifyOriginalSourcePostLegPelvisRollback({
    ![prior.heelY,prior.toeY,restored.heelY,restored.toeY].every(finite)||
    Math.abs(prior.heelY-restored.heelY)>.00075||
    Math.abs(prior.toeY-restored.toeY)>.00075)return null;
+  if(requireWorldXZ){
+   // A Y-only rollback could preserve height while another stage rotated
+   // a real source bone, shifting both original weighted outsole points.
+   // Certify actual 3D restoration before retaining previous leg overlays.
+   for(const endpoint of ['heelXZ','toeXZ']){
+    const a=prior[endpoint],b=restored[endpoint];
+    if(!Array.isArray(a)||a.length!==2||!a.every(finite)||
+     !Array.isArray(b)||b.length!==2||!b.every(finite)||
+     Math.hypot(a[0]-b[0],a[1]-b[1])>.00075)return null;
+   }
+  }
  }
  return Object.freeze({
   source:'original-GLB-post-leg-sole-pair-restored',
@@ -4631,10 +4642,24 @@ export function certifyOriginalSourcePostLegPelvisRollback({
 }
 
 export function verifyOriginalSourceLoadedPelvisFootWitness({
- before=null,after=null,otherBefore=null,otherAfter=null,floorTopY=NaN
+ before=null,after=null,otherBefore=null,otherAfter=null,floorTopY=NaN,
+ requireWorldXZ=false
 }={}){
  if(![before,after,otherBefore,otherAfter].every(f=>f&&
   finite(f.heelY)&&finite(f.toeY))||!finite(floorTopY))return null;
+ if(requireWorldXZ){
+  // The original GLB pelvis-only Y offset may not alter EITHER shoe's
+  // lateral world pose. A shoe dragged by another joint owner cannot be
+  // mistaken for a supported standing leg because its height improved.
+  for(const [oldFoot,newFoot] of [[before,after],[otherBefore,otherAfter]]){
+   for(const endpoint of ['heelXZ','toeXZ']){
+    const a=oldFoot[endpoint],b=newFoot[endpoint];
+    if(!Array.isArray(a)||a.length!==2||!a.every(finite)||
+     !Array.isArray(b)||b.length!==2||!b.every(finite)||
+     Math.hypot(a[0]-b[0],a[1]-b[1])>.0015)return null;
+   }
+  }
+ }
  const beforeWorst=Math.max(Math.abs(before.heelY-floorTopY),
   Math.abs(before.toeY-floorTopY));
  const afterWorst=Math.max(Math.abs(after.heelY-floorTopY),
