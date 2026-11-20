@@ -80,7 +80,7 @@
   "newExactSourceIntegrationSafety": {
     "sha": "992e0d1240ac6e341957facf5c5424e7aaad4b90",
     "run": "https://github.com/my-edutu/Ai_games/actions/runs/44648203151",
-    "status": "IN PROGRESS; integrity, all 4 Tower Phase3 shards, other completed catalogue shards SUCCESS, Phase6 shard0 still running. NO full pass claimed.",
+    "status": "COMPLETED FAILURE 9/10: integrity and all four Tower Phase3 shards passed; Phase6 shard0 timed out at tests/phase6/maze-readiness-score.test.cjs (exit124). No complete CI pass; Maze files remain untouched.",
     "concreteFix": "Source-authentic retained-gate Three integration now exercises sixteen real modeled 50ms submitted returns to prove staggered .32s and .52s budgets, rather than obsolete eight-return timing; separate focused helper tests updated."
   }
 }
