@@ -56,9 +56,9 @@
     "syntheticAssets": false
   },
   "statusAtEvidence": {
-    "sourcePinnedCapture": "IN PROGRESS",
-    "exactHeadCI": "PENDING",
-    "postChangeActualFilm": "NOT EVALUATED",
+    "sourcePinnedCapture": "COMPLETED; 8 original matched scenarios and ledge, strict event pair FAIL 0/2",
+    "exactHeadCI": "9/10 passed; unrelated phase6 Maze readiness timeout -> FULL CI NOT GREEN",
+    "postChangeActualFilm": "INSPECTED; P0 native seamless crossing FAIL",
     "realHardware": "NOT EVALUATED"
   },
   "independentCritics": {
@@ -74,7 +74,7 @@
     "supportedDeviceFrameTimeP99": "NOT EVALUATED",
     "memory": "NOT EVALUATED"
   },
-  "nextHighestImpact": "Review the source-pinned 960x600/390x844 full-motion 1x matched films and event alignment; inspect actual structural flank counts, physical old roof and opened original gateway co-visibility; if still discontinuous, rebuild real old/new scene ownership and returned-frame architecture instead of more camera or tint heuristics",
+  "nextHighestImpact": "Correct original Clockwork-to-Void 3D scene ownership/architectural lifecycle in the same source-earned physical room; show source-matched opened gate + full hero + genuinely walkable F9 simultaneously in consecutive native desktop and portrait frames, then repeat strict A/B native pairing and independent review. Do not advance beyond P0.",
   "limitations": [
     "No native video experience claim",
     "No new completed exact-head CI at record",
@@ -88,5 +88,48 @@
     "PR58",
     "frozen baseline",
     "PR68 draft status"
-  ]
+  ],
+  "postChangeNativeEvidence": {
+    "sourceSha": "4dd0221b1d9e7bb601222a22b0c3833c71f6870d",
+    "videoCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44812794319",
+    "status": "COMPLETE WITH P0 VETO",
+    "capturedSourceAuthenticScenarios": 8,
+    "requiredScenarios": 8,
+    "authenticLedge": "success",
+    "strictEventAlignedDangerViewports": 0,
+    "requiredViewports": 2,
+    "desktop": {
+      "viewport": "960x600",
+      "durationSeconds": 72.12,
+      "originalF8VisibleThroughSecondsApprox": 26.05,
+      "firstF9BroadRoofSecondsApprox": 26.15,
+      "hudF9Seconds": 26,
+      "sustainedVioletSeconds": 27,
+      "sustainedBronzeVoidSharedSeconds": 0
+    },
+    "portrait": {
+      "viewport": "390x844",
+      "durationSeconds": 71.88,
+      "originalF8VisibleThroughSecondsApprox": 25.75,
+      "firstF9BroadRoofSecondsApprox": 25.85,
+      "hudF9Seconds": 26,
+      "sustainedVioletSeconds": 26.5,
+      "sustainedBronzeVoidSharedSeconds": 0
+    },
+    "scenePhaseSamplingPrecisionSeconds": 0.25,
+    "exactObservations": "Previously shown original bronze cap is abruptly replaced by wide F9 roof/Void ceiling while original opened gate is peripheral; fully moving hero, physical old portal and real receiving roof are not established in one continuous native crossing",
+    "projectedCameraRaysAreNotNativePixels": true,
+    "originalSourceGalleryFlankCountsFromNativeVideo": "NOT EVALUATED",
+    "independentFullMotionBlindReview": "NOT EVALUATED",
+    "nextCoreRootCause": "Authoritative old/new scene ownership and returned-frame architecture; not a tint-only or local camera problem"
+  },
+  "testEvidence": {
+    "head": "fff2bd034e58691ce268fcd8bec22463dac423f0",
+    "workflow": "https://github.com/my-edutu/Ai_games/actions/runs/44813039422",
+    "passedJobs": 9,
+    "totalJobs": 10,
+    "fullSafetyGate": "VETO",
+    "sourceScopedTowerPhase3ShardsPassed": 4,
+    "unrelatedPhase6Failure": "Timeout (exit 124) during tests/phase6/maze-readiness-score.test.cjs; no unrelated-game edits"
+  }
 }
