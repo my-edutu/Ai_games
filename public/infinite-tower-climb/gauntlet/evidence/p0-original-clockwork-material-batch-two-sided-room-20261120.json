@@ -110,6 +110,49 @@
     "independentPLAYS": 0,
     "realDeviceFrameTimeMemory": "NOT EVALUATED",
     "nextHighestImpact": "Inspect fresh exact-SHA desktop/portrait unedited normal-speed danger WebM and source/native timebase. Confirm original opened gate + whole moving hero + authentic F9 roof and source Clockwork flanks persist across independently returned Void shaft frames; if not, fix old/new scene depth/ownership rather than further material tinting.",
-    "leadingVerdict": "NOT EVALUATED"
+    "leadingVerdict": "NOT EVALUATED",
+    "postChangeNativeEvidence": {
+      "candidateSha": "9418673013f7dbc3c39760416bf906f1d784a6e4",
+      "qualityWorkflow": {
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/44829740302",
+        "result": "10/10 jobs passed including 4/4 Tower Phase3 shards; CI only, NOT visual acceptance"
+      },
+      "nativeCampaign": {
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/44829740350",
+        "result": "8/8 original game scenario captures and authentic ledge passed; strict source/native danger video comparison 0/2 FAILED",
+        "originalDangerArtifactId": 14675139488
+      },
+      "originalWebMVerifiedOnDownload": true,
+      "nativeOriginalWebM": {
+        "desktop": {
+          "durationSeconds": 71.92,
+          "width": 960,
+          "height": 600,
+          "sha256": "from original native-scene-phase sidecar verified against downloaded bytes",
+          "firstDrawnF9GlyphSeconds": 25.25,
+          "firstSustainedVioletSeconds": 26,
+          "warmCoolOverlapSeconds": 0,
+          "returnedOriginalGpuFrames": 8
+        },
+        "portrait": {
+          "durationSeconds": 72.6,
+          "width": 390,
+          "height": 844,
+          "sha256": "from original native-scene-phase sidecar verified against downloaded bytes",
+          "firstDrawnF9GlyphSeconds": 25.5,
+          "firstSustainedVioletSeconds": 26.25,
+          "warmCoolOverlapSeconds": 0,
+          "returnedOriginalGpuFrames": 6
+        }
+      },
+      "directVideoFrameInspection": "Decoded unedited original desktop and portrait WebMs using cv2 at 23–30s at 0.25s intervals. Both show complete visible climber and genuine changing F8/F9 rooms but F8 bronze cap changes abruptly to a larger successor radial roof; the original HP-open bronze gateway and whole climber and walkable violet roof do not establish a sustained shared physical shot.",
+      "caveat": "Original native frame samples show WHAT was drawn, not synchronized contact/guardian success pixels. Exact source-to-WebM pairing still FAILED in both viewports. Claimed pre/post visual improvement: NONE.",
+      "leadingVerdict": "NOT EVALUATED",
+      "looksIndependentReviewCount": 0,
+      "feelsIndependentReviewCount": 0,
+      "playsIndependentReviewCount": 0,
+      "actualDeviceFrameTimeMemory": "NOT EVALUATED",
+      "nextAction": "P0 reopen underlying source-owned old Floor8 cap/gateway to Floor9 real roof and Void shaft depth+camera composition. Make visible physical connection across matched returned frames while preserving source collision and open gateway; then repeat exact-SHA 1x desktop/portrait clips and strict events. Do not spend another run on an isolated 8% opacity tweak."
+    }
   }
 }
