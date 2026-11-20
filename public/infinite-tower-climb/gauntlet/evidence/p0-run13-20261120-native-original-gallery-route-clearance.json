@@ -56,5 +56,50 @@
     "status": "FAILED: phase3 shard0 new fixture four source-units outside real f9:ground; source code passed all preceding tests; no experience verdict"
   },
   "testFixtureRepair": "Near-sill test position x318996 gave left foot/body extent 309996, 4 source units outside real ground x310000, so null was correct. Fix test to supported x319100; do not loosen production support validator.",
-  "nativeCaptureAfterImplementation": "https://github.com/my-edutu/Ai_games/actions/runs/44785612490 (running at inspection; exact pinned earlier code commit)"
+  "nativeCaptureAfterImplementation": "https://github.com/my-edutu/Ai_games/actions/runs/44785612490 (running at inspection; exact pinned earlier code commit)",
+  "latestP0ActualSourceRoofJoin20261120": {
+    "stage": "P0 OPEN",
+    "assessor": "NOT EVALUATED",
+    "productionCodeSha": "a16abd5658597dcc27b5aa9c85deba04c649620e",
+    "previousHeadSha": "ece0825c133ae2d50f1c8c6e6dc71d6bdc25c0f3",
+    "priorCapture": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44785612490",
+      "sourceSha": "4956c231cf41a43972b2ac131baf0228dc0ec998",
+      "allEightScenes": "CAPTURED",
+      "ledge": "PASS",
+      "strictEventVideoPair": "FAILED 0/2"
+    },
+    "priorQuality": {
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44785941788",
+      "outcome": "SUCCESS 10/10",
+      "sourceSha": "ece0825c133ae2d50f1c8c6e6dc71d6bdc25c0f3"
+    },
+    "originalFilmObservation": {
+      "unmodified": true,
+      "desktop": "960x600, 25fps, 71.72s",
+      "portrait": "390x844, 25fps, 71.68s",
+      "criticalSeconds": "25.50 bronze original cap / 25.75 discontinuous violet annular receiving roof in both views",
+      "sourceNative": "NOT MATCHED",
+      "returnedThreeEvidence": "Five F9 sampled returns in each viewport projected old gate and hero clear, but no authentic consecutive native shared-room shot",
+      "biggestDefect": "Discontinuous receiving roof/old-gateway composition; projected safe subjects do not establish filmed physical transition"
+    },
+    "code": {
+      "modified": [
+        "public/infinite-tower-climb/visuals/world.mjs",
+        "public/infinite-tower-climb/visuals/source-physical-receiving-roof.mjs",
+        "tests/phase3/tower-original-receiving-roof-join.test.cjs"
+      ],
+      "change": "Replace source-backed f9:ground one wide roof top surface with three adjoining exact physical sector top spans keyed to original immutable F8 exitX. Old bronze threshold, intermediate receiving contact, immediately readable Void onward roof share same source authority and world space. No invented bridge/collider, no physics/camera mutation.",
+      "limitation": "Two extra roof-material draws only when genuine same-run grounded gateway exists. Frame time and native user experience unknown until new exact-head capture."
+    },
+    "newQuality": "PENDING: automatic quality contract at exact production SHA",
+    "requestedCapture": "Exact github.sha from new capture-request commit; frozen baseline remains original SHA",
+    "independent": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "hardware": "NOT EVALUATED",
+    "next": "Inspect matched native desktop and portrait full-motion, strict PTS pairing and device performance. If shared shot absent, fix actual camera/architecture ownership rather than additional one-off fades."
+  }
 }

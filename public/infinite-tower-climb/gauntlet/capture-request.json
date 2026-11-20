@@ -8153,5 +8153,25 @@
       "FEELS": 0,
       "PLAYS": 0
     }
+  },
+  "p0SourceAuthenticThreeBandReceivingRoof20261120": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionCodeSha": "a16abd5658597dcc27b5aa9c85deba04c649620e",
+    "candidateRef": "${{ github.sha }}",
+    "precedingOriginalCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44785612490",
+    "precedingExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44785941788",
+    "evidence": "Inspected original unedited candidate Floor8->Floor9 25fps WebM desktop 960x600 and portrait 390x844. At 25.50s there is bronze full-body on actual F8 cap; by 25.75s shot jumps to broad F9 violet annulus. Both have source-backed Floor9 but 0/2 strict event-to-native pairs. Five sample returned F9 cameras per viewport projected real gate and hero safely; that is not the native continuity criterion.",
+    "action": "Replace one existing f9:ground top sector with exact adjacent source-x-matched annular spans: authentic old-gateway approach, near-sill handoff, genuinely walkable Void destination. Same original geometry radius, elevation, source authority, no new collider or fabricated gateway, two extra material draws only on grounded crossfloor view.",
+    "acceptance": "Full normal-speed matched 60+ sec 960x600 and 390x844; original gate + full moving hero + same real successor roof in consecutive native frames, source PTS paired; identical seed/tier; compare baseline. No production claim without native and device validation.",
+    "critics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDevices": "NOT EVALUATED",
+    "next": "Inspect new original video and determine whether joined roof fixes the frame discontinuity, else repair camera and connected architecture at genuine shared threshold. Do not advance P0."
   }
+
 }
