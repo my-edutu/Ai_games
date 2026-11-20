@@ -13044,5 +13044,44 @@
       "memory": "NOT EVALUATED"
     },
     "safeguards": "Frozen baseline unchanged; PR58 untouched; PR68 draft; no other games, merge, deployment or force push."
+  },
+  "p0NativeExactSourceOriginalDoorAndGpuOwnerRootIsolation20261120_0632": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenBaselineMoved": false,
+    "inspectedCurrentHead": "393d744cd341b2ef8f06c67fd1624dad71c6ffcc",
+    "productionBehaviorChanged": false,
+    "codeCommits": [
+      "2e8dc8fcb66d90fdc65025c98fcb97496c068849",
+      "235900d93a6544037a5327cdf96063503d93cbf2",
+      "090e4ab354db4a236eb5f33892ca628af13839e4"
+    ],
+    "latestOriginalSourceCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44684125642",
+    "sourceSha": "393d744cd341b2ef8f06c67fd1624dad71c6ffcc",
+    "nativeFootageReviewed": "Original 1x >68s desktop/portrait candidate danger WebM inspected; sustained bronze-to-Void shared architecture 0s, strict event matched 0/2 viewports, portrait foreground bronze steel blocks hero/gateway. All eight actual baseline/candidate clip jobs and ledge passed, but event-aligned native verification failed.",
+    "measuredColdWorldCPU": "First F9 source tick475 desktop: scene 263.5ms, rendererReturn89.1ms, oldGpuOwnerAndClear87.0ms, rigid batch35.2ms. First F9 source tick482 portrait: scene181.0ms, rendererReturn78.2ms, oldGpuOwnerAndClear58.4ms, rigid batch21.5ms. Browser CPU, NOT device GPU FPS.",
+    "verifiedBlocker": "Former aggregate old-owner critical path is 58-98ms but its gallery transfer-versus-disposal cause was unmeasured. Source-bound accepted renderer-return diagnostics now split and record gallery prewarm, true GPU retirement path; no player-facing fix claimed.",
+    "evidenceFile": "public/infinite-tower-climb/gauntlet/evidence/p0-immutable-446841-original-film-first-f9-owner-split-20261120.json",
+    "technicalReview": "docs/reviews/2026-11-20-tower-pr68-source-owner-cold-cpu-and-native-shot-audit.md",
+    "previousQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44684125479 — failed 9/10, all four Tower Phase3 passed; prohibited unrelated Maze Phase6 timeout exit124.",
+    "freshCI": "NOT YET VERIFIED",
+    "freshSourceCapture": "REQUESTED after evidence commit; result NOT EVALUATED",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDeviceP50P95P99Memory": "NOT EVALUATED",
+    "nextHighestImpact": "Inspect source-pinned new returned renderer cost breakdown for prewarmed vs fallback gallery and old GPU release, fix dominating system and portrait foreground camera/steel, re-record unedited source-aligned normal 1x desktop/portrait, stay P0.",
+    "safeguards": {
+      "PR68Draft": true,
+      "PR58Untouched": true,
+      "baselineUnchanged": true,
+      "merge": false,
+      "deploy": false,
+      "forcePush": false,
+      "otherGameEdits": false
+    }
   }
 }
