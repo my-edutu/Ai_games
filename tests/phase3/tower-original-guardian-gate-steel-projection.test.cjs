@@ -110,3 +110,35 @@ test('bounded real instanced projection excludes inherited hidden gate parents a
     assert.equal(project(THREE,root,camera).projectedInstancedPanes,0);
   }finally{geometry.dispose();material.dispose();}
 });
+
+test('source-owned gateway steel keeps genuine world matrices for one render epoch while each trial camera projects independently',async()=>{
+  const [{projectOriginalGuardianGateSteel:project},THREE]=await promise;
+  const {createSightlineMatrixEpochCache}=await import(pathToFileURL(path.resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/successor-deck-visibility.mjs')).href);
+  const f=originalDoor(THREE),cache=createSightlineMatrixEpochCache();
+  const update=f.root.updateWorldMatrix.bind(f.root);
+  let refreshed=0;
+  f.root.updateWorldMatrix=(parents,children)=>{
+    refreshed++;
+    return update(parents,children);
+  };
+  try{
+    cache.beginFrame();
+    const near=project(THREE,f.root,f.camera,cache.sync);
+    assert.equal(refreshed,1);
+    f.camera.position.set(0,2.5,30);f.camera.lookAt(0,2.5,0);
+    const farther=project(THREE,f.root,f.camera,cache.sync);
+    assert.ok(farther.projectedMetalArea<near.projectedMetalArea,
+      'each candidate MUST project actual gate steel from its own camera');
+    assert.equal(refreshed,1,
+      'camera candidate trials must not recursively update unchanged original-gate transforms');
+    cache.beginFrame();
+    f.root.position.x+=.3;
+    assert.equal(project(THREE,f.root,f.camera,cache.sync).sourceBound,true);
+    assert.equal(refreshed,2,
+      'next actual World render epoch MUST resynchronize moved original bronze geometry');
+    project(THREE,f.root,f.camera);
+    assert.equal(refreshed,3,
+      'standalone callers without World cache still refresh actual attached meshes');
+  } finally {f.geo.dispose();f.metal.dispose();}
+});

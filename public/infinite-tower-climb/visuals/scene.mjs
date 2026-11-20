@@ -5667,6 +5667,10 @@ export function createTowerScene(canvas, settings = {}) {
         sceneUpdateMs: sceneReadyAt - submissionStart,
         rendererReturnMs: rendererReturnedAt - sceneReadyAt,
         worldRebuildMs: coldWorldMs,
+        // This is observed only after an authentic submitted renderer return,
+        // and only when the rebuilt immutable run/floor/tick matches.
+        worldRebuildCpuPhases: coldWorldMs !== null
+          ? coldWorld.firstF9CpuPhases : null,
         totalSubmissionMs: rendererReturnedAt - submissionStart,
         firstF9MainThread: currentFirstF9Timing ? {
           sceneSetupMs: currentFirstF9Timing.sceneSetupMs,

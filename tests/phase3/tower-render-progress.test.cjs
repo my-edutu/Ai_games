@@ -148,3 +148,35 @@ test('real source floor transition retains bounded CPU/world/WebGL time partitio
   }
   assert.equal(progress.diagnostics(10000).sourceTransitions.length, 64);
 });
+
+test('first authentic returned Floor9 room records only fixed bounded CPU rebuild stages, never HTTP receipt or GPU claims',async()=>{
+  const progress=await create();
+  const source={runToken:'real-guardian-episode',tick:475,floor:9,lifecycle:'running'};
+  const phases={oldGpuOwnerAndClear:12.12,materialsAndFloorSetup:3.33,
+    actualFirstSuccessorArchitecture:23.46,authoritativePlatformMeshes:28.21,
+    sourceBearingsAndHazards:5.6,shadowAndSceneTraversal:2.2,
+    rigidVertexBatching:25.29,clockFaceRayBinding:0.3,
+    unboundedLabel:99999};
+  progress.received(source,100,1000);
+  progress.submitted(source,320,1320,{
+    sceneUpdateMs:218.7,rendererReturnMs:77.4,
+    worldRebuildMs:100.7,totalSubmissionMs:296.1,
+    worldRebuildCpuPhases:phases
+  });
+  const events=progress.diagnostics(320).sourceTransitions;
+  assert.equal(events[0].renderWorkMs,undefined);
+  assert.deepEqual(events[1].renderWorkMs.firstF9WorldRebuildPhases,{
+    oldGpuOwnerAndClear:12.1,materialsAndFloorSetup:3.3,
+    actualFirstSuccessorArchitecture:23.5,authoritativePlatformMeshes:28.2,
+    sourceBearingsAndHazards:5.6,shadowAndSceneTraversal:2.2,
+    rigidVertexBatching:25.3,clockFaceRayBinding:.3
+  });
+  assert.equal(Object.hasOwn(events[1].renderWorkMs.firstF9WorldRebuildPhases,'unboundedLabel'),false);
+  const next={...source,runToken:'another-run',tick:640,floor:10};
+  progress.submitted(next,370,1370,{
+    worldRebuildMs:101,worldRebuildCpuPhases:phases
+  });
+  assert.equal(progress.diagnostics(370).sourceTransitions.at(-1)
+    .renderWorkMs.firstF9WorldRebuildPhases,undefined,
+    'another floor or run never borrows F9 cost labels');
+});

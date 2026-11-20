@@ -9,11 +9,19 @@ const MAX_MESHES=80;
 const MAX_INSTANCES=24;
 const MAX_PER_GRILLE=12;
 
-export function projectOriginalGuardianGateSteel(THREE,root,camera){
+export function projectOriginalGuardianGateSteel(THREE,root,camera,syncWorldMatrix=null){
   if(!root?.isGroup || root.visible!==true || !camera?.isCamera ||
      !THREE?.Vector3 || !THREE?.Matrix4)return null;
   camera.updateMatrixWorld(true);
-  root.updateWorldMatrix(true,true);
+  // Scene tests multiple reversible exterior camera candidates against the
+  // SAME source-authorized moving gateway in one real returned frame. Its
+  // original metal matrices have already been synchronized by World.update.
+  // Rewalking the entire original HP-open grille subtree for every candidate
+  // undoes the bounded source-matrix epoch cache. Camera projection MUST
+  // refresh per candidate, but actual gate transforms change only per World
+  // update. Standalone source reviewers still use the exact old refresh.
+  if(typeof syncWorldMatrix==='function') syncWorldMatrix(root);
+  else root.updateWorldMatrix(true,true);
   const corner=new THREE.Vector3();
   const localInstance=new THREE.Matrix4();
   const instanceWorld=new THREE.Matrix4();

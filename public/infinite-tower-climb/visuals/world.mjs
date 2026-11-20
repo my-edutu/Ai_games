@@ -4029,9 +4029,24 @@ export function createTowerWorld(){
     // hide its shaft or borrow another run's winning passage.
     const deferStructuralShell = deferDistant && earnedSourceUploadWitness && snapshot.floor===9 && snapshot.theme==='void';
     const rebuildStartedAt = performance.now();
+    // First source-earned Floor9 remains ~90-101ms in ORIGINAL native-browser
+    // recordings. Attribute that one real synchronous handoff to the actual
+    // old GPU owner, authored shaft, live decks, bearings and rigid batching
+    // instead of guessing what a successful CI job or screenshot means.
+    // Disabled on every other floor/quality; never changes simulation order.
+    const firstF9CpuPhases = deferStructuralShell && requestedQuality==='low'
+      ? {} : null;
+    let phaseStartAt=rebuildStartedAt;
+    const closeColdPhase=name=>{
+      if(!firstF9CpuPhases)return;
+      const now=performance.now();
+      firstF9CpuPhases[name]=+(now-phaseStartAt).toFixed(2);
+      phaseStartAt=now;
+    };
     beginRetainedCapRebuild(snapshot);
     clearFloor(deferStructuralShell);originalClockworkArchitecturalPalette=null;
     sourceEarnedBearingPalette=null;
+    closeColdPhase('oldGpuOwnerAndClear');
     quality=requestedQuality;theme=THEMES[snapshot.theme]?snapshot.theme:'foundry';const p=PALETTES[theme];
     materials={stone:weather(mat(p.stone,.04,.86)),dark:mat(p.dark,.28,.58),metal:mat(p.metal,.48,.39),copper:mat(theme==='foundry'?0xc88c57:p.metal,.55,.32),edge:mat(p.edge,.12,.68),
       portalStone:theme==='ruins'?applyStoneSurface(mat(p.edge,.035,.90),stoneSurface,{scale:.11,strength:.56,relief:.013}):mat(p.edge,.12,.68),
@@ -4067,6 +4082,7 @@ export function createTowerWorld(){
         createOriginalClockworkArchitecturalPalette(materials,PALETTES.clockwork);
     }
     floorGroup=new THREE.Group();floorGroup.name=`floor:${snapshot.floor}:${theme}`;group.add(floorGroup);
+    closeColdPhase('materialsAndFloorSetup');
     const height=snapshot.chunkHeight/SCALE;
     if(deferStructuralShell)stagedVoidArchitecture=
       stageSourceEarnedVoidBearingFrame(snapshot,height);
@@ -4081,6 +4097,7 @@ export function createTowerWorld(){
     // frame. Only the noninteractive 8,640-triangle distance panorama and
     // seven far citadels can be staggered after genuine renderer submissions.
     if(!deferDistant){buildDistantWorld(height);buildVista(height);}
+    closeColdPhase('actualFirstSuccessorArchitecture');
     // All 3D cap clearance machinery must share the opt-in source exit,
     // not merely the presence of some guardian on a historic floor.
     // No published, exact real exit means no fabricated bronze victory gate.
@@ -4094,8 +4111,10 @@ export function createTowerWorld(){
           typeof e.id==='string' && !!e.id && Number.isFinite(e.health));
       buildPlatform(p,snapshot.worldWidth,sourceGateCap,snapshot.runToken);
     }
+    closeColdPhase('authoritativePlatformMeshes');
     buildEarnedClockworkVoidBearingRoute(snapshot);
     for(const h of snapshot.hazards||[])buildHazard(h,snapshot.worldWidth);
+    closeColdPhase('sourceBearingsAndHazards');
     for(const r of rotors)r.o.traverse(o=>{if(o.isMesh)o.userData.ambientDetail=true;});
     // The large structural masses cast the route shadows. Tiny bolts, foliage,
     // motes, glow strips and remote buildings keep their geometry and receive
@@ -4104,13 +4123,17 @@ export function createTowerWorld(){
     for(const h of hazards.values())h.root.traverse(o=>{
       if(o.isMesh && o!==h.indicator)o.castShadow=true;
     });
+    closeColdPhase('shadowAndSceneTraversal');
     finishBatches();
+    closeColdPhase('rigidVertexBatching');
     bindRenderedClockFaceRayMeshes();
+    closeColdPhase('clockFaceRayBinding');
     key=`${snapshot.runToken}:${snapshot.floor}:${snapshot.theme}:${quality}`;
     lastRebuildWitness = { runToken: snapshot.runToken, floor: snapshot.floor,
       sourceTick: snapshot.tick, key,
       cpuBuildMs: +(performance.now() - rebuildStartedAt).toFixed(2),
-      measurement: 'CPU synchronous real-world rebuild, not WebGL return, GPU or native video' };
+      firstF9CpuPhases,
+      measurement: 'CPU synchronous real-world rebuild and first-F9 sub-stages, not WebGL return, GPU or native video' };
     if (deferDistant) deferredDistantArrival = {
       key, runToken:snapshot.runToken, floor:snapshot.floor,
       height, sourceTick:snapshot.tick, state:'awaiting-actual-first-render',
@@ -5659,7 +5682,8 @@ export function createTowerWorld(){
     if (snapshot!==lastSnapshot || !sourceEarnedOriginalGateGeometry(snapshot))
       return null;
     return projectOriginalGuardianGateSteel(THREE,
-      retainedEarnedCap.originalGateRoot,camera);
+      retainedEarnedCap.originalGateRoot,camera,
+      sightlineMatrixEpoch.sync);
   }
   function lastRebuild() { return lastRebuildWitness ? { ...lastRebuildWitness } : null; }
   // The ACTUAL source-earned HP-open F8 gate remains a child of this Floor9

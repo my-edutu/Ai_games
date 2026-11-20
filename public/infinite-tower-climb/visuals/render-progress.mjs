@@ -40,12 +40,26 @@ export function createRenderProgress() {
             heroThreat: cost(renderWork.firstF9MainThread.heroThreatMs),
             cameraLighting: cost(renderWork.firstF9MainThread.cameraLightingMs) }
         : null;
+    // Use fixed, bounded phase names and return-owned CPU stamps. A browser
+    // source receipt never certifies an actually built 3D room or its costs.
+    const breakdown = phase==='renderer-submitted' &&
+      snapshot.floor===9 && snapshot.lifecycle==='running' &&
+      renderWork?.worldRebuildCpuPhases;
+    const worldRebuildCpuPhases = breakdown && typeof breakdown==='object'
+      ? Object.fromEntries([
+          'oldGpuOwnerAndClear','materialsAndFloorSetup',
+          'actualFirstSuccessorArchitecture','authoritativePlatformMeshes',
+          'sourceBearingsAndHazards','shadowAndSceneTraversal',
+          'rigidVertexBatching','clockFaceRayBinding'
+        ].map(key=>[key,cost(breakdown[key])]))
+      : null;
     const renderWorkMs = phase === 'renderer-submitted' && renderWork
       ? { sceneUpdate: cost(renderWork.sceneUpdateMs),
           rendererReturn: cost(renderWork.rendererReturnMs),
           worldRebuild: cost(renderWork.worldRebuildMs),
           total: cost(renderWork.totalSubmissionMs),
-          ...(coldStages ? { firstF9MainThread: coldStages } : {}) } : null;
+          ...(coldStages ? { firstF9MainThread: coldStages } : {}),
+          ...(worldRebuildCpuPhases ? { firstF9WorldRebuildPhases:worldRebuildCpuPhases } : {}) } : null;
     sourceTransitions.push({
       phase, runToken: snapshot.runToken, tick: snapshot.tick,
       floor: snapshot.floor, lifecycle: snapshot.lifecycle,
