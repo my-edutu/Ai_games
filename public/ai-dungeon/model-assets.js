@@ -968,6 +968,14 @@ function readOriginalSwingSoleY(candidate){
  originalSwingToePoint.applyMatrix4(mesh.matrixWorld);
  return originalSwingToePoint.y;
 }
+// Read exactly ONE source-skinned vertex once and preserve its real XZ and Y.
+// The legacy Y-only reader above remains unchanged for other source stages.
+function readOriginalSwingSoleSample(candidate){
+ const y=readOriginalSwingSoleY(candidate);
+ return Number.isFinite(y)&&Number.isFinite(originalSwingToePoint.x)&&
+  Number.isFinite(originalSwingToePoint.z)?{
+   y,xz:[originalSwingToePoint.x,originalSwingToePoint.z]}:null;
+}
 
 
 /**
@@ -1000,7 +1008,10 @@ function stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion){
   actor.sourceNeutralSwingCurrentFrameProofs?.[side]||
   actor.sourceStanceKneeCurrentFrameProofs?.[side]||
   actor.sourceStanceSoleCurrentFrameProofs?.[side]||
-  actor.sourceSwingToeCurrentFrameProofs?.[side]);
+  actor.sourceSwingToeCurrentFrameProofs?.[side]||
+  actor.sourceLicensedCounterpitchCurrentFrame?.[side]||
+  actor.sourceToeJointCurrentFrameProofs?.[side]||
+  actor.sourceLinkedFootCurrentFrameProofs?.[side]);
  if(hasSourceLegClaim||actor.sourceSwingToeCorrectionsThisFrame>0)return;
  if(!fullSourceLegs||actor.fullBody?.mode!=='move'||actor.activeImportedClipName!=='Walking_A'||
   actor.fullBody?.owner?.locomotion!==true||
@@ -1013,10 +1024,12 @@ function stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion){
   !patches?.right?.anatomicalHeelToeVerified||
   !patches.left.sourceToeAxis?.selectedAnatomicalPatch||
   !patches.right.sourceToeAxis?.selectedAnatomicalPatch)return;
- const read=side=>({
-  heelY:readOriginalSwingSoleY(patches[side].heel),
-  toeY:readOriginalSwingSoleY(patches[side].toe)
- });
+ const read=side=>{
+  const heel=readOriginalSwingSoleSample(patches[side].heel);
+  const toe=readOriginalSwingSoleSample(patches[side].toe);
+  return {heelY:heel?.y??NaN,toeY:toe?.y??NaN,
+   heelXZ:heel?.xz??null,toeXZ:toe?.xz??null};
+ };
  const left=read('left'),right=read('right');
  const candidate=planOriginalSourceLoadedPelvisSupport({
   mode:actor.fullBody.mode,sourceClipName:actor.activeImportedClipName,
@@ -1041,7 +1054,8 @@ function stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion){
  // Validate BOTH actual original skinned shoe endpoints after the visual
  // pivot moves; reducing maximum error cannot conceal a newly buried heel.
  const physical=verifyOriginalSourceLoadedPelvisFootWitness({
-  before,after:lifted,otherBefore,otherAfter,floorTopY:-.02
+  before,after:lifted,otherBefore,otherAfter,
+  floorTopY:-.02,requireWorldXZ:true
  });
  if(!physical){
   actor.visualPivot.position.y=baseY;
@@ -1064,18 +1078,22 @@ function auditSourceLoadedPelvisAfterLegs(actor,since,reducedMotion){
  const candidate=actor.sourceLoadedPelvisCandidate;
  actor.sourceLoadedPelvisCandidate=null;
  if(!candidate)return;
- const finalHeelY=readOriginalSwingSoleY(candidate.foot.heel);
- const finalToeY=readOriginalSwingSoleY(candidate.foot.toe);
- const otherFinalHeelY=readOriginalSwingSoleY(candidate.other.heel);
- const otherFinalToeY=readOriginalSwingSoleY(candidate.other.toe);
+ const readFoot=foot=>{
+  const heel=readOriginalSwingSoleSample(foot?.heel);
+  const toe=readOriginalSwingSoleSample(foot?.toe);
+  return {heelY:heel?.y??NaN,toeY:toe?.y??NaN,
+   heelXZ:heel?.xz??null,toeXZ:toe?.xz??null};
+ };
+ const finalFoot=readFoot(candidate.foot);
+ const otherFinalFoot=readFoot(candidate.other);
+ const finalHeelY=finalFoot.heelY,finalToeY=finalFoot.toeY;
  // Source ankle and knee overlays may change heel/toe independently after
  // the initial pelvis trial. Never let a newly deeper heel be hidden by
  // a better toe measurement when accepting the final rendered source pose.
  const finalPhysical=verifyOriginalSourceLoadedPelvisFootWitness({
-  before:candidate.before,after:{heelY:finalHeelY,toeY:finalToeY},
-  otherBefore:candidate.otherBefore,
-  otherAfter:{heelY:otherFinalHeelY,toeY:otherFinalToeY},
-  floorTopY:-.02
+  before:candidate.before,after:finalFoot,
+  otherBefore:candidate.otherBefore,otherAfter:otherFinalFoot,
+  floorTopY:-.02,requireWorldXZ:true
  });
  const accepted=Boolean(finalPhysical);
  if(!accepted){
@@ -1095,18 +1113,12 @@ function auditSourceLoadedPelvisAfterLegs(actor,since,reducedMotion){
    [candidate.side]:candidate.before,[otherSide]:candidate.otherBefore
   };
   const restoredShoes={
-   [candidate.side]:{
-    heelY:readOriginalSwingSoleY(candidate.foot.heel),
-    toeY:readOriginalSwingSoleY(candidate.foot.toe)
-   },
-   [otherSide]:{
-    heelY:readOriginalSwingSoleY(candidate.other.heel),
-    toeY:readOriginalSwingSoleY(candidate.other.toe)
-   }
+   [candidate.side]:readFoot(candidate.foot),
+   [otherSide]:readFoot(candidate.other)
   };
   const preserved=certifyOriginalSourcePostLegPelvisRollback({
    source:'post-final-source-legs-pelvis-only',
-   before:preLiftShoes,after:restoredShoes
+   before:preLiftShoes,after:restoredShoes,requireWorldXZ:true
   });
   if(preserved?.preserveOriginalSourceLegs){
    actor.sourceLoadedPelvisLiftMeters=0;
@@ -1267,7 +1279,15 @@ function auditSourceLoadedPelvisAfterLegs(actor,since,reducedMotion){
   floorTopY:-.02,appliedLiftMeters:candidate.liftMeters,
   beforeHeelY:candidate.before.heelY,
   beforeToeY:candidate.before.toeY,
+  beforeHeelXZ:candidate.before.heelXZ,
+  beforeToeXZ:candidate.before.toeXZ,
   finalHeelY,finalToeY,
+  finalHeelXZ:finalFoot.heelXZ,finalToeXZ:finalFoot.toeXZ,
+  oppositeBeforeHeelXZ:candidate.otherBefore.heelXZ,
+  oppositeBeforeToeXZ:candidate.otherBefore.toeXZ,
+  oppositeFinalHeelXZ:otherFinalFoot.heelXZ,
+  oppositeFinalToeXZ:otherFinalFoot.toeXZ,
+  independentlyRecheckedOriginalTwoShoeXZ:true,
   beforeWorstMeters:candidate.beforeWorstMeters,
   afterWorstMeters:finalPhysical.afterWorstMeters,
   originalSourceContactLocked:false
@@ -4284,6 +4304,12 @@ function stageSkinnedDefeatAfterMixer(actor,reducedMotion){
 
 function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt,sourceFrameVisible=true){
  if(!actor.authored||!actor.mixer)return;
+ // Clear the previous rendered frame's final pelvis certificate BEFORE
+ // any original source joint owner runs. The actual previous lift amount
+ // is deliberately retained for the independent bounded rate contract.
+ actor.sourceLoadedPelvisFrameProof=null;
+ actor.sourceLoadedPelvisRollbackFootProof=null;
+ actor.sourceLoadedPelvisCandidate=null;
  // A previous frame's imported fade can never receive a second full-fade
  // catch-up. Only changeAction() after this reset can authorize it.
  actor.sourceWalkFadeStartedThisFrame=false;
@@ -4767,15 +4793,15 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
  stageOriginalSourceSwingLinkedToesAfterMixer(actor,reducedMotion);
  stageOriginalSourceSwingLinkedFootAfterMixer(actor,reducedMotion);
  stageOriginalSourceStanceSlideAfterMixer(actor,reducedMotion,sourceFrameInterval,sourceFrameVisible);
- // This is the LAST original source-skin presentation adjustment, after
- // every animated thigh/knee/ankle and root skid correction. Measure both
- // FINAL shoes, lift only a witnessed loaded sole, re-skin, and roll back
- // atomically before storing the actual frame receipt. No extra probes:
- // the same existing pelvis dual-shoe read is simply ordered after legs.
- stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion);
- auditSourceLoadedPelvisAfterLegs(actor,poseAge,reducedMotion);
  stageLicensedSourceSwingCounterpitchAfterMixer(actor,reducedMotion);
  stageLicensedSourceToeFinisherAfterCounterpitch(actor,reducedMotion);
+ // The source-authored upper/lower/foot AND toes-child owner now finishes
+ // BEFORE the pelvis-only, strictly optional final weighted-source shoe
+ // audit. If another original foot owner already earned a certificate,
+ // skip the pelvis lift instead of stacking/invalidating its real skinned
+ // foot. This never moves authority, invents contact or changes a clip.
+ stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion);
+ auditSourceLoadedPelvisAfterLegs(actor,poseAge,reducedMotion);
  rememberOriginalSourceAppliedSwingEvidence(actor);
  if(actor.draperyPanels?.length){
   const clothAction=actor.fullBody?.mode??actor.u.action??'idle';
