@@ -13083,5 +13083,46 @@
       "forcePush": false,
       "otherGameEdits": false
     }
+  },
+  "p0SourcePinnedOriginalGatewayOwnerPhaseAndNativeCapture20261120_0811": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenBaselineMoved": false,
+    "inspectedPr68Head": "32abb83ea635710404b06901eb0ea204ad10a05b",
+    "focusedSourceContractCommit": "20b5485d3fd9135c9ff6337e24b6a0af4efafe2b",
+    "productionGameplayChanged": false,
+    "verifiedBlocker": "https://github.com/my-edutu/Ai_games/actions/runs/44691198597 — failed 9/10, Phase3 tower-render-progress fixture rejected newly source-owned first F9 CPU owner split (two keys absent in old test expectation); no claimed browser/optical fix.",
+    "workCompleted": "Corrected bounded returned-source CPU fixture to assert original cap-gallery transfer+old GPU retirement partition, valid first-F9 owner provenance and cross-run exclusion; requested a fresh original 9-job capture at immutable source rather than claim green checks establish quality.",
+    "exactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44692883847 (in progress when recorded); https://github.com/my-edutu/Ai_games/actions/runs/44692994001 (pending when recorded)",
+    "newSourcePinnedCaptureSha": "cca4d433adabcf9321fc0f8a8b3ff9bf44cec63b",
+    "newCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/44692994077",
+    "newCaptureResult": "IN PROGRESS — no inspected native pixels yet; source/native pairing not graded",
+    "previousOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44684125642 — 8/8 original 60s+ films and ledge success; strict guardian-to-F9 native event alignment FAILED 0/2 viewports",
+    "biggestExperienceGap": "Original native full-body skinned climber, genuine HP-open bronze gate, and walkable F9 roof lack consecutive accepted source-aligned shared optical shot; historical bronze foreground occludes portrait. Browser first F9 cold original old GPU owner stage measured 87.0ms desktop / 58.4ms portrait in previous 1x software-WebGL films; transfer vs teardown not yet observed separately.",
+    "evidence": "public/infinite-tower-climb/gauntlet/evidence/p0-immutable-446841-original-film-first-f9-owner-split-20261120.json",
+    "technicalReview": "docs/reviews/2026-11-20-tower-pr68-source-owner-cold-cpu-and-native-shot-audit.md",
+    "nextHighestImpact": "Inspect new first Floor9 returned GPU owner split and real native film at exact immutable source, optimize measured dominant owner path and fix original gateway+hero+walkable F9 camera/foreground composition; repeat native event-aligned capture. Remain P0.",
+    "independentBlindCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedRealDevice": {
+      "frameTimeP50": "NOT EVALUATED",
+      "frameTimeP95": "NOT EVALUATED",
+      "frameTimeP99": "NOT EVALUATED",
+      "memory": "NOT EVALUATED"
+    },
+    "limits": "Local approved coding/browser tunnel unavailable; GitHub repository source and exact-source workflow logs were accessed through connected GitHub. No device performance, original new film or reviewer outcome fabricated.",
+    "safety": {
+      "pr68Draft": true,
+      "pr58Untouched": true,
+      "baselineUnchanged": true,
+      "noMerge": true,
+      "noDeploy": true,
+      "noForcePush": true,
+      "noOtherGames": true
+    }
   }
 }
