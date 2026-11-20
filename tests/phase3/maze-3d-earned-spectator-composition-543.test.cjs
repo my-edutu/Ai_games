@@ -10,7 +10,8 @@ test('Pass543 original observatory ROOT physically recedes on the SAME source-ea
  assert.match(world,/snapshot\.threats\.some\(threat=>threat\?\.cell===guardianCell/);
  assert.match(world,/const resonance=publicGuardianEarnedResonance\(/);
  assert.match(world,/const counterWave=resonance\.wave/);
- assert.match(world,/signal\.observatory\.instrument\.position\.y=reduced\?0:-1\.72\*counterWave/);
+ assert.match(world,/const observedImpactDepth=publicGuardianObservatoryImpactDrop\(/);
+ assert.match(world,/signal\.observatory\.instrument\.position\.y=-1\.72\*observedImpactDepth/);
  assert.match(world,/const mastLift=reduced\?0:Math\.max\(0,Math\.min\(1,warningAction\)\)/);
  assert.match(world,/instrument\.position\.set\(-\.77,0,-\.77\)/);
  assert.match(world,/for\(const vane of signal\.observatory\.vanes\)/);

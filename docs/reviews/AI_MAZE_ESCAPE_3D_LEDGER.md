@@ -1,3 +1,9 @@
+### Pass544 — impact-first observatory candidate (2026-11-20 UTC)
+
+- Latest verified exact-HEAD Pass543 [WebGL run 44825485553](https://github.com/my-edutu/Ai_games/actions/runs/44825485553), source `718828ac`, original artifact SHA-256 `60f5724fe41e6006e72bab2fdd6a1988c2a5fe5113ad2dbf0c8c496bfe45abb1`, 42/42 original PNG hashes and 3/3 real gate hashes; native 390/320 earned impact visually REJECTED vs fixed Nintendo reference. Six-run strict <100 budget/source checks passed.
+- Source candidate: on a **genuinely observed** counter, the EXISTING rooted 3D observatory retracts at the first source impact frame instead of awaiting the 0.12s-per-public-tile floor wave; that wave catches up monotonically. No new mesh, fake event, hidden route, AI/collision/viewport/geometry budget/test relaxation. Pass543 physical assertion strengthened; Pass544 functional truth-table added.
+- [Dated full original review](docs/reviews/maze-3d/pass-544-original-impact-synchronised-observatory-2026-11-20.md). Pass544 **requires exact-HEAD native WebGL visual proof and independent critique**; benchmark NOT MET, PR open draft, no merge/deploy/force.
+
 ### Pass542 spectator performance court — candidate awaiting actual WebGL (2026-11-20 UTC)
 
 - Source-fixed baseline: Pass541b native WebGL [44813337586](https://github.com/my-edutu/Ai_games/actions/runs/44813337586) SUCCESS, [ZIP 14669456540](https://github.com/my-edutu/Ai_games/actions/runs/44813337586/artifacts/14669456540), SHA256 `8b26d8bddb7d7ceeee2f88501ac9d3bda56f40ee6848f4d36858ebd3441b72e6`. Re-verified 42/42 complete original PNG SHA-sidecars and 3/3 genuine gate images; inspected authentic 390/320 earned parry. Visual benchmark **REJECTED**: oversized fossil/masonry foreground remains, notwithstanding camera fit and clear actor rays.

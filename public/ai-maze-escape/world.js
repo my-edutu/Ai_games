@@ -1,5 +1,5 @@
 import * as THREE from './vendor/three.module.js';
-import { GATE_RETRACTION_SECONDS, PUBLIC_PRESSURE_VISUAL_SECONDS, observedGateOpenings, gateRetractionPose, observedPressureProgress, publicPressureSequenceSeconds, publicSpentKeyTheatreDrop, publicGuardianEarnedResonance } from './gate-moment.mjs';
+import { GATE_RETRACTION_SECONDS, PUBLIC_PRESSURE_VISUAL_SECONDS, observedGateOpenings, gateRetractionPose, observedPressureProgress, publicPressureSequenceSeconds, publicSpentKeyTheatreDrop, publicGuardianEarnedResonance, publicGuardianObservatoryImpactDrop } from './gate-moment.mjs';
 import { publicKeyCollectionMoment } from './map-view.mjs';
 
 export const CELL_SIZE = 2.4;
@@ -4027,7 +4027,16 @@ export function createMazeWorld(options = {}) {
         // This never moves a wall, game collider, terrain, enemy, hidden
         // cell, autonomous action or resource, and restores to zero when
         // the public witness ends. Reduced motion keeps the original still.
-        signal.observatory.instrument.position.y=reduced?0:-1.72*counterWave;
+        // The first authentic counter tick precedes the guardian-end
+        // 120ms-per-tile floor wave. React with the rooted mast AT IMPACT,
+        // then let the original sequential public floor response take over.
+        // No hidden guardian, fabricated hit, collider or mesh is created.
+        const observedImpactDepth=publicGuardianObservatoryImpactDrop(
+          guardianCounterPhase,
+          onLane && earnedParry && signal.cell===guardianCell,
+          counterWave,
+          reduced);
+        signal.observatory.instrument.position.y=-1.72*observedImpactDepth;
         const mastLift=reduced?0:Math.max(0,Math.min(1,warningAction));
         const mastHeight=.78+.88*mastLift;
         signal.observatory.shaft.scale.y=mastHeight;

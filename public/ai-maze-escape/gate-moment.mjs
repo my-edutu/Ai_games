@@ -111,3 +111,18 @@ export function publicGuardianEarnedResonance(phase,fromHero,reducedMotion=false
   }
   return state;
 }
+
+/**
+ * The source-authentic first guardian counter frame precedes the delayed
+ * 0.12s-per-cell floor wave. Collapse the ORIGINAL non-colliding observatory
+ * as the same witnessed lantern impact lands, then yield to the original
+ * progressive stage. Absent, hidden, reduced-motion or unobserved events
+ * never produce a successful-hit pose. No allocations or game authority.
+ */
+export function publicGuardianObservatoryImpactDrop(phase, witnessedParry, delayedWave, reducedMotion=false) {
+  if (reducedMotion || witnessedParry !== true
+    || !Number.isFinite(phase) || phase < 0 || phase > 1) return 0;
+  const wave=Number.isFinite(delayedWave)
+    ? Math.max(0,Math.min(1,delayedWave)) : 0;
+  return Math.max(.82,wave);
+}
