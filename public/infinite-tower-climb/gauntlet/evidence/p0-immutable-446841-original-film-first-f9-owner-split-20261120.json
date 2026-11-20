@@ -1,0 +1,99 @@
+{
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "leadingAssessorVerdict": "NOT EVALUATED",
+  "inspectedBranchHead": "393d744cd341b2ef8f06c67fd1624dad71c6ffcc",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "frozenBaselineMoved": false,
+  "sourceCampaign": {
+    "url": "https://github.com/my-edutu/Ai_games/actions/runs/44684125642",
+    "candidateSourceSha": "393d744cd341b2ef8f06c67fd1624dad71c6ffcc",
+    "sourcePinned": true,
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "nativeDurationSeconds": {
+      "desktop": 68.192,
+      "portrait": 68.159
+    },
+    "conditions": {
+      "seed": "tower-transformation-capture-v1",
+      "tier": "low",
+      "fps": 25,
+      "speed": "1x",
+      "desktop": "960x600",
+      "portrait": "390x844",
+      "audio": false
+    },
+    "recordings": "eight original baseline/candidate scene jobs + ledge succeeded",
+    "strictDangerSourceToNative": "FAILED 0/2",
+    "sustainedArchitectureOverlapSeconds": {
+      "desktop": 0,
+      "portrait": 0
+    }
+  },
+  "nativeOriginalFilm": "I extracted and inspected the unmodified real desktop and portrait danger WebMs near 24.8–27.0s. The Floor9 HUD and violet environment appear, but the bronze gateway/steel and successor world do not establish an unoccluded continuous physically shared doorway shot with moving entire climber. Portrait near-foreground historical steel and upper rails dominate the action. Scene-chroma/visible Floor9 HUD are not themselves source/native proof.",
+  "firstFloorNineCpuBrowserMs": {
+    "desktop": {
+      "firstSourceTick": 475,
+      "sceneUpdate": 263.5,
+      "rendererReturn": 89.1,
+      "worldRebuildApprox": 137,
+      "worldOldGpuOwnerAndClear": 87,
+      "rigidVertexBatching": 35.2,
+      "firstCameraLightingApprox": 124.3
+    },
+    "portrait": {
+      "firstSourceTick": 482,
+      "sceneUpdate": 181,
+      "rendererReturn": 78.2,
+      "worldRebuildApprox": 91,
+      "worldOldGpuOwnerAndClear": 58.4,
+      "rigidVertexBatching": 21.5,
+      "firstCameraLightingApprox": 84.2
+    },
+    "secondaryRebuildOldGpuMs": {
+      "desktop": 98.2,
+      "portrait": 60.7
+    },
+    "secondaryRigidBatchMs": {
+      "desktop": 57.4,
+      "portrait": 30.7
+    },
+    "caveat": "Chrome CPU performance.now() duration partitions on GitHub Action software WebGL, NOT GPU timing, FPS or physical device."
+  },
+  "codeIntervention": {
+    "nature": "Evidence blocker diagnosis, source-authentic first Floor9 CPU stage split, NOT an experiential improvement",
+    "commits": [
+      "2e8dc8fcb66d90fdc65025c98fcb97496c068849",
+      "235900d93a6544037a5327cdf96063503d93cbf2",
+      "090e4ab354db4a236eb5f33892ca628af13839e4"
+    ],
+    "source": "public/infinite-tower-climb/visuals/world.mjs,scene.mjs,render-progress.mjs",
+    "preciseGoal": "Distinguish old source cap/gallery/gateway GPU ownership transfer CPU cost from former Floor8 geometry/material teardown; surface old gallery prewarm reused versus cold fallback and bounded deferred former-floor resource queue on a genuinely returned matching Floor9 WebGL frame.",
+    "safety": "Read-only bounded low-tier F9 source-matched performance diagnostics; retains old aggregate for comparison; no gameplay state, collision, guardian HP, gateway mesh, render ordering, shader, frame clock, animation or camera semantics changed.",
+    "localWorkspace": "UNAVAILABLE: connector tunnel-client not seen for 300 seconds; GitHub direct file writes succeeded. No local Node/browser or physical hardware results claimed."
+  },
+  "priorExactHeadQuality": {
+    "url": "https://github.com/my-edutu/Ai_games/actions/runs/44684125479",
+    "conclusion": "FAILURE 9/10",
+    "towerPhase3": "PASS 4/4",
+    "nonTowerFailure": "untouched Phase6 Maze test exceeded 75s (exit124). Do not edit forbidden game."
+  },
+  "freshQuality": "PENDING at record; no complete CI pass claimed",
+  "freshRecording": "PENDING at record; do not claim improved native pixels",
+  "independentCritics": {
+    "LOOKS": "0/5",
+    "FEELS": "0/5",
+    "PLAYS": "0/5"
+  },
+  "deviceFrameTimeP50P95P99Memory": "NOT EVALUATED",
+  "biggestExperienceGap": "No source-event matched sustained bronze-to-Void physically continuous guardian doorway, moving complete 3D climber and genuine walkable Floor9 in unedited 1x desktop/portrait original WebM; portrait foreground obstruction persists.",
+  "nextHighestImpact": "At fresh immutable SHA, compare original owner transfer versus old-GPU disposal and gallery prewarm status with actual native 1x frames. Optimize the demonstrated larger of these two real CPU stages, not appearance-only timestamps; then fix physical camera/foreground old gate visibility together before P1.",
+  "safeguards": {
+    "PR68Draft": true,
+    "PR58Untouched": true,
+    "baselineUnchanged": true,
+    "merge": false,
+    "deploy": false,
+    "forcePush": false,
+    "otherGameEdits": false
+  }
+}
