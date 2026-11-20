@@ -369,8 +369,14 @@ export function publicEarnedGuardianRecoilCourtCells(s,{spectator=false}={}) {
     ||!Array.isArray(s.threats)||!Array.isArray(s.keys)
     ||!Array.isArray(s.doors))return quiet;
   const visible=new Set(s.visibleCells);
-  const known=new Map(s.cells.filter(c=>Number.isSafeInteger(c?.cell)
-    &&visible.has(c.cell)).map(c=>[c.cell,c]));
+  // Already disclosed terrain may remain on screen after leaving the current
+  // FOV. Keep the live actors strictly visible, but let their witnessed parry
+  // quiet NON-COLLIDING tall scenery on those remembered public terraces too.
+  // No private/undisclosed tile is ever consulted or constructed.
+  const disclosed=s.cells.filter(c=>Number.isSafeInteger(c?.cell)
+    &&c.cell>=0&&c.cell<s.width*s.height);
+  const known=new Map(disclosed.filter(c=>visible.has(c.cell))
+    .map(c=>[c.cell,c]));
   const hero=known.get(s.currentCell);
   if(!hero||hero.blocked)return quiet;
   const reserved=new Set([...s.keys.map(k=>k.cell),
@@ -387,7 +393,10 @@ export function publicEarnedGuardianRecoilCourtCells(s,{spectator=false}={}) {
       ||distance(hero.cell,guardian.cell)>4)continue;
     const actorLevels=[cellHeight(hero.cell,s.width,s.height),
       cellHeight(guardian.cell,s.width,s.height)];
-    for(const c of known.values()) {
+    // The low physical actor court still requires CURRENT visibility.
+    // The spectator-only dressing ring may also include existing, previously
+    // discovered public cells: they still render and can cover both actors.
+    for(const c of spectator ? disclosed : known.values()) {
       if(c.trap||c.checkpoint||c.clue||c.cell===s.exitCell
         ||reserved.has(c.cell))continue;
       // Native Pass408 320px exposes tall plants on PUBLIC, camera-side
