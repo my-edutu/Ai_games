@@ -8172,6 +8172,43 @@
     },
     "actualDevices": "NOT EVALUATED",
     "next": "Inspect new original video and determine whether joined roof fixes the frame discontinuity, else repair camera and connected architecture at genuine shared threshold. Do not advance P0."
+  },
+  "p0SourceClearGatewayCameraCostNative20261120_1952": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionCodeSha": "e94c5dc29d494ae1d4e1c224014fad2754f2e535",
+    "candidateRef": "${{ github.sha }}",
+    "latestPreviouslyInspectedCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44795712229",
+    "latestPreviouslyInspectedQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44795712052",
+    "latestObservedResult": "8/8 authentic baseline/candidate source timelines, nine gameplay jobs including ledge passed; strict danger event/native A/B 0/2 despite real retained gate & safe Three.js projected hero. No accepted continuous gate+hero+roof native frames",
+    "nativeDefect": "Unedited normal-speed videos: bronze original roof becomes a broad differently composed violet F9 ring around 25.75-26.00 seconds; portrait also loses readable old gateway. 3D projected center safety not painted-pixel continuity",
+    "measuredBrowserPhase": "Prior exact-source first F9 cameraLighting 89.5ms desktop and 104.1ms portrait; source-pinned browser CPU, NOT target hardware FPS; worldUpdate 45.6ms desktop / 69.9ms portrait",
+    "engineeringAction": "Avoid repeated final six-pose source-physical camera rescue ONLY if existing exact current shot has zero source-owned body/gateway triangle occlusion and full-size separated moving hero, real bronze steel and walkable F9 platform. All ambiguous, masked or small scenes keep full original reversible orbit. No source/guardian/restart/collision mutation",
+    "sourceTests": "tests/phase3/tower-original-clear-gateway-camera-cost.test.cjs: safe exit, occlusion/absent source/crop/small-gate fail closed",
+    "originalRecordingConditions": {
+      "seed": "tower-transformation-capture-v1",
+      "tier": "low",
+      "fps": 25,
+      "speed": 1,
+      "desktop": "960x600",
+      "portrait": "390x844",
+      "minSeconds": 60,
+      "scenes": [
+        "ascent",
+        "moving",
+        "danger",
+        "outcome/restart"
+      ],
+      "frozenBaseline": "1731b380851162741761c5569e2bc152a0869ca9"
+    },
+    "compare": "Measure actual candidate cameraLighting CPU and successful original renderer returns; validate no loss of gateway/body/roof framing, no new hard-cut, and event-paired source PTS both viewports; no claim before inspected native WebMs",
+    "independentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "deviceP50P95P99AndMemory": "NOT EVALUATED",
+    "next": "Inspect new candidate unmodified 1x films and strict pair-source-events; if still fails, reconstruct actual F8 retained-gateway and F9 roof silhouette/ownership together rather than more speculative camera-only patches"
   }
-
 }

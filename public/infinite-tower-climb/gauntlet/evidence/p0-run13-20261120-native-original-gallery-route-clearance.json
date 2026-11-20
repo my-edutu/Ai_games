@@ -101,5 +101,34 @@
     },
     "hardware": "NOT EVALUATED",
     "next": "Inspect matched native desktop and portrait full-motion, strict PTS pairing and device performance. If shared shot absent, fix actual camera/architecture ownership rather than additional one-off fades."
+  },
+  "p0SourceClearGatewayCameraCostNative20261120": {
+    "stage": "P0 OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionCodeSha": "e94c5dc29d494ae1d4e1c224014fad2754f2e535",
+    "observedSourceSha": "ac214fb154b7a7a92e653b325397b8567d3199b3",
+    "observedRun": "https://github.com/my-edutu/Ai_games/actions/runs/44795712229",
+    "observedQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44795712052",
+    "observed": "All 9 capture jobs successful but pairing job FAILED, 0/2 danger viewport strict source/native; original 1x video architectural hard-cut from original bronze cap to broad F9 roof despite 4/4 desktop and 3/3 portrait source-returned camera projections showing original gate+hero safe",
+    "measuredFirstFloorNineCameraLightingBrowserCpuMs": {
+      "desktop": 89.5,
+      "portrait": 104.1
+    },
+    "action": "Source-contract zero-occlusion early-exit for already fully legible existing 3D gate+hero+real F9 roof; bypass additional six camera candidates only on complete, current, source-triangle-certified legible projection",
+    "modifiedFiles": [
+      "public/infinite-tower-climb/visuals/scene.mjs",
+      "public/infinite-tower-climb/visuals/original-gateway-camera-ray-contract.mjs",
+      "tests/phase3/tower-original-clear-gateway-camera-cost.test.cjs"
+    ],
+    "status": "CODE PUSHED. EXACT-HEAD CI / NEW NATIVE CAPTURE NOT YET VERIFIED",
+    "nativeAcceptance": "Still FAILED 0/2 on predecessor footage; new source not yet evaluated",
+    "independent": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "hardware": "NOT EVALUATED",
+    "next": "Evaluate new 1x desktop 960x600 and portrait 390x844 matched seed/tier videos plus actual first F9 cameraLighting costs and continuous physical crossing. If unsafe, revoke early-exit; remain P0."
   }
 }
