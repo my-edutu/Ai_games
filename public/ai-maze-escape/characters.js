@@ -758,16 +758,17 @@ export function createWarden(options = {}) {
     const socket=ball(head,dark,[side*.205,.285,.25],[.23,.13,.215]);
     socket.name=`rooted guardian upper optical socket ${side}`;
     socket.rotation.x=-.25;
-    // Distinct attached orbital pivot preserves each true paired eye through
-    // production rigid-mesh batching: otherwise a raw direct-head pupil
-    // disappears into another dark mesh and cannot be independently judged.
-    // Both physical meshes keep the original optic placement and head motion.
-    const eyeRoot=pivot(head,`rooted guardian upper eye ${side}`,
-      [side*.205,.370,.395]);
-    const optic=ball(eyeRoot,red,[0,0,0],[.205,.132,.164]);
+    // Preserve the EXISTING original pooled paired lens geometries in head:
+    // the strict Pass349 compiled-mesh evidence needs both real orange
+    // optics batched in one physical head buffer. The distinctive pupils,
+    // however, must remain separate true rooted surface meshes so rigid
+    // batching cannot silently merge them into another dark brow.
+    const optic=ball(head,red,[side*.205,.370,.395],[.205,.132,.164]);
     optic.name=`rooted guardian raised optical lens ${side}`;
     optic.rotation.x=-.28;
-    const pupil=ball(eyeRoot,dark,[0,.088,.142],[.092,.067,.065]);
+    const pupilRoot=pivot(head,`rooted guardian pupil root ${side}`,
+      [side*.205,.458,.537]);
+    const pupil=ball(pupilRoot,dark,[0,0,0],[.092,.067,.065]);
     pupil.name=`rooted guardian readable pupil ${side}`;
     const brow=rounded(head,claw,[side*.195,.435,.255],[.30,.075,.15],.023);
     brow.rotation.z=-side*.13;
