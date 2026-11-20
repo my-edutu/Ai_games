@@ -146,6 +146,9 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   const lanternBeamAxis = new THREE.Vector3(0, 1, 0);
   const lanternBeamDirection = new THREE.Vector3();
   const lanternBeamEnd = new THREE.Vector3();
+  // Reused witness-only target for Pip's ORIGINAL shoulder and carried lamp.
+  // It always points to one legally disclosed open segment, never a hidden cell.
+  const earnedLanternArmTarget = new THREE.Vector3();
   // Share the original lamp's GPU geometry and material: NO new geometry
   // class or buffer, just one retained mesh for an authentic OPEN corner.
   const lanternSurveyTurn=new THREE.Mesh(lanternBeamGeometry,lanternBeamMaterial);
@@ -813,6 +816,27 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // local-threat contract for the light, camera, warnings and world: the
     // parried model must not become a fictitious open-corridor ray or danger.
     const originalThreat = closestThreat;
+    // The existing impact light follows reciprocal public links. Give Pip's
+    // REAL right-arm lantern the SAME defensible aim before updating the rig:
+    // either the witnessed direct guardian or the PUBLIC intermediary bend.
+    // A genuinely sealed/unknown/hidden corridor has no target and no pose.
+    // No frame remembers this vector after the witness is gone.
+    let earnedPhysicalLanternTarget;
+    if(witnessedCounter && earnedCounterActor && !settings.reducedMotion){
+      const publicBend=publicEarnedGuardianCounterLightPath(
+        s,earnedCounterActor,originalThreat);
+      if(publicBend){
+        const bend=cellPosition(publicBend.midCell,s.width,s.height);
+        earnedLanternArmTarget.set(bend.x,
+          cellHeight(publicBend.midCell,s.width,s.height)+1.18,bend.z);
+        earnedPhysicalLanternTarget=earnedLanternArmTarget;
+      }else if(publicLanternEncounter(s,earnedCounterActor.cell)){
+        earnedLanternArmTarget.set(earnedCounterActor.x,
+          cellHeight(earnedCounterActor.cell,s.width,s.height)+1.02,
+          earnedCounterActor.z);
+        earnedPhysicalLanternTarget=earnedLanternArmTarget;
+      }
+    }
     {
       const closestThreat = publicEarnedGuardianActing(s,earnedCounterActor,originalThreat);
       explorer.update({
@@ -822,6 +846,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       guardianEncounterBeat:closestThreat?.encounterBeat,
       lanternParried:closestThreat?.lanternParried===true,
       earnedCounterPhase:closestThreat?.counterPhase,
+      counterLanternTarget:earnedPhysicalLanternTarget,
       keyHeading:keyGateCue?.heading,keyStrength:keyGateCue?.strength??0,
       gateHeading,gateStrength,pickupStrength,
       fossilHeading:fossilCue

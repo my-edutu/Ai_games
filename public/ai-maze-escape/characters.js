@@ -271,6 +271,10 @@ export function createExplorer(options = {}) {
   const keyHandInverse=new THREE.Quaternion();
   const keyViewerDirection=new THREE.Vector3(), keyBowNormal=new THREE.Vector3();
   const keyRollCross=new THREE.Vector3(), keyViewerRoll=new THREE.Quaternion();
+  // A real, already public lantern-counter corridor can steer Pip's EXISTING
+  // connected right shoulder. Reused local-space vector: no new mesh, effect,
+  // route knowledge, gameplay action or per-frame allocation.
+  const earnedLanternAimLocal=new THREE.Vector3();
 
   // An expedition signal crest is legible in a wide, silent stream frame.
   // It is suppressed by default and receives only disclosed-threat attention;
@@ -516,6 +520,38 @@ export function createExplorer(options = {}) {
       arms[i].elbow.rotation.y=i===0&&keyYaw!==0?-keyYaw*.9:0;
       eyes[i].position.x=(i===0?-1:1)*.145+Math.max(-.024,Math.min(.024,(lookYaw+keyYaw+gateYaw+fossilYaw+pressureYaw)*.032+(s.reduced?0:(Math.max(-.016,Math.min(.016,turn*.045))+.006*rest)*(1-alert))));
       eyes[i].scale.y=s.lose?.32:s.danger>.45||alert>.4?1.13-defensiveFlinch*.48:(s.reduced?1:Math.pow(Math.max(0,Math.cos(s.time*.83)),60)>.88?.12:1);
+    }
+    // Pass533: actual native 390px WebGL reveals a white counter beam that
+    // crosses the court while Pip's lantern arm still largely faces its route.
+    // Direct the ALREADY CONNECTED shoulder and elbow toward the next truly
+    // PUBLIC reciprocal OPEN corridor segment used by that SAME real light.
+    // The stage supplies only the current witnessed target, not AI intention
+    // or an undiscovered enemy; a two-link corner aims at the known bend,
+    // never through a solid wall. No invented combat ability or new geometry.
+    // A stale/first-seen event, reduced motion, terminal state or unknown
+    // corridor never drives this physical action. The source clock returns
+    // the arm to its existing ordinary pose with no persistent state.
+    const lanternTarget=options.counterLanternTarget;
+    if(counterPhase!==null && lanternTarget
+      && Number.isFinite(lanternTarget.x)
+      && Number.isFinite(lanternTarget.y)
+      && Number.isFinite(lanternTarget.z)){
+      earnedLanternAimLocal.set(lanternTarget.x,lanternTarget.y,lanternTarget.z);
+      body.worldToLocal(earnedLanternAimLocal);
+      earnedLanternAimLocal.sub(arms[1].shoulder.position);
+      const levelDistance=Math.hypot(earnedLanternAimLocal.x,earnedLanternAimLocal.z);
+      if(levelDistance>.25){
+        const amount=Math.max(0,Math.min(1,counterPhase/.10,(1-counterPhase)/.20))*.90;
+        const bearing=Math.max(-1.10,Math.min(1.10,
+          Math.atan2(earnedLanternAimLocal.x,earnedLanternAimLocal.z)));
+        const elevation=Math.max(-1.95,Math.min(-1.13,
+          -Math.PI/2+Math.atan2(earnedLanternAimLocal.y,levelDistance)));
+        const shoulder=arms[1].shoulder;
+        shoulder.rotation.y+=(bearing-shoulder.rotation.y)*amount;
+        shoulder.rotation.x+=(elevation-shoulder.rotation.x)*amount;
+        shoulder.rotation.z*=1-.55*amount;
+        arms[1].elbow.rotation.x*=1-.15*amount;
+      }
     }
     // Aim the existing connected tooth at the real closed socket; do NOT
     // extend it across a cell, move Pip or imply an authoritative unlock.

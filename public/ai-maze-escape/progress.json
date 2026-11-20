@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-20T10:51:13.000Z",
+  "updatedAt": "2026-11-20T12:28:17.532Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass532 first candidate dfa9e06d source CI #44724538322 FAILED before screenshot: new strict world-space rear-claw contact test, 279/280 tests passed. Pass532b repair uses real parent world/local Y transform and bounded socket correction; original <.13m contact, ±0.95 native framing, <100 six-reset all unchanged. New exact-head CI and native render PENDING; Nintendo bar not met."
+    "summary": "Pass532b exact HEAD native WebGL #44725340292 SUCCESS: 42/42 original SHA-matched PNG and 3/3 true gate transition images; six-reset geometry <100 passed. Real 390 lantern-counter reveals Pip's arm not visibly aimed into actual open light corridor and actors still scattered among masonry; Nintendo bar REJECTED. Pass533 connects real Pip shoulder/lantern to the same legitimately public direct or corner segment; NEW exact-head source/visual tests PENDING, no visual win."
   },
   "captures": [
+    {
+      "title": "Pass532b exact source 0e1fd13 native WebGL, unchanged original 320/390/844/1280 frames; 42/42 PNG SHA pairs + three real gate SHA verified; Pass533 physical lantern aim candidate pending",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44725340292/artifacts/14624775526"
+    },
     {
       "title": "Pass531 original exact HEAD 1430f027 native WebGL SUCCESS; independently rechecked 42/42 full PNG SHA pairs + 3/3 true gate hashes, real 390/320 visual art still rejected; Pass532 foot-plant candidate pending",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44719137971/artifacts/14622080791"
