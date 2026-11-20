@@ -6,7 +6,7 @@ import { createStoneSurfaceAsset, applyStoneSurface } from './world-surface.mjs'
 import { observedSceneHierarchy } from './scene-hierarchy.mjs';
 import { originalGuardianGatewayClearSightlineFrame } from './guardian-clear-sightline-frame.mjs';
 import { originalMeshPath } from './mesh-provenance.mjs';
-import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs';
+import { GUARDIAN_TRANSMISSION_LAYOUT, originalGuardianHoistPocketLoadPath } from './guardian-transmission-layout.mjs';
 import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedPrebuiltVoidShaftRelease, observedQueuedOriginalCapAtFirstRender, reconcileRecordedOriginalCapCrossing,
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceFloorNineRouteSupport, observedSourceRetainedRaisedExit, observedSourceAirborneSuccessorApproach, observedSourceOriginalVisibilityWindow, observedRetainedSourceOriginalOpticalRoom, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS, observedCertifiedOriginalGatewayOpticalLease, observedReturnedSharedRoomPalette } from './source-physical-arrival-palette.mjs';
@@ -985,8 +985,14 @@ export function sourceEarnedGuardianSealWingPose(side,progress,sourceUnlocked=fa
     ?Math.max(0,Math.min(1,sourceWinchFraction)):0;
   const liftPhase=sourceUnlocked===true?u:sourceLift;
   const hoist=5.85*liftPhase*liftPhase*(3-2*liftPhase);
-  return {x:aperture===0?0:side*5.1*aperture,
-    y:hoist,z:-.18-.94*aperture,
+  // Authentic HP-zero winch progress is also the physical storage stroke.
+  // Original 1x F8 camera triangle rays at tick450 hit the opening left
+  // lattice in front of the ACTUAL moving head/shoulder. Keep the original
+  // closed lock fully intact; only the certified source winch may recess
+  // those existing leaves into their connected overhead side pockets.
+  const pocket=sourceUnlocked===true?1:sourceLift;
+  return {x:aperture===0?0:side*(5.1*aperture+1.25*pocket),
+    y:hoist,z:-.18-.94*aperture-.85*pocket,
     yaw:aperture===0?0:-side*1.24*aperture,
     roll:aperture===0?0:side*.035*aperture,
     openFraction:aperture};
@@ -2703,11 +2709,21 @@ export function createTowerWorld(){
       // posts begin ABOVE the playable 5m gateway and connect to the existing
       // ~10m transmission bay; like the doorway piers they join the same
       // two rigid material batches, not separate shadow submissions.
-      for(const side of [-1,1]){
-        block(doorway,materials.dark,[side*5.15,7.83,-1.2],
-          [.20,4.96,.20]).name='GuardianSealOverheadHoistGuide';
-        block(doorway,materials.edge,[side*5.15,10.31,-1.2],
-          [.60,.18,.45]).name='GuardianSealOverheadHoistCrown';
+      for(const pocket of originalGuardianHoistPocketLoadPath()){
+        // In the original source-authentic 1x desktop frame at F8 tick441,
+        // the near-side overhead guide blocked the real climber shoulder.
+        // Place BOTH noncolliding guide rails in a rear outboard bay, keeping
+        // each physically attached to the existing source-operated crown.
+        // Actual boss, cap collider, gateway opening and body never move.
+        block(doorway,materials.dark,[pocket.x,pocket.centerY,pocket.z],
+          [pocket.width,pocket.height,pocket.depth])
+          .name='GuardianSealOverheadHoistGuide';
+        block(doorway,materials.edge,[pocket.x,pocket.topY,pocket.z],
+          [pocket.crownWidth,.18,.45])
+          .name='GuardianSealOverheadHoistCrown';
+        beam(doorway,[pocket.crownAttachX,pocket.topY,pocket.crownAttachZ],
+          [pocket.x,pocket.topY,pocket.z],.12,materials.edge)
+          .name='GuardianSealHoistPocketLoadTie';
       }
       const wings=[];
       for(const side of [-1,1]){

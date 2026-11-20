@@ -21,6 +21,18 @@ export const GUARDIAN_TRANSMISSION_LAYOUT = Object.freeze({
   railCenterY:7.77,railHeight:5.33,weightCenterY:8.16,socketY:8.85,
  cameraLowerY:5.0,cameraTopY:11.40,sourceGateCenterY:2
 });
+// The original source-visible winch now has one connected, rear outboard
+// storage bay on each side. Physical guide geometry lives above the 5m
+// climber/guardian walking opening; only original noncolliding guide steel
+// is repositioned. Real HP, source lock, colliders and motion are untouched.
+export function originalGuardianHoistPocketLoadPath() {
+  return Object.freeze([-1,1].map(side=>Object.freeze({
+    side,x:side*7.15,z:-3.42,centerY:7.83,topY:10.31,
+    width:.20,height:4.96,depth:.20,crownWidth:.60,
+    crownAttachX:side*5.15,crownAttachZ:-1.2
+  })));
+}
+
 export function observedGuardianTransmissionCorners(lockCenter) {
  if(!lockCenter||![lockCenter.x,lockCenter.y,lockCenter.z].every(Number.isFinite))return null;
  const radius=Math.hypot(lockCenter.x,lockCenter.z),d=GUARDIAN_TRANSMISSION_LAYOUT;
