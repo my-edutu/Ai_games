@@ -6080,9 +6080,21 @@ export function planLicensedSourceConnectedChainTrials({
  if([plan.upperRad,plan.lowerRad,plan.footRad].some(a=>
   Math.abs(a)>jointStep+.000001))return null;
  const footMagnitude=Math.abs(plan.footRad);
+ // Original 20 Nov source-GLB inverse-bind + fully weighted shoe study:
+ // at Vanguard Walking_A .089479s (right) and .619348s (left), the
+ // earlier -0.80/+0.55 hip/knee share lowered the *buried* toe relative
+ // to the conservative licensed ankle pose. A KNEE-LED bend with an
+ // opposing but smaller hip angle raises that same original source toe
+ // while retaining a descending swing heel. These are pretrial kinematic
+ // predictions, NOT a plant or proof of accepted live WebGL skin.
+ // Other five roles retain the prior armature plan until THEIR distinct
+ // source bind, clip and weighted shoe Jacobians are independently tested.
+ const vanguardSourceKneeLed=plan.sourceRole==='vanguard';
  const linked=Object.freeze({
-  upperRad:-Math.min(.08,jointStep,footMagnitude*.80),
-  lowerRad: Math.min(.08,jointStep,footMagnitude*.55),
+  upperRad:-Math.min(.08,jointStep,
+   footMagnitude*(vanguardSourceKneeLed?.60:.80)),
+  lowerRad: Math.min(.08,jointStep,
+   footMagnitude*(vanguardSourceKneeLed?.90:.55)),
   footRad:plan.footRad
  });
  const original=Object.freeze({
