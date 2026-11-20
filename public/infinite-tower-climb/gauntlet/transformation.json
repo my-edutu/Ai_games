@@ -13393,5 +13393,61 @@
       "forcePush": false,
       "otherGames": false
     }
+  },
+  "p0OriginalNativeSourceOwnerOpticalForensicsAndCI20261120_1100": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenBaselineMoved": false,
+    "inspectedPriorHeadSha": "64910a7e8a48836715f4d612a02e0c8b8372a8c3",
+    "sourcePinnedCandidateDangerCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44713354660/artifacts/14617559265",
+    "sourcePinnedNineJobCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44713354660",
+    "nativeResult": "8/8 source-matched unedited 60+ second original baseline/candidate native WebMs and true ledge pass; strict original source/native pairing FAILS desktop and portrait 0/2",
+    "inspectedVisual": "Downloaded original candidate source-pinned WebMs and source sidecars; inspected 22.5-30s desktop 960x600 and portrait 390x844 full-motion 1x. Original opened bronze door, complete moving climber and real walkable F9 not continuously legible together. Frame-composition failure, not mere missing source event.",
+    "nativeTransition": {
+      "desktop": {
+        "sourceTick": 475,
+        "hudSeconds": 26.25,
+        "violetSeconds": 27,
+        "sharedBronzeVoidSeconds": 0,
+        "browserAcceptToRendererReturnMs": 559
+      },
+      "portrait": {
+        "sourceTick": 475,
+        "hudSeconds": 25.5,
+        "violetSeconds": 26,
+        "sharedBronzeVoidSeconds": 0,
+        "browserAcceptToRendererReturnMs": 474
+      }
+    },
+    "sourceVsScreen": "Genuine immutable guardian HP-zero crossing and 4 desktop/5 portrait source-returned NDC-safe original-gateway projections; no source-native event-matched painted physical crossing. Both real F9 nonwalkable undercroft skins and the luminous ground rim occur in actual current-camera sole-rays; diagnostics show some still opaque, requiring after-camera-pass source-linked visibility check.",
+    "quality": {
+      "formerCandidateRun": "https://github.com/my-edutu/Ai_games/actions/runs/44713354882",
+      "formerStatus": "8/10: Tower Phase3-2 old regex failed because original cap skirt now has sourceSkirtPairId; unrelated Phase6 timeout; no unrelated game modified",
+      "testFixCommit": "a66ce67d14b1b5a708b73af2d710962fd06b5671",
+      "verifiedTestFixRun": "https://github.com/my-edutu/Ai_games/actions/runs/44715612877",
+      "verifiedTestFix": "10/10 quality jobs passed after restoring real source-owned F8 cap skirt assertion and Three.js paired old-cap occlusion/restart proof",
+      "captureInstrumentCommit": "c645c21d94299ecc90a71f65b814e1abdace03d6",
+      "captureInstrumentResult": "Read-only capture observer now reports sampled source-owned original-gateway camera accept/veto/last tick, F9 real undercroft material-ray verdict and successor physical camera rescue in new physical-gateway-optical-owner-samples.json; zero production gameplay changes. Fresh exact-run evidence not yet accepted.",
+      "freshCapture": "Requested via immutable capture-request commit after ledger; obtain actual run ID and source SHA from GitHub Actions; no success claimed at write time"
+    },
+    "evidenceFile": "public/infinite-tower-climb/gauntlet/evidence/p0-source-pinned-native-gateway-paired-skins-review-20261120-run11.json",
+    "reviewFile": "docs/reviews/2026-11-20-tower-pr68-original-native-paired-skirts-and-optical-bridge-review.md",
+    "blindReviewerCounts": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDeviceFrameTimeAndMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Examine new candidate first F9 optics alongside unmodified 1x footage. Distinguish source-F8 camera never-recorded, camera physically vetoed, or source-owned skirt not softened. Correct the actual original gateway/hero/real roof composed camera as one playable rendering system, recapture both viewports, stay P0 until native physical crossing accepted.",
+    "safety": {
+      "PR68Draft": true,
+      "PR58Untouched": true,
+      "baselinePreserved": true,
+      "merge": false,
+      "deploy": false,
+      "forcePush": false,
+      "otherGames": false
+    }
   }
 }
