@@ -1,0 +1,47 @@
+{
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "verdict": "NOT EVALUATED",
+  "baseline": "1731b380851162741761c5569e2bc152a0869ca9",
+  "reviewedHead": "6efa2e903ba01d4357549ded708615889785e977",
+  "inspectedOriginalCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44665316629",
+  "originalCaptureSourceSha": "69a95be09a43cd4ca4fe3c9032a2c465990f0212",
+  "evidence": {
+    "originalJobs": "8/8 normal-speed baseline/candidate films, authentic ledge success",
+    "eventAlignedNative": "FAILED 0/2 viewports",
+    "desktop": {
+      "eventSec": 24.342,
+      "hudSec": 25.75,
+      "violetSec": 26.25,
+      "sharedRoomSec": 0,
+      "worldRebuildMs": 115.9,
+      "cameraLightingMs": 162.7,
+      "sceneUpdateMs": 280.8,
+      "rendererReturnMs": 81.9
+    },
+    "portrait": {
+      "eventSec": 24.447,
+      "hudSec": 25.5,
+      "violetSec": 26,
+      "sharedRoomSec": 0,
+      "worldRebuildMs": 101.9,
+      "cameraLightingMs": 184.1,
+      "sceneUpdateMs": 288.8,
+      "rendererReturnMs": 85.3
+    }
+  },
+  "mostImportantFootageDefect": "Abrupt bronze-to-violet world cut with no sustained physically continuous open guardian gateway + full moving hero + walkable Floor9 co-present in the native films; portrait foreground steel masks climber.",
+  "sourceChange": "World-owned per-render-epoch conservative AABB reject before repeated authoritative F9 camera 9-ray mesh narrowphase, for original platform, gate, cap, gallery and successor roots. Exact original triangle hit and camera safety decisions unchanged. Includes source validity/dynamic mesh regression checks and diagnostic counters.",
+  "technical": "Exact-head CI and new source-pinned original videos NOT YET CHECKED; last original matrix-epoch optimization reduced cold camera CPU desktop only, portrait worsened; no speed or visual PASS claimed.",
+  "blindCritics": {
+    "looks": "0/5",
+    "feels": "0/5",
+    "plays": "0/5"
+  },
+  "actualDevice": {
+    "frameTimeP50": "NOT EVALUATED",
+    "frameTimeP95": "NOT EVALUATED",
+    "frameTimeP99": "NOT EVALUATED",
+    "memory": "NOT EVALUATED"
+  },
+  "next": "Verify changed-source CI, compare exact-source native 60+s desktop 960x600 and portrait 390x844 scene timing and consecutive sourced old/new doorway frames; if no camera speedup or physical crossing, revisit structural first submission and oversized old bronze foreground before P1."
+}

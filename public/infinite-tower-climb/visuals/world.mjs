@@ -11,6 +11,7 @@ import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact
 import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceFloorNineRouteSupport, observedSourceRetainedRaisedExit, observedSourceAirborneSuccessorApproach, observedSourceOriginalVisibilityWindow, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS, observedCertifiedOriginalGatewayOpticalLease, observedReturnedSharedRoomPalette } from './source-physical-arrival-palette.mjs';
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
 import { rebindSourceOwnedUndercroft, createSightlineMatrixEpochCache } from './successor-deck-visibility.mjs';
+import { createSourceSightlineRayBroadphase } from './source-sightline-broadphase.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, createSourceEarnedVoidDepartureMaterials, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn, observedRenderedOriginalDoorwayRoom, coherentOriginalBearingDeparture } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections, isolateEarnedFirstFrameVoidMaterials } from './source-earned-bearing-run.mjs';
 import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold, observedSourceEarnedEarlyVoidShaftAperture, observedSourceSupportedVoidFirstPaint, observedEarnedGalleryExitClearance, observedReturnedGalleryHandoffClearance, observedFirstReturnedVoidBearingGalleryRetirement, observedSourceReturnedCoreBeforeScenicUpload } from './far-side-shaft-transition.mjs';
@@ -1046,6 +1047,7 @@ export function createTowerWorld(){
   // frame. Matrix transforms belong to the CURRENT World update, not each
   // candidate ray; restart/restore and repeated fixed-step ticks resync.
   const sightlineMatrixEpoch=createSightlineMatrixEpochCache();
+  const sourceSightlineRayBroadphase=createSourceSightlineRayBroadphase(THREE);
   const stoneSurface=createStoneSurfaceAsset(THREE);
   let floorGroup=null,key='',theme='foundry',disposed=false,lastSnapshot=null;
   let materials={}, floorGeometries=new Set(),floorMaterials=new Set();
@@ -4394,6 +4396,7 @@ export function createTowerWorld(){
     // 20Hz source tick has not changed: moving platforms still need fresh
     // world matrices for valid full-body triangle occlusion tests.
     sightlineMatrixEpoch.beginFrame();
+    sourceSightlineRayBroadphase.beginFrame();
     updateRetainedCap(snapshot,dt,options,passageWitness);
     const requestedQuality=options.quality==='low'?'low':options.quality==='high'?'high':'normal';
     if(key!==`${snapshot.runToken}:${snapshot.floor}:${snapshot.theme}:${requestedQuality}`)rebuild(snapshot,requestedQuality);
@@ -5189,7 +5192,8 @@ export function createTowerWorld(){
       originalGalleryRoot:held.originalGalleryRoot,
       raycaster:successorDeckRay,direction:successorDeckRayDirection,
       point:successorDeckRayTarget,hits:successorDeckRayHits,
-      syncWorldMatrix:sightlineMatrixEpoch.sync
+      syncWorldMatrix:sightlineMatrixEpoch.sync,
+      mayIntersectRoot:sourceSightlineRayBroadphase.mayIntersect
     });
   }
   function protectRouteSightlines(camera, actor=null, guardian=null, landing=null, dt=0, options={},
@@ -5683,6 +5687,7 @@ export function createTowerWorld(){
   }
   function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,
     sourceOwnedSuccessorUndercroft:{...successorUndercroftSightline},
+    sourceSightlineRayBroadphase:sourceSightlineRayBroadphase.diagnostics(),
     previousFloorGpuCleanup:{...retirementAudit,
       sourceBound:retirementAudit.queued>0,
       caveat:'Old disconnected GPU resources retired after genuine returned WebGL frames; not measured GPU memory, frame-time or native film'},

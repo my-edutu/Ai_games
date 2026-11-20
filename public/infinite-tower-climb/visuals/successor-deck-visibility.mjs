@@ -52,7 +52,7 @@ function renderedTriangle(hit,root) {
 }
 export function measureAuthoritativeDeckSightline({
   source,held,camera,body,bodyHalfHeight,gate=null,
-  platformRoots,originalGateRoot=null,originalCapRoot=null,originalGalleryRoot=null,architectureRoots=[],raycaster,direction,point,hits,stale=false,syncWorldMatrix=null
+  platformRoots,originalGateRoot=null,originalCapRoot=null,originalGalleryRoot=null,architectureRoots=[],raycaster,direction,point,hits,stale=false,syncWorldMatrix=null,mayIntersectRoot=null
 }={}) {
   if(stale || source?.floor!==9 || source.theme!=='void' ||
     source.lifecycle!=='running' || !(source.player?.health>0) ||
@@ -89,6 +89,7 @@ export function measureAuthoritativeDeckSightline({
       root!==originalGalleryRoot && !platformRoots.includes(root)) ||
     !raycaster?.set || !raycaster?.intersectObject ||
     (syncWorldMatrix!==null && typeof syncWorldMatrix!=='function') ||
+    (mayIntersectRoot!==null && typeof mayIntersectRoot!=='function') ||
     !direction?.copy || !point?.copy ||
     !Array.isArray(hits) || (gate!=null && !valid3(gate)))return null;
   // Exact same scene matrices for every reversible camera candidate.
@@ -108,6 +109,13 @@ export function measureAuthoritativeDeckSightline({
   if(held.originalGallerySourceOpacity>.055)refreshRoot(originalGalleryRoot);
   for(const root of architectureRoots)refreshRoot(root);
   let blockedBodyRays=0, blockedGatewayRays=0, rays=0, realTrianglesChecked=0;
+  let broadphaseRejected=0,narrowphaseSubmitted=0;
+  const mayTrace=root=>{
+    if(mayIntersectRoot?.(root,raycaster)===false){
+      broadphaseRejected++;return false;
+    }
+    narrowphaseSubmitted++;return true;
+  };
   let architectureBlockedRays=0;
   let originalGateBlockedRays=0;
   let originalCapBlockedRays=0,originalCapBlockedBodyRays=0,originalCapBlockedGatewayRays=0;
@@ -146,7 +154,7 @@ export function measureAuthoritativeDeckSightline({
     rays++;
     let blocked=false;
     for(const root of platformRoots){
-      if(root.visible===false)continue;
+      if(root.visible===false || !mayTrace(root))continue;
       // Current moving deck transforms are owned by authoritative snapshots,
       // not by this camera probe. No geometry rebuild or collision mutation.
       hits.length=0;
@@ -159,7 +167,7 @@ export function measureAuthoritativeDeckSightline({
     // walkable deck clear. Score genuine currently visible triangle contacts
     // inside the SAME source-owned camera; never remove actual world steel.
     if(!blocked)for(const root of architectureRoots){
-      if(root.visible===false)continue;
+      if(root.visible===false || !mayTrace(root))continue;
       hits.length=0;
       raycaster.intersectObject(root,true,hits);
       realTrianglesChecked+=hits.length;
@@ -173,7 +181,7 @@ export function measureAuthoritativeDeckSightline({
     // the later transparency pass cannot rescue a rejected camera pose.
     // This reuses the same nine body/gate rays, not a new source frame.
     if(!blocked && originalGalleryRoot && originalGalleryRoot.visible!==false &&
-       held.originalGallerySourceOpacity>.055){
+       held.originalGallerySourceOpacity>.055 && mayTrace(originalGalleryRoot)){
       hits.length=0;
       raycaster.intersectObject(originalGalleryRoot,true,hits);
       realTrianglesChecked+=hits.length;
@@ -192,7 +200,8 @@ export function measureAuthoritativeDeckSightline({
     // This optional root belongs only to the HP-zero source-authenticated
     // old-world owner, is never a collision edit and is raycast only during
     // the short, already bounded cold doorway camera window.
-    if(!blocked && originalCapRoot?.visible!==false && originalCapRoot){
+    if(!blocked && originalCapRoot?.visible!==false && originalCapRoot &&
+       mayTrace(originalCapRoot)){
       hits.length=0;
       raycaster.intersectObject(originalCapRoot,true,hits);
       realTrianglesChecked+=hits.length;
@@ -208,7 +217,8 @@ export function measureAuthoritativeDeckSightline({
     // can initiate physical guardian-door clearance. The target gateway
     // cannot self-block, and fully faded/hidden old metal scores nothing.
     // This uses the existing bounded source-owned ray path, not another draw.
-    if(!blocked && sample<bodySamples && originalGateRoot?.visible!==false && originalGateRoot){
+    if(!blocked && sample<bodySamples && originalGateRoot?.visible!==false && originalGateRoot &&
+       mayTrace(originalGateRoot)){
       raycaster.intersectObject(originalGateRoot,true,hits);
       realTrianglesChecked+=hits.length;
       if(hits.some(hit=>renderedTriangle(hit,originalGateRoot))){
@@ -227,6 +237,7 @@ export function measureAuthoritativeDeckSightline({
     gatewayBlockedRays:blockedGatewayRays,
     score:blockedBodyRays*2+blockedGatewayRays,
     actualTriangleIntersections:realTrianglesChecked,
+    broadphaseRejected,narrowphaseSubmitted,
     limitation:'Real source-authored F9 decks, retained original F8 cap/gate, and incoming buttress/bearing/shaft triangles; NOT native pixels, device FPS or permission to move colliders'};
 }
 
