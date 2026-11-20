@@ -6040,6 +6040,59 @@ export function planLicensedSourceToeChildContinuityCandidates({
  return Object.freeze([signed,expanded]);
 }
 
+/**
+ * TWO alternative connected source swing poses, never fabricated IK.
+ *
+ * Genuine 20 Nov 2026 original 41-joint skinned GLB frames still bury the
+ * swing toe 52mm desktop / 87mm mobile after the prior ankle-biased rescue.
+ * The licensed upperleg/lowerleg/foot tracks share the proven local-X hinge.
+ * Reserve the SAME 3rad/s angular budget for EACH anatomically connected
+ * joint. The renderer must physically skin both shoes for each candidate
+ * and independently reskin its winner; an offered pose is NOT a footplant.
+ *
+ * This planner cannot claim clip provenance by itself: its input plan must
+ * already be earned by the exact source, full rig, legal root and clip.
+ */
+export function planLicensedSourceConnectedChainTrials({
+ plan=null,frameInterval=NaN,sourceUpperTrackVerified=false,
+ sourceLowerTrackVerified=false,sourceFootTrackVerified=false,
+ sourceBindVerified=false
+}={}){
+ if(plan?.source!=='verified-licensed-source-native-counterpitch'||
+  plan.sourceClip!=='Walking_A'||
+  !PINNED_COUNTERPITCH_ROLES.has(plan.sourceRole)||
+  plan.originalSourceBoneChainVerified!==true||
+  plan.sourceOriginalRootTravelWitnessed!==true||
+  plan.sourceActualClipPhaseVerified!==true||
+  plan.contactLocked!==false||plan.plantCertified!==false||
+  sourceUpperTrackVerified!==true||sourceLowerTrackVerified!==true||
+  sourceFootTrackVerified!==true||sourceBindVerified!==true||
+  ![frameInterval,plan.upperRad,plan.lowerRad,plan.footRad,
+   plan.sourceClipTimeSeconds].every(finite)||
+  frameInterval<.008||frameInterval>.420001||
+  plan.upperRad>=0||plan.lowerRad<=0||plan.footRad>=0||
+  plan.upperRad<-.081||plan.lowerRad>.081||
+  plan.footRad<-.851)return null;
+ // This separate experiment never borrows a large historic ankle angle for
+ // a new one-frame hip/knee bend. Previously valid cumulative recovery keeps
+ // its ORIGINAL conservative one-pose owner in the renderer.
+ const jointStep=3*Math.min(frameInterval,.24);
+ if([plan.upperRad,plan.lowerRad,plan.footRad].some(a=>
+  Math.abs(a)>jointStep+.000001))return null;
+ const footMagnitude=Math.abs(plan.footRad);
+ const linked=Object.freeze({
+  upperRad:-Math.min(.08,jointStep,footMagnitude*.80),
+  lowerRad: Math.min(.08,jointStep,footMagnitude*.55),
+  footRad:plan.footRad
+ });
+ const original=Object.freeze({
+  upperRad:plan.upperRad,lowerRad:plan.lowerRad,footRad:plan.footRad
+ });
+ if(Math.abs(linked.upperRad-original.upperRad)<.00001&&
+  Math.abs(linked.lowerRad-original.lowerRad)<.00001)return null;
+ return Object.freeze([original,linked]);
+}
+
 export function planLicensedSourceSwingCounterpitch({
  source='',sourceRole='',mode='idle',sourceClipName='',
  sourceClipDurationSeconds=NaN,sourceClipTimeSeconds=NaN,
