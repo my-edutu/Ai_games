@@ -162,3 +162,44 @@ test('source-native same-clone next rAF leg-quaternion and original handslot soc
   'missing-original-weapon-socket-matrix');
  assert.equal(jointPair({before,after:{...after,sourceInstanceId:'other-glb'},floorTopY:-.02}).jointPoseEligible,false);
 });
+
+test('RED: genuine 390px original GLB joint matrix 0.978129 quaternion scale remains inspectable without concealing distortion',()=>{
+ const {auditOriginalSourceJointFramePair:jointPair}=require(
+  '../browser/dungeon-session03-original-skin-pair.cjs');
+ // #44757675602, original mobile WebGL frame 24: source lowerlegl
+ // world quaternion modulus 0.9781286541031362. Unlike a clean
+ // unit quaternion, this GLTFLoader-decomposed matrix has a 2.187%
+ // norm deficit. Report it, DO NOT mutate a pose or certify deformation.
+ const pose=(norm=1)=>Object.fromEntries(['left','right'].map(side=>[
+  side,Object.fromEntries(['upper','lower','foot','toes'].map(part=>{
+   const name={upper:'upperleg',lower:'lowerleg',foot:'foot',toes:'toes'}[part]+
+    (side==='left'?'l':'r');
+   const measured=side==='left'&&part==='lower'?
+    [0.9781286541031362,0,0,0]:[1,0,0,0];
+   return [part,{name,localQuaternion:[1,0,0,0],
+    worldQuaternion:norm===1?measured:measured.map(v=>v*norm),
+    worldPosition:[.1,.2,.3]}];
+  }))]));
+ const identity=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1];
+ const grip={socketName:'handslotr',attachedToGripSocket:true,
+  socketRelativeMatrix:identity};
+ const a=sample({sourceLegBonePose:pose(),sourceWeaponGrip:grip});
+ const b={...next(),sourceLegBonePose:pose(),sourceWeaponGrip:grip};
+ const result=jointPair({before:a,after:b,floorTopY:-.02});
+ assert.equal(result.jointPoseEligible,true,
+  'the genuine 2.187% decomposed matrix must not erase all eight bone witnesses');
+ assert.equal(result.originalWeaponSocketRigid,true);
+ assert.equal(result.contactLocked,false);
+ assert.equal(result.plantCertified,false);
+ assert.ok(result.maxWorldQuaternionNormError>.021&&
+  result.maxWorldQuaternionNormError<.023);
+ assert.equal(result.deformationReviewRequired,true,
+  'world matrix normalization is a warning, never source skin integrity approval');
+ const invalid={...b,sourceLegBonePose:{...b.sourceLegBonePose,
+  left:{...b.sourceLegBonePose.left,
+   lower:{...b.sourceLegBonePose.left.lower,
+    worldQuaternion:[.94,0,0,0]}}}};
+ assert.equal(jointPair({before:a,after:invalid,floorTopY:-.02}).jointReason,
+  'invalid-original-source-joint-quaternion',
+  'larger rig/matrix distortion must remain rejected');
+});
