@@ -385,3 +385,66 @@ test('RED: a truly weighted original heel-and-toe landing may settle near stone 
    'near-contact may not bury an original shoe or disturb weighted support');
  }
 });
+
+
+test('RED: genuine 60Hz original source deep swing can evaluate toes-child skin without inventing foot contact',async()=>{
+ const {certifyLicensedCounterpitchToeFinish:certify}=await source;
+ // BEFORE is from genuine original GLTFLoader 390px source #44768341460,
+ // Walking_A right at 0.089976s and a 16.7ms, 10.603mm root move.
+ // AFTER below is deliberately SYNTHETIC candidate skin geometry; no claim
+ // it was actually achieved by a toesr source-joint probe in Chromium.
+ const left={
+  heelY:-.020791387448650642,toeY:.010947189279311292,
+  heelXZ:[1.161021624431399,-6.9568991922232],
+  toeXZ:[.8926045685879036,-6.932549053789255]};
+ const right={
+  heelY:.18609646743739877,toeY:-.0900424119549105,
+  heelXZ:[1.2902502711956132,-7.1157095857401895],
+  toeXZ:[1.1773153481378076,-7.133252744937796]};
+ const before={left,right};
+ const proof={
+  source:'measured-original-licensed-source-counterpitch',
+  sourceClip:'Walking_A',sourceClipTimeSeconds:.08997601324106551,
+  side:'right',sourceInstanceId:'genuine-390px-original-clone',
+  finalIndependentSourceSkin:true,originalOppositeShoeVerified:true,
+  sourceOriginalRootTravelWitnessed:true,
+  witnessedFrameIntervalSeconds:.0167,
+  witnessedRootTravelMeters:.010602788045345202,
+  witnessedDirectFrameTravelMeters:.010602788045345202,
+  witnessedFrameAgeSeconds:0,
+  residualToeBurialMeters:.0700424119549105,
+  contactLocked:false,plantCertified:false,after:before};
+ const args={proof,before,side:'right',
+  sourceInstanceId:proof.sourceInstanceId,sourceInstanceSame:true,
+  sourceClipName:'Walking_A',sourceToeTrackVerified:true,
+  sourceToeBoneParentVerified:true,angleRad:.05009,floorTopY:-.02};
+ const after={left,right:{...right,heelY:right.heelY-.0015,
+  toeY:right.toeY+.0035,toeXZ:[right.toeXZ[0]-.001,right.toeXZ[1]]}};
+ const trial=certify({...args,after});
+ assert.ok(trial,'only independently re-skinned source toe/heel and unchanged other shoe can admit deep swing relief');
+ assert.equal(trial.sourceDeepSwingToeRelief,true);
+ assert.ok(trial.toeLiftMeters>=.003&&trial.toeLiftMeters<=.008);
+ assert.ok(trial.residualToeBurialMeters>.055,
+  'a small source-toe motion must not falsely classify a buried foot as planted');
+ assert.equal(trial.plantCertified,false);
+ assert.equal(trial.contactLocked,false);
+ const blocked=[
+  {proof:{...proof,sourceClipTimeSeconds:.45}},
+  {proof:{...proof,witnessedFrameIntervalSeconds:.25}},
+  {proof:{...proof,witnessedRootTravelMeters:0}},
+  {proof:{...proof,witnessedDirectFrameTravelMeters:0}},
+  {proof:{...proof,witnessedFrameAgeSeconds:.08}},
+  {proof:{...proof,residualToeBurialMeters:.11,
+    after:{left,right:{...right,toeY:-.13}}}},
+  {sourceToeBoneParentVerified:false},
+  {sourceToeTrackVerified:false},
+  {sourceClipName:'Idle'},
+  {after:{left,right:{...after.right,heelY:right.heelY+.004}}},
+  {after:{left:{...left,toeY:left.toeY+.003},right:after.right}},
+  {after:{left,right:{...after.right,toeY:right.toeY+.001}}},
+  {angleRad:.12}
+ ];
+ for(const change of blocked)
+  assert.equal(certify({...args,after,...change}),null,
+   'deep source toe candidate must be denied when evidence is invalid: '+JSON.stringify(change));
+});
