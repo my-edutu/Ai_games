@@ -4867,8 +4867,17 @@ function stageLicensedSourceSwingCounterpitchAfterMixer(actor,reducedMotion){
  const sparseFrameVerified=Number.isFinite(interval)&&interval>.24&&
   interval<=.42&&Number.isFinite(direct)&&direct>=.012&&direct<=.24&&
   Math.abs(direct-travel)<=.001&&age>=0&&age<=.035;
+ // Only the IMMEDIATELY preceding same original clone's certified
+ // source shoe may unwind beyond the source lobe; no previous receipt
+ // means no arbitrary new 41-joint leg movement in the tail.
  const side=phase>.03&&phase<.335?'right':
-  phase>.515&&phase<.875?'left':null;
+  phase>=.335&&phase<.425&&
+   prior?.right?.sourceInstanceId===asset.uuid&&
+   prior.right.sourceClip==='Walking_A'?'right':
+  phase>.515&&phase<.875?'left':
+  phase>=.875&&phase<.965&&
+   prior?.left?.sourceInstanceId===asset.uuid&&
+   prior.left.sourceClip==='Walking_A'?'left':null;
  if(!side||![phase,interval,travel,age,weight].every(Number.isFinite)||
   interval<.008||(interval>.24&&!sparseFrameVerified)||
   travel<.008||travel>.24||

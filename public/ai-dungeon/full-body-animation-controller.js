@@ -5986,12 +5986,24 @@ export function planLicensedSourceSwingCounterpitch({
  const phase=sourceClipTimeSeconds;
  const start=side==='right'?.03:.515,full=side==='right'?.135:.625,
   tail=side==='right'?.205:.745,end=side==='right'?.335:.875;
- if(phase<=start||phase>=end)return null;
- const fade=phase<full?(phase-start)/(full-start):
+ const previous=previousSameSourceFrame?Math.abs(previousFootRad):0;
+ // A previously certified original full-leg correction cannot disappear
+ // in one 60Hz image solely because Walking_A crosses its swing-tail
+ // threshold. Permit at most 90ms of SOURCE-OWNED recovery, never an
+ // unearned first-time correction outside the actual imported swing.
+ // The renderer must STILL re-skin both original weighted shoes, and any
+ // ineligible/dead/interrupted/teleported/wrong-clip actor returns null.
+ const sourceSwing=phase>start&&phase<end;
+ const sourceTailRelease=previousSameSourceFrame&&previous>.018&&
+  phase>=end&&phase<end+.09;
+ if(!sourceSwing&&!sourceTailRelease)return null;
+ const fade=sourceTailRelease?0:phase<full?(phase-start)/(full-start):
   phase<=tail?1:(end-phase)/(end-tail);
  const envelope=clamp(fade,0,1);
- if(envelope<.12)return null;
- const previous=previousSameSourceFrame?Math.abs(previousFootRad):0;
+ // Entering a new source swing still requires the authentic lobe
+ // envelope, but a previously witnessed angle may unwind below that
+ // threshold without the older abrupt full-chain quaternion reset.
+ if(envelope<.12&&previous<=.018)return null;
  // Rate is limited by the genuine displayed interval: a 16.7ms frame must
  // not rotate an imported source ankle ~49 degrees in one image.
  // The original limb can advance over a verified sparse display interval,
@@ -6028,6 +6040,7 @@ export function planLicensedSourceSwingCounterpitch({
   originalSourceBoneChainVerified:true,
   sourceOriginalRootTravelWitnessed:true,
   sourceActualClipPhaseVerified:true,
+  originalSourceTailRelease:sourceTailRelease||(envelope<.12&&previousSameSourceFrame),
   contactLocked:false,plantCertified:false
  });
 }
@@ -6088,6 +6101,7 @@ export function certifyLicensedSourceSwingCounterpitch({
   toeLiftMeters:toeLift,heelDeltaMeters:heelDelta,
   pitchImprovementMeters:pitchGain,
   residualToeBurialMeters:Math.max(0,floorTopY-corrected.toeY),
+  originalSourceTailRelease:plan.originalSourceTailRelease===true,
   sourceOriginalRootTravelWitnessed:true,
   originalOppositeShoeVerified:true,
   finalOriginalSkinnedSourceRequired:true,
