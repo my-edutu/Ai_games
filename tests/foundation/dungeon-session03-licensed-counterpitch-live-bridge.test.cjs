@@ -587,3 +587,68 @@ test('certify an original full-leg toes-child angular continuation ONLY from the
  ])assert.equal(certify({...args,after,originalToeContinuity,...patch}),null,
   'cannot borrow a stale clip/rig/toe track or skip native angular-rate and opposite-shoe proof');
 });
+
+ 
+// 20 Nov 2026 genuine original GLB source witnesses at SHA 76c4a53b:
+// 1440px desktop Walking_A f55: 10.097mm lawful root travel / 16.7ms,
+// final original right toe 52.145mm beneath stone after existing source chain.
+// 390px mobile f100: 19.345mm / 33.4ms, original left toe still
+// 87.123mm buried. These are NOT fabricated AFTER comparison frames.
+test('RED: original licensed hip-knee-ankle swing offers TWO rate-bounded connected source-joint poses, not an isolated ankle twitch',async()=>{
+ const {planLicensedSourceSwingCounterpitch:plan,
+  planLicensedSourceConnectedChainTrials:trials}=await source;
+ assert.equal(typeof trials,'function');
+ for(const window of [
+  {...owner,frameInterval:.0167,rootTravel:.010097,frameAge:0},
+  {...owner,sourceClipTimeSeconds:.625,side:'left',
+   frameInterval:.0334,rootTravel:.019345,frameAge:0,
+   before:{left:shoe(.176199,-.110027),right:shoe(-.041817,-.007690)}}
+ ]){
+  const proposed=plan(window);
+  assert.ok(proposed,'original verified source rig + genuine root window');
+  const args={plan:proposed,frameInterval:window.frameInterval,
+   sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+   sourceFootTrackVerified:true,sourceBindVerified:true};
+  const candidates=trials(args);
+  assert.equal(candidates?.length,2,'two original 41-joint linked poses only');
+  assert.deepEqual(candidates[0],{
+   upperRad:proposed.upperRad,lowerRad:proposed.lowerRad,footRad:proposed.footRad
+  },'existing valid candidate must be preserved as safe baseline');
+  const physical=candidates[1],cap=3*Math.min(window.frameInterval,.24);
+  assert.ok(physical.upperRad<proposed.upperRad,
+   'true source upper leg should support the loaded hip-to-knee chain');
+  assert.ok(physical.lowerRad>proposed.lowerRad,
+   'original knee bends with hip and supported foot, not alone');
+  assert.equal(physical.footRad,proposed.footRad,
+   'preserve the licensed original foot pose and full clip retiming');
+  for(const rad of [physical.upperRad,physical.lowerRad,physical.footRad])
+   assert.ok(Math.abs(rad)<=cap+1e-8,
+    'every true original joint is independently limited to 3rad/s');
+  for(const invalid of [
+   {sourceUpperTrackVerified:false},{sourceLowerTrackVerified:false},
+   {sourceFootTrackVerified:false},{sourceBindVerified:false},
+   {frameInterval:.001},{frameInterval:.421},
+   {plan:{...proposed,sourceClip:'Idle'}},
+   {plan:{...proposed,sourceOriginalRootTravelWitnessed:false}},
+   {plan:{...proposed,sourceActualClipPhaseVerified:false}},
+   {plan:{...proposed,originalSourceBoneChainVerified:false}},
+   {plan:{...proposed,plantCertified:true}},
+   {plan:{...proposed,footRad:-.8}},
+  ])assert.equal(trials({...args,...invalid}),null,
+   'no fabricated pose from wrong source, bone, clip, rate or authority');
+ }
+});
+test('RED: renderer selects only after BOTH genuine connected-leg source-skin trials and independent final dual-shoe readback',()=>{
+ assert.match(renderer,/planLicensedSourceConnectedChainTrials\(/,
+  'real GLTFLoader 41-joint upper/lower/foot chain must run connected candidate plan');
+ const live=renderer.slice(renderer.indexOf('function stageLicensedSourceSwingCounterpitchAfterMixer('),
+  renderer.indexOf('function stageLicensedSourceToeFinisherAfterCounterpitch('));
+ assert.match(live,/for\(const trial of connectedTrials\)/,
+  'source leg candidates must be physically trial-skinned in bounded loop');
+ assert.match(live,/certifyLicensedSourceSwingCounterpitch\(/,
+  'both connected poses must satisfy real two-shoe physical certificate');
+ assert.match(live,/const final=read\(\)/,
+  'winning original source pose must be independently re-skinned');
+ assert.match(live,/mounts\.forEach\(\(m,i\)=>m\.last\.multiply\(deltas\[i\]\)\)/,
+  'only accepted full-body source joints may persist as reversible overlays');
+});
