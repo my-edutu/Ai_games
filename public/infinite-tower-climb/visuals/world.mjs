@@ -993,7 +993,12 @@ export function sourceEarnedGuardianSealWingPose(side,progress,sourceUnlocked=fa
   const pocket=sourceUnlocked===true?1:sourceLift;
   return {x:aperture===0?0:side*(5.1*aperture+1.25*pocket),
     y:hoist,z:-.18-.94*aperture-.85*pocket,
-    yaw:aperture===0?0:-side*1.24*aperture,
+    // In local Three.js coordinates the historic negative yaw drove both
+    // opened bronze wings FORWARD across the camera/actor path even after
+    // their group origins moved into rear storage. Turn each original leaf
+    // toward negative (rear) Z: source HP/winch still owns the same motion,
+    // while the real lattice now lands INSIDE its load-bearing side guide.
+    yaw:aperture===0?0:side*1.24*aperture,
     roll:aperture===0?0:side*.035*aperture,
     openFraction:aperture};
 }
