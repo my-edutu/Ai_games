@@ -72,7 +72,7 @@ test('late immutable HP-zero crossing reveals only the actually supported beyond
       runToken:after.runToken,sourceTick:451,fromFloor:8,toFloor:9,
       cap:before.platforms[0],exitX:gate,crossingX:gate+13000,
       halfWidth:body.halfWidth,halfHeight:body.halfHeight,
-      guardian:before.enemies[0]}};
+      guardian:{...before.enemies[0],floor:8}};
   const held={runToken:after.runToken,floor:9,guardianGateRetained:true,
     verifiedObservedFloorAdvance:true,oldCapId:'f8:cap',
     oldCapX:cap.x,oldCapWidth:cap.width,oldRoofY:cap.y+cap.height,
@@ -438,7 +438,7 @@ test('an unseen grounded crossing followed immediately by a real first-floor-nin
   const prior=old(),newFloor=next();
   const witness={runToken:prior.runToken,sourceTick:451,fromFloor:8,toFloor:9,
     worldWidth:prior.worldWidth,cap,exitX:gate,
-    guardian:prior.enemies[0],previousX:prior.player.x,
+    guardian:{...prior.enemies[0],floor:8},previousX:prior.player.x,
     previousY:prior.player.y,previousHealth:prior.player.health,
     crossingX:prior.player.x,crossingY:prior.player.y,
     halfWidth:prior.player.halfWidth,halfHeight:prior.player.halfHeight};
@@ -446,6 +446,10 @@ test('an unseen grounded crossing followed immediately by a real first-floor-nin
     player:{...newFloor.player,x:prior.player.x+7200,y:prior.player.y+8000,
       grounded:false,groundedPlatformId:null,state:'airborne',vy:12000}};
   const proof=observedRecordedGuardianAirborneHandoff(after);
+  // The public render-snapshot projection has NO enemy.floor. The separately
+  // authoritative crossing witness retains the original guardian.floor=8.
+  assert.equal(Object.hasOwn(prior.enemies[0],'floor'),false);
+  assert.equal(witness.guardian.floor,8);
   assert.ok(proof);
   assert.equal(observedSourceEarnedAirborneHandoff(proof,after),true);
   const world=createTowerWorld();
@@ -556,7 +560,7 @@ test('source-witnessed cold Floor9 keeps distant scenery off the FIRST real fram
       cap:sourceDefeat.platforms[0],exitX:gateX,
       crossingX:gateX+13000,halfWidth:body.halfWidth,
       halfHeight:body.halfHeight,
-      guardian:sourceDefeat.enemies[0]},
+      guardian:{...sourceDefeat.enemies[0],floor:8}},
       player:{...newFloor.player,x:gateX+160000}};
     world.update(departed,.05,.2,{quality:'low'});
     assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-structural-submission',
@@ -647,7 +651,7 @@ test('real old bronze arch and cap remain the SAME GPU objects when source advan
     worldWidth:previous.worldWidth,cap,exitX:gate,
     crossingX:first.player.x,crossingY:first.player.y,
     halfWidth:first.player.halfWidth,halfHeight:first.player.halfHeight,
-    guardian:previous.enemies[0],
+    guardian:{...previous.enemies[0],floor:8},
   };
   const later={...first,tick:460,player:{...first.player,x:gate+19000}};
   const frozen=JSON.stringify([previous,first,later]);
@@ -702,7 +706,7 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
     runToken:oldFrame.runToken,sourceTick:451,fromFloor:8,toFloor:9,
     cap,exitX:gate,crossingX:gate+13000,crossingY:body.y,
     halfWidth:body.halfWidth,halfHeight:body.halfHeight,
-    guardian:oldFrame.enemies[0],
+    guardian:{...oldFrame.enemies[0],floor:8},
   };
   first.lastGuardianCrossing=crossing;
   const realFirstRender={...first,tick:460,player:{...first.player,x:gate+19000}};
