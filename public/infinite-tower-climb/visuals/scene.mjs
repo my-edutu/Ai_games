@@ -5671,6 +5671,8 @@ export function createTowerScene(canvas, settings = {}) {
         // and only when the rebuilt immutable run/floor/tick matches.
         worldRebuildCpuPhases: coldWorldMs !== null
           ? coldWorld.firstF9CpuPhases : null,
+        worldRebuildOldOwnerPath: coldWorldMs !== null
+          ? coldWorld.firstF9OldOwnerPath : null,
         totalSubmissionMs: rendererReturnedAt - submissionStart,
         firstF9MainThread: currentFirstF9Timing ? {
           sceneSetupMs: currentFirstF9Timing.sceneSetupMs,
