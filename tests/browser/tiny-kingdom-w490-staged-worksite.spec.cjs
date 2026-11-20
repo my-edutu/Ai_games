@@ -68,6 +68,55 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(candidate.audit.stagedOriginalFields).toBeGreaterThan(0);
   expect(candidate.glError).toBe(0);
   expect(candidate.overflow).toBeLessThanOrEqual(0);
+  // Same authentic shift, same seed and exact snapshot: capture successive
+  // visibly changed browser frames, not a paused synthetic worker film.
+  const anchor=JSON.parse(original.snapshot);
+  const takeMotion=async resident=>{
+   await page.evaluate(({anchor,resident})=>{
+    const g=window.__tinyKingdom;g.setSpeed(0);
+    g.restoreSnapshot(anchor);
+    g.setWorksiteFixtureResidencyForTesting(resident);
+   },{anchor,resident});
+   const trace=[];
+   for(let step=0;step<8;step++){
+    const prior=await page.evaluate(()=>{
+     const g=window.__tinyKingdom,n=g.getFrameProfile().totalFrames;
+     g.step(1/30);return n;
+    });
+    await page.waitForFunction(v=>
+     window.__tinyKingdom.getFrameProfile().totalFrames>v,
+     prior,{timeout:125000});
+    if(step===0||step===7)await info.attach(
+     'w490-'+(resident?'resident':'original')+'-genuine-motion-'+
+      viewport.width+'-frame-'+step,
+     {body:await page.screenshot(),contentType:'image/png'});
+    trace.push(await page.evaluate(()=>{
+     const g=window.__tinyKingdom;
+     return {checksum:g.exportSnapshot().checksum,
+      stageWorksites:g.getActiveWorksites().map(w=>({
+       citizen:w.citizen,job:w.job,progress:w.progress})),
+      triangles:g.getGeometryAudit().totalTriangles,
+      submitted:g.renderStats().lastFrameTriangles,
+      resident:g.getWorksiteFixtureResidencyAudit(),
+      glError:document.getElementById('world').getContext('webgl')?.getError()};
+    }));
+   }
+   return {snapshot:await page.evaluate(()=>
+    JSON.stringify(window.__tinyKingdom.exportSnapshot())),trace};
+  };
+  const cpuMotion=await takeMotion(false),residentMotion=await takeMotion(true);
+  expect(residentMotion.snapshot).toBe(cpuMotion.snapshot);
+  expect(residentMotion.trace.map(f=>f.checksum)).toEqual(
+   cpuMotion.trace.map(f=>f.checksum));
+  expect(residentMotion.trace.map(f=>f.triangles)).toEqual(
+   cpuMotion.trace.map(f=>f.triangles));
+  expect(residentMotion.trace.map(f=>f.submitted)).toEqual(
+   cpuMotion.trace.map(f=>f.submitted));
+  expect(residentMotion.trace.every(f=>f.glError===0&&f.submitted<160000)).toBe(true);
+  await info.attach('w490-unbroken-real-worker-sample-'+viewport.width,
+   {body:Buffer.from(JSON.stringify({viewport,found,
+    cpuMotion:cpuMotion.trace,residentMotion:residentMotion.trace},null,2)),
+    contentType:'application/json'});
   expect(errors).toEqual([]);
  });
 }
