@@ -3792,39 +3792,76 @@ function authenticWorkerGpuResidentRows(actors,nearPeople,frame){
  if(!gpuAvailable||!swiftGpu||!workingSkinCapable||
     !foregroundResidentEnabled||!Array.isArray(actors)||
     !(nearPeople instanceof Set)||!frame)return [];
- const rows=[],i=selectedCitizen,observed=actors[i];
- // A very large hand-contact close-up retains the true CPU-sculpted actor.
- if(isObservedWorksiteSkinCandidate(observed,i,nearPeople)&&
-    isSoftwareWorksiteVisible(observed,frame,.37))
-  rows.push({p:observed,i});
- for(let j=0;j<actors.length&&rows.length<SOFTWARE_WORKSITE_GPU_MAX_ACTORS;j++){
-  if(j===i)continue;
-  const p=actors[j];
-  if(!p||!nearPeople.has(j)||!isWorkingAtSite(p)||p.delivery||
-     isMarketUnloading(p)||verifiedHouseholdMealEvidence(p))continue;
-  // Only genuine VISIBLE medium-shot workers consume bounded joint VBOs.
-  // Workers behind the camera still render through their original CPU path.
-  if(isForegroundWorksiteCandidate(p,j,nearPeople,frame)&&
-     isSoftwareWorksiteVisible(p,frame,WORKSITE_SKIN_ENTER_SCREEN_HEIGHT))
-   rows.push({p,i:j});
+ // W494: rank actual ON-SCREEN, AUTHORITATIVELY WORKING people across
+ // both existing resident GPU tiers. The previous software selector only
+ // admitted near detailed bodies and skipped the selected worker when not
+ // explicitly following; the compact worker tier was permanently empty.
+ // This is an admission policy, never a new actor, job, prop or transaction.
+ const eligible=[];
+ for(let i=0;i<actors.length;i++){
+  const p=actors[i];
+  if(!p||!isWorkingAtSite(p)||p.delivery||isMarketUnloading(p)||
+     verifiedHouseholdMealEvidence(p))continue;
+  const detail=nearPeople.has(i);
+  const observed=detail&&isObservedWorksiteSkinCandidate(p,i,nearPeople);
+  const candidate=detail?
+   (observed||isForegroundWorksiteCandidate(p,i,nearPeople,frame)):
+   isResidentWorkingCandidate(p,i,nearPeople,frame);
+  if(!candidate)continue;
+  const view=projectRealCitizenDetail(p,frame);
+  // Hard limit keeps physical close-up wrists/tools in original CPU IK.
+  // Compact skinned actors are only admitted when actually on screen.
+  const maxHeight=detail?(observed?.37:WORKSITE_SKIN_ENTER_SCREEN_HEIGHT):.075;
+  if(!view.visible||!Number.isFinite(view.heightFraction)||
+      view.heightFraction<=0||view.heightFraction>=maxHeight)continue;
+  eligible.push({p,i,detail,height:view.heightFraction,
+   observed:i===selectedCitizen});
  }
- rows.sort((a,b)=>a.i-b.i); // authoritative stable identity order
+ // A watched real worker wins over nearer unrelated work. A fully sculpted
+ // original near body wins over tiny distant background workers. Ties are
+ // stable citizen indices; no random draw or camera-driven sim state.
+ eligible.sort((a,b)=>
+  Number(b.observed)-Number(a.observed)||
+  Number(b.detail)-Number(a.detail)||
+  b.height-a.height||a.i-b.i);
+ const rows=eligible.slice(0,SOFTWARE_WORKSITE_GPU_MAX_ACTORS)
+  .sort((a,b)=>a.i-b.i).map(({p,i})=>({p,i}));
  softwareWorksiteSelectionFrames++;
  softwareWorksiteSelectedRows+=rows.length;
  return rows;
 }
 function getAuthenticSoftwareWorksiteGpuAudit(){
- const trueRows=foregroundResidentVisible.filter(row=>
-  isWorkingAtSite(row.p)&&row.entry.skinned);
- return {source:'bounded-actual-software-worker-joint-vbo-trial',
+ // Read actual VBO membership AFTER draw, not merely requested candidates.
+ // Retained full-detail and compact rigs both draw original worker geometry.
+ const detailed=foregroundResidentVisible.filter(row=>
+  isWorkingAtSite(row.p)&&row.entry.skinned)
+  .map(row=>({name:row.p.name,p:row.p,tier:'detailed'}));
+ const compact=workingSkinCapable?workingResidentVisible.filter(row=>
+  isWorkingAtSite(row.p)&&row.entry.skinned)
+  .map(row=>({name:row.p.name,p:row.p,tier:'compact'})):[];
+ const all=[...detailed,...compact];
+ const frame=citizenDetailCameraFrame();
+ const visible=all.map(row=>({...row,
+  projection:projectRealCitizenDetail(row.p,frame)}))
+  .filter(row=>row.projection.visible&&row.projection.heightFraction>0);
+ const realVisible=people.filter(isWorkingAtSite).filter(p=>
+  projectRealCitizenDetail(p,frame).visible);
+ return {source:'visible-actual-worksite-two-tier-software-GPU-rig',
   swiftShader:swiftGpu,available:gpuAvailable&&swiftGpu&&workingSkinCapable,
   maxRealWorksites:SOFTWARE_WORKSITE_GPU_MAX_ACTORS,
   selectedCitizen:people[selectedCitizen]?.name||null,
   inspectedFrames:softwareWorksiteSelectionFrames,
   candidateRowsSeen:softwareWorksiteSelectedRows,
-  actuallySkinnedWorksites:trueRows.map(row=>row.p.name),
-  actualDraws:foregroundSkinDrawCalls,
+  actuallySkinnedWorksites:all.map(row=>row.name),
+  currentVisibleRealWorkers:realVisible.length,
+  currentVisibleSkinnedWorkers:visible.length,
+  visibleSkinnedWorksites:visible.map(row=>({name:row.name,tier:row.tier,
+   heightFraction:row.projection.heightFraction})),
+  actualGPUJointDraws:workingSkinDrawCalls+foregroundSkinDrawCalls,
+  compactGpuWorkers:compact.length,detailedGpuWorkers:detailed.length,
+  actualDraws:workingSkinDrawCalls+foregroundSkinDrawCalls,
   foregroundGpuBuffers:foregroundResidentBuffer?1:0,
+  compactGpuBuffers:workingResidentBuffer?1:0,
   originalCitizenCount:people.length,
   immutableJobsAndInventory:true,duplicateOrMissingCitizensPermitted:false,
   originalCpuFallbackPreserved:true,hardwareFps:'NOT MEASURED',
