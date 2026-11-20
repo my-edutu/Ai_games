@@ -127,7 +127,13 @@ function auditOriginalSourceJointFramePair(options={}){
    const a=before.sourceLegBonePose?.[side]?.[part],
     b=after.sourceLegBonePose?.[side]?.[part],
     name=prefix[part]+(side==='left'?'.l':'.r');
-   if(a?.name!==name||b?.name!==name)
+   // GLTFLoader may sanitize punctuation in original GLB names:
+   // `upperleg.r` is often `upperlegr` at runtime. Match the exact
+   // canonical ORIGINAL joint identity, never an arbitrary suffix.
+   const canonical=n=>typeof n==='string'&&n.length<80?
+    n.toLowerCase().replace(/[._-]/g,''):null;
+   if(canonical(a?.name)!==canonical(name)||
+    canonical(b?.name)!==canonical(name))
     return failed('missing-or-replaced-original-source-bone');
    for(const x of [a,b])
     if(!Array.isArray(x.localQuaternion)||x.localQuaternion.length!==4||

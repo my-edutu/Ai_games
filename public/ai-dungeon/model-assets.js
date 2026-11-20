@@ -6162,8 +6162,13 @@ function inspectSourceRigDeformation(actors){
   // The render loop never computes these quaternions or changes an imported bone.
   const sourceLegBonePose=Object.fromEntries(['left','right'].map(side=>[
    side,Object.fromEntries(['upper','lower','foot','toes'].map(part=>{
+    // GLTFLoader normalizes dots from the licensed GLB node names:
+    // original `toes.r` is frequently `toesr` on the runtime clone.
+    // Resolve either spelling, but NEVER a fabricated hinge/rig replacement.
+    const toeSuffix=side==='left'?'l':'r';
     const bone=part==='toes'?
-     actor.assetRoot.getObjectByName('toes.'+(side==='left'?'l':'r')):
+     (actor.assetRoot.getObjectByName('toes'+toeSuffix)||
+      actor.assetRoot.getObjectByName('toes.'+toeSuffix)):
      pick(actor.rigGaitBones,side,part);
     if(!bone?.isBone)return [part,null];
     const localQuaternion=bone.quaternion.toArray();

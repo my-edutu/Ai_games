@@ -135,6 +135,19 @@ test('source-native same-clone next rAF leg-quaternion and original handslot soc
  assert.equal(result.originalWeaponSocketRigid,true);
  assert.equal(result.sourceLegs.right.foot.boneName,'foot.r');
  assert.ok(Math.abs(result.sourceLegs.right.foot.localAngularChangeRad-.06)<1e-7);
+ // The REAL original 41-joint GLB uses dotted names; GLTFLoader sanitizes
+ // them in live WebGL. Both identify the SAME source bone and skin weights.
+ const sanitized={...after,sourceLegBonePose:Object.fromEntries(
+  Object.entries(after.sourceLegBonePose).map(([side,joints])=>[
+   side,Object.fromEntries(Object.entries(joints).map(([part,joint])=>[
+    part,{...joint,name:joint.name.replaceAll('.','')}]))]))};
+ const sanitizedBefore={...before,sourceLegBonePose:Object.fromEntries(
+  Object.entries(before.sourceLegBonePose).map(([side,joints])=>[
+   side,Object.fromEntries(Object.entries(joints).map(([part,joint])=>[
+    part,{...joint,name:joint.name.replaceAll('.','')}]))]))};
+ const runtime=jointPair({before:sanitizedBefore,after:sanitized,floorTopY:-.02});
+ assert.equal(runtime.jointPoseEligible,true);
+ assert.equal(runtime.sourceLegs.right.foot.boneName,'footr');
  assert.ok(result.sourceLegs.left.toes.localAngularRateRadPerSecond>0);
  assert.equal(result.contactLocked,false);
  assert.equal(result.plantCertified,false);

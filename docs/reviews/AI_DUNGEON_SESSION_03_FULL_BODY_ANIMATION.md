@@ -1,3 +1,9 @@
+### 20 November 2026 — source 41-joint GLTFLoader normalization contract corrected
+
+The just-added on-demand source-rig witness must work on the **real** original GLB in Chromium. The raw pinned original skeleton names its bones `foot.r`, `toes.r`, `upperleg.r`, etc., but the authentic GLTFLoader runtime clone and source track checks use sanitized `footr`, `toesr`, `upperlegr`. The first implementation incorrectly looked up only dotted toes and required dotted names. That would make legitimate original live source-pose receipt ineligible even when original skin and weapon remained intact. Corrected the read-only toe lookup to accept the exact original normalized/dotted spellings and the independent auditor to compare names solely after punctuation normalization, rejecting substitute names. Added a focused normalized real-runtime contract fixture. **This is not an animation quality improvement, and exact-head Chromium capture must still prove actual eligible source bone/skin/socket pairs before accepting the diagnostic.** No gameplay authority, source poses, replacement rigs, other PRs or global ledger changed. Source-gait physical penetration, contact, deformation and fluid-video pass remain OPEN.
+
+---
+
 ### 20 November 2026 — source-rig joint / original weapon matched-rAF measurement added; physical gait gate FAILS
 
 **Scope:** Only OPEN DRAFT PR #72 branch `feat/dungeon-fullbody-animation-session-20261108`; locked Gauntlet baseline `281735d0910c6b2443648af976003d50412ee324`. Started from verified SHA `8a833c73774d71eef1d65d0defd82d6487400882`. Inspected root AGENTS.md, Game 9 README, original pinned KayKit CC0 source provenance and 41-joint walking clips/bind, rejected source-foot experiments, original controller/imported mixer/weapon adapter, focused native & browser specs, PR discussion, exact-head CI and genuine native/organic desktop/mobile artifacts. No independent critic approval present.
