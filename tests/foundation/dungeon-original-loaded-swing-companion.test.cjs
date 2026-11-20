@@ -433,3 +433,74 @@ test('RED: exact 390px source-skinned 63.292mm toe burial can choose safer conne
  ])assert.equal(choose({...base,...altered}),null,
   'unwitnessed clip, unsafe second shoe or worse heel must fail closed');
 });
+
+
+// Test-first negative control from genuine original GLB WebGL desktop
+// #44833079626, frame115, original Walking_A 0.134157s. The BEFORE
+// left shoe is actually buried 18.0/23.0mm. Proposed +16mm visual pelvis
+// shift and XZ perturbations BELOW are deliberately synthetic: they are
+// required safety tests, NOT asserted source-rig AFTER performance.
+test('RED: final original pelvis lift requires both licensed weighted shoes to preserve world XZ',async()=>{
+ const {
+  verifyOriginalSourceLoadedPelvisFootWitness:verify,
+  certifyOriginalSourcePostLegPelvisRollback:rollback
+ }=await load();
+ const floorTopY=-.02,lift=.016;
+ const loaded={
+  heelY:-.03801226366734252,toeY:-.04296894220501402,
+  heelXZ:[3.3212524324114563,-6.959088071132016],
+  toeXZ:[3.0510948827961486,-6.9334094208620805]
+ };
+ const airborne={
+  heelY:.180001727588367,toeY:-.12175443295866083,
+  heelXZ:[3.3846513675664145,-7.120843680438203],
+  toeXZ:[3.3313812715462285,-7.134147983096679]
+ };
+ const translateY=shoe=>({...shoe,heelY:shoe.heelY+lift,toeY:shoe.toeY+lift});
+ const safe={before:loaded,after:translateY(loaded),
+  otherBefore:airborne,otherAfter:translateY(airborne),
+  floorTopY,requireWorldXZ:true};
+ assert.ok(verify(safe)?.improvementMeters>=.015,
+  'real original BEFORE + hypothetical vertical-only offset is a safety fixture, not observed AFTER');
+ const drift=(shoe,point,meters)=>({...shoe,
+  [point]:[shoe[point][0]+meters,shoe[point][1]]});
+ for(const mutation of [
+  {after:drift(safe.after,'heelXZ',.014)},
+  {after:drift(safe.after,'toeXZ',.014)},
+  {otherAfter:drift(safe.otherAfter,'heelXZ',.018)},
+  {otherAfter:drift(safe.otherAfter,'toeXZ',.018)},
+  {after:{heelY:safe.after.heelY,toeY:safe.after.toeY}},
+  {otherAfter:{heelY:safe.otherAfter.heelY,toeY:safe.otherAfter.toeY}}
+ ])assert.equal(verify({...safe,...mutation}),null,
+  'a real whole-body Y-only original-pelvis trial cannot silently drift its weighted XZ outsole');
+ const prior={left:loaded,right:airborne};
+ const restored={left:{...loaded},right:{...airborne}};
+ assert.ok(rollback({source:'post-final-source-legs-pelvis-only',
+  before:prior,after:restored,requireWorldXZ:true})?.preserveOriginalSourceLegs);
+ assert.equal(rollback({source:'post-final-source-legs-pelvis-only',
+  before:prior,after:{left:drift(loaded,'heelXZ',.014),right:airborne},
+  requireWorldXZ:true}),null,'rollback is not complete if 3D outsole has drifted');
+ assert.equal(rollback({source:'post-final-source-legs-pelvis-only',
+  before:prior,after:{left:{heelY:loaded.heelY,toeY:loaded.toeY},right:airborne},
+  requireWorldXZ:true}),null,'missing original XZ must not certify pose restoration');
+});
+
+test('RED: loaded source-pelvis witness must be the final original foot owner after counterpitch',()=>{
+ const code=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const first=code.indexOf('function updateActor(');
+ const last=code.indexOf('rememberOriginalSourceAppliedSwingEvidence(actor);',first);
+ assert.ok(first>0&&last>first);
+ const stage=code.slice(first,last);
+ const counter=stage.indexOf(' stageLicensedSourceSwingCounterpitchAfterMixer(actor,reducedMotion);');
+ const toes=stage.indexOf(' stageLicensedSourceToeFinisherAfterCounterpitch(actor,reducedMotion);');
+ const pelvis=stage.indexOf(' stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion);');
+ const audit=stage.indexOf(' auditSourceLoadedPelvisAfterLegs(actor,poseAge,reducedMotion);');
+ assert.ok(counter>0&&toes>counter&&pelvis>toes&&audit>pelvis,
+  'all licensed thigh/knee/foot/toes source deltas settle BEFORE independently final weighted pelvis lift');
+ const begin=code.indexOf('function stageSourceLoadedPelvisBeforeLegs(');
+ const end=code.indexOf('function auditSourceLoadedPelvisAfterLegs(',begin);
+ const source=code.slice(begin,end);
+ assert.match(source,/requireWorldXZ:true/);
+ assert.match(source,/heelXZ/);
+ assert.match(source,/toeXZ/);
+});
