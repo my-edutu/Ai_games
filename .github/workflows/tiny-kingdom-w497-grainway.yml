@@ -4,6 +4,7 @@ on:
     paths:
       - 'public/tiny-kingdom/index.html'
       - 'tests/browser/tiny-kingdom-w497-grainway.spec.cjs'
+      - 'tests/browser/tiny-kingdom-standalone.config.cjs'
       - '.github/workflows/tiny-kingdom-w497-grainway.yml'
   workflow_dispatch:
 permissions:
