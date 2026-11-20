@@ -579,3 +579,55 @@ test('actual old Clockwork machine room retains BOTH exterior bearing silhouette
     original.dispose();geometry.dispose();source.material.dispose();
   }
 });
+
+
+test('source batch selection reserves both original machine-room flanks before nearby material batches exhaust the eight-draw budget',async()=>{
+  const [THREE,world]=await loaded;
+  const old=new THREE.Group(), originals=[];
+  function sourceBrace(radius,tangent,index){
+    const mesh=new THREE.Mesh(
+      new THREE.BoxGeometry(1.3,3.5,1.3),
+      new THREE.MeshStandardMaterial({color:0x87664a+index}));
+    mesh.name='authentic-old-clockwork-batch-'+index;
+    mesh.userData.structural=true;
+    mesh.position.set(
+      Math.sin(at)*radius+Math.cos(at)*tangent,roof+5,
+      Math.cos(at)*radius-Math.sin(at)*tangent);
+    old.add(mesh);originals.push(mesh);
+  }
+  // The previous closest-eight-material algorithm selected only the central
+  // metal and could never reserve distant original F8 side braces because
+  // source material batches were already excluded BEFORE face reservation.
+  for(let i=0;i<10;i++)sourceBrace(34,-8+i*.12,i);
+  sourceBrace(43,-20,10);
+  sourceBrace(43,20,11);
+  const before=originals.map(m=>m.position.clone());
+  let result=null;
+  try {
+    result=world.extractOriginalClockworkThresholdGallery(
+      THREE,old,EXIT_X,ROOF_Y,BASE_Y,WIDTH,{
+        maxFaces:64,maxBatches:4,
+        includeOriginalFlanks:true,clearPhysicalExit:true});
+    assert.ok(result,'original F8 structural source must survive extraction');
+    assert.ok(result.originalExteriorFlankFaces.left>=2,
+      'real left-side machine-room material must be included despite ten closer material batches');
+    assert.ok(result.originalExteriorFlankFaces.right>=2,
+      'real right-side machine-room material must be included despite ten closer material batches');
+    assert.ok(result.root.children.length<=4 && result.faces<=64 &&
+      result.bytes===result.faces*96,'no new draw/triangle/memory budget');
+    let centre=false;
+    for(const child of result.root.children){
+      const p=child.geometry.getAttribute('position');
+      for(let i=0;i<p.count;i++){
+        const radial=p.getX(i)*Math.sin(at)+p.getZ(i)*Math.cos(at);
+        const tangent=p.getX(i)*Math.cos(at)-p.getZ(i)*Math.sin(at);
+        if(radial<36 && tangent<0)centre=true;
+      }
+    }
+    assert.ok(centre,'nearby original doorway still anchors the same old room');
+    originals.forEach((mesh,i)=>{
+      assert.equal(mesh.parent,old,'original render scene cannot be reparented');
+      assert.ok(mesh.position.equals(before[i]),'no original gameplay/world transform is modified');
+    });
+  }finally{clean(result,old);}
+});
