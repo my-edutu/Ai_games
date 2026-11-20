@@ -368,8 +368,8 @@ export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresh
             const midZ=(positions[2]+positions[5]+positions[8])/3;
             const radial=midX*tangentSin+midZ*tangentCos;
             const lateral=midX*tangentCos-midZ*tangentSin;
-            const flank=includeOriginalFlanks && radial>31.5 &&
-              Math.abs(lateral)>=9 ? (lateral<0?'left':'right') : null;
+            const flank=includeOriginalFlanks && radial>35 &&
+              Math.abs(lateral)>=16 ? (lateral<0?'left':'right') : null;
             const triangle={score:score/3+
               Math.pow((nearestY-(roof+3))/32,2),
               positions,normals,uvs,band,flank};
