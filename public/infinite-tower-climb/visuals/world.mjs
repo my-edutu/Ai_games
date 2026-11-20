@@ -385,10 +385,54 @@ export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresh
     }
   }
   if(!batches.length)return null;
-  // Preserve a bounded cross-section of actual bearing posts, drums and
-  // connected framing instead of selecting only the first material batch.
+  // Material/draw selection must reserve the WHOLE original threshold ROOM,
+  // not merely reserve faces *after* the first eight nearest materials have
+  // already excluded its authentic side machines. Original 1x film revealed
+  // a Clockwork-to-Void scene swap; an apparently two-sided face reservation
+  // could be zero on either side because the side's source batch was absent.
+  //
+  // Select the nearest authentic old-doorway batch first, then the best still
+  // missing source-original left/right and deep/overhead regions, within the
+  // SAME maxBatches. Fill residual draws by physical proximity. No new mesh,
+  // invented metal, inferred landing, physics, extra batch or per-frame pass.
   batches.sort((a,b)=>a.best-b.best);
-  const selected=batches.slice(0,maxBatches);
+  const regions={
+    left:triangle=>triangle.flank==='left',
+    right:triangle=>triangle.flank==='right',
+    lower:triangle=>triangle.band==='lower',
+    upper:triangle=>triangle.band==='upper'
+  };
+  const availableRegionBatches=Object.fromEntries(Object.entries(regions)
+    .map(([name,belongs])=>[name,batches.filter(batch=>
+      batch.triangles.some(belongs)).length]));
+  const selected=[],selectedSources=new Set();
+  function selectSourceBatch(batch) {
+    if(!batch || selected.length>=maxBatches || selectedSources.has(batch.source))
+      return false;
+    selected.push(batch);
+    selectedSources.add(batch.source);
+    return true;
+  }
+  selectSourceBatch(batches[0]);
+  if(includeOriginalFlanks && maxBatches>1) {
+    for(const belongs of Object.values(regions)) {
+      if(selected.length>=maxBatches)break;
+      if(selected.some(batch=>batch.triangles.some(belongs)))continue;
+      let best=null,bestRegionScore=Infinity;
+      for(const batch of batches) {
+        if(selectedSources.has(batch.source))continue;
+        const candidate=batch.triangles.find(belongs);
+        if(candidate && candidate.score<bestRegionScore){
+          best=batch;bestRegionScore=candidate.score;
+        }
+      }
+      selectSourceBatch(best);
+    }
+  }
+  for(const batch of batches) {
+    if(selected.length>=maxBatches)break;
+    selectSourceBatch(batch);
+  }
   const picked=selected.map(()=>[]);
   let remaining=maxFaces;
   const chosen=new Set();
@@ -475,8 +519,11 @@ export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresh
   return {root,geometries,materials,faces,
     bytes:faces*3*8*Float32Array.BYTES_PER_ELEMENT,
     originalExteriorFlankFaces:{...flankCounts},
+    sourceMaterialBatches:batches.length,
+    selectedMaterialBatches:selected.length,
+    originalRegionAvailableMaterialBatches:availableRegionBatches,
     envelope:includeOriginalFlanks?'original-threshold-plus-structural-flanks':'original-threshold-only',
-    source:'closest-original-Three-floor-eight-load-paths-not-batch-order'};
+    source:'source-original-threshold-and-room-region-materials-within-the-same-budget'};
 }
 
 // All geometry is presentation-only. Collision extents come exclusively from the snapshot.
