@@ -279,14 +279,25 @@ export function publicEarnedGuardianCounterCameraPriority(
  * world clock, hazards, public map discovery or actor positions.
  */
 export function publicEarnedGuardianCounterCameraAct(
-  phase,earned=false,reducedMotion=false) {
+  phase,earned=false,reducedMotion=false,aspect=0) {
   if(!earned || reducedMotion || !Number.isFinite(phase)
     || phase<0 || phase>=1)return 1;
   // Pass526: real 390px tick94 camera hides Thornback behind disclosed
   // foreground foliage, whereas the later genuine 320px higher view reveals
   // both actors. Begin the SAME earned camera transition earlier, retaining
   // first impact, without touching world motion, privacy or physical fit.
-  const t=Math.max(0,Math.min(1,(phase-.08)/.54));
+  // Pass536: the original exact-HEAD 390x844 tick93 camera presents Pip and
+  // Thornback close, both readable; the authentic tick94 after-hit camera
+  // immediately pulls them toward opposite +/- .90 screen edges, making
+  // their connected body recoil and lantern contact tiny among parapets.
+  // Preserve the ACTUALLY photographed contact framing through the early
+  // true two-second parry, then ease into the already fitted retreat. Only
+  // 390-class portrait uses this longer first act; 320, landscape, desktop,
+  // invalid, reduced-motion and stale events keep the existing behavior.
+  // The scene's full connected-mesh +/- .95 final fitter remains unchanged.
+  const portraitContact=Number.isFinite(aspect) && aspect>=.45 && aspect<.60;
+  const start=portraitContact ? .27 : .08;
+  const t=Math.max(0,Math.min(1,(phase-start)/.54));
   return t*t*(3-2*t);
 }
 

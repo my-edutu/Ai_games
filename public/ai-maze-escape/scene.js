@@ -1518,7 +1518,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // The source two-second counterPhase is never a guessed/unseen threat.
     const earnedShotAct=publicEarnedGuardianCounterCameraAct(
       earnedCounterActor?.counterPhase,earnedDuelContinuity,
-      settings.reducedMotion);
+      settings.reducedMotion,aspect);
     // The native Pass522 hit still breaks the adjacent 390px tick93 warning
     // shot: portraitCameraOffset is NOT the camera actually used to photograph
     // that warning. Hold the previous physically rendered target and lens

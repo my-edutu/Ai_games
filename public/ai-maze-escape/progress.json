@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-20T13:47:52.000Z",
+  "updatedAt": "2026-11-20T14:53:50.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass534 original exact HEAD 55170c26 focused WebGL #44742149280 SUCCESS; ZIP 6d47a294 original 42/42 PNG-sidecar and 3/3 true gate hashes independently matched. Authentic full-frame 390x844 seed-13 tick94 shows complete Pip/Thornback within unchanged ±.95 but unbroken bright lantern beam masks physical recoil; original official Nintendo bar REJECTED. Pass535 real public earned impact-to-body-recoil light handoff source candidate; new native WebGL/whole CI and detached independent critic pending. Never claim rendered approval from source."
+    "summary": "Pass535 exact-HEAD 08eac7ec native WebGL #44749497116 succeeded; original artifact ZIP 5d610420 verified 42/42 dated PNG sidecar SHA-256 and 3/3 real before/mid/after gate hashes. True seed-13 tick94 390x844 hero and guardian fill opposite +/- .90 margins after real parry, with stone/rail clutter still masking intimacy; fixed Nintendo benchmark REJECTED. Pass536 source candidate holds original ACTUAL tick93 close encounter camera longer for 390-class earned impact before physical retreat; new exact-HEAD WebGL, no-crop and independent critic REQUIRED, not yet approved."
   },
   "captures": [
+    {
+      "title": "Pass535 exact source 08eac7ec native WebGL SUCCESS, ZIP 5d610420: 42 original full-frame PNG SHA sidecars plus 3 true gate-transition PNG hashes verified; Pass536 camera contact candidate awaiting native verdict",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44749497116/artifacts/14634992105"
+    },
     {
       "title": "Pass534 exact source 55170c26 native WebGL SUCCESS 42/42 original full-frame PNG SHA pairs plus 3/3 real gate transition hashes; Pass535 earned light-handoff source awaiting same-HEAD render",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44742149280/artifacts/14633365077"
