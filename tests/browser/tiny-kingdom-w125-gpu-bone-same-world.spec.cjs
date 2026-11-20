@@ -28,7 +28,10 @@ for(const viewport of scenes){
     g.step(1/30);advanced++;
     if(advanced%6===0)workers=g.getActiveWorksites();
    }
-   g.setCamera({focus:[0,0],yaw:.45,pitch:.86,zoom:80});
+   // Aim the ACTUAL physical camera at the first genuine active worksite,
+   // not at empty town-centre sky. This remains a player-operable camera.
+   const site=workers.find(w=>w.job==='farmer')||workers[0];
+   g.setCamera({focus:[site.x,site.z],yaw:.45,pitch:.56,zoom:18});
    g.setWorkingSkinEnabledForTesting(false);
    return {workers:workers.map(w=>({citizen:w.citizen,job:w.job})),
     advanced,frame:g.getFrameProfile().totalFrames,
@@ -47,7 +50,8 @@ for(const viewport of scenes){
     triangle:g.renderStats().lastFrameTriangles,
     geometry:g.getGeometryAudit(),
     viewport:g.getPresentedCameraFrame(),
-    skin:g.getWorkingSkinAudit()};
+    skin:g.getWorkingSkinAudit(),
+    worksite:g.getAuthenticSoftwareWorksiteGpuAudit()};
   });
   await info.attach('w125-original-worker-'+viewport.width,
    {body:await page.screenshot(),contentType:'image/png'});
@@ -67,6 +71,8 @@ for(const viewport of scenes){
     geometry:g.getGeometryAudit(),
     viewport:g.getPresentedCameraFrame(),
     skin:g.getWorkingSkinAudit(),worker:g.getWorkingResidentAudit(),
+    worksite:g.getAuthenticSoftwareWorksiteGpuAudit(),
+    foreground:g.getForegroundSkinAudit(),
     glError:gl?.getError()??-1,
     overflow:document.documentElement.scrollWidth-innerWidth,
     names:g.getState().people.map(p=>p.name)};
@@ -79,7 +85,8 @@ for(const viewport of scenes){
      count:original.count,triangle:original.triangle,skin:original.skin,
      view:original.viewport},candidate:{
       count:candidate.count,triangle:candidate.triangle,
-      skin:candidate.skin,worker:candidate.worker,view:candidate.viewport,
+      skin:candidate.skin,worker:candidate.worker,worksite:candidate.worksite,
+      foreground:candidate.foreground,view:candidate.viewport,
       glError:candidate.glError,overflow:candidate.overflow}},
     null,2)),contentType:'application/json'});
   expect(candidate.authority).toBe(original.authority);
@@ -93,9 +100,18 @@ for(const viewport of scenes){
   expect(candidate.skin.jointFloats).toBeLessThanOrEqual(candidate.skin.maxJointFloats);
   // A green screenshot with NO real worker on the GPU proves nothing:
   // demand an actual authoritative worksite and at least one rig draw.
-  expect(candidate.worker.authenticWorkers).toBeGreaterThan(0);
+  // Software WebGL uses TWO authentic GPU tiers: compact distant workers
+  // and full-original medium workers. Counting only compact workers used
+  // to reject a visible fully skinned worker and reward an offscreen one.
+  expect(candidate.worksite.currentVisibleRealWorkers).toBeGreaterThan(0);
+  expect(candidate.worksite.currentVisibleSkinnedWorkers).toBeGreaterThan(0);
+  expect(candidate.worksite.visibleSkinnedWorksites.every(w=>
+   setup.workers.some(active=>active.citizen===w.name))).toBe(true);
+  expect(candidate.worksite.actualGPUJointDraws).toBeGreaterThan(0);
+  expect(candidate.worksite.currentVisibleSkinnedWorkers).toBeLessThanOrEqual(4);
   expect(candidate.skin.realWorkers).toBe(candidate.worker.authenticWorkers);
-  expect(candidate.skin.gpuRigDraws).toBeGreaterThan(0);
+  expect(candidate.skin.gpuRigDraws+candidate.foreground.jointDraws)
+   .toBeGreaterThan(0);
   expect(candidate.skin.paletteUpdates).toBeGreaterThanOrEqual(
    candidate.skin.gpuRigDraws);
   expect(candidate.skin.cachedActors).toBeLessThanOrEqual(24);
@@ -103,6 +119,8 @@ for(const viewport of scenes){
   expect(candidate.worker.deliveryCartAndUnloadLive).toBe(true);
   expect(candidate.worker.realWorkerNames.every(n=>candidate.names.includes(n)))
    .toBe(true);
+  expect(candidate.worksite.visibleSkinnedWorksites.every(w=>
+   candidate.names.includes(w.name)&&w.heightFraction>0)).toBe(true);
   expect(candidate.glError).toBe(0);
   expect(candidate.overflow).toBeLessThanOrEqual(0);
   expect(pageErrors).toEqual([]);
@@ -115,7 +133,9 @@ for(const viewport of scenes){
    await page.evaluate(({snapshot,mode})=>{
     const g=window.__tinyKingdom;g.setSpeed(0);
     g.restoreSnapshot(snapshot);
-    g.setCamera({focus:[0,0],yaw:.45,pitch:.86,zoom:80});
+    const site=g.getActiveWorksites().find(w=>w.job==='farmer')||g.getActiveWorksites()[0];
+    if(!site)throw Error('genuine worker vanished during same-state replay');
+    g.setCamera({focus:[site.x,site.z],yaw:.45,pitch:.56,zoom:18});
     g.setWorkingSkinEnabledForTesting(mode);
    },{snapshot:anchor,mode:skinned});
    const trace=[];
