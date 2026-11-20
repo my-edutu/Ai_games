@@ -53,14 +53,18 @@
     "testCommit": "a66ce67d14b1b5a708b73af2d710962fd06b5671",
     "verifiedTest": "Real Three.js F8 paired outer+inner skirt: only one ray-hit owner licenses BOTH to clear to .035, different owner cannot borrow, original walkable roof opaque, mismatch/restart restores original depth, and source shape literal aligned.",
     "captureForensicUnblockerCommit": "c645c21d94299ecc90a71f65b814e1abdace03d6",
-    "forensicExtension": "Read-only capture now records original returned F8 camera acceptance/veto counts, source-owned F9 undercroft real-ray/opacity outcome and successor camera rescue indexed by actual source observation. Separate physical-gateway-optical-owner-samples.json. It does NOT change gameplay and cannot make event pairing pass."
+    "forensicExtension": "Read-only capture now records original returned F8 camera acceptance/veto counts, source-owned F9 undercroft real-ray/opacity outcome and successor camera rescue indexed by actual source observation. Separate physical-gateway-optical-owner-samples.json. It does NOT change gameplay and cannot make event pairing pass.",
+    "newImmutableCaptureRequestSha": "5f10f503889519676d9ffc7e75dff2303cdac451",
+    "newNineJobCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44717752877",
+    "newQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44717752844",
+    "newCaptureVerdict": "NOT EVALUATED: workflows queued at evidence inspection; source-authentic decoded pixels and optics sidecar not yet reviewed"
   },
   "ci": {
     "oldCandidateQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44713354882",
     "oldCandidateResult": "FAILED 8/10; one Tower test contract mismatch and one unrelated Phase6 timeout",
     "exactTestFixQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44715612877",
     "exactTestFixResult": "PASSED 10/10 checked before later capture-only commit",
-    "captureHarnessExactSha": "Newer exact-head CI pending after capture-forensic modification"
+    "captureHarnessExactSha": "5f10f503889519676d9ffc7e75dff2303cdac451"
   },
   "reviewers": {
     "LOOKS": "0/5",
