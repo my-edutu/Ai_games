@@ -7745,5 +7745,48 @@
     },
     "acceptance": "NOT EVALUATED until independent actual original clips, 5 blind reviewers per pillar, and supported hardware all satisfy gates",
     "safeguards": "Never merge deploy force-push move baseline edit PR58 change other games or change draft status."
+  },
+  "p0OriginalGatewayColdOwnerTransferVsGpuTeardownStrictNative20261120_0808": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "purpose": "Reproduce the real cold Floor9 source-owner bottleneck with original full-motion matching native desktop and portrait films, now that split owner-transfer and resource-retirement instrumentation is present and the exact-head Phase3 source-contract fixture is restored.",
+    "branch": "feat/tower-transformation-gauntlet-20261101",
+    "prNumber": 68,
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceHeadBeforeRequest": "20b5485d3fd9135c9ff6337e24b6a0af4efafe2b",
+    "captureSource": "immutable push github.sha of this request; no subsequent docs source substituted",
+    "scenes": [
+      "ascent",
+      "moving",
+      "danger/guardian",
+      "outcome/restart"
+    ],
+    "conditions": {
+      "seed": "tower-transformation-capture-v1",
+      "tier": "low",
+      "viewports": [
+        "960x600",
+        "390x844"
+      ],
+      "speed": "normal 1x",
+      "fps": 25,
+      "minimumSeconds": 60
+    },
+    "measure": "Use original event-to-native WebM pairing. On first genuinely returned F9 WebGL frame, report originalSourceCapGatewayTransfer vs formerFloorTeardownAndRetirement vs rigidVertexBatching, gallery prewarm reuse/cold fallback, deferred old GPU queue. Inspect authentic opened gate, full climber, walkable new roof together for consecutive source-event matched frames. No retrospective manual sync or fabricated pixels.",
+    "previousCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44684125642",
+    "previousResult": "All 8 full original clip jobs and ledge succeeded, but 0/2 strict native danger pairs and zero sustained bronze-to-violet overlap; source owner CPU combined 87.0ms desktop / 58.4ms portrait, CPU/browser not GPU.",
+    "independentReview": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "hardware": {
+      "p50": "NOT EVALUATED",
+      "p95": "NOT EVALUATED",
+      "p99": "NOT EVALUATED",
+      "memory": "NOT EVALUATED"
+    },
+    "nextAction": "Fix the measured dominant cold source-owner branch and physical original doorway/portrait foreground occlusion as one true playable scene handoff, then recapture. Do not advance to P1.",
+    "safety": "PR68 stays draft; PR58 and frozen baseline unchanged; no unrelated games, merge, deploy or force-push"
   }
 }
