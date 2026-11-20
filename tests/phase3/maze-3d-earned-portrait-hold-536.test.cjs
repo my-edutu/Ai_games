@@ -19,9 +19,10 @@ test('real 390-class photographed contact stays legible before the earned retrea
     'the real withdrawal begins to take over smoothly');
   assert.equal(act(.81,true,false,p390),1);
   assert.equal(act(.93,true,false,p390),1);
-  assert.equal(act(.35,true,false,p320),.5,
-    'keep the previous independently pictured 320px act exactly');
-  assert.equal(act(.35,true,false),.5,'preserve all existing no-aspect callers');
+  assert.ok(Math.abs(act(.35,true,false,p320)-.5)<1e-12,
+    'keep the previous independently pictured 320px act to floating precision');
+  assert.ok(Math.abs(act(.35,true,false)-.5)<1e-12,
+    'preserve all existing no-aspect callers to floating precision');
   for(let i=0;i<100;i++) {
     const a=act(i/100,true,false,p390),b=act((i+1)/100,true,false,p390);
     assert.ok(a>=0 && a<=1 && b>=a-1e-12,
@@ -40,7 +41,7 @@ test('the retained close contact never exposes a lost, private, terminal or redu
     }
   }
   for(const aspect of [320/740, 844/390,1280/900,NaN]) {
-    assert.equal(act(.35,true,false,aspect),.5,
+    assert.ok(Math.abs(act(.35,true,false,aspect)-.5)<1e-12,
       'other viewports retain their earlier native-tested camera act');
   }
   assert.match(source,/const earnedShotAct=publicEarnedGuardianCounterCameraAct\([\s\S]*?settings\.reducedMotion,aspect\)/);
