@@ -7,6 +7,7 @@ on:
       - scripts/tiny-kingdom-w293-camera-home-detail-contract.cjs
       - scripts/tiny-kingdom-w294-visible-inhabited-street-contract.cjs
       - scripts/tiny-kingdom-w491-portrait-overlook-contract.cjs
+      - scripts/tiny-kingdom-w492-real-worksite-gpu-contract.cjs
       - tests/browser/tiny-kingdom-w294-inhabited-view.spec.cjs
       - tests/browser/tiny-kingdom-w295-visible-spine.spec.cjs
       - tests/browser/tiny-kingdom-w489-real-doorway.spec.cjs
@@ -37,6 +38,7 @@ jobs:
       - run: node scripts/tiny-kingdom-w293-camera-home-detail-contract.cjs
       - run: node scripts/tiny-kingdom-w294-visible-inhabited-street-contract.cjs
       - run: node scripts/tiny-kingdom-w491-portrait-overlook-contract.cjs
+      - run: node scripts/tiny-kingdom-w492-real-worksite-gpu-contract.cjs
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test tests/browser/tiny-kingdom-w295-visible-spine.spec.cjs --workers=1

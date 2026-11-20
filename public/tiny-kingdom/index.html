@@ -3762,6 +3762,57 @@ function getActorGpuDeltaAudit(){
   preservesAllRealCitizens:true,authorityChanged:false,
   hardwareFps:'NOT MEASURED'};
 }
+// W492 Phase 1 REAL worker-stream architectural trial. SwiftShader previously
+// disabled ALL retained citizen GPU geometry, forcing up to 28 original bodies
+// through the expensive JavaScript sculptor every genuine fixed-step tick.
+// Admit at most four ALREADY WORKING and genuinely visible actors to the
+// existing bounded thirteen-joint foreground VBO, with the selected observer
+// prioritized. This never creates workers, fake actions, resources or frames.
+// Every unadmitted actor and every buffer/shader failure uses original villager
+// / compactVillager fallback. All original cargo, market handoffs, food contact
+// and authoritative replay remain independent of the GPU presentation tier.
+// This is a software diagnostic trial, not a claimed hardware FPS speedup.
+const SOFTWARE_WORKSITE_GPU_MAX_ACTORS=4;
+let softwareWorksiteSelectionFrames=0,softwareWorksiteSelectedRows=0;
+function authenticWorkerGpuResidentRows(actors,nearPeople,frame){
+ if(residentActorGpuEnabled())return actors.map((p,i)=>({p,i}));
+ if(!gpuAvailable||!swiftGpu||!workingSkinCapable||
+    !foregroundResidentEnabled||!Array.isArray(actors)||
+    !(nearPeople instanceof Set))return [];
+ const rows=[],i=selectedCitizen,observed=actors[i];
+ if(isObservedWorksiteSkinCandidate(observed,i,nearPeople))
+  rows.push({p:observed,i});
+ for(let j=0;j<actors.length&&rows.length<SOFTWARE_WORKSITE_GPU_MAX_ACTORS;j++){
+  if(j===i)continue;
+  const p=actors[j];
+  if(!p||!nearPeople.has(j)||!isWorkingAtSite(p)||p.delivery||
+     isMarketUnloading(p)||verifiedHouseholdMealEvidence(p))continue;
+  if(frame&&isForegroundWorksiteCandidate(p,j,nearPeople,frame))
+   rows.push({p,i:j});
+ }
+ rows.sort((a,b)=>a.i-b.i); // authoritative stable identity order
+ softwareWorksiteSelectionFrames++;
+ softwareWorksiteSelectedRows+=rows.length;
+ return rows;
+}
+function getAuthenticSoftwareWorksiteGpuAudit(){
+ const trueRows=foregroundResidentVisible.filter(row=>
+  isWorkingAtSite(row.p)&&row.entry.skinned);
+ return {source:'bounded-actual-software-worker-joint-vbo-trial',
+  swiftShader:swiftGpu,available:gpuAvailable&&swiftGpu&&workingSkinCapable,
+  maxRealWorksites:SOFTWARE_WORKSITE_GPU_MAX_ACTORS,
+  selectedCitizen:people[selectedCitizen]?.name||null,
+  inspectedFrames:softwareWorksiteSelectionFrames,
+  candidateRowsSeen:softwareWorksiteSelectedRows,
+  actuallySkinnedWorksites:trueRows.map(row=>row.p.name),
+  actualDraws:foregroundSkinDrawCalls,
+  foregroundGpuBuffers:foregroundResidentBuffer?1:0,
+  originalCitizenCount:people.length,
+  immutableJobsAndInventory:true,duplicateOrMissingCitizensPermitted:false,
+  originalCpuFallbackPreserved:true,hardwareFps:'NOT MEASURED',
+  matchedSoftwareFps:'NOT PROVEN',realContactA_B:'NOT PROVEN'};
+}
+
 // W69: one reusable WebGL numeric vertex stream for the entire REAL moving
 // village. The former path allocated another ~0.8–1M-element JS Array on
 // almost every simulation step, then promoted it into a GPU staging buffer.
@@ -34899,7 +34950,7 @@ const residentActorManagementStart=performance.now();
 // continue rebuilding live IK/held-tool geometry every authoritative step.
 // One real-person index, passed through four ACTUAL GPU-admission tiers.
  // Each later stage honors the preceding stage's actually accepted actors.
-const residentRows=residentActorGpuEnabled()?people.map((p,i)=>({p,i})):[];
+const residentRows=authenticWorkerGpuResidentRows(people,nearPeople,detailPlan.cameraFrame);
 const restingRows=residentRows
  .filter(({p,i})=>isResidentRestingCandidate(p,i,nearPeople));
 const restingReady=prepareRestingActorMesh(restingRows);
@@ -35500,7 +35551,7 @@ renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainH
   getEconomyCpuCacheAudit,setEconomyCpuCacheForTesting,
  getLedgerWitnessResidencyAudit,setLedgerWitnessResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
  getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,
- getActorResidencyAudit,getActorGpuDeltaAudit,setActorStreamSplitForTesting,
+ getActorResidencyAudit,getActorGpuDeltaAudit,getAuthenticSoftwareWorksiteGpuAudit,setActorStreamSplitForTesting,
  setResidentActorGpuForTesting,
  setStaticBatchBridgingForTesting,getScenicMultiDrawAudit,setScenicMultiDrawForTesting,getCourierPostCameraAudit,evaluateCourierPostRepairPolicy,getDaybreakReturnAudit,getCameraDynamicCacheStats,getCitizenOrbitDetailAudit,getCourierDocumentaryCameraAudit,setCamera:o=>{// Authored camera checks and manual pointer input share real roof safety.
  freeCameraReturn=null;
