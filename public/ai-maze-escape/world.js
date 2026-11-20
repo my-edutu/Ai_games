@@ -1955,7 +1955,7 @@ export function createMazeWorld(options = {}) {
       // lower walkable terrace from the lagoon without suggesting a corridor.
       // The relief is flush (under 2cm in scene units), has no collision or
       // extra draw call and is batched with existing reused geometry/material.
-      if (!pressureCourtApron && tier === 0 && !c.blocked && !c.trap && !c.checkpoint && !c.clue) {
+      if (!pressureCourtApron && !guardianQuietRingCell && tier === 0 && !c.blocked && !c.trap && !c.checkpoint && !c.clue) {
         for (const sign of [-1, 1]) {
           add(box, lightStone, x + sign * .99, .015, z, .034, .012, 1.75, c.cell);
           add(box, lightStone, x, .015, z + sign * .99, 1.75, .012, .034, c.cell);
@@ -1969,7 +1969,7 @@ export function createMazeWorld(options = {}) {
       const gateCourt=gateCourtCells.has(c.cell)&&!c.blocked
         &&!c.trap&&!c.checkpoint&&!c.clue;
       const courtSeed = variation(c.cell * 41 + 709);
-      if (!pressureCourtApron && !guardianCourtCell && courtSeed > .68 && !gateCourt
+      if (!pressureCourtApron && !guardianCourtCell && !guardianQuietRingCell && courtSeed > .68 && !gateCourt
         && !c.blocked && !c.trap && !c.checkpoint && !c.clue) {
         const pigment = courtSeed > .85 ? seaGlass : clay;
         for (let petal = 0; petal < 4; petal++) {
@@ -1990,7 +1990,7 @@ export function createMazeWorld(options = {}) {
       // and mineral materials in the same GPU batches, with no extra draw
       // resources or render-frame allocations. Never cover known hazards,
       // treasure hardware or a checkpoint with a look-alike objective symbol.
-      if (!pressureCourtApron && !guardianCourtCell && !gateCourt && !c.blocked && !c.trap
+      if (!pressureCourtApron && !guardianCourtCell && !guardianQuietRingCell && !gateCourt && !c.blocked && !c.trap
           && !c.checkpoint && !c.clue
           && variation(c.cell * 71 + 138) > .36) {
         const shellPigment = tier === 2 ? seaGlass : tier === 1 ? lightStone : stone;
@@ -2002,7 +2002,7 @@ export function createMazeWorld(options = {}) {
       if (gateCourt && !pressureCourtApron) gateCourtRosette(x,z,c.cell);
       // Small scattered flecks belong to ordinary courts; the large disclosed
       // mechanism gets deliberate negative space around the actual moving jaws.
-      if (!pressureCourtApron && !guardianCourtCell) for (let j = 0; j < 2; j++) {
+      if (!pressureCourtApron && !guardianCourtCell && !guardianQuietRingCell) for (let j = 0; j < 2; j++) {
         const sign = j ? 1 : -1;
         add(box, deepStone, x + sign * .91, .003, z - .9, .14, .006, .035, c.cell, 0, .2);
         add(box, inlay, x + sign * .86, .006, z + .86, .12, .009, .12, c.cell, 0, Math.PI / 4);
@@ -4019,6 +4019,15 @@ export function createMazeWorld(options = {}) {
         // The bottom stays embedded in the same stone anchor at y=.30; no
         // static "victory" mast, hit effect, collider, unseen enemy, new mesh,
         // or knowledge beyond the public lane. Reduced motion remains still.
+        // Pass543: the source-earned lantern counter brings down the WHOLE
+        // connected observatory, not only its upper vanes. Original 390px
+        // tick94 kept an enormous upright mast competing with Pip's winning
+        // counter and Thornback's physical release. Sink the existing ROOT
+        // into its own plinth as the genuine same-lane parry wave passes.
+        // This never moves a wall, game collider, terrain, enemy, hidden
+        // cell, autonomous action or resource, and restores to zero when
+        // the public witness ends. Reduced motion keeps the original still.
+        signal.observatory.instrument.position.y=reduced?0:-1.72*counterWave;
         const mastLift=reduced?0:Math.max(0,Math.min(1,warningAction));
         const mastHeight=.78+.88*mastLift;
         signal.observatory.shaft.scale.y=mastHeight;
