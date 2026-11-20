@@ -7917,5 +7917,35 @@
     "sceneAcceptance": "unchanged, normal speed, actual consecutive pixels open bronze gate+whole moving climber+walkable F9 and strict native event pairing both viewports",
     "independentBlindStatus": "NOT EVALUATED",
     "purpose": "Verify whether coupled real nonwalkable shell transparency resolves the filmed opaque inner skirt while preserving 1x genuine gait and gateway."
+  },
+  "p0ExactSourceOpticalCameraSkirtDiagnostics20261120Run11": {
+    "stage": "P0 OPEN; acceptance NOT EVALUATED",
+    "campaign": "Actual source-pinned full nine-job original baseline/candidate matched 1x gameplay, both 960x600 desktop and 390x844 portrait",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "priorCandidateSourceSha": "64910a7e8a48836715f4d612a02e0c8b8372a8c3",
+    "priorNativeEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/44713354660",
+    "priorNativeGate": "8/8 original 60+sec WebMs and true ledge pass, strict F8 to F9 source-native event matching FAILS 0/2 viewports",
+    "inspectedBiggestDefect": "Actual HP-zero F8 victory and F9 3D roof, but no sustained same-shot moving full-body hero, visibly opened ORIGINAL bronze guardian doorway and genuine successor; native warm/cool overlap 0sec both.",
+    "meaningfulUnblocker": "New capture observer binds immutable source tick to previously unrecorded original F8 submitted-camera bridge accept/veto, real F9 paired undercroft camera-ray opacity, and successor 3D physical camera rescue. New optical-owner sidecar will distinguish actual production display blocker. Original 3D game and frozen baseline unchanged by capture.",
+    "originalFile": "physical-gateway-optical-owner-samples.json in the candidate danger capture artifact",
+    "immutableCandidateSource": "GitHub Actions exact SHA of THIS capture-request commit, not moving branch",
+    "ciBeforeRequest": "https://github.com/my-edutu/Ai_games/actions/runs/44715612877 passed 10/10 at earlier test-source SHA; new capture harness and ledger quality workflow independent",
+    "strictGate": "Unedited native pixel+source event matched, one physically walked old gateway and real F9, complete skinned body visible, desktop and portrait; no aesthetic score without independent reviewers",
+    "reviewers": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDevice": "NOT EVALUATED",
+    "next": "Inspect candidate physical-gateway-optical-owner-samples.json and original unedited WebM, fix source-safe camera/foreground/roof composition as one game experience defect. P1 remains blocked.",
+    "safety": {
+      "noMerge": true,
+      "noDeploy": true,
+      "noForcePush": true,
+      "pr68Draft": true,
+      "pr58Untouched": true,
+      "baselineUnchanged": true,
+      "otherGamesUntouched": true
+    }
   }
 }
