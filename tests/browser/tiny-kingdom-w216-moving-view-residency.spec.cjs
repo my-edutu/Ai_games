@@ -33,7 +33,8 @@ for(const width of [1024,390]){
    return {authority:JSON.stringify(g.exportSnapshot()),
     population:g.metrics().citizens,buildings:g.metrics().buildings,
     cache:g.getCameraDynamicCacheStats(),upload:g.renderStats().dynamicGpuUploads,
-    eye:g.getPresentedCameraFrame().eye,triangles:g.renderStats().lastFrameTriangles};
+    eye:g.getPresentedCameraFrame().eye,triangles:g.renderStats().lastFrameTriangles,
+    completeTriangles:g.renderStats().lastFrameFullSceneTriangles};
   });
   expect(before.cache.entries).toBe(1);
   expect(before.cache.cachedFloats).toBeGreaterThan(0);
@@ -72,6 +73,7 @@ for(const width of [1024,390]){
     population:g.metrics().citizens,buildings:g.metrics().buildings,
     cache:g.getCameraDynamicCacheStats(),upload:g.renderStats().dynamicGpuUploads,
     triangles:g.renderStats().lastFrameTriangles,
+    completeTriangles:g.renderStats().lastFrameFullSceneTriangles,
     overflow:document.documentElement.scrollWidth,
     gl:document.getElementById('world').getContext('webgl')?.getError()??-1};
   });
@@ -83,7 +85,11 @@ for(const width of [1024,390]){
   expect(after.cache.builds,'camera-only orbit must not rebuild original meshes').toBe(before.cache.builds);
   expect(after.cache.skippedUploads).toBeGreaterThan(before.cache.skippedUploads);
   expect(after.upload,'no driver reupload for unchanged vertices').toBe(before.upload);
-  expect(after.triangles).toBe(before.triangles);
+  // Camera-aware view frustum legitimately changes submitted triangles;
+  // the complete original mesh remains identical and no VBO was reuploaded.
+  expect(after.completeTriangles).toBe(before.completeTriangles);
+  expect(after.triangles).toBeGreaterThan(0);
+  expect(after.triangles).toBeLessThanOrEqual(after.completeTriangles);
   expect(after.overflow).toBeLessThanOrEqual(width);
   expect(after.gl).toBe(0);
   expect(errors).toEqual([]);

@@ -18245,6 +18245,92 @@ function getRealRoadscapeAudit(){
   corridorStillWalkable:true,changesNavigation:false,
   changesAuthoritativeState:false};
 }
+// W497 Phase 1 — one continuous, original living field-edge along the ACTUAL
+// granary → receiving market navigation route. The same season/topology-scoped
+// civic GPU mesh owns these low, rooted native hedges. They are not citizens,
+// stock, an alternate road, new colliders or per-frame particle props.
+// Never emit hedges in planted fields, occupied cottage thresholds or the
+// real loading/receiving courts. All placements are deterministic pure geometry.
+const GRAINWAY_VERGE_MAX_SHRUBS=22;
+const GRAINWAY_VERGE_MAX_TRIANGLES=2800;
+let grainwayVergeAudit={source:'unbuilt-real-freight-corridor',
+ shrubs:0,branches:0,crowns:0,triangles:0,
+ routeOnly:true,authorityModified:false,extraGpuBuffers:0};
+function renderLivingGrainwayVerge(points){
+ const first=data.length,season=climateAt(state.t).season;
+ let shrubs=0,branches=0,crowns=0,skippedHomes=0,skippedFields=0;
+ const twig=rgb(0x61533c),stone=rgb(0x817c6e);
+ const seasonalLeaves=[
+  [0x577848,0x738b54,0x78915b],
+  [0x426b46,0x597951,0x638252],
+  [0x877b48,0x9c8656,0x7b7250],[]][season]||[];
+ for(let section=0;section<points.length-1&&shrubs<GRAINWAY_VERGE_MAX_SHRUBS;section++){
+  const a=points[section],b=points[section+1],
+   dx=b[0]-a[0],dz=b[1]-a[1],length=Math.hypot(dx,dz);
+  if(length<.5)continue;
+  const nx=-dz/length,nz=dx/length;
+  const count=Math.max(1,Math.ceil(length/2.7));
+  for(let i=0;i<count&&shrubs<GRAINWAY_VERGE_MAX_SHRUBS;i++){
+   const t=(i+.5)/count;
+   for(const side of [-1,1]){
+    if(shrubs>=GRAINWAY_VERGE_MAX_SHRUBS)break;
+    const salt=section*53+i*17+(side>0?9:3);
+    // Existing lane runs through this centre; all root systems are well
+    // outside its 0.70m carriage track and recessed wheel shoulders.
+    const offset=2.48+.29*Math.sin(salt*1.17);
+    const x=a[0]+dx*t+side*nx*offset;
+    const z=a[1]+dz*t+side*nz*offset;
+    if(Math.hypot(x-FARM_MARKET_STREET_ORIGIN[0],
+      z-FARM_MARKET_STREET_ORIGIN[1])<4.0||
+       Math.hypot(x-FARM_MARKET_STREET_DESTINATION[0],
+      z-FARM_MARKET_STREET_DESTINATION[1])<4.6)continue;
+    if(farmTreeClearance(x,z)){skippedFields++;continue}
+    if(city.some(lot=>Math.hypot(x-lot[0],z-lot[1])<2.35)||
+       trees.some(tree=>Math.hypot(x-tree.x,z-tree.z)<1.05)){
+     skippedHomes++;continue;
+    }
+    const y=terrain(x,z),size=.66+.18*Math.sin(salt*.83)**2,
+     sweep=Math.sin(salt*1.31),reach=[side*nx,side*nz];
+    // True low rural copse, shaped as woody layered boughs instead of the
+    // prototype's repeating vertical cubes. These never bridge the road.
+    materialScope(MATERIAL.STONE,()=>{
+     box(x,y-.045,z,.36,.078,.31,stone);
+    });
+    materialScope(MATERIAL.WOOD,()=>{
+     taperedBranch([x,y,z],[x+reach[0]*.11,y+.41*size,
+       z+reach[1]*.11],.087,.046,twig,5);branches++;
+     for(const arm of [-1,1]){
+      taperedBranch([x,y+.19*size,z],
+       [x+arm*.28*size+reach[0]*.12,y+(.57+arm*.06)*size,
+        z+reach[1]*.14+.12*sweep],
+       .052,.019,twig,4);branches++;
+     }
+    });
+    if(season!==3)materialScope(MATERIAL.FOLIAGE,()=>{
+     for(let n=0;n<3;n++){
+      const arm=n-1,shade=rgb(seasonalLeaves[(salt+n)%3]);
+      crownLobe(x+arm*.22*size+reach[0]*.13,
+       y+(.54+.07*Math.cos(n+salt))*size,
+       z+reach[1]*.13+arm*.09,
+       .31*size,.25*size,.34*size,shade,salt*7+n,
+       true,false);crowns++;
+     }
+    });
+    shrubs++;
+   }
+  }
+ }
+ const triangles=(data.length-first)/30;
+ if(triangles>GRAINWAY_VERGE_MAX_TRIANGLES)
+  throw Error('W497 real freight verge exceeds bounded scenic triangle budget');
+ grainwayVergeAudit={source:'living-real-granary-market-roadside',
+  shrubs,branches,crowns,triangles,season,skippedHomes,skippedFields,
+  routeOnly:true,authorityModified:false,extraGpuBuffers:0,
+  bufferClass:'existing-season-and-topology-scoped-civic-VBO',
+  allRealBuildingsAndCitizensPreserved:true};
+ return {...grainwayVergeAudit};
+}
+
 function farmMarketStreet(){
  const first=data.length;
  farmMarketStreetStats={source:'walkable-granary-to-real-receiving-market-street',
@@ -18305,6 +18391,7 @@ function farmMarketStreet(){
  // Reconstruct the adjoining real rural drainage and field-edge scrub
  // once in this exact-season civic mesh; preserve the full road centre.
  renderRealRoadsideMicroterrain(points);
+ audit.hedgerow=renderLivingGrainwayVerge(points);
  renderFarmServiceStreetBoundary(points);
  // A low, physically connected threshing/loading APRON in front of the
  // ORIGINAL granary door. It carries no invented sacks or new collision.
