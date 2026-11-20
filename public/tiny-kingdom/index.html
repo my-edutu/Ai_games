@@ -3702,7 +3702,12 @@ function getActorResidencyAudit(){
   actorFloats:actorStreamSplitEnabled&&gpuAvailable?actorFrameData.length:0,
   worldFloats:data.length,totalFloats:data.length+
    (actorStreamSplitEnabled&&gpuAvailable?actorFrameData.length:0),
-  floatBudget:CAMERA_DYNAMIC_FLOAT_BUDGET,cachedActors:actorFrameCitizens,
+  floatBudget:CAMERA_DYNAMIC_FLOAT_BUDGET,
+  separateCitizenFloatBudget:ACTOR_GPU_SNAPSHOT_MAX_FLOATS,
+  totalSafeSplitFloatBudget:CAMERA_DYNAMIC_FLOAT_BUDGET+ACTOR_GPU_SNAPSHOT_MAX_FLOATS,
+  validSeparateResidency:canRetainIndependentDynamicStreams(data.length,actorFrameData.length),
+  splitFramesSavedFromCombinedFallback:actorWorldSplitAboveLegacyThreshold,
+  cachedActors:actorFrameCitizens,
   bufferCount:actorFrameGpuBuffers.filter(Boolean).length,
   maxBufferCount:ACTOR_GPU_RING_SLOTS,
   capacityFloats:actorFrameStorage.slice(),
@@ -3763,6 +3768,21 @@ function getActorGpuDeltaAudit(){
 // A camera-only redraw still reuses the exact existing cached mesh above;
 // an advancing world resets and refills this bounded scratch Array in place.
 // It never drops or reorders citizens, jobs, cargo or geometry. No snapshots.
+// W486 Phase 1: world scenery and animated real workers have SEPARATE bounded
+// GPU streams. The former combined 960k guard forced valid 868k world +
+// genuine citizen geometry back through one giant JS/VBO upload, erasing
+// worker residency even when each retained GPU slot had its own capacity.
+// Keep every original triangle; never interpret split-capacity as a visual
+// improvement or as verified physical GPU performance.
+function canRetainIndependentDynamicStreams(worldFloats,actorFloats){
+ if(!Number.isSafeInteger(worldFloats)||worldFloats<0||
+    !Number.isSafeInteger(actorFloats)||actorFloats<0||
+    worldFloats>CAMERA_DYNAMIC_FLOAT_BUDGET)return false;
+ if(actorFloats===0)return true;
+ return gpuAvailable&&actorStreamSplitEnabled&&
+    actorFloats<=ACTOR_GPU_SNAPSHOT_MAX_FLOATS;
+}
+let actorWorldSplitAboveLegacyThreshold=0;
 let dynamicVertexScratch=null,dynamicVertexPoolAllocations=0;
 let dynamicVertexPoolReusedBuilds=0,dynamicVertexOverBudgetReleases=0;
 let dynamicVertexPeakFloats=0;
@@ -3779,8 +3799,10 @@ function acquireDynamicVertexStream(){
 function finishDynamicVertexStream(){
  if(!gpuAvailable||data!==dynamicVertexScratch)return;
  dynamicVertexPeakFloats=Math.max(dynamicVertexPeakFloats,data.length);
- if(data.length+actorFrameData.length>CAMERA_DYNAMIC_FLOAT_BUDGET){
-  // Do not retain a pathological world beyond the existing cache budget.
+ if(!canRetainIndependentDynamicStreams(data.length,actorFrameData.length)){
+  // The independent resident world and citizen streams are separately bounded.
+  // Do not release them just because their COMBINED count exceeds the older cap.
+  // Do not retain a pathological world beyond either actual GPU slot budget.
   // The CURRENT geometry still renders; only the next frame reallocates.
   dynamicVertexScratch=null;
   dynamicVertexOverBudgetReleases++;
@@ -3794,6 +3816,8 @@ function getDynamicVertexPoolAudit(){
   currentFloats:(dynamicVertexScratch?.length||0)+(gpuAvailable&&actorStreamSplitEnabled?actorFrameData.length:0),
   peakFloats:dynamicVertexPeakFloats,
   budgetFloats:CAMERA_DYNAMIC_FLOAT_BUDGET,
+  independentActorBudgetFloats:ACTOR_GPU_SNAPSHOT_MAX_FLOATS,
+  effectiveSplitBudgetFloats:CAMERA_DYNAMIC_FLOAT_BUDGET+ACTOR_GPU_SNAPSHOT_MAX_FLOATS,
   overBudgetReleases:dynamicVertexOverBudgetReleases,
   authorityChanged:false,
   method:'repopulate original animated mesh in one bounded JS Array; no lost actors'
@@ -3804,6 +3828,8 @@ function getCameraDynamicCacheStats(){
   cachedFloats:(cameraDynamicCache?.length||0)+(cameraActorCache?.length||0),
   estimatedBytes:((cameraDynamicCache?.length||0)+(cameraActorCache?.length||0))*8,
   floatBudget:CAMERA_DYNAMIC_FLOAT_BUDGET,
+  independentActorBudgetFloats:ACTOR_GPU_SNAPSHOT_MAX_FLOATS,
+  effectiveSplitBudgetFloats:CAMERA_DYNAMIC_FLOAT_BUDGET+ACTOR_GPU_SNAPSHOT_MAX_FLOATS,
   builds:cameraDynamicBuilds,reuses:cameraDynamicReuses,
   liveBuilds:liveMotionCacheBuilds,liveReuses:liveMotionCacheReuses,
   skippedUploads:cameraDynamicSkippedUploads,
@@ -34676,12 +34702,19 @@ actorFrameCitizens=people.length;
 if(gpuAvailable&&actorStreamSplitEnabled){
  actorFrameData=data;
  data=worldPropsStream;
- if(actorFrameData.length+data.length>CAMERA_DYNAMIC_FLOAT_BUDGET){
+ if(!canRetainIndependentDynamicStreams(data.length,actorFrameData.length)){
+  // This genuine actor stream exceeds its OWN capacity (or the world exceeds
+  // its own cap). Preserve all original geometry in the existing full-upload
+  // fallback, never silently cull or invent any resident.
   // Keep every genuine citizen and delivery. Overflow uses the original
   // combined world VBO rather than allocating an unbounded actor ring.
   for(const vertex of actorFrameData)data.push(vertex);
   actorFrameData=[];
   actorDynamicVertexScratch.length=0;
+ }else if(data.length+actorFrameData.length>CAMERA_DYNAMIC_FLOAT_BUDGET){
+  // Separately admissible original meshes now retain BOTH authentic GPU VBOs
+  // and the camera cache, instead of copying actors back into world props.
+  actorWorldSplitAboveLegacyThreshold++;
  }
 }else actorFrameData=[];
 dynamicPhaseTimes.citizenGeometry=performance.now()-citizenGeometryStart;
@@ -34690,7 +34723,7 @@ currentMaterial=MATERIAL.GENERAL;if(!gpuAvailable)weatherParticles(atmosphere);
 dynamicPhaseTimes.weatherGeometry=performance.now()-weatherGeometryStart;
 finishDynamicVertexStream();
 if(candidateCameraDynamicKey&&
- data.length+actorFrameData.length<=CAMERA_DYNAMIC_FLOAT_BUDGET){
+ canRetainIndependentDynamicStreams(data.length,actorFrameData.length)){
  cameraDynamicCache=data;cameraActorCache=actorFrameData;
  cameraDynamicKey=candidateCameraDynamicKey;
  cameraDynamicBuilds++;

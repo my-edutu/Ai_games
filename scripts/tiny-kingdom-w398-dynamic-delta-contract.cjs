@@ -10,7 +10,8 @@ const section=(start,end)=>{
 };
 const env={Float32Array};
 vm.runInNewContext(
- 'const DYNAMIC_WORLD_DELTA_MAX_FLOATS=320000;\n'+
+ 'const CAMERA_DYNAMIC_FLOAT_BUDGET=960000;\n'+
+ section('const DYNAMIC_WORLD_DELTA_MAX_FLOATS=','function planDynamicWorldDelta(')+
  section('function planResidentVertexUpload(','function getResidentDeltaUploadAudit(')+
  section('function planDynamicWorldDelta(','function getDynamicWorldDeltaAudit(')+
  '\nglobalThis.plan=planDynamicWorldDelta;',env);
@@ -29,7 +30,17 @@ assert.equal(plan(old,next,230000),null,'new GPU allocation must reject delta');
 assert.equal(plan(old,new Float32Array(30),240000),null,'topology changes require full upload');
 const allDirty=old.slice();allDirty.fill(1);
 assert.equal(plan(old,allDirty,240000),null,'no speculative savings on all-dirty scene');
-assert.equal(plan(old,new Float32Array(330000),330000),null,'strict bounded memory');
+const aboveCap=new Float32Array(960030);
+assert.equal(plan(aboveCap,aboveCap.slice(),aboveCap.length),null,'strict 960k memory ceiling');
+const originalDay1=new Float32Array(868410),advanced=originalDay1.slice();
+advanced[300*30]=1.3;advanced[26000*30+8]=2.4;
+const actualSize=plan(originalDay1,advanced,917504);
+assert.ok(actualSize&&actualSize.ranges.length===2,'real 868410-float worker frame stays eligible');
+const reconstructed=originalDay1.slice();
+for(const r of actualSize.ranges)
+ reconstructed.set(advanced.subarray(r.firstFloat,r.lastFloat),r.firstFloat);
+assert.deepEqual([...reconstructed.slice(8980,9030)],[...advanced.slice(8980,9030)]);
+assert.deepEqual([...reconstructed.slice(779990,780030)],[...advanced.slice(779990,780030)]);
 for(const phrase of ['const resized=data.length>dynamicFrameStorage[dynamicFrameActive]',
  'dynamicWorldGpuSnapshots[dynamicFrameActive]=null',
  'current.subarray(region.firstFloat,region.lastFloat)',

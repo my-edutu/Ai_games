@@ -12,15 +12,27 @@ const section=(start,end)=>{
 };
 const scope={Float32Array,gpuAvailable:true,swiftGpu:false,actorStreamSplitEnabled:true};
 vm.runInNewContext(
- 'const DYNAMIC_WORLD_DELTA_MAX_FLOATS=320000;const ACTOR_GPU_RING_SLOTS=3;\n'+
+ 'const CAMERA_DYNAMIC_FLOAT_BUDGET=960000;const ACTOR_GPU_RING_SLOTS=3;\n'+
+ section('const DYNAMIC_WORLD_DELTA_MAX_FLOATS=','function planDynamicWorldDelta(')+
  section('function planResidentVertexUpload(','function getResidentDeltaUploadAudit(')+
  section('function planDynamicWorldDelta(','function getDynamicWorldDeltaAudit(')+
  section('const ACTOR_GPU_SNAPSHOT_MAX_FLOATS=320000;',
   '// W69: one reusable WebGL numeric vertex stream for the entire REAL moving')+
+ section('function canRetainIndependentDynamicStreams(','let dynamicVertexScratch=')+
  '\nglobalThis.actors={plan:planDynamicWorldDelta,retain:retainActorGpuSnapshot,'+
- 'reset:resetActorGpuSnapshots,snapshots:actorGpuSnapshots,audit:getActorGpuDeltaAudit};',
+ 'reset:resetActorGpuSnapshots,snapshots:actorGpuSnapshots,audit:getActorGpuDeltaAudit,split:canRetainIndependentDynamicStreams};',
  scope,{timeout:3000});
-const {plan,retain,reset,snapshots,audit}=scope.actors;
+const {plan,retain,reset,snapshots,audit,split}=scope.actors;
+assert.equal(split(868410,190000),true,'two separately bounded worker and world streams survive old 960k combined cutoff');
+assert.equal(split(960000,320000),true,'independent maximum is precisely bounded');
+assert.equal(split(960030,1000),false,'world VBO cannot exceed its own cap');
+assert.equal(split(900000,320001),false,'citizen VBO cannot exceed its own cap');
+assert.equal(split(900000.5,20),false,'invalid sizes must not enter GPU ring');
+assert.equal(split(-1,20),false);
+assert.equal(split(800000,0),true,'source-only world remains admissible');
+scope.actorStreamSplitEnabled=false;
+assert.equal(split(868410,190000),false,'no false split residency in fallback mode');
+scope.actorStreamSplitEnabled=true;
 const original=new Float32Array(240000),changed=original.slice();
 changed[300*30]=12;changed[5500*30+1]=7;
 const gpu=retain(null,original,null);
