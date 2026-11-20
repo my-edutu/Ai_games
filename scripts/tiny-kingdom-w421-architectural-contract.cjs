@@ -14,8 +14,18 @@ assert.match(facade,/no forged stock, agents or roads/);
 assert.match(s,/originalMarketCasementCount:0/);
 assert.match(s,/function marketStallStockPlan\(/);
 assert.match(s,/function getDeliveryEconomyAudit\(/);
-const x=s.indexOf('function rebuildArchitectureAtlas(){'),y=s.indexOf('rebuildArchitectureAtlas();',x);
+// W501: mipmap creation lives in the REAL upload owner, not the async
+// worker coordinator. Assert that the original WebGL1 upload retains its
+// texture, minification and complete mipmap semantics.
+const x=s.indexOf('function uploadOriginalArchitecturePixels('),
+ y=s.indexOf('function fallbackOriginalArchitectureAtlas(',x);
 assert.ok(x>0&&y>x);const atlas=s.slice(x,y);
-assert.match(atlas,/gl.generateMipmap\(gl.TEXTURE_2D\)/);
+assert.match(atlas,/gl\.texImage2D\(gl\.TEXTURE_2D/);
+assert.match(atlas,/gl\.texParameteri\(gl\.TEXTURE_2D,gl\.TEXTURE_MIN_FILTER,gl\.LINEAR_MIPMAP_LINEAR\)/);
+assert.match(atlas,/gl\.generateMipmap\(gl\.TEXTURE_2D\)/);
 assert.doesNotMatch(atlas,/Math.random|people.push|state\.food\s*=/);
+const buildStart=s.indexOf('function rebuildArchitectureAtlas(){'),
+ buildEnd=s.indexOf('function getArchitectureAtlasWorkerAudit()',buildStart);
+assert.ok(buildStart>0&&buildEnd>buildStart);
+assert.match(s.slice(buildStart,buildEnd),/uploadOriginalArchitecturePixels\(result\.bytes,result\.samples\)/);
 console.log('W421 original one-atlas stone/oak/clay/lime and four genuine shop windows PASS');

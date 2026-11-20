@@ -23121,8 +23121,14 @@ let worksiteFixturePartBuilds=0,worksiteFixturePartHits=0;
 let worksiteFixturePartialUploads=0,worksiteFixturePartialBytes=0;
 let worksiteFixtureFullBytes=0,worksiteFixturePartEvictions=0;
 function worksiteFixtureResidencyRequested(){
- return Boolean(gpuAvailable&&
-  (worksiteFixtureOverride===null?!swiftGpu:worksiteFixtureOverride));
+ // W501: retain only the ORIGINAL stable physical workstations and staged
+ // genuine crop/gather props on both hardware and software WebGL.
+ // W490's real 1024px/390px original-versus-resident game run passed
+ // same-source replay, frame geometry and bounded GPU-buffer checks.
+ // Every moving wrist, tool, grain response and real transaction stays live;
+ // false override still switches to the complete old CPU geometry path.
+ // This is NOT a measured hardware or SwiftShader FPS improvement.
+ return Boolean(gpuAvailable&&worksiteFixtureOverride!==false);
 }
 function disposeWorksiteFixtureMesh(){
  if(worksiteFixtureBuffer&&gpuAvailable){
@@ -23323,6 +23329,8 @@ function setWorksiteFixtureResidencyForTesting(value){
 function getWorksiteFixtureResidencyAudit(){
  return {source:'real-autonomous-worker-fixed-workstation-geometry',
   enabled:worksiteFixtureResidencyRequested(),active:worksiteFixtureActive,
+  softwareWebGL:swiftGpu,
+  softwareDefaultResident:Boolean(swiftGpu&&gpuAvailable&&worksiteFixtureOverride===null),
   buffers:worksiteFixtureBuffer?1:0,maxBuffers:1,
   meshFloats:worksiteFixtureMesh?.length||0,
   capacityFloats:worksiteFixtureCapacity,floatBudget:WORKSITE_FIXTURE_FLOAT_BUDGET,
