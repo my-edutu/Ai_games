@@ -4993,7 +4993,7 @@ function stageLicensedSourceSwingCounterpitchAfterMixer(actor,reducedMotion){
 
 /**
  * The real imported toes[l/r] child of an ALREADY certified original
- * hip→knee→foot source pose may finish a shallow swing-tip burial.
+ * hip→knee→foot source pose may partly relieve a real 55mm swing-tip burial.
  *
  * At most two +/-120mrad original-toe probes and ONE final independent
  * two-shoe source-skin read. No synthetic foot contact, gait distance,
@@ -5033,7 +5033,7 @@ function stageLicensedSourceToeFinisherAfterCounterpitch(actor,reducedMotion){
    proof.sourceInstanceId!==asset.uuid||
    proof.sourceClip!=='Walking_A'||proof.side!==side||
    proof.finalIndependentSourceSkin!==true||
-   !Number.isFinite(residual)||residual<.002||residual>.035)continue;
+   !Number.isFinite(residual)||residual<.002||residual>.055)continue;
   const foot=actor.rigGaitBones?.find(m=>m.side===side&&m.part==='foot')?.bone;
   const lower=actor.rigGaitBones?.find(m=>m.side===side&&m.part==='lower')?.bone;
   const toeName='toes'+(side==='left'?'l':'r');

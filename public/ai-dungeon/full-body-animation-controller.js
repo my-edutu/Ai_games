@@ -6072,7 +6072,7 @@ export function certifyLicensedSourceSwingCounterpitch({
  * SAME-frame source proof, not a new footplant or IK target.
  *
  * Both soles must remain the exact original GLB weighted mesh. The toe may
- * finish only a shallow (2–35mm) remaining burial and may not lift the heel,
+ * finish only a source-witnessed (2–55mm) remaining burial and may not lift the heel,
  * move the loaded shoe, overshoot the floor, or consume an old frame receipt.
  * The caller must independently repeat the final source-skin measurement.
  * A genuine 16.7ms moving-root source frame allows up to 50.1mrad at
@@ -6107,7 +6107,7 @@ export function certifyLicensedCounterpitchToeFinish({
   !Number.isFinite(floorTopY)||
   Math.abs(floorTopY+.02)>.005||
   ![proof.residualToeBurialMeters].every(Number.isFinite)||
-  proof.residualToeBurialMeters<.002||proof.residualToeBurialMeters>.035||
+  proof.residualToeBurialMeters<.002||proof.residualToeBurialMeters>.055||
   ![before?.[side],before?.[other],after?.[side],after?.[other],
     proof.after?.[side],proof.after?.[other]].every(valid))return null;
  const distance=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
