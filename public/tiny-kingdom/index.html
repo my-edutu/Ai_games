@@ -4884,23 +4884,53 @@ const dynamicFrameBuffers=[buffer,null,null],dynamicFrameStorage=[0,0,0];
  // The bounded source-order comparison can patch genuine unchanged worksite
  // triangles without repacking/recreating the whole moving-world VBO.
  // SwiftShader and oversized worlds keep the full original upload path.
-const DYNAMIC_WORLD_DELTA_MAX_FLOATS=320000;
+const DYNAMIC_WORLD_DELTA_MAX_FLOATS=CAMERA_DYNAMIC_FLOAT_BUDGET;
 const dynamicWorldGpuSnapshots=[null,null,null];
 let dynamicWorldDeltaChecks=0,dynamicWorldDeltaPartial=0,
  dynamicWorldDeltaUnchanged=0,dynamicWorldDeltaFull=0,
  dynamicWorldDeltaSavedBytes=0,dynamicWorldDeltaBufferCalls=0;
 let dynamicWorldSnapshotAllocations=0,dynamicWorldSnapshotReuses=0,
  dynamicWorldSnapshotPatchedFloats=0;
+// W485: current original Day1 scene has 868410 dynamic floats, exceeding
+// old 320k hardware delta window. Preserve the exact 3-slot citizen/parcel VBO
+// and scan all original bits ONCE with no duplicate world-sized JS allocation.
+// Emit at most four original triangle-aligned changed GPU windows, or safely
+// submit the COMPLETE original stream whenever a guard is not satisfied.
+const DYNAMIC_WORLD_DELTA_MIN_GAP_FLOATS=2040;
 function planDynamicWorldDelta(before,after,capacityFloats){
  if(!(before instanceof Float32Array)||!(after instanceof Float32Array)||
     !before.length||!after.length||before.length!==after.length||
-    after.length>DYNAMIC_WORLD_DELTA_MAX_FLOATS||
-    after.length%30!==0||capacityFloats<after.length)return null;
- const dirty=planResidentVertexUpload(before,after,capacityFloats,4);
- if(!dirty||dirty.savedFloats<4096||dirty.dirtyFloats>after.length*.6)
-  return null;
- return {...dirty,ranges:dirty.ranges||
-  (dirty.dirtyFloats?[{firstFloat:dirty.firstFloat,lastFloat:dirty.lastFloat}]:[])};
+    after.length>DYNAMIC_WORLD_DELTA_MAX_FLOATS||after.length%30!==0||
+    !Number.isSafeInteger(capacityFloats)||capacityFloats<after.length||
+    before.buffer===after.buffer)return null;
+ const a=new Uint32Array(before.buffer,before.byteOffset,before.length);
+ const b=new Uint32Array(after.buffer,after.byteOffset,after.length);
+ const windows=[];let start=-1,last=-1,gap=0;
+ for(let at=0;at<after.length;at+=30){
+  let same=true;
+  for(let word=0;word<30;word++){
+   if(a[at+word]!==b[at+word]){same=false;break}
+  }
+  if(same){if(start>=0)gap+=30;continue}
+  if(start<0)start=at;
+  else if(gap>=DYNAMIC_WORLD_DELTA_MIN_GAP_FLOATS){
+   windows.push({firstFloat:start,lastFloat:last});
+   if(windows.length>=4)return null;
+   start=at;
+  }
+  last=at+30;gap=0;
+ }
+ if(start>=0)windows.push({firstFloat:start,lastFloat:last});
+ if(!windows.length)return {firstFloat:after.length,
+  lastFloat:after.length,dirtyFloats:0,savedFloats:after.length,
+  unchanged:true,ranges:[]};
+ const dirtyFloats=windows.reduce((v,w)=>v+w.lastFloat-w.firstFloat,0);
+ const savedFloats=after.length-dirtyFloats;
+ if(dirtyFloats>after.length*.6||savedFloats<4096||
+    savedFloats<(windows.length-1)*1024)return null;
+ return {firstFloat:windows[0].firstFloat,
+  lastFloat:windows[windows.length-1].lastFloat,dirtyFloats,
+  savedFloats,unchanged:false,ranges:windows};
 }
 // Phase-1 original world GPU buffers: retain the exact last source-order
 // bytes, never a mutable view of CPU staging. Small real crop/cart changes
@@ -4928,6 +4958,8 @@ function getDynamicWorldDeltaAudit(){
  const retainedFloats=dynamicWorldGpuSnapshots.reduce(
   (total,v)=>total+(v?.length||0),0);
  return {source:'original-dynamic-world-props-exact-hardware-dirty-vbo',
+  maxExactHardwareDeltaFloats:DYNAMIC_WORLD_DELTA_MAX_FLOATS,
+  originalDay1WitnessFloats:868410,boundedWindows:4,byteExactWordComparison:true,
   enabled:gpuAvailable&&!swiftGpu,slots:DYNAMIC_GPU_RING_SLOTS,
   retainedFloats,retainedBytes:retainedFloats*4,
   maxRetainedBytes:DYNAMIC_GPU_RING_SLOTS*DYNAMIC_WORLD_DELTA_MAX_FLOATS*4,
