@@ -1,4 +1,35 @@
 {
+  "p0OriginalGuardianPocketsNativeFloorNineThreeSubject20261120_1652": {
+    "stage": "P0 OPEN — NOT EVALUATED",
+    "frozenBaselineRef": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateRef": "${{ github.sha }}",
+    "hoistPocketProductionSha": "73645399036bd4e1efd2bbf0e33914c2030d9c39",
+    "priorNineJobCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44756732123",
+    "priorCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44756732123/artifacts/14637752323",
+    "priorNativeSourcePair": "0/2 danger viewports; no full physical shared-room acceptance",
+    "testUnblocker": "Fix exact-head Phase3 new Function syntactic loader; do not change real guardian source or 3D mechanics.",
+    "seed": "tower-transformation-capture-v1",
+    "quality": "low",
+    "fps": 25,
+    "speed": 1,
+    "desktop": "960x600",
+    "portrait": "390x844",
+    "minimumDurationSeconds": 60,
+    "scenarios": [
+      "ascent",
+      "moving",
+      "danger",
+      "outcome/restart"
+    ],
+    "rationale": "Native true a61a8765 WebMs show hard 25.3–26.5s planar-bronze to F9 ring cut, portrait original steel foreground. New 7364539 real guardian hoist pockets and HP-driven leaf recession have never been filmed. Capture after source-verified test fix and require genuine shared opened old gateway + complete moving hero + walkable F9 roof same original camera sequence.",
+    "strictVerdict": "NOT EVALUATED until genuine unedited event-matched video passes in BOTH viewports. NDC/rays, native HUD alone, or passing CI are not experiential acceptance.",
+    "critics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "deviceMetrics": "NOT EVALUATED"
+  },
   "p0SourceCorrectGatewayMatrixEpochCapture20261120_0353": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
     "leadingVerdict": "NOT EVALUATED",

@@ -1,0 +1,59 @@
+{
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "leadingAssessorVerdict": "NOT EVALUATED",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "baselineMoved": false,
+  "inspectedPR68Head": "73645399036bd4e1efd2bbf0e33914c2030d9c39",
+  "lastOriginalVideo": {
+    "sourceSha": "a61a87658b9712e7557da6cd171df94a7646cbe6",
+    "campaign": "https://github.com/my-edutu/Ai_games/actions/runs/44756732123",
+    "candidateArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44756732123/artifacts/14637752323",
+    "desktop": {
+      "viewport": "960x600",
+      "durationSeconds": 72.56,
+      "inspectionSeconds": "23.8-30.1",
+      "nativeEventPair": "FAILED"
+    },
+    "portrait": {
+      "viewport": "390x844",
+      "durationSeconds": 72.8,
+      "inspectionSeconds": "23.8-30.1",
+      "nativeEventPair": "FAILED"
+    },
+    "largestDefect": "No continuous real old bronze opened doorway, moving complete hero and actual walkable Floor9 together. Abrupt old planar/gateway shot to curved F9 ring at ~26.2–26.5s; portrait source-authentic steel masks silhouette.",
+    "videoVerdict": "Recorded and inspected original unedited real gameplay; 0/2 strict event-aligned danger acceptance, and still images sampled for analysis are not independent full-motion acceptance."
+  },
+  "newHeadProduction": "73645399036bd4e1efd2bbf0e33914c2030d9c39",
+  "exactHeadQuality": {
+    "workflow": "https://github.com/my-edutu/Ai_games/actions/runs/44766924915",
+    "result": "FAILED 8/10",
+    "towerFailure": "New test removed `export function` before `new Function`, leaving a declaration without `function` and `Unexpected token '{'`.",
+    "fix": "Use .replace(/^export\\s+/,'') to preserve the production pure function signature; production code unchanged.",
+    "unrelatedFailure": "Phase6 Maze test timeout, outside Tower scope"
+  },
+  "currentAction": "Correct actual new Tower Phase3 test-loader failure and request immutable-head original full-loop WebMs for newest already-implemented connected guardian hoist storage geometry; source-native film needed before additional speculative scene changes.",
+  "newCaptureRequestKey": "p0OriginalGuardianPocketsNativeFloorNineThreeSubject20261120_1652",
+  "candidateCaptureStatus": "REQUESTED — NOT EVALUATED",
+  "sourceQualityAfterFix": "NOT YET EVALUATED",
+  "reviewCounts": {
+    "LOOKS": "0/5",
+    "FEELS": "0/5",
+    "PLAYS": "0/5"
+  },
+  "actualDevice": {
+    "p50": "NOT EVALUATED",
+    "p95": "NOT EVALUATED",
+    "p99": "NOT EVALUATED",
+    "memory": "NOT EVALUATED"
+  },
+  "nextHighestImpactAction": "Inspect exact-head corrected CI and new unedited source-aligned native desktop/portrait and optimize actual gate, walkway and foreground steel together if continuous crossing still fails.",
+  "safeguards": {
+    "PR68Draft": true,
+    "PR58Untouched": true,
+    "frozenBaselineMoved": false,
+    "merge": false,
+    "deploy": false,
+    "forcePush": false,
+    "otherGames": false
+  }
+}

@@ -29,7 +29,7 @@ test('original live guardian remains locked; only authenticated HP-zero winch pr
   assert.ok(start>0 && end>start);
   // Evaluate only the unchanged pure production pose helper, with no mocked
   // portal, scripted player, fake snapshot or audiovisual acceptance claim.
-  const pose=new Function(src.slice(start,end+2).replace('export function ','')+
+  const pose=new Function(src.slice(start,end+2).replace(/^export\s+/,'')+
     '\nreturn sourceEarnedGuardianSealWingPose;')();
   const closed=pose(-1,0,false,0),alive=pose(-1,.72,false,0);
   const winching=pose(-1,.80,false,.4);
