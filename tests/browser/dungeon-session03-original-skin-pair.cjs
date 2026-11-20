@@ -145,7 +145,12 @@ function auditOriginalSourceJointFramePair(options={}){
     world=radians(a.worldQuaternion,b.worldQuaternion);
    if(!finite(local)||!finite(world))
     return failed('invalid-original-source-joint-quaternion');
-   legs[side][part]={boneName:name,localAngularChangeRad:local,
+   // Report the actual live GLTFLoader source bone rather than a
+   // fictional dotted label. Both dotted GLB and sanitized runtime spelling
+   // passed the strict original canonical-bone check above. Keeping the
+   // observed name is critical when auditing an exact source-rig witness.
+   legs[side][part]={boneName:b.name,beforeBoneName:a.name,
+    sourceCanonicalBoneName:name,localAngularChangeRad:local,
     worldAngularChangeRad:world,
     localAngularRateRadPerSecond:local/base.elapsedSeconds,
     beforeWorldPosition:a.worldPosition,afterWorldPosition:b.worldPosition};
