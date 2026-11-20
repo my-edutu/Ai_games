@@ -1,0 +1,90 @@
+{
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "leadingAssessorVerdict": "NOT EVALUATED",
+  "inspectedHeadBeforeCode": "2319f0668d3029342b0ef2532998e05071ccf78f",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "branch": "feat/tower-transformation-gauntlet-20261101",
+  "draftPR": 68,
+  "measuredOriginalVideo": {
+    "campaign": "https://github.com/my-edutu/Ai_games/actions/runs/44692994077",
+    "candidateSha": "cca4d433adabcf9321fc0f8a8b3ff9bf44cec63b",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "result": "8/8 matched original desktop and portrait 68.2s native WebM plus authentic ledge success; final source-event native-pairing job FAIL 0/2",
+    "originalFramesInspected": "Private frame sheets extracted directly from original unmodified candidate danger desktop/portrait WebMs, 24.25–27.5s. Neither shows sustained co-presentation of full moving skinned climber, actual opened bronze grille and walkable F9; portrait historical rails/posts obscure climber near first Floor9 HUD.",
+    "nativeVioletAtSeconds": {
+      "desktop": 26,
+      "portrait": 26.25
+    },
+    "sustainedSharedRoomSeconds": {
+      "desktop": 0,
+      "portrait": 0
+    },
+    "notNativeProof": "Recorded HUD/chroma and camera projections alone do not prove physical gateway pixels or source-event synchronization."
+  },
+  "originalBrowserFirstFloorNineAttribution": {
+    "desktop": {
+      "sourceTick": 476,
+      "sceneUpdateMs": 200.3,
+      "worldRebuildMs": 92.5,
+      "sourceGatewayAndGalleryTransferMs": 64.4,
+      "formerFloorGpuTeardownMs": 0.1
+    },
+    "portrait": {
+      "sourceTick": 475,
+      "sceneUpdateMs": 202,
+      "worldRebuildMs": 123.5,
+      "sourceGatewayAndGalleryTransferMs": 73.9,
+      "formerFloorGpuTeardownMs": 0.1
+    },
+    "otherObservedEpisodes": {
+      "desktopTransferMs": 69.3,
+      "portraitTransferMs": 59.7
+    },
+    "gallery": "cold-fallback-original-source-rebuild; 675 real historical source triangles",
+    "measurementCaveat": "GitHub Actions Chromium software WebGL CPU performance.now() diagnostic; not actual mobile hardware FPS, GPU frame time or full causal proof."
+  },
+  "primarySystemicGap": "Cold F9 authentic old-gate/gallery ownership transfer costs 59–74ms; old-floor resource retirement only ~0.1ms. Separate optical failure remains zero sustained old/new doorway co-visibility and portrait hero obstruction.",
+  "implementation": {
+    "productionSha": "231f19e2f5219f62d806815217973bf02aea710e",
+    "testShas": [
+      "36f778a5024b4281c09110cc60d0f48036ec743e",
+      "a39aa4f5191e4f59df1579fa261db8d627df4076"
+    ],
+    "productionFile": "public/infinite-tower-climb/visuals/world.mjs",
+    "change": "Pre-extract exactly the original source-owned bounded F8 historical gallery after actual F8 world geometry is built, BEFORE expensive first F9 rebuild; only stamp reusable after real matching F8 WebGL renderer return. On F9 original same-run/roof/cap match require that stamp, otherwise preserve original fallback; invalid/restarted runs never borrow old owner's gallery.",
+    "authority": "No future F9 world prebuild or fake boss victory; no physics, source snapshots, colliders, gameplay, hash, camera, art or original portal replacement. Geometry caps and resource teardown unchanged."
+  },
+  "testEvidence": {
+    "firstProductionCi": "https://github.com/my-edutu/Ai_games/actions/runs/44696744176",
+    "firstProductionCiResult": "9 of 10 jobs passed except Tower Phase3 shard0 two legacy assertions that assumed CPU prestaging never happens before a GPU return; altered contract test correctly distinguishes CPU stage from permission to reuse. This is a real CI veto, not a gameplay pass.",
+    "correctedTestSha": "a39aa4f5191e4f59df1579fa261db8d627df4076",
+    "correctedTestResult": "NEW exact-head workflow not yet completed. No green claim.",
+    "sourceVideoRequestSha": "e0b3ff7675ca6626bcc43d16381f7921c8d1a14e",
+    "sourceVideoRun": "https://github.com/my-edutu/Ai_games/actions/runs/44697479639",
+    "qualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44697479647",
+    "requestStatusAtRecord": "QUEUED; not inspected or accepted."
+  },
+  "acceptance": {
+    "P0": "OPEN",
+    "sourceNativeEventMatchedDanger": {
+      "desktop": "FAIL",
+      "portrait": "FAIL"
+    },
+    "newCapture": "NOT EVALUATED",
+    "looksIndependent": "0/5",
+    "feelsIndependent": "0/5",
+    "playsIndependent": "0/5",
+    "hardwareFrameTimeP50P95P99": "NOT EVALUATED",
+    "hardwareMemory": "NOT EVALUATED"
+  },
+  "nextHighestImpactAction": "Inspect immutable capture e0b3 exact F8 pre-stage status (source-built-gallery-confirmed-by-real-floor-eight-return versus cold fallback), first F9 transfer timing and normal-speed true source-event matched gateway/hero/F9 overlap. If still optical 0/2 fix actual original gate/camera foreground geometry as ONE compositor scene problem, not more CI tweaks.",
+  "safeguards": {
+    "frozenBaselineUnchanged": true,
+    "PR58Untouched": true,
+    "PR68RemainsDraft": true,
+    "merge": false,
+    "deploy": false,
+    "forcePush": false,
+    "otherGames": false
+  }
+}
