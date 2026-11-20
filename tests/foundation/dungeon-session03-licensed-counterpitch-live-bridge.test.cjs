@@ -204,7 +204,18 @@ test('real 60Hz original counterpitch may finish its shallow buried toe at a rat
   '60mrad on 16.7ms exceeds native 3rad/s source-motion budget');
  assert.equal(certify({...args,angleRad:.009}),null,
   '9mrad must remain below meaningful sourced toe hinge threshold');
+ // Native 60Hz frames stay eligible; the later 240–420ms source extension
+ // must remain a separate, freshness-gated path, never a blanket increase.
  assert.match(renderer,
-  /if\(!Number\.isFinite\(interval\)\|\|interval<\.008\|\|interval>\.24\)continue;/,
+  /if\(!Number\.isFinite\(interval\)\|\|interval<\.008\|\|interval>\.420001\|\|/,
   'render bridge must admit legal 16.7ms post-counterpitch source frames');
+ assert.match(renderer,
+  /interval>\.240001&&!?\(/,
+  'only the documented sparse continuation may exceed the ordinary 240ms gate');
+ assert.match(renderer,/proof\.sparseFrameVerified===true/,
+  'a sparse frame needs an explicit source-parent certificate');
+ assert.match(renderer,/proof\.witnessedDirectFrameTravelMeters>=\.012/,
+  'a sparse continuation needs a real root-travel witness');
+ assert.match(renderer,/proof\.witnessedFrameAgeSeconds<=\.035/,
+  'stale source frames must remain ineligible');
 });
