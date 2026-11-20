@@ -13207,5 +13207,84 @@
       "forcePush": false,
       "otherGames": false
     }
+  },
+  "p0OriginalF8SnapshotEnemyContractRealNative20261120_0910": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenBaselineMoved": false,
+    "inspectedPreviousHead": "dd3219f24a22f7b301001e07928f185b72837e1c",
+    "productionAndRealSnapshotFixtureSha": "170403ec12731d14b0ad924dc417edb776f3b764",
+    "criticalVerifiedBlocker": "Published TowerRenderSnapshot deliberately filters enemies by current floor and omits enemy.floor entirely. Previous world.mjs real Floor8 gallery CPU prebuild required e.floor===8; native source could never satisfy it. Existing real Three.js test used invented floor:8 and masked bug.",
+    "sourceOfTruth": "games/infinite-tower-climb/src/presentation/snapshot.ts:13-36,64-99; world.mjs:3044-3098",
+    "reproductionFromOriginalVideo": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44697479639",
+      "candidateSha": "e0b3ff7675ca6626bcc43d16381f7921c8d1a14e",
+      "returnedRecordings": "8/8 source-pinned 60+ second original baseline/candidate desktop+portrait and authentic ledge succeeded",
+      "eventNativePairing": "FAILED 0/2",
+      "firstF9GalleryPreparation": "cold-fallback-original-source-rebuild in BOTH original danger episodes on BOTH viewports; expected CPU prebuild never activated",
+      "firstF9CpuBrowserMeasurementsMs": {
+        "desktop": [
+          {
+            "sourceTick": 475,
+            "originalGatewayGalleryTransfer": 151.9,
+            "formerFloorTeardown": 0.4,
+            "vertexBatching": 83.8
+          },
+          {
+            "sourceTick": 316,
+            "originalGatewayGalleryTransfer": 178.1,
+            "formerFloorTeardown": 0.1,
+            "vertexBatching": 48.2
+          }
+        ],
+        "portrait": [
+          {
+            "sourceTick": 483,
+            "originalGatewayGalleryTransfer": 142.7,
+            "formerFloorTeardown": 0.1,
+            "vertexBatching": 54.4
+          },
+          {
+            "sourceTick": 319,
+            "originalGatewayGalleryTransfer": 100,
+            "formerFloorTeardown": 0.1,
+            "vertexBatching": 38.4
+          }
+        ]
+      },
+      "capturedPixelDefect": "0 seconds accepted sustained original bronze guardian gateway + complete moving climber + walkable successor Floor9 co-visibility; portrait bronze foreground obscures full hero, architecture changes abruptly to purple",
+      "caveat": "Native WebM and browser CPU diagnostic, NOT actual-device GPU FPS or independent blind review"
+    },
+    "codeChange": "Accept already-current-floor projected guardian with missing enemy.floor; if an explicit numeric floor exists, reject wrong floor. Existing exact genuine cap, gate, run, roof, WebGL return and no-return cold fallback are preserved. Real-Three prebuild test fixture now omits its previously invented enemy.floor.",
+    "newSourcePinnedCapture": {
+      "candidateSourceSha": "exact SHA of capture-request commit",
+      "qualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44699865746",
+      "originalVideoRun": "NOT EVALUATED until new 9-job GitHub Action and artifacts complete"
+    },
+    "tests": "Real-Three test fixture and existing returned / never-returned F8 prebuild cases committed; exact-code CI queued at time of discovery. Do not claim green.",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "hardware": {
+      "p50": "NOT EVALUATED",
+      "p95": "NOT EVALUATED",
+      "p99": "NOT EVALUATED",
+      "memory": "NOT EVALUATED"
+    },
+    "nextHighestImpactAction": "Confirm source-published F8 gallery now prestages and is certified by returned F8 WebGL in NEW native evidence; inspect actual unchanged 1x gateway and hero pixels and per-stage F9 CPU. If optical overlap remains 0/2, repair full doorway+portrait foreground framing as single physical scene system, stay P0.",
+    "safeguards": {
+      "PR68Draft": true,
+      "PR58Untouched": true,
+      "baselineUnchanged": true,
+      "merge": false,
+      "deploy": false,
+      "forcePush": false,
+      "otherGames": false
+    },
+    "evidenceFile": "public/infinite-tower-climb/gauntlet/evidence/p0-real-snapshot-enemy-floor-prestage-20261120.json",
+    "reviewFile": "docs/reviews/2026-11-20-tower-pr68-f8-render-snapshot-prestage-p0-review.md"
   }
 }
