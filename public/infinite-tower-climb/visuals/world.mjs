@@ -3264,6 +3264,9 @@ export function createTowerWorld(){
       runToken:snapshot.runToken,
       sourceTick:snapshot.tick,faces:gallery.faces,bytes:gallery.bytes,
       originalExteriorFlankFaces:{...gallery.originalExteriorFlankFaces},
+      originalRegionAvailableMaterialBatches:{...gallery.originalRegionAvailableMaterialBatches},
+      sourceMaterialBatches:gallery.sourceMaterialBatches,
+      selectedMaterialBatches:gallery.selectedMaterialBatches,
       batches:gallery.root.children.length,
       cpuPrepareMs:+(performance.now()-started).toFixed(2),
       guarantee:'Detached original source triangles, never synthetic F9 geometry or a gameplay event'
@@ -3549,6 +3552,10 @@ export function createTowerWorld(){
         state:'cold-fallback-original-source-rebuild',
         sourceTick:next.tick,runToken:next.runToken,
         faces:gallery?.faces??0,bytes:gallery?.bytes??0,
+        originalExteriorFlankFaces:gallery?.originalExteriorFlankFaces??{left:0,right:0},
+        originalRegionAvailableMaterialBatches:gallery?.originalRegionAvailableMaterialBatches??{},
+        sourceMaterialBatches:gallery?.sourceMaterialBatches??0,
+        selectedMaterialBatches:gallery?.selectedMaterialBatches??0,
         reason:'No exact same-run previously submitted Clockwork geometry'
       };
     }
@@ -3587,6 +3594,10 @@ export function createTowerWorld(){
       originalCapSightlineRoot:root,
       originalCapUndercroft,
       originalGalleryTriangles:gallery?.faces ?? 0,
+      originalGalleryExteriorFlankFaces:gallery?.originalExteriorFlankFaces??{left:0,right:0},
+      originalGallerySourceMaterialBatches:gallery?.sourceMaterialBatches??0,
+      originalGallerySelectedMaterialBatches:gallery?.selectedMaterialBatches??0,
+      originalGalleryRegionAvailableMaterialBatches:gallery?.originalRegionAvailableMaterialBatches??{},
       originalGalleryEnvelope:gallery?.envelope ?? null,
       originalGalleryBytes:gallery?.bytes ?? 0,
       originalGalleryBatches:gallery?.root.children.length ?? 0,
@@ -5975,6 +5986,10 @@ export function createTowerWorld(){
       verifiedObservedFloorAdvance:retainedEarnedCap.verifiedObservedFloorAdvance===true,
       originalBronzeDeckMeshes:retainedEarnedCap.originalBronzeDeckMeshes,
       originalGalleryTriangles:retainedEarnedCap.originalGalleryTriangles,
+      originalGalleryExteriorFlankFaces:{...retainedEarnedCap.originalGalleryExteriorFlankFaces},
+      originalGallerySourceMaterialBatches:retainedEarnedCap.originalGallerySourceMaterialBatches,
+      originalGallerySelectedMaterialBatches:retainedEarnedCap.originalGallerySelectedMaterialBatches,
+      originalGalleryRegionAvailableMaterialBatches:{...retainedEarnedCap.originalGalleryRegionAvailableMaterialBatches},
       originalGalleryBytes:retainedEarnedCap.originalGalleryBytes,
       originalGalleryBatches:retainedEarnedCap.originalGalleryBatches,
       historicalGallerySightline:{...historicalGallerySightline},
