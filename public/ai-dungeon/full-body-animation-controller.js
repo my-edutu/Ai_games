@@ -6078,6 +6078,18 @@ export function certifyLicensedSourceSwingCounterpitch({
  const originalPitch=original.heelY-original.toeY;
  const correctedPitch=corrected.heelY-corrected.toeY;
  const pitchGain=originalPitch-correctedPitch;
+ // The original source weighted heel need not hover 60mm above the actual
+ // stone forever. A genuinely re-skinned near-ground OUTSOLE may be tried,
+ // but ONLY if BOTH its heel and toe are independently within a conservative
+ // 5mm-below/25mm-above stone window, its pitch is nearly level and the
+ // untouched source-loaded shoe is preserved. This is a SINGLE-frame
+ // geometric candidate, emphatically NOT a foot plant or an IK lock.
+ const nearStoneHeel=corrected.heelY<floorTopY+.06;
+ const nearStoneOutsole=corrected.heelY>=floorTopY-.005&&
+  corrected.heelY<=floorTopY+.025&&
+  corrected.toeY>=floorTopY-.005&&
+  corrected.toeY<=floorTopY+.025&&
+  Math.abs(correctedPitch)<=.012;
  // During the first source frame a safe heel-lowering response can
  // improve the impossible near-vertical outsole before the toe clears.
  // But a toe-down or heel-up result cannot earn this certificate.
@@ -6086,7 +6098,7 @@ export function certifyLicensedSourceSwingCounterpitch({
   pitchGain<.003||pitchGain>.25||
   correctedPitch<-.04||correctedPitch>originalPitch-.0025||
   corrected.toeY>floorTopY+.095||
-  corrected.heelY<floorTopY+.06||
+  (nearStoneHeel&&!nearStoneOutsole)||
   drift(corrected.heelXZ,original.heelXZ)>.30||
   drift(corrected.toeXZ,original.toeXZ)>.30||
   Math.abs(loadedAfter.heelY-loaded.heelY)>.003||
