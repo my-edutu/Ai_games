@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-20T05:08:56Z",
+  "updatedAt": "2026-11-20T06:18:00Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass525 exact-HEAD native WebGL independently verified: 42/42 original PNG+metadata SHA pairs and 3/3 real gate image hashes, native 390px physical Pip/Thornback within unchanged ±0.95 NDC. But actual guardian face/recoil obscured by foreground sea-glass and own shell; official Nintendo gameplay visual bar REJECTED. Pass526 original camera-to-high-body-reveal timing is a source candidate, not visually approved. Whole CI red on unrelated missing Tiny Kingdom OBS script."
+    "summary": "Pass526 exact-HEAD WebGL success: 42/42 original native full-size PNG SHA pairs and 3/3 real gate SHA verified, genuine 390 Pip/Thornback fully framed but lantern-counter visually buried below excessive empty water and rails; Nintendo parity REJECTED. Pass527 final true full-mesh physical up-axis counter-stage candidate implemented but its own exact-head render pending. Whole CI red on missing unrelated Tiny Kingdom npm self-test."
   },
   "captures": [
+    {
+      "title": "Pass526 exact e82569fa native 320/390/844/1280 WebGL; original 42/42 PNG SHA + 3/3 gate SHA verified; real 390 low counter and empty sea rejected; Pass527 physical-stage candidate pending",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44680681550/artifacts/14604223020"
+    },
     {
       "title": "Pass525 original exact SHA 546ab596 native 320/390/844/1280 WebGL; original ZIP SHA, 42/42 original PNG SHA and 3/3 gate SHA verified; 390 guardian face obstruction rejected",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44673663562/artifacts/14602116511"

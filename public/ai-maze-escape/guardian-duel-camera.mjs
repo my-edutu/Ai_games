@@ -408,3 +408,40 @@ export function publicGuardianEarnedRecoilFinalPairShift(
   if(low>high)return 0;
   return Math.max(low,Math.min(high,(left+right)*.5))*halfHeight*aspect;
 }
+
+/**
+ * Pass527: compose the REAL currently published lantern-counter diorama in a
+ * portrait viewport, not a distant strip under empty sea. Exact incoming
+ * full-frame WebGL seed-13 tick94 at 390x844 put connected Pip in
+ * y [-.2161,+.2263] and Thornback in [-.5399,+.1265]. Their union center
+ * is -.1568, while the upper stage is mostly empty ocean. Shift the EXISTING
+ * optical camera up-axis (not a world mesh, geometry, crop, or camera target)
+ * to give the genuine linked action a stronger middle-upper hierarchy.
+ *
+ * The caller passes FINAL projected complete-mesh envelopes AFTER optical
+ * backoff, zoom and lateral pan. A move may only lift the visible public
+ * pair, never leave either body's full vertical outline beyond the stronger
+ * -.75 / +.63 staging limits. This is presentation-only, no private cells,
+ * renderer allocations, collision, extra hit, or authority changes.
+ * Returned world units are along camera UP; negative moves subjects UP.
+ */
+export function publicGuardianEarnedRecoilPairStageLift(
+  aspect, halfHeight, bodies, earned=false, reducedMotion=false) {
+  if (!earned || reducedMotion || !Number.isFinite(aspect)
+    || aspect < .35 || aspect >= .60
+    || !Number.isFinite(halfHeight) || halfHeight <= 0
+    || !Array.isArray(bodies) || bodies.length !== 2) return 0;
+  for (const body of bodies)
+    if (!body || !['left','right','bottom','top'].every(k=>Number.isFinite(body[k]))
+      || body.left >= body.right || body.bottom >= body.top
+      || body.left < -.95 || body.right > .95
+      || body.bottom < -.95 || body.top > .95) return 0;
+  const top = Math.max(bodies[0].top,bodies[1].top);
+  const bottom = Math.min(bodies[0].bottom,bodies[1].bottom);
+  // Use a native-viewport-safe actor union, not a speculative viewport crop.
+  // -.75 clears Map/Details touch controls; +.63 leaves the mission/header.
+  if (bottom < -.75 || top >= .63) return 0;
+  const center = (top+bottom)*.5;
+  const liftNdc = Math.min(.30,Math.max(0,.13-center),.63-top);
+  return liftNdc >= .02 ? -liftNdc*halfHeight : 0;
+}

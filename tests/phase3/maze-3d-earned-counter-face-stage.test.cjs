@@ -70,3 +70,45 @@ test('Pass522 genuine lantern impact retains the prior two-actor witness before 
   assert.match(sceneSource,/recoilAim\.x\*earnedShotAct/,
     'the camera aim must track the same earned event phase rather than teleport at impact');
 });
+
+
+test('Pass527 source-matched native 390/320 connected actors lift above empty ocean without losing full silhouettes',async()=>{
+  const {publicGuardianEarnedRecoilPairStageLift:lift}=await load();
+  const aspect390=390/844, h=8.2;
+  // ORIGINAL unaltered Pass526 390x844 public seed-13 tick94 connected
+  // silhouettes: no center-of-mass fakes; strict native +/- .95 unchanged.
+  const bodies390=[
+    {left:-.9000,right:-.0077149,bottom:-.2161108,top:.2262768},
+    {left:-.4791513,right:.9000,bottom:-.5399237,top:.1265308},
+  ];
+  const worldShift=lift(aspect390,h,bodies390,true,false);
+  const move=-worldShift/h;
+  assert.ok(move>.28 && move<=.30,'empty-sea shot must actually move the complete pair into the playable stage');
+  for(const b of bodies390){
+    assert.ok(b.top+move<=.63 && b.bottom+move>=-.75,
+      'actual actor envelopes have stronger strict y-margins after reframe');
+    assert.ok(b.left>=-.95 && b.right<=.95,'never weaken existing +/- .95 complete-body x gate');
+  }
+  const bodies320=[
+    {left:-.900,right:-.1450,bottom:-.4143,top:-.01411},
+    {left:-.17868,right:.900,bottom:-.10088,top:.43382},
+  ];
+  const mobileShift=lift(320/740,7.2,bodies320,true,false);
+  assert.ok(mobileShift<0 && -mobileShift/7.2<.16,
+    'the already-better high 320px face keeps a gentler composition adjustment');
+  for(const [aspect,b,earned,reduced] of [
+    [aspect390,bodies390,false,false],[aspect390,bodies390,true,true],
+    [844/390,bodies390,true,false],[1280/900,bodies390,true,false],
+    [aspect390,[bodies390[0],{...bodies390[1],top:.99}],true,false],
+    [aspect390,[bodies390[0],{...bodies390[1],left:-1.05}],true,false],
+    [aspect390,[bodies390[0],{...bodies390[1],top:NaN}],true,false],
+    [aspect390,[bodies390[0]],true,false],
+  ]) assert.equal(lift(aspect,h,b,earned,reduced),0,
+    'never shift a hidden, invalid, unearned, manual/landscape or reduced-motion shot');
+  const fs=require('node:fs'),path=require('node:path');
+  const sceneSource=fs.readFileSync(path.join(__dirname,'../../public/ai-maze-escape/scene.js'),'utf8');
+  assert.match(sceneSource,/publicGuardianEarnedRecoilPairStageLift\(\s*aspect,halfHeight,finalEarnedBodies,earnedDuelContinuity,/,
+    'only authentic final physical envelopes may propose stage composition');
+  assert.match(sceneSource,/camera\.position\.addScaledVector\(pressureReframeRight,stageLift\*earnedShotAct\)/,
+    'reuse current physical camera up-axis and same witnessed counter clock');
+});

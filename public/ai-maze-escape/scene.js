@@ -5,7 +5,7 @@ import { publicEarnedCounterImpactStage } from './public-counter-impact.mjs';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilSafeContactHalfHeight, publicGuardianEarnedRecoilFinalPairShift, publicGuardianEarnedRecoilRevealElevation, setPublicEarnedGuardianFrontQuarterOffset, publicEarnedGuardianCounterCameraPriority, publicEarnedGuardianCounterCameraAct, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilSafeContactHalfHeight, publicGuardianEarnedRecoilFinalPairShift, publicGuardianEarnedRecoilPairStageLift, publicGuardianEarnedRecoilRevealElevation, setPublicEarnedGuardianFrontQuarterOffset, publicEarnedGuardianCounterCameraPriority, publicEarnedGuardianCounterCameraAct, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicEarnedGuardianCounterLightPath } from './public-lantern-encounter.mjs';
@@ -1891,6 +1891,21 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         if(finalEarnedShift){
           pressureReframeRight.setFromMatrixColumn(camera.matrixWorld,0);
           camera.position.addScaledVector(pressureReframeRight,finalEarnedShift);
+          camera.updateMatrixWorld();
+        }
+        // Pass527 original full-frame 390x844 tick94: BOTH real actors fit,
+        // but most upper pixels are empty sea while the connected counter
+        // reads as a tiny, visually lost strip low in the level. Rebalance
+        // the SAME complete physical silhouettes after final lens and pan.
+        // The 2s genuinely earned counter stage eases this camera movement;
+        // no pop, crop, hidden knowledge, model relocation or HUD panel.
+        const stageLift=publicGuardianEarnedRecoilPairStageLift(
+          aspect,halfHeight,finalEarnedBodies,earnedDuelContinuity,
+          settings.reducedMotion);
+        if(stageLift && earnedShotAct>0){
+          camera.updateMatrixWorld();
+          pressureReframeRight.setFromMatrixColumn(camera.matrixWorld,1);
+          camera.position.addScaledVector(pressureReframeRight,stageLift*earnedShotAct);
           camera.updateMatrixWorld();
         }
       }
