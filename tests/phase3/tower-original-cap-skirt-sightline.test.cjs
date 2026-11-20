@@ -141,10 +141,71 @@ test('source retains exact F8 platform skirt triangles and isolates only its mat
   assert.match(world,/guardianCap && p\.id==='f8:cap'/);
   assert.match(world,/originalCapSkirtOwner\.add\(outerUnder,innerUnder\)/);
   assert.match(world,/p\.gearVisual,p\.originalCapSkirtOwner\]\.filter\(Boolean\)/);
-  assert.match(world,/originalCapUndercroft\.push\(\{mesh:skirt,material,tint\}\)/);
+  assert.match(world,/originalCapUndercroft\.push\(\{mesh:skirt,material,tint,sourceSkirtPairId:'f8:cap'\}\)/);
+  assert.match(world,/sourceSkirtPairId:p\.id/);
   assert.match(world,/originalCapUnder\)undercroftEntries\.push\(\.\.\.originalCapUnder\)/);
   assert.match(world,/candidates\.slice\(0,originalCapUnder\?2:3\)/);
   assert.match(world,/originalCapUndercroft,\s*originalGalleryTriangles/);
   assert.match(world,/originalCapSightlineRoot:root/);
   assert.match(world,/originalDeckSurface:bronzeSurface/);
+});
+
+
+test('same source F8 cap undercroft pair clears together only after one real physical-ray intersection, and restores on expired crossing',async()=>{
+  const THREE=await three;
+  const {protectSourceSuccessorUndercroft:protect}=await loaded;
+  const runToken='physical-returned-guardian-cap-pair';
+  const source={runToken,lifecycle:'running',floor:9,theme:'void',
+    tick:479,player:{health:4,halfWidth:9000,halfHeight:14000}};
+  const held={runToken,floor:9,sourceTick:475,
+    guardianGateRetained:true,oldCapId:'f8:cap',
+    thresholdX:310000,oldRoofY:345000};
+  const root=new THREE.Group(),scene=new THREE.Scene();
+  scene.add(root);
+  const roofMaterial=new THREE.MeshStandardMaterial({color:0x936f42});
+  const roof=new THREE.Mesh(new THREE.BoxGeometry(8,.12,4),roofMaterial);
+  roof.position.set(0,5,2.8);root.add(roof);
+  const entries=[],resources=[roof.geometry,roofMaterial];
+  for(const x of [0,3]){
+    const tint=new THREE.MeshStandardMaterial({color:0x825b3b});
+    const material=tint.clone();
+    const mesh=new THREE.Mesh(new THREE.BoxGeometry(.6,.07,.12),material);
+    mesh.position.set(x,1.36,2.8);root.add(mesh);
+    entries.push({mesh,material,tint,sourceSkirtPairId:'f8:cap'});
+    resources.push(mesh.geometry,material,tint);
+  }
+  const camera=new THREE.PerspectiveCamera(55,390/844,.1,100);
+  camera.position.set(0,2,6);
+  camera.updateMatrixWorld(true);scene.updateMatrixWorld(true);
+  const opts={source,held,camera,body:new THREE.Vector3(0,2,0),
+    bodyHalfHeight:1.2,entries,raycaster:new THREE.Raycaster(),
+    direction:new THREE.Vector3(),point:new THREE.Vector3(),hits:[]};
+  const immutable=JSON.stringify([source,held]);
+  try {
+    // Only x=0 intersects the unmodified current-source sole ray.
+    const ray=new THREE.Raycaster(camera.position,
+      new THREE.Vector3(0,-.64,-3.2).normalize(),0,20);
+    assert.ok(ray.intersectObject(entries[0].mesh,false).length>0);
+    assert.equal(ray.intersectObject(entries[1].mesh,false).length,0);
+    const coupled=protect(opts);
+    assert.equal(coupled.active,true);
+    assert.equal(coupled.softened,2,
+      'paired real F8 cap inner/outer skirt must not retain one opaque sole silhouette');
+    assert.ok(entries.every(e=>e.material.opacity===.035 &&
+      e.material.transparent && !e.material.depthWrite));
+    assert.equal(roofMaterial.opacity,1,'genuine walkable roof stays fully opaque');
+    assert.equal(roofMaterial.depthWrite,true);
+    assert.equal(JSON.stringify([source,held]),immutable);
+    // A second panel with a different owner cannot inherit clearance.
+    entries[1].sourceSkirtPairId='f9:forged';
+    const uncoupled=protect(opts);
+    assert.equal(uncoupled.softened,1);
+    assert.equal(entries[0].material.opacity,.035);
+    assert.equal(entries[1].material.opacity,1);
+    // No stale source may leave ghost metal behind after genuine crossing.
+    opts.source={...source,runToken:'restarted'};
+    assert.equal(protect(opts).active,false);
+    assert.ok(entries.every(e=>e.material.opacity===1 &&
+      !e.material.transparent && e.material.depthWrite));
+  }finally{for(const r of resources)r.dispose();}
 });
