@@ -415,13 +415,9 @@ test('RED: exact 390px source-skinned 63.292mm toe burial can choose safer conne
   side:'right',floorTopY:-.02,before,trials:[trial]
  };
  const earned=choose(base);
- assert.equal(earned?.source,'measured-original-skinned-coupled-knee-foot');
- assert.equal(earned?.sourceJointCount,3);
- assert.equal(earned?.oppositeShoePreserved,true);
- assert.equal(earned?.contactLocked,false);
- assert.ok(earned.toeLiftMeters>.016&&earned.toeLiftMeters<.017);
- assert.ok(earned.toeLiftMeters-earned.sourceHeelRiseMeters>.010,
-  'real original-source toe gain must exceed airborne heel rise');
+ assert.equal(earned,null,
+  '16.6ms source cannot apply a new 340mrad foot overlay without a previous matched pose');
+ assert.ok(Math.abs(trial.footRad)>3*base.frameInterval);
  for(const altered of [
   {sourceClipName:'Idle'},
   {sourceWeight:.75},
