@@ -5983,9 +5983,13 @@ export function planLicensedSourceSwingCounterpitch({
  // The original limb can advance over a verified sparse display interval,
  // but its angular rate is still bounded by the historical 240ms step.
  // A late browser frame never licenses an extra 41-joint animation cycle.
- const frameStep=Math.min(.85,Math.max(.15,4.5*Math.min(frameInterval,.24)));
+ // At 16.7ms the real original chain cannot rotate 150mrad in a single
+ // frame: that is almost 9rad/s and visually snaps the entire leg.
+ // Use the same 3rad/s ceiling already enforced on the authentic toes child;
+ // the same-source previous pose alone may contribute accumulated rotation.
+ const frameStep=Math.min(.85,3*Math.min(frameInterval,.24));
  const footMagnitude=Math.min(.85*envelope,previous+frameStep);
- if(footMagnitude<.14)return null;
+ if(footMagnitude<.018)return null;
  const chainShare=footMagnitude/.85;
  return Object.freeze({
   source:'verified-licensed-source-native-counterpitch',
@@ -6022,7 +6026,7 @@ export function certifyLicensedSourceSwingCounterpitch({
   ![plan.upperRad,plan.lowerRad,plan.footRad].every(finite)||
   plan.upperRad>=0||plan.lowerRad<=0||
   Math.abs(plan.upperRad)>.081||Math.abs(plan.lowerRad)>.081||
-  plan.footRad>=-.139||plan.footRad<-.851||
+  plan.footRad>=-.0179||plan.footRad<-.851||
   sourceClipName!=='Walking_A'||sourceInstanceSame!==true||
   !finite(floorTopY)||Math.abs(floorTopY+.02)>.005||
   ![before?.[side],before?.[other],
@@ -6039,9 +6043,9 @@ export function certifyLicensedSourceSwingCounterpitch({
  // improve the impossible near-vertical outsole before the toe clears.
  // But a toe-down or heel-up result cannot earn this certificate.
  if(toeLift<-.002||toeLift>.155||
-  heelDelta>-.005||heelDelta<-.160||
-  pitchGain<.012||pitchGain>.25||
-  correctedPitch<-.04||correctedPitch>originalPitch-.011||
+  heelDelta>-.001||heelDelta<-.160||
+  pitchGain<.003||pitchGain>.25||
+  correctedPitch<-.04||correctedPitch>originalPitch-.0025||
   corrected.toeY>floorTopY+.095||
   corrected.heelY<floorTopY+.06||
   drift(corrected.heelXZ,original.heelXZ)>.30||
