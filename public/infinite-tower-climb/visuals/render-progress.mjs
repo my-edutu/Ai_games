@@ -47,19 +47,40 @@ export function createRenderProgress() {
       renderWork?.worldRebuildCpuPhases;
     const worldRebuildCpuPhases = breakdown && typeof breakdown==='object'
       ? Object.fromEntries([
-          'oldGpuOwnerAndClear','materialsAndFloorSetup',
+          'oldGpuOwnerAndClear','originalSourceCapGatewayTransfer',
+          'formerFloorTeardownAndRetirement','materialsAndFloorSetup',
           'actualFirstSuccessorArchitecture','authoritativePlatformMeshes',
           'sourceBearingsAndHazards','shadowAndSceneTraversal',
           'rigidVertexBatching','clockFaceRayBinding'
         ].map(key=>[key,cost(breakdown[key])]))
       : null;
+    // The exact returned source frame reports which real original GPU
+    // ownership branch was used. An absent event or source-only poll must
+    // not manufacture a prewarm hit, disposal count or rendered frame.
+    const owner = phase==='renderer-submitted' &&
+      snapshot.floor===9 && snapshot.lifecycle==='running' &&
+      renderWork?.worldRebuildOldOwnerPath;
+    const oldOwnerPath = owner && typeof owner==='object' &&
+      ['reused-on-real-floor-nine-rebuild','cold-fallback-original-source-rebuild',
+        'not-prepared','disposed-unconsumed'].includes(owner.originalGalleryPreparation) &&
+      typeof owner.formerFloorResourceHandling==='string'
+        ? {originalGalleryPreparation:owner.originalGalleryPreparation,
+            originalGalleryFaces:Number.isSafeInteger(owner.originalGalleryFaces)
+              ?owner.originalGalleryFaces:null,
+            formerFloorResourceHandling:owner.formerFloorResourceHandling,
+            formerFloorQueuedItems:Number.isSafeInteger(owner.formerFloorQueuedItems)
+              ?owner.formerFloorQueuedItems:null,
+            formerFloorRemainingItems:Number.isSafeInteger(owner.formerFloorRemainingItems)
+              ?owner.formerFloorRemainingItems:null}
+        :null;
     const renderWorkMs = phase === 'renderer-submitted' && renderWork
       ? { sceneUpdate: cost(renderWork.sceneUpdateMs),
           rendererReturn: cost(renderWork.rendererReturnMs),
           worldRebuild: cost(renderWork.worldRebuildMs),
           total: cost(renderWork.totalSubmissionMs),
           ...(coldStages ? { firstF9MainThread: coldStages } : {}),
-          ...(worldRebuildCpuPhases ? { firstF9WorldRebuildPhases:worldRebuildCpuPhases } : {}) } : null;
+          ...(worldRebuildCpuPhases ? { firstF9WorldRebuildPhases:worldRebuildCpuPhases } : {}),
+          ...(oldOwnerPath ? { firstF9OriginalOwnerPath:oldOwnerPath } : {}) } : null;
     sourceTransitions.push({
       phase, runToken: snapshot.runToken, tick: snapshot.tick,
       floor: snapshot.floor, lifecycle: snapshot.lifecycle,
