@@ -1,4 +1,39 @@
 {
+  "p0OriginalCoreReturnedBeforeColdSceneryCapture20261120_0050": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateSource": "Exact immutable github.sha of this capture-request commit, not floating branch HEAD",
+    "productionChangeSha": "8a2b55c4583f89e90763cae497090dbcd5c16049",
+    "footageDefect": "853e770 authentic 25fps desktop/portrait original WebM had 0s of sustained bronze-to-Void architectural overlap; original floor9 HUD at 26.00s desktop and 25.75s portrait; sustained violet world at 26.5s both. Grounded source F8→F9 crossing tick475, first F9 browser-to-renderer return 694ms desktop and 652ms portrait.",
+    "intervention": "Delay first cold original noninteractive F9 periphery shader/build until four source-matched genuine returned nonzero core WebGL frames and >=0.32 returned display seconds, and original animated biome until six such returns and >=0.52 seconds, ONLY while the genuine HP-open original gate remains retained and source-certified; once original GPU owner legitimately expires, no extra scenic delay. Preserve all floor geometry, moving platforms, hero, crusher, guardian, collision and source authority.",
+    "captureConditions": {
+      "seed": "tower-transformation-capture-v1",
+      "tier": "low",
+      "viewports": [
+        "960x600",
+        "390x844"
+      ],
+      "fps": 25,
+      "originalFullMotionSecondsMin": 60,
+      "scenarios": [
+        "ascent",
+        "danger/guardian",
+        "moving",
+        "outcome/restart"
+      ],
+      "candidateAndFrozenBaselineMatched": true
+    },
+    "acceptance": "Inspect native matched WebM and event clocks; require consecutive true full-body hero + original opened gate + physically walkable Floor9, and positive sustained shared scene; record source/native discrepancy without altering media or fabricating verdict.",
+    "independentReviews": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "devicePerformance": "NOT EVALUATED",
+    "gate": "P0 OPEN; no claims of improvement before full-motion evidence",
+    "safeguards": "Draft PR68; PR58 untouched; baseline unchanged; no merge, deploy, force-push, or other games."
+  },
   "p0RaisedSourceP2ColdWebglOneEpochSourceCapture20261120": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
     "leadingVerdict": "NOT EVALUATED",
