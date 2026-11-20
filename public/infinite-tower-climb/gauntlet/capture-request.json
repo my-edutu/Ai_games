@@ -1,4 +1,35 @@
 {
+  "p0FirstFloorNineMainThreadSourcePinnedAttribution20261120_0326": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateSourceCodeHead": "e09b42d37f0b8661d2ec11babb1b2e3de61e14aa",
+    "recordingSHA": "This capture-request commit exact github.sha, never mutable branch HEAD.",
+    "correctedBlocker": "Unattributed ~296-311ms source-owned first Floor9 sceneUpdate in original recordings; ~102-119ms worldRebuild already INCLUDED. Added bounded first-floor-NINE main-thread stages in real returned-WebGL source clock: sceneSetup, worldUpdate, heroThreat, cameraLighting. No playable improvement claimed.",
+    "baselineOriginalEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/44651645274",
+    "matchingConditions": {
+      "seed": "tower-transformation-capture-v1",
+      "tier": "low",
+      "fps": 25,
+      "playback": "unedited native WebM 1x 60s+",
+      "desktop": "960x600",
+      "portrait": "390x844",
+      "scenes": [
+        "ascent",
+        "moving",
+        "danger guardian/crusher",
+        "outcome/restart"
+      ]
+    },
+    "evaluate": [
+      "Same exact immutable candidate SHA + frozen baseline; no baseline game/host mutation",
+      "Confirm source event-to-decoded-native-film pairing and browser acceptance to returned render, both desktop and portrait",
+      "Extract actual sourceTransitions renderer-submitted firstF9MainThread; distinguish sceneSetup/worldUpdate/heroThreat/cameraLighting and worldRebuild subset",
+      "Check camera/foreground old steel, old HP-open bronze gate, complete moving climber and physically supported successor roof in >=2 consecutive source-aligned native frames",
+      "If film remains 0s real shared-room overlap or strict pairing 0/2, leave P0 OPEN, NOT EVALUATED; no P1/positive critics"
+    ],
+    "restrictions": "No gameplay authority changes, baseline move, PR58 rewrite, other games, merge, deploy, force-push or conversion from draft."
+  },
   "p0FirstSourceAuthenticGroundedFloor9Framebuffer20261120_0107": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
     "leadingAssessorVerdict": "NOT EVALUATED",
