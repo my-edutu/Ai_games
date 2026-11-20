@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-20T20:36:01.751Z",
+  "updatedAt": "2026-11-20T20:39:04.110Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass540b exact incoming HEAD 909bc338 native WebGL #44803706980 succeeded and original artifact personally verified 42/42 full uncropped PNG SHA sidecars + three genuine gate hashes. Native 390 earned tick94 remains optically high and foreground crowded despite foliage relief. Pass541 changes ONLY real 390-class full-mesh camera-UP balance from same-run parry, keeps 320 and strict +/- .95 and HUD reserves. Exact new HEAD native screenshot, whole CI and independent visual critic are REQUIRED: Nintendo reference benchmark NOT MET."
+    "summary": "Pass541 initial exact-HEAD native WebGL #44812936768 failed BEFORE browser: unchanged Pass527/528 source-bound low-pair camera lift tests rejected the broad new high-pair correction (297/299). Pass541b production repairs only SOURCE-BOUND envelope switch: original real low 390 frames retain original ~.29 NDC lift; new real high 390 frame may balance downward, 320 unchanged. Tests/thresholds NOT weakened. Exact-new-HEAD WebGL and whole CI required; Nintendo benchmark NOT MET."
   },
   "captures": [
     {

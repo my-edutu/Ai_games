@@ -562,7 +562,13 @@ export function publicGuardianEarnedRecoilPairStageLift(
   // Camera-UP movement shifts the pictured bodies DOWN. Their final bounds
   // remain inside the existing stronger -.75/+ .63 touch/HUD reserves;
   // the original strict +/- .95 screen proof remains authoritative.
-  if (aspect >= .45) {
+  // Preserve the exact-source Pass526/527/528 LOW two-body shot: its
+  // union centre is ~-.16 NDC and the existing physically verified UP
+  // lift (.28-.30 NDC) is necessary to clear empty ocean. Only an
+  // ALREADY HIGH union gets the new downward optical correction.
+  // This distinction comes solely from actual complete mesh bounds, not
+  // a guessed level, invisible threat or alternate gameplay clock.
+  if (aspect >= .45 && center >= -.05) {
     const requested = Math.max(-.24,Math.min(.24,center-.02));
     const safeShift = Math.max(top-.63,Math.min(bottom+.75,requested));
     return Math.abs(safeShift) >= .035 ? safeShift*halfHeight : 0;

@@ -35,6 +35,23 @@ test('Pass541 authentic 390px public two-actor recoil moves out of foreground wh
   }
   assert.equal(stage(aspect,h,native390,true,false),shift,'no randomness or runtime dependence');
 });
+test('Pass541 repair preserves original strict Pass527 and Pass528 real low-frame camera lift, not just new high-frame correction',async()=>{
+  const {publicGuardianEarnedRecoilPairStageLift:stage}=await import(camera);
+  const early=[
+    {left:-.9000,right:-.0077149,bottom:-.2161108,top:.2262768},
+    {left:-.4791513,right:.9000,bottom:-.5399237,top:.1265308}
+  ];
+  const second=[
+    {left:-.896187,right:-.049280,bottom:-.208340,top:.214876},
+    {left:-.490237,right:.896187,bottom:-.536033,top:.130853}
+  ];
+  for(const bodies of [early,second]){
+    const move=-stage(390/844,8.2,bodies,true,false)/8.2;
+    assert.ok(move>.28&&move<=.30,'preserve stronger original real below-centre full-pair lift');
+    for(const b of bodies)assert.ok(b.top+move<=.63 && b.bottom+move>=-.75,
+      'no weakening old full-body top HUD and lower control reserves');
+  }
+});
 test('Pass541 legacy 320px, landscape, desktop, stale, invalid and reduced-motion camera stay untouched',async()=>{
   const {publicGuardianEarnedRecoilPairStageLift:stage}=await import(camera);
   const h=8.5,aspect=390/844;
