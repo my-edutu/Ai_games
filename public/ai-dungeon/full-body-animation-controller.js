@@ -6002,7 +6002,19 @@ export function planLicensedSourceSwingCounterpitch({
  // Use the same 3rad/s ceiling already enforced on the authentic toes child;
  // the same-source previous pose alone may contribute accumulated rotation.
  const frameStep=Math.min(.85,3*Math.min(frameInterval,.24));
- const footMagnitude=Math.min(.85*envelope,previous+frameStep);
+ // Genuine 390px native Walking_A on #44698474521 retained an original
+ // full-leg -0.614rad correction over a verified 249.9ms moving frame.
+ // A following real 16.7ms source swing tail can reduce the authored
+ // phase envelope faster than the same 3rad/s budget that limited its
+ // entrance. Previously Math.min(envelope, previous+frameStep) guarded
+ // only INCREASING correction: it could silently discard >100mrad of a
+ // previous valid original ankle correction at 60Hz. Require strictly
+ // witnessed same-source previous pose for the opposite rate boundary.
+ // The renderer STILL must independently reskin both original shoes;
+ // no synthetic plant, imported clip-time seek or authoritative step.
+ const authoredTarget=Math.min(.85*envelope,previous+frameStep);
+ const footMagnitude=previousSameSourceFrame?
+  Math.max(authoredTarget,previous-frameStep):authoredTarget;
  if(footMagnitude<.018)return null;
  const chainShare=footMagnitude/.85;
  return Object.freeze({
