@@ -3,7 +3,7 @@
   "updatedAt": "2026-11-20T10:51:13.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass531 source 1430f027 focused native WebGL #44719137971 SUCCESS; verified 42/42 unaltered PNG sidecars and 3/3 original gate hashes, 390/320 full physical actors inside unchanged ±0.95. Direct 390/320 original image critic still REJECTS hovering guardian rear feet and underdeveloped staged physics vs fixed Nintendo reference. Whole-repo CI #44719138075 FAILED separately. Pass532 candidate physically anchors existing four mid/rear claw tips at genuine earned contact/landing without moving patrol root; exact new WebGL/CI and fresh independent critic PENDING, no win claimed."
+    "summary": "Pass532 first candidate dfa9e06d source CI #44724538322 FAILED before screenshot: new strict world-space rear-claw contact test, 279/280 tests passed. Pass532b repair uses real parent world/local Y transform and bounded socket correction; original <.13m contact, ±0.95 native framing, <100 six-reset all unchanged. New exact-head CI and native render PENDING; Nintendo bar not met."
   },
   "captures": [
     {
@@ -468,6 +468,12 @@
     }
   ],
   "changes": [
+    {
+      "title": "Pass532b fix source-confirmed real toe-to-deck contact failed physical test",
+      "date": "2026-11-20",
+      "status": "First WebGL CI #44724538322 failed strict toe contact; corrected source pending new exact-HEAD tests",
+      "description": "Physical correction computes local hip-socket travel from connected body actual parent World Y transform; bounded ≤.95m and keeps original stricter <.13m toe-deck assertion with numeric failure diagnostics. No test/budget/framing weakening, no bogus screenshot claims."
+    },
     {
       "title": "Pass532 actual world-space middle/rear Thornback claw-to-deck contact during genuinely earned lantern parry",
       "date": "2026-11-20",
@@ -1923,6 +1929,12 @@
     }
   ],
   "verification": [
+    {
+      "title": "Pass532 first-source exact dfa9e06d CI physical foot contact failed (279/280); no screenshots; Pass532b corrected candidate pending",
+      "date": "2026-11-20",
+      "status": "FAIL new 3D contact test; correction requires rerun",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44724538322"
+    },
     {
       "title": "Pass531 incoming exact 1430f027 42/42 original PNG and 3/3 gate hashes verified; new Pass532 actual toe contact candidate pending new exact-source evidence",
       "date": "2026-11-20",

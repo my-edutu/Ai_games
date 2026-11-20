@@ -33,7 +33,9 @@ test('Pass532: real earned contact and landing lower all four articulated claw t
         const feet=pose(phase);
         for(const foot of feet){
           assert.ok(Math.abs(foot.toeY-(root.y+.055))<.13,
-            'both connected middle/rear toe pairs must touch the actual elevated deck during load/landing');
+            'both connected middle/rear toe pairs must touch actual elevated deck during load/landing; phase='+phase+
+            ', actual='+foot.toeY.toFixed(4)+', target='+(root.y+.055).toFixed(4)+
+            ', hip='+foot.hipY.toFixed(4));
         }
       }
       // A REAL airborne rebound retains articulation rather than pinning all

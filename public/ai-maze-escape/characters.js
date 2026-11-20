@@ -1209,7 +1209,15 @@ export function createWarden(options = {}) {
       if(toePlant>0){
         leg.knee.localToWorld(earnedDeckToe.set(leg.side*.16,-.70,.15));
         const desiredDeckY=group.position.y+.055;
-        const extension=Math.max(-.38,Math.min(.38,desiredDeckY-earnedDeckToe.y));
+        // Parent pitch/roll converts local socket Y into a shorter WORLD Y.
+        // Use the real Three.js parent matrix, not a guessed 1:1 transform.
+        // The first .38m-only attempt failed the strict physical-contact
+        // assertion in focused CI #44724538322. Retain the same <.13m
+        // world-to-deck acceptance and the original +/-0.95 NDC crop gates.
+        const worldVertical=leg.hip.parent.matrixWorld.elements[5];
+        const worldCorrection=(desiredDeckY-earnedDeckToe.y)/
+          (Math.abs(worldVertical)>.45?worldVertical:1);
+        const extension=Math.max(-.95,Math.min(.95,worldCorrection));
         leg.hip.position.y+=extension*toePlant;
       }
       if (leg.pincer) {
