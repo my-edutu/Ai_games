@@ -12831,5 +12831,79 @@
       "noForcePush": true,
       "noOtherGameEdits": true
     }
+  },
+  "p0NativeFirstFloor9MainThreadRenderAndFilmVeto20261120_0135": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenBaselineMoved": false,
+    "sourceHeadInspected": "058850da44d11d29ce2c1c11e967494a5714441c",
+    "actualOutcome": "Inspected the completed nine-job exact-source capture, failing pairing job, unmodified desktop/portrait film frames, SHA-scoped native clock sidecars and first F9 sceneUpdate/rendererReturn browser timing traces; isolated first-F9 main-thread scene update as a larger measured contributor than renderer return, unlike previous speculation that focused on drawing-buffer resolution alone. No production code modification is claimed.",
+    "verifiedOriginalNativeRun": "https://github.com/my-edutu/Ai_games/actions/runs/44651645274",
+    "pairedNativeStatus": "FAILED 0/2 original danger viewports; capture 8/8 plus ledge successful",
+    "exactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44651275797",
+    "verifiedFirstF9BrowserTiming": {
+      "desktop": {
+        "viewport": "960x600",
+        "webmSha256": "ba30c8cf5dc29c79688f39b178e424919d98d38bca23cf2c42cb81f6b2c551a6",
+        "originalSeconds": 71.76,
+        "sourceFloorTransitionTick": 475,
+        "hudFloorNineSeconds": 25.75,
+        "violetSceneSeconds": 26.25,
+        "warmToCoolBridgeSeconds": 0,
+        "precisionSeconds": 0.25,
+        "sourceToBrowserAcceptedMs": 151,
+        "browserAcceptedToRendererReturnMs": 678,
+        "firstF9RenderWorkMs": {
+          "sceneUpdate": 310.5,
+          "worldRebuildWithinSceneUpdate": 101.8,
+          "rendererReturn": 91.1,
+          "total": 401.6
+        }
+      },
+      "portrait": {
+        "viewport": "390x844",
+        "webmSha256": "2bd6de05a0107b24a54102aaf309c5f2610e6cbb4dcfb9b849dd3a75a3dbb32c",
+        "originalSeconds": 72.72,
+        "sourceFloorTransitionTick": 475,
+        "hudFloorNineSeconds": 25.5,
+        "violetSceneSeconds": 26,
+        "warmToCoolBridgeSeconds": 0,
+        "precisionSeconds": 0.25,
+        "sourceToBrowserAcceptedMs": 43,
+        "browserAcceptedToRendererReturnMs": 688,
+        "firstF9RenderWorkMs": {
+          "sceneUpdate": 295.5,
+          "worldRebuildWithinSceneUpdate": 119,
+          "rendererReturn": 73.2,
+          "total": 368.7
+        }
+      }
+    },
+    "biggestExperienceGap": "Original native-film floor-9 HUD-to-violet handoff remains a whole-environment visual cut with ZERO sustained warm-to-cool architectural bridge in both viewports. No accepted two consecutive event-matched native frames visibly proving opened original bronze guardian gateway + full moving climber + actual walkable Floor9 together. Portrait earlier bronze foreground occlusion remains a concern.",
+    "nextHighestImpact": "On available runnable workspace, profile and optimize cold F9 sceneUpdate (~296–311ms here), worldRebuild (~102–119ms INCLUDED), per-frame returned-scene submission and source-owned old bronze foreground camera visibility as one measured playable scene handoff; then immutable-SHA desktop+portrait 1x full-motion recapture and strict event alignment. Do not leave P0 or claim gate passed.",
+    "executableWorkspace": "UNAVAILABLE: coding tunnel-client not seen for 300 seconds; no safe local source mutation, new browser run or verified production optimization performed in this execution.",
+    "independentBlindCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedDevice": {
+      "frameTimeP50": "NOT EVALUATED",
+      "frameTimeP95": "NOT EVALUATED",
+      "frameTimeP99": "NOT EVALUATED",
+      "memory": "NOT EVALUATED"
+    },
+    "reviewDocument": "docs/reviews/2026-11-20-tower-pr68-returned-core-gateway-native-review.md",
+    "evidenceDocument": "public/infinite-tower-climb/gauntlet/evidence/p0-first-f9-native-mainthread-seam-20261120.json",
+    "safety": {
+      "noMerge": true,
+      "noDeploy": true,
+      "noForcePush": true,
+      "noPRDraftConversion": true,
+      "noBaselineMove": true,
+      "noPR58Edits": true,
+      "noUnrelatedGames": true
+    }
   }
 }
