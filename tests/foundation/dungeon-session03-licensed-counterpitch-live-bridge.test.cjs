@@ -448,3 +448,82 @@ test('RED: genuine 60Hz original source deep swing can evaluate toes-child skin 
   assert.equal(certify({...args,after,...change}),null,
    'deep source toe candidate must be denied when evidence is invalid: '+JSON.stringify(change));
 });
+
+
+test('RED-first: real 390px licensed toesl hinge can grow across one authenticated 60Hz Walking_A source pair without an angular snap',async()=>{
+ const {planLicensedSourceToeChildContinuityCandidates:plan}=await source;
+ assert.equal(typeof plan,'function',
+  'the original weighted toe must carry a measured, source-owned angular trajectory instead of restarting +/-50mrad every frame');
+ // Previous REAL original-GLB 390px frame114 (Actions #44797892247):
+ // source time .61537359; original toesl -50.1mrad, final independently
+ // skinned left toe still 76.573mm buried, opposite source shoe unchanged.
+ // NEXT source frame below is a SYNTHETIC 16.7ms continuation fixture;
+ // this test does NOT claim the next source frame was recorded or certified.
+ const previous={
+  source:'measured-original-licensed-source-counterpitch',
+  sourceInstanceId:'same-original-41-joint-source-clone',
+  sourceClip:'Walking_A',side:'left',
+  sourceClipTimeSeconds:.6153735947028551,
+  finalIndependentSourceSkin:true,originalOppositeShoeVerified:true,
+  witnessedFrameIntervalSeconds:.0167,
+  witnessedRootTravelMeters:.011576899920719752,
+  contactLocked:false,plantCertified:false,
+  licensedOriginalToeChildFinisher:{
+   source:'measured-licensed-counterpitch-original-toes-child',
+   side:'left',angleRad:-.0501,sourceBone:'toesl',
+   sourceTrack:'toesl.quaternion',
+   finalIndependentSourceSkin:true,
+   originalOppositeShoeVerified:true,
+   sourceToeTrackVerified:true,
+   contactLocked:false,plantCertified:false
+  }
+ };
+ const owner={
+  sourceInstanceId:previous.sourceInstanceId,
+  sourceClipName:'Walking_A',sourceClipTimeSeconds:.6323735947028551,
+  sourceClipDurationSeconds:1.0416666,sourceWeight:1,
+  sourceToeBoneName:'toesl',sourceToeTrackName:'toesl.quaternion',
+  side:'left',frameInterval:.0167,
+  ownerLocomotion:true,alive:true,visible:true,
+  interrupted:false,teleport:false,reducedMotion:false,
+  previous
+ };
+ const next=plan(owner);
+ assert.ok(next,'live source clip and prior independently skinned toe hinge');
+ assert.equal(next.length,2,'stay at TWO original weighted-skinned probes');
+ assert.ok(Math.abs(next[0]+.0501)<1e-7);
+ assert.ok(Math.abs(next[1]+.1002)<1e-7);
+ assert.ok(next.every(x=>Math.abs(x-previous.licensedOriginalToeChildFinisher.angleRad)<=3*owner.frameInterval+1e-7),
+  'genuine displayed frame allows no more than 3rad/s from the last measured source child');
+ const first=plan({...owner,previous:null});
+ assert.ok(Math.abs(first[0]+.0501)<1e-7&&Math.abs(first[1]-.0501)<1e-7,
+  'no previous receipt means the original conservative +/- budget, not a borrowed pose');
+ for(const patch of [
+  {sourceClipName:'Idle'},{sourceWeight:.7},{sourceInstanceId:'other-clone'},
+  {ownerLocomotion:false},{alive:false},{visible:false},{interrupted:true},
+  {teleport:true},{reducedMotion:true},{frameInterval:1},
+  {sourceToeTrackName:'spine.quaternion'},{sourceToeBoneName:'toesr'}
+ ])assert.equal(plan({...owner,...patch}),null,
+  'no source continuity nor speculative toe hinge on a false owner: '+JSON.stringify(patch));
+ for(const previousPatch of [
+  {sourceClip:'Idle'},{sourceInstanceId:'other-clone'},
+  {side:'right'},{sourceClipTimeSeconds:.20},
+  {finalIndependentSourceSkin:false},
+  {originalOppositeShoeVerified:false},
+  {licensedOriginalToeChildFinisher:{
+   ...previous.licensedOriginalToeChildFinisher,angleRad:.20}},
+  {licensedOriginalToeChildFinisher:{
+   ...previous.licensedOriginalToeChildFinisher,sourceBone:'toesr'}},
+  {licensedOriginalToeChildFinisher:{
+   ...previous.licensedOriginalToeChildFinisher,finalIndependentSourceSkin:false}}
+ ]){
+  const fallback=plan({...owner,previous:{...previous,...previousPatch}});
+  assert.ok(fallback&&Math.abs(fallback[0]+.0501)<1e-7&&
+   Math.abs(fallback[1]-.0501)<1e-7,
+   'a stale/fake prior receipt cannot contribute angle to current source pose');
+ }
+ assert.match(renderer,/planLicensedSourceToeChildContinuityCandidates/,
+  'real GLTFLoader toes child must consume the source-certified continuity plan');
+ assert.match(renderer,/sourceLicensedCounterpitchPreviousFrame/,
+  'the next authenticated original frame must read only its IMMEDIATE prior frame');
+});
