@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "game": "infinite-tower-climb",
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH",
+  "status": "OPEN",
+  "leadingTransformationVerdict": "NOT EVALUATED",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "branch": "feat/tower-transformation-gauntlet-20261101",
+  "prNumber": 68,
+  "prDraft": true,
+  "basePrNumber": 58,
+  "inspectedStartingHead": "875bd46974b91756b58d63fb5647dff558582426",
+  "redRegressionTestCommit": "6a721c54f7c3a38b5c3d66bf0e048fc1549b43a1",
+  "productionGeometrySelectionCommit": "45f3c3e1581032c3c530b7c5d8073c61c5642194",
+  "productionAndDiagnosticsSha": "25f0c2d1402a3f462de92e7196d2abf8cf4b85f3",
+  "sourceFilesChanged": [
+    "public/infinite-tower-climb/visuals/world.mjs",
+    "tests/phase3/tower-original-threshold-gallery-priority.test.cjs"
+  ],
+  "observedRootCause": "Previously sorted original source material batches by doorway proximity and sliced to maxBatches before reserving original left/right structural faces. When side braces were in separate material sources outside that first slice, later face priority could not include either genuine flank.",
+  "physicalCorrection": "Retain the nearest real old Clockwork threshold material source; reserve actual available original left, right, lower and upper structural source batches within the existing eight-batch limit before allocating remaining draws by original proximity. Reuse authentic source triangles and original polygon clipping; no new gameplay geometry or physics.",
+  "newDiagnostics": [
+    "originalExteriorFlankFaces.left/right",
+    "originalRegionAvailableMaterialBatches.left/right/lower/upper",
+    "sourceMaterialBatches",
+    "selectedMaterialBatches"
+  ],
+  "bound": {
+    "maxMaterialBatches": 8,
+    "maxSourceGalleryFaces": 3600,
+    "extraGameplayColliders": 0,
+    "syntheticPortalObjects": 0,
+    "additionalMaterialDrawBudget": 0
+  },
+  "priorVerifiedEvidence": {
+    "campaign": "https://github.com/my-edutu/Ai_games/actions/runs/44812794319",
+    "candidateSha": "4dd0221b1d9e7bb601222a22b0c3833c71f6870d",
+    "originalBaselineAndCandidateScenes": 8,
+    "authenticLedge": "success",
+    "strictNativeDangerEventAlignedViewports": "FAILED 0/2",
+    "desktopSeconds": 72.12,
+    "portraitSeconds": 71.88,
+    "defect": "Original Clockwork cap/room is replaced by wide Violet Floor9 roof near 26s without continuous original HP-open guardian gateway, complete moving climber and actually walkable receiving roof sharing authentic consecutive desktop and portrait frames",
+    "noSustainedSharedOldNewArchitectureSeconds": {
+      "desktop": 0,
+      "portrait": 0
+    },
+    "reviewerAndDeviceClaims": "NONE"
+  },
+  "exactProductionShaQuality": {
+    "url": "https://github.com/my-edutu/Ai_games/actions/runs/44821046856",
+    "sourceSha": "25f0c2d1402a3f462de92e7196d2abf8cf4b85f3",
+    "statusAtRecord": "PENDING — no clean exact-source CI claim"
+  },
+  "exactProductionShaNativeCapture": {
+    "url": "https://github.com/my-edutu/Ai_games/actions/runs/44821047280",
+    "sourceSha": "25f0c2d1402a3f462de92e7196d2abf8cf4b85f3",
+    "statusAtRecord": "QUEUED — footage not yet inspected",
+    "expectedViews": [
+      "desktop 960x600",
+      "portrait 390x844"
+    ],
+    "speed": 1,
+    "expectedDurationSecondsAtLeast": 60,
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9"
+  },
+  "previousFullQuality": {
+    "url": "https://github.com/my-edutu/Ai_games/actions/runs/44813752175",
+    "passedJobs": 9,
+    "totalJobs": 10,
+    "conclusion": "FAILED; unrelated Phase6 Maze readiness test timed out exit 124; no Maze source changes"
+  },
+  "testContract": "Added a genuine Three.js source-geometry reproduction using ten closer original material batches and two exterior side-bearing source batches; requires material selection to retain both original sides and original near-door material with same face/draw budget. Test is not yet observed running red or green because Actions runners remain queued.",
+  "criticCounts": {
+    "LOOKS": 0,
+    "FEELS": 0,
+    "PLAYS": 0,
+    "requiredPerPillar": 5,
+    "requiredCandidatePreferencePerPillar": 4
+  },
+  "actualDeviceFrameTimeP50P95P99": "NOT EVALUATED",
+  "actualDeviceMemory": "NOT EVALUATED",
+  "nativeSourceAlignedAcceptance": "NOT EVALUATED for production SHA; previous strict source native acceptance FAILED",
+  "largestRemainingSystemicGap": "No proven consecutive native event-aligned 3D shared-room crossing; original Clockwork gateway, skinned hero and physical Floor9 receiving architecture still not visually certified together",
+  "nextHighestImpactAction": "Inspect exact-source 44821047280 original full-motion recordings and event/source timeline. Correlate actual original left/right available-vs-selected source material diagnostics with old room continuity on both viewports. If architectural hard swap persists, reopen source-owned cold rebuilt vs retained room and incoming shaft staging as one system; do not advance to P1 without P0 evidence.",
+  "constraints": "Frozen baseline ledger and PR58 untouched; PR68 stays draft; no deployment, merge, force push, unrelated-game edits or fabricated reviewer/hardware metrics."
+}
