@@ -30,6 +30,10 @@ test('Pass531: true lantern parry plants six limbs, carries them through one rec
           legs:pairs.map(p=>({splay:Math.abs(p.hip.rotation.z),
             hip:p.hip.rotation.x,knee:p.knee.rotation.x}))};
       };
+      const neutral=pose(null);
+      const firstLift=pose(.09);
+      assert.ok(firstLift.height>neutral.height+.19,
+        'genuine early contact keeps the older strict raised-shell witness before planted load');
       const contact=pose(.20),airborne=pose(.53),landed=pose(.83);
       assert.ok(contact.height>.70&&contact.height<.98,
         'true first lantern impact must visibly plant the modeled body rather than hover');

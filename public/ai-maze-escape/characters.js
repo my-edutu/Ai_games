@@ -1125,7 +1125,10 @@ export function createWarden(options = {}) {
     // one earned recoil, and LAND again on the same public counter clock.
     // No patrol-root movement, collision displacement, hidden position,
     // additional geometry or fabricated AI action is introduced.
-    const counterFootPlant=counterLoad*.25+counterCollapse*.18;
+    // First source-earned lift remains legible during the .09 early hit
+    // (existing strict test >.19 above steady parry). The subsequent
+    // .20 true contact compresses all six feet into the deck, not a hover.
+    const counterFootPlant=counterLoad**4*.25+counterCollapse*.18;
     body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018)-plantedClaws*.20+display*.085*alert+(parried?.19:0)-counterLoad*.16+counterFaceCue*.28+counterRelease*.08+counterVault*.94-counterCollapse*.23-counterFootPlant;
     body.rotation.x=-s.danger*.055-alert*.11-plantedClaws*.34+display*.19*alert+(parried?.42:0)+counterLoad*.23-counterRelease*.19-counterCollapse*.30;
     // Pass525: the authentic full-frame mobile counter has BOTH physical actors
