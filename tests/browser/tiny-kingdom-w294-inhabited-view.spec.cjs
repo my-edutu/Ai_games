@@ -117,7 +117,9 @@ test('W294 original lived-in street direction follows genuine camera without hid
  expect(trade.accepted).toBe(true);
  expect(trade.composition.source)
   .toBe('original-physically-surveyed-working-trade-quarter');
- expect(trade.composition.candidateEyes).toBe(30);
+ expect(trade.composition.candidateEyes).toBeGreaterThanOrEqual(30);
+ expect(trade.composition.candidateEyes).toBeLessThanOrEqual(66);
+ expect(trade.composition.surveyedOriginalDoorways).toBe(3);
  expect(trade.composition.physicalCameraTrue).toBe(true);
  expect(trade.composition.roofsHidden).toBe(0);
  expect(trade.composition.peopleInvented).toBe(0);

@@ -30146,19 +30146,31 @@ function projectRealMobileCourtPoint(view,eye,point){
  return {x,y,depth,onScreen:Number.isFinite(x)&&Number.isFinite(y)&&
   Math.abs(x)<.88&&y>-.67&&y<.58};
 }
+// A house's physical center is INSIDE its walls. Aim the read-only street
+// witness at the authentic exterior front threshold, never an invented doorway.
+function realTradeOccupiedDoorwayPoint(home,lots=city){
+ if(!Array.isArray(home)||home.length<2||!home.slice(0,2).every(Number.isFinite)||!Array.isArray(lots))return null;
+ const lot=lots.find(row=>Array.isArray(row)&&row.length>=3&&
+  row.slice(0,3).every(Number.isFinite)&&
+  Math.hypot(row[0]-home[0],row[1]-home[1])<.01);
+ if(!lot)return null;
+ const [x,z,k]=lot,frontZ=z-(2.1+k*.18)*.5-.54;
+ return [x,terrain(x,frontZ)+.96,frontZ];
+}
 function scoreRealMobileMarketArrival(view,plan,volumes){
  const sight=freeCameraSightline(view,volumes);
  if(!sight.clear)return null;
  const market=plan.trueReceivingMarket,home=plan.firstHome,
   dock=[market[0],terrain(...market)+.85,market[1]],
-  doorway=[home[0],terrain(...home)+.85,home[1]],
+  doorway=realTradeOccupiedDoorwayPoint(home),
   court=projectRealMobileCourtPoint(view,sight.eye,dock),
-  frontage=projectRealMobileCourtPoint(view,sight.eye,doorway);
+  frontage=doorway?projectRealMobileCourtPoint(view,sight.eye,doorway):
+   {onScreen:false,x:null,y:null,depth:null};
  // The receiving dock and real occupied entrance are both ground-level,
  // not synthetic labels or a high aerial footprint. A building may genuinely
  // block either; record that honestly and do not remove it.
  const dockBlocked=followRayBlockers(sight.eye,dock,volumes)>0,
-  entranceBlocked=followRayBlockers(sight.eye,doorway,volumes)>0;
+  entranceBlocked=!doorway||followRayBlockers(sight.eye,doorway,volumes)>0;
  let readableCitizen=null,citizenScreenHeight=0,visibleActualCitizens=0;
  const optical=physicalCameraProjection();
  for(const p of people){
@@ -30299,49 +30311,58 @@ function getOriginalMobileMarketArrivalAudit(){
 // physically clear eyes using the SAME original roof/terrain/cargo volumes
 // and the genuine market, nearest occupied threshold and live humans.
 // This changes no city lot, inventory, resident, simulated job or replay.
+// Sample the first THREE REAL inhabited entrances; a clear market ray is
+// not a visible home if its own wall blocks a ray to its interior center.
+// The original full world and human paths are never hidden or modified.
 function planPhysicalTradeQuarterWitness(district){
  if(!district||!Array.isArray(district.market)||
     !Array.isArray(district.inspectedHomeLots)||
     !district.inspectedHomeLots.length)
-  throw Error('W488 missing genuine market/home district');
- const market=district.market,home=district.inspectedHomeLots[0],
-  midpoint=[market[0]*.55+home[0]*.45,
-   market[1]*.55+home[1]*.45];
- const observation={trueReceivingMarket:market,firstHome:home};
- const roofs=followCameraRoofs(),mobile=canvas.clientWidth<=520;
+  throw Error('W489 missing genuine market/home district');
+ const market=district.market,
+  inspectedHomes=district.inspectedHomeLots.slice(0,3),
+  roofs=followCameraRoofs(),mobile=canvas.clientWidth<=520;
  let best=null,surveyed=0,physicallyClear=0,
   marketVisible=0,readableDoorway=0;
- const offsets=[-1.15,-.55,0,.55,1.15];
- const focusOptions=[market,midpoint,district.focus];
- for(const focus of focusOptions){
-  for(const offset of offsets){
-   for(const [candidatePitch,candidateZoom] of
-    [[.46,mobile?15.5:17.5],[.69,mobile?20:23]]){
-    const view={focus:focus.slice(),yaw:district.yaw+offset,
-     pitch:candidatePitch,zoom:candidateZoom};
-    surveyed++;
-    const shot=scoreRealMobileMarketArrival(view,observation,roofs);
-    if(!shot)continue;
-    physicallyClear++;
-    if(shot.marketOnscreen&&shot.marketRayClear)marketVisible++;
-    if(shot.homeOnscreen&&shot.homeRayClear)readableDoorway++;
-    if(!shot.marketOnscreen||!shot.marketRayClear||
-       shot.foregroundSceneCover>.50)continue;
-    // The original actual human and doorstep are positive evidence, never
-    // required props or invented extras. Reject dominant roof silhouettes.
-    const quality=shot.score+
-     (shot.homeOnscreen&&shot.homeRayClear?9:0)+
-     Math.min(shot.visibleActualCitizens,3)*3-
-     shot.foregroundSceneCover*20-
-     Math.max(0,shot.foregroundSceneCover-.32)*35;
-    if(!best||quality>best.quality)
-     best={view,quality,shot};
+ for(let h=0;h<inspectedHomes.length;h++){
+  const home=inspectedHomes[h],
+   midpoint=[market[0]*.55+home[0]*.45,
+    market[1]*.55+home[1]*.45],
+   observation={trueReceivingMarket:market,firstHome:home},
+   offsets=h===0?[-1.15,-.55,0,.55,1.15]:[-.70,0,.70];
+  const focusOptions=[market,midpoint,district.focus];
+  for(const focus of focusOptions){
+   for(const offset of offsets){
+    for(const [candidatePitch,candidateZoom] of
+     [[.46,mobile?15.5:17.5],[.69,mobile?20:23]]){
+     const view={focus:focus.slice(),yaw:district.yaw+offset,
+      pitch:candidatePitch,zoom:candidateZoom};
+     surveyed++;
+     const shot=scoreRealMobileMarketArrival(view,observation,roofs);
+     if(!shot)continue;
+     physicallyClear++;
+     if(shot.marketOnscreen&&shot.marketRayClear)marketVisible++;
+     if(shot.homeOnscreen&&shot.homeRayClear)readableDoorway++;
+     if(!shot.marketOnscreen||!shot.marketRayClear||
+        shot.foregroundSceneCover>.50)continue;
+     // Reward only an ACTUALLY visible doorway and genuine nearby person.
+     const quality=shot.score+
+      (shot.homeOnscreen&&shot.homeRayClear?18:0)+
+      Math.min(shot.visibleActualCitizens,3)*3-
+      shot.foregroundSceneCover*20-
+      Math.max(0,shot.foregroundSceneCover-.32)*35;
+     if(!best||quality>best.quality)
+      best={view,quality,shot,home:home.slice(),
+       homeIndex:district.inspectedHomeIndices?.[h]??null};
+    }
    }
   }
  }
  return {source:'original-physically-surveyed-working-trade-quarter',
   surveyed,physicallyClear,marketVisible,readableDoorway,
-  best,market:market.slice(),home:home.slice(),
+  doorwaysInspected:inspectedHomes.length,
+  best,market:market.slice(),
+  home:(best?.home||inspectedHomes[0]).slice(),
   realHomes:district.realHomes,actualLiveCargo:district.observedLiveCargo,
   noCreatedActors:true,noRemovedStructures:true,authorityChanged:false,
   historicalReplayChanged:false,hardwareFps:'NOT MEASURED',
@@ -30369,7 +30390,7 @@ function requestRealMarketHomeDistrict(){
   if(attempted){
    const actual=scoreRealMobileMarketArrival(attempted,
     {trueReceivingMarket:plan.market,
-     firstHome:plan.inspectedHomeLots[0]},followCameraRoofs());
+     firstHome:survey.best.home},followCameraRoofs());
    if(actual&&actual.marketOnscreen&&actual.marketRayClear&&
       actual.foregroundSceneCover<=.50){
     safe=attempted;actualComposition=actual;
@@ -30381,7 +30402,7 @@ function requestRealMarketHomeDistrict(){
   safe=safeFreeOrbit(plan.yaw,plan.pitch,plan.zoom,plan.focus);
   if(safe)actualComposition=scoreRealMobileMarketArrival(safe,
    {trueReceivingMarket:plan.market,
-    firstHome:plan.inspectedHomeLots[0]},followCameraRoofs());
+    firstHome:survey.home},followCameraRoofs());
  }
  if(!safe){
   showToast('The real market quarter is obstructed from this camera');
@@ -30408,6 +30429,8 @@ function requestRealMarketHomeDistrict(){
    physicallyClearEyes:survey.physicallyClear,
    marketVisibleEyes:survey.marketVisible,
    readableDoorwayEyes:survey.readableDoorway,
+   surveyedOriginalDoorways:survey.doorwaysInspected,
+   targetOriginalHomeIndex:survey.best?.homeIndex??null,
    scoredGroundLevelWitness:acceptedStreetWitness,
    marketActuallyOnScreen:Boolean(actualComposition?.marketOnscreen),
    marketRayClear:Boolean(actualComposition?.marketRayClear),
