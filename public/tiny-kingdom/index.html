@@ -9465,11 +9465,11 @@ function renderOriginalOccupiedRoomShell(x,y,z,w,d,wallHeight,scale,plasterTone)
 // physically modelled upper casements. All 56 triangles join the already
 // retained exact-lot home VBO, never an actor, authority or impostor.
 let originalUpperRoomStats={builtInstances:0,triangles:0,sideWindowOpenings:0,
- rearWindowOpenings:0,loftFurnishings:0,exposedOakTies:0};
+ rearWindowOpenings:0,frontWindowOpenings:0,loftFurnishings:0,exposedOakTies:0};
 function getOriginalOccupiedUpperStoreyAudit(){
  return {...originalUpperRoomStats,
-  source:'w482-real-inhabited-loft-with-four-unobstructed-window-openings',
-  trianglesPerHome:140,additionalGpuBuffers:0,
+  source:'w483-real-inhabited-loft-six-open-casements-no-opaque-panels',
+  trianglesPerHome:164,additionalGpuBuffers:0,
   insertedBuildings:0,insertedResidents:0,changedNavigation:false,
   changedAuthority:false,hardwareFps:'NOT MEASURED',experienceGate:'NOT PROVEN'};
 }
@@ -9501,10 +9501,29 @@ function renderOriginalOccupiedUpperStorey(x,y,z,w,d,h,scale,plasterTone){
   }
   // W482: true side-and-rear glazed-era cottage with FOUR *empty*
   // openings. No blue opaque texture panel may close the real loft window.
-  const front0=[x0,base,z0],front1=[x1,base,z0],
-   front2=[x1,top,z0],front3=[x0,top,z0];
-  quad(front0,front1,front2,front3,plasterTone);
-  quad(front3,front2,front1,front0,plasterTone);
+  // W483: finish the real inhabited shell instead of painting two fake
+  // blue upper-floor rectangles over a solid facade. The two FRONT
+  // apertures follow the established genuine streetfront bay coordinates.
+  // Every wall is double-faced, retained with the one original home mesh.
+  const windowY=y+Math.min(h-.43*scale,Math.max(2.08*scale,h-.69*scale));
+  const frontLow=windowY-.32*scale,frontHigh=windowY+.18*scale;
+  const fa=x-w*.22-.19*scale,fb=x-w*.22+.19*scale,
+   fc=x+w*.22-.19*scale,fd=x+w*.22+.19*scale;
+  if(!(x0<fa&&fa<fb&&fb<fc&&fc<fd&&fd<x1&&
+    base<frontLow&&frontLow<frontHigh&&frontHigh<top))
+   throw Error('W483 original streetfront daylight apertures do not fit');
+  const frontWall=(xa,xb,lo,hi)=>{
+   const p0=[xa,lo,z0],p1=[xb,lo,z0],
+    p2=[xb,hi,z0],p3=[xa,hi,z0];
+   quad(p0,p1,p2,p3,plasterTone);
+   quad(p3,p2,p1,p0,plasterTone);
+  };
+  for(const pair of [[x0,fa],[fb,fc],[fd,x1]])
+   frontWall(pair[0],pair[1],base,top);
+  for(const pair of [[fa,fb],[fc,fd]]){
+   frontWall(pair[0],pair[1],base,frontLow);
+   frontWall(pair[0],pair[1],frontHigh,top);
+  }
   const rearWall=(xa,xb,lo,hi)=>{
    const p0=[xa,lo,z1],p1=[xb,lo,z1],
     p2=[xb,hi,z1],p3=[xa,hi,z1];
@@ -9547,15 +9566,16 @@ function renderOriginalOccupiedUpperStorey(x,y,z,w,d,h,scale,plasterTone){
   x-.40*scale,base+.386*scale,z+.25*scale,
   .65*scale,.075*scale,.68*scale,rgb(0xbba77d)));
  const triangles=(data.length-first)/30;
- if(triangles!==140||!Number.isInteger(triangles))
-  throw Error('W482 occupied upper loft bounded geometry parity failed');
+ if(triangles!==164||!Number.isInteger(triangles))
+  throw Error('W483 physically open six-casement upper loft budget failed');
  originalUpperRoomStats.builtInstances++;
  originalUpperRoomStats.triangles+=triangles;
  originalUpperRoomStats.sideWindowOpenings+=2;
  originalUpperRoomStats.rearWindowOpenings+=2;
+ originalUpperRoomStats.frontWindowOpenings+=2;
  originalUpperRoomStats.loftFurnishings+=3;
  originalUpperRoomStats.exposedOakTies++;
- return {triangles,openSides:4,existingHouse:true,
+ return {triangles,openSides:6,existingHouse:true,
   addedCitizens:0,addedGoods:0,changedEconomy:false};
 }
 
@@ -9619,6 +9639,27 @@ function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)
       upperHinge=[hinge[0],hi,hinge[2]];
      quad(hinge,free,upperFree,upperHinge,shutter);
      quad(upperHinge,upperFree,free,hinge,shutter);
+    }
+   }
+  });
+  // Six true openings: the original occupied street-facing loft windows
+  // gain outward-open oak leaves too, instead of hiding empty rooms behind
+  // a fixed flat blue rectangle. They remain within the same static VBO.
+  materialScope(MATERIAL.WOOD,()=>{
+   const cy=y+Math.min(h-.43*scale,Math.max(2.08*scale,h-.69*scale));
+   const low=cy-.32*scale,high=cy+.18*scale;
+   const outside=z-(d+.30*scale)*.5-.03*scale;
+   for(const side of [-1,1]){
+    const cx=x+side*w*.22;
+    for(const leaf of [-1,1]){
+     const hingeX=cx+leaf*.19*scale;
+     const freeX=hingeX+leaf*.20*scale;
+     const hinge=[hingeX,low,outside],
+      free=[freeX,low,outside-.22*scale],
+      freeTop=[freeX,high,outside-.22*scale],
+      hingeTop=[hingeX,high,outside];
+     quad(hinge,free,freeTop,hingeTop,shutter);
+     quad(hingeTop,freeTop,free,hinge,shutter);
     }
    }
   });
@@ -9920,7 +9961,7 @@ function applyHouseCountersDelta(delta){
 // the shader, but an unchanged inhabited cottage must never be rebuilt or
 // re-uploaded merely because the season changed. The version token makes
 // geometry-identity invalidation explicit without touching saved world data.
-const HOME_STATIC_GEOMETRY_KEY_VERSION='w482-real-open-four-casement-loft-rooms-v4';
+const HOME_STATIC_GEOMETRY_KEY_VERSION='w483-six-open-sided-authentic-loft-no-false-glass-v5';
 const HOME_CLUSTER_EDGE=16,HOME_CLUSTER_MAX_ENTRIES=32;
 const HOME_CLUSTER_FLOAT_BUDGET=(navigator.deviceMemory&&navigator.deviceMemory<=4)?
  2400000:4600000;
@@ -10970,7 +11011,7 @@ function grainwardOriginalTallStorey(x,z,variant,index,isCompact){
   }
  });
  const back=z+d*.5+.238,low=y+h-.94,high=y+h-.43;
- materialScope(MATERIAL.WINDOW_GLOW,()=>{
+ if(isCompact)materialScope(MATERIAL.WINDOW_GLOW,()=>{
   for(const side of [-1,1]){
    const cx=x+side*w*.23;
    quad([cx-.20,low,back],[cx+.20,low,back],
@@ -10987,7 +11028,7 @@ function grainwardOriginalTallStorey(x,z,variant,index,isCompact){
      [cx+.235,yy+.026,zf],[cx-.235,yy+.026,zf],pale);
   }
  });
- materialScope(MATERIAL.WINDOW_GLOW,()=>{
+ if(isCompact)materialScope(MATERIAL.WINDOW_GLOW,()=>{
   for(const side of [-1,1]){
    const xx=x+side*(w*.5+.18),
     a=[xx,low,z-.18],b=[xx,low,z+.18],
@@ -11991,7 +12032,7 @@ function medievalStreetMorphology(x,z,variant,index,isCompact){
   });
   // Upper casements meet the actual jetty wall, not the old shallow prop.
   const windowY=y+Math.min(h-.43,Math.max(2.08,h-.69)),zz=z-d*.5-.205;
-  materialScope(MATERIAL.WINDOW_GLOW,()=>{
+  if(isCompact)materialScope(MATERIAL.WINDOW_GLOW,()=>{
    for(const side of [-1,1]){
     const wx=x+side*w*.22;
     quad([wx-.19,windowY-.32,zz],[wx-.19,windowY+.18,zz],

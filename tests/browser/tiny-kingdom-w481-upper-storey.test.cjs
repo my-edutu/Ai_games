@@ -17,12 +17,13 @@ function makeRoom(){
 test('W481 original tall-home upper floor is physically hollow with two open casement reveals',()=>{
  const scene=makeRoom(),x=7,z=-4,w=3,d=2.4;
  const result=scene.renderOriginalOccupiedUpperStorey(x,0,z,w,d,3.73,1,[1,1,1]);
- assert.equal(result.triangles,140);
- assert.equal(scene.quads.length,34);
+ assert.equal(result.triangles,164);
+ assert.equal(scene.quads.length,46);
  assert.equal(scene.boxes.length,6,'one exposed tie, two joists, sleeping platform, chest and mattress');
- assert.equal(scene.data.length,140*30);
+ assert.equal(scene.data.length,164*30);
  assert.equal(scene.getOriginalOccupiedUpperStoreyAudit().sideWindowOpenings,2);
  assert.equal(scene.getOriginalOccupiedUpperStoreyAudit().rearWindowOpenings,2);
+ assert.equal(scene.getOriginalOccupiedUpperStoreyAudit().frontWindowOpenings,2);
  assert.equal(scene.getOriginalOccupiedUpperStoreyAudit().loftFurnishings,3);
  assert.equal(scene.getOriginalOccupiedUpperStoreyAudit().additionalGpuBuffers,0);
  assert.equal(scene.getOriginalOccupiedUpperStoreyAudit().changedAuthority,false);
@@ -51,6 +52,20 @@ test('W481 original tall-home upper floor is physically hollow with two open cas
    assert.ok(!(intersectsY&&intersectsX),'rear daylight opening is not sealed by plaster');
   }
  }
+ const front=z-(d+.30)/2;
+ const frontFaces=scene.quads.filter(q=>q.slice(0,4)
+  .every(p=>Math.abs(p[2]-front)<1e-8));
+ assert.equal(frontFaces.length,14,'two outward/inward surfaces around TWO real frontage casements');
+ const cy=Math.min(3.73-.43,Math.max(2.08,3.73-.69));
+ for(const face of frontFaces){
+  const ys=face.slice(0,4).map(p=>p[1]),xs=face.slice(0,4).map(p=>p[0]);
+  const overlapY=Math.min(...ys)<cy+.18-1e-7&&Math.max(...ys)>cy-.32+1e-7;
+  for(const wx of [x-w*.22,x+w*.22]){
+   const overlapX=Math.min(...xs)<wx+.19-1e-7&&Math.max(...xs)>wx-.19+1e-7;
+   assert.ok(!(overlapY&&overlapX),'real frontage opening must not have plaster across it');
+  }
+ }
+ assert.match(source,/if\(isCompact\)materialScope\(MATERIAL\.WINDOW_GLOW/);
  assert.ok(scene.quads.every(q=>q.slice(0,4).every(p=>p.length===3&&p.every(Number.isFinite))));
  assert.ok(scene.boxes.every(b=>b.slice(0,6).every(Number.isFinite)));
  assert.ok(scene.boxes.every(b=>b[3]>0&&b[4]>0&&b[5]>0));
@@ -59,8 +74,8 @@ test('W481 upper storey has bounded resident geometry at either actual tall-hous
  for(const h of [3.27,3.73]){
   const scene=makeRoom();
   const r=scene.renderOriginalOccupiedUpperStorey(-8,1,12,2.82,2.28,h,1,[.7,.6,.5]);
-  assert.equal(r.triangles,140);
-  assert.equal(scene.getOriginalOccupiedUpperStoreyAudit().trianglesPerHome,140);
+  assert.equal(r.triangles,164);
+  assert.equal(scene.getOriginalOccupiedUpperStoreyAudit().trianglesPerHome,164);
  }
  const scene=makeRoom();
  assert.throws(()=>scene.renderOriginalOccupiedUpperStorey(0,0,0,3,2,2.8,1,[1,1,1]),/invalid dimensions/);
@@ -73,7 +88,7 @@ test('W481 retains actual housing cache, open room, economy and fully parsed ori
  assert.match(source,/function exportSnapshot\(\)/);
  assert.match(source,/function marketSupplyView\(\)/);
  assert.match(source,/W482: parked open oak casements instead of four opaque flat blue/);
- assert.match(source,/w482-real-open-four-casement-loft-rooms-v4/);
+ assert.match(source,/w483-six-open-sided-authentic-loft-no-false-glass-v5/);
  assert.doesNotMatch(source,/materialScope\(MATERIAL\.WINDOW_GLOW,\(\)=>\{\s*for\(const side of \[-1,1\]\)\{\s*const sx=x\+side\*\(w\*\.5\+\.154\*scale\)/);
  for(const part of source.match(/<script>([\s\S]*?)<\/script>/g)||[])
   new Function(part.replace(/^<script>|<\/script>$/g,''));
