@@ -4044,9 +4044,20 @@ export function createTowerWorld(){
       phaseStartAt=now;
     };
     beginRetainedCapRebuild(snapshot);
-    clearFloor(deferStructuralShell);originalClockworkArchitecturalPalette=null;
+    // The new 1x original Floor9 films attribute 58-98ms to a combined
+    // old-owner CPU stage. Split its REAL transfer and teardown, preserving
+    // the old aggregate for identical source/viewport comparisons.
+    // These diagnostics never change geometry, authority or draw cadence.
+    closeColdPhase('originalSourceCapGatewayTransfer');
+    clearFloor(deferStructuralShell);
+    closeColdPhase('formerFloorTeardownAndRetirement');
+    originalClockworkArchitecturalPalette=null;
     sourceEarnedBearingPalette=null;
-    closeColdPhase('oldGpuOwnerAndClear');
+    if(firstF9CpuPhases){
+      firstF9CpuPhases.oldGpuOwnerAndClear=+(
+        firstF9CpuPhases.originalSourceCapGatewayTransfer+
+        firstF9CpuPhases.formerFloorTeardownAndRetirement).toFixed(2);
+    }
     quality=requestedQuality;theme=THEMES[snapshot.theme]?snapshot.theme:'foundry';const p=PALETTES[theme];
     materials={stone:weather(mat(p.stone,.04,.86)),dark:mat(p.dark,.28,.58),metal:mat(p.metal,.48,.39),copper:mat(theme==='foundry'?0xc88c57:p.metal,.55,.32),edge:mat(p.edge,.12,.68),
       portalStone:theme==='ruins'?applyStoneSurface(mat(p.edge,.035,.90),stoneSurface,{scale:.11,strength:.56,relief:.013}):mat(p.edge,.12,.68),
@@ -4133,6 +4144,13 @@ export function createTowerWorld(){
       sourceTick: snapshot.tick, key,
       cpuBuildMs: +(performance.now() - rebuildStartedAt).toFixed(2),
       firstF9CpuPhases,
+      firstF9OldOwnerPath:firstF9CpuPhases?{
+        originalGalleryPreparation:thresholdGalleryPreparation.state,
+        originalGalleryFaces:retainedEarnedCap?.originalGalleryTriangles??0,
+        formerFloorResourceHandling:retirementAudit.state,
+        formerFloorQueuedItems:retirementAudit.queued,
+        formerFloorRemainingItems:retirementAudit.remaining
+      }:null,
       measurement: 'CPU synchronous real-world rebuild and first-F9 sub-stages, not WebGL return, GPU or native video' };
     if (deferDistant) deferredDistantArrival = {
       key, runToken:snapshot.runToken, floor:snapshot.floor,
