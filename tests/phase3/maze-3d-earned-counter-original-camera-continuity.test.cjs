@@ -11,10 +11,14 @@ const scene=fs.readFileSync(path.join(root,'public/ai-maze-escape/scene.js'),'ut
 test('an actual same-run counter holds the already photographed two-body contact then earns a real retreat',async()=>{
   const {publicEarnedGuardianCounterCameraAct:act}=await load();
   assert.equal(act(0,true,false),0);
-  assert.equal(act(.2,true,false),0,'do not cut away during the first witness');
-  assert.equal(act(.27,true,false),0);
-  const mid=act(.56,true,false);
-  assert.ok(mid>.4 && mid<.6,'retreat must visibly progress during the real two-second beat');
+  assert.equal(act(.08,true,false),0,'genuine first impact retains the previously rendered camera');
+  assert.ok(act(.2,true,false)>.08 && act(.2,true,false)<.20,
+    'the original 390px hidden face requires movement while the real hit is still witnessed');
+  assert.ok(act(.30,true,false)>.30 && act(.30,true,false)<.45,
+    'the existing high-angle body reveal progresses before the real parry expires');
+  const mid=act(.35,true,false);
+  assert.ok(mid>.49 && mid<.51,'the original physical camera transition remains continuous');
+  assert.equal(act(.62,true,false),1);
   assert.equal(act(.85,true,false),1);
   assert.equal(act(.99,true,false),1);
   for(let i=0;i<100;i++){

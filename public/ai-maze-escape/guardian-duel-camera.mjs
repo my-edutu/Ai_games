@@ -274,7 +274,7 @@ export function publicEarnedGuardianCounterCameraPriority(
  * framed both actors at tick93. Preserve the already RENDERED camera through
  * first clear impact, then ease toward the authentic retreat shot over the
  * latter half of the same genuine two-second lantern-counter clock.
- * Window .27–.85 is presentation only, not a longer or invented parry.
+ * Window .08–.62 is presentation only, not a longer or invented parry.
  * This function merely stages a camera; never advances AI, authoritative
  * world clock, hazards, public map discovery or actor positions.
  */
@@ -282,7 +282,11 @@ export function publicEarnedGuardianCounterCameraAct(
   phase,earned=false,reducedMotion=false) {
   if(!earned || reducedMotion || !Number.isFinite(phase)
     || phase<0 || phase>=1)return 1;
-  const t=Math.max(0,Math.min(1,(phase-.27)/.58));
+  // Pass526: real 390px tick94 camera hides Thornback behind disclosed
+  // foreground foliage, whereas the later genuine 320px higher view reveals
+  // both actors. Begin the SAME earned camera transition earlier, retaining
+  // first impact, without touching world motion, privacy or physical fit.
+  const t=Math.max(0,Math.min(1,(phase-.08)/.54));
   return t*t*(3-2*t);
 }
 
