@@ -4982,6 +4982,10 @@ function stageLicensedSourceSwingCounterpitchAfterMixer(actor,reducedMotion){
   sourceFootBone:foot.bone.name,sourceOriginalTracks:audits.map(a=>a.trackName),
   originalBindSegmentsMeters:[bind.upperLength,bind.lowerLength],
   witnessedRootTravelMeters:travel,witnessedFrameIntervalSeconds:interval,
+  // The same-frame direct root witness prevents a stale sparse callback
+  // from borrowing a different pose's licensed toe-child rate budget.
+  witnessedDirectFrameTravelMeters:direct,witnessedFrameAgeSeconds:age,
+  sparseFrameVerified:sparseFrameVerified===true,
   before,after,finalIndependentSourceSkin:true,
   sourceProbeCount:2,contactLocked:false,plantCertified:false};
  actor.sourceLicensedCounterpitchCurrentFrame[side]=receipt;
@@ -5055,7 +5059,19 @@ function stageLicensedSourceToeFinisherAfterCounterpitch(actor,reducedMotion){
   const interval=proof.witnessedFrameIntervalSeconds;
   // At 60Hz a real post-mixer 16.7ms witnessed root step can authorize
   // <=50.1mrad of toe motion. Certificate independently enforces 3rad/s.
-  if(!Number.isFinite(interval)||interval<.008||interval>.24)continue;
+  if(!Number.isFinite(interval)||interval<.008||interval>.420001||
+   (interval>.240001&&!(
+    proof.sparseFrameVerified===true&&
+    Number.isFinite(proof.witnessedDirectFrameTravelMeters)&&
+    proof.witnessedDirectFrameTravelMeters>=.012&&
+    proof.witnessedDirectFrameTravelMeters<=.24&&
+    Number.isFinite(proof.witnessedRootTravelMeters)&&
+    Math.abs(proof.witnessedRootTravelMeters-
+     proof.witnessedDirectFrameTravelMeters)<=.001&&
+    Number.isFinite(proof.witnessedFrameAgeSeconds)&&
+    proof.witnessedFrameAgeSeconds>=0&&
+    proof.witnessedFrameAgeSeconds<=.035
+   )))continue;
   const toeAngle=Math.min(.12,3*interval);
   const candidateArgs={proof,before,side,sourceInstanceId:asset.uuid,
    sourceInstanceSame:true,sourceClipName:clip.name,
