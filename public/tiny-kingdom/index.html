@@ -3879,10 +3879,21 @@ function authenticWorkerGpuResidentRows(actors,nearPeople,frame){
   // Preserve the selected farmer's live hand contacts and every large hero.
   // Passive original villagers enter only when truly visible and small;
   // they retain their own authentic full rig, occupation and home.
+  // W500: the genuine 1024px market workday projects the actual watched
+  // worker at 0.400 screen height. The former 0.37 cutoff silently excluded
+  // that worker from the 13-joint GPU stream, despite a valid rig and
+  // non-delivery occupation; the 390px equivalent at 0.24 was admitted.
+  // Admit medium-sized *unladen* watched workers across both orientations,
+  // retain their original bind through a small optical hysteresis band,
+  // and leave larger close-contact heroes on full live CPU IK. Real parcels,
+  // market unloading and meal contacts remain excluded ABOVE this selector.
+  const previouslySkinned=Boolean(observed&&
+   foregroundResidentCache.get(i)?.skinned);
+  const observedWorkHeight=previouslySkinned?.52:.46;
   const maxHeight=(passive||nearTraveler)?
    FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT:
    (distantResting||commuter)?.09:
-   detail?(observed?.37:WORKSITE_SKIN_ENTER_SCREEN_HEIGHT):.075;
+   detail?(observed?observedWorkHeight:WORKSITE_SKIN_ENTER_SCREEN_HEIGHT):.075;
   if(!view.visible||!Number.isFinite(view.heightFraction)||
       view.heightFraction<=0||view.heightFraction>=maxHeight)continue;
   eligible.push({p,i,detail,passive,active,height:view.heightFraction,
