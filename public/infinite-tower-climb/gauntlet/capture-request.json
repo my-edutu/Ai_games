@@ -7997,5 +7997,33 @@
       "noForcePush": true,
       "otherGamesUntouched": true
     }
+  },
+  "p0SourceBoundGuardianThreeSubjectCameraRescue20261120_1400": {
+    "stage": "P0 OPEN — NOT EVALUATED",
+    "baselineRef": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateRef": "${{ github.sha }}",
+    "immutableShaRequired": true,
+    "seed": "tower-transformation-capture-v1",
+    "quality": "low",
+    "fps": 25,
+    "speed": 1,
+    "desktop": "960x600",
+    "portrait": "390x844",
+    "minimumDurationSeconds": 60,
+    "scenarios": [
+      "ascent",
+      "moving",
+      "danger",
+      "outcome/restart"
+    ],
+    "rationale": "Validate original HP-open gate steel, full skinned body, and source-walkable first F9 roof in one continuous native shot after bounded real-triangle camera rescue; preserve same original game baseline and no invented actor/crossing.",
+    "priorPairing": "0/2 source-native danger viewports",
+    "newOutcome": "NOT EVALUATED",
+    "blindIndependentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "hardwareFramePercentilesAndMemory": "NOT EVALUATED"
   }
 }

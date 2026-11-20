@@ -46,3 +46,43 @@ test('original real F8 lens is checked against the same CURRENT source-owned F9 
   assert.match(text,/bridgeProjectionAndCoreSafe && bridgePhysical\.allowed/);
   assert.match(text,/originalGatewayCameraPhysicalVetoed/);
 });
+
+
+test('genuine 3D gateway framing needs complete moving hero, attached opened steel and walkable F9 simultaneously',async()=>{
+  const {assessOriginalGatewayThreeSubjectCameraFrame:assess}=await loaded;
+  const base={
+    heroNdc:[-.16,.02,.28,.15],gateNdc:[.28,.06,.22,.14],
+    walkableNdc:[.54,-.24,.5],
+    steel:{sourceBound:true,projectedMetalArea:.042,projectedPanes:3}
+  };
+  const valid=assess(base);
+  assert.equal(valid.accepted,true);
+  assert.ok(valid.score>0 && valid.score<=1);
+  assert.equal(assess({...base,heroNdc:[-.16,.64,.28,.18]}).accepted,false,
+    'visible body centre is not enough when the real helmet is cropped');
+  assert.equal(assess({...base,heroNdc:[-.16,.02,.28,.01]}).accepted,false,
+    'an imperceptibly small character must not earn a hero/gateway shot');
+  assert.equal(assess({...base,gateNdc:[1.1,.06,.22,.14]}).accepted,false);
+  assert.equal(assess({...base,walkableNdc:[1.0,-.24,.5]}).accepted,false);
+  assert.equal(assess({...base,walkableNdc:null}).accepted,false);
+  assert.equal(assess({...base,steel:{...base.steel,projectedMetalArea:0}}).accepted,false,
+    'projecting through an EMPTY original door aperture is not proof of gate steel');
+  assert.equal(assess({...base,steel:{...base.steel,projectedPanes:1}}).accepted,false);
+  assert.equal(assess({...base,steel:{...base.steel,sourceBound:false}}).accepted,false);
+  assert.equal(assess({...base,heroNdc:[NaN,0,.2,.1]}).accepted,false);
+  assert.equal(assess({...base,walkableNdc:[.4,0,2]}).accepted,false);
+  assert.equal(assess({...base,steel:{...base.steel,projectedMetalArea:Infinity}}).accepted,false);
+  assert.equal(assess(base).score,valid.score,'identical source has stable projection preference');
+});
+test('F8 returned camera rescue protects actual metal, full body and real source-owned successor roof',()=>{
+  const code=fs.readFileSync(path.resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+  assert.match(code,/assessOriginalGatewayThreeSubjectCameraFrame\(\{/);
+  assert.match(code,/bridgeThreeSubject\.accepted/);
+  assert.match(code,/originalThreeSubject &&/);
+  assert.match(code,/world\.projectedOriginalGateSteel\(snapshot,camera\)/);
+  assert.match(code,/walkablePreviouslyReadable\(recordWalkableProjection\(thresholdWalkableAfter\)\)/);
+  assert.match(code,/rescueCandidates\.slice\(1,4\)/,
+    'bounded camera rescue must not multiply full-scene ray work without bound');
+  assert.match(code,/assessOriginalGatewayPhysicalCameraBridge\(\s*bridgePhysicalBefore,world\.measureSuccessorDeckVisibility\(/);
+});

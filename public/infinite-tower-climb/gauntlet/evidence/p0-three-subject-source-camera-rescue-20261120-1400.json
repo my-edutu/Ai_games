@@ -1,0 +1,29 @@
+{
+  "stage": "P0 OPEN",
+  "leadingAssessorVerdict": "NOT EVALUATED",
+  "baseline": "1731b380851162741761c5569e2bc152a0869ca9",
+  "parentSourceSha": "d31f15495147fbbb7b0abe5f33f954cb7a2b2b0b",
+  "previousCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44732253794",
+  "previousCI": "https://github.com/my-edutu/Ai_games/actions/runs/44732253788",
+  "previousCampaignResult": "8/8 authentic source-pinned 60+ seconds plus ledge SUCCESS; strict danger event-paired native crossing FAIL 0/2",
+  "qualityResult": "9/10 successful; Phase6 unrelated timeout exit124; all 4 Tower Phase3 passed",
+  "productionFiles": [
+    "public/infinite-tower-climb/visuals/scene.mjs",
+    "public/infinite-tower-climb/visuals/original-gateway-camera-ray-contract.mjs"
+  ],
+  "newTest": "tests/phase3/tower-original-gateway-camera-ray-contract.test.cjs",
+  "originalWork": "Real F8 HP-zero authenticated original 3D camera must retain actual opened steel, complete skinned moving actor and walkable source F9 landing together; at most 3 physical clearance alternatives when original rebase fails",
+  "newNativeFootage": "NOT EVALUATED — capture-request changed; verify workflow and exact github.sha",
+  "independentCritics": {
+    "LOOKS": 0,
+    "FEELS": 0,
+    "PLAYS": 0
+  },
+  "actualDevice": "NOT EVALUATED",
+  "sourceForVisualAcceptance": "original WebM+native PTS+source event pair, not programmatic NDC or CI",
+  "noOtherGameChange": true,
+  "doNotMerge": true,
+  "doNotForcePush": true,
+  "draft": true,
+  "review": "docs/reviews/2026-11-20-tower-pr68-p0-full-body-gate-roof-source-camera-rescue.md"
+}

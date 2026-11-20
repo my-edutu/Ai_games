@@ -34,3 +34,37 @@ export function assessOriginalGatewayPhysicalCameraBridge(before,after){
     'actual-geometry-clear':'actual-geometry-improved',
     gain:before.score-after.score};
 }
+
+
+// These are projections of three CURRENT source-owned 3D subjects. This
+// evaluator never claims video pixels, and never licenses a camera without
+// the separate world-triangle and solid-core vetoes. A point-only hero or
+// empty theoretical doorway must not masquerade as a readable crossing.
+export function assessOriginalGatewayThreeSubjectCameraFrame({
+  heroNdc,gateNdc,walkableNdc,steel
+}={}) {
+  const ndc=(p,length)=>Array.isArray(p)&&p.length===length&&
+    p.every(Number.isFinite)&&p[2]>=-1&&p[2]<=1;
+  if(!ndc(heroNdc,4)||!ndc(gateNdc,4)||!ndc(walkableNdc,3) ||
+     heroNdc[3]<.055||gateNdc[3]<.025 ||
+     Math.abs(heroNdc[0])+heroNdc[3]*.14>.76||
+     Math.abs(heroNdc[1])+heroNdc[3]>.76 ||
+     Math.abs(gateNdc[0])+gateNdc[3]*.10>.80 ||
+     Math.abs(gateNdc[1])+gateNdc[3]>.80 ||
+     Math.abs(walkableNdc[0])>.78||Math.abs(walkableNdc[1])>.76)
+    return {accepted:false,reason:'cropped-real-hero-gate-or-walkable-deck',score:0};
+  if(steel?.sourceBound!==true ||
+     !Number.isFinite(steel.projectedMetalArea)||
+     steel.projectedMetalArea<.004||
+     !Number.isSafeInteger(steel.projectedPanes)||
+     steel.projectedPanes<2)
+    return {accepted:false,reason:'original-attached-gateway-steel-not-readable',score:0};
+  // Favor a clear physical three-subject frame, especially the REAL opened
+  // bronze metal; never reward an offscreen, tiny or borrowed portal.
+  const separated=Math.min(1,Math.hypot(
+    heroNdc[0]-gateNdc[0],heroNdc[1]-gateNdc[1])/.55);
+  return {accepted:true,reason:'real-three-subject-projection',
+    score:Math.min(1,steel.projectedMetalArea/.12)*.45+
+      Math.min(1,heroNdc[3]/.20)*.30+
+      Math.min(1,gateNdc[3]/.20)*.10+separated*.15};
+}
