@@ -95,5 +95,56 @@
     "deploy": false,
     "forcePush": false,
     "otherGameEdits": false
+  },
+  "followUp20261120_0810ExactHeadCiAndRealNativeCapture": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "inspectedExactSourceHead": "32abb83ea635710404b06901eb0ea204ad10a05b",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "observedPreviousQuality": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44691198597",
+      "result": "FAILED 9/10",
+      "towerPhase3": "one regression test tower-render-progress.test.cjs expected old eight CPU keys; source now truthfully exposed two new owner CPU keys as null when absent. Other 3 Tower Phase3 shards passed, Phase6 passed."
+    },
+    "focusedUnblocker": {
+      "commit": "20b5485d3fd9135c9ff6337e24b6a0af4efafe2b",
+      "change": "Updated existing bounded returned-frame CPU contract fixture for split original-gateway transfer and old-resource retirement, verified original retained-gallery owner on matching renderer-submitted snapshot, guarded source floor/run. No production game, simulation, visuals or physics modified in this execution.",
+      "localNode": "NOT RUN — coding tunnel-client unavailable; exact-head checks pending"
+    },
+    "newImmutableOriginalCapture": {
+      "sourceSha": "cca4d433adabcf9321fc0f8a8b3ff9bf44cec63b",
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44692994077",
+      "status": "IN PROGRESS at record; no native film inspected and no event pass claimed",
+      "matchedConditions": "Eight 60s+ baseline/candidate 1x matched source scenes, low tier, 960x600 and 390x844; authentic source ledge and strict native event/video pairing",
+      "purpose": "Determine original gallery prewarm vs real cold fallback and owner transfer vs Floor8 GPU disposal, then visually verify opened gate, full moving climber and actual walkable successor roof together."
+    },
+    "newQuality": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44692883847",
+      "result": "IN PROGRESS",
+      "latestRequestCommitRun": "https://github.com/my-edutu/Ai_games/actions/runs/44692994001",
+      "resultOfLatest": "PENDING"
+    },
+    "largestExperienceGap": "Prior actual unmodified candidate danger WebMs still have 0 seconds sustained bronze-violet shared architecture, 0/2 strict event-matched viewports, significant portrait historical foreground obstruction; new split CPU source capture not completed.",
+    "nextHighestImpact": "Read newly returned first-F9 exact source owner phases, target dominant 58-98ms real GPU-owner transfer/disposal path if confirmed, then correct actual guardian-gateway hero roof portrait composition, source pin another full native film; remain P0.",
+    "independentBlindCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "realDevice": {
+      "p50": "NOT EVALUATED",
+      "p95": "NOT EVALUATED",
+      "p99": "NOT EVALUATED",
+      "memory": "NOT EVALUATED"
+    },
+    "safeguards": {
+      "PR68Draft": true,
+      "PR58Untouched": true,
+      "baselineUnchanged": true,
+      "noMerge": true,
+      "noDeploy": true,
+      "noForcePush": true,
+      "noOtherGames": true
+    }
   }
 }
