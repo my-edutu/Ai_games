@@ -4979,11 +4979,27 @@ function stageLicensedSourceSwingCounterpitchAfterMixer(actor,reducedMotion){
    // A genuinely better weighted toe must also retain the first pose's
    // physical outsole pitch, supported heel and opposite loaded shoe.
    // Reject unobserved improvements, not merely a plausible angle.
+   // Original Vanguard GLB heel/toe geometry proves that the first
+   // ankle-biased correction can lower its swing heel farther than needed.
+   // A source-specific knee-led candidate may gain >=1mm of true SKINNED
+   // forefoot clearance while retaining >=3mm real outsole pitch relief,
+   // a descending swing heel, and the independently unmoved loaded foot.
+   // Never override an invalid real skinning certificate, rate or source
+   // owner, and keep the strict historic winner choice for other roles.
+   // This remains an AIRBORNE original swing, never a certified footplant.
+   const vanguardForefootBetter=role==='vanguard'&&chosen&&certificate&&
+    certificate.toeLiftMeters>=chosen.certificate.toeLiftMeters+.001&&
+    certificate.residualToeBurialMeters<=
+     chosen.certificate.residualToeBurialMeters-.001&&
+    certificate.heelDeltaMeters<=-.001&&
+    certificate.pitchImprovementMeters>=Math.max(.003,
+     chosen.certificate.pitchImprovementMeters-.003);
    if(certificate&&(!chosen||
     (certificate.residualToeBurialMeters<=
       chosen.certificate.residualToeBurialMeters-.0015&&
      certificate.pitchImprovementMeters>=
-      chosen.certificate.pitchImprovementMeters-.001))){
+      chosen.certificate.pitchImprovementMeters-.001)||
+    vanguardForefootBetter)){
     chosen={trial,deltas,certificate,after};
    }
   }
