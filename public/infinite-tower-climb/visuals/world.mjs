@@ -19,7 +19,7 @@ import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observe
 import { chooseSourceEarnedFirstReturnInstancing } from './source-earned-first-return-instancing.mjs';
 import { observedReturnedSuccessorRoomReady, observedSupportedReturnedShaftDepth } from './original-room-returned-exit.mjs';
 import { projectOriginalGuardianGateSteel } from './original-guardian-gate-steel-projection.mjs';
-import { actualGatewayReceivingRoofSpans, syncGatewayReceivingRoofColours } from './source-physical-receiving-roof.mjs';
+import { actualGatewayReceivingRoofSpans, syncGatewayReceivingRoofColours, resetGatewayReceivingRoofColours } from './source-physical-receiving-roof.mjs';
 
 
 /**
@@ -2511,6 +2511,18 @@ export function createTowerWorld(){
       // deck, guardian warning, hazard glow or another platform material.
       const glow=materials.glow.clone();
       const crystal=materials.crystal.clone();
+      // Original F9 native films show the WHOLE steel rim and luminous band
+      // switching colour while its source-authentic top is still warm bronze.
+      // Clone only local shaders for the same THREE disjoint roof sectors.
+      const roofTrim=joinedMiddle?{
+        beamMiddle:body.clone(),beamSuccessor:body.clone(),
+        edgeMiddle:rim.clone(),edgeSuccessor:rim.clone(),
+        lampMiddle:glow.clone(),lampSuccessor:glow.clone()
+      }:null;
+      if(roofTrim)for(const [name,material] of Object.entries(roofTrim)){
+        material.name=`SourceEarnedF9Roof${name}`;
+        floorMaterials.add(material);
+      }
       top.name='SourceEarnedSharedPhysicalArrivalRoof';
       body.name='SourceEarnedOriginalSuccessorRouteBody';
       rim.name='SourceEarnedOriginalSuccessorRouteRim';
@@ -2522,7 +2534,8 @@ export function createTowerWorld(){
       const warmCrystal=new THREE.Color(PALETTES.clockwork.metal)
         .lerp(warmGlow,.33);
       arrivalRoutePalette={bronze,top,body,rim,glow,crystal,
-        roofJoin:joinedMiddle?{middle:joinedMiddle,successor:joinedSuccessor}:null,
+        roofJoin:joinedMiddle?{middle:joinedMiddle,successor:joinedSuccessor,
+          ...roofTrim}:null,
         topVoid:top.color.clone(),bodyVoid:body.color.clone(),
         rimVoid:rim.color.clone(),
         glowVoid:glow.color.clone(),glowEmissiveVoid:glow.emissive.clone(),
@@ -2623,8 +2636,24 @@ export function createTowerWorld(){
       }
     } else mesh(root,sector(22.4,27.18,angle,.16),
       arrivalSurface||materials.landing,[0,h-.16,0]);
-    mesh(root,sector(27.02,27.22,angle,.095),p.kind==='moving'?materials.mint:(arrivalRim||materials.copper),[0,h-.27,0]);
-    mesh(root,sector(26.99,27.13,angle,.07),bodyMaterial,[0,h-.66,0]);
+    if(joinedRoofSpans && arrivalRoutePalette?.roofJoin?.edgeMiddle){
+      // The exact same x->arc source cuts as the real walking surface:
+      // no added bridge, platform or coplanar decorative full-width band.
+      const trim=arrivalRoutePalette.roofJoin;
+      for(const band of joinedRoofSpans){
+        const edge=band.kind==='approach'?arrivalRim:
+          band.kind==='threshold'?trim.edgeMiddle:trim.edgeSuccessor;
+        const beam=band.kind==='approach'?bodyMaterial:
+          band.kind==='threshold'?trim.beamMiddle:trim.beamSuccessor;
+        mesh(root,sector(27.02,27.22,band.angle,.095),edge,
+          [0,h-.27,0],[1,1,1],[0,band.offset,0]);
+        mesh(root,sector(26.99,27.13,band.angle,.07),beam,
+          [0,h-.66,0],[1,1,1],[0,band.offset,0]);
+      }
+    }else{
+      mesh(root,sector(27.02,27.22,angle,.095),p.kind==='moving'?materials.mint:(arrivalRim||materials.copper),[0,h-.27,0]);
+      mesh(root,sector(26.99,27.13,angle,.07),bodyMaterial,[0,h-.66,0]);
+    }
     const ribs=[],treads=[],count=Math.max(2,Math.round(angle*25/2.6));
     for(let i=0;i<count;i++){
       const a=-angle/2+(i+.5)*angle/count;
@@ -2676,7 +2705,17 @@ export function createTowerWorld(){
       }
       instanced(root,geometry('void-undercroft',()=>new THREE.OctahedronGeometry(1,0)),
         sharedPhysicalRoof?arrivalRoutePalette.crystal:materials.crystal,shards);
-      mesh(root,sector(27.04,27.17,angle,.05),
+      if(joinedRoofSpans && arrivalRoutePalette?.roofJoin?.lampMiddle){
+        // The original FULL-WIDTH neon underlip used to read as a sudden
+        // alien ring while the skinned climber was at the bronze threshold.
+        const trim=arrivalRoutePalette.roofJoin;
+        for(const band of joinedRoofSpans){
+          const lamp=band.kind==='approach'?arrivalRoutePalette.glow:
+            band.kind==='threshold'?trim.lampMiddle:trim.lampSuccessor;
+          mesh(root,sector(27.04,27.17,band.angle,.05),lamp,
+            [0,h-.37,0],[1,1,1],[0,band.offset,0]);
+        }
+      }else mesh(root,sector(27.04,27.17,angle,.05),
         sharedPhysicalRoof?arrivalRoutePalette.glow:materials.glow,[0,h-.37,0]);
     }
     // An original, physically modeled guardian seal makes the boss gate's
@@ -3169,9 +3208,9 @@ export function createTowerWorld(){
     // A verified passage may end early (death, new run, changed location).
     // Restore the real F9 ground's canonical void material in that same
     // frame; never leave a historical bronze tint on an unrelated route.
-    const arrival=platforms.get('f9:ground')?.arrivalSurface;
-    if(arrival && materials.landing)arrival.color.copy(materials.landing.color);
-    syncGatewayReceivingRoofColours(arrivalRoutePalette);
+    if(arrivalRoutePalette &&
+       platforms.get('f9:ground')?.arrivalSurface===arrivalRoutePalette.top)
+      resetGatewayReceivingRoofColours(arrivalRoutePalette);
     held.root.removeFromParent();
     held.root.traverse(object => {
       if (object.isInstancedMesh) object.dispose();
