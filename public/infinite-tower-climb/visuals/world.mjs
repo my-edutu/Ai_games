@@ -19,7 +19,7 @@ import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observe
 import { chooseSourceEarnedFirstReturnInstancing } from './source-earned-first-return-instancing.mjs';
 import { observedReturnedSuccessorRoomReady, observedSupportedReturnedShaftDepth } from './original-room-returned-exit.mjs';
 import { projectOriginalGuardianGateSteel } from './original-guardian-gate-steel-projection.mjs';
-import { actualGatewayReceivingRoofSpans, syncGatewayReceivingRoofColours, resetGatewayReceivingRoofColours } from './source-physical-receiving-roof.mjs';
+import { actualGatewayReceivingRoofSpans, actualGatewayReceivingLoadPathBays, syncGatewayReceivingRoofColours, resetGatewayReceivingRoofColours } from './source-physical-receiving-roof.mjs';
 
 
 /**
@@ -2730,6 +2730,42 @@ export function createTowerWorld(){
     }else{
       mesh(root,sector(27.02,27.22,angle,.095),p.kind==='moving'?materials.mint:(arrivalRim||materials.copper),[0,h-.27,0]);
       mesh(root,sector(26.99,27.13,angle,.07),bodyMaterial,[0,h-.66,0]);
+    }
+    // P0 crossing-scale architecture, not a camera/material-only workaround:
+    // six load-bearing stations visually connect the genuinely opened F8
+    // gallery to all THREE bands of the actual F9 roof. Their angular
+    // placement is derived from source deck coordinates, and the roof's
+    // existing metals own their colour/retirement. The WHOLE structure is
+    // below the walkable slab, has no collision or floor state, and only
+    // exists for the authenticated old-cap -> real F9 grounded roof.
+    const gatewayLoadPath=joinedRoofSpans && sharedPhysicalRoof
+      ?actualGatewayReceivingLoadPathBays(p,width,
+          retainedEarnedCap.thresholdX,{
+            id:retainedEarnedCap.oldCapId,x:retainedEarnedCap.oldCapX,
+            width:retainedEarnedCap.oldCapWidth
+          },ARC):null;
+    if(gatewayLoadPath){
+      const loadPath=new THREE.Group();
+      loadPath.name='SourceEarnedFloorNineGatewayLoadPath';
+      loadPath.userData={sourceAligned:true,oldCapId:'f8:cap',
+        receivingPlatformId:p.id,nonColliding:true};
+      root.add(loadPath);
+      for(const bay of gatewayLoadPath){
+        const steel=bay.kind==='approach'?arrivalRoutePalette.body:
+          bay.kind==='threshold'?arrivalRoutePalette.roofJoin.beamMiddle:
+          arrivalRoutePalette.roofJoin.beamSuccessor;
+        // Original newly authored support geometry only: do not imply that
+        // these braces were extracted from old F8 source triangles.
+        for(const {angle:theta} of bay.anchors){
+          const lower=[Math.sin(theta)*24.1,h-4.7,Math.cos(theta)*24.1];
+          const upper=[Math.sin(theta)*26.4,h-.9,Math.cos(theta)*26.4];
+          const brace=beam(loadPath,lower,upper,.13,steel);
+          brace.name='ExistingRoofUnderslungLoadBrace';
+          brace.userData={sourceAligned:true,nonColliding:true,
+            bearingBand:bay.kind,ambientDetail:true};
+          brace.castShadow=false;brace.receiveShadow=false;
+        }
+      }
     }
     const ribs=[],treads=[],count=Math.max(2,Math.round(angle*25/2.6));
     for(let i=0;i<count;i++){

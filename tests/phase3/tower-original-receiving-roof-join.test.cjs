@@ -5,6 +5,45 @@ const {resolve}=require('node:path');
 const url=pathToFileURL(resolve(__dirname,'../../public/infinite-tower-climb/visuals/source-physical-receiving-roof.mjs')).href;
 async function subject(){return import(url);}
 
+test('source-authenticated F8 cap produces exactly six real-roof-aligned structural stations',async()=>{
+  const {actualGatewayReceivingLoadPathBays:load}=await subject();
+  const p={id:'f9:ground',x:0,width:480000};
+  const old={id:'f8:cap',x:115200,width:249600};
+  const bays=load(p,480000,304896,old);
+  assert.ok(bays);
+  assert.deepEqual(bays.map(b=>b.kind),['approach','threshold','successor']);
+  assert.equal(bays.reduce((n,b)=>n+b.anchors.length,0),6);
+  for(const bay of bays){
+    assert.equal(bay.sourceBound,true);
+    assert.equal(bay.anchors.length,2);
+    for(const {sourceX,angle} of bay.anchors){
+      assert.ok(sourceX>bay.startX && sourceX<bay.endX,
+        'load stations remain inside actually walkable source roof extents');
+      assert.ok(Math.abs(angle-(sourceX-p.width/2)/480000*2.2)<1e-12,
+        'all 3D anchors derive from actual source x, not an invented floor');
+    }
+    assert.ok(bay.anchors[0].sourceX<bay.anchors[1].sourceX);
+  }
+  assert.equal(bays[0].endX,bays[1].startX);
+  assert.equal(bays[1].endX,bays[2].startX);
+  for(const bad of [null,{...old,id:'f7:cap'},
+    {...old,x:0,width:120000},{...old,x:115200,width:160000}])
+    assert.equal(load(p,480000,304896,bad),null,
+      'cannot create architectural connection without original cap overlap');
+  assert.equal(load({...p,id:'f9:p2'},480000,304896,old),null);
+});
+
+test('full physical gateway roof geometry remains below the actual walkable F9 platform, with no extra collider',()=>{
+  const world=require('node:fs').readFileSync(resolve(__dirname,'../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
+  assert.match(world,/const gatewayLoadPath=joinedRoofSpans && sharedPhysicalRoof/);
+  assert.match(world,/root\.add\(loadPath\)/);
+  assert.match(world,/SourceEarnedFloorNineGatewayLoadPath/);
+  assert.match(world,/lower=\[Math\.sin\(theta\)\*24\.1,h-4\.7/);
+  assert.match(world,/upper=\[Math\.sin\(theta\)\*26\.4,h-\.9/);
+  assert.match(world,/nonColliding:true/);
+  assert.doesNotMatch(world,/platforms\.set\(['\"]SourceEarnedFloorNineGatewayLoadPath/);
+});
+
 test('actual original guardian exit subdivides only a real F9 ground top, exactly',async()=>{
   const {actualGatewayReceivingRoofSpans}=await subject();
   const deck={id:'f9:ground',x:0,width:480000};

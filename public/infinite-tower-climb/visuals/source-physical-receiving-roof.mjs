@@ -22,6 +22,32 @@ export function actualGatewayReceivingRoofSpans(platform,worldWidth,thresholdX,a
   });
 }
 
+// The authentic Floor 8 guardian cap and ACTUAL Floor 9 ground share one
+// physical collision-height threshold. These anchors place newly authored,
+// noninteractive 3D supporting metal UNDER that already walkable roof.
+// They do not re-create the old floor, simulate contact or move the gateway.
+export function actualGatewayReceivingLoadPathBays(platform,worldWidth,thresholdX,oldCap,arc=2.2) {
+  const spans=actualGatewayReceivingRoofSpans(platform,worldWidth,thresholdX,arc);
+  const safe=Number.isSafeInteger;
+  if(!spans || !oldCap || oldCap.id!=='f8:cap' ||
+     ![oldCap.x,oldCap.width].every(safe) || oldCap.width<=0 ||
+     oldCap.x<platform.x || oldCap.x+oldCap.width>platform.x+platform.width ||
+     thresholdX<=oldCap.x+16000 || thresholdX>=oldCap.x+oldCap.width-16000 ||
+     !spans.every((span,i)=>span.kind===['approach','threshold','successor'][i]))
+    return null;
+  // Two load path anchors per EXISTING source-grounded material band.
+  // Each stays inside the physical deck footprint and comes from its
+  // immutable x-to-cylindrical-angle transform, not another floor model.
+  return spans.map(span=>{
+    const anchors=[.23,.77].map(t=>{
+      const x=Math.round(span.startX+(span.endX-span.startX)*t);
+      return {sourceX:x,angle:(x-(platform.x+platform.width/2))/worldWidth*arc};
+    });
+    return {kind:span.kind,startX:span.startX,endX:span.endX,
+      anchors,sourceBound:true};
+  });
+}
+
 // The real source-owned F9 landing top, steel load beam, rim and emissive
 // underlip must expose the same physical gateway-to-Void spatial transition.
 // No independent clock, collider, platform or new gateway is introduced.
