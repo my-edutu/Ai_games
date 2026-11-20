@@ -295,3 +295,57 @@ test('RED: the SAME original Walking_A counterpitch must ease the outgoing swing
   else assert.equal(altered,null,'only the actual licensed moving source owns gradual release');
  }
 });
+
+
+test('RED: original Walking_A toe-down swing must unwind its remaining hip-knee-ankle correction at <=3rad/s through the licensed tail',async()=>{
+ const {planLicensedSourceSwingCounterpitch:plan}=await source;
+ // Phases below are SYNTHETIC consecutive 60Hz continuation of the
+ // original 1.0416666s GLB Walking_A right source swing; no invented
+ // contact, root step, hit or observed after-footage is claimed.
+ // Existing source evidence has already witnessed a -0.178rad legal
+ // original ankle counterpitch at the end of this source swing lobe.
+ let prior=-.178,expectedSamples=0;
+ for(const phase of [.332,.3487,.3654]){
+  const next=plan({...owner,sourceClipTimeSeconds:phase,
+   frameInterval:.0167,rootTravel:.0101,frameAge:0,
+   previousFootRad:prior,previousSameSourceFrame:true});
+  assert.ok(next,'same-clip source-owned true tail must not snap back from '+prior+' at '+phase);
+  assert.ok(next.footRad>prior,'the falling source swing returns toward the original pose');
+  assert.ok(Math.abs(next.footRad-prior)<=3*.0167+1e-7,
+   'every displayed full-leg recovery must respect the 3rad/s native source budget');
+  assert.ok(next.upperRad<0&&next.lowerRad>0,
+   'original hip, knee and ankle must remain connected, not an ankle twitch');
+  assert.equal(next.contactLocked,false);
+  assert.equal(next.plantCertified,false);
+  prior=next.footRad;expectedSamples++;
+ }
+ assert.equal(expectedSamples,3);
+ assert.ok(Math.abs(prior)<.03,'by the third source frame the old ankle correction almost settles');
+ // A fourth frame may restore the original source pose once the remaining
+ // angular change fits the legitimate frame budget.
+ assert.equal(plan({...owner,sourceClipTimeSeconds:.3821,
+  frameInterval:.0167,rootTravel:.0101,frameAge:0,
+  previousFootRad:prior,previousSameSourceFrame:true}),null);
+ for(const change of [
+  {previousSameSourceFrame:false},{sourceInstanceSame:false},
+  {sourceClipName:'Idle'},{mode:'hurt'},{ownerLocomotion:false},
+  {rootTravel:0},{teleport:true},{reducedMotion:true},
+  {sourceWeight:.7},{interrupted:true},
+  {sourceClipTimeSeconds:.48},
+  {previousFootRad:0}
+ ]){
+  assert.equal(plan({...owner,sourceClipTimeSeconds:.3487,
+   frameInterval:.0167,rootTravel:.0101,frameAge:0,
+   previousFootRad:-.1279,previousSameSourceFrame:true,...change}),null,
+   'no borrowed prior correction on invalid source: '+JSON.stringify(change));
+ }
+});
+
+test('RED: live original renderer offers the tail release only on the previous accepted same-rig source swing',()=>{
+ assert.match(renderer,/phase\s*>=\s*\.335[^;]*prior\?\.right/s,
+  'right-source tail needs the previous accepted original rig proof, not a new arbitrary pose');
+ assert.match(renderer,/phase\s*>=\s*\.875[^;]*prior\?\.left/s,
+  'left-source tail needs the previous accepted original rig proof, not a new arbitrary pose');
+ assert.match(renderer,/const samePrevious=Boolean\(previous\?\.sourceInstanceId===asset\.uuid/s,
+  'source-tail restoration must still use same original clone and lawful previous phase');
+});
