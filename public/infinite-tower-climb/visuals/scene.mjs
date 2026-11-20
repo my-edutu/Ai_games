@@ -4937,12 +4937,41 @@ export function createTowerScene(canvas, settings = {}) {
           // The same three physical/core/hero/roof/gate tests still veto.
           const rescueTrials=selectOriginalGatewayThreeSubjectTrials(
             rescueCandidates,bridgePhysicalBefore);
-          for(const [yaw,pullback,lift] of rescueTrials){
-            camera.position.set(
-              Math.sin(startAzimuth+yaw)*(radius+pullback),
-              archiveCamera.y+lift,
-              Math.cos(startAzimuth+yaw)*(radius+pullback));
-            lookAt.copy(archiveGaze);
+          // The previous .72 old-camera blend is a known source-owned option:
+          // the new intact old-floor view may be cropped by the real F9 roof.
+          // Spend ONE of the same THREE physical trials on that fallback,
+          // never add unbounded casts or accept a source-less camera. The
+          // other two retain the existing exterior bronze-clearance probes.
+          const sourceBlendFallback=originalBridge.weight>.72;
+          const boundedTrials=sourceBlendFallback
+            ?[{kind:'source-blend',weight:.72},
+              ...rescueTrials.slice(0,2).map(([yaw,pullback,lift])=>({
+                kind:'exterior',yaw,pullback,lift}))]
+            :rescueTrials.map(([yaw,pullback,lift])=>({
+                kind:'exterior',yaw,pullback,lift}));
+          for(const trial of boundedTrials){
+            if(trial.kind==='source-blend'){
+              camera.position.set(
+                thresholdPreviousCamera.x+(originalBridge.camera[0]-
+                  thresholdPreviousCamera.x)*trial.weight,
+                thresholdPreviousCamera.y+(originalBridge.camera[1]-
+                  thresholdPreviousCamera.y)*trial.weight,
+                thresholdPreviousCamera.z+(originalBridge.camera[2]-
+                  thresholdPreviousCamera.z)*trial.weight);
+              lookAt.set(
+                thresholdPreviousGaze.x+(originalBridge.gaze[0]-
+                  thresholdPreviousGaze.x)*trial.weight,
+                thresholdPreviousGaze.y+(originalBridge.gaze[1]-
+                  thresholdPreviousGaze.y)*trial.weight,
+                thresholdPreviousGaze.z+(originalBridge.gaze[2]-
+                  thresholdPreviousGaze.z)*trial.weight);
+            }else{
+              camera.position.set(
+                Math.sin(startAzimuth+trial.yaw)*(radius+trial.pullback),
+                archiveCamera.y+trial.lift,
+                Math.cos(startAzimuth+trial.yaw)*(radius+trial.pullback));
+              lookAt.copy(archiveGaze);
+            }
             camera.lookAt(lookAt);camera.updateMatrixWorld(true);
             if(!towerCoreSightlineClear(camera.position,thresholdHero,23.5) ||
                !towerCoreSightlineClear(camera.position,thresholdGate,23.5) ||

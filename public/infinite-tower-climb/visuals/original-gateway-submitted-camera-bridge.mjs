@@ -156,8 +156,16 @@ export function sourceOriginalGatewayCameraBridge(snapshot,held,prior,view={}) {
   // material retirement rather than losing the historic lens first.
   // Existing <20 returned frames, <2.8s, original gate opacity, true HP0,
   // support, camera/core/physical ray and manual/reduced-motion vetoes stay.
-  const timeProgress=Math.min(1,held.visibleSeconds/1.65);
-  const frameProgress=Math.min(1,held.submittedFrames/18);
+  // P0 native original WebM: the rendered old-floor lens was blended away
+  // BEFORE the first genuine Floor9 frames became visible, making one real
+  // walkable passage look like a camera cut. Keep the LAST ACTUALLY RETURNED
+  // Floor8 lens intact for its first two F9 renderer submissions. Then ease
+  // it out using BOTH successful returned frames and actual shown seconds;
+  // source-poll time alone can never consume an unseen shot.
+  // This is only a camera proposal: Scene still vetoes cropped full-body,
+  // missing genuine metal/roof and blocked current Three.js triangles.
+  const timeProgress=Math.max(0,Math.min(1,(held.visibleSeconds-.18)/1.47));
+  const frameProgress=Math.max(0,Math.min(1,(held.submittedFrames-2)/16));
   const progress=Math.min(timeProgress,frameProgress);
   const eased=progress*progress*(3-2*progress);
   // The actual original gateway's material coverage is a separate veto:
@@ -165,7 +173,7 @@ export function sourceOriginalGatewayCameraBridge(snapshot,held,prior,view={}) {
   // retired, even if its old source certificate is still valid.
   const oldGateWeight=finite(held.originalGatewayOpacity)
     ?Math.max(0,Math.min(1,held.originalGatewayOpacity)):1;
-  const weight=.72*(1-eased)*(1-eased)*oldGateWeight;
+  const weight=(1-eased)*(1-eased)*oldGateWeight;
   if(weight<=.0005)return null;
   return {sourceBound:true,sourceTick:snapshot.tick,
     crossingTick:realCrossingTick,

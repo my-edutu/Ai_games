@@ -25,7 +25,16 @@ test('one true defeated doorway rebases last returned old-floor shot, bounded by
   assert.equal(result.sourceBound,true);
   assert.deepEqual(result.camera,[4,16,64]);
   assert.deepEqual(result.gaze,[8,10,21]);
-  assert.ok(result.weight>.7 && result.weight<.75);
+  assert.equal(result.weight,1,
+    'the first real F9 submission must retain the exact last rendered F8 lens, not the former 72%-mixed cut');
+  const two=plan(snapshot,{...held,submittedFrames:2,visibleSeconds:.16,
+    originalGatewayOpacity:1},prior,view);
+  assert.equal(two.weight,1,
+    'source polling or two successful returns cannot consume a shot before any genuinely shown overlap');
+  const faded=plan(snapshot,{...held,submittedFrames:2,visibleSeconds:.16,
+    originalGatewayOpacity:.6},prior,view);
+  assert.ok(faded && Math.abs(faded.weight-.6)<1e-9,
+    'real gate metal opacity must veto borrowing a retired/shrinking old room');
   // A genuine displayed return is a duration, not a fictitious universal FPS.
   const five=plan(snapshot,{...held,submittedFrames:5,
     visibleSeconds:.45,originalGatewayOpacity:.92},prior,view);
@@ -122,6 +131,11 @@ test('the real camera consumes only genuine submitted old floor view and verifie
   assert.match(scene,/towerCoreSightlineClear\(camera.position,thresholdHero,23\.5\)/);
   assert.match(scene,/towerCoreSightlineClear\(camera.position,thresholdGate,23\.5\)/);
   assert.match(scene,/originalGatewayCameraBridgeAccepted\+\+/);
+  assert.match(scene,/sourceBlendFallback=originalBridge\.weight>\.72/);
+  assert.match(scene,/rescueTrials\.slice\(0,2\)/,
+    'intact original 3D camera and two source-owned exterior trials must share the existing three-shot budget');
+  assert.match(scene,/assessOriginalGatewayThreeSubjectCameraFrame/);
+  assert.match(scene,/assessOriginalGatewayPhysicalCameraBridge/);
 });
 
 
@@ -179,6 +193,8 @@ test('source-earned old-gate camera and material retire on one real returned-tim
   const slow=plan(snapshot,later,prior,view);
   assert.ok(fast?.weight>.15,
     'rapid GPU returns cannot drop the genuine bronze doorway shot while the old geometry still shows');
+  assert.ok(fast.weight<=early.originalGatewayOpacity,
+    'camera must never outlive source-owned 3D metal even in the initial continuity hold');
   assert.ok(slow && slow.weight<fast.weight,
     'camera must retire with actual returned display duration, not render count alone');
   const stillPainted={...early,submittedFrames:12};
