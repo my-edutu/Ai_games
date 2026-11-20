@@ -3041,7 +3041,7 @@ export function createTowerWorld(){
       bytes:cached.gallery.bytes
     };
   }
-  function prepareOriginalThresholdAfterReturnedClockworkFrame(snapshot,options={}) {
+  function prepareOriginalThresholdAfterReturnedClockworkFrame(snapshot,options={},submitted=false) {
     if (disposed || options.stale || options.quality!=='low' ||
         snapshot?.lifecycle!=='running' || snapshot.floor!==8 ||
         snapshot.theme!=='clockwork' || !(snapshot.player?.health>0) ||
@@ -3062,7 +3062,17 @@ export function createTowerWorld(){
         preparedThresholdGallery.runToken===snapshot.runToken &&
         preparedThresholdGallery.thresholdX===thresholdX &&
         preparedThresholdGallery.roofY===roofY &&
-        preparedThresholdGallery.worldWidth===snapshot.worldWidth) return false;
+        preparedThresholdGallery.worldWidth===snapshot.worldWidth) {
+      // Prestage may be prepared from ORIGINAL, already-built F8 triangles.
+      // It is eligible for reuse only after THIS real F8 GPU frame returns;
+      // never mistake CPU construction for a photographed guardian gateway.
+      if(submitted) {
+        preparedThresholdGallery.floorEightRendered=true;
+        thresholdGalleryPreparation.state='source-built-gallery-confirmed-by-real-floor-eight-return';
+        thresholdGalleryPreparation.returnedAtTick=snapshot.tick;
+      }
+      return false;
+    }
     discardPreparedThresholdGallery();
     const started=performance.now();
     const gallery=extractOriginalClockworkThresholdGallery(
@@ -3073,10 +3083,13 @@ export function createTowerWorld(){
       gallery,oldFloor:floorGroup,runToken:snapshot.runToken,
       sourceTick:snapshot.tick,thresholdX,roofY,
       worldWidth:snapshot.worldWidth,capId:cap.id,capX:cap.x,
-      capWidth:cap.width
+      capWidth:cap.width,
+      floorEightRendered:submitted===true
     };
     thresholdGalleryPreparation={
-      state:'prepared-after-real-floor-eight-frame',runToken:snapshot.runToken,
+      state:submitted?'prepared-after-real-floor-eight-frame':
+        'prepared-from-actual-floor-eight-source-awaiting-webgl-return',
+      runToken:snapshot.runToken,
       sourceTick:snapshot.tick,faces:gallery.faces,bytes:gallery.bytes,
       batches:gallery.root.children.length,
       cpuPrepareMs:+(performance.now()-started).toFixed(2),
@@ -3342,7 +3355,8 @@ export function createTowerWorld(){
       cached.worldWidth===requested.worldWidth &&
       cached.capId===requested.oldCapId &&
       cached.capX===requested.oldCapX &&
-      cached.capWidth===requested.oldCapWidth;
+      cached.capWidth===requested.oldCapWidth &&
+      cached.floorEightRendered===true;
     let gallery;
     if(cachedMatches){
       gallery=cached.gallery;
@@ -4140,6 +4154,16 @@ export function createTowerWorld(){
     bindRenderedClockFaceRayMeshes();
     closeColdPhase('clockFaceRayBinding');
     key=`${snapshot.runToken}:${snapshot.floor}:${snapshot.theme}:${quality}`;
+    // The immutable original Floor8 cap/gateway mesh tree is complete now.
+    // Prestage only its EXISTING non-colliding gallery triangles while the
+    // browser still has a full Floor8 to show. This moves the proven
+    // 59–74ms cold F9 fallback extraction away from the critical crossing.
+    // A real RETURNED Floor8 WebGL submission must still certify the cache
+    // before the successor can reuse it; missing GPU evidence falls back.
+    if(snapshot.floor===8 && snapshot.theme==='clockwork' &&
+       requestedQuality==='low' && snapshot.lifecycle==='running')
+      prepareOriginalThresholdAfterReturnedClockworkFrame(snapshot,
+        {quality:'low',stale:false},false);
     lastRebuildWitness = { runToken: snapshot.runToken, floor: snapshot.floor,
       sourceTick: snapshot.tick, key,
       cpuBuildMs: +(performance.now() - rebuildStartedAt).toFixed(2),
@@ -4235,7 +4259,7 @@ export function createTowerWorld(){
     // Only returned WebGL Floor8 observations may preassemble source-authored
     // roof-bearing geometry. A stale poll, skipped source tick or speculative
     // future Floor9 never starts a preparation job.
-    prepareOriginalThresholdAfterReturnedClockworkFrame(snapshot,options);
+    prepareOriginalThresholdAfterReturnedClockworkFrame(snapshot,options,true);
     retireAfterReturnedFloorNineFrame(snapshot,options);
     const bearingHandoff=sourceEarnedBearingHandoff;
     if(bearingHandoff?.retiring===true && !options.stale &&
