@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-19T23:53:41.000Z",
+  "updatedAt": "2026-11-20T00:52:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass520 exact 25b513b5 native WebGL #44638242500 SUCCESS; original 42/42 full PNG SHA pairs and 3/3 gate hashes independently reverified, real natural chapter 136 ticks and six-reset geometry <100. Original 390 'Counter landed' shot barely changes from Pass519 (RGB MAE .523/255); the linked face reads only on later release, so Nintendo bar REJECTED. Pass521 code candidate corrects genuine timed face/cheek/shell response at actual public parry onset; fresh exact-HEAD 320/390/844/1280 render + independent critic PENDING. Full CI still red in separate Tiny Kingdom OBS; no merge/deploy."
+    "summary": "Pass521 exact 4afdfbcb native WebGL #44643362257 SUCCESS; 42/42 original native SHA pairs and 3/3 true gate images independently verified; real 390/320 earned guardian stays wholly within unchanged ±0.95, natural default 136-tick escape and six-reset <100 accepted. Original native tick93 vs tick94 shows discontinuous stage: hit loses readable two-body composition in wide overhead crowded court; Pass521 visual benchmark REJECTED (390 early hit only 0.703/255 MAE vs Pass520). Pass522 source-only candidate stages continuous single physical camera from publicly witnessed impact to genuine guardian retreat; new exact-HEAD WebGL screenshots and CI MUST judge, no win claimed. Whole-repo CI remains red outside focused Maze, independent fresh-context critic/Ultracode unavailable, draft no merge/deploy."
   },
   "captures": [
+    {
+      "title": "Pass521 exact 4afdfbcb original WebGL SUCCESS; personally verified 42/42 full PNG sidecars and 3/3 real gate images; authentic 390 tick93->94 impact shot rejected, Pass522 camera candidate unverified",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44643362257/artifacts/14587553945"
+    },
     {
       "title": "Pass520 source 25b513b5 original WebGL success: 42/42 PNG sidecars and 3/3 gate images verified; real early-hit face rejected; Pass521 source timed-action candidate not rendered-approved",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44638242500/artifacts/14585612735"

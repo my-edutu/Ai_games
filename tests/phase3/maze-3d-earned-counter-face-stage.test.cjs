@@ -31,3 +31,26 @@ test('Pass518 no invented parry shot for unearned, reduced, landscape, desktop o
  [390/844,{x:NaN,z:-9.6},g,true,false],[390/844,hero,null,true,false]
  ]){const o=camera();assert.equal(stage(o,aspect,h,guardian,earned,reduced),false);assert.deepEqual(o,camera());}
 });
+
+
+test('Pass522 genuine lantern impact retains the prior two-actor witness before opening the 3D retreat view',async()=>{
+  const {publicEarnedGuardianCounterCameraAct:stage}=await load();
+  assert.equal(stage(0,true,false),0,'the first real contact stays on its already witnessed action camera');
+  assert.equal(stage(.09,true,false),0);
+  const beginning=stage(.18,true,false),middle=stage(.34,true,false);
+  assert.ok(beginning>0 && beginning<middle && middle<1,
+    'the actual two-second counter must travel continuously between the two real cameras');
+  assert.equal(stage(.52,true,false),1,'the physically retreated public guardian reaches the approved upper lens');
+  assert.equal(stage(.8,true,false),1);
+  assert.equal(stage(1,true,false),1);
+  for(const age of [-1,NaN,Infinity,null,undefined])
+    assert.equal(stage(age,true,false),1,'invalid or ended source event must not play a stale cinematic');
+  assert.equal(stage(.09,false,false),1,'an unearned or already-parried guardian never receives the camera');
+  assert.equal(stage(.09,true,true),1,'reduced motion cannot animate the camera');
+  const fs=require('node:fs'),path=require('node:path');
+  const sceneSource=fs.readFileSync(path.join(__dirname,'../../public/ai-maze-escape/scene.js'),'utf8');
+  assert.match(sceneSource,/earnedRecoilCameraOffset\.lerp\(portraitCameraOffset,1-earnedShotAct\)/,
+    'real scene must smoothly interpolate the same reused public camera, not cut to a second one');
+  assert.match(sceneSource,/recoilAim\.x\*earnedShotAct/,
+    'the camera aim must track the same earned event phase rather than teleport at impact');
+});

@@ -262,6 +262,27 @@ export function publicEarnedGuardianCounterCameraPriority(
   return attentionModel===earnedModel && attentionParried===true;
 }
 
+
+/**
+ * One continuous, genuinely earned guardian COUNTER scene:
+ * the previous native full-frame photographs show a closer two-body warning
+ * at tick 93 but an immediate broad overhead reposition at tick 94, hiding
+ * the lantern impact and shriveling both expressive silhouettes.
+ *
+ * Hold that same WITNESSED source camera for the impact's first 0.20s, then
+ * blend smoothly to the strictly existing high, full-body, publicly revealed
+ * retreat lens by normalized time .52 (the verified cue lasts two seconds).
+ * This function merely stages a camera; never advances AI, authoritative
+ * world clock, hazards, public map discovery or actor positions.
+ */
+export function publicEarnedGuardianCounterCameraAct(
+  phase,earned=false,reducedMotion=false) {
+  if(!earned || reducedMotion || !Number.isFinite(phase)
+    || phase<0 || phase>=1)return 1;
+  const t=Math.max(0,Math.min(1,(phase-.10)/.42));
+  return t*t*(3-2*t);
+}
+
 export function setPublicEarnedGuardianFrontQuarterOffset(
   offset,aspect,hero,guardian,earned=false,reducedMotion=false) {
   if(!earned||reducedMotion||!Number.isFinite(aspect)

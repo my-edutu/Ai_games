@@ -5,7 +5,7 @@ import { publicEarnedCounterImpactStage } from './public-counter-impact.mjs';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilFinalPairShift, publicGuardianEarnedRecoilRevealElevation, setPublicEarnedGuardianFrontQuarterOffset, publicEarnedGuardianCounterCameraPriority, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilFinalPairShift, publicGuardianEarnedRecoilRevealElevation, setPublicEarnedGuardianFrontQuarterOffset, publicEarnedGuardianCounterCameraPriority, publicEarnedGuardianCounterCameraAct, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicEarnedGuardianCounterLightPath } from './public-lantern-encounter.mjs';
@@ -1468,13 +1468,22 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       && lastWitnessedGuardianStageRunToken===s.runToken
       && aspect>=.35 && aspect<.60 && !cameraGate
       && !pressureCameraBeat && !openingStageView && !showPickup;
+    // Pass522: native consecutive same-run tick93/tick94 photographs showed
+    // a sudden change from the intimate real Pip/Thornback encounter to a
+    // far, crowded top-down retreat shot exactly at "Counter landed".
+    // Keep the ACTUAL previous witnessed camera at the real impact and ease
+    // toward the public post-parry physical stage as Thornback withdraws.
+    // The source two-second counterPhase is never a guessed/unseen threat.
+    const earnedShotAct=publicEarnedGuardianCounterCameraAct(
+      earnedCounterActor?.counterPhase,earnedDuelContinuity,
+      settings.reducedMotion);
     // A nearby reciprocal public warning already has an actor-pair target.
     // Do not double-shift that same camera aim when the earned lens wins.
     if (earnedDuelContinuity && !closestThreat?.strength) {
       const recoilAim=publicGuardianEarnedRecoilPairFocus(
         aspect,pose,earnedCounterModel.position,true,settings.reducedMotion,CELL_SIZE);
-      desiredTarget.x+=recoilAim.x;
-      desiredTarget.z+=recoilAim.z;
+      desiredTarget.x+=recoilAim.x*earnedShotAct;
+      desiredTarget.z+=recoilAim.z*earnedShotAct;
     }
     const publicFollowEncounter = cameraMode === 'follow' && !result
       && !cameraGate && (!!closestThreat?.strength || earnedDuelContinuity);
@@ -1548,6 +1557,13 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       setPublicEarnedGuardianFrontQuarterOffset(
         earnedRecoilCameraOffset,aspect,pose,earnedCounterModel.position,
         true,settings.reducedMotion);
+    // One physical camera choreography through the source-proven counter,
+    // not a camera cut at the precise landed-lantern frame. The actual
+    // earlier witnessed portrait and existing high retreat camera share the
+    // same continuously interpolated Vector3; the final complete-body mesh
+    // NDC fitter and native +/-0.95 limits remain authoritative.
+    if(earnedDuelContinuity)
+      earnedRecoilCameraOffset.lerp(portraitCameraOffset,1-earnedShotAct);
     cameraOffset.lerp(publicVictoryScene ? escapeCameraOffset
       : openingStageView ? openingGateCameraOffset
       : cameraGate ? sealedGateCameraOffset
