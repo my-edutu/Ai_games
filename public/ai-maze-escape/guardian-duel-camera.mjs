@@ -445,3 +445,18 @@ export function publicGuardianEarnedRecoilPairStageLift(
   const liftNdc = Math.min(.30,Math.max(0,.13-center),.63-top);
   return liftNdc >= .02 ? -liftNdc*halfHeight : 0;
 }
+
+/**
+ * Pass528: native Pass527 showed the stage lift never reached the real
+ * first-contact frame: the separate earnedShotAct multiplier was still zero.
+ * Begin a bounded smooth camera-UP response immediately on a genuine,
+ * witnessed same-run hit; no invented event, private map, AI, collision,
+ * actor relocation or resource creation. Reset on any missing witness.
+ */
+export function publicGuardianEarnedContactStageResponse(
+  current,delta,earned=false,reducedMotion=false) {
+  if(!earned||reducedMotion||!Number.isFinite(current)
+    ||current<0||current>1||!Number.isFinite(delta)||delta<0)return 0;
+  const dt=Math.min(.1,delta);
+  return Math.min(1,current+(1-current)*(1-Math.exp(-10*dt)));
+}

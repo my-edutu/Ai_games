@@ -5,7 +5,7 @@ import { publicEarnedCounterImpactStage } from './public-counter-impact.mjs';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilSafeContactHalfHeight, publicGuardianEarnedRecoilFinalPairShift, publicGuardianEarnedRecoilPairStageLift, publicGuardianEarnedRecoilRevealElevation, setPublicEarnedGuardianFrontQuarterOffset, publicEarnedGuardianCounterCameraPriority, publicEarnedGuardianCounterCameraAct, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilSafeContactHalfHeight, publicGuardianEarnedRecoilFinalPairShift, publicGuardianEarnedRecoilPairStageLift, publicGuardianEarnedContactStageResponse, publicGuardianEarnedRecoilRevealElevation, setPublicEarnedGuardianFrontQuarterOffset, publicEarnedGuardianCounterCameraPriority, publicEarnedGuardianCounterCameraAct, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicEarnedGuardianCounterLightPath } from './public-lantern-encounter.mjs';
@@ -360,6 +360,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   // the same visible, truly parried guardian is completing its real retreat.
   // The run token prevents any earlier world's camera from being inherited.
   let lastWitnessedGuardianStageRunToken = null;
+  let earnedContactStageBlend=0;
   let frame = null, previous = null, priorPublicSnapshot = null, runToken = '', cameraMode = 'follow', recentPublicOpening = null, recentPublicPickup = null;
   let cells = [], segmentProgress = 0, heading = Math.PI / 4, halfHeight = 9;
   let lastNow = 0, elapsed = 0, gateVisualTime = 0, frames = 0, lastDiagnostic = 0, lost = false, disposed = false;
@@ -475,7 +476,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     const pickupCue = publicKeyCollectionMoment(previous, snapshot);
     if (runToken !== snapshot.runToken) {
       for (const entry of wardens.values()) removeWarden(entry);
-      wardens.clear(); runToken = snapshot.runToken; routeSignature = ''; recentPublicOpening = null; recentPublicPickup = null; pickupBurst.visible = false; resetPosition(snapshot);
+      wardens.clear(); earnedContactStageBlend=0; runToken = snapshot.runToken; routeSignature = ''; recentPublicOpening = null; recentPublicPickup = null; pickupBurst.visible = false; resetPosition(snapshot);
     } else if (lost || settings.reducedMotion || motion.snap || snapshot.result) {
       resetPosition(snapshot);
     } else if (motion.cells.length > 1) {
@@ -1468,6 +1469,14 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       && lastWitnessedGuardianStageRunToken===s.runToken
       && aspect>=.35 && aspect<.60 && !cameraGate
       && !pressureCameraBeat && !openingStageView && !showPickup;
+    // Original 390px WebGL contact is a low, cluttered two-body strip:
+    // Pass527's true measured stageLift was multiplied by earnedShotAct=0
+    // exactly at the hit. Ease camera UP immediately on the genuine public
+    // same-run witness, while retaining the actual old contact orbit/target.
+    // Lost witness, hidden/expired run, reduced motion, terminal or manual
+    // view resets this visual-only response without an extra engine clock.
+    earnedContactStageBlend=publicGuardianEarnedContactStageResponse(
+      earnedContactStageBlend,delta,earnedDuelContinuity,settings.reducedMotion);
     // Pass522: native consecutive same-run tick93/tick94 photographs showed
     // a sudden change from the intimate real Pip/Thornback encounter to a
     // far, crowded top-down retreat shot exactly at "Counter landed".
@@ -1902,10 +1911,10 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         const stageLift=publicGuardianEarnedRecoilPairStageLift(
           aspect,halfHeight,finalEarnedBodies,earnedDuelContinuity,
           settings.reducedMotion);
-        if(stageLift && earnedShotAct>0){
+        if(stageLift && earnedContactStageBlend>0){
           camera.updateMatrixWorld();
           pressureReframeRight.setFromMatrixColumn(camera.matrixWorld,1);
-          camera.position.addScaledVector(pressureReframeRight,stageLift*earnedShotAct);
+          camera.position.addScaledVector(pressureReframeRight,stageLift*earnedContactStageBlend);
           camera.updateMatrixWorld();
         }
       }

@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-20T06:18:00Z",
+  "updatedAt": "2026-11-20T07:18:42.865Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass526 exact-HEAD WebGL success: 42/42 original native full-size PNG SHA pairs and 3/3 real gate SHA verified, genuine 390 Pip/Thornback fully framed but lantern-counter visually buried below excessive empty water and rails; Nintendo parity REJECTED. Pass527 final true full-mesh physical up-axis counter-stage candidate implemented but its own exact-head render pending. Whole CI red on missing unrelated Tiny Kingdom npm self-test."
+    "summary": "Pass527 source c6965c0b original native WebGL #44688073859 SUCCESS: ZIP SHA b2ec621ddd90199fad502bf2f04231066635d1c4ad401884f6ef5f37e4b30f, 42/42 native full PNG sidecars and 3/3 actual gate hashes verified; true 390 contact still low and cluttered. Pass527 calculated stage lift was suppressed at genuine first hit by held earnedShotAct=0. Nintendo bar REJECTED. Pass528 source candidate begins smooth, same-run 3D camera-UP stage response while original impact orbit stays held. Exact Pass528 WebGL/independent critic NOT verified. Whole CI red on separate Tiny Kingdom OBS."
   },
   "captures": [
+    {
+      "title": "Pass527 exact c6965c0b authentic 320/390/844/1280 native WebGL: all original 42 PNG hashes and 3 gate images verified; crowded initial counter REJECTED; Pass528 source-stage response pending",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44688073859/artifacts/14607532703"
+    },
     {
       "title": "Pass526 exact e82569fa native 320/390/844/1280 WebGL; original 42/42 PNG SHA + 3/3 gate SHA verified; real 390 low counter and empty sea rejected; Pass527 physical-stage candidate pending",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44680681550/artifacts/14604223020"

@@ -109,6 +109,55 @@ test('Pass527 source-matched native 390/320 connected actors lift above empty oc
   const sceneSource=fs.readFileSync(path.join(__dirname,'../../public/ai-maze-escape/scene.js'),'utf8');
   assert.match(sceneSource,/publicGuardianEarnedRecoilPairStageLift\(\s*aspect,halfHeight,finalEarnedBodies,earnedDuelContinuity,/,
     'only authentic final physical envelopes may propose stage composition');
-  assert.match(sceneSource,/camera\.position\.addScaledVector\(pressureReframeRight,stageLift\*earnedShotAct\)/,
+  assert.match(sceneSource,/camera\.position\.addScaledVector\(pressureReframeRight,stageLift\*earnedContactStageBlend\)/,
     'reuse current physical camera up-axis and same witnessed counter clock');
+});
+
+test('Pass528 first earned mobile contact performs meaningful SAFE camera-up movement before delayed orbit',async()=>{
+  const {publicGuardianEarnedRecoilPairStageLift:lift,
+    publicGuardianEarnedContactStageResponse:respond,
+    publicEarnedGuardianCounterCameraAct:orbit}=await load();
+  // ORIGINAL 2026-11-20 exact-Pass527 SHA-verified 390x844 tick94
+  // complete connected-mesh bounds, not actor centres or fake screenshots.
+  const bodies=[
+    {left:-.896187,right:-.049280,bottom:-.208340,top:.214876},
+    {left:-.490237,right:.896187,bottom:-.536033,top:.130853}
+  ];
+  const h=8.2,a=390/844,full=-lift(a,h,bodies,true,false)/h;
+  assert.ok(full>.28&&full<=.30,'original impact has a genuinely worthwhile stage correction');
+  assert.equal(orbit(.08,true,false),0,'keep the old true impact orbit, not a cut');
+  let response=respond(0,.016,true,false);
+  assert.ok(response>.1&&response<.2,'first frame begins moving without a snap');
+  for(let i=1;i<37;i++)response=respond(response,.016,true,false);
+  assert.ok(response>.99&&response<=1,'the authentic capture window must reveal the stage');
+  assert.ok(full*response>.28,'counter stage must visibly move, not simply pass source tests');
+  for(const b of bodies){
+    assert.ok(b.top+full*response<=.63&&b.bottom+full*response>=-.75,
+      'stronger HUD-safe complete character bounds, native ±.95 unchanged');
+    assert.ok(b.left>=-.95&&b.right<=.95);
+  }
+  const src=require('node:fs').readFileSync(
+    require('node:path').join(__dirname,'../../public/ai-maze-escape/scene.js'),'utf8');
+  assert.match(src,/earnedContactStageBlend=publicGuardianEarnedContactStageResponse\(/);
+  assert.match(src,/stageLift\*earnedContactStageBlend/);
+  assert.doesNotMatch(src,/stageLift\*earnedShotAct/);
+  assert.match(src,/wardens\.clear\(\); earnedContactStageBlend=0; runToken = snapshot\.runToken/);
+  assert.match(src,/publicGuardianEarnedRecoilPairStageLift\(\s*aspect,halfHeight,finalEarnedBodies,earnedDuelContinuity/);
+});
+test('Pass528 response resets on missing witness and never jumps on software-renderer stalls',async()=>{
+  const {publicGuardianEarnedContactStageResponse:f}=await load();
+  for(const args of [[.6,.016,false,false],[.6,.016,true,true],
+    [0,NaN,true,false],[0,Infinity,true,false],[-.1,.016,true,false],
+    [NaN,.016,true,false],[1.01,.016,true,false],[0,-1,true,false]])
+    assert.equal(f(...args),0);
+  assert.equal(f(.4,0,true,false),.4);
+  assert.equal(f(.4,100,true,false),f(.4,.1,true,false),
+    'no huge sudden jump under CPU-throttled WebGL');
+  let a=0;
+  for(let i=0;i<80;i++){
+    const b=f(a,.016,true,false);
+    assert.ok(b>=a&&b<=1);
+    a=b;
+  }
+  assert.ok(a>.999);
 });
