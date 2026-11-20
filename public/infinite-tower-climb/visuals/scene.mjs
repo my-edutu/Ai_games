@@ -37,7 +37,7 @@ import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClear
 import { sourceSubmittedDoorwayCameraDt, sourceCroppedHeroRecoveryDt } from './source-submitted-doorway-cadence.mjs';
 import { createTowerVoidProgramPrewarm } from './void-program-prewarm.mjs';
 import { sourceOriginalGatewayCameraBridge, observedOriginalGatewaySubmittedView } from './original-gateway-submitted-camera-bridge.mjs';
-import { assessOriginalGatewayPhysicalCameraBridge, assessOriginalGatewayThreeSubjectCameraFrame } from './original-gateway-camera-ray-contract.mjs';
+import { assessOriginalGatewayPhysicalCameraBridge, assessOriginalGatewayThreeSubjectCameraFrame, selectOriginalGatewayThreeSubjectTrials } from './original-gateway-camera-ray-contract.mjs';
 import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, observedGroundedHandoffShot, observedAirborneHandoffShot, observedEarnedCrossfloorJointShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { sourceCriticalSightlinePriorities } from './critical-sightlines.mjs';
@@ -4932,7 +4932,12 @@ export function createTowerScene(canvas, settings = {}) {
           const startAzimuth=Math.atan2(archiveCamera.x,archiveCamera.z);
           const radius=Math.hypot(archiveCamera.x,archiveCamera.z);
           let bestScore=-Infinity;
-          for(const [yaw,pullback,lift] of rescueCandidates.slice(1,4)){
+          // A REAL bronze gallery/cap ray blocker calls for reversible
+          // elevated exterior clearance, not only near-identical yaw.
+          // The same three physical/core/hero/roof/gate tests still veto.
+          const rescueTrials=selectOriginalGatewayThreeSubjectTrials(
+            rescueCandidates,bridgePhysicalBefore);
+          for(const [yaw,pullback,lift] of rescueTrials){
             camera.position.set(
               Math.sin(startAzimuth+yaw)*(radius+pullback),
               archiveCamera.y+lift,

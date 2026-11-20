@@ -5,12 +5,20 @@ const fs=require('node:fs');
 const path=require('node:path');
 const modulePath='../../public/infinite-tower-climb/visuals/original-gateway-camera-ray-contract.mjs';
 const loaded=import(modulePath);
-const observed=(overrides={})=>({
-  active:true,rays:9,bodyBlockedRays:2,gatewayBlockedRays:1,score:5,
-  originalGateBlockedRays:1,originalCapBlockedBodyRays:1,
-  originalCapBlockedGatewayRays:0,architectureBlockedRays:0,
-  ...overrides
-});
+const observed=(overrides={})=>{
+  const entry={
+    active:true,rays:9,bodyBlockedRays:2,gatewayBlockedRays:1,score:5,
+    originalGateBlockedRays:1,originalCapBlockedBodyRays:1,
+    originalCapBlockedGatewayRays:0,originalGalleryBlockedBodyRays:0,
+    originalGalleryBlockedGatewayRays:0,architectureBlockedRays:0,
+    ...overrides
+  };
+  entry.originalCapBlockedRays=overrides.originalCapBlockedRays ??
+    entry.originalCapBlockedBodyRays+entry.originalCapBlockedGatewayRays;
+  entry.originalGalleryBlockedRays=overrides.originalGalleryBlockedRays ??
+    entry.originalGalleryBlockedBodyRays+entry.originalGalleryBlockedGatewayRays;
+  return entry;
+};
 test('a projected hero/opened gate does not excuse a new genuine old-cap or Void bearing obstruction',async()=>{
   const {assessOriginalGatewayPhysicalCameraBridge:compare}=await loaded;
   const before=observed();
@@ -82,7 +90,37 @@ test('F8 returned camera rescue protects actual metal, full body and real source
   assert.match(code,/originalThreeSubject &&/);
   assert.match(code,/world\.projectedOriginalGateSteel\(snapshot,camera\)/);
   assert.match(code,/walkablePreviouslyReadable\(recordWalkableProjection\(thresholdWalkableAfter\)\)/);
-  assert.match(code,/rescueCandidates\.slice\(1,4\)/,
-    'bounded camera rescue must not multiply full-scene ray work without bound');
+  assert.match(code,/selectOriginalGatewayThreeSubjectTrials\(\s*rescueCandidates,bridgePhysicalBefore\)/,
+    'bounded real-gallery obstruction controls three exterior camera probes');
   assert.match(code,/assessOriginalGatewayPhysicalCameraBridge\(\s*bridgePhysicalBefore,world\.measureSuccessorDeckVisibility\(/);
+});
+
+test('true original gallery/cap obstruction cannot be borrowed from a better aggregate score',async()=>{
+  const {assessOriginalGatewayPhysicalCameraBridge:compare}=await loaded;
+  const before=observed();
+  const falseClear=observed({bodyBlockedRays:1,gatewayBlockedRays:1,score:3,
+    originalGateBlockedRays:0,originalCapBlockedBodyRays:0,
+    originalGalleryBlockedBodyRays:1});
+  assert.equal(compare(before,falseClear).reason,'physical-occlusion-regression');
+  const capBorrow=observed({bodyBlockedRays:1,gatewayBlockedRays:1,score:3,
+    originalGateBlockedRays:0,originalCapBlockedBodyRays:0,
+    originalCapBlockedGatewayRays:1});
+  assert.equal(compare(before,capBorrow).allowed,false);
+  const realClear=observed({bodyBlockedRays:0,gatewayBlockedRays:0,score:0,
+    originalGateBlockedRays:0,originalCapBlockedBodyRays:0});
+  assert.equal(compare(before,realClear).allowed,true);
+  const missing={...realClear};delete missing.originalGalleryBlockedRays;
+  assert.equal(compare(before,missing).allowed,false);
+});
+test('physical bronze obstruction selects three lifted pullbacks without expanding the ray budget',async()=>{
+  const {selectOriginalGatewayThreeSubjectTrials:select}=await loaded;
+  const v=[[0,0,0],[-.01,0,0],[.01,0,0],
+    [0,.4,.2],[-.01,.4,.2],[.01,.4,.2]];
+  assert.deepEqual(select(v,observed()),v.slice(3,6));
+  const clear=observed({bodyBlockedRays:0,gatewayBlockedRays:0,score:0,
+    originalGateBlockedRays:0,originalCapBlockedBodyRays:0});
+  assert.deepEqual(select(v,clear),v.slice(1,4));
+  assert.deepEqual(select(v.slice(1),observed()),[]);
+  assert.deepEqual(select(v,{...clear,originalCapBlockedRays:-1}),[]);
+  assert.equal(select(v,observed()).length,3);
 });

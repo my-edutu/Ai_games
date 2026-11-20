@@ -6,8 +6,9 @@
 // physical improvement, and a clear body must not lose its gateway.
 const keys=Object.freeze([
   'bodyBlockedRays','gatewayBlockedRays','originalGateBlockedRays',
-  'originalCapBlockedBodyRays','originalCapBlockedGatewayRays',
-  'architectureBlockedRays'
+  'originalCapBlockedRays','originalCapBlockedBodyRays','originalCapBlockedGatewayRays',
+  'originalGalleryBlockedRays','originalGalleryBlockedBodyRays',
+  'originalGalleryBlockedGatewayRays','architectureBlockedRays'
 ]);
 const sane=v=>v?.active===true &&
   Number.isSafeInteger(v.rays) && v.rays>=3 && v.rays<=9 &&
@@ -19,6 +20,12 @@ const sane=v=>v?.active===true &&
   v.originalCapBlockedBodyRays<=v.bodyBlockedRays &&
   v.originalCapBlockedGatewayRays<=v.gatewayBlockedRays &&
   v.originalGateBlockedRays<=v.bodyBlockedRays &&
+  v.originalCapBlockedRays===v.originalCapBlockedBodyRays+
+    v.originalCapBlockedGatewayRays &&
+  v.originalGalleryBlockedRays===v.originalGalleryBlockedBodyRays+
+    v.originalGalleryBlockedGatewayRays &&
+  v.originalGalleryBlockedBodyRays<=v.bodyBlockedRays &&
+  v.originalGalleryBlockedGatewayRays<=v.gatewayBlockedRays &&
   v.architectureBlockedRays<=v.bodyBlockedRays+v.gatewayBlockedRays;
 
 export function assessOriginalGatewayPhysicalCameraBridge(before,after){
@@ -35,6 +42,19 @@ export function assessOriginalGatewayPhysicalCameraBridge(before,after){
     gain:before.score-after.score};
 }
 
+// A real retained bronze cap/gallery obscuring the skinned actor needs
+// exterior pullback and lift, not near-identical tiny yaw trials. Use the
+// existing source-authorized 6 candidates and spend only THREE physical
+// camera probes. Source-owner counts are required; invalid evidence fails
+// closed, and every actual scene/world/ray veto still runs downstream.
+export function selectOriginalGatewayThreeSubjectTrials(candidates,before){
+  if(!sane(before)||!Array.isArray(candidates)||candidates.length!==6||
+     !candidates.every(c=>Array.isArray(c)&&c.length===3&&
+       c.every(Number.isFinite)))return [];
+  const oldForegroundBlocked=before.originalCapBlockedRays>0||
+    before.originalGalleryBlockedRays>0;
+  return oldForegroundBlocked?candidates.slice(3,6):candidates.slice(1,4);
+}
 
 // These are projections of three CURRENT source-owned 3D subjects. This
 // evaluator never claims video pixels, and never licenses a camera without
