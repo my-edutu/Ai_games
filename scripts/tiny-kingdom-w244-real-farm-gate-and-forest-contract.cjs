@@ -19,7 +19,8 @@ assert.equal(tier(20.15,-8.96),'near','actual harvested field service grove gain
 assert.equal(tier(22.74,-9.65),'near','actual granary approach carries real near trees');
 const trees=src.slice(src.indexOf('function tree('),src.indexOf('// W110:',src.indexOf('function tree(')));
 assert.match(trees,/detailTier!=='near'/,'middle-distance crowns need bounded 3D roofline silhouette policy');
-assert.match(trees,/detailTier==='near'\?2:0/,'far/mid decorative tiny crown satellites should not cost frames');
+assert.match(trees,/if\(detailTier==='near'\)renderOriginalNearBroadleafFans\(/,'actual near-crown fans remain visible');
+assert.match(trees,/forestLodStats\.skippedMicroLobes\+=2/,'far and mid decorative micro-crowns are correctly omitted, not the tree itself');
 assert.match(trees,/false,true,detailTier==='far'\?'far':detailTier!=='near'/,'original near, mid and far crowns retain complete bounded 3D surfaces');
 assert.match(trees,/detailTier==='near'\?5:3/,'visible near leaves retain richer wind-responsive blade anatomy');
 assert.match(trees,/forestVisualStats\.deciduous\+\+/);

@@ -17,6 +17,7 @@ const ctx={Math,Number,city:original,canvas:{clientWidth:390,clientHeight:844},
  terrain:()=>0,realGrainHomeFrontage:()=>({x:10,z:3,homeIndex:0,homeKey:'10,3,2',aim:[10,.96,1.0]}),
  followCameraRoofs:()=>[{real:true}],physicalFollowEyeClearance:()=>({clear:!eyeBlocked}),
  followRayBlockers:()=>occluded?1:0,
+ terrainClearWorkerSightline:()=>true, // physical terrain is flat in this isolated camera fixture
  foregroundVegetationProjection:()=>({cover:forest?.7:.01,faceBlockers:forest?1:0}),
  foregroundSceneProjection:()=>({cover:.02,cargoCover:0}),
  clampPlayerCamera:(x,a,b)=>Math.max(a,Math.min(b,x))};
