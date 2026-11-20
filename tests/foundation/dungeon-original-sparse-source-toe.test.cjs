@@ -171,3 +171,69 @@ test('RED: latest genuine 150ms original toe burial earns a bounded 11/11/24 sou
  assert.equal(m.planOriginalSourceCoupledToeHingeFollowups({
   ...sourceFrame,frameInterval:.09}),null);
 });
+
+
+test('RED: original mobile 51mm toe burial needs safe licensed toe child option',async()=>{
+ const m=await controller();
+ // Observed real original GLB mobile tick 14 at 07da791c in
+ // GitHub artifact #14595246080. Below 5mm after-hinge displacement
+ // is a SYNTHETIC fixture, not a rendered or accepted source pose.
+ const loaded={
+  heelY:-.006356559943049322,toeY:.019087937062655463,
+  heelXZ:[2.155201248034208,-6.956655386533977],
+  toeXZ:[1.8862291113395355,-6.931890515256281]
+ };
+ const swing={
+  heelY:.19687350701499604,toeY:-.07114242606245527,
+  heelXZ:[2.277478079470471,-7.1129952446315015],
+  toeXZ:[2.1501527045106803,-7.133815177051611]
+ };
+ const before={left:loaded,right:swing};
+ const after={left:{...loaded},right:{
+  ...swing,heelY:swing.heelY+.0004,toeY:swing.toeY+.005,
+  toeXZ:[swing.toeXZ[0]-.002,swing.toeXZ[1]]
+ }};
+ const proof={
+  source:'measured-original-licensed-source-counterpitch',
+  sourceClip:'Walking_A',side:'right',
+  sourceInstanceId:'source-clone-mobile-example',
+  sourceOriginalRootTravelWitnessed:true,
+  originalOppositeShoeVerified:true,finalIndependentSourceSkin:true,
+  witnessedFrameIntervalSeconds:.0167,
+  residualToeBurialMeters:.05114242606245527,
+  after:before,contactLocked:false,plantCertified:false
+ };
+ const params={proof,before,after,side:'right',
+  sourceInstanceId:proof.sourceInstanceId,sourceInstanceSame:true,
+  sourceClipName:'Walking_A',sourceToeTrackVerified:true,
+  sourceToeBoneParentVerified:true,angleRad:.042,floorTopY:-.02};
+ const result=m.certifyLicensedCounterpitchToeFinish(params);
+ assert.equal(result?.source,'measured-licensed-counterpitch-original-toes-child',
+  'verified original 51mm swing burial may partly improve without inventing contact');
+ assert.ok(result.residualToeBurialMeters>.045&&
+  result.residualToeBurialMeters<proof.residualToeBurialMeters);
+ assert.equal(result.originalOppositeShoeVerified,true);
+ assert.equal(result.contactLocked,false);
+ assert.equal(result.plantCertified,false);
+ for(const change of [
+  {after:{...after,left:{...loaded,toeY:loaded.toeY+.004}}},
+  {after:{...after,right:{...after.right,heelY:swing.heelY+.009}}},
+  {after:{...after,right:{...after.right,toeY:swing.toeY-.002}}},
+  {sourceInstanceSame:false},{sourceClipName:'Idle'},
+  {angleRad:.06},{sourceToeTrackVerified:false},
+  {sourceToeBoneParentVerified:false},
+  {proof:{...proof,residualToeBurialMeters:.065,after:{
+   ...before,right:{...before.right,toeY:-.085}}},before:{
+    ...before,right:{...before.right,toeY:-.085}}}
+ ]){
+  assert.equal(m.certifyLicensedCounterpitchToeFinish({...params,...change}),null,
+   'wrong source, heel, opposite shoe, toe direction, angle rate or unproven deep burial must reject');
+ }
+ const renderer=fs.readFileSync(path.resolve(__dirname,
+  '../../public/ai-dungeon/model-assets.js'),'utf8');
+ const live=renderer.slice(renderer.indexOf('function stageLicensedSourceToeFinisherAfterCounterpitch('),
+  renderer.indexOf('function stageOriginalSourceSwingLinkedToesAfterMixer('));
+ assert.match(live,/sourceSkinnedSoleWorld/);
+ assert.match(live,/certifyLicensedCounterpitchToeFinish/);
+ assert.match(live,/originalSwingToeJointRestore/);
+});
