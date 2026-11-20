@@ -9,6 +9,33 @@ import { observedSourceOriginalVisibilityWindow } from './source-physical-arriva
 const finite=Number.isFinite;
 const integer=Number.isSafeInteger;
 const valid3=p=>p&&[p.x,p.y,p.z].every(finite);
+
+// P0 cold Floor9 camera protection asks the SAME source-built roots for
+// several reversible viewpoints in ONE rendered frame. Traversing every
+// descendant's world matrix before EACH set of physical rays is redundant,
+// particularly after the new successor mesh batches have just been built.
+// Each World owns its cache; every actual world.update begins a new epoch.
+// A repeated source tick in a later browser frame MUST resync moving decks.
+export function createSightlineMatrixEpochCache() {
+  let epoch=0;
+  let lastSynced=new WeakMap();
+  return {
+    beginFrame() {
+      if(epoch>=Number.MAX_SAFE_INTEGER-1){
+        epoch=0;
+        lastSynced=new WeakMap();
+      }
+      epoch++;
+    },
+    sync(root) {
+      if(!root?.updateWorldMatrix) return false;
+      if(lastSynced.get(root)===epoch && epoch>0) return false;
+      root.updateWorldMatrix(true,true);
+      if(epoch>0)lastSynced.set(root,epoch);
+      return true;
+    },
+  };
+}
 function renderedTriangle(hit,root) {
   let object=hit?.object;
   if(!object?.isMesh)return false;
@@ -25,7 +52,7 @@ function renderedTriangle(hit,root) {
 }
 export function measureAuthoritativeDeckSightline({
   source,held,camera,body,bodyHalfHeight,gate=null,
-  platformRoots,originalGateRoot=null,originalCapRoot=null,originalGalleryRoot=null,architectureRoots=[],raycaster,direction,point,hits,stale=false
+  platformRoots,originalGateRoot=null,originalCapRoot=null,originalGalleryRoot=null,architectureRoots=[],raycaster,direction,point,hits,stale=false,syncWorldMatrix=null
 }={}) {
   if(stale || source?.floor!==9 || source.theme!=='void' ||
     source.lifecycle!=='running' || !(source.player?.health>0) ||
@@ -61,22 +88,25 @@ export function measureAuthoritativeDeckSightline({
       root!==originalGateRoot && root!==originalCapRoot &&
       root!==originalGalleryRoot && !platformRoots.includes(root)) ||
     !raycaster?.set || !raycaster?.intersectObject ||
+    (syncWorldMatrix!==null && typeof syncWorldMatrix!=='function') ||
     !direction?.copy || !point?.copy ||
     !Array.isArray(hits) || (gate!=null && !valid3(gate)))return null;
-  // Once per candidate, not four world-matrix traversals per platform.
-  // The live World owner already placed every deck from the current source.
-  for(const root of platformRoots)if(root.visible!==false)
-    root.updateWorldMatrix(true,true);
-  // The ORIGINAL retained guardian gate (not an invented proxy) can cover
-  // the live character even when the successor deck and tower core are clear.
-  // Reuse the existing source-verified F8->F9 camera window and raycaster;
-  // never use this gate as an occluder of its OWN gateway target.
-  if(originalGateRoot?.visible!==false) originalGateRoot?.updateWorldMatrix(true,true);
-  if(originalCapRoot?.visible!==false) originalCapRoot?.updateWorldMatrix(true,true);
-  if(originalGalleryRoot?.visible!==false && held.originalGallerySourceOpacity>.055)
-    originalGalleryRoot?.updateWorldMatrix(true,true);
-  for(const root of architectureRoots)if(root.visible!==false)
-    root.updateWorldMatrix(true,true);
+  // Exact same scene matrices for every reversible camera candidate.
+  // Standalone callers retain the original direct matrix refresh. The World
+  // callback only deduplicates within the current actual rendered frame,
+  // not across source ticks, floor changes, restarts or graphics recovery.
+  const refreshRoot=root=>{
+    if(root?.visible===false || !root)return;
+    if(syncWorldMatrix)syncWorldMatrix(root);
+    else root.updateWorldMatrix(true,true);
+  };
+  for(const root of platformRoots)refreshRoot(root);
+  // The opened source-owned gate, old cap, gallery and newly built Void
+  // bearings stay real raycast owners; no opacity, hit or safety veto changes.
+  refreshRoot(originalGateRoot);
+  refreshRoot(originalCapRoot);
+  if(held.originalGallerySourceOpacity>.055)refreshRoot(originalGalleryRoot);
+  for(const root of architectureRoots)refreshRoot(root);
   let blockedBodyRays=0, blockedGatewayRays=0, rays=0, realTrianglesChecked=0;
   let architectureBlockedRays=0;
   let originalGateBlockedRays=0;
