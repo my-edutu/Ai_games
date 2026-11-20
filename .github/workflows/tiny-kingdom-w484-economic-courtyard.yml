@@ -1,0 +1,22 @@
+name: Tiny Kingdom W484 Genuine Economic Court Source and Build
+on:
+  push:
+    branches:
+      - feat/tiny-kingdom-post-main-gauntlet-20261031
+    paths:
+      - public/tiny-kingdom/index.html
+      - tests/browser/tiny-kingdom-w484-economic-courtyard.test.cjs
+      - .github/workflows/tiny-kingdom-w484-economic-courtyard.yml
+  workflow_dispatch:
+jobs:
+  economic-court-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/browser/tiny-kingdom-w484-economic-courtyard.test.cjs
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
