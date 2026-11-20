@@ -1129,7 +1129,17 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
    trial?.sourcePreplannedToeHingeVerified===true&&
    !originalAdaptiveToe&&toeRad===-.14&&
    sourceWorldSolePitchVerified===true&&
-   frameInterval>=.215&&frameInterval<=.240001&&
+   // Original 390px 183.3ms Walking_A four-probe source evidence
+   // (Actions #44780263359, 41-joint source skin) independently measured
+   // toesl -140mrad on the same original -.11/+.14/+.24rad leg:
+   // toe +25.631mm, heel +17.323mm, +8.307mm real outsole pitch.
+   // Previous >=215ms restriction discarded that actual weighted shoe
+   // while retaining only the weaker +19.006mm triple-joint result.
+   // This interval admits the existing sampled fourth joint only under
+   // the SAME strict two-shoe, 5mm pitch, 20mm heel, 30mm XZ,
+   // sourced toe-track/bind, 3rad/s and independent final-skin gates.
+   // It neither invents contact nor alters root travel/clip timing.
+   frameInterval>=.175&&frameInterval<=.240001&&
    depth>=.055&&depth<=.065&&
    heelAbove>=.22&&heelAbove<=.265&&
    shoeSpan>=.300&&shoeSpan<=.315&&
