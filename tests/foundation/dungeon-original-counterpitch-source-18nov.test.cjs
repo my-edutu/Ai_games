@@ -71,11 +71,10 @@ test('RED: source-weighted 83ms 41-joint counterpitch earns >=10mm relative outs
  assert.ok(residual>.077&&residual<.079,
   'still DEEPLY BURIED: no foot plant, IK or visual acceptance');
  const accepted=choose({...source,trials:[raw]});
- assert.equal(accepted?.source,'measured-original-skinned-coupled-knee-foot',
-  'the sourced connected hip-calf-foot candidate must not be discarded by an arbitrary 20mm toe-only threshold');
- assert.equal(accepted?.contactLocked,false);
- assert.equal(accepted?.oppositeShoePreserved,true);
- assert.ok(accepted.toeLiftMeters>.0168);
+ assert.equal(accepted,null,
+  '83.4ms permits 250.2mrad, NOT the historical 360mrad original foot correction');
+ assert.ok(Math.abs(raw.footRad)>3*source.frameInterval);
+
 });
 test('strict GLB ownership, real loaded shoe, heel pitch and source joint controls remain fail closed',async()=>{
  const {chooseOriginalSourceCoupledKneeFootSweep:choose}=await load();
