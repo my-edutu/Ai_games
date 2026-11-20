@@ -538,7 +538,7 @@ test('actual old Clockwork machine room retains BOTH exterior bearing silhouette
   // Original batch order contains many nearby bronze roof faces; these
   // would consume the source-face budget before EITHER authentic exterior
   // flank is retained. All three sets remain the SAME original 3D mesh.
-  for(let i=0;i<50;i++)append(25,Math.sin(i*.71)*.6,roof+3);
+  for(let i=0;i<50;i++)append(35,-7+Math.sin(i*.71)*.6,roof+3);
   append(43,-20,roof+7);
   append(43,20,roof+7);
   const geometry=new THREE.BufferGeometry();
@@ -567,7 +567,7 @@ test('actual old Clockwork machine room retains BOTH exterior bearing silhouette
       const radial=x*Math.sin(at)+z*Math.cos(at);
       if(tangent< -17 && radial>40)left=true;
       if(tangent>17 && radial>40)right=true;
-      if(Math.abs(tangent)<3 && radial<29)originalRoof=true;
+      if(Math.abs(tangent+7)<3 && radial<39)originalRoof=true;
     }
     assert.ok(left && right && originalRoof,
       'real old-world near-roof, left and right load paths form one physical room');
