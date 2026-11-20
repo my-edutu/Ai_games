@@ -133,3 +133,14 @@ Final-source evidence: [`11-foundry-final.webp`](../../public/infinite-tower-cli
 | Device performance | Renderer owner: measure on intended graphics-capable viewing devices. Do not infer a hardware frame rate from this shared software renderer. |
 
 The Gauntlet journal records active agent work. Its refresh timer does not launch agents or continue coding after the session ends. Ultracode was unavailable in this environment; supported coding and critique subagents were used instead.
+
+
+### 2026-11-20 P0 — authentic 71s+ motion and frame-epoch CPU audit (source c7ba76c8d8)
+
+The [source-pinned original native capture](https://github.com/my-edutu/Ai_games/actions/runs/44670242244) succeeded in all eight baseline/candidate original recordings and the ledge job; **strict source-to-native event pairing failed in both viewports (0/2)**. [Exact-head CI](https://github.com/my-edutu/Ai_games/actions/runs/44670242325) passed 10/10, but is not quality acceptance.
+
+The prior actual production matrix-epoch caching changes were measured on the genuine first returned F9 source frame: browser CPU camera+lighting desktop **182.1→116.0ms**, portrait **179.0→83.0ms**; total sceneUpdate **288.6→218.7ms** and **285.2→175.8ms**. Remaining first F9 world rebuild is **100.7/90.2ms** and renderer return **77.4/79.7ms**. These are browser CPU timings from separate matched low-tier captures, **not device GPU FPS**.
+
+Visual review of unedited full-motion desktop and portrait WebMs (whole-video contact sheets plus close-up 23.5–30s): original painted F9 HUD appears **25.75s/26.50s**, sustained violet world **26.25s/27.00s**, with **0s sustained bronze/violet shared architecture**. The hero actually travels onward and later restarts, but the defeated old guardian steel, real climber and walkable F9 roof are not jointly clear in two event-aligned native frames. Portrait foreground steel occludes the action. Source-projected gate/hero centres are not proof of visible metal triangles or an accepted crossing.
+
+**P0 remains OPEN; leading transformation verdict NOT EVALUATED.** Independent LOOKS/FEELS/PLAYS critics each 0/5, actual-device p50/p95/p99 and memory NOT EVALUATED. Next: repair original HP-open gateway steel and genuine three-subject camera/foreground composition in native portrait/desktop footage; retest exactly pinned, do not advance to P1. This review committed evidence only, not production gameplay.

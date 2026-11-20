@@ -229,5 +229,83 @@
       "jobLog": "Unedited event-aligned danger A/B: 0/2 viewports; full authentic scene pairs 8/8; independent experience NOT EVALUATED.",
       "limitation": "This verifies the PRIOR film only. New per-render-frame matrix cache source-pinned campaign requested at 69a95be; its jobs and native movie outcome not yet confirmed."
     }
+  },
+  "p0NativeVideoMatrixCacheSourcePinnedReview20261120_0548": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "immutableReviewedSourceSha": "c7ba76c8d8a5f0296a93e5ee32fdedd49aac7323",
+    "technicalQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44670242325 (10/10 successful)",
+    "nativeCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44670242244",
+    "nativeCaptureJobs": "8/8 original full-film baseline/candidate jobs success and authentic ledge job success; strict source/native pair-source-events job FAIL (0/2 viewports)",
+    "originalCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44670242244/artifacts/14600095627",
+    "reviewedSourceOptimizationCommits": [
+      "ff3010deb3040e0942fea8a17984ad14d5d3a5e6",
+      "2414fdd5fb2bd1376e650329bd8ef9ad8d4ac464"
+    ],
+    "browserCpuFirstFloor9": {
+      "desktop": {
+        "priorCameraLightingMs": 182.1,
+        "candidateCameraLightingMs": 116,
+        "priorSceneUpdateMs": 288.6,
+        "candidateSceneUpdateMs": 218.7,
+        "candidateWorldRebuildMs": 100.7,
+        "candidateWebglRendererReturnMs": 77.4,
+        "firstF9Tick": 475
+      },
+      "portrait": {
+        "priorCameraLightingMs": 179,
+        "candidateCameraLightingMs": 83,
+        "priorSceneUpdateMs": 285.2,
+        "candidateSceneUpdateMs": 175.8,
+        "candidateWorldRebuildMs": 90.2,
+        "candidateWebglRendererReturnMs": 79.7,
+        "firstF9Tick": 484
+      }
+    },
+    "interpretation": "Prior production world-matrix epoch cache shows 66.1ms and 96.0ms less camera+lighting browser CPU in matching low-tier source-pinned recordings. This is not device GPU time or quality success; new sceneUpdate still 175.8–218.7ms and cold world rebuild 90.2–100.7ms.",
+    "nativeOriginalUneditedFilm": {
+      "method": "Inspected native full 71s+ desktop and portrait WebMs sampled across entire duration, plus frame-by-frame 23.5–30s gateway sequence.",
+      "desktop": {
+        "floor9HudSeconds": 25.75,
+        "firstSustainedVioletSeconds": 26.25,
+        "sustainedWarmCoolOverlapSeconds": 0
+      },
+      "portrait": {
+        "floor9HudSeconds": 26.5,
+        "firstSustainedVioletSeconds": 27,
+        "sustainedWarmCoolOverlapSeconds": 0
+      },
+      "majorDefect": "Both viewports abruptly cut from bronze Floor8 to violet Floor9. Original defeated guardian gate, real climber, and walkable successor roof never remain jointly established in accepted consecutive source/video frames. Portrait bronze bars mask action. Retained old GPU geometry/hero-gate projected centre is NOT evidence of actual visible authored steel."
+    },
+    "returnedSourceFrames": {
+      "desktop": {
+        "retainedOldGpuFrames": 4,
+        "sourceGuardianDefeatRecords": 4,
+        "projectedHeroAndGateSafe": 4,
+        "originalGroundedReceiptFrames": 0
+      },
+      "portrait": {
+        "retainedOldGpuFrames": 3,
+        "sourceGuardianDefeatRecords": 4,
+        "projectedHeroAndGateSafe": 4,
+        "originalGroundedReceiptFrames": 0
+      }
+    },
+    "completedThisReview": "Original video and source-pinned CPU/occlusion audit, updated existing technical review/evidence/ledger. No new production code patch: original frames show optical/compositor issue unresolved despite measured prior CPU gain.",
+    "largestExperienceGap": "True rendered opened gateway/hero/physical Floor9 roof NOT visually co-present, and event/native pairing fails in 2/2 viewports.",
+    "nextHighestImpact": "Reproduce and repair source-owned 3D guardian steel visible area and physical three-subject camera composition with portrait foreground clearance, then repeat native exact-SHA capture; investigate remaining ~90–101ms F9 rebuild if render submission remains blocked.",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDevice": {
+      "p50": "NOT EVALUATED",
+      "p95": "NOT EVALUATED",
+      "p99": "NOT EVALUATED",
+      "memory": "NOT EVALUATED"
+    },
+    "safeguards": "Frozen baseline unchanged; PR58 untouched; PR68 draft; no other games, merge, deployment or force push."
   }
 }
