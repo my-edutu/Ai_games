@@ -1,3 +1,9 @@
+## Pass539 — native 390px parry visibility regression and conservative physical camera correction (2026-11-20 UTC)
+
+- **Real blocker:** exact Pass538 HEAD `26afae8af148b39dd8109a771dd917683d9f5976` native [WebGL #44778892807](https://github.com/my-edutu/Ai_games/actions/runs/44778892807) FAILED at unchanged 390px Thornback boots source ray (`inconclusive=true`); six-reset strict geometry and 8/9 other browser tests passed. Original [artifact 14652800265](https://github.com/my-edutu/Ai_games/actions/runs/44778892807/artifacts/14652800265) ZIP SHA256 `95b04b7d520ea2a89d33151c7ae7d08cfdaec530a77c0b93f14260799369418e`; 40/40 original written PNG SHA sidecars verified, earned 390 original PNG exists but no JSON after hard assertion. No Pass538 screenshot win.
+- **Correction candidate:** production 390 earned post-impact orbit constrained to ±6° relative to previously 10/10 real-body-ray-clear Pass537 baseline; source tests added, original strict natural-parry/±0.95/six-run <100 tests preserved without relaxing. This is real scene-camera geometry, not a cosmetic HUD edit. Fresh exact-HEAD native captured verdict **PENDING**, official Nintendo bar **NOT MET**.
+- [Pass539 dated image/ray critique](docs/reviews/maze-3d/pass-539-390-public-ray-correction-2026-11-20.md). Same existing draft PR #53; never merge/deploy/force push.
+
 ## Pass538 — source-bound 390px earned counter readability candidate (2026-11-20 UTC)
 
 - **Proven source input:** exact `e816368bbbc27309e25b850d1436b9c0c9d83f65` WebGL #44769013186 SUCCESS, original artifact 14647221181 ZIP SHA256 `650067a6281afc34697c22ee9e903e57edb26e9ddf0b37454fb1ca87795a0d02`, 42/42 verified original unaltered PNG hashes + 3/3 genuine gate hashes. Native 390px tick94 makes Thornback side-on/partially visually swallowed by ornament; true 320px tick94 faces more frontally. Official Nintendo bar rejected.

@@ -1631,7 +1631,8 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     if(earnedDuelContinuity && earnedCounterModel?.parent)
       setPublicEarnedGuardianWideContactReveal(
         earnedRecoilCameraOffset,aspect,pose,earnedCounterModel.position,
-        earnedCounterActor?.counterPhase,true,settings.reducedMotion);
+        earnedCounterActor?.counterPhase,true,settings.reducedMotion,
+        Math.PI/30);
     cameraOffset.lerp(publicVictoryScene ? escapeCameraOffset
       : openingStageView ? openingGateCameraOffset
       : cameraGate ? sealedGateCameraOffset

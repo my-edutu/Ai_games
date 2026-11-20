@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-20T16:49:14.000Z",
+  "updatedAt": "2026-11-20T18:48:24.867Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass537 exact-HEAD native WebGL #44769013186 SUCCESS, SHA-matched unaltered original artifact 650067a6 (42/42 PNG sidecars, 3/3 real gate frames); 390px original tick94 remains side-on/crowded versus Nintendo. Pass538 source candidate stages earned same-run 390 portrait after-contact camera toward frontal Pip/Thornback. New exact-HEAD screenshot and independent visual verdict REQUIRED; no visual win claimed."
+    "summary": "Pass538 exact-HEAD native WebGL #44778892807 FAILED the genuine 390px Thornback boots public-masonry ray (inconclusive=true); full original unaltered frame was saved, ZIP SHA256 95b04b7d, 40 original PNG/sidecars verified, but no earned PNG sidecar because strict test threw. Pass539 production caps the genuinely earned extra 390px camera orbit to 6 degrees from the previously ray-clear Pass537 baseline, retaining the unchanged strict ray test. New exact-HEAD WebGL acceptance and independent critic REQUIRED; Nintendo visual benchmark NOT MET."
   },
   "captures": [
+    {
+      "title": "Pass538 exact-HEAD 26afae8a native WebGL strict 390px Thornback-boots ray FAILED; original ZIP SHA256 95b04b7d, 40/40 written full PNG SHA sidecars checked, earned original PNG preserved but no sidecar after assertion; Pass539 corrective candidate awaits render",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44778892807/artifacts/14652800265"
+    },
     {
       "title": "Pass537 independently verified exact-source original WebGL, ZIP 650067a6, 42/42 full original PNG hashes + 3 real gate hashes; Pass538 390 frontal recoil candidate awaits native evidence",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44769013186/artifacts/14647221181"

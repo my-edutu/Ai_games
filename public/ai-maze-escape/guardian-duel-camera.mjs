@@ -400,10 +400,12 @@ export function setPublicEarnedGuardianNarrowPairStage(
  */
 export function setPublicEarnedGuardianWideContactReveal(
   offset, aspect, hero, guardian, counterPhase,
-  earned=false, reducedMotion=false) {
+  earned=false, reducedMotion=false, maxTurnRadians=1.55) {
   if(!earned || reducedMotion || !Number.isFinite(aspect)
     || aspect<.45 || aspect>=.60 || !Number.isFinite(counterPhase)
     || counterPhase<=.24 || counterPhase>=1
+    || !Number.isFinite(maxTurnRadians) || maxTurnRadians<=0
+    || maxTurnRadians>1.55
     || ![offset?.x,offset?.y,offset?.z,hero?.x,hero?.z,
       guardian?.x,guardian?.z].every(Number.isFinite))return false;
   const dx=hero.x-guardian.x, dz=hero.z-guardian.z;
@@ -418,7 +420,12 @@ export function setPublicEarnedGuardianWideContactReveal(
   const delta=Math.abs(a)<=Math.abs(b)?a:b;
   const t=Math.max(0,Math.min(1,(counterPhase-.24)/.44));
   const eased=t*t*(3-2*t);
-  const turn=Math.max(-1.55,Math.min(1.55,delta))*eased;
+  // Pass539: Pass538's forced near-frontal swing failed the REAL 390px
+  // WebGL public-geometry ray at Thornback's boots. The original Pass537
+  // flank passed every body-anchor ray; allow that live lens only a small
+  // additional public pair turn until a new uncropped native render proves
+  // more. A source angle is never evidence that a foot can be seen.
+  const turn=Math.max(-maxTurnRadians,Math.min(maxTurnRadians,delta))*eased;
   if(Math.abs(turn)<.000001)return false;
   offset.x=radius*Math.cos(normal+turn);
   offset.z=radius*Math.sin(normal+turn);

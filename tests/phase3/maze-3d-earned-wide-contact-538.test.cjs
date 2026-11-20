@@ -66,3 +66,25 @@ test('Pass538 source remains same-run/public-actor gated and retains all strict 
   assert.match(scene,/if\(earnedDuelContinuity && earnedCounterModel\?\.parent\)/);
   assert.doesNotMatch(scene,/privateMaze[\s\S]{0,100}setPublicEarnedGuardianWideContactReveal\(/);
 });
+
+test('Pass539 protects the genuine 390px public ray from an unverified frontal orbit while retaining the strong strict browser gate',async()=>{
+  const {setPublicEarnedGuardianWideContactReveal:reveal}=await camera();
+  const o=offset(),before=alignment(o);
+  const base=Math.atan2(o.z,o.x);
+  assert.equal(reveal(o,390/844,hero,thornback,.80,true,false,Math.PI/30),true);
+  const delta=Math.atan2(Math.sin(Math.atan2(o.z,o.x)-base),
+    Math.cos(Math.atan2(o.z,o.x)-base));
+  assert.ok(delta>0 && Math.abs(delta)<=Math.PI/30+1e-10,
+    'never swing through foreground public masonry to force a speculative frontal shot');
+  assert.ok(alignment(o)>before,'physical actor-pair alignment should not worsen');
+  for(const invalid of [NaN,0,-.1,1.5500001,Infinity]){
+    const candidate=offset();
+    assert.equal(reveal(candidate,390/844,hero,thornback,.80,true,false,invalid),false);
+    assert.deepEqual(candidate,offset());
+  }
+  assert.match(scene,/earnedCounterActor\\?\\.counterPhase,true,settings\\.reducedMotion,\\s*Math\\.PI\\/30\\);/,
+    'real scene must use source-safe constrained orbit, not test-only helper defaults');
+  assert.match(fs.readFileSync(path.join(root,'tests/browser/maze-review.spec.cjs'),'utf8'),
+    /expect\\(anchor\\.inconclusive,name\\+' may not silently pass an ambiguous ray'\\)\\.toBe\\(false\\)/,
+    'unchanged strict source-bound mesh-ray acceptance remains authoritative');
+});
