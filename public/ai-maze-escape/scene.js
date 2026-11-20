@@ -5,7 +5,7 @@ import { publicEarnedCounterImpactStage } from './public-counter-impact.mjs';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilSafeContactHalfHeight, publicGuardianEarnedRecoilFinalPairShift, publicGuardianEarnedRecoilPairStageLift, publicGuardianEarnedContactStageResponse, publicGuardianEarnedRecoilRevealElevation, setPublicEarnedGuardianFrontQuarterOffset, publicEarnedGuardianCounterCameraPriority, publicEarnedGuardianCounterCameraAct, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap, setPublicEarnedGuardianNarrowPairStage } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilSafeContactHalfHeight, publicGuardianEarnedRecoilFinalPairShift, publicGuardianEarnedRecoilPairStageLift, publicGuardianEarnedContactStageResponse, publicGuardianEarnedRecoilRevealElevation, setPublicEarnedGuardianFrontQuarterOffset, publicEarnedGuardianCounterCameraPriority, publicEarnedGuardianCounterCameraAct, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap, setPublicEarnedGuardianNarrowPairStage, setPublicEarnedGuardianWideContactReveal } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicEarnedGuardianCounterLightPath } from './public-lantern-encounter.mjs';
@@ -1623,6 +1623,15 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // continuous shot. Final strict physical full-body limits still apply.
     if(earnedDuelContinuity)
       earnedRecoilCameraOffset.lerp(cameraOffset,1-earnedShotAct);
+    // The actual 390px full-frame counter hides Thornback's reaction behind
+    // the camera-side foliage. The previous public two-actor contact stays
+    // intact through .24 of its REAL counter; during withdrawal smoothly
+    // expose both connected faces from the same authoritative actor cells.
+    // The next lens pass still judges every original full 3D mesh at +/- .95.
+    if(earnedDuelContinuity && earnedCounterModel?.parent)
+      setPublicEarnedGuardianWideContactReveal(
+        earnedRecoilCameraOffset,aspect,pose,earnedCounterModel.position,
+        earnedCounterActor?.counterPhase,true,settings.reducedMotion);
     cameraOffset.lerp(publicVictoryScene ? escapeCameraOffset
       : openingStageView ? openingGateCameraOffset
       : cameraGate ? sealedGateCameraOffset

@@ -1,3 +1,9 @@
+## Pass538 — source-bound 390px earned counter readability candidate (2026-11-20 UTC)
+
+- **Proven source input:** exact `e816368bbbc27309e25b850d1436b9c0c9d83f65` WebGL #44769013186 SUCCESS, original artifact 14647221181 ZIP SHA256 `650067a6281afc34697c22ee9e903e57edb26e9ddf0b37454fb1ca87795a0d02`, 42/42 verified original unaltered PNG hashes + 3/3 genuine gate hashes. Native 390px tick94 makes Thornback side-on/partially visually swallowed by ornament; true 320px tick94 faces more frontally. Official Nintendo bar rejected.
+- **Pass538 source candidate:** 390-only witnessed same-run after-contact reveal over phase 0.24–0.68, with untouched opening hit, reduced motion, 320/landscape/desktop, geometry/collision/AI, original strict ±0.95 full connected-body and six-reset <100 budget. No new render resources. Original new exact-HEAD captures and independent fresh-context critique **PENDING**, never claim a benchmark win from source checks.
+- [Dated critique / instructions](docs/reviews/maze-3d/pass-538-wide-counter-contact-reveal-2026-11-20.md). PR #53 draft; no merge/deploy/force push.
+
 ## Pass536 — native Pass535 exact WebGL critique and original contact-camera continuity candidate (2026-11-20 UTC)
 
 - **Proven input:** production HEAD `08eac7ec2e5276340b2ccb7da0d203ee012b4195` [focused WebGL #44749497116](https://github.com/my-edutu/Ai_games/actions/runs/44749497116) SUCCESS, [artifact 14634992105](https://github.com/my-edutu/Ai_games/actions/runs/44749497116/artifacts/14634992105) original ZIP SHA256 `5d61042056b0e4739cc34f245431a22a12439ba2258c529a5752b7ec7d3fda22`; original 42/42 PNG/sidecars plus 3/3 authentic gate images verified. Genuine 390px tick94 `07c202d5` vs 320px `f7955f8f`, complete connected Pip/Thornback within existing +/- .95. Tick93 actual photographed portrait contact is far more intimate than distant tick94 cutaway. Fixed official Nintendo bar STILL REJECTED; no independent critic.

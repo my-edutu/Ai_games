@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-20T15:51:00.000Z",
+  "updatedAt": "2026-11-20T16:49:14.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass536 exact-HEAD 503288e5 native WebGL #44759958399 SUCCESS, ZIP 09718e14 with independently verified 42/42 full-frame PNG SHA sidecars plus 3/3 genuine gate frames. Uncropped seed-13 tick94 320px physical actors are scattered across a huge empty cliff, despite passing +/-0.95; 390px contact remains crowded. Nintendo benchmark REJECTED. Pass537 adds same-run public 320px pair-first camera azimuth with unchanged strict physical full-model fit; new WebGL and independent visual critic PENDING, no visual win claimed."
+    "summary": "Pass537 exact-HEAD native WebGL #44769013186 SUCCESS, SHA-matched unaltered original artifact 650067a6 (42/42 PNG sidecars, 3/3 real gate frames); 390px original tick94 remains side-on/crowded versus Nintendo. Pass538 source candidate stages earned same-run 390 portrait after-contact camera toward frontal Pip/Thornback. New exact-HEAD screenshot and independent visual verdict REQUIRED; no visual win claimed."
   },
   "captures": [
+    {
+      "title": "Pass537 independently verified exact-source original WebGL, ZIP 650067a6, 42/42 full original PNG hashes + 3 real gate hashes; Pass538 390 frontal recoil candidate awaits native evidence",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44769013186/artifacts/14647221181"
+    },
     {
       "title": "Pass536 exact source 503288e5 WebGL SUCCESS: original unaltered ZIP 09718e14, verified 42/42 PNG SHA and 3/3 genuine gate SHA; Pass537 320px physical pair-first stage requires new rendering",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44759958399/artifacts/14642035056"

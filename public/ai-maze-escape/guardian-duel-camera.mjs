@@ -386,6 +386,45 @@ export function setPublicEarnedGuardianNarrowPairStage(
   return true;
 }
 
+
+/**
+ * Earned, physically framed wide-portrait counter reveal.
+ *
+ * The exact-source 390x844 seed-13 counter still photographs Thornback mostly
+ * sideways behind ornament while the 320x740 version reads its connected face.
+ * Preserve the genuinely filmed initial impact: only AFTER .24 of the real
+ * public same-run counter clock may the existing single Follow camera steer
+ * toward the physical Pip/Thornback axis. Never reposition/scale a character,
+ * reveal a private cell, change a route/collider, or bypass the subsequent
+ * conservative full-model NDC fitter. No new allocations or renderer resources.
+ */
+export function setPublicEarnedGuardianWideContactReveal(
+  offset, aspect, hero, guardian, counterPhase,
+  earned=false, reducedMotion=false) {
+  if(!earned || reducedMotion || !Number.isFinite(aspect)
+    || aspect<.45 || aspect>=.60 || !Number.isFinite(counterPhase)
+    || counterPhase<=.24 || counterPhase>=1
+    || ![offset?.x,offset?.y,offset?.z,hero?.x,hero?.z,
+      guardian?.x,guardian?.z].every(Number.isFinite))return false;
+  const dx=hero.x-guardian.x, dz=hero.z-guardian.z;
+  const separation=Math.hypot(dx,dz), radius=Math.hypot(offset.x,offset.z);
+  if(separation<.65 || radius<1)return false;
+  const normal=Math.atan2(offset.z,offset.x);
+  const face=Math.atan2(dz,dx);
+  // Preserve a readable 15-degree shoulder rather than a flat head-on icon.
+  // Wrap before bounding, so the camera takes the shortest physical orbit.
+  const difference=a=>Math.atan2(Math.sin(a-normal),Math.cos(a-normal));
+  const a=difference(face-Math.PI/12),b=difference(face+Math.PI/12);
+  const delta=Math.abs(a)<=Math.abs(b)?a:b;
+  const t=Math.max(0,Math.min(1,(counterPhase-.24)/.44));
+  const eased=t*t*(3-2*t);
+  const turn=Math.max(-1.55,Math.min(1.55,delta))*eased;
+  if(Math.abs(turn)<.000001)return false;
+  offset.x=radius*Math.cos(normal+turn);
+  offset.z=radius*Math.sin(normal+turn);
+  return true;
+}
+
 /**
  * Post-parry physical lens lift. The trusted native 320/390 seed-13 tick-8
  * source rays strike disclosed tile 93's floor BEFORE reaching Pip's torso
