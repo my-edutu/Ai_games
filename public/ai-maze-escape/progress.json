@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-19T23:20:42.000Z",
+  "updatedAt": "2026-11-19T23:53:41.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass519 exact bd6bd9b1 native WebGL #44629806097 SUCCESS, original 42/42 PNG and 3/3 gate SHA sidecars independently verified. 390 and 320 earned-counter bodies inside unchanged ±0.95 and natural 136-tick chapter accepted. Actual visually near-identical to Pass518 (RGB MAE 0.763/255), Thornback face still unreadable vs official Captain Toad; candidate rejected. Pass520 production source candidate now enlarges/restages connected earned-recoil face, forward-raised optics and partial real-camera head turn, with strict reset/reduced-motion/unknown protections. New exact-HEAD native screenshot, whole CI and detached independent visual verdict PENDING. PR draft, no merge/deploy."
+    "summary": "Pass520 exact 25b513b5 native WebGL #44638242500 SUCCESS; original 42/42 full PNG SHA pairs and 3/3 gate hashes independently reverified, real natural chapter 136 ticks and six-reset geometry <100. Original 390 'Counter landed' shot barely changes from Pass519 (RGB MAE .523/255); the linked face reads only on later release, so Nintendo bar REJECTED. Pass521 code candidate corrects genuine timed face/cheek/shell response at actual public parry onset; fresh exact-HEAD 320/390/844/1280 render + independent critic PENDING. Full CI still red in separate Tiny Kingdom OBS; no merge/deploy."
   },
   "captures": [
+    {
+      "title": "Pass520 source 25b513b5 original WebGL success: 42/42 PNG sidecars and 3/3 gate images verified; real early-hit face rejected; Pass521 source timed-action candidate not rendered-approved",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44638242500/artifacts/14585612735"
+    },
     {
       "title": "Pass519 exact bd6bd9b1 WebGL SUCCESS, 42/42 original full PNG hashes and three gate transitions; natural 136-tick exit. Authentic 390/320 earned Thornback face REJECTED; Pass520 candidate requires new true render",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44629806097/artifacts/14580759703"

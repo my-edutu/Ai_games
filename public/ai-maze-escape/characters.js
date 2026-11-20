@@ -910,6 +910,16 @@ export function createWarden(options = {}) {
       ?Math.max(0,Math.min(1,options.counterPhase)):null;
     const counterLoad=counterPhase===null?0:Math.max(0,1-Math.abs(counterPhase-.20)/.20);
     const counterRelease=counterPhase===null?0:Math.max(0,1-Math.abs(counterPhase-.60)/.36);
+    // Pass521 source-bound early-hit timing: the original native 320/390
+    // screenshot says "Counter landed", but the mask only reveals at the
+    // much later counterRelease (.24..96) while Pip's light has already hit.
+    // Stage the SAME connected eyes, jaw, cheek guards and shell clear view
+    // from the beginning of this genuinely witnessed two-second recoil.
+    // Smooth .075 entry/.17 exit, no new action, geometry, or state memory.
+    // A hidden, first-seen, reduced, terminal or expired counter has null
+    // phase and returns to exactly the existing ordinary physical face.
+    const counterFaceCue=counterPhase===null?0:Math.max(0,
+      Math.min(1,counterPhase/.075,(1-counterPhase)/.17));
     // The actual native 390px earned counter still buries Thornback's shell
     // behind the foreground reef. Let the SAME complete, connected body make
     // one visible load -> spring-clear -> grounded stumble. The real AI has
@@ -994,7 +1004,7 @@ export function createWarden(options = {}) {
     // reduced-motion, unknown threat, terminal and reset poses. No mesh,
     // route, hit, collider or authoritative actor coordinate is added.
     const earnedShellClearance=counterPhase===null?0:
-      Math.max(0,Math.min(1,Math.min(counterPhase/.16,(1-counterPhase)/.16)));
+      Math.max(0,Math.min(1,Math.min(counterPhase/.11,(1-counterPhase)/.17)));
     for (const {vane,side} of tailVanes) {
       // First sight keeps the armored tail close. The PUBLIC brace fans the
       // rooted vanes out before the shell unseals; no invented enemy action.
@@ -1148,10 +1158,10 @@ export function createWarden(options = {}) {
     // connected bronze mask and its real eyes for the finite recoil interval.
     // No changed guardian cell, collision, world size, geometry ownership or
     // static first-seen enemy. Terminal/reduced/expired neutral is exactly 1.
-    head.scale.setScalar(1+counterRelease*.28);
-    head.position.y=.27+plantedClaws*.13-display*.045*alert-counterLoad*.09+counterRelease*.43-counterCollapse*.11;
-    head.position.z=.73+alert*.07+plantedClaws*.18-display*.065*alert+counterLoad*.105+counterRelease*.36-counterCollapse*.075;
-    head.rotation.x=s.win?.16:s.lose?-.13:-.045-s.danger*.065-plantedClaws*.36+display*.18*alert+(parried?.24:0)+counterLoad*.20-counterRelease*.54-counterCollapse*.28;
+    head.scale.setScalar(1+counterFaceCue*.28);
+    head.position.y=.27+plantedClaws*.13-display*.045*alert-counterLoad*.09+counterFaceCue*.43-counterCollapse*.11;
+    head.position.z=.73+alert*.07+plantedClaws*.18-display*.065*alert+counterLoad*.105+counterFaceCue*.36-counterCollapse*.075;
+    head.rotation.x=s.win?.16:s.lose?-.13:-.045-s.danger*.065-plantedClaws*.36+display*.18*alert+(parried?.24:0)+counterLoad*.20-counterFaceCue*.54-counterCollapse*.28;
     // Keep Thornback's attention on the witnessed Pip while allowing its
     // attached bronze face to yield toward the REAL viewing camera during
     // the earned counter recoil. Earlier mobile full-frame renders looked at
@@ -1161,13 +1171,13 @@ export function createWarden(options = {}) {
     // The camera vector is presentation-only; an unseen/stale parry, an
     // invalid viewer, terminal or reduced-motion cannot trigger this act.
     const viewer=options.viewerPosition;
-    const viewerAngle=counterRelease>0 && viewer
+    const viewerAngle=counterFaceCue>0 && viewer
       && Number.isFinite(viewer.x) && Number.isFinite(viewer.z)
       ? Math.atan2(viewer.x-group.position.x,viewer.z-group.position.z) : NaN;
     const lookToViewer=Number.isFinite(viewerAngle)
       ? Math.max(-.8,Math.min(.8,Math.atan2(
         Math.sin(viewerAngle-group.rotation.y),Math.cos(viewerAngle-group.rotation.y))))
-        *counterRelease*.8 : 0;
+        *counterFaceCue*.8 : 0;
     head.rotation.y=Math.sin(s.time*.8)*.08*(1-stride)*amount*(1-alert)+lookYaw+lookToViewer;
     // Counter-roll keeps Thornback's modeled bronze mask directed at Pip
     // as its real physical torso falls sideways. End-of-witness, reduced
@@ -1178,8 +1188,8 @@ export function createWarden(options = {}) {
     // carapace release. Hidden/terminal/reused rigs go to exact +0; reduced
     // motion holds a still, truthful pose with no time-based blinking.
     for (const {hinge,side} of facialShells) {
-      hinge.rotation.y=encounter>0?side*(.10+.48*brace-.40*display+.88*counterRelease):0;
-      hinge.rotation.z=encounter>0?side*(.07+.27*brace-.22*display+.50*counterRelease):0;
+      hinge.rotation.y=encounter>0?side*(.10+.48*brace-.40*display+.88*counterFaceCue):0;
+      hinge.rotation.z=encounter>0?side*(.07+.27*brace-.22*display+.50*counterFaceCue):0;
     }
     for (const {antenna,side} of antennae) {
       antenna.rotation.z=side*(.08+alert*.40)+(s.reduced?0:Math.sin(s.time*1.7+side)*.04)*(1-alert*.5);
