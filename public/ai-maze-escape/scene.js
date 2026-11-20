@@ -1048,6 +1048,14 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         counterCoreStraight.visible=false;
         counterCoreTurn.visible=false;
       }
+      // The authentic lantern holds the guardian for a short CONTACT beat.
+      // Once the connected physical hit is delivered, let Thornback's real
+      // six-leg recoil, folding shell and floor response take over the frame.
+      // Earlier full 390px WebGL shows the always-on white link masking
+      // BOTH actors for the entire counter; neither a synthetic laser nor a
+      // permanent hit marker should outlive the real luminous strike.
+      counterCoreStraight.visible=connected && counterImpact.beamActive;
+      counterCoreTurn.visible=connected && !!earnedTwoLinkPath && counterImpact.beamActive;
       counterImpactRing.visible=connected;
     }
     guide.material.opacity = settings.highContrast ? .95 : .65;
