@@ -22726,6 +22726,22 @@ function disposeWorksiteFixtureMesh(){
  worksiteFixtureCapacity=0;worksiteFixtureActive=false;
  worksiteFixturePartCache.clear();worksiteFixtureLayout=[];
 }
+// W490 same farm→market→inhabited-home Phase 1: keep real cut wheat rows
+// and genuinely filling gatherer baskets in the ALREADY retained workstation
+// VBO. Their shape changes only when the authoritative work progress crosses
+// a discrete geometry stage. Human wrists/tools, moving wheat and impacts
+// remain rebuilt from the actual real-time job. Continuous forge/build/market
+// choreography never enters this immutable-stage residency.
+function originalStagedWorksiteKey(w){
+ if(w.job==='farmer'){
+  if(w.activity!=='Harvesting grain')return 'grain-store';
+  const progress=worksiteVisualCue(w).progress;
+  return 'harvest:'+Math.max(0,Math.min(6,Math.floor((progress-.12)/.8*7)));
+ }
+ if(w.job==='gatherer')
+  return 'basket:'+Math.max(0,Math.min(3,Math.floor(worksiteVisualCue(w).progress*3)));
+ return '';
+}
 // Exact unrounded worksite positions/angles are the key: a citizen walking,
 // changing occupation, leaving a shift, or changing a physical facing ALWAYS
 // invalidates the old resident geometry, even on a 390px live-follow camera.
@@ -22733,8 +22749,7 @@ function worksiteFixtureSignature(sites){
  return sites.map(w=>{
   const station=workerLocalWorksite(w);
   return station&&!worksInsideOriginalForgeYard(w)?
-   [w.citizen,w.job,w.x,w.z,station.angle,station.localX,
-    station.localZ,station.groundHeight].join(':'):
+   worksiteFixturePartKey(w,station):
    [w.citizen,w.job,'forge-owned-or-absent'].join(':');
  }).join('|');
 }
@@ -22789,7 +22804,7 @@ function renderFixedWorkstations(sites){
 // invented agents or stock and no authoritative or replay-state mutation.
 function worksiteFixturePartKey(w,station){
  return [w.citizen,w.job,w.x,w.z,station.angle,station.localX,
-  station.localZ,station.groundHeight].join(':');
+  station.localZ,station.groundHeight,originalStagedWorksiteKey(w)].join(':');
 }
 function buildWorksiteFixturePart(w,station){
  const previousData=data,previousMaterial=currentMaterial;
@@ -22798,6 +22813,11 @@ function buildWorksiteFixturePart(w,station){
   materialScope(MATERIAL.WOOD,()=>{
    const first=data.length;
    emitFixedWorkstation(w,station);
+   // Exactly the original staged field/basket triangles: move them out of
+   // the per-tick JS world stream and into this existing bounded GPU VBO.
+   if(originalStagedWorksiteKey(w))
+    appendActiveWorksiteDressing(w,station.localX,
+     station.groundHeight,station.localZ,0);
    rotateWorksiteVertices(first,w.x,w.z,station.angle);
   });
   const mesh=new Float32Array(data);
@@ -22903,6 +22923,9 @@ function getWorksiteFixtureResidencyAudit(){
   uploads:worksiteFixtureUploads,builds:worksiteFixtureBuilds,
   reuses:worksiteFixtureReuses,drawCalls:worksiteFixtureDrawCalls,
   cachedParts:worksiteFixturePartCache.size,partBuilds:worksiteFixturePartBuilds,
+  stagedOriginalFields:[...worksiteFixturePartCache.keys()].filter(id=>
+   id.endsWith('|farmer')||id.endsWith('|gatherer')).length,
+  stagedFieldGeometryKeyedToRealWork:true,
   partHits:worksiteFixturePartHits,partEvictions:worksiteFixturePartEvictions,
   partialUploads:worksiteFixturePartialUploads,
   partialUploadBytes:worksiteFixturePartialBytes,
@@ -22943,7 +22966,10 @@ function renderWorkdayTraces(){
    const x=station.localX,z=station.localZ,y=station.groundHeight;
    const start=data.length,pulse=w.impact*2-1;
    emitMovingWorkstation(w,station,pulse);
-   appendActiveWorksiteDressing(w,x,y,z,pulse);
+   // No duplicate row, sheaf or basket when that original stage is already
+   // resident. Failure or SwiftShader keeps the complete original CPU path.
+   if(!fixturesResident||!originalStagedWorksiteKey(w))
+    appendActiveWorksiteDressing(w,x,y,z,pulse);
    rotateWorksiteVertices(start,w.x,w.z,station.angle);
   }
  });
