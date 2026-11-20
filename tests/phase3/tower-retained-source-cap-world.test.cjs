@@ -52,7 +52,7 @@ const common={runToken:'real-geometry-lifetime',lifecycle:'running',
 function old(){
   return {...common,floor:8,theme:'clockwork',tick:450,
     guardianExitX:gate,platforms:[cap],
-    enemies:[{id:'f8:guardian',kind:'guardian',floor:8,active:false,
+    enemies:[{id:'f8:guardian',kind:'guardian',active:false,
       health:0,x:235000,y:3250000,halfHeight:18000}],
     player:{...body,groundedPlatformId:'f8:cap'}};
 }
@@ -171,6 +171,9 @@ test('one real returned Floor8 renderer frame prepares bounded original gallery 
   const [{createTowerWorld}]=await loaded;
   const first=old(),second=next(),world=createTowerWorld();
   try{
+    // A real published TowerRenderSnapshot strips enemy.floor; the old
+    // fixture's invented floor:8 hid a production cache eligibility bug.
+    assert.equal(Object.hasOwn(first.enemies[0],'floor'),false);
     world.update(first,.05,0,{quality:'low'});
     const staged=world.diagnostics().originalClockworkGalleryPrebuild;
     assert.equal(staged.state,'prepared-from-actual-floor-eight-source-awaiting-webgl-return');

@@ -3055,7 +3055,12 @@ export function createTowerWorld(){
         snapshot.guardianExitX!==cap.x+Math.floor(cap.width*.76) ||
         !platforms.get('f8:cap')?.guardianGate?.frame?.isGroup ||
         !snapshot.enemies.some(e=>e?.kind==='guardian' &&
-          e.floor===8 && Number.isFinite(e.health) && e.health>=0)) return false;
+          // Published TowerRenderSnapshot enemies are already scoped to
+          // snapshot.floor. The real projection has NO enemy.floor field;
+          // requiring floor===8 here disabled every genuine F8 prebuild.
+          (!Number.isSafeInteger(e.floor) || e.floor===snapshot.floor) &&
+          typeof e.id==='string' && !!e.id &&
+          Number.isFinite(e.health) && e.health>=0)) return false;
     const thresholdX=snapshot.guardianExitX,roofY=cap.y+cap.height;
     if (preparedThresholdGallery &&
         preparedThresholdGallery.oldFloor===floorGroup &&
