@@ -3836,8 +3836,9 @@ function getAuthenticSoftwareWorksiteGpuAudit(){
  const detailed=foregroundResidentVisible.filter(row=>
   isWorkingAtSite(row.p)&&row.entry.skinned)
   .map(row=>({name:row.p.name,p:row.p,tier:'detailed'}));
- const compact=workingSkinCapable?workingResidentVisible.filter(row=>
-  isWorkingAtSite(row.p)&&row.entry.skinned)
+ const compact=workingSkinCapable&&workingResidentJointBuffer?workingResidentVisible.filter(row=>
+  isWorkingAtSite(row.p)&&row.entry.joints instanceof Float32Array&&
+  row.entry.joints.length===row.entry.mesh.length/10)
   .map(row=>({name:row.p.name,p:row.p,tier:'compact'})):[];
  const all=[...detailed,...compact];
  const frame=citizenDetailCameraFrame();
