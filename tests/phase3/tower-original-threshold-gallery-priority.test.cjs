@@ -519,3 +519,63 @@ test('true F9 roof approach and bronze exterior share a tapered clear 3D camera 
     old.traverse(m=>{if(m.geometry)m.geometry.dispose();if(m.material)m.material.dispose();});
   }
 });
+
+test('actual old Clockwork machine room retains BOTH exterior bearing silhouettes at the Floor9 gateway within the original face cap',async()=>{
+  const [THREE,world]=await loaded;
+  const old=new THREE.Group();
+  const original=new THREE.BoxGeometry(.75,1.4,.75).toNonIndexed();
+  const pos=original.getAttribute('position'),norm=original.getAttribute('normal'),uv=original.getAttribute('uv');
+  const vertices=[],normals=[],uvs=[];
+  const append=(radius,tangent,vertical)=>{
+    const x=Math.sin(at)*radius+Math.cos(at)*tangent;
+    const z=Math.cos(at)*radius-Math.sin(at)*tangent;
+    for(let i=0;i<pos.count;i++){
+      vertices.push(pos.getX(i)+x,pos.getY(i)+vertical,pos.getZ(i)+z);
+      normals.push(norm.getX(i),norm.getY(i),norm.getZ(i));
+      uvs.push(uv.getX(i),uv.getY(i));
+    }
+  };
+  // Original batch order contains many nearby bronze roof faces; these
+  // would consume the source-face budget before EITHER authentic exterior
+  // flank is retained. All three sets remain the SAME original 3D mesh.
+  for(let i=0;i<50;i++)append(25,Math.sin(i*.71)*.6,roof+3);
+  append(43,-20,roof+7);
+  append(43,20,roof+7);
+  const geometry=new THREE.BufferGeometry();
+  geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));
+  geometry.setAttribute('normal',new THREE.Float32BufferAttribute(normals,3));
+  geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
+  const source=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({color:0x97734d}));
+  source.userData.structural=true;source.name='real-old-clockwork-room-source-batch';
+  old.add(source);
+  let selected=null;
+  try{
+    selected=world.extractOriginalClockworkThresholdGallery(THREE,old,
+      EXIT_X,ROOF_Y,BASE_Y,WIDTH,{
+        includeOriginalFlanks:true,clearPhysicalExit:true,maxFaces:36,maxBatches:1});
+    assert.ok(selected && selected.faces>0 && selected.faces<=36,
+      'no new source triangles beyond the old source-owned low-tier budget');
+    assert.ok(selected.originalExteriorFlankFaces.left>=2,'old left machine-room brace survives');
+    assert.ok(selected.originalExteriorFlankFaces.right>=2,'old right machine-room brace survives');
+    assert.equal(selected.root.children.length,1,'no new material batch/draw cost');
+    assert.equal(selected.bytes,selected.faces*96);
+    const positions=selected.root.children[0].geometry.getAttribute('position');
+    let left=false,right=false,originalRoof=false;
+    for(let i=0;i<positions.count;i++){
+      const x=positions.getX(i),z=positions.getZ(i);
+      const tangent=x*Math.cos(at)-z*Math.sin(at);
+      const radial=x*Math.sin(at)+z*Math.cos(at);
+      if(tangent< -17 && radial>40)left=true;
+      if(tangent>17 && radial>40)right=true;
+      if(Math.abs(tangent)<3 && radial<29)originalRoof=true;
+    }
+    assert.ok(left && right && originalRoof,
+      'real old-world near-roof, left and right load paths form one physical room');
+    assert.equal(source.parent,old,'F8 source geometry is never rewritten');
+  }finally{
+    if(selected)for(const child of selected.root.children){
+      child.geometry.dispose();child.material.dispose();
+    }
+    original.dispose();geometry.dispose();source.material.dispose();
+  }
+});

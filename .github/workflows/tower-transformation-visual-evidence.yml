@@ -8,6 +8,9 @@ on:
     branches: [feat/tower-transformation-gauntlet-20261101]
     paths:
       - public/infinite-tower-climb/gauntlet/capture-request.json
+      # Gameplay/world geometry changes now get source-pinned native 1x
+      # A/B captures without rewriting the immutable transformation ledger.
+      - public/infinite-tower-climb/visuals/world.mjs
   workflow_dispatch:
 permissions:
   contents: read

@@ -359,8 +359,20 @@ export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresh
             : minY<=roof+21 && maxY>=roof-32;
           if(inVerticalEnvelope){
             const nearestY=Math.max(minY,Math.min(roof+3,maxY));
+            // A near-roof-heavy original rigid batch can exhaust all 3,600
+            // historical faces while the TRUE left/right machine-room
+            // buttresses vanish at the F8->F9 renderer handoff. Classify
+            // original *exterior* flanks from their real clipped vertices,
+            // never a guessed future deck, camera ray or synthetic brace.
+            const midX=(positions[0]+positions[3]+positions[6])/3;
+            const midZ=(positions[2]+positions[5]+positions[8])/3;
+            const radial=midX*tangentSin+midZ*tangentCos;
+            const lateral=midX*tangentCos-midZ*tangentSin;
+            const flank=includeOriginalFlanks && radial>31.5 &&
+              Math.abs(lateral)>=9 ? (lateral<0?'left':'right') : null;
             const triangle={score:score/3+
-              Math.pow((nearestY-(roof+3))/32,2),positions,normals,uvs,band};
+              Math.pow((nearestY-(roof+3))/32,2),
+              positions,normals,uvs,band,flank};
             group.triangles.push(triangle);
             if(triangle.score<group.best)group.best=triangle.score;
           }
@@ -380,12 +392,14 @@ export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresh
   const picked=selected.map(()=>[]);
   let remaining=maxFaces;
   const chosen=new Set();
+  const flankCounts={left:0,right:0};
   const sorted=selected.flatMap((batch,j)=>batch.triangles.map(triangle=>({j,triangle})))
     .sort((a,b)=>a.triangle.score-b.triangle.score);
   function takeOriginal(entry){
     if(remaining<=0 || chosen.has(entry.triangle))return false;
     chosen.add(entry.triangle);
     picked[entry.j].push(entry.triangle);
+    if(entry.triangle.flank)flankCounts[entry.triangle.flank]++;
     remaining--;
     return true;
   }
@@ -395,6 +409,21 @@ export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresh
   // No mesh creation or synthetic faces: all choices come from the already
   // gathered, clipped old-floor source. Ordinary/narrow extraction is intact.
   if(includeOriginalFlanks && maxFaces>=12){
+    // Two genuine old-world exterior shoulders must share the first
+    // source-authenticated F9 shot. Prior score-only allocation saturated
+    // on near-roof bronze and left only a narrow arch in the newly drawn
+    // Void environment. Reserve *within* the unchanged face/draw limits
+    // from the physical old-floor triangles, before nearer faces fill it.
+    // The clipped centre corridor, real gate, walkable cap, hazards and
+    // player's authored geometry remain strictly excluded.
+    const sideTarget=maxFaces>=24?Math.max(2,Math.floor(maxFaces*.12)):1;
+    for(const side of ['left','right']){
+      let taken=0;
+      for(const entry of sorted){
+        if(taken>=sideTarget)break;
+        if(entry.triangle.flank===side && takeOriginal(entry))taken++;
+      }
+    }
     const lowerTarget=Math.floor(maxFaces*.22);
     const upperTarget=Math.floor(maxFaces*.18);
     for(const [band,target] of [['lower',lowerTarget],['upper',upperTarget]]){
@@ -445,6 +474,7 @@ export function extractOriginalClockworkThresholdGallery(THREE, oldFloor, thresh
   if(!faces)return null;
   return {root,geometries,materials,faces,
     bytes:faces*3*8*Float32Array.BYTES_PER_ELEMENT,
+    originalExteriorFlankFaces:{...flankCounts},
     envelope:includeOriginalFlanks?'original-threshold-plus-structural-flanks':'original-threshold-only',
     source:'closest-original-Three-floor-eight-load-paths-not-batch-order'};
 }
@@ -3186,6 +3216,7 @@ export function createTowerWorld(){
         'prepared-from-actual-floor-eight-source-awaiting-webgl-return',
       runToken:snapshot.runToken,
       sourceTick:snapshot.tick,faces:gallery.faces,bytes:gallery.bytes,
+      originalExteriorFlankFaces:{...gallery.originalExteriorFlankFaces},
       batches:gallery.root.children.length,
       cpuPrepareMs:+(performance.now()-started).toFixed(2),
       guarantee:'Detached original source triangles, never synthetic F9 geometry or a gameplay event'
