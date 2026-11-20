@@ -553,6 +553,21 @@ export function publicGuardianEarnedRecoilPairStageLift(
   // -.75 clears Map/Details touch controls; +.63 leaves the mission/header.
   if (bottom < -.75 || top >= .63) return 0;
   const center = (top+bottom)*.5;
+  // Pass541 original full 390x844 WebGL at tick94 puts the complete
+  // guardian counter ABOVE screen centre while nearly half the view is
+  // unrelated foreground terrace. Use the ACTUAL, post-fit TWO-body NDC
+  // envelope to seat the public contact nearer the optical centre, rather
+  // than continuing to lift an already high pair. No actor, model scale,
+  // terrain, control, or private path moves. Only 390-class portrait changes.
+  // Camera-UP movement shifts the pictured bodies DOWN. Their final bounds
+  // remain inside the existing stronger -.75/+ .63 touch/HUD reserves;
+  // the original strict +/- .95 screen proof remains authoritative.
+  if (aspect >= .45) {
+    const requested = Math.max(-.24,Math.min(.24,center-.02));
+    const safeShift = Math.max(top-.63,Math.min(bottom+.75,requested));
+    return Math.abs(safeShift) >= .035 ? safeShift*halfHeight : 0;
+  }
+  // Retain the independently rendered 320px lift and every other viewport.
   const liftNdc = Math.min(.30,Math.max(0,.13-center),.63-top);
   return liftNdc >= .02 ? -liftNdc*halfHeight : 0;
 }

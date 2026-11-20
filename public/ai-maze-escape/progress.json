@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-20T19:35:31.135Z",
+  "updatedAt": "2026-11-20T20:36:01.751Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass539 exact-HEAD real WebGL #44796432109 succeeded 42/42 original full PNG sidecars and 3 true gate hashes, but original 390px guardian acting obscured by public foliage. First Pass540 source SHA 9979677b failed existing strict Pass495 previously-seen-hidden BLOCKED spectator test (295 pass/1 fail), screenshot never run. Pass540b production repairs invariant WITHOUT weakening original test: remembered-only SOLID public cells remain full-height; only previously disclosed ordinary nonblocked ornamental plant dressing may quiet during currently visible genuine Pip/Thornback parry. Exact-new-HEAD native WebGL and independent critic REQUIRED; Nintendo benchmark NOT MET."
+    "summary": "Pass540b exact incoming HEAD 909bc338 native WebGL #44803706980 succeeded and original artifact personally verified 42/42 full uncropped PNG SHA sidecars + three genuine gate hashes. Native 390 earned tick94 remains optically high and foreground crowded despite foliage relief. Pass541 changes ONLY real 390-class full-mesh camera-UP balance from same-run parry, keeps 320 and strict +/- .95 and HUD reserves. Exact new HEAD native screenshot, whole CI and independent visual critic are REQUIRED: Nintendo reference benchmark NOT MET."
   },
   "captures": [
+    {
+      "title": "Pass540b original exact-HEAD 909bc338 native WebGL; ZIP SHA256 5d084702ebb8, 42/42 PNG sidecars plus 3 genuine gate-transition hashes verified; 390 source-bound actor composition still visually rejected. Pass541 requires fresh after frame.",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44803706980/artifacts/14663725427"
+    },
     {
       "title": "Pass539 exact 99081dc7 successful native WebGL; original ZIP SHA256 36c215ea5774; 42/42 unmodified full-frame PNG + 3/3 actual gate hashes personally verified; visually rejected 390px foliage-obscured Thornback; Pass540 new optional public spectator cutaway pending WebGL",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44796432109/artifacts/14659676616"
