@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-20T10:23:23.853Z",
+  "updatedAt": "2026-11-20T10:51:13.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass530 exact-HEAD d52b6d76 native WebGL #44712513256 SUCCESS: original ZIP SHA 767390e7dc2f3bff592ba60ea908a346e3e85d742f108a9f245bb75f03293da6 and 45/45 original full-PNG references (42 sidecars + 3 genuine gate frames) verified. Real native 390/320 counter keeps complete actors in unchanged +/-0.95; direct original 390 critic rejects floating middle/rear legs and compressed dramatic acting against official Nintendo bar. Whole-repo CI #44712513258 red only at Tiny Kingdom OBS source test; Maze build/stream and focused six-scene-reset <100 passed. Pass531 production candidate stages true earned full six-leg contact -> recoil -> landing without new geometry/root/AI/hidden information; new exact-HEAD native render, strict tests and detached critic pending."
+    "summary": "Pass531 source 1430f027 focused native WebGL #44719137971 SUCCESS; verified 42/42 unaltered PNG sidecars and 3/3 original gate hashes, 390/320 full physical actors inside unchanged ±0.95. Direct 390/320 original image critic still REJECTS hovering guardian rear feet and underdeveloped staged physics vs fixed Nintendo reference. Whole-repo CI #44719138075 FAILED separately. Pass532 candidate physically anchors existing four mid/rear claw tips at genuine earned contact/landing without moving patrol root; exact new WebGL/CI and fresh independent critic PENDING, no win claimed."
   },
   "captures": [
+    {
+      "title": "Pass531 original exact HEAD 1430f027 native WebGL SUCCESS; independently rechecked 42/42 full PNG SHA pairs + 3/3 true gate hashes, real 390/320 visual art still rejected; Pass532 foot-plant candidate pending",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44719137971/artifacts/14622080791"
+    },
     {
       "title": "Pass530 original exact d52b6d76 native full-frame 320/390/844/1280 WebGL: 42/42 original PNG SHA pairs and 3/3 genuine gate frames verified, strict connected-body bounds; Pass531 planted-six-limb recoil unverified",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44712513256/artifacts/14617194729"
@@ -465,6 +469,12 @@
   ],
   "changes": [
     {
+      "title": "Pass532 actual world-space middle/rear Thornback claw-to-deck contact during genuinely earned lantern parry",
+      "date": "2026-11-20",
+      "status": "Source candidate, new exact-HEAD installed-Three CI and source-bound WebGL images pending",
+      "description": "Original full-frame 390/320 Pass531 screenshots show hovering rear claws despite planted joint angles. Correct all four existing mid/rear articulated foot tips to the actual raised world deck only at genuine counter load/landing with capped hip socket shift; preserve airborne motion, root/collision/navigation, public AI privacy, original resource/geometry budgets and no-crop acceptance."
+    },
+    {
       "title": "Pass526 real earned guardian camera reveals the physically connected body earlier during contact",
       "date": "2026-11-20",
       "status": "Source candidate: exact-new-HEAD native WebGL and independent Nintendo visual review pending",
@@ -874,6 +884,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass532: require exact current code-SHA original 320/390/844/1280 WebGL and installed-Three test of live elevated-deck four-foot contact; inspect real original full-frame guardian (not only source/test), genuine pressure/key/gate and 136-tick escape, six-reset geometry <100; fixed Captain Toad benchmark NOT MET. Whole CI red independently; coding tunnel not connected.",
     "Pass526: native full-frame actual 390px tick93→94 camera at earned hit, real actor face and recoil beside Pip against original Pass525 PNG ada5601...; reject if foreground occlusion persists or full ±.95 NDC cropped. Whole-repo CI separately red on missing Tiny Kingdom OBS script; separate worker not connected; Nintendo-quality parity not met.",
     "Pass513: strongest visual blocker is authentic full 390px earned-counter shot: Thornback's bronze face/armor still lost behind its own living sea-glass and stone silhouette. Treat as a holistic whole-body/camera court redesign, not more tiny crest hinges. Independently inspect new actual full-frame WebGL and full ±.95 no-crop with official Nintendo fixed reference. New pace gate must pass exact HEAD; no independent critic or Ultracode available.",
     "Pass506: require new exact-SHA real WebGL after visual-clipping duplicate success modal; check source PNG hashes and physical live portal/actor are finally visible at 390/1280 with original strict NDC full-body and six-run <100. Guardian occlusion, pacing and official Nintendo independent art bar still outstanding.",
@@ -980,6 +991,11 @@
     "Pass93 next critic: inspect source-bound native original 320/390/844/1280 WebGL PNGs with SHA/date/viewport, truthfully preserved key and guardian, compare same-seed to Pass92 and frozen Nintendo bar; reject any subpixel/unreadable shell art, obscured actor or fake route. Independent fresh-context critic and blind A/B required for a win; current source remains unapproved."
   ],
   "reviews": [
+    {
+      "title": "Pass532 original native Pass531 390/320 foot hover criticism and real toe-to-deck contact candidate",
+      "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-532-original-pass531-ground-contact-2026-11-20.md",
+      "status": "Source candidate not rendered-approved; original prior PNG SHA verified"
+    },
     {
       "title": "Pass526 independent original Pass525 mobile WebGL rejection and earlier physical guardian reveal candidate",
       "url": "https://github.com/my-edutu/Ai_games/blob/feat/maze-3d-gauntlet/docs/reviews/maze-3d/pass-526-native-390-counter-reveal-2026-11-20.md",
@@ -1907,6 +1923,12 @@
     }
   ],
   "verification": [
+    {
+      "title": "Pass531 incoming exact 1430f027 42/42 original PNG and 3/3 gate hashes verified; new Pass532 actual toe contact candidate pending new exact-source evidence",
+      "date": "2026-11-20",
+      "status": "PASS previous focused WebGL, REJECT fixed Nintendo visual; no new code-head acceptance",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44719137971"
+    },
     {
       "title": "Pass525 exact 546ab596 native WebGL 42/42 original PNG SHA plus 3/3 gate SHA; autonomous real escape tick136; complete full-body ±.95 pass; original 390 art FAIL and separate full CI Tiny OBS red",
       "date": "2026-11-20",

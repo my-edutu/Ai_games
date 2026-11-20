@@ -854,6 +854,10 @@ export function createWarden(options = {}) {
     legs.push({hip,knee,side,index:i,pincer});
   }
   r.finish(); let gait=0, stride=0;
+  // One reusable, non-rendered probe follows the REAL articulated rear claws.
+  // During a witnessed counter, deck contact is solved against this actor's
+  // current tile elevation, not faked by simply bending legs in midair.
+  const earnedDeckToe=new THREE.Vector3();
   return {group,dispose:r.dispose,suspendGpuBuffers:r.suspendGpuBuffers,
     reset() {
       if (r.isDisposed()) return;
@@ -1192,6 +1196,22 @@ export function createWarden(options = {}) {
       leg.knee.rotation.x=leg.index===0
         ?alert*.20+plantedClaws*.66+counterLoad*.43-counterRelease*.14+(leg.side===1?-.25:.12)*counterCollapse
         :plantedSupport*.70+airborneFold*.85;
+      // Pass532: the actual full-frame earned recoil still shows four claw
+      // tips hanging above the stone even though their hips are 'planted'.
+      // Solve the EXISTING articulated middle/rear toe against the real deck
+      // at the two SOURCE-EARNED load/landing phases, before rendering.
+      // This moves only a child's hip socket; never its authoritative root,
+      // collision, cell, navigation or floor. No geometry or frame allocation.
+      // During the real airborne rebound the claws remain visibly tucked;
+      // absent/expired/hidden/reduced-motion events restore the neutral socket.
+      leg.hip.position.y=-.09;
+      const toePlant=leg.index>0?Math.max(counterLoad**4,counterCollapse):0;
+      if(toePlant>0){
+        leg.knee.localToWorld(earnedDeckToe.set(leg.side*.16,-.70,.15));
+        const desiredDeckY=group.position.y+.055;
+        const extension=Math.max(-.38,Math.min(.38,desiredDeckY-earnedDeckToe.y));
+        leg.hip.position.y+=extension*toePlant;
+      }
       if (leg.pincer) {
         leg.pincer.rotation.y=alert>0?leg.side*(alert*.42+plantedClaws*.35):0;
         leg.pincer.rotation.z=alert>0?leg.side*defensiveSweep*.50:0;
