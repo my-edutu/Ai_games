@@ -9459,6 +9459,72 @@ function renderOriginalOccupiedRoomShell(x,y,z,w,d,wallHeight,scale,plasterTone)
   fixedOuterWalls:true,doorwayOpen:true,originalHome:true,
   genuineHearth:true,originalFurnitureOnly:true};
 }
+// W481: the real tall founding homes now have continuous double-faced
+// hollow upper masonry, open lateral casement reveals and one exposed oak
+// ceiling tie. The former opaque cuboid erased the space behind the existing
+// physically modelled upper casements. All 56 triangles join the already
+// retained exact-lot home VBO, never an actor, authority or impostor.
+let originalUpperRoomStats={builtInstances:0,triangles:0,sideWindowOpenings:0,
+ exposedOakTies:0};
+function getOriginalOccupiedUpperStoreyAudit(){
+ return {...originalUpperRoomStats,
+  source:'real-detailed-inhabited-upper-room-hollow-wall-shell',
+  trianglesPerHome:56,additionalGpuBuffers:0,
+  insertedBuildings:0,insertedResidents:0,changedNavigation:false,
+  changedAuthority:false,hardwareFps:'NOT MEASURED',experienceGate:'NOT PROVEN'};
+}
+function renderOriginalOccupiedUpperStorey(x,y,z,w,d,h,scale,plasterTone){
+ if(![x,y,z,w,d,h,scale].every(Number.isFinite)||scale<=0||
+  w<=2*scale||d<=1.5*scale||h<=3*scale)
+  throw Error('W481 authentic upper room invalid dimensions');
+ const first=data.length,base=y+2.19*scale,top=y+h,
+  lower=y+2.39*scale,upper=y+2.83*scale,
+  x0=x-(w+.28*scale)*.5,x1=x+(w+.28*scale)*.5,
+  z0=z-(d+.30*scale)*.5,z1=z+(d+.30*scale)*.5,
+  a=z-.285*scale,b=z+.285*scale;
+ if(!(base<lower&&lower<upper&&upper<top&&
+  z0<a&&a<b&&b<z1))
+  throw Error('W481 casement reveals do not fit the original upper storey');
+ const wallX=(px,za,zb,lo,hi,side)=>{
+  const v0=[px,lo,za],v1=[px,lo,zb],
+   v2=[px,hi,zb],v3=[px,hi,za];
+  if(side<0){quad(v0,v1,v2,v3,plasterTone);quad(v3,v2,v1,v0,plasterTone);}
+  else{quad(v3,v2,v1,v0,plasterTone);quad(v0,v1,v2,v3,plasterTone);}
+ };
+ materialScope(MATERIAL.PLASTER,()=>{
+  for(const side of [-1,1]){
+   const px=side<0?x0:x1;
+   wallX(px,z0,a,base,top,side);
+   wallX(px,b,z1,base,top,side);
+   wallX(px,a,b,base,lower,side);
+   wallX(px,a,b,upper,top,side);
+  }
+  for(const zz of [z0,z1]){
+   const v0=[x0,base,zz],v1=[x1,base,zz],
+    v2=[x1,top,zz],v3=[x0,top,zz];
+   quad(v0,v1,v2,v3,plasterTone);
+   quad(v3,v2,v1,v0,plasterTone);
+  }
+  quad([x0,base,z0],[x0,base,z1],
+   [x1,base,z1],[x1,base,z0],plasterTone);
+  quad([x1,top,z0],[x1,top,z1],
+   [x0,top,z1],[x0,top,z0],plasterTone);
+ });
+ // The roof is supported by a truly suspended oak tie rather than an
+ // impossible solid plaster mass; it does not interfere with either opening.
+ materialScope(MATERIAL.WOOD,()=>box(x,top-.19*scale,z,
+  .105*scale,.10*scale,d*.84,rgb(0x74553a)));
+ const triangles=(data.length-first)/30;
+ if(triangles!==56||!Number.isInteger(triangles))
+  throw Error('W481 occupied upper room bounded geometry parity failed');
+ originalUpperRoomStats.builtInstances++;
+ originalUpperRoomStats.triangles+=triangles;
+ originalUpperRoomStats.sideWindowOpenings+=2;
+ originalUpperRoomStats.exposedOakTies++;
+ return {triangles,openSides:2,existingHouse:true,
+  addedCitizens:0,addedGoods:0,changedEconomy:false};
+}
+
 function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)*scale,d=(2.1+variant*.18)*scale,h=houseVisualProfile(x,z,variant,false).height*scale;
  // G054c: plaster is not stacked granite. Preserve stone in the footings,
  // make roof planes roof material, and preserve all original mesh triangles.
@@ -9473,8 +9539,7 @@ function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)
  materialScope(MATERIAL.PLASTER,()=>{
   if(detailedJetty){
    renderOriginalOccupiedRoomShell(x,y,z,w,d,2.0*scale,scale,plasterTone);
-   box(x,y+2.19*scale,z,w+.28*scale,h-2.19*scale,
-    d+.30*scale,plasterTone);
+   renderOriginalOccupiedUpperStorey(x,y,z,w,d,h,scale,plasterTone);
   }else renderOriginalOccupiedRoomShell(x,y,z,w,d,h-.19*scale,scale,plasterTone);
  });
  if(detailedJetty){
@@ -9610,7 +9675,8 @@ function cottageSideFacades(x,z,scale,variant){
  const mullion=rgb(0xdac7a5),glass=rgb(0x456b71);
  for(const side of [-1,1]){
   const fx=x+side*(w/2+.019*scale);
-  const z0=z-d*.485,z1=z+d*.485,y0=y+.215*scale,y1=y+h-.025*scale;
+  const z0=z-d*.485,z1=z+d*.485,y0=y+.215*scale,
+   y1=y+(h>2.5*scale?2.15*scale:h-.025*scale);
   // Two outward-facing plaster panels cover the formerly empty house long wall.
   // Correct winding exposes both +X and -X facades under back-face culling.
   materialScope(MATERIAL.PLASTER,()=>{
@@ -9806,7 +9872,7 @@ function applyHouseCountersDelta(delta){
 // the shader, but an unchanged inhabited cottage must never be rebuilt or
 // re-uploaded merely because the season changed. The version token makes
 // geometry-identity invalidation explicit without touching saved world data.
-const HOME_STATIC_GEOMETRY_KEY_VERSION='w261-original-living-burgage-v2';
+const HOME_STATIC_GEOMETRY_KEY_VERSION='w481-original-hollow-detailed-upper-storey-v3';
 const HOME_CLUSTER_EDGE=16,HOME_CLUSTER_MAX_ENTRIES=32;
 const HOME_CLUSTER_FLOAT_BUDGET=(navigator.deviceMemory&&navigator.deviceMemory<=4)?
  2400000:4600000;
@@ -34905,7 +34971,7 @@ getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStr
  getInhabitedStreetAccessAudit:()=>({...groundAtlasAccessAudit,topologyKey:groundAtlasAccessTopology,
   builds:groundAtlasAccessRebuilds,realHomes:city.length,rendererOnly:true}),
  getGroundAtlasRouteResidencyAudit,getGroundAtlasDirtyAudit,
- getOriginalCivicGroundContactAudit,getRealHomeLaneAlbedoAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getSceneTriangleReconciliation,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGrainShockConservationAudit,getGranaryArchitectureAudit,getGrainwardDistrictAudit:getGrainwardDistrictAudit,getGrainwardDormerAudit,getGrainwardTransferNodeAudit,getInhabitedSkylineAudit,getOriginalOccupiedRoomAudit,getGranarySupplyAudit:granarySupplyAudit,getCompactOccupiedRoomAudit,getCompactUpperLoftAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getEcotoneVisualStats,getValleySurfaceBuildAudit,getTerrainBaseResidencyAudit,getRiverReedVisualAudit,getForestVisualStats:()=>({
+ getOriginalCivicGroundContactAudit,getRealHomeLaneAlbedoAudit,getGroundSurfaceStats:()=>({...groundSurfaceStats,samples:{road:groundSurfaceStats.samples.road.slice(),field:groundSurfaceStats.samples.field.slice(),meadow:groundSurfaceStats.samples.meadow.slice()}}),getMaterialSystem:()=>({vertexStride:10,surfaceShaderVersion:'procedural-063',materials:Object.keys(MATERIAL),gpuRenderValidated:false}),getMaterialSwatchAudit:materialSwatchAudit,waterStats:()=>({model:'channel-depth-sediment-fresnel-v2',segments:RIVER_SEGMENTS,waterTriangles:RIVER_SEGMENTS*RIVER_BANDS*2,bankTriangles:RIVER_SEGMENTS*2*RIVER_BANK_BANDS*2}),getScenicSites:scenicSiteMetrics,getFestivalVisualStats:()=>({season:festivalSeason,cacheBuilds:festivalCacheBuilds,vertices:festivalGeometry?.length||0,staticMeshTriangles:festivalStaticMeshTriangles,cachedStage:festivalStaticMeshTriangles?'static-scenic':'unbuilt'}),getOrchardVisualStats:()=>({...orchardVisualStats}),getScenicMeshStorage:()=>({kind:!scenicMeshCache?'uninitialized':scenicMeshCache instanceof Float32Array?'Float32Array':'Array',segments:gpuAvailable?(civicGpuResidencyEnabled?3:2)+(homeClusterActive.length?homeClusterActive.length:0):1,floats:(scenicMeshCache?.length||0)+(gpuAvailable?(landscapeMeshCache?.length||0)+activeCivicMesh().length+homeClusterFloats():0),bytesPerFloat:scenicMeshCache instanceof Float32Array?Float32Array.BYTES_PER_ELEMENT:null,bytes:scenicMeshCache instanceof Float32Array?scenicMeshCache.byteLength+(landscapeMeshCache?.byteLength||0)+activeCivicMesh().length*4+homeClusterFloats()*4:null,landscapeBytes:gpuAvailable?landscapeMeshCache?.byteLength||0:null,settlementBytes:gpuAvailable?scenicMeshCache?.byteLength||0:null,civicBytes:gpuAvailable?activeCivicMesh().length*4:0,homeBytes:gpuAvailable?homeClusterFloats()*4:0}),getGeometryAudit:geometryAudit,getSceneTriangleReconciliation,getFarmsteadStats:()=>({...farmScene,granary:FARMSTEAD.granary.slice(),season:climateAt(state.t).season}),getGrainShockConservationAudit,getGranaryArchitectureAudit,getGrainwardDistrictAudit:getGrainwardDistrictAudit,getGrainwardDormerAudit,getGrainwardTransferNodeAudit,getInhabitedSkylineAudit,getOriginalOccupiedRoomAudit,getGranarySupplyAudit:granarySupplyAudit,getCompactOccupiedRoomAudit,getCompactUpperLoftAudit,getOriginalOccupiedUpperStoreyAudit,getGranaryStorePlan:granaryStorePlan,getFarmTreeClearanceStats:farmTreeClearanceStats,getForestLodStats:()=>({...forestLodStats}),getEcotoneVisualStats,getValleySurfaceBuildAudit,getTerrainBaseResidencyAudit,getRiverReedVisualAudit,getForestVisualStats:()=>({
  silhouette:'w263-original-broken-crown-and-fir-tier',
  allTreesPreserved:true,additionalCanopyTriangles:0,
  sourceTrees:trees.length,
