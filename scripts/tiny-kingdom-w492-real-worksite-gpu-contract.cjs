@@ -4,7 +4,7 @@
 // Reject one-off fake worksite characters, missing CPU fallback, or unlimited VBO.
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
-const start=html.indexOf('const SOFTWARE_WORKSITE_GPU_MAX_ACTORS=4;');
+const start=html.indexOf('const SOFTWARE_WORKSITE_GPU_MAX_ACTORS=10;');
 const end=html.indexOf('// W69: one reusable WebGL numeric vertex stream',start);
 assert(start>=0&&end>start,'W492 production software-worksite renderer exists');
 const code=html.slice(start,end);
@@ -30,7 +30,12 @@ const mock={Array,Set,Math,Number,Float32Array,
  isResidentRestingCandidate:p=>p.activity==='Resting at home',
  isResidentCommuterCandidate:p=>(p.activity||'').startsWith('Traveling'),
  projectRealCitizenDetail:()=>({visible:true,heightFraction:.05}),
+ // The audit must inspect real-selected GPU buffers without silently
+ // fabricating shader draw calls or a second population.
  foregroundResidentVisible:[],foregroundSkinDrawCalls:0,foregroundResidentBuffer:null,
+ workingResidentJointBuffer:null,workingResidentVisible:[],
+ workingResidentBuffer:null,workingSkinDrawCalls:0,
+ citizenDetailCameraFrame:()=>({eye:[0,5,5]}),
  people:workers,
 };
 vm.createContext(mock);
