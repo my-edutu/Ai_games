@@ -13285,6 +13285,47 @@
       "otherGames": false
     },
     "evidenceFile": "public/infinite-tower-climb/gauntlet/evidence/p0-real-snapshot-enemy-floor-prestage-20261120.json",
-    "reviewFile": "docs/reviews/2026-11-20-tower-pr68-f8-render-snapshot-prestage-p0-review.md"
+    "reviewFile": "docs/reviews/2026-11-20-tower-pr68-f8-render-snapshot-prestage-p0-review.md",
+    "followupNativeAndSourceContractVerification": {
+      "completedSourceCodeSha": "170403ec12731d14b0ad924dc417edb776f3b764",
+      "recordedSourceCaptureSha": "f8463fbcb5550e9d8294d128cac0f2257e39c353",
+      "exactSourceCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/44700319088",
+      "candidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44700319088/artifacts/14613016594",
+      "nativeVideoDesktopAndPortrait": "Original 1x desktop 960x600 and portrait 390x844 >=68s each; extracted actual video frames and real-world diagnostic motion JSON; both matching scenario danger, low tier/seed unchanged",
+      "firstF9SourceOwnerPrestageNow": "reused-on-real-floor-nine-rebuild; 675 original source faces, 2/2 episodes desktop and 2/2 episodes portrait; 0 cold-fallbacks",
+      "measuredColdOldOwnerCpuMs": {
+        "beforeDesktop": [
+          151.9,
+          178.1
+        ],
+        "afterDesktop": [
+          0.5,
+          0.3
+        ],
+        "beforePortrait": [
+          142.7,
+          100
+        ],
+        "afterPortrait": [
+          0.7,
+          0.4
+        ]
+      },
+      "interpretation": "Verified removal of dominant FIRST F9 source-owner CPU fallback in sampled browser traces; 4 unpaired episode timings. This is NOT an end-to-end frame-time, native optical success, actual-device GPU benchmark or causally adjusted F8 prep cost.",
+      "originalVideoMostImportantRemainingDefect": "Portrait genuine hero and walkable F9 route exist in the old/new shift at ~26-27s, but bronze gateway steel remains visually ambiguous against foreground uprights; desktop old bronze/first purple support continuity is not an accepted long source-event-aligned shared room. No consecutive confirmed native pixels of original opened gate+full climber+floor9 together.",
+      "QAFirstCodeRun": "https://github.com/my-edutu/Ai_games/actions/runs/44699865746",
+      "QAFirstCodeRunResult": "FAIL 9/10; phase3 shard0 failed 3/23 real-world subtests because test fixture used projected no-floor guardian as if it were authoritative TowerGuardianCrossingWitness.guardian, which correctly MUST include floor:8.",
+      "QACorrectiveTestOnlyCommit": "39f7e739ff22324008b3ded25e1b7506476afcf5",
+      "QAExactHeadRun": "https://github.com/my-edutu/Ai_games/actions/runs/44700663754",
+      "QAExactHeadAtRecord": "QUEUED / NOT VERIFIED. Do not claim complete CI.",
+      "gameplayEventPairStatusAtRecord": "Exact native/source pair job still QUEUED; ungraded original candidate film inspection NOT accepted, P0 stays OPEN.",
+      "independentReviews": {
+        "LOOKS": "0/5",
+        "FEELS": "0/5",
+        "PLAYS": "0/5"
+      },
+      "supportedHardware": "p50/p95/p99/memory NOT EVALUATED",
+      "nextAction": "Inspect strict source-to-native pair job and paired original full-motion 1x gateway shot. Validate pre-F9 CPU prebuild tradeoff/F8 smoothness; if 0/2 event-aligned shared-room, build a genuine source-owned camera/foreground gateway/roof composition fix, not more test count."
+    }
   }
 }
