@@ -171,3 +171,40 @@ test('original licensed counterpitch owns optional true toes-child finisher AFTE
  assert.match(renderer,/actor\.originalSwingToeJointRestore\.push\(/,
   'toe child original local quaternion must be restored before imported mixer');
 });
+
+
+test('real 60Hz original counterpitch may finish its shallow buried toe at a rate-limited 50mrad',async()=>{
+ const {certifyLicensedCounterpitchToeFinish:certify}=await source;
+ const original={left:shoe(.190,-.027),right:shoe(-.016,-.019)};
+ const proof={
+  source:'measured-original-licensed-source-counterpitch',
+  sourceClip:'Walking_A',side:'left',
+  sourceInstanceId:'real-source-60hz-skeleton',
+  finalIndependentSourceSkin:true,
+  originalOppositeShoeVerified:true,
+  sourceOriginalRootTravelWitnessed:true,
+  witnessedFrameIntervalSeconds:.0167,
+  residualToeBurialMeters:.007,
+  contactLocked:false,plantCertified:false,after:original
+ };
+ const args={proof,before:original,side:'left',
+  sourceInstanceId:'real-source-60hz-skeleton',
+  sourceInstanceSame:true,sourceClipName:'Walking_A',
+  sourceToeTrackVerified:true,sourceToeBoneParentVerified:true,
+  floorTopY:-.02,angleRad:.0501,
+  after:{left:shoe(.1898,-.0235),right:original.right}};
+ const result=certify(args);
+ assert.ok(result,'the source-leg+toe hinge must not be unreachable at genuine 16.7ms');
+ assert.ok(result.toeLiftMeters>=.003);
+ assert.ok(result.residualToeBurialMeters>.003,
+  '4mm remaining burial is an improvement, never a certified footplant');
+ assert.equal(result.plantCertified,false);
+ assert.equal(result.contactLocked,false);
+ assert.equal(certify({...args,angleRad:.06}),null,
+  '60mrad on 16.7ms exceeds native 3rad/s source-motion budget');
+ assert.equal(certify({...args,angleRad:.009}),null,
+  '9mrad must remain below meaningful sourced toe hinge threshold');
+ assert.match(renderer,
+  /if\(!Number\.isFinite\(interval\)\|\|interval<\.008\|\|interval>\.24\)continue;/,
+  'render bridge must admit legal 16.7ms post-counterpitch source frames');
+});
