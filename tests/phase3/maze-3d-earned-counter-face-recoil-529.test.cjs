@@ -20,7 +20,10 @@ test('Pass529 real published lantern counter reveals complete beetle face and co
       const pupils=[-1,1].map(s=>w.group.getObjectByName('rooted guardian readable pupil '+s));
       const lens=w.group.getObjectByName('rooted guardian raised optical lens -1');
       assert.ok(body&&head?.parent===body&&guards.every(g=>g?.parent===body));
-      assert.ok(fronds.every(g=>g?.parent)&&pupils.every(p=>p?.parent===head)&&lens);
+      assert.ok(fronds.every(g=>g?.parent)
+        &&pupils.every((p,i)=>p?.parent?.parent===head
+          &&p.parent.name===`rooted guardian upper eye ${i===0?-1:1}`)
+        &&lens,'both real optics and pupil geometry survive rigid-mesh batching');
       const shapes=new Set(),materials=new Set();
       w.group.traverse(n=>{if(n.geometry)shapes.add(n.geometry);if(n.material)materials.add(n.material);});
       const base={heading:0,attentionHeading:0,attentionStrength:1,encounterBeat:0,
