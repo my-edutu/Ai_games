@@ -19637,6 +19637,7 @@ let economyResidentBuffer=null,economyResidentMesh=null,economyResidentKey='';
 let economyResidentCapacity=0,economyResidentActive=false,economyResidentOverride=null;
 let economyResidentUploads=0,economyResidentReuses=0,economyResidentBuilds=0;
 let economyResidentDisposals=0,economyResidentOverBudget=0,economyResidentDrawCalls=0;
+let economyResidentAllocationFailures=0,economyResidentAvoidedDynamicFloats=0;
 function economyResidencyRequested(){
  // W502: original market sacks, true credited grain and granary stores use
  // their existing bounded resident VBO on software WebGL as well as hardware.
@@ -23132,6 +23133,7 @@ let worksiteFixtureBuffer=null,worksiteFixtureMesh=null,worksiteFixtureKey='';
 let worksiteFixtureCapacity=0,worksiteFixtureActive=false,worksiteFixtureOverride=null;
 let worksiteFixtureBuilds=0,worksiteFixtureUploads=0,worksiteFixtureReuses=0;
 let worksiteFixtureDisposals=0,worksiteFixtureOverBudget=0,worksiteFixtureDrawCalls=0;
+let worksiteFixtureAllocationFailures=0;
 // W236 per-citizen dirty region worksite mesh: only authentic active jobs.
 let worksiteFixturePartCache=new Map(),worksiteFixtureLayout=[];
 let worksiteFixturePartBuilds=0,worksiteFixturePartHits=0;
