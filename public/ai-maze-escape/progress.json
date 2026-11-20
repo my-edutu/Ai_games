@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-20T19:32:28.762Z",
+  "updatedAt": "2026-11-20T19:35:31.135Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass539 exact PR HEAD 99081dc7 native WebGL #44796432109 succeeded; original ZIP SHA256 36c215ea577433208305baac3563b308d48c761b635ece75e72de1b56b6074e0, 42/42 original unaltered PNG SHA sidecars and 3/3 genuine gate PNG hashes verified. Real 390px earned lantern shot still has thornback face/legs visually masked by dense public spectator foliage and masonry despite successful strict source rays. Pass540 now expands ONLY the witnessed guardian optional spectator-dressing quiet ring to previously disclosed public terraces, not hidden cells, collisions, actor court or AI. New HEAD screenshot verification/independent critic required; fixed Nintendo benchmark NOT MET."
+    "summary": "Pass539 exact-HEAD real WebGL #44796432109 succeeded 42/42 original full PNG sidecars and 3 true gate hashes, but original 390px guardian acting obscured by public foliage. First Pass540 source SHA 9979677b failed existing strict Pass495 previously-seen-hidden BLOCKED spectator test (295 pass/1 fail), screenshot never run. Pass540b production repairs invariant WITHOUT weakening original test: remembered-only SOLID public cells remain full-height; only previously disclosed ordinary nonblocked ornamental plant dressing may quiet during currently visible genuine Pip/Thornback parry. Exact-new-HEAD native WebGL and independent critic REQUIRED; Nintendo benchmark NOT MET."
   },
   "captures": [
     {
@@ -248,6 +248,12 @@
     }
   ],
   "changes": [
+    {
+      "title": "Pass540b — correct existing strict blocked spectator visibility regression",
+      "date": "2026-11-20",
+      "status": "First Pass540 exact-HEAD Maze source run 295 pass/1 fail; corrected production and strengthened new test pending rerun",
+      "description": "Keep original BLOCKED public wall low-reef treatment strictly tied to CURRENT visibility. Previously disclosed but currently out-of-FOV SOLID c.blocked===true must remain full-height. Only ornamental foliage on a known previously disclosed ordinary c.blocked===false tile may yield to authentic earned counter."
+    },
     {
       "title": "Pass540 — meaningful 390px earned Thornback visibility: quiet already published spectator foliage",
       "date": "2026-11-20",
@@ -676,6 +682,7 @@
     "Pass116 — 2026-11-03 UTC: committed truly in-scene original low sea-glass/stone/clay/ivory 3D tide rosettes on genuinely disclosed public navigable gate courts only, replacing generic shell/petal tile clutter while preserving actual key, AI, movement, hidden map, hazard, HUD, responsive 320/390/844/1280 and privacy rules. Separate real Three production mesh and disclosure/reset critic committed, and dated review/ledger. No new exact-source full PNG has been inspected; Nintendo bar NOT MET. Latest pre-source focused WebGL run 41661268822 passed, whole CI 41661268871 failed in 3 unrelated Tiny Kingdom shader source-version browser assertions despite 607 Node passes. Workspace agents/Ultracode offline; CPU SwiftShader constraint not product GPU FPS. Draft PR unmerged/undeployed."
   ],
   "nextGaps": [
+    "Pass540b must pass original maze-3d-earned-blocked-spectator strict visibility test along with new scene tests; then render original 320/390/844/1280 WebGL, hash-check full frames and gate transitions, confirm complete actor/rays ±0.95, six-reset geometry <100, and critically compare authentic parry art to Pass539/Nintendo; no claimed visual win.",
     "Pass540 must show original no-crop 390/320/844/1280 native source-HEAD WebGL at true seed-13 guardian lantern recoil, verify all original PNG hashes, full actor/guardian ±0.95, closed->opening->open gate hashes, six-run geometry <100, and critique against Pass539 and official Captain Toad. Whole-repo Tiny Kingdom checks remain independent blocker; no independent critic or Ultracode while coding tunnel disconnected. Do not claim an art win yet.",
     "Pass532: require exact current code-SHA original 320/390/844/1280 WebGL and installed-Three test of live elevated-deck four-foot contact; inspect real original full-frame guardian (not only source/test), genuine pressure/key/gate and 136-tick escape, six-reset geometry <100; fixed Captain Toad benchmark NOT MET. Whole CI red independently; coding tunnel not connected.",
     "Pass526: native full-frame actual 390px tick93→94 camera at earned hit, real actor face and recoil beside Pip against original Pass525 PNG ada5601...; reject if foreground occlusion persists or full ±.95 NDC cropped. Whole-repo CI separately red on missing Tiny Kingdom OBS script; separate worker not connected; Nintendo-quality parity not met.",
@@ -1721,6 +1728,12 @@
     }
   ],
   "verification": [
+    {
+      "title": "Pass540 first native run #44803257441 halted on existing Pass495 hidden-blocked-spectator source guard (295 pass/1 fail); Pass540b production fix pending",
+      "date": "2026-11-20",
+      "status": "FAIL original strict regression (corrected candidate awaits new exact-head CI)",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44803257441"
+    },
     {
       "title": "Pass539 original successful exact 99081dc7 native 320/390/844/1280 WebGL, 42 PNG+sidecar matches, 3 real gate hashes; Pass540 source and tests awaiting new native CI",
       "date": "2026-11-20",

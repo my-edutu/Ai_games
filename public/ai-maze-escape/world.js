@@ -397,6 +397,10 @@ export function publicEarnedGuardianRecoilCourtCells(s,{spectator=false}={}) {
     // The spectator-only dressing ring may also include existing, previously
     // discovered public cells: they still render and can cover both actors.
     for(const c of spectator ? disclosed : known.values()) {
+      // Previously seen SOLID spectators have a separate physical sealed-reef
+      // cutaway. A remembered-only wall must retain its full-height occluder;
+      // only a still-visible wall may be reconstructed as a low sealed reef.
+      if(spectator && c.blocked===true && !visible.has(c.cell))continue;
       if(c.trap||c.checkpoint||c.clue||c.cell===s.exitCell
         ||reserved.has(c.cell))continue;
       // Native Pass408 320px exposes tall plants on PUBLIC, camera-side

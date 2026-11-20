@@ -36,8 +36,10 @@ test('Pass540 the earned two-actor picture clears ONLY previously disclosed spec
   const scenic=quiet(s,{spectator:true});
   assert.deepEqual([...physical].sort((a,b)=>a-b),[6,8],
     'physical actor-level floor remains strictly current and public');
-  assert.ok(scenic.has(12)&&scenic.has(17)&&scenic.has(24),
-    'a previously disclosed but presently out-of-FOV terrace may hide connected guardian acting');
+  assert.ok(scenic.has(12)&&scenic.has(24),
+    'only previously disclosed ordinary spectator foliage may yield to a genuine on-screen parry');
+  assert.ok(!scenic.has(17),
+    'formerly observed but now invisible SOLID spectator keeps its original full-height sealed wall');
   assert.ok(!physical.has(12)&&!physical.has(17),
     'remembered-only cells cannot become a fake newly playable actor court');
   assert.ok(!scenic.has(13) && !scenic.has(18) && !scenic.has(23),
