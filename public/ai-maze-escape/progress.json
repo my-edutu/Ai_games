@@ -1,11 +1,12 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-20T07:18:42.865Z",
+  "updatedAt": "2026-11-20T07:46:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass527 source c6965c0b original native WebGL #44688073859 SUCCESS: ZIP SHA b2ec621ddd90199fad502bf2f04231066635d1c4ad401884f6ef5f37e4b30f, 42/42 native full PNG sidecars and 3/3 actual gate hashes verified; true 390 contact still low and cluttered. Pass527 calculated stage lift was suppressed at genuine first hit by held earnedShotAct=0. Nintendo bar REJECTED. Pass528 source candidate begins smooth, same-run 3D camera-UP stage response while original impact orbit stays held. Exact Pass528 WebGL/independent critic NOT verified. Whole CI red on separate Tiny Kingdom OBS."
+    "summary": "Pass528 exact ac330bca native WebGL #44694062434 SUCCESS: original artifact ZIP SHA 8d90647b51bc18209f279c8cb95c4b2936fd823b02c51d489c43e003d9b1d3c1; 42/42 full PNG sidecars and 3/3 authentic gate hashes verified. Real 390 first impact stage shifted +0.282 NDC up with both full actors inside unchanged +/-0.95: genuine scene-composition gain, NOT fixed Nintendo parity. Visual critic rejects copper/mint Thornback face; Pass529 candidate performs truthful, physically connected full-body recoil, shoulder/foliage clearance and facial gaze on witnessed parry only. New exact Pass529 WebGL/CI/independent critic pending. Whole CI red at separate Tiny Kingdom OBS."
   },
   "captures": [
+    {"title":"Pass528 exact source ac330bca original 320/390/844/1280 WebGL: 42/42 full PNG and 3/3 genuine gate SHA verified, real 390 earned stage +0.282 NDC; face still rejected, Pass529 original physical recoil candidate pending","url":"https://github.com/my-edutu/Ai_games/actions/runs/44694062434/artifacts/14610862028"},
     {
       "title": "Pass527 exact c6965c0b authentic 320/390/844/1280 native WebGL: all original 42 PNG hashes and 3 gate images verified; crowded initial counter REJECTED; Pass528 source-stage response pending",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44688073859/artifacts/14607532703"

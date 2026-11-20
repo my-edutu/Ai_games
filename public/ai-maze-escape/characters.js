@@ -761,6 +761,10 @@ export function createWarden(options = {}) {
     const optic=ball(head,red,[side*.205,.370,.395],[.205,.132,.164]);
     optic.name=`rooted guardian raised optical lens ${side}`;
     optic.rotation.x=-.28;
+    // Permanently rooted dark gaze on BOTH connected, upper-facing orange
+    // lenses. Native 390px true counter showed copper blobs, not facial eyes.
+    const pupil=ball(head,dark,[side*.205,.458,.537],[.092,.067,.065]);
+    pupil.name=`rooted guardian readable pupil ${side}`;
     const brow=rounded(head,claw,[side*.195,.435,.255],[.30,.075,.15],.023);
     brow.rotation.z=-side*.13;
     brow.rotation.x=-.17;
@@ -949,7 +953,7 @@ export function createWarden(options = {}) {
     // during the publicly witnessed middle beat; retract on shell release.
     // No solver, collision, secret-state or authority changes.
     const defensiveSweep=parried
-      ?counterLoad*(1-counterCollapse)*alert
+      ?counterLoad*(1-counterCollapse)*(1-.92*counterFaceCue)*alert
       :plantedClaws*alert;
     // The connected forward guards lift on the middle public beat and
     // fold flat when shell-release begins. Rest and withdrawal are exact
@@ -1069,7 +1073,10 @@ export function createWarden(options = {}) {
       // than shrinking/dissolving an enemy. +0 reset is deliberate.
       shellHalf.fronds.rotation.x=earnedShellClearance>0
         ?-1.48*earnedShellClearance:0;
-      shellHalf.fronds.rotation.z=encounter?shellHalf.side*(.05+.25*display):0;
+      // Source-earned impact sweeps the real rooted foliage to the OUTSIDE of
+      // Thornback's mask rather than keeping its tall sea-glass front screen.
+      shellHalf.fronds.rotation.z=encounter
+        ?shellHalf.side*(.05+.25*display+.68*earnedShellClearance):0;
       shellHalf.fronds.rotation.y=alert>0&&!s.reduced
         ?shellHalf.side*Math.sin(s.time*1.3)*alert*.075:0;
       // Real hinge flex is slow and capped, with no new frame allocations.
@@ -1112,10 +1119,13 @@ export function createWarden(options = {}) {
       ?Math.atan2(parryViewer.x-group.position.x,
         parryViewer.z-group.position.z):NaN;
     const parryTorsoTurn=Number.isFinite(parryViewerBearing)
-      ?Math.max(-.72,Math.min(.72,Math.atan2(
+      ?// A genuinely earned lantern contact turns the ENTIRE connected armored
+      // beetle toward the actual gameplay camera, not just its buried mask.
+      // Its authoritative root, moving patrol, collider and AI stay untouched.
+      Math.max(-1.8,Math.min(1.8,Math.atan2(
         Math.sin(parryViewerBearing-group.rotation.y),
         Math.cos(parryViewerBearing-group.rotation.y))))
-          *counterFaceCue*.75:0;
+          *counterFaceCue*.90:0;
     body.rotation.y=lookYaw*.4+parryTorsoTurn;
     // The native earned-counter portrait shows Thornback almost stationary
     // even after Pip genuinely wins one public, authoritative lantern parry.
@@ -1191,13 +1201,13 @@ export function createWarden(options = {}) {
       && Number.isFinite(viewer.x) && Number.isFinite(viewer.z)
       ? Math.atan2(viewer.x-group.position.x,viewer.z-group.position.z) : NaN;
     const lookToViewer=Number.isFinite(viewerAngle)
-      ? Math.max(-.8,Math.min(.8,Math.atan2(
+      ? Math.max(-2.2,Math.min(2.2,Math.atan2(
         Math.sin(viewerAngle-group.rotation.y),Math.cos(viewerAngle-group.rotation.y))))
         *counterFaceCue*.8 : 0;
     // Counter-rotate the attached mask against the torso's real recoil,
     // retaining recognizable gaze instead of winding the head past 3/4.
     head.rotation.y=Math.sin(s.time*.8)*.08*(1-stride)*amount*(1-alert)
-      +lookYaw+lookToViewer-parryTorsoTurn*.70;
+      +lookYaw+lookToViewer-parryTorsoTurn*.40;
     // Counter-roll keeps Thornback's modeled bronze mask directed at Pip
     // as its real physical torso falls sideways. End-of-witness, reduced
     // motion and reset all return this connected head hinge to exact +0.
@@ -1219,6 +1229,11 @@ export function createWarden(options = {}) {
       jaws[i].rotation.y=(i===0?-1:1)*(.06+s.danger*.13+alert*.16+Math.sin(s.time*3)*.025*amount);
       jaws[i].rotation.z=(i===0?-1:1)*alert*.14;
     }
-    red.emissiveIntensity=s.win?.45:s.lose?1.6:parried?.55:1.1+s.danger*.4+alert*1.25;
+    // The earned stun used to DIM the face to .55 at the exact lantern hit.
+    // Make the physical paired optical lenses answer only the true same-run
+    // counter clock, with a stable first-seen/expired neutral.
+    red.emissiveIntensity=s.win?.45:s.lose?1.6:parried
+      ?(counterPhase===null?.55:1.05+1.45*counterFaceCue)
+      :1.1+s.danger*.4+alert*1.25;
   }};
 }
