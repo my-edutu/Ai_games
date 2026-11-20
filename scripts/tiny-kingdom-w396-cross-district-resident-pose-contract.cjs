@@ -31,8 +31,8 @@ const oversized=retain(new Map(),[0,1,2,3].map(i=>({i,entry:actor(i,90000)})),8,
 assert.deepEqual([...oversized.keys()],[2,3],
  'warm pose cache must enforce an explicit float byte budget independent of count');
 assert.equal(retain(cache,[],0).size,0,'disable policy must release dormant originals');
-assert(html.includes('if(!foregroundIndices.has(i))villager(people[i]);'),
- 'every nonadmitted authentic villager retains live CPU rendering');
+assert(/if\(!foregroundIndices\.has\(i\)\)\s*\{\s*villager\(people\[i\]\);\s*actualActorBodyPaths\[i\]=2;\s*\}/.test(html),
+ 'every nonadmitted real detailed citizen must still emit full original CPU body and receive audited path');
 console.log('W343 PASS: original full-body pose LRU survives workday camera changes, bounded floats, no missing fallback actor; running FPS NOT PROVEN');
 
  
@@ -59,8 +59,8 @@ for(const [label,method,end,cache,limit,budget] of [
  assert(!src.includes('if(!gpuAvailable||!rows.length){\n  '+cache+'.clear()'),
   label+' must not delete exact genuine pose when no camera actor is admitted');
 }
-assert(html.includes('if(!restingIndices.has(i)&&!commuterIndices.has(i)&&!workingIndices.has(i))compactVillager(people[i]);'),
- 'no authentic villager may be hidden by resident budget decisions');
+assert(/else\s*\{\s*compactVillager\(people\[i\]\);\s*actualActorBodyPaths\[i\]=1;\s*\}/.test(html),
+ 'every nonadmitted real compact citizen must still emit original CPU body and receive audited path');
 // Assert each entry point independently. They now clear the shared GPU-sector
 // ring before the per-profession caches; relying on identical first-call text
 // would incorrectly reject this safer, explicit reset order.
