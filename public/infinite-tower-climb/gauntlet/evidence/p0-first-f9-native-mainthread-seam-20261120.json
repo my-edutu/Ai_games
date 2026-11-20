@@ -307,5 +307,75 @@
       "memory": "NOT EVALUATED"
     },
     "safeguards": "Frozen baseline unchanged; PR58 untouched; PR68 draft; no other games, merge, deployment or force push."
+  },
+  "p0OriginalGateMatrixEpochAndAuthenticFirstVoidCpuPartition20261120_0633": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "sourceCodeCommit": "2dcfa8ac120512f2b2bae3c7676e45e822f9f4b0",
+    "sourceHeadBefore": "83b00c60f26dae05602f6f4d29467042a42124b1",
+    "sourceChange": "Same actual 3D opened original gateway once-per-World-update matrix epoch across all safety-gated final camera trial projections; camera matrix and real source steel projection still recompute for every trial. Added first real low-tier Floor9 world-rebuild phase timings for old GPU owner/clear, materials, first successor architecture, source platforms, true bearings/hazards, shadow selection, rigid batching and clock-face ray binding, propagated into returned-only bounded original source trace. Live gameplay authority unchanged.",
+    "changedFiles": [
+      "public/infinite-tower-climb/visuals/original-guardian-gate-steel-projection.mjs",
+      "public/infinite-tower-climb/visuals/world.mjs",
+      "public/infinite-tower-climb/visuals/scene.mjs",
+      "public/infinite-tower-climb/visuals/render-progress.mjs",
+      "tests/phase3/tower-original-guardian-gate-steel-projection.test.cjs",
+      "tests/phase3/tower-render-progress.test.cjs"
+    ],
+    "latestCompletedCodeQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44678198675 — passed 10/10 for PRIOR 83b00c6 HEAD; not the new code",
+    "sourceCodeCI": "https://github.com/my-edutu/Ai_games/actions/runs/44683802559 — exact new gameplay source 2dcfa8a, in progress at evidence entry; do not claim pass",
+    "newSourcePinnedCaptureRequest": {
+      "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+      "leadingAssessorVerdict": "NOT EVALUATED",
+      "purpose": "Capture unmodified 60s+ real candidate gameplay following source-owned original gateway matrix-epoch reuse and the first real Floor9 CPU rebuild phase trace. Detect actual native event/visual improvement, not test-count success.",
+      "originalSourceCommit": "2dcfa8ac120512f2b2bae3c7676e45e822f9f4b0",
+      "capturedCandidateWillBeEvidenceOnlyDescendant": true,
+      "sourceLockedBaseline": "1731b380851162741761c5569e2bc152a0869ca9",
+      "branch": "feat/tower-transformation-gauntlet-20261101",
+      "originalGameOnly": "Infinite Tower Climb",
+      "matchedConditions": {
+        "seed": "tower-transformation-capture-v1",
+        "graphics": "low",
+        "capture": "normal speed actual autonomous fixed-step game",
+        "viewports": [
+          "960x600",
+          "390x844"
+        ],
+        "scenarios": [
+          "ascent",
+          "moving",
+          "danger/guardian",
+          "outcome/restart"
+        ],
+        "minimumSeconds": 60
+      },
+      "requiredEvidence": "Paired immutable SHA gameplay events and 25fps native WebM: old guardian HP0 authentic gateway metal AND full moving original climber AND real walkable first Floor9 roof clearly visible together for two consecutive aligned frames; unchanged world authority; actual dangerous crusher and restart. Record first F9 original-gate matrix reuse, 8 bounded cold world CPU sub-stages, event-paired native failure if still hard cut; do not infer pixels from projection.",
+      "previousFailedNativeCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44670242244",
+      "previousDefect": "0/2 source/native aligned viewports, 0 seconds of sustained original bronze to violet architectural overlap; 0.5 second HUD-to-violet visual cut; real portrait steel obscures moving climber.",
+      "realDeviceFrameTimeAndMemory": "NOT EVALUATED",
+      "independentCritics": {
+        "LOOKS": "0/5",
+        "FEELS": "0/5",
+        "PLAYS": "0/5"
+      },
+      "acceptance": "NOT EVALUATED until independent actual original clips, 5 blind reviewers per pillar, and supported hardware all satisfy gates",
+      "safeguards": "Never merge deploy force-push move baseline edit PR58 change other games or change draft status."
+    },
+    "reviewedPriorNativeVideo": "https://github.com/my-edutu/Ai_games/actions/runs/44670242244",
+    "biggestStillObservedDefect": "Native 25fps desktop+portrait still show zero sustained warm/cool original gateway three-subject scene and 0/2 strict source-event to native alignment, as measured on PREVIOUS candidate c7ba76c8. No fresh film from 2dcfa8a yet.",
+    "measuredPriorColdF9": "Previous true original-browser source floor-nine rebuild desktop 100.7ms, portrait 90.2ms; this optimization's impact NOT MEASURED until new true source-pinned film. Per-phase trace is CPU clock only, not GPU/presented frame.",
+    "independence": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDevice": {
+      "p50": "NOT EVALUATED",
+      "p95": "NOT EVALUATED",
+      "p99": "NOT EVALUATED",
+      "memory": "NOT EVALUATED"
+    },
+    "nextHighestImpact": "Inspect first real F9 CPU subphase partition and original source/native event/video at this new immutable source; address largest actual cold workload AND visually obstructing first F9 original gateway with complete skinned hero/ground together. Do not advance P1 on CI.",
+    "truthLedger": "Large transformation.json remains unchanged (fetch_file returned no content); frozen baseline preserved and full source/evidence recorded here. Never overwrite an unreadable original ledger."
   }
 }

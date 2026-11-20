@@ -7708,5 +7708,42 @@
     },
     "supportedHardware": "NOT EVALUATED",
     "nextHighestImpact": "Review actual post-change first F9 camera/lighting stage and native 23-32s video; if still hard cut and obstructed portrait, prioritize actual large old bronze foreground and first rendered successor steel handoff, not another unproved optimization."
+  },
+  "p0OriginalGateMatrixEpochAndAuthenticFirstVoidCpuPartition20261120_0633": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "purpose": "Capture unmodified 60s+ real candidate gameplay following source-owned original gateway matrix-epoch reuse and the first real Floor9 CPU rebuild phase trace. Detect actual native event/visual improvement, not test-count success.",
+    "originalSourceCommit": "2dcfa8ac120512f2b2bae3c7676e45e822f9f4b0",
+    "capturedCandidateWillBeEvidenceOnlyDescendant": true,
+    "sourceLockedBaseline": "1731b380851162741761c5569e2bc152a0869ca9",
+    "branch": "feat/tower-transformation-gauntlet-20261101",
+    "originalGameOnly": "Infinite Tower Climb",
+    "matchedConditions": {
+      "seed": "tower-transformation-capture-v1",
+      "graphics": "low",
+      "capture": "normal speed actual autonomous fixed-step game",
+      "viewports": [
+        "960x600",
+        "390x844"
+      ],
+      "scenarios": [
+        "ascent",
+        "moving",
+        "danger/guardian",
+        "outcome/restart"
+      ],
+      "minimumSeconds": 60
+    },
+    "requiredEvidence": "Paired immutable SHA gameplay events and 25fps native WebM: old guardian HP0 authentic gateway metal AND full moving original climber AND real walkable first Floor9 roof clearly visible together for two consecutive aligned frames; unchanged world authority; actual dangerous crusher and restart. Record first F9 original-gate matrix reuse, 8 bounded cold world CPU sub-stages, event-paired native failure if still hard cut; do not infer pixels from projection.",
+    "previousFailedNativeCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44670242244",
+    "previousDefect": "0/2 source/native aligned viewports, 0 seconds of sustained original bronze to violet architectural overlap; 0.5 second HUD-to-violet visual cut; real portrait steel obscures moving climber.",
+    "realDeviceFrameTimeAndMemory": "NOT EVALUATED",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "acceptance": "NOT EVALUATED until independent actual original clips, 5 blind reviewers per pillar, and supported hardware all satisfy gates",
+    "safeguards": "Never merge deploy force-push move baseline edit PR58 change other games or change draft status."
   }
 }
