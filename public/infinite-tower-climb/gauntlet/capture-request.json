@@ -7788,5 +7788,47 @@
     },
     "nextAction": "Fix the measured dominant cold source-owner branch and physical original doorway/portrait foreground occlusion as one true playable scene handoff, then recapture. Do not advance to P1.",
     "safety": "PR68 stays draft; PR58 and frozen baseline unchanged; no unrelated games, merge, deploy or force-push"
+  },
+  "p0SourceGalleryPrestageBeforeVerifiedWebglOriginalNineJob20261120_0833": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateCodeHead": "a39aa4f5191e4f59df1579fa261db8d627df4076",
+    "candidateSource": "EXACT immutable SHA of this capture-request commit, not mutable branch",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "reason": "Actual Nov20 original 1x dangerous-play films show cold F9 CPU original-gateway/gallery transfer 64.4ms desktop/73.9ms portrait, but former-floor GPU teardown only 0.1ms. The real gallery previously re-extracted in F9 even though the same source-owned F8 geometry had already been built. Production prestages bounded source triangles during the actual F8 rebuild, but confirms original GPU exposure only on real F8 renderer return before F9 reuse.",
+    "productionSha": "231f19e2f5219f62d806815217973bf02aea710e",
+    "regressionShas": [
+      "36f778a5024b4281c09110cc60d0f48036ec743e",
+      "a39aa4f5191e4f59df1579fa261db8d627df4076"
+    ],
+    "previousCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44692994077",
+    "previousResult": "Eight 68.2s original source-pinned A/B jobs + authentic ledge succeed; strict danger native pairing FAILED 0/2. Original violet phase at 26.00s desktop,26.25s portrait; zero sustained bronze-to-Void shared-room. Source-projected gate is not native-visible proof.",
+    "scenarios": [
+      "ascent",
+      "moving",
+      "danger/guardian",
+      "outcome/restart"
+    ],
+    "conditions": {
+      "seed": "tower-transformation-capture-v1",
+      "tier": "low",
+      "viewports": [
+        "960x600",
+        "390x844"
+      ],
+      "speed": "1x",
+      "fps": 25,
+      "minimumSeconds": 60
+    },
+    "focus": "Measure originalClockworkGalleryPrebuild reuse state, real returned F8 evidence, originalSourceCapGatewayTransfer vs formerFloorTeardownAndRetirement, first F9 CPU rendering and native physical opened gate + complete moving hero + walkable raised F9. Compare baseline/candidate exact source video sidecars; strict 0/2 remains veto until true alignment.",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "realDevice": "p50/p95/p99 and memory NOT EVALUATED",
+    "nextHighestImpact": "If source-prestaged F8 gallery remains cold fallback, inspect authentic original floor F8 returned frames and invalid snapshot options; otherwise fix physical camera/hero/door/roof 3D composition in both viewports, not another timing heuristic.",
+    "safety": "PR68 remains draft, PR58 unaffected, baseline untouched; no force-push/merge/deploy or forbidden game."
   }
 }
