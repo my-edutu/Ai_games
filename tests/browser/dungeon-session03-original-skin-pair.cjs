@@ -113,14 +113,20 @@ function auditOriginalSourceJointFramePair(options={}){
  if(!base.poseEligible)return failed(base.reason);
  const {before,after}=options;
  const prefix={upper:'upperleg',lower:'lowerleg',foot:'foot',toes:'toes'};
- const radians=(a,b)=>{
+ const radians=(a,b,maxNormError=.02)=>{
   const na=Math.hypot(...a),nb=Math.hypot(...b);
-  if(!finite(na)||!finite(nb)||Math.abs(na-1)>.02||Math.abs(nb-1)>.02)
-   return NaN;
+  // Genuine source GLTFLoader world matrices can decompose to a
+  // quaternion slightly off the unit sphere under nested scale.
+  // Normalize ONLY for read-only angular comparison; preserve the
+  // measured norm deficit as an independent deformation warning.
+  // Local/source-keyed quaternions retain the stricter 2% contract.
+  if(!finite(na)||!finite(nb)||Math.abs(na-1)>maxNormError||
+   Math.abs(nb-1)>maxNormError)return NaN;
   const dot=(a[0]*b[0]+a[1]*b[1]+a[2]*b[2]+a[3]*b[3])/(na*nb);
   return 2*Math.acos(Math.min(1,Math.max(0,Math.abs(dot))));
  };
  const legs={};
+ let maxWorldQuaternionNormError=0;
  for(const side of ['left','right']){
   legs[side]={};
   for(const part of Object.keys(prefix)){
@@ -142,9 +148,14 @@ function auditOriginalSourceJointFramePair(options={}){
      !x.worldQuaternion.every(finite)||!point(x.worldPosition))
      return failed('invalid-original-source-joint-pose');
    const local=radians(a.localQuaternion,b.localQuaternion),
-    world=radians(a.worldQuaternion,b.worldQuaternion);
+    world=radians(a.worldQuaternion,b.worldQuaternion,.035);
    if(!finite(local)||!finite(world))
     return failed('invalid-original-source-joint-quaternion');
+   const worldNormError=Math.max(
+    Math.abs(Math.hypot(...a.worldQuaternion)-1),
+    Math.abs(Math.hypot(...b.worldQuaternion)-1));
+   maxWorldQuaternionNormError=Math.max(maxWorldQuaternionNormError,
+    worldNormError);
    // Report the actual live GLTFLoader source bone rather than a
    // fictional dotted label. Both dotted GLB and sanitized runtime spelling
    // passed the strict original canonical-bone check above. Keeping the
@@ -153,6 +164,7 @@ function auditOriginalSourceJointFramePair(options={}){
     sourceCanonicalBoneName:name,localAngularChangeRad:local,
     worldAngularChangeRad:world,
     localAngularRateRadPerSecond:local/base.elapsedSeconds,
+    sourceWorldQuaternionNormError:worldNormError,
     beforeWorldPosition:a.worldPosition,afterWorldPosition:b.worldPosition};
   }
  }
@@ -165,6 +177,8 @@ function auditOriginalSourceJointFramePair(options={}){
  return {...base,jointPoseEligible:true,jointReason:null,
   sourceLegs:legs,sourceSocketRelativeMatrixMaxDifference:maxDifference,
   originalWeaponSocketRigid:maxDifference<=.002,
+  maxWorldQuaternionNormError,
+  deformationReviewRequired:maxWorldQuaternionNormError>.02,
   contactLocked:false,plantCertified:false,
   warning:'Real original joint/source-shoe measurements, not certified contact, IK or fluent FPS.'};
 }
