@@ -4008,6 +4008,15 @@ export function createMazeWorld(options = {}) {
       // A genuine parry supersedes the warning rather than adding two large
       // hinge angles: never swing physical leaves beyond their outboard limits.
       const warningAction=action*(1-counterWave);
+      // The first authentic contact occurs BEFORE the guardian-end tile's
+      // delayed floor ripple. Its two joined ornamental standard towers must
+      // retract with the original rooted observatory, not remain screen-high
+      // over Thornback's actual recoil. Pip-side standards remain sequential.
+      // The event and all positions come only from current PUBLIC sources.
+      const observedImpactDepth=publicGuardianObservatoryImpactDrop(
+        guardianCounterPhase,
+        onLane && earnedParry && signal.cell===guardianCell,
+        counterWave,reduced);
       // The joined high silhouette opens on the REAL guardian brace and
       // folds backward on the EARNED counter. This is presentation only,
       // physically rooted behind the actor; do not invent a second exit.
@@ -4031,11 +4040,6 @@ export function createMazeWorld(options = {}) {
         // 120ms-per-tile floor wave. React with the rooted mast AT IMPACT,
         // then let the original sequential public floor response take over.
         // No hidden guardian, fabricated hit, collider or mesh is created.
-        const observedImpactDepth=publicGuardianObservatoryImpactDrop(
-          guardianCounterPhase,
-          onLane && earnedParry && signal.cell===guardianCell,
-          counterWave,
-          reduced);
         signal.observatory.instrument.position.y=-1.72*observedImpactDepth;
         const mastLift=reduced?0:Math.max(0,Math.min(1,warningAction));
         const mastHeight=.78+.88*mastLift;
@@ -4068,7 +4072,12 @@ export function createMazeWorld(options = {}) {
         // footings, sequentially with the existing Pip-to-Thornback wave.
         // Their original warning/brace remains tall, ordinary release returns
         // to neutral, and no wall, collider, goal, AI, or GPU pool moves.
-        beacon.lift.position.y=reduced ? .04 : .04+warningAction*.42-counterWave*1.55;
+        // Both original non-colliding guardian END shafts and linked full
+        // shell fans sink on the same earned first hit as the observatory.
+        // The authentic delayed wave catches up without a rebound; no
+        // unseen guardian, AI state, collision or new mesh is introduced.
+        beacon.lift.position.y=reduced ? .04
+          : .04+warningAction*.42-Math.max(counterWave,observedImpactDepth)*1.55;
         beacon.crown.material=counterWave>.1?inlay:action>.28?amber:seaGlass;
         beacon.lens.material=counterWave>.1?lightStone:action>.28?amber:inlay;
         // The entire linked shell fan opens laterally into the non-walkable
