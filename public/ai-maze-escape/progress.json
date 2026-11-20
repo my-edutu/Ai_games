@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-20T14:53:50.000Z",
+  "updatedAt": "2026-11-20T15:51:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass535 exact-HEAD 08eac7ec native WebGL #44749497116 succeeded; original artifact ZIP 5d610420 verified 42/42 dated PNG sidecar SHA-256 and 3/3 real before/mid/after gate hashes. True seed-13 tick94 390x844 hero and guardian fill opposite +/- .90 margins after real parry, with stone/rail clutter still masking intimacy; fixed Nintendo benchmark REJECTED. Pass536 source candidate holds original ACTUAL tick93 close encounter camera longer for 390-class earned impact before physical retreat; new exact-HEAD WebGL, no-crop and independent critic REQUIRED, not yet approved."
+    "summary": "Pass536 exact-HEAD 503288e5 native WebGL #44759958399 SUCCESS, ZIP 09718e14 with independently verified 42/42 full-frame PNG SHA sidecars plus 3/3 genuine gate frames. Uncropped seed-13 tick94 320px physical actors are scattered across a huge empty cliff, despite passing +/-0.95; 390px contact remains crowded. Nintendo benchmark REJECTED. Pass537 adds same-run public 320px pair-first camera azimuth with unchanged strict physical full-model fit; new WebGL and independent visual critic PENDING, no visual win claimed."
   },
   "captures": [
+    {
+      "title": "Pass536 exact source 503288e5 WebGL SUCCESS: original unaltered ZIP 09718e14, verified 42/42 PNG SHA and 3/3 genuine gate SHA; Pass537 320px physical pair-first stage requires new rendering",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44759958399/artifacts/14642035056"
+    },
     {
       "title": "Pass535 exact source 08eac7ec native WebGL SUCCESS, ZIP 5d610420: 42 original full-frame PNG SHA sidecars plus 3 true gate-transition PNG hashes verified; Pass536 camera contact candidate awaiting native verdict",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44749497116/artifacts/14634992105"

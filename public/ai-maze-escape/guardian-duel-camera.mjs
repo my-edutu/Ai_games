@@ -347,6 +347,46 @@ export function setPublicEarnedGuardianFrontQuarterOffset(
 }
 
 /**
+ * Narrow, source-witnessed 320px counter performance stage.
+ *
+ * The 2026-11-20 native 320x740 full-frame seed-13 image places Pip at the
+ * extreme left and Thornback far above/right of the long terrace, leaving a
+ * large empty seaward cliff. The former maximum 1.82rad turn never actually
+ * reached the hero-to-guardian front quarter (dot ~.333 for the measured
+ * reference pair), so the exact physical two-body fitter could not request
+ * a legible portrait action shot.
+ *
+ * Give only the SAME-RUN, CURRENTLY PUBLIC earned recoil a more frontal 18deg
+ * actor-pair azimuth, keeping camera radius/height, physical meshes, collision,
+ * AI, fog-of-war and the final strict +/-0.95 mesh-envelope fit unchanged.
+ * This is an optical request, NOT a claim of screenshot acceptance.
+ */
+export function setPublicEarnedGuardianNarrowPairStage(
+  offset,aspect,hero,guardian,earned=false,reducedMotion=false) {
+  if(!earned || reducedMotion || !Number.isFinite(aspect)
+    || aspect<.35 || aspect>=.45
+    || ![offset?.x,offset?.y,offset?.z,hero?.x,hero?.z,
+      guardian?.x,guardian?.z].every(Number.isFinite))return false;
+  const dx=hero.x-guardian.x,dz=hero.z-guardian.z;
+  const separation=Math.hypot(dx,dz);
+  const radius=Math.hypot(offset.x,offset.z);
+  if(separation<.65 || radius<1)return false;
+  const normal=Math.atan2(offset.z,offset.x);
+  const face=Math.atan2(dz,dx);
+  const flank=Math.PI/10; // Physical 18deg three-quarter stage; not a top-down icon.
+  const difference=angle=>Math.atan2(Math.sin(angle-normal),Math.cos(angle-normal));
+  const left=difference(face-flank),right=difference(face+flank);
+  const delta=Math.abs(left)<=Math.abs(right)?left:right;
+  // The prior narrow 1.82rad camera can be 0.9rad away from the FRONT quarter
+  // even after its base turn. Keep the additional real camera motion bounded.
+  const turn=Math.max(-1.04,Math.min(1.04,delta));
+  if(Math.abs(turn)<.045)return false;
+  offset.x=radius*Math.cos(normal+turn);
+  offset.z=radius*Math.sin(normal+turn);
+  return true;
+}
+
+/**
  * Post-parry physical lens lift. The trusted native 320/390 seed-13 tick-8
  * source rays strike disclosed tile 93's floor BEFORE reaching Pip's torso
  * and boots. Only the already-gated same-run, visibly earned Follow recoil
