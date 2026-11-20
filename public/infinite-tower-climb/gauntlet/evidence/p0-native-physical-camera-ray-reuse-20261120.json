@@ -55,5 +55,65 @@
     "LOOKS": 0,
     "FEELS": 0,
     "PLAYS": 0
+  },
+  "p0Run11ReturnedGatewayCameraMaterialContinuity20261120": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceInspectedSha": "f1176f4462f50c53a7e3413817d1398c995fa0da",
+    "sourcePinnedNativeCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44726597234",
+    "originalCandidateArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44726597234/artifacts/14624597458",
+    "originalFilmInspected": "Unedited normal-speed 25fps 960x600 and 390x844, from complete 70+ second native WebM; full transition sampled at 23-29 seconds. Native still does not establish consecutive original opened HP-zero gate + complete moving climber + genuinely walkable floor-nine. Portal steel and raised roof are real Three.js and not equivalent to simultaneous visible pixels.",
+    "firstFloorNineSourceTick": 475,
+    "nativeSourceToVisible": {
+      "desktop": {
+        "sourceObservedSecond": 24.79,
+        "floorNineHudSecond": 26,
+        "violetEstablishedSecond": 26.75,
+        "sharedBronzeVioletSeconds": 0,
+        "acceptedHistoricalCameraFramesAtFirstReturnedSample": 3,
+        "originalGatewayOpacityAfter20Returns": 0.3047,
+        "undercroftInitiallySoftened": "0/6"
+      },
+      "portrait": {
+        "sourceObservedSecond": 24.42,
+        "floorNineHudSecond": 25.75,
+        "violetEstablishedSecond": 26.25,
+        "sharedBronzeVioletSeconds": 0,
+        "acceptedHistoricalCameraFramesAtNextFloorSample": 8,
+        "originalGatewayOpacityAfter20Returns": 0.8167,
+        "undercroftInitiallySoftened": "0/6"
+      },
+      "caveat": "Times rounded from native phase observer/25fps frames; browser-to-native presentation is delayed, not a measured actual-device display latency."
+    },
+    "verifiedRootCause": "Historical camera genuinely accepted and no physical camera veto in first samples. P0 bottleneck is returned-WebGL original gate material and original lens retiring before the complete native 3-subject room appears, compounded by source-owned portrait foreground bars. Not an absent camera bridge or unearned simulator floor.",
+    "redTestCommit": "54b9f8b0f81dc1b2dfa9fc34fb4e32effafa632f",
+    "redTestCI": "https://github.com/my-edutu/Ai_games/actions/runs/44729813489",
+    "redTestOutcome": "Two focused tests failed as intended on old code: seven shaft returns/.95s fully erased original door; camera weight after twelve .52s returns too small.",
+    "productionCodeCommits": [
+      "97cb4cb5eefa09c5cc1dbf72c6bc8ad30bac38f3",
+      "bcf4204dc581519499bbddadeb3af6207f5bd961"
+    ],
+    "meaningfulPlayableChange": "Source-valid far-side original guardian gateway material now fades over >=15 successful structural returns and >=1.65 returned-display seconds (previously 7/.95); the previously-returned genuine F8 follow camera blends over >=18 returns and >=1.65s (previously 12/1.25), both still bounded by existing source-owned HP0, real platform/airborne support, same-run, physical core/successor rays and max 20/30 gate-retirement guards. No invented world, floor, frame, player, teleport or proxy geometry.",
+    "newGameplayPixels": "NOT EVALUATED at new production SHA until new immutable 9-job baseline/candidate campaign",
+    "lastReviewedQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44726597387 — prior exact source 10/10 SUCCESS; new code CI remains pending",
+    "newQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44729939533",
+    "independentBlindVotes": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDeviceFrameTimePercentilesAndMemory": "NOT EVALUATED",
+    "largestRemainingRisk": "Extending genuine old gate/camera may make portrait original vertical steel crowd action longer. Must inspect at 1x against fresh source-aligned native footage; revert or redesign physical foreground if worse.",
+    "nextHighestImpactAction": "Run new immutable-source 9-job capture at exact evidence SHA; compare desktop/portrait source-event-to-native 3-subject overlap, gate alpha+returned shaft frames+original-camera accepted frames and portrait bar obstruction. If still 0/2, rebuild source-authentic doorway/roof foreground composition; do not advance P1.",
+    "constraints": {
+      "preserveDraft": true,
+      "pr58Untouched": true,
+      "noMerge": true,
+      "noDeploy": true,
+      "noForcePush": true,
+      "baselineUnchanged": true,
+      "noUnrelatedGames": true
+    }
   }
 }
