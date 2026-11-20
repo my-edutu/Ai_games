@@ -82,9 +82,9 @@ test('Pass539 protects the genuine 390px public ray from an unverified frontal o
     assert.equal(reveal(candidate,390/844,hero,thornback,.80,true,false,invalid),false);
     assert.deepEqual(candidate,offset());
   }
-  assert.match(scene,/earnedCounterActor\\?\\.counterPhase,true,settings\\.reducedMotion,\\s*Math\\.PI\\/30\\);/,
+  assert.match(scene,/earnedCounterActor\?\.counterPhase,true,settings\.reducedMotion,\s*Math\.PI\/30\);/,
     'real scene must use source-safe constrained orbit, not test-only helper defaults');
   assert.match(fs.readFileSync(path.join(root,'tests/browser/maze-review.spec.cjs'),'utf8'),
-    /expect\\(anchor\\.inconclusive,name\\+' may not silently pass an ambiguous ray'\\)\\.toBe\\(false\\)/,
+    /expect\(anchor\.inconclusive,name\+' may not silently pass an ambiguous ray'\)\.toBe\(false\)/,
     'unchanged strict source-bound mesh-ray acceptance remains authoritative');
 });
