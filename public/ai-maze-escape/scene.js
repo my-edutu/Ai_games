@@ -1477,6 +1477,16 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     const earnedShotAct=publicEarnedGuardianCounterCameraAct(
       earnedCounterActor?.counterPhase,earnedDuelContinuity,
       settings.reducedMotion);
+    // The native Pass522 hit still breaks the adjacent 390px tick93 warning
+    // shot: portraitCameraOffset is NOT the camera actually used to photograph
+    // that warning. Hold the previous physically rendered target and lens
+    // while the witnessed contact arrives, then let the SAME current public
+    // actor pair move the shot continuously into the true retreat. No second
+    // camera, private state, replayed hit or physical character movement.
+    if (earnedDuelContinuity && earnedShotAct < 1) {
+      desiredTarget.lerp(cameraTarget,1-earnedShotAct);
+      targetHeight=halfHeight+(targetHeight-halfHeight)*earnedShotAct;
+    }
     // A nearby reciprocal public warning already has an actor-pair target.
     // Do not double-shift that same camera aim when the earned lens wins.
     if (earnedDuelContinuity && !closestThreat?.strength) {
@@ -1557,13 +1567,12 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       setPublicEarnedGuardianFrontQuarterOffset(
         earnedRecoilCameraOffset,aspect,pose,earnedCounterModel.position,
         true,settings.reducedMotion);
-    // One physical camera choreography through the source-proven counter,
-    // not a camera cut at the precise landed-lantern frame. The actual
-    // earlier witnessed portrait and existing high retreat camera share the
-    // same continuously interpolated Vector3; the final complete-body mesh
-    // NDC fitter and native +/-0.95 limits remain authoritative.
+    // Blend FROM the camera's actual last rendered physical offset, not
+    // the generic portraitCameraOffset (which differs from the live warning
+    // view). The earned same-run 3D contact and authentic retreat remain one
+    // continuous shot. Final strict physical full-body limits still apply.
     if(earnedDuelContinuity)
-      earnedRecoilCameraOffset.lerp(portraitCameraOffset,1-earnedShotAct);
+      earnedRecoilCameraOffset.lerp(cameraOffset,1-earnedShotAct);
     cameraOffset.lerp(publicVictoryScene ? escapeCameraOffset
       : openingStageView ? openingGateCameraOffset
       : cameraGate ? sealedGateCameraOffset

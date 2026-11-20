@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-20T00:52:00.000Z",
+  "updatedAt": "2026-11-20T02:08:09.554Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass521 exact 4afdfbcb native WebGL #44643362257 SUCCESS; 42/42 original native SHA pairs and 3/3 true gate images independently verified; real 390/320 earned guardian stays wholly within unchanged ±0.95, natural default 136-tick escape and six-reset <100 accepted. Original native tick93 vs tick94 shows discontinuous stage: hit loses readable two-body composition in wide overhead crowded court; Pass521 visual benchmark REJECTED (390 early hit only 0.703/255 MAE vs Pass520). Pass522 source-only candidate stages continuous single physical camera from publicly witnessed impact to genuine guardian retreat; new exact-HEAD WebGL screenshots and CI MUST judge, no win claimed. Whole-repo CI remains red outside focused Maze, independent fresh-context critic/Ultracode unavailable, draft no merge/deploy."
+    "summary": "Pass522 exact HEAD 7edd9dfd native WebGL #44651184163 SUCCESS; artifact 14590859803 ZIP SHA f12797e... original 42/42 PNG sidecars and 3/3 true gate images independently rehashed. Direct native 390px tick93/94 inspection rejects the railed, divided impact despite physically complete bodies; Pass522 source blended toward generic portrait offset, not the actual previous photographed warning camera. Natural chapter escape 136 ticks, six-reset geometry <100; whole repo CI red in Tiny Kingdom OBS. Pass523 source change holds the real previously rendered Follow camera offset, lens and target through earned contact, then eases into genuine public retreat on same 2s counter clock. Fresh exact HEAD screenshot+independent critic pending. Nintendo benchmark NOT MET, no merge/deploy."
   },
   "captures": [
+    {
+      "title": "Pass522 exact-source native full 42/42 screenshot hashes + 3/3 gate hashes VERIFIED; 390 real counter still divided by rail, Pass523 actual-camera fix unverified",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44651184163/artifacts/14590859803"
+    },
     {
       "title": "Pass521 exact 4afdfbcb original WebGL SUCCESS; personally verified 42/42 full PNG sidecars and 3/3 real gate images; authentic 390 tick93->94 impact shot rejected, Pass522 camera candidate unverified",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44643362257/artifacts/14587553945"

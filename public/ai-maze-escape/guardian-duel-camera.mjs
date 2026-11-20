@@ -269,9 +269,12 @@ export function publicEarnedGuardianCounterCameraPriority(
  * at tick 93 but an immediate broad overhead reposition at tick 94, hiding
  * the lantern impact and shriveling both expressive silhouettes.
  *
- * Hold that same WITNESSED source camera for the impact's first 0.20s, then
- * blend smoothly to the strictly existing high, full-body, publicly revealed
- * retreat lens by normalized time .52 (the verified cue lasts two seconds).
+ * Pass522's source-held portrait-offset still jumped away from the original
+ * actual warning camera: the portrait-offset target was not the camera that
+ * framed both actors at tick93. Preserve the already RENDERED camera through
+ * first clear impact, then ease toward the authentic retreat shot over the
+ * latter half of the same genuine two-second lantern-counter clock.
+ * Window .27–.85 is presentation only, not a longer or invented parry.
  * This function merely stages a camera; never advances AI, authoritative
  * world clock, hazards, public map discovery or actor positions.
  */
@@ -279,7 +282,7 @@ export function publicEarnedGuardianCounterCameraAct(
   phase,earned=false,reducedMotion=false) {
   if(!earned || reducedMotion || !Number.isFinite(phase)
     || phase<0 || phase>=1)return 1;
-  const t=Math.max(0,Math.min(1,(phase-.10)/.42));
+  const t=Math.max(0,Math.min(1,(phase-.27)/.58));
   return t*t*(3-2*t);
 }
 
