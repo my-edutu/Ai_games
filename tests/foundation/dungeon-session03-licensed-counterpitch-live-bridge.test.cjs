@@ -254,3 +254,44 @@ test('licensed full-leg 60Hz/30Hz counterpitch must obey its own actual angular-
   side:'right',floorTopY:-.02}),null,
   'rate-limited correction still must never accept a rising swing heel');
 });
+
+
+test('RED: the SAME original Walking_A counterpitch must ease the outgoing swing within 3rad/s, not snap its source full-leg chain',async()=>{
+ const {planLicensedSourceSwingCounterpitch:plan}=await source;
+ // Real prior ANGLE and anatomy are anchored in original 390px Vanguard
+ // source tick9, Actions #44698474521 (source artifact #14612438535).
+ // The nearby .300 -> .3167 clip phases and skinned shoe coordinates
+ // below are a deliberately synthetic continuation fixture, NOT captured
+ // source film or evidence of a contact/foot-plant. The source only
+ // qualifies the trial; the live renderer must still re-skin BOTH shoes.
+ const previousFootRad=-.22884615384615384;
+ const realFrame=.0167;
+ const input={...owner,sourceClipTimeSeconds:.3167,
+  previousSameSourceFrame:true,previousFootRad,
+  frameInterval:realFrame,rootTravel:.0101,frameAge:0};
+ const held=plan(input);
+ assert.ok(held,'authenticated same-source moving swing remains eligible');
+ assert.ok(Math.abs(held.footRad-previousFootRad)<=3*realFrame+1e-7,
+  'a genuine 60Hz frame may not discard >50.1mrad of previous original ankle correction');
+ assert.ok(held.footRad>previousFootRad,
+  'source outsole must move TOWARD original clip, never grow an unneeded tail correction');
+ assert.ok(Math.abs(held.upperRad)<=.081&&Math.abs(held.lowerRad)<=.081,
+  'authentic source hip and knee remain connected, not toe-only');
+ assert.equal(held.contactLocked,false);
+ assert.equal(held.plantCertified,false);
+ const first=plan({...input,previousSameSourceFrame:false,previousFootRad:0});
+ assert.ok(first);
+ assert.ok(Math.abs(first.footRad)<=3*realFrame+1e-7,
+  'without genuine prior same-clip evidence, do not borrow an existing correction');
+ for(const change of [
+  {sourceInstanceSame:false},{previousSameSourceFrame:false},
+  {sourceClipName:'Idle'},{mode:'hurt'},
+  {ownerLocomotion:false},{teleport:true},
+  {reducedMotion:true},{interrupted:true},{sourceWeight:.7}
+ ]){
+  const altered=plan({...input,...change});
+  if(change.previousSameSourceFrame===false)
+   assert.equal(altered,null,'a nonzero previous correction cannot be inherited without source identity');
+  else assert.equal(altered,null,'only the actual licensed moving source owns gradual release');
+ }
+});
