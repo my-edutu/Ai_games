@@ -58,8 +58,11 @@ for(const phrase of [
  'const priorActor=actorGpuSnapshots[slot]',
  'currentActor.subarray(region.firstFloat,region.lastFloat)',
  'gl.drawArrays(gl.TRIANGLES,0,actorFrameData.length/10)',
- 'function start(){resetActorGpuSnapshots();',
+ // The actual game now cancels a pending provenance observation before reset.
+ // Check a bounded segment of the real start entrypoint, not stale adjacency.
  'function restoreSnapshot(snapshot){validateSnapshot(snapshot);resetActorGpuSnapshots();',
  'getActorResidencyAudit,getActorGpuDeltaAudit,setActorStreamSplitForTesting,'
 ])assert(html.includes(phrase),'critical original actor residency: '+phrase);
+assert.match(html,/function start\(\)\{[\s\S]{0,240}resetActorGpuSnapshots\(\);/,
+ 'real start still clears original actor GPU snapshots before gameplay resumes');
 console.log('W400 real actor GPU source-order, bounded memory, reset and fallback contracts PASS. Physical hardware/visual difference NOT PROVEN.');
