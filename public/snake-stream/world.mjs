@@ -1652,7 +1652,7 @@ export function createWorld(THREE, {width, height}) {
     const positions=new Float32Array(vertexCount*3),normals=new Float32Array(vertexCount*3),uvs=new Float32Array(vertexCount*2);
     const colors=hasTint?new Float32Array(vertexCount*3):null;
     const indices=vertexCount>65535?new Uint32Array(indexCount):new Uint16Array(indexCount);
-    let vertexOffset=0,indexOffset=0,blockStart=0,blockSize=0;
+    let vertexOffset=0,indexOffset=0,blockStart=0,blockSize=0,blockIndices=0;
     let blockBounds=new THREE.Box3().makeEmpty();
     const visibilityBlocks=[];
     for(const {g,item} of entries){
@@ -1702,8 +1702,16 @@ export function createWorld(THREE, {width, height}) {
       if(sourceMaterial===tileMat)geometryBounds.expandByScalar(.03);
       blockBounds.union(geometryBounds);
       blockSize++;
-      if(blockSize>=48){visibilityBlocks.push({start:blockStart,count:indexOffset-blockStart,box:blockBounds});
-        blockStart=indexOffset;blockSize=0;blockBounds=new THREE.Box3().makeEmpty();}
+      blockIndices+=count;
+      // Retain all complete baked triangles, but group them at garden-scale
+      // rather than merging 48 disparate objects into a single far-reaching
+      // AABB. Detail/follow cameras otherwise send large, wholly offscreen
+      // spans through the complete original physical shader. A local item
+      // and index budget bounds both CPU frustum work and GPU overdraw.
+      if(blockSize>=12 || blockIndices>=3600){
+        visibilityBlocks.push({start:blockStart,count:indexOffset-blockStart,box:blockBounds});
+        blockStart=indexOffset;blockSize=0;blockIndices=0;blockBounds=new THREE.Box3().makeEmpty();
+      }
     }
     if(blockSize)visibilityBlocks.push({start:blockStart,count:indexOffset-blockStart,box:blockBounds});
     const merged=geometry(new THREE.BufferGeometry());

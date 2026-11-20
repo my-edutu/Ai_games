@@ -1,10 +1,18 @@
 {
-  "updatedAt": "2026-11-14",
-  "status": "T0 UNSIGNED / T1 BUILDING VISUALLY SELF-REJECTED / T2 BUILDING / T3 BUILDING / T4 HARD RED (HDR compositor native-only candidate)",
-  "detail": "PR #52 immutable original 914ced1: strict authentic Chromium #43551506787 1/17 real complete WebGL submissions at 751x415 with 648 GPU skips; browser 52/95, native 728/800. Detached exact-source T4 candidate removes redundant full-raster display-bake pass and target from original HDR/depth cache: 3 to 2 renderer operations on cache rebuild (source code only), preserving world, original ACES/sRGB/fog order, depth, serpent, water, authority, gate and raster. Cache-hit shader cost changes; WebGL equality, performance and genuine device presents unmeasured. New RED 0/2 -> GREEN 2/2, focused 6/6, build+TS+900 authority pass, 8 seed native runs each reached 45 body. Broader 88/97 on both parent and candidate with historical failures. T1 remains visually rejected; independent acceptance pending.",
+  "updatedAt": "2026-11-20",
+  "status": "T0 UNSIGNED / T1 BUILDING VISUALLY SELF-REJECTED / T2 BUILDING / T3 BUILDING / T4 HARD RED (strict original b820 2/17; native-only frustum candidate)",
+  "detail": "T138 source-exact frustum partition: original complete 3D geometry retained, closer camera offscreen static indices 211,662→105,186 and 124,314→63,912 in native tests; 13/13 geometry payload hashes unchanged, 13 static material meshes and full shadow casting retained. Native CPU frustum update adds ~10µs/view, not a GPU FPS win. Original b820 WebGL strict 2/17 remains HARD RED. T0 UNSIGNED; T1 visually self-rejected BUILDING; T2/T3 BUILDING; T4 HARD RED; independent acceptance pending.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "UNACCEPTED authentic 914 original-head scene: rectangular tiled court and small serpent; 1/17 strict complete WebGL submissions. Native-only two-pass candidate has NOT passed candidate-matched Chromium or physical FPS.",
+  "latestCaption": "Latest documented original-head genuine WebGL is b820: rectangular tiled court and small hero; strict full-render 2/17 at 751×415. T138 finer native frustum batching has NO source-matched WebGL image or physical FPS acceptance.",
   "reviews": [
+    {
+      "area": "2026-11-20 T4 source-exact fine-grained static visibility (NATIVE only, HARD RED)",
+      "sourceHead": "b8202bce4ed1ab1dd5fd53e744f4998ad7d39566",
+      "worldParentBlob": "1ebc8b55412f1dcc67725ddc493bd00b63d55b9c",
+      "browser": "Original b820 #44716578238 2/17 genuine strict full desktop renderer, 666 GPU skips; T138 candidate WebGL PENDING",
+      "native": "RED 0/1→GREEN 1/1; 13 exact static geometry payloads; 264546 original indices; three representative detail shots cull 12.4%-50.3% more original static indices; new CPU frustum cost +10.46μs/view; build+900 self-test pass; selected 16/20 with same four failures on original.",
+      "verdict": "T0 UNSIGNED / T1 BUILDING visually self-rejected / T2-T3 BUILDING / T4 HARD RED / independent acceptance pending"
+    },
     {
       "area": "2026-11-14 T4 original HDR/depth and true live 3D compositor (NATIVE ONLY; WebGL HARD RED)",
       "sourceHead": "914ced131dc57f45fbc79b4b4b054f3aa3709d2d",
