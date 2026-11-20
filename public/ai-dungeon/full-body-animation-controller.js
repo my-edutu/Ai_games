@@ -6141,6 +6141,30 @@ export function certifyLicensedCounterpitchToeFinish({
  angleRad=NaN,floorTopY=NaN
 }={}){
  const other=side==='left'?'right':side==='right'?'left':null;
+ // Original 390px WebGL source #44768341460 still had 70.04mm of toe
+ // burial after a REAL 16.7ms/10.6mm 41-joint walking correction.
+ // Permit a distinct, bounded toe-child experiment only on a witnessed
+ // SAME-source Walking_A swing and fresh legal root displacement. The final
+ // real weighted two-shoe skin, 3rad/s guard and no-contact rule still own it.
+ const deepSourceWindow=Boolean(
+  proof?.residualToeBurialMeters>.055&&proof.residualToeBurialMeters<=.095&&
+  Number.isFinite(proof.sourceClipTimeSeconds)&&(
+   (side==='right'&&proof.sourceClipTimeSeconds>=.03&&
+    proof.sourceClipTimeSeconds<=.335)||
+   (side==='left'&&proof.sourceClipTimeSeconds>=.515&&
+    proof.sourceClipTimeSeconds<=.875))&&
+  Number.isFinite(proof.witnessedFrameIntervalSeconds)&&
+  proof.witnessedFrameIntervalSeconds>=.016&&
+  proof.witnessedFrameIntervalSeconds<=.05&&
+  Number.isFinite(proof.witnessedRootTravelMeters)&&
+  proof.witnessedRootTravelMeters>=.008&&
+  proof.witnessedRootTravelMeters<=.08&&
+  Number.isFinite(proof.witnessedDirectFrameTravelMeters)&&
+  Math.abs(proof.witnessedRootTravelMeters-
+   proof.witnessedDirectFrameTravelMeters)<=.001&&
+  Number.isFinite(proof.witnessedFrameAgeSeconds)&&
+  proof.witnessedFrameAgeSeconds>=0&&
+  proof.witnessedFrameAgeSeconds<=.035);
  const valid=s=>s&&[s.heelY,s.toeY,
   ...(s.heelXZ||[]),...(s.toeXZ||[])].every(Number.isFinite)&&
   Array.isArray(s.heelXZ)&&s.heelXZ.length===2&&
@@ -6178,7 +6202,8 @@ export function certifyLicensedCounterpitchToeFinish({
   !Number.isFinite(floorTopY)||
   Math.abs(floorTopY+.02)>.005||
   ![proof.residualToeBurialMeters].every(Number.isFinite)||
-  proof.residualToeBurialMeters<.002||proof.residualToeBurialMeters>.055||
+  proof.residualToeBurialMeters<.002||
+  (proof.residualToeBurialMeters>.055&&!deepSourceWindow)||
   ![before?.[side],before?.[other],after?.[side],after?.[other],
     proof.after?.[side],proof.after?.[other]].every(valid))return null;
  const distance=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
@@ -6201,6 +6226,10 @@ export function certifyLicensedCounterpitchToeFinish({
   Math.abs(after[other].toeY-before[other].toeY)>.002||
   distance(after[other].heelXZ,before[other].heelXZ)>.003||
   distance(after[other].toeXZ,before[other].toeXZ)>.003)return null;
+ // This separate deeply buried swing may gain only 3–8mm through the
+ // original toe hinge; still >20mm beneath stone and NEVER a footplant.
+ if(deepSourceWindow&&(toeLift<.003||toeLift>.008||
+  after[side].toeY>=floorTopY-.020))return null;
  return Object.freeze({
   source:'measured-licensed-counterpitch-original-toes-child',
   side,sourceClip:'Walking_A',angleRad,
@@ -6208,6 +6237,7 @@ export function certifyLicensedCounterpitchToeFinish({
   residualToeBurialMeters:Math.max(0,floorTopY-after[side].toeY),
   sourceToeTrackVerified:true,originalOppositeShoeVerified:true,
   requiresIndependentFinalSkin:true,
+  sourceDeepSwingToeRelief:deepSourceWindow,
   contactLocked:false,plantCertified:false
  });
 }
