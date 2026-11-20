@@ -74,11 +74,9 @@ test('original 18/24rad negative trial is REJECTED and 46rad trial may only be e
  const hypothetical={upperRad:-.11,lowerRad:.11,footRad:.46,
   after:after(.029,.005)};
  const synthetic=choose({...owner,starter,trials:[hypothetical]});
- assert.equal(synthetic?.source,'measured-original-skinned-coupled-knee-foot',
-  'SYNTHETIC acceptance test only; does not assert new WebGL outcome');
- assert.equal(synthetic.contactLocked,false);
- assert.ok(synthetic.afterToeY<owner.floorTopY,
-  'a still-buried toe with an admissible improvement cannot be called planted');
+ assert.equal(synthetic,null,
+  'legacy 460mrad single-frame foot probe violates witnessed 3rad/s source slew');
+ assert.ok(Math.abs(hypothetical.footRad)>3*owner.frameInterval);
  for(const trial of [
   {...hypothetical,footRad:.28},
   {...hypothetical,footRad:.47},
@@ -160,13 +158,11 @@ test('RED-first: original 16.7ms buried source foot receives two bounded faster 
  // Synthetic after-skin candidate merely verifies the final pure gate:
  // actual source feet MUST independently pass the exact same check in WebGL.
  const synthetic=choose({...fast,starter,trials:[
-  {upperRad:-.11,lowerRad:.11,footRad:.34,
-   after:afterRapid(.027,.004)}
+  {upperRad:-.11,lowerRad:.11,footRad:.34,after:afterRapid(.027,.004)}
  ]});
- assert.equal(synthetic?.source,'measured-original-skinned-coupled-knee-foot');
- assert.equal(synthetic?.contactLocked,false);
- assert.ok(synthetic.afterToeY<fast.floorTopY,
-  'candidate lift must never be mislabelled as planted');
+ assert.equal(synthetic,null,
+  '16.7ms original Walking_A cannot display a 340mrad foot snap in one frame');
+ assert.ok(.34>3*fast.frameInterval);
  for(const unsafe of [{frameInterval:.08},{rootTravel:0},
   {sourceFootTrackVerified:false},{sourceBindVerified:false},
   {sourceWeight:.82},{reducedMotion:true},{interrupted:true},
@@ -274,10 +270,9 @@ test('RED: rapid genuine 95mm source burial schedules two safer connected outsol
  const fixture=choose({...frame,starter,trials:[
   {...expected[1],after:after(.025,.008)}
  ]});
- assert.equal(fixture?.source,'measured-original-skinned-coupled-knee-foot');
- assert.equal(fixture.contactLocked,false);
- assert.ok(fixture.afterToeY<frame.floorTopY-.06,
-  'a still-buried synthetic toe must never be described as planted');
+ assert.equal(fixture,null,
+  '16.8ms allows only 50.4mrad per new source joint, not 360mrad');
+ assert.ok(Math.abs(expected[1].footRad)>3*frame.frameInterval);
  for(const bad of [
   {sourceFootTrackVerified:false},{sourceBindVerified:false},
   {sourceAnatomicalFootAxisVerified:false},{sourceInstanceSame:false},
@@ -581,13 +576,9 @@ test('licensed fourth connected source-skin trial accepts only witnessed bounded
  const approved={...owner,starter,sourceToeTrackVerified:true,
   sourceToeChainVerified:true,sourceToeSkinnedWeight:1};
  const safe=choose({...approved,trials:[trial]});
- assert.equal(safe?.source,'measured-original-skinned-coupled-knee-foot');
- assert.equal(safe?.sourceJointCount,4);
- assert.equal(safe?.sourceCoupledHipKneeRelief,relief);
- assert.equal(safe?.oppositeShoePreserved,true);
- assert.equal(safe?.contactLocked,false);
- assert.ok(safe.afterToeY<owner.floorTopY,
-  'a still-buried synthetic toe may never be relabelled as planted');
+ assert.equal(safe,null,
+  'four-joint synthetic positive cannot bypass displayed-frame angular budget');
+ assert.ok(Math.abs(trial.footRad)>3*approved.frameInterval);
  for(const bad of [
   {...trial,sourceCoupledHipKneeRelief:null},
   {...trial,sourceCoupledHipKneeRelief:{...relief,deltaRad:.05}},
@@ -630,11 +621,9 @@ test('RED: bounded 100ms source Walking_A with heel-dominant swing samples a con
  const safe={upperRad:-.11,lowerRad:.11,footRad:.36,
   after:after(.033,.008)};
  const result=choose({...slow,starter,trials:[safe]});
- assert.equal(result?.source,'measured-original-skinned-coupled-knee-foot');
- assert.equal(result?.sourceJointCount,3);
- assert.equal(result?.oppositeShoePreserved,true);
- assert.equal(result?.contactLocked,false);
- assert.ok(result.afterToeY<slow.floorTopY,'an improved buried toe is not an invented planted sole');
+ assert.equal(result,null,
+  '100.1ms permits about 300mrad foot, not 360mrad in one original frame');
+ assert.ok(Math.abs(safe.footRad)>3*slow.frameInterval);
  assert.equal(toePlanner({
   source:'same-original-GLB-skin-toes-hinge',sourceClipName:'Walking_A',
   sourceWeight:1,frameInterval:.1001
@@ -845,11 +834,9 @@ test('RED-first: real 16.7ms original 390px three-joint source pitch rescue is e
   after:after(.016391183796119813,.0059564415093493195,
    .033476051339980425,.00694196583952994)};
  const result=choose({...fixture,starter,trials:[selected]});
- assert.equal(result?.source,'measured-original-skinned-coupled-knee-foot');
- assert.equal(result?.contactLocked,false);
- assert.ok(result.afterToeY<fixture.floorTopY-.05,
-  'source toe remains deeply buried: never mislabel as foot plant');
- assert.ok(result.toeLiftMeters-result.sourceHeelRiseMeters>.0104);
+ assert.equal(result,null,
+  'true 16.7ms mobile source cannot snap 340mrad, even for a favorable skinned trial');
+ assert.ok(Math.abs(selected.footRad)>3*fixture.frameInterval);
  // This exception is NOT a generic permission to accept all 16mm toe lifts.
  const worse={upperRad:-.11,lowerRad:.11,footRad:.28,
   after:after(.01590877294175093,.01059473611325118,
@@ -914,12 +901,9 @@ test('RED-first: measured original 100ms desktop three-joint shoe pitch is accep
    toeXZ:[left.toeXZ[0]+.03609917985814321,0]},
    right:{...right}}};
  const accepted=choose({...source,trials:[measured]});
- assert.equal(accepted?.source,'measured-original-skinned-coupled-knee-foot');
- assert.equal(accepted?.oppositeShoePreserved,true);
- assert.equal(accepted?.contactLocked,false);
- assert.ok(accepted.afterToeY<source.floorTopY-.06,
-  'measured trial is still deeply buried; never report a plant');
- assert.ok(accepted.toeLiftMeters-accepted.sourceHeelRiseMeters>.013);
+ assert.equal(accepted,null,
+  '100ms permits 300mrad; earlier 360mrad synthetic foot must fail closed');
+ assert.ok(Math.abs(measured.footRad)>3*source.frameInterval);
  // A bare heel-dominant twitch, source loss or different clip does not
  // acquire the authentic original 100ms pitch gate.
  for(const bad of [{sourceWeight:.8},{frameInterval:.30},
@@ -1082,10 +1066,9 @@ test('RED: 390px world-sole-verified shallow-deep native swing gets two bounded 
  // toe/heel and opposite-shoe results before the renderer may own this pose.
  const hypothetical={...angles[1],after:after(.028,.008)};
  const accepted=choose({...scene,starter,trials:[hypothetical]});
- assert.equal(accepted?.source,'measured-original-skinned-coupled-knee-foot');
- assert.equal(accepted?.contactLocked,false);
- assert.ok(accepted.afterToeY<scene.floorTopY,
-  'the source toe remains below stone; this is strictly NOT a foot-plant certificate');
+ assert.equal(accepted,null,
+  'proposed 16.7ms 340mrad GLB foot trial is a snap, not a verified correction');
+ assert.ok(Math.abs(hypothetical.footRad)>3*scene.frameInterval);
  for(const denied of [
   {sourceWorldSolePitchVerified:false},{sourceFootTrackVerified:false},
   {sourceBindVerified:false},{sourceInstanceSame:false},
@@ -1135,10 +1118,9 @@ test('RED: original-world-sole-certified shallow 390px swing can keep genuine me
  const candidate={upperRad:-.11,lowerRad:.11,footRad:.34,
   after:after(.014,.006)};
  const accepted=choose({...original,starter,trials:[candidate]});
- assert.equal(accepted?.source,'measured-original-skinned-coupled-knee-foot',
-  'accept ONLY actual final-skinned positive outsole-pitch rescue, not invented plant');
- assert.equal(accepted.contactLocked,false);
- assert.ok(accepted.afterToeY<original.floorTopY);
+ assert.equal(accepted,null,
+  '16.7ms 340mrad source foot violates rate safety despite synthetic outsole pitch');
+ assert.ok(Math.abs(candidate.footRad)>3*original.frameInterval);
  for(const rejected of [
   {sourceWorldSolePitchVerified:false},
   {sourceClipName:'Idle'},{sourceWeight:.8},{rootTravel:0},
