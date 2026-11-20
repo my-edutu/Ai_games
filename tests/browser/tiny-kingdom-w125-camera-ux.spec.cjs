@@ -94,6 +94,14 @@ test('W125 390px touch buttons, two-finger dolly/pan, reduced motion, and real s
   expect(box.y+box.height,id).toBeLessThanOrEqual(844);
  }
  expect(await page.locator('#world').evaluate(el=>getComputedStyle(el).touchAction)).toBe('none');
+ // The original playback/follow controls intentionally live inside the
+ // 390px accessible Controls disclosure. Exercise the real UI action
+ // instead of demanding a permanently expanded bottom ribbon.
+ const transportDisclosure=page.locator('#mobile-transport-disclosure');
+ await expect(transportDisclosure).toBeVisible();
+ await expect(transportDisclosure).toHaveAttribute('aria-expanded','false');
+ await transportDisclosure.click();
+ await expect(transportDisclosure).toHaveAttribute('aria-expanded','true');
  for(const id of ['pause','focus','command-toggle','world-trace-toggle']){
   const rect=await page.locator('#'+id).boundingBox();
   expect(rect,id+' must have an actionable phone touch rectangle').not.toBeNull();
