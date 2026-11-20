@@ -218,6 +218,16 @@ for (const viewport of viewports) {
           anchorPosition: d.passage.anchorPosition,
           focusPosition: d.passage.focusPosition } : null,
         observedOriginalGpuGatewayRetention: d.world?.retainedSourceCap ?? null,
+        // P0 diagnostic: the latest untouched native WebM shows a purple
+        // shaft while genuine old gateway, actor and F9 roof each project
+        // inside the camera. Record the REAL candidate camera decision and
+        // actual source-owned non-walkable undercroft ray verdict alongside
+        // that same sampled immutable source tick. These are not painted
+        // pixels, independent reviewers or proof of a physical crossing.
+        observedOriginalGatewayCameraBridge: d.originalGatewayCameraBridge ?? null,
+        observedSourceOwnedSuccessorUndercroft:
+          d.world?.sourceOwnedSuccessorUndercroft ?? null,
+        observedSuccessorDeckCamera: d.successorDeckCamera ?? null,
         // Unlike 1Hz camera samples, this is a rolling array of genuine
         // returned WebGL frames from the same source crossing. Retain the
         // entire first episode even if the second begins after restart.
@@ -609,6 +619,39 @@ for (const viewport of viewports) {
   // No watermark, fake actor, HUD, source mutation or altered video frames.
   // Browser samples are NOT calibrated to native WebM presentation timestamps.
   const returnedDoorway=summarizePhysicalDoorwaySubmissions(observations);
+  // Source-coupled *observations* only: never extrapolate a 1Hz poll into a
+  // GPU-return or a matching original WebM frame. This separates a genuinely
+  // never-proposed historical camera from a physically vetoed one, and a
+  // source-owned panel with zero accepted rays from a still-opaque occluder.
+  // It does not influence the autonomous climber, game camera or recording.
+  const opticalSamples=observations
+    .filter(o=>o.floor===8||o.floor===9)
+    .filter(o=>o.observedOriginalGatewayCameraBridge ||
+      o.observedSourceOwnedSuccessorUndercroft)
+    .map(o=>({
+      sourceTick:o.tick,runToken:o.runToken,sourceFloor:o.floor,
+      browserObservedAtMs:o.atMs,
+      actualCameraBridge:o.observedOriginalGatewayCameraBridge,
+      originalGpuGateway:o.observedOriginalGpuGatewayRetention
+        ?{sourceTick:o.observedOriginalGpuGatewayRetention.sourceTick,
+           guardianGateRetained:o.observedOriginalGpuGatewayRetention.guardianGateRetained,
+           originalGatewayOpacity:o.observedOriginalGpuGatewayRetention.originalGatewayOpacity,
+           submittedFrames:o.observedOriginalGpuGatewayRetention.submittedFrames}
+        :null,
+      undercroft:o.observedSourceOwnedSuccessorUndercroft,
+      successorCamera:o.observedSuccessorDeckCamera,
+      caveat:'At sampling time only, not event-to-native video temporal alignment'
+    }));
+  fs.writeFileSync(path.join(dir,'physical-gateway-optical-owner-samples.json'),
+    JSON.stringify({
+      sourceSha:process.env.TOWER_CAPTURE_SOURCE_SHA||process.env.GITHUB_SHA||null,
+      scenario,viewport:viewport.name,
+      originalVideoUnmodified:true,
+      sampleCount:opticalSamples.length,
+      observations:opticalSamples,
+      verdict:'NOT EVALUATED',
+      next:'Compare the sampled returned-original-camera acceptance/veto and real skirt-ray evidence against unchanged native 1x frame sequence; 1Hz samples cannot themselves prove continuity.'
+    },null,2));
   fs.writeFileSync(path.join(dir,'physical-doorway-submissions.json'),
     JSON.stringify({
       sourceSha:process.env.TOWER_CAPTURE_SOURCE_SHA||process.env.GITHUB_SHA||null,
