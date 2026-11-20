@@ -8210,5 +8210,52 @@
     },
     "deviceP50P95P99AndMemory": "NOT EVALUATED",
     "next": "Inspect new candidate unmodified 1x films and strict pair-source-events; if still fails, reconstruct actual F8 retained-gateway and F9 roof silhouette/ownership together rather than more speculative camera-only patches"
+  },
+  "p0RealSourceCompleteThreeDimensionalReceivingRoof20261120_2029": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateProductionSha": "c0705e62ef82063aee119d8618aa9ece1afefac7",
+    "candidateRef": "${{ github.sha }}",
+    "priorExactCandidateRun": "https://github.com/my-edutu/Ai_games/actions/runs/44799728426",
+    "priorSourceSha": "e1f96ec2a33f37fb50ec14ebfb534d6f3ebabc1b",
+    "priorOriginalDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44799728426/artifacts/14660531536",
+    "priorStrictNativePairing": "FAILED 0/2 desktop/portrait; 8/8 source timeline pairs and 9 evidence jobs succeeded; source-to-visible-scene transition not accepted",
+    "actualFootageObservation": "Unedited candidate 25fps original 960x600 and 390x844 films: at ~26.30s bronze F8 original cap/gate and moving character occupy a narrower roof; at ~26.50s giant incoming violet annular roof/rim/gasket replaces the composition in ONE video step. Portrait foreground bronze posts still interrupt the hero. No authentic sustained gate+whole-body+receiving platform original shot.",
+    "primaryPhysicalGap": "Only real F9 top sector had three material bands; ONE entire original structural steel rim, load beam and luminous gasket remained full-span and used one nearly violet material, defeating the visual roof join. Retirement cleared only top shader, leaving old warmth on other roof channels.",
+    "playableProductionChange": "Partition original f9:ground three noninteractive visible material channels into EXACT same three source-owned top angular spans. Original bronze threshold, intermediate destination and real Void roof carry steel rim, support beam, luminous light together. Reset all roof-owned channels on genuine old gate retirement, including glowing underside; no new collider/platform, guardian win, source tick, AI pose, hazard or separate camera clock.",
+    "files": [
+      "public/infinite-tower-climb/visuals/source-physical-receiving-roof.mjs",
+      "public/infinite-tower-climb/visuals/world.mjs",
+      "tests/phase3/tower-original-receiving-roof-join.test.cjs"
+    ],
+    "firstQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44804575161 (running at first inspection; no pass claimed)",
+    "matchedCapture": {
+      "seed": "tower-transformation-capture-v1",
+      "graphicsTier": "low",
+      "fps": 25,
+      "speed": 1,
+      "desktop": "960x600",
+      "portrait": "390x844",
+      "minimumSeconds": 60,
+      "scenes": [
+        "ascent",
+        "moving",
+        "danger",
+        "outcome/restart"
+      ],
+      "frozenBaseline": "1731b380851162741761c5569e2bc152a0869ca9"
+    },
+    "captureTrigger": "Exact github.sha of THIS request commit, never moving branch; original baseline immutable",
+    "videoCriteria": "Continuous unedited normal-speed 3-subject source-gate/hero/true roof crossing with no hard material jump; strict event-matched native frames in both viewports; full cycle/restart verified",
+    "performance": "Six additional noninteracting mesh draws plus six material clones ONLY on real source-certified shared F9 receiving roof; actual-device CPU/GPU p50/p95/p99 and memory NOT EVALUATED",
+    "independentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "postChangeNativeResult": "NOT EVALUATED. Await actual new candidate and frozen baseline films, then inspect frame-by-frame.",
+    "nextHighestImpactAction": "Inspect exact SHA nine-job 25fps event-paired full videos at 26.1-27.0s; quantify whether full old gate+moving hero+roof now survive consecutive frames. If abrupt platform geometry swap persists, repair source-owned old/new scene overlap and ring silhouette as one physical arch, not another camera-only/cosmetic adjustment.",
+    "constraints": "No merge, deployment, force push, baseline movement, PR58 rewrite, draft conversion or unrelated-game edit."
   }
 }
