@@ -2595,11 +2595,41 @@ function realWorkerFacing(p){
 // merely different GPU bone matrices. Key both retained full and compact
 // buffers to the precise AUTHORITATIVE work stage and short-lived event
 // window. Never reanimate a fictional sale or alter the game's saved world.
+// W499 Phase 1: this is a PRESENTATION-ONLY index of ACTUALLY earned work.
+// Before this renderer change, each real resident's GPU bind-key probe
+// rescanned every recorded work event, repeatedly during a single rendered
+// frame. Index the exact same [0,1.5] hour window once per genuine epoch.
+// The small Set cannot create production, tools, stock or fictitious people.
 function originalWorkToolTopologyKey(p){
  const stage=isWorkingAtSite(p)?getAuthenticWorkGesture(p).stage:'off';
- const earned=workdayEvents.some(e=>e.citizen===p.name&&
-  state.t-e.time>=0&&state.t-e.time<=1.5);
+ const first=workdayEvents[0],last=workdayEvents[workdayEvents.length-1];
+ const epoch=typeof presentationEpoch==='number'?presentationEpoch:-1;
+ let memo=originalWorkToolTopologyKey._eventIndex;
+ if(!memo||memo.events!==workdayEvents||memo.epoch!==epoch||
+    memo.time!==state.t||memo.length!==workdayEvents.length||
+    memo.first!==first||memo.last!==last){
+  const names=new Set();
+  for(const e of workdayEvents){
+   if(!e||!Number.isFinite(e.time))continue;
+   const age=state.t-e.time;
+   if(age>=0&&age<=1.5)names.add(e.citizen);
+  }
+  memo={events:workdayEvents,epoch,time:state.t,
+   length:workdayEvents.length,first,last,names};
+  originalWorkToolTopologyKey._eventIndex=memo;
+  originalWorkToolTopologyKey._indexBuilds=
+   (originalWorkToolTopologyKey._indexBuilds||0)+1;
+ }else originalWorkToolTopologyKey._indexHits=
+  (originalWorkToolTopologyKey._indexHits||0)+1;
+ const earned=memo.names.has(p.name);
  return stage+'|'+(earned?'earned-original-tool':'no-recent-tool');
+}
+function getOriginalWorkToolIndexAudit(){
+ const fn=originalWorkToolTopologyKey,memo=fn._eventIndex;
+ return {source:'actual-work-events-current-epoch-index',
+  actualEventCount:workdayEvents.length,indexedNames:memo?.names.size||0,
+  builds:fn._indexBuilds||0,reuses:fn._indexHits||0,
+  expiresAfterHours:1.5,authorityChanged:false,drawsNoFictionalActors:true};
 }
 function realWorkerPoseKey(p,i){
  // The worker's legitimate time/occupation/IK beat define bone topology.
@@ -2607,9 +2637,10 @@ function realWorkerPoseKey(p,i){
  return [i,p.name,p.job,p.activity,p.target?.[0],p.target?.[1],
   workingSkinCapable?'joint-matrix-v1':'cpu-original',
   originalWorkToolTopologyKey(p),
-  // Actual hourly phase still drives every joint. Only visually significant
-  // garment/face/weather/tool topology revisions rebake the original mesh.
-  workingSkinCapable?Math.floor((state.t+i*.23)/1.5):Math.floor(p.phase/.75),
+  // All actual hourly work and gait phases still drive the 13 GPU joints.
+  // Do not bake one new full CPU body every 1.5 hours with identical real
+  // tool/coat topology: event expiry, craft stage and weather remain keyed.
+  workingSkinCapable?'retained-original-joint-bind':Math.floor(p.phase/.75),
   workingSkinCapable?(p.job==='craftsperson'&&actualForgeHandTarget(p)?
     Math.floor(Math.min(2,p.workTimer/workDuration(p)*3)):0):
    Math.floor(p.workTimer/.55),

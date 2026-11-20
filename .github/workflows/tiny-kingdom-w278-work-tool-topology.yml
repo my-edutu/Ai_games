@@ -4,6 +4,7 @@ on:
     paths:
       - public/tiny-kingdom/index.html
       - scripts/tiny-kingdom-w278-work-tool-topology.cjs
+      - scripts/tiny-kingdom-w499-work-bind-retention.cjs
       - .github/workflows/tiny-kingdom-w278-work-tool-topology.yml
 jobs:
   true-original-geometry-contract:
@@ -15,4 +16,6 @@ jobs:
         with:
           node-version: '22'
       - name: Real work phase tool topology and full game syntax
-        run: node scripts/tiny-kingdom-w278-work-tool-topology.cjs
+        run: |
+          node scripts/tiny-kingdom-w278-work-tool-topology.cjs
+          node scripts/tiny-kingdom-w499-work-bind-retention.cjs
