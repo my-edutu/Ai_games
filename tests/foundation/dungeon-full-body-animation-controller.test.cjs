@@ -6998,17 +6998,13 @@ test('RED: verified source knee+foot can recover a deeply buried swing without l
  const harmful={upperRad:-.075,lowerRad:.09,footRad:-.18,
   after:after(.027,.055)};
  const proof=choose({...gate,trials:[harmful,valid]});
- assert.equal(proof?.upperRad,-.075);
- assert.equal(proof?.lowerRad,.09);
- assert.equal(proof?.footRad,.18);
- assert.ok(proof.toeLiftMeters>.06);
- assert.ok(proof.sourceHeelRiseMeters<.005);
- assert.equal(proof.oppositeShoePreserved,true);
- assert.equal(proof.contactLocked,false);
+ assert.equal(proof,null,
+  '16.6ms original 180mrad foot (10.84rad/s) and 90mrad knee (5.42rad/s) cannot be displayed as one continuous source frame');
+ assert.ok(Math.abs(valid.footRad)>3*gate.frameInterval);
  assert.equal(choose({...gate,trials:[harmful]}),null,
   'a sole-still-buried and heel-amplifying original source chain is not an improvement');
- assert.equal(choose({...gate,trials:[valid]})?.footRad,.18,
-  'independent final skinned-shoe readback must be separately certifiable');
+ assert.equal(choose({...gate,trials:[valid]}),null,
+  'a measured two-shoe lift is not permission to snap source joints');
  for(const bad of [
   {sourceClipName:'Idle'},{sourceWeight:.8},{ownerLocomotion:false},
   {sourceInstanceSame:false},{sourceFootTrackVerified:false},
@@ -7125,10 +7121,9 @@ test('RED: original three-joint source heel-pitch rejection retargets bounded so
  const hypothetical={upperRad:-.11,lowerRad:.11,footRad:.24,
   after:after(.03,.002)};
  const possible=choose({...owner,trials:[hypothetical]});
- assert.equal(possible?.sourceJointCount,3,
-  'a FUTURE measured connected original thigh/calf/foot could qualify, not a foot plant');
- assert.equal(possible?.oppositeShoePreserved,true);
- assert.equal(possible?.contactLocked,false);
+ assert.equal(possible,null,
+  '16.6ms source joints cannot suddenly apply a 240mrad foot angle without certified previous-frame continuity');
+ assert.ok(Math.abs(hypothetical.footRad)>3*owner.frameInterval);
  for(const unsafe of [
   {sourceFootTrackVerified:false},{sourceBindVerified:false},
   {sourceInstanceSame:false},{reducedMotion:true},{interrupted:true},
