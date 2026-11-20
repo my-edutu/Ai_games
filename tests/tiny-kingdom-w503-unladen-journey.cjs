@@ -21,6 +21,12 @@ assert.match(html,/if\(!isOriginalUnladenTravelStage\(p\)\|\|/,
  'original compact commuter receives the same truthful route policy');
 assert.match(html,/const moving=isOriginalUnladenTravelStage\(p\);/,
  'original fully sculpted worker consumes the same truthful route policy');
+const browser=fs.readFileSync(path.resolve(__dirname,
+ 'browser/tiny-kingdom-w221-original-commuter-gpu.spec.cjs'),'utf8');
+assert.match(browser,/g\.exportSnapshot\(\)\.payload\.people\.find\(/,
+ 'genuine traveler test MUST read full validated authority not stripped getState');
+assert.doesNotMatch(browser,/g\.getState\(\)\.people\.find\(/,
+ 'stripped HUD people never expose path or activity');
 assert.match(html,/originalNames:commuterResidentVisible\.map\(row=>row\.p\.name\)/,
  'read-only audit identifies exactly which genuine persons were rendered');
 console.log('W503 source contract PASS: actual empty-handed market/home work commute, no fake hands, shared render eligibility. Gameplay/physical FPS unproven.');

@@ -31,7 +31,10 @@ for(const width of [1024,390]){
     for(let k=0;k<180;k++){
      g.step(1/30);
      if(k%3)continue;
-     const p=g.getState().people.find(person=>{
+     // getState() is a MINIMAL map projection (name, job, x/z, target).
+     // It intentionally contains NO activity, provisions or path. Inspect
+     // the ORIGINAL validated snapshot, not a synthetic/stripped citizen.
+     const p=g.exportSnapshot().payload.people.find(person=>{
       const activity=person.activity||'';
       return !person.delivery&&!(Number(person.provisions)>0)&&
        (/^(Traveling to |Exploring the valley$|Returning home at dusk$)/.test(activity)||
@@ -51,7 +54,7 @@ for(const width of [1024,390]){
     return {commuter:g.getResidentCommuterAudit(),
      foreground:g.getForegroundSkinAudit(),
      savedChecksum:g.exportSnapshot().checksum,
-     people:g.getState().people.map(p=>({name:p.name,activity:p.activity})),
+     people:g.exportSnapshot().payload.people.map(p=>({name:p.name,activity:p.activity})),
      triangles:g.renderStats().lastFrameTriangles,profile:g.getFrameProfile().latest};
    });
    const names=[...observed.commuter.originalNames,...observed.foreground.names];
