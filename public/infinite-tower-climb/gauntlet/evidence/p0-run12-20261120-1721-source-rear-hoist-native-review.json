@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH",
+  "stageVerdict": "OPEN",
+  "leadingAssessorVerdict": "NOT EVALUATED",
+  "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "previousHeadSha": "420d61460a9d0fdf357918744a548a96822a33b7",
+  "productionSourceSha": "064f32068985fe224a2162dcd204512f337312bf",
+  "evidenceCommitSource": "Source-pinned gameplay request should use the exact immutable HEAD of this evidence commit",
+  "nativeOriginalCampaign": {
+    "url": "https://github.com/my-edutu/Ai_games/actions/runs/44771877397",
+    "exactCandidateSha": "420d61460a9d0fdf357918744a548a96822a33b7",
+    "candidateDangerArtifactId": 14648532575,
+    "inspected": "Original desktop and portrait WebM sampled frames 23.0–28.5s; native video-clock and scene-phase JSON directly read; NOT a full-motion independent review.",
+    "desktop": {
+      "sampledHudF9Seconds": 25.75,
+      "sampledVioletSeconds": 26.5,
+      "retainedGateOriginalWebglSamples": 5
+    },
+    "portrait": {
+      "sampledHudF9Seconds": 25.5,
+      "sampledVioletSeconds": 26.25,
+      "retainedGateOriginalWebglSamples": 4
+    },
+    "chromaticSharedWarmCoolSeconds": 0,
+    "strictSourceNativePairing": "FAILED 0/2",
+    "acceptance": "NOT EVALUATED"
+  },
+  "reproducedSourceGeometry": {
+    "wingOpenHeightMetres": 5.85,
+    "wingGroupZ": -1.97,
+    "oldTransformedBarZMetres": 0.251,
+    "correctedTransformedBarZMetres": -4.191,
+    "correctedTransformedBarXMetres": [
+      -7.113,
+      7.113
+    ],
+    "newGuideZMetres": -4.1,
+    "guideXMetres": [
+      -7.15,
+      7.15
+    ],
+    "note": "Original live 3D lattice transform, not synthetic gameplay or filmed result"
+  },
+  "change": "Correct mirrored source-winch leaf yaw direction and attach original outboard rails to actual stored 3D bar positions; explicit phase3 source-world geometric expectations; no mechanics/physics authority changed.",
+  "exactHeadCi": {
+    "workflow": "https://github.com/my-edutu/Ai_games/actions/runs/44775397706",
+    "status": "QUEUED AT INSPECTION, not claimed passed"
+  },
+  "requestedNativeCapture": "Immutable PR68 evidence commit triggered by capture-request JSON; 9 jobs; candidate SHA must equal exact commit, not a mutable branch",
+  "remainingEvidenceGaps": [
+    "full native consecutive-frame opened gateway + complete moving climber + original F9 roof together desktop and portrait",
+    "strict source-to-pixel event alignment 0/2 previous",
+    "full ascent/obstacle/guardian/outcome/restart at 1x in matched original videos",
+    "actual device p50/p95/p99 memory, portrait accessibility",
+    "five genuinely independent each LOOKS/FEELS/PLAYS"
+  ],
+  "independentReviews": {
+    "LOOKS": 0,
+    "FEELS": 0,
+    "PLAYS": 0
+  },
+  "actualDevice": "NOT EVALUATED",
+  "nextHighestImpactAction": "Inspect new 9-job native footage and exact CI, then repair real threshold architecture receiving-room foreground if joint continuity still fails.",
+  "prohibitedActionsPreserved": true
+}

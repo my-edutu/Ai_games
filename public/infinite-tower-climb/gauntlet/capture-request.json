@@ -1,4 +1,39 @@
 {
+  "p0ActualRearPocketBronzeWingSourceVerified20261120_1721": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceProductionSha": "064f32068985fe224a2162dcd204512f337312bf",
+    "candidateRef": "${{ github.sha }}",
+    "priorOriginalNativeCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44771877397",
+    "priorOriginalNativeDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44771877397/artifacts/14648532575",
+    "observedDefect": "On authentic SHA 420d614 source-pinned original WebMs: zero sustained bronze-to-violet shared-room chromatic overlap; physical bronze grille/rails remain across portrait walking corridor; unedited desktop changes around 25.75–26.50 s and portrait 25.50–26.25 s; strict native source pairing 0/2.",
+    "productionCorrection": "Actual left/right original grille upright rotated into rear (-Z) counterweight/hoist pockets, not in front of moving climber: source winch-driven mirrored yaw now side*1.24*aperture, rear steel centroid z=-4.191 vs former +0.251, rear physical guide z=-4.10. Living guardian lock/restart/physics unchanged; retrospective footage is BEFORE correction.",
+    "sourceTestRequirement": "Exact phase3 guardian source-winching and Three.js world checks plus newly mirrored live and stored leaf geometric tests; CI is veto not visual PASS.",
+    "requestedOriginalCaptureConditions": {
+      "seed": "tower-transformation-capture-v1",
+      "graphicsTier": "low",
+      "desktop": "960x600",
+      "portrait": "390x844",
+      "fps": 25,
+      "speed": 1,
+      "minimumDurationSeconds": 60,
+      "scenarios": [
+        "ascent",
+        "moving",
+        "danger",
+        "outcome/restart"
+      ]
+    },
+    "nativeAcceptance": "Full untouched candidate+frozen source WebMs, strict source native event matching; genuine physically opened old gate, fully drawn moving hero and collision-grounded Floor9 roof together on consecutive frames, no fully violet hard cut, no front steel; actual source must show post-F9 onward and restart.",
+    "independentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDeviceFrameTimeAndMemory": "NOT EVALUATED",
+    "constraints": "NO baseline move, PR58 modification, Tiny Kingdom/Maze/AI vs 1000 Floors edits, merge, deploy, force push or draft conversion."
+  },
   "p0OriginalGuardianPocketsNativeFloorNineThreeSubject20261120_1652": {
     "stage": "P0 OPEN — NOT EVALUATED",
     "frozenBaselineRef": "1731b380851162741761c5569e2bc152a0869ca9",
