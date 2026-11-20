@@ -203,6 +203,27 @@ test('one real returned Floor8 renderer frame prepares bounded original gallery 
     assert.ok(world.group.getObjectByName('OriginalSourceClockworkThresholdGallery')?.isGroup);
   }finally{world.dispose();}
 });
+test('a source-authentic but never returned Floor8 WebGL frame cannot lend an unrendered gallery to the first Floor9 GPU shot',async()=>{
+  const [{createTowerWorld}]=await loaded;
+  const first=old(),second=next(),world=createTowerWorld();
+  try{
+    world.update(first,.05,0,{quality:'low'});
+    const awaiting=world.diagnostics().originalClockworkGalleryPrebuild;
+    assert.equal(awaiting.state,'prepared-from-actual-floor-eight-source-awaiting-webgl-return');
+    assert.equal(awaiting.stillOwnedByPrebuild,true);
+    // No world.noteFrameSubmitted(first) was issued. CPU source geometry is
+    // not proof of original bronze pixels ever reaching the GPU.
+    assert.equal(world.stageGroundedCapContinuation(first,second),true);
+    world.update(second,.05,.05,{quality:'low'});
+    const after=world.diagnostics();
+    assert.equal(after.originalClockworkGalleryPrebuild.state,
+      'cold-fallback-original-source-rebuild',
+      'only a real returned original F8 frame authorizes the cheaper cached handoff');
+    assert.equal(after.originalClockworkGalleryPrebuild.stillOwnedByPrebuild,false);
+    assert.ok(after.retainedSourceCap?.originalGalleryTriangles>0,
+      'an actual source HP-zero crossing still retains the real original geometry');
+  }finally{world.dispose();}
+});
 test('prepared old gateway gallery is discarded on changed run or invalid source, never attached as a ghost victory',async()=>{
   const [{createTowerWorld}]=await loaded;
   const world=createTowerWorld();
