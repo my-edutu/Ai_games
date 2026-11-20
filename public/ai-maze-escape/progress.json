@@ -1,12 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-20T07:46:00.000Z",
+  "updatedAt": "2026-11-20T09:28:48.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass528 exact ac330bca native WebGL #44694062434 SUCCESS: original artifact ZIP SHA 8d90647b51bc18209f279c8cb95c4b2936fd823b02c51d489c43e003d9b1d3c1; 42/42 full PNG sidecars and 3/3 authentic gate hashes verified. Real 390 first impact stage shifted +0.282 NDC up with both full actors inside unchanged +/-0.95: genuine scene-composition gain, NOT fixed Nintendo parity. Visual critic rejects copper/mint Thornback face; Pass529 candidate performs truthful, physically connected full-body recoil, shoulder/foliage clearance and facial gaze on witnessed parry only. New exact Pass529 WebGL/CI/independent critic pending. Whole CI red at separate Tiny Kingdom OBS."
+    "summary": "Pass529 exact-HEAD 46fdd530 native WebGL #44699486040 SUCCESS: original artifact ZIP SHA f5173e764f85e57c76d41c97ad6aee8a91731fe82346b4a5255c86ea25c61e5f; all 45 image hash references verified on original full PNGs (42 sidecars + three real gate frames). Native 390 counter stage still small and shield recoil inert. Whole CI #44699485826 failed a REAL Maze strict older guard-motion assertion (>0.65rad), not Tiny Kingdom. Pass530 production candidate restores visibly forceful connected DOWN/OUT guardian shield release at genuine public lantern contact and preserves the unchanged older budget/test; fresh CI/native render/independent critique pending. Nintendo bar rejected."
   },
   "captures": [
-    {"title":"Pass528 exact source ac330bca original 320/390/844/1280 WebGL: 42/42 full PNG and 3/3 genuine gate SHA verified, real 390 earned stage +0.282 NDC; face still rejected, Pass529 original physical recoil candidate pending","url":"https://github.com/my-edutu/Ai_games/actions/runs/44694062434/artifacts/14610862028"},
+    {
+      "title": "Pass529 original 46fdd530 native WebGL SUCCESS: 45/45 full-size PNG SHA matches and genuine 390 tick93→94 parry; whole CI Maze guard-motion regression identified, Pass530 physical release awaiting render",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44699486040/artifacts/14612422600"
+    },
+    {
+      "title": "Pass528 exact source ac330bca original 320/390/844/1280 WebGL: 42/42 full PNG and 3/3 genuine gate SHA verified, real 390 earned stage +0.282 NDC; face still rejected, Pass529 original physical recoil candidate pending",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44694062434/artifacts/14610862028"
+    },
     {
       "title": "Pass527 exact c6965c0b authentic 320/390/844/1280 native WebGL: all original 42 PNG hashes and 3 gate images verified; crowded initial counter REJECTED; Pass528 source-stage response pending",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44688073859/artifacts/14607532703"

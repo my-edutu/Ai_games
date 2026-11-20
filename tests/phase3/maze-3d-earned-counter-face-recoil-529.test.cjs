@@ -32,15 +32,17 @@ test('Pass529 real published lantern counter reveals complete beetle face and co
       const camera={x:0,z:-10};
       const pose=opt=>{w.update({...base,...opt});return {
         bodyYaw:body.rotation.y,faceYaw:head.rotation.y,
-        guard:guards[0].rotation.x,fin:fronds[0].rotation.z,
+        guard:guards[0].rotation.x,guardFan:guards[0].rotation.z,
+        fin:fronds[0].rotation.z,
         eyes:lens.material.emissiveIntensity}};
       const hit=pose({counterPhase:.20,viewerPosition:camera});
       assert.ok(hit.bodyYaw>1.3&&hit.bodyYaw<1.7,
         'actual source-earned parry turns the full connected shell toward the view');
       assert.ok(Math.abs(Math.PI-hit.bodyYaw-hit.faceYaw)<.6,
         'connected upper mask faces camera, not hidden dorsal shell');
-      assert.ok(Math.abs(hit.guard)<.20,
-        'impact drops the formerly blocking armor shields from its face');
+      assert.ok(hit.guard>1.08&&hit.guard<1.25
+        &&Math.abs(hit.guardFan)>1.20,
+        'genuine impact must fold the connected armor DOWN and OUT from the face, not freeze or hide it');
       assert.ok(hit.fin<-.65,'both physically attached sea-glass screens sweep aside');
       assert.ok(hit.eyes>2.3,'visible optical expression answers the earned hit');
       assert.deepEqual(w.group.position.toArray(),[0,0,0],

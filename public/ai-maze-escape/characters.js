@@ -960,16 +960,25 @@ export function createWarden(options = {}) {
     const defensiveSweep=parried
       ?counterLoad*(1-counterCollapse)*(1-.92*counterFaceCue)*alert
       :plantedClaws*alert;
-    // The connected forward guards lift on the middle public beat and
-    // fold flat when shell-release begins. Rest and withdrawal are exact
-    // neutral rotations, with no new objects in the animation loop.
+    // A physically earned lantern hit must do more than make the guards
+    // disappear: the FULL connected shoulder plates are knocked DOWN and
+    // OUT to either side of the actual bronze face while the eyes respond.
+    // Previous Pass529 suppressed their hinge rotation by 92%, which left
+    // the live full-body impact inert and broke the strict existing load ->
+    // withdrawal contract. Reverse the hinge direction on the witnessed hit,
+    // then let it recover with the SAME real counter clock.
+    // Unknown, reduced, terminal and expired events have no counterFaceCue;
+    // ordinary public warning/brace retains its existing upward guard pose.
+    const earnedShieldDrop=counterPhase===null?0:counterFaceCue*(1-counterCollapse);
     for (const {guard,side} of shoulderGuards) {
-      guard.rotation.x=defensiveSweep>0?-defensiveSweep*1.45:0;
-      // Real native Pass159 braces showed these upper shields as one flat
-      // horizontal bar. Fan the two *connected* panels into a strong V,
-      // not an extra enemy, attack or UI warning. Retain the full x-axis
-      // plant: neither safety bounds nor the fixed visual bar is relaxed.
-      guard.rotation.z=defensiveSweep>0?side*defensiveSweep*1.35:0;
+      guard.rotation.x=earnedShieldDrop>0
+        ?earnedShieldDrop*1.18 : defensiveSweep>0?-defensiveSweep*1.45:0;
+      // Both actual 3D panels pivot OUT, away from the articulated mask,
+      // rather than drawing a false impact billboard or blocking the eyes.
+      // The actor root, public threat knowledge and resources are unchanged.
+      guard.rotation.z=earnedShieldDrop>0
+        ?side*earnedShieldDrop*1.30
+        :defensiveSweep>0?side*defensiveSweep*1.35:0;
     }
     // Real 390px chronological WebGL review: the old .38-open initial
     // wings looked nearly the same as the release beat at gameplay scale.
