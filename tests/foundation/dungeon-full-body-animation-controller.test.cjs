@@ -7694,3 +7694,45 @@ test('RED: consecutive real original Walking_A root microsteps earn a bounded ph
  assert.match(actualRenderer,/rigRecentGroundedTravel/,
   'existing source-skinned dual-shoe trials remain the final physical verifier');
 });
+
+
+// Original exact-head native Chromium #44684132376, mobile nine-tick Walking_A
+// tick 6: 16.6ms displayed interval, authentic original 41-joint source
+// GLB right swing shoe. The earlier linked hip(-.11)/knee(+.11)/foot(+.34)
+// probe was independently re-skinned and accepted: +16.339mm toe and
+// +6.344mm already-airborne heel; both other shoe points unchanged.
+// A +.34rad foot delta inside 16.6ms would be 20.48rad/s, even while the
+// newer native counterpitch respects 3rad/s. A final-skin certificate must
+// NOT license an instant 20rad/s full-leg snap, regardless of toe lift.
+// Do not fabricate an earlier source delta or infer a foot plant.
+test('RED: original 60Hz source-skinned three-joint winner cannot bypass native 3rad/s foot slew ceiling',async()=>{
+ const {chooseOriginalSourceCoupledKneeFootSweep:choose}=await load();
+ const left={heelY:.0050005218033072965,toeY:-.0032012961193138914,
+  heelXZ:[-3.733999169799243,-6.963684319410901],
+  toeXZ:[-4.003908038661297,-6.9360690181170765]};
+ const right={heelY:.22949153994484897,toeY:-.07174456325187636,
+  heelXZ:[-3.6798672459807196,-7.119231294190479],
+  toeXZ:[-3.7325611622649237,-7.1412059322454455]};
+ const afterRight={heelY:.23583571947041101,toeY:-.05540564630509541,
+  heelXZ:[-3.6813356515084084,-7.112599375995463],
+  toeXZ:[-3.748592344334106,-7.170535044735858]};
+ const input={mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceChainVerified:true,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceFootTrackVerified:true,sourceBindVerified:true,
+  sourceAnatomicalFootAxisVerified:true,sourceWorldSolePitchVerified:true,
+  ownerLocomotion:true,alive:true,visible:true,teleport:false,
+  reducedMotion:false,interrupted:false,
+  rootTravel:.047529818034770424,frameAge:.0166,
+  frameInterval:.0166,side:'right',floorTopY:-.02,
+  before:{left,right},
+  starter:{source:'actual-original-source-three-joint-swing-opportunity',
+   expectedSourceSkinnedTrials:2,contactLocked:false,sign:-1,
+   excessHeelRiseMeters:.005384682545051311},
+  trials:[{upperRad:-.11,lowerRad:.11,footRad:.34,
+   after:{left,right:afterRight}}]};
+ assert.equal(choose(input),null,
+  'verified skinned 16mm toe relief is not permission to snap a whole source foot 340mrad in 16.6ms');
+ assert.equal(choose({...input,frameInterval:0}),null,
+  'an unwitnessed display interval must never authorize foot motion');
+});
