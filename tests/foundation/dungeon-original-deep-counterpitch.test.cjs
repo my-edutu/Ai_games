@@ -1271,3 +1271,98 @@ test('RED: 183ms real four-joint source toe candidate wins over nearly heel-only
  ]) assert.equal(choose({...owner,trials:[invalid]}),null,
    'anatomical toe gain, supporting shoe and original skinned span must remain bounded');
 });
+
+
+//
+// RED-FIRST: 20 Nov 2026, exact-head b893260f, successful original
+// source-rig #44787027360 / 14656967475, mobile actual nine-tick frame 8.
+// At 150ms the original right Vanguard shoe was +227.414567mm heel and
+// -74.053754mm toe, with real floor at -20mm and intact other shoe.
+// Same original imported GLB reversible probes (not applied) produced:
+// THREE joints (-.11,+.11,+.24): +15.820333mm toe / +13.779615mm heel.
+// FOUR joints + native toesr -.14: +23.042334mm toe / +13.779615mm heel.
+// Thus real native source outsole pitch improves 9.262719mm, toe remains
+// 31.011mm buried. The selector currently discards the fourth candidate
+// solely because old preplanned-toe time/sole gates exclude the 150ms source.
+// Source diagnostic stores genuine Y + XZ shift magnitudes, not endpoint
+// directions; the XZ vectors below are explicitly synthetic fixtures of
+// those REAL magnitudes. They cannot establish after-selected WebGL motion.
+// A final original skinned BOTH-shoe readback still determines live approval.
+test('RED: genuine 150ms original mobile toe child receives safe connected four-joint source-skin selection',async()=>{
+ const {chooseOriginalSourceCoupledKneeFootSweep:choose}=await load();
+ const swing={
+  heelY:.22741456719425943,toeY:-.07405375448477448,
+  heelXZ:[0,0],toeXZ:[.055121549546404705,0]
+ };
+ const support={
+  heelY:.0023645681357605947,toeY:-.008128128144084968,
+  heelXZ:[1,0],toeXZ:[1.27,0]
+ };
+ const trial={
+  upperRad:-.11,lowerRad:.11,footRad:.24,toeRad:-.14,
+  sourcePreplannedToeHingeVerified:true,
+  after:{
+   right:{
+    heelY:swing.heelY+.013779615052801841,
+    toeY:swing.toeY+.023042334399229,
+    heelXZ:[swing.heelXZ[0]+.006299921587769692,0],
+    toeXZ:[swing.toeXZ[0]+.024254963728656178,0]
+   },
+   left:{...support}
+  }
+ };
+ const owner={
+  mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  sourceInstanceSame:true,sourceChainVerified:true,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceFootTrackVerified:true,sourceBindVerified:true,
+  sourceAnatomicalFootAxisVerified:true,
+  sourceWorldSolePitchVerified:true,sourceToeTrackVerified:true,
+  sourceToeChainVerified:true,sourceToeSkinnedWeight:1,
+  ownerLocomotion:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false,
+  rootTravel:.06550995313985952,frameAge:0,
+  frameInterval:.14999999999999858,side:'right',
+  floorTopY:-.02,before:{right:swing,left:support},
+  starter:{
+   source:'actual-original-source-three-joint-swing-opportunity',
+   expectedSourceSkinnedTrials:2,contactLocked:false,sign:-1,
+   excessHeelRiseMeters:.00520045818489747
+  }
+ };
+ const selected=choose({...owner,trials:[trial]});
+ assert.equal(selected?.source,'measured-original-skinned-coupled-knee-foot');
+ assert.equal(selected?.sourceJointCount,4);
+ assert.equal(selected?.toeRad,-.14);
+ assert.equal(selected?.oppositeShoePreserved,true);
+ assert.equal(selected?.contactLocked,false);
+ assert.ok(selected.toeLiftMeters>.023&&selected.toeLiftMeters<.0231);
+ assert.ok(selected.toeLiftMeters-selected.sourceHeelRiseMeters>.0092);
+ assert.ok(selected.afterToeY<owner.floorTopY-.03,
+  'this is source-skin pitch relief, not invented planted contact');
+ for(const invalid of [
+  {sourceToeTrackVerified:false},{sourceToeChainVerified:false},
+  {sourceToeSkinnedWeight:.89},{sourceWorldSolePitchVerified:false},
+  {sourceFootTrackVerified:false},{sourceBindVerified:false},
+  {sourceInstanceSame:false},{sourceClipName:'Idle'},
+  {sourceWeight:.7},{rootTravel:0},{reducedMotion:true},
+  {teleport:true},{interrupted:true},{frameAge:.2},
+  {frameInterval:.10},{frameInterval:.18},
+  {before:{right:{...swing,toeY:swing.toeY-.009},left:support}},
+  {starter:{...owner.starter,excessHeelRiseMeters:.015}}
+ ]) assert.equal(choose({...owner,...invalid,trials:[trial]}),null,
+   'no arbitrary clip/frame, toe, identity or unsafe source span can inherit this real candidate');
+ for(const bad of [
+  {...trial,sourcePreplannedToeHingeVerified:false},
+  {...trial,toeRad:-.32},
+  {...trial,after:{...trial.after,right:{...trial.after.right,
+   toeY:swing.toeY+.018}}},
+  {...trial,after:{...trial.after,right:{...trial.after.right,
+   heelY:swing.heelY+.023}}},
+  {...trial,after:{...trial.after,right:{...trial.after.right,
+   toeXZ:[swing.toeXZ[0]+.045,0]}}},
+  {...trial,after:{...trial.after,left:{...support,
+   toeY:support.toeY+.005}}}
+ ]) assert.equal(choose({...owner,trials:[bad]}),null,
+   'the ACTUAL final both-shoe certificate must reject unsafe toe pitch, heel lift and loaded-foot drift');
+});
