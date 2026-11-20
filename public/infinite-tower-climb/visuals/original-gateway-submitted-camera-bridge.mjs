@@ -149,8 +149,15 @@ export function sourceOriginalGatewayCameraBridge(snapshot,held,prior,view={}) {
   // Retire the original 3D shot with BOTH actually returned display duration
   // and submission count; normal-speed recording must still verify pixels.
   // Keep the prior immutable old-frame/HP0/grounded-support checks above.
-  const timeProgress=Math.min(1,held.visibleSeconds/1.25);
-  const frameProgress=Math.min(1,held.submittedFrames/12);
+  // The real 1x desktop / portrait F9 films arrive about 600ms after the
+  // first successful old-to-new WebGL return, while the old HP-open 3D gate
+  // itself survives the following genuine raised-platform ascent. Match the
+  // SAME finite, returned-frame room-handoff window as the original gate's
+  // material retirement rather than losing the historic lens first.
+  // Existing <20 returned frames, <2.8s, original gate opacity, true HP0,
+  // support, camera/core/physical ray and manual/reduced-motion vetoes stay.
+  const timeProgress=Math.min(1,held.visibleSeconds/1.65);
+  const frameProgress=Math.min(1,held.submittedFrames/18);
   const progress=Math.min(timeProgress,frameProgress);
   const eased=progress*progress*(3-2*progress);
   // The actual original gateway's material coverage is a separate veto:
