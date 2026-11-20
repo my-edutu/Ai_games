@@ -13124,5 +13124,88 @@
       "noForcePush": true,
       "noOtherGames": true
     }
+  },
+  "p0SourceAuthenticatedF8EarlyGalleryPrestageNative20261120_0833": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenBaselineMoved": false,
+    "inspectedPreviousHead": "2319f0668d3029342b0ef2532998e05071ccf78f",
+    "productionCommitSha": "231f19e2f5219f62d806815217973bf02aea710e",
+    "testCommitShas": [
+      "36f778a5024b4281c09110cc60d0f48036ec743e",
+      "a39aa4f5191e4f59df1579fa261db8d627df4076"
+    ],
+    "sourceCampaignReviewed": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44692994077",
+      "candidateSourceSha": "cca4d433adabcf9321fc0f8a8b3ff9bf44cec63b",
+      "matchedUneditedFilms": "8/8 68.2s desktop/portrait source-pinned plus authentic ledge",
+      "sourceToNativeDanger": "FAILED 0/2",
+      "sustainedBronzeToVoidArchitecturalOverlapSeconds": 0,
+      "physicalOpenness": "actual opened bronze doorway, full hero and walkable f9 have not co-appeared in accepted matched frames; portrait historical steel obscures hero",
+      "nativeVioletStartSeconds": {
+        "desktop": 26,
+        "portrait": 26.25
+      }
+    },
+    "actualFirstF9BrowserCPU": {
+      "desktop": {
+        "sourceTick": 476,
+        "sceneUpdateMs": 200.3,
+        "worldRebuildMs": 92.5,
+        "originalSourceCapGatewayTransferMs": 64.4,
+        "formerFloorTeardownMs": 0.1
+      },
+      "portrait": {
+        "sourceTick": 475,
+        "sceneUpdateMs": 202,
+        "worldRebuildMs": 123.5,
+        "originalSourceCapGatewayTransferMs": 73.9,
+        "formerFloorTeardownMs": 0.1
+      },
+      "otherSourceEpisodeTransferMs": {
+        "desktop": 69.3,
+        "portrait": 59.7
+      },
+      "gallery": "cold-fallback-original-source-rebuild with 675 original source triangles",
+      "limits": "Actions Chromium browser CPU, NOT real device GPU/FPS"
+    },
+    "oneSystemicFix": "Source-authentic F8 geometry extraction now prestages bounded same-run original gallery once after actual source world build, but reuse across real first F9 WebGL GPU rebuild is gated on a matching genuinely returned F8 source frame. Invalid/never-submitted F8 falls back to original cold source extraction. No physics, guardian state or invented future floor.",
+    "firstExactHeadCIVeto": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44696744176",
+      "result": "failed Phase3 shard0: two existing real-Three tests assumed gallery can only be created AFTER real F8 return, now corrected with precise CPU-vs-WebGL staging and negative unreturned-gate test"
+    },
+    "newNativeFilm": {
+      "captureSourceSha": "e0b3ff7675ca6626bcc43d16381f7921c8d1a14e",
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44697479639",
+      "result": "NOT EVALUATED — requested, source pinned; no improved native pixels or performance yet"
+    },
+    "newQuality": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44697479647",
+      "result": "PENDING at ledger write; no full green claim"
+    },
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "hardware": {
+      "p50": "NOT EVALUATED",
+      "p95": "NOT EVALUATED",
+      "p99": "NOT EVALUATED",
+      "memory": "NOT EVALUATED"
+    },
+    "evidenceFile": "public/infinite-tower-climb/gauntlet/evidence/p0-verified-f8-prestage-original-native-20261120.json",
+    "reviewFile": "docs/reviews/2026-11-20-tower-pr68-gallery-prestage-native-p0-review.md",
+    "nextHighestImpactAction": "Inspect F8 GPU confirmed prebuild reuse + first Floor9 gallery transfer cost and actual authentic 1x desktop/portrait gateway/hero/walkable F9 native pixels. If still 0s shared room, repair source-owned physical doorway camera/foreground composition together; remain P0.",
+    "safeguards": {
+      "PR68Draft": true,
+      "PR58Untouched": true,
+      "baselineUnchanged": true,
+      "merge": false,
+      "deploy": false,
+      "forcePush": false,
+      "otherGames": false
+    }
   }
 }
