@@ -5042,11 +5042,35 @@ function stageLicensedSourceToeFinisherAfterCounterpitch(actor,reducedMotion){
   Math.hypot(a.toeXZ[0]-b.toeXZ[0],a.toeXZ[1]-b.toeXZ[1])<.001;
  for(const side of ['left','right']){
   const proof=proofs[side],residual=proof?.residualToeBurialMeters;
+  // The normal 2-55mm original-skin finishing window is unchanged. The
+  // independently witnessed 70-82mm source dip may use at most TWO small
+  // native toe-child probes only on a fresh 16-50ms true Walking_A lobe.
+  // The pure certificate still rejects fake clearance, heel drift, stale
+  // root travel, opposite-shoe changes and any attempted foot contact.
+  const deepSourceWindow=residual>.055&&residual<=.095&&
+   Number.isFinite(proof?.sourceClipTimeSeconds)&&(
+    (side==='right'&&proof.sourceClipTimeSeconds>=.03&&
+     proof.sourceClipTimeSeconds<=.335)||
+    (side==='left'&&proof.sourceClipTimeSeconds>=.515&&
+     proof.sourceClipTimeSeconds<=.875))&&
+   Number.isFinite(proof.witnessedFrameIntervalSeconds)&&
+   proof.witnessedFrameIntervalSeconds>=.016&&
+   proof.witnessedFrameIntervalSeconds<=.05&&
+   Number.isFinite(proof.witnessedRootTravelMeters)&&
+   proof.witnessedRootTravelMeters>=.008&&
+   proof.witnessedRootTravelMeters<=.08&&
+   Number.isFinite(proof.witnessedDirectFrameTravelMeters)&&
+   Math.abs(proof.witnessedRootTravelMeters-
+    proof.witnessedDirectFrameTravelMeters)<=.001&&
+   Number.isFinite(proof.witnessedFrameAgeSeconds)&&
+   proof.witnessedFrameAgeSeconds>=0&&
+   proof.witnessedFrameAgeSeconds<=.035;
   if(proof?.source!=='measured-original-licensed-source-counterpitch'||
    proof.sourceInstanceId!==asset.uuid||
    proof.sourceClip!=='Walking_A'||proof.side!==side||
    proof.finalIndependentSourceSkin!==true||
-   !Number.isFinite(residual)||residual<.002||residual>.055)continue;
+   !Number.isFinite(residual)||residual<.002||
+   (residual>.055&&!deepSourceWindow))continue;
   const foot=actor.rigGaitBones?.find(m=>m.side===side&&m.part==='foot')?.bone;
   const lower=actor.rigGaitBones?.find(m=>m.side===side&&m.part==='lower')?.bone;
   const toeName='toes'+(side==='left'?'l':'r');
