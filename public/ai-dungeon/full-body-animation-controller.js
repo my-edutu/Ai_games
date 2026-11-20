@@ -6075,6 +6075,8 @@ export function certifyLicensedSourceSwingCounterpitch({
  * finish only a shallow (2–35mm) remaining burial and may not lift the heel,
  * move the loaded shoe, overshoot the floor, or consume an old frame receipt.
  * The caller must independently repeat the final source-skin measurement.
+ * A genuine 16.7ms moving-root source frame allows up to 50.1mrad at
+ * 3rad/s, so the lower angle gate must not forbid all lawful 60Hz poses.
  */
 export function certifyLicensedCounterpitchToeFinish({
  proof=null,before=null,after=null,side='',sourceInstanceId='',
@@ -6099,7 +6101,7 @@ export function certifyLicensedCounterpitchToeFinish({
   proof.contactLocked!==false||proof.plantCertified!==false||
   sourceClipName!=='Walking_A'||sourceInstanceSame!==true||
   sourceToeTrackVerified!==true||sourceToeBoneParentVerified!==true||
-  !Number.isFinite(angleRad)||Math.abs(angleRad)<.06||
+  !Number.isFinite(angleRad)||Math.abs(angleRad)<.018||
   Math.abs(angleRad)>.160001||
   Math.abs(angleRad)>3*proof.witnessedFrameIntervalSeconds||
   !Number.isFinite(floorTopY)||
