@@ -6097,7 +6097,22 @@ export function certifyLicensedCounterpitchToeFinish({
   proof.sourceOriginalRootTravelWitnessed!==true||
   !Number.isFinite(proof.witnessedFrameIntervalSeconds)||
   proof.witnessedFrameIntervalSeconds<.008||
-  proof.witnessedFrameIntervalSeconds>.240001||
+  proof.witnessedFrameIntervalSeconds>.420001||
+  // Source counterpitch already accepts verified 240–420ms frames. Its
+  // original toes child may continue ONLY that same fresh, measured root
+  // movement, never an old certificate or a mere late rAF callback.
+  (proof.witnessedFrameIntervalSeconds>.240001&&!(
+   proof.sparseFrameVerified===true&&
+   Number.isFinite(proof.witnessedDirectFrameTravelMeters)&&
+   proof.witnessedDirectFrameTravelMeters>=.012&&
+   proof.witnessedDirectFrameTravelMeters<=.24&&
+   Number.isFinite(proof.witnessedRootTravelMeters)&&
+   Math.abs(proof.witnessedRootTravelMeters-
+    proof.witnessedDirectFrameTravelMeters)<=.001&&
+   Number.isFinite(proof.witnessedFrameAgeSeconds)&&
+   proof.witnessedFrameAgeSeconds>=0&&
+   proof.witnessedFrameAgeSeconds<=.035
+  ))||
   proof.contactLocked!==false||proof.plantCertified!==false||
   sourceClipName!=='Walking_A'||sourceInstanceSame!==true||
   sourceToeTrackVerified!==true||sourceToeBoneParentVerified!==true||
