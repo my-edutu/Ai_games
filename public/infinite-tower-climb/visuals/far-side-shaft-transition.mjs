@@ -217,8 +217,19 @@ export function observedReturnedFarSideFade(held,job) {
      held.visibleSeconds<held.farSideFadeStartSeconds ||
      job.structuralVisibleReturns<0)return null;
   if(job.structuralVisibleReturns===0)return 0;
-  const frameProgress=(held.submittedFrames-held.farSideFadeStartSubmitted)/7;
-  const returnedTime=(held.visibleSeconds-held.farSideFadeStartSeconds)/.95;
+  // The immutable f1176f4 original desktop and portrait native 1x films
+  // receive their first Floor9 HUD/scene roughly 0.6s AFTER a returned
+  // WebGL submission. Seven returned shaft frames / .95 display seconds
+  // retired the genuine HP-open bronze arch before the next authentic
+  // walkable room could be read together with the moving skinned climber.
+  // Let actual returned structural material overlap the already-rendered
+  // original gateway for a coherent physical departure. This is bounded by
+  // the retained cap's existing <30-return / <2.8s / HP0 / live-support
+  // ownership, not a new timer, gameplay frame, free camera or fake gate.
+  // Both returned submissions AND actually accumulated rendered seconds
+  // still have to advance; stalled GPU work cannot age the original room.
+  const frameProgress=(held.submittedFrames-held.farSideFadeStartSubmitted)/15;
+  const returnedTime=(held.visibleSeconds-held.farSideFadeStartSeconds)/1.65;
   return smooth(Math.min(frameProgress,returnedTime));
 }
 
