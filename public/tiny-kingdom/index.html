@@ -29422,6 +29422,81 @@ function findPhysicalPortraitAlternative(citizen,shot,roofs){
  }
  return best;
 }
+// W491 real-workday portrait rescue: the recorded Day-121 390px film at
+// 00:09 is almost entirely an opaque original market/house wall. An honest
+// wide survey is preferable to pretending that a hidden merchant is readable.
+// This is a SECONDARY fallback ONLY after the real close-up work-camera
+// survey fails. It never moves/hides architecture, actors or transactions.
+// The original near-contact/IK rigs remain untouched and never receive
+// fictional production. Survey at most 24 physically checked real eyes.
+const PORTRAIT_WORKDAY_OVERLOOK_MAX_EYES=24;
+let portraitWorkdayOverlookAttempts=0,portraitWorkdayOverlookEyes=0,
+ portraitWorkdayOverlookRescues=0,portraitWorkdayOverlookMisses=0,
+ portraitWorkdayOverlookLastAttempt=-Infinity;
+function findPhysicalPortraitWorkdayOverlook(citizen,prior,roofs){
+ if(!citizen||!prior||!Array.isArray(prior.target)||
+    !Array.isArray(roofs)||canvas.clientWidth>520||
+    ![citizen.x,citizen.z,prior.yaw].every(Number.isFinite))return null;
+ const base=terrain(citizen.x,citizen.z),
+  target=[citizen.x,base+1.02,citizen.z],
+  face=[citizen.x,base+1.38,citizen.z];
+ // A higher authentic observer can see the market and the existing worker
+ // even when the tight previous shot contains only a solid wall. The camera
+ // must NEVER be inside a building or see a synthetic citizen through one.
+ const yawOffsets=[0,-.47,.47,-1.07,1.07,Math.PI],
+  opticalTiers=[[.76,10.5],[.90,13.5],[1.04,16.5],[1.16,19.5]];
+ let best=null,bestScore=-Infinity,examined=0;
+ for(const [pitch,zoom] of opticalTiers)for(const offset of yawOffsets){
+  if(examined>=PORTRAIT_WORKDAY_OVERLOOK_MAX_EYES)break;
+  examined++;portraitWorkdayOverlookEyes++;
+  const candidateYaw=prior.yaw+offset,radius=Math.cos(pitch)*zoom,
+   eye=[citizen.x+Math.sin(candidateYaw)*radius,
+    base+1.02+Math.sin(pitch)*zoom,
+    citizen.z+Math.cos(candidateYaw)*radius];
+  if(!physicalFollowEyeClearance(eye,roofs).clear||
+     followRayBlockers(eye,face,roofs)!==0||
+     !terrainClearWorkerSightline(eye,face))continue;
+  const scene=foregroundSceneProjection(eye,target,roofs);
+  if(scene.cover>=.31||scene.actorCoreCover>=.16||
+     scene.cargoCover>=.26)continue;
+  const vegetation=foregroundVegetationProjection(eye,target);
+  if(vegetation.faceBlockers>0||vegetation.cover>=.42)continue;
+  const body=projectedWorkerBodyFraction(eye,target,citizen);
+  if(!Number.isFinite(body)||body<.075)continue;
+  // This is deliberately NOT scored as a clear hand/contact close-up.
+  // Only an actual clear world view and grounded human-scale observer.
+  const score=body*7-scene.cover*3-scene.actorCoreCover*5-
+   vegetation.cover*1.5-Math.abs(offset)*.11-
+   Math.max(0,zoom-13)*.03;
+  if(score>bestScore){
+   bestScore=score;
+   best={...prior,yaw:candidateYaw,pitch,zoom,eye,target,
+    blockers:0,eyeCollision:{clear:true,kind:null},
+    foregroundSceneCover:scene.cover,
+    foregroundActorCoreCover:scene.actorCoreCover,
+    foregroundCargoCover:scene.cargoCover,
+    foregroundVegetationCover:vegetation.cover,
+    vegetationFaceBlockers:0,projectedWorkerHeightFraction:body,
+    physicalPortraitOverlook:true,physicalPortraitAlternative:false,
+    workFacingMode:'clear-world-overview-not-proven-work-contact',
+    originalAutonomousCitizen:citizen.name,
+    noClippedBuildings:true,notAReadableHandsClaim:true,
+    altersAuthority:false};
+  }
+ }
+ return best;
+}
+function getPhysicalPortraitWorkdayOverlookAudit(){
+ return {source:'bounded-real-portrait-worker-overlook',
+  attempts:portraitWorkdayOverlookAttempts,
+  physicalEyesChecked:portraitWorkdayOverlookEyes,
+  rescues:portraitWorkdayOverlookRescues,
+  noClearEye:portraitWorkdayOverlookMisses,
+  maxEyesPerAttempt:PORTRAIT_WORKDAY_OVERLOOK_MAX_EYES,
+  actualWorkerOnly:true,contactReadableGate:'NOT PROVEN',
+  virtualWorldObjects:0,authorityMutated:false,
+  hardwareFps:'NOT MEASURED'};
+}
 function updateFollowCamera(preferredYaw=previousFollowCamera?.yaw??yaw){
  const person=people[Math.min(selectedCitizen,people.length-1)];if(!person)return;
  liveShotPlanCache=null;
@@ -29527,6 +29602,7 @@ function workdayCameraCompositionAudit(){
   portraitPhysicalWitnessRescues:portraitAltRescues,
   portraitPhysicalWitnessNoClearEye:portraitAltNoClearEye,
   portraitImmediateWitnessRescues:portraitImmediateRescues,
+  portraitWideActualWorldRescue:getPhysicalPortraitWorkdayOverlookAudit(),
   portraitCorePhysicalTargetRequired:true};
 }
 function setCitizenFollow(enabled){
@@ -34386,6 +34462,28 @@ if(follow&&!daybreakReturn){
      plan=alternate;portraitAlternativeSelected=true;portraitAltRescues++;
      if(liveShotPlanCache)liveShotPlanCache.shot=alternate;
     }else portraitAltNoClearEye++;
+   }
+   // W491 secondary honest physical overview: if BOTH the current 390px
+   // sightline and the director's intended closeup are genuinely obscured,
+   // do not keep filming a huge flat wall as though it showed work.
+   // Existing closeup/hand rescue runs first. This expensive world survey
+   // runs at most every 2.2s and ONLY after observed obstruction.
+   const needOriginalOverlook=!portraitAlternativeSelected&&
+    (portraitCurrentScene.actorCoreCover>=.24||
+     portraitCurrentScene.cover>=.52)&&
+    ((plan.foregroundActorCoreCover??1)>=.15||
+     (plan.foregroundSceneCover??1)>=.38)&&
+    now-portraitWorkdayOverlookLastAttempt>=2200;
+   if(needOriginalOverlook){
+    portraitWorkdayOverlookLastAttempt=now;
+    portraitWorkdayOverlookAttempts++;
+    const overlook=findPhysicalPortraitWorkdayOverlook(citizen,plan,
+     physicalRoofs);
+    if(overlook){
+     plan=overlook;portraitAlternativeSelected=true;
+     portraitWorkdayOverlookRescues++;
+     if(liveShotPlanCache)liveShotPlanCache.shot=overlook;
+    }else portraitWorkdayOverlookMisses++;
    }
   }
   const turn=Math.atan2(Math.sin(plan.yaw-yaw),Math.cos(plan.yaw-yaw));
