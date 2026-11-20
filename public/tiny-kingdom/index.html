@@ -2235,16 +2235,26 @@ let commuterResidentJointBuffer=null,commuterResidentJointCapacity=0,
  commuterResidentJointData=new Float32Array(0),commuterSkinDrawCalls=0,
  commuterJointUploads=0,commuterJointUploadBytes=0;
 
+// W504: admission must preserve original buyer wrist/parcel contacts and
+// retain the SAME 13-joint original traveller body only when optically small.
+// Authentically purchased provisions on ANY home/work travel remain live CPU;
+// the old W503 route regex alone admitted some carrying buyers on other trips.
+const COMMUTER_BODY_ENTER_SCREEN_HEIGHT=.235;
+const COMMUTER_BODY_RETAIN_SCREEN_HEIGHT=.275;
+function originalCommuterScreenLimit(i){
+ return commuterResidentCache.get(i)?.skinned?
+  COMMUTER_BODY_RETAIN_SCREEN_HEIGHT:COMMUTER_BODY_ENTER_SCREEN_HEIGHT;
+}
 // W503 integrated Phase-1 original worker-to-household journey. One source
 // truth for genuine unladen travel: workbound commuters, outdoor exploration,
 // physical dusk homecoming, and the newly covered empty-handed meal return.
 // Loaded courier, purchased provision and receipt hands remain live CPU paths.
 function isOriginalUnladenTravelStage(p){
- if(!p||typeof p.activity!=='string')return false;
+ if(!p||typeof p.activity!=='string'||p.delivery||
+    (Number.isFinite(p.provisions)&&p.provisions>0))return false;
  if(/^(Traveling to |Exploring the valley$|Returning home at dusk$)/.test(p.activity))
   return true;
- return p.activity==='Traveling home for a meal'&&
-  !(Number.isFinite(p.provisions)&&p.provisions>0);
+ return p.activity==='Traveling home for a meal';
 }
 function isResidentCommuterCandidate(p,i,nearPeople,frame){
  if(!gpuAvailable||nearPeople.has(i)||!p||p.delivery||
@@ -2254,7 +2264,9 @@ function isResidentCommuterCandidate(p,i,nearPeople,frame){
  // Read the REAL optical projection; all physically close, large-on-screen
  // figures retain live two-bone feet and wrists. No citizen is omitted.
  const screen=projectRealCitizenDetail(p,frame);
- return !screen.visible||screen.heightFraction<.09;
+ // Beyond a medium human-scale body, original live CPU IK preserves the
+ // complete authentic work/meal/contact silhouette. Never drop a traveler.
+ return !screen.visible||screen.heightFraction<originalCommuterScreenLimit(i);
 }
 function realCommuterFacing(p){
  const look=p.path?.length?p.path[0]:p.target;
@@ -3748,6 +3760,37 @@ function setActorStreamSplitForTesting(enabled){
  cameraDynamicCache=null;cameraActorCache=null;cameraDynamicKey='';
  lastFrozenFrameKey=null;presentationEpoch++;
 }
+// W504: a bounded audit of the SAME real citizen body stream actually selected
+// by the original renderer. A GPU allocation rejection records the CPU path;
+// an uncaptured/unrendered frame is explicitly stale, never assumed "visible".
+// This is a submission-decision audit, NOT a substitute for real frame footage.
+let lastActorPresentationPaths=null,lastActorPresentationTime=null,
+ lastActorPresentationEpoch=-1;
+const ACTOR_PRESENTATION_LABELS=['missing','original-cpu-compact',
+ 'original-cpu-detailed','resident-resting','resident-commuter',
+ 'resident-working','resident-sculpted'];
+function getActorPresentationCoverageAudit(){
+ const paths=lastActorPresentationPaths;
+ const current=Boolean(paths&&paths.length===people.length&&
+  lastActorPresentationTime===state.t&&
+  lastActorPresentationEpoch===presentationEpoch);
+ const rows=people.map((p,i)=>({name:p.name,job:p.job,activity:p.activity,
+  bodyPath:current?ACTOR_PRESENTATION_LABELS[paths[i]]:'not-current',
+  authorityCarried:Boolean(p.delivery||Number(p.provisions)>0),
+  actualUnladenTravel:isOriginalUnladenTravelStage(p)}));
+ const missing=rows.filter(row=>row.bodyPath==='missing'||
+  row.bodyPath==='not-current').map(row=>row.name);
+ const gpu=rows.filter(row=>row.bodyPath.startsWith('resident-'));
+ return {source:'original-per-person-actual-body-submission-branch',
+  frameCurrent:current,people:people.length,entries:rows,
+  cpuNames:rows.filter(row=>row.bodyPath.startsWith('original-cpu-'))
+   .map(row=>row.name),
+  residentNames:gpu.map(row=>row.name),
+  missingNames:missing,
+  originalBodyPathCount:current?rows.length-missing.length:0,
+  exactlyOneBodyPathPerCitizen:current&&missing.length===0,
+  changesAuthority:false,physicalGpuFrameTime:'NOT MEASURED'};
+}
 function getActorResidencyAudit(){
  return {source:'complete-real-citizen-independent-webgl-stream',
   enabled:gpuAvailable&&actorStreamSplitEnabled,
@@ -3903,7 +3946,8 @@ function authenticWorkerGpuResidentRows(actors,nearPeople,frame){
   const observedWorkHeight=previouslySkinned?.52:.46;
   const maxHeight=(passive||nearTraveler)?
    FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT:
-   (distantResting||commuter)?.09:
+   commuter?originalCommuterScreenLimit(i):
+   distantResting?.09:
    detail?(observed?observedWorkHeight:WORKSITE_SKIN_ENTER_SCREEN_HEIGHT):.075;
   if(!view.visible||!Number.isFinite(view.heightFraction)||
       view.heightFraction<=0||view.heightFraction>=maxHeight)continue;
@@ -35398,16 +35442,27 @@ if(gpuAvailable&&actorStreamSplitEnabled){
  data=actorDynamicVertexScratch;
 }
 const liveActorGeometryStart=performance.now();
+const actualActorBodyPaths=new Uint8Array(people.length);
 for(let i=0;i<people.length;i++){
  if(nearPeople.has(i)){
-  if(!foregroundIndices.has(i))villager(people[i]);
+  if(!foregroundIndices.has(i)){
+   villager(people[i]);actualActorBodyPaths[i]=2;
+  }else actualActorBodyPaths[i]=6;
   villageVisualLod.detailedCitizens++
  }
  else{
-  if(!restingIndices.has(i)&&!commuterIndices.has(i)&&!workingIndices.has(i))compactVillager(people[i]);
+  if(restingIndices.has(i))actualActorBodyPaths[i]=3;
+  else if(commuterIndices.has(i))actualActorBodyPaths[i]=4;
+  else if(workingIndices.has(i))actualActorBodyPaths[i]=5;
+  else{
+   compactVillager(people[i]);actualActorBodyPaths[i]=1;
+  }
   villageVisualLod.compactCitizens++;
  }
 }
+lastActorPresentationPaths=actualActorBodyPaths;
+lastActorPresentationTime=state.t;
+lastActorPresentationEpoch=presentationEpoch;
 householdCarriedSackStats.carriers=0;householdCarriedSackStats.receiptLinked=0;
 householdCarriedSackStats.triangles=0;
 for(const person of people)renderCarriedHouseholdProvisions(person);
@@ -35898,7 +35953,7 @@ drawForegroundResidentMesh();
  getAuthenticWorkGesture:index=>Number.isInteger(index)&&index>=0&&index<people.length?
   cloneData(getAuthenticWorkGesture(people[index])):null,
  getFaceTopologyCacheAudit,getSimulationTickDebtAudit,
- getRestingActorResidencyAudit,getResidentCommuterAudit,getWorkingResidentAudit,
+ getRestingActorResidencyAudit,getResidentCommuterAudit,getActorPresentationCoverageAudit,getWorkingResidentAudit,
  getWorkingSkinAudit,getWorkSkinPaletteAudit,getResidentGpuDistrictAudit,setWorkingSkinEnabledForTesting,
  getForegroundResidentAudit,getForegroundSkinAudit,setForegroundResidentEnabledForTesting,
  getSocialEncounterAudit:()=>cloneData(getSocialEncounterAudit()),

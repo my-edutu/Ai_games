@@ -53,6 +53,7 @@ for(const width of [1024,390]){
     const g=window.__tinyKingdom;
     return {commuter:g.getResidentCommuterAudit(),
      foreground:g.getForegroundSkinAudit(),
+     coverage:g.getActorPresentationCoverageAudit(),
      savedChecksum:g.exportSnapshot().checksum,
      people:g.exportSnapshot().payload.people.map(p=>({name:p.name,activity:p.activity})),
      triangles:g.renderStats().lastFrameTriangles,profile:g.getFrameProfile().latest};
@@ -61,9 +62,18 @@ for(const width of [1024,390]){
    attempts.push({attempt:j,realTravelWitness:probe.actor,
     skinCommuters:observed.commuter.skinnedCommuters,
     skinDetailed:observed.foreground.names,realGpuCitizenNames:names,
+    actualBody:observed.coverage.entries.find(row=>row.name===probe.actor?.name)||null,
+    coverageCurrent:observed.coverage.frameCurrent,
+    actorCoverageCount:observed.coverage.originalBodyPathCount,
     triangles:observed.triangles,profile:observed.profile});
-   if(probe.actor&&names.includes(probe.actor.name)){
-    witness=probe.actor;break;
+   const originalBody=observed.coverage.entries.find(
+    row=>row.name===probe.actor?.name);
+   if(probe.actor&&observed.coverage.exactlyOneBodyPathPerCitizen&&
+      originalBody&&originalBody.bodyPath!=='missing'&&
+      originalBody.actualUnladenTravel){
+    witness={...probe.actor,actualOriginalBodyPath:originalBody.bodyPath,
+     residentGpuSkinObserved:names.includes(probe.actor.name)};
+    break;
    }
   }
   await info.attach('w503-true-commuter-frame-by-frame-'+width,{
@@ -72,12 +82,20 @@ for(const width of [1024,390]){
    .not.toBeNull();
   const active=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
-   return {commuter:g.getResidentCommuterAudit(),foreground:g.getForegroundSkinAudit()};
+   return {commuter:g.getResidentCommuterAudit(),
+     foreground:g.getForegroundSkinAudit(),
+     coverage:g.getActorPresentationCoverageAudit()};
   });
-  expect([...active.commuter.originalNames,...active.foreground.names])
-   .toContain(witness.name);
-  expect(active.commuter.gpuSkinDraws+active.foreground.jointDraws)
-   .toBeGreaterThan(0);
+  expect(active.coverage.exactlyOneBodyPathPerCitizen).toBe(true);
+  expect(active.coverage.missingNames).toEqual([]);
+  expect(active.coverage.entries.map(p=>p.name))
+   .toEqual((await page.evaluate(()=>window.__tinyKingdom.exportSnapshot()
+    .payload.people.map(p=>p.name))));
+  expect(active.coverage.entries.find(p=>p.name===witness.name)?.bodyPath)
+   .toBe(witness.actualOriginalBodyPath);
+  if(witness.residentGpuSkinObserved)
+   expect(active.commuter.gpuSkinDraws+active.foreground.jointDraws)
+    .toBeGreaterThan(0);
   expect(active.commuter.jointBytes).toBeLessThanOrEqual(
    active.commuter.maxFloats/10*4);
   const saved=await page.evaluate(()=>window.__tinyKingdom.exportSnapshot());
@@ -103,6 +121,7 @@ for(const width of [1024,390]){
      const g=window.__tinyKingdom;
      return {checksum:g.exportSnapshot().checksum,
       people:g.getState().people.map(p=>p.name),
+      bodyCoverage:g.getActorPresentationCoverageAudit(),
       buildings:g.metrics().buildings,
       commuter:g.getResidentCommuterAudit(),
       foreground:g.getForegroundSkinAudit(),
@@ -122,6 +141,14 @@ for(const width of [1024,390]){
   expect(gpu.trace.map(x=>x.people)).toEqual(cpu.trace.map(x=>x.people));
   for(let i=0;i<gpu.trace.length;i++){
    expect(gpu.trace[i].buildings).toBe(cpu.trace[i].buildings);
+   expect(gpu.trace[i].bodyCoverage.frameCurrent).toBe(true);
+   expect(cpu.trace[i].bodyCoverage.frameCurrent).toBe(true);
+   expect(gpu.trace[i].bodyCoverage.missingNames).toEqual([]);
+   expect(cpu.trace[i].bodyCoverage.missingNames).toEqual([]);
+   expect(gpu.trace[i].bodyCoverage.originalBodyPathCount)
+    .toBe(gpu.trace[i].people.length);
+   expect(cpu.trace[i].bodyCoverage.originalBodyPathCount)
+    .toBe(cpu.trace[i].people.length);
    expect(gpu.trace[i].triangles).toBeLessThan(160000);
    expect(gpu.trace[i].glError).toBe(0);
    expect(gpu.trace[i].overflow).toBeLessThanOrEqual(0);
