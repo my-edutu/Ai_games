@@ -5968,6 +5968,16 @@ test('RED: genuine 390px long source frame must complete Walking_A full-body own
   'legally witnessed source travel retains the fast whole-body blend');
  assert.equal(fade({...witness,frameInterval:1.9833}),.09,
   'exact original desktop CC0 source interval must remain eligible');
+ // Exact SHA 09ceb4c4 original 390px Playwright trace: root travelled
+ // 0.440000m during an actual displayed 2.083200s frame. The source
+ // full-skeleton mixer selected the 90ms bounded catch-up; this is NOT
+ // a witnessed foot plant, fresh root step or smooth-frame verdict.
+ assert.equal(fade({...witness,frameInterval:2.0832}),.09,
+  'genuine 0.44m/2.0832s slow original-walk fade must keep 41 joints coupled');
+ assert.equal(fade({...witness,frameInterval:2.0832,groundedTravel:.51}),.23,
+  'very-sparse source exemption is not licensed beyond .50m root travel');
+ assert.equal(fade({...witness,frameInterval:2.0832,groundedTravel:.40}),.23,
+  'very-sparse source exemption is not licensed below .42m root travel');
  for(const change of [
   {groundedTravel:.3},{groundedTravel:.55},{groundedTravel:.005},
   {frameInterval:2.101},{frameInterval:0},{frameInterval:3},
