@@ -123,6 +123,69 @@
     },
     "nextAction": "Inspect new exact-SHA firstF9MainThread trace in desktop/portrait original danger native video, identify dominant worldUpdate vs actor/camera vs sceneSetup cost, then fix the true first-F9 scene hot path and gateway/body optical occlusion, re-record and strictly source-align; do not advance P1.",
     "ledgerLimitation": "transformation.json is 1.2MB and connected fetch_file returned empty even by bounded line range; previous ledger preserved unmodified rather than risk destructive overwrite. This follow-up is persisted in existing evidence and technical review.",
-    "exactSourceQualityVerdict": "10/10 CI passed at e09b42d only; latest current HEAD's workflow not yet graded."
+    "exactSourceQualityVerdict": "10/10 CI passed at e09b42d only; latest current HEAD's workflow not yet graded.",
+    "newSourcePinnedNativeInspection": {
+      "originalCandidateCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44662433915",
+      "immutableCandidateSHA": "ac335694fa59f1790283196eeb567af712f07972",
+      "videoMethod": "Downloaded actual candidate danger ZIP artifact 14596775204; decoded untouched 25fps 1x WebM into 13 sampled timestamps per viewport from 23-28s and reviewed the original frames, verified native SHA256 matches browser capture sidecar; CPU partitions from actual returned WebGL transitions, not graphics quality assessment.",
+      "desktop": {
+        "originalWebMSha256": "fb370fee7c45201f9a0e86c50ff8875484535b8f543d918337dd32cf782c5d3e",
+        "videoSeconds": 71.72,
+        "firstTrueFloorNine": {
+          "runToken": "2f1206a5",
+          "tick": 476,
+          "sceneUpdateMs": 288.6,
+          "worldRebuildMsWithinWorldUpdate": 104.7,
+          "rendererReturnMs": 62.1,
+          "firstF9MainThreadMs": {
+            "sceneSetup": 0,
+            "worldUpdate": 105.6,
+            "heroThreat": 0.6,
+            "cameraLighting": 182.1
+          }
+        },
+        "otherReturnedEpisode": {
+          "runToken": "de0e4911",
+          "tick": 316,
+          "sceneUpdateMs": 332.5,
+          "worldUpdateMs": 122.1,
+          "cameraLightingMs": 209.4
+        },
+        "nativeHUDSeconds": 25.75,
+        "nativeVioletSeconds": 26.25,
+        "sharedBronzeVoidSeconds": 0
+      },
+      "portrait": {
+        "originalWebMSha256": "c55f46b2cb1a499520d5b02391de300aba9e5402bd82047795ef11b6fb8b4914",
+        "videoSeconds": 73,
+        "firstTrueFloorNine": {
+          "runToken": "2f1206a5",
+          "tick": 475,
+          "sceneUpdateMs": 285.2,
+          "worldRebuildMsWithinWorldUpdate": 102.4,
+          "rendererReturnMs": 88.5,
+          "firstF9MainThreadMs": {
+            "sceneSetup": 0,
+            "worldUpdate": 103.5,
+            "heroThreat": 0.6,
+            "cameraLighting": 179
+          }
+        },
+        "otherReturnedEpisode": {
+          "runToken": "de0e4911",
+          "tick": 315,
+          "sceneUpdateMs": 266.8,
+          "worldUpdateMs": 87.5,
+          "cameraLightingMs": 177.2
+        },
+        "nativeHUDSeconds": 25.75,
+        "nativeVioletSeconds": 26.25,
+        "sharedBronzeVoidSeconds": 0
+      },
+      "dominantMeasuredCPUStage": "Actual first F9 camera+lighting+remaining update stage 182.1ms desktop (63.1% sceneUpdate), 179.0ms portrait (62.8% sceneUpdate) versus worldUpdate 105.6/103.5ms. Another true returned Floor9 episode similarly 209.4/177.2ms. First rendering target should be expensive source-gated physical camera clearance/raycast + remaining scene update; stage name does not prove a single culprit until sub-block profiling.",
+      "visualDefect": "Both unmodified native videos show immediate visual cut from warm bronze/gray guardian arch behind actual playable climber to violet shell/platform at ~26s; giant foreground structural posts and orange hanging metal obscure original gateway/hero composition in portrait; no sustained original opened bronze gate + complete moving hero + physical successor roof visibly co-present. Strict native event acceptance still unproved. Projected camera NDC safe values cannot substitute painted pixels.",
+      "acceptance": "NOT EVALUATED; new complete nine-job campaign including pair-source-events not yet concluded at inspection. No independent critics; no actual supported device benchmarks.",
+      "preciseNextAction": "Reduce dominant measured first-F9 camera/lighting path (source-owned gateway/deck raycast ladders appear redundant; confirm exact sub-block first), preserve true hero/gateway/roof camera-safe sightline, then repeat immutable-source original native evidence and pair-source-events. Stage P0 stays OPEN."
+    }
   }
 }
