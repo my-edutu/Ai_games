@@ -8025,5 +8025,35 @@
       "PLAYS": 0
     },
     "hardwareFramePercentilesAndMemory": "NOT EVALUATED"
+  },
+  "p0RealReturnedPriorLensNativeContinuity20261120_1525": {
+    "stage": "P0 OPEN — NOT EVALUATED",
+    "baselineRef": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateRef": "${{ github.sha }}",
+    "codeChangeSha": "e82139ab8e7fe235d5697e5e971dfea5ebc8c8ab",
+    "immutableShaRequired": true,
+    "seed": "tower-transformation-capture-v1",
+    "quality": "low",
+    "fps": 25,
+    "speed": 1,
+    "desktop": "960x600",
+    "portrait": "390x844",
+    "minimumDurationSeconds": 60,
+    "scenarios": [
+      "ascent",
+      "moving",
+      "danger",
+      "outcome/restart"
+    ],
+    "reason": "Native original 1734cfaa predecessor films show abrupt planar bronze Floor8→curved F9 platform room handoff in both viewports and portrait occluding uprights, despite source-proven floor-nine progress. Verify this exact source's first-two-real-return full old lens and bounded three-trial .72 fallback with genuine unedited WebMs and strict event matching; no screenshot-only verdict.",
+    "predecessorRun": "https://github.com/my-edutu/Ai_games/actions/runs/44742964238",
+    "predecessorNativeDangerPair": "0/2",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "independentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "hardware": "NOT EVALUATED"
   }
 }
