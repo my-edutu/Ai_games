@@ -37,7 +37,7 @@ import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClear
 import { sourceSubmittedDoorwayCameraDt, sourceCroppedHeroRecoveryDt } from './source-submitted-doorway-cadence.mjs';
 import { createTowerVoidProgramPrewarm } from './void-program-prewarm.mjs';
 import { sourceOriginalGatewayCameraBridge, observedOriginalGatewaySubmittedView } from './original-gateway-submitted-camera-bridge.mjs';
-import { assessOriginalGatewayPhysicalCameraBridge, assessOriginalGatewayThreeSubjectCameraFrame, selectOriginalGatewayThreeSubjectTrials } from './original-gateway-camera-ray-contract.mjs';
+import { assessOriginalGatewayPhysicalCameraBridge, assessOriginalGatewayThreeSubjectCameraFrame, selectOriginalGatewayThreeSubjectTrials, sourceGatewayNeedsExpensiveOpticalSearch } from './original-gateway-camera-ray-contract.mjs';
 import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, observedGroundedHandoffShot, observedAirborneHandoffShot, observedEarnedCrossfloorJointShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { sourceCriticalSightlinePriorities } from './critical-sightlines.mjs';
@@ -5182,9 +5182,22 @@ export function createTowerScene(canvas, settings = {}) {
       if(physicalWalkableShot)thresholdGaze.lerp(thresholdWalkable,.24);
       thresholdGaze.sub(thresholdPreviousGaze);
       const gazeDistance=thresholdGaze.length();
-      if (gazeDistance > .0001 ||
+      // Native full-motion 1x doorway footage exposed an expensive first-F9
+      // cameraLighting phase (89.5ms desktop / 104.1ms portrait). Do not
+      // rerun a six-pose original-gateway orbit when the CURRENT submitted
+      // camera already sees the full climber, attached bronze gate, and
+      // legitimate walkable successor with zero genuine triangle occlusions.
+      // Any missing/small subject, ambiguous steel or physical ray keeps the
+      // complete existing source-authentic camera rescue path. No frame
+      // is fabricated, no source/collision/guardian authority is changed.
+      const opticalSearchNeeded=sourceGatewayNeedsExpensiveOpticalSearch({
+        deckView:deckViewBeforeThreshold,steel:gateSteelBefore,
+        heroNdc:thresholdHeroBefore,gateNdc:thresholdGateBefore,
+        walkableNdc:walkableHeldBeforeThreshold?thresholdWalkableBefore:null
+      });
+      if ((gazeDistance > .0001 ||
           (gateSteelBefore?.sourceBound===true &&
-           gateSteelBefore.projectedMetalArea<.012)) {
+           gateSteelBefore.projectedMetalArea<.012)) && opticalSearchNeeded) {
         if(gazeDistance>.0001)
           thresholdGaze.multiplyScalar(Math.min(1,thresholdSteps.gazeMetres/gazeDistance));
         const originalAngle=Math.atan2(camera.position.x,camera.position.z);

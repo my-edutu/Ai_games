@@ -88,3 +88,33 @@ export function assessOriginalGatewayThreeSubjectCameraFrame({
       Math.min(1,heroNdc[3]/.20)*.30+
       Math.min(1,gateNdc[3]/.20)*.10+separated*.15};
 }
+
+
+/**
+ * Reuse the ACTUAL safe gateway camera instead of running a second six-pose
+ * optical search over the same live Three.js roof and original bronze mesh.
+ * This is only an early-exit on an already fully readable, zero-occlusion
+ * source-owned three-subject shot. Ambiguous, cropped, obscured or tiny
+ * silhouettes MUST run the unchanged bounded physical camera search.
+ * No wall clock, simulation edits, camera cut, asset, source event or win.
+ */
+export function sourceGatewayNeedsExpensiveOpticalSearch({
+  deckView,steel,heroNdc,gateNdc,walkableNdc
+}={}) {
+  if(deckView?.active!==true ||
+     !Number.isSafeInteger(deckView.score) ||
+     deckView.score!==0 ||
+     deckView.bodyBlockedRays!==0 || deckView.gatewayBlockedRays!==0)
+    return true;
+  const frame=assessOriginalGatewayThreeSubjectCameraFrame({
+    heroNdc,gateNdc,walkableNdc,steel
+  });
+  if(!frame.accepted)return true;
+  // The 2D centres must be meaningfully distinct as well as physically
+  // clear. Do not mistake a visually collapsed gateway for good composition.
+  if(Math.hypot(heroNdc[0]-gateNdc[0],
+      heroNdc[1]-gateNdc[1])<.22 ||
+     heroNdc[3]<.115 || gateNdc[3]<.06 ||
+     steel.projectedMetalArea<.018) return true;
+  return false;
+}
