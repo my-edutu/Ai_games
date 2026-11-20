@@ -12905,5 +12905,66 @@
       "noPR58Edits": true,
       "noUnrelatedGames": true
     }
+  },
+  "p0ConservativeSourceSightlineRootBoundsAndOriginalNativeReview20261120_0425": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenBaselineMoved": false,
+    "productionCommitSha": "03c21aeb581c5fec6a072d1b80fee4f83063db34",
+    "sourceChanged": [
+      "public/infinite-tower-climb/visuals/source-sightline-broadphase.mjs",
+      "public/infinite-tower-climb/visuals/successor-deck-visibility.mjs",
+      "public/infinite-tower-climb/visuals/world.mjs"
+    ],
+    "focusedRegression": "tests/phase3/tower-floor-nine-sightline-ray-broadphase.test.cjs",
+    "existingEvidence": "public/infinite-tower-climb/gauntlet/evidence/p0-source-gateway-ray-broadphase-native-review-20261120.json",
+    "change": "Source-owned F9 camera now conservatively rejects ray/root pairs whose real Three.js world-space geometry bounds cannot intersect the actual camera ray. Bounds renewed per returned World update, including same fixed-step tick. Existing 7-body+2-gateway original triangle ray intersection, threshold camera decision, physics, gameplay, original guardian and floor-nine progression unchanged.",
+    "observedBeforeCode": {
+      "originalVideoSourceSha": "69a95be09a43cd4ca4fe3c9032a2c465990f0212",
+      "campaign": "https://github.com/my-edutu/Ai_games/actions/runs/44665316629",
+      "originalFullLengthVideos": "8/8 completed and authentic ledge succeeded",
+      "sourceToNativeEventPairing": "FAILED 0/2 viewports",
+      "desktop": {
+        "firstF9CameraLightingMs": 162.7,
+        "firstF9SceneUpdateMs": 280.8,
+        "firstF9RendererReturnMs": 81.9,
+        "hudToVioletSeconds": 0.5,
+        "sharedBronzeVioletSeconds": 0
+      },
+      "portrait": {
+        "firstF9CameraLightingMs": 184.1,
+        "firstF9SceneUpdateMs": 288.8,
+        "firstF9RendererReturnMs": 85.3,
+        "hudToVioletSeconds": 0.5,
+        "sharedBronzeVioletSeconds": 0
+      },
+      "biggestDefect": "No sustained source-aligned normal-speed native footage showing actual opened bronze gateway, entire moving 3D climber and walkable F9 in same room; portrait bronze foreground obscures character. Prior matrix cache did not reliably cut 180ms camera stage."
+    },
+    "codeHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44669773745",
+    "codeHeadQualityAtRecord": "9/10 jobs passed, phase6 job still running at inspection — no complete pass claimed",
+    "newCapture": "Triggered by dedicated source-pinned capture-request.json entry in this same evidence commit; workflow outcome pending",
+    "evidenceAcceptance": "NOT EVALUATED until event-to-original-native full-motion acceptance both viewports, target device CPU/GPU frame-time percentiles and memory, and independent critic votes",
+    "independentBlindCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualSupportedDevice": {
+      "p50": "NOT EVALUATED",
+      "p95": "NOT EVALUATED",
+      "p99": "NOT EVALUATED",
+      "memory": "NOT EVALUATED"
+    },
+    "nextHighestImpact": "Inspect new 9-job immutable-source baseline/candidate recordings and CPU gateway camera stage. Verify broadphase rejection measured in actual frame trace and two consecutive source-aligned authentic open-door/full-hero/walkable-F9 frames in desktop and portrait. If no meaningful improvement, revert broadphase and fix live foreground/cold 3D handoff, keeping P0 open.",
+    "safeguards": {
+      "draftPR68": true,
+      "pr58Untouched": true,
+      "frozenBaselineMoved": false,
+      "noForcePush": true,
+      "noMerge": true,
+      "noDeploy": true,
+      "noUnrelatedGames": true
+    }
   }
 }
