@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "game": "infinite-tower-climb",
+  "stage": "P0",
+  "status": "OPEN",
+  "leadingTransformationVerdict": "NOT EVALUATED",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "branch": "feat/tower-transformation-gauntlet-20261101",
+  "pr": 68,
+  "prDraft": true,
+  "basePr": 58,
+  "preChangeCandidateSha": "9c5fa100dabd0bc727853ccfe039e9d90dc731e1",
+  "gallerySourceSelectionSha": "4dd0221b1d9e7bb601222a22b0c3833c71f6870d",
+  "testedSourceHeadAtEvidence": "22bd9c308402b7932ca07fceb4a3c904e3dd1c21",
+  "liveCaptureCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44812794319",
+  "exactHeadQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44812798618",
+  "preChangeNativeEvidence": {
+    "campaign": "https://github.com/my-edutu/Ai_games/actions/runs/44804795284",
+    "originalDangerMotionDesktopSeconds": 72.28,
+    "originalDangerMotionPortraitSeconds": 72.6,
+    "nativeStrictPairedViewports": 0,
+    "requiredViewports": 2,
+    "sourceAuthenticCaptureScenarios": 8,
+    "requiredCaptureScenarios": 8,
+    "authenticLedgeJob": "success",
+    "observedVisualDefect": "Immediate entire Clockwork foreground-room to oversized Floor9 annulus/void-shaft replacement despite retained old gateway and full hero; no continuous earned 3D shared portal-to-real-roof visible in source-event matched native film",
+    "firstArchitecturalSwapSecondsApprox": {
+      "desktop": 26.05,
+      "portrait": 26.25
+    },
+    "firstDrawnF9HudSecondsApprox": {
+      "desktop": 26,
+      "portrait": 26.25
+    },
+    "firstSustainedVioletSecondsApprox": {
+      "desktop": 26.75,
+      "portrait": 27
+    },
+    "sustainedBronzeVoidPhaseSeconds": {
+      "desktop": 0,
+      "portrait": 0
+    },
+    "colorSampleResolutionSeconds": 0.25,
+    "observedGatewayAndHeroPhysicalProjectionDoesNotProvePixels": true
+  },
+  "productionChange": {
+    "mechanism": "Bounded two-sided real exterior Clockwork machine-room geometry reservation during original F8 floor structural face extraction; genuine clipped source triangles only",
+    "maxSourceGalleryFaces": 3600,
+    "maxMaterialBatches": 8,
+    "faceBudgetReservationPerSide": ".12 of existing source face cap when present",
+    "sourceFlankPredicate": "already-drawn old source mesh, radial>35m, |lateral tangent|>=16m, eligible source-extracted noninteractive geometry",
+    "diagnostics": "originalExteriorFlankFaces.left/right in source gallery preparation",
+    "authorityChanges": false,
+    "newColliders": false,
+    "newGateway": false,
+    "syntheticAssets": false
+  },
+  "statusAtEvidence": {
+    "sourcePinnedCapture": "IN PROGRESS",
+    "exactHeadCI": "PENDING",
+    "postChangeActualFilm": "NOT EVALUATED",
+    "realHardware": "NOT EVALUATED"
+  },
+  "independentCritics": {
+    "looks": 0,
+    "feels": 0,
+    "plays": 0,
+    "requiredPerPillar": 5,
+    "minimumCandidatePreference": 4
+  },
+  "performance": {
+    "supportedDeviceFrameTimeP50": "NOT EVALUATED",
+    "supportedDeviceFrameTimeP95": "NOT EVALUATED",
+    "supportedDeviceFrameTimeP99": "NOT EVALUATED",
+    "memory": "NOT EVALUATED"
+  },
+  "nextHighestImpact": "Review the source-pinned 960x600/390x844 full-motion 1x matched films and event alignment; inspect actual structural flank counts, physical old roof and opened original gateway co-visibility; if still discontinuous, rebuild real old/new scene ownership and returned-frame architecture instead of more camera or tint heuristics",
+  "limitations": [
+    "No native video experience claim",
+    "No new completed exact-head CI at record",
+    "No real hardware frame-times/memory",
+    "No authentic independent blind critics"
+  ],
+  "untouched": [
+    "Tiny Kingdom",
+    "Maze",
+    "AI vs 1000 Floors",
+    "PR58",
+    "frozen baseline",
+    "PR68 draft status"
+  ]
+}
