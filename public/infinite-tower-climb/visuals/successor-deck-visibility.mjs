@@ -293,6 +293,13 @@ export function protectSourceSuccessorUndercroft({
     (gate==null||valid3(gate));
   if(!proof){restore();return inactive;}
   let rays=0,softened=0;
+  // The original 390x844 source-pinned WebM at 8f8d5b7 demonstrates the
+  // ACTUAL F9 outer undercroft cleared to .035 while the adjacent INNER
+  // strip of the SAME real deck stayed opaque directly across the hero sole.
+  // First resolve every genuine ray, then treat each strictly source-owned
+  // outer+inner pair as one visible non-walkable skin. No other deck, roof,
+  // cap top, guardian, collision or hazard can borrow this clearance.
+  const physicalBlockers=[];
   const currentPosition=camera.position;
   const dx=body.x-currentPosition.x,dz=body.z-currentPosition.z;
   const length=Math.hypot(dx,dz);
@@ -353,6 +360,29 @@ export function protectSourceSuccessorUndercroft({
       }
     }
     hits.length=0;
+    physicalBlockers.push(blocked);
+  }
+  // Each pair is exactly TWO real pieces of ONE authored platform. Treating
+  // them as unrelated materials created an opaque inner silhouette even
+  // when its exposed outer shell was visibly ray-cleared. Do not group
+  // unrelated decks or unverified/fabricated platform names.
+  const countByDeck=new Map(),blockedByDeck=new Map();
+  for(let i=0;i<safeEntries.length;i++){
+    const id=safeEntries[i].sourceSkirtPairId;
+    const validDeck=typeof id==='string' &&
+      (id==='f8:cap'
+        ?held.oldCapId==='f8:cap'
+        :id.startsWith('f9:') &&
+          source.platforms?.some(p=>p?.id===id));
+    if(validDeck){
+      countByDeck.set(id,(countByDeck.get(id)||0)+1);
+      if(physicalBlockers[i])blockedByDeck.set(id,true);
+    }
+  }
+  for(let i=0;i<safeEntries.length;i++){
+    const {material,sourceSkirtPairId:id}=safeEntries[i];
+    const coupled=countByDeck.get(id)===2 && blockedByDeck.get(id)===true;
+    const blocked=physicalBlockers[i]||coupled;
     // Keep only proven source-blocking nonwalkable skirts translucent.
     // As soon as a moving deck leaves the actual body/gateway rays, restore
     // its full material and depth on that very frame: a delayed ghost panel

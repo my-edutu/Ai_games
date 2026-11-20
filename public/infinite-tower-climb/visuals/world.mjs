@@ -2573,8 +2573,8 @@ export function createTowerWorld(){
     }
     if(sourceOwnedUndercroft){
       sourceOwnedUndercroft.push(
-        {mesh:outerUnder,material:outerUnderMaterial,tint:bodyMaterial},
-        {mesh:innerUnder,material:innerUnderMaterial,tint:materials.dark});
+        {mesh:outerUnder,material:outerUnderMaterial,tint:bodyMaterial,sourceSkirtPairId:p.id},
+        {mesh:innerUnder,material:innerUnderMaterial,tint:materials.dark,sourceSkirtPairId:p.id});
       // The actual upper deck still owns floor shadows. An optional
       // near-camera skirt must not cast a black silhouette after its material
       // is safely cleared from the FULL-BODY camera ray.
@@ -3345,7 +3345,7 @@ export function createTowerWorld(){
         material.depthWrite=true;
         floorMaterials.add(material);
         skirt.material=material;
-        originalCapUndercroft.push({mesh:skirt,material,tint});
+        originalCapUndercroft.push({mesh:skirt,material,tint,sourceSkirtPairId:'f8:cap'});
       }
     }
     // Retain the SAME connected original structural pixels, but do not

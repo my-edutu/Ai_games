@@ -7906,5 +7906,16 @@
     },
     "actualDeviceMetrics": "NOT EVALUATED",
     "noMergeDeployBaselineMoveDraftConversionOtherGameEdits": true
+  },
+  "p0PairedNonWalkableSourceDeck20261120": {
+    "campaign": "source-pinned full 9-job original WebM baseline/candidate, 960x600 desktop and 390x844 portrait",
+    "change": "paired real F9 and old F8 nonwalkable undercroft ray transparency, only proven original same-platform material pairs",
+    "previousSourceSha": "8f8d5b766af8b24a8caefa741247cb9be4ffa9c6",
+    "priorCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44705505879",
+    "immutableCandidate": "the exact SHA of this capture-request commit, not branch latest",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sceneAcceptance": "unchanged, normal speed, actual consecutive pixels open bronze gate+whole moving climber+walkable F9 and strict native event pairing both viewports",
+    "independentBlindStatus": "NOT EVALUATED",
+    "purpose": "Verify whether coupled real nonwalkable shell transparency resolves the filmed opaque inner skirt while preserving 1x genuine gait and gateway."
   }
 }

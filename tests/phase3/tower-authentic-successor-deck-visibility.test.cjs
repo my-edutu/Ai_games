@@ -432,3 +432,67 @@ test('production binds authored F9 skirt references to physically present packed
   assert.match(src,/rebindSourceOwnedUndercroft\(p\.root,p\.sourceOwnedUndercroft\)/);
   assert.match(src,/originalCapSkirtOwner/);
 });
+
+
+test('exact-source F9 outer and inner nonwalkable skins clear together when ONE real triangle obstructs the portrait sole, without weakening a separate platform',async()=>{
+  const THREE=await three;
+  const {protectSourceSuccessorUndercroft:protect}=await loaded;
+  for(const aspect of [960/600,390/844]){
+    const roof=new THREE.Group(),scene=new THREE.Scene();scene.add(roof);
+    const entries=[],resources=[];
+    function pair(id,x){
+      for(const position of [x,x+24]){
+        const material=new THREE.MeshStandardMaterial({color:0x6a5982});
+        const geometry=new THREE.BoxGeometry(2.5,4,1.2);
+        const mesh=new THREE.Mesh(geometry,material);
+        mesh.position.set(position,2,2.4);
+        roof.add(mesh);resources.push(geometry,material);
+        entries.push({mesh,material,tint:material,sourceSkirtPairId:id});
+      }
+    }
+    pair('f9:ground',0);pair('f9:p1',40);
+    roof.updateMatrixWorld(true);
+    const camera=new THREE.PerspectiveCamera(55,aspect,.1,100);
+    camera.position.set(0,2,6);camera.updateMatrixWorld(true);
+    const source={runToken:'real-source-run',lifecycle:'running',floor:9,
+      theme:'void',tick:479,platforms:[{id:'f9:ground'},{id:'f9:p1'}],
+      player:{health:5,halfWidth:9000,halfHeight:14000}};
+    const held={runToken:'real-source-run',floor:9,sourceTick:475,
+      guardianGateRetained:true,oldCapId:'f8:cap',oldRoofY:3240000,
+      thresholdX:315000,originalGatewayOpacity:1};
+    const witness={source,held,camera,body:new THREE.Vector3(0,2,0),
+      bodyHalfHeight:1.2,gate:new THREE.Vector3(0,2,0),entries,
+      raycaster:new THREE.Raycaster(),direction:new THREE.Vector3(),
+      point:new THREE.Vector3(),hits:[],dt:1/25};
+    const immutable=JSON.stringify([source,held]);
+    try{
+      const first=protect(witness);
+      assert.equal(first.active,true);
+      assert.equal(first.softened,2,'real outer hit must also clear its own inner visual skin');
+      assert.equal(entries[0].material.opacity,.035);
+      assert.equal(entries[1].material.opacity,.035,
+        'the previously opaque inner skirt cannot hide the same actor sole');
+      assert.equal(entries[2].material.opacity,1);
+      assert.equal(entries[3].material.opacity,1,
+        'unrelated real deck still reads as solid');
+      assert.equal(entries[0].material.depthWrite,false);
+      assert.equal(entries[1].material.depthWrite,false);
+      assert.equal(JSON.stringify([source,held]),immutable,'no gameplay authority modified');
+      // A fabricated/missing group cannot borrow a neighboring genuine hit.
+      entries[1].sourceSkirtPairId='f9:unpublished';
+      protect(witness);
+      assert.equal(entries[1].material.opacity,1,
+        'unknown ID is never allowed to borrow a source-owned panel ray');
+      entries[1].sourceSkirtPairId='f9:ground';
+      entries[0].mesh.position.x=70;
+      roof.updateMatrixWorld(true);
+      assert.equal(protect(witness).softened,0,'no actual triangle contact restores BOTH skins');
+      assert.equal(entries[0].material.opacity,1);
+      assert.equal(entries[1].material.opacity,1);
+      source.tick=560;
+      assert.equal(protect(witness).active,false);
+      assert.ok(entries.every(entry=>entry.material.opacity===1),
+        'after original gateway retirement every panel is truly opaque');
+    }finally{for(const resource of resources)resource.dispose();}
+  }
+});

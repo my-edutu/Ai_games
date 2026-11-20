@@ -104,5 +104,32 @@
       "noForcePush": true,
       "noOtherGames": true
     }
+  },
+  "p0PhysicalPairedSourceDeckSkin20261120": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "lastVerifiedCandidateSha": "8f8d5b766af8b24a8caefa741247cb9be4ffa9c6",
+    "sourcePinnedNativeCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44705505879",
+    "qualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44705505872",
+    "inspectedOriginalNativeFilms": "desktop/portrait original unedited 1x 60+ second WebMs from candidate danger artifact 14614159572",
+    "nativeVisualFinding": "Portrait original F9 sole is obscured by the actual opaque SourceOwnedF9NonWalkableInnerDeckSkirt while its paired outer strip is already ray-cleared at opacity .035. No full body + opened original steel + walkable F9 sustained in native footage; the bronze room cuts to violet; 0/2 strict source/native pairing.",
+    "sourceEyeRayProof": "At 483/498 source ticks portrait camera-to-body sole, downloaded source-pinned camera-occlusion-forensics.json records SourceOwnedF9NonWalkableOuterDeckSkirt alpha .035 and SourceOwnedF9NonWalkableInnerDeckSkirt alpha 1, actual front-of-sole ray intersects inner skirt; original gate target ray clear.",
+    "change": "Keep paired original source-owned outer and inner nonwalkable skirt MATERIALS on a verified physically intersected same platform together, with strictly 2 genuine current source IDs. No new meshes, collisions, walkable top, gate, authority or frame clock. Restore both on verified clear sightline and expiry.",
+    "proofSource": "Only source-owned actual Three.js camera-to-existing-body/gate rays, same run and F8 original retained doorway; no synthetic portal",
+    "baseline": "1731b380851162741761c5569e2bc152a0869ca9",
+    "newExactSha": "resulting atomic commit SHA (verify in workflow)",
+    "newCapture": "requested on immutable capture-request commit; event-pair and pixels NOT EVALUATED until finished",
+    "reviewerCounts": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "hardware": {
+      "p50": "NOT EVALUATED",
+      "p95": "NOT EVALUATED",
+      "p99": "NOT EVALUATED",
+      "memory": "NOT EVALUATED"
+    },
+    "remainingHighestImpact": "Verify native film actually contains full actor and source-open guardian steel on one continuous F8/F9 walkable roof; if not, correct main true 3D threshold/roof camera composition. No stage advancement."
   }
 }
