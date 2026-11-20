@@ -60,7 +60,9 @@ test('source-authentic first F9 walk clears old noncolliding bronze braces befor
    'genuine far-side full-body clears detached bronze posts in the first returned room');
  // A JUST-cleared actor keeps more original load structure during the
  // actual opening, before the moving body has vacated the true sill.
- real.source.player.x=318996;
+ real.source.player.x=319100;
+ assert.ok(real.source.player.x-real.source.player.halfWidth>=
+   real.source.platforms[0].x,'barely crossed but still physically supported');
  const near=clear(real.source,real.held);
  assert.equal(near?.sourceBound,true);
  assert.ok(near.maxOpacity>early.maxOpacity+.15,

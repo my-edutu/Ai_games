@@ -19,3 +19,7 @@ The focused regression now checks the real 333296 source x first-returned-ground
 A fresh, exactly pinned 9-job 1x candidate/baseline recording is requested by `public/infinite-tower-climb/gauntlet/capture-request.json`. Review native full-motion, source-event correspondence and the specific opening/hero/roof frames in both viewports. Still require actual-device p50/p95/p99 and memory, accessible portrait input, true outcome/restart and five **genuine** fresh-context blind critics each for LOOKS/FEELS/PLAYS (currently 0/5 each). CI is a veto, never transformation acceptance.
 
 **Verdict:** NOT EVALUATED. No merge, deployment, baseline movement, force-push, PR status change or edit outside Tower occurred.
+
+## Corrected exact-head test failure (separate guarded commit)
+
+The first new Phase 3 regression deliberately used the close-sill position x318996, but the player's true left body edge (309996) fell **four authoritative source units outside** the receiving ground x310000. Production correctly returned no clearance; the test was invalid, not a rendering failure. The fixture was corrected to x319100, still barely beyond the real sill and **entirely supported by actual f9:ground**. The true support validator was not relaxed, and the original gameplay capture was already running against the preceding immutable source commit. Quality from that first commit had 9/10 job progress and Phase 3 shard0 failed; final corrected-head CI must be checked before claiming green.
