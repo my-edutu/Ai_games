@@ -78,7 +78,11 @@ test('old bronze fades only after a genuine new-shaft WebGL return, by bounded e
   const middle=fade(held,job);
   assert.ok(middle>0 && middle<1);
   held.submittedFrames=10;held.visibleSeconds=1.18;
-  assert.equal(fade(held,job),1,'earned returned duration and frames finish retirement');
+  assert.ok(fade(held,job)>middle && fade(held,job)<.70,
+    'seven real structural returns / one rendered second must leave the original arch painted through delayed native playback');
+  held.submittedFrames=18;held.visibleSeconds=1.83;
+  assert.equal(fade(held,job),1,
+    'only fifteen genuine extra submissions AND 1.65 returned seconds finish the original gateway retirement');
   assert.equal(fade({...held,visibleSeconds:.25},job)<.25,true);
   assert.equal(fade({...held,visibleSeconds:1.28,submittedFrames:4},job)<.25,true);
   assert.equal(fade({...held,visibleSeconds:1.28,submittedFrames:5}, {...job,structuralVisibleReturns:0}),0);
