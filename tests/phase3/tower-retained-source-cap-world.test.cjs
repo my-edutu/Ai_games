@@ -172,12 +172,18 @@ test('one real returned Floor8 renderer frame prepares bounded original gallery 
   const first=old(),second=next(),world=createTowerWorld();
   try{
     world.update(first,.05,0,{quality:'low'});
-    assert.equal(world.diagnostics().originalClockworkGalleryPrebuild.stillOwnedByPrebuild,false);
+    const staged=world.diagnostics().originalClockworkGalleryPrebuild;
+    assert.equal(staged.state,'prepared-from-actual-floor-eight-source-awaiting-webgl-return');
+    assert.equal(staged.stillOwnedByPrebuild,true,
+      'bound original F8 triangles are prestaged in the real F8 rebuild, before the expensive crossing');
+    assert.equal(staged.sourceTick,450);
+    assert.ok(staged.faces>0 && staged.faces<=4096);
     // This is the only original 3D source submission; no future-floor
     // snapshot or synthetic victory/frame is fabricated.
     world.noteFrameSubmitted(first,{quality:'low'},.05);
     const pre=world.diagnostics().originalClockworkGalleryPrebuild;
-    assert.equal(pre.state,'prepared-after-real-floor-eight-frame');
+    assert.equal(pre.state,'source-built-gallery-confirmed-by-real-floor-eight-return',
+      'unreturned CPU prestaging cannot be used until a real F8 WebGL submission returns');
     assert.ok(pre.faces>0 && pre.faces<=4096);
     assert.ok(pre.batches>0 && pre.batches<=10);
     assert.equal(pre.bytes,pre.faces*96);
@@ -207,12 +213,16 @@ test('prepared old gateway gallery is discarded on changed run or invalid source
     assert.equal(world.diagnostics().originalClockworkGalleryPrebuild.stillOwnedByPrebuild,true);
     world.update({...original,runToken:'new-run',tick:1,
       player:{...original.player}},.05,.1,{quality:'low'});
-    assert.equal(world.diagnostics().originalClockworkGalleryPrebuild.stillOwnedByPrebuild,false,
-      'new-run floor rebuild releases the old unsubmitted CPU resources');
+    const newRunPrebuild=world.diagnostics().originalClockworkGalleryPrebuild;
+    assert.equal(newRunPrebuild.runToken,'new-run');
+    assert.equal(newRunPrebuild.state,'prepared-from-actual-floor-eight-source-awaiting-webgl-return');
+    assert.equal(newRunPrebuild.stillOwnedByPrebuild,true,
+      'the new run may prestage its OWN genuine Floor8 geometry, not retain the prior cache');
     const after={...next(),runToken:'new-run'};
     world.update(after,.05,.15,{quality:'low'});
     assert.equal(world.diagnostics().retainedSourceCap,null);
-    assert.equal(world.diagnostics().originalClockworkGalleryPrebuild.stillOwnedByPrebuild,false);
+    assert.equal(world.diagnostics().originalClockworkGalleryPrebuild.stillOwnedByPrebuild,false,
+      'unproven Floor9 does not inherit an unsubmitted new-run original gallery');
   }finally{world.dispose();}
 });
 test('same earned doorway retains the ORIGINAL old cap real geometry over the Floor9 render rebuild then disposes it',async()=>{
