@@ -1119,7 +1119,14 @@ export function createWarden(options = {}) {
     // ACTUAL witnessed warning: Thornback crouches behind its planted foreclaws,
     // then recoils taller on the same shell-release beat. It is a connected,
     // source-public defensive performance, not a strike or authoritative move.
-    body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018)-plantedClaws*.20+display*.085*alert+(parried?.19:0)-counterLoad*.16+counterFaceCue*.28+counterRelease*.08+counterVault*.94-counterCollapse*.23;
+    // The actual source-bound 390px earned-contact image showed Thornback's
+    // bronze torso hovering above an otherwise intact deck while Pip's true
+    // lantern counter landed. Plant all six connected feet at contact, launch
+    // one earned recoil, and LAND again on the same public counter clock.
+    // No patrol-root movement, collision displacement, hidden position,
+    // additional geometry or fabricated AI action is introduced.
+    const counterFootPlant=counterLoad*.25+counterCollapse*.18;
+    body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018)-plantedClaws*.20+display*.085*alert+(parried?.19:0)-counterLoad*.16+counterFaceCue*.28+counterRelease*.08+counterVault*.94-counterCollapse*.23-counterFootPlant;
     body.rotation.x=-s.danger*.055-alert*.11-plantedClaws*.34+display*.19*alert+(parried?.42:0)+counterLoad*.23-counterRelease*.19-counterCollapse*.30;
     // Pass525: the authentic full-frame mobile counter has BOTH physical actors
     // in view after Pass524's lens repair, yet Thornback still shows mostly
@@ -1155,19 +1162,33 @@ export function createWarden(options = {}) {
     for (const leg of legs) {
       const phase=gait+(leg.index%2===0?0:Math.PI)+(leg.side===1?Math.PI:0);
       leg.hip.rotation.y=Math.sin(phase)*stride*.24*amount;
+      // The original forward pincers moved but both middle and hind pairs
+      // dangled during the REAL lantern impact. Use their existing three
+      // joint pairs for a weight-bearing contact -> lifted knee tuck ->
+      // asymmetric planted recovery. The exact public counter clock drives
+      // every motion; unknown/expired/reduced/terminal events stay neutral.
+      const plantedSupport=leg.index===1
+        ?.28*counterLoad+.33*counterCollapse
+        :leg.index===2?.22*counterLoad+.38*counterCollapse:0;
+      const airborneFold=leg.index===1?.31*counterVault
+        :leg.index===2?.42*counterVault:0;
       const hipSplay=Math.max(0,Math.cos(phase))*stride*.15*amount
         +(leg.index===0?defensiveSweep*.48:0)
-        +(leg.index===0?(leg.side===1?.55:.08)*counterCollapse:0);
+        +(leg.index===0?(leg.side===1?.55:.08)*counterCollapse:0)
+        +plantedSupport;
       const kneeCounter=Math.max(0,Math.cos(phase))*stride*.16*amount
-        +(leg.index===0?defensiveSweep*.24:0);
+        +(leg.index===0?defensiveSweep*.24:0)
+        +plantedSupport*.65;
       // Both sides explicitly reset to +0 when the event disappears.
       leg.hip.rotation.z=hipSplay>0?leg.side*hipSplay:0;
       leg.knee.rotation.z=kneeCounter>0?-leg.side*kneeCounter:0;
       leg.hip.rotation.x=leg.index===0 && alert>0
         ?-alert*.32-plantedClaws*.86-counterLoad*.48+counterRelease*.18+(leg.side===1?.43:-.12)*counterCollapse
-        :leg.index===2?alert*.08+counterRelease*.20:0;
+        :leg.index===1?-plantedSupport*.8+airborneFold*.90
+        :alert*.08+counterRelease*.20-plantedSupport*.7+airborneFold;
       leg.knee.rotation.x=leg.index===0
-        ?alert*.20+plantedClaws*.66+counterLoad*.43-counterRelease*.14+(leg.side===1?-.25:.12)*counterCollapse:0;
+        ?alert*.20+plantedClaws*.66+counterLoad*.43-counterRelease*.14+(leg.side===1?-.25:.12)*counterCollapse
+        :plantedSupport*.70+airborneFold*.85;
       if (leg.pincer) {
         leg.pincer.rotation.y=alert>0?leg.side*(alert*.42+plantedClaws*.35):0;
         leg.pincer.rotation.z=alert>0?leg.side*defensiveSweep*.50:0;

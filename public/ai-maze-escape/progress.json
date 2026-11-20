@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-20T09:28:48.000Z",
+  "updatedAt": "2026-11-20T10:23:23.853Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass529 exact-HEAD 46fdd530 native WebGL #44699486040 SUCCESS: original artifact ZIP SHA f5173e764f85e57c76d41c97ad6aee8a91731fe82346b4a5255c86ea25c61e5f; all 45 image hash references verified on original full PNGs (42 sidecars + three real gate frames). Native 390 counter stage still small and shield recoil inert. Whole CI #44699485826 failed a REAL Maze strict older guard-motion assertion (>0.65rad), not Tiny Kingdom. Pass530 production candidate restores visibly forceful connected DOWN/OUT guardian shield release at genuine public lantern contact and preserves the unchanged older budget/test; fresh CI/native render/independent critique pending. Nintendo bar rejected."
+    "summary": "Pass530 exact-HEAD d52b6d76 native WebGL #44712513256 SUCCESS: original ZIP SHA 767390e7dc2f3bff592ba60ea908a346e3e85d742f108a9f245bb75f03293da6 and 45/45 original full-PNG references (42 sidecars + 3 genuine gate frames) verified. Real native 390/320 counter keeps complete actors in unchanged +/-0.95; direct original 390 critic rejects floating middle/rear legs and compressed dramatic acting against official Nintendo bar. Whole-repo CI #44712513258 red only at Tiny Kingdom OBS source test; Maze build/stream and focused six-scene-reset <100 passed. Pass531 production candidate stages true earned full six-leg contact -> recoil -> landing without new geometry/root/AI/hidden information; new exact-HEAD native render, strict tests and detached critic pending."
   },
   "captures": [
+    {
+      "title": "Pass530 original exact d52b6d76 native full-frame 320/390/844/1280 WebGL: 42/42 original PNG SHA pairs and 3/3 genuine gate frames verified, strict connected-body bounds; Pass531 planted-six-limb recoil unverified",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44712513256/artifacts/14617194729"
+    },
     {
       "title": "Pass529 original 46fdd530 native WebGL SUCCESS: 45/45 full-size PNG SHA matches and genuine 390 tick93→94 parry; whole CI Maze guard-motion regression identified, Pass530 physical release awaiting render",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44699486040/artifacts/14612422600"
