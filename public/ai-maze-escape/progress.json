@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-20T20:39:04.110Z",
+  "updatedAt": "2026-11-20T21:38:57.687Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass541 initial exact-HEAD native WebGL #44812936768 failed BEFORE browser: unchanged Pass527/528 source-bound low-pair camera lift tests rejected the broad new high-pair correction (297/299). Pass541b production repairs only SOURCE-BOUND envelope switch: original real low 390 frames retain original ~.29 NDC lift; new real high 390 frame may balance downward, 320 unchanged. Tests/thresholds NOT weakened. Exact-new-HEAD WebGL and whole CI required; Nintendo benchmark NOT MET."
+    "summary": "Pass542 source-bound physical two-actor ornamental spectator court candidate; incoming exact-HEAD Pass541b original native WebGL 42/42 PNG sidecars + 3/3 gate SHA verified, authentic 390/320 foreground still visually fails Nintendo benchmark. New same-HEAD render and independent critic required; no visual win claimed."
   },
   "captures": [
+    {
+      "title": "Pass541b exact source 844b170a native WebGL SUCCESS, 42/42 full-frame PNG/sidecar and 3/3 real gate hashes independently verified; 390/320 original visible spectator clutter REJECTED; Pass542 candidate pending exact-new-HEAD render",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44813337586/artifacts/14669456540"
+    },
     {
       "title": "Pass540b original exact-HEAD 909bc338 native WebGL; ZIP SHA256 5d084702ebb8, 42/42 PNG sidecars plus 3 genuine gate-transition hashes verified; 390 source-bound actor composition still visually rejected. Pass541 requires fresh after frame.",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44803706980/artifacts/14663725427"

@@ -231,6 +231,39 @@ export function publicEarnedGuardianScenicStageOverlap(actor,scenic,earned=false
 }
 
 /**
+ * Public, source-earned two-character PERFORMANCE COURT. The strict
+ * original silhouette-intersection still handles any connected actor hit.
+ * The additional court protects the negative space BETWEEN and just below
+ * their complete actual projected bodies on mobile: otherwise the original
+ * full-resolution recoil leaves an unrelated tall fossil canopy occupying
+ * the entire foreground while neither actor is technically ray-occluded.
+ *
+ * The caller exclusively passes non-colliding ornamental roots on currently
+ * visible public cells during the same-run lantern counter. A real wall,
+ * hazard, unrevealed cell or gameplay collider must never be sent here.
+ * Require a closer ornament in real WebGL NDC depth so distant architecture
+ * remains as the backdrop, and keep the sightline confined to the physical
+ * two-actor footprint, not the whole screen or an invented destination.
+ */
+export function publicEarnedGuardianScenicPerformanceCourt(pip,thornback,scenic,earned=false){
+  if(!earned||!pip||!thornback||!scenic)return false;
+  const fields=['left','right','bottom','top','nearestZ'];
+  if(![pip,thornback,scenic].every(box=>
+    fields.every(key=>Number.isFinite(box[key])) && box.left<box.right
+    && box.bottom<box.top && box.nearestZ>-1 && box.nearestZ<1))return false;
+  // Only an actually nearer foreground object is eligible. Backdrop keeps
+  // its silhouette rather than fading merely for sharing two screen pixels.
+  if(scenic.nearestZ>=Math.max(pip.nearestZ,thornback.nearestZ)-.025)return false;
+  const left=Math.max(-.95,Math.min(pip.left,thornback.left)-.04);
+  const right=Math.min(.95,Math.max(pip.right,thornback.right)+.04);
+  const bottom=Math.max(-.83,Math.min(pip.bottom,thornback.bottom)-.34);
+  const top=Math.min(.82,Math.max(pip.top,thornback.top)+.16);
+  const overlapX=Math.max(0,Math.min(right,scenic.right)-Math.max(left,scenic.left));
+  const overlapY=Math.max(0,Math.min(top,scenic.top)-Math.max(bottom,scenic.bottom));
+  return overlapX>=.11 && overlapY>=.12;
+}
+
+/**
  * Earned lantern-counter front-quarter camera direction.
  *
  * The authentic 390px public counter footage puts the connected Thornback

@@ -5,7 +5,7 @@ import { publicEarnedCounterImpactStage } from './public-counter-impact.mjs';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilSafeContactHalfHeight, publicGuardianEarnedRecoilFinalPairShift, publicGuardianEarnedRecoilPairStageLift, publicGuardianEarnedContactStageResponse, publicGuardianEarnedRecoilRevealElevation, setPublicEarnedGuardianFrontQuarterOffset, publicEarnedGuardianCounterCameraPriority, publicEarnedGuardianCounterCameraAct, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap, setPublicEarnedGuardianNarrowPairStage, setPublicEarnedGuardianWideContactReveal } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilSafeContactHalfHeight, publicGuardianEarnedRecoilFinalPairShift, publicGuardianEarnedRecoilPairStageLift, publicGuardianEarnedContactStageResponse, publicGuardianEarnedRecoilRevealElevation, setPublicEarnedGuardianFrontQuarterOffset, publicEarnedGuardianCounterCameraPriority, publicEarnedGuardianCounterCameraAct, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap, publicEarnedGuardianScenicPerformanceCourt, setPublicEarnedGuardianNarrowPairStage, setPublicEarnedGuardianWideContactReveal } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicEarnedGuardianCounterLightPath } from './public-lantern-encounter.mjs';
@@ -2013,15 +2013,27 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           for(const scenic of parryScenicRoots) {
             const cell=scenic.userData.cell;
             if(!Number.isSafeInteger(cell)||!visible.has(cell)
-              ||!s.cells.some(c=>c.cell===cell)
-              ||Math.min(distance(cell,s.currentCell),
-                distance(cell,earnedCounterActor.cell))>3)continue;
+              ||!s.cells.some(c=>c.cell===cell))continue;
+            // Keep the original direct actor-overlap court exactly as before.
+            // The public six-cell spectator horizon is NEW and applies only
+            // to projected ornamental foreground encroaching on the joined
+            // physical performance stage; it cannot touch real solid walls.
+            const nearActor=Math.min(distance(cell,s.currentCell),
+              distance(cell,earnedCounterActor.cell));
+            const outsideOriginalCourt=Math.min(distance(cell,s.currentCell),
+              distance(cell,earnedCounterActor.cell))>3;
+            if(nearActor>6)continue;
             const projected=projectedParryScenicBox(scenic);
+            const crowdsPerformance=projected
+              && publicEarnedGuardianScenicPerformanceCourt(
+                pipPhysical,thornbackPhysical,projected,true);
+            if(outsideOriginalCourt&&!crowdsPerformance)continue;
             if(projected && (
               publicEarnedGuardianScenicStageOverlap(
                 pipPhysical,projected,true)
               ||publicEarnedGuardianScenicStageOverlap(
-                thornbackPhysical,projected,true)))
+                thornbackPhysical,projected,true)
+              ||crowdsPerformance))
               stageCells.add(cell);
           }
         }
