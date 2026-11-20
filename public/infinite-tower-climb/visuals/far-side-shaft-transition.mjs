@@ -84,11 +84,22 @@ export function observedSourceReturnedCoreBeforeScenicUpload(source,held,job,sta
     Number.isFinite(source.lastGuardianCrossing.guardian.health) &&
     source.lastGuardianCrossing.guardian.health<=0;
   if(!originalStillPainted)return true;
-  // Gate noninteractive upload bursts behind actual successfully returned,
-  // source-matched NONZERO core paint. The third return protects its
-  // first real successor silhouette when the heavy animated biome compiles.
-  const requiredReturns=stage==='periphery'?2:3;
-  const requiredSeconds=stage==='periphery'?.12:.20;
+  // The 853e770 25fps original danger films still hard-cut across the
+  // actual gateway: 0s of sustained shared old/new architecture in BOTH
+  // viewports, despite the old 2-return/.12s and 3-return/.20s gates.
+  // Their first F9 WebGL returns took 694ms / 652ms after browser acceptance.
+  // Do not immediately block the newly visible authentic shaft with two
+  // more synchronous scenic builds. First allow the same real core and
+  // HP-open original gate to co-render through a meaningful sequence of
+  // successfully returned frames; source packets and CPU build time do
+  // not spend this lease. The deadline is deliberately conditional on
+  // the old gate STILL being source-certified and actually retained:
+  // once that old GPU owner exits, do not strand the genuine successor.
+  // This adjusts only the scheduling of original NONINTERACTIVE artwork.
+  // It never grants a new floor, guardian defeat, simulated support,
+  // fake WebGL return, or native-video acceptance.
+  const requiredReturns=stage==='periphery'?4:6;
+  const requiredSeconds=stage==='periphery'?.32:.52;
   return job.structuralRoot.visible===true &&
     job.structuralFade>.015 &&
     job.structuralVisibleReturns>=requiredReturns &&
