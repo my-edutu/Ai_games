@@ -311,10 +311,24 @@ export function setPublicEarnedGuardianFrontQuarterOffset(
   // existing FULL connected-mesh NDC lens fitter. Radius/elevation, actor
   // roots, hidden-map protection and strict no-crop thresholds are unchanged.
   // Accept only after fresh, uncropped exact-SHA source-bound WebGL evidence.
-  const flank=Math.PI/6;
+  // Pass534: the original SHA-matched native seed-13 tick94 390x844
+  // rendered BOTH complete bodies at the lateral +/-0.90 margins, with
+  // Thornback's expressive face largely in side profile among tall parapets.
+  // The same true 320x740 event reads its face considerably better, so do
+  // not change that independently tested narrow portrait composition.
+  //
+  // Only in 390-class PORTRAIT, turn farther toward the CURRENT PUBLIC
+  // hero-to-guardian axis and keep an authentic 20-degree shoulder flank.
+  // This reduces projected model separation and reveals the full acting
+  // pair before the existing REAL full-mesh lens/backoff/NDC safety fits it.
+  // No new camera, hidden route, enemy, actor movement, geometry or budget;
+  // no change to the genuine contact continuity/ease or manual cameras.
+  const frontPair=aspect>=.45;
+  const flank=frontPair?Math.PI/9:Math.PI/6;
   const left=difference(face-flank),right=difference(face+flank);
   const delta=Math.abs(left)<=Math.abs(right)?left:right;
-  const turn=Math.max(-1.82,Math.min(1.82,delta));
+  const maxTurn=frontPair?2.50:1.82;
+  const turn=Math.max(-maxTurn,Math.min(maxTurn,delta));
   if(Math.abs(turn)<.045)return false;
   offset.x=radius*Math.cos(normal+turn);
   offset.z=radius*Math.sin(normal+turn);
