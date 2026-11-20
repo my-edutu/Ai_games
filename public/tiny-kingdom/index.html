@@ -11381,6 +11381,26 @@ function realHomeDetailViewMode(homeCount,_residentHomes,onStreet,following,cine
  return !cinematicView&&Number.isFinite(physicalZoom)&&
   physicalZoom<=HOME_DETAIL_LOCAL_ORBIT_ZOOM?'inspection':'overview';
 }
+// W487: the ORIGINAL living Day-120 village uses real CSS-pixel
+// coverage, not a uniform desktop detail count on a narrow touch viewport.
+// In a dense portrait town, only roof/room microdetail too small to read
+// moves to the game's EXISTING fully enclosed compact-cottage mesh.
+// All original homes, openings, workforce, collision and jobs stay present.
+// Six real optical-facing full-detail houses remain on desktop. The policy
+// is shared by both static VBO paths and cannot depend on SwiftShader.
+function originalResponsiveHomeDetailLimit(homeCount,mode,width,height){
+ if(!Number.isInteger(homeCount)||homeCount<0||
+    !['overview','inspection'].includes(mode)||
+    ![width,height].every(n=>Number.isFinite(n)&&n>0))
+  throw Error('W487 invalid physical home screen-budget inputs');
+ if(mode==='overview')return VILLAGE_LOD_LIMIT;
+ if(homeCount<24)return HOME_DETAIL_INSPECTION_LIMIT;
+ // With 35+ grown homes, six near-camera lofts can breach the hard 160k
+ // source-view contract at 390x844. Keep at least four real fully sculpted
+ // houses and every other home's ORIGINAL compact room/roof geometry.
+ // Resize/orientation invalidates the retained optical home identity below.
+ return width<=520?4:width<=800?5:HOME_DETAIL_INSPECTION_LIMIT;
+}
 function currentHomeDetailAnchor(){
  const inspect=realHomeDetailViewMode(city.length,homeClustersEnabled(),
   streetWalk,follow,cinematic,zoom)==='inspection';
@@ -11406,7 +11426,8 @@ function getHomeDetailPolicyAudit(){
   retainedLODChanges:a.updates,
   movementThresholdMetres:HOME_DETAIL_ANCHOR_METERS,
   rotationThresholdRadians:HOME_DETAIL_TURN_THRESHOLD_RAD,
-  activeDetailedHomeLimit:HOME_DETAIL_INSPECTION_LIMIT,
+  activeDetailedHomeLimit:originalResponsiveHomeDetailLimit(city.length,a.mode,canvas.clientWidth,canvas.clientHeight),
+  densityAwareOpticalBudget:true,allOriginalHomesStillRendered:true,
   localOrbitInspectionMaxZoom:HOME_DETAIL_LOCAL_ORBIT_ZOOM,
   originalOverviewDetailLimit:VILLAGE_LOD_LIMIT,
   rendererModeLodParity:true,rendererPathDoesNotPickDifferentHouses:true,
@@ -11417,8 +11438,8 @@ function getHomeDetailPolicyAudit(){
 function detailedHomeSet(){
  if(city.length<=12)return new Set(city.map((_,i)=>i));
  const anchor=currentHomeDetailAnchor();
- const limit=anchor.mode==='inspection'?
-  Math.min(VILLAGE_LOD_LIMIT,HOME_DETAIL_INSPECTION_LIMIT):VILLAGE_LOD_LIMIT;
+ const limit=originalResponsiveHomeDetailLimit(city.length,anchor.mode,
+  canvas.clientWidth,canvas.clientHeight);
  return planOriginalNeighbourhoodDetail(city,anchor,limit);
 }
 

@@ -42,4 +42,28 @@ assert.throws(()=>plan(north,'inspection',[0,0],11,NaN,0,.8),/invalid/,
  'nonfinite optical heading cannot poison retained geometry identities');
 assert.match(script,/visible-neighborhood:/,'genuine camera direction changes partition identity');
 assert.match(script,/allOriginalHomesRetained:true/,'houses never hidden by new LOD');
+// W487 RED before the renderer change: the original fixed desktop-six
+// detailed-home policy exceeded 160000 source triangles in real 390x844
+// Day-121 east view (162509). Test the chosen physical-screen admission,
+// never reduce population or fake simulated activity to meet the limit.
+const policyStart=script.indexOf('function originalResponsiveHomeDetailLimit(');
+const policyEnd=script.indexOf('function currentHomeDetailAnchor(',policyStart);
+assert.ok(policyStart>0&&policyEnd>policyStart,
+ 'real game must use viewport-aware dense-home detail geometry');
+const responsive=new Function(
+ 'const VILLAGE_LOD_LIMIT=8; const HOME_DETAIL_INSPECTION_LIMIT=6;'+
+ script.slice(policyStart,policyEnd)+
+ 'return originalResponsiveHomeDetailLimit;')();
+assert.equal(responsive(35,'inspection',390,844),4,
+ 'dense 390px portrait keeps 4 full 3D homes, all others compact');
+assert.equal(responsive(35,'inspection',650,780),5,
+ 'mid-size view keeps 5 physical full-detail homes');
+assert.equal(responsive(35,'inspection',1024,640),6,
+ 'desktop keeps 6 physical full-detail inhabited homes');
+assert.equal(responsive(35,'overview',390,844),8,
+ 'overview keeps every original LOD slot');
+assert.equal(responsive(12,'inspection',390,844),6,
+ 'founding village remains genuinely detailed');
+assert.throws(()=>responsive(35,'inspection',NaN,844),/invalid/,
+ 'nonfinite viewport cannot create stale geometry');
 console.log('W294 camera-facing genuine homes PASS: source execution, bounded hysteresis, full population; browser and hardware evidence separate.');

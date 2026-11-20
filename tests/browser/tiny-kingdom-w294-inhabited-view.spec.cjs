@@ -86,7 +86,9 @@ test('W294 original lived-in street direction follows genuine camera without hid
   expect(state.homes.staleDrawn).toBe(0);
   expect(state.homes.detailPolicy.mode).toBe('inspection');
   expect(state.homes.detailPolicy.allOriginalHomesRetained).toBe(true);
-  expect(state.details.length).toBe(6);
+  const expectedDetailHomes=viewport.width<=520?4:viewport.width<=800?5:6;
+  expect(state.homes.detailPolicy.activeDetailedHomeLimit).toBe(expectedDetailHomes);
+  expect(state.details.length).toBe(expectedDetailHomes);
   expect(state.geometry.totalTriangles).toBeLessThan(160000);
   // W297: a camera that films only the underside of a real occupied roof
   // cannot pass just because its pixels and home counts are nonzero.
