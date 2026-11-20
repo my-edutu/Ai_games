@@ -505,8 +505,12 @@ test('RED-first: real 390px licensed toesl hinge can grow across one authenticat
   {sourceToeTrackName:'spine.quaternion'},{sourceToeBoneName:'toesr'}
  ])assert.equal(plan({...owner,...patch}),null,
   'no source continuity nor speculative toe hinge on a false owner: '+JSON.stringify(patch));
+ assert.equal(plan({...owner,previous:{...previous,sourceInstanceId:'other-clone'}}),null,
+  'a previous original GLB clone must never authorize a fresh instance toe articulation');
+ assert.equal(plan({...owner,previous:{...previous,sourceInstanceId:undefined}}),null,
+  'a missing previous source identity cannot silently re-prime the child joint');
  for(const previousPatch of [
-  {sourceClip:'Idle'},{sourceInstanceId:'other-clone'},
+  {sourceClip:'Idle'},
   {side:'right'},{sourceClipTimeSeconds:.20},
   {finalIndependentSourceSkin:false},
   {originalOppositeShoeVerified:false},

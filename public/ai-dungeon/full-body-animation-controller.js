@@ -6003,6 +6003,9 @@ export function planLicensedSourceToeChildContinuityCandidates({
   frameInterval<.008||frameInterval>.420001||
   ownerLocomotion!==true||alive!==true||visible!==true||
   interrupted||teleport||reducedMotion)return null;
+ // A source instance replacement invalidates its old original-skinned pose.
+ // Never re-prime a speculative toe from a receipt owned by another GLB clone.
+ if(previous&&previous.sourceInstanceId!==sourceInstanceId)return null;
  const step=3*frameInterval,first=Math.min(.12,step);
  const fallback=Object.freeze([-first,first]);
  const last=previous?.licensedOriginalToeChildFinisher;
