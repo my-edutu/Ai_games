@@ -262,6 +262,69 @@ export function observedSourceRetainedRaisedExit(source,held,roofY) {
  * Only immutable HP-zero original-guardian + exact raised sole/width support
  * (or its 32-tick authenticated flight tail) extends the old limit.
  */
+
+/**
+ * The first source-pinned 1x Floor9 films retained the *actual* opened
+ * bronze GPU gate, but the public camera/horizon witness vanished when
+ * the narrow departure-palette predicate expired during a real upward
+ * jump. This certificate is strictly for an ALREADY-RETAINED original
+ * world owner. It cannot introduce a gate, recover a retired GPU group,
+ * replace recorded guardian defeat or create movement/renderer returns.
+ * The caller separately verifies the gate mesh is still scene-owned.
+ */
+export function observedRetainedSourceOriginalOpticalRoom(source,held) {
+  const valid=Number.isSafeInteger;
+  const p=source?.player,w=source?.lastGuardianCrossing,cap=w?.cap;
+  const ground=source?.platforms?.find(platform=>platform?.id==='f9:ground');
+  const lease=observedSourceOriginalVisibilityWindow(source,held);
+  if(!lease?.sourceBound ||
+      held?.guardianGateRetained!==true ||
+      held.verifiedObservedFloorAdvance!==true ||
+      held.opticalExitSubmitted===true ||
+      held.oldCapId!=='f8:cap' ||
+      ![held.oldCapX,held.oldCapWidth,held.oldRoofY,held.thresholdX,
+        held.crossingTick,held.firstWorldRenderTick,held.submittedFrames,
+        source.tick,p?.x,p?.y,p?.halfWidth,p?.halfHeight,
+        ground?.x,ground?.y,ground?.width,ground?.height,
+        w?.sourceTick,w?.exitX,w?.crossingX,w?.halfWidth,w?.halfHeight,
+        cap?.x,cap?.y,cap?.width,cap?.height].every(valid) ||
+      held.oldCapWidth<=0 || p.halfWidth<=0 || p.halfHeight<=0 ||
+      ground.width<=0 || ground.height<=0 ||
+      held.firstWorldRenderTick>source.tick ||
+      held.crossingTick>source.tick ||
+      source.tick-held.crossingTick>lease.maxTicks ||
+      held.submittedFrames<1 || held.submittedFrames>=30 ||
+      !Number.isFinite(held.visibleSeconds) ||
+      held.visibleSeconds<0 || held.visibleSeconds>=2.8 ||
+      !Number.isFinite(held.originalGatewayOpacity) ||
+      held.originalGatewayOpacity<=.035 ||
+      held.originalGatewayOpacity>1 ||
+      w?.runToken!==source.runToken ||
+      w.fromFloor!==8 || w.toFloor!==9 ||
+      w.sourceTick!==held.crossingTick ||
+      w.guardian?.kind!=='guardian' ||
+      w.guardian.active!==false ||
+      !Number.isFinite(w.guardian.health) ||
+      w.guardian.health>0 ||
+      cap.id!=='f8:cap' ||
+      cap.x!==held.oldCapX || cap.width!==held.oldCapWidth ||
+      cap.y+cap.height!==held.oldRoofY ||
+      w.exitX!==held.thresholdX ||
+      w.exitX!==cap.x+Math.floor(cap.width*.76) ||
+      w.crossingX<w.exitX || w.crossingX>w.exitX+60000 ||
+      w.halfWidth!==p.halfWidth || w.halfHeight!==p.halfHeight ||
+      ground.y+ground.height!==held.oldRoofY ||
+      p.x-p.halfWidth<held.thresholdX-SOURCE_GATEWAY_RETURN_TOLERANCE ||
+      p.x-p.halfWidth>held.thresholdX+100000 ||
+      p.y-p.halfHeight<held.oldRoofY-2500 ||
+      p.y-p.halfHeight>held.oldRoofY+230000 ||
+      !observedSourceFloorNineRouteSupport(source,ground,held.oldRoofY))
+    return null;
+  return {sourceBound:true,sourceTick:source.tick,
+    crossingTick:w.sourceTick,retainedOldGatewayOpacity:held.originalGatewayOpacity,
+    limitation:'Genuine same-run zero-HP original gate, physically present moving body and existing source-supported F9 route; not native pixel visibility'};
+}
+
 export function observedSourceOriginalVisibilityWindow(source,held) {
   if(!source || !held || source.lifecycle!=='running' ||
      source.floor!==9 || source.theme!=='void' ||

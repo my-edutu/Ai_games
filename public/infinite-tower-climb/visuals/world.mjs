@@ -8,7 +8,7 @@ import { originalMeshPath } from './mesh-provenance.mjs';
 import { GUARDIAN_TRANSMISSION_LAYOUT } from './guardian-transmission-layout.mjs';
 import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedPrebuiltVoidShaftRelease, observedQueuedOriginalCapAtFirstRender, reconcileRecordedOriginalCapCrossing,
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
-import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceFloorNineRouteSupport, observedSourceRetainedRaisedExit, observedSourceAirborneSuccessorApproach, observedSourceOriginalVisibilityWindow, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS, observedCertifiedOriginalGatewayOpticalLease, observedReturnedSharedRoomPalette } from './source-physical-arrival-palette.mjs';
+import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceFloorNineRouteSupport, observedSourceRetainedRaisedExit, observedSourceAirborneSuccessorApproach, observedSourceOriginalVisibilityWindow, observedRetainedSourceOriginalOpticalRoom, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS, observedCertifiedOriginalGatewayOpticalLease, observedReturnedSharedRoomPalette } from './source-physical-arrival-palette.mjs';
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
 import { rebindSourceOwnedUndercroft, createSightlineMatrixEpochCache } from './successor-deck-visibility.mjs';
 import { createSourceSightlineRayBroadphase } from './source-sightline-broadphase.mjs';
@@ -5657,8 +5657,21 @@ export function createTowerWorld(){
     // gateway is still visibly present. Never resurrect a retired GPU owner.
     const visibleOriginalGateway=
       observedSourceGatewayDeparturePresence(snapshot,held)?.opacity>.035;
-    if(!immutable && !priorGrounded && !visibleOriginalGateway)return null;
+    // The actual HP-open original GPU owner can remain safely submitted
+    // AFTER the narrower source-departure material cue expires. In the
+    // 2026-11-20 matched 1x film this happened before the source-driven
+    // Floor9 first jump, detaching the camera and sky from a still 98%-opaque
+    // original gateway. Authenticate the CURRENT hero, original HP-zero,
+    // physical roof, same renderer-owned gate and finite returned-frame lease.
+    // Never reattach a retired mesh, borrow an old run or invent a crossing.
+    const ownedSourceRoom=held.root?.parent===group &&
+      held.originalGateRoot?.parent===held.root &&
+      observedRetainedSourceOriginalOpticalRoom(snapshot,held);
+    if(!immutable && !priorGrounded && !visibleOriginalGateway &&
+       !ownedSourceRoom)return null;
     return {runToken:held.runToken,floor:held.floor,sourceTick:held.sourceTick,
+      sourceOwnedOriginalCameraRoom:ownedSourceRoom?.sourceBound===true,
+      sourceOwnedOriginalCameraRoomTick:ownedSourceRoom?.sourceTick??null,
       crossingTick:held.crossingTick,
       guardianGateRetained:held.guardianGateRetained===true,
       thresholdX:held.thresholdX,oldRoofY:held.oldRoofY,

@@ -54,8 +54,18 @@ export function observedSourceBoundColdDoorwayLens(source, held, drawnHero, aspe
   // materials. Follow exactly that SAME source-validated optical lifetime,
   // with no camera-only timer, fake pose, or scene resurrected after disposal.
   const originalGateway = observedSourceGatewayDeparturePresence(source,held);
-  if (originalGateway?.sourceBound !== true ||
-      originalGateway.opacity <= .035) return null;
+  // World may retain the SAME real original 3D gateway after the narrower
+  // departure-palette predicate expires. Reuse ONLY its same-source-tick,
+  // source/roof/guardian-certified immutable GPU-owner receipt, not a
+  // camera-created historical frame or inferred future landing.
+  const ownedRoom=held.sourceOwnedOriginalCameraRoom===true &&
+    held.sourceOwnedOriginalCameraRoomTick===source?.tick &&
+    Number.isFinite(held.originalGatewayOpacity) &&
+    held.originalGatewayOpacity>.035 &&
+    held.originalGatewayOpacity<=1;
+  if (!ownedRoom &&
+      (originalGateway?.sourceBound !== true ||
+       originalGateway.opacity <= .035)) return null;
   const p = source?.player, w = source?.lastGuardianCrossing, cap = w?.cap;
   const sourceLease=observedSourceOriginalVisibilityWindow(source,held);
   if (!p || !w || !cap || !held || !drawnHero ||
