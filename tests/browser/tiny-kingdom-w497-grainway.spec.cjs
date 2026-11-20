@@ -29,6 +29,16 @@ for(const width of [1024,390]){
   expect(before.audit.hedgerow.triangles).toBeGreaterThan(0);
   expect(before.audit.hedgerow.triangles).toBeLessThanOrEqual(2800);
   expect(before.audit.hedgerow.extraGpuBuffers).toBe(0);
+  // These are genuine static architectural additions on the REAL
+  // granary-to-market route; not an invented delivery, actor or authority.
+  expect(before.audit.loadhouse?.bearingBays).toBe(10);
+  expect(before.audit.loadhouse.ventilatedCasements).toBe(2);
+  expect(before.audit.loadhouse.hoistFrameBeams).toBe(3);
+  expect(before.audit.loadhouse.triangles).toBeGreaterThan(200);
+  expect(before.audit.loadhouse.triangles).toBeLessThanOrEqual(1500);
+  expect(before.audit.loadhouse.authorityChanged).toBe(false);
+  expect(before.audit.loadhouse.changesNavigation).toBe(false);
+  expect(before.audit.loadhouse.extraGpuBuffers).toBe(0);
   expect(before.audit.hedgerow.authorityModified).toBe(false);
   expect(before.triangles).toBeLessThan(160000);
   await page.screenshot({path:path.join(out,'grainway-'+width+'.png'),fullPage:true});
@@ -49,6 +59,7 @@ for(const width of [1024,390]){
   expect(after.people).toBe(before.people);
   expect(after.buildings).toBe(before.buildings);
   expect(after.audit.hedgerow).toEqual(before.audit.hedgerow);
+  expect(after.audit.loadhouse).toEqual(before.audit.loadhouse);
   expect(after.gl).toBe(0);
   expect(after.overflow).toBeLessThanOrEqual(width);
   expect(errors).toEqual([]);

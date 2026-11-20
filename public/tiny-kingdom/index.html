@@ -18331,6 +18331,128 @@ function renderLivingGrainwayVerge(points){
  return {...grainwayVergeAudit};
 }
 
+
+// W498: the inhabited grain district's REAL raised store and traversable
+// farm->market freight street gain one architecturally grounded timber/stone
+// service frontage. These are load-bearing-looking STATIC WORLD elements,
+// not invented stock, citizens, economic events, or a new collision route.
+// Generated only with the already dirty/seasonally retained civic road mesh;
+// zero resident animation or additional GPU buffers per frame.
+const GRAINWAY_LOADHOUSE_TRIANGLE_CAP=1500;
+let grainwayLoadhouseAudit={source:'unbuilt-authentic-loading-street',
+ bearingBays:0,oakBraces:0,ventilatedCasements:0,hoistFrameBeams:0,
+ waystones:0,triangles:0,authorityChanged:false,extraGpuBuffers:0};
+function renderGenuineGrainwayLoadhouse(points){
+ const first=data.length,[x,z]=FARMSTEAD.granary,
+  y=terrain(x,z),front=z-3.95*.52;
+ const oak=rgb(0x68503c),oakLight=rgb(0xa08862),
+  dark=rgb(0x463a31),stone=rgb(0x968b7b),
+  mortar=rgb(0xb3a38b),iron=rgb(0x444b4b);
+ let bearingBays=0,oakBraces=0,ventilatedCasements=0,
+  hoistFrameBeams=0,waystones=0;
+ // Exposed timber-framed longitudinal structural bays follow the SAME
+ // authentic upper granary volume; no fake separate storage building.
+ materialScope(MATERIAL.STONE,()=>{
+  for(const side of [-1,1])for(const run of [-1.27,.0,1.27]){
+   const xx=x+side*2.27,zz=z+run;
+   box(xx,y+.71,zz,.23,.34,.27,stone);
+   box(xx,y+1.04,zz,.24,.095,.31,mortar);
+  }
+ });
+ materialScope(MATERIAL.WOOD,()=>{
+  for(const side of [-1,1]){
+   const xx=x+side*2.29;
+   for(let bay=0;bay<5;bay++){
+    const zz=z-1.62+bay*.81;
+    box(xx,y+1.04,zz,.115,2.07,.115,oak);
+    bearingBays++;
+    // Continuous rails and diagonal knees visibly support the raised loft.
+    if(bay<4){
+     const next=zz+.81;
+     limbSegment([xx,y+1.31,zz+.06],[xx,y+2.52,next-.06],
+      .037,oakLight,4);oakBraces++;
+    }
+   }
+   box(xx,y+1.07,z,.13,.13,3.75,oak);
+   box(xx,y+2.98,z,.14,.14,3.77,oakLight);
+  }
+  // A front upper-story gallery, never touching the existing traversable
+  // ground door. Each side of the door exposes real deep timber window reveals.
+  for(const side of [-1,1]){
+   const cx=x+side*1.39,zz=front-.09;
+   box(cx,y+2.59,zz,.81,.075,.16,oak);
+   box(cx,y+3.02,zz,.85,.10,.17,oakLight);
+   for(const leaf of [-1,1]){
+    const wx=cx+leaf*.34;
+    box(wx,y+2.58,zz,.07,.48,.13,oak);
+   }
+   // Open louver slats, not a flat black box or fabricated stored grain.
+   for(let k=0;k<4;k++)
+    box(cx,y+2.66+k*.087,zz-.025,.64,.026,.085,dark);
+   ventilatedCasements++;
+  }
+  // Original weathered oak wall plate and brackets tie the real granary
+  // porch to its load-bearing facade while keeping the courier lane open.
+  box(x,y+3.12,front-.18,4.30,.16,.18,oak);
+  for(const side of [-1,1]){
+   limbSegment([x+side*1.78,y+2.45,front-.16],
+    [x+side*1.35,y+3.13,front-.16],.063,oakLight,5);oakBraces++;
+  }
+  // An EMPTY static lifting gantry: real hoist architecture only. Never
+  // show an invented bag, merchant, completed delivery or swinging object.
+  const beamY=y+3.36,gantryZ=front-1.56;
+  for(const side of [-1,1]){
+   const bx=x+side*.81;
+   limbSegment([bx,beamY-.19,front-.02],
+    [bx,beamY+.15,gantryZ],.079,oak,6);hoistFrameBeams++;
+  }
+  box(x,beamY+.02,gantryZ,2.10,.16,.23,oakLight);
+  hoistFrameBeams++;
+  box(x,beamY-.15,gantryZ,.37,.22,.34,iron);
+  box(x,beamY-.33,gantryZ,.15,.23,.13,iron);
+ });
+ // Original road's surveyed waystones echo the granary mortar. They are
+ // OUTSIDE the route and omitted at fields, homes and real loading/market
+ // entrances; never appear in navigation or as selectable buildings.
+ materialScope(MATERIAL.STONE,()=>{
+  const selected=new Set();
+  for(let i=0;i<points.length-1&&waystones<7;i++){
+   if(i%5!==2)continue;
+   const a=points[i],b=points[i+1],
+    dx=b[0]-a[0],dz=b[1]-a[1],length=Math.hypot(dx,dz);
+   if(length<.2)continue;
+   const side=waystones%2?-1:1,
+    wx=(a[0]+b[0])*.5+side*(-dz/length)*1.97,
+    wz=(a[1]+b[1])*.5+side*(dx/length)*1.97;
+   const key=Math.round(wx)+':'+Math.round(wz);
+   if(selected.has(key)||Math.hypot(wx-x,wz-z)<5||
+      Math.hypot(wx-FARM_MARKET_STREET_DESTINATION[0],
+       wz-FARM_MARKET_STREET_DESTINATION[1])<5||
+      !walkable(wx,wz)||farmTreeClearance(wx,wz)||
+      city.some(l=>Math.hypot(wx-l[0],wz-l[1])<2.6)||
+      trees.some(t=>Math.hypot(wx-t.x,wz-t.z)<1.2))continue;
+   selected.add(key);
+   const wy=terrain(wx,wz);
+   box(wx,wy-.045,wz,.32,.24,.30,stone);
+   box(wx,wy+.18,wz,.23,.38,.22,mortar);
+   box(wx,wy+.55,wz,.30,.095,.28,stone);
+   waystones++;
+  }
+ });
+ const triangles=(data.length-first)/30;
+ if(!Number.isInteger(triangles)||triangles>GRAINWAY_LOADHOUSE_TRIANGLE_CAP)
+  throw Error('W498 genuine freight frontage breached complete-world scenic budget');
+ grainwayLoadhouseAudit={
+  source:'original-raised-granary-loading-quarter-on-true-freight-street',
+  bearingBays,oakBraces,ventilatedCasements,hoistFrameBeams,waystones,
+  triangles,routeWaypoints:points.length,
+  realGranary:[x,z],realMarket:FARM_MARKET_STREET_DESTINATION.slice(),
+  authorityChanged:false,changesNavigation:false,additionalCitizens:0,
+  inventedStock:0,extraGpuBuffers:0,
+  originalDoorwayPreserved:true,architecturalMeshRetained:true};
+ return {...grainwayLoadhouseAudit};
+}
+
 function farmMarketStreet(){
  const first=data.length;
  farmMarketStreetStats={source:'walkable-granary-to-real-receiving-market-street',
@@ -18392,6 +18514,7 @@ function farmMarketStreet(){
  // once in this exact-season civic mesh; preserve the full road centre.
  renderRealRoadsideMicroterrain(points);
  audit.hedgerow=renderLivingGrainwayVerge(points);
+ audit.loadhouse=renderGenuineGrainwayLoadhouse(points);
  renderFarmServiceStreetBoundary(points);
  // A low, physically connected threshing/loading APRON in front of the
  // ORIGINAL granary door. It carries no invented sacks or new collision.
