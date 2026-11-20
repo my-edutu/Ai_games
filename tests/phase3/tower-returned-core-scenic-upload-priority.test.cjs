@@ -32,31 +32,39 @@ function authenticFloorNine() {
   return {source,held,job};
 }
 
-test('old gateway and real F9 core must share two returned nonzero WebGL draws before a cold periphery upload',async()=>{
+test('source-earned F9 core and old gate get four meaningful returned draws before cold periphery',async()=>{
   const {observedSourceReturnedCoreBeforeScenicUpload:ready}=await policy;
   const a=authenticFloorNine(),before=JSON.stringify(a);
   assert.equal(ready(a.source,a.held,a.job,'periphery'),false,
     'one returned shaft draw must not be hidden by next expensive scene build');
   assert.equal(ready(a.source,a.held,{
-    ...a.job,structuralVisibleReturns:2,structuralVisibleSeconds:.08},'periphery'),false,
-    'two rapid returns are not enough without real visible duration');
+    ...a.job,structuralVisibleReturns:2,structuralVisibleSeconds:.15},'periphery'),false,
+    'the older two-return 0.12s policy permitted a native-film hard cut');
+  const four={...a.job,submittedFrames:6,structuralVisibleReturns:4};
   assert.equal(ready(a.source,a.held,{
-    ...a.job,structuralVisibleReturns:2,structuralVisibleSeconds:.15},'periphery'),true);
+    ...four,structuralVisibleSeconds:.30},'periphery'),false,
+    'four fast frames cannot spend the real painted-duration floor');
+  assert.equal(ready(a.source,a.held,{
+    ...four,structuralVisibleSeconds:.35},'periphery'),true);
   assert.equal(JSON.stringify(a),before,'pure presentation decision never edits source authority');
 });
 
-test('animated Void biome is scheduled after three genuine shaft returns, not the first new shader upload',async()=>{
+test('original animated Void detail waits for six real core returns, not a single short crossfade',async()=>{
   const {observedSourceReturnedCoreBeforeScenicUpload:ready}=await policy;
   const a=authenticFloorNine();
-  const j={...a.job,submittedFrames:4,peripheryBuiltAtSubmitted:3,
-    structuralVisibleReturns:2,structuralVisibleSeconds:.18};
-  assert.equal(ready(a.source,a.held,j,'biome'),false);
+  const j={...a.job,submittedFrames:7,peripheryBuiltAtSubmitted:6,
+    structuralVisibleReturns:5,structuralVisibleSeconds:.55};
+  assert.equal(ready(a.source,a.held,j,'biome'),false,
+    'the old three-frame biome upload cut off the real shared-room shot');
   assert.equal(ready(a.source,a.held,{
-    ...j,structuralVisibleReturns:3,structuralVisibleSeconds:.23},'biome'),true);
+    ...j,structuralVisibleReturns:6,structuralVisibleSeconds:.48},'biome'),false,
+    'six short returns still do not establish half a second of GPU-owned core');
   assert.equal(ready(a.source,a.held,{
-    ...j,structuralVisibleReturns:3,structuralVisibleSeconds:.23,
-    submittedFrames:3},'biome'),false,
-    'a still-unreturned periphery build is not a third shader submission');
+    ...j,structuralVisibleReturns:6,structuralVisibleSeconds:.55},'biome'),true);
+  assert.equal(ready(a.source,a.held,{
+    ...j,structuralVisibleReturns:6,structuralVisibleSeconds:.55,
+    submittedFrames:6},'biome'),false,
+    'an unreturned outer build cannot authorize new biome compilation');
 });
 
 test('no phantom returned GPU frames, stale floor, foreign source, defeated hero or fake guardian authorizes scenic staging',async()=>{
