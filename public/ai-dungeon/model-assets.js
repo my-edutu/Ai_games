@@ -6158,6 +6158,24 @@ function inspectSourceRigDeformation(actors){
    return [v1.x,v1.y,v1.z].every(Number.isFinite)?v1.toArray():null;
   };
   const footJointWorld={left:worldJoint(feet.left),right:worldJoint(feet.right)};
+  // Read ONLY on explicit diagnostic request: original 41-joint source pose.
+  // The render loop never computes these quaternions or changes an imported bone.
+  const sourceLegBonePose=Object.fromEntries(['left','right'].map(side=>[
+   side,Object.fromEntries(['upper','lower','foot','toes'].map(part=>{
+    const bone=part==='toes'?
+     actor.assetRoot.getObjectByName('toes.'+(side==='left'?'l':'r')):
+     pick(actor.rigGaitBones,side,part);
+    if(!bone?.isBone)return [part,null];
+    const localQuaternion=bone.quaternion.toArray();
+    const worldQuaternion=new THREE.Quaternion();
+    bone.getWorldQuaternion(worldQuaternion);
+    const worldPosition=worldJoint(bone);
+    const worldQ=worldQuaternion.toArray();
+    return [part,localQuaternion.every(Number.isFinite)&&
+     worldQ.every(Number.isFinite)&&worldPosition?
+     {name:bone.name,localQuaternion,worldQuaternion:worldQ,worldPosition}:null];
+   }))]));
+
   const soleCandidates=sourceSoleVertexCandidates(actor);
   const soleVertexWorld={left:sourceSkinnedSoleWorld(soleCandidates.left),
    right:sourceSkinnedSoleWorld(soleCandidates.right)};
@@ -6297,7 +6315,7 @@ function inspectSourceRigDeformation(actors){
    // EXACT root yaw of THIS original source-skin pose, not assumed heading.
    // Demand-only diagnostic, never changes the root, mixer or event authority.
    rootYaw:Number.isFinite(actor.root?.rotation?.y)?actor.root.rotation.y:null,
-   footJointWorld,
+   footJointWorld,sourceLegBonePose,
    sourceGroundAnchor:actor.sourceGroundAnchor??null,
    soleVertexWorld:soleVertexWorld,sourceSolePatchWorld,sourceSolePatchAnatomy,sourceWeaponGrip:sourceWeaponGrip,
    // Real source AnimationAction clock captured only when the explicit

@@ -112,3 +112,40 @@ test('RED: pose-only source-rig motion can be witnessed without inventing root t
    'no stale GLB, clip or event may qualify a source-only motion: '+JSON.stringify(altered));
  }
 });
+
+test('source-native same-clone next rAF leg-quaternion and original handslot socket audit (never a planted contact)',()=>{
+ const {auditOriginalSourceJointFramePair:jointPair}=require(
+  '../browser/dungeon-session03-original-skin-pair.cjs');
+ const identity=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1];
+ const pose=t=>Object.fromEntries(['left','right'].map(side=>[
+  side,Object.fromEntries(['upper','lower','foot','toes'].map((part,i)=>{
+   const prefix={upper:'upperleg',lower:'lowerleg',foot:'foot',toes:'toes'};
+   const name=prefix[part]+(side==='left'?'.l':'.r');
+   const angle=t*(i+1);
+   const q=[Math.sin(angle/2),0,0,Math.cos(angle/2)];
+   return [part,{name,localQuaternion:q,worldQuaternion:q,
+    worldPosition:[i*.1,.4-i*.1,side==='left'?-.1:.1]}];
+  }))]));
+ const socket={socketName:'handslotr',attachedToGripSocket:true,
+  socketRelativeMatrix:identity};
+ const before=sample({sourceLegBonePose:pose(0),sourceWeaponGrip:socket});
+ const after={...next(),sourceLegBonePose:pose(.02),sourceWeaponGrip:socket};
+ const result=jointPair({before,after,floorTopY:-.02});
+ assert.equal(result.jointPoseEligible,true);
+ assert.equal(result.originalWeaponSocketRigid,true);
+ assert.equal(result.sourceLegs.right.foot.boneName,'foot.r');
+ assert.ok(Math.abs(result.sourceLegs.right.foot.localAngularChangeRad-.06)<1e-7);
+ assert.ok(result.sourceLegs.left.toes.localAngularRateRadPerSecond>0);
+ assert.equal(result.contactLocked,false);
+ assert.equal(result.plantCertified,false);
+ const renamed={...after,sourceLegBonePose:{...after.sourceLegBonePose,
+  right:{...after.sourceLegBonePose.right,
+   foot:{...after.sourceLegBonePose.right.foot,name:'replacement-foot'}}}};
+ assert.equal(jointPair({before,after:renamed,floorTopY:-.02}).jointReason,
+  'missing-or-replaced-original-source-bone');
+ const noSocket={...after,sourceWeaponGrip:{
+  socketName:'handslotr',attachedToGripSocket:true}};
+ assert.equal(jointPair({before,after:noSocket,floorTopY:-.02}).jointReason,
+  'missing-original-weapon-socket-matrix');
+ assert.equal(jointPair({before,after:{...after,sourceInstanceId:'other-glb'},floorTopY:-.02}).jointPoseEligible,false);
+});

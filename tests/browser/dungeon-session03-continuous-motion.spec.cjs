@@ -9,7 +9,7 @@ const {test,expect}=require('@playwright/test');
 const {DungeonRuntime}=require('../../dist/games/ai-dungeon/src/index.js');
 const fs=require('node:fs');
 const path=require('node:path');
-const {auditOriginalSourceRafSolePair,auditOriginalSourcePoseOnlyPair}=
+const {auditOriginalSourceRafSolePair,auditOriginalSourcePoseOnlyPair,auditOriginalSourceJointFramePair}=
  require('./dungeon-session03-original-skin-pair.cjs');
 const SEED='visual-room-art-18';
 const VIEWS=[{name:'desktop',width:1440,height:900},
@@ -111,7 +111,7 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
  // Actual original 3D canvas film, not a contact sheet or a requested-FPS claim.
  const film=await startOriginalCanvasFilm(page,view.name);
  expect(film.started.status,JSON.stringify(film.started)).toBe('RECORDING');
- const rows=[],nativeSourceRafPairs=[],nativeSourcePosePairs=[];
+ const rows=[],nativeSourceRafPairs=[],nativeSourcePosePairs=[],nativeSourceJointPairs=[];
  try{
   for(let step=1;step<scenario.slice.length;step++){
    current=scenario.slice[step];
@@ -143,9 +143,11 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
      movingExitFade:a?.sourceActionSample?.movingExitFade??null,
      rootWorld:a?.rootWorld??null,
      sourceSolePatchWorld:a?.sourceSolePatchWorld??null,
+     sourceLegBonePose:a?.sourceLegBonePose??null,
      sourceWeaponGrip:a?.sourceWeaponGrip?
       {socketName:a.sourceWeaponGrip.socketName,
-       attachedToGripSocket:a.sourceWeaponGrip.attachedToGripSocket}:null,
+       attachedToGripSocket:a.sourceWeaponGrip.attachedToGripSocket,
+       socketRelativeMatrix:a.sourceWeaponGrip.socketRelativeMatrix??null}:null,
      sourceLinkedFoot:a?.nativeLegOwnership?
       {probeFrames:a.nativeLegOwnership.sourceLinkedFootProbeFrames??0,
        acceptedFrames:a.nativeLegOwnership.sourceLinkedFootAcceptedFrames??0,
@@ -190,9 +192,11 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
      sourceWeight:a?.sourceActionSample?.weight??null,
      rootWorld:a?.rootWorld??null,
      sourceSolePatchWorld:a?.sourceSolePatchWorld??null,
+     sourceLegBonePose:a?.sourceLegBonePose??null,
      sourceWeaponGrip:a?.sourceWeaponGrip?
       {socketName:a.sourceWeaponGrip.socketName,
-       attachedToGripSocket:a.sourceWeaponGrip.attachedToGripSocket}:null};
+       attachedToGripSocket:a.sourceWeaponGrip.attachedToGripSocket,
+       socketRelativeMatrix:a.sourceWeaponGrip.socketRelativeMatrix??null}:null};
    });
    nativeSourceRafPairs.push({publicTick:current.tick,
     sourceBeforeFrame:sample.frame,sourceAfterFrame:after.frame,
@@ -203,6 +207,9 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
    nativeSourcePosePairs.push({publicTick:current.tick,
     sourceBeforeFrame:sample.frame,sourceAfterFrame:after.frame,
     ...auditOriginalSourcePoseOnlyPair({before:sample,after,floorTopY:-.02})});
+   nativeSourceJointPairs.push({publicTick:current.tick,
+    sourceBeforeFrame:sample.frame,sourceAfterFrame:after.frame,
+    ...auditOriginalSourceJointFramePair({before:sample,after,floorTopY:-.02})});
    // Native stream sees actual published ticks at production 350ms cadence.
    await page.waitForTimeout(350);
   }
@@ -221,7 +228,10 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
    // readbacks, including explicit reasons when no match survives.
    nativeSourceRafPairs,
    genuineSameTickOriginalSkinPairs:nativeSourceRafPairs.filter(x=>x.eligible).length,
-   nativeSourcePosePairs,
+   nativeSourcePosePairs,nativeSourceJointPairs,
+   genuineSourceJointPairs:nativeSourceJointPairs.filter(x=>x.jointPoseEligible).length,
+   originalSocketRigidityFailures:nativeSourceJointPairs.filter(x=>
+    x.jointPoseEligible&&!x.originalWeaponSocketRigid).length,
    genuineSourcePoseOnlyPairs:nativeSourcePosePairs.filter(x=>x.poseEligible).length,
    sourcePoseOnlyRejections:nativeSourcePosePairs.reduce((acc,p)=>{
     if(!p.poseEligible)acc[p.reason]=(acc[p.reason]||0)+1;
@@ -289,6 +299,9 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
  expect(rows.length).toBe(16);
  expect(nativeSourceRafPairs.length).toBe(16);
  expect(nativeSourcePosePairs.length).toBe(16);
+ expect(nativeSourceJointPairs.length).toBe(16);
+ expect(nativeSourceJointPairs.every(x=>x.contactLocked===false&&
+  x.plantCertified===false)).toBe(true);
  expect(nativeSourcePosePairs.every(x=>x.contactLocked===false&&
   x.plantCertified===false&&x.eligible===false)).toBe(true);
  expect(new Set(rows.map(x=>x.frame)).size,

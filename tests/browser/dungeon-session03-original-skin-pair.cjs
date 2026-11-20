@@ -100,4 +100,62 @@ function auditOriginalSourceRafSolePair(options={}){
 function auditOriginalSourcePoseOnlyPair(options={}){
  return auditOriginalSourceSolePair({...options,poseOnly:true});
 }
-module.exports={auditOriginalSourceRafSolePair,auditOriginalSourcePoseOnlyPair};
+
+/**
+ * Adjacent real original GLB source-pose+skinned-sole+weapon witness.
+ * Reports rotations; does not modify a source clip, grant an IK plant
+ * or assert that a native authored animation obeys overlay slew rates.
+ */
+function auditOriginalSourceJointFramePair(options={}){
+ const base=auditOriginalSourcePoseOnlyPair(options);
+ const failed=jointReason=>({...base,jointPoseEligible:false,jointReason,
+  contactLocked:false,plantCertified:false});
+ if(!base.poseEligible)return failed(base.reason);
+ const {before,after}=options;
+ const prefix={upper:'upperleg',lower:'lowerleg',foot:'foot',toes:'toes'};
+ const radians=(a,b)=>{
+  const na=Math.hypot(...a),nb=Math.hypot(...b);
+  if(!finite(na)||!finite(nb)||Math.abs(na-1)>.02||Math.abs(nb-1)>.02)
+   return NaN;
+  const dot=(a[0]*b[0]+a[1]*b[1]+a[2]*b[2]+a[3]*b[3])/(na*nb);
+  return 2*Math.acos(Math.min(1,Math.max(0,Math.abs(dot))));
+ };
+ const legs={};
+ for(const side of ['left','right']){
+  legs[side]={};
+  for(const part of Object.keys(prefix)){
+   const a=before.sourceLegBonePose?.[side]?.[part],
+    b=after.sourceLegBonePose?.[side]?.[part],
+    name=prefix[part]+(side==='left'?'.l':'.r');
+   if(a?.name!==name||b?.name!==name)
+    return failed('missing-or-replaced-original-source-bone');
+   for(const x of [a,b])
+    if(!Array.isArray(x.localQuaternion)||x.localQuaternion.length!==4||
+     !x.localQuaternion.every(finite)||
+     !Array.isArray(x.worldQuaternion)||x.worldQuaternion.length!==4||
+     !x.worldQuaternion.every(finite)||!point(x.worldPosition))
+     return failed('invalid-original-source-joint-pose');
+   const local=radians(a.localQuaternion,b.localQuaternion),
+    world=radians(a.worldQuaternion,b.worldQuaternion);
+   if(!finite(local)||!finite(world))
+    return failed('invalid-original-source-joint-quaternion');
+   legs[side][part]={boneName:name,localAngularChangeRad:local,
+    worldAngularChangeRad:world,
+    localAngularRateRadPerSecond:local/base.elapsedSeconds,
+    beforeWorldPosition:a.worldPosition,afterWorldPosition:b.worldPosition};
+  }
+ }
+ const matrix=a=>Array.isArray(a)&&a.length===16&&a.every(finite);
+ const gripBefore=before.sourceWeaponGrip?.socketRelativeMatrix,
+  gripAfter=after.sourceWeaponGrip?.socketRelativeMatrix;
+ if(!matrix(gripBefore)||!matrix(gripAfter))
+  return failed('missing-original-weapon-socket-matrix');
+ const maxDifference=Math.max(...gripBefore.map((n,i)=>Math.abs(n-gripAfter[i])));
+ return {...base,jointPoseEligible:true,jointReason:null,
+  sourceLegs:legs,sourceSocketRelativeMatrixMaxDifference:maxDifference,
+  originalWeaponSocketRigid:maxDifference<=.002,
+  contactLocked:false,plantCertified:false,
+  warning:'Real original joint/source-shoe measurements, not certified contact, IK or fluent FPS.'};
+}
+
+module.exports={auditOriginalSourceRafSolePair,auditOriginalSourcePoseOnlyPair,auditOriginalSourceJointFramePair};
