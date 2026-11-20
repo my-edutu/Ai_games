@@ -349,3 +349,39 @@ test('RED: live original renderer offers the tail release only on the previous a
  assert.match(renderer,/const samePrevious=Boolean\(previous\?\.sourceInstanceId===asset\.uuid/s,
   'source-tail restoration must still use same original clone and lawful previous phase');
 });
+
+
+test('RED: a truly weighted original heel-and-toe landing may settle near stone without falsely claiming a planted foot',async()=>{
+ const {planLicensedSourceSwingCounterpitch:plan,
+  certifyLicensedSourceSwingCounterpitch:certify}=await source;
+ // Prospectively certified ORIGINAL joint/skin trial only: these readbacks
+ // are constructed geometry contracts, NOT a captured GLB after-frame.
+ // A source 315.3ms frame may legitimately spend <=.72rad of ankle motion.
+ const stone=-.02;
+ const original={right:shoe(.12,-.125),left:loaded};
+ const candidate=plan({...owner,before:original,
+  sourceClipTimeSeconds:.15,frameInterval:.3153,rootTravel:.05,
+  sparseFrameVerified:true,frameAge:.02});
+ assert.ok(candidate,'the original GLB swing is source/phase/root qualified');
+ const safe={right:shoe(-.018,-.018),left:loaded};
+ const args={plan:candidate,before:original,
+  sourceInstanceSame:true,sourceClipName:'Walking_A',
+  side:'right',floorTopY:stone};
+ const support=certify({...args,after:safe});
+ assert.ok(support,'a source-skinned heel 2mm above stone cannot be prohibited by a 60mm heel-hover floor');
+ assert.equal(support.contactLocked,false);
+ assert.equal(support.plantCertified,false,
+  'this predicate has no sustained world-sole evidence and is NOT foot-plant IK');
+ assert.ok(support.toeLiftMeters>.10);
+ assert.ok(support.heelDeltaMeters<-.13);
+ for(const after of [
+  {right:shoe(stone-.006,stone-.006),left:loaded},
+  {right:shoe(stone+.002,stone-.014),left:loaded},
+  {right:shoe(stone+.002,stone+.002),left:shoe(-.006,-.012)},
+  {right:shoe(stone+.002,stone+.002),left:{...loaded,
+   heelXZ:[.006,0]}}
+ ]){
+  assert.equal(certify({...args,after}),null,
+   'near-contact may not bury an original shoe or disturb weighted support');
+ }
+});
