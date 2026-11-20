@@ -237,3 +237,55 @@ test('RED: original mobile 51mm toe burial needs safe licensed toe child option'
  assert.match(live,/certifyLicensedCounterpitchToeFinish/);
  assert.match(live,/originalSwingToeJointRestore/);
 });
+
+
+test('RED: verified sparse 315ms source counterpitch must permit a rate-bounded original toes-child finish',async()=>{
+ const m=await controller();
+ // Genuine imported-source RAF pairing reached a 315.3ms visible interval
+ // in desktop/mobile 59f0cbf3 WebGL evidence. The shoe response below is
+ // synthetic contract data, NOT an observed correction or contact proof.
+ const before={
+  left:{heelY:-.01,toeY:.01,heelXZ:[0,0],toeXZ:[0,.18]},
+  right:{heelY:.19,toeY:-.071,heelXZ:[.3,0],toeXZ:[.3,.18]}
+ };
+ const after={
+  left:{...before.left},
+  right:{...before.right,toeY:-.065,heelY:.1905,
+   toeXZ:[.302,.18]}
+ };
+ const proof={
+  source:'measured-original-licensed-source-counterpitch',
+  sourceClip:'Walking_A',side:'right',sourceInstanceId:'verified-sparse-clone',
+  finalIndependentSourceSkin:true,
+  originalOppositeShoeVerified:true,
+  sourceOriginalRootTravelWitnessed:true,
+  witnessedFrameIntervalSeconds:.3153,
+  sparseFrameVerified:true,
+  witnessedDirectFrameTravelMeters:.087,
+  witnessedRootTravelMeters:.087,
+  witnessedFrameAgeSeconds:.02,
+  residualToeBurialMeters:.051,
+  after:before,contactLocked:false,plantCertified:false
+ };
+ const args={proof,before,after,side:'right',sourceInstanceId:proof.sourceInstanceId,
+  sourceInstanceSame:true,sourceClipName:'Walking_A',
+  sourceToeTrackVerified:true,sourceToeBoneParentVerified:true,
+  angleRad:-.12,floorTopY:-.02};
+ const accepted=m.certifyLicensedCounterpitchToeFinish(args);
+ assert.equal(accepted?.source,'measured-licensed-counterpitch-original-toes-child');
+ assert.ok(accepted.toeLiftMeters>=.0059&&accepted.toeLiftMeters<.007);
+ assert.equal(accepted.contactLocked,false);
+ assert.equal(accepted.plantCertified,false);
+ for(const altered of [
+  {sparseFrameVerified:false},
+  {witnessedDirectFrameTravelMeters:.005},
+  {witnessedRootTravelMeters:.060},
+  {witnessedFrameAgeSeconds:.051},
+  {witnessedFrameIntervalSeconds:.421},
+  {witnessedFrameIntervalSeconds:.3153,sourceOriginalRootTravelWitnessed:false}
+ ]){
+  assert.equal(m.certifyLicensedCounterpitchToeFinish({...args,
+    proof:{...proof,...altered}}),null,
+   'unwitnessed/stale sparse original GLB pose may never finish its toe child');
+ }
+});
