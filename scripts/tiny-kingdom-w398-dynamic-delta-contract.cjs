@@ -25,7 +25,8 @@ const gpu=old.slice();
 for(const region of dirty.ranges)
  gpu.set(next.subarray(region.firstFloat,region.lastFloat),region.firstFloat);
 assert.deepEqual(Array.from(gpu),Array.from(next),'exact source-order GPU bytes');
-assert.equal(plan(old,old,old.length).dirtyFloats,0,'unchanged farm props need no upload');
+assert.equal(plan(old,old.slice(),old.length).dirtyFloats,0,
+ 'unchanged original geometry in INDEPENDENT CPU/GPU snapshots needs no upload');
 assert.equal(plan(old,next,230000),null,'new GPU allocation must reject delta');
 assert.equal(plan(old,new Float32Array(30),240000),null,'topology changes require full upload');
 const allDirty=old.slice();allDirty.fill(1);
