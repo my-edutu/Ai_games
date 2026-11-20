@@ -19,6 +19,7 @@ import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observe
 import { chooseSourceEarnedFirstReturnInstancing } from './source-earned-first-return-instancing.mjs';
 import { observedReturnedSuccessorRoomReady, observedSupportedReturnedShaftDepth } from './original-room-returned-exit.mjs';
 import { projectOriginalGuardianGateSteel } from './original-guardian-gate-steel-projection.mjs';
+import { actualGatewayReceivingRoofSpans, syncGatewayReceivingRoofColours } from './source-physical-receiving-roof.mjs';
 
 
 /**
@@ -2482,11 +2483,25 @@ export function createTowerWorld(){
     // floor-owned materials retain batching and the original shader types.
     const sharedPhysicalRoof=theme==='void' &&
       observedOriginalClockworkSuccessorDeck(p,retainedEarnedCap,sourceRunToken);
+    // This is the SAME source-certified, collision-aligned f9:ground.
+    // Segment only its existing top triangles across the genuine F8 exit.
+    const joinedRoofSpans=sharedPhysicalRoof
+      ?actualGatewayReceivingRoofSpans(p,width,retainedEarnedCap.thresholdX,ARC):null;
     if(sharedPhysicalRoof && !arrivalRoutePalette){
       const bronze=retainedEarnedCap.originalDeckSurface.color.clone();
       const body=sourceBodyMaterial.clone();
       const rim=materials.copper.clone();
       const top=materials.landing.clone();
+      // One continuous real walkable floor: original bronze threshold,
+      // intermediate transfer, recognizable Void destination. This subdivides
+      // the existing top sector; source platforms and walkability are untouched.
+      const joinedMiddle=joinedRoofSpans?materials.landing.clone():null;
+      const joinedSuccessor=joinedRoofSpans?materials.landing.clone():null;
+      if(joinedMiddle){
+        joinedMiddle.name='SourceEarnedRealRoofThreshold';
+        joinedSuccessor.name='SourceEarnedRealRoofSuccessor';
+        floorMaterials.add(joinedMiddle);floorMaterials.add(joinedSuccessor);
+      }
       // The ORIGINAL receiving roof also owns a visible outer luminous
       // rolled lip and underside crystals. Their preexisting, shared Void
       // shaders were independent of the bronze cap/roof material lease:
@@ -2507,6 +2522,7 @@ export function createTowerWorld(){
       const warmCrystal=new THREE.Color(PALETTES.clockwork.metal)
         .lerp(warmGlow,.33);
       arrivalRoutePalette={bronze,top,body,rim,glow,crystal,
+        roofJoin:joinedMiddle?{middle:joinedMiddle,successor:joinedSuccessor}:null,
         topVoid:top.color.clone(),bodyVoid:body.color.clone(),
         rimVoid:rim.color.clone(),
         glowVoid:glow.color.clone(),glowEmissiveVoid:glow.emissive.clone(),
@@ -2520,6 +2536,7 @@ export function createTowerWorld(){
       glow.emissive.copy(warmGlow);
       crystal.color.copy(warmCrystal);
       crystal.emissive.copy(arrivalRoutePalette.crystalEmissiveWarm);
+      syncGatewayReceivingRoofColours(arrivalRoutePalette);
     }
     const realDeparture=theme==='void' && !sharedPhysicalRoof &&
       p.id?.startsWith('f9:') && p.id!=='f9:ground' &&
@@ -2593,7 +2610,19 @@ export function createTowerWorld(){
       outerUnder.userData.ambientDetail=true;
       innerUnder.userData.ambientDetail=true;
     }else outerUnder.userData.structural=true;
-    mesh(root,sector(22.4,27.18,angle,.16),arrivalSurface||materials.landing,[0,h-.16,0]);
+    if(joinedRoofSpans && arrivalRoutePalette?.roofJoin){
+      // Real source roof, same top elevation and annular radial envelope.
+      // Three adjacent, exact angular spans replace ONE existing sector:
+      // no invented bridge, extra platform or coplanar overlapping cover.
+      for(const band of joinedRoofSpans){
+        const topMaterial=band.kind==='approach'?arrivalRoutePalette.top:
+          band.kind==='threshold'?arrivalRoutePalette.roofJoin.middle:
+          arrivalRoutePalette.roofJoin.successor;
+        mesh(root,sector(22.4,27.18,band.angle,.16),
+          topMaterial,[0,h-.16,0],[1,1,1],[0,band.offset,0]);
+      }
+    } else mesh(root,sector(22.4,27.18,angle,.16),
+      arrivalSurface||materials.landing,[0,h-.16,0]);
     mesh(root,sector(27.02,27.22,angle,.095),p.kind==='moving'?materials.mint:(arrivalRim||materials.copper),[0,h-.27,0]);
     mesh(root,sector(26.99,27.13,angle,.07),bodyMaterial,[0,h-.66,0]);
     const ribs=[],treads=[],count=Math.max(2,Math.round(angle*25/2.6));
@@ -3142,6 +3171,7 @@ export function createTowerWorld(){
     // frame; never leave a historical bronze tint on an unrelated route.
     const arrival=platforms.get('f9:ground')?.arrivalSurface;
     if(arrival && materials.landing)arrival.color.copy(materials.landing.color);
+    syncGatewayReceivingRoofColours(arrivalRoutePalette);
     held.root.removeFromParent();
     held.root.traverse(object => {
       if (object.isInstancedMesh) object.dispose();
@@ -3852,6 +3882,7 @@ export function createTowerWorld(){
       else arrival.color.copy(materials.landing.color).lerp(
         held.originalDeckSurface.color,held.originalDeckSurface.opacity);
     }
+    syncGatewayReceivingRoofColours(arrivalRoutePalette);
     // Only remove the old GPU group when BOTH its real gate AND original
     // deck/gallery have been visibly extinguished by source departure and
     // successful submissions. The former time-only 1.65s removal chopped a
@@ -4641,9 +4672,11 @@ export function createTowerWorld(){
       crossingTick:retainedEarnedCap.crossingTick,
       kind:'verified-original-roof-receipt',oldWeight:1
     }:(sharedDoorwayMaterialProof??materialProof);
-    if(arrivalRoutePalette)
+    if(arrivalRoutePalette){
       updateOriginalClockworkSuccessorRoute(arrivalRoutePalette,
         sourceAlignedMaterialProof,opticalTail);
+      syncGatewayReceivingRoofColours(arrivalRoutePalette);
+    }
     if(originalClockworkArchitecturalPalette)
       originalClockworkArchitecturalPalette.update(sourceAlignedMaterialProof,opticalTail);
     // The deferred F9 shaft copies these EXACT architecture material colors,
