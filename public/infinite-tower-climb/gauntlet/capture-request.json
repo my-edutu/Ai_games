@@ -8121,5 +8121,37 @@
       "PLAYS": 0
     },
     "hardware": "NOT EVALUATED"
+  },
+  "p0Run13AuthenticFirstF9GallerySightline20261120": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "previousImmutableCandidateSha": "10797818d577fc4e52fc297a83f1ec367d06c3f4",
+    "candidateRef": "${{ github.sha }}",
+    "exactHeadSourcePin": true,
+    "priorOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44776068490",
+    "priorQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44776068667",
+    "defect": "The authentic physically supported F9 hero and world enter a portrait filled with non-colliding historical F8 bronze gallery bars before the new room replaces the old; actual guardian gate/body/receiving roof not together legible in sustained consecutive frames.",
+    "change": "Source-distance-weighted and returned-frame-checked historical gallery clearance on genuine HP0, same-run, exact f9:ground/raised-platform/low-flight support. The original opened guardian gate, real old cap, F9 platform and collisions are not changed.",
+    "scenarios": [
+      "ascent",
+      "moving",
+      "danger",
+      "outcome/restart"
+    ],
+    "seed": "tower-transformation-capture-v1",
+    "quality": "low",
+    "speed": 1,
+    "fps": 25,
+    "desktop": "960x600",
+    "portrait": "390x844",
+    "minimumSeconds": 60,
+    "acceptance": "NOT EVALUATED until native event-aligned original full-motion shows opened original gateway + full moving hero + truly walkable F9 together, plus independent blind and hardware gates",
+    "hardware": "NOT EVALUATED",
+    "genuineCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    }
   }
 }

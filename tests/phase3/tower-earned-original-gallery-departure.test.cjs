@@ -46,6 +46,34 @@ test('crossed source-verified body lets only noninteractive ORIGINAL gallery rec
  assert.equal(first.affectedMeshes,'historical-noncolliding-gallery-only');
  assert.equal(held.originalGatewayOpacity,1);
 });
+test('source-authentic first F9 walk clears old noncolliding bronze braces before cold Void world replaces them',async()=>{
+ const {observedEarnedGalleryExitClearance:clear}=await helper;
+ const real=fixture();
+ // Exact first F9 body model: grounded real f9:ground, entire 18m-wide
+ // character ahead of the original source threshold, first old GPU return.
+ real.source.player.x=333296;
+ real.held.submittedFrames=1;
+ real.held.visibleSeconds=.1;
+ const early=clear(real.source,real.held);
+ assert.equal(early?.sourceBound,true);
+ assert.ok(early.maxOpacity<.5,
+   'genuine far-side full-body clears detached bronze posts in the first returned room');
+ // A JUST-cleared actor keeps more original load structure during the
+ // actual opening, before the moving body has vacated the true sill.
+ real.source.player.x=318996;
+ const near=clear(real.source,real.held);
+ assert.equal(near?.sourceBound,true);
+ assert.ok(near.maxOpacity>early.maxOpacity+.15,
+   'clearance must reflect real signed body passage, not a floor label');
+ assert.equal(real.held.originalGatewayOpacity,1,
+   'actual HP-open physical gate stays fully visible');
+ assert.equal(real.held.originalGallerySourceOpacity,.94,
+   'World, never this pure source witness, owns material updates');
+ const unreturned=clear(real.source,{...real.held,submittedFrames:0,
+   visibleSeconds:0});
+ assert.equal(unreturned,null,
+   'source progress alone cannot age the original GPU gallery');
+});
 test('never recede original gallery from a floor label, stale run, fake win, unsupported hero or unreturned renderer',async()=>{
  const {observedEarnedGalleryExitClearance:clear}=await helper;
  const cases=[

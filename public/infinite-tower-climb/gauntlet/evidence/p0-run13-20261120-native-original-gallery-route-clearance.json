@@ -1,0 +1,54 @@
+{
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH",
+  "stageVerdict": "OPEN",
+  "leadingAssessorVerdict": "NOT EVALUATED",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "previousHeadSha": "10797818d577fc4e52fc297a83f1ec367d06c3f4",
+  "precedingNativeCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44776068490",
+  "precedingQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44776068667",
+  "inspectedActualVideo": {
+    "sourceSha": "10797818d577fc4e52fc297a83f1ec367d06c3f4",
+    "scenario": "danger",
+    "desktop": "960x600",
+    "portrait": "390x844",
+    "originalNormalSpeed": true,
+    "condition": "low-tier seed matched, source and WebM not edited",
+    "desktopHudF9Seconds": 26.25,
+    "portraitHudF9Seconds": 26,
+    "desktopVioletSeconds": 27,
+    "portraitVioletSeconds": 26.5,
+    "sustainedSharedRoomSeconds": 0,
+    "strictSourceToNativePairing": "FAILED 0/2",
+    "noIndependentReview": true
+  },
+  "observedSourceRenderDelayMs": {
+    "desktop": {
+      "sourceToBrowser": 86,
+      "browserToRendererReturn": 470,
+      "rendererReturnToFirstDrawnHudApprox": 970
+    },
+    "portrait": {
+      "sourceToBrowser": 336,
+      "browserToRendererReturn": 454,
+      "rendererReturnToFirstDrawnHudApprox": 517
+    }
+  },
+  "systemicDefect": "The authentic physically supported F9 hero and world enter a portrait filled with non-colliding historical F8 bronze gallery bars before the new room replaces the old; actual guardian gate/body/receiving roof not together legible in sustained consecutive frames.",
+  "intervention": "Source-distance-weighted and returned-frame-checked historical gallery clearance on genuine HP0, same-run, exact f9:ground/raised-platform/low-flight support. The original opened guardian gate, real old cap, F9 platform and collisions are not changed.",
+  "changedFiles": [
+    "public/infinite-tower-climb/visuals/far-side-shaft-transition.mjs",
+    "tests/phase3/tower-earned-original-gallery-departure.test.cjs",
+    "public/infinite-tower-climb/gauntlet/capture-request.json",
+    "public/infinite-tower-climb/gauntlet/evidence/p0-run13-20261120-native-original-gallery-route-clearance.json",
+    "docs/reviews/2026-11-20-tower-pr68-source-room-native-gallery-corridor-review.md"
+  ],
+  "exactCaptureCandidate": "Immutable github.sha of this commit (NOT moving branch); nine-job matched baseline/candidate original 1x video requested",
+  "currentCodeEffect": "NOT NATIVE-VERIFIED; source and test assertions only until new campaign",
+  "hardware": "NOT EVALUATED",
+  "independentCritics": {
+    "LOOKS": 0,
+    "FEELS": 0,
+    "PLAYS": 0
+  },
+  "nextHighestImpactAction": "Inspect new source-pinned nine-job 960x600/390x844 original films and strict event pairing; if no shared gate/body/roof, address source 3D world/camera physical composition and compositor delay, not another isolated fade."
+}

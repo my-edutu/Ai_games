@@ -719,13 +719,31 @@ export function observedEarnedGalleryExitClearance(source,held,{reducedMotion=fa
     p.x+p.halfWidth<=ground.x+ground.width &&
     sole>=held.oldRoofY-2500 && sole<=held.oldRoofY+80000;
   if(!roofContact && !deckContact && !lowFlight)return null;
+  // Real 1x native original video (immutable candidate 10797818, danger)
+  // showed the portrait F9 full-body survivor and true incoming roof behind
+  // dense, NONCOLLIDING F8 historical gallery for the first returned frames.
+  // The previous returned-time-only taper remained ~76% opaque on the first
+  // physically supported post-sill step, then vanished as one visual curtain
+  // when the Violet shaft finally arrived. Prefer early real-route clearance
+  // of these already-clipped OLD gallery faces, not an invented portal,
+  // transparent walkable roof, teleported camera or changed guardian win.
+  // A floor HUD/ghost pose cannot obtain this: all HP0, signed full-body
+  // distance, exact same-run support and actual renderer-return gates above
+  // still veto an unearned material change. Keep the original actual
+  // opened guardian metal and cap fully independent and visible.
+  const bodyClearance=p.x-p.halfWidth-held.thresholdX;
+  const physicallyClear=smooth(Math.max(0,Math.min(1,
+    (bodyClearance-4000)/12000)));
   const returnedProgress=reducedMotion?1:
     smooth(Math.min(held.submittedFrames/3,held.visibleSeconds/.3));
+  const galleryExitProgress=reducedMotion?1:
+    physicallyClear*.58+(1-physicallyClear*.58)*returnedProgress;
   return {sourceBound:true,sourceTick:source.tick,
     physicallyBeyondOldSill:true,sourceSupport:roofContact?'original-shared-roof':
       deckContact?'actual-successor-deck':'bounded-actual-low-flight',
+    fullBodyClearance:bodyClearance,
     maxOpacity:reducedMotion?.08:
-      Math.max(.08,1-.92*returnedProgress),
+      Math.max(.08,1-.92*galleryExitProgress),
     affectedMeshes:'historical-noncolliding-gallery-only',
     limitation:'Actual source crossing and previous successful WebGL returns; neither old portal nor any walkable platform changes, no native-film acceptance'};
 }
