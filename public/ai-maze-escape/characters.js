@@ -1098,9 +1098,25 @@ export function createWarden(options = {}) {
     // ACTUAL witnessed warning: Thornback crouches behind its planted foreclaws,
     // then recoils taller on the same shell-release beat. It is a connected,
     // source-public defensive performance, not a strike or authoritative move.
-    body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018)-plantedClaws*.20+display*.085*alert+(parried?.19:0)-counterLoad*.16+counterRelease*.08+counterVault*.94-counterCollapse*.23;
+    body.position.y=.79-(s.win?.07:0)+amount*(Math.sin(s.time*2)*.012+Math.sin(gait*2)*stride*.018)-plantedClaws*.20+display*.085*alert+(parried?.19:0)-counterLoad*.16+counterFaceCue*.24+counterRelease*.08+counterVault*.94-counterCollapse*.23;
     body.rotation.x=-s.danger*.055-alert*.11-plantedClaws*.34+display*.19*alert+(parried?.42:0)+counterLoad*.23-counterRelease*.19-counterCollapse*.30;
-    body.rotation.y=lookYaw*.4;
+    // Pass525: the authentic full-frame mobile counter has BOTH physical actors
+    // in view after Pass524's lens repair, yet Thornback still shows mostly
+    // its closed dorsal shell. React with its WHOLE connected armored torso:
+    // a bounded quarter-turn TOWARD the real current viewer on the finite
+    // publicly earned lantern impact, not just a tiny facial swivel.
+    // Leave planted feet, patrol/root heading, collision and AI unchanged.
+    const parryViewer=options.viewerPosition;
+    const parryViewerBearing=counterFaceCue>0 && parryViewer
+      && Number.isFinite(parryViewer.x)&&Number.isFinite(parryViewer.z)
+      ?Math.atan2(parryViewer.x-group.position.x,
+        parryViewer.z-group.position.z):NaN;
+    const parryTorsoTurn=Number.isFinite(parryViewerBearing)
+      ?Math.max(-.72,Math.min(.72,Math.atan2(
+        Math.sin(parryViewerBearing-group.rotation.y),
+        Math.cos(parryViewerBearing-group.rotation.y))))
+          *counterFaceCue*.75:0;
+    body.rotation.y=lookYaw*.4+parryTorsoTurn;
     // The native earned-counter portrait shows Thornback almost stationary
     // even after Pip genuinely wins one public, authoritative lantern parry.
     // Transfer that impact through the ENTIRE connected carapace: a compact
@@ -1178,7 +1194,10 @@ export function createWarden(options = {}) {
       ? Math.max(-.8,Math.min(.8,Math.atan2(
         Math.sin(viewerAngle-group.rotation.y),Math.cos(viewerAngle-group.rotation.y))))
         *counterFaceCue*.8 : 0;
-    head.rotation.y=Math.sin(s.time*.8)*.08*(1-stride)*amount*(1-alert)+lookYaw+lookToViewer;
+    // Counter-rotate the attached mask against the torso's real recoil,
+    // retaining recognizable gaze instead of winding the head past 3/4.
+    head.rotation.y=Math.sin(s.time*.8)*.08*(1-stride)*amount*(1-alert)
+      +lookYaw+lookToViewer-parryTorsoTurn*.70;
     // Counter-roll keeps Thornback's modeled bronze mask directed at Pip
     // as its real physical torso falls sideways. End-of-witness, reduced
     // motion and reset all return this connected head hinge to exact +0.

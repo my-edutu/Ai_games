@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-20T03:12:56.420Z",
+  "updatedAt": "2026-11-20T04:08:04Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass523 exact HEAD 1f22b9bd native WebGL #44658903983 FAILED authentic natural public 390px earned tick94 complete guardian frame (Thornback extends to +1.293 NDC; Pip to -.860); 41/41 available original PNG sidecars verified, NOT a full capture. Actual six-reset <100 and Maze source tests passed; whole CI failed separately in Tiny Kingdom. Pass524 implements a CURRENT-MESH union-based minimum physical optical backoff plus existing pan to recover original strict +/-0.95 connected two-character frame without moving characters or AI. New exact-head WebGL and critic PENDING. Nintendo benchmark NOT MET; no merge or deploy."
+    "summary": "Verified Pass524 exact SHA 1e5fb56f real WebGL SUCCESS: 42/42 original PNG SHA pairs and 3/3 original gate hashes; genuine 390 natural tick94 guardian full x [-0.4148,0.8949] and Pip [-0.8949,-0.0154] meet unchanged +/-0.95; 320 guardian [-0.025,0.9] also in frame. Six reset geometry <100, natural complete 136-tick escape passed. Authentic visual critique still rejects Nintendo bar: Thornback's whole armored acting is unclear. Whole-repo CI red separately in Tiny Kingdom OBS. Pass525 source candidate makes genuine earned torso turn and lift with coherent mask counterturn; NEW native render/CI/critic pending. No merge or deploy."
   },
   "captures": [
+    {
+      "title": "Pass524 exact 1e5fb56f authentic WebGL SUCCESS, native full 42/42 PNG SHA pairs and three gate SHA verified; full Pip/Thornback within strict +/-0.95 at original 320/390 counter; visual bar still unmet; Pass525 acting candidate pending",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44666213332/artifacts/14597914881"
+    },
     {
       "title": "Pass523 exact 1f22b9bd native WebGL FAILED natural earned full-body image: 41/41 available original PNG-sidecar hashes verified, actual 390 Thornback physically clipped at +1.293 NDC; Pass524 correction unverified",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44658903983/artifacts/14596060635"
