@@ -3286,15 +3286,17 @@ test('source-loaded pelvis bridge uses authentic two-point walking shoe contact,
  const calls=live.replace(/\/\/[^\n]*/g,'').split('\n').map(line=>line.trim()).filter(Boolean);
  const slide=calls.indexOf('stageOriginalSourceStanceSlideAfterMixer(actor,reducedMotion,sourceFrameInterval,sourceFrameVisible);');
  assert.ok(slide>=0,'the real update must stage source stance after source legs');
- // The licensed full-chain counterpitch runs after the completed loaded
- // pelvis skin audit but before the historical evidence receipt. This strict
- // sequence detects missing, reordered or duplicated source-pose owners.
- assert.deepEqual(calls.slice(slide+1,slide+5),[
+ // The source-owned toes-child finisher must run AFTER certified linked
+ // counterpitch and BEFORE historical evidence, never replacing its source
+ // shoe proof or running before the final loaded pelvis audit. A new pose
+ // stage requires deliberate review here rather than silently changing order.
+ assert.deepEqual(calls.slice(slide+1,slide+6),[
   'stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion);',
   'auditSourceLoadedPelvisAfterLegs(actor,poseAge,reducedMotion);',
   'stageLicensedSourceSwingCounterpitchAfterMixer(actor,reducedMotion);',
+  'stageLicensedSourceToeFinisherAfterCounterpitch(actor,reducedMotion);',
   'rememberOriginalSourceAppliedSwingEvidence(actor);'
- ],'loaded pelvis skin must precede licensed source counterpitch and historical evidence');
+ ],'loaded pelvis, licensed counterpitch and toe-child finisher must precede historical evidence');
 });
 
 
