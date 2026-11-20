@@ -3935,27 +3935,28 @@ export function createTowerWorld(){
       if(held.galleryExitClearedAtTick==null)
         held.galleryExitClearedAtTick=snapshot.tick;
     }
-    // The genuine, original Void shaft has now participated in TWO actually
-    // returned source-validated frames while the survivor is supported beyond
-    // the HP-open sill. The previously extracted, non-colliding Floor8 gallery
-    // is no longer an active room: retire it completely instead of stacking
-    // eight low-alpha bronze layers over the real new destination. The true
-    // HP gate, roof/cap, source F9 ground, moving decks and hazard visuals
-    // remain separate, never culled or granted phantom physics.
+    // P0 original-room/new-shaft ownership is one optical *handoff*, not
+    // two independent deletion triggers. The old source-built gallery was
+    // previously set to ZERO as soon as three tiny first-bearing frames
+    // returned, even with ZERO returned frames from the actual Void shaft.
+    // That deleted the architectural shoulders while the destination was
+    // still being uploaded and the full moving climber was on the real roof.
+    // Early authentic F9 bearings may reduce only NONCOLLIDING old steel to
+    // 8%; the separately rendered full successor shaft retires that remaining
+    // gallery over its OWN returned frames and visible time. All witnesses
+    // independently verify the HP-zero source, original steel and full-body
+    // walkable/flight corridor. No gameplay/platform/collision changes.
     const returnedGalleryExit=!options.stale
       ?observedReturnedGalleryHandoffClearance(snapshot,held,deferredDistantArrival):null;
-    // Previous normal-speed 1x films kept tall old bronze braces over the
-    // REAL new floor until several costly later Void-shaft submissions. The
-    // first returned Void core already provides authentic destination mass.
-    // Retire ONLY the extracted NON-COLLIDING gallery after its own material
-    // has eased below 16% AND three real first-bearing renderer returns.
-    // Keep the original opened guardian doorway and collision-aligned cap.
     const firstBearingGalleryExit=!options.stale
       ?observedFirstReturnedVoidBearingGalleryRetirement(
         snapshot,held,deferredDistantArrival,stagedVoidArchitecture):null;
-    if(returnedGalleryExit?.sourceBound===true ||
-       firstBearingGalleryExit?.sourceBound===true)
-      held.galleryExitClearedAlpha=0;
+    const sourceGalleryLease=Math.min(
+      returnedGalleryExit?.sourceBound===true ? returnedGalleryExit.maxOpacity:1,
+      firstBearingGalleryExit?.sourceBound===true ? firstBearingGalleryExit.maxOpacity:1);
+    if(sourceGalleryLease<1)
+      held.galleryExitClearedAlpha=Math.min(
+        held.galleryExitClearedAlpha??1,sourceGalleryLease);
     if(Number.isFinite(held.galleryExitClearedAlpha))
       originalPresence=Math.min(originalPresence,held.galleryExitClearedAlpha);
     held.originalGallerySourceOpacity=originalPresence;

@@ -37,19 +37,20 @@ async function fixture(){
   return {source,held,job,originalBearing};
 }
 
-test('real returned original first-F9 load path can retire the already-faded detached old gallery before delayed monumental uploads',async()=>{
+test('early authentic first-F9 bearings retain historical room until actual successor structural WebGL return',async()=>{
   const {observedFirstReturnedVoidBearingGalleryRetirement:retire}=await policy;
   const f=await fixture(),before=JSON.stringify({source:f.source,job:f.job});
   const accepted=retire(f.source,f.held,f.job,f.originalBearing);
   assert.equal(accepted?.sourceBound,true);
   assert.equal(accepted?.galleryOnly,true);
-  assert.equal(accepted?.maxOpacity,0);
+  assert.equal(accepted?.maxOpacity,.08,
+    'original structural shoulders survive until the actual successor shaft returns');
   assert.equal(accepted?.originalBearingReturnedFrames,3);
   assert.equal(JSON.stringify({source:f.source,job:f.job}),before);
   assert.equal(f.held.originalGalleryRoot.visible,true,'proof never mutates scene');
   assert.equal(f.originalBearing.root.parent.name,'floor:9:void');
   assert.equal(f.job.structuralVisibleReturns,0,
-    'real deferred-vault visible returns are not required to remove OBSOLETE gallery');
+    'a first-bearing-only GPU return cannot erase the historical room before the real successor');
 });
 
 test('fake first-return flag, no real attached original 3D mesh or fewer successful returns cannot erase historical gallery',async()=>{
@@ -99,6 +100,7 @@ test('shipping World counts ONLY genuinely returned original 3D F9 bearing and c
   assert.match(world,/stagedVoidArchitecture\.root\.parent===floorGroup/);
   assert.match(world,/job\.firstBearingReturnedFrames=Math\.min\(30/);
   assert.match(world,/observedFirstReturnedVoidBearingGalleryRetirement\(/);
+  assert.match(world,/sourceGalleryLease=Math\.min\(/);
   assert.match(world,/held\.originalGalleryRoot\.visible=originalPresence>\.015/);
   assert.match(world,/held\.originalGatewayOpacity=originalGatePresence/);
   assert.match(world,/const arrival=platforms\.get\('f9:ground'\)\?\.arrivalSurface/);

@@ -25,7 +25,8 @@ const make = () => {
   const job={runToken:source.runToken,floor:9,sourceTick:477,
     proof:'recorded-source-gateway',structureDeferred:true,
     state:'awaiting-structural-release',submittedFrames:4,structureBuiltAtSubmitted:1,
-    structuralVisibleReturns:2,structuralFade:.23,structuralRoot:{visible:true}};
+    structuralVisibleReturns:2,structuralVisibleSeconds:.21,
+    structuralFade:.23,structuralRoot:{visible:true}};
   return {source,held,job};
 };
 
@@ -35,11 +36,26 @@ test('the genuine successor shaft must return twice and hero have REAL support b
   const before=JSON.stringify({source,held,job});
   assert.equal(clear(source,held,job)?.sourceBound,true);
   assert.equal(clear(source,held,job)?.galleryOnly,true);
+  assert.equal(clear(source,held,job)?.maxOpacity,.08,
+    'two returned incoming-shaft frames should not instantly erase the shared original room');
+  assert.ok(clear(source,held,{...job,
+    structuralVisibleReturns:4,structuralVisibleSeconds:.34,
+    submittedFrames:5})?.maxOpacity>0,
+    'source-authoritative successor must accumulate real visible frame time');
+  assert.equal(clear(source,held,{...job,
+    structuralVisibleReturns:5,structuralVisibleSeconds:.52,
+    submittedFrames:6})?.maxOpacity,0,
+    'old non-colliding steel may retire only after enough real successor frames and visible time');
+  assert.equal(clear(source,held,{...job,
+    structuralVisibleReturns:5,structuralVisibleSeconds:0,
+    submittedFrames:6})?.maxOpacity,.08,
+    'multiple instant GPU submissions without actual displayed time cannot erase the room');
   assert.equal(JSON.stringify({source,held,job}),before,'pure witness must never mutate authoritative state');
   assert.equal(clear(source,held,{...job,structuralVisibleReturns:1}),null);
   assert.equal(clear(source,held,{...job,structuralVisibleReturns:0}),null);
   assert.equal(clear(source,held,{...job,structuralRoot:{visible:false}}),null);
   assert.equal(clear(source,held,{...job,structuralFade:0}),null);
+  assert.equal(clear(source,held,{...job,structuralVisibleSeconds:NaN}),null);
   assert.equal(clear(source,held,{...job,structureDeferred:false}),null);
   assert.equal(clear(source,held,{...job,proof:'adjacent-browser-guardian'}),null);
   assert.equal(clear(source,held,{...job,runToken:'different'}),null);
@@ -72,7 +88,7 @@ test('no inferred floor, fake guardian win, wrong cap, airborne unsupported body
 test('shipped world culls only detached historical noncolliding gallery after exact source and returned-Void proof, not HP gate or walkable decks',()=>{
   const world=fs.readFileSync(path.join(__dirname,'../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
   assert.match(world,/observedReturnedGalleryHandoffClearance\(snapshot,held,deferredDistantArrival\)/);
-  assert.match(world,/held\.galleryExitClearedAlpha=0/);
+  assert.match(world,/sourceGalleryLease=Math\.min\(/);
   assert.match(world,/held\.originalGalleryRoot\.visible=originalPresence>\.015/);
   assert.match(world,/held\.originalGatewayOpacity=originalGatePresence/);
   assert.match(world,/const arrival=platforms\.get\('f9:ground'\)\?\.arrivalSurface/);

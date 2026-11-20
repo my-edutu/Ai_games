@@ -779,21 +779,35 @@ export function observedReturnedGalleryHandoffClearance(source,held,job) {
       !['awaiting-void-biome-build','awaiting-structural-release',
         'awaiting-structural-submission','awaiting-vista-submission',
         'fading-remote-arrival','complete'].includes(job.state)) return null;
+  // P0 source-video veto: a pair of rendered successor submissions establishes
+  // that real geometry participated, but not that the moving room overlap lasted
+  // long enough to be visible in the unedited desktop/portrait WebMs. Do not
+  // drop the source-original 3D gallery to zero in the same return.
+  // Spend the last 8% of NONCOLLIDING historic steel only across genuine,
+  // nonzero successor WebGL returns AND >=450 ms of returned display time.
+  // Both clocks are bounded and already owned by noteFrameSubmitted().
+  if(!Number.isFinite(job.structuralVisibleSeconds) ||
+     job.structuralVisibleSeconds<0 || job.structuralVisibleSeconds>3)
+    return null;
+  const complete=Math.min(1,
+    Math.max(0,(job.structuralVisibleReturns-2)/3),
+    Math.max(0,job.structuralVisibleSeconds/.45));
+  const eased=complete*complete*(3-2*complete);
   return {sourceBound:true,sourceTick:source.tick,galleryOnly:true,
     successorReturnedFrames:job.structuralVisibleReturns,
-    maxOpacity:0,
-    limitation:'Actual supported crossing plus two returned original F9-shaft frames; a renderer return is NOT independently checked pixel visibility'};
+    successorReturnedSeconds:job.structuralVisibleSeconds,
+    maxOpacity:Number((.08*(1-eased)).toFixed(5)),
+    limitation:'Real HP-zero crossing and independently returned original successor shaft; historical noninteractive faces retire over actual visible returns, NOT a film/pixel acceptance claim'};
 }
 
 
-// P0: release the obsolete non-colliding Clockwork gallery based on the
-// ORIGINAL Void bearing that was actually attached and returned in the FIRST
-// source-earned F9 scene, rather than waiting for two further costly
-// post-crossing structural-shaft WebGL uploads. The HP-open bronze door, cap,
-// walkable F9 platforms, crushers and source authority are never affected.
-// Three returned WebGL frames and a substantially faded old gallery make
-// retirement gradual; a source packet, fake first-frame flag or a bare F9 HUD
-// cannot claim a rendered replacement. Not native-pixel/visibility proof.
+// P0: the genuine early Void bearing is NOT the full original successor shaft.
+// Earlier this helper returned maxOpacity:0 after three early bearing returns
+// even when the deferred real shaft had returned ZERO visible frames: the
+// historic machine room vanished before its successor was on screen. Keep
+// the last restrained 8% of source-original noninteractive steel until the
+// separately returned real shaft may complete the room handoff. No gateway,
+// collision, climber pose, guardian outcome or fabricated Void object changes.
 export function observedFirstReturnedVoidBearingGalleryRetirement(source, held, job, originalBearing) {
   const clearance=observedEarnedGalleryExitClearance(source, held);
   const root=originalBearing?.root;
@@ -830,7 +844,7 @@ export function observedFirstReturnedVoidBearingGalleryRetirement(source, held, 
   return {
     sourceBound:true, sourceTick:source.tick, galleryOnly:true,
     originalBearingReturnedFrames:job.firstBearingReturnedFrames,
-    maxOpacity:0,
-    limitation:'Three successful source-matched real Three.js first-bearing returns and a separately grounded/flight-proven corridor; not native pixels or an independent visual verdict'
+    maxOpacity:.08,successorStructuralReturnRequired:true,
+    limitation:'Early authentic bearing retains the last restrained source-original noncolliding gallery; only a separately returned full successor shaft may retire it, not native-pixel acceptance'
   };
 }
