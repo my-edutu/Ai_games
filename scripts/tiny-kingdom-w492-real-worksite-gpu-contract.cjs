@@ -17,7 +17,8 @@ assert.match(html,/if\(!foregroundIndices\.has\(i\)\)villager\(people\[i\]\)/);
 assert.doesNotMatch(code,/Math\.random|people\.push|people\.splice|state\.(?:food|wood|gold)|gl\.draw|gl\.bufferData/);
 const workers=Array.from({length:11},(_,i)=>({name:'real-'+i,
  job:i%2?'farmer':'builder',active:i<9,x:i,z:i,delivery:null}));
-const mock={Array,Set,Math,Number,
+const mock={Array,Set,Math,Number,Float32Array,
+ WORKSITE_SKIN_ENTER_SCREEN_HEIGHT:.16,FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT:.14,
  gpuAvailable:true,swiftGpu:true,workingSkinCapable:true,
  foregroundResidentEnabled:true,selectedCitizen:2,
  residentActorGpuEnabled:()=>false,
@@ -25,6 +26,10 @@ const mock={Array,Set,Math,Number,
  isWorkingAtSite:p=>Boolean(p.active),
  isMarketUnloading:()=>false,verifiedHouseholdMealEvidence:()=>false,
  isForegroundWorksiteCandidate:(p,i)=>p.active&&i!==2,
+ isForegroundWalkingSkinCandidate:p=>!p.active,
+ isResidentRestingCandidate:p=>p.activity==='Resting at home',
+ isResidentCommuterCandidate:p=>(p.activity||'').startsWith('Traveling'),
+ projectRealCitizenDetail:()=>({visible:true,heightFraction:.05}),
  foregroundResidentVisible:[],foregroundSkinDrawCalls:0,foregroundResidentBuffer:null,
  people:workers,
 };
@@ -32,8 +37,8 @@ vm.createContext(mock);
 vm.runInContext(code+'\nthis.select=authenticWorkerGpuResidentRows;this.audit=getAuthenticSoftwareWorksiteGpuAudit;',mock);
 const near=new Set(workers.map((_,i)=>i));
 const rows=mock.select(workers,near,{eye:[0,5,5]});
-assert.equal(rows.length,4,'software worker residency never allocates an unbounded crowd');
-assert.deepEqual(Array.from(rows,row=>row.i),[0,1,2,3],
+assert.equal(rows.length,9,'genuine nine workers can share bounded GPU character tiers');
+assert.deepEqual(Array.from(rows,row=>row.i),[0,1,2,3,4,5,6,7,8],
  'observed original worker receives its slot, stable actor identity retained');
 assert(rows.every(row=>workers[row.i]===row.p));
 assert.equal(mock.audit().originalCitizenCount,11);
@@ -53,4 +58,23 @@ assert.equal(mock.select(workers,near,{}).length,0,'ordinary hardware default re
 mock.residentActorGpuEnabled=()=>true;
 assert.equal(mock.select(workers,near,{}).length,workers.length,
  'existing hardware GPU candidate pipeline is preserved');
-console.log('W492 original real-job SwiftShader selected/multi-worker GPU admission contract PASS; runtime look/feel/FPS NOT PROVEN');
+// W496 actual 28-inhabitant virtual camera admission: fixed workers and
+// off-duty residents retain original identity, and real parcels exclude GPU.
+const mixed=Array.from({length:28},(_,i)=>({
+ name:'original-'+i,job:i%2?'farmer':'builder',active:i<9,
+ activity:i<9?'Harvesting':i<19?'Resting at home':'Traveling to market',
+ x:i,z:i,phase:1,delivery:null
+}));
+mock.people=mixed;mock.swiftGpu=true;mock.residentActorGpuEnabled=()=>false;
+const mixedNear=new Set(mixed.map((_,i)=>i));
+const ordinary=mock.select(mixed,mixedNear,{eye:[0,4,6]});
+assert.equal(ordinary.length,10,'ten authentic bodies share limited original GPU tiers');
+assert(ordinary.some(row=>row.i===2),'observed active farmer still takes priority');
+assert(ordinary.some(row=>row.i>=9&&!row.p.active),
+ 'at least one original home resident shares genuine worker GPU population');
+mixed[9].delivery={id:'real-purchased-parcel'};
+const carrying=mock.select(mixed,mixedNear,{eye:[0,4,6]});
+assert(carrying.every(row=>row.i!==9),'genuine carrying buyer retains CPU contact');
+mock.gpuAvailable=false;
+assert.equal(mock.select(mixed,mixedNear,{}).length,0,'GPU failure retains CPU fallback');
+console.log('W496 original 28-person mixed work-home GPU admission PASS; real hardware and actual filmed visuals separately NOT PROVEN');

@@ -43,9 +43,9 @@ assert.throws(()=>retain(new Map(),[{i:0,entry:{mesh:new Float32Array(4)}}],2,60
  /invalid original full-body mesh/,'invalid body geometry must not enter cache');
 assert(html.includes('cloth:diff(a.cloth,b.cloth),roles:diff(a.roles,b.roles),'),
  'unchanged original citizen reuse cannot double-count profession metrics');
-assert(html.includes("function restoreSnapshot(snapshot){validateSnapshot(snapshot);restingActorKey='';clearRestingActorIdentityCache();"),
+assert(/function restoreSnapshot\(snapshot\)\{validateSnapshot\(snapshot\);resetActorGpuSnapshots\(\);restingActorKey='';clearRestingActorIdentityCache\(\);/.test(html),
  'save restore invalidates all previous resident identity bind caches');
-assert(html.includes("function start(){resetResidentCommuters();resetWorkingResidents();resetForegroundResidents();restingActorKey='';clearRestingActorIdentityCache();"),
+assert(/function start\(\)\{[^\n]*resetResidentCommuters\(\);resetWorkingResidents\(\);resetForegroundResidents\(\);restingActorKey='';clearRestingActorIdentityCache\(\);/.test(html),
  'new world invalidates all previous original people body slices');
 assert(!code.includes('for(const {p} of rows)compactVillager(p);'),
  'all resting residents must not rebuild on single neighbor change');
