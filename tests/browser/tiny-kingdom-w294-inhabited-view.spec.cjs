@@ -86,7 +86,7 @@ test('W294 original lived-in street direction follows genuine camera without hid
   expect(state.homes.staleDrawn).toBe(0);
   expect(state.homes.detailPolicy.mode).toBe('inspection');
   expect(state.homes.detailPolicy.allOriginalHomesRetained).toBe(true);
-  const expectedDetailHomes=viewport.width<=520?4:viewport.width<=800?5:6;
+  const expectedDetailHomes=viewport.width<=520?3:viewport.width<=800?5:6;
   expect(state.homes.detailPolicy.activeDetailedHomeLimit).toBe(expectedDetailHomes);
   expect(state.details.length).toBe(expectedDetailHomes);
   expect(state.geometry.totalTriangles).toBeLessThan(160000);
@@ -108,6 +108,35 @@ test('W294 original lived-in street direction follows genuine camera without hid
    .toBeGreaterThan(left.homes.detailPolicy.retainedLODChanges);
   results.push({viewport,left:left.details,right:right.details});
  }
+ // W488 user-operable trade-quarter camera joins the SAME real Day-121
+ // settlement and food economy: no reenacted purchase, visitor or work.
+ await page.setViewportSize({width:390,height:844});
+ const beforeTrade=await page.evaluate(()=>JSON.stringify(
+  window.__tinyKingdom.exportSnapshot()));
+ const trade=await page.evaluate(()=>window.__tinyKingdom.requestRealMarketHomeDistrict());
+ expect(trade.accepted).toBe(true);
+ expect(trade.composition.source)
+  .toBe('original-physically-surveyed-working-trade-quarter');
+ expect(trade.composition.candidateEyes).toBe(30);
+ expect(trade.composition.physicalCameraTrue).toBe(true);
+ expect(trade.composition.roofsHidden).toBe(0);
+ expect(trade.composition.peopleInvented).toBe(0);
+ await page.waitForTimeout(1400);
+ const afterTrade=await page.evaluate(()=>({
+  authority:JSON.stringify(window.__tinyKingdom.exportSnapshot()),
+  frame:window.__tinyKingdom.getPresentedCameraFrame(),
+  audit:window.__tinyKingdom.getRealEconomicSurveyAudit(),
+  geometry:window.__tinyKingdom.getGeometryAudit()
+ }));
+ expect(afterTrade.authority).toBe(beforeTrade);
+ expect(afterTrade.geometry.totalTriangles).toBeLessThan(160000);
+ const tradeDir=path.resolve(__dirname,'../../artifacts/tiny-kingdom/w295-camera');
+ fs.writeFileSync(path.join(tradeDir,'W488-390-trade-quarter.json'),
+  JSON.stringify({sourceCommit:require('node:child_process').execFileSync(
+   'git',['rev-parse','HEAD']).toString().trim(),trade,afterTrade,
+   physicalHardwareFPS:'NOT MEASURED',independentCritic:'NOT AVAILABLE'},null,2));
+ fs.writeFileSync(path.join(tradeDir,'W488-390-trade-quarter.png'),
+  await page.screenshot());
  expect(errors).toEqual([]);
  await info.attach('W294-original-real-cameras.json',{
   body:Buffer.from(JSON.stringify({scene:'authentic-Day121-camera-orbit',

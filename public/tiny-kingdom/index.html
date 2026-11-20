@@ -11395,11 +11395,15 @@ function originalResponsiveHomeDetailLimit(homeCount,mode,width,height){
   throw Error('W487 invalid physical home screen-budget inputs');
  if(mode==='overview')return VILLAGE_LOD_LIMIT;
  if(homeCount<24)return HOME_DETAIL_INSPECTION_LIMIT;
- // With 35+ grown homes, six near-camera lofts can breach the hard 160k
- // source-view contract at 390x844. Keep at least four real fully sculpted
- // houses and every other home's ORIGINAL compact room/roof geometry.
- // Resize/orientation invalidates the retained optical home identity below.
- return width<=520?4:width<=800?5:HOME_DETAIL_INSPECTION_LIMIT;
+ // Exact W487 Day-121 portrait east capture submitted 160,599
+ // source triangles with four dense close lofts; this is a real failing
+ // 160k scene, not hypothetical remaining GPU capacity. Retain THREE
+ // fully sculpted occupied frontages in the narrow dense trade quarter;
+ // every other ORIGINAL house stays as an inhabited, solid, complete
+ // compact 3D room/roof, not a missing building or hidden citizen.
+ // Desktop retains six actual close lofts; original Day-1 is unchanged.
+ // This is the Phase-1 geometry safety floor, not a visual milestone.
+ return width<=520?3:width<=800?5:HOME_DETAIL_INSPECTION_LIMIT;
 }
 function currentHomeDetailAnchor(){
  const inspect=realHomeDetailViewMode(city.length,homeClustersEnabled(),
@@ -30289,22 +30293,100 @@ function getOriginalMobileMarketArrivalAudit(){
     focus:originalMobileArrivalAudit.camera.focus.slice()}:null};
 }
 
+// W488: read-only real farm -> market -> inhabited-street camera witness.
+// The old fixed yaw/pitch filmed mostly full-size rooftops even when the
+// trade quarter, delivery ledger and houses were real. Survey bounded
+// physically clear eyes using the SAME original roof/terrain/cargo volumes
+// and the genuine market, nearest occupied threshold and live humans.
+// This changes no city lot, inventory, resident, simulated job or replay.
+function planPhysicalTradeQuarterWitness(district){
+ if(!district||!Array.isArray(district.market)||
+    !Array.isArray(district.inspectedHomeLots)||
+    !district.inspectedHomeLots.length)
+  throw Error('W488 missing genuine market/home district');
+ const market=district.market,home=district.inspectedHomeLots[0],
+  midpoint=[market[0]*.55+home[0]*.45,
+   market[1]*.55+home[1]*.45];
+ const observation={trueReceivingMarket:market,firstHome:home};
+ const roofs=followCameraRoofs(),mobile=canvas.clientWidth<=520;
+ let best=null,surveyed=0,physicallyClear=0,
+  marketVisible=0,readableDoorway=0;
+ const offsets=[-1.15,-.55,0,.55,1.15];
+ const focusOptions=[market,midpoint,district.focus];
+ for(const focus of focusOptions){
+  for(const offset of offsets){
+   for(const [candidatePitch,candidateZoom] of
+    [[.46,mobile?15.5:17.5],[.69,mobile?20:23]]){
+    const view={focus:focus.slice(),yaw:district.yaw+offset,
+     pitch:candidatePitch,zoom:candidateZoom};
+    surveyed++;
+    const shot=scoreRealMobileMarketArrival(view,observation,roofs);
+    if(!shot)continue;
+    physicallyClear++;
+    if(shot.marketOnscreen&&shot.marketRayClear)marketVisible++;
+    if(shot.homeOnscreen&&shot.homeRayClear)readableDoorway++;
+    if(!shot.marketOnscreen||!shot.marketRayClear||
+       shot.foregroundSceneCover>.50)continue;
+    // The original actual human and doorstep are positive evidence, never
+    // required props or invented extras. Reject dominant roof silhouettes.
+    const quality=shot.score+
+     (shot.homeOnscreen&&shot.homeRayClear?9:0)+
+     Math.min(shot.visibleActualCitizens,3)*3-
+     shot.foregroundSceneCover*20-
+     Math.max(0,shot.foregroundSceneCover-.32)*35;
+    if(!best||quality>best.quality)
+     best={view,quality,shot};
+   }
+  }
+ }
+ return {source:'original-physically-surveyed-working-trade-quarter',
+  surveyed,physicallyClear,marketVisible,readableDoorway,
+  best,market:market.slice(),home:home.slice(),
+  realHomes:district.realHomes,actualLiveCargo:district.observedLiveCargo,
+  noCreatedActors:true,noRemovedStructures:true,authorityChanged:false,
+  historicalReplayChanged:false,hardwareFps:'NOT MEASURED',
+  experienceGate:'NOT PROVEN'};
+}
+
 function requestRealMarketHomeDistrict(){
  const loads=getActiveDeliveries();
  const plan=planRealMarketHomeDistrict(city,DELIVERY_MARKET.food,
   canvas.clientWidth,canvas.clientHeight,loads);
  const from={yaw,pitch,zoom,focus:focusPoint.slice()};
- // Reuse the SAME measured physical roof/camera obstruction survey, genuine
- // camera interpolation and user-interrupt behavior as farm->market->homes.
+ // Player-triggered physically scored ground-level trade-quarter view.
+ // All candidate eyes use genuine occupied houses, market and roof volumes.
+ // Original wide district remains a safe fallback if no readable eye exists.
+ const survey=planPhysicalTradeQuarterWitness(plan);
+ // Preserve ordinary navigation interruption and ease/reduced-motion rules.
  if(streetWalk)setStreetWalk(false);
  if(liveWorkday||document.body.dataset.workday!=='off')stopWorkdayWatch();
  if(follow)setCitizenFollow(false);
  cinematic=false;document.getElementById('camera').classList.remove('active');
- const safe=safeFreeOrbit(plan.yaw,plan.pitch,plan.zoom,plan.focus);
+ let safe=null,actualComposition=null,acceptedStreetWitness=false;
+ if(survey.best){
+  const v=survey.best.view;
+  const attempted=safeFreeOrbit(v.yaw,v.pitch,v.zoom,v.focus);
+  if(attempted){
+   const actual=scoreRealMobileMarketArrival(attempted,
+    {trueReceivingMarket:plan.market,
+     firstHome:plan.inspectedHomeLots[0]},followCameraRoofs());
+   if(actual&&actual.marketOnscreen&&actual.marketRayClear&&
+      actual.foregroundSceneCover<=.50){
+    safe=attempted;actualComposition=actual;
+    acceptedStreetWitness=true;
+   }
+  }
+ }
+ if(!safe){
+  safe=safeFreeOrbit(plan.yaw,plan.pitch,plan.zoom,plan.focus);
+  if(safe)actualComposition=scoreRealMobileMarketArrival(safe,
+   {trueReceivingMarket:plan.market,
+    firstHome:plan.inspectedHomeLots[0]},followCameraRoofs());
+ }
  if(!safe){
   showToast('The real market quarter is obstructed from this camera');
   return {accepted:false,stage:plan.stage,reason:'physical-camera-blocked',
-   authorityChanged:false};
+   surveyed:survey.surveyed,authorityChanged:false};
  }
  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
   yaw=safe.yaw;pitch=safe.pitch;zoom=safe.zoom;
@@ -30320,7 +30402,23 @@ function requestRealMarketHomeDistrict(){
   row.resource==='food'&&row.creditedAtUnloading===true).length;
  realEconomicSurveyVisits++;
  realEconomicSurveyLast={...plan,focus:safe.focus.slice(),physicalSafe:true,
-  activeRealLoads:loads.length,actualCreditedFoodReceipts:credited};
+  activeRealLoads:loads.length,actualCreditedFoodReceipts:credited,
+  composition:{
+   source:survey.source,candidateEyes:survey.surveyed,
+   physicallyClearEyes:survey.physicallyClear,
+   marketVisibleEyes:survey.marketVisible,
+   readableDoorwayEyes:survey.readableDoorway,
+   scoredGroundLevelWitness:acceptedStreetWitness,
+   marketActuallyOnScreen:Boolean(actualComposition?.marketOnscreen),
+   marketRayClear:Boolean(actualComposition?.marketRayClear),
+   occupiedDoorwayOnScreen:Boolean(actualComposition?.homeOnscreen),
+   occupiedDoorwayRayClear:Boolean(actualComposition?.homeRayClear),
+   actualVisibleCitizens:actualComposition?.visibleActualCitizens??0,
+   actualForegroundCover:actualComposition?.foregroundSceneCover??null,
+   actualCitizen:actualComposition?.closestReadableCitizen??null,
+   roofsHidden:0,peopleInvented:0,transactionsInvented:0,
+   physicalCameraTrue:true,experienceGate:'NOT PROVEN'
+  }};
  const button=document.getElementById('camera-market-homes');
  button.dataset.stage='market-home-district';
  showToast(plan.observedLiveCargo?
