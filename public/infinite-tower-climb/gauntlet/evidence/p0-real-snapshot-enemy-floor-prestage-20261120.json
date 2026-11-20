@@ -75,5 +75,34 @@
     "otherGames": false
   },
   "evidenceFile": "public/infinite-tower-climb/gauntlet/evidence/p0-real-snapshot-enemy-floor-prestage-20261120.json",
-  "reviewFile": "docs/reviews/2026-11-20-tower-pr68-f8-render-snapshot-prestage-p0-review.md"
+  "reviewFile": "docs/reviews/2026-11-20-tower-pr68-f8-render-snapshot-prestage-p0-review.md",
+  "relatedOriginalFloorEightReturnedCameraFix20261120": {
+    "activeStage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "previousHeadSha": "a7f06d352f1b03b3a4cb5da4154ca574761d384b",
+    "observedBlocker": "The same published floor-filtered TowerRenderSnapshot enemy omits enemy.floor. The original-gateway-submitted-camera-bridge original returned F8 camera capture still required e.floor===8, so every actual F8 camera receipt was rejected and the real F9 source-verified camera bridge was inert. Previous unit fixture explicitly supplied invented floor:8 and missed it.",
+    "priorSourcePinnedNativeCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44700319088",
+    "nativePairing": "FAILED 0/2 viewports: 8/8 full authentic 60+ second A/B gameplay recordings succeeded but no full moving climber + visibly opened bronze guardian gate + walkable F9 in consecutive aligned native frames. Camera render was not source-groundedly preserved.",
+    "productionChange": "Allow ONLY missing floor on already floor-scoped source.floor===8 guardian or explicit floor 8; retain wrong-floor, wrong-run, unearned HP0, original cap, projected body, opaque ray, user-camera and renderer-return vetoes. No authoritative gameplay change.",
+    "testChange": "Regression uses a real floorless published guardian and requires a later true HP0 F9 bridge; explicit cross-floor and forged defeat rejected. Correct one unmatched brace in separate same-game source-real 3D world-test fixture revealed in 44700663754.",
+    "previousQualityFailure": "https://github.com/my-edutu/Ai_games/actions/runs/44700663754 phase3-0 SyntaxError unexpected token ; at tower-retained-source-cap-world.test.cjs:75; complete CI failed 9/10",
+    "newSourceSha": "immutable SHA of resulting atomic commit; source exact SHA must be inspected in the workflow",
+    "newNativeCapture": "NOT EVALUATED until new exact-SHA 9-job gameplay campaign completes",
+    "nextHighestImpactAction": "Prove production old-F8 submitted camera non-null and F9 bridge accepted in authentic source diagnostics, then evaluate original 1x native 960x600 / 390x844 shared doorway + moving full-body hero + walkable F9 and strict pairing. If still failed, fix actual cap/gallery/portrait composition with source-backed triangle rays. Stay P0.",
+    "blindReview": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "deviceP50P95P99Memory": "NOT EVALUATED",
+    "protections": {
+      "baselineUnchanged": true,
+      "pr68Draft": true,
+      "pr58Untouched": true,
+      "noMerge": true,
+      "noDeploy": true,
+      "noForcePush": true,
+      "noOtherGames": true
+    }
+  }
 }

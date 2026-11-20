@@ -78,6 +78,39 @@ test('authentic last returned F8 view at living guardian HP1 is preserved for la
   assert.equal(plan(snapshot,held,{...original,originalGuardianObserved:false},view),null);
   assert.equal(plan(snapshot,held,{...original,originalGuardianHealth:-1},view),null);
 });
+test('real published F8 snapshot omits enemy.floor yet returns a source-owned camera for the genuine F9 HP0 crossing',async()=>{
+  const {observedOriginalGatewaySubmittedView:capture,
+    sourceOriginalGatewayCameraBridge:plan}=await load;
+  const published={
+    runToken:'genuine',floor:8,theme:'clockwork',lifecycle:'running',
+    tick:438,chunkBaseY:2880000,worldWidth:480000,
+    guardianExitX:thresholdX,platforms:[cap],
+    // Actual TowerRenderSnapshot is already floor-filtered: no enemy.floor.
+    enemies:[{id:'f8:guardian',kind:'guardian',active:true,health:1,
+      x:235000,y:3250000,halfHeight:18000}],
+    player:{health:4,x:thresholdX-12000}
+  };
+  const before=JSON.stringify(published);
+  const oldView=capture(published,[4,40,64],[8,34,21]);
+  assert.ok(oldView && oldView.originalGuardianObserved===true,
+    'real floor-filtered source may no longer be rejected by an absent enemy.floor');
+  assert.equal(oldView.tick,438);
+  const after=plan(snapshot,held,oldView,view);
+  assert.ok(after?.sourceBound && after.proof==='immutable-guardian-defeat',
+    'only subsequent source-recorded HP-zero Floor8->9 crossing can use the old submitted camera');
+  assert.equal(JSON.stringify(published),before,
+    'camera observation cannot mutate the immutable floor-scoped source snapshot');
+  assert.equal(capture({...published,enemies:[{...published.enemies[0],floor:7}]},
+    [4,40,64],[8,34,21]),null,
+    'explicit foreign-floor guardian must not lend its camera');
+  assert.equal(capture({...published,floor:9},[4,40,64],[8,34,21]),null);
+  assert.equal(capture({...published,enemies:[]},[4,40,64],[8,34,21]),null);
+  assert.equal(plan(snapshot,held,{...oldView,runToken:'foreign'},view),null);
+  assert.equal(plan({...snapshot,lastGuardianCrossing:{...snapshot.lastGuardianCrossing,
+      guardian:{kind:'guardian',active:true,health:1}}},held,oldView,view),null,
+    'old returned camera is not an authority for guardian defeat');
+});
+
 test('the real camera consumes only genuine submitted old floor view and verifies hero/core on new floor',()=>{
   const scene=fs.readFileSync(require.resolve('../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
   assert.ok(scene.includes('sourceOriginalGatewayCameraBridge(') &&

@@ -13327,5 +13327,38 @@
       "supportedHardware": "p50/p95/p99/memory NOT EVALUATED",
       "nextAction": "Inspect strict source-to-native pair job and paired original full-motion 1x gateway shot. Validate pre-F9 CPU prebuild tradeoff/F8 smoothness; if 0/2 event-aligned shared-room, build a genuine source-owned camera/foreground gateway/roof composition fix, not more test count."
     }
+  },
+  "p0F8ReturnedFloorScopedCameraRealGpuBridge20261120_0940": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenBaselineMoved": false,
+    "inspectedHeadSha": "a7f06d352f1b03b3a4cb5da4154ca574761d384b",
+    "implementationCommit": "exact resulting production/evidence commit SHA, see branch history",
+    "primaryVerifiedBlocker": "The original old-F8 GPU camera witness was never captured: published floor-scoped enemy lacks .floor but observedOriginalGatewaySubmittedView required e.floor===8. The source-real F9 old-gateway camera bridge was therefore always ineligible even after the previously verified gallery prestage fix.",
+    "previousNativeRecording": "https://github.com/my-edutu/Ai_games/actions/runs/44700319088",
+    "previousNativeResult": "8/8 full original gameplay films and authentic ledge SUCCESS; strict event to native pairing FAILURE 0/2; no accepted consecutive bronze gateway, full moving skinned climber, walkable F9 shot",
+    "previousExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44700663754",
+    "previousQualityResult": "FAILED 9/10 (missing brace in same-game retained-source-cap-world test line75, corrected in this run)",
+    "meaningfulCodeChange": "Accept actual floor-scoped current-F8 guardian without enemy.floor when recording a PREVIOUSLY SUBMITTED real F8 lens; explicit foreign floor rejected. The source-verified original F9 camera bridge, physical ray vetoes, original cap/HP0, moving real hero and authority remain.",
+    "tests": "Added regression using real published enemy format and later true HP0 Floor9 source gating; repaired CI SyntaxError in same Tower actual-world fixture. New CI and authentic videos pending; no pass/visual improvement claimed yet.",
+    "newCapture": "Triggered by capture-request.json change on immutable resulting source SHA; run ID/evidence must be inspected after GitHub finishes",
+    "independentReview": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "deviceFrameTimesMemory": "NOT EVALUATED",
+    "biggestExperienceGap": "Original real opened bronze guardian steel, moving complete climber and walkable F9 not established together in consecutive matched normal-speed desktop/portrait native frames",
+    "nextHighestImpactAction": "Verify F8 returned camera diagnostic becomes non-null and F9 accepted source bridge in exact-SHA 9-job native campaign; inspect full motion and event pairing. If gateway still optically absent or portrait obstructed, tackle old steel/cap/roof sightline system, not test-count micro patches.",
+    "restrictions": {
+      "noOtherGames": true,
+      "PR58Unchanged": true,
+      "PR68Draft": true,
+      "noMerge": true,
+      "noDeploy": true,
+      "noForcePush": true,
+      "baselinePreserved": true
+    }
   }
 }

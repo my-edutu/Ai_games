@@ -72,7 +72,7 @@ test('late immutable HP-zero crossing reveals only the actually supported beyond
       runToken:after.runToken,sourceTick:451,fromFloor:8,toFloor:9,
       cap:before.platforms[0],exitX:gate,crossingX:gate+13000,
       halfWidth:body.halfWidth,halfHeight:body.halfHeight,
-      guardian:{...before.enemies[0],floor:8}};
+      guardian:{...before.enemies[0],floor:8}}};
   const held={runToken:after.runToken,floor:9,guardianGateRetained:true,
     verifiedObservedFloorAdvance:true,oldCapId:'f8:cap',
     oldCapX:cap.x,oldCapWidth:cap.width,oldRoofY:cap.y+cap.height,

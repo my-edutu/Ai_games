@@ -16,7 +16,14 @@ const finite=Number.isFinite;
 export function observedOriginalGatewaySubmittedView(source,camera,gaze) {
   const cap=source?.platforms?.find(p=>p?.id==='f8:cap');
   const guardian=source?.enemies?.find(e=>e?.kind==='guardian' &&
-    e.floor===8 && Number.isFinite(e.health) && e.health>=0);
+    // Published render enemies are ALREADY scoped to source.floor=8 and
+    // intentionally omit enemy.floor. A former exact-floor predicate here
+    // silently rejected every actual submitted F8 guardian/camera and made
+    // the later authentic F9 old-gateway lens unreachable in native play.
+    // An explicitly contradictory floor (test/replay instrumentation) is
+    // still a veto: this is NOT a licence to borrow another floor's camera.
+    (e.floor===undefined || e.floor===8) &&
+    Number.isFinite(e.health) && e.health>=0);
   const p=source?.player;
   if(source?.floor!==8 || source.theme!=='clockwork' ||
      source.lifecycle!=='running' ||
