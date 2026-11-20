@@ -358,7 +358,7 @@ test('RED: a truly weighted original heel-and-toe landing may settle near stone 
  // are constructed geometry contracts, NOT a captured GLB after-frame.
  // A source 315.3ms frame may legitimately spend <=.72rad of ankle motion.
  const stone=-.02;
- const original={right:shoe(.12,-.125),left:loaded};
+ const original={right:shoe(.122,-.126),left:loaded};
  const candidate=plan({...owner,before:original,
   sourceClipTimeSeconds:.15,frameInterval:.3153,rootTravel:.05,
   sparseFrameVerified:true,frameAge:.02});
