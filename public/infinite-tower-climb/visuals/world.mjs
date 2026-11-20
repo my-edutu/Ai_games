@@ -10,7 +10,7 @@ import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceFloorNineRouteSupport, observedSourceRetainedRaisedExit, observedSourceAirborneSuccessorApproach, observedSourceOriginalVisibilityWindow, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS, observedCertifiedOriginalGatewayOpticalLease, observedReturnedSharedRoomPalette } from './source-physical-arrival-palette.mjs';
 import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
-import { rebindSourceOwnedUndercroft } from './successor-deck-visibility.mjs';
+import { rebindSourceOwnedUndercroft, createSightlineMatrixEpochCache } from './successor-deck-visibility.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, createSourceEarnedVoidDepartureMaterials, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn, observedRenderedOriginalDoorwayRoom, coherentOriginalBearingDeparture } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections, isolateEarnedFirstFrameVoidMaterials } from './source-earned-bearing-run.mjs';
 import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold, observedSourceEarnedEarlyVoidShaftAperture, observedSourceSupportedVoidFirstPaint, observedEarnedGalleryExitClearance, observedReturnedGalleryHandoffClearance, observedFirstReturnedVoidBearingGalleryRetirement, observedSourceReturnedCoreBeforeScenicUpload } from './far-side-shaft-transition.mjs';
@@ -1042,6 +1042,10 @@ export function sourceEarnedFarSideButtressIndex(routeAngle,pylons){
 
 export function createTowerWorld(){
   const group=new THREE.Group();group.name='InfiniteTowerWorld';
+  // A camera may test several reversible gateway viewpoints in one scene
+  // frame. Matrix transforms belong to the CURRENT World update, not each
+  // candidate ray; restart/restore and repeated fixed-step ticks resync.
+  const sightlineMatrixEpoch=createSightlineMatrixEpochCache();
   const stoneSurface=createStoneSurfaceAsset(THREE);
   let floorGroup=null,key='',theme='foundry',disposed=false,lastSnapshot=null;
   let materials={}, floorGeometries=new Set(),floorMaterials=new Set();
@@ -4386,6 +4390,10 @@ export function createTowerWorld(){
   }
   function update(snapshot,dt=0,time=0,options={},passageWitness=null){
     if(disposed||!snapshot)return;
+    // Must advance for EVERY actual render update even when the immutable
+    // 20Hz source tick has not changed: moving platforms still need fresh
+    // world matrices for valid full-body triangle occlusion tests.
+    sightlineMatrixEpoch.beginFrame();
     updateRetainedCap(snapshot,dt,options,passageWitness);
     const requestedQuality=options.quality==='low'?'low':options.quality==='high'?'high':'normal';
     if(key!==`${snapshot.runToken}:${snapshot.floor}:${snapshot.theme}:${requestedQuality}`)rebuild(snapshot,requestedQuality);
@@ -5180,7 +5188,8 @@ export function createTowerWorld(){
       originalCapRoot:held.originalCapSightlineRoot,
       originalGalleryRoot:held.originalGalleryRoot,
       raycaster:successorDeckRay,direction:successorDeckRayDirection,
-      point:successorDeckRayTarget,hits:successorDeckRayHits
+      point:successorDeckRayTarget,hits:successorDeckRayHits,
+      syncWorldMatrix:sightlineMatrixEpoch.sync
     });
   }
   function protectRouteSightlines(camera, actor=null, guardian=null, landing=null, dt=0, options={},
