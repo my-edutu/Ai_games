@@ -105,12 +105,23 @@ test('real source floor transition retains bounded CPU/world/WebGL time partitio
     rendererReturnMs: 705.556,
     worldRebuildMs: 381.12,
     totalSubmissionMs: 1125.79,
+    firstF9MainThread: {
+      sceneSetupMs: 8.24, worldUpdateMs: 382.54,
+      heroThreatMs: 17.7, cameraLightingMs: 11.754,
+    },
   });
   const rendered = progress.diagnostics(1250).sourceTransitions.find(x => x.phase === 'renderer-submitted');
   assert.deepEqual(rendered.renderWorkMs, {
     sceneUpdate: 420.2, rendererReturn: 705.6,
     worldRebuild: 381.1, total: 1125.8,
+    firstF9MainThread: {
+      sceneSetup: 8.2, worldUpdate: 382.5,
+      heroThreat: 17.7, cameraLighting: 11.8,
+    },
   });
+  assert.equal(progress.diagnostics(1250).sourceTransitions.find(
+    x => x.phase === 'browser-accepted').renderWorkMs, undefined,
+    'HTTP receipt does not create CPU scene measurements');
   assert.equal(progress.diagnostics(1250).sourceTransitionProof,
     'browser-acceptance-and-renderer-return-only-NOT-native-video');
   // Native WebM clock and GPU-present remain unmeasured.
@@ -118,10 +129,15 @@ test('real source floor transition retains bounded CPU/world/WebGL time partitio
   progress.submitted({...source, floor: 10, tick: 612}, 1440, 2440, {
     sceneUpdateMs: -1, rendererReturnMs: NaN, worldRebuildMs: Infinity,
     totalSubmissionMs: 40,
+    firstF9MainThread: {
+      sceneSetupMs: 100, worldUpdateMs: 200,
+      heroThreatMs: 100, cameraLightingMs: 100,
+    },
   });
   const later = progress.diagnostics(1440).sourceTransitions.at(-1);
   assert.deepEqual(later.renderWorkMs, {sceneUpdate: null,
-    rendererReturn: null, worldRebuild: null, total: 40});
+    rendererReturn: null, worldRebuild: null, total: 40},
+    'another floor cannot claim the first-F9 CPU partitions');
   for (let floor = 11; floor < 90; floor++) {
     const other = {...source, tick: floor * 40, floor};
     progress.received(other, floor * 10, floor * 100);
