@@ -5,7 +5,7 @@ import { publicEarnedCounterImpactStage } from './public-counter-impact.mjs';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilFinalPairShift, publicGuardianEarnedRecoilRevealElevation, setPublicEarnedGuardianFrontQuarterOffset, publicEarnedGuardianCounterCameraPriority, publicEarnedGuardianCounterCameraAct, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilSafeContactHalfHeight, publicGuardianEarnedRecoilFinalPairShift, publicGuardianEarnedRecoilRevealElevation, setPublicEarnedGuardianFrontQuarterOffset, publicEarnedGuardianCounterCameraPriority, publicEarnedGuardianCounterCameraAct, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicEarnedGuardianCounterLightPath } from './public-lantern-encounter.mjs';
@@ -1864,6 +1864,27 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
               }
           if(!valid||left>=right||bottom>=top)break;
           finalEarnedBodies.push({left,right,bottom,top});
+        }
+        // Pass524 real native tick94: holding the genuine warning camera
+        // preserves contact continuity but the recoiling FULL guardian extends
+        // to +1.293 NDC. The two full physical meshes span 2.153 NDC and
+        // cannot be made safe by panning alone. First make the smallest
+        // source-measured orthographic backoff, then recenter those same
+        // physical rectangles. No smaller models, crop or relaxed +/- .95.
+        const safeContactHeight=publicGuardianEarnedRecoilSafeContactHalfHeight(
+          aspect,halfHeight,finalEarnedBodies,true,settings.reducedMotion);
+        if(safeContactHeight>halfHeight){
+          const ndcScale=halfHeight/safeContactHeight;
+          halfHeight=safeContactHeight;
+          camera.left=-halfHeight*aspect;camera.right=halfHeight*aspect;
+          camera.top=halfHeight;camera.bottom=-halfHeight;
+          camera.updateProjectionMatrix();
+          // An orthographic lens change scales the SAME measured connected
+          // mesh rectangles exactly; retain the current genuine camera angle.
+          for(const b of finalEarnedBodies){
+            b.left*=ndcScale;b.right*=ndcScale;
+            b.bottom*=ndcScale;b.top*=ndcScale;
+          }
         }
         const finalEarnedShift=publicGuardianEarnedRecoilFinalPairShift(
           aspect,halfHeight,finalEarnedBodies,true,settings.reducedMotion);

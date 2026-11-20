@@ -355,6 +355,39 @@ export function publicGuardianEarnedRecoilRevealElevation(
  * encounter, inspect private cells, relax thresholds or silently fit a pair
  * wider than the available physical screen. Caller supplies post-zoom bounds.
  */
+/**
+ * Pass524: the ORIGINAL exact-HEAD 390x844 WebGL earned-counter screenshot
+ * of the natural tick93->94 autonomous encounter proves that simply keeping
+ * the prior live camera cuts off Thornback's connected shell on recoil.
+ * Tick94 true public full-body NDC: Pip [-.859661,.228709], Thornback
+ * [-.274811,1.293283]. Their union spans 2.153, too wide for a pan alone.
+ *
+ * Back off only the minimum physical orthographic lens required to fit the
+ * TWO CURRENT published character meshes. The caller then recenters the
+ * same full-mesh bounds under the EXISTING strict +/- .95 native screenshot
+ * test. The .90 horizontal and .88 vertical budgets are STRONGER than the
+ * original threshold; a >32% cutaway or invalid geometry fails closed.
+ * Does not read hidden cells, alter AI, move actors or add GPU resources.
+ */
+export function publicGuardianEarnedRecoilSafeContactHalfHeight(
+  aspect,halfHeight,bodies,earned=false,reducedMotion=false){
+  if(!earned||reducedMotion||!Number.isFinite(aspect)
+    ||aspect<.35||aspect>=.60||!Number.isFinite(halfHeight)
+    ||halfHeight<=0||!Array.isArray(bodies)||bodies.length!==2)
+    return halfHeight;
+  for(const b of bodies)
+    if(!b||!['left','right','top','bottom'].every(k=>Number.isFinite(b[k]))
+      ||b.left>=b.right||b.bottom>=b.top)return halfHeight;
+  const left=Math.min(bodies[0].left,bodies[1].left);
+  const right=Math.max(bodies[0].right,bodies[1].right);
+  const top=Math.max(bodies[0].top,bodies[1].top);
+  const bottom=Math.min(bodies[0].bottom,bodies[1].bottom);
+  const scale=Math.max(1,(right-left)/1.8,(top-bottom)/1.76);
+  if(!Number.isFinite(scale)||scale>1.32
+    ||top/scale>.94||bottom/scale<-.94)return halfHeight;
+  return halfHeight*scale;
+}
+
 export function publicGuardianEarnedRecoilFinalPairShift(
   aspect,halfHeight,bodies,earned=false,reducedMotion=false){
   if(!earned||reducedMotion||!Number.isFinite(aspect)
