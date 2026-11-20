@@ -652,3 +652,64 @@ test('RED: renderer selects only after BOTH genuine connected-leg source-skin tr
  assert.match(live,/mounts\.forEach\(\(m,i\)=>m\.last\.multiply\(deltas\[i\]\)\)/,
   'only accepted full-body source joints may persist as reversible overlays');
 });
+
+ 
+// 20 Nov 2026: independent ORIGINAL pinned KayKit/Vanguard 41-joint GLB
+// Walking_A sampling (source inverse binds + true weighted heel/toe mesh).
+// The following first-order source joint derivatives are in METRES/RADIAN.
+// They are analytical rig evidence, NOT a live final GLB skinning certificate.
+// A candidate must still survive the renderer's actual two-shoe re-skin.
+// Previous linked -.80/+ .55 upper/knee shares buried the toe more deeply
+// than the conservative source chain in BOTH original 60Hz/30Hz windows.
+test('source-native ankle, hip and knee Jacobian contract preserves legal toe relief',async()=>{
+ const {planLicensedSourceSwingCounterpitch:plan,
+  planLicensedSourceConnectedChainTrials:trials}=await source;
+ const windows=[
+  {phase:.089479,side:'right',interval:.0167,
+   heel:{upper:.1828,lower:.1882,foot:.0812},
+   toe:{upper:.0594,lower:.0648,foot:-.0310},
+   minimumGain:.00080},
+  {phase:.619348,side:'left',interval:.0333,
+   heel:{upper:.1722,lower:.1861,foot:.0785},
+   toe:{upper:.0663,lower:.0801,foot:-.0160},
+   minimumGain:.00150}
+ ];
+ for(const w of windows){
+  const base={...owner,sourceClipTimeSeconds:w.phase,side:w.side,
+   frameInterval:w.interval,frameAge:0,rootTravel:w.side==='right'?.0101:.0193,
+   before:w.side==='right'?before:
+    {left:shoe(.247,-.063),right:loaded}};
+  const planned=plan(base);
+  assert.ok(planned,'authentic source phase and legal root travel');
+  const choices=trials({plan:planned,frameInterval:w.interval,
+   sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+   sourceFootTrackVerified:true,sourceBindVerified:true});
+  assert.equal(choices?.length,2,'no extra runtime skinned probes');
+  const projected=(angles,derivative)=>
+   angles.upperRad*derivative.upper+
+   angles.lowerRad*derivative.lower+
+   angles.footRad*derivative.foot;
+  const safe=choices[0],candidate=choices[1];
+  const oldToe=projected(safe,w.toe),nextToe=projected(candidate,w.toe);
+  const nextHeel=projected(candidate,w.heel);
+  assert.ok(nextToe-oldToe>w.minimumGain,
+   'the alternative MUST improve source forefoot rise over the original conservative chain');
+  assert.ok(nextHeel<-.0008,
+   'the source swing heel still descends instead of being kicked upward');
+  assert.ok(nextToe-nextHeel>=.003,
+   'the original outsole still becomes more level (>=3mm pitch gain)');
+  assert.ok(candidate.lowerRad>Math.abs(candidate.upperRad),
+   'true sourced knee progression must exceed opposing upper-leg motion');
+  for(const a of [candidate.upperRad,candidate.lowerRad,candidate.footRad])
+   assert.ok(Math.abs(a)<=3*w.interval+1e-8,
+    'real source-chain 3rad/s cap applies to EVERY joint');
+ }
+ const p=plan({...owner,sourceRole:'ranger',
+  sourceClipTimeSeconds:.089479,frameInterval:.0167,rootTravel:.0101,frameAge:0});
+ const ranger=trials({plan:p,frameInterval:.0167,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceFootTrackVerified:true,sourceBindVerified:true});
+ assert.ok(ranger?.length===2);
+ assert.ok(ranger[1].lowerRad<Math.abs(ranger[1].upperRad),
+  'Vanguard source Jacobian must NOT silently alter Ranger or the other five rigs');
+});
