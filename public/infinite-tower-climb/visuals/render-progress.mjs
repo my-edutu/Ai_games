@@ -29,11 +29,23 @@ export function createRenderProgress() {
     // do not measure compositor paint, physical GPU completion or native WebM.
     const cost = value => Number.isFinite(value) && value >= 0 && value <= 120000
       ? Math.round(value * 10) / 10 : null;
+    // A first Floor9 trace is attributable only after a returned render on
+    // the same source snapshot. Keep it separate from hardware GPU metrics:
+    // these are browser main-thread performance.now() partitions only.
+    const coldStages = phase === 'renderer-submitted' &&
+      snapshot.floor === 9 && snapshot.lifecycle === 'running' &&
+      renderWork?.firstF9MainThread
+        ? { sceneSetup: cost(renderWork.firstF9MainThread.sceneSetupMs),
+            worldUpdate: cost(renderWork.firstF9MainThread.worldUpdateMs),
+            heroThreat: cost(renderWork.firstF9MainThread.heroThreatMs),
+            cameraLighting: cost(renderWork.firstF9MainThread.cameraLightingMs) }
+        : null;
     const renderWorkMs = phase === 'renderer-submitted' && renderWork
       ? { sceneUpdate: cost(renderWork.sceneUpdateMs),
           rendererReturn: cost(renderWork.rendererReturnMs),
           worldRebuild: cost(renderWork.worldRebuildMs),
-          total: cost(renderWork.totalSubmissionMs) } : null;
+          total: cost(renderWork.totalSubmissionMs),
+          ...(coldStages ? { firstF9MainThread: coldStages } : {}) } : null;
     sourceTransitions.push({
       phase, runToken: snapshot.runToken, tick: snapshot.tick,
       floor: snapshot.floor, lifecycle: snapshot.lifecycle,
