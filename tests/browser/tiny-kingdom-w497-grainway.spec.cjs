@@ -62,9 +62,29 @@ for(const width of [1024,390]){
   expect(after.audit.loadhouse).toEqual(before.audit.loadhouse);
   expect(after.gl).toBe(0);
   expect(after.overflow).toBeLessThanOrEqual(width);
+  // Genuine playable 3D close-up of the SAME real grain store and
+  // connected street. No separate model/scene or synthetic delivery.
+  const orbitEye=await page.evaluate(()=>window.__tinyKingdom.getPresentedCameraFrame().eye);
+  await page.evaluate(()=>window.__tinyKingdom.setCamera({
+   yaw:.71,pitch:.54,zoom:26,focus:[29,-7]}));
+  await page.waitForFunction(eye=>{
+   const p=window.__tinyKingdom.getPresentedCameraFrame()?.eye;
+   return p&&Math.hypot(...p.map((v,i)=>v-eye[i]))>.05;
+  },orbitEye,{timeout:60000});
+  await page.screenshot({path:path.join(out,'granary-closeup-'+width+'.png'),fullPage:true});
+  const closeup=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   return {snapshot:JSON.stringify(g.exportSnapshot()),
+    fullSceneTriangles:g.renderStats().lastFrameFullSceneTriangles,
+    gl:document.getElementById('world').getContext('webgl')?.getError()??-1};
+  });
+  expect(closeup.snapshot).toBe(before.snapshot);
+  expect(closeup.fullSceneTriangles).toBeLessThan(160000);
+  expect(closeup.gl).toBe(0);
   expect(errors).toEqual([]);
   console.log(JSON.stringify({source:'W497 authentic settled freight route',width,
    people:after.people,buildings:after.buildings,hedgerow:after.audit.hedgerow,
+   loadhouse:after.audit.loadhouse,
    fullSceneTriangles:before.triangles,hardwareFPS:'NOT MEASURED',
    lookFeelPlay:'NOT PROVEN'}));
   const video=page.video();await page.close();
