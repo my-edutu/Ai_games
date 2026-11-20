@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-20T12:28:17.532Z",
+  "updatedAt": "2026-11-20T12:57:13.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass532b exact HEAD native WebGL #44725340292 SUCCESS: 42/42 original SHA-matched PNG and 3/3 true gate transition images; six-reset geometry <100 passed. Real 390 lantern-counter reveals Pip's arm not visibly aimed into actual open light corridor and actors still scattered among masonry; Nintendo bar REJECTED. Pass533 connects real Pip shoulder/lantern to the same legitimately public direct or corner segment; NEW exact-head source/visual tests PENDING, no visual win."
+    "summary": "Pass533 exact HEAD WebGL #44736099155 SUCCESS: original ZIP 3ffb7869 SHA-verified; 42/42 source PNG SHA sidecars and 3/3 genuine gate SHA verified. Actual 390x844 earned counter has Pip/Thornback spread to both lateral ±.90 margins, side-facing guardian and stonework-dominated scene despite full valid meshes; official Nintendo bar REJECTED. Pass534 changes 390-only authentic public actor camera face-quarter; native exact-HEAD visual approval pending, 320 unchanged; no benchmark win."
   },
   "captures": [
+    {
+      "title": "Pass533 exact source 08f6eb30 WebGL SUCCESS: 42 original full-frame screenshot hash matches and 3 true gate-transition hashes; Pass534 stronger 390-only public counter framing awaits native visual acceptance",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44736099155/artifacts/14628294311"
+    },
     {
       "title": "Pass532b exact source 0e1fd13 native WebGL, unchanged original 320/390/844/1280 frames; 42/42 PNG SHA pairs + three real gate SHA verified; Pass533 physical lantern aim candidate pending",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44725340292/artifacts/14624775526"
