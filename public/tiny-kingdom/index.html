@@ -9465,11 +9465,11 @@ function renderOriginalOccupiedRoomShell(x,y,z,w,d,wallHeight,scale,plasterTone)
 // physically modelled upper casements. All 56 triangles join the already
 // retained exact-lot home VBO, never an actor, authority or impostor.
 let originalUpperRoomStats={builtInstances:0,triangles:0,sideWindowOpenings:0,
- exposedOakTies:0};
+ rearWindowOpenings:0,loftFurnishings:0,exposedOakTies:0};
 function getOriginalOccupiedUpperStoreyAudit(){
  return {...originalUpperRoomStats,
-  source:'real-detailed-inhabited-upper-room-hollow-wall-shell',
-  trianglesPerHome:56,additionalGpuBuffers:0,
+  source:'w482-real-inhabited-loft-with-four-unobstructed-window-openings',
+  trianglesPerHome:140,additionalGpuBuffers:0,
   insertedBuildings:0,insertedResidents:0,changedNavigation:false,
   changedAuthority:false,hardwareFps:'NOT MEASURED',experienceGate:'NOT PROVEN'};
 }
@@ -9499,11 +9499,28 @@ function renderOriginalOccupiedUpperStorey(x,y,z,w,d,h,scale,plasterTone){
    wallX(px,a,b,base,lower,side);
    wallX(px,a,b,upper,top,side);
   }
-  for(const zz of [z0,z1]){
-   const v0=[x0,base,zz],v1=[x1,base,zz],
-    v2=[x1,top,zz],v3=[x0,top,zz];
-   quad(v0,v1,v2,v3,plasterTone);
-   quad(v3,v2,v1,v0,plasterTone);
+  // W482: true side-and-rear glazed-era cottage with FOUR *empty*
+  // openings. No blue opaque texture panel may close the real loft window.
+  const front0=[x0,base,z0],front1=[x1,base,z0],
+   front2=[x1,top,z0],front3=[x0,top,z0];
+  quad(front0,front1,front2,front3,plasterTone);
+  quad(front3,front2,front1,front0,plasterTone);
+  const rearWall=(xa,xb,lo,hi)=>{
+   const p0=[xa,lo,z1],p1=[xb,lo,z1],
+    p2=[xb,hi,z1],p3=[xa,hi,z1];
+   quad(p0,p1,p2,p3,plasterTone);
+   quad(p3,p2,p1,p0,plasterTone);
+  };
+  const leftA=x-.25*w-.18*scale,leftB=x-.25*w+.18*scale,
+   rightA=x+.25*w-.18*scale,rightB=x+.25*w+.18*scale;
+  if(!(x0<leftA&&leftA<leftB&&leftB<rightA&&
+   rightA<rightB&&rightB<x1))
+   throw Error('W482 actual rear-casement openings invalid');
+  for(const pair of [[x0,leftA],[leftB,rightA],[rightB,x1]])
+   rearWall(pair[0],pair[1],base,top);
+  for(const pair of [[leftA,leftB],[rightA,rightB]]){
+   rearWall(pair[0],pair[1],base,lower);
+   rearWall(pair[0],pair[1],upper,top);
   }
   quad([x0,base,z0],[x0,base,z1],
    [x1,base,z1],[x1,base,z0],plasterTone);
@@ -9512,16 +9529,33 @@ function renderOriginalOccupiedUpperStorey(x,y,z,w,d,h,scale,plasterTone){
  });
  // The roof is supported by a truly suspended oak tie rather than an
  // impossible solid plaster mass; it does not interfere with either opening.
- materialScope(MATERIAL.WOOD,()=>box(x,top-.19*scale,z,
-  .105*scale,.10*scale,d*.84,rgb(0x74553a)));
+ // The loft is lived in, not a hollow white billboard: two load-bearing
+ // joists, a short oak sleeping platform, straw mattress and household chest
+ // occupy the REAL upper floor, below all four daylight openings.
+ materialScope(MATERIAL.WOOD,()=>{
+  const oak=rgb(0x74553a);
+  box(x,top-.19*scale,z,.105*scale,.10*scale,d*.84,oak);
+  for(const side of [-1,1])
+   box(x+side*w*.34,base+.08*scale,z,
+    .09*scale,.15*scale,d*.78,oak);
+  box(x-.40*scale,base+.27*scale,z+.25*scale,
+   .72*scale,.16*scale,.77*scale,rgb(0x805b3c));
+  box(x+.43*scale,base+.26*scale,z+.31*scale,
+   .42*scale,.31*scale,.32*scale,rgb(0x644933));
+ });
+ materialScope(MATERIAL.GENERAL,()=>box(
+  x-.40*scale,base+.386*scale,z+.25*scale,
+  .65*scale,.075*scale,.68*scale,rgb(0xbba77d)));
  const triangles=(data.length-first)/30;
- if(triangles!==56||!Number.isInteger(triangles))
-  throw Error('W481 occupied upper room bounded geometry parity failed');
+ if(triangles!==140||!Number.isInteger(triangles))
+  throw Error('W482 occupied upper loft bounded geometry parity failed');
  originalUpperRoomStats.builtInstances++;
  originalUpperRoomStats.triangles+=triangles;
  originalUpperRoomStats.sideWindowOpenings+=2;
+ originalUpperRoomStats.rearWindowOpenings+=2;
+ originalUpperRoomStats.loftFurnishings+=3;
  originalUpperRoomStats.exposedOakTies++;
- return {triangles,openSides:2,existingHouse:true,
+ return {triangles,openSides:4,existingHouse:true,
   addedCitizens:0,addedGoods:0,changedEconomy:false};
 }
 
@@ -9543,7 +9577,7 @@ function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)
   }else renderOriginalOccupiedRoomShell(x,y,z,w,d,h-.19*scale,scale,plasterTone);
  });
  if(detailedJetty){
-  const oak=rgb(0x694d36),frame=rgb(0xbfad91),glass=rgb(0x4e6771);
+  const oak=rgb(0x694d36),frame=rgb(0xbfad91),shutter=rgb(0x6f5240);
   materialScope(MATERIAL.WOOD,()=>{
    // Four real undercroft braces and two continuous oak floor plates
    // visibly bear the upper room. All remain above the ground-level path.
@@ -9560,18 +9594,32 @@ function house(x,z,scale=1,variant=0){let y=terrain(x,z);let w=(2.4+variant*.42)
   // A visible room has working outward casements on both long walls and its
   // rear: the front shares the ALREADY EXISTING real high-street casements.
   // Reuse exactly the original shader/material stream, no new GPU buffers.
-  materialScope(MATERIAL.WINDOW_GLOW,()=>{
+  // W482: parked open oak casements instead of four opaque flat blue
+  // glass sheets. All shutters hinge OUTSIDE actual wall apertures; the
+  // true inhabited loft, joists, cot and rear daylight stay visible.
+  materialScope(MATERIAL.WOOD,()=>{
+   const lo=y+2.44*scale,hi=y+2.80*scale;
    for(const side of [-1,1]){
-    const sx=x+side*(w*.5+.154*scale),lo=y+2.44*scale,
-     hi=y+2.80*scale,za=z-.25*scale,zb=z+.25*scale;
-    const a=[sx,lo,za],b=[sx,lo,zb],c=[sx,hi,zb],d0=[sx,hi,za];
-    if(side<0)quad(a,b,c,d0,glass);else quad(d0,c,b,a,glass);
+    const sx=x+side*(w*.5+.177*scale);
+    for(const leaf of [-1,1]){
+     const hinge=[sx,lo,z+leaf*.265*scale],
+      free=[sx+side*.23*scale,lo,z+leaf*.475*scale],
+      upperFree=[free[0],hi,free[2]],
+      upperHinge=[hinge[0],hi,hinge[2]];
+     quad(hinge,free,upperFree,upperHinge,shutter);
+     quad(upperHinge,upperFree,free,hinge,shutter);
+    }
    }
    for(const offset of [-.25,.25]){
-    const cx=x+offset*w,zz=z+d*.5+.154*scale,
-     lo=y+2.44*scale,hi=y+2.80*scale;
-    quad([cx-.18*scale,lo,zz],[cx+.18*scale,lo,zz],
-     [cx+.18*scale,hi,zz],[cx-.18*scale,hi,zz],glass);
+    const cx=x+offset*w,zz=z+d*.5+.177*scale;
+    for(const leaf of [-1,1]){
+     const hinge=[cx+leaf*.185*scale,lo,zz],
+      free=[hinge[0]+leaf*.17*scale,lo,zz+.24*scale],
+      upperFree=[free[0],hi,free[2]],
+      upperHinge=[hinge[0],hi,hinge[2]];
+     quad(hinge,free,upperFree,upperHinge,shutter);
+     quad(upperHinge,upperFree,free,hinge,shutter);
+    }
    }
   });
   materialScope(MATERIAL.WOOD,()=>{
@@ -9872,7 +9920,7 @@ function applyHouseCountersDelta(delta){
 // the shader, but an unchanged inhabited cottage must never be rebuilt or
 // re-uploaded merely because the season changed. The version token makes
 // geometry-identity invalidation explicit without touching saved world data.
-const HOME_STATIC_GEOMETRY_KEY_VERSION='w481-original-hollow-detailed-upper-storey-v3';
+const HOME_STATIC_GEOMETRY_KEY_VERSION='w482-real-open-four-casement-loft-rooms-v4';
 const HOME_CLUSTER_EDGE=16,HOME_CLUSTER_MAX_ENTRIES=32;
 const HOME_CLUSTER_FLOAT_BUDGET=(navigator.deviceMemory&&navigator.deviceMemory<=4)?
  2400000:4600000;

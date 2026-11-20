@@ -34,7 +34,9 @@ for(const width of [1024,390]){
     originalLowerRoom:api.getOriginalOccupiedRoomAudit(),metrics:api.metrics()};
   });
   expect(before.rooms.builtInstances).toBeGreaterThanOrEqual(1);
-  expect(before.rooms.triangles).toBe(before.rooms.builtInstances*56);
+  expect(before.rooms.triangles).toBe(before.rooms.builtInstances*140);
+  expect(before.rooms.rearWindowOpenings).toBe(before.rooms.builtInstances*2);
+  expect(before.rooms.loftFurnishings).toBe(before.rooms.builtInstances*3);
   expect(before.rooms.sideWindowOpenings).toBe(before.rooms.builtInstances*2);
   expect(before.metrics.citizens).toBeGreaterThanOrEqual(12);
   await page.waitForTimeout(1400);
