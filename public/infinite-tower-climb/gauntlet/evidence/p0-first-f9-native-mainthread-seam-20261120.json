@@ -187,5 +187,38 @@
       "acceptance": "NOT EVALUATED; new complete nine-job campaign including pair-source-events not yet concluded at inspection. No independent critics; no actual supported device benchmarks.",
       "preciseNextAction": "Reduce dominant measured first-F9 camera/lighting path (source-owned gateway/deck raycast ladders appear redundant; confirm exact sub-block first), preserve true hero/gateway/roof camera-safe sightline, then repeat immutable-source original native evidence and pair-source-events. Stage P0 stays OPEN."
     }
+  },
+  "followUp20261120_0353": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "sourceHeadBefore": "9bb0eef6da2cafc2b80f207f11c54ee6c4b7c9e9",
+    "sourceCodeCommit": "ff3010deb3040e0942fea8a17984ad14d5d3a5e6",
+    "worldIntegrationCommit": "2414fdd5fb2bd1376e650329bd8ef9ad8d4ac464",
+    "focusedRegressionCommit": "b3313c09e2d1e5cb0427375372a8e4b7ea3cbaf7",
+    "reason": "Source-pinned native danger recording for ac335694 showed sceneUpdate ~288.6ms desktop/285.2ms portrait and camera+lighting+optical visibility phase 182.1ms/179ms (dominant 63%). Discovered 7 source-authentic candidate camera clearance queries per cold F9 frame; each measureAuthoritativeDeckSightline recursively refreshed the same scene-root world matrices before all 9 physical silhouette rays. Production now synchronizes each genuine platform/old gate/old cap/historical gallery/incoming Void root ONCE per actual World.update render epoch; resets even when 20Hz source tick repeats, and across World creations. Does not relax visibility-ray safety, collider physics, run/HP ownership, camera candidate choices or change game stage.",
+    "verification": "Focused Node unit contract committed but local coding tunnel still unavailable; exact-head GitHub quality checks and new full-motion source-pinned capture MUST run before claiming speedup or appearance improvement. Previous native videos remain unaccepted. No observed p50/p95/p99 target-device or memory.",
+    "knownActualVideo": "https://github.com/my-edutu/Ai_games/actions/runs/44662433915",
+    "mostImportantFootageDefect": "Original unmodified desktop and portrait candidate danger WebMs still show 0s sustained bronze-to-Void architectural overlap and a 0.5s HUD-to-violet cut; portrait old bronze foreground occludes moving skinned climber. Strict source-event-to-native-frame pairing NOT accepted.",
+    "nextHighestImpact": "Require source-pinned exact-head 60s+ normal-speed recapture, compare first F9 sceneUpdate camera stage and native shared-gateway body/roof frames vs ac335694, then profile raycast subphases or address true optical foreground architecture if bottleneck persists. Keep P0 open.",
+    "independentBlindCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualSupportedDevice": {
+      "frameTimeP50": "NOT EVALUATED",
+      "frameTimeP95": "NOT EVALUATED",
+      "frameTimeP99": "NOT EVALUATED",
+      "memory": "NOT EVALUATED"
+    },
+    "safeguards": {
+      "baselineUnchanged": true,
+      "pr58Untouched": true,
+      "pr68Draft": true,
+      "noMerge": true,
+      "noDeploy": true,
+      "noForcePush": true,
+      "noOtherGames": true
+    }
   }
 }
