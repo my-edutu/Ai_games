@@ -5053,7 +5053,9 @@ function stageLicensedSourceToeFinisherAfterCounterpitch(actor,reducedMotion){
   const axis=new THREE.Vector3(...audit.axis);
   const delta=new THREE.Quaternion();
   const interval=proof.witnessedFrameIntervalSeconds;
-  if(!Number.isFinite(interval)||interval<.02||interval>.24)continue;
+  // At 60Hz a real post-mixer 16.7ms witnessed root step can authorize
+  // <=50.1mrad of toe motion. Certificate independently enforces 3rad/s.
+  if(!Number.isFinite(interval)||interval<.008||interval>.24)continue;
   const toeAngle=Math.min(.12,3*interval);
   const candidateArgs={proof,before,side,sourceInstanceId:asset.uuid,
    sourceInstanceSame:true,sourceClipName:clip.name,
