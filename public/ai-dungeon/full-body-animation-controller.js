@@ -1143,6 +1143,20 @@ export function chooseOriginalSourceCoupledKneeFootSweep({
    finite(starter.excessHeelRiseMeters)&&
    starter.excessHeelRiseMeters>=.003&&
    starter.excessHeelRiseMeters<=.008;
+  // Native WebGL #44684132376 measured the pre-existing source three-
+  // joint chooser accepting +.34rad at a real 16.6ms Walking_A frame
+  // (20.48rad/s), even though the later source counterpitch is 3rad/s
+  // bounded. A skinned 16mm toe lift is not permission to snap the
+  // parent hip/knee/foot or toes child in one displayed frame. This
+  // historical chooser carries NO independently witnessed previous
+  // correction quaternion; therefore use a conservative absolute overlay
+  // budget, never pretend an unrecorded previous frame was continuous.
+  // Legitimate slower source-skin trials and the later separate rate-
+  // bounded native counterpitch remain available. Failed trials stay
+  // reversible, with no invented source root movement or contact.
+  const sourceAngularBudget=3*Math.min(frameInterval,.24);
+  if([upperRad,lowerRad,footRad,toeRad].some(rad=>
+   !finite(rad)||Math.abs(rad)>sourceAngularBudget+.000001))continue;
   if(![upperRad,lowerRad,footRad,toeRad].every(finite)||
    (toeRad!==0&&(
     sourceToeTrackVerified!==true||sourceToeChainVerified!==true||
