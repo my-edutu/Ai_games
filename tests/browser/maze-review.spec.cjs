@@ -2349,13 +2349,30 @@ test('a NATURAL autonomous lantern counter has source-bound physical before/reco
             spectatorRaySweep.push({u,v,
               hits:window.__MAZE_PUBLIC_SCENE_PICK__?.(u,v)??[]});
       }
-      return {witness,picks,spectatorRaySweep};
+      // Pass553: the native 390px earned screenshot has two ACTUAL high
+      // standards around x=205 and x=282, y=105..315. The former coarse
+      // 42-ray sweep skipped these narrow silhouettes, so guessing at nearby
+      // guardian furniture repeatedly failed to improve visible play.
+      // Attribute their exact currently-published, physically intersected
+      // Three meshes across the untouched frame, AFTER screenshot capture.
+      // These are measurements only: never altered/cropped screenshots,
+      // new props, scene writes, hidden cells, or a second WebGL renderer.
+      const pylonRaySweep=[];
+      if(earned){
+        for(const v of [.13,.18,.23,.29,.35,.40])
+          for(const u of [.50,.52,.54,.56,.58,.68,.70,.72,.74,.76])
+            pylonRaySweep.push({u,v,
+              hits:window.__MAZE_PUBLIC_SCENE_PICK__?.(u,v)??[]});
+      }
+      return {witness,picks,spectatorRaySweep,pylonRaySweep};
     },label.startsWith('earned'));
     if(label.startsWith('earned')){
       expect(sourceSightline.spectatorRaySweep,
         '42 native full-viewport real WebGL rays must identify visible source geometry').toHaveLength(42);
+      expect(sourceSightline.pylonRaySweep,
+        '60 original source-bound rays must diagnose both actual elevated guardian standards').toHaveLength(60);
       const currentlyVisible=new Set(sample.frame.snapshot.visibleCells);
-      for(const ray of sourceSightline.spectatorRaySweep)
+      for(const ray of [...sourceSightline.spectatorRaySweep,...sourceSightline.pylonRaySweep])
         for(const hit of ray.hits)
           expect(currentlyVisible.has(hit.cell),
             'native scene ray must never enumerate remembered or hidden terrain').toBe(true);
