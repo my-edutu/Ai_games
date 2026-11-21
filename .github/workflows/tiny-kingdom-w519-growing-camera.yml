@@ -49,5 +49,6 @@ jobs:
           path: |
             test-results/
             playwright-report/
+            artifacts/tiny-kingdom-w520-court-camera/
           if-no-files-found: warn
           retention-days: 14

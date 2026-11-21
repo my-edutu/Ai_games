@@ -63,6 +63,12 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
      overflow:document.documentElement.scrollWidth-innerWidth};
    });
    stages.push(observed);
+   // Preserve the original live audit even if a strict physical framing
+   // assertion fails on this day. CI must not upload only terminal green clips.
+   fs.writeFileSync(path.join(evidenceDirectory,'day-'+day+'.json'),
+    JSON.stringify({source:process.env.GITHUB_SHA||'local',viewport,
+     seed:initial.snapshot.checksum,...observed,
+     hardwareFps:'NOT MEASURED'},null,2));
    const actualFrame=await page.screenshot();
    fs.writeFileSync(path.join(evidenceDirectory,'day-'+day+'.png'),actualFrame);
    await info.attach('real-day-'+day+'-'+viewport.width,{
