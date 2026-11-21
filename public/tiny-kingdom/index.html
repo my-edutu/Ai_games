@@ -28314,6 +28314,20 @@ function followCameraRoofs(){
   top:terrain(CRAFT_DISTRICT.x,CRAFT_DISTRICT.z)+7.4,kind:'craft-district'});
  const [gx,gz]=FARMSTEAD.granary;
  roofs.push({x:gx,z:gz,rx:2.5,rz:2.1,top:terrain(gx,gz)+5.2,kind:'granary'});
+ // W522 verified physical-camera root cause: the actual sanctuary at (29,10)
+ // is a 7.6m x 10.6m slate-roofed nave and 11.7m bell tower. The W521
+ // spectator eye (30.776, 7.371, 8.256) was INSIDE its real roof, but this
+ // fixed original landmark was absent from ALL camera collision volumes.
+ // Match actual hillsideSanctuary() geometry: only presentation optics change.
+ const sanctuaryX=SCENIC_SITES.sanctuary.x,
+  sanctuaryZ=SCENIC_SITES.sanctuary.z,
+  sanctuaryY=terrain(sanctuaryX,sanctuaryZ);
+ roofs.push({x:sanctuaryX,z:sanctuaryZ,
+  rx:3.85,rz:5.35,bottom:sanctuaryY-.40,
+  top:sanctuaryY+6.23,kind:'sanctuary-nave'});
+ roofs.push({x:sanctuaryX,z:sanctuaryZ-4.75,
+  rx:1.78,rz:1.78,bottom:sanctuaryY+.15,
+  top:sanctuaryY+11.75,kind:'sanctuary-belltower'});
  for(const [index,stall] of MARKET_STALLS.entries()){
    const base=terrain(stall.x,stall.z),profile=marketStallProfile(index);
    // Real taller roofs must block physical camera rays, unlike open,
@@ -28381,6 +28395,7 @@ function followCameraRoofs(){
 function cameraOcclusionModel(){
  const roofs=followCameraRoofs(),count=k=>roofs.filter(r=>r.kind===k).length;
  return {roofTotal:roofs.length,hall:count('hall'),belfries:count('belfry'),
+  sanctuaryNaves:count('sanctuary-nave'),sanctuaryBellTowers:count('sanctuary-belltower'),
   tallHomes:roofs.filter(r=>r.kind==='home'&&r.tall).length,
   stalls:count('market-stall'),
   trueStreetLevelStallVolumes:roofs.filter(r=>r.kind.startsWith('market-stall-')).length,
@@ -28688,7 +28703,7 @@ function physicalCitizenForegroundBlockers(eye,subject,hands=[]){
 }
 // W151: real settlement buildings belong to the camera's physical
 // foreground, not just narrow face rays and market stall envelopes.
-const WORKDAY_SOLID_BUILDING_KINDS=new Set(['home','hall','craft-district','granary','belfry']);
+const WORKDAY_SOLID_BUILDING_KINDS=new Set(['home','hall','craft-district','granary','belfry','sanctuary-nave','sanctuary-belltower']);
 const WORKDAY_OPAQUE_SCENE_KINDS=new Set([
  'market-stall','village-market','village-market-roof',
  'village-market-post','village-market-counter','arcade','street-shop',

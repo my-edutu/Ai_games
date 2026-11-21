@@ -52,10 +52,11 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
     const canvas=document.querySelector('#world');
     const before=g.exportSnapshot().checksum;
     const physical=g.getFreeCameraCollisionAudit();
+    const physicalSite=g.getCameraOcclusionModel();
     const grown=g.getGrowingTownCameraAudit();
     const after=g.exportSnapshot().checksum;
     return {day:g.metrics().day,people:g.metrics().citizens,
-     homes:g.metrics().buildings,physical,grown,
+     homes:g.metrics().buildings,physical,physicalSite,grown,
      scene:g.renderStats().lastFrameTriangles,
      camera:g.getCamera(),
      realAuthorityUntouchedByCamera:before===after,
@@ -108,6 +109,8 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    }
    expect(observed.realAuthorityUntouchedByCamera).toBe(true);
    expect(observed.camera.follow).toBe(false);
+   expect(observed.physicalSite.sanctuaryNaves).toBe(1);
+   expect(observed.physicalSite.sanctuaryBellTowers).toBe(1);
    expect(observed.physical.eyeClear).toBe(true);
    expect(observed.physical.viewClear).toBe(true);
    // Independent visual-composition contract: reject the genuine W519
