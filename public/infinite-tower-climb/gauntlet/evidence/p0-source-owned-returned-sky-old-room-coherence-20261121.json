@@ -56,5 +56,73 @@
   "nextAction": "Inspect both ORIGINAL new WebMs at the 25–29s crossing plus genuine event timestamps; compare old gateway/hero/roof/sky co-visibility. If the hard cut remains, repair architectural scene camera ownership rather than tuning another independent hue clock.",
   "evidenceType": "source-audited-stage-delta-not-native-experience-acceptance",
   "ledgerBlobUnchanged": "7433d52ae1a7a75de51366a845375dda04ab87fa",
-  "reviewPath": "docs/reviews/2026-11-20-tower-pr68-source-room-native-gallery-corridor-review.md"
+  "reviewPath": "docs/reviews/2026-11-20-tower-pr68-source-room-native-gallery-corridor-review.md",
+  "currentRun20261121_0826Lagos": {
+    "stage": "P0 OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "inspectedHead": "0e90041ac12869962406f69f769071e6d0073143",
+    "sourceProductionSha": "e2e8f08320e9d1ce4b5786f2c6a5c2db85391e93",
+    "CIUnblockCommit": "465d1b87beb5fa8f9f89c2be47833156ffb57686",
+    "productionGameplayChangesThisRun": "NONE. Verified primary exact-source CI blocker and corrected its false-negative assertion; inspected source-pinned original normal-speed gameplay before risking more scene changes.",
+    "evidenceCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44876876843",
+    "priorExactSourceQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44877029881",
+    "previousCIStatus": "9/10 jobs passed; phase3 shard0 failed ERR_MISSING_ARGS because assert.equal was invoked with one boolean (test line212), not because an observed physical roof failed. Current corrected-head result pending.",
+    "CIUnblock": "Replaced assert.equal(boolean) with assert.ok(boolean,message), preserving the original source-owned gradient inequality; do not claim green until exact-head CI completes.",
+    "originalDangerFilms": {
+      "candidateSha": "e2e8f08320e9d1ce4b5786f2c6a5c2db85391e93",
+      "desktop": {
+        "resolution": "960x600",
+        "durationSeconds": 72.56,
+        "sha256": "6048ffd6e3fb13bdd6845d5be82914ab164c7274a7d04a79e9d0d97039c2acde",
+        "drawnF9HudSeconds": 26,
+        "firstSustainedVioletSeconds": 29.5,
+        "sampledChromaBridgeSeconds": 0.25,
+        "sourceFirstF9Frame": {
+          "sourceTick": 476,
+          "sceneUpdateMs": 171.9,
+          "worldRebuildMs": 35.4,
+          "worldUpdateMs": 36.6,
+          "cameraLightingMs": 134.2,
+          "renderReturnMs": 78.7
+        }
+      },
+      "portrait": {
+        "resolution": "390x844",
+        "durationSeconds": 72.6,
+        "sha256": "2520cb326289916330c509a9246676ef36c236aa2ce7b021e225a6514f2f2db9",
+        "drawnF9HudSeconds": 25.75,
+        "firstSustainedVioletSeconds": 28,
+        "sampledChromaBridgeSeconds": 0,
+        "sourceFirstF9Frame": {
+          "sourceTick": 476,
+          "sceneUpdateMs": 161.2,
+          "worldRebuildMs": 65,
+          "worldUpdateMs": 66.5,
+          "cameraLightingMs": 92,
+          "renderReturnMs": 61.8
+        }
+      },
+      "inspection": "Original unedited 1x WebMs decoded at 24-30s; original bronze guardian cap/gateway yield to a broader violet F9 ring. Some bronze persists on desktop, while the portrait moving hero approaches the right edge. No sustained source-event-matched visible old gate/full actor/walkable F9/shaft co-shot verified. Chroma is only a 0.25s raster hint; source clock differs from video clock. Hosted timing is not device FPS or p50/p95/p99.",
+      "nativeEventPair": "FAILED 0/2 viewports"
+    },
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "realDeviceFrameTime": "NOT EVALUATED",
+    "realDeviceMemory": "NOT EVALUATED",
+    "biggestExperienceGap": "No certified continuous full-motion original gateway + full climber + truly walkable Floor9 architectural crossing in either viewport; first-F9 cameraLighting CPU is unusually large (134ms desktop, 92ms portrait on hosted runners).",
+    "nextHighestImpact": "Verify corrected exact-head CI. Profile and reduce repeated original-gateway/hero/F9 roof physical camera passes as a source-bound cohesive pipeline, inspect genuine returned frames and recapture two orientations. Do not add isolated palettes or decorative steel.",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenBaselineLedgerBlob": "7433d52ae1a7a75de51366a845375dda04ab87fa",
+    "safeguards": {
+      "PR68Draft": true,
+      "PR58Untouched": true,
+      "merged": false,
+      "deployed": false,
+      "forcePushed": false,
+      "otherGameEdited": false
+    }
+  }
 }
