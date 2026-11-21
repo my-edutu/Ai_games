@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-21T01:23:00Z",
+  "updatedAt": "2026-11-21T01:32:36.954Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass546 exact HEAD c6d5ef40 native WebGL SUCCESS: original 42/42 full PNG hashes, 3/3 real gate hashes, 136-tick autonomous victory, strict six-reset budget pass. Full original 390/320 image comparison REJECTED: foreground spectator towers and physically separated characters remain far below Nintendo Captain Toad. Pass547 current-visible ordinary spectator negative-space enlargement is a SOURCE CANDIDATE only, no rendered approval. Whole-repo CI remains red at unrelated Tiny Kingdom OBS/evidence uploads."
+    "summary": "Pass547 candidate aae7d0ab exact-HEAD native CI/WebGL passed (42/42 original PNG SHA, 3/3 gate SHA, six resets <100, 136-tick natural escape), but actual full-frame 390/320 vs Pass546 shows dominant foreground pylons/masonry and separated actors still. Official Captain Toad benchmark REJECTED. Candidate source/test rolled back in following atomic source commit. Next: identify ACTUAL visible culprit geometry via native WebGL ray before another architectural change; no guessed cosmetic changes. Whole-repo CI red on unrelated Tiny Kingdom OBS and evidence-upload."
   },
   "captures": [
+    {
+      "title": "Pass547 actual native WebGL at exact aae7d0ab: 42/42 PNG+sidecar and 3/3 gate SHA verified, natural complete 136 tick escape, VISUAL REJECTED, production candidate reverted on next SHA",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44849771977/artifacts/14685580033"
+    },
     {
       "title": "Pass546 exact SHA c6d5ef40 original full uncropped WebGL SUCCESS, ZIP SHA256 738ae132b1c9, 42/42 PNG+sidecar SHA and 3 real gate SHA verified; mobile composition REJECTED; Pass547 pending real new-source render",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44845624652/artifacts/14682778790"
