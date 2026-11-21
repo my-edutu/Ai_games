@@ -6616,9 +6616,13 @@ export function certifyLicensedCounterpitchToeFinish({
   Math.abs(after[other].toeY-before[other].toeY)>.002||
   distance(after[other].heelXZ,before[other].heelXZ)>.003||
   distance(after[other].toeXZ,before[other].toeXZ)>.003)return null;
- // This separate deeply buried swing may gain only 3–8mm through the
+ // A real source toesl child recovered 10.918mm of a still-buried swing
+ // (390px source f69, exact ae75 native GLB). A second real f75 connected
+ // right-foot pose remains 75.085mm below stone. Permit an independently
+ // skinned 3–12mm *partial* relief only under the same witnessed clip,
+ // 3rad/s toe-angle, no-heel-lift and unchanged opposite-shoe gates. the
  // original toe hinge; still >20mm beneath stone and NEVER a footplant.
- if(deepSourceWindow&&(toeLift<.003||toeLift>.008||
+ if(deepSourceWindow&&(toeLift<.003||toeLift>.012||
   after[side].toeY>=floorTopY-.020))return null;
  return Object.freeze({
   source:'measured-licensed-counterpitch-original-toes-child',

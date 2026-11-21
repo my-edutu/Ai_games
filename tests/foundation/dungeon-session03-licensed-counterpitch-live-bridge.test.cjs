@@ -507,7 +507,7 @@ test('RED: measured 200ms Walking_A sparse window may try a rate-bounded origina
   {sourceToeBoneParentVerified:false},
   {after:{...after,left:{...original.left,toeY:original.left.toeY+.004}}},
   {angleRad:.61},
-  {after:{...after,right:{...after.right,toeY:original.right.toeY+.011}}}
+  {after:{...after,right:{...after.right,toeY:original.right.toeY+.0121}}}
  ])assert.equal(certify({...inputs,...invalid}),null,
    'sparse source toe-child must reject stale root, wrong clip/bone, unsafe angle or skinned shoe');
  // Both the pure certificate and actual source renderer must allow the
