@@ -50,7 +50,12 @@ test('real original licensed right swing proposes a linked and bounded phase-sup
  assert.ok(p,'real Walking_A original sole pitch should propose a trial');
  assert.equal(p.source,'verified-licensed-source-native-counterpitch');
  assert.equal(p.side,'right');
- assert.ok(p.footRad<=-.7&&p.footRad>=-.850001);
+ // At 216.7ms, the original 3rad/s source-joint slew caps the first
+ // 41-joint ankle correction at 650.1mrad, not 700–850mrad.
+ assert.ok(Math.abs(p.footRad+3*.2167)<1e-9,
+  'the genuine source interval must cap first-frame ankle correction');
+ assert.ok(Math.abs(p.upperRad+.08*(.6501/.85))<1e-9);
+ assert.ok(Math.abs(p.lowerRad-.08*(.6501/.85))<1e-9);
  assert.ok(Math.abs(p.upperRad)<=.09&&Math.abs(p.lowerRad)<=.09);
  assert.equal(Math.sign(p.upperRad),-Math.sign(p.lowerRad));
  assert.equal(p.contactLocked,false);
@@ -119,6 +124,7 @@ test('cannot certify a toe lift by raising an airborne heel or moving the suppor
   side:'right',floorTopY:-.02};
  for(const after of [
   {...rightAfter,right:shoe(.310,.014)},
+  // 34mm still buried with only 2mm toe relief / 3mm pitch gain is NOT a verified rescue.
   {...rightAfter,right:shoe(.270,-.054)},
   {...rightAfter,left:shoe(.045,.004)},
   {...rightAfter,left:shoe(.022,.004,[.02,.1],[.1,.5])},
