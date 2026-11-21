@@ -158,6 +158,26 @@ const save=()=>fs.writeFileSync(path.join(dir,'evidence.json'),
    await page.screenshot({path:path.join(dir,currentCase+'-'+label+'.png')});
    assert.equal(result.glError,0,'GL error '+currentCase+' '+label);
    assert(result.frames>0,'No real frame '+currentCase+' '+label);
+   // W518: preserve the FULL historical source-budget FAIL, and persist
+   // enough exact same-frame evidence to decide whether real submitted work,
+   // retained off-frustum geometry, planted plot LOD or a duplicate stream
+   // caused it. Never quietly replace this assertion with a smaller metric.
+   if(!(result.geometry.totalTriangles<160000)){
+    const failure={label,viewport,sourceSha:sourcePair[label]||null,
+     rawSourceTriangles:result.geometry.totalTriangles,
+     rawStaticTriangles:result.geometry.static?.triangles,
+     rawDynamicTriangles:result.geometry.dynamic?.triangles,
+     actualSubmittedTriangles:result.scene.lastFrameTriangles,
+     frameFullSceneTriangles:result.ledger.lastFrameFullSceneTriangles,
+     viewFarmBudgetAudit:result.scene.viewFarmBudgetAudit,
+     reconciledLedger:result.ledger,
+     realCitizens:result.population,realStructures:result.structures,
+     hardwareMeasurement:'NOT MEASURED'};
+    evidence.geometryBudgetFailures??=[];
+    evidence.geometryBudgetFailures.push(failure);
+    save();
+    console.error('W518 REAL SOURCE/VIEW TRIANGLE BLOCKER: '+JSON.stringify(failure));
+   }
    assert(result.geometry.totalTriangles<160000,'Complete triangle budget '+label);
    assert.equal(result.cpu.kind,'cpu-wall-submission');
    await page.evaluate(s=>window.__tinyKingdom.restoreSnapshot(s),snapshot);
