@@ -1,6 +1,8 @@
 'use strict';
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs'),path=require('node:path');
+const {execFileSync}=require('node:child_process');
+const checkoutSha=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
 const html=fs.readFileSync(path.resolve(__dirname,'../../public/tiny-kingdom/index.html'),'utf8');
 test.use({video:'on'});
 // Same committed REAL world, same seed, same camera and eight genuine
@@ -40,6 +42,7 @@ for(const width of [1024,390]){
        stream=g.getActorResidencyAudit(),coverage=g.getActorPresentationCoverageAudit();
       return {
        frame:g.renderStats().lastFrameTriangles,scene:profile.scene,
+       softwareWorld:g.getOriginalSoftwareWorldUploadAudit(),
        actualStage:profile.latest,actors:stream.actorFloats,
        world:stream.worldFloats,split:stream.enabled,
        allocationFallbacks:stream.softwareActorSplitAllocationFailures,
@@ -57,7 +60,10 @@ for(const width of [1024,390]){
     expect(row.overflow).toBeLessThanOrEqual(0);
     expect(row.frame).toBeGreaterThan(0);
     expect(row.frame).toBeLessThan(160000);
-    if(split)expect(row.split).toBe(true);
+    if(split){expect(row.split).toBe(true);
+     expect(row.softwareWorld.retainedBytes).toBeLessThanOrEqual(65536*4);
+     expect(row.softwareWorld.maxRetainedBytes).toBe(65536*4);
+    }
     stages.push(row);
     if(frame===3)await page.screenshot({path:path.join(dir,width+'-'+(split?'split':'combined')+'-real-worker.png')});
    }
@@ -71,7 +77,7 @@ for(const width of [1024,390]){
   }
   expect(errors).toEqual([]);
   fs.writeFileSync(path.join(dir,width+'-actual-software-stream-pair.json'),
-   JSON.stringify({exactSource:process.env.GITHUB_SHA||'local',width,
+   JSON.stringify({exactSource:checkoutSha,width,
     baseline:'original-combined-software-actor-world-vbo',
     candidate:'original-independent-software-actor-world-vbo',
     comparedEightIdenticalSavedWorldFixedTicks:true,

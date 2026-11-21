@@ -8,6 +8,7 @@ on:
       - 'tests/browser/tiny-kingdom-w221-original-commuter-gpu.spec.cjs'
       - 'tests/tiny-kingdom-w503-unladen-journey.cjs'
       - 'tests/tiny-kingdom-w505-software-actor-spine.cjs'
+      - 'tests/tiny-kingdom-w506-software-world-dirty.cjs'
       - 'tests/browser/tiny-kingdom-w505-software-stream.spec.cjs'
   workflow_dispatch:
 permissions:
@@ -36,6 +37,8 @@ jobs:
         run: node tests/tiny-kingdom-w503-unladen-journey.cjs
       - name: W505 render-spine software buffer admission and no-missing-actors source contract
         run: node tests/tiny-kingdom-w505-software-actor-spine.cjs
+      - name: W506 exact software world props and upload fallback contract
+        run: node tests/tiny-kingdom-w506-software-world-dirty.cjs
       - name: Verify complete game builds
         run: npm run build
       - name: Install real Chromium WebGL software test environment
