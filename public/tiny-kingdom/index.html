@@ -1977,9 +1977,35 @@ function setResidentActorGpuForTesting(value){
  lastFrozenFrameKey=null;presentationEpoch++;
  return getActorResidencyAudit();
 }
-let actorStreamSplitEnabled=gpuAvailable&&!swiftGpu,actorDynamicVertexScratch=[],
+// W505: genuine moving people are independent from dynamic world props
+// on software WebGL too. Original full citizen geometry, cargo, saved
+// autonomy, and live IK remain unchanged, with bounded combined fallback.
+let actorStreamSplitEnabled=gpuAvailable,actorDynamicVertexScratch=[],
  actorFrameData=[],cameraActorCache=null,actorFrameCitizens=0;
 const actorFrameGpuBuffers=[null,null,null],actorFrameStorage=[0,0,0];
+// Allocate the separate software actor VBO before ANY original actor vertex
+// is emitted. If denied, render the COMPLETE original combined stream.
+let softwareActorSplitAllocationFailures=0;
+function decideOriginalSoftwareActorStreamBuffer(available,software,enabled,existing,allocate){
+ if(!available||!software||!enabled)
+  return {enabled,buffer:existing,failed:false};
+ if(existing)return {enabled:true,buffer:existing,failed:false};
+ const buffer=allocate();
+ return {enabled:Boolean(buffer),buffer:buffer||null,failed:!buffer};
+}
+function ensureOriginalSoftwareActorStreamBuffer(){
+ const plan=decideOriginalSoftwareActorStreamBuffer(
+  gpuAvailable,swiftGpu,actorStreamSplitEnabled,actorFrameGpuBuffers[0],
+  ()=>gl.createBuffer());
+ if(plan.failed){
+  softwareActorSplitAllocationFailures++;
+  actorStreamSplitEnabled=false;
+  resetActorGpuSnapshots();
+  cameraDynamicCache=null;cameraActorCache=null;cameraDynamicKey='';
+ }else if(plan.buffer&&!actorFrameGpuBuffers[0])
+  actorFrameGpuBuffers[0]=plan.buffer;
+ return actorStreamSplitEnabled;
+}
 
 // W118 Phase 1: one bounded GPU-owned mesh for authentic COMPACT citizens
 // who are physically stationary and truly resting at home. Work, moving feet,
@@ -3795,6 +3821,9 @@ function getActorResidencyAudit(){
  return {source:'complete-real-citizen-independent-webgl-stream',
   enabled:gpuAvailable&&actorStreamSplitEnabled,
   residentActorGpuEnabled:residentActorGpuEnabled(),
+  softwareActorSplitDefault:gpuAvailable&&swiftGpu,
+  softwareActorSplitBufferReady:Boolean(actorFrameGpuBuffers[0]),
+  softwareActorSplitAllocationFailures,
   softwareTierCpuFallback:Boolean(gpuAvailable&&swiftGpu&&!residentActorGpuEnabled()),
   defaultPolicy:residentActorGpuOverride===null?'software-live-hardware-resident':'test-override',
   originalCitizensPreserved:true,changesAuthority:false,
@@ -35436,6 +35465,7 @@ const foregroundIndices=foregroundReady?
 dynamicPhaseTimes.residentActorManagement=performance.now()-residentActorManagementStart;
 // Keep genuine person, gait, tool, loaded cart and physical hand generation
 // EXACTLY as before for every active or visible detailed human.
+ensureOriginalSoftwareActorStreamBuffer();
 const worldPropsStream=data;
 if(gpuAvailable&&actorStreamSplitEnabled){
  actorDynamicVertexScratch.length=0;
