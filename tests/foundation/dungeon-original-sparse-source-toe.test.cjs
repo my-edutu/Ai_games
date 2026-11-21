@@ -436,3 +436,51 @@ test('RED: exact original mobile f97 95.697mm source toe burial admits measured,
  assert.match(stage,/const deepSourceWindow=residual>\.055&&residual<=\.110/,
   'both source renderer and independent certificate must admit the same witnessed 95.7mm window');
 });
+
+
+test('RED: 60Hz original toes.l phase travel must admit a rate-bounded partial authored arc on the real 0.610s source frame',async()=>{
+ const m=await controller();
+ // Pin exact original CC0 player_swordsman.glb Walking_A toes.l quaternion
+ // samples surrounding native 390px tick2 at 0.6103124s. This is
+ // SOURCE CLIP DATA, not an observed after-change skin or planted shoe.
+ const times=Float32Array.from([.5416666865,.5833333135,.625,.6666666865,.7083333135]);
+ const values=Float32Array.from([
+  -.0000001,.7746965,-.6323333,.0000002,
+  -.0000001,.8255442,-.5643374,.0000002,
+  -.0000001,.8903230,-.4553295,.0000002,
+   0,.9203548,-.3910845,.0000002,
+   0,.9059688,-.4233444,.0000002
+ ]);
+ const tracks=[{name:'toesl.quaternion',times,values}];
+ const sourceTimeSeconds=.6103124110738106,duration=1.0416666;
+ const original=m.sampleLicensedIdleJointQuaternionAtPhase(
+  tracks,'toesl',sourceTimeSeconds/duration,duration)?.quaternion;
+ assert.ok(original,'source quaternion must be available from exact original joint keys');
+ const args={sourceClipName:'Walking_A',sourceInstanceSame:true,
+  sourceToeTrackVerified:true,sourceToeBoneParentVerified:true,
+  sourceRootTravelVerified:true,sourceWeight:1,
+  ownerLocomotion:true,alive:true,visible:true,
+  interrupted:false,teleport:false,reducedMotion:false,
+  sourceToeBoneName:'toesl',side:'left',tracks,
+  sourceToeAppliedAxis:[1,0,0],sourceTimeSeconds,
+  sourceDurationSeconds:duration,originalQuaternion:original,
+  frameInterval:.0167};
+ const result=m.planLicensedSourceToePhaseProbe(args);
+ assert.equal(result?.source,'original-Walking_A-authored-toe-phase',
+  'a real 25ms source-keyframe arc larger than 60Hz angular allowance must permit a SMALLER partial authored arc, not silently discard all authored evidence');
+ assert.ok(Math.abs(result.extraAngleRad)>=.018);
+ assert.ok(Math.abs(result.extraAngleRad)<=3*.0167*.8+1e-8,
+  'partial clip arc must remain inside the original 3rad/s 60Hz joint budget');
+ assert.ok(Math.abs(result.sourceTargetTimeSeconds-sourceTimeSeconds)<=.02501);
+ const inverted=m.planLicensedSourceToePhaseProbe({...args,sourceToeAppliedAxis:[-1,0,0]});
+ assert.ok(Math.abs(inverted.extraAngleRad+result.extraAngleRad)<1e-6,
+  'signed imported toe axis must not reverse the intended original arc');
+ for(const invalid of [{sourceClipName:'Idle'},{sourceInstanceSame:false},
+  {sourceRootTravelVerified:false},{reducedMotion:true},
+  {sourceToeBoneName:'toesr'},{sourceToeAppliedAxis:[0,1,0]},
+  {sourceTimeSeconds:.94},{originalQuaternion:[0,0,0,1]},
+  {frameInterval:.5}]){
+  assert.equal(m.planLicensedSourceToePhaseProbe({...args,...invalid}),null,
+   'strict original-rig clip, owner, bone and witness guards remain necessary');
+ }
+});
