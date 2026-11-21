@@ -106,10 +106,17 @@ test('composed game camera never trades a visible full-body climber for a pretti
   const text=fs.readFileSync(path.resolve(__dirname,
     '../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
   assert.match(text,/sourceDeckGatewayClearanceCandidates\(\s*camera\.aspect,existingDeckView\)/);
-  assert.match(text,/existingDeckView\?\.active && existingDeckView\.score>0/);
+  // A source-certified raised platform can dominate real native pixels
+  // without blocking the full-body or gateway ray. The new projected-backdrop
+  // branch is legal ONLY inside the same strict physical camera guardrails.
+  assert.match(text,/existingDeckView\.score>0\|\|dominantRaisedBackdrop/);
+  assert.match(text,/dominantRaisedBackdrop=raisedBackdropBefore\?\.active===true/);
+  assert.match(text,/steelAfter\.projectedMetalArea>=/);
+  assert.match(text,/sourceWalkableCrossfloorProjectionHeld\(/);
   assert.match(text,/candidate\.bodyBlockedRays<=existingDeckView\.bodyBlockedRays/);
   assert.match(text,/candidate\.gatewayBlockedRays<=existingDeckView\.gatewayBlockedRays/);
-  assert.match(text,/bestScore===0\)break/);
+  assert.match(text,/bestScore===0 &&\s*\(!dominantRaisedBackdrop \|\| bestBackdrop<=\.19\)\)break/);
+  assert.match(text,/candidate\.score===bestScore&&betterBackdrop/);
   assert.ok(text.indexOf('    // FIRST SUCCESSOR-DECK PHYSICAL CAMERA OCCLUSION:') <
     text.indexOf('    // POST-DIRECTOR PHYSICAL CROSSING:'));
   assert.doesNotMatch(text,/snapshot\.player\.(?:x|y)\s*=/);
