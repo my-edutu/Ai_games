@@ -5763,8 +5763,8 @@ export function createTowerScene(canvas, settings = {}) {
       // or substitute a synthetic shot. The physical full actor, open bronze
       // gateway, real successor roof and solid tower all independently veto a
       // rejected camera; reduced-motion/manual views stay unchanged.
-      const retainedGateStep = !overview && !options.stale &&
-        options.camera === 'follow' && !options.reducedMotion &&
+      const retainedGateStep = options.camera === 'follow' &&
+        !options.stale && !options.reducedMotion &&
         !releaseFollowActive
         ? sourceRetainedGatewayCameraContinuity({
             source:snapshot,held:retainedColdArrival,
