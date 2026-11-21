@@ -39,6 +39,19 @@ for(const viewport of [{width:390,height:844},{width:1024,height:640}]){
   expect(loaded.day).toBeGreaterThanOrEqual(120);
   expect(loaded.people).toBeGreaterThanOrEqual(12);
   const current=loaded.courier;
+  // W517: the preceding live session owns unsaved, ephemeral work-event
+  // decorations and camera/build caches. Comparing it to a RESTORED game
+  // was not a cart A/B: W516 proved 809 triangles differed across six source
+  // classes, including 243 genuine but non-serialized work-trace triangles.
+  // Rehydrate BOTH cart policies independently from the SAME genuine saved
+  // Day-121 authority before collecting strict cart source/visual parity.
+  // The loaded courier was earned above through unmodified fixed-step play.
+  await page.evaluate(saved=>{
+   const g=window.__tinyKingdom;
+   g.restoreSnapshot(saved);g.setSpeed(0);
+   g.setWorkingSkinEnabledForTesting(true);
+   g.setOriginalCourierCartTemplateForTesting(true);
+  },loaded.saved);
   const shots=[];
   for(const zoom of [15,18,22,27]){
    const before=await page.evaluate(({courier,zoom})=>{
@@ -158,7 +171,18 @@ for(const viewport of [{width:390,height:844},{width:1024,height:640}]){
    .toBeLessThan(.001);
   expect(Math.abs(legacy.viewLedger.originalSourceReconciliationError))
    .toBeLessThan(.001);
+  // Each candidate source is now taken from the identical restored world,
+  // with the same physical view and authoritative work/cargo timestamp.
+  // Never waive exact submitted-triangle parity to make CI pass.
   expect(legacy.triangles).toBe(verified.triangles);
+  for(const key of ['landscape','settlement','civic','civicCore',
+    'inhabitedHomes','inventory','receipt','realWork','forge','harvested',
+    'fixtures','courierTrail','marketShutters','cottageDoors','sunShadows',
+    'livedAmbient','occupiedNightHomes','restingPeople','commuterPeople',
+    'workingPeople','foregroundPeople','precipitation'])
+   expect(legacy.viewLedger.originalNonFieldSources[key],
+    'same-authority source must not vary with cart GPU setting: '+key)
+    .toBe(verified.viewLedger.originalNonFieldSources[key]);
   expect(legacy.cart.liveCartNames).toContain(current.citizen);
   expect(legacy.glError).toBe(0);
   if(viewport.width===390)expect(legacy.width).toBeLessThanOrEqual(390);
