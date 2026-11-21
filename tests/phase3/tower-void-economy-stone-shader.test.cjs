@@ -24,11 +24,11 @@ test('real low-tier F9 stone samples original texture once instead of triple axi
   applyStoneSurface(original,asset);
   applyStoneSurface(low,asset,{sampling:'economy',scale:.085,strength:.36,relief:.01});
   const full=assemble(original.onBeforeCompile),cheap=assemble(low.onBeforeCompile);
-  assert.equal((full.fragmentShader.match(/texture2D\\(towerStoneMap/g)||[]).length,3);
-  assert.equal((cheap.fragmentShader.match(/texture2D\\(towerStoneMap/g)||[]).length,1);
-  assert.match(full.fragmentShader,/dFdx\\(/);
-  assert.doesNotMatch(cheap.fragmentShader,/dFdx\\(/);
-  assert.doesNotMatch(cheap.fragmentShader,/towerStoneNormal\\(/);
+  assert.equal((full.fragmentShader.match(/texture2D\(towerStoneMap/g)||[]).length,3);
+  assert.equal((cheap.fragmentShader.match(/texture2D\(towerStoneMap/g)||[]).length,1);
+  assert.match(full.fragmentShader,/dFdx\(/);
+  assert.doesNotMatch(cheap.fragmentShader,/dFdx\(/);
+  assert.doesNotMatch(cheap.fragmentShader,/towerStoneNormal\(/);
   assert.match(cheap.fragmentShader,/roughnessFactor/);
   assert.match(cheap.fragmentShader,/towerStoneLuminance/);
   assert.match(cheap.vertexShader,/USE_INSTANCING/);
@@ -38,11 +38,11 @@ test('real low-tier F9 stone samples original texture once instead of triple axi
 });
 test('shipping only low Void and same low offscreen prewarm use the axial program',()=>{
   const world=source('world.mjs'),prewarm=source('void-program-prewarm.mjs');
-  assert.match(world,/sampling:theme==='void' && quality==='low' \\? 'economy':'triplanar'/);
-  assert.match(prewarm,/sampling:view.quality==='low' \\? 'economy':'triplanar'/);
-  assert.match(world,/function weather\\(m\\)\\{return applyStoneSurface/);
-  assert.match(prewarm,/renderer\\.compileAsync\\(scratch, camera, liveScene\\)/);
+  assert.match(world,/sampling:theme==='void' && quality==='low' \? 'economy':'triplanar'/);
+  assert.match(prewarm,/sampling:view.quality==='low' \? 'economy':'triplanar'/);
+  assert.match(world,/function weather\(m\)\{return applyStoneSurface/);
+  assert.match(prewarm,/renderer\.compileAsync\(scratch, camera, liveScene\)/);
   assert.match(world,/observedOriginalClockworkSuccessorDeck/);
-  assert.match(world,/retainedEarnedCap\\?\\.guardianGateRetained===true/);
-  assert.doesNotMatch(world,/snapshot\\.player\\.(?:x|y|health|grounded)\\s*=/);
+  assert.match(world,/retainedEarnedCap\?\.guardianGateRetained===true/);
+  assert.doesNotMatch(world,/snapshot\.player\.(?:x|y|health|grounded)\s*=/);
 });
