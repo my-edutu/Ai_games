@@ -31319,8 +31319,15 @@ function chooseGroundedEconomicSurveyLens(plan,roofs,width){
   // We reject the roof-filling views found in actual W519-W522 gameplay.
   // A market needs real surrounding buildings, not an empty green frame:
   // penalise a dominating single wall rather than all useful roof pixels.
+  // Real mobile film showed a perfectly clear camera can still frame
+  // sanctuary masonry over the actual wheat. Farm surveys privilege a
+  // physically open planted-field vista; market/home views retain roofs.
+  // This changes the spectator's choice, never hides scene geometry.
+  const stageCrowding=plan.stage==='farm'?
+   Math.max(0,occupancy-(mobile?.22:.30))*11:
+   Math.max(0,occupancy-.61)*6;
   const score=16-tilt*5.5-distance*.14-dominant*15-
-   Math.max(0,occupancy-.61)*6-cover*3-
+   stageCrowding-cover*3-
    Math.abs(Math.atan2(Math.sin(bearing-plan.yaw),
     Math.cos(bearing-plan.yaw)))*.38;
   if(score>bestScore){

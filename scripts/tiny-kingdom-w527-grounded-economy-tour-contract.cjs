@@ -50,4 +50,26 @@ for(const width of [1024,390]){
   assert.equal(none,null,'never fabricate a clear actual stage');
  }
 }
+
+// A physically clear eye can still frame most of the true wheat field
+// behind sanctuary wall geometry. That is an unusable Farm introduction.
+// The SAME crowded sightline is appropriate for a populated Market stage.
+for(const width of [390,1024]){
+ const actualYaw=2.1,stageContext={
+  Number,Math,FARMSTEAD:{fields:[[16.45,24.65,-1.62,3.64]]},
+  freeCameraSightline(v){
+   const crowded=Math.abs(v.yaw-actualYaw)<.001;
+   return {clear:true,screenDominantBuilding:.07,
+    screenOccupiedByBuildings:crowded?.52:.08,
+    foregroundSceneCover:.1};
+  }
+ };
+ vm.createContext(stageContext);
+ const farm=vm.runInContext(code+'\nchooseGroundedEconomicSurveyLens({stage:"farm",focus:[21,.8],yaw:2.1},[], '+width+');',stageContext);
+ assert.ok(farm?.screenBuildingOccupancy<.22,
+  'real farm should use physically clear low-occupancy planted-field angle');
+ const market=vm.runInContext(code+'\nchooseGroundedEconomicSurveyLens({stage:"market",focus:[-1,10],yaw:2.1},[], '+width+');',stageContext);
+ assert.ok(Math.abs(market?.yaw-actualYaw)<.001,
+  'market must retain actual surrounding buildings, not seek an empty field');
+}
 console.log('W527 physically selected authentic farm-market-home lower-angle camera source contract PASS; actual WebGL footage separately gated');
