@@ -24,6 +24,8 @@ assert(html.includes('renderOriginalLiveCourierCart(p,Boolean(compact));'),
  'compact GPU courier keeps genuine wheel-distance and physical cargo LIVE');
 assert(html.includes('isCompactGpuCourierBodyCandidate(p,i,nearPeople,commuterFrame)'),
  'compact tier must admit actual distant Day-121 road courier');
+assert(html.includes('if(workingIndices.has(i)){actualActorBodyPaths[i]=5;}'),
+ 'detail-reserved compact actor must replace rather than duplicate the original body');
 assert(html.includes('else if(workingIndices.has(i))actualActorBodyPaths[i]=5;'),
  'GPU compact body must replace not duplicate its CPU original');
 const actual={name:'Alina',job:'farmer',x:7,z:5,phase:.5,
@@ -73,8 +75,8 @@ const real=make(),scene={};
 assert(real.compact(actual,0,new Set(),scene),
  'real grown-town freight body enters bounded compact rig');
 assert.deepEqual(real.select([actual],new Set(),scene).map(row=>row.p.name),['Alina']);
-assert(!real.compact(actual,0,new Set([0]),scene),
- 'the full-detail near worker owns its own tier');
+assert(real.compact(actual,0,new Set([0]),scene),
+ 'small projected but detail-reserved freight must still reach compact GPU rig');
 assert(!make({projectRealCitizenDetail:()=>({visible:true,heightFraction:.31})})
  .compact(actual,0,new Set(),scene),'close-up hand and shafts remain CPU');
 assert(!make({projectRealCitizenDetail:()=>({visible:false,heightFraction:.12})})
