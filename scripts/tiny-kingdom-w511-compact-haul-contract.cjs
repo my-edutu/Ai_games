@@ -20,7 +20,7 @@ assert(html.includes('function compactVillager(p,omitLiveCart=false)'));
 assert(html.includes('if(!omitLiveCart)emitStreetCargo(p,x,y,z,s);'));
 assert(html.includes('compactVillager(p,courierSkin);'),
  'retained compact worker must contain NO baked animated cart');
-assert(html.includes('renderOriginalLiveCourierCart(p,true);'),
+assert(html.includes('renderOriginalLiveCourierCart(p,Boolean(compact));'),
  'compact GPU courier keeps genuine wheel-distance and physical cargo LIVE');
 assert(html.includes('isCompactGpuCourierBodyCandidate(p,i,nearPeople,commuterFrame)'),
  'compact tier must admit actual distant Day-121 road courier');
