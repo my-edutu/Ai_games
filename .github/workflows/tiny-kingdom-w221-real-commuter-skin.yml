@@ -7,6 +7,8 @@ on:
       - '.github/workflows/tiny-kingdom-w221-real-commuter-skin.yml'
       - 'tests/browser/tiny-kingdom-w221-original-commuter-gpu.spec.cjs'
       - 'tests/tiny-kingdom-w503-unladen-journey.cjs'
+      - 'tests/tiny-kingdom-w505-software-actor-spine.cjs'
+      - 'tests/browser/tiny-kingdom-w505-software-stream.spec.cjs'
   workflow_dispatch:
 permissions:
   contents: read
@@ -17,7 +19,7 @@ jobs:
   original-gpu-commuters:
     if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feat/tiny-kingdom-post-main-gauntlet-20261031' }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,6 +34,8 @@ jobs:
         run: node scripts/tiny-kingdom-w221-real-commuter-gpu-skin-contract.cjs
       - name: W503 authentic unladen market-to-home renderer contract
         run: node tests/tiny-kingdom-w503-unladen-journey.cjs
+      - name: W505 render-spine software buffer admission and no-missing-actors source contract
+        run: node tests/tiny-kingdom-w505-software-actor-spine.cjs
       - name: Verify complete game builds
         run: npm run build
       - name: Install real Chromium WebGL software test environment
@@ -41,6 +45,11 @@ jobs:
           LIBGL_ALWAYS_SOFTWARE: '1'
           CI: '1'
         run: npx playwright test tests/browser/tiny-kingdom-w221-original-commuter-gpu.spec.cjs --workers=1 --reporter=line
+      - name: W505 compare moving same-world complete actor and dynamic city streams at 1024px / 390px
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          CI: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w505-software-stream.spec.cjs --workers=1 --reporter=line
       - name: Preserve genuine game footage and JSON, including failures
         if: always()
         uses: actions/upload-artifact@v4
@@ -48,5 +57,6 @@ jobs:
           name: tiny-kingdom-w221-original-real-commuters
           path: |
             test-results/
+            artifacts/tiny-kingdom-w505/
           if-no-files-found: warn
           retention-days: 14
