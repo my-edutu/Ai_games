@@ -1864,11 +1864,15 @@ export function createMazeWorld(options = {}) {
               const plinth=mesh(foot,bevel,deepStone,0,.06,0,.27,.16,.27);
               plinth.name='Published guardian Tideglass solid sentinel plinth '+c.cell+' '+side;
               const lift=new THREE.Group();lift.position.y=.04;foot.add(lift);
-              const pillar=mesh(lift,bevel,lightStone,0,.35,0,.20,.60,.20);
+              // Pass551: rooted low Tideglass warning fins replace four permanently tall
+              // spectator pylons seen in real 390px post-counter WebGL. The
+              // physical whole rig still rises only on real public brace and
+              // sinks on its genuine earned counter; lanes/walls are untouched.
+              const pillar=mesh(lift,bevel,lightStone,0,.18,0,.25,.26,.25);
               pillar.name='Published guardian Tideglass joined sentinel shaft '+c.cell+' '+side;
-              const crown=mesh(lift,bevel,seaGlass,0,.72,0,.39,.18,.37);
+              const crown=mesh(lift,bevel,seaGlass,0,.36,0,.49,.14,.42);
               crown.name='Published guardian Tideglass sentinel crown '+c.cell+' '+side;
-              const lens=mesh(lift,box,inlay,0,.71,alongX?0:side*.195,
+              const lens=mesh(lift,box,inlay,0,.35,alongX?0:side*.215,
                 alongX?.26:.035,.12,alongX?.035:.26);
               lens.name='Published guardian Tideglass sentinel lens '+c.cell+' '+side;
               // The original 390px full-frame brace revealed that an amber
@@ -1881,7 +1885,7 @@ export function createMazeWorld(options = {}) {
               // source-published endpoint court is physically constructed.
               const sailPivot=new THREE.Group();
               sailPivot.name='Published guardian Tideglass rooted shell-fan hinge '+c.cell+' '+side;
-              sailPivot.position.y=.72;
+              sailPivot.position.y=.35;
               lift.add(sailPivot);
               // Pass319: genuine full-resolution 390px guardian frames show
               // four broad bright paddles competing with Pip and Thornback.
@@ -1903,18 +1907,18 @@ export function createMazeWorld(options = {}) {
               // base remains at the original rooted court-side point.
               const restTilt=alongX?side*1.28:-side*1.28;
               const sail=mesh(sailPivot,guardianOpenShell,seaGlass,
-                alongX?0:side*.57,.36,alongX?side*.57:0,
-                alongX?.56:.24,.94,alongX?.24:.56,
+                alongX?0:side*.57,.22,alongX?side*.57:0,
+                alongX?.76:.24,.58,alongX?.24:.76,
                 alongX?restTilt:0,0,alongX?0:restTilt);
               sail.name='Published guardian Tideglass full shell-fan '+c.cell+' '+side;
               const spar=mesh(sailPivot,box,darkMetal,
-                alongX?0:side*.44,.38,alongX?side*.44:0,
-                alongX?.48:.075,.70,alongX?.075:.48,
+                alongX?0:side*.44,.23,alongX?side*.44:0,
+                alongX?.64:.075,.46,alongX?.075:.64,
                 alongX?restTilt:0,0,alongX?0:restTilt);
               spar.name='Published guardian Tideglass shell-fan structural spar '+c.cell+' '+side;
               const crest=mesh(sailPivot,bevel,lightStone,
-                alongX?0:side*.64,.45,alongX?side*.64:0,
-                alongX?.48:.27,.14,alongX?.27:.48,
+                alongX?0:side*.64,.31,alongX?side*.64:0,
+                alongX?.62:.27,.14,alongX?.27:.62,
                 alongX?restTilt:0,0,alongX?0:restTilt);
               crest.name='Published guardian Tideglass shell-fan crest '+c.cell+' '+side;
               sentinels.push({lift,crown,lens,sailPivot,sail,crest,side});

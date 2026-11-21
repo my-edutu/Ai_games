@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-21T05:54:03.314Z",
+  "updatedAt": "2026-11-21T07:20:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass550c corrects ONE stale source-only Pass543 center-origin expectation after Pass550b exact-HEAD Maze CI 44869830195 failed 1/308 before browser capture. The replacement is stricter about actual public lane-axis outboard position, connected low 0.52x/-0.47m machinery and 0.4m earned seating while retaining old 1.72m authenticated root withdrawal, public-only witness and all strict physical/resource acceptance. Direct production regex sanity check passed; new exact-HEAD full Node/Playwright native WebGL and official Nintendo visual comparison PENDING. NO new WebGL screenshot, no visual win. Whole CI separately failed. Draft, no merge/deploy."
+    "summary": "Pass550c exact-HEAD native WebGL CI 44873019129 SUCCESS: original 42/42 UTC PNG/sidecar hashes and 3/3 real gate transition SHA pairs verified; genuine partial-observation autonomous chapter completed at tick136. However original 390 and 320 full-frame images REJECTED as a Nintendo visual win: tall endpoint guardian sentinel rigs still dominate 390 while 320 pair remains disconnected. Pass551 builds one original mechanically joined low outboard guardian-fin intervention under true public warning/counter; exact-new-HEAD CI and native visual approval PENDING. No merge/deploy."
   },
   "captures": [
+    {
+      "title": "Pass550c exact b83e631 original native WebGL SUCCESS: 42/42 PNG/JSON SHA-256, 3/3 gate-transition SHA verified; 390/320 composition VISUALLY REJECTED; Pass551 architectural change pending new-HEAD native judge",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44873019129/artifacts/14695475375"
+    },
     {
       "title": "Pass550b native CI 44869830195 FAILED 1/308 in stale legacy center-origin source assertion; Pass550c strengthens physical outboard/linked-rig assertion; fresh new-HEAD Playwright visuals PENDING",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44869830195"
