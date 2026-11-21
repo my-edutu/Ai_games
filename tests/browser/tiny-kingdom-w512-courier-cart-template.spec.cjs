@@ -53,7 +53,8 @@ for(const viewport of [{width:390,height:844},{width:1024,height:640}]){
     const g=window.__tinyKingdom;
     return {zoom:g.getCamera().zoom,skin:g.getOriginalLiveCourierSkinAudit(),
      coverage:g.getActorPresentationCoverageAudit(),
-     geometry:g.getGeometryAudit(),triangles:g.renderStats().lastFrameTriangles,
+     geometry:g.getGeometryAudit(),farm:g.getFarmFieldResidencyAudit(),
+     triangles:g.renderStats().lastFrameTriangles,
      profile:g.getFrameProfile().stages,
      glError:document.getElementById('world').getContext('webgl')?.getError()??-1,
      courier:g.getActiveDeliveries().find(d=>d.citizen===name)||null,
@@ -118,6 +119,7 @@ for(const viewport of [{width:390,height:844},{width:1024,height:640}]){
     cache:g.getOriginalCourierCartTemplateAudit(),
     actors:g.getActorPresentationCoverageAudit(),
     triangles:g.renderStats().lastFrameTriangles,
+    farm:g.getFarmFieldResidencyAudit(),
     stages:g.getFrameProfile().stages,
     glError:document.getElementById('world').getContext('webgl')?.getError()??-1,
     width:document.documentElement.scrollWidth,
@@ -135,6 +137,10 @@ for(const viewport of [{width:390,height:844},{width:1024,height:640}]){
   expect(legacy.cache.enabled).toBe(false);
   expect(legacy.actors.exactlyOneBodyPathPerCitizen).toBe(true);
   expect(legacy.actors.missingNames).toEqual([]);
+  // W514: matched saved world + physical view MUST choose the same real
+  // planted plot detail. Former camera history mutated visible wheat density.
+  expect(legacy.farm.drawnPlots.map(x=>[x.plot,x.mode,x.triangles]))
+   .toEqual(verified.farm.drawnPlots.map(x=>[x.plot,x.mode,x.triangles]));
   expect(legacy.triangles).toBe(verified.triangles);
   expect(legacy.cart.liveCartNames).toContain(current.citizen);
   expect(legacy.glError).toBe(0);

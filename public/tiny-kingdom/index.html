@@ -20483,11 +20483,17 @@ let farmFieldResidentSeason=-1,farmFieldNear=null,farmFieldFar=null,
  farmFieldLastDistance=null;
 // Per-plot decisions are presentation-only; they never write a harvest result.
 let farmFieldPlotLods=[],farmFieldLastDrawnPlots=[],farmFieldCulledPlots=0;
+// W514: on the SAME physical saved Day-121 camera, standing grain must not
+// depend on the viewer's earlier orbit or whether the world was just restored.
+// The old 27m/31m hysteresis gave different visible crop LOD at 28–30m;
+// actual W513 courier A/B captured a 9,879-triangle mismatch on identical
+// authority and cameras. Use one stable distance gate, still respecting the
+// full-scene 160k triangle admission below. This never affects harvest rules.
+const FARM_FIELD_STABLE_NEAR_DISTANCE=29;
 function farmFieldLodChoice(distance,previous='far'){
  if(!Number.isFinite(distance)||distance<0||!['near','far'].includes(previous))
   throw Error('W111 invalid actual crop camera distance or LOD');
- // The 4 metre hysteresis avoids a full mesh-size flip while orbiting.
- return distance<(previous==='near'?31:27)?'near':'far';
+ return distance<FARM_FIELD_STABLE_NEAR_DISTANCE?'near':'far';
 }
 // W245: strict ORIGINAL scene-budget admission for full 3D crop quality.
 // Both camera-selected tiers retain EVERY root, furrow and seed-head source;
@@ -20966,7 +20972,11 @@ function drawResidentFarmFields(eye,planes=null,triangleBudget=Infinity){
    p.x>=originalField[0]-.7&&p.x<=originalField[1]+.7&&
    p.z>=originalField[2]-.7&&p.z<=originalField[3]+.7);
   requests.push({plot:i,distance,realWork,rowPairs,
-   wantsNear:farmFieldLodChoice(distance,farmFieldPlotLods[i]||'far')==='near',
+   // Keep authentic standing crop detail around a genuinely working farmer,
+   // even if filmed from the market end of the road. The normal bounded
+   // original-scene triangle budget still arbitrates near/far admission.
+   wantsNear:realWork||
+    farmFieldLodChoice(distance,farmFieldPlotLods[i]||'far')==='near',
    nearTriangles:rowPairs?
     rowPairs.reduce((n,r)=>n+r.near.count/3,0):nearRange.count/3,
    farTriangles:rowPairs?
