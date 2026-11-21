@@ -41,3 +41,29 @@ export function sourceCroppedHeroRecoveryDt(dt, cameraDt, body, lens, source, vi
     ? Math.max(cameraDt, Math.min(dt,MAX_CROPPED_HERO_CAMERA_STEP_SECONDS))
     : cameraDt;
 }
+
+
+/**
+ * Floor 8 -> 9 gateway material/display time after a COMPLETED renderer call.
+ *
+ * A low-tier software WebGL return can take 80-100ms while the scene RAF dt
+ * was clamped to ~16ms. Counting only the latter leaves the source-owned
+ * bronze room 80% opaque at the last valid returned frame, then the whole
+ * original doorway disappears when authentic F9 movement leaves its lease.
+ *
+ * A pair of SUCCESSFUL returns is the only evidence of an interval; never
+ * spend arbitrary time from a browser poll, a failed render, a single cold
+ * frame or a multi-second background suspension. Limit each observed gap to
+ * 100ms, retain the supplied frame duration when larger, and reset identity
+ * with the retained original GPU owner. Not a frame-time/FPS measurement.
+ */
+export const MAX_RETURNED_GATEWAY_DISPLAY_STEP_SECONDS = .1;
+export function sourceReturnedGatewayDisplayDt(renderedDt, priorReturnMs, completedReturnMs) {
+  const submitted = finite(renderedDt) && renderedDt >= 0
+    ? Math.min(MAX_RETURNED_GATEWAY_DISPLAY_STEP_SECONDS, renderedDt) : 0;
+  if (!finite(priorReturnMs) || priorReturnMs < 0 ||
+      !finite(completedReturnMs) || completedReturnMs < priorReturnMs)
+    return submitted;
+  const observed = (completedReturnMs - priorReturnMs) / 1000;
+  return Math.max(submitted, Math.min(MAX_RETURNED_GATEWAY_DISPLAY_STEP_SECONDS, observed));
+}
