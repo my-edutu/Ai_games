@@ -268,6 +268,35 @@ export function sculptWeatheredRuinsCorner(slab,width,height,corner) {
 }
 
 /**
+ * A physically continuous, weather-cut lower flank beneath the *unchanged*
+ * playable crown of every true multi-cell limestone block. The forest basin
+ * which feeds the existing planted 3D geometry changes the stone's undercut
+ * and sideways meander; none of this alters the gameplay grid or its collider.
+ * Baked once into the thirteen existing static material batches.
+ */
+export function sculptPlantedMasonrySeam(slab,width,height,edge,safeCrown){
+  if(!slab || ![slab.x,slab.z,slab.w,slab.h,width,height,edge].every(Number.isInteger) ||
+      width<2 || height<2 || slab.w<1 || slab.h<1 || edge<0 || edge>3 ||
+      slab.x<0 || slab.z<0 || slab.x+slab.w>width || slab.z+slab.h>height ||
+      typeof safeCrown!=='boolean')
+    throw new RangeError('Native planted masonry requires real bounded stone and crown');
+  const u=(slab.x+slab.w*.5)/width,v=(slab.z+slab.h*.5)/height;
+  const habitat=sampleGardenEcotone(u,v,width,height);
+  const forest=habitat.forest;
+  const root=sampleGardenWatershed(u*2-1,v*2-1,width,height).distance;
+  const rooted=1-Math.min(1,Math.max(0,(root-.02)/.25));
+  const phase=slab.x*.67+slab.z*.83+slab.w*.27-slab.h*.31+edge*2.37;
+  const wave=.5+.5*Math.sin(phase+.24*rooted);
+  // Contact crowns retain the original <= .062 safe inset. Low sidewalls can
+  // wander farther into physical loam without ever excavating a body footprint.
+  const recess=safeCrown ? .024+.038*wave : .13+.138*wave+.055*forest*rooted;
+  const drift=(safeCrown?.058:.108)*Math.sin(phase*1.71+1.13)
+    +(safeCrown?.013:.052)*rooted*Math.sin(phase*.87+forest*2.5);
+  const rise=.0055*Math.sin(phase+1.4);
+  return {recess,drift,rise};
+}
+
+/**
  * An original shoreline amphitheatre, using the existing seven complete native
  * woodland headlands and every original stone, tree and leaf. Pull their
  * scene silhouettes into near/mid-ground stage space rather than losing them
@@ -1816,11 +1845,7 @@ export function createWorld(THREE, {width, height}) {
             // formerly dead-straight court grid, without moving cell centres.
             const horizontal=Math.abs(pz)>.42;
             const edge=horizontal?(pz>0?1:0):(px>0?3:2);
-            const phase=region.x*.67+region.z*.83+region.w*.27-region.h*.31+edge*2.37;
-            const recess=safeCrown
-              ? .024+.038*(.5+.5*Math.sin(phase))
-              : .12+.125*(.5+.5*Math.sin(phase));
-            const drift=.085*Math.sin(phase*1.71+1.13);
+            const {recess,drift,rise}=sculptPlantedMasonrySeam(region,width,height,edge,safeCrown);
             if(horizontal){
               positionTemp.z+=pz>0?-recess:recess;
               positionTemp.x+=drift;
@@ -1828,7 +1853,7 @@ export function createWorld(THREE, {width, height}) {
               positionTemp.x+=px>0?-recess:recess;
               positionTemp.z+=drift;
             }
-            positionTemp.y+=.0055*Math.sin(phase+1.4);
+            positionTemp.y+=rise;
           }else{
             // The original level playing-cell support and stone centre remain;
             // only the rock's visible perimeter becomes sculpted and layered.
@@ -1841,7 +1866,29 @@ export function createWorld(THREE, {width, height}) {
         normals[pi]=normalTemp.x;normals[pi+1]=normalTemp.y;normals[pi+2]=normalTemp.z;
         if(sourceMaterial===tileMat){uvs[ui]=(positionTemp.x+W)/width;uvs[ui+1]=(positionTemp.z+H)/height;}
         else if(uv){uvs[ui]=uv.getX(v);uvs[ui+1]=uv.getY(v);}
-        if(colors){colors[pi]=item.tint?.r??1;colors[pi+1]=item.tint?.g??1;colors[pi+2]=item.tint?.b??1;}
+        if(colors){
+          if(sourceMaterial===tileMat && item.region){
+            // Average region colour formerly flattened all 120 real stone
+            // vertices into ONE tint. Sample the SAME continuous forest /
+            // sunstone habitat driving the original planted ground and the
+            // actual physical undercuts. This is a native vertex colour,
+            // not another texture, shader, mesh or per-frame operation.
+            const u=Math.max(0,Math.min(.999999,(positionTemp.x+W)/width));
+            const v=Math.max(0,Math.min(.999999,(positionTemp.z+H)/height));
+            const habitat=sampleGardenEcotone(u,v,width,height);
+            const floor=sampleForestFloorMaterials(u,v,habitat);
+            const growth=habitat.forest*(.6+.4*floor.leafLitter);
+            const glint=habitat.sunstone*.075;
+            const variation=.5+.5*Math.sin((positionTemp.x+W)*1.15+
+              (positionTemp.z+H)*.61+habitat.forest*1.8);
+            const mossVariation=growth*(.07+.105*variation);
+            colors[pi]=Math.max(0,Math.min(1,(item.tint?.r??1)*(1-mossVariation)+glint));
+            colors[pi+1]=Math.max(0,Math.min(1,(item.tint?.g??1)*(1+.06*growth+.033*variation)-glint*.23));
+            colors[pi+2]=Math.max(0,Math.min(1,(item.tint?.b??1)*(1-.072*growth)+.035*floor.coolSlate));
+          }else{
+            colors[pi]=item.tint?.r??1;colors[pi+1]=item.tint?.g??1;colors[pi+2]=item.tint?.b??1;
+          }
+        }
       }
       const count=g.index?.count??p.count;
       for(let i=0;i<count;i++)indices[indexOffset++]=vertexOffset+(g.index?g.index.getX(i):i);
