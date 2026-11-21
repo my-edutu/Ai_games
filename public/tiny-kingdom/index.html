@@ -2735,7 +2735,9 @@ function workSkinPoint(q,rig,body,bind){
 function workSkinDetailedPoint(q,rig,body,bind){
  const size=bind.scale;
  let x=q[0]*size,y=q[1]*size,z=q[2]*size;
- if(rig.working){
+ // Real loaded cart shafts have the SAME bent torso as the CPU villager.
+ // Otherwise an upright cached hauling wrist visibly detaches from its cart.
+ if(rig.working||rig.hauling){
   const rise=Math.max(0,Math.min(1.55*size,y-.44*size));
   if(rise>0){
    z+=rise*rig.acting.lean;
@@ -14932,11 +14934,13 @@ function rotateOriginalCourierCartVertices(vertices,start,x,z,angle){
  const co=Math.cos(angle),si=Math.sin(angle);
  for(let i=start;i<vertices.length;i+=10){
   const dx=vertices[i]-x,dz=vertices[i+2]-z;
-  const nx=vertices[i+3],nz=vertices[i+5];
+  const nx=vertices[i+3],ny=vertices[i+4],nz=vertices[i+5];
+  const mag=Math.hypot(nx,ny,nz)||1;
   vertices[i]=x+co*dx+si*dz;
   vertices[i+2]=z-si*dx+co*dz;
-  vertices[i+3]=co*nx+si*nz;
-  vertices[i+5]=-si*nx+co*nz;
+  vertices[i+3]=(co*nx+si*nz)/mag;
+  vertices[i+4]=ny/mag;
+  vertices[i+5]=(-si*nx+co*nz)/mag;
  }
  return (vertices.length-start)/10;
 }
