@@ -48,6 +48,58 @@ export function actualGatewayReceivingLoadPathBays(platform,worldWidth,threshold
   });
 }
 
+
+
+/**
+ * Continuous, open-sided source-aligned F8 guardian -> REAL F9 ground
+ * ceiling frame. Unlike isolated underside braces, these structural ribs
+ * remain visible ABOVE the authentic traversable roof, giving the old bronze
+ * machine room a supported physical successor rather than an instant
+ * replacement. All anchors come from its current real F9 platform and the
+ * previously verified original F8 guardian cap; none changes a collider,
+ * enemy, input, source state, gate or victory condition.
+ *
+ * Exactly six stations around the actual already-walked gateway sill, not a
+ * repeated fake portal on every platform. The interior support is outside
+ * the real r=22.4..27.18 walking ring. Overhead members remain >6m above
+ * its source-aligned top; NO exterior foreground posts cross the hero lane.
+ */
+export function actualGatewayReceivingGalleryCanopy(platform,worldWidth,thresholdX,oldCap,arc=2.2) {
+  const bays=actualGatewayReceivingLoadPathBays(
+    platform,worldWidth,thresholdX,oldCap,arc);
+  if(!bays)return null;
+  const startX=Math.max(oldCap.x+Math.ceil(oldCap.width*.52),
+    thresholdX-48000);
+  const endX=Math.min(platform.x+platform.width-12000,
+    thresholdX+112000);
+  if(endX-startX<96000 || startX>=thresholdX ||
+     endX<=thresholdX+48000)return null;
+  const stations=[];
+  for(let i=0;i<6;i++){
+    const sourceX=Math.round(startX+(endX-startX)*i/5);
+    const band=bays.find(b=>sourceX>=b.startX &&
+      sourceX<=(b.endX===platform.x+platform.width?b.endX:b.endX-1));
+    if(!band)return null;
+    const angle=(sourceX-(platform.x+platform.width/2))/worldWidth*arc;
+    if(!Number.isFinite(angle))return null;
+    stations.push({sourceX,angle,kind:band.kind});
+  }
+  if(!stations.some(s=>s.sourceX<thresholdX) ||
+     !stations.some(s=>s.sourceX>thresholdX) ||
+     stations.some((s,i)=>i>0&&s.angle<=stations[i-1].angle))
+    return null;
+  const ties=[];
+  for(let i=1;i<stations.length;i++){
+    if(stations[i].angle-stations[i-1].angle>.25)return null;
+    ties.push({fromAngle:stations[i-1].angle,toAngle:stations[i].angle,
+      kind:stations[i].kind});
+  }
+  return {sourceBound:true,oldCapId:'f8:cap',
+    receivingPlatformId:'f9:ground',stations,ties,
+    innerPierRadius:20.4,outerCrownRadius:30.0,
+    minHeroRoofClearance:6.1,nonColliding:true};
+}
+
 // The real source-owned F9 landing top, steel load beam, rim and emissive
 // underlip must expose the same physical gateway-to-Void spatial transition.
 // No independent clock, collider, platform or new gateway is introduced.

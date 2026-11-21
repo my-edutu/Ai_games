@@ -19,7 +19,7 @@ import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observe
 import { chooseSourceEarnedFirstReturnInstancing } from './source-earned-first-return-instancing.mjs';
 import { observedReturnedSuccessorRoomReady, observedSupportedReturnedShaftDepth } from './original-room-returned-exit.mjs';
 import { projectOriginalGuardianGateSteel } from './original-guardian-gate-steel-projection.mjs';
-import { actualGatewayReceivingRoofSpans, actualGatewayReceivingLoadPathBays, syncGatewayReceivingRoofColours, resetGatewayReceivingRoofColours } from './source-physical-receiving-roof.mjs';
+import { actualGatewayReceivingRoofSpans, actualGatewayReceivingLoadPathBays, actualGatewayReceivingGalleryCanopy, syncGatewayReceivingRoofColours, resetGatewayReceivingRoofColours } from './source-physical-receiving-roof.mjs';
 
 
 /**
@@ -2765,6 +2765,62 @@ export function createTowerWorld(){
             bearingBand:bay.kind,ambientDetail:true};
           brace.castShadow=false;brace.receiveShadow=false;
         }
+      }
+    }
+    // P0 architectural ownership: the actual F9 roof used to appear as a
+    // disconnected purple annulus. Continue the source-earned old room into
+    // a real OPEN overhead, cantilevered load path across the walked sill.
+    // Every support comes from the true original-cap/receiving-ground angle
+    // and the SAME 3-band roof shader owners. This is original noncolliding
+    // tower scenery, NOT another gate, bridge, platform or simulation.
+    const gatewayCanopy=gatewayLoadPath && arrivalRoutePalette?.roofJoin
+      ?actualGatewayReceivingGalleryCanopy(p,width,
+        retainedEarnedCap.thresholdX,{
+          id:retainedEarnedCap.oldCapId,x:retainedEarnedCap.oldCapX,
+          width:retainedEarnedCap.oldCapWidth
+        },ARC):null;
+    if(gatewayCanopy){
+      const canopy=new THREE.Group();
+      canopy.name='SourceEarnedPhysicalGatewayReceivingCanopy';
+      canopy.userData={sourceBound:true,oldCapId:'f8:cap',
+        receivingPlatformId:'f9:ground',nonColliding:true,
+        openActionSightline:true};
+      root.add(canopy);
+      const point=(theta,r,y)=>[
+        Math.sin(theta)*r,h+y,Math.cos(theta)*r
+      ];
+      const steel=kind=>kind==='approach'?arrivalRoutePalette.body:
+        kind==='threshold'?arrivalRoutePalette.roofJoin.beamMiddle:
+        arrivalRoutePalette.roofJoin.beamSuccessor;
+      const trim=kind=>kind==='approach'?arrivalRoutePalette.rim:
+        kind==='threshold'?arrivalRoutePalette.roofJoin.edgeMiddle:
+        arrivalRoutePalette.roofJoin.edgeSuccessor;
+      const outboard=gatewayCanopy.outerCrownRadius,
+        inboard=gatewayCanopy.innerPierRadius;
+      const place=(a,b,r,material)=>{
+        const member=beam(canopy,a,b,r,material);
+        member.userData={sourceAligned:true,nonColliding:true,
+          ambientDetail:true,receivingRoofCanopy:true};
+        member.castShadow=false;member.receiveShadow=false;
+      };
+      for(const station of gatewayCanopy.stations){
+        const t=station.angle,m=steel(station.kind),e=trim(station.kind);
+        // Interior pier r20.4 never enters the r22.4..27.18 walking route;
+        // overhang starts >6m above the actual gameplay roof. No exterior
+        // foreground upright can mask the moving full-body climber.
+        place(point(t,inboard,-1.2),point(t,inboard,7.3),.18,m);
+        place(point(t,inboard,7.3),point(t,outboard,8.35),.16,m);
+        place(point(t,inboard,3.4),point(t,27.7,8.12),.11,m);
+        place(point(t,27.7,8.12),point(t,outboard,8.35),.09,e);
+      }
+      // Longitudinal crown and inboard ties join the SIX ribs into one
+      // continuous annular threshold chamber. None bridges a missing
+      // gameplay platform or covers the true source walkway.
+      for(const tie of gatewayCanopy.ties){
+        place(point(tie.fromAngle,inboard,7.3),
+          point(tie.toAngle,inboard,7.3),.1,steel(tie.kind));
+        place(point(tie.fromAngle,outboard,8.35),
+          point(tie.toAngle,outboard,8.35),.08,trim(tie.kind));
       }
     }
     const ribs=[],treads=[],count=Math.max(2,Math.round(angle*25/2.6));
