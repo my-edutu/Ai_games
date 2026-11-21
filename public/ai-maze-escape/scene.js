@@ -1,7 +1,7 @@
 import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
 import { PUBLIC_GUARDIAN_COUNTER_SECONDS, publicGuardianCounterMoment, publicGuardianCounterStageActive } from './public-counter-moment.mjs';
-import { publicEarnedCounterImpactStage, publicEarnedCounterGroundWake } from './public-counter-impact.mjs';
+import { publicEarnedCounterImpactStage } from './public-counter-impact.mjs';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
@@ -181,25 +181,6 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   counterImpactRing.name='Earned physical Thornback lantern counter impact';
   counterImpactRing.visible=false;
   scene.add(counterImpactRing);
-  // One physically traveling sea-glass counterwake links Pip's planted feet to
-  // Thornback's real recoil across the SAME publicly open lantern path.
-  // Three pooled horizontal 3D rings are deliberately not a screen overlay,
-  // a new route, a persistent laser, or an AI event. They follow the actual
-  // one/two-edge encounter and vanish on any lost witness or run reset.
-  const counterWakeGeometry=new THREE.TorusGeometry(.47,.095,6,28);
-  const counterWakeRings=Array.from({length:3},(_,index)=>{
-    const material=new THREE.MeshBasicMaterial({
-      color:'#70ffe0',transparent:true,opacity:0,depthWrite:false,
-      side:THREE.DoubleSide,blending:THREE.AdditiveBlending
-    });
-    const ring=new THREE.Mesh(counterWakeGeometry,material);
-    ring.name='Earned public Pip-to-Thornback ground wake '+index;
-    ring.rotation.x=-Math.PI/2;
-    ring.renderOrder=2;
-    ring.visible=false;
-    scene.add(ring);
-    return ring;
-  });
   const lanternSurveyCorner=new THREE.Vector3();
   const placePublicSurveyCone=(mesh,from,to)=>{
     lanternBeamDirection.copy(from).sub(to);
@@ -972,7 +953,6 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     counterCoreStraight.visible=false;
     counterCoreTurn.visible=false;
     counterImpactRing.visible=false;
-    for(const ring of counterWakeRings)ring.visible=false;
     let pressureSurveySightline=null;
     if(!result&&explorerLantern&&closestThreat?.strength>.35
       &&publicLanternEncounter(s,closestThreat.cell)){
@@ -1077,27 +1057,6 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       counterCoreStraight.visible=connected && counterImpact.beamActive;
       counterCoreTurn.visible=connected && !!earnedTwoLinkPath && counterImpact.beamActive;
       counterImpactRing.visible=connected;
-      // The source-verified beam terminates at real contact. Its physical
-      // aftershock then MOVES along that exact open corridor at ground level,
-      // visibly tying the two distant bodies together during the recoil.
-      // An authenticated bend follows its actual PUBLIC intermediate cell;
-      // no diagonal through a sealed wall, unknown terrain or private map.
-      if(connected){
-        const wakeCorner=earnedTwoLinkPath
-          ?cellPosition(earnedTwoLinkPath.midCell,s.width,s.height):null;
-        for(let index=0;index<counterWakeRings.length;index++){
-          const wake=publicEarnedCounterGroundWake(
-            counterImpact.phase,index,pose,wakeCorner,earnedCounterActor,
-            settings.reducedMotion);
-          if(!wake)continue;
-          const ring=counterWakeRings[index];
-          ring.position.set(wake.x,
-            sampleGroundHeight(wake.x,wake.z,s)+.16,wake.z);
-          ring.scale.setScalar(wake.scale);
-          ring.material.opacity=wake.opacity*(settings.highContrast?1:.86);
-          ring.visible=true;
-        }
-      }
     }
     guide.material.opacity = settings.highContrast ? .95 : .65;
 
@@ -2490,11 +2449,6 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     scene.remove(counterCoreStraight,counterCoreTurn,counterImpactRing);
     counterCoreGeometry.dispose(); counterCoreMaterial.dispose();
     counterImpactGeometry.dispose(); counterImpactMaterial.dispose();
-    for(const ring of counterWakeRings){
-      scene.remove(ring);
-      ring.material.dispose();
-    }
-    counterWakeGeometry.dispose();
     for (const entry of wardens.values()) removeWarden(entry);
     wardens.clear();
     // Fully release the deliberately bounded dormant GPU rig on final teardown.
