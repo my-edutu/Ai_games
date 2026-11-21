@@ -1,4 +1,5 @@
 import { createFrameSightlineMemo } from './frame-sightline-memo.mjs';
+import { moveSourceOriginalClockworkCore, sourceOriginalClockworkCoreOpacity } from './source-original-clockwork-core-ownership.mjs';
 import * as THREE from '/tower/vendor/three.module.js';
 import { SCALE, ARC, angleFor, pointFor, guardianGateAnchorX, guardianTraversalGatePose, GUARDIAN_CAP_CORRIDOR } from './coordinates.mjs';
 import { observedSourceEarnedAirborneHandoff, observedSourceEarnedDoorstepHandoff, observedRecordedGuardianDoorstepHandoff } from './guardian-passage.mjs';
@@ -1553,6 +1554,16 @@ export function createTowerWorld(){
       batchRigid(e.live,new Set(e.spin?[e.spin]:[]));
       batchRigid(e.root,new Set([e.live,e.indicator]));
     }
+    // Retain the exact ORIGINAL Floor8 central stone/steel load path as a
+    // named, already-rendered GPU owner. Batching this sub-tree independently
+    // preserves its real meshed architecture through the authenticated F9
+    // transfer, rather than burying it in anonymous floor-wide batches.
+    const originalSourceCore=floorGroup.children.find(child=>
+      child.isGroup && child.name==='SourceOriginalClockworkCentralCore');
+    if(originalSourceCore){
+      batchRigid(originalSourceCore);
+      boundaries.add(originalSourceCore);
+    }
     batchRigid(floorGroup,boundaries);
     // Original unique source buffers are no longer needed after rigid merging.
     const used=new Set();floorGroup.traverse(o=>{if(o.geometry)used.add(o.geometry);});
@@ -1882,15 +1893,24 @@ export function createTowerWorld(){
       // removed hazard. Keep a true heavy foundation and crown, but connect
       // them with exposed steelwork and continuous load paths rather than an
       // opaque full-height stone cylinder through the 8->9 fighting lane.
-      const lower=lathe(root,[[0,-34],[10.8,-34],[12.4,-24],
+      // One original, physically present central core (root drum, open ribs
+      // and crown) must survive the HP-open Floor8 -> Floor9 GPU handoff.
+      // It was previously merged into anonymous old-floor material batches
+      // and irreversibly discarded on clearFloor, leaving a whole-room cut.
+      // Group the SAME original source meshes BEFORE batching; no new geometry
+      // or gameplay collider is authored by this scene-ownership boundary.
+      const originalSourceCore=new THREE.Group();
+      originalSourceCore.name='SourceOriginalClockworkCentralCore';
+      root.add(originalSourceCore);
+      const lower=lathe(originalSourceCore,[[0,-34],[10.8,-34],[12.4,-24],
         [12.4,7.7],[10.6,9],[0,9]],materials.dark,[0,0,-3]);
       lower.name='ClockworkPressureWellRootDrum';lower.userData.structural=true;
-      const upper=lathe(root,[[0,height+10],[10.6,height+10],
+      const upper=lathe(originalSourceCore,[[0,height+10],[10.6,height+10],
         [12.4,height+13],[10.2,height+25],[0,height+25]],materials.dark,[0,0,-3]);
       upper.name='ClockworkPressureWellCrownDrum';upper.userData.structural=true;
       const well=new THREE.Group();
       well.name='ClockworkOpenCentralPressureWell';
-      well.position.z=-3;root.add(well);
+      well.position.z=-3;originalSourceCore.add(well);
       
       const openingBottom=9,openingTop=height+10;
       // Native source ray-witnesses identify this wall of eight high ribs as an
@@ -3677,6 +3697,13 @@ export function createTowerWorld(){
     continuity.name = 'ObservedGroundedCapGatewayContinuity';
     continuity.add(root,realGate);
     if(gallery) continuity.add(gallery.root);
+    // Recover the ACTUAL already-rendered old Clockwork central shaft. Its
+    // root/crown/ribs were formerly destroyed with floorGroup, so preserved
+    // doorway and real receiving roof occupied two visually unrelated rooms.
+    // Only this already-authenticated HP-zero same-run continuation calls
+    // the helper; it re-parents existing meshes, never makes a new platform.
+    const sourceCoreOwner=moveSourceOriginalClockworkCore(
+      floorGroup,continuity,floorMaterials);
     continuity.position.y = (requested.previousBaseY - requested.nextBaseY) / SCALE;
     const allGeometries = new Set(), allMaterials = new Set();
     continuity.traverse(object => {
@@ -3704,6 +3731,9 @@ export function createTowerWorld(){
       originalCapSightlineRoot:root,
       originalCapUndercroft,
       originalCapCanopy:sourceEntry.originalCapCanopy??null,
+      originalCoreOwner:sourceCoreOwner,
+      originalCoreMeshCount:sourceCoreOwner?.meshCount??0,
+      originalCoreOpacity:sourceCoreOwner?1:0,
       originalGalleryTriangles:gallery?.faces ?? 0,
       originalGalleryExteriorFlankFaces:gallery?.originalExteriorFlankFaces??{left:0,right:0},
       originalGallerySourceMaterialBatches:gallery?.sourceMaterialBatches??0,
@@ -4071,6 +4101,16 @@ export function createTowerWorld(){
     if(Number.isFinite(held.galleryExitClearedAlpha))
       originalPresence=Math.min(originalPresence,held.galleryExitClearedAlpha);
     held.originalGallerySourceOpacity=originalPresence;
+    // The central source-old root/crown/ribs are one already-rendered 3D
+    // room with the defeated original gateway and historical gallery.
+    // Match the existing GPU-return/source-earned opacity budget, not a new
+    // timer: its material may recede but never becomes an independent false
+    // next-floor body, collision platform, or freshly constructed portal.
+    const originalCorePresence=Math.max(originalPresence,
+      Math.min(.94,originalGatePresence));
+    held.originalCoreOpacity=held.originalCoreOwner &&
+      sourceOriginalClockworkCoreOpacity(held.originalCoreOwner,
+        originalCorePresence)?originalCorePresence:0;
     // The non-colliding old gallery can be removed early once a real
     // successor bearing returns, without erasing the still-walkable ORIGINAL
     // bronze sill underneath the actually open HP-zero gateway. The native
@@ -6102,6 +6142,9 @@ export function createTowerWorld(){
         retainedEarnedCap.originalCapCanopy?.parent===
           retainedEarnedCap.originalCapSightlineRoot,
       originalGalleryTriangles:retainedEarnedCap.originalGalleryTriangles,
+      originalCoreMeshCount:retainedEarnedCap.originalCoreMeshCount,
+      originalCoreOpacity:Number((retainedEarnedCap.originalCoreOpacity??0).toFixed(4)),
+      originalCoreSceneOwned:retainedEarnedCap.originalCoreOwner?.root?.parent===retainedEarnedCap.root,
       originalGalleryExteriorFlankFaces:{...retainedEarnedCap.originalGalleryExteriorFlankFaces},
       originalGallerySourceMaterialBatches:retainedEarnedCap.originalGallerySourceMaterialBatches,
       originalGallerySelectedMaterialBatches:retainedEarnedCap.originalGallerySelectedMaterialBatches,
