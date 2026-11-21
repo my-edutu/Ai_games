@@ -8346,5 +8346,39 @@
     "actualDeviceFrameTime": "NOT EVALUATED",
     "actualDeviceMemory": "NOT EVALUATED",
     "nextAction": "Inspect both ORIGINAL new WebMs at the 25–29s crossing plus genuine event timestamps; compare old gateway/hero/roof/sky co-visibility. If the hard cut remains, repair architectural scene camera ownership rather than tuning another independent hue clock."
+  },
+  "p0OriginalGatewayRaisedDeckFullShot20261121": {
+    "stage": "P0 OPEN",
+    "verdict": "NOT EVALUATED",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionSourceSha": "feef4b11a49d4ca1cbedbdb672732887a54ed46a",
+    "candidateRef": "${{ github.sha }}",
+    "seed": "tower-transformation-capture-v1",
+    "captureConditions": {
+      "resolutionDesktop": "960x600",
+      "resolutionPortrait": "390x844",
+      "graphicsTier": "low",
+      "fps": 25,
+      "speed": 1,
+      "minimumDurationSeconds": 60,
+      "scenarios": [
+        "ascent",
+        "moving",
+        "danger",
+        "outcome/restart"
+      ]
+    },
+    "priorOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44909790662",
+    "priorEventMatch": "FAILED 0/2; real source 8/8 pairs; native hero/old bronze arch/walkable receiving roof not continuously readable; F9 HUD precedes sustained full violet scene by about 1.75s",
+    "objective": "Source-grounded Floor8 original guardian/crusher win and open 3D gate with fully drawn moving hero on actual f9:ground, then honest f9 raised-platform traversal, outcome and restart. Project ACTUAL F9 raised deck silhouette even at zero blocked rays and choose among only 8 bounded physical camera shots; old gate metal, body, roof, current source owner and triangle rays veto a cheating view.",
+    "priorRunBlocker": "Initial projected-background rescue could not execute at ray score zero because the only candidate generator rejected zero hits. Production feef adds a separate source-verified raised-deck composition candidate path with identical immutable bounded physical proposals, plus direct regression coverage.",
+    "pending": "This request triggers new immutable SHA source capture; it is NOT proof of film, CI, reviewers or device performance. Inspect original unedited full films after completion.",
+    "independentReviewers": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDeviceMetrics": "NOT EVALUATED",
+    "constraints": "Do not change baseline, PR58, unrelated games, PR draft status; never force-push, merge or deploy."
   }
 }
