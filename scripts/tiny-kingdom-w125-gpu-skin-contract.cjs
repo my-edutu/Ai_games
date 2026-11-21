@@ -32,7 +32,18 @@ assert(html.includes('workingResidentJointCapacity=Math.ceil(joints.length/8192)
 assert(html.includes('workingResidentJointData=new Float32Array(0);'));
 assert(/getWorkingSkinAudit\s*,\s*(?:getWorkSkinPaletteAudit\s*,\s*)?(?:getResidentGpuDistrictAudit\s*,\s*)?setWorkingSkinEnabledForTesting\s*,/.test(html),
  'both original skin audit controls remain exported; palette audit may sit between them');
-assert(html.includes('!workingIndices.has(i))compactVillager(people[i]);'));
+// W509: all four authentic GPU body tiers are mutually exclusive. A rejected
+// resident must still be emitted with their original CPU compact body.
+const bodyPaths=html.slice(html.indexOf('const actualActorBodyPaths=new Uint8Array(people.length);'),
+ html.indexOf('lastActorPresentationPaths=actualActorBodyPaths;'));
+for(const marker of [
+ 'if(restingIndices.has(i))actualActorBodyPaths[i]=3;',
+ 'else if(commuterIndices.has(i))actualActorBodyPaths[i]=4;',
+ 'else if(workingIndices.has(i))actualActorBodyPaths[i]=5;',
+ 'compactVillager(people[i]);actualActorBodyPaths[i]=1;',
+ 'villager(people[i]);actualActorBodyPaths[i]=2;',
+ 'else actualActorBodyPaths[i]=6;'
+])assert(bodyPaths.includes(marker),'every authentic body path and CPU fallback: '+marker);
 assert(html.includes('addSceneGeometryStats(animated,workingResidentMesh);'));
 assert(html.includes('(workingResidentVisible.length?workingResidentMesh.length:0)'));
 const auth=extract('isResidentWorkingCandidate');
