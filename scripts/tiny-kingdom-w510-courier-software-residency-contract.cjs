@@ -16,12 +16,13 @@ function extract(name){
  return html.slice(start,at);
 }
 const gate=extract('isOriginalGpuCourierBodyCandidate');
+const compact=extract('isCompactGpuCourierBodyCandidate');
 const selector=extract('authenticWorkerGpuResidentRows');
 assert(selector.includes('const courier=isOriginalGpuCourierBodyCandidate('),
  'software selector must admit genuine loaded couriers, not exclude p.delivery');
 assert(html.includes('else if(foregroundIndices.has(i))actualActorBodyPaths[i]=6;'),
  'outside-near GPU body must replace rather than duplicate compact CPU body');
-assert(html.includes('if(entry.separateLiveCart)renderOriginalLiveCourierCart(p);'),
+assert(html.includes('renderOriginalLiveCourierCart(p,Boolean(compact));'),
  'admitted original courier always draws independent live original cart');
 const loaded={name:'Alina',job:'farmer',x:10,z:4,phase:.4,
  activity:'Traveling to market',delivery:{id:'Alina:480',escrowed:true,stage:'travel',
@@ -31,7 +32,8 @@ const env={
  swiftGpu:true,follow:true,liveWorkday:true,selectedCitizen:0,
  document:{body:{dataset:{citizenInspect:'off'}}},
  people:Array.from({length:12},(_,i)=>i?{name:'Other'+i}:loaded),
- foregroundResidentCache:new Map(),SOFTWARE_WORKSITE_GPU_MAX_ACTORS:4,
+ foregroundResidentCache:new Map(),workingResidentCache:new Map(),
+ SOFTWARE_WORKSITE_GPU_MAX_ACTORS:4,
  residentActorGpuEnabled:()=>false,verifiedHouseholdMealEvidence:()=>null,
  isLoadedCourierOnRoad:p=>Boolean(p?.delivery?.escrowed&&p.delivery.stage==='travel'),
  isMarketUnloading:p=>p?.delivery?.stage==='unloading',
@@ -43,11 +45,13 @@ const env={
  originalCommuterScreenLimit:()=>.35,
  FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT:.39,
  WORKSITE_SKIN_ENTER_SCREEN_HEIGHT:.245,
- ORIGINAL_COURIER_GPU_ENTER_HEIGHT:.22,ORIGINAL_COURIER_GPU_HOLD_HEIGHT:.27
+ ORIGINAL_COURIER_GPU_ENTER_HEIGHT:.22,ORIGINAL_COURIER_GPU_HOLD_HEIGHT:.27,
+ COMPACT_COURIER_GPU_ENTER_HEIGHT:.16,COMPACT_COURIER_GPU_HOLD_HEIGHT:.20
 };
 const instantiate=e=>new Function('e',`
  const {workingSkinCapable,gpuAvailable,foregroundResidentEnabled,swiftGpu,
  follow,liveWorkday,selectedCitizen,document,people,foregroundResidentCache,
+ workingResidentCache,
  SOFTWARE_WORKSITE_GPU_MAX_ACTORS,residentActorGpuEnabled,
  verifiedHouseholdMealEvidence,isLoadedCourierOnRoad,isMarketUnloading,
  isWorkingAtSite,isForegroundWalkingSkinCandidate,isResidentRestingCandidate,
@@ -55,9 +59,10 @@ const instantiate=e=>new Function('e',`
  isObservedWorksiteSkinCandidate,isForegroundWorksiteCandidate,
  projectRealCitizenDetail,originalCommuterScreenLimit,
  FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT,WORKSITE_SKIN_ENTER_SCREEN_HEIGHT,
- ORIGINAL_COURIER_GPU_ENTER_HEIGHT,ORIGINAL_COURIER_GPU_HOLD_HEIGHT}=e;
+ ORIGINAL_COURIER_GPU_ENTER_HEIGHT,ORIGINAL_COURIER_GPU_HOLD_HEIGHT,
+ COMPACT_COURIER_GPU_ENTER_HEIGHT,COMPACT_COURIER_GPU_HOLD_HEIGHT}=e;
  let softwareWorksiteSelectionFrames=0,softwareWorksiteSelectedRows=0;
- ${gate}\n${selector}\n
+ ${gate}\n${compact}\n${selector}\n
  return {admit:isOriginalGpuCourierBodyCandidate,select:authenticWorkerGpuResidentRows};
 `)(e);
 const scene={};
