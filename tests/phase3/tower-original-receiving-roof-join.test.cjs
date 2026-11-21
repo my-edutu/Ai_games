@@ -97,9 +97,10 @@ test('original F9 roof structural rim, beam and luminous gasket share the same s
   assert.match(world,/beamMiddle:body\.clone\(\),beamSuccessor:body\.clone\(\)/);
   assert.match(world,/edgeMiddle:rim\.clone\(\),edgeSuccessor:rim\.clone\(\)/);
   assert.match(world,/lampMiddle:glow\.clone\(\),lampSuccessor:glow\.clone\(\)/);
-  assert.match(world,/sector\(27\.02,27\.22,band\.angle,\.095\),edge/);
-  assert.match(world,/sector\(26\.99,27\.13,band\.angle,\.07\),beam/);
-  assert.match(world,/sector\(27\.04,27\.17,band\.angle,\.05\),lamp/);
+  assert.match(world,/sector\(27\.02,27\.22,band\.angle,\.095\),sourceRoofWing\(edge,band\)/);
+  assert.match(world,/for\(const band of joinedRoofPanels\)/);
+  assert.match(world,/sector\(26\.99,27\.13,band\.angle,\.07\),sourceRoofWing\(beam,band\)/);
+  assert.match(world,/sector\(27\.04,27\.17,band\.angle,\.05\),sourceRoofWing\(lamp,band\)/);
   assert.match(world,/resetGatewayReceivingRoofColours\(arrivalRoutePalette\)/);
 });
 test('no purple full-width lip at the real bronze gateway; retiring old gate resets all original roof material channels',async()=>{
