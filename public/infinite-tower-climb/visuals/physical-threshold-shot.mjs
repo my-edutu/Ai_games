@@ -92,6 +92,27 @@ export function sourceDeckGatewayClearanceCandidates(aspect, actualDeckRays) {
   return aspect<.85 ? PORTRAIT_SOURCE_CLEARANCE : DESKTOP_SOURCE_CLEARANCE;
 }
 
+// A projected REAL raised Floor 9 deck may cover the picture despite
+// zero blocked body/gateway rays. The triangle-only search above returns
+// null for exactly that case. Reuse its SAME bounded eight physical shots
+// only when the current World has independently certified the original
+// defeated-gate geometry, its real grounded roof and the attached source
+// elevated platform silhouette. Scene still requires actual old steel,
+// uncut full-body, real F9 route and no worse triangle contacts.
+export function sourceRaisedBackdropClearanceCandidates(aspect,backdrop,rays){
+  if(!finite(aspect)||aspect<.38||aspect>2.1||
+     backdrop?.active!==true||
+     !finite(backdrop.coverage)||backdrop.coverage<=.19||
+     backdrop.coverage>1||typeof backdrop.owner!=='string'||
+     !/^f9:(?!ground$)[a-z0-9:_-]+$/i.test(backdrop.owner)||
+     !Number.isSafeInteger(backdrop.examined)||backdrop.examined<1||
+     backdrop.examined>2||
+     rays?.active!==true || rays.score!==0 ||
+     rays.bodyBlockedRays!==0 || rays.gatewayBlockedRays!==0)
+    return null;
+  return aspect<.85?PORTRAIT_SOURCE_CLEARANCE:DESKTOP_SOURCE_CLEARANCE;
+}
+
 // Three-subject COLD Floor8 guardian -> Floor9 walkway composition.
 // Unlike a colored HUD, the third subject is a point on the ACTUAL already
 // authored walkable f9:ground mesh beyond the genuine HP-zero gateway.

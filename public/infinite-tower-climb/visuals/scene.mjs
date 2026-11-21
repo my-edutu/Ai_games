@@ -33,7 +33,7 @@ import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCamer
 import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardianDuelEdgePressure, guardianLiveFightLockPriority } from './guardian-gate-intrusion.mjs';
 import { observedGuardianTransmissionCorners } from './guardian-transmission-layout.mjs';
 import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
-import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceThreeSubjectActorScaleGain, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe, sourceThreeSubjectPhysicalGain } from './physical-threshold-shot.mjs';
+import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, sourceRaisedBackdropClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceThreeSubjectActorScaleGain, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe, sourceThreeSubjectPhysicalGain } from './physical-threshold-shot.mjs';
 import { sourceSubmittedDoorwayCameraDt, sourceCroppedHeroRecoveryDt } from './source-submitted-doorway-cadence.mjs';
 import { createTowerVoidProgramPrewarm } from './void-program-prewarm.mjs';
 import { sourceOriginalGatewayCameraBridge, observedOriginalGatewaySubmittedView } from './original-gateway-submitted-camera-bridge.mjs';
@@ -5084,8 +5084,17 @@ export function createTowerScene(canvas, settings = {}) {
         // height and depth cover whole shoulders/roof lip, not just centre.
         // Every proposal is reversible; source contact/camera safety still
         // vetoes a fake cleared shot or a new platform/collider.
-        const clearance=sourceDeckGatewayClearanceCandidates(
-          camera.aspect,existingDeckView) || [];
+        // Zero genuine ray blocks used to suppress ALL proposals even when
+        // a source-owned raised deck filled the native screen. Keep the old
+        // eight immutable, physically bounded proposals, but permit the
+        // separately proven screen-dominance case to reach them. Both cases
+        // still undergo the same live core, NDC, walkable roof, original steel
+        // and exact real Three.js triangle vetoes below.
+        const clearance=(existingDeckView.score===0
+          ?sourceRaisedBackdropClearanceCandidates(
+            camera.aspect,raisedBackdropBefore,existingDeckView)
+          :sourceDeckGatewayClearanceCandidates(
+            camera.aspect,existingDeckView)) || [];
         for(const [yaw,height,radial] of clearance) {
           const angle=initialAzimuth+yaw,radius=exteriorRadius+radial;
           camera.position.set(Math.sin(angle)*radius,

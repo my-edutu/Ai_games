@@ -116,8 +116,34 @@ test('composed game camera never trades a visible full-body climber for a pretti
   assert.match(text,/candidate\.bodyBlockedRays<=existingDeckView\.bodyBlockedRays/);
   assert.match(text,/candidate\.gatewayBlockedRays<=existingDeckView\.gatewayBlockedRays/);
   assert.match(text,/bestScore===0 &&\s*\(!dominantRaisedBackdrop \|\| bestBackdrop<=\.19\)\)break/);
-  assert.match(text,/candidate\.score===bestScore&&betterBackdrop/);
+  assert.match(text,/candidate\\.score===bestScore&&betterBackdrop/);
+  assert.match(text,/sourceRaisedBackdropClearanceCandidates\\(\\s*camera\\.aspect,raisedBackdropBefore,existingDeckView\\)/);
   assert.ok(text.indexOf('    // FIRST SUCCESSOR-DECK PHYSICAL CAMERA OCCLUSION:') <
     text.indexOf('    // POST-DIRECTOR PHYSICAL CROSSING:'));
   assert.doesNotMatch(text,/snapshot\.player\.(?:x|y)\s*=/);
+});
+
+test('a genuine large source-raised backdrop can earn the EXISTING bounded shots despite zero physical ray hits',async()=>{
+  const {sourceRaisedBackdropClearanceCandidates:plan,
+    sourceDeckGatewayClearanceCandidates:oldPlan}=await physical;
+  const zero={active:true,score:0,bodyBlockedRays:0,gatewayBlockedRays:0};
+  const actual={active:true,coverage:.32,owner:'f9:p2',examined:2};
+  assert.equal(oldPlan(390/844,zero),null,
+    'old triangle-specific clearance remains null with clear rays');
+  const desktop=plan(960/600,actual,zero);
+  const portrait=plan(390/844,actual,zero);
+  assert.equal(desktop.length,8);
+  assert.equal(portrait.length,8);
+  assert.ok(desktop.every(([yaw,height,radial])=>
+    Math.abs(yaw)<=.25&&Math.abs(height)<=4.1&&radial<=6.6));
+  assert.ok(portrait.every(([yaw,height,radial])=>
+    Math.abs(yaw)<=.25&&Math.abs(height)<=4.1&&radial<=6.6));
+  assert.ok(Object.isFrozen(portrait));
+  for(const bad of [
+    {...actual,coverage:.19},{...actual,owner:'f9:ground'},
+    {...actual,owner:'f8:cap'},{...actual,examined:0},
+    {...actual,coverage:NaN},{...actual,active:false}])
+      assert.equal(plan(390/844,bad,zero),null);
+  assert.equal(plan(390/844,actual,{...zero,bodyBlockedRays:1}),null);
+  assert.equal(plan(0,actual,zero),null);
 });
