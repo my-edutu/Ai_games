@@ -3365,6 +3365,34 @@ function isForegroundWalkingSkinCandidate(p,i,frame){
  return !projected.visible||
   physicallySmallWalkingSkinWindow(projected.heightFraction,held);
 }
+// W509 authentic loaded courier: only the full original body is retained on
+// 13-joint GPU. Real physical escrow cart and wheels remain live per tick.
+const ORIGINAL_COURIER_GPU_ENTER_HEIGHT=.22,ORIGINAL_COURIER_GPU_HOLD_HEIGHT=.27;
+function isOriginalGpuCourierBodyCandidate(p,i,nearPeople,frame){
+ if(!workingSkinCapable||!gpuAvailable||!p||!nearPeople.has(i)||
+    !isLoadedCourierOnRoad(p)||isMarketUnloading(p)||
+    !p.delivery?.escrowed||!p.delivery?.id||!frame)return false;
+ if(document.body?.dataset?.citizenInspect==='on'&&i===selectedCitizen)return false;
+ const view=projectRealCitizenDetail(p,frame);
+ if(!view.visible||!Number.isFinite(view.heightFraction)||view.heightFraction<0)return false;
+ const held=Boolean(foregroundResidentCache.get(i)?.separateLiveCart);
+ return view.heightFraction<(held?ORIGINAL_COURIER_GPU_HOLD_HEIGHT:
+  ORIGINAL_COURIER_GPU_ENTER_HEIGHT);
+}
+let originalLiveCourierCartTriangles=0,originalLiveCourierCartNames=[];
+function getOriginalLiveCourierSkinAudit(){
+ const rows=foregroundResidentVisible.filter(r=>r.entry.separateLiveCart&&
+  isLoadedCourierOnRoad(r.p));
+ return {source:'true-escrowed-courier-original-gpu-body-plus-live-wheel-cart',
+  authenticGpuBodies:rows.length,names:rows.map(r=>r.p.name),
+  liveCartNames:originalLiveCourierCartNames.slice(),
+  liveCartTriangles:originalLiveCourierCartTriangles,
+  active:workingSkinCapable&&gpuAvailable,
+  screenGate:{enter:ORIGINAL_COURIER_GPU_ENTER_HEIGHT,retain:ORIGINAL_COURIER_GPU_HOLD_HEIGHT},
+  originalWheelDistanceAndEscrowRetained:true,closeUnloadingCpuFallback:true,
+  authorityChanged:false,noInventedActorsOrTransactions:true,
+  actualHardwareFrameRate:'NOT MEASURED'};
+}
 function realForegroundPoseKey(p,i,walkingSkin=false){
  // Full-detail workers observed as <11.5% of the viewport keep the EXACT
  // original one-time coat/face/hat geometry. Their 13 true work bones and
@@ -3464,6 +3492,7 @@ function prepareForegroundResidents(rows,frame,nearPeople){
   priority:isObservedWorksiteSkinCandidate(row.p,row.i,nearPeople)?4:
    ((follow||liveWorkday)&&row.i===selectedCitizen&&
     isForegroundWalkingSkinCandidate(row.p,row.i,frame))?3:
+   isOriginalGpuCourierBodyCandidate(row.p,row.i,nearPeople,frame)?3:
    isWorkingAtSite(row.p)?2:
    isForegroundWalkingSkinCandidate(row.p,row.i,frame)?1:0}));
  ranked.sort((a,b)=>b.priority-a.priority||a.row.i-b.row.i);
@@ -3475,23 +3504,27 @@ function prepareForegroundResidents(rows,frame,nearPeople){
  let total=0;
  for(const {p,i} of limited){
   const walkingSkin=isForegroundWalkingSkinCandidate(p,i,frame);
-  const key=realForegroundPoseKey(p,i,walkingSkin),angle=realForegroundFacing(p);
+  const courierSkin=isOriginalGpuCourierBodyCandidate(p,i,nearPeople,frame);
+  const key=realForegroundPoseKey(p,i,walkingSkin||courierSkin)+
+   (courierSkin?'|live-original-cart:'+p.delivery.id:'|intact-original-cart');
+  const angle=realForegroundFacing(p);
   const beforeActor=restingActorCounters();
   let entry=foregroundResidentCache.get(i),fresh=false;
   if(realForegroundPoseStale(entry,p,key,angle)){
    const prior=data,materialBefore=currentMaterial,before=restingActorCounters();
-   const skinned=workingSkinCapable&&(isWorkingAtSite(p)||walkingSkin);
+   const skinned=workingSkinCapable&&(isWorkingAtSite(p)||walkingSkin||courierSkin);
    const labels=[];
    data=[];
    if(skinned)workSkinCapture=labels;
    try{
-    villager(p); // Entire ORIGINAL sculpted face, coat, boots and gait.
+    villager(p,courierSkin); // Same original human, separate genuine physical cart.
     const mesh=new Float32Array(data),after=restingActorCounters();
     const delta=restingActorDifference(before,after);
     delta.roles=Object.fromEntries(Object.keys(after.roles)
       .map(role=>[role,(after.roles[role]||0)-(before.roles[role]||0)]));
     entry={key,x:p.x,z:p.z,ground:terrain(p.x,p.z),angle,
-     mesh,delta,revision:++foregroundResidentPoseBuilds,skinned};
+     mesh,delta,revision:++foregroundResidentPoseBuilds,skinned,
+     separateLiveCart:courierSkin};
     if(skinned){
      entry.scale=.92+(i%5)*.045;
      const bindRig=citizenRigPose(p);
@@ -14890,7 +14923,35 @@ function compactVillager(p){
  if(rig.traveling)compactCitizenAnimation.lastTraveling++;
  compactCitizenAnimation.lastMotionTriangles+=(data.length-vertexStart)/30;
 }
-function villager(p){const vertexStart=data.length;let x=p.x,z=p.z,y=terrain(x,z),u=p.phase,idx=Math.max(0,people.indexOf(p)),size=.92+(idx%5)*.045;let c=medievalCitizenIdentity(p,idx).wool,skin=rgb([0xd5a781,0x95654b,0xefc19c,0xbe8968,0x9a6a48][(idx+names.length)%5]),hair=rgb([0x4c3228,0x342f29,0x8b633f,0x664b36,0xa18b65][(idx+4)%5]);const busy=isWorkingAtSite(p)||isMarketUnloading(p)||isLoadedCourierOnRoad(p);let pace=p.activity.includes('Traveling')||p.activity.includes('Explor')||p.activity==='Returning home at dusk'?1:.23,step=Math.sin(u*2.7)*.21*pace;
+// EXACT original live cart: the same geometry, wheel distance and escrow,
+// rotated by the same rigid world-facing pass as the existing CPU villager.
+function rotateOriginalCourierCartVertices(vertices,start,x,z,angle){
+ if(!Number.isInteger(start)||start<0||start>vertices.length||
+    (vertices.length-start)%30!==0)
+  throw Error('W509 live courier cart requires complete original triangles');
+ const co=Math.cos(angle),si=Math.sin(angle);
+ for(let i=start;i<vertices.length;i+=10){
+  const dx=vertices[i]-x,dz=vertices[i+2]-z;
+  const nx=vertices[i+3],nz=vertices[i+5];
+  vertices[i]=x+co*dx+si*dz;
+  vertices[i+2]=z-si*dx+co*dz;
+  vertices[i+3]=co*nx+si*nz;
+  vertices[i+5]=-si*nx+co*nz;
+ }
+ return (vertices.length-start)/10;
+}
+function renderOriginalLiveCourierCart(p){
+ if(!isLoadedCourierOnRoad(p)||!p.delivery?.escrowed)return 0;
+ const i=people.indexOf(p);
+ if(i<0)throw Error('W509 unknown real courier');
+ const x=p.x,z=p.z,y=terrain(x,z),size=.92+(i%5)*.045,
+  first=data.length,rig=citizenRigPose(p);
+ emitStreetCargo(p,x,y,z,size);
+ const focus=rig.acting.focus;
+ const angle=focus?Math.atan2(focus[0]-x,focus[1]-z):0;
+ return rotateOriginalCourierCartVertices(data,first,x,z,angle);
+}
+function villager(p,omitLiveCart=false){const vertexStart=data.length;let x=p.x,z=p.z,y=terrain(x,z),u=p.phase,idx=Math.max(0,people.indexOf(p)),size=.92+(idx%5)*.045;let c=medievalCitizenIdentity(p,idx).wool,skin=rgb([0xd5a781,0x95654b,0xefc19c,0xbe8968,0x9a6a48][(idx+names.length)%5]),hair=rgb([0x4c3228,0x342f29,0x8b633f,0x664b36,0xa18b65][(idx+4)%5]);const busy=isWorkingAtSite(p)||isMarketUnloading(p)||isLoadedCourierOnRoad(p);let pace=p.activity.includes('Traveling')||p.activity.includes('Explor')||p.activity==='Returning home at dusk'?1:.23,step=Math.sin(u*2.7)*.21*pace;
 // Individual fitted wool coats: flared hem, waist, chest, collar, gait sway.
 const rig=citizenRigPose(p),embodiment=citizenEmbodiedPose(p,idx,rig);
 const outfitTrim=[0xf2cb79,0x82b5b2,0xf0b9a0,0xe1d3a3,0xaac6d1,0xd7a9c8].map(rgb);
@@ -15003,7 +15064,7 @@ const toolStart=data.length;
 emitWorkdayHandTool(p,rig,worldJoint,size);
 tagWorkSkinRange(12,toolStart);
 const bodyEnd=data.length;
-emitStreetCargo(p,x,y,z,size);
+if(!omitLiveCart)emitStreetCargo(p,x,y,z,size);
 renderCommuterLantern(p,x,y,z,size,rig);
 // G093 planted work is not a straight standing pose with a floating tool:
 // shear the complete torso/head/arms from the hip while the boots stay rooted.
@@ -35559,7 +35620,8 @@ const foregroundRows=residentRows
    isForegroundWalkingSkinCandidate(p,i,commuterFrame))||
   // W413: selected ACTUAL grain cutting / forging / building moves its
   // ORIGINAL thirteen bones on the GPU; moving cargo/receipt hands do not.
-  isObservedWorksiteSkinCandidate(p,i,nearPeople));
+  isObservedWorksiteSkinCandidate(p,i,nearPeople)||
+  isOriginalGpuCourierBodyCandidate(p,i,nearPeople,commuterFrame));
 const foregroundReady=prepareForegroundResidents(foregroundRows,commuterFrame,nearPeople);
 const foregroundIndices=foregroundReady?
  new Set(foregroundResidentVisible.map(row=>row.i)):new Set();
@@ -35573,6 +35635,7 @@ if(gpuAvailable&&actorStreamSplitEnabled){
  data=actorDynamicVertexScratch;
 }
 const liveActorGeometryStart=performance.now();
+originalLiveCourierCartTriangles=0;originalLiveCourierCartNames=[];
 const actualActorBodyPaths=new Uint8Array(people.length);
 for(let i=0;i<people.length;i++){
  if(nearPeople.has(i)){
@@ -35594,6 +35657,17 @@ for(let i=0;i<people.length;i++){
 lastActorPresentationPaths=actualActorBodyPaths;
 lastActorPresentationTime=state.t;
 lastActorPresentationEpoch=presentationEpoch;
+// Draw ONE real-time escrowed cart per accepted GPU human body. Any refused
+// admission keeps the original all-CPU worker and cart unchanged.
+for(const {p,i,entry} of foregroundResidentVisible){
+ if(!foregroundIndices.has(i))continue;
+ const before=data.length;
+ if(entry.separateLiveCart)renderOriginalLiveCourierCart(p);
+ if(data.length>before){
+  originalLiveCourierCartNames.push(p.name);
+  originalLiveCourierCartTriangles+=(data.length-before)/30;
+ }
+}
 householdCarriedSackStats.carriers=0;householdCarriedSackStats.receiptLinked=0;
 householdCarriedSackStats.triangles=0;
 for(const person of people)renderCarriedHouseholdProvisions(person);
@@ -36121,7 +36195,7 @@ drawForegroundResidentMesh();
  getFaceTopologyCacheAudit,getSimulationTickDebtAudit,
  getRestingActorResidencyAudit,getResidentCommuterAudit,getActorPresentationCoverageAudit,getWorkingResidentAudit,
  getWorkingSkinAudit,getWorkSkinPaletteAudit,getResidentGpuDistrictAudit,setWorkingSkinEnabledForTesting,
- getForegroundResidentAudit,getForegroundSkinAudit,setForegroundResidentEnabledForTesting,
+ getForegroundResidentAudit,getForegroundSkinAudit,getOriginalLiveCourierSkinAudit,setForegroundResidentEnabledForTesting,
  getSocialEncounterAudit:()=>cloneData(getSocialEncounterAudit()),
  getWorkIntentMemoAudit:()=>cloneData(getWorkIntentMemoAudit()),
  getRealWorksiteFrameAudit:()=>cloneData(getRealWorksiteFrameAudit()),
