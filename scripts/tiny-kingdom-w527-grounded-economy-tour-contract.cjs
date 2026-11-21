@@ -31,8 +31,17 @@ for(const width of [1024,390]){
   assert.ok(candidate,'valid ground-level actual site must have a lens');
   assert.equal(candidate.stage,stage);
   assert.ok(candidate.pitch<=.8&&candidate.zoom<=35);
-  assert.deepEqual(Array.from(candidate.focus),
-   stage==='farm'?[20.55,1.01]:p.focus);
+  // Computed midpoint averages need numeric tolerance: (16.45+24.65)/2
+  // is 20.549999999999997 under IEEE-754, not literal 20.55.
+  // This contract tests the actual location, never string/bit rounding.
+  const expectedFocus=stage==='farm'?[20.55,1.01]:p.focus;
+  const actualFocus=Array.from(candidate.focus);
+  assert.equal(actualFocus.length,2,'camera keeps a 2D focus');
+  for(let i=0;i<2;i++){
+   assert.ok(Number.isFinite(actualFocus[i]),'physical focus coordinate is finite');
+   assert.ok(Math.abs(actualFocus[i]-expectedFocus[i])<1e-9,
+    'stage '+stage+' coordinate '+i+' must match the real location: '+actualFocus[i]);
+  }
   assert.ok(views.length<=72,'click-time original roof checks bounded');
   const blocked={Number,Math,FARMSTEAD:{fields:[[16.45,24.65,-1.62,3.64]]},
    freeCameraSightline:()=>({clear:false})};
