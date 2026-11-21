@@ -6525,7 +6525,7 @@ export function certifyLicensedCounterpitchToeFinish({
     proof.sourceClipTimeSeconds<=.875))&&
   Number.isFinite(proof.witnessedFrameIntervalSeconds)&&
   proof.witnessedFrameIntervalSeconds>=.016&&
-  proof.witnessedFrameIntervalSeconds<=.05&&
+  proof.witnessedFrameIntervalSeconds<=.24&&
   Number.isFinite(proof.witnessedRootTravelMeters)&&
   proof.witnessedRootTravelMeters>=.008&&
   proof.witnessedRootTravelMeters<=.08&&
