@@ -27,7 +27,7 @@ export function sourceReturnedGateCameraRelease({
     return null;
   const oldAngle=Math.atan2(px,pz),newAngle=Math.atan2(dx,dz);
   const arc=Math.atan2(Math.sin(newAngle-oldAngle),Math.cos(newAngle-oldAngle));
-  const turn=clamp(arc,-.82*seconds,.82*seconds);
+  const turn=clamp(arc,-.72*seconds,.72*seconds);
   const radius=pRadius+clamp(dRadius-pRadius,-14*seconds,14*seconds);
   const angle=oldAngle+turn;
   const y=py+clamp(dy-py,-12*seconds,12*seconds);
