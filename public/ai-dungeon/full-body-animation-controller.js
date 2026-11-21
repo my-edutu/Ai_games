@@ -5852,6 +5852,7 @@ export function planImportedWalkingMixerFrameDelta({mode='idle',walkingClip=fals
  sourceTime=NaN,effectiveSpeed=NaN,groundedTravel=NaN,groundedMoving=false,
  sourceClipName='',sourceInstanceSame=false,sourceFadeStartedThisFrame=false,
  transitionFromClip='',transitionFadeSeconds=NaN,sourceWeight=NaN,
+ sourceNativeWalkingVerified=false,
  visible=true,reducedMotion=false,teleport=false}={}){
  const ordinary=finite(frameDelta)?clamp(frameDelta,0,.05):0;
  // Original WebGL #44174412381: full-skeleton Walking_A was sampled after
@@ -5875,7 +5876,10 @@ export function planImportedWalkingMixerFrameDelta({mode='idle',walkingClip=fals
   sourceDuration<=.002||sourceTime<0||effectiveSpeed<=.001||
   groundedTravel<0||groundedTravel>.54||
   (groundedMoving!==true&&!(groundedMoving===false&&
-    sourceStep===0&&groundedTravel<=.0015&&frameInterval<=1.2)))return ordinary;
+    sourceStep===0&&groundedTravel<=.0015&&
+    (frameInterval<=1.2||(frameInterval>1.2&&frameInterval<=2&&
+     sourceClipName==='Walking_A'&&sourceNativeWalkingVerified===true)))))
+  return ordinary;
  // Exact original imported 41-joint WebGL desktop #44279466514:
  // Idle -> Walking_A at true 19.641mm / 500ms root travel displayed
  // only ~.3913 source weight because its 230ms fade was clocked at 90ms.
@@ -5915,7 +5919,7 @@ export function planImportedWalkingBlendRate({mode='idle',sourceStep=0,
   sourceTime,effectiveSpeed,groundedTravel,groundedMoving,
   sourceClipName,sourceInstanceSame,sourceFadeStartedThisFrame,
   transitionFromClip,transitionFadeSeconds,sourceWeight,
-  visible,reducedMotion,teleport
+  sourceNativeWalkingVerified,visible,reducedMotion,teleport
  });
  if(mode!=='move'||!walkingClip||teleport||reducedMotion||
   visible!==true||visibleStep<=0||
