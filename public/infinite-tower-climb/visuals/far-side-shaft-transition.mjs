@@ -208,6 +208,82 @@ export function observedEarnedFarSideShaftOverlap(source,held,job=null) {
 // actually included in a successfully returned renderer submission. Both
 // elapsed returned frames and bounded successful-render duration are required;
 // a CPU construction, source poll or stalled RAF is never a painted frame.
+/**
+ * The original 25fps desktop/portrait film shows a real grounded climber
+ * already beyond the opened F8 gate on the collision-aligned F9 roof,
+ * yet the original bronze steel stays ~96% opaque until the elevated p2
+ * route finally earns the stricter far-side witness. That starts a
+ * 15-render fade too late for the existing 30-return old-mesh budget,
+ * causing an unavoidable sudden whole-room disappearance.
+ *
+ * Earn the SAME returned-WebGL gateway fade on the *grounded, physically
+ * cleared* receiving roof, before the p2 jump. This is not the far-side
+ * witness: it does not award a floor, grant roof support, certify pixels,
+ * relax any existing far-side route, or construct a new doorway.
+ */
+export function observedReturnedGroundedGatewayFadeStart(source, held, job) {
+  const p=source?.player,w=source?.lastGuardianCrossing,c=w?.cap;
+  const roof=source?.platforms?.find(x=>x?.id==='f9:ground');
+  if(source?.lifecycle!=='running'||source.floor!==9||
+     source.theme!=='void'||!(p?.health>0)||
+     typeof source.runToken!=='string'||!source.runToken||
+     !held||held.runToken!==source.runToken||held.floor!==9||
+     held.oldCapId!=='f8:cap'||held.guardianGateRetained!==true||
+     held.verifiedObservedFloorAdvance!==true||
+     held.opticalExitSubmitted===true||
+     ![source.tick,held.crossingTick,held.oldCapX,held.oldCapWidth,
+       held.oldRoofY,held.thresholdX,held.firstWorldRenderTick,
+       held.submittedFrames,p.x,p.y,p.halfWidth,p.halfHeight,
+       roof?.x,roof?.y,roof?.width,roof?.height,
+       c?.x,c?.y,c?.width,c?.height,w?.sourceTick,w?.exitX,
+       job?.sourceTick,job?.submittedFrames,job?.structureBuiltAtSubmitted,
+       job?.structuralVisibleReturns].every(valid)||
+     p.halfWidth<=0||p.halfHeight<=0||roof.width<=0||roof.height<=0||
+     held.oldCapWidth<=0||c.width<=0||c.height<=0||
+     source.tick<held.crossingTick||source.tick-held.crossingTick>150||
+     held.submittedFrames<2||held.submittedFrames>=30||
+     !Number.isFinite(held.visibleSeconds)||
+     held.visibleSeconds<0||held.visibleSeconds>=2.8||
+     !Number.isFinite(held.originalGatewayOpacity)||
+     held.originalGatewayOpacity<=.035||held.originalGatewayOpacity>1||
+     held.oldCapX!==c.x||held.oldCapWidth!==c.width||
+     held.oldRoofY!==c.y+c.height||
+     held.thresholdX!==c.x+Math.floor(c.width*.76)||
+     roof.y+roof.height!==held.oldRoofY||
+     w.runToken!==source.runToken||w.fromFloor!==8||w.toFloor!==9||
+     w.sourceTick!==held.crossingTick||w.sourceTick>source.tick||
+     c.id!=='f8:cap'||w.exitX!==held.thresholdX||
+     w.guardian?.kind!=='guardian'||w.guardian.active!==false||
+     !Number.isFinite(w.guardian.health)||w.guardian.health>0||
+     p.grounded!==true||p.state!=='standing'||p.vy!==0||
+     p.groundedPlatformId!=='f9:ground'||
+     p.y-p.halfHeight!==held.oldRoofY||
+     p.x-p.halfWidth<roof.x||p.x+p.halfWidth>roof.x+roof.width||
+     // Entire real actor must have walked beyond, not merely touched, gate.
+     p.x-p.halfWidth<=held.thresholdX+12000||
+     p.x+p.halfWidth>held.thresholdX+100000||
+     !job||job.runToken!==source.runToken||job.floor!==9||
+     job.proof!=='recorded-source-gateway'||
+     job.structureDeferred!==true||
+     job.sourceTick!==held.firstWorldRenderTick||
+     job.structureBuiltAtSubmitted<1||
+     job.submittedFrames<=job.structureBuiltAtSubmitted||
+     job.structuralVisibleReturns<1||
+     job.structuralVisibleReturns>job.submittedFrames||
+     job.structuralRoot?.isGroup!==true||
+     job.structuralRoot.visible!==true||
+     !Number.isFinite(job.structuralFade)||
+     job.structuralFade<=.015||job.structuralFade>1||
+     !['awaiting-void-biome-build','awaiting-structural-release',
+       'awaiting-structural-submission','awaiting-vista-submission',
+       'fading-remote-arrival','complete'].includes(job.state))
+    return null;
+  return {sourceBound:true,sourceTick:source.tick,
+    incomingReturnedFrames:job.structuralVisibleReturns,
+    groundedRealReceivingRoof:true,
+    limitation:'Real cleared body+guardian HP0+original GPU gateway+returned new shaft, not native pixel or gameplay authority'};
+}
+
 export function observedReturnedFarSideFade(held,job) {
   if(!held || !job ||
      ![held.submittedFrames,held.farSideFadeStartSubmitted,
@@ -229,7 +305,13 @@ export function observedReturnedFarSideFade(held,job) {
   // Both returned submissions AND actually accumulated rendered seconds
   // still have to advance; stalled GPU work cannot age the original room.
   const frameProgress=(held.submittedFrames-held.farSideFadeStartSubmitted)/15;
-  const returnedTime=(held.visibleSeconds-held.farSideFadeStartSeconds)/1.65;
+  // The old roof may have only ~1s of actual returned 25fps frames before
+  // the existing 30-return GPU ownership ceiling. A 1.65s requirement
+  // could NEVER finish even after a source-earned near-sill departure,
+  // forcing a full-opacity hard cut when the original owner expires.
+  // Keep 15 genuine submitted frames, require elapsed rendered time, but
+  // fit the fade within 0.80s of *returned* frame duration.
+  const returnedTime=(held.visibleSeconds-held.farSideFadeStartSeconds)/.8;
   return smooth(Math.min(frameProgress,returnedTime));
 }
 

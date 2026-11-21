@@ -16,7 +16,7 @@ import { rebindSourceOwnedUndercroft, createSightlineMatrixEpochCache } from './
 import { createSourceSightlineRayBroadphase } from './source-sightline-broadphase.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, createSourceEarnedVoidDepartureMaterials, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn, observedRenderedOriginalDoorwayRoom, coherentOriginalBearingDeparture } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections, isolateEarnedFirstFrameVoidMaterials } from './source-earned-bearing-run.mjs';
-import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold, observedSourceEarnedEarlyVoidShaftAperture, observedSourceSupportedVoidFirstPaint, observedEarnedGalleryExitClearance, observedReturnedGalleryHandoffClearance, observedFirstReturnedVoidBearingGalleryRetirement, observedSourceReturnedCoreBeforeScenicUpload } from './far-side-shaft-transition.mjs';
+import { observedEarnedFarSideShaftOverlap, observedReturnedGroundedGatewayFadeStart, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold, observedSourceEarnedEarlyVoidShaftAperture, observedSourceSupportedVoidFirstPaint, observedEarnedGalleryExitClearance, observedReturnedGalleryHandoffClearance, observedFirstReturnedVoidBearingGalleryRetirement, observedSourceReturnedCoreBeforeScenicUpload } from './far-side-shaft-transition.mjs';
 import { chooseSourceEarnedFirstReturnInstancing } from './source-earned-first-return-instancing.mjs';
 import { observedReturnedSuccessorRoomReady, observedSupportedReturnedShaftDepth } from './original-room-returned-exit.mjs';
 import { projectOriginalGuardianGateSteel } from './original-guardian-gate-steel-projection.mjs';
@@ -3949,12 +3949,19 @@ export function createTowerWorld(){
     // shaft participates in returned frames; never fade or retire a phantom.
     const farSide=!options.stale
       ?observedEarnedFarSideShaftOverlap(snapshot,held,deferredDistantArrival):null;
-    if(farSide?.incomingReturnedFrames>0 &&
+    // The low real F9 sill is a legitimate earlier GPU-returned departure:
+    // the old gateway should begin receding before the real p2 jump rather
+    // than being deleted at near-full opacity by the finite cap lifetime.
+    const returnedGroundedSill=!options.stale
+      ?observedReturnedGroundedGatewayFadeStart(
+        snapshot,held,deferredDistantArrival):null;
+    const earnedRoomDeparture=farSide || returnedGroundedSill;
+    if(earnedRoomDeparture?.incomingReturnedFrames>0 &&
        !Number.isSafeInteger(held.farSideFadeStartSubmitted)) {
       held.farSideFadeStartSubmitted=held.submittedFrames;
       held.farSideFadeStartSeconds=held.visibleSeconds;
     }
-    const farSideFade=farSide && Number.isSafeInteger(held.farSideFadeStartSubmitted)
+    const farSideFade=earnedRoomDeparture && Number.isSafeInteger(held.farSideFadeStartSubmitted)
       ?observedReturnedFarSideFade(held,deferredDistantArrival):null;
     // A real, already-returned bronze gateway cannot fade away because the
     // 20Hz source advanced while the ACTUAL successor shaft submitted zero
@@ -3979,7 +3986,7 @@ export function createTowerWorld(){
     const returnedBronzeHold=!options.stale
       ?observedReturnedOriginalArchitectureHold(
         snapshot,held,deferredDistantArrival,farSide):null;
-    held.sourceAlignedPassage=samePassage || sourceColdFrame || !!farSide ||
+    held.sourceAlignedPassage=samePassage || sourceColdFrame || !!earnedRoomDeparture ||
       sourceDeparture?.sourceBound===true || authenticRaisedFlight;
     // The actual first-episode native WebMs still replaced the original
     // Clockwork arch with a fully violet room within one 25fps sample, even
@@ -4029,7 +4036,7 @@ export function createTowerWorld(){
     // horizontal source X barely advances; never demand an impossible 9m
     // horizontal-only runway to finish the original gateway passage.
     const departing=sourceDeparture;
-    const originalGatePresence=farSide && Number.isFinite(farSideFade)
+    const originalGatePresence=earnedRoomDeparture && Number.isFinite(farSideFade)
       ?Math.min(held.lastReturnedOldGatewayOpacity??1,1-farSideFade)
       :(returnedBronzeHold?.gateOpacity??sourceDeparture?.opacity??opticalLease?.opacity??1);
     held.originalGatewayOpacity=originalGatePresence;
@@ -4057,7 +4064,7 @@ export function createTowerWorld(){
     // corridor expired, then all original architecture vanished at once.
     let originalPresence=returnedBronzeHold
       ?returnedBronzeHold.galleryOpacity
-      :(departing?.sourceBound===true || opticalLease || farSide)
+      :(departing?.sourceBound===true || opticalLease || earnedRoomDeparture)
         ?Math.min(.94,originalGatePresence*.94)
         :observedRetainedOriginalBronzeCover(
           held.submittedFrames,held.visibleSeconds);

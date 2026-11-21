@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "stage": "P0",
+  "status": "OPEN",
+  "verdict": "NOT EVALUATED",
+  "frozenBaselineSourceSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "candidateBeforeChangeSha": "fb6b44125c292cd2e9d28c6b37cc9af033070c8d",
+  "originalSourcePinnedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44885380309",
+  "originalUneditedCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44885380309/artifacts/14699911249",
+  "authenticScenePairs": "8/8",
+  "strictEventMatchedNativeViewports": "0/2",
+  "originalFootage": {
+    "desktop": {
+      "sourceCrossingTick": 475,
+      "nativeHudF9Seconds": 26,
+      "firstSustainedVioletSeconds": 27.75,
+      "warmToCoolBridgeSeconds": 0,
+      "firstBrowserToRendererMs": 570
+    },
+    "portrait": {
+      "sourceCrossingTick": 475,
+      "nativeHudF9Seconds": 25.75,
+      "firstSustainedVioletSeconds": 29,
+      "warmToCoolBridgeSeconds": 0,
+      "firstBrowserToRendererMs": 484
+    }
+  },
+  "verifiedSourceSamples": {
+    "desktop": {
+      "tick502": {
+        "originalGatewayOpacity": 0.9845,
+        "returnedOldFrames": 8
+      },
+      "tick516": {
+        "originalGatewayOpacity": 0.1205,
+        "returnedOldFrames": 19
+      }
+    },
+    "portrait": {
+      "tick498": {
+        "originalGatewayOpacity": 0.9845,
+        "returnedOldFrames": 11
+      },
+      "tick516": {
+        "originalGatewayOpacity": 0.9595,
+        "returnedOldFrames": 21
+      },
+      "tick538": {
+        "originalGpuGateway": "absent after near-opaque old frame"
+      }
+    }
+  },
+  "fault": "Old-room 30-return forced retirement can cut a nearly opaque old gateway before the far-side-only 15-frame/1.65s fade has even begun. Native portrait tick516 still has 95.95% gateway opacity but tick538 has no retained original GPU gate; first visible total scene swap approximately 29s.",
+  "implemented": "Grounded authentic F9 roof exit can start fade after guardian HP0, true full-body clearance and separately returned nonzero successor shaft; same original gate/roof/core/gallery fade all share the earned receipt. The fade retains fifteen real returned frame requirement but fits .80s actual returned display time before the 30-return historical GPU ownership ceiling.",
+  "newProductionSourceSha": null,
+  "reviewerCounts": {
+    "LOOKS": 0,
+    "FEELS": 0,
+    "PLAYS": 0
+  },
+  "hardwarePerformance": "NOT EVALUATED",
+  "freshCaptureStatus": "NOT YET CAPTURED",
+  "ciStatus": "NOT YET EVALUATED",
+  "nextAction": "Source-pin and inspect both new 60+s native danger films; verify no abrupt original-gateway disappearance, render-stage temporal match and exact-head CI. If visual discontinuity remains, adjust World/scene ownership as one system, not decorative patches.",
+  "safety": "No simulation, guardian, platforms, collision, PR58, frozen baseline or unrelated games changed."
+}
