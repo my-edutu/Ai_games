@@ -31,6 +31,7 @@ test('enemy health fill stays correctly layered and actual combat damage has a l
   const { createTowerGuardianCircuit, observedGuardianCircuit, observedGuardianLockStage } = await import(url('public/infinite-tower-climb/visuals/guardian-circuit.mjs'));
   const { observedGuardianPassage, observedUnlockedGuardianCap, createTowerGuardianPassage } = await import(url('public/infinite-tower-climb/visuals/guardian-passage.mjs'));
   let callback, renderedScene, renderedCamera;
+  const sceneErrors=[];
   class Renderer {
     constructor() { this.shadowMap = {}; this.xr = {}; this.info = { render: {}, memory: {}, programs: [] }; }
     setSize() {} setPixelRatio() {} dispose() {} setRenderTarget() {}
@@ -48,7 +49,7 @@ test('enemy health fill stays correctly layered and actual combat damage has a l
     innerWidth: 960, devicePixelRatio: 1, performance: { now: () => 100 },
     document: { visibilityState: 'visible', addEventListener() {}, removeEventListener() {} },
     addEventListener() {}, removeEventListener() {}, ResizeObserver: class { observe() {} disconnect() {} },
-    requestAnimationFrame: fn => { callback = fn; return 1; }, cancelAnimationFrame() {}, console: { warn() {}, error() {} },
+    requestAnimationFrame: fn => { callback = fn; return 1; }, cancelAnimationFrame() {}, console: { warn() {}, error(...args) { sceneErrors.push(args.map(value=>String(value?.stack || value)).join(' :: ')); } },
   };
   const sceneSource = fs.readFileSync(path.join(ROOT, 'public/infinite-tower-climb/visuals/scene.mjs'), 'utf8');
   fillMissingBindings(context, await shippedSceneNamedBindings(sceneSource));
@@ -65,6 +66,7 @@ test('enemy health fill stays correctly layered and actual combat damage has a l
     for (const health of [3, 1]) {
       view.accept({ snapshot: { ...snapshot, tick: 104 - health, revision: 104 - health, publicChecksum: `health-${health}`, enemies: [{ ...snapshot.enemies[0], health }] } });
       callback(100);
+      assert.ok(renderedScene,'The shipped scene must complete a real mocked WebGL submission before checking health: '+sceneErrors.join(' / '));
       const bar = renderedScene.children.find(object => object.isGroup && object.children.length === 2 && object.children.every(child => child.geometry?.type === 'PlaneGeometry'));
       assert.ok(bar, 'inspect the actual shipped health-bar meshes');
       const [background, fill] = bar.children, list = new WebGLRenderList();
