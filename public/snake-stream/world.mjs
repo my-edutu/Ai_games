@@ -289,9 +289,9 @@ export function sculptPlantedMasonrySeam(slab,width,height,edge,safeCrown){
   const wave=.5+.5*Math.sin(phase+.24*rooted);
   // Contact crowns retain the original <= .062 safe inset. Low sidewalls can
   // wander farther into physical loam without ever excavating a body footprint.
-  const recess=safeCrown ? .024+.038*wave : .13+.138*wave+.055*forest*rooted;
-  const drift=(safeCrown?.058:.108)*Math.sin(phase*1.71+1.13)
-    +(safeCrown?.013:.052)*rooted*Math.sin(phase*.87+forest*2.5);
+  const recess=safeCrown ? .020+.012*wave : .13+.138*wave+.055*forest*rooted;
+  const drift=(safeCrown?.028:.108)*Math.sin(phase*1.71+1.13)
+    +(safeCrown?.007:.052)*rooted*Math.sin(phase*.87+forest*2.5);
   const rise=.0055*Math.sin(phase+1.4);
   return {recess,drift,rise};
 }
@@ -317,7 +317,7 @@ export function planCohesiveRuinsPaving(width,height){
  // Every original integer gameplay cell is still covered by ONE physical
  // stone; this partition is never consulted by the autonomous simulation.
  const split=(x,z,w,h,depth)=>{
-   if(w<=6&&h<=4&&w*h<=18){
+   if(w<=8&&h<=5&&w*h<=36){
      // Small 8×8 arenas still need a few genuinely fractured minor stones,
      // not six identical monoliths; keep even their full cell coverage.
      if(width<=8&&height<=8&&plan.length===0&&w>=3&&h>=2){
@@ -325,8 +325,8 @@ export function planCohesiveRuinsPaving(width,height){
      }
      plan.push({x,z,w,h});return;
    }
-   const alongX=w>6 || (h<=4&&w>3) || (w>=h*1.48);
-   const alongZ=h>4 || (w<=6&&h>2) || (h>=w*1.48);
+   const alongX=w>8 || (h<=5&&w>4) || (w>=h*1.62);
+   const alongZ=h>5 || (w<=8&&h>3) || (h>=w*1.62);
    const vertical=alongX&&!alongZ?true:alongZ&&!alongX?false:hash(x+depth,z,13)>.50;
    const length=vertical?w:h;
    if(length<=1){plan.push({x,z,w,h});return;}
@@ -336,6 +336,15 @@ export function planCohesiveRuinsPaving(width,height){
    else{split(x,z,w,cut,depth+1);split(x,z+cut,w,h-cut,depth+1);}
  };
  split(0,0,width,height,0);
+ // The limestone is native contiguous land, not a flat repeated checkerboard.
+ // Retain a few smaller broken blocks at the outer lip of large stages;
+ // do not introduce a new physical collider or change authoritative cells.
+ if(width>=20&&!plan.some(s=>s.w<=2)) {
+   const index=plan.findIndex(s=>s.w>=5&&s.h>=3);
+   if(index>=0){const slab=plan[index];plan.splice(index,1,
+     {x:slab.x,z:slab.z,w:2,h:slab.h},
+     {x:slab.x+2,z:slab.z,w:slab.w-2,h:slab.h});}
+ }
  return plan;
 }
 
@@ -1549,7 +1558,7 @@ export function createWorld(THREE, {width, height}) {
     add(tile,tileMat,
       slab.x+(slab.w-1)/2-(width-1)/2,-.105,
       slab.z+(slab.h-1)/2-(height-1)/2,
-      slab.w-.09,.21,slab.h-.09,0,0,0,paint,slab);
+      slab.w-.056,.21,slab.h-.056,0,0,0,paint,slab);
   }
   // T1 physical island silhouette. Reuse BOTH original static cliff/moss
   // batches and original stone/moss materials: no additional WebGL pass,
@@ -1834,8 +1843,8 @@ export function createWorld(THREE, {width, height}) {
             // 3D stone lips do not leak into the adjacent gameplay cell.
             const corner=(px>0?1:0)+(pz>0?2:0);
             const stone=sculptWeatheredRuinsCorner(region,width,height,corner);
-            const carveX=safeCrown?Math.min(.048,stone.insetX*.32):stone.insetX;
-            const carveZ=safeCrown?Math.min(.048,stone.insetZ*.32):stone.insetZ;
+            const carveX=safeCrown?Math.min(.028,stone.insetX*.19):stone.insetX;
+            const carveZ=safeCrown?Math.min(.028,stone.insetZ*.19):stone.insetZ;
             positionTemp.x+=(px>0?-carveX:carveX);
             positionTemp.z+=(pz>0?-carveZ:carveZ);
             positionTemp.y+=stone.rise;
