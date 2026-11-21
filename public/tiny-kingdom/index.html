@@ -14991,15 +14991,130 @@ function rotateOriginalCourierCartVertices(vertices,start,x,z,angle){
  }
  return (vertices.length-start)/10;
 }
+// W512 Phase 1: retain the ACTUAL freight cart's immutable body/rims/load
+// per legitimate escrowed trip. Only the ten real rolling spokes are emitted
+// from the changing travelled distance. Reuse is strictly presentation-only:
+// every frame still places all vertices at the worker's current route position
+// and wheel angle. No VBO/actor bypass, hidden cart, invented job or stock.
+const ORIGINAL_CART_TEMPLATE_MAX_ENTRIES=12;
+const ORIGINAL_CART_TEMPLATE_MAX_FLOATS=120000;
+const originalCartTemplates=new Map();
+let originalCartTemplateFloats=0,originalCartTemplateBuilds=0,
+ originalCartTemplateReuses=0,originalCartTemplateEvictions=0,
+ originalCartTemplateFallbacks=0,originalCartTemplateRollingFrames=0,
+ originalCartTemplateOverride=null;
+function setOriginalCourierCartTemplateForTesting(value){
+ if(value!==null&&value!==true&&value!==false)
+  throw Error('W512 original freight template override must be boolean or null');
+ originalCartTemplateOverride=value;
+ originalCartTemplates.clear();originalCartTemplateFloats=0;
+ cameraDynamicCache=null;cameraActorCache=null;cameraDynamicKey='';
+ lastFrozenFrameKey=null;presentationEpoch++;
+ return value!==false;
+}
+function getOriginalCourierCartTemplateAudit(){
+ return {source:'real-escrowed-road-cart-original-relative-mesh',
+  enabled:gpuAvailable&&originalCartTemplateOverride!==false,
+  entries:originalCartTemplates.size,maxEntries:ORIGINAL_CART_TEMPLATE_MAX_ENTRIES,
+  floats:originalCartTemplateFloats,maxFloats:ORIGINAL_CART_TEMPLATE_MAX_FLOATS,
+  bytes:originalCartTemplateFloats*4,builds:originalCartTemplateBuilds,
+  reuses:originalCartTemplateReuses,evictions:originalCartTemplateEvictions,
+  fallbacks:originalCartTemplateFallbacks,rollingFrames:originalCartTemplateRollingFrames,
+  economyMutated:false,simulationChanged:false,physicalGpuFps:'NOT MEASURED'};
+}
+function realCourierCartTemplate(p,size){
+ if(!gpuAvailable||originalCartTemplateOverride===false)return null;
+ const load=getCourierLoadPresentation(p);
+ if(!load||!load.escrowed||load.stage!=='travel')return null;
+ const key=[p.name,load.id,load.resource,load.amount,
+  load.visibleBundles,p.job,size].join('|');
+ const existing=originalCartTemplates.get(key);
+ if(existing){
+  originalCartTemplates.delete(key);originalCartTemplates.set(key,existing);
+  originalCartTemplateReuses++;
+  return existing;
+ }
+ // Building at the origin preserves precisely the original cart dimensions,
+ // plank/joint materials, sack count, rotating wheel rims and rig grip anchors.
+ // Never mutate the authoritative courier or leak the temporary mesh into
+ // either the world stream or the reusable live actor buffer.
+ const prior=data,previousWheels=compactCitizenAnimation.lastAnimatedCartWheels;
+ let mesh;
+ data=[];
+ try{
+  emitStreetCargo(p,0,0,0,size,true);
+  mesh=new Float32Array(data);
+ }finally{
+  data=prior;
+  compactCitizenAnimation.lastAnimatedCartWheels=previousWheels;
+ }
+ if(mesh.length%30!==0||mesh.length===0||
+    mesh.length>ORIGINAL_CART_TEMPLATE_MAX_FLOATS){
+  originalCartTemplateFallbacks++;
+  return null;
+ }
+ while(originalCartTemplates.size>=ORIGINAL_CART_TEMPLATE_MAX_ENTRIES||
+  originalCartTemplateFloats+mesh.length>ORIGINAL_CART_TEMPLATE_MAX_FLOATS){
+  const oldest=originalCartTemplates.keys().next().value;
+  if(oldest===undefined)break;
+  const retired=originalCartTemplates.get(oldest);
+  originalCartTemplateFloats-=retired.length;
+  originalCartTemplates.delete(oldest);originalCartTemplateEvictions++;
+ }
+ originalCartTemplates.set(key,mesh);originalCartTemplateFloats+=mesh.length;
+ originalCartTemplateBuilds++;
+ return mesh;
+}
+function appendOriginalCourierCartTemplate(mesh,x,y,z,angle){
+ const co=Math.cos(angle),si=Math.sin(angle),before=data.length;
+ for(let i=0;i<mesh.length;i+=10){
+  const nx=mesh[i+3],ny=mesh[i+4],nz=mesh[i+5];
+  const mag=Math.hypot(nx,ny,nz)||1;
+  data.push(x+co*mesh[i]+si*mesh[i+2],
+   y+mesh[i+1],z-si*mesh[i]+co*mesh[i+2],
+   (co*nx+si*nz)/mag,ny/mag,(-si*nx+co*nz)/mag,
+   mesh[i+6],mesh[i+7],mesh[i+8],mesh[i+9]);
+ }
+ return (data.length-before)/10;
+}
+function renderRealCourierRollingSpokes(p,x,y,z,size,angle){
+ const begin=data.length,cy=y+.27*size,cz=z-.72*size;
+ const travelled=courierWheelTrails.get(p.delivery.id)?.distance||0;
+ const wheelAngle=travelled/(CART_WHEEL_RADIUS*size);
+ materialScope(MATERIAL.WOOD,()=>{
+  for(const side of [-1,1]){
+   const wx=x+side*.455*size,wz=cz-.075*size,wy=y+.22*size;
+   const wheelPoint=(radius,a,axial=0)=>[
+    wx+side*axial*size,wy+Math.cos(a)*radius*size,
+    wz+Math.sin(a)*radius*size];
+   for(let spoke=0;spoke<5;spoke++){
+    const a=wheelAngle+spoke*Math.PI*2/5;
+    limbSegment(wheelPoint(.040,a,side*.075),
+     wheelPoint(.170,a,side*.075),.021*size,rgb(0xb49364),3);
+   }
+  }
+ });
+ return rotateOriginalCourierCartVertices(data,begin,x,z,angle);
+}
 function renderOriginalLiveCourierCart(p,compact=false){
  if(!isLoadedCourierOnRoad(p)||!p.delivery?.escrowed)return 0;
  const i=people.indexOf(p);
  if(i<0)throw Error('W509 unknown real courier');
  const x=p.x,z=p.z,y=terrain(x,z),size=.92+(i%5)*.045,
   first=data.length,rig=citizenRigPose(p);
- emitStreetCargo(p,x,y,z,size);
  const focus=compact?(p.path?.length?p.path[0]:p.target):rig.acting.focus;
  const angle=focus?Math.atan2(focus[0]-x,focus[1]-z):0;
+ const template=realCourierCartTemplate(p,size);
+ if(template){
+  appendOriginalCourierCartTemplate(template,x,y,z,angle);
+  renderRealCourierRollingSpokes(p,x,y,z,size,angle);
+  compactCitizenAnimation.lastAnimatedCartWheels+=2;
+  originalCartTemplateRollingFrames++;
+  return (data.length-first)/10;
+ }
+ // The complete ORIGINAL path is preserved for software allocation limits,
+ // unsupported GPU, physical unloading, and explicit test rollback.
+ emitStreetCargo(p,x,y,z,size);
  return rotateOriginalCourierCartVertices(data,first,x,z,angle);
 }
 function villager(p,omitLiveCart=false){const vertexStart=data.length;let x=p.x,z=p.z,y=terrain(x,z),u=p.phase,idx=Math.max(0,people.indexOf(p)),size=.92+(idx%5)*.045;let c=medievalCitizenIdentity(p,idx).wool,skin=rgb([0xd5a781,0x95654b,0xefc19c,0xbe8968,0x9a6a48][(idx+names.length)%5]),hair=rgb([0x4c3228,0x342f29,0x8b633f,0x664b36,0xa18b65][(idx+4)%5]);const busy=isWorkingAtSite(p)||isMarketUnloading(p)||isLoadedCourierOnRoad(p);let pace=p.activity.includes('Traveling')||p.activity.includes('Explor')||p.activity==='Returning home at dusk'?1:.23,step=Math.sin(u*2.7)*.21*pace;
@@ -23813,7 +23928,7 @@ function getCourierLoadPresentation(workerName){
   bodyPackVisible:!unloading||progress<.58,
   altersAuthority:false};
 }
-function emitStreetCargo(p,x,y,z,size){
+function emitStreetCargo(p,x,y,z,size,omitAnimatedSpokes=false){
  const cargo=p.delivery||streetCargoWitness(p);
  const unloading=isMarketUnloading(p);
  const actualLoad=p.delivery?getCourierLoadPresentation(p):null;
@@ -23874,7 +23989,7 @@ function emitStreetCargo(p,x,y,z,size){
      quad(wheelPoint(.21,a,-.058),wheelPoint(.21,b,-.058),
       wheelPoint(.21,b,.058),wheelPoint(.21,a,.058),iron);
     }
-    for(let spoke=0;spoke<5;spoke++){
+    if(!omitAnimatedSpokes)for(let spoke=0;spoke<5;spoke++){
      const a=wheelAngle+spoke*Math.PI*2/5;
      limbSegment(wheelPoint(.040,a,side*.075),
       wheelPoint(.170,a,side*.075),.021*size,spokeOak,3);
@@ -36255,7 +36370,7 @@ drawForegroundResidentMesh();
  getFaceTopologyCacheAudit,getSimulationTickDebtAudit,
  getRestingActorResidencyAudit,getResidentCommuterAudit,getActorPresentationCoverageAudit,getWorkingResidentAudit,
  getWorkingSkinAudit,getWorkSkinPaletteAudit,getResidentGpuDistrictAudit,setWorkingSkinEnabledForTesting,
- getForegroundResidentAudit,getForegroundSkinAudit,getOriginalLiveCourierSkinAudit,setForegroundResidentEnabledForTesting,
+ getForegroundResidentAudit,getForegroundSkinAudit,getOriginalLiveCourierSkinAudit,getOriginalCourierCartTemplateAudit,setOriginalCourierCartTemplateForTesting,setForegroundResidentEnabledForTesting,
  getSocialEncounterAudit:()=>cloneData(getSocialEncounterAudit()),
  getWorkIntentMemoAudit:()=>cloneData(getWorkIntentMemoAudit()),
  getRealWorksiteFrameAudit:()=>cloneData(getRealWorksiteFrameAudit()),
