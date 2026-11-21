@@ -70,6 +70,38 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
      seed:initial.snapshot.checksum,...observed,
      hardwareFps:'NOT MEASURED'},null,2));
    const actualFrame=await page.screenshot();
+   // Independent raster-level gate from genuine WebGL footage. W520's
+   // 2/2 green browser test filmed 99.99% neutral grey roof/plaster pixels
+   // in its desktop scene crop; valid W518 Day1 overview showed real green.
+   // Never substitute synthetic images, camera audit flags or 3D sketches.
+   const actualPixels=await page.evaluate(async base64=>{
+    const bytes=Uint8Array.from(atob(base64),ch=>ch.charCodeAt(0));
+    const bitmap=await createImageBitmap(new Blob([bytes],{type:'image/png'}));
+    const scratch=document.createElement('canvas');
+    scratch.width=bitmap.width;scratch.height=bitmap.height;
+    const ctx=scratch.getContext('2d',{willReadFrequently:true});
+    ctx.drawImage(bitmap,0,0);
+    const left=Math.floor(bitmap.width*.14),top=Math.floor(bitmap.height*.2);
+    const width=Math.floor(bitmap.width*.72),height=Math.floor(bitmap.height*.63);
+    const data=ctx.getImageData(left,top,width,height).data;
+    let total=0,green=0,neutral=0;
+    for(let y=0;y<height;y+=5)for(let x=0;x<width;x+=5){
+     const i=(y*width+x)*4,r=data[i],g=data[i+1],b=data[i+2];
+     total++;
+     if(g>r*1.06&&g>b*1.045&&g>35&&g<220)green++;
+     if(Math.max(r,g,b)-Math.min(r,g,b)<25)neutral++;
+    }
+    bitmap.close();
+    return {sampled:total,greenFraction:green/total,
+     neutralFraction:neutral/total};
+   },actualFrame.toString('base64'));
+   observed.actualScreenPixels=actualPixels;
+   // Spring founding footage MUST show original exterior vegetation/town,
+   // not the grey roof that filled the genuine predecessor screenshots.
+   if(day===1){
+    expect(actualPixels.greenFraction).toBeGreaterThan(.12);
+    expect(actualPixels.neutralFraction).toBeLessThan(.90);
+   }
    fs.writeFileSync(path.join(evidenceDirectory,'day-'+day+'.png'),actualFrame);
    await info.attach('real-day-'+day+'-'+viewport.width,{
     body:actualFrame,contentType:'image/png'});
@@ -83,6 +115,7 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    expect(observed.physical.centralTownRayClear).toBe(true);
    expect(observed.physical.centralTownBlockers).toBe(0);
    expect(observed.physical.nearRoofDominance).toBeLessThan(.78);
+   expect(observed.physical.screenDominantBuilding).toBeLessThan(.40);
    expect(observed.scene).toBeGreaterThan(0);
    expect(observed.scene).toBeLessThan(160000);
    expect(observed.webglError).toBe(0);

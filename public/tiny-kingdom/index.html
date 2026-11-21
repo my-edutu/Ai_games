@@ -30803,6 +30803,53 @@ function freeCameraEyeClear(eye,volumes){
  }
  return true;
 }
+// W521: unlike a single clear town ray, sample the physical building footprint
+// on the ACTUAL WebGL camera frustum. This is only evaluated after a human
+// camera gesture or authentic town construction; never on each drawn frame.
+// The occupied 3D houses stay fully visible and the simulation stays unchanged.
+function nearBuildingScreenCoverage(view,volumes,eye,aim){
+ const diff=aim.map((v,i)=>v-eye[i]),length=Math.hypot(...diff)||1;
+ const forward=diff.map(v=>v/length),flat=Math.hypot(forward[0],forward[2])||1;
+ const right=[-forward[2]/flat,0,forward[0]/flat];
+ const up=[-forward[0]*forward[1]/flat,flat,
+  -forward[2]*forward[1]/flat];
+ const optics=physicalCameraProjection(),screens=[-.82,-.41,0,.41,.82];
+ const solids=volumes.filter(v=>WORKDAY_SOLID_BUILDING_KINDS.has(v.kind)||
+  v.kind==='street-shop');
+ const bounds=solids.map(v=>{
+  const low=v.visualBottom??v.bottom??(terrain(v.x,v.z)-.22);
+  return [v.x-v.rx-.18,v.x+v.rx+.18,low-.10,v.top+.16,
+   v.z-v.rz-.18,v.z+v.rz+.18];
+ });
+ const maxDepth=Math.min(38,Math.max(9,view.zoom*1.12));
+ const counts=new Map();let occupied=0;
+ for(const sy of screens)for(const sx of screens){
+  const direction=[
+   forward[0]+right[0]*sx*optics.tanHorizontal+up[0]*sy*optics.tanVertical,
+   forward[1]+right[1]*sx*optics.tanHorizontal+up[1]*sy*optics.tanVertical,
+   forward[2]+right[2]*sx*optics.tanHorizontal+up[2]*sy*optics.tanVertical];
+  let nearest=maxDepth+1,chosen=-1;
+  for(let i=0;i<bounds.length;i++){
+   const box=bounds[i];let entry=.12,exit=maxDepth;
+   for(let axis=0;axis<3;axis++){
+    const d=direction[axis],origin=eye[axis],
+     lo=box[axis*2],hi=box[axis*2+1];
+    if(Math.abs(d)<1e-8){
+     if(origin<lo||origin>hi){entry=Infinity;break}
+     continue;
+    }
+    let a=(lo-origin)/d,b=(hi-origin)/d;
+    if(a>b){const swap=a;a=b;b=swap}
+    entry=Math.max(entry,a);exit=Math.min(exit,b);
+    if(entry>exit)break;
+   }
+   if(entry<=exit&&entry<nearest){nearest=entry;chosen=i}
+  }
+  if(chosen>=0){occupied++;counts.set(chosen,(counts.get(chosen)||0)+1)}
+ }
+ return {dominant:Math.max(0,...counts.values())/25,
+  occupiedFraction:occupied/25,samples:25,solidVolumes:solids.length};
+}
 // W297: Day-121 1024/390 east footage exposed camera inside solid roof.
 // Keep actual full 3D town; physically recover the spectator eye instead.
 let freeCameraSightlineChecks=0;
@@ -30827,15 +30874,20 @@ function freeCameraSightline(view,volumes){
    centralTownRayClear:false,centralTownBlockers:nearBlockers,
    nearRoofDominance:1,foregroundSceneCover:1,dominantCover:1};
  const scene=foregroundSceneProjection(eye,aim,volumes);
+ const screenBuilding=nearBuildingScreenCoverage(view,volumes,eye,aim);
  const foregroundSceneCover=scene.cover,dominantCover=scene.largest;
  // Genuine opaque buildings may not consume the entire 3D town frame.
  const nearRoofDominance=Math.max(dominantCover,scene.buildingCover*.72);
  const clear=Number.isFinite(foregroundSceneCover)&&
   Number.isFinite(dominantCover)&&nearRoofDominance<.78&&
+  screenBuilding.dominant<.40&&
   !(dominantCover>=.70&&foregroundSceneCover>=.82);
  return {clear,eye,eyeClear:true,nearBlockers,
   centralTownRayClear:true,centralTownBlockers:0,
-  nearRoofDominance,foregroundSceneCover,dominantCover};
+  nearRoofDominance,foregroundSceneCover,dominantCover,
+  screenDominantBuilding:screenBuilding.dominant,
+  screenOccupiedByBuildings:screenBuilding.occupiedFraction,
+  screenSampleCount:screenBuilding.samples};
 }
 function safeFreeOrbit(a,t,z,f=focusPoint){
  if(![a,t,z,...f].every(Number.isFinite))return null;
