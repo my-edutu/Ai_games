@@ -5596,6 +5596,24 @@ export function createTowerWorld(){
       ?deferredDistantArrival.structuralRoot:sourceEarnedBearingSightlineRoot;
     if(incoming?.isGroup && incoming.visible!==false &&
        incoming!==architectureRoots[0])architectureRoots.push(incoming);
+    // The original F8 central drum/crown/ribs now survive physical crossing.
+    // Previously this same 3D old core was ABSENT from the F9 full-body and
+    // real gateway camera ray tests, despite actually rendering in foreground.
+    // The original geometry, parent and source opacity must all be certified.
+    // Reuse the nine existing silhouette rays; no invented obstacle or actor.
+    const historicalCore=held.originalCoreOwner?.root;
+    if(historicalCore?.isGroup===true &&
+       historicalCore.name==='SourceOriginalClockworkCentralCore' &&
+       historicalCore.parent===held.root &&
+       historicalCore.visible!==false &&
+       held.oldCapId==='f8:cap' &&
+       Number.isSafeInteger(held.originalCoreOwner.meshCount) &&
+       held.originalCoreOwner.meshCount>0 &&
+       Number.isFinite(held.originalCoreOpacity) &&
+       held.originalCoreOpacity>.055 && held.originalCoreOpacity<=1 &&
+       architectureRoots.length<=2 &&
+       !architectureRoots.includes(historicalCore))
+      architectureRoots.push(historicalCore);
     const exactRayQuery=()=>measureAuthoritativeDeckSightline({
       source,held,camera,body,bodyHalfHeight,gate,platformRoots:roots,
       architectureRoots,originalGateRoot:held.originalGateRoot,
@@ -5614,7 +5632,7 @@ export function createTowerWorld(){
     // Source, exact camera, source-owned material epochs and landing are all
     // essential: a similar but different camera never borrows another ray.
     const key=JSON.stringify([source.runToken,source.tick,landingId,
-      held.originalGatewayOpacity,held.originalGallerySourceOpacity,
+      held.originalGatewayOpacity,held.originalGallerySourceOpacity,held.originalCoreOpacity,
       ...coordinates]);
     return successorSightlineMemo.read(key,exactRayQuery);
   }

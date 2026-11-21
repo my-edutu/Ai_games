@@ -83,7 +83,19 @@ export function measureAuthoritativeDeckSightline({
       !finite(held.originalGallerySourceOpacity) ||
       held.originalGallerySourceOpacity<0 ||
       held.originalGallerySourceOpacity>1)) ||
-    !Array.isArray(architectureRoots) || architectureRoots.length>2 ||
+    // Third owner is allowed ONLY when it is the original source-owned F8
+    // central steel, already moved with the true defeated-guardian gateway.
+    // Existing source-less/synthetic first-F9 camera probes stay capped at 2.
+    !Array.isArray(architectureRoots) || architectureRoots.length>3 ||
+    (architectureRoots.length===3 && !architectureRoots.some(root=>
+      root===held.originalCoreOwner?.root &&
+      root?.name==='SourceOriginalClockworkCentralCore' &&
+      root.parent===held.root &&
+      held.oldCapId==='f8:cap' &&
+      Number.isSafeInteger(held.originalCoreOwner.meshCount) &&
+      held.originalCoreOwner.meshCount>0 &&
+      finite(held.originalCoreOpacity) &&
+      held.originalCoreOpacity>.055 && held.originalCoreOpacity<=1)) ||
     !architectureRoots.every(root=>root?.isGroup &&
       root!==originalGateRoot && root!==originalCapRoot &&
       root!==originalGalleryRoot && !platformRoots.includes(root)) ||

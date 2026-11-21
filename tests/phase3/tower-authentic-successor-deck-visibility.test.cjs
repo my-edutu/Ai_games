@@ -496,3 +496,51 @@ test('exact-source F9 outer and inner nonwalkable skins clear together when ONE 
     }finally{for(const resource of resources)resource.dispose();}
   }
 });
+
+test('source-original central Clockwork core is a separate true camera occluder in both recorded viewports',async()=>{
+  const THREE=await three;
+  const {measureAuthoritativeDeckSightline}=await loaded;
+  for(const aspect of [960/600,390/844]){
+    const f=fixture(THREE);f.measure=measureAuthoritativeDeckSightline;
+    f.roof.children[0].position.x=100;
+    f.held.oldCapId='f8:cap';
+    const owner=new THREE.Group(),core=new THREE.Group();
+    core.name='SourceOriginalClockworkCentralCore';owner.add(core);
+    const geometry=new THREE.BoxGeometry(2.5,4,1.2);
+    const steel=new THREE.MeshStandardMaterial({color:0x947458});
+    const beam=new THREE.Mesh(geometry,steel);
+    beam.position.set(0,2,2.4);core.add(beam);
+    f.held.root=owner;f.held.originalCoreOwner={root:core,meshCount:1};
+    f.held.originalCoreOpacity=1;
+    const input=JSON.stringify(f.source);
+    const a=new THREE.Group(),b=new THREE.Group();
+    try{
+      const clear=sample(f,[0,2,6],[0,2,0],{architectureRoots:[a,b]});
+      assert.equal(clear.bodyBlockedRays,0);
+      const real=sample(f,[0,2,6],[0,2,0],{architectureRoots:[a,b,core]});
+      assert.equal(real.active,true);
+      assert.ok(real.bodyBlockedRays>0);
+      assert.ok(real.architectureBlockedRays>0);
+      assert.equal(real.rays,9);
+      const exterior=sample(f,[10,3,6],[0,2,0],{architectureRoots:[a,b,core]});
+      assert.ok(exterior.score<real.score);
+      steel.transparent=true;steel.opacity=0;
+      assert.equal(sample(f,[0,2,6],[0,2,0],{architectureRoots:[a,b,core]}).score,0);
+      steel.transparent=false;steel.opacity=1;
+      core.visible=false;
+      assert.equal(sample(f,[0,2,6],[0,2,0],{architectureRoots:[a,b,core]}).score,0);
+      core.visible=true;
+      assert.equal(sample(f,[0,2,6],[0,2,0],{architectureRoots:[a,b,new THREE.Group()]}),null);
+      assert.equal(sample(f,[0,2,6],[0,2,0],{architectureRoots:[a,b,core],source:{...f.source,runToken:'fake'}}),null);
+      assert.equal(JSON.stringify(f.source),input);
+    }finally{geometry.dispose();steel.dispose();f.geometry.dispose();f.material.dispose();}
+  }
+});
+test('the actual first-F9 camera receives the original 3D source steel in its existing physical ray budget',()=>{
+ const fs=require('node:fs');
+ const world=fs.readFileSync(path.resolve(__dirname,
+  '../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
+ assert.match(world,/historicalCore=held\.originalCoreOwner\?\.root/);
+ assert.match(world,/architectureRoots\.push\(historicalCore\)/);
+ assert.match(world,/held\.originalCoreOpacity/);
+});
