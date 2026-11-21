@@ -3303,8 +3303,21 @@ test('source-loaded pelvis bridge uses authentic two-point walking shoe contact,
   model.indexOf('function auditSourceLoadedPelvisAfterLegs('));
  assert.match(finalPelvisStage,/requireWorldXZ:true/,
   'both authentic source shoes need world-XZ proof before accepting final visual pelvis translation');
- assert.match(finalPelvisStage,/const hasSourceLegClaim=/,
-  'a leg claim cannot silently stack with a second full-body floor adjustment');
+ // This assertion was stale: the reviewed 6f0b128a controller intentionally
+ // permits ONE already measured licensed three-joint chain to transfer its
+ // exact original two-shoe evidence to a later pelvis-only Y trial.
+ // Competing ankle/toe/stance owners MUST still fail closed, and a connected
+ // source chain may not bypass independently re-skinned two-shoe XYZ proof.
+ assert.match(finalPelvisStage,/const otherSourceLegClaim=\['left','right'\]\.some\(side=>/,
+  'an unrelated same-frame original leg owner must prohibit pelvis stacking');
+ assert.match(finalPelvisStage,/if\(otherSourceLegClaim\|\|actor\.sourceSwingToeCorrectionsThisFrame>0\)return;/,
+  'competing original-source leg/toe owners must exit before any pelvis trial');
+ assert.match(finalPelvisStage,/const sourceChainCert=hasConnectedSource\?[\s\S]*?certifyLicensedSourcePostChainPelvisOpportunity\(/,
+  'one connected original source-leg owner requires an independent final-shoe certificate');
+ assert.match(finalPelvisStage,/if\(hasConnectedSource&&!sourceChainCert\)return;/,
+  'no connected-leg evidence handoff without an exact source clip/clone/soles certificate');
+ assert.match(finalPelvisStage,/sourceChainCert,\s*before,otherBefore/,
+  'the accepted original source-leg receipt must accompany the final physical audit');
 });
 
 
