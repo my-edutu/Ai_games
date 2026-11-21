@@ -1,4 +1,5 @@
 import { createFrameSightlineMemo } from './frame-sightline-memo.mjs';
+import { planVoidOpenDeckTruss } from './void-open-deck-truss.mjs';
 import { moveSourceOriginalClockworkCore, sourceOriginalClockworkCoreOpacity } from './source-original-clockwork-core-ownership.mjs';
 import * as THREE from '/tower/vendor/three.module.js';
 import { SCALE, ARC, angleFor, pointFor, guardianGateAnchorX, guardianTraversalGatePose, GUARDIAN_CAP_CORRIDOR } from './coordinates.mjs';
@@ -2745,10 +2746,42 @@ export function createTowerWorld(){
       'SourceOwnedF9NonWalkableInnerDeckSkirt');
     // The route is an engineered deck, not another monumental shelf. A slim
     // curved box beam, rolled edge and open rear webs leave the undercroft open.
-    const outerUnder=mesh(root,sector(22.45,27.05,angle,.48),
+    // One coherent structural change in the ACTUAL source-aligned Floor9
+    // elevated platforms. In normal-speed native footage the full annular
+    // skirts were a violet wall in front of the source-open bronze doorway.
+    // Preserve the untouched top above, all real platform colliders, and
+    // the same source-owned per-skirt camera ray materials. Remove only
+    // nonwalkable interior steel; connect real edge rails with triangulated
+    // supports. Each moving deck carries its own truss in the same root.
+    const openVoidUndercroft=theme==='void'
+      ?planVoidOpenDeckTruss(p,width,ARC):null;
+    const outerUnder=mesh(root,sector(
+        openVoidUndercroft?openVoidUndercroft.outerRail[0]:22.45,
+        openVoidUndercroft?openVoidUndercroft.outerRail[1]:27.05,
+        angle,openVoidUndercroft ? .22 : .48),
       outerUnderMaterial,[0,h-.64,0]);
-    const innerUnder=mesh(root,sector(22.5,26.97,angle,.10),
+    const innerUnder=mesh(root,sector(
+        openVoidUndercroft?openVoidUndercroft.innerRail[0]:22.5,
+        openVoidUndercroft?openVoidUndercroft.innerRail[1]:26.97,
+        angle,openVoidUndercroft ? .22 : .10),
       innerUnderMaterial,[0,h-.74,0]);
+    if(openVoidUndercroft){
+      for(const theta of openVoidUndercroft.anchors){
+        const radial=(r,y)=>[Math.sin(theta)*r,h+y,Math.cos(theta)*r];
+        const inner=radial(22.72,-.78);
+        const outer=radial(26.83,-.78);
+        const keel=radial(24.75,-1.66);
+        const cross=beam(root,inner,outer,.105,materials.dark);
+        cross.name='VoidOpenRaisedDeckTransverseTie';
+        cross.userData={nonColliding:true,structural:true};
+        const left=beam(root,inner,keel,.11,materials.metal);
+        const right=beam(root,keel,outer,.11,materials.metal);
+        for(const rib of [left,right]){
+          rib.name='VoidOpenRaisedDeckDiagonalLoadBrace';
+          rib.userData={nonColliding:true,structural:true};
+        }
+      }
+    }
     // Keep ONLY the genuine guardian-cap's two non-walkable bronze side
     // skirts as separate authored meshes. Ordinary decks still batch.
     // A later, source-authenticated Floor8->9 crossing can then clear
