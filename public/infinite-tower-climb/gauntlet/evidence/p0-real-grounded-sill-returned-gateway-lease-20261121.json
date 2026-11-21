@@ -140,8 +140,8 @@
     "nextHighestImpactAction": "Reopen P0 full-motion scene geometry/camera composition at real 25.50s-25.75s threshold: old F8 black gantry/open guardian arch and first genuine F9 wide circular roof / elevated moving decks pop from distinct architectural silhouettes despite retained GPU and camera projections. Correct shared in-camera physical ownership and hero legibility as a system; no more isolated static palette or distant upload changes. Before acceptance, capture true immutable exact-source normal-speed paired films and verify >=2 consecutive visible joined old gate+whole moving hero+source-walkable F9 roof frames in BOTH orientations, plus result/restart and device metrics.",
     "safety": "PR #58, frozen baseline ledger SHA/blob, unrelated games, merge, deploy, force-push and PR68 draft status unchanged."
   },
-  "currentProductionSourceSha": "b6773eaf223aaf374beb1cc42191ad351cd0bed8",
-  "currentEvidenceAndTestSourceSha": "d6d601a97805993f91babdbddbd9505459cf8f9b",
+  "currentProductionSourceSha": "52587c9b1780c8125825d29e29055a097069214c",
+  "currentEvidenceAndTestSourceSha": "52587c9b1780c8125825d29e29055a097069214c",
   "returnedGatewayTimebaseRepair20261121": {
     "status": "IMPLEMENTED, NEW EXACT-SOURCE VISUAL IMPROVEMENT NOT YET VERIFIED",
     "productionSha": "b6773eaf223aaf374beb1cc42191ad351cd0bed8",
@@ -198,5 +198,35 @@
     "readout": "Unedited native original WebMs sampled at 24.5–30.0s. A physical full-body avatar and real F9 receiving roof appear on both, with old copper superstructure still present; the earlier boss-room framing still abruptly changes to much larger F9 annulus and raised violet moving-platform foreground at the HUD change. The change did not clear joined-room native pixel/event-matched acceptance. Retained old gateway opacity differs across browser runs; do not attribute a quantitative improvement to the repair without matched hardware/sampling.",
     "actualSourceEvents": "Same immutable Floor8->9 crossing tick475 in both candidate source traces; full program progression/restart is source evidenced but not pixel/event certified",
     "criticalNextAction": "Rework gateway-to-raised-platform legibility through actual shared original F8 gate, F9 ground/upper-deck physical silhouette and the same camera, rather than independent tint or first-frame timing patches. Need source/native correspondence in desktop+portrait and 2+ consecutive truly joined original-gate/complete actor/actual roof frames."
+  },
+  "sourceOpenGuardianGatewayThreeSubject20261121": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "sourceCommitSha": "52587c9b1780c8125825d29e29055a097069214c",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenLedgerBlobSha": "7433d52ae1a7a75de51366a845375dda04ab87fa",
+    "largestObservedFullMotionDefect": "Prior original 1x candidate (production b6773eaf) native desktop and portrait danger films both failed source-event paired gateway continuity 0/2; huge immediate F9 raised-deck silhouette and original open portal/frame discontinuity 26.0-26.25s. Not evidence that this new geometry/camera candidate is visually improved.",
+    "genuinePlayableChange": "Original 3D source-aligned prepainted F8 guardian receiving-canopy now clears two vertical and angled legs straddling the source-authenticated exit, preserving four original outward supports, all five connected overhead tie spans and SAME retained F9 canopy owner. Same real World camera can also trial physically bounded near-shoulder viewpoints, ranking a larger original moving hero only while opened original gateway and actual walkable roof remain legible, and unchanged complete source-owned Three.js physical ray vetoes reject blocked/cropped candidates.",
+    "changedPaths": [
+      "public/infinite-tower-climb/visuals/source-physical-receiving-roof.mjs",
+      "public/infinite-tower-climb/visuals/world.mjs",
+      "public/infinite-tower-climb/visuals/physical-threshold-shot.mjs",
+      "public/infinite-tower-climb/visuals/scene.mjs",
+      "tests/phase3/tower-original-receiving-roof-join.test.cjs",
+      "tests/phase3/tower-physical-crossfloor-three-subject-shot.test.cjs"
+    ],
+    "safety": "No source simulation, collisions, guardian reward, moving decks, seed, baseline, restart, PR58, merge, deployment, force-push or PR68 draft-state change. Only noncolliding original 3D canopy and physically vetted original camera.",
+    "baselineCandidateCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44905405068",
+    "sourcePinnedCaptureAtRecord": "IN PROGRESS; actual original normal-speed paired 60s+ videos, native event alignment and visual comparison NOT YET VERIFIED",
+    "exactCodeQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44905405022",
+    "exactHeadQualityAtRecord": "8/10 jobs completed SUCCESS; Phase3 shard1 later SUCCESS; remaining Phase6 ongoing. Do not claim all green until exact source workflow completes.",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "realSupportedDeviceFrameTimeP50P95P99": "NOT EVALUATED",
+    "realSupportedDeviceMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Inspect the NEW exact-SHA candidate native full-motion desktop 960x600 + portrait 390x844 danger/outcome clips from run 44905405068 and align true source tick 441 guardian defeat/475 walkable threshold/631 F10/903 outcome and restart to decoded video. Require 2+ consecutive native frames with physically recognizable original opened gate + COMPLETE moving hero + true f9:ground roof/first elevated destination in both. If fails, rework actual raised F9 p2 underside geometry and old-to-new camera depth instead of further color or duration tweaks; do not advance P1."
   }
 }
