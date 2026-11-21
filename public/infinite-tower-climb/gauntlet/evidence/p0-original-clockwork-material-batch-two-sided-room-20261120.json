@@ -388,5 +388,59 @@
     "actualDeviceMemory": "NOT EVALUATED",
     "nextAction": "Primary gap remains physical old-room/new-shaft visibility and original HP0 gateway through cold F9. Inspect camera and world scene transition as ONE architectural composition at real returned frames, then source-pin new normal-speed film. Current low shader performance hypothesis yielded lower hosted first-return costs but NO event-matched native crossing gain. Do not graduate P0.",
     "constraints": "PR58 unchanged, PR68 open DRAFT, frozen baseline blob unchanged, no merge/deploy/force-push/unrelated games"
+  },
+  "followupEvidence20261121_0733": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH",
+    "verdict": "NOT EVALUATED",
+    "observedStartingHead": "d7a570d1b000ab18766073a72df6b5de6ca5785c",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "newProductionHead": "e2e8f08320e9d1ce4b5786f2c6a5c2db85391e93",
+    "oldSourcePinnedCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44872003297",
+    "inspectedOriginalArtifact": "tower-motion-candidate-danger-44872003297 / GitHub Actions artifact 14694134645",
+    "originalDangerNativeFilm": {
+      "desktop": {
+        "sha256": "e90b23b355ba1f14ba9a8618e0f11f06096efda3eec0842c4a1612060c635b74",
+        "durationSeconds": 72.4,
+        "viewport": "960x600",
+        "firstDrawnF9HUDSeconds": 25.75,
+        "sustainedVioletSeconds": 27.5,
+        "visibleWarmCoolBridgeSeconds": 0,
+        "firstBrowserToRendererReturnMs": 604
+      },
+      "portrait": {
+        "sha256": "0350bbca72c781147641ef4929adc769c36bcede46b2058bbc86dab6d6eda11e",
+        "durationSeconds": 72.96,
+        "viewport": "390x844",
+        "firstDrawnF9HUDSeconds": 26.25,
+        "sustainedVioletSeconds": 28.5,
+        "visibleWarmCoolBridgeSeconds": 0,
+        "firstBrowserToRendererReturnMs": 491
+      }
+    },
+    "inspectedFrames": "Unedited original 25fps real-game danger WebM at 24.0–30.5 seconds in 0.5-second intervals; verified the file SHA-256 and durations against native scene-phase sidecars",
+    "observedPrimaryDefect": "F9 HUD/physical source advance arrives while source-original bronze gateway/roof remains on screen, yet the newly partitioned ACTUAL successor roof's middle/successor top, steel edge and light trim used unconditional fixed .52/.91 Void interpolation. At the desktop 26.0s frame the same bronze room has a mostly violet underlip and roof edge; there is no sustained native shared-color phase in either viewport. The actual gate, complete hero and route have not passed an independently reviewed combined shot.",
+    "rootCauseBoundedToCode": "syncGatewayReceivingRoofColours(palette) in source-physical-receiving-roof.mjs always added 52% and 91% Void trim to authentic F9 roof bands even when updateOriginalClockworkSuccessorRoute and the returned original gateway were fully bronze. No current-source optical progress entered that material operation.",
+    "focusedTestRedCommit": "b63a5ca928656442c22ce978535347eb15695dcc",
+    "redTestStatus": "Regression added with expected old-code failure, but no observed RED test execution at documentation time; no fabricated test pass/fail",
+    "productionCommits": [
+      "a8e24df89bfcf91e39b19b52e2101d6d30aa5b51",
+      "e2e8f08320e9d1ce4b5786f2c6a5c2db85391e93"
+    ],
+    "change": "All three actual walkable F9 roof color sectors and corresponding body, rim, lamp and emissive materials now use one existing source-certified old-room departure scalar, with first F9 build zero-reveal and retained original-deck old-opacity hold. No new gameplay geometry, platforms, victory, collider, fabricated crossing or new animation timer; fixed relative near-to-far destination readability remains.",
+    "newSourcePinnedQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44876876850",
+    "newSourcePinnedGameCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44876876843",
+    "newQualityStatusAtRecord": "PENDING — not a pass; previous source d7 quality 10/10, previous original capture strict native 0/2 failed",
+    "newCaptureStatusAtRecord": "QUEUED — no new native pixel improvement claim",
+    "independentFreshBlindReviews": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0,
+      "minimumCandidatePreferencesEach": "4/5"
+    },
+    "actualDeviceP50P95P99": "NOT EVALUATED",
+    "actualDeviceMemory": "NOT EVALUATED",
+    "strictNativePairedAcceptance": "NOT EVALUATED on changed production SHA; previous source-authentic native pairs FAILED 0/2",
+    "biggestRemainingSystemicGap": "F8 original opened metal, full-body moving hero and real walkable successor must coexist as coherent connected 3D room in event-aligned consecutive ORIGINAL desktop and portrait frames, not merely in 3D NDC or source-tick traces.",
+    "nextHighestImpactAction": "Inspect immutable e2e8f08 normal-speed candidate/baseline video in BOTH viewports and original source-event clocks. If roof trim is coherent but the native cut persists, fix the underlying old cap / cold Void shaft depth ownership and camera full-body+gateway shot rather than retune percentages. Maintain 0/5 independent reviews and P0 until actual acceptance."
   }
 }
