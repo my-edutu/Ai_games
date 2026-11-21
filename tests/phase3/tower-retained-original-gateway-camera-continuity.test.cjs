@@ -140,3 +140,23 @@ test('final real geometry occlusion rays use actual original gate WORLD pose, no
     'world ray receives genuine unmodified source-authentic 3D gate coordinates');
   assert.doesNotMatch(stage,/gatePoint\.project\(camera\)/);
 });
+
+test('final returned gate camera uses current immutable landing in animate, never update-local targetPlatform',()=>{
+  const s=fs.readFileSync(path.join(root,
+    'public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+  const animate=s.indexOf('function animate(now)');
+  const update=s.indexOf('function update(dt)');
+  const decision=s.indexOf('const actualGateSteel=',animate);
+  const render=s.indexOf('renderer.render(scene, camera);',decision);
+  assert.ok(update>=0&&update<animate&&animate<decision&&decision<render,
+    'inspect the true final rendered-camera decision rather than the update phase');
+  const actualRenderDecision=s.slice(decision,render);
+  assert.match(actualRenderDecision,
+    /const submittedLanding=actualGateSteel\?\.sourceBound===true\s*\?intendedLanding\(snapshot\):null/,
+    'landing must be resolved from this frame public simulation snapshot');
+  assert.match(actualRenderDecision,
+    /gatePoint,\s*submittedLanding\?\.id\?\?null\)/,
+    'actual successor platform occlusion receives only current landing identity');
+  assert.doesNotMatch(actualRenderDecision,/\btargetPlatform\b/,
+    'update-only targetPlatform was undefined in animate and crashed real F8->F9 footage');
+});
