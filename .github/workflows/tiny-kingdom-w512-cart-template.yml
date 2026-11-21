@@ -1,0 +1,50 @@
+name: Tiny Kingdom W512 Actual Cart Template and Freight Continuity
+on:
+  push:
+    branches:
+      - feat/tiny-kingdom-post-main-gauntlet-20261031
+    paths:
+      - public/tiny-kingdom/index.html
+      - tests/browser/tiny-kingdom-w512-courier-cart-template.spec.cjs
+      - .github/workflows/tiny-kingdom-w512-cart-template.yml
+  workflow_dispatch:
+jobs:
+  original-freight-a-b:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    env:
+      CI: "1"
+      LIBGL_ALWAYS_SOFTWARE: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Verify exact game-source predicates before browser capture
+        run: |
+          node - <<'NODE'
+          const fs=require('node:fs'),assert=require('node:assert/strict');
+          const s=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
+          assert.match(s,/function realCourierCartTemplate\(/);
+          assert.match(s,/function renderRealCourierRollingSpokes\(/);
+          assert.match(s,/function renderOriginalLiveCourierCart\(/);
+          assert.match(s,/originalCartTemplateFloats<=ORIGINAL_CART_TEMPLATE_MAX_FLOATS|originalCartTemplateFloats\+mesh.length>ORIGINAL_CART_TEMPLATE_MAX_FLOATS/);
+          const js=s.match(/<script>([\s\S]*?)<\/script>/);
+          assert.ok(js,'original full playable game must be present');
+          new Function(js[1]);
+          console.log('Actual playable game source parses; freight source policy present.');
+          NODE
+      - run: npx playwright install --with-deps chromium
+      - name: Film authentic Day-121 courier and compare same saved world
+        run: npx playwright test tests/browser/tiny-kingdom-w512-courier-cart-template.spec.cjs --workers=1 --reporter=line
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w512-original-courier-cart-templating
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: warn
+          retention-days: 14
