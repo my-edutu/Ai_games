@@ -5886,6 +5886,48 @@ export function planImportedRealTravelCrossfade({
  return .23;
 }
 
+/**
+ * Original KayKit Walking_A -> Idle/Guard weight catch-up AFTER the actual
+ * visual root stops, not on a moving or merely asserted planted-foot frame.
+ *
+ * In genuine original 21-Nov desktop/mobile WebGL films the newly selected
+ * Idle action could remain at ~6% weight despite multi-second sparse video
+ * delivery. The outgoing source Walking_A is independently FROZEN at a real
+ * root stop, and the saved SIX imported leg-joint plus pelvis landing bridges
+ * its pose. Without a bounded fade-clock catch-up, that valid full-body
+ * landing can be stranded for multiple seconds at the old source weight.
+ *
+ * Allow exactly ONE original Three.AnimationMixer update of <=250ms observed
+ * presentation time, to advance the ALREADY-EXISTING Idle/Guard fade. This
+ * never advances a paused outgoing Walking_A, manufactures a stance lock,
+ * changes the source clip, damages, events or any authoritative movement.
+ * The existing source landing release owns the natural joint recovery.
+ */
+export function planImportedVerifiedWalkLandingMixerDelta({
+ mode='idle',sourceClipName='',sourceDuration=NaN,
+ sourceWeight=NaN,sourceRunning=false,sourceWalkFrozen=false,
+ sourceInstanceId='',landingSourceInstanceId='',
+ landingSourceClipName='',originalSixLegBonesVerified=false,
+ originalPelvisVerified=false,groundedTravel=NaN,groundedMoving=true,
+ frameDelta=NaN,frameInterval=NaN,alive=false,visible=false,
+ teleport=false,reducedMotion=false,interrupted=false
+}={}){
+ if(!['idle','guard'].includes(mode)||sourceClipName!=='Idle'||
+  landingSourceClipName!=='Walking_A'||sourceWalkFrozen!==true||
+  typeof sourceInstanceId!=='string'||!sourceInstanceId||
+  sourceInstanceId!==landingSourceInstanceId||
+  originalSixLegBonesVerified!==true||originalPelvisVerified!==true||
+  sourceRunning!==true||alive!==true||visible!==true||
+  teleport||reducedMotion||interrupted||groundedMoving!==false||
+  ![sourceDuration,sourceWeight,groundedTravel,frameDelta,frameInterval].every(finite)||
+  sourceDuration<.5||sourceDuration>1.5||
+  sourceWeight<0||sourceWeight>=.85||
+  groundedTravel<0||groundedTravel>.0015||
+  frameDelta<0||frameDelta>.05001||
+  frameInterval<.12||frameInterval>2)return null;
+ return Math.min(.25,frameInterval);
+}
+
 export function planImportedWalkingMixerFrameDelta({mode='idle',walkingClip=false,
  frameDelta=0,frameInterval=frameDelta,sourceStep=NaN,sourceDuration=NaN,
  sourceTime=NaN,effectiveSpeed=NaN,groundedTravel=NaN,groundedMoving=false,
