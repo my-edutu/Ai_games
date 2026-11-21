@@ -7882,10 +7882,17 @@ test('RED-first: real 390px 99.9ms original swing schedules knee-led dual-shoe h
  const shallower={...owner,before:{left:{...left,toeY:-.062},right}};
  assert.deepEqual(plan(shallower),[[-.14,.105],[-.145,.11]],
   'a shallower unqualified source shoe must retain the original general slow planner');
- const wide={...owner,before:{left:{...left,
-  toeXZ:[left.heelXZ[0]-.2,left.heelXZ[1]]},right}};
+ // Genuine source and its trial skin must measure the SAME shoe XZ.
+ // The preceding failing fixture had moved only BEFORE toe 149mm while
+ // preserving the previous AFTER toe, correctly rejected above 70mm drift.
+ const wideToeXZ=[left.heelXZ[0]-.2,left.heelXZ[1]];
+ const wide={...owner,before:{left:{...left,toeXZ:wideToeXZ},right},
+  trials:trials.map(t=>({...t,after:{...t.after,
+   left:{...t.after.left,toeXZ:wideToeXZ}}}))};
  assert.deepEqual(plan(wide),[[-.14,.105],[-.145,.11]],
-  'an unverified near-vertical outsole geometry must NOT inherit knee relief');
+  'coherently skinned wider original outsole retains general slow trials, not knee relief');
+ assert.equal(plan({...wide,trials}),null,
+  'mismatched original source/trial sole XZ cannot forge gait evidence');
  const hurt={...owner,mode:'hurt'};
  assert.equal(plan(hurt),null,'no idle/hurt/injury can forge fresh source walking proof');
 });
