@@ -644,22 +644,21 @@ export function createWarden(options = {}) {
     // copper inlay are rooted in EACH real hinged elytron: no billboard,
     // warning-state dependency, extra enemy or dynamic object allocation.
     // Their rising profile carries the silhouette above dark stone parapets.
-    // Pass554: verified original 320/390 tick-94 WebGL shows Pass553b's
-    // leaned ivory crest STILL crossing the true mask. Rebuild both large
-    // source-connected scutes as posterior-swept beetle shoulder armor:
-    // move their actual wing roots aft, place the entire .69m sculpted
-    // blade along the dorsal shell instead of projecting through the eyes,
-    // and preserve copper inlay/hinges. The real earned lantern counter
-    // still folds the SAME armored pieces; no crop, hidden actor, forced
-    // motion or authoritatively changed collision can fake this beat.
-    const tideblade=pivot(wing,`fixed sculpted warden tideblade ${side}`,[side*.30,.08,-.29]);
-    const blade=rounded(tideblade,claw,[side*.13,.09,-.12],[.34,.69,.32],.076);
-    blade.rotation.z=-side*.91;
-    blade.rotation.x=-1.24;
-    const inset=rounded(tideblade,plates,[side*.14,.13,-.08],[.15,.43,.065],.038);
+    // Pass553b authentic 390px duel: the two tall permanent ivory spikes
+    // engulf the actual bronze face and make Thornback look like stray stage
+    // debris. Keep their FULL sculpted .69m original mesh scale, permanent
+    // ivory/copper contrast and real wing hinges, but place each physical
+    // scute down/back against its rounded carapace. No billboard, hidden
+    // threat cue or actor-root movement. The authentic recoil hinge still
+    // folds the entire connected crest away on confirmed lantern contact.
+    const tideblade=pivot(wing,`fixed sculpted warden tideblade ${side}`,[side*.20,.20,-.02]);
+    const blade=rounded(tideblade,claw,[side*.10,.13,-.07],[.34,.69,.32],.076);
+    blade.rotation.z=-side*.42;
+    blade.rotation.x=-.62;
+    const inset=rounded(tideblade,plates,[side*.14,.17,.15],[.15,.43,.065],.038);
     inset.rotation.z=blade.rotation.z;
     inset.rotation.x=blade.rotation.x;
-    const base=rounded(tideblade,bronze,[side*.04,-.05,-.04],[.36,.12,.40],.045);
+    const base=rounded(tideblade,bronze,[side*.03,-.06,-.01],[.36,.12,.40],.045);
     base.rotation.z=-side*.10;
     // The tall ivory crest remains permanently connected to its real shell,
     // but its hinge can now fold with the witnessed defensive performance.
@@ -858,19 +857,16 @@ export function createWarden(options = {}) {
     ball(antenna,red,[side*.2,.49,.23],[.036,.047,.035]);
     antennae.push({antenna,side});
   }
-  // Pass554: the full rooted bronze mask is the encounter's focal point.
-  // In both actual native mobile counter frames, the former broad fore-guards
-  // crossed its eye line with the ivory shoulder scutes. Move BOTH actual
-  // articulated hinges outside/behind the cheeks, and root their broad
-  // surfaces over the rear upper thorax. They still visibly brace/release
-  // with the same witnessed public encounter and confirmed lantern impact;
-  // no duplicate actor, screen decal, hidden information or camera trick.
+  // Guard panels sit folded against Thornback's existing forecarapace.
+  // On a CURRENTLY WITNESSED brace their real hinges rise above the shell,
+  // so a mobile camera reads an actual silhouette rather than tiny feet.
+  // These are original permanent meshes, not threat indicators or new AI.
   const shoulderGuards=[];
   for (const side of [-1,1]) {
-    const guard=pivot(body,`articulated guardian shoulder guard ${side}`,[side*.43,.16,.04]);
-    rounded(guard,plates,[side*.15,.07,.10],[.45,.12,.59],.065);
-    rounded(guard,bronze,[side*.15,.14,.10],[.30,.055,.37],.028);
-    bar(guard,claw,[0,0,0],[side*.15,.10,.08],.041);
+    const guard=pivot(body,`articulated guardian shoulder guard ${side}`,[side*.35,.22,.22]);
+    rounded(guard,plates,[side*.15,.07,.29],[.45,.12,.59],.065);
+    rounded(guard,bronze,[side*.15,.14,.29],[.30,.055,.37],.028);
+    bar(guard,claw,[0,0,0],[side*.15,.10,.25],.041);
     shoulderGuards.push({guard,side});
   }
   const legs=[];
