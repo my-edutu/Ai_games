@@ -269,9 +269,17 @@ export function shouldPromoteStableShotCache({ queue, cacheHit = false, directFr
  */
 export function shouldPrimeColdFullSceneCache({ queue, quality, cameraMode, frameCount,
   staticMeshes, cacheSupported, cacheHit, cssWidth, cssHeight, renderScale,
-  submittedAtWorldBuild } = {}) {
-  const nativeRaster = (quality === 'balanced' && Math.abs(renderScale - .75) <= 1e-5) ||
-    (quality === 'low' && Math.abs(renderScale - .4) <= 1e-5);
+  devicePixelRatio, submittedAtWorldBuild } = {}) {
+  // R53 limits the ORIGINAL balanced first raster by canvas pixel area;
+  // at 1878x1038, DPR 1 this is ~0.627674, *not* 0.75. Use the same
+  // existing startup math, never a guessed quality tier or lower threshold.
+  const initialRatio = Number.isFinite(devicePixelRatio) && devicePixelRatio > 0
+    ? Math.min(devicePixelRatio, 1.5) : NaN;
+  const originalStartupRatio = boundedStartupPixelRatio(cssWidth, cssHeight, initialRatio);
+  const nativeRaster = Number.isFinite(renderScale) && Number.isFinite(originalStartupRatio) &&
+    (quality === 'balanced' || quality === 'low') &&
+    Math.abs(renderScale - planInitialLowModeRaster({ width: cssWidth, height: cssHeight,
+      pixelRatio: originalStartupRatio, quality })) <= 1e-5;
   return nativeRaster && cameraMode === 'overview' && frameCount === 0 &&
     cacheSupported === true && cacheHit === false &&
     Number.isInteger(staticMeshes) && staticMeshes > 0 &&
@@ -508,7 +516,8 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       queue: currentGpuQueue, quality, cameraMode, frameCount,
       staticMeshes: staticMeshCount, cacheSupported, cacheHit,
       cssWidth: canvas.clientWidth, cssHeight: canvas.clientHeight,
-      renderScale: renderer.getPixelRatio(), submittedAtWorldBuild,
+      renderScale: renderer.getPixelRatio(), devicePixelRatio: window.devicePixelRatio || 1,
+      submittedAtWorldBuild,
     });
     if (!cacheAdmissionReady && !shouldAdmitFullSceneCache({ queue: currentGpuQueue,
       cacheHit, directDraws: cacheProbeDirectFrames, submittedAtWorldBuild,

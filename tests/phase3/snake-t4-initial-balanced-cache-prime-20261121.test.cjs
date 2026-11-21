@@ -10,16 +10,18 @@ function rendererExports(){ return exportsPromise ||= import('data:text/javascri
 const pristine = (overrides={})=>({
   queue:{supported:true,failed:false,submitted:0,completed:0,pending:0,skipped:0},
   quality:'balanced',cameraMode:'overview',frameCount:0,staticMeshes:13,cacheSupported:true,cacheHit:false,
-  cssWidth:1878,cssHeight:1038,renderScale:0.75,submittedAtWorldBuild:0,...overrides
+  cssWidth:1878,cssHeight:1038,devicePixelRatio:1,renderScale:Math.sqrt(768000/(1878*1038)),submittedAtWorldBuild:0,...overrides
 });
-test('RED: full immutable HDR/depth world cache can prime at source-original first BALANCED desktop frame, with no initial raster or quality reduction',async()=>{
+test('RED: first balanced HDR/depth cache prime matches actual R53 bounded 1878x1038 startup raster rather than hardcoded .75',async()=>{
   const {shouldPrimeColdFullSceneCache}=await rendererExports();
-  assert.equal(shouldPrimeColdFullSceneCache(pristine()),true,'real original strict test begins at balanced 0.75, not low 0.4');
+  assert.equal(shouldPrimeColdFullSceneCache(pristine()),true,'original strict test begins balanced at 0.62767 after original R53, not guessed .75');
   assert.equal(shouldPrimeColdFullSceneCache(pristine({quality:'low',renderScale:0.4})),true);
+  assert.equal(shouldPrimeColdFullSceneCache(pristine({devicePixelRatio:1.5,renderScale:Math.sqrt(768000/(1878*1038))})),true, 'R53 clamps expensive desktop to exactly the same raster for DPR 1.5');
   for(const unsafe of [
-    {cssWidth:390,cssHeight:844,renderScale:0.75},
+    {cssWidth:390,cssHeight:844,renderScale:1},
     {cssWidth:1280,cssHeight:720},
     {quality:'low',renderScale:0.75},
+    {quality:'balanced',renderScale:0.75},
     {quality:'balanced',renderScale:0.4},
     {cameraMode:'follow'}, {cameraMode:'detail'}, {frameCount:1},{staticMeshes:0},{cacheSupported:false},
     {cacheHit:true},{submittedAtWorldBuild:1},
