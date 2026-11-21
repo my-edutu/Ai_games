@@ -499,11 +499,11 @@ test('RED: actual 60Hz partial original toe arc is sampled as a third bounded sk
   extraAngleRad:-.04008,maxProbeCount:1,
   contactLocked:false,plantCertified:false
  };
- const options=m.appendLicensedSourceDistinctToeProbeAngles(base,guide);
+ const options=m.appendLicensedSourceDistinctToeProbeAngles(base,guide,'toesl');
  assert.deepEqual(options,[-.0501,.0501,-.04008]);
  assert.equal(options.length,3,'preserve the existing bounded O(1) source skin reads');
  assert.deepEqual(m.appendLicensedSourceDistinctToeProbeAngles(base,
-  {...guide,extraAngleRad:-.048}),base,'within 4mrad is a real duplicate');
+  {...guide,extraAngleRad:-.048},'toesl'),base,'within 4mrad is a real duplicate');
  for(const bad of [
   {...guide,sourceClip:'Idle'}, {...guide,sourceBone:'toesr'},
   {...guide,contactLocked:true},{...guide,maxProbeCount:4},
@@ -511,7 +511,7 @@ test('RED: actual 60Hz partial original toe arc is sampled as a third bounded sk
   {...guide,extraAngleRad:.16},{...guide,extraAngleRad:NaN},
   {...guide,extraAngleRad:.006},null
  ]){
-  assert.deepEqual(m.appendLicensedSourceDistinctToeProbeAngles(base,bad),base,
+  assert.deepEqual(m.appendLicensedSourceDistinctToeProbeAngles(base,bad,'toesl'),base,
    'never append unowned/stale/unbounded source pose');
  }
 });
