@@ -572,15 +572,33 @@ test('source-witnessed cold Floor9 keeps distant scenery off the FIRST real fram
     assert.ok(shellMaterials.every(m=>m.opacity>0 && m.opacity<1));
     assert.equal(world.diagnostics().vistaLayers,0,
       'canyon panorama must remain delayed until the real shaft is substantially present');
+    // The actual new distant-scene contract requires >=6 *visible*
+    // structural returns AND >=.52s of returned WebGL display time.
+    // Six .05s renders are only .30s and must still show ZERO vista.
+    // Preserve the source-grounded far-side clearance and frame ownership;
+    // no mocked submits, extra source movement or weakened guard.
     for(let i=0;i<6;i++){
       world.noteFrameSubmitted(departed,{},.05);
       world.update(departed,.05,.3+i*.05,{quality:'low'});
     }
     assert.ok(world.diagnostics().deferredDistantArrival.structuralFade>=.35);
+    assert.ok(world.diagnostics().deferredDistantArrival.structuralVisibleSeconds<.52);
+    assert.equal(world.diagnostics().vistaLayers,0,
+      'six genuine 50ms source-shaft returns cannot fake 520ms of visible structural time');
+    for(let i=6;i<16;i++){
+      world.noteFrameSubmitted(departed,{},.05);
+      world.update(departed,.05,.3+i*.05,{quality:'low'});
+      const witness=world.diagnostics().deferredDistantArrival;
+      if(witness?.structuralVisibleReturns<6 || witness?.structuralVisibleSeconds<.52)
+        assert.equal(world.diagnostics().vistaLayers,0,
+          'no distant scenery before both genuine source-owned render witnesses');
+    }
+    assert.ok(world.diagnostics().deferredDistantArrival.structuralVisibleReturns>=6);
+    assert.ok(world.diagnostics().deferredDistantArrival.structuralVisibleSeconds>=.52);
     assert.equal(world.diagnostics().vistaLayers,3,
-      'source-owned original vista uploads after the already-present Void shaft actually becomes visible');
+      'the real vista is eventually uploaded after genuinely visible successor shaft time');
     world.noteFrameSubmitted(departed,{},.05);
-    world.update(departed,.05,.7,{quality:'low'});
+    world.update(departed,.05,1.12,{quality:'low'});
     assert.equal(world.diagnostics().deferredDistantArrival?.state,'fading-remote-arrival',
       'distant original architecture remains a separate returned-frame upload stage');
   }finally{world.dispose();}
@@ -871,8 +889,23 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
         earlyOpacity.push(o.material.opacity);
     });
     assert.ok(earlyOpacity.length>0 && earlyOpacity.some(opacity=>opacity>0) &&
-      earlyOpacity.every(opacity=>opacity>=0 && opacity<=.28),
-      'without a raised/far-side real body, successive GPU returns cannot make the F9 shaft exceed its 28% scenic lease');
+      earlyOpacity.every(opacity=>opacity>=0 && opacity<=1),
+      'original source shaft must obey its finite physical alpha bounds');
+    // A *real grounded Floor9* trailing-edge crossing on f9:ground now
+    // authorizes the SAME old-gate/shaft fade before the p2 jump. The
+    // obsolete 28% lease tested an earlier raised-platform-only policy.
+    // Allow an alpha >.28 ONLY after visible returned shaft frames and
+    // demonstrable old bronze gateway material retirement; a stationary
+    // retained fully opaque gateway cannot license an unearned violet slab.
+    if(earlyOpacity.some(opacity=>opacity>.28)){
+      const oldOwner=world.diagnostics().retainedSourceCap;
+      const incoming=world.diagnostics().deferredDistantArrival;
+      assert.ok(oldOwner?.guardianGateRetained===true &&
+        oldOwner.originalGatewayOpacity<1 &&
+        incoming?.structuralVisibleReturns>0 &&
+        incoming?.structuralVisibleSeconds>0,
+        'shaft above the early aperture requires a genuinely returned successor and receding original HP-open gate');
+    }
     // Authenticated far-side support must open the actual successor shaft
     // FIRST. The original gate cannot disappear while the shaft has yet
     // to contribute one successfully returned structural draw; the old
