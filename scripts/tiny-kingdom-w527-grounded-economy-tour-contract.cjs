@@ -86,6 +86,7 @@ for(const grain of [true,false]){
  const scene={Number,Math,REAL_ECONOMIC_SURVEY_STAGES:['farm','market','homes','workday'],
   realEconomicSurveyIndex:2,realEconomicSurveyVisits:0,realEconomicSurveyLast:null,
   people:grain?[farmer,smith]:[smith,farmer],selectedCitizen:0,presentationEpoch:0,
+  city:[[0,0],[1,1]],
   document:{getElementById:()=>({dataset:{},textContent:'',setAttribute(){}})},
   showToast(){},setCommandView(){},
   chooseRealGrainWitness:()=>grain?farmer:null,
