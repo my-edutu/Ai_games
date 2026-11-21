@@ -6485,10 +6485,42 @@ export function certifyLicensedSourcePostChainPelvisOpportunity({
  const selected=sides.filter(side=>sourceFootProofs[side]!=null);
  if(selected.length!==1)return null;
  const side=selected[0],proof=sourceFootProofs[side];
+ const suffix=side==='left'?'l':'r';
+ // In genuine 1440px source frame14 (#44857237417), the first ORIGINAL
+ // upperleg/lowerleg/foot chain won, not the SECOND knee-biased trial.
+ // sourceConnectedLegSelected=false is NOT absence of a source 3-bone pose.
+ // Permit only measured three-joint original GLB/track/bind/skin evidence
+ // to reach the existing last-stage reversible world-space shoe Y trial.
+ const firstOriginalChain=proof?.sourceConnectedLegSelected===false&&
+  proof.sourceConnectedLegCandidateCount===2&&
+  Number.isSafeInteger(proof.sourceProbeCount)&&
+  proof.sourceProbeCount>=3&&proof.sourceProbeCount<=9&&
+  Array.isArray(proof.originalBindSegmentsMeters)&&
+  proof.originalBindSegmentsMeters.length===2&&
+  proof.originalBindSegmentsMeters.every(n=>finite(n)&&n>=.075&&n<=.75)&&
+  [proof.appliedUpperRad,proof.appliedLowerRad,proof.appliedFootRad]
+   .every(n=>finite(n)&&Math.abs(n)>=.0001&&Math.abs(n)<=.35)&&
+  proof.sourceUpperBone==='upperleg'+suffix&&
+  proof.sourceLowerBone==='lowerleg'+suffix&&
+  proof.sourceFootBone==='foot'+suffix;
+ const toeChild=proof?.licensedOriginalToeChildFinisher;
+ const toeChildInvalid=toeChild!=null&&(
+  toeChild.source!=='measured-licensed-counterpitch-original-toes-child'||
+  toeChild.sourceClip!==sourceClipName||toeChild.side!==side||
+  toeChild.sourceBone!=='toes'+suffix||
+  toeChild.sourceTrack!=='toes'+suffix+'.quaternion'||
+  toeChild.originalSourceFootParent!==proof.sourceFootBone||
+  toeChild.sourceToeTrackVerified!==true||
+  toeChild.originalOppositeShoeVerified!==true||
+  toeChild.finalIndependentSourceSkin!==true||
+  toeChild.contactLocked!==false||toeChild.plantCertified!==false||
+  !finite(toeChild.angleRad)||Math.abs(toeChild.angleRad)>.165
+ );
  if(proof.source!=='measured-original-licensed-source-counterpitch'||
   proof.sourceInstanceId!==sourceInstanceId||
   proof.sourceClip!==sourceClipName||proof.side!==side||
-  proof.sourceConnectedLegSelected!==true||
+  !(proof.sourceConnectedLegSelected===true||firstOriginalChain)||
+  toeChildInvalid||
   proof.finalIndependentSourceSkin!==true||
   proof.originalOppositeShoeVerified!==true||
   proof.sourceOriginalRootTravelWitnessed!==true||
@@ -6521,6 +6553,9 @@ export function certifyLicensedSourcePostChainPelvisOpportunity({
  return Object.freeze({
   source:'same-licensed-GLB-connected-leg-to-final-pelvis',
   sourceInstanceId,sourceSide:side,originalWeightedSolesVerified:2,
+  sourceChainSelection:firstOriginalChain?'licensed-first-original-three-bone':
+   'licensed-second-original-three-bone',
+  originalSourceToeChildConfirmed:toeChild!=null,
   contactLocked:false,plantCertified:false
  });
 }
