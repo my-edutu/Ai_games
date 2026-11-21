@@ -644,13 +644,21 @@ export function createWarden(options = {}) {
     // copper inlay are rooted in EACH real hinged elytron: no billboard,
     // warning-state dependency, extra enemy or dynamic object allocation.
     // Their rising profile carries the silhouette above dark stone parapets.
-    const tideblade=pivot(wing,`fixed sculpted warden tideblade ${side}`,[side*.27,.30,.10]);
-    const blade=rounded(tideblade,claw,[side*.12,.23,.08],[.29,.69,.36],.076);
-    blade.rotation.z=-side*.24;
-    blade.rotation.x=-.14;
-    const inset=rounded(tideblade,plates,[side*.17,.25,.29],[.15,.43,.065],.038);
+    // Pass553b authentic 390px duel: the two tall permanent ivory spikes
+    // engulf the actual bronze face and make Thornback look like stray stage
+    // debris. Keep their FULL sculpted .69m original mesh scale, permanent
+    // ivory/copper contrast and real wing hinges, but place each physical
+    // scute down/back against its rounded carapace. No billboard, hidden
+    // threat cue or actor-root movement. The authentic recoil hinge still
+    // folds the entire connected crest away on confirmed lantern contact.
+    const tideblade=pivot(wing,`fixed sculpted warden tideblade ${side}`,[side*.20,.20,-.02]);
+    const blade=rounded(tideblade,claw,[side*.10,.13,-.07],[.34,.69,.32],.076);
+    blade.rotation.z=-side*.42;
+    blade.rotation.x=-.62;
+    const inset=rounded(tideblade,plates,[side*.14,.17,.15],[.15,.43,.065],.038);
     inset.rotation.z=blade.rotation.z;
-    const base=rounded(tideblade,bronze,[side*.03,-.01,.03],[.36,.12,.40],.045);
+    inset.rotation.x=blade.rotation.x;
+    const base=rounded(tideblade,bronze,[side*.03,-.06,-.01],[.36,.12,.40],.045);
     base.rotation.z=-side*.10;
     // The tall ivory crest remains permanently connected to its real shell,
     // but its hinge can now fold with the witnessed defensive performance.
@@ -1061,8 +1069,17 @@ export function createWarden(options = {}) {
     // Finite smooth entry/exit preserves ordinary witnessed brace/release,
     // reduced-motion, unknown threat, terminal and reset poses. No mesh,
     // route, hit, collider or authoritative actor coordinate is added.
+    // Pass553b: source-authentic tick-94 "Counter landed" is already an
+    // ACTUAL earned impact, not a warning. Previous 0-at-first-contact mask
+    // kept the two tall ivory/sea-glass screens upright precisely while Pip's
+    // lantern hit; by the later .11 clock both players have moved apart.
+    // Fold the existing armor at first confirmed impact (minimum .74), then
+    // preserve the original full clearance in mid-counter and the exact
+    // smooth .17s end return. Unknown, stale, reduced-motion, false, terminal
+    // and spent events remain neutral. No new game authority or renderer.
     const earnedShellClearance=counterPhase===null?0:
-      Math.max(0,Math.min(1,Math.min(counterPhase/.11,(1-counterPhase)/.17)));
+      Math.max(.74,Math.min(1,counterPhase/.11))
+        *Math.max(0,Math.min(1,(1-counterPhase)/.17));
     for (const {vane,side} of tailVanes) {
       // First sight keeps the armored tail close. The PUBLIC brace fans the
       // rooted vanes out before the shell unseals; no invented enemy action.

@@ -34,6 +34,25 @@ test('a witnessed earned lantern counter physically folds Thornback own connecte
       assert.ok(a.fronds.scale.y>1,'real full armour shell remains expressive before Pip earns the counter');
     }
     const floor=[...warden.group.position.toArray()];
+    // Pass553b: the FIRST authenticated contact is already a visible
+    // counter, before delayed recoil reaches .11. Both original full-size
+    // rooted crests must actually fold at phase 0; neutral/false/reduced
+    // callbacks below still retain their previous strict reset contracts.
+    warden.update({...state,lanternParried:true,counterPhase:0});
+    for (const a of anatomy) {
+      assert.ok(a.fronds.rotation.x<-1,
+        'source-earned first frame must retract actual tall botanical armor');
+      assert.ok(a.fronds.scale.y<.60,
+        'initial lantern contact must show beetle anatomy, not extended mint blades');
+      assert.ok(a.tideblade.rotation.x<-.60,
+        'original full-size ivory shoulder crest must yield to genuine first contact');
+      assert.ok(a.tideblade.position.y<=.20,
+        'large permanent ivory crest must remain physically nested on carapace');
+      const pale=a.tideblade.children.find(part=>part.isMesh
+        &&part.material?.color?.getHexString()==='e1c997');
+      assert.ok(pale&&pale.rotation.x<-.60,
+        'full-size connected sculpted ivory blade must lean back, never obscure the face');
+    }
     warden.update({...state,lanternParried:true,counterPhase:.5});
     for(const a of anatomy){
       assert.ok(a.fronds.rotation.x<-.95,'both existing physical fronds hinge backward, not through the camera');
