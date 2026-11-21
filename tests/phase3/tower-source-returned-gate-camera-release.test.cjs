@@ -16,7 +16,7 @@ test('released physical F8 gateway cannot permit 40m portrait orbit jump in one 
    desiredFocus:[18,8,22],dt:.04});
  assert.ok(got&&got.limited);
  assert.ok(Math.hypot(...got.camera.map((v,i)=>v-current[i]))<1.7);
- assert.ok(Math.abs(got.turnRadians)<=.82*.04+1e-9);
+ assert.ok(Math.abs(got.turnRadians)<=.72*.04+1e-9);
  assert.ok(got.camera.every(Number.isFinite)&&got.focus.every(Number.isFinite));
  assert.equal(JSON.stringify(source),before,'presentation must never write authority');
 });
