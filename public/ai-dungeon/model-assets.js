@@ -5300,45 +5300,60 @@ function stageLicensedSourceToeFinisherAfterCounterpitch(actor,reducedMotion){
   // source quaternion keyframes. The existing +/- source experiments stay
   // intact as safe fallbacks; the final certificate STILL selects and
   // independently re-skins only an actual improved original shoe.
-  const guided=residual>=.055&&residual<=.110?
-   planLicensedSourceToePhaseProbe({
-    sourceClipName:clip.name,sourceInstanceSame:true,
-    sourceToeTrackVerified:true,sourceToeBoneParentVerified:true,
-    sourceRootTravelVerified:proof.sourceOriginalRootTravelWitnessed,
-    sourceWeight:originalToeContinuity.sourceWeight,
-    ownerLocomotion:true,alive:true,visible:true,
-    interrupted:originalToeContinuity.interrupted,
-    teleport:originalToeContinuity.teleport,reducedMotion,
-    sourceToeBoneName:toe.name,side,tracks:clip.tracks,
-    sourceToeAppliedAxis:audit.axis,
-    sourceTimeSeconds:proof.sourceClipTimeSeconds,
-    sourceDurationSeconds:clip.duration,
-    originalQuaternion:original.toArray(),frameInterval:interval
-   }):null;
-  // Retain the two original toes-child probes, plus at most ONE genuinely
-  // distinct <=3rad/s partial original keyframe arc. All three are assessed
-  // against real independently skinned original heels and toes below.
-  const toeAngles=appendLicensedSourceDistinctToeProbeAngles(
-   Array.from(baseToeAngles),guided,toe.name);
+  // First use ONLY the two already authorized original-toe trials. The
+  // physically beneficial sign must come from an independent certificate
+  // reading BOTH original skinned shoes, not from an animation-clip angle
+  // magnitude or an unproven world-space foot-lock target.
   const candidateArgs={proof,before,side,sourceInstanceId:asset.uuid,
    sourceInstanceSame:true,sourceClipName:clip.name,
    sourceToeTrackVerified:true,sourceToeBoneParentVerified:true,
    originalToeContinuity,floorTopY:-.02};
-  let best=null;
+  let best=null,guided=null,toeAngles=Array.from(baseToeAngles);
+  const trial=angleRad=>{
+   toe.quaternion.copy(original).multiply(
+    delta.setFromAxisAngle(axis,angleRad));
+   toe.updateWorldMatrix(true,true);
+   const after=read();
+   const result=certifyLicensedCounterpitchToeFinish({
+    ...candidateArgs,after,angleRad});
+   if(result&&(!best||
+    result.residualToeBurialMeters<best.result.residualToeBurialMeters)){
+    best={angleRad,after,result,
+     sourcePhaseGuided:Boolean(guided&&
+      Math.abs(angleRad-guided.extraAngleRad)<.000001)};
+   }
+  };
   try{
-   for(const angleRad of toeAngles){
-    toe.quaternion.copy(original).multiply(
-     delta.setFromAxisAngle(axis,angleRad));
-    toe.updateWorldMatrix(true,true);
-    const after=read();
-    const result=certifyLicensedCounterpitchToeFinish({
-     ...candidateArgs,after,angleRad});
-    if(result&&(!best||
-      result.residualToeBurialMeters<best.result.residualToeBurialMeters)){
-     best={angleRad,after,result,
-      sourcePhaseGuided:Boolean(guided&&
-       Math.abs(angleRad-guided.extraAngleRad)<.000001)};
-    }
+   for(const angleRad of baseToeAngles)trial(angleRad);
+   const skin=best?.result;
+   // An actual original skinned sole must have LIFTED at least 4mm, with
+   // the opposite loaded shoe unchanged, before its LOCAL signed source
+   // angle can choose between the two authentic Walking_A keyframe arcs.
+   // No previous-frame toe, owner, source clone or synthetic sign is reused.
+   if(skin?.originalOppositeShoeVerified===true&&
+    skin.contactLocked===false&&skin.plantCertified===false&&
+    skin.toeLiftMeters>=.004&&
+    best.angleRad!==0&&residual>=.055&&residual<=.110){
+    const preferredAngleSign=Math.sign(best.angleRad);
+    guided=planLicensedSourceToePhaseProbe({
+     sourceClipName:clip.name,sourceInstanceSame:true,
+     sourceToeTrackVerified:true,sourceToeBoneParentVerified:true,
+     sourceRootTravelVerified:proof.sourceOriginalRootTravelWitnessed,
+     sourceWeight:originalToeContinuity.sourceWeight,
+     ownerLocomotion:true,alive:true,visible:true,
+     interrupted:originalToeContinuity.interrupted,
+     teleport:originalToeContinuity.teleport,reducedMotion,
+     sourceToeBoneName:toe.name,side,tracks:clip.tracks,
+     sourceToeAppliedAxis:audit.axis,
+     sourceTimeSeconds:proof.sourceClipTimeSeconds,
+     sourceDurationSeconds:clip.duration,
+     originalQuaternion:original.toArray(),frameInterval:interval,
+     preferredAngleSign:preferredAngleSign
+    });
+    toeAngles=appendLicensedSourceDistinctToeProbeAngles(
+     toeAngles,guided,toe.name);
+    if(toeAngles.length>baseToeAngles.length)
+     trial(toeAngles[baseToeAngles.length]);
    }
   }finally{
    toe.quaternion.copy(original);
