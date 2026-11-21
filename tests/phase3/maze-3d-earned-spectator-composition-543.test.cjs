@@ -13,7 +13,16 @@ test('Pass543 original observatory ROOT physically recedes on the SAME source-ea
  assert.match(world,/const observedImpactDepth=publicGuardianObservatoryImpactDrop\(/);
  assert.match(world,/signal\.observatory\.instrument\.position\.y=-1\.72\*observedImpactDepth/);
  assert.match(world,/const mastLift=reduced\?0:Math\.max\(0,Math\.min\(1,warningAction\)\)/);
- assert.match(world,/instrument\.position\.set\(-\.77,0,-\.77\)/);
+ // The ray-identified actor-obscuring mast was deliberately rebuilt off the
+ // observed lane, not restored to its old center position merely for a regex.
+ // Retain the strict 1.72m root impact check above, plus require BOTH lane
+ // orientations, joined low rig and its separately earned plinth seating.
+ assert.match(world,/instrument\.position\.set\(alongX\?0:-\.53,0,alongX\?-\.53:0\)/);
+ assert.match(world,/const lowMechanism=new THREE\.Group\(\)/);
+ assert.match(world,/lowMechanism\.position\.y=-\.47/);
+ assert.match(world,/lowMechanism\.scale\.y=\.52/);
+ assert.match(world,/instrument\.add\(lowMechanism\)/);
+ assert.match(world,/signal\.observatory\.lowMechanism\.position\.y=-\.47-\.4\*observedImpactDepth/);
  assert.match(world,/for\(const vane of signal\.observatory\.vanes\)/);
 });
 test('Pass543 publicly discovered spectator negative-space removes ONLY decorative floor mosaics; maintains solid floor and pressure stage',()=>{

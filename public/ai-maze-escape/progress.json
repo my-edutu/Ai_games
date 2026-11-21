@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-21T05:10:12.000Z",
+  "updatedAt": "2026-11-21T05:54:03.314Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass550b source-bound dual-group orrery regression repair: exact c09d7e57 Maze CI 44865627677 and whole CI 44865627790 FAILED 3 original tests, no native screenshot produced. Repair retains historic Pass543/544 true 1.72m impact-root expression, places 52%-height moving linked mechanism on low -0.47m baseline, adds 0.4m source-earned plinth seating, and preserves >2.1m combined withdrawal assertion. Authenticated source-only stage and <100 six-reset resource budget unchanged. Fresh exact-HEAD native render and real Nintendo comparison PENDING; NOT A VISUAL WIN."
+    "summary": "Pass550c corrects ONE stale source-only Pass543 center-origin expectation after Pass550b exact-HEAD Maze CI 44869830195 failed 1/308 before browser capture. The replacement is stricter about actual public lane-axis outboard position, connected low 0.52x/-0.47m machinery and 0.4m earned seating while retaining old 1.72m authenticated root withdrawal, public-only witness and all strict physical/resource acceptance. Direct production regex sanity check passed; new exact-HEAD full Node/Playwright native WebGL and official Nintendo visual comparison PENDING. NO new WebGL screenshot, no visual win. Whole CI separately failed. Draft, no merge/deploy."
   },
   "captures": [
+    {
+      "title": "Pass550b native CI 44869830195 FAILED 1/308 in stale legacy center-origin source assertion; Pass550c strengthens physical outboard/linked-rig assertion; fresh new-HEAD Playwright visuals PENDING",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44869830195"
+    },
     {
       "title": "Pass550b correction to exact-HEAD CI failure: old WebGL 44865627677 FAILED before any authentic Pass550 capture; fixed two-group 1.72m rooted physical impact, new exact-source browser gate PENDING",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44865627677"
