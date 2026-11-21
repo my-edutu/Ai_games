@@ -32,8 +32,18 @@ test('Pass549 source-ray-attributed weather vane physically folds outward ONLY f
    assert.ok(rootObj&&shaft&&vanes.every(Boolean));
    assert.ok(vanes.every(v=>v.parent===rootObj),'same actual joined Three.js assembly');
    const resources=w.stats();
-   const pose=()=>({x:rootObj.rotation.x,z:rootObj.rotation.z,
-     y:rootObj.position.y,hinges:vanes.map(v=>v.rotation.y)});
+   // world.update() legitimately reconstructs the public mesh on a
+   // published threat-state transition. Always inspect the LIVE physical
+   // assembly, not a detached old-world root from before the parry.
+   const pose=()=>{
+     const current=w.group.getObjectByName('Witnessed guardian rooted Tideglass weather vane '+c);
+     const currentVanes=[-1,1].map(side=>w.group.getObjectByName(
+       'Guardian observatory earned shell hinge '+c+' '+side));
+     assert.ok(current&&currentVanes.every(v=>v?.parent===current),
+       'inspect the currently rendered rooted assembly after each public rebuild');
+     return {x:current.rotation.x,z:current.rotation.z,
+       y:current.position.y,hinges:currentVanes.map(v=>v.rotation.y)};
+   };
    const options={guardianCell:c,guardianBeat:.55,reducedMotion:false};
    w.animate(.1,options);
    assert.equal(pose().x,0);assert.equal(pose().z,0);
