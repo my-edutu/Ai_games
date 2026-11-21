@@ -6445,9 +6445,21 @@ export function certifyLicensedSourceSwingCounterpitch({
   Math.abs(correctedPitch)<=.012;
  // During the first source frame a safe heel-lowering response can
  // improve the impossible near-vertical outsole before the toe clears.
- // But a toe-down or heel-up result cannot earn this certificate.
+ // Genuine Vanguard Walking_A desktop frame 28 on 21 Nov 2026 had the
+ // original weighted toe 65.36mm below stone and heel 233mm ABOVE stone.
+ // An airborne heel-neutral source-joint trial must not be rejected solely
+ // because its weighted toe rises without lowering the already airborne
+ // heel. Every trial STILL must independently reskin BOTH original shoes,
+ // preserve the standing shoe and meet the source/clip/rate/phase contract.
+ // This is a bounded swing rescue, NEVER a claimed planted contact/IK lock.
+ const heelNeutralForefootRescue=heelDelta>=-.001&&heelDelta<=0&&
+  original.heelY>=floorTopY+.14&&corrected.heelY>=floorTopY+.14&&
+  original.toeY<=floorTopY-.020&&
+  toeLift>=.005&&toeLift<=.028&&pitchGain>=.005&&
+  drift(corrected.heelXZ,original.heelXZ)<=.008&&
+  drift(corrected.toeXZ,original.toeXZ)<=.025;
  if(toeLift<-.002||toeLift>.155||
-  heelDelta>-.001||heelDelta<-.160||
+  (heelDelta>-.001&&!heelNeutralForefootRescue)||heelDelta<-.160||
   pitchGain<.003||pitchGain>.25||
   correctedPitch<-.04||correctedPitch>originalPitch-.0025||
   corrected.toeY>floorTopY+.095||
@@ -6464,6 +6476,7 @@ export function certifyLicensedSourceSwingCounterpitch({
   appliedUpperRad:plan.upperRad,appliedLowerRad:plan.lowerRad,
   appliedFootRad:plan.footRad,
   toeLiftMeters:toeLift,heelDeltaMeters:heelDelta,
+  heelNeutralForefootRescue,
   pitchImprovementMeters:pitchGain,
   residualToeBurialMeters:Math.max(0,floorTopY-corrected.toeY),
   originalSourceTailRelease:plan.originalSourceTailRelease===true,

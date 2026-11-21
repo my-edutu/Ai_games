@@ -174,3 +174,18 @@ test('RED: genuine original airborne swing may rescue a buried toe while its hee
   ...params,after:{...after,left:{...before.left,toeY:before.left.toeY+.005}}
  }),null,'the other original weighted shoe must remain unchanged');
 });
+
+test('original WebGL renderer can choose a strictly certified heel-neutral forefoot on licensed Vanguard chain only',()=>{
+ const renderer=fs.readFileSync(path.resolve(__dirname,
+  '../../public/ai-dungeon/model-assets.js'),'utf8');
+ const start=renderer.indexOf('function stageLicensedSourceSwingCounterpitchAfterMixer(');
+ const end=renderer.indexOf('function stageLicensedSourceToeFinisherAfterCounterpitch(');
+ assert.ok(start>0&&end>start,'original stage must own the proposal');
+ const stage=renderer.slice(start,end);
+ assert.match(stage,/certificate\.heelNeutralForefootRescue===true/,
+  'the corrected source-skinned certificate, not an invented sole, must reach the 3-bone connected trial selector');
+ assert.match(stage,/const finalCert=certifyLicensedSourceSwingCounterpitch\(/,
+  'a selected source pose MUST be independently re-skinned before retention');
+ assert.match(stage,/sourceConnectedLegSelected:/,
+  'genuine browser receipts must distinguish which original source candidate won');
+});

@@ -5105,7 +5105,8 @@ function stageLicensedSourceSwingCounterpitchAfterMixer(actor,reducedMotion){
     certificate.toeLiftMeters>=chosen.certificate.toeLiftMeters+.001&&
     certificate.residualToeBurialMeters<=
      chosen.certificate.residualToeBurialMeters-.001&&
-    certificate.heelDeltaMeters<=-.001&&
+    (certificate.heelDeltaMeters<=-.001||
+     certificate.heelNeutralForefootRescue===true)&&
     certificate.pitchImprovementMeters>=Math.max(.003,
      chosen.certificate.pitchImprovementMeters-.003);
    if(certificate&&(!chosen||
