@@ -286,5 +286,80 @@
       "frozenBaselineUnchanged": true,
       "transformationJsonBlobSha": "7433d52ae1a7a75de51366a845375dda04ab87fa"
     }
+  },
+  "followupEvidence20261121_0338_lowTierVoidShader": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH",
+    "status": "OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "inspectedHead": "512ff9655d32124f385b032f62fc473e946301c3",
+    "productionSha": "2615ec3204914da40bd8a2ad2cc897ea38c688d8",
+    "correctedTestHeadSha": "f6484d3ed3c7eed5b992c9311683cec5ee80ec24",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenBaselineBlobVerifiedUnchanged": "7433d52ae1a7a75de51366a845375dda04ab87fa",
+    "originalFullMotion": {
+      "campaign": "https://github.com/my-edutu/Ai_games/actions/runs/44851753527",
+      "originalCandidateSha": "28a6157d576a0f5819a3daa4990927fa6c5dc50f",
+      "authenticScenes": 8,
+      "authenticLedge": "pass",
+      "strictSourceToNativeDanger": "FAILED 0/2",
+      "desktop": {
+        "viewport": "960x600",
+        "drawnFloor9HUDSeconds": 26,
+        "sustainedVioletSeconds": 27,
+        "oldAndNewOverlapSeconds": 0,
+        "sourceToBrowserMs": 85,
+        "browserToWebGLReturnMs": 789,
+        "firstReturnedWebGLCostMs": 239.9
+      },
+      "portrait": {
+        "viewport": "390x844",
+        "drawnFloor9HUDSeconds": 26,
+        "sustainedVioletSeconds": 26.75,
+        "oldAndNewOverlapSeconds": 0,
+        "sourceToBrowserMs": 151,
+        "browserToWebGLReturnMs": 734,
+        "firstReturnedWebGLCostMs": 141.6
+      },
+      "limitation": "Original unedited 1x hosted WebMs; no genuine corresponding same-frame opened gateway+entire moving hero+walkable F9 roof; no hardware p50/p95/p99 or GPU timing claim"
+    },
+    "largestDefect": "Cold first Floor9 GPU scene gap >700ms in hosted capture accompanies abrupt old room/new world replacement; physical NDC projected hero and gate in 3/3 returned frames but native recorded old/new joint shot remained 0s in both viewports",
+    "productionChange": "Economize actual low-tier Void stone shader: one directional lookup of the same original texture instead of 3 triplanar samples, omit fragment derivative normal perturbation but retain PBR material, geometric normal, palette, roughness and source mesh; normal/high and previous Clockwork/other biomes unchanged. Update offscreen Floor8 shader prewarm to match eventual low-tier F9 shader program. No simulated game actions, physics, collision, guardian, control, win or source tick edits.",
+    "productionFiles": [
+      "public/infinite-tower-climb/visuals/world-surface.mjs",
+      "public/infinite-tower-climb/visuals/world.mjs",
+      "public/infinite-tower-climb/visuals/void-program-prewarm.mjs"
+    ],
+    "regressionTests": [
+      "tests/phase3/tower-void-economy-stone-shader.test.cjs",
+      "tests/phase3/tower-void-program-prewarm.test.cjs"
+    ],
+    "firstQuality": {
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44856978897",
+      "status": "FAILED original new regex test and obsolete older low-tier program key expectation; not a pass"
+    },
+    "testOnlyCorrections": [
+      "490ac5e39843158f23bfe7a0079bf30dc6665109",
+      "f6484d3ed3c7eed5b992c9311683cec5ee80ec24"
+    ],
+    "correctedHeadQuality": {
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44857144656",
+      "statusAtWriting": "PENDING, not green"
+    },
+    "exactProductionNativeCampaign": {
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44856979004",
+      "sourceSha": "2615ec3204914da40bd8a2ad2cc897ea38c688d8",
+      "statusAtWriting": "IN PROGRESS; native result unassessed"
+    },
+    "blindIndependentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0,
+      "requiredEach": 5,
+      "minCandidatePreferenceEach": 4
+    },
+    "actualDeviceP50P95P99": "NOT EVALUATED",
+    "actualDeviceMemory": "NOT EVALUATED",
+    "nextAction": "Download real original desktop/portrait candidate WebM for 2615ec32, verify exact SHA/source event timing and continuous original HP0 gate+moving body+walkable successor pixels, compare first Floor9 browser->render return and low-tier stone visual quality. If still 0s shared original-to-Void architecture, prioritize old/new scene submission and spatial ownership. Do not infer improvement from shader work or tests.",
+    "constraints": "PR58 unchanged, PR68 open DRAFT, frozen baseline blob unchanged, no merge/deploy/force-push/unrelated games"
   }
 }
