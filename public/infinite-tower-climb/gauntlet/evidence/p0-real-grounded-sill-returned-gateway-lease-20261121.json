@@ -59,9 +59,9 @@
     "PLAYS": 0
   },
   "hardwarePerformance": "NOT EVALUATED",
-  "freshCaptureStatus": "Production b6773eaf 9-job campaign https://github.com/my-edutu/Ai_games/actions/runs/44900659105 running; no new native evidence inspected yet.",
-  "ciStatus": "Current exact-source quality 44900679818 pending; earlier 44894903572 was 10/10 passed for a DIFFERENT SHA. Production b6773eaf capture 44900659105 running; native acceptance remains FAILED 0/2 on last completed source 44b5912b.",
-  "nextAction": "Inspect candidate b6773eaf original desktop+portrait danger WebMs and complete session event index; test whether full-motion bronze-to-Void handoff and legible complete actor/actual F9 roof survive more than two consecutive native frames at source crossing. If returned lease is still discontinuous, revisit actual source-owned gateway mesh visibility versus giant first-F9 upper-deck foreground and final camera safety; do not switch to P1 or claim quality. Check exact-source quality 44900679818 and device/perceptual gates.",
+  "freshCaptureStatus": "Latest production source-pinned 44900659105 completed: 8/8 authentic pairs + ledge, strict native event alignment 0/2 FAILED. See postRepairNormalSpeedCapture20261121.",
+  "ciStatus": "Current exact-source quality 44901005801 IN PROGRESS at record; prior a08f source failed stale Phase3 assertion tied to earlier raw dt; corrected assertion commit d6d601a9. No exact-head CI green claimed.",
+  "nextAction": "Rework gateway-to-raised-platform legibility through actual shared original F8 gate, F9 ground/upper-deck physical silhouette and the same camera, rather than independent tint or first-frame timing patches. Need source/native correspondence in desktop+portrait and 2+ consecutive truly joined original-gate/complete actor/actual roof frames.",
   "safety": "No simulation, guardian, platforms, collision, PR58, frozen baseline or unrelated games changed.",
   "qualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44891392196",
   "pr68HeadBeforeWork": "6664a33d389801e881adf1bce73616759542c77c",
@@ -141,7 +141,7 @@
     "safety": "PR #58, frozen baseline ledger SHA/blob, unrelated games, merge, deploy, force-push and PR68 draft status unchanged."
   },
   "currentProductionSourceSha": "b6773eaf223aaf374beb1cc42191ad351cd0bed8",
-  "currentEvidenceAndTestSourceSha": "9fcbda7563a55af0866baf880a38f01e0183e87f",
+  "currentEvidenceAndTestSourceSha": "d6d601a97805993f91babdbddbd9505459cf8f9b",
   "returnedGatewayTimebaseRepair20261121": {
     "status": "IMPLEMENTED, NEW EXACT-SOURCE VISUAL IMPROVEMENT NOT YET VERIFIED",
     "productionSha": "b6773eaf223aaf374beb1cc42191ad351cd0bed8",
@@ -162,10 +162,10 @@
     },
     "actualImplementation": "Share bounded completed-WebGL-return time (min 100ms per returned pair, max with frame dt) across existing old cap/roof/guardian-gateway/gallery/atmosphere owner and retired original bearing palette. Single cold frame, browser poll and long renderer stalls cannot earn an unseen interval; no new geometry/gameplay clocks/physics/moves/guardian/colliders.",
     "safetyChecks": "New focused tests for 16×100ms returns vs 16ms clamped RAF, 10-second stall, invalid/reversed clock and source owner wiring. CI is a VETO, not experience acceptance.",
-    "qualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44900679818",
-    "qualityStatusAtRecord": "PENDING, NOT CLAIMED PASS",
+    "qualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44901005801",
+    "qualityStatusAtRecord": "IN PROGRESS after correcting preexisting deferred-shell source assertion which expected raw shown dt; earlier a08f quality failed 1 Phase3 assertion, no green claim",
     "newMatchedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44900659105",
-    "captureStatusAtRecord": "IN PROGRESS at production b6773eaf, capture does not include subsequent test-only commit; full source-pinned normal-speed WebMs pending",
+    "captureStatusAtRecord": "COMPLETED: 8/8 authentic baseline/candidate original 60s+ source timelines plus ledge passed; event-video native pairing 0/2 FAILED, not accepted",
     "independentReviewCounts": {
       "LOOKS": 0,
       "FEELS": 0,
@@ -173,5 +173,30 @@
     },
     "hardwareFrameTimeAndMemory": "NOT EVALUATED",
     "nextAction": "Inspect candidate b6773eaf original desktop+portrait danger WebMs and complete session event index; test whether full-motion bronze-to-Void handoff and legible complete actor/actual F9 roof survive more than two consecutive native frames at source crossing. If returned lease is still discontinuous, revisit actual source-owned gateway mesh visibility versus giant first-F9 upper-deck foreground and final camera safety; do not switch to P1 or claim quality. Check exact-source quality 44900679818 and device/perceptual gates."
+  },
+  "postRepairNormalSpeedCapture20261121": {
+    "candidateProductionSha": "b6773eaf223aaf374beb1cc42191ad351cd0bed8",
+    "captureWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44900659105",
+    "originalCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44900659105/artifacts/14705224964",
+    "captureResult": "8/8 original baseline/candidate 1x 60s+ captures and authentic ledge passed; 0/2 strict native A/B event alignment FAILED; visual acceptance NOT EVALUATED",
+    "desktop": {
+      "originalWebmSha256": "9387a25113a13abea602932ba6b43d376236b02de93c197f9a1f0222e10b014d",
+      "drawnF9HudSeconds": 26.25,
+      "firstSustainedVioletSeconds": 28.5,
+      "sustainedWarmCoolBridgeSeconds": 0,
+      "originalGateOpacityAtTick531": 0.1754,
+      "returnedGateFramesAtTick531": 14
+    },
+    "portrait": {
+      "originalWebmSha256": "2125df5ec6c307684535bbef2474f39af0df7c590df42e2c3118c54e4fb346c6",
+      "drawnF9HudSeconds": 26.25,
+      "firstSustainedVioletSeconds": 28,
+      "sustainedWarmCoolBridgeSeconds": 0,
+      "originalGateOpacityAtTick526": 0.2124,
+      "returnedGateFramesAtTick526": 12
+    },
+    "readout": "Unedited native original WebMs sampled at 24.5–30.0s. A physical full-body avatar and real F9 receiving roof appear on both, with old copper superstructure still present; the earlier boss-room framing still abruptly changes to much larger F9 annulus and raised violet moving-platform foreground at the HUD change. The change did not clear joined-room native pixel/event-matched acceptance. Retained old gateway opacity differs across browser runs; do not attribute a quantitative improvement to the repair without matched hardware/sampling.",
+    "actualSourceEvents": "Same immutable Floor8->9 crossing tick475 in both candidate source traces; full program progression/restart is source evidenced but not pixel/event certified",
+    "criticalNextAction": "Rework gateway-to-raised-platform legibility through actual shared original F8 gate, F9 ground/upper-deck physical silhouette and the same camera, rather than independent tint or first-frame timing patches. Need source/native correspondence in desktop+portrait and 2+ consecutive truly joined original-gate/complete actor/actual roof frames."
   }
 }
