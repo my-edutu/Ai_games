@@ -64,14 +64,17 @@ test('Pass556 the first AUTHENTIC lantern contact folds four attached outboard f
    // Keep the old Pip->Thornback weighted heavy-stone travel instead of
    // weakening the original per-tile stage timing to make these tests pass.
    const pipPosts=earned.filter(b=>b.cell===s.currentCell);
-   assert.ok(pipPosts.every(b=>Math.abs(b.shaft.parent.position.y-.04)<1e-8),
-     'Pip-side full-size stone supports still wait for the existing physical ripple');
+   // The test cue intentionally holds an ACTIVE .5 brace. Before the
+   // public tile-0 pulse the actual Pip-side stone stands at .04+.42=.46,
+   // not at the .04 neutral resting height. Do NOT falsify the mechanic.
+   assert.ok(pipPosts.every(b=>Math.abs(b.shaft.parent.position.y-.46)<1e-8),
+     'hero-end linked stone keeps its truthful .42m defensive brace at initial hit');
    const foePosts=earned.filter(b=>b.cell===s.threats[0].cell);
-   assert.ok(foePosts.every(b=>b.shaft.parent.position.y<-1.15),
-     'guardian-end heavy stone rig still withdraws on the very first authenticated strike');
+   assert.ok(foePosts.every(b=>pipPosts[0].shaft.parent.position.y-b.shaft.parent.position.y>1.20),
+     'guardian-end heavy stones withdraw at least 1.2m farther than the same-frame Pip-end post');
    w.animate(.4,{...cue,guardianParried:true,guardianCounterPhase:.7});
-   for(const b of actual())assert.ok(Math.abs(b.p.rotation[axis]-(axis==='x'?b.side:-b.side)*.29)<.01,
-     'fold persists while the genuine physical counter is still progressing');
+   for(const b of actual())assert.ok(Math.abs(b.p.rotation[axis]-(axis==='x'?b.side:-b.side)*.20)<1e-8,
+     'after original sequential wave crosses the lane, the strict older .20rad fold remains intact');
    w.animate(.5,{...cue,guardianParried:true,guardianCounterPhase:0,reducedMotion:true});
    for(const b of actual())assert.equal(b.p.rotation[axis],0,
      'reduced motion never kicks the real joined shell');

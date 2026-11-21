@@ -4228,7 +4228,8 @@ export function createMazeWorld(options = {}) {
         // sustaining the warning shield through the winning counter.
         beacon.sailPivot.rotation[signal.axis==='x'?'x':'z']=reduced?0
           :(signal.axis==='x'?-beacon.side:beacon.side)
-            *(.88*linkedFanBrace-.29*linkedFanFold);
+            *(.88*linkedFanBrace-.20*counterWave
+              -.29*sharedEarnedFanRelease*(1-counterWave));
         // Pass329 original 390px brace showed FOUR opaque amber feathers
         // visually overtaking Pip and Thornback. Keep the full-size hinged
         // SEA-GLASS body visibly moving through the real guardian warning,
