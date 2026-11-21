@@ -500,5 +500,41 @@
       }
     },
     "observedNewFilmedDefect": "New source-authentic dd213 desktop and portrait original 1x WebMs still reveal an abrupt bronze room to fully violet successor scene. In portrait dark foreground steel / raised platform undersides mask the open doorway and moving hero; post-crossing moving climber and raised destination remain small/visually detached. Source-state dash patch has not passed visual acceptance. Source film shows no sustained warm-cool bridge (0 seconds) in either view."
+  },
+  "p0RetainedGatewayContinuousSubmittedCamera20261121": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedHeadBeforeSourceChange": "a1f9f17a421a5f4d24f1d2f6146ebe55a913aee5",
+    "latestCompletedQuality": {
+      "sha": "a1f9f17a421a5f4d24f1d2f6146ebe55a913aee5",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44920712257",
+      "result": "10/10 successful, engineering veto only; before new code"
+    },
+    "latestCompletedActualGameplay": {
+      "candidateSha": "dd2132d7550aebd6a8746d887da9ccb18a70d933",
+      "campaign": "https://github.com/my-edutu/Ai_games/actions/runs/44920153911",
+      "result": "8/8 normal-speed original baseline/candidate recordings, authentic ledge job succeeded; event-matched original danger native video FAILED 0/2 viewports",
+      "desktop": "First F9 glyph ~26.00s; sustained violet ~28.00s, 0s sustained shared bronze-to-Void scene",
+      "portrait": "First F9 glyph ~25.75s; sustained violet ~27.25s, 0s sustained shared bronze-to-Void scene",
+      "frameLimitation": "Original video samples and source traces are genuine but not calibrated event-to-pixel; no gameplay visual acceptance claimed"
+    },
+    "primarySystemicIssue": "Previous camera release only bounded orbit AFTER original gateway disappearance, while original F9 returned gateway/roof/hero are still concurrently in scene. A large follow-camera shoulder/depth shift can disconnect rendered original gate from genuine successor roof in native portrait and desktop recordings.",
+    "implemented": {
+      "helperSha": "cc719652b4fc029ef6bb876e88a352b8976b47b3",
+      "sceneIntegrationSha": "a0c0bf6ba1b78f5158ffd2b9a81b8e8794afc6af",
+      "focusedSourceTestSha": "005dcf76b8d780c0616b9a7a39456c234f2b5557",
+      "work": "Frame-bounded SAME camera director during existing source/World-certified returned F9 opened bronze gateway; clamp true camera orbit/radius/height/focus relative to last same-run completed F9 render. Gate centre, full skinned climber, real walkable receiving F9 roof and opaque tower core all veto any unsafe proposed camera. No source controls, future events, gameplay mechanics, platform meshes or fabricated image modifications."
+    },
+    "engineering": "New exact-head CI triggered; outcome not yet established at record. Focused checks committed; must inspect CI before claiming PASS.",
+    "realPinnedVideo": "New exact-SHA 9-job source-pinned recording to be requested via capture-request commit. Do not reuse earlier dd213 video as new code evidence.",
+    "reviewerCounts": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "hardwareP50P95P99AndMemory": "NOT EVALUATED",
+    "nextAction": "Inspect actual new exact SHA original candidate and frozen baseline danger/ascending/outcome normal-speed WebMs at full motion in desktop 960x600 and portrait 390x844. Require strict source-event-to-native alignment (2/2) plus consecutive fully moving actor, opened original guardian gate, true walkable F9 roof and first raised destination without violet hard cut. If failing, reopen actual F8 old-GPU/F9-world structural ownership and camera as one design. Actual-device metrics and genuinely independent blind critics later.",
+    "safety": "PR58 and unrelated games untouched, PR68 remains draft; no merge, deploy, force push, or baseline movement."
   }
 }
