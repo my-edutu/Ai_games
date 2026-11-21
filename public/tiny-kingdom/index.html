@@ -11519,10 +11519,25 @@ function grainwardOriginalTallStorey(x,z,variant,index,isCompact){
  materialScope(MATERIAL.WOOD,()=>{
   for(const face of [-1,1]){
    const zz=z+face*(d*.5+.225);
-   box(x,(foot+cap)*.5,zz,w*.89,.105,.09,oak);
-   for(const side of [-1,1])
-    box(x+side*w*.44,(foot+cap)*.5,zz,.095,cap-foot,.095,oak);
-   box(x,cap,zz,w*.95,.12,.095,pale);
+   if(!isCompact){
+    box(x,(foot+cap)*.5,zz,w*.89,.105,.09,oak);
+    for(const side of [-1,1])
+     box(x+side*w*.44,(foot+cap)*.5,zz,.095,cap-foot,.095,oak);
+    box(x,cap,zz,w*.95,.12,.095,pale);
+   }else{
+    // Deep front-facing framework is still a real coherent silhouette;
+    // only its interior, plaster-embedded cube faces are not submitted.
+    const board=(cx,cy,ww,hh,tone)=>{
+     const p=[[cx-ww*.5,cy-hh*.5,zz],[cx+ww*.5,cy-hh*.5,zz],
+       [cx+ww*.5,cy+hh*.5,zz],[cx-ww*.5,cy+hh*.5,zz]];
+     if(face>0)quad(...p,tone);else quad(...p.slice().reverse(),tone);
+     quad(...p.slice().reverse(),tone);
+    };
+    board(x,(foot+cap)*.5,w*.89,.105,oak);
+    for(const side of [-1,1])board(x+side*w*.44,
+       (foot+cap)*.5,.095,cap-foot,oak);
+    board(x,cap,w*.95,.12,pale);
+   }
   }
  });
  const back=z+d*.5+.238,low=y+h-.94,high=y+h-.43;
@@ -11553,7 +11568,7 @@ function grainwardOriginalTallStorey(x,z,variant,index,isCompact){
   }
  });
  const triangles=(data.length-before)/30;
- if(!Number.isInteger(triangles)||triangles<85||triangles>128)
+ if(!Number.isInteger(triangles)||triangles<(isCompact?40:85)||triangles>128)
   throw Error('W258 actual inhabited upper storey budget exceeded');
  villageVisualLod.grainwardTallHomeStories++;
  villageVisualLod.grainwardTallHomeTriangles+=triangles;
@@ -12138,9 +12153,22 @@ function compactHouse(x,z,variant){
  });
  materialScope(MATERIAL.WOOD,()=>{
   // The eaves and ridge break the formerly flat low-LOD silhouette.
-  box(x,peak+.01,z,.13,.095,hip?ridgeBack-ridgeFront+.14:d+.35,rgb(0xb18b63));
+  const rz=hip?ridgeBack-ridgeFront+.14:d+.35,
+    z0=z-rz*.5,z1=z+rz*.5,ridgeColor=rgb(0xb18b63);
+  // Roof tiles shield lower and end faces; exposed ridge and two timber
+  // eave sheets stay continuous along EXACT original physical roof extents.
+  quad([x-.065,peak+.0575,z0],[x-.065,peak+.0575,z1],
+    [x+.065,peak+.0575,z1],[x+.065,peak+.0575,z0],ridgeColor);
   for(const side of [-1,1]){
-   box(x+side*(halfW-.02),eave-.07,z,.10,.12,d+.43,timber);
+    const xx=x+side*.065,p=[[xx,peak-.0375,z0],[xx,peak+.0575,z0],
+      [xx,peak+.0575,z1],[xx,peak-.0375,z1]];
+    if(side>0)quad(...p,ridgeColor);else quad(...p.slice().reverse(),ridgeColor);
+    const ex=x+side*(halfW-.02),ea=z-(d+.43)*.5,eb=z+(d+.43)*.5,
+      q=[[ex+side*.05,eave-.13,ea],[ex+side*.05,eave-.01,ea],
+      [ex+side*.05,eave-.01,eb],[ex+side*.05,eave-.13,eb]];
+    if(side>0)quad(...q,timber);else quad(...q.slice().reverse(),timber);
+    quad([ex-.05,eave-.01,ea],[ex-.05,eave-.01,eb],
+      [ex+.05,eave-.01,eb],[ex+.05,eave-.01,ea],timber);
   }
   // Both gable ends stay legible when camera orbit changes. Previous LOD
   // put all windows and the only door on the reverse face.
@@ -12270,16 +12298,34 @@ function compactHouse(x,z,variant){
  const chimneyX=x+(variant%2?-.23:.23)*w;
  const chimneyBase=eave+roofPitch*(1-Math.abs(chimneyX-x)/halfW)-.12;
  materialScope(MATERIAL.STONE,()=>{
-  box(chimneyX,chimneyBase,z+d*.16,.32,.75,.35,rgb(0xb1a393));
-  box(chimneyX,chimneyBase+.67,z+d*.16,.40,.12,.43,rgb(0x746f66));
+  const stoneFlue=(cx,cy,cz,w,h,d,col,top)=>{
+    const xa=cx-w*.5,xb=cx+w*.5,za=cz-d*.5,zb=cz+d*.5,
+      lo=cy-h*.5,hi=cy+h*.5;
+    quad([xa,lo,za],[xb,lo,za],[xb,hi,za],[xa,hi,za],col);
+    quad([xb,lo,zb],[xa,lo,zb],[xa,hi,zb],[xb,hi,zb],col);
+    quad([xb,lo,za],[xb,lo,zb],[xb,hi,zb],[xb,hi,za],col);
+    quad([xa,lo,zb],[xa,lo,za],[xa,hi,za],[xa,hi,zb],col);
+    if(top)quad([xa,hi,za],[xa,hi,zb],[xb,hi,zb],[xb,hi,za],col);
+  };
+  const chimneyZ=z+d*.16;
+  stoneFlue(chimneyX,chimneyBase,chimneyZ,.32,.75,.35,rgb(0xb1a393),false);
+  stoneFlue(chimneyX,chimneyBase+.67,chimneyZ,.40,.12,.43,rgb(0x746f66),true);
  });
  // Raised upper-storey homes carry a physical timber floor band on all
  // four facades. Four bounded beams per loft, never per-frame emissions.
  if(roofStyle===1||roofStyle===3){
   materialScope(MATERIAL.WOOD,()=>{
    for(const side of [-1,1]){
-    box(x,y+h*.64,z+side*(d*.5+.095),w+.08,.10,.12,timber);
-    box(x+side*(w*.5+.095),y+h*.64,z,.12,.10,d+.13,timber);
+    const level=y+h*.64,zz=z+side*(d*.5+.155),
+      xx=x+side*(w*.5+.155),za=z-(d+.13)*.5,zb=z+(d+.13)*.5;
+    const p=[[x-(w+.08)*.5,level-.05,zz],[x+(w+.08)*.5,level-.05,zz],
+      [x+(w+.08)*.5,level+.05,zz],[x-(w+.08)*.5,level+.05,zz]];
+    if(side>0)quad(...p,timber);else quad(...p.slice().reverse(),timber);
+    quad(...p.slice().reverse(),timber);
+    const q=[[xx,level-.05,za],[xx,level-.05,zb],
+      [xx,level+.05,zb],[xx,level+.05,za]];
+    if(side>0)quad(...q,timber);else quad(...q.slice().reverse(),timber);
+    quad(...q.slice().reverse(),timber);
    }
   });
   villageVisualLod.compactGuildLofts++;
@@ -12383,11 +12429,23 @@ function compactBurgageFrontage(x,z,variant,y,w,d,h,roofStyle){
  // existing alternate shop canopy is retained instead of doubled.
  materialScope(MATERIAL.WOOD,()=>{
   for(const side of [-1,1]){
-   const px=x+side*.65;
-   box(px,y+.06,front,.12,1.45,.12,timber);
-   box(px,y+1.49,front,.23,.10,.18,sill);
+   const px=x+side*.65,lo=y+.06-1.45*.5,hi=y+.06+1.45*.5;
+   // The original wood post still joins ground and lintel, with a 3D
+   // crossed pair of external timber faces instead of a buried solid cube.
+   quad([px-side*.06,lo,front-.06],[px-side*.06,hi,front-.06],
+    [px-side*.06,hi,front+.06],[px-side*.06,lo,front+.06],timber);
+   quad([px-.06,lo,front-side*.06],[px+.06,lo,front-side*.06],
+    [px+.06,hi,front-side*.06],[px-.06,hi,front-side*.06],timber);
+   quad([px-.115,y+1.54,front-.09],[px-.115,y+1.54,front+.09],
+    [px+.115,y+1.54,front+.09],[px+.115,y+1.54,front-.09],sill);
+   const cx=px+side*.115;
+   quad([cx,y+1.44,front-.09],[cx,y+1.54,front-.09],
+    [cx,y+1.54,front+.09],[cx,y+1.44,front+.09],sill);
   }
-  box(x,y+1.52,front,1.46,.13,.15,timber);
+  quad([x-.73,y+1.585,front-.075],[x-.73,y+1.585,front+.075],
+    [x+.73,y+1.585,front+.075],[x+.73,y+1.585,front-.075],timber);
+  quad([x-.73,y+1.455,front-.075],[x+.73,y+1.455,front-.075],
+   [x+.73,y+1.585,front-.075],[x-.73,y+1.585,front-.075],timber);
   for(const side of [-1,1]){
    const px=x+side*.66;
    quad([px,y+1.14,front-.072],[px,y+1.49,front-.072],
@@ -17663,8 +17721,15 @@ function highStreetGoods(x,z,tone=0){
    const xx=x+stack*.43,zz=z+stack*.20;
    box(xx,y,zz,.39,.38,.40,oak);
    for(const side of [-1,1]){
-    box(xx+side*.195,y+.06,zz,.035,.34,.42,rim);
-    box(xx,y+.34,zz+side*.20,.40,.045,.04,rim);
+    // W524: genuine 3D crate bodies remain complete; exposed oak strapping
+    // occupies only its actual outward-facing plane instead of twelve
+    // internal cube triangles buried in the timber crate body.
+    const vx=xx+side*.213,p0=[[vx,y-.11,zz-.21],[vx,y+.23,zz-.21],
+      [vx,y+.23,zz+.21],[vx,y-.11,zz+.21]];
+    if(side>0)quad(...p0,rim);else quad(...p0.slice().reverse(),rim);
+    const vz=zz+side*.223,p1=[[xx-.20,y+.3175,vz],[xx+.20,y+.3175,vz],
+      [xx+.20,y+.3625,vz],[xx-.20,y+.3625,vz]];
+    if(side>0)quad(...p1,rim);else quad(...p1.slice().reverse(),rim);
    }
   }
   cylinder(x-.43,y,z+.08,.24,.54,rgb(0x8c6846),8);
@@ -17731,10 +17796,26 @@ function renderInhabitedKitchenGarden(xx,zz,index,sign){
  materialScope(MATERIAL.STONE,()=>{
   for(let bed=0;bed<2;bed++){
    const x=xx+(bed?-.49:.49),z=bedZ;
+   const edgedStone=(cx,cy,cz,w,h,d,col,axis)=>{
+    const xa=cx-w*.5,xb=cx+w*.5,za=cz-d*.5,zb=cz+d*.5,
+     lo=cy-h*.5,hi=cy+h*.5;
+    // True perimeter stone slabs with their top and BOTH opposite long
+    // faces. Only subsoil bottom and joined/buried end faces are absent.
+    quad([xa,hi,za],[xa,hi,zb],[xb,hi,zb],[xb,hi,za],col);
+    if(axis==='z'){
+     quad([xa,lo,za],[xa,lo,zb],[xa,hi,zb],[xa,hi,za],col);
+     quad([xb,hi,za],[xb,hi,zb],[xb,lo,zb],[xb,lo,za],col);
+    }else{
+     quad([xa,lo,za],[xb,lo,za],[xb,hi,za],[xa,hi,za],col);
+     quad([xa,hi,zb],[xb,hi,zb],[xb,lo,zb],[xa,lo,zb],col);
+    }
+   };
    for(const side of [-1,1]){
     const rx=x+side*.31,rz=z+side*.49;
-    box(rx,ground(rx,z)+.015,z,.085,.16,.98,ash[(index+bed+side+4)%3]);
-    box(x,ground(x,rz)+.015,rz,.66,.16,.082,ash[(index+bed+side+3)%3]);
+    edgedStone(rx,ground(rx,z)+.015,z,.085,.16,.98,
+     ash[(index+bed+side+4)%3],'z');
+    edgedStone(x,ground(x,rz)+.015,rz,.66,.16,.082,
+     ash[(index+bed+side+3)%3],'x');
    }
    const runoffX=x+(bed?-.39:.39);
    // Drainage is an open, thin downhill channel, not six intersecting
@@ -17759,9 +17840,14 @@ function renderInhabitedKitchenGarden(xx,zz,index,sign){
   for(let bed=0;bed<2;bed++){
    const x=xx+(bed?-.49:.49),z=bedZ,y=ground(x,z);
    box(x,y+.072,z,.53,.11,.89,soil[(index+bed)%3]);
-   for(let row=0;row<3;row++)
-    box(x,y+.178,z-.3+row*.30,.47,.027,.044,
+   for(let row=0;row<3;row++){
+    // The full earth bed remains a 3D box. These shallow soil crowns do not
+    // need hidden bottom, back and buried side cubes to follow three rows.
+    const zz=z-.3+row*.30,yy=y+.1915;
+    quad([x-.235,yy,zz+.022],[x-.235,yy,zz-.022],
+     [x+.235,yy,zz-.022],[x+.235,yy,zz+.022],
      soil[(index+bed+row+1)%3]);
+   }
   }
  });
  materialScope(MATERIAL.WOOD,()=>{
@@ -17769,12 +17855,14 @@ function renderInhabitedKitchenGarden(xx,zz,index,sign){
   // tessellates each thin reed as a closed miniature cylinder on both faces.
   for(let row=0;row<4;row++){
    const z=zz+1.063,y=ground(xx,z)+.17+row*.11;
-   for(let segment=0;segment<6;segment++){
-    const x=xx-1.06+segment*.355,
+   // Same four full woven fence courses. Joining paired overlapping laths
+   // into one authentic longer bowed plank avoids invisible joined ends.
+   for(let segment=0;segment<3;segment++){
+    const x=xx-1.06+segment*.71,
      bend=(segment+row)%2?.021:-.021,
      a=[x,y-.012,z+bend],
-     b=[x+.365,y-.012,z-bend],
-     c=[x+.365,y+.012,z-bend],
+     b=[x+.72,y-.012,z-bend],
+     c=[x+.72,y+.012,z-bend],
      d=[x,y+.012,z+bend],
      tint=row%2?oak:lath;
     quad(a,b,c,d,tint);quad(d,c,b,a,tint);

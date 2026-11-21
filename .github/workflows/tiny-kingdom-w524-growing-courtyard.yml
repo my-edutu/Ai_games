@@ -1,0 +1,36 @@
+name: Tiny Kingdom W524 Real Growing Town and Court Budget
+on:
+  push:
+    branches: [feat/tiny-kingdom-post-main-gauntlet-20261031]
+  workflow_dispatch:
+jobs:
+  real-day121:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CI: '1'
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Confirm full source and real-game contracts
+        run: node scripts/tiny-kingdom-w524-coherent-courtyard-contract.cjs
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Film real Day1 to Day121 desktop and portrait with strict complete geometry
+        run: npx playwright test tests/browser/tiny-kingdom-w519-growing-camera.spec.cjs --workers=1
+      - name: Retain real screenshots videos traces even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w524-real-1024-and-390
+          path: |
+            test-results/
+            playwright-report/
+            artifacts/tiny-kingdom-w520-court-camera/
+          if-no-files-found: warn
+          retention-days: 14
