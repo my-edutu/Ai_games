@@ -19,6 +19,8 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: Confirm full source and real-game contracts
         run: node scripts/tiny-kingdom-w524-coherent-courtyard-contract.cjs
+      - name: Grounded original farm camera policy and direct playable action contract
+        run: node scripts/tiny-kingdom-w526-grounded-growth-contract.cjs
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - name: Film real Day1 to Day121 desktop and portrait with strict complete geometry

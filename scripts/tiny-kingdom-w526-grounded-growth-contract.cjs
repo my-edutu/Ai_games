@@ -8,6 +8,11 @@ const end=html.indexOf('function recoverGrowingTownSpectatorCamera(){',begin);
 assert.ok(begin>0&&end>begin,'original source must contain the grounded-camera planner');
 const code=html.slice(begin,end);
 assert.match(code,/function chooseGroundedGrowingTownCamera\(/);
+assert.equal((html.match(/id="camera-farm"/g)||[]).length,1);
+assert.match(html,/function requestRealFarmWorksiteView\(/);
+assert.match(html,/button\('camera-farm',requestRealFarmWorksiteView\)/);
+assert.match(html,/getGrowingTownCameraAudit,requestRealFarmWorksiteView,getPhysicalFarmCameraAudit,getCamera:/);
+assert.match(html,/case 'r':case 'R':requestRealFarmWorksiteView\(\);break;/);
 const sample={yaw:.82,pitch:.59,zoom:12.8,focus:[23,1]};
 for(const width of [1024,390]){
  const calls=[];

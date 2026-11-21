@@ -155,6 +155,43 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    expect(observed.grown.hiddenStructures).toBe(0);
    expect(observed.grown.hiddenCitizens).toBe(0);
   }
+  // W526 second running-camera witness: real touchscreen/mouse-visible
+  // Farm view button must expose the genuine district, not the prior steep
+  // W525 1.21-radian view. Preserve the same Day121 world and record pixels.
+  const beforeFarm=await page.evaluate(()=>
+   window.__tinyKingdom.exportSnapshot().checksum);
+  await page.locator('#camera-disclosure').click();
+  await page.locator('#camera-farm').click();
+  const previousFrame=await page.evaluate(()=>
+   window.__tinyKingdom.renderQuality().framesDrawn);
+  await page.waitForFunction(before=>
+   window.__tinyKingdom.renderQuality().framesDrawn>before,
+   previousFrame,{timeout:125000});
+  const farmWitness=await page.evaluate(()=>{
+   const g=window.__tinyKingdom,c=document.querySelector('#world');
+   return {camera:g.getCamera(),physical:g.getFreeCameraCollisionAudit(),
+    farm:g.getPhysicalFarmCameraAudit(),
+    checksum:g.exportSnapshot().checksum,
+    sourceTriangles:g.getSceneTriangleReconciliation().auditedTriangles,
+    webglError:c.getContext('webgl').getError(),
+    overflow:document.documentElement.scrollWidth-innerWidth};
+  });
+  const farmPng=await page.screenshot();
+  fs.writeFileSync(path.join(evidenceDirectory,'day-121-physical-farm-view.png'),farmPng);
+  fs.writeFileSync(path.join(evidenceDirectory,'day-121-physical-farm-view.json'),
+   JSON.stringify({source:process.env.GITHUB_SHA||'local',
+    viewport,day121ActualOriginalWorksite:true,...farmWitness,
+    hardwareFps:'NOT MEASURED',independentBlindCritic:'NOT PROVEN'},null,2));
+  await info.attach('actual-physical-farm-'+viewport.width,{
+   body:farmPng,contentType:'image/png'});
+  expect(farmWitness.farm.last?.accepted).toBe(true);
+  expect(farmWitness.camera.pitch).toBeLessThan(.92);
+  expect(farmWitness.camera.zoom).toBeLessThanOrEqual(35);
+  expect(farmWitness.physical.viewClear).toBe(true);
+  expect(farmWitness.sourceTriangles).toBeLessThan(160000);
+  expect(farmWitness.checksum).toBe(beforeFarm);
+  expect(farmWitness.webglError).toBe(0);
+  expect(farmWitness.overflow).toBeLessThanOrEqual(0);
   expect(stages.at(-1).homes).toBeGreaterThan(initial.homes);
   expect(stages.at(-1).day).toBeGreaterThanOrEqual(120);
   fs.writeFileSync(path.join(evidenceDirectory,'real-world-audit.json'),
