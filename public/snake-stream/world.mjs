@@ -312,12 +312,15 @@ export function planCohesiveRuinsPaving(width,height){
    throw new RangeError('Bounded positive physical masonry dimensions required');
  const hash=(x,z,s)=>{const n=Math.sin((x+s)*127.1+(z+s)*311.7)*43758.5453;return n-Math.floor(n);};
  const plan=[];
- // A variable-height, recursive ancient quarry: no uniform cell-sized chess
- // board and no continuous rows of joints from one shoreline to the other.
- // Every original integer gameplay cell is still covered by ONE physical
- // stone; this partition is never consulted by the autonomous simulation.
+ // Stage-sized ancient quarry: broad original physical limestone terraces,
+ // fewer broadcast-visible rectilinear joints, exact cell support preserved.
+ // This partition never participates in authoritative snake movement.
+ const broadStage=width>=20&&height>=12;
+ const maxW=broadStage?Math.min(15,Math.ceil(width*.55)):8;
+ const maxH=broadStage?Math.min(11,Math.ceil(height*.60)):5;
+ const maxArea=broadStage?112:36;
  const split=(x,z,w,h,depth)=>{
-   if(w<=8&&h<=5&&w*h<=36){
+   if(w<=maxW&&h<=maxH&&w*h<=maxArea){
      // Small 8×8 arenas still need a few genuinely fractured minor stones,
      // not six identical monoliths; keep even their full cell coverage.
      if(width<=8&&height<=8&&plan.length===0&&w>=3&&h>=2){
@@ -325,8 +328,8 @@ export function planCohesiveRuinsPaving(width,height){
      }
      plan.push({x,z,w,h});return;
    }
-   const alongX=w>8 || (h<=5&&w>4) || (w>=h*1.62);
-   const alongZ=h>5 || (w<=8&&h>3) || (h>=w*1.62);
+   const alongX=w>maxW || (h<=maxH&&w>maxW*.56) || (w>=h*1.62);
+   const alongZ=h>maxH || (w<=maxW&&h>maxH*.60) || (h>=w*1.62);
    const vertical=alongX&&!alongZ?true:alongZ&&!alongX?false:hash(x+depth,z,13)>.50;
    const length=vertical?w:h;
    if(length<=1){plan.push({x,z,w,h});return;}
@@ -671,6 +674,76 @@ export function buildErodedIslandShelfGeometry(THREE, width, height, layer) {
 }
 
 /**
+ * The native quarry's uninterrupted chessboard of stone is not an organic
+ * garden at broadcast distance. Reclaim three substantial, differently shaped
+ * interior basins as TRUE shallow 3D terrain, with original moss overburden
+ * and small exposed limestone outcrops. They are physical geometry, not a
+ * texture trick, and share the exact original cliff/moss static draw batches.
+ * The underlying complete playable stone crowns remain untouched at y=0:
+ * every body/fruit/hazard/portal cell retains its original support and the
+ * low relief cannot become a new game collider or visual portal bridge.
+ *
+ * The valley silhouettes follow the same world-scale garden geography on
+ * every board; the polygons and UVs are deterministic and independent of
+ * simulation snapshots, AI randomness and live rendering time.
+ */
+export function buildReclaimedCourtyardGlades(THREE,width,height,layer){
+  if(!Number.isInteger(width)||!Number.isInteger(height)||width<2||height<2||
+    !['moss','bedrock'].includes(layer))
+    throw new RangeError('Bounded real garden dimensions and moss/bedrock required');
+  const W=width/2,H=height/2,sections=48;
+  const centers=[
+    {x:-.57,z:-.37,rx:.385,rz:.45,seed:.45},
+    {x:.55,z:.31,rx:.385,rz:.45,seed:2.12},
+    {x:-.055,z:.20,rx:.31,rz:.36,seed:4.37},
+  ];
+  const p=[],uv=[],index=[];
+  for(let i=0;i<centers.length;i++){
+    const glade=centers[i],start=p.length/3;
+    const cx=W*glade.x,cz=H*glade.z;
+    const shift=layer==='bedrock'?.18:0;
+    const xCenter=cx+shift*W*Math.cos(glade.seed+1.1);
+    const zCenter=cz+shift*H*Math.sin(glade.seed+.6);
+    const rx=W*glade.rx*(layer==='bedrock'?.39:1);
+    const rz=H*glade.rz*(layer==='bedrock'?.43:1);
+    const stageY=layer==='bedrock'?.012:.008;
+    p.push(xCenter,stageY-i*.0012,zCenter);
+    uv.push(xCenter/3.7,zCenter/3.7);
+    const rings=[.13,.44,.76,1];
+    for(let ring=0;ring<rings.length;ring++)for(let k=0;k<sections;k++){
+      const angle=2*Math.PI*k/sections;
+      // Three unequal broad lobes, a shorter cross-contour and a restrained
+      // natural fracture. None makes a second rectangular court or a false
+      // platform: the existing authoritatively traversable stone remains.
+      const profile=1+.145*Math.sin(3*angle+glade.seed)
+        +.065*Math.sin(7*angle-glade.seed*1.8)
+        +.034*Math.cos(11*angle+glade.seed*.7);
+      const radius=rings[ring]*profile;
+      const x=Math.max(-W+.27,Math.min(W-.27,xCenter+Math.cos(angle)*rx*radius));
+      const z=Math.max(-H+.27,Math.min(H-.27,zCenter+Math.sin(angle)*rz*radius));
+      // Below 30mm of original belly clearance; the exterior lichen roots
+      // actually plunge through old stone at the rim, avoiding a flat decal.
+      const heights=[.009,.008,.002,-.027];
+      const height=heights[ring]-i*.0012+
+        (ring===3?0:.002*Math.sin(5*angle+glade.seed));
+      p.push(x,height,z);uv.push(x/3.7,z/3.7);
+    }
+    // Native upward-facing triangles for both the cap and shallow terraces.
+    for(let k=0;k<sections;k++)index.push(start,start+1+(k+1)%sections,start+1+k);
+    for(let ring=0;ring<rings.length-1;ring++)for(let k=0;k<sections;k++){
+      const a=start+1+ring*sections+k,b=start+1+ring*sections+(k+1)%sections;
+      const c=a+sections,d=b+sections;
+      index.push(a,b,c,b,d,c);
+    }
+  }
+  const geometry=new THREE.BufferGeometry();
+  geometry.setAttribute('position',new THREE.Float32BufferAttribute(p,3));
+  geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+  geometry.setIndex(index);geometry.computeVertexNormals();geometry.computeBoundingSphere();
+  return geometry;
+}
+
+/**
  * A connected original 3D sub-courtyard rock apron, not the former buried
  * axis-aligned box. The upper fan supports EVERY real gameplay stone below
  * its y=0 walking surface. Only the outboard fringe bends into the existing
@@ -715,8 +788,17 @@ export function buildRootedFlagstoneFoundationGeometry(THREE,width,height){
       // outer underwater foot (ring 3) retain their exact heights.
       const ridge=[0,.19,.66,0][ring]*wooded;
       const terraceStage=[0,.16,.50,.18][ring];
-      const r=border+reach+out*(.17*wave+grain)
-        +out*out*.40*wooded+terraceStage*tide.reach;
+      // Original nonrectangular exterior headlands, inlets and coves on all
+      // four existing physical island rings. Keep ring-zero intact and every
+      // altered contour beyond the last real traversable cell.
+      const estuary=Math.sin(3*a+.46)*.78
+        +Math.cos(5*a-1.13)*.44+Math.sin(9*a+.81)*.18
+        +Math.sin(2*a-1.04)*.16;
+      const landScale=Math.min(1.12,shoreScale/16);
+      const promontory=[0,.90,1.62,1.95][ring]*landScale*(.49+estuary);
+      const minOffset=[0,.42,1.82,3.0][ring];
+      const r=Math.max(border+minOffset,border+reach+out*(.17*wave+grain)
+        +out*out*.40*wooded+terraceStage*tide.reach+promontory);
       const slope=y+ridge-out*.045*(.5+.5*Math.sin(7*a-.31))
         -.015*out*Math.sin(11*a+ring*.5)+terraceStage*tide.rise;
       const x=r*cx,z=r*cz;
@@ -1589,6 +1671,13 @@ export function createWorld(THREE, {width, height}) {
   // tie-ridges attach to the SAME original stone/moss batches, not new draws.
   appendOriginalCoastGeometry(erodedCliff,buildFourShoreWoodlandSpurs(THREE,width,height,'bedrock'));
   appendOriginalCoastGeometry(rootedMantle,buildFourShoreWoodlandSpurs(THREE,width,height,'moss'));
+  // Broad genuine low-relief interior garden, not a colour-shifted tile grid.
+  // These surfaces share the original two physical static world draw batches;
+  // the unmodified stone crowns remain beneath every playable event and body.
+  // Limestone outcrops join the EXISTING light-stone material batch rather
+  // than occluding the protected cliff apron used by all legal cells.
+  add(geometry(buildReclaimedCourtyardGlades(THREE,width,height,'bedrock')),stone,0,0,0);
+  appendOriginalCoastGeometry(rootedMantle,buildReclaimedCourtyardGlades(THREE,width,height,'moss'));
   add(erodedCliff, cliff, 0, 0, 0);
   add(rootedMantle, moss, 0, 0, 0);
   // T1 EXPOSED COAST REMNANTS — the giant straight rear shelf previously
@@ -1838,6 +1927,16 @@ export function createWorld(THREE, {width, height}) {
           // deeper carved limestone/soil fracture visible in raking light.
           // Both use the SAME authored 3D vertices, no extra meshes or passes.
           const safeCrown=p.getY(v)>.499;
+          if(safeCrown){
+            // A 13–15-cell terrace cannot multiply its top bevel inset by
+            // its whole width: that scales an originally 13 mm chip into a
+            // 170 mm missing walking shoulder. Restore a safe ~80 mm upper
+            // crown inset while retaining the full fractured lower flank.
+            const safeX=Math.max(0,(region.w-.056)*.013-.080);
+            const safeZ=Math.max(0,(region.h-.056)*.013-.080);
+            if(Math.abs(px)>.42)positionTemp.x+=Math.sign(px)*safeX;
+            if(Math.abs(pz)>.42)positionTemp.z+=Math.sign(pz)*safeZ;
+          }
           if(Math.abs(px)>.42 && Math.abs(pz)>.42){
             // Four actual outer corners, separately fractured: existing real
             // 3D stone lips do not leak into the adjacent gameplay cell.
