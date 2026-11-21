@@ -65,11 +65,43 @@ for(const width of [390,1024]){
   }
  };
  vm.createContext(stageContext);
- const farm=vm.runInContext(code+'\nchooseGroundedEconomicSurveyLens({stage:"farm",focus:[21,.8],yaw:2.1},[], '+width+');',stageContext);
+ const farm=vm.runInContext('(function(){'+code+'\nreturn chooseGroundedEconomicSurveyLens({stage:"farm",focus:[21,.8],yaw:2.1},[], '+width+');})()',stageContext);
  assert.ok(farm?.screenBuildingOccupancy<.22,
   'real farm should use physically clear low-occupancy planted-field angle');
- const market=vm.runInContext(code+'\nchooseGroundedEconomicSurveyLens({stage:"market",focus:[-1,10],yaw:2.1},[], '+width+');',stageContext);
+ const market=vm.runInContext('(function(){'+code+'\nreturn chooseGroundedEconomicSurveyLens({stage:"market",focus:[-1,10],yaw:2.1},[], '+width+');})()',stageContext);
  assert.ok(Math.abs(market?.yaw-actualYaw)<.001,
   'market must retain actual surrounding buildings, not seek an empty field');
 }
 console.log('W527 physically selected authentic farm-market-home lower-angle camera source contract PASS; actual WebGL footage separately gated');
+
+// W529: test-first witness contract for actual grain documentary precedence.
+// Isolated VM stubs assert observer policy, not gameplay or receipt issuance.
+const w529Begin=s.indexOf('function advanceRealEconomicSurvey(){');
+const w529End=s.indexOf('function getRealEconomicSurveyAudit(){',w529Begin);
+assert.ok(w529Begin>0&&w529End>w529Begin);
+const w529Code=s.slice(w529Begin,w529End);
+for(const grain of [true,false]){
+ const farmer={name:'Original farmer',job:'farmer',activity:'Harvesting grain',x:20,z:1};
+ const smith={name:'Original smith',job:'smith',activity:'Forging tools',x:1,z:1};
+ const scene={Number,Math,REAL_ECONOMIC_SURVEY_STAGES:['farm','market','homes','workday'],
+  realEconomicSurveyIndex:2,realEconomicSurveyVisits:0,realEconomicSurveyLast:null,
+  people:grain?[farmer,smith]:[smith,farmer],selectedCitizen:0,presentationEpoch:0,
+  document:{getElementById:()=>({dataset:{},textContent:'',setAttribute(){}})},
+  showToast(){},setCommandView(){},
+  chooseRealGrainWitness:()=>grain?farmer:null,
+  watchRealGrainJourney:()=>({active:true,producer:farmer.name,
+   deliveryId:'actual-lot',stage:'hauling',verifiedReceipt:false}),
+  watchLiveWorkday:()=>({citizen:smith.name,active:true})};
+ vm.createContext(scene);
+ const before=JSON.stringify(scene.people);
+ const result=vm.runInContext(w529Code+'\nadvanceRealEconomicSurvey();',scene);
+ assert.equal(result.accepted,true);
+ assert.equal(result.stage,'workday');
+ assert.equal(result.citizen,grain?farmer.name:smith.name);
+ assert.equal(result.genuineGrainWitness,grain);
+ assert.equal(result.grainParcelId,grain?'actual-lot':null);
+ assert.equal(result.verifiedMarketReceipt,false,'no fabricated stock credit');
+ assert.equal(JSON.stringify(scene.people),before);
+ assert.equal(scene.realEconomicSurveyVisits,1);
+}
+console.log('W529 authentic grain observer source contract PASS; gameplay film unproven');

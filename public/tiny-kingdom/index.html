@@ -31366,7 +31366,14 @@ function advanceRealEconomicSurvey(){
  // actors, fictional receipts, timeline rewinds or job/speed adjustments.
  // A currently unavailable shift is reported, never reenacted for the camera.
  if(stage==='workday'){
-  const actual=watchLiveWorkday();
+  // Connect the fourth tour stop to an ORIGINAL farmer's grain -> market
+  // -> household provenance when one truly exists, never trigger a job.
+  // Otherwise use the existing truthful, physically filmed workday.
+  const realGrain=chooseRealGrainWitness();
+  const traced=realGrain?watchRealGrainJourney():null;
+  const actual=traced?.active?
+   {citizen:traced.producer,active:realGrain.activity==='Harvesting grain'}:
+   watchLiveWorkday();
   if(!actual?.citizen){
    showToast('No real worker is active or commuting yet — try during a work shift');
    return {accepted:false,stage,reason:'no-real-worker-now',authorityChanged:false};
@@ -31375,17 +31382,26 @@ function advanceRealEconomicSurvey(){
   if(!person||person.name!==actual.citizen)
    throw Error('W308 documentary selected no genuine autonomous citizen');
   realEconomicSurveyIndex=next;realEconomicSurveyVisits++;
-  realEconomicSurveyLast={stage,source:'observed-autonomous-profession',
+  realEconomicSurveyLast={stage,
+   source:traced?.active?'original-receipt-linked-grain-documentary':
+    'observed-autonomous-profession',
    citizen:person.name,job:person.job,activity:person.activity,
    actualWorker:true,activeProduction:Boolean(actual.active),
+   genuineGrainWitness:Boolean(traced?.active),
+   grainParcelId:traced?.active?traced.deliveryId:null,
+   observedGrainStage:traced?.active?traced.stage:null,
+   verifiedMarketReceipt:Boolean(traced?.active&&traced.verifiedReceipt),
    recordedHomes:city.length,inspectedHomeLots:[],
    focus:[person.x,person.z],authorityChanged:false};
   const control=document.getElementById('camera-survey');
   control.dataset.stage='workday';
   control.textContent='⇢ Workday → Farm';
   control.setAttribute('aria-label','Continue real economic survey to farm');
-  showToast((actual.active?'Watching actual work: ':'Following actual commute: ')+
-   person.name+' · '+person.activity);
+  showToast(traced?.active?
+   'Following real grain work: '+person.name+' · '+traced.stage+
+    ' · market and household require matching receipts':
+   (actual.active?'Watching actual work: ':'Following actual commute: ')+
+    person.name+' · '+person.activity);
   setCommandView('world','user');presentationEpoch++;
   return {accepted:true,...realEconomicSurveyLast};
  }
