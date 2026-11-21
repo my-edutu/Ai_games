@@ -28,5 +28,43 @@
     "PLAYS": 0
   },
   "actualDeviceMetrics": "NOT EVALUATED",
-  "nextAction": "inspect full candidate and frozen original films + native source pairing and scene continuity; repair first F9 frame staging if still 0/2"
+  "nextAction": "inspect full candidate and frozen original films + native source pairing and scene continuity; repair first F9 frame staging if still 0/2",
+  "followUp20261121OriginalCentralCore": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "inspectedPreviousHead": "c56dad69e4852ac2d547ee57290d115cdb9e9af9",
+    "productionSourceSha": "77ec3b381aaa0ff690df4fe2b2ce8c39d77cc012",
+    "redRegressionCommit": "08c1b5e854f68ec3a80a4493ffe2bd0f60a5c68c",
+    "redRegressionCi": "https://github.com/my-edutu/Ai_games/actions/runs/44862111441/job/136717569737",
+    "helperCommit": "b72ba06ae10416b8f3629302e2abb5aa879ac467",
+    "productionCi": "https://github.com/my-edutu/Ai_games/actions/runs/44862181560",
+    "exactSourceGameplayCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44862181637",
+    "knownPreviousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44856979004",
+    "lastStrictNativeEventPairing": "FAILED desktop/portrait 0/2",
+    "meaningfulChange": "Carry same already-rendered Floor8 central lower drum, upper crown, and open structural ribs through source-earned HP-zero same-run Floor9 passage as a bounded historical WebGL owner; independent opaque-to-transparent source-timed material and actual transferred mesh diagnostics. No new gameplay collider, portal, platform or victory",
+    "codeGreen": "PENDING exact production SHA quality checks; RED confirmed against prior source",
+    "newNativeVisualAcceptance": "NOT EVALUATED — nine-job immutable-SHA capture in progress",
+    "biggestNativeFilmDefect": "Previous native desktop+portrait film hard-cuts bronze original guardian room to broad violet Floor9 environment; still no continuous event-matched shared original arch/full moving climber/walkable roof evidence",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedDevice": {
+      "frameTimeP50": "NOT EVALUATED",
+      "frameTimeP95": "NOT EVALUATED",
+      "frameTimeP99": "NOT EVALUATED",
+      "memory": "NOT EVALUATED"
+    },
+    "nextHighestImpact": "Check true transferred original central source core mesh count/opacity, original gateway plus Floor9 walkable roof co-visibility in new original 1x WebMs and strict source/video pairing; if failed repair measured camera/world 3D depth ownership; keep P0 OPEN",
+    "safeguards": {
+      "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "pr68Draft": true,
+      "pr58Untouched": true,
+      "noMerge": true,
+      "noDeploy": true,
+      "noForcePush": true,
+      "noUnrelatedGames": true
+    }
+  }
 }
