@@ -8503,5 +8503,37 @@
     },
     "actualDeviceFrameTimesMemory": "NOT EVALUATED",
     "noMergeOrDeploy": true
+  },
+  "p0ReturnedStructuralCoexposure20261121_1830": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionSourceSha": "64cd727be1149498b878e8e904241d7d08739f36",
+    "candidateRef": "${{ github.sha }}",
+    "priorOriginalCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44925715411",
+    "priorCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44925715411/artifacts/14714769602",
+    "recording": {
+      "mode": "actual original unedited 1x source-run WebM",
+      "seed": "tower-transformation-capture-v1",
+      "tier": "low",
+      "desktop": "960x600",
+      "portrait": "390x844",
+      "scenes": [
+        "ascent",
+        "moving",
+        "danger",
+        "outcome"
+      ],
+      "baselineCandidatePaired": true
+    },
+    "primaryGap": "Original bronze HP-zero doorway retired after old-room returned time, before real successor shaft had sufficient distinct returned structural frames. Latest native evidence: desktop floor-nine HUD 25.00s, first sustained violet 26.75s; portrait 25.75s to 27.00s. Strict source/native pairing failed both viewports.",
+    "newContract": "Current original doorway departure is bounded by BOTH old-room and actually returned new shaft frame count AND returned structural display time. Tests require new shaft frames; no gameplay or source event changed.",
+    "acceptance": "Inspect unedited 60+s matched baseline and candidate clips at original rate: opened actual F8 guardian gate, complete moving climber, same source-walkable F9 roof, first raised destination in continuous desktop and portrait event-matched images; verify outcome/restart and no visual/camera regressions. A successful capture workflow is not quality acceptance.",
+    "humanReviewCounts": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualHardwareFrameTime": "NOT EVALUATED"
   }
 }
