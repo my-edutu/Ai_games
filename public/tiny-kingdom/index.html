@@ -15044,6 +15044,11 @@ function realCourierCartTemplate(p,size){
  try{
   emitStreetCargo(p,0,0,0,size,true);
   mesh=new Float32Array(data);
+ }catch(error){
+  // A denied CPU buffer admission must never remove the real cart or
+  // citizen: fall back to its complete original immediate renderer.
+  originalCartTemplateFallbacks++;
+  return null;
  }finally{
   data=prior;
   compactCitizenAnimation.lastAnimatedCartWheels=previousWheels;
