@@ -6220,7 +6220,14 @@ export function planLicensedSourceToePhaseProbe({
  // toes bone within about five degrees of its pinned exact source track.
  if(dot<.999)return null;
  const angularLimit=Math.min(.12,3*frameInterval);
- const sourceHorizon=Math.min(.045,Math.max(.025,frameInterval*1.5));
+ // A real 60Hz (.0167s) Vanguard source frame must not reach past the
+ // witnessed +/-25ms source-key interval. 1.5*0.0167=25.05ms: the
+ // previous 50-microsecond overrun broke the exact original GLB phase
+ // regression and made sourceTargetTimeSeconds claim unobserved time.
+ // Preserve the existing <=45ms sparse-frame envelope separately.
+ const sourceHorizon=frameInterval<=.02
+  ? .025
+  : Math.min(.045,Math.max(.025,frameInterval*1.5));
  const raw=[];
  for(const t of [
   sourceTimeSeconds-sourceHorizon,
