@@ -262,10 +262,16 @@ export function shouldPromoteStableShotCache({ queue, cacheHit = false, directFr
 /**
  * Admit exactly one COMPLETE HDR/depth static-world bake and one truthful live
  * serpent/water/fruit/hazard/portal composite on the first pristine desktop
- * overview. The original strict desktop test starts in balanced mode at its
- * existing 0.75 raster; low-tier streams start at their existing 0.4 raster.
- * Never trade away pixels or visual layers in order to pass a cadence test.
- * A GPU fence must still be recorded by the normal caller for the full draw.
+ * overview ONLY when low-quality was expressly selected. Genuine unchanged
+ * strict Chromium on eb4 with the experimental *balanced* 1178x651 first-frame
+ * HDR/depth prime recorded 1/17 complete desktop submissions and 308 queue
+ * skips; the 10a parent without such a prime recorded 10/17. Therefore no
+ * speculative extra full-world render may precede completed GPU evidence on
+ * the balanced full-quality startup. It keeps the complete original direct
+ * world, water, serpent and cues and may admit a later static cache through
+ * the unchanged real-fence policy. Only original explicit low-mode 0.4 can
+ * attempt an early full static/depth + live prime. No quality/raster/threshold
+ * downgrade or fabricated presented frames is permitted.
  */
 export function shouldPrimeColdFullSceneCache({ queue, quality, cameraMode, frameCount,
   staticMeshes, cacheSupported, cacheHit, cssWidth, cssHeight, renderScale,
@@ -277,7 +283,7 @@ export function shouldPrimeColdFullSceneCache({ queue, quality, cameraMode, fram
     ? Math.min(devicePixelRatio, 1.5) : NaN;
   const originalStartupRatio = boundedStartupPixelRatio(cssWidth, cssHeight, initialRatio);
   const nativeRaster = Number.isFinite(renderScale) && Number.isFinite(originalStartupRatio) &&
-    (quality === 'balanced' || quality === 'low') &&
+    quality === 'low' &&
     Math.abs(renderScale - planInitialLowModeRaster({ width: cssWidth, height: cssHeight,
       pixelRatio: originalStartupRatio, quality })) <= 1e-5;
   return nativeRaster && cameraMode === 'overview' && frameCount === 0 &&
@@ -506,12 +512,12 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       presentWidth: cacheSize.x, presentHeight: cacheSize.y,
       matchingView: key === staticKey, sameCssLayout: cachedCssLayout === lastCssLayout,
     });
-    // The first pristine desktop overview may prime genuine full static HDR
-    // colour and depth before the two costly direct-scene GPU fence probes.
-    // This is one real static scene bake PLUS an unchanged live complete 3D
-    // composition at the ORIGINAL pixel ratio. Never prime after a submit,
-    // camera transition, context failure or queue pressure. Later views retain
-    // the original completed-fence admission and resource bounds.
+    // Only an explicitly selected pristine low-mode desktop overview may
+    // prime the full HDR/depth + live composition before direct GPU probes.
+    // Genuine eb4 strict Chromium proves full-quality balanced *cold* priming
+    // worsens startup GPU saturation (1/17); balanced keeps the original
+    // full-scene direct render until GPU-fence admission. No scene layer or
+    // raster is dropped, and the original strict gate remains untouched.
     const coldWorldPrime = shouldPrimeColdFullSceneCache({
       queue: currentGpuQueue, quality, cameraMode, frameCount,
       staticMeshes: staticMeshCount, cacheSupported, cacheHit,

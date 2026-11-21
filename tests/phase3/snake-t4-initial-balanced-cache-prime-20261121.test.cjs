@@ -12,11 +12,11 @@ const pristine = (overrides={})=>({
   quality:'balanced',cameraMode:'overview',frameCount:0,staticMeshes:13,cacheSupported:true,cacheHit:false,
   cssWidth:1878,cssHeight:1038,devicePixelRatio:1,renderScale:Math.sqrt(768000/(1878*1038)),submittedAtWorldBuild:0,...overrides
 });
-test('RED: first balanced HDR/depth cache prime matches actual R53 bounded 1878x1038 startup raster rather than hardcoded .75',async()=>{
+test('measured startup 1/17 regression rejects speculative balanced cold prime; exact low-mode original raster remains eligible',async()=>{
   const {shouldPrimeColdFullSceneCache}=await rendererExports();
-  assert.equal(shouldPrimeColdFullSceneCache(pristine()),true,'original strict test begins balanced at 0.62767 after original R53, not guessed .75');
+  assert.equal(shouldPrimeColdFullSceneCache(pristine()),false,'eb4 genuine full-quality prime regressed the original strict 1-second gate to 1/17; do not bake HDR before a completed fence');
   assert.equal(shouldPrimeColdFullSceneCache(pristine({quality:'low',renderScale:0.4})),true);
-  assert.equal(shouldPrimeColdFullSceneCache(pristine({devicePixelRatio:1.5,renderScale:Math.sqrt(768000/(1878*1038))})),true, 'R53 clamps expensive desktop to exactly the same raster for DPR 1.5');
+  assert.equal(shouldPrimeColdFullSceneCache(pristine({devicePixelRatio:1.5,renderScale:Math.sqrt(768000/(1878*1038))})),false, 'R53 still clamps expensive balanced desktop to the same raster: no unproved cold prime');
   for(const unsafe of [
     {cssWidth:390,cssHeight:844,renderScale:1},
     {cssWidth:1280,cssHeight:720},
