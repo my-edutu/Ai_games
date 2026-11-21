@@ -2100,7 +2100,7 @@ export function createMazeWorld(options = {}) {
       const gateCourt=gateCourtCells.has(c.cell)&&!c.blocked
         &&!c.trap&&!c.checkpoint&&!c.clue;
       const courtSeed = variation(c.cell * 41 + 709);
-      if (!pressureCourtApron && !guardianCourtCell && !guardianQuietRingCell && !publicExitForecourt.has(c.cell) && courtSeed > .68 && !gateCourt
+      if (!pressureCourtApron && !guardianCourtCell && !guardianQuietRingCell && courtSeed > .68 && !gateCourt && !publicExitForecourt.has(c.cell)
         && !c.blocked && !c.trap && !c.checkpoint && !c.clue) {
         const pigment = courtSeed > .85 ? seaGlass : clay;
         for (let petal = 0; petal < 4; petal++) {
@@ -2121,7 +2121,7 @@ export function createMazeWorld(options = {}) {
       // and mineral materials in the same GPU batches, with no extra draw
       // resources or render-frame allocations. Never cover known hazards,
       // treasure hardware or a checkpoint with a look-alike objective symbol.
-      if (!pressureCourtApron && !guardianCourtCell && !guardianQuietRingCell && !publicExitForecourt.has(c.cell) && !gateCourt && !c.blocked && !c.trap
+      if (!pressureCourtApron && !guardianCourtCell && !guardianQuietRingCell && !gateCourt && !publicExitForecourt.has(c.cell) && !c.blocked && !c.trap
           && !c.checkpoint && !c.clue
           && variation(c.cell * 71 + 138) > .36) {
         const shellPigment = tier === 2 ? seaGlass : tier === 1 ? lightStone : stone;
@@ -2133,7 +2133,7 @@ export function createMazeWorld(options = {}) {
       if (gateCourt && !pressureCourtApron) gateCourtRosette(x,z,c.cell);
       // Small scattered flecks belong to ordinary courts; the large disclosed
       // mechanism gets deliberate negative space around the actual moving jaws.
-      if (!pressureCourtApron && !guardianCourtCell && !guardianQuietRingCell && !publicExitForecourt.has(c.cell)) for (let j = 0; j < 2; j++) {
+      if (!pressureCourtApron && !guardianCourtCell && !guardianQuietRingCell) for (let j = 0; j < 2 && !publicExitForecourt.has(c.cell); j++) {
         const sign = j ? 1 : -1;
         add(box, deepStone, x + sign * .91, .003, z - .9, .14, .006, .035, c.cell, 0, .2);
         add(box, inlay, x + sign * .86, .006, z + .86, .12, .009, .12, c.cell, 0, Math.PI / 4);
