@@ -5217,7 +5217,7 @@ function stageLicensedSourceToeFinisherAfterCounterpitch(actor,reducedMotion){
   const proof=proofs[side],residual=proof?.residualToeBurialMeters;
   // The normal 2-55mm original-skin finishing window is unchanged. The
   // independently witnessed 70-82mm source dip may use at most TWO small
-  // native toe-child probes only on a fresh 16-50ms true Walking_A lobe.
+  // native toe-child probes only on fresh original source travel <=240ms.
   // The pure certificate still rejects fake clearance, heel drift, stale
   // root travel, opposite-shoe changes and any attempted foot contact.
   const deepSourceWindow=residual>.055&&residual<=.095&&
@@ -5228,7 +5228,7 @@ function stageLicensedSourceToeFinisherAfterCounterpitch(actor,reducedMotion){
      proof.sourceClipTimeSeconds<=.875))&&
    Number.isFinite(proof.witnessedFrameIntervalSeconds)&&
    proof.witnessedFrameIntervalSeconds>=.016&&
-   proof.witnessedFrameIntervalSeconds<=.05&&
+   proof.witnessedFrameIntervalSeconds<=.24&&
    Number.isFinite(proof.witnessedRootTravelMeters)&&
    proof.witnessedRootTravelMeters>=.008&&
    proof.witnessedRootTravelMeters<=.08&&
