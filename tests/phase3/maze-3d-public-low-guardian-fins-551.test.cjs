@@ -58,7 +58,7 @@ test('Pass551 joined guardian sentinel stage is physically low, outboard, genuin
    const earned={...s,threats:[{...s.threats[0],lanternParried:true}]};
    w.update(earned);
    w.animate(.4,{...cue,guardianParried:true,guardianCounterPhase:0});
-   const earnedPillar=get('Published guardian Tideglass joined sentinel shaft',-1);
+   const earnedPillar=w.group.getObjectByName('Published guardian Tideglass joined sentinel shaft '+s.threats[0].cell+' -1');
    assert.ok(earnedPillar.parent.position.y < -.5,
      'actual published parry retracts the whole connected original guardian-end standard');
    w.animate(.5,{...cue,guardianParried:true,guardianCounterPhase:0,reducedMotion:true});
