@@ -52,7 +52,7 @@ test('W13 a real courier becomes a continuous camera-followed production-to-mark
  expect(entry.width).toBeLessThanOrEqual(390);
  const end=await page.evaluate(async id=>{
   const g=window.__tinyKingdom;let handoff=false,receipt=null;
-  const trueMotion=[];
+  const trueMotion=[];const genuineSkin=[];
   for(let i=0;i<120*30;i++){
    g.step(1/30);
    // All progression comes from original authority ticks. Yield periodically
@@ -61,6 +61,15 @@ test('W13 a real courier becomes a continuous camera-followed production-to-mark
    if(i%180===0){
     const actor=g.getActiveDeliveries().find(d=>d.id===id);
     if(actor)trueMotion.push({t:g.getState().state.t,x:actor.x,z:actor.z,stage:actor.stage});
+    const skin=g.getOriginalLiveCourierSkinAudit();
+    const coverage=g.getActorPresentationCoverageAudit();
+    // A real GPU body MUST have exactly one separately moving true cart.
+    // This may legitimately remain zero if the physical view is too close.
+    if(skin.authenticGpuBodies!==skin.liveCartNames.length)
+     throw Error('W509 missing or duplicate real physical courier cart');
+    if(!coverage.exactlyOneBodyPathPerCitizen||coverage.missingNames.length)
+     throw Error('W509 missing or duplicate actual citizen');
+    genuineSkin.push({t:g.getState().state.t,...skin});
     await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
    }
    if(i%5)continue;
@@ -74,16 +83,25 @@ test('W13 a real courier becomes a continuous camera-followed production-to-mark
    if(receipt)break;
   }
   g.advanceVillageDocumentary();
-  return {receipt,handoff,trueMotion,audit:g.getVillageDocumentaryAudit(),
+  return {receipt,handoff,trueMotion,genuineSkin,audit:g.getVillageDocumentaryAudit(),
    camera:g.getCamera(),width:document.documentElement.scrollWidth,
    gl:document.getElementById('world').getContext('webgl')?.getError()??-1};
  },entry.audit.deliveryId);
  expect(end.receipt,'Receipt must arise from authentic physical unloading').not.toBeNull();
  expect(end.handoff,'Real staged unloading must be visible while observed').toBe(true);
  expect(end.trueMotion.length,'authentic camera must have sampled an advancing world').toBeGreaterThan(0);
+ expect(end.genuineSkin.length).toBeGreaterThan(0);
+ for(const row of end.genuineSkin){
+  expect(row.authorityChanged).toBe(false);
+  expect(row.noInventedActorsOrTransactions).toBe(true);
+  expect(row.authenticGpuBodies).toBe(row.liveCartNames.length);
+  expect(row.originalWheelDistanceAndEscrowRetained).toBe(true);
+ }
  fs.writeFileSync(path.resolve(__dirname,'../../test-results/w226-real-freight-motion-390.json'),
   JSON.stringify({source:'real-authority-positions-and-stage',receipt:end.receipt,
-   samples:end.trueMotion,simulated:true,realHardwareFPS:'NOT MEASURED'},null,2));
+   samples:end.trueMotion,skinAudit:end.genuineSkin,
+   skinEvidenceMayBeEmptyWhenClose:true,simulated:true,
+   actualPhysicalGpuFPS:'NOT MEASURED',experiencePass:'NOT PROVEN'},null,2));
  expect(end.receipt.citizen).toBe(entry.audit.citizen);
  expect(end.audit.citizen).toBe(entry.audit.citizen);
  expect(end.audit.stage).toBe('received');
