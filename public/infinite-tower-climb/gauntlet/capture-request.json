@@ -8468,5 +8468,40 @@
       "PLAYS": 0
     },
     "actualDevicePerformance": "NOT EVALUATED"
+  },
+  "p0GatewayCameraRenderScopeRepairedPinnedRecapture20261121": {
+    "stage": "P0 OPEN — NOT EVALUATED",
+    "reason": "The first P0 returned-camera code exposed a genuine render exception (ReferenceError: overview is not defined) in the final scene rAF scope. The fault appeared in exact-source CI and invalidates any candidate video recorded from prior c3df source. The actual scene now uses its current follow mode guard and preserves the source physical hero/gate/roof/core tests.",
+    "faultyCaptureSourceSha": "c3df48d55568f764b6e945a1046b9b4f62d1b224",
+    "faultyCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/44925184795",
+    "repairCommit": "ef68f2036cbce31ca952f4e643d89516d2f8c4af",
+    "diagnosticsCommit": "d76d4ae11c70e5af67d99ed42824e9c00b62dbe2",
+    "regressionGuardCommit": "5ecd1e26a2363884acd55981b9def935216946bf",
+    "candidateRef": "${{ github.sha }}",
+    "approvedFrozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "protocol": {
+      "realOriginalGameplay": true,
+      "speed": "1x",
+      "desktop": "960x600",
+      "portrait": "390x844",
+      "seed": "tower-transformation-capture-v1",
+      "matchedConditions": true,
+      "minSeconds": 60,
+      "scenarios": [
+        "ascent",
+        "moving-platform",
+        "danger/guardian/gateway/f9",
+        "outcome/restart"
+      ],
+      "separateActualSourceEventPairing": true
+    },
+    "criticalAudit": "Verify no renderFault on any original 1x F9 frame, then evaluate returnedGatewayContinuousCamera accepted/vetoed proposals alongside real authoritative guardian, hero, walkable roof, and old gateway native event matched frames; do not infer visual success from 10/10 CI, success logs or source traces. Prior strict original native event matched 0/2 with no sustained joint material bridge.",
+    "independentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDeviceFrameTimesMemory": "NOT EVALUATED",
+    "noMergeOrDeploy": true
   }
 }
