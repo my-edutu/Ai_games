@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-21T13:45:00.000Z",
+  "updatedAt": "2026-11-21T14:00:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass556b corrects TWO genuine failed source tests from exact Pass556 CI 44910101625 (308/310 passed; browser never ran). The new staged four-fan public first-impact physical fold now uses .29rad while initial contact precedes the per-tile wave, then preserves historical unchanged .20rad pose as public floor wave arrives. A new test had incorrectly expected neutral .04m despite its own real .5 brace, now asserts honest .46m and >1.20m guardian-to-hero heavy-tower withdrawal; old historical threshold never relaxed. New exact-HEAD CI/native full-WebGL still pending. Baseline Pass555 real 42/42 full uncropped PNG hashes verified and visual rejects crowded Pip/Thornback; fixed Nintendo bar NOT MET. No independent critic/tunnel; no merge/deploy/force."
+    "summary": "Pass557 genuine exact-HEAD Pass556b 92e8a400 WebGL 44910394180 SUCCESS: all 310 focused tests, strict six scene geometry <100, real public-only tick136 escape; original artifact 14710340136 ZIP 4336a282 SHA verified 42/42 native full PNG/JSON, three genuine gate hashes. The original 320/390 seed13 tick94 source-bound image A/B vs Pass555 is visually REJECTED: bright amber/ivory crossed guards, still-tall spectator posts and wide two-actor separation remain; pixel changes (390 26.49%, 320 23.42% >30 any RGB) are not a visible Nintendo-style storytelling win. Restore exact earlier Pass555 production world and remove failed Pass556-only test; preserve original evidence/dated criticism. Whole repo CI 44910394170 red separate Tiny Kingdom OBS/uploads; independent critic/Ultracode disconnected. Official benchmark unmet, no merge/deploy/force; restored exact HEAD checks pending."
   },
   "captures": [
+    {
+      "title": "Pass556b exact 92e8a400 native WebGL full original artifact 14710340136 SHA256 4336a282, 42/42 full PNG sidecars and 3 authentic gate hashes verified, unchanged six-reset and tick136 chapter passed; full 320/390 A/B visually REJECTED and source rolled back Pass557",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44910394180/artifacts/14710340136"
+    },
     {
       "title": "Pass556 exact cc45143e 44910101625 focused CI FAILED 2/310 before WebGL, repaired without weakening old .20rad wave assertion or six-reset budget; Pass556b native screenshots pending",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44910101625"

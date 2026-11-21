@@ -4163,22 +4163,6 @@ export function createMazeWorld(options = {}) {
           vane.tip.material=counterWave>.18?inlay:warningAction>.3?amber:lightStone;
         }
       }
-      // Pass556: the four full-size, physically attached endpoint shell-fans
-      // share ONE *earned*, public lantern release. In the original 390/320
-      // exact-source tick94 frame the older sequential court wave allowed
-      // tall fans near Pip to remain upright while Thornback recoiled. The
-      // already connected Tideglass warning threshold now transmits the
-      // genuine same-run contact to every OUTBOARD fan hinge at once; the
-      // floor ripple and the heavy rooted stone towers KEEP their existing
-      // physically sequential response. A first-seen already-parried foe,
-      // hidden threat, reduced-motion view or expired phase cannot stage
-      // this release. No meshes, colliders, routes or private data change.
-      const sharedEarnedFanRelease=onLane && directWitness && !reduced
-        && Number.isFinite(guardianCounterPhase)
-        && guardianCounterPhase>=0 && guardianCounterPhase<1
-          ? Math.max(0,Math.min(1,(1-guardianCounterPhase)/.20)) : 0;
-      const linkedFanFold=Math.max(counterWave,sharedEarnedFanRelease);
-      const linkedFanBrace=warningAction*(1-sharedEarnedFanRelease);
       // The FULL linked 3D standard rises with the genuine public brace.
       // Original uncropped 390px earned-counter WebGL shows the four elevated
       // shell fans still masking Pip and a retreating Thornback after the win.
@@ -4222,14 +4206,9 @@ export function createMazeWorld(options = {}) {
         // its physical rest (net ~1.48rad). This reveals actual character
         // actions, not a new route, fake victory or hidden map clue. Its
         // authored footing, connected leaf and public event contract remain.
-        // The OUTBOARD 0.94m pierced ceramic fan, its spar and its crest
-        // all pivot together. The verified lantern strike reclines the WHOLE
-        // fan to a nearly horizontal 1.57rad from upright instead of
-        // sustaining the warning shield through the winning counter.
         beacon.sailPivot.rotation[signal.axis==='x'?'x':'z']=reduced?0
           :(signal.axis==='x'?-beacon.side:beacon.side)
-            *(.88*linkedFanBrace-.20*counterWave
-              -.29*sharedEarnedFanRelease*(1-counterWave));
+            *(.88*warningAction-.20*counterWave);
         // Pass329 original 390px brace showed FOUR opaque amber feathers
         // visually overtaking Pip and Thornback. Keep the full-size hinged
         // SEA-GLASS body visibly moving through the real guardian warning,
@@ -4237,8 +4216,8 @@ export function createMazeWorld(options = {}) {
         // The existing substantial crown, lens and floor leaves still glow
         // amber on witnessed brace; none is an invented strike/hit indicator.
         // Reuse pooled materials; reduced motion freezes geometry, not truth.
-        beacon.sail.material=linkedFanFold>.1?deepStone:action>.28?darkJade:seaGlass;
-        beacon.crest.material=linkedFanFold>.1?inlay:action>.28?amber:lightStone;
+        beacon.sail.material=counterWave>.1?deepStone:action>.28?darkJade:seaGlass;
+        beacon.crest.material=counterWave>.1?inlay:action>.28?amber:lightStone;
       }
       for(const face of signal.faces){
         face.object.material=counterWave>.1?inlay:action>.28?amber:seaGlass;
