@@ -259,5 +259,36 @@
       "pairingFailure": "pair-source-events job FAILED; native-scene-phase-not-confirmed-baseline AND native-scene-phase-not-confirmed-candidate for desktop and portrait. Baseline source F8→9 tick316 and candidate tick475: same fixed seed/tier, different source trajectories, cannot claim exact event correspondence by HUD/clock.",
       "outcomeRestart": "Source and selected native pixels display time-expired result/intermission around 49–55s and restarted Floor0 run by 58s in both viewports (candidate outcome recordings); this is partial gameplay-presentation evidence, NOT an accepted full matched 60s episode."
     }
+  },
+  "sourceAlignedOpenRaisedVoidDeckTrusses20261121": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationAssessor": "NOT EVALUATED",
+    "sourceProductionCommitSha": "00acafa7dfee98c0749d53e048ce73895846390c",
+    "draftPR": "https://github.com/my-edutu/Ai_games/pull/68",
+    "frozenBaselineSourceSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenBaselineLedgerBlobSha": "7433d52ae1a7a75de51366a845375dda04ab87fa",
+    "priorExactSourceCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44905405068",
+    "priorStrictOriginalEventMatchedNativeViewports": "FAILED 0/2",
+    "priorSourcePinnedFilmAndLedge": "8/8 60-second-plus authentic baseline/candidate clips and original ledge succeeded; pairing failed",
+    "observedNativeDefect": "Original unedited candidate crossing ~26.0–26.25s in desktop 960x600 and portrait 390x844: real warm guardian chamber suddenly replaced by broad F9 receiving annulus with an enormous opaque violet raised-deck underside crossing original gate/body; later violet environment ~1.75s after first drawn F9 HUD. Sampled video frames, not calibrated source-to-video alignment.",
+    "systemicSourceChange": "The source-built, already-playable raised f9:pN platforms now use slender real inner and outer steel undercroft edge girders joined by 3–5 transverse and diagonal truss stations rather than a nearly full-depth opaque annular ceiling. Their existing full-width source walkable top, moving-platform root transforms, collision, traversal, original guardian gate and simulator are unchanged. Existing actual GPU undercroft camera ray material owners remain bound to their respective source geometry.",
+    "changedPaths": [
+      "public/infinite-tower-climb/visuals/world.mjs",
+      "public/infinite-tower-climb/visuals/void-open-deck-truss.mjs",
+      "tests/phase3/tower-void-open-deck-truss.test.cjs"
+    ],
+    "qualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44909790676",
+    "qualityAtReview": "9/10 jobs completed successfully including all four Phase3 shards; final Phase6 still in progress. Not a final CI PASS.",
+    "freshSourcePinnedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44909790662",
+    "captureAtReview": "9 authentic baseline/candidate capture+ledge jobs in progress; paired source-to-native job not yet completed; no candidate visual acceptance claim.",
+    "nativeNewFootageInspection": "NOT EVALUATED (new immutable source recordings unfinished)",
+    "realDeviceP50P95P99Memory": "NOT EVALUATED",
+    "independentCriticCounts": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "nextHighestImpactAction": "Read exact-source CI and new nine-job campaign. Inspect both full unedited desktop/portrait F8->F9 candidate WebMs around old opened guardian gate, current moving full-body climber, unchanged authentic f9:ground receiving roof and visible first raised destination. Require >=2 consecutive event-matched 1x native frames genuinely joined in both. If still a hard cut, fix original shared-gateway/upper platform camera depth and evidence pairing before P1. Supported-device frame-time/memory and independent randomized blind reviewers still missing.",
+    "constraints": "No frozen transformation.json edit, PR58 edit, non-Tower game edit, deployment, merge, undraft, force-push, gameplay authority or collider change. CI is veto, not transformation acceptance."
   }
 }
