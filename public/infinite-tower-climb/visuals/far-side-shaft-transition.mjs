@@ -288,31 +288,30 @@ export function observedReturnedFarSideFade(held,job) {
   if(!held || !job ||
      ![held.submittedFrames,held.farSideFadeStartSubmitted,
        job.structuralVisibleReturns].every(valid) ||
-     ![held.visibleSeconds,held.farSideFadeStartSeconds].every(Number.isFinite) ||
+     ![held.visibleSeconds,held.farSideFadeStartSeconds,
+       job.structuralVisibleSeconds].every(Number.isFinite) ||
      held.submittedFrames<held.farSideFadeStartSubmitted ||
      held.visibleSeconds<held.farSideFadeStartSeconds ||
-     job.structuralVisibleReturns<0)return null;
+     job.structuralVisibleReturns<0 || job.structuralVisibleSeconds<0)
+    return null;
   if(job.structuralVisibleReturns===0)return 0;
-  // The immutable f1176f4 original desktop and portrait native 1x films
-  // receive their first Floor9 HUD/scene roughly 0.6s AFTER a returned
-  // WebGL submission. Seven returned shaft frames / .95 display seconds
-  // retired the genuine HP-open bronze arch before the next authentic
-  // walkable room could be read together with the moving skinned climber.
-  // Let actual returned structural material overlap the already-rendered
-  // original gateway for a coherent physical departure. This is bounded by
-  // the retained cap's existing <30-return / <2.8s / HP0 / live-support
-  // ownership, not a new timer, gameplay frame, free camera or fake gate.
-  // Both returned submissions AND actually accumulated rendered seconds
-  // still have to advance; stalled GPU work cannot age the original room.
-  const frameProgress=(held.submittedFrames-held.farSideFadeStartSubmitted)/15;
-  // The old roof may have only ~1s of actual returned 25fps frames before
-  // the existing 30-return GPU ownership ceiling. A 1.65s requirement
-  // could NEVER finish even after a source-earned near-sill departure,
-  // forcing a full-opacity hard cut when the original owner expires.
-  // Keep 15 genuine submitted frames, require elapsed rendered time, but
-  // fit the fade within 0.80s of *returned* frame duration.
-  const returnedTime=(held.visibleSeconds-held.farSideFadeStartSeconds)/.8;
-  return smooth(Math.min(frameProgress,returnedTime));
+  // The original Floor9 video loses the recognizable defeated bronze
+  // gateway before the full REAL successor shaft is painted. Old-world
+  // submissions alone must never spend the entire fade: they can include
+  // repeated old-only frames while the new shaft is still being built.
+  // Require BOTH returned old-room display time AND the actual, separately
+  // counted returned next-shaft frames/display time before deleting the
+  // same source-earned gateway. This is presentation-only. The actual F9
+  // roof/colliders, guardian HP, ascent and source replay are untouched.
+  //
+  // The first incoming structural return earns a depth aperture, not a
+  // completed replacement: preserve the old gateway until later returns.
+  // No source tick, wall-clock poll or mere CPU-built shader earns a frame.
+  const oldFrames=(held.submittedFrames-held.farSideFadeStartSubmitted)/15;
+  const oldSeconds=(held.visibleSeconds-held.farSideFadeStartSeconds)/.8;
+  const newFrames=Math.max(0,job.structuralVisibleReturns-1)/6;
+  const newSeconds=job.structuralVisibleSeconds/.65;
+  return smooth(Math.min(oldFrames,oldSeconds,newFrames,newSeconds));
 }
 
 // P0: Begin revealing the REAL, already-constructed next-floor shaft while
