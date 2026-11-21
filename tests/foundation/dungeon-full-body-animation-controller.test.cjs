@@ -7749,3 +7749,71 @@ test('RED: original 60Hz source-skinned three-joint winner cannot bypass native 
  assert.equal(choose({...input,frameInterval:0}),null,
   'an unwitnessed display interval must never authorize foot motion');
 });
+
+
+/*
+ * Session 03 original-skin chain-to-pelvis handoff (RED before implementation).
+ * The two measured WORLD patches below are the licensed original Vanguard
+ * Walking_A source AFTER from exact SHA f1f8050a, mobile frame75/tick9,
+ * not fabricated IK goals. They were captured from the actual 41-joint GLB.
+ * This test authorizes only re-reading them after a selected original
+ * hip-knee-foot chain; it does NOT assert that that particular frame has a
+ * near-level loaded shoe, or that an actual pelvis correction was accepted.
+ */
+test('RED: selected original source leg may hand off real two-shoe skin to final supported pelvis without erasing its joints',async()=>{
+ const {certifyLicensedSourcePostChainPelvisOpportunity:certify}=await load();
+ assert.equal(typeof certify,'function');
+ const live={
+  source:'measured-original-licensed-source-counterpitch',
+  sourceInstanceId:'actual-source-clone-frame75',
+  sourceClip:'Walking_A',side:'left',sourceConnectedLegSelected:true,
+  originalOppositeShoeVerified:true,finalIndependentSourceSkin:true,
+  sourceOriginalRootTravelWitnessed:true,contactLocked:false,
+  plantCertified:false,
+  sourceUpperBone:'upperlegl',sourceLowerBone:'lowerlegl',
+  sourceFootBone:'footl',
+  sourceOriginalTracks:['upperlegl.quaternion','lowerlegl.quaternion','footl.quaternion'],
+  witnessedRootTravelMeters:.019344653630746667,
+  witnessedFrameIntervalSeconds:.033399999999996766,
+  after:{
+   left:{heelY:.18824098169078715,toeY:-.09012186622851977,
+    heelXZ:[-1.710131713834532,-6.949893224631563],
+    toeXZ:[-1.8177156462864874,-6.929631176678188]},
+   right:{heelY:-.024049197631611563,toeY:.011517599316045742,
+    heelXZ:[-1.8286003361472067,-7.106686352666868],
+    toeXZ:[-2.096592776929511,-7.13127560781279]}
+  }
+ };
+ const original={
+  sourceInstanceId:'actual-source-clone-frame75',sourceClipName:'Walking_A',
+  sourceFootProofs:{left:live,right:null},currentSoles:live.after
+ };
+ const certificate=certify(original);
+ assert.equal(certificate?.source,'same-licensed-GLB-connected-leg-to-final-pelvis');
+ assert.equal(certificate?.sourceSide,'left');
+ assert.equal(certificate?.originalWeightedSolesVerified,2);
+ assert.equal(certificate?.contactLocked,false);
+ for(const bad of [
+  {sourceInstanceId:'different-glb-clone'},
+  {sourceClipName:'Idle'},
+  {sourceFootProofs:{left:{...live,sourceConnectedLegSelected:false},right:null}},
+  {sourceFootProofs:{left:{...live,contactLocked:true},right:null}},
+  {sourceFootProofs:{left:{...live,finalIndependentSourceSkin:false},right:null}},
+  {sourceFootProofs:{left:{...live,sourceOriginalRootTravelWitnessed:false},right:null}},
+  {sourceFootProofs:{left:live,right:live}},
+  {currentSoles:{...live.after,right:{...live.after.right,
+   heelXZ:[live.after.right.heelXZ[0]+.003,live.after.right.heelXZ[1]]}}},
+  {currentSoles:{...live.after,left:{...live.after.left,
+   toeY:live.after.left.toeY-.002}}}
+ ])assert.equal(certify({...original,...bad}),null,
+  'source ownership, same clip, original both shoes and real 3D final skin must fail closed');
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const stage=renderer.slice(renderer.indexOf('function stageSourceLoadedPelvisBeforeLegs('),
+  renderer.indexOf('function auditSourceLoadedPelvisAfterLegs('));
+ assert.match(stage,/certifyLicensedSourcePostChainPelvisOpportunity\(/,
+  'source pelvis can follow ONLY an independently certified connected source leg');
+ assert.doesNotMatch(stage,/if\(hasSourceLegClaim\|\|/,
+  'legacy unconditional source-leg exclusion cannot shadow safe final source-pelvis handoff');
+ assert.match(stage,/verifyOriginalSourceLoadedPelvisFootWitness\(/,
+  'final load correction still requires physically re-skinned both shoes in XYZ');
+});
