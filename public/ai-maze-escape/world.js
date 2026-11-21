@@ -1062,7 +1062,7 @@ export function createMazeWorld(options = {}) {
         phase:cell*.37+side});
     }
   }
-  function wall(x, z, horizontal, id, cell, guardianBulwark = false, guardianQuietRing = false) {
+  function wall(x, z, horizontal, id, cell, guardianBulwark = false, guardianQuietRing = false, quietTallSpectators = false) {
     const h = .91 + variation(id + 22) * .12;
     const length = CELL_SIZE - .13, thickness = .31;
     // Make all three *known* altitude districts readable in actual 3D wall
@@ -1163,7 +1163,7 @@ export function createMazeWorld(options = {}) {
     }
     // A rooted, folded tide pennant grows only from the disclosed wall cap.
     // Its two textured sides remain a wall ornament, never a marker or route.
-    if (!guardianQuietRing && variation(id + 1343) > .76) {
+    if (!guardianQuietRing && !quietTallSpectators && variation(id + 1343) > .76) {
       tidePennants++;
       const u = variation(id + 102) > .5 ? -.72 : .72;
       const top = point(u, h + .82, 0);
@@ -1187,7 +1187,7 @@ export function createMazeWorld(options = {}) {
     // walls occur far more often than the isolated 'blocked' tile relics.
     // Windcatchers are unlit architecture, never navigation hints/keys.
     // Keep every foot and roof fastened to its already-built masonry.
-    if (!guardianQuietRing && variation(id + 2017) > .90) {
+    if (!guardianQuietRing && !quietTallSpectators && variation(id + 2017) > .90) {
       wallWindcatchers++;
       slab(deepStone, 0, h + .12, 0, 1.58, .24, .54);
       slab(facade, 0, h + .34, 0, 1.42, .24, .39);
@@ -1381,6 +1381,23 @@ export function createMazeWorld(options = {}) {
     ]);
     const guardianBlockedRelief=publicGuardianBlockedReliefCells(s,guardianSightlines);
     const knownByCell = new Map(s.cells.map(c => [c.cell, c]));
+    // Pass552: original native 390px ray evidence identifies the dominant
+    // far-back tall posts as OPTIONAL 1.53m wall pennants in a public,
+    // same-tier room (cell 2), NOT the guardian's compact sentinel. The
+    // existing short-distance quiet ring cannot reach this spectator.
+    // During a genuinely visible, reciprocal guardian encounter only, give
+    // the entire currently published SAME-TIER court a clear performance
+    // horizon: omit nonfunctional tall pennants/windcatcher roofs, never
+    // the solid wall, its closure, parapet, gate, traps or collision.
+    // This reads current public guardian/cell witnesses only, not private
+    // topology, remembered foes or projected AI paths.
+    const guardianPerformanceTiers = new Set();
+    if (guardianCauseway.size > 0)
+      for (const threat of Array.isArray(s.threats) ? s.threats : [])
+        if (Number.isSafeInteger(threat?.cell)
+          && s.visibleCells.includes(threat.cell)
+          && knownByCell.has(threat.cell))
+          guardianPerformanceTiers.add(cellHeight(threat.cell,s.width,s.height));
     // The public snapshot is the ONLY source of foreground cutaway geometry.
     // A door is usable here only when BOTH endpoints are currently disclosed
     // as real adjacent walkable cells. This never infers an unseen passage.
@@ -2451,7 +2468,8 @@ export function createMazeWorld(options = {}) {
         } else wall(x + dx * 1.2, z + dz * 1.2, !!dz, c.cell * 17 + side, c.cell,
           !pressureSightline && (guardianCauseway.has(c.cell)
             || guardianForecourtShoulders.has(c.cell)
-            || guardianOuterCourt.ordinary.has(c.cell)), guardianQuietRingCell);
+            || guardianOuterCourt.ordinary.has(c.cell)), guardianQuietRingCell,
+          guardianPerformanceTiers.has(floorY));
         // Unlike unrevealed neighbors, this is a real blocked direction in
         // the public room's advertised edges. A lifted vertical garden on its
         // physical wall gives the otherwise pale stage a distinct green layer.
