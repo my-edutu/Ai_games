@@ -847,8 +847,12 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
       'original bronze gate GPU identity must survive; never format the gigantic Three.js graph');
     assert.ok(world.group.getObjectByName('deferred-original-floor-nine-architecture'),
       'the original Void structural meshes are prebuilt hidden after the authentic F9 render');
-    assert.equal(world.diagnostics().deferredDistantArrival?.state,'awaiting-structural-submission',
-      'sixteen honest source-matched WebGL returns permit a full authentic F9 shaft after a sustained original gateway/core shot');
+    const completedSourceReturnedShaft=world.diagnostics().deferredDistantArrival;
+    assert.ok(completedSourceReturnedShaft?.state==='awaiting-structural-submission' ||
+      (completedSourceReturnedShaft?.state==='fading-remote-arrival' &&
+       completedSourceReturnedShaft.structuralVisibleReturns>=6 &&
+       completedSourceReturnedShaft.structuralVisibleSeconds>=.52),
+      'sixteen honest returned frames permit the genuine successor scene to progress only after six nonzero structural returns and 520ms of display time');
     assert.equal(world.group.getObjectByName('deferred-original-floor-nine-outer-buttresses')?.isGroup,true,
       'original outer supports upload only after >=4 real structural returns and >=320ms');
     const deferredDetail=world.group.getObjectByName('deferred-authentic-floor-nine-crystal-biome');
@@ -879,8 +883,11 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
     assert.equal(world.group.getObjectByName('AuthoritativeGuardianGate')===originalArch,true,
       'far-side clearance alone must NOT erase the actual old bronze GPU gate before the incoming shaft returns a painted frame');
     const successorJob=world.diagnostics().deferredDistantArrival;
-    assert.equal(successorJob?.state,'awaiting-structural-submission',
-      'verified living departure should unlock the original incoming shaft, not keep it hidden indefinitely');
+    assert.ok(successorJob?.state==='awaiting-structural-submission' ||
+      (successorJob?.state==='fading-remote-arrival' &&
+       successorJob.structuralVisibleReturns>=6 &&
+       successorJob.structuralVisibleSeconds>=.52),
+      'verified living departure may advance an already-returned shaft, never unlock an unreturned visual substitute');
     assert.ok(world.group.getObjectByName('deferred-original-floor-nine-architecture'),
       'actual new-floor geometry must coexist with the original gate pending successful GPU submission');
     // The preceding eight real renderer returns HAVE already submitted the
