@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-21T16:41:52.244Z",
+  "updatedAt": "2026-11-21T16:50:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass560 exact-source guardian threshold physical descent candidate on 74c889b9 baseline: previous WebGL 44916876779 success, downloaded original artifact 14711844790 SHA256 40a60a41, 42/42 full PNG sidecar hashes match; ray-identified public cell99 warning leaf physically crowds boots. New actual root descent 5.5cm on genuine brace and 31cm on witnessed sequential counter is pending new exact-HEAD focused tests/unaltered WebGL all viewports and independent critic; no visual win claimed. Whole CI 44916876798 failed Tiny Kingdom OBS/uploads. Original Nintendo benchmark UNMET. Workspace/critic NOT_FOUND; draft PR no merge/deploy/force."
+    "summary": "Pass561 original Pass560 58893bda exact WebGL 44926000678 artifact 14716645034 SHA256 4a0d0a3e, 42/42 original PNG hashes and 3/3 gate hashes verified, genuine chapter exited tick136. 390 brace only 1.61% pixels substantially changed and 320/390 Pip–Thornback staging remains disconnected despite floor leaf descent. Visual NONWIN rejected; restoring Pass559 world byte-for-byte and removing only Pass560 test; next substantial two-actor stage/composition needed. Whole CI still red Tiny Kingdom OBS/upload. New restored HEAD CI pending. Independent critic and Ultracode NOT_FOUND. Official Nintendo benchmark UNMET. Draft PR no merge/deploy/force."
   },
   "captures": [
+    {
+      "title": "Pass561 REJECT actual Pass560 exact 58893bda native full WebGL, 42/42 original PNG SHA pairs + 3/3 gate hashes confirmed; 320/390 unchanged dominant architecture, no benchmark win; production restored.",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44926000678/artifacts/14716645034"
+    },
     {
       "title": "Pass560 exact-base original native 74c889b9 44916876779 artifact 14711844790: 42/42 original PNG sidecar SHA verified. Joined physical guardian threshold descent candidate NOT TESTED / NOT VISUALLY APPROVED; benchmark unmet.",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44916876779/artifacts/14711844790"

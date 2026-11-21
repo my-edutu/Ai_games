@@ -4221,18 +4221,6 @@ export function createMazeWorld(options = {}) {
       }
       for(const face of signal.faces){
         face.object.material=counterWave>.1?inlay:action>.28?amber:seaGlass;
-        // Pass560: the source-proven near-camera warning leaf on public
-        // cell 99 crosses Thornback's boots in the ORIGINAL uncropped 390px
-        // brace. The real warning still lifts the full-width stone-rooted
-        // panel, but its authenticated counter retracts the same ENTIRE
-        // hinge into the existing Tideglass threshold, sequentially from
-        // Pip toward Thornback. At full counter the elevated plate seats
-        // flush with its stone groove instead of lingering across their feet.
-        // This is actual reversible world-space hardware motion, not hiding
-        // a mesh, a fake gate, a collider, or an unearned victory. The existing
-        // strict >1rad warning swing and >1.4rad earned hinge remain intact.
-        // Invalid, terminal, stale and reduced-motion events stay settled.
-        face.hinge.position.y=reduced?0:-.055*warningAction-.31*counterWave;
         // Pivot the WHOLE attached leaf around its real outer-lane hinge,
         // rather than tilting a tiny plate about its own centre. At the
         // witnessed brace the sea-glass edge rises ~.55 world units, clearly
