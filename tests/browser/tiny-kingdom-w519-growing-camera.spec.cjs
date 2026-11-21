@@ -58,6 +58,9 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
     return {day:g.metrics().day,people:g.metrics().citizens,
      homes:g.metrics().buildings,physical,physicalSite,grown,
      scene:g.renderStats().lastFrameTriangles,
+     originalFullSource:g.getSceneTriangleReconciliation(),
+     forest:g.getForestLodStats(),
+     forestArt:g.getForestVisualStats(),
      camera:g.getCamera(),
      realAuthorityUntouchedByCamera:before===after,
      checksum:after,webglError:canvas.getContext('webgl').getError(),
@@ -122,6 +125,21 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    expect(observed.physical.screenDominantBuilding).toBeLessThan(.40);
    expect(observed.scene).toBeGreaterThan(0);
    expect(observed.scene).toBeLessThan(160000);
+   // W523 actual forest tri-budget safety: all seeded trees still rendered,
+   // near working boughs retain the original eight-triangle double-sided
+   // silhouette; only mid/far subpixel underside panels are folded away.
+   expect(observed.forest.renderedTrees).toBeGreaterThan(0);
+   expect(observed.forest.foldedNeedleBoughs).toBeGreaterThan(0);
+   expect(observed.forest.foldedNeedleTriangles)
+    .toBe(observed.forest.foldedNeedleBoughs*4);
+   expect(observed.forestArt.renderedTrees).toBe(observed.forest.renderedTrees);
+   expect(observed.forestArt.needleFanTriangles)
+    .toBe(observed.forestArt.needleBoughs*8-
+     observed.forest.foldedNeedleTriangles);
+   // Day-121 complete ORIGINAL source must pass, not only frustum-submitted
+   // triangles. A prior real run failed 162,086/160,000 despite a valid view.
+   if(day===121)
+    expect(observed.originalFullSource.auditedTriangles).toBeLessThan(160000);
    expect(observed.webglError).toBe(0);
    expect(observed.overflow).toBeLessThanOrEqual(0);
    expect(observed.people).toBeGreaterThanOrEqual(initial.people);

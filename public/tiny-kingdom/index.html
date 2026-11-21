@@ -12930,7 +12930,8 @@ const forestVisualStats={deciduous:0,conifers:0,needleBoughs:0,needleFanTriangle
 // G089B: stable world-space forest importance, zero gameplay authority impact.
 // Near crowns remain exact, distant trunks/cones/crown cores all remain visible.
 let forestLodStats={renderedTrees:0,nearTrees:0,midTrees:0,farTrees:0,
- workingFieldEdgeNearTrees:0,reclaimedTriangles:0,skippedConiferSprays:0,skippedMicroLobes:0,skippedLeafWhorls:0};
+ workingFieldEdgeNearTrees:0,reclaimedTriangles:0,skippedConiferSprays:0,skippedMicroLobes:0,skippedLeafWhorls:0,
+ foldedNeedleBoughs:0,foldedNeedleTriangles:0};
 // W244: physical original near 3D forest and intact middle/far crown masses.
 // Only subpixel satellite leaves/sprays are reduced in distant woodland;
 // every existing tree, root, trunk and all actual actors remain rendered.
@@ -12942,7 +12943,13 @@ function forestDetailTier(x,z){
  const r=Math.hypot(x,z),workingFieldEdge=Math.hypot(x-23,z+9)<4.1;
  return workingFieldEdge||r<19?'near':r<29?'mid':'far';
 }
-function coniferNeedleSpray(root,tip,width,dark,light){
+// W523 Phase-1 actual rendering spine: a far/mid fir already has FOUR
+// volumetric bough tiers and complete wood arms. Preserve the double-sided
+// main needle silhouette at all orientations; stop submitting a second,
+// subpixel underside fan on EACH distant bough. Near-worker silhouettes
+// remain the original complete eight-triangle shape, no trees are removed.
+// This is cached once in the season-specific landscape VBO, never per frame.
+function coniferNeedleSpray(root,tip,width,dark,light,detailTier='near'){
  const dx=tip[0]-root[0],dy=tip[1]-root[1],dz=tip[2]-root[2];
  const len=Math.hypot(dx,dz)||1,perpX=-dz/len,perpZ=dx/len;
  const p=(t,across,height)=>[
@@ -12953,10 +12960,16 @@ function coniferNeedleSpray(root,tip,width,dark,light){
  const a=p(.39,.89,.10),b=p(.45,-.88,.03),top=p(1.12,0,.12);
  tri(root,a,top,dark);tri(root,top,b,light);
  tri(a,root,top,dark);tri(top,root,b,light);
- const mid=p(.38,0,-.07),c=p(.68,.60,.04),d=p(.71,-.64,.02),droop=p(1.06,0,-.23);
- tri(mid,c,droop,light);tri(mid,droop,d,dark);
- tri(c,mid,droop,light);tri(droop,mid,d,dark);
- forestVisualStats.needleFanTriangles+=8;
+ if(detailTier==='near'){
+  const mid=p(.38,0,-.07),c=p(.68,.60,.04),d=p(.71,-.64,.02),droop=p(1.06,0,-.23);
+  tri(mid,c,droop,light);tri(mid,droop,d,dark);
+  tri(c,mid,droop,light);tri(droop,mid,d,dark);
+ }else{
+  forestLodStats.foldedNeedleBoughs++;
+  forestLodStats.foldedNeedleTriangles+=4;
+  forestLodStats.reclaimedTriangles+=4;
+ }
+ forestVisualStats.needleFanTriangles+=detailTier==='near'?8:4;
 }
 /* Gauntlet 047: authored broadleaf forest silhouettes.
    Original 3D foliage with elliptical but non-spherical lobes and individually
@@ -13220,7 +13233,7 @@ function tree(x,z,s=1){
     ];
     taperedBranch(branchRoot,branchTip,.058*s,.011*s,bark,4);
     forestVisualStats.branchTriangles+=8;
-    coniferNeedleSpray(branchRoot,branchTip,(.40-tier*.065)*s,dark,light);
+    coniferNeedleSpray(branchRoot,branchTip,(.40-tier*.065)*s,dark,light,detailTier);
     forestVisualStats.needleBoughs++;
    }
   }
@@ -35015,7 +35028,8 @@ currentMaterial=MATERIAL.FOLIAGE;
  forestVisualStats.deciduous=0;forestVisualStats.conifers=0;
  forestVisualStats.needleBoughs=0;forestVisualStats.needleFanTriangles=0;
  forestLodStats={renderedTrees:0,nearTrees:0,midTrees:0,farTrees:0,
-  workingFieldEdgeNearTrees:0,reclaimedTriangles:0,skippedConiferSprays:0,skippedMicroLobes:0,skippedLeafWhorls:0};
+  workingFieldEdgeNearTrees:0,reclaimedTriangles:0,skippedConiferSprays:0,skippedMicroLobes:0,skippedLeafWhorls:0,
+  foldedNeedleBoughs:0,foldedNeedleTriangles:0};
  forestVisualStats.branchTriangles=0;forestVisualStats.crownPalette.clear();forestVisualStats.broadleafLobes=0;forestVisualStats.individualLeaves=0;forestVisualStats.broadleafAddedTriangles=0;forestVisualStats.broadleafSpecies=[0,0,0];forestVisualStats.microCrownLobes=0;forestVisualStats.rimLeafSprays=0;
  
 }
