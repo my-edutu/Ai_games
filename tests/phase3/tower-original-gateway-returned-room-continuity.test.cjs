@@ -12,18 +12,24 @@ test('one real returned Floor9 shaft fades original guardian steel gradually acr
   const {observedReturnedFarSideFade:fade}=await source;
   const start={submittedFrames:8,farSideFadeStartSubmitted:8,
     visibleSeconds:.58,farSideFadeStartSeconds:.58};
-  const job={structuralVisibleReturns:0};
+  const job={structuralVisibleReturns:0,structuralVisibleSeconds:0};
   assert.equal(fade(start,job),0,
     'not one invented successor frame can retire an original GPU door');
   const mid={...start,submittedFrames:15,visibleSeconds:1.53};
-  const alpha=fade(mid,{structuralVisibleReturns:7});
-  assert.ok(alpha>0 && alpha<.70,
-    'seven returned shaft frames and .95 rendered seconds must not wipe the old guardian door before the native handoff');
+  const alpha=fade(mid,{structuralVisibleReturns:4,structuralVisibleSeconds:.33});
+  assert.ok(alpha>0 && alpha<.55,
+    'real returned shaft and old-room time earn restrained concurrent old/new scene fade');
+  const beforeShaftReady=fade(mid,{structuralVisibleReturns:2,structuralVisibleSeconds:.09});
+  assert.ok(beforeShaftReady<alpha,
+    'seven returned OLD frames do not make two barely visible incoming shaft frames a finished scene');
   const finish={...start,submittedFrames:25,visibleSeconds:2.34};
-  assert.equal(fade(finish,{structuralVisibleReturns:17}),1,
-    'genuine returned successor with enough frame AND elapsed time does finish the old-material exit');
-  assert.equal(fade({...start,visibleSeconds:.2},{structuralVisibleReturns:1}),null,
+  assert.equal(fade(finish,{structuralVisibleReturns:17,structuralVisibleSeconds:.9}),1,
+    'genuine returned successor with enough new frames AND returned time finishes the old material');
+  assert.equal(fade({...start,visibleSeconds:.2},{
+    structuralVisibleReturns:1,structuralVisibleSeconds:.1}),null,
     'impossible or reversed display durations cannot age any physical room');
+  assert.equal(fade(finish,{structuralVisibleReturns:17}),null,
+    'missing returned structural time is not equivalent to actual native-visible replacement');
 });
 test('old Floor8 camera escorts the live Floor9 hero and true door until the same returned-material window ends',async()=>{
   const {sourceOriginalGatewayCameraBridge:bridge}=await camera;
