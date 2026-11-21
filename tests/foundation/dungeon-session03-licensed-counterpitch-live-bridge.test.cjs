@@ -450,6 +450,76 @@ test('RED: genuine 60Hz original source deep swing can evaluate toes-child skin 
 });
 
 
+// Genuine 390px original weighted-sole BEFORE from #44768341460; the
+// proposed six-millimetre AFTER is deliberately SYNTHETIC and must still
+// be independently proven by the real same-clone GLB skin in Chromium.
+// A 200ms rendered frame carrying a fresh authoritative root displacement
+// is not a licence to exceed 3rad/s, forge contact, or consume stale poses.
+test('RED: measured 200ms Walking_A sparse window may try a rate-bounded original toe child without false footplant',async()=>{
+ const {certifyLicensedCounterpitchToeFinish:certify}=await source;
+ const original={
+  left:{heelY:-.020791387448650642,toeY:.010947189279311292,
+   heelXZ:[1.161021624431399,-6.9568991922232],
+   toeXZ:[.8926045685879036,-6.932549053789255]},
+  right:{heelY:.18609646743739877,toeY:-.0900424119549105,
+   heelXZ:[1.2902502711956132,-7.1157095857401895],
+   toeXZ:[1.1773153481378076,-7.133252744937796]}
+ };
+ const sourceId='real-390-original-before-synthetic-after';
+ const proof={
+  source:'measured-original-licensed-source-counterpitch',
+  sourceClip:'Walking_A',sourceClipTimeSeconds:.08997601324106551,
+  side:'right',sourceInstanceId:sourceId,
+  finalIndependentSourceSkin:true,originalOppositeShoeVerified:true,
+  sourceOriginalRootTravelWitnessed:true,
+  witnessedFrameIntervalSeconds:.20,
+  witnessedRootTravelMeters:.042,
+  witnessedDirectFrameTravelMeters:.042,
+  witnessedFrameAgeSeconds:0,
+  residualToeBurialMeters:.0700424119549105,
+  contactLocked:false,plantCertified:false,after:original
+ };
+ const after={...original,right:{...original.right,
+  heelY:original.right.heelY-.001,
+  toeY:original.right.toeY+.0065}};
+ const inputs={proof,before:original,after,side:'right',
+  sourceInstanceId:sourceId,sourceInstanceSame:true,
+  sourceClipName:'Walking_A',sourceToeTrackVerified:true,
+  sourceToeBoneParentVerified:true,angleRad:.12,floorTopY:-.02};
+ const accepted=certify(inputs);
+ assert.ok(accepted,'verified direct travel in a 200ms source frame should permit a bounded original-toes-child experiment');
+ assert.equal(accepted.sourceDeepSwingToeRelief,true);
+ assert.ok(Math.abs(accepted.toeLiftMeters-.0065)<1e-8);
+ assert.ok(accepted.residualToeBurialMeters>.06,
+  'partial measured trial must never be promoted into a planted foot');
+ assert.equal(accepted.contactLocked,false);
+ assert.equal(accepted.plantCertified,false);
+ for(const invalid of [
+  {proof:{...proof,witnessedFrameIntervalSeconds:.25}},
+  {proof:{...proof,witnessedDirectFrameTravelMeters:0}},
+  {proof:{...proof,witnessedRootTravelMeters:0}},
+  {proof:{...proof,witnessedFrameAgeSeconds:.1}},
+  {proof:{...proof,sourceClipTimeSeconds:.45}},
+  {sourceInstanceSame:false},
+  {sourceInstanceId:'different-clone'},
+  {sourceClipName:'Idle'},
+  {sourceToeTrackVerified:false},
+  {sourceToeBoneParentVerified:false},
+  {after:{...after,left:{...original.left,toeY:original.left.toeY+.004}}},
+  {angleRad:.61},
+  {after:{...after,right:{...after.right,toeY:original.right.toeY+.011}}}
+ ])assert.equal(certify({...inputs,...invalid}),null,
+   'sparse source toe-child must reject stale root, wrong clip/bone, unsafe angle or skinned shoe');
+ // Both the pure certificate and actual source renderer must allow the
+ // exact same supported sparse interval: a planner-only change is inert.
+ const renderer=fs.readFileSync(path.resolve(__dirname,
+  '../../public/ai-dungeon/model-assets.js'),'utf8');
+ const stage=renderer.slice(renderer.indexOf('function stageLicensedSourceToeFinisherAfterCounterpitch('),
+  renderer.indexOf('function stageLicensedSourceToeFinisherAfterCounterpitch(')+6500);
+ assert.match(stage,/proof\.witnessedFrameIntervalSeconds<=\.24&&/,
+  'live original GLB toe finisher must independently audit current sparse direct travel');
+});
+
 test('RED-first: real 390px licensed toesl hinge can grow across one authenticated 60Hz Walking_A source pair without an angular snap',async()=>{
  const {planLicensedSourceToeChildContinuityCandidates:plan}=await source;
  assert.equal(typeof plan,'function',
