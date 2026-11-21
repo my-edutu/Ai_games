@@ -24,6 +24,12 @@ const source=html.slice(fStart,close);
 const screenStart=html.indexOf('const FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT=');
 assert(screenStart>=0&&screenStart<fStart,'real moving-resident LOD contract exists');
 const screenSource=html.slice(screenStart,fStart);
+// Actual unladen-travel predicate is defined earlier in production; include
+// exactly that helper, not a mocked approximation or adjacent courier source.
+const travelStart=html.indexOf('function isOriginalUnladenTravelStage(');
+const travelEnd=html.indexOf('\nfunction isResidentCommuterCandidate(',travelStart);
+assert(travelStart>=0&&travelEnd>travelStart,'genuine unladen route source exists');
+const travelSource=html.slice(travelStart,travelEnd);
 assert(source.includes("action==='Resting at home'"),'physically reached original home can retain small body');
 assert(source.includes("action==='Waiting for a safe route'"),'stranded real residents stay in the town');
 assert(source.includes('verifiedHouseholdMealEvidence(p)'),'original receipt-linked meal contact protected');
@@ -35,7 +41,7 @@ const make=(opt={})=>new Function('workingSkinCapable','gpuAvailable',
  'isMarketUnloading','isWorkingAtSite','follow','liveWorkday',
  'selectedCitizen','projectRealCitizenDetail','verifiedHouseholdMealEvidence',
  'foregroundResidentCache',
- screenSource+'\nreturn ('+source+');')(
+ screenSource+'\n'+travelSource+'\nreturn ('+source+');')(
  opt.skin!==false,opt.gpu!==false,()=>!!opt.unload,()=>!!opt.working,
  !!opt.follow,!!opt.documentary,opt.selectedIndex??1,
  ()=>({visible:opt.visible!==false,heightFraction:opt.height??.085}),
