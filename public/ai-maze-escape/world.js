@@ -414,7 +414,15 @@ export function publicEarnedGuardianRecoilCourtCells(s,{spectator=false}={}) {
       // boundary or expose a hidden tile. The lower opaque reef is still
       // physically solid and has zero collision/AI authority change.
       if(spectator && c.blocked!==false && c.blocked!==true)continue;
-      const radius=spectator?4:2;
+      // A real earned lantern counter can leave the first four-cell spectator
+      // halo behind tall, redundant NON-COLLIDING columns on an actively
+      // visible outer terrace. Clear two more currently witnessed, ordinary
+      // spectator rings as one readable performance stage. This is exclusively
+      // optional decorative negative space: no blocked support, private cell,
+      // key, hazard, gate, objective, elevation, AI or traversal change.
+      // Previously disclosed but not CURRENTLY visible tiles keep the earlier
+      // four-cell treatment, never an inferred new sightline.
+      const radius=spectator ? (visible.has(c.cell)&&c.blocked===false?6:4) : 2;
       if(distance(c.cell,hero.cell)>radius
         &&distance(c.cell,guardian.cell)>radius)continue;
       if(!spectator && !actorLevels.some(level=>Math.abs(

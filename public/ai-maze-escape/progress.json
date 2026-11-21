@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-21T00:33:52Z",
+  "updatedAt": "2026-11-21T01:23:00Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass545 original exact 6a4118ed native WebGL had 42/42 full PNG/sidecar SHA matches; authentic 390/320 earned guardian action still crowded by tall spectator masonry. Pass546 source candidate replaces only genuinely public mutually sealed earned-counter wall dressing with original solid low Tideglass bulwark. Exact-new-HEAD native rendering and independent critic still required. Nintendo benchmark NOT MET."
+    "summary": "Pass546 exact HEAD c6d5ef40 native WebGL SUCCESS: original 42/42 full PNG hashes, 3/3 real gate hashes, 136-tick autonomous victory, strict six-reset budget pass. Full original 390/320 image comparison REJECTED: foreground spectator towers and physically separated characters remain far below Nintendo Captain Toad. Pass547 current-visible ordinary spectator negative-space enlargement is a SOURCE CANDIDATE only, no rendered approval. Whole-repo CI remains red at unrelated Tiny Kingdom OBS/evidence uploads."
   },
   "captures": [
+    {
+      "title": "Pass546 exact SHA c6d5ef40 original full uncropped WebGL SUCCESS, ZIP SHA256 738ae132b1c9, 42/42 PNG+sidecar SHA and 3 real gate SHA verified; mobile composition REJECTED; Pass547 pending real new-source render",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44845624652/artifacts/14682778790"
+    },
     {
       "title": "Pass545 exact-HEAD source bound original WebGL, artifact ZIP SHA d4b7dcb5758b, 42/42 full PNG sidecar pairs checked, 390/320 visuals rejected",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44835718457/artifacts/14678992126"
