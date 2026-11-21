@@ -209,6 +209,7 @@ test('a returned bronze gateway does not reveal violet roof trim before the same
     'the genuine successor roof still reads farther ahead in the material gradient');
   const completed=make();
   assert.equal(sync(completed,1),true);
-  assert.equal(completed.roofJoin.successor.color.v<halfway.roofJoin.successor.color.v);
+  assert.ok(completed.roofJoin.successor.color.v<halfway.roofJoin.successor.color.v,
+    'actual completed successor material must be cooler than the halfway source-owned roof');
   assert.equal(sync(make(),Number.NaN),false,'invalid evidence cannot repaint the scene');
 });
