@@ -1,10 +1,20 @@
 {
   "updatedAt": "2026-11-21",
-  "status": "T0 UNSIGNED / T1 BUILDING real corrected stone but whole-scene visually SELF-REJECTED / T2-T3 BUILDING / T4 HARD RED 2/17 parent; new cache-first candidate NOT visually/performance accepted",
-  "detail": "Source-head 8f1dda real Chromium run #44895388062 original strict 2 genuine complete submissions/17 in 1016ms at 751x415, 704 skips, browser 52/95; native #44895387989 734/808. Genuine screenshot black stone corrected, but rigid tiled court and small serpent remain. New source-exact full-quality first-frame HDR/depth cache experiment original balanced 0.75 and low 0.4 with strict pristine queue, original layers untouched; RED parent 0/2 -> GREEN 2/2, selected 46/58 same 12 parent fails, TS & 900-tick authority PASS checksum 82492d82. No candidate browser, FPS, 45-90s independent critique or final acceptance yet. See docs/reviews/snake-gauntlet/2026-11-21-t4-full-quality-first-scene-prime-experiment.md",
+  "status": "T0 UNSIGNED / T1 BUILDING and genuine 10a whole-scene SELF-REJECTED / T2-T3 BUILDING / T4 HARD RED 10/17 original 10a; first-raster fix browser pending",
+  "detail": "Exact-head current 10a original WebGL #44904350057: 10/17 true complete 1-second submissions at 751x415, 702 GPU queue skips, coldWorldPrimes 0, 52/95 browser, 736/810 CI. Real 1920 and 390x844 PNG and continuous 57.32s stream inspected; rectangular tile court and indistinct small head remain; T1 self-rejected. New 88a first-raster source-exact candidate fixes original .627674 first balanced render eligibility without lowering quality or gate. New RED parent 1/2 -> GREEN 2/2, 28/30 selected with same 2 inherited, TypeScript and 900-tick authority pass. No candidate-matched Chromium or real physical displayed FPS/p95 or independent acceptance yet. Original evidence: https://github.com/my-edutu/Ai_games/actions/runs/44904350057 ; source audit docs/reviews/snake-gauntlet/2026-11-21-t4-correct-source-native-first-raster.md",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Current real 8f1 source corrected stone blackness but board remains rectangular and hero tiny; original mandatory 1s complete renders 2/17; candidate speculative.",
+  "latestCaption": "Historical progress image, not new-head evidence. Actual 10a 1920/portrait and 57.32s WebGL artifacts in Actions #44904350057; whole-game T1 self-rejected.",
   "reviews": [
+    {
+      "area": "2026-11-21 real 10a Chromium source-matched review and corrected original first raster admission; building not accepted",
+      "sourceHead": "10a74477cda875cca8bf5d52e9516db2215d2fa4",
+      "candidateCommit": "88a791c11d38d051b37945bdd5f5009fa7a1ad65",
+      "rendererCandidateBlob": "bed630206e162120f0099069a17cd64afedcb49f",
+      "testBlob": "3a486e5340adc8ecd1ae20e8361db184223dab92",
+      "native": "Current source/offline dependencies SHA256 passed; exact parent RED 1/2 -> candidate GREEN 2/2; selected 28/30 same two parent failures; TS build PASS, 900-tick authority/recovery/privacy checksum 82492d82 PASS",
+      "browser": "Original 10a #44904350057: untouched one-second 10/17 genuine full submissions 1002.1ms, 751x415, 702 skips, coldWorldPrimes=0; 52/95 browser. Current 1920, 390x844 and actual 57.32 sec film reviewed: tiled rectangle and small hero. New candidate Chromium pending.",
+      "verdict": "T0 UNSIGNED, T1 BUILDING/visual SELF-REJECTED, T2/T3 BUILDING, T4 HARD RED, independent acceptance pending"
+    },
     {
       "area": "2026-11-21 T4 original balanced-quality desktop static HDR/depth cold prime; exact-source native experiment, NOT an accepted performance win",
       "sourceHead": "8f1dda815efdb571920cfb9d4fab5adfdbcfb013",
