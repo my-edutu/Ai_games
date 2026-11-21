@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-21T02:47:30+01:00",
+  "updatedAt": "2026-11-21T03:00:00+01:00",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass548 source-authentic occluder identification is PENDING exact-HEAD native WebGL. Previous Pass547 screenshot/artifact SHA verification confirms tall pylons and repeated foreground masonry still overwhelm the 390/320 Pip–Thornback counter. This patch only improves public-only named real-mesh ray attribution and emits an uncropped native 42-ray sweep per earned portrait; it is NOT a visual gameplay improvement or Nintendo win. No gameplay/collision/privacy/AI changes. Preserve all strict thresholds. Original benchmark REJECTED; awaiting exact-HEAD screenshots and public ray data to choose actual structural reconstruction."
+    "summary": "Pass548b: Pass548 exact-HEAD native workflow 44852702999 passed source/build, real WebGL initialization, unchanged six-reset resource budget, and 8/9 browser review tests, but failed the natural guardian capture with page.evaluate ReferenceError: earned is not defined. The source-bound 42-ray diagnostics were NEVER produced by that run. This corrective patch explicitly passes the earned public-event boolean into the isolated browser callback; no game rendering, topology, hidden knowledge, AI, collision, accessibility or thresholds were changed. Await NEW exact-HEAD native captures, ray provenance and independent visual review; Nintendo benchmark NOT PASSED. Whole-repo CI separately red at Tiny Kingdom OBS and artifact uploads."
   },
   "captures": [
     {

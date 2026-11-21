@@ -2333,7 +2333,7 @@ test('a NATURAL autonomous lantern counter has source-bound physical before/reco
     await page.screenshot({path:image,fullPage:true});
     // Diagnose actual world-instance blockers AFTER storing the original,
     // untouched, full-frame WebGL screenshot. None controls its pixels.
-    const sourceSightline=await page.evaluate(()=>{
+    const sourceSightline=await page.evaluate((earned)=>{
       const witness=window.__MAZE_PUBLIC_DUEL_SIGHTLINE__?.()??null;
       const picks=witness?.eligible?witness.samples
         .filter(p=>p.inFrame&&Number.isFinite(p.screenX)&&Number.isFinite(p.screenY))
