@@ -1066,7 +1066,8 @@ function stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion){
  // pivot moves; reducing maximum error cannot conceal a newly buried heel.
  const physical=verifyOriginalSourceLoadedPelvisFootWitness({
   before,after:lifted,otherBefore,otherAfter,
-  floorTopY:-.02,requireWorldXZ:true
+  floorTopY:-.02,requireWorldXZ:true,
+  sourceHeelRollVerified:candidate.sourceHeelRollVerified===true
  });
  if(!physical){
   actor.visualPivot.position.y=baseY;
@@ -1105,7 +1106,8 @@ function auditSourceLoadedPelvisAfterLegs(actor,since,reducedMotion){
  const finalPhysical=verifyOriginalSourceLoadedPelvisFootWitness({
   before:candidate.before,after:finalFoot,
   otherBefore:candidate.otherBefore,otherAfter:otherFinalFoot,
-  floorTopY:-.02,requireWorldXZ:true
+  floorTopY:-.02,requireWorldXZ:true,
+  sourceHeelRollVerified:candidate.sourceHeelRollVerified===true
  });
  const accepted=Boolean(finalPhysical);
  if(!accepted){
@@ -1300,6 +1302,14 @@ function auditSourceLoadedPelvisAfterLegs(actor,since,reducedMotion){
   oppositeFinalHeelXZ:otherFinalFoot.heelXZ,
   oppositeFinalToeXZ:otherFinalFoot.toeXZ,
   independentlyRecheckedOriginalTwoShoeXZ:true,
+  // A real heel-first rocker has an elevated toe; it is not a 2-point
+  // plant. Audit the heel penetration independently of the toe's legitimate
+  // raised swing. The original grip and all other owner gates remain intact.
+  originalSupportKind:finalPhysical.supportKind??
+   'original-weighted-two-point',
+  sourceHeelRollVerified:candidate.sourceHeelRollVerified===true,
+  originalHeelBurialImprovementMeters:finalPhysical.improvementMeters,
+  contactLocked:false,plantCertified:false,
   // Original swing proof is pre-pelvis; final foot position belongs to THIS
   // later full-source-frame physical audit. Never silently relabel that
   // earlier, separately skinned source pose as the post-pelvis output.
