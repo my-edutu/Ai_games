@@ -25,6 +25,7 @@ import { observedReturnedSuccessorRoomReady, observedSupportedReturnedShaftDepth
 import { projectOriginalGuardianGateSteel } from './original-guardian-gate-steel-projection.mjs';
 import { sourceReturnedGatewayDisplayDt } from './source-submitted-doorway-cadence.mjs';
 import { actualGatewayReceivingRoofSpans, actualGatewayReceivingLoadPathBays, actualGatewayReceivingGalleryCanopy, prebuildOriginalGuardianCanopyPlan, sourceOpenGuardianRoofLoadPath, syncGatewayReceivingRoofColours, resetGatewayReceivingRoofColours } from './source-physical-receiving-roof.mjs';
+import { sourceRealGroundForecourtSections, syncSourceRealRoofWingMaterials } from './source-real-ground-forecourt.mjs';
 
 
 /**
@@ -2637,6 +2638,13 @@ export function createTowerWorld(){
     // Segment only its existing top triangles across the genuine F8 exit.
     const joinedRoofSpans=sharedPhysicalRoof
       ?actualGatewayReceivingRoofSpans(p,width,retainedEarnedCap.thresholdX,ARC):null;
+    // Partition the SAME real source-generated f9:ground roof against the
+    // still-returned F8 cap footprint. Never change a gameplay platform.
+    const joinedRoofPanels=joinedRoofSpans
+      ?sourceRealGroundForecourtSections(p,width,
+          retainedEarnedCap.thresholdX,{
+            id:retainedEarnedCap.oldCapId,x:retainedEarnedCap.oldCapX,
+            width:retainedEarnedCap.oldCapWidth},ARC)??joinedRoofSpans:null;
     // The clockwork chamber ALREADY has these exact six overhead stations
     // before the real crossing. This models steel, NOT future F9 collision.
     const oldCanopyPlan=guardianCap&&theme==='clockwork'&&p.id==='f8:cap'
@@ -2694,7 +2702,7 @@ export function createTowerWorld(){
         .lerp(warmGlow,.33);
       arrivalRoutePalette={bronze,top,body,rim,glow,crystal,
         roofJoin:joinedMiddle?{middle:joinedMiddle,successor:joinedSuccessor,
-          ...roofTrim}:null,
+          ...roofTrim,wingMaterials:[]}:null,
         topVoid:top.color.clone(),bodyVoid:body.color.clone(),
         rimVoid:rim.color.clone(),
         glowVoid:glow.color.clone(),glowEmissiveVoid:glow.emissive.clone(),
@@ -2712,6 +2720,20 @@ export function createTowerWorld(){
       // no disjoint violet rim may appear before a returned passage frame.
       syncGatewayReceivingRoofColours(arrivalRoutePalette,0);
     }
+    // Peripheral roof steel/landing paint is a real source-owned material
+    // channel. The previous FULL F9 ring replaced the narrow F8 cap in a
+    // single native frame. Only distant wings can be softened while the
+    // original cap still supports the climber and its route.
+    const sourceRoofWing=(material,section)=>{
+      if(!section?.wing||!arrivalRoutePalette?.roofJoin)return material;
+      const owned=material.clone();
+      owned.name='ActualF9GroundOuterWing-'+section.wing;
+      owned.transparent=true;owned.opacity=.16;owned.depthWrite=false;
+      floorMaterials.add(owned);
+      arrivalRoutePalette.roofJoin.wingMaterials.push({
+        material:owned,parent:material,wing:section.wing});
+      return owned;
+    };
     // The one TRUE F9 walkable receiving roof shares a readable directional
     // metal inlay with the already-rendered original F8 doorway. Its three
     // short sections follow the exact existing deck triangles and old threshold
@@ -2724,7 +2746,7 @@ export function createTowerWorld(){
       routeTrace.userData={oldCapId:'f8:cap',receivingPlatformId:p.id,
         sourceAligned:true,nonColliding:true};
       root.add(routeTrace);
-      for(const band of joinedRoofSpans){
+      for(const band of joinedRoofPanels){
         const ink=band.kind==='approach'?arrivalRoutePalette.glow:
           band.kind==='threshold'?arrivalRoutePalette.roofJoin.lampMiddle:
             arrivalRoutePalette.roofJoin.lampSuccessor;
@@ -2843,12 +2865,12 @@ export function createTowerWorld(){
       // Real source roof, same top elevation and annular radial envelope.
       // Three adjacent, exact angular spans replace ONE existing sector:
       // no invented bridge, extra platform or coplanar overlapping cover.
-      for(const band of joinedRoofSpans){
-        const topMaterial=band.kind==='approach'?arrivalRoutePalette.top:
+      for(const band of joinedRoofPanels){
+        const baseMaterial=band.kind==='approach'?arrivalRoutePalette.top:
           band.kind==='threshold'?arrivalRoutePalette.roofJoin.middle:
           arrivalRoutePalette.roofJoin.successor;
         mesh(root,sector(22.4,27.18,band.angle,.16),
-          topMaterial,[0,h-.16,0],[1,1,1],[0,band.offset,0]);
+          sourceRoofWing(baseMaterial,band),[0,h-.16,0],[1,1,1],[0,band.offset,0]);
       }
     } else mesh(root,sector(22.4,27.18,angle,.16),
       arrivalSurface||materials.landing,[0,h-.16,0]);
@@ -2856,14 +2878,14 @@ export function createTowerWorld(){
       // The exact same x->arc source cuts as the real walking surface:
       // no added bridge, platform or coplanar decorative full-width band.
       const trim=arrivalRoutePalette.roofJoin;
-      for(const band of joinedRoofSpans){
+      for(const band of joinedRoofPanels){
         const edge=band.kind==='approach'?arrivalRim:
           band.kind==='threshold'?trim.edgeMiddle:trim.edgeSuccessor;
         const beam=band.kind==='approach'?bodyMaterial:
           band.kind==='threshold'?trim.beamMiddle:trim.beamSuccessor;
-        mesh(root,sector(27.02,27.22,band.angle,.095),edge,
+        mesh(root,sector(27.02,27.22,band.angle,.095),sourceRoofWing(edge,band),
           [0,h-.27,0],[1,1,1],[0,band.offset,0]);
-        mesh(root,sector(26.99,27.13,band.angle,.07),beam,
+        mesh(root,sector(26.99,27.13,band.angle,.07),sourceRoofWing(beam,band),
           [0,h-.66,0],[1,1,1],[0,band.offset,0]);
       }
     }else{
@@ -2989,10 +3011,10 @@ export function createTowerWorld(){
         // The original FULL-WIDTH neon underlip used to read as a sudden
         // alien ring while the skinned climber was at the bronze threshold.
         const trim=arrivalRoutePalette.roofJoin;
-        for(const band of joinedRoofSpans){
+        for(const band of joinedRoofPanels){
           const lamp=band.kind==='approach'?arrivalRoutePalette.glow:
             band.kind==='threshold'?trim.lampMiddle:trim.lampSuccessor;
-          mesh(root,sector(27.04,27.17,band.angle,.05),lamp,
+          mesh(root,sector(27.04,27.17,band.angle,.05),sourceRoofWing(lamp,band),
             [0,h-.37,0],[1,1,1],[0,band.offset,0]);
         }
       }else mesh(root,sector(27.04,27.17,angle,.05),
@@ -3521,6 +3543,7 @@ export function createTowerWorld(){
     if(arrivalRoutePalette &&
        platforms.get('f9:ground')?.arrivalSurface===arrivalRoutePalette.top)
       resetGatewayReceivingRoofColours(arrivalRoutePalette);
+    syncSourceRealRoofWingMaterials(arrivalRoutePalette,null,null);
     held.root.removeFromParent();
     held.root.traverse(object => {
       if (object.isInstancedMesh) object.dispose();
@@ -4280,6 +4303,7 @@ export function createTowerWorld(){
       Number.isFinite(held.originalDeckSurface?.opacity)
         ?Math.max(0,Math.min(1,1-held.originalDeckSurface.opacity)):1;
     syncGatewayReceivingRoofColours(arrivalRoutePalette,heldRoofReveal);
+    syncSourceRealRoofWingMaterials(arrivalRoutePalette,snapshot,held);
     // Only remove the old GPU group when BOTH its real gate AND original
     // deck/gallery have been visibly extinguished by source departure and
     // successful submissions. The former time-only 1.65s removal chopped a
@@ -5097,6 +5121,7 @@ export function createTowerWorld(){
         sourceAlignedMaterialProof.oldWeight<=1
           ?1-sourceAlignedMaterialProof.oldWeight:1;
       syncGatewayReceivingRoofColours(arrivalRoutePalette,sourceRoofReveal);
+      syncSourceRealRoofWingMaterials(arrivalRoutePalette,snapshot,retainedEarnedCap);
     }
     if(originalClockworkArchitecturalPalette)
       originalClockworkArchitecturalPalette.update(sourceAlignedMaterialProof,opticalTail);
