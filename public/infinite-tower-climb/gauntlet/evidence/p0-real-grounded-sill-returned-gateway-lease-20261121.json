@@ -836,5 +836,58 @@
     "actualDevicePercentilesAndMemory": "NOT EVALUATED",
     "nextHighestImpact": "Review exact 3c01829e normal-speed captures and 10-job CI; if physical gateway remains unrecognizable, audit camera-world relationships in the resulting source/browser receipts and repair actual common 3D passage, not another isolated fade. Do not enter P1.",
     "constraints": "No merge/deploy/force push, baseline movement or ledger edit, PR58 rewrite, PR68 draft conversion, unrelated-game edits."
+  },
+  "p0TrueReceivingRoofUndercroftFullRoomContinuity20261122": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSourceSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenTransformationLedgerBlobSha": "7433d52ae1a7a75de51366a845375dda04ab87fa",
+    "pr": 68,
+    "prDraft": true,
+    "basePr": 58,
+    "inspectedPriorSourceSha": "3c01829eadb324d7cd7b69533a3cf4e30cc1f7cb",
+    "originalSourcePinnedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44957772293",
+    "originalCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44957772293/artifacts/14727814393",
+    "sourceTimelinePairs": "8/8 authentic indexed",
+    "strictEventNativeMatchedDanger": "FAILED 0/2 viewports; no visual-stage acceptance",
+    "nativeUnmodifiedFootage": {
+      "desktop": {
+        "viewport": "960x600",
+        "durationSeconds": 72.12,
+        "format": "25fps 1x WebM",
+        "sha256": "60aaa5707def9c039844a96a3c3df0c824a094cdce82be0f9564d852fae9db11",
+        "nativeFloor9HudSeconds": 26,
+        "sustainedVioletSeconds": 27.5
+      },
+      "portrait": {
+        "viewport": "390x844",
+        "durationSeconds": 72.64,
+        "format": "25fps 1x WebM",
+        "sha256": "cd4852ad4e91bf9342751b7562ccd3c248c1ad573ad15c9ea1ee17c5e51cb7c2",
+        "nativeFloor9HudSeconds": 25.75,
+        "sustainedVioletSeconds": 27.75
+      }
+    },
+    "largestObservedFullMotionDefect": "At ~25.50-26.00s original narrow bronze F8 cap and opened original doorway become a much broader F9 curved deck and dark floor-to-ceiling structure in a single cut; original doorway, complete skinned climber and current true F9 roof are not visually joined. No native-source event matching is certified.",
+    "physicalSourceRootCause": "Prior 3c01829e source splits true F9:ground TOP and rim/beam into original F8-cap-bounded source wing panels, but its two NON-WALKABLE undercroft rails still span the full 480k source roof and hard-swap a dark/purple giant annulus under those staged panels.",
+    "productionCommitSha": "41dc74604a6a71e973d2c43e9b6f75d5e95f8a4b",
+    "implemented": "Source-authenticated f8:cap x/width + true f9:ground section witness now partitions BOTH non-walkable undercroft steel rails: original central pair occupies the former actual cap footprint; only genuine before/after side spans use source-returned, same shared wing material exposure as the original grounded top and rim. Preserve existing central two material/mesh owners for physical ray clearing. No new platform/collider/gateway, no source replay/guardian/steering change; F9 moving/raised trusses unaffected.",
+    "files": [
+      "public/infinite-tower-climb/visuals/source-real-ground-forecourt.mjs",
+      "public/infinite-tower-climb/visuals/world.mjs",
+      "tests/phase3/tower-original-receiving-roof-join.test.cjs"
+    ],
+    "newSourcePinnedNineJobCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44962295407",
+    "newSourcePinnedTenJobQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44962295488",
+    "lastObservedNewQuality": "9/10 jobs completed successfully and Phase6 still running; no overall pass claimed",
+    "lastObservedNewCapture": "Original baseline/candidate 8-video and authentic ledge jobs running; no new accepted full motion",
+    "requiredNextP0": "Inspect exact 41dc7460 unedited 960x600+390x844 60s+ actual clips at 1x with strict source-to-native event alignment. Compare the roof ring/real source body/original opened door silhouette and first raised destination. If the native old-room/new-shaft hard cut remains, fix camera/architecture together, not a cosmetic fade. Prove outcome/restart and protect input, device metrics and 4/5 blind reviews before advancement.",
+    "blindIndependentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDeviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
+    "safety": "No unrelated games, no PR58 rewrite, unchanged frozen baseline SHA/ledger, no merge, deploy, force push or PR68 draft conversion."
   }
 }
