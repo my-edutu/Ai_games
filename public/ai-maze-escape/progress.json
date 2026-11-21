@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-21T20:21:36.339Z",
+  "updatedAt": "2026-11-21T20:48:09Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass564 physical guardian undercliff source candidate: exact restored Pass563 4aedef94 native Maze WebGL 44939194018 SUCCESS, artifact SHA256 c5c7d684 verified, 42/42 original PNG pairs and 3/3 gate hashes all match. Original uncropped 320/390 tick94 frames directly rejected as visually crowded despite full physical actor fit and tick136 real autonomous victory. New original multi-cell undercliff face replaces optional medallions/ferns/stripes only on genuinely witnessed public earned guardian spectator court, preserving all real walls, pressure machinery, AI/collision and strict <100 budget. Source-level regression committed. New exact-HEAD real browser CI, all native screenshots and independent image verdict PENDING; Nintendo benchmark NOT MET. Whole-repo base CI 44939193945 red separately Tiny Kingdom OBS/artifacts. Independent critic/Ultracode NOT_FOUND. Keep PR open draft, never merge/deploy/force."
+    "summary": "Pass565: EXACT Pass564 69270abf native Maze WebGL 44946066902 SUCCESS; original artifact 14723597761 ZIP SHA256 153b61b2 verified, 42/42 original full-frame PNG SHA sidecars and 3/3 authentic gate hashes match, natural autonomous tick136 exit. Direct unaltered 320/390 before-after REJECTS ornamental undercliff reconstruction: pixel change 23.06%/33.04% does NOT improve key two-character Pip/Thornback readable encounter; 390 brace ~4.58% changed. Restore exact Pass563 source Git blob and delete only Pass564-only test in ONE commit with ledger/journal. Exact restored HEAD visual CI pending. Separate whole-repo previous 44946066851 FAILED. Independent critic/Ultracode workspace NOT_FOUND; Nintendo benchmark UNMET. Preserve PR #53 open draft, no merge/deploy/force. Next meaningful unit: authentic shared two-character camera/action composition."
   },
   "captures": [
+    {
+      "title": "Pass565 — original Pass564 exact-HEAD 42/42 native screenshot pairs and 3/3 gate SHA verified; visual REJECT against official Nintendo bar and rollback source; new-head CI pending",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44946066902/artifacts/14723597761"
+    },
     {
       "title": "Pass564 full original public earned guardian undercliff stage SOURCE CANDIDATE; native exact-new-HEAD WebGL and full-frame visual judgement pending, NO WIN",
       "url": "https://github.com/my-edutu/Ai_games/pull/53"
