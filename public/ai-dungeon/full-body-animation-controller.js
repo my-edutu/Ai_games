@@ -6185,7 +6185,7 @@ export function planLicensedSourceToePhaseProbe({
  sourceRootTravelVerified=false,sourceWeight=NaN,
  ownerLocomotion=false,alive=false,visible=false,
  interrupted=false,teleport=false,reducedMotion=false,
- sourceToeBoneName='',side='',tracks=null,
+ sourceToeBoneName='',side='',tracks=null,sourceToeAppliedAxis=null,
  sourceTimeSeconds=NaN,sourceDurationSeconds=NaN,
  originalQuaternion=null,frameInterval=NaN
 }={}){
@@ -6203,6 +6203,10 @@ export function planLicensedSourceToePhaseProbe({
   sourceTimeSeconds<=swing[0]||sourceTimeSeconds>=swing[1]||
   frameInterval<.008||frameInterval>.24||
   !Array.isArray(tracks)||tracks.length<1||tracks.length>1500||
+  !Array.isArray(sourceToeAppliedAxis)||sourceToeAppliedAxis.length!==3||
+  !sourceToeAppliedAxis.every(finite)||
+  Math.abs(Math.hypot(...sourceToeAppliedAxis)-1)>.02||
+  Math.abs(sourceToeAppliedAxis[0])<.985||
   !Array.isArray(originalQuaternion)||originalQuaternion.length!==4||
   !originalQuaternion.every(finite)||
   Math.abs(Math.hypot(...originalQuaternion)-1)>.02)return null;
@@ -6235,12 +6239,16 @@ export function planLicensedSourceToePhaseProbe({
   let rw=a[3]*b[3]-a[0]*b[0]-a[1]*b[1]-a[2]*b[2];
   if(rw<0){rx=-rx;ry=-ry;rz=-rz;rw=-rw;}
   const axis=Math.hypot(rx,ry,rz);
+  const signedAxisProjection=rx*sourceToeAppliedAxis[0]+
+   ry*sourceToeAppliedAxis[1]+rz*sourceToeAppliedAxis[2];
   if(!(axis>.00001)||Math.abs(rx)/axis<.985||
-   ![rx,ry,rz,rw].every(finite))continue;
+   Math.abs(signedAxisProjection)/axis<.985||
+   ![rx,ry,rz,rw,signedAxisProjection].every(finite))continue;
   const sourceAngle=2*Math.atan2(axis,rw);
-  // The midpoint is a genuine bounded pose on the original source
-  // quaternion arc, not a second arbitrary angular axis.
-  const extraAngleRad=Math.sign(rx)*sourceAngle*.5;
+  // The renderer applies axis-angle to the imported signed source axis,
+  // not necessarily +X. Convert the ACTUAL source quaternion's X
+  // rotation into that audited signed basis to avoid reversing its swing.
+  const extraAngleRad=Math.sign(signedAxisProjection)*sourceAngle*.5;
   if(Math.abs(extraAngleRad)<.018||
    Math.abs(extraAngleRad)>angularLimit*.80+1e-8)continue;
   raw.push({extraAngleRad,sourceTargetTimeSeconds:t});
