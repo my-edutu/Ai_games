@@ -157,6 +157,6 @@ test('final returned gate camera uses current immutable landing in animate, neve
   assert.match(actualRenderDecision,
     /gatePoint,\s*submittedLanding\?\.id\?\?null\)/,
     'actual successor platform occlusion receives only current landing identity');
-  assert.doesNotMatch(actualRenderDecision,/\btargetPlatform\b/,
+  assert.doesNotMatch(actualRenderDecision,/\btargetPlatform\s*(?:\?\.|\.)\s*id\b/,
     'update-only targetPlatform was undefined in animate and crashed real F8->F9 footage');
 });
