@@ -7896,3 +7896,51 @@ test('RED-first: real 390px 99.9ms original swing schedules knee-led dual-shoe h
  const hurt={...owner,mode:'hurt'};
  assert.equal(plan(hurt),null,'no idle/hurt/injury can forge fresh source walking proof');
 });
+
+/**
+ * Session 03 exact original 08118b38 capture: full-journey VP8 has
+ * 1,358ms median desktop inter-frame gaps (1,129ms mobile), while
+ * the imported Walking_A source is distance-paced. No frame with ZERO
+ * witnessed original root travel may spend native leg animation time
+ * merely because the renderer arrived >1.2s after its previous frame.
+ * This is a bounded sparse-presentation invariant, not a claim that
+ * the film proved a stationary plant or smooth 24fps playback.
+ *
+ * A real, still-visible Walking_A licensed clip must freeze its source
+ * pose while THREE.AnimationMixer can keep fading the source weights.
+ * Unknown clips, replacement rigs, injuries, teleports, reduced motion
+ * and actual root movement cannot borrow that stationary witness.
+ */
+test('RED-first: verified original Walking_A sparse stationary frame does not treadmill its 41-joint legs',async()=>{
+ const {planImportedLivingSourceStep:sourceStep,
+  planImportedWalkingMixerFrameDelta:fadeDelta,
+  planImportedWalkingBlendRate:blendRate}=await load();
+ const original={mode:'move',walkingClip:true,
+  sourceClipName:'Walking_A',sourceNativeWalkingVerified:true,
+  sourceDuration:1.04166663,sourceTime:.625,effectiveSpeed:1.25,
+  sourceStep:0,frameDelta:.05,frameInterval:1.358,
+  groundedMoving:false,groundedTravel:0,
+  visible:true,reducedMotion:false,teleport:false};
+ assert.equal(sourceStep(original),0,
+  'original source walking clip cannot advance 50ms with no actual root travel after 1.358s render gap');
+ assert.equal(blendRate(original),0,
+  'one real mixer.update must fade while its original 41 joint walk action has time scale zero');
+ const fade=fadeDelta(original);
+ assert.ok(fade>.05&&fade<=.09,
+  'source weight crossfade remains progressing on a real sparse frame');
+ for(const invalid of [
+  {sourceClipName:'Idle'},{sourceNativeWalkingVerified:false},
+  {walkingClip:false},{mode:'hurt'},
+  {visible:false},{reducedMotion:true},{teleport:true},
+  {frameInterval:2.5}
+ ]){
+  const altered={...original,...invalid};
+  assert.notEqual(blendRate(altered),0,
+   'stale / wrong-owned source or invalid long frame must not be silently certified stationary');
+ }
+ const moving={...original,groundedMoving:true,groundedTravel:.11,
+  sourceStep:.08};
+ assert.ok(sourceStep(moving)>0,'measured moving root keeps distance-paced original Walking_A');
+ assert.ok(blendRate(moving)>0,'real source travel never receives a false stationary freeze');
+});
+
