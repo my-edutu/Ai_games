@@ -44,7 +44,12 @@ test('original shaft uses isolated fading materials and returned-frame clock rat
   assert.match(world,/floorMaterials\.add\(material\)/);
   assert.match(world,/job\.structuralFade=options\.reducedMotion\?1:/);
   assert.match(world,/const shown = Number\.isFinite\(renderedDt\)/);
-  assert.match(world,/held\.visibleSeconds=Math\.min\(3,held\.visibleSeconds\+shown\)/);
+  // The owner still advances ONLY after completed WebGL submissions, but a
+  // software renderer may finish 100ms apart while RAF dt was clipped to 16ms.
+  // Guard the new source-owner cadence instead of the obsolete raw-dt code.
+  assert.match(world,/const completedReturnMs=performance\\.now\\(\\)/);
+  assert.match(world,/renderedDt,held\\.lastCompletedReturnMs,completedReturnMs/);
+  assert.match(world,/held\\.visibleSeconds=Math\\.min\\(3,held\\.visibleSeconds\\+returnedGatewayStep\\)/);
   assert.doesNotMatch(world,/held\.visibleSeconds\s*\+=\s*Math\.min\(/);
   assert.match(world,/job\.vistaFade\+shown\/\.55/);
   assert.match(world,/job\.fade\+shown\/\.55/);
