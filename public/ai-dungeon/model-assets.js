@@ -5216,11 +5216,11 @@ function stageLicensedSourceToeFinisherAfterCounterpitch(actor,reducedMotion){
  for(const side of ['left','right']){
   const proof=proofs[side],residual=proof?.residualToeBurialMeters;
   // The normal 2-55mm original-skin finishing window is unchanged. The
-  // independently witnessed 70-82mm source dip may use at most TWO small
+  // now witnessed 95.697mm original mobile f97 burial may use small
   // native toe-child probes only on fresh original source travel <=240ms.
   // The pure certificate still rejects fake clearance, heel drift, stale
   // root travel, opposite-shoe changes and any attempted foot contact.
-  const deepSourceWindow=residual>.055&&residual<=.095&&
+  const deepSourceWindow=residual>.055&&residual<=.110&&
    Number.isFinite(proof?.sourceClipTimeSeconds)&&(
     (side==='right'&&proof.sourceClipTimeSeconds>=.03&&
      proof.sourceClipTimeSeconds<=.335)||
@@ -5293,14 +5293,14 @@ function stageLicensedSourceToeFinisherAfterCounterpitch(actor,reducedMotion){
   const baseToeAngles=planLicensedSourceToeChildContinuityCandidates(
    originalToeContinuity);
   if(!baseToeAngles)continue;
-  // The live original 41-joint GLB can bury its toe 56-92mm despite the
+  // The original mobile f97 41-joint GLB buries its toe 95.697mm after the
   // correct hip→knee→ankle source chain. In that narrow DEEP-swing case,
   // spend at most ONE extra original weighted dual-shoe read to compare a
   // smaller toe pose that genuinely lies between authenticated Walking_A
   // source quaternion keyframes. The existing +/- source experiments stay
   // intact as safe fallbacks; the final certificate STILL selects and
   // independently re-skins only an actual improved original shoe.
-  const guided=residual>=.055&&residual<=.095?
+  const guided=residual>=.055&&residual<=.110?
    planLicensedSourceToePhaseProbe({
     sourceClipName:clip.name,sourceInstanceSame:true,
     sourceToeTrackVerified:true,sourceToeBoneParentVerified:true,

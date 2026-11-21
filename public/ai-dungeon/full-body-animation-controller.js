@@ -6615,13 +6615,13 @@ export function certifyLicensedCounterpitchToeFinish({
  angleRad=NaN,floorTopY=NaN,originalToeContinuity=null
 }={}){
  const other=side==='left'?'right':side==='right'?'left':null;
- // Original 390px WebGL source #44768341460 still had 70.04mm of toe
+ // Original 6cb8 native mobile frame97 had 95.697mm of toe
  // burial after a REAL 16.7ms/10.6mm 41-joint walking correction.
  // Permit a distinct, bounded toe-child experiment only on a witnessed
  // SAME-source Walking_A swing and fresh legal root displacement. The final
  // real weighted two-shoe skin, 3rad/s guard and no-contact rule still own it.
  const deepSourceWindow=Boolean(
-  proof?.residualToeBurialMeters>.055&&proof.residualToeBurialMeters<=.095&&
+  proof?.residualToeBurialMeters>.055&&proof.residualToeBurialMeters<=.110&&
   Number.isFinite(proof.sourceClipTimeSeconds)&&(
    (side==='right'&&proof.sourceClipTimeSeconds>=.03&&
     proof.sourceClipTimeSeconds<=.335)||
