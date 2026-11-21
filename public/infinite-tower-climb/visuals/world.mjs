@@ -19,7 +19,7 @@ import { observedEarnedFarSideShaftOverlap, observedReturnedFarSideFade, observe
 import { chooseSourceEarnedFirstReturnInstancing } from './source-earned-first-return-instancing.mjs';
 import { observedReturnedSuccessorRoomReady, observedSupportedReturnedShaftDepth } from './original-room-returned-exit.mjs';
 import { projectOriginalGuardianGateSteel } from './original-guardian-gate-steel-projection.mjs';
-import { actualGatewayReceivingRoofSpans, actualGatewayReceivingLoadPathBays, actualGatewayReceivingGalleryCanopy, syncGatewayReceivingRoofColours, resetGatewayReceivingRoofColours } from './source-physical-receiving-roof.mjs';
+import { actualGatewayReceivingRoofSpans, actualGatewayReceivingLoadPathBays, actualGatewayReceivingGalleryCanopy, prebuildOriginalGuardianCanopyPlan, syncGatewayReceivingRoofColours, resetGatewayReceivingRoofColours } from './source-physical-receiving-roof.mjs';
 
 
 /**
@@ -1534,8 +1534,11 @@ export function createTowerWorld(){
       // individual ray-queryable TRIANGLES across the real source crossing.
       // The rest of the cap, every other source platform and all its gameplay
       // components retain the normal rigid batching and unchanged physics.
+      // This F8 support is batched as its OWN two-material tree, so the exact
+      // source mesh survives old-cap transfer rather than becoming floor debris.
+      if(p.originalCapCanopy)batchRigid(p.originalCapCanopy);
       batchRigid(p.root,new Set([p.traveler,p.countergear,p.actuator,
-        p.gearVisual,p.originalCapSkirtOwner].filter(Boolean)));
+        p.gearVisual,p.originalCapSkirtOwner,p.originalCapCanopy].filter(Boolean)));
       // Static batches are the meshes ACTUALLY submitted to WebGL. A
       // previous camera ray queried removed authoring meshes while the
       // visible non-walkable F9 undersides stayed opaque across the hero.
@@ -2543,6 +2546,38 @@ export function createTowerWorld(){
     const items=[];for(let i=0;i<48;i++){const a=-1.8+noise(i)*3.6,r=30+noise(i+3)*22;items.push({p:[Math.sin(a)*r,-5+noise(i+9)*(height+23),Math.cos(a)*r],s:[.035+noise(i)*.045,.035+noise(i)*.045,.035+noise(i)*.045]});}
     particles=instanced(floorGroup,sphere(),materials.particle,items);particles.userData.items=items;particles.castShadow=false;particles.receiveShadow=false;
   }
+  // ONE physical owner built on the true F8 cap and carried to F9 when the
+  // actual HP-open guardian gateway is earned. Never clones an interactive
+  // platform, gate or actor. The two original clockwork materials stay live.
+  function buildSourceGuardianCanopy(root,plan,h,steel,trim,name){
+    const canopy=new THREE.Group();canopy.name=name;
+    canopy.userData={sourceBound:true,oldCapId:'f8:cap',
+      receivingPlatformId:'f9:ground',nonColliding:true,
+      structuralPreviewOnly:plan.structuralPreviewOnly===true};
+    root.add(canopy);
+    const point=(theta,r,y)=>[Math.sin(theta)*r,h+y,Math.cos(theta)*r];
+    const place=(a,b,r,material)=>{
+      const member=beam(canopy,a,b,r,material);
+      member.userData={sourceAligned:true,nonColliding:true,
+        ambientDetail:true,receivingRoofCanopy:true};
+      member.castShadow=false;member.receiveShadow=false;
+    };
+    const inner=plan.innerPierRadius,outer=plan.outerCrownRadius;
+    for(const s of plan.stations){
+      const a=s.angle,m=steel(s.kind),e=trim(s.kind);
+      place(point(a,inner,-1.2),point(a,inner,7.3),.18,m);
+      place(point(a,inner,7.3),point(a,outer,8.35),.16,m);
+      place(point(a,inner,3.4),point(a,27.7,8.12),.11,m);
+      place(point(a,27.7,8.12),point(a,outer,8.35),.09,e);
+    }
+    for(const tie of plan.ties){
+      place(point(tie.fromAngle,inner,7.3),
+        point(tie.toAngle,inner,7.3),.1,steel(tie.kind));
+      place(point(tie.fromAngle,outer,8.35),
+        point(tie.toAngle,outer,8.35),.08,trim(tie.kind));
+    }
+    return canopy;
+  }
   function buildPlatform(p,width,guardianCap=false,sourceRunToken=null){
     const root=new THREE.Group();root.name=`platform:${p.id}`;floorGroup.add(root);
     const angle=p.width/width*ARC,h=p.height/SCALE;
@@ -2564,6 +2599,15 @@ export function createTowerWorld(){
     // Segment only its existing top triangles across the genuine F8 exit.
     const joinedRoofSpans=sharedPhysicalRoof
       ?actualGatewayReceivingRoofSpans(p,width,retainedEarnedCap.thresholdX,ARC):null;
+    // The clockwork chamber ALREADY has these exact six overhead stations
+    // before the real crossing. This models steel, NOT future F9 collision.
+    const oldCanopyPlan=guardianCap&&theme==='clockwork'&&p.id==='f8:cap'
+      ?prebuildOriginalGuardianCanopyPlan(
+        p,width,p.x+Math.floor(p.width*.76),ARC):null;
+    const originalCapCanopy=oldCanopyPlan
+      ?buildSourceGuardianCanopy(root,oldCanopyPlan,h,
+        ()=>materials.copper,()=>materials.edge,
+        'SourcePrepaintedOriginalGuardianReceivingCanopy'):null;
     if(sharedPhysicalRoof && !arrivalRoutePalette){
       const bronze=retainedEarnedCap.originalDeckSurface.color.clone();
       const body=sourceBodyMaterial.clone();
@@ -2773,56 +2817,28 @@ export function createTowerWorld(){
     // Every support comes from the true original-cap/receiving-ground angle
     // and the SAME 3-band roof shader owners. This is original noncolliding
     // tower scenery, NOT another gate, bridge, platform or simulation.
-    const gatewayCanopy=gatewayLoadPath && arrivalRoutePalette?.roofJoin
+    // Reuse the ACTUAL already-painted F8 mesh across the source-authorized
+    // handoff. Double-making the F9 canopy caused an architectural cut and
+    // duplicate foreground steel just as the character passed the gateway.
+    const inheritedCanopy=sharedPhysicalRoof &&
+      retainedEarnedCap?.originalCapCanopy?.isGroup===true &&
+      retainedEarnedCap.originalCapCanopy.parent===
+        retainedEarnedCap.originalCapSightlineRoot;
+    const gatewayCanopy=gatewayLoadPath && arrivalRoutePalette?.roofJoin &&
+      !inheritedCanopy
       ?actualGatewayReceivingGalleryCanopy(p,width,
         retainedEarnedCap.thresholdX,{
           id:retainedEarnedCap.oldCapId,x:retainedEarnedCap.oldCapX,
-          width:retainedEarnedCap.oldCapWidth
-        },ARC):null;
-    if(gatewayCanopy){
-      const canopy=new THREE.Group();
-      canopy.name='SourceEarnedPhysicalGatewayReceivingCanopy';
-      canopy.userData={sourceBound:true,oldCapId:'f8:cap',
-        receivingPlatformId:'f9:ground',nonColliding:true,
-        openActionSightline:true};
-      root.add(canopy);
-      const point=(theta,r,y)=>[
-        Math.sin(theta)*r,h+y,Math.cos(theta)*r
-      ];
-      const steel=kind=>kind==='approach'?arrivalRoutePalette.body:
-        kind==='threshold'?arrivalRoutePalette.roofJoin.beamMiddle:
-        arrivalRoutePalette.roofJoin.beamSuccessor;
-      const trim=kind=>kind==='approach'?arrivalRoutePalette.rim:
-        kind==='threshold'?arrivalRoutePalette.roofJoin.edgeMiddle:
-        arrivalRoutePalette.roofJoin.edgeSuccessor;
-      const outboard=gatewayCanopy.outerCrownRadius,
-        inboard=gatewayCanopy.innerPierRadius;
-      const place=(a,b,r,material)=>{
-        const member=beam(canopy,a,b,r,material);
-        member.userData={sourceAligned:true,nonColliding:true,
-          ambientDetail:true,receivingRoofCanopy:true};
-        member.castShadow=false;member.receiveShadow=false;
-      };
-      for(const station of gatewayCanopy.stations){
-        const t=station.angle,m=steel(station.kind),e=trim(station.kind);
-        // Interior pier r20.4 never enters the r22.4..27.18 walking route;
-        // overhang starts >6m above the actual gameplay roof. No exterior
-        // foreground upright can mask the moving full-body climber.
-        place(point(t,inboard,-1.2),point(t,inboard,7.3),.18,m);
-        place(point(t,inboard,7.3),point(t,outboard,8.35),.16,m);
-        place(point(t,inboard,3.4),point(t,27.7,8.12),.11,m);
-        place(point(t,27.7,8.12),point(t,outboard,8.35),.09,e);
-      }
-      // Longitudinal crown and inboard ties join the SIX ribs into one
-      // continuous annular threshold chamber. None bridges a missing
-      // gameplay platform or covers the true source walkway.
-      for(const tie of gatewayCanopy.ties){
-        place(point(tie.fromAngle,inboard,7.3),
-          point(tie.toAngle,inboard,7.3),.1,steel(tie.kind));
-        place(point(tie.fromAngle,outboard,8.35),
-          point(tie.toAngle,outboard,8.35),.08,trim(tie.kind));
-      }
-    }
+          width:retainedEarnedCap.oldCapWidth},ARC):null;
+    if(gatewayCanopy)
+      buildSourceGuardianCanopy(root,gatewayCanopy,h,
+        kind=>kind==='approach'?arrivalRoutePalette.body:
+          kind==='threshold'?arrivalRoutePalette.roofJoin.beamMiddle:
+            arrivalRoutePalette.roofJoin.beamSuccessor,
+        kind=>kind==='approach'?arrivalRoutePalette.rim:
+          kind==='threshold'?arrivalRoutePalette.roofJoin.edgeMiddle:
+            arrivalRoutePalette.roofJoin.edgeSuccessor,
+        'SourceEarnedPhysicalGatewayReceivingCanopy');
     const ribs=[],treads=[],count=Math.max(2,Math.round(angle*25/2.6));
     for(let i=0;i<count;i++){
       const a=-angle/2+(i+.5)*angle/count;
@@ -3191,7 +3207,7 @@ export function createTowerWorld(){
     }
     platforms.set(p.id,{root,angle,width:p.width,height:p.height,
       capMaterials,capLandingMaterial,arrivalSurface,sourceOwnedUndercroft,
-      originalCapSkirtOwner,
+      originalCapSkirtOwner,originalCapCanopy,
       // The actual F9 support has its own original bronze-to-violet materials;
       // shared crystals, danger indicators and future landing platforms do not.
       arrivalPalette:arrivalSurface?arrivalRoutePalette:null,
@@ -3685,6 +3701,7 @@ export function createTowerWorld(){
       // can cover the real F9 climber in portrait. Never duplicate this mesh.
       originalCapSightlineRoot:root,
       originalCapUndercroft,
+      originalCapCanopy:sourceEntry.originalCapCanopy??null,
       originalGalleryTriangles:gallery?.faces ?? 0,
       originalGalleryExteriorFlankFaces:gallery?.originalExteriorFlankFaces??{left:0,right:0},
       originalGallerySourceMaterialBatches:gallery?.sourceMaterialBatches??0,
@@ -6078,6 +6095,9 @@ export function createTowerWorld(){
       sourceAlignedPassage:retainedEarnedCap.sourceAlignedPassage===true,
       verifiedObservedFloorAdvance:retainedEarnedCap.verifiedObservedFloorAdvance===true,
       originalBronzeDeckMeshes:retainedEarnedCap.originalBronzeDeckMeshes,
+      inheritedPrepaintedGuardianCanopy:
+        retainedEarnedCap.originalCapCanopy?.parent===
+          retainedEarnedCap.originalCapSightlineRoot,
       originalGalleryTriangles:retainedEarnedCap.originalGalleryTriangles,
       originalGalleryExteriorFlankFaces:{...retainedEarnedCap.originalGalleryExteriorFlankFaces},
       originalGallerySourceMaterialBatches:retainedEarnedCap.originalGallerySourceMaterialBatches,

@@ -1,0 +1,32 @@
+{
+  "stage": "P0 OPEN",
+  "leadingVerdict": "NOT EVALUATED",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "sourceParent": "ed87d427c602ab36cf1a2f9ff95687bd2ae3cc5f",
+  "sourcePinnedPredecessor": "https://github.com/my-edutu/Ai_games/actions/runs/44845060043",
+  "predecessorOutcome": "8/8 authentic pairs; strict source-native danger failed desktop and portrait (0/2); zero sustained old/new shared room",
+  "predecessorNativeWitness": {
+    "desktop": {
+      "drawnF9HudSeconds": 25.75,
+      "violetSeconds": 26.75,
+      "cameraLightingCpuMs": 97.8
+    },
+    "portrait": {
+      "drawnF9HudSeconds": 26,
+      "violetSeconds": 26.5,
+      "cameraLightingCpuMs": 79.9
+    },
+    "sourceTick": 475,
+    "sourceXBefore": 314796,
+    "sourceXAfter": 321096
+  },
+  "meaningfulChange": "Prepainted noncolliding structural canopy is one original cap-owned group retained across F8→F9, no duplicate F9 object, source-authenticated cap dimensions only.",
+  "acceptance": "NOT EVALUATED until new exact SHA full 9-job original 1x capture and strict event/pixel continuity accepted in both viewports",
+  "independentCritics": {
+    "LOOKS": 0,
+    "FEELS": 0,
+    "PLAYS": 0
+  },
+  "actualDeviceMetrics": "NOT EVALUATED",
+  "nextAction": "inspect full candidate and frozen original films + native source pairing and scene continuity; repair first F9 frame staging if still 0/2"
+}

@@ -8257,5 +8257,37 @@
     "postChangeNativeResult": "NOT EVALUATED. Await actual new candidate and frozen baseline films, then inspect frame-by-frame.",
     "nextHighestImpactAction": "Inspect exact SHA nine-job 25fps event-paired full videos at 26.1-27.0s; quantify whether full old gate+moving hero+roof now survive consecutive frames. If abrupt platform geometry swap persists, repair source-owned old/new scene overlap and ring silhouette as one physical arch, not another camera-only/cosmetic adjustment.",
     "constraints": "No merge, deployment, force push, baseline movement, PR58 rewrite, draft conversion or unrelated-game edit."
+  },
+  "p0PrepaintedSingleOwnerCanopy20261121": {
+    "stage": "P0 OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceParentSha": "ed87d427c602ab36cf1a2f9ff95687bd2ae3cc5f",
+    "candidateRef": "${{ github.sha }}",
+    "precedingOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44845060043",
+    "precedingResults": "8/8 source paired original movies, strict native danger alignment FAILED 0/2; no sustained bronze/Void shared room",
+    "change": "Original F8 guardian machine superstructure now prepainted as attached source cap mesh, retained across real F9 and eliminates duplicate F9 canopy. No future gameplay deck/gate/collider or simulated authority.",
+    "conditions": {
+      "seed": "tower-transformation-capture-v1",
+      "tier": "low",
+      "fps": 25,
+      "speed": 1,
+      "minDurationSeconds": 60,
+      "desktop": "960x600",
+      "portrait": "390x844",
+      "scenes": [
+        "ascent",
+        "moving",
+        "danger/guardian",
+        "outcome/restart"
+      ]
+    },
+    "checks": "Exact head quality/9-job capture; new native real films must show F8→F9 continuity with full actor, old open gate and genuine floor9 deck in >=2 event-matched consecutive frames. Test physical gateway and no camera regression.",
+    "reviewers": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "deviceMetrics": "NOT EVALUATED"
   }
 }

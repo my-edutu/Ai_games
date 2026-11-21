@@ -100,6 +100,27 @@ export function actualGatewayReceivingGalleryCanopy(platform,worldWidth,threshol
     minHeroRoofClearance:6.1,nonColliding:true};
 }
 
+/**
+ * This early frame has an ACTUAL generated F8 cap and source-published exit,
+ * not an already-generated next-floor state. The successor ground formula in
+ * the opt-in deterministic generator is full-width and shares this roof Y.
+ * Reserve only NONCOLLIDING environmental steel before the floor changes.
+ */
+export function prebuildOriginalGuardianCanopyPlan(cap,width,exitX,arc=2.2){
+  const safe=Number.isSafeInteger;
+  if(cap?.id!=='f8:cap'||
+     ![cap.x,cap.y,cap.width,cap.height,width,exitX].every(safe)||
+     width<120000 || cap.height!==12000 ||
+     cap.x!==Math.floor(width*.24) ||
+     cap.width!==Math.floor(width*.52) ||
+     exitX!==cap.x+Math.floor(cap.width*.76) ||
+     !safe(cap.y+cap.height))return null;
+  const plan=actualGatewayReceivingGalleryCanopy(
+    {id:'f9:ground',x:0,width},width,exitX,cap,arc);
+  return plan?{...plan,anticipatedRoofY:cap.y+cap.height,
+    structuralPreviewOnly:true,authoritativeGameplay:false}:null;
+}
+
 // The real source-owned F9 landing top, steel load beam, rim and emissive
 // underlip must expose the same physical gateway-to-Void spatial transition.
 // No independent clock, collider, platform or new gateway is introduced.

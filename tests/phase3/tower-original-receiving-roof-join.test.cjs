@@ -133,3 +133,35 @@ test('no purple full-width lip at the real bronze gateway; retiring old gate res
   assert.equal(p.roofJoin.lampMiddle.emissive.v,41);
   assert.equal(sync(null),false);assert.equal(reset(null),false);
 });
+
+test('the TRUE f8 guardian roof predicts the exact later canopy stations but NO future game platform',async()=>{
+  const {prebuildOriginalGuardianCanopyPlan:prebuild,
+    actualGatewayReceivingGalleryCanopy:plan}=await subject();
+  const cap={id:'f8:cap',x:115200,y:3212000,width:249600,height:12000};
+  const previous=prebuild(cap,480000,304896);
+  assert.ok(previous);
+  assert.deepEqual(previous.stations,plan({id:'f9:ground',x:0,width:480000},
+    480000,304896,cap).stations);
+  assert.equal(previous.anticipatedRoofY,3224000);
+  assert.equal(previous.structuralPreviewOnly,true);
+  assert.equal(previous.authoritativeGameplay,false);
+  for(const bad of [
+    {...cap,id:'f9:cap'},{...cap,x:120000},{...cap,width:248000},
+    {...cap,height:10000},{...cap,y:NaN}
+  ])assert.equal(prebuild(bad,480000,304896),null);
+  assert.equal(prebuild(cap,480000,304897),null);
+});
+
+test('prepainted canopy is one retained owner, not an extra F9 door or collider',()=>{
+  const world=require('node:fs').readFileSync(resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
+  assert.match(world,/guardianCap&&theme==='clockwork'&&p.id==='f8:cap'/);
+  assert.match(world,/SourcePrepaintedOriginalGuardianReceivingCanopy/);
+  assert.match(world,/if\(p.originalCapCanopy\)batchRigid\(p.originalCapCanopy\)/);
+  assert.match(world,/p.originalCapSkirtOwner,p.originalCapCanopy/);
+  assert.match(world,/originalCapCanopy:sourceEntry.originalCapCanopy\?\?null/);
+  assert.match(world,/const inheritedCanopy=sharedPhysicalRoof/);
+  assert.match(world,/!inheritedCanopy\s*\?actualGatewayReceivingGalleryCanopy/);
+  assert.match(world,/nonColliding:true/);
+  assert.doesNotMatch(world,/platforms.set\(['"]SourcePrepaintedOriginalGuardianReceivingCanopy/);
+});
