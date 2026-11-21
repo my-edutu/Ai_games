@@ -128,3 +128,49 @@ test('cannot certify a toe lift by raising an airborne heel or moving the suppor
   {floorTopY:0},{side:'left'}])
   assert.equal(certifyLicensedSourceSwingCounterpitch({...owner,...change}),null);
 });
+
+
+// This BEFORE is taken from real original Vanguard Walking_A desktop WebGL
+// #44910486264, frame 28, .173166s; skinned toe=-85.357mm, heel=+213.015mm,
+// opposite shoe near stone. The proposed 12mm toe relief is SYNTHETIC,
+// not an observed AFTER render; a real renderer must independently skin BOTH
+// original shoes and reject any trial that does not actually attain it.
+test('RED: genuine original airborne swing may rescue a buried toe while its heel stays still',async()=>{
+ const {planLicensedSourceSwingCounterpitch,certifyLicensedSourceSwingCounterpitch}=await load();
+ const before={
+  right:shoe(.21301530283431522,-.08535695487810832,
+   [-6.652900842986907,-7.122333119827151],
+   [-6.717150189045418,-7.133747947208727]),
+  left:shoe(-.009533848805660515,-.021856444154373343,
+   [-6.670272527717629,-6.958901164809648],
+   [-6.940278435899509,-6.932881239533184])
+ };
+ const plan=planLicensedSourceSwingCounterpitch({
+  ...valid(),sourceClipTimeSeconds:.1731660342072462,
+  frameInterval:.05,rootTravel:.038,frameAge:.04,before
+ });
+ assert.ok(plan,'real source swing geometry qualifies for a bounded 3-joint trial');
+ const params={plan,before,sourceInstanceSame:true,
+  sourceClipName:'Walking_A',side:'right',floorTopY:-.02};
+ const after={...before,right:{...before.right,
+  heelY:before.right.heelY,
+  toeY:before.right.toeY+.012}};
+ const proof=certifyLicensedSourceSwingCounterpitch({...params,after});
+ assert.ok(proof,'do not demand that the airborne heel drops when the weighted toe clears while the heel is physically stable');
+ assert.equal(proof.heelNeutralForefootRescue,true);
+ assert.ok(proof.toeLiftMeters>=.012-.000001);
+ assert.equal(proof.plantCertified,false);
+ assert.equal(proof.contactLocked,false);
+ for(const altered of [
+  {heelY:before.right.heelY+.003},
+  {toeY:before.right.toeY+.002},
+  {toeY:before.right.toeY+.034},
+  {heelXZ:[before.right.heelXZ[0]+.015,before.right.heelXZ[1]]},
+  {toeXZ:[before.right.toeXZ[0]+.035,before.right.toeXZ[1]]}
+ ])assert.equal(certifyLicensedSourceSwingCounterpitch({
+  ...params,after:{...after,right:{...after.right,...altered}}
+ }),null,'no heel flotation, tiny toe twitch, excessive toe lift or shoe skating');
+ assert.equal(certifyLicensedSourceSwingCounterpitch({
+  ...params,after:{...after,left:{...before.left,toeY:before.left.toeY+.005}}
+ }),null,'the other original weighted shoe must remain unchanged');
+});
