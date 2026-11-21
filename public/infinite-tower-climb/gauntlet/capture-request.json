@@ -8289,5 +8289,62 @@
       "PLAYS": 0
     },
     "deviceMetrics": "NOT EVALUATED"
+  },
+  "p0OriginalWorldReturnedSkyPhysicalCoherence20261121_0633": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceProductionSha": "a0b6f8de9652769e246eb72c34e1bca39508b839",
+    "candidateRef": "${{ github.sha }}",
+    "basePullRequest": 58,
+    "draftPullRequest": 68,
+    "priorCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44866750631",
+    "priorNativePairVerdict": "FAILED 0/2 viewports; never interpret source timelines as filmed continuity",
+    "priorAscentCapture": "baseline desktop native clock gap blocked full-film comparison; original bytes retained",
+    "priorExactHeadCI": "9/10 passed, phase6 catalogue guardrail timed out (exit124)",
+    "observableLargestDefect": "Source-authentic F8 original bronze guardian gateway and walkable F9 roof still change to violet world too abruptly in 1x desktop/portrait native footage",
+    "implemented": "One guarded World-material receipt now caps early returned F9 bearing's monotone sky/fog/light cooling; never override the genuinely returned old gateway/roof/steel palette",
+    "changedPaths": [
+      "public/infinite-tower-climb/visuals/source-synchronized-horizon.mjs",
+      "public/infinite-tower-climb/visuals/scene.mjs",
+      "tests/phase3/tower-source-returned-sky-architecture-coherence.test.cjs"
+    ],
+    "inProcessFocusedRedGreen": {
+      "oldAtmosphereOldWeight": 0.02,
+      "correctedAtmosphereOldWeight": 0.76,
+      "observation": "Pure helper evaluated before/after in JS; exact-head Node/CI and WebM still required"
+    },
+    "sourcePinnedCaptureRequested": true,
+    "captureConditions": {
+      "speed": "1x",
+      "desktop": "960x600",
+      "portrait": "390x844",
+      "tier": "low",
+      "seed": "tower-transformation-capture-v1",
+      "scenes": [
+        "ascent",
+        "moving",
+        "danger",
+        "outcome"
+      ],
+      "fullLengthSecondsAtLeast": 60
+    },
+    "blindReview": {
+      "LOOKS": {
+        "completed": 0,
+        "required": 5
+      },
+      "FEELS": {
+        "completed": 0,
+        "required": 5
+      },
+      "PLAYS": {
+        "completed": 0,
+        "required": 5
+      }
+    },
+    "actualDeviceFrameTime": "NOT EVALUATED",
+    "actualDeviceMemory": "NOT EVALUATED",
+    "nextAction": "Inspect both ORIGINAL new WebMs at the 25–29s crossing plus genuine event timestamps; compare old gateway/hero/roof/sky co-visibility. If the hard cut remains, repair architectural scene camera ownership rather than tuning another independent hue clock."
   }
 }
