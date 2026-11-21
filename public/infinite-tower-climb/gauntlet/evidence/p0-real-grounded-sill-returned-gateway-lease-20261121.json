@@ -559,5 +559,53 @@
       },
       "hardware": "NOT EVALUATED"
     }
+  },
+  "returnedStructuralSharedGatewayRetirementRun20261121": {
+    "stage": "P0 OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "sourceHeadBefore": "f1076d5765f366ab252b74b2a0b99bd96adf668a",
+    "productionSha": "64cd727be1149498b878e8e904241d7d08739f36",
+    "testCommits": [
+      "b6a0349580a21bfb85b8afb65c672489ab2cf5ef",
+      "11c211b9a8bfc58cdd9110056a83284e0e6f2bbe"
+    ],
+    "exactRequestedCaptureSha": "d3706ecbaa1b6cce11b7a6f54a4dafc06ca8b5c8",
+    "latestPriorCandidateSource": "2aca03aac23bc54ad690eaf969ff3719e58af50c",
+    "latestPriorQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44925767511",
+    "priorQualityResult": "10/10 jobs success at earlier source; does not certify new production",
+    "originalNineJobCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44925715411",
+    "candidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44925715411/artifacts/14714769602",
+    "originalSourceTruth": "8/8 matched original source scenario recordings plus ledge succeeded; strict native source-event pairing failed 0/2 viewports",
+    "unmodifiedVideo": {
+      "desktop": {
+        "viewport": "960x600",
+        "durationSeconds": 71.44,
+        "nativeHudF9Seconds": 25,
+        "firstSustainedVoidSeconds": 26.75,
+        "joinedBridgeSeconds": 0,
+        "sha256": "bc11473aab844beebff37bbeaf58e63b6c98863529c4cff417d096470b90cb6c"
+      },
+      "portrait": {
+        "viewport": "390x844",
+        "durationSeconds": 72.6,
+        "nativeHudF9Seconds": 25.75,
+        "firstSustainedVoidSeconds": 27,
+        "joinedBridgeSeconds": 0,
+        "sha256": "831b854db771a73d70208e0c998515bf1cf3e5deef41103af92928892b6041e3"
+      }
+    },
+    "diagnosticReturnOwner": "Previous returned original bronze gateway can fade near-zero by native/source tick513–514, and be absent by tick517/522, before sustained native violet successor. Camera projections alone were safe (not proof of visible joint scene): desktop 12/12 and portrait 5/5 recorded pairs.",
+    "primaryFault": "Old F8 gateway retirement used 15 OLD owner returns / 0.8s and only >=1 NEW structure return. It could erase source-owned opened portal while successor shaft was only minimally submitted. Video lacked continuous real gate, moving whole hero and true F9 roof with no scenic jump.",
+    "implementation": "In far-side-shaft-transition.mjs the source-authentic original gateway alpha retirement now requires BOTH old-owner successful return and real successor structural frame+seconds progress. First new structural return opens depth but earns no old-room deletion; 8 new returns and at least .65 returned structural seconds permit full retirement, within pre-existing capped source/owner lease. Regression fixtures on far-side and true grounded sill separately reject prematurely completed old-only fades; no new geometry, 20Hz simulation, collision, guardian/roof or camera policy changed.",
+    "newTestStatus": "Not yet executed by exact-source CI; 10/10 prior-run success cannot be transferred",
+    "freshSourcePinnedCapture": "Request committed to capture-request.json, nine-job upload pending/unknown at record; no original next-source clips claimed",
+    "reviewers": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDeviceMemoryAndFramePercentiles": "NOT EVALUATED",
+    "nextHighestImpactAction": "Inspect corrected exact-head 10-job CI plus fresh eight original 1x paired source videos/ledge and pair-source-events; examine both 25–30s full-motion transitions for simultaneous original opened bronze gate, complete moving hero, real F9 roof and first raised deck. If native bridge still 0, reopen actual old/new geometry/follow-camera ownership, not another single-shader fix. Then tackle full-loop experience through P1+; remain P0 until strict acceptance.",
+    "safety": "Frozen baseline source and transformation.json not edited; PR58 untouched; PR68 open DRAFT; no merge, deploy, force-push, unrelated-game modification."
   }
 }
