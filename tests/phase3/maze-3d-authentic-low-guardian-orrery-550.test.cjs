@@ -37,9 +37,13 @@ test('Pass550 real disclosed guardian re-authors a LOW outboard orrery with hone
    const shell=[-1,1].map(side=>w.group.getObjectByName('Guardian observatory joined upper shell '+cell+' '+side));
    assert.ok(stone&&inlay&&pulse&&mast&&shaft);
    assert.ok(shell.every(Boolean));
-   assert.equal(shaft.parent,mast,'same original real connected moving mechanism');
-   assert.ok(Math.abs(mast.position.y+.47)<1e-8);
-   assert.ok(Math.abs(mast.scale.y-.52)<1e-8,
+   const low=w.group.getObjectByName('Guardian observatory low Tideglass mechanism '+cell);
+   assert.ok(low,'compact moving parts are one physical low assembly');
+   assert.equal(shaft.parent,low,'real moving shaft belongs to the compact linked rig');
+   assert.equal(low.parent,mast,'impact moves the true unscaled observatory root');
+   assert.ok(Math.abs(mast.position.y)<1e-8);
+   assert.ok(Math.abs(low.position.y+.47)<1e-8);
+   assert.ok(Math.abs(low.scale.y-.52)<1e-8,
     'the actual screen-dominating 3D source mast is physically re-proportioned');
    assert.ok(Math.abs(stone.position[axis==='x'?'z':'x']+.65)<1e-8,
     'single outboard side on actual public lane, within original cell');
@@ -60,11 +64,14 @@ test('Pass550 real disclosed guardian re-authors a LOW outboard orrery with hone
    const newMast=full('Witnessed guardian rooted Tideglass weather vane');
    const newPulse=full('Guardian earned Tideglass orrery pulse');
    w.animate(.4,cue);
-   assert.ok(newMast.position.y < -2.1,'authenticated counter sinks compact rooted orrery');
+   const newLow=w.group.getObjectByName('Guardian observatory low Tideglass mechanism '+cell);
+   assert.ok(newMast.position.y+newLow.position.y < -2.1,
+    'authenticated counter sinks the actual compact connected orrery below the original physical threshold');
    assert.equal(newPulse.visible,true,'real counter visibly travels across low original machine');
    w.animate(.5,{...cue,reducedMotion:true});
    assert.equal(newPulse.visible,false,'reduced-motion must not pulse');
-   assert.ok(Math.abs(newMast.position.y+.47)<1e-8,'calm accessibility state restored');
+   assert.ok(Math.abs(newMast.position.y)<1e-8 && Math.abs(newLow.position.y+.47)<1e-8,
+    'calm accessibility state restores BOTH real root and low mechanism');
    w.animate(.6,{...cue,guardianCell:999});
    assert.equal(newPulse.visible,false,'hidden or mismatched event never animates stage');
    assert.equal(w.stats().geometryCount,costs.geometryCount,

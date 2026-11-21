@@ -1954,21 +1954,28 @@ export function createMazeWorld(options = {}) {
             pulse.visible=false;
             pulse.castShadow=false;
             pulse.receiveShadow=false;
-            instrument.position.set(alongX?0:-.53,-.47,alongX?-.53:0);
-            instrument.scale.y=.52;
+            // Separate the real 1.72m public-impact travel from the compact
+            // orrery's low 52%-height mechanical rig. Scaling the moving ROOT
+            // would halve the witnessed counter's physical withdrawal.
+            instrument.position.set(alongX?0:-.53,0,alongX?-.53:0);
             signal.add(instrument);
-            const root=mesh(instrument,bevel,deepStone,0,.17,0,.46,.35,.45);
+            const lowMechanism=new THREE.Group();
+            lowMechanism.name='Guardian observatory low Tideglass mechanism '+c.cell;
+            lowMechanism.position.y=-.47;
+            lowMechanism.scale.y=.52;
+            instrument.add(lowMechanism);
+            const root=mesh(lowMechanism,bevel,deepStone,0,.17,0,.46,.35,.45);
             root.name='Guardian observatory submerged stone anchor '+c.cell;
-            const shaft=mesh(instrument,cylinder,darkJade,0,1.13,0,.16,1.66,.16);
+            const shaft=mesh(lowMechanism,cylinder,darkJade,0,1.13,0,.16,1.66,.16);
             shaft.name='Guardian observatory continuous mast '+c.cell;
-            const collar=mesh(instrument,bevel,lightStone,0,1.91,0,.38,.13,.37);
+            const collar=mesh(lowMechanism,bevel,lightStone,0,1.91,0,.38,.13,.37);
             collar.name='Guardian observatory upper stone collar '+c.cell;
             const vanes=[];
             for(const side of [-1,1]){
               const hinge=new THREE.Group();
               hinge.name='Guardian observatory earned shell hinge '+c.cell+' '+side;
               hinge.position.set(side*.16,2.03,0);
-              instrument.add(hinge);
+              lowMechanism.add(hinge);
               const shell=mesh(hinge,guardianOpenShell,seaGlass,
                 side*.35,.36,0,.48,1.04,.19,0,0,-side*.16);
               shell.name='Guardian observatory joined upper shell '+c.cell+' '+side;
@@ -1980,7 +1987,7 @@ export function createMazeWorld(options = {}) {
               tip.name='Guardian observatory carved vane crest '+c.cell+' '+side;
               vanes.push({hinge,shell,tip,side});
             }
-            observatory={instrument,vanes,shaft,collar,altar,inset,pulse};
+            observatory={instrument,lowMechanism,vanes,shaft,collar,altar,inset,pulse};
           }
           // A rooted, concentric Tideglass floor response travels from
           // Pip to Thornback ONLY on their genuinely earned shared counter.
@@ -4120,7 +4127,11 @@ export function createMazeWorld(options = {}) {
         // No hidden guardian, fabricated hit, collider or mesh is created.
         // The entire shorter orrery retains the same authentic impact
         // retraction, now starting from its physically lowered resting plinth.
-        signal.observatory.instrument.position.y=-.47-1.72*observedImpactDepth;
+        // Preserve the original source-earned 1.72m ROOT displacement.
+        // The compact shell additionally seats 0.4m into its low stone
+        // plinth, not into a visible path or player collider, on true impact.
+        signal.observatory.instrument.position.y=-1.72*observedImpactDepth;
+        signal.observatory.lowMechanism.position.y=-.47-.4*observedImpactDepth;
         const orreryActive=onLane && !reduced
           && (warningAction>.12 || observedImpactDepth>.05);
         signal.observatory.pulse.visible=orreryActive;
