@@ -30812,23 +30812,30 @@ function freeCameraSightline(view,volumes){
  freeCameraSightlineChecks++;
  const eye=freeCameraEye(view.yaw,view.pitch,view.zoom,view.focus);
  if(!freeCameraEyeClear(eye,volumes))
-  return {clear:false,eye,eyeClear:false,nearBlockers:0,
-   foregroundSceneCover:1,dominantCover:1};
+  return {clear:false,eye,eyeClear:false,nearBlockers:1,
+   centralTownRayClear:false,centralTownBlockers:1,
+   nearRoofDominance:1,foregroundSceneCover:1,dominantCover:1};
  const aim=[view.focus[0],.25,view.focus[1]];
- // Only the NEAR 55% of the ray may be blocked: an actual house being
- // photographed at the focus is not itself an invalid camera.
- const nearAim=eye.map((v,i)=>v+(aim[i]-v)*.55);
- const nearBlockers=view.zoom<=20?followRayBlockers(eye,nearAim,volumes):0;
+ // W520: W519's genuine Day1→Day121 1024px/390px film stayed filled by
+ // a real cottage roof despite the old 55%-length town-gaze ray passing.
+ // Inspect the original court, not merely a point halfway toward the focus.
+ // Run on camera input/real construction only; no per-frame ray sweep.
+ const nearAim=eye.map((v,i)=>v+(aim[i]-v)*(view.zoom<=35?.93:.55));
+ const nearBlockers=view.zoom<=35?followRayBlockers(eye,nearAim,volumes):0;
  if(nearBlockers)
   return {clear:false,eye,eyeClear:true,nearBlockers,
-   foregroundSceneCover:1,dominantCover:1};
+   centralTownRayClear:false,centralTownBlockers:nearBlockers,
+   nearRoofDominance:1,foregroundSceneCover:1,dominantCover:1};
  const scene=foregroundSceneProjection(eye,aim,volumes);
  const foregroundSceneCover=scene.cover,dominantCover=scene.largest;
+ // Genuine opaque buildings may not consume the entire 3D town frame.
+ const nearRoofDominance=Math.max(dominantCover,scene.buildingCover*.72);
  const clear=Number.isFinite(foregroundSceneCover)&&
-  Number.isFinite(dominantCover)&&
-  !(dominantCover>=.82&&foregroundSceneCover>=.94);
+  Number.isFinite(dominantCover)&&nearRoofDominance<.78&&
+  !(dominantCover>=.70&&foregroundSceneCover>=.82);
  return {clear,eye,eyeClear:true,nearBlockers,
-  foregroundSceneCover,dominantCover};
+  centralTownRayClear:true,centralTownBlockers:0,
+  nearRoofDominance,foregroundSceneCover,dominantCover};
 }
 function safeFreeOrbit(a,t,z,f=focusPoint){
  if(![a,t,z,...f].every(Number.isFinite))return null;
@@ -30843,9 +30850,16 @@ function safeFreeOrbit(a,t,z,f=focusPoint){
   [-.24,.16,0],[.24,.16,0],[-.48,.28,0],[.48,.28,0],
   [-.8,.36,2.5],[.8,.36,2.5],[0,.38,3.5],[0,.6,3.5],
   [-.34,.54,3.5],[.34,.54,3.5],[-1.12,.44,5],[1.12,.44,5],
-  [0,.72,7.5],[-.65,.7,8],[.65,.7,8]
+  [0,.72,7.5],[-.65,.7,8],[.65,.7,8],
+  [0,.73,12],[-.65,.64,15],[.65,.64,15],
+  [0,.88,20],[-1,.8,23],[1,.8,23]
  ];
- const focusOffsets=[[0,0],[0,1.7],[0,-1.7],[1.7,0],[-1.7,0]];
+ // A real occupied house can enclose the requested look-at point; search
+ // nearby real exterior court/streets. This moves ONLY spectator optics.
+ const focusOffsets=[[0,0],[0,1.7],[0,-1.7],[1.7,0],[-1.7,0],
+  [0,4.5],[0,-4.5],[4.5,0],[-4.5,0],
+  [0,8],[0,-8],[8,0],[-8,0],
+  [6,6],[-6,6],[6,-6],[-6,-6]];
  let attempts=0;
  for(const [fx,fz] of focusOffsets)for(const [da,dp,dz] of candidates){
   const v={...target,
