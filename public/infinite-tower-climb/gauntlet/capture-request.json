@@ -1,4 +1,38 @@
 {
+  "p0FinalReturnedThreeSubjectPhysicalCameraCapture20261121_1933": {
+    "stage": "P0 OPEN",
+    "verdict": "NOT EVALUATED",
+    "candidateSourceImplementationSha": "66af9422ba5a7f522efbf17f650d7dc277a416a8",
+    "candidateRef": "${{ github.sha }}",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "previousCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44931295601",
+    "previousCandidateSourceSha": "d3706ecbaa1b6cce11b7a6f54a4dafc06ca8b5c8",
+    "previousResult": "7 of 8 original capture jobs passed; baseline ascent partial native clock gap blocked full matched acceptance; strict native danger 0/2; original candidate Floor9 HUD to violet scene 1.50 seconds each orientation; old opened gate/hero/roof not visibly continuous",
+    "change": "Use real original gate steel projected material, current F9 deck/architecture triangle ray tests, full skinned hero, true walkable roof, actual raised-deck background domination to accept/veto last returned original-camera continuity. The prior source 6/6 projected-safe original gate centres falsely suggested a joint physical shot without any visible gateway steel.",
+    "recording": {
+      "speed": "1x",
+      "fps": 25,
+      "desktop": "960x600",
+      "portrait": "390x844",
+      "tier": "low",
+      "minimumDurationSeconds": 60,
+      "scenarios": [
+        "ascent",
+        "moving",
+        "danger",
+        "outcome/restart"
+      ],
+      "seed": "tower-transformation-capture-v1"
+    },
+    "require": "Exact SHA nine-job baseline/candidate real native 25fps WebM; strict clock source event to decoded native frames; original HP-open gateway metal+full moving player+actual F9 roof+raised destination, extended floor9 onward, outcome/restart and no regressions. Keep P0 NOT EVALUATED if no 2/2 native acceptance.",
+    "critics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDevice": "NOT EVALUATED",
+    "noMergeNoDeployNoForcePushNoBaselineMoveNoPr58Edit": true
+  },
   "p0ActualRearPocketBronzeWingSourceVerified20261120_1721": {
     "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
     "leadingVerdict": "NOT EVALUATED",

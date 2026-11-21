@@ -1,4 +1,47 @@
 {
+  "p0FinalReturnedThreeSubjectPhysicalCameraRun20261121_1933": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "codeCommitSha": "66af9422ba5a7f522efbf17f650d7dc277a416a8",
+    "qualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44937070459",
+    "inspectedOriginalCandidateCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44931295601",
+    "inspectedCandidateSourceSha": "d3706ecbaa1b6cce11b7a6f54a4dafc06ca8b5c8",
+    "captureOutcome": "7/8 original source-pinned recording jobs succeeded; baseline ascent job failed due an actual native 13.04-to-15.28s PTS/compositor clock gap (observed slope 0.744967 vs required >=0.75). Baseline ascent film itself exists; unsafe matching remains vetoed. Authentic ledge succeeded; strict danger native event alignment FAILED 0/2.",
+    "nativeEvidence": {
+      "desktop": {
+        "hudFloorNineNativeSeconds": 26.25,
+        "sustainedVioletNativeSeconds": 27.75,
+        "warmToCoolBridgeSeconds": 0,
+        "deltaSeconds": 1.5
+      },
+      "portrait": {
+        "hudFloorNineNativeSeconds": 26,
+        "sustainedVioletNativeSeconds": 27.5,
+        "warmToCoolBridgeSeconds": 0,
+        "deltaSeconds": 1.5
+      },
+      "originalUneditedFilms": "Original 1x 25fps candidate danger desktop and portrait in campaign artifact 14717048450, 60+ seconds each",
+      "mostImportantFootageDefect": "Real opened bronze gateway visually dissolves into large above-head F9 foreground architecture, without a sustained same-shot opened original steel plus whole moving climber plus real F9 roof. Source audit's 6/6 returned projected-safe gateway+hero observations do not prove raster-visible metal; no native event acceptance."
+    },
+    "meaningfulSourceChange": "Final actual returned Floor9 follow camera now tests real source-opened original gateway steel projected mesh area, current-source genuine platform/structural triangle hits on full climber/gate, first raised-deck screen domination, actual floor9 source-walkable receiving roof, and tower core; rejects center-NDC-only camera proposals rather than accepting false three-subject continuity. Same source runtime, guardian, geometry and collision remain unchanged.",
+    "sourceFiles": [
+      "public/infinite-tower-climb/visuals/source-returned-gate-camera-release.mjs",
+      "public/infinite-tower-climb/visuals/scene.mjs",
+      "tests/phase3/tower-retained-original-gateway-camera-continuity.test.cjs"
+    ],
+    "testStatus": "Exact-source 10-job workflow started; no pass claimed while pending",
+    "newCaptureSource": "Exact github.sha of this evidence/capture-request commit on SAME PR68 branch; do not use mutable HEAD",
+    "newCaptureCriteria": "Same 20Hz immutable simulation, seed tower-transformation-capture-v1, low tier, source 1731b380851162741761c5569e2bc152a0869ca9 vs exact candidate, native 25fps 1x 60s+ ascent/moving/danger/outcome desktop 960x600 portrait 390x844; verify source-native times and full original movies, do not weaken clock matching",
+    "independentReviews": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "realDeviceP50P95P99Memory": "NOT EVALUATED",
+    "nextHighestImpact": "Inspect new immutable-source native desktop/portrait film + exact-source CI. If gate mesh still unrecognizable, rework physical original gate/F9 receiving-deck spatial camera staging as one coherent scene rather than adding another opacity/clock delay. Repair genuine baseline ascent clock instability without lowering conservative source/video thresholds. Stay P0 until 2/2 strict native and independent acceptance.",
+    "constraints": "No unrelated games, PR58 edits, baseline SHA move/ledger edit, deploy, merge, force push or draft-status alteration"
+  },
   "schemaVersion": 1,
   "stage": "P0",
   "status": "OPEN",
