@@ -713,3 +713,105 @@ test('source-native ankle, hip and knee Jacobian contract preserves legal toe re
  assert.ok(ranger[1].lowerRad<Math.abs(ranger[1].upperRad),
   'Vanguard source Jacobian must NOT silently alter Ranger or the other five rigs');
 });
+
+
+/**
+ * Genuine original 1440px WebGL Vanguard Walking_A frame 14,
+ * exact PR #72 source SHA 5a1ee6d2e500, Actions #44857237417
+ * (dungeon-full-body-continuous-desktop.json). Original source first
+ * three-joint upperleg/lowerleg/foot candidate, followed by the actual
+ * original toesr source-child, won its independent two-shoe skin receipt.
+ * Its sourceConnectedLegSelected:false distinguishes the FIRST candidate
+ * from the extra knee-biased trial; it does NOT mean no original source
+ * chain is selected. LEFT loaded heel is 27.689mm below stone, toe 4.100mm
+ * above stone. A bounded Y-only correction is justified by both actual
+ * weighted soles; final renderer must STILL re-skin and accept or rollback.
+ */
+test('RED: actual original first 3-joint Walking_A source chain can transfer a verified loaded heel/toe shoe to FINAL pelvis',async()=>{
+ const {certifyLicensedSourcePostChainPelvisOpportunity:certify,
+  planOriginalSourceLoadedPelvisSupport:plan,
+  verifyOriginalSourceLoadedPelvisFootWitness:verify}=await source;
+ const soles={
+  left:{heelY:-.047688567396312165,toeY:-.015900297245255192,
+   heelXZ:[2.1660061681492224,-6.958763763617431],
+   toeXZ:[1.897682341682455,-6.933530920492183]},
+  right:{heelY:.1645851894114908,toeY:-.10581297288448721,
+   heelXZ:[2.296461644509026,-7.111172199734786],
+   toeXZ:[2.177602282391331,-7.137116049203764]}
+ };
+ const finisher={
+  source:'measured-licensed-counterpitch-original-toes-child',
+  side:'right',sourceClip:'Walking_A',angleRad:-.0498,
+  sourceToeTrackVerified:true,originalOppositeShoeVerified:true,
+  sourceBone:'toesr',sourceTrack:'toesr.quaternion',
+  originalSourceFootParent:'footr',finalIndependentSourceSkin:true,
+  contactLocked:false,plantCertified:false
+ };
+ const measured={
+  source:'measured-original-licensed-source-counterpitch',
+  sourceInstanceId:'actual-desktop-original-vanguard-clone',
+  sourceClip:'Walking_A',side:'right',
+  sourceConnectedLegCandidateCount:2,sourceConnectedLegSelected:false,
+  sourceProbeCount:6,appliedUpperRad:-.00468705882352852,
+  appliedLowerRad:.00468705882352852,appliedFootRad:-.0498,
+  originalBindSegmentsMeters:[.17067002536856543,.11231605296387505],
+  sourceUpperBone:'upperlegr',sourceLowerBone:'lowerlegr',
+  sourceFootBone:'footr',
+  sourceOriginalTracks:[
+   'upperlegr.quaternion','lowerlegr.quaternion','footr.quaternion'],
+  witnessedRootTravelMeters:.01003926783633724,
+  witnessedFrameIntervalSeconds:.01659999999999684,
+  sourceOriginalRootTravelWitnessed:true,
+  originalOppositeShoeVerified:true,finalIndependentSourceSkin:true,
+  licensedOriginalToeChildFinisher:finisher,
+  contactLocked:false,plantCertified:false,after:soles
+ };
+ const args={
+  sourceInstanceId:'actual-desktop-original-vanguard-clone',
+  sourceClipName:'Walking_A',
+  sourceFootProofs:{left:null,right:measured},currentSoles:soles
+ };
+ const accepted=certify(args);
+ assert.equal(accepted?.source,'same-licensed-GLB-connected-leg-to-final-pelvis',
+  'the first selected, real THREE original bones must not be confused with the unselected SECOND source trial');
+ assert.equal(accepted?.originalWeightedSolesVerified,2);
+ assert.equal(accepted?.contactLocked,false);
+ assert.equal(accepted?.plantCertified,false);
+ const staged=plan({mode:'move',sourceClipName:'Walking_A',
+  sourceWeight:1,ownerLocomotion:true,rootTravel:.01003926783633724,
+  frameAge:0,frameInterval:.01659999999999684,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,floorTopY:-.02,floorEvidence:'authored-cube-floor-top',
+  left:soles.left,right:soles.right,previousLiftMeters:0});
+ assert.equal(staged?.side,'left','genuine loaded left source shoe, not the deeply buried RIGHT airborne swing');
+ assert.ok(staged.liftMeters>.007 && staged.liftMeters<=.0081,
+  'original real frame permits only a small bounded presentation Y trial');
+ const moved=s=>({...s,heelY:s.heelY+staged.liftMeters,
+  toeY:s.toeY+staged.liftMeters});
+ const physical=verify({before:soles.left,after:moved(soles.left),
+  otherBefore:soles.right,otherAfter:moved(soles.right),
+  floorTopY:-.02,requireWorldXZ:true});
+ assert.ok(physical?.improvementMeters>.007,
+  'actual source-weighted four-endpoint evidence must survive independent final skin');
+ // Forged, stale or unlicensed source owner cannot use the first-chain exception.
+ for(const broken of [
+  {sourceConnectedLegCandidateCount:1},
+  {sourceProbeCount:0},
+  {appliedUpperRad:NaN},{appliedLowerRad:0},
+  {originalBindSegmentsMeters:[.04,.8]},
+  {licensedOriginalToeChildFinisher:{...finisher,sourceBone:'proceduralToe'}},
+  {licensedOriginalToeChildFinisher:{...finisher,sourceTrack:'Idle.toesr'}},
+  {licensedOriginalToeChildFinisher:{...finisher,contactLocked:true}},
+  {sourceUpperBone:'fakeUpperleg'},
+  {sourceOriginalTracks:['upperlegr.quaternion']},
+  {plantCertified:true}
+ ]){
+  assert.equal(certify({...args,sourceFootProofs:{
+   left:null,right:{...measured,...broken}}}),null,
+   'a fabricated source chain or original toe-child must fail closed: '+Object.keys(broken).join(','));
+ }
+ assert.equal(certify({...args,currentSoles:{
+  left:{...soles.left,heelXZ:[soles.left.heelXZ[0]+.003,soles.left.heelXZ[1]]},
+  right:soles.right
+ }}),null,'a mismatched real world-space weighted heel must reject the whole-body trial');
+});
