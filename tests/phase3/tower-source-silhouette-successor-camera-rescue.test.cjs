@@ -116,8 +116,8 @@ test('composed game camera never trades a visible full-body climber for a pretti
   assert.match(text,/candidate\.bodyBlockedRays<=existingDeckView\.bodyBlockedRays/);
   assert.match(text,/candidate\.gatewayBlockedRays<=existingDeckView\.gatewayBlockedRays/);
   assert.match(text,/bestScore===0 &&\s*\(!dominantRaisedBackdrop \|\| bestBackdrop<=\.19\)\)break/);
-  assert.match(text,/candidate\\.score===bestScore&&betterBackdrop/);
-  assert.match(text,/sourceRaisedBackdropClearanceCandidates\\(\\s*camera\\.aspect,raisedBackdropBefore,existingDeckView\\)/);
+  assert.match(text,/candidate\.score===bestScore&&betterBackdrop/);
+  assert.match(text,/sourceRaisedBackdropClearanceCandidates\(\s*camera\.aspect,raisedBackdropBefore,existingDeckView\)/);
   assert.ok(text.indexOf('    // FIRST SUCCESSOR-DECK PHYSICAL CAMERA OCCLUSION:') <
     text.indexOf('    // POST-DIRECTOR PHYSICAL CROSSING:'));
   assert.doesNotMatch(text,/snapshot\.player\.(?:x|y)\s*=/);
