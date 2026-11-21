@@ -384,8 +384,17 @@ export function sculptRiparianBank(x, channel, width, height, progress) {
     // collectible nor allocates another GPU resource.
     (.14 + 1.92 * oxbow ** 2.12)
     * (.82 + .29 * estuary));
+  // A former set of three nearly parallel cross-court ribbons was visibly
+  // legible as graphic linework in the exact 84c1 WebGL overview. Re-route
+  // the SAME rooted shore geometry into three asymmetric branching lagoons:
+  // linked bends emerge and subside at their original inboard endpoints,
+  // never moving any authoritative food/portal/body or board cell.
+  const lowTideEnvelope = Math.sin(Math.PI * progress) ** 2;
+  const tributary = (.48 + .10 * channel) * lowTideEnvelope
+    * Math.sin(2 * Math.PI * progress + channel * 1.63);
   const centre = H * watercourseCentre(x / W, channel)
-    + .11 * Math.sin(x * .53 + phase * 1.39) * Math.sin(Math.PI * progress);
+    + .11 * Math.sin(x * .53 + phase * 1.39) * Math.sin(Math.PI * progress)
+    + tributary;
   return { centre, widthAt, phase, oxbow, estuary };
 }
 
@@ -499,13 +508,18 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
           // arid red clay over the rooted canopy: ochre remains in the dry
           // *grain*, while the shaded moss retains its green-dominant hue.
           // This is one pre-existing static mesh/vertex colour, not a cue.
+          // Lower the overexposed mint channels into real deep-green root
+          // bedding while keeping their green-dominant forest material and
+          // wind-dried ochre mineral margins. The 84c1 original had >27%
+          // bright turquoise creek vertices in a continuous graphic overlay;
+          // those should instead read as physically planted depressions.
           const pigment = c === 0
-            ? .037 + dryShelf * .058 + (1-sun) * .020 + marbled * .012
+            ? .025 + dryShelf * .040 + (1-sun) * .015 + marbled * .010
             : c === 1
-              ? .116 + .014 * clamp((Math.min(width,height) - 8) / 8, 0, 1)
-                + wetMoss * .196 + bedShadow * .055 + dryShelf * .090
-              : .044 + habitat.coolSlate * .049 + bedShadow * .060
-                + marbled * .020;
+              ? Math.min(.250, .115 + .014 * clamp((Math.min(width,height) - 8) / 8, 0, 1)
+                + wetMoss * .196 + bedShadow * .055 + dryShelf * .090)
+              : .035 + habitat.coolSlate * .040 + bedShadow * .045
+                + marbled * .012;
           // Creek-throat and endpoint stones sit beneath the rooted shore.
           // Darken the existing complete RGB value equally so its moss hue,
           // not a fabricated red path, remains truthful across all 3 boards.
@@ -555,8 +569,15 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
         const bend = Math.sin(x * .39 + t * 2.7 + phase) * .215 * Math.abs(t)
           + .067 * Math.sin(x * .77 + phase * 1.3 + t * 4.0) * Math.abs(t);
         const z = clamp(centre + t * widthAt + bend, -H + .69, H - .69);
-        const heightAboveCourt = .0125 + .0065 * (1 - t * t)
-          * (.75 + .25 * oxbow) + .0007 * Math.sin(x * .65 + z * .45);
+        // Real low-relief terraced cross-section, not a flat pale triangle
+        // blanket: sheltered planted crown, weathered middle silt shelf,
+        // incised low mineral lip. Original contact clearance .011..021,
+        // central gameplay and actual mesh/draw budgets remain unchanged.
+        const distance = Math.abs(t);
+        const floodShelf = distance < .34 ? .96 : distance < .70 ? .57 : .15;
+        const bedWetness = .78 + .22 * oxbow;
+        const heightAboveCourt = .01125 + .00935 * floodShelf * bedWetness
+          + .00022 * Math.sin(x * .65 + z * .45);
         row.push([x, heightAboveCourt, z]);
       }
       rows.push(row);
