@@ -46,7 +46,7 @@ test('never author a victory portal for another floor or unsupported cap geometr
 
 test('the same physical F8 original frame must be inherited at F9, with real roof guide but no duplicate gate or collision',()=>{
  const source=fs.readFileSync('public/infinite-tower-climb/visuals/world.mjs','utf8');
- assert.match(source,/sourceOriginalGuardianThresholdSignature\(\{platform:p,worldWidth:width,/);
+ assert.match(source,/sourceOriginalGuardianThresholdSignature\(\{\s*platform:p,worldWidth:width,/);
  assert.match(source,/SourceOriginalGuardianHPGateThresholdSignature/);
  assert.match(source,/originalThresholdSignature\.members/);
  assert.match(source,/const inheritedCanopy=sharedPhysicalRoof/);
