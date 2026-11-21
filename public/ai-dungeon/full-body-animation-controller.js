@@ -6164,6 +6164,102 @@ const counterpitchShoe=s=>s&&[s.heelY,s.toeY].every(finite)&&
  * independently re-skinned two-shoe receipt. Does not create contact, IK,
  * targets, root movement, extra GPU work or a successful pose assertion.
  */
+/**
+ * A third, strictly bounded original-Walking_A toes-child proposal.
+ *
+ * Unlike an invented angular twitch, this candidate is derived from the
+ * licensed source clip's own 26-keyframe quaternion track and the current
+ * exact same-clone mixer pose. It is an ALTERNATIVE trial, never a pose
+ * grant: real original BOTH-shoe skin and the existing final certificate
+ * must independently accept it. Fail closed on crossfades, another actor,
+ * changed ownership, non-X source motion, stale phase, or bad source data.
+ *
+ * The source track suggests a shorter midpoint between two authored toe
+ * samples. Limiting it to <=80% of the witnessed 3rad/s angular budget
+ * fills the gap between a zero correction and the current max-rate +/- toe
+ * candidates. It does not invent a ground contact or modify clip time.
+ */
+export function planLicensedSourceToePhaseProbe({
+ sourceClipName='',sourceInstanceSame=false,
+ sourceToeTrackVerified=false,sourceToeBoneParentVerified=false,
+ sourceRootTravelVerified=false,sourceWeight=NaN,
+ ownerLocomotion=false,alive=false,visible=false,
+ interrupted=false,teleport=false,reducedMotion=false,
+ sourceToeBoneName='',side='',tracks=null,
+ sourceTimeSeconds=NaN,sourceDurationSeconds=NaN,
+ originalQuaternion=null,frameInterval=NaN
+}={}){
+ const swing=side==='right'?[.03,.335]:
+  side==='left'?[.515,.875]:null;
+ if(!swing||sourceToeBoneName!=='toes'+(side==='right'?'r':'l')||
+  sourceClipName!=='Walking_A'||sourceInstanceSame!==true||
+  sourceToeTrackVerified!==true||sourceToeBoneParentVerified!==true||
+  sourceRootTravelVerified!==true||
+  ownerLocomotion!==true||alive!==true||visible!==true||
+  interrupted||teleport||reducedMotion||
+  ![sourceWeight,sourceTimeSeconds,sourceDurationSeconds,frameInterval].every(finite)||
+  sourceWeight<.985||sourceWeight>1.001||
+  sourceDurationSeconds<1.040||sourceDurationSeconds>1.044||
+  sourceTimeSeconds<=swing[0]||sourceTimeSeconds>=swing[1]||
+  frameInterval<.008||frameInterval>.24||
+  !Array.isArray(tracks)||tracks.length<1||tracks.length>1500||
+  !Array.isArray(originalQuaternion)||originalQuaternion.length!==4||
+  !originalQuaternion.every(finite)||
+  Math.abs(Math.hypot(...originalQuaternion)-1)>.02)return null;
+ const sample=t=>sampleLicensedIdleJointQuaternionAtPhase(
+  tracks,sourceToeBoneName,t/sourceDurationSeconds,sourceDurationSeconds);
+ const base=sample(sourceTimeSeconds);
+ if(!base?.verified||base.sourceTrackMatches!==1)return null;
+ const old=originalQuaternion,now=base.quaternion;
+ const dot=Math.abs(old.reduce((s,v,i)=>s+v*now[i],0));
+ // No borrowed action/pose: an original Walking_A mixer must own the
+ // toes bone within about five degrees of its pinned exact source track.
+ if(dot<.999)return null;
+ const angularLimit=Math.min(.12,3*frameInterval);
+ const sourceHorizon=Math.min(.045,Math.max(.025,frameInterval*1.5));
+ const raw=[];
+ for(const t of [
+  sourceTimeSeconds-sourceHorizon,
+  sourceTimeSeconds+sourceHorizon
+ ]){
+  if(t<=swing[0]||t>=swing[1])continue;
+  const neighbor=sample(t);
+  if(!neighbor?.verified||neighbor.sourceTrackMatches!==1||
+   neighbor.sourceKeyframeCount!==base.sourceKeyframeCount)continue;
+  const q=neighbor.quaternion;
+  // Inverse(base)*neighbor, XYZW quaternion multiplication.
+  const a=[-now[0],-now[1],-now[2],now[3]],b=q;
+  let rx=a[3]*b[0]+a[0]*b[3]+a[1]*b[2]-a[2]*b[1];
+  let ry=a[3]*b[1]-a[0]*b[2]+a[1]*b[3]+a[2]*b[0];
+  let rz=a[3]*b[2]+a[0]*b[1]-a[1]*b[0]+a[2]*b[3];
+  let rw=a[3]*b[3]-a[0]*b[0]-a[1]*b[1]-a[2]*b[2];
+  if(rw<0){rx=-rx;ry=-ry;rz=-rz;rw=-rw;}
+  const axis=Math.hypot(rx,ry,rz);
+  if(!(axis>.00001)||Math.abs(rx)/axis<.985||
+   ![rx,ry,rz,rw].every(finite))continue;
+  const sourceAngle=2*Math.atan2(axis,rw);
+  // The midpoint is a genuine bounded pose on the original source
+  // quaternion arc, not a second arbitrary angular axis.
+  const extraAngleRad=Math.sign(rx)*sourceAngle*.5;
+  if(Math.abs(extraAngleRad)<.018||
+   Math.abs(extraAngleRad)>angularLimit*.80+1e-8)continue;
+  raw.push({extraAngleRad,sourceTargetTimeSeconds:t});
+ }
+ if(!raw.length)return null;
+ // One additional TWO-shoe skinned trial at most; never a dynamic search.
+ raw.sort((a,b)=>Math.abs(b.extraAngleRad)-Math.abs(a.extraAngleRad));
+ return Object.freeze({
+  source:'original-Walking_A-authored-toe-phase',
+  provenance:'licensed-original-clip-'+base.sourceKeyframeCount+'-keyframe-diagnostic',
+  sourceTrackName:base.sourceTrackNames[0],
+  sourceBone:sourceToeBoneName,sourceClip:'Walking_A',
+  sourceTimeSeconds,sourceTargetTimeSeconds:raw[0].sourceTargetTimeSeconds,
+  extraAngleRad:raw[0].extraAngleRad,
+  maxProbeCount:1,sourceKeyframeCount:base.sourceKeyframeCount,
+  contactLocked:false,plantCertified:false
+ });
+}
+
 export function planLicensedSourceToeChildContinuityCandidates({
  sourceInstanceId='',sourceClipName='',sourceClipTimeSeconds=NaN,
  sourceClipDurationSeconds=NaN,sourceWeight=NaN,
