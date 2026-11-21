@@ -31276,6 +31276,75 @@ function planRealEconomicSurvey(homes,granary,fields,market,width,height,stage){
   source:'physical-real-farm-market-grown-home-camera',
   authorityChanged:false};
 }
+// W527 Phase-1 continuing the SAME real farm -> granary -> market ->
+// occupied-homes -> autonomous-worker vertical slice. A stage lens is
+// selected from original roofs/stalls/cottages and real worksite coordinates,
+// not a camera target invented for filming. All candidates keep the same
+// unmodified 3D population and authoritative economic chain.
+let groundedEconomicSurveyChecks=0,groundedEconomicSurveyAccepted=0,
+ groundedEconomicSurveyRejected=0,groundedEconomicSurveyLast=null;
+function chooseGroundedEconomicSurveyLens(plan,roofs,width){
+ if(!plan||!['farm','market','homes'].includes(plan.stage)||
+  !Array.isArray(plan.focus)||plan.focus.length!==2||
+  !plan.focus.every(Number.isFinite)||!Number.isFinite(plan.yaw)||
+  !Array.isArray(roofs)||!Number.isFinite(width)||width<200)
+  throw Error('W527 requires real stage, physical roofs and finite camera');
+ const mobile=width<=520;
+ const zooms=plan.stage==='farm'?
+  (mobile?[21,25,29]:[18,22,26]):
+  plan.stage==='market'?
+  (mobile?[23,28,34]:[17,22,28]):
+  (mobile?[24,29,35]:[18,23,30]);
+ const pitches=[.43,.54,.66,.80],
+  bearings=[plan.yaw,plan.yaw+.68,plan.yaw-.68,
+   plan.yaw+1.36,plan.yaw-1.36,plan.yaw+Math.PI];
+ let best=null,bestScore=-Infinity,probes=0;
+ for(const distance of zooms)for(const tilt of pitches)
+ for(const bearing of bearings){
+  const candidate={yaw:bearing,pitch:tilt,zoom:distance,
+   focus:plan.focus.slice()};
+  probes++;groundedEconomicSurveyChecks++;
+  const sight=freeCameraSightline(candidate,roofs);
+  if(!sight.clear)continue;
+  const dominant=sight.screenDominantBuilding??1,
+   occupancy=sight.screenOccupiedByBuildings??1,
+   cover=sight.foregroundSceneCover??1;
+  // We reject the roof-filling views found in actual W519-W522 gameplay.
+  // A market needs real surrounding buildings, not an empty green frame:
+  // penalise a dominating single wall rather than all useful roof pixels.
+  const score=16-tilt*5.5-distance*.14-dominant*15-
+   Math.max(0,occupancy-.61)*6-cover*3-
+   Math.abs(Math.atan2(Math.sin(bearing-plan.yaw),
+    Math.cos(bearing-plan.yaw)))*.38;
+  if(score>bestScore){
+   bestScore=score;
+   best={...candidate,stage:plan.stage,physicalSafe:true,
+    realStageFocus:plan.focus.slice(),
+    screenDominantBuilding:dominant,screenBuildingOccupancy:occupancy,
+    foregroundCover:cover};
+  }
+ }
+ if(!best){
+  groundedEconomicSurveyRejected++;
+  groundedEconomicSurveyLast={stage:plan.stage,accepted:false,probes,
+   reason:'real physical world blocks low-angle site'};
+  return null;
+ }
+ groundedEconomicSurveyAccepted++;
+ groundedEconomicSurveyLast={stage:plan.stage,accepted:true,probes,
+  pitch:best.pitch,zoom:best.zoom,focus:best.focus.slice(),
+  screenDominantBuilding:best.screenDominantBuilding,
+  buildingOccupancy:best.screenBuildingOccupancy};
+ return best;
+}
+function getGroundedEconomicSurveyLensAudit(){
+ return {source:'same-authentic-farm-market-occupied-homes-physical-workday',
+  checks:groundedEconomicSurveyChecks,accepted:groundedEconomicSurveyAccepted,
+  rejected:groundedEconomicSurveyRejected,
+  last:groundedEconomicSurveyLast?{...groundedEconomicSurveyLast}:null,
+  viewDoesNotHideBuildings:true,viewDoesNotCreateCitizens:true,
+  receiptsAndHouseholdsUnmodified:true,physicalGpuFps:'NOT MEASURED'};
+}
 function advanceRealEconomicSurvey(){
  const next=(realEconomicSurveyIndex+1)%REAL_ECONOMIC_SURVEY_STAGES.length,
   stage=REAL_ECONOMIC_SURVEY_STAGES[next];
@@ -31313,8 +31382,16 @@ function advanceRealEconomicSurvey(){
  if(liveWorkday||document.body.dataset.workday!=='off')stopWorkdayWatch();
  if(follow)setCitizenFollow(false);
  cinematic=false;document.getElementById('camera').classList.remove('active');
- const safe=safeFreeOrbit(plan.yaw,plan.pitch,plan.zoom,plan.focus);
- if(!safe)return {accepted:false,stage,reason:'physical-camera-blocked'};
+ // Camera selection is a bounded physical viewport survey for THIS stage.
+ // The old generic safeFreeOrbit silently climbed to a 1.0+rad steep
+ // overview; actual field workers and household frontages became tiny.
+ const roofs=followCameraRoofs();
+ const safe=chooseGroundedEconomicSurveyLens(plan,roofs,canvas.clientWidth);
+ if(!safe){
+  showToast('No clear low-angle '+stage+' viewpoint in the real town');
+  return {accepted:false,stage,reason:'physical-grounded-view-unavailable',
+   authoritativeChanges:false};
+ }
  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
   yaw=safe.yaw;pitch=safe.pitch;zoom=safe.zoom;focusPoint=safe.focus.slice();
   freeCameraReturn=null;
@@ -31324,7 +31401,10 @@ function advanceRealEconomicSurvey(){
    elapsed:0,duration:swiftGpu?.55:.85};
  }
  realEconomicSurveyIndex=next;realEconomicSurveyVisits++;
- realEconomicSurveyLast={...plan,focus:safe.focus.slice(),physicalSafe:true};
+ realEconomicSurveyLast={...plan,focus:safe.focus.slice(),physicalSafe:true,
+  groundedLens:{pitch:safe.pitch,zoom:safe.zoom,
+   dominantBuilding:safe.screenDominantBuilding,
+   occupiedBuildings:safe.screenBuildingOccupancy}};
  const btn=document.getElementById('camera-survey');
  btn.dataset.stage=stage;
  btn.textContent=stage==='farm'?'⇢ Farm → Market':
@@ -31339,6 +31419,7 @@ function advanceRealEconomicSurvey(){
 }
 function getRealEconomicSurveyAudit(){
  return {source:'actual-farm-market-grown-town-workday-camera',
+  groundedLens:getGroundedEconomicSurveyLensAudit(),
   visits:realEconomicSurveyVisits,stage:realEconomicSurveyLast?.stage||'off',
   last:realEconomicSurveyLast?{...realEconomicSurveyLast,
    inspectedHomeLots:realEconomicSurveyLast.inspectedHomeLots.map(p=>p.slice())}:null,
@@ -33793,7 +33874,7 @@ document.addEventListener('keydown',e=>{
  const editing=/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName||'')||
   document.activeElement?.isContentEditable;
  if(editing||e.ctrlKey||e.metaKey||e.altKey||streetWalk||cinematicHud)return;
- if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-','_','Home','f','F','g','G','d','D'].includes(e.key)){
+ if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-','_','Home','f','F','g','G','d','D','r','R'].includes(e.key)){
   cameraNavigationStats.keyboardInputs++;
   switch(e.key){
    case 'ArrowLeft':applyPlayerCamera(yaw-.13,pitch,zoom);break;

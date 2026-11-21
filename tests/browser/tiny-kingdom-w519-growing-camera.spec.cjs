@@ -192,6 +192,49 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(farmWitness.checksum).toBe(beforeFarm);
   expect(farmWitness.webglError).toBe(0);
   expect(farmWitness.overflow).toBeLessThanOrEqual(0);
+  // W527 integrated SAME WORLD tour: actual user interactions with farm,
+  // receiving market and occupied homes, each with original physical solids.
+  // A green source contract alone cannot establish what the player sees.
+  const tourWorldChecksum=await page.evaluate(()=>
+   window.__tinyKingdom.exportSnapshot().checksum);
+  const tourDirectory=path.join(evidenceDirectory,'real-supply-tour');
+  fs.mkdirSync(tourDirectory,{recursive:true});
+  for(const stage of ['farm','market','homes']){
+   const expanded=await page.locator('#camera-disclosure')
+    .getAttribute('aria-expanded');
+   if(expanded!=='true')await page.locator('#camera-disclosure').click();
+   const frameCount=await page.evaluate(()=>
+    window.__tinyKingdom.renderQuality().framesDrawn);
+   await page.locator('#camera-survey').click();
+   await page.waitForFunction(before=>
+    window.__tinyKingdom.renderQuality().framesDrawn>before,
+    frameCount,{timeout:125000});
+   const tour=await page.evaluate(()=>{
+    const g=window.__tinyKingdom,c=document.querySelector('#world');
+    return {survey:g.getRealEconomicSurveyAudit(),
+     camera:g.getCamera(),physical:g.getFreeCameraCollisionAudit(),
+     checksum:g.exportSnapshot().checksum,
+     triangles:g.getSceneTriangleReconciliation().auditedTriangles,
+     webglError:c.getContext('webgl').getError(),
+     overflow:document.documentElement.scrollWidth-innerWidth};
+   });
+   const shot=await page.screenshot();
+   fs.writeFileSync(path.join(tourDirectory,stage+'.png'),shot);
+   fs.writeFileSync(path.join(tourDirectory,stage+'.json'),
+    JSON.stringify({source:process.env.GITHUB_SHA||'local',viewport,
+     genuineDay121:true,stage,...tour,physicalHardwareFps:'NOT MEASURED',
+     independentBlindAB:'NOT PROVEN'},null,2));
+   await info.attach('actual-day121-'+stage+'-'+viewport.width,{
+    body:shot,contentType:'image/png'});
+   expect(tour.survey.stage).toBe(stage);
+   expect(tour.survey.groundedLens.last?.accepted).toBe(true);
+   expect(tour.camera.pitch).toBeLessThan(.88);
+   expect(tour.physical.viewClear).toBe(true);
+   expect(tour.checksum).toBe(tourWorldChecksum);
+   expect(tour.triangles).toBeLessThan(160000);
+   expect(tour.webglError).toBe(0);
+   expect(tour.overflow).toBeLessThanOrEqual(0);
+  }
   expect(stages.at(-1).homes).toBeGreaterThan(initial.homes);
   expect(stages.at(-1).day).toBeGreaterThanOrEqual(120);
   fs.writeFileSync(path.join(evidenceDirectory,'real-world-audit.json'),
