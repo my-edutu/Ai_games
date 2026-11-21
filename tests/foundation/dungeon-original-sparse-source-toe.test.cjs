@@ -571,3 +571,49 @@ test('RED: original toe phase guidance must follow the actual dual-shoe benefici
  assert.match(stage,/originalOppositeShoeVerified/);
  assert.match(stage,/certifyLicensedCounterpitchToeFinish/);
 });
+
+
+test('RED: original f27 deep-swing certified max-rate toe lift skips a physically weaker third source skin read',async()=>{
+ const m=await controller();
+ // Genuine original Vanguard desktop Actions #44958752223:
+ // Walking_A right toesr at 0.08947909760869209s; a REAL original
+ // 41-joint +/-50.1mrad test earned +4.361503608mm weighted toe relief,
+ // zero heel movement, and an independently verified unchanged left shoe.
+ // Its genuine source-keyed 60Hz signed partial alternative is 40.08mrad:
+ // in this same deep, still-buried, small-angle monotonic swing direction
+ // it cannot exceed the previously measured max-rate correction.
+ // Source quaternions/authentic BEFORE are real; no third AFTER invented.
+ const base=[-.0501,.0501],guide={
+  source:'original-Walking_A-authored-toe-phase',
+  sourceClip:'Walking_A',sourceBone:'toesr',sourceTrackName:'toesr.quaternion',
+  extraAngleRad:-.04008,maxProbeCount:1,
+  contactLocked:false,plantCertified:false
+ };
+ const actual={
+  source:'measured-licensed-counterpitch-original-toes-child',
+  sourceClip:'Walking_A',side:'right',angleRad:-.0501,
+  toeLiftMeters:.00436150360846807,heelChangeMeters:0,
+  residualToeBurialMeters:.08668487211085481,
+  originalOppositeShoeVerified:true,finalIndependentSourceSkin:true,
+  contactLocked:false,plantCertified:false
+ };
+ assert.deepEqual(
+  m.appendLicensedSourceDistinctToeProbeAngles(base,guide,'toesr',actual),
+  base,'do not spend a third real dual-shoe skin on the dominated short arc');
+ // No skin certificate, weaker toe lift, a changed side or wrong sign
+ // MUST NOT establish this optimization. Keep the previous bounded probe.
+ for(const unsafe of [
+  null,{...actual,side:'left'}, {...actual,sourceClip:'Idle'},
+  {...actual,toeLiftMeters:.002}, {...actual,residualToeBurialMeters:.012},
+  {...actual,originalOppositeShoeVerified:false},
+  {...actual,finalIndependentSourceSkin:false},
+  {...actual,angleRad:.0501}, {...actual,contactLocked:true}
+ ]){
+  assert.equal(
+   m.appendLicensedSourceDistinctToeProbeAngles(base,guide,'toesr',unsafe).length,
+   3,'missing physical proof must preserve the original source trial');
+ }
+ assert.equal(m.appendLicensedSourceDistinctToeProbeAngles(base,
+  {...guide,extraAngleRad:-.080},'toesr',actual).length,3,
+  'a stronger source-authored arc is not dominated');
+});
