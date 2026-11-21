@@ -73,7 +73,35 @@ export function createStoneSurfaceAsset(THREE, adapters = {}) {
 
 // Triplanar coordinates use each rigid batch's world-unit geometry. A moving
 // deck carries its own pattern; texture motion never slides across its tread.
-export function applyStoneSurface(material, asset, { scale = .085, strength = .72, relief = .028 } = {}) {
+export function applyStoneSurface(material, asset, { scale = .085, strength = .72, relief = .028, sampling = 'triplanar' } = {}) {
+  // Real Floor9 low-tier material uses the original stone asset, PBR normals,
+  // palette, roughness and identical geometry with one axis-aligned texture
+  // fetch instead of three and no normal derivative relief. All other world
+  // surfaces keep their original triplanar source shader.
+  // Actual device + source-pinned render-time improvement is NOT YET PROVEN.
+  const economical = sampling === 'economy';
+  const sampleBody = economical ? `
+        vec2 stoneUV;
+        if (weights.x >= weights.y && weights.x >= weights.z)
+          stoneUV = point.yz * towerStoneScale + vec2(.17,.41);
+        else if (weights.y >= weights.z)
+          stoneUV = point.xz * towerStoneScale + vec2(.53,.11);
+        else
+          stoneUV = point.xy * towerStoneScale + vec2(.31,.67);
+        return texture2D(towerStoneMap, stoneUV).rgb;`
+    : `
+        vec3 a = texture2D(towerStoneMap, point.yz * towerStoneScale + vec2(.17,.41)).rgb;
+        vec3 b = texture2D(towerStoneMap, point.xz * towerStoneScale + vec2(.53,.11)).rgb;
+        vec3 c = texture2D(towerStoneMap, point.xy * towerStoneScale + vec2(.31,.67)).rgb;
+        return a * weights.x + b * weights.y + c * weights.z;`;
+  const normalBody = economical ? '' : `
+      vec3 towerStoneNormal(vec3 point, vec3 surfaceNormal, float height, float side) {
+        vec3 dx = dFdx(point), dy = dFdy(point);
+        vec3 xBasis = cross(dy, surfaceNormal), yBasis = cross(surfaceNormal, dx);
+        float determinant = dot(dx, xBasis) * side;
+        vec3 gradient = sign(determinant) * (dFdx(height) * xBasis + dFdy(height) * yBasis);
+        return normalize(max(abs(determinant), 0.000001) * surfaceNormal - gradient);
+      }`;
   material.onBeforeCompile = shader => {
     shader.uniforms.towerStoneMap = { value: asset.texture };
     shader.uniforms.towerStoneAvailable = asset.available;
@@ -102,18 +130,9 @@ export function applyStoneSurface(material, asset, { scale = .085, strength = .7
       vec3 towerStoneSample(vec3 point, vec3 surfaceNormal) {
         vec3 weights = pow(abs(normalize(surfaceNormal)), vec3(5.0));
         weights /= max(dot(weights, vec3(1.0)), 0.0001);
-        vec3 a = texture2D(towerStoneMap, point.yz * towerStoneScale + vec2(.17,.41)).rgb;
-        vec3 b = texture2D(towerStoneMap, point.xz * towerStoneScale + vec2(.53,.11)).rgb;
-        vec3 c = texture2D(towerStoneMap, point.xy * towerStoneScale + vec2(.31,.67)).rgb;
-        return a * weights.x + b * weights.y + c * weights.z;
+        ${sampleBody}
       }
-      vec3 towerStoneNormal(vec3 point, vec3 surfaceNormal, float height, float side) {
-        vec3 dx = dFdx(point), dy = dFdy(point);
-        vec3 xBasis = cross(dy, surfaceNormal), yBasis = cross(surfaceNormal, dx);
-        float determinant = dot(dx, xBasis) * side;
-        vec3 gradient = sign(determinant) * (dFdx(height) * xBasis + dFdy(height) * yBasis);
-        return normalize(max(abs(determinant), 0.000001) * surfaceNormal - gradient);
-      }
+      ${normalBody}
       ` + shader.fragmentShader;
     shader.fragmentShader = shader.fragmentShader.replace('#include <color_fragment>', `#include <color_fragment>
       float towerStoneLuminance = .59;
@@ -125,11 +144,13 @@ export function applyStoneSurface(material, asset, { scale = .085, strength = .7
       }`);
     shader.fragmentShader = shader.fragmentShader.replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
       roughnessFactor = clamp(roughnessFactor + (.59 - towerStoneLuminance) * .12 * towerStoneStrength, .1, 1.0);`);
-    shader.fragmentShader = shader.fragmentShader.replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+    if (!economical) shader.fragmentShader = shader.fragmentShader.replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
       if (towerStoneAvailable > .5) {
         normal = towerStoneNormal(-vViewPosition, normal, towerStoneLuminance * towerStoneRelief, faceDirection);
       }`);
   };
-  material.customProgramCacheKey = () => 'tower-original-triplanar-stone-v1';
+  material.customProgramCacheKey = () => economical
+    ? 'tower-original-axial-stone-economy-v1'
+    : 'tower-original-triplanar-stone-v1';
   return material;
 }

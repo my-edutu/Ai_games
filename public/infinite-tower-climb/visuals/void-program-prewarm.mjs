@@ -59,7 +59,8 @@ export function createTowerVoidProgramPrewarm(THREE, renderer, liveScene, camera
       const weatheredStone = applyStoneSurface(
         new THREE.MeshStandardMaterial({
           color:0x514963,metalness:.04,roughness:.86
-        }), {texture:originalStoneLookup,available:{value:0}});
+        }), {texture:originalStoneLookup,available:{value:0}},
+        {sampling:view.quality==='low' ? 'economy':'triplanar'});
       materials = [stone, alloy, crystal, reveal, weatheredStone];
       for (const material of materials) {
         const mesh = new THREE.Mesh(geometry, material);

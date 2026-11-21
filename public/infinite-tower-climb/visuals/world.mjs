@@ -1259,7 +1259,9 @@ export function createTowerWorld(){
   });}
   function own(g){floorGeometries.add(g);return g;}
   function mat(color,metalness=0,roughness=.8,extra={}){const m=new THREE.MeshStandardMaterial({color,metalness,roughness,...extra});floorMaterials.add(m);return m;}
-  function weather(m){return applyStoneSurface(m,stoneSurface);}
+  function weather(m){return applyStoneSurface(m,stoneSurface,{
+    sampling:theme==='void' && quality==='low' ? 'economy':'triplanar'
+  });}
   function mesh(parent,g,m,pos=[0,0,0],scale=[1,1,1],rotation=null){const o=new THREE.Mesh(g,m);o.position.set(...pos);o.scale.set(...scale);if(rotation)o.rotation.set(...rotation);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o;}
   function block(parent,m,pos,scale,rotation=null){return mesh(parent,bevel(),m,pos,scale,rotation);}
   function casting(parent,m,pos,scale,rotation=null){return mesh(parent,rounded(),m,pos,scale,rotation);}
@@ -4372,7 +4374,8 @@ export function createTowerWorld(){
     materials={stone:weather(mat(p.stone,.04,.86)),dark:mat(p.dark,.28,.58),metal:mat(p.metal,.48,.39),copper:mat(theme==='foundry'?0xc88c57:p.metal,.55,.32),edge:mat(p.edge,.12,.68),
       portalStone:theme==='ruins'?applyStoneSurface(mat(p.edge,.035,.90),stoneSurface,{scale:.11,strength:.56,relief:.013}):mat(p.edge,.12,.68),
       gate:theme==='ruins'?mat(0x43534b,.38,.73):null,gateTrim:theme==='ruins'?mat(0x87846a,.48,.64):null,
-      ceramic:applyStoneSurface(mat(theme==='foundry'?0xb6b5a0:p.stone,.08,.4),stoneSurface,{scale:.085,strength:.36,relief:.01}),furnaceCore:mat(0x7d301b,.1,.72,{emissive:0xf25a13,emissiveIntensity:.72}),
+      ceramic:applyStoneSurface(mat(theme==='foundry'?0xb6b5a0:p.stone,.08,.4),stoneSurface,{scale:.085,strength:.36,relief:.01,
+        sampling:theme==='void' && quality==='low' ? 'economy':'triplanar'}),furnaceCore:mat(0x7d301b,.1,.72,{emissive:0xf25a13,emissiveIntensity:.72}),
       glow:mat(p.glow,.1,.4,{emissive:p.glow,emissiveIntensity:.85}),mint:mat(0xb6ffdc,.1,.35,{emissive:0x63e4ad,emissiveIntensity:.7}),warning:mat(0xf2ad4e,.3,.62),
       fire:mat(0xffa835,0,.5,{emissive:0xff7021,emissiveIntensity:1.5}),hot:mat(0xffe7a3,0,.5,{emissive:0xffb83c,emissiveIntensity:1}),electric:mat(0xc6f8ff,0,.3,{emissive:0x83dfff,emissiveIntensity:1.2}),
       bark:mat(0x5b6b4b,0,1),foliage:mat(0x698e58,0,.94),crystal:mat(0xb5a0ec,.45,.23,{emissive:0x7758ae,emissiveIntensity:.35}),
