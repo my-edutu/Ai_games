@@ -455,7 +455,50 @@
       "PLAYS": "0/5"
     },
     "actualDeviceFrameTimesAndMemory": "NOT EVALUATED",
-    "nextHighestImpactAction": "Check actual exact-source dd213 CI, then decode both untouched dd213 danger WebMs; correlate actual ticks, dashing vs airborne state, retained GPU original doorway/roof opacity, camera before/after first unsupported F9 flight and event-matched full-motion physical gateway+hero+grounded successor roof. If continuity fails, fix true old-room and successor shaft ownership or physical follow-camera composition instead of more palette delays.",
-    "safeguards": "No frozen baseline movement, unrelated game, PR58 edit, deploy, merge, force push, draft conversion or invented reviewer/device/film result."
+    "nextHighestImpactAction": "Return to P0 shared physical old F8 portal / real F9 receiving-roof + first raised-platform and follow-camera depth composition, using actual 25fps unedited full-motion source and calibrated event/pixel correspondence. Diagnose the 2.0s desktop/1.5s portrait HUD-to-violet display gap; require original gate, complete real moving climber and walkable successor roof visible in consecutive matched frames before advancing. Do not keep adjusting color alone.",
+    "safeguards": "No frozen baseline movement, unrelated game, PR58 edit, deploy, merge, force push, draft conversion or invented reviewer/device/film result.",
+    "postChangeRunStatus": "FINAL: Exact immutable dd213 source quality passed 10/10. New 9/9 original normal-speed recording and ledge jobs passed; strict paired event-to-native-film reviewer veto FAILED, 0/2 danger viewports, NOT EVALUATED; 8/8 source timelines paired and 0 missing/source integrity defects. CI is safety veto only, not experience score.",
+    "postChangeQuality": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44920154000",
+      "candidateSha": "dd2132d7550aebd6a8746d887da9ccb18a70d933",
+      "passedJobs": 10,
+      "totalJobs": 10,
+      "verdict": "ENGINEERING SAFETY ONLY"
+    },
+    "postChangeCapture": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44920153911",
+      "candidateSha": "dd2132d7550aebd6a8746d887da9ccb18a70d933",
+      "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "recordingsAndLedge": 9,
+      "totalRecordingsAndLedge": 9,
+      "sourceTimelinesPaired": 8,
+      "sourceTimelinesExpected": 8,
+      "strictNativeDangerViewportsAccepted": 0,
+      "strictNativeDangerViewportsRequired": 2,
+      "result": "NOT EVALUATED; paired original-video acceptance VETO",
+      "candidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44920153911/artifacts/14712603890",
+      "baselineDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44920153911/artifacts/14713726063",
+      "eventPairArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44920153911/artifacts/14713163032"
+    },
+    "postChangeOriginalFootage": {
+      "desktop": {
+        "originalWebMSha256": "NOT REPORTED AS USER-VISIBLE ACCEPTANCE",
+        "drawnFloorNineHudSeconds": 26,
+        "sustainedVoidSceneSeconds": 28,
+        "measuredHudToSustainedVoidSeconds": 2,
+        "warmToCoolBridgeSeconds": 0,
+        "sourceTickFloorChange": 475,
+        "cameraGatewayExit": "Old original gate at source tick499 alpha .352 / 12 returns; at tick525 alpha 0 / 18 returns; not a sustained original old-room/F9 overlap in native 1x film."
+      },
+      "portrait": {
+        "drawnFloorNineHudSeconds": 25.75,
+        "sustainedVoidSceneSeconds": 27.25,
+        "measuredHudToSustainedVoidSeconds": 1.5,
+        "warmToCoolBridgeSeconds": 0,
+        "sourceTickFloorChange": 475,
+        "cameraGatewayExit": "Old original gate at tick501 alpha .55 / 13 returns; absent by source tick525. No native-screen event-to-pixel visibility proof."
+      }
+    },
+    "observedNewFilmedDefect": "New source-authentic dd213 desktop and portrait original 1x WebMs still reveal an abrupt bronze room to fully violet successor scene. In portrait dark foreground steel / raised platform undersides mask the open doorway and moving hero; post-crossing moving climber and raised destination remain small/visually detached. Source-state dash patch has not passed visual acceptance. Source film shows no sustained warm-cool bridge (0 seconds) in either view."
   }
 }
