@@ -87,3 +87,61 @@ test('real World owns and renews AABB only for authentic source ray camera decis
   assert.match(s,/mayIntersectRoot:sourceSightlineRayBroadphase\.mayIntersect/);
   assert.match(s,/syncWorldMatrix:sightlineMatrixEpoch\.sync/);
 });
+
+test('one camera frame caches only real visible mesh triangles across repeated physical shots',async()=>{
+  const {createSourceSightlineRayBroadphase,measureAuthoritativeDeckSightline}=await load();
+  const f=fixture(),cache=createSourceSightlineRayBroadphase(THREE);
+  const hiddenParent=new THREE.Group();
+  const hidden=new THREE.Mesh(new THREE.BoxGeometry(2.5,4,1.2),
+    new THREE.MeshStandardMaterial());
+  hidden.position.set(0,2,2.4);
+  hiddenParent.visible=false;hiddenParent.add(hidden);f.roof.add(hiddenParent);
+  const ghost=new THREE.Mesh(new THREE.BoxGeometry(2.5,4,1.2),
+    new THREE.MeshStandardMaterial({transparent:true,opacity:0}));
+  ghost.position.set(0,2,2.4);f.roof.add(ghost);
+  try{
+    cache.beginFrame();
+    const oldSource=JSON.stringify(f.roof.children.map(m=>m.name));
+    for(const camera of [[0,2,6],[5,3,6],[10,3,6]]){
+      const exact=f.sample(measureAuthoritativeDeckSightline,camera);
+      const cached=f.sample(measureAuthoritativeDeckSightline,camera,{
+        mayIntersectRoot:cache.mayIntersect,
+        traceVisibleRoot:cache.intersectVisible
+      });
+      for(const key of ['score','rays','bodyBlockedRays','gatewayBlockedRays',
+        'originalCapBlockedRays','architectureBlockedRays'])
+        assert.equal(cached[key],exact[key],key+' must still use real triangles');
+    }
+    assert.equal(cache.diagnostics().visibleRootBuilds,1,
+      'one frame-scoped visibility traversal despite three camera proposals');
+    assert.ok(cache.diagnostics().invisibleMeshCandidates>=2);
+    assert.equal(JSON.stringify(f.roof.children.map(m=>m.name)),oldSource);
+    // Rendering can update the material while the authoritative source tick
+    // remains the same. A NEW displayed frame must rebuild targets.
+    f.material.transparent=true;f.material.opacity=0;
+    cache.beginFrame();
+    const now=f.sample(measureAuthoritativeDeckSightline,[0,2,6],{
+      mayIntersectRoot:cache.mayIntersect,
+      traceVisibleRoot:cache.intersectVisible
+    });
+    assert.equal(now.score,0,'never borrow an opaque result from previous render');
+    f.material.transparent=false;f.material.opacity=1;
+    cache.beginFrame();
+    assert.equal(f.sample(measureAuthoritativeDeckSightline,[0,2,6],{
+      mayIntersectRoot:cache.mayIntersect,
+      traceVisibleRoot:cache.intersectVisible
+    }).score,f.sample(measureAuthoritativeDeckSightline,[0,2,6]).score);
+  }finally{
+    hidden.geometry.dispose();hidden.material.dispose();
+    ghost.geometry.dispose();ghost.material.dispose();f.dispose();
+  }
+});
+test('production original F9 camera runs frame-scoped visible-mesh raycasting, never bypasses safety',()=>{
+  const src=fs.readFileSync(path.join(rootDir,
+    'public/infinite-tower-climb/visuals/world.mjs'),'utf8');
+  const proof=fs.readFileSync(path.join(rootDir,
+    'public/infinite-tower-climb/visuals/successor-deck-visibility.mjs'),'utf8');
+  assert.match(src,/traceVisibleRoot:sourceSightlineRayBroadphase\.intersectVisible/);
+  assert.match(proof,/castSourceRoot\(originalGateRoot\)/);
+  assert.match(proof,/castSourceRoot\(originalCapRoot\)/);
+});

@@ -3,10 +3,15 @@
 // colliders, original gateway and the final actual camera remain authoritative.
 export function createSourceSightlineRayBroadphase(THREE) {
   if(typeof THREE?.Box3!=='function')throw new TypeError('Three Box3 required');
-  let frame=0,byRoot=new WeakMap(),boundsRebuilds=0,rootRayRejects=0;
+  let frame=0,byRoot=new WeakMap(),visibleMeshCache=new WeakMap();
+  let boundsRebuilds=0,rootRayRejects=0,visibleRootBuilds=0;
+  let invisibleMeshCandidates=0,acceptedMeshCandidates=0;
   function beginFrame(){
-    if(frame>=Number.MAX_SAFE_INTEGER-1){frame=0;byRoot=new WeakMap();}
-    frame++;boundsRebuilds=0;rootRayRejects=0;
+    if(frame>=Number.MAX_SAFE_INTEGER-1){
+      frame=0;byRoot=new WeakMap();visibleMeshCache=new WeakMap();
+    }
+    frame++;boundsRebuilds=0;rootRayRejects=0;visibleRootBuilds=0;
+    invisibleMeshCandidates=0;acceptedMeshCandidates=0;
   }
   function mayIntersect(root,raycaster){
     if(!frame || !root?.isGroup ||
@@ -28,8 +33,49 @@ export function createSourceSightlineRayBroadphase(THREE) {
     if(raycaster.ray.intersectsBox(b))return true;
     rootRayRejects++;return false;
   }
-  return {beginFrame,mayIntersect,diagnostics:()=>({
-    boundsRebuilds,rootRayRejects,
-    note:'CPU broadphase on original geometry only; not GPU/FPS, source event, or visual acceptance'
+  // The first authentic F9 camera may inspect the same original gate, old
+  // Clockwork core and successor roof from several reversible viewpoints.
+  // Three's recursive raycaster still visits hidden / fully faded meshes,
+  // even though the authoritative sightline explicitly rejects those hits.
+  // Build one exact visible-mesh target list per source-rendered frame and
+  // reuse it for every candidate. Every selected mesh is still triangle
+  // raycast with its current REAL world matrix: no AABB-only clearance.
+  function intersectVisible(root,raycaster,hits){
+    if(!frame || !root?.isGroup ||
+       typeof raycaster?.intersectObjects!=='function' ||
+       !Array.isArray(hits))
+      return raycaster.intersectObject(root,true,hits);
+    let rec=visibleMeshCache.get(root);
+    if(!rec || rec.frame!==frame){
+      const meshes=[];
+      root.traverse(object=>{
+        if(!object?.isMesh)return;
+        let node=object;
+        while(node && node!==root && node.visible!==false)node=node.parent;
+        if(node!==root || root.visible===false){
+          invisibleMeshCandidates++;return;
+        }
+        const materials=Array.isArray(object.material)
+          ?object.material:[object.material];
+        if(!materials.some(m=>m && m.visible!==false &&
+             (!m.transparent || m.opacity>.055))){
+          invisibleMeshCandidates++;return;
+        }
+        meshes.push(object);
+      });
+      visibleMeshCache.set(root,rec={frame,meshes});
+      visibleRootBuilds++;
+      acceptedMeshCandidates+=meshes.length;
+    }
+    // Exact geometry and the unchanged nine source-body/gate ray endpoints
+    // are authoritative. An empty list means no qualifying rendered
+    // triangles, not permission to replace gameplay or the real doorway.
+    if(rec.meshes.length)raycaster.intersectObjects(rec.meshes,false,hits);
+    return hits;
+  }
+  return {beginFrame,mayIntersect,intersectVisible,diagnostics:()=>({
+    boundsRebuilds,rootRayRejects,visibleRootBuilds,
+    invisibleMeshCandidates,acceptedMeshCandidates,
+    note:'Frame-local visible mesh narrowphase on original source-owned triangles only; must not be read as native FPS, safe crossing or visual PASS'
   })};
 }

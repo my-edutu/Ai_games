@@ -5642,7 +5642,8 @@ export function createTowerWorld(){
       raycaster:successorDeckRay,direction:successorDeckRayDirection,
       point:successorDeckRayTarget,hits:successorDeckRayHits,
       syncWorldMatrix:sightlineMatrixEpoch.sync,
-      mayIntersectRoot:sourceSightlineRayBroadphase.mayIntersect
+      mayIntersectRoot:sourceSightlineRayBroadphase.mayIntersect,
+      traceVisibleRoot:sourceSightlineRayBroadphase.intersectVisible
     });
     const coordinates=[camera?.x,camera?.y,camera?.z,body?.x,
       body?.y,body?.z,bodyHalfHeight,

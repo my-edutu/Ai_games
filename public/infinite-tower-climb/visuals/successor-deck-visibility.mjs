@@ -52,7 +52,7 @@ function renderedTriangle(hit,root) {
 }
 export function measureAuthoritativeDeckSightline({
   source,held,camera,body,bodyHalfHeight,gate=null,
-  platformRoots,originalGateRoot=null,originalCapRoot=null,originalGalleryRoot=null,architectureRoots=[],raycaster,direction,point,hits,stale=false,syncWorldMatrix=null,mayIntersectRoot=null
+  platformRoots,originalGateRoot=null,originalCapRoot=null,originalGalleryRoot=null,architectureRoots=[],raycaster,direction,point,hits,stale=false,syncWorldMatrix=null,mayIntersectRoot=null,traceVisibleRoot=null
 }={}) {
   if(stale || source?.floor!==9 || source.theme!=='void' ||
     source.lifecycle!=='running' || !(source.player?.health>0) ||
@@ -102,6 +102,7 @@ export function measureAuthoritativeDeckSightline({
     !raycaster?.set || !raycaster?.intersectObject ||
     (syncWorldMatrix!==null && typeof syncWorldMatrix!=='function') ||
     (mayIntersectRoot!==null && typeof mayIntersectRoot!=='function') ||
+    (traceVisibleRoot!==null && typeof traceVisibleRoot!=='function') ||
     !direction?.copy || !point?.copy ||
     !Array.isArray(hits) || (gate!=null && !valid3(gate)))return null;
   // Exact same scene matrices for every reversible camera candidate.
@@ -127,6 +128,10 @@ export function measureAuthoritativeDeckSightline({
       broadphaseRejected++;return false;
     }
     narrowphaseSubmitted++;return true;
+  };
+  const castSourceRoot=root=>{
+    if(traceVisibleRoot)traceVisibleRoot(root,raycaster,hits);
+    else raycaster.intersectObject(root,true,hits);
   };
   let architectureBlockedRays=0;
   let originalGateBlockedRays=0;
@@ -170,7 +175,7 @@ export function measureAuthoritativeDeckSightline({
       // Current moving deck transforms are owned by authoritative snapshots,
       // not by this camera probe. No geometry rebuild or collision mutation.
       hits.length=0;
-      raycaster.intersectObject(root,true,hits);
+      castSourceRoot(root);
       realTrianglesChecked+=hits.length;
       if(hits.some(hit=>renderedTriangle(hit,root))){blocked=true;break;}
     }
@@ -181,7 +186,7 @@ export function measureAuthoritativeDeckSightline({
     if(!blocked)for(const root of architectureRoots){
       if(root.visible===false || !mayTrace(root))continue;
       hits.length=0;
-      raycaster.intersectObject(root,true,hits);
+      castSourceRoot(root);
       realTrianglesChecked+=hits.length;
       if(hits.some(hit=>renderedTriangle(hit,root))){
         blocked=true;architectureBlockedRays++;break;
@@ -195,7 +200,7 @@ export function measureAuthoritativeDeckSightline({
     if(!blocked && originalGalleryRoot && originalGalleryRoot.visible!==false &&
        held.originalGallerySourceOpacity>.055 && mayTrace(originalGalleryRoot)){
       hits.length=0;
-      raycaster.intersectObject(originalGalleryRoot,true,hits);
+      castSourceRoot(originalGalleryRoot);
       realTrianglesChecked+=hits.length;
       if(hits.some(hit=>renderedTriangle(hit,originalGalleryRoot))){
         blocked=true;originalGalleryBlockedRays++;
@@ -215,7 +220,7 @@ export function measureAuthoritativeDeckSightline({
     if(!blocked && originalCapRoot?.visible!==false && originalCapRoot &&
        mayTrace(originalCapRoot)){
       hits.length=0;
-      raycaster.intersectObject(originalCapRoot,true,hits);
+      castSourceRoot(originalCapRoot);
       realTrianglesChecked+=hits.length;
       if(hits.some(hit=>renderedTriangle(hit,originalCapRoot))){
         blocked=true;originalCapBlockedRays++;
@@ -231,7 +236,7 @@ export function measureAuthoritativeDeckSightline({
     // This uses the existing bounded source-owned ray path, not another draw.
     if(!blocked && sample<bodySamples && originalGateRoot?.visible!==false && originalGateRoot &&
        mayTrace(originalGateRoot)){
-      raycaster.intersectObject(originalGateRoot,true,hits);
+      castSourceRoot(originalGateRoot);
       realTrianglesChecked+=hits.length;
       if(hits.some(hit=>renderedTriangle(hit,originalGateRoot))){
         blocked=true;originalGateBlockedRays++;
