@@ -66,28 +66,38 @@ test('far-side lease cannot be manufactured from a floor label, false contact, w
   assert.equal(v(a.source,a.held,{...a.job,proof:'adjacent-browser-guardian'}),null);
 });
 
-test('old bronze fades only after a genuine new-shaft WebGL return, by bounded elapsed returned frames AND time',async()=>{
+test('old bronze retirement needs displayed OLD and NEW structural returns, not simply a source tick or an old-room frame budget',async()=>{
   const {observedReturnedFarSideFade:fade}=await proof;
   const {held,job}=realRoute();
   held.farSideFadeStartSubmitted=3;
   held.farSideFadeStartSeconds=.18;
-  assert.equal(fade(held,job),0,'prebuilt but invisible shaft cannot spend fade');
+  job.structuralVisibleSeconds=0;
+  assert.equal(fade(held,job),0,'CPU-built or never-returned shaft cannot spend the old gate');
   job.structuralVisibleReturns=1;
-  assert.equal(fade(held,job),0,'no frame counted twice');
-  held.submittedFrames=6;held.visibleSeconds=.48;
+  job.structuralVisibleSeconds=.08;
+  assert.equal(fade(held,job),0,'first real incoming frame opens depth but does not replace the doorway');
+  held.submittedFrames=6; held.visibleSeconds=.48;
+  job.structuralVisibleReturns=2; job.structuralVisibleSeconds=.17;
   const middle=fade(held,job);
-  assert.ok(middle>0 && middle<1);
-  held.submittedFrames=10;held.visibleSeconds=1.18;
-  assert.ok(fade(held,job)>middle && fade(held,job)<.70,
-    'seven real structural returns / one rendered second must leave the original arch painted through delayed native playback');
-  held.submittedFrames=18;held.visibleSeconds=1.83;
+  assert.ok(middle>0 && middle<.2,'joint returned scene begins a restrained departure');
+  held.submittedFrames=10; held.visibleSeconds=1.18;
+  job.structuralVisibleReturns=3; job.structuralVisibleSeconds=.36;
+  assert.ok(fade(held,job)>middle && fade(held,job)<.55,
+    'old rendered time alone cannot delete the gateway while only three incoming frames exist');
+  held.submittedFrames=18; held.visibleSeconds=1.83;
+  assert.ok(fade(held,job)<.55,
+    'even fifteen old-room returns cannot manufacture a fully painted next room');
+  job.structuralVisibleReturns=8; job.structuralVisibleSeconds=.78;
   assert.equal(fade(held,job),1,
-    'only fifteen genuine extra submissions AND 1.65 returned seconds finish the original gateway retirement');
-  assert.equal(fade({...held,visibleSeconds:.25},job)<.25,true);
-  assert.equal(fade({...held,visibleSeconds:1.28,submittedFrames:4},job)<.25,true);
-  assert.equal(fade({...held,visibleSeconds:1.28,submittedFrames:5}, {...job,structuralVisibleReturns:0}),0);
+    'source-owned exit can finish when both returned rooms and genuine seconds are sufficient');
+  assert.ok(fade({...held,visibleSeconds:.25},job)<.25);
+  assert.ok(fade({...held,visibleSeconds:1.28,submittedFrames:4},job)<.25);
+  assert.equal(fade({...held,visibleSeconds:1.28,submittedFrames:5},
+    {...job,structuralVisibleReturns:0}),0);
   assert.equal(fade({...held,visibleSeconds:1.28,submittedFrames:5,
     farSideFadeStartSeconds:1.29},job),null);
+  assert.equal(fade(held,{...job,structuralVisibleSeconds:undefined}),null,
+    'missing structural return duration cannot be inferred from successful old-room draws');
 });
 
 test('production GPU owners share source-backed clearance, a real new-shaft return, and scene horizon',()=>{
