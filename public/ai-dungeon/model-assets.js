@@ -5310,6 +5310,7 @@ function stageLicensedSourceToeFinisherAfterCounterpitch(actor,reducedMotion){
     interrupted:originalToeContinuity.interrupted,
     teleport:originalToeContinuity.teleport,reducedMotion,
     sourceToeBoneName:toe.name,side,tracks:clip.tracks,
+    sourceToeAppliedAxis:audit.axis,
     sourceTimeSeconds:proof.sourceClipTimeSeconds,
     sourceDurationSeconds:clip.duration,
     originalQuaternion:original.toArray(),frameInterval:interval
