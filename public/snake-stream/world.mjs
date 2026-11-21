@@ -240,6 +240,34 @@ export function sculptForestMosaicTile(x,z,width,height) {
 }
 
 /**
+ * The physical quarry is 7–81 MULTI-CELL blocks on real boards, so the old
+ * singleton-only corner sculpt never ran in authentic gameplay. Restore the
+ * actual broken-ruin silhouette to every original 3D slab, one top-corner
+ * at a time. This returns offsets in WORLD UNITS after the original box scale:
+ * broad contiguous flagstones retain a flat central playable support while
+ * their four ends fracture into irregular seams that meet the planted soil.
+ * Exact cell centres, top collision clearance, UV atlas, material batching,
+ * original world-resource budgets and deterministic authority stay unchanged.
+ */
+export function sculptWeatheredRuinsCorner(slab,width,height,corner) {
+  if (!slab || ![slab.x,slab.z,slab.w,slab.h,width,height,corner].every(Number.isInteger) ||
+      width<2 || height<2 || slab.w<1 || slab.h<1 || corner<0 || corner>3 ||
+      slab.x<0 || slab.z<0 || slab.x+slab.w>width || slab.z+slab.h>height)
+    throw new RangeError('Weathered masonry corner requires real bounded world slabs');
+  const right=(corner&1)!==0, far=(corner&2)!==0;
+  const x=slab.x+(right?slab.w-1:0),z=slab.z+(far?slab.h-1:0);
+  const weather=sculptForestMosaicTile(x,z,width,height);
+  const wave=Math.sin((x+1)*2.41+(z+1)*1.77+slab.w*.61+slab.h*.29);
+  const shear=Math.sin((x+1)*1.36-(z+1)*2.17+slab.w*.32-slab.h*.47);
+  // Distinct chipped ends on both horizontal axes. A single giant slab is
+  // NOT shrunk uniformly: vary independent lips along its true four corners.
+  const insetX=Math.min(.205,Math.max(.065,.085+weather.chip*(.52+.24*wave)+.012*(1+shear)));
+  const insetZ=Math.min(.205,Math.max(.065,.085+weather.chip*(.54-.22*wave)+.012*(1-shear)));
+  const rise=.0047*Math.sin((x+1)*.87+(z+1)*1.81+corner*.33);
+  return { insetX, insetZ, rise };
+}
+
+/**
  * An original shoreline amphitheatre, using the existing seven complete native
  * woodland headlands and every original stone, tree and leaf. Pull their
  * scene silhouettes into near/mid-ground stage space rather than losing them
@@ -1253,13 +1281,28 @@ export function createWorld(THREE, {width, height}) {
   // A bevel around the stone top with an open hidden underside: 18 triangles, versus
   // 108 for the old subdivided cube. Silhouette and top highlights remain intact.
   const cube=geometry(bevelBlock(.08));
-  const tile=geometry(bevelBlock(.013));
-  function bevelBlock(bevel){
+  // The old 4-corner stone supplied a nearly straight edge on the actual
+  // 28x16 multi-cell ruins. One original 8-perimeter + centre convex stone
+  // shares the SAME tile material and per-slab baked draw batch. This changes
+  // the FULL PLAYABLE 3D stage silhouette, not the fixed-step game board.
+  const tile=geometry(bevelBlock(.013,true));
+  function bevelBlock(bevel, articulated=false){
     const p=[],uv=[],indices=[];
+    const perimeter=articulated
+      ? [[-1,-1],[-1,0],[-1,1],[0,1],[1,1],[1,0],[1,-1],[0,-1]]
+      : [[-1,-1],[-1,1],[1,1],[1,-1]];
+    const sides=perimeter.length;
     const levels=[{r:.5-bevel,y:.5},{r:.5,y:.5-bevel},{r:.5,y:-.5}];
-    for(const {r,y} of levels)for(const [x,z] of [[-r,-r],[-r,r],[r,r],[r,-r]]){p.push(x,y,z);uv.push(x+.5,z+.5);}
-    indices.push(0,1,2,0,2,3);
-    for(let l=0;l<2;l++)for(let i=0;i<4;i++){const a=l*4+i,b=l*4+(i+1)%4;indices.push(a,a+4,b,b,a+4,b+4);}
+    for(const {r,y} of levels)for(const [x,z] of perimeter){p.push(x*r,y,z*r);uv.push(x*r+.5,z*r+.5);}
+    if(articulated){
+      const topCentre=p.length/3;
+      p.push(0,.5,0);uv.push(.5,.5);
+      for(let i=0;i<sides;i++)indices.push(topCentre,i,(i+1)%sides);
+    } else indices.push(0,1,2,0,2,3);
+    for(let l=0;l<2;l++)for(let i=0;i<sides;i++){
+      const a=l*sides+i,b=l*sides+(i+1)%sides;
+      indices.push(a,a+sides,b,b,a+sides,b+sides);
+    }
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(indices);const flat=g.toNonIndexed();g.dispose();flat.computeVertexNormals();
     // The visible side courses need their full stone face, not the single
     // stretched texture row produced by a top-only planar projection.
@@ -1661,28 +1704,43 @@ export function createWorld(THREE, {width, height}) {
       for(let v=0;v<p.count;v++){
         positionTemp.fromBufferAttribute(p,v).applyMatrix4(item.matrix);
         // Preserve physical, conservative historical quarry corner treatment.
-        if (sourceMaterial === tileMat && item.region?.w===1 && item.region?.h===1 && p.getY(v) > .499) {
-          const cellX = Math.round(item.matrix.elements[12] + W - .5);
-          const cellZ = Math.round(item.matrix.elements[14] + H - .5);
-          const localX = p.getX(v), localZ = p.getZ(v);
-          if (Math.abs(localX) > .45 && Math.abs(localZ) > .45) {
-            const corner = (localX > 0 ? 1 : 0) + (localZ > 0 ? 2 : 0);
-            const stone=sculptForestMosaicTile(cellX,cellZ,width,height);
-            const chip=stone.chip*(.52+.48*noise(cellX * 7 + corner + 103, cellZ * 11 + 67));
-            const coreX=item.matrix.elements[12],coreZ=item.matrix.elements[14];
-            const dirX=Math.sign(localX),dirZ=Math.sign(localZ);
-            const landmark=(cellX*7+cellZ*11)%4, originalTop=.487*.994;
-            if(corner===landmark){
-              positionTemp.x=coreX+dirX*originalTop;
-              positionTemp.z=coreZ+dirZ*originalTop;
-            } else {
-              const inwardX=Math.abs(positionTemp.x-coreX)-chip;
-              const inwardZ=Math.abs(positionTemp.z-coreZ)-chip*.76;
-              positionTemp.x=coreX+dirX*Math.max(originalTop-.076,Math.min(originalTop-.003,inwardX));
-              positionTemp.z=coreZ+dirZ*Math.max(originalTop-.056,Math.min(originalTop-.003,inwardZ));
+        // The canonical original quarry contains NO singleton stones in
+        // 8x8/28x16/40x24. Erode the actual MULTI-CELL visible stone tops,
+        // including their wide riverside and shaded woodland courses. This
+        // changes genuine 3D positions, not only pigments or screenshot UVs.
+        if (sourceMaterial === tileMat && item.region && p.getY(v) > .475) {
+          const px=p.getX(v),pz=p.getZ(v);
+          const region=item.region;
+          if(Math.abs(px)>.42 && Math.abs(pz)>.42){
+            // Four actual outer corners, separately fractured: existing real
+            // 3D stone lips do not leak into the adjacent gameplay cell.
+            const corner=(px>0?1:0)+(pz>0?2:0);
+            const stone=sculptWeatheredRuinsCorner(region,width,height,corner);
+            positionTemp.x+=(px>0?-stone.insetX:stone.insetX);
+            positionTemp.z+=(pz>0?-stone.insetZ:stone.insetZ);
+            positionTemp.y+=stone.rise;
+          }else if(Math.abs(px)>.42 || Math.abs(pz)>.42){
+            // The new MID-EDGE vertices are a physically worn shoreline into
+            // the existing rooted loam. Broad meandering scallops break the
+            // formerly dead-straight court grid, without moving cell centres.
+            const horizontal=Math.abs(pz)>.42;
+            const edge=horizontal?(pz>0?1:0):(px>0?3:2);
+            const phase=region.x*.67+region.z*.83+region.w*.27-region.h*.31+edge*2.37;
+            const recess=.12+.125*(.5+.5*Math.sin(phase));
+            const drift=.085*Math.sin(phase*1.71+1.13);
+            if(horizontal){
+              positionTemp.z+=pz>0?-recess:recess;
+              positionTemp.x+=drift;
+            }else{
+              positionTemp.x+=px>0?-recess:recess;
+              positionTemp.z+=drift;
             }
+            positionTemp.y+=.0055*Math.sin(phase+1.4);
+          }else{
+            // The original level playing-cell support and stone centre remain;
+            // only the rock's visible perimeter becomes sculpted and layered.
+            positionTemp.y+=.003*Math.sin(region.x*.71+region.z*.43);
           }
-          positionTemp.y += (noise(cellX + 211, cellZ + 43) - .5) * .018;
         }
         normalTemp.fromBufferAttribute(n,v).applyMatrix3(normalMatrix).normalize();
         const vi=vertexOffset+v,pi=vi*3,ui=vi*2;

@@ -1,10 +1,19 @@
 {
-  "updatedAt": "2026-11-20",
-  "status": "T0 UNSIGNED / T1 BUILDING VISUALLY SELF-REJECTED / T2 BUILDING / T3 BUILDING / T4 HARD RED (strict original b820 2/17; native-only frustum candidate)",
-  "detail": "T138 source-exact frustum partition: original complete 3D geometry retained, closer camera offscreen static indices 211,662→105,186 and 124,314→63,912 in native tests; 13/13 geometry payload hashes unchanged, 13 static material meshes and full shadow casting retained. Native CPU frustum update adds ~10µs/view, not a GPU FPS win. Original b820 WebGL strict 2/17 remains HARD RED. T0 UNSIGNED; T1 visually self-rejected BUILDING; T2/T3 BUILDING; T4 HARD RED; independent acceptance pending.",
+  "updatedAt": "2026-11-21",
+  "status": "T0 UNSIGNED / T1 BUILDING VISUALLY SELF-REJECTED (candidate native-only) / T2 BUILDING / T3 BUILDING / T4 HARD RED (505 original strict 9/17; candidate WebGL pending)",
+  "detail": "T1 all-real-multicell-quarry native source blob 54f61b1cda68458f1e9db152aa65435b1db7b7f4: 8-sided physically eroded full-court slab tops on 8x8/28x16/40x24, complete 1,472/1,472 genuine top-down cell raycasts, 13 native meshes/33 world draw objects, TS+900 authority and scoped 13/17 (four inherited original red). Real unchanged 505 Chromium original strict 9/17 at 751x415 and 515 queue skips, genuine screenshots still rectangular; no candidate-matched WebGL/physical presents or independent whole-game acceptance. T0 unsigned and T1 building.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Latest documented original-head genuine WebGL is b820: rectangular tiled court and small hero; strict full-render 2/17 at 751×415. T138 finer native frustum batching has NO source-matched WebGL image or physical FPS acceptance.",
+  "latestCaption": "Latest verified real original-head WebGL 505: rectangular green court, snake too small in overview; strict 9/17 full renderer submissions at 751x415. Sculpted original-material T1 candidate has native geometry/raycast evidence ONLY, no new-source Chromium visual or GPU acceptance.",
   "reviews": [
+    {
+      "area": "2026-11-21 T1 source-exact multi-cell 3D quarry (native PROVED; visual ACCEPTANCE PENDING)",
+      "sourceHead": "50502d86faf1a957fc9e15632a0ad9f760d42eab",
+      "worldParentBlob": "964fb52a920bba653dd998d7ea7fbd85677d1b65",
+      "worldCandidateBlob": "54f61b1cda68458f1e9db152aa65435b1db7b7f4",
+      "browser": "Original 505 run 44767656104 strict 9/17 genuine at 751x415 with 515 GPU skips; candidate matched WebGL PENDING",
+      "native": "Tests RED parent 0/2 -> candidate GREEN 2/2; 1472 physical cell raycasts; selected 13/17, same 4 parent red; TS build and 900-tick self-test PASS",
+      "verdict": "T0 UNSIGNED / T1 BUILDING visually unaccepted / T2-T3 BUILDING / T4 HARD RED / independent acceptance pending"
+    },
     {
       "area": "2026-11-20 T4 source-exact fine-grained static visibility (NATIVE only, HARD RED)",
       "sourceHead": "b8202bce4ed1ab1dd5fd53e744f4998ad7d39566",
