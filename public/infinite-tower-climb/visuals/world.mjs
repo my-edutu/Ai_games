@@ -2692,7 +2692,9 @@ export function createTowerWorld(){
       glow.emissive.copy(warmGlow);
       crystal.color.copy(warmCrystal);
       crystal.emissive.copy(arrivalRoutePalette.crystalEmissiveWarm);
-      syncGatewayReceivingRoofColours(arrivalRoutePalette);
+      // First genuine F9 roof draw shares the unspent old Clockwork gate;
+      // no disjoint violet rim may appear before a returned passage frame.
+      syncGatewayReceivingRoofColours(arrivalRoutePalette,0);
     }
     const realDeparture=theme==='void' && !sharedPhysicalRoof &&
       p.id?.startsWith('f9:') && p.id!=='f9:ground' &&
@@ -4162,7 +4164,14 @@ export function createTowerWorld(){
       else arrival.color.copy(materials.landing.color).lerp(
         held.originalDeckSurface.color,held.originalDeckSurface.opacity);
     }
-    syncGatewayReceivingRoofColours(arrivalRoutePalette);
+    // The old original GPU deck and its real receiving roof must be a single
+    // material scene even while the source is between browser submissions.
+    // This preliminary source-owned hold is superseded below by the exact
+    // current-tick world palette receipt; it cannot invent source progress.
+    const heldRoofReveal=returnedBronzeHold?0:
+      Number.isFinite(held.originalDeckSurface?.opacity)
+        ?Math.max(0,Math.min(1,1-held.originalDeckSurface.opacity)):1;
+    syncGatewayReceivingRoofColours(arrivalRoutePalette,heldRoofReveal);
     // Only remove the old GPU group when BOTH its real gate AND original
     // deck/gallery have been visibly extinguished by source departure and
     // successful submissions. The former time-only 1.65s removal chopped a
@@ -4956,7 +4965,18 @@ export function createTowerWorld(){
     if(arrivalRoutePalette){
       updateOriginalClockworkSuccessorRoute(arrivalRoutePalette,
         sourceAlignedMaterialProof,opticalTail);
-      syncGatewayReceivingRoofColours(arrivalRoutePalette);
+      // All FIVE actual source-owned roof/trim light channels now receive
+      // the exact SAME old-room material departure as the gateway, roof,
+      // structural shaft and distant atmosphere. The prior fixed successor
+      // tint was 91% violet even at a fully bronze, returned old doorway.
+      // No new animation timer or estimated future source position exists.
+      const sourceRoofReveal=sourceAlignedMaterialProof?.sourceBound===true &&
+        sourceAlignedMaterialProof.sourceTick===snapshot.tick &&
+        Number.isFinite(sourceAlignedMaterialProof.oldWeight) &&
+        sourceAlignedMaterialProof.oldWeight>=0 &&
+        sourceAlignedMaterialProof.oldWeight<=1
+          ?1-sourceAlignedMaterialProof.oldWeight:1;
+      syncGatewayReceivingRoofColours(arrivalRoutePalette,sourceRoofReveal);
     }
     if(originalClockworkArchitecturalPalette)
       originalClockworkArchitecturalPalette.update(sourceAlignedMaterialProof,opticalTail);
