@@ -90,3 +90,41 @@ test('actual final WebGL camera path enforces same-run roof, gate and full-body 
   assert.match(s.slice(proposal,render),
     /camera\.position\.copy\(releasePreviousCamera\)/);
 });
+
+test('final real returned Floor9 gate camera refuses false positive projection without actual steel, current triangle clearance, and roof', async()=>{
+  const {assessSourceRetainedGatewayPhysicalShot:check}=await helperPromise;
+  const clear={
+    fullBodyVisible:true,gateCenterVisible:true,
+    receivingRoofVisible:true,
+    originalGateSteel:{sourceBound:true,projectedMetalArea:.045,projectedPanes:6},
+    actualDeckSightline:{active:true,bodyBlockedRays:0,gatewayBlockedRays:0},
+    raisedDeckBackdrop:{active:true,coverage:.16}
+  };
+  assert.equal(check(clear).allowed,true,'the actual opened steel + hero + roof remains eligible');
+  for(const bad of [
+    {...clear,originalGateSteel:{sourceBound:true,projectedMetalArea:0,projectedPanes:6}},
+    {...clear,originalGateSteel:{sourceBound:true,projectedMetalArea:.045,projectedPanes:0}},
+    {...clear,originalGateSteel:{sourceBound:false,projectedMetalArea:.045,projectedPanes:6}},
+    {...clear,actualDeckSightline:{active:true,bodyBlockedRays:1,gatewayBlockedRays:0}},
+    {...clear,actualDeckSightline:{active:true,bodyBlockedRays:0,gatewayBlockedRays:1}},
+    {...clear,actualDeckSightline:{active:false,bodyBlockedRays:0,gatewayBlockedRays:0}},
+    {...clear,raisedDeckBackdrop:{active:true,coverage:.52}},
+    {...clear,receivingRoofVisible:false},
+    {...clear,fullBodyVisible:false}
+  ])assert.equal(check(bad).allowed,false,
+    'no source-projected centre-only or occluded gateway shall qualify as a readable shot');
+  assert.ok(check({...clear,originalGateSteel:null}).reasons.includes(
+    'original-gateway-steel-not-readable'));
+});
+test('final returned camera requires ORIGINAL mesh area and actual successor geometry after camera directors',()=>{
+  const s=fs.readFileSync(path.join(root,
+    'public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+  const start=s.indexOf('const retainedGateStep = options.camera');
+  const render=s.indexOf('renderer.render(scene, camera);',start);
+  const pathToReturnedDraw=s.slice(start,render);
+  assert.match(pathToReturnedDraw,/world\.projectedOriginalGateSteel\(snapshot,camera\)/);
+  assert.match(pathToReturnedDraw,/world\.measureSuccessorDeckVisibility\(/);
+  assert.match(pathToReturnedDraw,/world\.measureSourceRaisedDeckBackdrop\(snapshot,camera\)/);
+  assert.match(pathToReturnedDraw,/const joinedRoomVisible=jointPhysical\.allowed/);
+  assert.match(pathToReturnedDraw,/camera\.position\.copy\(releasePreviousCamera\)/);
+});

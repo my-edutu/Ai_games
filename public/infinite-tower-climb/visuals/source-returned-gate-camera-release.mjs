@@ -97,3 +97,44 @@ export function sourceRetainedGatewayCameraContinuity({
   return result?{...result,scope:
     'current same-run submitted Floor9 guardian-gateway/roof and real climber'}:null;
 }
+
+/**
+ * A real returned follow camera is useful only when it preserves the ACTUAL
+ * original bronze gate's projected steel, the complete climber, and current
+ * F9 platform sightlines. A mathematical gateway centre is not a painted
+ * doorway. Every input comes from the current Three.js scene: this cannot
+ * approve a missing mesh, invent an opened guardian, or claim a video pass.
+ * A bad candidate is vetoed and the previous source-owned director is kept.
+ */
+export function assessSourceRetainedGatewayPhysicalShot({
+  fullBodyVisible, gateCenterVisible, receivingRoofVisible,
+  originalGateSteel, actualDeckSightline, raisedDeckBackdrop
+}) {
+  const steel=originalGateSteel;
+  const sight=actualDeckSightline;
+  const finitePhysical=steel?.sourceBound===true &&
+    finite(steel.projectedMetalArea) &&
+    Number.isSafeInteger(steel.projectedPanes) &&
+    steel.projectedPanes>=2 && steel.projectedMetalArea>=.012;
+  const clearTriangles=sight?.active===true &&
+    Number.isSafeInteger(sight.bodyBlockedRays) &&
+    Number.isSafeInteger(sight.gatewayBlockedRays) &&
+    sight.bodyBlockedRays===0 && sight.gatewayBlockedRays===0;
+  const raisedClear=raisedDeckBackdrop?.active!==true ||
+    (finite(raisedDeckBackdrop.coverage) &&
+      raisedDeckBackdrop.coverage<=.36);
+  return {
+    allowed:fullBodyVisible===true && gateCenterVisible===true &&
+      receivingRoofVisible===true && finitePhysical &&
+      clearTriangles && raisedClear,
+    reasons:[
+      ...(!finitePhysical?['original-gateway-steel-not-readable']:[]),
+      ...(!clearTriangles?['real-world-triangles-interrupt-three-subject-shot']:[]),
+      ...(!raisedClear?['raised-deck-dominates-gateway-backdrop']:[]),
+      ...(fullBodyVisible!==true?['full-body-not-visible']:[]),
+      ...(gateCenterVisible!==true?['original-gate-not-projected']:[]),
+      ...(receivingRoofVisible!==true?['source-walkable-roof-not-projected']:[])
+    ],
+    basis:'current returned source-owned original mesh/deck and real 3D camera; NOT native video pixels'
+  };
+}

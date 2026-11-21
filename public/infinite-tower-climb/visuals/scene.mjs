@@ -33,7 +33,7 @@ import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCamer
 import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardianDuelEdgePressure, guardianLiveFightLockPriority } from './guardian-gate-intrusion.mjs';
 import { observedGuardianTransmissionCorners } from './guardian-transmission-layout.mjs';
 import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
-import { sourceReturnedGateCameraRelease, sourceRetainedGatewayCameraContinuity } from './source-returned-gate-camera-release.mjs';
+import { sourceReturnedGateCameraRelease, sourceRetainedGatewayCameraContinuity, assessSourceRetainedGatewayPhysicalShot } from './source-returned-gate-camera-release.mjs';
 import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, sourceRaisedBackdropClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceThreeSubjectActorScaleGain, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe, sourceThreeSubjectPhysicalGain } from './physical-threshold-shot.mjs';
 import { sourceSubmittedDoorwayCameraDt, sourceCroppedHeroRecoveryDt } from './source-submitted-doorway-cadence.mjs';
 import { createTowerVoidProgramPrewarm } from './void-program-prewarm.mjs';
@@ -5825,11 +5825,37 @@ export function createTowerScene(canvas, settings = {}) {
           Math.abs(releaseHeroNdc[0])+releaseHeroNdc[3]*.14<.76 &&
           Math.abs(releaseHeroNdc[1])+releaseHeroNdc[3]<.76 &&
           towerCoreSightlineClear(camera.position,releaseHero,23.5);
-        const joinedRoomVisible=currentFullBodyVisible &&
-          safeImage(gateImage) && Math.abs(gateImage.x)<.87 &&
-          Math.abs(gateImage.y)<.84 &&
-          safeImage(roofImage) && Math.abs(roofImage.x)<.92 &&
-          Math.abs(roofImage.y)<.88;
+        // The last returned F9 camera continuity proposal previously
+        // accepted a mathematically safe doorway CENTRE even when its real
+        // original 3D steel was invisible or obscured by source-owned F9
+        // platforms. The native 960x600 and 390x844 danger films demonstrate
+        // exactly this false confidence: 6/6 projected-safe returned views,
+        // 0/2 truly matched continuous opened-gateway crossings. Inspect the
+        // actual metal, real occluding triangles and raised-deck composition
+        // in this FINAL camera, after every other director has run.
+        // No proxy gateway, camera-only portal, second draw or altered source.
+        const gateCenterVisible=safeImage(gateImage) &&
+          Math.abs(gateImage.x)<.87 && Math.abs(gateImage.y)<.84;
+        const receivingRoofVisible=safeImage(roofImage) &&
+          Math.abs(roofImage.x)<.92 && Math.abs(roofImage.y)<.88;
+        const actualGateSteel=gateCenterVisible && currentFullBodyVisible &&
+          receivingRoofVisible
+            ?world.projectedOriginalGateSteel(snapshot,camera):null;
+        const physicalThreeSubject=actualGateSteel?.sourceBound===true
+          ?world.measureSuccessorDeckVisibility(
+              snapshot,camera.position,releaseHero,
+              snapshot.player.halfHeight/SCALE,gatePoint,
+              targetPlatform?.id??null):null;
+        const genuineRaisedBackdrop=physicalThreeSubject?.active===true
+          ?world.measureSourceRaisedDeckBackdrop(snapshot,camera):null;
+        const jointPhysical=assessSourceRetainedGatewayPhysicalShot({
+          fullBodyVisible:currentFullBodyVisible,
+          gateCenterVisible,receivingRoofVisible,
+          originalGateSteel:actualGateSteel,
+          actualDeckSightline:physicalThreeSubject,
+          raisedDeckBackdrop:genuineRaisedBackdrop
+        });
+        const joinedRoomVisible=jointPhysical.allowed;
         if (joinedRoomVisible) {
           retainedGateCameraAccepted=Math.min(1000000,
             retainedGateCameraAccepted+1);
