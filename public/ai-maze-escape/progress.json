@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-21T20:48:09Z",
+  "updatedAt": "2026-11-21T22:24:00Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass565: EXACT Pass564 69270abf native Maze WebGL 44946066902 SUCCESS; original artifact 14723597761 ZIP SHA256 153b61b2 verified, 42/42 original full-frame PNG SHA sidecars and 3/3 authentic gate hashes match, natural autonomous tick136 exit. Direct unaltered 320/390 before-after REJECTS ornamental undercliff reconstruction: pixel change 23.06%/33.04% does NOT improve key two-character Pip/Thornback readable encounter; 390 brace ~4.58% changed. Restore exact Pass563 source Git blob and delete only Pass564-only test in ONE commit with ledger/journal. Exact restored HEAD visual CI pending. Separate whole-repo previous 44946066851 FAILED. Independent critic/Ultracode workspace NOT_FOUND; Nintendo benchmark UNMET. Preserve PR #53 open draft, no merge/deploy/force. Next meaningful unit: authentic shared two-character camera/action composition."
+    "summary": "Pass566: Pass565 exact restored HEAD 96e0e902 native 44948260374 SUCCESS; original 28MB artifact digest fe454538 verified, 42/42 real PNG SHA sidecars + 3/3 real gate hashes match; genuine chapter exit tick136. Actual full-frame 320/390 visible pair still fails Nintendo composition. New proposed 320px authentic current same-run earned contact-camera retention through early lantern hit then continuous source-fitted retreat; 390/landscape/desktop/reduced/stale unchanged, source tests added, native exact NEW HEAD screenshot/CI and independent visual approval PENDING. Whole-repo former 44948260358 Tiny Kingdom OBS failed. Critic/Ultracode workspace NOT_FOUND. Benchmark UNMET, PR #53 draft open; do not merge/deploy/force."
   },
   "captures": [
+    {
+      "title": "Pass566 — exact source-backed 320px genuine contact-shot candidate; fresh native SHA WebGL and blind visual approval PENDING, no win",
+      "url": "https://github.com/my-edutu/Ai_games/pull/53"
+    },
     {
       "title": "Pass565 — original Pass564 exact-HEAD 42/42 native screenshot pairs and 3/3 gate SHA verified; visual REJECT against official Nintendo bar and rollback source; new-head CI pending",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44946066902/artifacts/14723597761"

@@ -334,6 +334,30 @@ export function publicEarnedGuardianCounterCameraAct(
   return t*t*(3-2*t);
 }
 
+/**
+ * Pass566: 320px photographed contact continuity for a REAL two-character
+ * lantern counter. The original tick94 native image separates Pip and
+ * Thornback across an entire raised court as the old .08 contact window
+ * rapidly abandons the previous genuine warning shot. Preserve the actual
+ * previous rendered lens through first impact, then smoothly hand over to
+ * the already source-fitted recoil view. Only the current same-run witnessed
+ * narrow portrait counter may use this visual-only stage. Neither actor,
+ * hidden map, collision, canonical event clock nor renderer resources move.
+ *
+ * The source-conservative full-body NDC fitter and 44px controls are
+ * unchanged; native no-crop capture must independently accept or reject.
+ */
+export function publicEarnedGuardianNarrowContactContinuity(
+  previousAct,phase,earned=false,reducedMotion=false,aspect=0) {
+  if(!earned || reducedMotion || !Number.isFinite(aspect)
+    || aspect<.35 || aspect>=.45
+    || !Number.isFinite(previousAct) || previousAct<0 || previousAct>1
+    || !Number.isFinite(phase) || phase<0 || phase>=1)
+    return previousAct;
+  const t=Math.max(0,Math.min(1,(phase-.26)/.52));
+  return t*t*(3-2*t);
+}
+
 export function setPublicEarnedGuardianFrontQuarterOffset(
   offset,aspect,hero,guardian,earned=false,reducedMotion=false) {
   if(!earned||reducedMotion||!Number.isFinite(aspect)
