@@ -6458,3 +6458,69 @@ export function certifyLicensedCounterpitchToeFinish({
   contactLocked:false,plantCertified:false
  });
 }
+
+/**
+ * Exact original full-leg -> final pelvis ownership handshake.
+ *
+ * A selected licensed Walking_A hip/knee/ankle correction has already
+ * re-skinned BOTH real weighted outsole patches. Previously it categorically
+ * prevented a later pelvis-only-Y support despite a legitimately buried
+ * opposite support shoe. Permit a separately measured pelvis trial only
+ * when this CURRENT original GLB clone, clip and 3D post-chain pose agree
+ * at all FOUR skinned endpoints to within 1mm. The existing pelvis planner
+ * still requires a near-level, genuinely submerged loaded heel AND toe;
+ * its live renderer still audits the new Y-only pose in full XYZ and rolls
+ * back if the opposite shoe floats. This is NOT a foot plant or IK.
+ *
+ * No changing/borrowing the imported animation, clip clock, sword socket,
+ * leg quaternion, world authority, step, damage or target.
+ */
+export function certifyLicensedSourcePostChainPelvisOpportunity({
+ sourceInstanceId='',sourceClipName='',sourceFootProofs=null,
+ currentSoles=null
+}={}){
+ if(typeof sourceInstanceId!=='string'||!sourceInstanceId||
+  sourceClipName!=='Walking_A'||!sourceFootProofs||!currentSoles)return null;
+ const sides=['left','right'];
+ const selected=sides.filter(side=>sourceFootProofs[side]!=null);
+ if(selected.length!==1)return null;
+ const side=selected[0],proof=sourceFootProofs[side];
+ if(proof.source!=='measured-original-licensed-source-counterpitch'||
+  proof.sourceInstanceId!==sourceInstanceId||
+  proof.sourceClip!==sourceClipName||proof.side!==side||
+  proof.sourceConnectedLegSelected!==true||
+  proof.finalIndependentSourceSkin!==true||
+  proof.originalOppositeShoeVerified!==true||
+  proof.sourceOriginalRootTravelWitnessed!==true||
+  proof.contactLocked!==false||proof.plantCertified!==false||
+  ![proof.witnessedRootTravelMeters,
+    proof.witnessedFrameIntervalSeconds].every(finite)||
+  proof.witnessedRootTravelMeters<.008||
+  proof.witnessedRootTravelMeters>.24||
+  proof.witnessedFrameIntervalSeconds<.008||
+  proof.witnessedFrameIntervalSeconds>.24||
+  typeof proof.sourceUpperBone!=='string'||
+  typeof proof.sourceLowerBone!=='string'||
+  typeof proof.sourceFootBone!=='string'||
+  !Array.isArray(proof.sourceOriginalTracks)||
+  ![proof.sourceUpperBone,proof.sourceLowerBone,proof.sourceFootBone]
+   .every(bone=>proof.sourceOriginalTracks.includes(bone+'.quaternion')))
+  return null;
+ for(const footSide of sides){
+  const final=proof.after?.[footSide],live=currentSoles[footSide];
+  if(!final||!live)return null;
+  for(const endpoint of ['heel','toe']){
+   const label=endpoint+'Y',xz=endpoint+'XZ',a=final[xz],b=live[xz];
+   if(!finite(final[label])||!finite(live[label])||
+    Math.abs(final[label]-live[label])>.001||
+    !Array.isArray(a)||a.length!==2||!a.every(finite)||
+    !Array.isArray(b)||b.length!==2||!b.every(finite)||
+    Math.hypot(a[0]-b[0],a[1]-b[1])>.001)return null;
+  }
+ }
+ return Object.freeze({
+  source:'same-licensed-GLB-connected-leg-to-final-pelvis',
+  sourceInstanceId,sourceSide:side,originalWeightedSolesVerified:2,
+  contactLocked:false,plantCertified:false
+ });
+}
