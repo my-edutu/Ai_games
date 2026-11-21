@@ -9,7 +9,17 @@ assert(start>=0&&end>start);new Function(html.slice(start+8,end));
 const fStart=html.indexOf('function isForegroundWalkingSkinCandidate(');
 const fEnd=html.indexOf('\nfunction realForegroundPoseKey(',fStart);
 assert(fStart>0&&fEnd>fStart,'original passive GPU skin gate exists');
-const source=html.slice(fStart,fEnd);
+// Extract ONLY the actual function body. Adjacent courier declarations are
+// separate source code and may not be embedded into the returned expression.
+let cursor=html.indexOf('{',fStart),depth=0;
+assert(cursor>fStart,'original passive predicate body exists');
+let close=cursor;
+for(;close<html.length;close++){
+ if(html[close]==='{')depth++;
+ else if(html[close]==='}'&&--depth===0){close++;break}
+}
+assert.equal(depth,0,'original passive predicate balanced');
+const source=html.slice(fStart,close);
 // Execute the actual W283 screen-space hysteresis helper, not a duplicated threshold.
 const screenStart=html.indexOf('const FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT=');
 assert(screenStart>=0&&screenStart<fStart,'real moving-resident LOD contract exists');
