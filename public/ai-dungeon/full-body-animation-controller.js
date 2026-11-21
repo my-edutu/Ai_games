@@ -1648,8 +1648,18 @@ export function planOriginalSourceSwingLinkedLegFollowups({
  // cutoff instead spent both spare probes on larger HIP-heavy arcs that
  // amplified heel elevation. Use only the already validated source shoe
  // geometry to try the existing knee-biased two-shoe alternatives.
+ // Original 390px Walking_A tick8 on 0b19adfd, actual WebGL
+ // #44867784106: genuine 99.9ms left swing toe was 48.436mm below
+ // stone, heel 252.565mm above stone; 120/90mrad starter raised toe
+ // 24.653mm but heel 29.880mm. The previous 140/105mrad and
+ // 145/110mrad followups amplified the airborne heel more than the toe.
+ // The old 55mm minimum missed this actually-buried source foot.
+ // Spend the SAME two reversible two-shoe probes on existing knee-led
+ // original joint options. This schedules TRIALS, never acceptance.
+ // Source-clip ownership, actual bind, real final both-shoe skin and
+ // signed joint restoration still decide. No target/IK/contact change.
  const slowHeelDominatedSource=slow&&previousLinkedCertified!==true&&
-  floorTopY-original.toeY>=.055&&
+  floorTopY-original.toeY>=.045&&
   original.heelY-floorTopY>=.18&&
   sourceOutsoleProjection>=.045&&sourceOutsoleProjection<=.10&&
   sourceOutsoleSpan>=.285&&sourceOutsoleSpan<=.325&&
