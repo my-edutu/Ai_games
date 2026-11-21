@@ -7944,3 +7944,44 @@ test('RED-first: verified original Walking_A sparse stationary frame does not tr
  assert.ok(blendRate(moving)>0,'real source travel never receives a false stationary freeze');
 });
 
+
+// Session 03 actual source walking-to-idle stalled fade regression, 21 November 2026.
+// Original #44896438311 desktop frames had newly selected licensed Idle at
+// only ~6% effective weight after sparse presentation intervals while the
+// outgoing source Walking_A pose was still dominant. This is an authentic
+// source-action measurement, NOT a claim that the captured frame was planted
+// or that its native video had continuous FPS. Protect the first genuinely
+// stationary, frozen-original-leg landing from an indefinitely slow source
+// weight blend, without advancing the outgoing walking bones.
+test('RED-first: licensed stopped Walking_A to Idle handoff advances only the source fade on real sparse display time',async()=>{
+ const {planImportedVerifiedWalkLandingMixerDelta:landingDelta}=await load();
+ const original={
+  mode:'idle',sourceClipName:'Idle',sourceDuration:1.0416666269302368,
+  sourceWeight:.061,sourceRunning:true,sourceWalkFrozen:true,
+  sourceInstanceId:'original-KayKit-GLB-clone-1',
+  landingSourceInstanceId:'original-KayKit-GLB-clone-1',
+  landingSourceClipName:'Walking_A',
+  originalSixLegBonesVerified:true,originalPelvisVerified:true,
+  groundedTravel:0,groundedMoving:false,
+  frameDelta:.05,frameInterval:.535,
+  alive:true,visible:true,teleport:false,
+  reducedMotion:false,interrupted:false
+ };
+ assert.equal(landingDelta(original),.25,
+  'only the existing licensed mixer fade may consume <=250ms of authentic displayed time');
+ assert.equal(landingDelta({...original,frameInterval:.18}),.18,
+  'the fade clock follows witnessed visible elapsed time below the 250ms ceiling');
+ for(const bad of [
+  {mode:'move'},{mode:'hurt'},{mode:'defeat'},
+  {sourceClipName:'Walking_A'},{sourceClipName:'Hit_A'},
+  {landingSourceClipName:'Idle'},{sourceInstanceId:'another-original-clone'},
+  {landingSourceInstanceId:null},{sourceWalkFrozen:false},
+  {originalSixLegBonesVerified:false},{originalPelvisVerified:false},
+  {sourceWeight:1},{sourceWeight:NaN},{sourceRunning:false},
+  {groundedTravel:.021},{groundedMoving:true},
+  {frameInterval:2.5},{frameInterval:.04},{frameInterval:NaN},
+  {visible:false},{alive:false},{teleport:true},
+  {reducedMotion:true},{interrupted:true}
+ ])assert.equal(landingDelta({...original,...bad}),null,
+  'movement, unknown source, other clone, injury, defeat or accessibility cannot borrow a landing fade');
+});
