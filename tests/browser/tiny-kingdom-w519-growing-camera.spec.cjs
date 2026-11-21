@@ -1,0 +1,85 @@
+'use strict';
+// W519: genuine Day-21 roof-over-camera failure witnessed in W518
+// desktop/390px captured playback. No fake house or manipulated saved world.
+const {test,expect}=require('@playwright/test');
+const fs=require('node:fs'),path=require('node:path');
+const html=fs.readFileSync(path.resolve(__dirname,
+ '../../public/tiny-kingdom/index.html'),'utf8');
+test.use({video:'on'});
+for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
+ test('W519 actual growing homes must not swallow the playable village camera '+viewport.width,
+ async({page},info)=>{
+  test.setTimeout(420000);
+  const errors=[];
+  page.on('pageerror',e=>errors.push(String(e)));
+  page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
+  await page.setViewportSize(viewport);
+  await page.setContent(html);
+  await page.waitForFunction(()=>
+   window.__tinyKingdom?.renderStats()?.lastFrameTriangles>0,
+   null,{timeout:125000});
+  await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   g.reset();g.setSpeed(0);
+   g.setCamera({focus:[23.0,1.0],yaw:.82,pitch:.59,zoom:12.8});
+  });
+  const stages=[],initial=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   return {snapshot:g.exportSnapshot(),people:g.metrics().citizens,
+    homes:g.metrics().buildings};
+  });
+  let prevDay=0;
+  for(const day of [1,21,41,81,121]){
+   const delta=day===1?0:(day-prevDay)*24*30;
+   for(let remaining=delta;remaining>0;remaining-=7200)
+    await page.evaluate(n=>{
+     const g=window.__tinyKingdom;
+     for(let i=0;i<n;i++)g.step(1/30);
+    },Math.min(7200,remaining));
+   prevDay=day;
+   const lastFrame=await page.evaluate(()=>
+    window.__tinyKingdom.renderQuality().framesDrawn);
+   await page.waitForFunction(before=>
+    window.__tinyKingdom.renderQuality().framesDrawn>before,
+    lastFrame,{timeout:125000});
+   const observed=await page.evaluate(()=>{
+    const g=window.__tinyKingdom;
+    const canvas=document.querySelector('#world');
+    const before=g.exportSnapshot().checksum;
+    const physical=g.getFreeCameraCollisionAudit();
+    const grown=g.getGrowingTownCameraAudit();
+    const after=g.exportSnapshot().checksum;
+    return {day:g.metrics().day,people:g.metrics().citizens,
+     homes:g.metrics().buildings,physical,grown,
+     scene:g.renderStats().lastFrameTriangles,
+     camera:g.getCamera(),
+     realAuthorityUntouchedByCamera:before===after,
+     checksum:after,webglError:canvas.getContext('webgl').getError(),
+     overflow:document.documentElement.scrollWidth-innerWidth};
+   });
+   stages.push(observed);
+   await info.attach('real-day-'+day+'-'+viewport.width,{
+    body:await page.screenshot(),contentType:'image/png'});
+   expect(observed.realAuthorityUntouchedByCamera).toBe(true);
+   expect(observed.camera.follow).toBe(false);
+   expect(observed.physical.eyeClear).toBe(true);
+   expect(observed.physical.viewClear).toBe(true);
+   expect(observed.scene).toBeGreaterThan(0);
+   expect(observed.scene).toBeLessThan(160000);
+   expect(observed.webglError).toBe(0);
+   expect(observed.overflow).toBeLessThanOrEqual(0);
+   expect(observed.people).toBeGreaterThanOrEqual(initial.people);
+   expect(observed.grown.hiddenStructures).toBe(0);
+   expect(observed.grown.hiddenCitizens).toBe(0);
+  }
+  expect(stages.at(-1).homes).toBeGreaterThan(initial.homes);
+  expect(stages.at(-1).day).toBeGreaterThanOrEqual(120);
+  expect(errors).toEqual([]);
+  await info.attach('actual-growing-camera-audit-'+viewport.width,{
+   body:Buffer.from(JSON.stringify({source:process.env.GITHUB_SHA||'local',
+    seedChecksum:initial.snapshot.checksum,viewport,stages,
+    nativeHardwareFps:'NOT MEASURED',independentBlindCritic:'NOT PROVEN',
+    scorecardA:'NOT PROVEN',scorecardB:'FAIL'},null,2)),
+   contentType:'application/json'});
+ });
+}
