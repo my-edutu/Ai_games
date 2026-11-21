@@ -32,6 +32,30 @@ function gridDistance(a: number, b: number, width: number): number {
   return Math.abs(aRow - bRow) + Math.abs(aCol - bCol);
 }
 
+// The explorer should NOT flee merely because a guardian is visible through
+// some other turn. A true standoff is a currently published 1-2 cell STRAIGHT
+// open passage, or an adjacent open passage. That lets Pip progress to a
+// genuine public encounter, but stops the next move before contact.
+function observedOpenThreatPath(observation:MazeObservation,guardianCell:number,width:number):boolean{
+  const hero=observation.currentCell;
+  const dx=guardianCell%width-hero%width;
+  const dy=Math.floor(guardianCell/width)-Math.floor(hero/width);
+  const distance=Math.abs(dx)+Math.abs(dy);
+  if(distance<1||distance>2||(dx!==0&&dy!==0))return false;
+  const cells=new Map(observation.cells.filter(cell=>cell.visible&&!cell.blocked)
+    .map(cell=>[cell.cell,cell] as const));
+  const step=dx?Math.sign(dx):Math.sign(dy)*width;
+  let current=hero;
+  for(let i=0;i<distance;i++){
+    const next=current+step,from=cells.get(current),to=cells.get(next);
+    if(!from||!to||!from.neighbors.includes(next)||!to.neighbors.includes(current)
+      ||observation.doors.some(door=>!door.open&&
+        ((door.a===current&&door.b===next)||(door.a===next&&door.b===current))))return false;
+    current=next;
+  }
+  return true;
+}
+
 function safeObservedNeighbors(
   currentCell: number,
   candidates: number[],
@@ -53,7 +77,11 @@ function chooseEvasion(
   observation: MazeObservation,
   belief: MazeBeliefState,
 ): MazeDecision | null {
-  const threats = observation.threats;
+  // Proximity by Euclidean/grid radius alone is not immediate danger: it
+  // caused endless evasive wandering and prevented real Pip/Thornback scenes.
+  // Only presently OBSERVED reciprocal-open links authorize defensive control.
+  const threats = observation.threats.filter(threat =>
+    observedOpenThreatPath(observation,threat.cell,state.config.width));
   if (!threats.length) return null;
 
   const current = belief.cells[String(observation.currentCell)];
@@ -78,7 +106,103 @@ function chooseEvasion(
   const threatDistance = (cell: number) => Math.min(
     ...threats.map(threat => gridDistance(cell, threat.cell, state.config.width)),
   );
-  const target = [...candidates].sort((a, b) =>
+  // The actual two-cell Pip–Thornback standoff is a CONSEQUENCE of an
+  // observed, reciprocal open passage, not permission to step into the
+  // guardian's adjacent contact range. The previous distance ranking would
+  // choose the ONLY available neighbor even when it CLOSED the gap. Let the
+  // real published patrol change before taking that suicidal "evasion".
+  // No private patrol routes, future cells, RNG or speculative attacks.
+  const currentDistance = threatDistance(observation.currentCell);
+  // Give the FIRST real, directly witnessed encounter an actionable, earned
+  // defensive beat even when a side path exists. Previously Pip ALWAYS moved
+  // away if it saw any non-closing neighbor, so a real AI lantern counter was
+  // effectively absent from the playable autonomous routes.
+  //
+  // The memory is an OBSERVED guardian's own prior parry, never a private
+  // route, future cell, or off-screen opponent. The first non-starting contact
+  // costs an actual WAIT tick and asks authoritative threat physics to decide
+  // whether a connected, publicly visible backstep is possible. Later
+  // contacts return to ordinary route-driven evasion; no permanent stunlock.
+  if (state.explorer.steps > 0 && threats.some(threat => !threat.lanternCountered)) {
+    return {
+      action: { kind: 'wait' },
+      intent: {
+        mode: 'evading-threat',
+        confidence: 0.82,
+        explanation: 'Pip braces the lantern against the first witnessed guardian; then must find a safe passage.',
+        nodeExpansions: legal.length,
+        fallbackUsed: false,
+      },
+      plannedPath: [observation.currentCell],
+      targetCell: null,
+    };
+  }
+  const nonClosing = candidates.filter(cell => threatDistance(cell) >= currentDistance);
+  if (!nonClosing.length) {
+    return {
+      action: { kind: 'wait' },
+      intent: {
+        mode: 'evading-threat',
+        confidence: 0.72,
+        explanation: 'A visible guardian blocks every observed retreat; holding position instead of moving closer.',
+        nodeExpansions: legal.length,
+        fallbackUsed: true,
+      },
+      plannedPath: [observation.currentCell],
+      targetCell: null,
+    };
+  }
+
+  // A safe side-step is more meaningful when it also keeps Pip on an
+  // ACTUALLY DISCOVERED route toward the key, exit or frontier. Previously,
+  // equally safe retreats were selected only by cell id/visit count, which
+  // could send Pip into an unrelated dead end on each guardian encounter.
+  // Candidate routes use the learned map, current inventory and the guardian
+  // cells published in THIS observation. Never predict enemy patrols.
+  const visibleKeys = observation.keys
+    .filter(key => !key.collected && !observation.inventory.includes(key.id))
+    .sort((a, b) => a.cell - b.cell);
+  const knownExit = observation.exitCell ?? Object.values(belief.cells)
+    .filter(cell => cell.exit).sort((a, b) => a.cell - b.cell)[0]?.cell;
+  const goals = [
+    ...visibleKeys.map(key => ({ cell: key.cell, frontier: false })),
+    ...(knownExit === undefined || knownExit === null
+      ? [] : [{ cell: knownExit, frontier: false }]),
+    ...belief.frontiers.map(cell => ({ cell, frontier: true })),
+  ];
+  const knownHazards = [
+    ...Object.values(belief.cells).filter(cell => cell.trap || cell.blocked)
+      .map(cell => cell.cell),
+    ...observation.threats.map(threat => threat.cell),
+    // Do not select a "retreat" whose entire goal route just U-turns through
+    // Pip's current threatened square on the next tick.
+    observation.currentCell,
+  ];
+  let purposefulRetreat: number | null = null;
+  for (const goal of goals) {
+    const routes = nonClosing.flatMap(cell => {
+      const route = findKnownPath(belief, cell, goal.cell, {
+        inventory: observation.inventory,
+        avoidCells: knownHazards,
+        allowUnknownGoal: goal.frontier,
+      });
+      return route ? [{ cell, length: route.path.length }] : [];
+    }).sort((a, b) =>
+      a.length - b.length
+      || threatDistance(b.cell) - threatDistance(a.cell)
+      || (belief.cells[String(a.cell)]?.visits ?? 0)
+        - (belief.cells[String(b.cell)]?.visits ?? 0)
+      || a.cell - b.cell,
+    );
+    if (routes.length) {
+      purposefulRetreat = routes[0]!.cell;
+      break;
+    }
+  }
+
+  // If every mission route is sealed or undiscovered, preserve the original
+  // conservative observed-distance retreat; NEVER invent a goal passage.
+  const target = purposefulRetreat ?? [...nonClosing].sort((a, b) =>
     threatDistance(b) - threatDistance(a)
     || (belief.cells[String(a)]?.visits ?? 0) - (belief.cells[String(b)]?.visits ?? 0)
     || a - b,
@@ -89,7 +213,9 @@ function chooseEvasion(
     intent: {
       mode: 'evading-threat',
       confidence: 0.92,
-      explanation: 'A visible threat is close; moving through the safest observed passage.',
+      explanation: purposefulRetreat !== null
+        ? 'A visible guardian blocks the corridor; retreating on a learned safe route toward the next objective.'
+        : 'A visible threat is close; moving through the safest observed passage.',
       nodeExpansions: legal.length,
       fallbackUsed: false,
     },
@@ -108,9 +234,15 @@ function targetDecision(
 ): MazeDecision | null {
   const path = findKnownPath(belief, observation.currentCell, target, {
     inventory: observation.inventory,
-    avoidCells: Object.values(belief.cells)
-      .filter(cell => cell.trap || cell.blocked)
-      .map(cell => cell.cell),
+    // A currently SEEN guardian is a real collidable occupied cell, not a
+    // speculative future patrol. An objective can be pursued around that cell
+    // on a longer publicly learned route; never plan through its body.
+    avoidCells: [
+      ...Object.values(belief.cells)
+        .filter(cell => cell.trap || cell.blocked)
+        .map(cell => cell.cell),
+      ...observation.threats.map(threat => threat.cell),
+    ],
     allowUnknownGoal,
   });
   if (!path || path.path.length < 2) return null;
@@ -125,6 +257,65 @@ function targetDecision(
     },
     plannedPath: path.path,
     targetCell: target,
+  };
+}
+
+// A pressure court is an actual observed hazard, not set dressing. On the
+// first safe vantage Pip can briefly study the publicly visible jaws.
+// A diagonal court counts ONLY via a currently visible, walkable, reciprocal
+// two-edge approach, with no sealed intermediate edge. The bounded existing
+// visit counter prevents indefinite waiting and forbids hidden map knowledge.
+function chooseVisiblePressureInspection(
+  observation: MazeObservation,
+  belief: MazeBeliefState,
+  width: number,
+): MazeDecision | null {
+  const current = observation.cells.find(cell =>
+    cell.cell === observation.currentCell && cell.visible && !cell.blocked);
+  if (!current) return null;
+  const visits = belief.cells[String(current.cell)]?.visits;
+  if (visits === undefined || visits < 1 || visits > 2) return null;
+  const published = new Map(observation.cells.filter(cell => cell.visible)
+    .map(cell => [cell.cell, cell] as const));
+  // Inspection is earned only if Pip also has a known safe exit from this
+  // vantage. No waiting at a dead end, no imaginary collision or oracle route.
+  const safeRetreat = current.neighbors.some(next => {
+    const cell = published.get(next);
+    return !!cell && !cell.blocked && !cell.trap
+      && cell.neighbors.includes(current.cell)
+      && !doorBlocksEdge(belief, current.cell, next, observation.inventory);
+  });
+  if (!safeRetreat) return null;
+  const pressure = [...published.values()].filter(cell => {
+    if (!cell.trap || cell.blocked) return false;
+    if (current.neighbors.includes(cell.cell) && cell.neighbors.includes(current.cell))
+      return !doorBlocksEdge(belief, current.cell, cell.cell, observation.inventory);
+    const dx = Math.abs(current.cell % width - cell.cell % width);
+    const dy = Math.abs(Math.floor(current.cell / width) - Math.floor(cell.cell / width));
+    if (dx !== 1 || dy !== 1) return false;
+    // Visible diagonal sculpture is not permission to see through solid walls.
+    // Both steps must be currently public, reciprocal and unsealed; no oracle.
+    return current.neighbors.some(midId => {
+      const mid = published.get(midId);
+      return !!mid && !mid.blocked && !mid.trap
+        && mid.neighbors.includes(current.cell) && mid.neighbors.includes(cell.cell)
+        && cell.neighbors.includes(midId)
+        && !doorBlocksEdge(belief, current.cell, midId, observation.inventory)
+        && !doorBlocksEdge(belief, midId, cell.cell, observation.inventory);
+    });
+  }).sort((a,b) => a.cell - b.cell)[0];
+  if (!pressure) return null;
+  return {
+    action: { kind: 'wait' },
+    intent: {
+      mode: 'inspecting-hazard',
+      confidence: .88,
+      explanation: 'A visible pressure jaw guards the approach; studying it briefly before choosing a safe passage.',
+      nodeExpansions: current.neighbors.length,
+      fallbackUsed: false,
+    },
+    plannedPath: [current.cell],
+    targetCell: null,
   };
 }
 
@@ -161,15 +352,24 @@ export function chooseMazeAction(
     if (decision) return decision;
   }
 
+  const pressureInspection = chooseVisiblePressureInspection(observation, belief, state.config.width);
+  if (pressureInspection) return pressureInspection;
+
   const cyclic = detectMazeCycle(state.ai.recentCells);
   const frontierCandidates = belief.frontiers
     .map(frontier => ({
       frontier,
       path: findKnownPath(belief, observation.currentCell, frontier, {
         inventory: observation.inventory,
-        avoidCells: Object.values(belief.cells)
-          .filter(cell => cell.trap || cell.blocked)
-          .map(cell => cell.cell),
+        // Re-evaluate against live public threat occupancy on EVERY tick,
+        // including exploratory routes to as-yet-unseen frontier cells.
+        // Remembered/hidden threats never become an oracle obstacle.
+        avoidCells: [
+          ...Object.values(belief.cells)
+            .filter(cell => cell.trap || cell.blocked)
+            .map(cell => cell.cell),
+          ...observation.threats.map(threat => threat.cell),
+        ],
         allowUnknownGoal: true,
       }),
     }))
@@ -180,10 +380,61 @@ export function chooseMazeAction(
       || a.frontier - b.frontier,
     );
 
+  // An actually observed Tideglass clue is now a consequential navigation
+  // goal instead of merely being a collectible encountered by chance.
+  // Follow only a PUBLIC or previously remembered inscription in the belief
+  // graph, never an undiscovered clue or an oracle solver coordinate.
+  // The bounded two-step detour prevents clue-reading from replacing the
+  // nearest safe frontier with another long, aimless across-maze journey.
+  const nearestFrontierSteps = frontierCandidates[0]?.path?.path.length
+    ?? Number.POSITIVE_INFINITY;
+  const clueRoutes = observation.cells
+    .filter(cell => cell.clue && !cell.blocked
+      && belief.cells[String(cell.cell)]?.visits === 0)
+    .map(cell => ({
+      cell: cell.cell,
+      decision: targetDecision(
+        observation, belief, cell.cell, 'following-clue',
+        'Pip spotted a Tideglass inscription and is taking a known safe passage to read it.',
+      ),
+    }))
+    .filter(item => item.decision
+      && item.decision.plannedPath.length <= 9
+      && item.decision.plannedPath.length <= nearestFrontierSteps + 2)
+    .sort((a, b) => a.decision!.plannedPath.length - b.decision!.plannedPath.length
+      || a.cell - b.cell);
+  if (clueRoutes.length) return clueRoutes[0]!.decision!;
+
   if (frontierCandidates.length) {
+    // Finish a PUBLIC safe frontier branch rather than visually zig-zag
+    // between equally short unseen frontiers as their relative distances
+    // change on consecutive moves. Follow the previous observed navigation
+    // intent only while it remains a genuine reachable frontier costing at
+    // most TWO extra legal steps. Loops and any newly discovered priority
+    // (guardian, key, known exit or inscription) retain their existing rules.
+    // Never read the world seed, private tiles or a future guardian route.
+    // The genuine 529-tick flagship audit showed that simple target memory
+    // alone did not shorten the long post-counter journey. Prefer a SAFE
+    // near-shortest route that actually crosses fewer repeatedly visited
+    // PUBLIC cells. Only frontiers within two legal steps of the closest
+    // candidate qualify: do not speculate about undiscovered keys, walls,
+    // guardians or directions. A genuine cycle still abandons the fork.
+    const remembered = !cyclic
+      && (state.ai.mode === 'exploring' || state.ai.mode === 'revising-map')
+      ? state.ai.targetCell : null;
+    const ranked = frontierCandidates
+      .filter(item => item.path!.path.length <= nearestFrontierSteps + 2)
+      .map(item => {
+        const repeatCost = item.path!.path.slice(1, -1).reduce((sum, cell) =>
+          sum + Math.min(5, Math.max(0, (belief.cells[String(cell)]?.visits ?? 0) - 1)), 0);
+        return { item, score: (item.path!.path.length - 1) * 2 + repeatCost };
+      })
+      .sort((a, b) => a.score - b.score
+        || Number(b.item.frontier === remembered) - Number(a.item.frontier === remembered)
+        || a.item.frontier - b.item.frontier);
     const selected = cyclic && frontierCandidates.length > 1
       ? frontierCandidates[1]!
-      : frontierCandidates[0]!;
+      : ranked[0]!.item;
     const path = selected.path!;
     return {
       action: { kind: 'move', targetCell: path.path[1]! },
@@ -192,7 +443,7 @@ export function chooseMazeAction(
         confidence: cyclic ? 0.72 : 0.8,
         explanation: cyclic
           ? 'The recent route repeated; switching to a different observed frontier.'
-          : 'Expanding the nearest reachable frontier using only discovered passages.',
+          : 'Expanding a near-shortest frontier while avoiding repeated public corridors.',
         nodeExpansions: path.expansions,
         fallbackUsed: false,
       },

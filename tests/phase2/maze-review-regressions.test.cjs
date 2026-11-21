@@ -31,13 +31,13 @@ test('threat evasion uses grid geometry instead of flattened cell-id distance', 
     schemaVersion: 1,
     cells: {
       '0': beliefCell(0, [1, 5]),
-      '1': beliefCell(1, [0]),
-      '3': beliefCell(3, []),
+      '1': beliefCell(1, [0, 2]),
+      '2': beliefCell(2, [1]),
       '5': beliefCell(5, [0]),
     },
     doors: {},
     keys: {},
-    threats: { threat: { id: 'threat', cell: 3, lastSeenTick: 0 } },
+    threats: { threat: { id: 'threat', cell: 2, lastSeenTick: 0 } },
     frontiers: [],
     revision: 1,
     lastUpdatedTick: 0,
@@ -46,7 +46,7 @@ test('threat evasion uses grid geometry instead of flattened cell-id distance', 
     schemaVersion: 1,
     tick: 0,
     currentCell: 0,
-    visibleCells: [0, 1, 3, 5],
+    visibleCells: [0, 1, 2, 5],
     rememberedCells: [],
     cells: Object.values(belief.cells).map(cell => ({
       cell: cell.cell,
@@ -61,7 +61,7 @@ test('threat evasion uses grid geometry instead of flattened cell-id distance', 
     })),
     doors: [],
     keys: [],
-    threats: [{ id: 'threat', cell: 3, lastSeenTick: 0 }],
+    threats: [{ id: 'threat', cell: 2, lastSeenTick: 0 }],
     inventory: [],
     health: 1,
     timeRemaining: 100,
@@ -71,9 +71,32 @@ test('threat evasion uses grid geometry instead of flattened cell-id distance', 
 
   const decision = chooseMazeAction(state, observation, belief);
   assert.equal(decision.intent.mode, 'evading-threat');
-  assert.equal(decision.action.targetCell, 5, 'cell 5 is four Manhattan steps from threat cell 3; cell 1 is only two');
+  assert.equal(decision.action.targetCell, 5, 'cell 5 is three Manhattan steps from threat cell 2; cell 1 is only one');
 });
 
+test('visible diagonal, sealed or unconnected guardians cannot hijack autonomous movement before a real open standoff',()=>{
+  const runtime=MazeRuntime.create({width:5,height:5,profile:'tree',visibilityRadius:3},'standoff-public-only');
+  const state=structuredClone(runtime.state);state.explorer.cell=0;state.ai.recentCells=[0];
+  const belief={schemaVersion:1,cells:{
+    '0':beliefCell(0,[1,5]),'1':beliefCell(1,[0,2]),
+    '2':beliefCell(2,[1]),'5':beliefCell(5,[0]),'6':beliefCell(6,[])},
+    doors:{},keys:{},threats:{},frontiers:[],revision:1,lastUpdatedTick:0};
+  const observation={schemaVersion:1,tick:0,currentCell:0,
+    visibleCells:[0,1,2,5,6],rememberedCells:[],
+    cells:Object.values(belief.cells).map(cell=>({...cell,visible:true})),
+    doors:[],keys:[],threats:[{id:'threat',cell:6,lastSeenTick:0}],
+    inventory:[],health:1,timeRemaining:100,exitCell:null,recentCells:[0]};
+  assert.notEqual(chooseMazeAction(state,observation,belief).intent.mode,'evading-threat',
+    'diagonal danger can warn but cannot force a fictional straight standoff');
+  observation.threats[0].cell=2;
+  observation.doors=[{id:'sealed',a:1,b:2,requiredKeyId:'key-X',open:false}];
+  assert.notEqual(chooseMazeAction(state,observation,belief).intent.mode,'evading-threat',
+    'a closed public door prevents a phantom adjacent-guardian evasion');
+  observation.doors=[];
+  observation.cells.find(cell=>cell.cell===2).neighbors=[];
+  assert.notEqual(chooseMazeAction(state,observation,belief).intent.mode,'evading-threat',
+    'a one-way/unknown second link is not a verified open danger path');
+});
 test('a paused threat remains visible and avoidable while it is still collidable', () => {
   const runtime = MazeRuntime.create({ width: 11, height: 9, profile: 'hunter', visibilityRadius: 3, threatCount: 1 }, 'review-paused-threat');
   const state = structuredClone(runtime.state);
@@ -116,4 +139,147 @@ test('an inactive threat cannot capture the explorer or create danger telemetry'
   assert.equal(result.encounters, 0);
   assert.equal(result.state.stats.threatEncounters, beforeEncounters);
   assert.equal(result.events.some(event => event.type === 'threat-near'), false);
+});
+
+test('public two-cell guardian standoff waits instead of advancing into contact, then takes a real side escape',()=>{
+  const runtime=MazeRuntime.create({width:5,height:5,profile:'tree',visibilityRadius:2},'public-standoff-no-suicide');
+  const state=structuredClone(runtime.state);
+  state.explorer.cell=0;
+  state.ai.recentCells=[0];
+  const belief={schemaVersion:1,cells:{
+    '0':beliefCell(0,[1]),'1':beliefCell(1,[0,2]),'2':beliefCell(2,[1])},
+    doors:{},keys:{},threats:{guardian:{id:'guardian',cell:2,lastSeenTick:0}},
+    frontiers:[],revision:1,lastUpdatedTick:0};
+  const observation={schemaVersion:1,tick:0,currentCell:0,
+    visibleCells:[0,1,2],rememberedCells:[],
+    cells:Object.values(belief.cells).map(cell=>({...cell,visible:true})),
+    doors:[],keys:[],threats:[{id:'guardian',cell:2,lastSeenTick:0}],
+    inventory:[],health:1,timeRemaining:100,exitCell:null,recentCells:[0]};
+  const standoff=chooseMazeAction(state,observation,belief);
+  assert.equal(standoff.intent.mode,'evading-threat');
+  assert.deepEqual(standoff.action,{kind:'wait'},
+    'Pip must not enter adjacent guardian range from a genuine two-cell stand-off');
+  assert.deepEqual(standoff.plannedPath,[0]);
+  assert.equal(standoff.targetCell,null);
+  assert.equal(standoff.intent.fallbackUsed,true);
+
+  // A truly observed reciprocal SIDE passage changes the real autonomous
+  // decision, rather than making Pip wait indefinitely despite a safe exit.
+  belief.cells['0'].neighbors.push(5);
+  belief.cells['5']=beliefCell(5,[0]);
+  observation.visibleCells.push(5);
+  observation.cells=Object.values(belief.cells).map(cell=>({...cell,visible:true}));
+  const escaped=chooseMazeAction(state,observation,belief);
+  assert.equal(escaped.action.kind,'move');
+  assert.equal(escaped.action.targetCell,5);
+  assert.equal(escaped.intent.fallbackUsed,false);
+
+  // Removing live knowledge cannot produce a ghost guardian reaction.
+  const unseen={...observation,threats:[]};
+  assert.notEqual(chooseMazeAction(state,unseen,belief).intent.mode,'evading-threat');
+  // A presently closed passage does not qualify as a visible duel corridor.
+  const sealed={...observation,doors:[{id:'closed',a:1,b:2,open:false,requiredKeyId:'unknown'}]};
+  assert.notEqual(chooseMazeAction(state,sealed,belief).intent.mode,'evading-threat');
+});
+
+test('a publicly witnessed guardian on a bend cannot be used as a shortcut to a known goal or unknown frontier',()=>{
+  const runtime=MazeRuntime.create({width:5,height:5,profile:'tree',visibilityRadius:3},'published-guardian-flank');
+  const state=structuredClone(runtime.state);
+  state.explorer.cell=0;
+  state.ai.recentCells=[0];
+
+  // Short goal route 0→5→6→7 crosses the NOW-VISIBLE guardian at 6.
+  // An actual previously discovered, longer flank 0→1→2→3→8→7 exists.
+  // The guardian is diagonal from Pip, so the two-cell straight duel logic
+  // does not take over. No future patrol positions or world map are consulted.
+  const belief={schemaVersion:1,cells:{
+    '0':beliefCell(0,[1,5]),'1':beliefCell(1,[0,2]),
+    '2':beliefCell(2,[1,3]),'3':beliefCell(3,[2,8]),
+    '5':beliefCell(5,[0,6]),'6':beliefCell(6,[5,7]),
+    '7':beliefCell(7,[6,8,12]),'8':beliefCell(8,[3,7])},
+    doors:{},keys:{},threats:{guardian:{id:'guardian',cell:6,lastSeenTick:0}},
+    frontiers:[],revision:1,lastUpdatedTick:0};
+  const observation={schemaVersion:1,tick:0,currentCell:0,
+    visibleCells:[0,5,6,7],rememberedCells:[1,2,3,8],
+    cells:Object.values(belief.cells).map(cell=>({...cell,
+      visible:[0,5,6,7].includes(cell.cell)})),
+    doors:[],keys:[],threats:[{id:'guardian',cell:6,lastSeenTick:0}],
+    inventory:[],health:1,timeRemaining:100,exitCell:7,recentCells:[0]};
+  const goal=chooseMazeAction(state,observation,belief);
+  assert.equal(goal.intent.mode,'searching-exit');
+  assert.deepEqual(goal.action,{kind:'move',targetCell:1},
+    'Pip must take the real known longer flank rather than walk into the seen guardian');
+  assert.equal(goal.plannedPath.includes(6),false);
+
+  // A frontier beyond that same public threat must use the same protected
+  // route, even though the goal cell 12 itself is genuinely still unknown.
+  belief.frontiers=[12];
+  observation.exitCell=null;
+  const frontier=chooseMazeAction(state,observation,belief);
+  assert.equal(frontier.intent.mode,'exploring');
+  assert.deepEqual(frontier.action,{kind:'move',targetCell:1});
+  assert.equal(frontier.plannedPath.includes(6),false);
+  assert.equal(frontier.plannedPath.at(-1),12);
+
+  // Once the guardian is no longer PUBLICLY observed, it must not become an
+  // omniscient permanent obstacle. The short route is again the valid choice.
+  observation.threats=[];
+  belief.frontiers=[];
+  observation.exitCell=7;
+  const cleared=chooseMazeAction(state,observation,belief);
+  assert.deepEqual(cleared.action,{kind:'move',targetCell:5});
+  assert.equal(cleared.plannedPath.includes(6),true);
+});
+
+test('guardian evasion takes a publicly learned objective-side retreat instead of a dead-end tie-break',()=>{
+  const runtime=MazeRuntime.create({width:5,height:5,profile:'tree',visibilityRadius:3},
+    'observed-guardian-objective-retreat');
+  const state=structuredClone(runtime.state);
+  state.explorer.cell=6;
+  state.ai.recentCells=[6];
+  // Pip 6 faces guardian 8 across real reciprocal 6-7-8 links.
+  // North cell 1 and south cell 11 are equally safe (distance 3), but north
+  // is a dead end. The south route reaches a PUBLICLY learned exit via
+  // 11-12-13-14-9. Nobody reads unseen world, AI future patrol or path oracle.
+  const belief={schemaVersion:1,cells:{
+    '1':beliefCell(1,[6]),'6':beliefCell(6,[1,7,11]),
+    '7':beliefCell(7,[6,8]),'8':beliefCell(8,[7]),
+    '9':{...beliefCell(9,[14]),exit:true},
+    '11':beliefCell(11,[6,12]),'12':beliefCell(12,[11,13]),
+    '13':beliefCell(13,[12,14]),'14':beliefCell(14,[13,9])},
+    doors:{},keys:{},threats:{guardian:{id:'guardian',cell:8,lastSeenTick:0}},
+    frontiers:[],revision:1,lastUpdatedTick:0};
+  const visible=[1,6,7,8,11,12];
+  const observation={schemaVersion:1,tick:0,currentCell:6,
+    visibleCells:visible,rememberedCells:[9,13,14],
+    cells:Object.values(belief.cells).map(cell=>({...cell,
+      visible:visible.includes(cell.cell)})),doors:[],keys:[],
+    threats:[{id:'guardian',cell:8,lastSeenTick:0}],
+    inventory:[],health:1,timeRemaining:100,exitCell:null,recentCells:[6]};
+  const exitRetreat=chooseMazeAction(state,observation,belief);
+  assert.equal(exitRetreat.intent.mode,'evading-threat');
+  assert.deepEqual(exitRetreat.action,{kind:'move',targetCell:11},
+    'Pip must take the equally safe retreat that continues toward its known exit');
+  assert.deepEqual(exitRetreat.plannedPath,[6,11]);
+
+  // A visible key takes priority over an exit, using only the same known map.
+  observation.keys=[{id:'observed-key',cell:12,collected:false}];
+  const keyRetreat=chooseMazeAction(state,observation,belief);
+  assert.equal(keyRetreat.action.targetCell,11);
+  assert.equal(keyRetreat.intent.mode,'evading-threat');
+
+  // If the actual learned exit route is sealed, this is not a made-up route.
+  // Both candidates are still non-closing; use the original conservative
+  // tie-break, with no speculative unblocking or privileged future state.
+  observation.keys=[];
+  belief.doors={sealed:{id:'sealed',a:11,b:12,requiredKeyId:'unknown',
+    open:false,lastSeenTick:0}};
+  observation.doors=[{id:'sealed',a:11,b:12,requiredKeyId:'unknown',open:false}];
+  const sealed=chooseMazeAction(state,observation,belief);
+  assert.equal(sealed.intent.mode,'evading-threat');
+  assert.deepEqual(sealed.action,{kind:'move',targetCell:1});
+
+  // Receding from public view removes the guardian evasion entirely.
+  observation.threats=[];
+  assert.notEqual(chooseMazeAction(state,observation,belief).intent.mode,'evading-threat');
 });

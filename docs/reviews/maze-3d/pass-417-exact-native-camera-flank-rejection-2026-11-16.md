@@ -1,0 +1,19 @@
+# Pass417 — authentic Pass416b 3D recoil-camera A/B rejection and safe production rollback (2026-11-16 UTC)
+
+**PR #53 OPEN DRAFT; never merge, deploy, force-push or overwrite other work. Official Captain Toad: Treasure Tracker gameplay remains the fixed, unmet reference.**
+
+## Source-bound real WebGL evidence
+
+Source SHA `19d00660e02d4c5e86d88670e5b73b5aa8c69a78`, [focused visual workflow #43813186423](https://github.com/my-edutu/Ai_games/actions/runs/43813186423) **SUCCESS**, [original unmodified artifact #14201069435](https://github.com/my-edutu/Ai_games/actions/runs/43813186423/artifacts/14201069435). At 2026-11-16T06:01:17.314Z, genuine seed `maze-visual-reference-13`, published tick 8, publicly earned lantern parry, Thornback naturally displaced from cell 91 to 74. Recalculated **40/40 original PNG SHA-256 values against their dated JSON sidecars**, plus **3/3 original gate-before/mid/after transition SHA-256 hashes**. No screenshot cropping, fabricated gameplay, replay manipulation, new private observations or CPU-to-GPU FPS inference. Predecessor [Pass415 original workflow #43802247719](https://github.com/my-edutu/Ai_games/actions/runs/43802247719), artifact #14196961950: same **40/40 plus 3/3 SHA integrity**.
+
+The actual uncropped 320×740 and 390×844 full-frame paired screenshots directly inspected reveal that the new bounded three-quarter camera proposal **does not materially improve the Pip/Thornback encounter**. Pip's torso and boots remain inconclusive/occluded at **both mobile sizes**, Thornback's boots remain blocked by known cell 74, and the busy foreground mineral sculpture still masks the protagonist's connected lantern-counter action. The 390px scene shifts slightly while both complete actor silhouettes remain within the unchanged ±0.95 NDC bounds. Source-bound 390px screenshot SHA: `42490363afe55b141aa11d446f3ba760bd6e15c471b31a39a470823e22866fc8`; original 320px SHA: `63d26d8f3218` (see full checksum in exact artifact's `natural-guardian-recoil-earned-mobile-320.json`). Zero authored player-visible improvement sufficient for acceptance: **REJECT**. A new test/geometry pass cannot overrule this rendered verdict.
+
+## Tested regressions and rollback
+
+The exact-HEAD focused Maze workflow completed SUCCESS: locked source checkout, build and focused tests, live stream self-test, Chromium WebGL, and **six actual run resets under unchanged <100 geometry budget**; original source screenshots passed SHA checks. Whole-repository CI #43813186314 separately **FAILED** at Tiny Kingdom OBS self-test and its skipped-downstream artifact uploads, not a Maze-specific source failure. True hardware FPS and detached fresh-context independent blind critic remain unavailable: coding workspace tunnel returned `NOT_FOUND` again.
+
+**Rollback production-only Pass416 candidate:** restore `public/ai-maze-escape/scene.js` and `guardian-duel-camera.mjs` to exact trusted Pass415 blob SHAs (`d5cb3639c18d945089b070958cb14aee55518699`, `110b005a5f06810a8428bca4e2d8a4414749ecb6`), and remove its dedicated Pass416-only helper test. Preserve other work and all original evidence. This rollback commit must be a single non-forced expected-HEAD update with this review, ledger and live `/maze/progress` in the SAME commit; fresh exact-rollback CI is required before claiming that new HEAD green.
+
+## Single largest next player-visible gap
+
+The original vertical slice still needs an authored, compositionally readable **whole guardian encounter theatre**: make actual Pip lantern defense, full Thornback recoil, current physical court boundaries and consequential gate/pressure action legible as one game sequence at real 320px/390px. Avoid repeating optional ornament threshold edits or tiny camera shifts. Preserve private/public AI boundaries, deterministic autonomous state, real walls, collision, reduced motion, mobile controls, and strict framing/resource gates. Nintendo parity remains **UNMET**.

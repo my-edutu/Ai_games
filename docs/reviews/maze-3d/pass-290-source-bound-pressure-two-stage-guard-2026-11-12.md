@@ -1,0 +1,11 @@
+# Pass290 — repair the actual stale pressure-camera regression contract
+
+**Date:** 2026-11-12 UTC. Parent production commit `d69f21194849fd4ab2ff5ad6109863711dcc93a8`. Existing open Draft PR #53.
+
+## Real CI blocker, not a graphics workaround
+
+[Parent whole-repository CI 43155031869](https://github.com/my-edutu/Ai_games/actions/runs/43155031869) completed **783/784 Node tests passing; one failure** in `tests/phase6/maze-public-pressure-frontal-stage.test.cjs`. The failure was the source assertion that production must select `pressurePortraitCameraOffset` directly. Pass289 intentionally selects a **reused interpolated source-driven stage vector**: its starting point is still the physically authored frontal camera, but true public contact eases to the new quarter view. This old assertion was testing an implementation detail, not a true image quality, privacy or bounds regression. The separate installed Three and strict geometry tests did not fail in the parent visual workflow.
+
+**Correction:** preserve and strengthen the same test by requiring (1) production selects `pressureStageCameraOffset` rather than a dead camera constant; (2) its 3D transform **starts from the exact original `pressurePortraitCameraOffset`**, then moves to the true quarter view; (3) the blend weight comes from `publicPressureContactOrbitWeight(pressureProgress, pressurePortraitStage)`, i.e. the publicly witnessed physical pressure clock, never private geography or a guessed action. The existing 25%-more-frontal original angle assertion, authoritatively disclosed pressure gating, manual/reduced-motion protection, physical bounding-envelope and smooth Follow transition assertions are completely unchanged. The new Pass289 pure helper test remains unchanged.
+
+The [source-bound parent native WebGL workflow 43155031882](https://github.com/my-edutu/Ai_games/actions/runs/43155031882) was still rendering at this repair checkpoint; screenshot aesthetics and actual 320/390 actor contact envelope have **not yet been accepted**. A new exact-head native capture, all unchanged ±.95 NDC, ≥.70 withdrawal, six-run <100 geometry, and independent visual critic remain mandatory. Fixed official Nintendo benchmark **UNMET**. No merge/deploy/force-push; work stays on existing Draft PR.

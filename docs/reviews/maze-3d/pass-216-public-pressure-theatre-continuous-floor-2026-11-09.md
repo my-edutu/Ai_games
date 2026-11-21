@@ -1,0 +1,12 @@
+# Pass216 — one legible publicly discovered Tide-Shear stage (2026-11-09 UTC)
+
+## The specific original-image failure
+The previously SHA-verified 320/390 native WebGL pressure frames (artifact 13597475546, 2026-11-08) are genuine **BEFORE**, not current HEAD. They show a mechanically busy pressure court: Pip and the moving ivory pressure jaws compete with patterned small tiles, floor petals and a closed gate. The latest Pass215 gate recession remains unrendered. Original Nintendo *Captain Toad* comparison still rejects this overall level of scene hierarchy.
+
+## One source candidate, not a cosmetic ticker
+On **only** ordinary already-published floor cells within the existing two-cell discovered pressure sightline, unify the physical paving into one uninterrupted slab each in the existing ivory/stone/sea-glass palette. Remove repeated five-blade shell-floor glyphs, four-petal tesserae, corner flecks, low edge engravings and gate rosette only on those safe disclosed apron cells. The real known clay trigger plate, its modeled rising shutters and jaws, Pip, blocked gate grille/lock, all known keys/exits/checkpoints, floors' authoritative elevations, walls, collision and AI routes are untouched. No new material, geometry primitive, HUD, false hazard, private-map read or per-frame allocation. The change is intended to create a real connected, quiet *world-space* pressure theatre, not scatter new props.
+
+Added real installed-Three acceptance asserting the deterministic baseline 4-tile/5-petal cell 39 becomes one mineral slab/no floor petals only after a **public** cell 40 trap; verifies unchanged real hazard, source immutability, private-only and reset behavior, unchanged per-frame resources and existing geometry/material budgets. This test contract is **authored but not runtime-executed**: workspace tunnel disconnected; current HEAD workflow jobs queued.
+
+## Mandatory independent verdict
+Do not accept Pass216 without exact new commit Playwright original unaltered WebGL 320x740/390x844/844x390/1280x900, approach-contact-withdrawal continuous rendering, six-run geometry <100 and spread <=8, ±0.95 framing, mobile guardian width >=0.70, no hidden information, 44px controls, strict whole-repository CI, dated hashes and independent real image criticism against official Nintendo scenes. If the real court reads dull or misleads safe neighboring cells as dangerous, reject this apron and restore/re-author rather than adding another layer. **No verified gameplay win**, draft PR stays unmerged and undeployed.

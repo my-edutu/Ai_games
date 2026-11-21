@@ -1,0 +1,17 @@
+# Pass283 — source-authentic Tideglass pressure gantry with captive moving release
+
+**Date:** 2026-11-11 UTC. **Source parent:** `4c19b80cd9262d7eeae63de30fe162c4ce8cbc30`. Existing PR #53 and `feat/maze-3d-gauntlet` only. No merge or deployment.
+
+## Original unchanged native WebGL failure
+
+Exact-parent [workflow 43114852372](https://github.com/my-edutu/Ai_games/actions/runs/43114852372) completed successfully on `4c19b80cd9262d7eeae63de30fe162c4ce8cbc30`. The genuine unchanged original `public-tide-shear-pressure-390.png` was captured 2026-11-11T22:57:58.998Z at 390×844, SHA-256 `34e716ed2d2c591ac96ffbcfff6ca0bcf1d90ad1cc51c88409bbceff30576ca4`. All **37/37** PNG/JSON sidecar SHA-256 pairs match the recovered artifact; the 2 additional true gate PNGs are not counted as hash-sidecar pairs. The unaltered native camera projected full Pip width .515 NDC (minimum .49), physical hazard from -0.629 to +0.488 horizontal and -0.385 to +0.437 vertical, all inside the unchanged ±.95 gate. Six-reset geometry budget passed. The main dark portal bar still crosses the hero's face during the 0.99 pressure-stroke, so the fixed Nintendo reference rejects the composition despite successful technical tests. The note is a critique of actual pixels, not a test-count victory.
+
+## Material, independently judgeable production change
+
+Existing 2.4m disclosed pressure hazard only: keep the original stone pylons, real full-width rear structural yoke, split hinged ivory load wings, mechanical wheel/cable/weight, shutter, floor relay, actual paired inward jaw and deterministic public-only collision/navigation untouched. Insert **two captive, sliding dark-metal load sleeves** (existing bevel geometry/material pool) into the bridge and move the **whole mechanically connected overhead bridge** upwards on the exact existing public shutter stroke by up to 0.48m. The sleeves remain physically overlapping their true load-bearing stone pillars throughout the lift; the axle and weight still drive the same release. This creates visible head clearance when the real jaws activate, rather than fading the hazard or zooming/cropping Pip. On a lawful retreat/hidden or terminal snapshot it resets exactly to the resting 2.34m. Reduced motion holds a truthful static contact pose at 2.604m. No hidden map, invented trigger, per-frame GPU allocations or authority changes.
+
+An installed real Three.js test checks both physical sleeves and pylon overlap, the actual yoke lift with jaw action, reset, privacy, footprint and no GPU count growth without lowering any original budget. The original source remains an independently testable **candidate** until the new exact-HEAD native browser renders and real full-frame A/B are inspected.
+
+## Hard release gate
+
+Required: exact post-commit SHA-verified unaltered Playwright WebGL capture for 320 portrait, 390 portrait, 844×390 landscape, and 1280×900 desktop, multiple pressure beats and guardian/key/gate, full physical Pip and Thornback strict ±0.95 envelopes (including ≥.70 withdrawal), six-run scene-reset geometry <100, honest resource/performance accounting, no private danger or blocked route leak, accurate mobile 44px controls, full repo CI status and independent comparison to official Captain Toad, Luigi's Mansion 3 and ASTRO BOT. Do not infer success from the new source code or test alone. Independent actor critic and Ultracode were unavailable due to disconnected tunnel; a new rendered attempt must still undergo real image criticism. PR remains draft, open and unmerged/undeployed.

@@ -1,0 +1,31 @@
+# Game 2 pass 34 — physical lock socket readability gate (November 1, 2026)
+
+**Status: exact-head browser output and lead native-size review completed; fixed Nintendo benchmark remains NOT PASSED. Fresh-context independent critic still unavailable.**
+
+## Builder — smallest independently judgeable gap
+
+Pass33's authentic native **390×844** rendering, [focused CI 41282144620](https://github.com/my-edutu/Ai_games/actions/runs/41282144620), [artifact 13073920601](https://github.com/my-edutu/Ai_games/actions/runs/41282144620/artifacts/13073920601), showed an unresolved physical key→lock relationship. The real closed gate and the carrying Pip are far apart in the composition; the physical socket itself is a nearly invisible pinhole.
+
+**Pass34 changes only the actual source-disclosed closed gate's existing 3D hardware** in `public/ai-maze-escape/world.js`: widen the rim and inset and give the dark keyhole a distinct round crown touching a single deep throat. The crown/throat reuse the already allocated common sphere and bevel geometry and the existing dark-metal material, with no new draw primitive type, shader, lights, waypoint, authority, AI control, camera, knowledge or effect. The rim remains mint only when the exact required key exists in **public inventory**; other states remain gold. The barred crossed obstruction remains closed until `door.open` truly changes. Both cardinal orientations use the same accessible camera-facing local plane. A separate world-geometry contract asserts actual connected two-part physical hardware, mobile-scale bound, correct depth, both gate orientations, unchanged carry/open distinctions and resource invariants.
+
+This is a **visual source candidate**, not a demonstrated native-viewport improvement. The prior pass33 camera remains as-is to isolate this geometry.
+
+## Fresh critic and acceptance gate
+
+1. Run `npm run test:maze:phase3` and the existing narrow Maze screenshot workflow at the *exact new branch head*, and preserve any failing assertions rather than changing thresholds.
+2. Fetch original browser artifacts (not prior-pass copies), verify SHA-256 of unchanged PNGs against the adjacent dated manifests, and confirm production seed `maze-visual-reference-13`, tick21, actually closed, disclosed `door-2` and genuinely carried exact matching key. The native 390×844 and desktop 1280×900 frames must be compared with pass33 at identical state.
+3. Have a **separate fresh-context critic** inspect the actual unaltered native images. Check legibility of the dark keyhole and bezel at native size, physical glove/bow/shaft/lock spatial meaning, clear crossed-closed status, gate/Pip visibility and preservation of the public arch/lagoon. Use anonymous A/B where feasible, then compare the winner against the **unchanged** Nintendo [reference manifest](./reference-manifest.json). Reject even technically green source if the action remains indistinct or the framing regresses.
+4. Do not equate CI pass count with visual win. Avoid repeated heavy local SwiftShader probes on CPU-throttled host. No representative hardware GPU/FPS evidence is claimed.
+
+The workspace `exec_command` returned **`Tunnel-client has not been seen for 300 seconds`** this run, so independent builder/critic subagents and Ultracode could not be used. Remote GitHub source and CI remain accessible. Pass33's lead-only verdict still prefers Captain Toad. The new pass34 screenshot, live hardware performance and independent blind critic are **NOT YET AVAILABLE**. PR #53 must stay draft, unmerged, undeployed, and the Gauntlet active.
+
+
+## Pass34 authentic rendered review — 2026-11-01
+
+- Focused [Maze visual CI 41286349080](https://github.com/my-edutu/Ai_games/actions/runs/41286349080) **SUCCESS** at exact product head `8875f37`. Original [artifact 13075272968](https://github.com/my-edutu/Ai_games/actions/runs/41286349080/artifacts/13075272968) contains six original WebGL PNGs; each independently recomputed SHA-256 matches its adjacent source/seed/tick manifest. Same genuine public `maze-visual-reference-13` seed, tick **21**, exact carried key and actually **closed door-2**.
+- Source-bound desktop **2026-11-01T07:51:27.672Z**, 1280×900, image SHA `95dba46e393e875f6b50c96d091e01d98909a7b0c15e44b850b1bf8736a5254f`; native portrait **2026-11-01T07:51:30.861Z**, 390×844, SHA `f2f6974a941db20016214637daca843c53e322d1aece7ea06e423ea863707d95`. Original source hashes are in the artifact manifests.
+- Actual same-seed/tick pixel comparison pass33 → pass34: only **676 / 329,160 (0.205%)** portrait pixels differ, bounding box x=77–101/y=368–408; only **1,194 / 1,152,000 (0.104%)** desktop pixels differ, bounding box x=300–333/y=499–555. These changed pixels are the real physical socket, not imaginary game progress; character/camera/architecture are pixel-identical.
+- **Lead visual verdict (not an independent fresh-context critic): reject as benchmark win.** The wider dark joined socket is easier to identify in a crop, but at unscaled native 390px the glove, held key and physical socket still do not visibly meet. The prominent turquoise lagoon and clipped upper-right arch persist. Unblinded source-identifiable A/B; no independent blind preference or Captain Toad win is claimed.
+- [Full catalogue CI 41286349088](https://github.com/my-edutu/Ai_games/actions/runs/41286349088) is **FAILED overall** despite **528/528 Node tests passing** and **all 15 executed Maze browser checks passing**. The three failures are in other-game Tiny Kingdom G057/G058/G063 browser tests. Do not call entire CI green.
+- Separate fresh-context builder/critic workers and Ultracode remained unavailable: shared-workspace `exec_command` returned `Tunnel-client has not been seen for 300 seconds`. Focused browser rendering succeeded remotely, but CPU-throttled SwiftShader cadence is **not hardware-GPU performance evidence**. Frozen original Nintendo reference manifest remains unchanged.
+- Next smallest pieces: first record world-space actual held-key tip and real lock socket screen projections for an objective native-size separation gate; then make one physical re-staging change with new genuine captures and detached critique; separately address clipped disclosed architecture without exposing private cells. Keep PR **draft, unmerged, undeployed**; benchmark OPEN.

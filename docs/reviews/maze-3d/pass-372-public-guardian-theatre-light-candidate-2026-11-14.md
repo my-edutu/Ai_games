@@ -1,0 +1,11 @@
+# Pass372: physical two-body light-theatre candidate (2026-11-14 UTC)
+
+**Status:** implemented source candidate. **Unapproved artwork:** source-bound new WebGL capture, SHA evidence, side-by-side visual critic and exact-HEAD focused test pending. The official original Captain Toad reference is **not met**.
+
+The [prior Pass370b native artifact](https://github.com/my-edutu/Ai_games/actions/runs/43644595141) passed 179/179 focused and 7/7 browser checks with 37/37 matched original screenshot SHA sidecars, but its telescoping sentinel stage was rejected. The stable [Pass371 rollback](https://github.com/my-edutu/Ai_games/commit/af998718053ccbe4fda0cb84dea9bd7d790d1458) [WebGL workflow](https://github.com/my-edutu/Ai_games/actions/runs/43645418855) succeeded. Actual earlier 390px three-beat screen criticism: foreground wall100 stays genuine and visible, but character-vs-stone lighting and moving warnings flatten both main silhouettes.
+
+This work unit makes an event-earned theatrical lighting relationship: Pip keeps the existing wrist-attached **warm** lamp, and the original physically present and publicly connected Thornback receives one **cool** rear counterlight. A pure helper refuses illumination for a hidden/closed/one-way/nonreciprocal/terminal threat. The same witnessed guardian beat creates a deterministic held brace, then brighter shell release. No fake hit, damage, route hint, unseen map leak, per-frame Three allocation, shadow map, new GPU geometry/material, AI authority, collidable prop, modified wall, camera or HUD. Reduced-motion remains still.
+
+**Reject/accept gate:** compare the exact new SHA's uncropped original native Playwright WebGL 320x740 and 390x844 notice/brace/release, 844x390 and 1280x900, to the previously authenticated baseline, with the genuine Pip/Thornback full physical envelopes under existing ±.95 NDC (withdrawal ≥.70), exact wall100 first-hit, gate/key/pressure frames, 44px controls and six-run <100 geometry ceiling. A color change only, without real full-frame player-visible separation, is **not** an accepted artistic gain. Record screenshot SHA sidecars, image timestamps, active exact commit and independent critic if actually available. The coding agent/Ultracode tunnel was unavailable (`NOT_FOUND`); no blind judgment claimed.
+
+**Safety:** keep PR #53 open draft. No merge, deployment or force-push.

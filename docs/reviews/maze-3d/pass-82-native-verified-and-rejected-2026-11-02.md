@@ -1,0 +1,15 @@
+# Pass82 exact-source visual gate — 2026-11-02 UTC
+
+## Evidence, not an artistic win
+
+Focused real WebGL [workflow 41479673400](https://github.com/my-edutu/Ai_games/actions/runs/41479673400) succeeded on PR head `f518f3f970a48462da1ebf272f8edbe4fc79b586`. Downloaded original [artifact 13160710733](https://github.com/my-edutu/Ai_games/actions/runs/41479673400/artifacts/13160710733) (43 files; 22 original PNGs) and independently recalculated 20 individual native screenshot SHA-256s plus the three-frame public gate manifest. The mid-lift PNG is referenced twice; all **22 unique original PNG hashes match**. Original dated JSON source hashes bind the HTML, app, HUD, scene, characters, world and gate moment. This is not screenshot generation or a simulated preview.
+
+True Follow-camera guardian/explorer compositions at **320×740, 390×844, 844×390 and 1280×900** contain both complete physical actors and unobscured actionable goals, not the former text dashboard. The 390 Follow dated capture is **2026-11-02T16:26:54.622Z**, SHA-256 `d67387ed4e18998c5f23b38bf87c14577615a60701c00ae460f4a99dd0c6e3c1`, with four 44px controls. The 390 genuine collected-key image is **2026-11-02T16:28:41.735Z**, SHA-256 `5c88bb257146df9efa105edff48c620132ad2914f309819cf679ce464ec391cc`, with 8/8 physical shards in frame after screenshot, real Pip and compact KEY FOUND. No lowering of native camera, visible-shard, or source-privacy acceptance.
+
+## Direct image critique against fixed Nintendo bar
+
+Source-aligned Pass81 and Pass82 original images reveal virtually **no primary gameplay-frame perceptual difference**: mean absolute RGB delta **0.03** at native 390 Follow, **0.03** at 320 Follow, **0.01** at 844 Follow, **0.02** at 1280 Follow. These are direct full-frame comparisons, not evidence of a blind independent preference. Newly attached carapace scutes are real geometry, but at fixed native camera they are too small/occluded to transform recognizability. A static mesh/test assertion is not a visual Gauntlet win. The official [Captain Toad: Treasure Tracker](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/) still wins environmental variety, treasurable focal compositions and physical character-story clarity.
+
+Whole-repository [CI 41479673444](https://github.com/my-edutu/Ai_games/actions/runs/41479673444) failed three **Tiny Kingdom**, not Maze, browser assertions (G057/G058/G063; 106 browser tests passed). Do not misrepresent this as all CI green. The shared live workspace tunnel remains disconnected: no fresh-context workers/Ultracode or genuine independent blinded A/B. CPU-throttled SwiftShader timings are not production GPU metrics.
+
+**Verdict:** Pass82 authenticity and native framing **verified**; meaningful visual improvement **rejected**; overall Nintendo benchmark **NOT MET**. Next independent, judgeable piece must visibly change the *on-camera* authored key/guardian stage, not add micro details off-camera. PR #53 remains OPEN DRAFT, not merged or deployed.

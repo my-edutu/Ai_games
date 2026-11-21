@@ -1,0 +1,24 @@
+# Pass122 — real public fossil-sail reaction, source implemented; native image acceptance pending
+
+Date: **2026-11-03 UTC**. Branch: `feat/maze-3d-gauntlet`, draft [PR #53](https://github.com/my-edutu/Ai_games/pull/53). This is a *candidate*, not a Nintendo-parity win. No merge or deployment.
+
+## Fixed benchmark and honest starting evidence
+
+The unchanged visual bar is **real [Captain Toad: Treasure Tracker](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/) gameplay imagery**, with Luigi's Mansion 3 and ASTRO BOT supporting. The original previously retrieved 1280×900 Pass119b public fossil screenshot, captured 2026-11-03 19:02:56.200Z (SHA-256 `b1d81c98e2b16a1480338e6db5aad649f97366ec7a1102787244778bab524a86`), was inspected at full native resolution: the little fossils are rendered but almost hidden by vegetation, Pip is small, and teal open water dominates. The later Pass121 real exact-head captures are documented with 25/25 hashes in the ledger; they show stronger stage coverage but still fail the fixed reference. **Neither prior capture proves Pass122 visually.**
+
+## Independently judgeable pieces and implementation
+
+1. **Real authored sculpture, not a UI decoration** — [c9c7f2f](https://github.com/my-edutu/Ai_games/commit/c9c7f2f101474edbd69e3860dfed74cea45cb12a) adds two articulated, four-part, pale ceramic/sea-glass fossil listening sails on each *genuinely disclosed safe walkable wall-side alcove*. The sculptures have rooted pivot positions on the real published terrace. Their hinges are well outside the tile center and known east/walkable passage. All geometry and materials reuse the installed Three pools.
+2. **Coherent visual response to the live explorer** — [5488b5e](https://github.com/my-edutu/Ai_games/commit/5488b5e24c4593ccb22aadc2fa1fc01b947c6ba1) passes Pip's real interpolated public Three position into the existing world visual loop. The sails lean measurably as the actual 3D actor approaches, and return when he leaves. This is purely presentational: no new enemy, collectible, hazard, gate, source field, navigation action or hidden-route knowledge. The same live source snapshot still owns all gameplay decisions.
+3. **Separate strict physical-source critic** — [9e793ad](https://github.com/my-edutu/Ai_games/commit/9e793ad64dd5ee67d5723f5f1cef83a272286b49) adds installed-production-Three tests: every public sail must have four actual mesh children, wall-side root, true terrace height, greater physical proximity rotation than at distance, stable reduced-motion pose, no new geometry/material/texture resource classes, no mutation of the public snapshot, full removal on reset, and no actor on a blocked/trapped/key/gate/undisclosed tile. Private unknown fields cannot influence placement. **These tests are new; they must pass CI before being called verified.**
+
+## Genuine renderer, UX and privacy acceptance gate
+
+- **New candidate head:** `9e793ad64dd5ee67d5723f5f1cef83a272286b49`.
+- **Full CI:** [41716553777](https://github.com/my-edutu/Ai_games/actions/runs/41716553777) — **QUEUED** at first check; no green claim.
+- **Exact-source WebGL screenshot suite:** [41716553251](https://github.com/my-edutu/Ai_games/actions/runs/41716553251) — **QUEUED** at first check; no Pass122 PNG, UTC capture, hash or blind verdict is yet available.
+- Retain unaltered checks for native 320/390 portrait, 844×390 landscape and 1280×900, fully framed physical Pip/Thornback, gate/guardian/pickup action, full-viewport low-text HUD, 44px input, accessible details, keyboard/reduced motion/high contrast, reconnect/fallback, exact public knowledge and deterministic authority. If a real frame fails, **fix the actual 3D camera or sculpture**; do not lower image thresholds or conceal the actor.
+- The shared coding tunnel rejected both `exec_command` and `agents` (`Tunnel-client has not been seen for 300 seconds`). Therefore fresh-context subagent, Ultracode, and an independent blind A/B *are unavailable*, not complete. GitHub direct source commits succeeded using content-blob SHA protection; no concurrent branch force-push/overwrite. CI SwiftShader CPU wall-time is not user GPU performance.
+- Next reviewer must **open and inspect original, full-resolution, source-bound WebGL screenshots** showing the responding sails in a public Follow frame, compare against the fixed official Nintendo imagery without crop/retouch, and check whether the new movement is actually visible and improves the game-first experience. A screenshot suite with no such witnessed frame is insufficient for artistic acceptance.
+
+**Verdict: Nintendo visual/gameplay benchmark NOT MET.** This is meaningful authored 3D source progress awaiting physical screenshot rejection/approval, not a Gauntlet win. PR #53 remains **OPEN DRAFT**, unmerged and undeployed.

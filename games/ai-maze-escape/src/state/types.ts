@@ -1,7 +1,7 @@
 import type{GameLifecycle,MazeConfig,MazeIntentMode,MazeRunResult}from '../../../../packages/game-contracts/src/index';import type{MazeInfluenceState}from '../influence/types';
 export interface MazeDoor{id:string;a:number;b:number;requiredKeyId:string;open:boolean;critical:boolean;temporaryUntilTick:number|null}
 export interface MazeKey{id:string;cell:number;collected:boolean}
-export interface MazeThreat{id:string;cell:number;route:number[];routeIndex:number;direction:1|-1;lastSeenTick:number|null;active:boolean;pausedUntilTick?:number}
+export interface MazeThreat{id:string;cell:number;route:number[];routeIndex:number;direction:1|-1;lastSeenTick:number|null;active:boolean;pausedUntilTick?:number;lanternParried?:boolean}
 export interface MazeWorld{schemaVersion:1;width:number;height:number;passages:number[];start:number;exit:number;doors:MazeDoor[];keys:MazeKey[];traps:number[];clues:number[];checkpoints:number[];threats:MazeThreat[];blockedCells:number[];profile:string}
 export interface MazeFeatures{profile:string;cells:number;edges:number;loops:number;deadEnds:number;branchCells:number;shortestSolutionLength:number;chambers:number;dependencyDepth:number;trapCount:number;threatCount:number}
 export interface MazeGenerationDiagnostics{attempts:number;fallbackUsed:boolean;failedReasons:string[]}

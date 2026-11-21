@@ -1,0 +1,12 @@
+# Pass303 — grounded Tideglass guardian amphitheatre candidate
+2026-11-12 UTC. Fixed benchmark: actual official Captain Toad gameplay visuals, with Luigi's Mansion 3 and ASTRO BOT as supporting quality references. **Benchmark NOT MET.**
+
+## Authentic incoming evidence and rejection
+Exact parent `631e97e891eb1d8147f7c7acbb859badf655fc95`, [successful source-native Pass302 capture](https://github.com/my-edutu/Ai_games/actions/runs/43244600829), artifact 13956209987. Retrieved the original complete unaltered archive; **37/37 PNG/JSON SHA-256 pairs matched**. Native 390×844 notice/brace/release and real 320×740, 844×390 and 1280×900 stage were examined without cropping. Pass302 does create the dark Tideglass causeway, but real mobile and desktop play still leave a conspicuous field of unrelated pale rectangular paving competing with both physical actors. The original warning/brace/release continues to lack the focused authored court staging of the fixed Nintendo bar. This is an inspection by the lead, **not** a claimed detached independent critic.
+
+## One scene-wide, source-bound candidate
+In the existing `guardianCourtCell` rendering branch, transform all genuine visible, open guardian performance cells (including the side-step) from separate sunlit ivory pads into one original sea-glass/dark-jade mineral amphitheatre with light mint margins. The physical scale, collision, discovered topology, elevation, court membership, stage leaves, camera, HUD, engine, AI, accessibility and strict GPU shape/material pools remain unchanged. **Only** the public, reciprocal, already-witnessed court is restyled; closed or unseen encounters have no special dark basin. No deceptive route/safety indicator and no private map data.
+
+Installed-Three regression asserts exact published physical cell positions and revocation on hidden guardian, real closed gate and terminal result, plus the immutable six-reset <100 geometry budget and no added material/geometry class. This is a candidate until it visibly improves the exact-source full 320/390/844/1280 gameplay, including warning/brace/release, without obscuring Pip or Thornback. Commit SHA, workflow status and original artifact checks belong in the follow-up PR evidence comment after creation.
+
+**Independent worker / Ultracode:** attempted this run; coding workspace returned `NOT_FOUND: tunnel-client has not been seen for 300 seconds`. No independent critic or new rendering claimed. PR #53 stays open draft; no merge/deploy/force push.

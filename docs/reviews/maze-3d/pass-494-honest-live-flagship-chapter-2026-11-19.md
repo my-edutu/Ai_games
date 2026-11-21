@@ -1,0 +1,11 @@
+# Pass494 — one *real* playable live chapter, not a highlight reel
+**Date:** 2026-11-19 UTC. **Incoming source SHA:** `90f60c1c6b7be486a07ca3298a29745229eb06d0`. Draft PR #53 only.
+
+## Original native visual critique
+Fetched [Pass493 exact-source WebGL](https://github.com/my-edutu/Ai_games/actions/runs/44436875945) and its original [artifact 14488649200](https://github.com/my-edutu/Ai_games/actions/runs/44436875945/artifacts/14488649200). Source-hosted Chromium/WebGL, focused tests, screenshot capture and unchanged strict six-reset geometry budget passed. Original 40/40 full-resolution PNG SHA-256 sidecars and authentic 3/3 chronological gate PNG SHA hashes match. Full unaltered 390px earned counter shows Pip on the left and a heavily obscured Thornback beside complex sails, parapets and foreground architecture. This fails the official Nintendo benchmark. Isolated pressure, guardian, pickup and gate highlights were previously drawn from different seeds; they do NOT prove one autonomous chapter.
+
+## One worthwhile source-gated gameplay change
+An autonomous public-knowledge playthrough is meaningful only if the LIVE world itself carries a connected pressure, guardian, key and locked-gate journey. New bounded, deterministic startup selection checks actual generation world graph, strong reciprocal passage links, straight two-cell Thornback patrol, a physically connected adjacent pressure court, matching critical key in a same-tier terminal two-link side gallery after the encounter and before its gate, an inventory solver's genuine key return trip, then actual exit. Pick the original generated seed and start the UNCHANGED partial-observation AI on it. Never splice seeds or snapshots, insert corridor, move a hazard/guardian, leak map knowledge, or override a caller's explicit MAZE_SEED. If no legal seed exists, keep original fallback and let strict test reject calling this a flagship.
+
+## Independent gate
+New exact SHA focused unit/real WebGL, source-matched unaltered 320/390/844/1280, live continuous AI outcome and independent artistic critic are all **pending**. This is NOT yet a rendered win or Nintendo parity. Whole repository CI separately failed Tiny Kingdom OBS on preceding HEAD. Fresh-context worker/Ultracode tunnel unavailable. Keep this PR draft, no merge/deploy/force push, hourly active.

@@ -1,0 +1,13 @@
+# Pass243 — original tide-shear talons must close toward their real hazard (candidate, 2026-11-10 UTC)
+
+## Genuine full-frame evidence and single largest visible defect
+
+Exact previous source `6e73abc692445a1db8e9ede15a98045c277a1f5e`: [original 320/390 native pressure artifact 13757161607](https://github.com/my-edutu/Ai_games/actions/runs/42800717789/artifacts/13757161607), 35/35 PNG SHA sidecars independently verified, strict six-reset geometry and original no-crop ±.95 accepted. Both true same-run pressure/withdrawal captures visibly show **Avoid jaws**. The remaining critical pressure encounter has two red warning talons that splay *away* from one another at their most dangerous pressure moment, making an already consequential moving trap resemble disconnected decorative parapet spikes. Pip and real jaws are individually visible but the hazard's action is harder to infer in the actual 390px gameplay frame. This is a mechanism visual-story defect, not a reason to weaken screenshot or gameplay tests.
+
+## Original coherent physical correction
+
+Change just the existing paired hinge direction on the *already-public* trap: at the genuine adjacent witnessed pressure beat, the tall connected ceramic/bronze shear blades rotate **inward toward the centre of their own trap cell** to form an obvious closing pair, while the existing shutters physically part and actuating relays/carriage continue their established source-driven three-stage sequence. On observed withdrawal, both blades return to upright/rest. Existing geometry, material/texture buffers, collision, AI authority, trigger/reward logic, public knowledge, zero geometry increase, reduced-motion static contact and old maximum hinge angle all remain unchanged. Record a **visible-cell-only signed inward hinge angle** in scene diagnostic so the strict browser gate can prove the real mechanism's motion direction in 320/390 original WebGL instead of accepting an identical outward sweep. Do not claim better art until authentic full-frame images are inspected.
+
+## Preserve objective gates
+
+Strict >.49 Pip and >.70 pressure scale at 390, ±.95 complete bodies, 44px controls, original six-run <100/≤8 budget, 320/390/844/1280, same real 4→5→6 public tick, HUD Avoid jaws, current privacy/accessibility and exact new-HEAD CI remain binding. A blind independent critic and actual Nintendo image side-by-side are not available from the disconnected shared agent/Ultracode workspace; lead-authored change is **not independent approval**. If the inward talons occlude Pip, misrepresent collision, or lose framing, reject or redesign. Remain open Draft PR #53, no merge or deploy.

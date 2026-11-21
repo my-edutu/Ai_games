@@ -1,0 +1,17 @@
+# Pass508 — exact-HEAD native Thornback recoil critique and above-reef camera candidate (2026-11-19 UTC)
+
+**Incoming source commit:** `a44add66d13fd3e5f2416a5ce6127502434d0703`, [focused native WebGL workflow](https://github.com/my-edutu/Ai_games/actions/runs/44494789299) **SUCCESS**, all native source/capture/six-run budget and natural full-chapter audit jobs green. Its [original untouched artifact](https://github.com/my-edutu/Ai_games/actions/runs/44494789299/artifacts/14515003263) contains 44 full-resolution PNGs; I personally checked **42/42 directly paired JSON PNG SHA-256 values**, no mismatch. This is a same-source artifact, not a render edited by us. Exact 390×844 `natural-guardian-recoil-earned-390.png` SHA-256: `6ce8ecf097824f8258ac878c4716516c6972fe337e747b7a719647db66d16fc7` (seed `maze-visual-reference-13`, earned tick 94).
+
+## Independent visual decision on the incoming image
+
+**REJECT** the claim that the new 0.94m spring made Thornback clearly readable. Pip and Thornback pass unchanged ±0.95 physical bounds, but actual full-frame 390×844 screenshot shows the purple shell/limbs mostly hidden behind the connected tall mineral garden and the real foreground stone gallery, so a player cannot read the earned defeat by the full body. Above-deck rays rather than model center or code coverage are the real obstacle. Prior candidate's 23m camera altitude does not clear it. The confirmed natural public-knowledge-only flagship simulation still reaches key at tick 518 and escape at tick 529 (485 ticks between the tick33 lantern counter and key); this gameplay pacing gap remains separate and substantial.
+
+## Production camera change (candidate, not an asserted rendered win)
+
+Raise only the **genuine same-run, source-disclosed Follow-mode earned-counter** optical camera altitude floor from **23m to 31m**. This changes the camera's physical sightline over the existing SOLID, authentic foreground gallery without removing any wall, fogging/styling a real collider, moving either actor, changing gameplay or reading undisclosed cells. The existing strict complete-mesh ±0.95 NDC, original action-scale, camera settle, mobile HUD and zero hidden-map inference remain untouched. The single focused camera test requires 31m on 320/390 earned counter and no difference in unearned/reduced/landscape/invalid/higher-altitude cases; acceptance is **not** determined by that test.
+
+## Strict next gate
+
+Source-bound new-SHA real Chromium/WebGL needs 320×740, 390×844, 844×390 and 1280×900 native full frames, exact PNG hash sidecars, six resets geometries <100, 44px controls, BOTH complete Pip/Thornback physical envelopes ±0.95 (withdrawal >=0.70), undisclosed visibility unchanged, true uninterrupted seed `tideglass-live-chapter-1387` pressure/guardian/key/gate/escape, and uncropped side-by-side comparison against official Nintendo Captain Toad gameplay. Explicitly reject if 31m looks like a top-down map or hides the physical body, even if source tests pass. Fresh-context builder/critic agents and Ultracode are **unavailable** (workspace tunnel NOT_FOUND); this review is not falsely described as independent blind critique.
+
+**Quality bar: NOT MET.** This is one meaningful camera/physical stage candidate, not a completed original 3D game. Draft PR #53 stays OPEN, no merge, deploy, force-push, test relaxation or concurrent overwrite. Next unverified priority after visual verdict: make the long key discovery journey consequential and shorter based strictly on public observations.

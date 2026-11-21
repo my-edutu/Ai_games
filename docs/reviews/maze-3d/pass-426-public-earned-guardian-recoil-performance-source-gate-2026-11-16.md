@@ -1,0 +1,17 @@
+# Pass426 — real same-run lantern counter: anchored Thornback recoil performance (2026-11-16 UTC)
+
+## Source-gated decision
+The exact trusted Pass425 rollback is `8b5ecad87e82215016612f4839c675437e7cce41`. Its exact-HEAD [AI Maze Escape Visual Evidence #43876782219](https://github.com/my-edutu/Ai_games/actions/runs/43876782219) completed **successfully** (the unchanged six-reset strict geometry budget is part of that focused workflow). Its [whole-repository CI #43876782136](https://github.com/my-edutu/Ai_games/actions/runs/43876782136) completed **failure**, separate from the Maze visual workflow. The Pass425 original source-verified 320/390 guardian A/B still fails the official Captain Toad art/gameplay benchmark: authentic foreground masonry/foliage obscures Pip and Thornback's feet, and another decorative wall/camera adjustment is not worthwhile.
+
+## Single independent player-visible unit
+Instead of another unverified wall or cosmetic foliage edit, rebuild the *actual witnessed* guardian performance across its source-authoritative retreat. The existing genuine lantern parry and legal real patrol movement are preserved. The renderer starts **one bounded clock only on a publicly witnessed same-run false→true `lanternParried` transition for the same tracked enemy**, never from a newly discovered already-parried guardian, old run, guessed private cell, unknown enemy or a generic danger proximity.
+
+Feed that clock through the existing animated Thornback rig and real grounded contact shadow. Connect a physically readable **foreclaw load → carapace/head/torso recoil → rear-leg recovery**: an actual change to articulated full-body action after the AI's successful lantern defense, not a new attack, invented damage, route, simulated hit or billboard. All anatomy stays connected to the real publicly positioned moving root; no new meshes/materials/geometry/shader class or frame-time GPU allocation. Reduced motion, absent witness, replay/reset, terminal/hidden and unobserved parry remain stable, with explicit neutral restoration.
+
+## Strict independent native acceptance
+1. Exact-HEAD CI, installed-Three rig and source regressions. Preserve **<100** six-reset geometry, all existing focus/privacy, ±0.95 full-physical NDC, >=0.70 source-required retreat silhouette, 44px controls and no camera/screenshots crop.
+2. Download genuine unaltered, SHA-bound full-frame 320×740, 390×844, 844×390, 1280×900 Playwright/WebGL screenshots, especially **genuine seed13 tick8 public 91→74 lantern counter**. Verify all image/JSON hashes and exact workflow HEAD; compare against [Pass425 rollback original artifact #14229469982](https://github.com/my-edutu/Ai_games/actions/runs/43876782219/artifacts/14229469982).
+3. An independent fresh-context artist must assess **legible full-body weight shift and unoccluded Pip/Thornback versus actual original reference gameplay**, not number of passing tests. Reject and non-force rollback if the new performance stays obscured, becomes a staccato snap, damages the real guardian warning, clips either model or falsely conveys a strike/route. No code-only approval and no hardware FPS from CPU SwiftShader.
+
+## Status at code proposal
+**Candidate ONLY**, not a verified aesthetic improvement. No native candidate captures or blind independent critic yet; coding workspace/subagent tunnel reported `NOT_FOUND`. The flagship original game and Nintendo-quality benchmark remain incomplete. Continue on existing **open draft PR #53** only; never merge, deploy, force push or overwrite concurrent work.

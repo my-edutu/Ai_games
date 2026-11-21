@@ -1,0 +1,20 @@
+# Pass198 — real disclosed-route GPU buffer reuse (2026-11-07 UTC)
+
+**Existing branch:** `feat/maze-3d-gauntlet`; **PR:** https://github.com/my-edutu/Ai_games/pull/53, OPEN DRAFT. NEVER merge, deploy or force-push. Frozen official Nintendo *Captain Toad: Treasure Tracker* original benchmark remains **NOT MET**.
+
+## Exact source and original native evidence inspected before editing
+
+- Source PR HEAD `dd277acb1abe689a2957415fd4c5757ab0f96b33`.
+- [Pass197 WebGL run 42411407476](https://github.com/my-edutu/Ai_games/actions/runs/42411407476): source tests/stream succeeded, real Playwright emitted all 37 full-resolution native WebGL PNGs before failing the strict six-run geometry spread. [Artifact 13590160332](https://github.com/my-edutu/Ai_games/actions/runs/42411407476/artifacts/13590160332), ZIP SHA256 `672ade064d9913984ba8921f38195339aa1bc2f7e5254f66888f170626b498c6`. Local verification of all 35 JSON imageSha256 sidecars plus the two otherwise unmatched original gate before/after PNG hashes in the gate manifest: **37/37 original hashes match**.
+- Genuine `public-tide-shear-pressure-390.png`, 390x844, captured 2026-11-07T20:39:22.186Z, SHA256 `ff41fa1002a6c587c482fd8b7c5dba8b7c8b81869b46ffc1565a13140c2cfd36`, has real pressure-hazard physical right +.931939 (unchanged safe +.95). 320 source pressure also +.931939, within safe frame. **Unaltered frame critic rejects parity**: Pip is legible but small, roof/sea-glass parapet still dominates, physical hazard offers poor cause/effect at mobile size. This is not a claimed player-visible improvement in Pass198.
+- Strict 6-run browser outcome: source public-start renderer geometries **37,37,42,41,46,45**: all <100, but start spread **9 fails fixed <=8**. Only 9 pooled world primitive classes, one disclosed character each start; varying procedural scenes may account for some registrations. Do NOT call this a confirmed leak or claim it is solved.
+- [Whole CI 42411407488](https://github.com/my-edutu/Ai_games/actions/runs/42411407488) ran 696/696 Node tests including installed Three and Maze stream, failed on unrelated absent `tiny:stream:self-test`. It is NOT green.
+
+## Narrow production/resource corrective candidate
+
+The real scene previously replaced and disposed `guide.geometry` and constructed new position and `lineDistance` buffers on **every public route signature**, including every autonomous run token. The renderer now preallocates capacity from **public** map dimensions (bounded, able to grow for longer true paths) and rewrites only the currently disclosed path's exact LineSegments vertex positions and cumulative dashed distances. One original geometry and its GPU attribute buffers persist across ordinary plan/tick/reset changes. `setDrawRange` prevents stale old-route segments from rendering; when a legitimate bigger public level demands growth, old geometry is disposed. No private route, simulated animation, new visible marker, camera trick or GPU model geometry class.
+
+The existing Playwright six-real-run assertion now additionally checks exact persistent `publicGuideGeometryId` and current route vertex count never exceeds buffer capacity; it preserves **both** strict `geometries<100` and starts-spread `<=8`. Sparse already-existing public diagnostic now reports current visible scene geometry count, permitting future independent distinction between registered and currently referenced sources. No private world state or future path is surfaced.
+
+**This is an exact source candidate, NOT tested or rendered after the commit.** Require dedicated new-HEAD CI + original SHA-verified full frame 320/390/844/1280 before a pass. If still 9, investigate actual registered-vs-referenced geometry differences rather than weaken a budget. The next player-visible art unit remains simplifying busy pressure masonry/stage silhouette, making real Pip/ivory pressure linkage conspicuous without hidden map leaks. No fresh-context independent worker or Ultracode available through disconnected coding workspace. Nintendo benchmark unmet.
+

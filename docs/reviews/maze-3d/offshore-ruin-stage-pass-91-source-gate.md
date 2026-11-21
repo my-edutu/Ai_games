@@ -1,0 +1,22 @@
+# Game 2 Gauntlet · Pass91 — offshore authored silhouette · source candidate (2026-11-02 UTC)
+
+## Fixed bar and original-image critique
+
+**Bar remains NOT MET.** Original [Captain Toad: Treasure Tracker official imagery](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/) has more readable intentional chapter silhouettes, polished themed scenery, and interactive physical story moments than the current AI Maze Escape. Supporting bars: Luigi's Mansion 3 atmosphere and ASTRO BOT physical acting. No altered bar, invented score or test-count victory.
+
+**Real, not generated, before imagery:** [Pass90 original Playwright/WebGL source run 41511646469](https://github.com/my-edutu/Ai_games/actions/runs/41511646469), [23 native PNG/date+SHA sidecars artifact 13173786368](https://github.com/my-edutu/Ai_games/actions/runs/41511646469/artifacts/13173786368). This run's reviewer directly opened the original 320 Follow, original 390 motion Follow, 844/1280 Follow, 390 witnessed key, and 1280 moving physical gate PNGs. Actual screen is full-viewport 3D and low-text. Pip/Thornback and courtyard are visible; the upper coastal water still reads as empty teal space, the beige/clay courts repeat, and characters remain small at native portrait scale. The earlier genuine source-verified Pass90 rendered still does not meet Nintendo's scene or acting density. This is a **lead unblinded qualitative critique**, NOT a new independent blind reviewer or a claim of a new after image.
+
+## Builder — physically authored dimension-only outer coast
+
+- [Source commit ed6e1f6](https://github.com/my-edutu/Ai_games/commit/ed6e1f608f46ad0ed061a99934d9384aec1c596c) adds two submerged, broken, original tide-watch spires beyond the northwest public board boundary. Each has physically connected ragged stone foundation, stepped jade shaft, broken ceramic crown, sloping roof and weather-beaten copper supports. No treasure, lighted goal, route, false island or interior geometry. Reuses production cone/cylinder/bevel meshes, color materials, fixed coordinate transforms and **instanced** drawing; no per-frame allocations or new WebGL shaders. The intent is a visible environmental silhouette from the *live Follow composition*, not additional CSS or UI prose.
+- [Independent-source contract candidate d3a62f9](https://github.com/my-edutu/Ai_games/commit/d3a62f931577b878f71da89aabd60ab0a428778e) adds a real production Three.js test checking nonempty instanced physical pieces, their off-board positions, blank public cells, a second run and arbitrary private seed/threat/route/exit data. Existing tests and strict browser visual/in-frame/privacy thresholds were **not** relaxed.
+- The **live simulation, autonomous controls, public threat knowledge, playable terrain/doors, camera, world collision and HUD are unchanged**. Every offshore location depends only on public `width/height`, not maze topology or AI truth.
+
+## Must-pass after-image gate — still pending, no victory
+
+1. Run the exact new-source real WebGL focused workflow and inspect real 320x740, 390x844, 844x390 and 1280x900 images (plus actual pickup and physical gate sequence). Recalculate each PNG SHA-256 against its dated source-bound manifest.
+2. Compare **same-seed, same-camera, same motion preference** with Pass90 originals. Accept spires only if **actually visible in game viewport**, clearly belong to non-navigable offshore space, strengthen the level silhouette without crowding the action or masquerading as a target. Reject if unseen, cluttering, mistaken for an exit, cropped characters or occluded gameplay.
+3. Keep all real source-bound physical guardian, Pip, key shards, gate opening, 44px tap targets, reduced motion, public-knowledge, fallback and strict 320/390/844/1280 checks. Run whole-repository CI. Never turn CPU-throttled SwiftShader timing into real GPU FPS.
+4. A separate fresh-context original-image critic/blind fixed-reference comparison remains **unavailable** because the shared `chat_on_steriod` workspace tunnel reports `Tunnel-client has not been seen for 300 seconds`; standalone GitHub read/write and original artifact download **did** work. No Ultracode agent work was performed.
+
+**Status on this source review:** BUILT, source-oriented test COMMITTED, new-source original WebGL captures and CI **PENDING**. Fixed Nintendo bar NOT PASSED. PR #53 remains **OPEN DRAFT**, unmerged, undeployed.
