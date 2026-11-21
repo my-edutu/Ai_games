@@ -1,10 +1,20 @@
 {
   "updatedAt": "2026-11-21",
-  "status": "T0 UNSIGNED / T1 BUILDING SELF-REJECTED; physical riparian candidate native GREEN, current-head Chromium pending / T2-T3 BUILDING / T4 HARD RED 84c1 strict 1/17",
-  "detail": "Exact 84c1 Chromium #44848135389 ORIGINAL strict 1 actual complete render/17 over 1006.2ms at 751x415, 553 GPU queue skips, 51/95 browser and CI 732/803. Genuine full 1920 and 390 source-matched images expose hard rectangular court, painted mint floodplain and tiny hero face; T1 visually SELF-REJECTED. New physical terraced, nonparallel rooted floodplain candidate RED parent 0/1 GREEN 1/1, focused 4/4, TS and 900 authority pass; new-head Chromium/true motion/strict gate UNVERIFIED. No physical displays or independent review.",
+  "status": "T0 UNSIGNED / T1 BUILDING SELF-REJECTED original 9fb; candidate expanded actual four-shore terrain unjudged / T2-T3 BUILDING / T4 HARD RED 9fb 1/17",
+  "detail": "Original 9fb71ce exact Chromium #44854474783 52/95 original strict 1 completed renderer draw/17 at 751x415 and 658 GPU skips; real 1920/portrait and 50.64s film show rectangular tiled court, graphic mint beds and tiny hero, T1 self-rejected. New source-verified native expanded forest-to-tide connected four-shore substrate RED parent GREEN candidate; original 385 vertices/672 triangles preserved, focused 7/7, broader 14/16 with two same-parent failures, TS and truthful 900-tick checksum 82492d82 PASS. Candidate-matched Chrome/film/physical displays/p95 and independent critique PENDING.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Authentic 84c1 Chromium 1920/portrait: painted green branching covers rectangular court; tiny hero face; unchanged original genuine complete renderer 1/17 with 553 skips at 751×415. Candidate physical floodplain NOT source-matched visually accepted.",
+  "latestCaption": "Original 9fb real Chromium 1920/portrait still a rectangular court with pale courses and tiny snake face; unchanged original strict 1 complete renderer draw/17 with 658 queue skips. New physical shore candidate native only, full-game acceptance pending.",
   "reviews": [
+    {
+      "area": "2026-11-21 T1 forest-to-tide whole-island native geometry; original 9fb true T4 RED",
+      "sourceHead": "9fb71ce1ac338a48786e8906957f82f07a150725",
+      "worldParentBlob": "dc28b2e5125012daa09d626c6307b65087f5cbb0",
+      "worldCandidateBlob": "e5c988a7f0b57374b62a5d30a17b9484515f8751",
+      "newTestBlob": "896dfc6bef4db7d43751a8d9eeb4fe212939d8b4",
+      "browser": "Original 9fb run #44854474783 strict original 1 true complete renderer submission/17, 658 skips, 52/95 browser; actual 1920/portrait and 50.64s film source backed; new candidate browser unverified",
+      "native": "RED parent -> GREEN, 7/7 focused; 14/16 broad with 2 reproduced parent failures; TS noEmit and 900-tick host authority/privacy/recovery/restart checksum 82492d82 PASS",
+      "verdict": "T0 UNSIGNED / T1 BUILDING original visual SELF-REJECTED; candidate UNJUDGED / T2 T3 BUILDING / T4 HARD RED / independent acceptance pending"
+    },
     {
       "area": "2026-11-21 T1 full-courtyard physically terraced riparian relief; original 84c1 genuine browser HARD RED",
       "sourceHead": "84c1dc3ed7e5a172ce32c310020f91839f18b5ed",

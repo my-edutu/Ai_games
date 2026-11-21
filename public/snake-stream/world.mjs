@@ -576,8 +576,18 @@ export function buildRootedFlagstoneFoundationGeometry(THREE,width,height){
     throw new RangeError('Foundation requires positive integer game dimensions');
   const W=width/2,H=height/2,sectors=96;
   const positions=[0,-.045,0],uvs=[.5,.5],indices=[];
-  const layers=[{reach:0,y:-.045},{reach:.33,y:-.145},
-    {reach:.82,y:-.405},{reach:1.24,y:-.79}];
+  // T1 contiguous island terrain, not a narrow decorative skirt around the
+  // obvious rectangular game court. Spread the same FOUR original native
+  // physical rings over full forest-to-tide land instead of adding draw calls.
+  // The actual under-cell ring is unchanged; outer rings create a broad
+  // rooted woodland terrace, a sculpted dry stone promontory and submerged
+  // littoral shelves shared by every side of the authentic playable island.
+  // On phone-sized 8x8 boards the reach scales down, retaining open water.
+  const shoreScale=Math.min(width,height);
+  const layers=[{reach:0,y:-.045},
+    {reach:.33+shoreScale*.027,y:-.145},
+    {reach:.82+shoreScale*.13,y:-.405},
+    {reach:1.24+shoreScale*.25,y:-3.58}];
   for(let ring=0;ring<layers.length;ring++){
     const {reach,y}=layers[ring];
     for(let k=0;k<sectors;k++){
