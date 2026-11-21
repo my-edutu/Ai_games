@@ -5,7 +5,7 @@ import { publicEarnedCounterImpactStage } from './public-counter-impact.mjs';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilSafeContactHalfHeight, publicGuardianEarnedRecoilFinalPairShift, publicGuardianEarnedRecoilPairStageLift, publicGuardianEarnedContactStageResponse, publicGuardianEarnedRecoilRevealElevation, setPublicEarnedGuardianFrontQuarterOffset, publicEarnedGuardianCounterCameraPriority, publicEarnedGuardianCounterCameraAct, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap, publicEarnedGuardianScenicPerformanceCourt, setPublicEarnedGuardianNarrowPairStage, setPublicEarnedGuardianWideContactReveal, publicEarnedGuardianCounterLighting } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilSafeContactHalfHeight, publicGuardianEarnedRecoilFinalPairShift, publicGuardianEarnedRecoilPairStageLift, publicGuardianEarnedContactStageResponse, publicGuardianEarnedRecoilRevealElevation, setPublicEarnedGuardianFrontQuarterOffset, publicEarnedGuardianCounterCameraPriority, publicEarnedGuardianCounterCameraAct, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap, publicEarnedGuardianScenicPerformanceCourt, setPublicEarnedGuardianNarrowPairStage, setPublicEarnedGuardianWideContactReveal } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicEarnedGuardianCounterLightPath } from './public-lantern-encounter.mjs';
@@ -131,15 +131,6 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   rim.position.set(8, 5, -20); scene.add(rim);
   const lanternLight = new THREE.PointLight('#ffcb79', 2.1, 4, 2);
   scene.add(lanternLight);
-  // Pass558: ONE pooled non-shadow casting physical fill at the midpoint
-  // of the ACTUAL, same-run, publicly witnessed lantern counter. Unlike
-  // a full-screen flash it illuminates the genuine two actors and the
-  // existing playable court, not a HUD sprite, unknown enemy or false strike.
-  // Constructed once: no frame-time meshes/materials or resource churn.
-  const counterStageLight = new THREE.PointLight('#fff0cd', 0, 7.5, 2);
-  counterStageLight.castShadow = false;
-  counterStageLight.name = 'Earned witnessed Pip Thornback counter stage key';
-  scene.add(counterStageLight);
   // Original physical lantern search volume: only real, mutually visible and
   // directly connected Pip/Thornback cells may light one another. Not a new
   // attack, warning billboard, route cue, shadow or authoritative action.
@@ -2070,32 +2061,6 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     }
     const background = settings.highContrast ? '#50665f' : '#b2c6b6';
     scene.background.set(background); scene.fog.color.set(background);
-    // Pass558: stage the real WINNING interaction using the existing source-
-    // verified lamp and one retained physical key light. The same public
-    // clock driving Thornback's actual recoil controls a bounded, two-second
-    // light handoff: slightly quieter general sunlight, stronger actual lamp
-    // and an actor-pair fill. This is deliberately NOT a cosmetic always-on
-    // palette tweak, postproduction filter or an invented hit. Only a current
-    // visible guardian witnessed in this SAME run can earn the shot. Unknown,
-    // stale, neutral, terminal and reduced-motion states restore all baseline
-    // light values exactly; no AI, collision, objective or privacy changes.
-    const earnedLight=publicEarnedGuardianCounterLighting(
-      earnedCounterActor?.counterPhase,
-      !result && s.lifecycle==='running'
-        && earnedGuardianFrame && !!verifiedGuardianModel?.parent
-        && lastWitnessedGuardianStageRunToken===s.runToken
-        && s.visibleCells?.includes(earnedCounterActor?.cell),
-      settings.reducedMotion);
-    sky.intensity=1.42-.20*earnedLight;
-    sun.intensity=2.90-.45*earnedLight;
-    rim.intensity=1.04+.24*earnedLight;
-    lanternLight.intensity=2.1+1.15*earnedLight;
-    lanternLight.distance=4+2.5*earnedLight;
-    counterStageLight.intensity=3.75*earnedLight;
-    if(earnedLight>0)counterStageLight.position.set(
-      (pose.x+earnedCounterActor.x)*.5,
-      Math.max(explorer.group.position.y,verifiedGuardianModel.position.y)+1.85,
-      (pose.z+earnedCounterActor.z)*.5);
     renderer.render(scene, camera); frames++;
 
     if (now - lastDiagnostic > 350 || frames < 3) {

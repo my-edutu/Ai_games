@@ -625,24 +625,3 @@ export function publicGuardianEarnedContactStageResponse(
   const dt=Math.min(.1,delta);
   return Math.min(1,current+(1-current)*(1-Math.exp(-10*dt)));
 }
-
-
-/**
- * The original source-bound 320/390 counter is a real impact, not a generic
- * danger tint. The caller must independently prove a current, public, same-run
- * visible parried guardian; a purely chronological rendering clock never
- * authenticates an enemy or an AI action. This pure envelope gates the single
- * pooled physical stage light and existing lantern/sunlight handoff.
- *
- * Hold the authentic first-contact illumination through the actual planted
- * recoil, then smoothly settle over the final .35 of the public two-second
- * witness. Wrong run/hidden/terminal/reduced-motion restores neutral lighting.
- */
-export function publicEarnedGuardianCounterLighting(
-  counterPhase,authenticated=false,reducedMotion=false) {
-  if(!authenticated || reducedMotion || typeof counterPhase!=='number'
-    || !Number.isFinite(counterPhase) || counterPhase<0
-    || counterPhase>=1)return 0;
-  const fade=Math.max(0,Math.min(1,(1-counterPhase)/.35));
-  return fade*fade*(3-2*fade);
-}
