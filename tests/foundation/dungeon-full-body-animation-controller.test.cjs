@@ -10,6 +10,22 @@ const load=()=>import('data:text/javascript;base64,'+
 const hero=(action='idle',actionTick=12,hp=30)=>({id:'hero-1',kind:'vanguard',action,actionTick,hp,maxHp:30});
 const frame=(unit,rest={})=>({unit,actionAge:.15,frameDelta:.016,...rest});
 
+// Regression gate for a *single* native Three.AnimationMixer update on each
+// mutually exclusive source-owner path. A licensed frozen Walking_A landing
+// may spend observed fade time only through the original Idle/Guard source;
+// ordinary combat, terminal and travelling source frames remain separately
+// time-bounded by their existing imported action planners.
+const assertOriginalSingleMixerOwnership=model=>{
+ assert.match(model,/const sourceStep=freezeSource\?0:actor\.fullBody\.mode==='defeat'\?/);
+ assert.match(model,/planImportedDeathSourceStep\(originalStep\):planImportedLivingSourceStep\(originalStep\)/);
+ assert.match(model,/const landingFadeDelta=planImportedVerifiedWalkLandingMixerDelta\(/);
+ assert.match(model,/actor\.mixer\.update\(landingFadeDelta\?\?sourceStep\)/);
+ assert.match(model,/if\(landingFadeDelta!==null\)/);
+ assert.match(model,/actor\.mixer\.update\(injuryFrame\.mixerDelta\)/);
+ assert.match(model,/actor\.mixer\.update\(walkMixerDelta\)/);
+ assert.match(model,/if\(walkingBlendRate===null\)/);
+};
+
 // Genuine ORIGINAL desktop source-rig WebGL after native Actions #44279466514:
 // a lawful Walking_A source-owner fade from Idle still had only ~.391305
 // effective weight after a .500s displayed gap and .019641m source-root
@@ -874,7 +890,7 @@ test('genuine HP-zero source skeleton freezes its living mixer while preserving 
  assert.match(model,/if\(!freezeSource\)changeAction\(actor,actor\.fullBody\.clipAction,actor\.fullBody\.restarted,\s*dt,sourceFrameInterval,sourceFrameVisible\)/);
  assert.match(model,/const sourceStep=freezeSource\?0:actor\.fullBody\.mode==='defeat'\?/);
  assert.match(model,/planImportedDeathSourceStep\(originalStep\):planImportedLivingSourceStep\(originalStep\)/);
- assert.match(model,/actor\.mixer\.update\(sourceStep\)/);
+ assertOriginalSingleMixerOwnership(model);
  assert.match(model,/stageSkinnedDefeatAfterMixer\(actor,reducedMotion\)/);
  assert.match(model,/fullBodyFrozenSourceActors:/);
  assert.match(model,/fullBodyFrozenSourceFrames:/);
@@ -998,7 +1014,7 @@ test('clock correction cannot alter dead/idle/evasion/unknown or reduced-motion 
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.ok(model.includes('planImportedOneShotPhase({'));
  assert.ok(model.includes('actor.activeClip.time=sourceSync.startTime'));
- assert.ok(model.includes('actor.mixer.update(sourceStep)'));
+ assertOriginalSingleMixerOwnership(model);
  assert.ok(model.includes('fullBodySourceClockCorrectedFrames:'));
  assert.match(model,/next\.crossFadeFrom\(previous,[^\n]+,false\)/);
 });
@@ -1105,7 +1121,7 @@ test('genuine slow visible frames advance the SAME authentic attack/cast event c
  assert.match(model,/planImportedLivingSourceStep\(originalStep\)/);
  assert.match(model,/frameInterval:sourceFrameInterval,visible:sourceFrameVisible/);
  assert.match(app,/advanceFullBodyVisibleActionAge\(since,\{[\s\S]*?mode:a\.u\.action/);
- assert.match(model,/actor\.mixer\.update\(sourceStep\)/);
+ assertOriginalSingleMixerOwnership(model);
 });
 
 test('actor action age must not double-clamp its witnessed 280ms native-rig step',async()=>{
@@ -1207,7 +1223,7 @@ test('the authentic GLB hand/sole clock cannot outrun its owned full-body stroke
  const model=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
  assert.match(model,/planImportedLivingSourceStep\(originalStep\)/);
  assert.match(model,/actor\.activeClip\.time=sourceSync\.startTime/);
- assert.match(model,/actor\.mixer\.update\(sourceStep\)/);
+ assertOriginalSingleMixerOwnership(model);
  assert.match(app,/updateActor\(a,dt,since,reduced,frameInterval,!document\.hidden\)/);
 });
 
@@ -1333,7 +1349,7 @@ test('original Walking_A source cadence follows actual 60Hz and sparse-frame dis
  assert.match(model,/groundedTravel:actor\.root&&actor\.rigGaitPosition/);
  assert.match(model,/groundedMoving:Boolean\(actor\.fullBody\?\.owner\.locomotion/);
  assert.match(model,/walkingClip:\/\(\?:walk\|run\|move\)\/i\.test/);
- assert.match(model,/actor\.mixer\.update\(sourceStep\)/);
+ assertOriginalSingleMixerOwnership(model);
 });
 
 
