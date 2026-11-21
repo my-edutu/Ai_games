@@ -484,3 +484,34 @@ test('RED: 60Hz original toes.l phase travel must admit a rate-bounded partial a
    'strict original-rig clip, owner, bone and witness guards remain necessary');
  }
 });
+
+
+test('RED: actual 60Hz partial original toe arc is sampled as a third bounded skinned trial, not mistaken for a duplicate',async()=>{
+ const m=await controller();
+ assert.equal(typeof m.appendLicensedSourceDistinctToeProbeAngles,'function');
+ // 0.610312s source toe phase yields ~40.08mrad after the genuine 60Hz
+ // angular budget, versus the existing +/-50.1mrad original toe alternatives.
+ // This near-but-distinct original clip arc must be re-skinned ONCE rather
+ // than silently dropped by a 12mrad deduplication threshold.
+ const base=[-.0501,.0501],guide={
+  source:'original-Walking_A-authored-toe-phase',
+  sourceClip:'Walking_A',sourceBone:'toesl',sourceTrackName:'toesl.quaternion',
+  extraAngleRad:-.04008,maxProbeCount:1,
+  contactLocked:false,plantCertified:false
+ };
+ const options=m.appendLicensedSourceDistinctToeProbeAngles(base,guide);
+ assert.deepEqual(options,[-.0501,.0501,-.04008]);
+ assert.equal(options.length,3,'preserve the existing bounded O(1) source skin reads');
+ assert.deepEqual(m.appendLicensedSourceDistinctToeProbeAngles(base,
+  {...guide,extraAngleRad:-.048}),base,'within 4mrad is a real duplicate');
+ for(const bad of [
+  {...guide,sourceClip:'Idle'}, {...guide,sourceBone:'toesr'},
+  {...guide,contactLocked:true},{...guide,maxProbeCount:4},
+  {...guide,sourceTrackName:'replacement.quaternion'},
+  {...guide,extraAngleRad:.16},{...guide,extraAngleRad:NaN},
+  {...guide,extraAngleRad:.006},null
+ ]){
+  assert.deepEqual(m.appendLicensedSourceDistinctToeProbeAngles(base,bad),base,
+   'never append unowned/stale/unbounded source pose');
+ }
+});
