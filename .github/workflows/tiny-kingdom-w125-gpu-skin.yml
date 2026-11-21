@@ -7,6 +7,7 @@ on:
       - 'scripts/tiny-kingdom-w125-gpu-skin-contract.cjs'
       - 'scripts/tiny-kingdom-w212-passive-skin-contract.cjs'
       - 'scripts/tiny-kingdom-w509-courier-body-contract.cjs'
+      - 'scripts/tiny-kingdom-w510-courier-software-residency-contract.cjs'
       - 'tests/browser/tiny-kingdom-w212-real-passive-gpu.spec.cjs'
       - 'tests/browser/tiny-kingdom-w125-gpu-bone-same-world.spec.cjs'
       - 'scripts/tiny-kingdom-w128-detailed-workskin-contract.cjs'
@@ -44,6 +45,7 @@ jobs:
           node scripts/tiny-kingdom-w125-gpu-skin-contract.cjs
           node scripts/tiny-kingdom-w212-passive-skin-contract.cjs
           node scripts/tiny-kingdom-w509-courier-body-contract.cjs
+          node scripts/tiny-kingdom-w510-courier-software-residency-contract.cjs
       - name: Verify original full-detail worker joint-space mapping
         run: node scripts/tiny-kingdom-w128-detailed-workskin-contract.cjs
       - name: Install supported real Chromium

@@ -18,7 +18,7 @@ assert(source.includes("action==='Resting at home'"),'physically reached origina
 assert(source.includes("action==='Waiting for a safe route'"),'stranded real residents stay in the town');
 assert(source.includes('verifiedHouseholdMealEvidence(p)'),'original receipt-linked meal contact protected');
 assert(html.includes('workSkinDetailedMatrices(entry,p)'),'current true rig still drives the bone palette');
-assert(html.includes('if(!foregroundIndices.has(i))villager(people[i]);'),'full CPU geometry fallback stays');
+assert(/if\(!foregroundIndices\.has\(i\)\)\s*\{\s*villager\(people\[i\]\);/.test(html),'full CPU geometry fallback stays');
 assert(html.includes('for(const person of people)renderCarriedHouseholdProvisions(person);'));
 assert(html.includes('for(const person of people)renderVerifiedHomeMeal(person);'));
 const make=(opt={})=>new Function('workingSkinCapable','gpuAvailable',
@@ -63,7 +63,7 @@ const fn=html.slice(html.indexOf('function getForegroundSkinAudit('),
 assert(fn.includes('passiveSkinnedWithoutReceiptMeal:true'));
 assert(html.includes('ranked.sort((a,b)=>b.priority-a.priority'),
  'full-detail GPU slots favor real eligible workers, not citizen list order');
-assert(html.includes('if(!foregroundIndices.has(i))villager(people[i]);'),
+assert(/if\(!foregroundIndices\.has\(i\)\)\s*\{\s*villager\(people\[i\]\);/.test(html),
  'unselected residents continue using the untouched live original mesh');
 assert(html.includes('physicallySkinnedPassiveResidents:foregroundResidentVisible'));
 // W273: actual day/night topology change on the SAME real citizen must

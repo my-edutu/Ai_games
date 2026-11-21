@@ -45,7 +45,7 @@ assert.deepEqual([...reconstructed.slice(779990,780030)],[...advanced.slice(7799
 for(const phrase of ['const resized=data.length>dynamicFrameStorage[dynamicFrameActive]',
  'dynamicWorldGpuSnapshots[dynamicFrameActive]=null',
  'current.subarray(region.firstFloat,region.lastFloat)',
- 'dynamicWorldGpuSnapshots[dynamicFrameActive]=!swiftGpu',
+ 'dynamicWorldGpuSnapshots[dynamicFrameActive]=swiftGpu?',
  'getDynamicGpuRingAudit,getDynamicWorldDeltaAudit']){
  assert.ok(html.includes(phrase),'missing original VBO invalidation or audit: '+phrase);
 }

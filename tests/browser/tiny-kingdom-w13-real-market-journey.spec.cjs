@@ -61,6 +61,7 @@ test('W13 a real courier becomes a continuous camera-followed production-to-mark
    if(i%180===0){
     const actor=g.getActiveDeliveries().find(d=>d.id===id);
     if(actor)trueMotion.push({t:g.getState().state.t,x:actor.x,z:actor.z,stage:actor.stage});
+    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
     const skin=g.getOriginalLiveCourierSkinAudit();
     const coverage=g.getActorPresentationCoverageAudit();
     // A real GPU body MUST have exactly one separately moving true cart.
@@ -75,7 +76,6 @@ test('W13 a real courier becomes a continuous camera-followed production-to-mark
       throw Error('W509 missing or duplicate actual citizen');
     }
     genuineSkin.push({t:g.getState().state.t,frameCurrent:coverage.frameCurrent,...skin});
-    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
    }
    if(i%5)continue;
    const before=JSON.stringify(g.exportSnapshot());
@@ -105,6 +105,8 @@ test('W13 a real courier becomes a continuous camera-followed production-to-mark
  fs.writeFileSync(path.resolve(__dirname,'../../test-results/w226-real-freight-motion-390.json'),
   JSON.stringify({source:'real-authority-positions-and-stage',receipt:end.receipt,
    samples:end.trueMotion,skinAudit:end.genuineSkin,
+   currentPresentedSamples:end.genuineSkin.filter(row=>row.frameCurrent).length,
+   realGpuCourierPresentedSamples:end.genuineSkin.filter(row=>row.frameCurrent&&row.authenticGpuBodies>0).length,
    skinEvidenceMayBeEmptyWhenClose:true,simulated:true,
    actualPhysicalGpuFPS:'NOT MEASURED',experiencePass:'NOT PROVEN'},null,2));
  expect(end.receipt.citizen).toBe(entry.audit.citizen);
