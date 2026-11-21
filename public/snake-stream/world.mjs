@@ -1711,13 +1711,22 @@ export function createWorld(THREE, {width, height}) {
         if (sourceMaterial === tileMat && item.region && p.getY(v) > .475) {
           const px=p.getX(v),pz=p.getZ(v);
           const region=item.region;
+          // The live serpent has a physical ~0.319-radius body footprint;
+          // preserving only the centre of each legal cell leaves unsupported
+          // shoulders at slab seams. Keep the upper contact crown near the
+          // original clear silhouette, while the lower bevel carries the
+          // deeper carved limestone/soil fracture visible in raking light.
+          // Both use the SAME authored 3D vertices, no extra meshes or passes.
+          const safeCrown=p.getY(v)>.499;
           if(Math.abs(px)>.42 && Math.abs(pz)>.42){
             // Four actual outer corners, separately fractured: existing real
             // 3D stone lips do not leak into the adjacent gameplay cell.
             const corner=(px>0?1:0)+(pz>0?2:0);
             const stone=sculptWeatheredRuinsCorner(region,width,height,corner);
-            positionTemp.x+=(px>0?-stone.insetX:stone.insetX);
-            positionTemp.z+=(pz>0?-stone.insetZ:stone.insetZ);
+            const carveX=safeCrown?Math.min(.048,stone.insetX*.32):stone.insetX;
+            const carveZ=safeCrown?Math.min(.048,stone.insetZ*.32):stone.insetZ;
+            positionTemp.x+=(px>0?-carveX:carveX);
+            positionTemp.z+=(pz>0?-carveZ:carveZ);
             positionTemp.y+=stone.rise;
           }else if(Math.abs(px)>.42 || Math.abs(pz)>.42){
             // The new MID-EDGE vertices are a physically worn shoreline into
@@ -1726,7 +1735,9 @@ export function createWorld(THREE, {width, height}) {
             const horizontal=Math.abs(pz)>.42;
             const edge=horizontal?(pz>0?1:0):(px>0?3:2);
             const phase=region.x*.67+region.z*.83+region.w*.27-region.h*.31+edge*2.37;
-            const recess=.12+.125*(.5+.5*Math.sin(phase));
+            const recess=safeCrown
+              ? .024+.038*(.5+.5*Math.sin(phase))
+              : .12+.125*(.5+.5*Math.sin(phase));
             const drift=.085*Math.sin(phase*1.71+1.13);
             if(horizontal){
               positionTemp.z+=pz>0?-recess:recess;

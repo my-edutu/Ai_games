@@ -1,10 +1,19 @@
 {
   "updatedAt": "2026-11-21",
-  "status": "T0 UNSIGNED / T1 BUILDING VISUALLY SELF-REJECTED (candidate native-only) / T2 BUILDING / T3 BUILDING / T4 HARD RED (505 original strict 9/17; candidate WebGL pending)",
-  "detail": "T1 all-real-multicell-quarry native source blob 54f61b1cda68458f1e9db152aa65435b1db7b7f4: 8-sided physically eroded full-court slab tops on 8x8/28x16/40x24, complete 1,472/1,472 genuine top-down cell raycasts, 13 native meshes/33 world draw objects, TS+900 authority and scoped 13/17 (four inherited original red). Real unchanged 505 Chromium original strict 9/17 at 751x415 and 515 queue skips, genuine screenshots still rectangular; no candidate-matched WebGL/physical presents or independent whole-game acceptance. T0 unsigned and T1 building.",
+  "status": "T0 UNSIGNED / T1 BUILDING SELF-REJECTED whole-scene; full-footprint candidate source GREEN native, WebGL PENDING / T2-T3 BUILDING / T4 HARD RED 0b original strict 7/17",
+  "detail": "True 0b original Chromium #44842279891: 7 genuinely complete WebGL submissions/17 original 1s at 751×415; 753 queue skips; 1920, 390 screenshots and authentic 52.6s autoplay verified and visually SELF-REJECTED (rectangular court, tiny face), CI 732/803. Native original source had 254/13248 missing serpent shoulder stone contacts. Corrective source world blob dc28b2e5, test blob 3e3943a4 previously RED parent→GREEN candidate 13248/13248, TS+900 authority PASS; NEW branch WebGL/CI pending. No physical presents or independent review.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Latest verified real original-head WebGL 505: rectangular green court, snake too small in overview; strict 9/17 full renderer submissions at 751x415. Sculpted original-material T1 candidate has native geometry/raycast evidence ONLY, no new-source Chromium visual or GPU acceptance.",
+  "latestCaption": "Authentic 0b Chromium 1920/portrait + 52.6s game: big rectangular green grid, hero face tiny in overview; unmodified original complete renderer submissions 7/17 with 753 skips at 751×415. Next source-matched footprint fix not visually accepted.",
   "reviews": [
+    {
+      "area": "2026-11-21 T1 real body-footprint stone support (previous native candidate proof; 0b authentic screen review)",
+      "sourceHead": "0b4f766ef980c9238902635dd8626cdba03455f6",
+      "worldParentBlob": "54f61b1cda68458f1e9db152aa65435b1db7b7f4",
+      "worldCandidateBlob": "dc28b2e5125012daa09d626c6307b65087f5cbb0",
+      "browser": "0b Chromium #44842279891 original mandatory full 1s 7/17, 753 GPU skips at 751×415; true 1920/390 and original unmodified 52.60sec footage; new corrected source NOT YET RUN",
+      "native": "Original RED 254/13248 missing support → candidate GREEN 13248/13248 raycasts; 3/3 targeted masonry, 10/13 selected with same 3 inherited; TS & 900-tick selftest PASS from prior run; no newly executed workspace test",
+      "verdict": "T0 UNSIGNED / T1 BUILDING whole-game SELF-REJECTED; candidate unjudged / T2 T3 BUILDING / T4 HARD RED 7/17 / independent acceptance PENDING"
+    },
     {
       "area": "2026-11-21 T1 source-exact multi-cell 3D quarry (native PROVED; visual ACCEPTANCE PENDING)",
       "sourceHead": "50502d86faf1a957fc9e15632a0ad9f760d42eab",
@@ -1380,9 +1389,9 @@
     "firstImplementationPlan": "docs/superpowers/plans/2026-11-01-autonomous-snake-transformation.md",
     "acceptance": "An independently evidenced, visibly substantial upgrade of the full running game in environment, character, animation, materials, game feel and sustainable frame delivery; CI is necessary but never sufficient.",
     "overall": "NOT ACCEPTED",
-    "milestone": "T0 UNSIGNED / T1 BUILDING integrated physical courtyard and matching atlas / T2-T3 unaccepted / T4 HARD RED 8 of required 17 genuine original one-second WebGL renders",
+    "milestone": "T0 UNSIGNED / T1 BUILDING unaccepted / T2-T3 BUILDING / T4 HARD RED 7/17 on original 0b head",
     "milestoneStatus": "BUILDING",
-    "latestKnownStrictBrowser": "Exact current parent e7a2fa34 Chromium #42173863092 completed on 2026-11-06: original unchanged 1s full desktop 8 genuine full WebGL renderer submissions of required 17; GPU raster 751x415; 61 RAF callbacks and 416 GPU queue skips do not count. Browser 58/95. Candidate WebGL and physical-device displayed present FPS/p95 pending.",
+    "latestKnownStrictBrowser": "Exact 0b Chromium #44842279891 original unchanged 1s full desktop: 7 genuine complete submissions against 17, 753 GPU queue skips, real 751x415; 61 RAF callbacks DO NOT count, no true physical displayed-present sample.",
     "pillars": [
       {
         "name": "Living 3D world",
@@ -1408,7 +1417,7 @@
     "baselineHead": "108e2e439aab1f3fe4cf49019c1aa9fe5630feb6",
     "candidate": "T1 whole-garden real coalesced limestone and registered actual physical joint atlas: world Git blob c074c606890c844d9606523f138c34f1a46403b1, parent e7a2fa3442f5c443bcf50e8f4ac96f9c274fc263; 17/125/256 slab masses versus 64/448/960 individual cells.",
     "candidateProof": "Exact parent RED geometry/atlas 0/2; candidate GREEN 2/2 new; six selected native checks pass, real raycast 1472/1472 cell centres and 496/496 shore body-radius contact points, resource contract 13 batches/4 textures, TypeScript/900-tick authority/10,000 ticks pass. Browser/local ERR_BLOCKED_BY_ADMINISTRATOR, true new-head footage, three untouched strict 17 submissions and real device display presents UNVERIFIED. Full suite failing historical fixtures, no independent acceptance.",
-    "review": "SELF REVIEW / INDEPENDENT ACCEPTANCE PENDING. Last authentic running e7 whole-game Chromium images visually SELF-REJECTED for large rectangular court and tiny serpent. Latest strict e7 WebGL 8/17 genuine complete one-second renders at 751×415. Candidate runtime images not verified; no Gauntlet achieved."
+    "review": "SELF REVIEW / INDEPENDENT ACCEPTANCE PENDING; original 0b authentic 1920/390/52.60s video visually SELF-REJECTED large rigid rectangular court and tiny face. New native full-snake-footprint source no candidate-matched WebGL or device performance yet."
   },
   "candidate": "T1 physical native connected corner catchments and outboard-only incised coast on exact original living-garden source, candidate Git blob 8242ed2ba552eb07925fb2eec70a58452b238fd2; 4 shore pair seams, 48 real triangles, 18713/21833/21997 living garden triangles",
   "candidateProof": "Exact live original garden 5b52cc6ea76018d4684644d6e9410365d9a45447: both new physical geometry and contour tests RED, candidate 2/2 GREEN on 8x8,28x16,40x24; native stage 5/5; TypeScript+900-tick host self-test passed; broad selected 8/10 with two old pre-existing source-hash issues. Candidate WebGL and strict 17/1s real full-screen draw gates NOT YET MEASURED.",
