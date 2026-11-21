@@ -206,6 +206,11 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    const frameCount=await page.evaluate(()=>
     window.__tinyKingdom.renderQuality().framesDrawn);
    await page.locator('#camera-survey').click();
+   // Do not publish only a midway free-camera tween as final gameplay.
+   // The actual original camera can require multiple costly SwiftShader frames.
+   await page.waitForFunction(()=>
+    !window.__tinyKingdom.getCameraNavigationAudit().transitionActive,
+    null,{timeout:125000});
    await page.waitForFunction(before=>
     window.__tinyKingdom.renderQuality().framesDrawn>before,
     frameCount,{timeout:125000});
@@ -228,6 +233,12 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
     body:shot,contentType:'image/png'});
    expect(tour.survey.stage).toBe(stage);
    expect(tour.survey.groundedLens.last?.accepted).toBe(true);
+   if(stage==='farm'){
+    // Foreground must be the original harvest parcel, not the nearby
+    // sanctuary wall. Previously 390px film showed only a crop sliver.
+    expect(tour.camera.focus[0]).toBeCloseTo(20.55,2);
+    expect(tour.camera.focus[1]).toBeCloseTo(1.01,2);
+   }
    expect(tour.camera.pitch).toBeLessThan(.88);
    expect(tour.physical.viewClear).toBe(true);
    expect(tour.checksum).toBe(tourWorldChecksum);

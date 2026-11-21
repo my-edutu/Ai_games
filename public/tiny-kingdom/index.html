@@ -31289,6 +31289,13 @@ function chooseGroundedEconomicSurveyLens(plan,roofs,width){
   !plan.focus.every(Number.isFinite)||!Number.isFinite(plan.yaw)||
   !Array.isArray(roofs)||!Number.isFinite(width)||width<200)
   throw Error('W527 requires real stage, physical roofs and finite camera');
+ // W527b actual 390px source film shows the sanctuary hiding the crop
+ // when the survey aims between granary and field. Keep the warehouse in
+ // the authentic world, but photograph the WORKING planted rows as the
+ // foreground subject. This is identical seeded geometry to player Farm view.
+ const realField=plan.stage==='farm'?FARMSTEAD.fields[0]:null;
+ const stageFocus=realField?[(realField[0]+realField[1])*.5,
+  (realField[2]+realField[3])*.5]:plan.focus;
  const mobile=width<=520;
  const zooms=plan.stage==='farm'?
   (mobile?[21,25,29]:[18,22,26]):
@@ -31302,7 +31309,7 @@ function chooseGroundedEconomicSurveyLens(plan,roofs,width){
  for(const distance of zooms)for(const tilt of pitches)
  for(const bearing of bearings){
   const candidate={yaw:bearing,pitch:tilt,zoom:distance,
-   focus:plan.focus.slice()};
+   focus:stageFocus.slice()};
   probes++;groundedEconomicSurveyChecks++;
   const sight=freeCameraSightline(candidate,roofs);
   if(!sight.clear)continue;
@@ -31319,7 +31326,7 @@ function chooseGroundedEconomicSurveyLens(plan,roofs,width){
   if(score>bestScore){
    bestScore=score;
    best={...candidate,stage:plan.stage,physicalSafe:true,
-    realStageFocus:plan.focus.slice(),
+    realStageFocus:stageFocus.slice(),
     screenDominantBuilding:dominant,screenBuildingOccupancy:occupancy,
     foregroundCover:cover};
   }

@@ -16,7 +16,7 @@ for(const width of [1024,390]){
  for(const stage of ['farm','market','homes']){
   const views=[];
   const context={
-   Number,Math,
+   Number,Math,FARMSTEAD:{fields:[[16.45,24.65,-1.62,3.64]]},
    freeCameraSightline(v){
     views.push(v);
     const clear=v.pitch>=.4&&v.pitch<=.8&&v.zoom>=17&&v.zoom<=35;
@@ -31,9 +31,11 @@ for(const width of [1024,390]){
   assert.ok(candidate,'valid ground-level actual site must have a lens');
   assert.equal(candidate.stage,stage);
   assert.ok(candidate.pitch<=.8&&candidate.zoom<=35);
-  assert.deepEqual(Array.from(candidate.focus),p.focus);
+  assert.deepEqual(Array.from(candidate.focus),
+   stage==='farm'?[20.55,1.01]:p.focus);
   assert.ok(views.length<=72,'click-time original roof checks bounded');
-  const blocked={Number,Math,freeCameraSightline:()=>({clear:false})};
+  const blocked={Number,Math,FARMSTEAD:{fields:[[16.45,24.65,-1.62,3.64]]},
+   freeCameraSightline:()=>({clear:false})};
   vm.createContext(blocked);
   const none=vm.runInContext(code+'\nchooseGroundedEconomicSurveyLens('+JSON.stringify(p)+',[], '+width+');',blocked);
   assert.equal(none,null,'never fabricate a clear actual stage');
