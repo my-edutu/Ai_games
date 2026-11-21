@@ -33,6 +33,7 @@ import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCamer
 import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardianDuelEdgePressure, guardianLiveFightLockPriority } from './guardian-gate-intrusion.mjs';
 import { observedGuardianTransmissionCorners } from './guardian-transmission-layout.mjs';
 import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
+import { sourceReturnedGateCameraRelease } from './source-returned-gate-camera-release.mjs';
 import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, sourceRaisedBackdropClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceThreeSubjectActorScaleGain, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe, sourceThreeSubjectPhysicalGain } from './physical-threshold-shot.mjs';
 import { sourceSubmittedDoorwayCameraDt, sourceCroppedHeroRecoveryDt } from './source-submitted-doorway-cadence.mjs';
 import { createTowerVoidProgramPrewarm } from './void-program-prewarm.mjs';
@@ -2487,6 +2488,18 @@ export function createTowerScene(canvas, settings = {}) {
   const lastSubmittedGuardianCamera = new THREE.Vector3();
   const lastSubmittedGuardianFocus = new THREE.Vector3();
   const lastSubmittedGuardian = {runToken:null,floor:null,tick:-1};
+  // Only an old gateway that survived a SUCCESSFUL WebGL submit can initiate
+  // one same-run camera release after that real GPU owner retires. The final
+  // camera remains subject to current body/camera-core safety vetoes.
+  const releaseReturnedGate = {runToken:null,floor:9,tick:-1};
+  let releaseFollowActive=false;
+  let releaseFollowAccepted=0,releaseFollowVetoed=0;
+  let releaseFollowLastTurn=0,releaseFollowLastGap=0;
+  const releasePreviousCamera=new THREE.Vector3();
+  const releasePreviousFocus=new THREE.Vector3();
+  const releaseHero=new THREE.Vector3();
+  const releaseHeroNdc=new THREE.Vector3();
+  let releaseSettledOnSubmit=false;
   // A real already-submitted Floor8 view; never a fabricated future gateway.
   // Real source-selected F9 deck underside can block the full-body hero even
   // when the original bronze gateway, tower core and NDC all read "safe".
@@ -5674,9 +5687,86 @@ export function createTowerScene(canvas, settings = {}) {
       // rendering; only obstructing NON-COLLIDING rail metal may soften.
       guardianCircuit.protectHeroSightline(snapshot,camera,
         climber.group.position,options);
+      // RETURNED ORIGINAL GATE CAMERA RELEASE: normal-speed native portrait
+      // video 44914798510 moves the camera from [12.64,3.59,50.67] to
+      // [46.20,18.15,29.98] as the original bronze gateway disappears.
+      // After the LAST genuinely submitted same-run F9 bronze gateway,
+      // constrain the resulting camera director's orbit, height, radius
+      // and gaze to a continuous path. Never move simulation/platforms,
+      // invent a doorway, or accept a blocked/cropped physical climber.
+      const releaseSourceValid=!options.stale &&
+        snapshot?.floor===9 && snapshot.theme==='void' &&
+        snapshot.lifecycle==='running' && snapshot.player?.health>0 &&
+        snapshot.runToken!=null;
+      const releaseGateReturned=releaseSourceValid &&
+        retainedColdArrival?.guardianGateRetained===true &&
+        retainedColdArrival.runToken===snapshot.runToken &&
+        retainedColdArrival.originalGatewayOpacity>.035;
+      if(!releaseSourceValid ||
+          (releaseReturnedGate.runToken!=null &&
+           releaseReturnedGate.runToken!==snapshot.runToken)) {
+        releaseFollowActive=false;
+        releaseReturnedGate.runToken=null;
+        releaseReturnedGate.tick=-1;
+      }
+      if(releaseGateReturned) releaseFollowActive=false;
+      else if(releaseSourceValid && releaseReturnedGate.tick>=0 &&
+          releaseReturnedGate.runToken===snapshot.runToken &&
+          lastSubmittedGuardian.runToken===snapshot.runToken &&
+          lastSubmittedGuardian.floor===9) releaseFollowActive=true;
+      releaseSettledOnSubmit=false;
+      if(releaseFollowActive && !options.reducedMotion &&
+          lastSubmittedGuardian.runToken===snapshot.runToken &&
+          lastSubmittedGuardian.floor===9) {
+        releasePreviousCamera.copy(camera.position);
+        releasePreviousFocus.copy(lookAt);
+        const releaseStep=sourceReturnedGateCameraRelease({
+          source:snapshot,lastGate:releaseReturnedGate,
+          previousCamera:lastSubmittedGuardianCamera.toArray(),
+          previousFocus:lastSubmittedGuardianFocus.toArray(),
+          desiredCamera:camera.position.toArray(),
+          desiredFocus:lookAt.toArray(),dt
+        });
+        if(releaseStep && releaseStep.limited) {
+          camera.position.set(...releaseStep.camera);
+          lookAt.set(...releaseStep.focus);
+          camera.lookAt(lookAt);camera.updateMatrixWorld(true);
+          releaseHero.copy(climber.group.position);
+          releaseHero.y+=snapshot.player.halfHeight/SCALE;
+          releaseHeroNdc.copy(releaseHero).project(camera);
+          const releaseBodySafe=
+            releaseHeroNdc.toArray().every(Number.isFinite) &&
+            releaseHeroNdc.z>=-1 && releaseHeroNdc.z<=1 &&
+            Math.abs(releaseHeroNdc.x)<.76 &&
+            Math.abs(releaseHeroNdc.y)+
+              snapshot.player.halfHeight/SCALE/
+              Math.max(15,camera.position.distanceTo(releaseHero))<.78 &&
+            towerCoreSightlineClear(camera.position,releaseHero,23.5);
+          if(releaseBodySafe){
+            releaseFollowAccepted=Math.min(1000000,releaseFollowAccepted+1);
+            releaseFollowLastTurn=releaseStep.turnRadians;
+            releaseFollowLastGap=releaseStep.remainingMetres;
+          }else{
+            camera.position.copy(releasePreviousCamera);
+            lookAt.copy(releasePreviousFocus);
+            camera.lookAt(lookAt);camera.updateMatrixWorld(true);
+            releaseFollowVetoed=Math.min(1000000,releaseFollowVetoed+1);
+          }
+        } else if(releaseStep?.settled) releaseSettledOnSubmit=true;
+      }
       const sceneReadyAt = performance.now();
       renderer.render(scene, camera);
       const rendererReturnedAt = performance.now();
+      // Retain the actual GPU gateway lease only after a completed render,
+      // never after update(), a source floor event or an attempted draw.
+      if(releaseGateReturned){
+        releaseReturnedGate.runToken=snapshot.runToken;
+        releaseReturnedGate.tick=snapshot.tick;
+      }
+      if(releaseSettledOnSubmit){
+        releaseFollowActive=false;
+        releaseReturnedGate.tick=-1;
+      }
       // Only a genuinely submitted frame establishes the NEXT frame's
       // reference. Failed WebGL, stale snapshots, floor changes or run
       // restarts cannot reuse a previous guardian's lens.
@@ -6406,6 +6496,13 @@ export function createTowerScene(canvas, settings = {}) {
         lastGeometryScoreGain:guardianWorldLastGain,
         source:'real current Three.js opaque world triangle rays / both drawn actors',
         limitation:'Throttled scene geometry witness, NOT native WebM painted pixels, A/B preference or hardware FPS'
+      },
+      returnedGatewayReleaseCamera: {
+        acceptedFrames:releaseFollowAccepted,vetoedFrames:releaseFollowVetoed,
+        sourceTick:releaseReturnedGate.tick,active:releaseFollowActive,
+        lastTurnRadians:releaseFollowLastTurn,lastRemainingMetres:releaseFollowLastGap,
+        safety:'Actual previously submitted same-run HP0 old gate, real moving hero NDC and opaque core; never physics',
+        limitation:'Source/camera restraint only: NOT calibrated WebM pixel continuity or true device FPS'
       },
       guardianRescueEvidence: 'Approved dual-subject source projection + exterior-core guards; NOT raster visibility or quality score',
       encounterCamera, actorCamera, earnedGatewayCamera, cameraPosition: camera.position.toArray(), climberPosition: climber.group.position.toArray() };
