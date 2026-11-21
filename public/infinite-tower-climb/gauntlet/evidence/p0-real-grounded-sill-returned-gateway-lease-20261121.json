@@ -779,8 +779,11 @@
       "PLAYS": 0
     },
     "actualDevicePercentilesAndMemory": "NOT EVALUATED",
-    "newSourcePinnedVideo": "PENDING branch push and 9-job workflow. Cannot claim visuals pass.",
+    "newSourcePinnedVideo": "https://github.com/my-edutu/Ai_games/actions/runs/44952875017 — source 66ecf59b exact immutable candidate, frozen baseline 1731b380; 9 recording/ledge jobs in progress at inspection; no new native visual acceptance",
     "nextHighestImpact": "Inspect exact new SHA 960x600+390x844 real 25fps 60+second danger, guardian, movement, outcome, compare source/video and unedited original full motion; if missing connected original gateway/body/true walkable f9 roof, repair physical scene ownership and camera depth.",
-    "constraints": "No baseline movement or ledger write, PR58 edit, unrelated game, merge, deploy, force push or PR68 draft conversion."
+    "constraints": "No baseline movement or ledger write, PR58 edit, unrelated game, merge, deploy, force push or PR68 draft conversion.",
+    "implementationCommit": "66ecf59b6f1cc98f4122eadf0332cfa4e8bb7396",
+    "sourcePinnedQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44952875023 — source 66ecf59b; 9/10 success, Phase6 in progress at inspection; NOT a green quality claim until complete",
+    "sourceBlobCheck": "public/infinite-tower-climb/gauntlet/transformation.json unchanged blob 7433d52ae1a7a75de51366a845375dda04ab87fa"
   }
 }
