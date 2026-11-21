@@ -1,4 +1,28 @@
 {
+  "p0FinalRenderedLandingScopeUnblock20261121_2025": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedCandidateSha": "348c94973fcbe82ae15126d7da7c389e5d1010ee",
+    "latestInspectedSourceCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44937437503",
+    "latestInspectedQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44937437539",
+    "verifiedPrimaryBlocker": "Original 1x candidate danger recording failed desktop and portrait browser assertions: Tower renderer ReferenceError targetPlatform is not defined in final Floor9 gate/raised-deck sightline. Update(dt) defined targetPlatform locally; actual animate(now) did not. Candidate danger artifact is NOT valid native visual acceptance.",
+    "implementationCommit": "97ad5dcacb32fb6712ed5eb74658d9b21420033d",
+    "regressionCommit": "1359f4e99073ce1b71da53b0f92ba7081a8f0504",
+    "implemented": "Final returned F9 gate camera now resolves intendedLanding(snapshot) from current authoritative public snapshot inside animate before querying actual platform geometry. It never references update-only targetPlatform; no authority, collision, guardian, baseline, camera physics or unrelated game changes.",
+    "priorQualityResult": "9/10 jobs passed on 348c9497; Phase6 failed timeout exit 124 on unrelated maze-readiness-score test. This does not count as pass and no unrelated game was edited.",
+    "priorCaptureResult": "7 of 8 normal-speed source jobs passed; candidate danger failed in both viewports. Pair-source-events failed: 8/8 source timeline pairs indexed but 2 integrity defects. Strict native visual alignment NOT accepted.",
+    "newCapture": "REQUESTED ONLY; no repaired exact-head native film, verified 2/2 event match, or whole-game quality result yet",
+    "strongestGameplayGap": "Previously observed full-motion footage still lacks sustained original opened bronze gateway + whole moving hero + real F9 roof + raised destination in same continuous view. Scope bug also prevented current candidate danger recording.",
+    "nextHighestImpact": "Verify exact-head Phase3 quality and fresh 9-job source-pinned real video. Inspect desktop 960x600 and portrait 390x844 actual videos with event pairing and repaired renderer errors; if visual handoff still breaks, address physical old-room/new-shaft composition.",
+    "blindIndependentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDeviceP50P95P99AndMemory": "NOT EVALUATED",
+    "constraints": "PR68 stays open draft; no PR58 edit, frozen baseline change, unrelated game work, deploy, merge or force-push"
+  },
   "p0CorrectedPhysicalGatewayRayEndpointSourceCapture20261121_1950": {
     "stage": "P0 OPEN",
     "verdict": "NOT EVALUATED",
