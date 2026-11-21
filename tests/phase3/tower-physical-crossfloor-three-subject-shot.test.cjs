@@ -109,8 +109,12 @@ test('source-earned F9 camera can search reversible shoulder and pullback only w
     assert.ok(trials[3][1]>0 && trials[3][1]<=.65);
     assert.ok(trials[3][2]>0 && trials[3][2]<=.31);
     assert.ok(trials[4][0]<0 && trials[5][0]>0);
+    assert.ok(trials[4][1]<0 && trials[5][1]<0,
+      'source-gated near-camera alternatives must combat tiny portrait hero');
+    assert.ok(trials[4][1]>=-.325 && trials[5][1]>=-.325);
+    assert.ok(trials[4][2]>0 && trials[5][2]>0);
     assert.ok(trials.every(([yaw,dolly,lift])=>
-      Math.abs(yaw)<=.035 && dolly>=0 && lift>=0),
+      Math.abs(yaw)<=.035 && dolly>=-.325 && dolly<=.65 && lift>=0 && lift<=.31),
       'camera travel must remain frame-bounded');
     assert.equal(candidates(s,false),null,'no fictional successor deck camera');
     assert.equal(candidates({...s,pullbackMetres:Infinity},true),null);
@@ -214,4 +218,33 @@ test('final camera attempts source-backed in-frame triad relief only with real w
   assert.match(shot,/sourceThreeSubjectPhysicalGain\(\s*deckViewBeforeThreshold,currentRays\)/);
   assert.match(shot,/const gain=Math\.max\(opticalGain,physicalGain\)/);
   assert.match(shot,/if\(!sourceThreeSubjectRaySafe\(\s*deckViewBeforeThreshold,deckViewAfterThreshold\)\)/);
+});
+
+test('source-earned close-camera benefit must grow the real player without losing metal arch or physical roof',async()=>{
+  const {sourceThreeSubjectActorScaleGain:gain}=await helpers;
+  const hero=[.04,.03,.5,.075],gate=[.25,.03,.5,.13],roof=[.45,.02,.5];
+  const closerHero=[.03,.025,.5,.087],steadyGate=[.24,.03,.5,.132],
+    steadyRoof=[.46,.02,.5];
+  assert.ok(gain(hero,gate,roof,closerHero,steadyGate,steadyRoof,true,true,true)>.01);
+  assert.equal(gain(hero,gate,roof,hero,steadyGate,steadyRoof,true,true,true),0,
+    'camera with no added real actor size is not an improvement');
+  assert.equal(gain(hero,gate,roof,closerHero,[.24,.03,.5,.09],steadyRoof,true,true,true),0,
+    'cannot trade the actual HP-open portal away for a close hero');
+  assert.equal(gain(hero,gate,roof,[.90,.025,.5,.087],steadyGate,steadyRoof,true,true,true),0,
+    'must keep the entire moving character onscreen');
+  assert.equal(gain(hero,gate,roof,closerHero,steadyGate,[.95,.02,.5],true,true,true),0,
+    'cannot lose the real receiving deck');
+  assert.equal(gain(hero,gate,roof,closerHero,steadyGate,steadyRoof,true,true,false),0,
+    'uncleared physical roof is an immediate veto');
+  assert.equal(gain(hero,gate,roof,closerHero,steadyGate,steadyRoof,true,false,true),0,
+    'the real original metal gateway must have clear core sightline');
+});
+test('final in-game F9 camera considers physical actor scale only with source F8 arch and independent real triangle veto',()=>{
+  const code=fs.readFileSync(path.resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+  const shot=code.slice(code.indexOf('// POST-DIRECTOR PHYSICAL CROSSING:'),
+    code.indexOf('world.revealGuardianSightlines(camera,guardianSightPoints);'));
+  assert.match(shot,/physicalWalkableShot\?\.sourceBound===true\s*\?sourceThreeSubjectActorScaleGain\(/);
+  assert.match(shot,/routeGain,steelGain,silhouetteRelief,scaleGain/);
+  assert.match(shot,/if\(!sourceThreeSubjectRaySafe\(\s*deckViewBeforeThreshold,currentRays\)\)continue;/);
 });

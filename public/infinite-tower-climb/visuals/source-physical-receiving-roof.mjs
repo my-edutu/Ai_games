@@ -97,7 +97,44 @@ export function actualGatewayReceivingGalleryCanopy(platform,worldWidth,threshol
   return {sourceBound:true,oldCapId:'f8:cap',
     receivingPlatformId:'f9:ground',stations,ties,
     innerPierRadius:20.4,outerCrownRadius:30.0,
-    minHeroRoofClearance:6.1,nonColliding:true};
+    minHeroRoofClearance:6.1,thresholdX,nonColliding:true};
+}
+
+/**
+ * The ORIGINAL F8 canopy is painted before the guardian is defeated and
+ * retained as the SAME three-dimensional owner over the genuine F9 ground.
+ * Six roof stations used to form a solid forest of foreground posts exactly
+ * where the earned doorway and full climber must be read on mobile. Open a
+ * single source-coordinate portal bay by omitting only the two central
+ * NONCOLLIDING vertical/diagonal legs. All five continuous crown/tie spans
+ * and four outboard load-bearing stations remain in the original room and
+ * are carried unchanged across the floor transition. This never opens the
+ * authoritative guardian lock or creates a second door/platform/collision.
+ */
+export function sourceOpenGuardianRoofLoadPath(plan){
+  const stations=plan?.stations,ties=plan?.ties;
+  if(plan?.sourceBound!==true || plan.oldCapId!=='f8:cap' ||
+      plan.receivingPlatformId!=='f9:ground' ||
+      plan.nonColliding!==true || !Number.isSafeInteger(plan.thresholdX) ||
+      !Array.isArray(stations) || stations.length!==6 ||
+      !Array.isArray(ties) || ties.length!==5 ||
+      !stations.every((station,i)=>Number.isSafeInteger(station?.sourceX) &&
+        Number.isFinite(station.angle) &&
+        (i===0 || (station.sourceX>stations[i-1].sourceX &&
+          station.angle>stations[i-1].angle))) ||
+      !ties.every((tie,i)=>tie?.fromAngle===stations[i].angle &&
+        tie?.toAngle===stations[i+1].angle))return null;
+  const right=stations.findIndex(station=>station.sourceX>plan.thresholdX);
+  if(right!==2 && right!==3)return null;
+  const left=right-1;
+  if(stations[left].sourceX>=plan.thresholdX ||
+     stations[right].sourceX<=plan.thresholdX)return null;
+  return {
+    sourceBound:true,thresholdX:plan.thresholdX,nonColliding:true,
+    omittedLegSourceXs:[stations[left].sourceX,stations[right].sourceX],
+    supportStations:stations.filter((station,i)=>i!==left&&i!==right),
+    overheadTies:ties
+  };
 }
 
 /**

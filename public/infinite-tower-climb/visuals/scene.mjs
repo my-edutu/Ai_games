@@ -33,7 +33,7 @@ import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCamer
 import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardianDuelEdgePressure, guardianLiveFightLockPriority } from './guardian-gate-intrusion.mjs';
 import { observedGuardianTransmissionCorners } from './guardian-transmission-layout.mjs';
 import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
-import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe, sourceThreeSubjectPhysicalGain } from './physical-threshold-shot.mjs';
+import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceThreeSubjectActorScaleGain, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe, sourceThreeSubjectPhysicalGain } from './physical-threshold-shot.mjs';
 import { sourceSubmittedDoorwayCameraDt, sourceCroppedHeroRecoveryDt } from './source-submitted-doorway-cadence.mjs';
 import { createTowerVoidProgramPrewarm } from './void-program-prewarm.mjs';
 import { sourceOriginalGatewayCameraBridge, observedOriginalGatewaySubmittedView } from './original-gateway-submitted-camera-bridge.mjs';
@@ -5272,10 +5272,16 @@ export function createTowerScene(canvas, settings = {}) {
               thresholdHeroAfter,thresholdGateAfter,thresholdWalkableAfter,
               true,true,towerCoreSightlineClear(camera.position,thresholdWalkable,23.5))
             :0;
+          const scaleGain=physicalWalkableShot?.sourceBound===true
+            ?sourceThreeSubjectActorScaleGain(
+              thresholdHeroBefore,thresholdGateBefore,thresholdWalkableBefore,
+              thresholdHeroAfter,thresholdGateAfter,thresholdWalkableAfter,
+              true,true,towerCoreSightlineClear(camera.position,thresholdWalkable,23.5))
+            :0;
           const opticalGain=Math.max(sourceDoorwayFrameGain(
             thresholdHeroBefore,thresholdGateBefore,
             thresholdHeroAfter,thresholdGateAfter,true,true),
-            routeGain,steelGain,silhouetteRelief);
+            routeGain,steelGain,silhouetteRelief,scaleGain);
           // Candidate scoring must include authentic Three.js ray clearance,
           // not just NDC projection. This same bounded live mesh query checks
           // the ORIGINAL gallery/roof/gate, active F9 platforms and new Void

@@ -21,7 +21,7 @@ import { chooseSourceEarnedFirstReturnInstancing } from './source-earned-first-r
 import { observedReturnedSuccessorRoomReady, observedSupportedReturnedShaftDepth } from './original-room-returned-exit.mjs';
 import { projectOriginalGuardianGateSteel } from './original-guardian-gate-steel-projection.mjs';
 import { sourceReturnedGatewayDisplayDt } from './source-submitted-doorway-cadence.mjs';
-import { actualGatewayReceivingRoofSpans, actualGatewayReceivingLoadPathBays, actualGatewayReceivingGalleryCanopy, prebuildOriginalGuardianCanopyPlan, syncGatewayReceivingRoofColours, resetGatewayReceivingRoofColours } from './source-physical-receiving-roof.mjs';
+import { actualGatewayReceivingRoofSpans, actualGatewayReceivingLoadPathBays, actualGatewayReceivingGalleryCanopy, prebuildOriginalGuardianCanopyPlan, sourceOpenGuardianRoofLoadPath, syncGatewayReceivingRoofColours, resetGatewayReceivingRoofColours } from './source-physical-receiving-roof.mjs';
 
 
 /**
@@ -2586,7 +2586,13 @@ export function createTowerWorld(){
       member.castShadow=false;member.receiveShadow=false;
     };
     const inner=plan.innerPierRadius,outer=plan.outerCrownRadius;
+    // The open central bay is carved into the SAME prepainted ORIGINAL
+    // Clockwork canopy, not introduced after the F8->F9 scene rebuild.
+    // Keep every overhead span joined as a recognisable continuous crown,
+    // but leave the real opened doorway/actor/receiving roof unobstructed.
+    const sourceOpening=sourceOpenGuardianRoofLoadPath(plan);
     for(const s of plan.stations){
+      if(sourceOpening?.omittedLegSourceXs.includes(s.sourceX))continue;
       const a=s.angle,m=steel(s.kind),e=trim(s.kind);
       place(point(a,inner,-1.2),point(a,inner,7.3),.18,m);
       place(point(a,inner,7.3),point(a,outer,8.35),.16,m);

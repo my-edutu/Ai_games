@@ -213,3 +213,42 @@ test('a returned bronze gateway does not reveal violet roof trim before the same
     'actual completed successor material must be cooler than the halfway source-owned roof');
   assert.equal(sync(make(),Number.NaN),false,'invalid evidence cannot repaint the scene');
 });
+
+test('source-original gateway canopy clears its real centre passage before F9, retaining four outer piers and all upper ties',async()=>{
+  const {prebuildOriginalGuardianCanopyPlan:prebuild,
+    actualGatewayReceivingGalleryCanopy:receiving,
+    sourceOpenGuardianRoofLoadPath:opening}=await subject();
+  const cap={id:'f8:cap',x:115200,y:3212000,width:249600,height:12000};
+  const old=prebuild(cap,480000,304896);
+  const future=receiving({id:'f9:ground',x:0,width:480000},
+    480000,304896,cap);
+  assert.deepEqual(opening(old),opening(future),
+    'no new architecture or source-less layout after the actual floor transition');
+  const gap=opening(old);
+  assert.equal(gap.sourceBound,true);
+  assert.equal(gap.thresholdX,304896);
+  assert.equal(gap.supportStations.length,4);
+  assert.equal(gap.overheadTies.length,5);
+  assert.equal(gap.omittedLegSourceXs.length,2);
+  assert.ok(gap.omittedLegSourceXs[0]<304896 &&
+    gap.omittedLegSourceXs[1]>304896,
+    'unobstructed gateway clearance straddles the actual HP-zero exit');
+  assert.deepEqual(gap.supportStations.map(s=>s.sourceX),
+    [old.stations[0],old.stations[3],old.stations[4],old.stations[5]]
+      .map(s=>s.sourceX));
+  assert.equal(opening({...old,oldCapId:'f7:cap'}),null);
+  assert.equal(opening({...old,thresholdX:old.stations[0].sourceX}),null);
+  assert.equal(opening({...old,stations:old.stations.slice(0,5)}),null);
+  assert.equal(opening({...old,ties:[]}),null);
+});
+test('the original overhead load-path clearance uses the SAME retained physical canopy, not duplicate new collision scenery',()=>{
+  const source=require('node:fs').readFileSync(resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
+  assert.match(source,/const sourceOpening=sourceOpenGuardianRoofLoadPath\(plan\)/);
+  assert.match(source,/sourceOpening\?\.omittedLegSourceXs\.includes\(s\.sourceX\)/);
+  assert.match(source,/for\(const tie of plan\.ties\)/,
+    'continuous upper bearing must remain visible and connected');
+  assert.match(source,/const inheritedCanopy=sharedPhysicalRoof/);
+  assert.match(source,/!inheritedCanopy\s*\?actualGatewayReceivingGalleryCanopy/);
+  assert.doesNotMatch(source,/platforms\.set\(['"]SourcePrepaintedOriginalGuardianReceivingCanopy/);
+});

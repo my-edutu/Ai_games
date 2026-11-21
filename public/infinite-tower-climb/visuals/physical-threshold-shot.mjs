@@ -251,6 +251,34 @@ export function sourceThreeSubjectSilhouetteRelief(
 // exterior pullback; check each meaningful proposal with the actual current
 // source-owned meshes before ranking. These are frame increments (metres),
 // not a teleported camera, invented landing or camera mode override.
+// The portrait source video shows the full body shrinking to a small dot
+// while the original gate and real grounded F9 destination remain in-frame.
+// Prefer a slightly closer, physically ray-safe exterior lens ONLY when the
+// actual moving body grows, the genuine gateway does not shrink/disappear
+// and the source-grounded route remains at least as readable. The caller
+// still rejects any real original cap, gallery or raised-deck ray loss.
+export function sourceThreeSubjectActorScaleGain(
+  beforeHero,beforeDoor,beforeRoof,afterHero,afterDoor,afterRoof,
+  heroClear,doorClear,roofClear
+) {
+  if(![beforeHero,beforeDoor,afterHero,afterDoor].every(valid) ||
+     !validWalkableNdc(beforeRoof) || !validWalkableNdc(afterRoof) ||
+     heroClear!==true || doorClear!==true || roofClear!==true ||
+     beforeHero[3]<.022 || afterHero[3]<=beforeHero[3]+.00025 ||
+     afterHero[3]>.35 ||
+     beforeDoor[3]<.035 || afterDoor[3]<beforeDoor[3]*.985 ||
+     Math.abs(afterHero[0])+afterHero[3]*.13>.76 ||
+     Math.abs(afterHero[1])+afterHero[3]>.76 ||
+     Math.abs(afterDoor[0])+afterDoor[3]*.12>.82 ||
+     Math.abs(afterDoor[1])+afterDoor[3]>.82 ||
+     Math.abs(afterRoof[0])>.80 || Math.abs(afterRoof[1])>.73 ||
+     Math.abs(afterRoof[0])>Math.max(.58,Math.abs(beforeRoof[0])+.025) ||
+     Math.abs(afterRoof[1])>Math.max(.60,Math.abs(beforeRoof[1])+.025) ||
+     overflow(afterDoor,.60,.67)>overflow(beforeDoor,.60,.67)+.012)
+    return 0;
+  return Math.min(.10,(afterHero[3]-beforeHero[3])*14);
+}
+
 export function sourceWalkableThreeSubjectOrbitCandidates(steps,hasRealDeck){
   if(hasRealDeck!==true || !steps ||
      ![steps.orbitRadians,steps.pullbackMetres,steps.liftMetres].every(finite) ||
@@ -258,8 +286,12 @@ export function sourceWalkableThreeSubjectOrbitCandidates(steps,hasRealDeck){
      steps.pullbackMetres<=0 || steps.pullbackMetres>.65 ||
      steps.liftMetres<=0 || steps.liftMetres>.31)return null;
   const a=steps.orbitRadians,d=steps.pullbackMetres,h=steps.liftMetres;
+  // One genuine three-subject roof/gate/hero search must not ONLY retreat
+  // from the little skinned climber. Reserve two of the SAME six real-ray
+  // candidates for a <=.325m near-shoulder dolly. The Scene independently
+  // vetoes unsafe old metal, new platforms, tower core and any crop.
   return [[0,0,0],[-a,0,0],[a,0,0],
-    [0,d,h],[-a,d,h],[a,d,h]];
+    [0,d,h],[-a,-d*.5,h*.5],[a,-d*.5,h*.5]];
 }
 // Only an existing, source-authenticated F8 cap/gate and F9 geometry may
 // witness this choice. Reject absent, stale, nonfinite or worsened real mesh
