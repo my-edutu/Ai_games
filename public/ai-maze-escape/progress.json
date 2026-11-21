@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-21T01:32:36.954Z",
+  "updatedAt": "2026-11-21T02:47:30+01:00",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass547 candidate aae7d0ab exact-HEAD native CI/WebGL passed (42/42 original PNG SHA, 3/3 gate SHA, six resets <100, 136-tick natural escape), but actual full-frame 390/320 vs Pass546 shows dominant foreground pylons/masonry and separated actors still. Official Captain Toad benchmark REJECTED. Candidate source/test rolled back in following atomic source commit. Next: identify ACTUAL visible culprit geometry via native WebGL ray before another architectural change; no guessed cosmetic changes. Whole-repo CI red on unrelated Tiny Kingdom OBS and evidence-upload."
+    "summary": "Pass548 source-authentic occluder identification is PENDING exact-HEAD native WebGL. Previous Pass547 screenshot/artifact SHA verification confirms tall pylons and repeated foreground masonry still overwhelm the 390/320 Pip–Thornback counter. This patch only improves public-only named real-mesh ray attribution and emits an uncropped native 42-ray sweep per earned portrait; it is NOT a visual gameplay improvement or Nintendo win. No gameplay/collision/privacy/AI changes. Preserve all strict thresholds. Original benchmark REJECTED; awaiting exact-HEAD screenshots and public ray data to choose actual structural reconstruction."
   },
   "captures": [
     {

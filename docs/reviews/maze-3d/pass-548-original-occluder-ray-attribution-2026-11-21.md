@@ -1,0 +1,11 @@
+# Pass548 — identify the REAL public 3D occluder before structural reconstruction
+2026-11-21, Africa/Lagos. **Diagnostic source unit only; NOT a visual win.**
+
+Existing [open Draft PR #53](https://github.com/my-edutu/Ai_games/pull/53). Baseline exact source `6c97c502c631ded725511708477c67e519ae5113` restored after rejected Pass547. Its [native WebGL workflow](https://github.com/my-edutu/Ai_games/actions/runs/44850808969) succeeded, and its original SHA-verified 390/320 real lantern counter still shows tall pylons, repetitive masonry and scattered Pip/Thornback. The fixed [Captain Toad reference](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/) is **NOT met**. No cosmetic camera/radius tweak is authorized.
+
+## Why this is needed
+The original production ray picker only named INSTANCED terrain. It silently discarded non-instanced **physically rendered** guardian masts, sculptural shell fans, and sentinel standards — exactly the high silhouettes in dispute. The new identifier accepts ONLY descendants of an explicit currently disclosed, authored guardian-threshold root and **again requires the cell to be CURRENTLY VISIBLE**. No hidden/remembered map, new game action, collision, transparency, GPU object, viewport crop or source-private AI is touched.
+
+The same native Playwright WebGL session now saves, AFTER its untouched original PNG, a bounded 42-ray normalized full-frame grid for both the genuine 390×844 and 320×740 earned public counter snapshots. Every attributed cell is checked against the public visible-cell list. Sidecars retain the exact PNG SHA-256 and six production-source hashes. Review the actual upper-pylon rays and foreground ray descriptions, match the real named owner and cell, then reconstruct the SOURCE object in a subsequent coherent visible work unit. Reject if attribution is insufficient. No independent visual critic/Ultracode while coding tunnel remains disconnected.
+
+**Acceptance not claimed:** Must first run exact-HEAD focused tests, strict <100 six-reset geometry budget, original full-frame source/hash workflow and compare the real screenshots. Whole repository CI remains a separate unresolved gate; no merge/deployment/force push.

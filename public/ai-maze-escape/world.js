@@ -1824,6 +1824,10 @@ export function createMazeWorld(options = {}) {
           // while the real scene witnesses the corresponding Thornback beat.
           const signal=new THREE.Group();
           signal.name='Published guardian Tideglass warning threshold '+c.cell;
+          // Only this AUTHORED public guardian threshold exposes named
+          // non-instanced mesh ownership for source-bound WebGL ray reviews.
+          // Current visibility is checked again at the actual ray contact.
+          signal.userData.publicGuardianRayCell=c.cell;
           signal.position.set(x,cellHeight(c.cell,s.width,s.height)+.051,z);
           terrain.add(signal);
           const faces=[];
@@ -4538,13 +4542,22 @@ export function createMazeWorld(options = {}) {
       ? batches.find(batch=>batch.mesh===hit.object)?.entries[hit.instanceId] : null;
     // Reject ALL hits that are not current public instance geometry, even
     // if those hidden/remembered objects were ray-intersected behind it.
-    const id=entry?.cell;
+    // Guardian masts, shell fans and standards are connected, NON-instanced
+    // real meshes. Old rays ignored them and falsely attributed an occluding
+    // tall silhouette to a background terrain batch. Walk only the already
+    // BUILT public threshold ancestry; never infer a secret/remembered tile.
+    let publicGuardian=hit.object;
+    while(publicGuardian && publicGuardian!==group
+      && !Number.isSafeInteger(publicGuardian.userData?.publicGuardianRayCell))
+      publicGuardian=publicGuardian.parent;
+    const id=entry?.cell ?? (publicGuardian!==group
+      ?publicGuardian?.userData?.publicGuardianRayCell:null);
     if(!Number.isSafeInteger(id)||!snapshot?.visibleCells?.includes(id))return null;
     const cell=id;
     const dimensions=new THREE.Vector3(), origin=new THREE.Vector3(), orientation=new THREE.Quaternion();
     if(entry)entry.matrix.decompose(origin,orientation,dimensions);
     else hit.object.getWorldPosition(origin);
-    return {cell, name:hit.object.name||null,
+    return {cell, name:hit.object.name||publicGuardian?.name||null,
       material:hit.object.material?.name||null,
       color:hit.object.material?.color?.getHexString()||null,
       instanced:!!entry, worldPosition:origin.toArray().map(n=>+n.toFixed(3)),

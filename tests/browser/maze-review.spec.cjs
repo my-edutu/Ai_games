@@ -2339,9 +2339,26 @@ test('a NATURAL autonomous lantern counter has source-bound physical before/reco
         .filter(p=>p.inFrame&&Number.isFinite(p.screenX)&&Number.isFinite(p.screenY))
         .map(p=>({actor:p.actor,part:p.part,
           hits:window.__MAZE_PUBLIC_SCENE_PICK__?.((p.screenX+1)/2,(1-p.screenY)/2)??[]})):[];
-      return {witness,picks};
-    });
+      // Sample true full-frame public mesh intersections across BOTH visual
+      // pylons and the foreground. The original PNG is already written above.
+      // No scene edits, screenshot crops, hidden cells or extra WebGL context.
+      const spectatorRaySweep=[];
+      if(earned){
+        for(const v of [.15,.23,.31,.43,.65,.83])
+          for(const u of [.18,.32,.46,.55,.65,.76,.89])
+            spectatorRaySweep.push({u,v,
+              hits:window.__MAZE_PUBLIC_SCENE_PICK__?.(u,v)??[]});
+      }
+      return {witness,picks,spectatorRaySweep};
+    },label.startsWith('earned'));
     if(label.startsWith('earned')){
+      expect(sourceSightline.spectatorRaySweep,
+        '42 native full-viewport real WebGL rays must identify visible source geometry').toHaveLength(42);
+      const currentlyVisible=new Set(sample.frame.snapshot.visibleCells);
+      for(const ray of sourceSightline.spectatorRaySweep)
+        for(const hit of ray.hits)
+          expect(currentlyVisible.has(hit.cell),
+            'native scene ray must never enumerate remembered or hidden terrain').toBe(true);
       expect(sourceSightline.witness?.eligible,
         'natural recoil must remain measurable beyond the old close-corridor lens').toBe(true);
       expect(sourceSightline.witness.samples,
@@ -2365,6 +2382,8 @@ test('a NATURAL autonomous lantern counter has source-bound physical before/reco
       guardianId:witness.guardianId,from:witness.from,to:witness.to,
       physicalPublicGuardian:sample.frame.snapshot.threats.find(t=>t.id===witness.guardianId),
       viewport:{width,height},imageSha256:sha(image),diagnostic,
+      sourceSha256:Object.fromEntries(['index.html','app.js','scene.js','world.js','characters.js','gameplay-hud.css']
+        .map(name=>[name,sha(path.resolve(__dirname,'../../public/ai-maze-escape',name))])),
       publicNativeActorOcclusion:sourceSightline,
       verdict:'Original uncropped WebGL and public mesh-ray diagnosis; no visual redesign or Nintendo approval yet'},null,2));
     expect(diagnostic.renderer).toBe('webgl');
