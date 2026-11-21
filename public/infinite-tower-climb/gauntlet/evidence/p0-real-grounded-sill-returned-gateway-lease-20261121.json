@@ -217,9 +217,9 @@
     ],
     "safety": "No source simulation, collisions, guardian reward, moving decks, seed, baseline, restart, PR58, merge, deployment, force-push or PR68 draft-state change. Only noncolliding original 3D canopy and physically vetted original camera.",
     "baselineCandidateCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44905405068",
-    "sourcePinnedCaptureAtRecord": "IN PROGRESS; actual original normal-speed paired 60s+ videos, native event alignment and visual comparison NOT YET VERIFIED",
+    "sourcePinnedCaptureAtRecord": "COMPLETE — 9/9 film/ledge jobs SUCCESS; overall nine-job campaign FAILURE due pair-source-events. Candidate ORIGINAL unedited 25 fps danger desktop 72.88s portrait 73.12s; baseline desktop 71.08s portrait 71.64s. Source tick475 true F8->9, tick631 F9->10. Event-pair manifest fullMotionPaired=false and independent reviews 0/5. Film/HUD/world crossing remained uncertified both viewports.",
     "exactCodeQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44905405022",
-    "exactHeadQualityAtRecord": "8/10 jobs completed SUCCESS; Phase3 shard1 later SUCCESS; remaining Phase6 ongoing. Do not claim all green until exact source workflow completes.",
+    "exactHeadQualityAtRecord": "COMPLETE SUCCESS — 10/10 on immutable production 52587c9b1780c8125825d29e29055a097069214c; engineering veto ONLY.",
     "independentCritics": {
       "LOOKS": "0/5",
       "FEELS": "0/5",
@@ -227,6 +227,37 @@
     },
     "realSupportedDeviceFrameTimeP50P95P99": "NOT EVALUATED",
     "realSupportedDeviceMemory": "NOT EVALUATED",
-    "nextHighestImpactAction": "Inspect the NEW exact-SHA candidate native full-motion desktop 960x600 + portrait 390x844 danger/outcome clips from run 44905405068 and align true source tick 441 guardian defeat/475 walkable threshold/631 F10/903 outcome and restart to decoded video. Require 2+ consecutive native frames with physically recognizable original opened gate + COMPLETE moving hero + true f9:ground roof/first elevated destination in both. If fails, rework actual raised F9 p2 underside geometry and old-to-new camera depth instead of further color or duration tweaks; do not advance P1."
+    "nextHighestImpactAction": "Stay P0. Replace remaining disconnected foreground/scale handoff: diagnose source-owned F9 elevated deck underside (currently dominates native crossing), retained original open portal visibility and camera/lens depth as ONE shared scene shot. Synchronize real 3D F9 room reveal and drawn HUD to actual returned frame only without fabricating source events, then run same exact-source 9-job native recordings and strict baseline/candidate event-to-frame pairing. Do not advance until two viewports exhibit continuous genuinely visible moving hero + opened original gateway + real walkable successor and destination. Device performance & 5+5+5 truly independent blind critics still NOT EVALUATED.",
+    "nativeFullMotionInspection": {
+      "status": "NOT EVALUATED for P0 and blind full-motion acceptance",
+      "inspected": "Decoded ORIGINAL VP8 desktop/portrait danger videos and inspected 16 selected native frames at 0.25–0.5s cadence around Floor8→9; separately inspected 9 sampled outcome/restart frames per viewport from original 71.16s/72.68s videos. This is NOT full independent normal-speed viewing.",
+      "originalCapturedAudioMotion": "Unmodified GitHub .webm original game capture; frame samples are derived only",
+      "pairedEventStatus": "FAILED / NOT EVALUATED, 0/2 native viewports",
+      "exactCalibration": "The phase/hud audit is a heuristic, not authoritative source→native event confirmation",
+      "originalDrawnFloorNineHudSeconds": {
+        "desktop": 26,
+        "portrait": 25.75
+      },
+      "originalSustainedVoidVisualSeconds": {
+        "desktop": 27.75,
+        "portrait": 27.5
+      },
+      "measuredHudToVisualGapSeconds": {
+        "desktop": 1.75,
+        "portrait": 1.75,
+        "uncertaintySeconds": 0.25
+      },
+      "actualClipWindow": {
+        "candidateDangerDesktopSeconds": 72.88,
+        "candidateDangerPortraitSeconds": 73.12,
+        "baselineDangerDesktopSeconds": 71.08,
+        "baselineDangerPortraitSeconds": 71.64
+      },
+      "visibleDefect": "Original bronze cap, skinned actor and walkable arrival exist in F9 source and individual native shots, but first F9 native frames have giant overhead violet raised-platform underside and full original opened gateway is not readable together with climber and roof. Then at around 27.5–27.75s substantial violet shaft/camera depth arrives with perceptual cut; portrait hero subsequently shrinks. No continuous event-matched architectural crossing established.",
+      "exactHeadCI": "https://github.com/my-edutu/Ai_games/actions/runs/44905405022",
+      "exactHeadCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44905405068",
+      "pairingFailure": "pair-source-events job FAILED; native-scene-phase-not-confirmed-baseline AND native-scene-phase-not-confirmed-candidate for desktop and portrait. Baseline source F8→9 tick316 and candidate tick475: same fixed seed/tier, different source trajectories, cannot claim exact event correspondence by HUD/clock.",
+      "outcomeRestart": "Source and selected native pixels display time-expired result/intermission around 49–55s and restarted Floor0 run by 58s in both viewports (candidate outcome recordings); this is partial gameplay-presentation evidence, NOT an accepted full matched 60s episode."
+    }
   }
 }
