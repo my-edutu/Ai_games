@@ -6245,13 +6245,24 @@ export function planLicensedSourceToePhaseProbe({
    Math.abs(signedAxisProjection)/axis<.985||
    ![rx,ry,rz,rw,signedAxisProjection].every(finite))continue;
   const sourceAngle=2*Math.atan2(axis,rw);
-  // The renderer applies axis-angle to the imported signed source axis,
-  // not necessarily +X. Convert the ACTUAL source quaternion's X
-  // rotation into that audited signed basis to avoid reversing its swing.
-  const extraAngleRad=Math.sign(signedAxisProjection)*sourceAngle*.5;
-  if(Math.abs(extraAngleRad)<.018||
-   Math.abs(extraAngleRad)>angularLimit*.80+1e-8)continue;
-  raw.push({extraAngleRad,sourceTargetTimeSeconds:t});
+  // At authentic 60Hz source phase .610312s, the original 26-key
+  // toes.l Walking_A arc traverses more than this frame's 3rad/s budget.
+  // Rejecting the WHOLE authored arc produced zero phase-guided live
+  // receipts while a mobile original swing toe remained ~80mm buried.
+  // Travel only a PARTIAL fraction along that exact original quaternion
+  // arc. This changes neither imported clip clock nor any source joint
+  // outside this one toes child. The live renderer must still independently
+  // reskin BOTH original shoes and reject an unhelpful or unsafe candidate.
+  // Extremely large source jumps do not license an arbitrary snap.
+  const authoredHalfArcRad=sourceAngle*.5;
+  if(authoredHalfArcRad<.018||authoredHalfArcRad>.25)continue;
+  // The renderer's signed source toe axis may be negative X; convert
+  // the original source arc into that audited signed joint basis.
+  const partialArcRad=Math.min(authoredHalfArcRad,angularLimit*.80);
+  if(partialArcRad<.018)continue;
+  const extraAngleRad=Math.sign(signedAxisProjection)*partialArcRad;
+  raw.push({extraAngleRad,sourceTargetTimeSeconds:t,
+   authoredHalfArcRad,rateBoundedPartialArc:partialArcRad<authoredHalfArcRad});
  }
  if(!raw.length)return null;
  // One additional TWO-shoe skinned trial at most; never a dynamic search.
@@ -6263,6 +6274,8 @@ export function planLicensedSourceToePhaseProbe({
   sourceBone:sourceToeBoneName,sourceClip:'Walking_A',
   sourceTimeSeconds,sourceTargetTimeSeconds:raw[0].sourceTargetTimeSeconds,
   extraAngleRad:raw[0].extraAngleRad,
+  authoredHalfArcRad:raw[0].authoredHalfArcRad,
+  rateBoundedPartialArc:raw[0].rateBoundedPartialArc,
   maxProbeCount:1,sourceKeyframeCount:base.sourceKeyframeCount,
   contactLocked:false,plantCertified:false
  });
