@@ -3286,17 +3286,25 @@ test('source-loaded pelvis bridge uses authentic two-point walking shoe contact,
  const calls=live.replace(/\/\/[^\n]*/g,'').split('\n').map(line=>line.trim()).filter(Boolean);
  const slide=calls.indexOf('stageOriginalSourceStanceSlideAfterMixer(actor,reducedMotion,sourceFrameInterval,sourceFrameVisible);');
  assert.ok(slide>=0,'the real update must stage source stance after source legs');
- // The source-owned toes-child finisher must run AFTER certified linked
- // counterpitch and BEFORE historical evidence, never replacing its source
- // shoe proof or running before the final loaded pelvis audit. A new pose
- // stage requires deliberate review here rather than silently changing order.
+ // All licensed source hip/knee/ankle counterpitch and toes-child changes
+ // MUST finish before any pelvis-only world-Y lift, because a source joint
+ // written after the two-shoe certificate invalidates its real skinned-sole
+ // world-space measurements. This is the observed RED from Actions
+ // #44839525500: the previous test still insisted on the unsafe ordering
+ // after the test-first final-owner correction had shipped.
  assert.deepEqual(calls.slice(slide+1,slide+6),[
-  'stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion);',
-  'auditSourceLoadedPelvisAfterLegs(actor,poseAge,reducedMotion);',
   'stageLicensedSourceSwingCounterpitchAfterMixer(actor,reducedMotion);',
   'stageLicensedSourceToeFinisherAfterCounterpitch(actor,reducedMotion);',
+  'stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion);',
+  'auditSourceLoadedPelvisAfterLegs(actor,poseAge,reducedMotion);',
   'rememberOriginalSourceAppliedSwingEvidence(actor);'
- ],'loaded pelvis, licensed counterpitch and toe-child finisher must precede historical evidence');
+ ],'licensed source leg/toe poses must precede final, two-shoe audited pelvis lift and historical evidence');
+ const finalPelvisStage=model.slice(model.indexOf('function stageSourceLoadedPelvisBeforeLegs('),
+  model.indexOf('function auditSourceLoadedPelvisAfterLegs('));
+ assert.match(finalPelvisStage,/requireWorldXZ:true/,
+  'both authentic source shoes need world-XZ proof before accepting final visual pelvis translation');
+ assert.match(finalPelvisStage,/const hasSourceLegClaim=/,
+  'a leg claim cannot silently stack with a second full-body floor adjustment');
 });
 
 
