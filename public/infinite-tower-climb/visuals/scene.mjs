@@ -6586,6 +6586,15 @@ export function createTowerScene(canvas, settings = {}) {
         source:'real current Three.js opaque world triangle rays / both drawn actors',
         limitation:'Throttled scene geometry witness, NOT native WebM painted pixels, A/B preference or hardware FPS'
       },
+      retainedGatewayContinuousCamera: {
+        sourceRun:lastSubmittedGuardian.runToken===snapshot?.runToken &&
+          lastSubmittedGuardian.floor===9 ? snapshot.runToken:null,
+        acceptedCameraProposals:retainedGateCameraAccepted,
+        vetoedCameraProposals:retainedGateCameraVetoed,
+        lastBoundedTurnRadians:retainedGateCameraLastTurn,
+        source:'Only source-matched actual returned F9 original gateway and physically walkable roof',
+        limitation:'Proposal safety counters, NOT original WebM joined-room frames, native event alignment, device performance or critic preferences'
+      },
       returnedGatewayReleaseCamera: {
         acceptedFrames:releaseFollowAccepted,vetoedFrames:releaseFollowVetoed,
         sourceTick:releaseReturnedGate.tick,active:releaseFollowActive,
