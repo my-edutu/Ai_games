@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-21T23:26:00Z",
+  "updatedAt": "2026-11-22T00:40:00+01:00",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass567: Exact Pass566b 36503659 native Maze 44956918423 SUCCESS; original ZIP SHA256 8ec0766b4d30eda407cef845ce92ac79989853c99545e6989cadf9909d3f29eb independently verified 42/42 unaltered WebGL full-resolution PNG sidecars and 3/3 authentic gate-transition hashes; true autonomous chapter tick136 victory and strict six-reset <100 PASS. Direct 320/390 original full-frame before-after vs verified Pass565 rejects modified earned camera: Pip remains separated from Thornback across parapets; raw 26.81%/26.95% pixel changes are not gameplay or art progress. Restore only camera/scene production Git blobs from 96e0e902 and remove Pass566-exclusive test; fresh restored HEAD CI required. Whole repo 44956918430 red Tiny Kingdom OBS/artifacts. Critic/Ultracode tunnel NOT_FOUND; official Nintendo benchmark unmet; PR #53 open draft, no merge/deploy/force, hourly Gauntlet active."
+    "summary": "Pass568 SOURCE CANDIDATE on original disclosed exit stage: verified preceding exact 4c65a645 native WebGL 44961827024 success, ZIP sha256 3aa221cf96f1dc284fce68eebe76a70803744b9a29175cc3912a2257142676c4, original full-frame sidecars 42/42 and real gate transitions 3/3, authentic escape tick136. Native 390px victory Pip obscured by optional foreground greenery and masonry; new source changes only optional decoration within at-most-2 known visible cells around public exit, preserving all solid walls, game AI, key/gate/hazard, collision, camera thresholds, 44px HUD and strict reset budget. New HEAD native screenshot/CI approval PENDING, no benchmark win; critic/worker/Ultracode tunnel NOT_FOUND; existing PR remains open draft unmerged/undeployed."
   },
   "captures": [
+    {
+      "title": "Pass568 genuine full-frame restored HEAD 42/42 PNG + 3/3 gate SHA verified; original 390px victory scene obstructed, disclosed exit forecourt change SOURCE CANDIDATE awaiting new exact-HEAD WebGL",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44961827024/artifacts/14730187675"
+    },
     {
       "title": "Pass567 exact Pass566b 36503659 original WebGL 42/42 + 3/3 hashes VERIFIED; true tick136 win but 320/390 encounter VISUALLY REJECTED against Nintendo; only Pass566 code rolled back, new CI pending",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44956918423/artifacts/14728147544"

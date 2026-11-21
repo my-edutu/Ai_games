@@ -30,6 +30,42 @@ export function publicTreasureGallerySailHeight(collected,elapsed=Infinity,reduc
   return .62-.50*ease;
 }
 
+
+/**
+ * The genuine PUBLIC exit needs a quiet miniature 3D performance court.
+ * Exact-HEAD 390px native victory WebGL showed Pip's body and the opened
+ * portal buried behind unrelated optional windcatchers, plants and pennants.
+ * This selects only cosmetic dressing on currently visible disclosed cells:
+ * never a wall, trap, door, stair, key, hidden tile, collider or AI action.
+ */
+export function publicDisclosedExitForecourtCells(s) {
+  const quiet=new Set();
+  if (!s || !Number.isSafeInteger(s.exitCell) || s.exitCell<0
+    || !Number.isSafeInteger(s.width) || s.width<2
+    || !Number.isSafeInteger(s.height) || s.height<2
+    || !Array.isArray(s.cells) || !Array.isArray(s.visibleCells)
+    || !Array.isArray(s.keys) || !Array.isArray(s.doors)
+    || !s.visibleCells.includes(s.exitCell)) return quiet;
+  const visible=new Set(s.visibleCells);
+  const known=new Map(s.cells.filter(c=>Number.isSafeInteger(c?.cell)
+    && c.cell>=0 && c.cell<s.width*s.height && visible.has(c.cell))
+    .map(c=>[c.cell,c]));
+  const exit=known.get(s.exitCell);
+  if(!exit || exit.blocked!==false)return quiet;
+  const protectedCells=new Set([...s.keys.map(k=>k.cell),
+    ...s.doors.flatMap(d=>[d.a,d.b])]);
+  const ex=s.exitCell%s.width, ey=Math.floor(s.exitCell/s.width);
+  for(const c of known.values()){
+    if(c.blocked!==false && c.blocked!==true)continue;
+    if(c.trap || c.checkpoint || c.clue
+      || (c.cell!==s.exitCell && protectedCells.has(c.cell)))continue;
+    const d=Math.abs(c.cell%s.width-ex)
+      +Math.abs(Math.floor(c.cell/s.width)-ey);
+    if(d<=2)quiet.add(c.cell);
+  }
+  return quiet;
+}
+
 // A two-passage treasure detour earns ONE connected original Tideglass gallery,
 // but ONLY while the actual key and all three reciprocal open cells are PUBLIC.
 // Discovery is not a private solver instruction: no hidden cell, remembered
@@ -1379,6 +1415,7 @@ export function createMazeWorld(options = {}) {
       ...earnedRecoilQuiet,
       ...earnedSpectatorHorizon
     ]);
+    const publicExitForecourt=publicDisclosedExitForecourtCells(s);
     const guardianBlockedRelief=publicGuardianBlockedReliefCells(s,guardianSightlines);
     const knownByCell = new Map(s.cells.map(c => [c.cell, c]));
     // The public snapshot is the ONLY source of foreground cutaway geometry.
@@ -1509,6 +1546,10 @@ export function createMazeWorld(options = {}) {
       const guardianQuietRingCell=guardianQuietRing.has(c.cell)
         && !c.trap && !c.checkpoint && !c.clue && c.cell!==s.exitCell
         && !s.keys.some(k=>k.cell===c.cell);
+      // Keep Pip and the REAL discovered portal readable as one authored
+      // destination. Only redundant, non-interactive wall/plant dressing
+      // yields; the stone threshold and original collision never do.
+      const optionalQuietCell=guardianQuietRingCell || publicExitForecourt.has(c.cell);
       if(guardianCourtCell)guardianCourtTiles++;
       // Native full-frame 390px guardian action still has an oversized pale
       // foreground outside the dark physical duel. Treat ONLY a disclosed,
@@ -2045,7 +2086,7 @@ export function createMazeWorld(options = {}) {
       // lower walkable terrace from the lagoon without suggesting a corridor.
       // The relief is flush (under 2cm in scene units), has no collision or
       // extra draw call and is batched with existing reused geometry/material.
-      if (!pressureCourtApron && !guardianQuietRingCell && tier === 0 && !c.blocked && !c.trap && !c.checkpoint && !c.clue) {
+      if (!pressureCourtApron && !optionalQuietCell && tier === 0 && !c.blocked && !c.trap && !c.checkpoint && !c.clue) {
         for (const sign of [-1, 1]) {
           add(box, lightStone, x + sign * .99, .015, z, .034, .012, 1.75, c.cell);
           add(box, lightStone, x, .015, z + sign * .99, 1.75, .012, .034, c.cell);
@@ -2059,7 +2100,7 @@ export function createMazeWorld(options = {}) {
       const gateCourt=gateCourtCells.has(c.cell)&&!c.blocked
         &&!c.trap&&!c.checkpoint&&!c.clue;
       const courtSeed = variation(c.cell * 41 + 709);
-      if (!pressureCourtApron && !guardianCourtCell && !guardianQuietRingCell && courtSeed > .68 && !gateCourt
+      if (!pressureCourtApron && !guardianCourtCell && !optionalQuietCell && courtSeed > .68 && !gateCourt
         && !c.blocked && !c.trap && !c.checkpoint && !c.clue) {
         const pigment = courtSeed > .85 ? seaGlass : clay;
         for (let petal = 0; petal < 4; petal++) {
@@ -2080,7 +2121,7 @@ export function createMazeWorld(options = {}) {
       // and mineral materials in the same GPU batches, with no extra draw
       // resources or render-frame allocations. Never cover known hazards,
       // treasure hardware or a checkpoint with a look-alike objective symbol.
-      if (!pressureCourtApron && !guardianCourtCell && !guardianQuietRingCell && !gateCourt && !c.blocked && !c.trap
+      if (!pressureCourtApron && !guardianCourtCell && !optionalQuietCell && !gateCourt && !c.blocked && !c.trap
           && !c.checkpoint && !c.clue
           && variation(c.cell * 71 + 138) > .36) {
         const shellPigment = tier === 2 ? seaGlass : tier === 1 ? lightStone : stone;
@@ -2092,7 +2133,7 @@ export function createMazeWorld(options = {}) {
       if (gateCourt && !pressureCourtApron) gateCourtRosette(x,z,c.cell);
       // Small scattered flecks belong to ordinary courts; the large disclosed
       // mechanism gets deliberate negative space around the actual moving jaws.
-      if (!pressureCourtApron && !guardianCourtCell && !guardianQuietRingCell) for (let j = 0; j < 2; j++) {
+      if (!pressureCourtApron && !guardianCourtCell && !optionalQuietCell) for (let j = 0; j < 2; j++) {
         const sign = j ? 1 : -1;
         add(box, deepStone, x + sign * .91, .003, z - .9, .14, .006, .035, c.cell, 0, .2);
         add(box, inlay, x + sign * .86, .006, z + .86, .12, .009, .12, c.cell, 0, Math.PI / 4);
@@ -2104,7 +2145,7 @@ export function createMazeWorld(options = {}) {
       // walkable tile can own a low fossil alcove near its publicly confirmed
       // NON-PASSAGE side. Keep the real tile center and true route open.
       // This is a deterministic presentation variation, not an extra obstacle.
-      const fossilSide = !pressureSightline && !guardianCourtCell && !guardianQuietRingCell && !c.blocked && !c.trap && !c.checkpoint && !c.clue
+      const fossilSide = !pressureSightline && !guardianCourtCell && !optionalQuietCell && !c.blocked && !c.trap && !c.checkpoint && !c.clue
         && c.cell!==s.exitCell
         && !gateCourt && !gateApproachCells.has(c.cell)
         && !s.keys.some(key=>key.cell===c.cell)
@@ -2451,7 +2492,7 @@ export function createMazeWorld(options = {}) {
         } else wall(x + dx * 1.2, z + dz * 1.2, !!dz, c.cell * 17 + side, c.cell,
           !pressureSightline && (guardianCauseway.has(c.cell)
             || guardianForecourtShoulders.has(c.cell)
-            || guardianOuterCourt.ordinary.has(c.cell)), guardianQuietRingCell);
+            || guardianOuterCourt.ordinary.has(c.cell)), optionalQuietCell);
         // Unlike unrevealed neighbors, this is a real blocked direction in
         // the public room's advertised edges. A lifted vertical garden on its
         // physical wall gives the otherwise pale stage a distinct green layer.
@@ -2461,24 +2502,24 @@ export function createMazeWorld(options = {}) {
         // silhouette. Keep its actual hinged faces in view instead of planting
         // a tall raised garden on the same observed NON-PASSAGE edge. Other
         // walls retain their verdant profile; public navigation is untouched.
-        if (!pressureSightline && !guardianCourtCell && !guardianQuietRingCell && n >= 0 && !fossilStageEdge && gardenPatch(c.cell) > .38
+        if (!pressureSightline && !guardianCourtCell && !optionalQuietCell && n >= 0 && !fossilStageEdge && gardenPatch(c.cell) > .38
           && variation(faceSeed) > (dx + dz > 0 ? .29 : .56)) {
           if (gateApproachCells.has(c.cell)) gateForecourtPlanter(x, z, dx, dz, c.cell);
           else coastalGarden(x, z, dx, dz, c.cell * 71 + side * 19, c.cell, 1.05);
         }
         const region = `${Math.floor(col / 6)}:${Math.floor(row / 6)}`;
-        if (!pressureSightline && !guardianCourtCell && !guardianQuietRingCell && side === 0 && landmarkSites.get(region)?.cell === c.cell) {
+        if (!pressureSightline && !guardianCourtCell && !optionalQuietCell && side === 0 && landmarkSites.get(region)?.cell === c.cell) {
           const wide = landmarkSites.get(region).wide;
           gardenLandmark(x + (wide ? 1.2 : 0), z - 1.2, c.cell, c.cell * 19, wide);
         }
         // Cap a limited number of wall intersections with taller ruined columns.
-        if (!pressureSightline && !guardianCourtCell && !guardianQuietRingCell && !gateApproachCells.has(c.cell) && variation(c.cell * 31 + side) > .76) {
+        if (!pressureSightline && !guardianCourtCell && !optionalQuietCell && !gateApproachCells.has(c.cell) && variation(c.cell * 31 + side) > .76) {
           const px = x + (dx || (side === 0 ? -1 : 1)) * 1.2;
           const pz = z + (dz || (side === 1 ? -1 : 1)) * 1.2;
           const ck = `${px.toFixed(2)}:${pz.toFixed(2)}`;
           if (!columns.has(ck)) { column(px, pz, c.cell, c.cell * 6 + side); columns.add(ck); }
         }
-        if (!pressureSightline && !guardianCourtCell && !guardianQuietRingCell && !fossilStageEdge && !gateApproachCells.has(c.cell)
+        if (!pressureSightline && !guardianCourtCell && !optionalQuietCell && !fossilStageEdge && !gateApproachCells.has(c.cell)
           && gardenPatch(c.cell) > .65 && variation(c.cell + side * 41) > .55)
           plant(x + dx * .98 + dz * .64, .015, z + dz * .98 + dx * .64, c.cell * 17 + side, c.cell, 1.05);
       }
@@ -2512,7 +2553,7 @@ export function createMazeWorld(options = {}) {
         // Two-cell grouping creates planted terraces with unplanted breathing
         // spaces rather than one identical tuft repeated around every tile.
         const patch = Math.floor(col / 2) * 47 + Math.floor(row / 2) * 97 + (dx ? 67 : 31);
-        if (!pressureSightline && !guardianCourtCell && !guardianQuietRingCell && variation(patch) > (dx + dz > 0 ? .24 : .47)) {
+        if (!pressureSightline && !guardianCourtCell && !optionalQuietCell && variation(patch) > (dx + dz > 0 ? .24 : .47)) {
           coastalGarden(x, z, dx, dz, c.cell * 71 + (dx + 2) * 13 + (dz + 2) * 23, c.cell);
         }
       }
@@ -3870,6 +3911,7 @@ export function createMazeWorld(options = {}) {
     const keyedGuardianCauseway=publicGuardianCausewayCells(s);
     const keyedOuterCourt=publicGuardianOuterCourtCells(s,keyedGuardianCauseway);
     const keyedForeground=publicGuardianWitnessedForegroundCells(s,keyedGuardianCauseway);
+    const keyedPublicExitForecourt=publicDisclosedExitForecourtCells(s);
     const keyedEarnedRecoil=publicEarnedGuardianRecoilCourtCells(s);
     const keyedEarnedSealedStageEdges=publicEarnedGuardianSealedStageEdges(s);
     const keyedEarnedSpectators=publicEarnedGuardianRecoilCourtCells(
@@ -3905,6 +3947,7 @@ export function createMazeWorld(options = {}) {
       + '#guardian-reef-visible:' + [...reefVisibility].sort((a,b)=>a-b).join('.')
       + '#guardian-near-floor:' + [...keyedForeground].sort((a,b)=>a-b).join('.')
       + '#guardian-public-peripheral-walls:' + [...keyedPeripheralWalls].sort((a,b)=>a-b).join('.')
+      + '#public-exit-sightline:' + [...keyedPublicExitForecourt].sort((a,b)=>a-b).join('.')
       + '#guardian-earned-recoil:' + [...keyedEarnedRecoil].sort((a,b)=>a-b).join('.')
       + '#guardian-earned-public-spectators:' + [...keyedEarnedSpectators].sort((a,b)=>a-b).join('.')
       + '#guardian-earned-sealed-edges:' + [...keyedEarnedSealedStageEdges].sort().join('.')
