@@ -343,12 +343,39 @@
     ],
     "correctedHeadQuality": {
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44857144656",
-      "statusAtWriting": "PENDING, not green"
+      "statusAtWriting": "COMPLETED: 9/10 jobs passed, including all four Tower Phase3 shards. Full quality FAILED because phase6 maze-readiness-score.test.cjs started then hit 75-second runner timeout exit 124. No unrelated game modifications."
     },
     "exactProductionNativeCampaign": {
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44856979004",
       "sourceSha": "2615ec3204914da40bd8a2ad2cc897ea38c688d8",
-      "statusAtWriting": "IN PROGRESS; native result unassessed"
+      "statusAtWriting": "COMPLETED: eight real original normal-speed baseline/candidate scenes and authentic ledge all passed; strict event-to-native danger pairing FAILED 0/2. Native original film inspected 24–29s 0.25s intervals plus 0–67s representative spots.",
+      "nativeFilms": [
+        {
+          "viewport": "960x600",
+          "nativeVideoSha256": "1bfc4d0c5e355b763fb3e41151206c877ea1fcc7c65c18d836654131f30be57c",
+          "wallSeconds": 68.224,
+          "firstDrawnF9HUDSeconds": 26,
+          "sustainedVioletSeconds": 27,
+          "oldNewSharedSeconds": 0,
+          "sourceToBrowserMs": 39,
+          "browserToFirstRendererReturnMs": 531,
+          "firstReturnCostMs": 100.2,
+          "returningDoorwayProofFrames": 6
+        },
+        {
+          "viewport": "390x844",
+          "nativeVideoSha256": "6d27a299c43c9c24ba004badca96597a51221121139750379b9e166ae8b4189d",
+          "wallSeconds": 68.244,
+          "firstDrawnF9HUDSeconds": 26,
+          "sustainedVioletSeconds": 26.75,
+          "oldNewSharedSeconds": 0,
+          "sourceToBrowserMs": 269,
+          "browserToFirstRendererReturnMs": 491,
+          "firstReturnCostMs": 57.8,
+          "returningDoorwayProofFrames": 6
+        }
+      ],
+      "resultCaveat": "Observed quicker hosted first F9 renderer returns vs prior campaign desktop 789->531ms and portrait 734->491ms; WebGL return cost 239.9->100.2ms and 141.6->57.8ms. Runs are not controlled hardware benchmarks and do not establish causal improvement, actual-device percentiles or a visually accepted crossing. Native shared old/new 0s remains the P0 stop-ship blocker."
     },
     "blindIndependentCritics": {
       "LOOKS": 0,
@@ -359,7 +386,7 @@
     },
     "actualDeviceP50P95P99": "NOT EVALUATED",
     "actualDeviceMemory": "NOT EVALUATED",
-    "nextAction": "Download real original desktop/portrait candidate WebM for 2615ec32, verify exact SHA/source event timing and continuous original HP0 gate+moving body+walkable successor pixels, compare first Floor9 browser->render return and low-tier stone visual quality. If still 0s shared original-to-Void architecture, prioritize old/new scene submission and spatial ownership. Do not infer improvement from shader work or tests.",
+    "nextAction": "Primary gap remains physical old-room/new-shaft visibility and original HP0 gateway through cold F9. Inspect camera and world scene transition as ONE architectural composition at real returned frames, then source-pin new normal-speed film. Current low shader performance hypothesis yielded lower hosted first-return costs but NO event-matched native crossing gain. Do not graduate P0.",
     "constraints": "PR58 unchanged, PR68 open DRAFT, frozen baseline blob unchanged, no merge/deploy/force-push/unrelated games"
   }
 }
