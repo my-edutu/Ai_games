@@ -33,7 +33,7 @@ import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCamer
 import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardianDuelEdgePressure, guardianLiveFightLockPriority } from './guardian-gate-intrusion.mjs';
 import { observedGuardianTransmissionCorners } from './guardian-transmission-layout.mjs';
 import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
-import { sourceReturnedGateCameraRelease } from './source-returned-gate-camera-release.mjs';
+import { sourceReturnedGateCameraRelease, sourceRetainedGatewayCameraContinuity } from './source-returned-gate-camera-release.mjs';
 import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, sourceRaisedBackdropClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceThreeSubjectActorScaleGain, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe, sourceThreeSubjectPhysicalGain } from './physical-threshold-shot.mjs';
 import { sourceSubmittedDoorwayCameraDt, sourceCroppedHeroRecoveryDt } from './source-submitted-doorway-cadence.mjs';
 import { createTowerVoidProgramPrewarm } from './void-program-prewarm.mjs';
@@ -2495,6 +2495,8 @@ export function createTowerScene(canvas, settings = {}) {
   let releaseFollowActive=false;
   let releaseFollowAccepted=0,releaseFollowVetoed=0;
   let releaseFollowLastTurn=0,releaseFollowLastGap=0;
+  let retainedGateCameraAccepted=0,retainedGateCameraVetoed=0;
+  let retainedGateCameraLastTurn=0;
   const releasePreviousCamera=new THREE.Vector3();
   const releasePreviousFocus=new THREE.Vector3();
   const releaseHero=new THREE.Vector3();
@@ -5753,6 +5755,93 @@ export function createTowerScene(canvas, settings = {}) {
             releaseFollowVetoed=Math.min(1000000,releaseFollowVetoed+1);
           }
         } else if(releaseStep?.settled) releaseSettledOnSubmit=true;
+      }
+      // The old HP-zero gateway often survives many genuinely rendered F9
+      // shots, but the ordinary follow director can change shoulders between
+      // them. Bind THIS SAME camera to its last completed F9 pose until the
+      // original source-owned arch/roof retires. Never freeze source gameplay
+      // or substitute a synthetic shot. The physical full actor, open bronze
+      // gateway, real successor roof and solid tower all independently veto a
+      // rejected camera; reduced-motion/manual views stay unchanged.
+      const retainedGateStep = !overview && !options.stale &&
+        options.camera === 'follow' && !options.reducedMotion &&
+        !releaseFollowActive
+        ? sourceRetainedGatewayCameraContinuity({
+            source:snapshot,held:retainedColdArrival,
+            lastReturned:lastSubmittedGuardian,
+            previousCamera:lastSubmittedGuardianCamera.toArray(),
+            previousFocus:lastSubmittedGuardianFocus.toArray(),
+            desiredCamera:camera.position.toArray(),
+            desiredFocus:lookAt.toArray(),dt
+          }) : null;
+      if (retainedGateStep?.limited) {
+        releasePreviousCamera.copy(camera.position);
+        releasePreviousFocus.copy(lookAt);
+        camera.position.set(...retainedGateStep.camera);
+        lookAt.set(...retainedGateStep.focus);
+        camera.lookAt(lookAt);
+        camera.updateMatrixWorld(true);
+        releaseHero.copy(climber.group.position);
+        measureDuelBodyNdc(releaseHero,
+          snapshot.player.halfHeight / SCALE,
+          camera,duelTop,duelBottom,releaseHeroNdc);
+        const retainedGatePose=guardianTraversalGatePose(
+          retainedColdArrival.thresholdX,retainedColdArrival.oldRoofY,
+          snapshot.chunkBaseY,snapshot.worldWidth);
+        const gatePoint=retainedGatePose
+          ? new THREE.Vector3(retainedGatePose.x,
+              retainedGatePose.y+2.7,retainedGatePose.z) : null;
+        const gateCoreClear=gatePoint &&
+          towerCoreSightlineClear(camera.position,gatePoint,23.5);
+        const gateImage=gateCoreClear
+          ? gatePoint.project(camera) : null;
+        const sourceRoof=snapshot.platforms.find(platform=>
+          platform?.id==='f9:ground' &&
+          Number.isSafeInteger(platform.x) &&
+          Number.isSafeInteger(platform.width) &&
+          Number.isSafeInteger(platform.y) &&
+          Number.isSafeInteger(platform.height) &&
+          platform.width>40000 && platform.height>0);
+        const roofX=sourceRoof && Math.max(sourceRoof.x+10000,
+          Math.min(sourceRoof.x+sourceRoof.width-10000,
+            Math.max(retainedColdArrival.thresholdX+28000,
+              snapshot.player.x+14000)));
+        const roofPose=sourceRoof && Number.isSafeInteger(roofX)
+          ? pointFor(roofX,sourceRoof.y+sourceRoof.height,
+              snapshot.chunkBaseY,snapshot.worldWidth,25) : null;
+        const roofPoint=roofPose
+          ? new THREE.Vector3(roofPose.x,roofPose.y+.12,roofPose.z)
+          : null;
+        const roofCoreClear=roofPoint &&
+          towerCoreSightlineClear(camera.position,roofPoint,23.5);
+        const roofImage=roofCoreClear ? roofPoint.project(camera) : null;
+        const safeImage=point => point &&
+          [point.x,point.y,point.z].every(Number.isFinite) &&
+          point.z>=-1 && point.z<=1;
+        const currentFullBodyVisible=
+          releaseHeroNdc.every(Number.isFinite) &&
+          releaseHeroNdc[2]>=-1 && releaseHeroNdc[2]<=1 &&
+          releaseHeroNdc[3]>=.055 &&
+          Math.abs(releaseHeroNdc[0])+releaseHeroNdc[3]*.14<.76 &&
+          Math.abs(releaseHeroNdc[1])+releaseHeroNdc[3]<.76 &&
+          towerCoreSightlineClear(camera.position,releaseHero,23.5);
+        const joinedRoomVisible=currentFullBodyVisible &&
+          safeImage(gateImage) && Math.abs(gateImage.x)<.87 &&
+          Math.abs(gateImage.y)<.84 &&
+          safeImage(roofImage) && Math.abs(roofImage.x)<.92 &&
+          Math.abs(roofImage.y)<.88;
+        if (joinedRoomVisible) {
+          retainedGateCameraAccepted=Math.min(1000000,
+            retainedGateCameraAccepted+1);
+          retainedGateCameraLastTurn=retainedGateStep.turnRadians;
+        } else {
+          camera.position.copy(releasePreviousCamera);
+          lookAt.copy(releasePreviousFocus);
+          camera.lookAt(lookAt);
+          camera.updateMatrixWorld(true);
+          retainedGateCameraVetoed=Math.min(1000000,
+            retainedGateCameraVetoed+1);
+        }
       }
       const sceneReadyAt = performance.now();
       renderer.render(scene, camera);
