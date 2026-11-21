@@ -3406,6 +3406,10 @@ function isCompactGpuCourierBodyCandidate(p,i,nearPeople,frame){
  const view=projectRealCitizenDetail(p,frame);
  if(!view.visible||!Number.isFinite(view.heightFraction)||
     view.heightFraction<=0)return false;
+ // Never downgrade a prominent actual near-detail worker's coat, hands,
+ // cart grip or face merely to save a vertex upload. Their original full
+ // detailed 13-joint path is already available, and CPU remains fallback.
+ if(nearPeople.has(i)&&view.heightFraction>=.09)return false;
  const held=Boolean(workingResidentCache.get(i)?.separateLiveCart);
  return view.heightFraction<(held?COMPACT_COURIER_GPU_HOLD_HEIGHT:
   COMPACT_COURIER_GPU_ENTER_HEIGHT);
