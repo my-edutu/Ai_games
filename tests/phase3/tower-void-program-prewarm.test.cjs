@@ -34,7 +34,7 @@ test('prewarms only a legitimate real Clockwork frame with one offscreen compile
    'include real original weathered stone shader and both static/instanced variants');
  assert.equal(observed.stage.children.filter(m=>m.isInstancedMesh).length,2);
  const originalStone=observed.stage.children.filter(m=>
-   m.material?.customProgramCacheKey?.()==='tower-original-triplanar-stone-v1');
+   m.material?.customProgramCacheKey?.()==='tower-original-axial-stone-economy-v1');
  assert.equal(originalStone.length,2,'exact same shader owner must compile in rigid and instanced forms');
  assert.equal(originalStone.filter(m=>m.isInstancedMesh).length,1);
  const shader={uniforms:{},vertexShader:'#include <begin_vertex>',
