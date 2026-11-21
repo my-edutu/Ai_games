@@ -43,6 +43,7 @@ for(const width of [1024,390]){
       return {
        frame:g.renderStats().lastFrameTriangles,scene:profile.scene,
        softwareWorld:g.getOriginalSoftwareWorldUploadAudit(),
+       softwareActors:g.getOriginalSoftwareActorDirtyAudit(),
        actualStage:profile.latest,actors:stream.actorFloats,
        world:stream.worldFloats,split:stream.enabled,
        allocationFallbacks:stream.softwareActorSplitAllocationFailures,
@@ -63,6 +64,8 @@ for(const width of [1024,390]){
     if(split){expect(row.split).toBe(true);
      expect(row.softwareWorld.retainedBytes).toBeLessThanOrEqual(65536*4);
      expect(row.softwareWorld.maxRetainedBytes).toBe(65536*4);
+     expect(row.softwareActors.retainedBytes).toBeLessThanOrEqual(192000*4);
+     expect(row.softwareActors.sourceGeometryAlwaysFresh).toBe(true);
     }
     stages.push(row);
     if(frame===3)await page.screenshot({path:path.join(dir,width+'-'+(split?'split':'combined')+'-real-worker.png')});

@@ -56,7 +56,9 @@ for (const viewport of [{width: 1024, height: 640}, {width: 390, height: 844}]) 
     });
     expect(after.pool.allocations).toBeLessThanOrEqual(2);
     expect(after.pool.reusedBuilds).toBeGreaterThanOrEqual(1);
-    expect(after.pool.maxLiveArrays).toBeLessThanOrEqual(1);
+    // Independent real world+actor buffers reuse TWO bounded JS scratch arrays.
+    expect(after.pool.maxLiveArrays).toBeLessThanOrEqual(2);
+    expect(after.pool.currentFloats).toBeLessThanOrEqual(after.pool.effectiveSplitBudgetFloats);
     expect(after.pool.budgetFloats).toBeGreaterThan(0);
     expect(after.pool.overBudgetReleases).toBeGreaterThanOrEqual(0);
     for(const key of ['worksiteGeometry', 'householdGeometry', 'citizenGeometry',

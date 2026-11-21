@@ -3856,6 +3856,36 @@ let actorGpuDeltaChecks=0,actorGpuDeltaPartial=0,
  actorGpuDeltaSavedBytes=0,actorGpuDeltaBufferCalls=0,
  actorGpuSnapshotAllocations=0,actorGpuSnapshotReuses=0,
  actorGpuSnapshotPatchedFloats=0;
+// W507 Phase 1: one bounded genuine software citizen VBO snapshot and
+// exact 32-bit, triangle-aligned dirty regions. No staging alias or film actors.
+const SOFTWARE_ACTOR_DIRTY_MAX_FLOATS=192000;
+let softwareActorDirtyChecks=0,softwareActorDirtyPartial=0,
+ softwareActorDirtyUnchanged=0,softwareActorDirtyFullUploads=0,
+ softwareActorDirtySavedBytes=0,softwareActorDirtyBufferCalls=0;
+function planOriginalSoftwareActorDirty(previous,current,capacityFloats){
+ if(!(previous instanceof Float32Array)||!(current instanceof Float32Array)||
+    !current.length||current.length>SOFTWARE_ACTOR_DIRTY_MAX_FLOATS||
+    !Number.isSafeInteger(capacityFloats)||capacityFloats<current.length)
+  return null;
+ softwareActorDirtyChecks++;
+ // Existing strict GPU planner rejects topology, changed >60%, or >4 regions.
+ return planDynamicWorldDelta(previous,current,capacityFloats);
+}
+function getOriginalSoftwareActorDirtyAudit(){
+ const floats=actorGpuSnapshots[0]?.length||0;
+ return {source:'original-software-actor-independent-exact-triangle-dirty-vbo',
+  active:gpuAvailable&&swiftGpu&&actorStreamSplitEnabled,
+  maxSnapshotFloats:SOFTWARE_ACTOR_DIRTY_MAX_FLOATS,
+  retainedFloats:floats,retainedBytes:floats*4,
+  maxRetainedBytes:SOFTWARE_ACTOR_DIRTY_MAX_FLOATS*4,
+  checks:softwareActorDirtyChecks,partial:softwareActorDirtyPartial,
+  unchanged:softwareActorDirtyUnchanged,
+  fullUploads:softwareActorDirtyFullUploads,
+  savedUploadBytes:softwareActorDirtySavedBytes,
+  bufferSubDataCalls:softwareActorDirtyBufferCalls,
+  actualCitizensUnchanged:false,sourceGeometryAlwaysFresh:true,
+  authoritativeStateChanged:false,physicalGpuFps:'NOT MEASURED'};
+}
 function retainActorGpuSnapshot(previous,current,delta){
  if(!(current instanceof Float32Array)||
     current.length>ACTOR_GPU_SNAPSHOT_MAX_FLOATS)return null;
@@ -35865,27 +35895,40 @@ if(gpuAvailable&&actorStreamSplitEnabled&&actorFrameData.length){
   actorGpuStaging.set(actorFrameData,0);
   const currentActor=actorGpuStaging.subarray(0,actorFrameData.length);
   const priorActor=actorGpuSnapshots[slot];
-  // Only authentic unchanged source triangles may avoid a new full upload.
-  const delta=!swiftGpu&&!resized&&priorActor?
-   planDynamicWorldDelta(priorActor,currentActor,actorFrameStorage[slot]):null;
+  // W507: bound actor VBO dirty updates to genuine changed triangles.
+  // No pose, work/contact, citizen or inventory may be skipped.
+  const softwareActorTrack=swiftGpu&&actorStreamSplitEnabled&&
+   currentActor.length<=SOFTWARE_ACTOR_DIRTY_MAX_FLOATS;
+  const delta=!resized&&priorActor?
+   (swiftGpu?(softwareActorTrack?
+    planOriginalSoftwareActorDirty(priorActor,currentActor,actorFrameStorage[slot]):null):
+    planDynamicWorldDelta(priorActor,currentActor,actorFrameStorage[slot])):null;
   if(priorActor&&!swiftGpu)actorGpuDeltaChecks++;
   if(delta){
-   actorGpuDeltaSavedBytes+=delta.savedFloats*4;
-   if(!delta.dirtyFloats)actorGpuDeltaUnchanged++;
-   else{
+   if(swiftGpu)softwareActorDirtySavedBytes+=delta.savedFloats*4;
+   else actorGpuDeltaSavedBytes+=delta.savedFloats*4;
+   if(!delta.dirtyFloats){
+    if(swiftGpu)softwareActorDirtyUnchanged++;
+    else actorGpuDeltaUnchanged++;
+   }else{
     for(const region of delta.ranges){
      gl.bufferSubData(gl.ARRAY_BUFFER,
       region.firstFloat*Float32Array.BYTES_PER_ELEMENT,
       currentActor.subarray(region.firstFloat,region.lastFloat));
-     actorGpuUploads++;actorGpuDeltaBufferCalls++;
+     actorGpuUploads++;
+     if(swiftGpu)softwareActorDirtyBufferCalls++;
+     else actorGpuDeltaBufferCalls++;
     }
-    actorGpuDeltaPartial++;
+    if(swiftGpu)softwareActorDirtyPartial++;
+    else actorGpuDeltaPartial++;
    }
   }else{
    gl.bufferSubData(gl.ARRAY_BUFFER,0,currentActor);
-   actorGpuUploads++;actorGpuDeltaBufferCalls++;actorGpuDeltaFull++;
+   actorGpuUploads++;
+   if(swiftGpu)softwareActorDirtyFullUploads++;
+   else{actorGpuDeltaBufferCalls++;actorGpuDeltaFull++;}
   }
-  actorGpuSnapshots[slot]=!swiftGpu?
+  actorGpuSnapshots[slot]=!swiftGpu||softwareActorTrack?
    retainActorGpuSnapshot(priorActor,currentActor,delta):null;
  }
  gl.drawArrays(gl.TRIANGLES,0,actorFrameData.length/10);
@@ -36093,7 +36136,7 @@ renderStats:()=>({terrainRebuilds,terrainCacheKey,terrainCacheTriangles,terrainH
   getEconomyCpuCacheAudit,setEconomyCpuCacheForTesting,
  getLedgerWitnessResidencyAudit,setLedgerWitnessResidencyForTesting,getRecordedWorkResidencyAudit,setRecordedWorkResidencyForTesting,
  getWorksiteFixtureResidencyAudit,setWorksiteFixtureResidencyForTesting,
- getActorResidencyAudit,getActorGpuDeltaAudit,getAuthenticSoftwareWorksiteGpuAudit,setActorStreamSplitForTesting,
+ getActorResidencyAudit,getActorGpuDeltaAudit,getOriginalSoftwareActorDirtyAudit,getAuthenticSoftwareWorksiteGpuAudit,setActorStreamSplitForTesting,
  setResidentActorGpuForTesting,
  setStaticBatchBridgingForTesting,getScenicMultiDrawAudit,setScenicMultiDrawForTesting,getCourierPostCameraAudit,evaluateCourierPostRepairPolicy,getDaybreakReturnAudit,getCameraDynamicCacheStats,getCitizenOrbitDetailAudit,getCourierDocumentaryCameraAudit,setCamera:o=>{// Authored camera checks and manual pointer input share real roof safety.
  freeCameraReturn=null;
