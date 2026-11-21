@@ -1870,7 +1870,7 @@ export function createMazeWorld(options = {}) {
               // sinks on its genuine earned counter; lanes/walls are untouched.
               const pillar=mesh(lift,bevel,lightStone,0,.18,0,.25,.26,.25);
               pillar.name='Published guardian Tideglass joined sentinel shaft '+c.cell+' '+side;
-              const crown=mesh(lift,bevel,seaGlass,0,.36,0,.49,.14,.42);
+              const crown=mesh(lift,bevel,seaGlass,0,.36,0,.49,.18,.42);
               crown.name='Published guardian Tideglass sentinel crown '+c.cell+' '+side;
               const lens=mesh(lift,box,inlay,0,.35,alongX?0:side*.215,
                 alongX?.26:.035,.12,alongX?.035:.26);
@@ -1908,7 +1908,7 @@ export function createMazeWorld(options = {}) {
               const restTilt=alongX?side*1.28:-side*1.28;
               const sail=mesh(sailPivot,guardianOpenShell,seaGlass,
                 alongX?0:side*.57,.22,alongX?side*.57:0,
-                alongX?.76:.24,.58,alongX?.24:.76,
+                alongX?.76:.24,.94,alongX?.24:.76,
                 alongX?restTilt:0,0,alongX?0:restTilt);
               sail.name='Published guardian Tideglass full shell-fan '+c.cell+' '+side;
               const spar=mesh(sailPivot,box,darkMetal,

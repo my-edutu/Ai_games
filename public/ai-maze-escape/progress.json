@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-21T07:20:00.000Z",
+  "updatedAt": "2026-11-21T08:34:49.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass550c exact-HEAD native WebGL CI 44873019129 SUCCESS: original 42/42 UTC PNG/sidecar hashes and 3/3 real gate transition SHA pairs verified; genuine partial-observation autonomous chapter completed at tick136. However original 390 and 320 full-frame images REJECTED as a Nintendo visual win: tall endpoint guardian sentinel rigs still dominate 390 while 320 pair remains disconnected. Pass551 builds one original mechanically joined low outboard guardian-fin intervention under true public warning/counter; exact-new-HEAD CI and native visual approval PENDING. No merge/deploy."
+    "summary": "Pass551 exact-HEAD native CI 44880057617 FAILED three real installed-Three physical silhouette tests (306/309), before WebGL capture. Pass551c restores original-size .18 sea-glass crown and .94 outward-folded connected shell feather on the lower rooted sentinel; leaves original tests and fixed NDC ±0.95, withdrawal >=.70, six-reset <100, privacy, game and accessibility gates unchanged. Exact-new-HEAD source tests, native 320/390/844/1280 source capture, original PNG hashes and before/after Nintendo visual critique PENDING; no benchmark win, merge or deploy."
   },
   "captures": [
+    {
+      "title": "Pass551 exact-HEAD 438bd136 native CI failed 3/309 historical real 3D size tests before WebGL; Pass551c stronger physical repair awaits new-HEAD rendering",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44880057617"
+    },
     {
       "title": "Pass550c exact b83e631 original native WebGL SUCCESS: 42/42 PNG/JSON SHA-256, 3/3 gate-transition SHA verified; 390/320 composition VISUALLY REJECTED; Pass551 architectural change pending new-HEAD native judge",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44873019129/artifacts/14695475375"

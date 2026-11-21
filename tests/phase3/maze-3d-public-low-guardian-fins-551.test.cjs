@@ -39,9 +39,11 @@ test('Pass551 joined guardian sentinel stage is physically low, outboard, genuin
     assert.equal(b.pillar.parent.parent,b.foot,'the short pillar rides the rooted lift');
     assert.ok(Math.abs(b.pillar.scale.y-.26)<1e-8);
     assert.ok(Math.abs(b.pillar.position.y-.18)<1e-8);
-    assert.ok(Math.abs(b.crown.position.y-.36)<1e-8);
+    assert.ok(Math.abs(b.crown.position.y-.36)<1e-8 && b.crown.scale.y>=.17,
+      'short rooted crown still meets original physical mobile silhouette size');
     assert.ok(Math.abs(b.pivot.position.y-.35)<1e-8);
-    assert.ok(Math.abs(b.fan.scale.y-.58)<1e-8);
+    assert.ok(Math.abs(b.fan.scale.y-.94)<1e-8 && b.fan.scale.y>=.92,
+      'outward-folded low fin retains original substantial physical feather size');
     assert.ok(Math.abs(b.fan.position.y-.22)<1e-8);
     assert.ok(Math.abs(b.foot.position[axis==='x'?'z':'x'])>=1.03,
       'both long ceramic fins are outside the same publicly open center aisle');
