@@ -36059,6 +36059,42 @@ const nonFieldTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.
  (foregroundResidentVisible.length?foregroundResidentMesh.length:0):data.length)/30+
  (gpuAvailable?(atmosphere.climate.weather==='rain'?200:
   atmosphere.climate.weather==='snow'?240:0):0);
+// W516: same-seed replay still renders 809 extra non-field triangles on
+// Day-121 original GPU cart path despite identical genuine crop sources.
+// Audit ALL actual resident sources before trying to change cart geometry,
+// actors, or field tier. This is read-only; no simulation/render admissions.
+const nonFieldSourceFloats=gpuAvailable?{
+ landscape:landscapeMeshCache.length,
+ settlement:scenicMeshCache.length,
+ civic:activeCivicMesh().length,
+ civicCore:activeCivicCoreMesh().length,
+ inhabitedHomes:homeClusterFloats(),
+ liveProps:data.length,
+ residentCart:originalCartResidentFrameTriangles*30,
+ liveActorStream:actorStreamSplitEnabled?actorFrameData.length:0,
+ inventory:economyResidentActive?(economyResidentMesh?.length||0):0,
+ receipt:ledgerWitnessResidentActive?(ledgerWitnessResidentMesh?.length||0):0,
+ realWork:recordedWorkActive?(recordedWorkMesh?.length||0):0,
+ forge:forgeBellowsResidentActive?(forgeBellowsResidentMesh?.length||0):0,
+ harvested:completedHarvestResidentActive?(completedHarvestResidentMesh?.length||0):0,
+ fixtures:worksiteFixtureActive?(worksiteFixtureMesh?.length||0):0,
+ courierTrail:courierTrailResidentActive?(courierTrailResidentMesh?.length||0):0,
+ marketShutters:marketShutterResidentActive?(marketShutterResidentMesh?.length||0):0,
+ cottageDoors:cottageDoorResidentActive?(cottageDoorResidentMesh?.length||0):0,
+ sunShadows:solarShadowActive?.buffer?solarShadowActive.vertices.length:0,
+ livedAmbient:livingVillageActive?(livingVillageMesh?.length||0):0,
+ occupiedNightHomes:nightHomesActive?(nightHomesMesh?.length||0):0,
+ restingPeople:restingActorVisible?restingActorMesh.length:0,
+ commuterPeople:commuterResidentVisible.length?commuterResidentMesh.length:0,
+ workingPeople:workingResidentVisible.length?workingResidentMesh.length:0,
+ foregroundPeople:foregroundResidentVisible.length?foregroundResidentMesh.length:0,
+ precipitation:(atmosphere.climate.weather==='rain'?200:
+   atmosphere.climate.weather==='snow'?240:0)*30
+}:{noWebGL:data.length};
+const nonFieldSourceTriangles=Object.fromEntries(Object.entries(nonFieldSourceFloats)
+ .map(([key,floats])=>[key,floats/30]));
+const nonFieldSourceSum=Object.values(nonFieldSourceFloats)
+ .reduce((sum,floats)=>sum+floats,0)/30;
 let fieldLodDraw={drawCalls:0,driverCalls:0,multiDrawBatches:0,
  triangles:0,mode:'complete-civic-fallback'};
 // Submit all genuine retained fixed houses, roads, shops and hills FIRST.
@@ -36096,6 +36132,12 @@ if(gpuAvailable){
   civicCore:scenicVisibilityStats.civicCore,
   civic:scenicVisibilityStats.civic
  });
+ // Source-level budget proof: capture every legitimate current GPU/CPU
+ // source and reconcile with the original original non-field expression.
+ viewFarmBudgetAudit.originalNonFieldSources=nonFieldSourceTriangles;
+ viewFarmBudgetAudit.originalNonFieldSum=nonFieldSourceSum;
+ viewFarmBudgetAudit.originalSourceReconciliationError=
+  nonFieldSourceSum-nonFieldTriangles;
  // All original plotted rows remain present: the selected near/far tier can
  // spend only genuine camera-visible headroom, never imaginary offscreen cost.
  fieldLodDraw=drawResidentFarmFields(

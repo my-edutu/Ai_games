@@ -55,6 +55,7 @@ for(const viewport of [{width:390,height:844},{width:1024,height:640}]){
      coverage:g.getActorPresentationCoverageAudit(),
      geometry:g.getGeometryAudit(),farm:g.getFarmFieldResidencyAudit(),
      triangles:g.renderStats().lastFrameTriangles,
+     viewLedger:g.renderStats().viewFarmBudgetAudit,
      profile:g.getFrameProfile().stages,
      glError:document.getElementById('world').getContext('webgl')?.getError()??-1,
      courier:g.getActiveDeliveries().find(d=>d.citizen===name)||null,
@@ -124,6 +125,7 @@ for(const viewport of [{width:390,height:844},{width:1024,height:640}]){
     cache:g.getOriginalCourierCartTemplateAudit(),
     actors:g.getActorPresentationCoverageAudit(),
     triangles:g.renderStats().lastFrameTriangles,
+    viewLedger:g.renderStats().viewFarmBudgetAudit,
     farm:g.getFarmFieldResidencyAudit(),
     stages:g.getFrameProfile().stages,
     glError:document.getElementById('world').getContext('webgl')?.getError()??-1,
@@ -150,6 +152,12 @@ for(const viewport of [{width:390,height:844},{width:1024,height:640}]){
   expect(legacy.farm.farSourceHash).toBe(verified.farm.farSourceHash);
   expect(legacy.farm.drawnPlots.map(x=>[x.plot,x.mode,x.triangles]))
    .toEqual(verified.farm.drawnPlots.map(x=>[x.plot,x.mode,x.triangles]));
+  // W516 strict physical source reconciliation: never forgive 809 missing
+  // or doubled triangles just to make CI green.
+  expect(Math.abs(verified.viewLedger.originalSourceReconciliationError))
+   .toBeLessThan(.001);
+  expect(Math.abs(legacy.viewLedger.originalSourceReconciliationError))
+   .toBeLessThan(.001);
   expect(legacy.triangles).toBe(verified.triangles);
   expect(legacy.cart.liveCartNames).toContain(current.citizen);
   expect(legacy.glError).toBe(0);
