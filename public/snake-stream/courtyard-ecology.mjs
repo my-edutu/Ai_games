@@ -377,13 +377,16 @@ export function sculptRiparianBank(x, channel, width, height, progress) {
   // collisions, material passes, textures, shaders or unlicensed scenery.
   // Branching bays become planted moss pools instead of three uniform
   // translucent tracks. Reuse every existing triangle and collision limit.
-  const widthAt = Math.max(.036, halfSpan * edgeTaper * // T1 deeper oxbow stage: physical shaded rooted bays and dry
+  const widthAt = Math.min(height*.08+.299, Math.max(.036, halfSpan * edgeTaper * // T1 deeper oxbow stage: physical shaded rooted bays and dry
     // limestone coves, rather than six parallel pale painted tracks. This
     // is the SAME existing rooted river mesh and exactly the same safe
     // public cell/hazard/portal coordinates. It neither paints a false
     // collectible nor allocates another GPU resource.
-    (.14 + 1.92 * oxbow ** 2.12)
-    * (.82 + .29 * estuary));
+    // T1: one continuous, physically grounded planted terrace, not three
+    // narrow graphic streams. A high, asymmetric dry-bank shoulder widens
+    // only the EXISTING safe low-relief geometry, with no new vertices.
+    (.21 + 2.12 * oxbow ** 2.12)
+    * (1.02 + .37 * estuary)));
   // A former set of three nearly parallel cross-court ribbons was visibly
   // legible as graphic linework in the exact 84c1 WebGL overview. Re-route
   // the SAME rooted shore geometry into three asymmetric branching lagoons:
@@ -639,11 +642,22 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
         const x=centreX+Math.cos(angle)*reachX*t-Math.sin(angle)*sway;
         const z=centreZ+Math.sin(angle)*reachZ*t+Math.cos(angle)*sway;
         const tangent=angle+.15*Math.sin(t*7+bed*.67);
-        const thickness=(.09+.21*Math.sin(t*Math.PI)**.7)*(.86+.14*noise(bed+step*.13,strand+12));
+        // T1: existing ten long root mosaics become broad, weathered forest
+        // benches with lichen edges instead of hair-thin drawn lines. Each
+        // actual 3D vertex stays on the exact original safe field under the
+        // serpent contact and below every event cue. No extra triangles.
+        const crown=Math.sin(t*Math.PI)**.7;
+        const thickness=(.16+.72*crown)*(.77+.23*noise(bed+step*.13,strand+12))
+          *(.86+.14*Math.sin(t*9.2+bed*.79+strand));
         const nx=-Math.sin(tangent),nz=Math.cos(tangent);
+        const nearX=clamp(x,-W+.70,W-.70),nearZ=clamp(z,-H+.70,H-.70);
+        const xA=clamp(nearX+nx*thickness,-W+.69,W-.69);
+        const zA=clamp(nearZ+nz*thickness,-H+.69,H-.69);
+        const xB=clamp(nearX-nx*thickness,-W+.69,W-.69);
+        const zB=clamp(nearZ-nz*thickness,-H+.69,H-.69);
         rows.push([
-          [x+nx*thickness,.0131+Math.sin(t*5+bed)*.001,z+nz*thickness],
-          [x-nx*thickness,.0131+Math.sin(t*5+bed)*.001,z-nz*thickness]
+          [xA,.0127+.0070*crown+Math.sin(t*5+bed)*.00065,zA],
+          [xB,.0127+.0032*crown+Math.sin(t*5+bed)*.00065,zB]
         ]);
       }
       for(let step=0;step<rootSegments;step++){
@@ -691,7 +705,10 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
   // Wider cove lobes can replace some near-zero-area bank triangles, but that
   // must not turn into an unreviewed vegetation/resource-count increase.
   const originalFernCapacity = width >= 40 && height >= 24 ? 71 : 130;
-  const availableClumps = Math.min(originalFernCapacity, Math.max(0,Math.floor((3090 - position.length / 9) / 6)));
+  // Preserve every original high-board rooted fern even as the SAME existing
+  // low terrain triangles widen into physical woodland shelves; original
+  // strict <3100-triangle budget still holds (3091 maximum on 40x24).
+  const availableClumps = Math.min(originalFernCapacity, Math.max(0,Math.floor((3099 - position.length / 9) / 6)));
   fernCandidates.sort((a,b) => a.rank - b.rank || a.iz - b.iz || a.ix - b.ix);
   let interstitialFernClumps = 0, interstitialFernTriangles = 0, fernCanopyHeight = 0;
   const fernCourseAnchors = [];

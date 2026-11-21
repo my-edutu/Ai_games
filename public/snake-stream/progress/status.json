@@ -1,10 +1,20 @@
 {
   "updatedAt": "2026-11-21",
-  "status": "T0 UNSIGNED / T1 BUILDING SELF-REJECTED original 9fb; candidate expanded actual four-shore terrain unjudged / T2-T3 BUILDING / T4 HARD RED 9fb 1/17",
-  "detail": "Original 9fb71ce exact Chromium #44854474783 52/95 original strict 1 completed renderer draw/17 at 751x415 and 658 GPU skips; real 1920/portrait and 50.64s film show rectangular tiled court, graphic mint beds and tiny hero, T1 self-rejected. New source-verified native expanded forest-to-tide connected four-shore substrate RED parent GREEN candidate; original 385 vertices/672 triangles preserved, focused 7/7, broader 14/16 with two same-parent failures, TS and truthful 900-tick checksum 82492d82 PASS. Candidate-matched Chrome/film/physical displays/p95 and independent critique PENDING.",
+  "status": "T0 UNSIGNED / T1 BUILDING parent 0e7f visually SELF-REJECTED; new full-court physical loam candidate unjudged / T2-T3 BUILDING / T4 HARD RED original 0e 9/17",
+  "detail": "2026-11-21 T1 whole-board physical forest terraces, exact parent 0e7f242; new source unjudged. Parent Chromium #44862156875 original strict 1-second 9/17 genuine complete renderer submissions at 751x415, 659 GPU skips (61 RAF not accepted); parent CI #44862156884 729/803. Same-head 1920/portrait real-WebGL imagery and unmodified 55s game STILL show severe rectangular dark-green tiled court, mint bed ribbons and undersized overview face: T1 SELF-REJECT. Native RED parent->GREEN physically planted earth coverage 28x16 20.6% to 31.1%, 40x24 15.6% to 23.7%, unchanged 8x8 ecology, same 1 mesh/no new textures, original high-board 71 fern clumps, all triangles <3100 and clearance below y=.021. TS/900-tick self-test checksum 82492d82 PASS; selected native 6/10 with same 4 parent failures (historical exact-source assertions and old sediment color gate). This does NOT prove actual new-head visual gain or physical device presents. Next Actions new-head whole-game visual and strict original T4, then refactor T1 if rectangular. T0 unsigned, T1 BUILDING unjudged, T2/T3 BUILDING, T4 HARD RED, independent critic PENDING. Never merge/deploy/force push.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Original 9fb real Chromium 1920/portrait still a rectangular court with pale courses and tiny snake face; unchanged original strict 1 complete renderer draw/17 with 658 queue skips. New physical shore candidate native only, full-game acceptance pending.",
+  "latestCaption": "Original 0e same-head real Chromium 1920/portrait and 55s game still rectangular/mint; actual unchanged strict 1s 9/17, 659 queue skips. Native expanded loam geometry GREEN only; actual new-source full-game acceptance PENDING.",
   "reviews": [
+    {
+      "area": "2026-11-21 T1 physically contiguous full-board forest floor",
+      "sourceHead": "0e7f242ad4259aff5d34e09d521bb20d0c1c9229",
+      "ecologyParentBlob": "d2de2b9e89add560953f1ed46a041af0cd15fe5f",
+      "ecologyCandidateBlob": "ab8a61554aa530fecfdcc023186446d8977390cd",
+      "newTestBlob": "21583bbfd60a988f92023d13e5a85a6e7fe09cab",
+      "browser": "Original 0e #44862156875 real 9/17 at 751x415, 659 skips; actual whole scene still rectangular; new source browser pending",
+      "native": "Exact-parent RED -> GREEN; 8x8 39.4->57.3%, 28x16 20.6->31.1%, 40x24 15.6->23.7% physical low-terrain triangle area; same 4 inherited failures selected 6/10; 40x24 71 ferns 3088 tri; TypeScript and 900-tick selftest PASS",
+      "verdict": "T0 unsigned, T1 BUILDING visually unjudged, T2/T3 building, T4 hard red, independent critic pending"
+    },
     {
       "area": "2026-11-21 T1 forest-to-tide whole-island native geometry; original 9fb true T4 RED",
       "sourceHead": "9fb71ce1ac338a48786e8906957f82f07a150725",
