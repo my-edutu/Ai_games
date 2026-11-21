@@ -606,6 +606,20 @@
     },
     "actualDeviceMemoryAndFramePercentiles": "NOT EVALUATED",
     "nextHighestImpactAction": "Inspect corrected exact-head 10-job CI plus fresh eight original 1x paired source videos/ledge and pair-source-events; examine both 25–30s full-motion transitions for simultaneous original opened bronze gate, complete moving hero, real F9 roof and first raised deck. If native bridge still 0, reopen actual old/new geometry/follow-camera ownership, not another single-shader fix. Then tackle full-loop experience through P1+; remain P0 until strict acceptance.",
-    "safety": "Frozen baseline source and transformation.json not edited; PR58 untouched; PR68 open DRAFT; no merge, deploy, force-push, unrelated-game modification."
+    "safety": "Frozen baseline source and transformation.json not edited; PR58 untouched; PR68 open DRAFT; no merge, deploy, force-push, unrelated-game modification.",
+    "additionalAcceptanceTestCorrectionSha": "e7a956b3a8c8d1f61813a078fc9b92ac7a2fbf23",
+    "captureRun": "https://github.com/my-edutu/Ai_games/actions/runs/44931295601",
+    "captureSourceSha": "d3706ecbaa1b6cce11b7a6f54a4dafc06ca8b5c8",
+    "captureStateAtCheck": "9 gameplay/ledge jobs in progress; paired pixel/event acceptance not yet inspected. No new clip verdict.",
+    "productionOnlyQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44931167699",
+    "productionOnlyQualityResult": "FAILED Phase3 shards 1/2 because old tests used no actual structuralVisibleSeconds and assumed old-only fade; preserved failure and updated all three relevant fixtures in following test commits. This old-head CI is a real veto, not a game-quality judgment.",
+    "correctedTestQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44931499323",
+    "correctedTestQualityStatus": "PENDING when observed, not claimed green",
+    "sourceHeadAtFollowUp": "e7a956b3a8c8d1f61813a078fc9b92ac7a2fbf23",
+    "actualIndependentReviewerCounts": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    }
   }
 }
