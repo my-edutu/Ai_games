@@ -5,7 +5,7 @@ import { publicEarnedCounterImpactStage } from './public-counter-impact.mjs';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilSafeContactHalfHeight, publicGuardianEarnedRecoilFinalPairShift, publicGuardianEarnedRecoilPairStageLift, publicGuardianEarnedContactStageResponse, publicGuardianEarnedRecoilRevealElevation, setPublicEarnedGuardianFrontQuarterOffset, publicEarnedGuardianCounterCameraPriority, publicEarnedGuardianCounterCameraAct, publicEarnedGuardianNarrowContactContinuity, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap, publicEarnedGuardianScenicPerformanceCourt, setPublicEarnedGuardianNarrowPairStage, setPublicEarnedGuardianWideContactReveal } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilSafeContactHalfHeight, publicGuardianEarnedRecoilFinalPairShift, publicGuardianEarnedRecoilPairStageLift, publicGuardianEarnedContactStageResponse, publicGuardianEarnedRecoilRevealElevation, setPublicEarnedGuardianFrontQuarterOffset, publicEarnedGuardianCounterCameraPriority, publicEarnedGuardianCounterCameraAct, publicEarnedGuardianNarrowContactClock, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap, publicEarnedGuardianScenicPerformanceCourt, setPublicEarnedGuardianNarrowPairStage, setPublicEarnedGuardianWideContactReveal } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicEarnedGuardianCounterLightPath } from './public-lantern-encounter.mjs';
@@ -1516,33 +1516,31 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // Keep the ACTUAL previous witnessed camera at the real impact and ease
     // toward the public post-parry physical stage as Thornback withdraws.
     // The source two-second counterPhase is never a guessed/unseen threat.
+    // Input-time staging preserves the SAME original director shot and
+    // strict historic regression tests. The visual-only remap changes only
+    // a verified current 320px Follow counter, not the engine/event clock.
     const earnedShotAct=publicEarnedGuardianCounterCameraAct(
-      earnedCounterActor?.counterPhase,earnedDuelContinuity,
-      settings.reducedMotion,aspect);
-    // Authentically photographed 320px warning -> lantern impact remains
-    // the SAME staged camera, not an invented stop or public-only AI input.
-    // This narrow-stage hold never affects 390, landscape, desktop, manual,
-    // reduced motion, result or a lost/other guardian's encounter.
-    const stagedShotAct=publicEarnedGuardianNarrowContactContinuity(
-      earnedShotAct,earnedCounterActor?.counterPhase,earnedDuelContinuity,
-      settings.reducedMotion,aspect);
+      publicEarnedGuardianNarrowContactClock(
+        earnedCounterActor?.counterPhase,earnedDuelContinuity,
+        settings.reducedMotion,aspect),
+      earnedDuelContinuity,settings.reducedMotion,aspect);
     // The native Pass522 hit still breaks the adjacent 390px tick93 warning
     // shot: portraitCameraOffset is NOT the camera actually used to photograph
     // that warning. Hold the previous physically rendered target and lens
     // while the witnessed contact arrives, then let the SAME current public
     // actor pair move the shot continuously into the true retreat. No second
     // camera, private state, replayed hit or physical character movement.
-    if (earnedDuelContinuity && stagedShotAct < 1) {
-      desiredTarget.lerp(cameraTarget,1-stagedShotAct);
-      targetHeight=halfHeight+(targetHeight-halfHeight)*stagedShotAct;
+    if (earnedDuelContinuity && earnedShotAct < 1) {
+      desiredTarget.lerp(cameraTarget,1-earnedShotAct);
+      targetHeight=halfHeight+(targetHeight-halfHeight)*earnedShotAct;
     }
     // A nearby reciprocal public warning already has an actor-pair target.
     // Do not double-shift that same camera aim when the earned lens wins.
     if (earnedDuelContinuity && !closestThreat?.strength) {
       const recoilAim=publicGuardianEarnedRecoilPairFocus(
         aspect,pose,earnedCounterModel.position,true,settings.reducedMotion,CELL_SIZE);
-      desiredTarget.x+=recoilAim.x*stagedShotAct;
-      desiredTarget.z+=recoilAim.z*stagedShotAct;
+      desiredTarget.x+=recoilAim.x*earnedShotAct;
+      desiredTarget.z+=recoilAim.z*earnedShotAct;
     }
     const publicFollowEncounter = cameraMode === 'follow' && !result
       && !cameraGate && (!!closestThreat?.strength || earnedDuelContinuity);
@@ -1629,7 +1627,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // view). The earned same-run 3D contact and authentic retreat remain one
     // continuous shot. Final strict physical full-body limits still apply.
     if(earnedDuelContinuity)
-      earnedRecoilCameraOffset.lerp(cameraOffset,1-stagedShotAct);
+      earnedRecoilCameraOffset.lerp(cameraOffset,1-earnedShotAct);
     // The actual 390px full-frame counter hides Thornback's reaction behind
     // the camera-side foliage. The previous public two-actor contact stays
     // intact through .24 of its REAL counter; during withdrawal smoothly

@@ -347,15 +347,17 @@ export function publicEarnedGuardianCounterCameraAct(
  * The source-conservative full-body NDC fitter and 44px controls are
  * unchanged; native no-crop capture must independently accept or reject.
  */
-export function publicEarnedGuardianNarrowContactContinuity(
-  previousAct,phase,earned=false,reducedMotion=false,aspect=0) {
+export function publicEarnedGuardianNarrowContactClock(
+  phase,earned=false,reducedMotion=false,aspect=0) {
   if(!earned || reducedMotion || !Number.isFinite(aspect)
     || aspect<.35 || aspect>=.45
-    || !Number.isFinite(previousAct) || previousAct<0 || previousAct>1
     || !Number.isFinite(phase) || phase<0 || phase>=1)
-    return previousAct;
+    return phase;
+  // Map the original witnessed phase into its native camera act window
+  // without changing the already-native-tested director itself. Pass566
+  // physical contact lasts through .26, recoil arrives at .78.
   const t=Math.max(0,Math.min(1,(phase-.26)/.52));
-  return t*t*(3-2*t);
+  return .08+.54*t;
 }
 
 export function setPublicEarnedGuardianFrontQuarterOffset(
