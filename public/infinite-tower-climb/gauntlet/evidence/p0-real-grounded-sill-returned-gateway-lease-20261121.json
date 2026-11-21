@@ -59,9 +59,9 @@
     "PLAYS": 0
   },
   "hardwarePerformance": "NOT EVALUATED",
-  "freshCaptureStatus": "New exact-source 9-job baseline/candidate campaign https://github.com/my-edutu/Ai_games/actions/runs/44892713765 queued at verification; result and native event matching pending.",
-  "ciStatus": "Previous HEAD 6664a33d quality https://github.com/my-edutu/Ai_games/actions/runs/44891643085 failed Phase3 shard2 on missing/unsafe scenic state counters; prior source c8ef6d29 event-video pairing https://github.com/my-edutu/Ai_games/actions/runs/44891392237 failed 0/2. New exact production source 44b5912b quality https://github.com/my-edutu/Ai_games/actions/runs/44892713784 queued, not yet verified.",
-  "nextAction": "Check immutable source 44b5912b exact-head quality and all nine original gameplay jobs; inspect unchanged desktop/portrait native WebMs at 24–31s and full-motion, require strictly paired source events and continuous full actor, original gateway, real F9 ground and successor; if still failing, reopen scene/camera ownership in P0, no cosmetic patches. Supported actual-device p50/p95/p99 and memory plus independent 5x3 blind reviews remain NOT EVALUATED.",
+  "freshCaptureStatus": "Production b6773eaf 9-job campaign https://github.com/my-edutu/Ai_games/actions/runs/44900659105 running; no new native evidence inspected yet.",
+  "ciStatus": "Current exact-source quality 44900679818 pending; earlier 44894903572 was 10/10 passed for a DIFFERENT SHA. Production b6773eaf capture 44900659105 running; native acceptance remains FAILED 0/2 on last completed source 44b5912b.",
+  "nextAction": "Inspect candidate b6773eaf original desktop+portrait danger WebMs and complete session event index; test whether full-motion bronze-to-Void handoff and legible complete actor/actual F9 roof survive more than two consecutive native frames at source crossing. If returned lease is still discontinuous, revisit actual source-owned gateway mesh visibility versus giant first-F9 upper-deck foreground and final camera safety; do not switch to P1 or claim quality. Check exact-source quality 44900679818 and device/perceptual gates.",
   "safety": "No simulation, guardian, platforms, collision, PR58, frozen baseline or unrelated games changed.",
   "qualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44891392196",
   "pr68HeadBeforeWork": "6664a33d389801e881adf1bce73616759542c77c",
@@ -139,5 +139,39 @@
     },
     "nextHighestImpactAction": "Reopen P0 full-motion scene geometry/camera composition at real 25.50s-25.75s threshold: old F8 black gantry/open guardian arch and first genuine F9 wide circular roof / elevated moving decks pop from distinct architectural silhouettes despite retained GPU and camera projections. Correct shared in-camera physical ownership and hero legibility as a system; no more isolated static palette or distant upload changes. Before acceptance, capture true immutable exact-source normal-speed paired films and verify >=2 consecutive visible joined old gate+whole moving hero+source-walkable F9 roof frames in BOTH orientations, plus result/restart and device metrics.",
     "safety": "PR #58, frozen baseline ledger SHA/blob, unrelated games, merge, deploy, force-push and PR68 draft status unchanged."
+  },
+  "currentProductionSourceSha": "b6773eaf223aaf374beb1cc42191ad351cd0bed8",
+  "currentEvidenceAndTestSourceSha": "9fcbda7563a55af0866baf880a38f01e0183e87f",
+  "returnedGatewayTimebaseRepair20261121": {
+    "status": "IMPLEMENTED, NEW EXACT-SOURCE VISUAL IMPROVEMENT NOT YET VERIFIED",
+    "productionSha": "b6773eaf223aaf374beb1cc42191ad351cd0bed8",
+    "helperCommitSha": "7cbe03a26430ff79eb77ae5867474f674622f145",
+    "testAndCaptureCandidateHeadSha": "9fcbda7563a55af0866baf880a38f01e0183e87f",
+    "rootSource": "public/infinite-tower-climb/visuals/world.mjs noteFrameSubmitted + source-submitted-doorway-cadence.mjs",
+    "actualReviewedFullMotion": {
+      "sourceSha": "44b5912b88814208de490dd6b672fb032d6369ae",
+      "nineJobCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44892713765",
+      "rawArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44892713765/artifacts/14702243412",
+      "originalWebmSha256": {
+        "desktop": "16c0db08ec589b862f0613f067cb6e49409ab9eab5e639a48e5cbe101ad2bb6c",
+        "portrait": "4bdc2518c23b386fbce0785415e1aebf3558ac6b686e31f28a83cfb14503eea0"
+      },
+      "causalFinding": "Returned World owner and camera NDC both safe (desktop 6/6, portrait 5/5 sampled), but native 25.50→25.75 scene composition sharply replaces old gateway room with giant raised violet first-F9 geometry. Desktop original old-gate opacity .8167 at tick516 after 16 real returns, owner absent at tick534; portrait old-gate opacity .0127 at tick516 after 20 returns. Per-return visibleSeconds can count only ~16ms RAF dt despite a 80-100ms completed software-WebGL submission, so the old physical palette/GPU owner can expire without enough photographed old-to-new fade.",
+      "nativeGate": "FAILED 0/2 strict matched viewports; GPU safe NDC is not native pixel verification",
+      "noSourceEdits": "Baseline and authority untouched; old WebMs unedited"
+    },
+    "actualImplementation": "Share bounded completed-WebGL-return time (min 100ms per returned pair, max with frame dt) across existing old cap/roof/guardian-gateway/gallery/atmosphere owner and retired original bearing palette. Single cold frame, browser poll and long renderer stalls cannot earn an unseen interval; no new geometry/gameplay clocks/physics/moves/guardian/colliders.",
+    "safetyChecks": "New focused tests for 16×100ms returns vs 16ms clamped RAF, 10-second stall, invalid/reversed clock and source owner wiring. CI is a VETO, not experience acceptance.",
+    "qualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44900679818",
+    "qualityStatusAtRecord": "PENDING, NOT CLAIMED PASS",
+    "newMatchedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44900659105",
+    "captureStatusAtRecord": "IN PROGRESS at production b6773eaf, capture does not include subsequent test-only commit; full source-pinned normal-speed WebMs pending",
+    "independentReviewCounts": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "hardwareFrameTimeAndMemory": "NOT EVALUATED",
+    "nextAction": "Inspect candidate b6773eaf original desktop+portrait danger WebMs and complete session event index; test whether full-motion bronze-to-Void handoff and legible complete actor/actual F9 roof survive more than two consecutive native frames at source crossing. If returned lease is still discontinuous, revisit actual source-owned gateway mesh visibility versus giant first-F9 upper-deck foreground and final camera safety; do not switch to P1 or claim quality. Check exact-source quality 44900679818 and device/perceptual gates."
   }
 }
