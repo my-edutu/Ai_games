@@ -259,6 +259,29 @@ export function shouldPromoteStableShotCache({ queue, cacheHit = false, directFr
     queue.lastObservedLatencyMs >= 120 && queue.lastObservedLatencyMs <= 5000;
 }
 
+/**
+ * Admit exactly one COMPLETE HDR/depth static-world bake and one truthful live
+ * serpent/water/fruit/hazard/portal composite on the first pristine desktop
+ * overview. The original strict desktop test starts in balanced mode at its
+ * existing 0.75 raster; low-tier streams start at their existing 0.4 raster.
+ * Never trade away pixels or visual layers in order to pass a cadence test.
+ * A GPU fence must still be recorded by the normal caller for the full draw.
+ */
+export function shouldPrimeColdFullSceneCache({ queue, quality, cameraMode, frameCount,
+  staticMeshes, cacheSupported, cacheHit, cssWidth, cssHeight, renderScale,
+  submittedAtWorldBuild } = {}) {
+  const nativeRaster = (quality === 'balanced' && Math.abs(renderScale - .75) <= 1e-5) ||
+    (quality === 'low' && Math.abs(renderScale - .4) <= 1e-5);
+  return nativeRaster && cameraMode === 'overview' && frameCount === 0 &&
+    cacheSupported === true && cacheHit === false &&
+    Number.isInteger(staticMeshes) && staticMeshes > 0 &&
+    Number.isFinite(cssWidth) && Number.isFinite(cssHeight) &&
+    cssWidth >= 1500 && cssHeight >= 800 &&
+    submittedAtWorldBuild === 0 && queue?.supported === true &&
+    queue.failed === false && queue.submitted === 0 && queue.completed === 0 &&
+    queue.pending === 0 && queue.skipped === 0;
+}
+
 export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -372,6 +395,8 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   let staticMeshCount = 0;
   let cacheHits = 0;
   let cacheBuilds = 0;
+  // Native complete-world cold primes; diagnostic counter, NOT displayed FPS.
+  let coldWorldPrimes = 0;
   let retainedHigherRasterCompositions = 0;
   // One world-scoped cache-admission state; no buffers, GPU resources or
   // retained public snapshots. The gate keeps counting genuine full renders.
@@ -473,17 +498,26 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       presentWidth: cacheSize.x, presentHeight: cacheSize.y,
       matchingView: key === staticKey, sameCssLayout: cachedCssLayout === lastCssLayout,
     });
-    // On the first settled overview of a world, the old renderer spent an
-    // HDR static bake, display bake and live composite before ANY real scene
-    // frame completed. Make a full direct 3D submission first, then admit
-    // the optional cache only if a completed fence demonstrates headroom.
-    // Later changed views keep normal cache behavior after admission.
+    // The first pristine desktop overview may prime genuine full static HDR
+    // colour and depth before the two costly direct-scene GPU fence probes.
+    // This is one real static scene bake PLUS an unchanged live complete 3D
+    // composition at the ORIGINAL pixel ratio. Never prime after a submit,
+    // camera transition, context failure or queue pressure. Later views retain
+    // the original completed-fence admission and resource bounds.
+    const coldWorldPrime = shouldPrimeColdFullSceneCache({
+      queue: currentGpuQueue, quality, cameraMode, frameCount,
+      staticMeshes: staticMeshCount, cacheSupported, cacheHit,
+      cssWidth: canvas.clientWidth, cssHeight: canvas.clientHeight,
+      renderScale: renderer.getPixelRatio(), submittedAtWorldBuild,
+    });
     if (!cacheAdmissionReady && !shouldAdmitFullSceneCache({ queue: currentGpuQueue,
       cacheHit, directDraws: cacheProbeDirectFrames, submittedAtWorldBuild,
       bootstrapRecoverable: true })) {
-      cacheProbeDirectFrames = Math.min(1048576, cacheProbeDirectFrames + 1);
-      renderer.render(scene, camera);
-      return;
+      if (!coldWorldPrime) {
+        cacheProbeDirectFrames = Math.min(1048576, cacheProbeDirectFrames + 1);
+        renderer.render(scene, camera);
+        return;
+      }
     }
     // An initial admission that has PROVED two current-world completed
     // fences must actually construct its source-exact HDR static photograph.
@@ -491,6 +525,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     // despite granting admission. Subsequent genuine pressure/misses still
     // follow the original complete-scene direct-preserve recovery path.
     const newlyAdmitted = !cacheAdmissionReady;
+    if (newlyAdmitted && coldWorldPrime) coldWorldPrimes++;
     cacheAdmissionReady = true;
     // The exact camera+projection+fog key is the stable-scenery identity.
     // Topology-sensitive public props are always rendered live.
@@ -879,6 +914,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures,
       frameMs: { p50: percentile(0.5), p95: percentile(0.95), p99: percentile(0.99) },
       staticCache: { supported: cacheSupported, active: cacheActive, hits: cacheHits, builds: cacheBuilds,
+         coldWorldPrimes, // counts real full-world HDR+live cold primes, not physical displays
         retainedHigherRasterCompositions, // cached full-static+live compositions, never actual presents
         probeDirectFrames: cacheProbeDirectFrames, // complete original draws, NOT display presents
         admissionReady: cacheAdmissionReady, // permission, NOT a frame-rate result

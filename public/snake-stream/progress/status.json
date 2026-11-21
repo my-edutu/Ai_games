@@ -1,10 +1,20 @@
 {
   "updatedAt": "2026-11-21",
-  "status": "T0 UNSIGNED / T1 BUILDING exact parent catastrophically black and SELF-REJECTED; new native finite-material correction VISUALLY UNJUDGED / T2-T3 BUILDING / T4 HARD RED original 4/17",
-  "detail": "Open draft #52 immutable parent 4e65d2c9ca64f40dd56e0f15f5fa532d41e0adca. Genuine parent 1920 and 390 screenshot shows nearly completely black tiled courtyard, a severe regression from green/earthstone e179 parent. Root cause: floor.coolSlate undefined, NaN blue for all 840/4440/9720 real 3D stone vertices. Native corrected static stone colour field from existing weathered physical ecotone; verified source-archive hash plus Git source SHA; RED parent 0/2, GREEN source 4/4, 11/14 selected with 3 historical failures reproduced original, TS and 900-tick authority checksum 82492d82 PASS. Original strict 1s 4 genuine renderer submissions/17 at 751x415, 707 GPU skips, 52/95 browser, 733/808 native CI. NO new-head Chromium/film/FPS acceptance; local browser access denied by environment policy, not bypassed. See docs/reviews/snake-gauntlet/2026-11-21-t1-black-flagstone-nan-regression-repair.md",
+  "status": "T0 UNSIGNED / T1 BUILDING real corrected stone but whole-scene visually SELF-REJECTED / T2-T3 BUILDING / T4 HARD RED 2/17 parent; new cache-first candidate NOT visually/performance accepted",
+  "detail": "Source-head 8f1dda real Chromium run #44895388062 original strict 2 genuine complete submissions/17 in 1016ms at 751x415, 704 skips, browser 52/95; native #44895387989 734/808. Genuine screenshot black stone corrected, but rigid tiled court and small serpent remain. New source-exact full-quality first-frame HDR/depth cache experiment original balanced 0.75 and low 0.4 with strict pristine queue, original layers untouched; RED parent 0/2 -> GREEN 2/2, selected 46/58 same 12 parent fails, TS & 900-tick authority PASS checksum 82492d82. No candidate browser, FPS, 45-90s independent critique or final acceptance yet. See docs/reviews/snake-gauntlet/2026-11-21-t4-full-quality-first-scene-prime-experiment.md",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Latest real 4e65 Chromium courtyard nearly BLACK, due to 100% NaN blue in native stone geometry. Repair is source-exact RED/GREEN native only; visual acceptance unverified. Original mandatory 1-second test 4/17.",
+  "latestCaption": "Current real 8f1 source corrected stone blackness but board remains rectangular and hero tiny; original mandatory 1s complete renders 2/17; candidate speculative.",
   "reviews": [
+    {
+      "area": "2026-11-21 T4 original balanced-quality desktop static HDR/depth cold prime; exact-source native experiment, NOT an accepted performance win",
+      "sourceHead": "8f1dda815efdb571920cfb9d4fab5adfdbcfb013",
+      "rendererParentBlob": "4ce482fefa5e97b1e146f145ca8daf149c946424",
+      "rendererCandidateBlob": "ad292a58107f4f402a9fccfd1511e89a4bae37a0",
+      "newTestBlob": "ba081c8a59fb5907e65a0a758527f80ae0557749",
+      "native": "Exact original parent RED 0/2 -> new GREEN 2/2; selected 46/58 same 12 inherited failures as parent (44/58 including new REDs); TS and real 900-tick authority checksum 82492d82 PASS",
+      "browser": "Original current 8f1 Chromium #44895388062: 2/17 genuine 1s completes at 751x415, 704 GPU skips, 52/95 browser; 734/808 CI, corrected stone yet rectangular/tiny snake; new code unverified",
+      "verdict": "T0 unsigned; T1 building visually rejected; T2/T3 building; T4 hard red; independent pending"
+    },
     {
       "area": "2026-11-21 severe black limestone WebGL regression; source-exact native NaN material recovery",
       "sourceHead": "4e65d2c9ca64f40dd56e0f15f5fa532d41e0adca",
