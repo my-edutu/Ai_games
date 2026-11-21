@@ -8,6 +8,7 @@ import { observedSourceEarnedAirborneHandoff, observedSourceEarnedDoorstepHandof
 import { createStoneSurfaceAsset, applyStoneSurface } from './world-surface.mjs';
 import { observedSceneHierarchy } from './scene-hierarchy.mjs';
 import { originalGuardianGatewayClearSightlineFrame } from './guardian-clear-sightline-frame.mjs';
+import { sourceOriginalGuardianThresholdSignature } from './source-original-guardian-threshold-signature.mjs';
 import { originalMeshPath } from './mesh-provenance.mjs';
 import { GUARDIAN_TRANSMISSION_LAYOUT, originalGuardianHoistPocketLoadPath } from './guardian-transmission-layout.mjs';
 import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedPrebuiltVoidShaftRelease, observedQueuedOriginalCapAtFirstRender, reconcileRecordedOriginalCapCrossing,
@@ -2705,6 +2706,29 @@ export function createTowerWorld(){
       // no disjoint violet rim may appear before a returned passage frame.
       syncGatewayReceivingRoofColours(arrivalRoutePalette,0);
     }
+    // The one TRUE F9 walkable receiving roof shares a readable directional
+    // metal inlay with the already-rendered original F8 doorway. Its three
+    // short sections follow the exact existing deck triangles and old threshold
+    // positions, with the SAME returned-frame palette as the actual roof lip.
+    // This is a surface accent on collision-owned f9:ground, not a new ledge,
+    // second doorway, collision object, future route hint or gameplay event.
+    if(sharedPhysicalRoof && joinedRoofSpans && arrivalRoutePalette?.roofJoin){
+      const routeTrace=new THREE.Group();
+      routeTrace.name='SourceEarnedActualFloorNineRouteTrace';
+      routeTrace.userData={oldCapId:'f8:cap',receivingPlatformId:p.id,
+        sourceAligned:true,nonColliding:true};
+      root.add(routeTrace);
+      for(const band of joinedRoofSpans){
+        const ink=band.kind==='approach'?arrivalRoutePalette.glow:
+          band.kind==='threshold'?arrivalRoutePalette.roofJoin.lampMiddle:
+            arrivalRoutePalette.roofJoin.lampSuccessor;
+        const strip=mesh(routeTrace,sector(25.53,25.59,band.angle,.022),
+          ink,[0,h+.011,0],[1,1,1],[0,band.offset,0]);
+        strip.name='ActualWalkableRoofDirection-'+band.kind;
+        strip.userData={sourceAligned:true,nonColliding:true,ambientDetail:true};
+        strip.castShadow=false;strip.receiveShadow=false;
+      }
+    }
     const realDeparture=theme==='void' && !sharedPhysicalRoof &&
       p.id?.startsWith('f9:') && p.id!=='f9:ground' &&
       retainedEarnedCap?.runToken===sourceRunToken &&
@@ -3025,6 +3049,32 @@ export function createTowerWorld(){
       block(doorway,materials.dark,
         [upperCrown.x,upperCrown.y,upperCrown.z],
         [upperCrown.width,upperCrown.height,upperCrown.depth]);
+      // Distinguish this SAME original, source-HP-locked doorway from the
+      // overlapping crane ribs in genuine 1x 960px/portrait footage. A
+      // recognizable forged negative-space arch and tall keystone remain
+      // attached to this one original F8 GPU door through its verified F9
+      // retention. Outboard piers never narrow the real full-body passage,
+      // high shoulders do not obscure combat, and every member follows
+      // the old gateway's real opacity/owner (not a synthetic second gate).
+      const originalThresholdSignature=sourceOriginalGuardianThresholdSignature({
+        platform:p,worldWidth:width,
+        guardianExitX:p.x+Math.floor(p.width*.76)
+      });
+      if(originalThresholdSignature){
+        const sourcePortal=new THREE.Group();
+        sourcePortal.name='SourceOriginalGuardianHPGateThresholdSignature';
+        sourcePortal.userData={sourceAligned:true,oldCapId:p.id,
+          thresholdX:originalThresholdSignature.thresholdX,
+          nonColliding:true};
+        doorway.add(sourcePortal);
+        for(const member of originalThresholdSignature.members){
+          const forged=beam(sourcePortal,member.from,member.to,member.radius,
+            member.material==='edge'?materials.edge:materials.copper);
+          forged.name=member.name;
+          forged.userData={sourceAligned:true,nonColliding:true,ambientDetail:true};
+          forged.castShadow=false;forged.receiveShadow=false;
+        }
+      }
       // The opened full-height bronze leaves need an actual high storage
       // volume rather than remaining at helmet height after a wide slide.
       // Each original leaf is raised by its source-earned counterweight drive
