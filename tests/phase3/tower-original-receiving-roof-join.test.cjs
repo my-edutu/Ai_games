@@ -165,3 +165,50 @@ test('prepainted canopy is one retained owner, not an extra F9 door or collider'
   assert.match(world,/nonColliding:true/);
   assert.doesNotMatch(world,/platforms.set\(['"]SourcePrepaintedOriginalGuardianReceivingCanopy/);
 });
+
+
+test('a returned bronze gateway does not reveal violet roof trim before the same source-certified roof departure',async()=>{
+  const {syncGatewayReceivingRoofColours:sync}=await subject();
+  class Color {
+    constructor(v){this.v=v;}
+    copy(other){this.v=other.v;return this;}
+    lerp(other,t){this.v+=(other.v-this.v)*t;return this;}
+  }
+  const mat=(v,e)=>({color:new Color(v),emissive:new Color(e)});
+  const make=()=>{
+    const p={top:mat(100,100),topVoid:new Color(0),
+      body:mat(120,120),bodyVoid:new Color(0),
+      rim:mat(140,140),rimVoid:new Color(0),
+      glow:mat(160,160),glowVoid:new Color(0),
+      glowEmissiveVoid:new Color(0)};
+    p.roofJoin={middle:mat(0,0),successor:mat(0,0),
+      beamMiddle:mat(0,0),beamSuccessor:mat(0,0),
+      edgeMiddle:mat(0,0),edgeSuccessor:mat(0,0),
+      lampMiddle:mat(0,0),lampSuccessor:mat(0,0)};
+    return p;
+  };
+  const original=make();
+  assert.equal(sync(original,0),true,'source-certified full old room is accepted');
+  for(const name of ['middle','successor'])
+    assert.equal(original.roofJoin[name].color.v,100,
+      'one original walkable roof cannot contain a mostly violet sector before the real doorway departs');
+  for(const [kind,base] of [['beam',120],['edge',140],['lamp',160]]){
+    for(const suffix of ['Middle','Successor'])
+      assert.equal(original.roofJoin[kind+suffix].color.v,base,
+        'full bronze state includes the physical source-owned steel and luminous underlip');
+  }
+  assert.equal(original.roofJoin.lampSuccessor.emissive.v,160);
+  const halfway=make();
+  assert.equal(sync(halfway,.5),true);
+  for(const name of ['middle','successor']) {
+    assert.ok(halfway.roofJoin[name].color.v<100);
+    assert.ok(halfway.roofJoin[name].color.v>0);
+    assert.ok(halfway.roofJoin[name].color.v<original.roofJoin[name].color.v);
+  }
+  assert.ok(halfway.roofJoin.successor.color.v<halfway.roofJoin.middle.color.v,
+    'the genuine successor roof still reads farther ahead in the material gradient');
+  const completed=make();
+  assert.equal(sync(completed,1),true);
+  assert.equal(completed.roofJoin.successor.color.v<halfway.roofJoin.successor.color.v);
+  assert.equal(sync(make(),Number.NaN),false,'invalid evidence cannot repaint the scene');
+});
