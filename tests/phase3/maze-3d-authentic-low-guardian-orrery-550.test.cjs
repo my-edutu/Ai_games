@@ -34,7 +34,7 @@ test('Pass550 real disclosed guardian re-authors a LOW outboard orrery with hone
    const pulse=full('Guardian earned Tideglass orrery pulse');
    const mast=full('Witnessed guardian rooted Tideglass weather vane');
    const shaft=full('Guardian observatory continuous mast');
-   const shell=[-1,1].map(side=>full('Guardian observatory joined upper shell '+cell+' '+side).name);
+   const shell=[-1,1].map(side=>w.group.getObjectByName('Guardian observatory joined upper shell '+cell+' '+side));
    assert.ok(stone&&inlay&&pulse&&mast&&shaft);
    assert.ok(shell.every(Boolean));
    assert.equal(shaft.parent,mast,'same original real connected moving mechanism');
