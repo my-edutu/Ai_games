@@ -520,6 +520,55 @@ test('RED: measured 200ms Walking_A sparse window may try a rate-bounded origina
   'live original GLB toe finisher must independently audit current sparse direct travel');
 });
 
+// Genuine ORIGINAL 390px source skin at ae75 native f75 (21 Nov): right
+// heel 183.694mm ABOVE stone; toe 75.085mm BELOW stone after the actual
+// imported hip->knee->foot chain. Another original source toesl child at
+// f69 produced 10.918mm true skinned lift, so the former 8mm hard ceiling
+// can reject physically attainable, still-buried SAFE partial swing relief.
+// The AFTER shoe below is SYNTHETIC; native WebGL must separately witness it.
+test('RED: source-skinned deep swing can certify up to 11mm legal toe relief without false plant',async()=>{
+ const {certifyLicensedCounterpitchToeFinish:certify}=await source;
+ const id='original-390px-real-f75-synthetic-toe-after';
+ const left={heelY:-.03294593314934879,toeY:-.010736327091934665,
+  heelXZ:[-1.814949141131763,-6.957308485021304],
+  toeXZ:[-2.0841192719364727,-6.9319577865527195]};
+ const right={heelY:.18369441614067894,toeY:-.09508462480972439,
+  heelXZ:[-1.7071563608055793,-7.107854929982336],
+  toeXZ:[-1.8148420399622596,-7.136212214712062]};
+ const before={left,right};
+ const proof={source:'measured-original-licensed-source-counterpitch',
+  sourceClip:'Walking_A',side:'right',sourceInstanceId:id,
+  sourceClipTimeSeconds:.09851460877195402,
+  finalIndependentSourceSkin:true,originalOppositeShoeVerified:true,
+  sourceOriginalRootTravelWitnessed:true,
+  witnessedFrameIntervalSeconds:.0333,
+  witnessedRootTravelMeters:.019291663189031638,
+  witnessedDirectFrameTravelMeters:.019291663189031638,
+  witnessedFrameAgeSeconds:0,
+  residualToeBurialMeters:.07508462480972439,
+  contactLocked:false,plantCertified:false,after:before};
+ const after={left,right:{...right,toeY:right.toeY+.0109}};
+ const args={proof,before,after,side:'right',sourceInstanceId:id,
+  sourceInstanceSame:true,sourceClipName:'Walking_A',
+  sourceToeTrackVerified:true,sourceToeBoneParentVerified:true,
+  angleRad:-.0999,floorTopY:-.02};
+ const safe=certify(args);
+ assert.ok(safe,'real source angular rate and both weighted shoes permit 10.9mm partial relief');
+ assert.ok(Math.abs(safe.toeLiftMeters-.0109)<1e-8);
+ assert.ok(safe.residualToeBurialMeters>.06);
+ assert.equal(safe.contactLocked,false);
+ assert.equal(safe.plantCertified,false);
+ for(const unsafe of [
+  {after:{left,right:{...right,toeY:right.toeY+.0121}}},
+  {after:{left,right:{...right,toeY:right.toeY+.0109,heelY:right.heelY+.003}}},
+  {after:{left:{...left,toeY:left.toeY+.003},right:after.right}},
+  {angleRad:-.103},{proof:{...proof,witnessedDirectFrameTravelMeters:0}},
+  {proof:{...proof,sourceInstanceId:'other-original-rig'}},
+  {proof:{...proof,witnessedFrameIntervalSeconds:.25}}
+ ])assert.equal(certify({...args,...unsafe}),null,
+  'source toe relief must remain bounded, real-skinned and non-contact');
+});
+
 test('RED-first: real 390px licensed toesl hinge can grow across one authenticated 60Hz Walking_A source pair without an angular snap',async()=>{
  const {planLicensedSourceToeChildContinuityCandidates:plan}=await source;
  assert.equal(typeof plan,'function',
