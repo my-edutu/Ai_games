@@ -66,6 +66,10 @@ for(const width of [1024,390]){
      expect(row.softwareWorld.maxRetainedBytes).toBe(65536*4);
      expect(row.softwareActors.retainedBytes).toBeLessThanOrEqual(192000*4);
      expect(row.softwareActors.sourceGeometryAlwaysFresh).toBe(true);
+     expect(row.softwareActors.comparisonPolicy.attempted).toBeGreaterThanOrEqual(0);
+     expect(row.softwareActors.comparisonPolicy.skipped).toBeGreaterThanOrEqual(0);
+     expect(row.softwareWorld.comparisonPolicy.attempted).toBeGreaterThanOrEqual(0);
+     expect(row.softwareWorld.comparisonPolicy.skipped).toBeGreaterThanOrEqual(0);
     }
     stages.push(row);
     if(frame===3)await page.screenshot({path:path.join(dir,width+'-'+(split?'split':'combined')+'-real-worker.png')});

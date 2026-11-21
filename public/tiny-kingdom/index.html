@@ -3858,6 +3858,31 @@ let actorGpuDeltaChecks=0,actorGpuDeltaPartial=0,
  actorGpuSnapshotPatchedFloats=0;
 // W507 Phase 1: one bounded genuine software citizen VBO snapshot and
 // exact 32-bit, triangle-aligned dirty regions. No staging alias or film actors.
+// W508 Phase-1 software GPU evidence: exact-head W507 had ten
+// authentic actor comparisons and zero avoided uploads. When the same
+// actual renderer shows consecutive zero-value source comparisons,
+// prefer the complete ORIGINAL upload and periodically reprobe.
+// Never skip a draw, worker, cargo, hand contact or authority step.
+const SOFTWARE_ORIGINAL_PROBE_MISS_LIMIT=6,SOFTWARE_ORIGINAL_PROBE_RECHECK_TICKS=24;
+const originalSoftwareProbeState={
+ world:{floats:0,misses:0,cooldown:0,attempted:0,skipped:0,wins:0},
+ actor:{floats:0,misses:0,cooldown:0,attempted:0,skipped:0,wins:0}
+};
+function allowSoftwareOriginalProbe(stream,floats){
+ const p=originalSoftwareProbeState[stream];
+ if(!p||!Number.isSafeInteger(floats)||floats<=0)return false;
+ if(p.floats!==floats){p.floats=floats;p.misses=0;p.cooldown=0;}
+ if(p.misses>=SOFTWARE_ORIGINAL_PROBE_MISS_LIMIT&&
+    ++p.cooldown<SOFTWARE_ORIGINAL_PROBE_RECHECK_TICKS){
+  p.skipped++;return false;
+ }
+ p.cooldown=0;p.attempted++;return true;
+}
+function recordSoftwareOriginalProbe(stream,bytesSaved){
+ const p=originalSoftwareProbeState[stream];if(!p)return;
+ if(bytesSaved>0){p.wins++;p.misses=0;p.cooldown=0;}
+ else p.misses=Math.min(SOFTWARE_ORIGINAL_PROBE_MISS_LIMIT,p.misses+1);
+}
 const SOFTWARE_ACTOR_DIRTY_MAX_FLOATS=192000;
 let softwareActorDirtyChecks=0,softwareActorDirtyPartial=0,
  softwareActorDirtyUnchanged=0,softwareActorDirtyFullUploads=0,
@@ -3883,6 +3908,7 @@ function getOriginalSoftwareActorDirtyAudit(){
   fullUploads:softwareActorDirtyFullUploads,
   savedUploadBytes:softwareActorDirtySavedBytes,
   bufferSubDataCalls:softwareActorDirtyBufferCalls,
+  comparisonPolicy:{...originalSoftwareProbeState.actor},
   actualCitizensUnchanged:false,sourceGeometryAlwaysFresh:true,
   authoritativeStateChanged:false,physicalGpuFps:'NOT MEASURED'};
 }
@@ -5256,6 +5282,7 @@ function getOriginalSoftwareWorldUploadAudit(){
   savedUploadBytes:softwareSplitWorldUploadBytesAvoided,
   snapshotBuilds:softwareSplitWorldSnapshotBuilds,
   snapshotReuses:softwareSplitWorldSnapshotReuses,
+  comparisonPolicy:{...originalSoftwareProbeState.world},
   separateFullOriginalActors:true,authoritativeStateChanged:false,
   cpuDriverCostOnly:true,physicalGpuFps:'NOT MEASURED'};
 }
@@ -35821,9 +35848,13 @@ if(gpuAvailable){
    current.length>0&&current.length<=SOFTWARE_SPLIT_WORLD_SNAPSHOT_MAX_FLOATS;
   const softwareCompare=softwareTrack&&!resized&&
    oldGpu instanceof Float32Array&&oldGpu.length===current.length;
-  if(softwareCompare)softwareSplitWorldChecks++;
-  const softwareUnchanged=softwareCompare&&
+  const softwareProbe=softwareCompare&&
+   allowSoftwareOriginalProbe('world',current.length);
+  if(softwareProbe)softwareSplitWorldChecks++;
+  const softwareUnchanged=softwareProbe&&
    sameOriginalSoftwareWorldBits(oldGpu,current);
+  if(softwareProbe)recordSoftwareOriginalProbe('world',
+   softwareUnchanged?current.byteLength:0);
   const partial=!swiftGpu&&!resized&&oldGpu?
    planDynamicWorldDelta(oldGpu,current,dynamicFrameStorage[dynamicFrameActive]):null;
   if(softwareUnchanged){
@@ -35899,10 +35930,15 @@ if(gpuAvailable&&actorStreamSplitEnabled&&actorFrameData.length){
   // No pose, work/contact, citizen or inventory may be skipped.
   const softwareActorTrack=swiftGpu&&actorStreamSplitEnabled&&
    currentActor.length<=SOFTWARE_ACTOR_DIRTY_MAX_FLOATS;
+  const softwareActorProbe=Boolean(swiftGpu&&softwareActorTrack&&
+   !resized&&priorActor&&
+   allowSoftwareOriginalProbe('actor',currentActor.length));
   const delta=!resized&&priorActor?
-   (swiftGpu?(softwareActorTrack?
+   (swiftGpu?(softwareActorProbe?
     planOriginalSoftwareActorDirty(priorActor,currentActor,actorFrameStorage[slot]):null):
     planDynamicWorldDelta(priorActor,currentActor,actorFrameStorage[slot])):null;
+  if(softwareActorProbe)recordSoftwareOriginalProbe('actor',
+   delta?.savedFloats*4||0);
   if(priorActor&&!swiftGpu)actorGpuDeltaChecks++;
   if(delta){
    if(swiftGpu)softwareActorDirtySavedBytes+=delta.savedFloats*4;

@@ -10,6 +10,7 @@ on:
       - 'tests/tiny-kingdom-w505-software-actor-spine.cjs'
       - 'tests/tiny-kingdom-w506-software-world-dirty.cjs'
       - 'tests/tiny-kingdom-w507-software-actor-dirty.cjs'
+      - 'tests/tiny-kingdom-w508-software-probe-safety.cjs'
       - 'tests/browser/tiny-kingdom-w505-software-stream.spec.cjs'
   workflow_dispatch:
 permissions:
@@ -42,6 +43,8 @@ jobs:
         run: node tests/tiny-kingdom-w506-software-world-dirty.cjs
       - name: W507 exact citizen GPU dirty upload contract
         run: node tests/tiny-kingdom-w507-software-actor-dirty.cjs
+      - name: W508 bounded real actor/world source comparison policy and complete GPU fallback
+        run: node tests/tiny-kingdom-w508-software-probe-safety.cjs
       - name: Verify complete game builds
         run: npm run build
       - name: Install real Chromium WebGL software test environment
