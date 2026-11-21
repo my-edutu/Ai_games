@@ -75,8 +75,11 @@ const real=make(),scene={};
 assert(real.compact(actual,0,new Set(),scene),
  'real grown-town freight body enters bounded compact rig');
 assert.deepEqual(real.select([actual],new Set(),scene).map(row=>row.p.name),['Alina']);
-assert(real.compact(actual,0,new Set([0]),scene),
- 'small projected but detail-reserved freight must still reach compact GPU rig');
+assert(!real.compact(actual,0,new Set([0]),scene),
+ 'prominent near-contact courier must keep original detailed 13-joint body');
+assert(make({projectRealCitizenDetail:()=>({visible:true,heightFraction:.07})})
+ .compact(actual,0,new Set([0]),scene),
+ 'optically tiny selected courier may use resident compact rig without visible near-detail loss');
 assert(!make({projectRealCitizenDetail:()=>({visible:true,heightFraction:.31})})
  .compact(actual,0,new Set(),scene),'close-up hand and shafts remain CPU');
 assert(!make({projectRealCitizenDetail:()=>({visible:false,heightFraction:.12})})
