@@ -526,8 +526,8 @@
       "focusedSourceTestSha": "005dcf76b8d780c0616b9a7a39456c234f2b5557",
       "work": "Frame-bounded SAME camera director during existing source/World-certified returned F9 opened bronze gateway; clamp true camera orbit/radius/height/focus relative to last same-run completed F9 render. Gate centre, full skinned climber, real walkable receiving F9 roof and opaque tower core all veto any unsafe proposed camera. No source controls, future events, gameplay mechanics, platform meshes or fabricated image modifications."
     },
-    "engineering": "New exact-head CI triggered; outcome not yet established at record. Focused checks committed; must inspect CI before claiming PASS.",
-    "realPinnedVideo": "New exact-SHA 9-job source-pinned recording to be requested via capture-request commit. Do not reuse earlier dd213 video as new code evidence.",
+    "engineering": "The initial camera integration failed actual first-frame render due a local-scope error; explicitly captured and repaired. Corrected exact SHA quality/pinned native work remains pending.",
+    "realPinnedVideo": "Corrected 9-job source-pinned campaign 44925715411 requested from exact immutable source 2aca03...; old faulty c3df campaign cannot prove playable quality.",
     "reviewerCounts": {
       "LOOKS": 0,
       "FEELS": 0,
@@ -535,6 +535,29 @@
     },
     "hardwareP50P95P99AndMemory": "NOT EVALUATED",
     "nextAction": "Inspect actual new exact SHA original candidate and frozen baseline danger/ascending/outcome normal-speed WebMs at full motion in desktop 960x600 and portrait 390x844. Require strict source-event-to-native alignment (2/2) plus consecutive fully moving actor, opened original guardian gate, true walkable F9 roof and first raised destination without violet hard cut. If failing, reopen actual F8 old-GPU/F9-world structural ownership and camera as one design. Actual-device metrics and genuinely independent blind critics later.",
-    "safety": "PR58 and unrelated games untouched, PR68 remains draft; no merge, deploy, force push, or baseline movement."
+    "safety": "PR58 and unrelated games untouched, PR68 remains draft; no merge, deploy, force push, or baseline movement.",
+    "rectifiedSceneRenderScope": {
+      "defect": "Actual exact-source phase3 VM renderer failed BEFORE renderer.render: ReferenceError: overview is not defined at animate, because new final rAF camera block accidentally read an update()-local variable. Not cosmetic, a verified P0 render crash caught by current tests.",
+      "verifiedFailingRun": "https://github.com/my-edutu/Ai_games/actions/runs/44925105258",
+      "debuggingSource": "https://github.com/my-edutu/Ai_games/commit/f281f98ecdc0ff41e2c1f65ceaafda27f33ab02c",
+      "repairSha": "ef68f2036cbce31ca952f4e643d89516d2f8c4af",
+      "sceneCameraDiagnosticsSha": "d76d4ae11c70e5af67d99ed42824e9c00b62dbe2",
+      "focusedRegressionSha": "5ecd1e26a2363884acd55981b9def935216946bf",
+      "previousCaptureSourceSha": "c3df48d55568f764b6e945a1046b9b4f62d1b224",
+      "previousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44925184795",
+      "previousCaptureValidity": "INVALID AS EXPERIENCE EVIDENCE for this attempted camera, because the exact source has a render-scope ReferenceError. Any original video job outputs must be treated as negative/test failure, not camera improvement.",
+      "correctedPinnedCaptureSourceSha": "2aca03aac23bc54ad690eaf969ff3719e58af50c",
+      "correctedPinnedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44925715411",
+      "correctedQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44925715497",
+      "correctedValidationStatus": "Queued, NOT YET PASSED; do not use prior 10/10 as claim.",
+      "cameraDiagnosticLimitation": "New counters track source-authorized camera proposals accepted and vetoed, not genuine full-motion video scene quality.",
+      "nextHighestImpact": "Check corrected exact-SHA quality and all 9 native jobs before comparing full original motion in 960x600/390x844; inspect actual original guardian, climber, connected F9 roof and first raised deck; require strict 2/2 event/video match. If still cut, revisit real old/F9 scene ownership as one system.",
+      "reviewerCounts": {
+        "LOOKS": 0,
+        "FEELS": 0,
+        "PLAYS": 0
+      },
+      "hardware": "NOT EVALUATED"
+    }
   }
 }
