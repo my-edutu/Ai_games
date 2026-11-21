@@ -19449,6 +19449,21 @@ function farmSoil(x0,x1,z0,z1,rowIndex){
 // cereals from existing deterministic planted coordinates, not new inventory.
 // W253: seeded original grain silhouettes and ripening ear-weight. Only
 // presentation geometry changes; the planted plot, workers and inventory do not.
+// W518: original seeded cereals now produce a joined natural canopy rather
+// than thin isolated pickets. The two physically cultivated parcels, every
+// rooted stem, retained GPU source row, worksite contact and economy are
+// unchanged. These dimensions are bounded presentation geometry only.
+function seededStandingWheatCanopy(index,season){
+ if(!Number.isInteger(index)||index<0||!Number.isInteger(season)||
+    season<0||season>3)throw Error('W518 invalid original grain source');
+ const grain=biomeHash(index*31+111),ear=biomeHash(index*13+319);
+ const ripe=season===1||season===2;
+ return {
+  stalkHalfWidth:(.018+grain*.012)*(season===3?.70:1),
+  earSpread:(ripe?.058:.041)*(.88+ear*.28),
+  leafReach:season===3?0:(ripe?.257:.231)+grain*.075
+ };
+}
 function authenticGrainHeadProfile(x,z,index,season){
  if(![x,z,index,season].every(Number.isFinite)||season<0||season>3)
   throw Error('W253 invalid planted-grain profile');
@@ -19456,6 +19471,7 @@ function authenticGrainHeadProfile(x,z,index,season){
  const c=biomeHash(index*17+271),d=biomeHash(index*19+577);
  const azimuth=index*2.399963+c*1.7;
  const ripe=season===1||season===2;
+ const canopy=seededStandingWheatCanopy(index,season);
  // W353 human-scale planted field and harvest clearance: preserve all 668
  // authoritative roots and both original 4/12/20-triangle LODs, but narrow
  // broad prototype leaves and ears around real, visible farmer hand contacts.
@@ -19469,7 +19485,8 @@ function authenticGrainHeadProfile(x,z,index,season){
   stemLeanZ:Math.cos(azimuth)*(.055+b*.082),
   headDirection:[Math.sin(azimuth+.39),Math.cos(azimuth+.39)],
   earLength:(.20+d*.08)*(season===0?.73:1),
-  leafReach:.174+d*.074,livingSeason:season!==3,
+  leafReach:canopy.leafReach,stalkHalfWidth:canopy.stalkHalfWidth,
+  earSpread:canopy.earSpread,livingSeason:season!==3,
   rootedAt:[x,z],authorityModified:false};
 }
 // W372: coherent tapered leaves attached to actual seeded cereal stems.
@@ -19532,7 +19549,7 @@ function farmStalk(x,z,index,season,compact=false){
    z+lived.stemLeanZ*t*t+az*droop];
  };
  const bottom=at(0),upper=at(.85),tip=at(1),
-  width=.016+sig3*.008;
+  width=lived.stalkHalfWidth;
  // A narrow intersecting taper is still the complete original FOUR-triangle
  // stem, attached to the same rooted x/z and physical harvest contact.
  quad([bottom[0]-width,bottom[1],bottom[2]],
@@ -19554,7 +19571,7 @@ function farmStalk(x,z,index,season,compact=false){
   for(let g=0;g<(compact?2:3);g++){
    const t=compact?.78+g*.107:.755+g*.078;
    const p=at(t),top=at(Math.min(1,t+.073));
-   const spread=(.036-g*.007)*(.88+sig3*.24);
+   const spread=lived.earSpread*(1-.16*g)*(.9+sig3*.2);
    for(const side of [-1,1]){
     const sx=side*spread*az,sz=-side*spread*ax;
     tri([p[0]-ax*.009,p[1]-.025,p[2]-az*.009],
@@ -21093,7 +21110,14 @@ function drawResidentFarmFields(eye,planes=null,triangleBudget=Infinity){
 }
 function getFarmFieldResidencyAudit(){
  const plantedStems=FARMSTEAD.fields.reduce((n,field)=>n+2*field[4]*field[5],0);
+ const mature=seededStandingWheatCanopy(17,1);
  return {source:'original-668-roots-per-plot-frustum-and-seasonal-residency',
+  grainCanopy:{source:'real-original-grain-seeded-wheat-silhouette',
+   seededStems:plantedStems,season:climateAt(state.t).season,
+   matureLeafReachMetres:mature.leafReach,
+   matureEarHalfWidthMetres:mature.earSpread,
+   noAdditionalTriangles:true,rootLocationsUnchanged:true,
+   shaderWorksiteContactsPreserved:true,economyUnmodified:true},
   enabled:gpuAvailable&&!farmFieldResidentDisabled,
   sceneBudget:{...farmFieldSceneBudgetAudit},
   active:Boolean(farmFieldNear&&farmFieldFar),
