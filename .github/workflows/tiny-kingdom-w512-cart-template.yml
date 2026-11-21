@@ -45,6 +45,8 @@ jobs:
           NODE
       - name: Check actual GPU freight root and source compilation
         run: node --test tests/browser/tiny-kingdom-w513-cart-gpu-residency.test.cjs
+      - name: Build catalogue server prerequisites for Playwright webServer
+        run: npm run build
       - run: npx playwright install --with-deps chromium
       - name: Film authentic Day-121 courier and compare same saved world
         run: npx playwright test tests/browser/tiny-kingdom-w512-courier-cart-template.spec.cjs --workers=1 --reporter=line
