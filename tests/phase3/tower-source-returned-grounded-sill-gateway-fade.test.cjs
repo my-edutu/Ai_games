@@ -67,20 +67,29 @@ test('no invented departure from an unopened gate, stale episode, fake landing, 
   assert.equal(q(a.source,a.held,{...a.job,runToken:'wrong'}),null);
 });
 
-test('30-return cap and genuine returned WebGL time can FINISH the source-earned fade instead of abruptly deleting a near-opaque gateway',async()=>{
+test('source-earned roof exit respects real successor structural frames and actual display time before the thirty-return safety ceiling',async()=>{
   const {observedReturnedFarSideFade:fade}=await policies;
   const {held,job}=nativeGeometry();
   held.farSideFadeStartSubmitted=8;
   held.farSideFadeStartSeconds=.48;
+  job.structuralVisibleSeconds=0;
   assert.equal(fade(held,{...job,structuralVisibleReturns:0}),0,
-    'first merely built shader cannot spend a physical return');
-  const intermediate=fade({...held,submittedFrames:18,visibleSeconds:.88},job);
-  assert.ok(intermediate>0&&intermediate<1);
-  assert.equal(fade({...held,submittedFrames:29,visibleSeconds:1.32},job),1,
-    '21 actual returned frames and .84 submitted seconds finish BEFORE frame-30 forced teardown');
-  assert.ok(fade({...held,submittedFrames:29,visibleSeconds:.53},job)<.02,
-    'rapid source polls or GPU submissions cannot fabricate returned display time');
-  assert.equal(fade({...held,submittedFrames:29,visibleSeconds:.47},job),null);
+    'a deferred shader is not a returned next room');
+  const intermediate=fade({...held,submittedFrames:18,visibleSeconds:.88},{
+    ...job,structuralVisibleReturns:4,structuralVisibleSeconds:.32});
+  assert.ok(intermediate>0&&intermediate<.6,
+    'old and new geometry can coexist without erasing the doorway early');
+  assert.ok(fade({...held,submittedFrames:29,visibleSeconds:1.32},{
+    ...job,structuralVisibleReturns:4,structuralVisibleSeconds:.32})<.6,
+    'twenty-one old returns cannot substitute for missing incoming scene submissions');
+  assert.equal(fade({...held,submittedFrames:29,visibleSeconds:1.32},{
+    ...job,structuralVisibleReturns:8,structuralVisibleSeconds:.72}),1,
+    'real returned successor scene can complete the source-earned overlap before bounded retirement');
+  assert.ok(fade({...held,submittedFrames:29,visibleSeconds:.53},{
+    ...job,structuralVisibleReturns:8,structuralVisibleSeconds:.72})<.02,
+    'old-room return elapsed time still vetoes a premature replacement');
+  assert.equal(fade({...held,submittedFrames:29,visibleSeconds:.47},{
+    ...job,structuralVisibleReturns:8,structuralVisibleSeconds:.72}),null);
 });
 
 test('source-tested grounded gateway handoff drives SAME real World original gate/gallery, not a second fake room',()=>{
