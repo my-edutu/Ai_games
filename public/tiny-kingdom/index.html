@@ -2714,7 +2714,9 @@ function realWorkerPoseStale(entry,p,key,angle){
 // We deform the original retained mesh, never introduce a second actor.
 function workSkinPoint(q,rig,body,bind){
  const size=bind.scale;let x=q[0]*size,y=q[1]*size,z=q[2]*size;
- if(rig.working){
+ // A TRUE loaded compact courier leans into the original live shafts.
+ // The resident joint bind must match the baked compact body, not stand upright.
+ if(rig.working||rig.hauling){
   const rise=Math.max(0,Math.min(1.45*size,y-.27*size));
   if(rise>0){
    z+=rise*rig.acting.lean*.42;
@@ -2963,7 +2965,7 @@ function getWorkingSkinAudit(){
   noPhysicalHardwareFpsClaim:true};
 }
 
-function prepareWorkingResidents(rows){
+function prepareWorkingResidents(rows,frame=null,nearPeople=new Set()){
  workingResidentVisible=[];
  if(!gpuAvailable||!rows.length){
   // W396 return to same true worker after an unselected street lens.
@@ -2975,7 +2977,10 @@ function prepareWorkingResidents(rows){
  const selected=[],limited=rows.slice(0,WORKING_RESIDENT_MAX);
  let total=0;
  for(const {p,i} of limited){
-  const key=realWorkerPoseKey(p,i),angle=realWorkerFacing(p);
+  const courierSkin=isCompactGpuCourierBodyCandidate(p,i,nearPeople,frame);
+  const key=realWorkerPoseKey(p,i)+
+   (courierSkin?'|live-original-compact-cart:'+p.delivery.id:'|no-cart-split');
+  const angle=courierSkin?realForegroundFacing(p):realWorkerFacing(p);
   let entry=workingResidentCache.get(i),fresh=false;
   if(realWorkerPoseStale(entry,p,key,angle)){
    const prior=data,materialBefore=currentMaterial,before=restingActorCounters();
@@ -2983,13 +2988,13 @@ function prepareWorkingResidents(rows){
    const labels=[];
    if(workingSkinCapable)workSkinCapture=labels;
    try{
-    compactVillager(p); // ORIGINAL worksite hand/tool/boot IK
+    compactVillager(p,courierSkin); // SAME IK body; true escrow cart remains LIVE outside GPU bind
     const mesh=new Float32Array(data),after=restingActorCounters();
     const delta=restingActorDifference(before,after);
     delta.roles=Object.fromEntries(Object.keys(after.roles)
      .map(role=>[role,(after.roles[role]||0)-(before.roles[role]||0)]));
     entry={key,x:p.x,z:p.z,ground:terrain(p.x,p.z),angle,
-     mesh,delta,revision:++workingResidentPoseBuilds};
+     mesh,delta,separateLiveCart:courierSkin,revision:++workingResidentPoseBuilds};
     if(workingSkinCapable){
      entry.scale=.92+(i%5)*.045;
      const bindRig=citizenRigPose(p);
@@ -3384,12 +3389,37 @@ function isOriginalGpuCourierBodyCandidate(p,i,nearPeople,frame){
  return view.heightFraction<(held?ORIGINAL_COURIER_GPU_HOLD_HEIGHT:
   ORIGINAL_COURIER_GPU_ENTER_HEIGHT);
 }
+// W511: On a POPULATED Day-121 town the original full-detail citizen
+// budget is already occupied. Retain the SAME small compact 13-joint
+// original-body geometry for an actual visible escrowed cart traveler;
+// its real rotating cart is ALWAYS emitted separately on the dynamic stream.
+// No population-count shortcut silently excludes an on-road courier.
+const COMPACT_COURIER_GPU_ENTER_HEIGHT=.16,COMPACT_COURIER_GPU_HOLD_HEIGHT=.20;
+function isCompactGpuCourierBodyCandidate(p,i,nearPeople,frame){
+ if(!workingSkinCapable||!gpuAvailable||!swiftGpu||
+    !foregroundResidentEnabled||!p||!frame||
+    !(nearPeople instanceof Set)||nearPeople.has(i)||
+    !isLoadedCourierOnRoad(p)||isMarketUnloading(p)||
+    !p.delivery?.escrowed||!p.delivery?.id||
+    ![p.x,p.z,p.phase].every(Number.isFinite))return false;
+ if(document.body?.dataset?.citizenInspect==='on'&&i===selectedCitizen)return false;
+ const view=projectRealCitizenDetail(p,frame);
+ if(!view.visible||!Number.isFinite(view.heightFraction)||
+    view.heightFraction<=0)return false;
+ const held=Boolean(workingResidentCache.get(i)?.separateLiveCart);
+ return view.heightFraction<(held?COMPACT_COURIER_GPU_HOLD_HEIGHT:
+  COMPACT_COURIER_GPU_ENTER_HEIGHT);
+}
 let originalLiveCourierCartTriangles=0,originalLiveCourierCartNames=[];
 function getOriginalLiveCourierSkinAudit(){
- const rows=foregroundResidentVisible.filter(r=>r.entry.separateLiveCart&&
+ const detailed=foregroundResidentVisible.filter(r=>r.entry.separateLiveCart&&
   isLoadedCourierOnRoad(r.p));
+ const compact=workingResidentVisible.filter(r=>r.entry.separateLiveCart&&
+  isLoadedCourierOnRoad(r.p));
+ const rows=[...detailed,...compact];
  return {source:'true-escrowed-courier-original-gpu-body-plus-live-wheel-cart',
-  authenticGpuBodies:rows.length,names:rows.map(r=>r.p.name),
+  authenticGpuBodies:rows.length,compactGpuBodies:compact.length,
+  detailedGpuBodies:detailed.length,names:rows.map(r=>r.p.name),
   liveCartNames:originalLiveCourierCartNames.slice(),
   liveCartTriangles:originalLiveCourierCartTriangles,
   active:workingSkinCapable&&gpuAvailable,
@@ -4029,7 +4059,8 @@ function authenticWorkerGpuResidentRows(actors,nearPeople,frame){
   // Exempt ONLY legitimate on-road escrowed couriers; genuine market hand
   // contacts, carried household food and false deliveries stay CPU-owned.
   const courier=isOriginalGpuCourierBodyCandidate(p,i,nearPeople,frame);
-  if(!p||(p.delivery&&!courier)||isMarketUnloading(p)||
+  const compactCourier=isCompactGpuCourierBodyCandidate(p,i,nearPeople,frame);
+  if(!p||(p.delivery&&!courier&&!compactCourier)||isMarketUnloading(p)||
      verifiedHouseholdMealEvidence(p))continue;
   const detail=nearPeople.has(i);
   const active=isWorkingAtSite(p);
@@ -4052,10 +4083,10 @@ function authenticWorkerGpuResidentRows(actors,nearPeople,frame){
    isResidentCommuterCandidate(p,i,nearPeople,frame);
   const nearTraveler=!active&&detail&&
    isForegroundWalkingSkinCandidate(p,i,frame);
-  if(!active&&!passive&&!distantResting&&!commuter&&!nearTraveler&&!courier)continue;
+  if(!active&&!passive&&!distantResting&&!commuter&&!nearTraveler&&!courier&&!compactCourier)continue;
   const observed=active&&detail&&
    isObservedWorksiteSkinCandidate(p,i,nearPeople);
-  const candidate=courier||passive||distantResting||commuter||nearTraveler||(detail?
+  const candidate=courier||compactCourier||passive||distantResting||commuter||nearTraveler||(detail?
    (observed||isForegroundWorksiteCandidate(p,i,nearPeople,frame)):
    isResidentWorkingCandidate(p,i,nearPeople,frame));
   if(!candidate)continue;
@@ -4076,13 +4107,15 @@ function authenticWorkerGpuResidentRows(actors,nearPeople,frame){
   const observedWorkHeight=previouslySkinned?.52:.46;
   const maxHeight=courier?(foregroundResidentCache.get(i)?.separateLiveCart?
     ORIGINAL_COURIER_GPU_HOLD_HEIGHT:ORIGINAL_COURIER_GPU_ENTER_HEIGHT):
+   compactCourier?(workingResidentCache.get(i)?.separateLiveCart?
+    COMPACT_COURIER_GPU_HOLD_HEIGHT:COMPACT_COURIER_GPU_ENTER_HEIGHT):
    (passive||nearTraveler)?FOREGROUND_WALKING_SKIN_ENTER_SCREEN_HEIGHT:
    commuter?originalCommuterScreenLimit(i):
    distantResting?.09:
    detail?(observed?observedWorkHeight:WORKSITE_SKIN_ENTER_SCREEN_HEIGHT):.075;
   if(!view.visible||!Number.isFinite(view.heightFraction)||
       view.heightFraction<=0||view.heightFraction>=maxHeight)continue;
-  eligible.push({p,i,detail,passive,active,courier,height:view.heightFraction,
+  eligible.push({p,i,detail,passive,active,courier:courier||compactCourier,height:view.heightFraction,
    observed:i===selectedCitizen});
  }
  // A watched real worker wins over nearer unrelated work. A fully sculpted
@@ -14815,7 +14848,7 @@ function renderCompactOriginalFace(p,index,x,y,z,s,skin,hair,rig,pose){
  turnCitizenHead(first,data.length,x,y,z,s,pose);
  tagWorkSkinRange(11,first);
 }
-function compactVillager(p){
+function compactVillager(p,omitLiveCart=false){
  const vertexStart=data.length;
  const i=Math.max(0,people.indexOf(p)),s=.92+(i%5)*.045,
   x=p.x,z=p.z,y=terrain(x,z),
@@ -14898,7 +14931,7 @@ function compactVillager(p){
   }
   compactCitizenAnimation.lastBentWorkers++;
  }
- emitStreetCargo(p,x,y,z,s);
+ if(!omitLiveCart)emitStreetCargo(p,x,y,z,s);
  renderCommuterLantern(p,x,y,z,s,rig);
  // Keep the identical real next-waypoint facing transform across garment,
  // pelvis, feet, joints, hands and any true carried supplies.
@@ -14954,14 +14987,14 @@ function rotateOriginalCourierCartVertices(vertices,start,x,z,angle){
  }
  return (vertices.length-start)/10;
 }
-function renderOriginalLiveCourierCart(p){
+function renderOriginalLiveCourierCart(p,compact=false){
  if(!isLoadedCourierOnRoad(p)||!p.delivery?.escrowed)return 0;
  const i=people.indexOf(p);
  if(i<0)throw Error('W509 unknown real courier');
  const x=p.x,z=p.z,y=terrain(x,z),size=.92+(i%5)*.045,
   first=data.length,rig=citizenRigPose(p);
  emitStreetCargo(p,x,y,z,size);
- const focus=rig.acting.focus;
+ const focus=compact?(p.path?.length?p.path[0]:p.target):rig.acting.focus;
  const angle=focus?Math.atan2(focus[0]-x,focus[1]-z):0;
  return rotateOriginalCourierCartVertices(data,first,x,z,angle);
 }
@@ -35618,8 +35651,9 @@ const commuterIndices=commuterReady?
 // tasks; only their fully intact compact presentation is retained in one VBO.
 const workingRows=residentRows
  .filter(({p,i})=>!restingIndices.has(i)&&!commuterIndices.has(i)&&
-  isResidentWorkingCandidate(p,i,nearPeople,commuterFrame));
-const workingReady=prepareWorkingResidents(workingRows);
+  (isResidentWorkingCandidate(p,i,nearPeople,commuterFrame)||
+   isCompactGpuCourierBodyCandidate(p,i,nearPeople,commuterFrame)));
+const workingReady=prepareWorkingResidents(workingRows,commuterFrame,nearPeople);
 const workingIndices=workingReady?
  new Set(workingResidentVisible.map(row=>row.i)):new Set();
 // W124: retain original sculpted near-person geometry for off-duty people
@@ -35676,10 +35710,13 @@ lastActorPresentationTime=state.t;
 lastActorPresentationEpoch=presentationEpoch;
 // Draw ONE real-time escrowed cart per accepted GPU human body. Any refused
 // admission keeps the original all-CPU worker and cart unchanged.
-for(const {p,i,entry} of foregroundResidentVisible){
- if(!foregroundIndices.has(i))continue;
+for(const {p,i,entry,compact} of [
+ ...foregroundResidentVisible.filter(row=>foregroundIndices.has(row.i)),
+ ...workingResidentVisible.filter(row=>workingIndices.has(row.i))
+  .map(row=>({...row,compact:true}))]){
+ if(!entry.separateLiveCart)continue;
  const before=data.length;
- if(entry.separateLiveCart)renderOriginalLiveCourierCart(p);
+ renderOriginalLiveCourierCart(p,Boolean(compact));
  if(data.length>before){
   originalLiveCourierCartNames.push(p.name);
   originalLiveCourierCartTriangles+=(data.length-before)/30;
