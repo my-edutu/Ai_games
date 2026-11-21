@@ -17,10 +17,14 @@ for(const viewport of [{width:390,height:844},{width:1024,height:640}]){
   await page.setContent(html);
   await page.waitForFunction(()=>window.__tinyKingdom?.renderStats()
    ?.lastFrameTriangles>0,null,{timeout:125000});
+  await page.evaluate(()=>{const g=window.__tinyKingdom;g.reset();g.setSpeed(0)});
+  // Chunk real Day-120 fixed-step autonomy so the browser event loop remains
+  // responsive. No headless alternate game, snapshot edit, or staged worker.
+  for(let remaining=120*24*30;remaining>0;remaining-=7200)
+   await page.evaluate(n=>{for(let i=0;i<n;i++)
+    window.__tinyKingdom.step(1/30)},Math.min(7200,remaining));
   const loaded=await page.evaluate(()=>{
-   const g=window.__tinyKingdom;g.reset();g.setSpeed(0);
-   // Original fixed-step authority, same Day-120 and seed as the running game.
-   for(let i=0;i<120*24*30;i++)g.step(1/30);
+   const g=window.__tinyKingdom;
    let courier=g.getActiveDeliveries().find(d=>d.escrowed&&d.stage==='travel')||null;
    for(let i=0;!courier&&i<72*24*30;i++){
     g.step(1/30);
@@ -81,18 +85,21 @@ for(const viewport of [{width:390,height:844},{width:1024,height:640}]){
   if(viewport.width===390)expect(verified.width).toBeLessThanOrEqual(390);
   // Restore SAME original world, render with CPU IK fallback, and make sure
   // a camera/rendering toggle neither manufactures cargo nor changes authority.
-  const original=await page.evaluate(async ({saved,courier,zoom})=>{
+  const beforeCpuFrame=await page.evaluate(({saved,courier,zoom})=>{
    const g=window.__tinyKingdom;
    g.restoreSnapshot(saved);g.setSpeed(0);
    g.setWorkingSkinEnabledForTesting(false);
    g.setCamera({focus:[courier.x,courier.z],yaw:.55,pitch:.82,zoom});
-   const before=g.getFrameProfile().totalFrames;
-   await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-   return {before,after:g.getFrameProfile().totalFrames,
-    world:g.exportSnapshot(),skin:g.getOriginalLiveCourierSkinAudit(),
+   return g.getFrameProfile().totalFrames;
+  },{saved:loaded.saved,courier:current,zoom:verified.zoom});
+  await page.waitForFunction(n=>window.__tinyKingdom
+   .getFrameProfile().totalFrames>n,beforeCpuFrame,{timeout:125000});
+  const original=await page.evaluate(()=>{
+   const g=window.__tinyKingdom;
+   return {world:g.exportSnapshot(),skin:g.getOriginalLiveCourierSkinAudit(),
     coverage:g.getActorPresentationCoverageAudit(),
     population:g.metrics().citizens,triangles:g.renderStats().lastFrameTriangles};
-  },{saved:loaded.saved,courier:current,zoom:verified.zoom});
+  });
   await info.attach('w511-original-cpu-courier-'+viewport.width,
    {body:await page.screenshot(),contentType:'image/png'});
   expect(JSON.stringify(original.world)).toBe(JSON.stringify(loaded.saved));
