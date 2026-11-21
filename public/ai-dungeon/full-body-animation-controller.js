@@ -5320,7 +5320,7 @@ export function planImportedLivingSourceStep({mode='idle',age=0,sourceTime=0,
   // Its source soles must not treadmill while the authoritative root is
   // independently witnessed to be stationary. Other invalid/noisy
   // locomotion receipts retain the previous elapsed-time fallback.
-  if(groundedMoving!==true)
+  if(groundedMoving!==true){
    // Genuine 390px original GLB, Actions #44394789335 tick 8:
    // visible Walking_A at full source weight after a 1.0334s rendered
    // interval, but ZERO measured root travel. Holding the real source
@@ -5335,6 +5335,7 @@ export function planImportedLivingSourceStep({mode='idle',age=0,sourceTime=0,
     sourceClipName==='Walking_A'&&sourceNativeWalkingVerified===true;
    return groundedMoving===false&&groundedTravel<=.0015&&
     (frameInterval<=1.2||verifiedSparseStill)?0:ordinary;
+  }
   // Base source gait time on the SAME real root travel at 60Hz and slow capture.
   // Fixed-frame playback at ordinary rates previously lagged a fast-moving
   // root and oversped a creeping actor relative to its real footfall phase.
