@@ -821,6 +821,10 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
         handoffDisplaySeconds:step*.05};
       world.noteFrameSubmitted(frame,{},.05);
       world.update(frame,.05,.1+step*.05,{quality:'low'},witness);
+      const stage=world.diagnostics().deferredDistantArrival;
+      if(stage?.structuralVisibleReturns<6 || stage?.structuralVisibleSeconds<.52)
+        assert.notEqual(stage?.state,'fading-remote-arrival',
+          'the distant violet world cannot precede six actual structural GPU returns and 520ms painted shaft time');
       if(!firstBiomeBuildObserved &&
          world.diagnostics().deferredDistantArrival?.state==='awaiting-structural-submission'){
         const justBuiltBiome=world.group.getObjectByName('deferred-authentic-floor-nine-crystal-biome');

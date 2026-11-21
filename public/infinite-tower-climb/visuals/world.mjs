@@ -5222,15 +5222,35 @@ export function createTowerWorld(){
           arrival.structuralRoot.visible=firstShaftAlpha>.015;
       }
     }
+    // The original old gateway and the arriving real shaft must share
+    // actual painted time before *distant* canyon/vista programs enter.
+    // Building far scenery after one alpha-visible shaft frame previously
+    // let a complete violet world outrun the still-opaque bronze doorway.
+    // A stalled renderer, source tick jump or zero-duration draw cannot
+    // satisfy this budget. After the historical old source owner genuinely
+    // retires, never indefinitely withhold the playable Floor 9 landscape.
+    const sourceShaftReadyForDistantScenery=!arrival ||
+      arrival.proof!=='recorded-source-gateway' ||
+      arrival.structureDeferred!==true ||
+      !retainedEarnedCap ||
+      retainedEarnedCap.runToken!==arrival.runToken ||
+      retainedEarnedCap.floor!==arrival.floor ||
+      retainedEarnedCap.guardianGateRetained!==true ||
+      (Number.isSafeInteger(arrival.structuralVisibleReturns) &&
+       arrival.structuralVisibleReturns>=6 &&
+       Number.isFinite(arrival.structuralVisibleSeconds) &&
+       arrival.structuralVisibleSeconds>=.52);
     if (arrival && arrival.key===key &&
         arrival.state==='awaiting-structural-submission' &&
         arrival.structuralFade>=.35 &&
+        sourceShaftReadyForDistantScenery &&
         Number.isSafeInteger(arrival.structureBuiltAtSubmitted) &&
         arrival.submittedFrames>arrival.structureBuiltAtSubmitted &&
         !options.stale)
       appendDeferredVista(arrival);
     if (arrival && arrival.key===key &&
         arrival.state==='awaiting-vista-submission' &&
+        sourceShaftReadyForDistantScenery &&
         Number.isSafeInteger(arrival.vistaBuiltAtSubmitted) &&
         arrival.submittedFrames>arrival.vistaBuiltAtSubmitted &&
         !options.stale) {
@@ -6242,6 +6262,7 @@ export function createTowerWorld(){
       sourceTick:deferredDistantArrival.sourceTick,
       state:deferredDistantArrival.state,
       structuralVisibleReturns:deferredDistantArrival.structuralVisibleReturns,
+      structuralVisibleSeconds:+deferredDistantArrival.structuralVisibleSeconds.toFixed(3),
       firstBearingReturnedFrames:deferredDistantArrival.firstBearingReturnedFrames,
       firstReturnBearingQualifiesForGalleryClearance:deferredDistantArrival.actualFirstFrameVoidBearings===true && deferredDistantArrival.entireIncomingVoidCoreDeferred===false,
       firstRenderSubmitted:deferredDistantArrival.firstRenderSubmitted,
