@@ -140,12 +140,13 @@ test('source retains exact F8 platform skirt triangles and isolates only its mat
     '../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
   assert.match(world,/guardianCap && p\.id==='f8:cap'/);
   assert.match(world,/originalCapSkirtOwner\.add\(outerUnder,innerUnder\)/);
-  assert.match(world,/p\.gearVisual,p\.originalCapSkirtOwner\]\.filter\(Boolean\)/);
+  assert.match(world,/p\.gearVisual,p\.originalCapSkirtOwner,p\.originalCapCanopy\]\.filter\(Boolean\)/);
+  assert.match(world,/if\(p.originalCapCanopy\)batchRigid\(p.originalCapCanopy\)/);
   assert.match(world,/originalCapUndercroft\.push\(\{mesh:skirt,material,tint,sourceSkirtPairId:'f8:cap'\}\)/);
   assert.match(world,/sourceSkirtPairId:p\.id/);
   assert.match(world,/originalCapUnder\)undercroftEntries\.push\(\.\.\.originalCapUnder\)/);
   assert.match(world,/candidates\.slice\(0,originalCapUnder\?2:3\)/);
-  assert.match(world,/originalCapUndercroft,\s*originalGalleryTriangles/);
+  assert.match(world,/originalCapUndercroft,\s*originalCapCanopy:sourceEntry\.originalCapCanopy\?\?null/);
   assert.match(world,/originalCapSightlineRoot:root/);
   assert.match(world,/originalDeckSurface:bronzeSurface/);
 });

@@ -52,10 +52,10 @@ test('real source-owned 3D members form an original open room, not a second door
  assert.match(world,/actualGatewayReceivingGalleryCanopy\(p,width/);
  assert.match(world,/SourceEarnedPhysicalGatewayReceivingCanopy/);
  assert.match(world,/root\.add\(canopy\)/);
- assert.match(world,/point\(t,inboard,-1\.2\).*?point\(t,inboard,7\.3\)/);
- assert.match(world,/point\(t,inboard,7\.3\).*?point\(t,outboard,8\.35\)/);
- assert.match(world,/point\(tie.fromAngle,inboard,7\.3\)/);
- assert.match(world,/point\(tie.fromAngle,outboard,8\.35\)/);
+ assert.match(world,/place\(point\(a,inner,-1\.2\),point\(a,inner,7\.3\),\.18,m\)/);
+ assert.match(world,/place\(point\(a,inner,7\.3\),point\(a,outer,8\.35\),\.16,m\)/);
+ assert.match(world,/point\(tie.fromAngle,inner,7\.3\)/);
+ assert.match(world,/point\(tie.fromAngle,outer,8\.35\)/);
  assert.match(world,/ambientDetail:true,receivingRoofCanopy:true/);
  assert.doesNotMatch(world,/platforms\.set\(['"]SourceEarnedPhysicalGatewayReceivingCanopy/);
  assert.doesNotMatch(world,/guardianGate\s*=\s*canopy|snapshot\.floor\s*=\s*9/);
