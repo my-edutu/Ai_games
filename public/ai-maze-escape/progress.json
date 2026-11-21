@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-21T19:06:52.536Z",
+  "updatedAt": "2026-11-21T20:21:36.339Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass563: Independently verified exact e1e00d60 focused WebGL workflow 44935371840 SUCCESS; artifact 14719872778 ZIP SHA256 fa8a456b, 42/42 original PNG sidecar hashes and 3/3 genuine gate hashes passed; autonomous public-only victory tick136. Direct uncropped 320/390 before/after REJECTS Pass562 white O-shaped counterwake glyphs: they obscure action clarity while dense guard court still separates Pip/Thornback. Restoring d0291171 production blobs byte-for-byte and deleting Pass562-exclusive test. Separate whole-repo CI 44935371784 FAILED (Tiny Kingdom OBS/artifact); restored new-HEAD CI PENDING. Independent critic/Ultracode NOT_FOUND, official Nintendo benchmark UNMET. Keep draft, no merge/deploy/force."
+    "summary": "Pass564 physical guardian undercliff source candidate: exact restored Pass563 4aedef94 native Maze WebGL 44939194018 SUCCESS, artifact SHA256 c5c7d684 verified, 42/42 original PNG pairs and 3/3 gate hashes all match. Original uncropped 320/390 tick94 frames directly rejected as visually crowded despite full physical actor fit and tick136 real autonomous victory. New original multi-cell undercliff face replaces optional medallions/ferns/stripes only on genuinely witnessed public earned guardian spectator court, preserving all real walls, pressure machinery, AI/collision and strict <100 budget. Source-level regression committed. New exact-HEAD real browser CI, all native screenshots and independent image verdict PENDING; Nintendo benchmark NOT MET. Whole-repo base CI 44939193945 red separately Tiny Kingdom OBS/artifacts. Independent critic/Ultracode NOT_FOUND. Keep PR open draft, never merge/deploy/force."
   },
   "captures": [
+    {
+      "title": "Pass564 full original public earned guardian undercliff stage SOURCE CANDIDATE; native exact-new-HEAD WebGL and full-frame visual judgement pending, NO WIN",
+      "url": "https://github.com/my-edutu/Ai_games/pull/53"
+    },
     {
       "title": "Pass563 — original exact e1e00d60 WebGL 42/42 screenshots + 3/3 gate hashes VERIFIED; 320/390 O-ring effect REJECTED, restored source candidate CI pending",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44935371840/artifacts/14719872778"
