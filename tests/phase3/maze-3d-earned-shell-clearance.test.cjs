@@ -24,6 +24,26 @@ test('a witnessed earned lantern counter physically folds Thornback own connecte
     const body=warden.group.getObjectByName('armored body');
     const head=warden.group.getObjectByName('warden mask');
     assert.ok(body&&head&&anatomy.every(a=>a.fronds?.parent===a.wing&&a.tideblade?.parent===a.wing));
+    // Pass554: meaningful source-anatomy reconstruction, not a CSS/camera
+    // masking trick. The permanently FULL-SIZED scutes and the two live
+    // fore-guards must now be rooted behind the physical bronze mask,
+    // opening the face while preserving their genuine hinged reactions.
+    assert.ok(head.position.z>.7,'the complete root-connected mask stays forward');
+    for(const a of anatomy) {
+      assert.ok(a.tideblade.position.z<=-.28 && a.tideblade.position.y<=.20,
+        'the original entire large sculpted shoulder armor sits on the rear shell');
+      const blade=a.tideblade.children.find(part=>part.isMesh
+        &&part.material?.color?.getHexString()==='e1c997');
+      assert.ok(blade && blade.rotation.x<=-1.20
+        && Math.abs(blade.rotation.z)>=.90,
+        'the complete unshrunk ivory scute sweeps posteriorly away from both eyes');
+      assert.ok(blade.geometry,'full 3D relief is still physical');
+    }
+    for(const side of [-1,1]) {
+      const guard=warden.group.getObjectByName('articulated guardian shoulder guard '+side);
+      assert.ok(guard?.parent===body && guard.position.z<=.05 && Math.abs(guard.position.x)>=.4,
+        'each real moving guard roots laterally behind the two live eye sockets');
+    }
     const resources=new Set();warden.group.traverse(n=>{if(n.geometry)resources.add(n.geometry);});
     const state={heading:0,attentionHeading:Math.PI/2,attentionStrength:1,
       encounterBeat:1,lanternParried:false,danger:1,moving:false,time:2,delta:.033,
