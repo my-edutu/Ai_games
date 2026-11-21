@@ -59,4 +59,23 @@ for(let v=0;v<3;v++){
  assert.equal(turned[o+1],initial[o+1],'actual wheel heights preserved');
 }
 assert.throws(()=>fn(new Float32Array(13),0,0,0,0),/triangle/);
+// The loaded original body must retain the SAME torso lean/crouch as the
+// CPU villager while each GPU bone moves the real hauling wrists. A GPU
+// upright bind would visibly disconnect fingers from live cart shafts.
+const detailed=extract('workSkinDetailedPoint');
+const detailedPoint=new Function(detailed+';return workSkinDetailedPoint;')();
+const rig={working:false,hauling:true,acting:{lean:.20,crouch:.08}};
+const body={spineShift:0,forwardLean:0,rise:0};
+const bind={x:18,z:1,ground:.5,angle:0,scale:1};
+const q=[.3,1.05,.2],raised=q[1]-.44;
+const expected=[18+.3,.5+q[1]-.08*Math.min(1,raised/.65),
+ 1+q[2]+raised*.20];
+const actual=detailedPoint(q,rig,body,bind);
+for(let i=0;i<3;i++)assert(Math.abs(actual[i]-expected[i])<1e-7,
+ 'real hauling wrist/torso must match original CPU lean at component '+i);
+const nonunit=initial.slice();nonunit[3]=3;
+fn(nonunit,0,3,7,Math.PI/2);
+assert(Math.abs(nonunit[5]+1)<1e-5,
+ 'original CPU cart normals must be normalized after facing');
+
 console.log('W509 source+3D cargo transform PASS. Real WebGL video, native FPS and blind critic remain separately gated.');
