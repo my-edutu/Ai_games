@@ -23,6 +23,11 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    g.reset();g.setSpeed(0);
    g.setCamera({focus:[23.0,1.0],yaw:.82,pitch:.59,zoom:12.8});
   });
+  // W520 RED-before contract: W519 physical checks falsely passed actual
+  // Day1→Day121 roof-filled desktop and 390px recordings. A clear camera EYE
+  // is insufficient when a real home occupies the complete screen.
+  const evidenceDirectory=path.resolve('artifacts/tiny-kingdom-w520-court-camera',String(viewport.width));
+  fs.mkdirSync(evidenceDirectory,{recursive:true});
   const stages=[],initial=await page.evaluate(()=>{
    const g=window.__tinyKingdom;
    return {snapshot:g.exportSnapshot(),people:g.metrics().citizens,
@@ -58,12 +63,20 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
      overflow:document.documentElement.scrollWidth-innerWidth};
    });
    stages.push(observed);
+   const actualFrame=await page.screenshot();
+   fs.writeFileSync(path.join(evidenceDirectory,'day-'+day+'.png'),actualFrame);
    await info.attach('real-day-'+day+'-'+viewport.width,{
-    body:await page.screenshot(),contentType:'image/png'});
+    body:actualFrame,contentType:'image/png'});
    expect(observed.realAuthorityUntouchedByCamera).toBe(true);
    expect(observed.camera.follow).toBe(false);
    expect(observed.physical.eyeClear).toBe(true);
    expect(observed.physical.viewClear).toBe(true);
+   // Independent visual-composition contract: reject the genuine W519
+   // roof-filled frames that still passed eyeClear and viewClear. Only a
+   // physically unobstructed ray to the town court counts as a free overview.
+   expect(observed.physical.centralTownRayClear).toBe(true);
+   expect(observed.physical.centralTownBlockers).toBe(0);
+   expect(observed.physical.nearRoofDominance).toBeLessThan(.78);
    expect(observed.scene).toBeGreaterThan(0);
    expect(observed.scene).toBeLessThan(160000);
    expect(observed.webglError).toBe(0);
@@ -74,6 +87,10 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   }
   expect(stages.at(-1).homes).toBeGreaterThan(initial.homes);
   expect(stages.at(-1).day).toBeGreaterThanOrEqual(120);
+  fs.writeFileSync(path.join(evidenceDirectory,'real-world-audit.json'),
+   JSON.stringify({source:process.env.GITHUB_SHA||'local',
+    seedChecksum:initial.snapshot.checksum,viewport,stages,
+    hardwareFps:'NOT MEASURED',independentBlindCritic:'NOT PROVEN'},null,2));
   expect(errors).toEqual([]);
   await info.attach('actual-growing-camera-audit-'+viewport.width,{
    body:Buffer.from(JSON.stringify({source:process.env.GITHUB_SHA||'local',
