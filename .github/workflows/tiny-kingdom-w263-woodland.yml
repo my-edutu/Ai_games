@@ -1,0 +1,45 @@
+name: Tiny Kingdom W263 Original Living Woodland Gameplay
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'tests/browser/tiny-kingdom-w263-original-woodland.spec.cjs'
+      - '.github/workflows/tiny-kingdom-w263-woodland.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w263-woodland-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  actual-original-desktop-and-mobile-webgl:
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feat/tiny-kingdom-post-main-gauntlet-20261031' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Actual 1024px/390px WebGL forest and original settled village
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w263-original-woodland.spec.cjs --workers=1
+      - name: Preserve unaltered in-game captures and audits
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w263-original-webgl-woodland
+          path: |
+            artifacts/tiny-kingdom-w263/
+            test-results/
+          if-no-files-found: warn
+          retention-days: 14

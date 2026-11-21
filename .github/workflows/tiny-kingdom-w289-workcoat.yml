@@ -1,0 +1,19 @@
+name: Tiny Kingdom W289 Real Worker Coat IK Movement
+on:
+  pull_request:
+    paths:
+      - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w289-real-workcoat-contract.cjs
+      - .github/workflows/tiny-kingdom-w289-workcoat.yml
+  workflow_dispatch:
+jobs:
+  true-profession-workcoat:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test physical worker gait and original human cloth geometry
+        run: node scripts/tiny-kingdom-w289-real-workcoat-contract.cjs

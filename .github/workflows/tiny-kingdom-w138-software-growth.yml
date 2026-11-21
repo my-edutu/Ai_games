@@ -1,0 +1,95 @@
+# W232 runner-network recovery: installing Ubuntu apt packages via Playwright
+# fails when GitHub's Ubuntu mirrors cannot resolve (2026-11-11 W231).
+# Download the Chromium browser without rerunning apt on each parallel job.
+# This is NOT a rendering or gameplay acceptance, and requires browser proof.
+name: Tiny Kingdom W138-W336 Grown-Town 390px Touch and Render Evidence
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w138-software-home-contract.cjs'
+      - 'scripts/tiny-kingdom-w330-authentic-night-worksite-light-contract.cjs'
+      - 'scripts/tiny-kingdom-w331-physical-night-corridor-contract.cjs'
+      - 'scripts/tiny-kingdom-w447-fringed-crown-contract.cjs'
+      - 'scripts/tiny-kingdom-w448-original-near-forest-contract.cjs'
+      - 'scripts/tiny-kingdom-w450-real-forge-residency-contract.cjs'
+      - 'scripts/tiny-kingdom-w451-resident-integrity-contract.cjs'
+      - 'scripts/tiny-kingdom-w452-landscape-residency-contract.cjs'
+      - 'scripts/tiny-kingdom-w456-render-terrain-cache-contract.cjs'
+      - 'tests/browser/tiny-kingdom-w138-real-grown-home.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w450-real-forge-bellows.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w452-static-landscape.spec.cjs'
+      - 'tests/browser/tiny-kingdom-phase1-resident-projection.spec.cjs'
+      - '.github/workflows/tiny-kingdom-w138-software-growth.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  # A stable PR number bounds future pending captures without cancelling a running one.
+  group: tiny-kingdom-w138-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  original-grown-town:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Test-first grown SwiftShader dirty-block policy and original resident geometry
+        run: node scripts/tiny-kingdom-w138-software-home-contract.cjs
+      - name: W330 true street and actual commuter night light source contract
+        run: node scripts/tiny-kingdom-w330-authentic-night-worksite-light-contract.cjs
+      - name: W331 actual street facing light and followed real commuter regression
+        run: node scripts/tiny-kingdom-w331-physical-night-corridor-contract.cjs
+      - name: W447 real near-crown 48-face and far-tier geometry source regression
+        run: node scripts/tiny-kingdom-w447-fringed-crown-contract.cjs
+      - name: W448 original near-forest rooted fronds, original workers and static budget
+        run: node scripts/tiny-kingdom-w448-original-near-forest-contract.cjs
+      - name: W450 test-first original smith fixed/active geometry, bounded GPU buffer and true no-inventory side effects
+        run: node scripts/tiny-kingdom-w450-real-forge-residency-contract.cjs
+      - name: W451 actual submitted civic core, forge and ledger triangle integrity
+        run: node scripts/tiny-kingdom-w451-resident-integrity-contract.cjs
+      - name: W452 original landscape program safety, foliage, worker preservation and renderer source
+        run: node scripts/tiny-kingdom-w452-landscape-residency-contract.cjs
+      - name: W456 exact original static terrain spatial cache has bounded lanes, no global eviction cliff
+        run: node scripts/tiny-kingdom-w456-render-terrain-cache-contract.cjs
+# W456 critical evidence retention: each Playwright invocation otherwise clears
+# test-results/ and destroys the preceding real Day-120 desktop/mobile film.
+# Keep 4 isolated suite subfolders, then upload ALL unchanged source videos.
+      # Playwright's shared webServer starts Snake/Maze/Ant/Tower services from dist.
+      # Without a compiled replay package, the W138 Day-120 game never launches.
+      - name: Build shared browser server dependencies before 120-day WebGL capture
+        run: npm run build
+      - run: npx playwright install chromium
+      # W336 exact-head video additionally rejects visible portrait controls below 44px.
+      - name: Genuine 120-day renderer comparison, real 390px gameplay and W336 touch contract
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w138-real-grown-home.spec.cjs --workers=1 --output=test-results/w138-day120-world
+      - name: W450 actual autonomous smith, same-state WebGL residency parity and 390px captured workday
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w450-real-forge-bellows.spec.cjs --workers=1 --output=test-results/w450-original-forge
+      - name: W452 same-authority 1024px / 390px running landscape full versus specialized vertex program
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w452-static-landscape.spec.cjs --workers=1 --output=test-results/w452-landscape-parity
+      - name: Phase 1 actual grown-world same-eye GPU resident actor projection parity (1024px and 390px)
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-phase1-resident-projection.spec.cjs --workers=1 --output=test-results/phase1-resident-projection
+      - name: Preserve video, 1024px and 390px images and runtime audits even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w138-grown-software-original-webgl
+          path: |
+            test-results/
+          if-no-files-found: warn
+          retention-days: 14

@@ -1,3 +1,7 @@
+# W232 runner-network recovery: installing Ubuntu apt packages via Playwright
+# fails when GitHub's Ubuntu mirrors cannot resolve (2026-11-11 W231).
+# Download the Chromium browser without rerunning apt on each parallel job.
+# This is NOT a rendering or gameplay acceptance, and requires browser proof.
 name: Tiny Kingdom Long-Soak Evidence
 
 on:
@@ -5,24 +9,146 @@ on:
     paths:
       - 'public/tiny-kingdom/index.html'
       - 'scripts/tiny-kingdom-soak-evidence.cjs'
+      - 'scripts/tiny-kingdom-w121-working-resident-contract.cjs'
+      - 'scripts/tiny-kingdom-w122-worker-vbo-contract.cjs'
+      - 'scripts/tiny-kingdom-w122-workday-supply-contract.cjs'
+      - 'scripts/tiny-kingdom-w123-foreground-resident-contract.cjs'
+      - 'scripts/tiny-kingdom-w126-authentic-workday-contract.cjs'
+      - 'tests/browser/tiny-kingdom-w126-medieval-workday.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w126-farm-to-market-film.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w134-solar-morph.spec.cjs'
+      - 'scripts/tiny-kingdom-w125-market-household-contract.cjs'
+      - 'scripts/tiny-kingdom-w125-runtime-budget-contract.cjs'
+      - 'scripts/tiny-kingdom-w126e-environment-contract.cjs'
+      - 'scripts/tiny-kingdom-w127e-valley-reeds-contract.cjs'
+      - 'scripts/tiny-kingdom-w128-visible-road-contract.cjs'
+      - 'scripts/tiny-kingdom-w132-field-service-contract.cjs'
+      - 'scripts/tiny-kingdom-w133-solar-spine-contract.cjs'
+      - 'scripts/tiny-kingdom-w134-solar-morph-contract.cjs'
+      - 'scripts/tiny-kingdom-w135-civic-forge-contract.cjs'
+      - 'scripts/tiny-kingdom-w136-scene-hud-contract.cjs'
+      - 'scripts/tiny-kingdom-w137-original-workskin-residency-contract.cjs'
+      - 'scripts/tiny-kingdom-w139-bvh-contract.cjs'
+      - 'scripts/tiny-kingdom-w140-vao-contract.cjs'
+      - 'scripts/tiny-kingdom-w141-real-provenance-contract.cjs'
+      - 'scripts/tiny-kingdom-w142-household-continuity-contract.cjs'
+      - 'tests/browser/tiny-kingdom-w141-real-grain-journey.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w140-resident-vao.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w138-real-grown-home.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w136-scene-hud.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w135-civic-forge-motion.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w128-visible-road.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w126e-environment.spec.cjs'
+      - 'scripts/tiny-kingdom-w125-gpu-skin-contract.cjs'
+      - 'scripts/tiny-kingdom-w128-detailed-workskin-contract.cjs'
+      - 'scripts/tiny-kingdom-w129-retained-worker-palette-contract.cjs'
+      - 'tests/browser/tiny-kingdom-w128-detailed-workskin.spec.cjs'
+      - 'scripts/tiny-kingdom-w121-working-resident-contract.cjs'
+      - 'scripts/tiny-kingdom-w118-resting-actor-contract.cjs'
       - '.github/workflows/tiny-kingdom-long-soak.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
+# W105: an already-running exact-source evidence capture/soak must FINISH
+# even when a later hourly commit arrives. Pending jobs can still be replaced;
+# every artifact remains tied to its precise head SHA.
+concurrency:
+  # A stable PR number bounds future pending captures without cancelling a running one.
+  group: tiny-kingdom-soak-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+# W115: Playwright 1.55 rejects GitHub ubuntu-latest (26.04); pin supported 24.04.
+# Software-rendered captures do NOT establish physical GPU performance.
 jobs:
   deterministic-soak:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: npx playwright install --with-deps chromium
+      - name: W115 exact source GPU material residency contract
+        run: node scripts/tiny-kingdom-w115-material-residency-contract.cjs
+      - name: W116 original worker cart-to-wrist-to-receiving-shelf contract
+        run: node scripts/tiny-kingdom-w116-real-market-handoff-contract.cjs
+      - name: W117 true character and medieval geometry topology parity
+        run: node scripts/tiny-kingdom-w117-primitive-parity-contract.cjs
+      - name: W118 authentic stationary resident mesh and live-worker safety contract
+        run: node scripts/tiny-kingdom-w118-resting-actor-contract.cjs
+      - name: W119–W121 resident rendering and honest scene integrity
+        run: |
+          node scripts/tiny-kingdom-w119-real-commuter-contract.cjs
+          node scripts/tiny-kingdom-w120-scene-integrity-contract.cjs
+          node scripts/tiny-kingdom-w121-working-resident-contract.cjs
+          node scripts/tiny-kingdom-w122-worker-vbo-contract.cjs
+          node scripts/tiny-kingdom-w122-workday-supply-contract.cjs
+          node scripts/tiny-kingdom-w123-foreground-resident-contract.cjs
+          node scripts/tiny-kingdom-w126e-environment-contract.cjs
+          node scripts/tiny-kingdom-w127e-valley-reeds-contract.cjs
+          node scripts/tiny-kingdom-w128-visible-road-contract.cjs
+          node scripts/tiny-kingdom-w132-field-service-contract.cjs
+          node scripts/tiny-kingdom-w125-market-household-contract.cjs
+          node scripts/tiny-kingdom-w125-medieval-population-contract.cjs
+      - name: W125 exact-source real ticks, bounded commuter GPU writes and face topology
+        run: node scripts/tiny-kingdom-w125-runtime-budget-contract.cjs
+      - name: W125 authentic worker GPU joint skeleton and exact bound tool/boot endpoints
+        run: node scripts/tiny-kingdom-w125-gpu-skin-contract.cjs
+      - name: W128 real full-detail worker joint map and GPU resident buffer contract
+        run: node scripts/tiny-kingdom-w128-detailed-workskin-contract.cjs
+      - name: W129 bounded original 13-bone palette retention and exact contact transforms
+        run: node scripts/tiny-kingdom-w129-retained-worker-palette-contract.cjs
+      - name: W133 original half-hour sun residency and exact live-worker camera LOD contract
+        run: node scripts/tiny-kingdom-w133-solar-spine-contract.cjs
+      - name: W134 physical solar stage morph: bounded GPU state and original citizen shadows
+        run: node scripts/tiny-kingdom-w134-solar-morph-contract.cjs
+      - name: W135 bounded civic GPU forge plume, truthful animation and fallback
+        run: node scripts/tiny-kingdom-w135-civic-forge-contract.cjs
+      - name: W136 exact original static draw-plan and responsive economic HUD contract
+        run: node scripts/tiny-kingdom-w136-scene-hud-contract.cjs
+      - name: W137 real original workskin camera-LOD continuity contract
+        run: node scripts/tiny-kingdom-w137-original-workskin-residency-contract.cjs
+      - name: W139 original static scene spatial BVH and exact AABB visibility parity
+        run: node scripts/tiny-kingdom-w139-bvh-contract.cjs
+      - name: W140 original real-geometry bounded VAO lifecycle and software fallbacks
+        run: node scripts/tiny-kingdom-w140-vao-contract.cjs
+      - name: W141 one authentic grain receipt through one real household
+        run: node scripts/tiny-kingdom-w141-real-provenance-contract.cjs
+      - name: W142 no cross-family receipt/meal, physical continuity and on-world household tag
+        run: node scripts/tiny-kingdom-w142-household-continuity-contract.cjs
+      - name: W126 exact four-profession inventory, contact and clock contract
+        run: node scripts/tiny-kingdom-w126-authentic-workday-contract.cjs
+      - run: npx playwright install chromium
+      - name: W126E real WebGL aerial and human scale
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w126e-environment.spec.cjs --workers=1
+      - name: W134 live stage-to-stage shadow interpolation on desktop and 390px
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w134-solar-morph.spec.cjs --workers=1
+      - name: W135 real forge chimney, live hours and 390px playable GIF/video evidence
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w135-civic-forge-motion.spec.cjs --workers=1
+      - name: W136 original live scene and economic HUD at desktop and 390px
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w136-scene-hud.spec.cjs --workers=1
+      - name: W140 actual desktop/mobile WebGL original-mesh VAO-versus-legacy integrity
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w140-resident-vao.spec.cjs --workers=1
+      - name: W141 real desktop and 390px source-linked grain workday documentary
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w141-real-grain-journey.spec.cjs --workers=1
       - name: Real WebGL 120-day settlement and replay soak
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
@@ -34,5 +160,92 @@ jobs:
         with:
           name: tiny-kingdom-long-soak
           path: artifacts/tiny-kingdom-soak/
+          if-no-files-found: warn
+          retention-days: 14
+
+  w126-real-workday:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/tiny-kingdom-w126-authentic-workday-contract.cjs
+      - run: npx playwright install chromium
+      - name: Actual four-worker task/economy, escrow receipt, replay and mobile footage
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w126-medieval-workday.spec.cjs --workers=1
+      - name: Preserve exact-head real WebGL workday browser videos and errors
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w126-authentic-profession-evidence
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w126/
+          if-no-files-found: warn
+          retention-days: 14
+
+  w126-real-farm-market-film:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/tiny-kingdom-w126-authentic-workday-contract.cjs
+      - run: npx playwright install chromium
+      - name: Record original farmer harvest, actual escrowed cart journey and same-id market receipt
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w126-farm-to-market-film.spec.cjs --workers=1
+      - name: Retain exact-source WebGL moving film, snapshots and evidence ledger even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w126-actual-farmer-to-market-film
+          path: |
+            test-results/
+            artifacts/tiny-kingdom-w126/
+          if-no-files-found: warn
+          retention-days: 14
+
+  w128-visible-freight-road:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 17
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: W128 exact 3D travel-winding and routed roadside source
+        run: node scripts/tiny-kingdom-w128-visible-road-contract.cjs
+      - run: npx playwright install chromium
+      - name: Real 1024px and 390px WebGL farm -> market -> home road
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w128-visible-road.spec.cjs --workers=1
+      - name: Preserve actual rendered images and integrity reports, even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w128-roadscape-original-webgl
+          path: |
+            test-results/
           if-no-files-found: warn
           retention-days: 14

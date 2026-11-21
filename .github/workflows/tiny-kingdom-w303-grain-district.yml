@@ -1,0 +1,31 @@
+name: Tiny Kingdom W303 Authentic Grain District Reconstruction
+on:
+  pull_request:
+    paths:
+      - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w303-grain-district-contract.cjs
+      - .github/workflows/tiny-kingdom-w303-grain-district.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  authentic-grain-district:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Actual game syntax and test-first original connected worksite contracts
+        run: |
+          node scripts/tiny-kingdom-w303-grain-district-contract.cjs
+          node scripts/tiny-kingdom-w251-open-workcourt-and-farmer-camera-contract.cjs
+          node scripts/tiny-kingdom-w302-retained-civic-contract.cjs
+          node scripts/tiny-kingdom-w290-field-district-contract.cjs
+      - name: Production build
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build

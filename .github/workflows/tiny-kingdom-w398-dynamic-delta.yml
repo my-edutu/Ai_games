@@ -1,0 +1,51 @@
+name: Tiny Kingdom W398 Exact Moving-World GPU Dirty Regions
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w398-dynamic-delta-contract.cjs'
+      - '.github/workflows/tiny-kingdom-w398-dynamic-delta.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-original-world-delta:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Source contract and identical original world triangles
+        run: node scripts/tiny-kingdom-w398-dynamic-delta-contract.cjs
+  software-fallback-playable-world:
+    needs: exact-original-world-delta
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Actual desktop and 390px original citizen district workday
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w397-gpu-district.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w398-real-software-fallback
+          path: |
+            artifacts/tiny-kingdom-w397/
+            test-results/
+          retention-days: 14

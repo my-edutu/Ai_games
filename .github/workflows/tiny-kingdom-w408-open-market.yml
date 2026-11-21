@@ -1,0 +1,44 @@
+name: Tiny Kingdom W408 Original Open Market Workday
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'tests/browser/tiny-kingdom-w408-market-frontage.spec.cjs'
+      - '.github/workflows/tiny-kingdom-w408-open-market.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w408-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  real-market-and-contract:
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feat/tiny-kingdom-post-main-gauntlet-20261031' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Physical market and camera contracts
+        run: node --test tests/browser/tiny-kingdom-w408-market-frontage.spec.cjs tests/browser/tiny-kingdom-w407-market-barter.spec.cjs
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Uncut original-market 1024px and 390px gameplay evidence
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          CI: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w407-market-barter-runtime.spec.cjs --workers=1 --reporter=line
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w408-open-market-running-workday
+          path: artifacts/tiny-kingdom-w407/
+          if-no-files-found: warn
+          retention-days: 14

@@ -1,0 +1,39 @@
+name: Tiny Kingdom W515 True Seasonal Grain and Real Freight Replay
+on:
+  push:
+    branches:
+      - feat/tiny-kingdom-post-main-gauntlet-20261031
+    paths:
+      - public/tiny-kingdom/index.html
+      - tests/browser/tiny-kingdom-w512-courier-cart-template.spec.cjs
+      - scripts/tiny-kingdom-w515-seasonal-farm-sync-contract.cjs
+      - .github/workflows/tiny-kingdom-w515-seasonal-crop.yml
+  workflow_dispatch:
+jobs:
+  real-season-and-mobile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      CI: "1"
+      LIBGL_ALWAYS_SOFTWARE: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Test original seasonal crop playback contract
+        run: node scripts/tiny-kingdom-w515-seasonal-farm-sync-contract.cjs
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Film authentic Day-121 food cart and same-world grain on desktop and 390px
+        run: npx playwright test tests/browser/tiny-kingdom-w512-courier-cart-template.spec.cjs --workers=1 --reporter=line
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w515-real-courier-seasonal-field
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 14

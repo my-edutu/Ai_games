@@ -1,0 +1,15 @@
+name: Tiny Kingdom W485 exact hardware delta contract
+on:
+  pull_request:
+    paths:
+      - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w485-dynamic-render-spine.cjs
+      - .github/workflows/tiny-kingdom-w485-dynamic-render-spine.yml
+  workflow_dispatch:
+jobs:
+  exact-original-gpu-window:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: node scripts/tiny-kingdom-w485-dynamic-render-spine.cjs

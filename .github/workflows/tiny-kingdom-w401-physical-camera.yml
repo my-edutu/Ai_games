@@ -1,0 +1,59 @@
+name: Tiny Kingdom W401 Genuine Physical Workday Camera Arc
+on:
+  push:
+    branches: [feat/tiny-kingdom-post-main-gauntlet-20261031]
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'tests/browser/tiny-kingdom-w401-physical-camera-arc.spec.cjs'
+      - '.github/workflows/tiny-kingdom-w401-physical-camera.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w401-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  actual-original-camera-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: True physical arc and unchanged-authority test
+        run: node --test tests/browser/tiny-kingdom-w401-physical-camera-arc.spec.cjs
+      - name: Parse actual entire playable WebGL source
+        run: node -e "const fs=require('fs'),vm=require('vm');let s=fs.readFileSync('public/tiny-kingdom/index.html','utf8');let m=s.match(/<script>([\\s\\S]*?)<\\/script>/g)||[];if(!m.length)process.exit(1);for(const t of m){let j=t.slice(8,-9);new vm.Script(j);}"
+  authentic-desktop-and-390px-workday:
+    needs: actual-original-camera-contract
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      CI: '1'
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Observe a real workday, controls and pixel-accurate physical body at both sizes
+        run: npx playwright test tests/browser/tiny-kingdom-w54-world-first-workday.spec.cjs --workers=1 --reporter=line
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w401-actual-worker-camera
+          path: |
+            artifacts/tiny-kingdom-w54/
+            test-results/
+          retention-days: 14

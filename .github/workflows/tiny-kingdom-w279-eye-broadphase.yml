@@ -1,0 +1,21 @@
+name: Tiny Kingdom W279 Physical Workday Camera Broadphase
+on:
+  pull_request:
+    paths:
+      - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w279-physical-eye-broadphase.cjs
+      - scripts/tiny-kingdom-w221-real-commuter-gpu-skin-contract.cjs
+      - .github/workflows/tiny-kingdom-w279-eye-broadphase.yml
+jobs:
+  actual-physical-camera-parity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Original Day-120 camera AABB and moving-cart exact parity
+        run: node scripts/tiny-kingdom-w279-physical-eye-broadphase.cjs
+      - name: Existing actual 13-joint commuter skin contract
+        run: node scripts/tiny-kingdom-w221-real-commuter-gpu-skin-contract.cjs

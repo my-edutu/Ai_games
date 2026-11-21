@@ -1,0 +1,44 @@
+name: Tiny Kingdom W497 Original Living Freight Verge
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'tests/browser/tiny-kingdom-w497-grainway.spec.cjs'
+      - 'tests/browser/tiny-kingdom-standalone.config.cjs'
+      - '.github/workflows/tiny-kingdom-w497-grainway.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w497-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  original-grainway:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Full 1024px/390px true world, rooted verge and physical orbit
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w497-grainway.spec.cjs --workers=1 --config=tests/browser/tiny-kingdom-standalone.config.cjs
+      - name: Preserve original screenshots, video and traces on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w497-real-grainway
+          path: |
+            artifacts/tiny-kingdom-w497/
+            test-results/
+          if-no-files-found: warn
+          retention-days: 14

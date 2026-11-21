@@ -1,0 +1,20 @@
+name: Tiny Kingdom W362 Retained Original Household Routes
+on:
+  push:
+    branches: [feat/tiny-kingdom-post-main-gauntlet-20261031]
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w362-road-residency-contract.cjs'
+      - '.github/workflows/tiny-kingdom-w362-road-residency.yml'
+  workflow_dispatch:
+jobs:
+  w362-original-road-residency:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check exact original roads and deterministic separation
+        run: node scripts/tiny-kingdom-w362-road-residency-contract.cjs
