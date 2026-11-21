@@ -1,0 +1,104 @@
+{
+  "layout": {
+    "viewportWidth": 1920,
+    "scrollWidth": 1920,
+    "canvas": {
+      "x": 39,
+      "y": 123,
+      "width": 1842,
+      "height": 842,
+      "top": 123,
+      "right": 1881,
+      "bottom": 965,
+      "left": 39
+    },
+    "primary": {
+      "x": 734.8125,
+      "y": 41.015625,
+      "width": 417.15625,
+      "height": 35.515625,
+      "top": 41.015625,
+      "right": 1151.96875,
+      "bottom": 76.53125,
+      "left": 734.8125
+    }
+  },
+  "animation": {
+    "frames": 6,
+    "elapsedMs": 1240.500000000011,
+    "maxGapMs": 283.39999999999964,
+    "averageFps": 4.836759371221239,
+    "actualDraws": 6
+  },
+  "presentation": {
+    "renderer": "webgl",
+    "frameCount": 27,
+    "quality": "low",
+    "cameraMode": "overview",
+    "pixelRatio": 0.4,
+    "drawingBuffer": {
+      "width": 736,
+      "height": 336
+    },
+    "renderScale": {
+      "adjusted": true,
+      "sampleFrameMs": 283.34999999999997,
+      "targetFrameMs": 33
+    },
+    "drawCalls": 49,
+    "triangles": 10045,
+    "geometries": 46,
+    "textures": 15,
+    "frameMs": {
+      "p50": 216.70000000000033,
+      "p95": 1116.5999999999997,
+      "p99": 1516.6
+    },
+    "staticCache": {
+      "supported": true,
+      "active": true,
+      "hits": 24,
+      "builds": 3,
+      "width": 736,
+      "height": 336,
+      "samples": 4
+    },
+    "world": {
+      "staticInstances": 6270,
+      "staticMeshes": 13,
+      "drawObjects": 39,
+      "geometries": 36,
+      "materials": 22,
+      "textures": 4,
+      "obstacles": 0,
+      "hazards": 5,
+      "portalEnds": 4,
+      "disposed": false
+    },
+    "serpent": {
+      "geometries": 26,
+      "materials": 13,
+      "textures": 4,
+      "bodyRings": 147,
+      "bodyVertices": 1323,
+      "detail": "low",
+      "bodyTriangles": 2320,
+      "paths": 2,
+      "maxBodyRings": 8192,
+      "truncated": false,
+      "disposed": false,
+      "bufferBytes": 9437184
+    },
+    "reducedMotion": false,
+    "cleanFeed": false,
+    "connected": true,
+    "audio": {
+      "muted": true,
+      "voices": 0,
+      "ambience": 0,
+      "context": "not-started"
+    }
+  },
+  "scene": "normal",
+  "tick": 576
+}

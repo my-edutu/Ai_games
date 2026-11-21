@@ -1,0 +1,130 @@
+{
+  "commit": "c07c4123d3a28e505c1f089465c07f455cbe3486",
+  "run": "https://github.com/my-edutu/Ai_games/actions/runs/41120340705",
+  "artifactId": 13007044176,
+  "result": {
+    "passed": 11,
+    "failed": 1,
+    "failure": "Full-HD rendering cadence: 5 observed RAF frames, gate requires at least18; frame rate gate remains open."
+  },
+  "cacheBefore": {
+    "renderer": "webgl",
+    "frameCount": 3,
+    "quality": "low",
+    "cameraMode": "overview",
+    "drawCalls": 63,
+    "triangles": 74935,
+    "geometries": 43,
+    "textures": 11,
+    "frameMs": {
+      "p50": 49.99999999999982,
+      "p95": 1016.6999999999999,
+      "p99": 1016.6999999999999
+    },
+    "staticCache": {
+      "supported": false,
+      "active": false,
+      "hits": 0,
+      "builds": 0,
+      "width": 0,
+      "height": 0,
+      "samples": 0
+    },
+    "world": {
+      "staticInstances": 6270,
+      "staticMeshes": 13,
+      "drawObjects": 39,
+      "geometries": 36,
+      "materials": 22,
+      "textures": 3,
+      "obstacles": 0,
+      "hazards": 5,
+      "portalEnds": 4,
+      "disposed": false
+    },
+    "serpent": {
+      "geometries": 25,
+      "materials": 12,
+      "textures": 4,
+      "bodyRings": 213,
+      "bodyVertices": 1917,
+      "detail": "low",
+      "bodyTriangles": 3360,
+      "paths": 3,
+      "maxBodyRings": 8192,
+      "truncated": false,
+      "disposed": false,
+      "bufferBytes": 9437184
+    },
+    "reducedMotion": true,
+    "cleanFeed": false,
+    "connected": true,
+    "audio": {
+      "muted": true,
+      "voices": 0,
+      "ambience": 0,
+      "context": "not-started"
+    }
+  },
+  "cacheAfter": {
+    "renderer": "webgl",
+    "frameCount": 5,
+    "quality": "low",
+    "cameraMode": "overview",
+    "drawCalls": 51,
+    "triangles": 11498,
+    "geometries": 44,
+    "textures": 13,
+    "frameMs": {
+      "p50": 16.666666666666668,
+      "p95": 1233.3,
+      "p99": 1233.3
+    },
+    "staticCache": {
+      "supported": true,
+      "active": true,
+      "hits": 3,
+      "builds": 2,
+      "width": 690,
+      "height": 342,
+      "samples": 4
+    },
+    "world": {
+      "staticInstances": 6270,
+      "staticMeshes": 13,
+      "drawObjects": 39,
+      "geometries": 36,
+      "materials": 22,
+      "textures": 3,
+      "obstacles": 0,
+      "hazards": 5,
+      "portalEnds": 4,
+      "disposed": false
+    },
+    "serpent": {
+      "geometries": 25,
+      "materials": 12,
+      "textures": 4,
+      "bodyRings": 213,
+      "bodyVertices": 1917,
+      "detail": "low",
+      "bodyTriangles": 3360,
+      "paths": 3,
+      "maxBodyRings": 8192,
+      "truncated": false,
+      "disposed": false,
+      "bufferBytes": 9437184
+    },
+    "reducedMotion": true,
+    "cleanFeed": false,
+    "connected": true,
+    "audio": {
+      "muted": true,
+      "voices": 0,
+      "ambience": 0,
+      "context": "not-started"
+    }
+  },
+  "captures": "Actual Chromium SwiftShader screenshots. Cache A/B uses the same frozen public replay frame. Character and portrait captures use the live deterministic runtime.",
+  "limitation": "A handful of initial frames in cache A/B establishes visible output and resource counts, not sustained performance."
+}

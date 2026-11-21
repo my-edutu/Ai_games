@@ -1,0 +1,77 @@
+[
+  {
+    "dimensions": [
+      28,
+      16
+    ],
+    "resources": {
+      "staticInstances": 6270,
+      "staticMeshes": 13,
+      "drawObjects": 39,
+      "geometries": 36,
+      "materials": 22,
+      "textures": 4,
+      "obstacles": 0,
+      "hazards": 0,
+      "portalEnds": 0,
+      "disposed": false
+    },
+    "staticBufferBytes": 4908180,
+    "unchangedStaticBufferBytes": true,
+    "geometryAndPropsIdentical": true,
+    "stoneDegenerateUvTriangles": {
+      "before": 1592,
+      "after": 0
+    }
+  },
+  {
+    "dimensions": [
+      8,
+      8
+    ],
+    "resources": {
+      "staticInstances": 2925,
+      "staticMeshes": 13,
+      "drawObjects": 39,
+      "geometries": 36,
+      "materials": 22,
+      "textures": 4,
+      "obstacles": 0,
+      "hazards": 0,
+      "portalEnds": 0,
+      "disposed": false
+    },
+    "staticBufferBytes": 2056224,
+    "unchangedStaticBufferBytes": true,
+    "geometryAndPropsIdentical": true,
+    "stoneDegenerateUvTriangles": {
+      "before": 784,
+      "after": 0
+    }
+  },
+  {
+    "dimensions": [
+      2,
+      2
+    ],
+    "resources": {
+      "staticInstances": 1868,
+      "staticMeshes": 13,
+      "drawObjects": 39,
+      "geometries": 36,
+      "materials": 22,
+      "textures": 4,
+      "obstacles": 0,
+      "hazards": 0,
+      "portalEnds": 0,
+      "disposed": false
+    },
+    "staticBufferBytes": 1272516,
+    "unchangedStaticBufferBytes": true,
+    "geometryAndPropsIdentical": true,
+    "stoneDegenerateUvTriangles": {
+      "before": 440,
+      "after": 0
+    }
+  }
+]

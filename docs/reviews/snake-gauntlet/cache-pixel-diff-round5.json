@@ -1,0 +1,273 @@
+{
+  "shape": [
+    640,
+    960,
+    3
+  ],
+  "image_sha256": {
+    "before": "192001f3cc64654e6ea59cf9b2b6599aada5b5134a6209ee10d8e55e6810e4f9",
+    "after": "f478af986326516f9723066d32acaf0a6863f2fe167d48c2991f8b75448a3983"
+  },
+  "full_image": {
+    "rect": [
+      0,
+      0,
+      960,
+      640
+    ],
+    "pixels": 614400,
+    "mae_rgb_0_255": 1.7816297743055556,
+    "rmse_rgb_0_255": 6.736364990204287,
+    "exact_equal_pct": 54.15527343749999,
+    "pixels_max_channel_gt_8_pct": 7.218261718750001,
+    "pixels_max_channel_gt_24_pct": 2.62158203125,
+    "pixels_max_channel_gt_64_pct": 0.36604817708333337,
+    "max_channel_delta": 174,
+    "signed_mean_rgb": [
+      0.590458984375,
+      0.42778971354166667,
+      0.487001953125
+    ]
+  },
+  "canvas": {
+    "rect": [
+      20,
+      93,
+      940,
+      550
+    ],
+    "pixels": 420440,
+    "mae_rgb_0_255": 2.6035423207433483,
+    "rmse_rgb_0_255": 8.143276849872974,
+    "exact_equal_pct": 33.005898582437446,
+    "pixels_max_channel_gt_8_pct": 10.548235182190087,
+    "pixels_max_channel_gt_24_pct": 3.830986585481876,
+    "pixels_max_channel_gt_64_pct": 0.5349158024926267,
+    "max_channel_delta": 174,
+    "signed_mean_rgb": [
+      0.8628532014080487,
+      0.6251403291789553,
+      0.7116687279992389
+    ]
+  },
+  "water_left": {
+    "rect": [
+      25,
+      155,
+      165,
+      515
+    ],
+    "pixels": 50400,
+    "mae_rgb_0_255": 0.39760582010582013,
+    "rmse_rgb_0_255": 0.7067325515857462,
+    "exact_equal_pct": 37.36904761904762,
+    "pixels_max_channel_gt_8_pct": 0.0,
+    "pixels_max_channel_gt_24_pct": 0.0,
+    "pixels_max_channel_gt_64_pct": 0.0,
+    "max_channel_delta": 7,
+    "signed_mean_rgb": [
+      -0.009682539682539683,
+      -0.07238095238095238,
+      -0.05761904761904762
+    ]
+  },
+  "garden_center": {
+    "rect": [
+      300,
+      260,
+      630,
+      380
+    ],
+    "pixels": 39600,
+    "mae_rgb_0_255": 2.32736531986532,
+    "rmse_rgb_0_255": 5.933186498012852,
+    "exact_equal_pct": 25.952020202020204,
+    "pixels_max_channel_gt_8_pct": 10.28030303030303,
+    "pixels_max_channel_gt_24_pct": 2.1287878787878785,
+    "pixels_max_channel_gt_64_pct": 0.148989898989899,
+    "max_channel_delta": 108,
+    "signed_mean_rgb": [
+      0.9259090909090909,
+      0.7116919191919192,
+      0.4955050505050505
+    ]
+  },
+  "rear_flowers": {
+    "rect": [
+      320,
+      198,
+      667,
+      243
+    ],
+    "pixels": 15615,
+    "mae_rgb_0_255": 9.89919948767211,
+    "rmse_rgb_0_255": 18.69354795619392,
+    "exact_equal_pct": 8.331732308677553,
+    "pixels_max_channel_gt_8_pct": 40.281780339417224,
+    "pixels_max_channel_gt_24_pct": 18.815241754723022,
+    "pixels_max_channel_gt_64_pct": 3.426192763368556,
+    "max_channel_delta": 165,
+    "signed_mean_rgb": [
+      1.8833173230867755,
+      1.0653218059558118,
+      1.6617995517130963
+    ]
+  },
+  "front_foliage": {
+    "rect": [
+      175,
+      416,
+      740,
+      524
+    ],
+    "pixels": 61020,
+    "mae_rgb_0_255": 2.6930787719873264,
+    "rmse_rgb_0_255": 7.450943390797577,
+    "exact_equal_pct": 43.82497541789577,
+    "pixels_max_channel_gt_8_pct": 12.910521140609635,
+    "pixels_max_channel_gt_24_pct": 2.854801704359226,
+    "pixels_max_channel_gt_64_pct": 0.3179285480170436,
+    "max_channel_delta": 137,
+    "signed_mean_rgb": [
+      1.7897410685021304,
+      1.4167322189446083,
+      1.4992789249426417
+    ]
+  },
+  "distant_islets": {
+    "rect": [
+      684,
+      93,
+      856,
+      115
+    ],
+    "pixels": 3784,
+    "mae_rgb_0_255": 3.6725687103594082,
+    "rmse_rgb_0_255": 8.432028313514811,
+    "exact_equal_pct": 32.399577167019025,
+    "pixels_max_channel_gt_8_pct": 16.86046511627907,
+    "pixels_max_channel_gt_24_pct": 4.6247357293868925,
+    "pixels_max_channel_gt_64_pct": 0.23784355179704017,
+    "max_channel_delta": 82,
+    "signed_mean_rgb": [
+      1.2909619450317125,
+      1.7737843551797041,
+      1.1405919661733614
+    ]
+  },
+  "serpent_head": {
+    "rect": [
+      677,
+      326,
+      706,
+      370
+    ],
+    "pixels": 1276,
+    "mae_rgb_0_255": 4.801724137931035,
+    "rmse_rgb_0_255": 9.680461637394243,
+    "exact_equal_pct": 11.755485893416928,
+    "pixels_max_channel_gt_8_pct": 25.54858934169279,
+    "pixels_max_channel_gt_24_pct": 8.150470219435736,
+    "pixels_max_channel_gt_64_pct": 0.54858934169279,
+    "max_channel_delta": 88,
+    "signed_mean_rgb": [
+      0.20141065830721003,
+      0.5760188087774295,
+      -0.1042319749216301
+    ]
+  },
+  "additional_checks": {
+    "quiet_floor": {
+      "rect": [
+        488,
+        294,
+        566,
+        356
+      ],
+      "mae_rgb_0_255": 1.5372208436724566,
+      "max_channel_delta": 47,
+      "pixels_max_channel_gt_8_pct": 6.20347394540943,
+      "signed_mean_rgb": [
+        0.5576923076923077,
+        0.4270057899090157,
+        0.20843672456575682
+      ]
+    },
+    "left_arch_stone": {
+      "rect": [
+        432,
+        169,
+        445,
+        185
+      ],
+      "mae_rgb_0_255": 15.344551282051283,
+      "max_channel_delta": 114,
+      "pixels_max_channel_gt_8_pct": 59.13461538461539,
+      "signed_mean_rgb": [
+        9.817307692307692,
+        5.480769230769231,
+        4.3798076923076925
+      ]
+    },
+    "distant_green_interior": {
+      "rect": [
+        713,
+        96,
+        764,
+        103
+      ],
+      "mae_rgb_0_255": 1.9589169000933706,
+      "max_channel_delta": 82,
+      "pixels_max_channel_gt_8_pct": 8.123249299719888,
+      "signed_mean_rgb": [
+        1.280112044817927,
+        1.8403361344537814,
+        1.1540616246498598
+      ]
+    },
+    "hud_top": {
+      "rect": [
+        0,
+        0,
+        960,
+        90
+      ],
+      "mae_rgb_0_255": 0.0,
+      "max_channel_delta": 0,
+      "pixels_max_channel_gt_8_pct": 0.0,
+      "signed_mean_rgb": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "caption_and_footer": {
+      "rect": [
+        0,
+        552,
+        960,
+        640
+      ],
+      "mae_rgb_0_255": 0.0,
+      "max_channel_delta": 0,
+      "pixels_max_channel_gt_8_pct": 0.0,
+      "signed_mean_rgb": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "delta_gt_8": {
+      "pixels": 44349,
+      "pct_within_high_contrast_edge_3x3": 85.6794967192045
+    },
+    "delta_gt_24": {
+      "pixels": 16107,
+      "pct_within_high_contrast_edge_3x3": 97.54144160923822
+    },
+    "delta_gt_64": {
+      "pixels": 2249,
+      "pct_within_high_contrast_edge_3x3": 98.48821698532682
+    }
+  }
+}

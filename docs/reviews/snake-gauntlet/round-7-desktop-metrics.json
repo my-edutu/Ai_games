@@ -1,0 +1,104 @@
+{
+  "layout": {
+    "viewportWidth": 1920,
+    "scrollWidth": 1920,
+    "canvas": {
+      "x": 39,
+      "y": 123,
+      "width": 1842,
+      "height": 842,
+      "top": 123,
+      "right": 1881,
+      "bottom": 965,
+      "left": 39
+    },
+    "primary": {
+      "x": 734.8125,
+      "y": 41.015625,
+      "width": 417.15625,
+      "height": 35.515625,
+      "top": 41.015625,
+      "right": 1151.96875,
+      "bottom": 76.53125,
+      "left": 734.8125
+    }
+  },
+  "animation": {
+    "frames": 8,
+    "elapsedMs": 1050,
+    "maxGapMs": 250,
+    "averageFps": 7.619047619047619,
+    "actualDraws": 8
+  },
+  "presentation": {
+    "renderer": "webgl",
+    "frameCount": 29,
+    "quality": "low",
+    "cameraMode": "overview",
+    "pixelRatio": 0.4690415759823431,
+    "drawingBuffer": {
+      "width": 863,
+      "height": 394
+    },
+    "renderScale": {
+      "adjusted": true,
+      "sampleFrameMs": 149.99999999999991,
+      "targetFrameMs": 33
+    },
+    "drawCalls": 48,
+    "triangles": 9757,
+    "geometries": 43,
+    "textures": 15,
+    "frameMs": {
+      "p50": 116.6999999999998,
+      "p95": 616.6999999999998,
+      "p99": 1066.7
+    },
+    "staticCache": {
+      "supported": true,
+      "active": true,
+      "hits": 26,
+      "builds": 3,
+      "width": 863,
+      "height": 394,
+      "samples": 4
+    },
+    "world": {
+      "staticInstances": 6270,
+      "staticMeshes": 13,
+      "drawObjects": 39,
+      "geometries": 36,
+      "materials": 22,
+      "textures": 4,
+      "obstacles": 0,
+      "hazards": 5,
+      "portalEnds": 4,
+      "disposed": false
+    },
+    "serpent": {
+      "geometries": 21,
+      "materials": 12,
+      "textures": 4,
+      "bodyRings": 122,
+      "bodyVertices": 1098,
+      "detail": "low",
+      "bodyTriangles": 1936,
+      "paths": 1,
+      "maxBodyRings": 8192,
+      "truncated": false,
+      "disposed": false,
+      "bufferBytes": 9437184
+    },
+    "reducedMotion": false,
+    "cleanFeed": false,
+    "connected": true,
+    "audio": {
+      "muted": true,
+      "voices": 0,
+      "ambience": 0,
+      "context": "not-started"
+    }
+  },
+  "scene": "normal",
+  "tick": 462
+}
