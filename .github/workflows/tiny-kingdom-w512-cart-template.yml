@@ -7,6 +7,13 @@ on:
       - public/tiny-kingdom/index.html
       - tests/browser/tiny-kingdom-w512-courier-cart-template.spec.cjs
       - .github/workflows/tiny-kingdom-w512-cart-template.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - public/tiny-kingdom/index.html
+      - tests/browser/tiny-kingdom-w512-courier-cart-template.spec.cjs
+      - .github/workflows/tiny-kingdom-w512-cart-template.yml
   workflow_dispatch:
 jobs:
   original-freight-a-b:
