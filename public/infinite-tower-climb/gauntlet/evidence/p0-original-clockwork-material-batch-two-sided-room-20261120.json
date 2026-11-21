@@ -81,8 +81,8 @@
   "actualDeviceFrameTimeP50P95P99": "NOT EVALUATED",
   "actualDeviceMemory": "NOT EVALUATED",
   "nativeSourceAlignedAcceptance": "NOT EVALUATED for production SHA; previous strict source native acceptance FAILED",
-  "largestRemainingSystemicGap": "No proven consecutive native event-aligned 3D shared-room crossing; original Clockwork gateway, skinned hero and physical Floor9 receiving architecture still not visually certified together",
-  "nextHighestImpactAction": "Inspect exact-source 44821047280 original full-motion recordings and event/source timeline. Correlate actual original left/right available-vs-selected source material diagnostics with old room continuity on both viewports. If architectural hard swap persists, reopen source-owned cold rebuilt vs retained room and incoming shaft staging as one system; do not advance to P1 without P0 evidence.",
+  "largestRemainingSystemicGap": "undefined New canopy post-change native visibility NOT EVALUATED.",
+  "nextHighestImpactAction": "Inspect post-change 1x desktop/portrait full-motion WebMs and exact-source event search against true rendered HP0 gateway + full moving hero + real F9 bearing. If canopy fails genuine joint shot or occludes moving player, revise/retire canopy and fix renderer-owned old room/next shaft frame composition and camera together. Remain P0 until genuine sustained native acceptance.",
   "constraints": "Frozen baseline ledger and PR58 untouched; PR68 stays draft; no deployment, merge, force push, unrelated-game edits or fabricated reviewer/hardware metrics.",
   "followupEvidence20261120_2326": {
     "inspectedHead": "2633f7981dc07c9cb01d39ac9ce78b62e1292630",
@@ -205,5 +205,86 @@
     },
     "leadingTransformationVerdict": "NOT EVALUATED",
     "nextHighestImpactAction": "Inspect source-pinned 44837868405 actual unedited 60+s desktop and portrait clips, strict source/native events and SHA. If authentic Floor8 gate, whole moving hero and actual Floor9 roof still lack continuous shared shots, repair root-ownership/camera/shaft depth architecture together, not further palette or camera heuristics. Keep P0 open."
+  },
+  "followupEvidence20261121_0126": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "inspectedPR68PreviousHead": "dcdeba2d5d41ce65e9a082d634e6c60fa7c83cef",
+    "productionSourceSha": "3c0d249b89b0dd2161945116373bddd6c4a97320",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "newMeaningfulOriginal3DGameplayVisibleChange": "Build one continuous open-sided load-bearing canopy over the actual source-authenticated Floor 8 guardian -> Floor 9 real grounded roof. Six source-coordinate stations and five paired overhead ties sit beyond/on both sides of the actual gateway threshold; inside radius r20.4 support outside r22.4..27.18 walkable ring; all crossheads at >=6.1m above roof; no exterior foreground posts; same roof's three source-bound PBR material channels. An identifiable physical old/new room at the actual inhabited Floor9 sill, not one more invisible underside support, camera-only change, fake gateway/collision/platform/event.",
+    "files": [
+      "public/infinite-tower-climb/visuals/source-physical-receiving-roof.mjs",
+      "public/infinite-tower-climb/visuals/world.mjs",
+      "tests/phase3/tower-source-physical-gallery-canopy.test.cjs"
+    ],
+    "latestPriorExactSourceQuality": {
+      "sourceSha": "da0f0ca1213dc72afc5f21483bce0d274314aa7a",
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44837868446",
+      "result": "10/10 passed; test correctness only, not visual acceptance"
+    },
+    "genuineSourcePinnedPriorVideo": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44837868405",
+      "nativeUnmodifiedCandidateDangerArtifact": 14678618616,
+      "recordingSourceSha": "da0f0ca1213dc72afc5f21483bce0d274314aa7a",
+      "inspectedFromOriginalUneditedWebMs": true,
+      "desktop": {
+        "viewport": "960x600",
+        "nativeDurationSeconds": 72.44,
+        "drawnFloorNineHudSeconds": 26,
+        "sustainedVioletSeconds": 26.5,
+        "sourceSearchSeconds": 24.752,
+        "sourceToVioletSeconds": 1.748,
+        "warmToCoolBridgeSeconds": 0
+      },
+      "portrait": {
+        "viewport": "390x844",
+        "nativeDurationSeconds": 75.24,
+        "drawnFloorNineHudSeconds": 26.75,
+        "sustainedVioletSeconds": 27.5,
+        "sourceSearchSeconds": 25.703,
+        "sourceToVioletSeconds": 1.797,
+        "warmToCoolBridgeSeconds": 0
+      },
+      "genuineFootageDefect": "At Floor8->9 1x native crossing, previous bronze tall structural room is replaced by much broader radial Floor9 roof and purple shaft in about one sampled frame; earlier underslung six braces do not establish a sustained shared architectural volume. Source matched event/native danger verdict FAILED both viewports (0/2). Drawn HUD and chroma alone not proof of physical HP0 crossing.",
+      "filmAuthentication": "original GitHub Actions candidate artifact and native-video clock SHA/byte sidecars; 25fps full native source recording, no frame changes",
+      "reviewerClaims": "NONE"
+    },
+    "exactHeadQuality": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44845060130",
+      "sourceSha": "3c0d249b89b0dd2161945116373bddd6c4a97320",
+      "statusAtRecord": "RUNNING; not clean until all jobs finish"
+    },
+    "exactHeadNormalSpeedCapture": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44845060043",
+      "sourceSha": "3c0d249b89b0dd2161945116373bddd6c4a97320",
+      "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "statusAtRecord": "RUNNING; no post-change video evaluated",
+      "expectedViewport": [
+        "960x600",
+        "390x844"
+      ],
+      "durationAtLeastSeconds": 60
+    },
+    "independentReviews": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0,
+      "requiredPerAxis": 5,
+      "passingPreferencesRequiredPerAxis": 4
+    },
+    "nativeFilmAcceptance": "NOT EVALUATED for new source SHA; prior 0/2 danger event/native pairing failure remains a veto",
+    "realDeviceP50P95P99Memory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Inspect post-change 1x desktop/portrait full-motion WebMs and exact-source event search against true rendered HP0 gateway + full moving hero + real F9 bearing. If canopy fails genuine joint shot or occludes moving player, revise/retire canopy and fix renderer-owned old room/next shaft frame composition and camera together. Remain P0 until genuine sustained native acceptance.",
+    "constraints": {
+      "draftPR68RemainsDraft": true,
+      "PR58Unchanged": true,
+      "noMerge": true,
+      "noDeploy": true,
+      "noForcePush": true,
+      "noUnrelatedGames": true,
+      "frozenBaselineUnchanged": true,
+      "transformationJsonBlobSha": "7433d52ae1a7a75de51366a845375dda04ab87fa"
+    }
   }
 }
