@@ -5,7 +5,7 @@ import { publicEarnedCounterImpactStage } from './public-counter-impact.mjs';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
-import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilSafeContactHalfHeight, publicGuardianEarnedRecoilFinalPairShift, publicGuardianEarnedRecoilPairStageLift, publicGuardianEarnedContactStageResponse, publicGuardianEarnedRecoilRevealElevation, setPublicEarnedGuardianFrontQuarterOffset, publicEarnedGuardianCounterCameraPriority, publicEarnedGuardianCounterCameraAct, publicEarnedGuardianNarrowContactClock, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap, publicEarnedGuardianScenicPerformanceCourt, setPublicEarnedGuardianNarrowPairStage, setPublicEarnedGuardianWideContactReveal } from './guardian-duel-camera.mjs';
+import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilSafeContactHalfHeight, publicGuardianEarnedRecoilFinalPairShift, publicGuardianEarnedRecoilPairStageLift, publicGuardianEarnedContactStageResponse, publicGuardianEarnedRecoilRevealElevation, setPublicEarnedGuardianFrontQuarterOffset, publicEarnedGuardianCounterCameraPriority, publicEarnedGuardianCounterCameraAct, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap, publicEarnedGuardianScenicPerformanceCourt, setPublicEarnedGuardianNarrowPairStage, setPublicEarnedGuardianWideContactReveal } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
 import { publicEarnedGuardianCounterLightPath } from './public-lantern-encounter.mjs';
@@ -1516,14 +1516,9 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // Keep the ACTUAL previous witnessed camera at the real impact and ease
     // toward the public post-parry physical stage as Thornback withdraws.
     // The source two-second counterPhase is never a guessed/unseen threat.
-    // Input-time staging preserves the SAME original director shot and
-    // strict historic regression tests. The visual-only remap changes only
-    // a verified current 320px Follow counter, not the engine/event clock.
     const earnedShotAct=publicEarnedGuardianCounterCameraAct(
-      publicEarnedGuardianNarrowContactClock(
-        earnedCounterActor?.counterPhase,earnedDuelContinuity,
-        settings.reducedMotion,aspect),
-      earnedDuelContinuity,settings.reducedMotion,aspect);
+      earnedCounterActor?.counterPhase,earnedDuelContinuity,
+      settings.reducedMotion,aspect);
     // The native Pass522 hit still breaks the adjacent 390px tick93 warning
     // shot: portraitCameraOffset is NOT the camera actually used to photograph
     // that warning. Hold the previous physically rendered target and lens

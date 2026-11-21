@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-21T22:28:00Z",
+  "updatedAt": "2026-11-21T23:26:00Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass566b: Exact candidate HEAD b93a85b native Maze focused build FAILED (309/312, three pre-existing source-continuity regex tests). Corrected real source regression without weakening older tests: retain literal earnedShotAct continuity exactly and remap only authentic 320px same-run earned counter input phase before existing director; new-HEAD CI/browser captures PENDING. Baseline 96e0e902 Maze WebGL SUCCESS original 42/42 PNG/sidecar + 3/3 gate SHA, natural victory tick136. Nintendo-level actual visual win UNMET; independent worker/critic tunnel NOT_FOUND. PR #53 draft open; no merge/deploy/force."
+    "summary": "Pass567: Exact Pass566b 36503659 native Maze 44956918423 SUCCESS; original ZIP SHA256 8ec0766b4d30eda407cef845ce92ac79989853c99545e6989cadf9909d3f29eb independently verified 42/42 unaltered WebGL full-resolution PNG sidecars and 3/3 authentic gate-transition hashes; true autonomous chapter tick136 victory and strict six-reset <100 PASS. Direct 320/390 original full-frame before-after vs verified Pass565 rejects modified earned camera: Pip remains separated from Thornback across parapets; raw 26.81%/26.95% pixel changes are not gameplay or art progress. Restore only camera/scene production Git blobs from 96e0e902 and remove Pass566-exclusive test; fresh restored HEAD CI required. Whole repo 44956918430 red Tiny Kingdom OBS/artifacts. Critic/Ultracode tunnel NOT_FOUND; official Nintendo benchmark unmet; PR #53 open draft, no merge/deploy/force, hourly Gauntlet active."
   },
   "captures": [
+    {
+      "title": "Pass567 exact Pass566b 36503659 original WebGL 42/42 + 3/3 hashes VERIFIED; true tick136 win but 320/390 encounter VISUALLY REJECTED against Nintendo; only Pass566 code rolled back, new CI pending",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44956918423/artifacts/14728147544"
+    },
     {
       "title": "Pass566 — exact source-backed 320px genuine contact-shot candidate; fresh native SHA WebGL and blind visual approval PENDING, no win",
       "url": "https://github.com/my-edutu/Ai_games/pull/53"
