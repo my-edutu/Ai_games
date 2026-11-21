@@ -2494,6 +2494,7 @@ export function createTowerScene(canvas, settings = {}) {
   // triangles and the final camera; it has no authoritative gameplay owner.
   let successorDeckCameraProbes=0,successorDeckCameraRescues=0;
   let successorDeckCameraLastGain=0, successorArchitectureBlockedRays=0;
+  let raisedBackdropCameraRescues=0, raisedBackdropLastRelief=0;
   let originalGatewaySubmittedCamera=null;
   let originalGatewayCameraBridgeAccepted=0,originalGatewayCameraBridgeVetoed=0;
   let originalGatewayCameraPhysicalVetoed=0,originalGatewayCameraPhysicalAccepted=0;
@@ -5034,6 +5035,7 @@ export function createTowerScene(canvas, settings = {}) {
     // No alternate camera, new mesh, source tick, fake player, collision,
     // extra renderer frame or forced spectator movement.
     successorDeckCameraLastGain=0;
+    raisedBackdropLastRelief=0;
     if (coldArchLens?.coldOriginalArch===true &&
         coldArchLens.sourceBound===true &&
         coldArchLens.sourceTick===snapshot.tick &&
@@ -5053,7 +5055,14 @@ export function createTowerScene(canvas, settings = {}) {
         thresholdGate,targetPlatform?.id??null);
       const walkableHeldForDeck=!!physicalWalkableShot &&
         walkablePreviouslyReadable(recordWalkableProjection(thresholdWalkableBefore));
-      if(existingDeckView?.active && existingDeckView.score>0) {
+      const raisedBackdropBefore=world.measureSourceRaisedDeckBackdrop(snapshot,camera);
+      const dominantRaisedBackdrop=raisedBackdropBefore?.active===true &&
+        raisedBackdropBefore.coverage>.19;
+      // The real 1x native film contains a huge elevated deck even when
+      // all physically tested hero/gate rays are clear. A source-owned
+      // dominant background is a composition defect, not a ray hit.
+      if(existingDeckView?.active &&
+         (existingDeckView.score>0||dominantRaisedBackdrop)) {
         successorDeckCameraProbes=Math.min(1000000,successorDeckCameraProbes+1);
         // The full-body ray can now strike the ACTUAL source-owned F9
         // first-frame Void bearing or later shaft, not only its landing deck
@@ -5066,6 +5075,9 @@ export function createTowerScene(canvas, settings = {}) {
         const initialAzimuth=Math.atan2(camera.position.x,camera.position.z);
         const exteriorRadius=Math.hypot(camera.position.x,camera.position.z);
         let bestScore=existingDeckView.score;
+        let bestBackdrop=raisedBackdropBefore?.coverage??0;
+        const oldSteel=dominantRaisedBackdrop
+          ?world.projectedOriginalGateSteel(snapshot,camera):null;
         // Escalate through a fixed eight-shot exterior 3D clearance ladder
         // ONLY when actual source-owned platform triangles hide the present
         // skinned body or the original opened bronze gate. Candidate yaw,
@@ -5108,22 +5120,46 @@ export function createTowerScene(canvas, settings = {}) {
           // Neither genuine subject may become MORE obstructed to improve
           // the other. This also rescues a blocked GATE when body centre was
           // already clear, which the earlier body-only predicate ignored.
-          if(candidate?.active && candidate.score<bestScore &&
+          const raisedAfter=dominantRaisedBackdrop
+            ?world.measureSourceRaisedDeckBackdrop(snapshot,camera):null;
+          const betterBackdrop=dominantRaisedBackdrop &&
+            raisedAfter?.active===true && raisedAfter.coverage<bestBackdrop-.035;
+          const steelAfter=betterBackdrop
+            ?world.projectedOriginalGateSteel(snapshot,camera):null;
+          // A prettier background can never crop the old HP-open portal or
+          // worsen either current physical body/gateway triangle corridor.
+          const steelHeld=!betterBackdrop ||
+            (oldSteel?.sourceBound===true && steelAfter?.sourceBound===true &&
+             steelAfter.projectedMetalArea>=
+               Math.max(.008,oldSteel.projectedMetalArea*.75));
+          if(candidate?.active && steelHeld &&
              candidate.bodyBlockedRays<=existingDeckView.bodyBlockedRays &&
-             candidate.gatewayBlockedRays<=existingDeckView.gatewayBlockedRays) {
+             candidate.gatewayBlockedRays<=existingDeckView.gatewayBlockedRays &&
+             (candidate.score<bestScore ||
+               (candidate.score===bestScore&&betterBackdrop))) {
             bestScore=candidate.score;
+            bestBackdrop=raisedAfter?.coverage??bestBackdrop;
             thresholdBestCamera.copy(camera.position);
-            if(bestScore===0)break;
+            if(bestScore===0 &&
+               (!dominantRaisedBackdrop || bestBackdrop<=.19))break;
           }
         }
-        camera.position.copy(bestScore<existingDeckView.score
+        const rayImproved=bestScore<existingDeckView.score;
+        const backdropImproved=dominantRaisedBackdrop &&
+          bestBackdrop<(raisedBackdropBefore?.coverage??0)-.035;
+        camera.position.copy(rayImproved||backdropImproved
           ?thresholdBestCamera:thresholdPreviousCamera);
         lookAt.copy(thresholdPreviousGaze);
         camera.lookAt(lookAt);camera.updateMatrixWorld(true);
-        if(bestScore<existingDeckView.score){
+        if(rayImproved||backdropImproved){
           successorDeckCameraLastGain=existingDeckView.score-bestScore;
           successorDeckCameraRescues=Math.min(1000000,
             successorDeckCameraRescues+1);
+          if(backdropImproved){
+            raisedBackdropCameraRescues=Math.min(1000000,
+              raisedBackdropCameraRescues+1);
+            raisedBackdropLastRelief=(raisedBackdropBefore?.coverage??0)-bestBackdrop;
+          }
         }
       }
     }
@@ -6190,6 +6226,8 @@ export function createTowerScene(canvas, settings = {}) {
       actorSafeRefinements,
       successorDeckCamera: {probes:successorDeckCameraProbes,
         accepted:successorDeckCameraRescues,
+        realRaisedDeckBackdropRescues:raisedBackdropCameraRescues,
+        lastRaisedDeckProjectedCoverageRelief:+raisedBackdropLastRelief.toFixed(4),
         lastRealTriangleScoreGain:successorDeckCameraLastGain,
         sourceStructuralBlockedRays:successorArchitectureBlockedRays,
         limitation:'Real successor decks, genuine first-F9 bearings, deferred shaft and HP-open original gate triangle rays; not native video, FPS or acceptance'},

@@ -1,5 +1,6 @@
 import { createFrameSightlineMemo } from './frame-sightline-memo.mjs';
 import { planVoidOpenDeckTruss } from './void-open-deck-truss.mjs';
+import { genuineRaisedDeckCorners, projectedRaisedDeckDominance } from './source-deck-backdrop-composition.mjs';
 import { moveSourceOriginalClockworkCore, sourceOriginalClockworkCoreOpacity } from './source-original-clockwork-core-ownership.mjs';
 import * as THREE from '/tower/vendor/three.module.js';
 import { SCALE, ARC, angleFor, pointFor, guardianGateAnchorX, guardianTraversalGatePose, GUARDIAN_CAP_CORRIDOR } from './coordinates.mjs';
@@ -5736,6 +5737,23 @@ export function createTowerWorld(){
       ...coordinates]);
     return successorSightlineMemo.read(key,exactRayQuery);
   }
+  // A purple elevated platform may dominate native composition WITHOUT
+  // intersecting a single actor/gateway ray. Project only the actual real
+  // decks' sector limits, after the current source-authenticated crossing.
+  const deckScreenPoint=new THREE.Vector3();
+  function measureSourceRaisedDeckBackdrop(snapshot,camera){
+    const held=retainedEarnedCap;
+    if(snapshot!==lastSnapshot||!camera?.isCamera||
+       held?.root?.parent!==group||snapshot?.runToken!==held?.runToken)return null;
+    const specs=genuineRaisedDeckCorners(snapshot,held,ARC,SCALE);
+    if(!specs)return null;
+    const attached=specs.filter(d=>platforms.get(d.id)?.root?.parent===floorGroup);
+    camera.updateMatrixWorld(true);
+    return projectedRaisedDeckDominance(attached,p=>{
+      deckScreenPoint.set(p.x,p.y,p.z).project(camera);
+      return deckScreenPoint;
+    });
+  }
   function protectRouteSightlines(camera, actor=null, guardian=null, landing=null, dt=0, options={},
       actorHalfHeight=0, guardianHalfHeight=0, hazard=null, gateway=null, actorHalfWidth=0) {
     if(disposed)return {total:0,softened:0};
@@ -6352,5 +6370,5 @@ export function createTowerWorld(){
       deferredBuildMs:deferredDistantArrival.deferredBuildMs,
     }:null,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;retireEarnedCap();pendingEarnedCap=null;clearFloor();finishRetiredFloorResources('disposed');for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
-  return{group,update,stageGroundedCapContinuation,sourceEarnedOriginalGateGeometry,retainedFilmHandoff,certifiedPaletteHorizon,noteFrameSubmitted,deferredShaderSubmission,projectedOriginalGateSteel,measureSuccessorDeckVisibility,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics,lastRebuild};
+  return{group,update,stageGroundedCapContinuation,sourceEarnedOriginalGateGeometry,retainedFilmHandoff,certifiedPaletteHorizon,noteFrameSubmitted,deferredShaderSubmission,projectedOriginalGateSteel,measureSuccessorDeckVisibility,measureSourceRaisedDeckBackdrop,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics,lastRebuild};
 }
