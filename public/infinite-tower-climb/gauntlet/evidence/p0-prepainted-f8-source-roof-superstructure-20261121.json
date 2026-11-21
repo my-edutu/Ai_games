@@ -107,5 +107,57 @@
       },
       "evidenceCaveat": "SHA checked against unmodified source-pinned native-scene-phase sidecars; GPU owner snapshots/graphics-tier color are not proof of strict event-to-film correspondence; browser times are not actual-device p50/p95/p99 or GPU FPS"
     }
+  },
+  "followUp20261121SourceOriginalCoreCamera": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationAssessorVerdict": "NOT EVALUATED",
+    "inspectedParentSha": "967fe00238ada1175ba6bed46f2adde2c0349eb3",
+    "productionSourceSha": "705487bb1feedb0ad146741bd480a70a428ae011",
+    "productionCommit": "https://github.com/my-edutu/Ai_games/commit/705487bb1feedb0ad146741bd480a70a428ae011",
+    "latestExactHeadCI": "https://github.com/my-edutu/Ai_games/actions/runs/44866750559",
+    "latestExactHeadCIStatusAtInspection": "QUEUED, 10 jobs; no pass claimed",
+    "latestNineJobNativeGameplayCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44866750631",
+    "captureStatusAtInspection": "QUEUED, exact candidate code sha 705487bb1feedb0ad146741bd480a70a428ae011 and frozen baseline; 9 jobs; no new native result claimed",
+    "referenceSourcePinnedFilm": "https://github.com/my-edutu/Ai_games/actions/runs/44862181637",
+    "previousEventNativePairing": "FAILED in both desktop and portrait viewports (0/2)",
+    "observedEarlierNativeFootage": {
+      "desktop": {
+        "viewport": "960x600",
+        "floor9HudSeconds": 25.75,
+        "sustainedVioletSeconds": 26.5,
+        "firstSourceEventSeconds": 24.25
+      },
+      "portrait": {
+        "viewport": "390x844",
+        "floor9HudSeconds": 25.25,
+        "sustainedVioletSeconds": 26,
+        "firstSourceEventSeconds": 24.18
+      },
+      "defect": "Abrupt shift from original bronze guardian chamber into violet larger Floor9 shaft; no accepted consecutive true opening/full climber/physical receiving roof source-event-paired native shot; still 0/2"
+    },
+    "systemicSourceGap": "The already reparented three-mesh original central Clockwork core was omitted from the 9 real-triangle full-body/gateway camera clearance rays despite its material and scene owner being present on the first F9 renderer frame",
+    "implemented": "Source-authenticated exact old-core 3D owner is included as a bounded third architectural ray subtree, only on same historic f8:cap parent with visible original material, in original successor deck+guardian camera safety. Uses same 9 real rays, camera score and bounded physical veto, plus new dual-viewport Three.js fixture; zero edits to game authority, physics, guardian, roof, collisions, draw pass or future event",
+    "checks": "Source-level edit and dual-viewport regression committed; GitHub Actions checks queued, therefore NOT PASSED or visually verified",
+    "genuineIndependentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDevices": {
+      "p50": "NOT EVALUATED",
+      "p95": "NOT EVALUATED",
+      "p99": "NOT EVALUATED",
+      "memory": "NOT EVALUATED"
+    },
+    "nextHighestImpact": "Once source-pinned 9-job clips and exact-head CI finish, inspect complete 60s+ normal-speed full-motion recordings and align immutable crossing events to painted frames; confirm opened original steel, complete moving hero and genuinely walkable F9 together consecutively in desktop/portrait; if still failed, fix incoming full shaft GPU-return submission scheduling and foreground scene ownership, not decoration",
+    "safeguards": {
+      "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+      "pr68OpenDraft": true,
+      "pr58Untouched": true,
+      "noForcePush": true,
+      "noDeploy": true,
+      "noMerge": true,
+      "noUnrelatedGames": true
+    }
   }
 }
