@@ -6345,7 +6345,7 @@ export function appendLicensedSourceDistinctToeProbeAngles(
   measured.sourceClip==='Walking_A'&&
   measured.side===(sourceToeBoneName==='toesl'?'left':'right')&&
   measured.originalOppositeShoeVerified===true&&
-  measured.finalIndependentSourceSkin===true&&
+  measured.requiresIndependentFinalSkin===true&&
   measured.contactLocked===false&&measured.plantCertified===false&&
   finite(measured.angleRad)&&finite(measured.toeLiftMeters)&&
   finite(measured.heelChangeMeters)&&finite(measured.residualToeBurialMeters)&&

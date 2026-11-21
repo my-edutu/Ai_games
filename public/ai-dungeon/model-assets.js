@@ -5351,7 +5351,7 @@ function stageLicensedSourceToeFinisherAfterCounterpitch(actor,reducedMotion){
      preferredAngleSign:preferredAngleSign
     });
     toeAngles=appendLicensedSourceDistinctToeProbeAngles(
-     toeAngles,guided,toe.name);
+     toeAngles,guided,toe.name,best.result);
     if(toeAngles.length>baseToeAngles.length)
      trial(toeAngles[baseToeAngles.length]);
    }

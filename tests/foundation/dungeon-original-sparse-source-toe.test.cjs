@@ -594,7 +594,7 @@ test('RED: original f27 deep-swing certified max-rate toe lift skips a physicall
   sourceClip:'Walking_A',side:'right',angleRad:-.0501,
   toeLiftMeters:.00436150360846807,heelChangeMeters:0,
   residualToeBurialMeters:.08668487211085481,
-  originalOppositeShoeVerified:true,finalIndependentSourceSkin:true,
+  originalOppositeShoeVerified:true,requiresIndependentFinalSkin:true,
   contactLocked:false,plantCertified:false
  };
  assert.deepEqual(
@@ -606,7 +606,7 @@ test('RED: original f27 deep-swing certified max-rate toe lift skips a physicall
   null,{...actual,side:'left'}, {...actual,sourceClip:'Idle'},
   {...actual,toeLiftMeters:.002}, {...actual,residualToeBurialMeters:.012},
   {...actual,originalOppositeShoeVerified:false},
-  {...actual,finalIndependentSourceSkin:false},
+  {...actual,requiresIndependentFinalSkin:false},
   {...actual,angleRad:.0501}, {...actual,contactLocked:true}
  ]){
   assert.equal(
