@@ -1,4 +1,42 @@
 {
+  "p0CorrectedPhysicalGatewayRayEndpointSourceCapture20261121_1950": {
+    "stage": "P0 OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateSourceProductionSha": "f8ba5956e98e632442f82357e9b417b2c1bceea7",
+    "candidateRef": "${{ github.sha }}",
+    "previousCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44931295601",
+    "candidateCaptureAfterCorrection": "This capture-request commit immutable github.sha, never floating HEAD",
+    "P0Blocker": "Real 1x desktop/portrait F9 original metal/hero/roof visibility remained unproven, 0/2 native event matching; baseline ascent partial compositor/native PTS gap slope .744967 vetoed full-film alignment.",
+    "correctedProductionBehavior": "Final HP0 original gateway follow camera now tests ACTUAL original mesh steel, current F9/platform/shaft ray intersections, real walkable roof and raised deck screen coverage. Crucial correction: Three.Vector3.project(camera) MUTATES the input. Separate cloned NDC projection now leaves source-original gate's THREE WORLD position untouched for true obstacle raycasts.",
+    "codeCommitBeforeCorrection": "66af9422ba5a7f522efbf17f650d7dc277a416a8",
+    "correctedImplementationSha": "f8ba5956e98e632442f82357e9b417b2c1bceea7",
+    "newRegressions": "Exact source current Phase3 camera continuity tests include original world-space gate endpoint preservation and source authentic triangle query",
+    "matchedCapture": {
+      "seed": "tower-transformation-capture-v1",
+      "tier": "low",
+      "fps": 25,
+      "speed": 1,
+      "durationAtLeastSeconds": 60,
+      "desktop": "960x600",
+      "portrait": "390x844",
+      "scenarios": [
+        "ascent",
+        "moving",
+        "danger",
+        "outcome/restart"
+      ],
+      "baseline": "1731b380851162741761c5569e2bc152a0869ca9"
+    },
+    "acceptance": "Require original event-matched 2/2 desktop+portrait full motion 1x source-native continuous original HP0 steel+whole moving hero+true floor-nine source roof and raised destination; genuine outcome/restart, no camera regressions; 5 independent critics each pillar; real device p50/p95/p99/memory",
+    "independentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDeviceFrameTimeMemory": "NOT EVALUATED",
+    "constraint": "No PR58, baseline ledger, unrelated games, merge, deploy, force-push or draft conversion"
+  },
   "p0FinalReturnedThreeSubjectPhysicalCameraCapture20261121_1933": {
     "stage": "P0 OPEN",
     "verdict": "NOT EVALUATED",
