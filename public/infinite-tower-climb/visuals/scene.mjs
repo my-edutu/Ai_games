@@ -5845,11 +5845,17 @@ export function createTowerScene(canvas, settings = {}) {
         const actualGateSteel=gateCenterVisible && currentFullBodyVisible &&
           receivingRoofVisible
             ?world.projectedOriginalGateSteel(snapshot,camera):null;
+        // Final WebGL camera runs in animate(), not update(). Resolve the
+        // current public, source-authoritative landing here; the update-only
+        // targetPlatform local is not in scope and broke both native danger
+        // recordings with ReferenceError after guardian defeat.
+        const submittedLanding=actualGateSteel?.sourceBound===true
+          ?intendedLanding(snapshot):null;
         const physicalThreeSubject=actualGateSteel?.sourceBound===true
           ?world.measureSuccessorDeckVisibility(
               snapshot,camera.position,releaseHero,
               snapshot.player.halfHeight/SCALE,gatePoint,
-              targetPlatform?.id??null):null;
+              submittedLanding?.id??null):null;
         const genuineRaisedBackdrop=physicalThreeSubject?.active===true
           ?world.measureSourceRaisedDeckBackdrop(snapshot,camera):null;
         const jointPhysical=assessSourceRetainedGatewayPhysicalShot({
