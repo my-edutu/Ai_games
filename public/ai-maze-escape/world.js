@@ -425,6 +425,50 @@ export function publicEarnedGuardianRecoilCourtCells(s,{spectator=false}={}) {
   return quiet;
 }
 
+// Original opaque spectator-wall cutaway for a genuinely EARNED public
+// guardian counter that outlasts the short open duel causeway. Both ordinary
+// endpoints must be visible, publicly known and mutually NONPASSAGE.
+// No collision, AI, gate, pressure mechanism or hidden-map change is allowed.
+export function publicEarnedGuardianSealedStageEdges(s){
+  const edges=new Set();
+  if(s?.lifecycle!=='running'||s.result||!Number.isSafeInteger(s.width)||s.width<2
+    ||!Number.isSafeInteger(s.height)||s.height<2
+    ||!Number.isSafeInteger(s.currentCell)||!Array.isArray(s.cells)
+    ||!Array.isArray(s.visibleCells)||!Array.isArray(s.threats)
+    ||!Array.isArray(s.doors)||!Array.isArray(s.keys))return edges;
+  const visible=new Set(s.visibleCells),known=new Map(s.cells.filter(c=>
+    Number.isSafeInteger(c?.cell)&&c.cell>=0&&c.cell<s.width*s.height
+    &&visible.has(c.cell)).map(c=>[c.cell,c]));
+  const hero=known.get(s.currentCell);
+  const reserved=new Set([...s.keys.map(k=>k.cell),...s.doors.flatMap(d=>[d.a,d.b])]);
+  const distance=(a,b)=>Math.abs(a%s.width-b%s.width)
+    +Math.abs(Math.floor(a/s.width)-Math.floor(b/s.width));
+  const ordinary=c=>c?.blocked===false&&Array.isArray(c.neighbors)
+    &&!c.trap&&!c.checkpoint&&!c.clue&&c.cell!==s.exitCell
+    &&!reserved.has(c.cell);
+  if(!ordinary(hero))return edges;
+  for(const threat of s.threats){
+    if(threat?.lanternParried!==true||!visible.has(threat.cell))continue;
+    const guardian=known.get(threat.cell);
+    if(!ordinary(guardian)||distance(hero.cell,guardian.cell)<1
+      ||distance(hero.cell,guardian.cell)>4)continue;
+    if(cellHeight(hero.cell,s.width,s.height)!==cellHeight(guardian.cell,s.width,s.height))continue;
+    for(const cell of known.values()){
+      if(!ordinary(cell)||Math.min(distance(cell.cell,hero.cell),
+        distance(cell.cell,guardian.cell))>3)continue;
+      for(const id of [cell.cell-1,cell.cell+1,cell.cell-s.width,cell.cell+s.width]){
+        const next=known.get(id);
+        if(!ordinary(next)||distance(cell.cell,id)!==1
+          ||Math.min(distance(id,hero.cell),distance(id,guardian.cell))>3
+          ||cell.neighbors.includes(id)||next.neighbors.includes(cell.cell)
+          ||cellHeight(cell.cell,s.width,s.height)!==cellHeight(id,s.width,s.height))continue;
+        edges.add(`${Math.min(cell.cell,id)}:${Math.max(cell.cell,id)}`);
+      }
+    }
+  }
+  return edges;
+}
+
 const STAIR_COUNT = 8, STAIR_START = .08, STAIR_RUN = CELL_SIZE / 2 - STAIR_START, STAIR_HALF_WIDTH = .78;
 export function sampleGroundHeight(x, z, snapshot) {
   if (!snapshot || !Number.isFinite(x) || !Number.isFinite(z)) return 0;
@@ -1322,6 +1366,7 @@ export function createMazeWorld(options = {}) {
     // The peripheral helper requires a genuine witnessed open causeway and
     // cannot infer or reveal hidden terrain or private AI.
     const earnedRecoilQuiet=publicEarnedGuardianRecoilCourtCells(s);
+    const earnedSealedStageEdges=publicEarnedGuardianSealedStageEdges(s);
     // Separate the honest actor-level LOW stone district from a wider
     // optional-vegetation exclusion on CURRENTLY VISIBLE ordinary terraces.
     // The latter changes no platform heights, walls, gates or path surfaces.
@@ -2289,7 +2334,9 @@ export function createMazeWorld(options = {}) {
         // A real gate, unseen side, actual passage, height change or a
         // directly linked public pressure trigger always retains priority.
         const guardianForegroundSealedScreen=!!adjacentKnown
-          && ((guardianForeground.has(c.cell) && guardianForeground.has(n))
+          && ((earnedSealedStageEdges.has(key)
+            && !pressureSightlines.has(c.cell) && !pressureSightlines.has(n))
+            || (guardianForeground.has(c.cell) && guardianForeground.has(n))
             || (guardianPeripheralWalls.has(c.cell) && guardianPeripheralWalls.has(n)
               // Nearby REAL jaws always own their immediate physical stage.
               // A broad public proximity ring is never permission to lower
@@ -2300,6 +2347,7 @@ export function createMazeWorld(options = {}) {
           // parapet remains; no unknown/one-way/open/pressure/gate edge qualifies.
           && ((guardianOuterCourt.ordinary.has(c.cell)
             && guardianOuterCourt.ordinary.has(n))
+            || earnedSealedStageEdges.has(key)
             || guardianSightlines.has(c.cell) || guardianSightlines.has(n)
             || (guardianPeripheralWalls.has(c.cell) && guardianPeripheralWalls.has(n)))
           && c.blocked===false && adjacentKnown.blocked===false
@@ -3778,6 +3826,7 @@ export function createMazeWorld(options = {}) {
     const keyedOuterCourt=publicGuardianOuterCourtCells(s,keyedGuardianCauseway);
     const keyedForeground=publicGuardianWitnessedForegroundCells(s,keyedGuardianCauseway);
     const keyedEarnedRecoil=publicEarnedGuardianRecoilCourtCells(s);
+    const keyedEarnedSealedStageEdges=publicEarnedGuardianSealedStageEdges(s);
     const keyedEarnedSpectators=publicEarnedGuardianRecoilCourtCells(
       s,{spectator:true});
     // A third-ring PUBLIC wall may be diagonal to both guardian causeway
@@ -3813,6 +3862,7 @@ export function createMazeWorld(options = {}) {
       + '#guardian-public-peripheral-walls:' + [...keyedPeripheralWalls].sort((a,b)=>a-b).join('.')
       + '#guardian-earned-recoil:' + [...keyedEarnedRecoil].sort((a,b)=>a-b).join('.')
       + '#guardian-earned-public-spectators:' + [...keyedEarnedSpectators].sort((a,b)=>a-b).join('.')
+      + '#guardian-earned-sealed-edges:' + [...keyedEarnedSealedStageEdges].sort().join('.')
       + '#guardian-outer-floor:' + [...keyedOuterCourt.ordinary].sort((a,b)=>a-b).join('.')
       + '#guardian-outer-sealed:' + [...keyedOuterCourt.sealed].sort((a,b)=>a-b).join('.');
     if (terrainKey !== terrainSignature) { rebuildTerrain(s); terrainSignature = terrainKey; }
