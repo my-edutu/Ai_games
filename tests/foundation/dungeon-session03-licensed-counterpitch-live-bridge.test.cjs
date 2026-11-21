@@ -815,3 +815,72 @@ test('RED: actual original first 3-joint Walking_A source chain can transfer a v
   right:soles.right
  }}),null,'a mismatched real world-space weighted heel must reject the whole-body trial');
 });
+
+
+/**
+ * Actual original 390px WebGL Vanguard Walking_A frame64/tick8 from exact
+ * ae5fe33b, Actions #44862879484 / native source artifact 14691533052.
+ * Real left source-weighted heel was 6.2186mm under -20mm stone, with the
+ * same left toe 26.3572mm above the plane. This is a heel-FIRST rollover,
+ * not a flat two-point planted foot. Right original swing sole is floating
+ * heel +206.76mm and buried toe -62.94mm relative to authored stone.
+ * The earlier strict two-point planner rejects any correction. Test FIRST
+ * for a bounded, reversible whole-pelvis 6.2mm lift based on the true
+ * weighted heel; toe roll may stay elevated but must not be called planted.
+ */
+test('RED: actual original mobile heel-first roll may earn bounded pelvis support without pretending the elevated toe is planted',async()=>{
+ const {planOriginalSourceLoadedPelvisSupport:plan,
+  verifyOriginalSourceLoadedPelvisFootWitness:verify}=await source;
+ const base={
+  mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  ownerLocomotion:true,rootTravel:.010097126678548118,
+  frameAge:0,frameInterval:.016699999999993054,
+  alive:true,visible:true,teleport:false,reducedMotion:false,
+  interrupted:false,floorTopY:-.02,
+  floorEvidence:'authored-cube-floor-top',previousLiftMeters:0,
+  left:{heelY:-.026218604954277552,toeY:.006357235163678428,
+   heelXZ:[-2.8345100179509983,-6.957069638233759],
+   toeXZ:[-3.102741934344064,-6.931612502456333]},
+  right:{heelY:.1867625304107833,toeY:-.08294209827491945,
+   heelXZ:[-2.7034802056241007,-7.107765237158218],
+   toeXZ:[-2.8231707260920484,-7.135878864712355]}
+ };
+ const candidate=plan(base);
+ assert.equal(candidate?.side,'left','original loaded heel must be selected');
+ assert.equal(candidate?.sourceHeelRollVerified,true,
+  'a raised source toe and buried loaded heel are a named heel roll, never a 2-point contact');
+ assert.ok(candidate.liftMeters>=.0061&&candidate.liftMeters<=.0063,
+  'small measured visual pelvis recovery must stop at the original stone heel plane');
+ const move=foot=>({...foot,heelY:foot.heelY+candidate.liftMeters,
+  toeY:foot.toeY+candidate.liftMeters});
+ const before=base.left,after=move(before),
+  otherBefore=base.right,otherAfter=move(otherBefore);
+ const actual=verify({before,after,otherBefore,otherAfter,
+  floorTopY:-.02,requireWorldXZ:true,
+  sourceHeelRollVerified:candidate.sourceHeelRollVerified});
+ assert.ok(actual?.improvementMeters>=.006,
+  'authentic weighted heel burial must reduce with no fabricated lateral shoe drift');
+ assert.equal(actual?.supportKind,'source-loaded-heel-roll');
+ assert.equal(actual?.contactLocked,false);
+ assert.equal(actual?.plantCertified,false);
+ assert.equal(verify({before,after,otherBefore,otherAfter,
+  floorTopY:-.02,requireWorldXZ:true}),null,
+  'the previous flat-foot verifier must not automatically accept heel-roll poses');
+ for(const unsafe of [
+  {mode:'attack'},{sourceClipName:'Idle'},{rootTravel:0},
+  {teleport:true},{interrupted:true},{reducedMotion:true},
+  {left:{...base.left,heelY:-.09}},
+  {left:{...base.left,toeY:.025}},
+  {left:{...base.left,toeY:-.01}},
+  {right:{...base.right,heelY:-.022,toeY:-.019}}
+ ])assert.equal(plan({...base,...unsafe}),null,
+  'only genuine loaded-heel roll, licensed action and unoccupied opposing shoe may earn this motion: '+JSON.stringify(unsafe));
+ assert.equal(verify({before,after:{...after,heelXZ:[after.heelXZ[0]+.003,after.heelXZ[1]]},
+  otherBefore,otherAfter,floorTopY:-.02,requireWorldXZ:true,
+  sourceHeelRollVerified:true}),null,
+ 'lateral source-sole drift cannot be hidden by a favorable vertical lift');
+ assert.equal(verify({before,after:{...after,toeY:after.toeY+.008},
+  otherBefore,otherAfter,floorTopY:-.02,requireWorldXZ:true,
+  sourceHeelRollVerified:true}),null,
+ 'native toe cannot silently rise independent of the whole-pelvis Y translation');
+});
