@@ -8424,5 +8424,49 @@
       "PLAYS": "0/5"
     },
     "evidenceGoal": "Compare 60+ sec identical seed/tier/matched baseline and current candidate desktop and portrait, including full event-aligned guardian/crusher HP0 doorway threshold original F8 gate + real F9 roof + whole moving climber → raised destination → floor10 + outcome/restart. Native pairing and genuine 5 independent critics still required."
+  },
+  "p0SourceReturnedOriginalGuardianGatewayContinuousCamera20261121": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH, NOT EVALUATED",
+    "approvedFrozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateRef": "${{ github.sha }}",
+    "productionHelperSha": "cc719652b4fc029ef6bb876e88a352b8976b47b3",
+    "sceneIntegrationSha": "a0c0bf6ba1b78f5158ffd2b9a81b8e8794afc6af",
+    "regressionSha": "005dcf76b8d780c0616b9a7a39456c234f2b5557",
+    "previousSourceCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44920153911",
+    "originalNativeDefect": "F8 bronze guardian doorway and F9 real roof/camera switch too abruptly despite real progression. Original source-to-native event match FAILED 0/2; desktop first F9 HUD 26.00s, violet 28.00s; portrait 25.75s and 27.25s, no sustained shared bronze-to-cool architecture.",
+    "requestedCapture": {
+      "seed": "tower-transformation-capture-v1",
+      "tier": "low",
+      "fps": 25,
+      "speed": 1,
+      "minimumDurationSeconds": 60,
+      "desktop": "960x600",
+      "portrait": "390x844",
+      "scenarios": [
+        "ascent",
+        "moving",
+        "danger/guardian/crusher",
+        "outcome/restart"
+      ],
+      "pairedSources": [
+        "1731b380851162741761c5569e2bc152a0869ca9",
+        "EXACT immutable capture-request commit github.sha"
+      ]
+    },
+    "checks": [
+      "Run all nine original baseline/current-authentic source gameplay and ledge jobs, rejecting a failed source/replay/restart chain",
+      "Use source-event time matched to original decoded native video timestamps, not source-search time mistaken for displayed frame time",
+      "Inspect original nonedited full-motion desktop AND portrait passage; require at least two consecutive genuinely joined old HP0 gateway/complete current moving hero/physically walkable first F9 roof and raised destination frames",
+      "Look for bounded completed-F9 camera orbit before gateway retirement; measure whether the rendered F9 room remains continuously recognizable; verify no visible camera jump, foreground occlusion or tiny hero",
+      "Ensure actual full ascent and true guardian/crusher defeat, next floor and outcome/restart; no fabricated actors/platforms, source forced progress or manufactured clips",
+      "Keep P0 OPEN and verdict NOT EVALUATED if strict 2/2 native event match, supported actual-device frame p50/p95/p99/memory and genuine 5 independent LOOKS/FEELS/PLAYS critics are not available"
+    ],
+    "noMergeNoDeployNoForcePushNoPr58Edit": true,
+    "reviewCounts": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDevicePerformance": "NOT EVALUATED"
   }
 }
