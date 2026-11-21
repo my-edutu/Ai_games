@@ -65,10 +65,6 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    stages.push(observed);
    // Preserve the original live audit even if a strict physical framing
    // assertion fails on this day. CI must not upload only terminal green clips.
-   fs.writeFileSync(path.join(evidenceDirectory,'day-'+day+'.json'),
-    JSON.stringify({source:process.env.GITHUB_SHA||'local',viewport,
-     seed:initial.snapshot.checksum,...observed,
-     hardwareFps:'NOT MEASURED'},null,2));
    const actualFrame=await page.screenshot();
    // Independent raster-level gate from genuine WebGL footage. W520's
    // 2/2 green browser test filmed 99.99% neutral grey roof/plaster pixels
@@ -96,15 +92,20 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
      neutralFraction:neutral/total};
    },actualFrame.toString('base64'));
    observed.actualScreenPixels=actualPixels;
-   // Spring founding footage MUST show original exterior vegetation/town,
-   // not the grey roof that filled the genuine predecessor screenshots.
+
+   // Preserve the genuine PNG and raster audit before any failure can stop
+   // Playwright. Never leave a red experience test without downloadable film.
+   fs.writeFileSync(path.join(evidenceDirectory,'day-'+day+'.json'),
+    JSON.stringify({source:process.env.GITHUB_SHA||'local',viewport,
+     seed:initial.snapshot.checksum,...observed,
+     hardwareFps:'NOT MEASURED'},null,2));
+   fs.writeFileSync(path.join(evidenceDirectory,'day-'+day+'.png'),actualFrame);
+   await info.attach('real-day-'+day+'-'+viewport.width,{
+    body:actualFrame,contentType:'image/png'});
    if(day===1){
     expect(actualPixels.greenFraction).toBeGreaterThan(.12);
     expect(actualPixels.neutralFraction).toBeLessThan(.90);
    }
-   fs.writeFileSync(path.join(evidenceDirectory,'day-'+day+'.png'),actualFrame);
-   await info.attach('real-day-'+day+'-'+viewport.width,{
-    body:actualFrame,contentType:'image/png'});
    expect(observed.realAuthorityUntouchedByCamera).toBe(true);
    expect(observed.camera.follow).toBe(false);
    expect(observed.physical.eyeClear).toBe(true);
