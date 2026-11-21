@@ -123,6 +123,15 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    expect(observed.physical.centralTownBlockers).toBe(0);
    expect(observed.physical.nearRoofDominance).toBeLessThan(.78);
    expect(observed.physical.screenDominantBuilding).toBeLessThan(.40);
+   // W526: real W525 film returned a 1.21-radian bird's-eye view: workers
+   // became tiny even though the geometric camera tests were green.
+   // Demand actual lower-angle sightlines when a real construction recovery
+   // happened; do not assert a scripted shot or fake a worker.
+   if(day>=21&&observed.grown.actualObstructions>0){
+    expect(observed.grown.groundedSelections).toBeGreaterThan(0);
+    expect(observed.grown.lastGroundedPitch).toBeLessThan(.92);
+    expect(observed.camera.pitch).toBeLessThan(.92);
+   }
    expect(observed.scene).toBeGreaterThan(0);
    expect(observed.scene).toBeLessThan(160000);
    // W523 actual forest tri-budget safety: all seeded trees still rendered,

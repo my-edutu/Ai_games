@@ -31070,6 +31070,53 @@ let growingCameraCheckedCity=null,growingCameraCheckedLots=-1,
  growingCameraCheckedRoofKey=null;
 let growingCameraChecks=0,growingCameraObstructions=0,
  growingCameraRecoveries=0,growingCameraUnresolved=0;
+// Phase 1: grow the same original farm->granary->market->home district
+// without forcing spectators into an unreadable near-vertical roof orbit.
+// Physical sightline/solid-volume validation is reused verbatim, no culling.
+// This bounded search runs only when actual city topology obstructs the eye.
+let groundedGrowthCameraProbes=0,groundedGrowthCameraSelections=0,
+ groundedGrowthCameraLast=null;
+function chooseGroundedGrowingTownCamera(view,roofs){
+ const field=FARMSTEAD.fields[0];
+ const farm=[(field[0]+field[1])*.5,(field[2]+field[3])*.5];
+ const granary=FARMSTEAD.granary;
+ const anchors=[
+  {name:'original-court',focus:view.focus},
+  {name:'real-harvest-field',focus:farm},
+  {name:'real-granary-route',focus:[(farm[0]+granary[0])*.5,
+    (farm[1]+granary[1])*.5]}
+ ];
+ const mobile=canvas.clientWidth<=520;
+ const zooms=mobile?[21,28,35]:[18,25,32];
+ const pitches=[.43,.56,.69,.82];
+ const bearings=[view.yaw,view.yaw+.85,view.yaw-.85,
+  view.yaw+1.7,view.yaw-1.7,view.yaw+Math.PI];
+ let best=null,bestScore=-Infinity;
+ for(const anchor of anchors)for(const distance of zooms)
+ for(const tilt of pitches)for(const bearing of bearings){
+  const v={yaw:bearing,pitch:tilt,zoom:distance,
+   focus:anchor.focus.slice()};
+  groundedGrowthCameraProbes++;
+  const shot=freeCameraSightline(v,roofs);
+  if(!shot.clear)continue;
+  const occupied=shot.screenOccupiedByBuildings??1;
+  const dominance=shot.screenDominantBuilding??1;
+  const foreground=shot.foregroundSceneCover??1;
+  // Original population and worksite remain in world; score only camera optics.
+  const score=18-tilt*7-distance*.14-occupied*4-dominance*4-
+   foreground*1.5-(anchor.name==='original-court'?0:.5)-
+   Math.abs(Math.atan2(Math.sin(bearing-view.yaw),
+    Math.cos(bearing-view.yaw)))*.35;
+  if(score>bestScore){
+   bestScore=score;best={...v,physicalDistrict:anchor.name};
+  }
+  // A true clear farm/street-facing mid-height frame is worth keeping:
+  // avoid needless 200-probe stalls when real roofs already allow one.
+  if(tilt<=.69&&dominance<=.12&&occupied<=.36&&foreground<=.55)
+   return best;
+ }
+ return best;
+}
 function recoverGrowingTownSpectatorCamera(){
  if(follow||streetWalk||cinematic||freeCameraReturn)return false;
  if(growingCameraCheckedCity===city&&growingCameraCheckedLots===city.length&&
@@ -31084,12 +31131,18 @@ function recoverGrowingTownSpectatorCamera(){
  growingCameraObstructions++;
  // The existing bounded physical orbit search avoids roof and ground
  // collision without teleporting an actor or making a building invisible.
- const repaired=safeFreeOrbit(yaw,pitch,zoom,focusPoint);
+ const repaired=chooseGroundedGrowingTownCamera(current,physicalRoofs)||
+  safeFreeOrbit(yaw,pitch,zoom,focusPoint);
  if(!repaired||!freeCameraSightline(repaired,physicalRoofs).clear){
   growingCameraUnresolved++;return false;
  }
  yaw=repaired.yaw;pitch=repaired.pitch;zoom=repaired.zoom;
  focusPoint=repaired.focus.slice();
+ if(repaired.physicalDistrict){
+  groundedGrowthCameraSelections++;
+  groundedGrowthCameraLast={physicalDistrict:repaired.physicalDistrict,
+   pitch:repaired.pitch,zoom:repaired.zoom};
+ }else groundedGrowthCameraLast=null;
  growingCameraRecoveries++;presentationEpoch++;lastFrozenFrameKey=null;
  return true;
 }
@@ -31098,6 +31151,11 @@ function getGrowingTownCameraAudit(){
   checkedRealHomes:growingCameraCheckedLots,checks:growingCameraChecks,
   actualObstructions:growingCameraObstructions,
   physicallyRepositioned:growingCameraRecoveries,
+  groundedSelections:groundedGrowthCameraSelections,
+  groundedSightlineProbes:groundedGrowthCameraProbes,
+  lastGroundedPitch:groundedGrowthCameraLast?.pitch??null,
+  lastGroundedZoom:groundedGrowthCameraLast?.zoom??null,
+  lastGroundedDistrict:groundedGrowthCameraLast?.physicalDistrict??null,
   unresolved:growingCameraUnresolved,
   onlyOnRealTownTopologyChange:true,hiddenStructures:0,
   hiddenCitizens:0,authorityChanged:false,
