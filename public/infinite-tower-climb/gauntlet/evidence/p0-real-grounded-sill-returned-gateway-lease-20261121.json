@@ -727,5 +727,35 @@
       "FEELS": 0,
       "PLAYS": 0
     }
+  },
+  "p0OriginalHPGatewayReadableArchAndRealRoofSourceRun20261121_2133": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "priorBranchHead": "1f7835a47b2128141c553a3029d3e3bf57c37868",
+    "productionCommit": "8a9f3c052a74fd25985dc0200232c34b7b21f48b",
+    "originalSourceCandidateInspected": "3d5f36ea8df5ea5bc6ef792537de758e88264330",
+    "priorOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44941444999",
+    "priorOriginalDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44941444999/artifacts/14721498558",
+    "priorQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44941690799 — EXACT previous 1f7835 head 10/10; not new production quality",
+    "findings": "Downloaded untouched original candidate desktop/portrait danger WebMs and matched baseline; no renderer browser crash in new candidate; candidate desktop Floor9 HUD 25.75s vs sustained violet 28.25s (2.50s); portrait Floor9 HUD 26.50s vs violet 28.50s (2.00s). Real old metal/complete moving climber/walkable new roof do NOT create accepted visually continuous original source portal; shared-room bridge 0 seconds in both. Source/native strict 0/2.",
+    "priorCaptureCompletion": "Ledge and candidate danger/ascent/moving/outcome and baseline ascent/moving/danger passed; frozen baseline outcome job failed desktop native partial clock gap, missing certified result/intermission frame beats; pairing indexes 8/8 source timelines, 0 integrity defects but strict native danger alignment FAIL 0/2.",
+    "meaningfulImplementation": "Original source-authored F8 guardian gate now has a new single 11-member open high-crown forged silhouette, source-gated by true f8:cap and guardianExitX. It is attached to the existing HP-locked GuardianGateInset, not a duplicate portal. Original retained F8 gate carries SAME members into F9, body-width open corridor and all floor physics unchanged. The genuine walkable f9:ground has three thin inlays following existing source-derived roof spans using the same returned-frame arrival colour materials (not added platforms or collisions).",
+    "changedFiles": [
+      "public/infinite-tower-climb/visuals/source-original-guardian-threshold-signature.mjs",
+      "public/infinite-tower-climb/visuals/world.mjs",
+      "tests/phase3/tower-original-guardian-threshold-signature.test.cjs"
+    ],
+    "newExactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44947747996 — pending at documentation",
+    "newExactSourceGameplayCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44947748101 — in progress at documentation; 9 jobs plus source pairing",
+    "acceptance": "Require 60+s unchanged native 960x600 and 390x844 source and baseline matched film, native event correspondence 2/2, continuous true HP0 original gate and moving complete actor on genuine F9 receiving roof and first raised destination; do not infer visual success from authored geometry, source projection or CI.",
+    "independentBlindCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "realDeviceP50P95P99Memory": "NOT EVALUATED",
+    "nextHighestImpact": "Inspect new exact 8a9f3c original desktop/portrait danger films at native speed and paired source events. If 11-member original metal arch remains hidden, investigate actual source-owned gate world-space orientation relative to the F9 receiving-roof shot and restructure the original portal/camera spatial relation rather than adding more timings/tests. Confirm exact-head CI, baseline outcome native clock gap and no gameplay regressions.",
+    "constraints": "Never edit original frozen transformation.json, PR58, other games; PR68 draft stays open; no merge, deploy or force push."
   }
 }
