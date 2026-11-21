@@ -484,3 +484,24 @@ This is a P0 testable architectural candidate, **not visual acceptance**: exact-
 
 
 **Immutable source-pinned execution after structural change:** [production `66ecf59b`](https://github.com/my-edutu/Ai_games/commit/66ecf59b6f1cc98f4122eadf0332cfa4e8bb7396), new [9-job authentic A/B campaign 44952875017](https://github.com/my-edutu/Ai_games/actions/runs/44952875017) (all recording/ledge jobs in progress at inspection), and [exact production quality 44952875023](https://github.com/my-edutu/Ai_games/actions/runs/44952875023) (9/10 success with Phase6 still in progress at inspection). The source-to-native comparison is NOT accepted or observed yet. Independent critics remain 0/5 each; device metrics unmeasured. Frozen baseline ledger blob independently verified unchanged at `7433d52ae1a7a75de51366a845375dda04ab87fa`.
+
+
+## 2026-11-21 22:38 UTC — True source-ground forecourt footprint (P0 OPEN; NOT EVALUATED)
+
+**Immutable implemented production:** [3c01829eadb324d7cd7b69533a3cf4e30cc1f7cb](https://github.com/my-edutu/Ai_games/commit/3c01829eadb324d7cd7b69533a3cf4e30cc1f7cb). Frozen comparator **1731b380851162741761c5569e2bc152a0869ca9**, untouched transformation ledger Git blob `7433d52ae1a7a75de51366a845375dda04ab87fa`.
+
+### Source of largest visible defect (original unedited 1× video)
+
+Inspected exact-source [candidate capture 44952875017](https://github.com/my-edutu/Ai_games/actions/runs/44952875017) ([original candidate danger artifact](https://github.com/my-edutu/Ai_games/actions/runs/44952875017/artifacts/14725529838)), source `66ecf59b`, desktop **960×600** and portrait **390×844** native 25fps 60+ second WebMs. At desktop **25.50→26.00 seconds**, the partial original bronze F8 cap abruptly gives way to a much wider actual full-world F9 roof annulus. Portrait **26.00→26.50 seconds** visibly repeats the same discontinuity under the original bronze arch and new purple upper deck. Floor-9 HUD first appears ~26.0s; sustained violet phase ~27.5s desktop and ~27.75s portrait. These are native image-frame observations, NOT source-to-raster event proof. The prior nine-job recording/ledge jobs passed, but **strict native pairing failed 0/2**. A passing source search/CI cannot override this.
+
+### Physically bounded architectural continuity change
+
+The F8 original cap is a smaller, source-generated cylindrical roof segment, but the real new F9 ground covers the whole current-floor source width. Preserving the old arch alone could not preserve the silhouette when the *entire* successor ring became visible at once. The existing source-built **actual walkable F9 ground** now splits into source-coordinate panels at the old cap and original guardian exit (plus the unchanged original three material bands). The same top, outer steel rim and load beam use independent *source-owned peripheral visual materials*, not another platform. These distant, non-current wings begin faint while the source-retained F8 cap is the active grounded passage and reveal progressively only with returned 3D frames and displayed time. If the genuine hero comes within **35,000 source units** of any wing, or if the original gateway/episode no longer validates, the original true F9 surface is fully visible immediately. All authored cap/roof geometry, collisions, moving decks, guardian and gameplay authority stay unchanged.
+
+This is a **new candidate only**, not a passed scene. The change needs true 1× full-motion and regression proof, especially a check that no physically reachable region is visually hidden in the source-timed motion and neither viewport suffers ghosted geometry during 16%→opaque transition.
+
+**Safety/experience checks:** New exact-source tests in `tests/phase3/tower-source-real-ground-forecourt.test.cjs`. [Quality 44957772302](https://github.com/my-edutu/Ai_games/actions/runs/44957772302) and [nine-job original-film campaign 44957772293](https://github.com/my-edutu/Ai_games/actions/runs/44957772293) were in progress, and **are not claimed passed**. Previous [quality 44952875023](https://github.com/my-edutu/Ai_games/actions/runs/44952875023) was **9/10**; its Phase 6 job timed out on an unrelated Maze test, which is left untouched.
+
+**Acceptance block:** Genuine blinded LOOKS/FEELS/PLAYS critics: **0/5 each**. Exact native source-event-to-rendered-frame alignment: **0/2**. Actual device frame-time p50/p95/p99 and memory: **NOT EVALUATED**. Leading assessor verdict **NOT EVALUATED**, P0 stays OPEN.
+
+**Next single largest action:** Review the new 3c01829e full unmodified recordings and source-native pairing, then determine whether source roof geometry, original gateway, full moving climber and first raised destination now share an uninterrupted visible corridor. If not, correct actual camera–architecture space together, not a cosmetic counter or synthetic portal.

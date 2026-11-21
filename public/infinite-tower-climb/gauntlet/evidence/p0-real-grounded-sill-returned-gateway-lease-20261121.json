@@ -785,5 +785,56 @@
     "implementationCommit": "66ecf59b6f1cc98f4122eadf0332cfa4e8bb7396",
     "sourcePinnedQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44952875023 — source 66ecf59b; 9/10 success, Phase6 in progress at inspection; NOT a green quality claim until complete",
     "sourceBlobCheck": "public/infinite-tower-climb/gauntlet/transformation.json unchanged blob 7433d52ae1a7a75de51366a845375dda04ab87fa"
+  },
+  "p0TrueFloorNineSourceCapFootprintCoherentForecourt20261121_2238": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "inspectedHeadBeforeImplementation": "9b462bb8ae1624f2630aacd3803e929f38eacc2c",
+    "implementationCommit": "3c01829eadb324d7cd7b69533a3cf4e30cc1f7cb",
+    "baselineFrozenSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "baselineLedgerBlobSha": "7433d52ae1a7a75de51366a845375dda04ab87fa",
+    "previousCandidateProductionSha": "66ecf59b6f1cc98f4122eadf0332cfa4e8bb7396",
+    "previousUneditedSourcePinnedCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44952875017",
+    "previousOriginalCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44952875017/artifacts/14725529838",
+    "previousQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44952875023 — 9/10 pass; Phase6 timed out exit 124 on Maze test; no unrelated game edited",
+    "inspectedOriginalFootage": {
+      "desktop": {
+        "viewport": "960x600",
+        "sourceSha": "66ecf59b6f1cc98f4122eadf0332cfa4e8bb7396",
+        "timeWindowSeconds": [
+          24,
+          32
+        ],
+        "observedMismatch": "F8 narrow, cap-supported original bronze gateway scene at 25.5s becomes abruptly full-width true F9 receiving ring with hero at approximately 26.0s; old gateway not sustained together with current hero and true F9 roof",
+        "visibleFloor9HudAboutSeconds": 26,
+        "visibleSustainedVioletFromAboutSeconds": 27.5
+      },
+      "portrait": {
+        "viewport": "390x844",
+        "sourceSha": "66ecf59b6f1cc98f4122eadf0332cfa4e8bb7396",
+        "timeWindowSeconds": [
+          24,
+          32
+        ],
+        "observedMismatch": "F8 opened bronze door and climber at 26.0s give way to broadened purple F9 annular receiving roof at about 26.5s; no continuous same-shot old gate, hero and current genuine roof",
+        "visibleFloor9HudAboutSeconds": 26,
+        "visibleSustainedVioletFromAboutSeconds": 27.75
+      },
+      "limitation": "Original native 25fps source-pinned video inspection; the scene-phase timing is observed from native pixels and is NOT certified source-event-to-raster correspondence. Separate strict 0/2 native event matching persists."
+    },
+    "mainSystemLevelCauseToTest": "Actual source F8:cap is a partial cylindrical rooftop while source f9:ground spans the full available world arc. Rendering the complete original F9 ground and its trim in the first returned F9 frame can create a physical silhouette discontinuity even with the original door held.",
+    "implemented": "Split ONLY the existing genuine source f9:ground roof and its top/rolled steel rim and underlip beams at the ACTUAL old F8 cap coordinates. In the source-authenticated original-gateway handoff, paint distant before/after cap wings with shared current roof materials at bounded initial .16 opacity, progressively restore from real submitted frames and displayed seconds, and ALWAYS fully reveal the true real roof within 35,000 source units of the source hero/route or when original gate/replay proof retires. Preserve exactly the true F9 collision-wide surface, original cap, gateway, guardian, obstacles and fixed-step authority; no extra platform or forecast render.",
+    "newExactSourceFocusedTest": "tests/phase3/tower-source-real-ground-forecourt.test.cjs",
+    "newExactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44957772302 — in progress at evidence write, no pass claimed",
+    "newNineJobBaselineCandidateCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44957772293 — in progress at evidence write, candidate production source 3c01829e, baseline original 1731b380, 60+sec 25fps 1x low tier both viewports, all four scenes",
+    "requiredNativeEvidence": "Inspect full untouched 960x600 and 390x844 source-pinned 60s+ candidate clips, strict event-to-WebM pairing, prove original HP0 bronze gateway + complete moving hero + real F9 receiving roof + first raised destination visually joined; no new hazard/route blindness or source mismatch. Native result remains vetoed until proven.",
+    "independentBlindReview": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDevicePercentilesAndMemory": "NOT EVALUATED",
+    "nextHighestImpact": "Review exact 3c01829e normal-speed captures and 10-job CI; if physical gateway remains unrecognizable, audit camera-world relationships in the resulting source/browser receipts and repair actual common 3D passage, not another isolated fade. Do not enter P1.",
+    "constraints": "No merge/deploy/force push, baseline movement or ledger edit, PR58 rewrite, PR68 draft conversion, unrelated-game edits."
   }
 }
