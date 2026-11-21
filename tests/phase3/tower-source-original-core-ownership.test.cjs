@@ -73,7 +73,7 @@ test('the actual F8 core is independently rigid-batched then hoisted only with a
   assert.match(world,/SourceOriginalClockworkCentralCore/);
   assert.match(world,/batchRigid\(originalSourceCore\)/);
   assert.match(world,/boundaries\.add\(originalSourceCore\)/);
-  assert.match(world,/moveSourceOriginalClockworkCore\(floorGroup,continuity,floorMaterials\)/);
+  assert.match(world,/moveSourceOriginalClockworkCore\(\s*floorGroup,continuity,floorMaterials\)/);
   assert.match(world,/sourceOriginalClockworkCoreOpacity\(held\.originalCoreOwner,/);
   assert.match(world,/originalCoreMeshCount:/);
   assert.doesNotMatch(world,/platforms\.set\(['"]SourceOriginalClockworkCentralCore/);
