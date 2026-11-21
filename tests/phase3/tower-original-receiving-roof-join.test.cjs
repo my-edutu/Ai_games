@@ -260,3 +260,47 @@ test('the original overhead load-path clearance uses the SAME retained physical 
   assert.match(source,/!inheritedCanopy\s*\?actualGatewayReceivingGalleryCanopy/);
   assert.doesNotMatch(source,/platforms\.set\(['"]SourcePrepaintedOriginalGuardianReceivingCanopy/);
 });
+
+test('the actual F9 ground central undercroft and both passive wing rails use the SAME source-cap geometry',async()=>{
+  const {sourceRealGroundForecourtSections:roof,
+    sourceRealGroundUndercroftParts:undercroft}=await import(
+      pathToFileURL(resolve(__dirname,
+        '../../public/infinite-tower-climb/visuals/source-real-ground-forecourt.mjs')).href);
+  const old={id:'f8:cap',x:115200,width:249600};
+  const ground={id:'f9:ground',x:0,width:480000};
+  const parts=roof(ground,480000,304896,old);
+  assert.ok(parts,'the source has a real joined roof');
+  const physical=undercroft(parts,old,480000);
+  assert.equal(physical.sourceBound,true);
+  assert.equal(physical.oldCapId,'f8:cap');
+  assert.equal(physical.receivingPlatformId,'f9:ground');
+  assert.equal(physical.wings.length,2);
+  assert.deepEqual(physical.wings.map(w=>[w.wing,w.startX,w.endX]),[
+    ['before',0,115200],['after',364800,480000]
+  ]);
+  assert.equal(physical.center.startX,115200);
+  assert.equal(physical.center.endX,364800);
+  assert.ok(Math.abs(physical.center.angle-249600/480000*2.2)<1e-12);
+  assert.ok(Math.abs(physical.center.offset-
+    (115200+249600/2-240000)/480000*2.2)<1e-12);
+  const widths=physical.wings.reduce((total,w)=>total+w.endX-w.startX,0)+
+    physical.center.endX-physical.center.startX;
+  assert.equal(widths,ground.width,'no physical roof gaps or extra footprint');
+  for(const invalid of [
+    undercroft(parts,{...old,id:'f7:cap'},480000),
+    undercroft(parts,{...old,width:249599},480000),
+    undercroft([...parts].reverse(),old,480000),
+    undercroft(parts.slice(1),old,480000),
+    undercroft(parts,old,480001)
+  ])assert.equal(invalid,null,'never invent unverified undercroft or stale cap');
+  const world=require('node:fs').readFileSync(resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
+  assert.match(world,/sourceRealGroundUndercroftParts\(joinedRoofPanels,/);
+  assert.match(world,/const railAngle=originalRoofUndercroft\?\.center\.angle\?\?angle/);
+  assert.match(world,/for\(const wing of originalRoofUndercroft\.wings\)/);
+  assert.match(world,/sourceRoofWing\(outerUnderMaterial,wing\)/);
+  assert.match(world,/sourceRoofWing\(innerUnderMaterial,wing\)/);
+  assert.match(world,/sourceOwnedUndercroft\.push\(/,
+    'existing genuinely occluding central skirt ray owners remain');
+  assert.doesNotMatch(world,/platforms\.set\(['"]SourceEarnedF9RealRoofUndercroftWing/);
+});

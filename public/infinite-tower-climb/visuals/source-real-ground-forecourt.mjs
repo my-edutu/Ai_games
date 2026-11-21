@@ -24,6 +24,38 @@ export function sourceRealGroundForecourtSections(p,width,exit,old,arc=2.2){
  }
  return sections.length>=4?sections:null;
 }
+// The TRUE F9 ground was already subdivided above the old F8 cap.
+// Its non-walkable rail/underside must use that same footprint: leaving a
+// full-width dark annulus beneath staged top panels produces a native 1x
+// architectural hard cut. This is a render-only partition of old materials
+// and source geometry, not a platform, forecast ledge or collider.
+export function sourceRealGroundUndercroftParts(sections,old,width,arc=2.2){
+ if(!Array.isArray(sections)||sections.length<4||sections.length>8||
+    old?.id!=='f8:cap'||![old.x,old.width,width].every(i)||
+    old.x<=0||old.width<=0||old.x+old.width>=width||
+    !f(arc)||arc<=0||arc>Math.PI)return null;
+ const expected=sourceRealGroundForecourtSections(
+   {id:'f9:ground',x:0,width},width,
+   old.x+Math.floor(old.width*.76),old,arc);
+ if(!expected||expected.length!==sections.length)return null;
+ const fields=['startX','endX','kind','wing'];
+ if(sections.some((part,index)=>!part||fields.some(key=>
+     part[key]!==expected[index][key])||
+     !f(part.angle)||!f(part.offset)||
+     Math.abs(part.angle-expected[index].angle)>1e-10||
+     Math.abs(part.offset-expected[index].offset)>1e-10))return null;
+ const wings=sections.filter(part=>part.wing==='before'||part.wing==='after');
+ if(wings.length!==2||wings[0].wing!=='before'||wings[1].wing!=='after'||
+    wings[0].startX!==0||wings[0].endX!==old.x||
+    wings[1].startX!==old.x+old.width||wings[1].endX!==width)return null;
+ return {
+   sourceBound:true,oldCapId:old.id,receivingPlatformId:'f9:ground',
+   center:{angle:old.width/width*arc,
+     offset:(old.x+old.width*.5-width*.5)/width*arc,
+     startX:old.x,endX:old.x+old.width},
+   wings
+ };
+}
 // The presently WALKABLE source region and the next 35,000 source units
 // are never muted. Only truly distant roof scenery waits for actual returned
 // frames. A stale, dead, restarted or retired original gateway reveals all.

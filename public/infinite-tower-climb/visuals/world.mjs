@@ -25,7 +25,7 @@ import { observedReturnedSuccessorRoomReady, observedSupportedReturnedShaftDepth
 import { projectOriginalGuardianGateSteel } from './original-guardian-gate-steel-projection.mjs';
 import { sourceReturnedGatewayDisplayDt } from './source-submitted-doorway-cadence.mjs';
 import { actualGatewayReceivingRoofSpans, actualGatewayReceivingLoadPathBays, actualGatewayReceivingGalleryCanopy, prebuildOriginalGuardianCanopyPlan, sourceOpenGuardianRoofLoadPath, syncGatewayReceivingRoofColours, resetGatewayReceivingRoofColours } from './source-physical-receiving-roof.mjs';
-import { sourceRealGroundForecourtSections, syncSourceRealRoofWingMaterials } from './source-real-ground-forecourt.mjs';
+import { sourceRealGroundForecourtSections, sourceRealGroundUndercroftParts, syncSourceRealRoofWingMaterials } from './source-real-ground-forecourt.mjs';
 
 
 /**
@@ -2645,6 +2645,14 @@ export function createTowerWorld(){
           retainedEarnedCap.thresholdX,{
             id:retainedEarnedCap.oldCapId,x:retainedEarnedCap.oldCapX,
             width:retainedEarnedCap.oldCapWidth},ARC)??joinedRoofSpans:null;
+    // The source-built F9 ground underside used to retain an entire dark
+    // 480k-width annulus even when its walkable top/trim correctly exposed
+    // only the former F8 cap. Use the SAME validated source partition for
+    // both tiers of genuine 3D roof geometry.
+    const originalRoofUndercroft=sharedPhysicalRoof && joinedRoofSpans
+      ?sourceRealGroundUndercroftParts(joinedRoofPanels,{
+          id:retainedEarnedCap.oldCapId,x:retainedEarnedCap.oldCapX,
+          width:retainedEarnedCap.oldCapWidth},width,ARC):null;
     // The clockwork chamber ALREADY has these exact six overhead stations
     // before the real crossing. This models steel, NOT future F9 collision.
     const oldCanopyPlan=guardianCap&&theme==='clockwork'&&p.id==='f8:cap'
@@ -2808,16 +2816,40 @@ export function createTowerWorld(){
     // supports. Each moving deck carries its own truss in the same root.
     const openVoidUndercroft=theme==='void'
       ?planVoidOpenDeckTruss(p,width,ARC):null;
+    // F9 ground: the existing two ray-protected central undercroft rails
+    // cover exactly the original F8 cap footprint. Real peripheral sections
+    // are separate source-frame-controlled draw owners, rather than a solid
+    // all-at-once violet ring under the already-staged walkable surface.
+    // Raised F9 moving/obstacle decks keep their untouched truss construction.
+    const railAngle=originalRoofUndercroft?.center.angle??angle;
+    const railOffset=originalRoofUndercroft?.center.offset??0;
     const outerUnder=mesh(root,sector(
         openVoidUndercroft?openVoidUndercroft.outerRail[0]:22.45,
         openVoidUndercroft?openVoidUndercroft.outerRail[1]:27.05,
-        angle,openVoidUndercroft ? .22 : .48),
-      outerUnderMaterial,[0,h-.64,0]);
+        railAngle,openVoidUndercroft ? .22 : .48),
+      outerUnderMaterial,[0,h-.64,0],[1,1,1],[0,railOffset,0]);
     const innerUnder=mesh(root,sector(
         openVoidUndercroft?openVoidUndercroft.innerRail[0]:22.5,
         openVoidUndercroft?openVoidUndercroft.innerRail[1]:26.97,
-        angle,openVoidUndercroft ? .22 : .10),
-      innerUnderMaterial,[0,h-.74,0]);
+        railAngle,openVoidUndercroft ? .22 : .10),
+      innerUnderMaterial,[0,h-.74,0],[1,1,1],[0,railOffset,0]);
+    if(originalRoofUndercroft){
+      for(const wing of originalRoofUndercroft.wings){
+        const outerWing=mesh(root,sector(22.45,27.05,wing.angle,.48),
+          sourceRoofWing(outerUnderMaterial,wing),[0,h-.64,0],
+          [1,1,1],[0,wing.offset,0]);
+        const innerWing=mesh(root,sector(22.5,26.97,wing.angle,.10),
+          sourceRoofWing(innerUnderMaterial,wing),[0,h-.74,0],
+          [1,1,1],[0,wing.offset,0]);
+        for(const rail of [outerWing,innerWing]){
+          rail.name='SourceEarnedF9RealRoofUndercroftWing-'+wing.wing;
+          rail.userData={sourceAligned:true,nonColliding:true,
+            originalCapId:'f8:cap',receivingPlatformId:p.id,
+            wing:wing.wing,ambientDetail:true};
+          rail.castShadow=false;rail.receiveShadow=false;
+        }
+      }
+    }
     if(openVoidUndercroft){
       for(const theta of openVoidUndercroft.anchors){
         const radial=(r,y)=>[Math.sin(theta)*r,h+y,Math.cos(theta)*r];
