@@ -2498,7 +2498,7 @@ export function createTowerScene(canvas, settings = {}) {
   const releasePreviousCamera=new THREE.Vector3();
   const releasePreviousFocus=new THREE.Vector3();
   const releaseHero=new THREE.Vector3();
-  const releaseHeroNdc=new THREE.Vector3();
+  const releaseHeroNdc=[0,0,0,0];
   let releaseSettledOnSubmit=false;
   // A real already-submitted Floor8 view; never a fabricated future gateway.
   // Real source-selected F9 deck underside can block the full-body hero even
@@ -5732,15 +5732,15 @@ export function createTowerScene(canvas, settings = {}) {
           lookAt.set(...releaseStep.focus);
           camera.lookAt(lookAt);camera.updateMatrixWorld(true);
           releaseHero.copy(climber.group.position);
-          releaseHero.y+=snapshot.player.halfHeight/SCALE;
-          releaseHeroNdc.copy(releaseHero).project(camera);
+          // Project actual top AND boots in the same native 3D camera;
+          // centre-only sightline can conceal a landing or crop the helmet.
+          measureDuelBodyNdc(releaseHero,snapshot.player.halfHeight/SCALE,
+            camera,duelTop,duelBottom,releaseHeroNdc);
           const releaseBodySafe=
-            releaseHeroNdc.toArray().every(Number.isFinite) &&
-            releaseHeroNdc.z>=-1 && releaseHeroNdc.z<=1 &&
-            Math.abs(releaseHeroNdc.x)<.76 &&
-            Math.abs(releaseHeroNdc.y)+
-              snapshot.player.halfHeight/SCALE/
-              Math.max(15,camera.position.distanceTo(releaseHero))<.78 &&
+            releaseHeroNdc.every(Number.isFinite) &&
+            releaseHeroNdc[2]>=-1 && releaseHeroNdc[2]<=1 &&
+            Math.abs(releaseHeroNdc[0])+releaseHeroNdc[3]*.14<.76 &&
+            Math.abs(releaseHeroNdc[1])+releaseHeroNdc[3]<.76 &&
             towerCoreSightlineClear(camera.position,releaseHero,23.5);
           if(releaseBodySafe){
             releaseFollowAccepted=Math.min(1000000,releaseFollowAccepted+1);
