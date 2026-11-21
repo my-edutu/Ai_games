@@ -4737,6 +4737,44 @@ export function verifyOriginalSourceLoadedPelvisFootWitness({
  * MUST independently remeasure the exact applied offset and reject it if the
  * real loaded foot is not improved or the other loaded foot floats.
  */
+/**
+ * Convert the ORIGINAL GLB's measured source-world pelvis lift into the
+ * present visual pivot's LOCAL Y carrier. The actual 390px source skin
+ * measured a 20.325mm world displacement from a 10.1625mm local request:
+ * an ancestor can scale the whole skeleton, including both shoes and grip.
+ * Spending unscaled metres in a scaled parent over-lifts the loaded foot.
+ *
+ * Accept only the already-qualified source shoe support and a finite
+ * original parent-local Y basis in the same displayed frame. Require that
+ * translating the parent axis cannot drag either sole sideways >1.5mm.
+ * The renderer MUST skin both weighted shoes after application and again
+ * after all leg owners. This never sets contact, targets or authority.
+ */
+export function planOriginalSourceWorldPelvisLift({
+ source='',desiredWorldLiftMeters=NaN,parentWorldLocalYAxis=null
+}={}){
+ if(!['measured-original-GLB-loaded-heel-and-toe',
+  'measured-original-GLB-heel-first-roll'].includes(source)||
+  !finite(desiredWorldLiftMeters)||
+  desiredWorldLiftMeters<=0||desiredWorldLiftMeters>.024001||
+  !Array.isArray(parentWorldLocalYAxis)||
+  parentWorldLocalYAxis.length!==3||
+  !parentWorldLocalYAxis.every(finite))return null;
+ const [x,y,z]=parentWorldLocalYAxis;
+ if(y<.5||y>4)return null;
+ const localLiftMeters=desiredWorldLiftMeters/y;
+ const lateralWorldDriftMeters=Math.hypot(x,z)*localLiftMeters;
+ if(!finite(localLiftMeters)||localLiftMeters<=0||
+  localLiftMeters>.04801||lateralWorldDriftMeters>.0015)
+  return null;
+ return Object.freeze({
+  source:'verified-original-GLB-world-to-local-pelvis',
+  localLiftMeters,worldLiftMeters:localLiftMeters*y,
+  worldVerticalPerLocal:y,lateralWorldDriftMeters,
+  contactLocked:false,plantCertified:false
+ });
+}
+
 export function planOriginalSourceLoadedPelvisSupport({
  mode='idle',sourceClipName='',sourceWeight=NaN,ownerLocomotion=false,
  rootTravel=NaN,frameAge=NaN,frameInterval=.016,alive=true,visible=true,
