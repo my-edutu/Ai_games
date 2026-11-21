@@ -1885,7 +1885,13 @@ export function createMazeWorld(options = {}) {
               // source-published endpoint court is physically constructed.
               const sailPivot=new THREE.Group();
               sailPivot.name='Published guardian Tideglass rooted shell-fan hinge '+c.cell+' '+side;
-              sailPivot.position.y=.35;
+              // A real narrow dark-metal yoke bridges the low stone crown to
+              // the mechanically required 0.70m shell hinge, so the full-size
+              // blade is truly supported rather than suspended in midair.
+              // Shared mesh/geometry pool; rides the same public-only lift.
+              const yoke=mesh(lift,box,darkMetal,0,.55,0,.085,.40,.085);
+              yoke.name='Published guardian Tideglass connected shell-fan yoke '+c.cell+' '+side;
+              sailPivot.position.y=.70;
               lift.add(sailPivot);
               // Pass319: genuine full-resolution 390px guardian frames show
               // four broad bright paddles competing with Pip and Thornback.

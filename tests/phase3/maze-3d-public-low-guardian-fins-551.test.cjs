@@ -30,18 +30,22 @@ test('Pass551 joined guardian sentinel stage is physically low, outboard, genuin
     crown:get('Published guardian Tideglass sentinel crown',side),
     fan:get('Published guardian Tideglass full shell-fan',side),
     pivot:get('Published guardian Tideglass rooted shell-fan hinge',side),
+    yoke:get('Published guardian Tideglass connected shell-fan yoke',side),
     foot:get('Published guardian Tideglass sentinel footing',side),
    }));
    assert.equal(structs.length,2);
    for(const b of structs){
-    assert.ok(b.pillar&&b.crown&&b.fan&&b.pivot&&b.foot,
+    assert.ok(b.pillar&&b.crown&&b.fan&&b.pivot&&b.foot&&b.yoke,
       'all original endpoint sentinel parts are physically joined');
     assert.equal(b.pillar.parent.parent,b.foot,'the short pillar rides the rooted lift');
     assert.ok(Math.abs(b.pillar.scale.y-.26)<1e-8);
     assert.ok(Math.abs(b.pillar.position.y-.18)<1e-8);
     assert.ok(Math.abs(b.crown.position.y-.36)<1e-8 && b.crown.scale.y>=.17,
       'short rooted crown still meets original physical mobile silhouette size');
-    assert.ok(Math.abs(b.pivot.position.y-.35)<1e-8);
+    assert.ok(Math.abs(b.pivot.position.y-.70)<1e-8 && b.pivot.position.y>=.7,
+      'original full shell hinge elevation retained on low stone sentinel');
+    assert.ok(b.yoke.parent===b.pillar.parent && b.yoke.position.y===.55 && b.yoke.scale.y>=.40,
+      'true joined metal bearing bridges compact stone crown and .70m rotating shell pivot');
     assert.ok(Math.abs(b.fan.scale.y-.94)<1e-8 && b.fan.scale.y>=.92,
       'outward-folded low fin retains original substantial physical feather size');
     assert.ok(Math.abs(b.fan.position.y-.22)<1e-8);

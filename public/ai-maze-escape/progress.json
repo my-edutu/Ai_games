@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-21T08:34:49.000Z",
+  "updatedAt": "2026-11-21T08:41:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass551 exact-HEAD native CI 44880057617 FAILED three real installed-Three physical silhouette tests (306/309), before WebGL capture. Pass551c restores original-size .18 sea-glass crown and .94 outward-folded connected shell feather on the lower rooted sentinel; leaves original tests and fixed NDC ±0.95, withdrawal >=.70, six-reset <100, privacy, game and accessibility gates unchanged. Exact-new-HEAD source tests, native 320/390/844/1280 source capture, original PNG hashes and before/after Nintendo visual critique PENDING; no benchmark win, merge or deploy."
+    "summary": "Pass551c exact-HEAD native WebGL CI 44885853633 improved from 3 to 1/309 real installed-Three failure: historic fan hinge must be physically anchored >=.7m. No actual browser screenshot yet. Pass551d source candidate reconnects full .94 outward-folded feather via a structural metal yoke from the low stone crown to the genuine .70m hinge. All original tests, strict NDC ±.95 and withdrawal >=.70, six-reset <100 and AI/privacy/accessibility gates unchanged; new test strengthened for physical connection. Fresh exact-HEAD test/native capture and Nintendo visual approval PENDING. No merge/deploy."
   },
   "captures": [
+    {
+      "title": "Pass551c 69791346 native exact-HEAD test 308/309: real 0.7m shell hinge support failed; Pass551d adds fully joined structural yoke; no WebGL captured at failed candidate",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44885853633"
+    },
     {
       "title": "Pass551 exact-HEAD 438bd136 native CI failed 3/309 historical real 3D size tests before WebGL; Pass551c stronger physical repair awaits new-HEAD rendering",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44880057617"
