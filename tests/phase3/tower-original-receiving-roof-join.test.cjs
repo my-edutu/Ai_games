@@ -227,15 +227,20 @@ test('source-original gateway canopy clears its real centre passage before F9, r
   const gap=opening(old);
   assert.equal(gap.sourceBound,true);
   assert.equal(gap.thresholdX,304896);
-  assert.equal(gap.supportStations.length,4);
+  assert.equal(gap.supportStations.length,2);
   assert.equal(gap.overheadTies.length,5);
-  assert.equal(gap.omittedLegSourceXs.length,2);
-  assert.ok(gap.omittedLegSourceXs[0]<304896 &&
-    gap.omittedLegSourceXs[1]>304896,
-    'unobstructed gateway clearance straddles the actual HP-zero exit');
+  assert.equal(gap.compressionBraces.length,4);
+  assert.equal(gap.omittedLegSourceXs.length,4);
+  assert.ok(gap.omittedLegSourceXs.some(x=>x<304896) &&
+    gap.omittedLegSourceXs.some(x=>x>304896+48000),
+    'original forecourt must clear the entire first real far-side roof, not merely the gate');
   assert.deepEqual(gap.supportStations.map(s=>s.sourceX),
-    [old.stations[0],old.stations[3],old.stations[4],old.stations[5]]
-      .map(s=>s.sourceX));
+    [old.stations[0],old.stations[5]].map(s=>s.sourceX));
+  assert.deepEqual(gap.clearForecourtSourceSpan,
+    [old.stations[0].sourceX,old.stations[5].sourceX]);
+  assert.ok(gap.compressionBraces.every(b=>b.toAngle>b.fromAngle ||
+    b.toAngle<b.fromAngle),
+    'every upper compression strut must span genuine source stations');
   assert.equal(opening({...old,oldCapId:'f7:cap'}),null);
   assert.equal(opening({...old,thresholdX:old.stations[0].sourceX}),null);
   assert.equal(opening({...old,stations:old.stations.slice(0,5)}),null);
@@ -248,6 +253,8 @@ test('the original overhead load-path clearance uses the SAME retained physical 
   assert.match(source,/sourceOpening\?\.omittedLegSourceXs\.includes\(s\.sourceX\)/);
   assert.match(source,/for\(const tie of plan\.ties\)/,
     'continuous upper bearing must remain visible and connected');
+  assert.match(source,/for\(const brace of sourceOpening\?\.compressionBraces/,
+    'open original far-side roof needs an upper-only real structural load path');
   assert.match(source,/const inheritedCanopy=sharedPhysicalRoof/);
   assert.match(source,/!inheritedCanopy\s*\?actualGatewayReceivingGalleryCanopy/);
   assert.doesNotMatch(source,/platforms\.set\(['"]SourcePrepaintedOriginalGuardianReceivingCanopy/);

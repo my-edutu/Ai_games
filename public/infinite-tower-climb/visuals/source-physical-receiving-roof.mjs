@@ -129,11 +129,33 @@ export function sourceOpenGuardianRoofLoadPath(plan){
   const left=right-1;
   if(stations[left].sourceX>=plan.thresholdX ||
      stations[right].sourceX<=plan.thresholdX)return null;
+  // Native 390x844 gameplay: the first far-side pillar at station[3]
+  // still stood directly in front of the moving climber after HP0,
+  // despite clearing only the two posts straddling the gateway centre.
+  // The ORIGINAL roof already spans the REAL, collision-aligned F9
+  // receiving ground. Open a continuous four-bay forecourt from the
+  // earned doorway through the first true Floor9 traversal instead of
+  // inserting a second fake portal or fading the actual HP-controlled gate.
+  // Retain BOTH physical-looking outer pier assemblies and all five
+  // continuous crown ties. Source-anchored high struts transfer their
+  // upper-span silhouette to those outboard piers, well above the hero.
+  const supportStations=[stations[0],stations[stations.length-1]];
+  const omittedLegSourceXs=stations.slice(1,-1).map(s=>s.sourceX);
+  const compressionBraces=[1,2,3,4].map(i=>({
+    fromAngle:stations[i<=2?0:5].angle,
+    toAngle:stations[i].angle,
+    kind:stations[i].kind
+  }));
+  if(supportStations[0].sourceX>=plan.thresholdX ||
+     supportStations[1].sourceX<=plan.thresholdX+48000 ||
+     compressionBraces.some(b=>!Number.isFinite(b.fromAngle) ||
+       !Number.isFinite(b.toAngle)))return null;
   return {
     sourceBound:true,thresholdX:plan.thresholdX,nonColliding:true,
-    omittedLegSourceXs:[stations[left].sourceX,stations[right].sourceX],
-    supportStations:stations.filter((station,i)=>i!==left&&i!==right),
-    overheadTies:ties
+    omittedLegSourceXs,supportStations,
+    overheadTies:ties,compressionBraces,
+    clearForecourtSourceSpan:[
+      supportStations[0].sourceX,supportStations[1].sourceX]
   };
 }
 

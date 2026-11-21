@@ -2608,6 +2608,12 @@ export function createTowerWorld(){
       place(point(tie.fromAngle,outer,8.35),
         point(tie.toAngle,outer,8.35),.08,trim(tie.kind));
     }
+    // Architectural load path follows the same original source-derived
+    // stations. All diagonal members sit above the real roof; none masks
+    // the moving actor or becomes gameplay collision/second gateway.
+    for(const brace of sourceOpening?.compressionBraces ?? [])
+      place(point(brace.fromAngle,outer,8.35),
+        point(brace.toAngle,outer,9.35),.095,trim(brace.kind));
     return canopy;
   }
   function buildPlatform(p,width,guardianCap=false,sourceRunToken=null){
