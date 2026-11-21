@@ -128,3 +128,15 @@ test('final returned camera requires ORIGINAL mesh area and actual successor geo
   assert.match(pathToReturnedDraw,/const joinedRoomVisible=jointPhysical\.allowed/);
   assert.match(pathToReturnedDraw,/camera\.position\.copy\(releasePreviousCamera\)/);
 });
+
+test('final real geometry occlusion rays use actual original gate WORLD pose, not the mutated projected NDC',()=>{
+  const s=fs.readFileSync(path.join(root,
+    'public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+  const start=s.indexOf('const retainedGateStep = options.camera');
+  const stage=s.slice(start,s.indexOf('renderer.render(scene, camera);',start));
+  assert.match(stage,/gatePoint\.clone\(\)\.project\(camera\)/,
+    'Three.Vector3.project mutates; never destroy actual 3D ray endpoint');
+  assert.match(stage,/snapshot,camera\.position,releaseHero,[\s\S]*?gatePoint,/,
+    'world ray receives genuine unmodified source-authentic 3D gate coordinates');
+  assert.doesNotMatch(stage,/gatePoint\.project\(camera\)/);
+});

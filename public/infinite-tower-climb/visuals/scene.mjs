@@ -5793,8 +5793,12 @@ export function createTowerScene(canvas, settings = {}) {
               retainedGatePose.y+2.7,retainedGatePose.z) : null;
         const gateCoreClear=gatePoint &&
           towerCoreSightlineClear(camera.position,gatePoint,23.5);
+        // Keep the original source-gate WORLD point intact for the actual
+        // triangle sightline test below. Three.Vector3.project MUTATES its
+        // receiver: reusing projected NDC as a world-space ray endpoint
+        // silently makes the physical acceptance query meaningless.
         const gateImage=gateCoreClear
-          ? gatePoint.project(camera) : null;
+          ? gatePoint.clone().project(camera) : null;
         const sourceRoof=snapshot.platforms.find(platform=>
           platform?.id==='f9:ground' &&
           Number.isSafeInteger(platform.x) &&
