@@ -3398,7 +3398,7 @@ const COMPACT_COURIER_GPU_ENTER_HEIGHT=.16,COMPACT_COURIER_GPU_HOLD_HEIGHT=.20;
 function isCompactGpuCourierBodyCandidate(p,i,nearPeople,frame){
  if(!workingSkinCapable||!gpuAvailable||!swiftGpu||
     !foregroundResidentEnabled||!p||!frame||
-    !(nearPeople instanceof Set)||nearPeople.has(i)||
+    !(nearPeople instanceof Set)||
     !isLoadedCourierOnRoad(p)||isMarketUnloading(p)||
     !p.delivery?.escrowed||!p.delivery?.id||
     ![p.x,p.z,p.phase].every(Number.isFinite))return false;
@@ -35660,7 +35660,8 @@ const workingIndices=workingReady?
 // AND small, genuinely working mid-distance professionals. Visible large or
 // followed workers, cargo and actual receiving hands stay continuously live.
 const foregroundRows=residentRows
- .filter(({p,i})=>isForegroundResidentCandidate(p,i,nearPeople)||
+ .filter(({p,i})=>!workingIndices.has(i)&&(
+  isForegroundResidentCandidate(p,i,nearPeople)||
   isForegroundWorksiteCandidate(p,i,nearPeople,commuterFrame)||
   // Same original citizen, saved-state-true movement and handoff continuity:
   // only the spectator's unloaded travel may use existing GPU joint buffers.
@@ -35669,7 +35670,7 @@ const foregroundRows=residentRows
   // W413: selected ACTUAL grain cutting / forging / building moves its
   // ORIGINAL thirteen bones on the GPU; moving cargo/receipt hands do not.
   isObservedWorksiteSkinCandidate(p,i,nearPeople)||
-  isOriginalGpuCourierBodyCandidate(p,i,nearPeople,commuterFrame));
+  isOriginalGpuCourierBodyCandidate(p,i,nearPeople,commuterFrame)));
 const foregroundReady=prepareForegroundResidents(foregroundRows,commuterFrame,nearPeople);
 const foregroundIndices=foregroundReady?
  new Set(foregroundResidentVisible.map(row=>row.i)):new Set();
@@ -35687,7 +35688,8 @@ originalLiveCourierCartTriangles=0;originalLiveCourierCartNames=[];
 const actualActorBodyPaths=new Uint8Array(people.length);
 for(let i=0;i<people.length;i++){
  if(nearPeople.has(i)){
-  if(!foregroundIndices.has(i)){
+  if(workingIndices.has(i)){actualActorBodyPaths[i]=5;}
+  else if(!foregroundIndices.has(i)){
    villager(people[i]);actualActorBodyPaths[i]=2;
   }else actualActorBodyPaths[i]=6;
   villageVisualLod.detailedCitizens++
