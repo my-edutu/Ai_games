@@ -1931,7 +1931,31 @@ export function createMazeWorld(options = {}) {
           if(s.threats.some(threat=>threat?.cell===c.cell)){
             const instrument=new THREE.Group();
             instrument.name='Witnessed guardian rooted Tideglass weather vane '+c.cell;
-            instrument.position.set(-.77,0,-.77);
+            // Pass550: source-bound 390/320 WebGL ray evidence named the
+            // TWO high joined shells of this very instrument as the actor-
+            // obscuring pylons. Re-author the whole observatory as a LOW,
+            // OUTBOARD Tideglass orrery. Its low stone and mineral stage
+            // remains on the SAME disclosed guardian tile, beside the real
+            // lane rather than behind either actor. The original moving
+            // shaft/shell parts still respond to actual public warning and
+            // earned parry; only their non-colliding scene proportions change.
+            // A flat inlay ring makes the real mechanism's response legible
+            // without inventing an exit, route, enemy, or camera angle.
+            const outer=alongX?{x:0,z:-.65}:{x:-.65,z:0};
+            const altar=mesh(signal,bevel,deepStone,outer.x,-.022,outer.z,
+              alongX?.93:.38,.085,alongX?.38:.93);
+            altar.name='Guardian outboard Tideglass orrery stone base '+c.cell;
+            const inset=mesh(signal,bevel,seaGlass,outer.x,.020,outer.z,
+              alongX?.76:.29,.025,alongX?.29:.76);
+            inset.name='Guardian outboard Tideglass orrery inlay '+c.cell;
+            const pulse=mesh(signal,ring,inlay,outer.x,.047,outer.z,
+              .31,.31,.31,-Math.PI/2);
+            pulse.name='Guardian earned Tideglass orrery pulse '+c.cell;
+            pulse.visible=false;
+            pulse.castShadow=false;
+            pulse.receiveShadow=false;
+            instrument.position.set(alongX?0:-.53,-.47,alongX?-.53:0);
+            instrument.scale.y=.52;
             signal.add(instrument);
             const root=mesh(instrument,bevel,deepStone,0,.17,0,.46,.35,.45);
             root.name='Guardian observatory submerged stone anchor '+c.cell;
@@ -1956,7 +1980,7 @@ export function createMazeWorld(options = {}) {
               tip.name='Guardian observatory carved vane crest '+c.cell+' '+side;
               vanes.push({hinge,shell,tip,side});
             }
-            observatory={instrument,vanes,shaft,collar};
+            observatory={instrument,vanes,shaft,collar,altar,inset,pulse};
           }
           // A rooted, concentric Tideglass floor response travels from
           // Pip to Thornback ONLY on their genuinely earned shared counter.
@@ -4094,7 +4118,17 @@ export function createMazeWorld(options = {}) {
         // 120ms-per-tile floor wave. React with the rooted mast AT IMPACT,
         // then let the original sequential public floor response take over.
         // No hidden guardian, fabricated hit, collider or mesh is created.
-        signal.observatory.instrument.position.y=-1.72*observedImpactDepth;
+        // The entire shorter orrery retains the same authentic impact
+        // retraction, now starting from its physically lowered resting plinth.
+        signal.observatory.instrument.position.y=-.47-1.72*observedImpactDepth;
+        const orreryActive=onLane && !reduced
+          && (warningAction>.12 || observedImpactDepth>.05);
+        signal.observatory.pulse.visible=orreryActive;
+        if(orreryActive){
+          signal.observatory.pulse.scale.setScalar(
+            .31+.20*Math.max(warningAction,observedImpactDepth));
+          signal.observatory.pulse.material=observedImpactDepth>.1?inlay:amber;
+        }
         const mastLift=reduced?0:Math.max(0,Math.min(1,warningAction));
         const mastHeight=.78+.88*mastLift;
         signal.observatory.shaft.scale.y=mastHeight;
