@@ -160,6 +160,14 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
        selectedFrames:a.nativeLegOwnership.sourceLicensedCounterpitchSelectedFrames??0,
        current:a.nativeLegOwnership.sourceLicensedCounterpitchCurrentFrame??null,
        last:a.nativeLegOwnership.sourceLicensedCounterpitchLastProof??null}:null,
+     // Independently measured post-leg original-weighted pelvis Y support.
+     // This is NOT a planted sole; an unselected correction stays null.
+     sourcePelvis:a?.nativeLegOwnership?{
+      acceptedFrames:a.nativeLegOwnership.sourceLoadedPelvisAcceptedFrames??0,
+      rollbackFrames:a.nativeLegOwnership.sourceLoadedPelvisRollbackFrames??0,
+      finalProof:a.nativeLegOwnership.sourceLoadedPelvisFrameProof??null,
+      rollbackProof:a.nativeLegOwnership.sourceLoadedPelvisRollbackFootProof??null
+     }:null,
      // Exact rendered original GLB world-root witness; NOT a generated step,
      // heel/toe plant, IK correction, target or source pose by itself.
      microWalk:a?.nativeLegOwnership?
@@ -276,6 +284,15 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
      currentSkinnedSoles:x.sourceSolePatchWorld,
      originalWeaponAttached:x.sourceWeaponGrip?.attachedToGripSocket===true
     })),
+   originalLicensedPelvisLiveReceipts:rows.filter(x=>x.sourcePelvis?.finalProof)
+    .map(x=>({frame:x.frame,tick:x.tick,sourceInstanceId:x.sourceInstanceId,
+     sourceClip:x.sourceClip,sourceClipTime:x.sourceClipTime,
+     finalOriginalWeightedPelvis:x.sourcePelvis.finalProof,
+     originalSkinnedShoes:x.sourceSolePatchWorld,
+     weaponStillOnOriginalGrip:x.sourceWeaponGrip?.attachedToGripSocket===true})),
+   originalConnectedLegThenPelvisAcceptedFrames:rows.filter(x=>
+    x.sourcePelvis?.finalProof?.licensedConnectedSourceChain?.source===
+     'same-licensed-GLB-connected-leg-to-final-pelvis').length,
    originalWalkingShoeEvidence:rows.filter(x=>x.sourceClip==='Walking_A'&&
     x.sourceWeight>=.9&&['left','right'].every(side=>
      Number.isFinite(x.sourceSolePatchWorld?.[side]?.toe?.[1])&&
