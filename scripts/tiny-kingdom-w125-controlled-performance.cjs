@@ -178,7 +178,14 @@ const save=()=>fs.writeFileSync(path.join(dir,'evidence.json'),
     save();
     console.error('W518 REAL SOURCE/VIEW TRIANGLE BLOCKER: '+JSON.stringify(failure));
    }
-   assert(result.geometry.totalTriangles<160000,'Complete triangle budget '+label);
+   // W523: the PREVIOUS playable renderer legitimately FAILED the complete
+   // source triangle contract. Do not abort before filming the CURRENT source:
+   // keep its original RED measurement, then demand a strict GREEN on every
+   // candidate Day1/workday/Day120/mobile shot. No threshold is relaxed.
+   result.completeSourceBudgetPass=result.geometry.totalTriangles<160000;
+   if(currentCase==='after')
+    assert(result.completeSourceBudgetPass,
+     'Current playable source complete triangle budget '+label);
    assert.equal(result.cpu.kind,'cpu-wall-submission');
    await page.evaluate(s=>window.__tinyKingdom.restoreSnapshot(s),snapshot);
    assert.equal(JSON.stringify(await page.evaluate(()=>window.__tinyKingdom.exportSnapshot())),
