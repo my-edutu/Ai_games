@@ -7830,3 +7830,62 @@ test('RED: selected original source leg may hand off real two-shoe skin to final
  assert.match(stage,/verifyOriginalSourceLoadedPelvisFootWitness\(/,
   'final load correction still requires physically re-skinned both shoes in XYZ');
 });
+
+
+/**
+ * Session 03 original GLB native 390px WebGL, SHA 0b19adfd3cde, run
+ * 44867784106, actual Walking_A tick 8 / 99.9ms:
+ * upperlegl/lowerlegl starter -120/+90mrad lifts the swinging weighted toe
+ * 24.653mm but raises the already-airborne weighted heel 29.880mm.
+ * The previous slow-source followups -140/+105 and -145/+110mrad produced
+ * 29.626/31.083mm toe lift against 34.414/35.677mm heel rise, WORSE pitch
+ * while the toe was still 18.81mm below the original -20mm stone.
+ * Fail first: schedule two safer connected original hip/knee source-skin
+ * opportunities on the observed ~48mm buried, near-vertical source shoe.
+ * No speculative joint pose is accepted without independent two-shoe
+ * skinned final proof in the existing runtime.
+ */
+test('RED-first: real 390px 99.9ms original swing schedules knee-led dual-shoe heel-relief trials instead of proven heel-amplifying hip arcs',async()=>{
+ const {planOriginalSourceSwingLinkedLegFollowups:plan}=await load();
+ const left={
+  heelY:.23256529799589495,toeY:-.06843618863188526,
+  heelXZ:[-2.6779980971531256,-6.9560450182226825],
+  toeXZ:[-2.7293315132565126,-6.932483551207911]
+ };
+ const right={
+  heelY:.009809161874049396,toeY:.007855190946782147,
+  heelXZ:[-2.753967032386916,-7.110256884195356],
+  toeXZ:[-3.0241077340395166,-7.135426182127796]
+ };
+ // Exact source-skin measured vertical response. Hold trial horizontal
+ // points at the real original source XZ solely to isolate scheduling;
+ // the subsequent THREE runtime must independently measure actual moving XZ.
+ const trials=[
+  {upperRad:.12,lowerRad:-.09,after:{
+   left:{...left,
+    heelY:left.heelY-.03347246036436416,
+    toeY:left.toeY-.015027546282254736},right}},
+  {upperRad:-.12,lowerRad:.09,after:{
+   left:{...left,
+    heelY:left.heelY+.029880402623407104,
+    toeY:left.toeY+.02465337378281158},right}}
+ ];
+ const owner={
+  mode:'move',sourceClipName:'Walking_A',sourceWeight:1,
+  ownerLocomotion:true,sourceInstanceSame:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false,
+  floorTopY:-.02,frameInterval:.0999000000000052,
+  side:'left',before:{left,right},trials,previousLinkedCertified:false
+ };
+ assert.deepEqual(plan(owner),[[-.09,.11],[-.105,.11]],
+  'the two REMAINING reversible source hip-knee trials must seek real heel relief on the 48.4mm buried swing, not amplify its heel');
+ const shallower={...owner,before:{left:{...left,toeY:-.062},right}};
+ assert.deepEqual(plan(shallower),[[-.14,.105],[-.145,.11]],
+  'a shallower unqualified source shoe must retain the original general slow planner');
+ const wide={...owner,before:{left:{...left,
+  toeXZ:[left.heelXZ[0]-.2,left.heelXZ[1]]},right}};
+ assert.deepEqual(plan(wide),[[-.14,.105],[-.145,.11]],
+  'an unverified near-vertical outsole geometry must NOT inherit knee relief');
+ const hurt={...owner,mode:'hurt'};
+ assert.equal(plan(hurt),null,'no idle/hurt/injury can forge fresh source walking proof');
+});
