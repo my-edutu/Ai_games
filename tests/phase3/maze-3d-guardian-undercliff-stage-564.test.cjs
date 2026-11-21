@@ -19,8 +19,9 @@ const observed=()=>({
     {cell:8,blocked:false,neighbors:[7]},
     // An earlier discovered spectator may still appear in the real 3D stage.
     {cell:12,blocked:false,neighbors:[]},
-    {cell:17,blocked:true,neighbors:[]},
-    {cell:24,blocked:false,neighbors:[]}
+    // One independent disclosed, sealed spectator: no other unreserved
+    // visible guardian facade may invalidate the reserved-room assertions.
+    {cell:17,blocked:true,neighbors:[]}
   ],
   doors:[],keys:[],inventory:[],exitCell:null,
   threats:[{id:'thornback',cell:8,lanternParried:true}]
