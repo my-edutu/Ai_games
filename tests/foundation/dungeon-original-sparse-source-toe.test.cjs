@@ -289,3 +289,69 @@ test('RED: verified sparse 315ms source counterpitch must permit a rate-bounded 
    'unwitnessed/stale sparse original GLB pose may never finish its toe child');
  }
 });
+
+
+test('RED: pinned original Walking_A toe keyframes can guide a strictly source-owned extra swing probe',async()=>{
+ const m=await controller();
+ assert.equal(typeof m.planLicensedSourceToePhaseProbe,'function',
+  'requires an actual licensed-source phase-informed toe probe, not a guessed joint axis');
+ // Exact original player_swordsman.glb Walking_A toes.r quaternion
+ // accessor samples, pinned via assets/PROVENANCE.md. Sampled pose/angles
+ // are genuine SOURCE DATA; resulting relief is not yet WebGL-proven.
+ const times=Float32Array.from([0,.0416666679084301,.0833333358168602,
+  .125,.1666666716337204,.2083333283662796,.25]);
+ const values=Float32Array.from([
+  .000000149,.767442644,-.641117573,.000000020,
+  .000000146,.810950756,-.585114479,.000000023,
+  .000000138,.878476143,-.477786243,.000000030,
+  .000000063,.915839851,-.401543707,.000000060,
+  .000000040,.911231518,-.411894530,.000000069,
+  .000000044,.883440137,-.468544155,.000000066,
+  .000000094,.859088480,-.511827111,.000000046
+ ]);
+ const tracks=[{name:'toesr.quaternion',times,values}];
+ const duration=1.0416666,sourceTimeSeconds=.105;
+ const original=m.sampleLicensedIdleJointQuaternionAtPhase(
+  tracks,'toesr',sourceTimeSeconds/duration,duration).quaternion;
+ const args={sourceClipName:'Walking_A',sourceInstanceSame:true,
+  sourceToeTrackVerified:true,sourceToeBoneParentVerified:true,
+  sourceRootTravelVerified:true,sourceWeight:1,
+  ownerLocomotion:true,alive:true,visible:true,
+  interrupted:false,teleport:false,reducedMotion:false,
+  sourceToeBoneName:'toesr',side:'right',tracks,
+  sourceTimeSeconds,sourceDurationSeconds:duration,
+  originalQuaternion:original,frameInterval:.0333};
+ const result=m.planLicensedSourceToePhaseProbe(args);
+ assert.equal(result?.source,'original-Walking_A-authored-toe-phase');
+ assert.equal(result.sourceTrackName,'toesr.quaternion');
+ assert.equal(result.provenance,'licensed-original-clip-7-keyframe-diagnostic');
+ assert.ok(result.extraAngleRad>-.099901&&result.extraAngleRad<.099901,
+  'extra candidate must not spend more than witnessed 3rad/s');
+ assert.ok(Math.abs(result.extraAngleRad)>=.018);
+ assert.equal(result.contactLocked,false);
+ assert.equal(result.plantCertified,false);
+ // Same verified source bone but different actual animation owners,
+ // skin, clone or frame MUST fail closed. No invented aim or foot contact.
+ for(const altered of [
+  {sourceClipName:'Idle'},{sourceInstanceSame:false},
+  {sourceToeTrackVerified:false},{sourceToeBoneParentVerified:false},
+  {sourceRootTravelVerified:false},{sourceWeight:.83},
+  {ownerLocomotion:false},{alive:false},{visible:false},
+  {interrupted:true},{teleport:true},{reducedMotion:true},
+  {sourceToeBoneName:'toesl'}, {sourceTimeSeconds:.99},
+  {frameInterval:.5},{frameInterval:.005},
+  {originalQuaternion:[0,0,0,1]},
+  {tracks:[{name:'toesr.quaternion',times,values:Float32Array.from(values.slice(0,8))}]}
+ ]){
+  assert.equal(m.planLicensedSourceToePhaseProbe({...args,...altered}),null,
+   'reject unowned, non-source, unsafe, invalid or stale toe retiming '+Object.keys(altered));
+ }
+ const renderer=fs.readFileSync(path.resolve(__dirname,
+  '../../public/ai-dungeon/model-assets.js'),'utf8');
+ const live=renderer.slice(renderer.indexOf(
+  'function stageLicensedSourceToeFinisherAfterCounterpitch('),
+  renderer.indexOf('function stageOriginalSourceSwingLinkedToesAfterMixer('));
+ assert.match(live,/planLicensedSourceToePhaseProbe/);
+ assert.match(live,/certifyLicensedCounterpitchToeFinish/);
+ assert.match(live,/originalSwingToeJointRestore/);
+});
