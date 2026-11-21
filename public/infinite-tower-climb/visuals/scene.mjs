@@ -5,7 +5,7 @@ import { observedGroundedBiomeThreshold } from './biome-threshold.mjs';
 import { auditOriginalGuardianCrossing } from './gateway-source-audit.mjs';
 import { createTowerWorld, THEMES } from './world.mjs';
 import { observedSourceEarnedVoidHorizon } from './source-earned-void-horizon.mjs';
-import { sourceSynchronizedHorizonWeight } from './source-synchronized-horizon.mjs';
+import { sourceSynchronizedHorizonWeight, sourceReturnedSkyLeaseMaxOld } from './source-synchronized-horizon.mjs';
 import { sourceTriangleOwner } from './mesh-provenance.mjs';
 import { observedLandingHazardPressure } from './landing-pressure.mjs';
 import { createClimber, createEnemy } from './characters.mjs';
@@ -5506,9 +5506,13 @@ export function createTowerScene(canvas, settings = {}) {
       snapshot.tick<earnedVoidSkyLease.sourceTick)
       earnedVoidSkyLease={runToken:snapshot?.floor===9?snapshot.runToken:null,
         sourceTick:-1,maxOldWeight:1};
-    if(earnedVoidHorizon?.sourceBound===true)
-      earnedVoidSkyLease.maxOldWeight=Math.min(earnedVoidSkyLease.maxOldWeight,
-        earnedVoidHorizon.maxOldHorizonWeight);
+    // One returned source-authentic old-room material receipt now bounds
+    // BOTH the physical shaft palette and global environment: a returned
+    // Void bearing alone must not make the still-painted bronze gate/roof
+    // appear in a suddenly purple unrelated room. Monotone, no rewarming.
+    earnedVoidSkyLease.maxOldWeight=sourceReturnedSkyLeaseMaxOld(
+      snapshot,earnedVoidSkyLease.maxOldWeight,earnedVoidHorizon,
+      certifiedHorizon,oldWeightBeforeVoid);
     if(Number.isSafeInteger(snapshot?.tick))
       earnedVoidSkyLease.sourceTick=snapshot.tick;
     // A real returned bronze gateway cannot be surrounded by an instantly

@@ -65,7 +65,53 @@ export function sourceSynchronizedHorizonWeight(source,oldWeightBeforeVoid,
     Number.isFinite(returnedSuccessor.maxOldHorizonWeight) &&
     returnedSuccessor.maxOldHorizonWeight>=0 &&
     returnedSuccessor.maxOldHorizonWeight<=1;
+  // The returned F9 bearing is a valid *destination* witness, but it is
+  // not authority to repaint a still-source-certified Clockwork room purple
+  // before the real old gateway, roof and retained steel have receded.
+  // Match the SAME current-tick World material receipt. A previously cooled
+  // monotone lease remains the hard upper bound: this NEVER rewarmed sky.
+  const matchedOriginalMaterial=returnedNow
+    ?Math.min(old,certifiedHorizon.oldWeight):0;
   const distantOldBound=returnedNow
-    ?Math.min(distant,returnedSuccessor.maxOldHorizonWeight):distant;
+    ?Math.min(distant,Math.max(returnedSuccessor.maxOldHorizonWeight,
+        matchedOriginalMaterial)):distant;
   return Math.min(sameRoom,distantOldBound);
+}
+
+// A second, often-overlooked cause of the native F8->F9 hard cut: the
+// independent distant-sky lease was spent down by returned Void bearings
+// while the SAME physically returned doorway and World materials were still
+// source-certified bronze. Clamp the one-way sky spend to genuine old-room
+// coverage before it enters the monotone lease. This never invents a frame,
+// changes gameplay, or rewinds an already cooled atmosphere.
+export function sourceReturnedSkyLeaseMaxOld(source,previous,returned,certified,oldRoomWeight) {
+  if(!Number.isFinite(previous)||previous<0||previous>1)return 0;
+  if(source?.floor!==9 || source.theme!=='void' ||
+    source.lifecycle!=='running' || !(source.player?.health>0) ||
+    typeof source.runToken!=='string' || !source.runToken ||
+    !Number.isSafeInteger(source.tick) ||
+    returned?.sourceBound!==true ||
+    returned.runToken!==source.runToken ||
+    returned.sourceTick!==source.tick ||
+    !Number.isSafeInteger(returned.firstBearingReturnedFrames) ||
+    returned.firstBearingReturnedFrames<2 ||
+    returned.firstBearingReturnedFrames>30 ||
+    !Number.isFinite(returned.maxOldHorizonWeight) ||
+    returned.maxOldHorizonWeight<0 || returned.maxOldHorizonWeight>1)
+    return previous;
+  const kind=certified?.kind;
+  const sameMaterial=certified?.sourceBound===true &&
+    certified.sourceTick===source.tick &&
+    Number.isFinite(certified.oldWeight) &&
+    certified.oldWeight>=0 && certified.oldWeight<=1 &&
+    Number.isFinite(oldRoomWeight) && oldRoomWeight>=0 && oldRoomWeight<=1 &&
+    (kind==='physically-supported-returned-old-and-new-shaft' ||
+      (kind==='live-same-run-physical-gateway' &&
+        certified.historicalOpticalTail===false) ||
+      (kind==='previous-certified-returned-material' &&
+        certified.historicalOpticalTail===true));
+  const actuallyReturnedOldMaterial=sameMaterial
+    ?Math.min(certified.oldWeight,oldRoomWeight):0;
+  return Math.min(previous,Math.max(returned.maxOldHorizonWeight,
+    actuallyReturnedOldMaterial));
 }
