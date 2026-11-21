@@ -40,6 +40,18 @@ test('Pass546 actual earned parry cuts only fully witnessed sealed spectator arc
   const initial=w.stats().guardianSightlineParapets;
   w.update(s);
   assert.ok(w.stats().guardianSightlineParapets>initial,'real Three world reconstructs physical opaque bulwark');
+  const earned=w.stats();
+  w.update(unearned);
+  assert.equal(w.stats().guardianSightlineParapets,initial,
+   'physical full-height original spectator wall returns on lost real parry');
+  w.update(hidden);
+  assert.equal(w.stats().guardianSightlineParapets,initial,
+   'previously disclosed but now unseen wall never remains lowered');
+  w.update(s);
+  assert.equal(w.stats().guardianSightlineParapets,earned.guardianSightlineParapets,
+   'repeated genuine public parry restores one reversible solid bulwark');
+  assert.equal(w.stats().geometryCount,earned.geometryCount,
+   'actual source-bound mesh geometry classes unchanged across reversible stage rebuild');
   assert.equal(JSON.stringify(s),truth,'no simulation or public snapshot mutation');
  }finally{w.dispose();}
 });
