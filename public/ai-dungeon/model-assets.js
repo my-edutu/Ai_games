@@ -4466,6 +4466,15 @@ function updateActor(actor,dt,since=0,reducedMotion=false,sourceFrameInterval=dt
     actor.root.position.z-actor.rigGaitPosition.z):0,
   groundedMoving:Boolean(actor.fullBody?.owner.locomotion&&actor.groundedPerformance?.moving),
   walkingClip:/(?:walk|run|move)/i.test(actor.activeImportedClipName||''),
+  // A verified ORIGINAL licensed source clip and six imported leg joints are
+  // required before a >1.2s no-travel frame can keep Walking_A stationary.
+  // Does not create a contact, take over AI or rewrite the imported mixer.
+  sourceNativeWalkingVerified:Boolean(actor.assetRoot?.uuid&&
+   sourceClip?.name==='Walking_A'&&
+   actor.activeImportedClipName==='Walking_A'&&
+   actor.availableClips?.includes(sourceClip)&&
+   actor.rigGaitBones?.length===6&&
+   actor.rigGaitBones.every(m=>m.bone?.isBone)),
   // Exact same-frame original crossFadeFrom receipt: no clip, time or skin
   // mutation. Read alongside the true original pose weight after Mixer.
   sourceClipName:actor.activeImportedClipName??'',
