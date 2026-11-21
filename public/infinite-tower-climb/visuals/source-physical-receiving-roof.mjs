@@ -129,11 +129,22 @@ const BAND_CHANNELS=Object.freeze([
   ['beam','body','bodyVoid'],['edge','rim','rimVoid'],
   ['lamp','glow','glowVoid','glowEmissiveVoid']
 ]);
-export function syncGatewayReceivingRoofColours(palette){
+export function syncGatewayReceivingRoofColours(palette, sourceCertifiedReveal=1){
   const join=palette?.roofJoin;
   if(!palette?.top?.color || !join?.middle?.color ||
-     !join?.successor?.color || !palette.topVoid)return false;
-  for(const [kind,mix] of Object.entries(BAND_REVEAL)){
+     !join?.successor?.color || !palette.topVoid ||
+     !Number.isFinite(sourceCertifiedReveal) ||
+     sourceCertifiedReveal<0 || sourceCertifiedReveal>1)return false;
+  // Native original 1x Floor8→9 film showed a largely violet receiving
+  // rim under a still-opaque bronze door: fixed 52%/91% Void colors were
+  // being applied to the SAME F9 roof on its first GPU submission. The
+  // source-earned old-roof material and all its real top/beam/rim/lamp
+  // sectors now spend ONE optical departure scalar. Do not reveal the
+  // successor color until the same original gateway/roof actually departs.
+  // The relative spatial read (middle before successor) survives, but it
+  // never overrides the live source-certified physical roof.
+  for(const [kind,spatialReveal] of Object.entries(BAND_REVEAL)){
+    const mix=spatialReveal*sourceCertifiedReveal;
     join[kind].color.copy(palette.top.color).lerp(palette.topVoid,mix);
     for(const [name,key,voidKey,emissiveVoid] of BAND_CHANNELS){
       const material=join[`${name}${kind==='middle'?'Middle':'Successor'}`];
