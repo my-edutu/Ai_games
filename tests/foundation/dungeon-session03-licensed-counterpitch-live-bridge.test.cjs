@@ -884,3 +884,46 @@ test('RED: actual original mobile heel-first roll may earn bounded pelvis suppor
   sourceHeelRollVerified:true}),null,
  'native toe cannot silently rise independent of the whole-pelvis Y translation');
 });
+
+
+// Exact original 390px source proof: b78a7cb8 Actions #44891587355,
+// genuine loaded right heel -41.580655mm, source planner 10.1625mm desired
+// vertical lift, final world heel -21.255655mm: 20.325mm actual movement.
+// The local visual pivot must not apply a 2x-parent-scale world lift when
+// its animation-only native pelvis support requested just 10.1625mm.
+// This is a SOURCE-world sole calibration, never invented contact/IK/authority.
+test('RED: original 390px loaded-heel support translates by measured world metres, not scaled local metres',async()=>{
+ const {planOriginalSourceWorldPelvisLift:local}=await source;
+ assert.equal(typeof local,'function',
+  'the original rig requires a bounded world-to-local pelvis carrier');
+ const input={
+  source:'measured-original-GLB-loaded-heel-and-toe',
+  desiredWorldLiftMeters:.010162500000000069,
+  parentWorldLocalYAxis:[0,2,0]
+ };
+ const result=local(input);
+ assert.ok(result);
+ assert.ok(Math.abs(result.localLiftMeters-.0050812500000000345)<1e-10);
+ assert.ok(Math.abs(result.worldLiftMeters-.010162500000000069)<1e-10);
+ const originalHeel=-.04158065515263443;
+ assert.ok(Math.abs(originalHeel+result.worldLiftMeters+
+  .03141815515263436)<1e-9,
+  'real source heel rises only planned 10.1625mm, not the previous 20.325mm');
+ assert.equal(result.contactLocked,false);assert.equal(result.plantCertified,false);
+ assert.match(renderer,/planOriginalSourceWorldPelvisLift\(/,
+  'original renderer must carry source pelvis offset through world-axis calibration');
+ assert.match(renderer,/baseY\+calibrated\.localLiftMeters/,
+  'the loaded original rig must receive LOCAL rather than uncalibrated world metres');
+ for(const bad of [
+  {source:'unverified'},{desiredWorldLiftMeters:.03},
+  {desiredWorldLiftMeters:-.01},
+  {parentWorldLocalYAxis:[0,0,0]},
+  {parentWorldLocalYAxis:[1,1,0]},
+  {parentWorldLocalYAxis:[0,.3,0]},
+  {parentWorldLocalYAxis:[NaN,2,0]}
+ ])assert.equal(local({...input,...bad}),null,
+  'unverified carrier / lateral source foot slide / invalid rig scale must fail closed');
+ const yawOnly=local({...input,parentWorldLocalYAxis:[.04,2,.02]});
+ assert.ok(yawOnly&&yawOnly.lateralWorldDriftMeters<.0015,
+  'small measured parent tilt may proceed only within original two-shoe XZ budget');
+});
