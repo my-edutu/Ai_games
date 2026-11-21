@@ -1,0 +1,50 @@
+name: Tiny Kingdom W511 Real Day-121 Courier Compact GPU Body and Live Cart
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w511-compact-haul-contract.cjs'
+      - 'tests/browser/tiny-kingdom-w511-real-compact-haul.spec.cjs'
+      - '.github/workflows/tiny-kingdom-w511-real-compact-haul.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w511-compact-courier-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  real-courier-gpu:
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feat/tiny-kingdom-post-main-gauntlet-20261031' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 32
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Verify real 28-citizen courier gate with original current game source
+        run: |
+          node scripts/tiny-kingdom-w511-compact-haul-contract.cjs
+          npm run build
+      - name: Install actual Chromium software-GPU diagnostic
+        run: npx playwright install --with-deps chromium
+      - name: Film authentic mobile and desktop Day-121 cargo, current frame GPU body and CPU fallback
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w511-real-compact-haul.spec.cjs --workers=1 --reporter=line
+      - name: Preserve actual uncropped video screenshots and source-linked audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w511-real-courier-mobile-desktop-evidence
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: warn
+          retention-days: 14
