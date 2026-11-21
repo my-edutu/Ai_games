@@ -515,3 +515,59 @@ test('RED: actual 60Hz partial original toe arc is sampled as a third bounded sk
    'never append unowned/stale/unbounded source pose');
  }
 });
+
+
+test('RED: original toe phase guidance must follow the actual dual-shoe beneficial sign, not a larger opposing source keyframe arc',async()=>{
+ const m=await controller();
+ // ORIGINAL CC0 player_swordsman GLB Walking_A toes.l keyframes.
+ // ACTUAL native 03a51880 desktop f62: -0.0501rad toe-child raised the
+ // original source-skinned toe 4.591mm without disturbing the loaded shoe.
+ // The previous source guide chose the larger opposite-sign keyframe arc.
+ const times=Float32Array.from([.5416666865,.5833333135,.625,.6666666865,.7083333135]);
+ const values=Float32Array.from([
+  -.0000001,.7746965,-.6323333,.0000002,
+  -.0000001,.8255442,-.5643374,.0000002,
+  -.0000001,.8903230,-.4553295,.0000002,
+  0,.9203548,-.3910845,.0000002,
+  0,.9059688,-.4233444,.0000002
+ ]);
+ const tracks=[{name:'toesl.quaternion',times,values}];
+ const sourceTimeSeconds=.6103124110738124,duration=1.0416666;
+ const original=m.sampleLicensedIdleJointQuaternionAtPhase(
+  tracks,'toesl',sourceTimeSeconds/duration,duration)?.quaternion;
+ assert.ok(original);
+ const args={sourceClipName:'Walking_A',sourceInstanceSame:true,
+  sourceToeTrackVerified:true,sourceToeBoneParentVerified:true,
+  sourceRootTravelVerified:true,sourceWeight:1,
+  ownerLocomotion:true,alive:true,visible:true,
+  sourceToeBoneName:'toesl',side:'left',tracks,
+  sourceToeAppliedAxis:[1,0,0],sourceTimeSeconds,
+  sourceDurationSeconds:duration,originalQuaternion:original,
+  frameInterval:.0167};
+ const blind=m.planLicensedSourceToePhaseProbe(args);
+ assert.ok(blind?.extraAngleRad>0,'blind larger earlier arc is positive');
+ const preferred=m.planLicensedSourceToePhaseProbe({...args,preferredAngleSign:-1});
+ assert.equal(preferred?.source,'original-Walking_A-authored-toe-phase');
+ assert.ok(preferred.extraAngleRad<-.018&&preferred.extraAngleRad>=-.040081);
+ assert.ok(preferred.sourceTargetTimeSeconds>sourceTimeSeconds);
+ assert.ok(preferred.sourceTargetTimeSeconds-sourceTimeSeconds<=.02501);
+ assert.equal(preferred.contactLocked,false);
+ assert.equal(preferred.plantCertified,false);
+ const inverted=m.planLicensedSourceToePhaseProbe({...args,
+  sourceToeAppliedAxis:[-1,0,0],preferredAngleSign:1});
+ assert.ok(inverted?.extraAngleRad>0);
+ assert.ok(inverted.sourceTargetTimeSeconds>sourceTimeSeconds);
+ for(const bad of [0,2,-2,NaN,Infinity,'-1']){
+  assert.equal(m.planLicensedSourceToePhaseProbe({...args,
+   preferredAngleSign:bad}),null,
+   'cannot accept arbitrary, stale or unverified direction');
+ }
+ const renderer=fs.readFileSync(path.resolve(__dirname,
+  '../../public/ai-dungeon/model-assets.js'),'utf8');
+ const stage=renderer.slice(renderer.indexOf(
+  'function stageLicensedSourceToeFinisherAfterCounterpitch('),
+  renderer.indexOf('function stageOriginalSourceSwingLinkedToesAfterMixer('));
+ assert.match(stage,/preferredAngleSign:/);
+ assert.match(stage,/originalOppositeShoeVerified/);
+ assert.match(stage,/certifyLicensedCounterpitchToeFinish/);
+});
