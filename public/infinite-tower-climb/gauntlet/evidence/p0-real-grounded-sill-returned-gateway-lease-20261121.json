@@ -299,5 +299,47 @@
       "portrait": "e6fe6272628c67ece00eb5fff2f397d13465e0e9cc345e4ada201e484ad6f3b7"
     },
     "strictPairedNativeAcceptance": "FAILED 0/2 desktop and portrait (pair-source-events job 136863871377)"
+  },
+  "raisedDeckProjectedComposition20261121": {
+    "stage": "P0 OPEN",
+    "verdict": "NOT EVALUATED",
+    "productionSourceSha": "94ab1aa25aae6afda863229ef81df2f2510f297d",
+    "priorReviewedCandidateSourceSha": "00acafa7dfee98c0749d53e048ce73895846390c",
+    "priorQuality": "10/10 jobs succeeded at prior production SHA; only safety/CI, not game quality",
+    "previousCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/44909790662",
+    "nativeCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44909790662/artifacts/14708459554",
+    "matchedSourceNarratives": "8/8",
+    "strictNativeEventMatch": "FAILED 0/2",
+    "previousNativeObservation": {
+      "desktop": {
+        "viewport": "960x600",
+        "durationSeconds": 72.64,
+        "firstFloor9HudSeconds": 25.75,
+        "sustainedVoidSeconds": 27.5,
+        "warmToCoolBridgeSeconds": 0,
+        "originalWebmSha256": "55359f2745ed43fe73f17e3f2566b311269f7ba4135ed510c774d4b5862b2ddf"
+      },
+      "portrait": {
+        "viewport": "390x844",
+        "durationSeconds": 72.28,
+        "firstFloor9HudSeconds": 25.5,
+        "sustainedVoidSeconds": 27.25,
+        "warmToCoolBridgeSeconds": 0,
+        "originalWebmSha256": "e6fe6272628c67ece00eb5fff2f397d13465e0e9cc345e4ada201e484ad6f3b7"
+      }
+    },
+    "rootExperienceGap": "Genuine source-grown elevated Floor9 decks dominate the first Floor9 native frame as a broad purple backdrop even when authentic retained original gate, skinned body and receiving roof all pass the triangle/NDC camera safety probes; abrupt architectural composition remains unacceptable.",
+    "implemented": "Add bounded projection of annular top and open-truss envelope for at most two real current F9 elevated platforms, source/HP0/roof and GPU-owner gated; extend the existing 8-proposal reversible 3D camera physical clearance ladder to prefer a smaller dominating raised backdrop when current rays are already clear, but ONLY when full-body NDC, three-dimensional original gateway steel, original roof and physical body/gate ray constraints hold. Add focused valid/invalid source tests; no gameplay physics, sourced events, geometry, level changes or fabricated visuals.",
+    "safety": "Baseline SHA/blob and PR58 unchanged; PR68 still open draft; no deploy/merge/force-push; frozen source remains immutable; no unrelated games.",
+    "newQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44914798522",
+    "newOriginalGameCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/44914798510",
+    "newRunStatusAtRecord": "QUEUED; neither exact-SHA CI nor new native 1x before/after outcome is claimed. Capture is production-SHA pinned.",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "realDeviceFrameTimeAndMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Inspect fresh 1x source-pinned desktop 960x600 and portrait 390x844 original WebM around actual 25–30s gateway, measure raisedBackdropCameraRescues and native old-open-gate/full moving actor/genuinely walkable F9 roof coexistence. Veto if 0/2 pairing or violet silhouette hard-cut persists. Repair shared camera/deck scene ownership, not palette. Do not advance P1."
   }
 }
