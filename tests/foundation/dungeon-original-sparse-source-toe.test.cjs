@@ -367,3 +367,72 @@ test('RED: pinned original Walking_A toe keyframes can guide a strictly source-o
  assert.match(live,/certifyLicensedCounterpitchToeFinish/);
  assert.match(live,/originalSwingToeJointRestore/);
 });
+test('RED: exact original mobile f97 95.697mm source toe burial admits measured, bounded toe-only relief',async()=>{
+ const m=await controller();
+ // REAL BEFORE: exact 6cb8 source-rig mobile frame97, authority tick14,
+ // Walking_A 0.6194s. Previous original 41-joint hip/knee/ankle trial
+ // raised the source toe 4.915mm but left 95.696860mm below stone.
+ // AFTER is explicitly SYNTHETIC contract data, NOT a witnessed GLB pose.
+ const before={
+  left:{heelY:.16377622354364688,toeY:-.11569686049665617,
+   heelXZ:[2.289809108915604,-6.9437442221808],
+   toeXZ:[2.1830647270323738,-6.933448925885964]},
+  right:{heelY:-.04217560803346984,toeY:-.0066379985780012155,
+   heelXZ:[2.1720750277472916,-7.108004229780754],
+   toeXZ:[1.903985109162657,-7.131467546160955]}
+ };
+ const after={left:{...before.left,
+  heelY:before.left.heelY-.0002,
+  toeY:before.left.toeY+.009,
+  toeXZ:[before.left.toeXZ[0]-.001,before.left.toeXZ[1]]},
+  right:{...before.right}};
+ const proof={
+  source:'measured-original-licensed-source-counterpitch',
+  sourceClip:'Walking_A',side:'left',
+  sourceInstanceId:'original-native-6cb8-mobile-f97',
+  sourceClipTimeSeconds:.6193999961754562,
+  sourceOriginalRootTravelWitnessed:true,
+  originalOppositeShoeVerified:true,finalIndependentSourceSkin:true,
+  witnessedRootTravelMeters:.019344653630752218,
+  witnessedDirectFrameTravelMeters:.019344653630752218,
+  witnessedFrameIntervalSeconds:.033400000000007424,
+  witnessedFrameAgeSeconds:0,
+  residualToeBurialMeters:.09569686049665617,
+  after:before,contactLocked:false,plantCertified:false
+ };
+ const args={proof,before,after,side:'left',
+  sourceInstanceId:proof.sourceInstanceId,sourceInstanceSame:true,
+  sourceClipName:'Walking_A',sourceToeTrackVerified:true,
+  sourceToeBoneParentVerified:true,angleRad:.08,floorTopY:-.02};
+ const result=m.certifyLicensedCounterpitchToeFinish(args);
+ assert.equal(result?.source,'measured-licensed-counterpitch-original-toes-child',
+  'witnessed 95.697mm original deep swing should qualify for a 9mm conservative partial rescue');
+ assert.equal(result.sourceDeepSwingToeRelief,true);
+ assert.ok(result.residualToeBurialMeters>.08,
+  'partial relief must NOT be misrepresented as planted or cleared');
+ assert.equal(result.contactLocked,false);
+ assert.equal(result.plantCertified,false);
+ for(const change of [
+  {after:{...after,left:{...after.left,toeY:before.left.toeY+.013}}},
+  {after:{...after,left:{...after.left,heelY:before.left.heelY+.004}}},
+  {after:{...after,right:{...before.right,toeY:before.right.toeY+.005}}},
+  {proof:{...proof,witnessedFrameAgeSeconds:.06}},
+  {proof:{...proof,witnessedRootTravelMeters:.002}},
+  {proof:{...proof,sourceClipTimeSeconds:.412}},
+  {angleRad:.13},{sourceInstanceSame:false},{sourceClipName:'Hit_A'}
+ ]) assert.equal(m.certifyLicensedCounterpitchToeFinish({...args,...change}),null,
+  'reject non-source, stale, over-speed, heel/opposite-foot drift, non-swing or false clearance: '+Object.keys(change));
+ const deeper={...before,left:{...before.left,toeY:-.1315}};
+ const afterDeeper={...after,left:{...after.left,toeY:-.1225}};
+ assert.equal(m.certifyLicensedCounterpitchToeFinish({...args,
+  before:deeper,after:afterDeeper,proof:{...proof,after:deeper,
+   residualToeBurialMeters:.1115}}),null,
+  'never widen correction to unvalidated >110mm original swing burial');
+ const renderer=fs.readFileSync(path.resolve(__dirname,
+  '../../public/ai-dungeon/model-assets.js'),'utf8');
+ const stage=renderer.slice(renderer.indexOf(
+  'function stageLicensedSourceToeFinisherAfterCounterpitch('),
+  renderer.indexOf('function stageOriginalSourceSwingLinkedToesAfterMixer('));
+ assert.match(stage,/const deepSourceWindow=residual>\.055&&residual<=\.110/,
+  'both source renderer and independent certificate must admit the same witnessed 95.7mm window');
+});
