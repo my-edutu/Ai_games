@@ -325,31 +325,56 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
   'film must include genuinely advancing renderer frames').toBeGreaterThanOrEqual(10);
  expect(rows.some(x=>x.sourceClip==='Walking_A'),
   'at least one sampled source-mixer action must be genuinely Walking_A').toBe(true);
- // Actual original source crossFadeFrom eligibility varies with frame
- // capture scheduling. A pre-faded source at 39-78% weight must NOT be
- // falsely required to select the >=90% guarded 300ms micro-arrival.
- // Check the 300ms source-handoff only when that original running high-weight
- // clip is truly witnessed. Ineligible source stays the honest 230ms fade.
+ // source-fade certificate: actual 390px GLB Walking_A->Idle has a legal
+ // 340ms entire-source-skeleton blend after 2.939mm current visual root
+ // travel and separate 74.772mm / 216.7ms original walking history.
+ // The previous unconditional 300ms browser assertion was stale.
  const fadeReceipts=rows.map(x=>x.movingExitFade).filter(x=>
   x?.fromClip==='Walking_A');
- const eligible=fadeReceipts.filter(x=>x.originalPreviousRunning===true&&
-  x.originalPreviousWeight>=.9&&x.rootTravelMeters>=0&&
-  x.rootTravelMeters<=.004&&x.frameIntervalSeconds>0&&
-  x.frameIntervalSeconds<=.35);
- const selected=fadeReceipts.filter(x=>x.candidateSelected===true);
- for(const x of selected){
-  expect(x.originalPreviousRunning).toBe(true);
-  expect(x.originalPreviousWeight).toBeGreaterThanOrEqual(.9);
-  expect(x.selectedFadeSeconds).toBe(.30);
+ const between=(v,lo,hi)=>Number.isFinite(v)&&v>=lo&&v<=hi;
+ const speed=(d,t,lo=.2,hi=2.5)=>Number.isFinite(d)&&
+  Number.isFinite(t)&&t>0&&between(d/t,lo,hi);
+ const qualifies=x=>{
+  if(x.originalPreviousRunning!==true||
+   !between(x.originalPreviousWeight,.55,1.001))return false;
+  const dt=x.frameIntervalSeconds,dist=x.rootTravelMeters;
+  const direct=between(dt,.016,1.2)&&between(dist,.035,.54)&&speed(dist,dt);
+  const recent=between(dt,.016,.10)&&between(dist,.00035,.012)&&
+   between(x.recentRootTravelMeters,.008,.24)&&
+   between(x.recentRootAgeSeconds,0,.10)&&
+   between(x.recentRootFrameIntervalSeconds,.016,.25)&&
+   speed(x.recentRootTravelMeters,x.recentRootFrameIntervalSeconds);
+  const sparse=between(x.originalPreviousWeight,.9,1.001)&&
+   between(dt,.016,.05)&&between(dist,.00035,.003)&&
+   speed(dist,dt,.02,.20)&&
+   x.recentRootTravelMeters===0&&x.recentRootAgeSeconds===0&&
+   x.recentRootFrameIntervalSeconds===null;
+  if(x.selectedFadeSeconds===.30)return sparse;
+  if(x.selectedFadeSeconds===.34)return (direct&&dt<=.55)||recent;
+  if(x.selectedFadeSeconds===.40)return direct&&dt>.55;
+  return false;
+ };
+ for(const x of fadeReceipts){
   expect(x.contactLocked).toBe(false);
+  expect(x.syntheticMovement).toBe(false);
+  if(x.candidateSelected===true){
+   expect(qualifies(x),
+    'only lawful current/cached source distance and original 41-joint owner earns 300/340/400ms fade').toBe(true);
+  }else{
+   expect(x.selectedFadeSeconds).toBe(.23);
+  }
  }
- if(eligible.length){
-  expect(selected.length,'genuine high-weight walking exit needs lawful 300ms fade')
-   .toBeGreaterThan(0);
- }else{
-  expect(selected.length,'do not invent an eligible high-weight source exit').toBe(0);
-  expect(fadeReceipts.every(x=>x.candidateSelected===false&&
-   x.selectedFadeSeconds===.23)).toBe(true);
+ // The old narrow micro-arrival is still mandatory when truly eligible.
+ for(const x of fadeReceipts.filter(x=>
+  x.originalPreviousRunning===true&&
+  between(x.originalPreviousWeight,.9,1.001)&&
+  between(x.frameIntervalSeconds,.016,.05)&&
+  between(x.rootTravelMeters,.00035,.003)&&
+  speed(x.rootTravelMeters,x.frameIntervalSeconds,.02,.20)&&
+  x.recentRootTravelMeters===0&&x.recentRootAgeSeconds===0&&
+  x.recentRootFrameIntervalSeconds===null)){
+  expect(x.candidateSelected).toBe(true);
+  expect(x.selectedFadeSeconds).toBe(.30);
  }
  expect(errors).toEqual([]);
 });
