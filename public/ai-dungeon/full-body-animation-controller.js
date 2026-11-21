@@ -6315,7 +6315,7 @@ export function planLicensedSourceToePhaseProbe({
  * the renderer. Never certify a plant or a visible improvement here.
  */
 export function appendLicensedSourceDistinctToeProbeAngles(
- base,guide,sourceToeBoneName=''
+ base,guide,sourceToeBoneName='',certifiedSkinnedToe=null
 ){
  if(!Array.isArray(base)||base.length!==2||
   !base.every(a=>finite(a)&&Math.abs(a)>=.018&&Math.abs(a)<=.160001))
@@ -6331,6 +6331,33 @@ export function appendLicensedSourceDistinctToeProbeAngles(
   Math.abs(guide.extraAngleRad)<.018||
   Math.abs(guide.extraAngleRad)>.12||
   base.some(a=>Math.abs(a-guide.extraAngleRad)<=.004))return base;
+ // A genuine original WebGL f27 (Action #44958752223) measured a 50.1mrad
+ // source toesr child raise its fully weighted toe by 4.3615mm without
+ // raising the airborne heel or moving the opposite loaded shoe. A THIRD
+ // 40.08mrad trial of the SAME sign is a smaller partial arc of that
+ // already certified max-rate motion; spending another original two-shoe
+ // skin read only worsens an already sparse mobile/desktop renderer.
+ // This optimization requires the current frame's independent source skin
+ // certificate; never infer beneficial sign from clip magnitude, last frame,
+ // a single vertex, another GLB/side, or synthetic planted-foot state.
+ const measured=certifiedSkinnedToe;
+ if(measured?.source==='measured-licensed-counterpitch-original-toes-child'&&
+  measured.sourceClip==='Walking_A'&&
+  measured.side===(sourceToeBoneName==='toesl'?'left':'right')&&
+  measured.originalOppositeShoeVerified===true&&
+  measured.finalIndependentSourceSkin===true&&
+  measured.contactLocked===false&&measured.plantCertified===false&&
+  finite(measured.angleRad)&&finite(measured.toeLiftMeters)&&
+  finite(measured.heelChangeMeters)&&finite(measured.residualToeBurialMeters)&&
+  measured.toeLiftMeters>=.004&&measured.toeLiftMeters<=.012&&
+  Math.abs(measured.heelChangeMeters)<=.001&&
+  measured.residualToeBurialMeters>=.055&&
+  measured.residualToeBurialMeters<=.110&&
+  Math.sign(guide.extraAngleRad)===Math.sign(measured.angleRad)&&
+  Math.abs(measured.angleRad)<=.160001&&
+  Math.abs(guide.extraAngleRad)+.004<Math.abs(measured.angleRad)&&
+  base.some(a=>Math.abs(a-measured.angleRad)<=.000001))
+  return base;
  return Object.freeze([...base,guide.extraAngleRad]);
 }
 
