@@ -3936,8 +3936,12 @@ export function createTowerWorld(){
       passageWitness.handoffVisibleWindowSeconds<=3 &&
       passageWitness.handoffDisplaySeconds>=0 &&
       passageWitness.handoffDisplaySeconds<passageWitness.handoffVisibleWindowSeconds;
+    // A source dash is still unsupported physical flight for three ticks
+    // after launch; align the retained doorway, original roof and camera
+    // with the already-validated same-run raised-deck route.
     const sourceFlight=p?.grounded===false &&
-      p.state==='airborne' && Number.isFinite(p.vy);
+      (p.state==='airborne'||p.state==='dashing') &&
+      p.groundedPlatformId==null && Number.isFinite(p.vy);
     // In genuine 1x films, native pixels were >1s behind an already-returned
     // Three.js render: the old door vanished before a single shared old/new
     // physical world became visible. Hold the ORIGINAL uncollidable cap and

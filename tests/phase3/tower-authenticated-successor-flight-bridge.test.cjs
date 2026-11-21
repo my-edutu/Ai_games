@@ -79,3 +79,52 @@ test('the flight bridge cannot counterfeit old guardian victory, platform contac
       'invalid evidence must not color the real world');
   }
 });
+
+// Real physics keeps the airborne body in 'dashing' for three source ticks.
+// That is neither a new landing nor permission to invent guardian defeat.
+test('authentic unsupported F9 dash keeps the original open gateway and raised destination one physical route',async()=>{
+  const {observedSourceAirborneSuccessorApproach:approach,
+    observedSourceFloorNineRouteSupport:route,
+    observedSourcePhysicalArrivalPalette:palette,
+    observedSourceGatewayDeparturePresence:gate,
+    observedSourceOriginalVisibilityWindow:window}=await sourceModule;
+  const {source,held}=earnedAirborne();
+  source.player.state='dashing';
+  source.player.vy=1200;
+  const before=JSON.stringify({source,held});
+  const ground=source.platforms.find(p=>p.id==='f9:ground');
+  assert.equal(approach(source,held,held.oldRoofY),true);
+  assert.equal(route(source,ground,held.oldRoofY),true);
+  assert.equal(palette(source,held)?.sourceBound,true);
+  assert.equal(gate(source,held)?.sourceBound,true);
+  assert.equal(window(source,held)?.sourceBound,true);
+  assert.equal(JSON.stringify({source,held}),before,
+    'presentation never mutates the authoritative body, floor, HP or world');
+  for(const mutate of [
+    s=>s.player.grounded=true,
+    s=>s.player.groundedPlatformId='f9:ground',
+    s=>s.player.state='standing',
+    s=>s.player.vy=NaN,
+    s=>s.player.health=0,
+    s=>s.platforms[1].y=5000000,
+    s=>s.platforms[1].x=900000,
+    s=>s.runToken='foreign',
+    s=>s.lastGuardianCrossing={runToken:s.runToken,fromFloor:8,toFloor:9,
+      guardian:{kind:'guardian',active:true,health:2}}
+  ]){
+    const bad=earnedAirborne();bad.source.player.state='dashing';
+    mutate(bad.source);
+    assert.equal(approach(bad.source,bad.held,bad.held.oldRoofY),false);
+    assert.equal(palette(bad.source,bad.held),null,
+      'invalid dash cannot retain the real original guardian gateway');
+  }
+});
+
+test('world and optical room treat source dashing as current real flight, not a cosmetic landing',()=>{
+  const fs=require('node:fs'),path=require('node:path');
+  const world=fs.readFileSync(path.resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
+  assert.match(world,/const authenticRaisedFlight=.*observedSourceAirborneSuccessorApproach/s);
+  assert.match(world,/const onNewRoof=authenticRaisedFlight/);
+  assert.match(world,/const sourceFlight=p\?\.grounded===false &&[\s\S]*p\.state==='dashing'/);
+});

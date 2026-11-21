@@ -104,9 +104,13 @@ export function observedSourceFloorNineRouteSupport(source,ground,roofY) {
     // validator; the ground alone cannot claim this contact.
     return observedSourceSuccessorRaisedDeck(source,roofY);
   }
+  // The fixed-step source can remain 'dashing' for three ticks after the
+  // true takeoff; dropping its already painted gateway during that interval
+  // is a physical scene discontinuity. Require real unsupported velocity.
   // A body still in flight retains an original-ground corridor only.
   // Do not manufacture a future raised-platform landing from AI intention.
-  return insideGround && p.grounded===false && p.state==='airborne' &&
+  return insideGround && p.grounded===false &&
+    (p.state==='airborne'||p.state==='dashing') &&
     p.groundedPlatformId==null && Number.isFinite(p.vy);
 }
 
@@ -175,9 +179,13 @@ export function observedSourceAirborneSuccessorApproach(source,held,roofY) {
      source.tick<held.sourceTick ||
      source.tick-held.crossingTick>SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS ||
      source.tick<held.crossingTick ||
-     p.grounded!==false || p.state!=='airborne' ||
+     p.grounded!==false ||
+      (p.state!=='airborne'&&p.state!=='dashing') ||
      p.groundedPlatformId!=null || !Array.isArray(source.platforms))
     return false;
+  // A live F9 in-air dash belongs to the SAME source-certified flight, but
+  // only when the present 3D body can reach an actual F9 raised deck and
+  // prior original guardian defeat has been independently verified.
   const recorded=w!=null &&
     w.runToken===source.runToken && w.fromFloor===8 &&
     w.toFloor===9 && w.cap?.id==='f8:cap' &&
@@ -247,7 +255,8 @@ export function observedSourceRetainedRaisedExit(source,held,roofY) {
     return false;
   if(observedSourceSuccessorRaisedDeck(source,roofY))return true;
   const sole=p.y-p.halfHeight;
-  return p.grounded===false && p.state==='airborne' &&
+  return p.grounded===false &&
+    (p.state==='airborne'||p.state==='dashing') &&
     p.groundedPlatformId==null && Number.isFinite(p.vy) &&
     [p.x,p.y,p.halfHeight].every(valid) &&
     p.halfHeight>0 && Math.abs(p.x-held.thresholdX)<=100000 &&
@@ -794,8 +803,10 @@ export function observedCertifiedOriginalGatewayOpticalLease(source,held,handoff
      !(p.x-p.halfWidth>=held.thresholdX+4000 ||
        sole>=held.oldRoofY+70000) ||
      !(observedSourceSuccessorRaisedDeck(source,held.oldRoofY) ||
-       (p.grounded===false && p.state==='airborne' &&
-        p.groundedPlatformId==null && Number.isFinite(p.vy))))
+       (p.grounded===false && p.groundedPlatformId==null &&
+        Number.isFinite(p.vy) &&
+        (p.state==='airborne'||(p.state==='dashing' &&
+          observedSourceAirborneSuccessorApproach(source,held,held.oldRoofY))))))
     return null;
   const progress=Math.min(1,
     handoff.retirementSeconds/.95,handoff.retirementFrames/5);
