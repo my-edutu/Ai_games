@@ -74,7 +74,9 @@ export function sampleGardenEcotone(u,v,width,height){
   const planted=.66*ground.planted+.27*ground.litter+.16*ground.coolSlate;
   const forest=clamp(.79+planted*.19+leafWarp-sunstone*.98
     -exposedNorth*.52-exposedSouth*.49);
-  return {forest,limestone,sunstone};
+  // Source-backed rain-cut mineral intensity shared with the native stone
+  // vertex colours. It belongs to terrain geology, not leaf-fall floor data.
+  return {forest,limestone,sunstone,coolSlate:ground.coolSlate};
 }
 
 /**

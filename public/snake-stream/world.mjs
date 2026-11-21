@@ -1884,7 +1884,7 @@ export function createWorld(THREE, {width, height}) {
             const mossVariation=growth*(.07+.105*variation);
             colors[pi]=Math.max(0,Math.min(1,(item.tint?.r??1)*(1-mossVariation)+glint));
             colors[pi+1]=Math.max(0,Math.min(1,(item.tint?.g??1)*(1+.06*growth+.033*variation)-glint*.23));
-            colors[pi+2]=Math.max(0,Math.min(1,(item.tint?.b??1)*(1-.072*growth)+.035*floor.coolSlate));
+            colors[pi+2]=Math.max(0,Math.min(1,(item.tint?.b??1)*(1-.072*growth)+.035*habitat.coolSlate));
           }else{
             colors[pi]=item.tint?.r??1;colors[pi+1]=item.tint?.g??1;colors[pi+2]=item.tint?.b??1;
           }

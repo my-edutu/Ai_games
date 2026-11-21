@@ -1,10 +1,21 @@
 {
   "updatedAt": "2026-11-21",
-  "status": "T0 UNSIGNED / T1 BUILDING current parent whole-game SELF-REJECTED and new physically planted masonry VISUALLY UNJUDGED / T2-T3 BUILDING / T4 HARD RED e179 7/17",
-  "detail": "2026-11-21 exact e179 live parent: original strict full WebGL one-second 7 genuine completed/17 at 751x415, 511 GPU queue skips; 52/95 browser PASS, native CI FAILURE. Authenticated desktop/portrait still show dominant rectangular tiled court and tiny hero: T1 SELF-REJECTED. Integrated original static multi-cell limestone/forest ecotone 3D undercuts+same-material per-vertex field across entire real board, retaining safe serpent crowns, 13 original batches and authority. New exact parent RED -> candidate GREEN 2/2, selected 6/6, TS build and 900-tick truthful authority PASS; inherited historical 6/7. Candidate WebGL/45-90s footage/untouched 1s strict gate/display p95 and independent critique PENDING. Review docs/reviews/snake-gauntlet/2026-11-21-t1-planted-native-flagstone-continuity.md",
+  "status": "T0 UNSIGNED / T1 BUILDING exact parent catastrophically black and SELF-REJECTED; new native finite-material correction VISUALLY UNJUDGED / T2-T3 BUILDING / T4 HARD RED original 4/17",
+  "detail": "Open draft #52 immutable parent 4e65d2c9ca64f40dd56e0f15f5fa532d41e0adca. Genuine parent 1920 and 390 screenshot shows nearly completely black tiled courtyard, a severe regression from green/earthstone e179 parent. Root cause: floor.coolSlate undefined, NaN blue for all 840/4440/9720 real 3D stone vertices. Native corrected static stone colour field from existing weathered physical ecotone; verified source-archive hash plus Git source SHA; RED parent 0/2, GREEN source 4/4, 11/14 selected with 3 historical failures reproduced original, TS and 900-tick authority checksum 82492d82 PASS. Original strict 1s 4 genuine renderer submissions/17 at 751x415, 707 GPU skips, 52/95 browser, 733/808 native CI. NO new-head Chromium/film/FPS acceptance; local browser access denied by environment policy, not bypassed. See docs/reviews/snake-gauntlet/2026-11-21-t1-black-flagstone-nan-regression-repair.md",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Original e179 WebGL overview and portrait still obvious rectangular tiled court with tiny hero; true 7/17 strict 1s and 511 GPU queue skips. New source-native physically planted limestone vertex relief source-verified but NOT visually accepted.",
+  "latestCaption": "Latest real 4e65 Chromium courtyard nearly BLACK, due to 100% NaN blue in native stone geometry. Repair is source-exact RED/GREEN native only; visual acceptance unverified. Original mandatory 1-second test 4/17.",
   "reviews": [
+    {
+      "area": "2026-11-21 severe black limestone WebGL regression; source-exact native NaN material recovery",
+      "sourceHead": "4e65d2c9ca64f40dd56e0f15f5fa532d41e0adca",
+      "worldParentBlob": "0d3d38be56eedf512fc01240da0bead89e0cb723",
+      "worldCandidateBlob": "668785fcfb848441fbc4f40922312d47aee43eca",
+      "gardenCandidateBlob": "d59b69b8e9e9805a27095d4e0b7944401c9d5ae2",
+      "newTestBlob": "827a495334da11ec5115930be0966eb86b947002",
+      "native": "source exact parent RED 0/2, candidate GREEN 4/4; selected 11/14 with three original-parent-reproduced historical failures; TypeScript PASS; 900-tick authoritative checksum 82492d82 PASS",
+      "browser": "Original actual 4e65 Chromium run #44891921800: black whole playable board; unchanged strict one-second 4/17 genuine complete renders at 751x415, 707 GPU queue skips; 52/95 browser; 733/808 CI. No candidate-matched browser or physical present evidence.",
+      "verdict": "T0 UNSIGNED/T1 BUILDING last visual SELF-REJECTED and candidate UNJUDGED/T2-T3 BUILDING/T4 HARD RED/independent acceptance pending"
+    },
     {
       "area": "2026-11-21 T1 rooted physical limestone undercut and multi-cell baked vertex material; e179 strict WebGL hard red",
       "sourceHead": "e1793f84b1895f1a1b9bd1c32787fbbb941519e2",
