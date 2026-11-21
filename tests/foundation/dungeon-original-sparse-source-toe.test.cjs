@@ -319,6 +319,7 @@ test('RED: pinned original Walking_A toe keyframes can guide a strictly source-o
   ownerLocomotion:true,alive:true,visible:true,
   interrupted:false,teleport:false,reducedMotion:false,
   sourceToeBoneName:'toesr',side:'right',tracks,
+  sourceToeAppliedAxis:[1,0,0],
   sourceTimeSeconds,sourceDurationSeconds:duration,
   originalQuaternion:original,frameInterval:.0333};
  const result=m.planLicensedSourceToePhaseProbe(args);
@@ -328,6 +329,14 @@ test('RED: pinned original Walking_A toe keyframes can guide a strictly source-o
  assert.ok(result.extraAngleRad>-.099901&&result.extraAngleRad<.099901,
   'extra candidate must not spend more than witnessed 3rad/s');
  assert.ok(Math.abs(result.extraAngleRad)>=.018);
+ // The imported original Walking_A hinge audit may choose NEGATIVE local X
+ // as its peak licensed axis. The generated angle must therefore invert
+ // with the actual world-to-local source adapter, never invert the motion.
+ const reverseAxis=m.planLicensedSourceToePhaseProbe({
+  ...args,sourceToeAppliedAxis:[-1,0,0]});
+ assert.equal(reverseAxis?.source,result.source);
+ assert.ok(Math.abs(reverseAxis.extraAngleRad+result.extraAngleRad)<1e-7,
+  'source-sampled hinge direction must map to the signed imported joint axis');
  assert.equal(result.contactLocked,false);
  assert.equal(result.plantCertified,false);
  // Same verified source bone but different actual animation owners,
@@ -339,6 +348,9 @@ test('RED: pinned original Walking_A toe keyframes can guide a strictly source-o
   {ownerLocomotion:false},{alive:false},{visible:false},
   {interrupted:true},{teleport:true},{reducedMotion:true},
   {sourceToeBoneName:'toesl'}, {sourceTimeSeconds:.99},
+  {sourceToeAppliedAxis:undefined},
+  {sourceToeAppliedAxis:[0,1,0]},
+  {sourceToeAppliedAxis:[.1,.99,0]},
   {frameInterval:.5},{frameInterval:.005},
   {originalQuaternion:[0,0,0,1]},
   {tracks:[{name:'toesr.quaternion',times,values:Float32Array.from(values.slice(0,8))}]}
