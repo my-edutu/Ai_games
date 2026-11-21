@@ -4107,7 +4107,7 @@ export function createMazeWorld(options = {}) {
         // Reuse the original meshes; no new geometries, scene allocations,
         // walls, maps, AI authority, cues or hidden cells.
         const earnedOutboardFold=reduced?0:observedImpactDepth;
-        signal.observatory.instrument.rotation.x=signal.axis==='x'
+        signal.observatory.instrument.rotation.x=signal.axis==='x' && earnedOutboardFold>0
           ? -1.13*earnedOutboardFold : 0;
         signal.observatory.instrument.rotation.z=signal.axis==='z'
           ? 1.13*earnedOutboardFold : 0;
