@@ -37,3 +37,40 @@ export function publicEarnedCounterImpactStage(snapshot, actor, reducedMotion=fa
     beamActive:handoff>.02,
   };
 }
+
+
+/**
+ * A visible, source-earned physical counterwake, not a second damage effect.
+ * The scene ONLY invokes this after publicEarnedCounterImpactStage and the
+ * existing real, reciprocal OPEN 1/2-link lantern sightline both succeed.
+ * The trailing pulses travel at equal arc-length speed through the ACTUAL
+ * public bend, never cut diagonally through a wall or reveal a hidden cell.
+ * This is a pure presentation pose: no scene resources, AI or world mutation.
+ */
+export function publicEarnedCounterGroundWake(
+  phase,index,from,middle,to,reducedMotion=false){
+  if(reducedMotion||!Number.isFinite(phase)||phase<0||phase>=1
+    ||!Number.isSafeInteger(index)||index<0||index>2
+    ||![from?.x,from?.z,to?.x,to?.z].every(Number.isFinite)
+    ||(middle&&![middle.x,middle.z].every(Number.isFinite)))return null;
+  const start=.045+index*.105;
+  const progress=(phase-start)/.69;
+  if(progress<=0||progress>=1)return null;
+  const first=Math.hypot((middle?.x??to.x)-from.x,(middle?.z??to.z)-from.z);
+  const second=middle?Math.hypot(to.x-middle.x,to.z-middle.z):0;
+  const total=first+second;
+  // Hard bounds on a photographed 1/2-edge world motion; never paint a line
+  // between a teleport, an absent actor or a wholly unrelated map landmark.
+  if(first<.2||(middle&&second<.2)||total>15)return null;
+  const travel=progress*total;
+  const pastCorner=!!middle&&travel>first;
+  const fraction=pastCorner?(travel-first)/second:travel/first;
+  const a=pastCorner?middle:from;
+  const b=pastCorner?to:(middle??to);
+  return {
+    x:a.x+(b.x-a.x)*fraction,
+    z:a.z+(b.z-a.z)*fraction,
+    opacity:.82*Math.min(1,progress*5)*Math.min(1,(1-progress)*3),
+    scale:.85+.5*(1-progress),
+  };
+}
