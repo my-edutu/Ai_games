@@ -278,17 +278,26 @@
       "tests/phase3/tower-void-open-deck-truss.test.cjs"
     ],
     "qualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44909790676",
-    "qualityAtReview": "9/10 jobs completed successfully including all four Phase3 shards; final Phase6 still in progress. Not a final CI PASS.",
+    "qualityAtReview": "COMPLETE SUCCESS, 10/10 exact-source jobs on immutable production SHA; all 4 Phase3 shards passed, including all 3 new open-deck-truss tests (Phase3 shard2). CI is an engineering veto, not a positive experience verdict.",
     "freshSourcePinnedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44909790662",
-    "captureAtReview": "9 authentic baseline/candidate capture+ledge jobs in progress; paired source-to-native job not yet completed; no candidate visual acceptance claim.",
-    "nativeNewFootageInspection": "NOT EVALUATED (new immutable source recordings unfinished)",
+    "captureAtReview": "COMPLETE 9/9 original baseline/candidate 1x 60s+ video and genuine ledge jobs SUCCESS; pair-source-events job FAILED, strict source-event-to-native visual pairing 0/2. Overall capture workflow FAILED. No native visual acceptance.",
+    "nativeNewFootageInspection": "Original unedited candidate danger desktop 960x600 72.64s sha256:55359f2745ed43fe73f17e3f2566b311269f7ba4135ed510c774d4b5862b2ddf and portrait 390x844 72.28s sha256:e6fe6272628c67ece00eb5fff2f397d13465e0e9cc345e4ada201e484ad6f3b7: 24.50–30.25s native frames sampled at 0.25s. Warm F8 room persists through ~25.50 then F9 annulus and raised violet platform fill shot by ~25.75. Original gate, moving full hero and same-source walkable F9 do not remain clearly joined; open truss mesh was not a certified perception improvement. Original native-scene-phase.json reports 0-second warm/cool bridge both views, drawn HUD 9 at 25.75/25.50s, sustained violet scene at 27.50/27.25s; HUD lead 1.75s each; strict source/GPU/native timing not calibrated. This is sampled movie inspection, not blind critic evidence.",
     "realDeviceP50P95P99Memory": "NOT EVALUATED",
     "independentCriticCounts": {
       "LOOKS": "0/5",
       "FEELS": "0/5",
       "PLAYS": "0/5"
     },
-    "nextHighestImpactAction": "Read exact-source CI and new nine-job campaign. Inspect both full unedited desktop/portrait F8->F9 candidate WebMs around old opened guardian gate, current moving full-body climber, unchanged authentic f9:ground receiving roof and visible first raised destination. Require >=2 consecutive event-matched 1x native frames genuinely joined in both. If still a hard cut, fix original shared-gateway/upper platform camera depth and evidence pairing before P1. Supported-device frame-time/memory and independent randomized blind reviewers still missing.",
-    "constraints": "No frozen transformation.json edit, PR58 edit, non-Tower game edit, deployment, merge, undraft, force-push, gameplay authority or collider change. CI is veto, not transformation acceptance."
+    "nextHighestImpactAction": "Remain P0. Source-authentic F9 top/raised deck still appears without continuous recognized opened old gateway/whole hero/real F9 roof shot; source glyph is 1.75s ahead of successor scene in both views. Correct physically shared crossing camera and floor9 initial upper-platform staging together with calibrated event-to-render-native matching, then new exact-source normal-speed paired capture. No time-only/tint patches. Device performance and independent randomized critics still unverified.",
+    "constraints": "No frozen transformation.json edit, PR58 edit, non-Tower game edit, deployment, merge, undraft, force-push, gameplay authority or collider change. CI is veto, not transformation acceptance.",
+    "recordedOriginalVideoSeconds": {
+      "desktop": 72.64,
+      "portrait": 72.28
+    },
+    "originalVideoHashes": {
+      "desktop": "55359f2745ed43fe73f17e3f2566b311269f7ba4135ed510c774d4b5862b2ddf",
+      "portrait": "e6fe6272628c67ece00eb5fff2f397d13465e0e9cc345e4ada201e484ad6f3b7"
+    },
+    "strictPairedNativeAcceptance": "FAILED 0/2 desktop and portrait (pair-source-events job 136863871377)"
   }
 }
