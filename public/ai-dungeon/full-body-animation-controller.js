@@ -6281,6 +6281,34 @@ export function planLicensedSourceToePhaseProbe({
  });
 }
 
+/**
+ * A real authored 60Hz Walking_A toe arc can sit 10.02mrad from the
+ * existing +/-50.1mrad candidates after the independent <=3rad/s clamp.
+ * The former 12mrad dedup dropped that authentic source clip opportunity
+ * before ANY original shoe was sampled. Retain only one distinct
+ * source-owned alternative (<=3 total), to be tested and re-skinned by
+ * the renderer. Never certify a plant or a visible improvement here.
+ */
+export function appendLicensedSourceDistinctToeProbeAngles(
+ base,guide,sourceToeBoneName=''
+){
+ if(!Array.isArray(base)||base.length!==2||
+  !base.every(a=>finite(a)&&Math.abs(a)>=.018&&Math.abs(a)<=.160001))
+  return base;
+ if(!/^toes[lr]$/.test(sourceToeBoneName)||
+  guide?.source!=='original-Walking_A-authored-toe-phase'||
+  guide.sourceClip!=='Walking_A'||
+  guide.sourceBone!==sourceToeBoneName||
+  guide.sourceTrackName!==sourceToeBoneName+'.quaternion'||
+  guide.maxProbeCount!==1||
+  guide.contactLocked!==false||guide.plantCertified!==false||
+  !finite(guide.extraAngleRad)||
+  Math.abs(guide.extraAngleRad)<.018||
+  Math.abs(guide.extraAngleRad)>.12||
+  base.some(a=>Math.abs(a-guide.extraAngleRad)<=.004))return base;
+ return Object.freeze([...base,guide.extraAngleRad]);
+}
+
 export function planLicensedSourceToeChildContinuityCandidates({
  sourceInstanceId='',sourceClipName='',sourceClipTimeSeconds=NaN,
  sourceClipDurationSeconds=NaN,sourceWeight=NaN,
