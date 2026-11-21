@@ -6187,10 +6187,18 @@ export function planLicensedSourceToePhaseProbe({
  interrupted=false,teleport=false,reducedMotion=false,
  sourceToeBoneName='',side='',tracks=null,sourceToeAppliedAxis=null,
  sourceTimeSeconds=NaN,sourceDurationSeconds=NaN,
- originalQuaternion=null,frameInterval=NaN
+ originalQuaternion=null,frameInterval=NaN,
+ preferredAngleSign=null
 }={}){
  const swing=side==='right'?[.03,.335]:
   side==='left'?[.515,.875]:null;
+ // A preferred sign is permitted ONLY when the live renderer has already
+ // tested BOTH original skinned shoes, certified a toe-lifting source
+ // candidate, and supplied its signed local source-joint angle. A blindly
+ // larger neighboring source keyframe can rotate the original toe DOWN.
+ // Null retains the prior unconditioned diagnostic; invalid signs fail shut.
+ if(preferredAngleSign!==null&&
+  preferredAngleSign!==-1&&preferredAngleSign!==1)return null;
  if(!swing||sourceToeBoneName!=='toes'+(side==='right'?'r':'l')||
   sourceClipName!=='Walking_A'||sourceInstanceSame!==true||
   sourceToeTrackVerified!==true||sourceToeBoneParentVerified!==true||
@@ -6271,18 +6279,28 @@ export function planLicensedSourceToePhaseProbe({
   raw.push({extraAngleRad,sourceTargetTimeSeconds:t,
    authoredHalfArcRad,rateBoundedPartialArc:partialArcRad<authoredHalfArcRad});
  }
- if(!raw.length)return null;
+ // The source clip has BOTH advancing and rewinding neighboring key arcs.
+ // A mathematically larger arc is not automatically the one which lifts the
+ // genuine shoe. When a same-frame original two-shoe skin certificate has
+ // proved which signed local-X motion is safe, select the authentic neighbor
+ // in that SAME signed direction instead of spending the one extra original
+ // skin read on the opposite toe-down pose.
+ const candidates=preferredAngleSign===null?raw:
+  raw.filter(candidate=>
+   Math.sign(candidate.extraAngleRad)===preferredAngleSign);
+ if(!candidates.length)return null;
  // One additional TWO-shoe skinned trial at most; never a dynamic search.
- raw.sort((a,b)=>Math.abs(b.extraAngleRad)-Math.abs(a.extraAngleRad));
+ candidates.sort((a,b)=>Math.abs(b.extraAngleRad)-Math.abs(a.extraAngleRad));
+ const selected=candidates[0];
  return Object.freeze({
   source:'original-Walking_A-authored-toe-phase',
   provenance:'licensed-original-clip-'+base.sourceKeyframeCount+'-keyframe-diagnostic',
   sourceTrackName:base.sourceTrackNames[0],
   sourceBone:sourceToeBoneName,sourceClip:'Walking_A',
-  sourceTimeSeconds,sourceTargetTimeSeconds:raw[0].sourceTargetTimeSeconds,
-  extraAngleRad:raw[0].extraAngleRad,
-  authoredHalfArcRad:raw[0].authoredHalfArcRad,
-  rateBoundedPartialArc:raw[0].rateBoundedPartialArc,
+  sourceTimeSeconds,sourceTargetTimeSeconds:selected.sourceTargetTimeSeconds,
+  extraAngleRad:selected.extraAngleRad,
+  authoredHalfArcRad:selected.authoredHalfArcRad,
+  rateBoundedPartialArc:selected.rateBoundedPartialArc,
   maxProbeCount:1,sourceKeyframeCount:base.sourceKeyframeCount,
   contactLocked:false,plantCertified:false
  });
