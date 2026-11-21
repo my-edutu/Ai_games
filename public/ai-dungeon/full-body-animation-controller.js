@@ -5303,7 +5303,8 @@ export function advanceFullBodyVisibleActionAge(elapsed,options={}){
 export function planImportedLivingSourceStep({mode='idle',age=0,sourceTime=0,
  sourceDuration=0,effectiveSpeed=1,frameDelta=0,frameInterval=frameDelta,
  reducedMotion=false,visible=true,groundedTravel=0,groundedMoving=false,
- walkingClip=false,teleport=false}={}){
+ walkingClip=false,teleport=false,sourceClipName='',
+ sourceNativeWalkingVerified=false}={}){
  const ordinary=finite(frameDelta)?clamp(frameDelta,0,.05):0;
  // Authentic Walking_A has a 41-joint foot cycle but sparse WebGL delivery
  // previously advanced its imported clip by 50ms while the actual actor root
@@ -5325,8 +5326,15 @@ export function planImportedLivingSourceStep({mode='idle',age=0,sourceTime=0,
    // interval, but ZERO measured root travel. Holding the real source
    // joint clock avoids fabricating 50ms of shoe motion. This is NOT a
    // source contact lock. Fade weights advance on a separate mixer clock.
+   // Original 08118b38 organic footage delivered a 1.358s median desktop
+   // frame gap. A verified licensed Walking_A skeleton at zero measured root
+   // travel must not spend 50ms of native shoe motion just because capture
+   // was delayed; the separate mixer fade still advances. Fail closed for
+   // other clips/unknown rigs and excessive (>2s) unsupported gaps.
+   const verifiedSparseStill=frameInterval>1.2&&frameInterval<=2&&
+    sourceClipName==='Walking_A'&&sourceNativeWalkingVerified===true;
    return groundedMoving===false&&groundedTravel<=.0015&&
-    frameInterval<=1.2?0:ordinary;
+    (frameInterval<=1.2||verifiedSparseStill)?0:ordinary;
   // Base source gait time on the SAME real root travel at 60Hz and slow capture.
   // Fixed-frame playback at ordinary rates previously lagged a fast-moving
   // root and oversped a creeping actor relative to its real footfall phase.
@@ -5900,6 +5908,7 @@ export function planImportedWalkingBlendRate({mode='idle',sourceStep=0,
  effectiveSpeed=1,walkingClip=false,groundedMoving=false,groundedTravel=0,
  sourceClipName='',sourceInstanceSame=false,sourceFadeStartedThisFrame=false,
  transitionFromClip='',transitionFadeSeconds=NaN,sourceWeight=NaN,
+ sourceNativeWalkingVerified=false,
  teleport=false,reducedMotion=false,visible=true}={}){
  const visibleStep=planImportedWalkingMixerFrameDelta({
   mode,walkingClip,frameDelta,frameInterval,sourceStep,sourceDuration,
@@ -5920,7 +5929,9 @@ export function planImportedWalkingBlendRate({mode='idle',sourceStep=0,
  // original knees/ankles remain stopped, never inventing root travel.
  if(groundedMoving!==true)
   return groundedMoving===false&&groundedTravel<=.0015&&
-   frameInterval<=1.2&&sourceStep===0?0:null;
+   (frameInterval<=1.2||(frameInterval>1.2&&frameInterval<=2&&
+    sourceClipName==='Walking_A'&&sourceNativeWalkingVerified===true))&&
+   sourceStep===0?0:null;
  return sourceStep/visibleStep;
 }
 
