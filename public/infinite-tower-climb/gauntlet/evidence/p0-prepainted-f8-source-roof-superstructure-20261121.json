@@ -43,7 +43,7 @@
     "lastStrictNativeEventPairing": "FAILED desktop/portrait 0/2",
     "meaningfulChange": "Carry same already-rendered Floor8 central lower drum, upper crown, and open structural ribs through source-earned HP-zero same-run Floor9 passage as a bounded historical WebGL owner; independent opaque-to-transparent source-timed material and actual transferred mesh diagnostics. No new gameplay collider, portal, platform or victory",
     "codeGreen": "PENDING exact production SHA quality checks; RED confirmed against prior source",
-    "newNativeVisualAcceptance": "NOT EVALUATED — nine-job immutable-SHA capture in progress",
+    "newNativeVisualAcceptance": "FAILED strict event/native danger pair for both viewports (0/2), source/noninteractive 3D group transfer independently verified. Leading NOT EVALUATED",
     "biggestNativeFilmDefect": "Previous native desktop+portrait film hard-cuts bronze original guardian room to broad violet Floor9 environment; still no continuous event-matched shared original arch/full moving climber/walkable roof evidence",
     "independentCritics": {
       "LOOKS": "0/5",
@@ -56,7 +56,7 @@
       "frameTimeP99": "NOT EVALUATED",
       "memory": "NOT EVALUATED"
     },
-    "nextHighestImpact": "Check true transferred original central source core mesh count/opacity, original gateway plus Floor9 walkable roof co-visibility in new original 1x WebMs and strict source/video pairing; if failed repair measured camera/world 3D depth ownership; keep P0 OPEN",
+    "nextHighestImpact": "Use exact matched source WebM timeline to correct scene/camera old/new depth composition and source-to-native temporal event phase (HUD lags source 1.50s desktop/1.07s portrait; saturated violet 2.25s/1.82s). Distinguish physical gateway steel actually painted in foreground of real moving hero from old source GPU ownership and sky color. Then recapture 60s+ 1x and event align. No more cosmetic additions.",
     "safeguards": {
       "baselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
       "pr68Draft": true,
@@ -65,6 +65,47 @@
       "noDeploy": true,
       "noForcePush": true,
       "noUnrelatedGames": true
+    },
+    "testFormattingFollowUpCommit": "fd6ff17564013c9fab77a50e1ff235aa0ed8acf2",
+    "exactExecutableQuality": "10/10 SUCCESS, all four Phase3 Tower shards and full job matrix; https://github.com/my-edutu/Ai_games/actions/runs/44862381077",
+    "exactExecutableQualitySha": "fd6ff17564013c9fab77a50e1ff235aa0ed8acf2",
+    "exactSourceGameplayCampaignResult": "8/8 genuine baseline/candidate 1x films and 1/1 authentic ledge SUCCESS; strict source/event to native danger pairing FAILED both desktop and portrait (0/2)",
+    "exactSourceGameplayCampaignPairingJob": "https://github.com/my-edutu/Ai_games/actions/runs/44862181637/job/136718670013",
+    "sourceOwnedCoreGpuWitness": {
+      "desktop": {
+        "meshCount": 3,
+        "sceneOwned": true,
+        "alphaAtFirstF9": 1
+      },
+      "portrait": {
+        "meshCount": 3,
+        "sceneOwned": true,
+        "alphaAtFirstF9": 1
+      },
+      "caveat": "World-owned transferred Three meshes at first Floor9 renderer submission; NOT native pixels or experience acceptance"
+    },
+    "decodedNativeOriginalWebMs": {
+      "desktop": {
+        "durationSec": 71.68,
+        "sha256": "fe45b648a99fa794be2fda6f16f46a3471cc4d7c7f463e15bdb034c69e498cce",
+        "floor9HudAtSec": 25.75,
+        "firstSustainedVioletAtSec": 26.5,
+        "chromaBridgeSec": 0,
+        "browserAcceptedToF9RendererReturnMs": 547,
+        "firstF9SceneUpdateMs": 168.6,
+        "firstF9RendererReturnMs": 108.1
+      },
+      "portrait": {
+        "durationSec": 71.64,
+        "sha256": "7bc14c86c59334672212e2267e084da995a4bc9e98e282efa20da22072654c7c",
+        "floor9HudAtSec": 25.25,
+        "firstSustainedVioletAtSec": 26,
+        "chromaBridgeSec": 0,
+        "browserAcceptedToF9RendererReturnMs": 543,
+        "firstF9SceneUpdateMs": 169.5,
+        "firstF9RendererReturnMs": 83.2
+      },
+      "evidenceCaveat": "SHA checked against unmodified source-pinned native-scene-phase sidecars; GPU owner snapshots/graphics-tier color are not proof of strict event-to-film correspondence; browser times are not actual-device p50/p95/p99 or GPU FPS"
     }
   }
 }
