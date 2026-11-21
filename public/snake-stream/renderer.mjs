@@ -38,6 +38,35 @@ export function canReuseStaticWorldCache({ sourceWidth, sourceHeight, presentWid
  * Full-world rebuilds and real CSS changes invalidate the key separately.
  * No extra framebuffer, upload, scene pass or GL synchronization is created.
  */
+/**
+ * Split genuinely immutable scenery from topology-sensitive public props.
+ * Instanced obstacles and portal furniture must stay live: a seeded topology
+ * update must not turn the entire woodland/ruins HDR cache into a cache miss.
+ * Layer 0 remains enabled for unchanged, complete direct WebGL rendering.
+ */
+export function partitionWorldRenderLayers(group, { staticLayer = 1, dynamicLayer = 2 } = {}) {
+  let staticMeshes = 0, liveProps = 0, otherDynamicMeshes = 0;
+  group.traverse(object => {
+    if (!object.isMesh) return;
+    if (object.userData.staticWorld && !object.userData.cachedProp) {
+      object.layers.enable(staticLayer);
+      staticMeshes++;
+      return;
+    }
+    object.layers.enable(dynamicLayer);
+    object.castShadow = false;
+    if (object.userData.cachedProp) liveProps++;
+    else otherDynamicMeshes++;
+  });
+  return { staticMeshes, liveProps, otherDynamicMeshes };
+}
+
+/** Only photographed world, camera and atmosphere may invalidate scenery. */
+export function staticWorldViewSignature({ dimensions, fog, exposure, camera }) {
+  return [dimensions, fog.near, fog.far, exposure,
+    ...camera.matrixWorld.elements, ...camera.projectionMatrix.elements].join('|');
+}
+
 export function selectStaticWorldCachePath({ cacheHit = false, pressureDirect = false } = {}) {
   if (pressureDirect) return 'direct-preserve';
   return cacheHit ? 'compose' : 'rebuild';
@@ -433,11 +462,12 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     }
     renderer.getDrawingBufferSize(cacheSize);
     camera.updateMatrixWorld();
-    // The static photograph is independent of water-sampling quality and
-    // output raster pixel count. Gameplay props, complete camera pose, fog,
-    // exposure and board identity remain mandatory exact-match inputs.
-    const key = [dimensions, world.propRevision?.() || 0, scene.fog.near, scene.fog.far,
-      renderer.toneMappingExposure, ...camera.matrixWorld.elements, ...camera.projectionMatrix.elements].join('|');
+    // The static photograph contains ONLY immutable world and foliage.
+    // Public obstacle/portal instanced props now live in the dynamic depth-
+    // tested scene, so their revision no longer invalidates this expensive
+    // full-landscape cache. Camera, fog, exposure and board remain exact.
+    const key = staticWorldViewSignature({ dimensions, fog: scene.fog,
+      exposure: renderer.toneMappingExposure, camera });
     const cacheHit = canReuseStaticWorldCache({
       sourceWidth: staticTarget?.width, sourceHeight: staticTarget?.height,
       presentWidth: cacheSize.x, presentHeight: cacheSize.y,
@@ -462,7 +492,8 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     // follow the original complete-scene direct-preserve recovery path.
     const newlyAdmitted = !cacheAdmissionReady;
     cacheAdmissionReady = true;
-    // The exact camera+projection+prop+fog key is the only stable-shot identity.
+    // The exact camera+projection+fog key is the stable-scenery identity.
+    // Topology-sensitive public props are always rendered live.
     // Direct frames in transit never certify the settled camera: they don't
     // enter this key path. A topology/portal change changes the key and resets
     // the fence watermark before any new whole-scene cache work.
@@ -492,7 +523,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       // A direct full scene from camera B must NOT destroy the genuine static
       // color/depth photograph of camera A. The exact-match key rejects B;
       // returning to A can reuse its complete original 3D view immediately.
-      // A new world, changed props/CSS or disposal still invalidates normally.
+      // A new world, changed camera/CSS or disposal still invalidates normally.
       pressureDirectFrames++;
       renderer.render(scene, camera);
       // Only a complete, actually submitted direct full-scene draw is eligible
@@ -718,16 +749,13 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       // BEGIN R43 WATER SAMPLING INIT
       if (quality === 'low') configureLowQualityWaterSampling(world, THREE);
       // END R43 WATER SAMPLING INIT
-      staticMeshCount = 0;
-      world.group.traverse(object => {
-        if (!object.isMesh) return;
-        if (object.userData.staticWorld || object.userData.cachedProp) {
-          object.layers.enable(STATIC_LAYER); staticMeshCount++;
-          // The reusable shadow map contains decorative scenery only.
-          if (object.userData.cachedProp) object.castShadow = false;
-        }
-        else { object.castShadow = false; object.layers.enable(DYNAMIC_LAYER); }
+      // Scenery is still the original complete, quality-preserving static
+      // layer. Six existing obstacle/portal instanced meshes render live with
+      // serpent/water, keeping depth and cues truthful on any topology change.
+      const worldLayers = partitionWorldRenderLayers(world.group, {
+        staticLayer: STATIC_LAYER, dynamicLayer: DYNAMIC_LAYER,
       });
+      staticMeshCount = worldLayers.staticMeshes;
       // A newly constructed world must obtain its own completed full-scene
       // fence; counters from the prior board may not authorize an HDR bake.
       cacheAdmissionReady = false;

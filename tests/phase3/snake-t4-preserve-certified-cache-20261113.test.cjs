@@ -24,7 +24,9 @@ test('pressure-direct render is the actual full 3D scene and cannot erase the ce
   assert.ok(pressure, 'the real pressure branch must exist');
   assert.match(pressure, /pressureDirectFrames\+\+;\s*renderer\.render\(scene, camera\);/);
   assert.doesNotMatch(pressure, /invalidateStaticCache\(/);
-  assert.match(render, /const key = \[dimensions, world\.propRevision/);
+  assert.match(render, /const key = staticWorldViewSignature\(/);
+  assert.match(source, /export function partitionWorldRenderLayers\(/);
+  assert.doesNotMatch(source, /const key = \[dimensions, world\.propRevision/);
   assert.match(render, /sameCssLayout: cachedCssLayout === lastCssLayout/);
 });
 

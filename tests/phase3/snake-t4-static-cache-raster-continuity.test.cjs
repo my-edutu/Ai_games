@@ -36,7 +36,9 @@ test('production code preserves exact cached static view when only quality and p
   assert.match(source,/canReuseStaticWorldCache\(\{[\s\S]*?staticTarget\?\.width/);
   assert.match(source,/const cacheHit\s*=\s*canReuseStaticWorldCache\(/);
   assert.match(source,/if\s*\(!cacheHit\s*&&\s*\(!staticTarget/);
-  assert.match(source,/const\s+key\s*=\s*\[dimensions,\s*world\.propRevision/);
+  assert.match(source,/const\s+key\s*=\s*staticWorldViewSignature\(/);
+  assert.match(source, /export function partitionWorldRenderLayers\(/);
+  assert.doesNotMatch(source, /const key = \[dimensions, world\.propRevision/);
   assert.doesNotMatch(source,/const\s+key\s*=\s*\[dimensions,\s*quality,/);
   assert.match(source,/if\s*\(key\s*!==\s*staticKey\s*\|\|\s*\(!cacheHit\s*&&\s*renderer\.shadowMap\.needsUpdate\)\)/);
   assert.match(source,/function invalidateStaticCache\(\{\s*preserveView\s*=\s*false\s*\}/);
