@@ -20,6 +20,7 @@ import { observedEarnedFarSideShaftOverlap, observedReturnedGroundedGatewayFadeS
 import { chooseSourceEarnedFirstReturnInstancing } from './source-earned-first-return-instancing.mjs';
 import { observedReturnedSuccessorRoomReady, observedSupportedReturnedShaftDepth } from './original-room-returned-exit.mjs';
 import { projectOriginalGuardianGateSteel } from './original-guardian-gate-steel-projection.mjs';
+import { sourceReturnedGatewayDisplayDt } from './source-submitted-doorway-cadence.mjs';
 import { actualGatewayReceivingRoofSpans, actualGatewayReceivingLoadPathBays, actualGatewayReceivingGalleryCanopy, prebuildOriginalGuardianCanopyPlan, syncGatewayReceivingRoofColours, resetGatewayReceivingRoofColours } from './source-physical-receiving-roof.mjs';
 
 
@@ -3784,7 +3785,7 @@ export function createTowerWorld(){
       observedCrossingY:requested.observedCrossingY,
       observedHalfWidth:requested.observedHalfWidth,
       observedHalfHeight:requested.observedHalfHeight,
-      submittedFrames:0,visibleSeconds:0,
+      submittedFrames:0,visibleSeconds:0,lastCompletedReturnMs:null,
       firstObservedTick:requested.tick,firstWorldRenderTick:next.tick};
   }
   function updateRetainedCap(snapshot,dt,options,passageWitness) {
@@ -4611,6 +4612,8 @@ export function createTowerWorld(){
     // frame and failed GPU submissions cannot spend this visual clock.
     const shown = Number.isFinite(renderedDt)
       ? Math.min(.1,Math.max(0,renderedDt)) : 0;
+    // This runs only AFTER renderer.render successfully returned.
+    const completedReturnMs=performance.now();
     // Only returned WebGL Floor8 observations may preassemble source-authored
     // roof-bearing geometry. A stale poll, skipped source tick or speculative
     // future Floor9 never starts a preparation job.
@@ -4626,10 +4629,13 @@ export function createTowerWorld(){
       // painted an instant bronze->violet switch in both native 1x videos.
       // This cannot advance from a browser receipt, stale renderer frame,
       // another run, terminal state or failed GPU submission.
+      const bearingReturnStep=sourceReturnedGatewayDisplayDt(
+        renderedDt,bearingHandoff.lastCompletedReturnMs,completedReturnMs);
+      bearingHandoff.lastCompletedReturnMs=completedReturnMs;
       const next=advanceSourceEarnedPaletteReturn({
         returnedFrames:bearingHandoff.retirementFrames,
         returnedSeconds:bearingHandoff.retirementSeconds
-      },shown);
+      },bearingReturnStep);
       if(next) {
         bearingHandoff.retirementFrames=next.returnedFrames;
         bearingHandoff.retirementSeconds=next.returnedSeconds;
@@ -4652,8 +4658,15 @@ export function createTowerWorld(){
       held.lastReturnedOriginalGalleryOpacity=Math.max(0,
         Math.min(1,held.originalGallerySourceOpacity));
       held.lastReturnedOldGatewayTick=snapshot.tick;
+      const returnedGatewayStep=sourceReturnedGatewayDisplayDt(
+        renderedDt,held.lastCompletedReturnMs,completedReturnMs);
+      held.lastCompletedReturnMs=completedReturnMs;
       held.submittedFrames=Math.min(60,held.submittedFrames+1);
-      held.visibleSeconds=Math.min(3,held.visibleSeconds+shown);
+      // One actual WebGL-return cadence drives the original doorway, cap,
+      // gallery, roof and shared sky palette. A cold software renderer may
+      // return at 10Hz with an artificially clamped ~16ms RAF delta.
+      // Never grant more than 100ms for any SINGLE successful return.
+      held.visibleSeconds=Math.min(3,held.visibleSeconds+returnedGatewayStep);
     }
     const job=deferredDistantArrival;
     if(!job || options.stale || !snapshot ||
