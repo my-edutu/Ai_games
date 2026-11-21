@@ -5,8 +5,8 @@
   "verdict": "NOT EVALUATED",
   "frozenBaselineSourceSha": "1731b380851162741761c5569e2bc152a0869ca9",
   "candidateBeforeChangeSha": "fb6b44125c292cd2e9d28c6b37cc9af033070c8d",
-  "originalSourcePinnedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44885380309",
-  "originalUneditedCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44885380309/artifacts/14699911249",
+  "originalSourcePinnedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44891392237",
+  "originalUneditedCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44891392237/artifacts/14702072545",
   "authenticScenePairs": "8/8",
   "strictEventMatchedNativeViewports": "0/2",
   "originalFootage": {
@@ -50,18 +50,37 @@
       }
     }
   },
-  "fault": "Old-room 30-return forced retirement can cut a nearly opaque old gateway before the far-side-only 15-frame/1.65s fade has even begun. Native portrait tick516 still has 95.95% gateway opacity but tick538 has no retained original GPU gate; first visible total scene swap approximately 29s.",
-  "implemented": "Grounded authentic F9 roof exit can start fade after guardian HP0, true full-body clearance and separately returned nonzero successor shaft; same original gate/roof/core/gallery fade all share the earned receipt. The fade retains fifteen real returned frame requirement but fits .80s actual returned display time before the 30-return historical GPU ownership ceiling.",
-  "newProductionSourceSha": "c8ef6d29198520ed42a5ab91b63cbf237b17e464",
+  "fault": "Observed genuine source/native handoff remains unaccepted: latest source c8ef6d29 original full films show late, visually abrupt far Void scenery and lack a certified simultaneous opened old gate, complete moving actor and physical F9 roof. The distant world can be uploaded after one returned alpha-visible structural frame even while source-retained Clockwork is still opaque; delayed-scene data and missing diagnostic structural seconds caused a real Phase3 CI assertion failure.",
+  "implemented": "Production SHA 44b5912b gates late, noninteractive Void vista/citadel upload on at least six genuine nonzero incoming structural renderer returns AND >=0.52s of returned display time while a same-run HP0 original gateway owner exists; no independent wall clock, floor event, physics, colliders or authored assets introduced. The source visibility duration is now included in truthful diagnostics and regression test. After the real old owner retires, distant uploads are no longer withheld.",
+  "newProductionSourceSha": "44b5912b88814208de490dd6b672fb032d6369ae",
   "reviewerCounts": {
     "LOOKS": 0,
     "FEELS": 0,
     "PLAYS": 0
   },
   "hardwarePerformance": "NOT EVALUATED",
-  "freshCaptureStatus": "Source-pinned nine-job baseline/candidate capture https://github.com/my-edutu/Ai_games/actions/runs/44891392237 started; full native videos pending inspection",
-  "ciStatus": "Source c8ef6d quality 9/10 partial; Phase3 shard2 failed outdated exact-state assertion (expected awaiting-structural-submission, actual fading-remote-arrival after genuine returned shaft). Revised safety assertion now checks real structural returned-frame count and minimum display time; corrected-head CI pending.",
-  "nextAction": "Check revised exact-head Phase3 and source-pinned nine-job campaign; inspect both unchanged native films around F8=>F9, reject if gateway/camera/whole hero cut, keep P0.",
+  "freshCaptureStatus": "New exact-source 9-job baseline/candidate campaign https://github.com/my-edutu/Ai_games/actions/runs/44892713765 queued at verification; result and native event matching pending.",
+  "ciStatus": "Previous HEAD 6664a33d quality https://github.com/my-edutu/Ai_games/actions/runs/44891643085 failed Phase3 shard2 on missing/unsafe scenic state counters; prior source c8ef6d29 event-video pairing https://github.com/my-edutu/Ai_games/actions/runs/44891392237 failed 0/2. New exact production source 44b5912b quality https://github.com/my-edutu/Ai_games/actions/runs/44892713784 queued, not yet verified.",
+  "nextAction": "Check immutable source 44b5912b exact-head quality and all nine original gameplay jobs; inspect unchanged desktop/portrait native WebMs at 24–31s and full-motion, require strictly paired source events and continuous full actor, original gateway, real F9 ground and successor; if still failing, reopen scene/camera ownership in P0, no cosmetic patches. Supported actual-device p50/p95/p99 and memory plus independent 5x3 blind reviews remain NOT EVALUATED.",
   "safety": "No simulation, guardian, platforms, collision, PR58, frozen baseline or unrelated games changed.",
-  "qualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44891392196"
+  "qualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44891392196",
+  "pr68HeadBeforeWork": "6664a33d389801e881adf1bce73616759542c77c",
+  "previousProductionSourceSha": "c8ef6d29198520ed42a5ab91b63cbf237b17e464",
+  "latestInspectedCapture": {
+    "productionSourceSha": "c8ef6d29198520ed42a5ab91b63cbf237b17e464",
+    "campaign": "https://github.com/my-edutu/Ai_games/actions/runs/44891392237",
+    "sourceTimelinePairs": "8/8",
+    "nativeEventAlignedViewports": "0/2, strict veto",
+    "originalWebMSeconds": {
+      "desktop": 72.44,
+      "portrait": 72.56
+    },
+    "viewport": {
+      "desktop": "960x600",
+      "portrait": "390x844"
+    },
+    "inspectedNativeFrames": "Unedited candidate clips 24.0–31.0s sampled at 0.5s in both viewports; full films unmodified",
+    "primaryVisibleDefect": "Floor 9 draws a bronze receiving room after the HUD transition, but original gateway silhouette is lost as wide purple geometry dominates; desktop violet transition visible by 28.5s and portrait by 28.0s. Not a certified same-event continuous old-open-gate / full moving hero / walkable F9 room",
+    "limitation": "Visual sampling is not a calibrated source-to-WebM event alignment; strict pair gate remains 0/2"
+  }
 }
