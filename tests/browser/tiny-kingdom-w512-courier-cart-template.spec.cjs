@@ -92,6 +92,12 @@ for(const viewport of [{width:390,height:844},{width:1024,height:640}]){
   expect(cacheBefore.entries).toBeGreaterThan(0);
   expect(cacheBefore.floats).toBeLessThanOrEqual(cacheBefore.maxFloats);
   expect(cacheBefore.entries).toBeLessThanOrEqual(cacheBefore.maxEntries);
+  expect(cacheBefore.residentGpuEnabled).toBe(true);
+  expect(cacheBefore.residentGpuUploads).toBeGreaterThan(0);
+  expect(cacheBefore.residentDrawCalls).toBeGreaterThan(0);
+  expect(cacheBefore.residentFrameTriangles).toBeGreaterThan(0);
+  expect(cacheBefore.residentBufferCount).toBeLessThanOrEqual(cacheBefore.entries);
+  expect(cacheBefore.residentBufferBytes).toBeLessThanOrEqual(cacheBefore.maxFloats*4);
   expect(cacheBefore.economyMutated).toBe(false);
   await info.attach('w512-real-courier-template-on-'+viewport.width,{
    body:await page.screenshot(),contentType:'image/png'});

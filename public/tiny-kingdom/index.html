@@ -14999,6 +14999,68 @@ function rotateOriginalCourierCartVertices(vertices,start,x,z,angle){
 const ORIGINAL_CART_TEMPLATE_MAX_ENTRIES=12;
 const ORIGINAL_CART_TEMPLATE_MAX_FLOATS=120000;
 const originalCartTemplates=new Map();
+// W513: the real courier's unchanged timber, rims and escrow sacks reside on
+// the GPU for the entire bounded trip. Only motion roots/spokes change each tick.
+const originalCartResidentBuffers=new WeakMap(),originalCartResidentJobs=[];
+let originalCartResidentBufferCount=0,originalCartResidentBufferBytes=0,
+ originalCartResidentGpuUploads=0,originalCartResidentDrawCalls=0,
+ originalCartResidentLastTriangles=0,originalCartResidentFrameTriangles=0,
+ originalCartResidentFallbacks=0,originalCartResidentOverride=null;
+function releaseOriginalCartResidentMesh(mesh){
+ const buffer=originalCartResidentBuffers.get(mesh);
+ if(!buffer)return;
+ originalCartResidentBuffers.delete(mesh);
+ releaseGeometryBuffer(buffer);
+ originalCartResidentBufferCount--;
+ originalCartResidentBufferBytes-=mesh.byteLength;
+}
+function ensureOriginalCartResidentMesh(mesh){
+ if(!gpuAvailable||originalCartResidentOverride===false)return null;
+ const hit=originalCartResidentBuffers.get(mesh);
+ if(hit)return hit;
+ let buffer=null;
+ try{
+  buffer=gl.createBuffer();
+  if(!buffer)throw Error('real-cart-VBO-denied');
+  bindGeometry(buffer);
+  gl.bufferData(gl.ARRAY_BUFFER,mesh,gl.STATIC_DRAW);
+  if(gl.isBuffer&&!gl.isBuffer(buffer))throw Error('real-cart-VBO-invalid');
+  originalCartResidentBuffers.set(mesh,buffer);
+  originalCartResidentBufferCount++;
+  originalCartResidentBufferBytes+=mesh.byteLength;
+  originalCartResidentGpuUploads++;
+  return buffer;
+ }catch(error){
+  if(buffer)releaseGeometryBuffer(buffer);
+  originalCartResidentFallbacks++;
+  return null; // complete original animated CPU cart fallback
+ }
+}
+function setOriginalCourierCartResidentForTesting(value){
+ if(value!==null&&value!==true&&value!==false)
+  throw Error('Original cart GPU mode must be true, false or null');
+ originalCartResidentOverride=value;
+ cameraDynamicCache=null;cameraActorCache=null;cameraDynamicKey='';
+ lastFrozenFrameKey=null;presentationEpoch++;
+ return value!==false;
+}
+function drawOriginalCartResidentGpu(){
+ originalCartResidentLastTriangles=0;
+ if(!gpuAvailable||!originalCartResidentJobs.length)return;
+ gl.uniform1f(uniforms.workSkinActive,0);
+ try{
+  gl.uniform3f(uniforms.commuterOrigin,0,0,0);
+  for(const job of originalCartResidentJobs){
+   bindGeometry(job.buffer);
+   // Existing commuter shader applies EXACT original signed XZ cart rotation.
+   gl.uniform4f(uniforms.commuterMotion,job.x,job.z,job.y,job.angle);
+   gl.uniform1f(uniforms.commuterEnabled,1);
+   gl.drawArrays(gl.TRIANGLES,0,job.mesh.length/10);
+   originalCartResidentDrawCalls++;
+   originalCartResidentLastTriangles+=job.mesh.length/30;
+  }
+ }finally{gl.uniform1f(uniforms.commuterEnabled,0);}
+}
 let originalCartTemplateFloats=0,originalCartTemplateBuilds=0,
  originalCartTemplateReuses=0,originalCartTemplateEvictions=0,
  originalCartTemplateFallbacks=0,originalCartTemplateRollingFrames=0,
@@ -15007,7 +15069,9 @@ function setOriginalCourierCartTemplateForTesting(value){
  if(value!==null&&value!==true&&value!==false)
   throw Error('W512 original freight template override must be boolean or null');
  originalCartTemplateOverride=value;
+ for(const mesh of originalCartTemplates.values())releaseOriginalCartResidentMesh(mesh);
  originalCartTemplates.clear();originalCartTemplateFloats=0;
+ originalCartResidentJobs.length=0;originalCartResidentFrameTriangles=0;
  cameraDynamicCache=null;cameraActorCache=null;cameraDynamicKey='';
  lastFrozenFrameKey=null;presentationEpoch++;
  return value!==false;
@@ -15020,6 +15084,14 @@ function getOriginalCourierCartTemplateAudit(){
   bytes:originalCartTemplateFloats*4,builds:originalCartTemplateBuilds,
   reuses:originalCartTemplateReuses,evictions:originalCartTemplateEvictions,
   fallbacks:originalCartTemplateFallbacks,rollingFrames:originalCartTemplateRollingFrames,
+  residentGpuEnabled:gpuAvailable&&originalCartResidentOverride!==false,
+  residentBufferCount:originalCartResidentBufferCount,
+  residentBufferBytes:originalCartResidentBufferBytes,
+  residentGpuUploads:originalCartResidentGpuUploads,
+  residentDrawCalls:originalCartResidentDrawCalls,
+  residentFrameTriangles:originalCartResidentLastTriangles,
+  residentQueuedTriangles:originalCartResidentFrameTriangles,
+  residentFallbacks:originalCartResidentFallbacks,
   economyMutated:false,simulationChanged:false,physicalGpuFps:'NOT MEASURED'};
 }
 function realCourierCartTemplate(p,size){
@@ -15060,11 +15132,14 @@ function realCourierCartTemplate(p,size){
  }
  while(originalCartTemplates.size>=ORIGINAL_CART_TEMPLATE_MAX_ENTRIES||
   originalCartTemplateFloats+mesh.length>ORIGINAL_CART_TEMPLATE_MAX_FLOATS){
-  const oldest=originalCartTemplates.keys().next().value;
-  if(oldest===undefined)break;
-  const retired=originalCartTemplates.get(oldest);
-  originalCartTemplateFloats-=retired.length;
-  originalCartTemplates.delete(oldest);originalCartTemplateEvictions++;
+  // Do not retire a cart already queued for this ACTUAL displayed frame.
+   const oldest=[...originalCartTemplates.keys()].find(key=>
+    !originalCartResidentJobs.some(job=>job.mesh===originalCartTemplates.get(key)));
+   if(oldest===undefined){originalCartTemplateFallbacks++;return null;}
+   const retired=originalCartTemplates.get(oldest);
+   releaseOriginalCartResidentMesh(retired);
+   originalCartTemplateFloats-=retired.length;
+   originalCartTemplates.delete(oldest);originalCartTemplateEvictions++;
  }
  originalCartTemplates.set(key,mesh);originalCartTemplateFloats+=mesh.length;
  originalCartTemplateBuilds++;
@@ -15111,11 +15186,16 @@ function renderOriginalLiveCourierCart(p,compact=false){
  const angle=focus?Math.atan2(focus[0]-x,focus[1]-z):0;
  const template=realCourierCartTemplate(p,size);
  if(template){
-  appendOriginalCourierCartTemplate(template,x,y,z,angle);
+  const buffer=ensureOriginalCartResidentMesh(template);
+  if(buffer){
+   originalCartResidentJobs.push({buffer,mesh:template,x,y,z,angle});
+   originalCartResidentFrameTriangles+=template.length/30;
+  }else appendOriginalCourierCartTemplate(template,x,y,z,angle);
+  // Ten actual spokes continue rotating from original travelled distance.
   renderRealCourierRollingSpokes(p,x,y,z,size,angle);
   compactCitizenAnimation.lastAnimatedCartWheels+=2;
   originalCartTemplateRollingFrames++;
-  return (data.length-first)/10;
+  return (data.length-first)/10+(buffer?template.length/10:0);
  }
  // The complete ORIGINAL path is preserved for software allocation limits,
  // unsupported GPU, physical unloading, and explicit test rollback.
@@ -35664,6 +35744,7 @@ if(cameraMeshReused){
  if(!frozen&&speed>0)liveMotionCacheReuses++;
 }else{
  if(candidateCameraDynamicKey&&!frozen&&speed>0)liveMotionCacheBuilds++;
+ originalCartResidentJobs.length=0;originalCartResidentFrameTriangles=0;
  data=gpuAvailable?acquireDynamicVertexStream():scenicMeshCache.slice();
 directionalCastShadows(state.t);
 workdayRenderStats.animatedTools=0;
@@ -35848,6 +35929,7 @@ for(const {p,i,entry,compact} of [
   originalLiveCourierCartTriangles+=(data.length-before)/30;
  }
 }
+originalLiveCourierCartTriangles+=originalCartResidentFrameTriangles;
 householdCarriedSackStats.carriers=0;householdCarriedSackStats.receiptLinked=0;
 householdCarriedSackStats.triangles=0;
 for(const person of people)renderCarriedHouseholdProvisions(person);
@@ -35925,6 +36007,7 @@ const planes=gpuAvailable?sceneFrustumPlanes(m):null;
 const nonFieldTriangles=(gpuAvailable?landscapeMeshCache.length+scenicMeshCache.length+
  activeCivicMesh().length+activeCivicCoreMesh().length+
  homeClusterFloats()+data.length+
+ (gpuAvailable?originalCartResidentFrameTriangles*30:0)+
  (gpuAvailable&&actorStreamSplitEnabled?actorFrameData.length:0)+
  (economyResidentActive?economyResidentMesh?.length||0:0)+
  (ledgerWitnessResidentActive?ledgerWitnessResidentMesh?.length||0:0)+
@@ -36223,8 +36306,10 @@ if(gpuAvailable&&actorStreamSplitEnabled&&actorFrameData.length){
  }
  gl.drawArrays(gl.TRIANGLES,0,actorFrameData.length/10);
  actorGpuDrawCalls++;
-}
-dynamicPhaseTimes.actorGpuUploadAndDraw=performance.now()-actorGpuSubmitStart;
+ }
+ // Original escrowed shell included in issued-triangle and authentic gameplay.
+ drawOriginalCartResidentGpu();
+ dynamicPhaseTimes.actorGpuUploadAndDraw=performance.now()-actorGpuSubmitStart;
 // The authentic resting actors remain in the actual presented WebGL frame.
 // They are not counted as culled, hidden or removed from society.
 const lateResidentSubmitStart=performance.now();
@@ -36375,7 +36460,7 @@ drawForegroundResidentMesh();
  getFaceTopologyCacheAudit,getSimulationTickDebtAudit,
  getRestingActorResidencyAudit,getResidentCommuterAudit,getActorPresentationCoverageAudit,getWorkingResidentAudit,
  getWorkingSkinAudit,getWorkSkinPaletteAudit,getResidentGpuDistrictAudit,setWorkingSkinEnabledForTesting,
- getForegroundResidentAudit,getForegroundSkinAudit,getOriginalLiveCourierSkinAudit,getOriginalCourierCartTemplateAudit,setOriginalCourierCartTemplateForTesting,setForegroundResidentEnabledForTesting,
+ getForegroundResidentAudit,getForegroundSkinAudit,getOriginalLiveCourierSkinAudit,getOriginalCourierCartTemplateAudit,setOriginalCourierCartTemplateForTesting,setOriginalCourierCartResidentForTesting,setForegroundResidentEnabledForTesting,
  getSocialEncounterAudit:()=>cloneData(getSocialEncounterAudit()),
  getWorkIntentMemoAudit:()=>cloneData(getWorkIntentMemoAudit()),
  getRealWorksiteFrameAudit:()=>cloneData(getRealWorksiteFrameAudit()),
