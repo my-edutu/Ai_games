@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-21T15:00:33.074Z",
+  "updatedAt": "2026-11-21T16:41:52.244Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass559 rejected genuine Pass558 source ccf4a39d 320/390/844/1280 native WebGL lighting after SHA-verified 42/42 original PNGs + 3/3 gate hashes; 390/320 actor separation and clutter remain. Exact native original chapter reached exit tick136 and focused Maze passed, but whole-repo CI red at Tiny Kingdom OBS/uploads. Restored pre-Pass558 proven scene/camera source on current draft branch; new exact-HEAD CI NOT YET VERIFIED. Native public brace ray identifies noncolliding leaf 99 blocking Thornback boots as next source-specific composition work. Independent critic/Ultracode unavailable (NOT_FOUND). Fixed official Nintendo benchmark UNMET; no merge/deploy/force."
+    "summary": "Pass560 exact-source guardian threshold physical descent candidate on 74c889b9 baseline: previous WebGL 44916876779 success, downloaded original artifact 14711844790 SHA256 40a60a41, 42/42 full PNG sidecar hashes match; ray-identified public cell99 warning leaf physically crowds boots. New actual root descent 5.5cm on genuine brace and 31cm on witnessed sequential counter is pending new exact-HEAD focused tests/unaltered WebGL all viewports and independent critic; no visual win claimed. Whole CI 44916876798 failed Tiny Kingdom OBS/uploads. Original Nintendo benchmark UNMET. Workspace/critic NOT_FOUND; draft PR no merge/deploy/force."
   },
   "captures": [
+    {
+      "title": "Pass560 exact-base original native 74c889b9 44916876779 artifact 14711844790: 42/42 original PNG sidecar SHA verified. Joined physical guardian threshold descent candidate NOT TESTED / NOT VISUALLY APPROVED; benchmark unmet.",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44916876779/artifacts/14711844790"
+    },
     {
       "title": "Pass559 actual original Pass558 exact ccf4a39d native WebGL artifact 14710731883 SHA256 21a3e5aa: verified 42/42 full PNG sidecars, 3/3 authentic gate transitions, natural chapter exit tick136; full mobile A/B visually REJECTED, source restored",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44912139415/artifacts/14710731883"
