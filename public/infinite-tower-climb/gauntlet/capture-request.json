@@ -8380,5 +8380,39 @@
     },
     "actualDeviceMetrics": "NOT EVALUATED",
     "constraints": "Do not change baseline, PR58, unrelated games, PR draft status; never force-push, merge or deploy."
+  },
+  "p0OriginalGatewayReturnedCameraContinuousF9_20261121": {
+    "stage": "P0 OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSourceSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionSourceSha": "7b5eb33b5a55bf8850d85254ca4fbf43b02b14cf",
+    "candidateRef": "${{ github.sha }}",
+    "candidateRecording": "This request commit's full immutable SHA, not a moving branch head.",
+    "seed": "tower-transformation-capture-v1",
+    "conditions": {
+      "normalSpeed": 1,
+      "desktop": "960x600",
+      "portrait": "390x844",
+      "graphicsTier": "low",
+      "minimumClipSeconds": 60,
+      "scenarios": [
+        "ascent",
+        "moving-platform",
+        "danger/guardian",
+        "outcome/restart"
+      ]
+    },
+    "priorOriginalEvidence": "https://github.com/my-edutu/Ai_games/actions/runs/44914798510",
+    "priorNativeEventMatch": "FAILED 0/2; 8/8 clips and ledge returned but continuous opened original guardian gate / whole hero / actual F9 destination was NOT established",
+    "newSourceMechanic": "After a genuinely returned same-run HP0 bronze gateway leaves the GPU room, normal follow director camera may only release through real bounded orbit/radius/height/gaze increments; camera tests and source-state validation veto impossible or cropped frames.",
+    "specificEvaluation": "Decode original full 1x desktop/portrait danger WebM and authentic gameplay source metadata. Confirm same run tick, defeated HP0, physical old f8 gate/roof, actual f9:ground, visible full player, and first destination remain in consecutive frames. Look for repaired portrait camera reversals: old samples tick506→529 jumped 42.02m, tick529→551 reversed 30.96m (sampling intervals 723/874ms). Read returnedGatewayReleaseCamera accept/veto and sampled camera data; never mistake source camera NDC for rendered pixels.",
+    "reviewCounts": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDevicePerfAndMemory": "NOT EVALUATED",
+    "safety": "No frozen transformation.json, no PR58 change, unrelated games, merge, deploy, force-push or draft change. Workflow completion is not aesthetic success.",
+    "nextAction": "If P0 native event match still 0/2, reopen actual scene ownership and camera composition rather than adding another independent patch."
   }
 }
