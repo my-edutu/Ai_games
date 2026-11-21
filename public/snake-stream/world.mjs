@@ -450,6 +450,74 @@ export function buildRootedGroveCauseways(THREE,width,height,layer){
 }
 
 /**
+ * T1 eight original grounded four-shore woodland tie-ridges.
+ *
+ * The existing seven old-growth causeways terminate at distant anchors but
+ * leave long bare gaps along the near/east/west ruins. This second set of
+ * limestone + lichen spurs physically reconnects those gaps to the same
+ * natural island without moving, hiding or bridging any authoritative cell.
+ *
+ * Both returned meshes are strictly STATIC and are welded into the existing
+ * two original stone/moss material batches by createWorld. They introduce
+ * no new draw object, shader, texture, shadow pass, live-frame CPU work,
+ * simulation state or licensed asset.
+ */
+export function buildFourShoreWoodlandSpurs(THREE,width,height,layer){
+  if(!Number.isInteger(width)||!Number.isInteger(height)||width<2||height<2||
+      width>2048||height>2048||!['bedrock','moss'].includes(layer))
+    throw new RangeError('Four-shore woodland ties require valid public board dimensions and material layer');
+  const W=width/2,H=height/2,stone=layer==='bedrock';
+  const transverse=stone?[-1,-.86,-.42,0,.42,.86,1]:[-.47,0,.47];
+  const positions=[],uvs=[],indices=[];
+  function appendFace(a,b,c){
+    const ax=positions[a*3],az=positions[a*3+2];
+    const bx=positions[b*3],bz=positions[b*3+2];
+    const cx=positions[c*3],cz=positions[c*3+2];
+    if((bz-az)*(cx-ax)-(bx-ax)*(cz-az)>0)indices.push(a,b,c);
+    else indices.push(a,c,b);
+  }
+  const spurSections=5;
+  for(let side=0;side<4;side++)for(let mouth=0;mouth<2;mouth++){
+    const horizontal=side<2,sign=(side===0||side===2)?-1:1;
+    const span=(horizontal?W:H)-1;
+    const anchor=(mouth===0?-.43:.44)*span;
+    const first=positions.length/3,n=transverse.length;
+    for(let section=0;section<spurSections;section++){
+      const t=section/(spurSections-1);
+      const mouthWander=.30*Math.sin(Math.PI*t)*Math.sin(t*5.9+side*1.3+mouth*2.5);
+      const along=anchor+mouthWander;
+      // Every real stone vertex remains strictly beyond outermost game cell.
+      const rim=1.22+t*(1.55+Math.min(1.25,Math.min(width,height)*.066));
+      const breadth=(.53+.40*Math.sin(Math.PI*t)**.8)*(.85+.15*Math.cos(side*1.7+mouth+t*5.1));
+      const crown=-.22-.49*t**1.42+.065*Math.sin(Math.PI*t);
+      for(let k=0;k<n;k++){
+        const u=transverse[k],cross=u*breadth;
+        const x=horizontal?along+cross:sign*(W+rim);
+        const z=horizontal?sign*(H+rim):along+cross;
+        // Lichen follows the true original stone upper bank, with the real
+        // rock sidewalls descending into the sea shelf, never into gameplay.
+        const y=stone?(Math.abs(u)>.95?crown-1.22:
+          Math.abs(u)>.70?crown-.52:Math.abs(u)>.32?crown-.10:crown-.18)
+          :crown+.07*(1-Math.abs(u))-.035*Math.abs(u);
+        positions.push(x,y,z);uvs.push(x/5+.5,z/5+.5);
+      }
+      if(section)for(let k=0;k<n-1;k++){
+        const a=first+(section-1)*n+k,b=first+section*n+k;
+        appendFace(a,b,b+1);appendFace(a,b+1,a+1);
+      }
+    }
+  }
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+  g.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
+  g.setIndex(indices);g.computeVertexNormals();g.computeBoundingSphere();
+  g.userData.shoreRootTies=8;
+  g.userData.shoreRootStrips=8;
+  g.userData.shoreRootTriangles=indices.length/3;
+  return g;
+}
+
+/**
  * T1 - authentic original continuous eroded island strata, beneath the unchanged
  * playable slab grid. This replaces the old two orthogonal foundation boxes.
  * It is static, deterministic, original geometry: no game cells, props, water
@@ -1479,6 +1547,10 @@ export function createWorld(THREE, {width, height}) {
   const rootedMantle = geometry(buildErodedIslandShelfGeometry(THREE, width, height, 'moss'));
   appendOriginalCoastGeometry(erodedCliff,buildRootedGroveCauseways(THREE,width,height,'bedrock'));
   appendOriginalCoastGeometry(rootedMantle,buildRootedGroveCauseways(THREE,width,height,'moss'));
+  // One original baked world per material: complete new four-shore physical
+  // tie-ridges attach to the SAME original stone/moss batches, not new draws.
+  appendOriginalCoastGeometry(erodedCliff,buildFourShoreWoodlandSpurs(THREE,width,height,'bedrock'));
+  appendOriginalCoastGeometry(rootedMantle,buildFourShoreWoodlandSpurs(THREE,width,height,'moss'));
   add(erodedCliff, cliff, 0, 0, 0);
   add(rootedMantle, moss, 0, 0, 0);
   // T1 EXPOSED COAST REMNANTS — the giant straight rear shelf previously

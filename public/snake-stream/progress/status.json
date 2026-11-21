@@ -1,10 +1,20 @@
 {
   "updatedAt": "2026-11-21",
-  "status": "T0 UNSIGNED / T1 BUILDING parent 0e7f visually SELF-REJECTED; new full-court physical loam candidate unjudged / T2-T3 BUILDING / T4 HARD RED original 0e 9/17",
-  "detail": "2026-11-21 T1 whole-board physical forest terraces, exact parent 0e7f242; new source unjudged. Parent Chromium #44862156875 original strict 1-second 9/17 genuine complete renderer submissions at 751x415, 659 GPU skips (61 RAF not accepted); parent CI #44862156884 729/803. Same-head 1920/portrait real-WebGL imagery and unmodified 55s game STILL show severe rectangular dark-green tiled court, mint bed ribbons and undersized overview face: T1 SELF-REJECT. Native RED parent->GREEN physically planted earth coverage 28x16 20.6% to 31.1%, 40x24 15.6% to 23.7%, unchanged 8x8 ecology, same 1 mesh/no new textures, original high-board 71 fern clumps, all triangles <3100 and clearance below y=.021. TS/900-tick self-test checksum 82492d82 PASS; selected native 6/10 with same 4 parent failures (historical exact-source assertions and old sediment color gate). This does NOT prove actual new-head visual gain or physical device presents. Next Actions new-head whole-game visual and strict original T4, then refactor T1 if rectangular. T0 unsigned, T1 BUILDING unjudged, T2/T3 BUILDING, T4 HARD RED, independent critic PENDING. Never merge/deploy/force push.",
+  "status": "T0 UNSIGNED / T1 BUILDING parent e7aa visually SELF-REJECTED; eight real four-shore woodland ties candidate VISUALLY UNJUDGED / T2-T3 BUILDING / T4 HARD RED original e7aa 6/17",
+  "detail": "2026-11-21 exact open draft PR #52 e7aa3b3 head: completed genuine Chromium #44868939221 strict original 1s 6/17 complete renderer submissions at 751x415 and 530 GPU queue skips, 50/95 browser, 730/804 native CI. Actual unmodified overview remains a rectangular court with tiny serpent, T1 visually SELF-REJECTED. Source-exact eight native outboard woodland ties into existing stone and moss static batches RED parent->GREEN on all public sizes, TS+900tick PASS; new-head visual / strict browser performance / physical FPS / independent critic pending. Review: docs/reviews/snake-gauntlet/2026-11-21-t1-four-shore-woodland-ties.md",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Original 0e same-head real Chromium 1920/portrait and 55s game still rectangular/mint; actual unchanged strict 1s 9/17, 659 queue skips. Native expanded loam geometry GREEN only; actual new-source full-game acceptance PENDING.",
+  "latestCaption": "Actual e7aa parent entire genuine playable overview still rectangular and serpent too small. Original strict 1s 6 actual draws /17, 530 GPU skips; new eight-shore physical terrain has only native evidence, is visually UNJUDGED.",
   "reviews": [
+    {
+      "area": "2026-11-21 T1 true eight four-shore static woodland joins; e7aa true WebGL 6/17",
+      "sourceHead": "e7aa3b384dc2776468e7183910f7efa9d34386d2",
+      "worldParentBlob": "e5c988a7f0b57374b62a5d30a17b9484515f8751",
+      "worldCandidateBlob": "f34f0951e8bbee8545461462970b1125a63f48e5",
+      "newTestBlob": "5f37a562712a1fa8368cff9c301cb382c1656aaf",
+      "browser": "e7aa Chromium #44868939221 untouched 6/17 at 751x415, 530 GPU queue skips, 50/95 browser; actual parent whole-game visibly square. New candidate source-matched browser PENDING",
+      "native": "New RED parent->GREEN in 8x8,28x16,40x24 in bedrock+moss, old 7-grove invariant 3/3, focused 4/4 and related 9/10 one inherited parent exact fail, TS 900-tick original checksum PASS",
+      "verdict": "T0 UNSIGNED; T1 BUILDING, parent visual SELF-REJECTED/candidate unjudged; T2/T3 BUILDING; T4 HARD RED 6/17; independent critic pending"
+    },
     {
       "area": "2026-11-21 T1 physically contiguous full-board forest floor",
       "sourceHead": "0e7f242ad4259aff5d34e09d521bb20d0c1c9229",
@@ -1417,9 +1427,9 @@
     "firstImplementationPlan": "docs/superpowers/plans/2026-11-01-autonomous-snake-transformation.md",
     "acceptance": "An independently evidenced, visibly substantial upgrade of the full running game in environment, character, animation, materials, game feel and sustainable frame delivery; CI is necessary but never sufficient.",
     "overall": "NOT ACCEPTED",
-    "milestone": "T0 UNSIGNED / T1 BUILDING unaccepted / T2-T3 BUILDING / T4 HARD RED 7/17 on original 0b head",
+    "milestone": "T0 UNSIGNED / T1 BUILDING candidate unjudged / T2-T3 BUILDING / T4 HARD RED actual e7aa original 6/17",
     "milestoneStatus": "BUILDING",
-    "latestKnownStrictBrowser": "Exact 0b Chromium #44842279891 original unchanged 1s full desktop: 7 genuine complete submissions against 17, 753 GPU queue skips, real 751x415; 61 RAF callbacks DO NOT count, no true physical displayed-present sample.",
+    "latestKnownStrictBrowser": "Exact e7aa head Chromium #44868939221 original untouched 1s full desktop: 6 genuine complete WebGL submissions / required >=17 in 1014.4ms at useful target but reduced 751x415 buffer, 530 queue skips; 61 animation callbacks do NOT count, no physical display present sample.",
     "pillars": [
       {
         "name": "Living 3D world",
@@ -1443,8 +1453,8 @@
       }
     ],
     "baselineHead": "108e2e439aab1f3fe4cf49019c1aa9fe5630feb6",
-    "candidate": "T1 whole-garden real coalesced limestone and registered actual physical joint atlas: world Git blob c074c606890c844d9606523f138c34f1a46403b1, parent e7a2fa3442f5c443bcf50e8f4ac96f9c274fc263; 17/125/256 slab masses versus 64/448/960 individual cells.",
-    "candidateProof": "Exact parent RED geometry/atlas 0/2; candidate GREEN 2/2 new; six selected native checks pass, real raycast 1472/1472 cell centres and 496/496 shore body-radius contact points, resource contract 13 batches/4 textures, TypeScript/900-tick authority/10,000 ticks pass. Browser/local ERR_BLOCKED_BY_ADMINISTRATOR, true new-head footage, three untouched strict 17 submissions and real device display presents UNVERIFIED. Full suite failing historical fixtures, no independent acceptance.",
+    "candidate": "Eight true exterior physical original bedrock and lichen woodland joinery strips two on all four shores, baked into original cliff/moss material batches, no new object or gameplay mutation. World blob f34f0951e8bbee8545461462970b1125a63f48e5.",
+    "candidateProof": "Exact-parent test RED to candidate GREEN, 4/4 focused real world and 9/10 related with one baseline-reproduced failure. TS and original 900tick authority/privacy/restart/recovery PASS. Same-new-head browser image/video/17 genuine render submissions and real device p95 PENDING.",
     "review": "SELF REVIEW / INDEPENDENT ACCEPTANCE PENDING; original 0b authentic 1920/390/52.60s video visually SELF-REJECTED large rigid rectangular court and tiny face. New native full-snake-footprint source no candidate-matched WebGL or device performance yet."
   },
   "candidate": "T1 physical native connected corner catchments and outboard-only incised coast on exact original living-garden source, candidate Git blob 8242ed2ba552eb07925fb2eec70a58452b238fd2; 4 shore pair seams, 48 real triangles, 18713/21833/21997 living garden triangles",
