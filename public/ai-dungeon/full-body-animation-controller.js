@@ -6460,7 +6460,11 @@ export function certifyLicensedSourceSwingCounterpitch({
   drift(corrected.toeXZ,original.toeXZ)<=.025;
  if(toeLift<-.002||toeLift>.155||
   (heelDelta>-.001&&!heelNeutralForefootRescue)||heelDelta<-.160||
-  pitchGain<.003||pitchGain>.25||
+  // The prior 3mm lower bound accepted a 2mm toe twitch while the REAL
+  // source forefoot remained 34mm inside stone (Actions #44916083878).
+  // Four millimetres of actual re-skinned heel-to-toe pitch improvement
+  // is the minimum observable partial certificate; NOT a foot plant.
+  pitchGain<.004||pitchGain>.25||
   correctedPitch<-.04||correctedPitch>originalPitch-.0025||
   corrected.toeY>floorTopY+.095||
   (nearStoneHeel&&!nearStoneOutsole)||
