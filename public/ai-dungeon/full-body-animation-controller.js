@@ -4641,9 +4641,19 @@ export function certifyOriginalSourcePostLegPelvisRollback({
  });
 }
 
+// Original licensed Walking_A can roll over a genuinely submerged heel while
+// its same skinned shoe toe is raised. This is a heel-FIRST support interval,
+// never evidence of full two-point planted contact or permission for foot IK.
+function originalSourceHeelFirstRoll(foot,floorTopY){
+ if(!foot||![foot.heelY,foot.toeY,floorTopY].every(finite))return false;
+ const heel=foot.heelY-floorTopY,toe=foot.toeY-floorTopY;
+ return heel>=-.018&&heel<=-.004&&toe>=.012&&toe<=.035&&
+  toe-heel>=.020&&toe-heel<=.045;
+}
+
 export function verifyOriginalSourceLoadedPelvisFootWitness({
  before=null,after=null,otherBefore=null,otherAfter=null,floorTopY=NaN,
- requireWorldXZ=false
+ requireWorldXZ=false,sourceHeelRollVerified=false
 }={}){
  if(![before,after,otherBefore,otherAfter].every(f=>f&&
   finite(f.heelY)&&finite(f.toeY))||!finite(floorTopY))return null;
@@ -4664,6 +4674,33 @@ export function verifyOriginalSourceLoadedPelvisFootWitness({
   Math.abs(before.toeY-floorTopY));
  const afterWorst=Math.max(Math.abs(after.heelY-floorTopY),
   Math.abs(after.toeY-floorTopY));
+ // The exact source mobile heel-first frame has a submerged heel but toe
+ // 26mm ABOVE stone. A flat-foot worst-endpoint gate mistakes legitimate
+ // original toe rollover for floor penetration and rejects heel support.
+ // Preserve the real toe's rising geometry, never label it planted, and
+ // require an exclusively Y-only translation of ALL FOUR weighted outsole
+ // endpoints of the same current original skeleton.
+ const heelRoll=sourceHeelRollVerified===true&&requireWorldXZ===true&&
+  originalSourceHeelFirstRoll(before,floorTopY);
+ if(heelRoll){
+  const lift=after.heelY-before.heelY;
+  const oppositeNearLoaded=otherBefore.heelY>=floorTopY-.045&&
+   otherBefore.heelY<=floorTopY+.025&&
+   otherBefore.toeY>=floorTopY-.045&&
+   otherBefore.toeY<=floorTopY+.025;
+  if(oppositeNearLoaded||lift<.0015||lift>.024001||
+   Math.abs(after.toeY-before.toeY-lift)>.00075||
+   Math.abs(otherAfter.heelY-otherBefore.heelY-lift)>.00075||
+   Math.abs(otherAfter.toeY-otherBefore.toeY-lift)>.00075||
+   after.heelY<before.heelY-.001||
+   after.heelY>floorTopY+.008||
+   after.toeY>floorTopY+.041||
+   after.toeY<before.toeY)return null;
+  return {beforeWorstMeters:beforeWorst,afterWorstMeters:afterWorst,
+   improvementMeters:Math.min(floorTopY-before.heelY,lift),
+   supportKind:'source-loaded-heel-roll',
+   contactLocked:false,plantCertified:false,otherNearLoaded:false};
+ }
  if(beforeWorst-afterWorst<.0015||
   after.heelY<before.heelY-.001||after.toeY<before.toeY-.001||
   after.heelY<floorTopY-.055||after.toeY<floorTopY-.055||
@@ -4712,19 +4749,26 @@ export function planOriginalSourceLoadedPelvisSupport({
  const feet={left,right};
  const qualified=Object.entries(feet).filter(([,f])=>{
   const heel=f.heelY-floorTopY,toe=f.toeY-floorTopY;
-  return heel>=-.055&&heel<=.025&&toe>=-.055&&toe<=.025&&
-   Math.abs(heel-toe)<=.045&&Math.min(heel,toe)<-.008;
+  return (heel>=-.055&&heel<=.025&&toe>=-.055&&toe<=.025&&
+   Math.abs(heel-toe)<=.045&&Math.min(heel,toe)<-.008)||
+   originalSourceHeelFirstRoll(f,floorTopY);
  });
  if(!qualified.length)return null;
  let best=null;
  for(const [side,foot] of qualified){
+  const heelRoll=originalSourceHeelFirstRoll(foot,floorTopY);
   const beforeWorst=Math.max(Math.abs(foot.heelY-floorTopY),
    Math.abs(foot.toeY-floorTopY));
   // Keep the prior 16mm total limit on normal 60Hz source frames; the
   // enlarged 24mm supported offset is reserved for a genuinely sparse
   // displayed source frame with fresh legal movement and dual-shoe skin.
   const maxLift=frameInterval<=.025?.016:.024;
-  const ideal=Math.max(0,Math.min(maxLift,floorTopY-(foot.heelY+foot.toeY)/2));
+  // An actual heel-first rocker is supported at its loaded HEEL, never
+  // by treating the raised toe as a second planted point. Stop at the
+  // measured stone heel plane; a false floating-toe "fix" is forbidden.
+  const ideal=heelRoll?
+   Math.max(0,Math.min(maxLift,floorTopY-foot.heelY)):
+   Math.max(0,Math.min(maxLift,floorTopY-(foot.heelY+foot.toeY)/2));
   // The genuine 390px licensed GLB has 200ms visible moving frames with a
   // buried two-point support shoe. A fixed 8mm/frame rule leaves the loaded
   // foot below the floor even when the FULL original 41-joint frame had
@@ -4739,20 +4783,26 @@ export function planOriginalSourceLoadedPelvisSupport({
   const afterHeel=foot.heelY+lift,afterToe=foot.toeY+lift;
   const afterWorst=Math.max(Math.abs(afterHeel-floorTopY),
    Math.abs(afterToe-floorTopY));
-  if(beforeWorst-afterWorst<.0015||
-   afterHeel>floorTopY+.028||afterToe>floorTopY+.028)continue;
+  const improvement=heelRoll?Math.min(Math.max(0,floorTopY-foot.heelY),
+   lift):beforeWorst-afterWorst;
+  if(improvement<.0015||
+   (heelRoll?(afterHeel>floorTopY+.008||afterToe>floorTopY+.041):
+    (afterHeel>floorTopY+.028||afterToe>floorTopY+.028)))continue;
   // Do not rescue one buried shoe by elevating an independently loaded,
   // already clear original shoe into a visible hover above the stone.
   const opposite=feet[side==='left'?'right':'left'];
   const oHeel=opposite.heelY-floorTopY,oToe=opposite.toeY-floorTopY;
   const otherNearLoaded=oHeel>=-.045&&oHeel<=.025&&
    oToe>=-.045&&oToe<=.025&&Math.abs(oHeel-oToe)<=.045;
-  if(otherNearLoaded&&Math.max(oHeel,oToe)+lift>.025)continue;
-  if(!best||beforeWorst-afterWorst>best.improvementMeters)
+  if(otherNearLoaded&&(heelRoll||
+   Math.max(oHeel,oToe)+lift>.025))continue;
+  if(!best||improvement>best.improvementMeters)
    best={side,liftMeters:lift,beforeWorstMeters:beforeWorst,
-    afterWorstMeters:afterWorst,improvementMeters:beforeWorst-afterWorst,
-    source:'measured-original-GLB-loaded-heel-and-toe',
-    floorTopY,previousLiftMeters};
+    afterWorstMeters:afterWorst,improvementMeters:improvement,
+    source:heelRoll?'measured-original-GLB-heel-first-roll':
+     'measured-original-GLB-loaded-heel-and-toe',
+    sourceHeelRollVerified:heelRoll,
+    floorTopY,previousLiftMeters,contactLocked:false,plantCertified:false};
  }
  return best;
 }
