@@ -6,6 +6,7 @@ on:
       - 'public/tiny-kingdom/index.html'
       - 'tests/browser/tiny-kingdom-g091-active-labor.spec.cjs'
       - 'scripts/tiny-kingdom-g091-experience-evidence.cjs'
+      - 'scripts/tiny-kingdom-w125-medieval-population-contract.cjs'
       - '.github/workflows/tiny-kingdom-experience-evidence.yml'
   workflow_dispatch:
 

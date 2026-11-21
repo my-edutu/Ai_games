@@ -43,8 +43,25 @@ assert(html.includes('new Set(citizenOrbitDetailHold.plan.midIndices)'),
  'same actual actors remain in the existing middle-detail rig');
 assert(html.includes('new Set(citizenOrbitDetailHold.plan.indices)'),
  'real full-body citizen identity remains unchanged during shallow orbit');
-assert(html.includes('if(!foregroundIndices.has(i))villager(people[i]);'));
-assert(html.includes('!workingIndices.has(i))compactVillager(people[i]);'));
+// W530: actor path guards now branch on bounded GPU residency; source-only
+// adjacent-line asserts were stale and blocked real G088/current gameplay A/B.
+// Verify that every original person takes one explicit, truthful draw path.
+const actorFrom=html.indexOf('const actualActorBodyPaths=new Uint8Array(people.length);');
+const actorTo=html.indexOf('lastActorPresentationPaths=actualActorBodyPaths;',actorFrom);
+assert(actorFrom>0&&actorTo>actorFrom,'real full-population draw dispatch exists');
+const draw=html.slice(actorFrom,actorTo);
+assert.match(draw,/for\(let i=0;i<people\.length;i\+\+\)/,
+ 'every authoritative citizen receives an original body decision');
+assert.match(draw,/else if\(!foregroundIndices\.has\(i\)\)\s*\{\s*villager\(people\[i\]\)/,
+ 'full near sculpt stays live if GPU admission is rejected');
+assert.match(draw,/else\s*\{\s*compactVillager\(people\[i\]\)/,
+ 'distant original rig stays live if no GPU resident accepts it');
+for(const [name,path] of [['compactCPU',1],['fullCPU',2],
+ ['restingGPU',3],['commuterGPU',4],['workingGPU',5],['foregroundGPU',6]])
+ assert(draw.includes('actualActorBodyPaths[i]='+path),
+  name+' must retain original full-population representation');
+assert(html.includes('lastActorPresentationPaths=actualActorBodyPaths;'),
+ 'the population coverage audit consumes actual path IDs');
 assert(!html.slice(from,html.indexOf('function renderRealVillageWorkwear(',from)).includes('Math.random('),
  'cosmetic identity is deterministic');
 console.log('W125 original six-role population, sculpted anatomical rig, 3-tier rendering source/parse contracts PASS');
