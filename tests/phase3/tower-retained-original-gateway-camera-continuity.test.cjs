@@ -81,7 +81,7 @@ test('actual final WebGL camera path enforces same-run roof, gate and full-body 
   const joint=s.indexOf('const joinedRoomVisible=',proposal);
   const render=s.indexOf('renderer.render(scene, camera);',proposal);
   assert.ok(origin>=0&&origin<proposal&&proposal<body&&body<joint&&joint<render);
-  assert.match(s.slice(origin,proposal),/const retainedGateStep = options\\.camera === 'follow'/,
+  assert.match(s.slice(origin,proposal),/const retainedGateStep = options\.camera === 'follow'/,
     'final camera gate must use the animate scope, not the update-only overview local');
   assert.match(s.slice(proposal,render),
     /towerCoreSightlineClear\(camera\.position,gatePoint,23\.5\)/);
