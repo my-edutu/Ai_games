@@ -43,3 +43,57 @@ export function sourceReturnedGateCameraRelease({
     settled,limited:!settled,
     scope:'same-run actually returned original gateway, current real F9 camera'};
 }
+
+
+// Continuous FIRST genuinely returned F9 gateway shot. The earlier camera
+// release only ran AFTER the old doorway was gone; full-motion portrait film
+// shows a large camera orbit while the old room is still visible. Bound the
+// actual current 3D director to the LAST completed source-matched F9 view
+// throughout that retained physical gate/roof. Source conditions here are a
+// VETO, not a simulation cue or permission to resurrect old geometry.
+// Scene must independently test the full skinned body, gate and opaque-core
+// sightlines before accepting the camera proposal.
+export function sourceRetainedGatewayCameraContinuity({
+  source, held, lastReturned, previousCamera, previousFocus,
+  desiredCamera, desiredFocus, dt
+}) {
+  const p=source?.player;
+  const ground=source?.platforms?.find(deck=>deck?.id==='f9:ground');
+  if(source?.floor!==9 || source.theme!=='void' ||
+      source.lifecycle!=='running' || !(p?.health>0) ||
+      !Array.isArray(source.platforms) || !ground ||
+      held?.sourceOwnedOriginalCameraRoom!==true ||
+      held.originalArchitectureWorldCertified!==true ||
+      held.originalArchitectureCoverageSourceTick!==source.tick ||
+      held.guardianGateRetained!==true || held.oldCapId!=='f8:cap' ||
+      held.floor!==9 || held.runToken!==source.runToken ||
+      lastReturned?.floor!==9 || lastReturned.runToken!==source.runToken ||
+      ![source.tick,held.sourceTick,held.thresholdX,held.oldRoofY,
+        held.oldCapX,held.oldCapWidth,held.submittedFrames,
+        lastReturned.tick,p.x,p.y,p.halfHeight,
+        ground.x,ground.y,ground.width,ground.height].every(Number.isSafeInteger) ||
+      !finite(held.originalGatewayOpacity) ||
+      held.originalGatewayOpacity<=.035 || held.originalGatewayOpacity>1 ||
+      !finite(held.visibleSeconds) || held.visibleSeconds<0 ||
+      held.visibleSeconds>=2.8 || held.submittedFrames<1 ||
+      held.submittedFrames>=30 || source.tick<held.sourceTick ||
+      source.tick-held.sourceTick>110 ||
+      lastReturned.tick<held.sourceTick ||
+      lastReturned.tick>source.tick ||
+      held.oldCapWidth<=0 ||
+      held.thresholdX!==held.oldCapX+Math.floor(held.oldCapWidth*.76) ||
+      ground.width<=0 || ground.height<=0 ||
+      ground.y+ground.height!==held.oldRoofY ||
+      p.halfHeight<=0 ||
+      Math.abs(p.x-held.thresholdX)>120000 ||
+      p.y-p.halfHeight<held.oldRoofY-2500 ||
+      p.y-p.halfHeight>held.oldRoofY+160000)
+    return null;
+  const result=sourceReturnedGateCameraRelease({
+    source,
+    lastGate:{floor:9,runToken:lastReturned.runToken,tick:lastReturned.tick},
+    previousCamera,previousFocus,desiredCamera,desiredFocus,dt
+  });
+  return result?{...result,scope:
+    'current same-run submitted Floor9 guardian-gateway/roof and real climber'}:null;
+}
