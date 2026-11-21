@@ -82,5 +82,62 @@
     "inspectedNativeFrames": "Unedited candidate clips 24.0–31.0s sampled at 0.5s in both viewports; full films unmodified",
     "primaryVisibleDefect": "Floor 9 draws a bronze receiving room after the HUD transition, but original gateway silhouette is lost as wide purple geometry dominates; desktop violet transition visible by 28.5s and portrait by 28.0s. Not a certified same-event continuous old-open-gate / full moving hero / walkable F9 room",
     "limitation": "Visual sampling is not a calibrated source-to-WebM event alignment; strict pair gate remains 0/2"
+  },
+  "reviewAfterNineJobSourceCapture20261121": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "productionCandidateSha": "44b5912b88814208de490dd6b672fb032d6369ae",
+    "qualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/44892713784",
+    "exactProductionQualityResult": "9/10 passed, Phase3 shard2 failed two fixtures asserting an obsolete time-only scenic upload and obsolete <=28% shaft opacity after genuine grounded-F9 returned-source clearance; do not mark original production CI green",
+    "sourcePinnedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44892713765",
+    "originalCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/44892713765/artifacts/14702243412",
+    "originalCaptureStatus": "8/8 original paired 60s+ normal-speed gameplay recordings plus authentic ledge job PASS; strict decoded event-native-video alignment FAILED 0/2 viewports",
+    "captureConditions": {
+      "seed": "tower-transformation-capture-v1",
+      "tier": "low",
+      "speed": "1x",
+      "fps": 25,
+      "desktop": "960x600",
+      "portrait": "390x844"
+    },
+    "desktop": {
+      "originalWebmSha256": "16c0db08ec589b862f0613f067cb6e49409ab9eab5e639a48e5cbe101ad2bb6c",
+      "firstNativeHudF9Seconds": 25.75,
+      "firstSustainedVioletSeconds": 27.5,
+      "warmToCoolBridgeSeconds": 0
+    },
+    "portrait": {
+      "originalWebmSha256": "4bdc2518c23b386fbce0785415e1aebf3558ac6b686e31f28a83cfb14503eea0",
+      "firstNativeHudF9Seconds": 25.75,
+      "firstSustainedVioletSeconds": 27,
+      "warmToCoolBridgeSeconds": 0
+    },
+    "sourceTruth": {
+      "immutableFirstDefeatTick": 441,
+      "immutableFirstPhysicalFloor9ThresholdTick": 475,
+      "sameSourceEpisode": true,
+      "sourceFloor10Tick": 631,
+      "sourceResultTick": 903,
+      "restartRunTokenChanged": true,
+      "limitations": "Source events are not calibrated to native pixels; source progression/restart does not prove their painted acceptance"
+    },
+    "originalFrameObservation": "Original unmodified native WebM 25.50s F8 bronze cap/black gantry vs 25.75s F9 wide circular roof with immediately visible high violet moving decks, black gate frame and fully skinned hero. This is visually discontinuous despite current delayed distant-shell uploading. Portrait 27.75-28.25s pulls the living hero to a tiny size relative to the tower. The original open HP-zero doorway/full body/genuine roof are not proven as one event-matched continuous camera view.",
+    "returnedWorldOwnerWitness": "Actual sampled original gate retained in both captures (desktop source tick494 opacity .9949 after 6 frames; portrait tick491 opacity .896 after 9 frames); prior camera bridge accepts many source-triangle-safe proposals. Merely having GPU objects and safe NDC DOES NOT establish recognized doorway pixels.",
+    "verifiedSourceContractUnblocker": {
+      "testCommitSha": "5a62e07f17e8c6109b373c78b1ff65cbdad8ac49",
+      "testPath": "tests/phase3/tower-retained-source-cap-world.test.cjs",
+      "actualCorrections": "Require both >=6 actual returned alpha-bearing shaft frames and >=0.52s before vista; permit shaft alpha >0.28 solely with a genuinely faded original gateway and nonzero returned incoming structural frames, protecting stalled/absent source. No production change.",
+      "qualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44894903572",
+      "atRecord": "Tower Phase3 shards 4/4 succeeded; other 9 jobs completed successfully, Phase6 job still in progress, full exact-source quality outcome not yet certified"
+    },
+    "realDevicePerformance": "NOT EVALUATED",
+    "independentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "nextHighestImpactAction": "Reopen P0 full-motion scene geometry/camera composition at real 25.50s-25.75s threshold: old F8 black gantry/open guardian arch and first genuine F9 wide circular roof / elevated moving decks pop from distinct architectural silhouettes despite retained GPU and camera projections. Correct shared in-camera physical ownership and hero legibility as a system; no more isolated static palette or distant upload changes. Before acceptance, capture true immutable exact-source normal-speed paired films and verify >=2 consecutive visible joined old gate+whole moving hero+source-walkable F9 roof frames in BOTH orientations, plus result/restart and device metrics.",
+    "safety": "PR #58, frozen baseline ledger SHA/blob, unrelated games, merge, deploy, force-push and PR68 draft status unchanged."
   }
 }
