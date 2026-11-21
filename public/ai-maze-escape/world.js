@@ -4095,6 +4095,22 @@ export function createMazeWorld(options = {}) {
         // then let the original sequential public floor response take over.
         // No hidden guardian, fabricated hit, collider or mesh is created.
         signal.observatory.instrument.position.y=-1.72*observedImpactDepth;
+        // Pass549: the original full-frame source rays at the AUTHENTIC
+        // tick-94 lantern parry hit THIS connected guardian mast and its
+        // joined sea-glass shell in BOTH mobile portrait views. Sinking only
+        // the root left the tall vertical vane across Thornback's response.
+        // Let the entire rooted assembly hinge OUTBOARD of the real open
+        // causeway during the same explicitly witnessed counter; in normal
+        // warning, ordinary release, unseen/stale and reduced-motion frames
+        // it remains attached, upright and stationary. This is a physical
+        // actor-triggered sculpture, not a camera trick or gameplay collider.
+        // Reuse the original meshes; no new geometries, scene allocations,
+        // walls, maps, AI authority, cues or hidden cells.
+        const earnedOutboardFold=reduced?0:observedImpactDepth;
+        signal.observatory.instrument.rotation.x=signal.axis==='x'
+          ? -1.13*earnedOutboardFold : 0;
+        signal.observatory.instrument.rotation.z=signal.axis==='z'
+          ? 1.13*earnedOutboardFold : 0;
         const mastLift=reduced?0:Math.max(0,Math.min(1,warningAction));
         const mastHeight=.78+.88*mastLift;
         signal.observatory.shaft.scale.y=mastHeight;
@@ -4104,6 +4120,9 @@ export function createMazeWorld(options = {}) {
           vane.hinge.position.y=.37+mastHeight;
           vane.hinge.rotation.z=reduced?0:vane.side
             *(.12+.36*warningAction-.54*counterWave);
+          // The two original mineral fans open SIDEWAYS as their shared
+          // physical pivot falls; never stand up as two new opaque pylons.
+          vane.hinge.rotation.y=vane.side*.67*earnedOutboardFold;
           vane.shell.material=counterWave>.18?darkJade:seaGlass;
           vane.tip.material=counterWave>.18?inlay:warningAction>.3?amber:lightStone;
         }

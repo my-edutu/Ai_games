@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-21T03:00:00+01:00",
+  "updatedAt": "2026-11-21T04:33:33+01:00",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass548b: Pass548 exact-HEAD native workflow 44852702999 passed source/build, real WebGL initialization, unchanged six-reset resource budget, and 8/9 browser review tests, but failed the natural guardian capture with page.evaluate ReferenceError: earned is not defined. The source-bound 42-ray diagnostics were NEVER produced by that run. This corrective patch explicitly passes the earned public-event boolean into the isolated browser callback; no game rendering, topology, hidden knowledge, AI, collision, accessibility or thresholds were changed. Await NEW exact-HEAD native captures, ray provenance and independent visual review; Nintendo benchmark NOT PASSED. Whole-repo CI separately red at Tiny Kingdom OBS and artifact uploads."
+    "summary": "Pass549 source-bound structural counter candidate: verified exact Pass548b HEAD ec81eaa3 native WebGL SUCCESS and original unaltered artifact SHA256 d54d7d70, 42/42 standalone full-frame PNG SHA sidecars plus all 3 genuine gate frame hashes. Same real tick94 390/320 browser rays identify the ACTUAL guardian observatory joined upper shell and continuous mast at public cell 21, rather than speculative foreground walls; also exposed disclosed masonry cells 38/21 as heavy lower foreground. In new production code the original fully connected guardian mast physically folds outboard on ONLY authenticated current public earned lantern impact, while paired shell vanes spread laterally and the original root telescopes; no new mesh, collider, private state, AI route, GPU allocation or threshold relaxation. Exact new-HEAD WebGL before/after and independent critic still PENDING; official Nintendo benchmark NOT PASSED. Whole-repo CI separately red at Tiny Kingdom OBS and upload steps; independent agent/Ultracode tunnel NOT_FOUND."
   },
   "captures": [
+    {
+      "title": "Pass548b SHA ec81eaa3 exact-source native WebGL SUCCESS; original artifact ZIP SHA256 d54d7d70, 42/42 PNG sidecars + 3/3 authentic gate SHA verified; full original 390/320 source rays name guardian mast and joined shell; Pass549 physical fold awaiting new rendered verdict",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44853604843/artifacts/14686254242"
+    },
     {
       "title": "Pass547 actual native WebGL at exact aae7d0ab: 42/42 PNG+sidecar and 3/3 gate SHA verified, natural complete 136 tick escape, VISUAL REJECTED, production candidate reverted on next SHA",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44849771977/artifacts/14685580033"
