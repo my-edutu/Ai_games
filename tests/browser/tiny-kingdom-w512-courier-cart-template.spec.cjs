@@ -81,6 +81,11 @@ for(const viewport of [{width:390,height:844},{width:1024,height:640}]){
   expect(verified.coverage.exactlyOneBodyPathPerCitizen).toBe(true);
   expect(verified.coverage.missingNames).toEqual([]);
   expect(verified.skin.authenticGpuBodies).toBe(verified.skin.liveCartNames.length);
+  // W515: no stale winter crop source while the real Day-121 world is
+  // in summer. This was the actual captured 9,879-triangle discrepancy.
+  expect(verified.farm.seasonMatchesAuthority).toBe(true);
+  expect(verified.farm.season).toBe(verified.farm.authoritativeSeason);
+  expect(verified.farm.nearTriangles).toBeGreaterThan(verified.farm.farTriangles);
   expect(verified.triangles).toBeLessThan(160000);
   expect(verified.glError).toBe(0);
   if(viewport.width===390)expect(verified.width).toBeLessThanOrEqual(390);
@@ -139,6 +144,10 @@ for(const viewport of [{width:390,height:844},{width:1024,height:640}]){
   expect(legacy.actors.missingNames).toEqual([]);
   // W514: matched saved world + physical view MUST choose the same real
   // planted plot detail. Former camera history mutated visible wheat density.
+  expect(legacy.farm.seasonMatchesAuthority).toBe(true);
+  expect(legacy.farm.season).toBe(verified.farm.season);
+  expect(legacy.farm.nearSourceHash).toBe(verified.farm.nearSourceHash);
+  expect(legacy.farm.farSourceHash).toBe(verified.farm.farSourceHash);
   expect(legacy.farm.drawnPlots.map(x=>[x.plot,x.mode,x.triangles]))
    .toEqual(verified.farm.drawnPlots.map(x=>[x.plot,x.mode,x.triangles]));
   expect(legacy.triangles).toBe(verified.triangles);

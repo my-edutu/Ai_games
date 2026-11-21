@@ -20482,7 +20482,8 @@ let farmFieldResidentSeason=-1,farmFieldNear=null,farmFieldFar=null,
  farmFieldDisposals=0,farmFieldFailures=0,farmFieldLastTriangles=0,
  farmFieldLastDistance=null;
 // Per-plot decisions are presentation-only; they never write a harvest result.
-let farmFieldPlotLods=[],farmFieldLastDrawnPlots=[],farmFieldCulledPlots=0;
+let farmFieldPlotLods=[],farmFieldLastDrawnPlots=[],farmFieldCulledPlots=0,
+ farmRenderSeasonSyncs=0;
 // W514: on the SAME physical saved Day-121 camera, standing grain must not
 // depend on the viewer's earlier orbit or whether the world was just restored.
 // The old 27m/31m hysteresis gave different visible crop LOD at 28–30m;
@@ -21096,7 +21097,11 @@ function getFarmFieldResidencyAudit(){
   enabled:gpuAvailable&&!farmFieldResidentDisabled,
   sceneBudget:{...farmFieldSceneBudgetAudit},
   active:Boolean(farmFieldNear&&farmFieldFar),
-  season:farmFieldResidentSeason,mode:farmFieldLod,
+  season:farmFieldResidentSeason,
+  authoritativeSeason:climateAt(state.t).season,
+  seasonMatchesAuthority:farmFieldResidentSeason===climateAt(state.t).season,
+  renderSeasonSynchronizations:farmRenderSeasonSyncs,
+  mode:farmFieldLod,
   eyeDistance:farmFieldLastDistance,drawnTriangles:farmFieldLastTriangles,
   nearTriangles:(farmFieldNear?.mesh.length||0)/30,
   farTriangles:(farmFieldFar?.mesh.length||0)/30,
@@ -36008,8 +36013,25 @@ if(gpuAvailable){
  gl.uniform4f(uniforms.completedHarvestA,...(a?[a.x,a.z,a.floor,a.strength]:none));
  gl.uniform4f(uniforms.completedHarvestB,...(b?[b.x,b.z,b.floor,b.strength]:none));
 }
-// Count the actual currently chosen crop LOD in THIS frame's 160k gate,
-// not the previously presented camera's field mesh.
+// W515 true replay-visible seasonal crop barrier:
+// The accelerated 120-day autonomy can advance into summer AFTER an earlier
+// static preflight left the field VBO showing winter stalks. Recalling an
+// otherwise valid civic/landscape buffer must never skip the real field
+// climate on the FIRST camera frame. This only uploads the actual authoritative
+// seasonal field mesh when the live season has CHANGED: no per-frame rebuild,
+// fabricated wheat or harvest, hidden plots or mutation of simulation state.
+if(gpuAvailable&&!farmFieldResidentDisabled&&
+   farmFieldResidentSeason!==climateAt(state.t).season){
+  if(prepareResidentFarmFields(climateAt(state.t).season))
+   farmRenderSeasonSyncs++;
+  else{
+   // The source's existing full CPU fallback is enabled by farmstead().
+   // Force the next civic presentation rebuild to include those actual crops.
+   clearCivicSceneryCache();scenicMeshKey='';
+  }
+}
+// Count only the correctly synchronized real planted mesh in THIS frame's
+// 160k view gate, not the former cached winter season.
 const planes=gpuAvailable?sceneFrustumPlanes(m):null;
 // W245: calculate the exact existing non-field scene BEFORE admitting near
 // crop detail. All original buildings, residents, freight and dynamic jobs
