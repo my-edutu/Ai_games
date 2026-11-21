@@ -12,10 +12,13 @@ const load=()=>import('data:text/javascript;base64,'+Buffer.from(src
   .replace("'./gate-moment.mjs'",JSON.stringify(file('public/ai-maze-escape/gate-moment.mjs')))
   .replace("'./map-view.mjs'",JSON.stringify(file('public/ai-maze-escape/map-view.mjs')))).toString('base64'));
 const court=(axis='x')=>{
- const cells=axis==='x'?[6,7,8]:[6,11,16];
+ // A vertical open two-hop causeway must lie on the SAME public terrace.
+ // height=5 crosses the real 1.4m terrain band, and the production correctly
+ // refuses to build any guardian stage there; do not weaken that level gate.
+ const cells=axis==='x'?[6,7,8]:[1,6,11];
  const adjacency=cells.map((cell,i)=>({cell,blocked:false,neighbors:[cells[i-1],cells[i+1]].filter(Number.isInteger)}));
  return {runToken:'true-public-counter-vane-'+axis,lifecycle:'running',result:null,
-   width:5,height:5,currentCell:6,visibleCells:cells,cells:adjacency,
+   width:5,height:axis==='x'?5:9,currentCell:cells[0],visibleCells:cells,cells:adjacency,
    doors:[],keys:[],inventory:[],traps:[],exitCell:null,
    threats:[{id:'thornback',cell:cells[2],lanternParried:false}]};
 };
