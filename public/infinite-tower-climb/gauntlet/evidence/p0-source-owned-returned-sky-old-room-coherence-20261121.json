@@ -124,5 +124,63 @@
       "forcePushed": false,
       "otherGameEdited": false
     }
+  },
+  "run20261122_0829Lagos": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "verdict": "NOT EVALUATED",
+    "inspectedHeadBeforeChanges": "e7cb7a71b7a9b24998ae0b17229ba79f2fd613a5",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "originalLedgerBlobSha": "7433d52ae1a7a75de51366a845375dda04ab87fa",
+    "previousExactHeadQualityCI": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/44994301402",
+      "result": "10/10 jobs SUCCESS on old e7cb7a71 head; safety not an experience vote"
+    },
+    "originalCandidateFootage": {
+      "campaign": "https://github.com/my-edutu/Ai_games/actions/runs/44994183390",
+      "exactCandidate": "f1969d6f2c70fbd44d3a0c99a89fbfc0a73d1b5d",
+      "desktop": "Unedited 960x600 72+ seconds: source-earned F8→9 bronze gateway/roof around 25–27s; violet F9 architecture establishes around 28s, after drawn F9 HUD approx 26s. Approximately 2.0s HUD-to-violet world and virtually no sustained warm-to-cool shared-room frame.",
+      "portrait": "Unedited 390x844 72+ seconds: F9 HUD approx 25.75s, sustained violet approx 27.5s (~1.75s delay), visibly discontinuous original bronze-to-violet ring/shaft composition.",
+      "authenticSource": "Guardian HP0, original grounded threshold and Floor9 gameplay source events observed in both candidate danger recordings; video pixels and source-native events not independently certified as coincident",
+      "scenarioCapture": "7/8 authentic capture jobs PASS; candidate outcome portrait original WebM native PTS calibration PARTIAL, therefore outcome job FAIL; strict danger pair 0/2 despite 8/8 source narrative pairs",
+      "filmsVerifiedOriginal": true,
+      "sourceNativeStrictAcceptance": "FAILED 0/2",
+      "leadingVisualDefect": "No continuous actual moving climber + original opened bronze gateway + physically grounded true F9 roof + first raised destination shot across real floor transition. The staged structural core repeatedly reset its own returned-frame clock during buttress/biome uploads while a separate old-room color fade could exhaust after only six fast frames."
+    },
+    "implemented": {
+      "originalSharedRoomReturnedTimeCommit": "cd203d1ec88dedc0ab54c1786e44e30d389ea6fe",
+      "continuousFirstLoadBearingCoreCommit": "2f9afaabd4a0d697ff1318600d6b585dce798158",
+      "biomeMustReallyRenderBeforeFullReleaseCommit": "90ab6b71e5f37461878199233e85f0b545dbf87b",
+      "regressionCommits": [
+        "3185adbcebc796669bfc951309fedc5bc6373c84",
+        "d15748e41b923231c2c5109bf4affb82ea304338",
+        "34a23c01b6755b0194ffc4a2a8ac299016a7c99c"
+      ],
+      "behavior": "Real Floor9 shaft retains its FIRST successful core render-return clock through subsequent two scenic uploads instead of resetting twice. Same source-authenticated old-gateway/roof and incoming 3D structural palette now requires BOTH honest returned frame counts and up to 0.9 seconds successful display-time; six rapid WebGL returns alone no longer wipe an entire old room. Animated biome has an independent first actual-return fence before full shaft release. This changes actual game 3D presentation, not source physics, guardian HP, collision, threshold, restart or evidence grading.",
+      "noSyntheticFrames": true,
+      "tests": "Focused added assertions for dual returned-frame/time proof, true core clock ownership through stages, and real biome GPU return. Exact-head CI still PENDING; do not claim these regressions passed."
+    },
+    "newExactSourceCampaigns": [
+      {
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/44999449293",
+        "candidateSha": "2f9afaabd4a0d697ff1318600d6b585dce798158",
+        "statusAtReview": "IN PROGRESS"
+      },
+      {
+        "url": "https://github.com/my-edutu/Ai_games/actions/runs/44999488791",
+        "candidateSha": "90ab6b71e5f37461878199233e85f0b545dbf87b",
+        "statusAtReview": "IN PROGRESS; latest production scene source"
+      }
+    ],
+    "latestExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44999528337 — QUEUED, final evidence/test HEAD 34a23c01b6755b0194ffc4a2a8ac299016a7c99c",
+    "independentReview": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualTargetDeviceFrameTimesP50P95P99": "NOT EVALUATED",
+    "actualTargetDeviceMemory": "NOT EVALUATED",
+    "biggestRemainingExperienceGap": "Actual new 60+ second unedited 1x 960x600 and 390x844 videos still must prove the old opened 3D gateway, whole moving hero, true Floor9 receiving roof and raised destination stay physically recognizable continuously. Existing video failed strict native danger matching.",
+    "nextHighestImpact": "Inspect both new production-source candidate F8→9 1x WebMs and unedited source/native pairing. Measure whether core now remains coherently visible and old room fades without a hard cut; if not, reopen physical 3D camera/world spatial composition. Resolve independently PTS-partial portrait outcome without weakening integrity.",
+    "safety": "PR68 stays OPEN DRAFT, based on PR58 frozen SHA. No merge, deploy, force push, PR58 rewrite or work in other games."
   }
 }
