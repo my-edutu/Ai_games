@@ -82,8 +82,13 @@ test('real world supplies deterministic finite architectural volumes with no new
       }
       if (width === 28) {
         const { cameraComposition } = await load();
-        const baseline = cameraComposition(args);
-        const guarded = cameraComposition({ ...args, occluders: volumes });
+        // The physical 28x16 gateway was reconstructed: its original
+        // x=-4.8 source fixture no longer intersects the unchanged old head
+        // ray. Require a genuinely blocked, currently authored live-world
+        // sightline, not a fabricated obstacle or a relaxed threshold.
+        const trueGatewayShot = { ...args, head: { x: 3.5, z: -6.5 } };
+        const baseline = cameraComposition(trueGatewayShot);
+        const guarded = cameraComposition({ ...trueGatewayShot, occluders: volumes });
         assert.ok(cost(baseline, volumes) > .35, 'physical world has a close-up pillar occlusion');
         assert.ok(cost(guarded, volumes) < cost(baseline, volumes) * .3, 'camera clears authored rear ruins');
       }

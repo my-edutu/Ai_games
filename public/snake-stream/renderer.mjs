@@ -296,6 +296,59 @@ export function shouldPrimeColdFullSceneCache({ queue, quality, cameraMode, fram
     queue.pending === 0 && queue.skipped === 0;
 }
 
+/**
+ * Keep at most ONE complete second view's original HDR/depth photograph while
+ * a camera changes to another settled cinematic shot. Returning from detail
+ * or follow to the identical overview restores the true previously rendered
+ * static world without a second expensive woodland/stone/shadow bake. The
+ * serpent, water, contacts, portals and public cues are ALWAYS freshly rendered.
+ *
+ * Only already-existing low-tier render targets <=350k physical pixels can be
+ * parked (at 4x MSAA this caps the additional HDR+depth backing allocation at
+ * ~21MB). Never invent a fake reprojected camera, never keep a full-HD second
+ * framebuffer, and invalidate on board/viewport/context changes. This is
+ * a memory-for-work candidate, NOT a physical FPS/present measurement.
+ */
+export function createStaticViewCacheShelf({ maxPixels = 350000 } = {}) {
+  if (!Number.isInteger(maxPixels) || maxPixels < 1 || maxPixels > 500000)
+    throw new RangeError('Retained HDR world view must have a bounded physical-pixel budget');
+  let parked = null;
+  let hits = 0, evictions = 0;
+  const eligible = ({ target, key, cssLayout }) => Boolean(target &&
+    Number.isInteger(target.width) && Number.isInteger(target.height) &&
+    target.width > 0 && target.height > 0 && target.width * target.height <= maxPixels &&
+    typeof key === 'string' && key.length > 0 &&
+    typeof cssLayout === 'string' && cssLayout.length > 0);
+  function park(entry) {
+    if (!eligible(entry)) return false;
+    if (parked && parked.target !== entry.target) {
+      parked.target.dispose();
+      evictions++;
+    }
+    parked = { target: entry.target, key: entry.key, cssLayout: entry.cssLayout };
+    return true;
+  }
+  function take({ key, cssLayout, width, height }) {
+    if (!parked || !canReuseStaticWorldCache({
+      sourceWidth: parked.target.width, sourceHeight: parked.target.height,
+      presentWidth: width, presentHeight: height,
+      matchingView: parked.key === key, sameCssLayout: parked.cssLayout === cssLayout,
+    })) return null;
+    const result = parked.target;
+    parked = null;
+    hits++;
+    return result;
+  }
+  function clear() {
+    if (parked) parked.target.dispose();
+    parked = null;
+  }
+  return { park, take, clear, dispose: clear, stats: () => ({
+    retained: parked ? 1 : 0, retainedPixels: parked ? parked.target.width * parked.target.height : 0,
+    hits, evictions, maxPixels,
+  }) };
+}
+
 export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -403,6 +456,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   const depthSamples = Array.from(gl.getInternalformatParameter(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, gl.SAMPLES));
   const cacheSamples = colorSamples.filter(count => count <= 4 && depthSamples.includes(count)).sort((a, b) => b - a)[0] || 0;
   let staticTarget = null;
+  const cachedWorldShelf = createStaticViewCacheShelf();
   let staticKey = '';
   let lastCssLayout = '';
   let cachedCssLayout = '';
@@ -478,6 +532,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
   scene.add(liveCacheQuad);
 
   function invalidateStaticCache({ preserveView = false } = {}) {
+    if (!preserveView) cachedWorldShelf.clear();
     // Only a measured quality/raster reduction can preserve the same static
     // photograph. A new game, geometry revision, shot or CSS layout still
     // invalidates by the ordinary exact-world/camera key.
@@ -507,6 +562,29 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     // full-landscape cache. Camera, fog, exposure and board remain exact.
     const key = staticWorldViewSignature({ dimensions, fog: scene.fog,
       exposure: renderer.toneMappingExposure, camera });
+    // An already verified second full-HDR/depth photograph may be recalled
+    // ONLY for the identical complete world/camera/CSS projection and adequate
+    // physical raster. Reject a different shot, resize, or revision entirely.
+    const activeAlreadyHit = canReuseStaticWorldCache({
+      sourceWidth: staticTarget?.width, sourceHeight: staticTarget?.height,
+      presentWidth: cacheSize.x, presentHeight: cacheSize.y,
+      matchingView: key === staticKey, sameCssLayout: cachedCssLayout === lastCssLayout,
+    });
+    if (!activeAlreadyHit) {
+      const recalled = cachedWorldShelf.take({ key, cssLayout: lastCssLayout,
+        width: cacheSize.x, height: cacheSize.y });
+      if (recalled) {
+        if (staticTarget && staticTarget !== recalled) {
+          if (!cachedWorldShelf.park({ target: staticTarget, key: staticKey,
+            cssLayout: cachedCssLayout })) staticTarget.dispose();
+        }
+        staticTarget = recalled;
+        staticKey = key;
+        cachedCssLayout = lastCssLayout;
+        cacheMaterial.uniforms.cachedColor.value = staticTarget.texture;
+        cacheMaterial.uniforms.cachedDepth.value = staticTarget.depthTexture;
+      }
+    }
     const cacheHit = canReuseStaticWorldCache({
       sourceWidth: staticTarget?.width, sourceHeight: staticTarget?.height,
       presentWidth: cacheSize.x, presentHeight: cacheSize.y,
@@ -581,6 +659,16 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       pressureMissDirectFrames += 1;
       return;
     }
+    // Park at most one original completed low-raster HDR/depth view; the next
+    // genuine settled shot still earns its own real complete scenery bake.
+    const parkedForRebuild = !cacheHit && staticTarget && cachedWorldShelf.park({
+      target: staticTarget, key: staticKey, cssLayout: cachedCssLayout,
+    });
+    if (parkedForRebuild) {
+      staticTarget = null;
+      staticKey = '';
+      cachedCssLayout = '';
+    }
     // When the previously baked image covers the new smaller raster AND the
     // view is identical, retain its genuine color+depth; no extra GPU targets.
     // Any different view still rebuilds at the real current output dimensions.
@@ -594,7 +682,15 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       });
       cacheMaterial.uniforms.cachedColor.value = staticTarget.texture;
       cacheMaterial.uniforms.cachedDepth.value = staticTarget.depthTexture;
-      invalidateStaticCache();
+      // A photographed predecessor just moved to the bounded shelf; do not
+      // invalidate it merely because B now needs its own complete target.
+      // Ordinary world/viewport invalidation still clears the shelf.
+      if (parkedForRebuild) {
+        staticKey = '';
+        pressureMissViewKey = '';
+        pressureMissDirectFrames = 0;
+        cacheActive = false;
+      } else invalidateStaticCache();
     }
     const oldLayers = camera.layers.mask;
     const oldBackground = scene.background;
@@ -929,6 +1025,8 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures,
       frameMs: { p50: percentile(0.5), p95: percentile(0.95), p99: percentile(0.99) },
       staticCache: { supported: cacheSupported, active: cacheActive, hits: cacheHits, builds: cacheBuilds,
+        // Two complete native HDR/depth views, never counted as renderer submissions.
+        viewShelf: cachedWorldShelf.stats(),
          coldWorldPrimes, // counts real full-world HDR+live cold primes, not physical displays
         retainedHigherRasterCompositions, // cached full-static+live compositions, never actual presents
         probeDirectFrames: cacheProbeDirectFrames, // complete original draws, NOT display presents
@@ -979,6 +1077,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     contacts.dispose();
     staticTarget?.dispose();
     staticTarget = null;
+    cachedWorldShelf.dispose();
     cacheGeometry.dispose();
     cacheMaterial.dispose();
     // BEGIN R46 CACHE QUAD RELEASE
@@ -987,7 +1086,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
     sun.shadow.map?.dispose();
     renderer.dispose();
   }
-  return { draw, stats, resetTiming, dispose };
+  return { draw, stats, gpuQueueStats: () => frameGate.stats(), resetTiming, dispose };
 }
 
 /** Bounded presentation-only backpressure. Never waits on the browser thread. */

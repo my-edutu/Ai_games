@@ -3,9 +3,9 @@ import { createGardenAudio } from './audio.mjs';
 import { spectatorCopy, goalProgress } from './view-copy.mjs';
 import { createOverview } from './overview.mjs';
 import { selectCinematicShot } from './cinematic-director.mjs';
-import { resolveSpectatorShot } from './cinematic-director.mjs';
 import { selectInitialSpectatorCamera } from './cinematic-director.mjs';
 import { nextManualSpectatorCamera } from './cinematic-director.mjs';
+import { createGpuEvidencedCinematicDirector } from './cinematic-director.mjs';
 
 const MAX_PARTICLES = 240;
 const POLL_MS = 125;
@@ -27,6 +27,14 @@ let reconnecting = false;
 let animationId = 0;
 let drawFailed = false;
 const overview = createOverview(document.querySelector('.stage'), () => { cameraMode = 'overview'; syncControls(); });
+const gpuEvidencedDirector = createGpuEvidencedCinematicDirector();
+function resolveSpectatorShot(mode, snapshot, motion, nowMs = performance.now()) {
+  return gpuEvidencedDirector.resolve({
+    mode, snapshot, reducedMotion: motion, nowMs,
+    queue: renderer?.gpuQueueStats?.() ?? null,
+  });
+}
+
 
 if (params.get('controls') === '1') broadcast.classList.add('show-controls');
 
@@ -151,6 +159,7 @@ function updateText(next) {
 
 function useFallback(error) {
   renderer?.dispose();
+  gpuEvidencedDirector.reset();
   const replacement = canvas.cloneNode(false);
   canvas.replaceWith(replacement);
   canvas = replacement;
@@ -174,6 +183,7 @@ async function initializeRenderer() {
   try {
     const { createSceneRenderer } = await import('./renderer.mjs');
     renderer = createSceneRenderer(canvas, { maxParticles: MAX_PARTICLES, onFailure: useFallback });
+    gpuEvidencedDirector.reset();
     loading = false;
     broadcast.dataset.renderMode = '3d';
     if (frame) updateText(frame);

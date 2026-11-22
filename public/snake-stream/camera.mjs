@@ -135,7 +135,10 @@ export function cameraComposition({ width, height, aspect, mode = 'overview', he
     // a living protagonist into the large board. The full-board overview is
     // unaffected and always available; no extra render pass or game mutation.
     outward = normalize({ x: .16, y: .68, z: .72 });
-    distance = portrait ? 11.5 : 12;
+    // A materially readable normal spectator silhouette, not a false hero
+    // rescale. The same real world/collision positions and 36-degree lens
+    // remain unchanged. Manual overview still includes the entire board.
+    distance = portrait ? 9.0 : 9.5;
   } else {
     const right = normalize({ x: outward.z, y: 0, z: -outward.x });
     const up = { x: outward.y * right.z, y: outward.z * right.x - outward.x * right.z, z: -outward.y * right.x };
