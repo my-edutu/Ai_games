@@ -51,3 +51,14 @@ test('deferred authentic F9 architecture spans THREE separate returned GPU frame
   assert.match(crossfloor,/job\?\.state==='awaiting-void-biome-build'/);
   assert.doesNotMatch(source,/snapshot\.floor\s*=\s*9|snapshot\.player\.x\s*=/);
 });
+
+test('a genuine original core return stays authoritative across both deferred scenic uploads, not reset to zero twice',()=>{
+  const markers=source.match(/arrival\.structureBuiltAtSubmitted=arrival\.submittedFrames/g)||[];
+  assert.equal(markers.length,1,
+    'only first physically rendered core can open its optical clock; later landscape and crystal stages use separate return fences');
+  assert.match(source,/arrival\.peripheryBuiltAtSubmitted=arrival\.submittedFrames/);
+  assert.match(source,/arrival\.biomeBuiltAtSubmitted=arrival\.submittedFrames/);
+  assert.match(source,/job\.state!=='awaiting-structural-release'/);
+  assert.match(source,/job\.submittedFrames>job\.structureBuiltAtSubmitted/,
+    'authentic, non-stale render receipts—not source ticks—must pace the continuously visible load-bearing shaft');
+});
