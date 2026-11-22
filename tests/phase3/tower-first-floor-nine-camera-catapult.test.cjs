@@ -58,6 +58,43 @@ test('exact 7ef8f9b first-episode portrait shoulder cut is angular, NOT outward'
  assert.equal(guard({...crossing,desiredCamera:[8,4,26]}),null,
    'ordinary inward recovery is not an angular catapult');
 });
+// The actual 597ed2fe source-pinned portrait WebM at 25-32 seconds
+// has TWO distinct unearned physical camera jumps that earlier guards miss:
+// (1) a large near-constant-radius side shift at tick 534->536, while the
+// authoritative climber is stationary; (2) another shoulder swing at 589->591
+// after the arbitrary 110-tick doorway lease, while still genuinely on F9.
+test('real first-F9 pure lateral orbit is bounded even with stable radius and camera height',async()=>{
+ const guard=await fn;
+ const episode={...b,source:{...source,tick:536},
+  lastRendered:{floor:9,runToken:'original',tick:534},
+  previousCamera:[34.722,17.091,29.299],
+  desiredCamera:[25.776,17.696,35.747],
+  previousFocus:[12,10,23],desiredFocus:[12,10,23],
+  previousHero:[12,10,23],hero:[12,10,23],dt:.05};
+ const x=guard(episode);
+ assert.ok(x,'11m camera orbit around nearly static live hero must not slip through angular/radius heuristics');
+ assert.equal(x.reason,'first-original-floor-nine-camera-lateral-orbit');
+ assert.ok(x.requestedMovement>10);
+ assert.ok(x.boundedMovement<1.5);
+});
+test('first genuine F9 route remains camera-coherent past the old 110-tick doorway lease',async()=>{
+ const guard=await fn;
+ const episode={...b,source:{...source,tick:591},
+  lastRendered:{floor:9,runToken:'original',tick:589},
+  previousCamera:[-4.113,22.790,47.593],
+  desiredCamera:[-17.442,24.377,43.037],
+  previousHero:[5,17,23],hero:[6,18.5,23],
+  previousFocus:[5,17,23],desiredFocus:[6,18.5,23],dt:.05};
+ const x=guard(episode);
+ assert.ok(x,'first Floor9 physical route must not catapult camera just after 110 ticks');
+ assert.ok(x.requestedMovement>14 && x.boundedMovement<2);
+ assert.equal(x.reason,'first-original-floor-nine-camera-shoulder-cut');
+ assert.equal(guard({...episode,source:{...episode.source,tick:686}}),null,
+  'bounded first-route coverage must NOT become unbounded or leak into later scenes');
+ assert.equal(guard({...episode,source:{...episode.source,floor:10}}),null);
+ assert.equal(guard({...episode,reducedMotion:true}),null);
+ assert.equal(guard({...episode,lastRendered:{...episode.lastRendered,runToken:'restart'}}),null);
+});
 test('camera source commits MUST start native capture, not just quality CI',()=>{
  const workflow=fs.readFileSync(path.resolve(visuals,
    '../../../.github/workflows/tower-transformation-visual-evidence.yml'),'utf8');
