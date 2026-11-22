@@ -55,7 +55,7 @@
     }
   },
   "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
-  "nextHighestImpactAction": "When authentic matched native films and returned-room timeline artifacts finish, read both 960x600 and 390x844 alignment sidecars and watch normal-speed original full-film at the mapped PTS. If old owner truly vanishes before any qualified successor return, fix original World retirement/new 3D shaft together; if they co-return but native pixels hard-cut, rework real camera/foreground composition. Do not advance P1 or invent acceptance.",
+  "nextHighestImpactAction": "Inspect exact immutable 8745ca8e source native dangerous gameplay after queue drains, including first-episode-only original-room-native-alignment.json for desktop 960x600 and portrait 390x844; if true old owner is lost before next geometry returned, fix World lifecycle, otherwise inspect/preserve physically joint gateway/hero/roof/raised destination camera composition. Retain visual veto until 2/2 true event-aligned full-motion shots.",
   "fullInstrumentationCommitSha": "bd2af6ff2784a9e7d51df12b0d7856f34b4059fb",
   "captureRequestedForExactHead": "${{ github.sha }}",
   "pinnedCaptureCondition": "push to capture-request.json triggers original 9-job workflow, candidate pinned to immutable final github.sha; workflow queued results are not visual acceptance.",
@@ -83,11 +83,20 @@
     "previousExactNativeAcceptance": "FAILED 0/2 viewports; retained as source of truth until new authentic video inspection.",
     "priorCaptureWithoutJoin": "https://github.com/my-edutu/Ai_games/actions/runs/45037693091 (queued at inspection; source 86d54a5525ea69c96dfa059536485a859a220338)",
     "candidateCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45039713960 (queued at inspection, exact workflow code source fa63cf025ea4815f8685032ec2f1a9ac412d1191)",
-    "exactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45039713831 (pending at inspection)",
+    "exactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45040015265 (PENDING at inspection for 8745ca8e...)",
     "independentLooks": 0,
     "independentFeels": 0,
     "independentPlays": 0,
     "actualDeviceP50P95P99AndMemory": "NOT EVALUATED",
-    "next": "When authentic matched native films and returned-room timeline artifacts finish, read both 960x600 and 390x844 alignment sidecars and watch normal-speed original full-film at the mapped PTS. If old owner truly vanishes before any qualified successor return, fix original World retirement/new 3D shaft together; if they co-return but native pixels hard-cut, rework real camera/foreground composition. Do not advance P1 or invent acceptance."
+    "next": "Inspect exact immutable 8745ca8e source native dangerous gameplay after queue drains, including first-episode-only original-room-native-alignment.json for desktop 960x600 and portrait 390x844; if true old owner is lost before next geometry returned, fix World lifecycle, otherwise inspect/preserve physically joint gateway/hero/roof/raised destination camera composition. Retain visual veto until 2/2 true event-aligned full-motion shots.",
+    "latestSourceRevisionSha": "8745ca8e49c64b573c220f509e811422a837017d",
+    "firstNativeEpisodeVeto": {
+      "fix": "Require observed first painted 8->9 HUD's bounded native WebM episode window; if a 70s source/game restarts, subsequent legitimate floor9 returned scene cannot masquerade as original 8->9 hard cut.",
+      "codeCommit": "ce4d02b5709eb0d87dbed6d9a31aefbc7322fe68",
+      "testCommit": "d3096aa107b17086e709d966185b3f7cecd6ea07",
+      "workflowTriggerCommit": "8745ca8e49c64b573c220f509e811422a837017d",
+      "node22FocusedSmoke": "6/6 passed isolated synthetic source/PTS fixtures; full GitHub workflow pending and authentic native game not rerun."
+    },
+    "latestSourceMatchedCapture": "Source workflow on new SHA is requested by .github/workflows change; no artifact/result confirmed at evidence write"
   }
 }
