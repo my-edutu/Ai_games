@@ -61,7 +61,7 @@ test('seeded crossing segments never silently discard full real source triangle'
 
 test('high-water painter growth retains previously emitted authentic face data',()=>{
  const start=html.indexOf('function reservePainter(n)');
- const end=html.indexOf('\\ncanvasFallbackRasterAudit=',start);
+ const end=html.indexOf('\ncanvasFallbackRasterAudit=',start);
  assert.ok(start>=0&&end>start,'real painter must expose bounded storage');
  const scope={painterCapacity:0,painterReused:0,painterGrowths:0,
   projected:new Float64Array(0),paintColors:new Uint32Array(0),
