@@ -3795,15 +3795,30 @@ test('live original stance skinned-foot safety reads each weighted source vertex
  const sourceEnd=renderer.indexOf('function sourceWeaponHandGrip(',sourceStart);
  assert.ok(sourceStart>=0&&sourceEnd>sourceStart);
  const sampler=renderer.slice(sourceStart,sourceEnd);
- assert.doesNotMatch(sampler,/new THREE\.Vector3\(\)/,
-  'the bounded per-frame skinned witness should reuse a local module scratch vector');
- assert.match(sampler,/applyBoneTransform/);
- assert.match(sampler,/applyMatrix4/);
- // The prior dedicated Y reader rejected malformed indices. The consolidated
- // XYZ reader must not silently index vertex zero for undefined/stale rigs.
- assert.match(sampler,/Number\.isSafeInteger\(candidate\.index\)/);
- assert.match(sampler,/candidate\.index<0/);
- assert.match(sampler,/candidate\?\.mesh\?\.isSkinnedMesh/);
+ // The shared XYZ sampler delegates to exactly ONE original weighted
+ // source transform. A second skin/world pass can falsify sole certificates.
+ assert.match(sampler,/readOriginalSwingSoleSample\(candidate\)/);
+ assert.doesNotMatch(sampler,/applyBoneTransform|applyMatrix4|new THREE\.Vector3\(\)/,
+  'no duplicate weighted skin read or scratch allocation in the adapter');
+ assert.match(sampler,/return \[sample\.xz\[0\],sample\.y,sample\.xz\[1\]\]/);
+ // Follow the actual source call chain rather than requiring source-skin
+ // guards in a removed duplicate sampler.
+ const yStart=renderer.indexOf('function readOriginalSwingSoleY(');
+ const sampleStart=renderer.indexOf('function readOriginalSwingSoleSample(',yStart);
+ assert.ok(yStart>=0&&sampleStart>yStart&&sampleStart<sourceStart);
+ const originalSkinReader=renderer.slice(yStart,sampleStart);
+ assert.match(originalSkinReader,/mesh\?\.isSkinnedMesh/);
+ assert.match(originalSkinReader,/Number\.isSafeInteger\(index\)/);
+ assert.match(originalSkinReader,/index<0/);
+ assert.match(originalSkinReader,/index>=position\.count/);
+ assert.match(originalSkinReader,/mesh\.updateMatrixWorld\(true\)/);
+ assert.equal((originalSkinReader.match(/applyBoneTransform\(/g)||[]).length,1,
+  'one original weighted vertex skin transform per source read');
+ assert.equal((originalSkinReader.match(/applyMatrix4\(mesh\.matrixWorld\)/g)||[]).length,1,
+  'one original source-weighted local-to-world transform');
+ const sampleReader=renderer.slice(sampleStart,sourceStart);
+ assert.match(sampleReader,/readOriginalSwingSoleY\(candidate\)/);
+ assert.match(sampleReader,/xz:\[originalSwingToePoint\.x,originalSwingToePoint\.z\]/);
 });
 
 
