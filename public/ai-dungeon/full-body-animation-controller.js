@@ -6663,7 +6663,7 @@ export function planLicensedSourceConnectedChainTrials({
   sourceSide==='right'&&plan.side==='right'&&!carried&&
   plan.sourceClipTimeSeconds>.03&&plan.sourceClipTimeSeconds<.205&&
   finite(plan.sourceToeBurialMeters)&&
-  plan.sourceToeBurialMeters>=.075&&
+  plan.sourceToeBurialMeters>=.050&&
   plan.sourceToeBurialMeters<=.12&&
   finite(plan.sourceWeightedPitchMeters)&&
   plan.sourceWeightedPitchMeters>=.24&&
@@ -6843,7 +6843,7 @@ export function certifyLicensedSourceSwingCounterpitch({
   plan.sourceRole==='vanguard'&&side==='right'&&
   plan.side==='right'&&
   finite(plan.sourceToeBurialMeters)&&
-  plan.sourceToeBurialMeters>=.075&&plan.sourceToeBurialMeters<=.12&&
+  plan.sourceToeBurialMeters>=.050&&plan.sourceToeBurialMeters<=.12&&
   finite(plan.sourceWeightedPitchMeters)&&
   plan.sourceWeightedPitchMeters>=.24&&plan.sourceWeightedPitchMeters<=.36&&
   finite(plan.sourceClipTimeSeconds)&&
