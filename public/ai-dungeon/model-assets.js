@@ -1035,12 +1035,29 @@ function stageOriginalHeelAnchoredFullBodyLean(actor,reducedMotion){
   !patches?.right?.anatomicalHeelToeVerified){
   record('source-original-anatomical-shoe-weights-missing');return;
  }
- const read=()=>Object.fromEntries(['left','right'].map(s=>{
-  const foot=patches[s],heel=readOriginalSwingSoleSample(foot.heel),
-   toe=readOriginalSwingSoleSample(foot.toe);
-  return [s,{heel:[heel?.xz?.[0],heel?.y,heel?.xz?.[1]],
-   toe:[toe?.xz?.[0],toe?.y,toe?.xz?.[1]]}];
- }));
+ // The attached original Three.js SkinnedMesh has an OVERRIDDEN
+ // updateMatrixWorld() that refreshes bindMatrixInverse. A parent
+ // updateWorldMatrix(true,true) bypasses that override, so reading the
+ // four source-weighted vertices after a whole-body rotation applies the
+ // pivot TWICE (genuine #44999929544: 11–13mm sole error). The six original
+ // GLB clip tracks, source bones and weapon grip are already correct.
+ // Refresh only the distinct 1–4 licensed shoe meshes before BOTH the
+ // trial read and rollback read. No new geometry, GPU draw or joint solver.
+ const sourceShoeMeshes=['left','right'].flatMap(s=>
+  [patches[s].heel.mesh,patches[s].toe.mesh]);
+ const read=()=>{
+  for(let i=0;i<sourceShoeMeshes.length;i++){
+   const mesh=sourceShoeMeshes[i];
+   if(mesh?.isSkinnedMesh&&sourceShoeMeshes.indexOf(mesh)===i)
+    mesh.updateMatrixWorld(true);
+  }
+  return Object.fromEntries(['left','right'].map(s=>{
+   const foot=patches[s],heel=readOriginalSwingSoleSample(foot.heel),
+    toe=readOriginalSwingSoleSample(foot.toe);
+   return [s,{heel:[heel?.xz?.[0],heel?.y,heel?.xz?.[1]],
+    toe:[toe?.xz?.[0],toe?.y,toe?.xz?.[1]]}];
+  }));
+ };
  actor.assetRoot.updateMatrixWorld(true);
  const before=read();
  const plan=planOriginalSourceHeelAnchoredBodyLean({
@@ -1104,6 +1121,15 @@ function stageOriginalHeelAnchoredFullBodyLean(actor,reducedMotion){
   pivot.position.copy(basePosition);
   pivot.quaternion.copy(baseQuaternion);
   pivot.updateWorldMatrix(true,true);
+  // Also repair the attached original bind inverses after rollback; leaving
+  // them at the rejected world pose would corrupt the following live frame's
+  // CPU skin evidence even though the original quaternion was restored.
+  const restored=read();
+  const restoredSolesVerified=['left','right'].every(side=>
+   ['heel','toe'].every(part=>restored[side]?.[part]?.length===3&&
+    before[side]?.[part]?.length===3&&
+    restored[side][part].every((v,i)=>Number.isFinite(v)&&
+     Math.abs(v-before[side][part][i])<.001)));
   record('independent-original-two-shoe-or-grip-lean-rejected',{
    reason:readback.reason,
    firstMismatchedEndpoint:readback.firstMismatchedEndpoint,
@@ -1113,6 +1139,7 @@ function stageOriginalHeelAnchoredFullBodyLean(actor,reducedMotion){
    measuredSwingToeLiftMm:readback.measuredSwingToeLiftMm,
    sourceWeaponGripVerified:readback.sourceWeaponGripVerified,
    originalSkinnedEndpointsRead:readback.originalSkinnedEndpointsRead,
+   restoredOriginalSourceSolesVerified:restoredSolesVerified,
    contactLocked:false,plantCertified:false
   });
   return;
