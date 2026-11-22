@@ -9,6 +9,30 @@ const MAX_MESHES=80;
 const MAX_INSTANCES=24;
 const MAX_PER_GRILLE=12;
 
+/**
+ * Exact current-frame camera/material identity for SOURCE-OWNED old gateway
+ * projection. A camera that rotates in place changes the matrixWorld even
+ * without moving its position; portrait FOV changes the projection matrix.
+ * This key is only used after World has verified the SAME genuine HP-zero
+ * retained original gateway. It grants no sightline, no GPU/native pixels.
+ */
+export function sourceOriginalGateProjectionKey(source,held,camera) {
+  if(typeof source?.runToken!=='string'||!source.runToken||
+     !Number.isSafeInteger(source.tick)||source.tick<0||
+     !finite(held?.originalGatewayOpacity)||
+     held.originalGatewayOpacity<=0||held.originalGatewayOpacity>1||
+     camera?.isCamera!==true ||
+     typeof camera.updateMatrixWorld!=='function'||
+     !camera.matrixWorld?.elements||!camera.projectionMatrix?.elements)
+    return null;
+  camera.updateMatrixWorld(true);
+  const world=camera.matrixWorld.elements,lens=camera.projectionMatrix.elements;
+  if(world.length!==16||lens.length!==16||
+     ![...world,...lens].every(finite))return null;
+  return JSON.stringify([source.runToken,source.tick,
+    held.originalGatewayOpacity,...world,...lens]);
+}
+
 export function projectOriginalGuardianGateSteel(THREE,root,camera,syncWorldMatrix=null){
   if(!root?.isGroup || root.visible!==true || !camera?.isCamera ||
      !THREE?.Vector3 || !THREE?.Matrix4)return null;
