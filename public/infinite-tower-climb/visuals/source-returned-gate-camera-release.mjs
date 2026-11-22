@@ -192,7 +192,7 @@ export function sourceEarnedFloorNineOrbitGuard({
      w.cap?.id!=='f8:cap' || w.guardian?.kind!=='guardian' ||
      w.guardian.active!==false || !finite(w.guardian.health) ||
      w.guardian.health>0 ||
-     ![source.tick,w.sourceTick,w.cap.y,w.cap.height,
+     ![source.tick,w.sourceTick,w.crossingX,w.cap.y,w.cap.height,
        p.x,p.y,p.halfHeight].every(isInt) ||
      source.tick<w.sourceTick || source.tick-w.sourceTick>110 ||
      !roof || ![roof.x,roof.y,roof.width,roof.height].every(isInt) ||

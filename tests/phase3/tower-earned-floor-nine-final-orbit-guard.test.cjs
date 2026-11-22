@@ -7,7 +7,7 @@ const guard=import('../../public/infinite-tower-climb/visuals/source-returned-ga
 const token='authentic-guardian-earned-f9';
 const source={
  floor:9,theme:'void',lifecycle:'running',runToken:token,tick:544,
- player:{health:4,x:341000,y:3314000,halfHeight:14000,
+ player:{health:4,x:341000,y:3328000,halfHeight:14000,
   grounded:true,groundedPlatformId:'f9:p2',state:'standing'},
  lastGuardianCrossing:{
   runToken:token,sourceTick:475,fromFloor:8,toFloor:9,
