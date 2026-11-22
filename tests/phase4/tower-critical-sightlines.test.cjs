@@ -59,7 +59,9 @@ test('earned airborne gateway and real landing remain independent in source and 
   assert.match(scene,/protectLiveRoute&&sightlinePriorities\.arrival\?observedLandingSightline/);
   assert.match(scene,/sightlinePriorities\.gate&&sightlinePriorities\.arrival\s*\?earnedGatewayFocus:null/);
   assert.match(world,/hazard=null, gateway=null, actorHalfWidth=0\)/);
-  assert.match(world,/halfWidth:actorHalfWidth,\s*gateway:oldGate\?historicalGateRayPoint:null,\s*source:lastSnapshot/,'live source-authenticated old gateway remains an independent camera ray target');
+  assert.match(world,/halfWidth:actorHalfWidth,\\s*gateway:oldGate\\?historicalGateRayPoint:null,\\s*raisedDestination:raisedStepTarget,\\s*source:lastSnapshot/,'live source-authenticated old gateway and independent real raised destination remain different physical ray targets');
+  assert.match(world,/platforms\\.get\\(raisedSource\\.id\\)\\?\\.root\\?\\.parent===floorGroup/,'raised sightline may only originate in actually attached source geometry');
+  assert.match(world,/historicalRaisedStepNdc\\.copy\\(historicalRaisedStepRayPoint\\)\\.project\\(camera\\)/,'raised goal must survive actual final-camera projection before the old gallery is softened');
   // The five existing real route endpoints must remain independent; the
   // additional body-width input only protects the authentic actor silhouette.
   assert.match(world,/const targets=enabled\?\[actor,guardian,landing,hazard,gateway\]:\[\]/);
