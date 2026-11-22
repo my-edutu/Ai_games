@@ -133,15 +133,21 @@ test('authentic floor 9 submits the source deck first, the original canyon secon
     assert.equal(diag.deferredDistantArrival.fade,0);
     assert.equal(diag.deferredDistantArrival.vistaFade,0);
     for(let i=0;i<40;i++){
-      world.noteFrameSubmitted(to,{},.016);
+      assert.equal(world.noteFrameSubmitted(to,{},.016),true,
+        'every successful same-run renderer return must be acknowledged after distant upload');
       world.update(to,.016,1+i/60,{quality:'low'});
     }
     diag=world.diagnostics();
     assert.equal(diag.deferredDistantArrival.state,'complete');
     assert.equal(diag.deferredDistantArrival.fade,1);
     assert.equal(diag.deferredDistantArrival.vistaFade,1);
-    assert.equal(diag.deferredDistantArrival.submittedFrames,2);
+    assert.equal(diag.deferredDistantArrival.submittedFrames,42,
+      'total accepted WebGL returns include completed distant frames, not only upload-stage changes');
     assert.equal(diag.deferredDistantArrival.firstRenderSubmitted,true);
+    assert.equal(world.noteFrameSubmitted(to,{stale:true},.016),false);
+    assert.equal(world.noteFrameSubmitted({...to,runToken:'foreign'}, {},.016),false);
+    assert.equal(world.diagnostics().deferredDistantArrival.submittedFrames,42,
+      'stale and foreign source frames cannot inflate true GPU submission history');
     const remote=distant(world).find(o=>o.material.type==='MeshBasicMaterial');
     assert.equal(remote.material.opacity,1);
     assert.equal(remote.castShadow,false);

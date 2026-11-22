@@ -5006,7 +5006,11 @@ export function createTowerWorld(){
         job.vistaMaterial.needsUpdate=true;
       }
     }
-    return advancing;
+    // A matching, non-stale successor frame has already RETURNED from
+    // renderer.render. Even after the distant upload queue completes, it
+    // remains a valid GPU submission for the original gateway's source
+    // accounting. Reject unmatched runs/floors above; never throw from here.
+    return true;
   }
   function update(snapshot,dt=0,time=0,options={},passageWitness=null){
     if(disposed||!snapshot)return;
