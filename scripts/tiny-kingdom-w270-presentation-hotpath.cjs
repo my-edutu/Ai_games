@@ -81,5 +81,5 @@ assert.equal(jobScans,3,'real fixed-step advance must re-evaluate worksite membe
 assert.equal(vm.runInContext('getRealWorksiteFrameAudit().maxVisible',siteEnv),8);
 assert.ok(html.includes('if(!cargo)return;'));
 assert.ok(html.includes('function renderMarketReceiptInventory()'));
-assert.ok(html.includes('function villager(p)'));
+assert.match(html,/function villager\s*\(\s*p\b/,'the real villager renderer must accept the same authoritative citizen; optional new presentation arguments are allowed');
 console.log('W270 PASS: genuine six-worker credited cargo, camera job selection, live 13-joint work intent, unchanged source authority');
