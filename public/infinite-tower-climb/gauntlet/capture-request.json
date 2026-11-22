@@ -8644,5 +8644,42 @@
       "PLAYS": 0
     },
     "actualHardwareFrameTime": "NOT EVALUATED"
+  },
+  "p0ActualSourceReturnedOneWayBronzeDoorExitCapture20261122": {
+    "stage": "P0 OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "correctedOriginalDoorZeroAlphaOpticalCode": "4c7aaf2d431bf7cb6c944d2d9d96f53ef705ce87",
+    "correctedTestSha": "223b9734d2984eaa6807b2e20584db34aa099e76",
+    "integratedSceneSha": "58547c138cad1634510f1a0fc91728c324da1432",
+    "candidateRef": "${{ github.sha }}",
+    "previousUncorrectedSourceCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44966958466",
+    "reason": "Re-record exact immutable source after correcting genuine Floor8 HP-open 3D doorway premature zero-alpha on Floor9 route support state, even if actual successor shaft had not yet submitted enough frames. No synthetic source ticks or camera. Prior capture 58547c13 does NOT include full returned-room interlock.",
+    "capture": {
+      "seed": "tower-transformation-capture-v1",
+      "fps": 25,
+      "speed": 1,
+      "tier": "low",
+      "minSeconds": 60,
+      "viewports": [
+        "960x600",
+        "390x844"
+      ],
+      "scenarios": [
+        "ascent",
+        "moving",
+        "danger",
+        "outcome/restart"
+      ],
+      "baseline": "1731b380851162741761c5569e2bc152a0869ca9"
+    },
+    "inspect": "Unedited full-motion original WebM baseline/candidate, actual native PTS vs authoritative source defeat/HP0/grille, threshold boot contact, F9 p2 raised landing, event-paired guardian and restart; reject 0/2 strict matching and gate/hero/roof mismatch.",
+    "independentBlindCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDeviceP50P95P99AndMemory": "NOT EVALUATED",
+    "forbidden": "Never alter frozen ledger, PR58, other games, draft status, deploy, merge or force-push."
   }
 }
