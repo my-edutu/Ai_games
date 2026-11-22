@@ -931,6 +931,10 @@
     "correctedBehavior": "When there is verified source-grounded F9 route and no acceptable real successor-shaft return, hold the last actually painted old-gate opacity even if a newer source support state proposes zero alpha. Once both old room and incoming genuine shaft meet returned-frame/time requirements, spend one-way material opacity. Invalid/missing support cannot create an extension. This remains bounded by existing 30 returned frames / 2.8s and entire original HP0 source lease.",
     "firstNewCampaignLimit": "Campaign 44966958466 is source 58547c13 BEFORE zero-alpha proof correction. Its films are useful for diagnosis but cannot validate the corrected 223b9734 source; new capture request will pin exact corrected HEAD.",
     "newCaptureRequirement": "Commit a new request to public/infinite-tower-climb/gauntlet/capture-request.json after the corrected helper/test are in HEAD; the real-world nine-job workflow pins github.sha immutably.",
-    "assessorVerdict": "NOT EVALUATED"
+    "assessorVerdict": "NOT EVALUATED",
+    "correctedExactSourceCaptureRequestSha": "f836d339b26a248fa86fd0dc1c26f309f0c0a97d",
+    "correctedExactSourceCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44967245683 — running at last inspection; immutable candidate f836d339, baseline 1731b380; no new film acceptance",
+    "correctedExactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44967245678 — pending at last inspection; exact code+request SHA f836d339; CI is veto, not experience acceptance",
+    "lastSourceQualityResult": "Before these changes, earlier b72dfdca passed 10/10 in run 44962450070. Helper-only caccb5e7 quality 44966922546 failed 9/10 from phase6 global timeout; integrated current code not yet qualified. The new 44967245678 workflow is pending, NOT PASS."
   }
 }
