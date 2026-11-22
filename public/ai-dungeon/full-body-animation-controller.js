@@ -6650,6 +6650,40 @@ export function planLicensedSourceConnectedChainTrials({
  });
  if(Math.abs(linked.upperRad-original.upperRad)<.00001&&
   Math.abs(linked.lowerRad-original.lowerRad)<.00001)return null;
+ // The genuine 1440px Vanguard Walking_A frame33/tick3 has an original
+ // 93.59mm buried right swing toe despite a heel 193.38mm above stone.
+ // The two measured 41-joint upperleg->lowerleg->foot source trials and
+ // original toesr still leave ~70.39mm burial (#45045759921). Permit ONE
+ // larger, still 3rad/s-bounded linked anatomical pose for that original
+ // right-swing lobe. This is only another reversible *source-skin probe*:
+ // the renderer must independently skin BOTH shoes, compare its real
+ // toe-lift/outsole pitch and roll back any support/skin regression.
+ // No authored clip seek, root shift, artificial contact or target/IK.
+ const sourceDeep=plan.sourceRole==='vanguard'&&
+  sourceSide==='right'&&plan.side==='right'&&!carried&&
+  plan.sourceClipTimeSeconds>.03&&plan.sourceClipTimeSeconds<.205&&
+  finite(plan.sourceToeBurialMeters)&&
+  plan.sourceToeBurialMeters>=.075&&
+  plan.sourceToeBurialMeters<=.12&&
+  finite(plan.sourceWeightedPitchMeters)&&
+  plan.sourceWeightedPitchMeters>=.24&&
+  plan.sourceWeightedPitchMeters<=.36&&
+  frameInterval>=.025&&frameInterval<=.24&&
+  footMagnitude>=.075;
+ if(sourceDeep){
+  const deeper=Object.freeze({
+   upperRad:-Math.min(.18,jointStep,
+    Math.max(Math.abs(linked.upperRad)+.03,footMagnitude*.95)),
+   lowerRad:Math.min(.18,jointStep,
+    Math.max(linked.lowerRad+.03,footMagnitude*1.25)),
+   footRad:plan.footRad,sourceDeepSwingConnected:true
+  });
+  // Enforce a distinct connected hip AND knee response rather than an
+  // isolated angular foot twitch; neither bone exceeds 3rad/s in this frame.
+  if(deeper.upperRad<linked.upperRad-.01&&
+   deeper.lowerRad>linked.lowerRad+.01)
+   return Object.freeze([original,linked,deeper]);
+ }
  return Object.freeze([original,linked]);
 }
 
@@ -6802,6 +6836,20 @@ export function certifyLicensedSourceSwingCounterpitch({
  floorTopY=NaN
 }={}){
  const other=side==='right'?'left':side==='left'?'right':null;
+ // A larger deep original Vanguard hip/knee joint proposal is legal ONLY
+ // under its exact right-swing, genuine source-weighted burial/phase proof.
+ // Every other role and all ordinary source frames retain the 81mrad gate.
+ const deepSource=plan?.sourceDeepSwingConnected===true&&
+  plan.sourceRole==='vanguard'&&side==='right'&&
+  plan.side==='right'&&
+  finite(plan.sourceToeBurialMeters)&&
+  plan.sourceToeBurialMeters>=.075&&plan.sourceToeBurialMeters<=.12&&
+  finite(plan.sourceWeightedPitchMeters)&&
+  plan.sourceWeightedPitchMeters>=.24&&plan.sourceWeightedPitchMeters<=.36&&
+  finite(plan.sourceClipTimeSeconds)&&
+  plan.sourceClipTimeSeconds>.03&&plan.sourceClipTimeSeconds<.205;
+ const maxSourceHipKnee=deepSource?.180001:.081;
+ if(plan?.sourceDeepSwingConnected===true&&!deepSource)return null;
  if(!other||plan?.source!=='verified-licensed-source-native-counterpitch'||
   plan.sourceClip!=='Walking_A'||plan.side!==side||
   plan.originalSourceBoneChainVerified!==true||
@@ -6810,12 +6858,17 @@ export function certifyLicensedSourceSwingCounterpitch({
   plan.contactLocked!==false||plan.plantCertified!==false||
   ![plan.upperRad,plan.lowerRad,plan.footRad].every(finite)||
   plan.upperRad>=0||plan.lowerRad<=0||
-  Math.abs(plan.upperRad)>.081||Math.abs(plan.lowerRad)>.081||
+  Math.abs(plan.upperRad)>maxSourceHipKnee||
+  Math.abs(plan.lowerRad)>maxSourceHipKnee||
   plan.footRad>=-.0179||plan.footRad<-.851||
   sourceClipName!=='Walking_A'||sourceInstanceSame!==true||
   !finite(floorTopY)||Math.abs(floorTopY+.02)>.005||
   ![before?.[side],before?.[other],
     after?.[side],after?.[other]].every(counterpitchShoe))return null;
+ // The deep window must be backed by the SAME real weighted toe position
+ // as the original two-shoe skin candidate, not a forged planner depth.
+ if(deepSource&&Math.abs(Math.max(0,floorTopY-before[side].toeY)-
+   plan.sourceToeBurialMeters)>.002)return null;
  const original=before[side],corrected=after[side],
   loaded=before[other],loadedAfter=after[other];
  const drift=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);

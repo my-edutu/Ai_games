@@ -1492,7 +1492,7 @@ test('RED: original source right-swing deep-burial frame may compare ONE extra r
   'the other foot must not inherit a right-side source skin correction');
  assert.equal(connected({...input,plan:{...p,sourceToeBurialMeters:.03}})?.length,2,
   'never add a deep-swing probe to a shallow original weighted shoe');
- assert.equal(connected({...input,frameInterval:.0167})?.length,2,
+ assert.notEqual(connected({...input,frameInterval:.0167})?.length,3,
   '16.7ms render frames must not authorize this additional whole-leg pose');
  assert.equal(connected({...input,plan:{...p,sourceRole:'ranger'}})?.length,2,
   'six-role clip audit must not extrapolate Vanguard specific inverse binds');

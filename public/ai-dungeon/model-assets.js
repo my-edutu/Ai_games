@@ -5331,8 +5331,9 @@ function stageLicensedSourceSwingCounterpitchAfterMixer(actor,reducedMotion){
  const originals=mounts.map(m=>m.bone.quaternion.clone());
  let chosen=null;
  try{
-  // At most TWO original six-role upper→lower→foot source poses and a
-  // third independent FINAL read. No added draws, synthetic IK targets,
+  // Two ordinary original upper→lower→foot source poses, or a THIRD
+  // tightly witnessed Vanguard right deep-swing pose; one independent
+  // FINAL two-shoe skin read always decides. No added draws, IK targets,
   // source clip-time edits or authoritative travel.
   for(const trial of connectedTrials){
    const angles=[trial.upperRad,trial.lowerRad,trial.footRad];
@@ -5422,9 +5423,9 @@ function stageLicensedSourceSwingCounterpitchAfterMixer(actor,reducedMotion){
   before,after,finalIndependentSourceSkin:true,
   sourceProbeCount:connectedTrials.length+1,
   sourceConnectedLegCandidateCount:connectedTrials.length,
-  sourceConnectedLegSelected:connectedTrials.length===2&&
-    Math.abs(chosen.trial.upperRad-connectedTrials[1].upperRad)<.000001&&
-    Math.abs(chosen.trial.lowerRad-connectedTrials[1].lowerRad)<.000001,
+  sourceConnectedLegCandidateIndex:connectedTrials.indexOf(chosen.trial),
+  sourceConnectedLegSelected:connectedTrials.indexOf(chosen.trial)>0,
+  sourceDeepSwingConnected:chosen.trial.sourceDeepSwingConnected===true,
   contactLocked:false,plantCertified:false};
  actor.sourceLicensedCounterpitchCurrentFrame[side]=receipt;
  actor.sourceLicensedCounterpitchLastProof=receipt;
