@@ -2629,6 +2629,13 @@ export function createTowerScene(canvas, settings = {}) {
   // Bounded observational evidence on returned native Three.js submissions.
   const physicalDoorwaySubmissionAudit = [];
   let physicalDoorwayAuditEpisode = null;
+  // Inspect the ORIGINAL 1x hard cut in source-native event time. Keep the
+  // first 80 *actual returned* F9 frames (including after old owner retires),
+  // never the latest 80 source polls. Bounded 20KB scalar-only audit; no ray,
+  // GPU readback, new 3D draw, source mutation or gameplay timebase.
+  const originalToVoidReturnedTimeline=[];
+  let originalToVoidReturnedRun=null;
+  const ORIGINAL_TO_VOID_RETURN_LIMIT=80;
   const thresholdHero = new THREE.Vector3(), thresholdGate = new THREE.Vector3();
   // Genuine third subject of the original guardian passage: the already
   // authored walkable F9 ground beyond its HP-open gate, not a HUD target.
@@ -6334,6 +6341,32 @@ export function createTowerScene(canvas, settings = {}) {
       // Only the successfully returned original render owns the old/new
       // world presentation clock; source packets and stalled RAFs do not.
       world.noteFrameSubmitted?.(snapshot,options,dt);
+      // A real returned framebuffer can include a retained bronze room, a
+      // partly submitted original F9 shaft, or neither. Store those ACTUAL
+      // owners with this submitted camera+scene climate, so the next native
+      // video review can locate the hard cut's causal subsystem rather than
+      // patching another inferred opacity or gaze. The entire audit is
+      // read-only and cannot certify painted video pixels.
+      const roomReturn=world.sourceHandoffReturnWitness?.(snapshot);
+      if(roomReturn && !options.stale) {
+        if(originalToVoidReturnedRun!==snapshot.runToken){
+          originalToVoidReturnedRun=snapshot.runToken;
+          originalToVoidReturnedTimeline.length=0;
+        }
+        if(originalToVoidReturnedTimeline.length<ORIGINAL_TO_VOID_RETURN_LIMIT){
+          originalToVoidReturnedTimeline.push({
+            ...roomReturn,
+            returnedWallMs:Date.now(),
+            returnedPerfMs:Number(rendererReturnedAt.toFixed(2)),
+            submittedCamera:camera.position.toArray().map(x=>+x.toFixed(3)),
+            submittedGaze:lookAt.toArray().map(x=>+x.toFixed(3)),
+            submittedCameraFov:+camera.fov.toFixed(3),
+            submittedFogColor:scene.fog?.color.getHexString()??null,
+            submittedHero:climber.group.position.toArray()
+              .map(x=>+x.toFixed(3)),
+          });
+        }
+      }
       // The source-earned physical gateway is timed from an actual returned
       // Three.js submission, not from a browser receipt or stalled render.
       // Its owned run/floor/tick gate rejects stale and interrupted attempts.
@@ -6819,6 +6852,15 @@ export function createTowerScene(canvas, settings = {}) {
         environmentFailures: reflectionFailures, environmentLastError: reflectionLastError,
         environmentSize: reflectionTarget ? [reflectionTarget.width, reflectionTarget.height] : [0, 0], shadowLights: 1, shadowMapSize: sun.shadow.mapSize.x },
       voidProgramPrewarm: voidProgramPrewarm.diagnostics(),
+      originalToVoidReturnedTimeline: {
+        source: 'first 80 exact same-run, successful renderer.render returns in the real F8→F9 scene',
+        runToken: originalToVoidReturnedRun,
+        frames: originalToVoidReturnedTimeline.map(frame=>({...frame,
+          submittedCamera:[...frame.submittedCamera],
+          submittedGaze:[...frame.submittedGaze],
+          submittedHero:[...frame.submittedHero]})),
+        limitation: 'Scene-owned material, geometry and camera witnesses AFTER WebGL return; no native WebM pixel, event-timebase, independent LOOKS/FEELS/PLAYS or actual-device pass',
+      },
       physicalDoorwaySubmissionAudit: {
         episode: physicalDoorwayAuditEpisode,
         source: 'first 56 unique source ticks with real WebGL returns after guardian victory',

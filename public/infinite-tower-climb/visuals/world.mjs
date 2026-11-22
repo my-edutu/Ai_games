@@ -3,6 +3,7 @@ import { planVoidOpenDeckTruss } from './void-open-deck-truss.mjs';
 import { genuineRaisedDeckCorners, projectedRaisedDeckDominance } from './source-deck-backdrop-composition.mjs';
 import { moveSourceOriginalClockworkCore, sourceOriginalClockworkCoreOpacity } from './source-original-clockwork-core-ownership.mjs';
 import { sourceOriginalGateProjectionKey } from './original-guardian-gate-steel-projection.mjs';
+import { observedSourceReturnedRoomState } from './source-returned-room-timeline.mjs';
 import * as THREE from '/tower/vendor/three.module.js';
 import { SCALE, ARC, angleFor, pointFor, guardianGateAnchorX, guardianTraversalGatePose, GUARDIAN_CAP_CORRIDOR } from './coordinates.mjs';
 import { observedSourceEarnedAirborneHandoff, observedSourceEarnedDoorstepHandoff, observedRecordedGuardianDoorstepHandoff } from './guardian-passage.mjs';
@@ -6450,6 +6451,15 @@ export function createTowerWorld(){
       originalGatewayGeometryPresent:true,
       evidence:'Current retained source-owned original gateway scene geometry, not painted pixels'};
   }
+  // O(1), immutable scalar provenance for every genuinely returned F9
+  // renderer frame. The main camera/scene captures the physical lens at the
+  // same return without traversing thousands of meshes on a mobile GPU.
+  function sourceHandoffReturnWitness(source) {
+    return observedSourceReturnedRoomState(source,retainedEarnedCap,
+      deferredDistantArrival,
+      platforms.get('f9:ground')?.arrivalSurface?.color.getHexString()??null,
+      sourceCertifiedHorizon);
+  }
   function diagnostics(){let objects=0,meshes=0,instances=0,shadowCasterMeshes=0,triangles=0;group.traverse(o=>{objects++;if(o.isMesh){meshes++;if(o.castShadow)shadowCasterMeshes++;triangles+=(o.geometry.index?o.geometry.index.count:o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);}if(o.isInstancedMesh)instances+=o.count;});return{objects,meshes,instances,shadowCasterMeshes,triangles,
     sourceOwnedSuccessorUndercroft:{...successorUndercroftSightline},
     sourceSightlineRayBroadphase:sourceSightlineRayBroadphase.diagnostics(),
@@ -6562,5 +6572,5 @@ export function createTowerWorld(){
       deferredBuildMs:deferredDistantArrival.deferredBuildMs,
     }:null,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;retireEarnedCap();pendingEarnedCap=null;clearFloor();finishRetiredFloorResources('disposed');for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
-  return{group,update,stageGroundedCapContinuation,sourceEarnedOriginalGateGeometry,retainedFilmHandoff,certifiedPaletteHorizon,noteFrameSubmitted,deferredShaderSubmission,projectedOriginalGateSteel,measureSuccessorDeckVisibility,measureSourceRaisedDeckBackdrop,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics,lastRebuild};
+  return{group,update,sourceHandoffReturnWitness,stageGroundedCapContinuation,sourceEarnedOriginalGateGeometry,retainedFilmHandoff,certifiedPaletteHorizon,noteFrameSubmitted,deferredShaderSubmission,projectedOriginalGateSteel,measureSuccessorDeckVisibility,measureSourceRaisedDeckBackdrop,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics,lastRebuild};
 }
