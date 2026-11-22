@@ -7166,6 +7166,8 @@ export function planOriginalSourceHeelAnchoredBodyLean({
  const angle=Math.min(.05,3*frameInterval*.85,.024/lever);
  if(angle<.018)return null;
  const axis=[-dz/lever,0,dx/lever];
+ const originalBefore=Object.fromEntries(['left','right'].map(s=>[
+  s,{heel:soles[s].heel.slice(),toe:soles[s].toe.slice()}]));
  const predictedAfter=Object.fromEntries(['left','right'].map(s=>[
   s,{heel:originalHeelLeanRotate(soles[s].heel,heel,axis,angle),
    toe:originalHeelLeanRotate(soles[s].toe,heel,axis,angle)}]));
@@ -7190,6 +7192,7 @@ export function planOriginalSourceHeelAnchoredBodyLean({
   sourceRealRootTravelMeters:rootTravel,
   sourceFrameIntervalSeconds:frameInterval,
   worldSupportHeel:heel.slice(),worldAxis:axis,angleRad:angle,
+  originalBefore,
   projectedSwingToeLiftMeters:proposedLift,predictedAfter,
   contactLocked:false,plantCertified:false,
   worldBodyRotationOnly:true,originalBoneTracksPreserved:true
@@ -7218,8 +7221,7 @@ export function certifyOriginalSourceHeelAnchoredBodyLean({
    if(![a,b,predicted].every(originalHeelLeanPoint)||
     Math.hypot(...b.map((n,i)=>n-predicted[i]))>.001||
     Math.hypot(...a.map((n,i)=>
-     n-(endpoint==='heel'?plan.predictedAfter[side].heel[i] :
-      plan.predictedAfter[side].toe[i])))>.50)return null;
+     n-plan.originalBefore?.[side]?.[endpoint]?.[i]))>.001)return null;
    matched++;
   }
  }
