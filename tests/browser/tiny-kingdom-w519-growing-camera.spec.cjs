@@ -278,6 +278,33 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    expect(tour.webglError).toBe(0);
    expect(tour.overflow).toBeLessThanOrEqual(0);
   }
+  // W532 genuine player return: a manually clicked Village control must
+  // reframe real market + lived farm/home instead of the old vertical roof.
+  const verifiedBefore=await page.evaluate(()=>window.__tinyKingdom.exportSnapshot().checksum);
+  const oldCount=await page.evaluate(()=>window.__tinyKingdom.renderQuality().framesDrawn);
+  await page.locator('[data-scenic="valley"]').click();
+  await page.waitForFunction(before=>window.__tinyKingdom.renderQuality().framesDrawn>before,
+   oldCount,{timeout:125000});
+  const village=await page.evaluate(()=>{
+   const g=window.__tinyKingdom,c=document.querySelector('#world');
+   return {audit:g.getLivedTownOverviewAudit(),view:g.getCamera(),
+    physical:g.getFreeCameraCollisionAudit(),checksum:g.exportSnapshot().checksum,
+    glError:c.getContext('webgl').getError()};
+  });
+  const realVillage=await page.screenshot();
+  fs.writeFileSync(path.join(evidenceDirectory,'day-121-player-village.png'),realVillage);
+  fs.writeFileSync(path.join(evidenceDirectory,'day-121-player-village.json'),
+   JSON.stringify({source:process.env.GITHUB_SHA||'local',viewport,
+    ...village,hardwareFPS:'NOT MEASURED'},null,2));
+  await info.attach('real-player-village-'+viewport.width,
+   {body:realVillage,contentType:'image/png'});
+  expect(village.audit.manualVisits).toBeGreaterThan(0);
+  expect(village.audit.manualLast?.story?.market?.visible).toBe(true);
+  expect(village.audit.manualLast?.story?.visibleDistricts).toBeGreaterThanOrEqual(2);
+  expect(village.view.pitch).toBeLessThan(.9);
+  expect(village.physical.viewClear).toBe(true);
+  expect(village.checksum).toBe(verifiedBefore);
+  expect(village.glError).toBe(0);
   expect(stages.at(-1).homes).toBeGreaterThan(initial.homes);
   expect(stages.at(-1).day).toBeGreaterThanOrEqual(120);
   fs.writeFileSync(path.join(evidenceDirectory,'real-world-audit.json'),
