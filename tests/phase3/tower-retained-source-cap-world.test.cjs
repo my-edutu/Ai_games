@@ -1343,3 +1343,49 @@ test('cold 15-tick source-observed F8-to-F9 first paint retains original real Th
  }finally{world.dispose();}
  assert.equal(JSON.stringify([first,second]),saved);
 });
+
+test('genuinely returned two-room HP-zero receiving roof breaks ONLY the scenic upload deadlock',async()=>{
+  const {observedPrebuiltVoidShaftRelease:release}=await import(uri('crossfloor-arrival.mjs'));
+  const before=old(),source=next();
+  source.tick=480;
+  source.player={...source.player,x:gate+29000,
+    grounded:true,groundedPlatformId:'f9:ground',state:'standing',vy:0};
+  source.lastGuardianCrossing={
+    runToken:source.runToken,sourceTick:451,fromFloor:8,toFloor:9,
+    cap,exitX:gate,crossingX:gate+13000,crossingY:body.y,
+    halfWidth:body.halfWidth,halfHeight:body.halfHeight,
+    guardian:{...before.enemies[0],floor:8}
+  };
+  const held={runToken:source.runToken,floor:9,guardianGateRetained:true,
+    verifiedObservedFloorAdvance:true,firstWorldRenderTick:460,
+    submittedFrames:16,visibleSeconds:.8,originalGatewayOpacity:.86,
+    opticalExitSubmitted:false};
+  const shaft={runToken:source.runToken,floor:9,
+    proof:'recorded-source-gateway',structureDeferred:true,
+    state:'awaiting-structural-release',sourceTick:460,
+    submittedFrames:16,structureBuiltAtSubmitted:4,
+    structuralRoot:{isGroup:true,visible:true},
+    structuralFade:.4,structuralVisibleReturns:16,structuralVisibleSeconds:.8};
+  const gatePresent={sourceBound:true,sourceTick:source.tick,opacity:.86};
+  const frozen=JSON.stringify([source,held,shaft,gatePresent]);
+  assert.equal(release(source,null,held,shaft,gatePresent),true,
+    'a real source-supported F9 roof, immutable victory and 16 true old/new WebGL returns must escape the old-visible scenic upload deadlock');
+  const fakeCases=[
+    [{...source,runToken:'other'},held,shaft,gatePresent],
+    [{...source,player:{...source.player,grounded:false,groundedPlatformId:null}},held,shaft,gatePresent],
+    [{...source,player:{...source.player,groundedPlatformId:'imaginary'}},held,shaft,gatePresent],
+    [{...source,lastGuardianCrossing:{...source.lastGuardianCrossing,guardian:{...source.lastGuardianCrossing.guardian,active:true,health:4}}},held,shaft,gatePresent],
+    [source,{...held,guardianGateRetained:false},shaft,gatePresent],
+    [source,{...held,verifiedObservedFloorAdvance:false},shaft,gatePresent],
+    [source,held,{...shaft,structuralVisibleReturns:0,structuralVisibleSeconds:0},gatePresent],
+    [source,held,{...shaft,structuralVisibleSeconds:.49},gatePresent],
+    [source,held,{...shaft,structuralRoot:{isGroup:true,visible:false}},gatePresent],
+    [source,held,{...shaft,structuralFade:0},gatePresent],
+    [source,held,{...shaft,runToken:'other'},gatePresent]
+  ];
+  for(const [badSource,badHeld,badJob,badGate] of fakeCases)
+    assert.equal(release(badSource,null,badHeld,badJob,badGate),false,
+      'stale/unreturned/unsupported or nonvictorious source cannot consume the actual two-owner returned-room lease');
+  assert.equal(JSON.stringify([source,held,shaft,gatePresent]),frozen,
+    'all renderer staging witnesses and gameplay snapshots remain immutable');
+});

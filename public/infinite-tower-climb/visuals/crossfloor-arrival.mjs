@@ -416,6 +416,52 @@ export function observedPrebuiltVoidShaftRelease(source,passage,held,job,sourceG
     source.tick>=crossing.sourceTick &&
     source.tick-crossing.sourceTick<=70;
   if(!sameOldGpuOwner && !immutableVictory) return false;
+  // A real 16-frame retained F9 room exposed a render-only DEADLOCK: the
+  // original bronze portal remained source-authentically opaque, while the
+  // physically existing successor shaft had itself returned 16 visible WebGL
+  // submissions / 800ms and already advanced to ~40% structural opacity.
+  // The former two-sided hold rejected both a source-sill window that had
+  // aged out and a shell that could not retire until the old gate faded.
+  // Once BOTH original owners have been successfully displayed together
+  // with the SAME living, HP-zero source and exact physical receiving roof,
+  // release ONLY the prebuilt noninteractive shaft's upload state. Keep the
+  // original bronze gateway and actual roof/colliders under their existing
+  // one-way paint lease; never grant physics, floor, defeat or native pixels.
+  const p=source.player;
+  const receivingRoof=source.platforms?.find(deck=>deck?.id==='f9:ground');
+  const realRoofReceipt=p?.grounded===true &&
+    p.groundedPlatformId==='f9:ground' &&
+    p.state==='standing' && p.vy===0 &&
+    [p.x,p.y,p.halfWidth,p.halfHeight,
+      receivingRoof?.x,receivingRoof?.y,receivingRoof?.width,
+      receivingRoof?.height].every(Number.isSafeInteger) &&
+    p.halfWidth>0 && p.halfHeight>0 &&
+    receivingRoof.width>0 && receivingRoof.height>0 &&
+    p.y-p.halfHeight===receivingRoof.y+receivingRoof.height &&
+    p.x-p.halfWidth>=receivingRoof.x &&
+    p.x+p.halfWidth<=receivingRoof.x+receivingRoof.width;
+  const earnedTwoRoomRelease=sameOldGpuOwner && immutableVictory &&
+    held.verifiedObservedFloorAdvance===true &&
+    held.opticalExitSubmitted!==true &&
+    realRoofReceipt &&
+    job.structuralRoot?.isGroup===true &&
+    job.structuralRoot.visible===true &&
+    Number.isFinite(job.structuralFade) &&
+    job.structuralFade>=.35 && job.structuralFade<=1 &&
+    Number.isSafeInteger(job.structuralVisibleReturns) &&
+    job.structuralVisibleReturns>=6 &&
+    Number.isFinite(job.structuralVisibleSeconds) &&
+    job.structuralVisibleSeconds>=.52 &&
+    Number.isSafeInteger(held.submittedFrames) &&
+    held.submittedFrames>=6 &&
+    Number.isFinite(held.visibleSeconds) &&
+    held.visibleSeconds>=.52 &&
+    held.visibleSeconds<2.8 &&
+    Number.isFinite(held.originalGatewayOpacity) &&
+    held.originalGatewayOpacity>.12 &&
+    held.originalGatewayOpacity<=1 &&
+    job.submittedFrames>job.structureBuiltAtSubmitted;
+  if(earnedTwoRoomRelease) return true;
   // A full-body actor beyond the old physical sill must see the genuinely
   // built successor shaft BEFORE the retained original world may disappear.
   // The extra source window is only for already-verified, physically
