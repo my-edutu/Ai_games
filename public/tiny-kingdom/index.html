@@ -31126,7 +31126,8 @@ function chooseGroundedGrowingTownCamera(view,roofs){
 // Never re-run after a player has moved the camera or while inspecting work.
 let livedTownOverviewChecked=false,livedTownOverviewProbes=0,
  livedTownOverviewAccepted=0,livedTownOverviewRejected=0,
- livedTownOverviewLast=null;
+ livedTownOverviewLast=null,livedTownOverviewManualVisits=0,
+ livedTownOverviewManualLast=null;
 function livedTownOverviewCost(physical,view,portrait=false){
  if(!physical||physical.clear!==true)return Infinity;
  const occupied=physical.screenOccupiedByBuildings;
@@ -31251,7 +31252,8 @@ function getLivedTownOverviewAudit(){
  return {source:'one-time-real-civic-camera-composition',
   attempted:livedTownOverviewChecked,probes:livedTownOverviewProbes,
   rejected:livedTownOverviewRejected,selected:livedTownOverviewAccepted,
-  last:livedTownOverviewLast,originalCitizens:people.length,
+  last:livedTownOverviewLast,manualVisits:livedTownOverviewManualVisits,
+  manualLast:livedTownOverviewManualLast,originalCitizens:people.length,
   originalHomes:city.length,hiddenCitizens:0,hiddenStructures:0,
   simulatedTransactions:0,changesAuthority:false,physicalFps:'NOT MEASURED'};
 }
@@ -34170,8 +34172,25 @@ function watchForgeShift(){
 /* Player-controlled cinematic viewpoints; never affects authoritative state. */
 const scenicViews={valley:{focus:[0,0],zoom:43,yaw:.7,pitch:.88},market:{focus:[-.7,5.3],zoom:19,yaw:.62,pitch:.52},forge:{focus:[16.4,-19.5],zoom:13.8,yaw:3.45,pitch:.52},mill:{focus:[-27,-18],zoom:24,yaw:.66,pitch:.54},orchard:{focus:[-26,9],zoom:25,yaw:1.02,pitch:.63},farm:{focus:[25,0],zoom:21,yaw:3.86,pitch:.56},river:{focus:[-6,18.1],zoom:26,yaw:.84,pitch:.64},sanctuary:{focus:[29,10],zoom:27,yaw:.75,pitch:.48}};
 document.querySelectorAll('.tour-btn').forEach(button=>button.addEventListener('click',()=>{
- const next=scenicViews[button.dataset.scenic];if(!next)return;stopWorkdayWatch();
- if(follow)setCitizenFollow(false);follow=false;previousFollowCamera=null;lastFollowShot=null;cinematic=false;focusPoint=next.focus.slice();yaw=next.yaw;pitch=next.pitch;zoom=next.zoom;
+ const scenic=scenicViews[button.dataset.scenic];if(!scenic)return;
+ stopWorkdayWatch();
+ if(follow)setCitizenFollow(false);
+ follow=false;previousFollowCamera=null;lastFollowShot=null;cinematic=false;
+ // W532: Village must return to the SAME truthful connected district as the
+ // opening. The old button restored the flat .88-radian roof overview even
+ // when the new startup correctly showed a market and actual inhabited homes.
+ // This is an opt-in player camera action, never a forced workday shot.
+ const town=button.dataset.scenic==='valley'?
+  chooseLivedTownOverview(scenic,followCameraRoofs()):null;
+ const next=town||scenic;
+ if(town){
+  livedTownOverviewManualVisits++;
+  livedTownOverviewManualLast={district:town.physicalDistrict,
+   story:town.story,pitch:town.pitch,zoom:town.zoom,
+   physicalSite:true,authorityChanged:false};
+ }
+ focusPoint=next.focus.slice();yaw=next.yaw;pitch=next.pitch;zoom=next.zoom;
+ presentationEpoch++;lastFrozenFrameKey=null;
  document.querySelectorAll('.tour-btn').forEach(item=>item.setAttribute('aria-pressed',String(item===button)));
  document.getElementById('focus').classList.remove('active');
  document.getElementById('camera').classList.remove('active');
