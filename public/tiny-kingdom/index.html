@@ -4940,7 +4940,8 @@ function drawSoftwareDepthFrame(count,sx,sy,staticCount=0,staticKey=null,
   const startB=(initialDx*acy-initialDy*acx)*invArea;
   const startC=(abx*initialDy-aby*initialDx)*invArea;
   const da=softwareInvW[t],db=softwareInvW[t+1],dc=softwareInvW[t+2];
-  if(dynamic&&softwareStaticTileMap){
+  if(dynamic&&softwareStaticTileMap&&
+     globalThis.__tinyKingdomDisableStaticDepthTiles!==true){
    softwareStaticTileQueries++;
    if(softwareRectangleHiddenByStaticDepth({x0,x1,y0,y1},
       Math.max(da,db,dc),softwareStaticTileMap)){
