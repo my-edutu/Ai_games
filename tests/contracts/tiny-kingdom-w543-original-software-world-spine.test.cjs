@@ -60,7 +60,7 @@ test('real scene revision, growth and smaller save restore never reuse stale geo
 test('original camera/source path uses the retained renderer, no hidden work',()=>{
  assert.match(html,/data=gpuAvailable\?acquireDynamicVertexStream\(\):acquireSoftwareWorldStream\(\)/);
  assert.match(html,/stageSoftwareWorldStream\(data\)/);
- assert.match(html,/softwareWorldStaging:getSoftwareWorldStagingAudit\(\)/);
+ assert.match(html,/softwareWorldStaging:typeof getSoftwareWorldStagingAudit/);
  assert.ok(html.includes('staticClip.limit/30'));
  assert.ok(html.includes('rasterRange(staticCount,count)'));
 });
