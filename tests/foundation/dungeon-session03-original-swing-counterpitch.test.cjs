@@ -195,3 +195,33 @@ test('original WebGL renderer can choose a strictly certified heel-neutral foref
  assert.match(stage,/sourceConnectedLegSelected:/,
   'genuine browser receipts must distinguish which original source candidate won');
 });
+
+test('actual original skinned heel-first rocker earns loaded-heel burial relief without certifying a toe plant',async()=>{
+ const {verifyOriginalSourceLoadedPelvisFootWitness}=await load();
+ // Original -20mm stone plane, signed vertical 8mm source-pelvis motion.
+ // The licensed toe STARTS 26mm above stone; a valid heel rescue makes
+ // the worst absolute endpoint farther away while reducing heel burial.
+ const before=shoe(-.034,.006,[0,0],[0,.27]);
+ const after=shoe(-.026,.014,[0,0],[0,.27]);
+ const otherBefore=shoe(.230,-.075,[1,0],[1,.30]);
+ const otherAfter=shoe(.238,-.067,[1,0],[1,.30]);
+ const input={before,after,otherBefore,otherAfter,floorTopY:-.02,
+  requireWorldXZ:true,sourceHeelRollVerified:true};
+ const proof=verifyOriginalSourceLoadedPelvisFootWitness(input);
+ assert.ok(proof,'same-source weighted heel + toe rollover must be measured');
+ assert.equal(proof.supportKind,'source-loaded-heel-roll');
+ assert.equal(proof.contactLocked,false);
+ assert.equal(proof.plantCertified,false);
+ assert.ok(proof.afterWorstMeters>proof.beforeWorstMeters,
+  'an airborne toe may rise while the supporting heel physically clears');
+ assert.ok(Math.abs(proof.improvementMeters-.008)<1e-8);
+ for(const changed of [
+  {after:{...after,toeY:.015}},
+  {after:{...after,heelXZ:[.004,0]}},
+  {otherAfter:{...otherAfter,toeY:-.058}},
+  {otherBefore:shoe(-.019,-.022,[1,0],[1,.30]),
+   otherAfter:shoe(-.011,-.014,[1,0],[1,.30])},
+  {requireWorldXZ:false},{sourceHeelRollVerified:false}
+ ])assert.equal(verifyOriginalSourceLoadedPelvisFootWitness({...input,...changed}),null,
+  'source heel roll must reject nonuniform lift, drift, two loaded shoes and false source ownership');
+});
