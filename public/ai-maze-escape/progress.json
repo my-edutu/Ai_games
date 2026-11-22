@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-22T05:23:11.000Z",
+  "updatedAt": "2026-11-22T05:36:50.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass572: actual exact PR HEAD 1aad0880 native Maze CI 44984066063 FAILED test 73/310, existing physical arm aiming regression during earned phase .42; WebGL captures and strict six-reset skipped, no new screenshots to judge. Production repair confines genuinely observed OPEN-corridor upper-body counter turn to initial phase .20, returns by phase .38 for original shoulder/lantern aiming; old test unchanged, new source regression covers handoff. NEW exact-head CI, geometry and WebGL capture are PENDING; official Nintendo 3D benchmark NOT met. Whole monorepo 44984066017 separately failed. Independent critic/Ultracode tunnel unavailable. Open draft; no merge, deploy, force."
+    "summary": "Pass573: exact Pass572 804dad68 native WebGL workflow 44989435861 SUCCESS: all 310 focused Maze tests, six-reset strict <100 geometry gate, and genuine public-only tick136 escape. Downloaded original ZIP sha256 8ea397d39b54769218d4a9254dd07397c02556d3219d07b9b44b18266fe05022, 42/42 original full-resolution PNG sidecar hashes and 3/3 real before/mid/after gate hashes match. Actual original uncropped 320/390 guardian scene still separates Pip and Thornback behind stonework; comparison with previously verified Pass570 visually REJECTED source body twist as non-win. Roll back ONLY Pass571/572 experimental characters.js to proven Pass570 blob 322c4c26 and remove exclusive test; preserve strict thresholds and all unrelated code. New rollback HEAD WebGL and whole CI pending, do not claim passed. Nintendo fixed visual bar NOT met. Detached independent critic/Ultracode disconnected. PR open draft, no merge/deploy/force."
   },
   "captures": [
+    {
+      "title": "Pass573 direct native original 320/390 comparison: Pass572 SHA-verified 42/42 + three gate images; body turn visually REJECTED, restore Pass570 rig",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44989435861/artifacts/14741895385"
+    },
     {
       "title": "Pass571 original exact cfc8981c native 320/390/844/1280 WebGL: 42/42 PNG SHA sidecars and 3/3 gate SHA independently verified; substantial counter staging still missing; production arm/torso pose candidate awaits NEW head",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44981093679/artifacts/14737304797"

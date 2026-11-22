@@ -338,29 +338,6 @@ export function createExplorer(options = {}) {
     const defensiveFlinch=guardianPlant*(1-.9*guardianAnswer);
     const relativeLook=reacting?Math.atan2(Math.sin(options.attentionHeading-group.rotation.y),Math.cos(options.attentionHeading-group.rotation.y)):0;
     const lookYaw=Math.max(-.72,Math.min(.72,relativeLook))*alert;
-    // Stage the chest as the INITIAL witnessed physical counter response, then
-    // release it into the original right-shoulder lantern reach. Staying twisted
-    // throughout the release stole the shoulder's relative bearing, breaking
-    // the existing open-corridor physical-arm contract at phase .42.
-    // Both phases use the SAME public target; neither invents a game action.
-    // One REAL, currently witnessed open lantern link earns a whole upper-
-    // body turn toward its next PHYSICAL corridor endpoint. The older rig
-    // aimed the wrist along the open bend while Pip's chest faced the AI
-    // route, so the mobile impact looked like an unrelated shoulder glow.
-    // Keep the authoritative locomotion root/boots fully untouched. Scene
-    // supplies this target ONLY for a live public reciprocal open link;
-    // absent, hidden, reduced, stale, terminal or expired witnesses are inert.
-    const earnedAim=options.counterLanternTarget;
-    const counterFacingReach=counterPhase!==null && earnedAim
-      && [earnedAim.x,earnedAim.y,earnedAim.z].every(Number.isFinite)
-      && Number.isFinite(group.position.x)&&Number.isFinite(group.position.z)
-      ? Math.max(0,Math.min(1,counterPhase/.14,(.38-counterPhase)/.12))
-        * Math.max(-.65,Math.min(.65,
-          Math.atan2(Math.sin(Math.atan2(earnedAim.x-group.position.x,
-            earnedAim.z-group.position.z)-group.rotation.y),
-          Math.cos(Math.atan2(earnedAim.x-group.position.x,
-            earnedAim.z-group.position.z)-group.rotation.y))-lookYaw*.95))
-      : 0;
     // Original 390px guardian footage: Pip keeps facing the route even while
     // its arms defend against the publicly witnessed warden. Lead with the
     // helmet on recognition, then rotate the CONNECTED upper body/lantern
@@ -516,10 +493,10 @@ export function createExplorer(options = {}) {
     body.position.y=.78+Math.abs(step)*.035+(s.lose?0:idle*.008)-alert*.11-guardianPlant*.11+guardianAnswer*.045+gateCelebrate*.09+gatePerformance*.17+pickupCelebrate*.23+fossilFocus*.08-pressureBrace*.12-pressureClimax*.035-counterWindup*.08+counterDrive*.13;
     body.position.z=alert>0?-alert*.105:gateCelebrate*.035+gatePerformance*.055-pressureBrace*.08-pressureClimax*.045;
     body.rotation.set(s.lose?.22:stride*.065-s.danger*.035-keyReach*.07-alert*.25-gateCelebrate*.12-gatePerformance*.11-pickupCelebrate*.13-pressureBrace*.21-pressureClimax*.07+counterWindup*.18-counterDrive*.20,
-      (witnessedBeat===null?(earnedLanternCounter>0?lookYaw*.95:lookYaw*.14):guardianBodyPivot)+counterFacingReach+keyYaw*.08+pickupFaceTurn*.28+fossilYaw*.07,
+      (witnessedBeat===null?(earnedLanternCounter>0?lookYaw*.95:lookYaw*.14):guardianBodyPivot)+keyYaw*.08+pickupFaceTurn*.28+fossilYaw*.07,
       .035*rest-step*.05-Math.sign(lookYaw)*alert*.12+defensiveFlinch*.14-Math.sign(pressureYaw)*pressureWarning*.08);
     head.rotation.set(s.lose?.28:-.04-s.danger*.08+idle*.018+alert*.10+guardianPlant*.12-guardianAnswer*.09-keyReach*.06-gateCelebrate*.16-gatePerformance*.09-pickupCelebrate*.18-fossilFocus*.12+pressureWarning*.10+pressureBrace*.16+pressureClimax*.07+pressureInspection*.12+counterWindup*.12-counterDrive*.22,
-      (s.reduced?0:Math.max(-.42,Math.min(.42,turn*.7))+(Math.sin(s.time*.73)*.08+.12)*rest)*(1-alert-keyReach*.7-gateCelebrate*.55)+lookYaw-guardianBodyPivot*.72-counterFacingReach*.42+keyYaw+gateYaw+pickupFaceTurn*.72+fossilYaw*.28+pressureYaw*.75,
+      (s.reduced?0:Math.max(-.42,Math.min(.42,turn*.7))+(Math.sin(s.time*.73)*.08+.12)*rest)*(1-alert-keyReach*.7-gateCelebrate*.55)+lookYaw-guardianBodyPivot*.72+keyYaw+gateYaw+pickupFaceTurn*.72+fossilYaw*.28+pressureYaw*.75,
       s.win?-.13:s.lose?.07:-.065*rest+step*.035-Math.sign(lookYaw)*alert*.19-defensiveFlinch*.10-Math.sign(pressureYaw)*pressureClimax*.08);
     for (let i=0;i<2;i++) {
       const sign=i===0?1:-1;
