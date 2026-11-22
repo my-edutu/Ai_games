@@ -1,4 +1,48 @@
 {
+  "p0Run11_20261122_F9CameraMeasuredSystemAndTruthfulOriginalLens": {
+    "stage": "P0 OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateRef": "${{ github.sha }}",
+    "previousCandidateSourceSha": "42b08baea85c1fc72e6c23ae01a66d2c14b1ac6a",
+    "previousNineJobCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/45028650713",
+    "previousQualityFailure": "https://github.com/my-edutu/Ai_games/actions/runs/45028813225",
+    "previousSourceNativeDangerPair": "FAILED 0/2 desktop/portrait despite 8/8 original normal-speed 60+s recordings and authentic ledge; no native improvement or reviewer judgement inferred",
+    "currentSourceChanges": [
+      "1d6d2df8c7f982662b98b20aed18804045a2cd27",
+      "9418761d64bce801a853c0c24fc26c770930807a",
+      "d76e85c6a7e01c27cdb76120fd862967a4555a87",
+      "b91790cd4843a251c7bb1455731df01d6eb67703",
+      "070a9d55077be0d1d84b8293ccf5afe38f3ad3bb"
+    ],
+    "currentEvidenceReview": "docs/reviews/2026-11-20-tower-pr68-source-ray-memo-native-gateway-review.md",
+    "blocker": "Real native Floor8 bronze HP-zero original gateway and source-walkable Floor9 platform still fail continuous steel + full hero + roof + raised destination framing. Prior exact-source phase3-3 regression incorrectly expected off-screen portrait steel and a cache miss on restored identical lens.",
+    "measuredPrechangeCPU": "First real Floor9 cameraLighting 137.9ms desktop / 190.3ms portrait, browser CPU on Actions; not actual-device frames or improvement",
+    "goal": "Use four real source-matched first-F9 camera/occlusion/lighting CPU stages and current scene source-owned projection cache to isolate hot path; inspect genuine matched 1x native films and strict event pairing. NO visual PASS from telemetry or green CI.",
+    "filming": {
+      "seed": "tower-transformation-capture-v1",
+      "tier": "low",
+      "speed": 1,
+      "fps": 25,
+      "minimumSeconds": 60,
+      "desktop": "960x600",
+      "portrait": "390x844",
+      "scenes": [
+        "ascent",
+        "moving",
+        "danger/guardian",
+        "outcome/restart"
+      ],
+      "baseline": "1731b380851162741761c5569e2bc152a0869ca9"
+    },
+    "independentBlindReviewCounts": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDevicePerformance": "NOT EVALUATED",
+    "safety": "Never alter transformation.json baseline blob or PR58, non-Tower games, PR68 draft, merge, deploy, or force-push."
+  },
   "p0CorrectedAnimateScopeRendererCrashSourceCapture20261121_2025": {
     "stage": "P0 OPEN",
     "verdict": "NOT EVALUATED",
