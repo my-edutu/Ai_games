@@ -1353,3 +1353,29 @@ test('RED: authentic source-pelvis lift refreshes attached original skin inverse
  assert.match(stage,/Math\.abs\(delta-expectedWorldLift\)<=\.001/,
   'keep strict bilateral 1mm same-world source-sole certification');
 });
+
+
+/**
+ * Native mobile source at exact 492cd81499da, frame 72/tick 8, certified
+ * exactly ONE independently skinned heel-anchored whole-body lean (7.544mm).
+ * Later native frames 78/95/99/120/128 retained acceptedFrames=1 despite
+ * their CURRENT pose being rejected, making a historical counter appear as
+ * multiple accepted original full-body frames. A Gauntlet measurement must
+ * never confuse those events or count unsupported source poses as accepted.
+ */
+test('RED: original rig body lean native audit distinguishes same-frame source-skin certificate from cumulative counter',()=>{
+ const browser=fs.readFileSync(path.resolve(__dirname,
+  '../browser/dungeon-session03-continuous-motion.spec.cjs'),'utf8');
+ const begin=browser.indexOf('originalWalkingHeelLeanGateAndSoleAudit:');
+ const end=browser.indexOf('originalWalkingPelvisGateAndSoleAudit:',begin);
+ assert.ok(begin>0&&end>begin);
+ const audit=browser.slice(begin,end);
+ assert.match(audit,/accepted:x\.sourceHeelLean\?\.finalProof\?\.originalSkinnedEndpointsVerified===4/,
+  'only a same-frame genuine original four-endpoint source skin certificate counts as accepted');
+ assert.match(audit,/acceptedFramesCumulative:x\.sourceHeelLean\?\.acceptedFrames\?\?0/,
+  'retain separately labelled cumulative successes to identify later rejection');
+ assert.doesNotMatch(audit,/accepted:x\.sourceHeelLean\?\.acceptedFrames/,
+  'a cumulative previous frame must never certify current original rig motion');
+ assert.match(audit,/originalResidualSwingToeBurialMeters:/,
+  'report actual same-frame weighted original swing-toe burial after any certified body pose');
+});
