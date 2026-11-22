@@ -471,7 +471,21 @@
       "PLAYS": "0/5"
     },
     "actualSupportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
-    "nextHighestImpactAction": "Inspect campaign 45078832656 original 60+s desktop/portrait danger clips at genuine first F9 tick510 and new firstFloorNineCameraDeparture measurements: hero-gaze rescues, world-space clamps, physically rejected proposals and actual submitted unbounded camera cuts. If cut persists or lens/core veto blocks acceptable shot, correct physical joined camera/world framing and show real gateway, entire climber, receiving roof and F9 raised step in BOTH videos. Keep P0 OPEN until strict event-matched native 2/2 and full-loop restart.",
-    "constraints": "No PR58 edits, no other game, baseline movement, draft conversion, merge, deployment or force-push"
+    "nextHighestImpactAction": "Inspect exact 597ed2fe original WebM capture and event-aligned first-F9 data, especially whether submitted unbounded camera cuts actually decrease without cropping moving hero or obscuring original gate/real raised platform. If 0/2 acceptance persists, determine source camera/world ray cause and rebuild connected physical shot. Re-run full-loop/outcome/restart and independent blind reviews only after honest 2/2 event alignment.",
+    "constraints": "No PR58 edits, no other game, baseline movement, draft conversion, merge, deployment or force-push",
+    "realCIRegressionFirst": {
+      "testFirstSha": "184005286cd790f6381ee0665f62c3d8cbed85aa",
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/45078728867",
+      "result": "RED verified: phase3 shard 1 failed because old helper classified exact 17m source-tick510 camera move outward-only, not three-axis world-space. Other unrelated shard results cannot rescue test failure."
+    },
+    "intermediateQualityRegression": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/45078908509",
+      "result": "RED verified: genuine inward hero-recovery fixture was mistakenly constrained by broad new world-space policy; focused Phase3 shard 1 failed. Corrected rather than weakening the legitimate test."
+    },
+    "safeInwardRecoveryCorrectionSha": "597ed2fe7ef5000a02cb87748c4bcbd78b83f1ca",
+    "latestSourcePinnedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45079122839",
+    "latestSourcePinnedCaptureSha": "597ed2fe7ef5000a02cb87748c4bcbd78b83f1ca",
+    "latestQualityForSource": "https://github.com/my-edutu/Ai_games/actions/runs/45079122834",
+    "latestStatus": "P0 OPEN; exact-source CI and normal-speed candidate desktop/portrait footage pending; no accepted improvement claim"
   }
 }
