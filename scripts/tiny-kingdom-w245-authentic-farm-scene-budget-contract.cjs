@@ -41,8 +41,17 @@ assert.deepEqual(read(choose([...rows].reverse(),18000)).modes,['near','far'],
  'Output must preserve the original visible plot order, not priority-sort geometry');
 assert.throws(()=>choose([{...rows[0],nearTriangles:0}],16000),/invalid original plot/i);
 assert.throws(()=>choose(rows,NaN),/invalid original field budget/i);
-assert.match(match[1],/drawResidentFarmFields\(eye,planes,Math\.max\(0,160000-nonFieldTriangles\)\)/,
- 'Rendering must use the actual current-frame NON-farm budget, not outdated LOD measurements');
+// W535: ensure the ENTIRE original growing town is accounted for before
+// allowing near-field grain rows. W468 changed this from an old textual
+// 160000-minus-source expression to an actual frustum-issued scene budget.
+assert.match(match[1],/viewFarmBudgetAudit=planViewFarmTriangleBudget\(nonFieldTriangles,\{/,
+ 'Derive the field budget from exact original non-field geometry and its actual issued draw classes');
+assert.match(match[1],/availableFieldTriangles:Math\.max\(0,triangleLimit-issuedNonFieldTriangles\)/,
+ 'The visible field budget subtracts all actually issued non-field triangles');
+assert.match(match[1],/fieldLodDraw=drawResidentFarmFields\(\s*eye,planes,viewFarmBudgetAudit\.availableFieldTriangles\)/,
+ 'Every real planted plot receives the actual current-frame available budget');
+assert.match(match[1],/viewFarmBudgetAudit\.viewBudgetBreached=lastFrameTriangles>160000/,
+ 'Keep an explicit strict live 160k budget failure; never silently hide original crops');
 assert.match(match[1],/farmFieldSceneBudgetAudit=\{/,'Record exact unhidden grow-town crop quality and budget overrun');
 assert.match(match[1],/source:'real-complete-planted-farm-scene-budget'/,
  'Expose a read-only live farm budget audit for desktop, Day120, and 390px');
