@@ -1,0 +1,61 @@
+{
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "leadingAssessorVerdict": "NOT EVALUATED",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "inspectedSourceHead": "00b6b242502a4ede21c35463191e3bf90713a6a3",
+  "sourceRegressionCommit": "129f51a63d9504d71516584642107400d9444ad4",
+  "sourceProjectorKeyCommit": "328bbb534a8bc4ec77e5c9b19a0364a46018a2d0",
+  "sourceWorldImplementationCommit": "42b08baea85c1fc72e6c23ae01a66d2c14b1ac6a",
+  "originalImmutableCandidateFilm": {
+    "sourceSha": "efcd953d13f52ef14ffd28a33149b11a1cdfc249",
+    "campaign": "https://github.com/my-edutu/Ai_games/actions/runs/45023384344",
+    "dangerOriginalArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45023384344/artifacts/14755545549",
+    "originalFilmPlaybackRate": 1,
+    "originalCaptureFps": 25,
+    "baseline": "1731b380851162741761c5569e2bc152a0869ca9",
+    "desktop": {
+      "size": "960x600",
+      "durationSeconds": 72.4,
+      "hudFloor9AtSeconds": 26.25,
+      "sustainedVioletAtSeconds": 28,
+      "noSustainedBronzeVioletOverlap": true,
+      "strictSourceToNativePaired": false,
+      "returnedFrameProbes": 6,
+      "originalGroundedReceiptFrames": 0,
+      "firstF9CameraLightingCpuMs": 160.4
+    },
+    "portrait": {
+      "size": "390x844",
+      "durationSeconds": 72.64,
+      "hudFloor9AtSeconds": 26.25,
+      "sustainedVioletAtSeconds": 27.75,
+      "noSustainedBronzeVioletOverlap": true,
+      "strictSourceToNativePaired": false,
+      "returnedFrameProbes": 4,
+      "originalGroundedReceiptFrames": 0,
+      "firstF9CameraLightingCpuMs": 155.4
+    },
+    "clipsIntegrity": "Original unedited source-pinned WebM media, video time and sidecars inspected. First episode guardian crossing at source tick475; gameplay event-to-native match still vetoed 0/2. WebGL renderer projections are not pixel proof.",
+    "capturedSoftwareFrameSubmissionTiming": "Native candidate desktop p50 106.5ms/p95 384.2ms/p99 607.1ms from browser capture submission gaps; NOT actual-device FPS, GPU frame timing or production performance."
+  },
+  "evidenceOfLargestDefect": "The HP-defeated original bronze guardian room, complete moving climber, genuine walkable F9 roof and raised destination are never demonstrably readable as one uninterrupted native shot; both viewports change almost immediately from beige/bronze to violet at 27.75–28.0s despite original gate/actor projecting camera-safe in renderer receipts. Portrait has abrupt reframing and very small/right-edge hero.",
+  "primaryExperiencePerformanceBottleneck": "Actual first Floor9 source-pinned scene camera/lighting CPU stage 160.4ms desktop/155.4ms portrait, substantially above roughly 40–55ms first World geometry stage. The repeated real original-gate mesh projections across multiple reversible camera directors are one safely deduplicatable portion, not a measured complete cause.",
+  "productionIntervention": "Cache only exact same-run, same source tick, same old-gate opacity, identical camera world+projection matrices within current World frame. Preserve original source/HP0 geometry veto, all actual full-body/real deck/solid-core ray checks, optional owner invalidation after sightline material pass, and per-frame reset. No camera pose, simulation, collider, gateway or gameplay event is fabricated.",
+  "regression": "New Node test exercises exact same-camera reuse, changed in-place gaze, portrait aspect, changing source run/tick and opacity, hidden original metal, invalidation and subsequent renderer epochs. Red pre-implementation run was queued; do not claim observed failing CI. Verify exact quality result after production source commit.",
+  "qualityPreviousExactHead": {
+    "sha": "00b6b242502a4ede21c35463191e3bf90713a6a3",
+    "run": "https://github.com/my-edutu/Ai_games/actions/runs/45023437264",
+    "status": "SUCCESS 10/10 technical jobs; never quality acceptance"
+  },
+  "qualityCandidateRun": "https://github.com/my-edutu/Ai_games/actions/runs/45028650739",
+  "immutableSourcePinnedCandidateCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45028650713",
+  "candidateCaptureStatusAtRecord": "QUEUED; no improved visual continuity, efficiency or source-event acceptance claimed",
+  "independentBlindReviewers": {
+    "LOOKS": 0,
+    "FEELS": 0,
+    "PLAYS": 0
+  },
+  "actualDeviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
+  "nextHighestImpactAction": "Inspect exact SHA 42b08ba... 9-job full-motion original source-native desktop/portrait A/B, especially actual new projection cache hits, first-F9 camera CPU stage and nonzero old-gateway/void-shaft pixel overlap. If cache does not materially reduce CPU and old-to-new shot remains 0/2, reopen P0 world/physical camera composition and source-to-native playback; do not spend another trivial opacity patch. Hardware, independent blind review remain blocked.",
+  "constraints": "PR68 same draft open; preserve PR58; frozen baseline ledger unchanged; no merge/deploy/force push or unrelated-game edit"
+}
