@@ -25,6 +25,10 @@ test('real returned old and new room frames force one-way gateway extinction',as
 test('a stalled new shaft cannot consume a still-opaque original portal',async()=>{
  const {sourceReturnedOriginalGatewayOpacity:f}=await load();
  assert.equal(f(s,h,{...j,structuralVisibleReturns:0},1,true),.8167);
+ assert.equal(f(s,h,{...j,structuralVisibleReturns:0},0,true),.8167,
+   'a source-requested zero-alpha departure cannot erase painted old metal before successor returns');
+ assert.equal(f(s,h,{...j,structuralVisibleReturns:1},.01,true),.8167,
+   'a single cold first successor return is not a safe replacement shot');
  assert.equal(f(s,{...h,visibleSeconds:0,submittedFrames:0},j,1,true),.8167);
  assert.equal(f(s,h,j,-.1,true),null);
  assert.equal(f(s,{...h,originalGatewayOpacity:NaN},j,.5,true),null);
