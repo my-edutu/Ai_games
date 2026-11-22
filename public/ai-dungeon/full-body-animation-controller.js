@@ -6361,6 +6361,89 @@ export function appendLicensedSourceDistinctToeProbeAngles(
  return Object.freeze([...base,guide.extraAngleRad]);
 }
 
+/**
+ * A narrowly scoped, original-source right-foot near-floor follow-through.
+ * Real Vanguard Walking_A native WebGL (#45034956465, mobile tick8):
+ * -120mrad original toesr raised the independently skinned toe 15.001mm,
+ * leaving 6.098mm residual penetration. One MORE bounded signed joint
+ * measurement may help; only actual two-shoe readback can accept it.
+ * Never creates contact, a plant, an IK target or a source-clock seek.
+ */
+export function planLicensedSourceToeFinalClearanceTrial({
+ proof=null,certifiedToe=null,before=null,after=null,
+ sourceClipName='',sourceInstanceId='',sourceToeBoneName='',
+ sourceToeTrackVerified=false,sourceToeBoneParentVerified=false,
+ side='',floorTopY=NaN,ownerLocomotion=false,alive=false,visible=false,
+ frameInterval=NaN,reducedMotion=false,teleport=false,interrupted=false
+}={}){
+ const valid=s=>s&&[s.heelY,s.toeY].every(finite)&&
+  [s.heelXZ,s.toeXZ].every(p=>Array.isArray(p)&&p.length===2&&p.every(finite));
+ const validPair=v=>valid(v?.left)&&valid(v?.right);
+ if(side!=='right'||sourceToeBoneName!=='toesr'||
+  sourceToeTrackVerified!==true||sourceToeBoneParentVerified!==true||
+  sourceClipName!=='Walking_A'||!sourceInstanceId||
+  ownerLocomotion!==true||alive!==true||visible!==true||
+  reducedMotion||teleport||interrupted||
+  !finite(frameInterval)||frameInterval<.05||frameInterval>.24||
+  !finite(floorTopY)||Math.abs(floorTopY+.02)>.005||
+  proof?.source!=='measured-original-licensed-source-counterpitch'||
+  proof.sourceRole!=='vanguard'||proof.sourceClip!=='Walking_A'||
+  proof.side!==side||proof.sourceInstanceId!==sourceInstanceId||
+  proof.finalIndependentSourceSkin!==true||
+  proof.originalOppositeShoeVerified!==true||
+  proof.sourceOriginalRootTravelWitnessed!==true||
+  proof.contactLocked!==false||proof.plantCertified!==false||
+  !finite(proof.sourceClipTimeSeconds)||
+  proof.sourceClipTimeSeconds<=.03||proof.sourceClipTimeSeconds>=.335||
+  !finite(proof.witnessedRootTravelMeters)||
+  proof.witnessedRootTravelMeters<.008||
+  proof.witnessedRootTravelMeters>.24||
+  !finite(proof.witnessedFrameIntervalSeconds)||
+  Math.abs(proof.witnessedFrameIntervalSeconds-frameInterval)>.001||
+  certifiedToe?.source!=='measured-licensed-counterpitch-original-toes-child'||
+  certifiedToe.sourceClip!=='Walking_A'||certifiedToe.side!==side||
+  certifiedToe.sourceToeTrackVerified!==true||
+  certifiedToe.originalOppositeShoeVerified!==true||
+  certifiedToe.requiresIndependentFinalSkin!==true||
+  certifiedToe.contactLocked!==false||certifiedToe.plantCertified!==false||
+  ![certifiedToe.angleRad,certifiedToe.toeLiftMeters,
+    certifiedToe.heelChangeMeters,certifiedToe.residualToeBurialMeters].every(finite)||
+  certifiedToe.angleRad>-.08||certifiedToe.angleRad<-.120001||
+  certifiedToe.toeLiftMeters<.003||certifiedToe.toeLiftMeters>.020||
+  Math.abs(certifiedToe.heelChangeMeters)>.002||
+  certifiedToe.residualToeBurialMeters<.002||
+  certifiedToe.residualToeBurialMeters>.012||
+  !validPair(before)||!validPair(after))return null;
+ const dist=(x,y)=>Math.hypot(x[0]-y[0],x[1]-y[1]);
+ if(Math.abs(after.right.toeY-before.right.toeY-
+    certifiedToe.toeLiftMeters)>.001||
+  Math.abs(floorTopY-after.right.toeY-
+    certifiedToe.residualToeBurialMeters)>.001||
+  Math.abs(after.right.heelY-before.right.heelY)>.002||
+  dist(after.right.heelXZ,before.right.heelXZ)>.006||
+  dist(after.right.toeXZ,before.right.toeXZ)>.04||
+  Math.abs(after.left.heelY-before.left.heelY)>.002||
+  Math.abs(after.left.toeY-before.left.toeY)>.002||
+  dist(after.left.heelXZ,before.left.heelXZ)>.003||
+  dist(after.left.toeXZ,before.left.toeXZ)>.003)return null;
+ const old=Math.abs(certifiedToe.angleRad);
+ // Cap by original 3rad/s and 160mrad local joint arc, never extrapolate
+ // beyond the actual same-frame measured shoe/clip. Original shoe recertifies.
+ const extra=Math.min(.04,.65*
+  certifiedToe.residualToeBurialMeters*old/certifiedToe.toeLiftMeters);
+ const proposed=old+extra;
+ if(!finite(proposed)||extra<.018||proposed>.160001||
+  proposed>3*frameInterval+.000001)return null;
+ return Object.freeze({
+  source:'original-licensed-skinned-near-floor-toe-probe',
+  side,sourceClip:'Walking_A',sourceInstanceId,
+  angleRad:-proposed,previousAngleRad:certifiedToe.angleRad,
+  priorResidualToeBurialMeters:certifiedToe.residualToeBurialMeters,
+  maxAdditionalSourceSkins:1,requiresIndependentFinalSkin:true,
+  originalOppositeShoeVerified:true,contactLocked:false,plantCertified:false
+ });
+}
+
 export function planLicensedSourceToeChildContinuityCandidates({
  sourceInstanceId='',sourceClipName='',sourceClipTimeSeconds=NaN,
  sourceClipDurationSeconds=NaN,sourceWeight=NaN,
