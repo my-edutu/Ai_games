@@ -32367,7 +32367,11 @@ function watchDelivery(requestedId=null){
  if(document.body.dataset.workday==='homecoming')stopWorkdayWatch();
  const eligible=people.map((p,i)=>({person:p,index:i})).filter(row=>row.person.delivery);
  if(!eligible.length){
-  showToast('No loaded courier yet · villagers are producing supplies');
+  // Never forge a parcel to fulfil a camera action. Show the ORIGINAL
+  // receiving market instead; the ledger remains WAITING until real
+  // farm/courier events create an escrowed stock movement.
+  requestRealMarketHomeDistrict();
+  showToast('No loaded courier · viewing the real receiving market');
   return null;
  }
  // The true handoff is the story: prioritize a citizen actively unloading,
@@ -34126,7 +34130,27 @@ function watchHarvestShift(){
  const index=actual.active?people.findIndex(p=>
    p.name===actual.citizen&&p.job==='farmer'&&isWorkingAtSite(p)):-1;
  if(index<0){
-  showToast('No farmer is harvesting at the real field right now');
+  // The new first-screen Watch farmer is never a dead-end just because
+  // a genuine crop shift has not started. Observe the ORIGINAL farmer
+  // walking or resting instead of fabricating an active harvest.
+  const waiting=people.map((p,i)=>({p,i})).filter(row=>
+   row.p.job==='farmer').sort((a,b)=>
+    Number(Boolean(b.p.path?.length))-Number(Boolean(a.p.path?.length))||
+    a.i-b.i)[0];
+  if(waiting){
+   if(streetWalk)setStreetWalk(false);
+   if(liveWorkday||document.body.dataset.workday!=='off')stopWorkdayWatch();
+   selectedCitizen=waiting.i;
+   if(!follow)setCitizenFollow(true);
+   updateFollowCamera();
+   setCommandView('world');updateUI();
+   showToast('Following real farmer '+waiting.p.name+
+    ' · harvest begins only when real work starts');
+   return {source:'real-authoritative-farmer-observation',
+    active:false,citizen:waiting.p.name,job:'farmer',
+    actualJob:waiting.p.activity,awaitingRealHarvest:true};
+  }
+  showToast('No farmer exists in the current village');
   return {source:'real-authoritative-harvest-shift',active:false,
    citizen:null,job:'farmer'};
  }
