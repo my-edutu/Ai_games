@@ -44,7 +44,7 @@ test('clipping is used for actual emitted software world faces, not a decorative
  assert.match(draw,/softwareInvW\[count\*3\]/);
  assert.match(draw,/staticProjected\+\+/);
  assert.match(draw,/reservePainter\(count\+1\)/);
- assert.match(draw,/fallbackStats\.clippedNear/);
+ assert.match(html,/fallbackStats\.clippedNear=nearClipped/);
 });
 test('seeded crossing segments never silently discard full real source triangle',()=>{
  const clip=loadClipper();
