@@ -6469,6 +6469,36 @@ export function planLicensedSourceConnectedChainTrials({
  // single-frame path, never importing a speculative accumulated pose.
  const suffix=sourceSide==='right'?'r':sourceSide==='left'?'l':null;
  const previous=previousConnected;
+ // Exact native 390px original GLB f120 (#44973269183): a REAL
+ // independently two-shoe-skinned 249.9ms Walking_A source frame carried
+ // -.06776rad hip / +.06776rad knee / -.72rad ankle. The old <50ms
+ // PREVIOUS-frame condition discarded this lawful accumulated source chain
+ // when the NEXT render returned to 16.7ms, potentially resetting hip/knee
+ // while the source-owned ankle was still rate-limited from the same GLB.
+ //
+ // Recognize only the previously authenticated 240-420ms original-render
+ // envelope with ACTUAL same-frame direct root travel and fresh age. This
+ // receipt is merely the last lawful angle for the 3rad/s slew boundary,
+ // NEVER a target, claimed plant, hit, synthetic frame or extra mixer tick.
+ // The current frame still needs the exact clip, clone, joint tracks, bind,
+ // source-phase progression and independent final TWO-shoe skin acceptance.
+ const genuinePriorSparse=Boolean(
+  previous?.sparseFrameVerified===true&&
+  finite(previous?.witnessedFrameIntervalSeconds)&&
+  previous.witnessedFrameIntervalSeconds>.24&&
+  previous.witnessedFrameIntervalSeconds<=.420001&&
+  finite(previous.witnessedDirectFrameTravelMeters)&&
+  previous.witnessedDirectFrameTravelMeters>=.012&&
+  previous.witnessedDirectFrameTravelMeters<=.24&&
+  finite(previous.witnessedRootTravelMeters)&&
+  Math.abs(previous.witnessedDirectFrameTravelMeters-
+   previous.witnessedRootTravelMeters)<=.001&&
+  finite(previous.witnessedFrameAgeSeconds)&&
+  previous.witnessedFrameAgeSeconds>=0&&
+  previous.witnessedFrameAgeSeconds<=.035);
+ const previousFrameVerified=finite(previous?.witnessedFrameIntervalSeconds)&&
+  previous.witnessedFrameIntervalSeconds>=.008&&
+  (previous.witnessedFrameIntervalSeconds<=.05||genuinePriorSparse);
  const carried=Boolean(suffix&&sourceInstanceId&&sourceSide===plan.side&&
   frameInterval<=.05&&
   previous?.source==='measured-original-licensed-source-counterpitch'&&
@@ -6491,8 +6521,7 @@ export function planLicensedSourceConnectedChainTrials({
    previous.appliedLowerRad,previous.appliedFootRad,
    previous.witnessedFrameIntervalSeconds,
    previous.witnessedRootTravelMeters].every(finite)&&
-  previous.witnessedFrameIntervalSeconds>=.008&&
-  previous.witnessedFrameIntervalSeconds<=.05&&
+  previousFrameVerified&&
   previous.witnessedRootTravelMeters>=.008&&
   previous.witnessedRootTravelMeters<=.24&&
   previous.sourceClipTimeSeconds>=0&&
