@@ -1,0 +1,74 @@
+name: Tiny Kingdom W518 Rooted Grain Workday and 390px Evidence
+on:
+  push:
+    branches:
+      - feat/tiny-kingdom-post-main-gauntlet-20261031
+    paths:
+      - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w538-retained-canvas-painter.test.cjs
+      - scripts/tiny-kingdom-w539-software-depth-spine.test.cjs
+      - scripts/tiny-kingdom-w540-conservative-static-spine.test.cjs
+      - scripts/tiny-kingdom-w537-canvas-raster-contract.test.cjs
+      - tests/browser/tiny-kingdom-w537-canvas-raster.spec.cjs
+      - tests/browser/tiny-kingdom-w518-rooted-grain-contract.test.cjs
+      - tests/browser/tiny-kingdom-w518-grain-workday.spec.cjs
+      - .github/workflows/tiny-kingdom-w518-grain-workday.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - public/tiny-kingdom/index.html
+      - tests/browser/tiny-kingdom-w518-rooted-grain-contract.test.cjs
+      - tests/browser/tiny-kingdom-w518-grain-workday.spec.cjs
+      - .github/workflows/tiny-kingdom-w518-grain-workday.yml
+  workflow_dispatch:
+jobs:
+  authentic-grain-and-workday:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 23
+    env:
+      CI: "1"
+      LIBGL_ALWAYS_SOFTWARE: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Test exact rooted-grain geometry policy and production script syntax
+        run: |
+          node --test tests/browser/tiny-kingdom-w518-rooted-grain-contract.test.cjs
+          node - <<'NODE'
+          const fs=require('node:fs'),assert=require('node:assert/strict');
+          const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
+          const js=html.match(/<script>([\s\S]*?)<\/script>/);
+          assert.ok(js,'actual game script must be present');
+          new Function(js[1]);
+          console.log('W518 complete original game syntax parses');
+          NODE
+      - name: W537 original full-geometry no-WebGL raster and shader compatibility regression
+        run: node --test scripts/tiny-kingdom-w537-canvas-raster-contract.test.cjs
+      - name: Verify W538 retained real no-WebGL painter and resource bounds
+        run: node --test scripts/tiny-kingdom-w538-retained-canvas-painter.test.cjs
+      - name: W539 original-world software z-buffer and legacy fallback contract
+        run: node --test scripts/tiny-kingdom-w539-software-depth-spine.test.cjs
+      - name: W540 complete-world static blocks preserve depth-pixel output
+        run: node --test scripts/tiny-kingdom-w540-conservative-static-spine.test.cjs
+      - name: Build browser-server prerequisites
+        run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Film actual seeded Day1 and Day121 fields at desktop and 390px
+        run: npx playwright test tests/browser/tiny-kingdom-w518-grain-workday.spec.cjs --workers=1 --reporter=line
+      - name: Verify real 390px Canvas2D/no-WebGL gameplay and retain uncropped screenshot
+        run: npx playwright test tests/browser/tiny-kingdom-w537-canvas-raster.spec.cjs --workers=1 --reporter=line
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w518-original-rooted-grain-actual-game
+          path: |
+            artifacts/tiny-kingdom-w518/
+            test-results/
+            playwright-report/
+          if-no-files-found: warn
+          retention-days: 14

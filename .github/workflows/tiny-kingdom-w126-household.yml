@@ -1,0 +1,49 @@
+name: Tiny Kingdom W126 Authentic Household Society
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w126-household-contract.cjs'
+      - 'tests/browser/tiny-kingdom-w126-lived-household.spec.cjs'
+      - 'tests/browser/tiny-kingdom-standalone.config.cjs'
+      - '.github/workflows/tiny-kingdom-w126-household.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  # A stable PR number bounds future pending captures without cancelling a running one.
+  group: tiny-kingdom-w126-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  real-society:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 38
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: W126 deterministic source contract
+        run: node scripts/tiny-kingdom-w126-household-contract.cjs
+      # Required by the real browser server; the JS source test alone is insufficient.
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Original Day-1/120/160 food collection, movement, replay, desktop/mobile and WebGL
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w126-lived-household.spec.cjs --workers=1 --config=tests/browser/tiny-kingdom-standalone.config.cjs
+      - name: Upload real evidence even when tests fail
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w126-real-household-society
+          path: |
+            artifacts/tiny-kingdom-w126/
+            test-results/
+          if-no-files-found: warn
+          retention-days: 14

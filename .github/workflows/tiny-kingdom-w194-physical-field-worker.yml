@@ -1,0 +1,26 @@
+name: Tiny Kingdom W194 farm and visible worker source proof
+on:
+  push:
+    branches:
+      - feat/tiny-kingdom-post-main-gauntlet-20261031
+    paths:
+      - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w194-physical-field-worker-contract.cjs
+      - scripts/tiny-kingdom-w196-tradehouse-shell-contract.cjs
+      - .github/workflows/tiny-kingdom-w194-physical-field-worker.yml
+  workflow_dispatch:
+jobs:
+  field-and-worker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Original 3D geometry and real-citizen detail
+        run: |
+          node scripts/tiny-kingdom-w194-physical-field-worker-contract.cjs
+          node scripts/tiny-kingdom-w108-citizen-projection-contract.cjs
+          node scripts/tiny-kingdom-w192-graded-road-contract.cjs
+          node scripts/tiny-kingdom-w196-tradehouse-shell-contract.cjs

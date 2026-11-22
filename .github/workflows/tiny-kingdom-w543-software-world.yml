@@ -1,0 +1,38 @@
+name: Tiny Kingdom W543 Original World Stream and Live-Worker Source
+on:
+  push:
+    branches:
+      - feat/tiny-kingdom-post-main-gauntlet-20261031
+    paths:
+      - public/tiny-kingdom/index.html
+      - tests/contracts/tiny-kingdom-w543-original-software-world-spine.test.cjs
+      - tests/contracts/tiny-kingdom-w542-near-eye.test.cjs
+      - .github/workflows/tiny-kingdom-w543-software-world.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-original-scene-staging:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test source real settlement prefix and living worker parity
+        run: node --test tests/contracts/tiny-kingdom-w543-original-software-world-spine.test.cjs
+      - name: Preserve near-eye physical geometry and current cached depth
+        run: |
+          node --test tests/contracts/tiny-kingdom-w542-near-eye.test.cjs
+          node scripts/tiny-kingdom-w541-static-frame-cache.test.cjs
+      - name: Compile full unchanged-authority playable inline script
+        run: |
+          node - <<'JS'
+          const fs=require('node:fs'),vm=require('node:vm');
+          const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
+          const start=html.indexOf('<script>'),end=html.lastIndexOf('</script>');
+          if(start<0||end<=start)throw Error('Missing original playable game script');
+          new vm.Script(html.slice(start+'<script>'.length,end),{filename:'tiny-kingdom-inline.js'});
+          console.log('Original game JavaScript compiles');
+          JS

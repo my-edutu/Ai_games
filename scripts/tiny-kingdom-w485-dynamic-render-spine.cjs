@@ -1,0 +1,21 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
+const html=fs.readFileSync(path.join(__dirname,'../public/tiny-kingdom/index.html'),'utf8');
+assert.match(html,/DYNAMIC_WORLD_DELTA_MAX_FLOATS=CAMERA_DYNAMIC_FLOAT_BUDGET/);
+const first=html.indexOf('const DYNAMIC_WORLD_DELTA_MIN_GAP_FLOATS'),
+ last=html.indexOf('// Phase-1 original world GPU buffers:',first);
+const run=vm.runInNewContext(html.slice(first,last)+'\nplanDynamicWorldDelta',{Float32Array,Uint32Array,Number,Array,DYNAMIC_WORLD_DELTA_MAX_FLOATS:960000});
+const n=868410,old=new Float32Array(n),changed=old.slice();changed[645030]=1;
+const delta=run(old,changed,n);assert.equal(delta.dirtyFloats,30);
+const copy=old.slice();for(const w of delta.ranges)copy.set(changed.subarray(w.firstFloat,w.lastFloat),w.firstFloat);
+assert.deepEqual(new Uint32Array(copy.buffer),new Uint32Array(changed.buffer));
+const four=old.slice();[30,150000,510000,750000].forEach((i,k)=>four[i]=k+1);
+assert.equal(run(old,four,n).ranges.length,4);
+const five=four.slice();five[800000]=5;assert.equal(run(old,five,n),null);
+const wide=old.slice();wide.fill(1);assert.equal(run(old,wide,n),null);
+assert.equal(run(old,old.slice(),n).dirtyFloats,0);
+assert.equal(run(old,old,n),null);
+const zero=old.slice();zero[2130]=-0;assert.equal(run(old,zero,n).dirtyFloats,30);
+const offset=new Float32Array(new ArrayBuffer((n+4)*4),8,n),offset2=offset.slice();offset2[5100]=1;
+assert.equal(run(offset,offset2,n).dirtyFloats,30);
+console.log('PASS bounded original 868410-float hardware upload plan; physical FPS NOT measured');

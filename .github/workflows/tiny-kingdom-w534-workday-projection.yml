@@ -1,0 +1,28 @@
+name: Tiny Kingdom W534 Exact Physical Workday Projection
+on:
+  push:
+    branches: [feat/tiny-kingdom-post-main-gauntlet-20261031]
+    paths:
+      - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w534-foreground-projection.test.cjs
+      - .github/workflows/tiny-kingdom-w534-workday-projection.yml
+  workflow_dispatch:
+jobs:
+  actual-workday-sightline-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: RED-before GREEN-after exact original projection equivalence
+        run: node scripts/tiny-kingdom-w534-foreground-projection.test.cjs
+      - name: Parse the actual in-game inline JavaScript
+        run: |
+          node - <<'NODE'
+          const fs=require('node:fs'),assert=require('node:assert/strict');
+          const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
+          const script=html.match(/<script>([\s\S]*?)<\/script>/);
+          assert.ok(script);new Function(script[1]);
+          NODE

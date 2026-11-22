@@ -1,0 +1,45 @@
+name: Tiny Kingdom W502 Authentic Market-to-Home Rendering Spine
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'tests/browser/tiny-kingdom-w502-economy-spine.spec.cjs'
+      - '.github/workflows/tiny-kingdom-w502-economy-spine.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w502-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  authentic-software-market-and-granary:
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feat/tiny-kingdom-post-main-gauntlet-20261031' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      CI: '1'
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Capture real 1024px / 390px market-to-house original and resident WebGL
+        run: npx playwright test tests/browser/tiny-kingdom-w502-economy-spine.spec.cjs --workers=1 --reporter=line
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w502-real-market-original-resident-mobile
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: warn
+          retention-days: 14

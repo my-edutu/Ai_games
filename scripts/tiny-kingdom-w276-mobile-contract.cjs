@@ -1,0 +1,18 @@
+'use strict';
+const assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs');
+const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
+const a=html.indexOf('<script>'),b=html.lastIndexOf('</script>');
+assert(a>0&&b>a);const src=html.slice(a+8,b);
+new vm.Script(src,{filename:'tiny-kingdom-playable-source.js'});
+assert.match(html,/id="grain-chain-details"[^>]*aria-expanded="false"/);
+assert.match(html,/data-supply-details="closed"/);
+assert.match(src,/function setSupplyTrailDetails\(open\)/);
+assert.match(src,/function getSupplyTrailDetailsAudit\(\)/);
+assert.match(src,/button\('grain-chain-details',/);
+assert.match(src,/if\(supplyTrailOpen\)\s*setSupplyTrailDetails\(false\)/);
+assert.match(html,/W277 Phase 1 authentic world-first economic field of view/);
+assert.match(html,/width:min\(424px,calc\(100vw - 24px\)\)!important/);
+assert.match(html,/#world-supply-trail>\.supply-stage\{display:none!important\}/);
+assert.match(html,/max-height:min\(31vh,260px\)!important/);
+assert.match(src,/getGroundAtlasRouteResidencyAudit/);
+console.log('W276 actual source parses; visible 5 parcel cameras, expandable original receipts and original-home route residency contract exists. Browser gameplay proof separate.');

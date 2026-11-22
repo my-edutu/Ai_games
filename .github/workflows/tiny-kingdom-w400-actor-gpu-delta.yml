@@ -1,0 +1,51 @@
+name: Tiny Kingdom W400 Real Citizen GPU Delta
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w400-actor-gpu-delta-contract.cjs'
+      - '.github/workflows/tiny-kingdom-w400-actor-gpu-delta.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-real-actor-gpu-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/tiny-kingdom-w400-actor-gpu-delta-contract.cjs
+      - run: node scripts/tiny-kingdom-w398-dynamic-delta-contract.cjs
+  original-real-workday-desktop-mobile:
+    needs: exact-real-actor-gpu-source
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chromium
+      - name: Actual real citizen workday and 390px fallback
+        env:
+          CI: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w397-gpu-district.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w400-actual-software-workday
+          path: |
+            artifacts/tiny-kingdom-w397/
+            test-results/
+          retention-days: 14

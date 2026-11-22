@@ -1,0 +1,57 @@
+name: Tiny Kingdom W198 Authentic Physical Work and Growth
+on:
+  push:
+    branches:
+      - feat/tiny-kingdom-post-main-gauntlet-20261031
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w198-physical-labor-knees-contract.cjs'
+      - 'tests/browser/tiny-kingdom-w198-real-work-knees.spec.cjs'
+      - '.github/workflows/tiny-kingdom-w198-physical-labor.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w198-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  real-labor-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: W198 original IK source and boot-ground invariants
+        run: node scripts/tiny-kingdom-w198-physical-labor-knees-contract.cjs
+  real-labor-playwright:
+    needs: real-labor-source
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Real harvest and Day-120 1024px and 390px video
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          CI: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w198-real-work-knees.spec.cjs --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w198-real-motion-and-grown-town
+          path: |
+            artifacts/tiny-kingdom-w198-real-workers/
+            test-results/
+          retention-days: 14

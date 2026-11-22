@@ -1,0 +1,50 @@
+name: Tiny Kingdom W226 Real Courier Physical Receiving Evidence
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w226-courier-receiving-contract.cjs'
+      - 'scripts/tiny-kingdom-w187-camera-ray-broadphase-contract.cjs'
+      - 'tests/browser/tiny-kingdom-w13-real-market-journey.spec.cjs'
+      - '.github/workflows/tiny-kingdom-w226-real-courier-receiving.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w226-receiving-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  physical-courier-to-real-market:
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feat/tiny-kingdom-post-main-gauntlet-20261031' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Check real, reachable physical market route and original roof ray contract
+        run: node scripts/tiny-kingdom-w226-courier-receiving-contract.cjs && node scripts/tiny-kingdom-w187-camera-ray-broadphase-contract.cjs
+      - name: Verify syntax and original game build
+        run: npm run build
+      - name: Install browser GPU software backend for diagnostic gameplay
+        run: npx playwright install --with-deps chromium
+      - name: Observe real 390px farm loaded courier market unload and saved receipt
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          CI: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w13-real-market-journey.spec.cjs --workers=1 --reporter=line
+      - name: Save actual original gameplay video screenshot and failure traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w226-real-market-receiving
+          path: |
+            test-results/
+          if-no-files-found: warn
+          retention-days: 14

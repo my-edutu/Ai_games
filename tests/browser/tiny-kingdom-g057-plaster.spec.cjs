@@ -26,9 +26,10 @@ test('G057 plaster has its own real GPU material and rain-streak shader without 
     authorityUnchanged:before===JSON.stringify(g.exportSnapshot())};
  });
  expect(result.surface.vertexStride).toBe(10);
- expect(result.surface.materials).toHaveLength(9);
- expect(result.surface.materials[8]).toBe('PLASTER');
- expect(result.surface.surfaceShaderVersion).toBe('procedural-060');
+ expect(result.surface.materials.slice(0,9)).toEqual(['GENERAL','GRASS','WATER','ROAD','FOLIAGE','STONE','WOOD','ROOF','PLASTER']);
+ // G071 extends the append-only GPU material table; existing plaster ID 8 remains stable.
+ expect(result.surface.materials.slice(9,11)).toEqual(['WINDOW_GLOW','LANTERN_GLOW']);
+ expect(result.surface.surfaceShaderVersion).toBe('procedural-063');
  for(const name of ['housePlasterCream','housePlasterWarm','houseGablePlaster',
   'sidePlasterOak','sidePlasterAsh','sidePlasterLime','sidePlasterSand']){
   const row=result.swatches[name];

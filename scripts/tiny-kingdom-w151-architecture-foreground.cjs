@@ -1,0 +1,17 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
+const a=html.indexOf('const WORKDAY_SOLID_BUILDING_KINDS='),b=html.indexOf('\n// G148:',a);
+assert(a>0&&b>a);
+const ctx={physicalCameraProjection:()=>({aspect:1.6,tanVertical:.65}),terrain:()=>0};
+vm.runInNewContext(html.slice(a,b),ctx);
+const p=ctx.foregroundSceneProjection,eye=[0,3,10],target=[0,1,0];
+const house={x:0,z:5,rx:2,rz:2,top:4,bottom:0,kind:'home'};
+assert(p(eye,target,[house]).buildingCover>0);
+assert.equal(p(eye,target,[{...house,z:-5}]).cover,0);
+for(const kind of ['hall','granary','belfry','craft-district'])assert(p(eye,target,[{...house,kind}]).buildingCover>0,kind);
+assert(p(eye,target,[{...house,kind:'market-cart'}]).cargoCover>0);
+assert.equal(p(eye,target,[{...house,z:-5,kind:'market-stall'}]).cover,0);
+assert.equal(p(eye,target,[{...house,x:30}]).cover,0);
+assert.equal(p(eye,target,Array.from({length:50},()=>house)).cover,1);
+console.log('W151 original building foreground source-contract green');

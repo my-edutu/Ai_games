@@ -1,0 +1,58 @@
+name: Tiny Kingdom W125 Controlled Renderer A-B
+
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w125-controlled-performance.cjs'
+      - '.github/workflows/tiny-kingdom-w125-controlled-performance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Preserve exact head SHA evidence, even with concurrent draft-branch commits.
+concurrency:
+  # A stable PR number bounds future pending captures without cancelling a running one.
+  group: tiny-kingdom-w125-ab-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  controlled-software-renderer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - name: Compare the CURRENT original game source against its immediately previous game source
+        run: |
+          set -eu
+          mkdir -p artifacts
+          SOURCE=public/tiny-kingdom/index.html
+          AFTER=$(git log -1 --format=%H -- "$SOURCE")
+          BEFORE=$(git log -2 --format=%H -- "$SOURCE" | tail -n 1)
+          test -n "$AFTER" && test -n "$BEFORE" && test "$AFTER" != "$BEFORE"
+          git show "$BEFORE:$SOURCE" > artifacts/w125-before.html
+          git show "$AFTER:$SOURCE" > artifacts/w125-after.html
+          printf '{"before":"%s","after":"%s","source":"%s","selection":"last-two-real-playable-source-commits"}\n' "$BEFORE" "$AFTER" "$SOURCE" > artifacts/w125-source-pair.json
+          node -e "const fs=require('fs');for(const x of ['before','after']){const s=fs.readFileSync('artifacts/w125-'+x+'.html','utf8');new Function(s.slice(s.indexOf('<script>')+8,s.lastIndexOf('</script>')));}"
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Measure identical seeded authority and representative real scenes
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: node scripts/tiny-kingdom-w125-controlled-performance.cjs
+      - name: Retain exact-source images, frame tails and failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w125-matched-renderer-ab
+          path: artifacts/tiny-kingdom-w125-comparison/
+          if-no-files-found: warn
+          retention-days: 14

@@ -1,0 +1,41 @@
+name: Tiny Kingdom W514 Real Crop Continuity in Courier Workday
+on:
+  push:
+    branches:
+      - feat/tiny-kingdom-post-main-gauntlet-20261031
+    paths:
+      - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w514-stable-farm-lod-contract.cjs
+      - tests/browser/tiny-kingdom-w512-courier-cart-template.spec.cjs
+      - .github/workflows/tiny-kingdom-w514-farm-continuity.yml
+  workflow_dispatch:
+jobs:
+  real-courier-farm-mobile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      CI: "1"
+      LIBGL_ALWAYS_SOFTWARE: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Source red-green actual crop continuity test
+        run: node scripts/tiny-kingdom-w514-stable-farm-lod-contract.cjs
+      - name: Build actual Playwright web server prerequisites
+        run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Film same real Day-121 courier source on desktop and 390px
+        run: npx playwright test tests/browser/tiny-kingdom-w512-courier-cart-template.spec.cjs --workers=1 --reporter=line
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w514-real-courier-crop-continuity
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: warn
+          retention-days: 14

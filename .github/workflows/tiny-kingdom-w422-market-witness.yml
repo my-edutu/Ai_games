@@ -1,0 +1,20 @@
+name: Tiny Kingdom W422 Authentic Market Stock Sightlines
+on:
+  push:
+    branches: [feat/tiny-kingdom-post-main-gauntlet-20261031]
+    paths:
+      - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w422-market-witness-contract.cjs
+      - .github/workflows/tiny-kingdom-w422-market-witness.yml
+  workflow_dispatch:
+jobs:
+  original-real-market-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Source-executed real goods, physically safe camera and caption
+        run: node scripts/tiny-kingdom-w422-market-witness-contract.cjs

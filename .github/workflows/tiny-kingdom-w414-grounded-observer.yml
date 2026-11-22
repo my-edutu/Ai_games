@@ -1,0 +1,68 @@
+name: Tiny Kingdom W420 Lived Workskin and Credited Market Footage
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'tests/browser/tiny-kingdom-w414-grounded-observer.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w413-observed-worksite-runtime.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w415-resident-visibility.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w416-direct-static-residency.spec.cjs'
+      - 'tests/browser/tiny-kingdom-w417-civic-source-bounds.spec.cjs'
+      - '.github/workflows/tiny-kingdom-w414-grounded-observer.yml'
+      - 'scripts/tiny-kingdom-w419-civic-one-pass-contract.cjs'
+      - 'scripts/tiny-kingdom-w420-continuous-workskin-contract.cjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w414-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  real-workday-grounding:
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feat/tiny-kingdom-post-main-gauntlet-20261031' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      CI: '1'
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: W420 RED first — live workskin / earned grain original mesh contract
+        run: node scripts/tiny-kingdom-w420-continuous-workskin-contract.cjs
+      - name: W419 source-executed civic road one-pass and full-geometry contract
+        run: node scripts/tiny-kingdom-w419-civic-one-pass-contract.cjs
+      - name: Original civic road, GPU fallback and true core integration contracts
+        run: |
+          node scripts/tiny-kingdom-w302-retained-civic-contract.cjs
+          node scripts/tiny-kingdom-w317-true-core-gpu-residency-contract.cjs
+          node scripts/tiny-kingdom-w318-civic-gpu-allocation-fallback-contract.cjs
+          node scripts/tiny-kingdom-w319-civic-road-buffer-reuse-contract.cjs
+      - name: Real terrain eye, roof and invalid-projection contract
+        run: node --test tests/browser/tiny-kingdom-w414-grounded-observer.spec.cjs
+      - name: Actual selected worker residency and visibility Set contract
+        run: node --test tests/browser/tiny-kingdom-w415-resident-visibility.spec.cjs
+      - name: Original civic, landscape and town direct GPU pack contract
+        run: node --test tests/browser/tiny-kingdom-w416-direct-static-residency.spec.cjs
+      - name: W417 full original civic-core triangle visibility contract
+        run: node --test tests/browser/tiny-kingdom-w417-civic-source-bounds.spec.cjs
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Actual desktop and 390px uncut workday evidence
+        run: npx playwright test tests/browser/tiny-kingdom-w413-observed-worksite-runtime.spec.cjs --workers=1 --reporter=line
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-kingdom-w414-real-workday-after-terrain-guard
+          path: |
+            artifacts/tiny-kingdom-w413/
+            test-results/
+          if-no-files-found: warn
+          retention-days: 14

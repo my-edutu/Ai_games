@@ -14,11 +14,16 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          # Historical same-source A/B tests load exact pinned W24/W25 Git
+          # objects. Shallow checkout silently lacks these commit trees and
+          # fails during Playwright collection before any game is tested.
+          fetch-depth: 0
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:

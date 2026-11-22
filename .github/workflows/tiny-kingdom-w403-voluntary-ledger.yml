@@ -1,0 +1,46 @@
+name: Tiny Kingdom W403 Real Workday Camera and Optional Grain Ledger
+on:
+  push:
+    branches: [feat/tiny-kingdom-post-main-gauntlet-20261031]
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'tests/browser/tiny-kingdom-w403-voluntary-grain-ledger.spec.cjs'
+      - '.github/workflows/tiny-kingdom-w403-voluntary-ledger.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w403-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  real-desktop-and-mobile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      CI: '1'
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - name: Parse real game source
+        run: node -e "const fs=require('fs'),vm=require('vm');const s=fs.readFileSync('public/tiny-kingdom/index.html','utf8');for(const m of s.matchAll(/<script>([\\s\\S]*?)<\\/script>/g))new vm.Script(m[1]);"
+      - run: npx playwright install chromium
+      - run: npx playwright test tests/browser/tiny-kingdom-w402-ground-worker-live.spec.cjs tests/browser/tiny-kingdom-w54-world-first-workday.spec.cjs tests/browser/tiny-kingdom-w403-voluntary-grain-ledger.spec.cjs --workers=1 --reporter=line
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w403-real-workday-1024-390
+          path: |
+            artifacts/tiny-kingdom-w402/
+            artifacts/tiny-kingdom-w54/
+            artifacts/tiny-kingdom-w403/
+            test-results/
+          retention-days: 14

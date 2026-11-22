@@ -1,0 +1,23 @@
+name: Tiny Kingdom W536 physical roof envelope source floor
+on:
+  push:
+    branches: [feat/tiny-kingdom-post-main-gauntlet-20261031]
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w536-physical-roof-envelope.cjs'
+      - 'scripts/tiny-kingdom-w112-spatial-crop-contract.cjs'
+      - '.github/workflows/tiny-kingdom-w536-physical-envelope.yml'
+  workflow_dispatch:
+jobs:
+  original-physical-bounds:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Original 3D physical architecture / freight contract
+        run: node scripts/tiny-kingdom-w536-physical-roof-envelope.cjs
+      - name: Original seeded farmer field residency source contract
+        run: node scripts/tiny-kingdom-w112-spatial-crop-contract.cjs

@@ -1,0 +1,28 @@
+name: Tiny Kingdom W541 Retained Real Static Frame
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w541-static-frame-cache.test.cjs'
+      - '.github/workflows/tiny-kingdom-w541-retained-static.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-static-depth-and-live-actors:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.number == 64
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Real initial geometry, physical depth and static spatial culling contracts
+        run: |
+          node scripts/tiny-kingdom-w539-software-depth-spine.test.cjs
+          node scripts/tiny-kingdom-w540-conservative-static-spine.test.cjs
+      - name: W541 exact-source cached street with live courier, 390px, camera and climate changes
+        run: node scripts/tiny-kingdom-w541-static-frame-cache.test.cjs

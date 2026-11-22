@@ -1,0 +1,56 @@
+name: Tiny Kingdom W290 Original Farm-District Rendering
+on:
+  pull_request:
+    paths:
+      - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w372-grain-worksite-contract.cjs
+      - scripts/tiny-kingdom-w375-lived-worksite-contract.cjs
+      - scripts/tiny-kingdom-w378-lived-architecture-contract.cjs
+      - scripts/tiny-kingdom-w380-roof-structure-contract.cjs
+      - scripts/tiny-kingdom-w379-real-profession-workwear-contract.cjs
+      - scripts/tiny-kingdom-w381-street-atlas-residency-contract.cjs
+      - scripts/tiny-kingdom-w290-field-district-contract.cjs
+      - scripts/tiny-kingdom-w125-gpu-skin-contract.cjs
+      - scripts/tiny-kingdom-w383-harmonic-ground-contract.cjs
+      - scripts/tiny-kingdom-w384-real-household-camera-contract.cjs
+      - scripts/tiny-kingdom-w385-real-exchange-contract.cjs
+      - scripts/tiny-kingdom-w386-home-witness-contract.cjs
+      - scripts/tiny-kingdom-w387-home-static-gpu-contract.cjs
+      - scripts/tiny-kingdom-w392-crowned-field-lane-contract.cjs
+      - .github/workflows/tiny-kingdom-w290-field-district.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  planted-original-field-and-worker-safety:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Full inline Tiny Kingdom renderer syntax and physical geometry source contracts
+        run: |
+          node scripts/tiny-kingdom-w290-field-district-contract.cjs
+          node scripts/tiny-kingdom-w372-grain-worksite-contract.cjs
+          node scripts/tiny-kingdom-w375-lived-worksite-contract.cjs
+          node scripts/tiny-kingdom-w378-lived-architecture-contract.cjs
+          node scripts/tiny-kingdom-w380-roof-structure-contract.cjs
+          node scripts/tiny-kingdom-w379-real-profession-workwear-contract.cjs
+          node scripts/tiny-kingdom-w381-street-atlas-residency-contract.cjs
+          node scripts/tiny-kingdom-w253-original-growing-field-contract.cjs
+          node scripts/tiny-kingdom-w260-physical-field-and-freight-contract.cjs
+          node scripts/tiny-kingdom-w125-gpu-skin-contract.cjs
+          node scripts/tiny-kingdom-w383-harmonic-ground-contract.cjs
+          node scripts/tiny-kingdom-w384-real-household-camera-contract.cjs
+          node scripts/tiny-kingdom-w385-real-exchange-contract.cjs
+          node scripts/tiny-kingdom-w386-home-witness-contract.cjs
+          node scripts/tiny-kingdom-w387-home-static-gpu-contract.cjs
+          node scripts/tiny-kingdom-w392-crowned-field-lane-contract.cjs
+      - name: Confirm production source build
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build

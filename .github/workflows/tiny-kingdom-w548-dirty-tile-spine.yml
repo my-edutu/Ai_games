@@ -1,0 +1,36 @@
+name: Tiny Kingdom W548 Real Dirty Tile Rendering Spine
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/tiny-kingdom-post-main-gauntlet-20261031]
+    paths:
+      - public/tiny-kingdom/index.html
+      - tests/browser/tiny-kingdom-w548-dirty-tile-spine.spec.cjs
+      - .github/workflows/tiny-kingdom-w548-dirty-tile-spine.yml
+jobs:
+  real-software-moving-screen:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      CI: '1'
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Run actual source oracle and original 390px pixel comparison
+        run: npx playwright test tests/browser/tiny-kingdom-w548-dirty-tile-spine.spec.cjs --workers=1 --reporter=line
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w548-actual-390px-depth-tiles
+          path: |
+            artifacts/tiny-kingdom-w548/
+            test-results/
+          retention-days: 14
+          if-no-files-found: warn

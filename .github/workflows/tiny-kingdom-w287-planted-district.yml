@@ -1,0 +1,19 @@
+name: Tiny Kingdom W287 Planted District Geometry
+on:
+  pull_request:
+    paths:
+      - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w287-garden-mesh-contract.cjs
+      - .github/workflows/tiny-kingdom-w287-planted-district.yml
+  workflow_dispatch:
+jobs:
+  original-household-rendering-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Exercise original genuine household geometry
+        run: node scripts/tiny-kingdom-w287-garden-mesh-contract.cjs

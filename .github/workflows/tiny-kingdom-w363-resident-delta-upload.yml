@@ -1,0 +1,31 @@
+name: Tiny Kingdom W363 Retained Resident Buffer Growth
+on:
+  push:
+    branches:
+      - feat/tiny-kingdom-post-main-gauntlet-20261031
+    paths:
+      - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w363-resident-delta-upload-contract.cjs
+      - .github/workflows/tiny-kingdom-w363-resident-delta-upload.yml
+  pull_request:
+    paths:
+      - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w363-resident-delta-upload-contract.cjs
+      - .github/workflows/tiny-kingdom-w363-resident-delta-upload.yml
+permissions:
+  contents: read
+jobs:
+  authentic-resident-buffer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Exact original gameplay geometry growth and GPU partial writes
+        run: node scripts/tiny-kingdom-w363-resident-delta-upload-contract.cjs
+      - name: Production asset build
+        run: |
+          npm ci
+          npm run build

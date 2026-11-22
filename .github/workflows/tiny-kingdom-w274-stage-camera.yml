@@ -1,0 +1,46 @@
+name: Tiny Kingdom W274 Real Parcel Stage Camera Evidence
+on:
+  pull_request:
+    paths:
+      - 'public/tiny-kingdom/index.html'
+      - 'scripts/tiny-kingdom-w274-real-economic-stage-camera-contract.cjs'
+      - 'tests/browser/tiny-kingdom-w274-stage-camera.spec.cjs'
+      - '.github/workflows/tiny-kingdom-w274-stage-camera.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tiny-kingdom-w274-stage-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  authentic-grain-stage:
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feat/tiny-kingdom-post-main-gauntlet-20261031' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Source-executed authentic current-only stage contract
+        run: node scripts/tiny-kingdom-w274-real-economic-stage-camera-contract.cjs
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Uncut actual WebGL 1024 and 390 farm courier credited market camera interactions
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          CI: '1'
+        run: npx playwright test tests/browser/tiny-kingdom-w274-stage-camera.spec.cjs --workers=1 --reporter=line
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w274-real-stage-camera-film
+          path: |
+            artifacts/tiny-kingdom-w274/
+            test-results/
+          retention-days: 14
