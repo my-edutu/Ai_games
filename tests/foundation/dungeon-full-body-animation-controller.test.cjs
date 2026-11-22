@@ -8075,3 +8075,91 @@ test('original 41-joint certified connected hip-knee-ankle remains rate-bounded 
  assert.match(renderer.slice(start,end),/previousConnected:samePrevious\?previous:null/,
   'live source mixer must forward ONLY the immediately previous same-GLB certified source pose');
 });
+
+
+// Original 390px native WebGL Walking_A film, run #44973269183,
+// source GLB source-rig artifact 14735136548, f120/tick14. This is a
+// GENUINE 249.9ms slow displayed frame on the licensed 41-joint Vanguard:
+// original weighted toe rose 60.26355mm; the opposite original skinned shoe
+// was unchanged; the right toe remained 12.575mm ABOVE authored stone.
+// The NEXT 16.7ms source frame is explicitly SYNTHETIC and is not claimed
+// as an observed adjacent video, accepted foot plant or fluent animation.
+test('RED: certified original 249.9ms source-chain pose cannot snap hip/knee when the NEXT witnessed source frame is fast',async()=>{
+ const {planLicensedSourceConnectedChainTrials:trials}=await load();
+ const sourceInstanceId='60f01510-a24f-4d11-a619-d8d2bea50a1c';
+ const previous={
+  source:'measured-original-licensed-source-counterpitch',
+  sourceRole:'vanguard',sourceClip:'Walking_A',side:'right',
+  sourceInstanceId,sourceClipTimeSeconds:.18208042443043293,
+  sourceUpperBone:'upperlegr',sourceLowerBone:'lowerlegr',
+  sourceFootBone:'footr',
+  sourceOriginalTracks:['upperlegr.quaternion','lowerlegr.quaternion','footr.quaternion'],
+  originalBindSegmentsMeters:[.17067002536856543,.11231605296387505],
+  appliedUpperRad:-.06776470588235294,
+  appliedLowerRad:.06776470588235294,appliedFootRad:-.72,
+  witnessedFrameIntervalSeconds:.24990000000000379,
+  witnessedRootTravelMeters:.1006577530317696,
+  witnessedDirectFrameTravelMeters:.1006577530317696,
+  witnessedFrameAgeSeconds:0,sparseFrameVerified:true,
+  originalOppositeShoeVerified:true,finalIndependentSourceSkin:true,
+  contactLocked:false,plantCertified:false
+ };
+ const plan={
+  source:'verified-licensed-source-native-counterpitch',
+  sourceRole:'vanguard',sourceClip:'Walking_A',side:'right',
+  sourceClipTimeSeconds:.19878042443043293,
+  originalSourceBoneChainVerified:true,
+  sourceOriginalRootTravelWitnessed:true,
+  sourceActualClipPhaseVerified:true,
+  contactLocked:false,plantCertified:false,
+  // HYPOTHETICAL next lawful source-owned frame, not measured GLB footage.
+  upperRad:-.014,lowerRad:.014,footRad:-.6699
+ };
+ const input={plan,frameInterval:.0167,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceFootTrackVerified:true,sourceBindVerified:true,
+  sourceInstanceId,sourceSide:'right',previousConnected:previous};
+ const connected=trials(input);
+ assert.equal(connected?.length,2,
+  'carry prior independently re-skinned original hip+knee from lawful sparse into fast frame');
+ for(const candidate of connected){
+  for(const [joint,old] of [
+   ['upperRad',previous.appliedUpperRad],
+   ['lowerRad',previous.appliedLowerRad],
+   ['footRad',previous.appliedFootRad]
+  ])assert.ok(Math.abs(candidate[joint]-old)<=3*.0167+.000002,
+   'all original linked bones must respect 3rad/s, including on sparse-to-fast transition');
+  assert.ok(candidate.upperRad<0&&candidate.lowerRad>0,
+   'certified source knee and hip must not reset to a disjoint original twitch');
+ }
+ assert.notDeepEqual(connected[0],connected[1],
+  'two original three-joint poses remain independently source-skinned, not duplicated');
+ for(const invalid of [
+  {previousConnected:{...previous,sparseFrameVerified:false}},
+  {previousConnected:{...previous,witnessedDirectFrameTravelMeters:0}},
+  {previousConnected:{...previous,witnessedDirectFrameTravelMeters:.18}},
+  {previousConnected:{...previous,witnessedFrameAgeSeconds:.07}},
+  {previousConnected:{...previous,witnessedFrameIntervalSeconds:.5}},
+  {previousConnected:{...previous,witnessedFrameIntervalSeconds:.15}},
+  {previousConnected:{...previous,sourceInstanceId:'different-GLB'}},
+  {previousConnected:{...previous,sourceClip:'Idle'}},
+  {previousConnected:{...previous,finalIndependentSourceSkin:false}},
+  {previousConnected:{...previous,originalOppositeShoeVerified:false}},
+  {previousConnected:{...previous,sourceOriginalTracks:['footr.quaternion']}},
+  {previousConnected:{...previous,appliedFootRad:-.015}},
+  {plan:{...plan,sourceClipTimeSeconds:.25}},
+  {plan:{...plan,footRad:-.55}},
+  {sourceInstanceId:'different-GLB'},
+  {sourceSide:'left'}
+ ])assert.equal(trials({...input,...invalid}),null,
+  'old, unskinned, stalled, mis-owned or over-speed source joints must fail closed');
+ const live=require('node:fs').readFileSync(
+  require('node:path').resolve(__dirname,'../../public/ai-dungeon/model-assets.js'),'utf8');
+ const bridge=live.slice(live.indexOf('function stageLicensedSourceSwingCounterpitchAfterMixer('),
+  live.indexOf('function stageLicensedSourceToeFinisherAfterCounterpitch('));
+ assert.match(bridge,/previousConnected:samePrevious\?previous:null/);
+ assert.match(bridge,/const final=read\(\)/,
+  'live Three.js must independently re-skin BOTH genuine source shoes before keeping linked pose');
+ assert.match(bridge,/finalIndependentSourceSkin:true/,
+  'only a prior certified source pose can authorize sparse-to-fast continuity');
+});
