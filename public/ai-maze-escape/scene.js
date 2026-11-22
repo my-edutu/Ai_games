@@ -87,7 +87,12 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   const pickupCameraOffset = new THREE.Vector3(13, 17, 16);
   // A true publicly witnessed escape earns Pip and the OPENING Tideglass
   // arch one meaningful 3D finale. Reused vector, no new frame allocations.
-  const escapeCameraOffset = new THREE.Vector3(9, 16, 24);
+  // Pass569: exact original terminal full-frame WebGL has a physical wall
+  // masking Pip at the genuine disclosed exit. Raise the same existing 3D
+  // camera over it; do not remove collision masonry, move actors or alter
+  // public-only terminal gating, frame thresholds or resource ownership.
+  // This is a source candidate, NOT an approved rendered result.
+  const escapeCameraOffset = new THREE.Vector3(12, 24, 18);
   const world = createMazeWorld({ balanced });
   scene.add(world.group);
   // The genuinely visible, NON-COLLIDING fossil tide-organ silhouettes may
