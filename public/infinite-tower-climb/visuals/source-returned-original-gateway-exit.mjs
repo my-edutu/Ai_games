@@ -75,3 +75,30 @@ export function sourceReturnedOriginalGatewayRetention(source,held,job,supported
     held.lastReturnedOldGatewayTick<=source.tick &&
     source.tick-held.lastReturnedOldGatewayTick<=150;
 }
+
+
+// The real first F9 renderer-return episode at d11f47ba showed the original
+// gallery fall from opacity 1 to .059 by frame 5 while the *same source*
+// defeated-guardian bronze gate remained .969 opaque. This detached the door
+// visually from its original load-bearing room. Keep a bounded, progressively
+// receding portion of the ALREADY BUILT original non-colliding steel visible
+// with that doorway, until genuine incoming shaft returns and the gate itself
+// recedes. World applies this as a conservative floor BEFORE its monotonic
+// historic-material record; this function never creates or resurrects mesh,
+// contact, player movement, victory or any GPU-return evidence.
+export function sourceReturnedOriginalThresholdBearing(source,held,job,
+  gatewayOpacity,supported) {
+  if(!verified(source,held,job,supported) ||
+     held.opticalExitSubmitted===true ||
+     !finite(gatewayOpacity) || gatewayOpacity<=.01 ||
+     gatewayOpacity>1 ||
+     !finite(held.originalGallerySourceOpacity) ||
+     held.originalGallerySourceOpacity<0 || held.originalGallerySourceOpacity>1 ||
+     held.submittedFrames>=30 || held.visibleSeconds>=2.8)return null;
+  // Fewer old steel silhouettes during high-detail successor release:
+  // never hold opaque old bars over the moving F9 climber and new hazards.
+  const gateShare=unit((gatewayOpacity-.03)/.9);
+  const successorProgress=unit((job.structuralVisibleReturns-9)/9);
+  const minExistingSteel=.33*gateShare*(1-.7*smooth(successorProgress));
+  return +minExistingSteel.toFixed(6);
+}
