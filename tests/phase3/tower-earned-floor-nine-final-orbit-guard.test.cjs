@@ -30,7 +30,7 @@ test('real 1x portrait original gateway -> raised deck camera jump is bounded on
  const original=JSON.stringify(source);
  const proposal=f(opts);
  assert.ok(proposal&&proposal.limited);
- assert.ok(Math.abs(proposal.turnRadians)<=.92*.06+1e-9);
+ assert.ok(Math.abs(proposal.turnRadians)<=.60*.06+1e-9);
  assert.ok(Math.abs(proposal.requestedTurnRadians)>.3);
  assert.ok(Math.hypot(...proposal.camera.map((v,i)=>v-camera0[i]))<2.5);
  assert.ok(proposal.remainingMetres>10);
@@ -79,9 +79,9 @@ test('final immutable-source guard follows ALL earlier 3D directors, physically 
  const b=scene.indexOf('const earnedOrbit=sourceEarnedFloorNineOrbitGuard({');
  const c=scene.indexOf('renderer.render(scene, camera)');
  assert.ok(a>0 && a<b && b<c);
- assert.match(scene,/actualRays\\.bodyBlockedRays===0/);
- assert.match(scene,/oldSteel\\.projectedMetalArea>=\\.012/);
+ assert.match(scene,/actualRays\.bodyBlockedRays===0/);
+ assert.match(scene,/oldSteel\.projectedMetalArea>=\.012/);
  assert.match(scene,/fullHero && destinationPreserved && preservedOriginal/);
- assert.match(scene,/camera\\.position\\.copy\\(releasePreviousCamera\\)/);
+ assert.match(scene,/camera\.position\.copy\\(releasePreviousCamera\\)/);
  assert.match(scene,/earnedFloorNineOrbitContinuity:/);
 });

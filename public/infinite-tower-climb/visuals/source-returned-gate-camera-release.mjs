@@ -227,7 +227,7 @@ export function sourceEarnedFloorNineOrbitGuard({
   const seconds=clamp(dt,.001,.085);
   const a0=Math.atan2(px,pz),a1=Math.atan2(dx,dz);
   const rawTurn=Math.atan2(Math.sin(a1-a0),Math.cos(a1-a0));
-  const turn=clamp(rawTurn,-.92*seconds,.92*seconds);
+  const turn=clamp(rawTurn,-.60*seconds,.60*seconds);
   const radius=r0+clamp(r1-r0,-16*seconds,16*seconds);
   const height=py+clamp(dy-py,-15*seconds,15*seconds);
   const camera=[Math.sin(a0+turn)*radius,height,Math.cos(a0+turn)*radius];
