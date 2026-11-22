@@ -6,6 +6,7 @@ on:
     paths:
       - public/tiny-kingdom/index.html
       - scripts/tiny-kingdom-w538-retained-canvas-painter.test.cjs
+      - scripts/tiny-kingdom-w539-software-depth-spine.test.cjs
       - scripts/tiny-kingdom-w537-canvas-raster-contract.test.cjs
       - tests/browser/tiny-kingdom-w537-canvas-raster.spec.cjs
       - tests/browser/tiny-kingdom-w518-rooted-grain-contract.test.cjs
@@ -49,6 +50,8 @@ jobs:
         run: node --test scripts/tiny-kingdom-w537-canvas-raster-contract.test.cjs
       - name: Verify W538 retained real no-WebGL painter and resource bounds
         run: node --test scripts/tiny-kingdom-w538-retained-canvas-painter.test.cjs
+      - name: W539 original-world software z-buffer and legacy fallback contract
+        run: node --test scripts/tiny-kingdom-w539-software-depth-spine.test.cjs
       - name: Build browser-server prerequisites
         run: npm run build
       - run: npx playwright install --with-deps chromium

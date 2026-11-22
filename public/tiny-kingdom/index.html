@@ -4610,6 +4610,77 @@ const fallbackStats={draws:0,submitted:0,behindCamera:0,offscreen:0,visible:0,la
 let painterCapacity=0,painterGrowths=0,painterReused=0;
 let projected=new Float64Array(0),paintColors=new Uint32Array(0);
 const paintOrder=[];
+
+// W539 Phase-1: bounded pixel-depth software spine for the SAME submitted world.
+// Only the no-WebGL fallback uses this presentation backend. Every original
+// citizen, structure, road and harvest face is processed, and actual nearest
+// surface depth resolves overlap without painting 100k Canvas paths.
+let softwareImage=null,softwarePixels=null,softwareDepth=new Float32Array(0);
+let softwareWidth=0,softwareHeight=0,softwareSurfaceRebuilds=0;
+let softwareShadedPixels=0,softwareOverdraw=0,softwareRasterTriangles=0;
+const softwareLittleEndian=new Uint8Array(new Uint32Array([0x01020304]).buffer)[0]===4;
+let softwareInvW=new Float32Array(0);
+function softwarePackColor(r,g,b){
+ return softwareLittleEndian?
+  (0xff000000|((b&255)<<16)|((g&255)<<8)|(r&255))>>>0:
+  (((r&255)<<24)|((g&255)<<16)|((b&255)<<8)|255)>>>0;
+}
+function drawSoftwareDepthFrame(count,sx,sy){
+ const width=canvas.width|0,height=canvas.height|0;
+ if(width<=0||height<=0||width*height>8388608)return false;
+ if(!softwareImage||width!==softwareWidth||height!==softwareHeight){
+  softwareImage=ctx.createImageData(width,height);
+  softwarePixels=new Uint32Array(softwareImage.data.buffer);
+  softwareDepth=new Float32Array(width*height);
+  softwareWidth=width;softwareHeight=height;softwareSurfaceRebuilds++;
+ }
+ const byte=(v)=>Math.max(0,Math.min(255,Math.round(v*255)));
+ softwarePixels.fill(softwarePackColor(byte(sky[0]),byte(sky[1]),byte(sky[2])));
+ softwareDepth.fill(0);
+ let shaded=0,overdraw=0,triangles=0;
+ for(let id=0;id<count;id++){
+  const o=id*7,t=id*3;
+  const ax=(projected[o]+1)*sx,ay=(1-projected[o+1])*sy;
+  const bx=(projected[o+2]+1)*sx,by=(1-projected[o+3])*sy;
+  const cx=(projected[o+4]+1)*sx,cy=(1-projected[o+5])*sy;
+  const abx=bx-ax,aby=by-ay,acx=cx-ax,acy=cy-ay;
+  const area=abx*acy-aby*acx;
+  if(!Number.isFinite(area)||Math.abs(area)<1e-7)continue;
+  const x0=Math.max(0,Math.ceil(Math.min(ax,bx,cx)-.5));
+  const x1=Math.min(width-1,Math.floor(Math.max(ax,bx,cx)-.5));
+  const y0=Math.max(0,Math.ceil(Math.min(ay,by,cy)-.5));
+  const y1=Math.min(height-1,Math.floor(Math.max(ay,by,cy)-.5));
+  if(x0>x1||y0>y1)continue;
+  const invArea=1/area,dbdx=acy*invArea,dcdx=-aby*invArea;
+  const dbdy=-acx*invArea,dcdy=abx*invArea;
+  const initialDx=x0+.5-ax,initialDy=y0+.5-ay;
+  const startB=(initialDx*acy-initialDy*acx)*invArea;
+  const startC=(abx*initialDy-aby*initialDx)*invArea;
+  const da=softwareInvW[t],db=softwareInvW[t+1],dc=softwareInvW[t+2];
+  const color=paintColors[id];
+  const packed=softwarePackColor((color>>>16)&255,(color>>>8)&255,color&255);
+  triangles++;
+  for(let y=y0;y<=y1;y++){
+   let b=startB+(y-y0)*dbdy,c=startC+(y-y0)*dcdy;
+   let pixel=y*width+x0;
+   for(let x=x0;x<=x1;x++,pixel++,b+=dbdx,c+=dcdx){
+    const a=1-b-c;
+    if(a<-.000001||b<-.000001||c<-.000001)continue;
+    const invDepth=a*da+b*db+c*dc;
+    if(invDepth>softwareDepth[pixel]){
+     if(softwareDepth[pixel]>0)overdraw++;
+     else shaded++;
+     softwareDepth[pixel]=invDepth;softwarePixels[pixel]=packed;
+    }
+   }
+  }
+ }
+ ctx.putImageData(softwareImage,0,0);
+ softwareShadedPixels=shaded;softwareOverdraw=overdraw;
+ softwareRasterTriangles=triangles;
+ return true;
+}
+
 function reservePainter(n){
  if(n<=painterCapacity){painterReused++;return;}
  let size=Math.max(256,painterCapacity);
@@ -4617,10 +4688,15 @@ function reservePainter(n){
  painterCapacity=size;painterGrowths++;
  projected=new Float64Array(size*7);
  paintColors=new Uint32Array(size);
+ softwareInvW=new Float32Array(size*3);
 }
 
 canvasFallbackRasterAudit=()=>({source:'real-canvas2d-conservative-screen-raster',enabled:true,
  ...fallbackStats,drawsOnlyActualTriangles:true,offscreenOnly:true,
+ backend:fallbackStats.backend||'legacy-canvas-paths',
+ depthPixels:softwareShadedPixels,depthOverdraw:softwareOverdraw,
+ depthTriangles:softwareRasterTriangles,depthSurfaceRebuilds:softwareSurfaceRebuilds,
+ depthSurfaceBytes:(softwarePixels?.byteLength||0)+softwareDepth.byteLength+softwareInvW.byteLength,
  retainedAllWorldData:true,changedAuthority:false,hardwareFps:'NOT MEASURED'});
 gl={VERTEX_SHADER:1,FRAGMENT_SHADER:2,ARRAY_BUFFER:3,FLOAT:4,DYNAMIC_DRAW:5,COLOR_BUFFER_BIT:6,DEPTH_BUFFER_BIT:7,DEPTH_TEST:8,CULL_FACE:9,BACK:10,TRIANGLES:11,COMPILE_STATUS:12,LINK_STATUS:13,createShader:()=>({}),shaderSource:noop,compileShader:noop,getShaderParameter:()=>true,createProgram:()=>({}),attachShader:noop,linkProgram:noop,getProgramParameter:()=>true,useProgram:noop,getUniformLocation:(_,k)=>k,createBuffer:()=>({}),bindBuffer:noop,getAttribLocation:()=>0,enableVertexAttribArray:noop,vertexAttribPointer:noop,uniformMatrix4fv:(_,__,m)=>{projection=m},uniform1f:noop,uniform1i:noop,uniform2f:noop,uniform4f:noop,uniform4fv:noop,uniform3f:(key,r,g,b)=>{if(key==='fogColor')sky=[r,g,b];if(key==='sunTint')sunTint=[r,g,b];if(key==='sunDirection')sunDirection=[r,g,b]},clearColor:(r,g,b)=>{sky=[r,g,b]},clear:()=>{ctx.fillStyle=`rgb(${sky.map(v=>Math.round(v*255)).join(',')})`;ctx.fillRect(0,0,canvas.width,canvas.height)},viewport:noop,enable:noop,cullFace:noop,bufferData:(_,v)=>{vertices=v},drawArrays:()=>{
  if(!vertices||!projection)return;
@@ -4664,19 +4740,31 @@ gl={VERTEX_SHADER:1,FRAGMENT_SHADER:2,ARRAY_BUFFER:3,FLOAT:4,DYNAMIC_DRAW:5,COLO
   paintColors[count]=((Math.max(0,rr)&255)<<16)|
    ((Math.max(0,gg)&255)<<8)|(Math.max(0,bb)&255);
   paintOrder[count]=count;
+  softwareInvW[count*3]=1/wa;
+  softwareInvW[count*3+1]=1/wb;
+  softwareInvW[count*3+2]=1/wc;
   count++;
  }
  paintOrder.length=count;
- paintOrder.sort((x,y)=>projected[y*7+6]-projected[x*7+6]);
- for(let n=0;n<count;n++){
-  const id=paintOrder[n],o=id*7,rgba=paintColors[id];
-  ctx.beginPath();
-  ctx.moveTo((projected[o]+1)*sx,(1-projected[o+1])*sy);
-  ctx.lineTo((projected[o+2]+1)*sx,(1-projected[o+3])*sy);
-  ctx.lineTo((projected[o+4]+1)*sx,(1-projected[o+5])*sy);
-  ctx.closePath();
-  ctx.fillStyle='rgb('+((rgba>>16)&255)+','+((rgba>>8)&255)+','+(rgba&255)+')';
-  ctx.fill();
+ // Preserve the W538 Canvas2D painter as a real opt-out/unsupported-context
+ // fallback; default no-WebGL presentation resolves physical depth per pixel.
+ const depthEnabled=typeof ctx.createImageData==='function'&&
+  typeof ctx.putImageData==='function'&&
+  globalThis.__tinyKingdomLegacyCanvasPainter!==true;
+ const depthDrawn=depthEnabled&&drawSoftwareDepthFrame(count,sx,sy);
+ fallbackStats.backend=depthDrawn?'retained-pixel-depth':'legacy-canvas-paths';
+ if(!depthDrawn){
+  paintOrder.sort((x,y)=>projected[y*7+6]-projected[x*7+6]);
+  for(let n=0;n<count;n++){
+   const id=paintOrder[n],o=id*7,rgba=paintColors[id];
+   ctx.beginPath();
+   ctx.moveTo((projected[o]+1)*sx,(1-projected[o+1])*sy);
+   ctx.lineTo((projected[o+2]+1)*sx,(1-projected[o+3])*sy);
+   ctx.lineTo((projected[o+4]+1)*sx,(1-projected[o+5])*sy);
+   ctx.closePath();
+   ctx.fillStyle='rgb('+((rgba>>16)&255)+','+((rgba>>8)&255)+','+(rgba&255)+')';
+   ctx.fill();
+  }
  }
  fallbackStats.draws++;
  fallbackStats.submitted=submitted;
