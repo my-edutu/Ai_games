@@ -49,18 +49,26 @@ test('actual Floor9 original steel lens reuses ONLY an exact unchanged returned-
    assert.ok(observed().projectedMetalArea>0);
    assert.equal(projections,2,'identical restored lens may reuse its exact current-frame projection');
    camera.aspect=390/844;camera.updateProjectionMatrix();
-   observed();
+   // At this actual lens/distance both physically separated original piers
+   // are OUTSIDE the portrait frustum. Do not invent a visible gateway to
+   // make a cache test pass: the real portrait shot must earn its framing.
+   assert.equal(observed().projectedPanes,0,
+     'the original gateway cannot count steel cropped outside narrow portrait');
    assert.equal(projections,3,'portrait lens change must reproject actual original steel');
+   camera.aspect=960/600;camera.updateProjectionMatrix();
+   assert.equal(observed().projectedPanes,2,
+     'restore a genuinely visible original arch before testing mesh mutation');
+   assert.equal(projections,4,'restoring the original lens requires fresh geometry');
    held.originalGatewayOpacity=.60;
    observed();
-   assert.equal(projections,4,'actual old-gate fade invalidates a same-position lens');
+   assert.equal(projections,5,'actual old-gate fade invalidates a same-position lens');
    root.children[0].visible=false;
    memo.invalidate();
    assert.equal(observed().projectedPanes,1,
      'post-camera material/mesh visibility changes cannot borrow prior metal');
    memo.beginFrame();
    assert.equal(observed().projectedPanes,1,'next completed World frame always performs a fresh query');
-   assert.equal(projections,6);
+   assert.equal(projections,7);
    assert.ok(memo.diagnostics().retainedEntries<=16);
  } finally {geo.dispose();material.dispose();}
 });
