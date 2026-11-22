@@ -97,6 +97,9 @@ test('source-tested grounded gateway handoff drives SAME real World original gat
     '../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
   assert.match(world,/observedReturnedGroundedGatewayFadeStart\(\s*snapshot,held,deferredDistantArrival\)/);
   assert.match(world,/const earnedRoomDeparture=farSide \|\| returnedGroundedSill/);
-  assert.match(world,/const originalGatePresence=earnedRoomDeparture && Number.isFinite\(farSideFade\)/);
+  assert.match(world,/const originalGatePresence=sourceReturnedOriginalGatewayOpacity\(/);
+  assert.match(world,/snapshot,held,deferredDistantArrival,sourceGateProposal,\s*sourceLegitimateOnwardSupport\)/);
+  assert.doesNotMatch(world,/const originalGatePresence=earnedRoomDeparture && Number.isFinite\(farSideFade\)/,
+    'a fresh source proposal must pass the original two-sided returned-frame authority');
   assert.match(world,/departing\?\.sourceBound===true \|\| opticalLease \|\| earnedRoomDeparture/);
 });

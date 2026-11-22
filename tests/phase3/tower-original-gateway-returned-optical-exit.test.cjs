@@ -13,10 +13,16 @@ const j={floor:9,runToken:'one',proof:'recorded-source-gateway',
   structuralVisibleSeconds:.95};
 test('real returned old and new room frames force one-way gateway extinction',async()=>{
  const {sourceReturnedOriginalGatewayOpacity:f}=await load();
- const next=f(s,h,j,.94,true);
- assert.ok(next<.8167 && next>.0, 'genuine combined return advances old metal');
- assert.ok(f(s,{...h,originalGatewayOpacity:next},j,.99,true)<=next,
+ const partlyPainted={...j,structuralVisibleReturns:5,structuralVisibleSeconds:.4};
+ const next=f(s,h,partlyPainted,.94,true);
+ assert.ok(next<.8167 && next>0,
+   'genuine partially combined returns advance bronze steel gradually');
+ assert.equal(f(s,h,partlyPainted,0,true),next,
+   'a source-proposed zero cannot bypass the old/new jointly returned frames');
+ assert.ok(f(s,{...h,originalGatewayOpacity:next},partlyPainted,.99,true)<=next,
    'new source stance may not resurrect faded original bronze steel');
+ assert.equal(f(s,{...h,originalGatewayOpacity:next},j,.99,true),0,
+   'only sufficient returned old AND successor frames earn final exit');
  assert.equal(f(s,{...h,originalGatewayOpacity:.648},j,1,false),.648,
    'unsupported source cannot spend display-return fading');
  assert.equal(f({...s,runToken:'another'},h,j,.9,true),.8167,
@@ -29,6 +35,11 @@ test('a stalled new shaft cannot consume a still-opaque original portal',async()
    'a source-requested zero-alpha departure cannot erase painted old metal before successor returns');
  assert.equal(f(s,h,{...j,structuralVisibleReturns:1},.01,true),.8167,
    'a single cold first successor return is not a safe replacement shot');
+ assert.equal(f(s,h,{...j,structuralVisibleReturns:3,structuralVisibleSeconds:0},0,true),.8167,
+   'cold builds and zero completed successor display time cannot erase steel');
+ assert.equal(f(s,h,{...j,structuralVisibleReturns:3,structuralVisibleSeconds:.05},0,true),
+   f(s,h,{...j,structuralVisibleReturns:3,structuralVisibleSeconds:.05},1,true),
+   'source-poll-only zero proposal must not spend optical visibility');
  assert.equal(f(s,{...h,visibleSeconds:0,submittedFrames:0},j,1,true),.8167);
  assert.equal(f(s,h,j,-.1,true),null);
  assert.equal(f(s,{...h,originalGatewayOpacity:NaN},j,.5,true),null);

@@ -34,9 +34,8 @@ export function sourceReturnedOriginalGatewayOpacity(source,held,job,proposed,su
      !finite(held?.originalGatewayOpacity) ||
      held.originalGatewayOpacity<0 || held.originalGatewayOpacity>1)return null;
   const previous=unit(held.originalGatewayOpacity);
-  const base=Math.min(previous,proposed);
-  // Missing source support must never invent a lifetime extension.
-  if(!verified(source,held,job,supported)) return base;
+  // An unsupported source can only shorten the lifetime, never resurrect it.
+  if(!verified(source,held,job,supported)) return Math.min(previous,proposed);
   // A newer autonomous source stance may request a sudden zero-alpha old
   // portal while the TRUE successor shaft still has not PAINTED. On a real
   // authenticated Floor9 roof/raised route, preserve ONLY the already
@@ -53,7 +52,13 @@ export function sourceReturnedOriginalGatewayOpacity(source,held,job,proposed,su
     (job.structuralVisibleReturns-1)/9,
     job.structuralVisibleSeconds/.85
   ));
-  return Math.min(base,1-earned);
+  // A proposed zero may come from a NEW source stance before the old and
+  // new GPU owners have jointly painted enough returned frames. Do not let
+  // that proposal bypass the genuine two-sided optical budget. The only
+  // permitted decrease here is the previously returned opacity or the
+  // jointly earned, monotonically increasing fade. Source polls alone cannot
+  // spend it; a changed pose cannot erase the original metal in one frame.
+  return Math.min(previous,1-earned);
 }
 // A truly source-grounded, same-run doorway cannot be disposed while its
 // original steel is still opaque solely because the autonomous climber
