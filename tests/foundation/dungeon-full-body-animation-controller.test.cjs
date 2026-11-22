@@ -8163,3 +8163,65 @@ test('RED: certified original 249.9ms source-chain pose cannot snap hip/knee whe
  assert.match(bridge,/finalIndependentSourceSkin:true/,
   'only a prior certified source pose can authorize sparse-to-fast continuity');
 });
+
+
+/**
+ * Session 03 test-first diagnosis from genuine Actions #44999929544:
+ * both original-GPU-viewpoint Vanguard body lean trials failed strict four
+ * weighted-sole rigid prediction by 11.411–13.212mm even though the support
+ * heel did not drift, the original grip stayed attached and the measured
+ * swing toe rose 15–18mm. Three.js SkinnedMesh.updateWorldMatrix() does NOT
+ * invoke its overridden updateMatrixWorld(), leaving attached bind inverses
+ * stale on a rotated whole-body pivot. This is a real Three.js skin repro,
+ * not a simulated accepted source-GLB frame or a new foot plant.
+ */
+test('RED: original full-rig world pivot refreshes attached SkinnedMesh bind inverse before native four-sole audit',()=>{
+ const THREE=require('three');
+ const geometry=new THREE.BufferGeometry();
+ geometry.setAttribute('position',new THREE.Float32BufferAttribute([.32,.14,.07],3));
+ geometry.setAttribute('skinIndex',new THREE.Uint16BufferAttribute([0,0,0,0],4));
+ geometry.setAttribute('skinWeight',new THREE.Float32BufferAttribute([1,0,0,0],4));
+ const mesh=new THREE.SkinnedMesh(geometry,new THREE.MeshBasicMaterial());
+ const bone=new THREE.Bone();bone.name='licensed-source-joint';
+ mesh.add(bone);
+ const pivot=new THREE.Group();pivot.add(mesh);
+ pivot.updateMatrixWorld(true);
+ mesh.bind(new THREE.Skeleton([bone]));
+ mesh.updateMatrixWorld(true);
+ const sample=()=>{
+  const v=new THREE.Vector3().fromBufferAttribute(geometry.getAttribute('position'),0);
+  mesh.applyBoneTransform(0,v);
+  return v.applyMatrix4(mesh.matrixWorld);
+ };
+ const before=sample();
+ const q=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),.05);
+ pivot.quaternion.copy(q);
+ pivot.updateWorldMatrix(true,true);
+ const stale=sample(),expected=before.clone().applyQuaternion(q);
+ assert.ok(stale.distanceTo(expected)>.005,
+  'Three.js attached-bind stale inverse reproduces an unverified double root rotation');
+ mesh.updateMatrixWorld(true);
+ assert.ok(sample().distanceTo(expected)<1e-6,
+  'updating source SkinnedMesh bind inverse once restores rigid motion');
+ // Production MUST execute the same source-skinned inverse refresh before
+ // heel/toe skin reads on BOTH the preview and rollback paths.
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ const start=renderer.indexOf('function stageOriginalHeelAnchoredFullBodyLean(');
+ const end=renderer.indexOf('function stageSourceLoadedPelvisBeforeLegs(',start);
+ assert.ok(start>=0&&end>start);
+ const stage=renderer.slice(start,end);
+ const readStart=stage.indexOf('const read=');
+ const readEnd=stage.indexOf('const before=read()',readStart);
+ assert.ok(readStart>=0&&readEnd>readStart);
+ const read=stage.slice(readStart,readEnd);
+ assert.match(read,/mesh\.updateMatrixWorld\(true\)/,
+  'source shoe SkinnedMeshes must refresh attached bind inverses before every post-pivot read');
+ assert.ok(read.indexOf('mesh.updateMatrixWorld(true)')<
+  read.indexOf('readOriginalSwingSoleSample('),
+  'refresh the original weighted-source mesh before evaluating any shoe endpoint');
+ assert.match(stage,/pivot\.position\.copy\(basePosition\)/);
+ assert.match(stage,/pivot\.quaternion\.copy\(baseQuaternion\)/);
+ assert.match(stage,/const readback=auditOriginalSourceHeelAnchoredBodyLeanReadback\(/,
+  'never bypass strict original two-shoe and weapon readback');
+ geometry.dispose();mesh.material.dispose();
+});
