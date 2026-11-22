@@ -4827,7 +4827,45 @@ function getSoftwareSpatialCellAudit(){
 // on top each frame. First-frame results and source-world authority are
 // identical; no coarse impostors, hidden inhabitants, new scene objects,
 // simulation RNG, or snapshot edits. The cache is bounded and opt-out-able.
+// The original 3D village's exact static z-buffer can conservatively mask
+// a genuinely moving citizen only when EVERY pixel of an entire touched tile
+// is already nearer. This is a lossless depth rejection, NOT an LOD that
+// omits workers or models. It is bounded to the current cached static frame.
+function measureSoftwareStaticDepthTiles(depth,width,height,tileSize=16){
+ if(!depth||!Number.isInteger(width)||!Number.isInteger(height)||
+    width<=0||height<=0||depth.length!==width*height||
+    !Number.isInteger(tileSize)||tileSize<1)return null;
+ const columns=Math.ceil(width/tileSize),rows=Math.ceil(height/tileSize);
+ const minDepth=new Float32Array(columns*rows);
+ minDepth.fill(Infinity);
+ for(let y=0;y<height;y++){
+  const tileY=Math.floor(y/tileSize)*columns,row=y*width;
+  for(let x=0;x<width;x++){
+   const slot=tileY+Math.floor(x/tileSize),v=depth[row+x];
+   if(v<minDepth[slot])minDepth[slot]=v;
+  }
+ }
+ return {minDepth,columns,rows,tileSize,width,height};
+}
+function softwareRectangleHiddenByStaticDepth(box,maxInvDepth,tiles){
+ if(!tiles||!box||!Number.isFinite(maxInvDepth)||maxInvDepth<=0)
+  return false;
+ const {x0,y0,x1,y1}=box;
+ if(![x0,y0,x1,y1].every(Number.isInteger)||
+    x0<0||y0<0||x1<x0||y1<y0||
+    x1>=tiles.width||y1>=tiles.height)return false;
+ const tx0=Math.floor(x0/tiles.tileSize),tx1=Math.floor(x1/tiles.tileSize),
+  ty0=Math.floor(y0/tiles.tileSize),ty1=Math.floor(y1/tiles.tileSize);
+ // A full-tile minimum is <= the depth of every pixel in that tile.
+ // Positive epsilon rejects borderline equal-float cases conservatively.
+ const threshold=maxInvDepth+1e-7;
+ for(let ty=ty0;ty<=ty1;ty++)for(let tx=tx0;tx<=tx1;tx++)
+  if(tiles.minDepth[ty*tiles.columns+tx]<threshold)return false;
+ return true;
+}
 const SOFTWARE_STATIC_BASE_MAX_PIXELS=1500000;
+let softwareStaticTileMap=null,softwareStaticTileBuilds=0,
+ softwareStaticTileQueries=0,softwareStaticTileRejected=0;
 let softwareStaticBaseKey=null,softwareStaticBaseColors=null,
  softwareStaticBaseDepth=null,softwareStaticBaseShaded=0,
  softwareStaticBaseOverdraw=0,softwareStaticBaseTriangles=0,
@@ -4845,6 +4883,7 @@ function invalidateSoftwareStaticBase(){
  if(softwareStaticBaseKey)softwareStaticBaseInvalidations++;
  softwareStaticBaseKey=null;softwareStaticBaseColors=null;
  softwareStaticBaseDepth=null;softwareStaticBaseProjected=0;
+ softwareStaticTileMap=null;
 }
 function softwarePackColor(r,g,b){
  return softwareLittleEndian?
@@ -4881,7 +4920,7 @@ function drawSoftwareDepthFrame(count,sx,sy,staticCount=0,staticKey=null,
  let shaded=hit?softwareStaticBaseShaded:0,
   overdraw=hit?softwareStaticBaseOverdraw:0,
   triangles=hit?softwareStaticBaseTriangles:0;
- const rasterRange=(start,end)=>{
+ const rasterRange=(start,end,dynamic=false)=>{
  for(let id=start;id<end;id++){
   const o=id*7,t=id*3;
   const ax=(projected[o]+1)*sx,ay=(1-projected[o+1])*sy;
@@ -4901,6 +4940,13 @@ function drawSoftwareDepthFrame(count,sx,sy,staticCount=0,staticKey=null,
   const startB=(initialDx*acy-initialDy*acx)*invArea;
   const startC=(abx*initialDy-aby*initialDx)*invArea;
   const da=softwareInvW[t],db=softwareInvW[t+1],dc=softwareInvW[t+2];
+  if(dynamic&&softwareStaticTileMap){
+   softwareStaticTileQueries++;
+   if(softwareRectangleHiddenByStaticDepth({x0,x1,y0,y1},
+      Math.max(da,db,dc),softwareStaticTileMap)){
+    softwareStaticTileRejected++;continue;
+   }
+  }
   const color=paintColors[id];
   const packed=softwarePackColor((color>>>16)&255,(color>>>8)&255,color&255);
   triangles++;
@@ -4931,12 +4977,15 @@ function drawSoftwareDepthFrame(count,sx,sy,staticCount=0,staticKey=null,
    softwareStaticBaseShaded=shaded;
    softwareStaticBaseOverdraw=overdraw;
    softwareStaticBaseTriangles=triangles;
+   softwareStaticTileMap=measureSoftwareStaticDepthTiles(
+    softwareDepth,width,height,16);
+   if(softwareStaticTileMap)softwareStaticTileBuilds++;
    softwareStaticBaseBuilds++;
   }else invalidateSoftwareStaticBase();
  }
  // Depth and colour are copied from the exact static world, not inferred
  // from geometry heuristics; live actors always participate every frame.
- rasterRange(staticCount,count);
+ rasterRange(staticCount,count,true);
  ctx.putImageData(softwareImage,0,0);
  softwareShadedPixels=shaded;softwareOverdraw=overdraw;
  softwareRasterTriangles=triangles;
@@ -4984,6 +5033,10 @@ canvasFallbackRasterAudit=()=>({source:'real-canvas2d-conservative-screen-raster
    (softwareStaticBaseDepth?.byteLength||0),
   preservesLiveActors:true,changedAuthority:false,
   measuredHardwareFps:false},
+ staticDepthTiles:{size:16,builds:softwareStaticTileBuilds,
+  queries:softwareStaticTileQueries,occludedOriginalTriangles:softwareStaticTileRejected,
+  bytes:softwareStaticTileMap?.minDepth.byteLength||0,
+  exactDepthPreserved:true,pixelFallbackIntact:true,hardwareFpsNotMeasured:true},
  softwareWorldStaging:typeof getSoftwareWorldStagingAudit==='function'?
   getSoftwareWorldStagingAudit():null,
  retainedAllWorldData:true,changedAuthority:false,hardwareFps:'NOT MEASURED'});
