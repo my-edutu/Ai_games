@@ -58,3 +58,21 @@ test('seeded crossing segments never silently discard full real source triangle'
   for(const p of output)assert.ok(p.every(Number.isFinite));
  }
 });
+
+test('high-water painter growth retains previously emitted authentic face data',()=>{
+ const start=html.indexOf('function reservePainter(n)');
+ const end=html.indexOf('\\ncanvasFallbackRasterAudit=',start);
+ assert.ok(start>=0&&end>start,'real painter must expose bounded storage');
+ const scope={painterCapacity:0,painterReused:0,painterGrowths:0,
+  projected:new Float64Array(0),paintColors:new Uint32Array(0),
+  softwareInvW:new Float32Array(0)};
+ vm.runInNewContext(html.slice(start,end),scope);
+ scope.reservePainter(1);
+ scope.projected[0]=.375;scope.paintColors[0]=0x00aabbcc;
+ scope.softwareInvW[0]=1.5;
+ scope.reservePainter(300);
+ assert.equal(scope.projected[0],.375);
+ assert.equal(scope.paintColors[0],0x00aabbcc);
+ assert.equal(scope.softwareInvW[0],1.5);
+ assert.ok(scope.painterCapacity>=300&&scope.painterGrowths===2);
+});
