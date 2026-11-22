@@ -1120,5 +1120,32 @@
     "largestExperienceGap": "Distinct hard camera/world staging change around 27.5s (both viewports) after F9 HUD; need an actual contiguous HP-open gate/full moving actor/real floor9 roof/first raised destination composition, not another opacity-only patch.",
     "nextAction": "Read exact-SHA Phase3 16-return result and all CI jobs. Inspect new real unedited 60+ second 1x danger/guardian and outcome/restart videos with honest event-to-native frame matching. If event/native still 0/2, repair cross-floor world/camera state handoff at the abrupt 27.5-second scene cut; do not score appearance from CI.",
     "safety": "Baseline SHA and transformation.json blob unchanged; PR58 untouched, PR68 draft retained; no merge, deploy or force-push."
+  },
+  "p0RealRendererReturnedFrameReferenceErrorBlocker20261122_0732": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceHeadBefore": "b8d1faec143e12d695c56d652d954bd05d1c371b",
+    "restoredProductionAndRegressionCommit": "f1969d6f2c70fbd44d3a0c99a89fbfc0a73d1b5d",
+    "inspectedExactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44989834535",
+    "actualQualityFinding": "8/10 jobs passed; Phase3 shard 1 failed in real Floor9 deferred arrival budget and Phase3 shard 2 in original GPU cleanup. Both throw ReferenceError: advancing is not defined from actual world.noteFrameSubmitted in world.mjs:5009.",
+    "inspectedOriginalCandidateCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44989834564",
+    "actualCaptureFinding": "7/8 normal-speed source-pinned recordings succeeded; candidate Floor8 danger/guardian failed in BOTH 960x600 and 390x844 browser captures with identical uncaught Tower renderer ReferenceError. Ledge succeeded, source pairing index 8/8 but 2 integrity defects and strict native acceptance failed. An emitted partial failed-capture artifact is not valid blind footage.",
+    "rootCause": "Production world.noteFrameSubmitted successfully advanced matching live Floor9 WebGL-return accounting, then returned a nonexistent local variable 'advancing'. This threw inside the actual scene.animate loop; native danger browser checks caught the error. It was not an animation preference or CI flake.",
+    "change": "On an actual returned, same-run and same-floor nonstale frame, noteFrameSubmitted now returns true after truthful render accounting, including after remote upload completion. Existing stale/wrong-run/old-floor guards still return false. Authentic source authority, guardian HP, collision, gateway meshes and restart untouched.",
+    "regression": "Phase3 exact World test asserts accepted true on 40 real post-upload returns, 42 total actual accepted submissions rather than historical stage-only 2, and false/no-count-inflation for stale and foreign source. Previously failing original-old-GPU-retirement test continues to exercise the same return path.",
+    "newExactProductionQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44994183466",
+    "newExactProductionNineJobCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44994183390",
+    "resultsAtRecord": "Both new workflows QUEUED (not passed). No local full test execution: repository network clone unavailable in this runner.",
+    "mostImportantInspectedPriorFootageDefect": "Existing original 25fps desktop and portrait contact frames at 26-31.5 seconds show a large camera/world switch near 27.5s: opened bronze gateway vanishes, then separate violet Floor9 deck and moving climber appear. This is not continuous event-matched old-gate/whole actor/walkable roof/first upper destination.",
+    "stageAcceptance": "P0 remains OPEN: actual exact-head quality CI, genuine source-matched 2/2 native event pairing and continuous crossing, outcome/restart, supported-device testing, independent blind review all pending.",
+    "independentReviewCounts": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDeviceFrameTimeP50P95P99Memory": "NOT EVALUATED",
+    "nextHighestImpact": "First read completed exact-SHA CI and unedited 960x600 / 390x844 danger recordings to verify renderer no longer throws; inspect complete 60+second scenes and native/source event timing. If 2/2 strict pairing still fails, correct the physical gate+hero+roof+first raised-deck/camera handoff, not another opacity-only fade. Stay P0.",
+    "constraints": "Leave transformation.json frozen baseline/blob, active PR58, other games, draft status, merge/deploy and force-push untouched."
   }
 }
