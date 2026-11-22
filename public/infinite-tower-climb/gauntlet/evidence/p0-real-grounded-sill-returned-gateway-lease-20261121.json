@@ -1090,5 +1090,35 @@
     "actualDeviceFrameTimeMemory": "NOT EVALUATED",
     "nextAction": "Read exact-HEAD Phase3 shard1 result for this correction; inspect same-source 1x 960x600 and 390x844 danger and outcome unedited footage, source-native event clocks and visible original gateway/hero/roof. If the 16-return regression still stalls, instrument precise false gate and fix system-level state scheduling, not test assertion. If it unblocks but 0/2 visual continuity persists, repair physical camera/world staging.",
     "safety": "Preserve frozen ledger blob and PR58, no unrelated game, no merge/deploy/force-push/draft conversion"
+  },
+  "p0RealReturnedFloorNineProvenanceRecovery20261122_0625": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingAssessor": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedCandidateSha": "94a39b8f5205d801588efd1b439910cecf131f3d",
+    "productionFixSha": "7b806fdce276964d23d55c96045f00958ef85794",
+    "regressionSha": "f2b95bdb759ea27897c872451d2524abe142c475",
+    "inspection": {
+      "realCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44985540637",
+      "quality": "https://github.com/my-edutu/Ai_games/actions/runs/44985540666",
+      "desktopOriginalWebM": "https://github.com/my-edutu/Ai_games/actions/runs/44985540637/artifacts/14740275045",
+      "nativeClipFindings": "Full original 25fps candidate danger WebM viewed at 26.0-31.5s in desktop and portrait. The Floor 9 actor/HUD already appear in bronze forecourt while world switches abruptly around 27.5s to violet shaft and a radically wider/later camera. Whole bronze HP-open gate, entire moving climber, walkable receiving roof, and first raised destination do not remain in one continuous readable shot. This is a visual finding, NOT a certified source-to-pixel event match.",
+      "jobs": "Nine original gameplay/ledge jobs succeeded, eight scene pairs indexed; strict source/native danger matching FAILED 0/2 viewports.",
+      "ci": "8/10 quality jobs succeeded. Phase3 shard1 FAILED 23/24 at tests/phase3/tower-retained-source-cap-world.test.cjs:946 (returned visible shaft frames > submittedFrames). Phase6 shard0 timed out, exit 124. Not a pass."
+    },
+    "verifiedBlocker": "production noteFrameSubmitted previously incremented structuralVisibleReturns on EVERY same-run returned F9 frame but incremented submittedFrames ONLY while upload queue was in its advancing states; when deferred state entered fading/complete, shaft could have more structural returns than total submitted returns. This violated causality and defeated exact-head Three.js gateway release regression.",
+    "change": "Use a monotonic successful F9 WebGL submission counter through EVERY deferred arrival state; maintain separate staged shader/structural visibility counters. Keep stale/snapshot-run checks before increment. Add assertion at EACH returned step of the existing 16-frame real Three.js integration test. Does not change physics, guardian health, camera, success authority or frozen baseline.",
+    "newCandidateCapture": "Exact immutable SHA of THIS capture-request+evidence commit; source pin is the workflow github.sha, not an earlier source commit or mutable branch.",
+    "exactSourceQuality": "NOT EVALUATED until all 10 jobs finish on THIS new SHA.",
+    "strictNativeResult": "NOT EVALUATED for the new SHA; preceding 0/2 was a veto.",
+    "independentReviews": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDeviceP50P95P99AndMemory": "NOT EVALUATED",
+    "largestExperienceGap": "Distinct hard camera/world staging change around 27.5s (both viewports) after F9 HUD; need an actual contiguous HP-open gate/full moving actor/real floor9 roof/first raised destination composition, not another opacity-only patch.",
+    "nextAction": "Read exact-SHA Phase3 16-return result and all CI jobs. Inspect new real unedited 60+ second 1x danger/guardian and outcome/restart videos with honest event-to-native frame matching. If event/native still 0/2, repair cross-floor world/camera state handoff at the abrupt 27.5-second scene cut; do not score appearance from CI.",
+    "safety": "Baseline SHA and transformation.json blob unchanged; PR58 untouched, PR68 draft retained; no merge, deploy or force-push."
   }
 }
