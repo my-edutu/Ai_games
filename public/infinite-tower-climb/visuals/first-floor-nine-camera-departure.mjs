@@ -70,7 +70,8 @@ export function sourceFirstFloorNineCameraDeparture({source,lastRendered,
   const sourceUnearnedLateralOrbit=sourceLimitedRadius && !shoulderCut &&
     !genuineInwardRecovery &&
     requested>Math.max(7.5,actorMovement*2.6+2) &&
-    Math.abs(requestedTurn)>.14 && lateralArc>6.5;
+    Math.abs(requestedTurn)>.14 && lateralArc>6.5 &&
+    radiusDelta<3 && heightDelta<3;
   const sourceUnearnedWorldCut=sourceLimitedRadius && !shoulderCut &&
     !genuineInwardRecovery &&
     requested>Math.max(8,actorMovement*2.4+3.5) &&
