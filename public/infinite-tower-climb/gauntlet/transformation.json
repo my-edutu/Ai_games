@@ -13755,4 +13755,115 @@
   "nextHighestImpactAction": "Check c06 native 1x 960x600/390x844 camera samples/real pixels and 270 Node CI. If post-guardian follow guard is physically vetoed or old-to-void camera jump remains, identify real blocking world triangles/camera timing and solve the system rather than tune alpha. Preserve P0 until authentic source-to-native event matches and independent critics pass.",
   "passed": false
 }
+,
+  "p0VerifiedExactSourceCiAndStrictNativePairVeto20261122": {
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "assessorVerdict": "NOT EVALUATED",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "verifiedUnchanged": true,
+  "sourceCodeCommit": "c06bcee3be48054a6df9e5493d640b4cd66a604f",
+  "sourceQualityFixtureCommit": "270291418fd16360073576cb9a042fada5caaa13",
+  "recordedCandidateSha": "c06bcee3be48054a6df9e5493d640b4cd66a604f",
+  "recordedFrozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "verifiedExactHeadQuality": {
+    "workflow": "https://github.com/my-edutu/Ai_games/actions/runs/45019382057",
+    "source": "270291418fd16360073576cb9a042fada5caaa13",
+    "state": "COMPLETED SUCCESS 10/10 technical jobs (all four Phase3 shards, foundation, Phase2, Phase4, Phase5, Phase6, integrity); technical safety only, not accepted look/feel/play"
+  },
+  "verifiedNineJobCapture": {
+    "workflow": "https://github.com/my-edutu/Ai_games/actions/runs/45019236530",
+    "source": "c06bcee3be48054a6df9e5493d640b4cd66a604f",
+    "baseline": "1731b380851162741761c5569e2bc152a0869ca9",
+    "originalAuthenticVideos": "8/8 complete >60s desktop/portrait at 960x600 and 390x844 (ascent, moving, danger, outcome)",
+    "authenticSourceLedge": "SUCCESS",
+    "strictNativeDangerEventPair": "FAILED 0/2 desktop and portrait; pair-source-events job failed; video available and ungraded"
+  },
+  "fullMotionInspection": "Original extracted, unmodified c06 desktop and portrait WebM sampled every 0.5s from 24s to 32s at 1x native PTS. Bronze 3D Floor8 room persists into real Floor9 grounded roof at 26–27s, but 27–28.5s composition becomes materially wider purple raised route and scene no longer preserves a continuous drawn physical gate/whole moving hero/receiving roof/destination shot. Not independent full-motion acceptance.",
+  "observedCandidateSourceCamera": {
+    "desktop": [
+      {
+        "tick": 476,
+        "camera": [
+          11.59,
+          4.06,
+          38.3
+        ]
+      },
+      {
+        "tick": 535,
+        "camera": [
+          20.06,
+          16.95,
+          41.37
+        ]
+      },
+      {
+        "tick": 575,
+        "camera": [
+          5.68,
+          21.69,
+          45.41
+        ]
+      }
+    ],
+    "portrait": [
+      {
+        "tick": 475,
+        "camera": [
+          -19.21,
+          7.58,
+          42.97
+        ]
+      },
+      {
+        "tick": 499,
+        "camera": [
+          -27.25,
+          13.86,
+          52.58
+        ]
+      },
+      {
+        "tick": 531,
+        "camera": [
+          -3.63,
+          19.8,
+          62.74
+        ]
+      },
+      {
+        "tick": 544,
+        "camera": [
+          -4.15,
+          18.29,
+          56.53
+        ]
+      },
+      {
+        "tick": 564,
+        "camera": [
+          20.54,
+          17.78,
+          50.72
+        ]
+      }
+    ]
+  },
+  "currentVerifiedHeadBeforeEvidenceCommit": "4d4bfbbf9789f1e35ef04373366321ef0c177cd4",
+  "independentFreshContextCritics": {
+    "LOOKS": 0,
+    "FEELS": 0,
+    "PLAYS": 0
+  },
+  "supportedActualDevice": {
+    "frameTimeP50P95P99": "NOT EVALUATED",
+    "memory": "NOT EVALUATED",
+    "accessibility": "NOT EVALUATED",
+    "privacy": "NOT EVALUATED"
+  },
+  "biggestSystemicWeakness": "Native source-event/pixel alignment and camera/world seam from original bronze guardian gate to first raised violet Floor9 route, despite 10/10 CI and genuine source fixed-step win/restart. Final source frame camera guard cannot yet prove visual continuity, likely physical veto and/or asynchronous first Void draw.",
+  "nextHighestImpactAction": "Trace actual final-camera accepted/veto counters and physical geometry rays against unedited c06 source-pinned 1x WebM from 26–29s; correct combined camera/world/cold drawing seam instead of continuing tiny opacity adjustments. Re-run new immutable 9-job pair and strictly require 2/2 matched danger plus genuine continuous 3D crossing before advancing P1; maintain independent 0/5 until legitimate critic recruitment.",
+  "stagePassed": false,
+  "safety": "PR68 remains OPEN DRAFT, PR58 untouched, no merge/deploy/force-push, baseline ledger untouched except appended P0 run records"
+}
 }
