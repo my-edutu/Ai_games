@@ -55,8 +55,39 @@
     }
   },
   "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
-  "nextHighestImpactAction": "With new source-pinned desktop/portrait WebM and returned-room timeline, establish first incompatible original-retirement vs successor-paint/camera return and correct the responsible physical World/camera stage; retest native event matched full shot.",
+  "nextHighestImpactAction": "When authentic matched native films and returned-room timeline artifacts finish, read both 960x600 and 390x844 alignment sidecars and watch normal-speed original full-film at the mapped PTS. If old owner truly vanishes before any qualified successor return, fix original World retirement/new 3D shaft together; if they co-return but native pixels hard-cut, rework real camera/foreground composition. Do not advance P1 or invent acceptance.",
   "fullInstrumentationCommitSha": "bd2af6ff2784a9e7d51df12b0d7856f34b4059fb",
   "captureRequestedForExactHead": "${{ github.sha }}",
-  "pinnedCaptureCondition": "push to capture-request.json triggers original 9-job workflow, candidate pinned to immutable final github.sha; workflow queued results are not visual acceptance."
+  "pinnedCaptureCondition": "push to capture-request.json triggers original 9-job workflow, candidate pinned to immutable final github.sha; workflow queued results are not visual acceptance.",
+  "p0OriginalSceneNativeVideoJoin": {
+    "stage": "P0 OPEN",
+    "verdict": "NOT EVALUATED",
+    "gameAuthorityOr3dVisualsModified": false,
+    "productionEvidenceSourceSha": "fa63cf025ea4815f8685032ec2f1a9ac412d1191",
+    "implementationCommits": {
+      "joinedSource": "71e329bf39e313af13b97ff3048674ba891e16c4",
+      "regression": "d034ab0db1c0d5670b25af6b96d2d1e29bab3193",
+      "drawnHudSourceCorrection": "94a1fee296816eb58e89624ecb9b1a31a7a4d62e",
+      "sourcePinnedCaptureWorkflow": "fa63cf025ea4815f8685032ec2f1a9ac412d1191"
+    },
+    "files": [
+      "scripts/tower-original-room-native-join.cjs",
+      "tests/phase3/tower-original-room-native-join.test.cjs",
+      ".github/workflows/tower-transformation-visual-evidence.yml"
+    ],
+    "sourceArtifact": "artifacts/tower-motion/danger/{desktop,portrait}/original-to-void-returned-room-timeline.json",
+    "newArtifact": "artifacts/tower-motion/danger/{desktop,portrait}/original-room-native-alignment.json",
+    "sourceDataRequirements": "Immutable same SHA, original untouched WebM SHA-256 and bytes, >=60s video, three independently calibrated compositor-to-PTS anchors, bounded same-run sequence of true returned Three.js scene material/camera owners; no partial gaps or extrapolation",
+    "meaning": "Identifies a returned-original-before-successor structural gap versus co-returned scene owners in the real F8->F9 source, and provides original video PTS search handles. Neither case certifies native pixel visibility, source event match or a playable improvement.",
+    "localPureLogicSmoke": "node --test tests/phase3/tower-original-room-native-join.test.cjs equivalent file test content: 5/5 PASS in Node 22 container; repo-hosted CI NOT YET EXECUTED.",
+    "previousExactNativeAcceptance": "FAILED 0/2 viewports; retained as source of truth until new authentic video inspection.",
+    "priorCaptureWithoutJoin": "https://github.com/my-edutu/Ai_games/actions/runs/45037693091 (queued at inspection; source 86d54a5525ea69c96dfa059536485a859a220338)",
+    "candidateCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45039713960 (queued at inspection, exact workflow code source fa63cf025ea4815f8685032ec2f1a9ac412d1191)",
+    "exactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45039713831 (pending at inspection)",
+    "independentLooks": 0,
+    "independentFeels": 0,
+    "independentPlays": 0,
+    "actualDeviceP50P95P99AndMemory": "NOT EVALUATED",
+    "next": "When authentic matched native films and returned-room timeline artifacts finish, read both 960x600 and 390x844 alignment sidecars and watch normal-speed original full-film at the mapped PTS. If old owner truly vanishes before any qualified successor return, fix original World retirement/new 3D shaft together; if they co-return but native pixels hard-cut, rework real camera/foreground composition. Do not advance P1 or invent acceptance."
+  }
 }
