@@ -29,6 +29,38 @@ for(const width of [390,1024]){
   await page.locator('#world-watch-life').click();
   await page.waitForFunction(()=>window.__tinyKingdom?.getCamera?.().follow&&
    window.__tinyKingdom?.getCitizenCameraPlan?.(),null,{timeout:110000});
+  // Evidence that the camera ACTUALLY follows a WORKING ORIGINAL citizen.
+  // The old W549 screenshot was taken after Mira had already gone home.
+  // That is not evidence that a market post was cleared during her shift.
+  const activeWitness=await page.evaluate(()=>{
+   const g=window.__tinyKingdom,c=g.getWorkdayCompositionAudit(),
+    p=g.getCitizenCameraPlan(),w=g.getWorkdayView();
+   return {time:g.getState().state.t,workday:w,composition:c,
+    camera:g.getCamera(),plan:p?{yaw:p.yaw,pitch:p.pitch,zoom:p.zoom,
+     post:p.marketPostSightline,actorHeight:p.projectedWorkerHeightFraction,
+     coreCover:p.foregroundActorCoreCover,blockers:p.blockers}:null,
+    checksum:g.exportSnapshot().checksum};
+  });
+  const activeFolder='artifacts/tiny-kingdom-w549/'+width;
+  fs.mkdirSync(activeFolder,{recursive:true});
+  const activeScreenshot=await page.screenshot({fullPage:false});
+  fs.writeFileSync(path.join(activeFolder,'active-workday-before-shift-end.png'),
+   activeScreenshot);
+  fs.writeFileSync(path.join(activeFolder,'active-worker-physical-post.json'),
+   JSON.stringify({sourceSha:process.env.GITHUB_SHA||'local',viewport:width,
+    activeWitness,authorityUnchangedByPhoto:true,
+    heldWorldState:'unpaused; genuine actor; no artificial employment',
+    actuallyPostClear:'NOT PROVEN from camera metrics alone'},null,2));
+  await info.attach('active-real-worker-'+width+'.png',
+   {body:activeScreenshot,contentType:'image/png'});
+  expect(activeWitness.workday.active).not.toBeNull();
+  expect(activeWitness.composition.active).toBe(true);
+  expect(activeWitness.plan).not.toBeNull();
+  console.log('W549 ACTUAL ACTIVE SHIFT CAMERA',JSON.stringify({
+   width,actor:activeWitness.composition.actor,job:activeWitness.composition.job,
+   currentPost:activeWitness.composition.marketPostSightline?.centerCover??null,
+   plannedPost:activeWitness.plan.post?.centerCover??null,
+   actualActorCore:activeWitness.composition.actorCoreCover??null}));
   const start=await page.evaluate(()=>window.__tinyKingdom.getState().state.t);
   await page.waitForFunction(t=>window.__tinyKingdom.getState().state.t>t+.001,
    start,{timeout:100000});
