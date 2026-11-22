@@ -16,7 +16,7 @@ test('W537 Canvas2D implements all real original scene-light uniform calls',()=>
  // The real renderer has grown significantly since W539/W540. The GL
  // compatibility object is now past 8 KiB of retained rasterizer code.
  // Inspect the full, bounded fallback section rather than a fragile prefix.
- const end=html.indexOf('\\n// G064:',i);
+ const end=html.indexOf("\n// G064:",i);
  assert.ok(end>i,'must find complete fallback boundary before real WebGL setup');
  const fallback=html.slice(i,end);
  const glStart=fallback.indexOf('gl={');
