@@ -302,5 +302,49 @@
     },
     "realDeviceFrameTimesAndMemory": "NOT EVALUATED",
     "next": "Inspect exact c686758+ native WebM and source-camera clamp/veto telemetry; if rejected or still discontinuous, rebuild joint physical world/camera composition; keep P0 OPEN"
+  },
+  "p0OriginalLoadPathPhysicalContinuity20261122": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "lastInspectedSourceSha": "d11f47ba9ba84a4abd5bccda448a4786c497eb33",
+    "unmodifiedGameplayCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/45061433564",
+    "originalDangerCandidateArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45061433564/artifacts/14768859235",
+    "originalDangerBaselineArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45061433564/artifacts/14769523642",
+    "footageInspected": "Original 1x 72-second 960x600/390x844 candidate, and 1x frozen baseline portrait at 16-25s. Candidate HUD Floor9 around 26s, sustained successor violet around 28s; first authentic old/source portal does not read as one connected complete-body threshold into the receiving roof and raised deck.",
+    "lastExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45061433519",
+    "qualityResult": "FAILED 9/10 jobs: unrelated phase6 Maze readiness worker timed out exit124 at 75s; no unrelated code edited",
+    "lastStrictSourceToNativeAcceptance": "FAILED 0/2 viewports; unedited event source/PTS pairing remains unaccepted",
+    "observedStructuralDisconnect": {
+      "desktopOriginalReturnedFrame1": "originalGalleryOpacity 1, originalGatewayOpacity 1",
+      "desktopOriginalReturnedFrame3": "originalGalleryOpacity 0.3051, originalGatewayOpacity 1",
+      "desktopOriginalReturnedFrame5": "originalGalleryOpacity 0.0593, originalGatewayOpacity 0.9686",
+      "desktopOriginalReturnedFrame9": "originalGalleryOpacity 0, originalGatewayOpacity 0.7202",
+      "source": "exact original-to-void-returned-room-timeline.json in candidate danger artifact; returned Three.js material owners, NOT native pixel proof",
+      "interpretation": "Original source-built supporting Clockwork gallery evacuates near instantly while actual original portal steel remains opaque; visual threshold can appear unsupported as successor shaft replaces room."
+    },
+    "deliveredSourceUpdates": {
+      "sourceCoherenceRegressionCommit": "7a1351fda6adba44d45cfd00e70d5af72912117b",
+      "sourceBackedBearingPolicyCommit": "c99f283544d490cd02a11aeb069d43dc42f0658c",
+      "realWorldIntegrationCommit": "5c7f5460e042039268bc6b3271127d68cde31cfd",
+      "files": [
+        "tests/phase3/tower-source-original-threshold-bearing.test.cjs",
+        "public/infinite-tower-climb/visuals/source-returned-original-gateway-exit.mjs",
+        "public/infinite-tower-climb/visuals/world.mjs"
+      ],
+      "mechanicalChange": "Keep part of the actual original non-colliding 3D Clockwork load-bearing gallery in step with same-run, HP-zero authenticated genuine original gateway and returned successor structural frames; capped below 0.33 opacity and monotonically receding with original steel; no synthetic geometry.",
+      "sourceAuthorityChanged": false,
+      "guardianAndCollisionChanged": false,
+      "baselineMoved": false,
+      "testAndOriginalGameCapture": "NEW EXACT-CODE CI and nine-job normal-speed original gameplay must finish and be inspected; no claim of playable improvement yet"
+    },
+    "independentCriticVotes": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedActualDeviceP50P95P99AndMemory": "NOT EVALUATED",
+    "largestRemainingGap": "The opened old HP-zero gateway, full-body moving hero, genuine F9 walkable roof and first raised platform still lack event-matched continuous unedited footage accepted in BOTH viewports.",
+    "nextHighestImpactAction": "Inspect exact SHA game recording and source-returned old-gallery/gateway+successor material sequence in original unedited videos. Confirm old World stays legible without obscuring hero, safe camera and platforms, 2/2 native event align; otherwise reopen integrated camera/world geometry, never score CI as experience."
   }
 }
