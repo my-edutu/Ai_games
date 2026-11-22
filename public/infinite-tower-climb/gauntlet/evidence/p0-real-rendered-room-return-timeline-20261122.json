@@ -55,7 +55,7 @@
     }
   },
   "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
-  "nextHighestImpactAction": "Inspect original desktop 960x600 and portrait 390x844 60+ second normal-speed native candidate danger footage from immutable source 0cdd8c13 and actual returned step-target/gallery-ray counters; require continuously visible opened original F8 guardian steel, full skinned hero, walkable f9:ground and physically attached raised f9:gateway-step, and 2/2 native-event alignment. If new target is off-screen or scene hard cut remains, diagnose camera/World co-composition and don't advance P1.",
+  "nextHighestImpactAction": "The real destination on-screen and gallery raisedRayCount=8 but zero actual gallery occlusions falsifies the originally suspected mechanism in both viewports. Focus next P0 on SOURCE-RETURNED camera/world staged scene break, especially portrait tick510 ~17m lens move vs ~1.5m hero movement while old gate still visible. Diagnose final camera limiter veto and staged bronze/violet palette (not cosmetic opacity edits), run new exact-source 60+s native captures, require 2/2 event-matched continuous gateway->roof->raised deck, outcomes and restart.",
   "fullInstrumentationCommitSha": "bd2af6ff2784a9e7d51df12b0d7856f34b4059fb",
   "captureRequestedForExactHead": "${{ github.sha }}",
   "pinnedCaptureCondition": "push to capture-request.json triggers original 9-job workflow, candidate pinned to immutable final github.sha; workflow queued results are not visual acceptance.",
@@ -390,9 +390,38 @@
       "independentLooks": "0/5",
       "independentFeels": "0/5",
       "independentPlays": "0/5",
-      "realDeviceFrameTimesP50P95P99Memory": "NOT EVALUATED"
+      "realDeviceFrameTimesP50P95P99Memory": "NOT EVALUATED",
+      "latestActualProductionOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45073078693 (8/8 60+ second desktop/portrait baseline/candidate recordings and authentic ledge passed; strict event-pair job failed 0/2)",
+      "latestOriginalUneditedDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45073078693/artifacts/14773119700",
+      "newSceneTargetRayObservation": {
+        "raisedTargetActualSceneRays": 8,
+        "raisedTargetActualSceneSofteningEvents": 0,
+        "viewportEvidence": "both desktop and portrait source-returned guardian-release witnesses",
+        "meaning": "Current real first raised deck is on screen and source-authenticated, but no old noninteractive gallery triangle intersected its projected ray. The newly tested destination-clearance policy is NOT the physical cause of the scene hard cut in these clips. Do not claim improved native gameplay.",
+        "caveat": "These are current source sample diagnostics, not all frames or native pixel proof"
+      },
+      "newAuthenticNativeVideo": {
+        "desktop": {
+          "viewport": "960x600",
+          "floorNineHudSeconds": 26,
+          "firstSustainedVioletSeconds": 28.5,
+          "sourceFirstEpisodeReturns": 37,
+          "nativePixelMatched": false
+        },
+        "portrait": {
+          "viewport": "390x844",
+          "floorNineHudSeconds": 25.75,
+          "firstSustainedVioletSeconds": 28,
+          "sourceFirstEpisodeReturns": 38,
+          "nativePixelMatched": false
+        },
+        "hardestObservedCameraBreak": "First Floor9 portrait returned camera moves about 17.2 world metres across one returned view at source tick 510 while current hero moves approximately 1.5m; F8 old gateway opacity about 0.35 and incoming shaft alpha about 0.65. Other source-returned frames show abrupt spatial reframing despite physical co-ownership. Proposed camera smoothness may be vetoed or miss this case, requiring direct source and renderer-return diagnosis.",
+        "strictPairing": "0/2 source/native accepted; no major gameplay or visual improvement established"
+      },
+      "latestTowerTestFixCommitSha": "8aa67fdc21791a628cdbcdd42dd35bfe914f352a",
+      "latestQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/45073749055 (Phase3 including new source-scoped regression and Phase4 wiring passed, phase6/integrity not yet concluded at evidence write)"
     },
-    "nextHighestImpactAction": "Inspect real source-pinned 0cdd8c13 footage and current returned gallery raisedRays/raisedSoftened (diagnostic visibility not native proof), 2/2 true event/native joint view; if raised target not projected in old-gate shot, reopen shared physical camera/World composition. P1 blocked.",
+    "nextHighestImpactAction": "The real destination on-screen and gallery raisedRayCount=8 but zero actual gallery occlusions falsifies the originally suspected mechanism in both viewports. Focus next P0 on SOURCE-RETURNED camera/world staged scene break, especially portrait tick510 ~17m lens move vs ~1.5m hero movement while old gate still visible. Diagnose final camera limiter veto and staged bronze/violet palette (not cosmetic opacity edits), run new exact-source 60+s native captures, require 2/2 event-matched continuous gateway->roof->raised deck, outcomes and restart.",
     "constraints": "Preserve immutable frozen baseline and transformation blob; PR68 open draft, PR58 not touched; no other game, merge, deployment, or force push"
   }
 }
