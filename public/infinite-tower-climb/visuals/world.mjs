@@ -4,6 +4,7 @@ import { genuineRaisedDeckCorners, projectedRaisedDeckDominance } from './source
 import { moveSourceOriginalClockworkCore, sourceOriginalClockworkCoreOpacity } from './source-original-clockwork-core-ownership.mjs';
 import { sourceOriginalGateProjectionKey } from './original-guardian-gate-steel-projection.mjs';
 import { observedSourceReturnedRoomState } from './source-returned-room-timeline.mjs';
+import { observedImmutableCrossingSparseBrowserBridge } from './source-immutable-crossing-browser-bridge.mjs';
 import * as THREE from '/tower/vendor/three.module.js';
 import { SCALE, ARC, angleFor, pointFor, guardianGateAnchorX, guardianTraversalGatePose, GUARDIAN_CAP_CORRIDOR } from './coordinates.mjs';
 import { observedSourceEarnedAirborneHandoff, observedSourceEarnedDoorstepHandoff, observedRecordedGuardianDoorstepHandoff } from './guardian-passage.mjs';
@@ -3663,7 +3664,17 @@ export function createTowerWorld(){
     // crossing receipts keep the conservative <=12-tick fast path.
     // All precise cap/roof/body, bounded source speed and run checks below
     // remain mandatory; this cannot move a player or unlock a guardian.
-    const sparseGroundedLimit=next.lastGuardianCrossing==null?20:12;
+    // In the original exact-source desktop danger film, the last presented
+    // Floor8 source was tick474 and the first Floor9 WebGL return used tick489.
+    // The prior absent-record-only 20-tick exception wrongly classified this
+    // STRONGER immutable HP0 gateway receipt as only a 12-tick observation,
+    // discarding the actually rendered guardian cap before a shared shot.
+    // An authenticated same-run, same-roof recorded crossing earns the SAME
+    // finite sparse window; invalid present records still fail closed at 12.
+    const immutableSparseBridge=observedImmutableCrossingSparseBrowserBridge(
+      previous,next,authored,ground,threshold);
+    const sparseGroundedLimit=immutableSparseBridge?.maxSparseTicks ??
+      (next.lastGuardianCrossing==null?20:12);
     const verifiedObservedFloorAdvance=
       Number.isSafeInteger(previous.tick) &&
       observedTicks>=1 && observedTicks<=sparseGroundedLimit &&
