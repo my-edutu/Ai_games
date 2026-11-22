@@ -1046,3 +1046,96 @@ test('RED: original 390px loaded-heel support translates by measured world metre
  assert.ok(yawOnly&&yawOnly.lateralWorldDriftMeters<.0015,
   'small measured parent tilt may proceed only within original two-shoe XZ budget');
 });
+
+
+// Genuine exact-head #44986546974 390px source-skinned Vanguard frame116/tick14:
+// left original Walking_A swing toe -55.566mm below -20mm stone despite an
+// independently certified 13.553mm original upperleg->knee->foot rescue.
+// The right supporting *heel* is 2.390mm above stone and its rolling toe
+// 37.071mm above. A whole-rig pelvis Y lift would FLOAT that support.
+// These are real four source-GLB endpoints (not a fabricated after frame).
+// The proposed body-lean endpoint values below are geometric predictions,
+// NEVER claims of original WebGL success or contact; Chromium must actually
+// read both true skinned soles after applying and roll back if they differ.
+test('RED: original licensed heel-anchored full-body lean lifts a buried swing toe WITHOUT moving the real loaded heel or detaching the weapon',async()=>{
+ const m=await source;
+ const plan=m.planOriginalSourceHeelAnchoredBodyLean;
+ const certify=m.certifyOriginalSourceHeelAnchoredBodyLean;
+ assert.equal(typeof plan,'function');
+ assert.equal(typeof certify,'function');
+ const actual={
+  left:{
+   heel:[2.289816601524594,.19465245266076472,-6.949213656205713],
+   toe:[2.1733307958457786,-.07556612932990792,-6.929605240306179]},
+  right:{
+   heel:[2.1719175486429254,-.01760954487710318,-7.1066396348137175],
+   toe:[1.9038256873213801,.01707088838136843,-7.131150401217663]}
+ };
+ const proof={source:'measured-original-licensed-source-counterpitch',
+  sourceRole:'vanguard',sourceClip:'Walking_A',side:'left',
+  sourceInstanceId:'genuine-mobile-original-Vanguard-GLB',
+  sourceClipTimeSeconds:.6193479222370726,
+  sourceUpperBone:'upperlegl',sourceLowerBone:'lowerlegl',
+  sourceFootBone:'footl',
+  sourceOriginalTracks:['upperlegl.quaternion','lowerlegl.quaternion','footl.quaternion'],
+  originalBindSegmentsMeters:[.1706700256741458,.11231604804499139],
+  witnessedRootTravelMeters:.019291663189031638,
+  witnessedFrameIntervalSeconds:.033300000000004104,
+  finalIndependentSourceSkin:true,originalOppositeShoeVerified:true,
+  sourceOriginalRootTravelWitnessed:true,
+  contactLocked:false,plantCertified:false,
+  after:{
+   left:{heelY:actual.left.heel[1],toeY:actual.left.toe[1],
+    heelXZ:[actual.left.heel[0],actual.left.heel[2]],
+    toeXZ:[actual.left.toe[0],actual.left.toe[2]]},
+   right:{heelY:actual.right.heel[1],toeY:actual.right.toe[1],
+    heelXZ:[actual.right.heel[0],actual.right.heel[2]],
+    toeXZ:[actual.right.toe[0],actual.right.toe[2]]}}};
+ const inputs={mode:'move',sourceClipName:'Walking_A',sourceRole:'vanguard',
+  sourceInstanceId:proof.sourceInstanceId,sourceWeight:1,
+  sourceFootProof:proof,sourceSoles:actual,
+  sourceWeaponGripVerified:true,
+  ownerLocomotion:true,alive:true,visible:true,
+  rootTravel:.019291663189031638,
+  frameInterval:.033300000000004104,
+  frameAge:0,floorTopY:-.02,
+  teleport:false,reducedMotion:false,interrupted:false};
+ const proposal=plan(inputs);
+ assert.equal(proposal?.source,'licensed-original-supported-heel-anchored-body-lean');
+ assert.equal(proposal?.supportSide,'right');
+ assert.equal(proposal?.swingSide,'left');
+ assert.ok(proposal.angleRad>0&&proposal.angleRad<=.050001,
+  'the complete original GLB body gets at most a single 3rad/s-bounded ~2.9-degree roll');
+ assert.ok(proposal.projectedSwingToeLiftMeters>=.008,
+  'real supporting heel-to-buried swing toe separation permits material toe clearance');
+ assert.ok(Math.abs(proposal.predictedAfter.right.heel[1]-actual.right.heel[1])<.0001,
+  'loaded heel must remain the original same-world anchor, not a fabricated ground contact');
+ assert.ok(proposal.predictedAfter.right.toe[1]<=actual.right.toe[1]+.001,
+  'a source toe already above stone must not become a floating support');
+ assert.ok(proposal.predictedAfter.left.toe[1]>actual.left.toe[1]+.008,
+  'world-space whole-rig lean helps the original, STILL BURIED, skinned toe');
+ assert.ok(proposal.predictedAfter.left.toe[1]<-.020,
+  'partial source support can NEVER be certified as toe contact');
+ const approved=certify({plan:proposal,before:actual,
+  after:proposal.predictedAfter,sourceWeaponGripVerified:true});
+ assert.equal(approved?.originalSkinnedShoesVerified,2);
+ assert.equal(approved?.plantCertified,false);
+ assert.equal(approved?.contactLocked,false);
+ for(const unsafe of [
+  {sourceRole:'ranger'}, {sourceClipName:'Idle'},
+  {sourceInstanceId:'other-original-rig'}, {sourceWeight:.7},
+  {sourceWeaponGripVerified:false}, {ownerLocomotion:false},
+  {rootTravel:0},{frameInterval:.4},{reducedMotion:true},
+  {teleport:true},{interrupted:true},{alive:false},
+  {sourceFootProof:{...proof,finalIndependentSourceSkin:false}},
+  {sourceSoles:{...actual,right:{...actual.right,
+    heel:[...actual.right.heel.slice(0,1),.075,actual.right.heel[2]]}}}
+ ])assert.equal(plan({...inputs,...unsafe}),null,
+  'a different rig, unverified source, unavailable support or interruption must fail closed');
+ const drifting={...proposal.predictedAfter,right:{...proposal.predictedAfter.right,
+  heel:[proposal.predictedAfter.right.heel[0]+.018,
+   proposal.predictedAfter.right.heel[1],proposal.predictedAfter.right.heel[2]]}};
+ assert.equal(certify({plan:proposal,before:actual,after:drifting,
+  sourceWeaponGripVerified:true}),null,
+  'final real weighted supporting heel XZ deviation must reject the whole-body lean');
+});
