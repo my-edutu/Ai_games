@@ -36,10 +36,25 @@ export function sourceFirstFloorNineCameraDeparture({source,lastRendered,
   // [2.5,16.9,56.5] to [38,17.7,33.9] with only ~4m of authentic
   // climber movement. The lens MOVES INWARD, so an outward-only
   // catapult guard cannot catch the sudden ~0.8rad shoulder cut.
-  const shoulderCut=requested>Math.max(7,actorMovement*2+3) &&
-    Math.abs(requestedTurn)>.28 &&
-    pRadius>=23.5&&dRadius>=23.5&&pRadius<=135&&dRadius<=135;
-  if(shoulderCut){
+  const sourceLimitedRadius=pRadius>=23.5&&dRadius>=23.5&&
+    pRadius<=135&&dRadius<=135;
+  const shoulderCut=sourceLimitedRadius &&
+    requested>Math.max(7,actorMovement*2+3) &&
+    Math.abs(requestedTurn)>.28;
+  // Exact original 45073078693 portrait returned camera at tick510:
+  // [-14.4,9,46.6] -> [-1.5,16,55.5] in one view, but the real hero
+  // travels ~1.5m. The ~0.273rad turn narrowly misses the older .28rad
+  // shoulder test; the simultaneous 6.7m radius AND 7m height shift
+  // still creates a real unearned spatial cut. Bound the joined 3-axis
+  // camera motion; do not treat unrelated gentle inward tracking as a cut.
+  const radiusDelta=Math.abs(dRadius-pRadius);
+  const heightDelta=Math.abs(desiredCamera[1]-previousCamera[1]);
+  const sourceUnearnedWorldCut=sourceLimitedRadius && !shoulderCut &&
+    requested>Math.max(8,actorMovement*2.4+3.5) &&
+    ((Math.abs(requestedTurn)>.16 && (radiusDelta>3||heightDelta>3)) ||
+      (radiusDelta>5 && heightDelta>4 &&
+       newRange>=originalRange-1));
+  if(shoulderCut||sourceUnearnedWorldCut){
     // Rotate around the original tower core from the last successfully
     // returned same-run lens. Time that the browser did not render never
     // grants a camera teleport; source physics remain authoritative.
@@ -62,7 +77,9 @@ export function sourceFirstFloorNineCameraDeparture({source,lastRendered,
       boundedMovement:+dist(previousCamera,camera).toFixed(3),
       requestedTurnRadians:+requestedTurn.toFixed(4),
       boundedTurnRadians:+turn.toFixed(4),
-      reason:'first-original-floor-nine-camera-shoulder-cut'};
+      reason:shoulderCut
+        ?'first-original-floor-nine-camera-shoulder-cut'
+        :'first-original-floor-nine-camera-world-space-cut'};
   }
   // Leave ordinary tracking and inward catch-up untouched. Only the
   // discontinuous OUTWARD dolly which shrinks the hero is constrained.
