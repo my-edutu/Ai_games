@@ -1267,3 +1267,76 @@ test('RED: a rejected licensed whole-body lean identifies the first actual weigh
  assert.equal(stale.certificate,null);
  assert.equal(stale.reason,'stale-original-source-before-sole');
 });
+
+
+/**
+ * RED — exact original mobile source-skin readback on 22 Nov 2026 at
+ * 6d961535044d; genuine mobile f27/tick2 wanted 3.747356mm of visual-pelvis
+ * lift but measured 7.494711mm on BOTH original weighted heels. At f69/tick8
+ * it wanted 4.345285mm and measured 8.690569mm. These are REJECTED native
+ * trials, never accepted floor contact or improvement.
+ *
+ * This real Three.js source-skin analog isolates the same stale attached
+ * bind inverse observed in the previous heel-lean test. Only ORIGINAL
+ * weighted source shoe meshes can be refreshed; simulation authority and
+ * source clip remain untouched.
+ */
+test('RED: authentic source-pelvis lift refreshes attached original skin inverses before dual-shoe world read and rollback',()=>{
+ const THREE=require('three');
+ const geometry=new THREE.BufferGeometry();
+ geometry.setAttribute('position',new THREE.Float32BufferAttribute([.12,.14,.07],3));
+ geometry.setAttribute('skinIndex',new THREE.Uint16BufferAttribute([0,0,0,0],4));
+ geometry.setAttribute('skinWeight',new THREE.Float32BufferAttribute([1,0,0,0],4));
+ const material=new THREE.MeshBasicMaterial();
+ const pivot=new THREE.Group();
+ const meshes=[0,1].map(index=>{
+  const mesh=new THREE.SkinnedMesh(geometry,material);
+  const bone=new THREE.Bone();bone.name='licensed-shoe-'+index;
+  mesh.add(bone);pivot.add(mesh);
+  pivot.updateMatrixWorld(true);
+  mesh.bind(new THREE.Skeleton([bone]));
+  mesh.updateMatrixWorld(true);
+  return mesh;
+ });
+ const sample=mesh=>{
+  const vertex=new THREE.Vector3().fromBufferAttribute(
+   geometry.getAttribute('position'),0);
+  mesh.applyBoneTransform(0,vertex);
+  return vertex.applyMatrix4(mesh.matrixWorld).y;
+ };
+ const before=meshes.map(sample);
+ const realMobileWorldLift=.0037473556973408317;
+ pivot.position.y=realMobileWorldLift;
+ pivot.updateWorldMatrix(true,true);
+ const stale=meshes.map(sample);
+ for(let i=0;i<2;i++)
+  assert.ok(Math.abs((stale[i]-before[i])-2*realMobileWorldLift)<.000001,
+   'attached bind inverse left stale reproduces actual 2x mobile world lift');
+ for(const mesh of meshes)mesh.updateMatrixWorld(true);
+ const verified=meshes.map(sample);
+ for(let i=0;i<2;i++)
+  assert.ok(Math.abs((verified[i]-before[i])-realMobileWorldLift)<.000001,
+   'refreshing source attached bind inverse restores exact 1x world lift');
+ pivot.position.y=0;
+ pivot.updateWorldMatrix(true,true);
+ for(const mesh of meshes)mesh.updateMatrixWorld(true);
+ const rolledBack=meshes.map(sample);
+ for(let i=0;i<2;i++)
+  assert.ok(Math.abs(rolledBack[i]-before[i])<.000001,
+   'pelvis rejection must leave original source shoe pose unchanged');
+ geometry.dispose();material.dispose();
+ const stage=renderer.slice(
+  renderer.indexOf('function stageSourceLoadedPelvisBeforeLegs('),
+  renderer.indexOf('function auditSourceLoadedPelvisAfterLegs('));
+ assert.ok(stage.startsWith('function stageSourceLoadedPelvisBeforeLegs('));
+ const readStart=stage.indexOf('const read=side=>');
+ const readEnd=stage.indexOf("const left=read('left')",readStart);
+ assert.ok(readStart>=0&&readEnd>readStart);
+ const originalRead=stage.slice(readStart,readEnd);
+ assert.match(originalRead,/mesh\.updateMatrixWorld\(true\)/,
+  'refresh each DISTINCT attached original shoe SkinnedMesh before EVERY source world-sole read');
+ assert.match(stage,/sourceOriginalShoeSkinsAfterPelvisRollback|refreshOriginalPelvisShoeSkins\(\)/,
+  'after rejected original pelvis pose restore the attached skin bind inverse as well');
+ assert.match(stage,/Math\.abs\(delta-expectedWorldLift\)<=\.001/,
+  'keep strict bilateral 1mm same-world source-sole certification');
+});
