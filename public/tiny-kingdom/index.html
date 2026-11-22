@@ -26410,7 +26410,9 @@ function genuineWorkdayShotDecision(shot,portrait){
   return {safe:false,readable:false,reason:'invalid-real-crop-evidence'};
  if(![body,scene,core,cargo,vegetation].every(Number.isFinite))
   return {safe:false,readable:false,reason:'missing-projection'};
+ const postCover=shot.marketPostSightline?.centerCover??0;
  const safe=body>=(portrait?.15:.13)&&
+  (!portrait||postCover<.12)&&
   scene<.32&&core<.24&&cargo<.20&&vegetation<.36&&
   hands<=1&&blocked<=2&&bystanders===0&&proximity===0&&
   cropFace===0&&cropWrists===0&&!insideStandingGrain&&
@@ -30510,6 +30512,10 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
  // of the desktop worksite camera. Frame both worker and real surroundings.
  const portraitLens=Boolean(((working&&realWork)||journeyCamera||unloading||marketBarter)&&canvas.clientWidth>0&&
   canvas.clientWidth<500);
+ // Genuine mobile villagers in the market require post-aware documentary eyes.
+ // Apply ONLY to original physical 390px workday images, never the simulation.
+ const nearActualMarket=portraitLens&&(working||journeyCamera)&&
+  Math.hypot(citizen.x,citizen.z-5)<17;
  const normalPitch=unloading?(actionCameraPitch??.29):marketBarter?.48:filmedLoadedCourier?.24:
   householdErrand?.28:householdContinuity?.28:journeyCamera?.34:
   working?(actionCameraPitch??(liveWorkday?(portraitLens?
@@ -30648,7 +30654,7 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   option.shot.foregroundCargoCover=scenic.cargoCover||0;
   option.shot.foregroundSceneLargest=scenic.largest;
   option.shot.foregroundSceneVolumes=scenic.volumes;
-  const realPost=(unloading||marketBarter)?marketCourierPostSightline(option.shot.eye,target):null;
+  const realPost=(unloading||marketBarter||nearActualMarket)?marketCourierPostSightline(option.shot.eye,target):null;
   option.shot.marketPostSightline=realPost;
   option.coarse+=(realPost?.centerCover||0)*6400+
    (scenic.actorCoreCover||0)*(portraitLens?4300:3900)+
@@ -31412,6 +31418,9 @@ function findPhysicalPortraitAlternative(citizen,shot,roofs){
     scene.cargoCover>=.22)continue;
    const vegetation=foregroundVegetationProjection(eye,target);
    if(vegetation.faceBlockers>0||vegetation.cover>=.28)continue;
+   const marketPost=Math.hypot(citizen.x,citizen.z-5)<17?
+    marketCourierPostSightline(eye,target):null;
+   if(marketPost&&marketPost.centerCover>=.075)continue;
    const height=projectedWorkerBodyFraction(eye,target,citizen);
    if(!Number.isFinite(height)||height<.15)continue;
    if(hands.some(hand=>followRayBlockers(eye,hand,roofs)!==0))continue;
@@ -31437,6 +31446,7 @@ function findPhysicalPortraitAlternative(citizen,shot,roofs){
     facingAlignment:Number.isFinite(shot.workFacing)?
      Math.cos(candidateYaw-shot.workFacing):
      Number.isFinite(shot.facingAlignment)?shot.facingAlignment:0,
+    marketPostSightline:marketPost,
     physicalPortraitElevatedEye:candidatePitch>.75,
     physicalPortraitAlternative:true,renderedWorldStillComplete:true};
    const framing=cameraShotFraming(candidate,roofs,citizen,hands);
@@ -31494,6 +31504,9 @@ function findPhysicalPortraitWorkdayOverlook(citizen,prior,roofs){
      scene.cargoCover>=.26)continue;
   const vegetation=foregroundVegetationProjection(eye,target);
   if(vegetation.faceBlockers>0||vegetation.cover>=.42)continue;
+  const marketPost=Math.hypot(citizen.x,citizen.z-5)<17?
+   marketCourierPostSightline(eye,target):null;
+  if(marketPost&&marketPost.centerCover>=.075)continue;
   const body=projectedWorkerBodyFraction(eye,target,citizen);
   if(!Number.isFinite(body)||body<.075)continue;
   // This is deliberately NOT scored as a clear hand/contact close-up.
@@ -31510,6 +31523,7 @@ function findPhysicalPortraitWorkdayOverlook(citizen,prior,roofs){
     foregroundCargoCover:scene.cargoCover,
     foregroundVegetationCover:vegetation.cover,
     vegetationFaceBlockers:0,projectedWorkerHeightFraction:body,
+    marketPostSightline:marketPost,
     physicalPortraitOverlook:true,physicalPortraitAlternative:false,
     workFacingMode:'clear-world-overview-not-proven-work-contact',
     originalAutonomousCitizen:citizen.name,
@@ -31600,6 +31614,9 @@ function workdayCameraCompositionAudit(){
   actorCoreCover:sceneCover.actorCoreCover,
   foregroundActorCoreCover:sceneCover.actorCoreCover,
   foregroundCargoCover:observedCargo,
+  marketPostSightline:Math.hypot(person.x,person.z-5)<17?
+   marketCourierPostSightline(eye,aim):null,
+  plannedMarketPostSightline:lastFollowShot?.marketPostSightline??null,
   plannedForegroundCargoCover:lastFollowShot?.foregroundCargoCover??null,
   foregroundVegetationCover:vegetationCover.cover,
   vegetationFaceBlockers:vegetationCover.faceBlockers,
@@ -37061,11 +37078,19 @@ if(follow&&!daybreakReturn){
    const blockedByRealGrain=Boolean(farmCrop&&
     (farmCrop.cropFaceBlockers>0||farmCrop.cropWristBlockers>0||
      (farmCrop.cameraInsideField&&!farmCrop.physicalInteriorEyeClear)));
+   const nearbyMarketPost=Math.hypot(citizen.x,citizen.z-5)<17?
+    marketCourierPostSightline(priorEye,plan.target):null;
+   const plannedMarketPost=nearbyMarketPost?
+    (plan.marketPostSightline||marketCourierPostSightline(plan.eye,plan.target)):null;
+   const blockedByRealMarketPost=Boolean(nearbyMarketPost&&
+    nearbyMarketPost.centerCover>.075&&plannedMarketPost&&
+    plannedMarketPost.centerCover>.055);
    if(shouldSeekPhysicalPortraitAlternative(canvas.clientWidth,true,
      portraitCurrentScene.actorCoreCover,portraitCurrentScene.cover,
      plan.foregroundActorCoreCover??1,plan.foregroundSceneCover??1,
      now,lastAttempt)||
-     (blockedByRealGrain&&now-lastAttempt>=PORTRAIT_ALT_RETRY_MS)){
+     ((blockedByRealGrain||blockedByRealMarketPost)&&
+      now-lastAttempt>=PORTRAIT_ALT_RETRY_MS)){
     portraitAltLastAttempt=now;portraitAltLastCitizen=citizen.name;
     portraitAltAttempts++;
     const alternate=findPhysicalPortraitAlternative(citizen,plan,physicalRoofs);
@@ -37081,7 +37106,7 @@ if(follow&&!daybreakReturn){
    // runs at most every 2.2s and ONLY after observed obstruction.
    const needOriginalOverlook=!portraitAlternativeSelected&&
     (portraitCurrentScene.actorCoreCover>=.24||
-     portraitCurrentScene.cover>=.52)&&
+     portraitCurrentScene.cover>=.52||blockedByRealMarketPost)&&
     ((plan.foregroundActorCoreCover??1)>=.15||
      (plan.foregroundSceneCover??1)>=.38)&&
     now-portraitWorkdayOverlookLastAttempt>=2200;
@@ -37112,15 +37137,18 @@ if(follow&&!daybreakReturn){
   // without filling enough of the screen to trigger the broad roof/canopy
   // obstruction model. Measure the actual camera and the real planned lens.
   const observeMarketHandoff=Boolean(genuineMarketBarterWitness(citizen)||
+   (isPortraitWorkWitness&&Math.hypot(citizen.x,citizen.z-5)<17)||
    (document.body.dataset.workday==='delivery'&&
     (citizen.delivery?.stage==='unloading'||recentObservedCourierReceipt(citizen))));
   const presentPost=observeMarketHandoff?
    marketCourierPostSightline(eye,plan.target):null;
   const destinationPost=observeMarketHandoff?
    (plan.marketPostSightline||marketCourierPostSightline(plan.eye,plan.target)):null;
-  const postBlocked=Boolean(presentPost&&presentPost.centerCover>.10);
+  const postBlocked=Boolean(presentPost&&
+   presentPost.centerCover>(isPortraitWorkWitness?.075:.10));
   const clearPostDestination=!observeMarketHandoff||
-   Boolean(destinationPost&&destinationPost.centerCover<.035);
+   Boolean(destinationPost&&destinationPost.centerCover<
+    (isPortraitWorkWitness?.05:.035));
   const currentWorkerForeground=portraitCurrentScene||
    foregroundSceneProjection(eye,plan.target,roofs);
   const genuineFarmerVisible=personHasActiveFarmWork(citizen);
@@ -37156,8 +37184,11 @@ if(follow&&!daybreakReturn){
   const midwayPost=observeMarketHandoff&&postBlocked&&clearPostDestination?
    marketCourierPostSightline(nextEye,plan.target):null;
   const mustRepairPost=Boolean(midwayPost&&
-   evaluateCourierPostRepairPolicy(presentPost.centerCover,
-    destinationPost.centerCover,midwayPost.centerCover));
+   (isPortraitWorkWitness?
+    presentPost.centerCover>.075&&destinationPost.centerCover<.05&&
+     midwayPost.centerCover>.055:
+    evaluateCourierPostRepairPolicy(presentPost.centerCover,
+     destinationPost.centerCover,midwayPost.centerCover)));
   const midwayWheat=currentWheatBlocked&&plannedWheatClear?
    realFarmWorkSightline(nextEye,citizen,farmerHands):null;
   const mustRepairWheat=currentWheatBlocked&&plannedWheatClear&&
@@ -37187,11 +37218,12 @@ if(follow&&!daybreakReturn){
   // central silhouette is obscured, go straight to a physically surveyed
   // clear worker lens; the game never cuts, hides or moves the architecture.
   const portraitUnreadable=isPortraitWorkWitness&&
-   (currentWheatBlocked||currentWorkerForeground.actorCoreCover>=.18||
+   (currentWheatBlocked||postBlocked||
+    currentWorkerForeground.actorCoreCover>=.18||
     currentWorkerForeground.cover>=.52);
   const portraitPlanActuallyReadable=plan.foregroundActorCoreCover<.13&&
    plan.foregroundSceneCover<.38&&plan.vegetationFaceBlockers===0&&
-   plan.foregroundVegetationCover<.28&&plannedWheatClear;
+   plan.foregroundVegetationCover<.28&&clearPostDestination&&plannedWheatClear;
   const immediatePortraitWitness=portraitUnreadable&&
    portraitPlanActuallyReadable;
   if((repairEye||mustRepairPost||mustRepairWheat||repairGeneral||portraitCoreRepair||
