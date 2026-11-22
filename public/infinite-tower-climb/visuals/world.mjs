@@ -26,6 +26,7 @@ import { projectOriginalGuardianGateSteel } from './original-guardian-gate-steel
 import { sourceReturnedGatewayDisplayDt } from './source-submitted-doorway-cadence.mjs';
 import { actualGatewayReceivingRoofSpans, actualGatewayReceivingLoadPathBays, actualGatewayReceivingGalleryCanopy, prebuildOriginalGuardianCanopyPlan, sourceOpenGuardianRoofLoadPath, syncGatewayReceivingRoofColours, resetGatewayReceivingRoofColours } from './source-physical-receiving-roof.mjs';
 import { sourceRealGroundForecourtSections, sourceRealGroundUndercroftParts, syncSourceRealRoofWingMaterials } from './source-real-ground-forecourt.mjs';
+import { sourceReturnedOriginalGatewayOpacity, sourceReturnedOriginalGatewayRetention } from './source-returned-original-gateway-exit.mjs';
 
 
 /**
@@ -4158,6 +4159,17 @@ export function createTowerWorld(){
       !returnedReplacement && !options.stale &&
       held.originalGatewayOpacity>.01 &&
       held.submittedFrames<30 && held.visibleSeconds<2.8;
+    // Original 25fps Floor9 film retained ~82%-opaque steel on a legitimate
+    // first raised-deck approach, then discarded it on a source support-state
+    // transition. The old HP-zero gateway is NON-COLLIDING after crossing:
+    // keep its actual already-rendered GPU owner for a finite RETURNED-frame
+    // fade while present physics independently confirms real roof/raised
+    // route support. A stale/dead/wrong-run source cannot borrow that lease.
+    const sourceLegitimateOnwardSupport=onNewRoof ||
+      authenticRaisedFlight || physicallyBeyondOriginalDoor;
+    const pendingReturnedOriginalExit=!options.stale &&
+      sourceReturnedOriginalGatewayRetention(
+        snapshot,held,deferredDistantArrival,sourceLegitimateOnwardSupport);
     if (returnedReplacement || options.stale || snapshot.runToken !== held.runToken ||
         snapshot.floor !== held.floor || snapshot.lifecycle !== 'running' ||
         !Number.isSafeInteger(snapshot.tick) ||
@@ -4172,13 +4184,15 @@ export function createTowerWorld(){
         // deadline can otherwise delete the still-painted original doorway
         // even while the real moving body and successor deck remain eligible.
         snapshot.tick<held.sourceTick || snapshot.tick-held.sourceTick>((opticalLease || farSide ||
-          awaitingSourceReturnedReplacement)
+          awaitingSourceReturnedReplacement || pendingReturnedOriginalExit)
           ?150:(sourceVisibilityWindow?.maxTicks??70)) ||
         !(p?.health>0) ||
         (!nearDoor && !onNewRoof && !onCameraHandoffFlight &&
-          !retainedBackdrop && !sourceDeparture?.sourceBound && !opticalLease && !farSide) ||
+          !retainedBackdrop && !sourceDeparture?.sourceBound && !opticalLease && !farSide &&
+          !pendingReturnedOriginalExit) ||
         (!onNewRoof && !opticalLease && !farSide && !justLaunched && !onCameraHandoffFlight &&
-          !retainedBackdrop && !sourceDeparture?.sourceBound)) {
+          !retainedBackdrop && !sourceDeparture?.sourceBound &&
+          !pendingReturnedOriginalExit)) {
       retireEarnedCap();
       return;
     }
@@ -4192,9 +4206,17 @@ export function createTowerWorld(){
     // horizontal source X barely advances; never demand an impossible 9m
     // horizontal-only runway to finish the original gateway passage.
     const departing=sourceDeparture;
-    const originalGatePresence=earnedRoomDeparture && Number.isFinite(farSideFade)
+    const sourceGateProposal=earnedRoomDeparture && Number.isFinite(farSideFade)
       ?Math.min(held.lastReturnedOldGatewayOpacity??1,1-farSideFade)
       :(returnedBronzeHold?.gateOpacity??sourceDeparture?.opacity??opticalLease?.opacity??1);
+    // This one material owner cannot rise back from an already shown exit:
+    // authentic returned Void structural frames + genuine roof/raised-flight
+    // support advance the common scene fade. Never count source polls or a
+    // mere built-but-unsubmitted shaft as visual progress.
+    const originalGatePresence=sourceReturnedOriginalGatewayOpacity(
+      snapshot,held,deferredDistantArrival,sourceGateProposal,
+      sourceLegitimateOnwardSupport) ??
+      Math.min(held.originalGatewayOpacity,sourceGateProposal);
     held.originalGatewayOpacity=originalGatePresence;
     for (const {material,baseOpacity,originalTransparent,originalDepthWrite}
         of held.originalGatewayMaterialStages) {
@@ -4265,6 +4287,11 @@ export function createTowerWorld(){
         held.galleryExitClearedAlpha??1,sourceGalleryLease);
     if(Number.isFinite(held.galleryExitClearedAlpha))
       originalPresence=Math.min(originalPresence,held.galleryExitClearedAlpha);
+    // The original non-colliding bronze gallery is also on a one-way exit.
+    // Do not brighten already-retired shoulders when the autonomous source
+    // switches from grounded to true raised-flight support.
+    originalPresence=Math.min(originalPresence,
+      held.originalGallerySourceOpacity??1);
     held.originalGallerySourceOpacity=originalPresence;
     // The central source-old root/crown/ribs are one already-rendered 3D
     // room with the defeated original gateway and historical gallery.
