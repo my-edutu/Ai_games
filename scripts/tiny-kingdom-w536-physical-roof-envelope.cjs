@@ -1,11 +1,12 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
-const m=html.match(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/);
+const begin=html.indexOf('<script>'),stop=html.indexOf('</script>',begin);
+const m=begin>=0&&stop>begin?[null,html.slice(begin+8,stop)]:null;
 assert(m,'Actual playable script must be embedded');
 new vm.Script(m[1],{filename:'original-autonomous-3d-game.js'});
 const start=m[1].indexOf('const physicalRoofEnvelopeCache=new WeakMap();');
-const end=m[1].indexOf('\\nfunction foregroundSceneProjection(',start);
+const end=m[1].indexOf(String.fromCharCode(10)+'function foregroundSceneProjection(',start);
 assert(start>=0&&end>start,'W536 original physical city/projection seam');
 const terrain=(x,z)=>Math.sin(x*.32)*.13+Math.cos(z*.24)*.07;
 const p=Function('terrain',m[1].slice(start,end)+
@@ -34,7 +35,7 @@ for(const name of ['followRayBlockers','physicalFollowEyeClearance',
  'cameraShotProximityWarnings','foregroundSceneProjection']){
  const begin=m[1].indexOf('function '+name+'(');
  assert(begin>=0,name+' must exist in the playable game');
- const end=m[1].indexOf('\\nfunction ',begin+8);
+ const end=m[1].indexOf(String.fromCharCode(10)+'function ',begin+8);
  assert(m[1].slice(begin,end>=0?end:undefined).includes('readPhysicalRoofEnvelope('),
   name+' must consume original real 3D roof envelope');
 }
