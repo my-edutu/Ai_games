@@ -840,6 +840,13 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
       world.noteFrameSubmitted(frame,{},.05);
       world.update(frame,.05,.1+step*.05,{quality:'low'},witness);
       const stage=world.diagnostics().deferredDistantArrival;
+      // The visual upload may complete BEFORE the 16th returned 3D frame.
+      // All same-run painted F9 frames still belong to the ONE submission
+      // count, or the original-door optical retirement has false evidence.
+      assert.ok(Number.isSafeInteger(stage?.submittedFrames) &&
+        Number.isSafeInteger(stage?.structuralVisibleReturns) &&
+        stage.structuralVisibleReturns<=stage.submittedFrames,
+        'source-owned painted shaft returns must not outnumber real successful F9 returns at any handoff state');
       if(stage?.structuralVisibleReturns<6 || stage?.structuralVisibleSeconds<.52)
         assert.notEqual(stage?.state,'fading-remote-arrival',
           'the distant violet world cannot precede six actual structural GPU returns and 520ms painted shaft time');
