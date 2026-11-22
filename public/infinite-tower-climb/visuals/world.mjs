@@ -5338,7 +5338,10 @@ export function createTowerWorld(){
         arrival.detailFade=0;
         arrival.detailBuiltAtSubmitted=arrival.submittedFrames;
         arrival.peripheryBuiltAtSubmitted=arrival.submittedFrames;
-        arrival.structureBuiltAtSubmitted=arrival.submittedFrames;
+        // Keep the original, successful LOAD-BEARING core render receipt.
+        // Scenic buttresses have their own peripheryBuiltAtSubmitted gate.
+        // Resetting the core clock here stalled its current 3D visibility
+        // while the real HP-zero climber continued across the F9 roof.
         arrival.structureOuterBuildMs=+(performance.now()-began).toFixed(2);
     }
     // This third stage can run ONLY after the buttress scene REALLY returned.
@@ -5389,7 +5392,8 @@ export function createTowerWorld(){
         arrival.structureDetailBuildMs=+(performance.now()-began).toFixed(2);
         arrival.structureBuildMs=+(arrival.structureLoadBearingBuildMs+
           arrival.structureOuterBuildMs+arrival.structureDetailBuildMs).toFixed(2);
-        arrival.structureBuiltAtSubmitted=arrival.submittedFrames;
+        // Biome geometry has its own biomeBuiltAtSubmitted return fence.
+        // It must not reset the already-rendered physical core's paint time.
         arrival.state='awaiting-structural-release';
     }
     if (arrival && arrival.key===key &&
