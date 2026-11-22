@@ -6040,12 +6040,15 @@ export function createTowerScene(canvas, settings = {}) {
               (raisedNdc.z>=-1&&raisedNdc.z<=1 &&
                 Math.abs(raisedNdc.x)<.90&&
                 Math.abs(raisedNdc.y)<.90);
-            const steelAfter=steelBefore?.sourceBound===true &&
-                steelBefore.projectedPanes>=2 &&
-                steelBefore.projectedMetalArea>=.012
+            const originallyReadableSteel=steelBefore?.sourceBound===true &&
+              steelBefore.projectedPanes>=2 &&
+              steelBefore.projectedMetalArea>=.012;
+            const steelAfter=originallyReadableSteel
               ?world.projectedOriginalGateSteel(snapshot,camera):null;
-            const originalGatewayPreserved=!steelAfter ||
-              (steelAfter.sourceBound===true &&
+            // If we started with real readable ORIGINAL metal, losing it
+            // entirely is a VETO, not a nullable success.
+            const originalGatewayPreserved=!originallyReadableSteel ||
+              (steelAfter?.sourceBound===true &&
                 steelAfter.projectedPanes>=2 &&
                 steelAfter.projectedMetalArea>=
                   Math.max(.012,steelBefore.projectedMetalArea*.76));
