@@ -65,3 +65,14 @@ test('integration captures immutable room/camera witnesses only after the actual
   assert.match(scene,/originalToVoidReturnedTimeline\.length<ORIGINAL_TO_VOID_RETURN_LIMIT/);
   assert.match(scene,/submittedFogColor:scene\.fog\?\.color/);
 });
+
+// This is an evidence-unblocker test, never an extra gameplay score.
+test('the unchanged normal-speed film harness preserves first-return World/camera owners in their own source-pinned sidecar',()=>{
+  const capture=fs.readFileSync(path.resolve(__dirname,'../browser/tower-live-motion.spec.cjs'),'utf8');
+  const call=capture.indexOf('const originalToVoidReturnTimeline = await page.evaluate(');
+  const saved=capture.indexOf("'original-to-void-returned-room-timeline.json'");
+  assert.ok(call>0 && saved>call,'must retain original candidate World owner records');
+  assert.match(capture,/SOURCE_RENDER_RETURNS_ONLY/);
+  assert.match(capture,/nativeVideoMatched:false/);
+  assert.match(capture,/verdict:'NOT EVALUATED'/);
+});

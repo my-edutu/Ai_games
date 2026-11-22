@@ -572,6 +572,30 @@ for (const viewport of viewports) {
       interpretation: 'Browser-accepted authentic source phase and returned Three.js render call. Never equate renderer return with original WebM frame, gateway contact or GPU presentation.',
     };
   });
+  // Read only AFTER the genuine 60+ second unmodified original-source native
+  // WebM capture, never from a rendered PNG or a second synthetic scene.
+  // Unlike 1Hz observations, the FIRST 80 successful same-run F9 render
+  // returns survive in the real scene's bounded scalar timeline. Baseline
+  // has no owner: mark it unavailable rather than fabricate a matched trace.
+  const originalToVoidReturnTimeline = await page.evaluate(() =>
+    window.__TOWER_RENDER_DIAGNOSTICS__?.().originalToVoidReturnedTimeline ?? null);
+  const originalToVoidReturnedFrames =
+    Array.isArray(originalToVoidReturnTimeline?.frames)
+      ?originalToVoidReturnTimeline.frames:[];
+  fs.writeFileSync(path.join(dir,'original-to-void-returned-room-timeline.json'),
+    JSON.stringify({sourceSha,scenario,viewport:viewport.name,
+      method:'read-only actual Three.js successful returned WebGL frame and original scene material owners',
+      status:originalToVoidReturnedFrames.length
+        ?'SOURCE_RENDER_RETURNS_ONLY':'NOT EVALUATED',
+      renderReturnCount:originalToVoidReturnedFrames.length,
+      episode:originalToVoidReturnTimeline?.runToken??null,
+      firstReturnedWallMs:originalToVoidReturnedFrames[0]?.returnedWallMs??null,
+      lastReturnedWallMs:originalToVoidReturnedFrames.at(-1)?.returnedWallMs??null,
+      returnedRoomFrames:originalToVoidReturnedFrames,
+      nativeVideoMatched:false,independentReviewCounts:{looks:0,feels:0,plays:0},
+      verdict:'NOT EVALUATED',
+      next:'Align these ORIGINAL material/geometry/camera return owners with unmodified native-video timebase; find the first return where source-owned bronze scene disappears before a simultaneously readable Floor9 shaft, roof, complete moving climber and first raised destination.'
+    },null,2));
   const passiveSourceTicks = await page.evaluate(() => {
     clearInterval(window.__TOWER_CAPTURE_PUBLIC_TICK_TIMER__);
     return {ticks:[...(window.__TOWER_CAPTURE_PUBLIC_TICKS__||[])],

@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "stage": "P0 OPEN",
+  "verdict": "NOT EVALUATED",
+  "branch": "feat/tower-transformation-gauntlet-20261101",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "implementationSourceSha": "e0712acfec06c66094c660c29d3f998e148be812",
+  "previousCandidateFootageSha": "0e20e02905a638372e6dd731e1ec9d4326975b3d",
+  "previousCandidateCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/45035096924",
+  "previousVerifiedQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45035422540",
+  "verifiedOriginalFootage": {
+    "desktop": {
+      "resolution": "960x600",
+      "hudFloorNineApproxSec": 26,
+      "majorHardCutApproxSec": 27.5
+    },
+    "portrait": {
+      "resolution": "390x844",
+      "hudFloorNineApproxSec": 26,
+      "majorHardCutApproxSec": 28
+    },
+    "warmToCoolNativeBridgeSeconds": 0,
+    "originalSourceEightCaptures": true,
+    "ledgerOnlySourceToNativePairing": "NOT ACCEPTED 0/2",
+    "sourceGuardianRestartChain": true
+  },
+  "primarySystemicBlocker": "First source-returned floor-nine scene does not establish a co-visible 3D original gateway, moving climber, real roof and raised destination in native footage. Return-by-return owner evidence was absent, so camera vs World-cut cause could not be distinguished.",
+  "implementedUnblocker": {
+    "files": [
+      "public/infinite-tower-climb/visuals/source-returned-room-timeline.mjs",
+      "public/infinite-tower-climb/visuals/world.mjs",
+      "public/infinite-tower-climb/visuals/scene.mjs",
+      "tests/browser/tower-live-motion.spec.cjs",
+      "tests/phase3/tower-original-to-void-return-witness.test.cjs"
+    ],
+    "newCaptureSidecar": "artifacts/tower-motion/danger/{desktop,portrait}/original-to-void-returned-room-timeline.json",
+    "immutableSuccessfulReturnLimit": 80,
+    "gameplayAuthorityChanged": false,
+    "worldArtChanged": false,
+    "frameRateOrRenderingChanged": false,
+    "claimsNativePixelProof": false
+  },
+  "independentCritics": {
+    "looks": {
+      "count": 0,
+      "required": 5
+    },
+    "feels": {
+      "count": 0,
+      "required": 5
+    },
+    "plays": {
+      "count": 0,
+      "required": 5
+    }
+  },
+  "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
+  "nextHighestImpactAction": "With new source-pinned desktop/portrait WebM and returned-room timeline, establish first incompatible original-retirement vs successor-paint/camera return and correct the responsible physical World/camera stage; retest native event matched full shot."
+}
