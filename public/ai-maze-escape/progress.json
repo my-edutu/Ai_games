@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-22T14:29:00.000Z",
+  "updatedAt": "2026-11-22T14:50:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass580: prior rollback a761dc72 exact-HEAD Maze WebGL 45026682903 SUCCESS (whole-repo CI 45026682841 separately RED). Authentic Pass579 320/390 actor scene still REJECTED. New deterministic CONTENT-generation candidate prioritizes naturally open, same-tier horizontal 3-cell guardian patrol court and truthful lateral breathing room inside existing complete Pressure/guardian/key chapter shortlist, not cosmetic camera/particles. Does not change walls, engine links, AI, sanitized presentation or thresholds. NEW-HEAD focused tests and native SHA-verified full-frame renders PENDING; no Nintendo win claimed. Coding workspace/independent critic tunnel NOT_FOUND. OPEN DRAFT, unmerged/undeployed."
+    "summary": "Pass581: exact Pass580 2bbe8122 native WebGL 45033653188 FAILED real autonomous chapter pacing (post-counter 426 ticks >120, total escape 471 >200, old approved tick136). The original artifact 14759271440 ZIP SHA 607be51da4e673eac88c0f33afbd5adc4c8abbbdf03206aaccaf19b1e021340e independently verifies all 42/42 full original native PNG SHA and 3/3 gate SHA. Original 320 and 390 gameplay still VISUALLY REJECTED: opaque masonry/actor separation remain; no Nintendo win. Selectively rollback only Pass580 content scoring and exclusive test; NEW HEAD CI/WebGL PENDING, do NOT claim green. Whole CI 45033653119 failed independently Tiny Kingdom OBS. Independent critic/Ultracode unavailable (NOT_FOUND). OPEN DRAFT, unmerged/undeployed, hourly stays active."
   },
   "captures": [
+    {
+      "title": "Pass581: original Pass580 failed autonomous chapter tick471 vs <=200; 42/42 original native screenshots + 3/3 gate SHA verified, 320/390 visual REJECT and source rollback awaiting new HEAD CI",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/45033653188/artifacts/14759271440"
+    },
     {
       "title": "Pass580 upstream *playable* same-terrace guardian chapter candidate; exact-new-HEAD native renders/quality verdict PENDING, no approved win",
       "url": "https://github.com/my-edutu/Ai_games/pull/53"

@@ -8,36 +8,6 @@ export function doorBetween(world:MazeWorld,a:number,b:number):MazeDoor|undefine
 function shortestDistance(world:MazeWorld,start:number,goal:number){const path=solveMaze(world,{start,goal});return path?path.length-1:Number.POSITIVE_INFINITY}
 function chooseUnique(candidates:number[],count:number,rng:NamedRng,stream:string){const pool=[...candidates],out:number[]=[];while(pool.length&&out.length<count){const index=rng.nextInt(stream,pool.length);out.push(pool.splice(index,1)[0])}return out}
 
-// Evaluate the real, navigable SHAPE of a guardian side court before choosing
-// where to place the moving patrol. The renderer's terrace band is derived
-// solely from public row geometry, not from private AI knowledge; this is
-// authored content at seed generation time, never a viewer-facing oracle.
-// The score cannot create an edge, teleport an actor or grant safe passage.
-// A straight same-tier encounter with genuinely connected lateral breathing
-// room gets priority ONLY within the already accepted key/pressure chapter.
-export function guardianCourtPhysicalScore(world:MazeWorld,approach:number,spawn:number,
-  retreat:number,excluded:Set<number>):number{
-  const actorCells=[approach,spawn,retreat],limit=world.width*world.height;
-  if(actorCells.some(cell=>!Number.isSafeInteger(cell)||cell<0||cell>=limit)
-    ||new Set(actorCells).size!==3)return -1;
-  const open=(a:number,b:number)=>passageNeighbors(world,a).includes(b)
-    &&passageNeighbors(world,b).includes(a);
-  if(!open(approach,spawn)||!open(spawn,retreat))return -1;
-  const row=(cell:number)=>Math.floor(cell/world.width);
-  const terrace=(cell:number)=>Math.min(2,Math.floor(row(cell)*3/world.height));
-  const sameTerrace=actorCells.every(cell=>terrace(cell)===terrace(approach));
-  const horizontal=actorCells.every(cell=>row(cell)===row(approach));
-  let sideRooms=0;
-  for(const actor of [spawn,retreat]){
-    if(passageNeighbors(world,actor).some(other=>!actorCells.includes(other)
-      &&!excluded.has(other)&&!world.blockedCells.includes(other)
-      &&terrace(other)===terrace(actor)&&open(actor,other)))sideRooms++;
-  }
-  // Weight a true single-elevation three-body lane above peripheral branches:
-  // the visually distracting staircase cannot be compensated by decorations.
-  return (sameTerrace?8:0)+(horizontal?4:0)+sideRooms;
-}
-
 // Put one real moving Thornback patrol within an OPEN, traversable side branch
 // of the mandatory journey. The guardian still occupies and patrols its own
 // generated cells; Pip discovers it through normal public observation. This is
@@ -156,22 +126,9 @@ export function chooseRouteWatchpost(world:MazeWorld,route:number[],unavailable:
       && sharesTreasureTerrace(world,entry,middle,relay.cell);
   });
   const playable=completeChapters.length?completeChapters:shortlist;
-  // Native 320px footage keeps separating Pip below Thornback even when the
-  // source proves a straight corridor: an axial two-cell guardian choice can
-  // cross the visual terrace break and leave opaque retaining stone between
-  // both actors. Select a REAL naturally open, level and horizontally legible
-  // court first, with already-connected side breathing room where available.
-  // Never relax the existing mandatory straight/pressure/key chapter pool,
-  // cut corridors or move an authoritative actor for a camera illusion.
-  const scenicExclusions=new Set([...unavailable,...reserved,...traps,...routeCells]);
-  const scores=playable.map(choice=>guardianCourtPhysicalScore(world,
-    route[choice.approachIndex]!,choice.spawn,choice.retreat,scenicExclusions));
-  const best=Math.max(...scores);
-  const actualCourts=playable.filter((_,index)=>scores[index]===best);
-  // The original named stream still breaks ties deterministically. If all
-  // legal candidates are cramped, retain the existing fallback without
-  // inventing new passages or leaking the full generated map to Pip.
-  return actualCourts[rng.nextInt('threat-policy:route-watchpost',actualCourts.length)]!;
+  // Same named seeded draw and exact original fallbacks when no such stage
+  // exists; threat routes, colliders, trap counts and keys remain genuine.
+  return playable[rng.nextInt('threat-policy:route-watchpost',playable.length)]!;
 }
 
 // One genuine optional pressure court on the early public journey: earlier
