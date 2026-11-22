@@ -14,7 +14,12 @@ export function sourceFirstFloorNineCameraDeparture({source,lastRendered,
      !Number.isSafeInteger(lastRendered.tick)||source.tick<lastRendered.tick||
      !Number.isSafeInteger(firstReturnedF9Tick)||
      source.tick<firstReturnedF9Tick||
-     source.tick-firstReturnedF9Tick>110||
+     // The original source-pinned portrait film remains on Floor9 and keeps
+     // climbing after tick 585 (first returned tick 475): an arbitrary 110
+     // tick cutoff allowed another 14m lateral shot at 589->591. Keep
+     // camera continuity through the first real route, but stop after a
+     // bounded 210 source ticks, at floor change or run restart.
+     source.tick-firstReturnedF9Tick>210||
      cameraMode!=='follow'||stale||reducedMotion||
      !Number.isFinite(dt)||dt<=0||
      ![previousCamera,previousFocus,previousHero,desiredCamera,desiredFocus,hero]
@@ -55,13 +60,24 @@ export function sourceFirstFloorNineCameraDeparture({source,lastRendered,
   // because its viewpoint also changes gently by ~0.25 radians.
   const genuineInwardRecovery=dRadius<pRadius-5 &&
     newRange<originalRange-Math.max(5,actorMovement*1.2);
+  // Real unedited 597ed2fe portrait return at ticks 534->536: the hero
+  // moves 0m, but the FINAL camera makes an 11m lateral shoulder arc.
+  // Radius changes ~1.36m and height ~0.6m, so the prior joined-radius
+  // test never triggered. Detect unearned tower-relative angular travel
+  // directly, not only vertical or radial motion. A genuinely moving
+  // hero may still fund a proportionate turn.
+  const lateralArc=Math.abs(requestedTurn)*Math.min(pRadius,dRadius);
+  const sourceUnearnedLateralOrbit=sourceLimitedRadius && !shoulderCut &&
+    !genuineInwardRecovery &&
+    requested>Math.max(7.5,actorMovement*2.6+2) &&
+    Math.abs(requestedTurn)>.14 && lateralArc>6.5;
   const sourceUnearnedWorldCut=sourceLimitedRadius && !shoulderCut &&
     !genuineInwardRecovery &&
     requested>Math.max(8,actorMovement*2.4+3.5) &&
     ((Math.abs(requestedTurn)>.16 && (radiusDelta>3||heightDelta>3)) ||
       (radiusDelta>5 && heightDelta>4 &&
        newRange>=originalRange-1));
-  if(shoulderCut||sourceUnearnedWorldCut){
+  if(shoulderCut||sourceUnearnedLateralOrbit||sourceUnearnedWorldCut){
     // Rotate around the original tower core from the last successfully
     // returned same-run lens. Time that the browser did not render never
     // grants a camera teleport; source physics remain authoritative.
@@ -86,7 +102,9 @@ export function sourceFirstFloorNineCameraDeparture({source,lastRendered,
       boundedTurnRadians:+turn.toFixed(4),
       reason:shoulderCut
         ?'first-original-floor-nine-camera-shoulder-cut'
-        :'first-original-floor-nine-camera-world-space-cut'};
+        :sourceUnearnedLateralOrbit
+          ?'first-original-floor-nine-camera-lateral-orbit'
+          :'first-original-floor-nine-camera-world-space-cut'};
   }
   // Leave ordinary tracking and inward catch-up untouched. Only the
   // discontinuous OUTWARD dolly which shrinks the hero is constrained.
