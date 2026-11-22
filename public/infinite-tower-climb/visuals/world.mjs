@@ -25,6 +25,7 @@ import { observedReturnedSuccessorRoomReady, observedSupportedReturnedShaftDepth
 import { projectOriginalGuardianGateSteel } from './original-guardian-gate-steel-projection.mjs';
 import { sourceReturnedGatewayDisplayDt } from './source-submitted-doorway-cadence.mjs';
 import { actualGatewayReceivingRoofSpans, actualGatewayReceivingLoadPathBays, actualGatewayReceivingGalleryCanopy, prebuildOriginalGuardianCanopyPlan, sourceOpenGuardianRoofLoadPath, syncGatewayReceivingRoofColours, resetGatewayReceivingRoofColours } from './source-physical-receiving-roof.mjs';
+import { planOriginalGuardianOutboardCranes } from './source-original-guardian-crane-room.mjs';
 import { sourceRealGroundForecourtSections, sourceRealGroundUndercroftParts, syncSourceRealRoofWingMaterials } from './source-real-ground-forecourt.mjs';
 import { sourceReturnedOriginalGatewayOpacity, sourceReturnedOriginalGatewayRetention } from './source-returned-original-gateway-exit.mjs';
 
@@ -2616,6 +2617,24 @@ export function createTowerWorld(){
     for(const brace of sourceOpening?.compressionBraces ?? [])
       place(point(brace.fromAngle,outer,8.35),
         point(brace.toAngle,outer,9.35),.095,trim(brace.kind));
+    // The actual original F8 gallery extractor retained 675 old triangles
+    // but native evidence reported zero source-side flank faces. Reserve
+    // substantial, SOURCE-ANCHORED original room steel BEFORE the boss fight,
+    // then reparent precisely the same 3D canopy with the HP-open gateway.
+    // Outboard load legs are beyond r27.2; radial ties cross the real walkable
+    // deck only below the roof. The raised flight path stays unobstructed.
+    // This is explicitly newly authored original Clockwork art, never
+    // presented as extracted historical triangles or a second collider.
+    const cranes=planOriginalGuardianOutboardCranes(plan);
+    if(cranes){
+      for(const member of cranes.beams){
+        const [a,r,y]=member.from,[b,rr,yy]=member.to;
+        place(point(a,r,y),point(b,rr,yy),member.radius,
+          member.role==='crown-tie'?trim('approach'):steel('approach'));
+      }
+      canopy.userData.originalAuthoredOutboardCraneBeams=cranes.beams.length;
+      canopy.userData.originalRoomRetainedWithCap=true;
+    }
     return canopy;
   }
   function buildPlatform(p,width,guardianCap=false,sourceRunToken=null){
