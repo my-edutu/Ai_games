@@ -59,6 +59,8 @@ env.seededStandingWheatCanopy=Function('biomeHash',
  html.slice(canopyStart,canopyEnd)+';return seededStandingWheatCanopy;')(biomeHash);
 env.climateAt=()=>({season:1});
 env.state={t:24};
+// Explicit synthetic 8GB budget environment for this original source-only test.
+env.navigator={deviceMemory:8};
 env.hashAuthenticCivicCoreVertices=(mesh)=>{
  const words=new Uint32Array(mesh.buffer,mesh.byteOffset,mesh.length);
  let hash=2166136261;
@@ -110,6 +112,12 @@ assert.match(html,/fields:\[\[16\.45,24\.65,-1\.62,3\.64,12,17\],\[26\.0,32\.0,-
 // W245/W246: the real renderer now audits the complete non-field scene
 // before admitting near crop detail; frustum rejection is conservative across
 // both resident LOD envelopes so no planted plot disappears on a tier change.
-assert.match(html,/drawResidentFarmFields\(eye,planes,Math\.max\(0,160000-nonFieldTriangles\)\)/);
+// The live renderer now budgets every TRUE retained static draw, including
+// frustum rejection and bridge draws. Protect the strict real 160k admission.
+assert.match(html,/function planViewFarmTriangleBudget\(nonFieldTriangles,classes,triangleLimit=160000\)/);
+assert.match(html,/availableFieldTriangles:Math\.max\(0,triangleLimit-issuedNonFieldTriangles\)/);
+assert.match(html,/fieldLodDraw=drawResidentFarmFields\(\s*eye,planes,viewFarmBudgetAudit\.availableFieldTriangles\)/);
+assert.match(html,/viewFarmBudgetAudit\.viewBudgetBreached=lastFrameTriangles>160000/);
+assert.match(html,/viewFarmBudgetAudit\.farmRowsNeverDroppedForBudget=true/);
 assert.match(html,/!sceneChunkInFrustum\(nearRange,planes\)&&\s*!sceneChunkInFrustum\(farRange,planes\)/);
 console.log('W112 source/V8: two bounded plot VBOs, near/far, conservative culling, all roots, no camera upload, disposal PASS. Live WebGL and hardware performance untested.');
