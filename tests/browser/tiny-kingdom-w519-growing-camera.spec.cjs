@@ -50,6 +50,39 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(opening.population).toBeGreaterThan(0);
   expect(opening.glError).toBe(0);
   expect(opening.overflow).toBeLessThanOrEqual(0);
+  // W533 RED-first: on the real 390px opening, offer the authentic farm,
+  // truthful grain ledger and courier actions BEFORE decorative tours.
+  // Check actual DOM order, finger hit targets and source-true ledger access,
+  // not a hidden test camera or a synthetic transaction.
+  if(viewport.width===390){
+   const dock=await page.evaluate(()=>{
+    const ids=['harvest-follow','film-ledger','delivery-follow'];
+    const bar=document.querySelector('.world-tour');
+    return {scrollLeft:bar.scrollLeft,
+     controls:ids.map(id=>{
+      const el=document.getElementById(id),box=el.getBoundingClientRect();
+      const cx=box.left+box.width/2,cy=box.top+box.height/2;
+      const hit=document.elementFromPoint(cx,cy);
+      return {id,left:box.left,right:box.right,top:box.top,bottom:box.bottom,
+       height:box.height,width:box.width,
+       hit:hit===el||el.contains(hit)};
+     })};
+   });
+   expect(dock.scrollLeft).toBe(0);
+   for(const action of dock.controls){
+    expect(action.left,action.id+' must start on the phone').toBeGreaterThanOrEqual(0);
+    expect(action.right,action.id+' must be visible without swiping').toBeLessThanOrEqual(390);
+    expect(action.height,action.id+' must meet finger size').toBeGreaterThanOrEqual(44);
+    expect(action.hit,action.id+' must receive real touch').toBe(true);
+   }
+   const original=await page.evaluate(()=>window.__tinyKingdom.exportSnapshot().checksum);
+   await page.locator('#film-ledger').click();
+   await expect(page.locator('#world-supply-trail')).toBeVisible();
+   expect(await page.evaluate(()=>window.__tinyKingdom.getSupplyTrailSnapshot()
+    .noSyntheticTransactions)).toBe(true);
+   expect(await page.evaluate(()=>window.__tinyKingdom.exportSnapshot().checksum)).toBe(original);
+   await page.locator('#film-ledger').click();
+  }
   await page.evaluate(()=>{
    const g=window.__tinyKingdom;
    g.reset();g.setSpeed(0);
