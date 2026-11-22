@@ -40,10 +40,12 @@ test('W540 screen-culling exact active game script parses',()=>{
  assert.ok(code.includes('prepareConservativeStaticSoftwareChunks'));
 });
 test('W540 skips only provably offscreen original world chunks; pixels and depth agree',()=>{
- const mesh=Float32Array.from([
+ // The actual no-WebGL scenic cache stores JS doubles; the submitted
+ // GPU/painter vertices are Float32-rounded, so source guards must account for it.
+ const mesh=[
   ...Array.from({length:96},(_,i)=>triangle(-8-i*.002,-.5)).flat(),
   ...Array.from({length:96},(_,i)=>triangle(.25,-.25+i*.001)).flat()
- ]);
+ ];
  const a=draw(mesh,false),b=draw(mesh,true);
  assert.equal(a.audit.submitted,192);
  assert.equal(a.audit.visible,b.audit.visible,'all potentially visible triangles remain');
