@@ -352,7 +352,19 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
    originalWalkingHeelLeanGateAndSoleAudit:rows.filter(x=>
     x.sourceClip==='Walking_A'&&x.sourceWeight>=.9).map(x=>({
      frame:x.frame,tick:x.tick,clipTime:x.sourceClipTime,
-     accepted:x.sourceHeelLean?.acceptedFrames??0,
+     // Cumulative previous ACCEPTS are NOT a current-frame source rig pose.
+     // In genuine mobile 492cd8 f72 earned one 7.544mm original-skinned
+     // body roll; f78 onward kept acceptedFrames=1 but had no accepted pose.
+     // Same-frame success requires its four real weighted sole endpoints.
+     accepted:x.sourceHeelLean?.finalProof?.originalSkinnedEndpointsVerified===4&&
+      x.sourceHeelLean?.gate?.reason==='independent-original-skinned-body-lean-accepted',
+     acceptedFramesCumulative:x.sourceHeelLean?.acceptedFrames??0,
+     originalResidualSwingToeBurialMeters:(()=>{
+      const proof=x.sourceHeelLean?.finalProof;
+      const y=x.sourceSolePatchWorld?.[proof?.swingSide]?.toe?.[1];
+      return proof?.originalSkinnedEndpointsVerified===4&&Number.isFinite(y)?
+       Math.max(0,-.02-y):null;
+     })(),
      reason:x.sourceHeelLean?.gate?.reason??'missing-source-body-gate',
      detail:x.sourceHeelLean?.gate?.detail??null,
      sourceSkinnedLeftHeelY:x.sourceSolePatchWorld?.left?.heel?.[1]??null,
