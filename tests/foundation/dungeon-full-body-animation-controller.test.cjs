@@ -8240,3 +8240,75 @@ test('RED: original full-rig world pivot refreshes attached SkinnedMesh bind inv
   'never bypass strict original two-shoe and weapon readback');
  geometry.dispose();mesh.material.dispose();
 });
+
+
+// RED from the exact original 390px GLB native source-rig capture at 86cf8043,
+// Actions #45034956465, tick8: a 233.3ms legitimate Walking_A source chain
+// with true original toe-child -120mrad already lifted the weighted toe 15.001mm
+// but still left it 6.098mm under stone. A smaller *additional* 31.7mrad
+// original child arc is worth ONE bounded real four-sole probe, never a plant
+// or a made-up direct hit. The renderer must accept it only after an independent
+// source SkinnedMesh re-read and the existing final toe certificate.
+test('RED: exact source toe-child near-floor finish offers one measured bounded joint continuation, not invented contact',async()=>{
+ const {planLicensedSourceToeFinalClearanceTrial:plan}=await load();
+ assert.equal(typeof plan,'function');
+ const left={heelY:-.008780450903038289,toeY:-.022177109719090506,
+  heelXZ:[-2.686159672084042,-6.959163524795196],
+  toeXZ:[-2.9561272428489636,-6.933089581381317]};
+ const right={heelY:.16028123640517875,
+  toeY:-.026098117947987866,
+  heelXZ:[-2.66167349558912,-7.1204368528741],
+  toeXZ:[-2.867823319110472,-7.136544647203322]};
+ const before={left:{...left},right:{...right,toeY:right.toeY-.015001055096319063}};
+ const after={left:{...left},right:{...right}};
+ const proof={source:'measured-original-licensed-source-counterpitch',
+  sourceRole:'vanguard',side:'right',sourceClip:'Walking_A',
+  sourceInstanceId:'original-source-41-joint-clone',
+  sourceClipTimeSeconds:.1671158453193184,
+  sourceOriginalRootTravelWitnessed:true,
+  finalIndependentSourceSkin:true,originalOppositeShoeVerified:true,
+  witnessedFrameIntervalSeconds:.2333,
+  witnessedRootTravelMeters:.08910028416261717,
+  contactLocked:false,plantCertified:false};
+ const certifiedToe={source:'measured-licensed-counterpitch-original-toes-child',
+  sourceClip:'Walking_A',side:'right',
+  angleRad:-.12,toeLiftMeters:.015001055096319063,
+  heelChangeMeters:0,residualToeBurialMeters:.006098117947987865,
+  originalOppositeShoeVerified:true,sourceToeTrackVerified:true,
+  requiresIndependentFinalSkin:true,contactLocked:false,plantCertified:false};
+ const input={proof,certifiedToe,before,after,
+  sourceClipName:'Walking_A',sourceInstanceId:proof.sourceInstanceId,
+  sourceToeBoneName:'toesr',sourceToeTrackVerified:true,
+  sourceToeBoneParentVerified:true,side:'right',floorTopY:-.02,
+  ownerLocomotion:true,alive:true,visible:true,
+  frameInterval:.2333,reducedMotion:false,teleport:false,interrupted:false};
+ const result=plan(input);
+ assert.ok(result,'offer one source-licensed original weighted near-floor probe');
+ assert.equal(result.source,'original-licensed-skinned-near-floor-toe-probe');
+ assert.ok(result.angleRad<-.13&&result.angleRad>-.16);
+ assert.ok(Math.abs(result.angleRad-certifiedToe.angleRad)<=.04+1e-8);
+ assert.equal(result.maxAdditionalSourceSkins,1);
+ assert.equal(result.contactLocked,false);
+ assert.equal(result.plantCertified,false);
+ for(const bad of [
+  {sourceClipName:'Idle'},
+  {sourceInstanceId:'different-clone'},
+  {sourceToeTrackVerified:false},
+  {sourceToeBoneParentVerified:false},
+  {sourceToeBoneName:'toesl'},
+  {side:'left'},
+  {reducedMotion:true},
+  {interrupted:true},
+  {teleport:true},
+  {frameInterval:.0166},
+  {floorTopY:-.04},
+  {proof:{...proof,source:'synthetic-IK-footplant'}},
+  {proof:{...proof,sourceOriginalRootTravelWitnessed:false}},
+  {certifiedToe:{...certifiedToe,plantCertified:true}},
+  {certifiedToe:{...certifiedToe,residualToeBurialMeters:.060}},
+  {certifiedToe:{...certifiedToe,angleRad:.12}},
+  {after:{...after,left:{...left,toeY:left.toeY+.012}}},
+  {after:{...after,right:{...right,toeY:right.toeY+.018}}}
+ ])assert.equal(plan({...input,...bad}),null,
+  'wrong source, clone, owner, skin, rate, stance or accessible mode fails closed');
+});
