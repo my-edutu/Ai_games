@@ -6527,13 +6527,35 @@ export function planLicensedSourceSwingCounterpitch({
  const shoeSpan=Math.hypot(
   swing.heelXZ[0]-swing.toeXZ[0],
   swing.heelXZ[1]-swing.toeXZ[1],pitch);
- if(depth<-.040||depth>.12||heelAbove<.14||heelAbove>.39||
-  pitch<.245||pitch>.365||shoeSpan<.255||shoeSpan>.46||
+ // Genuine original pinned Vanguard/Walking_A 390px source WebGL f119
+ // (51cfe869/#44963550098) shows a right toe 23.55mm BELOW the stone,
+ // heel 121.57mm ABOVE it and source heel-to-toe pitch 145.12mm at
+ // t=.0355579s. This is an authentic PRE-SWING pose, BEFORE the same
+ // source lobe later buries its original skinned toe ~96.66mm. The old
+ // 245mm-pitch/140mm-heel gate prevented ANY connected hip→knee→ankle
+ // trial at that early authored phase, leaving the 60Hz rate-limited leg
+ // unable to begin lawful anticipation. Only this verified original role
+ // and genuine swing lobe may try an early bounded, non-contact chain.
+ // A source clip phase is NEVER itself a legal root movement or plant:
+ // all real root, clone, clip, bind, track, stance, owner and display-rate
+ // gates above remain mandatory; both original weighted shoes must STILL
+ // earn a fresh final skin certificate in the caller.
+ const phase=sourceClipTimeSeconds;
+ const ordinarySourceShoe=depth>=-.040&&depth<=.12&&
+  heelAbove>=.14&&heelAbove<=.39&&pitch>=.245&&pitch<=.365&&
+  shoeSpan>=.255&&shoeSpan<=.46;
+ const earlyVanguardShoe=sourceRole==='vanguard'&&
+  ((side==='right'&&phase>.03&&phase<.14)||
+   (side==='left'&&phase>.515&&phase<.625))&&
+  depth>=.010&&depth<=.10&&
+  heelAbove>=.10&&heelAbove<.18&&
+  pitch>=.125&&pitch<.245&&
+  shoeSpan>=.24&&shoeSpan<=.34;
+ if((!ordinarySourceShoe&&!earlyVanguardShoe)||
   ![support.heelY,support.toeY].every(y=>
    y>=floorTopY-.055&&y<=floorTopY+.085))return null;
  // The two source clip SWING lobes are measured from the unaltered GLBs;
  // reject mid-stance, stale phase and role-independent pelvis heuristics.
- const phase=sourceClipTimeSeconds;
  const start=side==='right'?.03:.515,full=side==='right'?.135:.625,
   tail=side==='right'?.205:.745,end=side==='right'?.335:.875;
  const previous=previousSameSourceFrame?Math.abs(previousFootRad):0;
@@ -6549,7 +6571,11 @@ export function planLicensedSourceSwingCounterpitch({
  if(!sourceSwing&&!sourceTailRelease)return null;
  const fade=sourceTailRelease?0:phase<full?(phase-start)/(full-start):
   phase<=tail?1:(end-phase)/(end-tail);
- const envelope=clamp(fade,0,1);
+ // Authenticated original pre-swing support may start the linked source
+ // chain at a tiny joint angle BEFORE the knee sinks into stone.
+ // At 60Hz initial angle is STILL <=3rad/s * 16.7ms; no phase seek,
+ // fabricated stance or unconstrained initial hip/knee/foot snap.
+ const envelope=Math.max(clamp(fade,0,1),earlyVanguardShoe?.24:0);
  // Entering a new source swing still requires the authentic lobe
  // envelope, but a previously witnessed angle may unwind below that
  // threshold without the older abrupt full-chain quaternion reset.
