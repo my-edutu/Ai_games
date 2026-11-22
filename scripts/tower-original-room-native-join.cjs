@@ -115,8 +115,7 @@ function joinOriginalRoomEvidence({sourceSha,viewport,clock,phase,timeline,video
   }
   const summary=summarizeReturnedOwners(aligned);
   const phaseSeconds=phase.phase?.videoPhaseWitness?.nativeSeconds ?? null;
-  const hudSeconds=phase.hud?.observed?.nativeVideoSeconds ??
-    phase.visibleHandoff?.hudNativeVideoSeconds ?? null;
+  const hudSeconds=phase.visibleHandoff?.originalDrawnHudSeconds ?? null;
   const near = finite(phaseSeconds)
     ?aligned.filter(x=>finite(x.nativeSearchPtsSeconds) &&
        Math.abs(x.nativeSearchPtsSeconds-phaseSeconds)<=1.25):[];
