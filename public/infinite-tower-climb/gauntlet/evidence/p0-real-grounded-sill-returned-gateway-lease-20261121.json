@@ -1147,5 +1147,50 @@
     "actualDeviceFrameTimeP50P95P99Memory": "NOT EVALUATED",
     "nextHighestImpact": "First read completed exact-SHA CI and unedited 960x600 / 390x844 danger recordings to verify renderer no longer throws; inspect complete 60+second scenes and native/source event timing. If 2/2 strict pairing still fails, correct the physical gate+hero+roof+first raised-deck/camera handoff, not another opacity-only fade. Stay P0.",
     "constraints": "Leave transformation.json frozen baseline/blob, active PR58, other games, draft status, merge/deploy and force-push untouched."
+  },
+  "p0Run11_20261122_SourcePhysicalPortraitJointLens": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "baselineLedgerBlobAtInspection": "7433d52ae1a7a75de51366a845375dda04ab87fa",
+    "priorInspectedExactHeadSha": "d0e92406d59bbf235d5fe1b7c9bc60108100fdfc",
+    "priorExactHeadQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44999946212",
+    "priorQuality": "10/10 jobs passed; CI safety only, cannot certify visual improvement",
+    "priorGenuineFullLoopCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44999770930",
+    "priorGenuineDangerCandidateProductionSha": "bd8f07ff5920a12b1a58b6c8fe602faa914911d8",
+    "priorRecording": "8/8 normal-speed desktop+390x844 source-pinned pairs recorded; authentic ledge passed; strict native danger event-phase pairing FAILED 0/2",
+    "normalSpeedNativeInspection": {
+      "desktop": {
+        "nativeFloorNineHUD": "approximately 26s",
+        "sustainedVioletEnvironment": "approximately 27.75s",
+        "continuousMixedBronzeAndVoidSeconds": 0
+      },
+      "portrait": {
+        "nativeFloorNineHUD": "approximately 26.5s",
+        "sustainedVioletEnvironment": "approximately 28s",
+        "continuousMixedBronzeAndVoidSeconds": 0
+      },
+      "primaryDefect": "Near 27.75-28s the old HP-open bronze door and original room cease being part of the same filmed space as the now wide violet shaft. The 390x844 camera additionally swings to a tiny climber at 28.5s and then returns to the raised-deck combat at 29.5s. Original metal, entire hero, walkable roof, first raised destination NOT simultaneously proven in unedited frames.",
+      "sourceCameraForensics": "Prior source-pinned portrait originalGatewayCameraBridge accepted 0 of 16 physically-vetted trials; desktop accepted 12 of 16. Those earlier three reversible camera-position candidates all reused one old-frame gaze. Source-projection-safe frames are not WebM pixel proof.",
+      "sourceGalleryForensics": "Original gallery old-clockwork original exterior flank extraction yielded left:0 right:0 available material batches in inspected source-pinned run; no claim of two-sided original architecture."
+    },
+    "implementation": {
+      "regressionCommit": "829ad0f8e7f12d814a75701158014bad65d5b1f0",
+      "newPhysicalFocusHelperCommit": "7de2dc665e2b8c2e013870ec4d9a2b30bfae3592",
+      "currentProductionSceneCommit": "44402dd6f2103f09dcfef3e3436dc7bf40d17d22",
+      "description": "Replace the SAME three already-bounded original gateway camera trial gazes with viewport-only physical three-subject focus proposals derived from the actual moving climber, original source guardian gateway, and genuinely walkable F9 receiving roof. Each still passes real metal coverage, full-body projection, genuine roof coverage, current Three.js triangle occlusion and tower-core safety, with unchanged three-trial budget. Desktop current framing unchanged; source physics/platform/guardian/progression/restart unchanged. This is an experiment not visually accepted.",
+      "safety": "No new 3D renderer submission, no manual camera override, no authority change, no movement into solid tower, no fake source frame. Candidate is reverted if current physical checks fail."
+    },
+    "qualityRequested": "https://github.com/my-edutu/Ai_games/actions/runs/45003608423 (pending at inspection, exact production scene source)",
+    "candidateNativeCapture": "To be triggered via matching capture-request.json on a subsequent immutable same-branch SHA; no new film claimed before completion.",
+    "independentBlindCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDeviceP50P95P99Memory": "NOT EVALUATED",
+    "acceptanceVeto": "Genuine visual handoff P0 not passed; prior source/native event matching 0/2, pixel continuity not proven. Independent blind preferences and device data missing.",
+    "nextHighestImpact": "Review newly pinned 960x600 and 390x844 full-motion film plus source/native event phase and camera physical veto counters; if portrait joint gaze still fails real original metal/hero/roof, prioritize source-original world-side spatial architecture, not another opacity clock tweak.",
+    "scope": "Only Infinite Tower Climb P0 PR68; no Tiny Kingdom/Maze/1000 Floors, PR58, merge/deploy, force-push, draft change or frozen-baseline ledger edit."
   }
 }
