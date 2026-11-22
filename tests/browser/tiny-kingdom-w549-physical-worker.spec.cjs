@@ -11,6 +11,10 @@ test('W549 real moving workday post-aware source contract',()=>{
  expect(html).toContain('isPortraitWorkWitness&&Math.hypot(citizen.x,citizen.z-5)<17');
  expect(html).toContain('plannedMarketPostSightline:lastFollowShot?.marketPostSightline??null');
  expect(html).toContain('marketPostSightline:marketPost');
+ expect(html).toContain('workerCoreCover:Math.min(1,Math.round(workerCore*1000)/1000)');
+ expect(html).toContain('workerFaceCover:Math.min(1,Math.round(workerFace*1000)/1000)');
+ expect(html).toContain('(realPost?.workerFaceCover||0)*10500');
+ expect(html).toContain('destinationPost.workerFaceCover<.02');
 });
 test.use({video:'on'});
 for(const width of [390,1024]){
@@ -29,6 +33,15 @@ for(const width of [390,1024]){
   await page.locator('#world-watch-life').click();
   await page.waitForFunction(()=>window.__tinyKingdom?.getCamera?.().follow&&
    window.__tinyKingdom?.getCitizenCameraPlan?.(),null,{timeout:110000});
+  // Watch Life may honestly follow a resident going home. Explicitly choose
+  // the existing PLAYER live-work camera only when a REAL worksite exists.
+  await page.waitForFunction(()=>window.__tinyKingdom?.getActiveWorksites?.().length>0,
+   null,{timeout:100000});
+  const liveCamera=await page.evaluate(()=>window.__tinyKingdom.watchLiveWorkday());
+  expect(liveCamera).toBeTruthy();
+  await page.waitForFunction(()=>window.__tinyKingdom?.getWorkdayView?.().active&&
+   window.__tinyKingdom?.getWorkdayCompositionAudit?.().active,
+   null,{timeout:110000});
   // Evidence that the camera ACTUALLY follows a WORKING ORIGINAL citizen.
   // The old W549 screenshot was taken after Mira had already gone home.
   // That is not evidence that a market post was cleared during her shift.
@@ -41,6 +54,8 @@ for(const width of [390,1024]){
      coreCover:p.foregroundActorCoreCover,blockers:p.blockers}:null,
     checksum:g.exportSnapshot().checksum};
   });
+  expect(activeWitness.workday.active?.citizen).toBe(activeWitness.composition.actor);
+  expect(activeWitness.workday.active?.job).toBe(activeWitness.composition.job);
   const activeFolder='artifacts/tiny-kingdom-w549/'+width;
   fs.mkdirSync(activeFolder,{recursive:true});
   const activeScreenshot=await page.screenshot({fullPage:false});

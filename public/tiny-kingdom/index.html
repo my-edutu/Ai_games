@@ -26412,7 +26412,9 @@ function genuineWorkdayShotDecision(shot,portrait){
   return {safe:false,readable:false,reason:'missing-projection'};
  const postCover=shot.marketPostSightline?.centerCover??0;
  const safe=body>=(portrait?.15:.13)&&
-  (!portrait||postCover<.12)&&
+  (!portrait||(postCover<.12&&
+   (shot.marketPostSightline?.workerCoreCover??0)<.10&&
+   (shot.marketPostSightline?.workerFaceCover??0)<.035))&&
   scene<.32&&core<.24&&cargo<.20&&vegetation<.36&&
   hands<=1&&blocked<=2&&bystanders===0&&proximity===0&&
   cropFace===0&&cropWrists===0&&!insideStandingGrain&&
@@ -30033,6 +30035,15 @@ function marketCourierPostSightline(eye,target){
  const {tanHorizontal,tanVertical}=physicalCameraProjection();
  const tx=Math.max(.1,tanHorizontal),ty=Math.max(.1,tanVertical);
  let total=0,postsInFrame=0,lanternsInFrame=0,nearestPost=Infinity;
+ // W550: only REAL static timbers, projected against original worker silhouette.
+ let workerCore=0,workerFace=0;
+ const workerHalfX=Math.min(.38,Math.max(.075,.31/(distance*tx)));
+ const workerHalfY=Math.min(.62,Math.max(.13,.66/(distance*ty)));
+ const faceMidY=Math.min(.54,.39/(distance*ty));
+ const faceHalfY=Math.min(.22,Math.max(.052,.19/(distance*ty)));
+ const overlap=(l,r,b,t,cx,cy,hx,hy)=>
+  Math.max(0,Math.min(r,cx+hx)-Math.max(l,cx-hx))*
+  Math.max(0,Math.min(t,cy+hy)-Math.max(b,cy-hy));
  const regionX=.49,regionY=.72;
  function probe(x,z,bottomHeight,topHeight,radius,kind){
   const ground=terrain(x,z),projected=[];
@@ -30055,7 +30066,11 @@ function marketCourierPostSightline(eye,target){
   const height=Math.max(0,Math.min(regionY,high)-Math.max(-regionY,low));
   if(width<=0||height<=0)return;
   total+=width*height/(regionX*2*regionY*2);
-  if(kind==='post'){postsInFrame++;nearestPost=Math.min(nearestPost,near)}
+  if(kind==='post'){
+   workerCore+=overlap(left,rightEdge,low,high,0,0,workerHalfX,workerHalfY)/(4*workerHalfX*workerHalfY);
+   workerFace+=overlap(left,rightEdge,low,high,0,faceMidY,workerHalfX*.58,faceHalfY)/(4*workerHalfX*.58*faceHalfY);
+   postsInFrame++;nearestPost=Math.min(nearestPost,near);
+  }
   else lanternsInFrame++;
  }
  const surveyedPosts=physicalMarketUprights().concat(physicalReceivingHallPosts());
@@ -30070,7 +30085,10 @@ function marketCourierPostSightline(eye,target){
   modelledPosts:surveyedPosts.length,modelledLanterns:2,
   postsInFrame,lanternsInFrame,
   nearestPostMetres:Number.isFinite(nearestPost)?Math.round(nearestPost*100)/100:null,
-  centerCover:Math.min(1,Math.round(total*1000)/1000)};
+  centerCover:Math.min(1,Math.round(total*1000)/1000),
+  workerCoreCover:Math.min(1,Math.round(workerCore*1000)/1000),
+  workerFaceCover:Math.min(1,Math.round(workerFace*1000)/1000),
+  originalPhysicalPostsOnly:true,authorityChanged:false};
 }
 /* W67 — physical field-depth cinematography, part of the SAME Living Valley
  * authentic producer-to-market film. Every eye, crop and hand belongs to the
@@ -30657,6 +30675,8 @@ function planCitizenCamera(citizen,preferredYaw=yaw,forceWorkday=false){
   const realPost=(unloading||marketBarter||nearActualMarket)?marketCourierPostSightline(option.shot.eye,target):null;
   option.shot.marketPostSightline=realPost;
   option.coarse+=(realPost?.centerCover||0)*6400+
+   (realPost?.workerCoreCover||0)*8900+
+   (realPost?.workerFaceCover||0)*10500+
    (scenic.actorCoreCover||0)*(portraitLens?4300:3900)+
    scenic.cover*(portraitLens?2400:working?1500:0)+
    (scenic.cargoCover||0)*(portraitLens?1900:1100);
@@ -31420,7 +31440,9 @@ function findPhysicalPortraitAlternative(citizen,shot,roofs){
    if(vegetation.faceBlockers>0||vegetation.cover>=.28)continue;
    const marketPost=Math.hypot(citizen.x,citizen.z-5)<17?
     marketCourierPostSightline(eye,target):null;
-   if(marketPost&&marketPost.centerCover>=.075)continue;
+   if(marketPost&&(marketPost.centerCover>=.075||
+    marketPost.workerCoreCover>=.065||
+    marketPost.workerFaceCover>=.025))continue;
    const height=projectedWorkerBodyFraction(eye,target,citizen);
    if(!Number.isFinite(height)||height<.15)continue;
    if(hands.some(hand=>followRayBlockers(eye,hand,roofs)!==0))continue;
@@ -31506,7 +31528,9 @@ function findPhysicalPortraitWorkdayOverlook(citizen,prior,roofs){
   if(vegetation.faceBlockers>0||vegetation.cover>=.42)continue;
   const marketPost=Math.hypot(citizen.x,citizen.z-5)<17?
    marketCourierPostSightline(eye,target):null;
-  if(marketPost&&marketPost.centerCover>=.075)continue;
+  if(marketPost&&(marketPost.centerCover>=.075||
+    marketPost.workerCoreCover>=.065||
+    marketPost.workerFaceCover>=.025))continue;
   const body=projectedWorkerBodyFraction(eye,target,citizen);
   if(!Number.isFinite(body)||body<.075)continue;
   // This is deliberately NOT scored as a clear hand/contact close-up.
@@ -37083,8 +37107,12 @@ if(follow&&!daybreakReturn){
    const plannedMarketPost=nearbyMarketPost?
     (plan.marketPostSightline||marketCourierPostSightline(plan.eye,plan.target)):null;
    const blockedByRealMarketPost=Boolean(nearbyMarketPost&&
-    nearbyMarketPost.centerCover>.075&&plannedMarketPost&&
-    plannedMarketPost.centerCover>.055);
+    (nearbyMarketPost.centerCover>.075||
+     nearbyMarketPost.workerCoreCover>.065||
+     nearbyMarketPost.workerFaceCover>.025)&&plannedMarketPost&&
+    (plannedMarketPost.centerCover>.055||
+     plannedMarketPost.workerCoreCover>.045||
+     plannedMarketPost.workerFaceCover>.02));
    if(shouldSeekPhysicalPortraitAlternative(canvas.clientWidth,true,
      portraitCurrentScene.actorCoreCover,portraitCurrentScene.cover,
      plan.foregroundActorCoreCover??1,plan.foregroundSceneCover??1,
@@ -37145,10 +37173,14 @@ if(follow&&!daybreakReturn){
   const destinationPost=observeMarketHandoff?
    (plan.marketPostSightline||marketCourierPostSightline(plan.eye,plan.target)):null;
   const postBlocked=Boolean(presentPost&&
-   presentPost.centerCover>(isPortraitWorkWitness?.075:.10));
+   (presentPost.centerCover>(isPortraitWorkWitness?.075:.10)||
+   presentPost.workerCoreCover>(isPortraitWorkWitness?.065:.09)||
+   presentPost.workerFaceCover>(isPortraitWorkWitness?.025:.035)));
   const clearPostDestination=!observeMarketHandoff||
    Boolean(destinationPost&&destinationPost.centerCover<
-    (isPortraitWorkWitness?.05:.035));
+    (isPortraitWorkWitness?.05:.035)&&
+   destinationPost.workerCoreCover<.045&&
+   destinationPost.workerFaceCover<.02);
   const currentWorkerForeground=portraitCurrentScene||
    foregroundSceneProjection(eye,plan.target,roofs);
   const genuineFarmerVisible=personHasActiveFarmWork(citizen);
@@ -37185,8 +37217,15 @@ if(follow&&!daybreakReturn){
    marketCourierPostSightline(nextEye,plan.target):null;
   const mustRepairPost=Boolean(midwayPost&&
    (isPortraitWorkWitness?
-    presentPost.centerCover>.075&&destinationPost.centerCover<.05&&
-     midwayPost.centerCover>.055:
+    (presentPost.centerCover>.075||
+     presentPost.workerCoreCover>.065||
+     presentPost.workerFaceCover>.025)&&
+    destinationPost.centerCover<.05&&
+    destinationPost.workerCoreCover<.045&&
+    destinationPost.workerFaceCover<.02&&
+    (midwayPost.centerCover>.055||
+     midwayPost.workerCoreCover>.045||
+     midwayPost.workerFaceCover>.02):
     evaluateCourierPostRepairPolicy(presentPost.centerCover,
      destinationPost.centerCover,midwayPost.centerCover)));
   const midwayWheat=currentWheatBlocked&&plannedWheatClear?
