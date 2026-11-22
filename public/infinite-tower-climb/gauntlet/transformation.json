@@ -13691,4 +13691,43 @@
     "reviewPath": "docs/reviews/2026-11-20-tower-pr68-p0-full-body-gate-roof-source-camera-rescue.md",
     "newCaptureRequest": "public/infinite-tower-climb/gauntlet/capture-request.json"
   }
+,
+  "p0ActualReturnedFloorNineFinalCameraOrbitAndNativeVeto20261122": {
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "leadingAssessorVerdict": "NOT EVALUATED",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "frozenBaselineMoved": false,
+  "branch": "feat/tower-transformation-gauntlet-20261101",
+  "draftPr": 68,
+  "inspectedPriorHead": "0bebe44420501e1e2ab0ec1de4c10e5700838513",
+  "sourceImplementationSha": "e3759c47c8790bf637dc5f5305cf437b7712d226",
+  "sourceTestFixtureSha": "b5b6ef3e73afa5853bea1d0fecc873194940283c",
+  "actualPreviousVideoSourceSha": "6af67bee4d38be4a6a04cdbdd10ce81f6531bb43",
+  "originalUneditedGameplay": "https://github.com/my-edutu/Ai_games/actions/runs/45013515020",
+  "previousCaptureOutcome": "8/8 source-pinned real WebM video jobs and real ledge completed; strict event-to-native pairing FAILED 0/2 viewports. Full-loop source tick sequence available; video did not establish accepted event-aligned crossing.",
+  "footageCriticalDefect": "Original 960x600 and 390x844 1x footage shows old bronze gateway and still-grounded Floor9 hero before abruptly switching to distant violet world/first raised flight, without continuous visible old portal, whole climber, receiving roof and elevated destination.",
+  "evidenceForSystemicCause": "Unedited source-pinned portrait camera snapshots: tick531 camera [30.52,19.68,49.11], tick544 [-1.22,18.08,42.66], tick563 [36.86,22.17,48.64]. Final 3D camera can swing after earlier gateway-specific per-director guards; old-geometry and source timeline are real, not proof of native pixels.",
+  "trueSourceEventEvidence": "Real f8 guardian HP0 recorded; floor9 original grounded receiving roof and first f9:p2 raised ascent observed in complete 20Hz source. Original 1x desktop source F9 at ~24.631s / drawn HUD 25.75s / violet scene 28.50s; portrait source F9 ~24.822s / drawn HUD 26.50s / violet 28.50s. These clocks disagree; no video pass.",
+  "oneLargestSourceChange": "FINAL camera returned-frame corridor: source-proven guardian/crossing and real f9:ground or first f9:p support or actual first flight. Bound angular/radial/vertical/focal position from last successful same-run Floor9 render AFTER earlier camera directors, veto cropped full-body, missing original gateway metal, source platform destination or actual blocked deck rays. No second render, actor pose/collision/time manipulation, renderer proxy, cross-run lease or extra gameplay authority.",
+  "sourceFiles": [
+    "public/infinite-tower-climb/visuals/source-returned-gate-camera-release.mjs",
+    "public/infinite-tower-climb/visuals/scene.mjs",
+    "tests/phase3/tower-earned-floor-nine-final-orbit-guard.test.cjs"
+  ],
+  "testEvidence": "First exact-source quality for e3759c47 failed phase3 shard on a syntax error in newly added test fixture, corrected in b5b6ef3e. Neither correction nor visual improvement is claimed accepted until new exact-head quality and native capture finish.",
+  "initialRedCI": "https://github.com/my-edutu/Ai_games/actions/runs/45018820049",
+  "candidateExactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45018993195",
+  "candidateOriginalNineJobCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45018890348",
+  "captureStateAtRecording": "New exact-source nine-job candidate recording IN PROGRESS, source 055798d2; candidate/quality outcome NOT EVALUATED.",
+  "independentReviews": {
+    "LOOKS": "0/5",
+    "FEELS": "0/5",
+    "PLAYS": "0/5",
+    "genuineExternalReviewers": 0
+  },
+  "devicePerformanceMemory": "NOT EVALUATED — no supported actual-device p50/p95/p99, memory or privacy/a11y acceptance",
+  "stagePassed": false,
+  "nextHighestImpactAction": "Inspect exact-source quality and full 1x desktop/portrait videos, compare actual post-gateway camera angular deltas and source-timed pixels with old bronze/violet seam. If the bounded final camera is vetoed or hard cut persists, fix real camera/world continuity or cold architectural staging based on measured film, never alter opacity merely to pass a test. Preserve P0 and repeat native source matching before P1.",
+  "safety": "No merge/deploy/force push, frozen base/blob unchanged, PR58 and all other games untouched."
+}
 }
