@@ -95,3 +95,20 @@ test('authentic tick510 shallow shoulder + vertical pullback is a full world-spa
  assert.equal(guard({...episode,cameraMode:'orbit'}),null);
  assert.equal(guard({...episode,hero:[40,14,23]}),null);
 });
+
+test('true returned Floor9 camera records physically vetoed and submitted cuts with hero-focus rescue',()=>{
+ const scene=fs.readFileSync(path.join(visuals,'scene.mjs'),'utf8');
+ const clamp=scene.indexOf('const firstF9DepartureBound=sourceFirstFloorNineCameraDeparture(');
+ const rescue=scene.indexOf('for(const actorWeight of [.35,.65,1])',clamp);
+ const render=scene.indexOf('renderer.render(scene, camera);',clamp);
+ const actual=scene.indexOf('const cameraTravel=camera.position.distanceTo(lastSubmittedGuardianCamera);',render);
+ const previous=scene.indexOf('lastSubmittedGuardianCamera.copy(camera.position);',render);
+ assert.ok(clamp>0 && rescue>clamp && rescue<render,
+  'physical first-F9 hero gaze must be checked BEFORE the final returned frame');
+ assert.ok(actual>render && actual<previous,
+  'source-matched raw camera jumps must be counted AFTER WebGL return BEFORE overwriting last camera');
+ assert.match(scene,/firstF9CameraWorldSpaceClamps/);
+ assert.match(scene,/firstF9CameraHeroGazeRescues/);
+ assert.match(scene,/firstF9CameraUnboundedCuts/);
+ assert.match(scene,/towerCoreSightlineClear\(camera\.position,releaseHero,23\.5\)/);
+});
