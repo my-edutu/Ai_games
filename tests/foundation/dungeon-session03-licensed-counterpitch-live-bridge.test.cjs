@@ -1333,8 +1333,21 @@ test('RED: authentic source-pelvis lift refreshes attached original skin inverse
  const readEnd=stage.indexOf("const left=read('left')",readStart);
  assert.ok(readStart>=0&&readEnd>readStart);
  const originalRead=stage.slice(readStart,readEnd);
- assert.match(originalRead,/mesh\.updateMatrixWorld\(true\)/,
-  'refresh each DISTINCT attached original shoe SkinnedMesh before EVERY source world-sole read');
+ // The live source-rig bridge intentionally shares ONE bounded refresh helper
+ // across the two shoe reads. A legacy assertion searched only inside read()
+ // and falsely failed when production deduplicated that safe refresh.
+ const refreshStart=stage.indexOf('const refreshOriginalPelvisShoeSkins=()=>');
+ assert.ok(refreshStart>=0&&refreshStart<readStart,
+  'define original attached-shoe refresh before either world-space sole read');
+ const refreshed=stage.slice(refreshStart,readStart);
+ assert.match(refreshed,/mesh\?\.isSkinnedMesh/,
+  'only original attached licensed SkinnedMesh instances may be refreshed');
+ assert.match(refreshed,/sourceShoeMeshes\.indexOf\(mesh\)===i/,
+  'refresh each DISTINCT original skinned shoe mesh at most once per read');
+ assert.match(refreshed,/mesh\.updateMatrixWorld\(true\)/,
+  'repair Three.js attached bind inverses before each independent shoe sample');
+ assert.match(originalRead,/refreshOriginalPelvisShoeSkins\(\)/,
+  'both original source heel/toe reads must invoke the verified refresh helper');
  assert.match(stage,/sourceOriginalShoeSkinsAfterPelvisRollback|refreshOriginalPelvisShoeSkins\(\)/,
   'after rejected original pelvis pose restore the attached skin bind inverse as well');
  assert.match(stage,/Math\.abs\(delta-expectedWorldLift\)<=\.001/,
