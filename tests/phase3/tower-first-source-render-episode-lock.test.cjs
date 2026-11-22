@@ -27,9 +27,22 @@ test('only the first valid source-and-render-matched episode can own the audit',
  assert.equal(admit(null,{...source,runToken:'other'},returned),null);
  assert.equal(admit(null,{...source,lifecycle:'finished'},returned),null);
 });
+test('pins first actual F9 renderer return even when successor and old owners are missing',async()=>{
+ const {firstReturnedFloorNineEpisode:pin,firstReturnedOriginalRoomAdmission:admit}=await helper;
+ const first=pin(null,source);
+ assert.deepEqual(first,{runToken:source.runToken,isFirst:true});
+ assert.equal(admit(first.runToken,source,null),null);
+ const later={...source,tick:317,runToken:'restarted-but-real'};
+ assert.equal(pin(first.runToken,later),null);
+ assert.equal(admit(first.runToken,later,{...returned,runToken:later.runToken,sourceTick:317}),null);
+ assert.deepEqual(pin(first.runToken,{...source,tick:480}),{
+   runToken:source.runToken,isFirst:false});
+ assert.equal(pin(null,{...source,player:{health:0}}),null);
+});
 test('actual renderer return path does not erase first film episode on a restart',()=>{
  const scene=fs.readFileSync(scenePath,'utf8');
  assert.match(scene,/firstReturnedOriginalRoomAdmission\(\s*originalToVoidReturnedRun,\s*snapshot,\s*roomReturn\s*\)/);
+ assert.match(scene,/firstReturnedFloorNineEpisode\\(originalToVoidReturnedRun,snapshot\\)/);
  assert.doesNotMatch(scene,/originalToVoidReturnedTimeline\.length\s*=\s*0/);
  assert.match(scene,/originalToVoidReturnedTimeline\.push\(/);
  assert.match(scene,/sourceHandoffReturnWitness\?\.\(snapshot\)/);
