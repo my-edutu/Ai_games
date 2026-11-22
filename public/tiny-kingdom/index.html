@@ -4890,6 +4890,69 @@ function softwarePackColor(r,g,b){
   (0xff000000|((b&255)<<16)|((g&255)<<8)|(r&255))>>>0:
   (((r&255)<<24)|((g&255)<<16)|((b&255)<<8)|255)>>>0;
 }
+
+ // W548: a whole original still-camera world is already a retained exact
+ // depth+colour surface. Restore ONLY tiles touched by genuine moving-world
+ // triangles on the preceding frame; then rasterise ALL current authentic
+ // dynamic triangles. Tiles cover conservative projected triangle bounds,
+ // never guessed actor IDs, animation stages or invented gameplay.
+ const SOFTWARE_DYNAMIC_DIRTY_TILE_SIZE=32,SOFTWARE_DYNAMIC_DIRTY_MAX_RECTS=64;
+ let softwareDynamicPreviousTiles=null,softwareDynamicCurrentTiles=null,
+  softwareDynamicMergedTiles=null,softwareDynamicTileColumns=0,
+  softwareCanvasFrameReady=false,softwareDynamicDirtyFrames=0,
+  softwareDynamicFullFrames=0,softwareDynamicPartialFrames=0,
+  softwareDynamicNoopFrames=0,softwareDynamicClearsAvoided=0,
+  softwareDynamicLastRects=0,softwareDynamicLastPixels=0,
+  softwareDynamicLastRestored=0,softwareDynamicLastTileCount=0;
+ function softwareMarkDynamicTiles(mask,x0,y0,x1,y1,width,height,tileSize){
+  if(!mask||x0>x1||y0>y1||width<=0||height<=0)return;
+  const cols=Math.ceil(width/tileSize),
+   ax=Math.max(0,Math.floor(x0/tileSize)),
+   bx=Math.min(cols-1,Math.floor(x1/tileSize)),
+   ay=Math.max(0,Math.floor(y0/tileSize)),
+   by=Math.min(Math.ceil(height/tileSize)-1,Math.floor(y1/tileSize));
+  for(let y=ay;y<=by;y++)for(let x=ax;x<=bx;x++)mask[y*cols+x]=1;
+ }
+ function softwareRestoreDynamicTiles(pixels,depth,colors,baseDepth,tiles,width,height,tileSize){
+  if(!tiles)return 0;
+  const cols=Math.ceil(width/tileSize);let restored=0;
+  for(let id=0;id<tiles.length;id++)if(tiles[id]){
+   const x0=(id%cols)*tileSize,y0=Math.floor(id/cols)*tileSize,
+    x1=Math.min(width,x0+tileSize),y1=Math.min(height,y0+tileSize);
+   for(let y=y0;y<y1;y++){
+    const left=y*width+x0,right=y*width+x1;
+    pixels.set(colors.subarray(left,right),left);
+    depth.set(baseDepth.subarray(left,right),left);
+    restored+=x1-x0;
+   }
+  }
+  return restored;
+ }
+ function softwareDirtyTileRects(tiles,width,height,tileSize,maxRects){
+  const cols=Math.ceil(width/tileSize),rows=Math.ceil(height/tileSize);
+  if(!tiles||tiles.length!==cols*rows||maxRects<1)return null;
+  const rects=[];let active=new Map();
+  for(let row=0;row<rows;row++){
+   const next=new Map();let col=0;
+   while(col<cols){
+    if(!tiles[row*cols+col]){col++;continue;}
+    const first=col;
+    while(col<cols&&tiles[row*cols+col])col++;
+    const key=first+':'+col,prior=active.get(key);
+    if(prior){prior.y1=Math.min(height,(row+1)*tileSize)-1;next.set(key,prior);}
+    else{
+     const rect={x0:first*tileSize,y0:row*tileSize,
+      x1:Math.min(width,col*tileSize)-1,
+      y1:Math.min(height,(row+1)*tileSize)-1};
+     rects.push(rect);next.set(key,rect);
+     if(rects.length>maxRects)return null;
+    }
+   }
+   active=next;
+  }
+  return rects;
+ }
+
 function drawSoftwareDepthFrame(count,sx,sy,staticCount=0,staticKey=null,
  reusedStaticProjection=false){
  const width=canvas.width|0,height=canvas.height|0;
@@ -4900,6 +4963,8 @@ function drawSoftwareDepthFrame(count,sx,sy,staticCount=0,staticKey=null,
   softwareDepth=new Float32Array(width*height);
   softwareWidth=width;softwareHeight=height;softwareSurfaceRebuilds++;
   invalidateSoftwareStaticBase();
+  softwareCanvasFrameReady=false;softwareDynamicPreviousTiles=null;
+  softwareDynamicCurrentTiles=null;softwareDynamicMergedTiles=null;
  }
  const byte=(v)=>Math.max(0,Math.min(255,Math.round(v*255)));
  const eligible=Array.isArray(staticKey)&&
@@ -4909,9 +4974,29 @@ function drawSoftwareDepthFrame(count,sx,sy,staticCount=0,staticKey=null,
  const hit=eligible&&softwareStaticKeyMatches(staticKey)&&
   softwareStaticBaseColors?.length===softwarePixels.length&&
   softwareStaticBaseDepth?.length===softwareDepth.length;
+ const dirtyEnabled=hit&&softwareCanvasFrameReady&&
+  globalThis.__tinyKingdomDisableDynamicDirtyRegions!==true;
+ const tileSize=SOFTWARE_DYNAMIC_DIRTY_TILE_SIZE,
+  tileCols=Math.ceil(width/tileSize),
+  tileCount=tileCols*Math.ceil(height/tileSize);
+ if(!softwareDynamicPreviousTiles||softwareDynamicPreviousTiles.length!==tileCount){
+  softwareDynamicPreviousTiles=new Uint8Array(tileCount);
+  softwareDynamicCurrentTiles=new Uint8Array(tileCount);
+  softwareDynamicMergedTiles=new Uint8Array(tileCount);
+ }
+ softwareDynamicTileColumns=tileCols;
+ softwareDynamicCurrentTiles.fill(0);
  if(hit){
-  softwarePixels.set(softwareStaticBaseColors);
-  softwareDepth.set(softwareStaticBaseDepth);
+  if(dirtyEnabled){
+   softwareDynamicLastRestored=softwareRestoreDynamicTiles(
+    softwarePixels,softwareDepth,softwareStaticBaseColors,
+    softwareStaticBaseDepth,softwareDynamicPreviousTiles,
+    width,height,tileSize);
+  }else{
+   softwarePixels.set(softwareStaticBaseColors);
+   softwareDepth.set(softwareStaticBaseDepth);
+   softwareDynamicLastRestored=width*height;
+  }
   softwareStaticBaseHits++;
  }else{
   softwarePixels.fill(softwarePackColor(byte(sky[0]),byte(sky[1]),byte(sky[2])));
@@ -4948,6 +5033,8 @@ function drawSoftwareDepthFrame(count,sx,sy,staticCount=0,staticKey=null,
     softwareStaticTileRejected++;continue;
    }
   }
+  if(dynamic)softwareMarkDynamicTiles(softwareDynamicCurrentTiles,
+   x0,y0,x1,y1,width,height,tileSize);
   const color=paintColors[id];
   const packed=softwarePackColor((color>>>16)&255,(color>>>8)&255,color&255);
   triangles++;
@@ -4987,7 +5074,45 @@ function drawSoftwareDepthFrame(count,sx,sy,staticCount=0,staticKey=null,
  // Depth and colour are copied from the exact static world, not inferred
  // from geometry heuristics; live actors always participate every frame.
  rasterRange(staticCount,count,true);
- ctx.putImageData(softwareImage,0,0);
+ if(dirtyEnabled){
+  softwareDynamicMergedTiles.set(softwareDynamicPreviousTiles);
+  for(let id=0;id<tileCount;id++)
+   if(softwareDynamicCurrentTiles[id])softwareDynamicMergedTiles[id]=1;
+  let tilesDirty=0;
+  for(const bit of softwareDynamicMergedTiles)tilesDirty+=bit;
+  const rects=softwareDirtyTileRects(softwareDynamicMergedTiles,
+   width,height,tileSize,SOFTWARE_DYNAMIC_DIRTY_MAX_RECTS);
+  const repaintFraction=tilesDirty/tileCount;
+  softwareDynamicLastTileCount=tilesDirty;
+  if(rects&&repaintFraction<=.70){
+   let painted=0;
+   for(const rect of rects){
+    const w=rect.x1-rect.x0+1,h=rect.y1-rect.y0+1;
+    ctx.putImageData(softwareImage,0,0,rect.x0,rect.y0,w,h);
+    painted+=w*h;
+   }
+   softwareDynamicLastRects=rects.length;
+   softwareDynamicLastPixels=painted;
+   if(rects.length)softwareDynamicPartialFrames++;
+   else softwareDynamicNoopFrames++;
+  }else{
+   ctx.putImageData(softwareImage,0,0);
+   softwareDynamicLastRects=1;
+   softwareDynamicLastPixels=width*height;
+   softwareDynamicFullFrames++;
+  }
+ }else{
+  ctx.putImageData(softwareImage,0,0);
+  softwareDynamicLastRects=1;
+  softwareDynamicLastPixels=width*height;
+  softwareDynamicLastTileCount=tileCount;
+  softwareDynamicFullFrames++;
+ }
+ softwareDynamicDirtyFrames++;
+ const swap=softwareDynamicPreviousTiles;
+ softwareDynamicPreviousTiles=softwareDynamicCurrentTiles;
+ softwareDynamicCurrentTiles=swap;
+ softwareCanvasFrameReady=true;
  softwareShadedPixels=shaded;softwareOverdraw=overdraw;
  softwareRasterTriangles=triangles;
  return true;
@@ -5034,6 +5159,23 @@ canvasFallbackRasterAudit=()=>({source:'real-canvas2d-conservative-screen-raster
    (softwareStaticBaseDepth?.byteLength||0),
   preservesLiveActors:true,changedAuthority:false,
   measuredHardwareFps:false},
+ dynamicDirtyTiles:{source:'actual-original-moving-world-tile-compositor',
+  size:SOFTWARE_DYNAMIC_DIRTY_TILE_SIZE,
+  maxRepaintRects:SOFTWARE_DYNAMIC_DIRTY_MAX_RECTS,
+  frames:softwareDynamicDirtyFrames,full:softwareDynamicFullFrames,
+  partial:softwareDynamicPartialFrames,
+  unchanged:softwareDynamicNoopFrames,
+  clearCallsAvoided:softwareDynamicClearsAvoided,
+  lastRepaintRects:softwareDynamicLastRects,
+  lastSubmittedPixels:softwareDynamicLastPixels,
+  lastRestoredPixels:softwareDynamicLastRestored,
+  lastConservativeTiles:softwareDynamicLastTileCount,
+  retainedBytes:(softwareDynamicPreviousTiles?.byteLength||0)+
+   (softwareDynamicCurrentTiles?.byteLength||0)+
+   (softwareDynamicMergedTiles?.byteLength||0),
+  fullRestorationOnCameraOrLightChange:true,
+  allActualActorsStillRasterized:true,
+  hardwareFpsNotMeasured:true},
  staticDepthTiles:{size:16,builds:softwareStaticTileBuilds,
   queries:softwareStaticTileQueries,occludedOriginalTriangles:softwareStaticTileRejected,
   bytes:softwareStaticTileMap?.minDepth.byteLength||0,
@@ -5041,7 +5183,21 @@ canvasFallbackRasterAudit=()=>({source:'real-canvas2d-conservative-screen-raster
  softwareWorldStaging:typeof getSoftwareWorldStagingAudit==='function'?
   getSoftwareWorldStagingAudit():null,
  retainedAllWorldData:true,changedAuthority:false,hardwareFps:'NOT MEASURED'});
-gl={VERTEX_SHADER:1,FRAGMENT_SHADER:2,ARRAY_BUFFER:3,FLOAT:4,DYNAMIC_DRAW:5,COLOR_BUFFER_BIT:6,DEPTH_BUFFER_BIT:7,DEPTH_TEST:8,CULL_FACE:9,BACK:10,TRIANGLES:11,COMPILE_STATUS:12,LINK_STATUS:13,createShader:()=>({}),shaderSource:noop,compileShader:noop,getShaderParameter:()=>true,createProgram:()=>({}),attachShader:noop,linkProgram:noop,getProgramParameter:()=>true,useProgram:noop,getUniformLocation:(_,k)=>k,createBuffer:()=>({}),bindBuffer:noop,getAttribLocation:()=>0,enableVertexAttribArray:noop,vertexAttribPointer:noop,uniformMatrix4fv:(_,__,m)=>{projection=m},uniform1f:noop,uniform1i:noop,uniform2f:noop,uniform4f:noop,uniform4fv:noop,uniform3f:(key,r,g,b)=>{if(key==='fogColor')sky=[r,g,b];if(key==='sunTint')sunTint=[r,g,b];if(key==='sunDirection')sunDirection=[r,g,b]},clearColor:(r,g,b)=>{sky=[r,g,b]},clear:()=>{ctx.fillStyle=`rgb(${sky.map(v=>Math.round(v*255)).join(',')})`;ctx.fillRect(0,0,canvas.width,canvas.height)},viewport:noop,enable:noop,cullFace:noop,bufferData:(_,v)=>{vertices=v},drawArrays:()=>{
+gl={VERTEX_SHADER:1,FRAGMENT_SHADER:2,ARRAY_BUFFER:3,FLOAT:4,DYNAMIC_DRAW:5,COLOR_BUFFER_BIT:6,DEPTH_BUFFER_BIT:7,DEPTH_TEST:8,CULL_FACE:9,BACK:10,TRIANGLES:11,COMPILE_STATUS:12,LINK_STATUS:13,createShader:()=>({}),shaderSource:noop,compileShader:noop,getShaderParameter:()=>true,createProgram:()=>({}),attachShader:noop,linkProgram:noop,getProgramParameter:()=>true,useProgram:noop,getUniformLocation:(_,k)=>k,createBuffer:()=>({}),bindBuffer:noop,getAttribLocation:()=>0,enableVertexAttribArray:noop,vertexAttribPointer:noop,uniformMatrix4fv:(_,__,m)=>{projection=m},uniform1f:noop,uniform1i:noop,uniform2f:noop,uniform4f:noop,uniform4fv:noop,uniform3f:(key,r,g,b)=>{if(key==='fogColor')sky=[r,g,b];if(key==='sunTint')sunTint=[r,g,b];if(key==='sunDirection')sunDirection=[r,g,b]},clearColor:(r,g,b)=>{sky=[r,g,b]},clear:()=>{
+ if(softwareCanvasFrameReady&&
+    typeof ctx.putImageData==='function'&&
+    typeof ctx.createImageData==='function'&&
+    globalThis.__tinyKingdomLegacyCanvasPainter!==true&&
+    globalThis.__tinyKingdomDisableDynamicDirtyRegions!==true){
+   // Exact retained image will be fully redrawn on any camera/climate miss.
+   // Leave the already-present static world untouched for dirty-tile draws.
+   softwareDynamicClearsAvoided++;
+   return;
+ }
+ softwareCanvasFrameReady=false;
+ ctx.fillStyle=`rgb(${sky.map(v=>Math.round(v*255)).join(',')})`;
+ ctx.fillRect(0,0,canvas.width,canvas.height);
+},viewport:noop,enable:noop,cullFace:noop,bufferData:(_,v)=>{vertices=v},drawArrays:()=>{
  if(!vertices||!projection)return;
  const begun=performance.now(),v=vertices,m=projection,submitted=v.length/30;
  reservePainter(submitted);
@@ -5195,6 +5351,11 @@ gl={VERTEX_SHADER:1,FRAGMENT_SHADER:2,ARRAY_BUFFER:3,FLOAT:4,DYNAMIC_DRAW:5,COLO
   count,sx,sy,staticProjected,staticKey,reuseStaticProjection);
  fallbackStats.backend=depthDrawn?'retained-pixel-depth':'legacy-canvas-paths';
  if(!depthDrawn){
+  // Legacy Canvas paths require a complete clear even if the depth renderer
+  // was enabled on the preceding frame and deliberately preserved the canvas.
+  softwareCanvasFrameReady=false;
+  ctx.fillStyle='rgb('+sky.map(v=>Math.round(v*255)).join(',')+')';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
   paintOrder.sort((x,y)=>projected[y*7+6]-projected[x*7+6]);
   for(let n=0;n<count;n++){
    const id=paintOrder[n],o=id*7,rgba=paintColors[id];
