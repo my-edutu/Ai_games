@@ -1762,6 +1762,13 @@ body[data-village-documentary="on"] #world-live-roles{display:none!important}
   overflow-y:auto!important;overscroll-behavior:contain!important;
  }
 }
+/* W533 real-workday mobile: authentic farmer/ledger/courier FIRST on screen.
+   Existing controls and economy untouched; desktop unaffected. */
+@media(max-width:520px){
+ .world-tour #harvest-follow{order:-3}
+ .world-tour #film-ledger{order:-2}
+ .world-tour #delivery-follow{order:-1}
+}
 </style></head><body>
 <canvas id="world" tabindex="0" aria-label="Live 3D medieval valley. Tap a visible villager to follow genuine work. Drag to orbit, Shift-drag or two-finger drag to pan, pinch or scroll to zoom. Home returns to village, F follows a citizen, V walks the streets; Enter selects a visible citizen."></canvas><div id="kingdom-stage-status" role="status" aria-live="polite">Rebuilding the real valley<small id="kingdom-stage-detail">Terrain, occupied houses and market · complete world before play</small></div><div id="citizen-pick-caption" role="status" aria-live="polite" aria-atomic="true"><span id="citizen-pick-copy"></span><progress id="citizen-pick-meter" value="0" max="100" aria-label="Observed citizen's actual shift or delivery progress" hidden></progress></div><div class="vignette"></div>
 <div class="top"><div class="brand"><div class="seal">♜</div><div><div class="overline">AI Civilization · World 001</div><div class="name">The Living Valley</div><div class="subtitle">A kingdom that writes its own story</div></div></div><div class="pill"><span class="live"></span><span id="clock">DAY 1 · DAWN</span><span style="color:#dec48b" id="weather">☀ CLEAR SKIES</span></div></div>
@@ -31210,7 +31217,7 @@ function chooseLivedTownOverview(view,roofs){
   {name:'genuine-founding-house',focus:[initialHome[0],initialHome[1]]}
  ];
  const portrait=canvas.clientWidth<=520;
- const zooms=portrait?[34,42]:[28,36];
+ const zooms=portrait?[24,36]:[25,34];
  const tilts=portrait?[.48,.64]:[.43,.58];
  const bearings=[view.yaw,view.yaw+.76,view.yaw+1.52];
  let best=null,lowest=Infinity;
@@ -31229,7 +31236,11 @@ function chooseLivedTownOverview(view,roofs){
   const score=clarity+(story?(!story.market.visible?14:0)+
    (!story.farm.visible?7:0)+(!story.home.visible?4:0)+
    Math.max(0,2-story.visibleDistricts)*12+
-   (story.visibleRealPeople===0?3:0):Infinity);
+   (story.visibleRealPeople===0?3:0)+
+   // W533 projection of real people's on-screen legibility; always keep
+   // the genuine field, market and inhabited-house district constraints.
+   (story.readableRealPeople===0?6:
+    -Math.min(3,story.readableRealPeople)*3):Infinity);
   if(!Number.isFinite(score)){livedTownOverviewRejected++;continue;}
   // Prefer the real receiving court without hiding the established homes.
   const locationPenalty=anchor.name==='receiving-market-and-street'?0:
