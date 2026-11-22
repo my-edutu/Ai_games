@@ -1032,5 +1032,37 @@
     "greatestRemainingGap": "Physical full-body source-retained gateway -> true receiving roof -> first elevated platform composition is not accepted in desktop and portrait; assess new source-pinned recording before P1",
     "nextHighImpact": "Inspect corrected exact-HEAD Phase3 and full eight-film campaign including strict event-native danger, baseline ascent PTS; verify whether the previous-rendered camera rescue genuinely yields one continuous authentic scene, otherwise correct the common gateway/roof world-space staging. P1 remains blocked.",
     "safety": "No baseline ledger modification, PR58 edit, unrelated game modification, force-push, merge, deploy or PR68 draft conversion"
+  },
+  "p0SixteenReturnedWebGLDeadlockExactPhysicalRoofRelease20261122_0340": {
+    "stage": "P0 OPEN",
+    "verdict": "NOT EVALUATED",
+    "sourceSHA": "6d7934b58f5bd928643c98ef06eb2ff43475423e",
+    "originalParent": "e79125ebb72e789a373648c604e1574069c843c9",
+    "productionBug": "Exact-head Phase3 authored actual Three world, 16 returned original+new-shaft frames / .80s, structuralVisibleReturns=16 / structuralVisibleSeconds=.8 but job state STUCK 'awaiting-structural-release' rather than 'awaiting-structural-submission'. The prior mistaken hypothesis that stage advanced to awaiting-vista-submission was disproven by source CI; DO NOT waive this.",
+    "evidenceCI": "https://github.com/my-edutu/Ai_games/actions/runs/44981061918",
+    "currentPreFixNative": "https://github.com/my-edutu/Ai_games/actions/runs/44976472413",
+    "newSolution": "source-authentic, exact same-run immutable guardian HP0 F8→F9 witness + source-owned old F8 cap geometry and grounded real F9 roof match, + 6 successfully returned 3D shaft frames/520ms, same original GPU gateway still visible, source player fully supported on the actual roof, nonzero original loaded shaft; then lift ONLY 'awaiting-structural-release' scenic upload interlock. Retain original steel, real roof, collisions, platform authority and finite one-way fade unchanged; never fabricate event, frame or physics.",
+    "commits": [
+      "7971be41ff74343dfd3dfee262ab101eb074c35d",
+      "b036acb0f575bb0cf135f88446302588840fa523",
+      "6d7934b58f5bd928643c98ef06eb2ff43475423e"
+    ],
+    "testSafety": "Source-level positive and adversarial tests for real grounded support, unique old cap x/width/y/exitX agreement with F9 ground, guardian zero HP, hidden GPU shell, zero returned frames, 0.49s, and wrong run. Existing real-Three 16-return regression not watered down to accept the DEADLOCK state.",
+    "capture": "Existing 44981162184 is source-pinned to prior e791 and NOT proof of new structural fix. This evidence commit adds crossfloor-arrival.mjs and far-side-shaft-transition.mjs to mandatory source-change capture trigger. New exact HEAD 9-job campaign must be checked from Actions.",
+    "previousNativeObservation": {
+      "desktop": "At source f54 Floor9 HUD 26.75s, sustained Violet 29s; no accepted physically continuous gateway; 2.25s phase delay",
+      "portrait": "At source f54 Floor9 HUD 26s, sustained Violet 28.25s; 2.25s phase delay",
+      "dangerStrictNative": "FAIL 0/2 source-to-native grounded gateway; 8/8 story pairs; no independent visual preference"
+    },
+    "independentReviews": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "hardware": "NOT EVALUATED (actual-device frame-time p50/p95/p99 and memory)",
+    "next": "Inspect new commit's exact-source quality shard 1 and new unedited matched camera/structural nine-job films. If 16-return actual-world test remains stalled, diagnose precise old-gate source lease vs shaft release rather than weakening test. If green CI but full-motion hard-cut persists, correct common camera/world composition next.",
+    "frozenBaselineSHA": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenLedgerBlobSHA": "7433d52ae1a7a75de51366a845375dda04ab87fa",
+    "safety": "PR68 remains draft, no deploy, merge, force push, PR58 rewrite, unrelated game or baseline movement"
   }
 }
