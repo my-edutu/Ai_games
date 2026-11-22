@@ -51,6 +51,38 @@ test('first grounded real receiving roof and first airborne real raised deck use
  const b=f({...opts,source:air,lastReturned:{...prior,tick:508}});
  assert.ok(b&&b.limited);
 });
+test('actual returned Floor9 original gateway bounds orbit before optional crossing publication',async()=>{
+ const {sourceEarnedFloorNineOrbitGuard:f}=await guard;
+ const early={...source,tick:500,lastGuardianCrossing:null,
+  player:{...source.player,x:341000,y:3238000,grounded:true,
+   groundedPlatformId:'f9:ground',state:'standing'},
+  intent:{targetPlatformId:'f9:ground'}};
+ const held={verifiedObservedFloorAdvance:true,guardianGateRetained:true,
+  sourceOwnedOriginalCameraRoom:true,originalArchitectureWorldCertified:true,
+  originalArchitectureCoverageSourceTick:500,oldCapId:'f8:cap',
+  floor:9,runToken:token,sourceTick:475,
+  oldCapX:250000,oldCapWidth:160000,thresholdX:371600,
+  oldRoofY:3224000,submittedFrames:4,
+  originalGatewayOpacity:.85,visibleSeconds:.45};
+ const o={...opts,source:early,held,lastReturned:{...prior,tick:493}};
+ const frozen=JSON.stringify(o),result=f(o);
+ assert.ok(result?.limited,'the source-returned room must bridge the pre-publication camera window');
+ assert.equal(result.proofKind,'current-returned-original-gateway-before-crossing-publication');
+ assert.ok(Math.abs(result.turnRadians)<=.60*.06+1e-8);
+ assert.equal(JSON.stringify(o),frozen,'no gameplay mutation');
+ for(const bad of [
+  {...held,runToken:'different'}, {...held,oldCapId:'f7:cap'},
+  {...held,verifiedObservedFloorAdvance:false},
+  {...held,sourceOwnedOriginalCameraRoom:false},
+  {...held,originalArchitectureCoverageSourceTick:499},
+  {...held,oldRoofY:3212000},{...held,originalGatewayOpacity:0},
+  {...held,submittedFrames:0},{...held,thresholdX:371601}
+ ])assert.equal(f({...o,held:bad}),null);
+ assert.equal(f({...o,lastReturned:{...prior,tick:470}}),null);
+ assert.equal(f({...o,source:{...early,lastGuardianCrossing:{
+   ...source.lastGuardianCrossing,guardian:{kind:'guardian',active:true,health:1}
+ }}}),null,'an invalid published event never falls back to the old doorway');
+});
 test('no borrowed camera across floors, runs, false victories, bad real roof, stale input, restart or damaged actor',async()=>{
  const {sourceEarnedFloorNineOrbitGuard:f}=await guard;
  for(const item of [
@@ -84,4 +116,6 @@ test('final immutable-source guard follows ALL earlier 3D directors, physically 
  assert.match(scene,/fullHero && destinationPreserved && preservedOriginal/);
  assert.match(scene,/camera\.position\.copy\(releasePreviousCamera\)/);
  assert.match(scene,/earnedFloorNineOrbitContinuity:/);
+ assert.match(scene,/held:retainedColdArrival,/);
+ assert.match(scene,/acceptedFromCurrentReturnedGateBeforePublicCrossing:/);
 });

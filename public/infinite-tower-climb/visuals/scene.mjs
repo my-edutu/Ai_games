@@ -2501,6 +2501,7 @@ export function createTowerScene(canvas, settings = {}) {
   let retainedGateCameraLastTurn=0;
   let earnedF9OrbitGuardAccepted=0,earnedF9OrbitGuardVetoed=0;
   let earnedF9OrbitGuardLastRawTurn=0,earnedF9OrbitGuardLastLimitedTurn=0;
+  let earnedF9OrbitRetainedEarlySteps=0,earnedF9OrbitPublishedSteps=0;
   const releasePreviousCamera=new THREE.Vector3();
   const releasePreviousFocus=new THREE.Vector3();
   const releaseHero=new THREE.Vector3();
@@ -6080,6 +6081,7 @@ export function createTowerScene(canvas, settings = {}) {
       // Keep one scene, one real render and the authoritative live climber.
       const earnedOrbit=sourceEarnedFloorNineOrbitGuard({
         source:snapshot,lastReturned:lastSubmittedGuardian,
+        held:retainedColdArrival,
         previousCamera:lastSubmittedGuardianCamera.toArray(),
         previousFocus:lastSubmittedGuardianFocus.toArray(),
         desiredCamera:camera.position.toArray(),desiredFocus:lookAt.toArray(),
@@ -6150,6 +6152,9 @@ export function createTowerScene(canvas, settings = {}) {
             earnedF9OrbitGuardAccepted+1);
           earnedF9OrbitGuardLastRawTurn=earnedOrbit.requestedTurnRadians;
           earnedF9OrbitGuardLastLimitedTurn=earnedOrbit.turnRadians;
+          if(earnedOrbit.proofKind==='current-returned-original-gateway-before-crossing-publication')
+            earnedF9OrbitRetainedEarlySteps=Math.min(1000000,earnedF9OrbitRetainedEarlySteps+1);
+          else earnedF9OrbitPublishedSteps=Math.min(1000000,earnedF9OrbitPublishedSteps+1);
         } else {
           camera.position.copy(releasePreviousCamera);
           lookAt.copy(releasePreviousFocus);
@@ -6904,10 +6909,12 @@ export function createTowerScene(canvas, settings = {}) {
       },
       earnedFloorNineOrbitContinuity: {
         acceptedSourceCameraSteps:earnedF9OrbitGuardAccepted,
+        acceptedFromCurrentReturnedGateBeforePublicCrossing:earnedF9OrbitRetainedEarlySteps,
+        acceptedFromPublishedGuardianCrossing:earnedF9OrbitPublishedSteps,
         physicallyVetoedSteps:earnedF9OrbitGuardVetoed,
         lastRequestedTurnRadians:earnedF9OrbitGuardLastRawTurn,
         lastBoundedTurnRadians:earnedF9OrbitGuardLastLimitedTurn,
-        source:'Actual same-run last returned F9 lens, physical HP-zero F8 crossing, current actor + original metal + real destination',
+        source:'Same-run returned F9 lens, current World-certified gate or published HP-zero F8 crossing; current body + real steel/roof/destination',
         limitation:'Renderer-return camera geometry ONLY; no native WebM visible crossing or device performance verification'
       },
       retainedGatewayContinuousCamera: {

@@ -176,7 +176,7 @@ export function sourceReturnedGatewayLastCameraEligible({source,held,lastReturne
 // camera. No fictional frame, held pose, extra renderer pass or source change.
 // Scene independently vetoes any view that loses real hero/steel/deck rays.
 export function sourceEarnedFloorNineOrbitGuard({
-  source,lastReturned,previousCamera,previousFocus,
+  source,lastReturned,held=null,previousCamera,previousFocus,
   desiredCamera,desiredFocus,dt,cameraMode='follow',
   stale=false,reducedMotion=false
 }) {
@@ -187,26 +187,56 @@ export function sourceEarnedFloorNineOrbitGuard({
      source?.floor!==9 || source.theme!=='void' ||
      source.lifecycle!=='running' || !p || !(p.health>0) ||
      typeof source.runToken!=='string' || !source.runToken ||
-     !w || w.runToken!==source.runToken ||
-     w.fromFloor!==8 || w.toFloor!==9 ||
-     w.cap?.id!=='f8:cap' || w.guardian?.kind!=='guardian' ||
-     w.guardian.active!==false || !finite(w.guardian.health) ||
-     w.guardian.health>0 ||
-     ![source.tick,w.sourceTick,w.crossingX,w.cap.y,w.cap.height,
-       p.x,p.y,p.halfHeight].every(isInt) ||
-     source.tick<w.sourceTick || source.tick-w.sourceTick>110 ||
+     !isInt(source.tick) || !isInt(p.x) || !isInt(p.y) ||
+     !isInt(p.halfHeight) || p.halfHeight<=0 ||
      !roof || ![roof.x,roof.y,roof.width,roof.height].every(isInt) ||
      roof.width<=0 || roof.height<=0 ||
-     roof.y+roof.height!==w.cap.y+w.cap.height ||
-     Math.abs(p.x-w.crossingX)>220000 ||
      lastReturned?.runToken!==source.runToken ||
      lastReturned.floor!==9 || !isInt(lastReturned.tick) ||
-     lastReturned.tick<w.sourceTick ||
      lastReturned.tick>source.tick ||
      source.tick-lastReturned.tick>28 ||
      !finite(dt) || dt<=0 || dt>.5 ||
      ![previousCamera,previousFocus,desiredCamera,desiredFocus]
        .every(validPoint)) return null;
+  // First genuine Floor9 returns precede optional lastGuardianCrossing.
+  // The previous camera guard could not act until that field arrived, after
+  // a new wide-angle shoulder had ALREADY been submitted. Require current
+  // source-owned gateway/roof and a real prior Floor9 render instead.
+  // An invalid published guardian event is NEVER rescued by retained meshes.
+  const historical=w!=null &&
+    w.runToken===source.runToken && w.fromFloor===8 && w.toFloor===9 &&
+    w.cap?.id==='f8:cap' && w.guardian?.kind==='guardian' &&
+    w.guardian.active===false && finite(w.guardian.health) &&
+    w.guardian.health<=0 &&
+    [w.sourceTick,w.crossingX,w.cap.y,w.cap.height].every(isInt) &&
+    roof.y+roof.height===w.cap.y+w.cap.height &&
+    source.tick>=w.sourceTick && source.tick-w.sourceTick<=110 &&
+    Math.abs(p.x-w.crossingX)<=220000 &&
+    lastReturned.tick>=w.sourceTick;
+  const retained=w==null &&
+    held?.verifiedObservedFloorAdvance===true &&
+    held.guardianGateRetained===true &&
+    held.sourceOwnedOriginalCameraRoom===true &&
+    held.originalArchitectureWorldCertified===true &&
+    held.originalArchitectureCoverageSourceTick===source.tick &&
+    held.oldCapId==='f8:cap' && held.floor===9 &&
+    held.runToken===source.runToken &&
+    [held.sourceTick,held.oldCapX,held.oldCapWidth,held.thresholdX,
+      held.oldRoofY,held.submittedFrames].every(isInt) &&
+    held.oldCapWidth>0 &&
+    held.thresholdX===held.oldCapX+Math.floor(held.oldCapWidth*.76) &&
+    roof.y+roof.height===held.oldRoofY &&
+    source.tick>=held.sourceTick && source.tick-held.sourceTick<=110 &&
+    lastReturned.tick>=held.sourceTick &&
+    held.submittedFrames>=1 && held.submittedFrames<30 &&
+    finite(held.originalGatewayOpacity) &&
+    held.originalGatewayOpacity>.035 && held.originalGatewayOpacity<=1 &&
+    finite(held.visibleSeconds) && held.visibleSeconds>=0 &&
+    held.visibleSeconds<2.8 &&
+    Math.abs(p.x-held.thresholdX)<=120000;
+  if(!historical && !retained)return null;
+  const proofKind=historical?'published-guardian-hp-zero-crossing':
+    'current-returned-original-gateway-before-crossing-publication';
   // A real F9 support or a presently airborne first flight, not a HUD
   // counter, future route, replay outcome or simulated platform.
   const support=source.platforms.find(x=>x?.id===p.groundedPlatformId);
@@ -240,7 +270,7 @@ export function sourceEarnedFloorNineOrbitGuard({
   if(!limited)return null;
   return {sourceBound:true,runToken:source.runToken,sourceTick:source.tick,
     camera,focus,limited,turnRadians:turn,requestedTurnRadians:rawTurn,
-    remainingMetres:remaining,
+    remainingMetres:remaining,proofKind,
     scope:'last-returned-original-F9-physical-gateway-to-raised-landing',
     limitation:'Proposed bounded final real camera only; current source body, old metal and raised geometry must veto invalid angles; NOT native WebM or frame-time proof'};
 }
