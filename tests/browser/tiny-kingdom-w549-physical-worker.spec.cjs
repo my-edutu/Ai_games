@@ -33,11 +33,19 @@ for(const width of [390,1024]){
   await page.locator('#world-watch-life').click();
   await page.waitForFunction(()=>window.__tinyKingdom?.getCamera?.().follow&&
    window.__tinyKingdom?.getCitizenCameraPlan?.(),null,{timeout:110000});
-  // Watch Life may honestly follow a resident going home. Explicitly choose
-  // the existing PLAYER live-work camera only when a REAL worksite exists.
-  await page.waitForFunction(()=>window.__tinyKingdom?.getActiveWorksites?.().length>0,
-   null,{timeout:100000});
-  const liveCamera=await page.evaluate(()=>window.__tinyKingdom.watchLiveWorkday());
+  // At high gameplay speed a genuine shift may end BETWEEN the prior
+  // predicate and the next browser command. Use the real player's 1x speed,
+  // not fabricated work, and select/test an original on-duty person atomically.
+  await page.evaluate(()=>window.__tinyKingdom.setSpeed(1));
+  let liveCamera=null;
+  for(let attempt=0;attempt<3&&!liveCamera;attempt++){
+   await page.waitForFunction(()=>window.__tinyKingdom?.getActiveWorksites?.().length>0,
+    null,{timeout:100000});
+   liveCamera=await page.evaluate(()=>{
+    const g=window.__tinyKingdom;
+    return g.getActiveWorksites().length?g.watchLiveWorkday():null;
+   });
+  }
   expect(liveCamera).toBeTruthy();
   await page.waitForFunction(()=>window.__tinyKingdom?.getWorkdayView?.().active&&
    window.__tinyKingdom?.getWorkdayCompositionAudit?.().active,
