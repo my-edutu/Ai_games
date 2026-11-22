@@ -59,6 +59,13 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
+      - name: Archive exact Tiny Kingdom source for standalone native WebGL review
+        run: |
+          git rev-parse HEAD > source-sha.txt
+          tar -czf tiny-kingdom-source.tgz \
+            AGENTS.md package.json package-lock.json playwright.config.cjs \
+            public/tiny-kingdom games/tiny-ai-civilization \
+            scripts/tiny-kingdom* tests/browser/tiny-kingdom*
       - name: W396 original citizen pose residency across real workday camera districts
         run: node scripts/tiny-kingdom-w396-cross-district-resident-pose-contract.cjs
       - name: W188 real seasonal home-cache source contract and full game syntax
@@ -123,14 +130,8 @@ jobs:
         run: node scripts/tiny-kingdom-w259-occupied-trade-and-live-courier-contract.cjs
       - name: W260 original two-sided planted field and physically occlusion-reviewed freight lens
         run: node scripts/tiny-kingdom-w260-physical-field-and-freight-contract.cjs
-      - name: Archive exact Tiny Kingdom source for standalone native WebGL review
-        run: |
-          git rev-parse HEAD > source-sha.txt
-          tar -czf tiny-kingdom-source.tgz \
-            AGENTS.md package.json package-lock.json playwright.config.cjs \
-            public/tiny-kingdom games/tiny-ai-civilization \
-            scripts/tiny-kingdom* tests/browser/tiny-kingdom*
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: tiny-kingdom-source-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
