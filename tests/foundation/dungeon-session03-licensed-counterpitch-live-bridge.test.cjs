@@ -1212,3 +1212,58 @@ test('RED: genuine 390px f114 near-floor rolling heel allows a bounded original-
    'high/floating shoe or unwitnessed source must remain ineligible');
  }
 });
+
+
+// The prior source-rig WebGL film (#44995466233 desktop f90/mobile f72)
+// offered a licensed full-body heel rotation, but refused the final original
+// skin. The previous refusal erased WHICH weighted sole or grip was wrong.
+// These are intentionally artificial AFTER values applied to a genuinely
+// measured f114 BEFORE; no test can claim the film improved from them.
+test('RED: a rejected licensed whole-body lean identifies the first actual weighted GLB sole or socket mismatch',async()=>{
+ const m=await source;
+ assert.equal(typeof m.auditOriginalSourceHeelAnchoredBodyLeanReadback,'function');
+ const before={
+  left:{heel:[2.2734302988517054,.20338158671403223,-6.946109202208276],
+   toe:[2.161799201001761,-.07063313908216373,-6.9302070715531]},
+  right:{heel:[2.1411352731796267,-.005487197993017038,-7.1063031680287425],
+   toe:[1.873659469701867,.035146607150513175,-7.130170648877351]}
+ };
+ const after={
+  left:{heel:before.left.heel.slice(),
+   toe:[before.left.toe[0],before.left.toe[1]+.008, before.left.toe[2]]},
+  right:{heel:before.right.heel.slice(),toe:before.right.toe.slice()}
+ };
+ const plan={
+  source:'licensed-original-supported-heel-anchored-body-lean',
+  worldBodyRotationOnly:true,originalBoneTracksPreserved:true,
+  contactLocked:false,plantCertified:false,
+  sourceInstanceId:'observed-f114-original-vanguard',
+  supportSide:'right',swingSide:'left',
+  originalBefore:before,predictedAfter:after
+ };
+ const accepted=m.auditOriginalSourceHeelAnchoredBodyLeanReadback({
+  plan,before,after,sourceWeaponGripVerified:true});
+ assert.equal(accepted.reason,'independent-original-rig-skin-verified');
+ assert.equal(accepted.certificate?.originalSkinnedEndpointsVerified,4);
+ assert.equal(accepted.maxPredictedWorldSoleErrorMm,0);
+ const wrong={...after,left:{...after.left,
+  toe:[after.left.toe[0]+.003,after.left.toe[1],after.left.toe[2]]}};
+ const sourceMismatch=m.auditOriginalSourceHeelAnchoredBodyLeanReadback({
+  plan,before,after:wrong,sourceWeaponGripVerified:true});
+ assert.equal(sourceMismatch.certificate,null);
+ assert.equal(sourceMismatch.reason,'original-weighted-world-body-transform-mismatch');
+ assert.equal(sourceMismatch.firstMismatchedEndpoint,'left.toe');
+ assert.ok(sourceMismatch.maxPredictedWorldSoleErrorMm>=2.999);
+ assert.equal(sourceMismatch.supportHeelDriftMm,0);
+ assert.equal(sourceMismatch.measuredSwingToeLiftMm,8);
+ const gripMismatch=m.auditOriginalSourceHeelAnchoredBodyLeanReadback({
+  plan,before,after,sourceWeaponGripVerified:false});
+ assert.equal(gripMismatch.certificate,null);
+ assert.equal(gripMismatch.reason,'original-source-weapon-socket-mismatch');
+ const badBefore={...before,right:{...before.right,
+  heel:[before.right.heel[0]+.003,before.right.heel[1],before.right.heel[2]]}};
+ const stale=m.auditOriginalSourceHeelAnchoredBodyLeanReadback({
+  plan,before:badBefore,after,sourceWeaponGripVerified:true});
+ assert.equal(stale.certificate,null);
+ assert.equal(stale.reason,'stale-original-source-before-sole');
+});
