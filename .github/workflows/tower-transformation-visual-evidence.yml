@@ -21,6 +21,10 @@ on:
       # Omitting either module left gameplay-changing PR68 camera commits with
       # quality CI only and NO immutable normal-speed baseline/candidate films.
       - public/infinite-tower-climb/visuals/scene.mjs
+      # First-return source/video episode identity is part of authentic
+      # native 1x alignment. A changed helper requires an immutable film too;
+      # a post-restart trace must never impersonate original guardian crossing.
+      - public/infinite-tower-climb/visuals/first-source-room-return.mjs
       - public/infinite-tower-climb/visuals/source-returned-gate-camera-release.mjs
       # Core authentic old-gateway / new-shaft owner scheduling affects the
       # same Floor8→9 full-motion shot; source changes need 9-job films.
