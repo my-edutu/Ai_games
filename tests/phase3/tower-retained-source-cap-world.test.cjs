@@ -1367,7 +1367,9 @@ test('genuinely returned two-room HP-zero receiving roof breaks ONLY the scenic 
     state:'awaiting-structural-release',sourceTick:460,
     submittedFrames:16,structureBuiltAtSubmitted:4,
     structuralRoot:{isGroup:true,visible:true},
-    structuralFade:.4,structuralVisibleReturns:16,structuralVisibleSeconds:.8};
+    // The actual early shaft can return 16 frames while still at its
+    // source-earned initial 22% alpha; only AFTER release can it ramp to .4.
+    structuralFade:.22,structuralVisibleReturns:16,structuralVisibleSeconds:.8};
   const gatePresent={sourceBound:true,sourceTick:source.tick,opacity:.86};
   const frozen=JSON.stringify([source,held,shaft,gatePresent]);
   assert.equal(release(source,null,held,shaft,gatePresent),true,
@@ -1385,6 +1387,7 @@ test('genuinely returned two-room HP-zero receiving roof breaks ONLY the scenic 
     [source,held,{...shaft,structuralVisibleSeconds:.49},gatePresent],
     [source,held,{...shaft,structuralRoot:{isGroup:true,visible:false}},gatePresent],
     [source,held,{...shaft,structuralFade:0},gatePresent],
+    [source,held,{...shaft,structuralFade:.015},gatePresent],
     [source,held,{...shaft,runToken:'other'},gatePresent]
   ];
   for(const [badSource,badHeld,badJob,badGate] of fakeCases)
