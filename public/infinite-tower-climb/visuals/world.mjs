@@ -2,6 +2,7 @@ import { createFrameSightlineMemo } from './frame-sightline-memo.mjs';
 import { planVoidOpenDeckTruss } from './void-open-deck-truss.mjs';
 import { genuineRaisedDeckCorners, projectedRaisedDeckDominance } from './source-deck-backdrop-composition.mjs';
 import { moveSourceOriginalClockworkCore, sourceOriginalClockworkCoreOpacity } from './source-original-clockwork-core-ownership.mjs';
+import { sourceOriginalGateProjectionKey } from './original-guardian-gate-steel-projection.mjs';
 import * as THREE from '/tower/vendor/three.module.js';
 import { SCALE, ARC, angleFor, pointFor, guardianGateAnchorX, guardianTraversalGatePose, GUARDIAN_CAP_CORRIDOR } from './coordinates.mjs';
 import { observedSourceEarnedAirborneHandoff, observedSourceEarnedDoorstepHandoff, observedRecordedGuardianDoorstepHandoff } from './guardian-passage.mjs';
@@ -5037,6 +5038,7 @@ export function createTowerWorld(){
     // 20Hz source tick has not changed: moving platforms still need fresh
     // world matrices for valid full-body triangle occlusion tests.
     sightlineMatrixEpoch.beginFrame();
+    originalGateProjectionMemo.beginFrame();
     sourceSightlineRayBroadphase.beginFrame();
     successorSightlineMemo.beginFrame();
     updateRetainedCap(snapshot,dt,options,passageWitness);
@@ -5832,6 +5834,11 @@ export function createTowerWorld(){
   // query while weighing reversible exterior views. The cache is discarded
   // at every World frame and whenever foreground materials change.
   const successorSightlineMemo=createFrameSightlineMemo(24);
+  // A first F9 camera may ask for EXACTLY the same actual opened metal after
+  // several overlapping camera directors. Re-project only for a new REAL
+  // camera pose/lens, source/material state, or World frame. The same owner
+  // still runs every triangle veto, with no acceptance short-circuit.
+  const originalGateProjectionMemo=createFrameSightlineMemo(32);
   function measureSuccessorDeckVisibility(source,camera,body,bodyHalfHeight,
       gate=null,landingId=null) {
     const held=retainedEarnedCap,p=source?.player;
@@ -5935,6 +5942,7 @@ export function createTowerWorld(){
     if(disposed)return {total:0,softened:0};
     // This pass can change old-gallery/undercroft material opacity.
     successorSightlineMemo.invalidate();
+    originalGateProjectionMemo.invalidate();
     decorativeOcclusionEvidence.length=0;
     // The real source-extracted Clockwork gallery crosses the full-body
     // climber AND original door sightline in BOTH 960x600 and 390x844 films.
@@ -6407,9 +6415,16 @@ export function createTowerWorld(){
   function projectedOriginalGateSteel(snapshot,camera) {
     if (snapshot!==lastSnapshot || !sourceEarnedOriginalGateGeometry(snapshot))
       return null;
-    return projectOriginalGuardianGateSteel(THREE,
+    const key=sourceOriginalGateProjectionKey(
+      snapshot,retainedEarnedCap,camera);
+    // The original HP-open gate and source-owned materials were verified
+    // above. A new camera pose/lens or invalid key must still project every
+    // genuine material box and instanced leaf; cache only exact duplicates.
+    const exactOriginalProjection=()=>projectOriginalGuardianGateSteel(THREE,
       retainedEarnedCap.originalGateRoot,camera,
       sightlineMatrixEpoch.sync);
+    return key?originalGateProjectionMemo.read(key,exactOriginalProjection)
+      :exactOriginalProjection();
   }
   function lastRebuild() { return lastRebuildWitness ? { ...lastRebuildWitness } : null; }
   // The ACTUAL source-earned HP-open F8 gate remains a child of this Floor9
@@ -6439,6 +6454,7 @@ export function createTowerWorld(){
     sourceOwnedSuccessorUndercroft:{...successorUndercroftSightline},
     sourceSightlineRayBroadphase:sourceSightlineRayBroadphase.diagnostics(),
     frameScopedSuccessorSightlineMemo:successorSightlineMemo.diagnostics(),
+    frameScopedOriginalGateProjectionMemo:originalGateProjectionMemo.diagnostics(),
     previousFloorGpuCleanup:{...retirementAudit,
       sourceBound:retirementAudit.queued>0,
       caveat:'Old disconnected GPU resources retired after genuine returned WebGL frames; not measured GPU memory, frame-time or native film'},
