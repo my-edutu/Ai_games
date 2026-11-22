@@ -7046,3 +7046,198 @@ export function certifyLicensedSourcePostChainPelvisOpportunity({
   contactLocked:false,plantCertified:false
  });
 }
+
+
+/**
+ * Session 03: authentic original-source, heel-anchored WHOLE BODY weight
+ * transfer. This is deliberately not an isolated toe twist or a fictitious
+ * planted foot. A licensed Vanguard Walking_A frame (#44986546974 mobile
+ * f116) had a 55.566mm BURIED swinging toe, despite a real source 3-bone
+ * counterpitch, while its opposite shoe was rolling on a heel 2.39mm above
+ * stone and had a toe 37mm ABOVE it. Raising the entire pelvis in Y would
+ * make that loaded heel float. A small pivot about that *measured* original
+ * supporting heel can lift the real swing toe with its whole 41-joint
+ * pelvis/chest/weapon chain, without altering the original bone hierarchy.
+ *
+ * The math below proposes a rigid rotation of the exact original SOURCE
+ * skinned endpoints around a witnessed heel. These predicted endpoints are
+ * NOT a new animation, proof of a successful GPU frame, planted contact or
+ * IK. The live Three.js adapter must apply only the verified same-source
+ * pivot, independently read BOTH genuine skinned shoes + original grip and
+ * roll back on any mismatch. No geometry, authoritative step or clip seek.
+ */
+function originalHeelLeanPoint(point){
+ return Array.isArray(point)&&point.length===3&&point.every(finite);
+}
+function originalHeelLeanRotate(point,pivot,axis,angle){
+ const v=point.map((n,i)=>n-pivot[i]),c=Math.cos(angle),s=Math.sin(angle);
+ const dot=axis[0]*v[0]+axis[1]*v[1]+axis[2]*v[2];
+ const cross=[axis[1]*v[2]-axis[2]*v[1],
+  axis[2]*v[0]-axis[0]*v[2],
+  axis[0]*v[1]-axis[1]*v[0]];
+ return v.map((n,i)=>pivot[i]+n*c+cross[i]*s+axis[i]*dot*(1-c));
+}
+export function planOriginalSourceHeelAnchoredBodyLean({
+ mode='idle',sourceClipName='',sourceRole='',sourceInstanceId='',
+ sourceWeight=NaN,sourceFootProof=null,sourceSoles=null,
+ sourceWeaponGripVerified=false,ownerLocomotion=false,
+ alive=false,visible=false,rootTravel=NaN,frameInterval=NaN,
+ frameAge=NaN,floorTopY=NaN,
+ interrupted=false,teleport=false,reducedMotion=false
+}={}){
+ const proof=sourceFootProof,side=proof?.side;
+ const supportSide=side==='left'?'right':side==='right'?'left':null;
+ const suffix=side==='left'?'l':side==='right'?'r':null;
+ if(mode!=='move'||sourceClipName!=='Walking_A'||
+  sourceRole!=='vanguard'||!sourceInstanceId||
+  sourceWeight<.985||sourceWeight>1.001||
+  ownerLocomotion!==true||sourceWeaponGripVerified!==true||
+  alive!==true||visible!==true||interrupted||teleport||reducedMotion||
+  ![rootTravel,frameInterval,frameAge,floorTopY,sourceWeight].every(finite)||
+  rootTravel<.008||rootTravel>.24||
+  frameInterval<.008||frameInterval>.24||
+  frameAge<0||frameAge>.035||Math.abs(floorTopY+.02)>.003||
+  !supportSide||!sourceSoles||!proof||
+  proof.source!=='measured-original-licensed-source-counterpitch'||
+  proof.sourceRole!=='vanguard'||proof.sourceClip!=='Walking_A'||
+  proof.sourceInstanceId!==sourceInstanceId||
+  proof.sourceOriginalRootTravelWitnessed!==true||
+  proof.originalOppositeShoeVerified!==true||
+  proof.finalIndependentSourceSkin!==true||
+  proof.contactLocked!==false||proof.plantCertified!==false||
+  proof.sourceUpperBone!=='upperleg'+suffix||
+  proof.sourceLowerBone!=='lowerleg'+suffix||
+  proof.sourceFootBone!=='foot'+suffix||
+  !Array.isArray(proof.sourceOriginalTracks)||
+  !['upperleg','lowerleg','foot'].every(part=>
+   proof.sourceOriginalTracks.includes(part+suffix+'.quaternion'))||
+  !Array.isArray(proof.originalBindSegmentsMeters)||
+  proof.originalBindSegmentsMeters.length!==2||
+  !proof.originalBindSegmentsMeters.every(n=>finite(n)&&n>=.075&&n<=.75)||
+  ![proof.sourceClipTimeSeconds,proof.witnessedRootTravelMeters,
+    proof.witnessedFrameIntervalSeconds].every(finite)||
+  proof.witnessedRootTravelMeters<.008||
+  Math.abs(proof.witnessedRootTravelMeters-rootTravel)>.001||
+  Math.abs(proof.witnessedFrameIntervalSeconds-frameInterval)>.001||
+  (side==='left'?
+   proof.sourceClipTimeSeconds<.515||proof.sourceClipTimeSeconds>.875:
+   proof.sourceClipTimeSeconds<.03||proof.sourceClipTimeSeconds>.335))
+  return null;
+ const soles={left:sourceSoles.left,right:sourceSoles.right};
+ for(const footSide of ['left','right']){
+  const f=soles[footSide],prior=proof.after?.[footSide];
+  if(!f||!prior||!originalHeelLeanPoint(f.heel)||
+   !originalHeelLeanPoint(f.toe)||
+   ![prior.heelY,prior.toeY].every(finite)||
+   !Array.isArray(prior.heelXZ)||prior.heelXZ.length!==2||
+   !Array.isArray(prior.toeXZ)||prior.toeXZ.length!==2||
+   !prior.heelXZ.every(finite)||!prior.toeXZ.every(finite)||
+   Math.abs(prior.heelY-f.heel[1])>.001||
+   Math.abs(prior.toeY-f.toe[1])>.001||
+   Math.hypot(prior.heelXZ[0]-f.heel[0],
+    prior.heelXZ[1]-f.heel[2])>.001||
+   Math.hypot(prior.toeXZ[0]-f.toe[0],
+    prior.toeXZ[1]-f.toe[2])>.001)return null;
+ }
+ const supporting=soles[supportSide],swinging=soles[side];
+ const heel=supporting.heel,toe=supporting.toe,
+  swingHeel=swinging.heel,swingToe=swinging.toe;
+ const supportHeelHeight=heel[1]-floorTopY,
+  supportToeHeight=toe[1]-floorTopY,
+  buriedToe=floorTopY-swingToe[1],
+  swingHeelHeight=swingHeel[1]-floorTopY;
+ // This measured support is a HEEL-ROLLOVER, not a flat planted shoe.
+ // The opposite heel is already at stone; all-pelvis-Y lift is forbidden.
+ // Only the authentic deep swinging source lobe is eligible.
+ if(supportHeelHeight<-.012||supportHeelHeight>.008||
+  supportToeHeight<.010||supportToeHeight>.055||
+  swingHeelHeight<.10||swingHeelHeight>.37||
+  buriedToe<.025||buriedToe>.12||
+  swingHeel[1]-swingToe[1]<.17||
+  Math.hypot(toe[0]-heel[0],toe[2]-heel[2])<.22||
+  Math.hypot(toe[0]-heel[0],toe[2]-heel[2])>.36)return null;
+ const dx=swingToe[0]-heel[0],dz=swingToe[2]-heel[2];
+ const lever=Math.hypot(dx,dz);
+ if(lever<.12||lever>.46)return null;
+ // World-horizontal rotation about the independently measured heel.
+ // Its signed Y derivative is +lever for this specific buried swing toe.
+ // Max 50mrad (2.9 degrees) and at most 85% of a 3rad/s presented frame.
+ // Never seek a source clip, invent a step, or rotate an imported bone.
+ const angle=Math.min(.05,3*frameInterval*.85,.024/lever);
+ if(angle<.018)return null;
+ const axis=[-dz/lever,0,dx/lever];
+ const predictedAfter=Object.fromEntries(['left','right'].map(s=>[
+  s,{heel:originalHeelLeanRotate(soles[s].heel,heel,axis,angle),
+   toe:originalHeelLeanRotate(soles[s].toe,heel,axis,angle)}]));
+ const driftXZ=(a,b)=>Math.hypot(a[0]-b[0],a[2]-b[2]);
+ const proposedLift=predictedAfter[side].toe[1]-swingToe[1];
+ // Fail-closed analytic PREVIEW: if the true loaded heel skates, its
+ // source-toe hover worsens, or the airborne foot jumps sideways, do not
+ // spend an original-GLB skinning read on the pose.
+ if(proposedLift<.007||proposedLift>.02401||
+  predictedAfter[side].toe[1]>=floorTopY||
+  driftXZ(predictedAfter[supportSide].heel,heel)>.0005||
+  Math.abs(predictedAfter[supportSide].heel[1]-heel[1])>.0005||
+  predictedAfter[supportSide].toe[1]>toe[1]+.001||
+  driftXZ(predictedAfter[supportSide].toe,toe)>.008||
+  driftXZ(predictedAfter[side].toe,swingToe)>.012||
+  driftXZ(predictedAfter[side].heel,swingHeel)>.025)return null;
+ return Object.freeze({
+  source:'licensed-original-supported-heel-anchored-body-lean',
+  sourceInstanceId,sourceClip:'Walking_A',sourceRole:'vanguard',
+  supportSide,swingSide:side,sourceClipTimeSeconds:proof.sourceClipTimeSeconds,
+  sourceWeight,sourceOriginalSkinProof:proof.source,
+  sourceRealRootTravelMeters:rootTravel,
+  sourceFrameIntervalSeconds:frameInterval,
+  worldSupportHeel:heel.slice(),worldAxis:axis,angleRad:angle,
+  projectedSwingToeLiftMeters:proposedLift,predictedAfter,
+  contactLocked:false,plantCertified:false,
+  worldBodyRotationOnly:true,originalBoneTracksPreserved:true
+ });
+}
+
+/**
+ * Last original-GLB, independently read two-shoe check for a WHOLE RIG
+ * presentation lean. Predictions are not acceptance: current Three.js
+ * weighted source vertices must match the actual moved world transforms
+ * within 1mm at EVERY heel and toe; a detached original socket fails shut.
+ */
+export function certifyOriginalSourceHeelAnchoredBodyLean({
+ plan=null,before=null,after=null,sourceWeaponGripVerified=false
+}={}){
+ if(plan?.source!=='licensed-original-supported-heel-anchored-body-lean'||
+  plan.worldBodyRotationOnly!==true||
+  plan.originalBoneTracksPreserved!==true||
+  plan.contactLocked!==false||plan.plantCertified!==false||
+  sourceWeaponGripVerified!==true||!before||!after)return null;
+ let matched=0;
+ for(const side of ['left','right']){
+  for(const endpoint of ['heel','toe']){
+   const a=before?.[side]?.[endpoint],b=after?.[side]?.[endpoint],
+    predicted=plan.predictedAfter?.[side]?.[endpoint];
+   if(![a,b,predicted].every(originalHeelLeanPoint)||
+    Math.hypot(...b.map((n,i)=>n-predicted[i]))>.001||
+    Math.hypot(...a.map((n,i)=>
+     n-(endpoint==='heel'?plan.predictedAfter[side].heel[i] :
+      plan.predictedAfter[side].toe[i])))>.50)return null;
+   matched++;
+  }
+ }
+ const oldSupport=before[plan.supportSide],
+  loaded=after[plan.supportSide],
+  originalToe=before[plan.swingSide].toe,
+  newToe=after[plan.swingSide].toe;
+ if(Math.hypot(...oldSupport.heel.map((n,i)=>n-loaded.heel[i]))>.001||
+  loaded.toe[1]>oldSupport.toe[1]+.001||
+  newToe[1]-originalToe[1]<.007)return null;
+ return Object.freeze({
+  source:'independent-original-GLB-final-heel-anchored-body-skin',
+  sourceInstanceId:plan.sourceInstanceId,sourceClip:'Walking_A',
+  supportSide:plan.supportSide,swingSide:plan.swingSide,
+  originalSkinnedShoesVerified:2,originalSkinnedEndpointsVerified:matched,
+  finalSwingToeLiftMeters:newToe[1]-originalToe[1],
+  supportingHeelWorldErrorMeters:Math.hypot(...oldSupport.heel.map(
+   (n,i)=>n-loaded.heel[i])),
+  originalWeaponGripAttached:true,contactLocked:false,plantCertified:false
+ });
+}
