@@ -166,7 +166,8 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
       acceptedFrames:a.nativeLegOwnership.sourceLoadedPelvisAcceptedFrames??0,
       rollbackFrames:a.nativeLegOwnership.sourceLoadedPelvisRollbackFrames??0,
       finalProof:a.nativeLegOwnership.sourceLoadedPelvisFrameProof??null,
-      rollbackProof:a.nativeLegOwnership.sourceLoadedPelvisRollbackFootProof??null
+      rollbackProof:a.nativeLegOwnership.sourceLoadedPelvisRollbackFootProof??null,
+      gate:a.nativeLegOwnership.sourceLoadedPelvisGateLast??null
      }:null,
      // Exact rendered original GLB world-root witness; NOT a generated step,
      // heel/toe plant, IK correction, target or source pose by itself.
@@ -181,6 +182,19 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
    expect(sample.invalidMatrices).toBe(0);
    expect(sample.sourceWeaponGrip?.attachedToGripSocket,
     'original Vanguard source sword must stay on handslotr').toBe(true);
+   // RED: actual original Walking_A weighted shoes must expose WHY the
+   // bounded source pelvis helper did or did not run AFTER the two-shoe
+   // leg/toe chain. A zero accepted-count is not an explanation and must
+   // never silently masquerade as physically grounded animation.
+   if(sample.sourceClip==='Walking_A'&&sample.sourceWeight>=.9){
+    const gate=sample.sourcePelvis?.gate;
+    expect(gate?.source,'original weighted pelvis gate must be observable')
+     .toBe('original-source-loaded-pelvis-decision');
+    expect(typeof gate.reason).toBe('string');
+    expect(gate.reason.length).toBeGreaterThan(4);
+    expect(gate.contactLocked).toBe(false);
+    expect(gate.plantCertified).toBe(false);
+   }
    // Native rAF AFTER the previous source skin; same untouched public tick.
    // No extra source animation, synthetic root movement, contacts or hits.
    // Reject mismatched source clone, missed frame, invalid skin or stale clip.
