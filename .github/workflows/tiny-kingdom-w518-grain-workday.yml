@@ -5,6 +5,8 @@ on:
       - feat/tiny-kingdom-post-main-gauntlet-20261031
     paths:
       - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w537-canvas-raster-contract.test.cjs
+      - tests/browser/tiny-kingdom-w537-canvas-raster.spec.cjs
       - tests/browser/tiny-kingdom-w518-rooted-grain-contract.test.cjs
       - tests/browser/tiny-kingdom-w518-grain-workday.spec.cjs
       - .github/workflows/tiny-kingdom-w518-grain-workday.yml
@@ -42,11 +44,15 @@ jobs:
           new Function(js[1]);
           console.log('W518 complete original game syntax parses');
           NODE
+      - name: W537 original full-geometry no-WebGL raster and shader compatibility regression
+        run: node --test scripts/tiny-kingdom-w537-canvas-raster-contract.test.cjs
       - name: Build browser-server prerequisites
         run: npm run build
       - run: npx playwright install --with-deps chromium
       - name: Film actual seeded Day1 and Day121 fields at desktop and 390px
         run: npx playwright test tests/browser/tiny-kingdom-w518-grain-workday.spec.cjs --workers=1 --reporter=line
+      - name: Verify real 390px Canvas2D/no-WebGL gameplay and retain uncropped screenshot
+        run: npx playwright test tests/browser/tiny-kingdom-w537-canvas-raster.spec.cjs --workers=1 --reporter=line
       - uses: actions/upload-artifact@v4
         if: always()
         with:
