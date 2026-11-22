@@ -7149,8 +7149,17 @@ export function planOriginalSourceHeelAnchoredBodyLean({
  // This measured support is a HEEL-ROLLOVER, not a flat planted shoe.
  // The opposite heel is already at stone; all-pelvis-Y lift is forbidden.
  // Only the authentic deep swinging source lobe is eligible.
- if(supportHeelHeight<-.012||supportHeelHeight>.008||
-  supportToeHeight<.010||supportToeHeight>.055||
+ // Authentic exact-head 390px f114 source heel is only 14.513mm
+ // off stone with its raised rolling toe 55.147mm off stone. The prior
+ // 8/55mm window erroneously excluded a verified three-joint source frame
+ // from even attempting the reversible whole-41-joint heel-proximal lean.
+ // Permit this narrow near-stone *moving* rollover, NOT a planted heel:
+ // the original clip, root motion, BOTH weighted soles and hand socket
+ // still must be witnessed and checked after real WebGL skinning.
+ // A heel above 18mm or toe above 62mm is too airborne to use as a
+ // physically credible near-ground pivot; never grant a false contact.
+ if(supportHeelHeight<-.012||supportHeelHeight>.018||
+  supportToeHeight<.010||supportToeHeight>.062||
   swingHeelHeight<.10||swingHeelHeight>.37||
   buriedToe<.025||buriedToe>.12||
   swingHeel[1]-swingToe[1]<.17||
