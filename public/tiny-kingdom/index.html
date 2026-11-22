@@ -4702,12 +4702,38 @@ function prepareConservativeStaticSoftwareChunks(vertices,m){
  return {limit:staticFloats,flags:softwareStaticFlags};
 }
 
+// W541 Phase 1: cache the EXACT physical static depth/colour image for an
+// unchanged camera, sky, lighting and immutable scenic mesh. Real moving
+// citizens, carts, grain and household activity are ALWAYS depth-rasterized
+// on top each frame. First-frame results and source-world authority are
+// identical; no coarse impostors, hidden inhabitants, new scene objects,
+// simulation RNG, or snapshot edits. The cache is bounded and opt-out-able.
+const SOFTWARE_STATIC_BASE_MAX_PIXELS=1500000;
+let softwareStaticBaseKey=null,softwareStaticBaseColors=null,
+ softwareStaticBaseDepth=null,softwareStaticBaseShaded=0,
+ softwareStaticBaseOverdraw=0,softwareStaticBaseTriangles=0,
+ softwareStaticBaseHits=0,softwareStaticBaseBuilds=0,
+ softwareStaticBaseInvalidations=0,softwareStaticBaseProjected=0,
+ softwareStaticBaseProjectionSkips=0,softwareStaticBaseLastProjectionSkip=0;
+function softwareStaticKeyMatches(key){
+ if(!key||!softwareStaticBaseKey||key.length!==softwareStaticBaseKey.length)
+  return false;
+ for(let i=0;i<key.length;i++)
+  if(!Object.is(key[i],softwareStaticBaseKey[i]))return false;
+ return true;
+}
+function invalidateSoftwareStaticBase(){
+ if(softwareStaticBaseKey)softwareStaticBaseInvalidations++;
+ softwareStaticBaseKey=null;softwareStaticBaseColors=null;
+ softwareStaticBaseDepth=null;softwareStaticBaseProjected=0;
+}
 function softwarePackColor(r,g,b){
  return softwareLittleEndian?
   (0xff000000|((b&255)<<16)|((g&255)<<8)|(r&255))>>>0:
   (((r&255)<<24)|((g&255)<<16)|((b&255)<<8)|255)>>>0;
 }
-function drawSoftwareDepthFrame(count,sx,sy){
+function drawSoftwareDepthFrame(count,sx,sy,staticCount=0,staticKey=null,
+ reusedStaticProjection=false){
  const width=canvas.width|0,height=canvas.height|0;
  if(width<=0||height<=0||width*height>8388608)return false;
  if(!softwareImage||width!==softwareWidth||height!==softwareHeight){
@@ -4715,12 +4741,29 @@ function drawSoftwareDepthFrame(count,sx,sy){
   softwarePixels=new Uint32Array(softwareImage.data.buffer);
   softwareDepth=new Float32Array(width*height);
   softwareWidth=width;softwareHeight=height;softwareSurfaceRebuilds++;
+  invalidateSoftwareStaticBase();
  }
  const byte=(v)=>Math.max(0,Math.min(255,Math.round(v*255)));
- softwarePixels.fill(softwarePackColor(byte(sky[0]),byte(sky[1]),byte(sky[2])));
- softwareDepth.fill(0);
- let shaded=0,overdraw=0,triangles=0;
- for(let id=0;id<count;id++){
+ const eligible=Array.isArray(staticKey)&&
+  (staticCount>0&&staticCount<=count||reusedStaticProjection)&&
+  width*height<=SOFTWARE_STATIC_BASE_MAX_PIXELS&&
+  globalThis.__tinyKingdomDisableStaticFrameCache!==true;
+ const hit=eligible&&softwareStaticKeyMatches(staticKey)&&
+  softwareStaticBaseColors?.length===softwarePixels.length&&
+  softwareStaticBaseDepth?.length===softwareDepth.length;
+ if(hit){
+  softwarePixels.set(softwareStaticBaseColors);
+  softwareDepth.set(softwareStaticBaseDepth);
+  softwareStaticBaseHits++;
+ }else{
+  softwarePixels.fill(softwarePackColor(byte(sky[0]),byte(sky[1]),byte(sky[2])));
+  softwareDepth.fill(0);
+ }
+ let shaded=hit?softwareStaticBaseShaded:0,
+  overdraw=hit?softwareStaticBaseOverdraw:0,
+  triangles=hit?softwareStaticBaseTriangles:0;
+ const rasterRange=(start,end)=>{
+ for(let id=start;id<end;id++){
   const o=id*7,t=id*3;
   const ax=(projected[o]+1)*sx,ay=(1-projected[o+1])*sy;
   const bx=(projected[o+2]+1)*sx,by=(1-projected[o+3])*sy;
@@ -4757,6 +4800,24 @@ function drawSoftwareDepthFrame(count,sx,sy){
    }
   }
  }
+ };
+ if(!hit){
+  rasterRange(0,staticCount);
+  if(eligible){
+   if(softwareStaticBaseKey)softwareStaticBaseInvalidations++;
+   softwareStaticBaseColors=new Uint32Array(softwarePixels);
+   softwareStaticBaseDepth=new Float32Array(softwareDepth);
+   softwareStaticBaseKey=staticKey.slice();
+   softwareStaticBaseProjected=staticCount;
+   softwareStaticBaseShaded=shaded;
+   softwareStaticBaseOverdraw=overdraw;
+   softwareStaticBaseTriangles=triangles;
+   softwareStaticBaseBuilds++;
+  }else invalidateSoftwareStaticBase();
+ }
+ // Depth and colour are copied from the exact static world, not inferred
+ // from geometry heuristics; live actors always participate every frame.
+ rasterRange(staticCount,count);
  ctx.putImageData(softwareImage,0,0);
  softwareShadedPixels=shaded;softwareOverdraw=overdraw;
  softwareRasterTriangles=triangles;
@@ -4785,16 +4846,50 @@ canvasFallbackRasterAudit=()=>({source:'real-canvas2d-conservative-screen-raster
  staticChunkBoxesRejected:softwareStaticLastRejected,
  staticChunkCulledTriangles:softwareStaticLastSavedTriangles,
  staticChunkCullCpuMs:softwareStaticLastCullMs,
+ staticFrameCache:{kind:'exact-unchanged-camera-static-depth-image',
+  maxPixels:SOFTWARE_STATIC_BASE_MAX_PIXELS,
+  hits:softwareStaticBaseHits,builds:softwareStaticBaseBuilds,
+  invalidations:softwareStaticBaseInvalidations,
+  cachedStaticTriangles:softwareStaticBaseTriangles,
+  projectedStaticTriangles:softwareStaticBaseProjected,
+  staticProjectionCacheHits:softwareStaticBaseProjectionSkips,
+  staticProjectionTrianglesSkippedLastFrame:softwareStaticBaseLastProjectionSkip,
+  bytes:(softwareStaticBaseColors?.byteLength||0)+
+   (softwareStaticBaseDepth?.byteLength||0),
+  preservesLiveActors:true,changedAuthority:false,
+  measuredHardwareFps:false},
  retainedAllWorldData:true,changedAuthority:false,hardwareFps:'NOT MEASURED'});
 gl={VERTEX_SHADER:1,FRAGMENT_SHADER:2,ARRAY_BUFFER:3,FLOAT:4,DYNAMIC_DRAW:5,COLOR_BUFFER_BIT:6,DEPTH_BUFFER_BIT:7,DEPTH_TEST:8,CULL_FACE:9,BACK:10,TRIANGLES:11,COMPILE_STATUS:12,LINK_STATUS:13,createShader:()=>({}),shaderSource:noop,compileShader:noop,getShaderParameter:()=>true,createProgram:()=>({}),attachShader:noop,linkProgram:noop,getProgramParameter:()=>true,useProgram:noop,getUniformLocation:(_,k)=>k,createBuffer:()=>({}),bindBuffer:noop,getAttribLocation:()=>0,enableVertexAttribArray:noop,vertexAttribPointer:noop,uniformMatrix4fv:(_,__,m)=>{projection=m},uniform1f:noop,uniform1i:noop,uniform2f:noop,uniform4f:noop,uniform4fv:noop,uniform3f:(key,r,g,b)=>{if(key==='fogColor')sky=[r,g,b];if(key==='sunTint')sunTint=[r,g,b];if(key==='sunDirection')sunDirection=[r,g,b]},clearColor:(r,g,b)=>{sky=[r,g,b]},clear:()=>{ctx.fillStyle=`rgb(${sky.map(v=>Math.round(v*255)).join(',')})`;ctx.fillRect(0,0,canvas.width,canvas.height)},viewport:noop,enable:noop,cullFace:noop,bufferData:(_,v)=>{vertices=v},drawArrays:()=>{
  if(!vertices||!projection)return;
  const begun=performance.now(),v=vertices,m=projection,submitted=v.length/30;
  reservePainter(submitted);
- let count=0,behind=0,offscreen=0;
+ let count=0,behind=0,offscreen=0,staticProjected=0;
  const sx=canvas.width/2,sy=canvas.height/2;
  const sunLen=Math.hypot(...sunDirection)||1;
  const staticClip=prepareConservativeStaticSoftwareChunks(v,m);
- for(let i=0;i<v.length;i+=30){
+ // Exact same original static mesh and unmodified physical camera/light:
+ // entirely bypass costly static per-face JavaScript projections as well as
+ // pixel shading. The cached true-depth settlement is copied beneath the
+ // live, still projected/rasterized actor and economic geometry each frame.
+ // This NEVER takes the shortcut for a changing camera, time-of-day light,
+ // source-mesh revision, disabled fallback or a non-depth Canvas context.
+ const canReuseStaticBase=staticClip&&softwareStaticBaseProjected>0&&
+  typeof ctx.createImageData==='function'&&
+  typeof ctx.putImageData==='function'&&
+  globalThis.__tinyKingdomLegacyCanvasPainter!==true&&
+  globalThis.__tinyKingdomDisableStaticFrameCache!==true&&
+  Boolean(softwareStaticBaseColors&&softwareStaticBaseDepth);
+ const priorKey=canReuseStaticBase?
+  [softwareStaticSource,softwareStaticChunkBuilds,
+   canvas.width,canvas.height,softwareStaticBaseProjected,
+   ...m,...sky,...sunTint,...sunDirection]:null;
+ const reuseStaticProjection=Boolean(canReuseStaticBase&&
+  softwareStaticKeyMatches(priorKey));
+ softwareStaticBaseLastProjectionSkip=reuseStaticProjection?
+  staticClip.limit/30:0;
+ if(reuseStaticProjection)softwareStaticBaseProjectionSkips++;
+ const firstTriangleFloat=reuseStaticProjection?staticClip.limit:0;
+ for(let i=firstTriangleFloat;i<v.length;i+=30){
   if(staticClip&&i<staticClip.limit){
    const block=Math.floor(i/(30*SOFTWARE_STATIC_CHUNK_TRIANGLES));
    if(staticClip.flags[block]){
@@ -4843,6 +4938,7 @@ gl={VERTEX_SHADER:1,FRAGMENT_SHADER:2,ARRAY_BUFFER:3,FLOAT:4,DYNAMIC_DRAW:5,COLO
   softwareInvW[count*3+1]=1/wb;
   softwareInvW[count*3+2]=1/wc;
   count++;
+  if(staticClip&&i<staticClip.limit)staticProjected++;
  }
  paintOrder.length=count;
  // Preserve the W538 Canvas2D painter as a real opt-out/unsupported-context
@@ -4850,7 +4946,12 @@ gl={VERTEX_SHADER:1,FRAGMENT_SHADER:2,ARRAY_BUFFER:3,FLOAT:4,DYNAMIC_DRAW:5,COLO
  const depthEnabled=typeof ctx.createImageData==='function'&&
   typeof ctx.putImageData==='function'&&
   globalThis.__tinyKingdomLegacyCanvasPainter!==true;
- const depthDrawn=depthEnabled&&drawSoftwareDepthFrame(count,sx,sy);
+ const staticKey=reuseStaticProjection?priorKey:staticClip&&staticProjected?
+  [softwareStaticSource,softwareStaticChunkBuilds,
+   canvas.width,canvas.height,staticProjected,
+   ...m,...sky,...sunTint,...sunDirection]:null;
+ const depthDrawn=depthEnabled&&drawSoftwareDepthFrame(
+  count,sx,sy,staticProjected,staticKey,reuseStaticProjection);
  fallbackStats.backend=depthDrawn?'retained-pixel-depth':'legacy-canvas-paths';
  if(!depthDrawn){
   paintOrder.sort((x,y)=>projected[y*7+6]-projected[x*7+6]);
@@ -4869,7 +4970,7 @@ gl={VERTEX_SHADER:1,FRAGMENT_SHADER:2,ARRAY_BUFFER:3,FLOAT:4,DYNAMIC_DRAW:5,COLO
  fallbackStats.submitted=submitted;
  fallbackStats.behindCamera=behind;
  fallbackStats.offscreen=offscreen;
- fallbackStats.visible=count;
+ fallbackStats.visible=count+(reuseStaticProjection?softwareStaticBaseProjected:0);
  fallbackStats.lastCpuWallMs=performance.now()-begun;
  fallbackStats.capacityTriangles=painterCapacity;
  fallbackStats.retainedBufferBytes=projected.byteLength+paintColors.byteLength;
