@@ -36,6 +36,10 @@ test('earned OPEN public bend changes Pip connected torso/lantern orientation, n
       assert.ok(Math.abs(staged.head+staged.torso-(Math.PI/2))
         <Math.abs(ordinary.head+ordinary.torso-(Math.PI/2)),
         'attached face and chest approach the same public target');
+      const armRelease=pose({counterLanternTarget:{x:4.8,y:1.2,z:0},earnedCounterPhase:.42});
+      const releaseNeutral=pose({counterLanternTarget:undefined,earnedCounterPhase:.42});
+      assert.equal(armRelease.torso,releaseNeutral.torso,
+        'after the witnessed initial chest counter Pip releases into the original independently aimed shoulder');
       assert.equal(staged.root,ordinary.root,'autonomous route heading stays exact');
       assert.equal(staged.lampParent,ordinary.lampParent,'original lantern remains joined');
       assert.deepEqual(pose({counterLanternTarget:{x:4.8,y:1.2,z:0}}),staged,

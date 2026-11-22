@@ -338,6 +338,11 @@ export function createExplorer(options = {}) {
     const defensiveFlinch=guardianPlant*(1-.9*guardianAnswer);
     const relativeLook=reacting?Math.atan2(Math.sin(options.attentionHeading-group.rotation.y),Math.cos(options.attentionHeading-group.rotation.y)):0;
     const lookYaw=Math.max(-.72,Math.min(.72,relativeLook))*alert;
+    // Stage the chest as the INITIAL witnessed physical counter response, then
+    // release it into the original right-shoulder lantern reach. Staying twisted
+    // throughout the release stole the shoulder's relative bearing, breaking
+    // the existing open-corridor physical-arm contract at phase .42.
+    // Both phases use the SAME public target; neither invents a game action.
     // One REAL, currently witnessed open lantern link earns a whole upper-
     // body turn toward its next PHYSICAL corridor endpoint. The older rig
     // aimed the wrist along the open bend while Pip's chest faced the AI
@@ -349,7 +354,7 @@ export function createExplorer(options = {}) {
     const counterFacingReach=counterPhase!==null && earnedAim
       && [earnedAim.x,earnedAim.y,earnedAim.z].every(Number.isFinite)
       && Number.isFinite(group.position.x)&&Number.isFinite(group.position.z)
-      ? Math.max(0,Math.min(1,counterPhase/.14,(1-counterPhase)/.23))
+      ? Math.max(0,Math.min(1,counterPhase/.14,(.38-counterPhase)/.12))
         * Math.max(-.65,Math.min(.65,
           Math.atan2(Math.sin(Math.atan2(earnedAim.x-group.position.x,
             earnedAim.z-group.position.z)-group.rotation.y),
