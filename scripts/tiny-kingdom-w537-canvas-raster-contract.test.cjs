@@ -13,9 +13,17 @@ test('W537 actual complete playable game script parses',()=>{
 test('W537 Canvas2D implements all real original scene-light uniform calls',()=>{
  const i=html.indexOf('if(!gl){');
  assert.ok(i>=0);
- const fallback=html.slice(i,i+8000);
+ // The real renderer has grown significantly since W539/W540. The GL
+ // compatibility object is now past 8 KiB of retained rasterizer code.
+ // Inspect the full, bounded fallback section rather than a fragile prefix.
+ const end=html.indexOf('\\n// G064:',i);
+ assert.ok(end>i,'must find complete fallback boundary before real WebGL setup');
+ const fallback=html.slice(i,end);
+ const glStart=fallback.indexOf('gl={');
+ assert.ok(glStart>=0,'fallback must install the actual canvas-compatible GL facade');
+ const facade=fallback.slice(glStart);
  for(const method of ['uniform4fv:noop','uniform4f:noop','uniform2f:noop','uniform1i:noop'])
-  assert.ok(fallback.includes(method),'missing '+method);
+  assert.ok(facade.includes(method),'missing '+method);
  assert.ok(fallback.includes('uniformMatrix4fv:(_,__,m)=>{projection=m}'));
 });
 test('W537 preserve authentic people/houses crossing 390px viewport and reject only fully offscreen original triangles',()=>{
