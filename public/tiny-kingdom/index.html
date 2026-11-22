@@ -28620,7 +28620,7 @@ function followRayBlockers(eye,target,roofs){
  for(const id of candidates){
   const roof=roofs[id];
   let near=.015,far=.985,miss=false;
-  const base=roof.bottom??(terrain(roof.x,roof.z)-.22);
+  const base=readPhysicalRoofEnvelope(roof).rayBottom;
   for(const [axis,low,high] of [[0,roof.x-roof.rx,roof.x+roof.rx],
    [1,base,roof.top+.16],[2,roof.z-roof.rz,roof.z+roof.rz]]){
    const d=target[axis]-eye[axis];
@@ -28714,7 +28714,7 @@ function physicalFollowEyeClearance(eye,roofs){
   cameraEyeCounters.exactTests++;
   const volume=roofs[id];
   if(!PHYSICAL_FOLLOW_EYE_KINDS.has(volume.kind))continue;
-  const bottom=volume.bottom??(terrain(volume.x,volume.z)-.22);
+  const bottom=readPhysicalRoofEnvelope(volume).rayBottom;
   if(eye[0]>volume.x-volume.rx-.06&&eye[0]<volume.x+volume.rx+.06&&
    eye[2]>volume.z-volume.rz-.06&&eye[2]<volume.z+volume.rz+.06&&
    eye[1]>bottom-.06&&eye[1]<volume.top+.10)
@@ -28775,7 +28775,7 @@ function cameraShotProximityWarnings(eye,roofs){
  for(const id of ids){
   cameraProximityCounters.exact++;
   const roof=roofs[id];
-  const base=roof.bottom??(terrain(roof.x,roof.z)-.22);
+  const base=readPhysicalRoofEnvelope(roof).rayBottom;
   if(eye[1]>roof.top+.48||eye[1]<base-.35)continue;
   const dx=Math.max(0,Math.abs(eye[0]-roof.x)-roof.rx),
    dz=Math.max(0,Math.abs(eye[2]-roof.z)-roof.rz);
@@ -28845,6 +28845,41 @@ const WORKDAY_OPAQUE_SCENE_KINDS=new Set([
 // W534 live observation spine: conservative projected-bounds broadphase.
 // Every counter is bounded in memory; no citizen/building/terrain is culled.
 const foregroundProjectionBroadphase={tests:0,rejected:0,exact:0};
+/* W536 Phase 1 — an exact original physical scene-bounds residency layer.
+ * Every real home, market post, barn and actual moving courier stays in
+ * full ray/collision/foreground tests. Weak keys die with original roofs;
+ * changed geometric coordinates invalidate immediately, including freight.
+ * No world actor/house hidden, no mesh or simulated transaction invented.
+ */
+const physicalRoofEnvelopeCache=new WeakMap();
+const physicalRoofEnvelopeCounters={builds:0,reuses:0,invalidations:0};
+function readPhysicalRoofEnvelope(roof){
+ const cached=physicalRoofEnvelopeCache.get(roof);
+ if(cached&&cached.x===roof.x&&cached.z===roof.z&&
+   cached.rx===roof.rx&&cached.rz===roof.rz&&
+   cached.top===roof.top&&cached.rawBottom===roof.bottom&&
+   cached.rawVisualBottom===roof.visualBottom){
+  physicalRoofEnvelopeCounters.reuses++;return cached;
+ }
+ const rayBottom=roof.bottom??(terrain(roof.x,roof.z)-.22);
+ const bottom=roof.visualBottom??roof.bottom??(terrain(roof.x,roof.z)-.1);
+ const mid=(bottom+roof.top)*.5,halfHeight=Math.abs(roof.top-bottom)*.5;
+ const sphereRadius=Math.hypot(roof.rx,halfHeight,roof.rz);
+ const prepared={x:roof.x,z:roof.z,rx:roof.rx,rz:roof.rz,
+  top:roof.top,rawBottom:roof.bottom,rawVisualBottom:roof.visualBottom,
+  rayBottom,bottom,mid,halfHeight,sphereRadius};
+ if(cached)physicalRoofEnvelopeCounters.invalidations++;
+ physicalRoofEnvelopeCache.set(roof,prepared);
+ physicalRoofEnvelopeCounters.builds++;
+ return prepared;
+}
+function getPhysicalRoofEnvelopeResidentAudit(){
+ return {source:'actual-camera-roof-and-freight-bounds-preparation',
+  ...physicalRoofEnvelopeCounters,weakKeys:true,fullOriginalBuildings:true,
+  exactSlabAndPerspectiveMath:true,noCameraRayOrBuildingRemoved:true,
+  changesWorld:false,physicalGpuFPS:'NOT MEASURED',
+  experienceScore:'NOT PROVEN'};
+}
 function getForegroundProjectionBroadphaseAudit(){
  return {source:'real-workday-physical-AABB-projected-bounds-prefilter',
   ...foregroundProjectionBroadphase,
@@ -28872,10 +28907,9 @@ function foregroundSceneProjection(eye,target,roofs){
  const near=.20,far=Math.max(near+.01,len-.12);
  for(const roof of roofs){
   if(!WORKDAY_OPAQUE_SCENE_KINDS.has(roof.kind))continue;
-  const bottom=roof.visualBottom??roof.bottom??(terrain(roof.x,roof.z)-.1);
-  const mid=(bottom+roof.top)*.5;
+  const {bottom,mid,halfHeight,sphereRadius}=readPhysicalRoofEnvelope(roof);
   const depth=(roof.x-eye[0])*f[0]+(mid-eye[1])*f[1]+(roof.z-eye[2])*f[2];
-  const span=Math.abs(f[0])*roof.rx+Math.abs(f[1])*(roof.top-bottom)*.5+Math.abs(f[2])*roof.rz;
+  const span=Math.abs(f[0])*roof.rx+Math.abs(f[1])*halfHeight+Math.abs(f[2])*roof.rz;
   if(depth-span>=far){behindWorkerRejected++;continue;}
   if(depth+span<=near)continue;
   // W534 PROJECTED ROOF BROADPHASE START
@@ -28884,8 +28918,7 @@ function foregroundSceneProjection(eye,target,roofs){
   // then run the ORIGINAL exact near/far-clipped corner projection unchanged.
   // This changes neither WebGL visibility, collision nor authoritative work.
   foregroundProjectionBroadphase.tests++;
-  const halfHeight=Math.abs(roof.top-bottom)*.5;
-  const sphereRadius=Math.hypot(roof.rx,halfHeight,roof.rz);
+  // Original enclosing sphere is already computed for this roof.
   const offsetX=roof.x-eye[0],offsetY=mid-eye[1],offsetZ=roof.z-eye[2];
   const lateral=offsetX*right[0]+offsetY*right[1]+offsetZ*right[2];
   const vertical=offsetX*up[0]+offsetY*up[1]+offsetZ*up[2];

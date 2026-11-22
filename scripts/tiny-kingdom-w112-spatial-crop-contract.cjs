@@ -47,6 +47,24 @@ env.ripeningField=(bounds,index,season,compact,onRowComplete)=>{
  }
  env.farmScene.stalks++;
 };
+// The production grain audit now uses original seeded wheat anatomy.
+const biomeStart=html.indexOf('function biomeHash(');
+const biomeEnd=html.indexOf('\n/* Gauntlet 051',biomeStart);
+const canopyStart=html.indexOf('function seededStandingWheatCanopy(');
+const canopyEnd=html.indexOf('\nfunction authenticGrainHeadProfile(',canopyStart);
+assert(biomeStart>=0&&biomeEnd>biomeStart&&canopyStart>=0&&canopyEnd>canopyStart,
+ 'Real seeded grain anatomy/biome hash must exist');
+const biomeHash=Function(html.slice(biomeStart,biomeEnd)+';return biomeHash;')();
+env.seededStandingWheatCanopy=Function('biomeHash',
+ html.slice(canopyStart,canopyEnd)+';return seededStandingWheatCanopy;')(biomeHash);
+env.climateAt=()=>({season:1});
+env.state={t:24};
+env.hashAuthenticCivicCoreVertices=(mesh)=>{
+ const words=new Uint32Array(mesh.buffer,mesh.byteOffset,mesh.length);
+ let hash=2166136261;
+ for(let i=0;i<words.length;i++)hash=Math.imul(hash^words[i],16777619);
+ return (hash>>>0).toString(16).padStart(8,'0');
+};
 const code=html.slice(first,last);
 const p=Function('env','with(env){'+code+
  '\nreturn {prepareResidentFarmFields,drawResidentFarmFields,'+
