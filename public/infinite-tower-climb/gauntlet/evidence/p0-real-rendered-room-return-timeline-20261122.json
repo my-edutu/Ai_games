@@ -24,7 +24,7 @@
     "ledgerOnlySourceToNativePairing": "NOT ACCEPTED 0/2",
     "sourceGuardianRestartChain": true
   },
-  "primarySystemicBlocker": "First source-returned floor-nine scene does not establish a co-visible 3D original gateway, moving climber, real roof and raised destination in native footage. Return-by-return owner evidence was absent, so camera vs World-cut cause could not be distinguished.",
+  "primarySystemicBlocker": "Authentic bronze F8 gateway and walkable F9 roof transition remains visually discontinuous at ~27–28s, now including verified inward sideways first-F9 camera shoulder cut despite co-returned old and new Three.js owners. Revised final camera behavior unverified in native film.",
   "implementedUnblocker": {
     "files": [
       "public/infinite-tower-climb/visuals/source-returned-room-timeline.mjs",
@@ -55,7 +55,7 @@
     }
   },
   "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
-  "nextHighestImpactAction": "Inspect exact immutable 8745ca8e source native dangerous gameplay after queue drains, including first-episode-only original-room-native-alignment.json for desktop 960x600 and portrait 390x844; if true old owner is lost before next geometry returned, fix World lifecycle, otherwise inspect/preserve physically joint gateway/hero/roof/raised destination camera composition. Retain visual veto until 2/2 true event-aligned full-motion shots.",
+  "nextHighestImpactAction": "Compare full authentic first-episode source/native frames and camera-angle guard acceptance/rejection at new exact HEAD; if shot remains discontinuous, fix integrated physical World/Camera landing staging and recapture; do not advance to P1.",
   "fullInstrumentationCommitSha": "bd2af6ff2784a9e7d51df12b0d7856f34b4059fb",
   "captureRequestedForExactHead": "${{ github.sha }}",
   "pinnedCaptureCondition": "push to capture-request.json triggers original 9-job workflow, candidate pinned to immutable final github.sha; workflow queued results are not visual acceptance.",
@@ -236,5 +236,71 @@
     },
     "actualDeviceP50P95P99AndMemory": "NOT EVALUATED",
     "nextHighestImpactAction": "Inspect full 1x first F9 source-pinned candidate danger desktop/portrait WebMs and firstFloorNineCameraDeparture counters. Require original HP0 gate, complete actual moving hero, physical F9 receiving roof and first raised destination continuously visible with strict native events 2/2. If veto suppresses clamp or skyline still snaps, rebuild camera/world transition coherently. Do not advance P1 or claim gameplay improvement."
+  },
+  "p0InwardShoulderCameraSystemFix20261122": {
+    "stage": "P0 OPEN",
+    "verdict": "NOT EVALUATED",
+    "sourceBeforeChange": "7ef8f9b212ed35bf68eab4e20a6a6fd2318a447c",
+    "implementedCodeCommitSha": "c6867582152e53e358c3d754d709d6f5876e8c1d",
+    "immutableBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "originalVideoCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/45056721340",
+    "originalQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/45056721374",
+    "originalSourceNativeDangerPairing": "FAILED 0/2",
+    "originalCaptureCount": "8/8 baseline/candidate recordings plus ledge",
+    "fullLengthDangerRecorded": {
+      "desktop": "72.08s",
+      "portrait": "73.08s"
+    },
+    "firstEpisodeReturnedFrameSearchAlignment": {
+      "desktop": 39,
+      "portrait": 41,
+      "verifiedNativePixelCoVisibility": false
+    },
+    "nativeSceneDifference": {
+      "desktopHudSec": 25.5,
+      "desktopVioletSec": 27.75,
+      "portraitHudSec": 26,
+      "portraitVioletSec": 28
+    },
+    "observedPortraitCameraCut": {
+      "sourceTicks": [
+        517,
+        527
+      ],
+      "oldReturned": [
+        2.5,
+        16.9,
+        56.5
+      ],
+      "newReturned": [
+        38,
+        17.7,
+        33.9
+      ],
+      "oldRealHero": [
+        11.4,
+        7,
+        22.3
+      ],
+      "newRealHero": [
+        12.8,
+        10.5,
+        23.7
+      ],
+      "failure": "inward side-orbit bypassed outward-only camera guard"
+    },
+    "meaningfulChange": "Genuine per-render source-scoped final camera angular/radius/height and real-hero-tracking gaze continuity; existing 3D hero and opaque core can still veto",
+    "files": [
+      "public/infinite-tower-climb/visuals/first-floor-nine-camera-departure.mjs",
+      "tests/phase3/tower-first-floor-nine-camera-catapult.test.cjs"
+    ],
+    "focusedStandalonePurePolicy": "PASS for exact inward shoulder cut, old outward case and safety guards; GitHub exact-head CI pending",
+    "independentReviewers": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "realDeviceFrameTimesAndMemory": "NOT EVALUATED",
+    "next": "Inspect exact c686758+ native WebM and source-camera clamp/veto telemetry; if rejected or still discontinuous, rebuild joint physical world/camera composition; keep P0 OPEN"
   }
 }
