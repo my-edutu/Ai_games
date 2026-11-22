@@ -6539,7 +6539,15 @@ export function planLicensedSourceConnectedChainTrials({
   sourceUpperTrackVerified!==true||sourceLowerTrackVerified!==true||
   sourceFootTrackVerified!==true||sourceBindVerified!==true||
   ![frameInterval,plan.upperRad,plan.lowerRad,plan.footRad,
-   plan.sourceClipTimeSeconds].every(finite)||
+   plan.sourceClipTimeSeconds,
+   plan.sourceWitnessedFrameIntervalSeconds].every(finite)||
+  // Original source-time and independently two-shoe-skinned trial MUST
+  // use the same displayed native frame. A second call may not supply a
+  // longer synthetic interval to unlock extra hip/knee angular velocity.
+  // Sparse frames remain available only with the directly witnessed
+  // current-frame root movement established by the original source owner.
+  Math.abs(frameInterval-plan.sourceWitnessedFrameIntervalSeconds)>.00001||
+  (frameInterval>.240001&&plan.sourceSparseFrameVerified!==true)||
   frameInterval<.008||frameInterval>.600001||
   plan.upperRad>=0||plan.lowerRad<=0||plan.footRad>=0||
   plan.upperRad<-.081||plan.lowerRad>.081||
@@ -6822,6 +6830,8 @@ export function planLicensedSourceSwingCounterpitch({
   source:'verified-licensed-source-native-counterpitch',
   sourceRole,sourceClip:'Walking_A',side,
   sourceClipTimeSeconds:phase,sourceClipDurationSeconds,
+  sourceWitnessedFrameIntervalSeconds:frameInterval,
+  sourceSparseFrameVerified:sparseFrameVerified===true&&frameInterval>.240001,
   upperRad:-.08*chainShare,lowerRad:.08*chainShare,
   footRad:-footMagnitude,
   sourceWeightedPitchMeters:pitch,
