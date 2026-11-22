@@ -8758,5 +8758,38 @@
     "actualDevice": "NOT EVALUATED",
     "next": "Verify latest complete exact SHA jobs, inspect both native 60+s videos and grounded gateway/hero/f9 receiving roof sequence. Fix real camera/world jump if 0/2 continues.",
     "safety": "Never move baseline, edit PR58 or unrelated game, merge, deploy, force push or undraft PR68."
+  },
+  "p0Run11_20261122_ImmutablePortraitJointLensRealGameplay": {
+    "stage": "P0 OPEN",
+    "verdict": "NOT EVALUATED",
+    "baseline": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateRef": "${{ github.sha }}",
+    "candidateSceneImplementationSha": "44402dd6f2103f09dcfef3e3436dc7bf40d17d22",
+    "previousInspectedCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44999770930",
+    "previousResult": "8/8 genuine 60+s recording jobs, 0/2 strict native event phase; portrait original old-to-new camera 0/16 physical trial accepts, 0s visible mixed bronze/Void room",
+    "why": "This request forces nine-job immutable baseline and candidate playback after REAL source-driven 3D portrait joint hero/gate/roof gaze improvement, with no additional physical-ray trials and no observer fabrication.",
+    "filming": {
+      "seed": "tower-transformation-capture-v1",
+      "fps": 25,
+      "speed": 1,
+      "tier": "low",
+      "minimumSeconds": 60,
+      "desktop": "960x600",
+      "portrait": "390x844",
+      "scenarios": [
+        "ascent",
+        "moving",
+        "danger/guardian",
+        "outcome/restart"
+      ]
+    },
+    "require": "Strict original source-event/native-PTS match 2/2; sustained same-shot HP0 real opened gate metal and moving whole-body and source-walkable f9 ground and next raised destination; full loop/restart; no regressions; quality safety veto and real supported device performance.",
+    "independentBlindReviewCounts": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDevicePerformance": "NOT EVALUATED",
+    "constraints": "Preserve original baseline, transformation.json blob, PR58, PR68 draft; no force push, merge, deploy or unrelated game change."
   }
 }
