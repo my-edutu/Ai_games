@@ -45,6 +45,6 @@ test('real first desktop F9 15-tick sparse arrival retains the original door onl
 });
 test('production world pre-stage consumes the evidence at the sparse observation guard',()=>{
  const world=fs.readFileSync(path.resolve(__dirname,'../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
- assert.match(world,/observedImmutableCrossingSparseBrowserBridge\(previous,next,authored,ground,threshold\)/);
+ assert.match(world,/observedImmutableCrossingSparseBrowserBridge\(\s*previous,next,authored,ground,threshold\)/);
  assert.match(world,/immutableSparseBridge\?\.maxSparseTicks/);
 });
