@@ -3326,11 +3326,11 @@ test('source-loaded pelvis bridge uses authentic two-point walking shoe contact,
  // source chain may not bypass independently re-skinned two-shoe XYZ proof.
  assert.match(finalPelvisStage,/const otherSourceLegClaim=\['left','right'\]\.some\(side=>/,
   'an unrelated same-frame original leg owner must prohibit pelvis stacking');
- assert.match(finalPelvisStage,/if\(otherSourceLegClaim\|\|actor\.sourceSwingToeCorrectionsThisFrame>0\)return;/,
+ assert.match(finalPelvisStage,/if\(otherSourceLegClaim\|\|actor\.sourceSwingToeCorrectionsThisFrame>0\)\s*\{\s*note\('another-original-joint-owner-has-live-shoe-certificate'\);\s*return;\s*\}/,
   'competing original-source leg/toe owners must exit before any pelvis trial');
  assert.match(finalPelvisStage,/const sourceChainCert=hasConnectedSource\?[\s\S]*?certifyLicensedSourcePostChainPelvisOpportunity\(/,
   'one connected original source-leg owner requires an independent final-shoe certificate');
- assert.match(finalPelvisStage,/if\(hasConnectedSource&&!sourceChainCert\)return;/,
+ assert.match(finalPelvisStage,/if\(hasConnectedSource&&!sourceChainCert\)\s*\{\s*note\('original-connected-leg-final-shoe-handoff-failed',\{[\s\S]*?\}\);\s*return;\s*\}/,
   'no connected-leg evidence handoff without an exact source clip/clone/soles certificate');
  assert.match(finalPelvisStage,/sourceChainCert,\s*before,otherBefore/,
   'the accepted original source-leg receipt must accompany the final physical audit');
