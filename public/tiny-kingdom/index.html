@@ -4847,10 +4847,16 @@ function reservePainter(n){
  if(n<=painterCapacity){painterReused++;return;}
  let size=Math.max(256,painterCapacity);
  while(size<n)size*=2;
+ // A near-eye intersection can produce two authentic pieces from one
+ // original triangle AFTER earlier painter rows were already written.
+ // Preserve those rows on rare high-water growth; otherwise close-up
+ // geometry would vanish when the capacity boundary is crossed.
+ const priorProjected=projected,priorColors=paintColors,
+  priorInvW=softwareInvW;
  painterCapacity=size;painterGrowths++;
- projected=new Float64Array(size*7);
- paintColors=new Uint32Array(size);
- softwareInvW=new Float32Array(size*3);
+ projected=new Float64Array(size*7);projected.set(priorProjected);
+ paintColors=new Uint32Array(size);paintColors.set(priorColors);
+ softwareInvW=new Float32Array(size*3);softwareInvW.set(priorInvW);
 }
 
 canvasFallbackRasterAudit=()=>({source:'real-canvas2d-conservative-screen-raster',enabled:true,
