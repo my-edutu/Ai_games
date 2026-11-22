@@ -65,12 +65,12 @@ assert.throws(()=>fn(new Float32Array(13),0,0,0,0),/triangle/);
 const detailed=extract('workSkinDetailedPoint');
 const detailedPoint=new Function(detailed+';return workSkinDetailedPoint;')();
 const rig={working:false,hauling:true,acting:{lean:.20,crouch:.08}};
-const body={spineShift:0,forwardLean:0,rise:0};
+const haulingPoseBody={spineShift:0,forwardLean:0,rise:0};
 const bind={x:18,z:1,ground:.5,angle:0,scale:1};
 const q=[.3,1.05,.2],raised=q[1]-.44;
 const expected=[18+.3,.5+q[1]-.08*Math.min(1,raised/.65),
  1+q[2]+raised*.20];
-const actual=detailedPoint(q,rig,body,bind);
+const actual=detailedPoint(q,rig,haulingPoseBody,bind);
 for(let i=0;i<3;i++)assert(Math.abs(actual[i]-expected[i])<1e-7,
  'real hauling wrist/torso must match original CPU lean at component '+i);
 const nonunit=initial.slice();nonunit[3]=3;
