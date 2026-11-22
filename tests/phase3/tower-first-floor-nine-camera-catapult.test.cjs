@@ -32,6 +32,32 @@ test('normal motion, real floor progress, stale/restart/manual never constrained
   {firstReturnedF9Tick:null},{dt:Infinity}
  ]) assert.equal(guard({...b,...changed}),null);
 });
+test('exact 7ef8f9b first-episode portrait shoulder cut is angular, NOT outward',async()=>{
+ const guard=await fn;
+ const crossing={...b,source:{...source,tick:527},
+   lastRendered:{floor:9,runToken:'original',tick:517},firstReturnedF9Tick:478,
+   previousCamera:[2.5,16.9,56.5],previousFocus:[7.9,2.3,23.2],
+   previousHero:[11.4,7,22.3],desiredCamera:[38,17.7,33.9],
+   desiredFocus:[10.5,9.7,23.7],hero:[12.8,10.5,23.7],dt:.05};
+ const x=guard(crossing);
+ assert.ok(x, 'real inward shoulder cut must be bounded even without outward dolly');
+ assert.equal(x.reason,'first-original-floor-nine-camera-shoulder-cut');
+ assert.ok(x.requestedMovement>40);
+ assert.ok(Math.abs(x.requestedTurnRadians)>.7);
+ assert.ok(Math.abs(x.boundedTurnRadians)<=.04001);
+ assert.ok(x.boundedMovement<3);
+ assert.ok(x.focus[1]>crossing.previousFocus[1]+5,
+   'actual airborne hero displacement permits gaze to recover vertically');
+ for(const overrides of [
+   {cameraMode:'orbit'},{stale:true},{reducedMotion:true},
+   {hero:[65,20,23]},{source:{...crossing.source,floor:10}},
+   {source:{...crossing.source,tick:720}},
+   {lastRendered:{floor:9,runToken:'restart',tick:517}},
+   {firstReturnedF9Tick:1}
+ ]) assert.equal(guard({...crossing,...overrides}),null);
+ assert.equal(guard({...crossing,desiredCamera:[8,4,26]}),null,
+   'ordinary inward recovery is not an angular catapult');
+});
 test('post-director source guard acts only before genuine WebGL return',()=>{
  const scene=fs.readFileSync(path.join(visuals,'scene.mjs'),'utf8');
  const i=scene.indexOf('const firstF9DepartureBound=sourceFirstFloorNineCameraDeparture(');
