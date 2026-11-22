@@ -13730,4 +13730,29 @@
   "nextHighestImpactAction": "Inspect exact-source quality and full 1x desktop/portrait videos, compare actual post-gateway camera angular deltas and source-timed pixels with old bronze/violet seam. If the bounded final camera is vetoed or hard cut persists, fix real camera/world continuity or cold architectural staging based on measured film, never alter opacity merely to pass a test. Preserve P0 and repeat native source matching before P1.",
   "safety": "No merge/deploy/force push, frozen base/blob unchanged, PR58 and all other games untouched."
 }
+,
+  "p0OriginalSourceNativeCameraRecheckAndCIExactSha20261122_1200": {
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "assessor": "NOT EVALUATED",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "pr68Draft": true,
+  "finalProductionSafetyCommit": "c06bcee3be48054a6df9e5493d640b4cd66a604f",
+  "finalRegressionSyntaxCommit": "270291418fd16360073576cb9a042fada5caaa13",
+  "latestExactHeadBeforeEvidenceCommit": "270291418fd16360073576cb9a042fada5caaa13",
+  "latestExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45019382057 — queued on 2702914 at recording, not counted green",
+  "latestProductionSourcePinnedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45019236530 — in progress for c06bcee3; not accepted until original full-speed footage and strict source-native pairing",
+  "completedPreviousProductionCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45018890348 — original candidate source 055798d2: all eight baseline/candidate 68s+ normal-speed WebM captures succeeded plus original source ledge; strict source/native pairing FAILED 0/2",
+  "newVideoObservation": "Read original 68.289s desktop/68.275s portrait candidate WebMs. Actual bronze guardian room and physical receiving roof visible through 26-27s, real raised route enters shot near 27.5-28.0s, larger violet camera/world around 28.5s. Source tied portrait world-cam at ticks505 [-20.3,7.7,41.8], 516 [11.7,21.5,57.1], 542 [2.3,19.3,54.6], 565 [17.9,21.3,53.3]. Even with returned F9 guard code at 055, a large alternative shoulder swing remains and physical veto reasons are not yet certified from source video.",
+  "mainChangeMeaning": "Correct the actual final after-all-directors returned-camera path across grounded roof to real first raised landing; 0.60 rad/sec max azimuth on any submitted step and independently check real whole climber, original steel, platform and core. Keep physical authority unchanged. This is a candidate code change, NOT a proven transformation.",
+  "observedFirstQualityRegressions": "New phase3 test originally had a syntax error; subsequent direct source CI failed 2/4 new regressions for over-strict camera-step bound and incorrect regex escape. Both were repaired by c06bcee3 and 2702914; new exact-head quality not yet reported.",
+  "strictNativeDangerVerdict": "FAIL 0/2 previous exact source; new c06 original capture not yet evaluated",
+  "independentLooks": 0,
+  "independentFeels": 0,
+  "independentPlays": 0,
+  "deviceFrameTimePercentiles": "NOT EVALUATED",
+  "deviceMemory": "NOT EVALUATED",
+  "devicePrivacy": "NOT EVALUATED",
+  "nextHighestImpactAction": "Check c06 native 1x 960x600/390x844 camera samples/real pixels and 270 Node CI. If post-guardian follow guard is physically vetoed or old-to-void camera jump remains, identify real blocking world triangles/camera timing and solve the system rather than tune alpha. Preserve P0 until authentic source-to-native event matches and independent critics pass.",
+  "passed": false
+}
 }
