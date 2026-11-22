@@ -113,7 +113,20 @@ function joinOriginalRoomEvidence({sourceSha,viewport,clock,phase,timeline,video
       cameraGaze:r.submittedGaze ?? null,
       fogColor:r.submittedFogColor ?? null});
   }
-  const summary=summarizeReturnedOwners(aligned);
+  // A 70+s danger film can restart and visit F9 again. The scene ring is
+  // allowed to reset per run; a LATER run must never be diagnosed as the
+  // FIRST original 8->9 passage. Require the independent painted HUD's
+  // native-video first-episode search window, then analyze only its returns.
+  const episode=phase.firstEpisodeWindow;
+  if (!finite(episode?.startSeconds) || !finite(episode?.endSeconds) ||
+      episode.startSeconds<0 || episode.endSeconds<=episode.startSeconds ||
+      episode.endSeconds-episode.startSeconds>6)
+    return fail('first-floor-nine-episode-native-video-window-not-verified');
+  const firstEpisode=aligned.filter(x=>finite(x.nativeSearchPtsSeconds) &&
+    x.nativeSearchPtsSeconds>=episode.startSeconds-.3 &&
+    x.nativeSearchPtsSeconds<=episode.endSeconds+.3);
+  if(!firstEpisode.length)return fail('no-genuine-returns-mapped-to-first-native-floor-nine-episode');
+  const summary=summarizeReturnedOwners(firstEpisode);
   const phaseSeconds=phase.phase?.videoPhaseWitness?.nativeSeconds ?? null;
   const hudSeconds=phase.visibleHandoff?.originalDrawnHudSeconds ?? null;
   const near = finite(phaseSeconds)
@@ -121,12 +134,14 @@ function joinOriginalRoomEvidence({sourceSha,viewport,clock,phase,timeline,video
        Math.abs(x.nativeSearchPtsSeconds-phaseSeconds)<=1.25):[];
   return {...report,status:'SOURCE_OWNER_AND_NATIVE_SEARCH_TIMELINE_JOINED',
     sourceReturnedRoomFrames:aligned.length,
+    firstEpisodeMappedReturns:firstEpisode.length,
+    firstEpisodeFirstGlobalReturnIndex:firstEpisode[0].index,
     nativePtsSearchHandles:aligned.filter(x=>finite(x.nativeSearchPtsSeconds)).length,
     firstDrawnFloor9HudSeconds:finite(hudSeconds)?hudSeconds:null,
     firstSustainedVioletVideoSeconds:finite(phaseSeconds)?phaseSeconds:null,
     nativeChromaEvidenceIsNotGameplayEvent:true,
     sourceReturnedRoomSummary:summary,
-    returnedFramesNearNativeColorShift:near,
+    returnedFramesNearNativeColorShift:near.filter(x=>firstEpisode.includes(x)),
     alignedSceneOwnerReturns:aligned,
     nextAction:summary.returnOwnerGapBeforeNextStructure
       ?'Inspect actual old-geometry teardown versus successor scene construction; fix shared old-world/new-shaft lifecycle, then capture 1x native gameplay again.'
