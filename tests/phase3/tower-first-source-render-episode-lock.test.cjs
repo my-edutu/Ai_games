@@ -42,7 +42,7 @@ test('pins first actual F9 renderer return even when successor and old owners ar
 test('actual renderer return path does not erase first film episode on a restart',()=>{
  const scene=fs.readFileSync(scenePath,'utf8');
  assert.match(scene,/firstReturnedOriginalRoomAdmission\(\s*originalToVoidReturnedRun,\s*snapshot,\s*roomReturn\s*\)/);
- assert.match(scene,/firstReturnedFloorNineEpisode\\(originalToVoidReturnedRun,snapshot\\)/);
+ assert.match(scene,/firstReturnedFloorNineEpisode\(\s*originalToVoidReturnedRun,\s*snapshot\)/);
  assert.doesNotMatch(scene,/originalToVoidReturnedTimeline\.length\s*=\s*0/);
  assert.match(scene,/originalToVoidReturnedTimeline\.push\(/);
  assert.match(scene,/sourceHandoffReturnWitness\?\.\(snapshot\)/);

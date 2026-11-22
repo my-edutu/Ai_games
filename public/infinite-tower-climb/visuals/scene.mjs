@@ -36,6 +36,7 @@ import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
 import { sourceReturnedGateCameraRelease, sourceRetainedGatewayCameraContinuity, assessSourceRetainedGatewayPhysicalShot, sourceReturnedGatewayLastCameraEligible, sourceEarnedFloorNineOrbitGuard } from './source-returned-gate-camera-release.mjs';
 import { sourceFirstRaisedFlightGaze } from './source-first-raised-flight-gaze.mjs';
 import { firstReturnedOriginalRoomAdmission, firstReturnedFloorNineEpisode } from './first-source-room-return.mjs';
+import { sourceFirstFloorNineCameraDeparture } from './first-floor-nine-camera-departure.mjs';
 import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, sourceRaisedBackdropClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceThreeSubjectActorScaleGain, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe, sourceThreeSubjectPhysicalGain } from './physical-threshold-shot.mjs';
 import { sourceSubmittedDoorwayCameraDt, sourceCroppedHeroRecoveryDt } from './source-submitted-doorway-cadence.mjs';
 import { createTowerVoidProgramPrewarm } from './void-program-prewarm.mjs';
@@ -2490,6 +2491,11 @@ export function createTowerScene(canvas, settings = {}) {
   const lastSubmittedGuardianCamera = new THREE.Vector3();
   const lastSubmittedGuardianFocus = new THREE.Vector3();
   const lastSubmittedGuardian = {runToken:null,floor:null,tick:-1};
+  // The first eligible source F9 frame must have actually returned from WebGL.
+  const firstFloorNineCameraEntry={runToken:null,tick:null};
+  const lastReturnedFloorNineHero=new THREE.Vector3();
+  let firstF9CameraOutwardClamps=0,firstF9CameraUnsafeRejects=0;
+  let firstF9CameraWorstRequestedMetres=0,firstF9CameraLastBoundMetres=0;
   // Only an old gateway that survived a SUCCESSFUL WebGL submit can initiate
   // one same-run camera release after that real GPU owner retires. The final
   // camera remains subject to current body/camera-core safety vetoes.
@@ -6184,6 +6190,54 @@ export function createTowerScene(canvas, settings = {}) {
             earnedF9OrbitGuardVetoed+1);
         }
       }
+      // Exact 1x source/native portrait episode: prior F9 render camera
+      // [20.6,4.5,46.9] jumped to [37.1,10.3,69.4], then x~79,
+      // while the actor remained on the original walkable bronze roof.
+      // Final camera restraint must run AFTER all other directors, including
+      // when the old gateway has already retired from the actual World.
+      const firstF9DepartureBound=sourceFirstFloorNineCameraDeparture({
+        source:snapshot,lastRendered:lastSubmittedGuardian,
+        firstReturnedF9Tick:firstFloorNineCameraEntry.runToken===snapshot.runToken
+          ?firstFloorNineCameraEntry.tick:null,
+        previousCamera:lastSubmittedGuardianCamera.toArray(),
+        previousFocus:lastSubmittedGuardianFocus.toArray(),
+        previousHero:lastReturnedFloorNineHero.toArray(),
+        desiredCamera:camera.position.toArray(),desiredFocus:lookAt.toArray(),
+        hero:climber.group.position.toArray(),dt,
+        cameraMode:options.camera,stale:options.stale,
+        reducedMotion:options.reducedMotion
+      });
+      if(firstF9DepartureBound){
+        releasePreviousCamera.copy(camera.position);
+        releasePreviousFocus.copy(lookAt);
+        camera.position.set(...firstF9DepartureBound.camera);
+        lookAt.set(...firstF9DepartureBound.focus);
+        camera.lookAt(lookAt);camera.updateMatrixWorld(true);
+        releaseHero.copy(climber.group.position);
+        measureDuelBodyNdc(releaseHero,snapshot.player.halfHeight/SCALE,
+          camera,duelTop,duelBottom,releaseHeroNdc);
+        const wholeHero=releaseHeroNdc.every(Number.isFinite) &&
+          releaseHeroNdc[2]>=-1 && releaseHeroNdc[2]<=1 &&
+          Math.abs(releaseHeroNdc[0])+releaseHeroNdc[3]*.18<.93 &&
+          Math.abs(releaseHeroNdc[1])+releaseHeroNdc[3]<.91;
+        if(wholeHero &&
+            towerCoreSightlineClear(camera.position,releaseHero,23.5)){
+          firstF9CameraOutwardClamps=Math.min(1000000,
+            firstF9CameraOutwardClamps+1);
+          firstF9CameraWorstRequestedMetres=Math.max(
+            firstF9CameraWorstRequestedMetres,
+            firstF9DepartureBound.requestedMovement);
+          firstF9CameraLastBoundMetres=firstF9DepartureBound.boundedMovement;
+        }else{
+          // Never replace the real view with a source-valid but occluded
+          // or cropped actor. No invented frame or simulation movement.
+          camera.position.copy(releasePreviousCamera);
+          lookAt.copy(releasePreviousFocus);
+          camera.lookAt(lookAt);camera.updateMatrixWorld(true);
+          firstF9CameraUnsafeRejects=Math.min(1000000,
+            firstF9CameraUnsafeRejects+1);
+        }
+      }
       const sceneReadyAt = performance.now();
       renderer.render(scene, camera);
       const rendererReturnedAt = performance.now();
@@ -6206,6 +6260,16 @@ export function createTowerScene(canvas, settings = {}) {
         lastSubmittedGuardian.runToken = snapshot.runToken;
         lastSubmittedGuardian.floor = snapshot.floor;
         lastSubmittedGuardian.tick = snapshot.tick;
+        if(snapshot.floor===9){
+          if(firstFloorNineCameraEntry.runToken!==snapshot.runToken){
+            firstFloorNineCameraEntry.runToken=snapshot.runToken;
+            firstFloorNineCameraEntry.tick=snapshot.tick;
+          }
+          lastReturnedFloorNineHero.copy(climber.group.position);
+        }else{
+          firstFloorNineCameraEntry.runToken=null;
+          firstFloorNineCameraEntry.tick=null;
+        }
         // A real previously painted old-floor shot may show 1HP guardian
         // BEFORE the source victory. Only immutable HP-zero crossing permits
         // later use; the old source camera itself never manufactures defeat.
@@ -6976,6 +7040,14 @@ export function createTowerScene(canvas, settings = {}) {
         lastGeometryScoreGain:guardianWorldLastGain,
         source:'real current Three.js opaque world triangle rays / both drawn actors',
         limitation:'Throttled scene geometry witness, NOT native WebM painted pixels, A/B preference or hardware FPS'
+      },
+      firstFloorNineCameraDeparture: {
+        sourceBoundOutwardClamps:firstF9CameraOutwardClamps,
+        actualHeroOrTowerCoreVetoes:firstF9CameraUnsafeRejects,
+        largestRequestedCameraStepMetres:+firstF9CameraWorstRequestedMetres.toFixed(3),
+        lastAcceptedBoundedStepMetres:+firstF9CameraLastBoundMetres.toFixed(3),
+        source:'Same-run successful original WebGL camera and skinned actor, first 110 F9 source ticks, final physical hero/core safety',
+        limitation:'Source-authentic camera restraint is NOT original WebM visual acceptance, hardware FPS or independent critic preference'
       },
       earnedFloorNineOrbitContinuity: {
         acceptedSourceCameraSteps:earnedF9OrbitGuardAccepted,
