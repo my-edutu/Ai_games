@@ -169,6 +169,14 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
       rollbackProof:a.nativeLegOwnership.sourceLoadedPelvisRollbackFootProof??null,
       gate:a.nativeLegOwnership.sourceLoadedPelvisGateLast??null
      }:null,
+     // One genuine full-41-joint/pelvis/chest/weapon source body tilt, not an
+     // isolated toe twitch. The original skinned support heel is the WORLD
+     // pivot; every after-sole and original hand-slot must be read again.
+     sourceHeelLean:a?.nativeLegOwnership?{
+      acceptedFrames:a.nativeLegOwnership.sourceHeelAnchoredLeanAcceptedFrames??0,
+      finalProof:a.nativeLegOwnership.sourceHeelAnchoredLeanProof??null,
+      gate:a.nativeLegOwnership.sourceHeelAnchoredLeanGateLast??null
+     }:null,
      // Exact rendered original GLB world-root witness; NOT a generated step,
      // heel/toe plant, IK correction, target or source pose by itself.
      microWalk:a?.nativeLegOwnership?
@@ -195,6 +203,28 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
     expect(gate.reason,'the original skinned pelvis trial must execute rather than retain an untested placeholder').not.toBe('not-yet-tested');
     expect(gate.contactLocked).toBe(false);
     expect(gate.plantCertified).toBe(false);
+    const body=sample.sourceHeelLean;
+    expect(body?.gate?.source,'native original body hinge gate must be observable')
+     .toBe('original-licensed-heel-anchored-body-decision');
+    if(body?.finalProof){
+     expect(body.finalProof.originalSkinnedShoesVerified).toBe(2);
+     expect(body.finalProof.originalSkinnedEndpointsVerified).toBe(4);
+     expect(body.finalProof.contactLocked).toBe(false);
+     expect(body.finalProof.plantCertified).toBe(false);
+     expect(body.finalProof.originalWeaponGripAttached).toBe(true);
+     expect(body.finalProof.finalSwingToeLiftMeters).toBeGreaterThanOrEqual(.007);
+     expect(body.finalProof.finalSwingToeLiftMeters).toBeLessThanOrEqual(.02401);
+     for(const side of ['left','right'])
+      for(const endpoint of ['heel','toe']){
+       const a=sample.sourceSolePatchWorld?.[side]?.[endpoint];
+       const b=body.finalProof?.originalAfter?.[side]?.[endpoint];
+       expect(a?.length).toBe(3);
+       expect(b?.length).toBe(3);
+       expect(Math.hypot(...a.map((n,i)=>n-b[i])),
+        'accepted final original skinned shoe must match the genuine same-frame canvas')
+        .toBeLessThanOrEqual(.001);
+      }
+    }
    }
    // Native rAF AFTER the previous source skin; same untouched public tick.
    // No extra source animation, synthetic root movement, contacts or hits.
@@ -311,6 +341,27 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
    // Tie every genuine full-weight source walk pelvis rejection to both
    // original weighted shoes and the original weapon socket in the SAME
    // rendered frame. This is diagnosis only, not contact/IK/authority.
+   originalHeelAnchoredBodyLeanLiveReceipts:rows.filter(x=>
+    x.sourceHeelLean?.finalProof).map(x=>({
+     frame:x.frame,tick:x.tick,sourceInstanceId:x.sourceInstanceId,
+     sourceClip:x.sourceClip,sourceClipTime:x.sourceClipTime,
+     sourceWeight:x.sourceWeight,originalBodyLean:x.sourceHeelLean.finalProof,
+     actualOriginalSkinnedShoes:x.sourceSolePatchWorld,
+     weaponAttachedToOriginalHandslot:x.sourceWeaponGrip?.attachedToGripSocket===true
+    })),
+   originalWalkingHeelLeanGateAndSoleAudit:rows.filter(x=>
+    x.sourceClip==='Walking_A'&&x.sourceWeight>=.9).map(x=>({
+     frame:x.frame,tick:x.tick,clipTime:x.sourceClipTime,
+     accepted:x.sourceHeelLean?.acceptedFrames??0,
+     reason:x.sourceHeelLean?.gate?.reason??'missing-source-body-gate',
+     detail:x.sourceHeelLean?.gate?.detail??null,
+     sourceSkinnedLeftHeelY:x.sourceSolePatchWorld?.left?.heel?.[1]??null,
+     sourceSkinnedLeftToeY:x.sourceSolePatchWorld?.left?.toe?.[1]??null,
+     sourceSkinnedRightHeelY:x.sourceSolePatchWorld?.right?.heel?.[1]??null,
+     sourceSkinnedRightToeY:x.sourceSolePatchWorld?.right?.toe?.[1]??null,
+     gripAttached:x.sourceWeaponGrip?.attachedToGripSocket===true,
+     contactLocked:false,plantCertified:false
+    })),
    originalWalkingPelvisGateAndSoleAudit:rows.filter(x=>
     x.sourceClip==='Walking_A'&&x.sourceWeight>=.9).map(x=>{
      const y=(side,part)=>x.sourceSolePatchWorld?.[side]?.[part]?.[1];
