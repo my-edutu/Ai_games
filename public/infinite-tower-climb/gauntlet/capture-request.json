@@ -8862,5 +8862,43 @@
     },
     "devicePerformance": "NOT EVALUATED",
     "preciseNextAction": "Use per-render World-owner evidence to select one true 3D original-room/shaft teardown or physical-camera fix; no independent P1 stage advance."
+  },
+  "p0LatestRealF9PostDirectorCameraCatapult_20261122": {
+    "stage": "P0 OPEN",
+    "verdict": "NOT EVALUATED",
+    "sourceImplementationSha": "1aec7e6e779e3a00cc084174de90b420db9397cb",
+    "captureCandidate": "${{ github.sha }}",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "priorExactSourceNineJob": "https://github.com/my-edutu/Ai_games/actions/runs/45050256966",
+    "priorNativeCameraGap": "Desktop ~26.0s HUD->27.75s violet; portrait ~25.75s->27.50s; portrait returned camera [20.585,4.535,46.905]->[37.08,10.341,69.362]->x79. Unedited genuine 1x clips DO NOT pass joint 3D room.",
+    "sourceWork": "Final F9 camera source-run, last-rendered and actual hero clamp with actor/core safety; no gameplay authority changes",
+    "sourceReview": "docs/reviews/2026-11-22-tower-pr68-source-native-camera-catapult-p0.md",
+    "evidence": "public/infinite-tower-climb/gauntlet/evidence/p0-real-rendered-room-return-timeline-20261122.json",
+    "captureConditions": {
+      "speed": 1,
+      "fps": 25,
+      "minimumSeconds": 60,
+      "seed": "tower-transformation-capture-v1",
+      "tier": "low",
+      "baseline": "1731b380851162741761c5569e2bc152a0869ca9",
+      "viewports": [
+        "960x600",
+        "390x844"
+      ],
+      "scenarios": [
+        "ascent",
+        "moving",
+        "danger",
+        "outcome/restart"
+      ]
+    },
+    "hardGates": "No visual acceptance without first episode genuine WebM 2/2 strict source-native event alignment and continuous original HP0 gateway+moving full hero+true roof+first raised destination, independent critics >=4/5 EACH, genuine supported device p50,p95,p99 and memory",
+    "independentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDeviceMetrics": "NOT EVALUATED",
+    "constraints": "No baseline move, no PR58 edits, no non-Tower games, no merge/deploy/force-push, preserve draft"
   }
 }

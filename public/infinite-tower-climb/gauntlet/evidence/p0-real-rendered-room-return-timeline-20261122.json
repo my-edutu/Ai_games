@@ -190,5 +190,51 @@
     "lastSceneSourceSha": "b7e3c85c3de95d3ab8cb4d18f471a4dac3ab6308",
     "refinedCausalProof": "The read-only first original F9 rendered-episode ownership is now reserved on the FIRST valid rendered Floor9 snapshot before querying retained old/new owners; if original GPU scene never returned a qualified owner, a later autonomous restarted episode cannot replace it and must remain an explicit first-run evidence failure.",
     "latestQualityAtEvidence": "Prior run 45049823936 CANCELLED, not passed; final exact-source quality is queued by GitHub on later source/evidence commits"
+  },
+  "p0ExactSourcePairedPortraitCameraCatapultCorrection": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "beforeProductionSourceSha": "2781e9e852ce5854a75f12b10bbf2e5b49f3f5cf",
+    "actualProductionChangeSha": "1aec7e6e779e3a00cc084174de90b420db9397cb",
+    "sourceNativeNineJobCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/45050256966",
+    "sourceNativeCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45050256966/artifacts/14765540796",
+    "verifiedFirstEpisodeSourceNativeAlignment": {
+      "desktop": {
+        "mappedReturnedFrames": 51,
+        "sourceOwnersCoReturned": true,
+        "firstDrawnF9HudSecond": 26,
+        "firstSustainedVioletSecond": 27.75
+      },
+      "portrait": {
+        "mappedReturnedFrames": 56,
+        "sourceOwnersCoReturned": true,
+        "firstDrawnF9HudSecond": 25.75,
+        "firstSustainedVioletSecond": 27.5
+      },
+      "caveat": "Scenes owners returned from Three.js; not proof of simultaneously painted native pixels; exact event matching and full-motion visual acceptance still FAIL"
+    },
+    "observedLargestFootageDefect": "Original portrait source-returned camera abruptly translates from [20.585,4.535,46.905] to [37.08,10.341,69.362] then x~79 during first F9 supported ground crossing while moving hero remains around [9,0,23]; 28s native film crops full actor to reveal remote violet 3D shaft. Camera/world disconnect, not a missing first episode owner.",
+    "implementedRealGameChange": "After all real 3D camera directors, bound unearned outward camera dolly for first 110 Floor9 ticks using last successfully rendered same-run camera, gaze and source-drawn hero delta. Veto bounded shot if current full-body or tower core is unsafe. Keep normal/inbound camera, manually controlled/reduced-motion, restart and source gameplay untouched.",
+    "codeFiles": [
+      "public/infinite-tower-climb/visuals/first-floor-nine-camera-departure.mjs",
+      "public/infinite-tower-climb/visuals/scene.mjs",
+      "tests/phase3/tower-first-floor-nine-camera-catapult.test.cjs",
+      "tests/phase3/tower-first-source-render-episode-lock.test.cjs"
+    ],
+    "priorExactHeadQuality": {
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/45050256979",
+      "result": "FAILED 8/10 passed. Phase3 malformed source-episode assertion repaired; phase6 another game's maze readiness worker hit 75-second timeout, NOT altered."
+    },
+    "initialPolicySmoke": "4/4 focused cases Node 22 on matching pure-policy algorithm passed; workflow exact-head and authentic next candidate film NOT YET VERIFIED",
+    "productionQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45056634514",
+    "productionExactSourceCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45056634524",
+    "independentBlindCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDeviceP50P95P99AndMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Inspect full 1x first F9 source-pinned candidate danger desktop/portrait WebMs and firstFloorNineCameraDeparture counters. Require original HP0 gate, complete actual moving hero, physical F9 receiving roof and first raised destination continuously visible with strict native events 2/2. If veto suppresses clamp or skyline still snaps, rebuild camera/world transition coherently. Do not advance P1 or claim gameplay improvement."
   }
 }
