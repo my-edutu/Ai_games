@@ -4881,15 +4881,17 @@ export function createTowerWorld(){
       job.structuralVisibleSeconds=Math.min(3,
         job.structuralVisibleSeconds+shown);
     }
-    const advancing=['awaiting-actual-first-render',
-      'awaiting-void-biome-build','awaiting-structural-release',
-      'awaiting-structural-submission','awaiting-vista-submission'].includes(job.state);
-    if(advancing){
-      // Only a returned actual F9 frame advances the staged GPU upload queue.
-      job.submittedFrames=Math.min(60,job.submittedFrames+1);
-      job.firstRenderSubmitted=true;
-      job.lastReturnedDt=shown;
-    }
+    // This is the total count of SUCCESSFULLY RETURNED Floor9 WebGL frames
+    // belonging to the same run, including those painted AFTER the deferred
+    // upload queue reaches fading-remote-arrival/complete. The old stage-only
+    // counter stopped while structuralVisibleReturns kept advancing, so the
+    // shaft could report more visible submissions than total submissions.
+    // That contradictory provenance vetoed the real 16-return doorway test
+    // and made optical-release evidence untrustworthy. CPU scene construction,
+    // source ticks, stale packets and failed render calls still earn NOTHING.
+    job.submittedFrames=Math.min(60,job.submittedFrames+1);
+    job.firstRenderSubmitted=true;
+    job.lastReturnedDt=shown;
     // The noninteractive original Floor9 shaft previously arrived OPAQUE on
     // one arbitrary render while the source-owned bronze scene was fading.
     // Isolate only its batched scene materials, then reveal the original shaft
