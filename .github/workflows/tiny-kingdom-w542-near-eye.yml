@@ -1,0 +1,33 @@
+name: Tiny Kingdom W542 Near-Eye Real World Geometry
+on:
+  push:
+    branches:
+      - feat/tiny-kingdom-post-main-gauntlet-20261031
+    paths:
+      - public/tiny-kingdom/index.html
+      - tests/contracts/tiny-kingdom-w542-near-eye.test.cjs
+      - .github/workflows/tiny-kingdom-w542-near-eye.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-near-eye-geometry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Red-green geometry intersection contracts
+        run: node --test tests/contracts/tiny-kingdom-w542-near-eye.test.cjs
+      - name: Parse the exact inline playable renderer
+        run: |
+          node - <<'JS'
+          const fs=require('node:fs'),vm=require('node:vm');
+          const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
+          const scripts=[...html.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/g)];
+          if(!scripts.length)throw Error('Missing actual playable game script');
+          for(const match of scripts)new vm.Script(match[1],{filename:'tiny-kingdom-inline.js'});
+          console.log('Compiled original inline game script(s):',scripts.length);
+          JS
