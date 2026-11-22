@@ -625,3 +625,41 @@ export function publicGuardianEarnedContactStageResponse(
   const dt=Math.min(.1,delta);
   return Math.min(1,current+(1-current)*(1-Math.exp(-10*dt)));
 }
+
+/**
+ * Source-earned narrow-portrait COUNTER -> WITHDRAWAL two-shot.
+ *
+ * Original exact-HEAD 320x740 WebGL at autonomous tick94 shows both real
+ * actors wholly in frame and ray-clear, yet the masonry divides their action.
+ * Keep the current public impact flank, then revolve the SAME live camera
+ * toward the two CURRENT physically rendered actors as Thornback recoils.
+ * This cannot remove real walls or imply a passage. The original full-mesh
+ * NDC, HUD, collision, privacy, pressure and terminal gates remain in charge.
+ * No new geometry, materials, animation clock or actor repositioning.
+ */
+export function setPublicEarnedGuardianNarrowWithdrawalTwoShot(
+  offset,aspect,hero,guardian,counterPhase,earned=false,reducedMotion=false) {
+  if (!earned || reducedMotion || !Number.isFinite(aspect)
+    || aspect<.35 || aspect>=.45 || !Number.isFinite(counterPhase)
+    || counterPhase<=.14 || counterPhase>=1
+    || ![offset?.x,offset?.y,offset?.z,hero?.x,hero?.z,
+      guardian?.x,guardian?.z].every(Number.isFinite)) return false;
+  const dx=hero.x-guardian.x,dz=hero.z-guardian.z;
+  const radius=Math.hypot(offset.x,offset.z);
+  if (Math.hypot(dx,dz)<.65 || radius<1) return false;
+  const original=Math.atan2(offset.z,offset.x);
+  const face=Math.atan2(dz,dx);
+  const delta=Math.atan2(Math.sin(face-original),Math.cos(face-original));
+  // Only the existing actual front-quarter stage may be closed to its pair
+  // axis. Reject a wildly different, distant or unproven camera view.
+  if (Math.abs(delta)<.025 || Math.abs(delta)>.42) return false;
+  const t=Math.max(0,Math.min(1,(counterPhase-.14)/.40));
+  const open=t*t*(3-2*t);
+  // Unwind BEFORE the actual same-run parry expires, with no final-frame pop.
+  const release=Math.max(0,Math.min(1,(counterPhase-.78)/.21));
+  const close=1-release*release*(3-2*release);
+  const azimuth=original+delta*open*close;
+  offset.x=radius*Math.cos(azimuth);
+  offset.z=radius*Math.sin(azimuth);
+  return true;
+}
