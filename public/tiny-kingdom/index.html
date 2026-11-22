@@ -4644,7 +4644,7 @@ function prepareConservativeStaticSoftwareChunks(vertices,m){
  // A different streaming layout falls back to the complete per-face painter.
  const probes=[0,10,staticFloats-30,staticFloats-1,
   Math.floor(staticFloats/60)*30];
- for(const at of probes)if(source[at]!==vertices[at])return null;
+ for(const at of probes)if(Math.fround(source[at])!==vertices[at])return null;
  const begun=performance.now();
  if(source!==softwareStaticSource){
   const n=Math.ceil(staticFloats/(30*SOFTWARE_STATIC_CHUNK_TRIANGLES));
