@@ -11,6 +11,12 @@ const d=src.indexOf('function getCameraRayBroadphaseAudit()',c);
 assert.ok(a>=0&&b>a&&c>0&&d>c,'Actual production camera and ray code unavailable');
 const cameraSource=src.slice(a,b);
 const raySource=src.slice(c,d);
+// W547 followRayBlockers now delegates exact roof bottoms to the original
+// retained 3D envelope. Extract that REAL dependency, not a test stub.
+const e=src.indexOf('const physicalRoofEnvelopeCache=');
+const f=src.indexOf('function getPhysicalRoofEnvelopeResidentAudit()',e);
+assert.ok(e>=0&&f>e,'real physical roof envelope source missing');
+const envelopeSource=src.slice(e,f);
 assert.match(cameraSource,/const cameraOcclusionStaticRows=new WeakMap\(\)/,
  'RED: physical camera must map combined views to retained immutable static volumes');
 assert.match(raySource,/cameraOcclusionStaticRows\.get\(roofs\)/,
@@ -19,7 +25,7 @@ assert.match(raySource,/for\(let i=staticRows\.length;i<roofs\.length;i\+\+\)/,
  'RED: dynamic authentic freight must ALWAYS be included in exact ray checks');
 let liveCarts=[];
 const factory=new Function('realCourierCartCameraVolumes','terrain',
- cameraSource+'\n'+raySource+'\nreturn {view:cameraOcclusionView,ray:followRayBlockers,metrics:()=>({...cameraRayCounters})};');
+ cameraSource+'\n'+envelopeSource+'\n'+raySource+'\nreturn {view:cameraOcclusionView,ray:followRayBlockers,metrics:()=>({...cameraRayCounters})};');
 const camera=factory(()=>liveCarts.map(c=>({...c})),()=>0);
 const homes=[{x:7,z:0,rx:1,rz:1,bottom:0,top:4,kind:'home'},
  {x:-7,z:-1,rx:1,rz:1,bottom:0,top:4,kind:'home'}];

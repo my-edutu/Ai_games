@@ -23,7 +23,10 @@ test('W413 genuine selected worksite hero admits full-detail 13-bone resident, n
  const rank=extract('const ranked=rows.map(', 'ranked.sort(');
  assert.match(rank,/isObservedWorksiteSkinCandidate\(row.p,row.i,nearPeople\)/);
  const skin=extract('function prepareForegroundResidents(', 'function drawForegroundResidentMesh(');
- assert.match(skin,/villager\(p\)/);
+ // A truly escrowed courier uses the same original articulated body but
+ // omits its cart only when the exact live cart is separately submitted.
+ assert.match(skin,/villager\(p,courierSkin\)/);
+ assert.match(skin,/separateLiveCart:courierSkin/);
  assert.match(skin,/workSkinTags\(mesh.length\/10,labels\)/);
  const draw=extract('function drawForegroundResidentMesh(', '// A\/B toggle changes presentation');
  assert.match(draw,/workSkinDetailedMatrices\(entry,p\)/);

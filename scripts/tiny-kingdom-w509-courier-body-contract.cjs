@@ -33,8 +33,14 @@ const foreground=extract('prepareForegroundResidents');
 for(const token of ['isOriginalGpuCourierBodyCandidate(p,i,nearPeople,frame)',
  'villager(p,courierSkin)','separateLiveCart:courierSkin'])
  assert(foreground.includes(token),'resident real sculpt cannot duplicate cart: '+token);
-assert(html.includes('if(entry.separateLiveCart)renderOriginalLiveCourierCart(p);'),
- 'only admitted real GPU bodies receive separate, genuinely rolling carts');
+// W511: both original full-size and bounded compact GPU resident bodies
+// share one genuinely MOVING escrow cart, emitted once outside resident VBO.
+// The source uses a guard+continue and Boolean(compact), not old inline if.
+const liveCartCall=html.slice(html.indexOf('for(const {p,entry,compact} of ['));
+assert.match(liveCartCall,/if\(!entry\.separateLiveCart\)continue;\s*const before=data\.length;\s*renderOriginalLiveCourierCart\(p,Boolean\(compact\)\)/,
+ 'only genuinely GPU-admitted original actor bodies can emit ONE live rolling freight cart');
+assert.match(liveCartCall,/originalLiveCourierCartNames\.push\(p\.name\)/,
+ 'real courier cart remains tied to its original named delivery, not staged stock');
 assert(html.includes('getOriginalLiveCourierSkinAudit,'),
  'read-only audit must be exported for actual running game');
 const rotate=extract('rotateOriginalCourierCartVertices');
