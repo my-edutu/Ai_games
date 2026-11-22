@@ -26,6 +26,10 @@ on:
       # a post-restart trace must never impersonate original guardian crossing.
       - public/infinite-tower-climb/visuals/first-source-room-return.mjs
       - public/infinite-tower-climb/visuals/source-returned-gate-camera-release.mjs
+      # The final source-scoped first-F9 inward shoulder/outward camera guard
+      # affects real native pixels; missing this path silently skipped 9-job
+      # capture after an actual production camera change.
+      - public/infinite-tower-climb/visuals/first-floor-nine-camera-departure.mjs
       # Core authentic old-gateway / new-shaft owner scheduling affects the
       # same Floor8→9 full-motion shot; source changes need 9-job films.
       - public/infinite-tower-climb/visuals/crossfloor-arrival.mjs

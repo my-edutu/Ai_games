@@ -58,6 +58,11 @@ test('exact 7ef8f9b first-episode portrait shoulder cut is angular, NOT outward'
  assert.equal(guard({...crossing,desiredCamera:[8,4,26]}),null,
    'ordinary inward recovery is not an angular catapult');
 });
+test('camera source commits MUST start native capture, not just quality CI',()=>{
+ const workflow=fs.readFileSync(path.resolve(visuals,
+   '../../../.github/workflows/tower-transformation-visual-evidence.yml'),'utf8');
+ assert.match(workflow,/^\s+- public\/infinite-tower-climb\/visuals\/first-floor-nine-camera-departure\.mjs$/m);
+});
 test('post-director source guard acts only before genuine WebGL return',()=>{
  const scene=fs.readFileSync(path.join(visuals,'scene.mjs'),'utf8');
  const i=scene.indexOf('const firstF9DepartureBound=sourceFirstFloorNineCameraDeparture(');
