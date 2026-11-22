@@ -2295,6 +2295,69 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           samples:[...sampleActor('pip',explorer.group),
             ...sampleActor('thornback',enemy.model.group)]};
       };
+      // Terminal framing alone cannot prove the real boots and face are not
+      // behind authored stone. Sample SOURCE physical Pip at the genuinely
+      // discovered escape, through the actual gameplay camera. This is
+      // called only by evidence capture, not every frame or by AI/physics.
+      // Only cells explicitly present in this PUBLIC snapshot can be named.
+      window.__MAZE_PUBLIC_TERMINAL_SIGHTLINE__=()=>{
+        if(!publicVictoryScene || result!=='escape'
+          ||s.currentCell!==s.exitCell
+          ||!s.visibleCells?.includes(s.exitCell))
+          return {eligible:false,samples:[]};
+        explorer.group.updateWorldMatrix(true,true);
+        const bounds=new THREE.Box3(),scratch=new THREE.Box3();
+        explorer.group.traverseVisible(node=>{
+          if(!node.isMesh||!node.geometry)return;
+          if(!node.geometry.boundingBox)node.geometry.computeBoundingBox();
+          if(node.geometry.boundingBox)
+            bounds.union(scratch.copy(node.geometry.boundingBox).applyMatrix4(node.matrixWorld));
+        });
+        if(bounds.isEmpty())return {eligible:false,samples:[]};
+        const middleX=(bounds.min.x+bounds.max.x)*.5;
+        const middleZ=(bounds.min.z+bounds.max.z)*.5;
+        const dy=bounds.max.y-bounds.min.y;
+        const widthX=bounds.max.x-bounds.min.x;
+        const anchors=[
+          ['head',middleX,bounds.min.y+dy*.80,middleZ],
+          ['torso',middleX,bounds.min.y+dy*.50,middleZ],
+          ['boots',middleX,bounds.min.y+dy*.16,middleZ],
+          ['left',bounds.min.x+widthX*.18,bounds.min.y+dy*.53,middleZ],
+          ['right',bounds.min.x+widthX*.82,bounds.min.y+dy*.53,middleZ],
+        ];
+        const ray=new THREE.Raycaster(),point=new THREE.Vector2();
+        const samples=anchors.map(([part,x,y,z])=>{
+          const target=new THREE.Vector3(x,y,z);
+          const projected=target.clone().project(camera);
+          const inFrame=Math.abs(projected.x)<.95&&Math.abs(projected.y)<.95
+            &&projected.z>-1&&projected.z<1;
+          if(!inFrame)return {actor:'pip',part,inFrame:false,
+            verifiedClear:false,blockingPublicCell:null,inconclusive:false};
+          point.set(projected.x,projected.y);
+          ray.setFromCamera(point,camera);
+          const distance=ray.ray.origin.distanceTo(target);
+          let blocker=null,material=null,uncertain=false;
+          for(const hit of ray.intersectObject(world.group,true)){
+            if(hit.distance>=distance-.08)break;
+            const published=world.describePublicRayHit(hit);
+            if(published && s.visibleCells.includes(published.cell)){
+              blocker=published.cell;
+              material=published.material??published.color;
+              break;
+            }
+            // Never disclose an unseen instance, or treat it as proof of
+            // a clear stage. Known source is not the same as observed source.
+            uncertain=true;
+          }
+          return {actor:'pip',part,inFrame:true,
+            screenX:+projected.x.toFixed(4),screenY:+projected.y.toFixed(4),
+            verifiedClear:!uncertain&&blocker===null,
+            blockingPublicCell:blocker,blockingMaterial:material,
+            inconclusive:uncertain};
+        });
+        return {eligible:true,runToken:s.runToken,tick:s.tick,
+          cameraMode,viewport:{width,height},samples};
+      };
       window.__MAZE_PUBLIC_SCENE_PICK__=(u,v)=>{
         if(!Number.isFinite(u)||!Number.isFinite(v)||u<0||u>1||v<0||v>1)return [];
         const raycaster=new THREE.Raycaster();

@@ -2466,6 +2466,25 @@ test('uninterrupted flagship escape exposes real portal opening in native portra
       'real right wing must open').toBeGreaterThan(.50);
     expect(d?.cameraHalfHeight,
       'real finale must be visually closer').toBeLessThan(width<500?5.3:4.6);
+    // Sample five REAL physical Pip anchor rays from the same exact-source
+    // complete WebGL stage. Unlike the original bounding-box-only test,
+    // an in-frame character can still hide behind solid foreground stone.
+    // Never declare artistic visibility simply because all anchors project.
+    const terminalSightline=await page.evaluate(()=>{
+      const sightline=window.__MAZE_PUBLIC_TERMINAL_SIGHTLINE__?.()??null;
+      const published=new Set(window.__MAZE_PUBLIC_STATE__?.visibleCells??[]);
+      return sightline&&{...sightline,publicOnly:sightline.samples.every(
+        item=>item.blockingPublicCell===null
+          ||published.has(item.blockingPublicCell))};
+    });
+    expect(terminalSightline?.eligible,
+      'true public completed escape must expose real physical Pip rays').toBe(true);
+    expect(terminalSightline?.samples?.length,
+      'head torso boots and two flank rays must be independently inspected').toBe(5);
+    expect(terminalSightline?.publicOnly,
+      'terminal ray diagnostics must never expose private cells').toBe(true);
+    expect(terminalSightline.samples.every(item=>item.inFrame),
+      'each physical Pip anchor must fit within the unchanged ±0.95 NDC').toBe(true);
     const file=path.join(dir,'natural-flagship-escape-'+width+'.png');
     await page.screenshot({path:file,fullPage:true});
     fs.writeFileSync(file.slice(0,-4)+'.json',JSON.stringify({
@@ -2475,7 +2494,8 @@ test('uninterrupted flagship escape exposes real portal opening in native portra
       sourceSha:require('node:child_process').execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),
       source:'Exact-source continuous real partial-observation escape and original full-frame Chromium WebGL; no fake movement, hidden map or crop.',
       physical:{portal:d.terminalPortalBounds,wingAngles:d.terminalWingAngles,
-        pip:d.explorerPhysicalBounds,cameraHalfHeight:d.cameraHalfHeight}
+        pip:d.explorerPhysicalBounds,cameraHalfHeight:d.cameraHalfHeight,
+        terminalSightline}
     },null,2));
   }
 });
