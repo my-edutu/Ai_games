@@ -55,5 +55,8 @@
     }
   },
   "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
-  "nextHighestImpactAction": "With new source-pinned desktop/portrait WebM and returned-room timeline, establish first incompatible original-retirement vs successor-paint/camera return and correct the responsible physical World/camera stage; retest native event matched full shot."
+  "nextHighestImpactAction": "With new source-pinned desktop/portrait WebM and returned-room timeline, establish first incompatible original-retirement vs successor-paint/camera return and correct the responsible physical World/camera stage; retest native event matched full shot.",
+  "fullInstrumentationCommitSha": "bd2af6ff2784a9e7d51df12b0d7856f34b4059fb",
+  "captureRequestedForExactHead": "${{ github.sha }}",
+  "pinnedCaptureCondition": "push to capture-request.json triggers original 9-job workflow, candidate pinned to immutable final github.sha; workflow queued results are not visual acceptance."
 }

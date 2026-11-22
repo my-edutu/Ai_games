@@ -8835,5 +8835,32 @@
     },
     "actualDevicePerformance": "NOT EVALUATED",
     "constraints": "Preserve original baseline, transformation.json blob, PR58, PR68 draft; no force push, merge, deploy or unrelated game change."
+  },
+  "p0Run12_20261122_SourceReturnedOriginalAndVoidRoomNativeTimeline": {
+    "stage": "P0 OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceCandidate": "${{ github.sha }}",
+    "originalSourceImmutable": true,
+    "lastCandidateFootageSource": "0e20e02905a638372e6dd731e1ec9d4326975b3d",
+    "knownDefect": "Native 1x full scene cuts bronze/ochre to violet abruptly at about 27.5s desktop and 28s portrait, with zero native warm-cool bridge; independent source-native danger acceptance 0/2.",
+    "workflow": "Tower Transformation Real Gameplay Evidence (9 jobs, baseline and candidate), exact immutable source SHAs",
+    "requiredSidecar": "artifacts/tower-motion/danger/{desktop,portrait}/original-to-void-returned-room-timeline.json",
+    "requiredChecks": [
+      "Use true 25fps unchanged desktop 960x600 and portrait 390x844, matched seed and low tier, original source 20Hz; no staged captures or simulated video",
+      "At true displayed frame near each native violet scene hard cut, align the source-run/tick and returned-wall-ms from candidate sidecar with the calibrated original-video timebase",
+      "Determine whether source-original gate/deck/core was retired while ORIGINAL successor structural mesh still had no successful visible return; or if returned F9 existed but camera lost both original steel and next destination",
+      "Verify original HP0 guardian and crusher, physical receiving-roof support, actual f9:p2 and onward progress, true outcome and restart",
+      "Do not count a GPU return as displayed video; retain visual and event-pairing veto if the joint hero/steel/roof/destination shot fails",
+      "No manufactured LOOKS, FEELS, PLAYS judges or actual-device p50/p95/p99 and memory claims"
+    ],
+    "artifactReviewSha": "bd2af6ff2784a9e7d51df12b0d7856f34b4059fb",
+    "currentIndependentReview": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "devicePerformance": "NOT EVALUATED",
+    "preciseNextAction": "Use per-render World-owner evidence to select one true 3D original-room/shaft teardown or physical-camera fix; no independent P1 stage advance."
   }
 }
