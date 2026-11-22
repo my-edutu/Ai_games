@@ -2,6 +2,19 @@
 // Capture the FIRST successful source-bound Floor9 WebGL return for a run,
 // and never replace that evidence when an autonomous episode restarts.
 // This is a read-only eligibility policy, not a gameplay or pixel verdict.
+// Pin the first LIVE Floor9 renderer return even when its old/new World
+// owners are missing. Otherwise a missing first-episode scene would allow a
+// later autonomous restart to silently impersonate the native 25–29s passage.
+export function firstReturnedFloorNineEpisode(firstEpisodeRun,source) {
+  if(firstEpisodeRun!==null &&
+      (typeof firstEpisodeRun!=='string'||!firstEpisodeRun))return null;
+  if(source?.floor!==9||source.theme!=='void'||
+      source.lifecycle!=='running'||!(source.player?.health>0)||
+      typeof source.runToken!=='string'||!source.runToken||
+      !Number.isSafeInteger(source.tick))return null;
+  if(firstEpisodeRun!==null&&firstEpisodeRun!==source.runToken)return null;
+  return {runToken:source.runToken,isFirst:firstEpisodeRun===null};
+}
 export function firstReturnedOriginalRoomAdmission(firstEpisodeRun, source, returned) {
   if(firstEpisodeRun!==null &&
       (typeof firstEpisodeRun!=='string'||!firstEpisodeRun))return null;
