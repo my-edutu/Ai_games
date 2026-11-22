@@ -1214,7 +1214,22 @@ function stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion){
   note('source-skinned-sole-patch-unavailable');
   return;
  }
+ // The attached ORIGINAL SkinnedMesh caches bindMatrixInverse on
+ // updateMatrixWorld(), not the inherited updateWorldMatrix(). Genuine
+ // 390px original source #45004622408 f27/f69 twice measured the intended
+ // 3.747/4.345mm pelvis rise on BOTH skinned shoes; do not relax the 1mm
+ // certificate to conceal a stale whole-body transform.
+ const sourceShoeMeshes=['left','right'].flatMap(side=>
+  [patches[side].heel.mesh,patches[side].toe.mesh]);
+ const refreshOriginalPelvisShoeSkins=()=>{
+  for(let i=0;i<sourceShoeMeshes.length;i++){
+   const mesh=sourceShoeMeshes[i];
+   if(mesh?.isSkinnedMesh&&sourceShoeMeshes.indexOf(mesh)===i)
+    mesh.updateMatrixWorld(true);
+  }
+ };
  const read=side=>{
+  refreshOriginalPelvisShoeSkins();
   const heel=readOriginalSwingSoleSample(patches[side].heel);
   const toe=readOriginalSwingSoleSample(patches[side].toe);
   return {heelY:heel?.y??NaN,toeY:toe?.y??NaN,
@@ -1303,6 +1318,9 @@ function stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion){
    oppositeMeasuredLiftMeters:otherMeasuredWorldLift});
   actor.visualPivot.position.y=baseY;
   actor.visualPivot.updateWorldMatrix(true,true);
+  // Fail-closed original-pelvis trial must restore its attached source skin
+  // before any later same-GLB leg/sole read or next imported Mixer frame.
+  refreshOriginalPelvisShoeSkins();
   return;
  }
  note('source-pelvis-original-shoes-provisionally-accepted',{
@@ -1326,6 +1344,15 @@ function auditSourceLoadedPelvisAfterLegs(actor,since,reducedMotion){
  actor.sourceLoadedPelvisCandidate=null;
  if(!candidate)return;
  const readFoot=foot=>{
+  // The provisional pelvis moved the original attached source skeleton.
+  // Both FINAL shoe endpoints require current bind inverses during post-leg
+  // verification and after any rejected-pelvis source pose rollback.
+  const meshes=[foot?.heel?.mesh,foot?.toe?.mesh];
+  for(let i=0;i<meshes.length;i++){
+   const mesh=meshes[i];
+   if(mesh?.isSkinnedMesh&&meshes.indexOf(mesh)===i)
+    mesh.updateMatrixWorld(true);
+  }
   const heel=readOriginalSwingSoleSample(foot?.heel);
   const toe=readOriginalSwingSoleSample(foot?.toe);
   return {heelY:heel?.y??NaN,toeY:toe?.y??NaN,
