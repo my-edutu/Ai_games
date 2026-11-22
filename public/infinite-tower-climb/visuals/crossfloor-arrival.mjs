@@ -400,6 +400,13 @@ export function observedPrebuiltVoidShaftRelease(source,passage,held,job,sourceG
      !Number.isSafeInteger(job.structureBuiltAtSubmitted) ||
      job.structureBuiltAtSubmitted<1 ||
      (job.submittedFrames<=job.structureBuiltAtSubmitted && !earlyAperture) ||
+     // The physical core's returned clock is independent of decorative
+     // outer/crystal uploads. Once genuine animated biome geometry has been
+     // built, at least ONE successful WebGL return must include it before
+     // the original gateway can release the full successor structure.
+     // An original-source floor poll or synchronous build cannot substitute.
+     (Number.isSafeInteger(job.biomeBuiltAtSubmitted) &&
+       job.submittedFrames<=job.biomeBuiltAtSubmitted) ||
      job.submittedFrames>60) return false;
   const sameOldGpuOwner=held?.guardianGateRetained===true &&
     held.runToken===source.runToken && held.floor===9 &&
