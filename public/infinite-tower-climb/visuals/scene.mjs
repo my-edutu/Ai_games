@@ -2495,7 +2495,8 @@ export function createTowerScene(canvas, settings = {}) {
   const firstFloorNineCameraEntry={runToken:null,tick:null};
   const lastReturnedFloorNineHero=new THREE.Vector3();
   let firstF9CameraOutwardClamps=0,firstF9CameraUnsafeRejects=0;
-  let firstF9CameraWorldSpaceClamps=0,firstF9CameraHeroGazeRescues=0;
+  let firstF9CameraWorldSpaceClamps=0,firstF9CameraLateralClamps=0;
+  let firstF9CameraHeroGazeRescues=0;
   let firstF9CameraUnboundedCuts=0,firstF9CameraLargestUnboundedMetres=0;
   let firstF9CameraWorstRequestedMetres=0,firstF9CameraLastBoundMetres=0;
   // Only an old gateway that survived a SUCCESSFUL WebGL submit can initiate
@@ -6254,6 +6255,10 @@ export function createTowerScene(canvas, settings = {}) {
              'first-original-floor-nine-camera-world-space-cut')
             firstF9CameraWorldSpaceClamps=Math.min(1000000,
               firstF9CameraWorldSpaceClamps+1);
+          if(firstF9DepartureBound.reason===
+             'first-original-floor-nine-camera-lateral-orbit')
+            firstF9CameraLateralClamps=Math.min(1000000,
+              firstF9CameraLateralClamps+1);
           firstF9CameraWorstRequestedMetres=Math.max(
             firstF9CameraWorstRequestedMetres,
             firstF9DepartureBound.requestedMovement);
@@ -6289,7 +6294,7 @@ export function createTowerScene(canvas, settings = {}) {
          lastSubmittedGuardian.floor===9 &&
          firstFloorNineCameraEntry.runToken===snapshot.runToken &&
          Number.isSafeInteger(firstFloorNineCameraEntry.tick) &&
-         snapshot.tick-firstFloorNineCameraEntry.tick<=110){
+         snapshot.tick-firstFloorNineCameraEntry.tick<=210){
         const cameraTravel=camera.position.distanceTo(lastSubmittedGuardianCamera);
         const heroTravel=climber.group.position.distanceTo(lastReturnedFloorNineHero);
         if(heroTravel<=12 &&
@@ -7093,6 +7098,7 @@ export function createTowerScene(canvas, settings = {}) {
       firstFloorNineCameraDeparture: {
         sourceBoundCameraClamps:firstF9CameraOutwardClamps,
         sourceBoundWorldSpaceClamps:firstF9CameraWorldSpaceClamps,
+        sourceBoundLateralOrbitClamps:firstF9CameraLateralClamps,
         sourceHeroGazeFrameRescues:firstF9CameraHeroGazeRescues,
         actuallySubmittedUnboundedCameraCuts:firstF9CameraUnboundedCuts,
         largestSubmittedUnboundedCameraCutMetres:
