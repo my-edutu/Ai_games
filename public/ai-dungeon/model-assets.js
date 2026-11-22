@@ -987,6 +987,16 @@ function readOriginalSwingSoleSample(candidate){
  * The mixer remains the exclusive source owner; never move authority.
  */
 function stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion){
+ // Read-only O(1) rejection evidence. Actual original weighted shoes, not
+ // the diagnostics, continue to own the reversible native pelvis decision.
+ const gate={source:'original-source-loaded-pelvis-decision',
+  sourceClip:actor.activeImportedClipName??null,
+  frameIntervalSeconds:Number.isFinite(actor.rigSourceSwingFrameInterval)?
+   actor.rigSourceSwingFrameInterval:null,
+  contactLocked:false,plantCertified:false};
+ const note=(reason,detail=null)=>actor.sourceLoadedPelvisGateLast={
+  ...gate,reason,...(detail?{detail}:{})};
+ note('not-yet-tested');
  actor.sourceLoadedPelvisFrameProof=null;
  actor.sourceLoadedPelvisRollbackFootProof=null;
  actor.sourceLoadedPelvisCandidate=null;
@@ -1011,18 +1021,26 @@ function stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion){
   actor.sourceSwingToeCurrentFrameProofs?.[side]||
   actor.sourceToeJointCurrentFrameProofs?.[side]||
   actor.sourceLinkedFootCurrentFrameProofs?.[side]);
- if(otherSourceLegClaim||actor.sourceSwingToeCorrectionsThisFrame>0)return;
+ if(otherSourceLegClaim||actor.sourceSwingToeCorrectionsThisFrame>0){
+  note('another-original-joint-owner-has-live-shoe-certificate');
+  return;
+ }
  if(!fullSourceLegs||actor.fullBody?.mode!=='move'||actor.activeImportedClipName!=='Walking_A'||
   actor.fullBody?.owner?.locomotion!==true||
   actor.u.hp<=0||actor.root?.visible!==true||reducedMotion||
   actor.locomotionTeleport||actor.fullBody?.interrupted||
-  !(actor.rigRecentGroundedTravel>.003&&actor.rigRecentGroundedAge<=.18))
+  !(actor.rigRecentGroundedTravel>.003&&actor.rigRecentGroundedAge<=.18)){
+  note('ineligible-source-walking-owner-or-grounded-travel');
   return;
+ }
  const patches=sourceSolePatchVertexCandidates(actor);
  if(!patches?.left?.anatomicalHeelToeVerified||
   !patches?.right?.anatomicalHeelToeVerified||
   !patches.left.sourceToeAxis?.selectedAnatomicalPatch||
-  !patches.right.sourceToeAxis?.selectedAnatomicalPatch)return;
+  !patches.right.sourceToeAxis?.selectedAnatomicalPatch){
+  note('source-skinned-sole-patch-unavailable');
+  return;
+ }
  const read=side=>{
   const heel=readOriginalSwingSoleSample(patches[side].heel);
   const toe=readOriginalSwingSoleSample(patches[side].toe);
@@ -1041,7 +1059,12 @@ function stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion){
    sourceClipName:actor.activeImportedClipName,
    sourceFootProofs,currentSoles:{left,right}
   }):null;
- if(hasConnectedSource&&!sourceChainCert)return;
+ if(hasConnectedSource&&!sourceChainCert){
+  note('original-connected-leg-final-shoe-handoff-failed',{
+   sourceInstanceId:actor.assetRoot?.uuid??null,
+   lastChainSide:sourceFootProofs?.left?'left':'right'});
+  return;
+ }
  const candidate=planOriginalSourceLoadedPelvisSupport({
   mode:actor.fullBody.mode,sourceClipName:actor.activeImportedClipName,
   sourceWeight:actor.activeClip?.getEffectiveWeight?.()??NaN,
@@ -1055,7 +1078,13 @@ function stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion){
   floorTopY:-.02,floorEvidence:'authored-cube-floor-top',
   left,right,previousLiftMeters:previous
  });
- if(!candidate||!actor.visualPivot)return;
+ if(!candidate||!actor.visualPivot){
+  note('no-bounded-loaded-shoe-pelvis-opportunity',{
+   sourceChainConfirmed:!!sourceChainCert,
+   sourceSoles:{left:{heelY:left.heelY,toeY:left.toeY},
+    right:{heelY:right.heelY,toeY:right.toeY}}});
+  return;
+ }
  // The loaded original GLB's present parent may scale its LOCAL Y axis.
  // Plan metres in the actual stone-floor world, never presume local metres
  // are world metres. A tilted parent that would skate either shoe fails shut.
@@ -1067,7 +1096,10 @@ function stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion){
   parentWorldLocalYAxis:parentMatrix?
    [parentMatrix[4],parentMatrix[5],parentMatrix[6]]:null
  });
- if(!calibrated)return;
+ if(!calibrated){
+  note('source-world-to-local-pelvis-axis-rejected');
+  return;
+ }
  const baseY=actor.visualPivot.position.y;
  actor.visualPivot.position.y=baseY+calibrated.localLiftMeters;
  actor.visualPivot.updateWorldMatrix(true,true);
@@ -1092,10 +1124,17 @@ function stageSourceLoadedPelvisBeforeLegs(actor,reducedMotion){
   sourceHeelRollVerified:candidate.sourceHeelRollVerified===true
  }):null;
  if(!physical){
+  note('independent-original-two-shoe-world-lift-rejected',{
+   expectedLiftMeters:expectedWorldLift,
+   measuredLiftMeters:measuredWorldLift,
+   oppositeMeasuredLiftMeters:otherMeasuredWorldLift});
   actor.visualPivot.position.y=baseY;
   actor.visualPivot.updateWorldMatrix(true,true);
   return;
  }
+ note('source-pelvis-original-shoes-provisionally-accepted',{
+  side:candidate.side,expectedLiftMeters:calibrated.worldLiftMeters,
+  sourceChainConfirmed:!!sourceChainCert});
  actor.sourceLoadedPelvisLiftMeters=candidate.liftMeters;
  actor.sourceLoadedPelvisCandidate={
   ...candidate,baseY,calibrated,foot:patches[candidate.side],other:patches[otherSide],
@@ -1133,6 +1172,9 @@ function auditSourceLoadedPelvisAfterLegs(actor,since,reducedMotion){
  });
  const accepted=Boolean(finalPhysical);
  if(!accepted){
+  actor.sourceLoadedPelvisGateLast={
+   ...actor.sourceLoadedPelvisGateLast,
+   reason:'source-pelvis-final-original-shoe-readback-rejected'};
   // A late source joint correction can invalidate the initial shoe lift.
   // Restore the exact prior visual body pose, and invalidate old world-space
   // receipts rather than report a final skin measurement that was never seen.
@@ -1342,6 +1384,9 @@ function auditSourceLoadedPelvisAfterLegs(actor,since,reducedMotion){
   afterWorstMeters:finalPhysical.afterWorstMeters,
   originalSourceContactLocked:false
  };
+ actor.sourceLoadedPelvisGateLast={
+  ...actor.sourceLoadedPelvisGateLast,
+  reason:'source-pelvis-final-original-shoes-accepted'};
  actor.sourceLoadedPelvisAcceptedFrames=Math.min(1000000,
   (actor.sourceLoadedPelvisAcceptedFrames||0)+1);
 }
@@ -6548,6 +6593,7 @@ function inspectSourceRigDeformation(actors){
      sourceLoadedPelvisRollbackFrames:actor.sourceLoadedPelvisRollbackFrames||0,
      sourceLoadedPelvisRollbackFootProof:actor.sourceLoadedPelvisRollbackFootProof??null,
     sourceLoadedPelvisFrameProof:actor.sourceLoadedPelvisFrameProof??null,
+    sourceLoadedPelvisGateLast:actor.sourceLoadedPelvisGateLast??null,
     sourceSwingToeWitnessFrames:actor.sourceSwingToeWitnessFrames||0,
     sourceSwingToeDragOpportunityFrames:actor.sourceSwingToeDragOpportunityFrames||0,
     sourceSwingToeCorrectionPeakRad:actor.sourceSwingToeCorrectionPeakRad||0,
