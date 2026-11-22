@@ -8681,5 +8681,44 @@
     },
     "actualDeviceP50P95P99AndMemory": "NOT EVALUATED",
     "forbidden": "Never alter frozen ledger, PR58, other games, draft status, deploy, merge or force-push."
+  },
+  "p0OriginalShaft22PercentPaintedReleaseNativeCampaign20261122_0526": {
+    "stage": "P0 OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "candidateRef": "${{ github.sha }}",
+    "baseline": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceCodeCommit": "fb7baeaefec0fa0758957d496cbd049b479d2070",
+    "focusedRegressionCommit": "312f17456c77225cac87faefcd5d0e89f1b80b66",
+    "preFixQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44981470996",
+    "preFixOriginalCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/44981471006",
+    "why": "Existing real Three integration saw 16 genuinely returned old/new shaft frames at .8s but remained in awaiting-structural-release because pre-release structural alpha was 22% and the release gate demanded 35%, while fade cannot increase in this state. Corrected release requires >.015 actual alpha with independent unchanged 6 returns/.52s, grounded real F9 roof, original F8 cap geometry and source HP0 safety.",
+    "recording": {
+      "playbackSpeed": 1,
+      "fps": 25,
+      "minSeconds": 60,
+      "seed": "tower-transformation-capture-v1",
+      "quality": "low",
+      "viewports": [
+        "960x600",
+        "390x844"
+      ],
+      "scenes": [
+        "ascent",
+        "moving",
+        "danger/guardian",
+        "outcome/restart"
+      ],
+      "unmodifiedVideo": true,
+      "sourceEventsRequired": true
+    },
+    "acceptance": "Do not grade transformation from successful CI or merely recorded movies; inspect exact pinned SHA complete native 1x 25fps event-matched original opened bronze gate + whole moving actor + original walkable f9:ground roof + first raised destination in both viewports, full progression and restart. Strict source/native danger was 0/2 before correction.",
+    "independentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDeviceMetrics": "NOT EVALUATED",
+    "next": "Read exact-head full Three regression and new nine-job campaign. If actual 16-return stage still stalls, diagnose another specific source witness without relaxing safety. If stage passes but native cut persists, repair shared camera/world composition.",
+    "safety": "Frozen baseline and ledger unchanged. No other game, PR58 rewrite, force push, merge, deploy, or PR68 draft conversion."
   }
 }
