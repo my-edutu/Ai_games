@@ -864,6 +864,9 @@ export function observedReturnedSharedRoomPalette(source,held,job) {
        w?.sourceTick,w?.exitX,w?.crossingX,w?.halfWidth,w?.halfHeight,
        c?.x,c?.y,c?.width,c?.height,
        job.sourceTick,job.structuralVisibleReturns].every(valid) ||
+     !Number.isFinite(job.structuralVisibleSeconds) ||
+     job.structuralVisibleSeconds<0 || job.structuralVisibleSeconds>3 ||
+     job.structuralVisibleSeconds>job.structuralVisibleReturns*.1+1e-8 ||
      held.oldCapWidth<=0 || p.halfWidth<=0 || p.halfHeight<=0 ||
      ground.width<=0 || ground.height<=0 ||
      held.oldCapX!==c.x || held.oldCapWidth!==c.width ||
@@ -896,7 +899,17 @@ export function observedReturnedSharedRoomPalette(source,held,job) {
   // A new shaft's first return earns depth but not instantaneous 100% Void
   // lighting. Its following returns progressively retire the same warm
   // architecture. The source cannot spend these returns by advancing ticks.
-  const paintedProgress=smooth((job.structuralVisibleReturns-1)/5);
+  // The observed 1x native desktop/portrait cut from the original bronze
+  // guardian room to the F9 violet shaft with NO sustained shared-room image.
+  // Previously six very fast render returns could spend the full warm paint
+  // lease in ~.2 seconds, even while the old gateway retirement independently
+  // requires .95 returned seconds. One TRUE returned-frame clock now owns
+  // both the original physical roof and the incoming architectural materials:
+  // a count alone cannot erase the old source-certified room. No HTTP tick,
+  // construction, RAF or failed submission advances either proof.
+  const paintedProgress=smooth(Math.min(
+    Math.max(0,(job.structuralVisibleReturns-1)/5),
+    job.structuralVisibleSeconds/.9));
   const oldWeight=Math.min(held.originalGatewayOpacity,
     held.originalDeckSurface.opacity)*(1-paintedProgress);
   if(oldWeight<=.01)return null;
