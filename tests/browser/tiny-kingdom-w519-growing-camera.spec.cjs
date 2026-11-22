@@ -18,6 +18,38 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   await page.waitForFunction(()=>
    window.__tinyKingdom?.renderStats()?.lastFrameTriangles>0,
    null,{timeout:125000});
+  // W532 RED-before: the W531 growth recording explicitly forces a close
+  // farm camera BEFORE its first screenshot. That footage cannot prove the
+  // unmodified opening settlement is legible. Capture the untouched scene
+  // first, preserving the SAME genuine WebGL pixels, original people and state.
+  const openingDirectory=path.resolve('artifacts/tiny-kingdom-w520-court-camera',
+   String(viewport.width));
+  fs.mkdirSync(openingDirectory,{recursive:true});
+  const opening=await page.evaluate(()=>{
+   const g=window.__tinyKingdom,c=document.querySelector('#world');
+   return {view:g.getCamera(),physical:g.getFreeCameraCollisionAudit(),
+    lived:g.getLivedTownOverviewAudit(),checksum:g.exportSnapshot().checksum,
+    population:g.metrics().citizens,
+    glError:c.getContext('webgl').getError(),
+    overflow:document.documentElement.scrollWidth-innerWidth};
+  });
+  const openingFrame=await page.screenshot();
+  fs.writeFileSync(path.join(openingDirectory,'untouched-opening.png'),openingFrame);
+  fs.writeFileSync(path.join(openingDirectory,'untouched-opening.json'),
+   JSON.stringify({source:process.env.GITHUB_SHA||'local',
+    viewport,originalWorld:true,...opening,
+    physicalHardwareFPS:'NOT MEASURED',independentAB:'NOT PROVEN'},null,2));
+  await info.attach('untouched-opening-'+viewport.width,
+   {body:openingFrame,contentType:'image/png'});
+  expect(opening.lived.attempted).toBe(true);
+  expect(opening.lived.selected).toBeGreaterThan(0);
+  expect(opening.lived.last?.story?.market?.visible).toBe(true);
+  expect(opening.lived.last?.story?.visibleDistricts).toBeGreaterThanOrEqual(2);
+  expect(opening.physical.viewClear).toBe(true);
+  expect(opening.view.pitch).toBeLessThan(.9);
+  expect(opening.population).toBeGreaterThan(0);
+  expect(opening.glError).toBe(0);
+  expect(opening.overflow).toBeLessThanOrEqual(0);
   await page.evaluate(()=>{
    const g=window.__tinyKingdom;
    g.reset();g.setSpeed(0);
