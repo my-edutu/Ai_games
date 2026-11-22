@@ -1379,3 +1379,70 @@ test('RED: original rig body lean native audit distinguishes same-frame source-s
  assert.match(audit,/originalResidualSwingToeBurialMeters:/,
   'report actual same-frame weighted original swing-toe burial after any certified body pose');
 });
+
+
+/**
+ * RED 22 Nov 2026 — same original weighted 41-joint shoe reader is shared
+ * by source knee/ankle/foot and heel-body ownership stages. Source mobile
+ * #45004622408 demonstrated that moving an attached skinned parent without
+ * refreshing the actual SkinnedMesh bind inverse yields 2x requested pelvis
+ * motion. Earlier corrections refreshed only individual pelvis/body-lean
+ * trials. The generic ORIGINAL weighted-sole sampler still accepts stale
+ * bind inverses before source-linked joint probes and final skin receipts.
+ *
+ * The 3.7473557mm travel and 42.33mrad heel lean are documented genuine
+ * source measurements used only as numerical fixtures here. This is a
+ * real Three.js attached skin transform test, NOT new captured GLB footage.
+ */
+test('RED: shared original weighted skinned-sole reader refreshes attached bind inverse before every world read',()=>{
+ const THREE=require('three');
+ const geometry=new THREE.BufferGeometry();
+ geometry.setAttribute('position',new THREE.Float32BufferAttribute([.12,.14,.07],3));
+ geometry.setAttribute('skinIndex',new THREE.Uint16BufferAttribute([0,0,0,0],4));
+ geometry.setAttribute('skinWeight',new THREE.Float32BufferAttribute([1,0,0,0],4));
+ const material=new THREE.MeshBasicMaterial();
+ const pivot=new THREE.Group();
+ const mesh=new THREE.SkinnedMesh(geometry,material);
+ const bone=new THREE.Bone();
+ bone.name='original-licensed-weighted-shoe';
+ mesh.add(bone);pivot.add(mesh);
+ pivot.updateMatrixWorld(true);
+ mesh.bind(new THREE.Skeleton([bone]));
+ mesh.updateMatrixWorld(true);
+ const read=()=>{
+  const p=new THREE.Vector3().fromBufferAttribute(geometry.getAttribute('position'),0);
+  mesh.applyBoneTransform(0,p);
+  return p.applyMatrix4(mesh.matrixWorld);
+ };
+ const before=read();
+ const actualMobileLift=.0037473556973408317;
+ const genuineCertifiedLean=.04233;
+ pivot.position.y=actualMobileLift;
+ pivot.rotation.z=genuineCertifiedLean;
+ pivot.updateWorldMatrix(true,true);
+ const stale=read();
+ const expected=before.clone().applyAxisAngle(new THREE.Vector3(0,0,1),genuineCertifiedLean);
+ expected.y+=actualMobileLift;
+ assert.ok(stale.distanceTo(expected)>.001,
+  'a stale original bind inverse is visibly wrong in a rotated + translated root');
+ mesh.updateMatrixWorld(true);
+ const verified=read();
+ assert.ok(verified.distanceTo(expected)<.000001,
+  'source CPU weighted toe must match the actual attached-skinned world transform');
+ pivot.position.y=0;pivot.rotation.z=0;
+ pivot.updateWorldMatrix(true,true);
+ mesh.updateMatrixWorld(true);
+ assert.ok(read().distanceTo(before)<.000001,
+  'rejected candidate must return the original source weighted sole exactly');
+ geometry.dispose();material.dispose();
+ const start=renderer.indexOf('function readOriginalSwingSoleY(candidate){');
+ const end=renderer.indexOf('function readOriginalSwingSoleSample(candidate){',start);
+ assert.ok(start>=0&&end>start);
+ const sharedReader=renderer.slice(start,end);
+ assert.match(sharedReader,/mesh\.updateMatrixWorld\(true\)/,
+  'refresh actual source SkinnedMesh bind inverse inside the SHARED weighted-sole sampler, not just isolated pelvis or heel-body trials');
+ assert.match(sharedReader,/mesh\.applyBoneTransform\(index,originalSwingToePoint\)/,
+  'continue source GLB skin-weighted sole and inverse-bind transform; do not fake a foot contact');
+ assert.match(sharedReader,/originalSwingToePoint\.applyMatrix4\(mesh\.matrixWorld\)/,
+  'independently verify final original source world X/Y/Z endpoint');
+});
