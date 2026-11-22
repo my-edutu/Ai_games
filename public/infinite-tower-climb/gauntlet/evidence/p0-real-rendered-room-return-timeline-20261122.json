@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "stage": "P0 OPEN",
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
   "verdict": "NOT EVALUATED",
   "branch": "feat/tower-transformation-gauntlet-20261101",
   "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
@@ -423,5 +423,55 @@
     },
     "nextHighestImpactAction": "The real destination on-screen and gallery raisedRayCount=8 but zero actual gallery occlusions falsifies the originally suspected mechanism in both viewports. Focus next P0 on SOURCE-RETURNED camera/world staged scene break, especially portrait tick510 ~17m lens move vs ~1.5m hero movement while old gate still visible. Diagnose final camera limiter veto and staged bronze/violet palette (not cosmetic opacity edits), run new exact-source 60+s native captures, require 2/2 event-matched continuous gateway->roof->raised deck, outcomes and restart.",
     "constraints": "Preserve immutable frozen baseline and transformation blob; PR68 open draft, PR58 not touched; no other game, merge, deployment, or force push"
+  },
+  "p0SourceFirstFloorNine3AxisCameraAndRealGaze20261122": {
+    "stage": "P0 OPEN",
+    "assessor": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceInspectedBeforeChange": "810e0087ef0fa2ce1436ad37a66f47b6ab899fc0",
+    "testFirstRegressionSha": "184005286cd790f6381ee0665f62c3d8cbed85aa",
+    "productionCameraPolicySha": "1517120bd0f98136c71464a0d19e9b48fd2b2fd9",
+    "productionThreeSceneSha": "93051b8cfed2d507e458ffb3e10ffb0f5c1bf982",
+    "integrationTestSha": "e287acad73bf4915b74de1b1404b9ba6ba96751b",
+    "priorActualNormalSpeedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45073078693",
+    "observedLargestDefect": {
+      "originalViewport": "390x844 portrait, first authentic F8->F9 scene",
+      "sourceTick": 510,
+      "oldCamera": [
+        -14.4,
+        9,
+        46.6
+      ],
+      "newCamera": [
+        -1.5,
+        16,
+        55.5
+      ],
+      "cameraTravelMetres": 17.164,
+      "heroMovementMetresApprox": 1.5,
+      "shoulderAngleRadiansApprox": 0.273,
+      "legacyShoulderThresholdRadians": 0.28,
+      "strictEventMatchedNativeA_B": "FAILED 0/2",
+      "claim": "Even where source World and original physical gateway coexist, the complete moving hero and new raised destination do not pass authentic continuous 1x viewing"
+    },
+    "meaningfulProductionChange": "Detect first-F9 three-axis spatial jump even when genuine camera turn narrowly misses legacy angular-only shoulder threshold; bounded original shaft orbit/radius/height and source-observed hero gaze. Final Scene attempts authentic live skinned hero-centered gaze before vetoing bounded camera, while checking original physical tower-core ray and whole body. Measure genuine WebGL-submitted remaining unbounded cuts (never infer success from guard proposals). Guardian authority, floor change, F9 walkable roof, collision, baseline and other games unchanged.",
+    "changedFiles": [
+      "public/infinite-tower-climb/visuals/first-floor-nine-camera-departure.mjs",
+      "public/infinite-tower-climb/visuals/scene.mjs",
+      "tests/phase3/tower-first-floor-nine-camera-catapult.test.cjs"
+    ],
+    "initialRegression": "Regression first: tick510 shallow-angle world-space classification differs from previous outward-only classification; new test committed before code. Exact-head CI pending.",
+    "productionCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/45078832656",
+    "productionCaptureSourceSha": "93051b8cfed2d507e458ffb3e10ffb0f5c1bf982",
+    "exactTestHeadQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/45078852325",
+    "codeAndSourceToNativeVideoVisualImprovement": "NOT EVALUATED until new original 1x films and first source/native metadata inspected",
+    "independentBlindCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualSupportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Inspect campaign 45078832656 original 60+s desktop/portrait danger clips at genuine first F9 tick510 and new firstFloorNineCameraDeparture measurements: hero-gaze rescues, world-space clamps, physically rejected proposals and actual submitted unbounded camera cuts. If cut persists or lens/core veto blocks acceptable shot, correct physical joined camera/world framing and show real gateway, entire climber, receiving roof and F9 raised step in BOTH videos. Keep P0 OPEN until strict event-matched native 2/2 and full-loop restart.",
+    "constraints": "No PR58 edits, no other game, baseline movement, draft conversion, merge, deployment or force-push"
   }
 }
