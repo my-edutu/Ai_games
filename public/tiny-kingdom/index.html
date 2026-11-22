@@ -4620,6 +4620,88 @@ let softwareWidth=0,softwareHeight=0,softwareSurfaceRebuilds=0;
 let softwareShadedPixels=0,softwareOverdraw=0,softwareRasterTriangles=0;
 const softwareLittleEndian=new Uint8Array(new Uint32Array([0x01020304]).buffer)[0]===4;
 let softwareInvW=new Float32Array(0);
+// W540 Phase-1 original-scene Canvas2D software spine: the camera can rule
+// out a COMPLETE source-world spatial block before projecting its 96 original
+// faces. Each box encloses every original vertex; a block is skipped only if
+// all possible points of the box fail the SAME clip-space viewport half-plane.
+// Dynamically moving citizens, harvested crops, carts, receipts and work tools
+// are never included in these immutable settlement boxes. The old exhaustive
+// path is available for real-frame A/B validation.
+const SOFTWARE_STATIC_CHUNK_TRIANGLES=96;
+let softwareStaticSource=null,softwareStaticBounds=new Float64Array(0),
+ softwareStaticFlags=new Uint8Array(0),softwareStaticChunkBuilds=0,
+ softwareStaticLastTested=0,softwareStaticLastRejected=0,
+ softwareStaticLastSavedTriangles=0,softwareStaticLastCullMs=0;
+function prepareConservativeStaticSoftwareChunks(vertices,m){
+ softwareStaticLastTested=0;softwareStaticLastRejected=0;
+ softwareStaticLastSavedTriangles=0;softwareStaticLastCullMs=0;
+ if(globalThis.__tinyKingdomDisableStaticChunkCull===true||
+    typeof scenicMeshCache==='undefined')return null;
+ const source=scenicMeshCache,staticFloats=source?.length||0;
+ if(staticFloats<30*SOFTWARE_STATIC_CHUNK_TRIANGLES||
+    staticFloats>vertices.length||staticFloats%30!==0)return null;
+ // This draw must contain EXACTLY the original source as its leading mesh.
+ // A different streaming layout falls back to the complete per-face painter.
+ const probes=[0,10,staticFloats-30,staticFloats-1,
+  Math.floor(staticFloats/60)*30];
+ for(const at of probes)if(source[at]!==vertices[at])return null;
+ const begun=performance.now();
+ if(source!==softwareStaticSource){
+  const n=Math.ceil(staticFloats/(30*SOFTWARE_STATIC_CHUNK_TRIANGLES));
+  const nextBounds=new Float64Array(n*6);
+  for(let chunk=0;chunk<n;chunk++){
+   const first=chunk*30*SOFTWARE_STATIC_CHUNK_TRIANGLES,
+    end=Math.min(staticFloats,first+30*SOFTWARE_STATIC_CHUNK_TRIANGLES);
+   let lx=Infinity,ly=Infinity,lz=Infinity,hx=-Infinity,hy=-Infinity,hz=-Infinity;
+   for(let i=first;i<end;i+=10){
+    const x=source[i],y=source[i+1],z=source[i+2];
+    if(!Number.isFinite(x)||!Number.isFinite(y)||!Number.isFinite(z)){
+     lx=-Infinity;ly=-Infinity;lz=-Infinity;
+     hx=Infinity;hy=Infinity;hz=Infinity;break;
+    }
+    lx=Math.min(lx,x);ly=Math.min(ly,y);lz=Math.min(lz,z);
+    hx=Math.max(hx,x);hy=Math.max(hy,y);hz=Math.max(hz,z);
+   }
+   nextBounds.set([lx,ly,lz,hx,hy,hz],chunk*6);
+  }
+  softwareStaticBounds=nextBounds;softwareStaticFlags=new Uint8Array(n);
+  softwareStaticSource=source;softwareStaticChunkBuilds++;
+ }
+ // OpenGL clip-space viewport: w+x>=0, w-x>=0, w+y>=0, w-y>=0.
+ // Test the MOST favourable AABB corner, so a crossing triangle or a
+ // visible resident structure cannot ever be classified as outside.
+ const planes=[
+  [m[3]+m[0],m[7]+m[4],m[11]+m[8],m[15]+m[12]],
+  [m[3]-m[0],m[7]-m[4],m[11]-m[8],m[15]-m[12]],
+  [m[3]+m[1],m[7]+m[5],m[11]+m[9],m[15]+m[13]],
+  [m[3]-m[1],m[7]-m[5],m[11]-m[9],m[15]-m[13]]
+ ];
+ for(let chunk=0;chunk<softwareStaticFlags.length;chunk++){
+  const o=chunk*6;
+  const lx=softwareStaticBounds[o],ly=softwareStaticBounds[o+1],
+   lz=softwareStaticBounds[o+2],hx=softwareStaticBounds[o+3],
+   hy=softwareStaticBounds[o+4],hz=softwareStaticBounds[o+5];
+  let outside=false;
+  if([lx,ly,lz,hx,hy,hz].every(Number.isFinite)){
+   for(const [a,b,c,d] of planes){
+    const maximum=a*(a>=0?hx:lx)+b*(b>=0?hy:ly)+
+     c*(c>=0?hz:lz)+d;
+    if(maximum<-.0001){outside=true;break;}
+   }
+  }
+  softwareStaticFlags[chunk]=outside?1:0;
+  softwareStaticLastTested++;
+  if(outside){
+   softwareStaticLastRejected++;
+   const start=chunk*SOFTWARE_STATIC_CHUNK_TRIANGLES;
+   softwareStaticLastSavedTriangles+=Math.min(SOFTWARE_STATIC_CHUNK_TRIANGLES,
+    staticFloats/30-start);
+  }
+ }
+ softwareStaticLastCullMs=performance.now()-begun;
+ return {limit:staticFloats,flags:softwareStaticFlags};
+}
+
 function softwarePackColor(r,g,b){
  return softwareLittleEndian?
   (0xff000000|((b&255)<<16)|((g&255)<<8)|(r&255))>>>0:
@@ -4697,6 +4779,12 @@ canvasFallbackRasterAudit=()=>({source:'real-canvas2d-conservative-screen-raster
  depthPixels:softwareShadedPixels,depthOverdraw:softwareOverdraw,
  depthTriangles:softwareRasterTriangles,depthSurfaceRebuilds:softwareSurfaceRebuilds,
  depthSurfaceBytes:(softwarePixels?.byteLength||0)+softwareDepth.byteLength+softwareInvW.byteLength,
+ staticChunkTriangles:SOFTWARE_STATIC_CHUNK_TRIANGLES,
+ staticChunkBuilds:softwareStaticChunkBuilds,
+ staticChunkBoxesTested:softwareStaticLastTested,
+ staticChunkBoxesRejected:softwareStaticLastRejected,
+ staticChunkCulledTriangles:softwareStaticLastSavedTriangles,
+ staticChunkCullCpuMs:softwareStaticLastCullMs,
  retainedAllWorldData:true,changedAuthority:false,hardwareFps:'NOT MEASURED'});
 gl={VERTEX_SHADER:1,FRAGMENT_SHADER:2,ARRAY_BUFFER:3,FLOAT:4,DYNAMIC_DRAW:5,COLOR_BUFFER_BIT:6,DEPTH_BUFFER_BIT:7,DEPTH_TEST:8,CULL_FACE:9,BACK:10,TRIANGLES:11,COMPILE_STATUS:12,LINK_STATUS:13,createShader:()=>({}),shaderSource:noop,compileShader:noop,getShaderParameter:()=>true,createProgram:()=>({}),attachShader:noop,linkProgram:noop,getProgramParameter:()=>true,useProgram:noop,getUniformLocation:(_,k)=>k,createBuffer:()=>({}),bindBuffer:noop,getAttribLocation:()=>0,enableVertexAttribArray:noop,vertexAttribPointer:noop,uniformMatrix4fv:(_,__,m)=>{projection=m},uniform1f:noop,uniform1i:noop,uniform2f:noop,uniform4f:noop,uniform4fv:noop,uniform3f:(key,r,g,b)=>{if(key==='fogColor')sky=[r,g,b];if(key==='sunTint')sunTint=[r,g,b];if(key==='sunDirection')sunDirection=[r,g,b]},clearColor:(r,g,b)=>{sky=[r,g,b]},clear:()=>{ctx.fillStyle=`rgb(${sky.map(v=>Math.round(v*255)).join(',')})`;ctx.fillRect(0,0,canvas.width,canvas.height)},viewport:noop,enable:noop,cullFace:noop,bufferData:(_,v)=>{vertices=v},drawArrays:()=>{
  if(!vertices||!projection)return;
@@ -4705,7 +4793,18 @@ gl={VERTEX_SHADER:1,FRAGMENT_SHADER:2,ARRAY_BUFFER:3,FLOAT:4,DYNAMIC_DRAW:5,COLO
  let count=0,behind=0,offscreen=0;
  const sx=canvas.width/2,sy=canvas.height/2;
  const sunLen=Math.hypot(...sunDirection)||1;
+ const staticClip=prepareConservativeStaticSoftwareChunks(v,m);
  for(let i=0;i<v.length;i+=30){
+  if(staticClip&&i<staticClip.limit){
+   const block=Math.floor(i/(30*SOFTWARE_STATIC_CHUNK_TRIANGLES));
+   if(staticClip.flags[block]){
+    const after=Math.min(staticClip.limit,
+     (block+1)*30*SOFTWARE_STATIC_CHUNK_TRIANGLES);
+    offscreen+=(after-i)/30;
+    i=after-30;
+    continue;
+   }
+  }
   const j=i+10,k=i+20;
   const wa=m[3]*v[i]+m[7]*v[i+1]+m[11]*v[i+2]+m[15];
   const wb=m[3]*v[j]+m[7]*v[j+1]+m[11]*v[j+2]+m[15];
