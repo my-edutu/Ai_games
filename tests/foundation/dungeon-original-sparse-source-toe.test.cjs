@@ -617,3 +617,75 @@ test('RED: original f27 deep-swing certified max-rate toe lift skips a physicall
   {...guide,extraAngleRad:-.080},'toesr',actual).length,3,
   'a stronger source-authored arc is not dominated');
 });
+
+
+test('RED: original 390px early swing anticipates deep burial with a source-owned connected hip-knee-ankle opportunity',async()=>{
+ const m=await controller();
+ // REAL 51cfe869 / #44963550098 original Vanguard 390px WebGL f119:
+ // Walking_A right swing at t=.03555789675988813; original weighted
+ // right heel Y=.1015712675893 (121.57mm OVER stone), toe Y=-.0435528153
+ // (23.55mm BELOW stone), toe-to-heel source pitch=.145124m.
+ // Later genuine mobile f113 source t=.0945812 showed the original right
+ // swing toe ~96.657mm buried even after its linked-leg/toes child.
+ // These BEFORE sole coordinates are from original skinned GLB vertices.
+ // Frame interval and grounded travel below are SYNTHETIC legal guards:
+ // NO actual native 60Hz continuity, later foot clearance or plant is claimed.
+ const before={
+  left:{heelY:-.051331809631070466,toeY:.06254707977432257,
+   heelXZ:[3.1077284872814337,-6.9577958580081605],
+   toeXZ:[2.858306932812667,-6.931874572766553]},
+  right:{heelY:.10157126758930829,toeY:-.04355281526924159,
+   heelXZ:[3.341581992066729,-7.109755646649999],
+   toeXZ:[3.1187425399763744,-7.135921876936013]}
+ };
+ const args={
+  source:'verified-licensed-source-native-counterpitch',
+  sourceRole:'vanguard',mode:'move',sourceClipName:'Walking_A',
+  sourceClipDurationSeconds:1.0416666269302368,
+  sourceClipTimeSeconds:.03555789675988813,
+  sourceWeight:1,sourceInstanceSame:true,
+  sourceOriginalUpperTrackVerified:true,sourceOriginalLowerTrackVerified:true,
+  sourceOriginalFootTrackVerified:true,sourceOriginalBindVerified:true,
+  sourceBoneChainVerified:true,sourceFootLocalXAxisVerified:true,
+  ownerLocomotion:true,alive:true,visible:true,
+  interrupted:false,teleport:false,reducedMotion:false,
+  frameInterval:.0167,rootTravel:.012,frameAge:0,
+  side:'right',floorTopY:-.02,before,
+  previousFootRad:0,previousSameSourceFrame:false,
+  sparseFrameVerified:false
+ };
+ const plan=m.planLicensedSourceSwingCounterpitch(args);
+ assert.ok(plan,'authentic early original skinned swing must be eligible for bounded connected-leg trial BEFORE severe toe burial');
+ assert.equal(plan.source,'verified-licensed-source-native-counterpitch');
+ assert.equal(plan.side,'right');
+ assert.ok(plan.upperRad<0&&plan.lowerRad>0&&plan.footRad<-.018);
+ assert.ok(Math.abs(plan.footRad)<=3*.0167+.000001,
+  'first original 60Hz leg cannot borrow a later fast-forward or exceeding angular rate');
+ assert.equal(plan.contactLocked,false);
+ assert.equal(plan.plantCertified,false);
+ const connected=m.planLicensedSourceConnectedChainTrials({
+  plan,frameInterval:.0167,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceFootTrackVerified:true,sourceBindVerified:true
+ });
+ assert.ok(Array.isArray(connected)&&connected.length===2,
+  'candidate must engage the existing original upper-lower-foot chain, not isolated toe twitches');
+ // Every final accepted pose still requires independent original BOTH-shoe
+ // skinning and the same original clip/matrix/joint provenance; the test
+ // does NOT fabricate a successful AFTER skinned toe sample.
+ for(const mutation of [
+  {sourceRole:'ranger'}, {sourceClipName:'Idle'},
+  {sourceInstanceSame:false},{sourceOriginalBindVerified:false},
+  {sourceOriginalFootTrackVerified:false},{sourceBoneChainVerified:false},
+  {sourceFootLocalXAxisVerified:false},{ownerLocomotion:false},
+  {interrupted:true},{alive:false},{teleport:true},{reducedMotion:true},
+  {frameInterval:.005},{rootTravel:0},
+  {before:{...before,right:{...before.right,heelY:.075}}},
+  {before:{...before,right:{...before.right,toeY:.018}}},
+  {sourceClipTimeSeconds:.30},
+  {before:{...before,left:{...before.left,heelY:-.2}}}
+ ]){
+  assert.equal(m.planLicensedSourceSwingCounterpitch({...args,...mutation}),null,
+   'invalid original source/airborne early evidence must fail closed: '+JSON.stringify(mutation));
+ }
+});
