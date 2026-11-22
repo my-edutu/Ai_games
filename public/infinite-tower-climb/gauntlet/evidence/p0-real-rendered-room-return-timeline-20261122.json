@@ -147,5 +147,42 @@
     "actualDeviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
     "acceptance": "P0 NOT ACCEPTED; no matching original first-episode native footage has yet proved this latest source fix",
     "nextHighestImpactAction": "Inspect the new immutable source SHA 1cf34b1e candidate desktop 960x600 and portrait 390x844 danger WebMs and first-episode physical-doorway-submissions: require retainedOriginalGpu true in first returned desktop F9 source tick and a continuous filmed original HP-open gate -> moving full hero -> actual F9 ground -> raised destination with exact source/native event correspondence. Otherwise repair real material/world and physical camera jointly, not extra cosmetic fades."
+  },
+  "p0FirstAuthenticEpisodeRenderTraceFix20261122": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "previousVerifiedDraftHead": "faedde50171dfc2cc01a29681c7534aa4ce5bd56",
+    "inspectedOriginalFootage": {
+      "campaign": "https://github.com/my-edutu/Ai_games/actions/runs/45044840275",
+      "candidateSourceSha": "1cf34b1ebbc998d2c0c7e6028487bac99e7b9863",
+      "artifactId": 14763515335,
+      "authenticDangerWebm": "desktop 960x600 and portrait 390x844, 72.48s, 1x",
+      "strictNativeDangerPairing": "FAILED 0/2",
+      "dominantNativeDefect": "At about 27–28s the original bronze guardian room snaps into a wide violet Floor9 shaft; continuous opened original steel, complete moving hero, real walkable roof and raised destination not verified"
+    },
+    "sourceEvidenceRootCause": "The read-only first original F8→9 returned-frame trace was cleared on any autonomous restart runToken change. The original source-authentic first episode was around source tick 475, while sidecar source rows were from another authentic episode around tick 316 near the later part of the same 72s recording. Native PTS join consequently rejected the real first episode with no-genuine-returns-mapped-to-first-native-floor-nine-episode. This fixes evidence ownership, not the visual hard cut.",
+    "implementationCommits": {
+      "firstEpisodeSourcePolicy": "6ed4f66d1e384a4ccb48b6f63b467ae4ac5fe941",
+      "focusedRegression": "cc6776ceebcda1a4bb488dc1b3b3df92c4673945",
+      "actualSceneIntegration": "d2b3200c4fd381af126d8335fd0fc27042341cc1"
+    },
+    "files": [
+      "public/infinite-tower-climb/visuals/first-source-room-return.mjs",
+      "public/infinite-tower-climb/visuals/scene.mjs",
+      "tests/phase3/tower-first-source-render-episode-lock.test.cjs"
+    ],
+    "repairedOutcome": "Original-to-Void first authentic renderer-return episode is now pinned to its first real same-run qualified source owner; later autonomous restarts cannot clear or replace the first evidence. No simulation gameplay, geometry, camera, audio, physics or authoritative restart changed.",
+    "captureWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/45049823947",
+    "qualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/45049823936",
+    "exactHeadAcceptance": "NOT EVALUATED until source-pinned workflow finishes and first episode sidecars, original native WebM pixels and two-viewport event-time alignment are independently checked",
+    "blindIndependentCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "devicePerformanceP50P95P99AndMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Inspect the 45049823947 original 1x desktop and portrait first-episode returned-room-native-alignment artifacts for source tick ~475; use confirmed owner/camera state at 26–29s to fix physical Floor8-to-Floor9 room/camera cut, then require source-matched 2/2 native gateway/hero/roof/raised-deck acceptance before P1.",
+    "constraints": "PR68 remains draft; never modify frozen baseline, PR58 or unrelated games, merge, deploy, force-push or undraft"
   }
 }
