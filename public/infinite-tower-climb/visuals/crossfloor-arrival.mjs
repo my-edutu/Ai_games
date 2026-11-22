@@ -459,7 +459,14 @@ export function observedPrebuiltVoidShaftRelease(source,passage,held,job,sourceG
     job.structuralRoot?.isGroup===true &&
     job.structuralRoot.visible===true &&
     Number.isFinite(job.structuralFade) &&
-    job.structuralFade>=.35 && job.structuralFade<=1 &&
+    // The initial original shaft is intentionally painted at ~22% while
+    // awaiting release; noteFrameSubmitted may increase this fade ONLY after
+    // leaving 'awaiting-structural-release'. Requiring .35 here creates a
+    // circular hold even after 16 genuine old/new WebGL returns. Demand a
+    // genuinely nonzero rendered shaft instead; the independent six-return,
+    // 520ms, HP-zero, grounded-roof, original-cap and same-run checks below
+    // still veto unpainted, premature or manufactured progress.
+    job.structuralFade>.015 && job.structuralFade<=1 &&
     Number.isSafeInteger(job.structuralVisibleReturns) &&
     job.structuralVisibleReturns>=6 &&
     Number.isFinite(job.structuralVisibleSeconds) &&
