@@ -96,3 +96,17 @@ test('actual Floor9 world uploads original noninteractive shaft after first rend
   assert.match(world,/for\(const h of snapshot\.hazards\|\|\[\]\)buildHazard/);
   assert.doesNotMatch(world,/snapshot\.floor\s*=\s*9|snapshot\.player\.x\s*=/);
 });
+
+test('source-authentic shaft keeps its original rendered-core clock while deferring full scenic release until biome itself returns',async()=>{
+  const {observedPrebuiltVoidShaftRelease:release}=await loaded;
+  const s=originalGate();
+  const receding={...s.held,originalGatewayOpacity:.60};
+  const visibleGate={...s.gate,opacity:.60};
+  const builtOnly={...s.job,submittedFrames:2,structureBuiltAtSubmitted:1,
+    biomeBuiltAtSubmitted:2};
+  assert.equal(release(s.source,s.passage,receding,builtOnly,visibleGate),false,
+    'source update after building real crystals cannot impersonate their FIRST returned WebGL frame');
+  assert.equal(release(s.source,s.passage,receding,
+    {...builtOnly,submittedFrames:3},visibleGate),true,
+    'a matching actual returned biome frame restores earned gateway release without resetting the core proof');
+});
