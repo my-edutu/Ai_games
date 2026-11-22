@@ -31117,7 +31117,109 @@ function chooseGroundedGrowingTownCamera(view,roofs){
  }
  return best;
 }
+// W531 Phase-1 integrated farm / granary / receiving-market / inhabited-home
+// presentation: the matched G088 running capture exposed a STARTUP town shot
+// looking nearly vertically down onto dozens of tiny workers. One bounded
+// first-view survey uses the SAME real roof, foliage and town projection
+// model as player-camera safety. This is an actual playable camera, NOT
+// simulated work, staged inventories, moved architecture or actor culling.
+// Never re-run after a player has moved the camera or while inspecting work.
+let livedTownOverviewChecked=false,livedTownOverviewProbes=0,
+ livedTownOverviewAccepted=0,livedTownOverviewRejected=0,
+ livedTownOverviewLast=null;
+function livedTownOverviewCost(physical,view,portrait=false){
+ if(!physical||physical.clear!==true)return Infinity;
+ const occupied=physical.screenOccupiedByBuildings;
+ const dominant=physical.screenDominantBuilding;
+ const foreground=physical.foregroundSceneCover;
+ if(![occupied,dominant,foreground,view.pitch,view.zoom].every(Number.isFinite)||
+   occupied<.035||occupied>.66||dominant>.34||foreground>.78)
+  return Infinity;
+ // A town is a place with streets and real inhabited houses, not an empty
+ // hillside or a single roof. These are true 3D screen-cover samples.
+ const targetBuildingShare=portrait?.20:.27;
+ return Math.abs(occupied-targetBuildingShare)*18+
+  dominant*17+foreground*3.2+
+  Math.abs(view.pitch-(portrait?.57:.50))*4.4+
+  Math.abs(view.zoom-(portrait?37:31))*.09;
+}
+function chooseLivedTownOverview(view,roofs){
+ if(!view||!Array.isArray(view.focus)||!Array.isArray(roofs)||
+  !Number.isFinite(view.yaw))return null;
+ const plot=FARMSTEAD.fields[0],initialHome=city[0];
+ if(!Array.isArray(plot)||plot.length<4||!plot.every(Number.isFinite)||
+  !Array.isArray(initialHome)||initialHome.length<2)return null;
+ const actualFarm=[(plot[0]+plot[1])*.5,(plot[2]+plot[3])*.5];
+ const receivingMarket=[0,5]; // Same real market(0,5) in civic GPU core.
+ const anchors=[
+  {name:'receiving-market-and-street',focus:receivingMarket},
+  {name:'real-grain-to-market-street',
+   focus:[actualFarm[0]*.48+receivingMarket[0]*.52,
+    actualFarm[1]*.48+receivingMarket[1]*.52]},
+  {name:'genuine-founding-house',focus:[initialHome[0],initialHome[1]]}
+ ];
+ const portrait=canvas.clientWidth<=520;
+ const zooms=portrait?[34,42]:[28,36];
+ const tilts=portrait?[.48,.64]:[.43,.58];
+ const bearings=[view.yaw,view.yaw+.76,view.yaw+1.52];
+ let best=null,lowest=Infinity;
+ // 3 authentic locations × 2 real distances × 2 pitches × 3 bearings:
+ // at most 36 physical surveys, ONCE on startup and never per draw.
+ for(const anchor of anchors)for(const distance of zooms)
+ for(const tilt of tilts)for(const bearing of bearings){
+  const next={yaw:bearing,pitch:tilt,zoom:distance,focus:anchor.focus.slice()};
+  livedTownOverviewProbes++;
+  const proof=freeCameraSightline(next,roofs);
+  const score=livedTownOverviewCost(proof,next,portrait);
+  if(!Number.isFinite(score)){livedTownOverviewRejected++;continue;}
+  // Prefer the real receiving court without hiding the established homes.
+  const locationPenalty=anchor.name==='receiving-market-and-street'?0:
+   anchor.name==='real-grain-to-market-street'?.45:.80;
+  const finalScore=score+locationPenalty+
+   Math.abs(Math.atan2(Math.sin(bearing-view.yaw),
+    Math.cos(bearing-view.yaw)))*.15;
+  if(finalScore<lowest){
+   best={...next,physicalDistrict:anchor.name,
+    originalRoofAndBuildingClear:true,
+    occupiedBuildingFraction:proof.screenOccupiedByBuildings,
+    largestBuildingFraction:proof.screenDominantBuilding};
+   lowest=finalScore;
+  }
+ }
+ return best;
+}
+function getLivedTownOverviewAudit(){
+ return {source:'one-time-real-civic-camera-composition',
+  attempted:livedTownOverviewChecked,probes:livedTownOverviewProbes,
+  rejected:livedTownOverviewRejected,selected:livedTownOverviewAccepted,
+  last:livedTownOverviewLast,originalCitizens:people.length,
+  originalHomes:city.length,hiddenCitizens:0,hiddenStructures:0,
+  simulatedTransactions:0,changesAuthority:false,physicalFps:'NOT MEASURED'};
+}
 function recoverGrowingTownSpectatorCamera(){
+ if(follow||streetWalk||cinematic||freeCameraReturn)return false;
+ // Startup composition is a single, player-interruptible physically
+ // surveyed look at the connected ORIGINAL farm/market/home district.
+ // Do not unexpectedly reframe after any keyboard, mouse or touch input.
+ if(!livedTownOverviewChecked&&framesDrawn===1){
+  livedTownOverviewChecked=true;
+  const playerAlreadyMoved=Object.values(cameraNavigationStats)
+   .some(value=>typeof value==='number'&&value>0);
+  if(!playerAlreadyMoved&&!dragging&&city.length){
+   const view={yaw,pitch,zoom,focus:focusPoint};
+   const roofs=followCameraRoofs();
+   const lived=chooseLivedTownOverview(view,roofs);
+   if(lived&&freeCameraSightline(lived,roofs).clear){
+    yaw=lived.yaw;pitch=lived.pitch;zoom=lived.zoom;
+    focusPoint=lived.focus.slice();
+    livedTownOverviewAccepted++;
+    livedTownOverviewLast={district:lived.physicalDistrict,
+     yaw,pitch,zoom,buildingFraction:lived.occupiedBuildingFraction,
+     dominantBuilding:lived.largestBuildingFraction};
+    presentationEpoch++;lastFrozenFrameKey=null;
+   }
+  }
+ }
  if(follow||streetWalk||cinematic||freeCameraReturn)return false;
  if(growingCameraCheckedCity===city&&growingCameraCheckedLots===city.length&&
     growingCameraCheckedRoofKey===cameraArchitectureResidentKey)return false;
