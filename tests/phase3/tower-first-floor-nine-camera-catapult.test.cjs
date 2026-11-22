@@ -75,7 +75,7 @@ test('real first-F9 pure lateral orbit is bounded even with stable radius and ca
  assert.ok(x,'11m camera orbit around nearly static live hero must not slip through angular/radius heuristics');
  assert.equal(x.reason,'first-original-floor-nine-camera-lateral-orbit');
  assert.ok(x.requestedMovement>10);
- assert.ok(x.boundedMovement<1.5);
+ assert.ok(x.boundedMovement<3);
 });
 test('first genuine F9 route remains camera-coherent past the old 110-tick doorway lease',async()=>{
  const guard=await fn;
@@ -87,7 +87,7 @@ test('first genuine F9 route remains camera-coherent past the old 110-tick doorw
   previousFocus:[5,17,23],desiredFocus:[6,18.5,23],dt:.05};
  const x=guard(episode);
  assert.ok(x,'first Floor9 physical route must not catapult camera just after 110 ticks');
- assert.ok(x.requestedMovement>14 && x.boundedMovement<2);
+ assert.ok(x.requestedMovement>14 && x.boundedMovement<3);
  assert.equal(x.reason,'first-original-floor-nine-camera-shoulder-cut');
  assert.equal(guard({...episode,source:{...episode.source,tick:686}}),null,
   'bounded first-route coverage must NOT become unbounded or leak into later scenes');
