@@ -55,6 +55,8 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   // Check actual DOM order, finger hit targets and source-true ledger access,
   // not a hidden test camera or a synthetic transaction.
   if(viewport.width===390){
+   // Freeze normal ticking for strict snapshot-before/after UI evidence.
+   await page.evaluate(()=>window.__tinyKingdom.setSpeed(0));
    const dock=await page.evaluate(()=>{
     const ids=['harvest-follow','film-ledger','delivery-follow'];
     const bar=document.querySelector('.world-tour');
@@ -82,6 +84,42 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
     .noSyntheticTransactions)).toBe(true);
    expect(await page.evaluate(()=>window.__tinyKingdom.exportSnapshot().checksum)).toBe(original);
    await page.locator('#film-ledger').click();
+   // First-screen harvest and freight controls must still do something TRUE
+   // before production/escrow starts; no fake cutting, stock or actor is legal.
+   const originalFarmer=await page.evaluate(()=>({
+    exists:window.__tinyKingdom.getState().people.some(p=>p.job==='farmer'),
+    checksum:window.__tinyKingdom.exportSnapshot().checksum
+   }));
+   if(originalFarmer.exists){
+    await page.locator('#harvest-follow').click();
+    const follow=await page.evaluate(()=>{
+     const g=window.__tinyKingdom;
+     const name=g.getSelectedCitizen();
+     const chosen=g.getState().people.find(p=>p.name===name);
+     return {follow:g.getCamera().follow,job:chosen?.job,
+      checksum:g.exportSnapshot().checksum};
+    });
+    expect(follow.follow,'Watch farmer must follow an actual farmer').toBe(true);
+    expect(follow.job).toBe('farmer');
+    expect(follow.checksum).toBe(originalFarmer.checksum);
+   }
+   const freightBefore=await page.evaluate(()=>{
+    const g=window.__tinyKingdom;
+    return {hasLoad:g.getState().people.some(p=>p.delivery),
+     checksum:g.exportSnapshot().checksum};
+   });
+   await page.locator('#delivery-follow').click();
+   const freightAfter=await page.evaluate(()=>{
+    const g=window.__tinyKingdom;
+    return {view:g.getCamera(),physical:g.getFreeCameraCollisionAudit(),
+     checksum:g.exportSnapshot().checksum};
+   });
+   expect(freightAfter.checksum).toBe(freightBefore.checksum);
+   if(!freightBefore.hasLoad){
+    // The actual market is a useful place to visit while the courier waits.
+    expect(freightAfter.physical.viewClear).toBe(true);
+    expect(freightAfter.view.follow).toBe(false);
+   }
   }
   await page.evaluate(()=>{
    const g=window.__tinyKingdom;
