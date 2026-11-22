@@ -562,7 +562,7 @@ export function createSerpent(THREE) {
 
   let ringCount = 0, indexCount = 0, pathCount = 0, truncated = false;
   let previousHeadX = NaN, previousHeadZ = NaN, heading = 0;
-  let eaten = 0, dangerEase = 0, curveLean = 0;
+  let eaten = 0, dangerEase = 0, curveLean = 0, faceFollowThrough = 0;
   // Presentation-only eye tracking. The target comes exclusively from the
   // current immutable public food location, never a private AI path.
   let gazeX = 0, gazeY = 0, previousRunToken, focusYaw = 0;
@@ -638,10 +638,17 @@ export function createSerpent(THREE) {
       positions[v * 3] = x + nx * (cos * radius + lateral);
       positions[v * 3 + 1] = y + sin * radius * 0.88 + cos * radius * camber;
       positions[v * 3 + 2] = z + nz * (cos * radius + lateral);
-      const ny = sin / 0.88, norm = Math.hypot(cos, ny);
-      normals[v * 3] = nx * cos / norm;
-      normals[v * 3 + 1] = ny / norm;
-      normals[v * 3 + 2] = nz * cos / norm;
+      // Physical elliptical surface normal. A real bank bends each body's
+      // cross-section, so an upright-cylinder normal falsely paints its sun
+      // highlight across a sloping jade flank. Derive the outward normal from
+      // d/d(angle) of (radius*cos, radius*(.88*sin + camber*cos)); when camber
+      // is zero this is mathematically identical to the original tube normal.
+      // This uses existing per-ring vertices, buffers, shaders and draw calls.
+      const radialX = .88 * cos - camber * sin, radialY = sin;
+      const norm = Math.hypot(radialX, radialY);
+      normals[v * 3] = nx * radialX / norm;
+      normals[v * 3 + 1] = radialY / norm;
+      normals[v * 3 + 2] = nz * radialX / norm;
       uvs[v * 2] = distance / 3.2; uvs[v * 2 + 1] = j / activeRadial;
     }
     if (connect) for (let j = 0; j < activeRadial; j++) {
@@ -816,7 +823,16 @@ export function createSerpent(THREE) {
     if (options.runToken !== undefined) previousRunToken = options.runToken;
     const teleported = restarted || !Number.isFinite(previousHeadX) || Math.hypot(first.x - previousHeadX, first.z - previousHeadZ) > 1.6;
     const angleDifference = Math.atan2(Math.sin(targetHeading - heading), Math.cos(targetHeading - heading));
-    heading = teleported || reduced ? targetHeading : heading + angleDifference * (1 - Math.exp(-dt * 19));
+    // Anchor the *whole skull and attached jaw* to the public first neck
+    // tangent immediately. Previously easing the root yaw left the one-piece
+    // skull pointing as much as a right angle away from the already-turned
+    // continuous body for several submitted frames; its rear physically cut
+    // across the neck. Retain acting through a tiny decaying face follow-through
+    // instead of allowing anatomical disconnection. Portal/restart/reduced
+    // motion snaps it to the truthful present pose, never the old fragment.
+    faceFollowThrough = teleported || reduced ? 0 : clamp(
+      faceFollowThrough * Math.exp(-dt * 14) - angleDifference * 0.07, -0.095, 0.095);
+    heading = targetHeading;
     // The first three points are in the same public, portal-contiguous path.
     // Their signed bend gives the skull a sustained, grounded lean at corners.
     // The old heading-error-only roll vanished as soon as yaw caught up, even
@@ -896,13 +912,13 @@ export function createSerpent(THREE) {
     // retains a time-invariant meaningful pose instead of a tween.
     focusYaw = teleported || reduced ? targetFocusYaw
       : focusYaw + (targetFocusYaw - focusYaw) * (1 - Math.exp(-dt * 9));
-    headPose.rotation.y = focusYaw;
+    headPose.rotation.y = focusYaw + faceFollowThrough;
     // END R34 PUBLIC FOOD ATTENTION
     // BEGIN R48 THREAT-PRIORITY GAZE
     // An urgent public hazard suppresses the old near-fruit fixation.
     const fruitAttention = 1 - threatPose;
     focusYaw *= fruitAttention;
-    headPose.rotation.y = focusYaw;
+    headPose.rotation.y = focusYaw + faceFollowThrough;
     targetGazeX *= fruitAttention;
     targetGazeY *= fruitAttention;
     if (threatPose >= 0.85) { gazeX = 0; gazeY = 0; }

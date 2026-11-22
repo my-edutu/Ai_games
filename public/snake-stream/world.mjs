@@ -744,6 +744,82 @@ export function buildReclaimedCourtyardGlades(THREE,width,height,layer){
 }
 
 /**
+ * Join the THREE full-scale moss/limestone garden basins into one physically
+ * continuous rooted island and link it to ALL FOUR true shores. Previously the
+ * three separate caps floated visually on the rectangular quarry like decals.
+ * Six original terrain ribbons are formed once, at world construction, with
+ * curved, broad, gently pitched loam crowns and a physically layered bedrock
+ * substratum. They are merged into the EXISTING shoreline stone/moss static
+ * batches, retaining all lighting, atlas sampling, depth/shadows and draw calls.
+ *
+ * The entire relief is under the original 30mm serpent belly clearance.
+ * The real square gameplay grid, fruit, hazard, portal, authoritative physics
+ * and static stone supports are never changed. No dynamic GPU resources or
+ * random streams; original deterministic, public-independent art geometry.
+ */
+export function buildConnectedCourtyardGarden(THREE,width,height,layer) {
+  if (!Number.isInteger(width) || !Number.isInteger(height) ||
+      width < 2 || height < 2 || width > 2048 || height > 2048 ||
+      !['bedrock','moss'].includes(layer))
+    throw new RangeError('Connected native garden needs valid board dimensions and material stratum');
+  const W=width/2,H=height/2;
+  const west={x:-W*.57,z:-H*.37}, center={x:-W*.055,z:H*.20}, east={x:W*.55,z:H*.31};
+  const corridors=[
+    [west,center], [center,east],
+    [west,{x:-W+.29,z:west.z}], [east,{x:W-.29,z:east.z}],
+    [center,{x:center.x,z:-H+.29}], [center,{x:center.x,z:H-.29}],
+  ];
+  const sections=20, cross=[-1,-.48,0,.48,1],
+    positions=[],uv=[],indices=[], endpoints=[];
+  const isMoss=layer==='moss';
+  const maxX=W-.19,maxZ=H-.19;
+  for(let route=0;route<corridors.length;route++) {
+    const [start,end]=corridors[route], first=positions.length/3;
+    const dx=end.x-start.x,dz=end.z-start.z, length=Math.hypot(dx,dz);
+    const nx=-dz/length,nz=dx/length;
+    const departure=route<2 ? 1.2 : 1.0;
+    for(let section=0;section<=sections;section++) {
+      const t=section/sections, arc=Math.sin(Math.PI*t);
+      // A tapered bend keeps BOTH physical endpoints at the exact original
+      // moss basins/coast while broadening the living floor between them.
+      const drift=.19*arc*Math.sin(t*6.2+route*1.17);
+      const cx=start.x+dx*t+nx*drift,cz=start.z+dz*t+nz*drift;
+      const widthScale=departure*(.76+.34*arc)
+        *(1+.07*arc*Math.cos(t*8.2+route*.8));
+      for(let band=0;band<cross.length;band++) {
+        const across=cross[band], fringe=Math.abs(across);
+        // Broad, original living crowns have real sloping shoulders rather
+        // than being transparent floor decals. No overhanging stone colliders.
+        const rough=.0019*arc*(1-fringe)*Math.sin(t*17.1+route*.73+across*4);
+        const y=isMoss
+          ? .011+.007*arc*(1-fringe)-.038*fringe**1.75+rough
+          : -.080+.006*arc*(1-fringe)-.017*fringe**1.75+rough;
+        const x=Math.max(-maxX,Math.min(maxX,cx+nx*across*widthScale));
+        const z=Math.max(-maxZ,Math.min(maxZ,cz+nz*across*widthScale));
+        positions.push(x,y,z);
+        uv.push(x/3.7,z/3.7);
+      }
+      if(section) for(let band=0;band<cross.length-1;band++) {
+        const a=first+(section-1)*cross.length+band;
+        const b=a+cross.length;
+        // Correctly wind actual triangles for upward-facing 3D garden light.
+        indices.push(a,a+1,b,a+1,b+1,b);
+      }
+    }
+    endpoints.push({start:{...start},end:{...end}});
+  }
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+  g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+  g.setIndex(indices);g.computeVertexNormals();g.computeBoundingSphere();
+  g.userData.connectedGardenCorridors=corridors.length;
+  g.userData.connectedGardenStrata=layer;
+  g.userData.connectedGardenTriangles=indices.length/3;
+  g.userData.connectedGardenEndpoints=endpoints;
+  return g;
+}
+
+/**
  * A connected original 3D sub-courtyard rock apron, not the former buried
  * axis-aligned box. The upper fan supports EVERY real gameplay stone below
  * its y=0 walking surface. Only the outboard fringe bends into the existing
@@ -943,26 +1019,47 @@ export function sculptFrontFrieze(width,height,along) {
   };
 }
 
-/** A worn safe exterior coping: board corners remain legible, rail is no longer uniform. */
+/**
+ * The original four entire coping courses are now broken, tidal-height stone
+ * banks, not four bright ruler-straight rails. The VERY SAME cape/inlet field
+ * already sculpting the native loam/bedrock shelf controls their position and
+ * height. Each original real stone remains exterior to all playable cells;
+ * no new renderer object, topology, texture or simulation transition is made.
+ */
 export function sculptCopeStone(width, height, edge, along) {
-  const W = width / 2, H = height / 2, horizontal = edge < 2;
-  const wave = .5 + .5 * Math.sin(along * .71 + edge * 1.9);
-  const finer = .5 + .5 * Math.cos(along * 1.43 - edge * 1.2);
-  // Retain the intact one-stone-per-cell boundary while carving broader
-  // material bays: the minimum outward clearance remains safely exterior.
-  const x0 = horizontal ? along - W : (edge === 2 ? -W - 1 : W + 1);
-  const z0 = horizontal ? (edge === 0 ? -H - 1 : H + 1) : along - H;
-  const bankCrown = sampleWoodlandBankCrown(width,height,Math.atan2(z0,x0));
-  const outward = .36 + .22 * wave + .06 * finer
-    + .37 * sculptTidalRill(edge, along) + .24*bankCrown;
+  if (![width,height,edge,along].every(Number.isFinite) ||
+      !Number.isInteger(width) || !Number.isInteger(height) ||
+      !Number.isInteger(edge) || width<2 || height<2 || edge<0 || edge>3)
+    throw new RangeError('Native coastal coping requires a finite real board and shore');
+  const W=width/2,H=height/2,horizontal=edge<2;
+  const wave=.5+.5*Math.sin(along*.71+edge*1.9);
+  const finer=.5+.5*Math.cos(along*1.43-edge*1.2);
+  const x0=horizontal?along-W:(edge===2?-W-1:W+1);
+  const z0=horizontal?(edge===0?-H-1:H+1):along-H;
+  const relief=sampleTidalTerraceRelief(width,height,Math.atan2(z0,x0));
+  const bankCrown=sampleWoodlandBankCrown(width,height,Math.atan2(z0,x0));
+  // One physical coastal grammar ties EVERY retained original capstone to
+  // the four existing tidal inlets, headlands and planted cliff courses.
+  // Opposing longitudinal drift breaks both axis-aligned rails into original
+  // ruined semicoves; it remains outside all authoritative gameplay cells.
+  const rill=sculptTidalRill(edge,along);
+  const slip=.24*Math.sin(along*.43+edge*1.74)
+    +.12*Math.sin(along*1.39-edge*.67);
+  const outward=Math.max(.60,.52+.16*wave+.06*finer+.20*rill+.13*bankCrown
+    +1.08*relief.cape-.19*relief.inlet
+    +.10*Math.sin(along*.87+edge*.83));
+  const shoulder=(.72+.46*wave+.11*finer)*(1-.13*relief.inlet);
+  // Physical chipped stone shortens at bays and lengthens at the two
+  // ridgelines. Retain the identical stone count/material batch and a rock
+  // underlayer beneath the occasional intentionally broken coping gap.
   return {
-    x: horizontal ? along - W : (edge === 2 ? -W - outward : W + outward),
-    y: -.11 + .033 * Math.sin(along * .83 + edge * 1.72) + .09*bankCrown,
-    z: horizontal ? (edge === 0 ? -H - outward : H + outward) : along - H,
-    sx: horizontal ? .91 + .06 * finer : .39 + .07 * wave,
-    sy: .28 + .045 * finer,
-    sz: horizontal ? .39 + .07 * wave : .91 + .06 * finer,
-    ry: .07 * Math.sin(along * .49 + edge * .7),
+    x:horizontal?along-W+slip:(edge===2?-W-outward:W+outward),
+    y:-.22+.055*wave+.39*relief.rise+.045*bankCrown,
+    z:horizontal?(edge===0?-H-outward:H+outward):along-H+slip,
+    sx:horizontal?(.91+.06*finer)*shoulder:.36+.07*wave,
+    sy:.22+.085*finer+.065*relief.cape,
+    sz:horizontal?.36+.07*wave:(.91+.06*finer)*shoulder,
+    ry:.22*Math.sin(along*.51+edge*.7)+.09*(relief.cape-relief.inlet),
   };
 }
 
@@ -999,12 +1096,21 @@ export function sculptGardenEdgePlanting(width,height,side,along,kind='foliage')
   const stone=sculptCopeStone(width,height,side,localAlong);
   const offset=.59+.065*Math.sin(along*.86+side*1.6);
   const outside=horizontal?Math.abs(stone.z)-H:Math.abs(stone.x)-W;
-  const rim=Math.max(.99,outside+offset);
-  const drift=.075*Math.sin(along*.71+side*1.43);
+  // The coastal silhouette is authored beyond the garden, but the original
+  // broadleaf strip has a hard two-metre buffer before the fog/foreground:
+  // do not drag its existing fern instances past that original visibility
+  // envelope merely because an isolated promontory reaches farther out.
+  const rim=Math.min(2.08,Math.max(.99,outside+offset));
+  // Roots are tethered to the true rock by one small along-shore step; this
+  // prevents vegetation from coinciding with a cape's stone centre when its
+  // outward placement is clamped to the original live-garden boundary.
+  const drift=.34+.045*Math.sin(along*.71+side*1.43);
+  // Root the entire original live foliage line to the actual displaced
+  // capstones; otherwise flowers keep describing the former straight rail.
   return {
-    x:horizontal?along+drift:(side===2?-W-rim:W+rim),
+    x:horizontal?stone.x+drift:(side===2?-W-rim:W+rim),
     y:-.14,
-    z:horizontal?(side===0?-H-rim:H+rim):along+drift,
+    z:horizontal?(side===0?-H-rim:H+rim):stone.z+drift,
   };
 }
 
@@ -1678,6 +1784,11 @@ export function createWorld(THREE, {width, height}) {
   // than occluding the protected cliff apron used by all legal cells.
   add(geometry(buildReclaimedCourtyardGlades(THREE,width,height,'bedrock')),stone,0,0,0);
   appendOriginalCoastGeometry(rootedMantle,buildReclaimedCourtyardGlades(THREE,width,height,'moss'));
+  // Six connected interior routes, paired rock/loam thickness, and physical
+  // four-shore integration replace isolated terrain patches in the actual
+  // playable garden. Reuse these original two geometry/material GPU batches.
+  appendOriginalCoastGeometry(erodedCliff,buildConnectedCourtyardGarden(THREE,width,height,'bedrock'));
+  appendOriginalCoastGeometry(rootedMantle,buildConnectedCourtyardGarden(THREE,width,height,'moss'));
   add(erodedCliff, cliff, 0, 0, 0);
   add(rootedMantle, moss, 0, 0, 0);
   // T1 EXPOSED COAST REMNANTS — the giant straight rear shelf previously

@@ -15,6 +15,52 @@ function restoreBendParent(source) {
   if(i<0||j<i||source.indexOf(begin,i+1)>=0||source.indexOf(end,j+1)>=0)
     throw new Error('T2 exact-source curvature bracket missing or ambiguous');
   let old=source.slice(0,i)+source.slice(j+end.length);
+  // Reverse only the NEW, byte-exact physical T2 neck-alignment and banked
+  // surface-normal implementation before checking the ORIGINAL immutable
+  // df113 SHA. This does not introduce a second accepted ancestor digest.
+  // Unrecognized changes to either the old body or the new production actor
+  // still fail closed; verify each replacement occurs exactly once.
+  const reverseExact = (updated, original, name) => {
+    if (old.split(updated).length !== 2)
+      throw new Error(`T2 exact-source ${name} reversal drift`);
+    old = old.replace(updated, original);
+  };
+  reverseExact(
+    '  let eaten = 0, dangerEase = 0, curveLean = 0, faceFollowThrough = 0;\n',
+    '  let eaten = 0, dangerEase = 0, curveLean = 0;\n', 'skull-follow-through state');
+  reverseExact(`      // Physical elliptical surface normal. A real bank bends each body's
+      // cross-section, so an upright-cylinder normal falsely paints its sun
+      // highlight across a sloping jade flank. Derive the outward normal from
+      // d/d(angle) of (radius*cos, radius*(.88*sin + camber*cos)); when camber
+      // is zero this is mathematically identical to the original tube normal.
+      // This uses existing per-ring vertices, buffers, shaders and draw calls.
+      const radialX = .88 * cos - camber * sin, radialY = sin;
+      const norm = Math.hypot(radialX, radialY);
+      normals[v * 3] = nx * radialX / norm;
+      normals[v * 3 + 1] = radialY / norm;
+      normals[v * 3 + 2] = nz * radialX / norm;`,
+    `      const ny = sin / 0.88, norm = Math.hypot(cos, ny);
+      normals[v * 3] = nx * cos / norm;
+      normals[v * 3 + 1] = ny / norm;
+      normals[v * 3 + 2] = nz * cos / norm;`, 'physically banked body normals');
+  reverseExact(`    const angleDifference = Math.atan2(Math.sin(targetHeading - heading), Math.cos(targetHeading - heading));
+    // Anchor the *whole skull and attached jaw* to the public first neck
+    // tangent immediately. Previously easing the root yaw left the one-piece
+    // skull pointing as much as a right angle away from the already-turned
+    // continuous body for several submitted frames; its rear physically cut
+    // across the neck. Retain acting through a tiny decaying face follow-through
+    // instead of allowing anatomical disconnection. Portal/restart/reduced
+    // motion snaps it to the truthful present pose, never the old fragment.
+    faceFollowThrough = teleported || reduced ? 0 : clamp(
+      faceFollowThrough * Math.exp(-dt * 14) - angleDifference * 0.07, -0.095, 0.095);
+    heading = targetHeading;`,
+    `    const angleDifference = Math.atan2(Math.sin(targetHeading - heading), Math.cos(targetHeading - heading));
+    heading = teleported || reduced ? targetHeading : heading + angleDifference * (1 - Math.exp(-dt * 19));`,
+    'truthful skull-root yaw');
+  const yawNow = 'headPose.rotation.y = focusYaw + faceFollowThrough;';
+  if (old.split(yawNow).length !== 3)
+    throw new Error('T2 exact-source expressive-yaw reversal drift');
+  old = old.replaceAll(yawNow, 'headPose.rotation.y = focusYaw;');
   // The live portal-fragment pose adapter changed only the presentation
   // heading of isolated body rings. Reverse those exact bytes before the
   // immutable df113 bend baseline check; NEVER substitute a new baseline SHA.
