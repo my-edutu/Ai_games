@@ -1358,6 +1358,8 @@ test('genuinely returned two-room HP-zero receiving roof breaks ONLY the scenic 
   };
   const held={runToken:source.runToken,floor:9,guardianGateRetained:true,
     verifiedObservedFloorAdvance:true,firstWorldRenderTick:460,
+    oldCapId:'f8:cap',oldCapX:cap.x,oldCapWidth:cap.width,
+    oldRoofY:cap.y+cap.height,thresholdX:gate,
     submittedFrames:16,visibleSeconds:.8,originalGatewayOpacity:.86,
     opticalExitSubmitted:false};
   const shaft={runToken:source.runToken,floor:9,
@@ -1370,12 +1372,14 @@ test('genuinely returned two-room HP-zero receiving roof breaks ONLY the scenic 
   const frozen=JSON.stringify([source,held,shaft,gatePresent]);
   assert.equal(release(source,null,held,shaft,gatePresent),true,
     'a real source-supported F9 roof, immutable victory and 16 true old/new WebGL returns must escape the old-visible scenic upload deadlock');
+  assert.equal(release(source,null,{...held,guardianGateRetained:false},
+    shaft,gatePresent),true,
+    'after old geometry genuinely retires, the normal successor must not remain stranded waiting for bronze paint');
   const fakeCases=[
     [{...source,runToken:'other'},held,shaft,gatePresent],
     [{...source,player:{...source.player,grounded:false,groundedPlatformId:null}},held,shaft,gatePresent],
     [{...source,player:{...source.player,groundedPlatformId:'imaginary'}},held,shaft,gatePresent],
     [{...source,lastGuardianCrossing:{...source.lastGuardianCrossing,guardian:{...source.lastGuardianCrossing.guardian,active:true,health:4}}},held,shaft,gatePresent],
-    [source,{...held,guardianGateRetained:false},shaft,gatePresent],
     [source,{...held,verifiedObservedFloorAdvance:false},shaft,gatePresent],
     [source,held,{...shaft,structuralVisibleReturns:0,structuralVisibleSeconds:0},gatePresent],
     [source,held,{...shaft,structuralVisibleSeconds:.49},gatePresent],

@@ -443,6 +443,18 @@ export function observedPrebuiltVoidShaftRelease(source,passage,held,job,sourceG
   const earnedTwoRoomRelease=sameOldGpuOwner && immutableVictory &&
     held.verifiedObservedFloorAdvance===true &&
     held.opticalExitSubmitted!==true &&
+    held.oldCapId==='f8:cap' &&
+    Number.isSafeInteger(held.oldCapX) &&
+    Number.isSafeInteger(held.oldCapWidth) &&
+    held.oldCapWidth>0 &&
+    Number.isSafeInteger(held.oldRoofY) &&
+    Number.isSafeInteger(held.thresholdX) &&
+    held.thresholdX===crossing.exitX &&
+    held.thresholdX===held.oldCapX+Math.floor(held.oldCapWidth*.76) &&
+    crossing.cap.x===held.oldCapX &&
+    crossing.cap.width===held.oldCapWidth &&
+    crossing.cap.y+crossing.cap.height===held.oldRoofY &&
+    receivingRoof?.y+receivingRoof?.height===held.oldRoofY &&
     realRoofReceipt &&
     job.structuralRoot?.isGroup===true &&
     job.structuralRoot.visible===true &&
