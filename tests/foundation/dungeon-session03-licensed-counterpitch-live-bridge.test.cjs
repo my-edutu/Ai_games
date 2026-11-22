@@ -1499,3 +1499,57 @@ test('RED: original source right-swing deep-burial frame may compare ONE extra r
  assert.equal(connected({...input,sourceUpperTrackVerified:false}),null,
   'no original hip bone source track means no connected trial at all');
 });
+
+
+// Genuine after-change source-GLB weighted-sole desktop f67/tick9,
+// Actions #45051751282 (SHA d20ad17f), clip phase .1111657635:
+// Vanguard RIGHT toe -70.737mm versus -20mm stone (50.737mm buried),
+// airborne right heel +222.526mm, original opposite left shoe stable.
+// Exact real THREE sole XYZ is copied; the proposed 33.3ms /19.29mm
+// moving-root authorization is a separately labelled deterministic
+// bounded controller test fixture, NOT a same-frame cadence observation.
+// Do not claim visual improvement until re-skinned in genuine Chromium.
+test('RED: original 51mm buried right swing can compare a bounded linked 3-bone rescue on a legal 33ms source step',async()=>{
+ const {planLicensedSourceSwingCounterpitch:plan,
+  planLicensedSourceConnectedChainTrials:connected}=await source;
+ const f67={
+  ...owner,sourceClipTimeSeconds:.11116576352611743,
+  frameInterval:.0333,rootTravel:.019291663189029862,frameAge:0,
+  before:{
+   left:{heelY:-.0010900375683372023,toeY:.010803053946839263,
+    heelXZ:[-1.717086239642784,-6.95129270024574],
+    toeXZ:[-1.9868839421281317,-6.9260583620974625]},
+   right:{heelY:.22252500760177596,toeY:-.0707371332639283,
+    heelXZ:[-1.6194186781618911,-7.098441909745579],
+    toeXZ:[-1.694364779978343,-7.13133794527765]}
+  }
+ };
+ const p=plan(f67);
+ assert.ok(p,'real 41-joint source geometry with separately witnessed lawful root-step fixture must qualify the base original planner');
+ assert.ok(p.sourceToeBurialMeters>.050&&p.sourceToeBurialMeters<.052);
+ assert.equal(p.plantCertified,false);
+ const input={plan:p,frameInterval:f67.frameInterval,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceFootTrackVerified:true,sourceBindVerified:true,
+  sourceInstanceId:'same-source-instance-in-test',sourceSide:'right'};
+ const options=connected(input);
+ assert.equal(options?.length,3,'50-75mm REAL source outsole burial must not fall into the untested deep-trial gap');
+ assert.equal(options[2].sourceDeepSwingConnected,true);
+ assert.ok(options[2].upperRad<options[1].upperRad-.01);
+ assert.ok(options[2].lowerRad>options[1].lowerRad+.01);
+ assert.equal(options[2].footRad,p.footRad);
+ for(const joint of ['upperRad','lowerRad','footRad'])
+  assert.ok(Math.abs(options[2][joint])<=3*f67.frameInterval+.000001,
+   'connected source joints still must respect actual 3rad/s budget');
+ for(const altered of [
+  {sourceSide:'left'},
+  {plan:{...p,sourceToeBurialMeters:.049}},
+  {plan:{...p,sourceClipTimeSeconds:.245}},
+  {plan:{...p,sourceRole:'revenant'}},
+  {frameInterval:.0167}
+ ]){
+  assert.notEqual(connected({...input,...altered})?.length,3,
+   'only native Vanguard right-phase source geometry may use this trial');
+ }
+ assert.equal(connected({...input,sourceBindVerified:false}),null);
+});
