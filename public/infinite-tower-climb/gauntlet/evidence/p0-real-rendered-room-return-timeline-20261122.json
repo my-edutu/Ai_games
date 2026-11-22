@@ -55,7 +55,7 @@
     }
   },
   "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
-  "nextHighestImpactAction": "Compare full authentic first-episode source/native frames and camera-angle guard acceptance/rejection at new exact HEAD; if shot remains discontinuous, fix integrated physical World/Camera landing staging and recapture; do not advance to P1.",
+  "nextHighestImpactAction": "Inspect original desktop 960x600 and portrait 390x844 60+ second normal-speed native candidate danger footage from immutable source 0cdd8c13 and actual returned step-target/gallery-ray counters; require continuously visible opened original F8 guardian steel, full skinned hero, walkable f9:ground and physically attached raised f9:gateway-step, and 2/2 native-event alignment. If new target is off-screen or scene hard cut remains, diagnose camera/World co-composition and don't advance P1.",
   "fullInstrumentationCommitSha": "bd2af6ff2784a9e7d51df12b0d7856f34b4059fb",
   "captureRequestedForExactHead": "${{ github.sha }}",
   "pinnedCaptureCondition": "push to capture-request.json triggers original 9-job workflow, candidate pinned to immutable final github.sha; workflow queued results are not visual acceptance.",
@@ -346,5 +346,53 @@
     "supportedActualDeviceP50P95P99AndMemory": "NOT EVALUATED",
     "largestRemainingGap": "The opened old HP-zero gateway, full-body moving hero, genuine F9 walkable roof and first raised platform still lack event-matched continuous unedited footage accepted in BOTH viewports.",
     "nextHighestImpactAction": "Inspect exact SHA game recording and source-returned old-gallery/gateway+successor material sequence in original unedited videos. Confirm old World stays legible without obscuring hero, safe camera and platforms, 2/2 native event align; otherwise reopen integrated camera/world geometry, never score CI as experience."
+  },
+  "p0OriginalRealRaisedDestinationGallerySightline20261122": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "lastSourceBeforeChanges": "bc974b7cb40757e611028d0d8400578dc47dc075",
+    "lastInspectedVideoSourceSha": "5c7f5460e042039268bc6b3271127d68cde31cfd",
+    "inspectedOriginalCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/45067619299",
+    "candidateDangerOriginalWebmArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45067619299/artifacts/14771753259",
+    "fullSourceAndUngradedReviewArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45067619299/artifacts/14772306888",
+    "realVideoObserved": {
+      "desktop": {
+        "viewport": "960x600",
+        "firstDrawnF9HudSeconds": 25.75,
+        "firstSustainedVioletSeconds": 27.5,
+        "videoUnmodified": true
+      },
+      "portrait": {
+        "viewport": "390x844",
+        "firstDrawnF9HudSeconds": 25.5,
+        "firstSustainedVioletSeconds": 27.25,
+        "videoUnmodified": true
+      },
+      "dominantDefect": "Physical F8 bronze guardian gallery remains on F9 walkable roof after the HUD floor advance but then the camera/architecture presents an apparently disconnected violet shaft ~1.75 seconds later. A full-body, opened-gateway and actual raised-step native joint shot is still not accepted.",
+      "returnedSceneOnly": "In original returned 3D metadata, original gallery opacity reached 0.33 at ~third desktop F9 return while true successor structural opacity was ~0.28; later old owner faded and shaft emerged. Successful renderer-return co-ownership is not native video pixel visibility.",
+      "strictNativePairing": "FAILED 0/2 viewport event acceptance; source matching baseline lacked candidate's certified guardian HP-zero, so no equivalent source event may be invented or falsely paired"
+    },
+    "meaningfulProductionChange": "Use genuine same-run f9:ground/old F8 roof and actual installed f9:gateway-step (not a guessed target) as third physical sightline in the original Three.js gallery obstruction ray pass. The final composed desktop or portrait camera must project the REAL attached raised platform into frame. Raycast ONLY actual previously submitted old non-colliding gallery triangles blocking the current raised step; selectively clear their alpha while preserving original HP-open gateway, walkable step, source actor, collision and restart. Existing full-body, gate, and ground constraints remain unchanged.",
+    "codeCommitSha": "0cdd8c137994e345a1e97633a58d74178ee1079e",
+    "exactTestAlignmentCommitSha": "346f608b18c84c4c1dd694aaa1628f50f7d59566",
+    "files": [
+      "public/infinite-tower-climb/visuals/original-gallery-foreground.mjs",
+      "public/infinite-tower-climb/visuals/world.mjs",
+      "tests/phase3/tower-original-gallery-raised-destination-sightline.test.cjs",
+      "tests/phase4/tower-critical-sightlines.test.cjs"
+    ],
+    "verification": {
+      "originalProductionSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45073078678 (phase3 new regression partition passed; phase4 legacy exact wiring regex failed and updated; full workflow not claim pass)",
+      "latestExactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45073185625 (not completed at evidence write)",
+      "requestedAuthenticNewFootage": "https://github.com/my-edutu/Ai_games/actions/runs/45073078693 (source pinned to immutable production 0cdd8c13; in progress at evidence write)",
+      "nativeGameplayImprovement": "NOT EVALUATED until original full-motion latest exact source footage inspected; no invented visuals or reviewer claims",
+      "independentLooks": "0/5",
+      "independentFeels": "0/5",
+      "independentPlays": "0/5",
+      "realDeviceFrameTimesP50P95P99Memory": "NOT EVALUATED"
+    },
+    "nextHighestImpactAction": "Inspect real source-pinned 0cdd8c13 footage and current returned gallery raisedRays/raisedSoftened (diagnostic visibility not native proof), 2/2 true event/native joint view; if raised target not projected in old-gate shot, reopen shared physical camera/World composition. P1 blocked.",
+    "constraints": "Preserve immutable frozen baseline and transformation blob; PR68 open draft, PR58 not touched; no other game, merge, deployment, or force push"
   }
 }
