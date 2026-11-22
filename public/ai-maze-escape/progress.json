@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-22T13:15:00.000Z",
+  "updatedAt": "2026-11-22T14:29:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass579: exact Pass578 248afe1b WebGL 45022934259 SUCCESS; source-bound original artifact 14755555469 ZIP SHA 2f752a62015aecb620b607fcffea9a01592d31c1c355b1692c898fd85138b84b, verified 42/42 original full PNG SHA sidecars and 3/3 gate before/mid/after SHA. Native 320 Pass578 vs proven prior bbfd2c0c image REJECTS tight top-down guardian two-shot: Pip remains small below dominant separating parapet, actual counter not physically joined and useful scene context lost. Selective source restore only Pass578 camera, scene and exclusive test; new rollback-HEAD CI PENDING. Whole CI red Tiny Kingdom OBS/downstream artifact upload. Nintendo bar unmet; independent critic/Ultracode NOT_FOUND. Draft, unmerged/undeployed, hourly active."
+    "summary": "Pass580: prior rollback a761dc72 exact-HEAD Maze WebGL 45026682903 SUCCESS (whole-repo CI 45026682841 separately RED). Authentic Pass579 320/390 actor scene still REJECTED. New deterministic CONTENT-generation candidate prioritizes naturally open, same-tier horizontal 3-cell guardian patrol court and truthful lateral breathing room inside existing complete Pressure/guardian/key chapter shortlist, not cosmetic camera/particles. Does not change walls, engine links, AI, sanitized presentation or thresholds. NEW-HEAD focused tests and native SHA-verified full-frame renders PENDING; no Nintendo win claimed. Coding workspace/independent critic tunnel NOT_FOUND. OPEN DRAFT, unmerged/undeployed."
   },
   "captures": [
+    {
+      "title": "Pass580 upstream *playable* same-terrace guardian chapter candidate; exact-new-HEAD native renders/quality verdict PENDING, no approved win",
+      "url": "https://github.com/my-edutu/Ai_games/pull/53"
+    },
     {
       "title": "Pass579: exact Pass578 248afe1b genuine 42/42 full native WebGL PNG hashes + 3/3 gate SHA, real 320 two-shot visually rejected; selective source rollback, new HEAD CI pending",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/45022934259/artifacts/14755555469"
