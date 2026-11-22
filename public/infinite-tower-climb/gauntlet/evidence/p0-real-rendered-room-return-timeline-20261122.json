@@ -165,7 +165,10 @@
     "implementationCommits": {
       "firstEpisodeSourcePolicy": "6ed4f66d1e384a4ccb48b6f63b467ae4ac5fe941",
       "focusedRegression": "cc6776ceebcda1a4bb488dc1b3b3df92c4673945",
-      "actualSceneIntegration": "d2b3200c4fd381af126d8335fd0fc27042341cc1"
+      "actualSceneIntegration": "d2b3200c4fd381af126d8335fd0fc27042341cc1",
+      "firstFrameMissingOwnerReserve": "7511f4ef65bf6e5e002101e68b536b5eb5c4cee4",
+      "originalSceneFirstRendererReturnReserve": "b7e3c85c3de95d3ab8cb4d18f471a4dac3ab6308",
+      "missingOwnerFirstEpisodeTest": "1996150d2b9fcd4d56f412bd3f77724621f8d3c9"
     },
     "files": [
       "public/infinite-tower-climb/visuals/first-source-room-return.mjs",
@@ -182,7 +185,10 @@
       "PLAYS": "0/5"
     },
     "devicePerformanceP50P95P99AndMemory": "NOT EVALUATED",
-    "nextHighestImpactAction": "Inspect the 45049823947 original 1x desktop and portrait first-episode returned-room-native-alignment artifacts for source tick ~475; use confirmed owner/camera state at 26–29s to fix physical Floor8-to-Floor9 room/camera cut, then require source-matched 2/2 native gateway/hero/roof/raised-deck acceptance before P1.",
-    "constraints": "PR68 remains draft; never modify frozen baseline, PR58 or unrelated games, merge, deploy, force-push or undraft"
+    "nextHighestImpactAction": "Inspect full original first-run native desktop/portrait video and native-alignment sidecar from the exact hardened SHA after fresh nine-job capture; if correct source episodes now join, fix real World/camera hard cut and require 2/2 genuine visual events before advancing.",
+    "constraints": "PR68 remains draft; never modify frozen baseline, PR58 or unrelated games, merge, deploy, force-push or undraft",
+    "lastSceneSourceSha": "b7e3c85c3de95d3ab8cb4d18f471a4dac3ab6308",
+    "refinedCausalProof": "The read-only first original F9 rendered-episode ownership is now reserved on the FIRST valid rendered Floor9 snapshot before querying retained old/new owners; if original GPU scene never returned a qualified owner, a later autonomous restarted episode cannot replace it and must remain an explicit first-run evidence failure.",
+    "latestQualityAtEvidence": "Prior run 45049823936 CANCELLED, not passed; final exact-source quality is queued by GitHub on later source/evidence commits"
   }
 }
