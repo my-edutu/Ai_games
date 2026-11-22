@@ -1064,5 +1064,31 @@
     "frozenBaselineSHA": "1731b380851162741761c5569e2bc152a0869ca9",
     "frozenLedgerBlobSHA": "7433d52ae1a7a75de51366a845375dda04ab87fa",
     "safety": "PR68 remains draft, no deploy, merge, force push, PR58 rewrite, unrelated game or baseline movement"
+  },
+  "p0ActualReturnedShaftOpacityCircularInterlockRepair20261122_0526": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "baselineSourceSHA": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenBaselineLedgerBlobSHA": "7433d52ae1a7a75de51366a845375dda04ab87fa",
+    "inspectedActualPR68Head": "a789534a19c2d28259277bb04d624c837750cfb2",
+    "evidenceFromRun": "https://github.com/my-edutu/Ai_games/actions/runs/44981470996",
+    "captureFromRun": "https://github.com/my-edutu/Ai_games/actions/runs/44981471006",
+    "verifiedPriorCi": "9/10 jobs succeeded; Phase3 shard1 FAILED the existing real Three 16 returned-frame test at line 876, actual state awaiting-structural-release, structuralVisibleReturns=16, structuralVisibleSeconds=.8",
+    "verifiedPriorCapture": "8/8 original paired story timelines, all eight capture jobs and authentic ledge passed; strict source-native Floor8->9 danger acceptance failed 0/2 viewports",
+    "rootCauseFromShippedSource": "Two-way rendering interlock: source-owned initial successor shaft paints at 22% while awaiting-structural-release; world.noteFrameSubmitted only increases structural fade when state is not awaiting-structural-release; observedPrebuiltVoidShaftRelease incorrectly required pre-release structuralFade>=.35 despite real 16 returned shaft frames/.8s, so it could never unlock from this starting state.",
+    "productionImplementationCommit": "fb7baeaefec0fa0758957d496cbd049b479d2070",
+    "testFixtureCommit": "312f17456c77225cac87faefcd5d0e89f1b80b66",
+    "change": "Allow source-certified real painted shaft (>0.015 alpha) to leave awaiting-structural-release after separately verifying same immutable defeated guardian, exact F8 cap geometry, living standing fully grounded real f9:ground roof contact, six genuine structural returns and .52s returned WebGL time, retained old GPU gateway and correct run. Do not require .35 alpha until fade is actually allowed to advance. No change to physics, hazard, player, guardian, floor authority, shader/material ownership or old-gate retirement.",
+    "regression": "The focused source test now uses actual 0.22 structural opacity instead of unrealistic 0.40; denies 0.015, zero opacity, zero returns, <.52s, wrong run, bad guardian, unsupported roof, unrelated or stale owner. The existing unweakened full Three 16-return test stays the decisive integration gate.",
+    "verification": "Source-level logic and existing failure traced; code committed. New source-pinned actual 9-job native evidence and exact-head CI still required; do not claim green or visual continuity until the new immutable tests and movies complete.",
+    "primaryRemainingDefect": "Original 25fps films still fail continuous old bronze HP-open gateway + entire moving climber + real walkable Floor9 roof + first elevated destination in both orientations; no certified native event-to-pixel shot.",
+    "independentReviewCounts": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDeviceFrameTimeMemory": "NOT EVALUATED",
+    "nextAction": "Read exact-HEAD Phase3 shard1 result for this correction; inspect same-source 1x 960x600 and 390x844 danger and outcome unedited footage, source-native event clocks and visible original gateway/hero/roof. If the 16-return regression still stalls, instrument precise false gate and fix system-level state scheduling, not test assertion. If it unblocks but 0/2 visual continuity persists, repair physical camera/world staging.",
+    "safety": "Preserve frozen ledger blob and PR58, no unrelated game, no merge/deploy/force-push/draft conversion"
   }
 }
