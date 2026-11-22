@@ -105,7 +105,7 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
    }
    const freightBefore=await page.evaluate(()=>{
     const g=window.__tinyKingdom;
-    return {hasLoad:g.getState().people.some(p=>p.delivery),
+    return {hasLoad:g.getActiveDeliveries().length>0,
      checksum:g.exportSnapshot().checksum};
    });
    await page.locator('#delivery-follow').click();
