@@ -203,3 +203,60 @@ test('RED: genuine 390px original GLB joint matrix 0.978129 quaternion scale rem
   'invalid-original-source-joint-quaternion',
   'larger rig/matrix distortion must remain rejected');
 });
+
+
+/**
+ * Session 03 original 41-joint walking/shoe bridge: this is a REAL Three.js
+ * SkinnedMesh transform reproduction, NOT an original GLB video certificate.
+ * The source fallback and linked thigh/calf/ankle acceptance read the same
+ * weighted world heel/toe. A stale attached bind inverse can double the
+ * apparent root translation or produce false pitch after a body lean.
+ *
+ * Ref: genuine mobile 22 Nov native run #45014048699 saw a 7.544mm supported
+ * lean but still 57.51mm toe penetration. Canonical source readback is a
+ * prerequisite to correcting that visual burial without invented plants.
+ */
+test('RED: every connected original-rig source-sole world witness uses the freshly skinned canonical XYZ reader',()=>{
+ const THREE=require('three');
+ const fs=require('node:fs');
+ const path=require('node:path');
+ const source=fs.readFileSync(path.resolve(__dirname,
+  '../../public/ai-dungeon/model-assets.js'),'utf8');
+ const geometry=new THREE.BufferGeometry();
+ geometry.setAttribute('position',new THREE.Float32BufferAttribute([.14,-.051,.08],3));
+ geometry.setAttribute('skinIndex',new THREE.Uint16BufferAttribute([0,0,0,0],4));
+ geometry.setAttribute('skinWeight',new THREE.Float32BufferAttribute([1,0,0,0],4));
+ const material=new THREE.MeshBasicMaterial();
+ const pivot=new THREE.Group(),mesh=new THREE.SkinnedMesh(geometry,material);
+ const foot=new THREE.Bone();foot.name='original-source-foot';
+ mesh.add(foot);pivot.add(mesh);pivot.updateMatrixWorld(true);
+ mesh.bind(new THREE.Skeleton([foot]));mesh.updateMatrixWorld(true);
+ const sampled=refresh=>{
+  if(refresh)mesh.updateMatrixWorld(true);
+  const p=new THREE.Vector3().fromBufferAttribute(geometry.getAttribute('position'),0);
+  return mesh.applyBoneTransform(0,p).applyMatrix4(mesh.matrixWorld);
+ };
+ const before=sampled(true);
+ pivot.position.y=.006;pivot.rotation.z=.04233;
+ pivot.updateWorldMatrix(true,true);
+ const expected=before.clone().applyAxisAngle(new THREE.Vector3(0,0,1),.04233);
+ expected.y+=.006;
+ assert.ok(sampled(false).distanceTo(expected)>.001,
+  'unrefreshed attached original skin inverse produces a wrong source world sole');
+ assert.ok(sampled(true).distanceTo(expected)<1e-6,
+  'true original weighted sole must follow world body motion one-for-one');
+ pivot.position.y=0;pivot.rotation.z=0;pivot.updateWorldMatrix(true,true);
+ assert.ok(sampled(true).distanceTo(before)<1e-6,
+  'on rejection restore exact original sole without stale attached bind inverse');
+ geometry.dispose();material.dispose();
+ const begin=source.indexOf('function sourceSkinnedSoleWorld(candidate){');
+ const end=source.indexOf('function sourceWeaponHandGrip(',begin);
+ assert.ok(begin>0&&end>begin);
+ const live=source.slice(begin,end);
+ assert.match(live,/readOriginalSwingSoleSample\(candidate\)/,
+  'every source thigh/calf/ankle, gait, and final shoe witness must use canonical refreshed weighted original XYZ sampler');
+ assert.doesNotMatch(live,/mesh\.updateWorldMatrix\(true,false\)/,
+  'legacy parent-only update bypasses Three.js attached SkinnedMesh bind inverse');
+ assert.ok((source.match(/sourceSkinnedSoleWorld\(/g)||[]).length>=10,
+  'the correction must reach the existing connected source-rig locomotion and final-sole evidence sites');
+});
