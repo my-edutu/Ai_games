@@ -1182,7 +1182,7 @@
       "safety": "No new 3D renderer submission, no manual camera override, no authority change, no movement into solid tower, no fake source frame. Candidate is reverted if current physical checks fail."
     },
     "qualityRequested": "https://github.com/my-edutu/Ai_games/actions/runs/45003608423 (pending at inspection, exact production scene source)",
-    "candidateNativeCapture": "To be triggered via matching capture-request.json on a subsequent immutable same-branch SHA; no new film claimed before completion.",
+    "candidateNativeCapture": "Now queued/in-progress as linked above, source-pinned 1x videos not yet inspected. Prior full-motion 0/2 remains.",
     "independentBlindCritics": {
       "LOOKS": 0,
       "FEELS": 0,
@@ -1191,6 +1191,10 @@
     "actualDeviceP50P95P99Memory": "NOT EVALUATED",
     "acceptanceVeto": "Genuine visual handoff P0 not passed; prior source/native event matching 0/2, pixel continuity not proven. Independent blind preferences and device data missing.",
     "nextHighestImpact": "Review newly pinned 960x600 and 390x844 full-motion film plus source/native event phase and camera physical veto counters; if portrait joint gaze still fails real original metal/hero/roof, prioritize source-original world-side spatial architecture, not another opacity clock tweak.",
-    "scope": "Only Infinite Tower Climb P0 PR68; no Tiny Kingdom/Maze/1000 Floors, PR58, merge/deploy, force-push, draft change or frozen-baseline ledger edit."
+    "scope": "Only Infinite Tower Climb P0 PR68; no Tiny Kingdom/Maze/1000 Floors, PR58, merge/deploy, force-push, draft change or frozen-baseline ledger edit.",
+    "newPinnedNativeGameplayCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45003733148 — nine-job source-pinned baseline/candidate gameplay at immutable ae9dd7087992bf10b4d5d087c87e5e211d9aea6f; in progress at inspection, NOT accepted",
+    "automaticGameplayCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45003608429 — exact production module commit 44402dd6f2103f09dcfef3e3436dc7bf40d17d22; in progress, not accepted",
+    "newExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45003733144 — pending, source SHA ae9dd7087992bf10b4d5d087c87e5e211d9aea6f; safety veto not a score",
+    "sourceSHAAtCampaignRequest": "ae9dd7087992bf10b4d5d087c87e5e211d9aea6f"
   }
 }
