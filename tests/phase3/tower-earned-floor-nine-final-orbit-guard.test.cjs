@@ -60,7 +60,7 @@ test('no borrowed camera across floors, runs, false victories, bad real roof, st
   {...opts,source:{...source,tick:586}},
   {...opts,source:{...source,player:{...source.player,health:0}}},
   {...opts,source:{...source,lastGuardianCrossing:{
-   ...source.lastGuardianCrossing,guardian:{kind:'guardian',active:true,health:1}}},
+   ...source.lastGuardianCrossing,guardian:{kind:'guardian',active:true,health:1}}}},
   {...opts,source:{...source,platforms:[
    {...source.platforms[0],y:3210000},source.platforms[1]]}},
   {...opts,lastReturned:{...prior,tick:500,runToken:'different'}},
