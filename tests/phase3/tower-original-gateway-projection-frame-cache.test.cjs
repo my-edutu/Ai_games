@@ -58,17 +58,17 @@ test('actual Floor9 original steel lens reuses ONLY an exact unchanged returned-
    camera.aspect=960/600;camera.updateProjectionMatrix();
    assert.equal(observed().projectedPanes,2,
      'restore a genuinely visible original arch before testing mesh mutation');
-   assert.equal(projections,4,'restoring the original lens requires fresh geometry');
+   assert.equal(projections,3,'restoring an EXACT already-returned same-frame desktop lens must reuse its previously checked steel');
    held.originalGatewayOpacity=.60;
    observed();
-   assert.equal(projections,5,'actual old-gate fade invalidates a same-position lens');
+   assert.equal(projections,4,'actual old-gate fade invalidates a same-position lens');
    root.children[0].visible=false;
    memo.invalidate();
    assert.equal(observed().projectedPanes,1,
      'post-camera material/mesh visibility changes cannot borrow prior metal');
    memo.beginFrame();
    assert.equal(observed().projectedPanes,1,'next completed World frame always performs a fresh query');
-   assert.equal(projections,7);
+   assert.equal(projections,6);
    assert.ok(memo.diagnostics().retainedEntries<=16);
  } finally {geo.dispose();material.dispose();}
 });
