@@ -7,6 +7,7 @@ on:
       - public/tiny-kingdom/index.html
       - scripts/tiny-kingdom-w538-retained-canvas-painter.test.cjs
       - scripts/tiny-kingdom-w539-software-depth-spine.test.cjs
+      - scripts/tiny-kingdom-w540-conservative-static-spine.test.cjs
       - scripts/tiny-kingdom-w537-canvas-raster-contract.test.cjs
       - tests/browser/tiny-kingdom-w537-canvas-raster.spec.cjs
       - tests/browser/tiny-kingdom-w518-rooted-grain-contract.test.cjs
@@ -52,6 +53,8 @@ jobs:
         run: node --test scripts/tiny-kingdom-w538-retained-canvas-painter.test.cjs
       - name: W539 original-world software z-buffer and legacy fallback contract
         run: node --test scripts/tiny-kingdom-w539-software-depth-spine.test.cjs
+      - name: W540 complete-world static blocks preserve depth-pixel output
+        run: node --test scripts/tiny-kingdom-w540-conservative-static-spine.test.cjs
       - name: Build browser-server prerequisites
         run: npm run build
       - run: npx playwright install --with-deps chromium
