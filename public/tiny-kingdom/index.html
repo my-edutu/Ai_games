@@ -28842,6 +28842,16 @@ const WORKDAY_OPAQUE_SCENE_KINDS=new Set([
 // In actual Day-120 mobile footage a stall filled the screen while a clear
 // single face/hand ray was incorrectly accepted as a readable worker view.
 // Presentation only: this cannot affect seeded simulation or save/replay.
+// W534 live observation spine: conservative projected-bounds broadphase.
+// Every counter is bounded in memory; no citizen/building/terrain is culled.
+const foregroundProjectionBroadphase={tests:0,rejected:0,exact:0};
+function getForegroundProjectionBroadphaseAudit(){
+ return {source:'real-workday-physical-AABB-projected-bounds-prefilter',
+  ...foregroundProjectionBroadphase,
+  savedExactCornerSurveys:foregroundProjectionBroadphase.rejected,
+  completeWorldRendered:true,exactProjectionUnchanged:true,
+  authorityChanged:false,hardwareFPS:'NOT MEASURED'};
+}
 function foregroundSceneProjection(eye,target,roofs){
  const delta=target.map((v,i)=>v-eye[i]),len=Math.hypot(...delta)||1;
  const f=delta.map(v=>v/len),flat=Math.hypot(f[0],f[2])||1;
@@ -28868,6 +28878,25 @@ function foregroundSceneProjection(eye,target,roofs){
   const span=Math.abs(f[0])*roof.rx+Math.abs(f[1])*(roof.top-bottom)*.5+Math.abs(f[2])*roof.rz;
   if(depth-span>=far){behindWorkerRejected++;continue;}
   if(depth+span<=near)continue;
+  // W534 PROJECTED ROOF BROADPHASE START
+  // Bound ALL eight physical AABB vertices inside an enclosing sphere.
+  // Reject only roofs that cannot possibly overlap the projected viewport,
+  // then run the ORIGINAL exact near/far-clipped corner projection unchanged.
+  // This changes neither WebGL visibility, collision nor authoritative work.
+  foregroundProjectionBroadphase.tests++;
+  const halfHeight=Math.abs(roof.top-bottom)*.5;
+  const sphereRadius=Math.hypot(roof.rx,halfHeight,roof.rz);
+  const offsetX=roof.x-eye[0],offsetY=mid-eye[1],offsetZ=roof.z-eye[2];
+  const lateral=offsetX*right[0]+offsetY*right[1]+offsetZ*right[2];
+  const vertical=offsetX*up[0]+offsetY*up[1]+offsetZ*up[2];
+  const deepest=Math.max(near,depth+sphereRadius);
+  if(Math.abs(lateral)-sphereRadius>deepest*tanHalf*aspect||
+     Math.abs(vertical)-sphereRadius>deepest*tanHalf){
+   foregroundProjectionBroadphase.rejected++;
+   continue;
+  }
+  foregroundProjectionBroadphase.exact++;
+  // W534 PROJECTED ROOF BROADPHASE END
   const corners=[];
   for(const sx of [-1,1])for(const y of [bottom,roof.top])for(const sz of [-1,1]){
    const v=[roof.x+sx*roof.rx-eye[0],y-eye[1],roof.z+sz*roof.rz-eye[2]];
@@ -37247,7 +37276,7 @@ getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAud
    state.householdTrades||[],state.householdMeals||[]):null,null),getSupplyTrailDetailsAudit,inspectRealGrainStage,watchRealGrainJourney,stopRealGrainJourney,planRealGrainJourney,getLiveWorkDirectorStats,advanceLiveWorkdayDirector,watchLatestWork,watchLiveWorkday,stopWorkdayWatch,getWorkdayRenderStats:()=>({...workdayRenderStats}),getObservedWorkLightProfile:(time=state.t)=>({...observedWorkLightProfile(time)}),getObservedWorkLightStats:()=>({...workLightRenderStats}),getMarketGatewayAudit,getMarketReceivingHallAudit,getTradeCorridorCameraAudit,
 getMarketStructuralSightline:marketCourierPostSightline,getMarketBarterWitnessAudit,
 getMarketQuarterStats:()=>({...marketQuarterStats,marketStockTriangles}),getCentralExchangeAudit:()=>({...centralExchangeStats}),getMarketHomeStreetAudit,getMarketSupplyView:marketSupplyView,getMarketStallStockAudit:marketStallStockAudit,getMarketReceiptDisplayAudit:getMarketReceiptDisplayAudit,getRealMarketReceiptLensForEvidence:id=>chooseRealMarketReceiptLens(id),getMarketStallStockPlan:marketStallStockPlan,getMarketOperatingAudit:marketOperatingAudit,getMarketShutterResidencyAudit,setMarketShutterResidencyForTesting,getMarketVisitAudit,getMarketVisitPlanningAudit,getMarketSquareTownPlanAudit:marketSquareTownPlanAudit,visitMarket,nextMarketStall,getMarketTourAudit,getStreetFrameOcclusionAudit:()=>streetWalk?streetCameraFrameOcclusion(streetPosition,streetYaw):null,getMarketTourLensAudit:desired=>streetWalk?planMarketTourLens(streetPosition,streetYaw,Number.isFinite(desired)?desired:streetYaw,3):null,getMarketOperatingRenderStats:()=>({...marketOperatingRenderStats}),getHighStreetStats:()=>({...highStreetStats}),getFarmMarketStreetAudit,getGradedRoadAudit,getRealRoadscapeAudit,getFieldToGranaryFootwayAudit,routeCacheMetrics:()=>({entries:routeCache.size,hits:cacheHits,misses:cacheMisses}),getCameraLensAudit:()=>cameraLensProfile(canvas.clientWidth,canvas.clientHeight),getPhysicalProjectionAudit,getSettlementOverviewPlanAudit:physicalSettlementOverviewPlan,getMarketHomeDistrictPlanAudit:()=>planRealMarketHomeDistrict(city,DELIVERY_MARKET.food,canvas.clientWidth,canvas.clientHeight,getActiveDeliveries()),requestRealMarketHomeDistrict,getCameraMotionAudit:cameraMotionAudit,getRealEconomicSurveyAudit,advanceRealEconomicSurvey,getCameraNavigationAudit,getFreeCameraCollisionAudit,getGrowingTownCameraAudit,getLivedTownOverviewAudit,requestRealFarmWorksiteView,getPhysicalFarmCameraAudit,getCamera:()=>({yaw,pitch,zoom,focus:focusPoint.slice(),follow,cinematic}),getPresentedCameraFrame:()=>lastCitizenPickFrame?{eye:lastCitizenPickFrame.eye.slice(),target:lastCitizenPickFrame.target?.slice()||null,width:lastCitizenPickFrame.width,height:lastCitizenPickFrame.height}:null,getWorldActorTagAudit:()=>({...worldActorTagAudit}),getLiveWorkBeaconAudit,getWorkdayCompositionAudit:workdayCameraCompositionAudit,getWorkdayClearArcAudit,getFarmWorkCameraAudit,
-getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,getStreetPhysicalOcclusionAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getMarketArcadeCameraAudit:()=>({source:'original-interstall-roof-occlusion',bands:physicalMarketArcadeRoofVolumes(),authorityChanged:false}),getCameraArchitectureResidencyAudit,getCameraRayBroadphaseAudit,getCameraShotProximityAudit,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getGrainwardBridgeAudit,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getArchitectureAtlasWorkerAudit,
+getPhysicalCartSightlineAudit:()=>cloneData(physicalCartSightlineAudit()),getStreetWalkState,getStreetEntranceAudit,getStreetPhysicalOcclusionAudit,setStreetWalk,advanceStreetWalk,advanceStreetViewClock,visitStreetWorker,getCameraOcclusionModel:cameraOcclusionModel,getMarketArcadeCameraAudit:()=>({source:'original-interstall-roof-occlusion',bands:physicalMarketArcadeRoofVolumes(),authorityChanged:false}),getCameraArchitectureResidencyAudit,getCameraRayBroadphaseAudit,getCameraShotProximityAudit,getForegroundProjectionBroadphaseAudit,getCitizenCameraPlan:()=>lastFollowShot?{...lastFollowShot,eye:lastFollowShot.eye.slice(),target:lastFollowShot.target.slice()}:null,getTerrainHeight:(x,z)=>terrain(x,z),getTerrainBiomeSample:terrainBiomeSample,getGrainwardBridgeAudit,getOuterRiverReachStats:()=>({...outerRiverReachStats}),sampleRiverOptics:riverOpticsSample,getHorizonStats:()=>({triangles:terrainHorizonTriangles,outerBands:2,segmentsPerSide:HORIZON_SEGMENTS,extent:HORIZON_MAX+HORIZON_OFFSETS[2]}),getHighlandRockStats:()=>({...highlandRockStats,heights:highlandRockStats.heights.slice()}),getClimateMaterialProfile:climateMaterialProfile,getWildfloraCount:()=>wildflora.length,getMeadowStats:()=>({clusters:meadowUnderstory.length,triangles:meadowUnderstory.length*8,season:climateAt(state.t).season,cached:true}),getArchitectureMaterialAudit,getArchitectureAtlasWorkerAudit,
  getInhabitedStreetAccessAudit:()=>({...groundAtlasAccessAudit,topologyKey:groundAtlasAccessTopology,
   builds:groundAtlasAccessRebuilds,realHomes:city.length,rendererOnly:true}),
  getGroundAtlasRouteResidencyAudit,getGroundAtlasDirtyAudit,
