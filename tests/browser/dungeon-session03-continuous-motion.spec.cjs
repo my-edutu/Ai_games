@@ -192,6 +192,7 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
      .toBe('original-source-loaded-pelvis-decision');
     expect(typeof gate.reason).toBe('string');
     expect(gate.reason.length).toBeGreaterThan(4);
+    expect(gate.reason,'the original skinned pelvis trial must execute rather than retain an untested placeholder').not.toBe('not-yet-tested');
     expect(gate.contactLocked).toBe(false);
     expect(gate.plantCertified).toBe(false);
    }
@@ -307,6 +308,26 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
    originalConnectedLegThenPelvisAcceptedFrames:rows.filter(x=>
     x.sourcePelvis?.finalProof?.licensedConnectedSourceChain?.source===
      'same-licensed-GLB-connected-leg-to-final-pelvis').length,
+   // Tie every genuine full-weight source walk pelvis rejection to both
+   // original weighted shoes and the original weapon socket in the SAME
+   // rendered frame. This is diagnosis only, not contact/IK/authority.
+   originalWalkingPelvisGateAndSoleAudit:rows.filter(x=>
+    x.sourceClip==='Walking_A'&&x.sourceWeight>=.9).map(x=>{
+     const y=(side,part)=>x.sourceSolePatchWorld?.[side]?.[part]?.[1];
+     const burialMm=(side,part)=>Number.isFinite(y(side,part))?
+      Math.max(0,(-.02-y(side,part))*1000):null;
+     return {frame:x.frame,tick:x.tick,sourceInstanceId:x.sourceInstanceId,
+      sourceClipTime:x.sourceClipTime,
+      pelvisGateReason:x.sourcePelvis?.gate?.reason??'missing-real-render-gate',
+      pelvisGateDetail:x.sourcePelvis?.gate?.detail??null,
+      leftHeelBurialMm:burialMm('left','heel'),
+      leftToeBurialMm:burialMm('left','toe'),
+      rightHeelBurialMm:burialMm('right','heel'),
+      rightToeBurialMm:burialMm('right','toe'),
+      pelvisAcceptedFrameCount:x.sourcePelvis?.acceptedFrames??0,
+      sourceWeaponAttached:x.sourceWeaponGrip?.attachedToGripSocket===true,
+      contactLocked:false,plantCertified:false};
+    }),
    originalWalkingShoeEvidence:rows.filter(x=>x.sourceClip==='Walking_A'&&
     x.sourceWeight>=.9&&['left','right'].every(side=>
      Number.isFinite(x.sourceSolePatchWorld?.[side]?.toe?.[1])&&
