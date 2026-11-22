@@ -7,6 +7,13 @@ on:
       - tests/browser/tiny-kingdom-w545-static-depth-tile.spec.cjs
       - tests/browser/tiny-kingdom-w545-real-depth-tiles.spec.cjs
       - .github/workflows/tiny-kingdom-w545-real-depth-tiles.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - public/tiny-kingdom/index.html
+      - tests/browser/tiny-kingdom-w545-static-depth-tile.spec.cjs
+      - tests/browser/tiny-kingdom-w545-real-depth-tiles.spec.cjs
+      - .github/workflows/tiny-kingdom-w545-real-depth-tiles.yml
   workflow_dispatch:
 jobs:
   actual-static-depth-pixels:
