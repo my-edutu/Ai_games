@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-22T10:35:45.000Z",
+  "updatedAt": "2026-11-22T11:21:42.690Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass576: preceding rollback f54820b7 exact Maze WebGL workflow 45005123147 SUCCESS and whole-repository CI 45005123088 FAILED separately; no new artifact SHA/image review claimed. A production candidate stages a two-beat source-authentic ground resonance along only currently visible, open, reciprocal, same-tier real Pip-to-Thornback lantern-counter links; no AI/collision/navigation change. NEW candidate strict focused tests, six-reset budget, uncropped original native WebGL images, source SHA, fresh independent image critic and fixed Nintendo comparison ALL PENDING. Nintendo benchmark NOT MET. Independent worker/Ultracode tunnel NOT_FOUND; Draft PR open, unmerged, undeployed; hourly Gauntlet active."
+    "summary": "Pass577: exact Pass576 8cf64e73 Maze WebGL workflow 45013675555 SUCCESS with 42/42 original full PNG SHA sidecars, 3/3 authentic gate transition SHA, six-reset budget and natural tick136 escape. Downloaded artifact 14751263006 ZIP SHA 7f102737fd1b8a7f46684140d5a1b25864965efca27f18b7440bdfeb6fe84994; original native 320/390 paired critique versus restored f54820b7 REJECTS pale guardian floor ring: existing transverse masonry still separates Pip/Thornback; no meaningful physical readable two-actor staging. Selectively restore verified pre-candidate scene/impact code and remove Pass576-exclusive test in same rollback commit as dated review/ledger/journal. NEW rollback-HEAD native CI NOT YET VERIFIED. Whole CI 45013675456 FAILED at Tiny Kingdom OBS/downstream uploads. Nintendo benchmark UNMET, independent critic/Ultracode workspace tunnel NOT_FOUND; draft unmerged/undeployed, hourly active."
   },
   "captures": [
+    {
+      "title": "Pass577 authentic Pass576 full original WebGL: 42/42 PNG SHA + 3/3 true gate SHA; native 320/390 visual REJECT, selective code rollback pending new-HEAD CI, no benchmark win",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/45013675555/artifacts/14751263006"
+    },
     {
       "title": "Pass576 publicly authenticated two-edge guardian ground-resonance source candidate; exact new-HEAD native 320/390/844/1280 WebGL and SHA and independent critic PENDING, benchmark unmet",
       "url": "https://github.com/my-edutu/Ai_games/pull/53"
@@ -180,6 +184,12 @@
     }
   ],
   "changes": [
+    {
+      "title": "Pass577: reject original pulse candidate and restore source after exact gameplay WebGL A/B",
+      "date": "2026-11-22",
+      "status": "Source rollback candidate, new exact-HEAD CI and visuals pending; Nintendo visual benchmark unmet",
+      "description": "Source `8cf64e73` real 42/42 screenshot/sidecar SHA and 3/3 gate transitions; actual 320/390 Pip/Thornback still separated by solid public masonry. Restore only earlier validated scene and impact helper blobs, remove exclusively candidate test; retain all strict NDC, 44px, privacy, deterministic AI and six-reset budget. Next unit: holistic honest physical encounter view, not decorative pulse."
+    },
     {
       "title": "Pass570: retain original physically verified terminal camera; new truthful actor visibility ray capture",
       "date": "2026-11-22",

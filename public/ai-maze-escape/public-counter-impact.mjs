@@ -37,25 +37,3 @@ export function publicEarnedCounterImpactStage(snapshot, actor, reducedMotion=fa
     beamActive:handoff>.02,
   };
 }
-
-/**
- * Two grounded beats of the same ALREADY AUTHENTIC counter. The native
- * director additionally requires a real public reciprocal open passage,
- * currently visible unblocked same-tier cells and a connected physical hit.
- * This helper cannot confer map discovery, navigation or damage.
- *
- * The first wave belongs to Pip's open edge, the second to the actual
- * disclosed guardian-side edge. The normal direct counter has only the first.
- * Neither wave survives the two-second earned public presentation clock.
- */
-export function publicEarnedCounterCourtWave(stage) {
-  if(!stage || !Number.isFinite(stage.phase)
-    || stage.phase<0 || stage.phase>=1) return null;
-  const pulse=(from,to)=>{
-    const t=(stage.phase-from)/(to-from);
-    if(t<=0 || t>=1)return null;
-    const opacity=.12+.48*Math.sin(Math.PI*t);
-    return {scale:.76+.64*t,opacity};
-  };
-  return {near:pulse(.035,.54),far:pulse(.24,.86)};
-}

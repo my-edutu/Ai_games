@@ -1,7 +1,7 @@
 import * as THREE from './vendor/three.module.js';
 import { createExplorer, createWarden } from './characters.js';
 import { PUBLIC_GUARDIAN_COUNTER_SECONDS, publicGuardianCounterMoment, publicGuardianCounterStageActive } from './public-counter-moment.mjs';
-import { publicEarnedCounterImpactStage, publicEarnedCounterCourtWave } from './public-counter-impact.mjs';
+import { publicEarnedCounterImpactStage } from './public-counter-impact.mjs';
 import { createMazeWorld, cellPosition, cellHeight, sampleGroundHeight, CELL_SIZE, KEY_SHRINE_OFFSET } from './world.js';
 import { advanceGateVisualClock, PUBLIC_PICKUP_RELEASE_SECONDS, PUBLIC_PICKUP_VISUAL_SECONDS } from './gate-moment.mjs';
 import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
@@ -186,22 +186,6 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   counterImpactRing.name='Earned physical Thornback lantern counter impact';
   counterImpactRing.visible=false;
   scene.add(counterImpactRing);
-  // Two physically GROUNDED, staged pulses show the already-witnessed lantern
-  // counter travelling along its ACTUAL published open passage. Both rings
-  // share the impact geometry; they never enter the navigation/collision map.
-  // Different retained materials let contact travel rather than flash twice.
-  const counterCourtWaveMaterials=[0,1].map(()=>new THREE.MeshBasicMaterial({
-    color:'#75ffe0',transparent:true,opacity:.48,depthWrite:false,
-    side:THREE.DoubleSide,blending:THREE.AdditiveBlending
-  }));
-  const counterCourtWaves=counterCourtWaveMaterials.map((material,i)=>{
-    const ring=new THREE.Mesh(counterImpactGeometry,material);
-    ring.name='Earned public Tideglass ground pulse '+(i+1);
-    ring.rotation.x=-Math.PI/2;
-    ring.visible=false;
-    scene.add(ring);
-    return ring;
-  });
   const lanternSurveyCorner=new THREE.Vector3();
   const placePublicSurveyCone=(mesh,from,to)=>{
     lanternBeamDirection.copy(from).sub(to);
@@ -974,7 +958,6 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     counterCoreStraight.visible=false;
     counterCoreTurn.visible=false;
     counterImpactRing.visible=false;
-    for(const wave of counterCourtWaves)wave.visible=false;
     let pressureSurveySightline=null;
     if(!result&&explorerLantern&&closestThreat?.strength>.35
       &&publicLanternEncounter(s,closestThreat.cell)){
@@ -1079,35 +1062,6 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       counterCoreStraight.visible=connected && counterImpact.beamActive;
       counterCoreTurn.visible=connected && !!earnedTwoLinkPath && counterImpact.beamActive;
       counterImpactRing.visible=connected;
-      // This is a propagation of the REAL counter, not a false route hint:
-      // only the already-verified direct public sightline or reciprocal,
-      // unlocked two-link path may own a ground pulse. A different elevation,
-      // undisclosed tile, sealed edge, terminal run or absent hit leaves the
-      // rings hidden. The original stage floor and ALL solid walls remain.
-      if(connected && Array.isArray(s.visibleCells)
-        && s.visibleCells.includes(s.currentCell)
-        && s.visibleCells.includes(earnedCounterActor.cell)){
-        const waveCells=earnedTwoLinkPath
-          ?[s.currentCell,earnedTwoLinkPath.midCell,earnedCounterActor.cell]
-          :[s.currentCell,earnedCounterActor.cell];
-        const floor=cellHeight(waveCells[0],s.width,s.height);
-        if(waveCells.every(cell=>s.visibleCells.includes(cell)
-          && s.cells.some(entry=>entry.cell===cell && entry.blocked===false)
-          && cellHeight(cell,s.width,s.height)===floor)){
-          const waveBeat=publicEarnedCounterCourtWave(counterImpact);
-          for(let i=0;i<waveCells.length-1;i++){
-            const pulse=i===0?waveBeat?.near:waveBeat?.far;
-            if(!pulse)continue;
-            const a=cellPosition(waveCells[i],s.width,s.height);
-            const b=cellPosition(waveCells[i+1],s.width,s.height);
-            const wave=counterCourtWaves[i];
-            wave.position.set((a.x+b.x)/2,floor+.085,(a.z+b.z)/2);
-            wave.scale.setScalar(pulse.scale);
-            wave.material.opacity=pulse.opacity;
-            wave.visible=true;
-          }
-        }
-      }
     }
     guide.material.opacity = settings.highContrast ? .95 : .65;
 
@@ -2560,10 +2514,9 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     world.dispose(); explorer.dispose();
     scene.remove(pickupBurst); pickupGeometry.dispose(); pickupMaterial.dispose(); pickupBurst.clear();
     scene.remove(lanternBeam,lanternSurveyTurn); lanternBeamGeometry.dispose(); lanternBeamMaterial.dispose();
-    scene.remove(counterCoreStraight,counterCoreTurn,counterImpactRing,...counterCourtWaves);
+    scene.remove(counterCoreStraight,counterCoreTurn,counterImpactRing);
     counterCoreGeometry.dispose(); counterCoreMaterial.dispose();
     counterImpactGeometry.dispose(); counterImpactMaterial.dispose();
-    for(const material of counterCourtWaveMaterials)material.dispose();
     for (const entry of wardens.values()) removeWarden(entry);
     wardens.clear();
     // Fully release the deliberately bounded dormant GPU rig on final teardown.
