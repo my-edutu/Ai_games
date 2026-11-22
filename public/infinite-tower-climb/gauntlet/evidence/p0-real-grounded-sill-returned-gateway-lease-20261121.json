@@ -925,6 +925,12 @@
     },
     "deviceFrameTimesAndMemory": "NOT EVALUATED",
     "nextHighestImpact": "Inspect full original 1x 25fps candidate danger 960x600 and 390x844 and source-event matching at exact 58547c13 after campaign completes. Determine whether one-way gate/root continuity actually survives floor-nine raised flight with full moving hero, genuine walkable roof and upper destination framed. If 0/2 still fails, prioritize physical camera/world ownership rather than more opacity shims; keep P0 OPEN. Investigate global Phase6 timeouts only within allowed Tower boundary; do not edit Maze.",
-    "guardrails": "Do not modify frozen transformation.json blob, PR58, other games, PR draft status, merge, deployment or force push"
+    "guardrails": "Do not modify frozen transformation.json blob, PR58, other games, PR draft status, merge, deployment or force push",
+    "sourceOnlyZeroAlphaPreventionCommit": "4c7aaf2d431bf7cb6c944d2d9d96f53ef705ce87",
+    "sourceOnlyZeroAlphaRegressionCommit": "223b9734d2984eaa6807b2e20584db34aa099e76",
+    "correctedBehavior": "When there is verified source-grounded F9 route and no acceptable real successor-shaft return, hold the last actually painted old-gate opacity even if a newer source support state proposes zero alpha. Once both old room and incoming genuine shaft meet returned-frame/time requirements, spend one-way material opacity. Invalid/missing support cannot create an extension. This remains bounded by existing 30 returned frames / 2.8s and entire original HP0 source lease.",
+    "firstNewCampaignLimit": "Campaign 44966958466 is source 58547c13 BEFORE zero-alpha proof correction. Its films are useful for diagnosis but cannot validate the corrected 223b9734 source; new capture request will pin exact corrected HEAD.",
+    "newCaptureRequirement": "Commit a new request to public/infinite-tower-climb/gauntlet/capture-request.json after the corrected helper/test are in HEAD; the real-world nine-job workflow pins github.sha immutably.",
+    "assessorVerdict": "NOT EVALUATED"
   }
 }
