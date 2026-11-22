@@ -35,9 +35,15 @@ export function sourceReturnedOriginalGatewayOpacity(source,held,job,proposed,su
      held.originalGatewayOpacity<0 || held.originalGatewayOpacity>1)return null;
   const previous=unit(held.originalGatewayOpacity);
   const base=Math.min(previous,proposed);
-  if(!verified(source,held,job,supported) ||
-     job.structuralVisibleReturns<2 || job.structuralVisibleSeconds<=0 ||
-     held.submittedFrames<2 || held.visibleSeconds<=.15) return base;
+  // Missing source support must never invent a lifetime extension.
+  if(!verified(source,held,job,supported)) return base;
+  // A newer autonomous source stance may request a sudden zero-alpha old
+  // portal while the TRUE successor shaft still has not PAINTED. On a real
+  // authenticated Floor9 roof/raised route, preserve ONLY the already
+  // returned original material until both sides earn optical overlap.
+  // The separate finite owner lease remains a hard upper bound.
+  if(job.structuralVisibleReturns<2 || job.structuralVisibleSeconds<=0 ||
+     held.submittedFrames<2 || held.visibleSeconds<=.15) return previous;
   // The *same* genuine shaft and original doorway must both have returned
   // enough frames AND actual display time. A 400ms first WebGL return or many
   // old-only submissions alone cannot erase the gateway.
