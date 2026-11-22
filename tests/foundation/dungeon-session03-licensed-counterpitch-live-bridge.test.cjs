@@ -1139,3 +1139,76 @@ test('RED: original licensed heel-anchored full-body lean lifts a buried swing t
   sourceWeaponGripVerified:true}),null,
   'final real weighted supporting heel XZ deviation must reject the whole-body lean');
 });
+
+
+/**
+ * REAL native six-GLB Chrome/390px after-head d92a2969, f114/tick14:
+ * one independently skinned original Walking_A linked-leg+toe child witness
+ * is already accepted, but the heel-proximal whole-body trial NEVER ran:
+ * the support heel was +14.5128mm and its raised toe +55.1466mm over
+ * the -20mm stone, just outside the earlier narrow 8/55mm proxy window.
+ * These are BEFORE source-weighted 3D world-space endpoints, NOT hypothetical
+ * skinned AFTER frames or a contact/plant certificate. Its valid source
+ * skin + socket/clip must still be re-read in Chromium after the change.
+ */
+test('RED: genuine 390px f114 near-floor rolling heel allows a bounded original-body lean, never inventing a plant',async()=>{
+ const m=await source;
+ const actual={
+  left:{
+   heel:[2.2734302988517054,.20338158671403223,-6.946109202208276],
+   toe:[2.161799201001761,-.07063313908216373,-6.9302070715531]},
+  right:{
+   heel:[2.1411352731796267,-.005487197993017038,-7.1063031680287425],
+   toe:[1.873659469701867,.035146607150513175,-7.130170648877351]}
+ };
+ const sourceInstanceId='actual-390px-f114-same-original-source-instance';
+ const proof={source:'measured-original-licensed-source-counterpitch',
+  sourceRole:'vanguard',sourceClip:'Walking_A',side:'left',
+  sourceInstanceId,sourceClipTimeSeconds:.6153084037846493,
+  sourceUpperBone:'upperlegl',sourceLowerBone:'lowerlegl',
+  sourceFootBone:'footl',
+  sourceOriginalTracks:['upperlegl.quaternion','lowerlegl.quaternion','footl.quaternion'],
+  originalBindSegmentsMeters:[.1706700256741458,.11231604804499139],
+  witnessedRootTravelMeters:.011510561639823003,
+  witnessedFrameIntervalSeconds:.01659999999999684,
+  finalIndependentSourceSkin:true,originalOppositeShoeVerified:true,
+  sourceOriginalRootTravelWitnessed:true,contactLocked:false,
+  plantCertified:false,
+  after:Object.fromEntries(['left','right'].map(side=>[side,{
+   heelY:actual[side].heel[1],toeY:actual[side].toe[1],
+   heelXZ:[actual[side].heel[0],actual[side].heel[2]],
+   toeXZ:[actual[side].toe[0],actual[side].toe[2]]}]))};
+ const input={mode:'move',sourceClipName:'Walking_A',
+  sourceRole:'vanguard',sourceInstanceId,sourceWeight:1,
+  sourceFootProof:proof,sourceSoles:actual,
+  sourceWeaponGripVerified:true,ownerLocomotion:true,
+  alive:true,visible:true,rootTravel:.011510561639823003,
+  frameInterval:.01659999999999684,frameAge:0,
+  floorTopY:-.02,interrupted:false,teleport:false,reducedMotion:false};
+ const plan=m.planOriginalSourceHeelAnchoredBodyLean(input);
+ assert.equal(plan?.source,'licensed-original-supported-heel-anchored-body-lean',
+  'actual prior green-run source frame must reach trial instead of an overly narrow proximity gate');
+ assert.equal(plan?.supportSide,'right');
+ assert.ok(plan?.projectedSwingToeLiftMeters>=.007,
+  'only bounded predicted ORIGINAL SOURCE toe motion warrants a real two-shoe skin probe');
+ assert.ok(plan?.predictedAfter.left.toe[1]<-.02,
+  'original skinned swing toe is STILL buried: never claim floor contact');
+ assert.ok(plan?.predictedAfter.right.toe[1]<=actual.right.toe[1]+.001);
+ assert.equal(plan?.plantCertified,false);
+ assert.equal(plan?.contactLocked,false);
+ const expected=m.certifyOriginalSourceHeelAnchoredBodyLean({
+  plan,before:actual,after:plan.predictedAfter,sourceWeaponGripVerified:true});
+ assert.ok(expected?.finalSwingToeLiftMeters>=.007,
+  'analytic projection is a contract test, NOT a certified actual WebGL after-frame');
+ for(const invalid of [
+  {sourceSoles:{...actual,right:{...actual.right,
+   heel:[actual.right.heel[0],actual.right.heel[1]+.012,actual.right.heel[2]]}}},
+  {sourceSoles:{...actual,right:{...actual.right,
+   toe:[actual.right.toe[0],actual.right.toe[1]+.025,actual.right.toe[2]]}}},
+  {sourceFootProof:{...proof,finalIndependentSourceSkin:false}},
+  {sourceWeaponGripVerified:false},{rootTravel:0},
+  {frameAge:.2},{reducedMotion:true},{sourceRole:'warden'}]){
+  assert.equal(m.planOriginalSourceHeelAnchoredBodyLean({...input,...invalid}),null,
+   'high/floating shoe or unwitnessed source must remain ineligible');
+ }
+});
