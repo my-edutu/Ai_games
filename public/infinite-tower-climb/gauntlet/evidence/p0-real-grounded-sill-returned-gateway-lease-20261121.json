@@ -889,5 +889,42 @@
     },
     "actualDeviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
     "safety": "No unrelated games, no PR58 rewrite, unchanged frozen baseline SHA/ledger, no merge, deploy, force push or PR68 draft conversion."
+  },
+  "p0OneWayRealReturnedGatewayAndSuccessorExit20261122": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenLedgerBlobSha": "7433d52ae1a7a75de51366a845375dda04ab87fa",
+    "observedPR68HeadBeforeCode": "b72dfdca69aa5194f6a72d9eab35e699652d8af1",
+    "realProductionCommitSha": "58547c138cad1634510f1a0fc91728c324da1432",
+    "supportingPureHelperCommit": "caccb5e7e67c06d968b338475db91f9996e69af3",
+    "testCommitSha": "9ce7e9a45a343e7ce81753c26bd92f41f2cdd3a5",
+    "lastInspectedOriginalSourceCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44962295407",
+    "originalCandidateSourceSha": "41dc74604a6a71e973d2c43e9b6f75d5e95f8a4b",
+    "lastInspectedExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44962450070 — earlier b72dfdca 10/10 passed; not current source",
+    "priorSourceCaptureResult": "9/9 recording/ledge jobs completed; source narratives paired 8/8; strict native danger event-to-video comparison FAILED 0/2 viewports",
+    "observedNativeFrames": {
+      "desktop": "Unedited original 960x600 25fps 71.96s WebM: Floor9 HUD at ~26.00s, sustained violet at ~27.75s; old gate and fully visible moving climber do NOT establish accepted continuous shared shot with genuine receiving roof",
+      "portrait": "Unedited original 390x844 25fps 72.24s WebM: Floor9 HUD at ~26.00s, sustained violet at ~28.00s; old arch and moving climber visually lost during circular roof / violet world replacement",
+      "note": "Native sampled observations, not source-event-pixel certified matches; do not count as visual pass"
+    },
+    "physicalSystemDefect": "Exact source-owned original bronze portal fades non-monotonically in returned-frame camera data: portrait tick495 ~0.648 opacity, tick516 ~0.8167, then original geometry owner disappears as source support moves from roof to raised flight. The actual already-constructed shaft can be late to paint, creating an architectural cut. CI success cannot certify native footage.",
+    "actualChange": "New pure guarded P0 rendered-room contract makes existing original HP-open gateway and non-colliding historical gallery opacity non-increasing, while actual old returned WebGL and incoming real Void shaft returned frames and display time jointly bound fade. A finite same-run, source-grounded F9 roof/raised-flight return lease prevents early nonzero-opacity deletion solely on support-state transition. No platform, collider, guardian HP, route, camera authority, source tick, duplicate portal or unrelated game changes.",
+    "changedFiles": [
+      "public/infinite-tower-climb/visuals/source-returned-original-gateway-exit.mjs",
+      "public/infinite-tower-climb/visuals/world.mjs",
+      "tests/phase3/tower-original-gateway-returned-optical-exit.test.cjs"
+    ],
+    "sourcePinnedNewCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44966958466 — immutable candidate 58547c138cad, frozen baseline 1731b3808511, original 1x 25fps 960x600 and 390x844; nine recording+ledge jobs in progress at inspection; no native acceptance",
+    "exactSourceNewQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44966958450 — SHA 58547c138cad, pending at inspection; engineering veto not transformation score",
+    "earlierPreIntegrationQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44966922546 — helper-only commit, 9/10 complete at inspection and phase6 in progress; NOT evidence of integrated source success",
+    "independentFreshContextReviewers": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "deviceFrameTimesAndMemory": "NOT EVALUATED",
+    "nextHighestImpact": "Inspect full original 1x 25fps candidate danger 960x600 and 390x844 and source-event matching at exact 58547c13 after campaign completes. Determine whether one-way gate/root continuity actually survives floor-nine raised flight with full moving hero, genuine walkable roof and upper destination framed. If 0/2 still fails, prioritize physical camera/world ownership rather than more opacity shims; keep P0 OPEN. Investigate global Phase6 timeouts only within allowed Tower boundary; do not edit Maze.",
+    "guardrails": "Do not modify frozen transformation.json blob, PR58, other games, PR draft status, merge, deployment or force push"
   }
 }
