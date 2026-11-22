@@ -70,8 +70,13 @@ test('the production 3D camera checks the actual GPU-retained original arch and 
   const finalMatrices=scene.lastIndexOf('camera.updateMatrixWorld(true);',reveal);
   assert.ok(reveal>0 && finalLook>0 && finalMatrices>finalLook,
     'submit the corrected lens before the real world sightline pass');
+  // The new first-F9 CPU profiler takes one performance.now() AFTER the
+  // final physical camera and BEFORE the independent world sightline pass.
+  // This timestamp must be the ONLY permissible intervening statement:
+  // rejecting it as a camera rewrite is incorrect, but admitting an actual
+  // transform or new director would undermine the full-body/roof veto.
   assert.match(scene.slice(finalMatrices+'camera.updateMatrixWorld(true);'.length,reveal),
-    /^\s*}\s*}\s*$/,
-    'no intervening camera/world stage may override the corrected shot');
+    /^\s*}\s*}\s*(?:const afterColdDoorwaySearch = traceFirstF9 \? performance\.now\(\) : null;\s*)?$/,
+    'no intervening camera/world transformation may override the corrected shot');
   assert.doesNotMatch(scene,/snapshot\.player\.(?:x|y)\s*=/);
 });
