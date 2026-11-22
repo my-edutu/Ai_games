@@ -462,5 +462,18 @@ for(const view of VIEWS)test('original source 17-tick uninterrupted WebGL moving
   expect(x.candidateSelected).toBe(true);
   expect(x.selectedFadeSeconds).toBe(.30);
  }
+ // Every rejected, actually executed original 41-joint body lean must
+ // explain which independent original weighted sole / weapon witness failed.
+ // No qualifying frames means NO measured success, not a fake Gauntlet pass.
+ for(const x of rows.filter(x=>
+  x.sourceHeelLean?.gate?.reason===
+   'independent-original-two-shoe-or-grip-lean-rejected')){
+  const detail=x.sourceHeelLean.gate.detail;
+  expect(detail?.reason,'no silent source-skin/hand rejection').toMatch(
+   /^(stale-original-source-before-sole|original-source-weapon-socket-mismatch|original-weighted-world-body-transform-mismatch|original-supporting-heel-drift|original-world-swing-clearance-not-confirmed|original-source-certification-refused)$/);
+  expect(detail?.originalSkinnedEndpointsRead).toBe(4);
+  expect(detail?.contactLocked).toBe(false);
+  expect(detail?.plantCertified).toBe(false);
+ }
  expect(errors).toEqual([]);
 });

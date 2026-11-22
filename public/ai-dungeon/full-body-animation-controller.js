@@ -7252,3 +7252,62 @@ export function certifyOriginalSourceHeelAnchoredBodyLean({
   originalWeaponGripAttached:true,contactLocked:false,plantCertified:false
  });
 }
+
+/**
+ * Session 03 independent native-skin rejection audit. Existing two-shoe
+ * certification stays authoritative. This consumes ONLY the four endpoints
+ * and grip already sampled by the renderer; no new skinning or GLB traversal.
+ * A failed live WHOLE-RIG trial must distinguish stale source pose, an actual
+ * world-transform mismatch and a changed imported weapon socket. Numbers are
+ * per-frame measured world-space discrepancies in millimetres, not a claim
+ * of true foot contact, fluency or an accepted visual change.
+ */
+export function auditOriginalSourceHeelAnchoredBodyLeanReadback({
+ plan=null,before=null,after=null,sourceWeaponGripVerified=false
+}={}){
+ const certificate=certifyOriginalSourceHeelAnchoredBodyLean({
+  plan,before,after,sourceWeaponGripVerified});
+ const pointDistance=(a,b)=>originalHeelLeanPoint(a)&&
+  originalHeelLeanPoint(b)?Math.hypot(...a.map((n,i)=>n-b[i])):NaN;
+ const roundMm=m=>Number.isFinite(m)&&m>=0&&m<=10000?
+  Math.round(m*1000000)/1000:null;
+ const list=['left','right'].flatMap(side=>['heel','toe'].map(endpoint=>({
+  name:side+'.'+endpoint,
+  beforeError:pointDistance(before?.[side]?.[endpoint],
+   plan?.originalBefore?.[side]?.[endpoint]),
+  afterError:pointDistance(after?.[side]?.[endpoint],
+   plan?.predictedAfter?.[side]?.[endpoint])
+ })));
+ const firstStale=list.find(x=>!Number.isFinite(x.beforeError)||
+  x.beforeError>.001);
+ const firstMismatch=list.find(x=>!Number.isFinite(x.afterError)||
+  x.afterError>.001);
+ const maximum=list.every(x=>Number.isFinite(x.afterError))?
+  Math.max(...list.map(x=>x.afterError)):NaN;
+ const supporting=plan?.supportSide,swinging=plan?.swingSide;
+ const heelDrift=pointDistance(before?.[supporting]?.heel,
+  after?.[supporting]?.heel);
+ const lifted=(after?.[swinging]?.toe?.[1]??NaN)-
+  (before?.[swinging]?.toe?.[1]??NaN);
+ const reason=certificate?'independent-original-rig-skin-verified':
+  firstStale?'stale-original-source-before-sole':
+  sourceWeaponGripVerified!==true?'original-source-weapon-socket-mismatch':
+  firstMismatch?'original-weighted-world-body-transform-mismatch':
+  !Number.isFinite(heelDrift)||heelDrift>.001?
+   'original-supporting-heel-drift':
+  !Number.isFinite(lifted)||lifted<.007?
+   'original-world-swing-clearance-not-confirmed':
+   'original-source-certification-refused';
+ return Object.freeze({
+  certificate,reason,
+  firstMismatchedEndpoint:firstMismatch?.name??null,
+  firstStaleEndpoint:firstStale?.name??null,
+  maxPredictedWorldSoleErrorMm:roundMm(maximum),
+  supportHeelDriftMm:roundMm(heelDrift),
+  measuredSwingToeLiftMm:Number.isFinite(lifted)?
+   Math.round(lifted*1000000)/1000:null,
+  sourceWeaponGripVerified:sourceWeaponGripVerified===true,
+  originalSkinnedEndpointsRead:list.length,
+  contactLocked:false,plantCertified:false
+ });
+}
