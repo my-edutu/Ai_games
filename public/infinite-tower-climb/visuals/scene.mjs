@@ -35,6 +35,7 @@ import { observedGuardianTransmissionCorners } from './guardian-transmission-lay
 import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
 import { sourceReturnedGateCameraRelease, sourceRetainedGatewayCameraContinuity, assessSourceRetainedGatewayPhysicalShot, sourceReturnedGatewayLastCameraEligible, sourceEarnedFloorNineOrbitGuard } from './source-returned-gate-camera-release.mjs';
 import { sourceFirstRaisedFlightGaze } from './source-first-raised-flight-gaze.mjs';
+import { firstReturnedOriginalRoomAdmission } from './first-source-room-return.mjs';
 import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, sourceRaisedBackdropClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceThreeSubjectActorScaleGain, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe, sourceThreeSubjectPhysicalGain } from './physical-threshold-shot.mjs';
 import { sourceSubmittedDoorwayCameraDt, sourceCroppedHeroRecoveryDt } from './source-submitted-doorway-cadence.mjs';
 import { createTowerVoidProgramPrewarm } from './void-program-prewarm.mjs';
@@ -6348,11 +6349,18 @@ export function createTowerScene(canvas, settings = {}) {
       // patching another inferred opacity or gaze. The entire audit is
       // read-only and cannot certify painted video pixels.
       const roomReturn=world.sourceHandoffReturnWitness?.(snapshot);
-      if(roomReturn && !options.stale) {
-        if(originalToVoidReturnedRun!==snapshot.runToken){
-          originalToVoidReturnedRun=snapshot.runToken;
-          originalToVoidReturnedTimeline.length=0;
-        }
+      // Keep the FIRST actual original F8->F9 episode. A 70s autonomous
+      // danger capture can restart and earn a SECOND legitimate crossing;
+      // resetting here destroyed the first episode's native 25-29s evidence
+      // and replaced it with returned frames from ~64s in the same WebM.
+      // Immutable run/tick/owner checks admit genuine returns only; this
+      // does not change the camera, gameplay, GPU or visual-quality verdict.
+      const firstEpisodeReturn=!options.stale
+        ?firstReturnedOriginalRoomAdmission(
+          originalToVoidReturnedRun,snapshot,roomReturn):null;
+      if(firstEpisodeReturn) {
+        if(firstEpisodeReturn.isFirst)
+          originalToVoidReturnedRun=firstEpisodeReturn.runToken;
         if(originalToVoidReturnedTimeline.length<ORIGINAL_TO_VOID_RETURN_LIMIT){
           originalToVoidReturnedTimeline.push({
             ...roomReturn,
