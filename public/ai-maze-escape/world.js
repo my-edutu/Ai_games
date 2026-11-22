@@ -237,6 +237,60 @@ export function publicGuardianCausewayCells(s) {
 }
 
 
+// After a REAL publicly recorded lantern parry, Thornback can withdraw from
+// the initial 1–2-cell duet. Keep the original Tideglass playing court joined
+// along ONLY a still-visible, reciprocal, level, OPEN straight corridor of up
+// to four cells. Earlier source stages disappeared just as recoil separated
+// Pip and Thornback, making the achieved consequence read as two unrelated
+// ivory rooms. This draws no secret path: ANY unobserved, one-way, gated,
+// collectible, trapped, stair or bent connection returns no extended stage.
+// Original collision/navigation, AI, actors and terminal state never change.
+export function publicGuardianEarnedRecoilCausewayCells(s) {
+  const out=new Map();
+  if(s?.lifecycle!=='running'||s.result
+    || !Number.isSafeInteger(s.width)||s.width<2
+    || !Number.isSafeInteger(s.height)||s.height<2
+    || !Number.isSafeInteger(s.currentCell)||!Array.isArray(s.cells)
+    || !Array.isArray(s.visibleCells)||!Array.isArray(s.threats)
+    || !Array.isArray(s.doors)||!Array.isArray(s.keys))return out;
+  const visible=new Set(s.visibleCells);
+  const known=new Map(s.cells.filter(c=>Number.isSafeInteger(c?.cell)
+    &&c.cell>=0&&c.cell<s.width*s.height&&visible.has(c.cell)
+    &&c.blocked===false).map(c=>[c.cell,c]));
+  const hero=known.get(s.currentCell);
+  const reserved=new Set(s.keys.map(k=>k.cell));
+  const plain=c=>!!c&&Array.isArray(c.neighbors)&&!c.trap
+    &&!c.checkpoint&&!c.clue&&c.cell!==s.exitCell&&!reserved.has(c.cell);
+  if(!plain(hero))return out;
+  for(const threat of s.threats){
+    if(threat?.lanternParried!==true||!visible.has(threat.cell))continue;
+    const guardian=known.get(threat.cell);
+    if(!plain(guardian))continue;
+    const dx=guardian.cell%s.width-hero.cell%s.width;
+    const dz=Math.floor(guardian.cell/s.width)-Math.floor(hero.cell/s.width);
+    const steps=Math.abs(dx)+Math.abs(dz);
+    if(steps<3||steps>4||(dx!==0&&dz!==0))continue;
+    const stride=dx?Math.sign(dx):Math.sign(dz)*s.width;
+    const route=[hero],axis=dx?'x':'z';
+    let cursor=hero,valid=true;
+    for(let i=0;i<steps;i++){
+      const next=known.get(cursor.cell+stride);
+      const adjacent=!!next&&Math.abs(cursor.cell%s.width-next.cell%s.width)
+        +Math.abs(Math.floor(cursor.cell/s.width)-Math.floor(next.cell/s.width))===1;
+      if(!plain(next)||!adjacent
+        ||!cursor.neighbors.includes(next.cell)||!next.neighbors.includes(cursor.cell)
+        ||cellHeight(cursor.cell,s.width,s.height)!==cellHeight(next.cell,s.width,s.height)
+        ||s.doors.some(d=>(d.a===cursor.cell&&d.b===next.cell)
+          ||(d.b===cursor.cell&&d.a===next.cell))){
+        valid=false;break;
+      }
+      route.push(next);cursor=next;
+    }
+    if(valid)for(const cell of route)out.set(cell.cell,axis);
+  }
+  return out;
+}
+
 /**
  * The camera-facing flank of a witnessed Pip/Thornback stage can have a
  * distinctive SEALED mineral forecourt, but NEVER an invented crossing.
@@ -1342,8 +1396,14 @@ export function createMazeWorld(options = {}) {
     clear(terrain); fossilSails = []; fossilOrgans = []; guardianTideSignals = []; treasureGallerySignals = []; batchData = new Map(); renderedCells = s.cells.map(c => c.cell); stairEdges = []; stairBalustrades = 0; tideFossilGroves = 0; tideFossilAlcoves = 0; fossilGalleryEdges = 0; undercroftButtresses = 0; hangingFacadeGardens = 0; closedTideMedallions = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0; gateForecourtParapets = 0; pressureStageParapets = 0; guardianSightlineParapets = 0; gateCourtRosettes = 0;
     const edges = new Set(), columns = new Set(), landmarkSites = new Map();
     const treasureGallery=publicTwoLinkTreasureGallery(s);
-    const guardianSightlines=publicGuardianStageCells(s);
-    const guardianCauseway=publicGuardianCausewayCells(s);
+    // An authentic currently published lantern parry can shift Thornback
+    // beyond the earlier two-cell court. Keep a single physical performance
+    // space only if every extended real corridor edge remains public/open.
+    const earnedLongCauseway=publicGuardianEarnedRecoilCausewayCells(s);
+    const guardianSightlines=new Set([...publicGuardianStageCells(s),
+      ...earnedLongCauseway.keys()]);
+    const guardianCauseway=new Map([...publicGuardianCausewayCells(s),
+      ...earnedLongCauseway]);
     const guardianForecourtShoulders=publicGuardianForecourtShoulderCells(s,guardianCauseway);
     const guardianOuterCourt=publicGuardianOuterCourtCells(s,guardianCauseway);
     const guardianForeground=publicGuardianWitnessedForegroundCells(s,guardianCauseway);
@@ -3867,7 +3927,8 @@ export function createMazeWorld(options = {}) {
     // visibility of published known cells touching the legitimate real
     // guardian causeway, not the entire moving FOV or any private topology.
     // An unchanged sightline incurs no extra terrain rebuild on each tick.
-    const keyedGuardianCauseway=publicGuardianCausewayCells(s);
+    const keyedGuardianCauseway=new Map([...publicGuardianCausewayCells(s),
+      ...publicGuardianEarnedRecoilCausewayCells(s)]);
     const keyedOuterCourt=publicGuardianOuterCourtCells(s,keyedGuardianCauseway);
     const keyedForeground=publicGuardianWitnessedForegroundCells(s,keyedGuardianCauseway);
     const keyedEarnedRecoil=publicEarnedGuardianRecoilCourtCells(s);
