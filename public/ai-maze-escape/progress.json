@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-22T03:32:02.311Z",
+  "updatedAt": "2026-11-22T04:10:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass570: verified original exact Pass569 SHA 863b3c6e native WebGL 44972730396 SUCCESS, artifact ZIP sha256 45032215a4f8b19902cb136a93c37e75aa08088cb76513a45dff4fae8e998ce7; 42/42 original full-screen PNG+JSON and 3/3 original gate hashes. Full 390/1280 camera A/B shows actual solid parapet below Pip and entire portal, retain narrow terminal readability improvement. Natural tick136 escape and unchanged six-reset <100 passed. Nintendo visual bar still unmet: 320px guardian action divided by masonry. New public-only real physical terminal ray diagnostic/source browser sidecar is unverified candidate; strict no-crop/privacy unchanged. Whole CI 44972730404 failed unrelated Tiny OBS/uploads; independent agents/Ultracode disconnected."
+    "summary": "Pass571: exact-baseline cfc8981c WebGL 44981093679 SUCCESS and downloaded untouched artifact ZIP sha256 78786a4487baebe9d62bc7ac9a0b6bb04d71875ed04c4709f777f4103f78761e. Independently 42/42 full original PNG/sidecar SHA and 3/3 true gate images matched; full 320/390 Pip/Thornback counter remains physically separated and Nintendo bar unmet. Real physical terminal public rays find Pip head/torso/boots clear. New production finite source-earned torso-facing action follows ONLY real open lantern segment, no changed actor root/gameplay/hidden map/resources. Exact-new-HEAD 320/390/844/1280 WebGL verdict PENDING; revert if visually negligible. Independent critic/Ultracode tunnel NOT_FOUND. Whole baseline CI red separate Tiny OBS/uploads."
   },
   "captures": [
+    {
+      "title": "Pass571 original exact cfc8981c native 320/390/844/1280 WebGL: 42/42 PNG SHA sidecars and 3/3 gate SHA independently verified; substantial counter staging still missing; production arm/torso pose candidate awaits NEW head",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/44981093679/artifacts/14737304797"
+    },
     {
       "title": "Pass570 verified real Pass569 863b3c6e native WebGL 42/42 full-resolution screenshot hashes + all three genuine gate images; 390/1280 finale camera improved Pip visibility; not Nintendo parity",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/44972730396/artifacts/14734622314"
