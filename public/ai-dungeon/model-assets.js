@@ -963,6 +963,15 @@ function readOriginalSwingSoleY(candidate){
  const position=mesh?.geometry?.getAttribute?.('position');
  if(!mesh?.isSkinnedMesh||typeof mesh.applyBoneTransform!=='function'||!position||
   !Number.isSafeInteger(index)||index<0||index>=position.count)return NaN;
+ // An attached original GLB SkinnedMesh refreshes bindMatrixInverse only
+ // through its overridden updateMatrixWorld(). Updating the visual pivot,
+ // ancestor or bone with updateWorldMatrix() alone leaves this skin inverse
+ // at the preceding pose. Real mobile f27/f69 then measured a 2x pelvis
+ // displacement; other source-leg probes share this reader and must not
+ // certify stale sole contact. Refresh only THIS validated original source
+ // mesh immediately before its one weighted vertex transform. No IK, scan,
+ // new rig, authority movement, geometry or animation clip change.
+ mesh.updateMatrixWorld(true);
  originalSwingToePoint.fromBufferAttribute(position,index);
  mesh.applyBoneTransform(index,originalSwingToePoint);
  originalSwingToePoint.applyMatrix4(mesh.matrixWorld);
