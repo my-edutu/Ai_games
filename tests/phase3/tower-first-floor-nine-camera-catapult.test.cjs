@@ -72,3 +72,26 @@ test('post-director source guard acts only before genuine WebGL return',()=>{
  assert.match(scene,/firstFloorNineCameraEntry\.tick=snapshot\.tick/);
  assert.match(scene,/towerCoreSightlineClear\(camera\.position,releaseHero,23\.5\)/);
 });
+
+// Exact first native source-return 45073078693: the view moves 17.2m
+// while the actual climber advances ~1.5m. Angle is just 0.273rad, BELOW
+// the legacy 0.28 shoulder threshold; a full 3-axis break needs bounded
+// rotation, height AND radius instead of relying on an outward-only clamp.
+test('authentic tick510 shallow shoulder + vertical pullback is a full world-space cut',async()=>{
+ const guard=await fn;
+ const episode={...b,source:{...source,tick:510},
+  previousCamera:[-14.4,9,46.6],previousFocus:[9,0,23],
+  previousHero:[9,0,23],desiredCamera:[-1.5,16,55.5],
+  desiredFocus:[9.5,0,23.5],hero:[10.5,0,23],dt:.016};
+ const x=guard(episode);
+ assert.ok(x,'real shallow-angle cut must be measured even if angle < .28');
+ assert.equal(x.reason,'first-original-floor-nine-camera-world-space-cut');
+ assert.ok(x.requestedMovement>17 && x.boundedMovement<1,
+  'render-time camera travel must remain proportional to 1x motion');
+ assert.ok(Math.abs(x.camera[1]-episode.previousCamera[1])<=.241,
+  'vertical camera jump must be rate-bounded with the shoulder/radius');
+ assert.ok(Math.abs(x.boundedTurnRadians)<.015,
+  'shallow turn must still be limited, not mistaken for normal tracking');
+ assert.equal(guard({...episode,cameraMode:'orbit'}),null);
+ assert.equal(guard({...episode,hero:[40,14,23]}),null);
+});
