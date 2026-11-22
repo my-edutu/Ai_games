@@ -7,6 +7,50 @@ import { observedSourceOriginalVisibilityWindow } from './source-physical-arriva
 // crossing. They are observation rays, never synthetic body positions,
 // predicted traversals or gameplay colliders.
 const PHYSICAL_GATEWAY_CORRIDOR_FRACTIONS = [.25,.5,.75];
+
+// The original next raised platform is already part of the ACTUAL F9
+// simulation. Use its current source geometry to establish a readable
+// destination THROUGH the original bronze gallery. This is never a waypoint
+// inferred from the camera, a fabricated step, or a collision change.
+export function observedSourceRaisedGatewaySightline(source,held) {
+  const p=source?.player,plates=source?.platforms;
+  if(source?.floor!==9||source.theme!=='void'||
+     source.lifecycle!=='running'||!(p?.health>0)||
+     typeof source.runToken!=='string'||!source.runToken||
+     !Number.isSafeInteger(source.tick)||
+     held?.runToken!==source.runToken||held?.floor!==9||
+     held.oldCapId!=='f8:cap'||held.guardianGateRetained!==true||
+     !(held.originalGatewayOpacity>.035)||
+     !observedSourceOriginalVisibilityWindow(source,held)||
+     !Array.isArray(plates)) return null;
+  const ground=plates.find(x=>x?.id==='f9:ground');
+  const step=plates.find(x=>x?.id==='f9:gateway-step');
+  const all=[source.worldWidth,source.chunkBaseY,
+    held.thresholdX,held.oldRoofY,
+    ground?.x,ground?.y,ground?.width,ground?.height,
+    step?.x,step?.y,step?.width,step?.height,p.x,p.y];
+  if(!all.every(Number.isSafeInteger)||
+     !(source.worldWidth>0)||!(ground.width>0)||
+     !(ground.height>0)||!(step.width>0)||!(step.height>0)||
+     ground.y+ground.height!==held.oldRoofY)return null;
+  const middle=step.x+Math.floor(step.width/2);
+  const elevation=step.y+step.height-held.oldRoofY;
+  if(!Number.isSafeInteger(middle)||middle<ground.x||
+     middle>ground.x+ground.width||middle<0||
+     middle>source.worldWidth||
+     held.thresholdX<ground.x||
+     held.thresholdX>ground.x+ground.width||
+     Math.abs(middle-held.thresholdX)>90000||
+     Math.abs(middle-p.x)>110000||
+     elevation<10000||elevation>200000||
+     // A source actor already far beyond this first landing no longer earns
+     // restoration of old gallery pixels or a new visual corridor.
+     p.y<held.oldRoofY-25000||
+     p.y>step.y+step.height+135000) return null;
+  return {id:step.id,x:middle,y:step.y+step.height,
+    sourceTick:source.tick,runToken:source.runToken,
+    reason:'same-run authentic raised F9 gateway-step and returned bronze gate'};
+}
 // Raycast only source-owned, previously submitted, real Three.js gallery
 // mesh batches (at most eight); no x-ray actor or invented gateway geometry.
 //
@@ -15,7 +59,7 @@ const PHYSICAL_GATEWAY_CORRIDOR_FRACTIONS = [.25,.5,.75];
 // opacity locally rather than freezing the old shader, cancelling its fade,
 // or advancing authority/renderer clocks.
 export function protectHistoricalGallerySightline({
-  camera,actor,halfHeight,halfWidth=0,gateway=null,source,held,raycaster,direction,point,hitBuffer,
+  camera,actor,halfHeight,halfWidth=0,gateway=null,raisedDestination=null,source,held,raycaster,direction,point,hitBuffer,
   dt=0,stale=false,reducedMotion=false
 }={}) {
   const inactive={active:false,meshes:0,rays:0,softened:0};
@@ -46,6 +90,7 @@ export function protectHistoricalGallerySightline({
   // active 3D sightline sees no additional draw or asset allocation.
   const count=Math.min(8,meshes.length,held.originalGalleryOcclusionWeights.length);
   let rays=0,softened=0,corridorRays=0,corridorSoftened=0;
+  let raisedRays=0,raisedSoftened=0;
   const sourceOpacity=Math.max(0,Math.min(1,held.originalGallerySourceOpacity));
   // The genuine 390px native footage shows a retained bronze post masking
   // the hero's SHOULDER even when centre/head/sole rays all miss. Recover
@@ -72,7 +117,24 @@ export function protectHistoricalGallerySightline({
   const actualGate=!!gateway &&
     [gateway.x,gateway.y,gateway.z].every(Number.isFinite) &&
     Math.hypot(gateway.x-camera.position.x,gateway.z-camera.position.z)<130;
-  const samples=raysPerBatch+(actualGate?2:0);
+  // Extra rays are permitted only when World has independently validated
+  // the EXISTING raised platform's source ID, parent scene and projected
+  // on-screen footprint. Never dim an original historical load path to
+  // reveal an off-screen guessed goal. The real old gateway must also exist.
+  const actualRaised=actualGate &&
+    raisedDestination?.sourceBound===true &&
+    raisedDestination.id==='f9:gateway-step' &&
+    raisedDestination.runToken===source.runToken &&
+    raisedDestination.sourceTick===source.tick &&
+    [raisedDestination.x,raisedDestination.y,raisedDestination.z]
+      .every(Number.isFinite) &&
+    Math.hypot(actor.x-raisedDestination.x,
+      actor.z-raisedDestination.z)<=52 &&
+    Math.hypot(gateway.x-raisedDestination.x,
+      gateway.z-raisedDestination.z)<=43 &&
+    Math.abs(raisedDestination.y-actor.y)<=23;
+  const gateSamples=actualGate?2:0;
+  const samples=raysPerBatch+gateSamples+(actualRaised?2:0);
   // A broad original bronze post can split the physical doorway from the
   // moving climber WITHOUT hitting either body's exact silhouette rays.
   // The original full-motion desktop and portrait film showed this problem.
@@ -96,7 +158,13 @@ export function protectHistoricalGallerySightline({
         // add only the authentic lateral skinned-body envelope. The contact
         // decision is still an actual Three.js triangle ray intersection,
         // NOT a projected screen-box guess or global architectural fade.
-        if(sample>=raysPerBatch){
+        if(sample>=raysPerBatch+gateSamples){
+          // Raised target is the CURRENT physically attached genuine F9
+          // gateway-step surface, never another floor or a future landing.
+          point.copy(raisedDestination);
+          if(sample>raysPerBatch+gateSamples)point.y+=.7;
+          raisedRays++;
+        }else if(sample>=raysPerBatch){
           // Exactly the physically verified old gate centre and upper lip,
           // never a predicted destination or a synthetic alternative portal.
           point.copy(gateway);
@@ -120,6 +188,7 @@ export function protectHistoricalGallerySightline({
         hitBuffer.length=0;
         rays++;
         if(raycaster.intersectObject(mesh,false,hitBuffer).length>0){
+          if(sample>=raysPerBatch+gateSamples)raisedSoftened++;
           hit=true;hitBuffer.length=0;break;
         }
         hitBuffer.length=0;
@@ -170,7 +239,8 @@ export function protectHistoricalGallerySightline({
     }
     material.opacity=opacity;
   }
-  return {active:true,meshes:count,rays,softened,corridorRays,corridorSoftened};
+  return {active:true,meshes:count,rays,softened,corridorRays,corridorSoftened,
+    raisedRays,raisedSoftened};
 }
 
 // The same source-authenticated old/new foreground owner exposes a separate

@@ -17,7 +17,7 @@ import { GUARDIAN_TRANSMISSION_LAYOUT, originalGuardianHoistPocketLoadPath } fro
 import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact, observedSourceEarnedColdFrameContinuation, holdIncomingStructuralShell, observedPrebuiltVoidShaftRelease, observedQueuedOriginalCapAtFirstRender, reconcileRecordedOriginalCapCrossing,
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceFloorNineRouteSupport, observedSourceRetainedRaisedExit, observedSourceAirborneSuccessorApproach, observedSourceOriginalVisibilityWindow, observedRetainedSourceOriginalOpticalRoom, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS, observedCertifiedOriginalGatewayOpticalLease, observedReturnedSharedRoomPalette } from './source-physical-arrival-palette.mjs';
-import { protectHistoricalGallerySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
+import { protectHistoricalGallerySightline, observedSourceRaisedGatewaySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
 import { rebindSourceOwnedUndercroft, createSightlineMatrixEpochCache } from './successor-deck-visibility.mjs';
 import { createSourceSightlineRayBroadphase } from './source-sightline-broadphase.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, createSourceEarnedVoidDepartureMaterials, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn, observedRenderedOriginalDoorwayRoom, coherentOriginalBearingDeparture } from './original-clockwork-architecture-palette.mjs';
@@ -1208,6 +1208,8 @@ export function createTowerWorld(){
   const screenFocus = new THREE.Vector3();
   const silhouettePoint = new THREE.Vector3();
   const historicalGateRayPoint = new THREE.Vector3();
+  const historicalRaisedStepRayPoint = new THREE.Vector3();
+  const historicalRaisedStepNdc = new THREE.Vector3();
   const corridorFrom = new THREE.Vector3();
   const corridorTo = [new THREE.Vector3(), new THREE.Vector3(),
     new THREE.Vector3(), new THREE.Vector3()];
@@ -5982,9 +5984,40 @@ export function createTowerWorld(){
             retainedEarnedCap.oldRoofY,lastSnapshot.chunkBaseY,
             lastSnapshot.worldWidth):null;
     if(oldGate)historicalGateRayPoint.set(oldGate.x,oldGate.y+2,oldGate.z);
+    // Resolve only the actual installed first raised Floor9 step. The
+    // original bronze gallery may physically screen the next destination
+    // even while the skinned body and gateway centre are both visible.
+    // The same final composed camera must see its real projected footprint
+    // before individual historical (non-colliding) source triangles yield.
+    const raisedSource=oldGate && camera?.isCamera
+      ?observedSourceRaisedGatewaySightline(
+        lastSnapshot,retainedEarnedCap):null;
+    let raisedStepTarget=null;
+    if(raisedSource &&
+       platforms.get(raisedSource.id)?.root?.parent===floorGroup){
+      const target=pointFor(raisedSource.x,raisedSource.y+.0,
+        lastSnapshot.chunkBaseY,lastSnapshot.worldWidth,25);
+      historicalRaisedStepRayPoint.set(target.x,target.y+.15,target.z);
+      historicalRaisedStepNdc.copy(historicalRaisedStepRayPoint).project(camera);
+      if(historicalRaisedStepNdc.z>=-1 &&
+         historicalRaisedStepNdc.z<=1 &&
+         Math.abs(historicalRaisedStepNdc.x)<.83 &&
+         Math.abs(historicalRaisedStepNdc.y)<.86){
+        raisedStepTarget={
+          ...historicalRaisedStepRayPoint,
+          x:historicalRaisedStepRayPoint.x,
+          y:historicalRaisedStepRayPoint.y,
+          z:historicalRaisedStepRayPoint.z,
+          sourceBound:true,id:raisedSource.id,
+          runToken:raisedSource.runToken,
+          sourceTick:raisedSource.sourceTick
+        };
+      }
+    }
     historicalGallerySightline=protectHistoricalGallerySightline({
       camera,actor,halfHeight:actorHalfHeight,halfWidth:actorHalfWidth,
       gateway:oldGate?historicalGateRayPoint:null,
+      raisedDestination:raisedStepTarget,
       source:lastSnapshot,
       held:retainedEarnedCap,raycaster:canopyRay,
       direction:canopyDirection,point:silhouettePoint,hitBuffer:canopyHits,
