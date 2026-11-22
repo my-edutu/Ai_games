@@ -6545,23 +6545,21 @@ function sourceSolePatchVertexCandidates(actor){
  sourceSolePatchVertexCache.set(actor.assetRoot,cached);
  return cached;
 }
-// Reused scratch, not a new Vector3 for every loaded-ankle proof. Each
-// caller receives an independent finite [x,y,z] array, never this object.
-const originalSkinnedSolePoint=new THREE.Vector3();
+// The connected original source ankle, knee, pelvis, support, and final
+// deformation witnesses MUST agree on the same genuine weighted XYZ sole.
+// Parent-only updateWorldMatrix() skips Three.js SkinnedMesh.updateMatrixWorld()
+// and its attached bindMatrixInverse refresh: after a pivot/world body change,
+// it can read an impossible double body translation and either reject a safe
+// connected leg or incorrectly certify toe lift (native source 22 Nov 2026).
+// Reuse the canonical sole sampler, including its bounded current-skin refresh
+// and original vertex-index/weight checks; never invent a contact/IK target.
 function sourceSkinnedSoleWorld(candidate){
- // The prior dedicated Y reader rejected non-indexed or non-skinned source
- // geometry. Preserve the same fail-closed bone/vertex contract now that
- // this ONE XYZ read owns the final height and lateral safety witness.
- if(!candidate?.mesh?.isSkinnedMesh||
-  typeof candidate.mesh.applyBoneTransform!=='function'||
-  !Number.isSafeInteger(candidate.index)||candidate.index<0)return null;
- const position=candidate.mesh.geometry?.getAttribute?.('position');
- if(!position||candidate.index>=position.count)return null;
- const point=originalSkinnedSolePoint.fromBufferAttribute(position,candidate.index);
- candidate.mesh.updateWorldMatrix(true,false);
- candidate.mesh.applyBoneTransform(candidate.index,point);
- point.applyMatrix4(candidate.mesh.matrixWorld);
- return [point.x,point.y,point.z].every(Number.isFinite)?point.toArray():null;
+ const sample=readOriginalSwingSoleSample(candidate);
+ if(!sample||!Array.isArray(sample.xz)||sample.xz.length!==2||
+  ![sample.xz[0],sample.y,sample.xz[1]].every(Number.isFinite))return null;
+ // Fresh independent array per witness; only the original static module
+ // scratch is shared. No geometry, skeleton, clip, authority or mesh change.
+ return [sample.xz[0],sample.y,sample.xz[1]];
 }
 function sourceWeaponHandGrip(actor,rightHand){
  if(!rightHand?.isBone)return null;
