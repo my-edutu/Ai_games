@@ -165,3 +165,82 @@ export function sourceReturnedGatewayLastCameraEligible({source,held,lastReturne
     lastReturned.tick<=source.tick &&
     source.tick-lastReturned.tick<=8;
 }
+
+
+// P0 original Floor 8->9 crossing: the native 1x film and physical-camera
+// receipts at source ticks 531/544/563 show alternating camera shoulders.
+// Original return-gate release constrains only its own director; an airborne
+// or raised-deck director can subsequently replace the FINAL submitted pose
+// by >30m/0.6 rad. Guard the whole final composed view, through the first
+// source-earned raised landing, against the LAST successfully returned F9
+// camera. No fictional frame, held pose, extra renderer pass or source change.
+// Scene independently vetoes any view that loses real hero/steel/deck rays.
+export function sourceEarnedFloorNineOrbitGuard({
+  source,lastReturned,previousCamera,previousFocus,
+  desiredCamera,desiredFocus,dt,cameraMode='follow',
+  stale=false,reducedMotion=false
+}) {
+  const w=source?.lastGuardianCrossing,p=source?.player;
+  const isInt=Number.isSafeInteger;
+  const roof=source?.platforms?.find(x=>x?.id==='f9:ground');
+  if(stale || reducedMotion || cameraMode!=='follow' ||
+     source?.floor!==9 || source.theme!=='void' ||
+     source.lifecycle!=='running' || !p || !(p.health>0) ||
+     typeof source.runToken!=='string' || !source.runToken ||
+     !w || w.runToken!==source.runToken ||
+     w.fromFloor!==8 || w.toFloor!==9 ||
+     w.cap?.id!=='f8:cap' || w.guardian?.kind!=='guardian' ||
+     w.guardian.active!==false || !finite(w.guardian.health) ||
+     w.guardian.health>0 ||
+     ![source.tick,w.sourceTick,w.cap.y,w.cap.height,
+       p.x,p.y,p.halfHeight].every(isInt) ||
+     source.tick<w.sourceTick || source.tick-w.sourceTick>110 ||
+     !roof || ![roof.x,roof.y,roof.width,roof.height].every(isInt) ||
+     roof.width<=0 || roof.height<=0 ||
+     roof.y+roof.height!==w.cap.y+w.cap.height ||
+     Math.abs(p.x-w.crossingX)>220000 ||
+     lastReturned?.runToken!==source.runToken ||
+     lastReturned.floor!==9 || !isInt(lastReturned.tick) ||
+     lastReturned.tick<w.sourceTick ||
+     lastReturned.tick>source.tick ||
+     source.tick-lastReturned.tick>28 ||
+     !finite(dt) || dt<=0 || dt>.5 ||
+     ![previousCamera,previousFocus,desiredCamera,desiredFocus]
+       .every(validPoint)) return null;
+  // A real F9 support or a presently airborne first flight, not a HUD
+  // counter, future route, replay outcome or simulated platform.
+  const support=source.platforms.find(x=>x?.id===p.groundedPlatformId);
+  const realSupport=p.grounded===true && support &&
+    /^f9:(ground|p[0-9]+|gateway-step)$/.test(support.id) &&
+    [support.y,support.height].every(isInt) &&
+    p.y-p.halfHeight===support.y+support.height;
+  const inFirstFlight=p.grounded===false && p.state==='airborne' &&
+    /^f9:p[0-9]+$/.test(source.intent?.targetPlatformId??'') &&
+    source.platforms.some(x=>x?.id===source.intent.targetPlatformId);
+  if(!realSupport && !inFirstFlight)return null;
+
+  const [px,py,pz]=previousCamera,[dx,dy,dz]=desiredCamera;
+  const r0=Math.hypot(px,pz),r1=Math.hypot(dx,dz);
+  if(r0<23.5||r1<23.5||r0>135||r1>135)return null;
+  // Cap the ANGULAR, RADIUS, HEIGHT and LOOK TARGET change PER actual
+  // submitted frame. A stalled browser must not spend missing GPU frames.
+  const seconds=clamp(dt,.001,.085);
+  const a0=Math.atan2(px,pz),a1=Math.atan2(dx,dz);
+  const rawTurn=Math.atan2(Math.sin(a1-a0),Math.cos(a1-a0));
+  const turn=clamp(rawTurn,-.92*seconds,.92*seconds);
+  const radius=r0+clamp(r1-r0,-16*seconds,16*seconds);
+  const height=py+clamp(dy-py,-15*seconds,15*seconds);
+  const camera=[Math.sin(a0+turn)*radius,height,Math.cos(a0+turn)*radius];
+  const gazeDelta=desiredFocus.map((v,i)=>v-previousFocus[i]);
+  const gazeDistance=Math.hypot(...gazeDelta);
+  const gazeBlend=gazeDistance<=20*seconds?1:(20*seconds/gazeDistance);
+  const focus=previousFocus.map((v,i)=>v+gazeDelta[i]*gazeBlend);
+  const remaining=Math.hypot(...camera.map((v,i)=>v-desiredCamera[i]));
+  const limited=remaining>.001 || Math.hypot(...focus.map((v,i)=>v-desiredFocus[i]))>.001;
+  if(!limited)return null;
+  return {sourceBound:true,runToken:source.runToken,sourceTick:source.tick,
+    camera,focus,limited,turnRadians:turn,requestedTurnRadians:rawTurn,
+    remainingMetres:remaining,
+    scope:'last-returned-original-F9-physical-gateway-to-raised-landing',
+    limitation:'Proposed bounded final real camera only; current source body, old metal and raised geometry must veto invalid angles; NOT native WebM or frame-time proof'};
+}

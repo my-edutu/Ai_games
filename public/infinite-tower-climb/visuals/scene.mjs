@@ -33,7 +33,7 @@ import { guardianFramePressure, guardianCameraRecoveryBlend, acceptGuardianCamer
 import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardianDuelEdgePressure, guardianLiveFightLockPriority } from './guardian-gate-intrusion.mjs';
 import { observedGuardianTransmissionCorners } from './guardian-transmission-layout.mjs';
 import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
-import { sourceReturnedGateCameraRelease, sourceRetainedGatewayCameraContinuity, assessSourceRetainedGatewayPhysicalShot, sourceReturnedGatewayLastCameraEligible } from './source-returned-gate-camera-release.mjs';
+import { sourceReturnedGateCameraRelease, sourceRetainedGatewayCameraContinuity, assessSourceRetainedGatewayPhysicalShot, sourceReturnedGatewayLastCameraEligible, sourceEarnedFloorNineOrbitGuard } from './source-returned-gate-camera-release.mjs';
 import { sourceFirstRaisedFlightGaze } from './source-first-raised-flight-gaze.mjs';
 import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, sourceRaisedBackdropClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceThreeSubjectActorScaleGain, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe, sourceThreeSubjectPhysicalGain } from './physical-threshold-shot.mjs';
 import { sourceSubmittedDoorwayCameraDt, sourceCroppedHeroRecoveryDt } from './source-submitted-doorway-cadence.mjs';
@@ -2499,6 +2499,8 @@ export function createTowerScene(canvas, settings = {}) {
   let retainedGateCameraAccepted=0,retainedGateCameraVetoed=0;
   let retainedGateCameraReturnedRescues=0,retainedGateCameraReturnedRejected=0;
   let retainedGateCameraLastTurn=0;
+  let earnedF9OrbitGuardAccepted=0,earnedF9OrbitGuardVetoed=0;
+  let earnedF9OrbitGuardLastRawTurn=0,earnedF9OrbitGuardLastLimitedTurn=0;
   const releasePreviousCamera=new THREE.Vector3();
   const releasePreviousFocus=new THREE.Vector3();
   const releaseHero=new THREE.Vector3();
@@ -6070,6 +6072,93 @@ export function createTowerScene(canvas, settings = {}) {
           }
         }
       }
+      // FINAL, source-authenticated F9 gateway -> first raised-landing
+      // camera continuity. Original native 1x capture 45013515020 shows the
+      // same physical route while the camera jumps shoulders between source
+      // ticks 531, 544 and 563. Earlier gate-only guards do not protect a
+      // *later* camera director from replacing the final submitted camera.
+      // Keep one scene, one real render and the authoritative live climber.
+      const earnedOrbit=sourceEarnedFloorNineOrbitGuard({
+        source:snapshot,lastReturned:lastSubmittedGuardian,
+        previousCamera:lastSubmittedGuardianCamera.toArray(),
+        previousFocus:lastSubmittedGuardianFocus.toArray(),
+        desiredCamera:camera.position.toArray(),desiredFocus:lookAt.toArray(),
+        dt,cameraMode:options.camera,stale:options.stale,
+        reducedMotion:options.reducedMotion
+      });
+      if(earnedOrbit?.limited){
+        releasePreviousCamera.copy(camera.position);
+        releasePreviousFocus.copy(lookAt);
+        camera.position.set(...earnedOrbit.camera);
+        lookAt.set(...earnedOrbit.focus);
+        camera.lookAt(lookAt);
+        camera.updateMatrixWorld(true);
+        releaseHero.copy(climber.group.position);
+        measureDuelBodyNdc(releaseHero,
+          snapshot.player.halfHeight/SCALE,
+          camera,duelTop,duelBottom,releaseHeroNdc);
+        const fullHero=releaseHeroNdc.every(Number.isFinite) &&
+          releaseHeroNdc[2]>=-1 && releaseHeroNdc[2]<=1 &&
+          releaseHeroNdc[3]>=.045 &&
+          Math.abs(releaseHeroNdc[0])+releaseHeroNdc[3]*.14<.78 &&
+          Math.abs(releaseHeroNdc[1])+releaseHeroNdc[3]<.78 &&
+          towerCoreSightlineClear(camera.position,releaseHero,23.5);
+        // Do not sacrifice a currently legible *actual* destination for a
+        // cosmetically smooth orbit. This is the source's genuine selected
+        // raised platform, never a guessed landing or camera-only prop.
+        const realLanding=intendedLanding(snapshot);
+        let destinationPreserved=true;
+        if(realLanding?.id?.startsWith('f9:p')){
+          const end=pointFor(realLanding.x+Math.floor(realLanding.width*.5),
+            realLanding.y+realLanding.height,
+            snapshot.chunkBaseY,snapshot.worldWidth,25);
+          const projected=new THREE.Vector3(end.x,end.y+.14,end.z);
+          const after=projected.clone().project(camera);
+          const previousLens=camera.clone();
+          previousLens.position.copy(releasePreviousCamera);
+          previousLens.lookAt(releasePreviousFocus);
+          previousLens.updateMatrixWorld(true);
+          const before=new THREE.Vector3(end.x,end.y+.14,end.z)
+            .project(previousLens);
+          const beforeVisible=before &&
+            before.z>=-1&&before.z<=1 &&
+            Math.abs(before.x)<.85&&Math.abs(before.y)<.85;
+          destinationPreserved=!beforeVisible ||
+            (after.z>=-1&&after.z<=1 &&
+              Math.abs(after.x)<.90&&Math.abs(after.y)<.90);
+        }
+        const originalHeld=retainedColdArrival?.guardianGateRetained===true &&
+          retainedColdArrival.originalGatewayOpacity>.035;
+        const oldSteel=originalHeld && fullHero
+          ?world.projectedOriginalGateSteel(snapshot,camera):null;
+        const preservedOriginal=!originalHeld ||
+          (oldSteel?.sourceBound===true &&
+            oldSteel.projectedPanes>=2&&
+            oldSteel.projectedMetalArea>=.012);
+        const actualRays=originalHeld && fullHero && preservedOriginal
+          ?world.measureSuccessorDeckVisibility(snapshot,
+            camera.position,releaseHero,
+            snapshot.player.halfHeight/SCALE,
+            null,realLanding?.id??null):null;
+        const sourceClear=!originalHeld ||
+          (actualRays?.active===true &&
+            actualRays.bodyBlockedRays===0 &&
+            actualRays.gatewayBlockedRays===0);
+        if(fullHero && destinationPreserved && preservedOriginal &&
+           sourceClear){
+          earnedF9OrbitGuardAccepted=Math.min(1000000,
+            earnedF9OrbitGuardAccepted+1);
+          earnedF9OrbitGuardLastRawTurn=earnedOrbit.requestedTurnRadians;
+          earnedF9OrbitGuardLastLimitedTurn=earnedOrbit.turnRadians;
+        } else {
+          camera.position.copy(releasePreviousCamera);
+          lookAt.copy(releasePreviousFocus);
+          camera.lookAt(lookAt);
+          camera.updateMatrixWorld(true);
+          earnedF9OrbitGuardVetoed=Math.min(1000000,
+            earnedF9OrbitGuardVetoed+1);
+        }
+      }
       const sceneReadyAt = performance.now();
       renderer.render(scene, camera);
       const rendererReturnedAt = performance.now();
@@ -6812,6 +6901,14 @@ export function createTowerScene(canvas, settings = {}) {
         lastGeometryScoreGain:guardianWorldLastGain,
         source:'real current Three.js opaque world triangle rays / both drawn actors',
         limitation:'Throttled scene geometry witness, NOT native WebM painted pixels, A/B preference or hardware FPS'
+      },
+      earnedFloorNineOrbitContinuity: {
+        acceptedSourceCameraSteps:earnedF9OrbitGuardAccepted,
+        physicallyVetoedSteps:earnedF9OrbitGuardVetoed,
+        lastRequestedTurnRadians:earnedF9OrbitGuardLastRawTurn,
+        lastBoundedTurnRadians:earnedF9OrbitGuardLastLimitedTurn,
+        source:'Actual same-run last returned F9 lens, physical HP-zero F8 crossing, current actor + original metal + real destination',
+        limitation:'Renderer-return camera geometry ONLY; no native WebM visible crossing or device performance verification'
       },
       retainedGatewayContinuousCamera: {
         previousReturnedCameraRescues:retainedGateCameraReturnedRescues,
