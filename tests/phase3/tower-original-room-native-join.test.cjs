@@ -5,7 +5,7 @@ const sha='a'.repeat(40),hash='b'.repeat(64);
 const anchors=[{wallAtMs:100000,videoPtsSeconds:1},{wallAtMs:110000,videoPtsSeconds:11},{wallAtMs:120000,videoPtsSeconds:21},{wallAtMs:130000,videoPtsSeconds:31}];
 const base={sourceSha:sha,viewport:'desktop',videoHash:hash,videoBytes:100,
  clock:{sourceSha:sha,scenario:'danger',status:'CALIBRATED',calibration:{status:'CALIBRATED',anchorTimeline:anchors},originalWebMSha256:hash,originalWebMBytes:100,originalVideoDurationSeconds:70},
- phase:{sourceSha:sha,scenario:'danger',viewport:'desktop',originalWebMSha256:hash,originalVideoUnmodified:true,phase:{videoPhaseWitness:{nativeSeconds:22}}},
+ phase:{sourceSha:sha,scenario:'danger',viewport:'desktop',originalWebMSha256:hash,originalVideoUnmodified:true,firstEpisodeWindow:{startSeconds:21,endSeconds:27},phase:{videoPhaseWitness:{nativeSeconds:22}}},
  timeline:{sourceSha:sha,scenario:'danger',viewport:'desktop',status:'SOURCE_RENDER_RETURNS_ONLY',returnedRoomFrames:[{sourceBound:true,runToken:'run-1',sourceTick:475,returnedWallMs:121000,originalOwnerPresent:true,originalGatewayOpacity:1,successorOwnerPresent:true,successorStructuralRootVisible:false,successorStructuralOpacity:0,successorStructuralVisibleReturns:0},{sourceBound:true,runToken:'run-1',sourceTick:477,returnedWallMs:122000,originalOwnerPresent:false,originalGatewayOpacity:null,successorOwnerPresent:true,successorStructuralRootVisible:false,successorStructuralOpacity:0,successorStructuralVisibleReturns:0},{sourceBound:true,runToken:'run-1',sourceTick:479,returnedWallMs:123000,originalOwnerPresent:false,successorOwnerPresent:true,successorStructuralRootVisible:true,successorStructuralOpacity:.2,successorStructuralVisibleReturns:1}]}};
 test('bounded genuine compositor anchors map search times only',()=>{
  assert.equal(nativePtsFromAnchors(121000,anchors),22);
@@ -41,4 +41,12 @@ test('does not extrapolate across sparse anchor gaps or accept synthetic returns
  const rows=structuredClone(base.timeline.returnedRoomFrames);rows[0].sourceBound=false;
  assert.equal(joinOriginalRoomEvidence({...base,timeline:{...base.timeline,returnedRoomFrames:rows}}).status,'NOT EVALUATED');
  assert.equal(summarizeReturnedOwners([]).finding,'NO_ORIGINAL_RETURNED_SCENE_OBSERVED');
+});
+
+test('vetoes a later floor-nine episode despite source-valid returned owners',()=>{
+ const rows=structuredClone(base.timeline.returnedRoomFrames);
+ for(const row of rows)row.returnedWallMs+=30000;
+ const x=joinOriginalRoomEvidence({...base,timeline:{...base.timeline,returnedRoomFrames:rows}});
+ assert.equal(x.status,'NOT EVALUATED');
+ assert.equal(x.reason,'no-genuine-returns-mapped-to-first-native-floor-nine-episode');
 });
