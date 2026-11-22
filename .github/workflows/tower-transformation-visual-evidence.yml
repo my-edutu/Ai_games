@@ -26,6 +26,8 @@ on:
       # same Floor8→9 full-motion shot; source changes need 9-job films.
       - public/infinite-tower-climb/visuals/crossfloor-arrival.mjs
       - public/infinite-tower-climb/visuals/far-side-shaft-transition.mjs
+      # Source-to-original-WebM scene-owner PTS proof must run on its own immutable code SHA.
+      - scripts/tower-original-room-native-join.cjs
       - .github/workflows/tower-transformation-visual-evidence.yml
   workflow_dispatch:
 permissions:
