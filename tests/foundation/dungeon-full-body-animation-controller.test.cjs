@@ -8312,3 +8312,76 @@ test('RED: exact source toe-child near-floor finish offers one measured bounded 
  ])assert.equal(plan({...input,...bad}),null,
   'wrong source, clone, owner, skin, rate, stance or accessible mode fails closed');
 });
+
+
+// Original AFTER WebGL #45056744878 (4cdc293, desktop f27/tick3):
+// licensed 41-joint Vanguard Walking_A at .173166s has a right heel
+// 223.872mm above stone but right toe 74.519mm buried; original LEFT
+// loaded shoe remains at heel +1.525mm, toe -10.765mm relative to stone.
+// In this evidence run the original body reached only ~1.2 delivered fps;
+// a 500ms displayed interval invalidated every conservative source correction
+// before either authentic skinned shoe could be tested. This regression
+// uses those measured four world Ys and source phase, but .120m exact-frame
+// root travel is a separately EXPLICIT SYNTHETIC bounded contract fixture,
+// NOT a claimed movement reading from f27. Full independent source-skin
+// selection remains mandatory in the live renderer.
+test('RED: one genuinely moving sparse 500ms source display may trial an original connected swing without borrowing stale travel',async()=>{
+ const {
+  advanceOriginalSourceSwingTravelWitness:advance,
+  planLicensedSourceSwingCounterpitch:plan,
+  planLicensedSourceConnectedChainTrials:linked
+ }=await load();
+ const state={mode:'move',walkingClip:true,alive:true,visible:true,
+  teleport:false,reducedMotion:false,interrupted:false};
+ const immediate=advance({...state,travel:.120,frameInterval:.5,
+  previousTravel:0,previousAge:0});
+ assert.ok(immediate.travel>=.11999&&immediate.age===0,
+  'one genuine direct, sub-240mm root step must be available to the displayed source frame');
+ assert.equal(advance({...state,travel:0,frameInterval:.5,
+  previousTravel:.120,previousAge:0}).travel,0,
+  'never carry a stale movement receipt through a half-second skipped frame');
+ const before={
+  left:{heelY:-.01847457233586708,toeY:-.030764658076750658,
+   heelXZ:[0,0],toeXZ:[0,.15]},
+  right:{heelY:.203871615444734,toeY:-.09451896529536076,
+   heelXZ:[.17,0],toeXZ:[.245,.015]}
+ };
+ const source={
+  source:'verified-licensed-source-native-counterpitch',
+  sourceRole:'vanguard',mode:'move',sourceClipName:'Walking_A',
+  sourceClipDurationSeconds:1.0416666269302368,
+  sourceClipTimeSeconds:.1731660342072462,sourceWeight:1,
+  sourceInstanceSame:true,sourceOriginalUpperTrackVerified:true,
+  sourceOriginalLowerTrackVerified:true,sourceOriginalFootTrackVerified:true,
+  sourceOriginalBindVerified:true,sourceBoneChainVerified:true,
+  sourceFootLocalXAxisVerified:true,ownerLocomotion:true,
+  alive:true,visible:true,interrupted:false,teleport:false,
+  reducedMotion:false,frameInterval:.5,rootTravel:immediate.travel,
+  frameAge:immediate.age,side:'right',floorTopY:-.02,before,
+  sparseFrameVerified:true
+ };
+ const originalPlan=plan(source);
+ assert.ok(originalPlan,'a directly witnessed 500ms original right swing must be allowed a bounded original-source trial');
+ assert.equal(originalPlan.contactLocked,false);
+ assert.equal(originalPlan.plantCertified,false);
+ const connected=linked({plan:originalPlan,frameInterval:.5,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceFootTrackVerified:true,sourceBindVerified:true,
+  sourceInstanceId:'original-source-vanguard-clone',
+  sourceSide:'right'});
+ assert.ok(connected?.length>=2,'actual connected original hip/knee/foot options must reach the skin validator');
+ for(const c of connected)for(const a of [c.upperRad,c.lowerRad,c.footRad])
+  assert.ok(Number.isFinite(a)&&Math.abs(a)<=3*.24+.000001,
+   'even a half-second sparse display cannot spend beyond the 240ms 3rad/s source-joint cap');
+ for(const bad of [
+  {sparseFrameVerified:false},{rootTravel:0},{frameAge:.18},
+  {mode:'idle'},{sourceClipName:'Idle'},{sourceWeight:.5},
+  {sourceInstanceSame:false},{teleport:true},{reducedMotion:true},
+  {interrupted:true},{frameInterval:1.25},{sourceBoneChainVerified:false}
+ ])assert.equal(plan({...source,...bad}),null,
+  'sparse-frame source permission cannot bypass original owner, legal movement, bind or timing: '+JSON.stringify(bad));
+ const renderer=fs.readFileSync(path.join(root,'public/ai-dungeon/model-assets.js'),'utf8');
+ assert.match(renderer,/sparseFrameVerified/);
+ assert.match(renderer,/certifyLicensedSourceSwingCounterpitch\(/);
+ assert.match(renderer,/const final=read\(\)/);
+});
