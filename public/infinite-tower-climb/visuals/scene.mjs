@@ -35,7 +35,7 @@ import { observedGuardianTransmissionCorners } from './guardian-transmission-lay
 import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
 import { sourceReturnedGateCameraRelease, sourceRetainedGatewayCameraContinuity, assessSourceRetainedGatewayPhysicalShot, sourceReturnedGatewayLastCameraEligible, sourceEarnedFloorNineOrbitGuard } from './source-returned-gate-camera-release.mjs';
 import { sourceFirstRaisedFlightGaze } from './source-first-raised-flight-gaze.mjs';
-import { firstReturnedOriginalRoomAdmission } from './first-source-room-return.mjs';
+import { firstReturnedOriginalRoomAdmission, firstReturnedFloorNineEpisode } from './first-source-room-return.mjs';
 import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, sourceRaisedBackdropClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceThreeSubjectActorScaleGain, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe, sourceThreeSubjectPhysicalGain } from './physical-threshold-shot.mjs';
 import { sourceSubmittedDoorwayCameraDt, sourceCroppedHeroRecoveryDt } from './source-submitted-doorway-cadence.mjs';
 import { createTowerVoidProgramPrewarm } from './void-program-prewarm.mjs';
@@ -6349,6 +6349,13 @@ export function createTowerScene(canvas, settings = {}) {
       // patching another inferred opacity or gaze. The entire audit is
       // read-only and cannot certify painted video pixels.
       const roomReturn=world.sourceHandoffReturnWitness?.(snapshot);
+      // The first real F9 renderer return reserves THIS original episode,
+      // even if no World owner can be certified on that frame. Without this
+      // the next genuine autonomous restart could impersonate first passage.
+      const firstEpisode=!options.stale
+        ?firstReturnedFloorNineEpisode(originalToVoidReturnedRun,snapshot):null;
+      if(firstEpisode?.isFirst)
+        originalToVoidReturnedRun=firstEpisode.runToken;
       // Keep the FIRST actual original F8->F9 episode. A 70s autonomous
       // danger capture can restart and earn a SECOND legitimate crossing;
       // resetting here destroyed the first episode's native 25-29s evidence
