@@ -8001,3 +8001,77 @@ test('RED-first: licensed stopped Walking_A to Idle handoff advances only the so
  ])assert.equal(landingDelta({...original,...bad}),null,
   'movement, unknown source, other clone, injury, defeat or accessibility cannot borrow a landing fade');
 });
+
+
+// Exact previous native source-rig measurement (Vanguard RIGHT Walking_A,
+// 1440px WebGL f102, Actions 44968057383, native source-rig artifact
+// 14732573843). The hypothetical following 16.7ms frame is NOT recorded
+// original-GLB after footage. It is a TDD proposal that must pass original
+// two-shoe skinning in the live renderer before any visual claim.
+test('original 41-joint certified connected hip-knee-ankle remains rate-bounded across consecutive source frames',async()=>{
+ const {planLicensedSourceConnectedChainTrials:trials}=await load();
+ const sourceInstanceId='cce9f1e2-a4b5-4952-8d86-bd97d2c5812c';
+ const previousConnected={
+  source:'measured-original-licensed-source-counterpitch',
+  sourceRole:'vanguard',sourceClip:'Walking_A',side:'right',
+  sourceInstanceId,sourceClipTimeSeconds:.09856668271033392,
+  sourceUpperBone:'upperlegr',sourceLowerBone:'lowerlegr',
+  sourceFootBone:'footr',
+  sourceOriginalTracks:['upperlegr.quaternion','lowerlegr.quaternion','footr.quaternion'],
+  originalBindSegmentsMeters:[.17067002536856543,.11231605296387505],
+  appliedUpperRad:-.06012000000000057,appliedLowerRad:.08,
+  appliedFootRad:-.10020000000000095,
+  witnessedFrameIntervalSeconds:.03340000000000032,
+  witnessedRootTravelMeters:.019344653630748443,
+  originalOppositeShoeVerified:true,finalIndependentSourceSkin:true,
+  contactLocked:false,plantCertified:false
+ };
+ const plan={
+  source:'verified-licensed-source-native-counterpitch',
+  sourceRole:'vanguard',sourceClip:'Walking_A',side:'right',
+  sourceClipTimeSeconds:.11526668271033392,
+  originalSourceBoneChainVerified:true,
+  sourceOriginalRootTravelWitnessed:true,
+  sourceActualClipPhaseVerified:true,contactLocked:false,plantCertified:false,
+  // A second source-authored pose, 16.7ms after REAL f102, is SYNTHETIC.
+  upperRad:-.014,lowerRad:.014,footRad:-.1503
+ };
+ const input={plan,frameInterval:.0167,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceFootTrackVerified:true,sourceBindVerified:true,
+  sourceInstanceId,sourceSide:'right',previousConnected};
+ const result=trials(input);
+ assert.equal(result?.length,2,'an authenticated previous skinned source chain should keep two bounded original limb candidates');
+ assert.ok(result[1].upperRad<=-.06012&&result[1].lowerRad>=.0799,
+  'carry the three-joint source pose rather than resetting the knee on the next animation frame');
+ for(const candidate of result){
+  for(const [name,old] of [
+   ['upperRad',previousConnected.appliedUpperRad],
+   ['lowerRad',previousConnected.appliedLowerRad],
+   ['footRad',previousConnected.appliedFootRad]
+  ])assert.ok(Math.abs(candidate[name]-old)<=3*.0167+.000002,
+   'each source bone overlay must respect the genuine 3rad/s rendered-frame limit');
+ }
+ for(const bad of [
+  {sourceInstanceId:'different-original-clone'},
+  {sourceSide:'left'},
+  {previousConnected:{...previousConnected,sourceClip:'Idle'}},
+  {previousConnected:{...previousConnected,sourceRole:'warden'}},
+  {previousConnected:{...previousConnected,sourceClipTimeSeconds:.035}},
+  {previousConnected:{...previousConnected,sourceOriginalTracks:['footr.quaternion']}},
+  {previousConnected:{...previousConnected,finalIndependentSourceSkin:false}},
+  {previousConnected:{...previousConnected,originalOppositeShoeVerified:false}},
+  {previousConnected:{...previousConnected,witnessedRootTravelMeters:0}},
+  {previousConnected:{...previousConnected,appliedFootRad:-.015}},
+  {plan:{...plan,sourceClipTimeSeconds:.99}},
+  {plan:{...plan,footRad:-.20}}
+ ])assert.equal(trials({...input,...bad}),null,
+  'never borrow a stale, unskinned, other-clone, untracked or overslewed source performance');
+ const renderer=require('node:fs').readFileSync(
+  require('node:path').resolve(__dirname,'../../public/ai-dungeon/model-assets.js'),'utf8');
+ const start=renderer.indexOf('function stageLicensedSourceSwingCounterpitchAfterMixer(');
+ const end=renderer.indexOf('function stageLicensedSourceToeFinisherAfterCounterpitch(');
+ assert.ok(start>0&&end>start);
+ assert.match(renderer.slice(start,end),/previousConnected:samePrevious\?previous:null/,
+  'live source mixer must forward ONLY the immediately previous same-GLB certified source pose');
+});
