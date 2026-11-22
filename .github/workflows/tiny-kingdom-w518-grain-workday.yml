@@ -5,6 +5,7 @@ on:
       - feat/tiny-kingdom-post-main-gauntlet-20261031
     paths:
       - public/tiny-kingdom/index.html
+      - scripts/tiny-kingdom-w538-retained-canvas-painter.test.cjs
       - scripts/tiny-kingdom-w537-canvas-raster-contract.test.cjs
       - tests/browser/tiny-kingdom-w537-canvas-raster.spec.cjs
       - tests/browser/tiny-kingdom-w518-rooted-grain-contract.test.cjs
@@ -46,6 +47,8 @@ jobs:
           NODE
       - name: W537 original full-geometry no-WebGL raster and shader compatibility regression
         run: node --test scripts/tiny-kingdom-w537-canvas-raster-contract.test.cjs
+      - name: Verify W538 retained real no-WebGL painter and resource bounds
+        run: node --test scripts/tiny-kingdom-w538-retained-canvas-painter.test.cjs
       - name: Build browser-server prerequisites
         run: npm run build
       - run: npx playwright install --with-deps chromium

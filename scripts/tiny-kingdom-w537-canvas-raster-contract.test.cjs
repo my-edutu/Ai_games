@@ -11,9 +11,9 @@ test('W537 actual complete playable game script parses',()=>{
  assert.doesNotThrow(()=>new Function(inline[1]));
 });
 test('W537 Canvas2D implements all real original scene-light uniform calls',()=>{
- const i=html.indexOf("if(!gl){const ctx=canvas.getContext('2d')");
+ const i=html.indexOf('if(!gl){');
  assert.ok(i>=0);
- const fallback=html.slice(i,i+5400);
+ const fallback=html.slice(i,i+8000);
  for(const method of ['uniform4fv:noop','uniform4f:noop','uniform2f:noop','uniform1i:noop'])
   assert.ok(fallback.includes(method),'missing '+method);
  assert.ok(fallback.includes('uniformMatrix4fv:(_,__,m)=>{projection=m}'));
@@ -36,7 +36,7 @@ test('W537 preserve authentic people/houses crossing 390px viewport and reject o
 });
 test('W537 retain full world submission and expose honest software wall-time diagnosis',()=>{
  assert.ok(html.includes('getCanvasFallbackRasterAudit:()=>canvasFallbackRasterAudit()'));
- assert.ok(html.includes('if(canvasTriangleOutsideViewport(a,b,c)){rejectedOffscreen++;continue;}'));
- assert.ok(html.includes('fallbackStats.submitted=vertices.length/30'));
+ assert.ok(html.includes('Math.max(ax,bx,cx)<-1.001||Math.min(ax,bx,cx)>1.001'));
+ assert.ok(html.includes('fallbackStats.submitted=submitted'));
  assert.ok(html.includes("hardwareFps:'NOT MEASURED'"));
 });
