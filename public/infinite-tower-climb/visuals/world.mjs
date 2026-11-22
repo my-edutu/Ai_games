@@ -30,7 +30,7 @@ import { sourceReturnedGatewayDisplayDt } from './source-submitted-doorway-caden
 import { actualGatewayReceivingRoofSpans, actualGatewayReceivingLoadPathBays, actualGatewayReceivingGalleryCanopy, prebuildOriginalGuardianCanopyPlan, sourceOpenGuardianRoofLoadPath, syncGatewayReceivingRoofColours, resetGatewayReceivingRoofColours } from './source-physical-receiving-roof.mjs';
 import { planOriginalGuardianOutboardCranes } from './source-original-guardian-crane-room.mjs';
 import { sourceRealGroundForecourtSections, sourceRealGroundUndercroftParts, syncSourceRealRoofWingMaterials } from './source-real-ground-forecourt.mjs';
-import { sourceReturnedOriginalGatewayOpacity, sourceReturnedOriginalGatewayRetention } from './source-returned-original-gateway-exit.mjs';
+import { sourceReturnedOriginalGatewayOpacity, sourceReturnedOriginalGatewayRetention, sourceReturnedOriginalThresholdBearing } from './source-returned-original-gateway-exit.mjs';
 
 
 /**
@@ -4324,6 +4324,21 @@ export function createTowerWorld(){
     // switches from grounded to true raised-flight support.
     originalPresence=Math.min(originalPresence,
       held.originalGallerySourceOpacity??1);
+    // One true F8 gateway must retain a readable portion of its EXISTING
+    // source-batched load path as the genuine walkable F9 shaft arrives.
+    // In the exact first original 1x F9 film, gallery metal retired at .059
+    // while bronze gate steel still occupied .969 of its material envelope.
+    // That made the real threshold look unsupported. Restore ONLY already
+    // returned old geometry, below 33% opacity, and never brighten an
+    // earlier submitted frame or bypass source/HP/roof/shaft verification.
+    const thresholdBearingFloor=!options.stale
+      ?sourceReturnedOriginalThresholdBearing(
+        snapshot,held,deferredDistantArrival,originalGatePresence,
+        sourceLegitimateOnwardSupport):null;
+    if(Number.isFinite(thresholdBearingFloor))
+      originalPresence=Math.max(originalPresence,Math.min(
+        held.originalGallerySourceOpacity??1,thresholdBearingFloor));
+    held.originalThresholdBearingFloor=thresholdBearingFloor;
     held.originalGallerySourceOpacity=originalPresence;
     // The central source-old root/crown/ribs are one already-rendered 3D
     // room with the defeated original gateway and historical gallery.
