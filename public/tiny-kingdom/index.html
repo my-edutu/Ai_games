@@ -33628,6 +33628,49 @@ function advanceQueuedGrainObservation(){
  updateGrainObservationArmUi();
  return Boolean(started);
 }
+// W535: a real farmer gets the SAME physically surveyed, bounded worksite
+// entrance used by the live village director. The previous grain action
+// started from an arbitrary prior spectator yaw, often filming timber or
+// unreadably small original hands at 390px before the camera caught up.
+// Only presentation: zero changes to farmers, sacks, pathfinding, market or RNG.
+const realGrainEntrancePortrait={
+ attempts:0,validated:0,portraitRescues:0,rejected:0
+};
+function getRealGrainEntrancePortraitAudit(){
+ return {...realGrainEntrancePortrait,
+  source:'original-real-farmer-physical-worksite-entrance',
+  actualActorsOnly:true,completeWorldUnchanged:true,
+  seededAuthorityUntouched:true,hardwareFps:'NOT MEASURED',
+  visualAcceptance:'NOT PROVEN'};
+}
+function anchorRealGrainProducerAtPhysicalWorksite(person){
+ if(!follow||!person||people[selectedCitizen]!==person||
+    !isWorkingAtSite(person))return false;
+ realGrainEntrancePortrait.attempts++;
+ const portrait=canvas.clientWidth>0&&canvas.clientWidth<=520;
+ let shot=planCitizenCamera(person,builderStageAngle(person),true);
+ let evidence=genuineWorkdayShotDecision(shot,portrait);
+ if(!evidence.safe&&portrait){
+  // Use the original bounded true-world alternative ONLY if the field
+  // and real building/vegetation rays validate it. Never remove the crop.
+  const alternative=findPhysicalPortraitAlternative(person,shot,
+   followCameraRoofs());
+  if(alternative){
+   const alternativeEvidence=genuineWorkdayShotDecision(alternative,true);
+   if(alternativeEvidence.safe){
+    shot=alternative;evidence=alternativeEvidence;
+    realGrainEntrancePortrait.portraitRescues++;
+   }
+  }
+ }
+ if(!evidence.safe){realGrainEntrancePortrait.rejected++;return false;}
+ const admitted=anchorSelectedWorkdayCamera({
+  person,index:selectedCitizen,shot,clear:evidence.readable===true
+ });
+ if(admitted)realGrainEntrancePortrait.validated++;
+ else realGrainEntrancePortrait.rejected++;
+ return admitted;
+}
 function watchRealGrainJourney(){
  if(grainObservationArmed)cancelGrainObservationArm();
  if(grainJourney)return stopRealGrainJourney();
@@ -33646,7 +33689,11 @@ function watchRealGrainJourney(){
     marketAttempt:null};
  document.body.dataset.workday='live';
  if(!follow)setCitizenFollow(true);
- updateFollowCamera(builderStageAngle(p));
+ // When the genuine field worker is currently acting, enter through a
+ // physically checked human-scale view, not the old arbitrary spectator yaw.
+ // Courier travel and unsurveyable scenes retain the existing complete fallback.
+ if(!anchorRealGrainProducerAtPhysicalWorksite(p))
+  updateFollowCamera(builderStageAngle(p));
  setCommandView('world');updateUI();advanceRealGrainJourney();
  updateSupplyTrail(true);renderVisibleGrainChain();updateGrainObservationArmUi();
  return getRealGrainJourneyAudit();
@@ -37268,7 +37315,7 @@ drawForegroundResidentMesh();
 getDailyRhythmAudit:dailyRhythmAudit,getHouseholdProvisionAudit:()=>cloneData(householdProvisionAudit()),getCarriedHouseholdProvisionPose:person=>cloneData(getCarriedHouseholdProvisionPose(person)),getVerifiedHouseholdMealEvidence:person=>cloneData(verifiedHouseholdMealEvidence(person)),getVerifiedHomeMealHand:person=>cloneData(getVerifiedHomeMealHand(person)),getVerifiedHomeMealRenderStats:()=>({...actualHouseholdMealVisualStats}),getHouseholdCarriedSackStats:()=>({...householdCarriedSackStats}),getReceiptHouseholdAudit:()=>cloneData(receiptHouseholdAudit()),getVerifiedEconomyRenderStats:()=>({...verifiedEconomyRenderStats}),getOccupiedHouseholds:()=>cloneData(occupiedHouseholds()),getHomecomingLanternAudit,getVillageNightLightingAudit,getMaterialShaderTierAudit,getHardwareResidentArchitectureAudit,getHomecomingLanternRenderStats:()=>({...homecomingLanternRenderStats}),getHouseholdThresholdAudit,getHouseholdThresholdRenderStats:()=>({...householdThresholdRenderStats}),getCottageHomecomingAudit,getCottageDoorRenderAudit:()=>({...cottageDoorRenderAudit}),
  getCottageDoorResidencyAudit,setCottageDoorResidencyForTesting,getSoftwareResolutionAudit,getSoftwareSceneMaterialAudit,getHardwareResolutionAudit,getSimulationFrameDelta:simulationFrameDelta,getHouseholdLightAudit:()=>({...householdLightAudit}),getNightHomesResidencyAudit,setNightHomesResidencyForTesting,getOccupiedHearthCount:()=>occupiedHearths,getWorksiteChoreography,getWorkContactAudit,getWorksiteAlignmentAudit,
 getForgeWorkdayAudit:()=>cloneData(getForgeWorkdayAudit()),getForgeCraftCycleAudit:()=>cloneData(getForgeCraftCycleAudit()),getForgeCourtyardAudit:()=>cloneData(getForgeCourtyardAudit()),getForgeEmbodimentAudit:()=>cloneData(getForgeEmbodimentAudit()),getForgeWitnessAudit:()=>cloneData(getForgeWitnessAudit()),getForgeSoundAudit:()=>cloneData(getForgeSoundAudit()),pollForgeSound,watchForgeShift,getBuilderStageAudit,getLiveWorkdayView,getLiveWorkJourneyAudit,getVillageDocumentaryAudit,advanceVillageDocumentary,watchVillageLife,
- getRealGrainJourneyAudit,inspectLatestVerifiedGrainHome,
+ getRealGrainJourneyAudit,getRealGrainEntrancePortraitAudit,inspectLatestVerifiedGrainHome,
  latestVerifiedGrainHomeTrace:()=>latestVerifiedGrainHomeTrace(),getGrainObservationQueueAudit,
  toggleQueuedGrainObservation,advanceQueuedGrainObservation,
  getGrainProofStripAudit:()=>planVisibleGrainChain(grainJourney,
