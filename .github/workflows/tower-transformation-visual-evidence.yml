@@ -14,6 +14,10 @@ on:
       # This source-owned one-way optical lease also changes the actual
       # filmed original Floor8 -> Floor9 transition; never test it with CI alone.
       - public/infinite-tower-climb/visuals/source-returned-original-gateway-exit.mjs
+      # The genuine returned-shaft depth ramp changes native Floor8→9
+      # composition; enforce the original nine-job capture when it changes.
+      - public/infinite-tower-climb/visuals/original-room-returned-exit.mjs
+      - .github/workflows/tower-transformation-visual-evidence.yml
   workflow_dispatch:
 permissions:
   contents: read

@@ -115,7 +115,16 @@ export function observedSupportedReturnedShaftDepth(source,held,job) {
      job.structureBuiltAtSubmitted<1 ||
      job.submittedFrames<=job.structureBuiltAtSubmitted ||
      job.submittedFrames>30 ||
-     job.structuralVisibleReturns!==0 ||
+     // A genuine successor that has already returned may continue its
+     // source-owned depth ramp. The previous zero-return-only condition
+     // stranded Floor 9 at the initial 22% aperture even after the same
+     // structure completed many WebGL submissions.
+     job.structuralVisibleReturns<0 ||
+     job.structuralVisibleReturns>30 ||
+     (job.structuralVisibleReturns>0 &&
+       (!Number.isFinite(job.structuralVisibleSeconds) ||
+        job.structuralVisibleSeconds<=0 ||
+        job.structuralVisibleSeconds>3)) ||
      !Number.isFinite(job.structuralFade) ||
      job.structuralFade<0 || job.structuralFade>1 ||
      job.structuralRoot?.isGroup!==true ||
@@ -132,7 +141,22 @@ export function observedSupportedReturnedShaftDepth(source,held,job) {
   if(!supportedRoof &&
      !observedSourceAirborneSuccessorApproach(source,held,held.oldRoofY))
     return null;
-  return {sourceBound:true,sourceTick:source.tick,alpha:.22,
+  // Keep the first true old-gate/shaft shared draw restrained at 22%.
+  // Progress only from BOTH actual visible successor returns and their
+  // nonzero displayed duration. Six returned shaft frames plus 520ms earn
+  // a 40% *structural* depth aperture, enough for the existing deferred
+  // scenic upload queue to progress without instantly retiring old bronze.
+  // Source ticks, browser polls, short frames and zero-alpha meshes earn
+  // none of this budget; guardian/collision/floor authority is untouched.
+  const returnedFrames=Math.min(1,job.structuralVisibleReturns/6);
+  const returnedTime=Math.min(1,
+    (Number.isFinite(job.structuralVisibleSeconds)
+      ?job.structuralVisibleSeconds:0)/.52);
+  const returnedDepth=Math.min(returnedFrames,returnedTime);
+  const alpha=+(.22+.18*returnedDepth).toFixed(4);
+  return {sourceBound:true,sourceTick:source.tick,alpha,
+    returnedStructuralFrames:job.structuralVisibleReturns,
+    returnedStructuralSeconds:job.structuralVisibleSeconds??0,
     requiresReturnedOriginalSuccessor:true,
     limitation:'Bounded actual returned original successor depth, not native pixel visibility'};
 }

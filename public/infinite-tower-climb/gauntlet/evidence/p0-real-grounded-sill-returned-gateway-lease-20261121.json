@@ -961,5 +961,35 @@
     },
     "actualDeviceFrameTimePercentilesAndMemory": "NOT EVALUATED",
     "safeguards": "PR58 untouched; PR68 open draft; no merge, deploy, force-push, frozen transformation.json rewrite, unrelated game edits"
+  },
+  "p0ReturnedOriginalShaftSixReturnRamp20261122_0326": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "sourceHeadInspected": "79bb4b6219d4ac57c3581286e72295e18a6f2c26",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/44971939067",
+    "qualityResult": "9/10; Phase3 shard1 failed test tower-retained-source-cap-world.test.cjs at 873: after 16 real modeled returns successor remained below awaiting-structural-submission/fading-remote-arrival release. This is a real source-visible stalled-scene risk, not proof of game improvement.",
+    "inspectedAuthenticCapture": "https://github.com/my-edutu/Ai_games/actions/runs/44971939119",
+    "captureResult": "8/8 60+ second original scene recordings plus authentic ledge passed; event-source indexing 8/8, strict source-to-native danger matching FAILED 0/2 desktop and portrait.",
+    "sourceOwnedFix": "Real returned same-run defeated-guardian, actual physically supported floor-nine roof can gradually open original successor structural shaft from 22% to 40% over at least six genuine nonzero 3D render-return frames and 520ms, rather than remain pinned at 22% or hard-cut from opaque bronze. Existing world consumes returned depth in the actual WebGL material owner and only then permits deferred scenic build. No input, collision, guardian, source-floor, random seed, baseline or other game alteration.",
+    "changedFiles": [
+      "public/infinite-tower-climb/visuals/original-room-returned-exit.mjs",
+      ".github/workflows/tower-transformation-visual-evidence.yml",
+      "tests/phase3/tower-source-returned-shaft-overlap-ramp.test.cjs",
+      "public/infinite-tower-climb/gauntlet/evidence/p0-real-grounded-sill-returned-gateway-lease-20261121.json",
+      "docs/reviews/2026-11-20-tower-pr68-source-room-native-gallery-corridor-review.md"
+    ],
+    "changedCaptureRequest": "The visual-evidence workflow path filter now includes this shipped helper and its own workflow file. A same-branch commit requests all nine immutable-SHA real captures; a queued trigger or green CI is not native acceptance.",
+    "newCaptureSource": "The SHA of the commit containing this evidence entry, resolved from github.sha by existing capture workflow",
+    "results": "Source/test contract not yet run on new exact head; no frame or visual improvement claimed.",
+    "largestFootageDefect": "Original bronze gateway, whole moving climber and physically walkable Floor9 receiving roof plus destination still lack verified uninterrupted native co-framing; prior original 1x candidate had approximately 2.25 seconds between HUD Floor9 and sustained purple scenery.",
+    "nextHighestImpact": "Check new exact-head CI and full original desktop/portrait 1x 25fps footage; inspect old bronze/new shaft structural overlap and strict event-matched pixel time. If improvement remains unproven, correct real old/new 3D spatial camera ownership, not additional alpha/CSS tests.",
+    "independentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDeviceP50P95P99Memory": "NOT EVALUATED",
+    "constraints": "Preserve frozen ledger blob 7433d52ae1a7a75de51366a845375dda04ab87fa and baseline SHA, PR58 edits, open draft PR68; no unrelated games, force push, merge or deploy"
   }
 }
