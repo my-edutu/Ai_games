@@ -8045,6 +8045,9 @@ test('original 41-joint certified connected hip-knee-ankle remains rate-bounded 
   source:'verified-licensed-source-native-counterpitch',
   sourceRole:'vanguard',sourceClip:'Walking_A',side:'right',
   sourceClipTimeSeconds:.11526668271033392,
+  // This deliberately synthetic NEXT frame must still carry an explicit
+  // 16.7ms source-rate witness; never gain a larger copied frame budget.
+  sourceWitnessedFrameIntervalSeconds:.0167,sourceSparseFrameVerified:false,
   originalSourceBoneChainVerified:true,
   sourceOriginalRootTravelWitnessed:true,
   sourceActualClipPhaseVerified:true,contactLocked:false,plantCertified:false,
@@ -8123,6 +8126,9 @@ test('RED: certified original 249.9ms source-chain pose cannot snap hip/knee whe
   source:'verified-licensed-source-native-counterpitch',
   sourceRole:'vanguard',sourceClip:'Walking_A',side:'right',
   sourceClipTimeSeconds:.19878042443043293,
+  // This deliberately synthetic NEXT frame must still carry an explicit
+  // 16.7ms source-rate witness; never gain a larger copied frame budget.
+  sourceWitnessedFrameIntervalSeconds:.0167,sourceSparseFrameVerified:false,
   originalSourceBoneChainVerified:true,
   sourceOriginalRootTravelWitnessed:true,
   sourceActualClipPhaseVerified:true,
