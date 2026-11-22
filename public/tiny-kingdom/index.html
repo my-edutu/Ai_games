@@ -1762,12 +1762,26 @@ body[data-village-documentary="on"] #world-live-roles{display:none!important}
   overflow-y:auto!important;overscroll-behavior:contain!important;
  }
 }
-/* W533 real-workday mobile: authentic farmer/ledger/courier FIRST on screen.
-   Existing controls and economy untouched; desktop unaffected. */
+/* W533 integrated workday first-touch on real 390px:
+   the 3 authentic work/receipt/transport controls fit left of the actual
+   Day/Season status. No horizontal discovery or obscured right-hand button;
+   semantic aria-labels stay complete, text shortens visually only. */
 @media(max-width:520px){
+ body[data-command="world"]:not([data-street="on"]) .world-tour{
+  max-width:calc(100vw - 172px)!important
+ }
  .world-tour #harvest-follow{order:-3}
  .world-tour #film-ledger{order:-2}
  .world-tour #delivery-follow{order:-1}
+ .world-tour :is(#harvest-follow,#film-ledger,#delivery-follow){
+  font-size:0!important;padding:7px 5px!important;letter-spacing:0!important
+ }
+ .world-tour #harvest-follow::after{content:"🌾 Farm";font:750 11px/1.2 system-ui}
+ .world-tour #film-ledger::after{content:"◈ Grain";font:750 11px/1.2 system-ui}
+ .world-tour #film-ledger[aria-expanded="true"]::after{
+  content:"◈ Close"
+ }
+ .world-tour #delivery-follow::after{content:"▣ Cart";font:750 11px/1.2 system-ui}
 }
 </style></head><body>
 <canvas id="world" tabindex="0" aria-label="Live 3D medieval valley. Tap a visible villager to follow genuine work. Drag to orbit, Shift-drag or two-finger drag to pan, pinch or scroll to zoom. Home returns to village, F follows a citizen, V walks the streets; Enter selects a visible citizen."></canvas><div id="kingdom-stage-status" role="status" aria-live="polite">Rebuilding the real valley<small id="kingdom-stage-detail">Terrain, occupied houses and market · complete world before play</small></div><div id="citizen-pick-caption" role="status" aria-live="polite" aria-atomic="true"><span id="citizen-pick-copy"></span><progress id="citizen-pick-meter" value="0" max="100" aria-label="Observed citizen's actual shift or delivery progress" hidden></progress></div><div class="vignette"></div>
