@@ -118,3 +118,46 @@ export function sourceGatewayNeedsExpensiveOpticalSearch({
      steel.projectedMetalArea<.018) return true;
   return false;
 }
+
+
+/**
+ * P0 source-physical PORTRAIT doorway camera composition. The genuine
+ * Floor8 lens may retain both the bronze gate and skinned climber, yet
+ * look toward an old focus while the player is already moving above the
+ * walkable successor roof. Three existing reversible exterior trials all
+ * used the identical gaze, making the same offscreen destination fail
+ * repeatedly on the 390x844 native film.
+ *
+ * Plan exactly THREE alternative focus points from the CURRENT real hero,
+ * original gateway, and source-owned Floor9 receiving roof. The Scene
+ * spends NO additional camera/triangle/metal queries: it replaces the
+ * gaze in the same three physical vetoed trials. This helper cannot grant
+ * a guardian win, change the camera position, change source state or
+ * certify visible WebM pixels. The bounded spatial and returned-frame
+ * step rejects a borrowed faraway run/world and reduces sudden panning.
+ */
+export function sourceOriginalGatewayJointGazeCandidates({
+  aspect,dt,currentGaze,hero,gateway,walkable
+}={}) {
+  const point=p=>Array.isArray(p) && p.length===3 &&
+    p.every(Number.isFinite);
+  if(!Number.isFinite(aspect) || aspect<.33 || aspect>=.85 ||
+     !Number.isFinite(dt) || dt<=0 || dt>.2 ||
+     ![currentGaze,hero,gateway,walkable].every(point))
+    return null;
+  const dist=(a,b)=>Math.hypot(...a.map((v,i)=>v-b[i]));
+  // Same original metal, physically nearby live body and successor roof.
+  // New-run, stale-world and HP-zero proofs are already mandatory in Scene.
+  if(dist(hero,gateway)>85 || dist(hero,walkable)>85 ||
+     dist(gateway,walkable)>85) return null;
+  const destination=hero.map((v,i)=>v*.48+
+    gateway[i]*.34+walkable[i]*.18);
+  const delta=destination.map((v,i)=>v-currentGaze[i]);
+  const length=Math.hypot(...delta);
+  if(!Number.isFinite(length) || length<.0001)return null;
+  const step=Math.min(length,5.5,1.1+70*dt);
+  // Three DIFFERENT physically sourced sightline proposals; do not add
+  // another frame, reviewer, synthetic hero pose or GPU-costly ray.
+  return [.33,.66,1].map(weight=>currentGaze.map(
+    (v,i)=>v+delta[i]/length*step*weight));
+}
