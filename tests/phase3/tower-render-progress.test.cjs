@@ -109,6 +109,13 @@ test('real source floor transition retains bounded CPU/world/WebGL time partitio
       sceneSetupMs: 8.24, worldUpdateMs: 382.54,
       heroThreatMs: 17.7, cameraLightingMs: 11.754,
     },
+    firstF9CameraPhases: {
+      cameraProposalsAndRaysMs: 5.01,
+      doorwayThreeSubjectSearchMs: 4.02,
+      foregroundOcclusionMs: 1.53,
+      lightingHorizonMs: 1.19,
+      unrecognizedStageMs: 100000,
+    },
   });
   const rendered = progress.diagnostics(1250).sourceTransitions.find(x => x.phase === 'renderer-submitted');
   assert.deepEqual(rendered.renderWorkMs, {
@@ -117,6 +124,12 @@ test('real source floor transition retains bounded CPU/world/WebGL time partitio
     firstF9MainThread: {
       sceneSetup: 8.2, worldUpdate: 382.5,
       heroThreat: 17.7, cameraLighting: 11.8,
+    },
+    firstF9CameraPhases: {
+      cameraProposalsAndRays: 5,
+      doorwayThreeSubjectSearch: 4,
+      foregroundOcclusion: 1.5,
+      lightingHorizon: 1.2,
     },
   });
   assert.equal(progress.diagnostics(1250).sourceTransitions.find(
@@ -132,6 +145,12 @@ test('real source floor transition retains bounded CPU/world/WebGL time partitio
     firstF9MainThread: {
       sceneSetupMs: 100, worldUpdateMs: 200,
       heroThreatMs: 100, cameraLightingMs: 100,
+    },
+    firstF9CameraPhases: {
+      cameraProposalsAndRaysMs: 100,
+      doorwayThreeSubjectSearchMs: 100,
+      foregroundOcclusionMs: 100,
+      lightingHorizonMs: 100,
     },
   });
   const later = progress.diagnostics(1440).sourceTransitions.at(-1);
