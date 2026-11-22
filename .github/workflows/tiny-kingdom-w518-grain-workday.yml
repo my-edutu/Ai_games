@@ -67,6 +67,7 @@ jobs:
         with:
           name: tiny-kingdom-w518-original-rooted-grain-actual-game
           path: |
+            artifacts/tiny-kingdom-w518/
             test-results/
             playwright-report/
           if-no-files-found: warn

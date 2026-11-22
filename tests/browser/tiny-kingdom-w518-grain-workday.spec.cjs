@@ -37,12 +37,17 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
      scrollWidth:document.documentElement.scrollWidth,
      webglError:canvas.getContext('webgl')?.getError()??null};
    });
-   await info.attach(label+'-'+viewport.width,{body:await page.screenshot(),
-    contentType:'image/png'});
-   await info.attach(label+'-audit-'+viewport.width,{body:Buffer.from(
-    JSON.stringify({commit:process.env.GITHUB_SHA||'local',
-     physicalGpuFps:'NOT MEASURED',independentCritics:'NOT PROVEN',
-     ...state},null,2)),contentType:'application/json'});
+   // Directly persist actual playable-scene captures, including on PASS.
+   const target=path.resolve(process.cwd(),'artifacts/tiny-kingdom-w518');
+   fs.mkdirSync(target,{recursive:true});
+   const frame=await page.screenshot();
+   const audit=Buffer.from(JSON.stringify({commit:process.env.GITHUB_SHA||'local',
+    physicalGpuFps:'NOT MEASURED',independentCritics:'NOT PROVEN',
+    ...state},null,2));
+   fs.writeFileSync(path.join(target,label+'-'+viewport.width+'.png'),frame);
+   fs.writeFileSync(path.join(target,label+'-audit-'+viewport.width+'.json'),audit);
+   await info.attach(label+'-'+viewport.width,{body:frame,contentType:'image/png'});
+   await info.attach(label+'-audit-'+viewport.width,{body:audit,contentType:'application/json'});
    expect(state.canopy.rootLocationsUnchanged).toBe(true);
    expect(state.canopy.noAdditionalTriangles).toBe(true);
    expect(state.canopy.seededStems).toBe(668);
@@ -69,16 +74,26 @@ for(const viewport of [{width:1024,height:640},{width:390,height:844}]){
   expect(grown.people).toBeGreaterThanOrEqual(initial.people);
   expect(grown.buildings).toBeGreaterThan(initial.buildings);
   expect(errors).toEqual([]);
+  const summary=Buffer.from(JSON.stringify({sourceSha:process.env.GITHUB_SHA||'local',
+   initial:{checksum:initial.checksum,day:initial.day,
+    submitted:initial.scene.lastFrameTriangles,
+    sourceTriangles:initial.integrity.totalTriangles},
+   grown:{checksum:grown.checksum,day:grown.day,
+    submitted:grown.scene.lastFrameTriangles,
+    sourceTriangles:grown.integrity.totalTriangles},
+   errorCount:errors.length,hardwareDevice:'NOT TESTED',
+   transformationVsG088:'NOT PROVEN'},null,2));
+  fs.writeFileSync(path.resolve(process.cwd(),'artifacts/tiny-kingdom-w518',
+   'actual-world-summary-'+viewport.width+'.json'),summary);
   await info.attach('w518-actual-world-summary-'+viewport.width,{
-   body:Buffer.from(JSON.stringify({sourceSha:process.env.GITHUB_SHA||'local',
-    initial:{checksum:initial.checksum,day:initial.day,
-     submitted:initial.scene.lastFrameTriangles,
-     sourceTriangles:initial.integrity.totalTriangles},
-    grown:{checksum:grown.checksum,day:grown.day,
-     submitted:grown.scene.lastFrameTriangles,
-     sourceTriangles:grown.integrity.totalTriangles},
-    errorCount:errors.length,hardwareDevice:'NOT TESTED',
-    transformationVsG088:'NOT PROVEN'},null,2)),
-   contentType:'application/json'});
+   body:summary,contentType:'application/json'});
+  // A continuous original browser capture of the real Day1 → Day121
+  // fast-forward (not 30Hz simulated time) is kept even on successful CI.
+  const video=page.video();
+  if(video){
+   await page.close();
+   await video.saveAs(path.resolve(process.cwd(),'artifacts/tiny-kingdom-w518',
+    'actual-day1-to-day121-'+viewport.width+'.webm'));
+  }
  });
 }

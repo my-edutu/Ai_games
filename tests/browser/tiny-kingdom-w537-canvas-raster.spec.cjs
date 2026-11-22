@@ -26,12 +26,25 @@ test('W537 actual 390px original complete village on real no-WebGL Canvas2D',asy
    geometry:g.renderStats(),scrollWidth:document.documentElement.scrollWidth,
    worldChecksum:g.exportSnapshot().checksum};
  });
+ // Persist real pixels and original source audit even for SUCCESSFUL tests:
+ // Playwright may discard passing attachments from its test-results folder.
+ const artifact='artifacts/tiny-kingdom-w544';
+ fs.mkdirSync(artifact,{recursive:true});
+ const frame=await page.screenshot();
+ const audit=Buffer.from(JSON.stringify({sourceSha:process.env.GITHUB_SHA||'local',
+  hardwareFps:'NOT MEASURED',independentCritics:'NOT PROVEN',...state},null,2));
+ fs.writeFileSync(path.join(artifact,'original-390px-day1.png'),frame);
+ fs.writeFileSync(path.join(artifact,'original-390px-day1.json'),audit);
+ console.log('W544 REAL 390px Canvas2D source audit',JSON.stringify({
+  originalSubmittedTriangles:state.canvas.submitted,
+  originalActuallyVisibleTriangles:state.canvas.visible,
+  spatialCells:state.canvas.staticSpatialCells,
+  originalPainterCpuWallMs:state.canvas.lastCpuWallMs,
+  device:'GitHub Actions Chromium software Canvas2D, NOT a physical GPU'}));
  await info.attach('original-day1-390px-no-WebGL.png',{
-  body:await page.screenshot(),contentType:'image/png'});
+  body:frame,contentType:'image/png'});
  await info.attach('original-day1-390px-no-WebGL.json',{
-  body:Buffer.from(JSON.stringify({sourceSha:process.env.GITHUB_SHA||'local',
-   hardwareFps:'NOT MEASURED',independentCritics:'NOT PROVEN',...state},null,2)),
-  contentType:'application/json'});
+  body:audit,contentType:'application/json'});
  expect(state.graphics.tier).toBe('canvas2d');
  expect(state.canvas.enabled).toBe(true);
  expect(state.canvas.visible).toBeGreaterThan(0);

@@ -48,6 +48,7 @@ jobs:
         with:
           name: tiny-kingdom-w544-original-390px-game
           path: |
+            artifacts/tiny-kingdom-w544/
             test-results/
             playwright-report/
           if-no-files-found: warn
