@@ -1446,3 +1446,56 @@ test('RED: shared original weighted skinned-sole reader refreshes attached bind 
  assert.match(sharedReader,/originalSwingToePoint\.applyMatrix4\(mesh\.matrixWorld\)/,
   'independently verify final original source world X/Y/Z endpoint');
 });
+
+
+// Actual pre-change source GLB 1440px frame33 / tick3, successful
+// Actions #45045759921, SHA 69709332: original right toe buried 93.59mm,
+// heel 193.38mm above stone, LEFT loaded heel 25.04mm below stone.
+// The EXISTING connected source candidate and real toe-child finisher
+// still leave the final right toe 70.39mm beneath stone. No contact
+// or IK is presumed; this test only authorizes one more ORIGINAL 3-bone
+// trial, which the live renderer must accept from BOTH real skinned shoes.
+test('RED: original source right-swing deep-burial frame may compare ONE extra rate-limited connected pelvis-to-ankle candidate without changing its loaded shoe',async()=>{
+ const {planLicensedSourceSwingCounterpitch:plan,
+  planLicensedSourceConnectedChainTrials:connected}=await source;
+ const actual={
+  ...owner,sourceClipTimeSeconds:.09851460877195273,
+  frameInterval:.0333,rootTravel:.019291663189029862,frameAge:0,
+  before:{
+   left:{heelY:-.045043592929446805,toeY:-.022577876698162552,
+    heelXZ:[-6.8149418784414415,-6.9588427072553545],
+    toeXZ:[-7.0841080359898925,-6.9336681299359055]},
+   right:{heelY:.1733844232587951,toeY:-.11359231216756549,
+    heelXZ:[-6.699826147021341,-7.111482568164107],
+    toeXZ:[-6.789828390302865,-7.137146122160461]}
+  }
+ };
+ const p=plan(actual);
+ assert.ok(p,'actual Walking_A source must first earn the existing legal root and original clip gates');
+ assert.ok(p.sourceToeBurialMeters>.09,'use genuine >90mm weighted right-toe pre-pose');
+ const input={plan:p,frameInterval:actual.frameInterval,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceFootTrackVerified:true,sourceBindVerified:true,
+  sourceInstanceId:'live-exact-original-GLB',sourceSide:'right'};
+ const c=connected(input);
+ assert.equal(c?.length,3,'one additional anatomical hip-knee-ankle trial only for this real deep swing');
+ assert.deepEqual(c[0],{upperRad:p.upperRad,lowerRad:p.lowerRad,footRad:p.footRad},
+  'retain the original source baseline and the earlier safe alternative');
+ assert.ok(c[2].upperRad<c[1].upperRad&&c[2].lowerRad>c[1].lowerRad,
+  'extra original thigh and calf must advance together, not twist only a toe');
+ assert.equal(c[2].footRad,p.footRad,'do not borrow an unverified ankle angle');
+ assert.equal(c[2].sourceDeepSwingConnected,true);
+ for(const k of ['upperRad','lowerRad','footRad'])
+  assert.ok(Math.abs(c[2][k])<=3*actual.frameInterval+.000001,
+   'each new original joint must respect 3rad/s real display-time budget');
+ assert.equal(connected({...input,sourceSide:'left'})?.length,2,
+  'the other foot must not inherit a right-side source skin correction');
+ assert.equal(connected({...input,plan:{...p,sourceToeBurialMeters:.03}})?.length,2,
+  'never add a deep-swing probe to a shallow original weighted shoe');
+ assert.equal(connected({...input,frameInterval:.0167})?.length,2,
+  '16.7ms render frames must not authorize this additional whole-leg pose');
+ assert.equal(connected({...input,plan:{...p,sourceRole:'ranger'}})?.length,2,
+  'six-role clip audit must not extrapolate Vanguard specific inverse binds');
+ assert.equal(connected({...input,sourceUpperTrackVerified:false}),null,
+  'no original hip bone source track means no connected trial at all');
+});
