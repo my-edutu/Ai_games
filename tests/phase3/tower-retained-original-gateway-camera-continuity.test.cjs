@@ -164,6 +164,9 @@ test('final returned gate camera uses current immutable landing in animate, neve
 test('only a recent genuine same-run completed F9 camera is eligible for a physically measured rescue',async()=>{
   const {sourceReturnedGatewayLastCameraEligible:eligible}=await helperPromise;
   const e=genuine();
+  // The physical crossing was verified from the actual HP-zero source;
+  // generic camera proposal fixtures intentionally do not imply this proof.
+  e.held.verifiedObservedFloorAdvance=true;
   assert.equal(eligible(e),true);
   for(const bad of [
     {...e,source:{...e.source,runToken:'other'}},

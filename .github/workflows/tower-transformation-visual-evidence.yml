@@ -17,6 +17,11 @@ on:
       # The genuine returned-shaft depth ramp changes native Floor8→9
       # composition; enforce the original nine-job capture when it changes.
       - public/infinite-tower-climb/visuals/original-room-returned-exit.mjs
+      # The final camera owns the actually filmed 3D doorway/hero/roof sightline.
+      # Omitting either module left gameplay-changing PR68 camera commits with
+      # quality CI only and NO immutable normal-speed baseline/candidate films.
+      - public/infinite-tower-climb/visuals/scene.mjs
+      - public/infinite-tower-climb/visuals/source-returned-gate-camera-release.mjs
       - .github/workflows/tower-transformation-visual-evidence.yml
   workflow_dispatch:
 permissions:

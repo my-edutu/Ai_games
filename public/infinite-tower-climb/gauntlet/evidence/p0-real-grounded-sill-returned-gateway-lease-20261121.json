@@ -991,5 +991,46 @@
     },
     "actualDeviceP50P95P99Memory": "NOT EVALUATED",
     "constraints": "Preserve frozen ledger blob 7433d52ae1a7a75de51366a845375dda04ab87fa and baseline SHA, PR58 edits, open draft PR68; no unrelated games, force push, merge or deploy"
+  },
+  "p0ActualReturnedGatewayCameraFallbackAndCaptureRecovery20261122_0332": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "originalBaselineLedgerBlobSha": "7433d52ae1a7a75de51366a845375dda04ab87fa",
+    "inspectedCandidateSha": "f54dbdac85718592e7172cdf4c68e7dde48b9094",
+    "newPlayableCameraProductionSha": "7971be41ff74343dfd3dfee262ab101eb074c35d",
+    "sourceGameplayCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44976472413",
+    "sourceQualityCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/44976472463",
+    "firstCorrectedQuality": "https://github.com/my-edutu/Ai_games/actions/runs/44981061918",
+    "originalSourceMotion": "Original unedited candidate danger original 25fps >72s 960x600 desktop and 390x844 portrait videos from artifact 14736597607, SHA f54dbdac, inspected 24-31.5s sequences, NOT new-code capture",
+    "actualNativePixelObservation": {
+      "desktop": {
+        "floorNineHudSeconds": 26.75,
+        "sustainedVioletSeconds": 29,
+        "delaySeconds": 2.25
+      },
+      "portrait": {
+        "floorNineHudSeconds": 26,
+        "sustainedVioletSeconds": 28.25,
+        "delaySeconds": 2.25
+      },
+      "nativePhaseStatus": "SOURCE_CUE_AND_VISIBLE_PHASE_DISAGREE",
+      "largestDefect": "Old guardian doorway/Clockwork canopy remain visually foregrounded under the new wide F9 roof, then an abrupt violet-only raised-route transition loses the original bronze gate; no accepted continuous visible whole-hero + HP-open original steel + real F9 roof + elevated destination shot"
+    },
+    "recentEvidenceTruth": "8/8 original source narrative pairs with 0 integrity defects; strict event-to-native danger 0/2. Baseline ascent portrait native clock gap blocks full-film comparison and caused one capture job FAIL. Nine-job campaign plus pairing NOT PASS.",
+    "recentQualityTruth": "9/10 quality jobs PASS; Phase3 shard 1 FAIL at real-world 16-return fixture line 873 because asserted stages omitted later legitimate 'awaiting-vista-submission'. Production is not accepted; strengthened return >=6 and >=.52s causal checks while recognizing later returned-scene states.",
+    "actualChange": "On a physically rejected bounded final gateway camera, re-evaluate original real steel+whole moving player+authentic F9 roof+triangle occlusions+raised deck for the ordinary follow camera. If it also fails, and ONLY with recent current-run actually-rendered Floor9 camera + HP0 owner and short valid lease, test previous submitted physical camera in current source and reuse it only if ALL physical predicates pass. Otherwise restore ordinary follow. Add genuine counters and fail-closed regression tests. No physics, AI, events, platform, collision, guardian or HUD change.",
+    "captureUnblocker": "Make final scene.mjs and source-returned-gate-camera-release.mjs mandatory watched paths for original eight-film + ledge evidence workflow; commit to current branch requests immutable candidate HEAD for source-pinned capture. No baseline movement.",
+    "newCapture": "New same-branch workflow run to be inspected from current final commit; no source-pinned new camera footage available as of implementation, and no visual improvement claimed",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "independentReviews": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDeviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
+    "greatestRemainingGap": "Physical full-body source-retained gateway -> true receiving roof -> first elevated platform composition is not accepted in desktop and portrait; assess new source-pinned recording before P1",
+    "nextHighImpact": "Inspect corrected exact-HEAD Phase3 and full eight-film campaign including strict event-native danger, baseline ascent PTS; verify whether the previous-rendered camera rescue genuinely yields one continuous authentic scene, otherwise correct the common gateway/roof world-space staging. P1 remains blocked.",
+    "safety": "No baseline ledger modification, PR58 edit, unrelated game modification, force-push, merge, deploy or PR68 draft conversion"
   }
 }
