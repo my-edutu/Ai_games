@@ -340,19 +340,84 @@ export function populateMazeContent(base:MazeWorld,config:MazeConfig,rng:NamedRn
   return world;
 }
 
-export interface MazeInventorySolution{cells:number[];keyOrder:string[];doorOrder:string[];expansions:number}
+export interface MazeInventorySolution{cells:number[];keyOrder:string[];doorOrder:string[];expansions:number;guardianOrder?:string[]}
 export function solveMazeWithInventory(world:MazeWorld):MazeInventorySolution|null{
-  const keyIndex=new Map(world.keys.map((key,index)=>[key.id,index] as const)),stateCount=world.width*world.height*(1<<world.keys.length),parent=new Int32Array(stateCount);parent.fill(-2);const parentDoor=new Array<string|null>(stateCount).fill(null),queue:number[]=[];
-  const collect=(cell:number,mask:number)=>{for(const key of world.keys)if(key.cell===cell){const index=keyIndex.get(key.id);if(index!==undefined)mask|=1<<index}return mask};
-  const encode=(cell:number,mask:number)=>mask*world.width*world.height+cell,decode=(value:number)=>({cell:value%(world.width*world.height),mask:Math.floor(value/(world.width*world.height))});
-  const startMask=collect(world.start,0),startState=encode(world.start,startMask);parent[startState]=-1;queue.push(startState);let goalState=-1,expansions=0;
-  for(let q=0;q<queue.length;q++){const currentState=queue[q],{cell,mask}=decode(currentState);expansions++;if(cell===world.exit){goalState=currentState;break}for(const next of passageNeighbors(world,cell)){if(world.blockedCells.includes(next))continue;const door=doorBetween(world,cell,next);if(door&&!door.open){const required=keyIndex.get(door.requiredKeyId);if(required===undefined||!(mask&(1<<required)))continue}const nextMask=collect(next,mask),encoded=encode(next,nextMask);if(parent[encoded]!==-2)continue;parent[encoded]=currentState;parentDoor[encoded]=door?.id??null;queue.push(encoded)}}
-  if(goalState<0)return null;const states:number[]=[];for(let at=goalState;at!==-1;at=parent[at])states.push(at);states.reverse();const cells=states.map(state=>decode(state).cell),keyOrder:string[]=[],doorOrder:string[]=[];for(const cell of cells)for(const key of world.keys)if(key.cell===cell&&!keyOrder.includes(key.id))keyOrder.push(key.id);for(let i=1;i<states.length;i++){const door=parentDoor[states[i]];if(door&&!doorOrder.includes(door))doorOrder.push(door)}return{cells,keyOrder,doorOrder,expansions};
+  const keyIndex=new Map(world.keys.map((key,index)=>[key.id,index] as const));
+  // Validation models a capability acquired at a genuine straight counter
+  // vantage. It does not drive the AI or predict timed patrol movement; the
+  // fixture's live, unchanged policy must separately prove the full encounter.
+  const guardianIds=[...new Set(world.doors.flatMap(door=>
+    door.requiredGuardianId?[door.requiredGuardianId]:[]))].sort();
+  if(world.keys.length>4||guardianIds.length>8)return null;
+  const guardianIndex=new Map(guardianIds.map((id,index)=>[id,world.keys.length+index] as const));
+  const size=world.width*world.height,stateCount=size*(1<<(world.keys.length+guardianIds.length));
+  const parent=new Int32Array(stateCount);parent.fill(-2);
+  const parentDoor=new Array<string|null>(stateCount).fill(null),queue:number[]=[];
+  const has=(mask:number,index:number|undefined)=>index!==undefined&&!!(mask&(1<<index));
+  const allowed=(door:MazeDoor|undefined,mask:number)=>!door||door.open
+    ||(door.requiredGuardianId?has(mask,guardianIndex.get(door.requiredGuardianId))
+      :door.requiredKeyId!==null&&has(mask,keyIndex.get(door.requiredKeyId)));
+  const collect=(cell:number,mask:number)=>{
+    for(const key of world.keys)if(key.cell===cell){
+      const index=keyIndex.get(key.id);if(index!==undefined)mask|=1<<index;
+    }
+    for(const id of guardianIds){
+      const index=guardianIndex.get(id)!;
+      if(has(mask,index))continue;
+      const guardian=world.threats.find(threat=>threat.id===id);
+      if(!guardian||!guardian.active||guardian.route.length<2)continue;
+      if(guardian.lanternParried){mask|=1<<index;continue;}
+      const dx=guardian.cell%world.width-cell%world.width;
+      const dy=Math.floor(guardian.cell/world.width)-Math.floor(cell/world.width);
+      const distance=Math.abs(dx)+Math.abs(dy);
+      if(distance<1||distance>2||(dx!==0&&dy!==0))continue;
+      const offset=dx?Math.sign(dx):Math.sign(dy)*world.width;
+      let current=cell,connected=true;
+      for(let step=0;step<distance;step++){
+        const next=current+offset;
+        if(world.blockedCells.includes(next)||world.traps.includes(next)
+          ||!passageNeighbors(world,current).includes(next)
+          ||!passageNeighbors(world,next).includes(current)
+          ||!allowed(doorBetween(world,current,next),mask)){connected=false;break;}
+        current=next;
+      }
+      if(connected)mask|=1<<index;
+    }
+    return mask;
+  };
+  const encode=(cell:number,mask:number)=>mask*size+cell;
+  const decode=(value:number)=>({cell:value%size,mask:Math.floor(value/size)});
+  const startMask=collect(world.start,0),startState=encode(world.start,startMask);
+  parent[startState]=-1;queue.push(startState);let goalState=-1,expansions=0;
+  for(let q=0;q<queue.length;q++){
+    const currentState=queue[q]!,{cell,mask}=decode(currentState);expansions++;
+    if(cell===world.exit){goalState=currentState;break;}
+    for(const next of passageNeighbors(world,cell)){
+      if(world.blockedCells.includes(next))continue;
+      const door=doorBetween(world,cell,next);
+      if(!allowed(door,mask))continue;
+      const nextMask=collect(next,mask),encoded=encode(next,nextMask);
+      if(parent[encoded]!==-2)continue;
+      parent[encoded]=currentState;parentDoor[encoded]=door?.id??null;queue.push(encoded);
+    }
+  }
+  if(goalState<0)return null;
+  const states:number[]=[];for(let at=goalState;at!==-1;at=parent[at]!)states.push(at);
+  states.reverse();
+  const cells=states.map(state=>decode(state).cell),keyOrder:string[]=[],doorOrder:string[]=[];
+  for(const cell of cells)for(const key of world.keys)
+    if(key.cell===cell&&!keyOrder.includes(key.id))keyOrder.push(key.id);
+  for(let i=1;i<states.length;i++){
+    const door=parentDoor[states[i]!];if(door&&!doorOrder.includes(door))doorOrder.push(door);
+  }
+  const guardianOrder=guardianIds.filter(id=>has(decode(goalState).mask,guardianIndex.get(id)));
+  return{cells,keyOrder,doorOrder,expansions,...(guardianIds.length?{guardianOrder}:{})};
 }
 
 export interface MazeContentValidation{valid:boolean;reasons:string[];solutionExists:boolean;keyOrderValid:boolean;safeSpawn:boolean;solutionLength:number}
 export function validateMazeContent(world:MazeWorld,options:{minimumThreatResponseDistance?:number}={}):MazeContentValidation{
-  const reasons=[...validateGeneratedMaze(world).reasons],solution=solveMazeWithInventory(world),keyOrderValid=!!solution&&world.doors.every(door=>solution.keyOrder.indexOf(door.requiredKeyId)>=0&&solution.doorOrder.indexOf(door.id)>=0),minimum=options.minimumThreatResponseDistance??2,safeSpawn=world.threats.every(threat=>shortestDistance(world,world.start,threat.cell)>=minimum);
+  const reasons=[...validateGeneratedMaze(world).reasons],solution=solveMazeWithInventory(world),keyOrderValid=!!solution&&world.doors.every(door=>(door.requiredGuardianId?solution.guardianOrder?.includes(door.requiredGuardianId):door.requiredKeyId!==null&&solution.keyOrder.indexOf(door.requiredKeyId)>=0)&&solution.doorOrder.indexOf(door.id)>=0),minimum=options.minimumThreatResponseDistance??2,safeSpawn=world.threats.every(threat=>shortestDistance(world,world.start,threat.cell)>=minimum);
+  for(const door of world.doors)if(door.requiredGuardianId){const guardian=world.threats.find(threat=>threat.id===door.requiredGuardianId);if(door.requiredKeyId!==null||!guardian?.active||guardian.route.length<2)reasons.push('guardian-door-dependency');if(door.open&&!guardian?.lanternParried)reasons.push('guardian-door-unearned-release');}
   if(!solution)reasons.push('content-unsolved');if(!keyOrderValid)reasons.push('key-order');if(!safeSpawn)reasons.push('unsafe-threat-spawn');
   const occupied=[world.start,world.exit,...world.keys.map(key=>key.cell),...world.traps,...world.threats.map(threat=>threat.cell),...world.blockedCells];if(new Set(occupied).size!==occupied.length)reasons.push('content-overlap');
   for(const trap of world.traps)if(trap===world.start||trap===world.exit)reasons.push('trap-clearance');

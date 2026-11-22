@@ -21,7 +21,7 @@ function doorBlocksEdge(belief: MazeBeliefState, a: number, b: number, inventory
   const door = Object.values(belief.doors).find(
     item => (item.a === a && item.b === b) || (item.a === b && item.b === a),
   );
-  return !!door && !door.open && !inventory.includes(door.requiredKeyId);
+  return !!door && !door.open && (!door.requiredKeyId || !inventory.includes(door.requiredKeyId));
 }
 
 function gridDistance(a: number, b: number, width: number): number {

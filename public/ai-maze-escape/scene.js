@@ -2064,6 +2064,77 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         scenic.visible=true;
       }
     }
+    // TGC-01's open court keeps a retreating guardian publicly visible after
+    // its danger weight fades. The old danger-only lens could cut off its
+    // left legs while Pip discovers the gallery. Fit the complete current
+    // public meshes, not that stale danger weight or hidden room bounds.
+    // This changes only the real camera; geometry, AI and ±.95 gates stay.
+    if (s.layoutId === 'guardian-court-v1' && cameraMode === 'follow' && !result
+      && wardens.size > 0) {
+      const publicPartner=[...wardens.values()][0].model.group.position;
+      const dx=publicPartner.x-pose.x,dz=publicPartner.z-pose.z;
+      const length=Math.hypot(dx,dz);
+      if(length>.01){
+        // One consistent pair shot serves warning, counter and withdrawal.
+        // The old procedural recoil orbit was built around high walls; on
+        // this genuinely open court it scattered the actors across blank
+        // floor. Derive this lens only from the two current public roots.
+        const along=aspect<.75?18:7,across=aspect<.75?6:20;
+        cameraOffset.set((dx*along-dz*across)/length,18,
+          (dz*along+dx*across)/length);
+        cameraTarget.set((pose.x+publicPartner.x)/2,ground+.8,
+          (pose.z+publicPartner.z)/2);
+        camera.position.copy(cameraTarget).add(cameraOffset);camera.lookAt(cameraTarget);
+      }
+      camera.updateMatrixWorld();
+      let left=Infinity,right=-Infinity,bottom=Infinity,top=-Infinity;
+      for (const root of [explorer.group,...[...wardens.values()].map(entry=>entry.model.group)]) {
+        pressureReframeEnvelope.makeEmpty();
+        root.updateWorldMatrix(true,true);
+        root.traverseVisible(node=>{
+          if(!node.isMesh || !node.geometry)return;
+          if(!node.geometry.boundingBox)node.geometry.computeBoundingBox();
+          if(node.geometry.boundingBox)pressureReframeEnvelope.union(
+            pressureReframePiece.copy(node.geometry.boundingBox).applyMatrix4(node.matrixWorld));
+        });
+        if(pressureReframeEnvelope.isEmpty())continue;
+        for(const x of [pressureReframeEnvelope.min.x,pressureReframeEnvelope.max.x])
+          for(const y of [pressureReframeEnvelope.min.y,pressureReframeEnvelope.max.y])
+            for(const z of [pressureReframeEnvelope.min.z,pressureReframeEnvelope.max.z]){
+              pressureReframePoint.set(x,y,z).project(camera);
+              left=Math.min(left,pressureReframePoint.x);right=Math.max(right,pressureReframePoint.x);
+              bottom=Math.min(bottom,pressureReframePoint.y);top=Math.max(top,pressureReframePoint.y);
+            }
+      }
+      if(Number.isFinite(left)&&left<right&&bottom<top){
+        // Reserve the actually occupied native HUD rows. Do not conceal the
+        // goal, shrink a body, or call an actor behind a panel "in frame".
+        const rects=selector=>[...document.querySelectorAll(selector)]
+          .filter(el=>{const css=getComputedStyle(el);return css.display!=='none'
+            &&css.visibility!=='hidden'&&Number(css.opacity)>0;})
+          .map(el=>el.getBoundingClientRect()).filter(r=>r.width>1&&r.height>1);
+        const topRects=rects('.masthead, #hud .mission-block, #hud .metric-grid, #hud .inventory-card');
+        const bottomRects=rects('#hud .intent-card, #map-panel, #captions');
+        const safeTop=Math.min(.90,1-2*(Math.max(0,...topRects.map(r=>r.bottom))+12)/height);
+        const safeBottom=Math.max(-.90,1-2*(Math.min(height,...bottomRects.map(r=>r.top))-12)/height);
+        const safeHeight=Math.max(.50,safeTop-safeBottom);
+        const scale=Math.max((right-left)/1.84,(top-bottom)/safeHeight,
+          (aspect<.75?4.7:3.6)/halfHeight);
+        if(Math.abs(scale-1)>.001){
+          halfHeight*=scale;
+          camera.left=-halfHeight*aspect;camera.right=halfHeight*aspect;
+          camera.top=halfHeight;camera.bottom=-halfHeight;camera.updateProjectionMatrix();
+          left/=scale;right/=scale;bottom/=scale;top/=scale;
+        }
+        const dx=(right+left)/2;
+        const dy=(top+bottom-safeTop-safeBottom)/2;
+        pressureReframeRight.setFromMatrixColumn(camera.matrixWorld,0);
+        camera.position.addScaledVector(pressureReframeRight,dx*halfHeight*aspect);
+        pressureReframeRight.setFromMatrixColumn(camera.matrixWorld,1);
+        camera.position.addScaledVector(pressureReframeRight,dy*halfHeight);
+        camera.updateMatrixWorld();
+      }
+    }
     const background = settings.highContrast ? '#50665f' : '#b2c6b6';
     scene.background.set(background); scene.fog.color.set(background);
     renderer.render(scene, camera); frames++;

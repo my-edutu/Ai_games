@@ -15,6 +15,31 @@ const DEFAULT_SEEDS = Object.freeze([
   ...[3,13,5,0,1,2].map(index=>`maze-visual-reference-${index}`),
   ...Array.from({length:36},(_,index)=>`tideglass-live-chapter-${index}`)
 ]);
+// TGC-01 is one explicit authored chapter. Procedural seed selection below
+// remains available unchanged for regression evidence and explicit MAZE_SEED.
+const GUARDIAN_COURT_SEED = 'tideglass-guardian-court-v1';
+const GUARDIAN_COURT_CONFIG = Object.freeze({
+  width:17,height:11,layoutId:'guardian-court-v1',profile:'chambers',level:4,
+  intermissionTicks:12,maxTicks:18000,visibilityRadius:3,loopChancePermille:170,
+  keyCount:1,trapCount:1,threatCount:1,memoryTtl:400,noProgressTicks:3000,repairAttempts:3
+});
+function guardianCourtChapter(world){
+  if(world?.layoutId!=='guardian-court-v1')return null;
+  const guardian=world.threats[0];
+  const seal=world.doors.find(door=>door.requiredGuardianId===guardian?.id);
+  const key=world.keys[0];
+  const gate=world.doors.find(door=>door.requiredKeyId===key?.id);
+  const gallery=key&&passageNeighbors(world,key.cell);
+  const middle=gallery?.length===1?gallery[0]:undefined;
+  const links=middle===undefined?[]:passageNeighbors(world,middle);
+  const entry=links.length===2?links.find(cell=>cell!==key.cell):undefined;
+  const solution=solveMazeWithInventory(world);
+  if(!guardian||!seal||seal.requiredKeyId!==null||!key||!gate||entry===undefined
+    ||world.traps.length!==1||!solution||!solution.keyOrder.includes(key.id)
+    ||!solution.doorOrder.includes(gate.id))return null;
+  return Object.freeze({guardianId:guardian.id,pressureCell:world.traps[0],
+    guardianSealId:seal.id,keyId:key.id,gateId:gate.id,entryCell:entry,shrineCell:key.cell});
+}
 function row(cell,width){return Math.floor(cell/width)}
 function straight(a,b,c,width){
   return b%width-a%width===c%width-b%width &&
@@ -86,4 +111,5 @@ function chooseFlagshipLiveSeed(makeWorld,seeds=DEFAULT_SEEDS){
   // chapter. Never fabricate a key, passage, encounter, or validator result.
   return {seed:'maze-stream-reference',chapter:null};
 }
-module.exports={DEFAULT_SEEDS,naturalFlagshipChapter,chooseFlagshipLiveSeed};
+module.exports={DEFAULT_SEEDS,naturalFlagshipChapter,chooseFlagshipLiveSeed,
+  GUARDIAN_COURT_SEED,GUARDIAN_COURT_CONFIG,guardianCourtChapter};

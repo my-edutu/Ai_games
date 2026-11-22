@@ -12,7 +12,7 @@ const config={width:17,height:11,profile:'chambers',level:4,
   intermissionTicks:12,maxTicks:18000,visibilityRadius:3,loopChancePermille:170,
   keyCount:2,trapCount:5,threatCount:1,memoryTtl:400,noProgressTicks:3000,repairAttempts:3};
 const makeWorld=seed=>MazeRuntime.create(config,seed,{policy:'partial-observation'}).state.world;
-test('the native live opening picks a REAL joined chapter without changing generation or handing an oracle to the AI',()=>{
+test('the preserved procedural opening picks a REAL joined chapter without changing generation or handing an oracle to the AI',()=>{
   const chosen=chooseFlagshipLiveSeed(makeWorld);
   if(!chosen.chapter){
     // Keep the real strict gate RED. Source diagnostics search additional
@@ -26,7 +26,7 @@ test('the native live opening picks a REAL joined chapter without changing gener
   assert.ok(chosen.chapter,
     'No generated seed offers an honest pressure / straight Thornback / same-level two-link key / matching gate; improve the real level before calling it flagship');
   assert.equal(chosen.seed,'tideglass-live-chapter-1387',
-    'the original CI-discovered seed is selected in production, not a fallback or montage');
+    'the original CI-discovered procedural seed remains selected, not a fallback or montage');
   const original=makeWorld(chosen.seed);
   const saved=JSON.stringify(original);
   assert.deepEqual(naturalFlagshipChapter(original),chosen.chapter);

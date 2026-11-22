@@ -8,9 +8,13 @@ on:
       - 'games/ai-maze-escape/**'
       - 'tests/browser/maze-review.spec.cjs'
       - 'tests/browser/maze-3d.spec.cjs'
+      - 'tests/browser/maze-tgc01.spec.cjs'
+      - 'tests/foundation/maze-guardian-court-fixture.test.cjs'
       - 'tests/phase3/maze-*.test.cjs'
       - 'scripts/capture-maze-3d.cjs'
       - 'scripts/audit-maze-flagship-chapter.cjs'
+      - 'scripts/maze-flagship-chapter.cjs'
+      - 'scripts/serve-maze-stream.cjs'
       - '.github/workflows/maze-visual-evidence.yml'
   workflow_dispatch:
 
@@ -48,6 +52,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Build and test real Maze 3D presentation
         run: npm run test:maze:phase3
+      - name: Verify authored guardian court authority and procedural parity
+        run: node --test tests/foundation/maze-guardian-court-fixture.test.cjs
       - name: Verify live Maze stream host
         run: npm run maze:stream:self-test
       - name: Parse-check browser evidence before costly graphics setup
@@ -99,6 +105,9 @@ jobs:
       - name: Capture source-bound Maze browser evidence
         if: success() || steps.geometry.outcome == 'failure'
         run: npx playwright test tests/browser/maze-review.spec.cjs --workers=1 --reporter=list
+      - name: Verify authored court playthrough in all four native viewports
+        if: success() || steps.geometry.outcome == 'failure'
+        run: npx playwright test tests/browser/maze-tgc01.spec.cjs --config=playwright.maze-3d.config.cjs --workers=1 --reporter=list
       # This intentionally runs AFTER native captures. A real failure must not
       # starve the source-bound 320/390/844/1280 images needed to diagnose it.
       # Fatal for acceptance; the following always() artifact retains its JSON.

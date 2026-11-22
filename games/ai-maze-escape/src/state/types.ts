@@ -1,13 +1,13 @@
 import type{GameLifecycle,MazeConfig,MazeIntentMode,MazeRunResult}from '../../../../packages/game-contracts/src/index';import type{MazeInfluenceState}from '../influence/types';
-export interface MazeDoor{id:string;a:number;b:number;requiredKeyId:string;open:boolean;critical:boolean;temporaryUntilTick:number|null}
+export interface MazeDoor{id:string;a:number;b:number;requiredKeyId:string|null;requiredGuardianId?:string;open:boolean;critical:boolean;temporaryUntilTick:number|null}
 export interface MazeKey{id:string;cell:number;collected:boolean}
 export interface MazeThreat{id:string;cell:number;route:number[];routeIndex:number;direction:1|-1;lastSeenTick:number|null;active:boolean;pausedUntilTick?:number;lanternParried?:boolean}
-export interface MazeWorld{schemaVersion:1;width:number;height:number;passages:number[];start:number;exit:number;doors:MazeDoor[];keys:MazeKey[];traps:number[];clues:number[];checkpoints:number[];threats:MazeThreat[];blockedCells:number[];profile:string}
+export interface MazeWorld{schemaVersion:1;width:number;height:number;passages:number[];start:number;exit:number;doors:MazeDoor[];keys:MazeKey[];traps:number[];clues:number[];checkpoints:number[];threats:MazeThreat[];blockedCells:number[];profile:string;layoutId?:MazeConfig['layoutId']}
 export interface MazeFeatures{profile:string;cells:number;edges:number;loops:number;deadEnds:number;branchCells:number;shortestSolutionLength:number;chambers:number;dependencyDepth:number;trapCount:number;threatCount:number}
 export interface MazeGenerationDiagnostics{attempts:number;fallbackUsed:boolean;failedReasons:string[]}
 export interface GeneratedMaze{world:MazeWorld;features:MazeFeatures;diagnostics:MazeGenerationDiagnostics}
 export interface MazeBeliefCell{cell:number;neighbors:number[];lastSeenTick:number;confidencePermille:number;visits:number;trap:boolean;blocked:boolean;checkpoint:boolean;clue:boolean;exit:boolean}
-export interface MazeBeliefDoor{id:string;a:number;b:number;requiredKeyId:string;open:boolean;lastSeenTick:number}
+export interface MazeBeliefDoor{id:string;a:number;b:number;requiredKeyId:string|null;open:boolean;lastSeenTick:number}
 export interface MazeBeliefKey{id:string;cell:number;collected:boolean;lastSeenTick:number}
 export interface MazeBeliefThreat{id:string;cell:number;lastSeenTick:number}
 export interface MazeBeliefState{schemaVersion:1;cells:Record<string,MazeBeliefCell>;doors:Record<string,MazeBeliefDoor>;keys:Record<string,MazeBeliefKey>;threats:Record<string,MazeBeliefThreat>;frontiers:number[];revision:number;lastUpdatedTick:number}

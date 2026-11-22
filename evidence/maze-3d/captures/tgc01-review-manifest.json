@@ -1,0 +1,138 @@
+{
+  "milestone": "TGC-01",
+  "scope": "Accepted pre-commit spatial review; original full-frame native images. Final clean-commit evidence is attached to PR #53.",
+  "captures": [
+    {
+      "file": "tgc01-court-counter-320.png",
+      "capturedAt": "2026-11-22T21:54:26.055Z",
+      "sourceSha": "a97eb68fe73aab44e3645b58e7352937e07e8b68",
+      "workingTreeClean": false,
+      "sourceSha256": {
+        "index.html": "5fb45b58349b30c736c81d1e94115e54a0d757f93b5d0c39552830860bd632b0",
+        "app.js": "ca87366c2cef4fa880d52aa56999cf855d801034f93357d55705a7a851efcb0e",
+        "scene.js": "530c385f651bf780bce35d85b66e756c24900e9098131f8dfd69d1f2b799cfb2",
+        "world.js": "b9dcf0d97d209077f89dbffdf64761db1ed44beb5b1fbd97c5fda9588dccb8f7",
+        "characters.js": "2f6a172698d05822f3fc2ee4a3b1fd1aea98f4f79e29b6b70cf5d62c37e14ffa",
+        "gameplay-hud.css": "60e120be027a04b057be967892b72a1ac676b7a1e10fb0590e2e4df0ed89b89e"
+      },
+      "imageSha256": "12b7498d6e74ba226059420646ffb430ca7c2e5ecb2b4935143ad43f214f3830",
+      "viewport": {
+        "width": 320,
+        "height": 740
+      },
+      "seed": "tideglass-guardian-court-v1",
+      "tick": 9,
+      "runToken": "5cfb54f1"
+    },
+    {
+      "file": "tgc01-court-counter-390.png",
+      "capturedAt": "2026-11-22T21:54:50.487Z",
+      "sourceSha": "a97eb68fe73aab44e3645b58e7352937e07e8b68",
+      "workingTreeClean": false,
+      "sourceSha256": {
+        "index.html": "5fb45b58349b30c736c81d1e94115e54a0d757f93b5d0c39552830860bd632b0",
+        "app.js": "ca87366c2cef4fa880d52aa56999cf855d801034f93357d55705a7a851efcb0e",
+        "scene.js": "530c385f651bf780bce35d85b66e756c24900e9098131f8dfd69d1f2b799cfb2",
+        "world.js": "b9dcf0d97d209077f89dbffdf64761db1ed44beb5b1fbd97c5fda9588dccb8f7",
+        "characters.js": "2f6a172698d05822f3fc2ee4a3b1fd1aea98f4f79e29b6b70cf5d62c37e14ffa",
+        "gameplay-hud.css": "60e120be027a04b057be967892b72a1ac676b7a1e10fb0590e2e4df0ed89b89e"
+      },
+      "imageSha256": "c3ce264d41126ee9f740457d7b16cef0cb25105fc6a9d3b1b2785be8c2ff295b",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "seed": "tideglass-guardian-court-v1",
+      "tick": 9,
+      "runToken": "5cfb54f1"
+    },
+    {
+      "file": "tgc01-court-counter-844.png",
+      "capturedAt": "2026-11-22T21:55:16.108Z",
+      "sourceSha": "a97eb68fe73aab44e3645b58e7352937e07e8b68",
+      "workingTreeClean": false,
+      "sourceSha256": {
+        "index.html": "5fb45b58349b30c736c81d1e94115e54a0d757f93b5d0c39552830860bd632b0",
+        "app.js": "ca87366c2cef4fa880d52aa56999cf855d801034f93357d55705a7a851efcb0e",
+        "scene.js": "530c385f651bf780bce35d85b66e756c24900e9098131f8dfd69d1f2b799cfb2",
+        "world.js": "b9dcf0d97d209077f89dbffdf64761db1ed44beb5b1fbd97c5fda9588dccb8f7",
+        "characters.js": "2f6a172698d05822f3fc2ee4a3b1fd1aea98f4f79e29b6b70cf5d62c37e14ffa",
+        "gameplay-hud.css": "60e120be027a04b057be967892b72a1ac676b7a1e10fb0590e2e4df0ed89b89e"
+      },
+      "imageSha256": "437558748fcbab84dc8ec22d8038bf221c9912db856e5a755a27ec594babcf29",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "seed": "tideglass-guardian-court-v1",
+      "tick": 9,
+      "runToken": "5cfb54f1"
+    },
+    {
+      "file": "tgc01-court-counter-1280.png",
+      "capturedAt": "2026-11-22T21:55:46.345Z",
+      "sourceSha": "a97eb68fe73aab44e3645b58e7352937e07e8b68",
+      "workingTreeClean": false,
+      "sourceSha256": {
+        "index.html": "5fb45b58349b30c736c81d1e94115e54a0d757f93b5d0c39552830860bd632b0",
+        "app.js": "ca87366c2cef4fa880d52aa56999cf855d801034f93357d55705a7a851efcb0e",
+        "scene.js": "530c385f651bf780bce35d85b66e756c24900e9098131f8dfd69d1f2b799cfb2",
+        "world.js": "b9dcf0d97d209077f89dbffdf64761db1ed44beb5b1fbd97c5fda9588dccb8f7",
+        "characters.js": "2f6a172698d05822f3fc2ee4a3b1fd1aea98f4f79e29b6b70cf5d62c37e14ffa",
+        "gameplay-hud.css": "60e120be027a04b057be967892b72a1ac676b7a1e10fb0590e2e4df0ed89b89e"
+      },
+      "imageSha256": "02fea3f7078dd42dbd4a1adfdda354f5566470a5198097de985ef916d6d3c6f1",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "seed": "tideglass-guardian-court-v1",
+      "tick": 9,
+      "runToken": "5cfb54f1"
+    },
+    {
+      "file": "tgc01-court-key-390.png",
+      "capturedAt": "2026-11-22T21:54:58.865Z",
+      "sourceSha": "a97eb68fe73aab44e3645b58e7352937e07e8b68",
+      "workingTreeClean": false,
+      "sourceSha256": {
+        "index.html": "5fb45b58349b30c736c81d1e94115e54a0d757f93b5d0c39552830860bd632b0",
+        "app.js": "ca87366c2cef4fa880d52aa56999cf855d801034f93357d55705a7a851efcb0e",
+        "scene.js": "530c385f651bf780bce35d85b66e756c24900e9098131f8dfd69d1f2b799cfb2",
+        "world.js": "b9dcf0d97d209077f89dbffdf64761db1ed44beb5b1fbd97c5fda9588dccb8f7",
+        "characters.js": "2f6a172698d05822f3fc2ee4a3b1fd1aea98f4f79e29b6b70cf5d62c37e14ffa",
+        "gameplay-hud.css": "60e120be027a04b057be967892b72a1ac676b7a1e10fb0590e2e4df0ed89b89e"
+      },
+      "imageSha256": "040af801e2ff786cf41d25450f083c7620a4f76c556bbc3c6f3bb5a79a28a29d",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "seed": "tideglass-guardian-court-v1",
+      "tick": 19,
+      "runToken": "5cfb54f1"
+    },
+    {
+      "file": "tgc01-court-escape-390.png",
+      "capturedAt": "2026-11-22T21:55:06.131Z",
+      "sourceSha": "a97eb68fe73aab44e3645b58e7352937e07e8b68",
+      "workingTreeClean": false,
+      "sourceSha256": {
+        "index.html": "5fb45b58349b30c736c81d1e94115e54a0d757f93b5d0c39552830860bd632b0",
+        "app.js": "ca87366c2cef4fa880d52aa56999cf855d801034f93357d55705a7a851efcb0e",
+        "scene.js": "530c385f651bf780bce35d85b66e756c24900e9098131f8dfd69d1f2b799cfb2",
+        "world.js": "b9dcf0d97d209077f89dbffdf64761db1ed44beb5b1fbd97c5fda9588dccb8f7",
+        "characters.js": "2f6a172698d05822f3fc2ee4a3b1fd1aea98f4f79e29b6b70cf5d62c37e14ffa",
+        "gameplay-hud.css": "60e120be027a04b057be967892b72a1ac676b7a1e10fb0590e2e4df0ed89b89e"
+      },
+      "imageSha256": "9614f6244c8fa556facade9d9b1e9feb2eefb7b34fb6270c75cfcaf056204da9",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "seed": "tideglass-guardian-court-v1",
+      "tick": 24,
+      "runToken": "5cfb54f1"
+    }
+  ]
+}

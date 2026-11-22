@@ -71,6 +71,17 @@ export function stepMazeThreats(
         threat.pausedUntilTick=next.tick+3;
         events.push({tick:next.tick,type:'guardian-lantern-parry',
           data:{id:threat.id,cell:threat.cell}});
+        // Authored guardian seals are real collision/visibility boundaries.
+        // Only the successful rule counter above releases them; an inventory
+        // key, presentation event, elapsed timer or unseen guardian cannot.
+        for (const door of next.world.doors) {
+          if (door.open || door.requiredGuardianId !== threat.id) continue;
+          door.open = true;
+          next.stats.doorsOpened++;
+          next.meaningfulEventTick = next.tick;
+          events.push({tick:next.tick,type:'guardian-gate-opened',
+            data:{id:door.id,guardianId:threat.id}});
+        }
         break;
       }
     }

@@ -18,7 +18,7 @@ export interface MazeObservedDoor {
   id: string;
   a: number;
   b: number;
-  requiredKeyId: string;
+  requiredKeyId: string | null;
   open: boolean;
 }
 

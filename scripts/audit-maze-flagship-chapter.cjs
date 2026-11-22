@@ -8,14 +8,10 @@ const path=require('node:path');
 const {execFileSync}=require('node:child_process');
 const {MazeRuntime}=require('../dist/games/ai-maze-escape/src/runtime/run.js');
 const {buildMazeRenderSnapshot}=require('../dist/games/ai-maze-escape/src/presentation/snapshot.js');
-const {chooseFlagshipLiveSeed}=require('./maze-flagship-chapter.cjs');
-
-const CONFIG={width:17,height:11,profile:'chambers',level:4,
-  intermissionTicks:12,maxTicks:18000,visibilityRadius:3,
-  loopChancePermille:170,keyCount:2,trapCount:5,threatCount:1,
-  memoryTtl:400,noProgressTicks:3000,repairAttempts:3};
-const selected=chooseFlagshipLiveSeed(seed=>
-  MazeRuntime.create(CONFIG,seed,{policy:'partial-observation'}).state.world);
+const {GUARDIAN_COURT_CONFIG:CONFIG,GUARDIAN_COURT_SEED,guardianCourtChapter}=
+  require('./maze-flagship-chapter.cjs');
+const selected={seed:GUARDIAN_COURT_SEED,chapter:guardianCourtChapter(
+  MazeRuntime.create(CONFIG,GUARDIAN_COURT_SEED,{policy:'partial-observation'}).state.world)};
 const audit={
   sourceSha:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),
   check:'uninterrupted default live chapter, genuine partial-observation AI',
@@ -25,7 +21,7 @@ const audit={
 };
 const output=path.join(__dirname,'..','artifacts','maze-phase3','natural-flagship-chapter-audit.json');
 try{
-  if(!selected.chapter)throw new Error('Default generated world has no connected flagship chapter');
+  if(!selected.chapter)throw new Error('Default authored world has no connected guardian court chapter');
   const chapter=selected.chapter;
   const runtime=MazeRuntime.create(CONFIG,selected.seed,{policy:'partial-observation'});
   let runToken=null;
@@ -51,10 +47,12 @@ try{
     const key=s.inventory.includes(chapter.keyId);
     const returned=key&&s.currentCell===chapter.entryCell;
     const gate=s.doors.find(d=>d.id===chapter.gateId&&d.open);
+    const guardianSeal=s.doors.find(d=>d.id===chapter.guardianSealId&&d.open);
     if(pressure)remember('pressureSeen',s);
     if(guardian)remember('guardianSeen',s);
     if(guardian?.lanternParried&&audit.witnesses.guardianSeen
       &&audit.witnesses.guardianSeen.tick<s.tick)remember('earnedCounter',s);
+    if(guardianSeal)remember('guardianGalleryOpened',s);
     if(gallery)remember('shrineVisited',s);
     if(key)remember('keyCollected',s);
     if(returned)remember('galleryReturned',s);
@@ -84,6 +82,12 @@ try{
   // of the existing strict geometry, visual, safety or accessibility gates.
   // A future long walk must fail acceptance even if escape eventually occurs.
   const counterTick=audit.witnesses.earnedCounter?.tick;
+  const released=runtime.events.find(event=>event.type==='guardian-gate-opened');
+  const parry=runtime.events.find(event=>event.type==='guardian-lantern-parry');
+  audit.galleryRelease={eventTick:released?.tick??null,counterTick:parry?.tick??null,
+    publicFirstSeenTick:audit.witnesses.guardianGalleryOpened?.tick??null};
+  if(!released||released.tick!==parry?.tick)
+    audit.issues.push('Guardian gallery must open as a direct real counter consequence');
   const keyTick=audit.witnesses.keyCollected?.tick;
   const counterToKey=Number.isSafeInteger(counterTick)&&Number.isSafeInteger(keyTick)
     ?keyTick-counterTick:null;

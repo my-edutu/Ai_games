@@ -1337,9 +1337,70 @@ export function createMazeWorld(options = {}) {
     }
     for (let j = 0; j < 3; j++) plant(x - span + j * .08, 2.8 - j * .42, z + .17, seed + j * 5, cell, 1.4 - j * .15);
   }
+  // TGC-01 is an authored level with its own deliberately plain blockout.
+  // The layout id selects the treatment, never the shape: every floor and
+  // boundary below comes exclusively from the ordinary disclosed snapshot.
+  // In particular, the renderer has no copy of the private court coordinates.
+  function rebuildAuthoredCourtGreybox(s) {
+    const known = new Map(s.cells.map(cell => [cell.cell, cell]));
+    const edges = new Set();
+    const gateEdges = new Set((s.doors || []).map(door => doorEdgeId(door.a, door.b)));
+    for (const cell of s.cells) {
+      const id = cell.cell, { x, z } = cellPosition(id, s.width, s.height);
+      const floor = cellHeight(id, s.width, s.height);
+      // Full cell-width tops meet without false gaps across genuinely open
+      // reciprocal edges. A closed edge receives an opaque low stone wall.
+      add(box, darkJade, x, -.29, z, CELL_SIZE, .38, CELL_SIZE, id);
+      add(box, cell.trap ? darkMetal : stone, x, -.05, z,
+        CELL_SIZE, .10, CELL_SIZE, id);
+      if (cell.blocked) {
+        block(deepStone, x, .25, z, 2.24, .50, 2.24, id);
+      }
+      const col = id % s.width, row = Math.floor(id / s.width);
+      const sides = [
+        { dx: 0, dz: -1, n: row > 0 ? id - s.width : -1 },
+        { dx: 1, dz: 0, n: col + 1 < s.width ? id + 1 : -1 },
+        { dx: 0, dz: 1, n: row + 1 < s.height ? id + s.width : -1 },
+        { dx: -1, dz: 0, n: col > 0 ? id - 1 : -1 },
+      ];
+      for (const { dx, dz, n } of sides) {
+        const other = known.get(n);
+        const publishedOpen = cell.neighbors.includes(n);
+        const reciprocal = publishedOpen && other?.neighbors.includes(id);
+        if (reciprocal && !cell.blocked && !other.blocked) {
+          const rise = cellHeight(n, s.width, s.height) - floor;
+          if (rise > 0) {
+            stairEdges.push([id, n]);
+            for (let step = 0; step < STAIR_COUNT; step++) {
+              const distance = STAIR_START + (step + .5) * STAIR_RUN / STAIR_COUNT;
+              const top = (step + 1) * rise / STAIR_COUNT;
+              add(box, stone, x + dx * distance, top / 2, z + dz * distance,
+                dz ? STAIR_HALF_WIDTH * 2 : STAIR_RUN / STAIR_COUNT + .002,
+                top, dx ? STAIR_HALF_WIDTH * 2 : STAIR_RUN / STAIR_COUNT + .002, id);
+            }
+          }
+          continue;
+        }
+        // No constructed bridge or decoration in an unpublished neighbor.
+        if (publishedOpen && !other) continue;
+        const edge = n >= 0 ? doorEdgeId(id, n) : `${id}:outside:${dx}:${dz}`;
+        if (edges.has(edge) || gateEdges.has(edge)) continue;
+        edges.add(edge);
+        block(darkJade, x + dx * 1.13, .19, z + dz * 1.13,
+          dz ? CELL_SIZE : .14, .38, dx ? CELL_SIZE : .14, id);
+        block(lightStone, x + dx * 1.13, .41, z + dz * 1.13,
+          dz ? CELL_SIZE : .22, .08, dx ? CELL_SIZE : .22, id);
+      }
+    }
+    finishBatches();
+  }
   function rebuildTerrain(s) {
     treasureGalleryTiles = 0; pressureRetainingGalleries = 0; guardianCourtTiles = 0; guardianBlockedReliefTiles = 0; guardianCausewayTiles = 0; guardianForecourtShoulderTiles = 0; guardianOuterCourtFloorTiles = 0; guardianOuterCourtSealedTiles = 0; shorelineLoadFacades = 0;
     clear(terrain); fossilSails = []; fossilOrgans = []; guardianTideSignals = []; treasureGallerySignals = []; batchData = new Map(); renderedCells = s.cells.map(c => c.cell); stairEdges = []; stairBalustrades = 0; tideFossilGroves = 0; tideFossilAlcoves = 0; fossilGalleryEdges = 0; undercroftButtresses = 0; hangingFacadeGardens = 0; closedTideMedallions = 0; coastalGardens = 0; wallGardens = 0; coastCanopies = 0; tidalObservatories = 0; sculptedMosaicWalls = 0; tidePennants = 0; perimeterCascades = 0; collapsedPavilions = 0; shellBasins = 0, windcatcherTowers = 0, wallWindcatchers = 0; gateForecourtParapets = 0; pressureStageParapets = 0; guardianSightlineParapets = 0; gateCourtRosettes = 0;
+    if (s.layoutId === 'guardian-court-v1') {
+      rebuildAuthoredCourtGreybox(s);
+      return;
+    }
     const edges = new Set(), columns = new Set(), landmarkSites = new Map();
     const treasureGallery=publicTwoLinkTreasureGallery(s);
     const guardianSightlines=publicGuardianStageCells(s);
@@ -2863,6 +2924,10 @@ export function createMazeWorld(options = {}) {
     dais.position.set(KEY_SHRINE_OFFSET.x, 0, KEY_SHRINE_OFFSET.z);
     p.add(dais);
     pedestal(dais, darkJade, .43);
+    // The authored greybox keeps the physical key and socket legible. Its
+    // low court has no need for the old procedural treasure proscenium,
+    // whose tall foreground posts hid Pip's pickup in the native 320 frame.
+    if (s.layoutId !== 'guardian-court-v1') {
     // A broad original shell reliquary behind the *actually discovered* key
     // gives this treasure a physical place. It is non-emissive architecture:
     // not a second collectible, false gate, secret passage or gameplay cue.
@@ -2979,6 +3044,7 @@ export function createMazeWorld(options = {}) {
         animations.push({type:'key-shrine', object:petal, keyId:key.id});
         animations.push({type:'key-sail', object:sail, keyId:key.id});
       }
+    }
     }
     if (key.collected) {
       // A dark, empty, stone-cut recess stays visible. No second key,
@@ -3135,6 +3201,17 @@ export function createMazeWorld(options = {}) {
       // physically closed until the authoritative door.open state changes.
       // No hidden key position or future unlock is represented here.
       const required = door.requiredKeyId;
+      if (required === null) {
+        // A public keyless barrier is a guardian seal. Do not promise an
+        // inventory key or expose the private guardian dependency. The same
+        // authoritative open transition retracts these actual bars and crest.
+        const crest = new THREE.Group(); crest.name = 'Closed guardian seal'; gate.add(crest);
+        mesh(crest, bevel, darkMetal, 0, .79, .40, .66, .72, .14);
+        mesh(crest, ring, inlay, 0, .79, .50, .28, .28, .12);
+        for (const side of [-1, 1])
+          mesh(crest, bevel, danger, side * .12, .79, .59, .10, .34, .08, 0, 0, side * .35);
+        return;
+      }
       const carried = typeof required === 'string' && Array.isArray(s.inventory)
         && s.inventory.includes(required);
       const observed = typeof required === 'string' && s.keys.some(key =>
@@ -3890,7 +3967,7 @@ export function createMazeWorld(options = {}) {
         if(cardinal===1)reefVisibility.add(n);
       }
     }
-    const terrainKey = s.cells.map(c =>
+    const terrainKey = (s.layoutId || 'procedural') + '#' + s.cells.map(c =>
       `${c.cell}/${c.neighbors.join('.')}/${+c.blocked}/${+!!c.trap}/${+!!c.checkpoint}/${+!!c.clue}`).join('|')
       + '#' + gateKey + '#relic:' + knownKeyRelicCells + ':' + disclosedExitRelicCell
       + '#public-guardian-court:' + [...publicGuardianStageCells(s)].sort((a,b)=>a-b).join('.')
