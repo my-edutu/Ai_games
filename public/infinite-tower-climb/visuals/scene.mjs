@@ -34,6 +34,7 @@ import { guardianGateSilhouetteInterference, guardianGateScreenDominance, guardi
 import { observedGuardianTransmissionCorners } from './guardian-transmission-layout.mjs';
 import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
 import { sourceReturnedGateCameraRelease, sourceRetainedGatewayCameraContinuity, assessSourceRetainedGatewayPhysicalShot, sourceReturnedGatewayLastCameraEligible } from './source-returned-gate-camera-release.mjs';
+import { sourceFirstRaisedFlightGaze } from './source-first-raised-flight-gaze.mjs';
 import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, sourceRaisedBackdropClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceThreeSubjectActorScaleGain, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe, sourceThreeSubjectPhysicalGain } from './physical-threshold-shot.mjs';
 import { sourceSubmittedDoorwayCameraDt, sourceCroppedHeroRecoveryDt } from './source-submitted-doorway-cadence.mjs';
 import { createTowerVoidProgramPrewarm } from './void-program-prewarm.mjs';
@@ -5978,6 +5979,92 @@ export function createTowerScene(canvas, settings = {}) {
           }
           retainedGateCameraVetoed=Math.min(1000000,
             retainedGateCameraVetoed+1);
+        }
+      }
+      // FINAL source-authenticated first-raised-flight composition:
+      // the normal-speed portrait film 45008437069 loses the real moving
+      // climber as the returned original F8 gateway hands the F9 camera to
+      // the first elevated deck. This runs AFTER every gateway/guardian
+      // director and BEFORE the one real WebGL render. Fix the existing gaze
+      // only, not gameplay or the physical camera's position. Keep a
+      // currently readable ORIGINAL gate and real next landing in frame
+      // where the current Three.js scene can actually support all of them.
+      if (!options.stale && !options.reducedMotion &&
+          options.camera==='follow' && snapshot?.floor===9 &&
+          snapshot?.lifecycle==='running' && snapshot.player?.health>0) {
+        const raisedLanding=intendedLanding(snapshot);
+        if (raisedLanding && typeof raisedLanding.id==='string' &&
+            raisedLanding.id.startsWith('f9:p')) {
+          releaseHero.copy(climber.group.position);
+          releaseHero.y+=snapshot.player.halfHeight/SCALE;
+          measureDuelBodyNdc(releaseHero,snapshot.player.halfHeight/SCALE,
+            camera,duelTop,duelBottom,releaseHeroNdc);
+          const raisedWorld=pointFor(
+            raisedLanding.x+Math.floor(raisedLanding.width*.5),
+            raisedLanding.y+raisedLanding.height,
+            snapshot.chunkBaseY,snapshot.worldWidth,25);
+          const raisedPoint=new THREE.Vector3(
+            raisedWorld.x,raisedWorld.y+.14,raisedWorld.z);
+          const originalRaisedNdc=raisedPoint.clone().project(camera);
+          const originalBodyNdc=releaseHeroNdc.slice();
+          const oldSteelHeld=retainedColdArrival?.guardianGateRetained===true &&
+            retainedColdArrival.originalGatewayOpacity>.035;
+          const steelBefore=oldSteelHeld
+            ?world.projectedOriginalGateSteel(snapshot,camera):null;
+          const proposal=sourceFirstRaisedFlightGaze(snapshot,{
+            camera:options.camera,stale:options.stale,
+            reducedMotion:options.reducedMotion,
+            aspect:camera.aspect,dt,
+            focus:lookAt.toArray(),hero:releaseHero.toArray(),
+            landing:raisedPoint.toArray(),heroNdc:originalBodyNdc
+          });
+          if(proposal){
+            releasePreviousFocus.copy(lookAt);
+            lookAt.set(...proposal.gaze);
+            camera.lookAt(lookAt);
+            camera.updateMatrixWorld(true);
+            measureDuelBodyNdc(releaseHero,
+              snapshot.player.halfHeight/SCALE,
+              camera,duelTop,duelBottom,releaseHeroNdc);
+            const initialCrop=Math.max(
+              Math.abs(originalBodyNdc[0])+originalBodyNdc[3]*.14,
+              Math.abs(originalBodyNdc[1])+originalBodyNdc[3]);
+            const newCrop=Math.max(
+              Math.abs(releaseHeroNdc[0])+releaseHeroNdc[3]*.14,
+              Math.abs(releaseHeroNdc[1])+releaseHeroNdc[3]);
+            const raisedNdc=raisedPoint.clone().project(camera);
+            const landingStayedReadable=
+              !(originalRaisedNdc.z>=-1&&originalRaisedNdc.z<=1 &&
+                Math.abs(originalRaisedNdc.x)<.85 &&
+                Math.abs(originalRaisedNdc.y)<.85) ||
+              (raisedNdc.z>=-1&&raisedNdc.z<=1 &&
+                Math.abs(raisedNdc.x)<.90&&
+                Math.abs(raisedNdc.y)<.90);
+            const steelAfter=steelBefore?.sourceBound===true &&
+                steelBefore.projectedPanes>=2 &&
+                steelBefore.projectedMetalArea>=.012
+              ?world.projectedOriginalGateSteel(snapshot,camera):null;
+            const originalGatewayPreserved=!steelAfter ||
+              (steelAfter.sourceBound===true &&
+                steelAfter.projectedPanes>=2 &&
+                steelAfter.projectedMetalArea>=
+                  Math.max(.012,steelBefore.projectedMetalArea*.76));
+            const actorSafe=releaseHeroNdc.every(Number.isFinite) &&
+              releaseHeroNdc[2]>=-1&&releaseHeroNdc[2]<=1 &&
+              releaseHeroNdc[3]>=.04 &&
+              Math.abs(releaseHeroNdc[0])+releaseHeroNdc[3]*.14<.80 &&
+              Math.abs(releaseHeroNdc[1])+releaseHeroNdc[3]<.80 &&
+              towerCoreSightlineClear(camera.position,releaseHero,23.5);
+            if(!actorSafe || !(newCrop<initialCrop-.0001) ||
+               !landingStayedReadable || !originalGatewayPreserved) {
+              // A source-eligible gaze is not automatically a valid shot.
+              // On a failed physical/whole-body proposal retain the last
+              // director's truthful pose; never invent a rescue frame.
+              lookAt.copy(releasePreviousFocus);
+              camera.lookAt(lookAt);
+              camera.updateMatrixWorld(true);
+            }
+          }
         }
       }
       const sceneReadyAt = performance.now();
