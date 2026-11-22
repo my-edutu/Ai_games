@@ -26,8 +26,8 @@ jobs:
           node - <<'JS'
           const fs=require('node:fs'),vm=require('node:vm');
           const html=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
-          const scripts=[...html.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/g)];
-          if(!scripts.length)throw Error('Missing actual playable game script');
-          for(const match of scripts)new vm.Script(match[1],{filename:'tiny-kingdom-inline.js'});
-          console.log('Compiled original inline game script(s):',scripts.length);
+          const start=html.indexOf('<script>'),end=html.lastIndexOf('</script>');
+          if(start<0||end<=start)throw Error('Missing actual playable game script');
+          new vm.Script(html.slice(start+'<script>'.length,end),{filename:'tiny-kingdom-inline.js'});
+          console.log('Compiled original inline game script: 1');
           JS
