@@ -201,5 +201,41 @@
       "PLAYS": "0/5",
       "hardware": "NOT EVALUATED"
     }
+  },
+  "run20261122_1333Lagos": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "previousPRHeadSha": "600dc7aaa7fbe4cedab896e56544131dbf10b53e",
+    "productionSourceSha": "efcd953d13f52ef14ffd28a33149b11a1cdfc249",
+    "immutableFrozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenLedgerBlobSha": "b8aa51bb5bb50b55222fb6b947472692c87c822a",
+    "auditedPredecessorQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45019382057 — 10/10 quality jobs success, safety veto not experience acceptance",
+    "auditedPredecessorCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45019236530 — authentic source-pinned 8/8 baseline/candidate movies + ledge; strict source-native danger pairing FAIL 0/2",
+    "mostImportantFootageDefect": "Actual 960×600 and 390×844 candidate normal-speed film shows bronze Floor8 original room -> discontinuous large violet Floor9 room around 27–29s; no accepted same-shot original gate, full moving climber, true receiving roof and next raised platform",
+    "blockerFound": "The final camera continuity guard required source.lastGuardianCrossing even during the first genuinely returned Floor9 shots. Earlier source-pinned native returns prove Floor9 renderer draws may precede publication of that optional immutable crossing field. Thus this final guard silently returned null as the active director could change shoulders.",
+    "implemented": "The final renderer camera orbit now also accepts strictly current-tick World-certified source-owned original opened gateway, real Floor9 receiving roof, valid received-source floor advance and same-run previously returned Floor9 camera ONLY when source.lastGuardianCrossing is absent. A present but invalid crossing still vetoes. Camera motion stays bounded; existing full climber/old steel/physical deck 3D occlusion checks remain authoritative. No gameplay authority, floor progress, HP, geometry, restart or sound changes.",
+    "implementationFiles": [
+      "public/infinite-tower-climb/visuals/source-returned-gate-camera-release.mjs",
+      "public/infinite-tower-climb/visuals/scene.mjs",
+      "tests/phase3/tower-earned-floor-nine-final-orbit-guard.test.cjs"
+    ],
+    "localFocusedProof": "Before change same missing-crossing source contract returns null (RED); after change source-authentic held-geometry and previous-render camera returns angle-limited proposal, wrong-run retained proof vetoed. Local in-process pure helper tested; exact-source full Phase3 CI not yet finished.",
+    "sourcePinnedCandidateCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45023384344 — queued at inspection; baseline immutable SHA and candidate efcd953d13f52ef14ffd28a33149b11a1cdfc249; 9 jobs requested",
+    "exactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45023384309 — queued at inspection; NOT yet counted passing",
+    "requiredNextOriginalVideo": "Full 60+ sec 1x source-pinned desktop 960×600 and portrait 390×844 replay at matched low tier/seed, witness acceptedFromCurrentReturnedGateBeforePublicCrossing vs veto counts and ensure first F9 physical camera is readable; inspect native video at 24–32s and strict event pairing",
+    "evidenceGap": "Observed source callback/gate diagnostics and local policy test cannot prove pixels or actual play quality. If early camera still cuts, fix physically retained old/new world composition or first F9 lens, not another shader fade. Require genuine completed source-native event mapping in 2/2 viewports.",
+    "independentBlindFreshCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualTargetDevice": {
+      "frameTimeP50": "NOT EVALUATED",
+      "frameTimeP95": "NOT EVALUATED",
+      "frameTimeP99": "NOT EVALUATED",
+      "memory": "NOT EVALUATED"
+    },
+    "nextHighestImpact": "Inspect queued exact source capture and identify whether source-certified early camera proof was ACTUALLY active on physical frames; if physical veto or published-event gap persists, repair old/new exterior scene in single spatial composition and source-to-native event time alignment. Continue P0.",
+    "restrictions": "No PR58 modification, baseline move, force-push, merge, deployment, ready-for-review conversion or unrelated games"
   }
 }
