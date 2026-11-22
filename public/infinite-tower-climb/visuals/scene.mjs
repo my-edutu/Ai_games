@@ -38,7 +38,7 @@ import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClear
 import { sourceSubmittedDoorwayCameraDt, sourceCroppedHeroRecoveryDt } from './source-submitted-doorway-cadence.mjs';
 import { createTowerVoidProgramPrewarm } from './void-program-prewarm.mjs';
 import { sourceOriginalGatewayCameraBridge, observedOriginalGatewaySubmittedView } from './original-gateway-submitted-camera-bridge.mjs';
-import { assessOriginalGatewayPhysicalCameraBridge, assessOriginalGatewayThreeSubjectCameraFrame, selectOriginalGatewayThreeSubjectTrials, sourceGatewayNeedsExpensiveOpticalSearch } from './original-gateway-camera-ray-contract.mjs';
+import { assessOriginalGatewayPhysicalCameraBridge, assessOriginalGatewayThreeSubjectCameraFrame, selectOriginalGatewayThreeSubjectTrials, sourceGatewayNeedsExpensiveOpticalSearch, sourceOriginalGatewayJointGazeCandidates } from './original-gateway-camera-ray-contract.mjs';
 import { gatewayScreenError, acceptEarnedGatewayEscort, earnedGatewayEscortResponse, observedGroundedGatewayShot, observedAirborneGatewayShot, observedLiveGuardianLastStandShot, observedGroundedHandoffShot, observedAirborneHandoffShot, observedEarnedCrossfloorJointShot, safeEarnedGatewayDollyRadius } from './guardian-gateway-framing.mjs';
 import { acceptObservedDuelDolly } from './duel-lens.mjs';
 import { sourceCriticalSightlinePriorities } from './critical-sightlines.mjs';
@@ -4959,6 +4959,18 @@ export function createTowerScene(canvas, settings = {}) {
           // Spend ONE of the same THREE physical trials on that fallback,
           // never add unbounded casts or accept a source-less camera. The
           // other two retain the existing exterior bronze-clearance probes.
+          // Use the SAME three authentic gateway ray/metal probes, but
+          // do not point every portrait camera at the old, unchanging
+          // Floor8 gaze while the real skinned hero crosses onto the
+          // successor roof. The alternative focuses are derived ONLY from
+          // the current source-owned body, HP-open original gate and actual
+          // walkable F9 roof. No extra submissions or physics authority.
+          const portraitJointGazes=sourceOriginalGatewayJointGazeCandidates({
+            aspect:camera.aspect,dt:cameraDt,
+            currentGaze:archiveGaze.toArray(),
+            hero:thresholdHero.toArray(),gateway:thresholdGate.toArray(),
+            walkable:thresholdWalkable.toArray()
+          });
           const sourceBlendFallback=originalBridge.weight>.72;
           const boundedTrials=sourceBlendFallback
             ?[{kind:'source-blend',weight:.72},
@@ -4966,7 +4978,7 @@ export function createTowerScene(canvas, settings = {}) {
                 kind:'exterior',yaw,pullback,lift}))]
             :rescueTrials.map(([yaw,pullback,lift])=>({
                 kind:'exterior',yaw,pullback,lift}));
-          for(const trial of boundedTrials){
+          for(const [trialIndex,trial] of boundedTrials.entries()){
             if(trial.kind==='source-blend'){
               camera.position.set(
                 thresholdPreviousCamera.x+(originalBridge.camera[0]-
@@ -4989,6 +5001,12 @@ export function createTowerScene(canvas, settings = {}) {
                 Math.cos(startAzimuth+trial.yaw)*(radius+trial.pullback));
               lookAt.copy(archiveGaze);
             }
+            // Only an already-eligible source-authenticated lens can reach
+            // this point. The unchanged current Three.js body/door/roof,
+            // opaque-core and original-metal tests below must accept it.
+            // On desktop the prior authored gaze remains unchanged.
+            if(portraitJointGazes?.[trialIndex])
+              lookAt.set(...portraitJointGazes[trialIndex]);
             camera.lookAt(lookAt);camera.updateMatrixWorld(true);
             if(!towerCoreSightlineClear(camera.position,thresholdHero,23.5) ||
                !towerCoreSightlineClear(camera.position,thresholdGate,23.5) ||
