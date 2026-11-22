@@ -90,11 +90,18 @@ test('sparse original walking frame is allowed only with fresh directly witnesse
  assert.equal(plan(sparse),null,'a sparse displayed gap cannot grant source motion');
  const candidate=plan({...sparse,sparseFrameVerified:true});
  assert.ok(candidate,'only verified fresh real root travel may open a bounded source-skinned trial');
+ assert.equal(candidate.sourceWitnessedFrameIntervalSeconds,.38,
+  'licensed original source plan must carry its actual frame-time witness');
+ assert.equal(candidate.sourceSparseFrameVerified,true,
+  'only a genuinely witnessed same-frame sparse step may qualify');
+ const real421=plan({...sparse,frameInterval:.421,sparseFrameVerified:true});
+ assert.ok(real421,'a measured 421ms sparse original GLB frame is eligible if and only if its own root moved');
+ assert.equal(real421.sourceWitnessedFrameIntervalSeconds,.421);
  assert.ok(candidate.footRad<0&&candidate.footRad>=-.851);
  assert.equal(candidate.contactLocked,false);
  assert.equal(candidate.plantCertified,false);
  for(const bad of [
-  {frameAge:.036},{rootTravel:.011},{frameInterval:.421},
+  {frameAge:.036},{rootTravel:.011},{frameInterval:.601},
   {sourceWeight:.75},{sourceClipName:'Idle'},{teleport:true},
   {ownerLocomotion:false},{reducedMotion:true}
  ])assert.equal(plan({...sparse,sparseFrameVerified:true,...bad}),null,
@@ -725,6 +732,8 @@ test('RED: original licensed hip-knee-ankle swing offers TWO rate-bounded connec
  ]){
   const proposed=plan(window);
   assert.ok(proposed,'original verified source rig + genuine root window');
+  assert.equal(proposed.sourceWitnessedFrameIntervalSeconds,window.frameInterval,
+   'source frame interval must be bound to the verified original GLB pose');
   const args={plan:proposed,frameInterval:window.frameInterval,
    sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
    sourceFootTrackVerified:true,sourceBindVerified:true};
@@ -746,7 +755,7 @@ test('RED: original licensed hip-knee-ankle swing offers TWO rate-bounded connec
   for(const invalid of [
    {sourceUpperTrackVerified:false},{sourceLowerTrackVerified:false},
    {sourceFootTrackVerified:false},{sourceBindVerified:false},
-   {frameInterval:.001},{frameInterval:.421},
+   {frameInterval:.001},{frameInterval:.421},{frameInterval:.601},
    {plan:{...proposed,sourceClip:'Idle'}},
    {plan:{...proposed,sourceOriginalRootTravelWitnessed:false}},
    {plan:{...proposed,sourceActualClipPhaseVerified:false}},
@@ -757,6 +766,30 @@ test('RED: original licensed hip-knee-ankle swing offers TWO rate-bounded connec
    'no fabricated pose from wrong source, bone, clip, rate or authority');
  }
 });
+test('RED: 421ms original 41-joint sparse motion cannot borrow a different renderer frame budget',async()=>{
+ const {planLicensedSourceSwingCounterpitch:plan,
+  planLicensedSourceConnectedChainTrials:trials}=await source;
+ const real=plan({...owner,frameInterval:.421,rootTravel:.05,
+  frameAge:.02,sparseFrameVerified:true});
+ assert.ok(real,'original sparse GLB source owner has actual same-frame root travel');
+ const evidence={plan:real,frameInterval:.421,
+  sourceUpperTrackVerified:true,sourceLowerTrackVerified:true,
+  sourceFootTrackVerified:true,sourceBindVerified:true};
+ const poses=trials(evidence);
+ assert.ok(Array.isArray(poses)&&poses.length>=2&&poses.length<=3,
+  'same 421ms source frame may earn bounded connected hip-knee-ankle skin trials');
+ for(const p of poses)for(const rad of [p.upperRad,p.lowerRad,p.footRad])
+  assert.ok(Math.abs(rad)<=3*.24+1e-8,
+   'even sparse genuine source frame does not exceed bounded 240ms original bone rotation');
+ for(const patch of [
+  {frameInterval:.42},{frameInterval:.5},{frameInterval:.0167},
+  {plan:{...real,sourceWitnessedFrameIntervalSeconds:.0167}},
+  {plan:{...real,sourceSparseFrameVerified:false}},
+  {plan:{...real,sourceWitnessedFrameIntervalSeconds:NaN}},
+ ])assert.equal(trials({...evidence,...patch}),null,
+  'a different display gap or unverified sparse source may not mint a new original joint rate');
+});
+
 test('RED: renderer selects only after BOTH genuine connected-leg source-skin trials and independent final dual-shoe readback',()=>{
  assert.match(renderer,/planLicensedSourceConnectedChainTrials\(/,
   'real GLTFLoader 41-joint upper/lower/foot chain must run connected candidate plan');
