@@ -6434,7 +6434,8 @@ export function planLicensedSourceToeChildContinuityCandidates({
 export function planLicensedSourceConnectedChainTrials({
  plan=null,frameInterval=NaN,sourceUpperTrackVerified=false,
  sourceLowerTrackVerified=false,sourceFootTrackVerified=false,
- sourceBindVerified=false
+ sourceBindVerified=false,sourceInstanceId='',sourceSide='',
+ previousConnected=null
 }={}){
  if(plan?.source!=='verified-licensed-source-native-counterpitch'||
   plan.sourceClip!=='Walking_A'||
@@ -6455,8 +6456,57 @@ export function planLicensedSourceConnectedChainTrials({
  // a new one-frame hip/knee bend. Previously valid cumulative recovery keeps
  // its ORIGINAL conservative one-pose owner in the renderer.
  const jointStep=3*Math.min(frameInterval,.24);
- if([plan.upperRad,plan.lowerRad,plan.footRad].some(a=>
+ // The source ankle can carry a previously *independently re-skinned*
+ // correction across genuine adjacent original Walking_A frames. The old
+ // one-frame-only test rejected the entire connected leg once the real
+ // foot overlay exceeded one 16.7ms joint budget, causing a hip/knee reset
+ // while its ankle continued the licensed swing.
+ //
+ // A previous angle is never a new limb target: it is only a per-joint
+ // 3rad/s rate boundary and must have the same original GLB, source phase,
+ // clip tracks, source bind, live root receipt and both weighted shoes.
+ // A missing/old/other-actor/wrong-clip receipt keeps the old fail-closed
+ // single-frame path, never importing a speculative accumulated pose.
+ const suffix=sourceSide==='right'?'r':sourceSide==='left'?'l':null;
+ const previous=previousConnected;
+ const carried=Boolean(suffix&&sourceInstanceId&&sourceSide===plan.side&&
+  frameInterval<=.05&&
+  previous?.source==='measured-original-licensed-source-counterpitch'&&
+  previous.sourceInstanceId===sourceInstanceId&&
+  previous.sourceRole===plan.sourceRole&&
+  previous.sourceClip==='Walking_A'&&previous.side===sourceSide&&
+  previous.finalIndependentSourceSkin===true&&
+  previous.originalOppositeShoeVerified===true&&
+  previous.contactLocked===false&&previous.plantCertified===false&&
+  previous.sourceUpperBone==='upperleg'+suffix&&
+  previous.sourceLowerBone==='lowerleg'+suffix&&
+  previous.sourceFootBone==='foot'+suffix&&
+  Array.isArray(previous.sourceOriginalTracks)&&
+  ['upperleg','lowerleg','foot'].every(part=>
+   previous.sourceOriginalTracks.includes(part+suffix+'.quaternion'))&&
+  Array.isArray(previous.originalBindSegmentsMeters)&&
+  previous.originalBindSegmentsMeters.length===2&&
+  previous.originalBindSegmentsMeters.every(v=>finite(v)&&v>.075&&v<.75)&&
+  [previous.sourceClipTimeSeconds,previous.appliedUpperRad,
+   previous.appliedLowerRad,previous.appliedFootRad,
+   previous.witnessedFrameIntervalSeconds,
+   previous.witnessedRootTravelMeters].every(finite)&&
+  previous.witnessedFrameIntervalSeconds>=.008&&
+  previous.witnessedFrameIntervalSeconds<=.05&&
+  previous.witnessedRootTravelMeters>=.008&&
+  previous.witnessedRootTravelMeters<=.24&&
+  previous.sourceClipTimeSeconds>=0&&
+  plan.sourceClipTimeSeconds>previous.sourceClipTimeSeconds&&
+  plan.sourceClipTimeSeconds-previous.sourceClipTimeSeconds<=
+   Math.min(.05,3*frameInterval)+.000001&&
+  previous.appliedUpperRad<0&&previous.appliedUpperRad>=-.081&&
+  previous.appliedLowerRad>0&&previous.appliedLowerRad<=.081&&
+  previous.appliedFootRad<0&&previous.appliedFootRad>=-.851&&
+  Math.abs(plan.footRad-previous.appliedFootRad)<=jointStep+.000001);
+ if(!carried&&[plan.upperRad,plan.lowerRad,plan.footRad].some(a=>
   Math.abs(a)>jointStep+.000001))return null;
+ const rateBound=(angle,prior)=>carried?
+  clamp(angle,prior-jointStep,prior+jointStep):angle;
  const footMagnitude=Math.abs(plan.footRad);
  // Original 20 Nov source-GLB inverse-bind + fully weighted shoe study:
  // at Vanguard Walking_A .089479s (right) and .619348s (left), the
@@ -6469,14 +6519,22 @@ export function planLicensedSourceConnectedChainTrials({
  // source bind, clip and weighted shoe Jacobians are independently tested.
  const vanguardSourceKneeLed=plan.sourceRole==='vanguard';
  const linked=Object.freeze({
-  upperRad:-Math.min(.08,jointStep,
+  upperRad:rateBound(-Math.min(.08,carried?.08:jointStep,
    footMagnitude*(vanguardSourceKneeLed?.60:.80)),
-  lowerRad: Math.min(.08,jointStep,
+   previous?.appliedUpperRad),
+  lowerRad:rateBound(Math.min(.08,carried?.08:jointStep,
    footMagnitude*(vanguardSourceKneeLed?.90:.55)),
+   previous?.appliedLowerRad),
   footRad:plan.footRad
  });
+ // The conservative source pose ALSO obeys the previous witnessed
+ // upper/lower angles; otherwise it can snap backward even when the
+ // connected alternative is bounded. Its original foot remains the
+ // source-owned, previously rate-limited mixer overlay.
  const original=Object.freeze({
-  upperRad:plan.upperRad,lowerRad:plan.lowerRad,footRad:plan.footRad
+  upperRad:rateBound(plan.upperRad,previous?.appliedUpperRad),
+  lowerRad:rateBound(plan.lowerRad,previous?.appliedLowerRad),
+  footRad:plan.footRad
  });
  if(Math.abs(linked.upperRad-original.upperRad)<.00001&&
   Math.abs(linked.lowerRad-original.lowerRad)<.00001)return null;

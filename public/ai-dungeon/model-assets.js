@@ -5068,7 +5068,8 @@ function stageLicensedSourceSwingCounterpitchAfterMixer(actor,reducedMotion){
  const connectedTrials=planLicensedSourceConnectedChainTrials({
   plan,frameInterval:interval,sourceUpperTrackVerified:true,
   sourceLowerTrackVerified:true,sourceFootTrackVerified:true,
-  sourceBindVerified:true
+  sourceBindVerified:true,sourceInstanceId:asset.uuid,sourceSide:side,
+  previousConnected:samePrevious?previous:null
  })??[{upperRad:plan.upperRad,lowerRad:plan.lowerRad,
     footRad:plan.footRad}];
  const mounts=[upper,lower,foot];
