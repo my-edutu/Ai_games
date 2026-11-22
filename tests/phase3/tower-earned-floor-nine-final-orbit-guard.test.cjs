@@ -82,6 +82,6 @@ test('final immutable-source guard follows ALL earlier 3D directors, physically 
  assert.match(scene,/actualRays\.bodyBlockedRays===0/);
  assert.match(scene,/oldSteel\.projectedMetalArea>=\.012/);
  assert.match(scene,/fullHero && destinationPreserved && preservedOriginal/);
- assert.match(scene,/camera\.position\.copy\\(releasePreviousCamera\\)/);
+ assert.match(scene,/camera\.position\.copy\(releasePreviousCamera\)/);
  assert.match(scene,/earnedFloorNineOrbitContinuity:/);
 });
