@@ -138,3 +138,30 @@ export function assessSourceRetainedGatewayPhysicalShot({
     basis:'current returned source-owned original mesh/deck and real 3D camera; NOT native video pixels'
   };
 }
+
+/**
+ * P0: one bounded fallback to a camera that REALLY rendered Floor 9.
+ * The previous last-frame pose is a candidate, never proof of visible pixels:
+ * the caller must separately re-project the current FULL climber, original
+ * gateway steel, real roof, physical triangle occlusion and raised backdrop.
+ * Never use an old run, old floor, unreturned camera or unsupported owner.
+ */
+export function sourceReturnedGatewayLastCameraEligible({source,held,lastReturned}) {
+  return source?.floor===9 && source.theme==='void' &&
+    source.lifecycle==='running' && source.player?.health>0 &&
+    typeof source.runToken==='string' && source.runToken.length>0 &&
+    held?.runToken===source.runToken && held.floor===9 &&
+    held.guardianGateRetained===true &&
+    held.verifiedObservedFloorAdvance===true &&
+    held.originalGatewayOpacity>.035 &&
+    Number.isSafeInteger(held.submittedFrames) &&
+    held.submittedFrames>0 && held.submittedFrames<30 &&
+    Number.isFinite(held.visibleSeconds) &&
+    held.visibleSeconds>=0 && held.visibleSeconds<2.8 &&
+    lastReturned?.runToken===source.runToken &&
+    lastReturned.floor===9 &&
+    Number.isSafeInteger(source.tick) &&
+    Number.isSafeInteger(lastReturned.tick) &&
+    lastReturned.tick<=source.tick &&
+    source.tick-lastReturned.tick<=8;
+}

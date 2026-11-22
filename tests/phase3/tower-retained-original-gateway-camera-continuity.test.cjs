@@ -160,3 +160,42 @@ test('final returned gate camera uses current immutable landing in animate, neve
   assert.doesNotMatch(actualRenderDecision,/\btargetPlatform\s*(?:\?\.|\.)\s*id\b/,
     'update-only targetPlatform was undefined in animate and crashed real F8->F9 footage');
 });
+
+test('only a recent genuine same-run completed F9 camera is eligible for a physically measured rescue',async()=>{
+  const {sourceReturnedGatewayLastCameraEligible:eligible}=await helperPromise;
+  const e=genuine();
+  assert.equal(eligible(e),true);
+  for(const bad of [
+    {...e,source:{...e.source,runToken:'other'}},
+    {...e,source:{...e.source,lifecycle:'result'}},
+    {...e,source:{...e.source,floor:8}},
+    {...e,source:{...e.source,player:{...e.source.player,health:0}}},
+    {...e,held:{...e.held,guardianGateRetained:false}},
+    {...e,held:{...e.held,verifiedObservedFloorAdvance:false}},
+    {...e,held:{...e.held,originalGatewayOpacity:0}},
+    {...e,held:{...e.held,submittedFrames:30}},
+    {...e,lastReturned:{...e.lastReturned,runToken:'foreign'}},
+    {...e,lastReturned:{...e.lastReturned,floor:8}},
+    {...e,lastReturned:{...e.lastReturned,tick:503}},
+    {...e,lastReturned:{...e.lastReturned,tick:493}}
+  ])assert.equal(eligible(bad),false,
+    'stale, unearned, expired or other-run scene cannot rescue a rejected camera');
+});
+
+test('real final F9 camera veto reevaluates desired AND last successful submitted pose against current source triangles',()=>{
+  const s=fs.readFileSync(path.join(root,
+    'public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+  const start=s.indexOf('const retainedGateStep = options.camera');
+  const end=s.indexOf('renderer.render(scene, camera);',start);
+  const final=s.slice(start,end);
+  assert.match(final,/const desiredPhysical=evaluateCurrentPhysicalRoom\(\)/);
+  assert.match(final,/const lastPhysical=evaluateCurrentPhysicalRoom\(\)/);
+  assert.match(final,/lastSubmittedGuardianCamera/);
+  assert.match(final,/lastSubmittedGuardianFocus/);
+  assert.match(final,/sourceReturnedGatewayLastCameraEligible\(/);
+  assert.match(final,/world\.projectedOriginalGateSteel\(snapshot,camera\)/);
+  assert.match(final,/world\.measureSuccessorDeckVisibility\(/);
+  assert.match(final,/world\.measureSourceRaisedDeckBackdrop\(snapshot,camera\)/);
+  assert.match(final,/if\(lastPhysical\.allowed\)/);
+  assert.match(final,/camera\.position\.copy\(releasePreviousCamera\)/);
+});

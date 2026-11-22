@@ -870,11 +870,18 @@ test('three authentic crossing clocks preserve original doorway, warm horizon wi
     assert.ok(world.group.getObjectByName('deferred-original-floor-nine-architecture'),
       'the original Void structural meshes are prebuilt hidden after the authentic F9 render');
     const completedSourceReturnedShaft=world.diagnostics().deferredDistantArrival;
-    assert.ok(completedSourceReturnedShaft?.state==='awaiting-structural-submission' ||
-      (completedSourceReturnedShaft?.state==='fading-remote-arrival' &&
-       completedSourceReturnedShaft.structuralVisibleReturns>=6 &&
-       completedSourceReturnedShaft.structuralVisibleSeconds>=.52),
-      'sixteen honest returned frames permit the genuine successor scene to progress only after six nonzero structural returns and 520ms of display time');
+    const earnedShaftDepth=
+      completedSourceReturnedShaft?.structuralVisibleReturns>=6 &&
+      completedSourceReturnedShaft?.structuralVisibleSeconds>=.52;
+    assert.ok(earnedShaftDepth && [
+      'awaiting-structural-submission','awaiting-vista-submission',
+      'fading-remote-arrival','complete'
+    ].includes(completedSourceReturnedShaft?.state),
+      'the real successor may advance beyond shaft upload to its genuine distant-vista stage after >=6 painted shaft returns and >=520ms, never on an unreturned CPU construction; observed '+JSON.stringify({
+        state:completedSourceReturnedShaft?.state,
+        returnedFrames:completedSourceReturnedShaft?.structuralVisibleReturns,
+        returnedSeconds:completedSourceReturnedShaft?.structuralVisibleSeconds
+      }));
     assert.equal(world.group.getObjectByName('deferred-original-floor-nine-outer-buttresses')?.isGroup,true,
       'original outer supports upload only after >=4 real structural returns and >=320ms');
     const deferredDetail=world.group.getObjectByName('deferred-authentic-floor-nine-crystal-biome');
