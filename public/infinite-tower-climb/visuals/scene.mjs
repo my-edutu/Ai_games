@@ -2495,6 +2495,8 @@ export function createTowerScene(canvas, settings = {}) {
   const firstFloorNineCameraEntry={runToken:null,tick:null};
   const lastReturnedFloorNineHero=new THREE.Vector3();
   let firstF9CameraOutwardClamps=0,firstF9CameraUnsafeRejects=0;
+  let firstF9CameraWorldSpaceClamps=0,firstF9CameraHeroGazeRescues=0;
+  let firstF9CameraUnboundedCuts=0,firstF9CameraLargestUnboundedMetres=0;
   let firstF9CameraWorstRequestedMetres=0,firstF9CameraLastBoundMetres=0;
   // Only an old gateway that survived a SUCCESSFUL WebGL submit can initiate
   // one same-run camera release after that real GPU owner retires. The final
@@ -6216,14 +6218,42 @@ export function createTowerScene(canvas, settings = {}) {
         releaseHero.copy(climber.group.position);
         measureDuelBodyNdc(releaseHero,snapshot.player.halfHeight/SCALE,
           camera,duelTop,duelBottom,releaseHeroNdc);
-        const wholeHero=releaseHeroNdc.every(Number.isFinite) &&
+        const currentHeroFrameSafe=()=>releaseHeroNdc.every(Number.isFinite) &&
           releaseHeroNdc[2]>=-1 && releaseHeroNdc[2]<=1 &&
           Math.abs(releaseHeroNdc[0])+releaseHeroNdc[3]*.18<.93 &&
           Math.abs(releaseHeroNdc[1])+releaseHeroNdc[3]<.91;
-        if(wholeHero &&
-            towerCoreSightlineClear(camera.position,releaseHero,23.5)){
+        let wholeHero=currentHeroFrameSafe();
+        const coreClear=towerCoreSightlineClear(camera.position,releaseHero,23.5);
+        // Camera continuity must not become an instant raw-camera cut merely
+        // because a previously valid gaze no longer frames the genuinely
+        // moving hero. Attempt ONLY a bounded lens with a view of the live
+        // current skinned body; no fabricated actor/collision/render return.
+        if(!wholeHero && coreClear){
+          const boundedGaze=lookAt.clone();
+          for(const actorWeight of [.35,.65,1]){
+            lookAt.copy(boundedGaze).lerp(releaseHero,actorWeight);
+            camera.lookAt(lookAt);camera.updateMatrixWorld(true);
+            measureDuelBodyNdc(releaseHero,snapshot.player.halfHeight/SCALE,
+              camera,duelTop,duelBottom,releaseHeroNdc);
+            if(currentHeroFrameSafe()){
+              wholeHero=true;
+              firstF9CameraHeroGazeRescues=Math.min(1000000,
+                firstF9CameraHeroGazeRescues+1);
+              break;
+            }
+          }
+          if(!wholeHero){
+            lookAt.copy(boundedGaze);
+            camera.lookAt(lookAt);camera.updateMatrixWorld(true);
+          }
+        }
+        if(wholeHero && coreClear){
           firstF9CameraOutwardClamps=Math.min(1000000,
             firstF9CameraOutwardClamps+1);
+          if(firstF9DepartureBound.reason===
+             'first-original-floor-nine-camera-world-space-cut')
+            firstF9CameraWorldSpaceClamps=Math.min(1000000,
+              firstF9CameraWorldSpaceClamps+1);
           firstF9CameraWorstRequestedMetres=Math.max(
             firstF9CameraWorstRequestedMetres,
             firstF9DepartureBound.requestedMovement);
@@ -6250,6 +6280,25 @@ export function createTowerScene(canvas, settings = {}) {
       if(releaseSettledOnSubmit){
         releaseFollowActive=false;
         releaseReturnedGate.tick=-1;
+      }
+      // Record what was ACTUALLY submitted, including rejected camera
+      // clamps. A 17m post-director jump cannot disappear behind a good
+      // source-only policy test. Source-authenticated first F9 episode only.
+      if(!options.stale && snapshot?.floor===9 &&
+         lastSubmittedGuardian.runToken===snapshot.runToken &&
+         lastSubmittedGuardian.floor===9 &&
+         firstFloorNineCameraEntry.runToken===snapshot.runToken &&
+         Number.isSafeInteger(firstFloorNineCameraEntry.tick) &&
+         snapshot.tick-firstFloorNineCameraEntry.tick<=110){
+        const cameraTravel=camera.position.distanceTo(lastSubmittedGuardianCamera);
+        const heroTravel=climber.group.position.distanceTo(lastReturnedFloorNineHero);
+        if(heroTravel<=12 &&
+           cameraTravel>Math.max(8,heroTravel*2.4+3.5)){
+          firstF9CameraUnboundedCuts=Math.min(1000000,
+            firstF9CameraUnboundedCuts+1);
+          firstF9CameraLargestUnboundedMetres=Math.max(
+            firstF9CameraLargestUnboundedMetres,cameraTravel);
+        }
       }
       // Only a genuinely submitted frame establishes the NEXT frame's
       // reference. Failed WebGL, stale snapshots, floor changes or run
@@ -7042,6 +7091,12 @@ export function createTowerScene(canvas, settings = {}) {
         limitation:'Throttled scene geometry witness, NOT native WebM painted pixels, A/B preference or hardware FPS'
       },
       firstFloorNineCameraDeparture: {
+        sourceBoundCameraClamps:firstF9CameraOutwardClamps,
+        sourceBoundWorldSpaceClamps:firstF9CameraWorldSpaceClamps,
+        sourceHeroGazeFrameRescues:firstF9CameraHeroGazeRescues,
+        actuallySubmittedUnboundedCameraCuts:firstF9CameraUnboundedCuts,
+        largestSubmittedUnboundedCameraCutMetres:
+          +firstF9CameraLargestUnboundedMetres.toFixed(3),
         sourceBoundOutwardClamps:firstF9CameraOutwardClamps,
         actualHeroOrTowerCoreVetoes:firstF9CameraUnsafeRejects,
         largestRequestedCameraStepMetres:+firstF9CameraWorstRequestedMetres.toFixed(3),
