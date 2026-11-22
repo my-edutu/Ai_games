@@ -2519,8 +2519,17 @@ export function advanceOriginalSourceSwingTravelWitness({
   teleport||reducedMotion||interrupted||
   ![previousTravel,previousAge,travel,frameInterval].every(finite)||
   previousTravel<0||previousTravel>.24||previousAge<0||previousAge>.5||
-  travel<0||travel>.24||frameInterval<=0||frameInterval>.25)
+  travel<0||travel>.24||frameInterval<=0||frameInterval>.60)
   return EMPTY_NATIVE_SWING_TRAVEL;
+ // Genuine source WebGL can deliver only one image per 500ms on a
+ // software-rendered 1440/390px frame. Permit that exact frame's OWN
+ // bounded physical root travel to reach the verified original GLB
+ // swing/skin validator. Never borrow a prior tick's old movement over
+ // a skipped long frame: it cannot establish an adjacent source pose.
+ // This does NOT create movement or plant a foot, and the downstream
+ // original joint rate remains capped to 240ms at 3rad/s.
+ if(frameInterval>.25)return travel>=.008?
+  {travel,age:0}:EMPTY_NATIVE_SWING_TRAVEL;
  if(travel>=.008)return {travel,age:0};
  const age=previousAge+frameInterval;
  return previousTravel>=.008&&age<=.18?
@@ -6531,7 +6540,7 @@ export function planLicensedSourceConnectedChainTrials({
   sourceFootTrackVerified!==true||sourceBindVerified!==true||
   ![frameInterval,plan.upperRad,plan.lowerRad,plan.footRad,
    plan.sourceClipTimeSeconds].every(finite)||
-  frameInterval<.008||frameInterval>.420001||
+  frameInterval<.008||frameInterval>.600001||
   plan.upperRad>=0||plan.lowerRad<=0||plan.footRad>=0||
   plan.upperRad<-.081||plan.lowerRad>.081||
   plan.footRad<-.851)return null;
@@ -6716,7 +6725,7 @@ export function planLicensedSourceSwingCounterpitch({
   sourceClipDurationSeconds<1.040||sourceClipDurationSeconds>1.044||
   sourceClipTimeSeconds<0||sourceClipTimeSeconds>sourceClipDurationSeconds||
   sourceWeight<.985||sourceWeight>1.001||
-  frameInterval<.008||frameInterval>.420001||
+  frameInterval<.008||frameInterval>.600001||
   (frameInterval>.240001&&!(sparseFrameVerified===true&&
    rootTravel>=.012&&frameAge<=.035))||
   rootTravel<.008||rootTravel>.24||frameAge<0||frameAge>.15||
