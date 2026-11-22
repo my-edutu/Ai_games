@@ -5210,6 +5210,7 @@ export function createTowerScene(canvas, settings = {}) {
         }
       }
     }
+    const afterColdPrimaryCamera = traceFirstF9 ? performance.now() : null;
     // POST-DIRECTOR PHYSICAL CROSSING: the ordinary follow, guardian, hero
     // rescue and portrait optical lens have already selected their positions.
     // A genuine *retained original* Floor8 bronze arch is still behind the
@@ -5418,6 +5419,7 @@ export function createTowerScene(canvas, settings = {}) {
         camera.updateMatrixWorld(true);
       }
     }
+    const afterColdDoorwaySearch = traceFirstF9 ? performance.now() : null;
     world.revealGuardianSightlines(camera,guardianSightPoints);
     // Foreground visibility is tested against the very same ACTUAL smoothed
     // camera submitted this frame, never the desired/planned lens. A viewer
@@ -5508,6 +5510,7 @@ export function createTowerScene(canvas, settings = {}) {
       // Preserve desktop/overview/manual and actual source authority.
       protectLiveRoute&&Number.isFinite(p.halfWidth)
         ?p.halfWidth/SCALE:0);
+    const afterColdForeground = traceFirstF9 ? performance.now() : null;
     updateLandingBeacon(landingBeacon, targetPlatform, snapshot, camera);
     sky.position.copy(camera.position);
     sun.target.position.set(0, targetY, 0);
@@ -5645,6 +5648,15 @@ export function createTowerScene(canvas, settings = {}) {
         worldUpdateMs: afterColdWorld - beforeColdWorld,
         heroThreatMs: beforeColdCamera - afterColdWorld,
         cameraLightingMs: endColdScene - beforeColdCamera,
+        // These four CPU partitions identify the dominant actual F9
+        // camera subsystem. This is timing of the SAME first 12 current-run
+        // scene updates, not native pixels, GPU, or simulated gameplay.
+        cameraPhases: {
+          cameraProposalsAndRaysMs: afterColdPrimaryCamera - beforeColdCamera,
+          doorwayThreeSubjectSearchMs: afterColdDoorwaySearch - afterColdPrimaryCamera,
+          foregroundOcclusionMs: afterColdForeground - afterColdDoorwaySearch,
+          lightingHorizonMs: endColdScene - afterColdForeground,
+        },
       };
       firstF9TraceSamples++;
     }
@@ -6355,6 +6367,7 @@ export function createTowerScene(canvas, settings = {}) {
           heroThreatMs: currentFirstF9Timing.heroThreatMs,
           cameraLightingMs: currentFirstF9Timing.cameraLightingMs,
         } : null,
+        firstF9CameraPhases: currentFirstF9Timing?.cameraPhases ?? null,
       });
       // The callback owns UI-only phase coherence: never let an HTML failure
       // convert a genuinely submitted 3D frame into a fake renderer failure.
