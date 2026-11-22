@@ -5237,8 +5237,17 @@ function stageLicensedSourceSwingCounterpitchAfterMixer(actor,reducedMotion){
  // an asserted walking label or a static clip cannot invent locomotion.
  const direct=actor.rigLastGroundedTravel;
  const sparseFrameVerified=Number.isFinite(interval)&&interval>.24&&
-  interval<=.42&&Number.isFinite(direct)&&direct>=.012&&direct<=.24&&
+  interval<=.60&&Number.isFinite(direct)&&direct>=.012&&direct<=.24&&
   Math.abs(direct-travel)<=.001&&age>=0&&age<=.035;
+// Real original 4cdc293 source WebGL, desktop f27, displayed a 500ms
+// Walking_A frame with 74.519mm buried swing toe. Earlier 420ms gate
+// prohibited every skinned hip/knee/ankle candidate before physically
+// measuring its effect. A 420–600ms gap may now TRY only when this very
+// frame owns 12–240mm of direct non-teleport root motion, genuine source
+// Walking_A ownership, full pinned bone tracks/binds, and valid loaded shoe.
+// The source joint delta remains limited to 3rad/s * 240ms, and renderer
+// re-skins BOTH shoes + hand attachment before claiming any improvement.
+// Never infer missing frame contacts or use the prior root's cached movement.
  // Only the IMMEDIATELY preceding same original clone's certified
  // source shoe may unwind beyond the source lobe; no previous receipt
  // means no arbitrary new 41-joint leg movement in the tail.
