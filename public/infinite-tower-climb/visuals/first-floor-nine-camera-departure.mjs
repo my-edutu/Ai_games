@@ -49,7 +49,14 @@ export function sourceFirstFloorNineCameraDeparture({source,lastRendered,
   // camera motion; do not treat unrelated gentle inward tracking as a cut.
   const radiusDelta=Math.abs(dRadius-pRadius);
   const heightDelta=Math.abs(desiredCamera[1]-previousCamera[1]);
+  // An actual near-hero, strongly INWARD recovery is not a camera
+  // catapult. The observed hard cut moves outward in radius and height;
+  // do not suppress the existing safe inward framing recovery merely
+  // because its viewpoint also changes gently by ~0.25 radians.
+  const genuineInwardRecovery=dRadius<pRadius-5 &&
+    newRange<originalRange-Math.max(5,actorMovement*1.2);
   const sourceUnearnedWorldCut=sourceLimitedRadius && !shoulderCut &&
+    !genuineInwardRecovery &&
     requested>Math.max(8,actorMovement*2.4+3.5) &&
     ((Math.abs(requestedTurn)>.16 && (radiusDelta>3||heightDelta>3)) ||
       (radiusDelta>5 && heightDelta>4 &&
