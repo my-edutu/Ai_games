@@ -124,3 +124,43 @@ test('physical bronze obstruction selects three lifted pullbacks without expandi
   assert.deepEqual(select(v,{...clear,originalCapBlockedRays:-1}),[]);
   assert.equal(select(v,observed()).length,3);
 });
+
+test('P0 portrait original-gateway rescue uses the real hero, opened steel and walkable roof as one bounded gaze, with zero extra camera rays',async()=>{
+  const {sourceOriginalGatewayJointGazeCandidates:plan}=await loaded;
+  const input={aspect:390/844,dt:.045,
+    currentGaze:[1,6,28],hero:[8,15,25],
+    gateway:[-1,12,25],walkable:[7,7,25]};
+  const before=JSON.stringify(input);
+  const proposals=plan(input);
+  assert.equal(proposals.length,3,'replace the three existing 3D camera trials, never add a fourth ray');
+  assert.ok(proposals.every(g=>g.length===3&&g.every(Number.isFinite)));
+  const target=[8*.48-1*.34+7*.18,15*.48+12*.34+7*.18,25];
+  const distance=g=>Math.hypot(...g.map((v,i)=>v-input.currentGaze[i]));
+  assert.ok(distance(proposals[0])<distance(proposals[1]));
+  assert.ok(distance(proposals[1])<distance(proposals[2]));
+  assert.ok(distance(proposals[2])<=5.5+1e-9,
+    'one submitted frame cannot produce an unbounded focus teleport');
+  assert.ok(Math.hypot(...proposals[2].map((v,i)=>v-target[i]))<
+    Math.hypot(...input.currentGaze.map((v,i)=>v-target[i])));
+  assert.equal(JSON.stringify(input),before,'immutable world source points must never be changed');
+  assert.equal(plan({...input,aspect:960/600}),null,
+    'desktop keeps its already vetted world/hero camera');
+  assert.equal(plan({...input,dt:0}),null);
+  assert.equal(plan({...input,hero:[NaN,15,25]}),null);
+  assert.equal(plan({...input,walkable:null}),null);
+  assert.equal(plan({...input,hero:[600,15,25]}),null,
+    'unrelated actors cannot borrow an original Floor8 camera');
+  const slower=plan({...input,dt:.015});
+  assert.ok(distance(slower[2])<distance(proposals[2]),
+    'duration bounds the camera response instead of assumed FPS');
+});
+
+test('real 3D Scene applies portrait joint gaze ONLY inside source-earned old-lens trials with unchanged physical steel/roof/core vetoes',()=>{
+  const code=fs.readFileSync(path.resolve(__dirname,
+    '../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+  assert.match(code,/sourceOriginalGatewayJointGazeCandidates\(/);
+  assert.match(code,/const rescueTrials=selectOriginalGatewayThreeSubjectTrials\(/);
+  assert.match(code,/lookAt\.set\(\.\.\.portraitJointGazes\[trialIndex\]\)/);
+  assert.match(code,/const steel=world\.projectedOriginalGateSteel\(snapshot,camera\)/);
+  assert.match(code,/assessOriginalGatewayPhysicalCameraBridge\(\s*bridgePhysicalBefore,world\.measureSuccessorDeckVisibility\(/);
+});
