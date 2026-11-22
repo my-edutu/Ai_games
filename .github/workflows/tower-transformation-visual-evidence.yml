@@ -184,6 +184,8 @@ jobs:
           cp current-harness/scripts/tower-event-frame-probes.cjs source/scripts/tower-event-frame-probes.cjs
           cp current-harness/scripts/tower-native-hud-floor.cjs source/scripts/tower-native-hud-floor.cjs
           cp current-harness/scripts/tower-native-scene-phase.cjs source/scripts/tower-native-scene-phase.cjs
+          # Same read-only PTS/returned-room join for frozen baseline, where missing instrumentation is explicitly NOT EVALUATED.
+          cp current-harness/scripts/tower-original-room-native-join.cjs source/scripts/tower-original-room-native-join.cjs
           cp current-harness/tests/phase3/tower-native-hud-floor.test.cjs source/tests/phase3/tower-native-hud-floor.test.cjs
           cp current-harness/tests/phase3/tower-native-scene-phase.test.cjs source/tests/phase3/tower-native-scene-phase.test.cjs
           cp current-harness/tests/phase3/tower-event-frame-probes.test.cjs source/tests/phase3/tower-event-frame-probes.test.cjs
@@ -372,6 +374,9 @@ jobs:
           node scripts/tower-event-frame-probes.cjs             "artifacts/tower-motion/${{ matrix.scenario }}"             "$TOWER_CAPTURE_SOURCE_SHA" "${{ matrix.scenario }}"
           if [[ "${{ matrix.scenario }}" == "danger" ]]; then
             node scripts/tower-native-scene-phase.cjs "artifacts/tower-motion/danger" "$TOWER_CAPTURE_SOURCE_SHA"
+            # Join only actual returned original source scene owners to calibrated unmodified native WebM search PTS.
+            # Missing frozen-baseline diagnostics remain NOT EVALUATED; this never passes source/native pixel acceptance.
+            node scripts/tower-original-room-native-join.cjs "artifacts/tower-motion/danger" "$TOWER_CAPTURE_SOURCE_SHA"
           fi
       - name: Preserve both viewport outcomes and veto failed capture
         if: always() && steps.pin_source.outcome == 'success'
