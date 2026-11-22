@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-22T12:31:00.000Z",
+  "updatedAt": "2026-11-22T13:15:00.000Z",
   "benchmark": {
     "status": "Not yet passed",
-    "summary": "Pass578: verified exact prior rollback bbfd2c0c native WebGL run 45016974940 original artifact 14752333228 ZIP SHA 50cd57a97932ca9c1b1e40cd6da0ce9d1fd1c4341d211530c37cde95356e0684, 42/42 original screenshots and 3/3 gate transition hashes, authentic chapter tick136 victory. 320 and 390 public earned guardian scenes still have major masonry separation; 320 ray anchors physically clear but composition fails Nintendo. New source-only 320 public counter to withdrawal two-shot candidate: initial true impact held, real actor axis staged, lens resource/collisions/privacy/390+ views untouched. NEW exact-HEAD native WebGL and screenshot critic PENDING; no benchmark win. Whole CI red separately on Tiny Kingdom OBS. Independent critic tunnel unavailable. Draft unmerged/undeployed, hourly active."
+    "summary": "Pass579: exact Pass578 248afe1b WebGL 45022934259 SUCCESS; source-bound original artifact 14755555469 ZIP SHA 2f752a62015aecb620b607fcffea9a01592d31c1c355b1692c898fd85138b84b, verified 42/42 original full PNG SHA sidecars and 3/3 gate before/mid/after SHA. Native 320 Pass578 vs proven prior bbfd2c0c image REJECTS tight top-down guardian two-shot: Pip remains small below dominant separating parapet, actual counter not physically joined and useful scene context lost. Selective source restore only Pass578 camera, scene and exclusive test; new rollback-HEAD CI PENDING. Whole CI red Tiny Kingdom OBS/downstream artifact upload. Nintendo bar unmet; independent critic/Ultracode NOT_FOUND. Draft, unmerged/undeployed, hourly active."
   },
   "captures": [
+    {
+      "title": "Pass579: exact Pass578 248afe1b genuine 42/42 full native WebGL PNG hashes + 3/3 gate SHA, real 320 two-shot visually rejected; selective source rollback, new HEAD CI pending",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/45022934259/artifacts/14755555469"
+    },
     {
       "title": "Pass578 exact Pass577 rollback SOURCE-BOUND native WebGL 42/42 original PNG SHA + 3/3 gate SHA VERIFIED; 320 physical encounter composition REJECT, new camera source candidate NOT rendered approved",
       "url": "https://github.com/my-edutu/Ai_games/actions/runs/45016974940/artifacts/14752333228"
