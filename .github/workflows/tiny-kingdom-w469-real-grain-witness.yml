@@ -29,6 +29,8 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci --no-audit --no-fund
+      - name: W535 test-first real farmer physical entrance / bounded 390px rescue / immutable authority
+        run: node scripts/tiny-kingdom-w535-real-grain-physical-worksite.test.cjs
       - run: npm run build
       - run: npx playwright install chromium
       - run: npx playwright test tests/browser/tiny-kingdom-w469-queued-real-grain.spec.cjs --workers=1 --reporter=line
