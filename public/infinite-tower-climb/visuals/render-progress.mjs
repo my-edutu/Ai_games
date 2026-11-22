@@ -40,6 +40,18 @@ export function createRenderProgress() {
             heroThreat: cost(renderWork.firstF9MainThread.heroThreatMs),
             cameraLighting: cost(renderWork.firstF9MainThread.cameraLightingMs) }
         : null;
+    // First cold Floor9 camera lighting has historically consumed 130–190ms
+    // in actual source-pinned browser runs. Only a completed, same-source
+    // renderer return may preserve the four fixed, measured CPU partitions.
+    // Missing/negative/nonfinite figures never become invented measurements.
+    const cameraPhases = phase === 'renderer-submitted' &&
+      snapshot.floor === 9 && snapshot.lifecycle === 'running' &&
+      renderWork?.firstF9CameraPhases
+        ? Object.fromEntries([
+          'cameraProposalsAndRaysMs','doorwayThreeSubjectSearchMs',
+          'foregroundOcclusionMs','lightingHorizonMs'
+        ].map(k => [k.replace(/Ms$/, ''),cost(renderWork.firstF9CameraPhases[k])]))
+        : null;
     // Use fixed, bounded phase names and return-owned CPU stamps. A browser
     // source receipt never certifies an actually built 3D room or its costs.
     const breakdown = phase==='renderer-submitted' &&
@@ -79,6 +91,7 @@ export function createRenderProgress() {
           worldRebuild: cost(renderWork.worldRebuildMs),
           total: cost(renderWork.totalSubmissionMs),
           ...(coldStages ? { firstF9MainThread: coldStages } : {}),
+          ...(cameraPhases ? { firstF9CameraPhases: cameraPhases } : {}),
           ...(worldRebuildCpuPhases ? { firstF9WorldRebuildPhases:worldRebuildCpuPhases } : {}),
           ...(oldOwnerPath ? { firstF9OriginalOwnerPath:oldOwnerPath } : {}) } : null;
     sourceTransitions.push({
