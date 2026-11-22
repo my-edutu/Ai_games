@@ -487,5 +487,87 @@
     "latestSourcePinnedCaptureSha": "597ed2fe7ef5000a02cb87748c4bcbd78b83f1ca",
     "latestQualityForSource": "https://github.com/my-edutu/Ai_games/actions/runs/45079122834",
     "latestStatus": "P0 OPEN; exact-source CI and normal-speed candidate desktop/portrait footage pending; no accepted improvement claim"
+  },
+  "p0FirstF9RealLateralOrbitAndPost110TickCamera20261122": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "observedImmutableCandidateSourceSha": "597ed2fe7ef5000a02cb87748c4bcbd78b83f1ca",
+    "observedNineJobCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/45079122839",
+    "candidateDangerOriginalWebmArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45079122839/artifacts/14776662081",
+    "originalFullMotionViewports": [
+      "960x600",
+      "390x844"
+    ],
+    "priorOriginalCaptureResults": "8 of 8 full-length native baseline/candidate records and ledge succeeded. Pair-source-events failed strict source/native danger acceptance 0/2; original video still shows about 1.75s between F9 HUD and sustained violet shaft, not proven continuous original opened gateway to roof to raised destination.",
+    "largestVerifiedNewDefect": {
+      "source": "Actual first portrait F9 renderer-returned source/native alignment and original WebM; no simulated camera state or screenshot-only claim",
+      "pureLateral": {
+        "sourceTicks": "534→536",
+        "cameraFrom": [
+          34.722,
+          17.091,
+          29.299
+        ],
+        "cameraTo": [
+          25.776,
+          17.696,
+          35.747
+        ],
+        "cameraMovementWorldMetres": 11.044,
+        "actorMovementWorldMetres": 0,
+        "angularChangeRadians": 0.245,
+        "previousHeuristicMiss": "Radial change ≈1.36m and height change ≈0.60m, below preceding world-space split trigger; 0.245rad below preceding 0.28rad shoulder rule"
+      },
+      "expiredInitialLease": {
+        "sourceTicks": "589→591",
+        "cameraFrom": [
+          -4.113,
+          22.79,
+          47.593
+        ],
+        "cameraTo": [
+          -17.442,
+          24.377,
+          43.037
+        ],
+        "cameraMovementWorldMetres": 14.175,
+        "actorMovementWorldMetresApprox": 2.18,
+        "firstActualF9RenderTick": 475,
+        "previousLeaseTicks": 110,
+        "reason": "Still on authentic Floor9 route; old policy expires before tick591"
+      }
+    },
+    "meaningfulRealGameplayCameraChange": "In the actual first-F9 final rendered physical follow-camera pipeline, bound large lateral tower-relative shoulder displacement even when radial/height delta is small; preserve same-run last returned full skinned hero, camera/gaze, opaque core physical veto. Extend first-route protection and actually submitted camera-cut auditing to 210 fixed source ticks after first genuine F9 return, never across restart, floor changes, stale/manual/reduced-motion or after expiry. No authority, guardian HP, collisions, physics, or original world meshes changed.",
+    "commits": {
+      "regressionFirst": "acf5f1a1eb9a65ff847c4df04da64503ef823f6f",
+      "lateralAndFirstRoutePolicy": "802c4170f45854e61f830341f888b23349e02236",
+      "actualSceneAndSubmittedCameraAudit": "b387ee548c45cc480f7e42378dc8f80062c8e586",
+      "rejectMixedThreeAxisAsPureLateral": "1fca189b93556971b906f6095cc131f3be4554ef",
+      "finalRealObservedBoundRegression": "7d170b099476b43f99bb322d3ad2873513584212"
+    },
+    "changedFiles": [
+      "public/infinite-tower-climb/visuals/first-floor-nine-camera-departure.mjs",
+      "public/infinite-tower-climb/visuals/scene.mjs",
+      "tests/phase3/tower-first-floor-nine-camera-catapult.test.cjs"
+    ],
+    "newCaptureRequested": {
+      "immutableSourceSha": "1fca189b93556971b906f6095cc131f3be4554ef",
+      "workflow": "https://github.com/my-edutu/Ai_games/actions/runs/45084592261",
+      "resultAtEvidenceWrite": "QUEUED, not native-video accepted"
+    },
+    "qualityWorkflow": {
+      "sourceSha": "7d170b099476b43f99bb322d3ad2873513584212",
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/45084596404",
+      "resultAtEvidenceWrite": "PENDING, not verified green"
+    },
+    "priorCI": "https://github.com/my-edutu/Ai_games/actions/runs/45079161476 — FAILED 9/10: unrelated phase6 Maze-readiness 75s timeout; other game unmodified",
+    "independentBlindPillarCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualSupportedDeviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Inspect exact-source authentic desktop and portrait FIRST F9 episode for 1fca189b; check newly added lateral camera clamp count, actual final submitted >8m discontinuities, hero/core physical rejections and 25–33s normal-speed WebMs. Require 2/2 source-event/native match with visually continuous real opened gateway, whole moving climber, walkable receiving roof and raised target. If safety fallback still accepts a raw 11–14m orbit, redesign joint camera/World framing rather than cosmetic fades; do not enter P1 or accept without full replay, outcome/restart and real-device tests."
   }
 }
