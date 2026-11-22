@@ -9,10 +9,12 @@ const start=html.indexOf('<script>'),end=html.lastIndexOf('</script>');
 assert(start>=0&&end>start,'real playable JS must be present');
 new vm.Script(html.slice(start+8,end),{filename:'real-tiny-kingdom.js'});
 const first=html.indexOf('function renderCompactOriginalFace('),
- last=html.indexOf('function compactVillager(p){',first);
+ last=html.indexOf('function compactVillager(',first);
 assert(first>=0&&last>first,'production compact physical face/identity function missing');
 const actual=html.slice(first,last);
-const compact=html.slice(last,html.indexOf('function villager(p){',last));
+// Signature gained optional cart-preservation parameter; the exact authentic
+// face/IK body and the following full 3D villager remain the contract bounds.
+const compact=html.slice(last,html.indexOf('function villager(',last));
 assert.match(compact,/renderCompactOriginalFace\(p,i,x,y,z,s,skin,hair,rig,embodiment\)/,
  'real compact citizens must render their own original detailed face');
 assert.match(compact,/renderArticulatedHand\(joint\(arm\.wrist\),s,skin,sideIndex===0\?-1:1,p\)/,
