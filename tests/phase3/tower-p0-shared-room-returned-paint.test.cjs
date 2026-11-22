@@ -28,21 +28,27 @@ function scene(){
     originalArchitectureCoverage:1,originalGalleryMaterials:[],
     opticalExitSubmitted:false};
   const job={runToken:token,floor:9,proof:'recorded-source-gateway',
-    structureDeferred:true,sourceTick:476,structuralVisibleReturns:0};
+    structureDeferred:true,sourceTick:476,structuralVisibleReturns:0,
+    structuralVisibleSeconds:0};
   return {source,held,job};
 }
 test('original guardian roof and returned WebGL shared room use one monotone painted palette, not floor-HUD jump',async()=>{
   const {observedReturnedSharedRoomPalette:proof}=await modulePromise;
   const {source,held,job}=scene();
-  const weights=[0,1,2,3,4,5,6].map(n=>
-    proof(source,held,{...job,structuralVisibleReturns:n})?.oldWeight??0);
+  // Each real GPU completion advances both a frame witness and bounded
+  // returned time; sample a genuinely possible .09s-per-return timeline.
+  const weights=Array.from({length:12},(_,n)=>
+    proof(source,held,{...job,structuralVisibleReturns:n,
+      structuralVisibleSeconds:+(n*.09).toFixed(3)})?.oldWeight??0);
   assert.equal(weights[0],1,'before new shaft returns the genuine bronze room remains');
   assert.equal(weights[1],1,'first returned new-room frame cannot erase entire gateway');
   assert.ok(weights[2]<weights[1] && weights[2]>.5);
   assert.ok(weights[3]<weights[2] && weights[3]>.1);
   assert.ok(weights[4]<weights[3] && weights[4]>0);
   assert.ok(weights[5]<weights[4]);
-  assert.equal(weights[6],0,'eventual returned new-room completion is not indefinitely pinned');
+  assert.ok(weights[6]>0,'six fast returned frames cannot replace the entire historical 3D room');
+  assert.equal(weights[10],0,'the genuinely returned .9s room can finally retire');
+  assert.equal(weights[11],0,'completed paint never resurrects the old room');
   assert.ok(weights.every((v,i)=>i===0||v<=weights[i-1]),
     'successful native GPU submissions, not source motion alone, earn the architectural palette exit');
 });
@@ -69,7 +75,10 @@ test('no authentic crossing, wrong run, missing original paint, stalled GPU or u
     [source,held,{...job,proof:'floor-number-only'}],
     [source,held,{...job,structureDeferred:false}],
     [source,held,{...job,sourceTick:480}],
-    [source,held,{...job,structuralVisibleReturns:-1}]
+    [source,held,{...job,structuralVisibleReturns:-1}],
+    [source,held,{...job,structuralVisibleReturns:6,structuralVisibleSeconds:.61}],
+    [source,held,{...job,structuralVisibleReturns:2,structuralVisibleSeconds:NaN}],
+    [source,held,{...job,structuralVisibleReturns:2,structuralVisibleSeconds:-.1}]
   ];
   for(const [s,h,j] of reject)
     assert.equal(proof(s,h,j),null,'unearned image/route may not hold previous biome');
@@ -90,4 +99,22 @@ test('original far roof architectural coverage fades by actually submitted frame
   assert.ok(late>=0 && late<next,'a returned coherent room can ultimately leave the authentic next floor');
   assert.equal(coverage({...far,lastGuardianCrossing:null},first),1,
     'without recorded HP-zero the old opaque architecture is not waived');
+});
+
+test('real rapid shaft uploads cannot wipe original room faster than displayed footage; stalled source polls cannot spend its paint budget',async()=>{
+  const {observedReturnedSharedRoomPalette:proof}=await modulePromise;
+  const {source,held,job}=scene();
+  const countOnly=proof(source,held,{...job,
+    structuralVisibleReturns:6,structuralVisibleSeconds:.24});
+  assert.ok(countOnly?.oldWeight>.7,
+    'six successful 40ms frames must retain the visibly shared bronze roof and shaft, not jump straight to violet');
+  const genuine=proof(source,held,{...job,
+    structuralVisibleReturns:10,structuralVisibleSeconds:.9});
+  assert.equal(genuine,null,
+    'after both returned-time and frame witnesses mature, the old room can retire without an endless bronze hold');
+  assert.equal(proof({...source,tick:source.tick+200},held,job),null,
+    'source ticks alone cannot manufacture an eligible shared room');
+  assert.equal(proof(source,held,{...job,
+    structuralVisibleReturns:0,structuralVisibleSeconds:.2}),null,
+    'returned time without a corresponding completed render frame must be vetoed');
 });
