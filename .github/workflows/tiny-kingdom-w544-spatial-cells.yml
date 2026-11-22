@@ -1,0 +1,54 @@
+name: Tiny Kingdom W544 Original Spatial Cells and Mobile Game Evidence
+on:
+  push:
+    branches: [feat/tiny-kingdom-post-main-gauntlet-20261031]
+    paths:
+      - public/tiny-kingdom/index.html
+      - tests/contracts/tiny-kingdom-w544-spatial-cells.test.cjs
+      - .github/workflows/tiny-kingdom-w544-spatial-cells.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: node --test tests/contracts/tiny-kingdom-w544-spatial-cells.test.cjs
+      - run: node scripts/tiny-kingdom-w540-conservative-static-spine.test.cjs
+      - run: node --test tests/contracts/tiny-kingdom-w543-original-software-world-spine.test.cjs
+      - name: Compile exact full playable game JavaScript
+        run: |
+          node - <<'JS'
+          const fs=require('node:fs'),vm=require('node:vm');
+          const h=fs.readFileSync('public/tiny-kingdom/index.html','utf8');
+          const a=h.indexOf('<script>'),b=h.lastIndexOf('</script>');
+          if(a<0||b<=a)throw Error('Missing game');
+          new vm.Script(h.slice(a+8,b),{filename:'tiny-kingdom-inline.js'});
+          JS
+  original-390px-browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CI: '1'
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22',cache: npm}
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test tests/browser/tiny-kingdom-w537-canvas-raster.spec.cjs --workers=1 --reporter=line
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tiny-kingdom-w544-original-390px-game
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: warn
+          retention-days: 14

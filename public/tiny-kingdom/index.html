@@ -4718,8 +4718,108 @@ function prepareConservativeStaticSoftwareChunks(vertices,m){
   }
  }
  softwareStaticLastCullMs=performance.now()-begun;
- return {limit:staticFloats,flags:softwareStaticFlags};
+ const spatial=prepareConservativeSoftwareCells(source,planes);
+ return {limit:staticFloats,flags:softwareStaticFlags,spatial};
 }
+
+// W544 ORIGINAL SPATIAL-CELL CULLING START
+// Real original STATIC faces grouped by physical 8m town cell, independently
+// of original source order. Broad terrain, crossed boundaries and ALL moving
+// villagers and carts retain the exhaustive perspective/depth path.
+// Incremental construction prevents a giant cold Day-121 index build.
+const SOFTWARE_CELL_METRES=8,SOFTWARE_CELL_STAGE_TRIANGLES=4096,
+ SOFTWARE_CELL_MAX_TRIANGLES=180000,SOFTWARE_CELL_MAX_BUCKETS=2048;
+let softwareCellSource=null,softwareCellIds=new Int32Array(0),
+ softwareCellBuckets=[],softwareCellMap=new Map(),softwareCellReject=new Uint8Array(0),
+ softwareCellCursor=0,softwareCellReady=false,softwareCellDisabled=false,
+ softwareCellBuilds=0,softwareCellReadyBuilds=0,softwareCellBuildSlices=0,
+ softwareCellFallbacks=0,softwareCellLastRejected=0,
+ softwareCellLastSavedTriangles=0,softwareCellLastQueryMs=0;
+function prepareConservativeSoftwareCells(source,planes){
+ softwareCellLastRejected=0;softwareCellLastSavedTriangles=0;
+ if(!Array.isArray(source)||source.length%30||!source.length||
+    source.length/30>SOFTWARE_CELL_MAX_TRIANGLES||
+    !Array.isArray(planes)||planes.length!==4){
+  softwareCellFallbacks++;return null;
+ }
+ const triangles=source.length/30;
+ if(source!==softwareCellSource){
+  softwareCellSource=source;softwareCellIds=new Int32Array(triangles);
+  softwareCellIds.fill(-1);softwareCellBuckets=[];softwareCellMap=new Map();
+  softwareCellReject=new Uint8Array(0);softwareCellCursor=0;
+  softwareCellReady=false;softwareCellDisabled=false;softwareCellBuilds++;
+ }
+ if(softwareCellDisabled){softwareCellFallbacks++;return null;}
+ const begun=performance.now();
+ if(!softwareCellReady){
+  const end=Math.min(triangles,softwareCellCursor+SOFTWARE_CELL_STAGE_TRIANGLES);
+  for(let t=softwareCellCursor;t<end;t++){
+   const i=t*30,j=i+10,k=i+20,
+    ax=Math.fround(source[i]),ay=Math.fround(source[i+1]),az=Math.fround(source[i+2]),
+    bx=Math.fround(source[j]),by=Math.fround(source[j+1]),bz=Math.fround(source[j+2]),
+    cx=Math.fround(source[k]),cy=Math.fround(source[k+1]),cz=Math.fround(source[k+2]);
+   if(![ax,ay,az,bx,by,bz,cx,cy,cz].every(Number.isFinite))continue;
+   const lx=Math.min(ax,bx,cx),hx=Math.max(ax,bx,cx),
+    ly=Math.min(ay,by,cy),hy=Math.max(ay,by,cy),
+    lz=Math.min(az,bz,cz),hz=Math.max(az,bz,cz);
+   const cellX=Math.floor(lx/SOFTWARE_CELL_METRES),
+    cellZ=Math.floor(lz/SOFTWARE_CELL_METRES);
+   // Only a whole original triangle contained by ONE spatial cell qualifies.
+   if(Math.floor(hx/SOFTWARE_CELL_METRES)!==cellX||
+      Math.floor(hz/SOFTWARE_CELL_METRES)!==cellZ)continue;
+   const key=cellX+','+cellZ;
+   let id=softwareCellMap.get(key);
+   if(id===undefined){
+    if(softwareCellBuckets.length>=SOFTWARE_CELL_MAX_BUCKETS){
+     softwareCellDisabled=true;softwareCellFallbacks++;
+     softwareCellBuckets=[];softwareCellMap.clear();return null;
+    }
+    id=softwareCellBuckets.length;softwareCellMap.set(key,id);
+    softwareCellBuckets.push([lx,ly,lz,hx,hy,hz]);
+   }else{
+    const b=softwareCellBuckets[id];
+    b[0]=Math.min(b[0],lx);b[1]=Math.min(b[1],ly);b[2]=Math.min(b[2],lz);
+    b[3]=Math.max(b[3],hx);b[4]=Math.max(b[4],hy);b[5]=Math.max(b[5],hz);
+   }
+   softwareCellIds[t]=id;
+  }
+  softwareCellCursor=end;softwareCellBuildSlices++;
+  if(end!==triangles)return null; // Full original rendering until ready.
+  softwareCellReady=true;softwareCellReadyBuilds++;
+  softwareCellMap.clear();
+  softwareCellReject=new Uint8Array(softwareCellBuckets.length);
+ }
+ softwareCellReject.fill(0);
+ for(let id=0;id<softwareCellBuckets.length;id++){
+  const b=softwareCellBuckets[id];
+  for(const [a,c,d,e] of planes){
+   // Max plane value at the MOST favourable original vertex.
+   // Pad all world bounds 2mm to reject less, never accidentally more.
+   const maximum=a*(a>=0?b[3]+.002:b[0]-.002)+
+    c*(c>=0?b[4]+.002:b[1]-.002)+
+    d*(d>=0?b[5]+.002:b[2]-.002)+e;
+   if(maximum<-.0001){softwareCellReject[id]=1;softwareCellLastRejected++;break;}
+  }
+ }
+ softwareCellLastQueryMs=performance.now()-begun;
+ return {ids:softwareCellIds,rejected:softwareCellReject};
+}
+function getSoftwareSpatialCellAudit(){
+ return {source:'original-conservative-8m-static-triangle-cells',
+  sourceRevisions:softwareCellBuilds,completedBuilds:softwareCellReadyBuilds,
+  buildSlices:softwareCellBuildSlices,ready:softwareCellReady,
+  stagedTriangles:softwareCellCursor,totalStaticTriangles:softwareCellIds.length,
+  cells:softwareCellBuckets.length,maxCells:SOFTWARE_CELL_MAX_BUCKETS,
+  rejectedCells:softwareCellLastRejected,
+  projectedStaticTrianglesAvoided:softwareCellLastSavedTriangles,
+  lastQueryCpuWallMs:softwareCellLastQueryMs,fallbacks:softwareCellFallbacks,
+  retainedIndexBytes:softwareCellIds.byteLength+softwareCellReject.byteLength,
+  stageTrianglesPerFrame:SOFTWARE_CELL_STAGE_TRIANGLES,
+  sourceOrderPreserved:true,crossingGeometryRetained:true,
+  allLiveActorsAlwaysProcessed:true,changesAuthority:false,
+  hardwareFpsOrExperienceImprovementNotProven:true};
+}
+// END W544 ORIGINAL SPATIAL-CELL CULLING
 
 // W541 Phase 1: cache the EXACT physical static depth/colour image for an
 // unchanged camera, sky, lighting and immutable scenic mesh. Real moving
@@ -4871,6 +4971,7 @@ canvasFallbackRasterAudit=()=>({source:'real-canvas2d-conservative-screen-raster
  staticChunkBoxesRejected:softwareStaticLastRejected,
  staticChunkCulledTriangles:softwareStaticLastSavedTriangles,
  staticChunkCullCpuMs:softwareStaticLastCullMs,
+ staticSpatialCells:getSoftwareSpatialCellAudit(),
  staticFrameCache:{kind:'exact-unchanged-camera-static-depth-image',
   maxPixels:SOFTWARE_STATIC_BASE_MAX_PIXELS,
   hits:softwareStaticBaseHits,builds:softwareStaticBaseBuilds,
@@ -4925,6 +5026,13 @@ gl={VERTEX_SHADER:1,FRAGMENT_SHADER:2,ARRAY_BUFFER:3,FLOAT:4,DYNAMIC_DRAW:5,COLO
     offscreen+=(after-i)/30;
     i=after-30;
     continue;
+   }
+  }
+  // W544: only fully outside original static cell faces bypass projection.
+  if(staticClip&&i<staticClip.limit&&staticClip.spatial){
+   const cell=staticClip.spatial.ids[i/30];
+   if(cell>=0&&staticClip.spatial.rejected[cell]){
+    offscreen++;softwareCellLastSavedTriangles++;continue;
    }
   }
   const j=i+10,k=i+20;
