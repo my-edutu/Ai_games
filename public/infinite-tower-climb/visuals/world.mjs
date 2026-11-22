@@ -5419,7 +5419,10 @@ export function createTowerWorld(){
         sourceAlignedIncomingShaftOpacity(snapshot,retainedEarnedCap,
           Number.isFinite(lastEarnedDt)&&lastEarnedDt>0
             ?Math.min(1,lastEarnedDt/.8):0));
-      arrival.structureBuiltAtSubmitted=arrival.submittedFrames;
+      // Keep the real first CORE upload stamp. The completed biome's
+      // separate receipt was already required by
+      // observedPrebuiltVoidShaftRelease; resetting here would postpone
+      // the authentic shaft a THIRD time and recreate the recorded hard cut.
       arrival.state='awaiting-structural-submission';
       if(firstShaftAlpha>arrival.structuralFade) {
         arrival.structuralFade=firstShaftAlpha;
