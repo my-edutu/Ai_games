@@ -36,7 +36,7 @@ for(const token of ['isOriginalGpuCourierBodyCandidate(p,i,nearPeople,frame)',
 // W511: both original full-size and bounded compact GPU resident bodies
 // share one genuinely MOVING escrow cart, emitted once outside resident VBO.
 // The source uses a guard+continue and Boolean(compact), not old inline if.
-const liveCartCall=html.slice(html.indexOf('for(const {p,entry,compact} of ['));
+const liveCartCall=html.slice(html.indexOf('for(const {p,i,entry,compact} of ['));
 assert.match(liveCartCall,/if\(!entry\.separateLiveCart\)continue;\s*const before=data\.length;\s*renderOriginalLiveCourierCart\(p,Boolean\(compact\)\)/,
  'only genuinely GPU-admitted original actor bodies can emit ONE live rolling freight cart');
 assert.match(liveCartCall,/originalLiveCourierCartNames\.push\(p\.name\)/,
