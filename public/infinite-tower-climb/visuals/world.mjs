@@ -30,7 +30,7 @@ import { sourceReturnedGatewayDisplayDt } from './source-submitted-doorway-caden
 import { actualGatewayReceivingRoofSpans, actualGatewayReceivingLoadPathBays, actualGatewayReceivingGalleryCanopy, prebuildOriginalGuardianCanopyPlan, sourceOpenGuardianRoofLoadPath, syncGatewayReceivingRoofColours, resetGatewayReceivingRoofColours } from './source-physical-receiving-roof.mjs';
 import { planOriginalGuardianOutboardCranes } from './source-original-guardian-crane-room.mjs';
 import { sourceRealGroundForecourtSections, sourceRealGroundUndercroftParts, syncSourceRealRoofWingMaterials } from './source-real-ground-forecourt.mjs';
-import { sourceReturnedOriginalGatewayOpacity, sourceReturnedOriginalGatewayRetention, sourceReturnedOriginalThresholdBearing } from './source-returned-original-gateway-exit.mjs';
+import { sourceReturnedOriginalGatewayOpacity, sourceReturnedOriginalGatewayRetention, sourceReturnedOriginalThresholdBearing, sourceReturnedOriginalRouteClearance } from './source-returned-original-gateway-exit.mjs';
 
 
 /**
@@ -3976,6 +3976,10 @@ export function createTowerWorld(){
       firstSubmittedBodyTick:null,firstSubmittedBodyX:null,
       firstSubmittedBodyY:null,firstSubmittedBodyHalfWidth:null,
       firstSubmittedBodyHalfHeight:null,firstSubmittedBodyGroundedRoof:false,
+      // Real first F9 raised landing / far-side roof is recorded only AFTER
+      // successful GPU submission. Source polling cannot spend this lease.
+      firstRouteClearanceReturnTick:null,firstRouteClearancePlatformId:null,
+      routeClearanceReturnedFrames:0,routeClearanceReturnedSeconds:0,
       submittedFrames:0,visibleSeconds:0,lastCompletedReturnMs:null,
       firstObservedTick:requested.tick,firstWorldRenderTick:next.tick};
   }
@@ -4296,9 +4300,24 @@ export function createTowerWorld(){
     const galleryExitClearance=!options.stale
       ?observedEarnedGalleryExitClearance(snapshot,held,
         {reducedMotion:options.reducedMotion}):null;
+    // The real source climbed 98m in the AIR before ever landing on the
+    // first raised destination. The old load-bearing room must stay behind
+    // that in-flight hero: independent gallery-clearance rules previously
+    // erased all bronze support in the same first drawn F9 shot. Keep only
+    // non-colliding source-extracted original metal as a diminishing 20%
+    // bearing, released alongside the real returned raised-route contact.
+    // Neither old collider nor a duplicate platform is retained here.
+    const clearanceRelease=Number.isSafeInteger(held.firstRouteClearanceReturnTick)
+      ?Math.min(1,(held.routeClearanceReturnedFrames??0)/9,
+          (held.routeClearanceReturnedSeconds??0)/.65):0;
+    const sourceBearingReserve=!options.stale && sourceLegitimateOnwardSupport &&
+        originalGatePresence>.35 && held.originalGalleryRoot?.parent===held.root &&
+        held.submittedFrames<30 && held.visibleSeconds<2.8
+      ?.20*(1-clearanceRelease*clearanceRelease*(3-2*clearanceRelease)):0;
     if(galleryExitClearance?.sourceBound===true){
       held.galleryExitClearedAlpha=Math.min(
-        held.galleryExitClearedAlpha??1,galleryExitClearance.maxOpacity);
+        held.galleryExitClearedAlpha??1,
+        Math.max(galleryExitClearance.maxOpacity,sourceBearingReserve));
       if(held.galleryExitClearedAtTick==null)
         held.galleryExitClearedAtTick=snapshot.tick;
     }
@@ -4323,7 +4342,8 @@ export function createTowerWorld(){
       firstBearingGalleryExit?.sourceBound===true ? firstBearingGalleryExit.maxOpacity:1);
     if(sourceGalleryLease<1)
       held.galleryExitClearedAlpha=Math.min(
-        held.galleryExitClearedAlpha??1,sourceGalleryLease);
+        held.galleryExitClearedAlpha??1,
+        Math.max(sourceGalleryLease,sourceBearingReserve));
     if(Number.isFinite(held.galleryExitClearedAlpha))
       originalPresence=Math.min(originalPresence,held.galleryExitClearedAlpha);
     // The original non-colliding bronze gallery is also on a one-way exit.
@@ -4920,6 +4940,20 @@ export function createTowerWorld(){
       const returnedGatewayStep=sourceReturnedGatewayDisplayDt(
         renderedDt,held.lastCompletedReturnMs,completedReturnMs);
       held.lastCompletedReturnMs=completedReturnMs;
+      // This function is called strictly after renderer.render returned:
+      // only a REAL source-grounded first F9 raised platform or far-side roof
+      // can inaugurate the old->new world architectural release.
+      const earnedContact=sourceReturnedOriginalRouteClearance(snapshot,held);
+      if(earnedContact && held.firstRouteClearanceReturnTick===null){
+        held.firstRouteClearanceReturnTick=snapshot.tick;
+        held.firstRouteClearancePlatformId=earnedContact.platformId;
+      }
+      if(Number.isSafeInteger(held.firstRouteClearanceReturnTick)){
+        held.routeClearanceReturnedFrames=Math.min(30,
+          (held.routeClearanceReturnedFrames??0)+1);
+        held.routeClearanceReturnedSeconds=Math.min(2.8,
+          (held.routeClearanceReturnedSeconds??0)+returnedGatewayStep);
+      }
       held.submittedFrames=Math.min(60,held.submittedFrames+1);
       // One actual WebGL-return cadence drives the original doorway, cap,
       // gallery, roof and shared sky palette. A cold software renderer may
