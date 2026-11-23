@@ -805,11 +805,11 @@
       "prePatchRed": "Against original source-identical helper, authentic current-raised-deck-and-lost-gate fixture returned NO proposal and FALSE physical acceptance",
       "postPatchGreen": "8 pure V8 checks: accepts gate-only proposal and genuine steel rescue; veto lost raised deck, invisible steel, cropped hero, wrong run; preserves no-unnecessary-adjustment and prior raised-route improvement",
       "sourceRepoNodeSuite": "PENDING GitHub CI; two extra node:test regression cases appended",
-      "fullQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/45106924279",
-      "fullQualityAsOfEvidence": "PENDING; CI is veto not gameplay score"
+      "fullQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/45107135295 (10/10 job success at exact source tree b8c3376, including new Tower tests; subsequent documentation-only change does not alter gameplay source)",
+      "fullQualityAsOfEvidence": "10/10 CI jobs SUCCESS; CI veto cleared for this tree, but does not establish experience quality"
     },
     "exactSourcePinnedNineJobGameplay": "https://github.com/my-edutu/Ai_games/actions/runs/45106924437",
-    "newNativeFootageAsOfEvidence": "NOT PASSED: inspected full source-pinned original native candidate danger in both viewports and found bronze-violet spatial disconnect persists; latest pair-source-events final job still pending",
+    "newNativeFootageAsOfEvidence": "FINAL NEGATIVE: full original source-pinned candidate danger desktop and portrait WebMs visually do not prove 4-subject continuous crossing; strict source-event/native pairing FAILED 0/2",
     "independentFreshBlindCritics": {
       "LOOKS": "0/5",
       "FEELS": "0/5",
@@ -834,8 +834,9 @@
         "portrait": "tick 502 five returns gate 0.9711 ->0.9477; tick 509 0.5421 ->0.5187; tick 517 0; gallery 0.0538 ->0 before old doorway retirement"
       },
       "originalPhysicalProjectionCounters": "desktop 8, portrait 5 returned hero/gateway projected-safe; still NOT native co-visibility",
-      "strictSourceNativePairing": "PENDING final pair-source-events job; prior exact native FAILED 0/2",
+      "strictSourceNativePairing": "FINAL FAILED 0/2 viewports, original 8/8 A/B recordings + authentic ledge completed; pair-source-events workflow failed",
       "lastPassableSource": "P0 still OPEN; one new lens helper change alone did not solve visual game"
-    }
+    },
+    "captureFinal": "https://github.com/my-edutu/Ai_games/actions/runs/45106924437 — authentic ledge, eight original A/B videos complete; pair-source-events FAILURE 0/2"
   }
 }
