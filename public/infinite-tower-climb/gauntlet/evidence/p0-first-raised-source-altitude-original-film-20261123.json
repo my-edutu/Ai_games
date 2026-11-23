@@ -48,8 +48,8 @@
     "PLAYS": "0/5"
   },
   "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
-  "largestRemainingExperienceGap": "An integrated continuous normal-speed original bronze gateway, entire moving climber, true F9 roof and first raised deck passage remains unproved; source/native event acceptance 0/2",
-  "nextAction": "Inspect new exact-source normal-speed desktop and portrait full WebMs, event-join and returned camera altitude; if still missing, rebuild integrated World/Scene camera/architecture route, not isolated opacity.",
+  "largestRemainingExperienceGap": "Actual ground-to-p2 route still has a 6.559m returned desktop camera cut while original and successor scene owners coexist; continuous native passage unverified.",
+  "nextAction": "Replace isolated one-frame camera cut predicates with an integrated retained first-ascent shot handoff across ground->p2, using source-authorized route, last successful lens and actual geometry. Reproduce 522->527 return and 510->517 in Scene integration; determine whether helper is rejected by eligibility or final ray checks before modifying it. Preserve current strict native-event veto. Re-run original same-source capture and review motion, not only sampled frames.",
   "safety": {
     "draftPR68": true,
     "baselineLedgerUnchanged": true,
@@ -66,7 +66,7 @@
   "sourcePinnedCaptureSha": "a7a1906e3480ef419859cf6f634d254797e3e27d",
   "currentExactSourceQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/45252080780",
   "currentExactSourceNineJobCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/45252080580",
-  "currentValidationAtWrite": "Both workflows QUEUED/PENDING; no native success or exact-source quality pass established",
+  "currentValidationAtWrite": "Source quality complete 10/10; source capture complete, strict native pairing FAILED 0/2. No P0 acceptance.",
   "scopedSourceHelperEvaluation": {
     "nativeOriginalCandidatePreviouslyRequestedMetres": 8.964,
     "boundedPureCameraCandidateMetres": 1.602,
@@ -75,5 +75,78 @@
     "sourceVerifiedGenuineP2AndHP0": true,
     "negativeFixtureResults": "Invalid same-run crossing, wrong p2 target, and forged grounded contact each returned no bounded proposal",
     "limitation": "In-process pure JS source helper reproduction, not Three.js WebGL evidence, original native playback, hardware FPS or independent quality vote"
+  },
+  "completedSourceCaptureAudit": {
+    "inspectedHead": "87d6cb0331f60e5d3d22230886264dd6ac4d9b5f",
+    "sourceSha": "a7a1906e3480ef419859cf6f634d254797e3e27d",
+    "quality": "10/10 completed success (source workflow 45252080780; not a quality verdict)",
+    "capture": "8/8 native scenario jobs and ledge successful; pair-source-events failed; 8/8 source timelines, 0 integrity defects, 0/2 event-aligned danger viewports",
+    "artifactId": 14855949700,
+    "desktop": {
+      "videoSeconds": 72.4,
+      "sha256": "61763db114b5613f510140ff9965dfd7c3a744a81d457d02ea401cc0c7ebf2a4",
+      "hud9Seconds": 26,
+      "sustainedVioletSeconds": 28.75,
+      "hudToVioletSeconds": 2.75,
+      "completeProjectionReturns": 0,
+      "partialProjectionReturns": 13,
+      "sourceTicks": [
+        522,
+        527
+      ],
+      "routeTargets": [
+        "f9:ground",
+        "f9:p2"
+      ],
+      "previousCamera": [
+        15.861,
+        6.749,
+        42.922
+      ],
+      "nextCamera": [
+        19.333,
+        12.232,
+        41.975
+      ],
+      "returnedCameraDeltaMetres": 6.559,
+      "verticalDeltaMetres": 5.483,
+      "renderedHeroDeltaMetres": 4.638,
+      "approxNativeSearchSeconds": [
+        27.316,
+        27.34
+      ]
+    },
+    "portrait": {
+      "videoSeconds": 72.24,
+      "sha256": "4b1bea4d33f866e24ecbaaf89575096e6231974deeb28e8a21426e2528ba059d",
+      "hud9Seconds": 26,
+      "sustainedVioletSeconds": "NOT EVALUATED",
+      "completeProjectionReturns": 1,
+      "partialProjectionReturns": 13,
+      "sourceTicks": [
+        510,
+        517
+      ],
+      "returnedCameraDeltaMetres": 3.3,
+      "verticalDeltaMetres": 2.612,
+      "renderedHeroDeltaMetres": 3.599,
+      "approxNativeSearchSeconds": [
+        27.024,
+        27.098
+      ]
+    },
+    "both": {
+      "sourceTicksRetained": 1319,
+      "sourceMissingFixedSteps": 0,
+      "allRequiredSameEpisodeSourceBeatsObserved": true,
+      "sourceResultTicks": 1,
+      "sourceIntermissionTicks": 1,
+      "sourceRunTransitions": 1,
+      "oldAndNewSceneOwnersCoReturnedAtIndex": 1,
+      "nativePixelCorrespondence": false
+    },
+    "reviewMethod": "Verified original WebM SHA256 and durations using ffprobe; inspected consecutive 0.5-second decoded frame sheets 23–35s, source trace, returned camera/hero coordinates and pairing-job log. Not full-motion human playback; no independent review.",
+    "blocker": "Coding workspace tunnel unavailable; no runnable checked-out repo or live browser in this execution. No gameplay change or fresh capture requested.",
+    "next": "Replace isolated one-frame camera cut predicates with an integrated retained first-ascent shot handoff across ground->p2, using source-authorized route, last successful lens and actual geometry. Reproduce 522->527 return and 510->517 in Scene integration; determine whether helper is rejected by eligibility or final ray checks before modifying it. Preserve current strict native-event veto. Re-run original same-source capture and review motion, not only sampled frames."
   }
 }
