@@ -22,15 +22,19 @@ test('real returned old and new room frames force one-way gateway extinction',as
  const oldRoofY=cap.y+cap.height,thresholdX=cap.x+Math.floor(cap.width*.76);
  const crossingX=thresholdX+16200;
  const departed={...s,player:{health:4,x:crossingX+60000,
-   y:oldRoofY+104000,halfWidth:9000,halfHeight:14000},
+   y:oldRoofY+104000,halfWidth:9000,halfHeight:14000,
+   grounded:true,groundedPlatformId:'f9:p2',state:'standing',vy:0},
    platforms:[{id:'f9:ground',x:cap.x,y:cap.y,
-     width:cap.width,height:cap.height}],
+     width:cap.width,height:cap.height},
+     {id:'f9:p2',x:315000,y:oldRoofY+78000,width:100000,height:12000}],
    lastGuardianCrossing:{runToken:'one',fromFloor:8,toFloor:9,
      sourceTick:475,cap,exitX:thresholdX,crossingX,
      guardian:{kind:'guardian',active:false,health:0}}};
  const held={...h,oldCapX:cap.x,oldCapWidth:cap.width,oldRoofY,thresholdX,
    sourceTick:477,observedCrossingX:crossingX,observedCrossingY:oldRoofY+14000,
-   observedHalfWidth:9000,observedHalfHeight:14000};
+   observedHalfWidth:9000,observedHalfHeight:14000,
+   firstRouteClearanceReturnTick:495,routeClearanceReturnedFrames:10,
+   routeClearanceReturnedSeconds:.80};
  assert.equal(progress(departed,held),1,
    'source hero actually climbed away from the original guardian roof');
  const partlyPainted={...j,structuralVisibleReturns:5,structuralVisibleSeconds:.4};
@@ -119,9 +123,20 @@ test('original continuous crossing earns gateway retirement from real roof trave
    'actual movement on source-authored first raised route progressively spends the old room');
  const ascended={...lifted,tick:516,
    player:{...lifted.player,x:342296,y:3322000}};
- assert.equal(progress(ascended,held),1,
-   'authentic upward climb can finish old doorway without impossible long horizontal runway');
- assert.equal(opacity(ascended,held,stable,0,true),0);
+ assert.ok(progress(ascended,held)>.4&&progress(ascended,held)<=.62,
+   'first airborne F9 ascent retains old 3D room until a true elevated landing');
+ assert.ok(opacity(ascended,held,stable,0,true)>=.38,
+   'high source y alone must not extinguish the guardian doorway and supporting gallery');
+ const landed={...ascended,tick:525,
+   platforms:[...grounded.platforms,{id:'f9:p2',x:320000,
+     y:oldRoofY+72000,width:90000,height:12000}],
+   player:{...ascended.player,grounded:true,groundedPlatformId:'f9:p2',
+     state:'standing',vy:0,y:oldRoofY+84000+14000}};
+ const verifiedLanding={...held,firstRouteClearanceReturnTick:525,
+   routeClearanceReturnedFrames:10,routeClearanceReturnedSeconds:.8};
+ assert.equal(progress(landed,verifiedLanding),1,
+   'verified first raised deck and genuine returned frames earn full scene retirement');
+ assert.equal(opacity(landed,verifiedLanding,stable,0,true),0);
  assert.equal(opacity(grounded,{...held,originalGatewayOpacity:airborne},stable,1,true),airborne,
    'backtracking never resurrects previously retired material');
  assert.equal(JSON.stringify({grounded,held,stable}),original,
