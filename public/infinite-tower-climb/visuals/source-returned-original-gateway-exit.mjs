@@ -68,7 +68,21 @@ export function sourceReturnedOriginalDepartureProgress(source,held) {
        w.exitX!==held.thresholdX ||
        w.crossingX<w.exitX || w.crossingX>w.exitX+60000)
       return null;
+    // The already returned first Floor 9 body can be farther along the
+    // real roof than the earlier HP-zero crossing receipt. Publication of
+    // that receipt must not move the optical origin BACKWARDS, causing a
+    // near-instant disappearance on the first real raised-deck flight.
+    // Prefer only the conservative same-run, physically grounded first
+    // visible source stance, if its old roof and body dimensions agree.
     crossingX=w.crossingX;
+    const observed=held.observedCrossingX;
+    if(safe(observed) && safe(held.observedCrossingY) &&
+       safe(held.observedHalfWidth) && safe(held.observedHalfHeight) &&
+       observed>=w.crossingX && observed<=w.crossingX+60000 &&
+       held.observedCrossingY===held.oldRoofY+held.observedHalfHeight &&
+       held.observedHalfWidth===p.halfWidth &&
+       held.observedHalfHeight===p.halfHeight)
+      crossingX=observed;
   } else {
     // Original early Floor9 renderer returns can predate publication of
     // lastGuardianCrossing. Use only the already verified same-run former
@@ -137,7 +151,12 @@ export function sourceReturnedOriginalGatewayOpacity(source,held,job,proposed,su
   // The previous submitted alpha remains a strict one-way ceiling: a fall,
   // reversal, restart or new source stance cannot re-create old metal.
   const departure=sourceReturnedOriginalDepartureProgress(source,held);
-  return Math.min(previous,1-earned*(departure===null?1:departure));
+  // An unproven current-body departure is not a maximum-departure
+  // certificate. Retain only previously returned same-run original steel
+  // during the finite World lease. Do not let missing/inconsistent crossing
+  // fields erase the old 3D doorway or invent a player relocation.
+  if(departure===null)return previous;
+  return Math.min(previous,1-earned*departure);
 }
 // A truly source-grounded, same-run doorway cannot be disposed while its
 // original steel is still opaque solely because the autonomous climber
