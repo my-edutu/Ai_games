@@ -301,3 +301,19 @@ test('real renderer binds first-camera-lens failure reason to its successful sou
  assert.match(joint,/cameraJointRecoveryWitness\.lensEligibilityReason=reason/);
  assert.match(scene,/renderer\.render\(scene, camera\);/);
 });
+
+
+test('actual source-returned gateway NDC is the same physical steel key consumed by complete/partial camera checks',()=>{
+ const scene=fs.readFileSync(path.resolve(__dirname,
+   '../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+ const joint=scene.slice(scene.indexOf('// P0 complete physical threshold shot'),
+   scene.indexOf('const sceneReadyAt = performance.now()'));
+ const measure=joint.slice(joint.indexOf('const measureJoint=()=>{'),
+   joint.indexOf('const before=measureJoint();'));
+ assert.match(measure,/return \{heroNdc:h,gatewayNdc:g,/,
+   'the old scene gateNdc key was never consumed by sourceJointGatewayFlightLens or either projector assessor');
+ assert.match(joint,/submittedGateNdc=before\.gatewayNdc\.slice\(\)/);
+ assert.match(joint,/submittedGateNdc=after\.gatewayNdc\.slice\(\)/);
+ assert.doesNotMatch(joint,/before\.gateNdc|after\.gateNdc/,
+   'source-observed real steel cannot be borrowed from a mismatched name');
+});
