@@ -145,3 +145,69 @@ test('production original F9 camera runs frame-scoped visible-mesh raycasting, n
   assert.match(proof,/castSourceRoot\(originalGateRoot\)/);
   assert.match(proof,/castSourceRoot\(originalCapRoot\)/);
 });
+
+
+test('finite source body-to-camera rays cull only static mesh triangles outside the actual segment',async()=>{
+  const {createSourceSightlineRayBroadphase}=await load();
+  const cache=createSourceSightlineRayBroadphase(THREE);
+  const root=new THREE.Group(),meshes=[];
+  const geometry=new THREE.BoxGeometry(1,1,1);
+  const material=new THREE.MeshStandardMaterial();
+  const near=new THREE.Mesh(geometry,material);
+  near.position.set(0,0,3);root.add(near);meshes.push(near);
+  // Ten actual 3D meshes share this root AABB, but are off the true ray.
+  for(let i=0;i<10;i++){
+    const mesh=new THREE.Mesh(geometry,material);
+    mesh.position.set(30+i,0,1);root.add(mesh);meshes.push(mesh);
+  }
+  const beyond=new THREE.Mesh(geometry,material);
+  beyond.position.set(0,0,-30);root.add(beyond);meshes.push(beyond);
+  root.updateWorldMatrix(true,true);
+  const ray=new THREE.Raycaster(new THREE.Vector3(0,0,8),
+    new THREE.Vector3(0,0,-1),0,7);
+  try{
+    cache.beginFrame();
+    const exact=ray.intersectObject(root,true,[]);
+    const observed=[];cache.intersectVisible(root,ray,observed);
+    assert.deepEqual(observed.map(h=>h.object),exact.map(h=>h.object),
+      'only the original real Three.js triangle contacts count');
+    const witness=cache.diagnostics();
+    assert.ok(witness.meshRayRejects>=10,'side meshes excluded by real 3D bounds');
+    assert.ok(witness.meshBeyondTargetRejects>=1,
+      'source geometry behind target does not require a triangle cast');
+    assert.ok(witness.meshBoundsBuilt>=12);
+    // The SAME current render frame should never rebuild static mesh bounds
+    // for each of the nine source body/gate rays.
+    cache.intersectVisible(root,ray,[]);
+    assert.equal(cache.diagnostics().meshBoundsBuilt,witness.meshBoundsBuilt);
+    // A new genuinely rendered frame invalidates the bounds even when the
+    // authoritative source tick repeats; moving geometry must be rechecked.
+    meshes[1].position.set(0,0,5);
+    root.updateWorldMatrix(true,true);cache.beginFrame();
+    const nextExact=ray.intersectObject(root,true,[]);
+    const next=[];cache.intersectVisible(root,ray,next);
+    assert.deepEqual(next.map(h=>h.object),nextExact.map(h=>h.object));
+    assert.ok(next.some(h=>h.object===meshes[1]));
+  }finally{geometry.dispose();material.dispose();}
+});
+
+test('unsupported and dynamically deformed mesh raycasts fail open to real Three triangles',async()=>{
+  const {createSourceSightlineRayBroadphase}=await load();
+  const cache=createSourceSightlineRayBroadphase(THREE);
+  const root=new THREE.Group();
+  const geometry=new THREE.BoxGeometry(1,1,1),material=new THREE.MeshBasicMaterial();
+  const mesh=new THREE.InstancedMesh(geometry,material,1);
+  mesh.setMatrixAt(0,new THREE.Matrix4().makeTranslation(0,0,3));
+  mesh.instanceMatrix.needsUpdate=true;root.add(mesh);
+  root.updateWorldMatrix(true,true);
+  const ray=new THREE.Raycaster(new THREE.Vector3(0,0,8),
+    new THREE.Vector3(0,0,-1),0,7);
+  try{
+    cache.beginFrame();
+    const exact=ray.intersectObject(root,true,[]);
+    const bounded=[];cache.intersectVisible(root,ray,bounded);
+    assert.deepEqual(bounded.map(h=>h.distance),exact.map(h=>h.distance));
+    assert.equal(cache.diagnostics().meshBoundsBuilt,0,
+      'no finite-bounds exclusion for animated/instanced sources');
+  }finally{geometry.dispose();material.dispose();}
+});
