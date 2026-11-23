@@ -216,3 +216,53 @@ export function sourceJointGatewayRecoveryRigs(proposal,o={}){
  }
  return result;
 }
+
+/**
+ * Physically safe P0 intermediate camera recovery for the ONE original HP-open
+ * gateway. The native F8→F9 film can lose the real bronze portal by >0.4 NDC
+ * while the skinned body, walkable roof and first raised deck remain legible.
+ * A sub-metre motion cannot instantly reframe all four; demanding the finished
+ * shot at EVERY intermediate renderer return previously deadlocked recovery.
+ *
+ * An intermediate step is NOT a four-subject shot, guardian victory, platform
+ * contact, native film grade or a final camera acceptance. The caller must
+ * separately prove same-run source ownership, original physical steel,
+ * actual triangle/body/gate occlusion clearance and tower-core clearance
+ * BEFORE it submits the real Three frame. If this current scene is already
+ * fully visible, never soften the existing strict assessor.
+ */
+export function assessSourceJointGatewayRecoveryStep(before,after){
+ if(!before||!after||
+    !ndc(before.heroNdc,4)||!ndc(after.heroNdc,4)||
+    !ndc(before.gatewayNdc,4)||!ndc(after.gatewayNdc,4)||
+    !ndc(before.roofNdc,3)||!ndc(after.roofNdc,3)||
+    !ndc(before.landingNdc,3)||!ndc(after.landingNdc,3)||
+    ![before,after].every(p=>p.steel?.sourceBound===true &&
+      integer(p.steel.projectedPanes)&&p.steel.projectedPanes>=0 &&
+      finite(p.steel.projectedMetalArea)&&p.steel.projectedMetalArea>=0))
+   return false;
+ const gateWasLost=gap(before.gatewayNdc,.78)>.045 ||
+   before.steel.projectedPanes<2 ||
+   before.steel.projectedMetalArea<.012;
+ if(!gateWasLost)return false;
+ // No unsafe transition can buy an old portal by abandoning the current
+ // SOURCE-owned raised landing, camera-safe whole climber or real roof.
+ const wholeHero=after.heroNdc[3]>=.047 &&
+   Math.abs(after.heroNdc[0])+after.heroNdc[3]*.14<=.85 &&
+   Math.abs(after.heroNdc[1])+after.heroNdc[3]<=.87;
+ const roofHeld=gap(after.roofNdc,.87)<.08 &&
+   gap(after.roofNdc,.87)<=gap(before.roofNdc,.87)+.02;
+ const landingHeld=gap(after.landingNdc,.79)<=
+   Math.max(.02,gap(before.landingNdc,.79)+.015) &&
+   gap(after.landingNdc,.90)<.04;
+ const heroHeld=gap(after.heroNdc,.76)<=gap(before.heroNdc,.76)+.015;
+ const oldSteelNotLost=after.steel.projectedPanes>=before.steel.projectedPanes &&
+   after.steel.projectedMetalArea>=before.steel.projectedMetalArea-.002;
+ // A strict, measurable directional gain, not mere camera travel. Include
+ // gradually returning AUTHENTIC gate steel when partial NDC misses.
+ const recoveryGain=gap(before.gatewayNdc,.78)-gap(after.gatewayNdc,.78)>.025 ||
+   after.steel.projectedPanes>before.steel.projectedPanes ||
+   after.steel.projectedMetalArea-before.steel.projectedMetalArea>.006;
+ return wholeHero&&roofHeld&&landingHeld&&heroHeld&&
+   oldSteelNotLost&&recoveryGain;
+}

@@ -35,7 +35,7 @@ import { observedGuardianTransmissionCorners } from './guardian-transmission-lay
 import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
 import { sourceReturnedGateCameraRelease, sourceRetainedGatewayCameraContinuity, assessSourceRetainedGatewayPhysicalShot, sourceReturnedGatewayLastCameraEligible, sourceEarnedFloorNineOrbitGuard } from './source-returned-gate-camera-release.mjs';
 import { sourceFirstRaisedFlightGaze } from './source-first-raised-flight-gaze.mjs';
-import { sourceFirstRaisedGatewayLandmark, sourceJointGatewayFlightLens, assessSourceJointGatewayLens, sourceJointGatewayRecoveryRigs } from './source-joint-gateway-flight-lens.mjs';
+import { sourceFirstRaisedGatewayLandmark, sourceJointGatewayFlightLens, assessSourceJointGatewayLens, assessSourceJointGatewayRecoveryStep, sourceJointGatewayRecoveryRigs } from './source-joint-gateway-flight-lens.mjs';
 import { firstReturnedOriginalRoomAdmission, firstReturnedFloorNineEpisode } from './first-source-room-return.mjs';
 import { sourceFirstFloorNineCameraDeparture } from './first-floor-nine-camera-departure.mjs';
 import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, sourceRaisedBackdropClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceThreeSubjectActorScaleGain, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe, sourceThreeSubjectPhysicalGain } from './physical-threshold-shot.mjs';
@@ -2497,6 +2497,7 @@ export function createTowerScene(canvas, settings = {}) {
   const lastReturnedFloorNineHero=new THREE.Vector3();
   let firstF9CameraOutwardClamps=0,firstF9CameraUnsafeRejects=0;
   let sourceJointGatewayLensProposals=0,sourceJointGatewayLensAccepted=0,sourceJointGatewayLensVetoed=0;
+  let sourceJointGatewayLensRecoverySteps=0,sourceJointGatewayLensFullShotSteps=0;
   let sourceJointGatewayLensTravelRunToken=null,sourceJointGatewayLensTravelMetres=0;
   let firstF9CameraWorldSpaceClamps=0,firstF9CameraLateralClamps=0;
   let firstF9CameraHeroGazeRescues=0;
@@ -6360,7 +6361,14 @@ export function createTowerScene(canvas, settings = {}) {
               const rays=world.measureSuccessorDeckVisibility(snapshot,
                 camera.position,jointHero,snapshot.player.halfHeight/SCALE,
                 jointGate,jointRaised.id);
-              const physicallySafe=assessSourceJointGatewayLens(before,after) &&
+              // A lost original gate must be recovered by a series of tiny
+              // SOURCE-OWNED steps. Partial progress is never counted as
+              // a complete four-subject shot, and must pass the SAME real
+              // triangle/solid-world veto as the finished composition.
+              const fullShot=assessSourceJointGatewayLens(before,after);
+              const safeIntermediate=!fullShot &&
+                assessSourceJointGatewayRecoveryStep(before,after);
+              const physicallySafe=(fullShot||safeIntermediate) &&
                 rays?.active===true && rays.bodyBlockedRays===0 &&
                 rays.gatewayBlockedRays===0 &&
                 towerCoreSightlineClear(camera.position,jointHero,23.5) &&
@@ -6369,6 +6377,10 @@ export function createTowerScene(canvas, settings = {}) {
                 towerCoreSightlineClear(camera.position,jointLanding,23.5);
               if(physicallySafe){
                 acceptedJoint=true;
+                if(fullShot)sourceJointGatewayLensFullShotSteps=Math.min(1000000,
+                  sourceJointGatewayLensFullShotSteps+1);
+                else sourceJointGatewayLensRecoverySteps=Math.min(1000000,
+                  sourceJointGatewayLensRecoverySteps+1);
                 sourceJointGatewayLensTravelMetres+=rig.cameraMoveMetres;
                 sourceJointGatewayLensAccepted=Math.min(1000000,
                   sourceJointGatewayLensAccepted+1);
@@ -7211,6 +7223,8 @@ export function createTowerScene(canvas, settings = {}) {
       sourceJointGatewayFlightLens: {
         sourceBoundProposals:sourceJointGatewayLensProposals,
         acceptedForActualRender:sourceJointGatewayLensAccepted,
+        sourceSafePartialRecoverySteps:sourceJointGatewayLensRecoverySteps,
+        sourceCompleteFourSubjectShotSteps:sourceJointGatewayLensFullShotSteps,
         rejectedByRealProjectionOrTriangleVeto:sourceJointGatewayLensVetoed,
         limitation:'One actual-world camera/lens proposal before GPU submission, not native WebM pixel acceptance or independent review'
       },
