@@ -34,7 +34,8 @@
     "firstSourceCIObserved": "Phase3 shard2 failed one newly added test because its synthetic focus was not the same current returned camera focus; genuine 3D source was not changed to conceal a failing fixture.",
     "correctiveTestCommit": "1d2428c2fcd1f309fc3abdf9a62ab6c2ac3d10bd",
     "correctedExactHeadCI": "https://github.com/my-edutu/Ai_games/actions/runs/45166576168",
-    "statusAtEvidence": "Corrected exact-head quality CI PENDING and new immutable gameplay capture IN PROGRESS. Zero PASS claimed."
+    "statusAtEvidence": "Corrected exact-head quality CI PENDING and new immutable gameplay capture IN PROGRESS. Zero PASS claimed.",
+    "correctedExactHeadCIResult": "COMPLETE FAILURE 9/10: all Tower phase3 partitions passed, including new source camera tests. Phase6 non-Tower maze-readiness-score.test.cjs timed out at 75s (exit 124). Existing unrelated-game CI veto remains; do NOT edit Maze."
   },
   "performance": "Actual supported-device p50/p95/p99 frame time and memory NOT EVALUATED. CI runner CPU/Playwright is not device performance.",
   "independentRandomBlindCritics": {
@@ -43,7 +44,7 @@
     "PLAYS": 0
   },
   "gates": "P0 open. No 2/2 true source/native accepted joint shot. P1-P6 blocked; full gameplay visual acceptance and device safety/independent preference are NOT EVALUATED.",
-  "nextHighestImpactAction": "Inspect exact immutable 506601b original WebM desktop/portrait first F9 episode and source-return projection/physical veto counts. If portrait still shows raised p2 out of frame, diagnose true geometry and roof/camera direction (do not repeatedly change opacity); rebuild single coherent source-owned architectural passage and recapture real source-native events, only open P1 after real 2/2 acceptance.",
+  "nextHighestImpactAction": "Single largest systemic gap is source-owned F8 bronze to F9 violet world/Camera handoff timing and restored camera narrow-FOV before visible raised-platform ascent; inspect early F9 resulting screen and actual geometry, remove structurally disjoint visual change and native event clock mismatch, repeat genuine source/event-matched capture, not cosmetic opacity patches.",
   "safety": {
     "baselineLedgerUnchanged": true,
     "pr68DraftOpen": true,
@@ -52,5 +53,39 @@
     "noMerge": true,
     "noDeploy": true,
     "noForcePush": true
-  }
+  },
+  "inspectedNewNativeSourcePlaySha": "506601b1273f284149891e105643adf8bb0a2881",
+  "newSourceNativeFilmAssessment": {
+    "captureRun": "https://github.com/my-edutu/Ai_games/actions/runs/45166347981",
+    "candidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45166347981/artifacts/14815076032",
+    "evidence": "Downloaded and examined original unmodified 960x600 and 390x844 normal-speed 23-33 seconds WebM; reviewed actual joint camera returned timeline, source-native alignment and native-scene-phase witnesses. Eight true baseline/candidate videos and authentic ledge SUCCESS; pair-source-events FAILED.",
+    "strictNativePairing": "FAILED 0/2",
+    "desktop": {
+      "firstEpisodeCameraDecisions": 18,
+      "partialProjectionApproved": 12,
+      "completeProjectionApproved": 0,
+      "projectionVetoes": 0,
+      "sourceRaisedDeckYFirst": 1.44,
+      "sourceRaisedDeckYLastEligible": 0.87,
+      "firstVisibleHudFloor9Seconds": 25.25,
+      "firstSustainedVioletSeconds": 28,
+      "hudToVioletSeconds": 2.75
+    },
+    "portrait": {
+      "firstEpisodeCameraDecisions": 20,
+      "partialProjectionApproved": 11,
+      "completeProjectionApproved": 3,
+      "projectionVetoes": 0,
+      "worldRayVetoes": 0,
+      "coreVetoes": 0,
+      "firstVisibleHudFloor9Seconds": 26,
+      "firstSustainedVioletSeconds": 28.5,
+      "hudToVioletSeconds": 2.5,
+      "firstRealRaisedDeckY": 1.25,
+      "firstCompleteProjectedRaisedDeckY": 0.84
+    },
+    "negative": "Important: three portrait 'accepted-complete-projection' decisions after real World ray/core checks are renderer-source and geometric proofs, NOT proof that old gate+whole hero+roof+p2 genuinely appear as a legible simultaneous WebM frame. Strict native event truth 0/2; desktop projection complete 0. Unedited footage still changes bronze to violet with substantial HUD-world lead. Camera reaches widened FOV, then release/reset briefly returns to narrow frame during critical crossing. No full transition acceptance.",
+    "next": "Single largest systemic gap is source-owned F8 bronze to F9 violet world/Camera handoff timing and restored camera narrow-FOV before visible raised-platform ascent; inspect early F9 resulting screen and actual geometry, remove structurally disjoint visual change and native event clock mismatch, repeat genuine source/event-matched capture, not cosmetic opacity patches."
+  },
+  "statusAtLatestEvidence": "EXACT SOURCE CAPTURE COMPLETED 8/8 original videos+ledge and PAIR-SOURCE-EVENTS FAILED; corrected exact-head quality CI 9/10 because unrelated phase6 timed-out. P0 remains open; source projected complete in portrait 3 only and real native visual accept 0/2."
 }
