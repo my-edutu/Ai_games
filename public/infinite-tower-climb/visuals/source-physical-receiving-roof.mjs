@@ -154,6 +154,15 @@ export function sourceOpenGuardianRoofLoadPath(plan){
     sourceBound:true,thresholdX:plan.thresholdX,nonColliding:true,
     omittedLegSourceXs,supportStations,
     overheadTies:ties,compressionBraces,
+    // The actual original F9 flight rises roughly 10m above its walkable
+    // gateway roof. The old 7.3/8.35m steel ceiling split the hero and real
+    // raised landing in portrait video. These are non-colliding architectural
+    // clearances ABOVE the already source-owned cap, prepainted on Floor8
+    // and retained as the same Three meshes after HP0. Never future physics.
+    flightCanopyClearance:{
+      innerCrownY:16.4,outerCrownY:18.2,highBraceY:19.2,
+      minAirborneBodyRoofClearance:14.0
+    },
     clearForecourtSourceSpan:[
       supportStations[0].sourceX,supportStations[1].sourceX]
   };

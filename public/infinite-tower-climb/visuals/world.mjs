@@ -2602,26 +2602,39 @@ export function createTowerWorld(){
     // Keep every overhead span joined as a recognisable continuous crown,
     // but leave the real opened doorway/actor/receiving roof unobstructed.
     const sourceOpening=sourceOpenGuardianRoofLoadPath(plan);
+    const canopyAir=sourceOpening?.flightCanopyClearance;
+    // If the genuine source-cap footprint cannot establish a source-bound
+    // flight-clearance plan, DO NOT put unverified steel over the playable
+    // doorway. This is decoration only; the authoritative gate persists.
+    if(!canopyAir){canopy.removeFromParent();return null;}
     for(const s of plan.stations){
       if(sourceOpening?.omittedLegSourceXs.includes(s.sourceX))continue;
       const a=s.angle,m=steel(s.kind),e=trim(s.kind);
-      place(point(a,inner,-1.2),point(a,inner,7.3),.18,m);
-      place(point(a,inner,7.3),point(a,outer,8.35),.16,m);
-      place(point(a,inner,3.4),point(a,27.7,8.12),.11,m);
-      place(point(a,27.7,8.12),point(a,outer,8.35),.09,e);
+      // The original low 7.3-9.35m metal ceiling intersected the authentic
+      // first raised F9 flight while the camera tried to frame both the
+      // HP-open guardian gate and the real landing. Raise the SAME prepainted
+      // F8 steel to join its already-existing 15.6-18.2m crane shoulders.
+      // All cross-deck struts now remain >14m above the real walkable roof.
+      // No fake foothold, edited collision, second portal or later F9 mesh.
+      place(point(a,inner,-1.2),point(a,inner,canopyAir.innerCrownY),.18,m);
+      place(point(a,inner,canopyAir.innerCrownY),point(a,outer,canopyAir.outerCrownY),.16,m);
+      place(point(a,inner,canopyAir.innerCrownY-1.2),
+        point(a,27.7,canopyAir.outerCrownY-1.2),.11,m);
+      place(point(a,27.7,canopyAir.outerCrownY-1.2),
+        point(a,outer,canopyAir.outerCrownY),.09,e);
     }
     for(const tie of plan.ties){
-      place(point(tie.fromAngle,inner,7.3),
-        point(tie.toAngle,inner,7.3),.1,steel(tie.kind));
-      place(point(tie.fromAngle,outer,8.35),
-        point(tie.toAngle,outer,8.35),.08,trim(tie.kind));
+      place(point(tie.fromAngle,inner,canopyAir.innerCrownY),
+        point(tie.toAngle,inner,canopyAir.innerCrownY),.1,steel(tie.kind));
+      place(point(tie.fromAngle,outer,canopyAir.outerCrownY),
+        point(tie.toAngle,outer,canopyAir.outerCrownY),.08,trim(tie.kind));
     }
     // Architectural load path follows the same original source-derived
     // stations. All diagonal members sit above the real roof; none masks
     // the moving actor or becomes gameplay collision/second gateway.
     for(const brace of sourceOpening?.compressionBraces ?? [])
-      place(point(brace.fromAngle,outer,8.35),
-        point(brace.toAngle,outer,9.35),.095,trim(brace.kind));
+      place(point(brace.fromAngle,outer,canopyAir.outerCrownY),
+        point(brace.toAngle,outer,canopyAir.highBraceY),.095,trim(brace.kind));
     // The actual original F8 gallery extractor retained 675 old triangles
     // but native evidence reported zero source-side flank faces. Reserve
     // substantial, SOURCE-ANCHORED original room steel BEFORE the boss fight,

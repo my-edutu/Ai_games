@@ -52,10 +52,10 @@ test('real source-owned 3D members form an original open room, not a second door
  assert.match(world,/actualGatewayReceivingGalleryCanopy\(p,width/);
  assert.match(world,/SourceEarnedPhysicalGatewayReceivingCanopy/);
  assert.match(world,/root\.add\(canopy\)/);
- assert.match(world,/place\(point\(a,inner,-1\.2\),point\(a,inner,7\.3\),\.18,m\)/);
- assert.match(world,/place\(point\(a,inner,7\.3\),point\(a,outer,8\.35\),\.16,m\)/);
- assert.match(world,/point\(tie.fromAngle,inner,7\.3\)/);
- assert.match(world,/point\(tie.fromAngle,outer,8\.35\)/);
+ assert.match(world,/place\(point\(a,inner,-1\.2\),point\(a,inner,canopyAir\.innerCrownY\),\.18,m\)/);
+ assert.match(world,/place\(point\(a,inner,canopyAir\.innerCrownY\),point\(a,outer,canopyAir\.outerCrownY\),\.16,m\)/);
+ assert.match(world,/point\(tie.fromAngle,inner,canopyAir\.innerCrownY\)/);
+ assert.match(world,/point\(tie.fromAngle,outer,canopyAir\.outerCrownY\)/);
  assert.match(world,/ambientDetail:true,receivingRoofCanopy:true/);
  assert.doesNotMatch(world,/platforms\.set\(['"]SourceEarnedPhysicalGatewayReceivingCanopy/);
  assert.doesNotMatch(world,/guardianGate\s*=\s*canopy|snapshot\.floor\s*=\s*9/);
