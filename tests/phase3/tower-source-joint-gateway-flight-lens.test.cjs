@@ -356,7 +356,7 @@ test('complete label requires visible real route, not merely a gate or score imp
 
 test('P0 original portrait rejects a fixed-gaze-only lens; actual raised p2 gets physically bounded alternate optical targets',async()=>{
  const {sourceJointGatewayFlightLens:plan,sourceJointGatewayRecoveryRigs:rigs}=await modulePromise;
- const native={...view,aspect:390/844,dt:.07,
+ const native={...view,aspect:390/844,dt:.07,focus:[3,1,48],
    heroNdc:[.18,0,.981,.16],
    gatewayNdc:[-.64,.07,.981,.238],
    roofNdc:[.68,-.11,.982],
