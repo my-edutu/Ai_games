@@ -267,3 +267,37 @@ test('source-pinned slow WebGL callback retains a bounded real gateway-flight le
    hero:slow.hero,gateway:slow.gateway,roof:slow.roof,
    landing:slow.landing,remainingTravelMetres:3}),[]);
 });
+
+
+test('returned real first-floor-nine lens publishes the specific evidence veto without inventing a physical shot',async()=>{
+ const {sourceJointGatewayFlightLens:plan,
+   explainSourceJointGatewayLensBlocker:reason}=await modulePromise;
+ const authentic={...view,dt:.21,landingNdc:[.38,1.8,.98]};
+ assert.equal(reason(source,held,authentic),'source-lens-preconditions-eligible');
+ assert.ok(plan(source,held,authentic)?.sourceBound);
+ const rows=[
+  [{...authentic,steel:null},'source-owned-original-gateway-steel-ineligible'],
+  [{...authentic,gatewayNdc:[.2,.1,1.4,.1]},'actual-gateway-depth-projection-ineligible'],
+  [{...authentic,heroNdc:[.25,.1,.4,.01]},'skinned-hero-projection-ineligible'],
+  [{...authentic,roof:[1000,0,0]},'physical-four-subject-span-exceeds-85-metres'],
+  [{...authentic,dt:0},'camera-delta-outside-genuine-raf-bounds'],
+  [{...authentic,dt:.501},'camera-delta-outside-genuine-raf-bounds'],
+  [{...authentic,fov:90},'camera-fov-ineligible']
+ ];
+ for(const [v,why] of rows){
+   assert.equal(reason(source,held,v),why);
+   assert.equal(plan(source,held,v),null,
+     'reporter must never loosen the original physically protected lens');
+ }
+ assert.equal(reason(source,{...held,submittedFrames:29},authentic),
+   'original-gateway-returned-frame-lease-ineligible');
+});
+test('real renderer binds first-camera-lens failure reason to its successful source-owned WebGL frame',()=>{
+ const scene=fs.readFileSync(path.resolve(__dirname,
+  '../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+ const joint=scene.slice(scene.indexOf('// P0 complete physical threshold shot'),
+   scene.indexOf('const sceneReadyAt = performance.now()'));
+ assert.match(joint,/explainSourceJointGatewayLensBlocker\(snapshot/);
+ assert.match(joint,/cameraJointRecoveryWitness\.lensEligibilityReason=reason/);
+ assert.match(scene,/renderer\.render\(scene, camera\);/);
+});
