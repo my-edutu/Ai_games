@@ -39,6 +39,7 @@ import { proposeSourceFirstRaisedBodyScale, acceptSourceFirstRaisedBodyScale } f
 import { sourceFirstRaisedGatewayLandmark, sourceJointGatewayFlightLens, explainSourceJointGatewayLensBlocker, assessSourceJointGatewayLens, assessSourceJointGatewayRecoveryStep, sourceJointGatewayRecoveryRigs, prioritizeSourceJointGatewayRecoveryRigs } from './source-joint-gateway-flight-lens.mjs';
 import { firstReturnedOriginalRoomAdmission, firstReturnedFloorNineEpisode } from './first-source-room-return.mjs';
 import { sourceFirstFloorNineCameraDeparture } from './first-floor-nine-camera-departure.mjs';
+import { createFloorNineCameraReturnAudit } from './first-floor-nine-camera-return-audit.mjs';
 import { firstF9ReturnedGatewaySearchBudget, sampleColdFirstReturnGatewayTrials } from './first-f9-return-search-budget.mjs';
 import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, sourceRaisedBackdropClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceThreeSubjectActorScaleGain, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe, sourceThreeSubjectPhysicalGain } from './physical-threshold-shot.mjs';
 import { sourceSubmittedDoorwayCameraDt, sourceCroppedHeroRecoveryDt } from './source-submitted-doorway-cadence.mjs';
@@ -2493,6 +2494,8 @@ export function createTowerScene(canvas, settings = {}) {
   // unrendered proposal, are the reference for a stable 2-body guardian lens.
   const lastSubmittedGuardianCamera = new THREE.Vector3();
   const lastSubmittedGuardianFocus = new THREE.Vector3();
+  let lastSubmittedGuardianFov = null;
+  let lastSubmittedGuardianPerfMs = null;
   const lastSubmittedGuardian = {runToken:null,floor:null,tick:-1};
   // The first eligible source F9 frame must have actually returned from WebGL.
   const firstFloorNineCameraEntry={runToken:null,tick:null};
@@ -6225,6 +6228,32 @@ export function createTowerScene(canvas, settings = {}) {
       // while the actor remained on the original walkable bronze roof.
       // Final camera restraint must run AFTER all other directors, including
       // when the old gateway has already retired from the actual World.
+      // Attribute the final camera to actual director checkpoints. This audit
+      // is bounded by the existing first-episode return ledger and never
+      // proposes a lens, calls a ray, changes a camera, or adds a GPU draw.
+      const firstF9ReturnAudit=!options.stale && options.camera==='follow' &&
+        snapshot?.floor===9 && snapshot.theme==='void' &&
+        snapshot.lifecycle==='running' && snapshot.player?.health>0 &&
+        lastSubmittedGuardian.floor===9 &&
+        lastSubmittedGuardian.runToken===snapshot.runToken &&
+        firstFloorNineCameraEntry.runToken===snapshot.runToken &&
+        originalToVoidReturnedRun===snapshot.runToken &&
+        originalToVoidReturnedTimeline.length<ORIGINAL_TO_VOID_RETURN_LIMIT
+        ?createFloorNineCameraReturnAudit({
+          sourceTick:snapshot.tick,previousTick:lastSubmittedGuardian.tick,
+          previousReturnPerfMs:lastSubmittedGuardianPerfMs,
+          previousCamera:lastSubmittedGuardianCamera.toArray(),
+          previousFocus:lastSubmittedGuardianFocus.toArray(),
+          previousFov:lastSubmittedGuardianFov,
+          previousHero:lastReturnedFloorNineHero.toArray(),
+          hero:climber.group.position.toArray(),dt
+        }):null;
+      const auditF9Camera=(label,outcome)=>{
+        if(firstF9ReturnAudit)firstF9ReturnAudit.checkpoint(label,
+          camera.position.toArray(),lookAt.toArray(),camera.fov,outcome);
+      };
+      auditF9Camera('before-departure','after-upstream-directors');
+      let firstF9DepartureOutcome='no-proposal';
       const firstF9DepartureBound=sourceFirstFloorNineCameraDeparture({
         source:snapshot,lastRendered:lastSubmittedGuardian,
         firstReturnedF9Tick:firstFloorNineCameraEntry.runToken===snapshot.runToken
@@ -6289,6 +6318,7 @@ export function createTowerScene(canvas, settings = {}) {
           }
         }
         if(wholeHero && coreClear && altitudeRayClear){
+          firstF9DepartureOutcome='accepted:'+firstF9DepartureBound.reason;
           firstF9CameraOutwardClamps=Math.min(1000000,
             firstF9CameraOutwardClamps+1);
           if(firstF9DepartureBound.reason===
@@ -6313,8 +6343,11 @@ export function createTowerScene(canvas, settings = {}) {
           camera.lookAt(lookAt);camera.updateMatrixWorld(true);
           firstF9CameraUnsafeRejects=Math.min(1000000,
             firstF9CameraUnsafeRejects+1);
+          firstF9DepartureOutcome='veto:'+firstF9DepartureBound.reason+
+            ':body='+wholeHero+':core='+coreClear+':deck='+altitudeRayClear;
         }
       }
+      auditF9Camera('after-departure',firstF9DepartureOutcome);
       // P0 complete physical threshold shot, not another material fade.
       // Apply only after all existing directors, before ONE genuine GPU draw.
       // The old source-owned guardian metal, current skinned actor, actual
@@ -6527,6 +6560,9 @@ export function createTowerScene(canvas, settings = {}) {
           }
         }
       }
+      auditF9Camera('after-joint',
+        cameraJointRecoveryWitness?.outcome??'no-joint-witness');
+      let firstF9ScaleOutcome='no-proposal';
       // Source-authentic gateway -> receiving roof -> real first raised p2.
       // The prior four-subject shot becomes ineligible once the genuine
       // climber reaches p2; the regular camera can leave its moving body
@@ -6601,6 +6637,7 @@ export function createTowerScene(canvas, settings = {}) {
                 towerCoreSightlineClear(camera.position,gatePoint,23.5)
             });
             if(accepted){
+              firstF9ScaleOutcome='physical-accepted';
               firstRaisedScaleTravel+=proposed.metres;
               firstRaisedScaleAccepted=Math.min(1000000,firstRaisedScaleAccepted+1);
               if(cameraJointRecoveryWitness)
@@ -6608,6 +6645,7 @@ export function createTowerScene(canvas, settings = {}) {
             }else{
               camera.position.copy(oldPosition);
               camera.lookAt(lookAt);camera.updateMatrixWorld(true);
+              firstF9ScaleOutcome='physical-rejected';
               firstRaisedScaleRejected=Math.min(1000000,firstRaisedScaleRejected+1);
               if(cameraJointRecoveryWitness)
                 cameraJointRecoveryWitness.firstRaisedBodyScale='physical-rejected';
@@ -6615,9 +6653,11 @@ export function createTowerScene(canvas, settings = {}) {
           }
         }
       }
+      auditF9Camera('final-after-scale',firstF9ScaleOutcome);
       const sceneReadyAt = performance.now();
       renderer.render(scene, camera);
       const rendererReturnedAt = performance.now();
+      const firstF9CameraDecisionReturn=firstF9ReturnAudit?.finish(rendererReturnedAt)??null;
       // Retain the actual GPU gateway lease only after a completed render,
       // never after update(), a source floor event or an attempted draw.
       if(releaseGateReturned){
@@ -6653,6 +6693,8 @@ export function createTowerScene(canvas, settings = {}) {
       if (!options.stale && snapshot?.lifecycle === 'running') {
         lastSubmittedGuardianCamera.copy(camera.position);
         lastSubmittedGuardianFocus.copy(lookAt);
+        lastSubmittedGuardianFov=camera.fov;
+        lastSubmittedGuardianPerfMs=rendererReturnedAt;
         lastSubmittedGuardian.runToken = snapshot.runToken;
         lastSubmittedGuardian.floor = snapshot.floor;
         lastSubmittedGuardian.tick = snapshot.tick;
@@ -6840,6 +6882,7 @@ export function createTowerScene(canvas, settings = {}) {
             submittedHero:climber.group.position.toArray()
               .map(x=>+x.toFixed(3)),
             // Provenance from the exact camera actually returned above.
+            cameraDirectorReturn:firstF9CameraDecisionReturn,
             cameraJointRecovery:cameraJointRecoveryWitness?.sourceBound===true &&
               cameraJointRecoveryWitness.sourceTick===snapshot.tick
                 ?{...cameraJointRecoveryWitness}:null,

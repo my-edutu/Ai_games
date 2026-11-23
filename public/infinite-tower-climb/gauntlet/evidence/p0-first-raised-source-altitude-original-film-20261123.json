@@ -395,5 +395,51 @@
     "sourceFinding": "Scene calls sourceFirstFloorNineCameraDeparture BEFORE the joint gateway recovery and first-raised scale directors, and on veto restores the unbounded requested camera. The helper exempts genuine inward recovery and only guards altitude for f9:p2. The 580→584 returned poses satisfy the inward exemption; 623→623 returned travel is below the 7.5m/0.14rad lateral detector. These are exact source-policy observations using FINAL poses, NOT proof of the earlier raw candidate or which veto occurred.",
     "next": "Replace independent late camera proposals with a single last-successful-return motion envelope for all first Floor9 route states, including inward orbit, same-source-tick updates and post-gateway f9:p3/cap, with physical full-body/deck/core/gate validation. Instrument raw, bounded and final camera poses with reason and veto per actual return. Use the three recorded witnesses above as integration fixtures, measure source tick delivery versus render return time, then repeat strict native film pairing. No camera-only mock can pass P0.",
     "limitation": "Coding workspace tunnel unavailable (NOT_FOUND, not seen for 300 seconds); source inspection and original artifact audit feasible via GitHub connector and local video decode, but no integrated Scene reproduction, fresh build, device measurements or independent review. No runtime edit."
+  },
+  "cameraDirectorReturnAudit": {
+    "stage": "P0 OPEN",
+    "inspectedHeadSha": "d948cbed17da1012ba529325d6b86634ef4d3874",
+    "priorExactSourceSha": "a7a1906e3480ef419859cf6f634d254797e3e27d",
+    "priorNativeRun": "https://github.com/my-edutu/Ai_games/actions/runs/45252080580",
+    "priorQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/45252080780",
+    "change": "Actual Three.js scene records last successful camera and render return clock, pre/post departure, post-joint, final post-scale camera/focus/FOV and decisions on first-episode returned frames; no camera path or authority altered. Existing capture exports these frames verbatim.",
+    "fixtureResults": [
+      {
+        "ticks": [
+          522,
+          527
+        ],
+        "returnGapMs": 23.1,
+        "heroDelta": 4.6377,
+        "finalDelta": 6.5586
+      },
+      {
+        "ticks": [
+          580,
+          584
+        ],
+        "returnGapMs": 164,
+        "heroDelta": 4.4086,
+        "finalDelta": 15.1093
+      },
+      {
+        "ticks": [
+          623,
+          623
+        ],
+        "returnGapMs": 20.5,
+        "heroDelta": 0.0262,
+        "finalDelta": 6.249
+      }
+    ],
+    "fixtureLimitation": "Exact recorded endpoints, synthetic intermediate checkpoints. Pure JS fixture executed in connector runtime; browser and Node suite NOT EVALUATED. No claim which director caused historical discontinuities.",
+    "capture": "Scene path automatically triggers immutable normal-speed evidence on push; inspect new workflow before claiming results.",
+    "independentReviewCounts": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "device": "NOT EVALUATED",
+    "next": "Use new real returned cameraDirectorReturn trace to locate upstream vs departure veto vs late joint/scale contributions across ground/p2/p3/cap. Then implement one geometry-checked final motion envelope; keep strict native pairing veto."
   }
 }
