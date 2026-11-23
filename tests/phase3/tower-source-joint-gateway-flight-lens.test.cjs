@@ -317,3 +317,38 @@ test('actual source-returned gateway NDC is the same physical steel key consumed
  assert.doesNotMatch(joint,/before\.gateNdc|after\.gateNdc/,
    'source-observed real steel cannot be borrowed from a mismatched name');
 });
+
+test('original native first-F9 desktop requires actual raised destination on-screen before declaring four-subject success',async()=>{
+  const {assessSourceJointGatewayLens:complete,
+    assessSourceJointGatewayRecoveryStep:partial}=await modulePromise;
+  // Actual immutable source-pinned desktop film c671c3e first return at tick476:
+  // all real source geometry projects but f9:p2 sits well ABOVE native screen.
+  const original={...view,heroNdc:[.19,-.09,.975,.229],
+    gatewayNdc:[-.009,.034,.976,.338],
+    roofNdc:[.413,-.269,.975],landingNdc:[.507,1.738,.970],
+    steel:{sourceBound:true,projectedPanes:17,projectedMetalArea:.055}};
+  const recovering={...original,heroNdc:[.19,-.09,.975,.229],
+    gatewayNdc:[-.009,.034,.976,.338],
+    roofNdc:[.415,-.27,.975],landingNdc:[.49,1.58,.97],
+    steel:{...original.steel,projectedMetalArea:.055}};
+  assert.equal(complete(original,recovering),false,
+    'complete 4-subject shot must never be awarded while the raised platform is cropped');
+  assert.equal(partial(original,recovering),true,
+    'a genuine route-revealing motion with full hero/real steel/roof preserved should remain eligible for PHYSICALLY VETOED intermediate projection');
+  assert.equal(partial(original,{...recovering,heroNdc:[.9,-.09,.975,.229]}),false,
+    'no partial route improvement may crop the climber');
+  assert.equal(partial(original,{...recovering,steel:{...original.steel,projectedPanes:0,projectedMetalArea:0}}),false,
+    'no partial route improvement may erase the original source-owned gateway steel');
+});
+test('complete label requires visible real route, not merely a gate or score improvement',async()=>{
+  const {assessSourceJointGatewayLens:complete,
+    assessSourceJointGatewayRecoveryStep:partial}=await modulePromise;
+  const before={...view,landingNdc:[.51,1.37,.97]};
+  const offscreen={...before,landingNdc:[.48,1.04,.97]};
+  assert.equal(complete(before,offscreen),false,
+    'a raised destination still beyond the top border is not a complete passage');
+  assert.equal(partial(before,offscreen),true,
+    'keep meaningful source-bound intermediate ascent without lying about visual acceptance');
+  const onscreen={...before,landingNdc:[.43,.72,.97]};
+  assert.equal(complete(before,onscreen),true);
+});
