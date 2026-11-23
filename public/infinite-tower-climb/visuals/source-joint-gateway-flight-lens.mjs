@@ -57,6 +57,80 @@ export function sourceFirstRaisedGatewayLandmark(source,held){
 // guardian, genuine roof and first raised platform remain independently
 // required. Accept only finite valid scene deltas <=0.5s and cap optical
 // gaze/rig movement to 0.07s; never spend dropped wall time as a camera jump.
+
+// P0 original-film blocker classifier. This operates on the SAME immutable
+// snapshot / source-owned steel / physical 3D projections as the actual lens.
+// The classifier never authorizes a camera: only the existing source lens and
+// the scene's real world-ray/core projection checks can do that.
+export function explainSourceJointGatewayLensBlocker(source,held,o={}){
+ const p=source?.player,w=source?.lastGuardianCrossing;
+ const roof=source?.platforms?.find(x=>x?.id==='f9:ground');
+ const landing=sourceFirstRaisedGatewayLandmark(source,held);
+ if(!landing)return 'source-raised-landmark-ineligible';
+ if(!roof||![roof.x,roof.y,roof.width,roof.height].every(integer)||
+    roof.width<=0||roof.height<=0||
+    ![landing.x,landing.y,landing.width,landing.height].every(integer)||
+    landing.width<=0||landing.height<=0||
+    landing.y+landing.height<=roof.y+roof.height)
+   return 'source-roof-or-deck-geometry-ineligible';
+ if(!held||held.runToken!==source?.runToken||held.floor!==9||
+    held.guardianGateRetained!==true||held.verifiedObservedFloorAdvance!==true||
+    held.oldCapId!=='f8:cap'||!integer(held.crossingTick)||
+    !integer(held.oldRoofY)||roof.y+roof.height!==held.oldRoofY||
+    source.tick<held.crossingTick||source.tick-held.crossingTick>100)
+   return 'guardian-crossing-or-original-roof-certificate-ineligible';
+ if(!finite(held.originalGatewayOpacity)||held.originalGatewayOpacity<.12||
+    held.originalGatewayOpacity>1)
+   return 'original-gateway-opacity-ineligible';
+ if(!integer(held.submittedFrames)||held.submittedFrames<1||
+    held.submittedFrames>28)
+   return 'original-gateway-returned-frame-lease-ineligible';
+ if(w!=null&&(w.runToken!==source.runToken||w.fromFloor!==8||
+    w.toFloor!==9||w.cap?.id!=='f8:cap'||w.guardian?.kind!=='guardian'||
+    w.guardian.active!==false||!finite(w.guardian.health)||
+    w.guardian.health>0||!integer(w.sourceTick)||w.sourceTick>source.tick||
+    w.sourceTick!==held.crossingTick))
+   return 'earned-guardian-hp0-record-ineligible';
+ if(!(p.grounded===true&&p.groundedPlatformId==='f9:ground'&&
+      p.y-p.halfHeight===roof.y+roof.height||
+      p.grounded===false&&p.state==='airborne'&&p.groundedPlatformId==null&&
+      p.y-p.halfHeight>=roof.y+roof.height-2500&&
+      p.y-p.halfHeight<=landing.y+landing.height+65000))
+   return 'real-hero-grounding-or-physical-flight-ineligible';
+ if(o.cameraMode!=='follow'||o.stale===true||o.reducedMotion===true)
+   return 'camera-mode-or-accessibility-ineligible';
+ if(!finite(o.aspect)||o.aspect<.36||o.aspect>2.45)
+   return 'camera-aspect-ineligible';
+ if(!finite(o.dt)||o.dt<=0||o.dt>.5)
+   return 'camera-delta-outside-genuine-raf-bounds';
+ if(!finite(o.fov)||o.fov<35||o.fov>70)
+   return 'camera-fov-ineligible';
+ if(![o.focus,o.hero,o.gateway,o.roof,o.landing].every(point))
+   return 'world-coordinate-vector-ineligible';
+ if(!ndc(o.heroNdc,4)||o.heroNdc[3]<.045)
+   return 'skinned-hero-projection-ineligible';
+ if(!ndc(o.gatewayNdc,4))
+   return 'actual-gateway-depth-projection-ineligible';
+ if(!ndc(o.roofNdc,3))
+   return 'actual-walkable-roof-projection-ineligible';
+ if(!Array.isArray(o.landingNdc)||o.landingNdc.length!==3||
+    !o.landingNdc.every(finite))
+   return 'actual-raised-platform-projection-ineligible';
+ if(o.steel?.sourceBound!==true||o.steel.projectedPanes<0||
+    !finite(o.steel.projectedMetalArea)||o.steel.projectedMetalArea<0)
+   return 'source-owned-original-gateway-steel-ineligible';
+ for(const x of [o.hero,o.gateway,o.roof])
+   if(Math.hypot(...x.map((v,i)=>v-o.landing[i]))>85)
+     return 'physical-four-subject-span-exceeds-85-metres';
+ const raisedOffscreen=gap(o.landingNdc,o.aspect<.85?.72:.80)>.015||
+   o.landingNdc[2]<-1||o.landingNdc[2]>1;
+ const heroNearCrop=gap(o.heroNdc,o.aspect<.85?.69:.77)>.01;
+ const originalGatewayLost=gap(o.gatewayNdc,o.aspect<.85?.70:.78)>.025||
+   o.steel.projectedPanes<2||o.steel.projectedMetalArea<.012;
+ if(!raisedOffscreen&&!heroNearCrop&&!originalGatewayLost)
+   return 'all-four-subjects-already-framed';
+ return 'source-lens-preconditions-eligible';
+}
 export function sourceJointGatewayFlightLens(source,held,o={}){
  const p=source?.player,w=source?.lastGuardianCrossing;
  const roof=source?.platforms?.find(x=>x?.id==='f9:ground');
