@@ -176,6 +176,72 @@ export function buildNativeFourShoreWaterfallGeometry(THREE,width,height) {
   return combined;
 }
 
+
+/**
+ * Four ORIGINAL geological estuaries follow the four actual watercourses from
+ * the existing ruin masonry all the way into their tidal water. The swept
+ * stone/loam terraces are physically modelled, contiguous at every section,
+ * and deliberately OUTBOARD of the immutable playable grid. They are merged
+ * into the two existing static stone/loam batches in createWorld: zero extra
+ * draw objects, textures, water shaders, lights, cells or event authority.
+ * Their explicit mouth metadata is a native geometry verification fixture,
+ * not data exported to the game or stream viewers.
+ */
+export function buildWaterfallEstuaryGeometry(THREE,width,height,layer) {
+  if (!Number.isInteger(width)||!Number.isInteger(height)||width<2||height<2||
+      width>2048||height>2048||!['bedrock','moss'].includes(layer))
+    throw new RangeError('Four waterfall estuaries require a bounded real board and geological layer');
+  const mouths=4,rows=20,bands=9,roots=[.54,.29,.43,.70];
+  const positions=new Float32Array(mouths*rows*bands*3);
+  const uvs=new Float32Array(mouths*rows*bands*2);
+  const indices=new Uint16Array(mouths*(rows-1)*(bands-1)*6);
+  const sources=[];
+  for(let edge=0;edge<mouths;edge++) {
+    const along=roots[edge]*(edge<2?width+2:height+2);
+    const stone=[0,1,2].map(tier=>sculptCoastCourse(width,height,edge,tier,along));
+    const outward=edge===0?{x:0,z:-1}:edge===1?{x:0,z:1}:edge===2?{x:-1,z:0}:{x:1,z:0};
+    const cross={x:-outward.z,z:outward.x};
+    const upper=stone[0].y+stone[0].sy/2+.045;
+    const middle=Math.min(upper-.25,Math.max(-3.46,stone[1].y+stone[1].sy/2+.045));
+    const path=[{x:stone[0].x,z:stone[0].z,y:upper},
+      {x:stone[1].x,z:stone[1].z,y:middle},
+      {x:stone[2].x,z:stone[2].z,y:-3.59},
+      {x:stone[2].x+outward.x*1.85,z:stone[2].z+outward.z*1.85,y:-3.59}];
+    sources.push({edge,start:{...path[0]},end:{...path[3]}});
+    for(let row=0;row<rows;row++) {
+      const t=row/(rows-1),section=Math.min(2,Math.floor(t*3)),u=t*3-section;
+      const from=path[section],to=path[section+1];
+      const cx=from.x+(to.x-from.x)*u,cz=from.z+(to.z-from.z)*u;
+      const cy=from.y+(to.y-from.y)*u;
+      const halfWidth=.83+1.15*t+.08*Math.sin(t*Math.PI*2+edge);
+      for(let band=0;band<bands;band++) {
+        const across=band/(bands-1)*2-1,span=across*halfWidth;
+        const ripple=.035*Math.sin(edge*2.4+t*11.3+across*5.1)*Math.sin(t*Math.PI);
+        const loamTop=Math.min(-.16,cy-.20+.22*Math.pow(Math.abs(across),1.5)+ripple);
+        const y=layer==='moss'?loamTop:loamTop-(.34+.16*t);
+        const v=edge*rows*bands+row*bands+band,i=v*3;
+        positions[i]=cx+cross.x*span;positions[i+1]=y;positions[i+2]=cz+cross.z*span;
+        uvs[v*2]=positions[i]/3.7;uvs[v*2+1]=positions[i+2]/3.7;
+        if(row<rows-1&&band<bands-1) {
+          const a=v,b=v+1,c=v+bands,d=c+1,k=(edge*(rows-1)*(bands-1)+row*(bands-1)+band)*6;
+          indices[k]=a;indices[k+1]=b;indices[k+2]=c;
+          indices[k+3]=b;indices[k+4]=d;indices[k+5]=c;
+        }
+      }
+    }
+  }
+  const delta=new THREE.BufferGeometry();
+  delta.setAttribute('position',new THREE.BufferAttribute(positions,3));
+  delta.setAttribute('uv',new THREE.BufferAttribute(uvs,2));
+  delta.setIndex(new THREE.BufferAttribute(indices,1));
+  delta.computeVertexNormals();delta.computeBoundingSphere();
+  delta.userData.estuaryMouths=4;
+  delta.userData.sourceWaterfalls=4;
+  delta.userData.mouths=sources;
+  delta.userData.exteriorOnly=true;
+  return delta;
+}
+
 export function bakeWaterEdgeGeometry(THREE, source, transforms) {
   const p = source.getAttribute('position'), n = source.getAttribute('normal'), uv = source.getAttribute('uv');
   if (!p || !n || !uv || !Array.isArray(transforms) || !transforms.length) throw new Error('Water edge bake needs indexed visual geometry and transforms');
@@ -959,6 +1025,96 @@ export function buildForestTerraceRim(THREE, width, height, layer) {
   g.userData.forestTerraceRings=ringCount;
   g.userData.forestTerraceSections=sectors;
   g.userData.forestTerraceOutsideGame=true;
+  return g;
+}
+
+/**
+ * T1 shore-to-court forest reclamation. The original stage visually ended at
+ * four hard, straight stone borders even though an entire woodland existed
+ * beyond them. These TWELVE connected, asymmetric, raised 3D earth tongues
+ * begin INSIDE the physical limestone court, continue through the native
+ * shore/coping, and bury their outer roots within the existing forest rim.
+ *
+ * The interior crown remains 11–23 mm above the authored paving surface,
+ * beneath the serpent's physical belly clearance; only outside the last
+ * legal cell may the woodland slope rise. No path, cue, physics, screenshot,
+ * external texture, per-frame CPU work or renderer pass is introduced. Each
+ * layer is appended to the existing 13 static-world draw objects.
+ */
+export function buildLivingForestShoreTongues(THREE,width,height,layer) {
+  if(!Number.isInteger(width)||!Number.isInteger(height)||width<2||height<2||
+      width>2048||height>2048||!['bedrock','moss'].includes(layer))
+    throw new RangeError('Living four-shore woodland needs a bounded real board and physical stratum');
+  const W=width/2,H=height/2, sections=16, across=[-1,-.72,-.40,0,.40,.72,1];
+  const sites=[
+    [-.76,-.13,.56],[-.69,.08,.73],[-.67,.27,.78],[-.74,-.09,.62],
+  ];
+  const positions=[],uvs=[],indices=[],tongues=[];
+  const smoother=t=>t*t*(3-2*t);
+  for(let edge=0;edge<4;edge++) for(let site=0;site<3;site++) {
+    const i=edge*3+site, along=sites[edge][site]+(site-1)*.015;
+    const size=edge<2?width:height, halfCross=size/2;
+    const transverse=along*halfCross;
+    const innerDepth=Math.max(1.1,Math.min(4.25, (edge<2?height:width)*(.18+.025*(site===1))));
+    const outerReach=3.08+.16*Math.sin(i*1.7);
+    const ox=edge===0?0:edge===1?0:edge===2?-1:1;
+    const oz=edge===0?-1:edge===1?1:0;
+    const nx=-oz,nz=ox;
+    const radius=edge<2?H:W;
+    const boundaryRatio=innerDepth/(innerDepth+outerReach);
+    const halfWidth=.90+.41*(.5+.5*Math.sin(i*2.1+.4));
+    const first=positions.length/3;
+    const transform=(t,acrossValue)=>{
+      const interior=-innerDepth+(innerDepth+outerReach)*t;
+      const course=radius+interior;
+      // Curves diverge instead of forming a row of twelve identical wedge
+      // corridors, while returning to their true anchors at both ends.
+      const wander=Math.sin(Math.PI*t)*(
+        .36*Math.sin(i*1.91+t*5.1)+.19*Math.sin(i*.73+t*9.6));
+      const displacedCross=Math.max(-halfCross+.53,Math.min(halfCross-.53,
+        transverse+wander));
+      const widthGrowth=Math.sin(Math.PI*t)**.58;
+      const footprint=(.21+halfWidth*(.32+.90*widthGrowth)+.27*t)*
+        (.94+.06*Math.sin(i*2.3+t*11.1));
+      const x=ox*course+nx*(displacedCross+acrossValue*footprint);
+      const z=oz*course+nz*(displacedCross+acrossValue*footprint);
+      // No walking-cell ridge or decoration may intrude into a true cue.
+      // Emerge above 24mm ONLY after passing the last real playing cell.
+      const rise=smoother(Math.max(0,Math.min(1,
+        (t-boundaryRatio-.085)/(1-boundaryRatio-.085))));
+      const fringe=1-Math.abs(acrossValue)**1.7;
+      const innerTopY=.016;
+      const upper=innerTopY+rise*(.065+.018*Math.sin(i*.91)**2)
+        +.005*fringe*Math.sin(Math.PI*t);
+      const y=(layer==='moss'?upper:upper-.075)
+        -.026*(1-fringe)*Math.max(.15,rise);
+      return {x,y,z};
+    };
+    for(let s=0;s<=sections;s++) {
+      const t=s/sections;
+      for(let band=0;band<across.length;band++) {
+        const p=transform(t,across[band]);
+        positions.push(p.x,p.y,p.z);uvs.push(p.x/3.7,p.z/3.7);
+        if(s && band<across.length-1) {
+          const a=first+(s-1)*across.length+band;
+          const b=a+across.length;
+          // All four shores share the same upward-facing winding.
+          indices.push(a,a+1,b,a+1,b+1,b);
+        }
+      }
+    }
+    const inner=transform(0,0),outer=transform(1,0);
+    tongues.push(Object.freeze({edge,site,innerDepth,outerReach,sections,
+      bands:across.length,inner:Object.freeze({x:inner.x,z:inner.z}),
+      outer:Object.freeze({x:outer.x,z:outer.z}),
+      innerTopY:inner.y,outerTopY:outer.y}));
+  }
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+  g.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
+  g.setIndex(indices);g.computeVertexNormals();g.computeBoundingSphere();
+  g.userData.shoreTongues=Object.freeze(tongues);
+  g.userData.authoritativeCellsModified=0;
   return g;
 }
 
@@ -2143,6 +2299,10 @@ export function createWorld(THREE, {width, height}) {
   // tie-ridges attach to the SAME original stone/moss batches, not new draws.
   appendOriginalCoastGeometry(erodedCliff,buildFourShoreWoodlandSpurs(THREE,width,height,'bedrock'));
   appendOriginalCoastGeometry(rootedMantle,buildFourShoreWoodlandSpurs(THREE,width,height,'moss'));
+  // Physically continuous four-outlet estuaries share the SAME native world batches.
+  // Waterfall sources, original geometry and all authoritative cells stay intact.
+  appendOriginalCoastGeometry(erodedCliff,buildWaterfallEstuaryGeometry(THREE,width,height,'bedrock'));
+  appendOriginalCoastGeometry(rootedMantle,buildWaterfallEstuaryGeometry(THREE,width,height,'moss'));
   // Broad genuine low-relief interior garden, not a colour-shifted tile grid.
   // These surfaces share the original two physical static world draw batches;
   // the unmodified stone crowns remain beneath every playable event and body.
@@ -2155,6 +2315,13 @@ export function createWorld(THREE, {width, height}) {
   // playable garden. Reuse these original two geometry/material GPU batches.
   appendOriginalCoastGeometry(erodedCliff,buildConnectedCourtyardGarden(THREE,width,height,'bedrock'));
   appendOriginalCoastGeometry(rootedMantle,buildConnectedCourtyardGarden(THREE,width,height,'moss'));
+  // The forest now physically enters ALL FOUR court edges. Native moss and
+  // limestone root beneath the existing coast, not a new rectangular trim.
+  // Both layers retain the original lighting, batches, art provenance and
+  // every authoritative cell/serpent/fruit/hazard/portal location.
+  appendOriginalCoastGeometry(erodedCliff,buildLivingForestShoreTongues(THREE,width,height,'bedrock'));
+  appendOriginalCoastGeometry(rootedMantle,buildLivingForestShoreTongues(THREE,width,height,'moss'));
+  group.userData.forestShoreReclamation=12;
   // True multi-level, all-four-shore physical woodland terrain stays beyond legal cells.
   appendOriginalCoastGeometry(erodedCliff,buildForestTerraceRim(THREE,width,height,'bedrock'));
   appendOriginalCoastGeometry(rootedMantle,buildForestTerraceRim(THREE,width,height,'moss'));

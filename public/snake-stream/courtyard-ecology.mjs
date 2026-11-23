@@ -673,40 +673,66 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
     [-.73,.70,.21,.20],[-.31,.77,.19,.19],[.18,.75,.19,.21],
     [.68,.64,.19,.23]
   ];
+  // The old ten independent two-pronged moss wedges made the court read as
+  // painted, unrelated graphic triangles. Retain precisely their 600 original
+  // shallow triangles but root every one of the 20 branches physically in one
+  // of the *existing* three sculpted river banks; lead it to the original ten
+  // outlying grove sites. This makes a connected traversable garden rather
+  // than more scenery standing around a rectangular gameplay floor.
   const rootStrands = 2, rootSegments = 15;
+  const mosaicConnections=[];
   for (let bed = 0; bed < mosaicBeds.length; bed++) {
-    const [ux, uz, sx, sz] = mosaicBeds[bed];
-    const centreX = ux * W, centreZ = uz * H;
+    const [ux, uz] = mosaicBeds[bed];
+    const groveX=clamp(ux*W,-W+.70,W-.70);
+    const groveZ=clamp(uz*H,-H+.70,H-.70);
+    // Avoid placing an entire root origin over the public central sundial.
+    // The river bank must be sampled at the SAME real x as its 3D geometry.
+    const bankX=clamp((ux<0?-.46:.46)*W,-W+.94,W-.94);
+    const baseProgress=(bankX+W-.86)/(width-1.72);
+    let channel=0, nearest=Infinity;
+    for(let c=0;c<3;c++){
+      const bank=sculptRiparianBank(bankX,c,width,height,baseProgress);
+      const distance=Math.abs(bank.centre-groveZ);
+      if(distance<nearest){nearest=distance;channel=c;}
+    }
     for (let strand = 0; strand < rootStrands; strand++) {
-      const angle = (strand ? 1.96 : -1.28) + bed * .51;
-      const reachX = Math.max(.70, width * sx * .55);
-      const reachZ = Math.max(.65, height * sz * .65);
+      const startX=clamp(bankX+(strand?-.085:.085),-W+.94,W-.94);
+      const progress=(startX+W-.86)/(width-1.72);
+      const bank=sculptRiparianBank(startX,channel,width,height,progress);
+      const startZ=clamp(bank.centre+(strand?-.13:.13)*Math.min(.25,bank.widthAt),
+        -H+.70,H-.70);
+      const finishX=clamp(groveX+(strand?-.095:.095),-W+.70,W-.70);
+      const finishZ=clamp(groveZ+(strand?-.045:.045),-H+.70,H-.70);
+      const vx=finishX-startX,vz=finishZ-startZ,travel=Math.hypot(vx,vz);
+      const nx=-vz/(travel||1),nz=vx/(travel||1);
+      const nativeRiverCrown=.01125+.00935*.96*(.78+.22*bank.oxbow)
+        +.00022*Math.sin(startX*.65+startZ*.45);
       const rows=[];
       for (let step=0;step<=rootSegments;step++) {
         const t=step/rootSegments;
-        const sway=Math.sin(t*6.6+bed*1.83+strand*2.1)*.19*t
-          +Math.sin(t*12.4-bed*.69)*.06*t;
-        const x=centreX+Math.cos(angle)*reachX*t-Math.sin(angle)*sway;
-        const z=centreZ+Math.sin(angle)*reachZ*t+Math.cos(angle)*sway;
-        const tangent=angle+.15*Math.sin(t*7+bed*.67);
-        // T1: existing ten long root mosaics become broad, weathered forest
-        // benches with lichen edges instead of hair-thin drawn lines. Each
-        // actual 3D vertex stays on the exact original safe field under the
-        // serpent contact and below every event cue. No extra triangles.
-        const crown=Math.sin(t*Math.PI)**.7;
-        const thickness=(.16+.72*crown)*(.77+.23*noise(bed+step*.13,strand+12))
-          *(.86+.14*Math.sin(t*9.2+bed*.79+strand));
-        const nx=-Math.sin(tangent),nz=Math.cos(tangent);
-        const nearX=clamp(x,-W+.70,W-.70),nearZ=clamp(z,-H+.70,H-.70);
-        const xA=clamp(nearX+nx*thickness,-W+.69,W-.69);
-        const zA=clamp(nearZ+nz*thickness,-H+.69,H-.69);
-        const xB=clamp(nearX-nx*thickness,-W+.69,W-.69);
-        const zB=clamp(nearZ-nz*thickness,-H+.69,H-.69);
+        // Rooted two-frequency S-curves and a shallow raised moss shoulder.
+        // The banks and the terminal forest remain exact physical endpoints.
+        const growth=Math.sin(Math.PI*t);
+        const meander=growth*(.16*Math.sin(t*6.5+bed*1.67+strand*.73)
+          +.07*Math.sin(t*12.8-bed*.54))*Math.min(1,travel/2);
+        const x=clamp(startX+vx*t+nx*meander,-W+.72,W-.72);
+        const z=clamp(startZ+vz*t+nz*meander,-H+.72,H-.72);
+        const shoulder=nativeRiverCrown*(1-t)+(.013+.0068*Math.pow(growth,.65))*t;
+        // True valley-contact sections narrow to meet the preexisting bank;
+        // no raised gameplay obstacle, no separate draw, no false event cue.
+        const halfWidth=.009+Math.min(bank.widthAt*.11,.020)*(1-t)
+          +.20*Math.pow(growth,.72);
+        const xA=clamp(x+nx*halfWidth,-W+.70,W-.70);
+        const zA=clamp(z+nz*halfWidth,-H+.70,H-.70);
+        const xB=clamp(x-nx*halfWidth,-W+.70,W-.70);
+        const zB=clamp(z-nz*halfWidth,-H+.70,H-.70);
         rows.push([
-          [xA,.0127+.0070*crown+Math.sin(t*5+bed)*.00065,zA],
-          [xB,.0127+.0032*crown+Math.sin(t*5+bed)*.00065,zB]
+          [xA,shoulder,zA],
+          [xB,Math.max(.011,shoulder-.0024*growth),zB]
         ]);
       }
+      const first=rows[0][0],last=rows[rootSegments][0];
+      mosaicConnections.push({bed,strand,channel,bankAnchor:[...first],groveEnd:[...last]});
       for(let step=0;step<rootSegments;step++){
         const a=rows[step],b=rows[step+1],salt=bed*.31+strand*.24;
         triangle(a[1],a[0],b[0],'mosaic',salt);
@@ -714,6 +740,12 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
       }
     }
   }
+  // Endpoints are real immutable static geometry, never live snapshots. The
+  // stats contract reuses a frozen handle instead of allocating 20 links
+  // every rendering/telemetry frame on an already GPU-starved scene.
+  const frozenMosaicConnections=Object.freeze(mosaicConnections.map(link=>Object.freeze({
+    ...link,bankAnchor:Object.freeze(link.bankAnchor),groveEnd:Object.freeze(link.groveEnd)
+  })));
   // END T1 WHOLE-COURT RECLAIMED MOSAIC BEDS
   // BEGIN T1 INTERSTITIAL LIVING UNDERSTORY
   // The playable board used to be a featureless giant rectangular floor.
@@ -835,6 +867,7 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
     meshCount: disposed ? 0 : 1, textures: 0, triangles: position.length / 9,
     braidedSurfaceTriangles: braidTriangles, islandSurfaceTriangles: islandTriangles,
     reclaimedMosaicTriangles: mosaicTriangles, mosaicBedCount: mosaicBeds.length,
+    mosaicConnections: frozenMosaicConnections,
     interstitialFernClumps, interstitialFernTriangles, fernCanopyHeight,
     fernBiomeCourses: 3, fernBiomeRootedSites, fernCourseAnchors,
     deterministicFromBoard: true, publicCellsMoved: 0, stoneAtlas: restoredStone, disposed
