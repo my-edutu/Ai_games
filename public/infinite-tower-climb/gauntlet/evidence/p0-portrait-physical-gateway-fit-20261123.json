@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "recordedDate": "2026-11-23",
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "assessorVerdict": "NOT EVALUATED",
+  "scope": "my-edutu/Ai_games existing OPEN DRAFT PR68 only",
+  "branch": "feat/tower-transformation-gauntlet-20261101",
+  "basePR": 58,
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "sourceInspectedAtStart": "6a0ec4ad265350457502b746168f14e8bda9abef",
+  "sourcePlayChangeSha": "506601b1273f284149891e105643adf8bb0a2881",
+  "sameSourceTestFixtureCorrectionSha": "1d2428c2fcd1f309fc3abdf9a62ab6c2ac3d10bd",
+  "sourcePinnedNewOriginalVideos": "https://github.com/my-edutu/Ai_games/actions/runs/45166347981",
+  "newExactHeadQualityCI": "https://github.com/my-edutu/Ai_games/actions/runs/45166576168",
+  "firstSourceQualityCI": "https://github.com/my-edutu/Ai_games/actions/runs/45166347887",
+  "previousSourcePinnedVideos": "https://github.com/my-edutu/Ai_games/actions/runs/45159290917",
+  "previousCandidateDangerOriginalArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45159290917/artifacts/14808883982",
+  "previousCandidateSourceSha": "a8dc2521b9dd6e2ea0f8e46a1c78708494f981d9",
+  "inspectedNativeVideos": {
+    "sourceAuthenticity": "Downloaded original unedited real WebM of 960x600 and 390x844 candidate danger, normal-speed 1x, from previous source-pinned 9-job run",
+    "desktop": "Actual original raised f9:p2 is NDC y 1.738 at initial real F9 camera return, well above the frame. Ten partial-only source-recovered optical steps in first episode, no complete physically approved four-subject projection. Old bronze room becomes violet without sustained visible joint passage.",
+    "portrait": "First F9 real receiving roof projected x 1.23 outside actual frame and raised p2 y 1.41 above frame, with opened original steel visible. One partial accepted, then seven source-return camera decisions with 28 projection vetoes across 4 same-gaze rigs per source return; 0 world triangle/core vetoes because all were rejected before physical ray tests. Raised deck later y~1.49 and room separates abruptly.",
+    "strictSourceNativePairing": "FAILED 0/2 desktop/portrait on prior source; current new-source capture not accepted at evidence write",
+    "mostImportantVisualDefect": "The real HP-open bronze guardian gateway, moving full climber, physically grounded Floor9 receiving roof and first raised source-owned f9:p2 destination still fail to stay legible together in a continuous original source-native shot; especially portrait. Corrected production pixels NOT YET INSPECTED."
+  },
+  "meaningfulReal3DSceneChange": [
+    "Production first-F9 four-subject lens when raised f9:p2 offscreen but original gateway still physically readable biases current source-owned first raised destination without changing AI intent or source physics.",
+    "Integrated Scene provides true current returned 3D camera gaze, FOV, aspect to lens; instead of four source-physical trials with exactly one gaze, propose two separately bounded original-gateway/raised-route optical targets while still restricting the physical rig within 0.65m per step and 3m total per run.",
+    "Allow modest real steel-panes decrease while retaining >=2 authentic source-owned panes, projected metal >=.012 and >=78% of previously readable material, to permit wider route FOV without inventing a doorway.",
+    "Evaluate cheap complete hero/roof/platform/steel projection BEFORE expensive actual source-world triangle and tower-core checks. A ray/core veto remains mandatory for any accepted real Three renderer return; no new draw or gameplay mutation."
+  ],
+  "redGreen": {
+    "redPriorExactSource": "https://github.com/my-edutu/Ai_games/actions/runs/45166347887",
+    "firstSourceCIObserved": "Phase3 shard2 failed one newly added test because its synthetic focus was not the same current returned camera focus; genuine 3D source was not changed to conceal a failing fixture.",
+    "correctiveTestCommit": "1d2428c2fcd1f309fc3abdf9a62ab6c2ac3d10bd",
+    "correctedExactHeadCI": "https://github.com/my-edutu/Ai_games/actions/runs/45166576168",
+    "statusAtEvidence": "Corrected exact-head quality CI PENDING and new immutable gameplay capture IN PROGRESS. Zero PASS claimed."
+  },
+  "performance": "Actual supported-device p50/p95/p99 frame time and memory NOT EVALUATED. CI runner CPU/Playwright is not device performance.",
+  "independentRandomBlindCritics": {
+    "LOOKS": 0,
+    "FEELS": 0,
+    "PLAYS": 0
+  },
+  "gates": "P0 open. No 2/2 true source/native accepted joint shot. P1-P6 blocked; full gameplay visual acceptance and device safety/independent preference are NOT EVALUATED.",
+  "nextHighestImpactAction": "Inspect exact immutable 506601b original WebM desktop/portrait first F9 episode and source-return projection/physical veto counts. If portrait still shows raised p2 out of frame, diagnose true geometry and roof/camera direction (do not repeatedly change opacity); rebuild single coherent source-owned architectural passage and recapture real source-native events, only open P1 after real 2/2 acceptance.",
+  "safety": {
+    "baselineLedgerUnchanged": true,
+    "pr68DraftOpen": true,
+    "pr58Unaffected": true,
+    "noNonTowerChanges": true,
+    "noMerge": true,
+    "noDeploy": true,
+    "noForcePush": true
+  }
+}

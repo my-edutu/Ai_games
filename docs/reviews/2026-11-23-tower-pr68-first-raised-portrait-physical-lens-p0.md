@@ -1,0 +1,25 @@
+# P0 — authentic portrait guardian gateway and first raised Floor 9 route
+**2026-11-23** · Draft [PR #68](https://github.com/my-edutu/Ai_games/pull/68) · Frozen baseline `1731b380851162741761c5569e2bc152a0869ca9` unchanged
+
+## Prior 1x source and native film: largest observed defect
+Inspected exact-head `6a0ec4ad` and instructions, approved design, GAUNTLET, physical World/Scene and source joint-lens, and downloaded the previous [nine-job source-pinned campaign](https://github.com/my-edutu/Ai_games/actions/runs/45159290917), candidate `a8dc2521`, including both original **960×600** and **390×844** normal-speed danger WebMs. Its 8/8 baseline/candidate videos and authentic ledge were recorded but **strict source/native event acceptance failed 0/2**.
+
+The actual first Floor 9 original-room returns show: desktop authentic raised destination at NDC y≈1.738, outside the picture, with ten partial source-recovered lens steps and zero full joint shots. Portrait returns have the true receiving roof at NDC x≈1.23, raised p2 at NDC y≈1.41, old HP-open metal still present, and after one accepted partial recovery **seven** decisions whose four proposed same-gaze physical rigs all failed *projection* (28 projection vetoes; world-ray and core vetoes zero because never reached). Source optics briefly widened, then collapsed toward 42°. No complete visible gate, whole moving climber, true roof, first raised p2 continuity across bronze→violet. This is stronger evidence for missing optical search diversity before source roof lease ends than for an opaque physical triangle, though native improvement is **not** established.
+
+## Committed integrated production correction
+Production [`506601b1`](https://github.com/my-edutu/Ai_games/commit/506601b1273f284149891e105643adf8bb0a2881):
+- On actual guardian crossing with source-owned f9:p2 above the frame, the joint lens weighs the **real first raised destination** more strongly without changing physics, AI or future intent.
+- The final Three.js Scene passes current real camera focus/FOV/aspect to the lens; two distinct route-high and gate-balanced optical targets now compete alongside the existing bounded four physical rigs. Each gaze displacement is limited by submitted render delta to ≤14·0.07 m; physical camera movement remains ≤0.65 m per trial and ≤3 m per run; no synthetic architecture/cutscene.
+- A moderate FOV widening can retain a **readable source-owned original gateway** even if six projected panes become five: still ≥2 original panes, ≥0.012 genuine projected metal area, ≥78% previous readable area; full body, walkable roof, real raised deck, source/guardian HP0 and restart gates remain mandatory.
+- Only geometrically plausible projection proposals now run the expensive **real World triangle ray and opaque tower-core** checks. No proposal bypasses those checks, no authoritative gameplay/collision/guardian edit and no additional WebGL draw.
+- New regression tests exercise original portrait projected NDC and adverse cropping, steel disappearance, invalid source, runtime FOV and maximum camera motion. First CI on gameplay SHA [`45166347887`](https://github.com/my-edutu/Ai_games/actions/runs/45166347887) failed Phase3-2 because the new regression simulated the *previous camera focus* inconsistently with its own source view. Fixed only fixture gaze in subsequent [`1d2428c2`](https://github.com/my-edutu/Ai_games/commit/1d2428c2fcd1f309fc3abdf9a62ab6c2ac3d10bd), not source behavior.
+
+## Acceptance now
+- Exact corrected-head quality CI [`45166576168`](https://github.com/my-edutu/Ai_games/actions/runs/45166576168): pending at evidence write, **NOT PASS**.
+- Real immutable game-source `506601b1` nine-job [normal-speed baseline/candidate capture `45166347981`](https://github.com/my-edutu/Ai_games/actions/runs/45166347981): running at evidence write, **NOT GRADED**. Note test-fixture-only follow-on `1d2428c2` makes production gameplay otherwise identical; do not call source-pinned capture a post-fix quality verdict without actual native playback.
+- Previous whole quality workflow on `6a0ec4ad` [`45160254499`](https://github.com/my-edutu/Ai_games/actions/runs/45160254499) had 9/10 passes; Phase6 job failed. Do not edit any other game in response.
+- Strict matched native event pairing **0/2** previously; no new native acceptance established yet. 5 genuinely independent fresh critics in EACH LOOKS/FEELS/PLAYS **0/5**. Supported real-device p50/p95/p99, memory **NOT EVALUATED**. No commercial quality assertion.
+
+**NEXT P0:** inspect actual new `506601b1` desktop and portrait *continuous* native danger WebMs and joined source camera decision gates. If this larger real joint-composition search still fails, prioritize structural camera/World geometry and visible walkable route, not another fade or incremental test count. Do not advance P1 until 2/2 true source/native passage acceptance.
+
+**Leading verdict: NOT EVALUATED; P0 OPEN.** Frozen baseline ledger/blob unchanged; PR68 still DRAFT and open, PR58 untouched, unrelated games untouched; no merge, deploy, force push.
