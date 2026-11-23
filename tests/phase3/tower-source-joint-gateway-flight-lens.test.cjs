@@ -131,3 +131,48 @@ test('renderer gets same-run earned crossing certificate even outside temporary 
  assert.match(joint,/assessSourceJointGatewayLens\(before,after\)/);
  assert.match(joint,/world\.measureSuccessorDeckVisibility\(snapshot/);
 });
+
+// Native first-F9 film can place the authentic old gate OFFSCREEN while
+// its actual Three source owner is still rendered. Recovery may propose,
+// but the AFTER view must prove genuine steel and no unsafe body cropping.
+test('offscreen original metal permits only physically returned old gate and all-four-subject shot',async()=>{
+ const {sourceJointGatewayFlightLens:plan,assessSourceJointGatewayLens:assess}=await modulePromise;
+ const before={...view,steel:{sourceBound:true,projectedPanes:0,projectedMetalArea:0}};
+ assert.equal(plan(source,held,before)?.sourceBound,true);
+ const after={...view,landingNdc:[.39,1.08,.4],heroNdc:[.24,0,.4,.12],
+   roofNdc:[.1,-.1,.5],steel:{sourceBound:true,projectedPanes:3,projectedMetalArea:.034}};
+ assert.equal(assess(before,after),true);
+ assert.equal(assess(before,{...after,steel:before.steel}),false);
+ assert.equal(assess(before,{...after,steel:{...after.steel,projectedPanes:1}}),false);
+ assert.equal(assess(before,{...after,heroNdc:[.94,.0,.4,.12]}),false);
+});
+test('source-only rig search cannot teleport or exceed total first-gateway camera budget',async()=>{
+ const {sourceJointGatewayFlightLens:plan,sourceJointGatewayRecoveryRigs:rigs}=await modulePromise;
+ const before={...view,steel:{sourceBound:true,projectedPanes:0,projectedMetalArea:0}};
+ const proposal=plan(source,held,before);
+ const frame={cameraPosition:[2,4,39],hero:view.hero,gateway:view.gateway,
+   roof:view.roof,landing:view.landing,dt:.04,remainingTravelMetres:3};
+ const result=rigs(proposal,frame);
+ assert.equal(result.length,4);
+ assert.equal(result[0].cameraMoveMetres,0);
+ assert.ok(result.slice(1).every(x=>x.cameraMoveMetres>0&&x.cameraMoveMetres<.65));
+ assert.ok(result.every(x=>x.fov===proposal.fov&&x.focus.every(Number.isFinite)));
+ assert.equal(rigs(proposal,{...frame,remainingTravelMetres:0}).length,1);
+ assert.deepEqual(rigs(proposal,{...frame,dt:Infinity}),[]);
+ assert.deepEqual(rigs(null,frame),[]);
+ assert.deepEqual(frame.cameraPosition,[2,4,39]);
+});
+test('integrated first F9 source camera recovers invisible old steel only after original geometry ray checks',()=>{
+ const scene=fs.readFileSync(path.resolve(__dirname,
+   '../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+ const joint=scene.slice(scene.indexOf('// P0 complete physical threshold shot'),
+   scene.indexOf('const sceneReadyAt = performance.now()'));
+ assert.match(joint,/sourceJointGatewayRecoveryRigs\(proposal/);
+ assert.match(joint,/sourceJointGatewayLensTravelMetres/);
+ assert.match(joint,/camera\.position\.copy\(oldPosition\)/);
+ assert.match(joint,/assessSourceJointGatewayLens\(before,after\)/);
+ assert.match(joint,/rays\.gatewayBlockedRays===0/);
+ assert.match(joint,/towerCoreSightlineClear\(camera\.position,jointLanding/);
+ assert.ok(joint.indexOf('sourceJointGatewayRecoveryRigs(')<joint.indexOf('renderer.render(')||
+  scene.indexOf('renderer.render(scene, camera);')>scene.indexOf('sourceJointGatewayRecoveryRigs(proposal')));
+});

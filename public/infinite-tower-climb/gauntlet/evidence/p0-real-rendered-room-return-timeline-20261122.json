@@ -737,5 +737,42 @@
     "hardwareFrameTimeP50P95P99Memory": "NOT EVALUATED",
     "nextHighestImpactAction": "Inspect new original full-motion 960x600 and 390x844 first F9 episode plus real four-subject lens proposal/physical veto counters; detect any runtime black/retry, confirm source/native paired event 2/2 and genuinely connected opened-gate/whole hero/walkable roof/current raised p2, onward climb/restart. If rejected, fix measured actual 3D obstruction rather than opacity-only change; keep P0 open.",
     "restrictions": "Baseline and ledger unchanged, PR58 untouched, PR68 draft, no merge, deploy, force-push, unrelated game changes"
+  },
+  "p0ActualNativeFilmOffscreenSteelRecovery20261123": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "firstInspectedHead": "0af26ef37b9f76b11b7d44f5252bc3956a888610",
+    "productionSourceSha": "NEW_COMMIT_PEND",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "immutablePriorNativeFilm": "https://github.com/my-edutu/Ai_games/actions/runs/45103983644",
+    "originalCandidateArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45103983644/artifacts/14786219673",
+    "priorExactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45103983560",
+    "authenticVideo": "72+ seconds normal-speed 25fps desktop and portrait, 8 source-pinned A/B films plus ledge completed; strict source-native danger pair FAILED 0/2; original F9 roof enters about 26s but violet raised room replaces gateway/roof around 27.5-28.5s without continuous four-subject shot.",
+    "verifiedRecoveryBlocker": "Original camera policy required original old steel to already be projected in BEFORE view, preventing rescue of source-owned but offscreen original gateway.",
+    "meaningfulImplementation": "Allow source-owned optical offscreen gate to propose bounded real 3D gaze/dolly/orbit recovery; AFTER requires true original steel panes+area, full skinned hero, receiving roof, actual raised f9:p2, present structural rays. Per-return <=0.65m; per-run <=3m. Reject returns old camera; no simulation/physics/collision/guardian edits.",
+    "sourceFiles": [
+      "public/infinite-tower-climb/visuals/source-joint-gateway-flight-lens.mjs",
+      "public/infinite-tower-climb/visuals/scene.mjs",
+      "tests/phase3/tower-source-joint-gateway-flight-lens.test.cjs"
+    ],
+    "newCapture": "NOT YET CHECKED",
+    "exactHeadCI": "NOT YET CHECKED",
+    "blindCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "deviceFrameTimeAndMemory": "NOT EVALUATED",
+    "biggestGap": "No continuous source-native earned opened gate + moving complete climber + real walkable receiving roof + first raised f9:p2 accepted in desktop and portrait.",
+    "nextHighestImpactAction": "Inspect new immutable-source normal-speed desktop/portrait, actual accepted and veto counters and old-gate recovery; repair original camera/world steel occlusion if still failed.",
+    "safeguards": {
+      "PR68Draft": true,
+      "PR58Untouched": true,
+      "baselineUnchanged": true,
+      "merge": false,
+      "deploy": false,
+      "forcePush": false,
+      "unrelatedGames": false
+    }
   }
 }

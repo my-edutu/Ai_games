@@ -35,7 +35,7 @@ import { observedGuardianTransmissionCorners } from './guardian-transmission-lay
 import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
 import { sourceReturnedGateCameraRelease, sourceRetainedGatewayCameraContinuity, assessSourceRetainedGatewayPhysicalShot, sourceReturnedGatewayLastCameraEligible, sourceEarnedFloorNineOrbitGuard } from './source-returned-gate-camera-release.mjs';
 import { sourceFirstRaisedFlightGaze } from './source-first-raised-flight-gaze.mjs';
-import { sourceFirstRaisedGatewayLandmark, sourceJointGatewayFlightLens, assessSourceJointGatewayLens } from './source-joint-gateway-flight-lens.mjs';
+import { sourceFirstRaisedGatewayLandmark, sourceJointGatewayFlightLens, assessSourceJointGatewayLens, sourceJointGatewayRecoveryRigs } from './source-joint-gateway-flight-lens.mjs';
 import { firstReturnedOriginalRoomAdmission, firstReturnedFloorNineEpisode } from './first-source-room-return.mjs';
 import { sourceFirstFloorNineCameraDeparture } from './first-floor-nine-camera-departure.mjs';
 import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, sourceRaisedBackdropClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceThreeSubjectActorScaleGain, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe, sourceThreeSubjectPhysicalGain } from './physical-threshold-shot.mjs';
@@ -2497,6 +2497,7 @@ export function createTowerScene(canvas, settings = {}) {
   const lastReturnedFloorNineHero=new THREE.Vector3();
   let firstF9CameraOutwardClamps=0,firstF9CameraUnsafeRejects=0;
   let sourceJointGatewayLensProposals=0,sourceJointGatewayLensAccepted=0,sourceJointGatewayLensVetoed=0;
+  let sourceJointGatewayLensTravelRunToken=null,sourceJointGatewayLensTravelMetres=0;
   let firstF9CameraWorldSpaceClamps=0,firstF9CameraLateralClamps=0;
   let firstF9CameraHeroGazeRescues=0;
   let firstF9CameraUnboundedCuts=0,firstF9CameraLargestUnboundedMetres=0;
@@ -6331,25 +6332,51 @@ export function createTowerScene(canvas, settings = {}) {
           if(proposal) {
             sourceJointGatewayLensProposals=Math.min(1000000,
               sourceJointGatewayLensProposals+1);
+            // The actual first Floor9 native film can lose the OLD gate even
+            // while its real same-run steel remains in World. The old lens
+            // refused to propose unless the gate was already on camera.
+            // Search a few sub-metre actual rigs (plus the existing gaze),
+            // then physically reproject and ray-veto before ONE GPU draw.
+            // Total added camera travel is bounded per genuine run.
+            if(sourceJointGatewayLensTravelRunToken!==snapshot.runToken){
+              sourceJointGatewayLensTravelRunToken=snapshot.runToken;
+              sourceJointGatewayLensTravelMetres=0;
+            }
             const oldFov=camera.fov,oldFocus=lookAt.clone();
-            camera.fov=proposal.fov;camera.updateProjectionMatrix();
-            lookAt.set(...proposal.focus);
-            camera.lookAt(lookAt);camera.updateMatrixWorld(true);
-            const after=measureJoint();
-            const rays=world.measureSuccessorDeckVisibility(snapshot,
-              camera.position,jointHero,snapshot.player.halfHeight/SCALE,
-              jointGate,jointRaised.id);
-            const accepted=assessSourceJointGatewayLens(before,after) &&
-              rays?.active===true && rays.bodyBlockedRays===0 &&
-              rays.gatewayBlockedRays===0 &&
-              towerCoreSightlineClear(camera.position,jointHero,23.5) &&
-              towerCoreSightlineClear(camera.position,jointGate,23.5) &&
-              towerCoreSightlineClear(camera.position,jointRoof,23.5) &&
-              towerCoreSightlineClear(camera.position,jointLanding,23.5);
-            if(accepted) {
-              sourceJointGatewayLensAccepted=Math.min(1000000,
-                sourceJointGatewayLensAccepted+1);
-            } else {
+            const oldPosition=camera.position.clone();
+            const rigs=sourceJointGatewayRecoveryRigs(proposal,{
+              cameraPosition:oldPosition.toArray(),dt,
+              hero:jointHero.toArray(),gateway:jointGate.toArray(),
+              roof:jointRoof.toArray(),landing:jointLanding.toArray(),
+              remainingTravelMetres:Math.max(0,3-sourceJointGatewayLensTravelMetres)
+            });
+            let acceptedJoint=false;
+            for(const rig of rigs){
+              camera.position.set(...rig.position);
+              camera.fov=rig.fov;camera.updateProjectionMatrix();
+              lookAt.set(...rig.focus);
+              camera.lookAt(lookAt);camera.updateMatrixWorld(true);
+              const after=measureJoint();
+              const rays=world.measureSuccessorDeckVisibility(snapshot,
+                camera.position,jointHero,snapshot.player.halfHeight/SCALE,
+                jointGate,jointRaised.id);
+              const physicallySafe=assessSourceJointGatewayLens(before,after) &&
+                rays?.active===true && rays.bodyBlockedRays===0 &&
+                rays.gatewayBlockedRays===0 &&
+                towerCoreSightlineClear(camera.position,jointHero,23.5) &&
+                towerCoreSightlineClear(camera.position,jointGate,23.5) &&
+                towerCoreSightlineClear(camera.position,jointRoof,23.5) &&
+                towerCoreSightlineClear(camera.position,jointLanding,23.5);
+              if(physicallySafe){
+                acceptedJoint=true;
+                sourceJointGatewayLensTravelMetres+=rig.cameraMoveMetres;
+                sourceJointGatewayLensAccepted=Math.min(1000000,
+                  sourceJointGatewayLensAccepted+1);
+                break;
+              }
+            }
+            if(!acceptedJoint){
+              camera.position.copy(oldPosition);
               camera.fov=oldFov;camera.updateProjectionMatrix();
               lookAt.copy(oldFocus);
               camera.lookAt(lookAt);camera.updateMatrixWorld(true);
