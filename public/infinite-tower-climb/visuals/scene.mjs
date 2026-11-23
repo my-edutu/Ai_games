@@ -35,6 +35,7 @@ import { observedGuardianTransmissionCorners } from './guardian-transmission-lay
 import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
 import { sourceReturnedGateCameraRelease, sourceRetainedGatewayCameraContinuity, assessSourceRetainedGatewayPhysicalShot, sourceReturnedGatewayLastCameraEligible, sourceEarnedFloorNineOrbitGuard } from './source-returned-gate-camera-release.mjs';
 import { sourceFirstRaisedFlightGaze } from './source-first-raised-flight-gaze.mjs';
+import { sourceJointGatewayFlightLens, assessSourceJointGatewayLens } from './source-joint-gateway-flight-lens.mjs';
 import { firstReturnedOriginalRoomAdmission, firstReturnedFloorNineEpisode } from './first-source-room-return.mjs';
 import { sourceFirstFloorNineCameraDeparture } from './first-floor-nine-camera-departure.mjs';
 import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, sourceRaisedBackdropClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceThreeSubjectActorScaleGain, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe, sourceThreeSubjectPhysicalGain } from './physical-threshold-shot.mjs';
@@ -2495,6 +2496,7 @@ export function createTowerScene(canvas, settings = {}) {
   const firstFloorNineCameraEntry={runToken:null,tick:null};
   const lastReturnedFloorNineHero=new THREE.Vector3();
   let firstF9CameraOutwardClamps=0,firstF9CameraUnsafeRejects=0;
+  let sourceJointGatewayLensProposals=0,sourceJointGatewayLensAccepted=0,sourceJointGatewayLensVetoed=0;
   let firstF9CameraWorldSpaceClamps=0,firstF9CameraLateralClamps=0;
   let firstF9CameraHeroGazeRescues=0;
   let firstF9CameraUnboundedCuts=0,firstF9CameraLargestUnboundedMetres=0;
@@ -6273,6 +6275,81 @@ export function createTowerScene(canvas, settings = {}) {
             firstF9CameraUnsafeRejects+1);
         }
       }
+      // P0 complete physical threshold shot, not another material fade.
+      // Apply only after all existing directors, before ONE genuine GPU draw.
+      // The old source-owned guardian metal, current skinned actor, actual
+      // walkable roof and first raised destination must be visible together.
+      if(!options.stale && !options.reducedMotion &&
+         options.camera==='follow' && snapshot?.floor===9 &&
+         physicalWalkableShot?.sourceBound===true &&
+         coldArchProof && retainedColdArrival?.guardianGateRetained===true &&
+         snapshot.player?.health>0) {
+        const jointRaised=intendedLanding(snapshot);
+        const jointGatePose=guardianTraversalGatePose(
+          coldArchProof.thresholdX,coldArchProof.oldRoofY,
+          snapshot.chunkBaseY,snapshot.worldWidth);
+        if(jointRaised?.id?.startsWith('f9:p') && jointGatePose) {
+          const jointHero=climber.group.position.clone();
+          jointHero.y+=snapshot.player.halfHeight/SCALE;
+          const jointGate=new THREE.Vector3(
+            jointGatePose.x,jointGatePose.y+2,jointGatePose.z);
+          const jointRoof=new THREE.Vector3(...physicalWalkableShot.world);
+          const d=pointFor(
+            jointRaised.x+Math.floor(jointRaised.width*.5),
+            jointRaised.y+jointRaised.height,
+            snapshot.chunkBaseY,snapshot.worldWidth,25);
+          const jointLanding=new THREE.Vector3(d.x,d.y+.14,d.z);
+          const measureJoint=()=>{
+            const h=[],g=[];
+            measureDuelBodyNdc(jointHero,snapshot.player.halfHeight/SCALE,
+              camera,duelTop,duelBottom,h);
+            measureDuelBodyNdc(jointGate,2.1,
+              camera,duelTop,duelBottom,g);
+            return {heroNdc:h,gateNdc:g,
+              roofNdc:jointRoof.clone().project(camera).toArray(),
+              landingNdc:jointLanding.clone().project(camera).toArray(),
+              steel:world.projectedOriginalGateSteel(snapshot,camera)};
+          };
+          const before=measureJoint();
+          const proposal=sourceJointGatewayFlightLens(snapshot,retainedColdArrival,{
+            cameraMode:options.camera,stale:options.stale,
+            reducedMotion:options.reducedMotion,
+            aspect:camera.aspect,dt:cameraDt,fov:camera.fov,
+            focus:lookAt.toArray(),hero:jointHero.toArray(),
+            gateway:jointGate.toArray(),roof:jointRoof.toArray(),
+            landing:jointLanding.toArray(),...before
+          });
+          if(proposal) {
+            sourceJointGatewayLensProposals=Math.min(1000000,
+              sourceJointGatewayLensProposals+1);
+            const oldFov=camera.fov,oldFocus=lookAt.clone();
+            camera.fov=proposal.fov;camera.updateProjectionMatrix();
+            lookAt.set(...proposal.focus);
+            camera.lookAt(lookAt);camera.updateMatrixWorld(true);
+            const after=measureJoint();
+            const rays=world.measureSuccessorDeckVisibility(snapshot,
+              camera.position,jointHero,snapshot.player.halfHeight/SCALE,
+              jointGate,jointRaised.id);
+            const accepted=assessSourceJointGatewayLens(before,after) &&
+              rays?.active===true && rays.bodyBlockedRays===0 &&
+              rays.gatewayBlockedRays===0 &&
+              towerCoreSightlineClear(camera.position,jointHero,23.5) &&
+              towerCoreSightlineClear(camera.position,jointGate,23.5) &&
+              towerCoreSightlineClear(camera.position,jointRoof,23.5) &&
+              towerCoreSightlineClear(camera.position,jointLanding,23.5);
+            if(accepted) {
+              sourceJointGatewayLensAccepted=Math.min(1000000,
+                sourceJointGatewayLensAccepted+1);
+            } else {
+              camera.fov=oldFov;camera.updateProjectionMatrix();
+              lookAt.copy(oldFocus);
+              camera.lookAt(lookAt);camera.updateMatrixWorld(true);
+              sourceJointGatewayLensVetoed=Math.min(1000000,
+                sourceJointGatewayLensVetoed+1);
+            }
+          }
+        }
+      }
       const sceneReadyAt = performance.now();
       renderer.render(scene, camera);
       const rendererReturnedAt = performance.now();
@@ -7094,6 +7171,12 @@ export function createTowerScene(canvas, settings = {}) {
         lastGeometryScoreGain:guardianWorldLastGain,
         source:'real current Three.js opaque world triangle rays / both drawn actors',
         limitation:'Throttled scene geometry witness, NOT native WebM painted pixels, A/B preference or hardware FPS'
+      },
+      sourceJointGatewayFlightLens: {
+        sourceBoundProposals:sourceJointGatewayLensProposals,
+        acceptedForActualRender:sourceJointGatewayLensAccepted,
+        rejectedByRealProjectionOrTriangleVeto:sourceJointGatewayLensVetoed,
+        limitation:'One actual-world camera/lens proposal before GPU submission, not native WebM pixel acceptance or independent review'
       },
       firstFloorNineCameraDeparture: {
         sourceBoundCameraClamps:firstF9CameraOutwardClamps,
