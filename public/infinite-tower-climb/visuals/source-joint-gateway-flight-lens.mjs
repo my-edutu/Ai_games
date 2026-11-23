@@ -51,6 +51,12 @@ export function sourceFirstRaisedGatewayLandmark(source,held){
  return deck;
 }
 
+// Real 1x Chromium/WebGL2 desktop and portrait danger film can return after
+// 0.12-0.5s of wall time (measured software-render callback stalls). A slow
+// DRAW is not a stale gameplay snapshot: the immutable source tick, HP-open
+// guardian, genuine roof and first raised platform remain independently
+// required. Accept only finite valid scene deltas <=0.5s and cap optical
+// gaze/rig movement to 0.07s; never spend dropped wall time as a camera jump.
 export function sourceJointGatewayFlightLens(source,held,o={}){
  const p=source?.player,w=source?.lastGuardianCrossing;
  const roof=source?.platforms?.find(x=>x?.id==='f9:ground');
@@ -84,7 +90,7 @@ export function sourceJointGatewayFlightLens(source,held,o={}){
       p.y-p.halfHeight<=landing.y+landing.height+65000)||
     o.cameraMode!=='follow'||o.stale===true||o.reducedMotion===true||
     !finite(o.aspect)||o.aspect<.36||o.aspect>2.45||
-    !finite(o.dt)||o.dt<=0||o.dt>.12||!finite(o.fov)||
+    !finite(o.dt)||o.dt<=0||o.dt>.5||!finite(o.fov)||
     o.fov<35||o.fov>70||
     ![o.focus,o.hero,o.gateway,o.roof,o.landing].every(point)||
     !ndc(o.heroNdc,4)||!ndc(o.gatewayNdc,4)||!ndc(o.roofNdc,3)||
@@ -183,7 +189,7 @@ export function sourceJointGatewayRecoveryRigs(proposal,o={}){
  if(proposal?.sourceBound!==true||!point(p)||!point(o.hero)||
     !point(o.gateway)||!point(o.roof)||!point(o.landing)||
     !point(proposal.focus)||!finite(proposal.fov)||
-    !finite(o.dt)||o.dt<=0||o.dt>.12||
+    !finite(o.dt)||o.dt<=0||o.dt>.5||
     !finite(o.remainingTravelMetres)||o.remainingTravelMetres<0)
    return [];
  const candidate=(position,kind)=>({position,kind,
@@ -200,9 +206,10 @@ export function sourceJointGatewayRecoveryRigs(proposal,o={}){
  if(n<3||horizontal<2)return result;
  const out=[v[0]/n,v[1]/n,v[2]/n];
  const tangent=[-v[2]/horizontal,0,v[0]/horizontal];
- const dolly=Math.min(.46,o.dt*7,remaining*.8);
- const side=Math.min(.22,o.dt*3.2,remaining*.25);
- const lift=Math.min(.08,o.dt*1.2,remaining*.15);
+ const opticalDt=clamp(o.dt,.001,.07);
+ const dolly=Math.min(.46,opticalDt*7,remaining*.8);
+ const side=Math.min(.22,opticalDt*3.2,remaining*.25);
+ const lift=Math.min(.08,opticalDt*1.2,remaining*.15);
  const make=(sign)=>p.map((value,i)=>value+out[i]*dolly+
    tangent[i]*side*sign+(i===1?lift:0));
  // A strictly bounded physical rig search, never a camera teleport.
