@@ -167,6 +167,35 @@ export function cameraComposition({ width, height, aspect, mode = 'overview', he
 
 
 /**
+ * Actual 36-degree perspective face-safety measurement for the real WebGL
+ * follow/detail shot. A world-space square dead zone can include points that
+ * are OUTSIDE the screen after foreshortening (particularly diagonal moves or
+ * a narrow 390px broadcast). Calculate true camera-right, -up and depth from
+ * the original held camera; keep an authored 0.55-unit eye/head silhouette
+ * margin. This is CPU-only presentation arithmetic: no authority, new render
+ * target, geometry, textures, reduced-resolution trick, or skipped 3D layer.
+ * Return world-space screen-edge clearance; negative means face is cropped.
+ */
+export function cameraHeadFrustumMargin({ head, target, offset, aspect, headRadius = .55 } = {}) {
+  if (!head || !target || !offset || !Number.isFinite(aspect) || aspect <= 0 ||
+      ![head.x,head.z,target.x,target.y,target.z,offset.x,offset.y,offset.z,headRadius].every(Number.isFinite) ||
+      headRadius < 0) return -Infinity;
+  const cameraDistance = Math.hypot(offset.x,offset.y,offset.z);
+  const groundDistance = Math.hypot(offset.x,offset.z);
+  if (cameraDistance <= .01 || groundDistance <= .01) return -Infinity;
+  const dx = head.x-target.x, dz = head.z-target.z;
+  // The face is approximately at the look-at height. All real serpent motion
+  // remains at its original unmodified y; reserve headRadius for variation.
+  const depth = cameraDistance-(dx*offset.x+dz*offset.z)/cameraDistance;
+  if (depth <= .1) return -Infinity;
+  const right = (dx*offset.z-dz*offset.x)/groundDistance;
+  const up = -(dx*offset.x+dz*offset.z)*offset.y/(cameraDistance*groundDistance);
+  const halfHeight = depth*Math.tan(Math.PI/10);
+  return Math.min(halfHeight*aspect-Math.abs(right)-headRadius,
+    halfHeight-Math.abs(up)-headRadius);
+}
+
+/**
  * A truthful, bounded cinematic composition dead-zone.
  *
  * In follow/detail shots the public head is allowed to move inside a small,
@@ -183,34 +212,104 @@ export function createPresentationCameraAnchor() {
   let previousHead = null;
   const clone = point => ({ x: point.x, y: point.y, z: point.z });
   const reset = () => { held = null; previousHead = null; };
-  function resolve({ mode, runToken, head, target, offset, reducedMotion = false, aspect = 1.5, discontinuity = false, gpuPressure = false }) {
+  function resolve({ mode, runToken, head, target, offset, reducedMotion = false, aspect = 1.5,
+    discontinuity = false, gpuPressure = false, width, height }) {
     if (!target || !offset || !head || ![target.x,target.y,target.z,offset.x,offset.y,offset.z,head.x,head.z].every(Number.isFinite))
       throw new TypeError('Camera anchor requires finite public composition coordinates');
     const actualMode = mode === 'follow' || mode === 'detail' ? mode : 'overview';
     const safeAspect = Number.isFinite(aspect) && aspect > 0 ? aspect : 1.5;
     const landmark = { x: head.x, z: head.z };
-    const headJump = previousHead
-      ? Math.hypot(head.x - previousHead.x, head.z - previousHead.z) > 3.25
+    const previousPublicHead = previousHead;
+    const headJump = previousPublicHead
+      ? Math.hypot(head.x - previousPublicHead.x, head.z - previousPublicHead.z) > 3.25
       : false;
     previousHead = landmark;
     // A completed, genuinely slow GPU fence may justify a slightly wider
     // spectator safe window; avoid repeated expensive intermediate full-world
     // perspectives, but still reframe when the actual public serpent leaves
     // the bounded 3D composition. Normal and unsupported devices are unchanged.
-    const limit = (actualMode === 'detail' ? 0.72 : 2.4)
+    const nominalLimit = (actualMode === 'detail' ? 0.72 : 2.4)
       * Math.max(0.5, Math.min(1, safeAspect / 1.5))
       * (gpuPressure ? 1.25 : 1);
+    // Portrait's actual projected horizontal width can be smaller than the
+    // nominal desktop dead-zone. At 390x844 the original 1.5-unit x/z hold
+    // exceeded the visible 36-degree camera half-width, intermittently
+    // leaving the public head outside frame. Respect the TRUE 3D perspective
+    // and reserve room for head/eye silhouette, even on a stalled GPU.
+    const projectedHalfWidth = Math.tan(Math.PI/10) *
+      Math.hypot(offset.x,offset.y,offset.z) * safeAspect;
+    const limit = safeAspect < .75 ? Math.min(nominalLimit,
+      Math.max(.15,projectedHalfWidth-(actualMode==='detail'?.55:.5))) : nominalLimit;
     const needsReset = !held || held.mode !== actualMode ||
       held.runToken !== runToken || held.discontinuity !== discontinuity || Math.abs(held.aspect - safeAspect) > 0.03 ||
       headJump || held?.reducedMotion !== reducedMotion || actualMode === 'overview' ||
-      Math.abs(head.x - held.head.x) > limit || Math.abs(head.z - held.head.z) > limit;
+      (safeAspect < .75
+        ? Math.hypot(head.x - held.head.x,head.z - held.head.z) > limit
+        : Math.abs(head.x - held.head.x) > limit || Math.abs(head.z - held.head.z) > limit) ||
+      // The former axis-only test could HOLD a view with the real head already
+      // beyond the perspective vertical face margin during diagonal motion.
+      // Reframe before a complete real frame is submitted with a cropped hero.
+      (held && actualMode !== 'overview' && cameraHeadFrustumMargin({
+        head, target: held.target, offset: held.offset, aspect: safeAspect,
+      }) < 0);
     const snap = !held || held.mode !== actualMode || held.runToken !== runToken ||
       Math.abs(held.aspect - safeAspect) > 0.03 || held?.discontinuity !== discontinuity || headJump || reducedMotion || held?.reducedMotion !== reducedMotion ||
       actualMode === 'overview';
-    if (needsReset) held = {
-      mode: actualMode, runToken, head: landmark, aspect: safeAspect, reducedMotion, discontinuity,
-      target: clone(target), offset: clone(offset),
-    };
+    if (needsReset) {
+      const framedTarget = clone(target);
+      // Authentic GPU-fence starvation makes an already-earned follow camera
+      // transition exceptionally costly (~265ms live full scene vs ~23ms
+      // cached on the source-matched complete-world diagnostic). When the
+      // public serpent leaves its true safe window, compose the next real
+      // camera shot slightly AHEAD along the last observed continuous path.
+      // This leaves the full 3D garden/serpent/water untouched and lets that
+      // exact settled photograph survive longer, without holding a stale image.
+      // No anticipation across portal/restart/shot/resize/reduced-motion cuts.
+      const continuousFollow = gpuPressure === true && actualMode === 'follow' &&
+        previousPublicHead && held && held.mode === actualMode &&
+        held.runToken === runToken && !headJump && !discontinuity &&
+        !held.discontinuity && !reducedMotion && !held.reducedMotion &&
+        Math.abs(held.aspect-safeAspect) <= .03;
+      if (continuousFollow) {
+        const lead = Math.min(1.2, limit * .42);
+        const bound = (position, extent) => Number.isFinite(extent) && extent >= 4
+          ? Math.max(-extent/2+1,Math.min(extent/2-1,position)) : position;
+        // A last public displacement is evidence of actual motion, not a
+        // predicted AI route or private state. Ignore sub-cell interpolation
+        // jitter rather than introducing periodic camera tremor.
+        const dx=head.x-previousPublicHead.x,dz=head.z-previousPublicHead.z;
+        framedTarget.x = bound(target.x + (Math.abs(dx) >= .125 ? Math.sign(dx)*lead : 0), width);
+        framedTarget.z = bound(target.z + (Math.abs(dz) >= .125 ? Math.sign(dz)*lead : 0), height);
+        // Lookahead is editorial only; if the true perspective would hide the
+        // real face (including near a shore or on a phone), use the exact public
+        // head target. Never enlarge the lens or move the playable board.
+        if (cameraHeadFrustumMargin({head,target:framedTarget,offset,aspect:safeAspect}) < 0) {
+          framedTarget.x = target.x;
+          framedTarget.z = target.z;
+        }
+      }
+      // A portal/recovery can arrive with an editorial target from the prior
+      // scene or a lagging spectator shot. Never repeatedly cut to that stale
+      // composition with the actual public head still outside the 3D lens.
+      // Recenter the real public actor on the next genuine static-world view;
+      // this changes no game position, timing, or discontinuity semantics.
+      let forcedPublicHeadCenter = false;
+      if (actualMode !== 'overview' && cameraHeadFrustumMargin({
+        head, target: framedTarget, offset, aspect: safeAspect,
+      }) < 0) {
+        framedTarget.x = head.x;
+        framedTarget.z = head.z;
+        forcedPublicHeadCenter = true;
+      }
+      held = {
+        mode: actualMode, runToken,
+        // Anchor the safety window to the photographic viewpoint, not to the
+        // actor's old coordinate; the real actor remains within `limit`.
+        head: { x: forcedPublicHeadCenter ? landmark.x : landmark.x + framedTarget.x - target.x,
+          z: forcedPublicHeadCenter ? landmark.z : landmark.z + framedTarget.z - target.z }, aspect: safeAspect,
+        reducedMotion, discontinuity, target: framedTarget, offset: clone(offset),
+      };
+    }
     return { target: clone(held.target), offset: clone(held.offset), reset: needsReset, snap };
   }
   return { resolve, reset };
@@ -229,6 +328,11 @@ export function createPresentationCameraAnchor() {
  */
 export function observedCameraGpuPressure(queue) {
   return queue?.supported === true && queue.failed === false &&
+    // The last genuinely completed slow fence stops authorizing involuntary
+    // camera hard cuts after an idle, empty GPU queue. An actively queued
+    // renderer may remain legitimately pressured until its next completion.
+    !(queue.pending === 0 && Number.isFinite(queue.lastObservedAgeMs) &&
+      queue.lastObservedAgeMs > 1500) &&
     Number.isFinite(queue.lastObservedLatencyMs) && queue.lastObservedLatencyMs >= 120 &&
     Number.isFinite(queue.skipped) && queue.skipped >= 16;
 }

@@ -111,7 +111,16 @@ export function createGpuEvidencedCinematicDirector({ minimumDwellMs = 8000,
       !Number.isInteger(requiredCompletedViews) || requiredCompletedViews < 1)
     throw new RangeError('Cinematic dwell requires bounded, ordered positive thresholds');
   let held = null, runToken = null, started = 0, completedAtEdit = 0;
-  function reset() { held = null; runToken = null; started = 0; completedAtEdit = 0; }
+  // A just-completed, genuinely slow full-world GPU fence may momentarily
+  // empty the FIFO. Preserve that *fresh* completion for one bounded editorial
+  // handoff, rather than cutting the camera and rebuilding the static garden
+  // precisely when the device finishes its costly preceding shot.
+  let lastObservedCompletion = -1, freshlyDrainedAt = -Infinity;
+  const drainedEvidenceGraceMs = 650;
+  function reset() {
+    held = null; runToken = null; started = 0; completedAtEdit = 0;
+    lastObservedCompletion = -1; freshlyDrainedAt = -Infinity;
+  }
   function resolve({ mode, snapshot, reducedMotion = false, nowMs, queue } = {}) {
     const desired = resolveSpectatorShot(mode, snapshot, reducedMotion);
     const head = snapshot?.snake?.[0]?.cell, neck = snapshot?.snake?.[1]?.cell;
@@ -128,13 +137,32 @@ export function createGpuEvidencedCinematicDirector({ minimumDwellMs = 8000,
           Number.isFinite(snapshot.length) && snapshot.length >= snapshot.goal)) {
       reset(); return desired;
     }
-    const pressure = queue?.supported === true && queue.failed === false &&
-      // A stale historic GPU fence may stay slow after all work has drained.
-      // Never treat that old latency as evidence of *current* queue pressure.
-      Number.isInteger(queue.pending) && queue.pending > 0 &&
+    // The evidence here is a COMPLETE WebGL fence, not an RAF callback,
+    // submitted frame count or a historic high-water latency. Keep the old
+    // immediate recovery for an unchanging empty queue; only a NEW completed
+    // slow fence after a genuinely backed-up FIFO earns a brief handoff.
+    const measuredSlowFence = queue?.supported === true && queue.failed === false &&
+      Number.isInteger(queue.pending) && queue.pending >= 0 &&
+      !(queue.pending === 0 && Number.isFinite(queue.lastObservedAgeMs) &&
+        queue.lastObservedAgeMs > 1500) &&
       Number.isInteger(queue.completed) && queue.completed >= 0 &&
       Number.isInteger(queue.skipped) && queue.skipped >= 16 &&
       Number.isFinite(queue.lastObservedLatencyMs) && queue.lastObservedLatencyMs >= 120;
+    const backedUp = measuredSlowFence && queue.pending > 0;
+    if (held !== null && runToken !== snapshot.runToken) reset();
+    if (backedUp) {
+      lastObservedCompletion = Math.max(lastObservedCompletion, queue.completed);
+      freshlyDrainedAt = -Infinity;
+    } else if (measuredSlowFence && queue.pending === 0 &&
+               lastObservedCompletion >= 0 && queue.completed > lastObservedCompletion &&
+               Number.isFinite(nowMs)) {
+      lastObservedCompletion = queue.completed;
+      freshlyDrainedAt = nowMs;
+    }
+    const freshDrain = measuredSlowFence && queue.pending === 0 &&
+      Number.isFinite(nowMs) && nowMs >= freshlyDrainedAt &&
+      nowMs - freshlyDrainedAt <= drainedEvidenceGraceMs;
+    const pressure = backedUp || freshDrain;
     if (!pressure || !Number.isFinite(nowMs)) {
       reset(); return desired; // normal/unsupported GPUs retain original edits
     }

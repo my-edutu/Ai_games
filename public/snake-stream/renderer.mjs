@@ -963,7 +963,7 @@ export function createSceneRenderer(canvas, { onFailure, maxParticles = 240 } = 
       mode: cameraMode, runToken: snapshot.runToken, head,
       target: composition.target, offset: composition.offset,
       aspect: camera.aspect, reducedMotion: !!settings.reducedMotion, discontinuity: motion.paths.length > 1,
-      gpuPressure: severeCameraPressure,
+      gpuPressure: severeCameraPressure, width: snapshot.width, height: snapshot.height,
     });
     desiredTarget.set(anchor.target.x, anchor.target.y, anchor.target.z);
     desiredPosition.set(anchor.offset.x, anchor.offset.y, anchor.offset.z);
@@ -1096,6 +1096,9 @@ export function createGpuFrameGate(gl, { maxFrames = 2, timeoutMs = 5000, now = 
   const supported = ['fenceSync', 'clientWaitSync', 'deleteSync', 'flush', 'isContextLost'].every(name => typeof gl[name] === 'function');
   const pending = [];
   let disposed = false, failed = false, submittedCount = 0, completed = 0, skipped = 0, maxObservedLatencyMs = 0, lastObservedLatencyMs = 0;
+  // Time of the latest genuinely completed full GPU command fence, not a RAF
+  // timestamp or a maximum-latency historical high-water mark.
+  let lastCompletedAtMs = -Infinity;
   function clear() {
     const lost = gl.isContextLost?.();
     for (const item of pending) if (!lost) gl.deleteSync(item.sync);
@@ -1115,6 +1118,7 @@ export function createGpuFrameGate(gl, { maxFrames = 2, timeoutMs = 5000, now = 
       const status = gl.clientWaitSync(item.sync, 0, 0);
       if (status === gl.ALREADY_SIGNALED || status === gl.CONDITION_SATISFIED) {
         lastObservedLatencyMs = now() - item.at;
+        lastCompletedAtMs = now();
         maxObservedLatencyMs = Math.max(maxObservedLatencyMs, lastObservedLatencyMs);
         gl.deleteSync(item.sync); pending.shift(); completed++;
       } else if (status === gl.TIMEOUT_EXPIRED) {
@@ -1136,6 +1140,8 @@ export function createGpuFrameGate(gl, { maxFrames = 2, timeoutMs = 5000, now = 
     gl.flush();
   }
   function dispose() { if (disposed) return; disposed = true; clear(); }
-  function stats() { return { supported, maxFrames, pending: pending.length, submitted: submittedCount, completed, skipped, maxObservedLatencyMs, lastObservedLatencyMs, failed, disposed }; }
+  function stats() { return { supported, maxFrames, pending: pending.length, submitted: submittedCount, completed, skipped, maxObservedLatencyMs, lastObservedLatencyMs,
+      lastObservedAgeMs: completed > 0 ? Math.max(0, now() - lastCompletedAtMs) : Infinity,
+      failed, disposed }; }
   return { canDraw, submitted, dispose, stats };
 }

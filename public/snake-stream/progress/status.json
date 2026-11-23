@@ -1,10 +1,26 @@
 {
   "updatedAt": "2026-11-23",
-  "status": "T0 UNSIGNED / T1 original visually SELF-REJECTED candidate UNJUDGED / T2-T3 BUILDING / T4 HARD RED 10/17 / independent PENDING",
-  "detail": "Live original open draft PR #52 bbce17 verified. New UNPROMOTED cumulative T1 candidate adds 3 genuinely hollow southern coastal stone vaults with four physically grounded south supports, giving eight 3D open arches and eleven integrated grounded pier sites across original west/east/south cliff+moss world meshes; preserved T2 cervical and T4 CPU atlas/packed buffer work. New exact preceding source RED 0/4 -> 4/4 GREEN; joined focused 12/12 PASS, TS/build PASS, original 900 authoritative/privacy/restart/recovery PASS checksum 82492d82; 10 authoritative seeded length-48 victories / 7305 ticks / 0 invariant failures EXACT byte-identical original versus candidate. Wider 8-file test selection timed out after 22 passes: full suite NOT green. Current-head real original WebGL strict >=17 complete renderer gate 10/17 @751x415 and original scene rectangular, undersized serpent; candidate no approved Chromium evidence. Approved coding tunnel disconnected, previous candidate browser administrator-restricted; no navigation bypass. T0 UNSIGNED; T1-T3 BUILDING; T4 HARD RED; independent acceptance pending. No branch write/merge/deploy/force-push/actions cancel.",
+  "status": "T0 UNSIGNED / T1 original WebGL SELF-REJECTED / T2–T3 BUILDING / T4 HARD RED 1/17 / independent PENDING",
+  "detail": "Live PR #52 verified e9fadf70 exact source; 1/17 original complete Chromium renderer submissions @751×415 and 647 GPU skips, browser 52/95, native 750/824. Authentic original 1920/390/detail/autoplay remains rectangular and weak-hero, visually rejected. New integrated camera and completed-fence handoff candidate: actual original RED 6/7 perspective tests, GREEN 7/7, new fence RED 1/2 -> GREEN 2/2, selected 42/42, TS, real 900-tick checksum 82492d82, ten seeded victories/7500 ticks; follow-on stale completed-fence pressure proof original RED 1/2 and integrated GREEN 2/2; selected 58/59 with one inherited source-regex assertion, no authority changes. Candidate browser unavailable: missing Playwright packaged Chromium + independent local ERR_BLOCKED_BY_ADMINISTRATOR. No candidate imagery/uncut playback/three passing strict 17/real-device p95 or independent verdict. Milestones remain BUILDING, no merge/deploy/force push.",
   "latestImage": "/progress/evidence/round-9-overview.jpg",
-  "latestCaption": "Last real source-head screenshots are original bbce17 only, rectangular-court/weak-hero SELF-REJECTED; optimized cumulative candidate is NOT matched to Chromium.",
+  "latestCaption": "Source-exact original e9fadf70 WebGL remains SELF-REJECTED. New integrated camera/fence candidate has no authentic matched browser footage or FPS result.",
   "reviews": [
+    {
+      "area": "2026-11-23 e9fadf70 true perspective + newly completed GPU-fence cinematic handoff — BUILDING candidate",
+      "sourceHead": "e9fadf70abd4f5f65b09474e7e9a887ad01775fd",
+      "review": "2026-11-23-e9fadf70-t3t4-fresh-fence-camera-integration.md",
+      "native": "perspective original RED 6/7 -> candidate GREEN 7/7; new T4 handoff RED 1/2 -> GREEN 2/2; selected 42/42, TS/build/900 tick checksum 82492d82, 10 seeded victories over 7488 ticks, 0 invariants",
+      "browser": "Original full scene 1/17 strict @751x415, 647 skips, 52/95 browser, 750/824 CI; new candidate browser Playwright packaged binary missing and local Chromium navigation ERR_BLOCKED_BY_ADMINISTRATOR",
+      "verdict": "Not a visual or GPU win; no same-head candidate WebGL images/autoplay/strict17x3/display p95/independent critic. T0 unsigned, T1-3 building, T4 hard red, independent pending."
+    },
+    {
+      "area": "2026-11-23 e9fadf70 authentic original T4 blocker and true 36deg camera native candidate — UNPROMOTED",
+      "sourceHead": "e9fadf70abd4f5f65b09474e7e9a887ad01775fd",
+      "review": "2026-11-23-e9fadf70-real-frustum-camera-pressure-native-candidate.md",
+      "native": "source-exact 0/2 behavior RED -> 2/2 GREEN, perspective 4/4, original regression 34/34, TS/build PASS, 900 authority/privacy/recovery checksum 82492d82, 10 seeded victories over 7493 ticks JSON-byte identical untouched source",
+      "browser": "Original genuine 1/17 complete WebGL submissions in untouched 1s gate 751x415, 647 queue skips; browser 52/95, CI 750/824; real 1920/390 original visually REJECTED; candidate Chromium navigation administrator-blocked",
+      "verdict": "UNPROMOTED / no same-candidate genuine WebGL visuals/uncut 45-90s/strict17x3/real-device FPS or independent review; T0 unsigned/T1-T3 building/T4 HARD RED/independent pending; no branch action"
+    },
     {
       "area": "2026-11-23 bbce17 T1 native three-sided connected waterline ruin arches; unpromoted",
       "sourceHead": "bbce17cac5781b0a92ffe1bf55865cc8b8b06cea",
