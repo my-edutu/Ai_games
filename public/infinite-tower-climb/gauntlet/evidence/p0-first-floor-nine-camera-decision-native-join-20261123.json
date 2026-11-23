@@ -134,5 +134,60 @@
     "actualDevicePerformanceMemory": "NOT EVALUATED",
     "nextHighestImpactAction": "Read per-return lensEligibilityReason from the immutable new real 960x600 / 390x844 danger capture, isolate the precise failed source condition at first tick 475/482, make a gameplay-source guarded correction, repeat event-paired full native evidence; P1 not open.",
     "safety": "Frozen baseline SHA unchanged, PR68 remains open/draft, no PR58 edit, no force-push, no merge/deploy, other games untouched."
+  },
+  "run12P0": {
+    "date": "2026-11-23",
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "assessorVerdict": "NOT EVALUATED",
+    "inspectedHeadBeforeWork": "c671c3eb7f3cc1141754fd8062f0a6b7002a9157",
+    "sourcePinnedPriorNativeCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45149121385",
+    "sourcePinnedPriorSourceSha": "c671c3eb7f3cc1141754fd8062f0a6b7002a9157",
+    "priorCI": "https://github.com/my-edutu/Ai_games/actions/runs/45149121306",
+    "priorCISuccess": true,
+    "nativeDefectObserved": "Inspected original unmodified 960x600 and 390x844 23–34s 1x danger WebMs: the old bronze Floor8 opening, whole climber, walkable Floor9 receiving roof and first raised f9:p2 NEVER make a convincing continuous physically connected shared passage; true full native matched event acceptance 0/2. The candidate HUD transitions to Floor9 well before violet destination dominates; portrait passage is crowded.",
+    "exactSourceContradiction": "At original desktop Floor9 return, physically real raised f9:p2 projected NDC y=1.738 (far beyond actual top crop), yet the earlier source camera algorithm accepted 14 of 20 samples as 'complete four-subject projection'. Portrait incorrectly counted 4 of 19. WebGL projection acceptance is not native pixel acceptance.",
+    "redRegressionCommit": "a5ef903c3a0851ab713f1567a95b2bea6fa573d4",
+    "redRegressionCI": "https://github.com/my-edutu/Ai_games/actions/runs/45158986559",
+    "redRegressionResult": "Phase3 partition2 explicitly failed 2 new native-NDC assertions against old code (18 pass, 2 fail): false all-four complete claim, and denied route-first safe partial recovery.",
+    "gameplayImplementationCommit": "a8dc2521b9dd6e2ea0f8e46a1c78708494f981d9",
+    "implementation": "Actual first-F9 source Four-Subject camera complete-presentation acceptance now requires projected real raised destination within legible view, not merely improved old steel. Inverse case receives a bounded measured route-revealing intermediate proposal, only after preserving complete hero, roof, original gateway steel and existing World triangle ray + tower core physical veto. No simulated authority, guardian, platform, collision, or reset change.",
+    "exactSourceQualityCI": "https://github.com/my-edutu/Ai_games/actions/runs/45159290871",
+    "exactSourceQualityResult": "SUCCESS 10/10 technical quality jobs; veto only, NOT experiential PASS.",
+    "exactSourceNativeCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45159290917",
+    "exactCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45159290917/artifacts/14808883982",
+    "newNativeCaptureResult": "8/8 source-pinned baseline/candidate real normal-speed recordings + ledge SUCCESS, strict original native event-paired acceptance FAILED 0/2. Inspected full source files plus original 23–34 second desktop and portrait movie frames.",
+    "directSourceRenderingResults": {
+      "desktop": {
+        "firstEpisodeMatchedReturns": 19,
+        "oldComplete": 14,
+        "newComplete": 0,
+        "newAcceptedPartial": 10,
+        "sourceProjectionVetoes": 0,
+        "realHudSeconds": 26.25,
+        "violetVideoSeconds": 29.25,
+        "firstPartialApproxNativeSearchSeconds": 25.554
+      },
+      "portrait": {
+        "firstEpisodeMatchedReturns": 17,
+        "oldComplete": 4,
+        "newComplete": 0,
+        "newAcceptedPartial": 1,
+        "sourceProjectionVetoes": 28,
+        "realHudSeconds": 26,
+        "violetVideoSeconds": 29.25,
+        "firstPartialApproxNativeSearchSeconds": 25.942
+      }
+    },
+    "resultsLimits": "Source lens 'accepted-partial' and approximate native search PTS never certify printed WebM pixels, actual complete four-subject shot, or gameplay victory. Native film still sharply transitions old bronze to violet, especially crowded portrait. No first full projected shot in either viewport.",
+    "biggestRemainingExperienceGap": "Camera/world still cannot frame genuine gateway and complete climber, walkable roof AND raised f9:p2 as one continuous convincing 3D passage; portrait 7/17 returned decision frames are physically rejected and the old-to-new architecture still recomposes across ~3.25s native HUD-violet lead.",
+    "nextHighestImpactAction": "Diagnose portrait source trial projection veto/oversized 4-subject geometry and camera/world sightline using same exact-source frozen A/B film; rebuild a playable continuous source-owned landmark route instead of more opacity-only adjustments. Rerun strict native event pairs; remain P0.",
+    "reviewers": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDeviceFrameTimeP50P95P99Memory": "NOT EVALUATED",
+    "frozenBaseline": "1731b380851162741761c5569e2bc152a0869ca9",
+    "safety": "PR68 draft/open, no PR58 rewrite, no merge, no deploy, no force push, no unrelated games, frozen baseline SHA not changed."
   }
 }
