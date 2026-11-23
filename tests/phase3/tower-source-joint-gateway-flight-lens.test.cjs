@@ -352,3 +352,64 @@ test('complete label requires visible real route, not merely a gate or score imp
   const onscreen={...before,landingNdc:[.43,.72,.97]};
   assert.equal(complete(before,onscreen),true);
 });
+
+
+test('P0 original portrait rejects a fixed-gaze-only lens; actual raised p2 gets physically bounded alternate optical targets',async()=>{
+ const {sourceJointGatewayFlightLens:plan,sourceJointGatewayRecoveryRigs:rigs}=await modulePromise;
+ const native={...view,aspect:390/844,dt:.07,
+   heroNdc:[.18,0,.981,.16],
+   gatewayNdc:[-.64,.07,.981,.238],
+   roofNdc:[.68,-.11,.982],
+   landingNdc:[.44,1.42,.979],
+   steel:{sourceBound:true,projectedPanes:6,projectedMetalArea:.031}};
+ const proposed=plan(source,held,native);
+ assert.ok(proposed?.sourceBound);
+ const present=[3,1,48],camera=[16,3.5,44];
+ const real={cameraPosition:camera,currentFocus:present,currentFov:45,
+   aspect:390/844,dt:.07,
+   hero:native.hero,gateway:native.gateway,roof:native.roof,
+   landing:native.landing,remainingTravelMetres:3};
+ const attempts=rigs(proposed,real);
+ assert.equal(attempts.length,6,
+   'the failed portrait real shot needs two distinct optical directions in addition to physical rigs');
+ assert.ok(attempts.some(r=>r.kind==='source-raised-route-gaze'));
+ assert.ok(attempts.some(r=>r.kind==='source-gateway-balanced-gaze'));
+ for(const r of attempts){
+   const opticalMove=Math.hypot(...r.focus.map((n,i)=>n-present[i]));
+   assert.ok(opticalMove<=.07*14+.00001,
+     'missing GPU callbacks must not create a gaze teleport');
+   assert.ok(r.cameraMoveMetres<=.65+.00001,
+     'all optical alternatives retain the original sub-metre physical limit');
+   assert.ok(r.fov>=45&&r.fov<=proposed.fov+.00001);
+ }
+ const route=attempts.find(r=>r.kind==='source-raised-route-gaze');
+ const gate=attempts.find(r=>r.kind==='source-gateway-balanced-gaze');
+ assert.ok(route.focus[1]>present[1],
+   'real raised deck should inform the vertical camera instead of invisible navigation intent');
+ assert.notDeepEqual(route.focus,gate.focus);
+ assert.deepEqual(camera,[16,3.5,44]);
+ assert.deepEqual(present,[3,1,48]);
+ assert.equal(rigs(proposed,{...real,currentFocus:[NaN,0,0]}).length,0);
+ assert.equal(rigs(proposed,{...real,remainingTravelMetres:0}).length,3,
+   'the no-travel camera can still try grounded optical recovery, never physical teleport');
+});
+
+test('readable original steel may survive safe portrait FOV widening, but must never disappear',async()=>{
+ const {assessSourceJointGatewayRecoveryStep:step}=await modulePromise;
+ const prior={...view,
+   landingNdc:[.44,1.42,.979],heroNdc:[.18,0,.981,.16],
+   gatewayNdc:[-.64,.07,.981,.238],roofNdc:[.68,-.11,.982],
+   steel:{sourceBound:true,projectedPanes:6,projectedMetalArea:.031}};
+ const widened={...prior,
+   landingNdc:[.42,1.31,.978],heroNdc:[.16,0,.981,.15],
+   gatewayNdc:[-.60,.06,.981,.22],roofNdc:[.61,-.1,.982],
+   steel:{sourceBound:true,projectedPanes:5,projectedMetalArea:.026}};
+ assert.equal(step(prior,widened),true,
+   'five real panes and >78% original steel must not be rejected simply because FOV reveals the destination');
+ assert.equal(step(prior,{...widened,
+   steel:{...widened.steel,projectedPanes:1}}),false);
+ assert.equal(step(prior,{...widened,
+   steel:{...widened.steel,projectedMetalArea:.008}}),false);
+ assert.equal(step(prior,{...widened,
+   landingNdc:[.42,1.43,.978]}),false);
+});

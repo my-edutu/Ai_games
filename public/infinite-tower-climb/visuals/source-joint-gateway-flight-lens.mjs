@@ -189,8 +189,13 @@ export function sourceJointGatewayFlightLens(source,held,o={}){
  // One real physically shared shot, not an abrupt cut to the old room.
  // When the old gateway is missing, keep the moving hero and raised
  // destination weighted while recovering its architectural anchor.
+ // Native portrait 45159290917 places the CURRENT raised p2 above the
+ // lens while old steel and the climber are simultaneously visible. Bias
+ // the actual current landmark upward before the true roof/hero lose the
+ // short original-sill camera lease; this is a gaze only, never AI intent.
  const weights=originalGatewayLost
-   ?[.34,.33,.11,.22]:[.38,.14,.10,.38];
+   ?[.34,.33,.11,.22]
+   :raisedOffscreen?[.28,.13,.07,.52]:[.38,.14,.10,.38];
  const target=o.hero.map((v,i)=>v*weights[0]+
    o.gateway[i]*weights[1]+o.roof[i]*weights[2]+
    o.landing[i]*weights[3]);
@@ -270,12 +275,52 @@ export function sourceJointGatewayRecoveryRigs(proposal,o={}){
     !point(o.gateway)||!point(o.roof)||!point(o.landing)||
     !point(proposal.focus)||!finite(proposal.fov)||
     !finite(o.dt)||o.dt<=0||o.dt>.5||
-    !finite(o.remainingTravelMetres)||o.remainingTravelMetres<0)
+    !finite(o.remainingTravelMetres)||o.remainingTravelMetres<0||
+    (o.currentFocus!=null&&!point(o.currentFocus))||
+    (o.currentFov!=null&&(!finite(o.currentFov)||
+      o.currentFov<35||o.currentFov>70)))
    return [];
- const candidate=(position,kind)=>({position,kind,
-   focus:proposal.focus.slice(),fov:proposal.fov,
-   cameraMoveMetres:Math.hypot(...position.map((v,i)=>v-p[i]))});
+ const candidate=(position,kind,focus=proposal.focus,fov=proposal.fov)=>({
+   position,kind,focus:focus.slice(),fov,
+   cameraMoveMetres:Math.hypot(...position.map((v,i)=>v-p[i]))
+ });
  const result=[candidate(p.slice(),'original-camera-position')];
+ const opticalDt=clamp(o.dt,.001,.07);
+ // The F9 first-return native portrait view can simultaneously have an
+ // offscreen raised platform (y>1.4), a near-edge roof (x~.75) and an
+ // actual HP-open doorway. The former four fixed rigs ALL reused the same
+ // gaze. Their entire search could be physically vetoed before any gain.
+ // Vary the optical target at the SAME real camera, without teleporting the
+ // rig, weakening the complete-body/steel/roof checks or making geometry.
+ // Every variant still faces the Scene's independent 3D triangle/core veto.
+ if(point(o.currentFocus)&&finite(o.currentFov)&&finite(o.aspect)&&
+    o.aspect>=.36&&o.aspect<=2.45){
+   const verticalSeparation=o.landing[1]-o.hero[1];
+   const fitElevated=verticalSeparation>5;
+   const tiltBudget=opticalDt*14;
+   const toward=target=>{
+     const delta=target.map((v,i)=>v-o.currentFocus[i]);
+     const n=Math.hypot(...delta);
+     if(n<1e-7)return o.currentFocus.slice();
+     const step=Math.min(n,tiltBudget);
+     return o.currentFocus.map((v,i)=>v+delta[i]*step/n);
+   };
+   const weighted=weights=>o.hero.map((v,i)=>o.hero[i]*weights[0]+
+     o.gateway[i]*weights[1]+o.roof[i]*weights[2]+
+     o.landing[i]*weights[3]);
+   if(fitElevated){
+     // Portrait needs a source-verified vertical route AND the original
+     // door; evaluate both balanced directions, not a blind upward pan.
+     const route=toward(weighted([.24,.11,.07,.58]));
+     const gateway=toward(weighted([.30,.33,.13,.24]));
+     const softFov=Math.min(proposal.fov,
+       o.currentFov+Math.min(2.0,opticalDt*35));
+     result.push(candidate(p.slice(),'source-raised-route-gaze',
+       route,proposal.fov));
+     result.push(candidate(p.slice(),'source-gateway-balanced-gaze',
+       gateway,softFov));
+   }
+ }
  const remaining=Math.min(3,o.remainingTravelMetres);
  if(remaining<.1)return result;
  const center=o.hero.map((v,i)=>v*.38+o.gateway[i]*.14+
@@ -286,15 +331,11 @@ export function sourceJointGatewayRecoveryRigs(proposal,o={}){
  if(n<3||horizontal<2)return result;
  const out=[v[0]/n,v[1]/n,v[2]/n];
  const tangent=[-v[2]/horizontal,0,v[0]/horizontal];
- const opticalDt=clamp(o.dt,.001,.07);
  const dolly=Math.min(.46,opticalDt*7,remaining*.8);
  const side=Math.min(.22,opticalDt*3.2,remaining*.25);
  const lift=Math.min(.08,opticalDt*1.2,remaining*.15);
- const make=(sign)=>p.map((value,i)=>value+out[i]*dolly+
+ const make=sign=>p.map((value,i)=>value+out[i]*dolly+
    tangent[i]*side*sign+(i===1?lift:0));
- // A strictly bounded physical rig search, never a camera teleport.
- // Candidate 1 gives the whole route breathing room; candidates 2/3
- // expose the original doorway from either side when a core occludes it.
  for(const sign of [0,-1,1]){
    const moved=make(sign),pose=candidate(moved,
      sign===0?'source-dolly':'source-dolly-orbit');
@@ -303,7 +344,6 @@ export function sourceJointGatewayRecoveryRigs(proposal,o={}){
  }
  return result;
 }
-
 /**
  * Physically safe P0 intermediate camera recovery for the ONE original HP-open
  * gateway. The native F8→F9 film can lose the real bronze portal by >0.4 NDC
@@ -350,8 +390,19 @@ export function assessSourceJointGatewayRecoveryStep(before,after){
  const heroHeld=gap(after.heroNdc,.76)<=gap(before.heroNdc,.76)+.015;
  const gateHeld=gap(after.gatewayNdc,.78)<=
    gap(before.gatewayNdc,.78)+.015;
- const oldSteelNotLost=after.steel.projectedPanes>=before.steel.projectedPanes &&
-   after.steel.projectedMetalArea>=before.steel.projectedMetalArea-.002;
+ // A modest FOV increase is the only way to fit a true multi-height
+ // passage on the portrait screen. It may change the number of *projected*
+ // panes while leaving ample real metal readable. Retain a hard minimum
+ // of two real original panes / .012 physical projected area, plus >=78%
+ // of previously readable metal. Missing metal may NEVER be invented.
+ const beforeSteelReadable=before.steel.projectedPanes>=2 &&
+   before.steel.projectedMetalArea>=.012;
+ const oldSteelNotLost=beforeSteelReadable
+   ?after.steel.projectedPanes>=2&&
+     after.steel.projectedMetalArea>=Math.max(
+       .012,before.steel.projectedMetalArea*.78)
+   :after.steel.projectedPanes>=before.steel.projectedPanes &&
+     after.steel.projectedMetalArea>=before.steel.projectedMetalArea-.002;
  // Strict observable progress, not camera distance or time served.
  const gateGain=gateWasLost&&(
    gap(before.gatewayNdc,.78)-gap(after.gatewayNdc,.78)>.025 ||

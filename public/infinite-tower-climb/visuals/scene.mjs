@@ -6402,6 +6402,8 @@ export function createTowerScene(canvas, settings = {}) {
             const oldPosition=camera.position.clone();
             const rigs=sourceJointGatewayRecoveryRigs(proposal,{
               cameraPosition:oldPosition.toArray(),dt,
+              currentFocus:oldFocus.toArray(),currentFov:oldFov,
+              aspect:camera.aspect,
               hero:jointHero.toArray(),gateway:jointGate.toArray(),
               roof:jointRoof.toArray(),landing:jointLanding.toArray(),
               remainingTravelMetres:Math.max(0,3-sourceJointGatewayLensTravelMetres)
@@ -6413,9 +6415,10 @@ export function createTowerScene(canvas, settings = {}) {
               lookAt.set(...rig.focus);
               camera.lookAt(lookAt);camera.updateMatrixWorld(true);
               const after=measureJoint();
-              const rays=world.measureSuccessorDeckVisibility(snapshot,
-                camera.position,jointHero,snapshot.player.halfHeight/SCALE,
-                jointGate,jointRaised.id);
+              // A source-pinned 390x844 native camera often physically
+              // rejects multiple *optical* candidates. Run the cheap true
+              // projection gate before the expensive world triangle rays;
+              // never bypass the physical ray/core veto for a real submit.
               // A lost original gate must be recovered by a series of tiny
               // SOURCE-OWNED steps. Partial progress is never counted as
               // a complete four-subject shot, and must pass the SAME real
@@ -6427,6 +6430,11 @@ export function createTowerScene(canvas, settings = {}) {
               // camera's actual reason is now visible in source-pinned film
               // telemetry instead of being folded into one cumulative veto.
               const projectionSafe=fullShot||safeIntermediate;
+              const rays=projectionSafe
+                ?world.measureSuccessorDeckVisibility(snapshot,
+                  camera.position,jointHero,snapshot.player.halfHeight/SCALE,
+                  jointGate,jointRaised.id)
+                :null;
               const raySafe=projectionSafe &&
                 rays?.active===true && rays.bodyBlockedRays===0 &&
                 rays.gatewayBlockedRays===0;
