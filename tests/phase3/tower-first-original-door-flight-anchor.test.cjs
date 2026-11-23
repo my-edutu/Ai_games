@@ -45,8 +45,8 @@ test('same-run first returned roof stance is stable across earlier published HP-
    x:337796,y:oldRoofY+14000+57000,grounded:false,
    groundedPlatformId:null,state:'airborne'}};
  const departure=progress(flying,held);
- assert.ok(departure>.62&&departure<.68,
-   'only 4.5m horizontal and 57m vertical genuine travel can earn fade');
+ assert.ok(departure>=.60&&departure<=.62,
+   'in-flight climb earns partial departure but cannot finish a room before real raised landing');
  const alpha=opacity(flying,held,job,0,true);
  assert.ok(alpha>.3&&alpha<.7,
    'original passage should remain readable during first source-earned jump');
