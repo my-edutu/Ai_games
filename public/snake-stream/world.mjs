@@ -830,10 +830,17 @@ export function buildReclaimedCourtyardGlades(THREE,width,height,layer){
     !['moss','bedrock'].includes(layer))
     throw new RangeError('Bounded real garden dimensions and moss/bedrock required');
   const W=width/2,H=height/2,sections=48;
+  // The original broad, nearly planar fans covered ~36% of the real legal
+  // court *before* the braided rivers and root corridors were drawn. Their
+  // overpainted mint wedges hid the beautiful mineral paving and the hero.
+  // Three smaller nested, genuinely cut-and-filled coves remain tied to the
+  // exact established garden nodes: west, east and central river crossings.
+  // This reduces whole-board overburden while retaining true deep earth and
+  // stone volumes, not a painted decal or a removed playable cell.
   const centers=[
-    {x:-.57,z:-.37,rx:.385,rz:.45,seed:.45},
-    {x:.55,z:.31,rx:.385,rz:.45,seed:2.12},
-    {x:-.055,z:.20,rx:.31,rz:.36,seed:4.37},
+    {x:-.57,z:-.37,rx:.285,rz:.295,seed:.45},
+    {x:.55,z:.31,rx:.285,rz:.295,seed:2.12},
+    {x:-.055,z:.20,rx:.23,rz:.245,seed:4.37},
   ];
   const p=[],uv=[],index=[];
   for(let i=0;i<centers.length;i++){
@@ -844,7 +851,7 @@ export function buildReclaimedCourtyardGlades(THREE,width,height,layer){
     const zCenter=cz+shift*H*Math.sin(glade.seed+.6);
     const rx=W*glade.rx*(layer==='bedrock'?.39:1);
     const rz=H*glade.rz*(layer==='bedrock'?.43:1);
-    const stageY=layer==='bedrock'?.012:.008;
+    const stageY=layer==='bedrock'?.012:.015;
     p.push(xCenter,stageY-i*.0012,zCenter);
     uv.push(xCenter/3.7,zCenter/3.7);
     const rings=[.13,.44,.76,1];
@@ -853,17 +860,25 @@ export function buildReclaimedCourtyardGlades(THREE,width,height,layer){
       // Three unequal broad lobes, a shorter cross-contour and a restrained
       // natural fracture. None makes a second rectangular court or a false
       // platform: the existing authoritatively traversable stone remains.
-      const profile=1+.145*Math.sin(3*angle+glade.seed)
-        +.065*Math.sin(7*angle-glade.seed*1.8)
-        +.034*Math.cos(11*angle+glade.seed*.7);
+      const profile=1+.11*Math.sin(2*angle+glade.seed*.7)
+        +.125*Math.sin(3*angle+glade.seed)
+        +.035*Math.sin(5*angle-glade.seed*1.8)
+        +.022*Math.cos(9*angle+glade.seed*.7);
       const radius=rings[ring]*profile;
       const x=Math.max(-W+.27,Math.min(W-.27,xCenter+Math.cos(angle)*rx*radius));
       const z=Math.max(-H+.27,Math.min(H-.27,zCenter+Math.sin(angle)*rz*radius));
       // Below 30mm of original belly clearance; the exterior lichen roots
       // actually plunge through old stone at the rim, avoiding a flat decal.
-      const heights=[.009,.008,.002,-.027];
+      // A real nested cove: the moss crown sits below the gameplay belly,
+      // a dry silt shoulder slopes into a visibly exposed stone lip and then
+      // descends to its native earth foundation. Keep every originally
+      // required ring and triangle: the key change is the entire 3D area,
+      // elevation section and shoreline silhouette, not a new color wash.
+      const heights=layer==='moss'
+        ? [.018,.014,.003,-.041]
+        : [.014,.009,-.007,-.043];
       const height=heights[ring]-i*.0012+
-        (ring===3?0:.002*Math.sin(5*angle+glade.seed));
+        (ring===3?0:.0013*Math.sin(5*angle+glade.seed));
       p.push(x,height,z);uv.push(x/3.7,z/3.7);
     }
     // Native upward-facing triangles for both the cap and shallow terraces.
