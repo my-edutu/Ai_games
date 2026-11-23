@@ -1,0 +1,17 @@
+# Round 27 — living muscular 3D snake
+
+**Goal / accepted bar:** Improve the original 3D serpent's organic movement as judged against actual Snake Pass gameplay, without compromising deterministic autonomous Snake, spectator comprehension, portal separation or performance. The existing whole-game Snake Pass comparison is still **LOSE**. This is an independently judgeable locomotion slice, not a new gameplay mechanic.
+
+**Root cause:** The current lofted body only changes position with authoritative grid interpolation; its backbone exhibits zero lateral movement when a long, unchanging public snapshot is shown. The close-up body therefore reads as a rigid hose despite high-resolution scales and a moving face.
+
+**Solution:** Generate a small presentation-only travelling contraction while emitting the current lofted tube rings. Its amplitude is at most **0.050 board cell**; the phase advances along curvilinear distance and time, with a smooth spatial envelope fading around the front of *each* contiguous fragment and its tail. The original 3D skull stays attached, portal-only singleton caps do not sway, and motion is disabled when `reducedMotion` is true. The existing buffer attributes, index count, draw calls, materials and maps are identical; only animated vertex positions shift slightly. All world/AI/simulation/collisions/scoring/snapshots and sound/captions remain exactly unchanged.
+
+**RED:** On original exact source blob `26cb77336dc310c6b2ac544b5725a867070b0021`, `node --test tests/phase3/snake-body-undulation.test.cjs` fails with `muscle wave must travel along the living body (observed 0)`. The test reads actual ring vertices, not a mocked helper.
+
+**GREEN:** The same test passes after source patch. The test asserts a >0.026-cell travelling displacement on the midsection between two presentation timestamps, <0.012-cell offsets at skull/tail endpoints, all rings within a safe 0.083-cell corridor, exact reduced-motion time independence, frozen public input data and unchanged object/texture/buffer budgets.
+
+**Additional verification:** `node --check public/snake-stream/serpent.mjs`, `npm run build` and `node --test --test-concurrency=2 tests/phase3/snake-*.test.cjs`: **53 passed, 0 failed, 0 skipped** on latest source recovered from exact GitHub head `98428b9`. Source after patch SHA `d9bae50eda638ff8daaea85a2e3be0e2768cdc3d` matches both the isolated local blob and the GitHub blob. An attempted local full `npm test` was terminated by the execution deadline during other-game campaign tests after test 452; this is not a green whole-suite claim.
+
+**Visual/CI gaps:** The local Chromium browser could not navigate to the localhost test server (administratively blocked), and the pinned Playwright headless shell was not installed. Do not bypass the local browser policy. The [existing Snake CI workflow](https://github.com/my-edutu/Ai_games/actions/workflows/snake-3d-preview.yml) will collect actual WebGL desktop/character/portrait views and gameplay video on this exact commit. A fresh independent visual critic is unavailable while the shared agent tunnel is disconnected. Do not claim a visual win or a faster FPS until that evidence is reviewed. Desktop gate stays **≥17 actual rendered submissions** per unchanged test.
+
+**Rollback and safety:** Revert this single serpent writeRing-lateral parameter, the envelope and its one callsite to restore exact prior visuals. No release/merge/deploy. The existing hourly builder may continue after reading this checkpoint, without reworking this independent motion slice.

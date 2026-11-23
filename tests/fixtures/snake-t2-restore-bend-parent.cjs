@@ -1,0 +1,251 @@
+'use strict';
+// Byte-exact historical control for the real df113 serpent (Git blob c8af8e31).
+// Later independent T2 pigment changes must not silently invalidate the
+// original bend-allocation experiment or short-circuit real WebGL capture.
+// Reconstruct only recognized source regions; preserve a cryptographic parent.
+const crypto = require('node:crypto');
+const blob = content => crypto.createHash('sha1')
+  .update('blob ' + Buffer.byteLength(content) + '\0').update(content).digest('hex');
+const previousBlob = 'c8af8e31e827cb50addabb2782f7f1f4e36faa12';
+const oldPigment = "// BEGIN T2 BOTANICAL DORSAL PIGMENT\n        // The old entire transverse saddles made the animal resemble a\n        // yellow-striped toy at game distance. Retain the exact existing\n        // original scale relief and two sunlight anchors, but reveal deep\n        // jade between small asymmetrical leaf-shaped dorsal islands.\n        // All pigment is authored once in the same four pre-owned textures.\n        const spineMask = 1 - smooth(.095, .235, Math.abs(around - .25));\n        const leafWarp = .009 * Math.sin(around * 6.283 * 7 + along * 6.283 * 2)\n          + .006 * Math.sin(around * 6.283 * 11 - along * 6.283 * 5);\n        const leafHalfWidth = .045 + .043 * spineMask;\n        const leafCore = 1 - smooth(leafHalfWidth * .62, leafHalfWidth,\n          bandDistance + leafWarp);\n        const preservedGold = isHead\n          ? spineMask * (.25 + .75 * (1 - smooth(.045, .29, Math.abs(along - .76))))\n          : spineMask * leafCore;\n        const darkLeafScale = (1 - underside) * (1 - preservedGold)\n          * (.5 + .5 * Math.sin(along * 6.283 * 13 + around * 6.283 * 9))\n          * (.5 + .5 * Math.cos(around * 6.283 * 17 - along * 6.283 * 3));\n        const jadeR = (50 + mottling * 12 - edge * 16) * backLight;\n        const jadeG = (139 + mottling * 16 - edge * 23) * backLight;\n        const jadeB = (75 + mottling * 10 - edge * 13) * backLight;\n        const leafShadow = darkLeafScale * 12;\n        r = r * preservedGold + (jadeR - leafShadow) * (1 - preservedGold);\n        g = g * preservedGold + (jadeG - leafShadow * .72) * (1 - preservedGold);\n        b = b * preservedGold + (jadeB - leafShadow * .56) * (1 - preservedGold);\n        // END T2 BOTANICAL DORSAL PIGMENT\n";
+function restoreBendParent(source) {
+  const begin = '// BEGIN T2 CURVATURE-ALLOCATED BODY RINGS\n';
+  const end = '// END T2 CURVATURE-ALLOCATED BODY RINGS\n';
+  const i=source.indexOf(begin), j=source.indexOf(end);
+  if(i<0||j<i||source.indexOf(begin,i+1)>=0||source.indexOf(end,j+1)>=0)
+    throw new Error('T2 exact-source curvature bracket missing or ambiguous');
+  let old=source.slice(0,i)+source.slice(j+end.length);
+  // A separate T4 renderer-buffer transfer optimization adds NO new body
+  // shapes or authority. Reverse ONLY the known new typed-buffer bytes before
+  // proving the immutable historical Git source. Any unrelated edit still
+  // fails the pinned original blob hash at the end of this helper.
+  function reversePackedGpu(updated, original, label) {
+    if (old.split(updated).length !== 2)
+      throw new Error(`T4 normalized live GPU ${label} reversal drift`);
+    old = old.replace(updated, original);
+  }
+  reversePackedGpu(`  // Keep Float32 spatial and UV precision across every actual body ring.
+  // Full per-frame normal uploads use bounded GPU-native normalized 16-bit
+  // values; topology indices promote before a future high-detail wrap.
+  const packedNormal = value => {
+    if (!Number.isFinite(value) || Math.abs(value) > 1.000001)
+      throw new RangeError('Unbounded serpent surface normal');
+    return Math.round(Math.max(-1, Math.min(1, value)) * 32767);
+  };
+  const safeShortIndices = capacity => capacity * RING <= 65535;
+`, '', 'exact packing implementation');
+  reversePackedGpu('  let normals = new Int16Array(ringCapacity * RING * 3);',
+    '  let normals = new Float32Array(ringCapacity * RING * 3);', 'normal backing');
+  reversePackedGpu('  let indices = new Uint16Array(ringCapacity * RADIAL * 6);',
+    '  let indices = new Uint32Array(ringCapacity * RADIAL * 6);', 'short initial index backing');
+  const packedAttribute='new THREE.BufferAttribute(normals, 3, true).setUsage(THREE.DynamicDrawUsage)';
+  if (old.split(packedAttribute).length !== 3)
+    throw new Error('T4 normalized live GPU WebGL attribute reversal drift');
+  old=old.replaceAll(packedAttribute,
+    'new THREE.BufferAttribute(normals, 3).setUsage(THREE.DynamicDrawUsage)');
+  reversePackedGpu(`    // The high-detail vertex address, not only today's overview LOD, must fit.
+    if (!safeShortIndices(nextCapacity)) {
+      const promoted = new Uint32Array(nextCapacity * RADIAL * 6);
+      promoted.set(indices);
+      indices = promoted;
+    } else indices = expand(indices, nextCapacity * RADIAL * 6);`,
+    '    indices = expand(indices, nextCapacity * RADIAL * 6);', 'index promotion');
+  reversePackedGpu(`      normals[v * 3] = packedNormal(nx * radialX / norm);
+      normals[v * 3 + 1] = packedNormal(radialY / norm);
+      normals[v * 3 + 2] = packedNormal(nz * radialX / norm);`,
+    `      normals[v * 3] = nx * radialX / norm;
+      normals[v * 3 + 1] = radialY / norm;
+      normals[v * 3 + 2] = nz * radialX / norm;`, 'physical normal conversion');
+  // Reverse only the NEW, byte-exact physical T2 neck-alignment and banked
+  // surface-normal implementation before checking the ORIGINAL immutable
+  // df113 SHA. This does not introduce a second accepted ancestor digest.
+  // Unrecognized changes to either the old body or the new production actor
+  // still fail closed; verify each replacement occurs exactly once.
+  const reverseExact = (updated, original, name) => {
+    if (old.split(updated).length !== 2)
+      throw new Error(`T2 exact-source ${name} reversal drift`);
+    old = old.replace(updated, original);
+  };
+  reverseExact(
+    '  let eaten = 0, dangerEase = 0, curveLean = 0, faceFollowThrough = 0;\n',
+    '  let eaten = 0, dangerEase = 0, curveLean = 0;\n', 'skull-follow-through state');
+  reverseExact(`      // Physical elliptical surface normal. A real bank bends each body's
+      // cross-section, so an upright-cylinder normal falsely paints its sun
+      // highlight across a sloping jade flank. Derive the outward normal from
+      // d/d(angle) of (radius*cos, radius*(.88*sin + camber*cos)); when camber
+      // is zero this is mathematically identical to the original tube normal.
+      // This uses existing per-ring vertices, buffers, shaders and draw calls.
+      const radialX = .88 * cos - camber * sin, radialY = sin;
+      const norm = Math.hypot(radialX, radialY);
+      normals[v * 3] = nx * radialX / norm;
+      normals[v * 3 + 1] = radialY / norm;
+      normals[v * 3 + 2] = nz * radialX / norm;`,
+    `      const ny = sin / 0.88, norm = Math.hypot(cos, ny);
+      normals[v * 3] = nx * cos / norm;
+      normals[v * 3 + 1] = ny / norm;
+      normals[v * 3 + 2] = nz * cos / norm;`, 'physically banked body normals');
+  reverseExact(`    const angleDifference = Math.atan2(Math.sin(targetHeading - heading), Math.cos(targetHeading - heading));
+    // Anchor the *whole skull and attached jaw* to the public first neck
+    // tangent immediately. Previously easing the root yaw left the one-piece
+    // skull pointing as much as a right angle away from the already-turned
+    // continuous body for several submitted frames; its rear physically cut
+    // across the neck. Retain acting through a tiny decaying face follow-through
+    // instead of allowing anatomical disconnection. Portal/restart/reduced
+    // motion snaps it to the truthful present pose, never the old fragment.
+    faceFollowThrough = teleported || reduced ? 0 : clamp(
+      faceFollowThrough * Math.exp(-dt * 14) - angleDifference * 0.07, -0.095, 0.095);
+    heading = targetHeading;`,
+    `    const angleDifference = Math.atan2(Math.sin(targetHeading - heading), Math.cos(targetHeading - heading));
+    heading = teleported || reduced ? targetHeading : heading + angleDifference * (1 - Math.exp(-dt * 19));`,
+    'truthful skull-root yaw');
+  const yawNow = 'headPose.rotation.y = focusYaw + faceFollowThrough;';
+  if (old.split(yawNow).length !== 3)
+    throw new Error('T2 exact-source expressive-yaw reversal drift');
+  old = old.replaceAll(yawNow, 'headPose.rotation.y = focusYaw;');
+  // The live portal-fragment pose adapter changed only the presentation
+  // heading of isolated body rings. Reverse those exact bytes before the
+  // immutable df113 bend baseline check; NEVER substitute a new baseline SHA.
+  const earlierPortalDirection = '        const dx = options.direction?.x || 0, dz = options.direction?.z || 1;\n';
+  const independentPortalDirection =
+    '        const ownDirection = options.fragmentDirections?.[p] || options.direction;\n'+
+    '        // Per-fragment heading is drawn only from an adjacent public body\n'+
+    '        // tangent. A single portal segment never borrows the head\'s direction\n'+
+    '        // when its own earlier, authoritative orientation is available.\n'+
+    '        const dx = Number.isFinite(ownDirection?.x) ? ownDirection.x : 0;\n'+
+    '        const dz = Number.isFinite(ownDirection?.z) ? ownDirection.z : 1;\n';
+  if (old.includes(independentPortalDirection)) {
+    if (old.split(independentPortalDirection).length !== 2)
+      throw new Error('T2 portal-fragment source reversal ambiguous');
+    old = old.replace(independentPortalDirection, earlierPortalDirection);
+  } else if (old.split(earlierPortalDirection).length !== 2) {
+    throw new Error('T2 portal-fragment source reversal drift');
+  }
+  const removed='      // Curvature budgets are fragment-local. Portal breaks cannot be used\n'+
+    '      // as invented neighbors to round across a discontinuity.\n'+
+    '      const overviewRings = lowDetail ? distributeSerpentBendRings(path) : null;\n';
+  const updated='        const subdivisions = lowDetail ? overviewRings[s]\n'+
+    '          : clamp(Math.ceil(segmentLength * 7), 2, 14);';
+  const previous='        const subdivisions = clamp(Math.ceil(segmentLength * (lowDetail ? 3 : 7)), 2, 14);';
+  if(old.split(removed).length!==2 || old.split(updated).length!==2)
+    throw new Error('T2 exact-source curvature reversal drift');
+  old=old.replace(removed,'').replace(updated,previous);
+  // T145: The live hero's physical *rear skull profile* and swallow wave now
+  // meet its actual cervical mesh rather than leaving the previous oversized
+  // open collar. Restore ONLY these two exact SHA-256-sealed production ranges
+  // when reconstructing the immutable df113 source. Never relax its original
+  // Git blob digest, nor silently accept arbitrary future head geometry.
+  const sealedT145 = (chunk,digest) => crypto.createHash('sha256').update(chunk).digest('hex')===digest;
+  const newRearMarker="  // The skull's REAR edge is a real open mesh ring. Enlarging only the head\n";
+  if (old.includes(newRearMarker)) {
+    const anchor='  const headPose = new THREE.Group(); head.add(headPose);\n';
+    const tail='    [-0.25,0.310,0.285,-0.22]';
+    const start=old.indexOf(anchor),end=old.indexOf(tail,start+anchor.length);
+    if(start<0||end<=start||old.indexOf(anchor,start+anchor.length)>=0||
+      !sealedT145(old.slice(start,end),'2ceb5a33b5a5d5abf832147b9fa160fda30966914b9f96a056365c17223d0bc6'))
+      throw new Error('T145 exact-source cervical anatomy reversal drift');
+    const previousRear=`  const headPose = new THREE.Group(); head.add(headPose);
+  // A single longitudinally lofted skull replaces separate muzzle/crown balls.
+  // Eyes sit below its crown and into its cheeks, not above it on stalks.
+  const skullProfile = [
+    [-0.50,0.319,0.215,-0.345],[-0.39,0.310,0.245,-0.28],
+`;
+    if(!sealedT145(previousRear,'59d3ca1c7b242e61518220db21ee6f7ba2d628b63a7cb9cd6d8b299858b5512f'))
+      throw new Error('T145 immutable cervical predecessor digest mismatch');
+    old=old.slice(0,start)+previousRear+old.slice(end);
+  }
+  const newSwallowMarker='          // A genuine public-fruit swallow moves behind the sculpted cranial\n';
+  if(old.includes(newSwallowMarker)){
+    const begin=old.indexOf(newSwallowMarker),ending=old.indexOf('          // T2 whole-body acting:',begin);
+    if(begin<0||ending<=begin||old.indexOf(newSwallowMarker,begin+1)>=0||
+       !sealedT145(old.slice(begin,ending),'b3053172b28254babf1e9f856f9fb9b548bb8e5801aee8ba669a4e6919426ba8'))
+      throw new Error('T145 exact-source swallow wave reversal drift');
+    const previousSwallow='          // A subtle swallow travels down the neck without altering its path.\n'+
+      '          radius *= 1 + eaten * 0.13 * Math.exp(-Math.pow(distance - 0.68, 2) * 3);\n';
+    if(!sealedT145(previousSwallow,'3c919a772d095072c0f7e4cfa159e65ddc49ad6b2bbd1134ec09cbfed2b6158a'))
+      throw new Error('T145 immutable swallow predecessor digest mismatch');
+    old=old.slice(0,begin)+previousSwallow+old.slice(ending);
+  }
+  // These later T2 head adaptations are NOT present in the immutable
+  // df113 bend-density parent. Reverse exact fragments, never weaken SHA.
+  const scaled = "  // T2 whole-game hero silhouette: the previously beautiful detailed skull\n"+
+    "  // became a pinhead at authentic 28×16 / 40×24 overview scale. Enlarge the\n"+
+    "  // EXISTING one-piece skull, jaw, brows, eyes and tongue together, keeping\n"+
+    "  // every existing material, draw/triangle count, public route, gap and cue.\n"+
+    "  // At 1.28 the rear skull half-width (0.215) becomes 0.275, blending into\n"+
+    "  // the unchanged ~0.319 3D neck radius rather than a detached cartoon mask.\n"+
+    "  head.scale.setScalar(1.28);\n";
+  if (old.split(scaled).length !== 2)
+    throw new Error('T2 exact-source head-scale reversal drift');
+  old = old.replace(scaled, '');
+  const lifted = "    // Keep the enlarged complete head grounded against the exact unchanged\n"+
+    "    // body surface. Without the compensating lift the scaled lower-jaw,\n"+
+    "    // eyes and chin penetrate the board even with reduced motion enabled.\n"+
+    "    // This is presentation-only: no public route, scoring or physics changes.\n"+
+    "    const headGroundingLift = (head.scale.y - 1) * 0.38;\n"+
+    "    head.position.set(first.x, fullBodyHeight + 0.065 + headGroundingLift +\n"+
+    "      (reduced ? 0 : eaten * 0.065 + Math.sin(time * 3.1) * 0.015), first.z);";
+  const oldPosition = "    head.position.set(first.x, fullBodyHeight + 0.065 + (reduced ? 0 : eaten * 0.065 + Math.sin(time * 3.1) * 0.015), first.z);";
+  if (old.split(lifted).length !== 2)
+    throw new Error('T2 exact-source head grounding reversal drift');
+  old = old.replace(lifted, oldPosition);
+  // Restore the exact immutably pinned df113 ancestor after the additive T4
+  // *shader* optimization. No source-hash allowance or expected digest changes:
+  // the historical baseline must still match its original Git blob bytewise.
+  const newShaderStart = '/**\n * Bound the detailed serpent\'s scale-relief fragment work';
+  const newShaderEnd = 'export function createSerpent(THREE) {';
+  const shaderStart = old.indexOf(newShaderStart), shaderEnd = old.indexOf(newShaderEnd);
+  if (shaderStart < 0 || shaderEnd <= shaderStart ||
+      old.indexOf(newShaderStart, shaderStart + 1) >= 0)
+    throw new Error('T4 exact-source relief-shader bracket missing or ambiguous');
+  old = old.slice(0, shaderStart) + old.slice(shaderEnd);
+  const addedRelief = `  // Detailed camera shots retain the existing full PBR shader, bump scale,
+  // roughness and all four original atlas textures. Only the redundant relief
+  // sampling inside its fragment shader changes. Overview remains untouched.
+  for (const detailed of [bodyMaterial, skullMaterial, jade, cream])
+    installSingleSampleScaleRelief(detailed, THREE);
+`;
+  if (old.split(addedRelief).length !== 2)
+    throw new Error('T4 exact-source relief-material installation drift');
+  old = old.replace(addedRelief, '');
+  const p='// BEGIN T2 BOTANICAL DORSAL PIGMENT\n',q='// END T2 BOTANICAL DORSAL PIGMENT\n';
+  const s=old.indexOf(p),e=old.indexOf(q);
+  if(s<0||e<s||old.indexOf(p,s+1)>=0||old.indexOf(q,e+1)>=0)
+    throw new Error('T2 exact-source pigment bracket missing or ambiguous');
+  old=old.slice(0,s)+oldPigment+old.slice(e+q.length);
+  // Reverse the exact later T4 progressive GPU-buffer allocation before
+  // comparing against the immutable df113 T2 control. The old Git blob digest
+  // remains unchanged; require BOTH intermediate hashes and original digest.
+  const sealed=(chunk,sha)=>crypto.createHash('sha256').update(chunk).digest('hex')===sha;
+  const gpuHead='  // Complete GPU buffers previously reserved all 8192 possible rings at first\n';
+  const gpuTail='  // BEGIN R36 INDEX STATE\n';
+  const h=old.indexOf(gpuHead),t=old.indexOf(gpuTail,h+gpuHead.length);
+  if(h<0||t<=h||old.indexOf(gpuHead,h+1)>=0||
+    !sealed(old.slice(h,t),'715189f9282d9de943e192a30739f805dfeb93314f8d4bc279c638173ff523a6'))
+    throw new Error('T4 native GPU initial buffer source drift');
+  const oldGpu=`  let activeRadial = RADIAL, activeRing = RING, lowDetail = false;
+  const positions = new Float32Array(MAX_RINGS * RING * 3);
+  const normals = new Float32Array(MAX_RINGS * RING * 3);
+  const uvs = new Float32Array(MAX_RINGS * RING * 2);
+  const indices = new Uint32Array(MAX_RINGS * RADIAL * 6);
+  const bodyGeometry = ownGeometry(new THREE.BufferGeometry());
+  const positionAttribute = new THREE.BufferAttribute(positions, 3).setUsage(THREE.DynamicDrawUsage);
+  const normalAttribute = new THREE.BufferAttribute(normals, 3).setUsage(THREE.DynamicDrawUsage);
+  const uvAttribute = new THREE.BufferAttribute(uvs, 2).setUsage(THREE.DynamicDrawUsage);
+  const indexAttribute = new THREE.BufferAttribute(indices, 1).setUsage(THREE.DynamicDrawUsage);
+`;
+  old=old.slice(0,h)+oldGpu+old.slice(t);
+  const grow='  function reserveBodyRings(needed) {\n',write='  function writeRing(';
+  const g=old.indexOf(grow),w=old.indexOf(write,g+grow.length);
+  if(g<0||w<=g||old.indexOf(grow,g+1)>=0||
+    !sealed(old.slice(g,w),'1cfacacd2cdb22399527e0668c23967647f7b0c5401eb054207cc4b8a0e7a37e'))
+    throw new Error('T4 native GPU growth source drift');
+  old=old.slice(0,g)+old.slice(w);
+  const afterGrow='    reserveBodyRings(ringCount + 1);\n';
+  const counter='      // CPU backing / first GPU allocation bytes, NOT measured displayed FPS.\n      bodyCapacityRings: ringCapacity, bodyReallocations,\n';
+  if(old.split(afterGrow).length!==2||old.split(counter).length!==2)
+    throw new Error('T4 native GPU call/counter source drift');
+  old=old.replace(afterGrow,'').replace(counter,'');
+  if(blob(old)!==previousBlob)throw new Error('Original exact Git source hash mismatch');
+  return old;
+}
+module.exports={restoreBendParent,previousBlob,blob};

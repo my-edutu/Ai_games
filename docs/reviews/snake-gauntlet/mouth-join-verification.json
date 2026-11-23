@@ -1,0 +1,52 @@
+{
+  "before": {
+    "exposedHeadRingVertices": 9,
+    "frontRingBottom": 0.2259535938501358,
+    "exposedJawRearVertices": 19,
+    "exposedSingletonHeadVertices": 12,
+    "resources": {
+      "geometries": 24,
+      "materials": 13,
+      "textures": 4,
+      "bodyRings": 18,
+      "bodyVertices": 378,
+      "detail": "high",
+      "bodyTriangles": 640,
+      "paths": 2,
+      "maxBodyRings": 8192,
+      "truncated": false,
+      "disposed": false,
+      "bufferBytes": 9437184
+    }
+  },
+  "after": {
+    "exposedHeadRingVertices": 0,
+    "frontRingBottom": 0.4160699248313904,
+    "exposedJawRearVertices": 0,
+    "exposedSingletonHeadVertices": 0,
+    "resources": {
+      "geometries": 20,
+      "materials": 12,
+      "textures": 4,
+      "bodyRings": 18,
+      "bodyVertices": 378,
+      "detail": "high",
+      "bodyTriangles": 640,
+      "paths": 2,
+      "maxBodyRings": 8192,
+      "truncated": false,
+      "disposed": false,
+      "bufferBytes": 9437184
+    }
+  },
+  "failures": [],
+  "sweep": {
+    "updates": 480,
+    "maxExposedHeadRingVertices": 0,
+    "maxExposedJawRearVertices": 0,
+    "resourcesStable": true,
+    "finite": true,
+    "disposal": true
+  },
+  "limitation": "Geometry containment proves the identified open body ring is hidden; actual isolated rendered stills and motion remain required for visual acceptance."
+}

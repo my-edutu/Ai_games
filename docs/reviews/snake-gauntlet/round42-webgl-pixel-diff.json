@@ -1,0 +1,71 @@
+{
+  "runId": 41260891124,
+  "sourceCommit": "c2f32a2ec64e90a5edea85423a86647f8e5f85d4",
+  "artifactId": 13064683212,
+  "syntheticFrozenPublicFixture": true,
+  "syntheticWaterPhase": 7.25,
+  "chromiumWebGL": true,
+  "viewport": {
+    "width": 960,
+    "height": 640
+  },
+  "method": "Pillow RGBA decoded pixel-by-pixel comparison of exact GitHub Actions PNGs; difference if any RGB component changed",
+  "reference": "old SHA-verified production water shader vs R42 code; other renderer and snapshot identical",
+  "overview": {
+    "beforeSha256": "682bf74580611e827f12af8795a026273d5deb7250a4785c4d0dc5dfb2df00aa",
+    "afterSha256": "84a43b67069c480a7d1b41fb033cc236723290581e0066048fe33e9b210e89c1",
+    "changedPixels": 6,
+    "totalPixels": 614400,
+    "maxChannelDifference": 1,
+    "redChangedPixels": 0,
+    "greenChangedPixels": 6,
+    "blueChangedPixels": 0,
+    "drawCallsBeforeAfter": [
+      33,
+      33
+    ],
+    "trianglesBeforeAfter": [
+      13612,
+      13612
+    ]
+  },
+  "detail": {
+    "beforeSha256": "4879b944d3f378c27ceef82b1e4d84451173279566e741e8205179d5fb6c0ef4",
+    "afterSha256": "4879b944d3f378c27ceef82b1e4d84451173279566e741e8205179d5fb6c0ef4",
+    "changedPixels": 0,
+    "totalPixels": 614400,
+    "maxChannelDifference": 0,
+    "byteIdentical": true,
+    "drawCallsBeforeAfter": [
+      44,
+      44
+    ],
+    "trianglesBeforeAfter": [
+      148419,
+      148419
+    ]
+  },
+  "sameWorldStats": {
+    "staticMeshes": 13,
+    "geometries": 31,
+    "materials": 22,
+    "textures": 4,
+    "hazards": 5,
+    "portalEnds": 4
+  },
+  "productionGate": {
+    "actualSubmitted": 17,
+    "elapsedMs": 1007.1,
+    "minimumActualSubmitted": 17,
+    "passedOnce": true,
+    "rafCallbacks": 61,
+    "displayPresentMeasured": false
+  },
+  "caveats": [
+    "Synthetic frozen public screenshot parity is not live gameplay video",
+    "One strict browser pacing pass is not sustained or causal proof",
+    "Timing and rendered submissions are not physical device display presents",
+    "Visual benchmark Snake Pass remains unmet",
+    "No independent art critic"
+  ]
+}

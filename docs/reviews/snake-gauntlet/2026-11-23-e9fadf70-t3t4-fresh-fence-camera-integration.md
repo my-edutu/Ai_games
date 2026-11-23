@@ -1,0 +1,35 @@
+# Autonomous Snake — T3/T4 source-exact cinema framing and newly-drained GPU-fence handoff
+
+**Stage:** BUILDING; no new visual, displayed FPS, performance threshold or release acceptance.
+**Exact parent:** `e9fadf70abd4f5f65b09474e7e9a887ad01775fd`, open draft PR #52 branch `feat/autonomous-snake-3d-gauntlet` only.
+**Artifact provenance:** GitHub Actions offline-reproduction artifact 14808842382 from run 45156810338, original source and pinned dependency archives pass bundled `sha256sum -c SHA256SUMS`; original `source-commit.txt` agrees with the live PR head.
+
+## Full-game problem and intended acceptance
+
+The authenticated unchanged-parent 1920×1080 / 390×844 / character imagery and uninterrupted 56.24-second autoplay still show a rectangular tiled garden and undersized overview serpent. Current-head untouched 1-second Chromium test reaches **1/17 complete WebGL renderer submissions** at 751×415 with 647 GPU queue skips, **HARD RED**; browser 52/95; native CI 750/824. No candidate-matched imagery or new GPU measurement exists. The source-backed camera problem is that under expensive full-scene GPU transitions the held square dead-zone can crop the genuine face on 36° perspective phones. A second newly demonstrated T4 defect occurs at the instant a real slow GPU fence completes: FIFO `pending` becomes zero and the cinematic director immediately drops an earned view hold, inducing another costly complete-world perspective transition on the very next shot selection. The desired experience is one truthful stable shot that keeps the public face inside the genuine projected lens and never mistakes a just-drained full GPU frame for healthy sustained throughput.
+
+## Integrated source changes, all presentation only
+
+- `camera.mjs`: real 36° perspective face-screen margin; conservative portrait/depth safe region; source-public bounded lookahead only under real completed slow GPU pressure; safety recenter after discontinuities; no portal bridging or AI predictions.
+- `renderer.mjs`: passes exact public board dimensions to the safe-frame composition. Full Three.js world, water, serpent, contact, shadow, public fruit/hazard/portal cues and unchanged draw count threshold remain intact.
+- `cinematic-director.mjs`: **new this session**: only after previously observed real backed-up queue and a genuinely **increased completed-fence counter** (latest latency >=120ms) does a temporarily drained FIFO earn <=650ms bounded shot continuity. Static old latency without a new completion, healthy completed latency, invalid evidence, danger, portal, restart, manual camera and reduced motion fail open to original behavior. No GPU frame count, timer or simulated authority is substituted for complete renders.
+
+## Reproduction and test truth
+
+1. Existing previously isolated perspective/camera tests on the unchanged parent: **1/7 passed; six RED**. After source implementation: **7/7 GREEN**.
+2. New newly-drained-completed-fence test first ran on the exact source parent + T3 camera code: **1/2 passed, one RED**, proving the director problem. After the integrated director production change: **2/2 GREEN**. Combined director old/new test selection **9/9**. Full selected camera/portal/pressure regression selection **42/42**.
+3. Another larger, overbroad test selection timed out; **not a pass**. An unrelated old camera regex fixture failure reproduced on original parent (`snake-t4-pressure-aware-follow`, expects prior inline `frameGate.stats()` whereas production already uses latest `gpuQueue` variable). Do not call the whole suite green.
+4. `npm run build` PASS. Authentic `npm run snake:stream:self-test` PASS: 900 ticks, privacy, restart/recovery, checksum `82492d82`. Ten seeded 28×16 runs, goal 48, all ten victories / **7,488 ticks**, zero invariant failures. Authoritative TypeScript, snapshots, event rules and original strict browser test remain unchanged.
+5. Candidate-matched Chromium **NOT executed**: standard Playwright test cannot launch absent bundled Chromium executable; a single local installed Chromium startup/navigation attempt returned `net::ERR_BLOCKED_BY_ADMINISTRATOR`, even for a data page. The browser policy was respected; no alternative browser navigation or security bypass. Thus there are **no** candidate-matched screenshots, movie, 17×3 strict counts, GPU/display FPS/p95, independent critic or accepted T0 baseline in this run.
+
+## Impact, boundaries and acceptance action
+
+This is a source-exact behavioral improvement in camera truth and evidence-based shot pacing, **not** verified visual, GPU or physical-display improvement. No additional meshes, render passes, assets, frame-threshold changes, simulation mutations, randomness, private data, payouts or moderation changes. No basis to conclude the 17-submit performance gate passes. Historical full-scene world fails visual comparison to official *Snake Pass*; ASTRO BOT remains secondary craft reference without licensed asset transfer.
+
+Next: use exact new-head GitHub Actions full-source Chromium artifacts, inspect 1920×1080, phone, detail and 45–90s uninterrupted run against unchanged parent and official reference; measure untouched 1-second benchmark three independent times and actual-device presents/p95 when available. If the scene remains a rectangular court, and if complete WebGL submissions remain below 17, **self-reject** milestone and continue T1 hero/world/T4 GPU without acceptance. Full native/browser suite, 40+ segment portal/recovery endurance and genuine independent blind critique remain outstanding.
+
+**Milestones:** T0 UNSIGNED; T1, T2, T3 BUILDING; T4 HARD RED; INDEPENDENT ACCEPTANCE PENDING. No merge, deployment or force-push.
+
+## Follow-on exact-parent T4: historical completed-fence pressure cannot persist through an idle queue
+
+A newly diagnosed distinct defect is that `lastObservedLatencyMs` remains elevated forever after a genuinely slow complete GPU fence, even after the GPU queue is empty for minutes. Later cinematic shots may trigger obsolete emergency cuts. The exact current-parent RED test proves the original gate lacks an age field; after integrating the earlier camera candidate, both new tests fail before this correction. `createGpuFrameGate` now records an age for the most recent genuinely completed GPU fence, and `observedCameraGpuPressure` plus the cinematic director retire stale pressure on an empty queue after 1,500ms; pending real GPU work remains governed by completed-fence backpressure. No timer-based renderer submission or changes to the mandatory strict benchmark. New tests: exact original 1/2 (RED), previous isolated camera candidate 0/2 (RED), integrated production 2/2 GREEN; broader selected 58/59 with the one inherited source-regex assertion independently reproduced on the exact original branch. TypeScript/build PASS, real 900-tick authority/privacy/restart/recovery PASS checksum `82492d82`; ten seeded 28×16 length-48 victories over 7,500 ticks with byte-identical JSON versus original. No authentic candidate Chromium visuals, 17×3 renderer gate or device-present p95; do not claim full game gain or release readiness.
