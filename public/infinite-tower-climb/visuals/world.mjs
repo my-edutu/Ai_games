@@ -2639,10 +2639,13 @@ export function createTowerWorld(){
     // but native evidence reported zero source-side flank faces. Reserve
     // substantial, SOURCE-ANCHORED original room steel BEFORE the boss fight,
     // then reparent precisely the same 3D canopy with the HP-open gateway.
-    // Outboard load legs are beyond r27.2; radial ties cross the real walkable
-    // deck only below the roof. The raised flight path stays unobstructed.
-    // This is explicitly newly authored original Clockwork art, never
-    // presented as extracted historical triangles or a second collider.
+    // The unedited 7a15211 portrait first-F9 film shows the original
+    // camera-side r31.25 pier/weight silhouettes obscuring the moving hero.
+    // The eight SAME noncolliding, F8-prepainted crane members are now
+    // mechanically rerouted onto the INNER clockwork core (<r22.4), behind
+    // the real r22.4..27.18 walking/flight annulus. Joined high steel still
+    // meets the genuine canopy at y16.4+; source gate/colliders stay intact.
+    // This is authored original metal, NOT extracted historical triangles.
     const cranes=planOriginalGuardianOutboardCranes(plan);
     if(cranes){
       for(const member of cranes.beams){
@@ -2651,6 +2654,7 @@ export function createTowerWorld(){
           member.role==='crown-tie'?trim('approach'):steel('approach'));
       }
       canopy.userData.originalAuthoredOutboardCraneBeams=cranes.beams.length;
+      canopy.userData.originalCraneSupportRegion='inner-core-behind-walkable-roof';
       canopy.userData.originalRoomRetainedWithCap=true;
     }
     return canopy;
