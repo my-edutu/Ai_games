@@ -65,3 +65,18 @@ test('integrated game runs four-subject physical check only AFTER final camera g
  assert.match(scene,/sourceJointGatewayLensVetoed/);
  assert.match(scene,/world\.measureSuccessorDeckVisibility\(snapshot/);
 });
+
+test('native first-F9 renderer regression: final lens never borrows update-only bindings',()=>{
+ const scene=fs.readFileSync(path.resolve(__dirname,
+   '../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+ const animate=scene.slice(scene.indexOf('function animate(now) {'));
+ const joint=animate.slice(animate.indexOf('// P0 complete physical threshold shot'),
+   animate.indexOf('const sceneReadyAt = performance.now()'));
+ assert.match(joint,/const returnedJointRoof = snapshot/);
+ assert.match(joint,/observedSourceWalkableCrossfloorShot\(snapshot,retainedColdArrival\)/);
+ assert.match(joint,/retainedColdArrival\.thresholdX,retainedColdArrival\.oldRoofY/);
+ assert.match(joint,/new THREE\.Vector3\(\.\.\.returnedJointRoof\.world\)/);
+ assert.doesNotMatch(joint,/physicalWalkableShot|coldArchProof/,
+   'update() lexical bindings may not be referenced by animate()');
+ assert.match(animate,/const retainedColdArrival = world/);
+});

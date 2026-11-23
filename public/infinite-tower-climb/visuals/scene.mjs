@@ -6279,21 +6279,30 @@ export function createTowerScene(canvas, settings = {}) {
       // Apply only after all existing directors, before ONE genuine GPU draw.
       // The old source-owned guardian metal, current skinned actor, actual
       // walkable roof and first raised destination must be visible together.
+      // P0 real native regression 45101193106: the earlier joint lens used
+      // update()-local variables from within animate(), causing the entire
+      // genuine first Floor9 render to fail after a valid source crossing.
+      // Resolve the grounded roof from the CURRENT same-run returned gateway
+      // inside the renderer's own lexical scope, then physically veto it.
+      const returnedJointRoof = snapshot?.floor===9 &&
+        retainedColdArrival?.guardianGateRetained===true
+          ?observedSourceWalkableCrossfloorShot(snapshot,retainedColdArrival)
+          :null;
       if(!options.stale && !options.reducedMotion &&
          options.camera==='follow' && snapshot?.floor===9 &&
-         physicalWalkableShot?.sourceBound===true &&
-         coldArchProof && retainedColdArrival?.guardianGateRetained===true &&
+         returnedJointRoof?.sourceBound===true &&
+         retainedColdArrival?.guardianGateRetained===true &&
          snapshot.player?.health>0) {
         const jointRaised=intendedLanding(snapshot);
         const jointGatePose=guardianTraversalGatePose(
-          coldArchProof.thresholdX,coldArchProof.oldRoofY,
+          retainedColdArrival.thresholdX,retainedColdArrival.oldRoofY,
           snapshot.chunkBaseY,snapshot.worldWidth);
         if(jointRaised?.id?.startsWith('f9:p') && jointGatePose) {
           const jointHero=climber.group.position.clone();
           jointHero.y+=snapshot.player.halfHeight/SCALE;
           const jointGate=new THREE.Vector3(
             jointGatePose.x,jointGatePose.y+2,jointGatePose.z);
-          const jointRoof=new THREE.Vector3(...physicalWalkableShot.world);
+          const jointRoof=new THREE.Vector3(...returnedJointRoof.world);
           const d=pointFor(
             jointRaised.x+Math.floor(jointRaised.width*.5),
             jointRaised.y+jointRaised.height,
