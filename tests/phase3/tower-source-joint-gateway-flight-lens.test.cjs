@@ -209,3 +209,36 @@ test('original-gateway rescue cannot purchase its view by cropping climber or ra
    {...after,gatewayNdc:[1.18,.15,.4,.12]}
  ])assert.equal(assess(lost,bad),false,'four-subject physical safety is non-negotiable');
 });
+
+
+test('P0 original gate recovery admits verified safe incremental progress, never a fabricated all-subject shot',async()=>{
+ const {assessSourceJointGatewayRecoveryStep:step,assessSourceJointGatewayLens:complete}=await modulePromise;
+ const before={...view,landingNdc:[.20,.26,.5],gatewayNdc:[1.18,.15,.4,.12],
+   steel:{sourceBound:true,projectedPanes:0,projectedMetalArea:0}};
+ const after={...before,gatewayNdc:[1.04,.15,.4,.12],
+   heroNdc:[.24,0,.4,.12]};
+ assert.equal(complete(before,after),false,'one incremental shot must not masquerade as four-subject acceptance');
+ assert.equal(step(before,after),true,
+   'a physically reprojected real gateway can get closer before the source steel is fully on-screen');
+ for(const bad of [
+   {...after,gatewayNdc:[1.24,.15,.4,.12]},
+   {...after,heroNdc:[1.11,0,.4,.12]},
+   {...after,landingNdc:[1.2,1.1,.5]},
+   {...after,roofNdc:[1.3,0,.5]},
+   {...after,steel:{sourceBound:false,projectedPanes:0,projectedMetalArea:0}}
+ ])assert.equal(step(before,bad),false);
+ assert.equal(step({...before,gatewayNdc:[.1,.1,.4,.12],
+   steel:{sourceBound:true,projectedPanes:4,projectedMetalArea:.04}},after),false,
+   'a previously readable gateway cannot be traded for a partial recovery');
+});
+test('partial recovery is checked against original geometry BEFORE the single source-pinned render',()=>{
+ const scene=fs.readFileSync(path.resolve(__dirname,
+   '../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+ const joint=scene.slice(scene.indexOf('// P0 complete physical threshold shot'),
+   scene.indexOf('const sceneReadyAt = performance.now()'));
+ assert.match(joint,/assessSourceJointGatewayRecoveryStep\(before,after\)/);
+ assert.match(joint,/rays\.bodyBlockedRays===0/);
+ assert.match(joint,/rays\.gatewayBlockedRays===0/);
+ assert.match(joint,/towerCoreSightlineClear\(camera\.position,jointGate/);
+ assert.match(joint,/sourceJointGatewayLensRecoverySteps/);
+});
