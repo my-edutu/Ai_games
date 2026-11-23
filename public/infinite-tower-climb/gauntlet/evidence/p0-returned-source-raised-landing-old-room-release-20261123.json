@@ -200,7 +200,39 @@
       "PLAYS": "0/5"
     },
     "realDeviceFrameTimeP50P95P99Memory": "NOT EVALUATED",
-    "nextHighestImpactP0Action": "After exact-source candidate capture completes, inspect original unedited 960x600/390x844 danger WebMs at 24-33s, compare real gateway NDC progression / partial vs complete accepted steps / physical obstruction rejection with actual native pixels. If the four-subject crossing still fails, rebuild camera/foreground spatial choreography at scene level; do not apply more opacity-only tweaks. Keep strict 2/2 native event pairing and restart as veto; P1 blocked.",
-    "safety": "No frozen baseline mutation, PR58 update, Tiny Kingdom/Maze/1000 Floors edits, merge, deploy, force-push, PR ready conversion."
+    "nextHighestImpactP0Action": "First expose source-pinned submitted final-camera partial/complete recovery diagnostics alongside the genuine native frames, then fix root composition/cold transition with source-matched old-gateway + roof + raised route in both viewports. No more isolated opacity/camera nudges without demonstrated footage improvement.",
+    "safety": "No frozen baseline mutation, PR58 update, Tiny Kingdom/Maze/1000 Floors edits, merge, deploy, force-push, PR ready conversion.",
+    "redRegressionObserved": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/45124915202",
+      "failedNewTests": 2,
+      "details": "Phase3-2 red CI showed step is not a function and missing Scene integration, both genuine pre-implementation failures."
+    },
+    "latestExactHeadQuality": {
+      "sourceSHA": "0841f32185535a0d4898a29b5f46e3b586870047",
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/45125146725",
+      "conclusion": "SUCCESS - all 10 jobs passed, CI veto only"
+    },
+    "candidateCaptureOutcome": {
+      "exactGameSourceSHA": "e51e9fabbe6f26753aecfcca4ea8b8ed07733a7c",
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/45124988494",
+      "originalCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45124988494/artifacts/14795547348",
+      "candidateDesktop": "960x600, genuine unedited WebM",
+      "candidatePortrait": "390x844, genuine unedited WebM",
+      "completedNativeScenes": "8/8 baseline/candidate recordings + original ledge succeeded",
+      "strictSourceNativeEventPairing": "FAILED 0/2 viewports",
+      "desktopDrawnHudFloorNineSeconds": 25.5,
+      "desktopSustainedSuccessorVioletSeconds": 28.5,
+      "portraitDrawnHudFloorNineSeconds": 25.75,
+      "portraitSustainedSuccessorVioletSeconds": 28.75,
+      "sourceToVioletDeltaSeconds": {
+        "desktop": 4.193,
+        "portrait": 4.116
+      },
+      "sourceProofVsPixels": "Original HUD, world chroma and source events are not synchronized claims. 80 real source-returned room records per viewport are not native video pixels.",
+      "visualAssessment": "Sampled original normal-speed film frames every 0.5s from 23-34s in both viewports and compared at 24.5-29.5s to the preceding source-pinned candidate. Gateway/old architecture disappear as the purple scene takes over; same-frame continuity of full hero, opened old gateway, receiving roof and first raised deck remains unconvincing, portrait most crowded. No demonstrated perceptual improvement.",
+      "cameraRecoveryRuntimeEvidence": "Per-frame partial/complete recovery counters not present in downloaded original motion-artifact forensic payload: camera bridge acceptance itself NOT independently measured. Source code/CI green does not prove execution or visual effect.",
+      "comparisonGrade": "NEGATIVE / NOT ACCEPTED; no independent randomized blind critics; no actual-device performance",
+      "nextAction": "First expose source-pinned submitted final-camera partial/complete recovery diagnostics alongside the genuine native frames, then fix root composition/cold transition with source-matched old-gateway + roof + raised route in both viewports. No more isolated opacity/camera nudges without demonstrated footage improvement."
+    }
   }
 }
