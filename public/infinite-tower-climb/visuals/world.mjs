@@ -22,6 +22,7 @@ import { rebindSourceOwnedUndercroft, createSightlineMatrixEpochCache } from './
 import { createSourceSightlineRayBroadphase } from './source-sightline-broadphase.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, createSourceEarnedVoidDepartureMaterials, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn, observedRenderedOriginalDoorwayRoom, coherentOriginalBearingDeparture } from './original-clockwork-architecture-palette.mjs';
 import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearingSections, isolateEarnedFirstFrameVoidMaterials } from './source-earned-bearing-run.mjs';
+import { plannedEarnedFirstRaisedRouteContinuation } from './source-earned-bearing-run.mjs';
 import { observedEarnedFarSideShaftOverlap, observedReturnedGroundedGatewayFadeStart, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold, observedSourceEarnedEarlyVoidShaftAperture, observedSourceSupportedVoidFirstPaint, observedEarnedGalleryExitClearance, observedReturnedGalleryHandoffClearance, observedFirstReturnedVoidBearingGalleryRetirement, observedSourceReturnedCoreBeforeScenicUpload } from './far-side-shaft-transition.mjs';
 import { chooseSourceEarnedFirstReturnInstancing } from './source-earned-first-return-instancing.mjs';
 import { observedReturnedSuccessorRoomReady, observedSupportedReturnedShaftDepth } from './original-room-returned-exit.mjs';
@@ -4631,7 +4632,25 @@ export function createTowerWorld(){
       sourceEarnedBearingSightlineRoot=null;
       return false;
     }
-    const stageParts=sections;
+    // The authentic gateway-step was the end of the OLD three-bay gantry,
+    // but the actual first raised p2 is already present in this same source
+    // Floor9 world. The remaining jump read as a disconnected violet shelf.
+    // Extend the SAME grounded inner-wall + overhead outboard load path to
+    // p2 on the VERY FIRST successor frame, while the original door is still
+    // rendered. The 3 original rigid material/instance draws are preserved:
+    // no extra draw, fake foothold, actor pose or physics/collision change.
+    const raised=plannedEarnedFirstRaisedRouteContinuation(
+      snapshot,retainedEarnedCap,plan);
+    const raisedSections=raised
+      ?plannedSourceEarnedSuspendedBearingSections([
+        ...plan.nodes,...raised.nodes]):null;
+    const stageParts=raisedSections
+      ?[sections[0],sections[1],[
+          ...sections[2],...raisedSections[3],...raisedSections[4]]]
+      :sections;
+    supportRoot.userData.raisedRouteId=raisedSections?'f9:p2':null;
+    supportRoot.userData.sourceAnchoredStations=raisedSections?5:3;
+    supportRoot.userData.sourceEarnedPhysicalContinuation=!!raisedSections;
     for(let i=0;i<3;i++){
       const items=stageParts[i],material=palette[i];
       material.name=['SourceEarnedBronzeBearing','SourceEarnedForgedBearing',

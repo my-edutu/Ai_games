@@ -66,6 +66,66 @@ export function plannedEarnedClockworkVoidBearings(s,old) {
 
 
 /**
+ * First F9 source-published raised destination beyond the already-authored
+ * gateway-step. A complete 1x film currently shows bronze doorway -> a short
+ * bronze gantry -> an apparently unrelated suspended violet p2 landing.
+ * Extend the SAME genuine, rear-supported, three-material instanced gantry
+ * through the real p2 without creating another route, collider, jump, portal,
+ * movement cue or new draw call. Floor9 p2 is a static source 'oneway' deck;
+ * never attach this static load to moving p3 or a selected hypothetical goal.
+ */
+export function plannedEarnedFirstRaisedRouteContinuation(s,old,basePlan) {
+  if(!basePlan || basePlan.source!=='authentic-old-gateway-to-f9-first-step' ||
+     basePlan.roofId!=='f9:ground' ||
+     basePlan.stepId!=='f9:gateway-step' ||
+     basePlan.runToken!==s?.runToken ||
+     basePlan.thresholdX!==old?.thresholdX ||
+     !Array.isArray(basePlan.nodes) || basePlan.nodes.length!==3)
+    return null;
+  // Recheck the complete original guardian/gateway/roof certificate rather
+  // than accepting a caller-authored three-node array as a valid old world.
+  const verified=plannedEarnedClockworkVoidBearings(s,old);
+  if(!verified ||
+     verified.nodes.some((node,i)=>
+       node.x!==basePlan.nodes[i]?.x ||
+       node.sceneY!==basePlan.nodes[i]?.sceneY ||
+       node.anchorY!==basePlan.nodes[i]?.anchorY)) return null;
+  const p2=s.platforms.find(p=>p?.id==='f9:p2');
+  const step=s.platforms.find(p=>p?.id==='f9:gateway-step');
+  if(!p2 || p2.kind!=='oneway' ||
+     ![p2.x,p2.y,p2.width,p2.height,
+       step?.x,step?.y,step?.width,step?.height].every(safe) ||
+     p2.width<=0 || p2.height<=0 ||
+     p2.x<0 || p2.x+p2.width>s.worldWidth) return null;
+  const stepTop=step.y+step.height;
+  const raisedTop=p2.y+p2.height;
+  const landingX=p2.x+Math.floor(p2.width/2);
+  const stepX=step.x+Math.floor(step.width/2);
+  if(!safe(raisedTop)||!safe(landingX) ||
+     raisedTop<stepTop+10000 ||
+     raisedTop>old.oldRoofY+205000 ||
+     Math.abs(landingX-stepX)>120000)return null;
+  const anchorY=(old.oldRoofY-s.chunkBaseY)/10000;
+  const raisedY=(raisedTop-s.chunkBaseY)/10000;
+  const stepNode=basePlan.nodes[2];
+  if(Math.abs(stepNode.sceneY-(stepTop-s.chunkBaseY)/10000)>1e-6)return null;
+  const midX=Math.round((stepX+landingX)/2);
+  const midY=(stepNode.sceneY+raisedY)/2;
+  const height=stepNode.height;
+  const nodes=[{x:midX,angle:(midX/s.worldWidth-.5)*2.2,
+      anchorY,sceneY:midY,height,materialPhase:'void'},
+    {x:landingX,angle:(landingX/s.worldWidth-.5)*2.2,
+      anchorY,sceneY:raisedY,height,materialPhase:'void'}];
+  if(!nodes.every(n=>Number.isFinite(n.angle) && Math.abs(n.angle)<=1.1 &&
+      n.sceneY>=stepNode.sceneY && n.sceneY-n.anchorY<=21 &&
+      n.x>=0 && n.x<=s.worldWidth))return null;
+  return Object.freeze({sourceBound:true,runToken:s.runToken,
+    roofId:'f9:ground',stepId:'f9:gateway-step',raisedId:'f9:p2',
+    nodes:Object.freeze(nodes.map(n=>Object.freeze(n))),
+    limitation:'Existing source p2 geometry and rear steel only; no walkable span, no gameplay or native pixel acceptance'});
+}
+
+/**
  * P0 physical load-path reconstruction from source-pinned native footage:
  * campaign 43745587650, candidate e2c45779, desktop source tick 475.
  * The previous outer vertical at radius 28.25 (authored forged instance #2)
@@ -78,7 +138,7 @@ export function plannedEarnedClockworkVoidBearings(s,old) {
  * Pure authored geometry planning: World alone creates real Three meshes.
  */
 export function plannedSourceEarnedSuspendedBearingSections(nodes) {
-  if(!Array.isArray(nodes) || nodes.length!==3 ||
+  if(!Array.isArray(nodes) || (nodes.length!==3 && nodes.length!==5) ||
      nodes.some(n=>![n?.angle,n?.sceneY,n?.anchorY,n?.height].every(Number.isFinite) ||
        n.height<5 || n.height>7 || n.sceneY<n.anchorY ||
        n.sceneY-n.anchorY>20 || Math.abs(n.angle)>2.4))return null;
