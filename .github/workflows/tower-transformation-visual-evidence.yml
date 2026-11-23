@@ -21,6 +21,9 @@ on:
       # Omitting either module left gameplay-changing PR68 camera commits with
       # quality CI only and NO immutable normal-speed baseline/candidate films.
       - public/infinite-tower-climb/visuals/scene.mjs
+      # Four-subject authentic old-gateway / raised-route final lens changes
+      # native gameplay composition and MUST request the nine-job source-pinned film.
+      - public/infinite-tower-climb/visuals/source-joint-gateway-flight-lens.mjs
       # First-return source/video episode identity is part of authentic
       # native 1x alignment. A changed helper requires an immutable film too;
       # a post-restart trace must never impersonate original guardian crossing.
