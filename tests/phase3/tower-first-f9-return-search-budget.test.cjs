@@ -51,8 +51,8 @@ test('two independent search ladders retain original and spatially spread physic
 test('the real scene preserves each pre-existing hero/core/deck/steel ray gate when sampling cold camera trials',()=>{
   const scene=fs.readFileSync('public/infinite-tower-climb/visuals/scene.mjs','utf8');
   assert.match(scene,/firstF9ReturnedGatewaySearchBudget\(\s*snapshot,coldArchProof,coldArchLens,lastSubmittedGuardian/);
-  assert.match(scene,/sampleColdFirstReturnGatewayTrials\(clearance,\s*firstGatewaySearchBudget\.deckTrialLimit\)/);
-  assert.match(scene,/sampleColdFirstReturnGatewayTrials\(opticalTrials,\s*firstGatewaySearchBudget\.doorwayTrialLimit\)/);
+  assert.match(scene,/sampleColdFirstReturnGatewayTrials\(\s*clearance,\s*firstGatewaySearchBudget\.deckTrialLimit\)/);
+  assert.match(scene,/sampleColdFirstReturnGatewayTrials\(\s*opticalTrials,\s*firstGatewaySearchBudget\.doorwayTrialLimit\)/);
   assert.match(scene,/sourceThreeSubjectRaySafe\(\s*deckViewBeforeThreshold,currentRays\)/);
   assert.match(scene,/towerCoreSightlineClear\(camera\.position,thresholdHero,23\.5\)/);
   assert.match(scene,/world\.projectedOriginalGateSteel\(snapshot,camera\)/);
