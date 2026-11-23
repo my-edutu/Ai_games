@@ -809,14 +809,33 @@
       "fullQualityAsOfEvidence": "PENDING; CI is veto not gameplay score"
     },
     "exactSourcePinnedNineJobGameplay": "https://github.com/my-edutu/Ai_games/actions/runs/45106924437",
-    "newNativeFootageAsOfEvidence": "IN PROGRESS; candidate pixel improvement and strict 2/2 native event pairing NOT VERIFIED",
+    "newNativeFootageAsOfEvidence": "NOT PASSED: inspected full source-pinned original native candidate danger in both viewports and found bronze-violet spatial disconnect persists; latest pair-source-events final job still pending",
     "independentFreshBlindCritics": {
       "LOOKS": "0/5",
       "FEELS": "0/5",
       "PLAYS": "0/5"
     },
     "supportedActualDevicePerformanceAndMemory": "NOT EVALUATED",
-    "exactNextHighestImpactAction": "Inspect 45106924437 original candidate danger desktop 960x600 and portrait 390x844 WebMs with source/native first-episode alignment and returned joint-lens proposal/acceptance/veto; prove on same actual physical move old HP-open metal + full skinned hero + grounded F9 roof + raised f9:p2 appear continuously. If new native still cuts, identify the real scene or camera-occlusion owner and rebuild integrated geometry/composition; keep P0 open, P1 blocked.",
-    "restrictions": "Draft PR68 open; preserve frozen transformation.json blob and baseline; never rewrite PR58, touch unrelated games, merge, deploy or force-push."
+    "exactNextHighestImpactAction": "Reopen integrated World / Scene architecture: first F9 old gateway opacity falls ~0.8 to zero in <=9 source ticks and original gallery loses support while successor camera/framing moves to unrelated violet shaft. Align original gate, bronze gallery/real receiving roof/raised destination in SAME moving camera view and gate-retirement decisions using actual returned hero progress, not only projected visibility or another opacity-only tweak; then capture immutable source-pinned film and demand 2/2 native first-episode causal match.",
+    "restrictions": "Draft PR68 open; preserve frozen transformation.json blob and baseline; never rewrite PR58, touch unrelated games, merge, deploy or force-push.",
+    "exactSourceNewFilmInspection": {
+      "codeSha": "be54aaef8c9974ff10584635eb76c9dbf7c87e53",
+      "campaign": "https://github.com/my-edutu/Ai_games/actions/runs/45106924437",
+      "candidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45106924437/artifacts/14788136037",
+      "bothNativeOriginalWebMs": "captured and inspected actual 25fps 960x600 desktop, 390x844 portrait, danger first Floor8->9 scene (24-31s)",
+      "newNativeResult": "NEGATIVE: on both original WebMs bronze receiving roof remains before 27.5s, but bronze room / old gate disappears while character jumps and violet F9 shaft dominates around 27.5-28s; no accepted uninterrupted four-subject physical crossing",
+      "firstEpisodeMappedRendererReturns": {
+        "desktop": 51,
+        "portrait": 52
+      },
+      "firstEpisodeSceneOwners": "old and new owners co-return but NOT necessarily visible as native pixels",
+      "actualReturnedOpacityEvidence": {
+        "desktop": "source tick 506 four returns: real gateway 0.8563 -> 0.8065, source tick 515 0.0127 -> 0; gallery 0.1685 -> 0 while successor structure 0.4 ->0.5042",
+        "portrait": "tick 502 five returns gate 0.9711 ->0.9477; tick 509 0.5421 ->0.5187; tick 517 0; gallery 0.0538 ->0 before old doorway retirement"
+      },
+      "originalPhysicalProjectionCounters": "desktop 8, portrait 5 returned hero/gateway projected-safe; still NOT native co-visibility",
+      "strictSourceNativePairing": "PENDING final pair-source-events job; prior exact native FAILED 0/2",
+      "lastPassableSource": "P0 still OPEN; one new lens helper change alone did not solve visual game"
+    }
   }
 }
