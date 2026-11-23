@@ -6286,10 +6286,31 @@ export function createTowerScene(canvas, settings = {}) {
       // genuine first Floor9 render to fail after a valid source crossing.
       // Resolve the grounded roof from the CURRENT same-run returned gateway
       // inside the renderer's own lexical scope, then physically veto it.
+      // P0: record the camera decision attached to THIS real WebGL return.
+      // Aggregate diagnostic counters sampled after a restart cannot explain
+      // whether the original bronze gateway received a valid recovery shot.
+      // Read-only, same-run, no extra render or source gameplay mutation.
+      let cameraJointRecoveryWitness = null;
       const returnedJointRoof = snapshot?.floor===9 &&
         retainedColdArrival?.guardianGateRetained===true
           ?observedSourceWalkableCrossfloorShot(snapshot,retainedColdArrival)
           :null;
+      if (!options.stale && snapshot?.floor===9 &&
+          snapshot.theme==='void' && snapshot.lifecycle==='running' &&
+          retainedColdArrival?.guardianGateRetained===true &&
+          retainedColdArrival.runToken===snapshot.runToken) {
+        cameraJointRecoveryWitness = {
+          sourceBound:true,sourceTick:snapshot.tick,
+          outcome:'source-roof-ineligible',raisedDeckId:null,
+          trialsEvaluated:0,projectionVetoes:0,
+          worldRayVetoes:0,coreVetoes:0,
+          originalMetalPanesBefore:null,originalMetalPanesSubmitted:null,
+          approvedTrialRig:null,approvedTravelMetres:0,
+          submittedHeroNdc:null,submittedGateNdc:null,
+          submittedRoofNdc:null,submittedLandingNdc:null,
+          limitation:'Real scene-owned source camera only; not a native pixel, device FPS or blind verdict'
+        };
+      }
       if(!options.stale && !options.reducedMotion &&
          options.camera==='follow' && snapshot?.floor===9 &&
          returnedJointRoof?.sourceBound===true &&
@@ -6299,6 +6320,8 @@ export function createTowerScene(canvas, settings = {}) {
         const jointGatePose=guardianTraversalGatePose(
           retainedColdArrival.thresholdX,retainedColdArrival.oldRoofY,
           snapshot.chunkBaseY,snapshot.worldWidth);
+        if(cameraJointRecoveryWitness)
+          cameraJointRecoveryWitness.outcome='source-raised-ineligible';
         if(jointRaised?.id?.startsWith('f9:p') && jointGatePose) {
           const jointHero=climber.group.position.clone();
           jointHero.y+=snapshot.player.halfHeight/SCALE;
@@ -6322,6 +6345,18 @@ export function createTowerScene(canvas, settings = {}) {
               steel:world.projectedOriginalGateSteel(snapshot,camera)};
           };
           const before=measureJoint();
+          if(cameraJointRecoveryWitness){
+            cameraJointRecoveryWitness.outcome='no-lens-proposal';
+            cameraJointRecoveryWitness.raisedDeckId=jointRaised.id;
+            cameraJointRecoveryWitness.originalMetalPanesBefore=
+              before.steel?.projectedPanes??null;
+            cameraJointRecoveryWitness.originalMetalPanesSubmitted=
+              before.steel?.projectedPanes??null;
+            cameraJointRecoveryWitness.submittedHeroNdc=before.heroNdc.slice();
+            cameraJointRecoveryWitness.submittedGateNdc=before.gateNdc.slice();
+            cameraJointRecoveryWitness.submittedRoofNdc=before.roofNdc.slice();
+            cameraJointRecoveryWitness.submittedLandingNdc=before.landingNdc.slice();
+          }
           const proposal=sourceJointGatewayFlightLens(snapshot,retainedColdArrival,{
             cameraMode:options.camera,stale:options.stale,
             reducedMotion:options.reducedMotion,
@@ -6331,6 +6366,8 @@ export function createTowerScene(canvas, settings = {}) {
             landing:jointLanding.toArray(),...before
           });
           if(proposal) {
+            if(cameraJointRecoveryWitness)
+              cameraJointRecoveryWitness.outcome='rejected-physical';
             sourceJointGatewayLensProposals=Math.min(1000000,
               sourceJointGatewayLensProposals+1);
             // The actual first Floor9 native film can lose the OLD gate even
@@ -6368,13 +6405,25 @@ export function createTowerScene(canvas, settings = {}) {
               const fullShot=assessSourceJointGatewayLens(before,after);
               const safeIntermediate=!fullShot &&
                 assessSourceJointGatewayRecoveryStep(before,after);
-              const physicallySafe=(fullShot||safeIntermediate) &&
+              // Keep the original short-circuit cost order. Each rejected
+              // camera's actual reason is now visible in source-pinned film
+              // telemetry instead of being folded into one cumulative veto.
+              const projectionSafe=fullShot||safeIntermediate;
+              const raySafe=projectionSafe &&
                 rays?.active===true && rays.bodyBlockedRays===0 &&
-                rays.gatewayBlockedRays===0 &&
+                rays.gatewayBlockedRays===0;
+              const coreSafe=raySafe &&
                 towerCoreSightlineClear(camera.position,jointHero,23.5) &&
                 towerCoreSightlineClear(camera.position,jointGate,23.5) &&
                 towerCoreSightlineClear(camera.position,jointRoof,23.5) &&
                 towerCoreSightlineClear(camera.position,jointLanding,23.5);
+              const physicallySafe=projectionSafe&&raySafe&&coreSafe;
+              if(cameraJointRecoveryWitness){
+                cameraJointRecoveryWitness.trialsEvaluated++;
+                if(!projectionSafe)cameraJointRecoveryWitness.projectionVetoes++;
+                else if(!raySafe)cameraJointRecoveryWitness.worldRayVetoes++;
+                else if(!coreSafe)cameraJointRecoveryWitness.coreVetoes++;
+              }
               if(physicallySafe){
                 acceptedJoint=true;
                 if(fullShot)sourceJointGatewayLensFullShotSteps=Math.min(1000000,
@@ -6382,6 +6431,19 @@ export function createTowerScene(canvas, settings = {}) {
                 else sourceJointGatewayLensRecoverySteps=Math.min(1000000,
                   sourceJointGatewayLensRecoverySteps+1);
                 sourceJointGatewayLensTravelMetres+=rig.cameraMoveMetres;
+                if(cameraJointRecoveryWitness){
+                  cameraJointRecoveryWitness.outcome=fullShot
+                    ?'accepted-complete-projection':'accepted-partial';
+                  cameraJointRecoveryWitness.approvedTrialRig=rig.kind;
+                  cameraJointRecoveryWitness.approvedTravelMetres=
+                    +rig.cameraMoveMetres.toFixed(4);
+                  cameraJointRecoveryWitness.originalMetalPanesSubmitted=
+                    after.steel?.projectedPanes??null;
+                  cameraJointRecoveryWitness.submittedHeroNdc=after.heroNdc.slice();
+                  cameraJointRecoveryWitness.submittedGateNdc=after.gateNdc.slice();
+                  cameraJointRecoveryWitness.submittedRoofNdc=after.roofNdc.slice();
+                  cameraJointRecoveryWitness.submittedLandingNdc=after.landingNdc.slice();
+                }
                 sourceJointGatewayLensAccepted=Math.min(1000000,
                   sourceJointGatewayLensAccepted+1);
                 break;
@@ -6622,6 +6684,10 @@ export function createTowerScene(canvas, settings = {}) {
             submittedFogColor:scene.fog?.color.getHexString()??null,
             submittedHero:climber.group.position.toArray()
               .map(x=>+x.toFixed(3)),
+            // Provenance from the exact camera actually returned above.
+            cameraJointRecovery:cameraJointRecoveryWitness?.sourceBound===true &&
+              cameraJointRecoveryWitness.sourceTick===snapshot.tick
+                ?{...cameraJointRecoveryWitness}:null,
           });
         }
       }
