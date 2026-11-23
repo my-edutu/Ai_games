@@ -177,3 +177,35 @@ test('integrated first F9 source camera recovers invisible old steel only after 
   scene.indexOf('sourceJointGatewayRecoveryRigs(proposal')<
     scene.indexOf('renderer.render(scene, camera);'));
 });
+
+test('real roof and raised landing may already be centered while original HP-open gate vanishes from frame',async()=>{
+ const {sourceJointGatewayFlightLens:plan,assessSourceJointGatewayLens:assess}=await modulePromise;
+ const lost={...view,landingNdc:[.20,.26,.5],gatewayNdc:[1.18,.15,.4,.12],
+   steel:{sourceBound:true,projectedPanes:0,projectedMetalArea:0}};
+ const before=JSON.stringify({source,held,lost});
+ const proposal=plan(source,held,lost);
+ assert.ok(proposal?.sourceBound,'first-raised platform being visible cannot prevent recovery of old gateway');
+ assert.equal(proposal.landingId,'f9:p2');
+ const recovered={...lost,gatewayNdc:[.4,.12,.4,.12],heroNdc:[.24,0,.4,.12],
+   steel:{sourceBound:true,projectedPanes:4,projectedMetalArea:.035}};
+ assert.equal(assess(lost,recovered),true,
+   'real returned original steel and doorway improve without sacrificing the raised landing');
+ assert.equal(JSON.stringify({source,held,lost}),before);
+ assert.equal(plan(source,held,{...lost,gatewayNdc:[.1,.1,.4,.12],
+   steel:{sourceBound:true,projectedPanes:6,projectedMetalArea:.065}}),null,
+   'no extra camera travel when all four authentic subjects are already readable');
+});
+test('original-gateway rescue cannot purchase its view by cropping climber or raised route',async()=>{
+ const {assessSourceJointGatewayLens:assess}=await modulePromise;
+ const lost={...view,landingNdc:[.20,.26,.5],gatewayNdc:[1.18,.15,.4,.12],
+   steel:{sourceBound:true,projectedPanes:0,projectedMetalArea:0}};
+ const after={...lost,gatewayNdc:[.4,.12,.4,.12],heroNdc:[.24,0,.4,.12],
+   steel:{sourceBound:true,projectedPanes:4,projectedMetalArea:.035}};
+ for(const bad of [
+   {...after,landingNdc:[1.44,1.2,.5]},
+   {...after,heroNdc:[1.2,0,.4,.12]},
+   {...after,roofNdc:[1.5,0,.5]},
+   {...after,steel:{sourceBound:true,projectedPanes:1,projectedMetalArea:.035}},
+   {...after,gatewayNdc:[1.18,.15,.4,.12]}
+ ])assert.equal(assess(lost,bad),false,'four-subject physical safety is non-negotiable');
+});
