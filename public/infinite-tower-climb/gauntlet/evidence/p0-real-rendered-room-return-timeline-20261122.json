@@ -598,5 +598,49 @@
     "actualDeviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
     "nextHighestImpactAction": "Check latest immutable desktop 960x600 and portrait 390x844 1x full normal-speed 24-34 second crossing films and exact source event pairing; verify physically opened original gateway, whole moving climber, true receiving roof, raised platform on consecutive frames, onward ascent and restart. If still abrupt, redesign integrated World/camera staging. Keep P0 OPEN.",
     "constraints": "No baseline or transformation.json edit, PR58 changes, unrelated game changes, merge, deploy, force push, draft conversion"
+  },
+  "p0TrueFirstReturnedFloorNineGroundedBodyOpticalAnchor_20261123": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingTransformationVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenLedgerBlobSha": "b8aa51bb5bb50b55222fb6b947472692c87c822a",
+    "lastInspectedOriginalProductionSource": "51675311519ea9c46a6a94ec64267936319ef32b",
+    "originalAuthenticNineJobCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45089259937",
+    "originalDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45089259937/artifacts/14780831504",
+    "nativeFootageInspected": "Original unedited normal-speed 960x600 and 390x844 candidate danger WebMs; still sees abrupt bronze->violet visual recontextualization. No newer native acceptance claimed.",
+    "originalFirstF9PhysicalSource": {
+      "originalFloorCrossingTick": 475,
+      "originalFloorCrossingX": 321096,
+      "firstReturnedGroundedF9Tick": 480,
+      "firstReturnedF9HeroX": 333296,
+      "stationaryUntilTick": 506,
+      "firstFlightTick": 511,
+      "firstFlightDeltaX": 4500,
+      "firstFlightDeltaY": 57000,
+      "originalPortraitGatewayOpacityBeforeFlightApprox": 0.8758,
+      "originalPortraitGatewayOpacityAtFirstFlightApprox": 0.175,
+      "warning": "Material alpha is returned Three.js metadata; NOT composited original WebM pixels"
+    },
+    "codeCommitSha": "739132774e618f9961201f1742bce6dd7767fd29",
+    "testFirstRedThenPhysicallyCorrectedFixtureCommit": "703590c80e7ed71ee4017048a29045bbe25552e0",
+    "codeFiles": [
+      "public/infinite-tower-climb/visuals/source-returned-original-gateway-exit.mjs",
+      "public/infinite-tower-climb/visuals/world.mjs",
+      "tests/phase3/tower-first-original-door-flight-anchor.test.cjs",
+      "tests/phase3/tower-original-gateway-returned-optical-exit.test.cjs"
+    ],
+    "behavior": "First successful same-run WebGL F9 submission can stamp a physically grounded source actor on f9:ground at original roof; gateway fade departure uses that original actual first painted stance rather than spending unseen crossing->render distance. Incomplete source departure cannot be treated as maximum exit.",
+    "sourceAuthorityChanged": false,
+    "newExactCodeCI": "https://github.com/my-edutu/Ai_games/actions/runs/45095663193 (pending at evidence write)",
+    "newExactCodeNineJobCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45095663186 (in progress at evidence write)",
+    "previousStrictSourceNativeAccept": "FAILED 0/2 viewports",
+    "independentCriticVotes": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedActualDeviceFrameTimeAndMemory": "NOT EVALUATED",
+    "largestExperienceGap": "Human-readable continuous original opened gateway + full moving climber + walkable f9:ground + first raised platform not accepted in both 1x native viewports, including outcome/restart",
+    "nextHighestImpactAction": "Inspect real original 73913277 full-motion desktop and portrait first F9 events, source-returned gateway alpha and post-render body receipt; repair joint physical camera/World threshold if still a bronze-violet hard cut; do not advance P1 or score safety CI as quality."
   }
 }
