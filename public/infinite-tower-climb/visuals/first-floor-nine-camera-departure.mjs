@@ -78,7 +78,17 @@ export function sourceFirstFloorNineCameraDeparture({source,lastRendered,
     ((Math.abs(requestedTurn)>.16 && (radiusDelta>3||heightDelta>3)) ||
       (radiusDelta>5 && heightDelta>4 &&
        newRange>=originalRange-1));
-  if(shoulderCut||sourceUnearnedLateralOrbit||sourceUnearnedWorldCut){
+  // Original 0e2b7c2 source-pinned portrait 514->528: real airborne hero
+  // moved 6.004m but a single returned WebGL view orbited 14.295m/0.261rad.
+  // Missing browser frames do not pay for an abrupt camera change.
+  // Keep authentic strong inward recovery and body/core sightline checks.
+  const sourceUnearnedAirborneOrbit=sourceLimitedRadius &&
+    !shoulderCut && !sourceUnearnedLateralOrbit &&
+    !sourceUnearnedWorldCut && !genuineInwardRecovery &&
+    requested>Math.max(9,actorMovement*1.55+3) &&
+    Math.abs(requestedTurn)>.18 && lateralArc>9;
+  if(shoulderCut||sourceUnearnedLateralOrbit||sourceUnearnedWorldCut||
+     sourceUnearnedAirborneOrbit){
     // Rotate around the original tower core from the last successfully
     // returned same-run lens. Time that the browser did not render never
     // grants a camera teleport; source physics remain authoritative.
@@ -105,7 +115,9 @@ export function sourceFirstFloorNineCameraDeparture({source,lastRendered,
         ?'first-original-floor-nine-camera-shoulder-cut'
         :sourceUnearnedLateralOrbit
           ?'first-original-floor-nine-camera-lateral-orbit'
-          :'first-original-floor-nine-camera-world-space-cut'};
+          :sourceUnearnedWorldCut
+            ?'first-original-floor-nine-camera-world-space-cut'
+            :'first-original-floor-nine-camera-airborne-orbit'};
   }
   // Leave ordinary tracking and inward catch-up untouched. Only the
   // discontinuous OUTWARD dolly which shrinks the hero is constrained.

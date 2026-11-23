@@ -149,3 +149,22 @@ test('true returned Floor9 camera records physically vetoed and submitted cuts w
  assert.match(scene,/firstF9CameraUnboundedCuts/);
  assert.match(scene,/towerCoreSightlineClear\(camera\.position,releaseHero,23\.5\)/);
 });
+
+test('real 0e2b7c2 Floor9 portrait 514-to-528 airborne source does not earn a 14m per-frame orbit',async()=>{
+ const f=await fn;
+ const episode={...b,source:{...source,tick:528},
+  lastRendered:{floor:9,runToken:'original',tick:514},
+  previousCamera:[26.307,10.603,46.72],previousFocus:[8.742,2.339,23.03],
+  previousHero:[11.112,6.08,22.395],desiredCamera:[35.903,14.114,36.723],
+  desiredFocus:[9.895,6.929,23.408],hero:[12.834,11.7,23.62],dt:.05};
+ const x=f(episode);
+ assert.ok(x,'source ticks skipped by renderer cannot authorize an unearned camera teleport');
+ assert.equal(x.reason,'first-original-floor-nine-camera-airborne-orbit');
+ assert.ok(x.requestedMovement>14.29 && x.boundedMovement<3);
+ assert.ok(x.focus[1]>episode.previousFocus[1],'follow the authentic rising hero');
+ assert.equal(f({...episode,desiredCamera:[8,4,26]}),null,
+  'retain original close inward hero rescue');
+ assert.equal(f({...episode,hero:[65,20,23]}),null);
+ assert.equal(f({...episode,source:{...episode.source,floor:10}}),null);
+ assert.equal(f({...episode,lastRendered:{...episode.lastRendered,runToken:'restart'}}),null);
+});
