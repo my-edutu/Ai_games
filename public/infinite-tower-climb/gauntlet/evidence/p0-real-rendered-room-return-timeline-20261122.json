@@ -24,7 +24,7 @@
     "ledgerOnlySourceToNativePairing": "NOT ACCEPTED 0/2",
     "sourceGuardianRestartChain": true
   },
-  "primarySystemicBlocker": "Source-pinned 73913277 desktop source tick506 original bronze gate alpha .7967 then ZERO by tick514 as genuine first f9:p2 flight begins, with major abrupt camera/world violet shaft recontextualization at ~27–28 seconds in both original 1x films. Exact new four-subject F9 lens unverified in native film.",
+  "primarySystemicBlocker": "208b original candidate native danger films both suffered a genuine P0 render-black regression after true first Floor9 crossing. Unmodified Playwright trace proves ReferenceError: physicalWalkableShot is not defined in animate(scene.mjs:6284), because referenced binding belonged to update(); next cameraDt also belonged to update(). Fixed in 614209d/0204e1f but newly source-pinned footage remains unverified. Underlying original bronze->violet physical seam remains unresolved.",
   "implementedUnblocker": {
     "files": [
       "public/infinite-tower-climb/visuals/source-returned-room-timeline.mjs",
@@ -55,7 +55,7 @@
     }
   },
   "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
-  "nextHighestImpactAction": "Inspect immutable candidate source 208b1e5d 960x600 and 390x844 >60s original recordings, event-pair result and sourceJointGatewayFlightLens proposal/accept/veto counters. Demand one coherent source-aligned whole hero, actual HP-open original metal, walkable f9:ground and source-raised f9:p2 shot. If counters zero or all physically vetoed, diagnose actual source ownership and projection occlusion; rebuild joint world/lens, not opacity. Keep P0 open until 2/2 full-motion source-native acceptance; P1 blocked.",
+  "nextHighestImpactAction": "Inspect exact source 0204e1fa native full-length 960x600 and 390x844 footage (nine-job 45102110221) for real continuous F9 renderer returns, absence of retry-black frames, then inspect sourceJointGatewayFlightLens proposals/vetoes/accepted shots, original steel+hero+roof+raised destination composition and strict 2/2 source-event-native alignment. If camera proposal never activates or visual cut persists, fix source-owned world/sightline composition, not opacity. P1 blocked.",
   "fullInstrumentationCommitSha": "bd2af6ff2784a9e7d51df12b0d7856f34b4059fb",
   "captureRequestedForExactHead": "${{ github.sha }}",
   "pinnedCaptureCondition": "push to capture-request.json triggers original 9-job workflow, candidate pinned to immutable final github.sha; workflow queued results are not visual acceptance.",
@@ -687,6 +687,23 @@
       "plays": 0
     },
     "supportedHardware": "NOT EVALUATED",
-    "next": "Read exact 208b source-pinned normal-speed full footage, on-frame source/world event and final real camera lens accept/veto counters. If not demonstrably improved, rework coupled geometry/target visibility before any P1."
+    "next": "Read exact 208b source-pinned normal-speed full footage, on-frame source/world event and final real camera lens accept/veto counters. If not demonstrably improved, rework coupled geometry/target visibility before any P1.",
+    "currentImplementationSourceSha": "0204e1fa7bf83bf65a9bf9fca3fc2ed88224edc1",
+    "firstCapturedNativeFailure": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/45101193106",
+      "authenticArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45101193106/artifacts/14785836499",
+      "status": "FAILED: original desktop and portrait at ~27 s black/Restoring game state; source trace continues to floor9 and floor10; original return-room trace recorded zero; strict source/native pairing not performed",
+      "browserError": "Tower renderer: ReferenceError: physicalWalkableShot is not defined at scene.mjs line 6284 (update-local source witness improperly referenced in animate)",
+      "sourceHostFloorNine": true,
+      "originalF9ReturnTraceCount": 0,
+      "confidence": "Direct original 1x video + Playwright trace.zip console, not inferential"
+    },
+    "correctiveCommits": [
+      "614209d40b93510a166a80379b1a309aabb1efe8",
+      "0204e1fa7bf83bf65a9bf9fca3fc2ed88224edc1"
+    ],
+    "nextExactNativeSourceRun": "https://github.com/my-edutu/Ai_games/actions/runs/45102110221",
+    "nextExactQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45102110348",
+    "verification": "Source scope regression added; 208b code CI 10/10 green despite native black, proving CI cannot substitute original gameplay. 020 native and exact CI pending."
   }
 }
