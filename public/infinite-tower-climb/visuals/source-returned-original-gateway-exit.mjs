@@ -25,6 +25,46 @@ function verified(source,held,job,supported){
     safe(job.structuralVisibleReturns) && job.structuralVisibleReturns>=0 &&
     finite(job.structuralVisibleSeconds) && job.structuralVisibleSeconds>=0;
 }
+// A genuine *returned* raised platform (or far-side original roof) must be
+// reached before we may finish retiring the old source-built architectural
+// room. Airborne height by itself cannot certify contact with the successor:
+// that was the common Floor8->9 hard cut in both native 1x viewports.
+// This function reads only current authoritative support, and never alters it.
+export function sourceReturnedOriginalRouteClearance(source,held) {
+  const p=source?.player;
+  if(source?.floor!==9 || source.theme!=='void' ||
+     source.lifecycle!=='running' || !(p?.health>0) ||
+     typeof source.runToken!=='string' || !source.runToken ||
+     held?.runToken!==source.runToken || held.floor!==9 ||
+     held.oldCapId!=='f8:cap' ||
+     held.guardianGateRetained!==true ||
+     held.verifiedObservedFloorAdvance!==true ||
+     ![source.tick,held.crossingTick,held.oldRoofY,held.thresholdX,
+       p.x,p.y,p.halfWidth,p.halfHeight].every(safe) ||
+     source.tick<held.crossingTick ||
+     source.tick-held.crossingTick>150 ||
+     p.halfWidth<=0 || p.halfHeight<=0 ||
+     p.grounded!==true || !Array.isArray(source.platforms) ||
+     typeof p.groundedPlatformId!=='string')return null;
+  const support=source.platforms.find(x=>x?.id===p.groundedPlatformId);
+  if(!support || ![support.x,support.y,support.width,support.height].every(safe) ||
+     support.width<=0 || support.height<=0 ||
+     p.x-p.halfWidth<support.x ||
+     p.x+p.halfWidth>support.x+support.width ||
+     p.y-p.halfHeight!==support.y+support.height)return null;
+  if(support.id==='f9:ground') {
+    if(support.y+support.height!==held.oldRoofY ||
+       p.x-p.halfWidth<held.thresholdX+60000)return null;
+    return {sourceBound:true,sourceTick:source.tick,
+      platformId:support.id,kind:'grounded-far-side'};
+  }
+  if(!support.id.startsWith('f9:') ||
+     support.y+support.height<=held.oldRoofY+12000 ||
+     support.y+support.height>held.oldRoofY+230000)return null;
+  return {sourceBound:true,sourceTick:source.tick,
+    platformId:support.id,kind:'grounded-raised-route'};
+}
+
 // Source-earned departure, not compositor time, determines when the old
 // gateway stops being a readable part of the live route. Original 1x SHA
 // 1fca189 portrait/desktop first-F9 returns consumed almost all the bronze
@@ -127,12 +167,30 @@ export function sourceReturnedOriginalDepartureProgress(source,held) {
      p.x>crossingX+110000 ||
      sole<held.oldRoofY-2500 ||
      sole>held.oldRoofY+230000) return null;
-  // The original roof runway is short. A climber can reach its raised
-  // route mostly by VERTICAL movement; x-only fades waited too long and
-  // then visually snapped. Current physical travel and sole height jointly
-  // earn a smooth one-way old-gateway departure, not a future landing.
-  return unit(Math.max(0,p.x-crossingX)/60000 +
+  // Stage the SAME original gate, load-bearing gallery, roof and skyline
+  // around source-authenticated traversal. A high airborne snapshot is not
+  // a LANDING: its full geometric travel is capped while the genuine
+  // source-built first raised route is still unconfirmed by any GPU return.
+  // The *last* 38% is released only over multiple real submitted renders
+  // following a verified, physically grounded source-platform arrival.
+  // No fixed-step ticks, predicted landings, authored portals or fake poses.
+  const travel=unit(Math.max(0,p.x-crossingX)/60000 +
     Math.max(0,sole-held.oldRoofY)/100000);
+  const returnedClearance=safe(held.firstRouteClearanceReturnTick) &&
+    safe(held.routeClearanceReturnedFrames) &&
+    held.routeClearanceReturnedFrames>0 &&
+    finite(held.routeClearanceReturnedSeconds) &&
+    held.routeClearanceReturnedSeconds>0 &&
+    held.firstRouteClearanceReturnTick>=held.firstWorldRenderTick &&
+    held.firstRouteClearanceReturnTick>=held.crossingTick &&
+    held.firstRouteClearanceReturnTick<=source.tick &&
+    source.tick-held.firstRouteClearanceReturnTick<=150;
+  if(!returnedClearance)return Math.min(travel,.62);
+  const earned=smooth(Math.min(
+    held.routeClearanceReturnedFrames/9,
+    held.routeClearanceReturnedSeconds/.65
+  ));
+  return Math.min(travel,.62+.38*earned);
 }
 
 // On a genuine still-playing route, a new source stance must never RESURRECT
