@@ -1,0 +1,62 @@
+name: Turnve BuildSite Live
+
+on:
+  push:
+    branches:
+      - 'feat/turnve-buildsite'
+    paths:
+      - '.github/workflows/turnve-live.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: turnve-buildsite-live
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout verified BuildSite candidate
+        uses: actions/checkout@v6
+        with:
+          ref: 2a384a0714d0bf9e468b134f49cc54fb533c91be
+          fetch-depth: 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22.16.0'
+
+      - name: Build Turnve BuildSite
+        working-directory: games/turnve-buildsite
+        run: |
+          npm install --no-audit --no-fund
+          npm test
+          npm run build
+
+      - name: Prepare static live bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/turnve-live
+          mkdir -p /tmp/turnve-live
+          cp -R games/turnve-buildsite/dist/. /tmp/turnve-live/
+          sed -i 's|="/assets/|="./assets/|g' /tmp/turnve-live/index.html
+          printf '%s\n' '2a384a0714d0bf9e468b134f49cc54fb533c91be' > /tmp/turnve-live/version.txt
+
+      - name: Publish live branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'Turnve BuildSite Publisher'
+          git config user.email 'actions@github.com'
+          git checkout --orphan turnve-buildsite-live
+          git rm -rf .
+          cp -R /tmp/turnve-live/. .
+          touch .nojekyll
+          git add -A
+          git commit -m 'deploy: Turnve BuildSite verified live build'
+          git push --force origin HEAD:turnve-buildsite-live

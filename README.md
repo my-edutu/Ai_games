@@ -1,6 +1,6 @@
 # AI Games — Autonomous Livestream Game Platform
 
-This monorepo builds a catalogue of autonomous games for uninterrupted YouTube and Twitch entertainment on one shared deterministic simulation, audience-interaction, broadcast, durability, operations and release-governance platform.
+This monorepo builds a catalogue of autonomous games for uninterrupted YouTube and Twitch entertainment on one shared deterministic simulation, audience-interaction, broadcast, durability, operations and release-governance platform. It also hosts isolated simulation experiments that reuse the catalogue’s evidence-driven engineering discipline without changing livestream-game runtime contracts.
 
 ## Catalogue
 
@@ -16,6 +16,7 @@ This monorepo builds a catalogue of autonomous games for uninterrupted YouTube a
 10. AI Zombie Survival
 11. AI City Traffic Experiment
 12. AI Ant Colony / Ecosystem
+13. Turnve BuildSite — Your First Day on Site *(workplace simulation; isolated Vite workspace)*
 
 ## Shared platform
 
@@ -36,6 +37,7 @@ Seeded authoritative simulation
 |---|---:|---:|---|---|
 | Autonomous Snake | 6 / 6 | R4 evidence-gated candidate | R4 | External R5 evidence blocked |
 | AI Maze Escape | 6 / 6 | **88 / 100** | R4 | External R5 evidence blocked |
+| Turnve BuildSite | 6 phases implemented; verification in progress | Not scored | Pre-R2 | Pitch evidence pending |
 | Games 3–12 | Documentation/specification packages | Not scored | Pre-implementation | Not production ready |
 
 No game is labelled R5 merely because code merged or CI passed. Production readiness requires exact-candidate primary evidence, real elapsed operation, current credentialed providers, external review, independently witnessed drills, and a guarded canary.
@@ -46,13 +48,17 @@ Game 2 implements deterministic generation and oracle validation, partial-observ
 
 The reviewed runtime candidate passed 251 / 251 Node tests and 8 / 8 catalogue Chromium tests. Internal architecture, gameplay, UI, interaction, durability and release-governance review closed all load-bearing software findings. Its score remains 88 / 100 because the final 12 points require real production evidence.
 
+## Turnve BuildSite
+
+`games/turnve-buildsite/` is a browser-based 3D construction internship simulation. It deliberately does not import the autonomous livestream audience gateway or mutate the root CommonJS build; its own Vite/React/Three stack is verified by `.github/workflows/turnve-buildsite.yml`.
+
 ## Documentation contract
 
-Every game has product requirements, game design, autonomous AI, viewer interaction, audiovisual direction, technical architecture, testing strategy, production-readiness gates, and six executable implementation phases. Reusable specialist skills live under `skills/`; shared architecture and standards live under `docs/`; reproducible phase evidence lives under `evidence/`.
+Every game has product requirements, game design, autonomous AI or simulation intelligence, interaction boundaries, audiovisual direction, technical architecture, testing strategy, production-readiness gates, and six executable implementation phases. Reusable specialist skills live under `skills/`; shared architecture and standards live under `docs/`; reproducible phase evidence lives under `evidence/`.
 
 ## Safe audience influence
 
-Paid or free audience input cannot guarantee victory, death, capture, escape, a record, or an unavoidable terminal outcome. All interactions share authentication, moderation, eligibility, rate, cap, conflict, expiry, reversal, idempotency, audit, privacy, and emergency-disable boundaries.
+Paid or free audience input cannot guarantee victory, death, capture, escape, a record, or an unavoidable terminal outcome. All interactions share authentication, moderation, eligibility, rate, cap, conflict, expiry, reversal, idempotency, audit, privacy, and emergency-disable boundaries. BuildSite spectators are read-only and cannot alter learner assessment state.
 
 ## Operations handoffs
 
