@@ -242,3 +242,28 @@ test('partial recovery is checked against original geometry BEFORE the single so
  assert.match(joint,/towerCoreSightlineClear\(camera\.position,jointGate/);
  assert.match(joint,/sourceJointGatewayLensRecoverySteps/);
 });
+
+
+test('source-pinned slow WebGL callback retains a bounded real gateway-flight lens instead of disabling the crossing',async()=>{
+ const {sourceJointGatewayFlightLens:plan,sourceJointGatewayRecoveryRigs:rigs}=await modulePromise;
+ // Both unedited software-WebGL first-F9 recordings exhibit >120ms callback
+ // gaps; source ticks and the authentic raised f9:p2 do not stop being real.
+ const slow={...view,dt:.25,landingNdc:[.51,1.58,.97]};
+ const proposed=plan(source,held,slow);
+ assert.ok(proposed?.sourceBound,
+   'a 250ms original WebGL callback cannot silently suppress all physical camera trials');
+ assert.equal(proposed.landingId,'f9:p2');
+ assert.ok(proposed.gazeStep<=.07*14+.0001,
+   'lost frame time cannot purchase a gaze teleport');
+ assert.ok(proposed.fov<=42+.07*68+.0001);
+ const trial=rigs(proposed,{cameraPosition:[2,4,39],dt:.25,
+   hero:slow.hero,gateway:slow.gateway,roof:slow.roof,
+   landing:slow.landing,remainingTravelMetres:3});
+ assert.equal(trial.length,4);
+ assert.ok(trial.slice(1).every(r=>r.cameraMoveMetres>0&&
+   r.cameraMoveMetres<=.65+.00001));
+ assert.equal(plan(source,held,{...slow,dt:.501}),null);
+ assert.deepEqual(rigs(proposed,{cameraPosition:[2,4,39],dt:.501,
+   hero:slow.hero,gateway:slow.gateway,roof:slow.roof,
+   landing:slow.landing,remainingTravelMetres:3}),[]);
+});
