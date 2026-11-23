@@ -35,7 +35,7 @@ import { observedGuardianTransmissionCorners } from './guardian-transmission-lay
 import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
 import { sourceReturnedGateCameraRelease, sourceRetainedGatewayCameraContinuity, assessSourceRetainedGatewayPhysicalShot, sourceReturnedGatewayLastCameraEligible, sourceEarnedFloorNineOrbitGuard } from './source-returned-gate-camera-release.mjs';
 import { sourceFirstRaisedFlightGaze } from './source-first-raised-flight-gaze.mjs';
-import { sourceJointGatewayFlightLens, assessSourceJointGatewayLens } from './source-joint-gateway-flight-lens.mjs';
+import { sourceFirstRaisedGatewayLandmark, sourceJointGatewayFlightLens, assessSourceJointGatewayLens } from './source-joint-gateway-flight-lens.mjs';
 import { firstReturnedOriginalRoomAdmission, firstReturnedFloorNineEpisode } from './first-source-room-return.mjs';
 import { sourceFirstFloorNineCameraDeparture } from './first-floor-nine-camera-departure.mjs';
 import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, sourceRaisedBackdropClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceThreeSubjectActorScaleGain, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe, sourceThreeSubjectPhysicalGain } from './physical-threshold-shot.mjs';
@@ -6293,7 +6293,7 @@ export function createTowerScene(canvas, settings = {}) {
          returnedJointRoof?.sourceBound===true &&
          retainedColdArrival?.guardianGateRetained===true &&
          snapshot.player?.health>0) {
-        const jointRaised=intendedLanding(snapshot);
+        const jointRaised=sourceFirstRaisedGatewayLandmark(snapshot,retainedColdArrival);
         const jointGatePose=guardianTraversalGatePose(
           retainedColdArrival.thresholdX,retainedColdArrival.oldRoofY,
           snapshot.chunkBaseY,snapshot.worldWidth);

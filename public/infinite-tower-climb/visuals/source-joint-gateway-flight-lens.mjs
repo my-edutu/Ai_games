@@ -7,10 +7,54 @@ const ndc=(p,n)=>Array.isArray(p)&&p.length===n&&p.every(finite)&&p[2]>=-1&&p[2]
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const gap=(p,m)=>p?Math.max(0,Math.abs(p[0])-m,Math.abs(p[1])-m):Infinity;
 
+// The first raised Floor9 deck is a CURRENT source-owned 3D landmark,
+ // not an AI-selected future landing. At original ticks 476-521 the real
+ // climber is already on the receiving roof / first flight while intent
+ // still targets f9:ground; targetPlatformId=f9:p2 arrives only after the
+ // gateway has disappeared. Frame the existing deck without fabricating
+ // navigation intent, a platform, a guardian victory or a future support.
+export function sourceFirstRaisedGatewayLandmark(source,held){
+ const p=source?.player,w=source?.lastGuardianCrossing;
+ const roof=source?.platforms?.find(x=>x?.id==='f9:ground');
+ const deck=source?.platforms?.find(x=>x?.id==='f9:p2');
+ if(source?.floor!==9||source.theme!=='void'||
+    source.lifecycle!=='running'||source.stale===true||
+    typeof source.runToken!=='string'||!source.runToken||
+    held?.runToken!==source.runToken||held.floor!==9||
+    held.guardianGateRetained!==true||
+    held.verifiedObservedFloorAdvance!==true||
+    held.oldCapId!=='f8:cap'||!integer(held.crossingTick)||
+    !integer(held.oldRoofY)||!integer(source.tick)||
+    source.tick<held.crossingTick||source.tick-held.crossingTick>100||
+    !finite(held.originalGatewayOpacity)||
+    held.originalGatewayOpacity<.12||held.originalGatewayOpacity>1||
+    !(p?.health>0)||![p.x,p.y,p.halfHeight].every(integer)||
+    p.halfHeight<=0||
+    !roof||![roof.x,roof.y,roof.width,roof.height].every(integer)||
+    roof.width<=0||roof.height<=0||
+    !deck||![deck.x,deck.y,deck.width,deck.height].every(integer)||
+    deck.width<=0||deck.height<=0||
+    (w!=null&&(w.runToken!==source.runToken||w.fromFloor!==8||
+      w.toFloor!==9||w.cap?.id!=='f8:cap'||
+      w.guardian?.kind!=='guardian'||w.guardian.active!==false||
+      !finite(w.guardian.health)||w.guardian.health>0||
+      !integer(w.sourceTick)||w.sourceTick!==held.crossingTick)) )
+      return null;
+ const top=roof.y+roof.height,deckTop=deck.y+deck.height,sole=p.y-p.halfHeight;
+ if(top!==held.oldRoofY||deckTop<=top+20000||
+    deckTop>top+250000||
+    Math.abs(deck.x+Math.floor(deck.width/2)-p.x)>110000||
+    !(p.grounded===true&&p.groundedPlatformId==='f9:ground'&&sole===top||
+      p.grounded===false&&p.state==='airborne'&&
+      p.groundedPlatformId==null&&sole>=top-2500&&
+      sole<=deckTop+65000))return null;
+ return deck;
+}
+
 export function sourceJointGatewayFlightLens(source,held,o={}){
  const p=source?.player,w=source?.lastGuardianCrossing;
  const roof=source?.platforms?.find(x=>x?.id==='f9:ground');
- const landing=source?.platforms?.find(x=>x?.id===source?.intent?.targetPlatformId);
+ const landing=sourceFirstRaisedGatewayLandmark(source,held);
  if(source?.floor!==9||source.theme!=='void'||source.lifecycle!=='running'||
     source.stale===true||typeof source.runToken!=='string'||!source.runToken||
     !integer(source.tick)||!(p?.health>0)||![p.x,p.y,p.halfHeight].every(integer)||
@@ -64,7 +108,7 @@ export function sourceJointGatewayFlightLens(source,held,o={}){
  const fov=Math.min(o.aspect<.85?66:61,o.fov+seconds*68);
  if(gazeStep<=.0001&&fov<=o.fov+.0001)return null;
  return {sourceBound:true,runToken:source.runToken,sourceTick:source.tick,
-   landingId:landing.id,focus,fov,gazeStep,
+   landingId:landing.id,sourceRaisedLandmarkOnly:true,focus,fov,gazeStep,
    limitation:'Proposed current real four-subject lens, separately vetoed by projected complete hero, true gate metal, walkable roof, raised landing, actual triangles and solid tower. NOT native film proof.'};
 }
 

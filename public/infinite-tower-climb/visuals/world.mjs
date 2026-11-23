@@ -6435,6 +6435,7 @@ export function createTowerWorld(){
       sourceOwnedOriginalCameraRoomTick:ownedSourceRoom?.sourceTick??null,
       crossingTick:held.crossingTick,
       guardianGateRetained:held.guardianGateRetained===true,
+      verifiedObservedFloorAdvance:held.verifiedObservedFloorAdvance===true,
       thresholdX:held.thresholdX,oldRoofY:held.oldRoofY,
       oldCapId:held.oldCapId,oldCapX:held.oldCapX,
       oldCapWidth:held.oldCapWidth,submittedFrames:held.submittedFrames,

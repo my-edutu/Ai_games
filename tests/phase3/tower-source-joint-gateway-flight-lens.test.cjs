@@ -6,7 +6,7 @@ const source={floor:9,theme:'void',lifecycle:'running',runToken:'real-guardian',
  player:{health:4,x:333296,y:3238000,halfHeight:14000,grounded:true,groundedPlatformId:'f9:ground'},
  platforms:[{id:'f9:ground',x:0,y:3190000,width:600000,height:34000},
    {id:'f9:p2',x:350000,y:3340000,width:85000,height:10000}],
- intent:{targetPlatformId:'f9:p2'},
+ intent:{targetPlatformId:'f9:ground'},
  lastGuardianCrossing:{runToken:'real-guardian',sourceTick:475,fromFloor:8,toFloor:9,
    cap:{id:'f8:cap'},guardian:{kind:'guardian',active:false,health:0}}};
 const held={runToken:'real-guardian',floor:9,guardianGateRetained:true,
@@ -17,11 +17,16 @@ const view={cameraMode:'follow',aspect:390/844,dt:.04,fov:42,
  heroNdc:[.25,0,.4,.13],gatewayNdc:[-.15,.15,.4,.12],roofNdc:[.12,-.1,.5],
  landingNdc:[.38,1.15,.5],steel:{sourceBound:true,projectedPanes:6,projectedMetalArea:.065}};
 test('authentic grounded receiving roof and raised landing earn bounded shared original-gateway lens',async()=>{
- const {sourceJointGatewayFlightLens:plan}=await modulePromise;
+ const {sourceJointGatewayFlightLens:plan,sourceFirstRaisedGatewayLandmark:landmark}=await modulePromise;
+ assert.equal(landmark(source,held),source.platforms[1],
+   'first physically existing raised deck is visible before route intent switches off the actual grounded roof');
  const original=JSON.stringify({source,held,view});
  const actual=plan(source,held,view);
  assert.ok(actual?.sourceBound);assert.equal(actual.sourceTick,506);
  assert.equal(actual.landingId,'f9:p2');
+ assert.equal(actual.sourceRaisedLandmarkOnly,true);
+ assert.equal(source.intent.targetPlatformId,'f9:ground',
+   'camera landmark must never invent an AI selection');
  assert.ok(actual.fov>42&&actual.fov<=42+.04*68+.001);
  assert.ok(actual.gazeStep<=14*.04+.001);
  assert.equal(JSON.stringify({source,held,view}),original);
@@ -79,4 +84,50 @@ test('native first-F9 renderer regression: final lens never borrows update-only 
  assert.doesNotMatch(joint,/physicalWalkableShot|coldArchProof|cameraDt/,
    'update() lexical bindings may not be referenced by animate()');
  assert.match(animate,/const retainedColdArrival = world/);
+});
+
+test('native tick-506 scene selects existing raised geometry despite truthful grounded-roof intent',async()=>{
+ const {sourceFirstRaisedGatewayLandmark:landmark,sourceJointGatewayFlightLens:plan}=await modulePromise;
+ const real={...source,tick:506,intent:{targetPlatformId:'f9:ground'}};
+ assert.strictEqual(landmark(real,held),source.platforms[1]);
+ assert.equal(plan(real,held,view)?.landingId,'f9:p2');
+ const firstFlight={...real,tick:511,player:{
+   ...source.player,y:3295000,grounded:false,groundedPlatformId:null,state:'airborne'}};
+ assert.strictEqual(landmark(firstFlight,held),source.platforms[1]);
+ assert.equal(plan(firstFlight,held,view)?.landingId,'f9:p2');
+ for(const [s,h] of [
+  [{...real,platforms:[source.platforms[0]]},held],
+  [{...real,platforms:[source.platforms[0],{...source.platforms[1],x:950000}]},held],
+  [{...real,platforms:[source.platforms[0],{...source.platforms[1],y:3210000}]},held],
+  [{...real,runToken:'restart'},held],
+  [real,{...held,verifiedObservedFloorAdvance:false}],
+  [real,{...held,guardianGateRetained:false}],
+  [real,{...held,oldRoofY:0}],
+  [{...real,lastGuardianCrossing:{...real.lastGuardianCrossing,
+    guardian:{kind:'guardian',active:true,health:5}}},held],
+  [{...real,player:{...real.player,groundedPlatformId:'fake'}} ,held],
+  [{...real,player:{...real.player,health:0}},held],
+  [{...real,tick:800},held]
+ ]){
+   assert.equal(landmark(s,h),null);
+   assert.equal(plan(s,h,view),null);
+ }
+});
+test('renderer gets same-run earned crossing certificate even outside temporary priorGrounded mode',()=>{
+ const world=fs.readFileSync(path.resolve(__dirname,
+  '../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
+ const fn=world.slice(world.indexOf('function retainedFilmHandoff(snapshot)'),
+  world.indexOf('function deferredShaderSubmission(snapshot)'));
+ const stable=fn.indexOf('verifiedObservedFloorAdvance:held.verifiedObservedFloorAdvance===true,');
+ const optional=fn.indexOf('...(priorGrounded?{');
+ assert.ok(stable>=0&&optional>stable,
+   'real HP-open same-run World receipt must not hide its victory certificate behind a short-lived grounded predicate');
+ const scene=fs.readFileSync(path.resolve(__dirname,
+  '../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+ const joint=scene.slice(scene.indexOf('// P0 complete physical threshold shot'),
+  scene.indexOf('const sceneReadyAt = performance.now()'));
+ assert.match(joint,/sourceFirstRaisedGatewayLandmark\(snapshot,retainedColdArrival\)/);
+ assert.doesNotMatch(joint,/jointRaised=intendedLanding\(snapshot\)/);
+ assert.match(joint,/assessSourceJointGatewayLens\(before,after\)/);
+ assert.match(joint,/world\.measureSuccessorDeckVisibility\(snapshot/);
 });
