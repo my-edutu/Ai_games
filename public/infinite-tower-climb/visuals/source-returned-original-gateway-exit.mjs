@@ -98,6 +98,30 @@ export function sourceReturnedOriginalDepartureProgress(source,held) {
        source.tick-held.sourceTick>70) return null;
     crossingX=held.observedCrossingX;
   }
+  // Only the FIRST actually submitted WebGL Floor9 frame can establish
+  // what the viewer first SAW of the grounded hero on the original roof.
+  // The immutable HP-zero crossing is a physics location, not the point
+  // from which the first *visible* camera/door departure starts. In the
+  // captured authentic run the former was x321096 while the first painted
+  // F9 body already stood at x333296. Without this receipt, ~12m of
+  // unshown source travel drains the bronze doorway on its first jump.
+  // Do not credit an unsubmitted, ungrounded or foreign-run pose.
+  if(held.firstSubmittedBodyGroundedRoof===true &&
+     safe(held.firstSubmittedBodyTick) &&
+     safe(held.firstSubmittedBodyX) &&
+     safe(held.firstSubmittedBodyY) &&
+     safe(held.firstSubmittedBodyHalfWidth) &&
+     safe(held.firstSubmittedBodyHalfHeight) &&
+     held.submittedFrames>=1 &&
+     held.firstSubmittedBodyTick>=held.firstWorldRenderTick &&
+     held.firstSubmittedBodyTick<=source.tick &&
+     source.tick-held.firstSubmittedBodyTick<=150 &&
+     held.firstSubmittedBodyHalfWidth===p.halfWidth &&
+     held.firstSubmittedBodyHalfHeight===p.halfHeight &&
+     held.firstSubmittedBodyY===held.oldRoofY+p.halfHeight &&
+     held.firstSubmittedBodyX>=crossingX &&
+     held.firstSubmittedBodyX<=crossingX+60000)
+    crossingX=held.firstSubmittedBodyX;
   const sole=p.y-p.halfHeight;
   if(!safe(sole) || p.x<crossingX-12000 ||
      p.x>crossingX+110000 ||

@@ -22,8 +22,12 @@ function sourceEpisode(){
    verifiedObservedFloorAdvance:true,oldCapId:'f8:cap',
    oldCapX:cap.x,oldCapWidth:cap.width,oldRoofY,thresholdX:exitX,
    crossingTick:473,firstWorldRenderTick:480,sourceTick:480,
-   observedCrossingX,observedCrossingY:oldRoofY+14000,
+   observedCrossingX:321096,observedCrossingY:oldRoofY+14000,
    observedHalfWidth:9000,observedHalfHeight:14000,
+   firstSubmittedBodyTick:480,firstSubmittedBodyX:observedCrossingX,
+   firstSubmittedBodyY:oldRoofY+14000,
+   firstSubmittedBodyHalfWidth:9000,firstSubmittedBodyHalfHeight:14000,
+   firstSubmittedBodyGroundedRoof:true,
    submittedFrames:16,visibleSeconds:1.05,originalGatewayOpacity:.8758};
  const job={runToken:token,floor:9,proof:'recorded-source-gateway',
    structureDeferred:true,sourceTick:480,
@@ -53,6 +57,29 @@ test('same-run first returned roof stance is stable across earlier published HP-
    groundedPlatformId:'f9:ground',state:'standing'}};
  assert.equal(progress(reversed,held),0);
  assert.equal(opacity(reversed,held,job,0,true),held.originalGatewayOpacity);
+});
+test('first returned grounded receipt is required; inferred and unsubmitted body positions cannot shift the optical origin',async()=>{
+ const {sourceReturnedOriginalDepartureProgress:progress}=await contract;
+ const {source,held}=sourceEpisode();
+ const unsubmitted={...held,firstSubmittedBodyGroundedRoof:false};
+ assert.ok(progress(source,unsubmitted)>.19&&progress(source,unsubmitted)<.22,
+   'authentic source crossing precedes first GPU-painted stance');
+ const wrongBody={...held,firstSubmittedBodyTick:999};
+ assert.equal(progress(source,wrongBody),progress(source,unsubmitted));
+ const wrongRoof={...held,firstSubmittedBodyY:oldRoofY+15000};
+ assert.equal(progress(source,wrongRoof),progress(source,unsubmitted));
+ const noSubmission={...held,submittedFrames:0};
+ assert.equal(progress(source,noSubmission),progress(source,unsubmitted));
+});
+test('World stamps the first F9 grounded body only after a real renderer success',()=>{
+ const fs=require('node:fs');
+ const path=require('node:path');
+ const world=fs.readFileSync(path.resolve(__dirname,
+   '../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
+ assert.match(world,/function noteFrameSubmitted\(snapshot,/);
+ assert.match(world,/held\.firstSubmittedBodyTick=snapshot\.tick/);
+ assert.match(world,/held\.submittedFrames===0/);
+ assert.match(world,/returnedBody\.groundedPlatformId==='f9:ground'/);
 });
 test('missing genuine departure proof is not complete departure; wrong runs cannot revive metal',async()=>{
  const {sourceReturnedOriginalDepartureProgress:progress,

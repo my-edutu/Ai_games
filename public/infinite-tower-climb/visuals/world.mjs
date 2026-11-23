@@ -3971,6 +3971,11 @@ export function createTowerWorld(){
       observedCrossingY:requested.observedCrossingY,
       observedHalfWidth:requested.observedHalfWidth,
       observedHalfHeight:requested.observedHalfHeight,
+      // Filled only on a successfully RETURNED first grounded F9 frame.
+      // The initial authoritative floor-crossing pose is not camera proof.
+      firstSubmittedBodyTick:null,firstSubmittedBodyX:null,
+      firstSubmittedBodyY:null,firstSubmittedBodyHalfWidth:null,
+      firstSubmittedBodyHalfHeight:null,firstSubmittedBodyGroundedRoof:false,
       submittedFrames:0,visibleSeconds:0,lastCompletedReturnMs:null,
       firstObservedTick:requested.tick,firstWorldRenderTick:next.tick};
   }
@@ -4878,6 +4883,28 @@ export function createTowerWorld(){
         snapshot.runToken===held.runToken &&
         snapshot.floor===held.floor && snapshot.tick>=held.sourceTick &&
         snapshot.lifecycle==='running') {
+      // Anchor the optical exit to the exact skinned body position on
+      // the FIRST genuine post-render Floor9 roof frame. This cannot be
+      // set by a source poll: noteFrameSubmitted runs after renderer.render.
+      // Never let an airborne/unsupported pose invent a grounded threshold.
+      const returnedBody=snapshot.player;
+      if(held.submittedFrames===0 && held.firstSubmittedBodyTick===null &&
+         returnedBody?.grounded===true &&
+         returnedBody.groundedPlatformId==='f9:ground' &&
+         [snapshot.tick,returnedBody.x,returnedBody.y,
+           returnedBody.halfWidth,returnedBody.halfHeight,
+           held.observedCrossingX,held.oldRoofY].every(Number.isSafeInteger) &&
+         returnedBody.halfWidth>0 && returnedBody.halfHeight>0 &&
+         returnedBody.y-returnedBody.halfHeight===held.oldRoofY &&
+         returnedBody.x>=held.observedCrossingX &&
+         returnedBody.x<=held.observedCrossingX+60000) {
+        held.firstSubmittedBodyTick=snapshot.tick;
+        held.firstSubmittedBodyX=returnedBody.x;
+        held.firstSubmittedBodyY=returnedBody.y;
+        held.firstSubmittedBodyHalfWidth=returnedBody.halfWidth;
+        held.firstSubmittedBodyHalfHeight=returnedBody.halfHeight;
+        held.firstSubmittedBodyGroundedRoof=true;
+      }
       // One real submitted ORIGINAL source 3D frame must show the entire
       // gateway/roof/gallery at zero opacity BEFORE this group is disposed.
       // Source updates alone must not certify an optical exit the GPU never
