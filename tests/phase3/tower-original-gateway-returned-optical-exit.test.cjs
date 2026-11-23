@@ -12,20 +12,40 @@ const j={floor:9,runToken:'one',proof:'recorded-source-gateway',
   structureDeferred:true,sourceTick:477,structuralVisibleReturns:10,
   structuralVisibleSeconds:.95};
 test('real returned old and new room frames force one-way gateway extinction',async()=>{
- const {sourceReturnedOriginalGatewayOpacity:f}=await load();
+ const {sourceReturnedOriginalGatewayOpacity:f,
+   sourceReturnedOriginalDepartureProgress:progress}=await load();
+ // This optical-retirement fixture previously omitted player coordinates
+ // entirely. A source-owned exit needs a REAL grounded roof and a source-
+ // certified 75m exit, not only GPU frame accumulation. Preserve the
+ // meaningful historical assertion while providing that proof explicitly.
+ const cap={id:'f8:cap',x:115200,y:3212000,width:249600,height:12000};
+ const oldRoofY=cap.y+cap.height,thresholdX=cap.x+Math.floor(cap.width*.76);
+ const crossingX=thresholdX+16200;
+ const departed={...s,player:{health:4,x:crossingX+60000,
+   y:oldRoofY+104000,halfWidth:9000,halfHeight:14000},
+   platforms:[{id:'f9:ground',x:cap.x,y:cap.y,
+     width:cap.width,height:cap.height}],
+   lastGuardianCrossing:{runToken:'one',fromFloor:8,toFloor:9,
+     sourceTick:475,cap,exitX:thresholdX,crossingX,
+     guardian:{kind:'guardian',active:false,health:0}}};
+ const held={...h,oldCapX:cap.x,oldCapWidth:cap.width,oldRoofY,thresholdX,
+   sourceTick:477,observedCrossingX:crossingX,observedCrossingY:oldRoofY+14000,
+   observedHalfWidth:9000,observedHalfHeight:14000};
+ assert.equal(progress(departed,held),1,
+   'source hero actually climbed away from the original guardian roof');
  const partlyPainted={...j,structuralVisibleReturns:5,structuralVisibleSeconds:.4};
- const next=f(s,h,partlyPainted,.94,true);
+ const next=f(departed,held,partlyPainted,.94,true);
  assert.ok(next<.8167 && next>0,
    'genuine partially combined returns advance bronze steel gradually');
- assert.equal(f(s,h,partlyPainted,0,true),next,
+ assert.equal(f(departed,held,partlyPainted,0,true),next,
    'a source-proposed zero cannot bypass the old/new jointly returned frames');
- assert.ok(f(s,{...h,originalGatewayOpacity:next},partlyPainted,.99,true)<=next,
+ assert.ok(f(departed,{...held,originalGatewayOpacity:next},partlyPainted,.99,true)<=next,
    'new source stance may not resurrect faded original bronze steel');
- assert.equal(f(s,{...h,originalGatewayOpacity:next},j,.99,true),0,
+ assert.equal(f(departed,{...held,originalGatewayOpacity:next},j,.99,true),0,
    'only sufficient returned old AND successor frames earn final exit');
- assert.equal(f(s,{...h,originalGatewayOpacity:.648},j,1,false),.648,
+ assert.equal(f(departed,{...held,originalGatewayOpacity:.648},j,1,false),.648,
    'unsupported source cannot spend display-return fading');
- assert.equal(f({...s,runToken:'another'},h,j,.9,true),.8167,
+ assert.equal(f({...departed,runToken:'another'},held,j,.9,true),.8167,
    'another expedition cannot earn the old door exit');
 });
 test('a stalled new shaft cannot consume a still-opaque original portal',async()=>{
