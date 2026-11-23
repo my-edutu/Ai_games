@@ -774,5 +774,49 @@
       "forcePush": false,
       "unrelatedGames": false
     }
+  },
+  "p0FirstFloorNineFourSubjectGatewayRecovery20261123": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "firstInspectedDraftHead": "ba9871bc26fc900253c214abadbd833070fbf761",
+    "exactPlayableCandidateCodeSha": "be54aaef8c9974ff10584635eb76c9dbf7c87e53",
+    "productionHelperCommit": "609bbb201766dff0394c6d8a799bc101d662e994",
+    "regressionsCommit": "79352be949329455231574f628029721f438402e",
+    "captureTriggerCommit": "be54aaef8c9974ff10584635eb76c9dbf7c87e53",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenTransformationLedgerBlob": "b8aa51bb5bb50b55222fb6b947472692c87c822a",
+    "previousOriginalOneTimesVideo": {
+      "candidateCodeSha": "1ce0b19f0742c06c25e8bca7c120b228331abd7a",
+      "campaign": "https://github.com/my-edutu/Ai_games/actions/runs/45105762831",
+      "originalCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45105762831/artifacts/14787058192",
+      "eightBaselineCandidateMoviesAndLedge": "COMPLETED",
+      "strictEventMatchedNativeDangerAcceptance": "FAILED 0/2",
+      "largestSystemicDefect": "Between about 27.5 and 28.5 native seconds bronze old guardian room/receiving roof abruptly replaced by violet Floor9 shaft, even though first-run old/new 3D owners overlap; full HP-open old metal, real complete climber, walkable roof and first raised deck never simultaneously readable on an uninterrupted moving shot.",
+      "video": "72+ seconds 25fps authentic unedited full-motion 960x600 desktop and 390x844 portrait; inspected 24-33s contact samples on both"
+    },
+    "measuredSourceAndPolicyRootCause": "Prior final post-director joint lens only proposed if raised first landing was offscreen or hero cropped; when those were ALREADY visible but old HP-open real gate was lost, it refused to correct. Even a proposal was vetoed if only old gateway/metal improved while raised destination remained correctly framed. These contradictory goals nullified earlier offscreen-steel rescue.",
+    "meaningfulProductionChange": "Source-authenticated gate disappearance now independently qualifies a bounded joint lens. Existing scene camera physically reprojects the skinned hero, real HP-open gate steel, walkable roof and source-authoritative raised deck; guardian/core/triangle checks remain vetoes. Gate-only improvement is acceptable if the raised route, full body and roof do not regress. Adaptive single-focus gaze continues to include actual moving hero and physical next platform. No fake gate, no changed physics/guardian AI, no second render.",
+    "changedTowerFiles": [
+      "public/infinite-tower-climb/visuals/source-joint-gateway-flight-lens.mjs",
+      "tests/phase3/tower-source-joint-gateway-flight-lens.test.cjs",
+      ".github/workflows/tower-transformation-visual-evidence.yml"
+    ],
+    "focusedChecks": {
+      "prePatchRed": "Against original source-identical helper, authentic current-raised-deck-and-lost-gate fixture returned NO proposal and FALSE physical acceptance",
+      "postPatchGreen": "8 pure V8 checks: accepts gate-only proposal and genuine steel rescue; veto lost raised deck, invisible steel, cropped hero, wrong run; preserves no-unnecessary-adjustment and prior raised-route improvement",
+      "sourceRepoNodeSuite": "PENDING GitHub CI; two extra node:test regression cases appended",
+      "fullQualityWorkflow": "https://github.com/my-edutu/Ai_games/actions/runs/45106924279",
+      "fullQualityAsOfEvidence": "PENDING; CI is veto not gameplay score"
+    },
+    "exactSourcePinnedNineJobGameplay": "https://github.com/my-edutu/Ai_games/actions/runs/45106924437",
+    "newNativeFootageAsOfEvidence": "IN PROGRESS; candidate pixel improvement and strict 2/2 native event pairing NOT VERIFIED",
+    "independentFreshBlindCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "supportedActualDevicePerformanceAndMemory": "NOT EVALUATED",
+    "exactNextHighestImpactAction": "Inspect 45106924437 original candidate danger desktop 960x600 and portrait 390x844 WebMs with source/native first-episode alignment and returned joint-lens proposal/acceptance/veto; prove on same actual physical move old HP-open metal + full skinned hero + grounded F9 roof + raised f9:p2 appear continuously. If new native still cuts, identify the real scene or camera-occlusion owner and rebuild integrated geometry/composition; keep P0 open, P1 blocked.",
+    "restrictions": "Draft PR68 open; preserve frozen transformation.json blob and baseline; never rewrite PR58, touch unrelated games, merge, deploy or force-push."
   }
 }
