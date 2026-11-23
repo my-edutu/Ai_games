@@ -90,7 +90,11 @@ test('the real World keeps the first-painted original shaft under returned WebGL
   const world=fs.readFileSync(path.resolve(__dirname,
     '../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
   assert.match(world,/observedSourceSupportedVoidFirstPaint\(\s*snapshot,retainedEarnedCap,arrival\)/);
-  assert.match(world,/arrival\.structuralFade=Math\.min\(\.28,earlyShell\.alpha\)/);
+  assert.match(world,/const nearCore=observedFirstReturnedOriginalCoreAperture\(/);
+  assert.match(world,/const firstStructuralAlpha=Math\.max\(/);
+  assert.match(world,/arrival\.structuralFade=firstStructuralAlpha/);
+  assert.match(world,/arrival\.structureReleasedAtSubmitted=arrival\.submittedFrames/);
+  assert.match(world,/arrival\.submittedFrames>arrival\.structureReleasedAtSubmitted/);
   assert.match(world,/structuralRoot\.visible=arrival\.structuralFade>\.015/);
   assert.match(world,/observedSourceReturnedCoreBeforeScenicUpload\(/);
   assert.doesNotMatch(world,/snapshot\.player\.(?:x|y|grounded|health)\s*=/);

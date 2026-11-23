@@ -5592,6 +5592,13 @@ export function createTowerWorld(){
       // observedPrebuiltVoidShaftRelease; resetting here would postpone
       // the authentic shaft a THIRD time and recreate the recorded hard cut.
       arrival.state='awaiting-structural-submission';
+      // A previously returned CORE can be 40%-visible already while
+      // periphery/crystals are uploaded. Their CPU assembly and the
+      // release state MUST complete one actual new WebGL return before
+      // permitting heavy distant vista construction. Otherwise early
+      // legitimate core depth skips the entire release shot, blocking
+      // a convincing shared gateway / successor passage.
+      arrival.structureReleasedAtSubmitted=arrival.submittedFrames;
       if(firstShaftAlpha>arrival.structuralFade) {
         arrival.structuralFade=firstShaftAlpha;
         for(const {material,originalOpacity} of arrival.structuralMaterials)
@@ -5622,6 +5629,8 @@ export function createTowerWorld(){
         arrival.state==='awaiting-structural-submission' &&
         arrival.structuralFade>=.35 &&
         sourceShaftReadyForDistantScenery &&
+        Number.isSafeInteger(arrival.structureReleasedAtSubmitted) &&
+        arrival.submittedFrames>arrival.structureReleasedAtSubmitted &&
         Number.isSafeInteger(arrival.structureBuiltAtSubmitted) &&
         arrival.submittedFrames>arrival.structureBuiltAtSubmitted &&
         !options.stale)

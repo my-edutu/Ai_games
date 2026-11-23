@@ -68,3 +68,10 @@ test('source-earned shell may paint before crystal build; animated details only 
   assert.match(world,/for\(const layer of \[deferredDistantArrival\.structuralMaterials,/);
   assert.doesNotMatch(world,/snapshot\.floor\s*=\s*9|snapshot\.player\.x\s*=/);
 });
+
+
+test('early real original shaft depth cannot skip the structural release WebGL return before building distant scenery',()=>{
+  assert.match(world,/arrival\.state='awaiting-structural-submission'[\s\S]*?arrival\.structureReleasedAtSubmitted=arrival\.submittedFrames/);
+  assert.match(world,/arrival\.state==='awaiting-structural-submission'[\s\S]*?arrival\.structuralFade>=\.35[\s\S]*?Number\.isSafeInteger\(arrival\.structureReleasedAtSubmitted\)[\s\S]*?arrival\.submittedFrames>arrival\.structureReleasedAtSubmitted[\s\S]*?appendDeferredVista\(arrival\)/);
+  assert.match(world,/arrival\.state==='awaiting-vista-submission'[\s\S]*?arrival\.submittedFrames>arrival\.vistaBuiltAtSubmitted/);
+});
