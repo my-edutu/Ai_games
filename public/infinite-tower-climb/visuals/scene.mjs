@@ -6333,13 +6333,19 @@ export function createTowerScene(canvas, settings = {}) {
             jointRaised.y+jointRaised.height,
             snapshot.chunkBaseY,snapshot.worldWidth,25);
           const jointLanding=new THREE.Vector3(d.x,d.y+.14,d.z);
+          // P0 hard blocker in original immutable d988 film: the old measureJoint
+          // returned gateNdc, but both the source lens and physical assessors
+          // read gatewayNdc. All 28 real early gateway returns consequently
+          // rejected a valid projected bronze door before trying any rig.
+          // Match the SAME authentic WebGL steel coordinate across proposal,
+          // partial/full projection guards and successful-return diagnostics.
           const measureJoint=()=>{
             const h=[],g=[];
             measureDuelBodyNdc(jointHero,snapshot.player.halfHeight/SCALE,
               camera,duelTop,duelBottom,h);
             measureDuelBodyNdc(jointGate,2.1,
               camera,duelTop,duelBottom,g);
-            return {heroNdc:h,gateNdc:g,
+            return {heroNdc:h,gatewayNdc:g,
               roofNdc:jointRoof.clone().project(camera).toArray(),
               landingNdc:jointLanding.clone().project(camera).toArray(),
               steel:world.projectedOriginalGateSteel(snapshot,camera)};
@@ -6353,7 +6359,7 @@ export function createTowerScene(canvas, settings = {}) {
             cameraJointRecoveryWitness.originalMetalPanesSubmitted=
               before.steel?.projectedPanes??null;
             cameraJointRecoveryWitness.submittedHeroNdc=before.heroNdc.slice();
-            cameraJointRecoveryWitness.submittedGateNdc=before.gateNdc.slice();
+            cameraJointRecoveryWitness.submittedGateNdc=before.gatewayNdc.slice();
             cameraJointRecoveryWitness.submittedRoofNdc=before.roofNdc.slice();
             cameraJointRecoveryWitness.submittedLandingNdc=before.landingNdc.slice();
           }
@@ -6452,7 +6458,7 @@ export function createTowerScene(canvas, settings = {}) {
                   cameraJointRecoveryWitness.originalMetalPanesSubmitted=
                     after.steel?.projectedPanes??null;
                   cameraJointRecoveryWitness.submittedHeroNdc=after.heroNdc.slice();
-                  cameraJointRecoveryWitness.submittedGateNdc=after.gateNdc.slice();
+                  cameraJointRecoveryWitness.submittedGateNdc=after.gatewayNdc.slice();
                   cameraJointRecoveryWitness.submittedRoofNdc=after.roofNdc.slice();
                   cameraJointRecoveryWitness.submittedLandingNdc=after.landingNdc.slice();
                 }
