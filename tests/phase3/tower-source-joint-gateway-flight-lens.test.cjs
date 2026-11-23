@@ -173,6 +173,7 @@ test('integrated first F9 source camera recovers invisible old steel only after 
  assert.match(joint,/assessSourceJointGatewayLens\(before,after\)/);
  assert.match(joint,/rays\.gatewayBlockedRays===0/);
  assert.match(joint,/towerCoreSightlineClear\(camera\.position,jointLanding/);
- assert.ok(joint.indexOf('sourceJointGatewayRecoveryRigs(')<joint.indexOf('renderer.render(')||
-  scene.indexOf('renderer.render(scene, camera);')>scene.indexOf('sourceJointGatewayRecoveryRigs(proposal')));
+ assert.ok(scene.indexOf('sourceJointGatewayRecoveryRigs(proposal')>=0 &&
+  scene.indexOf('sourceJointGatewayRecoveryRigs(proposal')<
+    scene.indexOf('renderer.render(scene, camera);'));
 });
