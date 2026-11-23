@@ -29,13 +29,37 @@
     "runId": 45231238288,
     "url": "https://github.com/my-edutu/Ai_games/actions/runs/45231238288",
     "sourceSha": "d84ae3bf594cda4158e3dd4b221311001e7eabdf",
-    "status": "IN PROGRESS / NOT EVALUATED"
+    "status": "COMPLETED / STRICT SOURCE-NATIVE ACCEPTANCE FAILED 0/2; footage captured, NOT EVALUATED transformation",
+    "originalMovies": 8,
+    "sourceNativeEventPairs": {
+      "desktop": false,
+      "portrait": false
+    },
+    "originalNativeDangerFilmArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45231238288/artifacts/14845653259",
+    "eventPairArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45231238288/artifacts/14846354159",
+    "nativeObservations": {
+      "desktop": {
+        "firstDrawnFloor9HudSeconds": 25.5,
+        "sustainedVioletSeconds": 28.25,
+        "hudToVioletSeconds": 2.75,
+        "acceptedPartialCameraSteps": 13,
+        "completeProjectedCameraSteps": 0
+      },
+      "portrait": {
+        "firstDrawnFloor9HudSeconds": 25.75,
+        "sustainedVioletSeconds": 29,
+        "hudToVioletSeconds": 3.25,
+        "acceptedPartialCameraSteps": 7,
+        "completeProjectedCameraSteps": 7
+      },
+      "strongestFootageDefect": "The opened bronze guardian gate, hero, real receiving roof and first raised p2 never remain one visually continuous, event-matched composition; desktop source p2 y=1.5796 NDC out of frame. Several accepted first-safe partial camera trials reuse generic gaze while p2 stays too high."
+    }
   },
   "currentQuality": {
     "runId": 45231238036,
     "url": "https://github.com/my-edutu/Ai_games/actions/runs/45231238036",
     "sourceSha": "d84ae3bf594cda4158e3dd4b221311001e7eabdf",
-    "status": "NOT EVALUATED"
+    "status": "COMPLETED / 10 of 10 technical quality jobs PASS; NOT a gameplay-quality verdict"
   },
   "independentCritics": {
     "looks": 0,
@@ -43,6 +67,37 @@
     "plays": 0
   },
   "actualDeviceFrameTimeMemory": "NOT EVALUATED",
-  "biggestExperienceGap": "3.25-second desktop bronze-to-violet native composition discontinuity, no accepted continuous original gate/actor/receiving roof/p2 sequence",
-  "nextHighestImpactAction": "Inspect exact-source native 23–34s matched desktop/portrait film and new source-bound scale acceptance; rebuild joined original gateway and successor staging if film still jumps. Preserve frozen SHA, PR58 edits and PR68 draft."
+  "biggestExperienceGap": "Actual source-pinned normal-speed Floor8 guardian→bronze threshold→new Floor9 real p2 visually cuts and loses spatial continuity (2.75s desktop, 3.25s portrait HUD-to-violet; 0/2 strict native passage)",
+  "nextHighestImpactAction": "Inspect new immutable source 90a101ba native 960x600 / 390x844 24–30s, compare first raised NDC and optical rig votes against d84ae3bf; if still jumps, address World/Scene physical original-gate/new-shaft palette/sightline owner together. P1 blocked.",
+  "newIntervention": {
+    "stage": "P0",
+    "implementationCommitSha": "90a101ba46e643afd7065111bb8735a9703c4a69",
+    "title": "Source-owned missing-subject priority for Floor9 joint gateway camera",
+    "changedInGame": [
+      "public/infinite-tower-climb/visuals/source-joint-gateway-flight-lens.mjs",
+      "public/infinite-tower-climb/visuals/scene.mjs",
+      "tests/phase3/tower-source-joint-gateway-flight-lens.test.cjs"
+    ],
+    "observedBlocker": "First-safe optical camera took one eligible rig per desktop source return even though source-owned first raised p2 remained above the recorded view",
+    "actualChange": "Reorder existing authentic camera candidates to evaluate an offscreen raised route or lost bronze gateway first; retain all current skinned-hero, real original steel, walkable roof, full source, real mesh ray and tower-core vetoes. This does not claim a visual-quality gain until new native WebM.",
+    "candidateFilm": {
+      "sourceSha": "90a101ba46e643afd7065111bb8735a9703c4a69",
+      "runId": 45235203533,
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/45235203533",
+      "status": "IN PROGRESS / NOT EVALUATED"
+    },
+    "exactSourceCi": {
+      "sourceSha": "90a101ba46e643afd7065111bb8735a9703c4a69",
+      "runId": 45235203541,
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/45235203541",
+      "status": "IN PROGRESS / NOT EVALUATED"
+    },
+    "strictNativeFilmAccepted": false,
+    "independentCritics": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "actualDevice": "NOT EVALUATED"
+  }
 }
