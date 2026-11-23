@@ -78,7 +78,7 @@
     "973bef94254551188a65bc1396e356866cf22c29",
     "44b7a38ab5b8b4bd656e3ef52b59ef92b81a3f86"
   ],
-  "latestCandidateSourceSha": "7a15211c55f8f7021b1ae1c880998b2bf519444a",
+  "latestCandidateSourceSha": "3c401f7de7407c603fd9a3264830b6479376f9e3",
   "latestVerifiedQuality": {
     "sourceSha": "c4f47bee3b01ec283eb7ed1ab199bcf1668259a5",
     "run": "https://github.com/my-edutu/Ai_games/actions/runs/45113671030",
@@ -108,5 +108,46 @@
     },
     "actualDeviceP50P95P99Memory": "NOT EVALUATED",
     "nextHighImpactAction": "Inspect exact immutable 7a15211 full-motion 1x desktop/portrait danger recordings and source/native camera/renderer attachments, especially the whole original opened gateway, moving climber, receiving roof and first raised platform through 24-33s. If the raised canopy remains camera foreground or crop persists, fix the camera/world physical composition jointly rather than make an additional fade. Keep P0 open until strict 2/2 authentic event-matched capture and full loop pass."
+  },
+  "coreSideGuardianCranePhysicalRebuild20261123": {
+    "activeStage": "P0 - EVIDENCE + GAME-LOOP TRUTH (OPEN)",
+    "leadingAssessorVerdict": "NOT EVALUATED",
+    "branch": "feat/tower-transformation-gauntlet-20261101",
+    "frozenBaselineSHA": "1731b380851162741761c5569e2bc152a0869ca9",
+    "inspectedPRHeadBeforeChanges": "e3b49db4e0bbd8b8e314800eeefcad35e270a6fd",
+    "immutableFootageAuditedBeforeChange": {
+      "candidateSHA": "7a15211c55f8f7021b1ae1c880998b2bf519444a",
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/45120060075",
+      "candidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45120060075/artifacts/14793725575",
+      "baselineDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45120060075/artifacts/14792424754",
+      "completedAuthenticSourcePinnedRecordings": "8/8 plus original source ledge",
+      "strictPairedNormalSpeedSourceNative": "FAILED 0/2 viewports",
+      "nativeViewportReview": "Inspected original full-motion danger WebMs desktop 960x600 and portrait 390x844, source ticks first F9 476-548 and 24-33s. Portrait first roof is crowded by old bronze vertical machinery in the foreground, full original gate+hero+roof+first raised platform do not remain continuously visually connected; the old environment gives way to the purple successor in a noticeable cut. Specific orange foreground mesh cannot be uniquely identified from video pixels alone.",
+      "returnedMaterialEvidence": "In desktop returns from tick 476 to ~547 genuine original gateway alpha 1 -> ~0.38, old gallery alpha 1 -> ~0.20 -> 0, new shaft alpha 0 -> 1. Portrait first-F9 frames show similar overlap/retirement. Real Three owner co-return does not prove composited native pixels.",
+      "precedingExactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45120060010",
+      "precedingQualityConclusion": "9/10 jobs passed, unrelated tests/phase6/maze-readiness-score.test.cjs worker timed out at 75s; Tower phase3 partitions 4/4 passed. Maze code untouched."
+    },
+    "redGreenChanges": {
+      "redRegressionCommit": "282660bdb713ae7913cc14b52548969e5c0eb3c5",
+      "redQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/45122758370",
+      "redConfirmed": "Phase3-1 new original-crane core-side expectation failed against unchanged production, actual former r31.25 support still foreground",
+      "sourceGeometryCommit": "28504d9f54b87d51622ea31e4b98d79dbfec1936",
+      "integratedWorldCommit": "3c401f7de7407c603fd9a3264830b6479376f9e3",
+      "boundedPhysicalIntervention": "Move the same eight non-colliding original F8-cap-prepainted crane members (two source stations, piers, knees, upper returns and high crown ties) from camera-facing outer radius 31.25 to the core-side inner r20.4..21.95 load region, behind real r22.4..27.18 walking annulus. Real mesh built before HP0 is inherited unchanged on Floor9; high steel meets original canopy at y16.4..18.2. No invented gateway/landing, alpha fix, floor, source event, guardian win, collision or actor pose.",
+      "verifiedLimitation": "Geometric ray-side risk proven by source coordinates; new photo/video visual gain not yet independently verified, nor does redesign certify the identity of prior filmed orange machinery.",
+      "freshOriginalCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/45122978187",
+      "freshExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45122978315",
+      "captureSourceSHA": "3c401f7de7407c603fd9a3264830b6479376f9e3",
+      "resultsAtEvidenceWrite": "Exact-source eight-movie and ledge capture running; exact-head quality queued. No claimed visual PASS, accepted source/native pairing, or new device FPS."
+    },
+    "independentRandomizedFreshCritics": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualSupportedDeviceFrameTimeP50P95P99AndMemory": "NOT EVALUATED",
+    "safety": "PR #68 remains open DRAFT; same branch non-force ordinary commits only; frozen PR58 baseline untouched; no other game modified, merged, deployed or force-pushed.",
+    "largestExperienceGap": "The authentic opened F8 guardian doorway, full animated climber, walkable F9 receiving roof and first raised platform are still not proven in one continuous event-matched normal-speed physical shot, especially 390x844 portrait.",
+    "nextHighestImpactP0Action": "Inspect exact-source 3c401f7 original 1x normal-speed danger movies and source-returned owner/camera telemetry, compare geometry/hero/gate/raised route visibility with immutable 7a15211, and check strict 2/2 native event pairing and restart. If outer-crane relocation fails, stop tweaking steel opacity and design a true joint camera/architectural framing intervention instead. P1 is not authorized."
   }
 }
