@@ -35,6 +35,7 @@ import { observedGuardianTransmissionCorners } from './guardian-transmission-lay
 import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
 import { sourceReturnedGateCameraRelease, sourceRetainedGatewayCameraContinuity, assessSourceRetainedGatewayPhysicalShot, sourceReturnedGatewayLastCameraEligible, sourceEarnedFloorNineOrbitGuard } from './source-returned-gate-camera-release.mjs';
 import { sourceFirstRaisedFlightGaze } from './source-first-raised-flight-gaze.mjs';
+import { proposeSourceFirstRaisedBodyScale, acceptSourceFirstRaisedBodyScale } from './first-raised-body-composition.mjs';
 import { sourceFirstRaisedGatewayLandmark, sourceJointGatewayFlightLens, explainSourceJointGatewayLensBlocker, assessSourceJointGatewayLens, assessSourceJointGatewayRecoveryStep, sourceJointGatewayRecoveryRigs } from './source-joint-gateway-flight-lens.mjs';
 import { firstReturnedOriginalRoomAdmission, firstReturnedFloorNineEpisode } from './first-source-room-return.mjs';
 import { sourceFirstFloorNineCameraDeparture } from './first-floor-nine-camera-departure.mjs';
@@ -2500,6 +2501,8 @@ export function createTowerScene(canvas, settings = {}) {
   let sourceJointGatewayLensProposals=0,sourceJointGatewayLensAccepted=0,sourceJointGatewayLensVetoed=0;
   let sourceJointGatewayLensRecoverySteps=0,sourceJointGatewayLensFullShotSteps=0;
   let sourceJointGatewayLensTravelRunToken=null,sourceJointGatewayLensTravelMetres=0;
+  let firstRaisedScaleRun=null,firstRaisedScaleTravel=0;
+  let firstRaisedScaleAccepted=0,firstRaisedScaleRejected=0,firstRaisedScaleProposed=0;
   let firstF9CameraWorldSpaceClamps=0,firstF9CameraLateralClamps=0;
   let firstF9CameraHeroGazeRescues=0;
   let firstF9CameraUnboundedCuts=0,firstF9CameraLargestUnboundedMetres=0;
@@ -6505,6 +6508,94 @@ export function createTowerScene(canvas, settings = {}) {
           }
         }
       }
+      // Source-authentic gateway -> receiving roof -> real first raised p2.
+      // The prior four-subject shot becomes ineligible once the genuine
+      // climber reaches p2; the regular camera can leave its moving body
+      // tiny after widening the previous HP0 bronze-room composition.
+      // Recover ONLY actual skinned-body scale in the same camera, without
+      // modifying the authoritative player, landing, route or render clock.
+      if(firstRaisedScaleRun!==snapshot?.runToken){
+        firstRaisedScaleRun=snapshot?.runToken??null;
+        firstRaisedScaleTravel=0;
+      }
+      if(snapshot?.floor===9&&!options.stale&&!options.reducedMotion&&
+         options.camera==='follow'&&snapshot.player?.health>0&&
+         firstRaisedScaleTravel<7.5){
+        const raised=snapshot.platforms?.find(q=>q.id==='f9:p2');
+        if(raised&&[raised.x,raised.y,raised.width,raised.height]
+          .every(Number.isSafeInteger)&&raised.width>0&&raised.height>0){
+          const bodyPoint=climber.group.position.clone();
+          bodyPoint.y+=snapshot.player.halfHeight/SCALE;
+          const raisedWorld=pointFor(
+            raised.x+Math.floor(raised.width*.5),
+            raised.y+raised.height,snapshot.chunkBaseY,
+            snapshot.worldWidth,25);
+          const landingPoint=new THREE.Vector3(
+            raisedWorld.x,raisedWorld.y+.14,raisedWorld.z);
+          const bodyBefore=[];
+          measureDuelBodyNdc(bodyPoint,snapshot.player.halfHeight/SCALE,
+            camera,duelTop,duelBottom,bodyBefore);
+          const proposed=proposeSourceFirstRaisedBodyScale(
+            snapshot,retainedColdArrival,{
+              cameraMode:options.camera,stale:options.stale,
+              reducedMotion:options.reducedMotion,
+              aspect:camera.aspect,dt,remaining:7.5-firstRaisedScaleTravel,
+              camera:camera.position.toArray(),hero:bodyPoint.toArray(),
+              heroNdc:bodyBefore
+            });
+          if(proposed){
+            firstRaisedScaleProposed=Math.min(1000000,firstRaisedScaleProposed+1);
+            const oldPosition=camera.position.clone();
+            const steelBefore=world.projectedOriginalGateSteel(snapshot,camera);
+            const before={hero:bodyBefore,
+              landing:landingPoint.clone().project(camera).toArray(),
+              steel:steelBefore};
+            const gatePose=steelBefore?.sourceBound===true&&
+              retainedColdArrival
+              ?guardianTraversalGatePose(retainedColdArrival.thresholdX,
+                retainedColdArrival.oldRoofY,
+                snapshot.chunkBaseY,snapshot.worldWidth):null;
+            const gatePoint=gatePose
+              ?new THREE.Vector3(gatePose.x,gatePose.y+2,gatePose.z):null;
+            camera.position.set(...proposed.camera);
+            camera.lookAt(lookAt);camera.updateMatrixWorld(true);
+            const bodyAfter=[];
+            measureDuelBodyNdc(bodyPoint,snapshot.player.halfHeight/SCALE,
+              camera,duelTop,duelBottom,bodyAfter);
+            const after={hero:bodyAfter,
+              landing:landingPoint.clone().project(camera).toArray(),
+              steel:steelBefore?.sourceBound===true
+                ?world.projectedOriginalGateSteel(snapshot,camera):null};
+            // This is a REAL World ray check, including current p2, the
+            // retained opened gate when drawn and loaded tower architecture.
+            // Never grant a camera move from the cheap projection alone.
+            const rays=world.measureSuccessorDeckVisibility(snapshot,
+              camera.position,bodyPoint,snapshot.player.halfHeight/SCALE,
+              gatePoint,raised.id);
+            const accepted=acceptSourceFirstRaisedBodyScale(before,after,{
+              active:rays?.active===true,
+              bodyBlockedRays:rays?.bodyBlockedRays,
+              gatewayBlockedRays:rays?.gatewayBlockedRays,
+              heroCore:towerCoreSightlineClear(camera.position,bodyPoint,23.5),
+              landingCore:towerCoreSightlineClear(camera.position,landingPoint,23.5),
+              gateCore:!gatePoint||
+                towerCoreSightlineClear(camera.position,gatePoint,23.5)
+            });
+            if(accepted){
+              firstRaisedScaleTravel+=proposed.metres;
+              firstRaisedScaleAccepted=Math.min(1000000,firstRaisedScaleAccepted+1);
+              if(cameraJointRecoveryWitness)
+                cameraJointRecoveryWitness.firstRaisedBodyScale='physical-accepted';
+            }else{
+              camera.position.copy(oldPosition);
+              camera.lookAt(lookAt);camera.updateMatrixWorld(true);
+              firstRaisedScaleRejected=Math.min(1000000,firstRaisedScaleRejected+1);
+              if(cameraJointRecoveryWitness)
+                cameraJointRecoveryWitness.firstRaisedBodyScale='physical-rejected';
+            }
+          }
+        }
+      }
       const sceneReadyAt = performance.now();
       renderer.render(scene, camera);
       const rendererReturnedAt = performance.now();
@@ -7334,6 +7425,11 @@ export function createTowerScene(canvas, settings = {}) {
       sourceJointGatewayFlightLens: {
         sourceBoundProposals:sourceJointGatewayLensProposals,
         acceptedForActualRender:sourceJointGatewayLensAccepted,
+         sourceRaisedBodyScale:{sourceProposals:firstRaisedScaleProposed,
+           physicalAccepts:firstRaisedScaleAccepted,
+           physicalVetoes:firstRaisedScaleRejected,
+           currentRunCameraMetres:+firstRaisedScaleTravel.toFixed(3),
+           nativeExperienceVerdict:'NOT EVALUATED'},
         sourceSafePartialRecoverySteps:sourceJointGatewayLensRecoverySteps,
         sourceCompleteFourSubjectShotSteps:sourceJointGatewayLensFullShotSteps,
         rejectedByRealProjectionOrTriangleVeto:sourceJointGatewayLensVetoed,
