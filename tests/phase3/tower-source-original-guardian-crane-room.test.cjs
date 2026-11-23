@@ -24,26 +24,28 @@ test('actual F8 guardian cap prepaints two ORIGINAL massive flanks before HP-zer
   const roles=room.beams.reduce((counts,beam)=>{
     counts[beam.role]=(counts[beam.role]??0)+1;return counts;
   },{});
-  assert.deepEqual(roles,{'under-roof-knee':2,'outboard-pier':2,
+  assert.deepEqual(roles,{'under-roof-knee':2,'core-wall-pier':2,
     'upper-return':2,'crown-tie':2});
-  const piers=room.beams.filter(beam=>beam.role==='outboard-pier');
+  const piers=room.beams.filter(beam=>beam.role==='core-wall-pier');
   assert.equal(piers.length,2);
   assert.ok(piers[0].from[0]<piers[1].from[0]);
-  assert.ok(piers.every(beam=>beam.from[1]>30 &&
-    beam.to[1]===beam.from[1] &&
+  assert.ok(piers.every(beam=>beam.from[1]<22.4 &&
+    beam.from[1]>20.4 && beam.to[1]===beam.from[1] &&
     beam.from[2]<0 && beam.to[2]>14),
-    'authored original silhouette survives from BELOW the true roof to 15.6m above');
-  // Support knees must cross the playable radial band only BELOW its
-  // walkable top; large outer piers must sit OUTSIDE the r27.18 platform.
-  for(const knee of room.beams.filter(b=>b.role==='under-roof-knee')){
-    const [a,r,y]=knee.from,[aa,rr,yy]=knee.to;
-    assert.equal(a,aa);
-    for(const radius of [22.4,25,27.18]){
-      const t=(radius-r)/(rr-r),roofRelative=y+t*(yy-y);
-      assert.ok(t>0&&t<1&&roofRelative<0,
-        'new supports cannot put decorative steel through the real hero boots');
+    'the SAME original two frame piers must move behind the r22.4 inner walking edge rather than occupy the portrait camera foreground at r31.25');
+  // A real exterior follow camera sees outer r31.25 members BETWEEN the
+  // skinned climber at r25 and the lens, even if those members are outside
+  // collision. Keep EVERY member in the core-side space without a fake door.
+  for(const member of room.beams){
+    for(const endpoint of [member.from,member.to]){
+      assert.ok(endpoint[1]<=22.4,
+        'no original crane member may cross the playable annulus or become a camera-side silhouette');
+      assert.ok(Number.isFinite(endpoint[0])&&Number.isFinite(endpoint[2]));
     }
   }
+  for(const knee of room.beams.filter(b=>b.role==='under-roof-knee'))
+    assert.ok(knee.from[2]<0&&knee.to[2]<0,
+      'actual structural knee is entirely below the true source roof');
   assert.ok(room.beams.filter(b=>b.role==='crown-tie')
     .every(b=>b.from[2]>14 && b.to[2]>18),
     'continuous overhead frame must not close the actual HP-open gate');
