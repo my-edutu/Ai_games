@@ -40,8 +40,8 @@
   "architectureChanged": false,
   "authorityChanged": false,
   "sourceRendererProvenanceChanged": true,
-  "biggestRemainingExperienceGap": "New exact-source real native footage and per-return camera proofs show true first F9 raised landing above frame while camera recovery attempts NEVER activate: desktop 13 eligible real-deck returns yielded no lens proposal then 7 source-roof-ineligible; portrait 12 then 9. Neither physical ray nor core veto was reached, and bronze/violet continuity still breaks. Next work must isolate the failing SOURCE/lens preconditions, not add more opacity/geometry patches.",
-  "nextHighestImpactAction": "Reproduce the 15f11aa authentic source snapshot, same-run held cap, actual stage and measured NDC at first source tick475 desktop / 482 portrait in a pure sourceJointGatewayFlightLens eligibility fixture. Expose individual failing eligibility predicate if necessary. Correct the real joint lens's provably contradictory qualification without relaxing HP0/crossing/run/roof/first-deck/guardian/camera safety, then repeat exact-source 1x matched desktop/portrait and ensure nonzero physically safe attempts. Do not confuse proposals with accepted pixels, require 2/2 paired full-loop native playback before P1.",
+  "biggestRemainingExperienceGap": "At ~25.75s Floor9 HUD appears on both desktop/portrait while bronze roof/gateway and full violet raised destination never form a connected four-subject original camera shot. At ~28-28.5s the original copper scaffold drops into the new purple shaft with no visual passage; 2/2 acceptance fails.",
+  "nextHighestImpactAction": "Read per-return lensEligibilityReason from the immutable new real 960x600 / 390x844 danger capture, isolate the precise failed source condition at first tick 475/482, make a gameplay-source guarded correction, repeat event-paired full native evidence; P1 not open.",
   "safety": {
     "frozenBaselineShaUnchanged": true,
     "merged": false,
@@ -87,5 +87,52 @@
     },
     "assessment": "CRITICAL VERIFIED NEGATIVE: current source-authentic joint lens receives real first-raised f9:p2 and a camera where landing is well above projected screen, but produced ZERO proposals in both real viewports while original gateway exists; physical ray/core vetoes did not get a chance to run. This is an upstream source/lens eligibility contradiction, not a discovered opaque-geometry obstruction. No visually demonstrated improvement or accepted native 4-subject shot.",
     "limitations": "Source-returned decisions have independently calibrated native search times, but are not themselves presented WebM pixels. Human inspection sampled actual unmodified original movie frames at half-second intervals 23–34s; independent blind review not done."
+  },
+  "run11P0": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "verdict": "NOT EVALUATED",
+    "sourceInspected": "5612be2d2be2544961b43817b480ff3ba239036e",
+    "redTestCommit": "ec25733824cacc17476e5eade6b0b5fe2122ecb5",
+    "redCI": "https://github.com/my-edutu/Ai_games/actions/runs/45146781687",
+    "redResult": "Verified new grounded 250ms real-WebGL-callback first-F9 lens test red (14 pass/1 fail) before production change.",
+    "productionCommit": "25c88a9bd4d3f72a24ee1a2e7f6caef8832b1023",
+    "productionChange": "Align genuine renderer callback dt eligibility with scene's .5s clamp; cap optical gaze and camera rig motion at .07s so dropped frames cannot purchase a camera teleport.",
+    "firstProductionQualityCI": "https://github.com/my-edutu/Ai_games/actions/runs/45146843051",
+    "firstProductionQualityResult": "SUCCESS 10/10; safety veto only, not visual success.",
+    "firstProductionNativeCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45146843060",
+    "firstProductionCaptureCandidateSHA": "25c88a9bd4d3f72a24ee1a2e7f6caef8832b1023",
+    "firstProductionNativeResult": "All 8 original source-pinned native WebMs and ledge recorded; strict native paired acceptance FAILED. Inspected unmodified native video 23-34s desktop and portrait. No cinematic improvement established.",
+    "firstProductionLensOutcomes": {
+      "desktop": {
+        "firstEpisodeCameraReturns": 22,
+        "noLensProposal": 13,
+        "sourceRoofIneligible": 9,
+        "proposalsAccepted": 0,
+        "strictNativeAcceptance": "FAIL"
+      },
+      "portrait": {
+        "firstEpisodeCameraReturns": 21,
+        "noLensProposal": 15,
+        "sourceRoofIneligible": 6,
+        "proposalsAccepted": 0,
+        "strictNativeAcceptance": "FAIL"
+      }
+    },
+    "nativeVisualBlocker": "At ~25.75s Floor9 HUD appears on both desktop/portrait while bronze roof/gateway and full violet raised destination never form a connected four-subject original camera shot. At ~28-28.5s the original copper scaffold drops into the new purple shaft with no visual passage; 2/2 acceptance fails.",
+    "diagnosticClassifierCommit": "985a72552a2f3aba985c1c1a8c2f9e32b5e65683",
+    "sameReturnedFrameReasonCommit": "d98860b8a8678f60bd19911e50a29664c47f83ef",
+    "reasonSourceGuardTestCommit": "981ec0fa73fedee52d66d3d00357aa23c4bf8e9d",
+    "latestRequestedCandidateCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45148113104",
+    "latestRequestedSourceSha": "d98860b8a8678f60bd19911e50a29664c47f83ef",
+    "latestCandidateQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45148187078",
+    "exactEligibilityReason": "NOT YET VERIFIED in new native source return, do not infer the previous dt guard caused the missing lens",
+    "independentFreshBlindReviewerCounts": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "actualDevicePerformanceMemory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Read per-return lensEligibilityReason from the immutable new real 960x600 / 390x844 danger capture, isolate the precise failed source condition at first tick 475/482, make a gameplay-source guarded correction, repeat event-paired full native evidence; P1 not open.",
+    "safety": "Frozen baseline SHA unchanged, PR68 remains open/draft, no PR58 edit, no force-push, no merge/deploy, other games untouched."
   }
 }
