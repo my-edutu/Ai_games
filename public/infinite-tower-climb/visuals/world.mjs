@@ -6616,6 +6616,16 @@ export function createTowerWorld(){
       originalBronzeDeckOpacity:retainedEarnedCap.originalDeckSurface
         ? Number(retainedEarnedCap.originalDeckSurface.opacity.toFixed(4)) : null,
       originalGatewayOpacity:Number(retainedEarnedCap.originalGatewayOpacity.toFixed(4)),
+      // Exact returned-3D route-clearance phase, NOT simulated contact or
+      // proof that an old gateway is visibly recognizable in native pixels.
+      firstRouteClearanceReturnTick:retainedEarnedCap.firstRouteClearanceReturnTick,
+      firstRouteClearancePlatformId:retainedEarnedCap.firstRouteClearancePlatformId,
+      routeClearanceReturnedFrames:retainedEarnedCap.routeClearanceReturnedFrames,
+      routeClearanceReturnedSeconds:Number(
+        retainedEarnedCap.routeClearanceReturnedSeconds.toFixed(3)),
+      originalGallerySourceOpacity:Number(
+        retainedEarnedCap.originalGallerySourceOpacity.toFixed(4)),
+      sourceBearingReserveOnlyUntilPhysicalClearance:true,
       originalGatewayMaterialCount:retainedEarnedCap.originalGatewayMaterialStages.length,
       originalBronzeDeckDepthTested:retainedEarnedCap.originalDeckSurface?.depthTest===true,
       sharedPhysicalRoofColor:platforms.get('f9:ground')?.arrivalSurface?.color.getHexString()??null,
