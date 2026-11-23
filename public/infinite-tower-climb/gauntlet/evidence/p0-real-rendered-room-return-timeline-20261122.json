@@ -705,5 +705,37 @@
     "nextExactNativeSourceRun": "https://github.com/my-edutu/Ai_games/actions/runs/45102110221",
     "nextExactQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45102110348",
     "verification": "Source scope regression added; 208b code CI 10/10 green despite native black, proving CI cannot substitute original gameplay. 020 native and exact CI pending."
+  },
+  "p0OriginalCameraTrueRaisedLandmarkBeforeAiIntent20261123": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "previousReviewedHead": "b5031738cfefe383d0d73ceeafa5da17bfbfad40",
+    "committedSourceSha": "92c58b678020c244907414095d3e62dd94d67e38",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenTransformationBlobSha": "b8aa51bb5bb50b55222fb6b947472692c87c822a",
+    "realPreChangeCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45102110221",
+    "originalCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45102110221/artifacts/14785664030",
+    "actualNativeOriginalObservation": "Original normal-speed desktop and portrait videos recover from prior renderer-black regression, but bronze guardian gateway/roof still disappear into violet Floor9 without readable continuous four-subject crossing. Strict native/source pair FAILED 0/2; no demonstrated visual improvement.",
+    "sourceRouteFact": "Actual first F9 source crossing tick475. BOTH authentic desktop/portrait fixed-step source traces report routeTarget=f9:ground for ticks476-521, while f9:p2 already exists as world geometry; source intent changes to f9:p2 near tick525, after original gateway optical collapse. Previous camera lens required chosen p2 and was not eligible during key first departure.",
+    "secondIntegrationDefect": "World retainedFilmHandoff exported verifiedObservedFloorAdvance only inside priorGrounded conditional; accepted same-run original source geometry often reached camera without this existing certificate, vetoing physical lens.",
+    "materialPlayableChange": "Pass source-valid current f9:p2 as architectural visual landmark even while AI honestly navigates f9:ground; stable same-run original source floor-advance certificate exported from World, mandatory real geometry, old defeated source, grounded roof/first-airborne support, complete skinned hero, intact opened gate, current-ray and physical-core veto. No authority/AI/collision/guardian/physics/material change.",
+    "codeAndTestPaths": [
+      "public/infinite-tower-climb/visuals/source-joint-gateway-flight-lens.mjs",
+      "public/infinite-tower-climb/visuals/scene.mjs",
+      "public/infinite-tower-climb/visuals/world.mjs",
+      "tests/phase3/tower-source-joint-gateway-flight-lens.test.cjs"
+    ],
+    "expectedVerification": "Tests include original tick506 grounded target f9:ground, first-airborne tick511, no invented route change, invalid missing/out-of-bounds p2, false defeat/certificate, wrong run/roof, and source-renderer lexical continuity. Quality and native capture pending; no proof of visual gain.",
+    "newExactCodeQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45103983560",
+    "newExactCodeSourcePinnedNineJobCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45103983644",
+    "previousExactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45102110348 (CANCELLED)",
+    "independentBlindReviewCounts": {
+      "LOOKS": "0/5",
+      "FEELS": "0/5",
+      "PLAYS": "0/5"
+    },
+    "hardwareFrameTimeP50P95P99Memory": "NOT EVALUATED",
+    "nextHighestImpactAction": "Inspect new original full-motion 960x600 and 390x844 first F9 episode plus real four-subject lens proposal/physical veto counters; detect any runtime black/retry, confirm source/native paired event 2/2 and genuinely connected opened-gate/whole hero/walkable roof/current raised p2, onward climb/restart. If rejected, fix measured actual 3D obstruction rather than opacity-only change; keep P0 open.",
+    "restrictions": "Baseline and ledger unchanged, PR58 untouched, PR68 draft, no merge, deploy, force-push, unrelated game changes"
   }
 }
