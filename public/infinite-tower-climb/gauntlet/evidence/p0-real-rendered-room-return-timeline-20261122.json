@@ -24,7 +24,7 @@
     "ledgerOnlySourceToNativePairing": "NOT ACCEPTED 0/2",
     "sourceGuardianRestartChain": true
   },
-  "primarySystemicBlocker": "Authentic bronze F8 gateway and walkable F9 roof transition remains visually discontinuous at ~27–28s, now including verified inward sideways first-F9 camera shoulder cut despite co-returned old and new Three.js owners. Revised final camera behavior unverified in native film.",
+  "primarySystemicBlocker": "Source-pinned 73913277 desktop source tick506 original bronze gate alpha .7967 then ZERO by tick514 as genuine first f9:p2 flight begins, with major abrupt camera/world violet shaft recontextualization at ~27–28 seconds in both original 1x films. Exact new four-subject F9 lens unverified in native film.",
   "implementedUnblocker": {
     "files": [
       "public/infinite-tower-climb/visuals/source-returned-room-timeline.mjs",
@@ -55,7 +55,7 @@
     }
   },
   "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
-  "nextHighestImpactAction": "The real destination on-screen and gallery raisedRayCount=8 but zero actual gallery occlusions falsifies the originally suspected mechanism in both viewports. Focus next P0 on SOURCE-RETURNED camera/world staged scene break, especially portrait tick510 ~17m lens move vs ~1.5m hero movement while old gate still visible. Diagnose final camera limiter veto and staged bronze/violet palette (not cosmetic opacity edits), run new exact-source 60+s native captures, require 2/2 event-matched continuous gateway->roof->raised deck, outcomes and restart.",
+  "nextHighestImpactAction": "Inspect immutable candidate source 208b1e5d 960x600 and 390x844 >60s original recordings, event-pair result and sourceJointGatewayFlightLens proposal/accept/veto counters. Demand one coherent source-aligned whole hero, actual HP-open original metal, walkable f9:ground and source-raised f9:p2 shot. If counters zero or all physically vetoed, diagnose actual source ownership and projection occlusion; rebuild joint world/lens, not opacity. Keep P0 open until 2/2 full-motion source-native acceptance; P1 blocked.",
   "fullInstrumentationCommitSha": "bd2af6ff2784a9e7d51df12b0d7856f34b4059fb",
   "captureRequestedForExactHead": "${{ github.sha }}",
   "pinnedCaptureCondition": "push to capture-request.json triggers original 9-job workflow, candidate pinned to immutable final github.sha; workflow queued results are not visual acceptance.",
@@ -660,5 +660,33 @@
       "portraitGatewayOpacityAtTick527": 0,
       "confidence": "Observed returned-world Three.js source/mat alpha and decoded original native frame samples, not raster-perfect source/native event acceptance"
     }
+  },
+  "p0TrueJointFourSubjectLens20261123": {
+    "stage": "P0 OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "productionSourceSha": "208b1e5d694914aacdd80a753d999f70cde676ef",
+    "exactFrozenBaseline": "1731b380851162741761c5569e2bc152a0869ca9",
+    "previousExactCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45095663186",
+    "previousNativeDefect": "At first genuine Floor9 ascent source tick506–514 desktop bronze original gateway .7967->0, portrait .901(t499)->.1587(t513)->0(t527), with abrupt violet-shaft reframe; no joined readable guardian gate, moving hero, receiving roof and first raised landing, strict pair 0/2 FAILED.",
+    "change": "Actual final scene camera now tries bounded source-authenticated weighted 4-object gaze + bounded FOV toward physically existing old opened gate, live skinned body, walkable f9:ground roof and real f9:p2. It runs AFTER all directors before one original render and can accept only projected intact steel, on-screen body, walkable roof, raised destination improvement, unobstructed current Three.js solid core and exact source-deck triangle rays; otherwise reverts lens atomically.",
+    "files": [
+      "public/infinite-tower-climb/visuals/source-joint-gateway-flight-lens.mjs",
+      "public/infinite-tower-climb/visuals/scene.mjs",
+      "tests/phase3/tower-source-joint-gateway-flight-lens.test.cjs"
+    ],
+    "newCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45101193106",
+    "newQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45101193102",
+    "currentNativeVerdict": "NOT EVALUATED (native recordings in progress when reviewed); previous strict source-native danger pairs 0/2 FAILED",
+    "checks": "Local equivalent pure ESM regression fixtures 3/3 passed, exact-head 10-job CI in progress; no claim of real visual acceptance",
+    "sourceAuthorityChanged": false,
+    "newPhysicalGeometry": false,
+    "additionalRenderPasses": 0,
+    "criticVotes": {
+      "looks": 0,
+      "feels": 0,
+      "plays": 0
+    },
+    "supportedHardware": "NOT EVALUATED",
+    "next": "Read exact 208b source-pinned normal-speed full footage, on-frame source/world event and final real camera lens accept/veto counters. If not demonstrably improved, rework coupled geometry/target visibility before any P1."
   }
 }
