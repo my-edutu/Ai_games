@@ -132,17 +132,30 @@ export function sourceFirstFloorNineCameraDeparture({source,lastRendered,
     // returned same-run lens. Time that the browser did not render never
     // grants a camera teleport; source physics remain authoritative.
     const seconds=clamp(dt,.001,.085);
-    const turn=clamp(requestedTurn,-.78*seconds,.78*seconds);
-    const radius=pRadius+clamp(dRadius-pRadius,-18*seconds,18*seconds);
+    // During a genuinely skipped source-owned raised ascent, guard BOTH
+    // physical orbit velocity and vertical follow speed more conservatively
+    // than the previously authored shoulder-cut recovery. The source actor
+    // still moves authoritatively; the Scene may rescue gaze only if the
+    // current real whole-body/core and p2 rays stay safe.
+    const altitudeTurnRate=sourceSkippedAltitudeCut?.60:.78;
+    const altitudeRadiusRate=sourceSkippedAltitudeCut?12:18;
+    const altitudeHeightRate=sourceSkippedAltitudeCut?12:15;
+    const turn=clamp(requestedTurn,
+      -altitudeTurnRate*seconds,altitudeTurnRate*seconds);
+    const radius=pRadius+clamp(dRadius-pRadius,
+      -altitudeRadiusRate*seconds,altitudeRadiusRate*seconds);
     const height=previousCamera[1]+clamp(
-      desiredCamera[1]-previousCamera[1],-15*seconds,15*seconds);
+      desiredCamera[1]-previousCamera[1],
+      -altitudeHeightRate*seconds,altitudeHeightRate*seconds);
     const camera=[Math.sin(pAngle+turn)*radius,height,
       Math.cos(pAngle+turn)*radius];
     // Do not anchor the gaze on an old roof while a real climber vaults
     // upward. Allow observed 3D displacement to fund focus recovery;
     // the Scene still vetoes cropped body or obstructed tower-core rays.
     const gazeDistance=dist(previousFocus,desiredFocus);
-    const gazeBudget=Math.min(12,actorMovement*1.8+24*seconds);
+    const gazeBudget=sourceSkippedAltitudeCut
+      ?Math.min(6,actorMovement*.65+24*seconds)
+      :Math.min(12,actorMovement*1.8+24*seconds);
     const amount=gazeDistance>0?Math.min(1,gazeBudget/gazeDistance):1;
     const focus=previousFocus.map((v,i)=>v+(desiredFocus[i]-v)*amount);
     return {camera,focus,sourceTick:source.tick,runToken:source.runToken,
