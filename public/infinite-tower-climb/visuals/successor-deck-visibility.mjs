@@ -6,6 +6,7 @@
 // triangles, never an inferred collision, predicted landing or proxy mesh.
 // This is presentation-only and all vectors/hit arrays are caller-owned.
 import { observedSourceOriginalVisibilityWindow } from './source-physical-arrival-palette.mjs';
+import { validRetiredGatewayCameraReceipt } from './post-gateway-camera-envelope.mjs';
 const finite=Number.isFinite;
 const integer=Number.isSafeInteger;
 const valid3=p=>p&&[p.x,p.y,p.z].every(finite);
@@ -51,16 +52,20 @@ function renderedTriangle(hit,root) {
     (!m.transparent || m.opacity>.055));
 }
 export function measureAuthoritativeDeckSightline({
-  source,held,camera,body,bodyHalfHeight,gate=null,
+  source,held,retiredReceipt=null,camera,body,bodyHalfHeight,gate=null,
   platformRoots,originalGateRoot=null,originalCapRoot=null,originalGalleryRoot=null,architectureRoots=[],raycaster,direction,point,hits,stale=false,syncWorldMatrix=null,mayIntersectRoot=null,traceVisibleRoot=null
 }={}) {
   if(stale || source?.floor!==9 || source.theme!=='void' ||
     source.lifecycle!=='running' || !(source.player?.health>0) ||
     typeof source.runToken!=='string' || !source.runToken ||
-    held?.guardianGateRetained!==true || held.floor!==9 ||
-    held.runToken!==source.runToken ||
-    !integer(source.tick) || !integer(held.sourceTick) ||
-    !observedSourceOriginalVisibilityWindow(source,held) ||
+    !integer(source.tick) ||
+    (retiredReceipt!==null
+      ?(!validRetiredGatewayCameraReceipt(source,retiredReceipt)||held!==null||
+        gate!==null||originalGateRoot!==null||originalCapRoot!==null||originalGalleryRoot!==null||
+        !Array.isArray(architectureRoots)||architectureRoots.length>2)
+      :(held?.guardianGateRetained!==true || held.floor!==9 ||
+        held.runToken!==source.runToken || !integer(held.sourceTick) ||
+        !observedSourceOriginalVisibilityWindow(source,held))) ||
     !valid3(camera) || !valid3(body) ||
     !finite(bodyHalfHeight) || bodyHalfHeight<=0 ||
     !Array.isArray(platformRoots) || !platformRoots.length ||
@@ -119,7 +124,7 @@ export function measureAuthoritativeDeckSightline({
   // bearings stay real raycast owners; no opacity, hit or safety veto changes.
   refreshRoot(originalGateRoot);
   refreshRoot(originalCapRoot);
-  if(held.originalGallerySourceOpacity>.055)refreshRoot(originalGalleryRoot);
+  if(held?.originalGallerySourceOpacity>.055)refreshRoot(originalGalleryRoot);
   for(const root of architectureRoots)refreshRoot(root);
   let blockedBodyRays=0, blockedGatewayRays=0, rays=0, realTrianglesChecked=0;
   let broadphaseRejected=0,narrowphaseSubmitted=0;

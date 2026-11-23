@@ -441,5 +441,75 @@
     },
     "device": "NOT EVALUATED",
     "next": "Use new real returned cameraDirectorReturn trace to locate upstream vs departure veto vs late joint/scale contributions across ground/p2/p3/cap. Then implement one geometry-checked final motion envelope; keep strict native pairing veto."
+  },
+  "postGatewayFinalEnvelope": {
+    "stage": "P0 OPEN",
+    "inspectedSourceSha": "99d4eb63fc2e6b172f7e5e53e0195eacc40667fd",
+    "completedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45280617521",
+    "completedQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45280617524",
+    "qualityJobs": "10/10",
+    "originalCaptureJobs": "9/9 incl. ledge",
+    "strictNativePair": "0/2",
+    "originalWebMSha256": {
+      "desktop": "b6e9f0f11c0035b8544e2670865f1ef30967164a9bd2446d8a5fb1bebef4c709",
+      "portrait": "80b40cd0fefe34fbe253cb66907dcf1b8f48cd586e8f5715ec66e791fd9b2fce"
+    },
+    "originalSeconds": {
+      "desktop": 72.24,
+      "portrait": 72.84
+    },
+    "directorRows": {
+      "desktop": 75,
+      "portrait": 79
+    },
+    "finding": "Largest final returned moves originate before departure, with no later proposal. All four regression endpoints have originalOwnerPresent false and successorStage complete. Portrait 580→582 12.2451m camera / 2.2913m hero; 618→620 6.9371m / .289m; 622→622 5.4613m / .0088m; desktop 579→583 9.9411m / 4.636m. Native raster samples show bronze roof then genuine violet ascent, but cannot certify continuous full-motion camera or exact event correspondence. Desktop HUD-to-violet 2.5s; portrait chroma result NOT EVALUATED.",
+    "change": "Final post-retirement envelope after all directors, actual returned and retired original World cap scalar receipt (no synthetic retained geometry), bounded exterior arc including inward and same-tick motion; current body and existing visible target framing, core and current real World deck/architecture rays veto. On veto restore raw current view and record reason. Existing retained gateway lens unchanged.",
+    "purePolicyFixtures": [
+      {
+        "ticks": [
+          580,
+          582
+        ],
+        "requested": 12.2451,
+        "bounded": 2.4458,
+        "budget": 3.6785
+      },
+      {
+        "ticks": [
+          618,
+          620
+        ],
+        "requested": 6.9371,
+        "bounded": 1.4705,
+        "budget": 1.8839
+      },
+      {
+        "ticks": [
+          622,
+          622
+        ],
+        "requested": 5.4613,
+        "bounded": 1.0524,
+        "budget": 1.1344
+      },
+      {
+        "ticks": [
+          579,
+          583
+        ],
+        "requested": 9.9411,
+        "bounded": 5.1755,
+        "budget": 5.437
+      }
+    ],
+    "pureFixtureLimitation": "Exact observed camera/hero endpoints rounded from sidecars; receipt/source test context constructed for unit policy, not an integrated replay. Connector JavaScript test executed; Node/browser integration and new footage NOT EVALUATED. Local workspace tunnel unavailable; container network cannot resolve GitHub. No new playable improvement asserted.",
+    "next": "Inspect automatic immutable-source capture for receipt eligibility, accepted vs vetoed final envelope, actual post-gateway movement and whole-body/current landing readability; if still cut, fix source snapshot delivery and primary follow/recovery director jointly. Existing gateway-to-roof native pairing remains separately open.",
+    "independentReviewCounts": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "device": "NOT EVALUATED",
+    "verdict": "NOT EVALUATED"
   }
 }

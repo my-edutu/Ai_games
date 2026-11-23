@@ -18,6 +18,7 @@ import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceFloorNineRouteSupport, observedSourceRetainedRaisedExit, observedSourceAirborneSuccessorApproach, observedSourceOriginalVisibilityWindow, observedRetainedSourceOriginalOpticalRoom, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS, observedCertifiedOriginalGatewayOpticalLease, observedReturnedSharedRoomPalette } from './source-physical-arrival-palette.mjs';
 import { protectHistoricalGallerySightline, observedSourceRaisedGatewaySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
+import { validRetiredGatewayCameraReceipt } from './post-gateway-camera-envelope.mjs';
 import { rebindSourceOwnedUndercroft, createSightlineMatrixEpochCache } from './successor-deck-visibility.mjs';
 import { createSourceSightlineRayBroadphase } from './source-sightline-broadphase.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, createSourceEarnedVoidDepartureMaterials, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn, observedRenderedOriginalDoorwayRoom, coherentOriginalBearingDeparture } from './original-clockwork-architecture-palette.mjs';
@@ -3513,6 +3514,11 @@ export function createTowerWorld(){
   // transform, not the entire old floor or any old physics. No source wins,
   // support, collision, replay or synthetic portal may be created here.
   let pendingEarnedCap = null, retainedEarnedCap = null;
+  let retiredGatewayReceipt=null;
+  function retiredGatewayCameraReceipt(source){
+    return retainedEarnedCap===null&&source===lastSnapshot&&
+      validRetiredGatewayCameraReceipt(source,retiredGatewayReceipt)?retiredGatewayReceipt:null;
+  }
   let historicalGallerySightline={active:false,meshes:0,rays:0,softened:0};
   // Preassemble ONLY the source-original static Clockwork bearing gallery
   // after a real Floor8 WebGL submission, not in the expensive first F9
@@ -3603,6 +3609,14 @@ export function createTowerWorld(){
   function retireEarnedCap() {
     if (!retainedEarnedCap) return;
     const held = retainedEarnedCap;
+    // Preserve only scalar provenance, not disposed geometry.
+    // A provisional or never-returned owner cannot authorize a new lens.
+    retiredGatewayReceipt=held.floor===9&&held.oldCapId==='f8:cap'&&
+      held.submittedFrames>0&&Number.isSafeInteger(held.crossingTick)&&
+      Number.isSafeInteger(held.lastReturnedOldGatewayTick)&&
+      held.lastReturnedOldGatewayTick>=held.crossingTick
+      ?Object.freeze({runToken:held.runToken,oldCapId:held.oldCapId,
+        crossingTick:held.crossingTick,returnedTick:held.lastReturnedOldGatewayTick}):null;
     // Retire the exact original-cap skirt materials from the final-camera
     // ray list before disposing their owned source meshes. Never leave an
     // obsolete owner in the next source run's camera material state.
@@ -5996,12 +6010,12 @@ export function createTowerWorld(){
   // still runs every triangle veto, with no acceptance short-circuit.
   const originalGateProjectionMemo=createFrameSightlineMemo(32);
   function measureSuccessorDeckVisibility(source,camera,body,bodyHalfHeight,
-      gate=null,landingId=null) {
+      gate=null,landingId=null,postGateway=false) {
     const held=retainedEarnedCap,p=source?.player;
-    if(!held || !p || source!==lastSnapshot ||
-        source.floor!==9 || source.theme!=='void' ||
-        source.runToken!==held.runToken ||
-        !Array.isArray(source.platforms))return null;
+    const retiredReceipt=postGateway?retiredGatewayCameraReceipt(source):null;
+    if(!p || source!==lastSnapshot || source.floor!==9 || source.theme!=='void' ||
+        !Array.isArray(source.platforms) ||
+        (postGateway?(!retiredReceipt||gate!==null):(!held||source.runToken!==held.runToken)))return null;
     // A real first next-floor route can contain a moving deck, old roof and
     // elevated landing together. Rank by the actual current source body and
     // exact chosen/occupied support; no guessed future route or fake mesh.
@@ -6040,7 +6054,7 @@ export function createTowerWorld(){
     // real gateway camera ray tests, despite actually rendering in foreground.
     // The original geometry, parent and source opacity must all be certified.
     // Reuse the nine existing silhouette rays; no invented obstacle or actor.
-    const historicalCore=held.originalCoreOwner?.root;
+    const historicalCore=held?.originalCoreOwner?.root;
     if(historicalCore?.isGroup===true &&
        historicalCore.name==='SourceOriginalClockworkCentralCore' &&
        historicalCore.parent===held.root &&
@@ -6054,10 +6068,10 @@ export function createTowerWorld(){
        !architectureRoots.includes(historicalCore))
       architectureRoots.push(historicalCore);
     const exactRayQuery=()=>measureAuthoritativeDeckSightline({
-      source,held,camera,body,bodyHalfHeight,gate,platformRoots:roots,
-      architectureRoots,originalGateRoot:held.originalGateRoot,
-      originalCapRoot:held.originalCapSightlineRoot,
-      originalGalleryRoot:held.originalGalleryRoot,
+      source,held,retiredReceipt,camera,body,bodyHalfHeight,gate,platformRoots:roots,
+      architectureRoots,originalGateRoot:held?.originalGateRoot??null,
+      originalCapRoot:held?.originalCapSightlineRoot??null,
+      originalGalleryRoot:held?.originalGalleryRoot??null,
       raycaster:successorDeckRay,direction:successorDeckRayDirection,
       point:successorDeckRayTarget,hits:successorDeckRayHits,
       syncWorldMatrix:sightlineMatrixEpoch.sync,
@@ -6071,8 +6085,8 @@ export function createTowerWorld(){
     if(!coordinates.every(Number.isFinite))return exactRayQuery();
     // Source, exact camera, source-owned material epochs and landing are all
     // essential: a similar but different camera never borrows another ray.
-    const key=JSON.stringify([source.runToken,source.tick,landingId,
-      held.originalGatewayOpacity,held.originalGallerySourceOpacity,held.originalCoreOpacity,
+    const key=JSON.stringify([source.runToken,source.tick,landingId,postGateway,
+      held?.originalGatewayOpacity,held?.originalGallerySourceOpacity,held?.originalCoreOpacity,
       ...coordinates]);
     return successorSightlineMemo.read(key,exactRayQuery);
   }
@@ -6769,5 +6783,5 @@ export function createTowerWorld(){
       deferredBuildMs:deferredDistantArrival.deferredBuildMs,
     }:null,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;retireEarnedCap();pendingEarnedCap=null;clearFloor();finishRetiredFloorResources('disposed');for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
-  return{group,update,sourceHandoffReturnWitness,stageGroundedCapContinuation,sourceEarnedOriginalGateGeometry,retainedFilmHandoff,certifiedPaletteHorizon,noteFrameSubmitted,deferredShaderSubmission,projectedOriginalGateSteel,measureSuccessorDeckVisibility,measureSourceRaisedDeckBackdrop,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics,lastRebuild};
+  return{group,update,retiredGatewayCameraReceipt,sourceHandoffReturnWitness,stageGroundedCapContinuation,sourceEarnedOriginalGateGeometry,retainedFilmHandoff,certifiedPaletteHorizon,noteFrameSubmitted,deferredShaderSubmission,projectedOriginalGateSteel,measureSuccessorDeckVisibility,measureSourceRaisedDeckBackdrop,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics,lastRebuild};
 }

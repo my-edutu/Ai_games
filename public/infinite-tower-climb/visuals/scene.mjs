@@ -40,6 +40,7 @@ import { sourceFirstRaisedGatewayLandmark, sourceJointGatewayFlightLens, explain
 import { firstReturnedOriginalRoomAdmission, firstReturnedFloorNineEpisode } from './first-source-room-return.mjs';
 import { sourceFirstFloorNineCameraDeparture } from './first-floor-nine-camera-departure.mjs';
 import { createFloorNineCameraReturnAudit } from './first-floor-nine-camera-return-audit.mjs';
+import { sourcePostGatewayCameraEnvelope } from './post-gateway-camera-envelope.mjs';
 import { firstF9ReturnedGatewaySearchBudget, sampleColdFirstReturnGatewayTrials } from './first-f9-return-search-budget.mjs';
 import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, sourceRaisedBackdropClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceThreeSubjectActorScaleGain, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe, sourceThreeSubjectPhysicalGain } from './physical-threshold-shot.mjs';
 import { sourceSubmittedDoorwayCameraDt, sourceCroppedHeroRecoveryDt } from './source-submitted-doorway-cadence.mjs';
@@ -6651,6 +6652,63 @@ export function createTowerScene(canvas, settings = {}) {
                 cameraJointRecoveryWitness.firstRaisedBodyScale='physical-rejected';
             }
           }
+        }
+      }
+      // Last arbitration after every director. The original gate keeps its
+      // earlier physical safeguards. This covers the genuine retired p3/cap
+      // route that bypassed them, with a World-issued scalar receipt.
+      const retiredGatewayReceipt=world.retiredGatewayCameraReceipt(snapshot);
+      const postGatewayBound=retiredGatewayReceipt && sourcePostGatewayCameraEnvelope({
+        source:snapshot,receipt:retiredGatewayReceipt,lastRendered:lastSubmittedGuardian,
+        previousCamera:lastSubmittedGuardianCamera.toArray(),
+        previousFocus:lastSubmittedGuardianFocus.toArray(),
+        desiredCamera:camera.position.toArray(),desiredFocus:lookAt.toArray(),
+        heroMovement:climber.group.position.distanceTo(lastReturnedFloorNineHero),
+        dt,cameraMode:options.camera,stale:options.stale,
+        reducedMotion:options.reducedMotion,orbit,zoom
+      });
+      if(postGatewayBound){
+        const rawCamera=camera.position.clone(),rawFocus=lookAt.clone();
+        const body=climber.group.position.clone();
+        body.y+=snapshot.player.halfHeight/SCALE;
+        const landingId=snapshot.intent?.targetPlatformId;
+        const landing=snapshot.platforms?.find(p=>p.id===landingId&&
+          [p.x,p.y,p.width,p.height].every(Number.isSafeInteger)&&p.width>0&&p.height>0);
+        const targetPose=landing?pointFor(landing.x+Math.floor(landing.width*.5),
+          landing.y+landing.height,snapshot.chunkBaseY,snapshot.worldWidth,25):null;
+        const target=targetPose?new THREE.Vector3(targetPose.x,targetPose.y+.14,targetPose.z):null;
+        const landingVisible=()=>{
+          if(!target)return false;
+          const n=target.clone().project(camera);
+          return n.z>=-1&&n.z<=1&&Math.abs(n.x)<.94&&Math.abs(n.y)<.94&&
+            towerCoreSightlineClear(camera.position,target,23.5);
+        };
+        const rawLandingVisible=landingVisible();
+        camera.position.set(...postGatewayBound.camera);
+        lookAt.set(...postGatewayBound.focus);
+        const wholeBody=()=>{
+          camera.lookAt(lookAt);camera.updateMatrixWorld(true);
+          measureDuelBodyNdc(body,snapshot.player.halfHeight/SCALE,
+            camera,duelTop,duelBottom,releaseHeroNdc);
+          return releaseHeroNdc.every(Number.isFinite)&&releaseHeroNdc[2]>=-1&&
+            releaseHeroNdc[2]<=1&&Math.abs(releaseHeroNdc[0])+releaseHeroNdc[3]*.18<.93&&
+            Math.abs(releaseHeroNdc[1])+releaseHeroNdc[3]<.91&&
+            (!rawLandingVisible||landingVisible());
+        };
+        let framed=wholeBody();
+        // One alternate gaze and at most one physical query. Never sacrifice
+        // an existing body/route composition merely to smooth the camera.
+        if(!framed){lookAt.copy(rawFocus);framed=wholeBody();}
+        const coreClear=framed&&towerCoreSightlineClear(camera.position,body,23.5);
+        const physical=coreClear?world.measureSuccessorDeckVisibility(snapshot,
+          camera.position,body,snapshot.player.halfHeight/SCALE,null,landingId,true):null;
+        if(physical?.active===true&&physical.rays>=3&&physical.bodyBlockedRays===0){
+          sky.position.copy(camera.position);
+          firstF9ScaleOutcome+=':post-gateway-envelope-accepted';
+        }else{
+          camera.position.copy(rawCamera);lookAt.copy(rawFocus);
+          camera.lookAt(lookAt);camera.updateMatrixWorld(true);
+          firstF9ScaleOutcome+=':post-gateway-envelope-veto:'+(!framed?'framing':!coreClear?'core':'physical');
         }
       }
       auditF9Camera('final-after-scale',firstF9ScaleOutcome);
