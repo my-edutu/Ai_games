@@ -63,7 +63,7 @@
     "deviceCriteriaSatisfied": false
   },
   "biggestDefect": "Authentic original guardian gateway, full climber, walkable roof and first raised destination still lack a continuous camera/composition witness in both 960x600 desktop and 390x844 portrait. Structural alpha alone does not prove a convincing native scene.",
-  "nextAction": "Inspect exact source SHA a41bead2 native full-motion recordings and submitted clearance frames; if new old metal overlaps hero or gate remains outside lens, rebuild source-authenticated real World/Scene gateway sightline composition rather than add another standalone fade.",
+  "nextAction": "Inspect exact immutable 7a15211 full-motion 1x desktop/portrait danger recordings and source/native camera/renderer attachments, especially the whole original opened gateway, moving climber, receiving roof and first raised platform through 24-33s. If the raised canopy remains camera foreground or crop persists, fix the camera/world physical composition jointly rather than make an additional fade. Keep P0 open until strict 2/2 authentic event-matched capture and full loop pass.",
   "safety": {
     "baselineUnchanged": true,
     "merge": false,
@@ -77,5 +77,36 @@
   "latestTestFixes": [
     "973bef94254551188a65bc1396e356866cf22c29",
     "44b7a38ab5b8b4bd656e3ef52b59ef92b81a3f86"
-  ]
+  ],
+  "latestCandidateSourceSha": "7a15211c55f8f7021b1ae1c880998b2bf519444a",
+  "latestVerifiedQuality": {
+    "sourceSha": "c4f47bee3b01ec283eb7ed1ab199bcf1668259a5",
+    "run": "https://github.com/my-edutu/Ai_games/actions/runs/45113671030",
+    "conclusion": "10/10 CI success, safety veto only"
+  },
+  "flightCanopyPhysicalClearance20261123": {
+    "activeStage": "P0 - Evidence + Game-Loop Truth (OPEN)",
+    "verdict": "NOT EVALUATED",
+    "redRegressionSha": "da7c2ee8bda88e2964410e2ceb0a42b93a54f1b3",
+    "productionSha": "7a15211c55f8f7021b1ae1c880998b2bf519444a",
+    "implementation": [
+      "The SAME prepainted F8 Clockwork guardian canopy is raised as one connected structural load path rather than retaining the original 7.3m inner / 8.35m outer/9.35m braced canopy over the source-observed ~10m first F9 flight.",
+      "Original source-bound six stations, five ties, two outboard retained piers, four overhead compression braces, authenticated HP-zero gateway, physical first raised gameplay deck and F9 receiving roof are unchanged. New inner/outer brace/tie heights 16.4/18.2/19.2m; cross-deck diagonal braces stay above 14m rather than passing across the airborne climber.",
+      "No second platform, gate or collider; all old F8 meshes are built before the guardian outcome, moved with the same original retained owner on Floor9. No additional steel member count. Invalid source canopy clearance fails closed rather than building unverified occluding members.",
+      "New focused source-cap prepaint/portrait-flight clearance test and updated previous fixed-height gallery wiring test. Code syntax and exact-source CI outcome remain pending."
+    ],
+    "groundedObservedDefect": "Latest authentic original desktop/portrait video at a41bead2 showed bronze overhead foreground and a tiny/partly occluded hero during the source-earned Floor9 first raised traversal. Physical source canopy still contained 7.3-9.35m crossing steel; correlation with exact WebM pixels not yet isolated to this mesh. This is a physical sightline hypothesis requiring native verification, NOT an achieved visual improvement.",
+    "firstNewQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/45120060010",
+    "firstNewFullNativeCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/45120060075",
+    "statusAtRecord": "New exact-source capture in progress, quality pending. Prior source-pinned strict event pair remains FAILED 0/2; do not advance stage.",
+    "nativeDesktop960x600": "NOT EVALUATED at new source",
+    "nativePortrait390x844": "NOT EVALUATED at new source",
+    "independentReviewCounts": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDeviceP50P95P99Memory": "NOT EVALUATED",
+    "nextHighImpactAction": "Inspect exact immutable 7a15211 full-motion 1x desktop/portrait danger recordings and source/native camera/renderer attachments, especially the whole original opened gateway, moving climber, receiving roof and first raised platform through 24-33s. If the raised canopy remains camera foreground or crop persists, fix the camera/world physical composition jointly rather than make an additional fade. Keep P0 open until strict 2/2 authentic event-matched capture and full loop pass."
+  }
 }
