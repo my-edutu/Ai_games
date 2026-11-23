@@ -92,8 +92,8 @@ test('scene captures final source-owned camera recovery decisions after successf
  const returned=animate.indexOf('originalToVoidReturnedTimeline.push({');
  const bound=animate.indexOf('cameraJointRecovery:cameraJointRecoveryWitness');
  assert.ok(proposed>=0&&proposed<render&&returned>render&&bound>returned);
- assert.match(animate,/outcome:'accepted-partial'/);
- assert.match(animate,/outcome:'accepted-complete-projection'/);
+ assert.match(animate,/cameraJointRecoveryWitness\.outcome=fullShot[\s\S]*?'accepted-partial'/);
+ assert.match(animate,/cameraJointRecoveryWitness\.outcome=fullShot[\s\S]*?'accepted-complete-projection'/);
  assert.match(animate,/worldRayVetoes/);
  assert.match(animate,/coreVetoes/);
 });
