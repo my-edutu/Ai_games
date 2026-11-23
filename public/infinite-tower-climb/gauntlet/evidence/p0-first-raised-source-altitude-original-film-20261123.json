@@ -510,6 +510,116 @@
       "PLAYS": 0
     },
     "device": "NOT EVALUATED",
-    "verdict": "NOT EVALUATED"
+    "verdict": "NOT EVALUATED",
+    "implementationSourceSha": "3fc76902efacfa3ee96c8ce27691fecfb9b9bb61",
+    "newCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45289945218",
+    "newQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45289945392",
+    "newWorkflowStatusAtReview": [
+      {
+        "run": 45289945218,
+        "jobs": [
+          {
+            "name": "authentic-ledge",
+            "status": "in_progress",
+            "conclusion": null
+          },
+          {
+            "name": "normal-speed-play (candidate, 3fc76902efacfa3ee96c8ce27691fecfb9b9bb61, outcome, 0)",
+            "status": "in_progress",
+            "conclusion": null
+          },
+          {
+            "name": "normal-speed-play (candidate, 3fc76902efacfa3ee96c8ce27691fecfb9b9bb61, moving, 7)",
+            "status": "in_progress",
+            "conclusion": null
+          },
+          {
+            "name": "normal-speed-play (candidate, 3fc76902efacfa3ee96c8ce27691fecfb9b9bb61, danger, 8)",
+            "status": "in_progress",
+            "conclusion": null
+          },
+          {
+            "name": "normal-speed-play (baseline, 1731b380851162741761c5569e2bc152a0869ca9, moving, 7)",
+            "status": "in_progress",
+            "conclusion": null
+          },
+          {
+            "name": "normal-speed-play (baseline, 1731b380851162741761c5569e2bc152a0869ca9, ascent, 0)",
+            "status": "in_progress",
+            "conclusion": null
+          },
+          {
+            "name": "normal-speed-play (baseline, 1731b380851162741761c5569e2bc152a0869ca9, danger, 8)",
+            "status": "in_progress",
+            "conclusion": null
+          },
+          {
+            "name": "normal-speed-play (baseline, 1731b380851162741761c5569e2bc152a0869ca9, outcome, 0)",
+            "status": "in_progress",
+            "conclusion": null
+          },
+          {
+            "name": "normal-speed-play (candidate, 3fc76902efacfa3ee96c8ce27691fecfb9b9bb61, ascent, 0)",
+            "status": "in_progress",
+            "conclusion": null
+          }
+        ]
+      },
+      {
+        "run": 45289945392,
+        "jobs": [
+          {
+            "name": "integrity-not-quality",
+            "status": "in_progress",
+            "conclusion": null
+          },
+          {
+            "name": "catalogue-guardrail (phase6 0)",
+            "status": "in_progress",
+            "conclusion": null
+          },
+          {
+            "name": "catalogue-guardrail (phase3 0)",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "catalogue-guardrail (phase3 3)",
+            "status": "completed",
+            "conclusion": "failure"
+          },
+          {
+            "name": "catalogue-guardrail (phase5 0)",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "catalogue-guardrail (phase3 1)",
+            "status": "completed",
+            "conclusion": "failure"
+          },
+          {
+            "name": "catalogue-guardrail (phase3 2)",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "catalogue-guardrail (phase4 0)",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "catalogue-guardrail (foundation 0)",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "catalogue-guardrail (phase2 0)",
+            "status": "in_progress",
+            "conclusion": null
+          }
+        ]
+      }
+    ]
   }
 }
