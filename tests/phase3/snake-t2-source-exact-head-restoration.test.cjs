@@ -14,8 +14,10 @@ test('scaled, physically grounded T2 head restores the genuine immutable df113 b
   assert.doesNotMatch(restoreBendParent(source), /headGroundingLift|head\.scale\.setScalar/);
   assert.throws(() => restoreBendParent(source.replace('head.scale.setScalar(1.28);', 'head.scale.setScalar(1.31);')),
     /head-scale reversal drift/, 'head-size drift must not forge an old source');
-  assert.throws(() => restoreBendParent(source.replace('(head.scale.y - 1) * 0.38;', '(head.scale.y - 1) * 0.41;')),
+  assert.throws(() => restoreBendParent(source.replace('const headGroundingLift = (head.scale.y - 1) * 0.38;', 'const headGroundingLift = (head.scale.y - 1) * 0.41;')),
     /head grounding reversal drift/, 'ground contact drift must fail closed');
+  assert.throws(() => restoreBendParent(source.replace('const cervicalRearWidth = .319 / head.scale.x;', 'const cervicalRearWidth = .34 / head.scale.x;')),
+    /T145 exact-source cervical anatomy reversal drift/, 'cervical shape tampering must also fail closed');
   assert.throws(() => restoreBendParent(source.replace('const bellyRib = Math.pow(', 'const bellyRib = Math.max(0, Math.pow(')),
     /Original exact Git source hash mismatch/, 'unrecognized changes cannot forge the parent');
 });

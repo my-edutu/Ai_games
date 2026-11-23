@@ -15,6 +15,47 @@ function restoreBendParent(source) {
   if(i<0||j<i||source.indexOf(begin,i+1)>=0||source.indexOf(end,j+1)>=0)
     throw new Error('T2 exact-source curvature bracket missing or ambiguous');
   let old=source.slice(0,i)+source.slice(j+end.length);
+  // A separate T4 renderer-buffer transfer optimization adds NO new body
+  // shapes or authority. Reverse ONLY the known new typed-buffer bytes before
+  // proving the immutable historical Git source. Any unrelated edit still
+  // fails the pinned original blob hash at the end of this helper.
+  function reversePackedGpu(updated, original, label) {
+    if (old.split(updated).length !== 2)
+      throw new Error(`T4 normalized live GPU ${label} reversal drift`);
+    old = old.replace(updated, original);
+  }
+  reversePackedGpu(`  // Keep Float32 spatial and UV precision across every actual body ring.
+  // Full per-frame normal uploads use bounded GPU-native normalized 16-bit
+  // values; topology indices promote before a future high-detail wrap.
+  const packedNormal = value => {
+    if (!Number.isFinite(value) || Math.abs(value) > 1.000001)
+      throw new RangeError('Unbounded serpent surface normal');
+    return Math.round(Math.max(-1, Math.min(1, value)) * 32767);
+  };
+  const safeShortIndices = capacity => capacity * RING <= 65535;
+`, '', 'exact packing implementation');
+  reversePackedGpu('  let normals = new Int16Array(ringCapacity * RING * 3);',
+    '  let normals = new Float32Array(ringCapacity * RING * 3);', 'normal backing');
+  reversePackedGpu('  let indices = new Uint16Array(ringCapacity * RADIAL * 6);',
+    '  let indices = new Uint32Array(ringCapacity * RADIAL * 6);', 'short initial index backing');
+  const packedAttribute='new THREE.BufferAttribute(normals, 3, true).setUsage(THREE.DynamicDrawUsage)';
+  if (old.split(packedAttribute).length !== 3)
+    throw new Error('T4 normalized live GPU WebGL attribute reversal drift');
+  old=old.replaceAll(packedAttribute,
+    'new THREE.BufferAttribute(normals, 3).setUsage(THREE.DynamicDrawUsage)');
+  reversePackedGpu(`    // The high-detail vertex address, not only today's overview LOD, must fit.
+    if (!safeShortIndices(nextCapacity)) {
+      const promoted = new Uint32Array(nextCapacity * RADIAL * 6);
+      promoted.set(indices);
+      indices = promoted;
+    } else indices = expand(indices, nextCapacity * RADIAL * 6);`,
+    '    indices = expand(indices, nextCapacity * RADIAL * 6);', 'index promotion');
+  reversePackedGpu(`      normals[v * 3] = packedNormal(nx * radialX / norm);
+      normals[v * 3 + 1] = packedNormal(radialY / norm);
+      normals[v * 3 + 2] = packedNormal(nz * radialX / norm);`,
+    `      normals[v * 3] = nx * radialX / norm;
+      normals[v * 3 + 1] = radialY / norm;
+      normals[v * 3 + 2] = nz * radialX / norm;`, 'physical normal conversion');
   // Reverse only the NEW, byte-exact physical T2 neck-alignment and banked
   // surface-normal implementation before checking the ORIGINAL immutable
   // df113 SHA. This does not introduce a second accepted ancestor digest.
@@ -88,6 +129,42 @@ function restoreBendParent(source) {
   if(old.split(removed).length!==2 || old.split(updated).length!==2)
     throw new Error('T2 exact-source curvature reversal drift');
   old=old.replace(removed,'').replace(updated,previous);
+  // T145: The live hero's physical *rear skull profile* and swallow wave now
+  // meet its actual cervical mesh rather than leaving the previous oversized
+  // open collar. Restore ONLY these two exact SHA-256-sealed production ranges
+  // when reconstructing the immutable df113 source. Never relax its original
+  // Git blob digest, nor silently accept arbitrary future head geometry.
+  const sealedT145 = (chunk,digest) => crypto.createHash('sha256').update(chunk).digest('hex')===digest;
+  const newRearMarker="  // The skull's REAR edge is a real open mesh ring. Enlarging only the head\n";
+  if (old.includes(newRearMarker)) {
+    const anchor='  const headPose = new THREE.Group(); head.add(headPose);\n';
+    const tail='    [-0.25,0.310,0.285,-0.22]';
+    const start=old.indexOf(anchor),end=old.indexOf(tail,start+anchor.length);
+    if(start<0||end<=start||old.indexOf(anchor,start+anchor.length)>=0||
+      !sealedT145(old.slice(start,end),'2ceb5a33b5a5d5abf832147b9fa160fda30966914b9f96a056365c17223d0bc6'))
+      throw new Error('T145 exact-source cervical anatomy reversal drift');
+    const previousRear=`  const headPose = new THREE.Group(); head.add(headPose);
+  // A single longitudinally lofted skull replaces separate muzzle/crown balls.
+  // Eyes sit below its crown and into its cheeks, not above it on stalks.
+  const skullProfile = [
+    [-0.50,0.319,0.215,-0.345],[-0.39,0.310,0.245,-0.28],
+`;
+    if(!sealedT145(previousRear,'59d3ca1c7b242e61518220db21ee6f7ba2d628b63a7cb9cd6d8b299858b5512f'))
+      throw new Error('T145 immutable cervical predecessor digest mismatch');
+    old=old.slice(0,start)+previousRear+old.slice(end);
+  }
+  const newSwallowMarker='          // A genuine public-fruit swallow moves behind the sculpted cranial\n';
+  if(old.includes(newSwallowMarker)){
+    const begin=old.indexOf(newSwallowMarker),ending=old.indexOf('          // T2 whole-body acting:',begin);
+    if(begin<0||ending<=begin||old.indexOf(newSwallowMarker,begin+1)>=0||
+       !sealedT145(old.slice(begin,ending),'b3053172b28254babf1e9f856f9fb9b548bb8e5801aee8ba669a4e6919426ba8'))
+      throw new Error('T145 exact-source swallow wave reversal drift');
+    const previousSwallow='          // A subtle swallow travels down the neck without altering its path.\n'+
+      '          radius *= 1 + eaten * 0.13 * Math.exp(-Math.pow(distance - 0.68, 2) * 3);\n';
+    if(!sealedT145(previousSwallow,'3c919a772d095072c0f7e4cfa159e65ddc49ad6b2bbd1134ec09cbfed2b6158a'))
+      throw new Error('T145 immutable swallow predecessor digest mismatch');
+    old=old.slice(0,begin)+previousSwallow+old.slice(ending);
+  }
   // These later T2 head adaptations are NOT present in the immutable
   // df113 bend-density parent. Reverse exact fragments, never weaken SHA.
   const scaled = "  // T2 whole-game hero silhouette: the previously beautiful detailed skull\n"+

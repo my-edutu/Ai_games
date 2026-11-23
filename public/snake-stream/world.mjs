@@ -1,6 +1,15 @@
 import { sampleGardenWatershed } from './garden-watersheds.mjs';
 import { sampleWeatheredTerrace, sampleGardenEcotone, sampleForestFloorMaterials } from './garden-biomes.mjs';
 
+// The original fully authored 1024x512 deterministic limestone/forest atlas
+// is expensive to bake on 3D context recovery. Rebuild only the GPU texture,
+// not the CPU artwork, when returning to one of three public board dimensions.
+// Never retain Three objects, snapshots, external events or authority here.
+// Every texture receives its OWN Uint8Array copy; eviction bounds the retained
+// source pixels at exactly 3 * 1024 * 512 * 4 = 6 MiB per module lifetime.
+const terrainAtlasRecovery = new Map();
+const MAX_TERRAIN_ATLAS_ENTRIES = 3;
+
 /**
  * Original distant rock formation, authored as irregular weathered bedding.
  * Deterministic, closed at the angular seam and shared by every scenery
@@ -491,6 +500,69 @@ export function buildRootedGroveCauseways(THREE,width,height,layer){
 }
 
 /**
+ * Seven complete woodland-ground biomes. The original seven anchored 3D forest
+ * masses used to float beyond the outer game board, with their narrow rooted
+ * paths terminating under isolated tree trunks. This physically establishes
+ * broad loam-over-limestone grove floors WITH deep waterfront banks under
+ * those exact existing tree locations. Each elliptical, eroded three-ring
+ * island joins the original causeway at its centre and reuses the SAME two
+ * large native static cliff/moss draw batches. No tree, gameplay cell, portal,
+ * scene light, post-process pass or per-frame state is introduced.
+ *
+ * The outer underwater ring makes land *volumetric*, rather than a flat green
+ * decal. A bounded sector mesh avoids thousands of individual scenic props.
+ */
+export function buildWoodlandGroveTerraces(THREE,width,height,layer){
+  if(!Number.isInteger(width)||!Number.isInteger(height)||width<2||height<2||
+      width>2048||height>2048||!['bedrock','moss'].includes(layer))
+    throw new RangeError('Original physical seven-grove biomes require real bounded board geometry');
+  const anchors=stageHeadlandAnchors(width,height),sectors=32,rings=3;
+  const positions=[],uv=[],indices=[],lichen=layer==='moss';
+  for(const [j,anchor] of anchors.entries()){
+    const first=positions.length/3;
+    const inland=Math.atan2(-anchor.z,-anchor.x);
+    const seed=j*.83+.25;
+    const baseRadius=3.75+.15*(anchor.rise-5.2);
+    const centreHeight=.57+.06*Math.sin(seed*2.3);
+    positions.push(anchor.x,centreHeight+(lichen?.025:0),anchor.z);
+    uv.push(anchor.x/3.7,anchor.z/3.7);
+    for(let ring=0;ring<rings;ring++)for(let i=0;i<sectors;i++){
+      const a=2*Math.PI*i/sectors;
+      const inlandFacing=.5+.5*Math.cos(a-inland);
+      // Broad, asymmetric, eroded forest headlands rather than seven circular
+      // plinths. Every ridge terminates at the original anchored grove.
+      const erosion=.11*Math.sin(3*a+seed)+.062*Math.cos(7*a-1.5*seed)
+        +.028*Math.sin(11*a+.8*seed);
+      const forestReach=1+.20*inlandFacing;
+      const radius=baseRadius*[.23,.62,1][ring]*forestReach*(1+erosion);
+      const x=anchor.x+radius*Math.cos(a),z=anchor.z+radius*Math.sin(a);
+      const irregular=.07*Math.sin(5*a+seed)+.035*Math.cos(9*a-.5*seed);
+      const rockyHeight=[centreHeight+.02+irregular,.11+irregular*.8,
+        -3.82+.09*Math.sin(3*a+seed)][ring];
+      const loam=[.03,.043,.012][ring];
+      const y=rockyHeight+(lichen?loam:0);
+      positions.push(x,y,z);uv.push(x/3.7,z/3.7);
+    }
+    for(let k=0;k<sectors;k++) {
+      const next=(k+1)%sectors;
+      indices.push(first,first+1+next,first+1+k);
+      for(let ring=0;ring<rings-1;ring++){
+        const a=first+1+ring*sectors+k,b=first+1+ring*sectors+next;
+        const c=a+sectors,d=b+sectors;
+        indices.push(a,b,c,b,d,c);
+      }
+    }
+  }
+  const geometry=new THREE.BufferGeometry();
+  geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+  geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+  geometry.setIndex(indices);geometry.computeVertexNormals();geometry.computeBoundingSphere();
+  geometry.userData.authenticGroveGrounds=anchors.length;
+  geometry.userData.exteriorOnly=true;
+  return geometry;
+}
+
+/**
  * T1 eight original grounded four-shore woodland tie-ridges.
  *
  * The existing seven old-growth causeways terminate at distant anchors but
@@ -820,6 +892,77 @@ export function buildConnectedCourtyardGarden(THREE,width,height,layer) {
 }
 
 /**
+ * A continuous raised woodland escarpment joining the original four shores.
+ * Unlike an overlaid relief blanket, all its geometry stays beyond the real
+ * playable court, so the serpent, hazards, portals and every genuine stone
+ * contact remain untouched. It reads as several full-depth island terraces,
+ * including rocky folds and a canopy-rooted upper shelf, rather than a flat
+ * green perimeter border around a rectangular game. Both soil and stone use
+ * the original cliff/moss static material batches: zero new draw objects,
+ * textures, frame-time shader passes or authority-side collisions.
+ */
+export function buildForestTerraceRim(THREE, width, height, layer) {
+  if (!Number.isInteger(width) || !Number.isInteger(height) ||
+      width < 2 || height < 2 || width > 2048 || height > 2048 ||
+      !['bedrock', 'moss'].includes(layer))
+    throw new RangeError('The native forest escarpment needs bounded board geometry and a true stratum');
+  const sectors = 96, ringCount = 6, W = width / 2, H = height / 2;
+  const reach = [0, .39, 1.13, 2.04, 2.99, 3.88];
+  const reachWaves = [0, .06, .24, .39, .52, .71];
+  const points = [], uv = [], indices = [];
+  for (let ring = 0; ring < ringCount; ring++) {
+    for (let i = 0; i < sectors; i++) {
+      const a = 2 * Math.PI * i / sectors, cx = Math.cos(a), cz = Math.sin(a);
+      // The ray meets the true native rectangular contact footprint first.
+      // Each physical raised shelf starts beyond it, never over a legal cell.
+      const border = Math.min((W + .14) / Math.max(1e-8, Math.abs(cx)),
+        (H + .14) / Math.max(1e-8, Math.abs(cz)));
+      const folded = .31 * Math.sin(3*a+.4) + .20 * Math.cos(7*a-.28) +
+        .09 * Math.sin(13*a+.75);
+      // The same seven distant authored woodland masses pull on this
+      // physical near-shore silhouette. Eroded bays between the groves cut
+      // toward actual moving water; each real geological finger rises toward
+      // its existing rooted causeway instead of enclosing the game in an
+      // equal-width rectangular retaining wall. No layer reaches a legal cell.
+      const groveCrown = sampleWoodlandBankCrown(width,height,a);
+      const woodlandReach = Math.max(0,(ring-2)/3);
+      const radius = border + reach[ring] + reachWaves[ring] * folded +
+        woodlandReach*(.98*groveCrown-.16*(1-groveCrown));
+      const ridge = .16 * Math.sin(5*a-.22) + .052 * Math.cos(11*a+.62);
+      const yRock = [
+        -.058, -.12,
+        -.03 + .085 * (1+Math.sin(3*a-.48)),
+        .235 + ridge + .26*groveCrown,
+        .065 + .092 * Math.sin(4*a-1.1) + .035 * Math.cos(9*a) + .12*groveCrown,
+        -.48 + .105 * Math.sin(3*a+.7) + .11*groveCrown,
+      ][ring];
+      // Mineral exposures interrupt each authentic rooted shelf. The ground
+      // still shares its vertices/height field with the actual bedrock.
+      const mossThickness = ring === 0 || ring === 5 ? -.007 :
+        .019 + .016 * Math.sin(6*a+.3) - .023 * Math.max(0, Math.sin(9*a-.4));
+      const y = yRock + (layer === 'moss' ? mossThickness : 0);
+      const x = radius * cx, z = radius * cz;
+      points.push(x, y, z);
+      uv.push(x/3.7, z/3.7);
+    }
+  }
+  for(let ring=0;ring<ringCount-1;ring++) for(let i=0;i<sectors;i++) {
+    const j=(i+1)%sectors;
+    const a=ring*sectors+i, b=ring*sectors+j;
+    const c=(ring+1)*sectors+i, d=(ring+1)*sectors+j;
+    indices.push(a,b,c,b,d,c);
+  }
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.Float32BufferAttribute(points,3));
+  g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+  g.setIndex(indices);g.computeVertexNormals();g.computeBoundingSphere();
+  g.userData.forestTerraceRings=ringCount;
+  g.userData.forestTerraceSections=sectors;
+  g.userData.forestTerraceOutsideGame=true;
+  return g;
+}
+
+/**
  * A connected original 3D sub-courtyard rock apron, not the former buried
  * axis-aligned box. The upper fan supports EVERY real gameplay stone below
  * its y=0 walking surface. Only the outboard fringe bends into the existing
@@ -1114,6 +1257,203 @@ export function sculptGardenEdgePlanting(width,height,side,along,kind='foliage')
   };
 }
 
+/**
+ * Three connected ORIGINAL-material multi-span coastal masonry elevations, physically embedded
+ * in the existing woodland shelves: three connected arches along the western
+ * forest, two along the east, and three open foreground arches along the
+ * southern limestone shore. The north retains the older castle gateway, so
+ * no added structure intersects or duplicates that landmark. Each opening is genuinely hollow below
+ * its semicircular cut-stone vault, with separate broken stone pier courses
+ * and mineral/lichen cap stones. The whole landscape shares the two ORIGINAL
+ * opaque static cliff/moss render batches, their shadows, roughness and atlas.
+ *
+ * This is exterior PRESENTATION geometry only: no playable cell, authoritative
+ * route, fruit, hazard, portal, water or private AI state is consulted or changed.
+ * No GPU passes, textures or per-tick work are added. Missing a span is a
+ * genuine break in the masonry, not a fake opaque window texture.
+ */
+export function buildShoreRuinArcades(THREE,width,height,layer) {
+  if (!Number.isInteger(width) || !Number.isInteger(height) ||
+      width < 2 || height < 2 || width > 2048 || height > 2048 ||
+      !['bedrock','moss'].includes(layer))
+    throw new RangeError('True ruined shore arcades require bounded board dimensions and stone/lichen');
+  const p=[],uv=[],idx=[];
+  const W=width/2,H=height/2;
+  const unit=new THREE.BoxGeometry(1,1,1);
+  const boxPositions=unit.getAttribute('position'),boxIndices=unit.getIndex();
+  const west={kind:'west',centers:[-2.85,0,2.85],base: -W-3.5};
+  const east={kind:'east',centers:[-1.425,1.425],base: W+3.5};
+  // The open south-facing elevation completes a genuine three-sided ancient
+  // waterfront. North keeps its existing original gateway without duplicate
+  // silhouette; foreground columns root into the same live island shelf.
+  const south={kind:'south',centers:[-2.6,0,2.6],base: H+3.5};
+  function pushSegment(x,y,normal,site){
+    // Proper rotations about Y preserve original face winding, native shadow
+    // participation, and UVs. South uses the unrotated authored stone boxes.
+    const world=site.kind==='west'
+      ? {x:site.base-normal,y,z:x}
+      : site.kind==='east'
+        ? {x:site.base+normal,y,z:-x}
+        : {x,y,z:site.base+normal};
+    p.push(world.x,world.y,world.z);
+    uv.push(world.x/3.7,world.z/3.7);
+  }
+  function addBox(site,x,y,normal,w,h,depth,tilt=0){
+    const start=p.length/3;
+    for(let j=0;j<boxPositions.count;j++){
+      const a=boxPositions.getX(j),b=boxPositions.getY(j),c=boxPositions.getZ(j);
+      pushSegment(x+a*w+tilt*b*h,y+b*h,normal+c*depth,site);
+    }
+    for(let j=0;j<boxIndices.count;j++)idx.push(start+boxIndices.getX(j));
+  }
+  function addVaultStone(site,along,from,to,inner,outer,depth){
+    const start=p.length/3,y=2.45;
+    // Four cross-section corners for both the FRONT and BACK stone face.
+    // The arch's void is truly empty. Stone wedges meet their neighbours
+    // without a separate opaque wall spanning the open aperture.
+    for(const normal of [-depth/2,depth/2]){
+      for(const [a,r] of [[from,inner],[from,outer],[to,outer],[to,inner]])
+        pushSegment(along+Math.cos(a)*r,y+Math.sin(a)*r,normal,site);
+    }
+    const faces=[
+      [3,2,1,0], // weathered outer-facing masonry
+      [4,5,6,7], // far face
+      [0,1,5,4], [1,2,6,5], [2,3,7,6], [3,0,4,7]
+    ];
+    for(const [a,b,c,d] of faces)
+      idx.push(start+a,start+b,start+c,start+a,start+c,start+d);
+  }
+  for(const site of [west,east,south]) for(let arch=0;arch<site.centers.length;arch++){
+    const x=site.centers[arch],sectors=10;
+    if(layer==='bedrock'){
+      // Open, separately weathered column courses are rooted below the
+      // existing woodland's rock cap, not placed onto playable flagstones.
+      for(const side of (arch === 0 ? [-1,1] : [1]))for(let course=0;course<3;course++){
+        const base=[-.46,.51,1.49][course];
+        const top=[.50,1.48,2.48][course];
+        const lean=.022*Math.sin(arch*2.7+side*1.9+course*1.3);
+        addBox(site,x+side*1.30, (base+top)/2,0,
+          .60+.05*Math.sin(arch+course+side),top-base,.77,lean);
+      }
+      for(let segment=0;segment<sectors;segment++){
+        const a=segment*Math.PI/sectors,b=(segment+1)*Math.PI/sectors;
+        addVaultStone(site,x,a,b,1.055,1.48,.78);
+      }
+    }else{
+      // Light broken crowns of real lichen-stone on the outer vault, not a
+      // duplicate heavy masonry wall or new transparent alpha material.
+      for(let segment=0;segment<sectors;segment+=2){
+        const a=(segment+.11)*Math.PI/sectors;
+        const b=(segment+1.62)*Math.PI/sectors;
+        addVaultStone(site,x,a,b,1.484,1.524,.79);
+      }
+      for(const side of (arch === 0 ? [-1,1] : [1])){
+        addBox(site,x+side*1.30,-.34,0,.84,.19,1.1);
+        addBox(site,x+side*1.30,2.46,0,.55,.052,.79);
+      }
+    }
+  }
+  // The prior west/east arch piers were visually suspended beyond the forest shelf:
+  // narrow stone posts stopped at their feet, leaving open water between the
+  // masonry and the actual coastline. Ground ALL eleven shared pier sites in
+  // overlapping, layered limestone shoulders that reach the real coastal
+  // escarpment. Broken wedge widths and staggered top courses follow the
+  // original forest/ruin geography rather than manufacturing a false playable
+  // board extension. Every new face remains outside the true cell perimeter.
+  const abutmentSites=[
+    {site:west,piers:[-4.15,-1.55,1.30,4.15]},
+    {site:east,piers:[-2.725,-.125,2.725]},
+    // At the third shoreline, every arch shares its actual pier with the
+    // adjacent span; all four piers receive overlapping three-course roots.
+    {site:south,piers:[-3.9,-1.3,1.3,3.9]},
+  ];
+  for(const {site,piers} of abutmentSites)for(const [index,pier] of piers.entries()){
+    const wave=Math.sin(index*1.97+(site.kind==='west'?.6:1.2));
+    for(let course=0;course<3;course++){
+      const moss=layer==='moss';
+      // A rock overhang projects all the way from the original forest bank to
+      // each genuine 3D pier. The stone courses interpenetrate to avoid
+      // detached floating fragments; upper moss is thinner and irregular.
+      const depth=3.12-.12*course;
+      const offset=-1.26-.025*course;
+      const width=(moss?.86:1.16)+.14*(2-course)+.10*wave;
+      const height=moss?[.09,.10,.07][course]:[.31,.27,.24][course];
+      const middle=moss?[-.34,-.235,-.137][course]:[-.71,-.46,-.257][course];
+      const slip=(.035*wave)*(course-1);
+      addBox(site,pier+slip,middle,offset,width,height,depth,
+        .012*Math.sin(index+course*1.71));
+    }
+    // Recessed broad abutment wedge binds the masonry into woodland shelves;
+    // never spans an arch opening or rises into the serpent camera line.
+    if(layer==='bedrock')addBox(site,pier,-.69,-1.35,1.6,.28,2.9,.018*wave);
+  }
+  unit.dispose();
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));
+  g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+  g.setIndex(idx);g.computeVertexNormals();g.computeBoundingBox();g.computeBoundingSphere();
+  g.userData.continuousShoreAbutments=11;
+  g.userData.abutmentCourseCount=3;
+  g.userData.shoreRuinOpenings=8;
+  g.userData.sharedShorePiers=11; // 4 west, 3 east, 4 southern waterfront pillars
+  g.userData.archesAreHollow=true;
+  g.userData.exteriorOnly=true;
+  return g;
+}
+
+/**
+ * Preserve the complete native high-quality scene while reducing real WebGL
+ * vertex-input bandwidth in each original static-world batch. This is invoked
+ * ONLY after all physical terrain, sculpted quarry corners, atlas UVs, forest
+ * pigments and recomputed normals are finished. 16-bit normalized signed
+ * shader normals introduce at most 1/32767 error per component; bounded
+ * 8-bit normalized vertex colours introduce at most 0.5/255 error.
+ *
+ * This is a geometry-storage optimization, NEVER an FPS claim: the unchanged
+ * strict full-scene WebGL gate and genuine device presents still decide T4.
+ */
+export function compactStaticWorldAttributes(THREE, geometry) {
+  if (!geometry?.isBufferGeometry ||
+      typeof THREE?.Int16BufferAttribute !== 'function' ||
+      typeof THREE?.Uint8BufferAttribute !== 'function')
+    throw new TypeError('Three.js complete-world native buffer attributes required');
+  const normal=geometry.getAttribute('normal');
+  const color=geometry.getAttribute('color');
+  if (!normal || normal.itemSize!==3 || normal.normalized || !(normal.array instanceof Float32Array))
+    throw new TypeError('Final complete-world float normals required before packing');
+  if (color && (color.itemSize!==3 || color.normalized || !(color.array instanceof Float32Array)))
+    throw new TypeError('Final original float color channels required before packing');
+  const packedNormal=new Int16Array(normal.array.length);
+  const packedColor=color?new Uint8Array(color.array.length):null;
+  let maxNormalError=0,maxTintError=0;
+  // Validate before replacing any attribute: a rejected source cannot leave
+  // a half-packed broken world geometry behind after an exception.
+  for(let i=0;i<normal.array.length;i++){
+    const value=normal.array[i];
+    if(!Number.isFinite(value)||value < -1.000001||value > 1.000001)
+      throw new RangeError('Nonfinite/out-of-range complete-world normal');
+    const encoded=Math.round(Math.max(-1,Math.min(1,value))*32767);
+    packedNormal[i]=encoded;
+    maxNormalError=Math.max(maxNormalError,Math.abs(value-encoded/32767));
+  }
+  if(color)for(let i=0;i<color.array.length;i++){
+    const value=color.array[i];
+    if(!Number.isFinite(value)||value<0||value>1)
+      throw new RangeError('Unbounded world pigment cannot be packed without loss');
+    const encoded=Math.round(value*255);
+    packedColor[i]=encoded;
+    maxTintError=Math.max(maxTintError,Math.abs(value-encoded/255));
+  }
+  if(maxNormalError>1/32767+1e-6||maxTintError>0.5/255+1e-6)
+    throw new RangeError('Complete shader attribute loss exceeds bounded budget');
+  const originalBytes=normal.array.byteLength+(color?.array.byteLength??0);
+  const packedBytes=packedNormal.byteLength+(packedColor?.byteLength??0);
+  geometry.setAttribute('normal',new THREE.Int16BufferAttribute(packedNormal,3,true));
+  if(color)geometry.setAttribute('color',new THREE.Uint8BufferAttribute(packedColor,3,true));
+  return Object.freeze({originalBytes,packedBytes,savedBytes:originalBytes-packedBytes,
+    maxNormalError,maxTintError});
+}
+
 export function createWorld(THREE, {width, height}) {
   if (!Number.isInteger(width) || !Number.isInteger(height) || width < 2 || height < 2) throw new Error('World requires integer board dimensions');
   const group = new THREE.Group(); group.name = 'Verdant ruins';
@@ -1163,11 +1503,25 @@ export function createWorld(THREE, {width, height}) {
     for(let z=slab.z;z<slab.z+slab.h;z++)for(let x=slab.x;x<slab.x+slab.w;x++)
       regionByCell[z*width+x]=i;
   });
+  let originalAtlasReused = false;
   const fieldMap=fieldTexture();
   const tileMat=material({color:0xc3c4ad,map:fieldMap,roughness:.94});
   // Field UVs are baked in world coordinates when static geometry is merged below.
   function fieldTexture(){
-    const w=1024,h=512,data=new Uint8Array(w*h*4);
+    const w=1024,h=512,atlasKey=`${width}x${height}`;
+    const remembered=terrainAtlasRecovery.get(atlasKey);
+    if(remembered){
+      // LRU promotion, scoped to these deterministic public dimensions.
+      terrainAtlasRecovery.delete(atlasKey);
+      terrainAtlasRecovery.set(atlasKey,remembered);
+      originalAtlasReused=true;
+      const t=new THREE.DataTexture(new Uint8Array(remembered),w,h);
+      t.colorSpace=THREE.SRGBColorSpace;t.magFilter=THREE.LinearFilter;
+      t.minFilter=THREE.LinearMipmapLinearFilter;t.generateMipmaps=true;
+      t.userData.authoredAtlasKey=atlasKey;
+      t.needsUpdate=true;textures.add(t);return t;
+    }
+    const data=new Uint8Array(w*h*4);
     // Each original slab has a fixed quarry tone plus one optional incised
     // mineral fracture. This is generated once in the existing field map;
     // no new geometry, textures, fragment work or mutable gameplay state.
@@ -1568,7 +1922,12 @@ export function createWorld(THREE, {width, height}) {
       let x=noise(c,52)*(w-2),y=noise(c,98)*(h-2),angle=noise(c,12)*6.28;
       for(let n=0;n<5+noise(c,22)*16;n++){x+=Math.cos(angle);y+=Math.sin(angle);angle+=(noise(c,n)-.5)*.75;const px=Math.floor(x),py=Math.floor(y);if(px>0&&px<w&&py>0&&py<h){const i=(py*w+px)*4;data[i]*=.82;data[i+1]*=.84;data[i+2]*=.85;}}
     }
-    const t=new THREE.DataTexture(data,w,h);t.colorSpace=THREE.SRGBColorSpace;t.magFilter=THREE.LinearFilter;t.minFilter=THREE.LinearMipmapLinearFilter;t.generateMipmaps=true;t.needsUpdate=true;textures.add(t);return t;
+    // Own CPU-only immutable master pixels. The live GPU texture keeps the
+    // newly baked array, never aliases this bounded recovery master copy.
+    terrainAtlasRecovery.set(atlasKey,new Uint8Array(data));
+    while(terrainAtlasRecovery.size>MAX_TERRAIN_ATLAS_ENTRIES)
+      terrainAtlasRecovery.delete(terrainAtlasRecovery.keys().next().value);
+    const t=new THREE.DataTexture(data,w,h);t.userData.authoredAtlasKey=atlasKey;t.colorSpace=THREE.SRGBColorSpace;t.magFilter=THREE.LinearFilter;t.minFilter=THREE.LinearMipmapLinearFilter;t.generateMipmaps=true;t.needsUpdate=true;textures.add(t);return t;
   }
   const cliff=material({color:0x75816b,map:stoneMap,roughness:1});
   const darkStone=material({color:0x475957,map:stoneMap,roughness:.91});
@@ -1773,6 +2132,13 @@ export function createWorld(THREE, {width, height}) {
   const rootedMantle = geometry(buildErodedIslandShelfGeometry(THREE, width, height, 'moss'));
   appendOriginalCoastGeometry(erodedCliff,buildRootedGroveCauseways(THREE,width,height,'bedrock'));
   appendOriginalCoastGeometry(rootedMantle,buildRootedGroveCauseways(THREE,width,height,'moss'));
+  // Each original 3D woodland anchor now has an owned, connected island floor.
+  // Its existing causeway physically buries into this same stone/loam ground.
+  appendOriginalCoastGeometry(erodedCliff,buildWoodlandGroveTerraces(THREE,width,height,'bedrock'));
+  appendOriginalCoastGeometry(rootedMantle,buildWoodlandGroveTerraces(THREE,width,height,'moss'));
+  // Actual hollow multi-span ruin silhouettes join the existing forest/limestone coast.
+  appendOriginalCoastGeometry(erodedCliff,buildShoreRuinArcades(THREE,width,height,'bedrock'));
+  appendOriginalCoastGeometry(rootedMantle,buildShoreRuinArcades(THREE,width,height,'moss'));
   // One original baked world per material: complete new four-shore physical
   // tie-ridges attach to the SAME original stone/moss batches, not new draws.
   appendOriginalCoastGeometry(erodedCliff,buildFourShoreWoodlandSpurs(THREE,width,height,'bedrock'));
@@ -1789,6 +2155,9 @@ export function createWorld(THREE, {width, height}) {
   // playable garden. Reuse these original two geometry/material GPU batches.
   appendOriginalCoastGeometry(erodedCliff,buildConnectedCourtyardGarden(THREE,width,height,'bedrock'));
   appendOriginalCoastGeometry(rootedMantle,buildConnectedCourtyardGarden(THREE,width,height,'moss'));
+  // True multi-level, all-four-shore physical woodland terrain stays beyond legal cells.
+  appendOriginalCoastGeometry(erodedCliff,buildForestTerraceRim(THREE,width,height,'bedrock'));
+  appendOriginalCoastGeometry(rootedMantle,buildForestTerraceRim(THREE,width,height,'moss'));
   add(erodedCliff, cliff, 0, 0, 0);
   add(rootedMantle, moss, 0, 0, 0);
   // T1 EXPOSED COAST REMNANTS — the giant straight rear shelf previously
@@ -2136,6 +2505,9 @@ export function createWorld(THREE, {width, height}) {
     if (sourceMaterial === tileMat) merged.computeVertexNormals();
     let mergedMaterial=sourceMaterial;
     if(colors){merged.setAttribute('color',new THREE.BufferAttribute(colors,3));mergedMaterial=sourceMaterial.clone();mergedMaterial.vertexColors=true;materials.add(mergedMaterial);}
+    // Retain every complete full-quality scene vertex and triangle while
+    // halving its static PBR shader-input storage and upload traffic.
+    compactStaticWorldAttributes(THREE,merged);
     merged.computeBoundingBox();merged.computeBoundingSphere();
     const mesh=new THREE.Mesh(merged,mergedMaterial);mesh.name='Ruins / '+sourceMaterial.color.getHexString();mesh.userData.staticWorld=true;mesh.userData.visibilityBlocks=visibilityBlocks;
     // Three's WebGLShadowMap invokes onBeforeShadow before submitting the
@@ -2379,7 +2751,9 @@ export function createWorld(THREE, {width, height}) {
     if(snapshot.food){const p=point(snapshot.food.cell),bonus=snapshot.food.kind==='bonus';fruit.position.set(p.x,reducedMotion?0:Math.sin(time*2.3)*.055,p.z);fruit.rotation.y=reducedMotion?0:Math.sin(time*.7)*.25;fruitMat.color.setHex(bonus?0xffcc55:0xf06c46);fruitMat.emissive.setHex(bonus?0x653008:0x210702);fruitMat.emissiveIntensity=.18;crown.visible=bonus;}
   }
   function dispose(){if(disposed)return;disposed=true;group.traverse(o=>{if(o.isInstancedMesh)o.dispose();});for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();group.clear();}
-  function stats(){return{staticInstances,staticMeshes,drawObjects:group.children.reduce((n,o)=>n+(o.isMesh?1:o.children.filter(c=>c.isMesh).length),0),geometries:geometries.size,materials:materials.size,textures:textures.size,obstacles:obstacles.count,hazards:hazardBed.count,portalEnds:portalBases.count,disposed};}
+  function stats(){return{staticInstances,staticMeshes,drawObjects:group.children.reduce((n,o)=>n+(o.isMesh?1:o.children.filter(c=>c.isMesh).length),0),geometries:geometries.size,materials:materials.size,textures:textures.size,obstacles:obstacles.count,hazards:hazardBed.count,portalEnds:portalBases.count,
+    terrainAtlasRecovery:{reused:originalAtlasReused,entries:terrainAtlasRecovery.size,
+      maxEntries:MAX_TERRAIN_ATLAS_ENTRIES,retainedCpuBytes:terrainAtlasRecovery.size*1024*512*4},disposed};}
   return{group,update,dispose,stats,updateStaticCameraVisibility,propRevision:()=>revision,
     cameraOccluders:Object.freeze(cameraOccluders)};
 }

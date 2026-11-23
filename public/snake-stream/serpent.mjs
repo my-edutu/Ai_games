@@ -265,13 +265,22 @@ export function createSerpent(THREE) {
   // Never try to resize a live WebGL BufferAttribute: Three.js prohibits it.
   let ringCapacity = 512, bodyReallocations = 0;
   let activeRadial = RADIAL, activeRing = RING, lowDetail = false;
+  // Keep Float32 spatial and UV precision across every actual body ring.
+  // Full per-frame normal uploads use bounded GPU-native normalized 16-bit
+  // values; topology indices promote before a future high-detail wrap.
+  const packedNormal = value => {
+    if (!Number.isFinite(value) || Math.abs(value) > 1.000001)
+      throw new RangeError('Unbounded serpent surface normal');
+    return Math.round(Math.max(-1, Math.min(1, value)) * 32767);
+  };
+  const safeShortIndices = capacity => capacity * RING <= 65535;
   let positions = new Float32Array(ringCapacity * RING * 3);
-  let normals = new Float32Array(ringCapacity * RING * 3);
+  let normals = new Int16Array(ringCapacity * RING * 3);
   let uvs = new Float32Array(ringCapacity * RING * 2);
-  let indices = new Uint32Array(ringCapacity * RADIAL * 6);
+  let indices = new Uint16Array(ringCapacity * RADIAL * 6);
   let bodyGeometry = ownGeometry(new THREE.BufferGeometry());
   let positionAttribute = new THREE.BufferAttribute(positions, 3).setUsage(THREE.DynamicDrawUsage);
-  let normalAttribute = new THREE.BufferAttribute(normals, 3).setUsage(THREE.DynamicDrawUsage);
+  let normalAttribute = new THREE.BufferAttribute(normals, 3, true).setUsage(THREE.DynamicDrawUsage);
   let uvAttribute = new THREE.BufferAttribute(uvs, 2).setUsage(THREE.DynamicDrawUsage);
   let indexAttribute = new THREE.BufferAttribute(indices, 1).setUsage(THREE.DynamicDrawUsage);
   // BEGIN R36 INDEX STATE
@@ -356,10 +365,22 @@ export function createSerpent(THREE) {
   // the unchanged ~0.319 3D neck radius rather than a detached cartoon mask.
   head.scale.setScalar(1.28);
   const headPose = new THREE.Group(); head.add(headPose);
+  // The skull's REAR edge is a real open mesh ring. Enlarging only the head
+  // had left that ring 0.18 units wider and 0.17 units taller than the live
+  // 3D cervical tube, producing an empty collar in full-body three-quarter
+  // turns. Author its actual radii from the existing grounded body diameter,
+  // scaled skull and rest-height offset. Keep all face/jaw/eye topology and
+  // the existing HIGH/LOW skull ring budgets: no overlay, extra draw or bridge.
+  const cervicalRestY = fullBodyHeight + 0.065 + (head.scale.y - 1) * 0.38;
+  const cervicalRearCentre = (fullBodyHeight - cervicalRestY) / head.scale.y;
+  const cervicalRearVertical = (.319 * .88) / head.scale.y;
+  const cervicalRearWidth = .319 / head.scale.x;
   // A single longitudinally lofted skull replaces separate muzzle/crown balls.
   // Eyes sit below its crown and into its cheeks, not above it on stalks.
   const skullProfile = [
-    [-0.50,0.319,0.215,-0.345],[-0.39,0.310,0.245,-0.28],
+    [-0.50,cervicalRearWidth,cervicalRearCentre+cervicalRearVertical,
+      cervicalRearCentre-cervicalRearVertical],
+    [-0.41,0.285,0.212,-0.324],
     [-0.25,0.310,0.285,-0.22],[-0.10,0.320,0.300,-0.165],
     [0.06,0.304,0.265,-0.145],[0.22,0.273,0.198,-0.135],
     [0.35,0.230,0.140,-0.122],[0.44,0.145,0.090,-0.105],
@@ -598,14 +619,19 @@ export function createSerpent(THREE) {
     positions = expand(positions, nextCapacity * RING * 3);
     normals = expand(normals, nextCapacity * RING * 3);
     uvs = expand(uvs, nextCapacity * RING * 2);
-    indices = expand(indices, nextCapacity * RADIAL * 6);
+    // The high-detail vertex address, not only today's overview LOD, must fit.
+    if (!safeShortIndices(nextCapacity)) {
+      const promoted = new Uint32Array(nextCapacity * RADIAL * 6);
+      promoted.set(indices);
+      indices = promoted;
+    } else indices = expand(indices, nextCapacity * RADIAL * 6);
     // Three's WebGLAttributes cannot resize a registered GPU buffer in place.
     // Dispose the actual previous geometry on the same frame so repeated
     // growth cannot retain dead buffers, shaders or vertex-array objects.
     const old = bodyGeometry;
     bodyGeometry = ownGeometry(new THREE.BufferGeometry());
     positionAttribute = new THREE.BufferAttribute(positions, 3).setUsage(THREE.DynamicDrawUsage);
-    normalAttribute = new THREE.BufferAttribute(normals, 3).setUsage(THREE.DynamicDrawUsage);
+    normalAttribute = new THREE.BufferAttribute(normals, 3, true).setUsage(THREE.DynamicDrawUsage);
     uvAttribute = new THREE.BufferAttribute(uvs, 2).setUsage(THREE.DynamicDrawUsage);
     indexAttribute = new THREE.BufferAttribute(indices, 1).setUsage(THREE.DynamicDrawUsage);
     bodyGeometry.setAttribute('position', positionAttribute);
@@ -646,9 +672,9 @@ export function createSerpent(THREE) {
       // This uses existing per-ring vertices, buffers, shaders and draw calls.
       const radialX = .88 * cos - camber * sin, radialY = sin;
       const norm = Math.hypot(radialX, radialY);
-      normals[v * 3] = nx * radialX / norm;
-      normals[v * 3 + 1] = radialY / norm;
-      normals[v * 3 + 2] = nz * radialX / norm;
+      normals[v * 3] = packedNormal(nx * radialX / norm);
+      normals[v * 3 + 1] = packedNormal(radialY / norm);
+      normals[v * 3 + 2] = packedNormal(nz * radialX / norm);
       uvs[v * 2] = distance / 3.2; uvs[v * 2 + 1] = j / activeRadial;
     }
     if (connect) for (let j = 0; j < activeRadial; j++) {
@@ -745,8 +771,11 @@ export function createSerpent(THREE) {
           // views. Recover full body girth before the skull's rear neck seam.
           const neckBlend=p===0&&s===0?1-smooth(0.16,0.46,distance):0;
           radius *= 1-0.986*neckBlend;
-          // A subtle swallow travels down the neck without altering its path.
-          radius *= 1 + eaten * 0.13 * Math.exp(-Math.pow(distance - 0.68, 2) * 3);
+          // A genuine public-fruit swallow moves behind the sculpted cranial
+          // ring: it must not burst outward through the newly connected neck
+          // or detach the jaw from the body. It remains a grounded wave along
+          // the existing real cubic path, with no authority or mesh change.
+          radius *= 1 + eaten * 0.13 * Math.exp(-Math.pow(distance - 1.1, 2) * 8);
           // T2 whole-body acting: curvature follows the actual public route,
           // with muscle compression, anchored portal seams and grounded camber.
           const bend=turnIn*(1-k/subdivisions)+turnOut*(k/subdivisions);

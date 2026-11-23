@@ -1,0 +1,48 @@
+{
+  "sourceHead": "bbce17cac5781b0a92ffe1bf55865cc8b8b06cea",
+  "candidate": "UNPROMOTED",
+  "samples": [
+    {
+      "board": "8x8",
+      "staticMeshes": 13,
+      "drawObjects": 33,
+      "textures": 4,
+      "triangles": 71058,
+      "exactPositionUvIndex": true,
+      "originalShaderAttributeBytes": 1076412,
+      "packedShaderAttributeBytes": 536766,
+      "savedBytes": 539646,
+      "savedPercent": 50.13,
+      "maxNormalError": 1.5259185614291404e-05,
+      "maxTintError": 0.0019420065131842135
+    },
+    {
+      "board": "28x16",
+      "staticMeshes": 13,
+      "drawObjects": 33,
+      "textures": 4,
+      "triangles": 98312,
+      "exactPositionUvIndex": true,
+      "originalShaderAttributeBytes": 1735788,
+      "packedShaderAttributeBytes": 865374,
+      "savedBytes": 870414,
+      "savedPercent": 50.15,
+      "maxNormalError": 1.5259236547549015e-05,
+      "maxTintError": 0.0019555039265576335
+    },
+    {
+      "board": "40x24",
+      "staticMeshes": 13,
+      "drawObjects": 33,
+      "textures": 4,
+      "triangles": 106712,
+      "exactPositionUvIndex": true,
+      "originalShaderAttributeBytes": 1928748,
+      "packedShaderAttributeBytes": 958614,
+      "savedBytes": 970134,
+      "savedPercent": 50.3,
+      "maxNormalError": 1.5259185614291404e-05,
+      "maxTintError": 0.0019605575823316568
+    }
+  ]
+}

@@ -6,7 +6,8 @@ const options={detail:'high',reducedMotion:true,runToken:'t4-bounded-upload',tim
 const setup=async()=>{const [THREE,{createSerpent}]=await Promise.all([import('three'),import('../../public/snake-stream/serpent.mjs')]);return createSerpent(THREE);};
 test('T4 native 44+ body first GPU storage is bounded without removing any high-detail triangles',async()=>{
  const s=await setup();try{
-  assert.equal(s.stats().bufferBytes,589824,'initial storage must cover 512 rings, not 8192');
+  assert.equal(s.stats().bufferBytes,402432,'same 512 complete rings now use exact smaller native GPU normal/index storage');
+  assert.ok(s.stats().bufferBytes<589824,'original 512-ring memory ceiling must never regress');
   s.update([path(44)],options);
   const t=s.stats(),g=s.group.getObjectByName('Continuous sculpted serpent body').geometry;
   assert.equal(t.bodyCapacityRings,512);assert.equal(t.bodyReallocations,0);
@@ -20,7 +21,9 @@ test('T4 real 260-body high-detail expansion replaces/disposes GPU geometry, ret
   const mesh=s.group.getObjectByName('Continuous sculpted serpent body'),old=mesh.geometry;
   let retired=0;old.addEventListener('dispose',()=>retired++);
   s.update([path(260)],options);
-  const t=s.stats();assert.equal(t.bodyCapacityRings,2048);assert.equal(t.bufferBytes,2359296);
+  const t=s.stats();assert.equal(t.bodyCapacityRings,2048);assert.equal(t.bufferBytes,1609728);
+  assert.ok(t.bufferBytes<2359296,'original 2048-ring complete mesh budget must not regress');
+  assert.ok(mesh.geometry.getIndex().array instanceof Uint16Array,'2048 full-detail reserved rings stay safe at 16 bits');
   assert.equal(t.bodyReallocations,2);assert.equal(retired,1);
   assert.notEqual(mesh.geometry,old);assert.ok(t.bodyRings>1800);
   assert.equal(mesh.geometry.drawRange.count,t.bodyTriangles*3);

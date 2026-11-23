@@ -1,6 +1,25 @@
 import { watercourseCentre, sampleGardenWatershed } from './garden-watersheds.mjs';
 import { sampleWeatheredTerrace, sampleGardenEcotone, sampleForestFloorMaterials } from './garden-biomes.mjs';
 
+// Keep at most three completed 1024x512 *CPU pixel* masters, independently
+// owned by public board dimensions. The world itself creates a new disposable
+// GPU texture every time. Never cache snapshots, actor state or mutable Three
+// resources. This is a recovery optimization, not an altered game/render pass.
+const restoredCourtyardCpuAtlases = new Map();
+const MAX_RESTORED_COURTYARD_ATLASES = 3;
+let restoredCourtyardHits=0;
+let restoredCourtyardMisses=0;
+let lastRestoredCourtyardReused=false;
+export function courtyardAtlasRecoveryTelemetry() {
+  return Object.freeze({
+    maxEntries:MAX_RESTORED_COURTYARD_ATLASES,
+    entries:restoredCourtyardCpuAtlases.size,
+    retainedCpuBytes:[...restoredCourtyardCpuAtlases.values()].reduce((sum,entry)=>sum+entry.pixels.byteLength,0),
+    hits:restoredCourtyardHits,misses:restoredCourtyardMisses,
+    lastReused:lastRestoredCourtyardReused
+  });
+}
+
 /**
  * T1 living-courtyard ecology: continuous low relief over the ACTUAL playable
  * stage. Cosmetic and deterministic from public board dimensions alone.
@@ -39,6 +58,22 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
   });
   if (!map) return { regraded: false, pixels: 0 };
   const data = map.image.data, W = 1024, H = 512;
+  // A cached final atlas is valid ONLY for a newly authored source-marked
+  // original field and the exact public dimensions. Foreign or test-edited
+  // textures without the marker must never be overwritten by a prior scene.
+  const approvedKey=`${width}x${height}`;
+  const eligible=map.userData?.authoredAtlasKey===approvedKey;
+  const remembered=eligible ? restoredCourtyardCpuAtlases.get(approvedKey) : null;
+  lastRestoredCourtyardReused=Boolean(remembered);
+  if(remembered){
+    restoredCourtyardHits++;
+    restoredCourtyardCpuAtlases.delete(approvedKey);
+    restoredCourtyardCpuAtlases.set(approvedKey,remembered);
+    data.set(remembered.pixels); // no alias to live textures or their memory
+    map.needsUpdate=true;
+    return { ...remembered.stats, biomeFractions:{...remembered.stats.biomeFractions} };
+  }
+  if(eligible)restoredCourtyardMisses++;
   const clamp01 = x => Math.max(0, Math.min(1, x));
   const smooth = (a, b, v) => { const t = clamp01((v - a) / (b - a)); return t * t * (3 - 2 * t); };
   const hash = (x, z) => { const v = Math.sin(x * 127.1 + z * 311.7) * 43758.5453; return v - Math.floor(v); };
@@ -343,10 +378,22 @@ function restoreCourtyardStoneAtlas(world, width, height, fernSites = null) {
     }
   }
   map.needsUpdate = true; // one replacement on scene creation; never per tick
-  return { regraded: true, pixels: W * H, textureAdded: 0, sunstoneEtching: true,
+  const completedStats={ regraded: true, pixels: W * H, textureAdded: 0, sunstoneEtching: true,
     groveFraction: grovePixelCount / (W * H),
     biomeFractions: Object.fromEntries(Object.entries(biomePixelCounts)
       .map(([key, count]) => [key, count / (W * H)])) };
+  if(eligible){
+    // Store an independent MASTER only after every original mineral, loam,
+    // foliage and carved clearing treatment has really completed. Three
+    // board sizes hold <= 6 MiB of original final pixel bytes.
+    restoredCourtyardCpuAtlases.set(approvedKey,{
+      pixels:new Uint8Array(data), stats:{...completedStats,biomeFractions:{...completedStats.biomeFractions}}
+    });
+    while(restoredCourtyardCpuAtlases.size>MAX_RESTORED_COURTYARD_ATLASES){
+      restoredCourtyardCpuAtlases.delete(restoredCourtyardCpuAtlases.keys().next().value);
+    }
+  }
+  return completedStats;
 }
 
 /**
