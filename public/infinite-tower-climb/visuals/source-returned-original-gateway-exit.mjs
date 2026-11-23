@@ -46,6 +46,21 @@ export function sourceReturnedOriginalRouteClearance(source,held) {
      p.halfWidth<=0 || p.halfHeight<=0 ||
      p.grounded!==true || !Array.isArray(source.platforms) ||
      typeof p.groundedPlatformId!=='string')return null;
+  const crossing=source.lastGuardianCrossing;
+  if(crossing != null &&
+     (crossing.runToken!==source.runToken ||
+       crossing.fromFloor!==8 || crossing.toFloor!==9 ||
+       crossing.cap?.id!=='f8:cap' ||
+       crossing.cap.x!==held.oldCapX ||
+       crossing.cap.width!==held.oldCapWidth ||
+       crossing.cap.y+crossing.cap.height!==held.oldRoofY ||
+       crossing.exitX!==held.thresholdX ||
+       crossing.guardian?.kind!=='guardian' ||
+       crossing.guardian.active!==false ||
+       !finite(crossing.guardian.health) ||
+       crossing.guardian.health>0 ||
+       !safe(crossing.sourceTick) ||
+       crossing.sourceTick>source.tick))return null;
   const support=source.platforms.find(x=>x?.id===p.groundedPlatformId);
   if(!support || ![support.x,support.y,support.width,support.height].every(safe) ||
      support.width<=0 || support.height<=0 ||
