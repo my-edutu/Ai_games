@@ -90,7 +90,7 @@ test('scene captures final source-owned camera recovery decisions after successf
  const proposed=animate.indexOf('let cameraJointRecoveryWitness = null;');
  const render=animate.indexOf('renderer.render(scene, camera);');
  const returned=animate.indexOf('originalToVoidReturnedTimeline.push({');
- const bound=animate.indexOf('cameraJointRecovery: cameraJointRecoveryWitness');
+ const bound=animate.indexOf('cameraJointRecovery:cameraJointRecoveryWitness');
  assert.ok(proposed>=0&&proposed<render&&returned>render&&bound>returned);
  assert.match(animate,/outcome:'accepted-partial'/);
  assert.match(animate,/outcome:'accepted-complete-projection'/);
