@@ -246,11 +246,17 @@ export function assessSourceJointGatewayLens(before,after){
  const physicalGateGain=beforeGate-afterGate>.018||
    originalSteelWasLost&&after.steel.projectedPanes>=2&&
    after.steel.projectedMetalArea>=.009;
+ // Authentic c671c3e source-pinned desktop Floor9: destination NDC y=1.74,
+ // above the real video, was nevertheless classified complete in 14 returns.
+ // Only a truly visible FIRST RAISED source-owned deck can complete this shot.
+ // Partial physically safe progress remains valid in the recovery assessor.
+ const realLandingInFrame=after.landingNdc[2]>=-1&&
+   after.landingNdc[2]<=1&&Math.abs(after.landingNdc[0])<=.90&&
+   Math.abs(after.landingNdc[1])<=.86;
  const improved=(raisedRouteGain&&gateHeld||
    physicalGateGain&&landingHeld&&actorHeld);
  return heroSafe&&gateSafe&&roofSafe&&steelSafe&&
-   after.landingNdc[2]>=-1&&after.landingNdc[2]<=1&&
-   landingHeld&&actorHeld&&gateHeld&&improved;
+   realLandingInFrame&&landingHeld&&actorHeld&&gateHeld&&improved;
 }
 
 // The old steel can be source-owned yet currently OFFSCREEN. Requiring its
@@ -325,7 +331,11 @@ export function assessSourceJointGatewayRecoveryStep(before,after){
  const gateWasLost=gap(before.gatewayNdc,.78)>.045 ||
    before.steel.projectedPanes<2 ||
    before.steel.projectedMetalArea<.012;
- if(!gateWasLost)return false;
+ // Source-pinned desktop raised deck is ABOVE the camera while real bronze
+ // steel is already visible. Recover missing route and missing doorway by
+ // the same bounded and independently geometry-vetoed partial lens.
+ const raisedWasLost=gap(before.landingNdc,.79)>.045;
+ if(!gateWasLost&&!raisedWasLost)return false;
  // No unsafe transition can buy an old portal by abandoning the current
  // SOURCE-owned raised landing, camera-safe whole climber or real roof.
  const wholeHero=after.heroNdc[3]>=.047 &&
@@ -333,17 +343,22 @@ export function assessSourceJointGatewayRecoveryStep(before,after){
    Math.abs(after.heroNdc[1])+after.heroNdc[3]<=.87;
  const roofHeld=gap(after.roofNdc,.87)<.08 &&
    gap(after.roofNdc,.87)<=gap(before.roofNdc,.87)+.02;
- const landingHeld=gap(after.landingNdc,.79)<=
-   Math.max(.02,gap(before.landingNdc,.79)+.015) &&
-   gap(after.landingNdc,.90)<.04;
+ const beforeLandingGap=gap(before.landingNdc,.79);
+ const afterLandingGap=gap(after.landingNdc,.79);
+ const landingHeld=afterLandingGap<=beforeLandingGap+.015 &&
+   after.landingNdc[2]>=-1&&after.landingNdc[2]<=1;
  const heroHeld=gap(after.heroNdc,.76)<=gap(before.heroNdc,.76)+.015;
+ const gateHeld=gap(after.gatewayNdc,.78)<=
+   gap(before.gatewayNdc,.78)+.015;
  const oldSteelNotLost=after.steel.projectedPanes>=before.steel.projectedPanes &&
    after.steel.projectedMetalArea>=before.steel.projectedMetalArea-.002;
- // A strict, measurable directional gain, not mere camera travel. Include
- // gradually returning AUTHENTIC gate steel when partial NDC misses.
- const recoveryGain=gap(before.gatewayNdc,.78)-gap(after.gatewayNdc,.78)>.025 ||
+ // Strict observable progress, not camera distance or time served.
+ const gateGain=gateWasLost&&(
+   gap(before.gatewayNdc,.78)-gap(after.gatewayNdc,.78)>.025 ||
    after.steel.projectedPanes>before.steel.projectedPanes ||
-   after.steel.projectedMetalArea-before.steel.projectedMetalArea>.006;
- return wholeHero&&roofHeld&&landingHeld&&heroHeld&&
-   oldSteelNotLost&&recoveryGain;
+   after.steel.projectedMetalArea-before.steel.projectedMetalArea>.006);
+ const raisedGain=raisedWasLost &&
+   beforeLandingGap-afterLandingGap>.025;
+ return wholeHero&&roofHeld&&landingHeld&&heroHeld&&gateHeld&&
+   oldSteelNotLost&&(gateGain||raisedGain);
 }

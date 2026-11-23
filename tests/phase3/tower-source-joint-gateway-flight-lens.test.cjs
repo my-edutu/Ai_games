@@ -51,7 +51,7 @@ test('invalid run, guardian, support, original steel, source state and manual vi
 });
 test('physical four-subject acceptance requires an improved raised landing, unbroken real metal, hero and roof',async()=>{
  const {assessSourceJointGatewayLens:assess}=await modulePromise;
- const after={...view,landingNdc:[.39,1.08,.4],heroNdc:[.24,0,.4,.12],
+ const after={...view,landingNdc:[.39,.69,.4],heroNdc:[.24,0,.4,.12],
    roofNdc:[.1,-.1,.5],steel:{...view.steel,projectedMetalArea:.061}};
  assert.equal(assess(view,after),true);
  assert.equal(assess(view,{...after,steel:{...after.steel,projectedMetalArea:.001}}),false);
@@ -139,7 +139,7 @@ test('offscreen original metal permits only physically returned old gate and all
  const {sourceJointGatewayFlightLens:plan,assessSourceJointGatewayLens:assess}=await modulePromise;
  const before={...view,steel:{sourceBound:true,projectedPanes:0,projectedMetalArea:0}};
  assert.equal(plan(source,held,before)?.sourceBound,true);
- const after={...view,landingNdc:[.39,1.08,.4],heroNdc:[.24,0,.4,.12],
+ const after={...view,landingNdc:[.39,.69,.4],heroNdc:[.24,0,.4,.12],
    roofNdc:[.1,-.1,.5],steel:{sourceBound:true,projectedPanes:3,projectedMetalArea:.034}};
  assert.equal(assess(before,after),true);
  assert.equal(assess(before,{...after,steel:before.steel}),false);
