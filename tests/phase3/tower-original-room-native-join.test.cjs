@@ -50,3 +50,50 @@ test('vetoes a later floor-nine episode despite source-valid returned owners',()
  assert.equal(x.status,'NOT EVALUATED');
  assert.equal(x.reason,'no-genuine-returns-mapped-to-first-native-floor-nine-episode');
 });
+
+
+test('genuine returned source camera trials disclose partial/complete and physical vetoes at native search times, not video proof',()=>{
+ const rows=structuredClone(base.timeline.returnedRoomFrames);
+ const examples=[
+  {sourceBound:true,sourceTick:475,outcome:'no-lens-proposal',
+    trialsEvaluated:0,raisedDeckId:'f9:p2',originalMetalPanesBefore:0},
+  {sourceBound:true,sourceTick:477,outcome:'accepted-partial',
+    trialsEvaluated:2,raisedDeckId:'f9:p2',originalMetalPanesBefore:0,
+    originalMetalPanesSubmitted:1,worldRayVetoes:1,coreVetoes:0},
+  {sourceBound:true,sourceTick:479,outcome:'accepted-complete-projection',
+    trialsEvaluated:1,raisedDeckId:'f9:p2',originalMetalPanesBefore:1,
+    originalMetalPanesSubmitted:3,worldRayVetoes:0,coreVetoes:0}
+ ];
+ rows.forEach((r,i)=>r.cameraJointRecovery=examples[i]);
+ const joined=joinOriginalRoomEvidence({...base,timeline:{...base.timeline,returnedRoomFrames:rows}});
+ assert.equal(joined.status,'SOURCE_OWNER_AND_NATIVE_SEARCH_TIMELINE_JOINED');
+ assert.deepEqual(joined.cameraJointRecoverySummary.countsByOutcome,{
+   'no-lens-proposal':1,'accepted-partial':1,'accepted-complete-projection':1
+ });
+ assert.equal(joined.cameraJointRecoverySummary.firstPartialNativeSearchPtsSeconds,23);
+ assert.equal(joined.cameraJointRecoverySummary.firstCompleteNativeSearchPtsSeconds,24);
+ assert.equal(joined.cameraJointRecoverySummary.totalWorldRayVetoes,1);
+ assert.equal(joined.alignedSceneOwnerReturns[1].cameraJointRecovery.outcome,'accepted-partial');
+ assert.equal(joined.nativePixelMatched,false);
+ assert.equal(joined.verdict,'NOT EVALUATED');
+ const invalid=structuredClone(rows);invalid[1].cameraJointRecovery.sourceTick=99;
+ const mismatch=joinOriginalRoomEvidence({...base,timeline:{...base.timeline,returnedRoomFrames:invalid}});
+ assert.equal(mismatch.alignedSceneOwnerReturns[1].cameraJointRecovery,null,
+  'a camera trace from a different source tick cannot borrow the filmed return');
+ assert.equal(mismatch.cameraJointRecoverySummary.countsByOutcome['accepted-partial'],undefined);
+});
+test('scene captures final source-owned camera recovery decisions after successful WebGL returns only',()=>{
+ const fs=require('node:fs'),path=require('node:path');
+ const scene=fs.readFileSync(path.resolve(__dirname,
+   '../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+ const animate=scene.slice(scene.indexOf('function animate(now) {'));
+ const proposed=animate.indexOf('let cameraJointRecoveryWitness = null;');
+ const render=animate.indexOf('renderer.render(scene, camera);');
+ const returned=animate.indexOf('originalToVoidReturnedTimeline.push({');
+ const bound=animate.indexOf('cameraJointRecovery: cameraJointRecoveryWitness');
+ assert.ok(proposed>=0&&proposed<render&&returned>render&&bound>returned);
+ assert.match(animate,/outcome:'accepted-partial'/);
+ assert.match(animate,/outcome:'accepted-complete-projection'/);
+ assert.match(animate,/worldRayVetoes/);
+ assert.match(animate,/coreVetoes/);
+});
