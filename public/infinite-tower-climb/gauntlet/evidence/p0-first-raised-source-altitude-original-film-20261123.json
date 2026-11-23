@@ -58,5 +58,22 @@
     "noForcePush": true,
     "noMerge": true,
     "noDeploy": true
+  },
+  "sourceGameplayCommits": [
+    "af4f06aae96c6ab1f76ce0c7c1bf21c4bcfb5182",
+    "a7a1906e3480ef419859cf6f634d254797e3e27d"
+  ],
+  "sourcePinnedCaptureSha": "a7a1906e3480ef419859cf6f634d254797e3e27d",
+  "currentExactSourceQualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/45252080780",
+  "currentExactSourceNineJobCaptureRun": "https://github.com/my-edutu/Ai_games/actions/runs/45252080580",
+  "currentValidationAtWrite": "Both workflows QUEUED/PENDING; no native success or exact-source quality pass established",
+  "scopedSourceHelperEvaluation": {
+    "nativeOriginalCandidatePreviouslyRequestedMetres": 8.964,
+    "boundedPureCameraCandidateMetres": 1.602,
+    "boundedYawRadians": 0.03,
+    "boundedVerticalMetres": 0.6,
+    "sourceVerifiedGenuineP2AndHP0": true,
+    "negativeFixtureResults": "Invalid same-run crossing, wrong p2 target, and forged grounded contact each returned no bounded proposal",
+    "limitation": "In-process pure JS source helper reproduction, not Three.js WebGL evidence, original native playback, hardware FPS or independent quality vote"
   }
 }
