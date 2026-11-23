@@ -1,5 +1,77 @@
 import { observedSourceAirborneSuccessorApproach } from './source-physical-arrival-palette.mjs';
 
+// The ORIGINAL Floor 9 load-bearing shell can stand behind the bronze
+// gateway before the heavy Void periphery and crystals finish uploading.
+// Only the same HP-defeated source's ACTUALLY returned, grounded receiving
+// roof, retained old cap, and already-built original shell permit the first
+// restrained aperture. This schedules a real mesh for the NEXT WebGL render;
+// it does not assert a pixel, synthesize a platform or age its return clock.
+export function observedFirstReturnedOriginalCoreAperture(source,held,job) {
+  const p=source?.player,w=source?.lastGuardianCrossing;
+  const ground=source?.platforms?.find(x=>x?.id==='f9:ground');
+  const int=Number.isSafeInteger;
+  if(source?.floor!==9 || source.theme!=='void' ||
+     source.lifecycle!=='running' || !(p?.health>0) ||
+     typeof source.runToken!=='string' || !source.runToken ||
+     ![source.tick,p.x,p.y,p.halfWidth,p.halfHeight,
+       ground?.x,ground?.y,ground?.width,ground?.height,
+       held?.oldCapX,held?.oldCapWidth,held?.oldRoofY,held?.thresholdX,
+       held?.crossingTick,held?.firstWorldRenderTick,held?.submittedFrames,
+       job?.sourceTick,job?.submittedFrames,job?.structureBuiltAtSubmitted,
+       job?.structuralVisibleReturns].every(int) ||
+     p.halfWidth<=0 || p.halfHeight<=0 ||
+     ground?.width<=0 || ground.height<=0 ||
+     held.oldCapWidth<=0 ||
+     held.runToken!==source.runToken || held.floor!==9 ||
+     held.oldCapId!=='f8:cap' ||
+     held.guardianGateRetained!==true ||
+     held.verifiedObservedFloorAdvance!==true ||
+     held.opticalExitSubmitted===true ||
+     held.thresholdX!==held.oldCapX+Math.floor(held.oldCapWidth*.76) ||
+     ground.y+ground.height!==held.oldRoofY ||
+     source.tick<held.crossingTick ||
+     source.tick-held.crossingTick>110 ||
+     held.submittedFrames<1 || held.submittedFrames>=30 ||
+     !(held.originalGatewayOpacity>.035) ||
+     held.originalGatewayOpacity>1 ||
+     !Number.isFinite(held.visibleSeconds) ||
+     held.visibleSeconds<0 || held.visibleSeconds>=2.8 ||
+     p.grounded!==true || p.state!=='standing' || p.vy!==0 ||
+     p.groundedPlatformId!=='f9:ground' ||
+     p.y-p.halfHeight!==held.oldRoofY ||
+     p.x-p.halfWidth<ground.x ||
+     p.x+p.halfWidth>ground.x+ground.width ||
+     p.x-p.halfWidth<held.thresholdX ||
+     p.x>held.thresholdX+60000 ||
+     job.runToken!==source.runToken || job.floor!==9 ||
+     job.proof!=='recorded-source-gateway' ||
+     job.structureDeferred!==true ||
+     job.state!=='awaiting-void-biome-build' ||
+     job.sourceTick!==held.firstWorldRenderTick ||
+     job.structureBuiltAtSubmitted<1 ||
+     job.submittedFrames!==job.structureBuiltAtSubmitted ||
+     job.structuralVisibleReturns!==0 ||
+     job.structuralRoot?.isGroup!==true ||
+     !Array.isArray(job.structuralMaterials) ||
+     job.structuralMaterials.length===0) return null;
+  // The early original-source snapshot may precede the separate publication
+  // of lastGuardianCrossing. A PUBLISHED but invalid win must always veto.
+  if(w!=null &&
+    (w.runToken!==source.runToken || w.fromFloor!==8 || w.toFloor!==9 ||
+     w.cap?.id!=='f8:cap' ||
+     w.cap.x!==held.oldCapX || w.cap.width!==held.oldCapWidth ||
+     w.cap.y+w.cap.height!==held.oldRoofY ||
+     w.exitX!==held.thresholdX ||
+     w.guardian?.kind!=='guardian' || w.guardian.active!==false ||
+     !Number.isFinite(w.guardian.health) || w.guardian.health>0 ||
+     !int(w.sourceTick) || w.sourceTick>source.tick ||
+     w.sourceTick!==held.crossingTick)) return null;
+  return {sourceBound:true,sourceTick:source.tick,alpha:.18,
+    phase:'physically-grounded-returned-original-gateway-next-core-render',
+    limitation:'Original load-bearing 3D shell queued for next WebGL return, not proof of native pixels'};
+}
+
+
 // P0: a source position beyond the real F8 gateway must never be confused
 // with an ORIGINAL successor shaft that has actually returned on WebGL.
 // This is a display-only retirement interlock; it cannot modify the
@@ -128,7 +200,8 @@ export function observedSupportedReturnedShaftDepth(source,held,job) {
      !Number.isFinite(job.structuralFade) ||
      job.structuralFade<0 || job.structuralFade>1 ||
      job.structuralRoot?.isGroup!==true ||
-     !['awaiting-structural-submission','awaiting-vista-submission'].includes(job.state))
+     !['awaiting-void-biome-build','awaiting-structural-release',
+       'awaiting-structural-submission','awaiting-vista-submission'].includes(job.state))
     return null;
   const supportedRoof=p.grounded===true && p.state==='standing' &&
     p.vy===0 && p.groundedPlatformId==='f9:ground' &&

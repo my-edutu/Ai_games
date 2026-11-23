@@ -78,3 +78,49 @@ test('wrong guardian/run, ungrounded unsupported body and invented return clocks
     assert.equal(depth(s,h,j),null,
       'a false event/support/return or cross-run source cannot authorize new shaft');
 });
+
+
+test('real returned bronze gate schedules original F9 core before costly Void details, without inventing a GPU return',async()=>{
+  const {observedFirstReturnedOriginalCoreAperture:aperture}=await imported;
+  const {source,held,job}=realReturnedShaft();
+  const staging={...job,state:'awaiting-void-biome-build',
+    submittedFrames:2,structureBuiltAtSubmitted:2,
+    structuralVisibleReturns:0,structuralVisibleSeconds:0,
+    structuralMaterials:[{material:{},originalOpacity:1}]};
+  const unchanged=JSON.stringify([source,held,staging]);
+  const opening=aperture(source,held,staging);
+  assert.equal(opening?.alpha,.18);
+  assert.equal(opening?.sourceBound,true);
+  assert.equal(opening?.sourceTick,source.tick);
+  assert.equal(JSON.stringify([source,held,staging]),unchanged);
+  assert.equal(aperture({...source,runToken:'foreign'},held,staging),null);
+  assert.equal(aperture({...source,player:{...source.player,
+    grounded:false,groundedPlatformId:null}},held,staging),null);
+  assert.equal(aperture({...source,lastGuardianCrossing:{
+    ...source.lastGuardianCrossing,guardian:{kind:'guardian',active:true,health:1}}},held,staging),null);
+  assert.equal(aperture(source,held,{...staging,submittedFrames:1}),null,
+    'a fresh CPU build cannot forge a previous completed WebGL return');
+  assert.equal(aperture(source,held,{...staging,structuralVisibleReturns:1}),null,
+    'first-core admission is one-way, then genuine returned depth owns its growth');
+});
+
+test('actual shaft visibly grows across real returns during periphery/crystal upload without premature full reveal',async()=>{
+  const {observedSupportedReturnedShaftDepth:depth}=await imported;
+  const {source,held,job}=realReturnedShaft();
+  for(const state of ['awaiting-void-biome-build','awaiting-structural-release']){
+    const stage={...job,state,structuralVisibleReturns:4,
+      structuralVisibleSeconds:.38};
+    assert.ok(depth(source,held,stage)?.alpha>.22);
+    assert.ok(depth(source,held,stage)?.alpha<.40);
+    assert.equal(depth(source,held,{...stage,structuralVisibleSeconds:0}),null);
+    assert.equal(depth(source,held,{...stage,
+      runToken:'foreign'}),null);
+  }
+  const fs=require('node:fs');
+  const world=fs.readFileSync(require.resolve(
+    '../../public/infinite-tower-climb/visuals/world.mjs'),'utf8');
+  assert.match(world,/observedFirstReturnedOriginalCoreAperture\(\s*snapshot,retainedEarnedCap,arrival\)/);
+  assert.match(world,/const uploadingOriginalBiome=job.state==='awaiting-void-biome-build'/);
+  assert.match(world,/Math.min\(uploadingOriginalBiome\?\.40:1,earnedStructuralDepth\)/);
+  assert.match(world,/job.structuralVisibleReturns=Math.min\(30,job.structuralVisibleReturns\+1\)/);
+});

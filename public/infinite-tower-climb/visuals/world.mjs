@@ -25,7 +25,7 @@ import { plannedEarnedClockworkVoidBearings, plannedSourceEarnedSuspendedBearing
 import { plannedEarnedFirstRaisedRouteContinuation } from './source-earned-bearing-run.mjs';
 import { observedEarnedFarSideShaftOverlap, observedReturnedGroundedGatewayFadeStart, observedReturnedFarSideFade, observedReturnedOriginalArchitectureHold, observedSourceEarnedEarlyVoidShaftAperture, observedSourceSupportedVoidFirstPaint, observedEarnedGalleryExitClearance, observedReturnedGalleryHandoffClearance, observedFirstReturnedVoidBearingGalleryRetirement, observedSourceReturnedCoreBeforeScenicUpload } from './far-side-shaft-transition.mjs';
 import { chooseSourceEarnedFirstReturnInstancing } from './source-earned-first-return-instancing.mjs';
-import { observedReturnedSuccessorRoomReady, observedSupportedReturnedShaftDepth } from './original-room-returned-exit.mjs';
+import { observedReturnedSuccessorRoomReady, observedSupportedReturnedShaftDepth, observedFirstReturnedOriginalCoreAperture } from './original-room-returned-exit.mjs';
 import { projectOriginalGuardianGateSteel } from './original-guardian-gate-steel-projection.mjs';
 import { sourceReturnedGatewayDisplayDt } from './source-submitted-doorway-cadence.mjs';
 import { actualGatewayReceivingRoofSpans, actualGatewayReceivingLoadPathBays, actualGatewayReceivingGalleryCanopy, prebuildOriginalGuardianCanopyPlan, sourceOpenGuardianRoofLoadPath, syncGatewayReceivingRoofColours, resetGatewayReceivingRoofColours } from './source-physical-receiving-roof.mjs';
@@ -5062,11 +5062,22 @@ export function createTowerWorld(){
       // shaft out merely because the climber left the roof on a later tick.
       const earlyShaft=observedSourceSupportedVoidFirstPaint(
         snapshot,held,job);
-      job.structuralFade=options.reducedMotion?1:Math.max(
+      // The actual original load-bearing shell may make a bounded
+      // returned-frame optical ascent WHILE the original buttresses and
+      // animated Void biome are built on later returned frames. Keep the
+      // incomplete architectural layers subordinate to the HP-zero gateway
+      // and cap early depth at 40%; only the source-verified complete
+      // shaft is permitted to finish the full reveal. No CPU build or
+      // source tick spends a WebGL-return frame.
+      const uploadingOriginalBiome=job.state==='awaiting-void-biome-build' ||
+        job.state==='awaiting-structural-release';
+      const earnedStructuralDepth=Math.max(
         job.structuralFade,
         sourceAlignedIncomingShaftOpacity(snapshot,held,nominalShaftFade),
         earlyShaft?.alpha??0,
         observedSupportedReturnedShaftDepth(snapshot,held,job)?.alpha??0);
+      job.structuralFade=options.reducedMotion?1:
+        Math.min(uploadingOriginalBiome?.40:1,earnedStructuralDepth);
       for(const {material,originalOpacity} of job.structuralMaterials)
         material.opacity=originalOpacity*job.structuralFade;
       // True GPU culling, not just alpha zero: a Three Mesh with
@@ -5437,8 +5448,18 @@ export function createTowerWorld(){
         // silhouette at restrained opacity before the next CPU build.
         const earlyShell=observedSourceSupportedVoidFirstPaint(
           snapshot,retainedEarnedCap,arrival);
-        if(earlyShell?.sourceBound===true){
-          arrival.structuralFade=Math.min(.28,earlyShell.alpha);
+        // The genuine HP-open original doorway and actual grounded receiving
+        // roof must not face an EMPTY successor shaft during two further
+        // cold scenic builds. Queue the EXISTING structural mesh at a small
+        // source-certified opacity on the next submission, before any
+        // optional periphery/crystal upload or unearned palette retirement.
+        const nearCore=observedFirstReturnedOriginalCoreAperture(
+          snapshot,retainedEarnedCap,arrival);
+        const firstStructuralAlpha=Math.max(
+          earlyShell?.sourceBound===true?Math.min(.28,earlyShell.alpha):0,
+          nearCore?.sourceBound===true?nearCore.alpha:0);
+        if(firstStructuralAlpha>0){
+          arrival.structuralFade=firstStructuralAlpha;
           for(const {material,originalOpacity} of arrival.structuralMaterials)
             material.opacity=originalOpacity*arrival.structuralFade;
           structuralRoot.visible=arrival.structuralFade>.015;
