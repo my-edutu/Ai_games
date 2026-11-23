@@ -6069,9 +6069,9 @@ export function createTowerWorld(){
       architectureRoots.push(historicalCore);
     const exactRayQuery=()=>measureAuthoritativeDeckSightline({
       source,held,retiredReceipt,camera,body,bodyHalfHeight,gate,platformRoots:roots,
-      architectureRoots,originalGateRoot:held?.originalGateRoot??null,
-      originalCapRoot:held?.originalCapSightlineRoot??null,
-      originalGalleryRoot:held?.originalGalleryRoot??null,
+      architectureRoots,...(held?{originalGateRoot:held.originalGateRoot,
+        originalCapRoot:held.originalCapSightlineRoot,
+        originalGalleryRoot:held.originalGalleryRoot}:{}),
       raycaster:successorDeckRay,direction:successorDeckRayDirection,
       point:successorDeckRayTarget,hits:successorDeckRayHits,
       syncWorldMatrix:sightlineMatrixEpoch.sync,
@@ -6086,7 +6086,7 @@ export function createTowerWorld(){
     // Source, exact camera, source-owned material epochs and landing are all
     // essential: a similar but different camera never borrows another ray.
     const key=JSON.stringify([source.runToken,source.tick,landingId,postGateway,
-      held?.originalGatewayOpacity,held?.originalGallerySourceOpacity,held?.originalCoreOpacity,
+      ...(held?[held.originalGatewayOpacity,held.originalGallerySourceOpacity,held.originalCoreOpacity]:[null,null,null]),
       ...coordinates]);
     return successorSightlineMemo.read(key,exactRayQuery);
   }

@@ -6657,7 +6657,9 @@ export function createTowerScene(canvas, settings = {}) {
       // Last arbitration after every director. The original gate keeps its
       // earlier physical safeguards. This covers the genuine retired p3/cap
       // route that bypassed them, with a World-issued scalar receipt.
-      const retiredGatewayReceipt=world.retiredGatewayCameraReceipt(snapshot);
+      const retiredGatewayReceipt=snapshot?.floor===9 && !options.stale &&
+        !options.reducedMotion && options.camera==='follow'
+        ?world.retiredGatewayCameraReceipt?.(snapshot):null;
       const postGatewayBound=retiredGatewayReceipt && sourcePostGatewayCameraEnvelope({
         source:snapshot,receipt:retiredGatewayReceipt,lastRendered:lastSubmittedGuardian,
         previousCamera:lastSubmittedGuardianCamera.toArray(),

@@ -544,3 +544,31 @@ test('the actual first-F9 camera receives the original 3D source steel in its ex
  assert.match(world,/architectureRoots\.push\(historicalCore\)/);
  assert.match(world,/held\.originalCoreOpacity/);
 });
+
+// Real Three triangles remain a veto after the original source gate is retired.
+// The scalar receipt is a unit fixture, not a new authority or video proof.
+test('post-retirement source receipt preserves physical deck veto without resurrecting old geometry',async()=>{
+  const THREE=await three;
+  const {measureAuthoritativeDeckSightline}=await loaded;
+  const f=fixture(THREE);f.measure=measureAuthoritativeDeckSightline;
+  f.source.tick=582;
+  const receipt={runToken:f.source.runToken,oldCapId:'f8:cap',crossingTick:475,returnedTick:520};
+  const extra={held:null,gate:null,retiredReceipt:receipt};
+  const unchanged=JSON.stringify([f.source,receipt]);
+  try{
+    const blocked=sample(f,[0,2,6],[0,2,0],extra);
+    assert.equal(blocked.active,true);
+    assert.equal(blocked.rays,7);
+    assert.ok(blocked.bodyBlockedRays>0);
+    const clear=sample(f,[10,3,6],[0,2,0],extra);
+    assert.equal(clear.bodyBlockedRays,0);
+    assert.equal(clear.gatewayBlockedRays,0);
+    for(const invalid of [{held:f.held},{retiredReceipt:null},
+      {retiredReceipt:{...receipt,runToken:'previous-run'}},
+      {retiredReceipt:{...receipt,returnedTick:583}},
+      {source:{...f.source,tick:686}},
+      {gate:new THREE.Vector3(0,2,0)},{originalGateRoot:f.roof}])
+      assert.equal(sample(f,[0,2,6],[0,2,0],{...extra,...invalid}),null);
+    assert.equal(JSON.stringify([f.source,receipt]),unchanged);
+  }finally{f.geometry.dispose();f.material.dispose();}
+});

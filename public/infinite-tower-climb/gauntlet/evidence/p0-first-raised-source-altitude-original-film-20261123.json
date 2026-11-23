@@ -620,6 +620,20 @@
           }
         ]
       }
-    ]
+    ],
+    "initialQualityFailures": {
+      "sourceSha": "3fc76902efacfa3ee96c8ce27691fecfb9b9bb61",
+      "jobs": [
+        {
+          "id": 138095828238,
+          "failure": "Adaptive resolution real Scene mock never reached renderer because new receipt method was called unconditionally on floor 0; ratio 1 instead of .8."
+        },
+        {
+          "id": 138095828298,
+          "failure": "Existing memo guardrail required explicit held original material ownership in cache key."
+        }
+      ],
+      "correction": "Only query post-retirement receipt in live normal-motion Floor9 follow Scene; optional guard for absent receipt API. Keep original material keys and original geometry explicitly in held-owner path, separate retired mode. Added real Three triangle fixture for retired receipt and invalid/expired/wrong-run rejection; new CI required."
+    }
   }
 }
