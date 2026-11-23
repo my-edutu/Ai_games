@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "leadingTransformationVerdict": "NOT EVALUATED",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "inspectedPriorHeadSha": "5fe3d636a066d2ca7d0f7757519a99ecd9fb9abb",
+  "implementationSha": "b3aced104b6655d14dc7f27584688d5a2a13ccdf",
+  "previousQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45205232772 (10/10 passed source 5fe3d636)",
+  "previousNineJobFullMotion": "https://github.com/my-edutu/Ai_games/actions/runs/45204901087 (8 native WebMs and ledge, source/native strict 0/2 FAILED at 04503c85)",
+  "newExactQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45219771722 (pending during evidence authoring)",
+  "newNineJobCapture": "REQUESTED by changed capture-request.json; new exact SHA GitHub Actions run not yet verified",
+  "actualNewNativeFilm": "NOT EVALUATED",
+  "biggestExperienceGap": "Real 1x desktop and portrait F8 original gate/whole hero/grounded roof/raised p2 still do not form source/event-matched continuous film; original bronze to violet changes abruptly.",
+  "strongestMeasuredHotPath": "First portrait F9 browser-to-return 948ms, of which cameraLighting 248.2ms (104.4ms camera ray proposals, 140.3ms doorway search) in prior immutable source. Not hardware FPS.",
+  "meaningfulCodeChange": "Frame-scoped, source-real per-static-mesh conservative 3D Box3 ray broadphase with finite physical camera-to-hero or gateway endpoint. Existing exact triangle test retained for candidates and all unsupported dynamic meshes. This is P0 render CPU blocker work, not yet demonstrated visual change.",
+  "expectedTests": "Real Three original hit parity vs culling, moving mesh epoch invalidation, instanced conservative fallback, existing Phase3 Tower regressions",
+  "reviewCounts": {
+    "LOOKS": "0/5",
+    "FEELS": "0/5",
+    "PLAYS": "0/5"
+  },
+  "actualDevicePerformanceAndMemory": "NOT EVALUATED",
+  "nextHighestImpact": "Read exact-head quality plus nine-job original 60+s baseline/candidate video and first F9 timed profiles, reject any altered real source hits; fix dominant actual World/Scene first F9 cold handoff or four-subject shot if unchanged.",
+  "safety": "Frozen transformation.json blob unchanged; PR58, non-Tower games, draft PR68, deployment and merge untouched; no force push."
+}

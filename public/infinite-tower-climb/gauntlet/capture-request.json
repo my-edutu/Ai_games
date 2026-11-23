@@ -8900,5 +8900,41 @@
     },
     "actualDeviceMetrics": "NOT EVALUATED",
     "constraints": "No baseline move, no PR58 edits, no non-Tower games, no merge/deploy/force-push, preserve draft"
+  },
+  "p0FiniteSourceMeshRaySegmentP0_20261123_1643Z": {
+    "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "sourceGameCommitSha": "b3aced104b6655d14dc7f27584688d5a2a13ccdf",
+    "exactCaptureSource": "The immutable github.sha of this capture-request commit; code identical to b3aced104b6655d14dc7f27584688d5a2a13ccdf",
+    "previousExactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45205232772 — 10/10 successful on 5fe3d636; guardrail only",
+    "previousOriginalCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45204901087 — all 8 native movies plus ledge; strict event pairing failed 0/2 at 04503c85",
+    "cause": "Real 1x first-F9 portrait WebGL return measured 248.2 ms total camera lighting, 104.4 ms camera proposal/physical ray and 140.3 ms second doorway search; native Floor9 HUD-to-sustained violet ~3.75s in prior captured source. CPU profile is hosted-browser callback, not device FPS.",
+    "change": "Keep exact source-owned physical triangle/contact truth but eliminate triangle raycasts for static visible scene meshes whose conservative per-render world Box3 cannot intersect the actual finite camera-to-climber/gateway segment. Instances, skinned/morphed and custom raycast meshes fail open to original exact real mesh path. Uses same World-frame epoch and live matrices; fresh renders rebuild bounds.",
+    "quality": "https://github.com/my-edutu/Ai_games/actions/runs/45219771722 — pending full exact source at request time",
+    "captureConditions": {
+      "seed": "tower-transformation-capture-v1",
+      "tier": "low",
+      "speed": 1,
+      "fps": 25,
+      "minSeconds": 60,
+      "desktop": "960x600",
+      "portrait": "390x844",
+      "scenes": [
+        "ascent",
+        "moving",
+        "danger/guardian",
+        "outcome/restart"
+      ]
+    },
+    "require": "Compare real new first F9 cameraProposalsAndRaysMs, doorwayThreeSubjectSearchMs, WebGL return and 25-31s native film against previous measured same environment; strict 2/2 event matched + full original portal/hero/ground/p2 in continuous authentic footage; no visual claims from ray counters or CI",
+    "independentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "physicalDeviceP50P95P99AndMemory": "NOT EVALUATED",
+    "next": "If finite-segment culling is too slow or changes accepted physical sightlines, revert safely and focus on source-grounded renderer world handoff. Otherwise pursue missing 4-subject physical composition and strict event pairing before P1.",
+    "prohibited": "No modifications to transformation.json frozen baseline, active PR58, other games, merge, deploy, force push, or draft status"
   }
 }
