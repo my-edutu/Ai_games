@@ -25,6 +25,78 @@ function verified(source,held,job,supported){
     safe(job.structuralVisibleReturns) && job.structuralVisibleReturns>=0 &&
     finite(job.structuralVisibleSeconds) && job.structuralVisibleSeconds>=0;
 }
+// Source-earned departure, not compositor time, determines when the old
+// gateway stops being a readable part of the live route. Original 1x SHA
+// 1fca189 portrait/desktop first-F9 returns consumed almost all the bronze
+// gateway while the authentic climber was still stationary on f9:ground
+// (ticks 489-506, x333296, sole at oldRoofY). Two GPU owners returning does
+// not mean the PERSON has departed the original passage. This certificate
+// can only reduce optical extinction; it never grants a win, roof or tick.
+export function sourceReturnedOriginalDepartureProgress(source,held) {
+  const p=source?.player,w=source?.lastGuardianCrossing;
+  const ground=source?.platforms?.find?.(deck=>deck?.id==='f9:ground');
+  if(source?.floor!==9 || source.theme!=='void' ||
+     source.lifecycle!=='running' || !(p?.health>0) ||
+     typeof source.runToken!=='string' || !source.runToken ||
+     held?.runToken!==source.runToken || held.floor!==9 ||
+     held.guardianGateRetained!==true ||
+     held.verifiedObservedFloorAdvance!==true ||
+     held.oldCapId!=='f8:cap' ||
+     ![source.tick,p.x,p.y,p.halfWidth,p.halfHeight,
+       held.crossingTick,held.sourceTick,held.thresholdX,held.oldRoofY,
+       held.oldCapX,held.oldCapWidth,
+       ground?.x,ground?.y,ground?.width,ground?.height].every(safe) ||
+     p.halfWidth<=0 || p.halfHeight<=0 ||
+     held.oldCapWidth<=0 || ground.width<=0 || ground.height<=0 ||
+     source.tick<held.crossingTick ||
+     source.tick-held.crossingTick>150 ||
+     held.thresholdX!==held.oldCapX+Math.floor(held.oldCapWidth*.76) ||
+     ground.y+ground.height!==held.oldRoofY) return null;
+  let crossingX;
+  if(w!=null){
+    if(w.runToken!==source.runToken || w.fromFloor!==8 ||
+       w.toFloor!==9 || w.cap?.id!=='f8:cap' ||
+       w.guardian?.kind!=='guardian' ||
+       w.guardian.active!==false ||
+       !finite(w.guardian.health) || w.guardian.health>0 ||
+       ![w.sourceTick,w.crossingX,w.exitX,
+         w.cap.x,w.cap.y,w.cap.width,w.cap.height].every(safe) ||
+       w.sourceTick!==held.crossingTick ||
+       w.cap.x!==held.oldCapX ||
+       w.cap.width!==held.oldCapWidth ||
+       w.cap.y+w.cap.height!==held.oldRoofY ||
+       w.exitX!==held.thresholdX ||
+       w.crossingX<w.exitX || w.crossingX>w.exitX+60000)
+      return null;
+    crossingX=w.crossingX;
+  } else {
+    // Original early Floor9 renderer returns can predate publication of
+    // lastGuardianCrossing. Use only the already verified same-run former
+    // cap receipt and actual recorded body envelope, never a guessed door.
+    if(![held.observedCrossingX,held.observedCrossingY,
+      held.observedHalfWidth,held.observedHalfHeight].every(safe) ||
+       held.observedCrossingX<held.thresholdX ||
+       held.observedCrossingX>held.thresholdX+60000 ||
+       held.observedCrossingY!==held.oldRoofY+held.observedHalfHeight ||
+       held.observedHalfWidth!==p.halfWidth ||
+       held.observedHalfHeight!==p.halfHeight ||
+       source.tick<held.sourceTick ||
+       source.tick-held.sourceTick>70) return null;
+    crossingX=held.observedCrossingX;
+  }
+  const sole=p.y-p.halfHeight;
+  if(!safe(sole) || p.x<crossingX-12000 ||
+     p.x>crossingX+110000 ||
+     sole<held.oldRoofY-2500 ||
+     sole>held.oldRoofY+230000) return null;
+  // The original roof runway is short. A climber can reach its raised
+  // route mostly by VERTICAL movement; x-only fades waited too long and
+  // then visually snapped. Current physical travel and sole height jointly
+  // earn a smooth one-way old-gateway departure, not a future landing.
+  return unit(Math.max(0,p.x-crossingX)/60000 +
+    Math.max(0,sole-held.oldRoofY)/100000);
+}
+
 // On a genuine still-playing route, a new source stance must never RESURRECT
 // bronze steel that has already been transparently rendered. True owner
 // retirement still waits for the incoming shaft to return, rather than
@@ -58,7 +130,14 @@ export function sourceReturnedOriginalGatewayOpacity(source,held,job,proposed,su
   // permitted decrease here is the previously returned opacity or the
   // jointly earned, monotonically increasing fade. Source polls alone cannot
   // spend it; a changed pose cannot erase the original metal in one frame.
-  return Math.min(previous,1-earned);
+  // On this authenticated real F9 route, returned frames may spend only
+  // the portion of the fade actually earned by the present climber leaving
+  // the original physical gate. An idle hero cannot lose the doorway simply
+  // because the browser returned many frames at the same source tick.
+  // The previous submitted alpha remains a strict one-way ceiling: a fall,
+  // reversal, restart or new source stance cannot re-create old metal.
+  const departure=sourceReturnedOriginalDepartureProgress(source,held);
+  return Math.min(previous,1-earned*(departure===null?1:departure));
 }
 // A truly source-grounded, same-run doorway cannot be disposed while its
 // original steel is still opaque solely because the autonomous climber
