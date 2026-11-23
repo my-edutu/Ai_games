@@ -634,6 +634,10 @@
         }
       ],
       "correction": "Only query post-retirement receipt in live normal-motion Floor9 follow Scene; optional guard for absent receipt API. Keep original material keys and original geometry explicitly in held-owner path, separate retired mode. Added real Three triangle fixture for retired receipt and invalid/expired/wrong-run rejection; new CI required."
-    }
+    },
+    "correctedSourceSha": "f22f6fcf2f4bab0301eda7ef9992e3fbeaeec7a8",
+    "correctedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45290303040",
+    "correctedQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45290302990",
+    "correctedStatus": "Capture in progress; quality queued. NOT EVALUATED."
   }
 }
