@@ -98,9 +98,22 @@ export function sourceJointGatewayFlightLens(source,held,o={}){
  const raisedOffscreen=gap(o.landingNdc,o.aspect<.85?.72:.80)>.015||
    o.landingNdc[2]<-1||o.landingNdc[2]>1;
  const heroNearCrop=gap(o.heroNdc,o.aspect<.85?.69:.77)>.01;
- if(!raisedOffscreen&&!heroNearCrop)return null;
- const target=o.hero.map((v,i)=>v*.38+o.gateway[i]*.14+
-   o.roof[i]*.10+o.landing[i]*.38);
+ // The original native crossing can show the WHOLE first raised F9 deck
+ // while the source-owned HP-open F8 doorway is already offscreen.
+ // The former landing/hero-only trigger rejected this entire real episode.
+ // Missing original steel is an actual returned-geometry witness, not
+ // a substitute for HP0 proof or a licence to conjure a new doorway.
+ const originalGatewayLost=gap(o.gatewayNdc,o.aspect<.85?.70:.78)>.025||
+   o.steel.projectedPanes<2||o.steel.projectedMetalArea<.012;
+ if(!raisedOffscreen&&!heroNearCrop&&!originalGatewayLost)return null;
+ // One real physically shared shot, not an abrupt cut to the old room.
+ // When the old gateway is missing, keep the moving hero and raised
+ // destination weighted while recovering its architectural anchor.
+ const weights=originalGatewayLost
+   ?[.34,.33,.11,.22]:[.38,.14,.10,.38];
+ const target=o.hero.map((v,i)=>v*weights[0]+
+   o.gateway[i]*weights[1]+o.roof[i]*weights[2]+
+   o.landing[i]*weights[3]);
  const delta=target.map((v,i)=>v-o.focus[i]);
  const distance=Math.hypot(...delta),seconds=clamp(o.dt,.001,.07);
  const gazeStep=distance>1e-6?Math.min(distance,seconds*14):0;
@@ -136,10 +149,28 @@ export function assessSourceJointGatewayLens(before,after){
      Math.max(.009,before.steel.projectedMetalArea*.78);
  const beforeGap=gap(before.landingNdc,.79),afterGap=gap(after.landingNdc,.79);
  const beforeHero=gap(before.heroNdc,.76),afterHero=gap(after.heroNdc,.76);
- const improved=afterGap+Math.max(0,afterHero)*.5<
+ const beforeGate=gap(before.gatewayNdc,.76),afterGate=gap(after.gatewayNdc,.76);
+ // A first-F9 lens must never buy an old-gateway recovery by losing
+ // the actual elevated destination or cropping the complete moving body.
+ const landingHeld=afterGap<=beforeGap+.025;
+ const actorHeld=afterHero<=beforeHero+.035;
+ const gateHeld=afterGate<=beforeGate+.025;
+ const raisedRouteGain=afterGap+Math.max(0,afterHero)*.5<
    beforeGap+Math.max(0,beforeHero)*.5-.012;
+ const originalSteelWasLost=before.steel.projectedPanes<2||
+   before.steel.projectedMetalArea<.012;
+ // The previous assessor demanded a landing improvement even when that
+ // destination was already safely centered. It consequently vetoed
+ // every authentic gate-only recovery. A genuinely MORE visible gate
+ // or newly projected real original steel is also a four-subject gain.
+ const physicalGateGain=beforeGate-afterGate>.018||
+   originalSteelWasLost&&after.steel.projectedPanes>=2&&
+   after.steel.projectedMetalArea>=.009;
+ const improved=(raisedRouteGain&&gateHeld||
+   physicalGateGain&&landingHeld&&actorHeld);
  return heroSafe&&gateSafe&&roofSafe&&steelSafe&&
-   after.landingNdc[2]>=-1&&after.landingNdc[2]<=1&&improved;
+   after.landingNdc[2]>=-1&&after.landingNdc[2]<=1&&
+   landingHeld&&actorHeld&&gateHeld&&improved;
 }
 
 // The old steel can be source-owned yet currently OFFSCREEN. Requiring its
