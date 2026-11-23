@@ -1,0 +1,48 @@
+{
+  "stage": "P0",
+  "status": "OPEN",
+  "leadingTransformationVerdict": "NOT EVALUATED",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "frozenLedgerBlobSha": "b8aa51bb5bb50b55222fb6b947472692c87c822a",
+  "implementationCommitSha": "d84ae3bf594cda4158e3dd4b221311001e7eabdf",
+  "inspectedSourceSha": "e8770f7feacfa6dc98b97c9cc9230069c9b32166",
+  "changedInGameplay": [
+    "public/infinite-tower-climb/visuals/first-raised-body-composition.mjs",
+    "public/infinite-tower-climb/visuals/scene.mjs",
+    "tests/phase3/tower-first-raised-body-composition.test.cjs"
+  ],
+  "actualGameplayChange": "source-authentic first raised p2 body-scale follow camera with full-body, original gate, real-platform triangle ray, tower-core veto and bounded run step",
+  "priorCampaign": {
+    "runId": 45220303073,
+    "sourceSha": "e8770f7feacfa6dc98b97c9cc9230069c9b32166",
+    "originalMovies": 8,
+    "strictNativeEventPairs": {
+      "desktop": false,
+      "portrait": false
+    },
+    "firstFloor9DesktopHudSeconds": 26.5,
+    "sustainedVioletDesktopSeconds": 29.75,
+    "desktopPhaseGapSeconds": 3.25,
+    "portraitPhaseGap": "NOT EVALUATED"
+  },
+  "currentCampaign": {
+    "runId": 45231238288,
+    "url": "https://github.com/my-edutu/Ai_games/actions/runs/45231238288",
+    "sourceSha": "d84ae3bf594cda4158e3dd4b221311001e7eabdf",
+    "status": "IN PROGRESS / NOT EVALUATED"
+  },
+  "currentQuality": {
+    "runId": 45231238036,
+    "url": "https://github.com/my-edutu/Ai_games/actions/runs/45231238036",
+    "sourceSha": "d84ae3bf594cda4158e3dd4b221311001e7eabdf",
+    "status": "NOT EVALUATED"
+  },
+  "independentCritics": {
+    "looks": 0,
+    "feels": 0,
+    "plays": 0
+  },
+  "actualDeviceFrameTimeMemory": "NOT EVALUATED",
+  "biggestExperienceGap": "3.25-second desktop bronze-to-violet native composition discontinuity, no accepted continuous original gate/actor/receiving roof/p2 sequence",
+  "nextHighestImpactAction": "Inspect exact-source native 23–34s matched desktop/portrait film and new source-bound scale acceptance; rebuild joined original gateway and successor staging if film still jumps. Preserve frozen SHA, PR58 edits and PR68 draft."
+}
