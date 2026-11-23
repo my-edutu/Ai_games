@@ -210,6 +210,43 @@ export function sourceJointGatewayFlightLens(source,held,o={}){
    limitation:'Proposed current real four-subject lens, separately vetoed by projected complete hero, true gate metal, walkable roof, raised landing, actual triangles and solid tower. NOT native film proof.'};
 }
 
+
+// Source-pinned d84ae3bf native 1x desktop: 13 partial lenses, zero
+// complete, every accepted step stopped after the FIRST safe rig. P2 was
+// still outside the screen (1.58 NDC). Order the real optical candidates
+// by the missing source-owned subject, rather than accepting the first
+// generic camera response. Scene's physical ray/core/steel checks apply
+// without exception to EVERY ranked candidate before actual submission.
+export function prioritizeSourceJointGatewayRecoveryRigs(rigs,before,aspect){
+ if(!Array.isArray(rigs)||rigs.length===0||!before||
+    !finite(aspect)||aspect<.36||aspect>2.45||
+    !Array.isArray(before.landingNdc)||before.landingNdc.length!==3||
+    !before.landingNdc.every(finite)||
+    !ndc(before.gatewayNdc,4)||
+    before.steel?.sourceBound!==true||
+    !integer(before.steel.projectedPanes)||
+    !finite(before.steel.projectedMetalArea))return rigs;
+ const landingGap=gap(before.landingNdc,aspect<.85?.72:.80);
+ const gateGap=gap(before.gatewayNdc,aspect<.85?.70:.78);
+ const steelUnframed=before.steel.projectedPanes<2||
+    before.steel.projectedMetalArea<.012;
+ const raisedLost=landingGap>.045||before.landingNdc[2]<-1||
+    before.landingNdc[2]>1;
+ const gateLost=gateGap>.045||steelUnframed;
+ if(!raisedLost&&!gateLost)return rigs;
+ const raisedFirst=raisedLost&&(!gateLost||
+    landingGap>=gateGap+(steelUnframed?.12:-.025));
+ const names=raisedFirst
+   ?['source-raised-route-gaze','source-gateway-balanced-gaze',
+     'original-camera-position','source-dolly','source-dolly-orbit']
+   :['source-gateway-balanced-gaze','source-raised-route-gaze',
+     'original-camera-position','source-dolly','source-dolly-orbit'];
+ return rigs.map((rig,index)=>({rig,index,priority:names.indexOf(rig?.kind)}))
+   .sort((a,b)=>(a.priority<0?names.length:a.priority)-
+        (b.priority<0?names.length:b.priority)||a.index-b.index)
+   .map(x=>x.rig);
+}
+
 // The scene reprojects the four current Three subjects and raycasts real
 // structure AFTER the proposed camera, never accepting a fake geometric read.
 export function assessSourceJointGatewayLens(before,after){

@@ -36,7 +36,7 @@ import { observedSourceBoundColdDoorwayLens } from './cold-doorway-camera.mjs';
 import { sourceReturnedGateCameraRelease, sourceRetainedGatewayCameraContinuity, assessSourceRetainedGatewayPhysicalShot, sourceReturnedGatewayLastCameraEligible, sourceEarnedFloorNineOrbitGuard } from './source-returned-gate-camera-release.mjs';
 import { sourceFirstRaisedFlightGaze } from './source-first-raised-flight-gaze.mjs';
 import { proposeSourceFirstRaisedBodyScale, acceptSourceFirstRaisedBodyScale } from './first-raised-body-composition.mjs';
-import { sourceFirstRaisedGatewayLandmark, sourceJointGatewayFlightLens, explainSourceJointGatewayLensBlocker, assessSourceJointGatewayLens, assessSourceJointGatewayRecoveryStep, sourceJointGatewayRecoveryRigs } from './source-joint-gateway-flight-lens.mjs';
+import { sourceFirstRaisedGatewayLandmark, sourceJointGatewayFlightLens, explainSourceJointGatewayLensBlocker, assessSourceJointGatewayLens, assessSourceJointGatewayRecoveryStep, sourceJointGatewayRecoveryRigs, prioritizeSourceJointGatewayRecoveryRigs } from './source-joint-gateway-flight-lens.mjs';
 import { firstReturnedOriginalRoomAdmission, firstReturnedFloorNineEpisode } from './first-source-room-return.mjs';
 import { sourceFirstFloorNineCameraDeparture } from './first-floor-nine-camera-departure.mjs';
 import { firstF9ReturnedGatewaySearchBudget, sampleColdFirstReturnGatewayTrials } from './first-f9-return-search-budget.mjs';
@@ -6422,14 +6422,17 @@ export function createTowerScene(canvas, settings = {}) {
             }
             const oldFov=camera.fov,oldFocus=lookAt.clone();
             const oldPosition=camera.position.clone();
-            const rigs=sourceJointGatewayRecoveryRigs(proposal,{
+            const rigs=prioritizeSourceJointGatewayRecoveryRigs(
+              sourceJointGatewayRecoveryRigs(proposal,{
               cameraPosition:oldPosition.toArray(),dt,
               currentFocus:oldFocus.toArray(),currentFov:oldFov,
               aspect:camera.aspect,
               hero:jointHero.toArray(),gateway:jointGate.toArray(),
               roof:jointRoof.toArray(),landing:jointLanding.toArray(),
               remainingTravelMetres:Math.max(0,3-sourceJointGatewayLensTravelMetres)
-            });
+              }),before,camera.aspect);
+            // Real source p2/old steel decide trial order only; all projection,
+            // authentic World mesh rays, tower-core checks below remain vetoes.
             let acceptedJoint=false;
             for(const rig of rigs){
               camera.position.set(...rig.position);

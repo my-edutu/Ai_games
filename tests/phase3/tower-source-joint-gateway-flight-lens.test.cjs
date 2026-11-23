@@ -413,3 +413,48 @@ test('readable original steel may survive safe portrait FOV widening, but must n
  assert.equal(step(prior,{...widened,
    landingNdc:[.42,1.43,.978]}),false);
 });
+
+test('actual immutable first-F9 desktop and portrait frames prioritize offscreen raised p2 over first generic safe camera',async()=>{
+ const {prioritizeSourceJointGatewayRecoveryRigs:order}=await modulePromise;
+ const rigs=[{kind:'original-camera-position'},{kind:'source-raised-route-gaze'},
+  {kind:'source-gateway-balanced-gaze'},{kind:'source-dolly'},
+  {kind:'source-dolly-orbit'}];
+ const desktop={landingNdc:[.3754727,1.5795557,.9761],
+  gatewayNdc:[-.026149,.01758,.98156,.2496],
+  steel:{sourceBound:true,projectedPanes:23,projectedMetalArea:.034}};
+ const portrait={landingNdc:[.77246,1.2220,.98293],
+  gatewayNdc:[-.20298,.00576,.9838,.22598],
+  steel:{sourceBound:true,projectedPanes:13,projectedMetalArea:.028}};
+ for(const [frame,aspect] of [[desktop,960/600],[portrait,390/844]]){
+  const ranked=order(rigs,frame,aspect);
+  assert.equal(ranked[0].kind,'source-raised-route-gaze');
+  assert.equal(ranked.length,rigs.length);
+  assert.deepEqual(new Set(ranked),new Set(rigs));
+ }
+ assert.equal(rigs[0].kind,'original-camera-position');
+});
+test('lost genuine gateway takes priority if the real raised destination is in frame, and untrusted projections never reorder',async()=>{
+ const {prioritizeSourceJointGatewayRecoveryRigs:order}=await modulePromise;
+ const rigs=[{kind:'original-camera-position'},{kind:'source-raised-route-gaze'},
+  {kind:'source-gateway-balanced-gaze'},{kind:'source-dolly'}];
+ const lost={landingNdc:[.15,.2,.97],gatewayNdc:[-1.4,.1,.98,.2],
+  steel:{sourceBound:true,projectedPanes:1,projectedMetalArea:.004}};
+ assert.equal(order(rigs,lost,390/844)[0].kind,'source-gateway-balanced-gaze');
+ assert.equal(order(rigs,{...lost,gatewayNdc:[0,0,.98,.2],
+  steel:{...lost.steel,projectedPanes:7,projectedMetalArea:.03}},390/844),rigs);
+ assert.equal(order(rigs,{...lost,steel:{sourceBound:false,
+  projectedPanes:1,projectedMetalArea:.004}},390/844),rigs);
+ assert.equal(order(rigs,lost,NaN),rigs);
+});
+test('prioritized real gateway rigs still require complete projection, mesh-ray and core veto before any GPU acceptance',()=>{
+ const scene=fs.readFileSync(path.resolve(__dirname,
+  '../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+ const p=scene.indexOf('const rigs=prioritizeSourceJointGatewayRecoveryRigs(');
+ const r=scene.indexOf('const rays=projectionSafe',p);
+ const c=scene.indexOf('const coreSafe=raySafe',p);
+ const accept=scene.indexOf('if(physicallySafe){',p);
+ assert.ok(p>0&&r>p&&c>r&&accept>c);
+ assert.match(scene.slice(p,accept),/world\.measureSuccessorDeckVisibility\(snapshot/);
+ assert.match(scene.slice(p,accept),/towerCoreSightlineClear\(camera\.position,jointLanding/);
+ assert.match(scene.slice(p,accept),/assessSourceJointGatewayRecoveryStep\(before,after\)/);
+});
