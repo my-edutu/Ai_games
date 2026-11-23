@@ -2504,6 +2504,7 @@ export function createTowerScene(canvas, settings = {}) {
   let firstRaisedScaleRun=null,firstRaisedScaleTravel=0;
   let firstRaisedScaleAccepted=0,firstRaisedScaleRejected=0,firstRaisedScaleProposed=0;
   let firstF9CameraWorldSpaceClamps=0,firstF9CameraLateralClamps=0;
+  let firstF9CameraSourceAltitudeClamps=0;
   let firstF9CameraHeroGazeRescues=0;
   let firstF9CameraUnboundedCuts=0,firstF9CameraLargestUnboundedMetres=0;
   let firstF9CameraWorstRequestedMetres=0,firstF9CameraLastBoundMetres=0;
@@ -6251,6 +6252,19 @@ export function createTowerScene(canvas, settings = {}) {
           Math.abs(releaseHeroNdc[1])+releaseHeroNdc[3]<.91;
         let wholeHero=currentHeroFrameSafe();
         const coreClear=towerCoreSightlineClear(camera.position,releaseHero,23.5);
+        // Genuine first p2 ascent requires the current source-owned World
+        // physical mesh-ray check; even a bounded camera can hide behind
+        // the true raised deck or opaque original doorway. No second render.
+        const altitudeStep=firstF9DepartureBound.reason===
+          'first-original-floor-nine-source-skipped-altitude-cut';
+        const sourceAltitudeRay=altitudeStep
+          ?world.measureSuccessorDeckVisibility(snapshot,
+             camera.position,releaseHero,
+             snapshot.player.halfHeight/SCALE,null,'f9:p2'):null;
+        const altitudeRayClear=!altitudeStep ||
+          (sourceAltitudeRay?.active===true &&
+           sourceAltitudeRay.bodyBlockedRays===0 &&
+           sourceAltitudeRay.gatewayBlockedRays===0);
         // Camera continuity must not become an instant raw-camera cut merely
         // because a previously valid gaze no longer frames the genuinely
         // moving hero. Attempt ONLY a bounded lens with a view of the live
@@ -6274,7 +6288,7 @@ export function createTowerScene(canvas, settings = {}) {
             camera.lookAt(lookAt);camera.updateMatrixWorld(true);
           }
         }
-        if(wholeHero && coreClear){
+        if(wholeHero && coreClear && altitudeRayClear){
           firstF9CameraOutwardClamps=Math.min(1000000,
             firstF9CameraOutwardClamps+1);
           if(firstF9DepartureBound.reason===
@@ -6285,6 +6299,8 @@ export function createTowerScene(canvas, settings = {}) {
              'first-original-floor-nine-camera-lateral-orbit')
             firstF9CameraLateralClamps=Math.min(1000000,
               firstF9CameraLateralClamps+1);
+          if(altitudeStep)firstF9CameraSourceAltitudeClamps=Math.min(1000000,
+            firstF9CameraSourceAltitudeClamps+1);
           firstF9CameraWorstRequestedMetres=Math.max(
             firstF9CameraWorstRequestedMetres,
             firstF9DepartureBound.requestedMovement);
@@ -7442,6 +7458,7 @@ export function createTowerScene(canvas, settings = {}) {
         sourceBoundCameraClamps:firstF9CameraOutwardClamps,
         sourceBoundWorldSpaceClamps:firstF9CameraWorldSpaceClamps,
         sourceBoundLateralOrbitClamps:firstF9CameraLateralClamps,
+        sourceCertifiedFirstRaisedAltitudeClamps:firstF9CameraSourceAltitudeClamps,
         sourceHeroGazeFrameRescues:firstF9CameraHeroGazeRescues,
         actuallySubmittedUnboundedCameraCuts:firstF9CameraUnboundedCuts,
         largestSubmittedUnboundedCameraCutMetres:

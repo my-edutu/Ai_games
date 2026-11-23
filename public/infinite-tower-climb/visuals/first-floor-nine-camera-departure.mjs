@@ -87,8 +87,47 @@ export function sourceFirstFloorNineCameraDeparture({source,lastRendered,
     !sourceUnearnedWorldCut && !genuineInwardRecovery &&
     requested>Math.max(9,actorMovement*1.55+3) &&
     Math.abs(requestedTurn)>.18 && lateralArc>9;
+  // P0 source-pinned real native danger: between returned F9 ticks 519->533
+  // the climber rises ~7.4 world metres and the browser returns no intervening
+  // poses. The final follow camera rises 7.84m (with 8.64m gaze change) in
+  // one original 1x filmed frame. Neither the angular-orbit nor outward-dolly
+  // detector can catch a height-follow cut that tracks a genuine fast ascent.
+  // Require the immutable same-run HP-zero original gate, actual successor
+  // target/foot contact and the previously returned F9 lens. Never constrain
+  // generic falling/restart, a forged guardian outcome or a source-less jump.
+  const crossing=source.lastGuardianCrossing,p=source.player;
+  const actualP2=Array.isArray(source.platforms) &&
+    source.platforms.find(d=>d?.id==='f9:p2' &&
+      [d.x,d.y,d.width,d.height].every(Number.isSafeInteger) &&
+      d.width>0 && d.height>0);
+  const realRaisedSupport=actualP2 &&
+    [p.x,p.y,p.halfHeight].every(Number.isSafeInteger) &&
+    p.halfHeight>0 &&
+    ((p.grounded===true && p.groundedPlatformId==='f9:p2' &&
+       p.y-p.halfHeight===actualP2.y+actualP2.height) ||
+     (p.grounded===false && p.state==='airborne' &&
+       source.intent?.targetPlatformId==='f9:p2'));
+  const sameEarnedGateway=crossing?.runToken===source.runToken &&
+    Number.isSafeInteger(crossing.sourceTick) &&
+    crossing.sourceTick<=source.tick &&
+    source.tick-crossing.sourceTick<=120 &&
+    crossing.fromFloor===8 && crossing.toFloor===9 &&
+    crossing.cap?.id==='f8:cap' &&
+    crossing.guardian?.kind==='guardian' &&
+    crossing.guardian.active===false &&
+    Number.isFinite(crossing.guardian.health) &&
+    crossing.guardian.health<=0;
+  const sourceSkippedAltitudeCut=sourceLimitedRadius &&
+    !genuineInwardRecovery && !shoulderCut &&
+    !sourceUnearnedLateralOrbit && !sourceUnearnedWorldCut &&
+    !sourceUnearnedAirborneOrbit &&
+    sameEarnedGateway && realRaisedSupport &&
+    actorMovement>=3 && actorMovement<=12 &&
+    heightDelta>Math.max(3.2,actorMovement*.48) &&
+    Math.abs(desiredFocus[1]-previousFocus[1])>3.5 &&
+    requested>Math.max(6,actorMovement*.9);
   if(shoulderCut||sourceUnearnedLateralOrbit||sourceUnearnedWorldCut||
-     sourceUnearnedAirborneOrbit){
+     sourceUnearnedAirborneOrbit||sourceSkippedAltitudeCut){
     // Rotate around the original tower core from the last successfully
     // returned same-run lens. Time that the browser did not render never
     // grants a camera teleport; source physics remain authoritative.
@@ -117,7 +156,9 @@ export function sourceFirstFloorNineCameraDeparture({source,lastRendered,
           ?'first-original-floor-nine-camera-lateral-orbit'
           :sourceUnearnedWorldCut
             ?'first-original-floor-nine-camera-world-space-cut'
-            :'first-original-floor-nine-camera-airborne-orbit'};
+            :sourceUnearnedAirborneOrbit
+              ?'first-original-floor-nine-camera-airborne-orbit'
+              :'first-original-floor-nine-source-skipped-altitude-cut'};
   }
   // Leave ordinary tracking and inward catch-up untouched. Only the
   // discontinuous OUTWARD dolly which shrinks the hero is constrained.

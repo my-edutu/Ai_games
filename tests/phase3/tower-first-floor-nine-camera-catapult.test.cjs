@@ -168,3 +168,60 @@ test('real 0e2b7c2 Floor9 portrait 514-to-528 airborne source does not earn a 14
  assert.equal(f({...episode,source:{...episode.source,floor:10}}),null);
  assert.equal(f({...episode,lastRendered:{...episode.lastRendered,runToken:'restart'}}),null);
 });
+
+test('native tick 519 to 533 real Floor9 first-raised ascent cannot vertically catapult its returned camera',async()=>{
+ const f=await fn;
+ const old={...b,source:{...source,tick:533,
+   player:{health:4,x:348596,y:3398000,halfHeight:14000,
+     grounded:false,groundedPlatformId:null,state:'airborne'},
+   lastGuardianCrossing:{runToken:'original',sourceTick:475,fromFloor:8,toFloor:9,
+     cap:{id:'f8:cap'},guardian:{kind:'guardian',active:false,health:0}},
+   platforms:[{id:'f9:p2',x:335000,y:3370000,width:52000,height:14000}],
+   intent:{targetPlatformId:'f9:p2'}},
+   lastRendered:{floor:9,runToken:'original',tick:519},
+   previousCamera:[13.132,7.873,43.66],
+   desiredCamera:[16.949,15.716,41.595],
+   previousFocus:[7.782,2.765,23.410],
+   desiredFocus:[10.312,11.401,23.082],
+   previousHero:[10,3.4,23],hero:[10.3,10.8,23],dt:.05};
+ const before=JSON.stringify(old);
+ const x=f(old);
+ assert.ok(x,'original 1x footage catches real source-skip vertical catapult');
+ assert.equal(x.reason,'first-original-floor-nine-source-skipped-altitude-cut');
+ assert.ok(x.requestedMovement>8.5);
+ assert.ok(x.boundedMovement<2,'one completed 25fps display must not rise 8 metres');
+ assert.ok(Math.abs(x.camera[1]-old.previousCamera[1])<=.75+.00001);
+ assert.equal(JSON.stringify(old),before,'no simulated actor movement or run change');
+ const invalid=[
+  {source:{...old.source,lastGuardianCrossing:null}},
+  {source:{...old.source,lastGuardianCrossing:{...old.source.lastGuardianCrossing,
+    guardian:{kind:'guardian',active:true,health:1}}}},
+  {source:{...old.source,intent:{targetPlatformId:'f9:p3'}}},
+  {source:{...old.source,platforms:[]}},
+  {source:{...old.source,runToken:'other'}},
+  {source:{...old.source,player:{...old.source.player,health:0}}},
+  {stale:true},{reducedMotion:true},{cameraMode:'orbit'},
+  {lastRendered:{...old.lastRendered,runToken:'other'}}
+ ];
+ for(const change of invalid)assert.equal(f({...old,...change}),null,
+   'no unsupported camera claim may hide a fake threshold or borrowed source');
+ const grounded={...old.source,player:{...old.source.player,
+   grounded:true,groundedPlatformId:'f9:p2',state:'standing',y:3398000}};
+ assert.equal(f({...old,source:grounded}).reason,
+   'first-original-floor-nine-source-skipped-altitude-cut');
+ assert.equal(f({...old,source:{...grounded,
+   player:{...grounded.player,y:3402000}}}),null,
+   'fake grounded deck footprint cannot authorize altitude recovery');
+});
+test('genuine altitude recovery still undergoes live source p2 and original-gateway triangle veto before WebGL',()=>{
+ const scene=fs.readFileSync(path.join(visuals,'scene.mjs'),'utf8');
+ const start=scene.indexOf('const firstF9DepartureBound=sourceFirstFloorNineCameraDeparture(');
+ const rays=scene.indexOf('const sourceAltitudeRay=',start);
+ const good=scene.indexOf('if(wholeHero && coreClear && altitudeRayClear)',rays);
+ const render=scene.indexOf('renderer.render(scene, camera);',start);
+ assert.ok(start>0 && rays>start && good>rays && render>good);
+ assert.match(scene,/world\.measureSuccessorDeckVisibility\(snapshot,[\s\S]*?camera\.position,releaseHero,[\s\S]*?'f9:p2'\)/);
+ assert.match(scene,/sourceAltitudeRay\.bodyBlockedRays===0/);
+ assert.match(scene,/sourceAltitudeRay\.gatewayBlockedRays===0/);
+ assert.match(scene,/firstF9CameraSourceAltitudeClamps/);
+});

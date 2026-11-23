@@ -1,0 +1,62 @@
+{
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "leadingTransformationVerdict": "NOT EVALUATED",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "frozenLedgerBlobSha": "b8aa51bb5bb50b55222fb6b947472692c87c822a",
+  "inspectedHeadSha": "5ee04de1c0682146605e5133f1dbf7003cf85d43",
+  "change": "Source-certified same-run HP0 first Floor9 p2 altitude camera envelope and real geometry ray veto at final Three scene submission",
+  "sourceNativeWitness": {
+    "run": "https://github.com/my-edutu/Ai_games/actions/runs/45242009316",
+    "candidateGameplaySha": "aa7d97ef2d78a2bde78907f55f3e5562e11723bb",
+    "recordings": "8/8 original baseline/candidate 1x WebMs plus authentic ledge SUCCESS",
+    "sourceTimelines": "8/8 source pairs; 0 integrity defects",
+    "strictMatchedNativeDanger": "FAILED 0/2 viewports",
+    "desktopNativeFloor9HudSeconds": 26.5,
+    "desktopSustainedVioletSeconds": 29.25,
+    "portraitSustainedViolet": "NOT EVALUATED",
+    "firstRaisedSourceTicks": [
+      519,
+      533
+    ],
+    "previousReturnedCamera": [
+      13.132,
+      7.873,
+      43.66
+    ],
+    "followingRenderedCamera": [
+      16.949,
+      15.716,
+      41.595
+    ],
+    "previousFocus": [
+      7.782,
+      2.765,
+      23.41
+    ],
+    "followingFocus": [
+      10.312,
+      11.401,
+      23.082
+    ],
+    "physicalOrigin": "Actual returned World/Scene native source-tick and WebM evidence; no fabricated video"
+  },
+  "lastExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45242009190 — 10/10 PASS; safety only",
+  "newSourceTestAndCapture": "NOT EVALUATED until new exact-head actions complete",
+  "independentBlindReview": {
+    "LOOKS": "0/5",
+    "FEELS": "0/5",
+    "PLAYS": "0/5"
+  },
+  "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
+  "largestRemainingExperienceGap": "An integrated continuous normal-speed original bronze gateway, entire moving climber, true F9 roof and first raised deck passage remains unproved; source/native event acceptance 0/2",
+  "nextAction": "Inspect new exact-source normal-speed desktop and portrait full WebMs, event-join and returned camera altitude; if still missing, rebuild integrated World/Scene camera/architecture route, not isolated opacity.",
+  "safety": {
+    "draftPR68": true,
+    "baselineLedgerUnchanged": true,
+    "PR58Untouched": true,
+    "otherGamesUntouched": true,
+    "noForcePush": true,
+    "noMerge": true,
+    "noDeploy": true
+  }
+}
