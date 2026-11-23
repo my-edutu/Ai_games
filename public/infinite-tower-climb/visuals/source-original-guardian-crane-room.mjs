@@ -2,8 +2,12 @@
 // The original 1x desktop/portrait videos show the old room vanish into a much
 // wider Void ring: the historical mesh extractor had 675 source triangles but
 // ZERO left/right flank faces. Do not mislabel new steel as extracted history.
-// Instead prepaint two *real* F8-cap-anchored outboard crane frames. The SAME
-// rendered meshes are then reparented with the original cap/gateway on F9.
+// Instead prepaint two *real* F8-cap-anchored crane frames. A source-pinned
+// 390x844 film at tick 476-530 showed their former r31.25 foreground piers
+// in the camera-side corridor to the moving hero. Physically re-engineer
+// the SAME eight original members as rear CORE-SIDE cantilevers, behind
+// the r22.4 inner edge of the source-owned walking ring. The same original
+// meshes are then reparented with the original cap/gateway on F9.
 // No cloned doorway, collision, platform, source event, or future actor pose.
 const finite=Number.isFinite, integer=Number.isSafeInteger;
 export function planOriginalGuardianOutboardCranes(plan) {
@@ -24,8 +28,14 @@ export function planOriginalGuardianOutboardCranes(plan) {
       plan.stations[5].sourceX-plan.stations[0].sourceX<96000)
     return null;
 
-  const outer=plan.outerCrownRadius+1.25; // 3.8m OUTSIDE the walkable r27.2 lip
   const inner=plan.innerPierRadius;
+  // Exterior follow cameras view the r25 hero FROM OUTSIDE the cylinder:
+  // a pier beyond r27.18 still becomes a large near-field camera curtain.
+  // Preserve the two real prepainted piers, but transfer load to the inner
+  // reinforced clockwork core, leaving the entire annular actor sightline
+  // r22.4..27.18 physically unobstructed by these optional members.
+  const corePier=inner+1.55;
+  if(corePier>=22.4)return null;
   const gateAngle=plan.stations[0].angle+
     (plan.thresholdX-plan.stations[0].sourceX)*
     (plan.stations[5].angle-plan.stations[0].angle)/
@@ -35,18 +45,19 @@ export function planOriginalGuardianOutboardCranes(plan) {
   const beams=[];
   for(const station of [plan.stations[0],plan.stations[5]]) {
     const a=station.angle;
-    // Low compression knee is fully BELOW the real source roof as it passes
-    // through the r22.4..27.2 walking strip; no steel curtain through boots.
+    // All eight SAME F8-authored members now live behind the genuine
+    // inner roof lip; no front pier or overhead tie is between an exterior
+    // portrait camera and the original HP-open hero/gateway/raised route.
+    // The two piers join the prepainted inner canopy at y16.4, while
+    // crown ties maintain one mechanically continuous silhouette at y18.2.
     beams.push({role:'under-roof-knee',
-      from:[a,inner,-4],to:[a,outer,-1.2],radius:.20});
-    // Piers sit outside the source walking annulus and frame rather than
-    // bisect the original source-held live guardian/hero corridor.
-    beams.push({role:'outboard-pier',
-      from:[a,outer,-1.2],to:[a,outer,15.6],radius:.26});
+      from:[a,inner,-4],to:[a,corePier,-1.2],radius:.20});
+    beams.push({role:'core-wall-pier',
+      from:[a,corePier,-1.2],to:[a,corePier,16.4],radius:.26});
     beams.push({role:'upper-return',
-      from:[a,outer,15.6],to:[a,inner,12.4],radius:.16});
+      from:[a,corePier,16.4],to:[a,inner,16.4],radius:.16});
     beams.push({role:'crown-tie',
-      from:[a,outer,15.6],to:[gateAngle,outer,18.2],radius:.13});
+      from:[a,corePier,16.4],to:[gateAngle,corePier,18.2],radius:.13});
   }
   return {sourceBound:true,previewOnly:true,nonColliding:true,
     oldCapId:'f8:cap',receivingPlatformId:'f9:ground',
