@@ -55,6 +55,10 @@ test('actual platform-supported raised contact is necessary but not sufficient; 
  assert.equal(clearance({...firstContact,platforms:[ground]},h),null);
  assert.equal(clearance({...firstContact,player:{...firstContact.player,
    groundedPlatformId:'f9:fictional'}},h),null);
+ assert.equal(clearance({...firstContact,lastGuardianCrossing:{
+   ...firstContact.lastGuardianCrossing,
+   guardian:{kind:'guardian',active:true,health:1}}},h),null,
+   'an intact guardian cannot certify earned clearance');
  assert.ok(progress(firstContact,h)<=.65,
    'source-only landed packet cannot instantly retire a still-returned old gate');
  const returned={...h,firstRouteClearanceReturnTick:525,
@@ -73,6 +77,8 @@ test('world stores milestone exclusively on a successful actual GPU return; old 
  assert.match(w,/sourceReturnedOriginalRouteClearance\(snapshot,held\)/);
  assert.match(w,/held\.routeClearanceReturnedFrames/);
  assert.match(w,/held\.routeClearanceReturnedSeconds/);
+ assert.match(w,/sourceBearingReserve/);
+ assert.match(w,/Math\.max\(sourceGalleryLease,sourceBearingReserve\)/);
  assert.match(w,/sourceReturnedGatewayDisplayDt\(/);
  assert.match(w,/held\.submittedFrames>=30/);
 });
