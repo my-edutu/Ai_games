@@ -80,6 +80,46 @@ function joinOriginalRoomEvidence({sourceSha,viewport,clock,phase,timeline,video
       phase.viewport!==viewport || phase.scenario!=='danger')
     return fail('missing-source-and-original-video-verified-native-phase');
   const anchors = clock.calibration.anchorTimeline;
+  // Exact same-run source-render decision, never a guessed native shot.
+  // Legacy frozen baseline artifacts legitimately lack this observer.
+  const cameraOutcomes = new Set([
+    'source-roof-ineligible','source-raised-ineligible',
+    'no-lens-proposal','rejected-physical','accepted-partial',
+    'accepted-complete-projection'
+  ]);
+  const cameraReturn = r => {
+    const w=r?.cameraJointRecovery;
+    if(w?.sourceBound!==true || w.sourceTick!==r.sourceTick ||
+       !cameraOutcomes.has(w.outcome) ||
+       !Number.isSafeInteger(w.trialsEvaluated) ||
+       w.trialsEvaluated<0 || w.trialsEvaluated>4 ||
+       ![w.projectionVetoes??0,w.worldRayVetoes??0,w.coreVetoes??0]
+        .every(x=>Number.isSafeInteger(x)&&x>=0&&x<=4))
+      return null;
+    return {sourceTick:w.sourceTick,outcome:w.outcome,
+      raisedDeckId:/^f9:p[0-9]+$/.test(w.raisedDeckId||'')
+        ?w.raisedDeckId:null,
+      trialsEvaluated:w.trialsEvaluated,
+      projectionVetoes:w.projectionVetoes??0,
+      worldRayVetoes:w.worldRayVetoes??0,
+      coreVetoes:w.coreVetoes??0,
+      originalMetalPanesBefore:Number.isSafeInteger(w.originalMetalPanesBefore)
+        ?w.originalMetalPanesBefore:null,
+      originalMetalPanesSubmitted:Number.isSafeInteger(w.originalMetalPanesSubmitted)
+        ?w.originalMetalPanesSubmitted:null,
+      submittedHeroNdc:Array.isArray(w.submittedHeroNdc)&&
+        w.submittedHeroNdc.length===4&&w.submittedHeroNdc.every(finite)
+          ?w.submittedHeroNdc.slice():null,
+      submittedGateNdc:Array.isArray(w.submittedGateNdc)&&
+        w.submittedGateNdc.length===4&&w.submittedGateNdc.every(finite)
+          ?w.submittedGateNdc.slice():null,
+      submittedRoofNdc:Array.isArray(w.submittedRoofNdc)&&
+        w.submittedRoofNdc.length===3&&w.submittedRoofNdc.every(finite)
+          ?w.submittedRoofNdc.slice():null,
+      submittedLandingNdc:Array.isArray(w.submittedLandingNdc)&&
+        w.submittedLandingNdc.length===3&&w.submittedLandingNdc.every(finite)
+          ?w.submittedLandingNdc.slice():null};
+  };
   if (anchors.some((a,i)=>i>0 && a.wallAtMs<=anchors[i-1].wallAtMs))
     return fail('invalid-or-nonmonotonic-native-compositor-anchors');
   if (timeline.returnedRoomFrames.length>80)return fail('unbounded-returned-room-timeline');
@@ -111,7 +151,8 @@ function joinOriginalRoomEvidence({sourceSha,viewport,clock,phase,timeline,video
         ?r.successorStructuralVisibleReturns:null,
       camera:r.submittedCamera ?? null,
       cameraGaze:r.submittedGaze ?? null,
-      fogColor:r.submittedFogColor ?? null});
+      fogColor:r.submittedFogColor ?? null,
+      cameraJointRecovery:cameraReturn(r)});
   }
   // A 70+s danger film can restart and visit F9 again. The scene ring is
   // allowed to reset per run; a LATER run must never be diagnosed as the
@@ -127,6 +168,28 @@ function joinOriginalRoomEvidence({sourceSha,viewport,clock,phase,timeline,video
     x.nativeSearchPtsSeconds<=episode.endSeconds+.3);
   if(!firstEpisode.length)return fail('no-genuine-returns-mapped-to-first-native-floor-nine-episode');
   const summary=summarizeReturnedOwners(firstEpisode);
+  const matchedCamera=firstEpisode.filter(x=>x.cameraJointRecovery);
+  const countsByOutcome={};
+  for(const entry of matchedCamera)
+    countsByOutcome[entry.cameraJointRecovery.outcome]=
+      (countsByOutcome[entry.cameraJointRecovery.outcome]??0)+1;
+  const partial=matchedCamera.find(x=>
+    x.cameraJointRecovery.outcome==='accepted-partial');
+  const complete=matchedCamera.find(x=>
+    x.cameraJointRecovery.outcome==='accepted-complete-projection');
+  const cameraJointRecoverySummary={
+    sourceMatchedReturnedFrames:matchedCamera.length,
+    countsByOutcome,
+    totalProjectionVetoes:matchedCamera.reduce((n,x)=>
+      n+x.cameraJointRecovery.projectionVetoes,0),
+    totalWorldRayVetoes:matchedCamera.reduce((n,x)=>
+      n+x.cameraJointRecovery.worldRayVetoes,0),
+    totalCoreVetoes:matchedCamera.reduce((n,x)=>
+      n+x.cameraJointRecovery.coreVetoes,0),
+    firstPartialNativeSearchPtsSeconds:partial?.nativeSearchPtsSeconds??null,
+    firstCompleteNativeSearchPtsSeconds:complete?.nativeSearchPtsSeconds??null,
+    limitation:'Recovered source-projected scene framing and WebGL returns are NOT confirmed native WebM pixels, genuine blind reviewers, or device frame-time',
+  };
   const phaseSeconds=phase.phase?.videoPhaseWitness?.nativeSeconds ?? null;
   const hudSeconds=phase.visibleHandoff?.originalDrawnHudSeconds ?? null;
   const near = finite(phaseSeconds)
@@ -141,6 +204,7 @@ function joinOriginalRoomEvidence({sourceSha,viewport,clock,phase,timeline,video
     firstSustainedVioletVideoSeconds:finite(phaseSeconds)?phaseSeconds:null,
     nativeChromaEvidenceIsNotGameplayEvent:true,
     sourceReturnedRoomSummary:summary,
+    cameraJointRecoverySummary,
     returnedFramesNearNativeColorShift:near.filter(x=>firstEpisode.includes(x)),
     alignedSceneOwnerReturns:aligned,
     nextAction:summary.returnOwnerGapBeforeNextStructure
