@@ -76,7 +76,7 @@ test('native first-F9 renderer regression: final lens never borrows update-only 
  assert.match(joint,/observedSourceWalkableCrossfloorShot\(snapshot,retainedColdArrival\)/);
  assert.match(joint,/retainedColdArrival\.thresholdX,retainedColdArrival\.oldRoofY/);
  assert.match(joint,/new THREE\.Vector3\(\.\.\.returnedJointRoof\.world\)/);
- assert.doesNotMatch(joint,/physicalWalkableShot|coldArchProof/,
+ assert.doesNotMatch(joint,/physicalWalkableShot|coldArchProof|cameraDt/,
    'update() lexical bindings may not be referenced by animate()');
  assert.match(animate,/const retainedColdArrival = world/);
 });

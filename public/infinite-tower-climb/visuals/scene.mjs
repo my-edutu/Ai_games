@@ -6323,7 +6323,7 @@ export function createTowerScene(canvas, settings = {}) {
           const proposal=sourceJointGatewayFlightLens(snapshot,retainedColdArrival,{
             cameraMode:options.camera,stale:options.stale,
             reducedMotion:options.reducedMotion,
-            aspect:camera.aspect,dt:cameraDt,fov:camera.fov,
+            aspect:camera.aspect,dt,fov:camera.fov,
             focus:lookAt.toArray(),hero:jointHero.toArray(),
             gateway:jointGate.toArray(),roof:jointRoof.toArray(),
             landing:jointLanding.toArray(),...before
