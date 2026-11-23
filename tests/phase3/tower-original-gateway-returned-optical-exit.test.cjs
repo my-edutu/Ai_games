@@ -129,9 +129,9 @@ test('original continuous crossing earns gateway retirement from real roof trave
    'high source y alone must not extinguish the guardian doorway and supporting gallery');
  const landed={...ascended,tick:525,
    platforms:[...grounded.platforms,{id:'f9:p2',x:320000,
-     y:oldRoofY+72000,width:90000,height:12000}],
+     y:held.oldRoofY+72000,width:90000,height:12000}],
    player:{...ascended.player,grounded:true,groundedPlatformId:'f9:p2',
-     state:'standing',vy:0,y:oldRoofY+84000+14000}};
+     state:'standing',vy:0,y:held.oldRoofY+84000+14000}};
  const verifiedLanding={...held,firstRouteClearanceReturnTick:525,
    routeClearanceReturnedFrames:10,routeClearanceReturnedSeconds:.8};
  assert.equal(progress(landed,verifiedLanding),1,
