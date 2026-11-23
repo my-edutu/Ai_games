@@ -563,13 +563,22 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
           // wind-dried ochre mineral margins. The 84c1 original had >27%
           // bright turquoise creek vertices in a continuous graphic overlay;
           // those should instead read as physically planted depressions.
+          // The full-scene 398abc9 Chromium frame proves three connected
+          // pale corridors are still legible as graphic paint. Model dry
+          // laterite, retained humus, slate and damp moss as three connected
+          // banks with a genuinely low-lying silt gutter instead. The palette
+          // follows the same sculpted y and immutable public ecology, not
+          // any path, fruit, AI intent, camera or moving user data.
+          const incised = clamp((.0185-point[1])/.006,0,1);
+          const exposedBank = (1-incised)*(.42+.58*dryShelf);
+          const mossDark = incised*(.48+.52*bedShadow);
           const pigment = c === 0
-            ? .025 + dryShelf * .040 + (1-sun) * .015 + marbled * .010
+            ? .003 + exposedBank*.037 + (1-sun)*.009 + marbled*.005
             : c === 1
-              ? Math.min(.250, .115 + .014 * clamp((Math.min(width,height) - 8) / 8, 0, 1)
-                + wetMoss * .196 + bedShadow * .055 + dryShelf * .090)
-              : .035 + habitat.coolSlate * .040 + bedShadow * .045
-                + marbled * .012;
+              ? Math.min(.213, .197 + exposedBank*.018 + wetMoss*.025
+                - mossDark*.045 + bedShadow*.009)
+              : .032 + habitat.coolSlate*.028 + exposedBank*.014
+                + bedShadow*.010;
           // Creek-throat and endpoint stones sit beneath the rooted shore.
           // Darken the existing complete RGB value equally so its moss hue,
           // not a fabricated red path, remains truthful across all 3 boards.
@@ -618,13 +627,24 @@ export function createCourtyardEcology(THREE, { width, height, world = null }) {
         // to their narrow throats; the original safe bounds remain unchanged.
         const bend = Math.sin(x * .39 + t * 2.7 + phase) * .215 * Math.abs(t)
           + .067 * Math.sin(x * .77 + phase * 1.3 + t * 4.0) * Math.abs(t);
-        const z = clamp(centre + t * widthAt + bend, -H + .69, H - .69);
-        // Real low-relief terraced cross-section, not a flat pale triangle
-        // blanket: sheltered planted crown, weathered middle silt shelf,
-        // incised low mineral lip. Original contact clearance .011..021,
-        // central gameplay and actual mesh/draw budgets remain unchanged.
+        // Scallop each REAL bank perimeter in two slow geological scales.
+        // The floodplain remains one continuous 3D mesh, retains its rooted
+        // crown, and adds no vertices or GPU uploads, but its 3 courses can
+        // no longer read as six uniformly wide strokes laid over a court.
         const distance = Math.abs(t);
-        const floodShelf = distance < .34 ? .96 : distance < .70 ? .57 : .15;
+        const bankScallop=.73+.27*(.5+.5*Math.sin(x*.79+phase*1.17
+          +Math.sin(x*.29+channel)*1.25));
+        const dryShoulder=Math.pow(distance,.85)*bankScallop;
+        const z = clamp(centre + t * widthAt * (1-.24*dryShoulder) + bend,
+          -H + .69, H - .69);
+        // A continuous planted crown at t=0 meets all 20 original rooted
+        // groves; the adjacent silt gutters become PHYSICALLY incised while
+        // rounded rock levees flank them and fall to the original paving.
+        // All elevations remain below actual snake belly / contact shadows.
+        const siltGutter=Math.exp(-Math.pow((distance-.36)/.16,2));
+        const outerLevee=Math.exp(-Math.pow((distance-.70)/.19,2));
+        const floodShelf=Math.min(1.012,Math.max(.11, .96*(1-.55*siltGutter)
+          +.30*outerLevee-.83*Math.pow(distance,2.55)));
         const bedWetness = .78 + .22 * oxbow;
         const heightAboveCourt = .01125 + .00935 * floodShelf * bedWetness
           + .00022 * Math.sin(x * .65 + z * .45);
