@@ -640,7 +640,25 @@
       "PLAYS": "0/5"
     },
     "supportedActualDeviceFrameTimeAndMemory": "NOT EVALUATED",
-    "largestExperienceGap": "Human-readable continuous original opened gateway + full moving climber + walkable f9:ground + first raised platform not accepted in both 1x native viewports, including outcome/restart",
-    "nextHighestImpactAction": "Inspect real original 73913277 full-motion desktop and portrait first F9 events, source-returned gateway alpha and post-render body receipt; repair joint physical camera/World threshold if still a bronze-violet hard cut; do not advance P1 or score safety CI as quality."
+    "largestExperienceGap": "At first authenticated raised-deck flight source tick ~506->514, the real bronze gate retires ~.80→0 as world and follow camera reframe into violet shaft. User never sees continuous original open gate+full moving hero+real receiving roof+first raised deck in both native videos.",
+    "nextHighestImpactAction": "Do not repeat opacity-only tweaks. Repair integrated physically connected original gateway/ground/raised destination 3D scene and camera shot under actual source first-flight; demand 2/2 event-matched original full-motion videos and honest gameplay/outcome/restart review before P1.",
+    "latestExactHeadQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45095761558 (10/10 PASS; CI veto only)",
+    "latestAuthenticatedSourceCampaign": "https://github.com/my-edutu/Ai_games/actions/runs/45095663186",
+    "latestCampaignVideoJobs": "8/8 original source-pinned videos completed, ledge success; strict pair-source-events FAIL",
+    "latestCandidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45095663186/artifacts/14782773682",
+    "latestCandidateVideoInspected": "Decoded unaltered original 960x600 and 390x844 candidate danger WebMs at 0.5s sample from 23.0–34.5s; NOT continuous full-motion blind assessment",
+    "nativeVisualImprovement": "NOT DEMONSTRATED: bronze-to-violet original gateway -> successor-shaft hard spatial cut still visible in both viewports; no event-matched 2/2 acceptance",
+    "revisedPhysicalSourceObservation": {
+      "firstReturnedF9DesktopSourceTick": 475,
+      "firstReturnedF9PortraitSourceTick": 476,
+      "crossingSourceTick": 475,
+      "whyFirstReturnAnchorDidNotSolve": "Actual first F9 return was near true crossing x321096 in this source-pinned run, not later stationary x333296; 12m previously unpainted-travel theory does not explain this capture.",
+      "desktopGatewayOpacityAtTick506": 0.7967,
+      "desktopGatewayOpacityAtTick514": 0,
+      "portraitGatewayOpacityAtTick499": 0.901,
+      "portraitGatewayOpacityAtTick513": 0.1587,
+      "portraitGatewayOpacityAtTick527": 0,
+      "confidence": "Observed returned-world Three.js source/mat alpha and decoded original native frame samples, not raster-perfect source/native event acceptance"
+    }
   }
 }
