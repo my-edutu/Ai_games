@@ -38,6 +38,7 @@ import { sourceFirstRaisedFlightGaze } from './source-first-raised-flight-gaze.m
 import { sourceFirstRaisedGatewayLandmark, sourceJointGatewayFlightLens, explainSourceJointGatewayLensBlocker, assessSourceJointGatewayLens, assessSourceJointGatewayRecoveryStep, sourceJointGatewayRecoveryRigs } from './source-joint-gateway-flight-lens.mjs';
 import { firstReturnedOriginalRoomAdmission, firstReturnedFloorNineEpisode } from './first-source-room-return.mjs';
 import { sourceFirstFloorNineCameraDeparture } from './first-floor-nine-camera-departure.mjs';
+import { firstF9ReturnedGatewaySearchBudget, sampleColdFirstReturnGatewayTrials } from './first-f9-return-search-budget.mjs';
 import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, sourceRaisedBackdropClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceThreeSubjectActorScaleGain, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe, sourceThreeSubjectPhysicalGain } from './physical-threshold-shot.mjs';
 import { sourceSubmittedDoorwayCameraDt, sourceCroppedHeroRecoveryDt } from './source-submitted-doorway-cadence.mjs';
 import { createTowerVoidProgramPrewarm } from './void-program-prewarm.mjs';
@@ -3704,6 +3705,16 @@ export function createTowerScene(canvas, settings = {}) {
     const coldArchLens = coldArchProof
       ? observedSourceBoundColdDoorwayLens(snapshot, coldArchProof,
           climber.group.position, camera.aspect, zoom) : null;
+    // Source-owned first-return GPU priority: the latest original 390x844
+    // danger capture spent 104.4ms on deck rays + 140.3ms on a SECOND
+    // six-view doorway search *before* its first Floor9 WebGL submission.
+    // Keep all existing physical camera vetoes but spread a small candidate
+    // subset across the initial cold return. Full searches resume only after
+    // a real successful F9 renderer return, never after fake elapsed ticks.
+    const firstGatewaySearchBudget = firstF9ReturnedGatewaySearchBudget(
+      snapshot,coldArchProof,coldArchLens,lastSubmittedGuardian,
+      {camera:options.camera,stale:options.stale,
+        reducedMotion:options.reducedMotion});
     // The first *returned* new-floor render can follow a 0.9s+ GPU stall.
     // Do not spend that unseen wall time teleporting this SAME exterior
     // camera and all its safety directors away from the original doorway.
@@ -5154,7 +5165,11 @@ export function createTowerScene(canvas, settings = {}) {
             camera.aspect,raisedBackdropBefore,existingDeckView)
           :sourceDeckGatewayClearanceCandidates(
             camera.aspect,existingDeckView)) || [];
-        for(const [yaw,height,radial] of clearance) {
+        const deckTrials=firstGatewaySearchBudget
+          ?sampleColdFirstReturnGatewayTrials(
+              clearance,firstGatewaySearchBudget.deckTrialLimit)
+          :clearance;
+        for(const [yaw,height,radial] of deckTrials) {
           const angle=initialAzimuth+yaw,radius=exteriorRadius+radial;
           camera.position.set(Math.sin(angle)*radius,
             thresholdPreviousCamera.y+height,Math.cos(angle)*radius);
@@ -5318,7 +5333,11 @@ export function createTowerScene(canvas, settings = {}) {
         const opticalTrials=threeSubjectTrials||
           [[0,0,0],[-thresholdSteps.orbitRadians,0,0],
             [thresholdSteps.orbitRadians,0,0]];
-        for (const [yaw,pullback,lift] of opticalTrials) {
+        const doorwayTrials=firstGatewaySearchBudget
+          ?sampleColdFirstReturnGatewayTrials(
+              opticalTrials,firstGatewaySearchBudget.doorwayTrialLimit)
+          :opticalTrials;
+        for (const [yaw,pullback,lift] of doorwayTrials) {
           camera.position.copy(thresholdPreviousCamera);
           lookAt.copy(thresholdPreviousGaze).add(thresholdGaze);
           if (radius>25 && (yaw || pullback || lift)){

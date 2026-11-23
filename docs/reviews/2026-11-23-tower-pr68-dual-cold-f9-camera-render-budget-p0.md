@@ -1,0 +1,21 @@
+# PR68 P0 — dual cold-F9 camera ladders versus truthful first drawn frame (2026-11-23)
+
+**Status: OPEN. Leading transformation verdict: NOT EVALUATED.** Prior branch HEAD: `0acfba62daaedd6f266ef4e8a19fe55030773681`. Frozen baseline `1731b380851162741761c5569e2bc152a0869ca9`, transformation.json untouched.
+
+## Actual source-pinned footage and performance finding
+
+Inspected current PR68 source, original [nine-job 1× gameplay capture](https://github.com/my-edutu/Ai_games/actions/runs/45183471393) (8/8 original baseline/candidate WebMs and guardian/restart ledge recorded, strict source/native danger pairing **FAILED 0/2**), and [exact-HEAD quality CI](https://github.com/my-edutu/Ai_games/actions/runs/45183471516) (10/10 technical checks successful, not a game-quality result).
+
+The actual current candidate portrait native WebM shows F9 HUD ~26.0s but sustained violet F9 scene around 29.75s and a tiny climber behind gateway steel. Desktop does not show a persuasively continuous four-subject passage either. Those are *native footage observations*, not source snapshots manufactured into a transition.
+
+The genuine first source-to-renderer Floor9 return in portrait occurs at tick 476 and takes **948 ms** from browser acceptance to Three.js return, including **360.8 ms scene update**. Source-pinned CPU telemetry attributes **248.2 ms cameraLighting**, split into **104.4 ms cameraProposalsAndRays** and **140.3 ms a second doorwayThreeSubjectSearch** (plus ~3 ms foreground), while cold world rebuild adds 105.7 ms and Three renderer return adds 210.8 ms. These are browser-side callback times, **not real-hardware GPU frame-time p50/p95/p99 or device FPS**. A later desktop cold F9 return also paid ~243.7 ms cameraLighting, so this is not portrait-only.
+
+## Coherent implementation and safety
+
+The real Three scene on the *first* source-authenticated F8→9 WebGL return currently performs two independent 3D camera ray-search ladders sequentially while cold rebuilding old guardian and new Floor9. Introduced `first-f9-return-search-budget.mjs` with explicit HP-open old guardian, verified same-run floor advance, current source tick and genuine previous rendered F8 conditions. On that **one genuine cold frame only**, evaluate three spatially spread actual deck candidates and two doorway/roof candidates instead of all eight/six. Every evaluated candidate still undergoes the existing real skinned-body/core, original steel, source walkable roof and physically owned Three.js ray/solid-platform checks. Unsafe or non-improving proposals still revert; no unearned camera/floor/result. After a successful source-owned F9 return, full original camera candidate ladders resume automatically; stale, manual and reduced-motion modes never receive this budget.
+
+This is an **actual real-render-loop scene CPU/sightline intervention** targeting one measured joint bottleneck, not a cosmetic patch, manufactured playable improvement or new authoritative mechanic. New phase3 tests cover eligibility, source/run/restart safety, spatial trial sampling and unchanged physical veto wiring.
+
+## Acceptance / next work
+
+Record exact-new-source 960×600 and 390×844 original 60s+ footage and real first-return CPU phases. Compare authentic HUD→chroma native clocks, moving/climber/real steel/receiving roof/first raised p2 visibility, strict event alignment and any newly obscured body. No current new-source film, reviewer votes or physical hardware data yet: **NOT EVALUATED**, blind LOOKS/FEELS/PLAYS **0/5 each**, actual device timings/memory **NOT EVALUATED**. If the first-return CPU problem persists, focus on real per-trial triangle broadphase and integrated World/Scene composition. Keep P0 OPEN; PR58 and unrelated games untouched; no merge, deploy, force push or draft change.

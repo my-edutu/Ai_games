@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "stage": "P0 EVIDENCE + GAME-LOOP TRUTH — OPEN",
+  "leadingTransformationVerdict": "NOT EVALUATED",
+  "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+  "priorBranchHeadSha": "0acfba62daaedd6f266ef4e8a19fe55030773681",
+  "immutablePreviousCapture": {
+    "run": "https://github.com/my-edutu/Ai_games/actions/runs/45183471393",
+    "quality": "https://github.com/my-edutu/Ai_games/actions/runs/45183471516",
+    "qualityStatus": "10/10 completed success; veto only",
+    "realFullMotion": "8 original baseline/candidate recordings completed; authentic ledge success",
+    "nativeSourceEventPairing": "FAILED 0/2 desktop/portrait"
+  },
+  "observedFirstFloor9SourceReturn": {
+    "portraitFirstTick": 476,
+    "portraitBrowserToRenderReturnMs": 948,
+    "portraitFirstSceneUpdateMs": 360.8,
+    "portraitColdWorldRebuildMs": 105.7,
+    "portraitCameraLightingMs": 248.2,
+    "portraitCameraProposalsAndRaysMs": 104.4,
+    "portraitDoorwayThreeSubjectSearchMs": 140.3,
+    "portraitRendererReturnMs": 210.8,
+    "source": "candidate danger 0acfba62 sourceToPresentationTrace; these are browser/CPU callbacks NOT GPU frame-time or device fps"
+  },
+  "nativeFootageDefect": "Source-authenticated 390x844 original WebM shows drawn F9 HUD ~26s but sustained violet successor scene ~29.75s, with small partially obscured hero and no event-matched four-subject gateway/roof/p2 passage. 960x600 also lacks accepted native crossing.",
+  "primarySystemicAction": "Time-slice BOTH independent expensive cold first-F9 Three.js camera searches to 3 spatially spread deck poses + 2 doorway poses while preserving every original real hero, arch steel, walkable roof, original world triangle and tower core veto. The full original 8/6 pose search resumes automatically after actual same-run F9 renderer return; never source tick elapsed. No gameplay/physics/obstacle/guardian rewrite.",
+  "localProof": "A pure budget helper with source/run/HP-open and first-return guards; local Node pure-helper tests passed pre-commit. New repository phase3 integration tests await exact-head CI.",
+  "newCandidateCapture": "NOT YET EVALUATED; no native-quality or performance improvement asserted",
+  "independentCritics": {
+    "LOOKS": "0/5",
+    "FEELS": "0/5",
+    "PLAYS": "0/5"
+  },
+  "actualDeviceP50P95P99Memory": "NOT EVALUATED",
+  "biggestGap": "Genuine source/normal-speed F8->F9 architectural and camera passage is still not visibly contiguous or strict native event-matched in 2 viewports; cold main-thread time contributes missing camera frames.",
+  "nextHighestImpact": "Capture real exact-source after the dual-ladder cold-return budget, compare first F9 CPU callback and 25-31s native full-motion desktop+portrait to prior 0acf source. If ray-heavy camera remains >100ms or native scene still discontinuous, profile actual F9 ray broadphase and source-grounded gantry composition; no cosmetic fades.",
+  "safety": {
+    "PR68Draft": true,
+    "PR58Untouched": true,
+    "frozenLedgerUntouched": true,
+    "merge": false,
+    "deploy": false,
+    "forcePush": false,
+    "unrelatedGamesEdited": false
+  }
+}
