@@ -1088,5 +1088,41 @@
     },
     "device": "NOT EVALUATED",
     "verdict": "NOT EVALUATED"
+  },
+  "portraitRouteOpticalPreparation20261124": {
+    "stage": "P0 OPEN",
+    "inspectedHead": "8f0bab1c0e918e0ed761c96b75b9bdebc92e020f",
+    "gameplaySha": "1cf2f88135266838c5e3dc3a795217805ee80833",
+    "priorCapture": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/45313323098",
+      "source": "0cd84c945e9a758446089abb5d2aaa8def40712e",
+      "recordingsAndLedge": "9/9",
+      "nativePair": "FAILED 0/2",
+      "desktopDuration": 72.16,
+      "portraitDuration": 72.72,
+      "desktopSha256": "9e5aaf2e99b304210be382e9355c5e65236623ce47bf99b712bb446b7bd3c7a9",
+      "portraitSha256": "62967280f95a683a33a5e2e9bc476fed7de16742951e6c5c6fdace1cb38d3f0d",
+      "portraitFramingVeto": 24,
+      "portraitTotalVeto": 27,
+      "review": "Original files hashed and probed again; sampled native contact sheet inspected, not full-motion reviewer session."
+    },
+    "implementation": "Actual Scene prepares portrait lens using current body endpoints, selected landing and already-visible gateway normalized to 42-degree optics; previous successful return bounds lens changes to 1.2 degrees. Non-cut portrait can try framed-follow before route lead; existing physical core/triangle veto and ordinary desktop route behavior retained. Restores original camera, focus and FOV on rejection; records individual trial failures. No additional candidates beyond two, no new renderer draw or authority change.",
+    "validation": {
+      "pureRed": "Missing helper failed regression before implementation",
+      "pureGreen": "Executed policy fixture: required FOV 49.8464674391599°, first bounded step 43.2°, bounded restore 48.8°; reference pressure invariant, invalid depth/desktop rejected. Three existing retained camera cases passed; Scene syntax parsed. Fixtures are synthetic optical projections, not actual runtime poses.",
+      "fullNodeAndBrowser": "NOT EVALUATED",
+      "exactQuality": "No new workflow run returned by connector at last query",
+      "exactCapture": "No new workflow run returned by connector at last query",
+      "workspace": "Tunnel client not seen for 300 seconds"
+    },
+    "risks": "Wider lens may shrink body, and neither optical fit nor current ray ownership resolves physical canopy/step obstruction by itself. Additional proactive portrait frames may cost ray work; actual-device cost unmeasured. Raw veto fallback remains.",
+    "next": "Inspect exact-source quality and capture, per-trial framing and physical vetoes and native portrait body/landing scale and cadence. Reconcile canopy/step ray owner discrepancy on the same submitted frame, then improve safe prospective physical corridor if still obstructed. No P1 until strict native pair and P0 experience gates pass.",
+    "reviews": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "device": "NOT EVALUATED",
+    "leadingVerdict": "NOT EVALUATED"
   }
 }
