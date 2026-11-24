@@ -126,7 +126,7 @@ function update(value){
   window.__MAZE_VIEW__=computePublicView(snapshot,value.camera,cameraMode==='overview');
   elements.tick.textContent=String(snapshot.tick);
   elements.steps.textContent=String(snapshot.steps??Math.max(0,snapshot.travelledRoute.length-1));
-  elements.time.textContent=formatTime(snapshot.timeRemaining,value.stepDurationMs);
+  elements.time.textContent=formatTime(snapshot.timeRemaining,value.simulationStepDurationMs??value.stepDurationMs);
   elements.keys.textContent=String(snapshot.inventory.length);
   const discovered=Math.min(100,snapshot.discoveredCells.length*100/(snapshot.width*snapshot.height));
   elements.progress.textContent=`${Math.floor(discovered)}%`;

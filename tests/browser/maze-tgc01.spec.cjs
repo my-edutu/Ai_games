@@ -14,7 +14,7 @@ function sourceIdentity(){
   return {
     sourceSha:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),
     workingTreeClean:!execFileSync('git',['status','--porcelain'],{cwd:root,encoding:'utf8'}).trim(),
-    sourceSha256:Object.fromEntries(['index.html','app.js','scene.js','world.js','characters.js','gameplay-hud.css']
+    sourceSha256:Object.fromEntries(['index.html','app.js','scene.js','world.js','characters.js','gameplay-hud.css','public-lantern-encounter.mjs','public-counter-impact.mjs']
       .map(name=>[name,sha(path.join(root,'public/ai-maze-escape',name))]))
   };
 }
@@ -96,7 +96,12 @@ for(const [width,height] of [[320,740],[390,844],[844,390],[1280,900]]){
       if(!run.beats.has(frame.snapshot.tick))continue;
       // Let the real transition settle; preserve the finite earned counter
       // inside its existing two-second visual beat. No fake animation clock.
-      await page.waitForTimeout(frame.snapshot.result?1750:300);
+      if(run.beats.get(frame.snapshot.tick).includes('counter')){
+        await page.waitForFunction(()=>{
+          const p=window.__MAZE_3D__?.authoredCounterPresentation;
+          return p?.connected&&p.coreVisible&&p.impactVisible&&p.phase>=.18&&p.phase<.69;
+        },null,{timeout:6000});
+      }else await page.waitForTimeout(frame.snapshot.result?1750:300);
       await page.evaluate(()=>window.__TGC_CAPTURE_FRAME__.hold());
       const diagnostic=await page.evaluate(()=>{
         const d=window.__MAZE_3D__,s=window.__MAZE_PUBLIC_STATE__;
@@ -145,6 +150,15 @@ for(const [width,height] of [[320,740],[390,844],[844,390],[1280,900]]){
         expect.soft(control.right).toBeLessThanOrEqual(width);
       }
       if(names.includes('counter')){
+        const contact=diagnostic.render.authoredCounterPresentation;
+        expect.soft(contact?.connected,'actual reciprocal open corridor').toBe(true);
+        expect.soft(contact?.coreVisible,'actual rendered lantern core').toBe(true);
+        expect.soft(contact?.impactVisible,'guardian contact ring').toBe(true);
+        expect.soft(contact?.links).toBeGreaterThanOrEqual(1);
+        expect.soft(contact?.links).toBeLessThanOrEqual(3);
+        expect.soft(contact?.lanternOrigin).toHaveLength(3);
+        expect.soft(contact?.guardianContact).toHaveLength(3);
+        if(contact?.midCell!==null)expect.soft(contact?.secondSegmentVisible).toBe(true);
         const sightline=diagnostic.duelSightline;
         expect.soft(sightline?.eligible,'real earned recoil exposes actual mesh rays').toBe(true);
         const bodies=sightline?.samples.filter(p=>['head','torso','boots'].includes(p.part))??[];

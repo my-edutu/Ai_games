@@ -253,3 +253,52 @@ export function publicEarnedGuardianCounterLightPath(snapshot, guardian, ordinar
   }
   return null;
 }
+
+
+// Authored court only: the earned retreat may be THREE open links from Pip.
+// Require the actual same-tick identified public counter and at most one
+// cardinal bend on a currently visible, reciprocal, same-tier nontrap path.
+export function publicAuthoredCounterLightPath(snapshot,actor,ordinary){
+  if(snapshot?.layoutId!=='guardian-court-v1'||snapshot.lifecycle!=='running'||snapshot.result
+    ||!Number.isSafeInteger(snapshot.width)||snapshot.width<2
+    ||!Number.isSafeInteger(snapshot.height)||snapshot.height<2
+    ||!Number.isSafeInteger(snapshot.tick)||actor?.counterTick!==snapshot.tick
+    ||typeof actor.id!=='string'||!actor.id||actor.originCell!==snapshot.currentCell
+    ||!Number.isFinite(actor.x)||!Number.isFinite(actor.z)
+    ||!Number.isFinite(actor.counterPhase)||actor.counterPhase<0||actor.counterPhase>=1
+    ||(ordinary?.strength>.35&&ordinary.lanternParried!==true)
+    ||!Array.isArray(snapshot.cells)||!Array.isArray(snapshot.visibleCells)
+    ||!Array.isArray(snapshot.doors)||!Array.isArray(snapshot.threats))return null;
+  const w=snapshot.width,h=snapshot.height,n=w*h,from=snapshot.currentCell,to=actor.cell;
+  if(!Number.isSafeInteger(from)||!Number.isSafeInteger(to)||from<0||to<0
+    ||from>=n||to>=n||from===to
+    ||!snapshot.threats.some(t=>t?.id===actor.id&&t.cell===to&&t.lanternParried===true))return null;
+  const visible=new Set(snapshot.visibleCells);
+  const known=new Map(snapshot.cells.filter(c=>Number.isSafeInteger(c?.cell)
+    &&c.cell>=0&&c.cell<n&&visible.has(c.cell)).map(c=>[c.cell,c]));
+  const row=c=>Math.floor(c/w),col=c=>c%w,tier=c=>Math.floor(row(c)*3/h);
+  const dx=col(to)-col(from),dz=row(to)-row(from),links=Math.abs(dx)+Math.abs(dz);
+  if(links<1||links>3||tier(from)!==tier(to))return null;
+  const legal=(a,b)=>{
+    const p=known.get(a),q=known.get(b);
+    return !!p&&!!q&&!p.blocked&&!q.blocked&&!p.trap&&!q.trap
+      &&tier(a)===tier(from)&&tier(b)===tier(from)
+      &&Math.abs(col(a)-col(b))+Math.abs(row(a)-row(b))===1
+      &&Array.isArray(p.neighbors)&&Array.isArray(q.neighbors)
+      &&p.neighbors.includes(b)&&q.neighbors.includes(a)
+      &&!snapshot.doors.some(d=>!d.open&&((d.a===a&&d.b===b)||(d.b===a&&d.a===b)));
+  };
+  for(const [first,aStep,second,bStep] of [[dx,1,dz,w],[dz,w,dx,1]]){
+    let cell=from,ok=true;
+    for(const [amount,step] of [[first,aStep],[second,bStep]]){
+      for(let j=0;j<Math.abs(amount);j++){
+        const next=cell+Math.sign(amount)*step;
+        if(!legal(cell,next)){ok=false;break;}
+        cell=next;
+      }
+      if(!ok)break;
+    }
+    if(ok&&cell===to)return {links,midCell:first&&second?from+first*aStep:null};
+  }
+  return null;
+}

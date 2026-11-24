@@ -79,3 +79,24 @@ test('authored court keeps solid closed boundaries and does not alter procedural
     assert.ok(ordinary.max.y > floor + .51, 'Existing procedural scene is not globally replaced');
   } finally { world.dispose(); }
 });
+
+
+test('authored stone deck has actual glazed closed boundaries and low clue instruments',async()=>{
+  const {createMazeWorld}=await production;
+  const snapshot=disclosedCourt(),world=createMazeWorld({balanced:true});
+  snapshot.cells.find(c=>c.cell===92).clue=true;
+  try{
+    world.update(snapshot);
+    let glass=false,lowClue=null;
+    world.group.traverse(node=>{
+      if(node.isInstancedMesh&&node.material?.name==='Disclosed sea-glass mosaic')glass=true;
+      if(node.name==='Disclosed Tideglass inset clue medallion')lowClue=node;
+    });
+    assert.equal(glass,true);
+    assert.ok(lowClue);
+    const THREE=await import(three);
+    const bounds=new THREE.Box3().setFromObject(lowClue);
+    assert.ok(bounds.getSize(new THREE.Vector3()).y<.2,'no upright clue blocks the counter');
+    assert.deepEqual(world.stats().renderedCells,snapshot.discoveredCells);
+  }finally{world.dispose();}
+});

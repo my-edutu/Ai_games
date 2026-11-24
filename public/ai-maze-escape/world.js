@@ -1337,7 +1337,7 @@ export function createMazeWorld(options = {}) {
     }
     for (let j = 0; j < 3; j++) plant(x - span + j * .08, 2.8 - j * .42, z + .17, seed + j * 5, cell, 1.4 - j * .15);
   }
-  // TGC-01 is an authored level with its own deliberately plain blockout.
+  // Tideglass authored court: rooted cut-stone deck, recessed seams and glazed perimeter.
   // The layout id selects the treatment, never the shape: every floor and
   // boundary below comes exclusively from the ordinary disclosed snapshot.
   // In particular, the renderer has no copy of the private court coordinates.
@@ -1350,9 +1350,15 @@ export function createMazeWorld(options = {}) {
       const floor = cellHeight(id, s.width, s.height);
       // Full cell-width tops meet without false gaps across genuinely open
       // reciprocal edges. A closed edge receives an opaque low stone wall.
-      add(box, darkJade, x, -.29, z, CELL_SIZE, .38, CELL_SIZE, id);
-      add(box, cell.trap ? darkMetal : stone, x, -.05, z,
-        CELL_SIZE, .10, CELL_SIZE, id);
+      // A continuous solid substrate spans the real disclosed tile. The
+      // inset limestone slabs and dark foundation are existing pooled
+      // geometry, not new gaps or a changed walkable height.
+      const skirtDepth=Math.max(.38,floor+1.55);
+      add(box, darkJade, x, -.12-skirtDepth/2, z, CELL_SIZE-.06, skirtDepth, CELL_SIZE-.06, id);
+      add(box, deepStone, x, -.105, z, CELL_SIZE, .095, CELL_SIZE, id);
+      add(box, cell.trap ? darkMetal : deepStone, x, -.047, z, CELL_SIZE, .06, CELL_SIZE, id);
+      add(box, cell.trap ? darkMetal : (id%3===0?lightStone:stone),
+        x, -.017, z, CELL_SIZE-.075, .034, CELL_SIZE-.075, id);
       if (cell.blocked) {
         block(deepStone, x, .25, z, 2.24, .50, 2.24, id);
       }
@@ -1386,10 +1392,15 @@ export function createMazeWorld(options = {}) {
         const edge = n >= 0 ? doorEdgeId(id, n) : `${id}:outside:${dx}:${dz}`;
         if (edges.has(edge) || gateEdges.has(edge)) continue;
         edges.add(edge);
-        block(darkJade, x + dx * 1.13, .19, z + dz * 1.13,
+        block(deepStone, x + dx * 1.13, .19, z + dz * 1.13,
           dz ? CELL_SIZE : .14, .38, dx ? CELL_SIZE : .14, id);
+        add(box, seaGlass, x + dx * 1.04, .23, z + dz * 1.04,
+          dz ? CELL_SIZE-.06 : .045, .11, dx ? CELL_SIZE-.06 : .045, id);
         block(lightStone, x + dx * 1.13, .41, z + dz * 1.13,
           dz ? CELL_SIZE : .22, .08, dx ? CELL_SIZE : .22, id);
+        // Glazed trim belongs to the actual sealed wall; never a route cue.
+        add(box, darkMetal, x + dx * 1.025, .11, z + dz * 1.025,
+          dz ? CELL_SIZE-.06 : .035, .045, dx ? CELL_SIZE-.06 : .035, id);
       }
     }
     finishBatches();
@@ -3680,7 +3691,24 @@ export function createMazeWorld(options = {}) {
     }
   }
   function checkpointProp(c, s) {
-    const p = propGroup(c.cell, s); pedestal(p, jade, .48);
+    const p = propGroup(c.cell, s);
+    if(s.layoutId==='guardian-court-v1'){
+      // One actually disclosed checkpoint becomes a coastal observatory
+      // lens at the gallery edge. It is not another gate or objective.
+      p.name='Disclosed Tideglass checkpoint observatory';
+      mesh(p,cylinder,deepStone,0,.045,0,.44,.09,.44);
+      mesh(p,ring,inlay,0,.11,0,.34,.34,.34,Math.PI/2);
+      const beacon=new THREE.Group();beacon.position.set(.67,0,-.66);p.add(beacon);
+      mesh(beacon,bevel,deepStone,0,.12,0,.46,.24,.46);
+      mesh(beacon,bevel,lightStone,0,.48,0,.32,.56,.32);
+      mesh(beacon,cylinder,darkMetal,0,.83,0,.22,.14,.22);
+      mesh(beacon,cylinder,seaGlass,0,1.02,0,.18,.27,.18);
+      for(const side of [-1,1])mesh(beacon,box,gold,side*.20,1.02,0,.045,.31,.09);
+      mesh(beacon,bevel,lightStone,0,1.19,0,.39,.085,.39);
+      mesh(beacon,cone,darkJade,0,1.34,0,.23,.24,.23);
+      return;
+    }
+    pedestal(p, jade, .48);
     mesh(p, ring, inlay, 0, .245, 0, .38, .38, .38, Math.PI / 2);
     // A wayfinding shrine kept to a small footprint at the cell edge.
     const shrine = new THREE.Group(); shrine.position.set(.65, sampleGroundHeight(p.position.x + .65, p.position.z - .64, s) - p.position.y, -.64); p.add(shrine);
@@ -3691,7 +3719,20 @@ export function createMazeWorld(options = {}) {
     animations.push({ type: 'crystal', object: crystal, baseY: 1.06, phase: c.cell });
   }
   function clueProp(c, s) {
-    const p = propGroup(c.cell, s); p.position.x += .56; p.position.z -= .58; p.position.y = sampleGroundHeight(p.position.x, p.position.z, s);
+    const p = propGroup(c.cell, s);
+    if(s.layoutId==='guardian-court-v1'){
+      // The old upright clue pedestal competed with the carried lantern.
+      // Keep the public clue as a low carved instrument at its own cell.
+      p.name='Disclosed Tideglass inset clue medallion';
+      p.position.x+=.57;p.position.z-=.58;
+      p.position.y=sampleGroundHeight(p.position.x,p.position.z,s);
+      mesh(p,cylinder,deepStone,0,.035,0,.31,.07,.31);
+      mesh(p,cylinder,seaGlass,0,.077,0,.25,.026,.25);
+      mesh(p,ring,gold,0,.095,0,.23,.23,.23,Math.PI/2);
+      for(const side of [-1,1])mesh(p,box,lightStone,side*.07,.095,0,.035,.015,.20,0,side*.35);
+      return;
+    }
+    p.position.x += .56; p.position.z -= .58; p.position.y = sampleGroundHeight(p.position.x, p.position.z, s);
     mesh(p, bevel, deepStone, 0, .08, 0, .6, .16, .53);
     mesh(p, bevel, jade, 0, .38, 0, .42, .57, .28, -.18);
     mesh(p, bevel, lightStone, 0, .73, -.06, .66, .11, .47, -.18);

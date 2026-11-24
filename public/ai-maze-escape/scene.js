@@ -8,7 +8,7 @@ import { setWitnessedPickupStoryCameraOffset } from './pickup-story-camera.mjs';
 import { publicGuardianDuelCameraElevation, publicGuardianPhysicalCloseupHalfHeight, publicGuardianDuelShoulderOrbit, publicGuardianEarnedRecoilPairShift, publicGuardianEarnedRecoilPairFocus, publicGuardianEarnedRecoilPhysicalStage, publicGuardianEarnedRecoilSafeContactHalfHeight, publicGuardianEarnedRecoilFinalPairShift, publicGuardianEarnedRecoilPairStageLift, publicGuardianEarnedContactStageResponse, publicGuardianEarnedRecoilRevealElevation, setPublicEarnedGuardianFrontQuarterOffset, publicEarnedGuardianCounterCameraPriority, publicEarnedGuardianCounterCameraAct, publicGuardianScenicOccludesActor, publicEarnedGuardianScenicStageOverlap, publicEarnedGuardianScenicPerformanceCourt, setPublicEarnedGuardianNarrowPairStage, setPublicEarnedGuardianWideContactReveal } from './guardian-duel-camera.mjs';
 import { publicLanternEncounter, publicLanternWarning, publicGuardianOpenSightline, publicGuardianEncounterBeat, publicPressureSurveySightline } from './public-lantern-encounter.mjs';
 import { publicGuardianLanternReach } from './public-lantern-encounter.mjs';
-import { publicEarnedGuardianCounterLightPath } from './public-lantern-encounter.mjs';
+import { publicEarnedGuardianCounterLightPath, publicAuthoredCounterLightPath } from './public-lantern-encounter.mjs';
 import { publicEarnedGuardianActing } from './public-lantern-encounter.mjs';
 import { publicPressureInspectionTakesFocus } from './public-lantern-encounter.mjs';
 import { publicKeyCollectionMoment, planPublicMotion, samplePublicPath, publicWayfinding, publicObjective, publicStageBias, composePublicCameraFocus, publicNearbySealedGate, composePublicSealedGateFocus, composePublicKeyLockFocus, publicCarriedGateCue, publicEncounterFrameWeight, publicDetailEncounterHalfHeight, publicFullBleedFollowHalfHeight, publicCompactExplorationHalfHeight, publicPortraitGuardianHalfHeight, publicPortraitGuardianBalance, publicPortraitGuardianOrbitAngle, publicLandscapeGuardianHalfHeight, publicFossilPerformanceHalfHeight, publicPortraitFossilPerformanceHalfHeight, publicObservedTrapCameraFocus, publicPressureTakesFocus, publicPressureWithdrawalTakesFocus, publicVerifiedPressureRetreatPartner, publicDistinctPublicPredecessor, publicObservedPressureReaction, publicKeyedPressureStageHalfHeight, publicPressureActionHalfHeight, publicPressureDiagonalApproachHalfHeight, publicCameraSettleRate, publicPhysicalPressureHorizontalReframe, publicPhysicalPressureRetreatHalfHeight, publicPhysicalPressureApproachHalfHeight, publicPhysicalPressureHeroReadabilityHalfHeight, publicPressureContactOrbitWeight, publicPressureActorCounterflankX, publicPhysicalPressureContactHalfHeight, publicGateOpeningCameraCue, setPublicGateOpeningStageOffset, composePublicGateOpeningFocus } from './map-view.mjs';
@@ -122,6 +122,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
 
   const sky = new THREE.HemisphereLight('#fff3df', '#355e5c', 1.42);
   scene.add(sky);
+  let authoredLighting=null;
   const sun = new THREE.DirectionalLight('#fff0da', 2.90);
   sun.position.set(-13, 24, 9);
   sun.castShadow = true;
@@ -187,10 +188,10 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
   counterImpactRing.visible=false;
   scene.add(counterImpactRing);
   const lanternSurveyCorner=new THREE.Vector3();
-  const placePublicSurveyCone=(mesh,from,to)=>{
+  const placePublicSurveyCone=(mesh,from,to,maxLength=CELL_SIZE*1.75)=>{
     lanternBeamDirection.copy(from).sub(to);
     const length=lanternBeamDirection.length();
-    if(!(length>.3&&length<CELL_SIZE*1.75))return false;
+    if(!(length>.3&&length<maxLength))return false;
     mesh.position.copy(from).add(to).multiplyScalar(.5);
     lanternBeamDirection.multiplyScalar(1/length);
     mesh.quaternion.setFromUnitVectors(lanternBeamAxis,lanternBeamDirection);
@@ -360,7 +361,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     } else scene.add(model.group);
     return {model, contact, cell:threat.cell, cells:[threat.cell],
       progress:0, heading:0, encounterStart:null, encounterBeat:0,
-      lanternParried:false, counterSince:null, counterCell:null};
+      lanternParried:false, counterSince:null, counterCell:null,counterId:null,counterTick:null,counterOrigin:null};
   };
 
   let settings = { ...initialSettings };
@@ -578,9 +579,9 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         // older per-render safeguards, not the other way around.
         && witnessedCounterMoment?.id===threat.id
         && witnessedCounterMoment.cell===threat.cell;
-      if(earned){entry.counterSince=gateVisualTime;entry.counterCell=threat.cell;}
+      if(earned){entry.counterSince=gateVisualTime;entry.counterCell=threat.cell;entry.counterId=threat.id;entry.counterTick=snapshot.tick;entry.counterOrigin=snapshot.currentCell;}
       else if(threat.lanternParried!==true){
-        entry.counterSince=null;entry.counterCell=null;
+        entry.counterSince=null;entry.counterCell=null;entry.counterId=null;entry.counterTick=null;entry.counterOrigin=null;
       }
       entry.cell = threat.cell;
       entry.lanternParried = threat.lanternParried === true;
@@ -608,6 +609,18 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // observable source-authentic gate choreography under GPU/CPU stalls.
     gateVisualTime = advanceGateVisualClock(gateVisualTime, wallDelta);
     const s = frame.snapshot;
+    const isAuthored=s.layoutId==='guardian-court-v1';
+    if(authoredLighting!==isAuthored){
+      authoredLighting=isAuthored;
+      sky.color.set(isAuthored?'#d8ece8':'#fff3df');
+      sky.groundColor.set(isAuthored?'#244651':'#355e5c');
+      sky.intensity=isAuthored?1.17:1.42;
+      sun.color.set(isAuthored?'#ffe9c5':'#fff0da');
+      sun.intensity=isAuthored?3.05:2.90;
+      rim.color.set(isAuthored?'#9edce0':'#a9dfd0');
+      rim.intensity=isAuthored?.87:1.04;
+      renderer.toneMappingExposure=isAuthored?1.025:1.085;
+    }
     if (!cells.length) cells = [s.currentCell];
     if (settings.reducedMotion) { cells = [s.currentCell]; segmentProgress = 0; }
     else if (cells.length > 1) {
@@ -657,7 +670,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         earnedCounterModel = entry.model.group;
         earnedCounterDistance = separation;
         earnedCounterActor = {
-          cell:entry.cell,x:threatPose.x,z:threatPose.z,
+          cell:entry.cell,x:threatPose.x,z:threatPose.z,id:entry.counterId,counterTick:entry.counterTick,originCell:entry.counterOrigin,
           // A first-seen/parried enemy has no earned counterSince. This
           // physical performance clock belongs only to the SAME tracked,
           // visible false-to-true parry; it is not invented from a HUD flag.
@@ -826,11 +839,17 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // either the witnessed direct guardian or the PUBLIC intermediary bend.
     // A genuinely sealed/unknown/hidden corridor has no target and no pose.
     // No frame remembers this vector after the witness is gone.
+    const authoredCounterPath=witnessedCounter&&!settings.reducedMotion?publicAuthoredCounterLightPath(s,earnedCounterActor,originalThreat):null;
     let earnedPhysicalLanternTarget;
     if(witnessedCounter && earnedCounterActor && !settings.reducedMotion){
       const publicBend=publicEarnedGuardianCounterLightPath(
         s,earnedCounterActor,originalThreat);
-      if(publicBend){
+      if(authoredCounterPath){
+        const target=authoredCounterPath.midCell===null?earnedCounterActor
+          :cellPosition(authoredCounterPath.midCell,s.width,s.height);
+        earnedLanternArmTarget.set(target.x,cellHeight(authoredCounterPath.midCell??earnedCounterActor.cell,s.width,s.height)+1.18,target.z);
+        earnedPhysicalLanternTarget=earnedLanternArmTarget;
+      }else if(publicBend){
         const bend=cellPosition(publicBend.midCell,s.width,s.height);
         earnedLanternArmTarget.set(bend.x,
           cellHeight(publicBend.midCell,s.width,s.height)+1.18,bend.z);
@@ -940,6 +959,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
       && closestThreat?.strength>.35
       ? publicGuardianLanternReach(s,closestThreat.cell,CELL_SIZE,4)
       : earnedTwoLinkPath ? Math.max(4,CELL_SIZE*2.9) : 4;
+    if(authoredCounterPath)lanternLight.distance=Math.max(lanternLight.distance,CELL_SIZE*(authoredCounterPath.links+1));
     // The self-contained lantern glow signals a truly PUBLIC nearby threat.
     // An unknown/closed passage cannot justify a straight cone, but it can
     // justify Pip's own illuminated caution pose. No new AI action or text.
@@ -1025,7 +1045,38 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // reciprocal direct link or the genuine open two-link bend may emit it.
     const counterImpact=publicEarnedCounterImpactStage(
       s,earnedCounterActor,settings.reducedMotion);
-    if(counterImpact && explorerLantern && earnedCounterModel?.parent
+    // Authored-only real light path. Reuse the existing two core meshes and
+    // contact ring, rather than widening the procedural projection contract.
+    let authoredCounterPresentation=null;
+    if(counterImpact && explorerLantern && earnedCounterModel?.parent && authoredCounterPath){
+      explorerLantern.getWorldPosition(lanternFocusOrigin);
+      counterImpactRing.position.copy(earnedCounterModel.position);
+      counterImpactRing.position.y+=1.18;
+      counterImpactRing.rotation.set(0,Math.atan2(pose.x-earnedCounterActor.x,pose.z-earnedCounterActor.z),0);
+      counterImpactRing.scale.setScalar(counterImpact.scale);
+      counterImpactMaterial.opacity=counterImpact.opacity;
+      counterCoreMaterial.color.set('#ffcb79');
+      counterCoreMaterial.opacity=counterImpact.coreOpacity;
+      const maxLength=CELL_SIZE*3.75;
+      let connected=false;
+      if(authoredCounterPath.midCell!==null){
+        const middle=cellPosition(authoredCounterPath.midCell,s.width,s.height);
+        lanternSurveyCorner.set(middle.x,cellHeight(authoredCounterPath.midCell,s.width,s.height)+1.18,middle.z);
+        connected=placePublicSurveyCone(counterCoreStraight,lanternFocusOrigin,lanternSurveyCorner,maxLength)
+          &&placePublicSurveyCone(counterCoreTurn,lanternSurveyCorner,counterImpactRing.position,maxLength);
+      }else connected=placePublicSurveyCone(counterCoreStraight,lanternFocusOrigin,counterImpactRing.position,maxLength);
+      counterCoreStraight.visible=connected&&counterImpact.beamActive;
+      counterCoreTurn.visible=connected&&authoredCounterPath.midCell!==null&&counterImpact.beamActive;
+      counterImpactRing.visible=connected&&counterImpact.phase>.12;
+      if(counterCoreStraight.visible){
+        counterCoreStraight.scale.x=counterCoreStraight.scale.z=.72;
+        counterCoreTurn.scale.x=counterCoreTurn.scale.z=.72;
+      }
+      authoredCounterPresentation={links:authoredCounterPath.links,midCell:authoredCounterPath.midCell,
+        phase:counterImpact.phase,connected,coreVisible:counterCoreStraight.visible,
+        secondSegmentVisible:counterCoreTurn.visible,impactVisible:counterImpactRing.visible,
+        lanternOrigin:lanternFocusOrigin.toArray(),guardianContact:counterImpactRing.position.toArray()};
+    }else if(counterImpact && explorerLantern && earnedCounterModel?.parent
       && (earnedTwoLinkPath || publicLanternEncounter(s,earnedCounterActor.cell))){
       explorerLantern.getWorldPosition(lanternFocusOrigin);
       counterImpactRing.position.copy(earnedCounterModel.position);
@@ -1034,6 +1085,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         pose.x-earnedCounterActor.x,pose.z-earnedCounterActor.z);
       counterImpactRing.scale.setScalar(counterImpact.scale);
       counterImpactMaterial.opacity=counterImpact.opacity;
+      counterCoreMaterial.color.set('#b7ffe9');
       counterCoreMaterial.opacity=counterImpact.coreOpacity;
       let connected=false;
       if(earnedTwoLinkPath){
@@ -2472,6 +2524,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           headPitch:explorer.group.getObjectByName('curious head')?.rotation.x ?? null,
           lanternShoulderX:explorer.group.getObjectByName('shoulder 1')?.rotation.x ?? null,
         } : null,
+        authoredCounterPresentation,
         witnessedLanternConeVisible: lanternBeam.visible && !pressureSurveySightline,
         witnessedPressureSurveyLight: !!pressureSurveySightline && lanternBeam.visible
           && (pressureSurveySightline.links===1||lanternSurveyTurn.visible),

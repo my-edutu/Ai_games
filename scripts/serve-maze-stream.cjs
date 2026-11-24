@@ -9,6 +9,20 @@ function privacySafe(snapshot,seed){const text=JSON.stringify(snapshot);return!(
 function verifyRestart(){const session=createSession('maze-restart-probe',{...STREAM_CONFIG,width:9,height:7,keyCount:0,trapCount:0,threatCount:0,intermissionTicks:1,maxTicks:2000},'oracle-test'),first=buildMazeRenderSnapshot(session.runtime.state);let guard=0;while(session.runtime.state.lifecycle==='running'&&guard++<2000)advance(session);if(session.runtime.state.result?.reason!=='escape')return false;advance(session);advance(session);const next=buildMazeRenderSnapshot(session.runtime.state);return next.runToken!==first.runToken&&next.tick===0&&session.controller.frame().scene==='normal'}
 function selfTest(){const seed='maze-phase3-self-test',first=createSession(seed),second=createSession(seed);let recoveryVerified=false;for(let i=0;i<500;i++){const accepted=advance(first);second.runtime.step();if(!accepted.accepted)throw new Error(`presentation rejection: ${accepted.reason}`);if(i===0){first.controller.failOutput('synthetic renderer fault');if(first.controller.frame().scene!=='recovery')throw new Error('recovery scene missing');recoveryVerified=first.controller.rebuildFromLatest().recovered}if(first.runtime.state.lifecycle!=='running'||second.runtime.state.lifecycle!=='running')break}const snapshot=buildMazeRenderSnapshot(first.runtime.state),browserAssets=assets().every(file=>fs.existsSync(file)&&fs.statSync(file).size>128),source=browserAssets?fs.readFileSync(path.join(PUBLIC_ROOT,'app.js'),'utf8'):'',boundedSource=source.includes('MAX_TRAIL=240')&&!source.includes('innerHTML'),restartObserved=verifyRestart(),authorityStable=checksum(first.runtime.state)===checksum(second.runtime.state),missingRoutes=unservedPublicImports(),report={ok:authorityStable&&browserAssets&&missingRoutes.length===0&&boundedSource&&privacySafe(snapshot,seed)&&recoveryVerified&&restartObserved,authorityStable,browserAssets,missingRoutes,boundedSource,snapshotPrivacySafe:privacySafe(snapshot,seed),recoveryVerified,restartObserved,finalTick:first.runtime.state.tick,finalRunToken:snapshot.runToken,authorityChecksum:snapshot.authorityChecksum,presentation:first.controller.diagnostic()};process.stdout.write(`${JSON.stringify(report)}\n`);process.exitCode=report.ok?0:1}
 const STEP_DURATION_MS = 360;
+// Host presentation cadence only: one deterministic runtime decision per
+// tick, with a longer visible warning and earned counter for this layout.
+function publicPresentationDelay(before,after){
+  if(after?.layoutId!=='guardian-court-v1'||after.lifecycle!=='running'||after.result
+    ||!before||before.runToken!==after.runToken||after.tick!==before.tick+1
+    ||!Array.isArray(after.threats)||!Array.isArray(before.threats))return STEP_DURATION_MS;
+  for(const threat of after.threats){
+    if(!after.visibleCells?.includes(threat.cell))continue;
+    const previous=before.threats.find(t=>t.id===threat.id&&before.visibleCells?.includes(t.cell));
+    if(threat.lanternParried===true&&previous&&previous.lanternParried!==true)return 1650;
+    if(threat.lanternParried!==true&&!previous)return 950;
+  }
+  return STEP_DURATION_MS;
+}
 const PUBLIC_ASSETS = ['index.html', 'styles.css', 'ux-v2.css', 'gameplay-hud.css', 'app.js', 'scene.js', 'characters.js', 'world.js', 'gate-moment.mjs', 'pickup-story-camera.mjs', 'guardian-duel-camera.mjs', 'map-view.mjs', 'public-lantern-encounter.mjs', 'public-counter-moment.mjs', 'public-counter-impact.mjs', 'audio.js', 'progress.html', 'progress.css', 'progress.js', 'progress.json'];
 
 // Keep the explicit security allowlist, but require every STATIC first-party
@@ -52,11 +66,22 @@ function serve() {
   const session=explicitSeed?createSession(explicitSeed,STREAM_CONFIG)
     :createSession(GUARDIAN_COURT_SEED,GUARDIAN_COURT_CONFIG);
   let lastStepAt=Date.now(),simulationFault=false;
-  const interval=setInterval(()=>{
-    try{advance(session);lastStepAt=Date.now();simulationFault=false}
-    catch{simulationFault=true;session.controller.failOutput('public-safe simulation view unavailable')}
-  },STEP_DURATION_MS);
-  interval.unref();
+  let nextDelay=STEP_DURATION_MS,interval;
+  const schedule=()=>{
+    interval=setTimeout(()=>{
+      const before=session.controller.frame().snapshot;
+      try{
+        advance(session);lastStepAt=Date.now();simulationFault=false;
+        nextDelay=publicPresentationDelay(before,session.controller.frame().snapshot);
+      }catch{
+        simulationFault=true;nextDelay=STEP_DURATION_MS;
+        session.controller.failOutput('public-safe simulation view unavailable');
+      }
+      schedule();
+    },nextDelay);
+    interval.unref();
+  };
+  schedule();
   // Explicit file routes preserve the public boundary and never expose node_modules.
   const routes=new Map(PUBLIC_ASSETS.map(name=>[`/maze/${name}`,path.join(PUBLIC_ROOT,name)]));
   routes.set('/maze',path.join(PUBLIC_ROOT,'index.html'));
@@ -72,7 +97,7 @@ function serve() {
       const width=Math.max(320,Number(url.searchParams.get('w')||1920));
       const height=Math.max(180,Number(url.searchParams.get('h')||1080));
       const frame=session.controller.frame(width,height,{reducedMotion:url.searchParams.get('reducedMotion')==='1',cleanFeed:url.searchParams.get('cleanFeed')==='1'});
-      sendJson(response,200,{...frame,stepDurationMs:STEP_DURATION_MS});return;
+      sendJson(response,200,{...frame,stepDurationMs:nextDelay,simulationStepDurationMs:STEP_DURATION_MS});return;
     }
     if(url.pathname==='/maze/health'){sendJson(response,simulationFault?503:200,{status:simulationFault?'degraded':'healthy',lastStepAgeMs:Math.max(0,Date.now()-lastStepAt),scene:session.controller.frame().scene});return}
     if(url.pathname==='/maze/replay'){sendJson(response,200,{frames:session.controller.replayWindow(90)});return}
@@ -83,7 +108,7 @@ function serve() {
     sendFile(response,file);
   });
   server.listen(port,'0.0.0.0',()=>process.stdout.write(`AI Maze Escape stream source listening on port ${port}\n`));
-  const shutdown=()=>{clearInterval(interval);server.close(()=>process.exit(0))};
+  const shutdown=()=>{clearTimeout(interval);server.close(()=>process.exit(0))};
   process.on('SIGINT',shutdown);process.on('SIGTERM',shutdown);
 }
 if(process.argv.includes('--self-test'))selfTest();else serve();

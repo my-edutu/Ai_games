@@ -28,6 +28,17 @@ export function publicEarnedCounterImpactStage(snapshot, actor, reducedMotion=fa
   // Fade the real core BEFORE the physical recovery. The stage and its
   // original public-path geometry still decide whether light can connect;
   // no new strike, route clue, hidden actor or independent animation clock.
+  // Authored court contact overlaps the existing physical arm drive peak
+  // rather than disappearing before the lantern is aimed. Keep the legacy
+  // procedural envelope exactly unchanged.
+  if(snapshot.layoutId==='guardian-court-v1'){
+    const rise=Math.max(0,Math.min(1,phase/.16));
+    const release=Math.max(0,Math.min(1,(phase-.43)/.28));
+    const smooth=t=>t*t*(3-2*t);
+    const strength=smooth(rise)*(1-smooth(release));
+    return {phase,scale:.65+.37*ease,opacity:.48*(1-.6*ease),
+      coreOpacity:.66*strength,beamActive:strength>.08};
+  }
   const retreat=Math.max(0,Math.min(1,(phase-.035)/.245));
   const handoff=1-retreat*retreat*(3-2*retreat);
   return {

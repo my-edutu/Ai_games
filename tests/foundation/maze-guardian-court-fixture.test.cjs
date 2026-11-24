@@ -198,3 +198,28 @@ test('procedural seeds retain their exact worlds, state, events and public snaps
     assert.equal(checksum(runtime.events),events,seed);
   }
 });
+
+
+test('actual autonomous authored hit earns a current public light path, not a hidden or stale one',async()=>{
+  const {publicAuthoredCounterLightPath}=await import('../../public/ai-maze-escape/public-lantern-encounter.mjs');
+  const {publicGuardianCounterMoment}=await import('../../public/ai-maze-escape/public-counter-moment.mjs');
+  const runtime=create();let previous=buildMazeRenderSnapshot(runtime.state),witnessed=null,snapshot;
+  for(let j=0;j<200&&!runtime.state.result;j++){
+    runtime.step();snapshot=buildMazeRenderSnapshot(runtime.state);
+    witnessed=publicGuardianCounterMoment(previous,snapshot);
+    if(witnessed)break;previous=snapshot;
+  }
+  assert.ok(witnessed);
+  const actor={id:witnessed.id,cell:witnessed.cell,x:1,z:1,counterPhase:.35,originCell:snapshot.currentCell,counterTick:snapshot.tick};
+  const route=publicAuthoredCounterLightPath(snapshot,actor,null);
+  assert.ok(route,'real authored counter must have a visible reciprocal contact path');
+  assert.ok(route.links>=1&&route.links<=3);
+  assert.equal(publicAuthoredCounterLightPath({...snapshot,layoutId:undefined},actor,null),null);
+  assert.equal(publicAuthoredCounterLightPath({...snapshot,tick:snapshot.tick+1},actor,null),null);
+  assert.equal(publicAuthoredCounterLightPath(snapshot,{...actor,id:'other'},null),null);
+  assert.equal(publicAuthoredCounterLightPath(snapshot,{...actor,counterPhase:1},null),null);
+  assert.equal(publicAuthoredCounterLightPath({...snapshot,visibleCells:[snapshot.currentCell]},actor,null),null);
+  const sealed=structuredClone(snapshot);
+  for(const tile of sealed.cells)if(tile.cell===snapshot.currentCell)tile.neighbors=[];
+  assert.equal(publicAuthoredCounterLightPath(sealed,actor,null),null);
+});
