@@ -5619,7 +5619,7 @@ export function createTowerScene(canvas, settings = {}) {
       landing=guardianWorldLandingPoint.set(point.x,point.y,point.z);
     }
     return {halfHero:p.halfHeight/SCALE,halfBoss:sourceGuardian.halfHeight/SCALE,
-      currentGuardianDrawPoint,landing,cameraDt};
+      currentGuardianDrawPoint,landing,submittedGuardianDt:cameraDt};
   }
 
   function clearTowerRenderFault() {
@@ -6680,7 +6680,7 @@ export function createTowerScene(canvas, settings = {}) {
       // independently checked against the current triangles of both actors.
       // Do not modify gateway material, collision, health or simulation.
       if(guardianWorldFrame){
-        const {halfHero,halfBoss,currentGuardianDrawPoint,landing,cameraDt}=guardianWorldFrame;
+        const {halfHero,halfBoss,currentGuardianDrawPoint,landing,submittedGuardianDt}=guardianWorldFrame;
         actorFramePoint.copy(climber.group.position);
         actorFramePoint.y+=halfHero;
         worldGuardianLanding=landing;
@@ -6740,8 +6740,8 @@ export function createTowerScene(canvas, settings = {}) {
             }
           }
           if(guardianWorldTargetAngle!==null && guardianWorldTargetY!==null){
-            const nextAngle=boundedGuardianWorldAngle(currentAngle,guardianWorldTargetAngle,cameraDt);
-            const nextY=boundedGuardianWorldLift(camera.position.y,guardianWorldTargetY,cameraDt);
+            const nextAngle=boundedGuardianWorldAngle(currentAngle,guardianWorldTargetAngle,submittedGuardianDt);
+            const nextY=boundedGuardianWorldLift(camera.position.y,guardianWorldTargetY,submittedGuardianDt);
             const actualStep=nextAngle!==null&&nextY!==null?safeShoulder(nextAngle,nextY):null;
             if(guardianWorldStepSafe(baseWorldRay,actualStep)){
               camera.position.copy(candidateWorldPos);
