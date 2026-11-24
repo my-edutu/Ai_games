@@ -1631,5 +1631,52 @@
     "actualDevices": "NOT EVALUATED",
     "orderedNext": "A: inspect new native 1x real-world geometry and source chains, confirm canopy stays overhead in both orientations and exact regression passes. If other gate steel still obstructs, rebuild the remaining physically evidenced gate structure as a unified passage without changing authority. B: only after A is verified, profile and rebuild render/camera; C: acceptance of the shipped HUD in combat, recovery and outcome; D: exact source/native verification, do not claim a matched physical threshold where the frozen source has no such event. Baseline remains frozen; strict gate remains veto. No unrelated edits, merge, deploy, force-push or draft change.",
     "rollback": "Normal non-force revert of the Tower-only implementation if regression; no deployment."
+  },
+  "p0OrderedAFixedGatewayCantilever20261124": {
+    "stage": "P0 OPEN — ordered deliverable A: authentic gameplay continuity",
+    "leadingVerdict": "NOT EVALUATED",
+    "inspectedHead": "ebadcf6e027fc4ca44fdc2054001fe9d03228ed1",
+    "implementationSha": "b7bbff7db447de4faece9e017c49bcfb67e39649",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenLedgerBlob": "b8aa51bb5bb50b55222fb6b947472692c87c822a",
+    "previousCandidate": "9ebeb9051492decca0d46be568991b4dfb82217c",
+    "previousQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45406211448",
+    "previousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45406211421",
+    "previousResults": "10/10 quality jobs and 9/9 record/ledge jobs completed successfully. Pair job reports 8/8 authentic source timeline pairs and strict native event alignment 0/2. Both original candidate danger clips have all six source beats and same-episode source sequence; original desktop/portrait WebM SHA256 verified against native-scene-phase.json. Inspected original 3-second frame samples, not independent full-motion review. Both cameras have no sampled canopy body-ray hit; fixed guardian gate hits 3 desktop and 3 portrait plus one portrait moving lattice hit. Source/renderer timing can differ; ray owner observations are not synchronized native pixel proof.",
+    "previousMeasurements": {
+      "desktop": {
+        "submissionIntervalMs": {
+          "p50": 95.7,
+          "p95": 392,
+          "p99": 789.9
+        },
+        "drawnFloor9ToSustainedVioletSeconds": 3.25,
+        "fixedGateRayHits": 3,
+        "movingLatticeHits": 0
+      },
+      "portrait": {
+        "submissionIntervalMs": {
+          "p50": 74,
+          "p95": 287.8,
+          "p99": 482.1
+        },
+        "drawnFloor9ToSustainedVioletSeconds": 2.25,
+        "fixedGateRayHits": 3,
+        "movingLatticeHits": 1
+      },
+      "limitations": "Submission intervals are CI browser diagnostics, not display/GPU FPS or actual-device performance. Chroma is not a physically earned floor crossing."
+    },
+    "change": "F8 clockwork fixed gateway now cantilevers from paired inboard supports (local radial x +4.15 rather than -4.15 for former outer post). Replaced foreground low bronze upright/highlight with upper cantilever ties connected to original full-span crown, keeping 11 signature members. Existing actual source-driven six-piece grilles, gate energy/collision, guardian HP, winch pose, source threshold, original gate retention, canopy correction and HUD unchanged. Other floor frame default preserved. New tests exercise exact fixed steel against six previously observed actual body rays and preserve the real locked-state/snapshot invariants. The remaining one sampled moving-grille ray is intentionally not hidden or declared resolved.",
+    "executedValidation": "Ran exact fetched original and modified frame helpers: former outer support x=-4.15 -> +4.15, both supports inboard; modified signature contains 11 members and zero permanent outer-half members extending below 5m. Added actual Three.js integration regression; fresh CI not yet complete. Interactive workspace tunnel still disconnected, no direct browser run. No new footage yet inspected.",
+    "quality": "https://github.com/my-edutu/Ai_games/actions/runs/45409104998",
+    "capture": "https://github.com/my-edutu/Ai_games/actions/runs/45409105256",
+    "independentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDevices": "NOT EVALUATED",
+    "next": "Inspect exact-source new real footage and fixed-ray test results. Verify remaining dynamic grille and any true floor-nine landing/camera obstruction using the exact triangle owners; redesign moving mechanism only if the new evidence requires it, without altering source lock. Deliverable A remains open; B render/camera, C interface and D final verification are not accepted. Preserve frozen baseline even though its direct-spawn advance has no matching physical threshold; do not weaken strict native event gate.",
+    "rollback": "Normal non-force revert of Tower-only commit if regression; never merge/deploy/force-push/alter draft."
   }
 }
