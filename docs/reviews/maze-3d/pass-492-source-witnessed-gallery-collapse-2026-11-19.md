@@ -1,0 +1,15 @@
+# Pass492 — source-witnessed continuous Tideglass gallery collapse
+
+**Date:** 2026-11-19 UTC. **Reviewed immutable incoming PR HEAD:** `37cf6c3eb2a8ca00566e82055442ec0b7565cb5d` on `feat/maze-3d-gauntlet`, existing open Draft PR #53. No merge, deploy or force-push.
+
+## Original native evidence and critic
+
+The exact incoming SHA passed [native WebGL workflow 44415866029](https://github.com/my-edutu/Ai_games/actions/runs/44415866029) all focused gates, including the unchanged six-reset geometry ceiling. Downloaded untouched [artifact 14480266174](https://github.com/my-edutu/Ai_games/actions/runs/44415866029/artifacts/14480266174); independently hashed all **40/40 original PNG/JSON pairs** and checked the three real chronological gate frames. Inspected the actual 390px full-frame guardian notice, brace, shell release, natural earned recoil, fossil/key and gate images. Pip and Thornback are now physically complete, but busy court architecture and frequent mismatched/missing continuous scene transitions still fail the official Captain Toad gameplay/composition bar. The original captured gallery has not been shown as a natural same-run pressure→Thornback→two-tile key→gate→victory chapter.
+
+## Player-visible work unit
+
+The existing connected two-tile publicly discovered gallery had four tall sea-glass fins that snapped directly to .12m spent clay on collection, even though the larger key shrine opened with a source-witnessed clock. Reuse the **same four original pooled InstancedMesh fins** and the exact real public key `false→true` plus inventory/tick/run witness: move the physical height smoothly **.62m→.12m** over **1.20 source-presentation seconds**, adjusting world position so each remains rooted in its own true tile while retracting. This gives real key acquisition a continuous spatial consequence along the path Pip just traveled. A late join/unwitnessed collected state and reduced-motion go immediately to truthful final geometry; an unknown/hidden key creates no gallery. No invented collectible, hidden route, AI/map knowledge, collider, extra resource class, new draw call, false moving hazard, screenshot manipulation, weaker frame threshold or changed gameplay rules.
+
+## Strict gate (candidate, not artistic acceptance)
+
+Added an installed Three.js test for all four actual instance matrices at 0, halfway and completed pickup, reduced motion, no inventory witness, replay reset, hidden gallery revocation, material/geometry equality and six consecutive resets (<100). **New exact-HEAD CI and fresh unaltered native WebGL full-resolution 320/390/844/1280 capture are REQUIRED**; no claim that this scene has been independently rendered after the change. Visual critic must reject it if the key-to-gate story remains invisible, crowded or the native actor envelopes violate ±.95 / withdrawal .70. The disconnected external coding/critic tunnel returned NOT_FOUND; Ultracode is not available. Full-repository CI for prior HEAD still fails separate Tiny Kingdom OBS and downstream artifact uploads. No independent quality win yet, no pause; PR stays OPEN DRAFT.

@@ -1,0 +1,21 @@
+# Pass270 — working Tideglass shear-portal architecture, pending real WebGL verdict (2026-11-11 UTC)
+
+## Original source-bound visual failure
+
+[Pass269 exact-SHA native WebGL 43007919573](https://github.com/my-edutu/Ai_games/actions/runs/43007919573) completed SUCCESS: real source build, six-run geometry/reset **<100**, native 320/390/844/1280 captures. Retrieved [artifact 13848659193](https://github.com/my-edutu/Ai_games/actions/runs/43007919573/artifacts/13848659193) with ZIP digest `e756152309c9cc4b171f9441b73fa4db9b4b0b13a46d58ec8f9df5d1bfe5c798`; independently verified **37/37 native PNG SHA-256** sidecars. The true full-frame 390×844 pressure screenshot from 2026-11-11T11:05:25.178Z hashes to `d0569dfb12f0e3d4c9ac7f01ad69952b1e0d9f1f63555a833dfddc2b70992b18`. Its real modeled hazard is **[-.8900, +.2892] NDC** and Pip **[-.0539, +.5598]**, inside the immutable ±.95. The optical pan now functions, but the pressure machine remains a compact jagged fragment pile with no strong vertical silhouette against a monumental, mostly blank upper terrace. The fixed Nintendo *Captain Toad: Treasure Tracker* visual comparison **REJECTS** it.
+
+## One substantially visible production correction
+
+Reconstruct the true already-authored **counterbalance** (not a new fake puzzle prop) into a complete physical *Tideglass shear-portal*: two tall stone load pylons with ceramic capstones, continuous sea-glass relief, a 2.15m span yoke, and a suspended rotary weight/cable that share the original physically witnessed treadle → shutter → jaw clock. Unlike prior individual wedge/colour edits, this gives the entire pressure machine an architectural frame, stronger hero-scale stage landmark, and a readable hanging load. Both pylon feet and entire yoke remain within the original 2.4m public trap footprint. The yoke carries a real source-driven tilt, governor rotates on the real warning, and weight/cable lower on the earned shutter phase, returning on withdrawal. No private topology, invented hit, AI routing, collision, key/gate, new GPU geometry class, or HUD change. All existing actor/jaw footprints, strict no-crop acceptance, 44px UI and reduced-motion/privacy contracts remain untouched.
+
+New installed-Three physical test verifies full geometry and yoke support, actual pressure/counterweight motion, visibility and run-reset privacy, same-run GPU resource reuse and original **<100** budget. Its source assertions do not substitute for a rendered quality pass.
+
+## Independent gate remains OPEN
+
+Run exact-new-HEAD build/Node tests and strict six-reset geometry; retrieve ORIGINAL source-bound unaltered full 320×740, 390×844, 844×390, 1280×900 pressure, withdrawal, gate, key and guardian frames. Verify SHA/date, **complete Pip + machine NDC ±.95** and withdrawal silhouette ≥.70, confirm yoke genuinely appears as a joined distinct original mechanism rather than increasing crowding or hiding the true two-jaw gap. Judge actual full-frame before/after against fixed official Nintendo footage, not test count; reject/revise if it worsens the stage. Independent fresh-context critic, blind A/B and Ultracode remain unavailable while the coding workspace tunnel is disconnected; no independent benchmark win.
+
+Whole-repo CI on Pass269 was red at Tiny Kingdom OBS self-test after the Maze build/Node/stream steps passed. **OPEN DRAFT PR #53**, unmerged, undeployed, do not force-push. Continue Gauntlet.
+
+## Source-bound strict CI correction (same real mechanism, no threshold relaxation)
+
+The first exact-HEAD CI 43011710669 caught two prior test fixtures: the older real counterweight baseline of 0.60m, and the superseded 0.75×0.78 miniature-gantry scale. Retain the ORIGINAL counterweight rest position 0.60m and exact original −0.28m physical travel (new test checks a genuine .32m release), preserving its full previously tested movement amplitude. Replace the obsolete scale-only assertion with STRICT physical requirements for TWO connected pylons, real joined yoke behind the blades by ≥0.50m in world Z, and full gantry envelope within the actual published 2.4m tile. No removed geometry, no weaker crop, jaw, collision, hidden-state or resource tests. Fresh exact-source CI/WebGL remains required.

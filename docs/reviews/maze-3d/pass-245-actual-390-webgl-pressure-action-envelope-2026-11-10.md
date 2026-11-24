@@ -1,0 +1,19 @@
+# Pass245 — authentic 390px connected physical action-scale failure and mesh-measured correction (2026-11-10 UTC)
+
+## Exact source diagnosis
+Existing open Draft PR #53 at `6f7fbc12c87ce1ecad722bca1ade89b34b57ebfa`.
+The [exact-HEAD WebGL run 42811235386](https://github.com/my-edutu/Ai_games/actions/runs/42811235386) **FAILED** the unchanged source-bound 390px chronological approach action gate: the real rendered connected jaw is **0.6897967009211443 NDC** wide against the existing **>0.70** threshold. The nominal 4% public-source camera helper DID NOT produce a real measurable improvement at this stage. Do not interpret source-helper arithmetic as rendered proof.
+
+[Original unaltered capture artifact 13763311168](https://github.com/my-edutu/Ai_games/actions/runs/42811235386/artifacts/13763311168), verified locally **33/33 available PNG-versus-JSON SHA-256 pairs** with no mismatches; the two unpaired gate BEFORE/AFTER photos are excluded from that count. From genuine **390×844 tick-4** original JSON: jaw [−0.327861, +0.361935] NDC, Pip [−0.312802,+0.180830]; camera half-height **6.923**, source-authentic public trap cell 92, 1.414-cell diagonal distance, no hidden or forged hazard. Both full world-bound bodies have ample horizontal/vertical headroom for a modest true optical close stage. Genuine **320×740 same tick** jaw is **0.7370976** and must not be affected. Genuine 320 tick6 retreat Pip +0.945 touches the original strict +0.95 safety edge, so retreat is explicitly excluded. The real 390 chronology halted before contact/withdrawal because its **approach** failed; no full-390-motion pass can be claimed.
+
+The exact-HEAD six-run scene-reset geometry test passed; whole-repository CI has **742/742 Node tests passing** but overall red due unrelated missing `tiny:stream:self-test` and consequent artifact upload failures. SwiftShader CPU-render timing is not consumer GPU FPS.
+
+## One production vertical-slice correction
+The renderer now measures the **same complete world-AABB Pip and connected jaw physical envelopes** used for actual no-crop acceptance, including vertical corners. For a genuinely currently visible and authenticated diagonal pressure partner **only**, if the real jaw width falls in the bounded [.65,.76) NDC underscale range, it stages a measured **.76 NDC** jaw instead of applying another speculative percentage. The helper permits at most 18% magnification and requires BOTH complete model envelopes to fit a strict **±.90 NDC interior margin**, tighter than the original unchanged ±.95 acceptance. The camera recalculates true physical bounds before the existing horizontal fit. No source authority, blocked tile, hidden map, AI routing, hazard timing, mesh scales, collision, resources, HUD dimensions, accessibility or test thresholds change.
+
+New test-first physical-envelope math covers the **actual original 390px measured data**, correct hero/action scale, conservative clipping rejection, secret/unsupported/320 exclusions and production 3D integration. New-HEAD CI, six-run reset, 390 **approach/contact/withdrawal** and complete 320/844/1280 native captures are **NOT YET VERIFIED**; await genuine exact-source WebGL and original SHA-verified screenshots before claiming a win.
+
+## Independent critic
+Original full-frame image directly inspected: Pip is recognizable but tightly surrounded by repetitive angular green masonry; the pressure mechanism still struggles to communicate a consequential moving hazard. Fixed official [Nintendo Captain Toad](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/) benchmark remains **UNMET**; material scene/character/encounter art and source-bound gameplay sequence need work after this real blocker. Detached coding agent and independent critic/Ultracode tunnel returned `NOT_FOUND`; no invented blind critique or benchmark win.
+
+**PR #53 OPEN DRAFT; NEVER merge/deploy/force-push. Automation stays active.**

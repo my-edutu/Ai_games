@@ -1,0 +1,17 @@
+# Pass523 — native earned-counter contact: preserve the ACTUAL photographed camera (2026-11-20 UTC)
+
+**Scope** [Draft PR #53](https://github.com/my-edutu/Ai_games/pull/53), source HEAD before change `7edd9dfd4f2d39273a71350a94373bcee2b9043b`. Official benchmark: Nintendo *Captain Toad: Treasure Tracker* (actual official gameplay), supported by *Luigi's Mansion 3* and *ASTRO BOT*. **REJECT benchmark parity.**
+
+## Source-bound exact-head verdict
+
+[Focused native WebGL workflow #44651184163](https://github.com/my-edutu/Ai_games/actions/runs/44651184163) completed **successfully** on `7edd9dfd4f2d39273a71350a94373bcee2b9043b`. Artifact [14590859803](https://github.com/my-edutu/Ai_games/actions/runs/44651184163/artifacts/14590859803), raw ZIP SHA256 `f12797e44ab6e5a1fb45188bbcce419efd878d8f7512a32317efceafb5d1a5be`. Downloaded its **original** 2026-11-20T01:17:58Z native WebGL screenshots and recalculated 42/42 PNG-sidecar SHA256 pairs. Gate transition before/mid/after also 3/3 verified against manifest. No crop, image edit or post-process. Real seed `maze-visual-reference-13` consecutive public tick93 warning and tick94 earned parry are the visual before/after of interest. Both connected bodies are physically in view: actual tick94 Pip projected x [-0.8508347,-0.0348585] and guardian [-0.3689213,0.7656922] NDC; same-run screenshot retained full 390×844 native HUD. Yet tick94 puts them either side of a substantial visible stone rail and interrupts the physical moment of lantern-to-guardian reaction. This is not the expressive, readable action hierarchy of the fixed Nintendo reference. The authenticated tick93 shot is more cohesive and larger. Reject Pass522 visual win.
+
+Natural default autonomous chapter remains completed at tick136 with public earned counter33, key125, gate130, exit136 and 92 counter-to-key ticks, no injected decision. Six-reset geometry budget below 100 passed in focused workflow. Whole-repository CI #44651184172 failed in unrelated Tiny Kingdom OBS source self-test after Maze build/host passes. Do not call full CI green.
+
+## Diagnosis and one worthwhile unit
+
+Pass522 mixed `earnedRecoilCameraOffset` with **`portraitCameraOffset`**, a generic destination, not the already-rendered live warning camera that produced actual tick93 image. Consequently its smooth mathematical weight still MOVES the counter shot away from the visual composition immediately. The new source candidate keeps the **real current cameraOffset**, cameraTarget and halfHeight during the first portion of the genuinely earned, visible, same-run 2s counter, then eases toward the already-built and physically fitted retreat shot on phase .27–.85. A smooth monotone gate uses the same public authoritative parry clock. It does not invent a hit, move either model, move physics, reveal hidden map, change AI, add renderer objects or weaken the original strict ±.95 physical silhouettes, 0.70 withdrawal width, <100 six-reset budget, 44px controls, accessible focus or reduced-motion behavior. A different active guardian, manual camera, expired/hidden/first-seen counter, terminal state never qualifies.
+
+**New acceptance PENDING:** exact-new-commit source test + native original no-crop 320/390/844/1280 captures at earned hit, same-seed before/after contact continuity, guardian shell-release and real gate/jaw, plus independent critique. Reject if the real contact camera clips either body or hides actual mechanism. No source-only or percentage-of-tests visual win.
+
+No merge, deploy, force push, or unrelated changes.

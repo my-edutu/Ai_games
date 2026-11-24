@@ -1,0 +1,15 @@
+# Pass460 — authored guardian action-stage negative space (2026-11-17)
+
+**Existing open Draft PR #53**, parent `a3c334123fcabc6f67008a9de88452cfe5cc8e8a`. **Source candidate only; Nintendo Captain Toad quality bar NOT MET.** Never merge, deploy, force or lower test/frame/privacy gates.
+
+## Real source-matched diagnosis
+
+The exact rollback-HEAD [Maze native WebGL workflow #44117128874](https://github.com/my-edutu/Ai_games/actions/runs/44117128874) finished **SUCCESS**, producing original [artifact #14343648781](https://github.com/my-edutu/Ai_games/actions/runs/44117128874/artifacts/14343648781). The 2026-11-17 real 390px guardian frame and prior dated Pass459 rejection show Pip and Thornback standing in a highly patterned ivory/teal court among bulky wall architecture; the visual objective is not legible as a single authored gameplay space at native mobile size. Prior wall/camera and added trap experiments failed strict real foreground geometry witnesses or made barely visible differences and were reverted. **This run did not download or rehash the new artifact and cannot yet accept its own new output.**
+
+## One substantive scene-composition attempt
+
+During an actual public reciprocal guardian stage only, turn the *already disclosed ordinary spectator ring* into a contiguous darker neutral mineral terrain with the existing 2.31m single grounded slab rather than four repeated tiles. At the same time remove the competing small low-tier ivory outlines, decorative four-petal stamps, five-piece shell scallops and random flecks *in those same known ordinary cells*. This prioritizes the real full-body Pip–Thornback warning/brace/recoil action, using negative space instead of introducing another model or fake route. Preserve the separate authored guardian causeway, genuine pressure basin, true hazardous cells, key/gate/checkpoint, solid wall first-hits, original nav/collision/AI, current camera, reduced-motion settings and all material/geometry pools. The public witness helper already requires actual visible cells and valid open reciprocal guardian links; no unobserved-map rendering is newly enabled.
+
+## Strict rejection gate
+
+Capture unchanged whole-frame Chromium WebGL at 320×740, 390×844, 844×390 and 1280×900 on **the exact post-change commit**. Require screenshot dates, source SHA, 40/40 original PNG sidecar checks if all are emitted, authentic gate transitions, unchanged six-reset <100 geometry, 8/8 browser checks, ±0.95 complete actor/puzzle limits and original wall100 first-hit. Compare real matching guardian beats against Pass459's source artifact and [official Nintendo reference](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/). Revert if the stage looks patchy, actors stay buried, first-hit witness fails, or gameplay becomes misleading. A successful build/test by itself is not an artistic win. Separate critic/Ultracode and remote coding workspace remain inaccessible (`NOT_FOUND`); no fake independent approval or native render verdict.

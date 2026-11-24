@@ -1,0 +1,16 @@
+# Pass324 — Real source-bound foreground diagnosis and structural Tideglass correction
+Date: 2026-11-13 UTC
+
+## Original unaltered native evidence
+On exact source commit [5ee8e616](https://github.com/my-edutu/Ai_games/commit/5ee8e61626fb12dc54735ea041f8735068025497), [native WebGL 43395166086](https://github.com/my-edutu/Ai_games/actions/runs/43395166086) **SUCCEEDED**, including unchanged focused Maze tests and strict six-run geometry under 100. Original [artifact 14022991483](https://github.com/my-edutu/Ai_games/actions/runs/43395166086/artifacts/14022991483) contains 39 uncropped original full-screen native PNGs across 320x740, 390x844, 844x390 and 1280x900, 37/37 independently recalculated screenshot SHA-256 pairs and the verified 3-image genuine source-bound gate transition.
+
+The true original 390x844 tick34 brace image remains strongly dominated by a pale horizontal terrace directly BELOW Pip and Thornback. The new passive production-camera Three.js ray witness identified the **precise original physical meshes**, not hypothetical facade geometry:
+- Native x=.50, y=.73/.80 rays hit currently public **cell 100**, source world center (16.8,1.4,0); top `2.31 × .07 × 2.31` at world y=1.365, base material `#cead72`, and immediately underneath a `2.39 × .19 × 2.39` original stone load lip also `#cead72`.
+- Adjacent native x=.50, y=.66 ray hits physical ivory west wall cap belonging to currently visible **cell 99**, but that is NOT the large foreground in the lower half. Prior Pass320–323 wall/blocked-court changes did not address the correct mesh.
+- Both hit cells are source-visible; no AI/private maze data is used. Native screenshot itself is unaltered. The on-demand diagnostic is now filtered to public instance hits only.
+
+## One meaningful source change awaiting rendered acceptance
+Reconstruct **both** substantial, full-width source-identified surfaces during a true witnessed same-level, reciprocal Pip–Thornback 1–2-edge court: the public near-cell 2.31m top becomes coherent original sea-glass, while its 2.39m broad load lip becomes connected opaque deep mineral. These changes consume the exact public witness and current visibility; real doors, collision, traps, keys/checkpoints/exit objects, stairs, path planning, authority, mobile camera, HUD, shader class and GPU pools are unchanged. No secret reveal or invented route. Existing specialized trap ground is exempt. Strong installed-Three regression measures the TRUE full-size mesh matrices/materials, closed/open edge, hidden threat/cell, six-run strict <100 and disposal.
+
+## Frozen quality verdict
+**No Pass324 final-source rendered win is claimed.** Need the NEW exact-HEAD source-bound original WebGL output and visually inspect same 390px notice/brace/release plus 320/844/1280 and gate/key/pressure, preserve unchanged ±.95 NDC, withdrawal >=.70, 44px controls and privacy. Use actual before/after image magnitude and artistic hierarchy, not code counts. Whole repository CI is an independent gate (known Tiny Kingdom/artifact issues). Fixed official Nintendo Captain Toad quality reference still beats current authored game; a single court correction does not establish parity. Independent fresh-context critic and Ultracode are unavailable through disconnected coding tunnel. **Draft PR #53 stays OPEN, NEVER merge/deploy/force.**

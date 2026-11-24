@@ -1,0 +1,16 @@
+# Pass543 — authored earned-duel physical architecture and quiet public court (2026-11-20 UTC)
+
+**Status: implemented as an independently judgeable candidate; NO new same-HEAD rendered acceptance yet.** Existing open Draft PR #53, same branch. Nintendo *Captain Toad: Treasure Tracker* official gameplay quality bar **NOT MET**. Do not merge, deploy or force-push.
+
+## Original Pass542 exact-HEAD WebGL evidence inspected
+- Source: [Pass542 native WebGL run](https://github.com/my-edutu/Ai_games/actions/runs/44822233593), SHA `c0d256e2f0e350fd6f1813596e5e6c13fa6e7b80`, original [artifact 14673665587](https://github.com/my-edutu/Ai_games/actions/runs/44822233593/artifacts/14673665587) with GitHub ZIP digest `0dbf266e243a7da4b0da87a3783b8dcec6da3a1fccbf532ad803c574ca12dd20`. 42/42 true full-frame PNG sidecars and 3/3 real gate transition images checked.
+- Genuine, unaltered portrait counter screenshot 390x844 SHA-256 `877f1deded10f346e2f5e7d546e359c79777f692639d5774203ec110c1d4c94f`, 320x740 `812967c3f22d7bd21866ece4c5e71243a94685e98e444b23f82ccd7e081dd310`, stamped 2026-11-20T21:50:57Z. Both real complete connected actors remain inside strict native +/-0.95 NDC.
+- Visually REJECTED against fixed official Nintendo gameplay: a permanently upright sculpted mast and a noisy low foreground of four-petal floor tesserae, shell petals, scattered inlays and repeated ivory edges compete with the earned Pip–Thornback parry; Pass542 ornamental fossil cutaway did not materially fix this. The actual autonomous source had publicly earned pressure, guardian, key, gate and escape victory, but an end-to-end mechanical completion is not a visual win.
+
+## One consequential visible composition unit
+The very same original publicly authorized, current visible guardian causeway is now designed as a performance court, not yet another layer of floor decoration.
+1. The ORIGINAL rooted Tideglass observatory, including both shell vanes and its physical shaft, *sinks into its own existing noninteractive plinth* on the real lantern-counter floor wave. Existing warning/brace stages still rise, true recoil folds the whole prop; absence of witness/hidden/reduced/reset returns root to zero. Reuses the already existing full 3D group and published counterWave, not a duplicated model, shadow/UI prop or invented mechanism.
+2. Already visible, genuine public guardian quiet-ring floor tiles now omit four separate classes of nonfunctional repetitive decorative flecks/petals/engraving, leaving large clear stone/sea-glass negative space between complete Pip and Thornback. Keep the original load-bearing floor, physical walls, real gates, pressure jaws, live treasure, causeway mechanisms and all collision/privacy rules unmodified. Ordinary non-guardian tiles retain their decorations.
+
+## Evidence gate still REQUIRED
+Fresh exact-HEAD native 320/390/844/1280 full uncropped WebGL, 42 PNG SHA sidecars, 3 genuine gate SHA, strict +/-0.95 actor/framing and six-reset geometry <100, source/build/whole CI; inspect 390/320 genuine earned-frame side-by-side with Pass542 and official Nintendo art. The mast and optional floor treatment is only a candidate until that visual review proves a substantial improvement. Do not confuse CPU SwiftShader with hardware FPS. Independent fresh-context critic and Ultracode disconnected from coding workspace.

@@ -1,0 +1,15 @@
+# Pass336 — source-real guardian spectator wall pressure priority (2026-11-13 UTC)
+
+**Incoming verified source:** [Pass335 3dd5d278](https://github.com/my-edutu/Ai_games/commit/3dd5d2783f811402462f133cfb711153d3874bc0). Existing OPEN DRAFT PR #53, no merge/deploy/force. Official *Captain Toad: Treasure Tracker* visual gameplay bar NOT MET.
+
+## Original exact-HEAD WebGL verdict — Pass335 rejected
+
+Downloaded [successful native Chromium/WebGL run 43464137830](https://github.com/my-edutu/Ai_games/actions/runs/43464137830), original artifact **14058711819** (workflow SHA256 digest `7a707b91052a736bb4255af2198f854ec651e441584e3d44ed7e8d50a60dc48f`). Verified 39 full-frame original PNGs and independently matched **37/37 imageSha256 sidecars**. Exact genuine 390×844 brace remained unchanged: Pass334->Pass335 mean RGB delta **0.037632/255**, release **0.000296/255**. Source-native ray at **(.50,.66)** still first-hits public cell100's full 2.34×.075×.44m **ivory #eed5a0 cap** (16.8,1.755,1.2), and opaque 2.32×.34×.39m brown #8e7851 core. No rendered artistic win. The 390px shot still has broad pale rails framing Pip/Thornback, crowded terraced silhouettes, and weak physical stage storytelling.
+
+Read the UNALTERED original native `guardian-original-public-foreground-diagnosis-390.json`: real hero99 and threat98 occupy an open reciprocal causeway, while100 and117 are both published ordinary, both in `outerOrdinary` and `foreground`; cell100 has neighbors83,101 but NOT117. This is a physically closed spectator edge, not an undisclosed opening. Pass335's synthetic test excluded another truth in the real state: a public pressure mechanism can connect on a *different wall edge* of these cells, triggering the overly broad veto despite an impassable 100/117 boundary.
+
+## One meaningful source-bound change
+
+Pass336 scopes the visual classification to the actual spectator edge and retains explicit exclusion of authentic trap ENDPOINTS, keys, gates, checkpoint, clue, undisclosed cells, true paths, elevation changes, closed/ended encounters. A real source-public pressure mechanism attached on another side still animates and retains its physical edge; it no longer vetoes dark architecture on a separate publicly sealed boundary. No hidden topology, navigation, authoritative hazard rules or renderer allocation class changes. Installed-Three strict tests preserve original six reset <100 and distinguish linked neighboring trap from a trap endpoint ON the wall. The native browser test now requires the **actual** 390px source-ray first-hit cap #5d968e and core #28574f at original full size; existing mobile 320/390/844/1280, ±.95 guardian/Pip body, withdrawal >=.70, privacy, 44px controls, reduced motion and original gate transitions remain unchanged.
+
+**New exact-HEAD CI/native uncropped captures and fresh independent visual review PENDING.** Do not claim rendered pass, Nintendo benchmark win, hardware FPS, independent critic or Ultracode access. Coding workspace tunnel remains NOT_FOUND.

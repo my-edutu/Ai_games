@@ -1,0 +1,19 @@
+# Pass421 — exact-HEAD real 390px earned guardian reverse-camera candidate REJECTED (2026-11-16 UTC)
+
+**Existing Draft PR #53 only. No merge, deploy, force-push, private-map changes or acceptance-threshold relaxation.**
+
+## Exact-source CI and genuine visual evidence
+
+- Candidate SHA: `f65d09f1de35441ad319b7b5e770bb4bdd47b8ae`; [real Chromium workflow #43842033502](https://github.com/my-edutu/Ai_games/actions/runs/43842033502), conclusion **FAILURE** (7/8 Playwright tests); real Chromium WebGL initialized, focused Maze build/tests pass, existing six-run scene-reset geometry budget **<100** passed.
+- Downloaded original [artifact #14214810064](https://github.com/my-edutu/Ai_games/actions/runs/43842033502/artifacts/14214810064), ZIP SHA-256 `fd4ef4d956e461c195fad13c69e7cbedba8fe4fe907045734588af96d94d5837`. Recalculated original **39/39 AVAILABLE full-resolution PNG to sidecar SHA-256**, plus all three real gate-before/mid/after PNG digests. Failure stopped before 320px earned capture; do not claim candidate 40/40 nor 320 success. Original 390x844 `natural-guardian-recoil-earned-390.png` SHA `12b7faffb36f86b54cffcedbf44340b522f545075adb9d14d74f4b47c8cd6b42` at `2026-11-16T09:50:00.533Z`.
+- Exact trusted prechange [Pass419 rollback WebGL #43832142295](https://github.com/my-edutu/Ai_games/actions/runs/43832142295), [artifact #14209930517](https://github.com/my-edutu/Ai_games/actions/runs/43832142295/artifacts/14209930517), separately independently verified **40/40 original image sidecars and 3/3 gate frame hashes**. Same public seed `maze-visual-reference-13`, tick8 naturally earned lantern parry, Thornback cell91→74.
+
+## Actual player-visible critique and regression
+
+Unaltered same-viewport 390×844 full-frame images show the proposed alternate counter-stage shot yields **no meaningful composition gain**: Pip torso/boots still obscured/inconclusive behind the foreground Tideglass scenery; guardian recoil is not clearly staged like the fixed official Nintendo Captain Toad benchmark. The native diagnostic reveals a concrete new regression: `guardianPhysicalBounds[0].left = -0.962976084680616`, beyond existing -0.95 NDC; `fullyInFrame = false`, and `allGuardianModels=0` while public `guardians=1`. The exact failed test at `tests/browser/maze-review.spec.cjs:2360` correctly protects the full-body bar; DO NOT weaken it, accept a green unit test as a rendered win, or imply the absent 320 shot passed. A full-frame A/B with authentic Pass419 has been inspected; independent fresh-context worker and Ultracode remain unavailable (`NOT_FOUND`).
+
+## Safe source decision
+
+**Reject Pass420/420b physical camera candidate.** In one non-force expected-HEAD commit, restore exactly the verified Pass419 `public/ai-maze-escape/scene.js` and `public/ai-maze-escape/guardian-duel-camera.mjs` Git blobs. Remove only added `tests/phase6/maze-public-guardian-cinematic-sightline.test.cjs`. Leave HUD revision 4, world/collision/privacy, characters, original Pass415 fossil animation, AI, deterministic rules, existing strict tests and complete old evidence untouched. Preserve Pass420 source experiments as history and dated review. Same commit updates ledger and `/maze/progress` source. Recheck new exact-HEAD CI and complete unaltered 320/390/844/1280 WebGL before accepting a rollback validation; whole repository CI separately fails in Tiny Kingdom OBS/artifact downstream.
+
+**Next independently judgeable improvement:** reconstruct the *real authored guardian performance stage and foreground spatial relation* so the genuine physically complete lantern defense and recoil are both readable at normal 320/390 sizes. Not another camera cutoff, score-helper or decoration adjustment. Fixed Nintendo bar NOT MET. PR remains open draft, unmerged, undeployed; hourly Gauntlet stays active.

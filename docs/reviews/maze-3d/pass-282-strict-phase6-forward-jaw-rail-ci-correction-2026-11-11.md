@@ -1,0 +1,9 @@
+# Pass282 — whole-repository phase6 stale pressure jaw origin, exact-source correction
+
+**2026-11-11 UTC** · Parent `b66df7c454ec3f2f6f7dd7f81b7ea85a5f7f06a0` · existing branch `feat/maze-3d-gauntlet` · open Draft PR #53.
+
+Source-bound [full repository CI 43114263254](https://github.com/my-edutu/Ai_games/actions/runs/43114263254) finished **FAILURE, 781/782 tests passed**. The only Node test failure was phase6's installed real Three.js pressure-jaw regression at `tests/phase6/maze-public-tide-shear-hazard.test.cjs`: it expected the obsolete Z `.12` location. Pass279 intentionally moved both entire physically linked 3D jaws from the rear to forward/lower roots `(±.68,-.035,.44)` while preserving the source-driven pressure clock. Pass280 correctly updated the phase3 test, but missed this **phase6** parallel assertion.
+
+**Corrective production-contract work:** replace the stale phase6 expectation with **exact .44Z and -.035Y** on both real hinged jaw instances. Do NOT relax the other existing strict inner stage, geometry/material budget, animations, privacy, reset and collision assertions. The test additionally verifies their lowered roots instead of merely changing old prose. The focused Pass281 [Maze native workflow 43114263365](https://github.com/my-edutu/Ai_games/actions/runs/43114263365) already passed production presentation build/tests, real Chromium/WebGL verification, six-run <100 geometry check; its own browser screenshot capture was still in progress at this test-fix commit, not new-head evidence. Do not reuse that run as proof for Pass282.
+
+**Acceptance:** New exact-commit full CI and native unaltered 320/390/844/1280 WebGL, SHA pairs, full Pip/jaw silhouettes and actual visual comparison remain mandatory. No Nintendo quality win; independent worker tunnel disconnected. No merge/deploy/force.

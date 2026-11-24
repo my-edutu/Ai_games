@@ -2,60 +2,52 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="color-scheme" content="dark">
-  <title>AI Maze Escape — Autonomous Broadcast</title>
+  <meta name="theme-color" content="#10201c">
+  <title>AI Maze Escape — An autonomous adventure</title>
   <link rel="stylesheet" href="/maze/styles.css">
   <link rel="stylesheet" href="/maze/ux-v2.css">
+  <link rel="stylesheet" href="/maze/gameplay-hud.css">
 </head>
 <body data-reduced-motion="false" data-high-contrast="false">
-  <main id="broadcast" data-ux-revision="2" aria-label="AI Maze Escape autonomous livestream">
-    <section id="stage" aria-label="Maze game view">
-      <div id="status-strip">
-        <span class="live-dot" aria-hidden="true"></span>
-        <span>AUTONOMOUS RUN</span>
-        <span id="integrity">INTEGRITY: VERIFIED</span>
-        <span id="profile">PROFILE: —</span>
-      </div>
-      <canvas id="maze" data-testid="maze-canvas" aria-label="Discovered maze, explorer, hazards and route"></canvas>
-      <div id="scene-card" hidden>
-        <strong id="scene-title">RECOVERING VIEW</strong>
-        <span id="scene-message">Restoring the latest verified public snapshot.</span>
-      </div>
+  <main id="broadcast" data-ux-revision="4" aria-label="AI Maze Escape autonomous adventure">
+    <header class="masthead">
+      <a class="wordmark" href="/maze" aria-label="AI Maze Escape home">
+        <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 2 36 11v18L20 38 4 29V11Z"/><path d="m12 25 8-14 8 14m-12-2h8m-4-12v19"/></svg>
+        <div><h1>AI Maze <em>Escape</em></h1></div>
+      </a>
+      <nav class="presentation-controls" aria-label="Presentation controls">
+        <button id="camera-toggle" data-action="camera" class="control-button" type="button" aria-label="Switch to overview camera" aria-pressed="false" title="Switch camera"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></svg><span class="button-label">Camera</span></button>
+        <button id="sound-toggle" data-action="sound" class="control-button" type="button" aria-label="Enable sound" aria-pressed="false" title="Enable sound"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m11 4-6 5H2v6h3l6 5V4Z"/><path d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg><span class="button-label">Sound</span></button>
+        <button id="fullscreen-toggle" data-action="fullscreen" class="control-button icon-only" type="button" aria-label="Enter fullscreen" aria-pressed="false" title="Fullscreen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg><span class="sr-only">Fullscreen</span></button>
+        <details id="settings-panel" class="settings-panel">
+          <summary class="control-button icon-only" aria-label="Open presentation settings" title="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="8" cy="7" r="3"/><circle cx="16" cy="17" r="3"/></svg><span class="sr-only">Settings</span></summary>
+          <div class="settings-content"><h2>View settings</h2>
+            <button id="motion-toggle" data-action="motion" type="button" aria-label="Reduce motion" aria-pressed="false"><span>Reduced motion</span><span class="toggle-indicator" aria-hidden="true"></span></button>
+            <button id="contrast-toggle" data-action="contrast" type="button" aria-label="Enable high contrast" aria-pressed="false"><span>High contrast</span><span class="toggle-indicator" aria-hidden="true"></span></button>
+            <button id="feed-toggle" data-action="feed" type="button" aria-label="Enable clean feed" aria-pressed="false"><span>Clean feed</span><span class="toggle-indicator" aria-hidden="true"></span></button>
+            <p class="settings-note">Sound starts only when enabled.</p>
+            <a href="/maze/progress">Behind the adventure <span aria-hidden="true">↗</span></a>
+          </div>
+        </details>
+      </nav>
+    </header>
+    <section id="stage" aria-label="Live three dimensional maze adventure">
+      <canvas id="maze" data-testid="maze-canvas" aria-label="Explorer discovering sandstone ruins, passages and hazards"></canvas>
+      <div id="status-strip"><span class="live-dot" aria-hidden="true"></span><span id="run-phase">CONNECTING</span><span id="profile" class="sr-only">PROFILE: —</span><span id="integrity" class="sr-only">INTEGRITY: CONNECTING</span></div>
+      <details id="map-panel" class="map-card" aria-label="Known maze map"><summary aria-label="Show discovered maze map"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2V5Z"/><path d="M9 3v16M15 5v16"/></svg><span>Map</span><span class="disclosure-chevron" aria-hidden="true"></span></summary><div class="map-content"><canvas id="minimap" aria-label="Minimap showing only discovered passages, known objects and explorer position"></canvas></div></details>
+      <div id="scene-card" hidden role="status"><span class="scene-symbol" aria-hidden="true">◇</span><strong id="scene-title">Opening the garden</strong><span id="scene-message">The explorer is finding its bearings.</span></div>
+      <div id="graphics-status" hidden role="status"><span id="graphics-message">The live map continues.</span><button id="retry-3d" type="button">Retry 3D</button></div>
     </section>
-    <aside id="hud" data-testid="hud" aria-label="Run information">
-      <header>
-        <span class="eyebrow">GAME 02</span>
-        <h1>AI MAZE<br>ESCAPE</h1>
-        <p data-testid="objective" id="objective">Escape before time runs out.</p>
-      </header>
-      <section class="metric-block">
-        <div class="metric-row"><span>DISCOVERY</span><strong data-testid="progress" id="progress">0%</strong></div>
-        <div class="progress-track"><span id="progress-fill"></span></div>
-        <div class="metric-grid">
-          <div><span>STEP</span><strong id="steps">0</strong></div>
-          <div><span>TICK</span><strong data-testid="tick" id="tick">0</strong></div>
-          <div><span>TIME</span><strong id="time">—</strong></div>
-          <div><span>KEYS</span><strong id="keys">0</strong></div>
-        </div>
-      </section>
-      <section class="intent-card">
-        <span class="eyebrow">AI INTENT</span>
-        <strong data-testid="ai-intent" id="intent-mode">INITIALIZING</strong>
-        <p id="intent-copy">Building a belief map from visible passages.</p>
-        <div class="confidence"><span id="confidence-fill"></span></div>
-      </section>
-      <section class="inventory-card">
-        <span class="eyebrow">INVENTORY</span>
-        <div id="inventory" aria-live="polite">No keys collected</div>
-      </section>
-      <footer>PARTIAL OBSERVATION • NO ORACLE ACCESS</footer>
+    <aside id="hud" data-testid="hud" aria-label="Current adventure">
+      <header class="mission-block"><span class="eyebrow"><span class="small-diamond" aria-hidden="true"></span><span id="goal-label">GOAL</span></span><h2 id="goal-title">Find the exit</h2><p data-testid="objective" id="objective">Explore the maze</p></header>
+      <section class="metric-block" aria-label="Time and exploration"><div class="metric-grid"><div class="time-metric"><span class="sr-only">Time remaining</span><strong id="time">—</strong></div><div class="steps-metric"><span>Steps taken</span><strong id="steps">0</strong></div><div class="sr-only"><span>Tick</span><strong data-testid="tick" id="tick">0</strong></div><div class="sr-only"><span>Keys</span><strong id="keys">0</strong></div></div><div class="discovery-summary"><div class="metric-row"><span class="sr-only">Garden discovered</span><strong data-testid="progress" id="progress">0%</strong></div><div class="progress-track" role="presentation"><span id="progress-fill"></span></div></div></section>
+      <section class="inventory-card" aria-label="Explorer inventory"><div class="inventory-row"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m15 15 12 12m-4-4 3-3m-7-1 3-3"/></svg><div id="inventory" aria-live="polite" aria-label="No keys collected">0</div></div></section>
+      <section class="intent-card"><div class="intent-heading"><span class="eyebrow"><span class="intent-spark" aria-hidden="true">✧</span> <span id="intent-label">Pip</span></span><strong data-testid="ai-intent" id="intent-mode">Exploring</strong></div><details id="intent-details"><summary aria-label="Show explorer path explanation" title="Path details"><span>Details</span><span class="disclosure-chevron" aria-hidden="true"></span></summary><div class="intent-explanation"><p id="intent-copy">Looking for an unexplored passage through the garden.</p><div class="confidence" aria-hidden="true"><span id="confidence-fill"></span></div></div></details></section>
     </aside>
-    <section id="captions" data-testid="captions" aria-live="polite" aria-atomic="true">
-      <span class="caption-label">LIVE CAPTION</span>
-      <p id="caption">The explorer is mapping the nearest frontier.</p>
-    </section>
+    <section id="captions" data-testid="captions" aria-live="polite" aria-atomic="true"><span class="caption-label"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 4h14v10H9l-4 3v-3H3Z"/><path d="M6 8h8M6 11h5"/></svg><span>CC</span></span><p id="caption">Exploring</p></section>
   </main>
-  <script src="/maze/app.js" defer></script>
+  <script type="module" src="/maze/app.js"></script>
 </body>
 </html>

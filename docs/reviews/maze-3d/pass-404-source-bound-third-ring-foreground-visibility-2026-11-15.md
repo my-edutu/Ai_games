@@ -1,0 +1,14 @@
+# Pass404 — third-ring guardian foreground silhouette reconstruction (2026-11-15)
+
+**Scope:** existing Draft PR #53 only, no merge/deploy/force-push. Fixed official Nintendo Captain Toad gameplay benchmark NOT MET.
+
+## Native independent image evidence used to choose the defect
+At source HEAD `47f8a5bd42e604b3e2e984192caa843c1b72e57f`, exact-source Maze WebGL [run 43747026147](https://github.com/my-edutu/Ai_games/actions/runs/43747026147) succeeded. Its original 26MB artifact #14175226261 was downloaded and independently checked: **40/40 PNG SHA-256 sidecars** and authentic 3/3 public-gate transition hashes. Compared against the predecessor [Pass402 artifact #14172239797](https://github.com/my-edutu/Ai_games/actions/runs/43741300407/artifacts/14172239797), which likewise matched 40/40. The native 320x740 and 390x844 genuine autonomous seed13 tick8 lantern-counter frames show a real 91→74 Thornback recoil and full connected actor bounds, but Pip's lower silhouette and Thornback's profile remain obstructed by decorative gardens, rails and tall fronds. Pass403 counterflow produces no compelling compositional gain in the captured still; its motion itself is **not** accepted or rejected based on one frame.
+
+## Single independently judgeable production candidate
+When and ONLY when the real current published, reciprocal, unsealed, same-level Pip–Thornback court exists, reserve the already-public THIRD same-tier spectator ring as negative space for **optional non-colliding tall foliage/column dressings**. A two-ring decorative exclusion already existed, but left foreground plants across the enlarged mobile camera. The code reuses the previously verified three-cell public peripheral-set helper; all real solid walls, true stairs, gates, pressure machines, playable floor, court leaf mechanics, enemy physics and AI/privacy remain unchanged. This change is expected to remove a substantial camera-facing screen of vegetation rather than merely repainting it. Do not extend this to hidden or private rooms.
+
+## Required gate before approval
+New exact-source focused tests and WebGL artifact must pass under strict six-reset <100 geometry, ±0.95 full Pip/Thornback physical envelopes, ≥0.70 withdrawal silhouette, full 320/390/844/1280 uncropped browser, 44px controls, true door/key/pressure frames, hidden-map and accessibility contracts. Reinspect and SHA-verify every new native capture. Directly compare the 320 and 390 recoil frames against both earlier **unaltered originals** and the official Nintendo fixed reference; if the plants remain, lost world richness exceeds gained readability, or wall/collision visuals mislead, safely revert. Independent detached critic/Ultracode workspace was unavailable (tunnel NOT_FOUND); no independent reviewer or new image win claimed.
+
+**Status: production source candidate awaiting exact-HEAD native review, not artistic acceptance.**

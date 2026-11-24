@@ -1,0 +1,44 @@
+# Eighth-pass review — truthful public-wayfinding and threat semantics
+
+**Date:** 2026-10-31 UTC  
+**Original game:** AI Maze Escape, branch `feat/maze-3d-gauntlet`, draft PR [#53](https://github.com/my-edutu/Ai_games/pull/53)  
+**Fixed, unchanged benchmark:** Nintendo [Captain Toad: Treasure Tracker](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/), specifically the **two pinned 1280×720 official images** in [reference-manifest.json](./reference-manifest.json). Supporting references: Luigi's Mansion 3 and ASTRO BOT. **Benchmark verdict: NOT PASSED.**
+
+## Actual changes, split into independently judgeable slices
+
+1. **Disclosed corridor choices.** [Source commit 8519543](https://github.com/my-edutu/Ai_games/commit/8519543a35744b5e5121cd2d3183a8e4013cdad5) introduced reusable low-profile 3D floor arrows at the explorer's current cell. A destination must be a **known, reciprocal, unblocked, orthogonally adjacent public cell**. Turquoise means the *current, already-public AI plan's* next step, if it starts at the current cell; ivory means another known possible passage. The arrows make **no promise of safety, refuge, shortest paths, or undisclosed content**.
+2. **Locked-door truthfulness and route verification.** [Final gameplay commit 5762284](https://github.com/my-edutu/Ai_games/commit/576228474471fa2f4295a98ec152f7d4b68c5c06) excludes publicly disclosed closed-door edges from both the floor choices and the dashed observed planned-route display; it additionally checks reciprocal edges and one-cell adjacency for the latter. Pure tests cover an observed locked door, reopening it, stale route origin, blocked cells, nonreciprocal walls, nonadjacent cells, undisclosed destinations and terminal-state cue suppression. It does not alter the authoritative maze, AI policy, public snapshot schema or determinism.
+3. **Threat-vs-treasure legibility.** The original Pip overhead ring/halo, which could read as a gold pickup, was changed to a geometrically modeled **triangular warning/exclamation**. It still activates only for an already disclosed nearby Thornback and remains absent outside the valid encounter, including terminal states. No hidden threat is queried.
+4. **Allocation and cleanup.** A fixed pool of four shared arrow glyphs is reused between public frames; one geometry and two materials are disposed with the renderer. No per-frame geometry building or new dynamic light was introduced.
+
+## Final-source CI verification — not a visual quality result
+
+- **Source:** `576228474471fa2f4295a98ec152f7d4b68c5c06`, [Autonomous Games CI run 41150638243](https://github.com/my-edutu/Ai_games/actions/runs/41150638243), completed successfully **2026-10-31T00:36:21Z**.
+- **Results:** **518/518 Node tests**, **25/25 Playwright browser tests**, four stream-host self-tests, build, nondeterminism scan, captured evidence and release/operations evidence generation all passed. Three Eko companion workflows for the same source also succeeded. These are *functional correctness checks*, not independent visual acceptance or hardware-performance results.
+- The prior source `8519543` also passed [CI 41150163955](https://github.com/my-edutu/Ai_games/actions/runs/41150163955): 518/518 Node and 25/25 browser checks. A correctness review then identified the locked-door corner case, producing the final `5762284` fix. No unit thresholds or graphics-performance budgets were lowered.
+
+## Real dated browser evidence — inspected
+
+[Final CI artifact 13022687590](https://github.com/my-edutu/Ai_games/actions/runs/41150638243/artifacts/13022687590) contains actual application-rendered `encounter-public.png`, `encounter-public.json`, `desktop.png`, `clean-feed.png` and `phone-landscape.png`. The source-bound encounter manifest records:
+
+- **Captured at:** `2026-10-31T00:35:43.336Z`; 1280×900, software-WebGL **balanced** mode.
+- **Exact real production snapshot:** `maze-visual-reference-13`, tick **13**, public Thornback–Pip separation **2.23606797749979 cells**. Two actual disclosed characters are in the camera (`characterCount=2`, `wardensInFrame=1`, `explorerInFrame=true`, `encounterAttention=0.5606531154547746`). No synthetic guardian or invented frame.
+- **SHA-256:** `encounter-public.png` `7e811af06d90c87a0d0f7c3f79bc156d758d44f886907e4b8caad0a9b522f379`; `desktop.png` `e4e78e124a71803e1f756d43dca3c952e5277d777bd6e38dab12a34d47cadb61`; `clean-feed.png` `19f1b291c618a15ecfcf5aa64b9133e5931e61e9a78273ae865b3052d37fb487`; `phone-landscape.png` `87369a12465098cdbce6323e3d883f75be5291c96c0d47562cf0f931aa12fb92`.
+- **Exact final source SHA-256 in the capture manifest:** `scene.js` `87cfab29a2813cca4803062813f23adc26d599b54e8566668a3f3b3aecd01435`; `characters.js` `4ec7817f4ae01021439da882d7aa1351894231b1ef9c641bf6a3e405d11f69b3`. The manifest also pins `app.js` and `world.js`. The final encounter PNG matches the manifest byte-for-byte.
+- **Same-frame comparison:** previous authentic seventh-pass screenshot (SHA-256 `6da5918ded4c87e74905cb44020dcc211cc7169bb4c1644f0ab014022d2c5bb0`) has the exact **same production seed, tick, visible scene, 1280×900 resolution and camera**. Only **0.3273%** of RGB pixel positions changed at any channel difference, and **0.2753%** changed by more than 10/255 in at least one channel, concentrated around Pip and the nearby floor marks. These are pixel-change measurements, not a visual-quality score.
+- A separate intermediate actual image from [CI artifact 13022468930](https://github.com/my-edutu/Ai_games/actions/runs/41150163955/artifacts/13022468930) was captured `2026-10-31T00:31:46.248Z`. The final fix changes legality checks but the **same sampled screenshot image bytes** are unchanged: its SHA-256 is also `7e811af...`. This does **not** prove locked-door presentation in another scene; the relevant data-boundary code tests cover that case.
+- The final screenshot manifest's `frameP50Ms=200` is **heavily CPU-throttled CI software rendering**. Do not compare it with another run as hardware FPS or assert it reflects a product defect. Representative hardware motion/audio remains unmeasured.
+
+## Direct lead visual critique against the fixed bar
+
+I inspected the authentic seventh and eighth pass at native 1280×900 size. The **triangle** is less ambiguous than the former gold halo, while three pale arrows around Pip now show available **local, observed choices**. The arrows are small but present and the altered pixels lie around the actor. **There is no turquoise AI-plan arrow in this selected screenshot**, so the frame does *not* prove a single actionable AI decision. Nor does an ivory observed passage imply a safe refuge. The guardian remains visually across intervening ruins, while no obvious unique objective, destination or safety resolution connects these two characters in the actual encounter. Hero, collectible, hazard and architectural landmark hierarchy are still materially weaker than the fixed Nintendo diorama references. **No visual parity or win is claimed.**
+
+This is the **lead's own inspection**, not a fresh-context critic, label-masked A/B preference test, independent human comprehension study, Nintendo source-hash recheck, movement/audio review or hardware benchmarking. The existing completed independent fourth-pass critics **still preferred the fixed Nintendo reference**. The shared workspace service returned `Tunnel-client has not been seen for 300 seconds` when actually invoked for command execution and subagents. Therefore new builder/critic workers and Ultracode were unavailable; no fictitious independent verdict was produced.
+
+## Next objectively reviewable gaps
+
+1. Run an independent, label-blinded **same-seed/tick seventh-vs-eighth** comprehension test asking what the icon means, what each arrow means, and whether the viewer can identify a genuinely safe next step. Compare the eighth-pass screenshot *directly* against both fixed 1280×720 Nintendo reference images after validating their unchanged hashes.
+2. Make a **known, actually reachable objective** visually dominant, with only public known map/keys/exit/doors data. Do not invent a refuge, a guaranteed safe route, an undisclosed key or destination.
+3. Strengthen **character/environment story, landmarks, foreground/background contrast and scene-scale objective hierarchy**. Preserve original assets and avoid making a Nintendo imitation.
+4. Verify multiple real gameplay moments (including a **closed-door** scene) with native screenshots; inspect turns, stair placement, poses and optional audio with a critic. Test representative graphics on non-throttled hardware; never present CI SwiftShader frame time as a hardware metric.
+5. Continue the builder–fresh critic loop, no fixed round count; hold the Nintendo bar and keep the PR draft until independent supported visual acceptance. **No merge or deployment.**

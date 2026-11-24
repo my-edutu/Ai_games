@@ -1,0 +1,8 @@
+# Pass431 — full-body guardian encounter optical-stage candidate, 2026-11-16
+
+## Actual evidence
+Original exact-head `b1c3e5be02d9ba990db0113453ed0edda1ef7216` [Chromium WebGL #43935205368](https://github.com/my-edutu/Ai_games/actions/runs/43935205368) SUCCESS. Downloaded artifact 14261040975 and independently verified **40/40 original full-frame PNG SHA-256 sidecars and three real gate-transition hashes**. Original natural seed13 tick8 320x740 and 390x844 full physical Pip/Thornback boxes and head/torso/boots rays pass. Full-frame before/after against verified Pass429 shows Pass430 newly connected Pip acting almost indistinguishable at mobile scale; no Nintendo visual acceptance.
+
+Source-captured real 320px stage: Thornback top +.621 NDC, Pip bottom -.284, leaving insufficient use of vertical framing. Previous camera zoom refused because of an absolute +.69 ceiling. Both connected bodies span only .905 in Y, so a real optical camera vertical lift followed by bounded 1.25–1.34× paired close-up is independently judgeable. The new camera moves both subjects together and reserves stricter .80 horizontal, .68 top, -.75 bottom, while retaining native immutable ±.95 checks, 44px controls, actual AI, privacy, reduced motion, and unchanged six-reset <100 GPU geometry budget.
+
+**CANDIDATE only.** Need exact new-HEAD focused CI, full original uncropped 320/390/844/1280 WebGL, 40 SHA sidecars and three gate SHA, both full models and genuine guardian withdrawal, then independent reviewer. If physical rendering is not materially clearer, revert; never weaken tests or claim Nintendo parity. Coding worker/Ultracode tunnel NOT_FOUND. PR #53 OPEN DRAFT, no merge/deploy/force.

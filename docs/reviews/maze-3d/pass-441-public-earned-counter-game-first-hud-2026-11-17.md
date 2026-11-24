@@ -1,0 +1,15 @@
+# Pass441 — real earned counter replaces contradictory live danger objective (2026-11-17)
+
+**Source candidate:** exact PR parent `b3f46f1574ba742eb6eafe091f6b7d7a2b1bd99f`. Work kept on open Draft PR #53; no merge/deploy/force push.
+
+## Source-bound original evidence and rejection
+- Previous exact-HEAD Pass440 Maze native CI [44013615014](https://github.com/my-edutu/Ai_games/actions/runs/44013615014) succeeded (focused tests, six real resets under the unchanged strict 100-geometry budget, source-bound Chromium WebGL). Original artifact [14298107534](https://github.com/my-edutu/Ai_games/actions/runs/44013615014/artifacts/14298107534) inspected and locally checked **40 of 40 untouched PNG SHA-256 sidecars**, plus **three of three original gate transition hashes**. Authentic 320x740/390x844 public autonomous earned guardian movement at seed13/tick8 still shows an **"Avoid warden"** action chip simultaneously with **"Pip's lantern holds Thornback"** at the true 91→74 counter. Both actors visible; crowded masonry and weak central action remain below Nintendo's fixed original gameplay quality bar. Pass440 floor ripple is not independently accepted as a visual win.
+- Whole-repository [CI 44013615542](https://github.com/my-edutu/Ai_games/actions/runs/44013615542) failed on Tiny Kingdom OBS and downstream skipped/upload steps; this is NOT green whole-repo approval.
+
+## Production vertical unit
+- New pure, public-before/after **earned counter witness** requires consecutive same-run running ticks, the **same identified threat** previously un-parried and now parried, and both previous and current public visible cells. No first-seen, hidden, reused, skipped, cross-run or ended phantom counter.
+- During the **actual** guardian counter physical recoil clock only, the existing mission HUD replaces contradictory **"Avoid warden"** with **"Counter landed"** and a no-safety-promise **"Thornback recoils; keep moving"** accessible instruction. Other current un-parried visible guardians still take danger priority. Old AI intent and all authoritative logic remain unchanged; no new HUD panel, unsafe route, tracking, geometry, frame allocations or hidden map data.
+- Caption now derives from this same strict witness, eliminating first-seen/old parried ghost success. New Node test verifies moving earned counter, no first-seen/repeated/skipped/hidden/terminal false action, and strict HUD hold cleanup.
+- Cached independent coding workspace and critic tunnel still NOT_FOUND. Node + WebGL + four original native viewports, goal readability, ±.95, ≥.70, no clipping/occlusion, 44px/focus, reduced-motion, privacy and all CI at this **new** exact HEAD are **pending**. Source test passing alone is not visual acceptance.
+
+**Fixed official [Nintendo Captain Toad](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/) bar remains UNMET** (Luigi's Mansion 3 / ASTRO BOT secondary). Next priority after exact-source render: judge the earned counter chip against authentic visible actor action without hiding a second threat, then tackle overall crowded guardian-and-puzzle stage.

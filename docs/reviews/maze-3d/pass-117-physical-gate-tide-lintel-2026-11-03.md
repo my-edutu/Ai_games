@@ -1,0 +1,21 @@
+# Pass117 — thinner physical gate lintel; true rendered-image A/B pending
+
+**UTC date:** 2026-11-03. **PR:** [OPEN DRAFT #53](https://github.com/my-edutu/Ai_games/pull/53), no merge or deploy. **Art bar:** original real [Nintendo Captain Toad gameplay](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/) (support: Luigi's Mansion 3; ASTRO BOT); still **not achieved**.
+
+## Direct real-game problem, no fake image
+
+I inspected the unaltered source-bound **Pass116 first-source live WebGL** screenshot (1280×900, `2026-11-03T16:52:55.840Z`, SHA `4521cfe654b0bf243e627eab870d4854aa6c2f49951f06c85a143ec1655ee4d4`) and earlier Pass115 full native frame. The two new actual in-world gate-court mosaics are visible, but the arch's massive near solid stone top beam still dominates next to Pip's physical raised arm and boots, making his real acting less legible. The Nintendo reference uses much clearer readable character/interaction silhouettes. Merely changing HUD typography, zooming a screenshot or accepting test counts cannot fix this.
+
+## Builder: coherent physically connected real arch instead of the thick visual obstruction
+
+- Real production [source commit ed1dd0b](https://github.com/my-edutu/Ai_games/commit/ed1dd0b3555191fd00820100f4f5cc5c6d42b1cf) carves the original disclosed **stone header** from 2.24×.23×.47 to 2.16×.16×.27 (scene units); the underlying dark-jade frieze likewise narrows to 1.50×.075×.20 and is placed under the real stone. This retains the existing actual passage width, flanking solid stone caps/jambs, withdrawing metal grille, twin tide-wings, lock and pulley/counterweight choreography. It changes *real modeled 3D mass*, not screen CSS, camera limits, hidden geometry or actor scale.
+- Original [solid connection repair 7f90976](https://github.com/my-edutu/Ai_games/commit/7f9097629f70e3c92a6d80b5a785c24294da3ae1) seats new lintel's bottom at y1.72 so it **actually overlaps each real cap** reaching y1.735; no floating separated arch due to bevel-edge thinning.
+- **Separate independent real-Three source critic** [c2ad399](https://github.com/my-edutu/Ai_games/commit/c2ad39949de2a5ae462d67129aa1593617603734) and [stronger physical join test 293452a](https://github.com/my-edutu/Ai_games/commit/293452a66a3734dc17141497e8028d9af15a3af1) assert actual named production Mesh, modeled dimensions, two solid cap joins, retained arch when a public door genuinely opens, unchanged geometry/material/texture budget, source immutability, and absence when gate is unknown. No visual margin, Nintendo bar, key, Pip/guardian framing, mobile viewport, public privacy or access test was loosened.
+
+## Critic gates, current evidence, limitation
+
+The direct Pass116 first-source [focused WebGL 41678118147](https://github.com/my-edutu/Ai_games/actions/runs/41678118147) succeeded; [original artifact 13252261211](https://github.com/my-edutu/Ai_games/actions/runs/41678118147/artifacts/13252261211) was fully retrieved, original 23/23 full-resolution PNG hashes matched their dated sidecars, and the whole 1280 gate, 320 guardian and 390 key images were directly visually inspected. **Pass117 exact-source real PNGs and source/Node CI must now run and be compared against those originals**. Required native frames are genuine 1280 mid gate, 320/390 portrait full guardian and key, 844 landscape plus normal/reduced-motion variants; reject a missing/broken model, disconnected lintel, any gate grid/post occlusion that remains, spurious rosette pressure-pad affordances, hidden-state disclosure or oversized overlay. Recheck original 3D actor geometry in-frame; a slim lintel is not a win if it only moves occlusion elsewhere.
+
+Previous monorepo head `3c85c223` whole [41661268871](https://github.com/my-edutu/Ai_games/actions/runs/41661268871) FAILED despite 607 Node passes because 3 **unrelated Tiny Kingdom** browser tests expected older `procedural-060` shaders while source is `procedural-063`; preserve other contributors' branch work. The shared coding workspace still returned the tunnel-client disconnected error; independent fresh-context visual critic/subagents and Ultracode unavailable, no blind A/B. CI SwiftShader CPU time cannot be reported as real GPU FPS.
+
+**Verdict: candidate, unverified rendered Pass117. The fixed original Nintendo visual bar remains open.**

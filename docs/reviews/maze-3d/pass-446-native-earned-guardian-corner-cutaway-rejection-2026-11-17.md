@@ -1,0 +1,22 @@
+# Pass446 — exact-HEAD guardian corner sightline critic and conservative rollback (2026-11-17 UTC)
+
+**Candidate exact source:** [d7492840](https://github.com/my-edutu/Ai_games/commit/d7492840ecf2dafaa91405abbf4de2ee27539025), existing OPEN DRAFT [PR #53](https://github.com/my-edutu/Ai_games/pull/53). **Real native WebGL** [workflow 44048387926](https://github.com/my-edutu/Ai_games/actions/runs/44048387926) SUCCESS, unaltered original [40-frame artifact](https://github.com/my-edutu/Ai_games/actions/runs/44048387926/artifacts/14312463601). This is a *rejection*, not a Nintendo parity or gameplay-completion claim.
+
+## Original source-bound evidence
+
+- Captured 2026-11-17 08:41–08:48 UTC by the exact-HEAD Playwright Chromium WebGL job, including native 320x740, 390x844, 844x390 and 1280x900 play and gate, pressure, key, guardian phases. The workflow asserted exact checkout SHA before build/capture, and the unaltered archive’s source manifest records production file SHA-256.
+- Locally rehashed **40/40** existing PNG/JSON imageSha256 pairs against the ZIP originals, plus **3/3** authentic public gate BEFORE/MID/AFTER image SHA-256 entries. No crop, synthetic game state, or retouch was used in the inspection. Native screenshot strict actor NDC envelope and six-reset geometry budget (<100) passed unchanged in CI.
+- Old Pass445b [artifact 14308219285](https://github.com/my-edutu/Ai_games/actions/runs/44039221235/artifacts/14308219285) was also rehashed (40/40 originals). The same seed=13, tick=8 publicly witnessed autonomous recoil (Thornback cell 91→74) is recorded in both archives.
+- Full-frame 320x740 earned screenshot comparison: mean absolute RGB channel difference **2.964/255**; only **4.5%** pixels have a channel difference >20. Both images still show the same crowded rail/corner framing, small separated actors, and the HUD saying **Avoid warden** while the caption says Pip’s lantern **holds** Thornback. Character framing gate passes but gameplay legibility does not.
+- Full-frame 390x844 earned comparison: RGB channel difference 44.745/255, **but the camera/shot composition shifts significantly** (not an isolated matched-camera wall-effect measurement). Candidate places actors farther right and Pip lower; the encounter’s working mechanism is not clearer. This figure **does not prove** a genuine geometry/art gain.
+- Pass446 public foreground diagnosis at the native brace continues to show a foreground stone cap intersecting the actor scene. The diagnostic counter for the new sealed L-corner cutaway is **zero in the sampled non-recoil gate/pressure frames**; the earned screenshots did not emit this world counter. Do not extrapolate that to all possible earned frames or claim a hidden-map privacy proof.
+
+## Artistic verdict / action
+
+**REJECT** Pass446’s new earned sealed-screen cutaway. It does not produce a clear, independent, perceptible Pip→Thornback or mechanism improvement in the actual original full-frame mobile render; visually noisy architecture survives and the 320 instruction/caption timing remains contradictory. It passes code/geometry/framing checks but clearly does **not** pass the official Nintendo [*Captain Toad: Treasure Tracker*](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/) gameplay-visual bar. This is an in-house screenshot critic only: the separate worker/Ultracode connection returned `NOT_FOUND`, so no independent blind A/B is claimed.
+
+**Rollback only** `public/ai-maze-escape/world.js` to the exact known Pass445c file blob `8dc33ce0cebcffa05517344041dca5192f92d3cc`. This removes only the unapproved cutaway and diagnostic, preserving Pip/Thornback, actual game authority, no-hidden-map rules, full HUD, strict tests and all unrelated files. A fresh rollback-HEAD native WebGL run must independently confirm the baseline is restored before approval. Whole-repo CI was not green at the candidate HEAD because of separate Tiny Kingdom OBS/artifact issues.
+
+## Next worthwhile unit
+
+Build a coherent authored **public-action** guardian-and-mechanism stage; prioritise restoring a clear mobile cause/effect and true character silhouettes **without camera crop or invented paths**. Before changing production scenery again, require the exact visible physical edge and actual event to be identified in source-bound native frames. No more speculative low-wall/corner ornaments. PR remains open/draft, never merge, deploy or force-push. Keep the hourly Gauntlet active until an independently evidenced whole-game win.

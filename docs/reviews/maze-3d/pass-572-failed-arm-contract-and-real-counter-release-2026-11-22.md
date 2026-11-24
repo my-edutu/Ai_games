@@ -1,0 +1,12 @@
+# Pass572 — real red CI, preservation of original arm interaction (2026-11-22 UTC)
+
+## HEAD-matched failure, not a performance conjecture
+[Focused native Maze run 44984066063](https://github.com/my-edutu/Ai_games/actions/runs/44984066063) checked out exact PR source `1aad088010bfb35f3e87a54a12cdafb079ea4b0d`; build succeeded, then test 73 / 310 failed in `tests/phase3/maze-3d-earned-lantern-arm-533.test.cjs:33` (pre-existing contract). The right shoulder no longer turned far enough toward an honestly witnessed rightward public OPEN corridor. 309 tests passed, but the failed build stopped actual WebGL initialization, six-run resource gate, original screenshots and uploads. Artifact count was zero. These were *not run*, not green. [Whole CI 44984066017](https://github.com/my-edutu/Ai_games/actions/runs/44984066017) failed separately.
+
+## One production interaction repair
+Pass571 turned the connected torso toward a true public lantern target throughout the counter release. During arm follow-through, the **same target became local to the rotated torso**, eliminating required independently readable right-shoulder reach. Keep the actual initial chest/head recognition and impact at witnessed phase .20, then let it resolve naturally by phase .38. The original arm/lantern reach becomes distinct again at existing test phase .42, with no moving the physically authoritative root, changing fog-of-war/AI, adding geometry, weakening old tests or altering camera/frame thresholds. New installed-Three test demands the stage handoff; original test remains untouched. No hidden-map lookup or fabricated hit.
+
+## Strict acceptance gate
+This is a source-level *candidate* pending new exact-HEAD pass of old and new tests, unchanged six-reset **<100** geometry, 320/390/844/1280 authentic original browser captures, SHA-checked sidecars and visual compare with the fixed official Captain Toad reference. If 320/390 does not show coherent two-character cause-and-effect, reject or reconsider the candidate. Distinguish software SwiftShader from real hardware GPU FPS. Detached fresh critic/Ultracode not accessible via workspace tunnel (`NOT_FOUND`); do not falsely claim independent or blind review.
+
+Previous original verified [Pass570 captures 14737304797](https://github.com/my-edutu/Ai_games/actions/runs/44981093679/artifacts/14737304797) 42 original images and three gate transitions still show substantial guardian/masonry separation. Nintendo quality bar **NOT PASSED**. PR #53 remains open DRAFT; do not merge, deploy or force-push.

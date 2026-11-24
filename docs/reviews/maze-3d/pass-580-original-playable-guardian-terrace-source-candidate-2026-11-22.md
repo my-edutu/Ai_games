@@ -1,0 +1,17 @@
+# Pass580 — true playable guardian-court authoring candidate (2026-11-22, UTC)
+
+## Source-bound starting gate
+- Draft PR #53 branch head `a761dc72c304f5a89dd7192af0fcc055336eae22` verified before editing, OPEN DRAFT and unmerged. [Exact rollback-head Maze WebGL 45026682903](https://github.com/my-edutu/Ai_games/actions/runs/45026682903) completed **SUCCESS**, while [whole-repo CI 45026682841](https://github.com/my-edutu/Ai_games/actions/runs/45026682841) failed separately. The original Pass579 critique remains an honest physical **REJECT**: giant midcourt masonry divides Pip and Thornback at 320/390 despite earlier camera, actor, ripple, and decorative experiments.
+- Fixed quality comparison remains **official Nintendo Captain Toad gameplay**, supported by Luigi's Mansion 3 and ASTRO BOT. Native PNG/artifact SHA for the NEW code is **NOT YET CAPTURED**. This entry claims neither a new rendered win nor an independent critic.
+
+## Builder's one meaningful unit
+- Change **authoritative seeded content selection** in `games/ai-maze-escape/src/generation/content.ts`, not more 3D makeup or camera hacks. Within the existing mandatory-pressure/guardian/key chapter candidates, prefer a naturally traversable **single-terrace, horizontally continuous, three-cell encounter** with authentic open lateral side rooms, if these actually exist. An otherwise valid tier-breaking axial corridor stays fallback; no fake links, removed walls, altered AI perception, teleported actors or hidden-map rendering.
+- Original seeded RNG stream still handles ties; full world and action are deterministic, and new score reads the generated topology only **at world generation**, never in client AI. Physical 3D artist still owns textures/architecture separately; this is an upstream **real-playable-geometry** candidate for a better guardian reveal.
+- Strict no-public-leak: presentation still consumes the existing sanitized public snapshots; generator does not export the map or court ranking to AI. Mobile HUD, accessibility, controls, pressure physics, gate logic, budgets, and snapshot privacy remain untouched.
+- Add a synthetic graph contract with a genuine horizontal 3-cell court and two truthful same-terrace side rooms vs a vertically broken alternative; reject false/non-reciprocal links. Add deterministic seeded world/reciprocal retreat checks. No tests, thresholds, budgets or FPS claims softened.
+
+## Independent acceptance and rollback gate
+1. Obtain exact-NEW-HEAD `npm run build`, focused maze generation/campaign tests and strict browser six-reset geometry **<100**, then genuine autonomous escape. Any new regression requires correction or selective rollback.
+2. Download original HEAD-matched 42 full-frame 320/390/844/1280 native WebGL Playwright PNGs, hash each against source sidecars and 3 gate transition images, check full-frame 320/390 physical Pip/Thornback and mechanism. Compare against immutable Pass579 baseline and Nintendo visual reference: **reject if playable court selection did not materially improve the authored encounter**, even if tests pass.
+3. Independent fresh-context critic/Ultracode not available: the workspace/agent tunnel returned `NOT_FOUND` in this run; do not claim blind quality approval. User notification only on actual meaningful tested/rendered checkpoint, material blocker or supported win.
+4. Draft PR only. NEVER merge, deploy, overwrite concurrent HEAD or force-push. The benchmark remains **UNMET**, and the hourly Gauntlet stays active.

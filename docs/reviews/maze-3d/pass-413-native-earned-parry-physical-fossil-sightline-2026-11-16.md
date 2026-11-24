@@ -1,0 +1,17 @@
+# Pass413 — real full-body guardian sightline versus optional fossil organ (2026-11-16 UTC)
+
+**Starting production HEAD:** `ee3851836c81bd666c4127f3d268d29ead547561`. **Frozen reference:** [Nintendo Captain Toad: Treasure Tracker](https://www.nintendo.com/us/store/products/captain-toad-treasure-tracker-switch/) with Luigi's Mansion 3 and ASTRO BOT supporting benchmarks. **Benchmark UNMET. PR #53 OPEN DRAFT, never merge or deploy.**
+
+## Source-bound original visual rejection: Pass412
+
+[Pass412 exact-HEAD WebGL #43784276396](https://github.com/my-edutu/Ai_games/actions/runs/43784276396) completed SUCCESS, original [artifact #14190255801](https://github.com/my-edutu/Ai_games/actions/runs/43784276396/artifacts/14190255801) at `ee3851836c81bd666c4127f3d268d29ead547561`, full-frame Chromium 320×740 and 390×844 authentic seed `maze-visual-reference-13` tick8 earned lantern parry, original Thornback 91→74. Original 40/40 PNG SHA-256 sidecars and all three genuine gate images checked against their manifest; complete true Pip/Thornback mesh and fixed six-run <100 checks passed. Whole-repo CI #43784276394 FAILED separately; a focused success is not full CI.
+
+Native 320px and 390px paired screenshots with predecessor Pass411 show almost unchanged visual composition: 320px 1,942 / 236,800 changed RGB pixel locations, RGB mean absolute difference 0.0175/255; 390px 1,335 / 329,160 and 0.0078/255. Tall articulated sea-glass fossil branches physically eclipse Pip's lantern and compete with Thornback's withdrawal. Thus **Pass412 wall-only change REJECTED**, reverted in this commit, no false improvement.
+
+## One independently judgeable player-visible reconstruction candidate
+
+The camera now examines **actual current projected full connected actor and known fossil-organ meshes**, only when Pip genuinely earns an active **currently published** lantern parry and only in Follow portrait gameplay. Only the ornamental, non-colliding articulated fossil organ and its listening sails may temporarily recede when their real in-front projected 3D bounds overlap Pip or Thornback substantially. Preserve every opaque wall, gate, pressure jaw, secret-state privacy boundary, traversability/collision, AI source, camera framing, 44px HUD, reduced-motion/terminal/manual modes. A rear or non-overlapping fossil remains. The scene restores after the public parry or on run reset. Persistent cutaway for one earned beat avoids camera-motion flicker.
+
+No new GPU geometries/materials, render-time meshes, AI information or secret lookup. Focused source helper checks cover meaningful front overlap, behind, merely adjacent, absent/false parry, reduced motion and malformed values; installed-Three world resource/reset tests remain strict. The known blocker from the mobile frame is the **actual fossil silhouette**, not another speculative decorative radius.
+
+**Pending at code commit:** exact-HEAD source and native Chromium WebGL 320/390/844/1280, actual A/B around genuine natural parry, 40 screenshot hash sidecars and 3 authentic gate hashes, unchanged ±0.95 physical actor and >=0.70 withdrawal rules, strict six-reset <100, whole repo CI, fresh independent critic. Reject/revert the candidate if character visibility or art does not materially improve in uncropped images; no visual victory yet. Fresh-context builder/critic and Ultracode unavailable via `NOT_FOUND` disconnected workspace; no false independent review or hardware-GPU FPS assertion.
