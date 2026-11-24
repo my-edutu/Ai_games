@@ -1410,5 +1410,26 @@
     },
     "device": "NOT EVALUATED",
     "leadingVerdict": "NOT EVALUATED"
+  },
+  "guardianBooleanNarrowphase20261124": {
+    "stage": "P0 OPEN",
+    "inspectedHead": "2e1edae86e847d8c112df93c2724d0cdbfae8f82",
+    "sourceSha": "b1bf5b27049b875ad4789e3b378c42a4b4ba37b1",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "ledgerBlob": "b8aa51bb5bb50b55222fb6b947472692c87c822a",
+    "previousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45365453120",
+    "capture": "https://github.com/my-edutu/Ai_games/actions/runs/45384487676",
+    "quality": "https://github.com/my-edutu/Ai_games/actions/runs/45384487396",
+    "change": "Guardian camera boolean opaque triangle query no longer sorts all contacts from all candidate meshes; skips nonqualifying materials, retains conservative current-frame bounds, and stops after first accepted physical triangle. Existing complete Floor9 contact path remains intact. No changes to camera acceptance, simulation, collision or material.",
+    "result": "Focused isolated JavaScript fixture against production module: red missing API, green one narrowphase call and cleared scratch array, no stale opaque result in subsequent frame. Real Three regression added to existing test file; not run locally; exact-source quality and capture queued on inspection. Prior capture 9/9 recording/ledge, separate pair job failed. Sampled prior portrait at 15s shows gate hardware obscuring hero. New native film and performance effect not evaluated.",
+    "limitations": "Coding workspace tunnel disconnected. No fresh browser execution or independent reviewer. Isolated fixture is not a native performance measurement. Journal commit uses skip-ci solely to avoid replacing already queued exact gameplay source CI; does not change tests or gameplay.",
+    "next": "Inspect exact source quality and recording campaign before further edits. Compare renderer intervals and actual sightlines, isolate F9 batching and clear-ray workload if still slow, resolve strict event pairing. P1 blocked.",
+    "independentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "device": "NOT EVALUATED",
+    "leadingVerdict": "NOT EVALUATED"
   }
 }
