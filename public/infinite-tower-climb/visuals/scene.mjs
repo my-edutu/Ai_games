@@ -40,7 +40,7 @@ import { sourceFirstRaisedGatewayLandmark, sourceJointGatewayFlightLens, explain
 import { firstReturnedOriginalRoomAdmission, firstReturnedFloorNineEpisode } from './first-source-room-return.mjs';
 import { sourceFirstFloorNineCameraDeparture } from './first-floor-nine-camera-departure.mjs';
 import { createFloorNineCameraReturnAudit } from './first-floor-nine-camera-return-audit.mjs';
-import { sourcePostGatewayCameraEnvelope } from './post-gateway-camera-envelope.mjs';
+import { sourceFloorNineTraversalPlan } from './post-gateway-camera-envelope.mjs';
 import { firstF9ReturnedGatewaySearchBudget, sampleColdFirstReturnGatewayTrials } from './first-f9-return-search-budget.mjs';
 import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, sourceRaisedBackdropClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceThreeSubjectActorScaleGain, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe, sourceThreeSubjectPhysicalGain } from './physical-threshold-shot.mjs';
 import { sourceSubmittedDoorwayCameraDt, sourceCroppedHeroRecoveryDt } from './source-submitted-doorway-cadence.mjs';
@@ -6654,22 +6654,12 @@ export function createTowerScene(canvas, settings = {}) {
           }
         }
       }
-      // Last arbitration after every director. The original gate keeps its
-      // earlier physical safeguards. This covers the genuine retired p3/cap
-      // route that bypassed them, with a World-issued scalar receipt.
-      const retiredGatewayReceipt=snapshot?.floor===9 && !options.stale &&
-        !options.reducedMotion && options.camera==='follow'
-        ?world.retiredGatewayCameraReceipt?.(snapshot):null;
-      const postGatewayBound=retiredGatewayReceipt && sourcePostGatewayCameraEnvelope({
-        source:snapshot,receipt:retiredGatewayReceipt,lastRendered:lastSubmittedGuardian,
-        previousCamera:lastSubmittedGuardianCamera.toArray(),
-        previousFocus:lastSubmittedGuardianFocus.toArray(),
-        desiredCamera:camera.position.toArray(),desiredFocus:lookAt.toArray(),
-        heroMovement:climber.group.position.distanceTo(lastReturnedFloorNineHero),
-        dt,cameraMode:options.camera,stale:options.stale,
-        reducedMotion:options.reducedMotion,orbit,zoom
-      });
-      if(postGatewayBound){
+      // One route-aware final camera owner across the genuine returned
+      // bronze room and its retirement. Original geometry stays owned by World.
+      const traversalReceipt=snapshot?.floor===9&&!options.stale&&
+        !options.reducedMotion&&options.camera==='follow'
+        ?world.traversalCameraReceipt?.(snapshot):null;
+      if(traversalReceipt){
         const rawCamera=camera.position.clone(),rawFocus=lookAt.clone();
         const body=climber.group.position.clone();
         body.y+=snapshot.player.halfHeight/SCALE;
@@ -6678,59 +6668,60 @@ export function createTowerScene(canvas, settings = {}) {
           [p.x,p.y,p.width,p.height].every(Number.isSafeInteger)&&p.width>0&&p.height>0);
         const targetPose=landing?pointFor(landing.x+Math.floor(landing.width*.5),
           landing.y+landing.height,snapshot.chunkBaseY,snapshot.worldWidth,25):null;
-        const target=targetPose?new THREE.Vector3(targetPose.x,targetPose.y+.14,targetPose.z):null;
-        const landingVisible=()=>{
-          if(!target)return false;
-          const n=target.clone().project(camera);
+        const target=targetPose?new THREE.Vector3(targetPose.x,targetPose.y+.25,targetPose.z):null;
+        const retired=traversalReceipt.owner!=='retained';
+        const gatePose=!retired&&traversalReceipt.gateVisible
+          ?guardianTraversalGatePose(traversalReceipt.thresholdX,
+            traversalReceipt.oldRoofY,snapshot.chunkBaseY,snapshot.worldWidth):null;
+        const gate=gatePose?new THREE.Vector3(gatePose.x,gatePose.y+2,gatePose.z):null;
+        const visible=point=>{
+          if(!point)return false;
+          const n=point.clone().project(camera);
           return n.z>=-1&&n.z<=1&&Math.abs(n.x)<.94&&Math.abs(n.y)<.94&&
-            towerCoreSightlineClear(camera.position,target,23.5);
+            towerCoreSightlineClear(camera.position,point,23.5);
         };
-        const rawLandingVisible=landingVisible();
-        camera.position.set(...postGatewayBound.camera);
-        lookAt.set(...postGatewayBound.focus);
-        const wholeBody=()=>{
-          camera.lookAt(lookAt);camera.updateMatrixWorld(true);
-          measureDuelBodyNdc(body,snapshot.player.halfHeight/SCALE,
-            camera,duelTop,duelBottom,releaseHeroNdc);
-          return releaseHeroNdc.every(Number.isFinite)&&releaseHeroNdc[2]>=-1&&
-            releaseHeroNdc[2]<=1&&Math.abs(releaseHeroNdc[0])+releaseHeroNdc[3]*.18<.93&&
-            Math.abs(releaseHeroNdc[1])+releaseHeroNdc[3]<.91&&
-            (!rawLandingVisible||landingVisible());
-        };
-        // A single blocked bounded pose previously restored the full cut.
-        // Source f22f6fcf portrait tick 594 -> 594 returned 7.0524m in
-        // 46.4ms after that physical veto. Search two intermediate exterior
-        // poses before conceding the raw camera, never bypass any veto.
-        const boundedCamera=camera.position.clone(),boundedFocus=lookAt.clone();
-        const r0=Math.hypot(boundedCamera.x,boundedCamera.z);
-        const r1=Math.hypot(rawCamera.x,rawCamera.z);
-        const a0=Math.atan2(boundedCamera.x,boundedCamera.z);
-        const da=Math.atan2(Math.sin(Math.atan2(rawCamera.x,rawCamera.z)-a0),
-          Math.cos(Math.atan2(rawCamera.x,rawCamera.z)-a0));
-        let accepted=-1,lastVeto='framing';
-        for(const fraction of [0,1/3,2/3]){
-          const radius=r0+(r1-r0)*fraction,angle=a0+da*fraction;
-          camera.position.set(Math.sin(angle)*radius,
-            boundedCamera.y+(rawCamera.y-boundedCamera.y)*fraction,Math.cos(angle)*radius);
-          lookAt.copy(boundedFocus).lerp(rawFocus,fraction);
-          let framed=wholeBody();
-          if(!framed){lookAt.copy(rawFocus);framed=wholeBody();}
-          const coreClear=framed&&towerCoreSightlineClear(camera.position,body,23.5);
-          const physical=coreClear?world.measureSuccessorDeckVisibility(snapshot,
-            camera.position,body,snapshot.player.halfHeight/SCALE,null,landingId,true):null;
-          if(physical?.active===true&&physical.rays>=3&&physical.bodyBlockedRays===0){
-            accepted=fraction;break;
+        const rawLandingVisible=visible(target),rawGateVisible=visible(gate);
+        const plan=sourceFloorNineTraversalPlan({
+          source:snapshot,receipt:traversalReceipt,lastRendered:lastSubmittedGuardian,
+          previousCamera:lastSubmittedGuardianCamera.toArray(),
+          previousFocus:lastSubmittedGuardianFocus.toArray(),
+          desiredCamera:rawCamera.toArray(),desiredFocus:rawFocus.toArray(),
+          heroMovement:climber.group.position.distanceTo(lastReturnedFloorNineHero),
+          body:body.toArray(),landing:target?.toArray()??null,routeMissing:!!target&&!rawLandingVisible,
+          dt,cameraMode:options.camera,stale:options.stale,reducedMotion:options.reducedMotion,orbit,zoom
+        });
+        if(plan){
+          let accepted=null,lastVeto='framing';
+          for(const proposal of plan.candidates){
+            camera.position.set(...proposal.camera);
+            lookAt.set(...proposal.focus);
+            camera.lookAt(lookAt);camera.updateMatrixWorld(true);
+            measureDuelBodyNdc(body,snapshot.player.halfHeight/SCALE,
+              camera,duelTop,duelBottom,releaseHeroNdc);
+            const framed=releaseHeroNdc.every(Number.isFinite)&&releaseHeroNdc[2]>=-1&&
+              releaseHeroNdc[2]<=1&&Math.abs(releaseHeroNdc[0])+releaseHeroNdc[3]*.18<.93&&
+              Math.abs(releaseHeroNdc[1])+releaseHeroNdc[3]<.91&&
+              (!(rawLandingVisible||proposal.kind==='route-lead')||visible(target))&&
+              (!rawGateVisible||visible(gate));
+            const coreClear=framed&&towerCoreSightlineClear(camera.position,body,23.5);
+            const landingRay=visible(target)?target:null;
+            const physical=coreClear?world.measureSuccessorDeckVisibility(snapshot,
+              camera.position,body,snapshot.player.halfHeight/SCALE,rawGateVisible?gate:null,
+              landingId,retired,true,landingRay):null;
+            if(physical?.active===true&&physical.rays>=3&&physical.bodyBlockedRays===0&&
+               physical.gatewayBlockedRays===0&&physical.landingBlockedRays===0){
+              accepted=proposal.kind;break;
+            }
+            lastVeto=!framed?'framing':!coreClear?'core':'physical';
           }
-          lastVeto=!framed?'framing':!coreClear?'core':'physical';
-        }
-        if(accepted>=0){
-          sky.position.copy(camera.position);
-          firstF9ScaleOutcome+=accepted===0?':post-gateway-envelope-accepted':
-            ':post-gateway-envelope-partial:'+accepted.toFixed(3);
-        }else{
-          camera.position.copy(rawCamera);lookAt.copy(rawFocus);
-          camera.lookAt(lookAt);camera.updateMatrixWorld(true);
-          firstF9ScaleOutcome+=':post-gateway-envelope-veto:'+lastVeto;
+          if(accepted){
+            sky.position.copy(camera.position);
+            firstF9ScaleOutcome+=':traversal-'+plan.owner+'-accepted:'+accepted;
+          }else{
+            camera.position.copy(rawCamera);lookAt.copy(rawFocus);
+            camera.lookAt(lookAt);camera.updateMatrixWorld(true);
+            firstF9ScaleOutcome+=':traversal-'+plan.owner+'-veto:'+lastVeto;
+          }
         }
       }
       auditF9Camera('final-after-scale',firstF9ScaleOutcome);

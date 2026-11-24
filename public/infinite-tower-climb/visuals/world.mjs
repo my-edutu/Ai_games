@@ -18,7 +18,7 @@ import { observedClockworkRoofContinuity, observedRetainedOriginalCapRoofContact
   observedStagedOriginalCapBeforeRecordedCrossing } from './crossfloor-arrival.mjs';
 import { observedSourcePhysicalArrivalPalette, observedSourceGatewayDeparturePresence, sourceAlignedIncomingShaftOpacity, sourceOwnedOriginalArchitectureCoverage, observedSourceSuccessorRaisedDeck, observedSourceFloorNineRouteSupport, observedSourceRetainedRaisedExit, observedSourceAirborneSuccessorApproach, observedSourceOriginalVisibilityWindow, observedRetainedSourceOriginalOpticalRoom, SOURCE_GATEWAY_RAISED_OPTICAL_MAX_TICKS, observedCertifiedOriginalGatewayOpticalLease, observedReturnedSharedRoomPalette } from './source-physical-arrival-palette.mjs';
 import { protectHistoricalGallerySightline, observedSourceRaisedGatewaySightline, measureAuthoritativeDeckSightline, protectSourceSuccessorUndercroft } from './original-gallery-foreground.mjs';
-import { validRetiredGatewayCameraReceipt } from './post-gateway-camera-envelope.mjs';
+import { validRetiredGatewayCameraReceipt,validRetainedTraversalCameraReceipt } from './post-gateway-camera-envelope.mjs';
 import { rebindSourceOwnedUndercroft, createSightlineMatrixEpochCache } from './successor-deck-visibility.mjs';
 import { createSourceSightlineRayBroadphase } from './source-sightline-broadphase.mjs';
 import { createOriginalClockworkArchitecturalPalette, observedOriginalClockworkSuccessorDeck, createSourceEarnedVoidDepartureMaterials, updateOriginalClockworkSuccessorRoute, observedVerifiedClockworkPaletteTail, observedCertifiedClockworkHorizon, advanceSourceEarnedPaletteReturn, observedRenderedOriginalDoorwayRoom, coherentOriginalBearingDeparture } from './original-clockwork-architecture-palette.mjs';
@@ -3519,6 +3519,21 @@ export function createTowerWorld(){
     return retainedEarnedCap===null&&source===lastSnapshot&&
       validRetiredGatewayCameraReceipt(source,retiredGatewayReceipt)?retiredGatewayReceipt:null;
   }
+  function traversalCameraReceipt(source){
+    if(source!==lastSnapshot)return null;
+    const held=retainedEarnedCap;
+    if(!held)return retiredGatewayCameraReceipt(source);
+    if(held.floor!==9||held.guardianGateRetained!==true||
+       held.verifiedObservedFloorAdvance!==true||held.sourceAlignedPassage!==true||
+       held.root?.parent!==group||held.root.visible!==true||
+       held.originalGateRoot?.parent!==held.root||
+       !(held.submittedFrames>0))return null;
+    const receipt=Object.freeze({owner:'retained',runToken:held.runToken,
+      oldCapId:held.oldCapId,crossingTick:held.crossingTick,
+      returnedTick:held.lastReturnedOldGatewayTick,thresholdX:held.thresholdX,
+      oldRoofY:held.oldRoofY,gateVisible:!!sourceEarnedOriginalGateGeometry(source)});
+    return validRetainedTraversalCameraReceipt(source,receipt)?receipt:null;
+  }
   let historicalGallerySightline={active:false,meshes:0,rays:0,softened:0};
   // Preassemble ONLY the source-original static Clockwork bearing gallery
   // after a real Floor8 WebGL submission, not in the expensive first F9
@@ -6010,9 +6025,13 @@ export function createTowerWorld(){
   // still runs every triangle veto, with no acceptance short-circuit.
   const originalGateProjectionMemo=createFrameSightlineMemo(32);
   function measureSuccessorDeckVisibility(source,camera,body,bodyHalfHeight,
-      gate=null,landingId=null,postGateway=false) {
+      gate=null,landingId=null,postGateway=false,traversal=false,landingPoint=null) {
     const held=retainedEarnedCap,p=source?.player;
     const retiredReceipt=postGateway?retiredGatewayCameraReceipt(source):null;
+    const traversalReceipt=traversal?traversalCameraReceipt(source):null;
+    if(traversal&&(!traversalReceipt||
+       (postGateway?traversalReceipt.owner==='retained':traversalReceipt.owner!=='retained')))return null;
+    const retainedReceipt=traversalReceipt?.owner==='retained'?traversalReceipt:null;
     if(!p || source!==lastSnapshot || source.floor!==9 || source.theme!=='void' ||
         !Array.isArray(source.platforms) ||
         (postGateway?(!retiredReceipt||gate!==null):(!held||source.runToken!==held.runToken)))return null;
@@ -6069,7 +6088,7 @@ export function createTowerWorld(){
        !architectureRoots.includes(historicalCore))
       architectureRoots.push(historicalCore);
     const sharedRayQuery={
-      source,held,retiredReceipt,camera,body,bodyHalfHeight,gate,platformRoots:roots,
+      source,held,retiredReceipt,retainedReceipt,camera,body,bodyHalfHeight,gate,landingPoint,platformRoots:roots,
       raycaster:successorDeckRay,direction:successorDeckRayDirection,
       point:successorDeckRayTarget,hits:successorDeckRayHits,
       syncWorldMatrix:sightlineMatrixEpoch.sync,
@@ -6085,12 +6104,12 @@ export function createTowerWorld(){
     }):measureAuthoritativeDeckSightline({...sharedRayQuery,architectureRoots});
     const coordinates=[camera?.x,camera?.y,camera?.z,body?.x,
       body?.y,body?.z,bodyHalfHeight,
-      ...(gate?[gate.x,gate.y,gate.z]:[])];
+      ...(gate?[gate.x,gate.y,gate.z]:[]),...(landingPoint?[landingPoint.x,landingPoint.y,landingPoint.z]:[])];
     // An invalid subject cannot become a cached physical clearance PASS.
     if(!coordinates.every(Number.isFinite))return exactRayQuery();
     // Source, exact camera, source-owned material epochs and landing are all
     // essential: a similar but different camera never borrows another ray.
-    const key=JSON.stringify([source.runToken,source.tick,landingId,postGateway,
+    const key=JSON.stringify([source.runToken,source.tick,landingId,postGateway,traversal,!!gate,!!landingPoint,
       ...(held?[held.originalGatewayOpacity,held.originalGallerySourceOpacity,held.originalCoreOpacity]:[null,null,null]),
       ...coordinates]);
     return successorSightlineMemo.read(key,exactRayQuery);
@@ -6788,5 +6807,5 @@ export function createTowerWorld(){
       deferredBuildMs:deferredDistantArrival.deferredBuildMs,
     }:null,vistaLayers:vistaGroup?3:0,vistaTriangles:vistaGroup?.children.reduce((sum,mesh)=>sum+mesh.geometry.attributes.position.count/3,0)??0,surfaceTexture:stoneSurface.diagnostics(),platformTransforms:[...platforms.entries()].map(([id,e])=>({id,...e.root.userData.authority,angle:e.root.rotation.y,yWorld:e.root.position.y}))};}
   function dispose(){if(disposed)return;retireEarnedCap();pendingEarnedCap=null;clearFloor();finishRetiredFloorResources('disposed');for(const g of primitives.values())g.dispose();primitives.clear();stoneSurface.dispose();group.clear();lastSnapshot=null;disposed=true;}
-  return{group,update,retiredGatewayCameraReceipt,sourceHandoffReturnWitness,stageGroundedCapContinuation,sourceEarnedOriginalGateGeometry,retainedFilmHandoff,certifiedPaletteHorizon,noteFrameSubmitted,deferredShaderSubmission,projectedOriginalGateSteel,measureSuccessorDeckVisibility,measureSourceRaisedDeckBackdrop,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics,lastRebuild};
+  return{group,update,retiredGatewayCameraReceipt,traversalCameraReceipt,sourceHandoffReturnWitness,stageGroundedCapContinuation,sourceEarnedOriginalGateGeometry,retainedFilmHandoff,certifiedPaletteHorizon,noteFrameSubmitted,deferredShaderSubmission,projectedOriginalGateSteel,measureSuccessorDeckVisibility,measureSourceRaisedDeckBackdrop,protectRouteSightlines,revealGuardianSightlines,dispose,diagnostics,lastRebuild};
 }

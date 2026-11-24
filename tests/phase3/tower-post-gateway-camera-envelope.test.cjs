@@ -125,3 +125,39 @@ test('recorded post-retirement camera cuts use a single bounded exterior envelop
   const {sourcePostGatewayCameraEnvelope,validRetiredGatewayCameraReceipt}=await import('../../public/infinite-tower-climb/visuals/post-gateway-camera-envelope.mjs');
   verify(sourcePostGatewayCameraEnvelope,validRetiredGatewayCameraReceipt,fixtures);
 });
+
+test('retained and retired first F9 camera share route-aware exterior policy without borrowing an old owner',async()=>{
+ const {sourceFloorNineTraversalPlan,validRetainedTraversalCameraReceipt}=await import('../../public/infinite-tower-climb/visuals/post-gateway-camera-envelope.mjs');
+ verifyTraversal(sourceFloorNineTraversalPlan,validRetainedTraversalCameraReceipt);
+});
+function verifyTraversal(plan,valid){
+ const assert=(condition,label)=>{if(!condition)throw new Error(label);};
+ const cap={id:'f8:cap',x:0,y:100,width:100,height:20};
+ const receipt={owner:'retained',runToken:'actual-run',oldCapId:cap.id,crossingTick:475,returnedTick:520,thresholdX:76,oldRoofY:120};
+ const crossing={runToken:receipt.runToken,fromFloor:8,toFloor:9,sourceTick:475,exitX:76,crossingX:78,cap,guardian:{kind:'guardian',active:false,health:0}};
+ const cases=[
+  {ticks:[521,533],camera:[14.9696,7.8005,43.7898],desired:[17.8762,17.5226,41.1341],hero:7.7038,dt:.3378},
+  {ticks:[555,568],camera:[17.4379,15.8231,40.3537],desired:[11.1265,17.4606,43.0156],hero:4.5787,dt:.1768},
+  {ticks:[570,576],camera:[10.0346,17.7936,43.3701],desired:[13.5874,23.6587,42.4063],hero:7.616,dt:.3157}
+ ];
+ const result=[];
+ for(const c of cases){
+  // Exact returned camera endpoints; focus, route geometry and source
+  // receipt are explicit synthetic policy context, not a runtime replay.
+  const source={floor:9,theme:'void',lifecycle:'running',player:{health:4},runToken:receipt.runToken,tick:c.ticks[1],lastGuardianCrossing:crossing,platforms:[{id:'f9:ground',y:100,height:20}]};
+  const input={source,receipt:{...receipt,returnedTick:c.ticks[0]},lastRendered:{floor:9,runToken:source.runToken,tick:c.ticks[0]},previousCamera:c.camera,desiredCamera:c.desired,previousFocus:[8,8,24],desiredFocus:[8,12,24],body:[8,9,24],landing:[9,13,24],heroMovement:c.hero,dt:c.dt,cameraMode:'follow',stale:false,reducedMotion:false,orbit:0,zoom:1,routeMissing:true};
+  assert(valid(source,input.receipt),'retained source receipt');
+  const r=plan(input);assert(r?.owner==='retained'&&r.cut&&r.candidates[0]?.kind==='route-lead','retained cut selects anticipatory route');
+  for(const candidate of r.candidates){
+   const travel=Math.hypot(...candidate.camera.map((v,i)=>v-c.camera[i]));
+   assert(travel<=r.budget+1e-8&&Math.hypot(candidate.camera[0],candidate.camera[2])>=23.5,'bounded exterior shot');
+  }
+  for(const invalid of [{receipt:{...input.receipt,runToken:'old'}},{receipt:{...input.receipt,returnedTick:source.tick+1}},{source:{...source,lastGuardianCrossing:{...crossing,guardian:{...crossing.guardian,health:1}}}},{source:{...source,tick:700}},{reducedMotion:true},{cameraMode:'overview'},{stale:true},{orbit:.1}])assert(plan({...input,...invalid})===null,'reject invalid authority or manual/reduced motion');
+  const proactive=plan({...input,desiredCamera:c.camera});assert(proactive&&!proactive.cut&&proactive.candidates[0].kind==='route-lead','prepare real landing before a cut');
+  assert(plan({...input,desiredCamera:c.camera,routeMissing:false})===null,'leave ordinary tracking alone');
+  const retired=plan({...input,receipt:{runToken:source.runToken,oldCapId:'f8:cap',crossingTick:475,returnedTick:520}});
+  assert(retired?.owner==='retired','retirement retains route policy');
+  result.push({ticks:c.ticks,requested:+r.requestedMovement.toFixed(4),budget:+r.budget.toFixed(4),candidates:r.candidates.map(x=>({kind:x.kind,metres:+Math.hypot(...x.camera.map((v,i)=>v-c.camera[i])).toFixed(4)}))});
+ }
+ return result;
+}

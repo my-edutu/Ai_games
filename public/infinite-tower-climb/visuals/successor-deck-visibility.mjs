@@ -6,7 +6,7 @@
 // triangles, never an inferred collision, predicted landing or proxy mesh.
 // This is presentation-only and all vectors/hit arrays are caller-owned.
 import { observedSourceOriginalVisibilityWindow } from './source-physical-arrival-palette.mjs';
-import { validRetiredGatewayCameraReceipt } from './post-gateway-camera-envelope.mjs';
+import { validRetiredGatewayCameraReceipt,validRetainedTraversalCameraReceipt } from './post-gateway-camera-envelope.mjs';
 const finite=Number.isFinite;
 const integer=Number.isSafeInteger;
 const valid3=p=>p&&[p.x,p.y,p.z].every(finite);
@@ -52,7 +52,7 @@ function renderedTriangle(hit,root) {
     (!m.transparent || m.opacity>.055));
 }
 export function measureAuthoritativeDeckSightline({
-  source,held,retiredReceipt=null,camera,body,bodyHalfHeight,gate=null,
+  source,held,retiredReceipt=null,retainedReceipt=null,camera,body,bodyHalfHeight,gate=null,landingPoint=null,
   platformRoots,originalGateRoot=null,originalCapRoot=null,originalGalleryRoot=null,architectureRoots=[],raycaster,direction,point,hits,stale=false,syncWorldMatrix=null,mayIntersectRoot=null,traceVisibleRoot=null
 }={}) {
   if(stale || source?.floor!==9 || source.theme!=='void' ||
@@ -65,7 +65,12 @@ export function measureAuthoritativeDeckSightline({
         !Array.isArray(architectureRoots)||architectureRoots.length>2)
       :(held?.guardianGateRetained!==true || held.floor!==9 ||
         held.runToken!==source.runToken || !integer(held.sourceTick) ||
-        !observedSourceOriginalVisibilityWindow(source,held))) ||
+        !(observedSourceOriginalVisibilityWindow(source,held)||
+          (validRetainedTraversalCameraReceipt(source,retainedReceipt)&&
+           held.verifiedObservedFloorAdvance===true&&held.sourceAlignedPassage===true&&
+           held.oldCapId===retainedReceipt.oldCapId&&held.crossingTick===retainedReceipt.crossingTick&&
+           held.lastReturnedOldGatewayTick===retainedReceipt.returnedTick&&
+           held.originalGateRoot===originalGateRoot&&held.originalGateRoot?.parent===held.root)))) ||
     !valid3(camera) || !valid3(body) ||
     !finite(bodyHalfHeight) || bodyHalfHeight<=0 ||
     !Array.isArray(platformRoots) || !platformRoots.length ||
@@ -109,7 +114,7 @@ export function measureAuthoritativeDeckSightline({
     (mayIntersectRoot!==null && typeof mayIntersectRoot!=='function') ||
     (traceVisibleRoot!==null && typeof traceVisibleRoot!=='function') ||
     !direction?.copy || !point?.copy ||
-    !Array.isArray(hits) || (gate!=null && !valid3(gate)))return null;
+    !Array.isArray(hits) || (gate!=null && !valid3(gate)) || (landingPoint!=null&&!valid3(landingPoint)))return null;
   // Exact same scene matrices for every reversible camera candidate.
   // Standalone callers retain the original direct matrix refresh. The World
   // callback only deduplicates within the current actual rendered frame,
@@ -126,7 +131,7 @@ export function measureAuthoritativeDeckSightline({
   refreshRoot(originalCapRoot);
   if(held?.originalGallerySourceOpacity>.055)refreshRoot(originalGalleryRoot);
   for(const root of architectureRoots)refreshRoot(root);
-  let blockedBodyRays=0, blockedGatewayRays=0, rays=0, realTrianglesChecked=0;
+  let blockedBodyRays=0, blockedGatewayRays=0, blockedLandingRays=0, rays=0, realTrianglesChecked=0;
   let broadphaseRejected=0,narrowphaseSubmitted=0;
   const mayTrace=root=>{
     if(mayIntersectRoot?.(root,raycaster)===false){
@@ -157,9 +162,11 @@ export function measureAuthoritativeDeckSightline({
   const sideX=halfWidth && radial>.1 ? dz/radial*halfWidth:0;
   const sideZ=halfWidth && radial>.1 ? -dx/radial*halfWidth:0;
   const bodySamples=sideX||sideZ ? 7:3;
-  const samples=bodySamples+(gate?2:0);
+  const gateEnd=bodySamples+(gate?2:0);
+  const samples=gateEnd+(landingPoint?1:0);
   for(let sample=0;sample<samples;sample++){
-    point.copy(gate && sample>=bodySamples ? gate:body);
+    const landingSample=sample>=gateEnd;
+    point.copy(landingSample?landingPoint:gate && sample>=bodySamples ? gate:body);
     if(sample===1)point.y+=bodyHalfHeight*.76;
     else if(sample===2)point.y-=bodyHalfHeight; // Exact source sole, not a raised proxy
     else if(sample>=3 && sample<bodySamples){
@@ -210,7 +217,7 @@ export function measureAuthoritativeDeckSightline({
       if(hits.some(hit=>renderedTriangle(hit,originalGalleryRoot))){
         blocked=true;originalGalleryBlockedRays++;
         if(sample<bodySamples)originalGalleryBlockedBodyRays++;
-        else originalGalleryBlockedGatewayRays++;
+        else if(!landingSample)originalGalleryBlockedGatewayRays++;
       }
     }
     // The original F8 cap and its real metallic rim remain in the same
@@ -230,7 +237,7 @@ export function measureAuthoritativeDeckSightline({
       if(hits.some(hit=>renderedTriangle(hit,originalCapRoot))){
         blocked=true;originalCapBlockedRays++;
         if(sample<bodySamples)originalCapBlockedBodyRays++;
-        else originalCapBlockedGatewayRays++;
+        else if(!landingSample)originalCapBlockedGatewayRays++;
       }
     }
     hits.length=0;
@@ -239,7 +246,7 @@ export function measureAuthoritativeDeckSightline({
     // can initiate physical guardian-door clearance. The target gateway
     // cannot self-block, and fully faded/hidden old metal scores nothing.
     // This uses the existing bounded source-owned ray path, not another draw.
-    if(!blocked && sample<bodySamples && originalGateRoot?.visible!==false && originalGateRoot &&
+    if(!blocked && (sample<bodySamples||landingSample) && originalGateRoot?.visible!==false && originalGateRoot &&
        mayTrace(originalGateRoot)){
       castSourceRoot(originalGateRoot);
       realTrianglesChecked+=hits.length;
@@ -248,7 +255,7 @@ export function measureAuthoritativeDeckSightline({
       }
     }
     hits.length=0;
-    if(blocked){if(sample>=bodySamples)blockedGatewayRays++;else blockedBodyRays++;}
+    if(blocked){if(landingSample)blockedLandingRays++;else if(sample>=bodySamples)blockedGatewayRays++;else blockedBodyRays++;}
   }
   return {active:true,rays,bodyBlockedRays:blockedBodyRays,
     originalGateBlockedRays,originalCapBlockedRays,
@@ -256,7 +263,7 @@ export function measureAuthoritativeDeckSightline({
     originalGalleryBlockedRays,originalGalleryBlockedBodyRays,
     originalGalleryBlockedGatewayRays,
     architectureBlockedRays,
-    gatewayBlockedRays:blockedGatewayRays,
+    gatewayBlockedRays:blockedGatewayRays,landingBlockedRays:blockedLandingRays,
     score:blockedBodyRays*2+blockedGatewayRays,
     actualTriangleIntersections:realTrianglesChecked,
     broadphaseRejected,narrowphaseSubmitted,
