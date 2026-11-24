@@ -40,7 +40,7 @@ import { sourceFirstRaisedGatewayLandmark, sourceJointGatewayFlightLens, explain
 import { firstReturnedOriginalRoomAdmission, firstReturnedFloorNineEpisode } from './first-source-room-return.mjs';
 import { sourceFirstFloorNineCameraDeparture } from './first-floor-nine-camera-departure.mjs';
 import { createFloorNineCameraReturnAudit } from './first-floor-nine-camera-return-audit.mjs';
-import { sourceFloorNineTraversalPlan } from './post-gateway-camera-envelope.mjs';
+import { sourceFloorNineTraversalPlan, sourceTraversalOpticalFrame } from './post-gateway-camera-envelope.mjs';
 import { firstF9ReturnedGatewaySearchBudget, sampleColdFirstReturnGatewayTrials } from './first-f9-return-search-budget.mjs';
 import { sourceDoorwayFrameGain, sourceDoorwayFrameSteps, sourceDeckGatewayClearanceCandidates, sourceRaisedBackdropClearanceCandidates, observedSourceWalkableCrossfloorShot, sourceWalkableCrossfloorProjectionHeld, sourceWalkableCrossfloorFrameGain, sourceThreeSubjectSilhouetteRelief, sourceThreeSubjectActorScaleGain, sourceWalkableThreeSubjectOrbitCandidates, sourceThreeSubjectRaySafe, sourceThreeSubjectPhysicalGain } from './physical-threshold-shot.mjs';
 import { sourceSubmittedDoorwayCameraDt, sourceCroppedHeroRecoveryDt } from './source-submitted-doorway-cadence.mjs';
@@ -6660,7 +6660,7 @@ export function createTowerScene(canvas, settings = {}) {
         !options.reducedMotion&&options.camera==='follow'
         ?world.traversalCameraReceipt?.(snapshot):null;
       if(traversalReceipt){
-        const rawCamera=camera.position.clone(),rawFocus=lookAt.clone();
+        const rawCamera=camera.position.clone(),rawFocus=lookAt.clone(),rawFov=camera.fov;
         const body=climber.group.position.clone();
         body.y+=snapshot.player.halfHeight/SCALE;
         const landingId=snapshot.intent?.targetPlatformId;
@@ -6681,27 +6681,60 @@ export function createTowerScene(canvas, settings = {}) {
             towerCoreSightlineClear(camera.position,point,23.5);
         };
         const rawLandingVisible=visible(target),rawGateVisible=visible(gate);
+        const portraitRoute=camera.aspect>=.35&&camera.aspect<.85;
+        const halfHeight=snapshot.player.halfHeight/SCALE;
+        // Project the actual source-sized body endpoints, not a center-only
+        // subject. A horizontal phone crop is often a shoulder/boot crop.
+        const opticalPoints=(includeLanding,includeGate)=>{
+          const dx=body.x-camera.position.x,dz=body.z-camera.position.z;
+          const d=Math.hypot(dx,dz);
+          const halfWidth=Math.min(halfHeight*.72,snapshot.player.halfWidth/SCALE*.85);
+          const sx=d>.1?dz/d*halfWidth:0,sz=d>.1?-dx/d*halfWidth:0;
+          const points=[body.clone(),body.clone().add(new THREE.Vector3(0,halfHeight,0)),
+            body.clone().add(new THREE.Vector3(0,-halfHeight,0))];
+          for(const sign of [-1,1])for(const y of [.48,-.90])
+            points.push(body.clone().add(new THREE.Vector3(sx*sign,halfHeight*y,sz*sign)));
+          if(includeLanding&&target)points.push(target.clone());
+          if(includeGate&&gate)points.push(gate.clone(),gate.clone().add(new THREE.Vector3(0,1.2,0)));
+          return points.map(point=>point.project(camera).toArray());
+        };
+        const opticalFrame=(includeLanding,includeGate)=>portraitRoute
+          ?sourceTraversalOpticalFrame({aspect:camera.aspect,currentFov:camera.fov,
+            previousFov:lastSubmittedGuardianFov,dt,
+            points:opticalPoints(includeLanding,includeGate)}):null;
+        const rawOptics=opticalFrame(!!target,rawGateVisible);
         const plan=sourceFloorNineTraversalPlan({
           source:snapshot,receipt:traversalReceipt,lastRendered:lastSubmittedGuardian,
           previousCamera:lastSubmittedGuardianCamera.toArray(),
           previousFocus:lastSubmittedGuardianFocus.toArray(),
           desiredCamera:rawCamera.toArray(),desiredFocus:rawFocus.toArray(),
           heroMovement:climber.group.position.distanceTo(lastReturnedFloorNineHero),
-          body:body.toArray(),landing:target?.toArray()??null,routeMissing:!!target&&!rawLandingVisible,
-          dt,cameraMode:options.camera,stale:options.stale,reducedMotion:options.reducedMotion,orbit,zoom
+          body:body.toArray(),landing:target?.toArray()??null,
+          routeMissing:!!target&&(!rawLandingVisible||rawOptics?.needsPreparation===true),
+          aspect:camera.aspect,dt,cameraMode:options.camera,stale:options.stale,reducedMotion:options.reducedMotion,orbit,zoom
         });
         if(plan){
           let accepted=null,lastVeto='framing';
+          const outcomes=[];
           for(const proposal of plan.candidates){
             camera.position.set(...proposal.camera);
             lookAt.set(...proposal.focus);
+            camera.fov=rawFov;camera.updateProjectionMatrix();
             camera.lookAt(lookAt);camera.updateMatrixWorld(true);
+            const requireLanding=rawLandingVisible||proposal.kind==='route-lead'||proposal.kind==='framed-follow';
+            const optics=opticalFrame(requireLanding,rawGateVisible);
+            if(optics){
+              camera.fov=optics.fov;camera.updateProjectionMatrix();
+              camera.updateMatrixWorld(true);
+            }
+            const wholePortraitBody=!portraitRoute||opticalPoints(false,false).every(n=>
+              n.every(Number.isFinite)&&n[2]>=-1&&n[2]<=1&&Math.abs(n[0])<.93&&Math.abs(n[1])<.91);
             measureDuelBodyNdc(body,snapshot.player.halfHeight/SCALE,
               camera,duelTop,duelBottom,releaseHeroNdc);
-            const framed=releaseHeroNdc.every(Number.isFinite)&&releaseHeroNdc[2]>=-1&&
+            const framed=wholePortraitBody&&releaseHeroNdc.every(Number.isFinite)&&releaseHeroNdc[2]>=-1&&
               releaseHeroNdc[2]<=1&&Math.abs(releaseHeroNdc[0])+releaseHeroNdc[3]*.18<.93&&
               Math.abs(releaseHeroNdc[1])+releaseHeroNdc[3]<.91&&
-              (!(rawLandingVisible||proposal.kind==='route-lead')||visible(target))&&
+              (!requireLanding||visible(target))&&
               (!rawGateVisible||visible(gate));
             const coreClear=framed&&towerCoreSightlineClear(camera.position,body,23.5);
             const landingRay=visible(target)?target:null;
@@ -6713,15 +6746,18 @@ export function createTowerScene(canvas, settings = {}) {
               accepted=proposal.kind;break;
             }
             lastVeto=!framed?'framing':!coreClear?'core':'physical';
+            outcomes.push(proposal.kind+'='+lastVeto);
           }
           if(accepted){
             sky.position.copy(camera.position);
             firstF9ScaleOutcome+=':traversal-'+plan.owner+'-accepted:'+accepted;
           }else{
             camera.position.copy(rawCamera);lookAt.copy(rawFocus);
+            camera.fov=rawFov;camera.updateProjectionMatrix();
             camera.lookAt(lookAt);camera.updateMatrixWorld(true);
             firstF9ScaleOutcome+=':traversal-'+plan.owner+'-veto:'+lastVeto;
           }
+          if(outcomes.length)firstF9ScaleOutcome+=':trials:'+outcomes.join(',');
         }
       }
       auditF9Camera('final-after-scale',firstF9ScaleOutcome);

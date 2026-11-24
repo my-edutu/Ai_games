@@ -91,7 +91,7 @@ function exteriorStep(previous,desired,budget){
 // simulated player. Each proposal still requires Scene's full physical veto.
 export function sourceFloorNineTraversalPlan(input){
   const {source,receipt,lastRendered,previousCamera,previousFocus,desiredCamera,desiredFocus,
-    heroMovement,dt,cameraMode,stale,reducedMotion,orbit,zoom,body,landing,routeMissing}=input;
+    heroMovement,dt,cameraMode,stale,reducedMotion,orbit,zoom,body,landing,routeMissing,aspect}=input;
   const vector=v=>Array.isArray(v)&&v.length===3&&v.every(Number.isFinite);
   const distance=(a,b)=>Math.hypot(...a.map((x,i)=>x-b[i]));
   if(!validFloorNineTraversalCameraReceipt(source,receipt)||lastRendered?.runToken!==source.runToken||
@@ -115,6 +115,10 @@ export function sourceFloorNineTraversalPlan(input){
     if(!candidates.some(c=>distance(c.camera,camera)<.01&&distance(c.focus,gaze)<.01))
       candidates.push({kind,camera,focus:gaze});
   };
+  // On a narrow viewport, first keep the ordinary bounded trajectory when
+  // only framing is under pressure. An optical fit may avoid an unnecessary
+  // orbit before the real takeoff. The route-lead alternative remains physical.
+  if(!cut&&aspect>=.35&&aspect<.85)add('framed-follow',desiredCamera,desiredFocus);
   if(vector(landing)){
     // Anticipate the real destination rather than chase the last raw orbit.
     // Lift the lens toward the top of the route, keep the previous exterior
@@ -132,4 +136,28 @@ export function sourceFloorNineTraversalPlan(input){
   if(cut)add('bounded-follow',desiredCamera,desiredFocus);
   return candidates.length?{owner:receipt.owner==='retained'?'retained':'retired',
     budget,requestedMovement:requested,cut,candidates}:null;
+}
+
+/** Portrait route optics from the actual projected current body, landing and
+ * still-visible gateway. A lens change cannot repair a physical obstruction.
+ * The caller must reproject and run the same real mesh/core veto afterwards.
+ * Pressure is normalized to the authoring lens so widening cannot ratchet. */
+export function sourceTraversalOpticalFrame({aspect,currentFov,previousFov,dt,points}){
+  if(!Number.isFinite(aspect)||aspect<.35||aspect>=.85||
+     ![currentFov,previousFov,dt].every(Number.isFinite)||
+     currentFov<30||currentFov>62.5||previousFov<30||previousFov>62.5||
+     dt<=0||!Array.isArray(points)||points.length<3||points.length>12||
+     points.some(p=>!Array.isArray(p)||p.length!==3||
+       !p.every(Number.isFinite)||p[2]<-1||p[2]>1))return null;
+  const rad=Math.PI/180,base=42;
+  const reference=Math.tan(currentFov*rad/2)/Math.tan(base*rad/2);
+  const pressure=Math.max(...points.map(p=>Math.max(
+    Math.abs(p[0])*reference/.76,Math.abs(p[1])*reference/.76)));
+  const target=Math.min(62,Math.max(base,2*Math.atan(
+    Math.tan(base*rad/2)*pressure)/rad));
+  // Use last successful render as the lens clock, not the earlier director
+  // which may already have tried to close the lens during the same frame.
+  const step=Math.min(1.2,Math.min(.06,dt)*22);
+  const fov=previousFov+Math.max(-step,Math.min(step,target-previousFov));
+  return {pressure,target,fov,needsPreparation:pressure>.92};
 }

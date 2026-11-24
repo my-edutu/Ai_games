@@ -165,3 +165,23 @@ function verifyTraversal(plan,valid){
  }
  return result;
 }
+
+test('portrait traversal anticipates optical pressure without unbounded lens or ratchet',async()=>{
+ const {sourceTraversalOpticalFrame}=await import('../../public/infinite-tower-climb/visuals/post-gateway-camera-envelope.mjs');
+ verifyRouteOptics(sourceTraversalOpticalFrame);
+});
+function verifyRouteOptics(frame){
+ const assert=(condition,label)=>{if(!condition)throw new Error(label);};
+ const base={aspect:390/844,currentFov:42,previousFov:42,dt:.06,
+   points:[[-.45,.3,.8],[-.48,-.3,.8],[.92,.32,.8]]};
+ const a=frame(base);
+ assert(a.needsPreparation&&a.target>42&&a.fov>42&&a.fov<=43.2,'prepare with bounded lens');
+ const scaled=base.points.map(p=>[p[0]*Math.tan(42*Math.PI/360)/Math.tan(50*Math.PI/360),p[1]*Math.tan(42*Math.PI/360)/Math.tan(50*Math.PI/360),p[2]]);
+ const b=frame({...base,currentFov:50,previousFov:50,points:scaled});
+ assert(Math.abs(a.target-b.target)<1e-8,'same actual route pressure cannot ratchet');
+ const ordinary=frame({...base,previousFov:50,points:[[.1,.1,.8],[.2,-.2,.8],[.3,.3,.8]]});
+ assert(ordinary.target===42&&ordinary.fov<50&&ordinary.fov>=48.8,'bounded restore');
+ for(const invalid of [{aspect:1.6},{previousFov:null},{dt:0},{points:[[0,0,2],[0,0,0],[0,0,0]]}])
+   assert(frame({...base,...invalid})===null,'reject invalid/depth/desktop inputs');
+ return {target:a.target,firstStep:a.fov,restored:ordinary.fov};
+}
