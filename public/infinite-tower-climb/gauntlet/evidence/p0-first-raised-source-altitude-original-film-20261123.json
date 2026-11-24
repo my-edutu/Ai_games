@@ -1569,5 +1569,67 @@
     },
     "actualDevices": "NOT EVALUATED",
     "verdict": "NOT EVALUATED"
+  },
+  "p0OrderedAUncompressedOriginalCanopy20261124": {
+    "stage": "P0 OPEN — ordered deliverable A: complete gameplay continuity; B/C/D not accepted",
+    "leadingVerdict": "NOT EVALUATED",
+    "inspectedHead": "c6402a535c1ecf39cebbd5b2de1d60d23a654156",
+    "implementationSha": "9ebeb9051492decca0d46be568991b4dfb82217c",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenLedgerBlob": "b8aa51bb5bb50b55222fb6b947472692c87c822a",
+    "priorCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45387336072",
+    "priorRecordedSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45387336083",
+    "priorCandidateSha": "8a31847ea110065475e9b07388eb5a6c9381c157",
+    "sourceProof": "Both original candidate danger motion.json files report all six required source beats, same episode; 9/9 recordings/ledge passed. Strict native pairing failed 0/2; frozen baseline advances by spawn assignment, not candidate physical doorway. Do not invent a matched baseline threshold or weaken strict acceptance. Original 1x sampled frames show HUD clearly reporting actual boss/player HP but low bronze canopy crossing combat silhouettes.",
+    "observedObstruction": {
+      "desktop": {
+        "sourceTick": 294,
+        "camera": [
+          8.38,
+          37.21,
+          43.27
+        ],
+        "target": [
+          7.051,
+          36.472,
+          24.109
+        ],
+        "targetDistance": 19.225,
+        "hitDistance": 14.47,
+        "owner": "SourcePrepaintedOriginalGuardianReceivingCanopy",
+        "faceIndex": 256
+      },
+      "portrait": {
+        "sourceTick": 292,
+        "camera": [
+          12.54,
+          37.24,
+          43.29
+        ],
+        "target": [
+          5.551,
+          36.472,
+          24.437
+        ],
+        "targetDistance": 20.125,
+        "hitDistance": 15.373,
+        "owner": "SourcePrepaintedOriginalGuardianReceivingCanopy",
+        "faceIndex": 256
+      }
+    },
+    "rootCause": "buildPlatform compressed every direct F8 cap child other than mount/gate to vertical scale .12, including the separately prepainted overhead group. Exact production transform arithmetic reproduces 18.2m authored outer crown -> 2.184m above roof, matching the recorded low foreground rays. Existing canopy-plan tests missed the later parent transform.",
+    "change": "Exclude the real canopy from cap thinning, retain actual 18.2m authored crown, split cap-only reactive material ownership and post-batch ray meshes from overhead steel, retire the same retained canopy under existing source-bound original core presence; no additional camera director, new collider, gate clone, changed guardian HP, simulation or source event. Add real Three integration regression on actual authored mesh bounds, recorded shoulder rays, independent deck materials, and original object identity through F9.",
+    "executedValidation": "Executed exact original/replacement source transform on identical scene-node arithmetic fixtures: canopy scale .12 -> 1; position.y 1.056 -> 0; crown height 2.184 -> 18.2m; deck scale .12, mount and gate scale 1 unchanged. This is not an actual Three render or new native visual proof. Real Three test added; full workflow and native acceptance pending at this review.",
+    "quality": "https://github.com/my-edutu/Ai_games/actions/runs/45406211448",
+    "capture": "https://github.com/my-edutu/Ai_games/actions/runs/45406211421",
+    "limitations": "Interactive workspace tunnel NOT_FOUND, actual-device performance and independent reviewers unavailable. No new candidate film yet inspected; no claim of complete visual continuity, improved performance, or passed P0. New workflows are already running on exact implementation SHA.",
+    "reviewers": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDevices": "NOT EVALUATED",
+    "orderedNext": "A: inspect new native 1x real-world geometry and source chains, confirm canopy stays overhead in both orientations and exact regression passes. If other gate steel still obstructs, rebuild the remaining physically evidenced gate structure as a unified passage without changing authority. B: only after A is verified, profile and rebuild render/camera; C: acceptance of the shipped HUD in combat, recovery and outcome; D: exact source/native verification, do not claim a matched physical threshold where the frozen source has no such event. Baseline remains frozen; strict gate remains veto. No unrelated edits, merge, deploy, force-push or draft change.",
+    "rollback": "Normal non-force revert of the Tower-only implementation if regression; no deployment."
   }
 }
