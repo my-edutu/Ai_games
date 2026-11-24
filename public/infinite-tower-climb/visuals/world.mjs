@@ -6054,7 +6054,7 @@ export function createTowerWorld(){
     // real gateway camera ray tests, despite actually rendering in foreground.
     // The original geometry, parent and source opacity must all be certified.
     // Reuse the nine existing silhouette rays; no invented obstacle or actor.
-    const historicalCore=held?.originalCoreOwner?.root;
+    const historicalCore=held?held.originalCoreOwner?.root:null;
     if(historicalCore?.isGroup===true &&
        historicalCore.name==='SourceOriginalClockworkCentralCore' &&
        historicalCore.parent===held.root &&
@@ -6067,17 +6067,21 @@ export function createTowerWorld(){
        architectureRoots.length<=2 &&
        !architectureRoots.includes(historicalCore))
       architectureRoots.push(historicalCore);
-    const exactRayQuery=()=>measureAuthoritativeDeckSightline({
+    const sharedRayQuery={
       source,held,retiredReceipt,camera,body,bodyHalfHeight,gate,platformRoots:roots,
-      architectureRoots,...(held?{originalGateRoot:held.originalGateRoot,
-        originalCapRoot:held.originalCapSightlineRoot,
-        originalGalleryRoot:held.originalGalleryRoot}:{}),
       raycaster:successorDeckRay,direction:successorDeckRayDirection,
       point:successorDeckRayTarget,hits:successorDeckRayHits,
       syncWorldMatrix:sightlineMatrixEpoch.sync,
       mayIntersectRoot:sourceSightlineRayBroadphase.mayIntersect,
       traceVisibleRoot:sourceSightlineRayBroadphase.intersectVisible
-    });
+    };
+    // Separate retained and retired owners explicitly. The latter must never
+    // supply the original gateway meshes; the former retains every old ray.
+    const exactRayQuery=()=>held?measureAuthoritativeDeckSightline({
+      ...sharedRayQuery,architectureRoots,originalGateRoot:held.originalGateRoot,
+      originalCapRoot:held.originalCapSightlineRoot,
+      originalGalleryRoot:held.originalGalleryRoot
+    }):measureAuthoritativeDeckSightline({...sharedRayQuery,architectureRoots});
     const coordinates=[camera?.x,camera?.y,camera?.z,body?.x,
       body?.y,body?.z,bodyHalfHeight,
       ...(gate?[gate.x,gate.y,gate.z]:[])];
