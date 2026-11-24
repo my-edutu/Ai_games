@@ -8,8 +8,12 @@
 // gateway from an exterior camera. The other, INNER pier stays in place.
 // All numbers are 3D visual metres, never source centimetres/physics.
 // The guardian's real HP/locked state and the floor collider remain intact.
-export function originalGuardianGatewayClearSightlineFrame() {
-  const outer={side:-1,x:-4.15,z:-3.3};
+export function originalGuardianGatewayClearSightlineFrame(coreCantilever=false) {
+  // Floor 8's exterior view looks radially inward. BOTH permanent load
+  // bearings belong on the core side of the route, separated along the
+  // tangential axis. The existing crown remains full span and cantilevers
+  // over the walkable threshold; no camera fade or movable collision.
+  const outer={side:-1,x:coreCantilever?4.15:-4.15,z:-3.3};
   const inner={side:1,x:4.15,z:-.42};
   // The outboard upper shoulder tie physically reconnects the recessed
   // post to the ORIGINAL overhead crowned beam. It remains above the

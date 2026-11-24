@@ -21,14 +21,30 @@ export function sourceOriginalGuardianThresholdSignature({
   };
   for(const side of [-1,1]){
     const wing=side<0?'left':'right';
-    add('original-portal-inner-'+wing,
-      [side*3.72,.24,-.34],[side*3.72,4.95,-.34],.17,'bronze');
-    add('original-portal-highlight-'+wing,
-      [side*4.04,.56,-.38],[side*4.04,4.78,-.38],.07,'edge');
-    add('original-portal-shoulder-'+wing,
-      [side*3.72,4.95,-.34],[side*2.26,6.95,-.34],.18,'bronze');
-    add('original-portal-outer-arch-'+wing,
-      [side*4.04,5.15,-.38],[side*2.95,7.35,-.38],.12,'edge');
+    // A filmed ray from the exterior hit the old left upright at
+    // body, helmet and sole height (source tick 453). Rebuild that
+    // permanent load path as two overhead cantilever ribs connected
+    // to the rear/inboard piers, not another post in the camera lane.
+    // The other upright, crown, real lock and walkable gate stay.
+    if(side<0){
+      add('original-portal-cantilever-left',
+        [4.15,5.34,-3.3],[-3.72,5.45,-.34],.17,'bronze');
+      add('original-portal-highlight-left',
+        [4.15,5.34,-.42],[-4.04,5.70,-.38],.07,'edge');
+      add('original-portal-shoulder-left',
+        [-3.72,5.45,-.34],[-2.26,6.95,-.34],.18,'bronze');
+      add('original-portal-outer-arch-left',
+        [-4.04,5.70,-.38],[-2.95,7.35,-.38],.12,'edge');
+    }else{
+      add('original-portal-inner-'+wing,
+        [side*3.72,.24,-.34],[side*3.72,4.95,-.34],.17,'bronze');
+      add('original-portal-highlight-'+wing,
+        [side*4.04,.56,-.38],[side*4.04,4.78,-.38],.07,'edge');
+      add('original-portal-shoulder-'+wing,
+        [side*3.72,4.95,-.34],[side*2.26,6.95,-.34],.18,'bronze');
+      add('original-portal-outer-arch-'+wing,
+        [side*4.04,5.15,-.38],[side*2.95,7.35,-.38],.12,'edge');
+    }
   }
   add('original-portal-crown',
     [-2.26,6.95,-.34],[2.26,6.95,-.34],.19,'bronze');

@@ -3150,7 +3150,7 @@ export function createTowerWorld(){
       // colliding OUTER load pier along its transmission return, maintaining
       // a physically connected upper shoulder into the same crowned portal.
       // Neither source gate plane, lock, decks nor traversal change.
-      const gatewayFrame=originalGuardianGatewayClearSightlineFrame();
+      const gatewayFrame=originalGuardianGatewayClearSightlineFrame(theme==='clockwork'&&p.id==='f8:cap');
       for(const pier of gatewayFrame.piers){
         block(doorway,materials.dark,[pier.x,2.58,pier.z],[.34,5.16,.42]);
         block(doorway,materials.edge,[pier.x,5.30,pier.z+.04],[.43,.20,.5]);
