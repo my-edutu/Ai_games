@@ -929,5 +929,164 @@
     "device": "NOT EVALUATED",
     "verdict": "NOT EVALUATED",
     "next": "Inspect new exact-source quality and actual source-pinned desktop/portrait native films and traversal-retained/retired decisions. Require coverage of measured retained cut cases, absence of body/landing/gate clipping, no render cadence regression; if route camera still vetoed, examine primary follow director, geometry occlusion and source-delivery cadence together. Do not change acceptance or advance P1."
+  },
+  "wholeRouteNativeAcceptanceAudit20261124": {
+    "stage": "P0 OPEN",
+    "sourceSha": "0cd84c945e9a758446089abb5d2aaa8def40712e",
+    "inspectedHead": "8de4b39fb11de5d8d53451835034d26baa3291ea",
+    "capture": "https://github.com/my-edutu/Ai_games/actions/runs/45313323098",
+    "artifact": 14884845905,
+    "quality": "https://github.com/my-edutu/Ai_games/actions/runs/45313323113",
+    "qualityStatus": "No jobs returned by connector; exact-source quality not established.",
+    "captureStatus": "8 scenario jobs + ledge passed; downstream pairing failed 0/2, 8/8 timelines paired, zero integrity defects.",
+    "inspection": "Original WebM SHA256s verified; 18 samples per viewport at 2Hz from 24–32.5s; 158 returned-room rows and 156 director decisions. Not continuous playback or native event-pixel join.",
+    "desktop": {
+      "duration": 72.16,
+      "sha256": "9e5aaf2e99b304210be382e9355c5e65236623ce47bf99b712bb446b7bd3c7a9",
+      "rows": 78,
+      "decisions": 77,
+      "accepted": 27,
+      "vetoed": 4,
+      "noProposal": 46,
+      "retainedRouteLead": 10,
+      "retiredRouteLead": 14,
+      "retiredBoundedFollow": 3,
+      "physicalVeto": 3,
+      "framingVeto": 1,
+      "maxTravel": 5.5,
+      "previousMaxTravel": 10.4891,
+      "sourceSearchToHud": 1.268,
+      "hudToVioletHeuristic": 3.25
+    },
+    "portrait": {
+      "duration": 72.72,
+      "sha256": "62967280f95a683a33a5e2e9bc476fed7de16742951e6c5c6fdace1cb38d3f0d",
+      "rows": 80,
+      "decisions": 79,
+      "accepted": 26,
+      "vetoed": 27,
+      "noProposal": 26,
+      "retainedFramingVeto": 17,
+      "retiredFramingVeto": 7,
+      "physicalVeto": 3,
+      "maxTravel": 4.8413,
+      "previousMaxTravel": 3.8675,
+      "sourceSearchToHud": 1.406,
+      "hudToVioletHeuristic": null
+    },
+    "reproductionCases": [
+      {
+        "viewport": "desktop",
+        "ticks": [
+          520,
+          528
+        ],
+        "rawRequested": 9.3501,
+        "finalTravel": 5.5,
+        "heroTravel": 5.2587,
+        "returnGapMs": 125.5,
+        "outcome": "retained-accepted:route-lead"
+      },
+      {
+        "viewport": "desktop",
+        "ticks": [
+          612,
+          614
+        ],
+        "rawRequested": 5.2994,
+        "finalTravel": 5.2994,
+        "heroTravel": 0.3639,
+        "returnGapMs": 100.8,
+        "previousCamera": [
+          -1.8951,
+          31.9309,
+          49.6373
+        ],
+        "rawCamera": [
+          2.6664,
+          33.1706,
+          52.0329
+        ],
+        "previousFocus": [
+          5.0693,
+          28.3347,
+          24.9583
+        ],
+        "rawFocus": [
+          5.9889,
+          28.7848,
+          24.7991
+        ],
+        "outcome": "retired-veto:physical"
+      },
+      {
+        "viewport": "portrait",
+        "ticks": [
+          595,
+          597
+        ],
+        "rawRequested": 13.5395,
+        "finalTravel": 4.0601,
+        "heroTravel": 3.5295,
+        "returnGapMs": 81.2,
+        "previousCamera": [
+          16.4588,
+          26.8262,
+          55.9374
+        ],
+        "rawCamera": [
+          3.0856,
+          27.2934,
+          53.8738
+        ],
+        "finalCamera": [
+          12.4585,
+          27.2934,
+          55.4244
+        ],
+        "outcome": "retired-veto:framing"
+      }
+    ],
+    "meshObserverCases": [
+      {
+        "viewport": "desktop",
+        "tick": 491,
+        "returnedTick": 491,
+        "endpoint": "helmet",
+        "owner": "SourcePrepaintedOriginalGuardianReceivingCanopy / platform:f8:cap",
+        "hitDistance": 11.99,
+        "targetDistance": 17.362,
+        "decisionAtTick": "retained route-lead accepted"
+      },
+      {
+        "viewport": "desktop",
+        "tick": 512,
+        "returnedTick": 512,
+        "endpoint": "helmet and both shoulders",
+        "owner": "platform:f9:gateway-step",
+        "helmetHitDistance": 19.233,
+        "targetDistance": 21.529
+      },
+      {
+        "viewport": "portrait",
+        "tick": 477,
+        "returnedTick": 477,
+        "endpoint": "helmet",
+        "owner": "SourcePrepaintedOriginalGuardianReceivingCanopy",
+        "hitDistance": 18.222,
+        "targetDistance": 23.44
+      }
+    ],
+    "observerLimit": "Read-only mesh probe may read later state even at same source tick; not exact candidate pose or native pixel proof.",
+    "finding": "Scene routeMissing checks projection/core only. Both proposals keep FOV fixed; World ranks three platform roots and limited architecture; final veto restores raw shot and records only last candidate reason. Native samples still show upper deck/column occlusion. Comparison of return travel is not controlled visual or hardware improvement.",
+    "next": "Reproduce exact canopy/step and 612→614/595→597 cases in integrated Scene, compare candidate and returned rays with identical camera and mesh state; build prospective aspect-aware route shot corridor using actual body/landing clearance, not another interpolation coefficient. Do not weaken physical checks. Verify matched films and cadence before P1.",
+    "workspace": "Tunnel-client not seen for 300 seconds; direct container GitHub DNS unavailable. No new gameplay code or capture this run.",
+    "reviewCounts": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "device": "NOT EVALUATED",
+    "verdict": "NOT EVALUATED"
   }
 }
