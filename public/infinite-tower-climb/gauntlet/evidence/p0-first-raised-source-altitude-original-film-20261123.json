@@ -48,8 +48,8 @@
     "PLAYS": "0/5"
   },
   "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
-  "largestRemainingExperienceGap": "Floor9 camera continuity fails beyond the gateway too: portrait 15.109m inward cut on p3, 6.249m with identical source tick/checksum near cap; desktop 6.559m after five source ticks in 23.1ms between returns. Integrated camera ownership and render cadence, not another p2-only threshold.",
-  "nextAction": "Replace independent late camera proposals with a single last-successful-return motion envelope for all first Floor9 route states, including inward orbit, same-source-tick updates and post-gateway f9:p3/cap, with physical full-body/deck/core/gate validation. Instrument raw, bounded and final camera poses with reason and veto per actual return. Use the three recorded witnesses above as integration fixtures, measure source tick delivery versus render return time, then repeat strict native film pairing. No camera-only mock can pass P0.",
+  "largestRemainingExperienceGap": "Physically vetoed final camera smoothing still produces a 7.0524m same-source-tick portrait cut; original gateway-to-raised destination native continuity not accepted.",
+  "nextAction": "Verify exact-source quality and new capture, then check intermediate acceptance, same-tick veto, render costs and continuous gateway/roof/raised destination in both viewports. If still blocked, implement source-aware occlusion avoidance instead of more fractions.",
   "safety": {
     "draftPR68": true,
     "baselineLedgerUnchanged": true,
@@ -639,5 +639,83 @@
     "correctedCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45290303040",
     "correctedQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45290302990",
     "correctedStatus": "Capture in progress; quality queued. NOT EVALUATED."
+  },
+  "postGatewayPhysicalVetoFollowup": {
+    "stage": "P0 OPEN",
+    "assessedSourceSha": "f22f6fcf2f4bab0301eda7ef9992e3fbeaeec7a8",
+    "captureRun": "https://github.com/my-edutu/Ai_games/actions/runs/45290303040",
+    "qualityRun": "https://github.com/my-edutu/Ai_games/actions/runs/45290302990",
+    "quality": "9/10; Phase3-3 two source-ownership assertions failed, job 138097031404",
+    "capture": "8 recording jobs and ledge succeeded; pair-source-events failed, job 138098611285; no strict native acceptance",
+    "candidateDangerArtifact": 14873169412,
+    "originalFilms": {
+      "desktop": {
+        "seconds": 72.88,
+        "sha256Matches": true,
+        "returnedRows": 79,
+        "hudToVioletSeconds": 2.75
+      },
+      "portrait": {
+        "seconds": 72.04,
+        "sha256Matches": true,
+        "returnedRows": 80,
+        "hudToVioletSeconds": 2.5
+      }
+    },
+    "inspection": "Decoded native WebM 24–33s at 2 samples/s for both viewports; not continuous normal-speed or native exact-tick mapping.",
+    "portraitSameTick": {
+      "sourceTick": 594,
+      "returnGapMs": 46.4,
+      "heroDelta": 0.2253,
+      "cameraDelta": 7.0524,
+      "previousCamera": [
+        20.0078,
+        27.1796,
+        50.6579
+      ],
+      "rawCamera": [
+        13.0457,
+        27.3269,
+        51.7729
+      ],
+      "outcome": "post-gateway-envelope-veto:physical"
+    },
+    "acceptedEnvelopeRows": {
+      "desktop": 14,
+      "portrait": 9
+    },
+    "physicalVetoRows": {
+      "desktop": 1,
+      "portrait": 2
+    },
+    "maximumReturnedCameraDelta": {
+      "desktop": 5.589,
+      "portrait": 7.052
+    },
+    "implementationSha": "3a0a60fc125b79394955dfe427d6ce3216fe0880",
+    "combinedGameplaySha": "800205b033fa3c44e27701a6e311b49c7617d855",
+    "change": "After the bounded camera pose is rejected, try two intermediate exterior spiral positions between bounded and raw, with same body, previously visible target, core and exact mesh vetoes. First valid wins; restore raw if all fail. Two extra ray queries only on rejected proposals. Separate retained and retired source owner ray inputs, no changes to tests or authority.",
+    "geometricReplayOnly": {
+      "candidateTravelMetres": [
+        0.9754,
+        3.0137,
+        5.0396
+      ],
+      "candidateRadii": [
+        54.3186,
+        54.0095,
+        53.7004
+      ],
+      "caveat": "Computed from recorded rounded endpoint and source budget; no ray or native playback evaluated."
+    },
+    "newSourceCI": "Not yet listed for exact SHA at last query",
+    "reviewCounts": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "device": "NOT EVALUATED",
+    "verdict": "NOT EVALUATED",
+    "next": "Verify exact-source quality and new capture, then check intermediate acceptance, same-tick veto, render costs and continuous gateway/roof/raised destination in both viewports. If still blocked, implement source-aware occlusion avoidance instead of more fractions."
   }
 }
