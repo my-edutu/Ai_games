@@ -7,3 +7,5 @@ TGC-01 original 390 and 1280 captures show a localized glow, an upright clue ped
 The deck gains inset stone, rooted foundations, glazed closed-edge trim, lower clue instruments and a single disclosed checkpoint observatory. Lighting is scoped to the authored layout. No undisclosed coordinates, new geometry classes, fabricated gameplay or changed collision. Tests challenge the natural counter path, stale/hidden/sealed cases, native rendered contact and low clue geometry; original acceptance limits remain.
 
 Acceptance is **pending** exact-HEAD build, four-view native renders, real live-host playthrough, regression, reset budgets and independent comparison. No hardware frame-rate or Nintendo-quality claim. No merge, deployment, force-push or hourly restart.
+
+The final source also explicitly prevents the old procedural two-link impact fallback from supplying an authored hit after the current-tick witness is lost. The existing real-host uninterrupted video test now samples the actual renderer during ordinary playback and fails unless a connected core and contact ring are simultaneously witnessed on the current run. It does not alter the game clock or snapshots.

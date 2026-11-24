@@ -223,3 +223,22 @@ test('actual autonomous authored hit earns a current public light path, not a hi
   for(const tile of sealed.cells)if(tile.cell===snapshot.currentCell)tile.neighbors=[];
   assert.equal(publicAuthoredCounterLightPath(sealed,actor,null),null);
 });
+
+
+test('authored three-link light rejects one-way, hidden, trapped, sealed and rival routes',async()=>{
+  const {publicAuthoredCounterLightPath:light}=await import('../../public/ai-maze-escape/public-lantern-encounter.mjs');
+  const ids=[91,92,93,94],cells=ids.map(cell=>({cell,blocked:false,trap:false,neighbors:ids.filter(n=>Math.abs(n-cell)===1)}));
+  const s={layoutId:'guardian-court-v1',width:17,height:11,tick:9,lifecycle:'running',
+    currentCell:91,visibleCells:ids,cells,doors:[],threats:[{id:'threat-1',cell:94,lanternParried:true}]};
+  const a={id:'threat-1',cell:94,originCell:91,counterTick:9,counterPhase:.35,x:2,z:0};
+  assert.deepEqual(light(s,a,null),{links:3,midCell:null});
+  for(const bad of [
+    {...s,visibleCells:[91,92,94]},
+    {...s,doors:[{a:92,b:93,open:false}]},
+    {...s,cells:cells.map(c=>c.cell===93?{...c,trap:true}:c)},
+    {...s,cells:cells.map(c=>c.cell===93?{...c,neighbors:[94]}:c)},
+    {...s,layoutId:undefined},
+    {...s,tick:10},
+  ])assert.equal(light(bad,a,null),null);
+  assert.equal(light(s,a,{strength:.9,lanternParried:false}),null);
+});

@@ -239,6 +239,23 @@ test('TGC-01 unmodified live host records one complete autonomous chapter',async
     await page.waitForFunction(token=>window.__MAZE_PUBLIC_STATE__?.runToken!==token,initial,
       {timeout:25000});
     const token=await page.evaluate(()=>window.__MAZE_PUBLIC_STATE__.runToken);
+    // Observe real renderer diagnostics from the ordinary browser rAF. Do
+    // not intercept source frames, mutate the camera, hold the game clock,
+    // force a reset or issue an AI action. A live missed hit fails the gate.
+    await page.evaluate(runToken=>{
+      window.__TGC_LIVE_CONTACT__=null;
+      function observeContact(){
+        const d=window.__MAZE_3D__,p=d?.authoredCounterPresentation;
+        if(d?.runToken===runToken&&p?.connected&&p.coreVisible&&p.impactVisible){
+          window.__TGC_LIVE_CONTACT__={runToken,tick:d.tick,frame:d.frames,
+            viewport:{width:innerWidth,height:innerHeight},...p};
+          return;
+        }
+        const snapshot=window.__MAZE_PUBLIC_STATE__;
+        if(snapshot?.runToken===runToken&&!snapshot.result)requestAnimationFrame(observeContact);
+      }
+      requestAnimationFrame(observeContact);
+    },token);
     const observed=[];
     for(let previous=-1;previous<200;){
       await page.waitForFunction(({token,previous})=>{
@@ -258,6 +275,13 @@ test('TGC-01 unmodified live host records one complete autonomous chapter',async
     expect(observed.at(-1).snapshot.result?.reason).toBe('escape');
     expect(observed.some(s=>s.snapshot.threats.some(t=>t.lanternParried))).toBe(true);
     expect(observed.some(s=>s.snapshot.inventory.length===1)).toBe(true);
+    const liveContact=await page.evaluate(()=>window.__TGC_LIVE_CONTACT__);
+    expect(liveContact,'real normal-speed browser must visibly connect Pip and Thornback').toBeTruthy();
+    expect(liveContact.runToken).toBe(token);
+    expect(liveContact.links).toBeGreaterThanOrEqual(1);
+    expect(liveContact.links).toBeLessThanOrEqual(3);
+    expect(liveContact.lanternOrigin).toHaveLength(3);
+    expect(liveContact.guardianContact).toHaveLength(3);
     expect(errors).toEqual([]);
     await page.waitForTimeout(1800);
     await page.screenshot({path:path.join(dir,'court-live-escape-390.png'),fullPage:true});
@@ -268,7 +292,7 @@ test('TGC-01 unmodified live host records one complete autonomous chapter',async
       capturedAt:new Date().toISOString(),
       ...sourceIdentity(),
       source:'Actual uninterrupted local host playback, including its ordinary reset; no injected frames, inputs, reset, clock or animation hold',
-      viewport:{width:390,height:844},runToken:token,videoSha256:sha(videoPath),
+      viewport:{width:390,height:844},runToken:token,liveContact,videoSha256:sha(videoPath),
       imageSha256:sha(path.join(dir,'court-live-escape-390.png')),observed,replay:running,errors
     },null,2)+'\n');
   }finally{await context.close();}

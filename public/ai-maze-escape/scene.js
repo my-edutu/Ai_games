@@ -849,12 +849,12 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
           :cellPosition(authoredCounterPath.midCell,s.width,s.height);
         earnedLanternArmTarget.set(target.x,cellHeight(authoredCounterPath.midCell??earnedCounterActor.cell,s.width,s.height)+1.18,target.z);
         earnedPhysicalLanternTarget=earnedLanternArmTarget;
-      }else if(publicBend){
+      }else if(!isAuthored&&publicBend){
         const bend=cellPosition(publicBend.midCell,s.width,s.height);
         earnedLanternArmTarget.set(bend.x,
           cellHeight(publicBend.midCell,s.width,s.height)+1.18,bend.z);
         earnedPhysicalLanternTarget=earnedLanternArmTarget;
-      }else if(publicLanternEncounter(s,earnedCounterActor.cell)){
+      }else if(!isAuthored&&publicLanternEncounter(s,earnedCounterActor.cell)){
         earnedLanternArmTarget.set(earnedCounterActor.x,
           cellHeight(earnedCounterActor.cell,s.width,s.height)+1.02,
           earnedCounterActor.z);
@@ -952,7 +952,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
     // reciprocal links away, Pip's real lamp still reaches the same observed
     // body. The original one-cell warning cone remains deliberately unchanged.
     // No speculative beam, closed-wall traversal or additional GPU light.
-    const earnedTwoLinkPath=!result && !!explorerLantern
+    const earnedTwoLinkPath=!isAuthored && !result && !!explorerLantern
       ? publicEarnedGuardianCounterLightPath(s,earnedCounterActor,closestThreat)
       : null;
     lanternLight.distance = !result && explorerLantern
@@ -1077,7 +1077,7 @@ export function createMazeScene(canvas, initialSettings, onStatus) {
         secondSegmentVisible:counterCoreTurn.visible,impactVisible:counterImpactRing.visible,
         lanternOrigin:lanternFocusOrigin.toArray(),guardianContact:counterImpactRing.position.toArray()};
     }else if(counterImpact && explorerLantern && earnedCounterModel?.parent
-      && (earnedTwoLinkPath || publicLanternEncounter(s,earnedCounterActor.cell))){
+      && !isAuthored && (earnedTwoLinkPath || publicLanternEncounter(s,earnedCounterActor.cell))){
       explorerLantern.getWorldPosition(lanternFocusOrigin);
       counterImpactRing.position.copy(earnedCounterModel.position);
       counterImpactRing.position.y+=1.18;
