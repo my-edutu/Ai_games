@@ -1525,5 +1525,49 @@
     },
     "physicalDevices": "NOT EVALUATED",
     "leadingVerdict": "NOT EVALUATED"
+  },
+  "p0FrozenAuthorityCompatibilityAudit20261124": {
+    "stage": "P0 OPEN; P1 blocked",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenLedgerBlob": "b8aa51bb5bb50b55222fb6b947472692c87c822a",
+    "inspectedHead": "4fe52e3f2cf2519b30390b6efe83a20ff6dd2e65",
+    "recordedSource": "8a31847ea110065475e9b07388eb5a6c9381c157",
+    "authorityAudit": {
+      "baselineRulesBlob": "825ae1565a43023a48bbc525bce8377a56d6fb91",
+      "candidateRulesBlob": "74049e4eb2324a7457cea5833a3e6f3b4611a335",
+      "baselineCombatBlob": "d23a1ba66ec4d8894a43a7e18ddab6409dcf4b08",
+      "baselineSnapshotBlob": "794279e583d19b46e0420cbefc82d93e37bc2f7a",
+      "finding": "Frozen baseline rules/step.ts:11 gates vertical exitY on living guardian, then assigns next.spawn, velocity zero, grounded false, replaces enemies. It does not implement a grounded physical threshold. Candidate rules/step.ts:29-74 requires opt-in physical passage, defeated guardian, actuation, grounded cap and trailing-edge clearance; 79-108 preserves gateway arrival and records source crossing. Baseline combat/step.ts does emit enemy-defeated on actual zero HP; same-tick replacement of enemies may remove corpse from public snapshot before observation. Missing death marker is not proof defeat did not occur; no synthetic death cue. Physical threshold and earned grounded F9 handoff are structurally candidate-only, not missing baseline capture events. Keep strict native veto; common actual guardian HP loss and F8->9 source transition are eligible for matching if native frames independently confirm; candidate-specific physical traversal must remain separate unpaired evidence."
+    },
+    "capture": "https://github.com/my-edutu/Ai_games/actions/runs/45387336072",
+    "quality": "https://github.com/my-edutu/Ai_games/actions/runs/45387336083",
+    "checks": "Requeried capture: 9/9 capture/ledge jobs success; pair-source-events failure. Exact recorded-source quality 10/10 success. Exact inspected evidence-only HEAD workflow lookup returned no runs. No PR reviews returned.",
+    "filmAudit": {
+      "method": "Rehashed original candidate desktop and portrait files; OpenCV decoded all frames at 25 fps, cropped x 8%-92% y 15%-83%, grayscale resized 128x96, measured mean absolute luminance change (0-255) against previous frame; <=0.5 is a descriptive low-change threshold, not FPS or confirmed stall. No re-encoding or speed changes.",
+      "desktop": {
+        "sha256": "4dfc1021a49e57569f3d326f49c6fe2170d286347b6488f61ce789bfcd3a2699",
+        "frames": 1808,
+        "lowChangeFraction": 0.5332,
+        "longestLowChangeSeconds": 1.28,
+        "longestLowChangeAtSeconds": 0.76
+      },
+      "portrait": {
+        "sha256": "5d1593624efae533c0ec66d9e56083f36020538552f7852b8bc526fb2d7b88ee",
+        "frames": 1849,
+        "lowChangeFraction": 0.4927,
+        "longestLowChangeSeconds": 1.24,
+        "longestLowChangeAtSeconds": 0.8
+      },
+      "limitations": "Low change includes loading/outcome/intentional stillness and compression; not a supported-device benchmark. Inspected original portrait frame sheet: bronze foreground supports obscure hero/guardian during combat, first F9 scene still compositionally dense. No independent full-motion critic."
+    },
+    "implementation": "Verified structural source compatibility blocker; no production code modified. Interactive workspace tunnel unavailable (NOT_FOUND). No new capture requested because no new playable source. No gate or frozen baseline alteration.",
+    "next": "Restore integrated source-pinned interactive browser. Fix actual guardian/landing foreground geometry and successor-room readiness as a coherent playable slice; verify native scene phase before comparing common anchors. Do not request repeated identical baseline captures to obtain a physical gate mechanic that did not exist; do not weaken strict native veto or fabricate defeat. Record candidate-only traversal independently; preserve PR58.",
+    "independentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDevices": "NOT EVALUATED",
+    "verdict": "NOT EVALUATED"
   }
 }
