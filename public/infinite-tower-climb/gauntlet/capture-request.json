@@ -8970,5 +8970,45 @@
     "physicalDeviceP50P95P99AndMemory": "NOT EVALUATED",
     "next": "If finite-segment culling is too slow or changes accepted physical sightlines, revert safely and focus on source-grounded renderer world handoff. Otherwise pursue missing 4-subject physical composition and strict event pairing before P1.",
     "prohibited": "No modifications to transformation.json frozen baseline, active PR58, other games, merge, deploy, force push, or draft status"
+  },
+  "p0ExpeditionUiCoherentSlice20261124": {
+    "stage": "P0 OPEN — user-requested cohesive in-game interface slice; P1 blocked",
+    "leadingVerdict": "NOT EVALUATED",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenLedgerBlob": "b8aa51bb5bb50b55222fb6b947472692c87c822a",
+    "inspectedHead": "072c64f385b8bb26291b67aa5a43f8a81373813a",
+    "uiImplementationSha": "0da51fc7462e9e62f918a3455b92759f2bf1879a",
+    "previousGameplaySha": "b1bf5b27049b875ad4789e3b378c42a4b4ba37b1",
+    "previousNativeCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45384487676",
+    "previousQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45384487396",
+    "sourceFacts": "8/8 original recording jobs plus authentic ledge passed; 8/8 source timelines paired; strict native danger matching 0/2; quality 9/10, Phase 6 exit 124. Sampled original 72s desktop and 73.64s portrait films show tiny combat vitals, guardian hardware obscuring the hero, and discontinuous bronze-to-Void scene. Desktop drawn Floor 9 at 25.25s and sustained violet at 28.75s (3.5s gap); portrait successor chroma NOT EVALUATED. Color diagnostic is not physical-crossing proof.",
+    "change": "One cohesive expedition UI: graphite/copper edge treatment, more legible labelled climber health/stamina, authoritative guardian HP and wind-up/stagger/guard/defeat readout within existing phase alert, explicit peak-height label, responsive control dock and non-blurred event/result treatment; compact prior-run receipt, all existing controls and accessible semantics retained. Floor glyph anchor, phase/result/recovery truth and clean feed preserved. No camera/world/physics change.",
+    "validation": "Eight isolated executions of the exact new pure guardian readout helper passed. Added existing HUD unit and three viewport browser regressions. Integrated Node, browser, native video, performance and independent acceptance NOT EVALUATED at implementation. Coding workspace tunnel unavailable. Do not count HUD tests as visual acceptance.",
+    "candidateCapture": "Exact immutable github.sha of this capture request; gameplay UI identical to 0da51fc7462e9e62f918a3455b92759f2bf1879a",
+    "captureConditions": {
+      "seed": "tower-transformation-capture-v1",
+      "tier": "low",
+      "speed": 1,
+      "fps": 25,
+      "minSeconds": 60,
+      "viewports": [
+        "960x600",
+        "390x844"
+      ],
+      "scenarios": [
+        "ascent",
+        "moving",
+        "danger",
+        "outcome/restart"
+      ]
+    },
+    "independentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "physicalDevices": "NOT EVALUATED",
+    "next": "Verify full-scene interface and source glyph calibration at both viewports, inspect original normal-speed footage and strict native pairing, compare renderer intervals. Correct true guardian/landing sightlines and world transition in one integrated playable slice, not another isolated fade. Close P0 only after gameplay/video gates pass.",
+    "rollback": "Non-force revert of Tower-only presentation commit if regressions; never deploy or alter PR58/baseline."
   }
 }
