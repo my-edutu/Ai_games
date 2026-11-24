@@ -6697,20 +6697,40 @@ export function createTowerScene(canvas, settings = {}) {
             Math.abs(releaseHeroNdc[1])+releaseHeroNdc[3]<.91&&
             (!rawLandingVisible||landingVisible());
         };
-        let framed=wholeBody();
-        // One alternate gaze and at most one physical query. Never sacrifice
-        // an existing body/route composition merely to smooth the camera.
-        if(!framed){lookAt.copy(rawFocus);framed=wholeBody();}
-        const coreClear=framed&&towerCoreSightlineClear(camera.position,body,23.5);
-        const physical=coreClear?world.measureSuccessorDeckVisibility(snapshot,
-          camera.position,body,snapshot.player.halfHeight/SCALE,null,landingId,true):null;
-        if(physical?.active===true&&physical.rays>=3&&physical.bodyBlockedRays===0){
+        // A single blocked bounded pose previously restored the full cut.
+        // Source f22f6fcf portrait tick 594 -> 594 returned 7.0524m in
+        // 46.4ms after that physical veto. Search two intermediate exterior
+        // poses before conceding the raw camera, never bypass any veto.
+        const boundedCamera=camera.position.clone(),boundedFocus=lookAt.clone();
+        const r0=Math.hypot(boundedCamera.x,boundedCamera.z);
+        const r1=Math.hypot(rawCamera.x,rawCamera.z);
+        const a0=Math.atan2(boundedCamera.x,boundedCamera.z);
+        const da=Math.atan2(Math.sin(Math.atan2(rawCamera.x,rawCamera.z)-a0),
+          Math.cos(Math.atan2(rawCamera.x,rawCamera.z)-a0));
+        let accepted=-1,lastVeto='framing';
+        for(const fraction of [0,1/3,2/3]){
+          const radius=r0+(r1-r0)*fraction,angle=a0+da*fraction;
+          camera.position.set(Math.sin(angle)*radius,
+            boundedCamera.y+(rawCamera.y-boundedCamera.y)*fraction,Math.cos(angle)*radius);
+          lookAt.copy(boundedFocus).lerp(rawFocus,fraction);
+          let framed=wholeBody();
+          if(!framed){lookAt.copy(rawFocus);framed=wholeBody();}
+          const coreClear=framed&&towerCoreSightlineClear(camera.position,body,23.5);
+          const physical=coreClear?world.measureSuccessorDeckVisibility(snapshot,
+            camera.position,body,snapshot.player.halfHeight/SCALE,null,landingId,true):null;
+          if(physical?.active===true&&physical.rays>=3&&physical.bodyBlockedRays===0){
+            accepted=fraction;break;
+          }
+          lastVeto=!framed?'framing':!coreClear?'core':'physical';
+        }
+        if(accepted>=0){
           sky.position.copy(camera.position);
-          firstF9ScaleOutcome+=':post-gateway-envelope-accepted';
+          firstF9ScaleOutcome+=accepted===0?':post-gateway-envelope-accepted':
+            ':post-gateway-envelope-partial:'+accepted.toFixed(3);
         }else{
           camera.position.copy(rawCamera);lookAt.copy(rawFocus);
           camera.lookAt(lookAt);camera.updateMatrixWorld(true);
-          firstF9ScaleOutcome+=':post-gateway-envelope-veto:'+(!framed?'framing':!coreClear?'core':'physical');
+          firstF9ScaleOutcome+=':post-gateway-envelope-veto:'+lastVeto;
         }
       }
       auditF9Camera('final-after-scale',firstF9ScaleOutcome);
