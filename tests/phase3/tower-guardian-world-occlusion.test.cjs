@@ -38,3 +38,38 @@ test('real source guardian integration uses opaque Three scene triangles, preser
  assert.match(scene,/Math\.abs\(orbit\) < \.025/);
  assert.match(scene,/guardianWorldOcclusion: \{/);
 });
+
+test('no actor can be newly obscured to improve the aggregate physical score',async()=>{
+  imported ||= await import(pathToFileURL(file).href);
+  const {selectGuardianWorldShoulder:select,guardianWorldStepSafe:step}=imported;
+  const rays=(heroBlocked,guardianBlocked)=>({heroBlocked,guardianBlocked,
+    weighted:heroBlocked*3+guardianBlocked*2});
+  assert.equal(select(rays(2,0),rays(0,1),null),null);
+  assert.equal(select(rays(0,1),rays(0,0),null)?.gain,2);
+  assert.equal(step(rays(1,0),rays(0,1)),false);
+  assert.equal(step(rays(1,0),rays(1,0)),true);
+  assert.equal(step(rays(1,0),null),false);
+});
+test('the actual helmet ray and bounded vertical recovery protect the current physical pose',async()=>{
+  imported ||= await import(pathToFileURL(file).href);
+  const {weightedGuardianWorldOcclusion:measure,boundedGuardianWorldLift:lift}=imported;
+  assert.equal(measure((x,y)=>x===1&&y>=2.9,
+    {x:1,y:2,z:3},{x:5,y:3,z:2},1,2).heroBlocked,1);
+  assert.equal(lift(10,14,.05),10.175);
+  assert.equal(lift(10,10.1,.05),10.1);
+  assert.equal(lift(10,14,.2),null);
+});
+test('final F8 physical corridor is not portrait-only and checks the actual step before rendering',()=>{
+  const scene=fs.readFileSync(path.resolve(__dirname,'../../public/infinite-tower-climb/visuals/scene.mjs'),'utf8');
+  const start=scene.indexOf('const worldRayActive =');
+  const end=scene.indexOf('const worldRayEpisode=',start);
+  assert.ok(start>=0&&end>start);
+  const guard=scene.slice(start,end);
+  assert.doesNotMatch(guard,/protectLivingGuardian|\bportrait\b/);
+  assert.match(guard,/options\.reducedMotion/);
+  assert.match(guard,/sourceGuardian\.health > 0/);
+  const actual=scene.indexOf('const actualStep=nextAngle');
+  assert.ok(actual>scene.indexOf("auditF9Camera('final-after-scale'"));
+  assert.ok(actual<scene.indexOf('renderer.render(scene, camera)',actual));
+  assert.match(scene,/guardianWorldStepSafe\(baseWorldRay,actualStep\)/);
+});
