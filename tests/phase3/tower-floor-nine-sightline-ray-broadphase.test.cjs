@@ -211,3 +211,33 @@ test('unsupported and dynamically deformed mesh raycasts fail open to real Three
       'no finite-bounds exclusion for animated/instanced sources');
   }finally{geometry.dispose();material.dispose();}
 });
+
+test('guardian boolean narrowphase matches full exact triangles and stops after the first opaque hit',async()=>{
+  const {createSourceSightlineRayBroadphase}=await load();
+  const root=new THREE.Group(),cache=createSourceSightlineRayBroadphase(THREE);
+  const geo=new THREE.BoxGeometry(1,1,1);
+  const opaque=new THREE.MeshBasicMaterial(),ghost=new THREE.MeshBasicMaterial({transparent:true,opacity:.4});
+  const mesh=(z,mat)=>{const m=new THREE.Mesh(geo,mat);m.position.z=z;root.add(m);return m;};
+  mesh(5,ghost);const first=mesh(4,opaque);
+  for(let i=0;i<12;i++)mesh(3-i*.15,opaque);
+  const hidden=mesh(6,opaque);hidden.visible=false;
+  const ray=new THREE.Raycaster(new THREE.Vector3(0,0,8),new THREE.Vector3(0,0,-1),0,8);
+  const material=m=>m.visible!==false&&!(m.transparent&&m.opacity<.7);
+  const accept=h=>h.object.visible&&material(h.object.material);
+  const mayAccept=m=>material(m.material);
+  let calls=0;const exactCast=ray.intersectObject.bind(ray);
+  ray.intersectObject=(...args)=>{calls++;return exactCast(...args);};
+  try{
+    root.updateWorldMatrix(true,true);cache.beginFrame();
+    const full=ray.intersectObject(root,true,[]).some(accept);
+    calls=0;const hits=[];
+    assert.equal(cache.anyVisibleHit(root,ray,hits,accept,mayAccept),full);
+    assert.equal(calls,1,'no unnecessary narrowphase after an opaque triangle');
+    assert.equal(hits.length,0);
+    first.position.x=100;
+    for(const m of root.children)if(m!==hidden)m.position.x=100;
+    root.updateWorldMatrix(true,true);cache.beginFrame();
+    assert.equal(cache.anyVisibleHit(root,ray,hits,accept,mayAccept),false);
+    assert.equal(hits.length,0);
+  }finally{geo.dispose();opaque.dispose();ghost.dispose();}
+});

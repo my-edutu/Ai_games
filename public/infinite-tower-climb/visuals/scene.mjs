@@ -2585,25 +2585,32 @@ export function createTowerScene(canvas, settings = {}) {
     guardianWorldRay.far=distance-.45;
     guardianWorldRayHits.length=0;
     if(guardianWorldBroadphase && world.group.isGroup)
-      guardianWorldBroadphase.intersectVisible(world.group,guardianWorldRay,guardianWorldRayHits);
-    else guardianWorldRay.intersectObjects(world.group.children,true,guardianWorldRayHits);
-    for (const hit of guardianWorldRayHits) {
+      return guardianWorldBroadphase.anyVisibleHit(world.group,guardianWorldRay,
+        guardianWorldRayHits,guardianOpaqueHit,guardianOpaqueMesh);
+    guardianWorldRay.intersectObjects(world.group.children,true,guardianWorldRayHits);
+    const blocked=guardianWorldRayHits.some(guardianOpaqueHit);
+    guardianWorldRayHits.length=0;
+    return blocked;
+  }
+  function guardianOpaqueMaterial(mat){
+    return !!mat && mat.visible!==false &&
+      !(mat.transparent && (mat.opacity??1)<.70);
+  }
+  function guardianOpaqueMesh(mesh){
+    return (Array.isArray(mesh.material)?mesh.material:[mesh.material])
+      .some(guardianOpaqueMaterial);
+  }
+  function guardianOpaqueHit(hit){
       let visible=true,ancestor=hit.object;
       while (ancestor && ancestor!==world.group) {
         if (ancestor.visible===false) {visible=false;break;}
         ancestor=ancestor.parent;
       }
-      if (!visible) continue;
+      if (!visible) return false;
       const mat=Array.isArray(hit.object.material)
         ? hit.object.material[hit.face?.materialIndex??0]
         : hit.object.material;
-      if (!mat || mat.visible===false ||
-          (mat.transparent && (mat.opacity??1)<.70)) continue;
-      guardianWorldRayHits.length=0;
-      return true;
-    }
-    guardianWorldRayHits.length=0;
-    return false;
+      return guardianOpaqueMaterial(mat);
   }
   const guardianRescuePreviousCamera = new THREE.Vector3();
   const guardianRescuePreviousGaze = new THREE.Vector3();

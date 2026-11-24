@@ -46,11 +46,7 @@ export function createSourceSightlineRayBroadphase(THREE) {
   // Build one exact visible-mesh target list per source-rendered frame and
   // reuse it for every candidate. Every selected mesh is still triangle
   // raycast with its current REAL world matrix: no AABB-only clearance.
-  function intersectVisible(root,raycaster,hits){
-    if(!frame || !root?.isGroup ||
-       typeof raycaster?.intersectObjects!=='function' ||
-       !Array.isArray(hits))
-      return raycaster.intersectObject(root,true,hits);
+  function visibleMeshes(root){
     let rec=visibleMeshCache.get(root);
     if(!rec || rec.frame!==frame){
       const meshes=[];
@@ -73,6 +69,14 @@ export function createSourceSightlineRayBroadphase(THREE) {
       visibleRootBuilds++;
       acceptedMeshCandidates+=meshes.length;
     }
+    return rec.meshes;
+  }
+  function intersectVisible(root,raycaster,hits){
+    if(!frame || !root?.isGroup ||
+       typeof raycaster?.intersectObjects!=='function' ||
+       !Array.isArray(hits))
+      return raycaster.intersectObject(root,true,hits);
+    const meshes=visibleMeshes(root);
     // Exact geometry and the unchanged nine source-body/gate ray endpoints
     // are authoritative. An empty list means no qualifying rendered
     // triangles, not permission to replace gameplay or the real doorway.
@@ -82,45 +86,13 @@ export function createSourceSightlineRayBroadphase(THREE) {
     // Cull *only* ordinary static THREE meshes with fresh conservative
     // world boxes; moving instances, skinned/morphed actors and custom
     // raycasters ALWAYS run the previous exact triangle path.
-    let targets=rec.meshes;
-    if(rec.meshes.length>=6 &&
+    let targets=meshes;
+    if(meshes.length>=6 &&
        typeof raycaster.ray?.intersectsBox==='function' &&
        typeof raycaster.ray?.intersectBox==='function'){
       rayCandidates.length=0;
-      const ray=raycaster.ray;
-      for(const mesh of rec.meshes){
-        const standard=mesh.raycast===THREE.Mesh?.prototype?.raycast &&
-          mesh.isInstancedMesh!==true && mesh.isSkinnedMesh!==true &&
-          !mesh.geometry?.morphAttributes?.position?.length &&
-          mesh.geometry?.attributes?.position;
-        if(!standard){rayCandidates.push(mesh);continue;}
-        let bound=meshBoundsCache.get(mesh);
-        if(!bound){bound={frame:0,box:new THREE.Box3()};
-          meshBoundsCache.set(mesh,bound);}
-        if(bound.frame!==frame){
-          bound.box.setFromObject(mesh,false);
-          bound.frame=frame;meshBoundsBuilt++;
-        }
-        const box=bound.box;
-        // Empty/nonfinite boxes cannot exclude a REAL source triangle.
-        if(box.isEmpty() ||
-           ![box.min.x,box.min.y,box.min.z,
-              box.max.x,box.max.y,box.max.z].every(Number.isFinite)){
-          rayCandidates.push(mesh);continue;
-        }
-        if(!ray.intersectsBox(box)){meshRayRejects++;continue;}
-        // Box intersection must occur *before* the actual skinned-hero,
-        // roof or opened-gateway ray endpoint. A tower section beyond the
-        // target must not cost a recursive triangle query; if the camera
-        // starts inside its box, conservatively keep the exact raycast.
-        if(Number.isFinite(raycaster.far) && raycaster.far>0 &&
-           !box.containsPoint(ray.origin)){
-          const hit=ray.intersectBox(box,rayBoxExit);
-          if(hit && ray.origin.distanceToSquared(hit)>
-              Math.pow(raycaster.far+1e-6,2)){
-            meshBeyondTargetRejects++;continue;
-          }
-        }
+      for(const mesh of meshes){
+        if(!meshMayIntersect(mesh,raycaster))continue;
         rayCandidates.push(mesh);
       }
       targets=rayCandidates;
@@ -128,7 +100,63 @@ export function createSourceSightlineRayBroadphase(THREE) {
     if(targets.length)raycaster.intersectObjects(targets,false,hits);
     return hits;
   }
-  return {beginFrame,mayIntersect,intersectVisible,diagnostics:()=>({
+  function meshMayIntersect(mesh,raycaster){
+    const ray=raycaster.ray;
+    if(typeof ray?.intersectsBox!=='function'||typeof ray?.intersectBox!=='function')return true;
+    const standard=mesh.raycast===THREE.Mesh?.prototype?.raycast &&
+      mesh.isInstancedMesh!==true && mesh.isSkinnedMesh!==true &&
+      !mesh.geometry?.morphAttributes?.position?.length &&
+      mesh.geometry?.attributes?.position;
+    if(!standard)return true;
+    let bound=meshBoundsCache.get(mesh);
+    if(!bound){bound={frame:0,box:new THREE.Box3()};
+      meshBoundsCache.set(mesh,bound);}
+    if(bound.frame!==frame){
+      bound.box.setFromObject(mesh,false);
+      bound.frame=frame;meshBoundsBuilt++;
+    }
+    const box=bound.box;
+    // Empty/nonfinite boxes cannot exclude a REAL source triangle.
+    if(box.isEmpty() ||
+       ![box.min.x,box.min.y,box.min.z,
+          box.max.x,box.max.y,box.max.z].every(Number.isFinite)){
+      return true;
+    }
+    if(!ray.intersectsBox(box)){meshRayRejects++;return false;}
+    // Box intersection must occur *before* the actual skinned-hero,
+    // roof or opened-gateway ray endpoint. A tower section beyond the
+    // target must not cost a recursive triangle query; if the camera
+    // starts inside its box, conservatively keep the exact raycast.
+    if(Number.isFinite(raycaster.far) && raycaster.far>0 &&
+       !box.containsPoint(ray.origin)){
+      const hit=ray.intersectBox(box,rayBoxExit);
+      if(hit && ray.origin.distanceToSquared(hit)>
+          Math.pow(raycaster.far+1e-6,2)){
+        meshBeyondTargetRejects++;return false;
+      }
+    }
+    return true;
+  }
+  // Boolean combat probes do not need globally sorted contacts. Stop only
+  // after a genuine qualifying triangle, never on a bounding box alone.
+  // Keep the full-contact F9 diagnostics on intersectVisible unchanged.
+  function anyVisibleHit(root,raycaster,hits,accept,mayAcceptMesh){
+    hits.length=0;
+    if(!frame || !root?.isGroup || typeof raycaster?.intersectObject!=='function'){
+      raycaster.intersectObject(root,true,hits);
+      const blocked=hits.some(accept);hits.length=0;return blocked;
+    }
+    for(const mesh of visibleMeshes(root)){
+      if(mayAcceptMesh && !mayAcceptMesh(mesh))continue;
+      if(!meshMayIntersect(mesh,raycaster))continue;
+      raycaster.intersectObject(mesh,false,hits);
+      const blocked=hits.some(accept);
+      hits.length=0;
+      if(blocked)return true;
+    }
+    return false;
+  }
+  return {beginFrame,mayIntersect,intersectVisible,anyVisibleHit,diagnostics:()=>({
     boundsRebuilds,rootRayRejects,visibleRootBuilds,
     invisibleMeshCandidates,acceptedMeshCandidates,
     meshBoundsBuilt,meshRayRejects,meshBeyondTargetRejects,
