@@ -1340,5 +1340,75 @@
     "device": "NOT EVALUATED",
     "leadingVerdict": "NOT EVALUATED",
     "next": "Verify final exact-source quality, all nine recording/ledge jobs and strict native pair results. Inspect candidate originals only after valid frame delivery, guardian physical rays/landing and gateway/restart. No further speculative camera edits before full-motion evidence; P1 blocked."
+  },
+  "guardianRecoveredNativeEvidence20261124": {
+    "stage": "P0 OPEN",
+    "inspectedHead": "04647bc3ffaeb2ba7bba68cae7b7d0c4ed2fb071",
+    "sourceSha": "e57d45d105c4e60e66ca1a0ebec1241cadb61817",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "ledgerBlob": "b8aa51bb5bb50b55222fb6b947472692c87c822a",
+    "capture": "https://github.com/my-edutu/Ai_games/actions/runs/45365453120",
+    "candidateDangerArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45365453120/artifacts/14906987647",
+    "pairArtifact": "https://github.com/my-edutu/Ai_games/actions/runs/45365453120/artifacts/14907495083",
+    "exactSourceQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45365453094",
+    "codeEquivalentQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45365550472",
+    "result": "Verified recovery of frame delivery: 9/9 capture/ledge jobs successful; source pair index 8/8, no missing/split source stories; strict native event pairing 0/2 failed. Exact gameplay SHA quality cancelled; 10/10 jobs passed on 605c77f91a61b8a1cd91bb3c2d20d27e3cbef22e (compare confirms only this evidence JSON differs). No new playable code change.",
+    "viewports": [
+      {
+        "viewport": "960x600",
+        "seconds": 71.92,
+        "frames": 1798,
+        "sha256": "f696f99901bc120e72b8435d78e65ac1ad18ac8d65c18701753089dbf433b65b",
+        "sourceToBrowserMs": 79,
+        "browserToRendererReturnMs": 445,
+        "drawnFloor9Seconds": 25.5,
+        "sustainedVioletSeconds": 28.25,
+        "hudToVioletSeconds": 2.75,
+        "submittedIntervalsMs": {
+          "p50": 107.6,
+          "p95": 371.1,
+          "p99": 515.5
+        },
+        "opaqueNearerBodyRays": {
+          "hits": 1,
+          "sampled": 24
+        },
+        "lowChangeFraction": 0.568,
+        "priorLowChangeFraction": 0.554
+      },
+      {
+        "viewport": "390x844",
+        "seconds": 72.48,
+        "frames": 1812,
+        "sha256": "c559911bb1701e2a99d4f793de848820b7dc7fb866cebcb4d4003f0a7d63c36e",
+        "sourceToBrowserMs": 76,
+        "browserToRendererReturnMs": 488,
+        "drawnFloor9Seconds": 25.5,
+        "sustainedVioletSeconds": 28.5,
+        "hudToVioletSeconds": 3,
+        "submittedIntervalsMs": {
+          "p50": 76.4,
+          "p95": 255.8,
+          "p99": 362.2
+        },
+        "opaqueNearerBodyRays": {
+          "hits": 4,
+          "sampled": 21
+        },
+        "lowChangeFraction": 0.475,
+        "priorLowChangeFraction": 0.498
+      }
+    ],
+    "method": "Downloaded original danger ZIP, independently SHA256-verified both WebMs, decoded all frames via OpenCV, inspected 18 selected timestamps per viewport. Consecutive decoded RGB/BGR frame mean absolute channel difference on central crop (14–85% height, 5–95% width), area downsample to 80x80; fraction <0.5 of 0–255 values is a low-image-change diagnostic, not repeated frame count or hardware FPS. Prior comparator 466cc6 originals same method. Sparse body centre/helmet/sole ray probes count nonhero hits opacity >=0.9 at least 0.1m nearer than target; not comparable to earlier all-opacity counts and not a rate or native visibility proof.",
+    "observedDefect": "Combat obstruction remains visible around portrait 15s and desktop 22–24s. Portrait nearer opaque hits include power spine clutches, left seal lattice and rigid platform batch; desktop guardian lock anchor. Native floor 9 HUD appears before full violet scene; at 25.5s already visible successor purple rims, so chroma alone does not prove delayed world submission. Largest systemic concern is sluggish frame delivery / crowded combat composition, not a missing floor. Both full-length films visibly reach 9, 10 and subsequent restarted floor 8 at sampled timestamps; no independent normal-speed full-motion review or visible threshold certification.",
+    "limitation": "Coding workspace call returned tunnel-client not seen for 300 seconds. No local live game, worker, independent full-motion critic, or actual-device performance. CI render intervals not GPU/display frame timing. No authority or source changes.",
+    "next": "Prioritize bounded per-frame camera/render workload and stable combat staging rather than more overlapping camera directors: isolate guardian ray traversal cost on actual running browser with identical source settings; first F9 rigid batching alone 41.8/40.8ms and camera proposals/rays 31.3/33.3ms desktop/portrait in observed first return, so profile steady combat and handoff separately. Preserve opaque geometry, collisions, authoritative guardian HP, and event pairing veto. Obtain exact-source CI and native 1x event alignment before P1.",
+    "independentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "device": "NOT EVALUATED",
+    "leadingVerdict": "NOT EVALUATED"
   }
 }
