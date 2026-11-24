@@ -11,6 +11,20 @@ const recoveryCopy = {
   connection: ['Reconnecting', 'Retrying automatically'],
 };
 
+/** Current-source guardian health and combat tell; never infer a victory or expose stale combat state. */
+export function guardianHudState(snapshot, sourceScene, activeRecovery) {
+  if (activeRecovery || sourceScene !== 'guardian' || snapshot?.lifecycle !== 'running' || !Array.isArray(snapshot.enemies)) return null;
+  const guardians = snapshot.enemies.filter(enemy => enemy?.kind === 'guardian');
+  if (guardians.length !== 1) return null;
+  const enemy = guardians[0];
+  const { health, maxHealth, active } = enemy;
+  if (!Number.isFinite(health) || !Number.isFinite(maxHealth) || maxHealth <= 0 || health < 0 || health > maxHealth ||
+      !((active === true && health > 0) || (active === false && health === 0))) return null;
+  const tell = !active ? 'Defeated' : enemy.staggerTicksRemaining > 0 ? 'Staggered' :
+    enemy.telegraph === true ? 'Wind-up' : enemy.guardTicksRemaining > 0 ? 'Guarding' : 'Engaged';
+  return { health, maxHealth, tell };
+}
+
 /** Presentation-only DOM overlay. All gameplay values come from the public frame. */
 export function createHUD({ initialQuality, onCamera, onSound, onMotion, onQuality, onFullscreen } = {}) {
   const root = document.querySelector('[data-testid="shell"]');
@@ -28,7 +42,7 @@ export function createHUD({ initialQuality, onCamera, onSound, onMotion, onQuali
   let quality = validQuality(initialQuality) ? initialQuality
     : validQuality(query.get('quality')) ? query.get('quality')
     : innerWidth < 700 ? 'low' : 'high';
-  let offersKey = '', buildKey = '', currentRun = '';
+  let offersKey = '', buildKey = '', currentRun = '', guardianKey = '';
   let disposed = false, hasSubmittedView = false, activeRecovery = null, feedbackTimer = null;
   // Only a source-witnessed completed expedition can leave a brief record
   // when the *next genuine run token* begins. Never retain an inferred loss.
@@ -161,6 +175,20 @@ export function createHUD({ initialQuality, onCamera, onSound, onMotion, onQuali
     text(byId('phase-alert-text'), `${lastKnown ? 'Last known: ' : ''}${sourceScene === 'guardian' ? 'Guardian' : 'Danger'}`);
     if (sourceScene !== 'upgrade') byId('choice-card').hidden = true;
     if (!['result', 'intermission'].includes(sourceScene)) byId('result-card').hidden = true;
+    const guardianReadout = guardianHudState(snapshot, sourceScene, activeRecovery);
+    const nextGuardianKey = guardianReadout ? JSON.stringify(guardianReadout) : 'hidden';
+    if (nextGuardianKey !== guardianKey) {
+      guardianKey = nextGuardianKey;
+      byId('guardian-readout').hidden = !guardianReadout;
+      byId('phase-alert').dataset.encounter = String(!!guardianReadout);
+      text(byId('guardian-tell'), guardianReadout?.tell ?? '');
+      text(byId('guardian-health-text'), guardianReadout ? `${guardianReadout.health}/${guardianReadout.maxHealth}` : '—');
+      const guardianMeter = byId('guardian-meter');
+      guardianMeter.setAttribute('aria-valuemax', String(guardianReadout?.maxHealth ?? 1));
+      guardianMeter.setAttribute('aria-valuenow', String(guardianReadout?.health ?? 0));
+      guardianMeter.setAttribute('aria-valuetext', guardianReadout ? `${guardianReadout.health} of ${guardianReadout.maxHealth}` : 'Unavailable');
+      byId('guardian-health-bar').style.width = guardianReadout ? `${100 * guardianReadout.health / guardianReadout.maxHealth}%` : '0%';
+    }
     if (!snapshot) return;
     if (snapshot.runToken !== currentRun) {
       // Preserve a truthful previous-run memory for a few seconds after an

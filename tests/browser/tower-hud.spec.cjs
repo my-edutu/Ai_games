@@ -164,3 +164,33 @@ test('new run without a witnessed source terminal never fabricates a prior resul
   }, { renderProgress: { state: 'current', lastSubmitted: { tick: 0 } } }));
   await expect(page.locator('#result-card')).toBeHidden();
 });
+
+for (const viewport of [{ width: 960, height: 600 }, { width: 390, height: 844 }, { width: 844, height: 390 }]) {
+  test('expedition combat HUD keeps progress, vitals and contextual guardian distinct at ' + viewport.width + 'x' + viewport.height, async ({ page }) => {
+    await hudPage(page, viewport);
+    await page.evaluate(() => {
+      window.hudFrame.scene = 'guardian';
+      Object.assign(window.hudFrame.snapshot, { lifecycle: 'running', floor: 8, enemies: [{ id: 'f8:guardian', kind: 'guardian', active: true, health: 3, maxHealth: 6, telegraph: true }] });
+      window.hud.update(window.hudFrame, { renderProgress: { state: 'current', lastSubmitted: { tick: 219 } } });
+    });
+    await expect(page.locator('#guardian-health-text')).toHaveText('3/6');
+    await expect(page.locator('#guardian-tell')).toHaveText('Wind-up');
+    await expect(page.locator('#guardian-meter')).toHaveAttribute('aria-valuenow', '3');
+    const boxes = await Promise.all(['.primary-metrics', '.vital-panel', '#phase-alert', '.spectator-controls'].map(selector => page.locator(selector).boundingBox()));
+    for (const box of boxes) insideViewport(box, viewport);
+    for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) {
+      const a = boxes[i], b = boxes[j];
+      expect(Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x) <= 0 || Math.min(a.y+a.height,b.y+b.height)-Math.max(a.y,b.y) <= 0).toBe(true);
+    }
+    const targets = await page.locator('.spectator-controls button, #details-toggle').evaluateAll(nodes => nodes.map(n => n.getBoundingClientRect().width));
+    expect(targets.every(width => width >= 44)).toBe(true);
+    await page.evaluate(() => {
+      window.hudFrame.scene = 'normal';
+      window.hudFrame.snapshot.floor = 9;
+      window.hudFrame.snapshot.enemies = [];
+      window.hud.update(window.hudFrame, { renderProgress: { state: 'current', lastSubmitted: { tick: 220 } } });
+    });
+    await expect(page.locator('#guardian-readout')).toBeHidden();
+    await expect(page.locator('[data-testid="floor"]')).toHaveText('9');
+  });
+}

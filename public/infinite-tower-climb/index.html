@@ -14,18 +14,18 @@
   <header class="top" data-testid="hud">
     <div class="primary-metrics" aria-label="Expedition progress">
       <article class="floor-metric"><span class="metric-label">FLOOR</span><strong data-testid="floor">—</strong><div class="floor-track" id="floor-meter" role="progressbar" aria-label="Floor progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="floor-progress"></i></div></article>
-      <article class="height-metric" aria-label="Peak height"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20V4m-6 6 6-6 6 6"/></svg><strong data-testid="height">—</strong></article>
+      <article class="height-metric" aria-label="Peak height"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20V4m-6 6 6-6 6 6"/></svg><div class="height-reading"><span class="altitude-label" aria-hidden="true">PEAK HEIGHT</span><strong data-testid="height">—</strong></div></article>
     </div>
   </header>
   <aside class="side" data-testid="side-panel" aria-label="Climber status">
     <section class="vital-panel">
-      <div class="bar-row"><svg class="vital-icon health-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 5.5a5 5 0 0 0-7 0L12 7l-1.5-1.5a5 5 0 0 0-7 7L12 21l8.5-8.5a5 5 0 0 0 0-7Z"/></svg><div class="bar" id="health-meter" role="meter" aria-label="Health" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0"><i id="health-bar"></i></div><output data-testid="health" aria-label="Health">—</output></div>
-      <div class="bar-row"><svg class="vital-icon stamina-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 9-13h-6l1-7Z"/></svg><div class="bar stamina" id="stamina-meter" role="meter" aria-label="Stamina" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="stamina-bar"></i></div><output data-testid="stamina" aria-label="Stamina">—</output></div>
+      <div class="bar-row"><svg class="vital-icon health-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 5.5a5 5 0 0 0-7 0L12 7l-1.5-1.5a5 5 0 0 0-7 7L12 21l8.5-8.5a5 5 0 0 0 0-7Z"/></svg><span class="vital-label" aria-hidden="true">Health</span><div class="bar" id="health-meter" role="meter" aria-label="Health" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0"><i id="health-bar"></i></div><output data-testid="health" aria-label="Health">—</output></div>
+      <div class="bar-row"><svg class="vital-icon stamina-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 9-13h-6l1-7Z"/></svg><span class="vital-label" aria-hidden="true">Stamina</span><div class="bar stamina" id="stamina-meter" role="meter" aria-label="Stamina" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="stamina-bar"></i></div><output data-testid="stamina" aria-label="Stamina">—</output></div>
       <div class="shield-row" id="shield-row" hidden><svg class="vital-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 3v6c0 4-5 7-8 9-3-2-8-5-8-9V6l8-3Z"/></svg><b data-testid="shields" aria-label="Shield charges">—</b></div>
     </section>
   </aside>
   <aside class="expedition-state" aria-label="Expedition alerts">
-    <div class="phase-alert" id="phase-alert" hidden aria-live="polite"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 10 18H2L12 3Zm0 6v5m0 3v1"/></svg><span id="phase-alert-text"></span></div>
+    <div class="phase-alert" id="phase-alert" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 10 18H2L12 3Zm0 6v5m0 3v1"/></svg><span id="phase-alert-text" aria-live="polite" aria-atomic="true"></span><div id="guardian-readout" class="guardian-readout" hidden><div class="guardian-readout-heading"><span id="guardian-tell"></span><output id="guardian-health-text" aria-label="Guardian health">—</output></div><div class="guardian-meter" id="guardian-meter" role="meter" aria-label="Guardian health" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0"><i id="guardian-health-bar"></i></div></div></div>
     <p id="provider-state" role="status" hidden></p>
     <section class="recovery-card" id="recovery-card" hidden role="status" aria-live="polite" aria-atomic="true"><svg class="recovery-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 10 18H2L12 3Zm0 6v5m0 3v1"/></svg><div><p id="recovery-message">Connecting</p><span id="recovery-hint">Waiting for game state</span></div><button type="button" id="recovery-quality" hidden title="Use low graphics quality" data-tooltip="Use low graphics quality">Low quality</button></section>
   </aside>

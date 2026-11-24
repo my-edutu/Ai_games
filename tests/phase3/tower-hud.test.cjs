@@ -263,3 +263,36 @@ test('a result-looking scene cannot impersonate a source-confirmed terminal', t 
   hud.update(frame('result', { lifecycle: 'result', result: outcome }), currentView);
   assert.equal(node('result-card').hidden, false, 'a real matching result is still readable');
 });
+
+test('guardian HUD uses only the current source encounter, exact health and combat tell', t => {
+  const { hud, node } = harness(); t.after(() => hud.dispose());
+  const boss = { id: 'f8:guardian', kind: 'guardian', active: true, health: 3, maxHealth: 6, telegraph: true };
+  hud.update(frame('guardian', { enemies: [boss] }), currentView);
+  assert.equal(node('guardian-readout').hidden, false);
+  assert.equal(node('guardian-tell').textContent, 'Wind-up');
+  assert.equal(node('guardian-health-text').textContent, '3/6');
+  assert.equal(node('guardian-health-bar').style.width, '50%');
+  assert.equal(node('guardian-meter').getAttribute('aria-valuenow'), '3');
+  assert.equal(node('guardian-meter').getAttribute('aria-valuemax'), '6');
+  hud.update(frame('guardian', { enemies: [{ ...boss, staggerTicksRemaining: 3 }] }), currentView);
+  assert.equal(node('guardian-tell').textContent, 'Staggered');
+  hud.update(frame('guardian', { enemies: [{ ...boss, active: false, health: 0 }] }), currentView);
+  assert.equal(node('guardian-tell').textContent, 'Defeated');
+  assert.equal(node('guardian-health-bar').style.width, '0%');
+  hud.update(frame('normal', { runToken: 'new-run', enemies: [] }), currentView);
+  assert.equal(node('guardian-readout').hidden, true);
+  assert.equal(node('guardian-health-text').textContent, '—');
+});
+test('guardian HUD hides stale, ambiguous and malformed combat evidence', t => {
+  const { hud, node } = harness(); t.after(() => hud.dispose());
+  const boss = { kind: 'guardian', active: true, health: 3, maxHealth: 6 };
+  hud.update(frame('guardian', { enemies: [boss] }), currentView);
+  hud.update(frame('recovery', { enemies: [boss] }), { ...delayedView, sourceScene: 'guardian', recoveryKind: 'connection' });
+  assert.equal(node('guardian-readout').hidden, true);
+  assert.equal(node('phase-alert-text').textContent, 'Last known: Guardian');
+  for (const enemies of [[], [boss, boss], [{ ...boss, health: 7 }], [{ ...boss, health: 0 }], [{ ...boss, active: false }]]) {
+    hud.update(frame('guardian', { enemies }), currentView);
+    assert.equal(node('guardian-readout').hidden, true);
+    assert.equal(node('guardian-health-text').textContent, '—');
+  }
+});
