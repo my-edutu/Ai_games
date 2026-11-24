@@ -48,8 +48,8 @@
     "PLAYS": "0/5"
   },
   "supportedDeviceFrameTimeAndMemory": "NOT EVALUATED",
-  "largestRemainingExperienceGap": "Physically vetoed final camera smoothing still produces a 7.0524m same-source-tick portrait cut; original gateway-to-raised destination native continuity not accepted.",
-  "nextAction": "Verify exact-source quality and new capture, then check intermediate acceptance, same-tick veto, render costs and continuous gateway/roof/raised destination in both viewports. If still blocked, implement source-aware occlusion avoidance instead of more fractions.",
+  "largestRemainingExperienceGap": "The latest camera fallback yielded zero partial intermediate acceptances across 86 camera decision rows. The largest desktop discontinuities are outside its retired-gateway eligibility: 10.4891m (521→533), 7.0428m (555→568), 6.9247m (570→576), all with the original owner still present; portrait maximum 3.8675m but physical vetoes increased to five. In portrait upper ascent the actual deck underside obscures the climber and destination in sampled original frames. Native strict alignment still 0/2.",
+  "nextAction": "Replace the retained-versus-retired split with one source-earned continuity owner using the actual original-room lease and current route geometry, including a prospective safe shot before the next ascent. Investigate skipped source ticks/render returns together with shot constraints; test the recorded three retained-owner cases and the retired physical-veto case in integrated Scene, not another interpolation fraction. Preserve original gate/deck physical checks, then capture identical full scenarios.",
   "safety": {
     "draftPR68": true,
     "baselineLedgerUnchanged": true,
@@ -717,5 +717,151 @@
     "device": "NOT EVALUATED",
     "verdict": "NOT EVALUATED",
     "next": "Verify exact-source quality and new capture, then check intermediate acceptance, same-tick veto, render costs and continuous gateway/roof/raised destination in both viewports. If still blocked, implement source-aware occlusion avoidance instead of more fractions."
+  },
+  "latestIntermediateCameraNativeAudit": {
+    "stage": "P0 OPEN",
+    "assessedSourceSha": "800205b033fa3c44e27701a6e311b49c7617d855",
+    "captureRun": "https://github.com/my-edutu/Ai_games/actions/runs/45298709654",
+    "candidateDangerArtifact": 14877528222,
+    "qualityExactGameplayRun": {
+      "id": 45298709599,
+      "conclusion": "cancelled before jobs"
+    },
+    "qualityEquivalentSource": {
+      "sha": "74951eed6d2117e7de29ea0350237422ab80305b",
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/45298805051",
+      "result": "10/10 success; GitHub compare from gameplay SHA lists only this evidence JSON; current HEAD adds only technical review"
+    },
+    "recordingAndLedgeJobs": "9/9 success; tenth strict pairing job failed",
+    "pairedSourceTimelines": 8,
+    "sourceIntegrityDefects": 0,
+    "strictNativeViewports": 0,
+    "originalFilms": {
+      "desktop": {
+        "durationSeconds": 72.6,
+        "sha256": "eacf793e35c838b5dfd0643f590fd039b26e53f6f5cf0efd5e2350ac826b67cc",
+        "hashVerified": true,
+        "rows": 40,
+        "decisionRows": 39,
+        "accepted": 6,
+        "partial": 0,
+        "physicalVeto": 2,
+        "maxCameraMetres": 10.4891,
+        "sourceSearchToDrawnHudSeconds": 2.347
+      },
+      "portrait": {
+        "durationSeconds": 72.76,
+        "sha256": "a31759555035d3ba0c364ca7d8b88ce1f140ae7873f03801f8f1630e2cfc46c8",
+        "hashVerified": true,
+        "rows": 48,
+        "decisionRows": 47,
+        "accepted": 1,
+        "partial": 0,
+        "physicalVeto": 5,
+        "maxCameraMetres": 3.8675,
+        "sourceSearchToDrawnHudSeconds": 1.738,
+        "hudToPaletteSeconds": 2.5
+      }
+    },
+    "recordedDesktopCases": [
+      {
+        "ticks": [
+          521,
+          533
+        ],
+        "retainedOriginalOwner": true,
+        "stage": "fading-remote-arrival",
+        "returnGapMs": 337.8,
+        "heroMetres": 7.7038,
+        "cameraMetres": 10.4891,
+        "previousCamera": [
+          14.9696,
+          7.8005,
+          43.7898
+        ],
+        "returnedCamera": [
+          17.8762,
+          17.5226,
+          41.1341
+        ],
+        "outcome": "no-proposal"
+      },
+      {
+        "ticks": [
+          555,
+          568
+        ],
+        "retainedOriginalOwner": true,
+        "stage": "complete",
+        "returnGapMs": 176.8,
+        "heroMetres": 4.5787,
+        "cameraMetres": 7.0428,
+        "previousCamera": [
+          17.4379,
+          15.8231,
+          40.3537
+        ],
+        "returnedCamera": [
+          11.1265,
+          17.4606,
+          43.0156
+        ],
+        "outcome": "no-proposal"
+      },
+      {
+        "ticks": [
+          570,
+          576
+        ],
+        "retainedOriginalOwner": true,
+        "stage": "complete",
+        "returnGapMs": 315.7,
+        "heroMetres": 7.616,
+        "cameraMetres": 6.9247,
+        "previousCamera": [
+          10.0346,
+          17.7936,
+          43.3701
+        ],
+        "returnedCamera": [
+          13.5874,
+          23.6587,
+          42.4063
+        ],
+        "outcome": "no-proposal"
+      },
+      {
+        "ticks": [
+          592,
+          594
+        ],
+        "retainedOriginalOwner": false,
+        "returnGapMs": 143.7,
+        "heroMetres": 1.5787,
+        "cameraMetres": 6.034,
+        "previousCamera": [
+          0.9424,
+          23.6802,
+          45.2427
+        ],
+        "returnedCamera": [
+          -4.8786,
+          25.2549,
+          45.0296
+        ],
+        "outcome": "no-proposal:post-gateway-envelope-veto:physical"
+      }
+    ],
+    "inspection": "Local ffprobe and SHA256 against original artifact, 2Hz native frames 24–34 seconds, all 88 returned room rows (86 decisions). No continuous playback or hardware benchmark; return gaps are not GPU FPS or exact native frame timestamps.",
+    "sourceInspection": "scene.mjs final arbitration calls sourcePostGatewayCameraEnvelope only with retiredGatewayCameraReceipt; retained original-owner frames are outside this policy. post-gateway-camera-envelope.mjs verifies source receipt and last render. Do not remove receipt or physical safety checks.",
+    "workspace": "Tunnel-client not seen for 300 seconds; no local integrated game test or gameplay edit in this run.",
+    "independentReviewCounts": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "device": "NOT EVALUATED",
+    "verdict": "NOT EVALUATED",
+    "next": "Replace the retained-versus-retired split with one source-earned continuity owner using the actual original-room lease and current route geometry, including a prospective safe shot before the next ascent. Investigate skipped source ticks/render returns together with shot constraints; test the recorded three retained-owner cases and the retired physical-veto case in integrated Scene, not another interpolation fraction. Preserve original gate/deck physical checks, then capture identical full scenarios."
   }
 }
