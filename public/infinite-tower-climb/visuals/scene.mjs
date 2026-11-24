@@ -7167,6 +7167,9 @@ export function createTowerScene(canvas, settings = {}) {
     const gate=threshold?guardianTraversalGatePose(threshold.thresholdX,
       threshold.roofY,snapshot.chunkBaseY,snapshot.worldWidth):null;
     const gateWorld=gate?{x:gate.x,y:gate.y+2,z:gate.z}:null;
+    // The rig group is located at the sole (p.y - p.halfHeight).
+    // The shared endpoint helper converts that origin to production body
+    // coordinates. Do not compare a mislabeled low ray to a camera veto.
     const endpoints=threshold && gateWorld
       ?actualOriginalDoorwaySightlineEndpoints(camera.position,
         climber.group.position,snapshot.player.halfHeight/SCALE,
@@ -7249,7 +7252,8 @@ export function createTowerScene(canvas, settings = {}) {
         lastSubmittedGuardian.runToken===snapshot.runToken &&
         lastSubmittedGuardian.floor===snapshot.floor
           ?lastSubmittedGuardian.tick:null,
-      source:'opt-in actual-body-and-gate bounded current-Three-mesh raycasts',
+      bodyProbeOrigin:'rendered-sole-plus-source-half-height; five production-veto body endpoints',
+      source:'opt-in source-sized body-and-gate bounded current-Three-mesh raycasts',
       limitation:'Diagnostic read happens after the last returned frame and may sample later source state. Ray contact is NOT WebM pixels, true video timestamp, gameplay change or a preference'};
     ownerAuditRetained.push(witness);
     if(ownerAuditRetained.length>8) ownerAuditRetained.shift();

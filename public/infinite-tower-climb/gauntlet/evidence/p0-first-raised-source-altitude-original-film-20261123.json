@@ -1124,5 +1124,62 @@
     },
     "device": "NOT EVALUATED",
     "leadingVerdict": "NOT EVALUATED"
+  },
+  "sourceCoordinateEvidenceCorrection20261124": {
+    "stage": "P0 OPEN",
+    "inspectedHead": "67117d7460463c91cfb7d6cf7b43f9bf68e6a8a2",
+    "latestGameplaySha": "1cf2f88135266838c5e3dc3a795217805ee80833",
+    "previousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45313323098",
+    "sourceFinding": "Scene actorTarget uses p.y - p.halfHeight; the opt-in owner observer passed rendered sole into a helper that assumed centre, mislabeling its centre, helmet, shoulders and sole. Prior observer hits cannot be compared directly with production candidate ray veto. The corrected diagnostic uses the same five shared body endpoints as measureAuthoritativeDeckSightline, preserving seven total observer rays and explicitly declaring the coordinate convention. This fixes evidence attribution, not rendered gameplay.",
+    "test": {
+      "red": "ray real-body-centre wrong: 0,4,0",
+      "green": [
+        [
+          0,
+          6,
+          0
+        ],
+        [
+          0,
+          7.52,
+          0
+        ],
+        [
+          0.85,
+          6.96,
+          0
+        ],
+        [
+          -0.85,
+          6.96,
+          0
+        ],
+        [
+          0,
+          4,
+          0
+        ],
+        [
+          8,
+          5,
+          12
+        ],
+        [
+          8,
+          6.2,
+          12
+        ]
+      ],
+      "method": "Executed exact fetched pure helper before and after with synthetic world coordinates; Node test added, not run in full repository."
+    },
+    "capture": "Previous original 0cd84c94 videos reverified 72.16/72.72s and SHA256s; portrait sampled frames inspected, not continuous playback. No new exact-source CI/capture returned by connector (workflow lookup only covers PR-triggered runs); latest source footage unavailable. Scene source changed to request new native capture via existing push path, execution not confirmed.",
+    "blocker": "Workspace tunnel not seen for 300 seconds; container cannot resolve github.com. No playable fix claimed; exact-head CI, capture, supported hardware and independent reviewers NOT EVALUATED.",
+    "reviews": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "next": "Obtain exact-source native evidence for optical preparation with corrected source-sized owner probes. Compare current and returned camera/source timestamps; do not infer exact raster occlusion or an accepted shot from an asynchronous observer. Address prospective physical corridor only after establishing actual remaining obstruction.",
+    "leadingVerdict": "NOT EVALUATED"
   }
 }

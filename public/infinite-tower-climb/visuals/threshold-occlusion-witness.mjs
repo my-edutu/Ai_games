@@ -49,8 +49,10 @@ export function observedOriginalDoorwayOcclusionWindow(source,retained=null){
     sourceTick:provenRecorded?w.sourceTick:retained.sourceTick,
     thresholdX:retained.thresholdX,roofY:retained.oldRoofY};
 }
-// All endpoints belong to the actual skinned actor, its source half-size,
-// and the original opened gateway. No predicted landing or duplicate actor.
+// Scene's climber.group.position is the rendered sole, not the body centre.
+// Match the five overlapping production deck-veto samples exactly, so the
+// opt-in diagnostic cannot label a torso-level ray as a helmet interception.
+// These are source-sized silhouette probes, not mesh-bone measurements.
 export function actualOriginalDoorwaySightlineEndpoints(camera,actor,halfHeight,
     halfWidth,gate){
   if(!camera||!actor||!gate||
@@ -60,14 +62,15 @@ export function actualOriginalDoorwaySightlineEndpoints(camera,actor,halfHeight,
   const dx=actor.x-camera.x,dz=actor.z-camera.z;
   const length=Math.hypot(dx,dz);
   if(length<.1)return [];
-  const lateral=Math.min(halfWidth*.82,halfHeight*.65);
+  const centreY=actor.y+halfHeight;
+  const lateral=Math.min(halfWidth*.85,halfHeight*.72);
   const rightX=dz/length*lateral,rightZ=-dx/length*lateral;
   return [
-    {kind:'real-body-centre',point:[actor.x,actor.y,actor.z]},
-    {kind:'real-body-helmet',point:[actor.x,actor.y+halfHeight*.82,actor.z]},
-    {kind:'real-left-shoulder',point:[actor.x-rightX,actor.y+halfHeight*.52,actor.z-rightZ]},
-    {kind:'real-right-shoulder',point:[actor.x+rightX,actor.y+halfHeight*.52,actor.z+rightZ]},
-    {kind:'real-body-sole',point:[actor.x,actor.y-halfHeight*.82,actor.z]},
+    {kind:'real-body-centre',point:[actor.x,centreY,actor.z]},
+    {kind:'real-body-helmet',point:[actor.x,centreY+halfHeight*.76,actor.z]},
+    {kind:'real-left-shoulder',point:[actor.x-rightX,centreY+halfHeight*.48,actor.z-rightZ]},
+    {kind:'real-right-shoulder',point:[actor.x+rightX,centreY+halfHeight*.48,actor.z+rightZ]},
+    {kind:'real-body-sole',point:[actor.x,actor.y,actor.z]},
     {kind:'original-gate-centre',point:[gate.x,gate.y,gate.z]},
     {kind:'original-gate-lip',point:[gate.x,gate.y+1.2,gate.z]}
   ];

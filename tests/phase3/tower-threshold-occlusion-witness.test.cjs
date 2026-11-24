@@ -43,3 +43,11 @@ test('seven physical ray endpoints retain true body width and original gate with
  assert.deepEqual(pts[5].point,[8,5,12]);
  assert.deepEqual(ends({x:0,y:0,z:0},{x:0,y:0,z:0},2,1,{x:1,y:1,z:1}),[]);
 });
+
+test('rendered sole anchor yields the same centre, helmet, shoulders and sole as production deck veto',async()=>{
+ const {actualOriginalDoorwaySightlineEndpoints:ends}=await load();
+ const pts=ends({x:0,y:1,z:10},{x:0,y:4,z:0},2,1,{x:8,y:5,z:12});
+ const expected=[[0,6,0],[0,7.52,0],[.85,6.96,0],[-.85,6.96,0],[0,4,0],[8,5,12],[8,6.2,12]];
+ for(let i=0;i<expected.length;i++) for(let j=0;j<3;j++)
+   assert.ok(Math.abs(pts[i].point[j]-expected[i][j])<1e-9,pts[i].kind);
+});
