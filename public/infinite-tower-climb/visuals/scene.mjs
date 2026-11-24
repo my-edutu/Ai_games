@@ -2561,6 +2561,7 @@ export function createTowerScene(canvas, settings = {}) {
   const previousWorldPos = new THREE.Vector3();
   let guardianWorldProbePosition = camera.position;
   let worldGuardianLanding = null;
+  const guardianWorldLandingPoint = new THREE.Vector3();
   let guardianWorldTargetAngle = null, guardianWorldTargetY=null, guardianWorldLastTick = -Infinity;
   let guardianWorldLastEpisode = null;
   let guardianWorldOcclusionSamples = 0, guardianWorldOcclusionImprovements = 0;
@@ -5606,6 +5607,19 @@ export function createTowerScene(canvas, settings = {}) {
       };
       firstF9TraceSamples++;
     }
+    // Hand off only this update's source-owned combat context to the final
+    // submit stage. update() locals are not visible inside animate(). No
+    // retained context can leak into a later frame, run, or inactive shot.
+    if (!worldRayActive) return null;
+    let landing=null;
+    if(airborneDuelLanding){
+      // Compute in BOTH viewports, independently of portrait-only directors.
+      const point=pointFor(observedSourceLandingX(snapshot,targetPlatform),
+        targetPlatform.y+targetPlatform.height,snapshot.chunkBaseY,snapshot.worldWidth,26.7);
+      landing=guardianWorldLandingPoint.set(point.x,point.y,point.z);
+    }
+    return {halfHero:p.halfHeight/SCALE,halfBoss:sourceGuardian.halfHeight/SCALE,
+      currentGuardianDrawPoint,landing,cameraDt};
   }
 
   function clearTowerRenderFault() {
@@ -5643,7 +5657,7 @@ export function createTowerScene(canvas, settings = {}) {
       // Split the actual first frame at the CPU scene-build / WebGL-return
       // boundary, instead of guessing that HTTP, camera or GPU is responsible.
       const submissionStart = performance.now();
-      update(motionDt);
+      const guardianWorldFrame = update(motionDt);
       // The genuine Floor8->9 guardian exit is already verified by the live
       // passage owner. A cold THREE framebuffer can now be bounded *before*
       // the expensive first post-doorway render, not after an HTTP receipt.
@@ -6665,11 +6679,11 @@ export function createTowerScene(canvas, settings = {}) {
       // the old portrait-only stage. Every actual intermediate pose is
       // independently checked against the current triangles of both actors.
       // Do not modify gateway material, collision, health or simulation.
-      if(worldRayActive){
+      if(guardianWorldFrame){
+        const {halfHero,halfBoss,currentGuardianDrawPoint,landing,cameraDt}=guardianWorldFrame;
         actorFramePoint.copy(climber.group.position);
-        actorFramePoint.y+=p.halfHeight/SCALE;
-        worldGuardianLanding=airborneDuelLanding?portraitAimLanding:null;
-        const halfHero=p.halfHeight/SCALE,halfBoss=sourceGuardian.halfHeight/SCALE;
+        actorFramePoint.y+=halfHero;
+        worldGuardianLanding=landing;
         const radius=Math.hypot(camera.position.x,camera.position.z);
         const currentAngle=Math.atan2(camera.position.x,camera.position.z);
         const sampleDue=snapshot.tick>=guardianWorldLastTick+10;
