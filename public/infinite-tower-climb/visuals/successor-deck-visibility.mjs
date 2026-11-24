@@ -65,12 +65,15 @@ export function measureAuthoritativeDeckSightline({
         !Array.isArray(architectureRoots)||architectureRoots.length>2)
       :(held?.guardianGateRetained!==true || held.floor!==9 ||
         held.runToken!==source.runToken || !integer(held.sourceTick) ||
-        !(observedSourceOriginalVisibilityWindow(source,held)||
-          (validRetainedTraversalCameraReceipt(source,retainedReceipt)&&
-           held.verifiedObservedFloorAdvance===true&&held.sourceAlignedPassage===true&&
-           held.oldCapId===retainedReceipt.oldCapId&&held.crossingTick===retainedReceipt.crossingTick&&
-           held.lastReturnedOldGatewayTick===retainedReceipt.returnedTick&&
-           held.originalGateRoot===originalGateRoot&&held.originalGateRoot?.parent===held.root)))) ||
+        !(retainedReceipt!==null
+          ?(validRetainedTraversalCameraReceipt(source,retainedReceipt)&&
+            held.verifiedObservedFloorAdvance===true&&held.oldCapId===retainedReceipt.oldCapId&&
+            held.crossingTick===retainedReceipt.crossingTick&&held.oldCapX===retainedReceipt.oldCapX&&
+            held.oldCapWidth===retainedReceipt.oldCapWidth&&held.oldRoofY===retainedReceipt.oldRoofY&&
+            held.thresholdX===retainedReceipt.thresholdX&&
+            held.lastReturnedOldGatewayTick===retainedReceipt.returnedTick&&
+            held.originalGateRoot===originalGateRoot&&held.originalGateRoot?.parent===held.root)
+          :observedSourceOriginalVisibilityWindow(source,held)))) ||
     !valid3(camera) || !valid3(body) ||
     !finite(bodyHalfHeight) || bodyHalfHeight<=0 ||
     !Array.isArray(platformRoots) || !platformRoots.length ||

@@ -48,19 +48,23 @@ export function sourcePostGatewayCameraEnvelope({source,receipt,lastRendered,pre
  * Only its actual returned HP-zero crossing and exact original cap can authorize
  * this presentation path. No source prediction or new collision is created. */
 export function validRetainedTraversalCameraReceipt(source,receipt){
-  const w=source?.lastGuardianCrossing, cap=w?.cap;
-  const ground=source?.platforms?.find(p=>p?.id==='f9:ground');
+  const w=source?.lastGuardianCrossing??receipt?.crossingProof, cap=w?.cap;
+  const ground=Array.isArray(source?.platforms)?source.platforms.find(p=>p?.id==='f9:ground'):null;
+  const p=source?.player;
   return receipt?.owner==='retained' &&
     source?.floor===9&&source.theme==='void'&&source.lifecycle==='running'&&
     source.player?.health>0&&typeof source.runToken==='string'&&!!source.runToken&&
     receipt.runToken===source.runToken&&receipt.oldCapId==='f8:cap'&&
     [source.tick,receipt.crossingTick,receipt.returnedTick,receipt.thresholdX,
-      receipt.oldRoofY,w?.sourceTick,w?.exitX,w?.crossingX,cap?.x,cap?.y,
-      cap?.width,cap?.height,ground?.y,ground?.height].every(Number.isSafeInteger)&&
+      receipt.oldRoofY,receipt.oldCapX,receipt.oldCapWidth,w?.sourceTick,w?.exitX,w?.crossingX,
+      w?.halfWidth,w?.halfHeight,p?.halfWidth,p?.halfHeight,cap?.x,cap?.y,
+      cap?.width,cap?.height,ground?.x,ground?.width,ground?.y,ground?.height].every(Number.isSafeInteger)&&
     w.runToken===source.runToken&&w.fromFloor===8&&w.toFloor===9&&
     w.sourceTick===receipt.crossingTick&&w.guardian?.kind==='guardian'&&
     w.guardian.active===false&&Number.isFinite(w.guardian.health)&&w.guardian.health<=0&&
-    cap.id==='f8:cap'&&cap.width>0&&cap.height>0&&ground.height>0&&
+    cap.id==='f8:cap'&&cap.x===receipt.oldCapX&&cap.width===receipt.oldCapWidth&&
+    cap.width>0&&cap.height>0&&ground.width>0&&ground.height>0&&
+    p.halfWidth>0&&p.halfHeight>0&&w.halfWidth===p.halfWidth&&w.halfHeight===p.halfHeight&&
     cap.y+cap.height===receipt.oldRoofY&&ground.y+ground.height===receipt.oldRoofY&&
     w.exitX===receipt.thresholdX&&w.exitX===cap.x+Math.floor(cap.width*.76)&&
     w.crossingX>=w.exitX&&w.crossingX<=w.exitX+60000&&

@@ -3519,20 +3519,28 @@ export function createTowerWorld(){
     return retainedEarnedCap===null&&source===lastSnapshot&&
       validRetiredGatewayCameraReceipt(source,retiredGatewayReceipt)?retiredGatewayReceipt:null;
   }
-  function traversalCameraReceipt(source){
-    if(source!==lastSnapshot)return null;
-    const held=retainedEarnedCap;
-    if(!held)return retiredGatewayCameraReceipt(source);
-    if(held.floor!==9||held.guardianGateRetained!==true||
-       held.verifiedObservedFloorAdvance!==true||held.sourceAlignedPassage!==true||
+  function retainedTraversalReceipt(source,held){
+    if(source!==lastSnapshot||!held||held!==retainedEarnedCap||
+       held.floor!==9||held.guardianGateRetained!==true||
+       held.verifiedObservedFloorAdvance!==true||
        held.root?.parent!==group||held.root.visible!==true||
        held.originalGateRoot?.parent!==held.root||
        !(held.submittedFrames>0))return null;
+    // The old material cue can expire before the original geometry owner.
+    // Authorization is the exact returned crossing and attached original
+    // roots, NOT a short-lived decorative opacity or passage-animation flag.
     const receipt=Object.freeze({owner:'retained',runToken:held.runToken,
       oldCapId:held.oldCapId,crossingTick:held.crossingTick,
       returnedTick:held.lastReturnedOldGatewayTick,thresholdX:held.thresholdX,
-      oldRoofY:held.oldRoofY,gateVisible:!!sourceEarnedOriginalGateGeometry(source)});
+      oldRoofY:held.oldRoofY,oldCapX:held.oldCapX,oldCapWidth:held.oldCapWidth,
+      crossingProof:held.traversalCameraCrossingProof??null,
+      gateVisible:held.originalGatewayOpacity>.035&&held.originalGateRoot.visible!==false});
     return validRetainedTraversalCameraReceipt(source,receipt)?receipt:null;
+  }
+  function traversalCameraReceipt(source){
+    if(source!==lastSnapshot)return null;
+    return retainedEarnedCap?retainedTraversalReceipt(source,retainedEarnedCap)
+      :retiredGatewayCameraReceipt(source);
   }
   let historicalGallerySightline={active:false,meshes:0,rays:0,softened:0};
   // Preassemble ONLY the source-original static Clockwork bearing gallery
@@ -5002,6 +5010,20 @@ export function createTowerWorld(){
       held.lastReturnedOriginalGalleryOpacity=Math.max(0,
         Math.min(1,held.originalGallerySourceOpacity));
       held.lastReturnedOldGatewayTick=snapshot.tick;
+      // Only after this original owner actually returned from WebGL can an
+      // exact live HP-zero record become historical camera provenance.
+      // A conflicting live record always wins validation and vetoes reuse.
+      const crossing=snapshot.lastGuardianCrossing;
+      if(crossing&&retainedTraversalReceipt(snapshot,held)){
+        const cap=crossing.cap,g=crossing.guardian;
+        held.traversalCameraCrossingProof=Object.freeze({
+          runToken:crossing.runToken,fromFloor:crossing.fromFloor,toFloor:crossing.toFloor,
+          sourceTick:crossing.sourceTick,exitX:crossing.exitX,crossingX:crossing.crossingX,
+          halfWidth:crossing.halfWidth,halfHeight:crossing.halfHeight,
+          cap:Object.freeze({id:cap.id,x:cap.x,y:cap.y,width:cap.width,height:cap.height}),
+          guardian:Object.freeze({kind:g.kind,active:g.active,health:g.health})
+        });
+      }
       const returnedGatewayStep=sourceReturnedGatewayDisplayDt(
         renderedDt,held.lastCompletedReturnMs,completedReturnMs);
       held.lastCompletedReturnMs=completedReturnMs;
@@ -6055,6 +6077,12 @@ export function createTowerWorld(){
     }
     ranked.sort((a,b)=>a.score-b.score);
     const roots=ranked.slice(0,3).map(candidate=>candidate.root);
+    if(landingPoint){
+      const targetRoot=platforms.get(landingId)?.root;
+      // No anticipation based on a missing or not-yet-attached target mesh.
+      if(!traversal||!targetRoot||targetRoot.parent!==floorGroup||
+         targetRoot.visible===false||!roots.includes(targetRoot))return null;
+    }
     // The previous camera fixed real successor-deck and old-gate obstruction,
     // yet the first returned Void buttress and later REAL monumental shaft
     // could still conceal the skinned hero or opened gate in portrait. Sample

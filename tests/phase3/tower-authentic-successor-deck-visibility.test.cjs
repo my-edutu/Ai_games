@@ -572,3 +572,61 @@ test('post-retirement source receipt preserves physical deck veto without resurr
     assert.equal(JSON.stringify([f.source,receipt]),unchanged);
   }finally{f.geometry.dispose();f.material.dispose();}
 });
+
+
+test('actual route destination ray vetoes an occluded landing independently of a visible body, after the genuine gateway is retired',async()=>{
+  const THREE=await three;
+  const {measureAuthoritativeDeckSightline}=await loaded;
+  const f=fixture(THREE);f.measure=measureAuthoritativeDeckSightline;
+  f.source.tick=582;
+  const receipt={runToken:f.source.runToken,oldCapId:'f8:cap',crossingTick:475,returnedTick:520};
+  const target=new THREE.Vector3(0,2,0);
+  const extra={held:null,gate:null,retiredReceipt:receipt,landingPoint:target};
+  try{
+    const blocked=sample(f,[0,2,6],[10,2,0],extra);
+    assert.equal(blocked.active,true);
+    assert.equal(blocked.rays,8,'seven body samples plus one independently classified landing');
+    assert.equal(blocked.bodyBlockedRays,0);
+    assert.equal(blocked.gatewayBlockedRays,0);
+    assert.equal(blocked.landingBlockedRays,1,'visible hero alone cannot certify next landing');
+    f.roof.children[0].position.x=-100;
+    const clear=sample(f,[0,2,6],[10,2,0],extra);
+    assert.equal(clear.landingBlockedRays,0);
+    assert.equal(clear.bodyBlockedRays,0);
+    assert.equal(sample(f,[0,2,6],[10,2,0],{...extra,landingPoint:new THREE.Vector3(NaN,2,0)}),null);
+  }finally{f.geometry.dispose();f.material.dispose();}
+});
+
+test('late retained camera receipt still checks the original attached gate and rejects expired or conflicting source proof',async()=>{
+  const THREE=await three;
+  const {measureAuthoritativeDeckSightline}=await loaded;
+  const f=fixture(THREE);f.measure=measureAuthoritativeDeckSightline;
+  const cap={id:'f8:cap',x:0,y:100,width:100,height:20};
+  f.source.tick=582;
+  f.source.platforms=[{id:'f9:ground',x:0,width:200,y:100,height:20}];
+  f.source.lastGuardianCrossing=null;
+  const crossing={runToken:f.source.runToken,fromFloor:8,toFloor:9,sourceTick:475,
+    exitX:76,crossingX:78,halfWidth:f.source.player.halfWidth,halfHeight:f.source.player.halfHeight,
+    cap,guardian:{kind:'guardian',active:false,health:0}};
+  const receipt={owner:'retained',runToken:f.source.runToken,oldCapId:cap.id,
+    crossingTick:475,returnedTick:580,thresholdX:76,oldRoofY:120,oldCapX:0,oldCapWidth:100,crossingProof:crossing};
+  const owner=new THREE.Group(),gate=new THREE.Group();
+  owner.add(gate);
+  Object.assign(f.held,{oldCapId:cap.id,oldCapX:0,oldCapWidth:100,oldRoofY:120,thresholdX:76,
+    crossingTick:475,lastReturnedOldGatewayTick:580,verifiedObservedFloorAdvance:true,root:owner,originalGateRoot:gate});
+  const beam=new THREE.Mesh(new THREE.BoxGeometry(2.5,4,1.2),f.material);
+  beam.position.set(0,2,2.4);gate.add(beam);
+  f.roof.children[0].position.x=100;
+  const extra={retainedReceipt:receipt,originalGateRoot:gate,gate:null};
+  try{
+    const blocked=sample(f,[0,2,6],[0,2,0],extra);
+    assert.equal(blocked.active,true);
+    assert.ok(blocked.bodyBlockedRays>0);
+    assert.ok(blocked.originalGateBlockedRays>0,'original retained gate remains a real obstruction');
+    assert.equal(sample(f,[0,2,6],[0,2,0],{...extra,retainedReceipt:{...receipt,returnedTick:581}}),null);
+    assert.equal(sample(f,[0,2,6],[0,2,0],{...extra,source:{...f.source,lastGuardianCrossing:{...crossing,guardian:{...crossing.guardian,health:1}}}}),null);
+    assert.equal(sample(f,[0,2,6],[0,2,0],{...extra,originalGateRoot:new THREE.Group()}),null);
+    beam.position.x=-100;
+    assert.equal(sample(f,[0,2,6],[0,2,0],extra).bodyBlockedRays,0);
+  }finally{beam.geometry.dispose();f.geometry.dispose();f.material.dispose();}
+});
