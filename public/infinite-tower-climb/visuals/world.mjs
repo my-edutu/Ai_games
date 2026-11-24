@@ -1556,6 +1556,17 @@ export function createTowerWorld(){
       if(p.originalCapCanopy)batchRigid(p.originalCapCanopy);
       batchRigid(p.root,new Set([p.traveler,p.countergear,p.actuator,
         p.gearVisual,p.originalCapSkirtOwner,p.originalCapCanopy].filter(Boolean)));
+      // Rebind only the submitted deck materials. Overhead architecture,
+      // mounts and guardian gate never participate in deck-alpha decisions.
+      p.capSightlineMeshes=[];
+      if(p.capMaterials.length){
+        const deckMaterials=new Set(p.capMaterials);
+        p.root.traverse(o=>{
+          if(o.isMesh&&(Array.isArray(o.material)
+            ?o.material.some(m=>deckMaterials.has(m))
+            :deckMaterials.has(o.material)))p.capSightlineMeshes.push(o);
+        });
+      }
       // Static batches are the meshes ACTUALLY submitted to WebGL. A
       // previous camera ray queried removed authoring meshes while the
       // visible non-walkable F9 undersides stayed opaque across the hero.
@@ -3336,13 +3347,19 @@ export function createTowerWorld(){
       guardianGate={frame,wings,crest,counterweights,conduit,capstan,
         overhead,tension,tensionPose,spools,spoolPose,progress:null,unlocked:false};
     }
-    let capMaterials = [], capLandingMaterial = null;
+    let capMaterials = [], capLandingMaterial = null, originalCanopyMaterialStages = [];
     if(p.id.endsWith(':cap')){
       // The last route gap is shorter than the guardian's body. A thick
       // decorative box beam buries its face inside a one-way platform. Keep
       // the exact usable top and angular edges, with a thin front plate and
       // the existing supports recessed behind the character corridor.
-      for(const child of root.children)if(child!==mount&&child!==guardianGate?.frame){
+      // The prepainted load path is an INDEPENDENT architectural child of
+      // the cap, not part of its thin walkable slab. Scaling it by .12
+      // lowered the authored 16.4–19.2m crown into the actual combat
+      // silhouette (native source rays at ticks 294/292).
+      const capDeckChildren=root.children.filter(child=>
+        child!==mount&&child!==guardianGate?.frame&&child!==originalCapCanopy);
+      for(const child of capDeckChildren){
         child.position.y=h+(child.position.y-h)*.12;child.scale.y*=.12;
       }
       // A cap may cross the line of sight to its own guardian. Give only its
@@ -3350,7 +3367,7 @@ export function createTowerWorld(){
       // and every collision-aligned vertex untouched. Precompile transparency
       // once so visibility transitions cannot cause per-frame shader churn.
       const owned = new Map();
-      for(const child of root.children)if(child!==mount&&child!==guardianGate?.frame)child.traverse(object=>{
+      for(const child of capDeckChildren)child.traverse(object=>{
         if(!object.isMesh)return;
         const original=object.material;
         if(!owned.has(original)){
@@ -3362,6 +3379,27 @@ export function createTowerWorld(){
         object.material=owned.get(original);
       });
       capMaterials=[...owned.values()];
+      // Do not share the deck's reactive opacity with the actual overhead
+      // frame. Give the same already-authored canopy its own floor-owned
+      // material clones, prepared for the existing room-retirement lease.
+      // It is still one retained tree, with no new gameplay surfaces.
+      if(originalCapCanopy){
+        const canopyOwned=new Map();
+        originalCapCanopy.traverse(object=>{
+          if(!object.isMesh)return;
+          const original=object.material;
+          if(!canopyOwned.has(original)){
+            const material=original.clone();
+            material.name='guardian-source-overhead-bearing';
+            material.transparent=true;material.depthWrite=true;
+            canopyOwned.set(original,{material,baseOpacity:material.opacity,
+              originalTransparent:true,originalDepthWrite:true});
+            floorMaterials.add(material);
+          }
+          object.material=canopyOwned.get(original).material;
+        });
+        originalCanopyMaterialStages=[...canopyOwned.values()];
+      }
       // The cap's sightline shader owns a CLONE of the original landing
       // material. Retain that actual mesh/shader identity for the Floor8->9
       // old-deck transition; matching the generic materials.landing later
@@ -3426,7 +3464,7 @@ export function createTowerWorld(){
     }
     platforms.set(p.id,{root,angle,width:p.width,height:p.height,
       capMaterials,capLandingMaterial,arrivalSurface,sourceOwnedUndercroft,
-      originalCapSkirtOwner,originalCapCanopy,
+      originalCapSkirtOwner,originalCapCanopy,originalCanopyMaterialStages,
       // The actual F9 support has its own original bronze-to-violet materials;
       // shared crystals, danger indicators and future landing platforms do not.
       arrivalPalette:arrivalSurface?arrivalRoutePalette:null,
@@ -3975,6 +4013,7 @@ export function createTowerWorld(){
       originalCapSightlineRoot:root,
       originalCapUndercroft,
       originalCapCanopy:sourceEntry.originalCapCanopy??null,
+      originalCanopyMaterialStages:sourceEntry.originalCanopyMaterialStages??[],
       originalCoreOwner:sourceCoreOwner,
       originalCoreMeshCount:sourceCoreOwner?.meshCount??0,
       originalCoreOpacity:sourceCoreOwner?1:0,
@@ -4432,6 +4471,14 @@ export function createTowerWorld(){
     held.originalCoreOpacity=held.originalCoreOwner &&
       sourceOriginalClockworkCoreOpacity(held.originalCoreOwner,
         originalCorePresence)?originalCorePresence:0;
+    // The original overhead load path belongs to the same earned room as
+    // the historical core. Retire its separately owned materials with that
+    // existing source/returned-frame lease, never with the live cap's
+    // short-range deck occlusion fade or a new independent clock.
+    if(held.originalCapCanopy?.parent===held.originalCapSightlineRoot &&
+       held.originalCanopyMaterialStages?.length)
+      sourceOriginalClockworkCoreOpacity({root:held.originalCapCanopy,
+        materialStages:held.originalCanopyMaterialStages},originalCorePresence);
     // The non-colliding old gallery can be removed early once a real
     // successor bearing returns, without erasing the still-walkable ORIGINAL
     // bronze sill underneath the actually open HP-zero gateway. The native
@@ -6545,7 +6592,8 @@ export function createTowerWorld(){
         if(!Number.isFinite(distance)||distance<=.1)continue;
         canopyRay.set(camera.position,canopyDirection.multiplyScalar(1/distance));
         canopyRay.near=0;canopyRay.far=distance-.05;
-        if(canopyRay.intersectObject(entry.root,true).length){blocked=true;break;}
+        canopyHits.length=0;
+        if(canopyRay.intersectObjects(entry.capSightlineMeshes??[],false,canopyHits).length){blocked=true;break;}
       }
       // The guarded enemy remains behind the physical cap. Only the cap's
       // camera-obstructing pixels soften, preserving the drawn deck/rim as a
