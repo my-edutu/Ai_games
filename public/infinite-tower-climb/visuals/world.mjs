@@ -6054,7 +6054,8 @@ export function createTowerWorld(){
     // real gateway camera ray tests, despite actually rendering in foreground.
     // The original geometry, parent and source opacity must all be certified.
     // Reuse the nine existing silhouette rays; no invented obstacle or actor.
-    const historicalCore=held?held.originalCoreOwner?.root:null;
+    let historicalCore=null;
+    if(held)historicalCore=held.originalCoreOwner?.root;
     if(historicalCore?.isGroup===true &&
        historicalCore.name==='SourceOriginalClockworkCentralCore' &&
        historicalCore.parent===held.root &&
