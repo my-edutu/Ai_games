@@ -5010,20 +5010,6 @@ export function createTowerWorld(){
       held.lastReturnedOriginalGalleryOpacity=Math.max(0,
         Math.min(1,held.originalGallerySourceOpacity));
       held.lastReturnedOldGatewayTick=snapshot.tick;
-      // Only after this original owner actually returned from WebGL can an
-      // exact live HP-zero record become historical camera provenance.
-      // A conflicting live record always wins validation and vetoes reuse.
-      const crossing=snapshot.lastGuardianCrossing;
-      if(crossing&&retainedTraversalReceipt(snapshot,held)){
-        const cap=crossing.cap,g=crossing.guardian;
-        held.traversalCameraCrossingProof=Object.freeze({
-          runToken:crossing.runToken,fromFloor:crossing.fromFloor,toFloor:crossing.toFloor,
-          sourceTick:crossing.sourceTick,exitX:crossing.exitX,crossingX:crossing.crossingX,
-          halfWidth:crossing.halfWidth,halfHeight:crossing.halfHeight,
-          cap:Object.freeze({id:cap.id,x:cap.x,y:cap.y,width:cap.width,height:cap.height}),
-          guardian:Object.freeze({kind:g.kind,active:g.active,health:g.health})
-        });
-      }
       const returnedGatewayStep=sourceReturnedGatewayDisplayDt(
         renderedDt,held.lastCompletedReturnMs,completedReturnMs);
       held.lastCompletedReturnMs=completedReturnMs;
@@ -5042,6 +5028,20 @@ export function createTowerWorld(){
           (held.routeClearanceReturnedSeconds??0)+returnedGatewayStep);
       }
       held.submittedFrames=Math.min(60,held.submittedFrames+1);
+      // Only after this original owner actually returned from WebGL can an
+      // exact live HP-zero record become historical camera provenance.
+      // A conflicting live record always wins validation and vetoes reuse.
+      const crossing=snapshot.lastGuardianCrossing;
+      if(crossing&&retainedTraversalReceipt(snapshot,held)){
+        const cap=crossing.cap,g=crossing.guardian;
+        held.traversalCameraCrossingProof=Object.freeze({
+          runToken:crossing.runToken,fromFloor:crossing.fromFloor,toFloor:crossing.toFloor,
+          sourceTick:crossing.sourceTick,exitX:crossing.exitX,crossingX:crossing.crossingX,
+          halfWidth:crossing.halfWidth,halfHeight:crossing.halfHeight,
+          cap:Object.freeze({id:cap.id,x:cap.x,y:cap.y,width:cap.width,height:cap.height}),
+          guardian:Object.freeze({kind:g.kind,active:g.active,health:g.health})
+        });
+      }
       // One actual WebGL-return cadence drives the original doorway, cap,
       // gallery, roof and shared sky palette. A cold software renderer may
       // return at 10Hz with an artificially clamped ~16ms RAF delta.
