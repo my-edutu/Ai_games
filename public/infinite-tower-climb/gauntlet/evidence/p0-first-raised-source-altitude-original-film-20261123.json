@@ -863,5 +863,71 @@
     "device": "NOT EVALUATED",
     "verdict": "NOT EVALUATED",
     "next": "Replace the retained-versus-retired split with one source-earned continuity owner using the actual original-room lease and current route geometry, including a prospective safe shot before the next ascent. Investigate skipped source ticks/render returns together with shot constraints; test the recorded three retained-owner cases and the retired physical-veto case in integrated Scene, not another interpolation fraction. Preserve original gate/deck physical checks, then capture identical full scenarios."
+  },
+  "wholeRouteReturnedCameraOwner": {
+    "stage": "P0 OPEN",
+    "sourceInspected": "c9688ff059f128e98dbd15f8986e1744a7381fb1",
+    "previousGameplaySource": "800205b033fa3c44e27701a6e311b49c7617d855",
+    "previousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45298709654",
+    "previousCaptureStatus": "8 scenario jobs and authentic ledge succeeded; strict pairing failed (0/2). Original desktop/portrait films reverified from available local bytes (SHA256 matches previous audit; 960x600 72.60s / 390x844 72.76s); sampled native frames independently reexamined. Not continuous playback.",
+    "largestObservedGap": "Retained original room outside retired-only final camera owner. Largest desktop return 10.4891m; portrait upper decks conceal body/destination in sampled original film. Existing late intermediate path accepted no partials.",
+    "implementationSource": "08f9511673c6fa56a98967978cd0208561719a04",
+    "historicalProofAndActualLandingSource": "d85d31651879334ec5a32f8a78055bae8f91ae8b",
+    "correctedGameplaySource": "0cd84c945e9a758446089abb5d2aaa8def40712e",
+    "changes": "One final source-bound route camera owner across retained and retired original World geometry. On large requested cuts or offscreen next installed source destination, plan a bounded anticipatory exterior shot aiming between actual body and current target; otherwise preserve tracking. Retain physical original gateway, body, tower core and source geometry vetoes. Separate actual landing triangle ray, reject missing/unattached target owner; no route/floor or collision mutation. Historical HP-zero crossing proof captured on first genuine returned old-room frame, scoped to its existing World owner; conflicting live source proof vetoes reuse. Two candidate checks maximum, additional target ray on eligible candidates; actual performance unmeasured. Raw pose restored on veto, outcome logged. Existing stale/manual/reduced-motion checks preserved.",
+    "executedPolicyFixtures": [
+      {
+        "ticks": [
+          521,
+          533
+        ],
+        "requested": 10.4891,
+        "budget": 5.5,
+        "routeLead": 5.5,
+        "boundedFollow": 3.8825
+      },
+      {
+        "ticks": [
+          555,
+          568
+        ],
+        "requested": 7.0428,
+        "budget": 5.394,
+        "routeLead": 1.8831,
+        "boundedFollow": 4.2219
+      },
+      {
+        "ticks": [
+          570,
+          576
+        ],
+        "requested": 6.9246,
+        "budget": 5.5,
+        "routeLead": 3.8536,
+        "boundedFollow": 3.9832
+      }
+    ],
+    "testLimit": "Recorded camera endpoints and observed hero travel only. Focus, route point and receipt use explicit constructed fixtures, not actual mesh/camera integration. Pure helper executed in V8, old policy fails historical receipt test, four previous policy fixtures pass; production modules syntax parsed with import/export wrappers removed. New actual Three.js regression cases added but not yet executed on corrected source. Coding workspace tunnel unavailable. No new native frame or visual improvement claimed.",
+    "firstQuality": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/45312932035",
+      "status": "10/10 success exact initial implementation SHA, not latest correction"
+    },
+    "firstCapture": {
+      "run": "https://github.com/my-edutu/Ai_games/actions/runs/45312932018",
+      "status": "in progress at last check"
+    },
+    "intermediateQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45313266061",
+    "intermediateCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45313266130",
+    "newQuality": "https://github.com/my-edutu/Ai_games/actions/runs/45313323113",
+    "newCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45313323098",
+    "newStatus": "Latest exact-source quality pending and real gameplay queued at last query",
+    "reviewCounts": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "device": "NOT EVALUATED",
+    "verdict": "NOT EVALUATED",
+    "next": "Inspect new exact-source quality and actual source-pinned desktop/portrait native films and traversal-retained/retired decisions. Require coverage of measured retained cut cases, absence of body/landing/gate clipping, no render cadence regression; if route camera still vetoed, examine primary follow director, geometry occlusion and source-delivery cadence together. Do not change acceptance or advance P1."
   }
 }
