@@ -1471,5 +1471,59 @@
     "physicalDevices": "NOT EVALUATED",
     "next": "Verify full-scene interface and source glyph calibration at both viewports, inspect original normal-speed footage and strict native pairing, compare renderer intervals. Correct true guardian/landing sightlines and world transition in one integrated playable slice, not another isolated fade. Close P0 only after gameplay/video gates pass.",
     "rollback": "Non-force revert of Tower-only presentation commit if regressions; never deploy or alter PR58/baseline."
+  },
+  "p0ExactHeadExpeditionNativeReview20261124": {
+    "stage": "P0 OPEN; P1 blocked",
+    "sourceSha": "8a31847ea110065475e9b07388eb5a6c9381c157",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenLedgerBlob": "b8aa51bb5bb50b55222fb6b947472692c87c822a",
+    "quality": "https://github.com/my-edutu/Ai_games/actions/runs/45387336083",
+    "capture": "https://github.com/my-edutu/Ai_games/actions/runs/45387336072",
+    "qualityConclusion": "success on exact candidate SHA",
+    "recordingLedgeJobs": "9/9 success; separate pair-source-events failed",
+    "artifacts": {
+      "candidateDanger": 14915914735,
+      "pairPackage": 14915939009
+    },
+    "localEvidence": "Downloaded actual source-pinned artifact ZIPs; independently recomputed all 16 original media hashes against review manifest, 16/16 match; inspected 3-second original-film frame sheets from baseline desktop and candidate desktop/portrait, not a full-motion independent review.",
+    "desktop": {
+      "videoSeconds": 72.32,
+      "originalSha256": "4dfc1021a49e57569f3d326f49c6fe2170d286347b6488f61ce789bfcd3a2699",
+      "submissionMs": {
+        "p50": 74.5,
+        "p95": 290,
+        "p99": 484.9
+      },
+      "drawnFloor9Seconds": 25.75,
+      "sustainedVioletSeconds": 28.25,
+      "firstReturnedLandingNdcY": 1.7023755634724111,
+      "firstReturnCoreVisible": false,
+      "firstFullCoreOpacityReturn": 26
+    },
+    "portrait": {
+      "videoSeconds": 73.96,
+      "originalSha256": "5d1593624efae533c0ec66d9e56083f36020538552f7852b8bc526fb2d7b88ee",
+      "submissionMs": {
+        "p50": 60.4,
+        "p95": 220.9,
+        "p99": 272.3
+      },
+      "drawnFloor9Seconds": 26.75,
+      "sustainedVioletSeconds": 29.25,
+      "firstReturnedLandingNdcY": 1.4457593821989623,
+      "firstReturnCoreVisible": false,
+      "firstFullCoreOpacityReturn": 26
+    },
+    "nativeHandoff": "Both HUD-to-sustained-violet intervals 2.5s at 0.25s sampling precision. First returned source-aligned scene has invisible successor structural root; next return opens at .28 alpha; owner sidecar has no independently confirmed native frame. Both camera joint recovery summaries lack any complete recovery. Candidate retains physical gateway but foreground hardware crosses hero silhouette, landing outside first camera projection; baseline desktop shows simpler unobstructed platform composition in sampled frames. No causal or device performance inference from different CI loads.",
+    "pairing": "8/8 source timelines, 0/2 strict danger native pairs. Both native scene phases unconfirmed; strict review manifest lacks baseline source-defeated, physical-threshold and earned-F9-handoff beats; these are missing evidence, not proof missing gameplay. Do not invent baseline markers or require new baseline feature to appear retroactively. Inspect baseline original source/event witnesses and match genuinely common visible beats; explicitly mark candidate-only traversal unpaired. Existing strict gate must remain vetoed until genuine comparable full-motion evidence.",
+    "implementation": "No new playable code. Coding workspace tunnel disconnected. GitHub source, exact-head CI, source scene and original-room/horizon policy inspected; downloaded and verified latest recordings rather than rerunning the same campaign. No new capture needed for an evidence-only commit.",
+    "next": "First restore an interactive source-pinned browser and profile the actual returned room transition: verify initial hero/gateway/receiving roof/first raised deck composition and physical combat sightlines; reduce hidden successor-root staging/serial camera work without dropping authoritative crossing or actual returned-frame interlock. Distinguish true source semantics from dropped baseline observer markers before changing pair policy; never weaken acceptance. Do not spend another run on speculative palette timing or HUD alone.",
+    "independentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "physicalDevices": "NOT EVALUATED",
+    "leadingVerdict": "NOT EVALUATED"
   }
 }
