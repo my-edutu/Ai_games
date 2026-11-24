@@ -1181,5 +1181,41 @@
     },
     "next": "Obtain exact-source native evidence for optical preparation with corrected source-sized owner probes. Compare current and returned camera/source timestamps; do not infer exact raster occlusion or an accepted shot from an asynchronous observer. Address prospective physical corridor only after establishing actual remaining obstruction.",
     "leadingVerdict": "NOT EVALUATED"
+  },
+  "exactSourceCaptureRequest20261124": {
+    "stage": "P0 OPEN",
+    "inspectedHead": "225fd55a1efd5654258ddde4406203743c1beb14",
+    "captureRequestSha": "466cc6bf76a188c562ccc8201a39acb2c8888125",
+    "source": "1cf2f88135266838c5e3dc3a795217805ee80833 plus probe correction at inspected head; request changes no gameplay",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "ledgerBlob": "b8aa51bb5bb50b55222fb6b947472692c87c822a",
+    "previousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45313323098",
+    "previousPairJob": "https://github.com/my-edutu/Ai_games/actions/runs/45313323098/job/138175891096",
+    "previousResults": "9 recording/ledge jobs successful, 15 pair policy tests passed, strict native event pairing failed 0/2; 8/8 authentic scene pairs per log.",
+    "oldOriginalMedia": [
+      {
+        "viewport": "960x600",
+        "durationSeconds": 72.16,
+        "fps": 25,
+        "sha256": "9e5aaf2e99b304210be382e9355c5e65236623ce47bf99b712bb446b7bd3c7a9"
+      },
+      {
+        "viewport": "390x844",
+        "durationSeconds": 72.72,
+        "fps": 25,
+        "sha256": "62967280f95a683a33a5e2e9bc476fed7de16742951e6c5c6fdace1cb38d3f0d"
+      }
+    ],
+    "observation": "Prior portrait contact sheet shows platform/foreground architecture competing with silhouette; no new full-motion visual finding. Original media independently ffprobed and hashed, not live played.",
+    "newCaptureAndQuality": "NOT EVALUATED. PR-only workflow lookup returned no runs for inspected source or explicit request commit. Does not prove push-triggered workflow absent.",
+    "blockers": "Workspace tunnel disconnected; container DNS cannot reach github.com; no exact-source browser or fresh critics. Explicit capture-request commit verified on draft branch. No game behavior changed.",
+    "independentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "device": "NOT EVALUATED",
+    "next": "Retrieve new exact-source workflow and artifact identifiers before further camera tuning. Inspect fresh matched returned-camera and native film; if push runs absent, restore authorized workflow dispatch access rather than repeat request commits.",
+    "leadingVerdict": "NOT EVALUATED"
   }
 }
