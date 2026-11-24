@@ -1,4 +1,38 @@
 {
+  "p0OpticalAndCorrectedProbeExactSourceCapture20261124": {
+    "stage": "P0 OPEN",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "candidateSource": "Exact immutable github.sha of this capture request",
+    "productionHead": "225fd55a1efd5654258ddde4406203743c1beb14",
+    "previousCandidate": "0cd84c945e9a758446089abb5d2aaa8def40712e",
+    "previousCapture": "https://github.com/my-edutu/Ai_games/actions/runs/45313323098",
+    "reason": "No source-pinned capture for the optical preparation and sole-coordinate correction has been established. Explicitly request fresh matched evidence rather than another speculative gameplay patch.",
+    "captureConditions": {
+      "seed": "tower-transformation-capture-v1",
+      "tier": "low",
+      "speed": 1,
+      "fps": 25,
+      "minSeconds": 60,
+      "viewports": [
+        "960x600",
+        "390x844"
+      ],
+      "scenes": [
+        "ascent",
+        "moving",
+        "danger/guardian",
+        "outcome/restart"
+      ]
+    },
+    "acceptance": "Require authentic full-loop matched native films and source-event alignment; inspect returned-camera vetoes, body scale, physical occlusion and landing visibility. Do not use corrected probe telemetry as proof of raster visibility.",
+    "independentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "device": "NOT EVALUATED",
+    "verdict": "NOT EVALUATED"
+  },
   "p0Run11_20261122_F9CameraMeasuredSystemAndTruthfulOriginalLens": {
     "stage": "P0 OPEN",
     "verdict": "NOT EVALUATED",
