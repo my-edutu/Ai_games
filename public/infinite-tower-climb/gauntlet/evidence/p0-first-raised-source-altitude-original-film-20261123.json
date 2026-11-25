@@ -1678,5 +1678,72 @@
     "actualDevices": "NOT EVALUATED",
     "next": "Inspect exact-source new real footage and fixed-ray test results. Verify remaining dynamic grille and any true floor-nine landing/camera obstruction using the exact triangle owners; redesign moving mechanism only if the new evidence requires it, without altering source lock. Deliverable A remains open; B render/camera, C interface and D final verification are not accepted. Preserve frozen baseline even though its direct-spawn advance has no matching physical threshold; do not weaken strict native event gate.",
     "rollback": "Normal non-force revert of Tower-only commit if regression; never merge/deploy/force-push/alter draft."
+  },
+  "p0OrderedAFixedGatewayNativeAudit20261125": {
+    "stage": "P0 OPEN — ordered A, authentic gameplay continuity",
+    "leadingVerdict": "NOT EVALUATED",
+    "inspectedHead": "0e7bd962d3d904825a29b37424f238f32f2711a9",
+    "sourceSha": "b7bbff7db447de4faece9e017c49bcfb67e39649",
+    "frozenBaselineSha": "1731b380851162741761c5569e2bc152a0869ca9",
+    "frozenLedgerBlob": "b8aa51bb5bb50b55222fb6b947472692c87c822a",
+    "quality": {
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/45409104998",
+      "result": "9/10 jobs pass; phase6 catalogue veto fails exit 124 after 75s in tests/phase6/maze-readiness-score.test.cjs. No changes to or reruns of the unrelated game. New actual Three fixed-gateway integration regression passes in phase3 shard 3.",
+      "testJob": "https://github.com/my-edutu/Ai_games/actions/runs/45409104998/job/138497773454"
+    },
+    "capture": {
+      "url": "https://github.com/my-edutu/Ai_games/actions/runs/45409105256",
+      "candidateDangerArtifact": 14927476970,
+      "result": "9/9 recording/ledge success; pair job fails: 8/8 authentic source timelines, 0/2 strict native event alignment. Both original candidate WebMs SHA256 verified against native-scene-phase.json; all 3635 frames decoded at 25fps for low-change diagnostics; sampled 3-second frames reviewed, not independent full-motion assessment."
+    },
+    "measurements": {
+      "desktop": {
+        "originalSha256": "4b135595b1b88e25083d66ef8e587743299c305b2acb1d677d8c91f6789807eb",
+        "decodedFrames": 1817,
+        "captureWallSeconds": 68.412,
+        "submissionIntervalMs": {
+          "p50": 82.4,
+          "p95": 273.5,
+          "p99": 884
+        },
+        "floor9HudSeconds": 26.25,
+        "sustainedVioletSeconds": 29,
+        "firstOpaqueNonHeroHits": {
+          "movingLattice": 4,
+          "fixedGate": 0,
+          "powerSpineClutches": 0
+        },
+        "lowChangeAdjacentPairs": 1078
+      },
+      "portrait": {
+        "originalSha256": "4985c07d83204d3dcf4cf75f442fadafbea70391452ac847c9c832d036bc0874",
+        "decodedFrames": 1818,
+        "captureWallSeconds": 68.252,
+        "submissionIntervalMs": {
+          "p50": 62.2,
+          "p95": 228.3,
+          "p99": 312.4
+        },
+        "floor9HudSeconds": 25.5,
+        "sustainedVioletSeconds": 28.25,
+        "firstOpaqueNonHeroHits": {
+          "movingLattice": 1,
+          "fixedGate": 2,
+          "powerSpineClutches": 2
+        },
+        "lowChangeAdjacentPairs": 993
+      },
+      "method": "For real-* body rays, count first hit with opacity >= .5 excluding ExpeditionClimber. Source/read timing is not native pixel synchronization. Low-change pairs: mean absolute grayscale difference < .35 after downsample to 96x54, all encoded frames, not device frame cadence or a freeze proof. Both films visibly include F9/F10, outcome and restart in sampled frames; each event index has two physical threshold and two guardian defeat records. Both capture assessments leave outcome video gate OPEN."
+    },
+    "remaining": "The gate cantilever regression passes but the real scene is still cluttered. Remaining first qualifying opaque body hits: moving left lattice 4 desktop/1 portrait, fixed outer arch 2 portrait, source power spine clutches 2 portrait. Both orientations have 2.75s between drawn F9 HUD and sustained violet appearance; this is chroma timing, not physical crossing proof. Desktop p99 884ms, CI submitted intervals not device GPU times.",
+    "change": "No new playable implementation. Recovered and inspected exact latest original recordings, narrowed remaining real foreground owners, and diagnosed actual catalogue veto without weakening it. Interactive coding tunnel unavailable (not seen for 300s).",
+    "independentCritics": {
+      "LOOKS": 0,
+      "FEELS": 0,
+      "PLAYS": 0
+    },
+    "actualDevices": "NOT EVALUATED",
+    "next": "Use exact ray examples to build one integrated gate transmission/leaf storage composition, not another camera director: F8 tick455 desktop left lattice; portrait tick293 left lattice, tick442 fixed outer arch, tick281 source clutch. Restore workspace to exercise live and actual Three geometry with the same full native events, keep lock/HP/threshold authority and immutable baseline. Separate catalogue timeout remains a veto; no unrelated-game work. Do not advance P1 or solicit blind votes from unaligned film.",
+    "rollback": "Evidence-only commit, no simulation or runtime changes. No merge/deploy/force-push/draft conversion."
   }
 }
